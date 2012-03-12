@@ -1,0 +1,1129 @@
+# EESchema Netlist Version 1.1 created  Mon 12 Mar 2012 12:09:02 AM MDT
+(
+ ( /4F5BBD0A GSG-0402 C1 22pF
+  ( 1 VCC )
+  ( 2 GND )
+ )
+ ( /4F5BBE56 GSG-0402 C2 22pF
+  ( 1 VCC )
+  ( 2 GND )
+ )
+ ( /4F5BC0BF GSG-0402 C3 22pF
+  ( 1 VCC )
+  ( 2 GND )
+ )
+ ( /4F5BC0CD GSG-0402 C4 10nF
+  ( 1 VCC )
+  ( 2 GND )
+ )
+ ( /4F5BC0CE GSG-0402 C5 10nF
+  ( 1 VCC )
+  ( 2 GND )
+ )
+ ( /4F5BBFA4 GSG-0402 C6 10nF
+  ( 1 VCC )
+  ( 2 GND )
+ )
+ ( /4F5BC65F GSG-0402 C7 100pF
+  ( 1 VCC )
+  ( 2 GND )
+ )
+ ( /4F5BC682 GSG-0402 C8 100nF
+  ( 1 VCC )
+  ( 2 GND )
+ )
+ ( /4F5BC684 GSG-0402 C9 10nF
+  ( 1 VCC )
+  ( 2 GND )
+ )
+ ( /4F5BC686 GSG-0402 C10 10nF
+  ( 1 VCC )
+  ( 2 GND )
+ )
+ ( /4F5BD270 GSG-0402 C11 22pF
+  ( 1 VCC )
+  ( 2 GND )
+ )
+ ( /4F5BC9BB GSG-0402 C12 330nF
+  ( 1 N-000060 )
+  ( 2 GND )
+ )
+ ( /4F5BCCE3 GSG-0402 C13 330nF
+  ( 1 N-000074 )
+  ( 2 GND )
+ )
+ ( /4F5BC9A4 GSG-0402 C14 330nF
+  ( 1 N-000064 )
+  ( 2 GND )
+ )
+ ( /4F5BBD67 GSG-0402 C15 22pF
+  ( 1 N-000068 )
+  ( 2 N-000021 )
+ )
+ ( /4F5BBD6B GSG-0402 C16 22pF
+  ( 1 N-000067 )
+  ( 2 N-000020 )
+ )
+ ( /4F5CD4B0 GSG-0603 C17 22pF
+  ( 1 /QA+ )
+  ( 2 GND )
+ )
+ ( /4F5CD4BA GSG-0603 C18 22pF
+  ( 1 /QA- )
+  ( 2 GND )
+ )
+ ( /4F5CD4BC GSG-0603 C19 22pF
+  ( 1 /IA- )
+  ( 2 GND )
+ )
+ ( /4F5CD4BE GSG-0603 C20 22pF
+  ( 1 /IA+ )
+  ( 2 GND )
+ )
+ ( /4F5BD6B0 GSG-0402 C21 22pF
+  ( 1 N-000085 )
+  ( 2 N-000084 )
+ )
+ ( /4F5BD68E GSG-0402 C22 3pF
+  ( 1 N-000023 )
+  ( 2 N-000087 )
+ )
+ ( /4F5BC172 GSG-0603 C23 1μF
+  ( 1 N-000069 )
+  ( 2 GND )
+ )
+ ( /4F5BD678 GSG-0402 C24 3pF
+  ( 1 N-000022 )
+  ( 2 N-000024 )
+ )
+ ( /4F5BCA43 GSG-0603 C25 100nF
+  ( 1 VCC )
+  ( 2 GND )
+ )
+ ( /4F5BCA4C GSG-0603 C26 2.2μF
+  ( 1 VCC )
+  ( 2 GND )
+ )
+ ( /4F5BCAA1 GSG-0603 C27 100nF
+  ( 1 VCC )
+  ( 2 GND )
+ )
+ ( /4F5BCAA0 GSG-0603 C28 2.2μF
+  ( 1 VCC )
+  ( 2 GND )
+ )
+ ( /4F5BCAA6 GSG-0603 C29 100nF
+  ( 1 VCC )
+  ( 2 GND )
+ )
+ ( /4F5BCAA7 GSG-0603 C30 2.2μF
+  ( 1 VCC )
+  ( 2 GND )
+ )
+ ( /4F5BCC00 GSG-0603 C31 100nF
+  ( 1 VCC )
+  ( 2 GND )
+ )
+ ( /4F5BCBFF GSG-0603 C32 2.2μF
+  ( 1 VCC )
+  ( 2 GND )
+ )
+ ( /4F5CD360 GSG-0603 C33 100nF
+  ( 1 VCC )
+  ( 2 GND )
+ )
+ ( /4F5CD35F GSG-0603 C34 2.2μF
+  ( 1 VCC )
+  ( 2 GND )
+ )
+ ( /4F5CD35D GSG-0603 C35 100nF
+  ( 1 VCC )
+  ( 2 GND )
+ )
+ ( /4F5CD35E GSG-0603 C36 2.2μF
+  ( 1 VCC )
+  ( 2 GND )
+ )
+ ( /4F5CD35C GSG-0603 C37 100nF
+  ( 1 VCC )
+  ( 2 GND )
+ )
+ ( /4F5CD35B GSG-0603 C38 2.2μF
+  ( 1 VCC )
+  ( 2 GND )
+ )
+ ( /4F5CD35A GSG-0603 C39 100nF
+  ( 1 VCC )
+  ( 2 GND )
+ )
+ ( /4F5BC054 GSG-0402 C40 180pF
+  ( 1 N-000073 )
+  ( 2 N-000071 )
+ )
+ ( /4F5BC057 GSG-0402 C41 3.3nF
+  ( 1 N-000072 )
+  ( 2 N-000070 )
+ )
+ ( /4F5CCE6E GSG-0402 C42 1nF
+  ( 1 /CLK0 )
+  ( 2 /XTAL2 )
+ )
+ ( /4F5CCE79 GSG-0402 C43 DNP
+  ( 1 /XTAL2 )
+  ( 2 GND )
+ )
+ ( /4F5D08AB GSG-0402 C44 1nF
+  ( 1 /CLK1 )
+  ( 2 /CLK )
+ )
+ ( /4F5D08AA GSG-0402 C45 DNP
+  ( 1 /CLK )
+  ( 2 GND )
+ )
+ ( /4F5D06F0 GSG-0402 C46 100nF
+  ( 1 VCC )
+  ( 2 GND )
+ )
+ ( /4F5D06FB GSG-0402 C47 100nF
+  ( 1 VCC )
+  ( 2 GND )
+ )
+ ( /4F5D0700 GSG-0402 C48 100nF
+  ( 1 VCC )
+  ( 2 GND )
+ )
+ ( /4F5D0702 GSG-0402 C49 100nF
+  ( 1 VCC )
+  ( 2 GND )
+ )
+ ( /4F5D0705 GSG-0402 C50 100nF
+  ( 1 VCC )
+  ( 2 GND )
+ )
+ ( /4F5D697F GSG-0603 C51 22pF
+  ( 1 /TXBBQ- )
+  ( 2 /TXBBQ+ )
+ )
+ ( /4F5D6938 GSG-0603 C52 22pF
+  ( 1 /TXBBI+ )
+  ( 2 /TXBBI- )
+ )
+ ( /4F5D68E6 GSG-0603 C53 22pF
+  ( 1 /IA+ )
+  ( 2 /IA- )
+ )
+ ( /4F5D684A GSG-0603 C54 22pF
+  ( 1 /QA- )
+  ( 2 /QA+ )
+ )
+ ( /4F5BBD57 GSG-0402 L1 6.2nH
+  ( 1 N-000068 )
+  ( 2 N-000067 )
+ )
+ ( /4F5D6AAA GSG-0402 L2 DNP
+  ( 1 N-000021 )
+  ( 2 N-000020 )
+ )
+ ( /4F5D6AFA GSG-0402 L3 DNP
+  ( 1 N-000087 )
+  ( 2 N-000024 )
+ )
+ ( /4F5D6AD6 GSG-0402 L4 DNP
+  ( 1 N-000023 )
+  ( 2 N-000022 )
+ )
+ ( /4F5CCCDE GSG-SMA-EDGE P1 GSG-SMA-CONN
+  ( 1 N-000086 )
+  ( 2 GND )
+  ( 3 GND )
+  ( 4 GND )
+  ( 5 GND )
+ )
+ ( /4F5CCC9A GSG-SMA-EDGE P2 GSG-SMA-CONN
+  ( 1 N-000084 )
+  ( 2 GND )
+  ( 3 GND )
+  ( 4 GND )
+  ( 5 GND )
+ )
+ ( /4F5D1EF4 pin_array_3x2 P3 CONN_3X2
+  ( 1 GND )
+  ( 2 /SCLK )
+  ( 3 /CS_XCVR )
+  ( 4 /DIN )
+  ( 5 /CS_AD )
+  ( 6 /DOUT )
+ )
+ ( /4F5D20DD pin_array_3x2 P4 CONN_3X2
+  ( 1 GND )
+  ( 2 VCC )
+  ( 3 GND )
+  ( 4 VCC )
+  ( 5 GND )
+  ( 6 VCC )
+ )
+ ( /4F5D6CBE PIN_ARRAY_20X2 P5 CONN_20X2
+  ( 1 GND )
+  ( 2 GND )
+  ( 3 N-000094 )
+  ( 4 GND )
+  ( 5 N-000101 )
+  ( 6 GND )
+  ( 7 N-000095 )
+  ( 8 GND )
+  ( 9 N-000100 )
+  ( 10 GND )
+  ( 11 N-000028 )
+  ( 12 GND )
+  ( 13 N-000099 )
+  ( 14 GND )
+  ( 15 N-000026 )
+  ( 16 GND )
+  ( 17 N-000102 )
+  ( 18 GND )
+  ( 19 /DD0 )
+  ( 20 GND )
+  ( 21 /DD1 )
+  ( 22 GND )
+  ( 23 /DD2 )
+  ( 24 GND )
+  ( 25 /DD3 )
+  ( 26 GND )
+  ( 27 /DD4 )
+  ( 28 GND )
+  ( 29 /DD5 )
+  ( 30 GND )
+  ( 31 /DD6 )
+  ( 32 GND )
+  ( 33 /DD7 )
+  ( 34 GND )
+  ( 35 /DD8 )
+  ( 36 GND )
+  ( 37 /DD9 )
+  ( 38 GND )
+  ( 39 N-000107 )
+  ( 40 GND )
+ )
+ ( /4F5D212C pin_array_8x2 P6 CONN_8X2
+  ( 1 GND )
+  ( 2 VCC )
+  ( 3 /B1 )
+  ( 4 /B2 )
+  ( 5 /B3 )
+  ( 6 /B4 )
+  ( 7 /B5 )
+  ( 8 /B6 )
+  ( 9 /B7 )
+  ( 10 /RSSI )
+  ( 11 /PABIAS )
+  ( 12 /ENABLE )
+  ( 13 /RXENABLE )
+  ( 14 /CLOCKOUT )
+  ( 15 /TXENABLE )
+  ( 16 /RXHP )
+ )
+ ( /4F5D1DB4 pin_array_6x2 P7 CONN_6X2
+  ( 1 GND )
+  ( 2 VCC )
+  ( 3 /SCL )
+  ( 4 /OEB )
+  ( 5 /SDA )
+  ( 6 N-000030 )
+  ( 7 /INTR )
+  ( 8 N-000104 )
+  ( 9 N-000106 )
+  ( 10 N-000040 )
+  ( 11 N-000039 )
+  ( 12 N-000105 )
+ )
+ ( /4F5D16D6 GSG-SMA-EDGE P8 GSG-SMA-CONN
+  ( 1 N-000005 )
+  ( 2 GND )
+  ( 3 GND )
+  ( 4 GND )
+  ( 5 GND )
+ )
+ ( /4F5D16F7 PIN_ARRAY_2X1 P9 CONN_2
+  ( 1 GND )
+  ( 2 /CLKIN )
+ )
+ ( /4F5BC2E1 GSG-0603 R1 1k
+  ( 1 /QD+ )
+  ( 2 /TXBBQ- )
+ )
+ ( /4F5BC2E9 GSG-0603 R2 1k
+  ( 1 /QD- )
+  ( 2 /TXBBQ+ )
+ )
+ ( /4F5BC2ED GSG-0603 R3 1k
+  ( 1 /ID- )
+  ( 2 /TXBBI+ )
+ )
+ ( /4F5BC2EF GSG-0603 R4 1k
+  ( 1 /ID+ )
+  ( 2 /TXBBI- )
+ )
+ ( /4F5BC320 GSG-0603 R5 4k7
+  ( 1 GND )
+  ( 2 /TXBBI- )
+ )
+ ( /4F5BC31D GSG-0603 R6 4k7
+  ( 1 GND )
+  ( 2 /TXBBI+ )
+ )
+ ( /4F5BC318 GSG-0603 R7 4k7
+  ( 1 GND )
+  ( 2 /TXBBQ+ )
+ )
+ ( /4F5BC322 GSG-0603 R8 4k7
+  ( 1 GND )
+  ( 2 /TXBBQ- )
+ )
+ ( /4F5BC059 GSG-0402 R9 475
+  ( 1 N-000071 )
+  ( 2 N-000070 )
+ )
+ ( /4F5BC065 GSG-0402 R10 475
+  ( 1 N-000073 )
+  ( 2 N-000072 )
+ )
+ ( /4F5D0602 GSG-0402 R11 2k
+  ( 1 VCC )
+  ( 2 /SDA )
+ )
+ ( /4F5D05F9 GSG-0402 R12 2k
+  ( 1 VCC )
+  ( 2 /SCL )
+ )
+ ( /4F5D05D0 GSG-0402 R13 4k7
+  ( 1 VCC )
+  ( 2 /INTR )
+ )
+ ( /4F5D195D GSG-0402 R14 4k7
+  ( 1 VCC )
+  ( 2 /OEB )
+ )
+ ( /4F5D68E5 GSG-0603 R15 0
+  ( 1 /IA+ )
+  ( 2 /RXBBI+ )
+ )
+ ( /4F5D68E4 GSG-0603 R16 0
+  ( 1 /IA- )
+  ( 2 /RXBBI- )
+ )
+ ( /4F5D6888 GSG-0603 R17 0
+  ( 1 /QA- )
+  ( 2 /RXBBQ+ )
+ )
+ ( /4F5D688F GSG-0603 R18 0
+  ( 1 /QA+ )
+  ( 2 /RXBBQ- )
+ )
+ ( /4F5D6C1A GSG-0402 R19 4k7
+  ( 1 /ENABLE )
+  ( 2 GND )
+ )
+ ( /4F5D6FD7 GSG-0402 R20 100
+  ( 1 /CLK )
+  ( 2 N-000107 )
+ )
+ ( /4F5D6E8D GSG-0402 R21 100
+  ( 1 /DA7 )
+  ( 2 N-000102 )
+ )
+ ( /4F5D6E8A GSG-0402 R22 100
+  ( 1 /DA6 )
+  ( 2 N-000026 )
+ )
+ ( /4F5D6E92 GSG-0402 R23 100
+  ( 1 /DA5 )
+  ( 2 N-000099 )
+ )
+ ( /4F5D6F1B GSG-0402 R24 100
+  ( 1 /CLK4 )
+  ( 2 N-000030 )
+ )
+ ( /4F5D6E88 GSG-0402 R25 100
+  ( 1 /DA4 )
+  ( 2 N-000028 )
+ )
+ ( /4F5D6F34 GSG-0402 R26 100
+  ( 1 /CLK5 )
+  ( 2 N-000104 )
+ )
+ ( /4F5D6E95 GSG-0402 R27 100
+  ( 1 /DA3 )
+  ( 2 N-000100 )
+ )
+ ( /4F5D6F6B GSG-0402 R28 100
+  ( 1 N-000106 )
+  ( 2 /CLK2 )
+ )
+ ( /4F5D6F31 GSG-0402 R29 100
+  ( 1 /CLK6 )
+  ( 2 N-000040 )
+ )
+ ( /4F5D6E86 GSG-0402 R30 100
+  ( 1 /DA2 )
+  ( 2 N-000095 )
+ )
+ ( /4F5D6F5C GSG-0402 R31 100
+  ( 1 N-000039 )
+  ( 2 /CLK3 )
+ )
+ ( /4F5D6F3C GSG-0402 R32 100
+  ( 1 /CLK7 )
+  ( 2 N-000105 )
+ )
+ ( /4F5D6E97 GSG-0402 R33 100
+  ( 1 /DA1 )
+  ( 2 N-000101 )
+ )
+ ( /4F5D6DC1 GSG-0402 R34 100
+  ( 1 /DA0 )
+  ( 2 N-000094 )
+ )
+ ( /4F5D70C1 GSG-0402 R35 0
+  ( 1 /CLKIN )
+  ( 2 N-000005 )
+ )
+ ( /4F5D70C8 GSG-0402 R36 DNP
+  ( 1 GND )
+  ( 2 /CLKIN )
+ )
+ ( /4F5BDB90 GSG-2500BL14M100 T1 BALUN
+  ( 1 N-000086 )
+  ( 2 GND )
+  ( 3 N-000021 )
+  ( 4 N-000020 )
+  ( 5 GND )
+ )
+ ( /4F5BDC0F GSG-2500BL14M100 T2 BALUN
+  ( 1 N-000085 )
+  ( 2 GND )
+  ( 3 N-000087 )
+  ( 4 N-000024 )
+  ( 5 GND )
+ )
+ ( /4F5BBCA6 GSG-QFN48-7 U1 MAX5864
+  ( 0 GND )
+  ( 1 N-000064 )
+  ( 2 VCC )
+  ( 3 /IA+ )
+  ( 4 /IA- )
+  ( 5 GND )
+  ( 6 /CLK )
+  ( 7 GND )
+  ( 8 VCC )
+  ( 9 /QA- )
+  ( 10 /QA+ )
+  ( 11 VCC )
+  ( 12 GND )
+  ( 13 /DA0 )
+  ( 14 /DA1 )
+  ( 15 /DA2 )
+  ( 16 /DA3 )
+  ( 17 GND )
+  ( 18 VCC )
+  ( 19 /DA4 )
+  ( 20 /DA5 )
+  ( 21 /DA6 )
+  ( 22 /DA7 )
+  ( 23 /DD0 )
+  ( 24 /DD1 )
+  ( 25 /DD2 )
+  ( 26 /DD3 )
+  ( 27 /DD4 )
+  ( 28 /DD5 )
+  ( 29 /DD6 )
+  ( 30 /DD7 )
+  ( 31 /DD8 )
+  ( 32 /DD9 )
+  ( 33 VCC )
+  ( 34 /DIN )
+  ( 35 /SCLK )
+  ( 36 /CS_AD )
+  ( 37 GND )
+  ( 38 ? )
+  ( 39 VCC )
+  ( 40 /QD+ )
+  ( 41 /QD- )
+  ( 42 GND )
+  ( 43 VCC )
+  ( 44 /ID- )
+  ( 45 /ID+ )
+  ( 46 VCC )
+  ( 47 N-000060 )
+  ( 48 N-000074 )
+ )
+ ( /4F5BBC9D GSG-QFN48-6 U2 MAX2837
+  ( 0 GND )
+  ( 1 VCC )
+  ( 2 GND )
+  ( 3 /B5 )
+  ( 4 N-000068 )
+  ( 5 N-000067 )
+  ( 6 /B4 )
+  ( 7 VCC )
+  ( 8 /B3 )
+  ( 9 /B2 )
+  ( 10 N-000023 )
+  ( 11 N-000022 )
+  ( 12 /B1 )
+  ( 13 VCC )
+  ( 14 /PABIAS )
+  ( 15 /SCLK )
+  ( 16 /CLOCKOUT )
+  ( 17 /XTAL2 )
+  ( 18 ? )
+  ( 19 VCC )
+  ( 20 VCC )
+  ( 21 VCC )
+  ( 22 GND )
+  ( 23 N-000071 )
+  ( 24 N-000073 )
+  ( 25 /ENABLE )
+  ( 26 GND )
+  ( 27 N-000069 )
+  ( 28 VCC )
+  ( 29 /DOUT )
+  ( 30 /CS_XCVR )
+  ( 31 /DIN )
+  ( 32 /RSSI )
+  ( 33 /B7 )
+  ( 34 /B6 )
+  ( 35 /RXBBQ- )
+  ( 36 /RXBBQ+ )
+  ( 37 /RXBBI- )
+  ( 38 /RXBBI+ )
+  ( 39 VCC )
+  ( 40 /RXHP )
+  ( 41 VCC )
+  ( 42 /TXBBI- )
+  ( 43 /TXBBI+ )
+  ( 44 /TXBBQ+ )
+  ( 45 /TXBBQ- )
+  ( 46 VCC )
+  ( 47 /TXENABLE )
+  ( 48 /RXENABLE )
+ )
+ ( /4F5D0564 GSG-QFN20-4 U3 SI5351C
+  ( 0 GND )
+  ( 1 /XA )
+  ( 2 /XB )
+  ( 3 /INTR )
+  ( 4 /SCL )
+  ( 5 /SDA )
+  ( 6 /CLKIN )
+  ( 7 /OEB )
+  ( 8 /CLK3 )
+  ( 9 /CLK2 )
+  ( 10 VCC )
+  ( 11 VCC )
+  ( 12 /CLK1 )
+  ( 13 /CLK0 )
+  ( 14 VCC )
+  ( 15 /CLK7 )
+  ( 16 /CLK6 )
+  ( 17 /CLK5 )
+  ( 18 VCC )
+  ( 19 /CLK4 )
+  ( 20 VCC )
+ )
+ ( /4F5D0B05 GSG-XTAL3.2x2.5mm X1 GSG-XTAL4PIN
+  ( 1 /XB )
+  ( 2 GND )
+  ( 3 /XA )
+  ( 4 GND )
+ )
+)
+*
+{ Allowed footprints by component:
+$component C1
+ SM*
+ C?
+ C1-1
+$endlist
+$component C2
+ SM*
+ C?
+ C1-1
+$endlist
+$component C3
+ SM*
+ C?
+ C1-1
+$endlist
+$component C4
+ SM*
+ C?
+ C1-1
+$endlist
+$component C5
+ SM*
+ C?
+ C1-1
+$endlist
+$component C6
+ SM*
+ C?
+ C1-1
+$endlist
+$component C7
+ SM*
+ C?
+ C1-1
+$endlist
+$component C8
+ SM*
+ C?
+ C1-1
+$endlist
+$component C9
+ SM*
+ C?
+ C1-1
+$endlist
+$component C10
+ SM*
+ C?
+ C1-1
+$endlist
+$component C11
+ SM*
+ C?
+ C1-1
+$endlist
+$component C12
+ SM*
+ C?
+ C1-1
+$endlist
+$component C13
+ SM*
+ C?
+ C1-1
+$endlist
+$component C14
+ SM*
+ C?
+ C1-1
+$endlist
+$component C15
+ SM*
+ C?
+ C1-1
+$endlist
+$component C16
+ SM*
+ C?
+ C1-1
+$endlist
+$component C17
+ SM*
+ C?
+ C1-1
+$endlist
+$component C18
+ SM*
+ C?
+ C1-1
+$endlist
+$component C19
+ SM*
+ C?
+ C1-1
+$endlist
+$component C20
+ SM*
+ C?
+ C1-1
+$endlist
+$component C21
+ SM*
+ C?
+ C1-1
+$endlist
+$component C22
+ SM*
+ C?
+ C1-1
+$endlist
+$component C23
+ SM*
+ C?
+ C1-1
+$endlist
+$component C24
+ SM*
+ C?
+ C1-1
+$endlist
+$component C25
+ SM*
+ C?
+ C1-1
+$endlist
+$component C26
+ SM*
+ C?
+ C1-1
+$endlist
+$component C27
+ SM*
+ C?
+ C1-1
+$endlist
+$component C28
+ SM*
+ C?
+ C1-1
+$endlist
+$component C29
+ SM*
+ C?
+ C1-1
+$endlist
+$component C30
+ SM*
+ C?
+ C1-1
+$endlist
+$component C31
+ SM*
+ C?
+ C1-1
+$endlist
+$component C32
+ SM*
+ C?
+ C1-1
+$endlist
+$component C33
+ SM*
+ C?
+ C1-1
+$endlist
+$component C34
+ SM*
+ C?
+ C1-1
+$endlist
+$component C35
+ SM*
+ C?
+ C1-1
+$endlist
+$component C36
+ SM*
+ C?
+ C1-1
+$endlist
+$component C37
+ SM*
+ C?
+ C1-1
+$endlist
+$component C38
+ SM*
+ C?
+ C1-1
+$endlist
+$component C39
+ SM*
+ C?
+ C1-1
+$endlist
+$component C40
+ SM*
+ C?
+ C1-1
+$endlist
+$component C41
+ SM*
+ C?
+ C1-1
+$endlist
+$component C42
+ SM*
+ C?
+ C1-1
+$endlist
+$component C43
+ SM*
+ C?
+ C1-1
+$endlist
+$component C44
+ SM*
+ C?
+ C1-1
+$endlist
+$component C45
+ SM*
+ C?
+ C1-1
+$endlist
+$component C46
+ SM*
+ C?
+ C1-1
+$endlist
+$component C47
+ SM*
+ C?
+ C1-1
+$endlist
+$component C48
+ SM*
+ C?
+ C1-1
+$endlist
+$component C49
+ SM*
+ C?
+ C1-1
+$endlist
+$component C50
+ SM*
+ C?
+ C1-1
+$endlist
+$component C51
+ SM*
+ C?
+ C1-1
+$endlist
+$component C52
+ SM*
+ C?
+ C1-1
+$endlist
+$component C53
+ SM*
+ C?
+ C1-1
+$endlist
+$component C54
+ SM*
+ C?
+ C1-1
+$endlist
+$component R1
+ R?
+ SM0603
+ SM0805
+ R?-*
+$endlist
+$component R2
+ R?
+ SM0603
+ SM0805
+ R?-*
+$endlist
+$component R3
+ R?
+ SM0603
+ SM0805
+ R?-*
+$endlist
+$component R4
+ R?
+ SM0603
+ SM0805
+ R?-*
+$endlist
+$component R5
+ R?
+ SM0603
+ SM0805
+ R?-*
+$endlist
+$component R6
+ R?
+ SM0603
+ SM0805
+ R?-*
+$endlist
+$component R7
+ R?
+ SM0603
+ SM0805
+ R?-*
+$endlist
+$component R8
+ R?
+ SM0603
+ SM0805
+ R?-*
+$endlist
+$component R9
+ R?
+ SM0603
+ SM0805
+ R?-*
+$endlist
+$component R10
+ R?
+ SM0603
+ SM0805
+ R?-*
+$endlist
+$component R11
+ R?
+ SM0603
+ SM0805
+ R?-*
+$endlist
+$component R12
+ R?
+ SM0603
+ SM0805
+ R?-*
+$endlist
+$component R13
+ R?
+ SM0603
+ SM0805
+ R?-*
+$endlist
+$component R14
+ R?
+ SM0603
+ SM0805
+ R?-*
+$endlist
+$component R15
+ R?
+ SM0603
+ SM0805
+ R?-*
+$endlist
+$component R16
+ R?
+ SM0603
+ SM0805
+ R?-*
+$endlist
+$component R17
+ R?
+ SM0603
+ SM0805
+ R?-*
+$endlist
+$component R18
+ R?
+ SM0603
+ SM0805
+ R?-*
+$endlist
+$component R19
+ R?
+ SM0603
+ SM0805
+ R?-*
+$endlist
+$component R20
+ R?
+ SM0603
+ SM0805
+ R?-*
+$endlist
+$component R21
+ R?
+ SM0603
+ SM0805
+ R?-*
+$endlist
+$component R22
+ R?
+ SM0603
+ SM0805
+ R?-*
+$endlist
+$component R23
+ R?
+ SM0603
+ SM0805
+ R?-*
+$endlist
+$component R24
+ R?
+ SM0603
+ SM0805
+ R?-*
+$endlist
+$component R25
+ R?
+ SM0603
+ SM0805
+ R?-*
+$endlist
+$component R26
+ R?
+ SM0603
+ SM0805
+ R?-*
+$endlist
+$component R27
+ R?
+ SM0603
+ SM0805
+ R?-*
+$endlist
+$component R28
+ R?
+ SM0603
+ SM0805
+ R?-*
+$endlist
+$component R29
+ R?
+ SM0603
+ SM0805
+ R?-*
+$endlist
+$component R30
+ R?
+ SM0603
+ SM0805
+ R?-*
+$endlist
+$component R31
+ R?
+ SM0603
+ SM0805
+ R?-*
+$endlist
+$component R32
+ R?
+ SM0603
+ SM0805
+ R?-*
+$endlist
+$component R33
+ R?
+ SM0603
+ SM0805
+ R?-*
+$endlist
+$component R34
+ R?
+ SM0603
+ SM0805
+ R?-*
+$endlist
+$component R35
+ R?
+ SM0603
+ SM0805
+ R?-*
+$endlist
+$component R36
+ R?
+ SM0603
+ SM0805
+ R?-*
+$endlist
+$endfootprintlist
+}
