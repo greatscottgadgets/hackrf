@@ -1,4 +1,4 @@
-EESchema Schematic File Version 2  date Sun 11 Mar 2012 09:59:23 PM MDT
+EESchema Schematic File Version 2  date Sun 11 Mar 2012 10:46:36 PM MDT
 LIBS:power
 LIBS:device
 LIBS:transistors
@@ -45,6 +45,60 @@ Comment2 ""
 Comment3 ""
 Comment4 ""
 $EndDescr
+Text Label 9000 1850 0    40   ~ 0
+ID+
+Text Label 9000 1650 0    40   ~ 0
+ID-
+Text Label 9000 1450 0    40   ~ 0
+QD-
+Text Label 9000 1250 0    40   ~ 0
+QD+
+Text Label 8100 3850 0    40   ~ 0
+QA+
+Text Label 8100 3750 0    40   ~ 0
+QA-
+Text Label 8100 3250 0    40   ~ 0
+IA-
+Text Label 8100 3150 0    40   ~ 0
+IA+
+Text Label 6550 3350 0    40   ~ 0
+RXBBQ+
+Text Label 6550 3450 0    40   ~ 0
+RXBBQ-
+Text Label 5800 2500 0    40   ~ 0
+RXBBI-
+Text Label 5800 2400 0    40   ~ 0
+RXBBI+
+Text Label 6050 1850 0    40   ~ 0
+TXBBI-
+Text Label 6050 1650 0    40   ~ 0
+TXBBI+
+Text Label 6050 1450 0    40   ~ 0
+TXBBQ+
+Text Label 6050 1250 0    40   ~ 0
+TXBBQ-
+Connection ~ 5550 1050
+Wire Wire Line
+	5000 1050 5000 2600
+Wire Wire Line
+	5000 1050 5950 1050
+Connection ~ 5550 1450
+Connection ~ 5550 1650
+Wire Wire Line
+	7850 1650 5200 1650
+Connection ~ 5550 2050
+Wire Wire Line
+	5950 2050 5950 1850
+Wire Wire Line
+	5950 2050 5300 2050
+Wire Wire Line
+	8350 1250 9950 1250
+Wire Wire Line
+	9950 1250 9950 2300
+Wire Wire Line
+	8350 1650 9550 1650
+Wire Wire Line
+	9550 1650 9550 2300
 Connection ~ 600  7350
 Wire Wire Line
 	3650 2200 3750 2200
@@ -133,22 +187,6 @@ Wire Wire Line
 	3350 4250 3950 4250
 Wire Wire Line
 	3650 4350 3650 4850
-Wire Wire Line
-	8350 1450 9700 1450
-Connection ~ 10100 1450
-Wire Wire Line
-	9950 2300 9950 1600
-Wire Wire Line
-	9950 1600 10100 1600
-Wire Wire Line
-	10100 1600 10100 1250
-Wire Wire Line
-	8350 1850 9300 1850
-Connection ~ 9700 1850
-Wire Wire Line
-	8350 1650 9700 1650
-Wire Wire Line
-	9700 1650 9700 2000
 Wire Wire Line
 	6900 2400 6900 3150
 Wire Wire Line
@@ -389,18 +427,12 @@ Wire Wire Line
 	7250 2550 7250 2650
 Connection ~ 7050 1850
 Wire Wire Line
-	7050 2050 7050 1850
+	7050 1850 7050 2050
 Connection ~ 7450 1450
 Wire Wire Line
-	7450 2050 7450 1450
-Wire Wire Line
-	5300 2600 5300 1850
-Wire Wire Line
-	5300 1850 7850 1850
+	7450 1450 7450 2050
 Wire Wire Line
 	5100 2600 5100 1450
-Wire Wire Line
-	5100 1450 7850 1450
 Wire Wire Line
 	5700 2600 5700 2400
 Wire Wire Line
@@ -476,18 +508,12 @@ Wire Wire Line
 Wire Wire Line
 	5800 2500 5800 2600
 Wire Wire Line
-	5000 2600 5000 1250
-Wire Wire Line
-	5000 1250 7850 1250
-Wire Wire Line
-	7850 1650 5200 1650
-Wire Wire Line
 	5200 1650 5200 2600
 Wire Wire Line
-	7650 2050 7650 1250
+	7650 1250 7650 2050
 Connection ~ 7650 1250
 Wire Wire Line
-	7250 2050 7250 1650
+	7250 1650 7250 2050
 Connection ~ 7250 1650
 Wire Wire Line
 	7050 2650 7050 2550
@@ -725,24 +751,6 @@ Wire Wire Line
 Wire Wire Line
 	6500 3250 6500 2500
 Wire Wire Line
-	9550 2300 9550 2000
-Wire Wire Line
-	9550 2000 9700 2000
-Wire Wire Line
-	9450 2300 9450 2000
-Wire Wire Line
-	9450 2000 9300 2000
-Wire Wire Line
-	9300 2000 9300 1850
-Wire Wire Line
-	10100 1250 8350 1250
-Wire Wire Line
-	9850 2300 9850 1600
-Wire Wire Line
-	9850 1600 9700 1600
-Wire Wire Line
-	9700 1600 9700 1450
-Wire Wire Line
 	2700 3450 2600 3450
 Wire Wire Line
 	3650 4850 3350 4850
@@ -826,6 +834,24 @@ Wire Wire Line
 	6650 6300 6500 6300
 Wire Wire Line
 	3650 1600 3750 1600
+Wire Wire Line
+	8350 1850 9450 1850
+Wire Wire Line
+	9450 1850 9450 2300
+Wire Wire Line
+	8350 1450 9850 1450
+Wire Wire Line
+	9850 1450 9850 2300
+Wire Wire Line
+	5300 2050 5300 2600
+Wire Wire Line
+	5950 1850 7850 1850
+Wire Wire Line
+	5100 1450 7850 1450
+Wire Wire Line
+	7850 1250 5950 1250
+Wire Wire Line
+	5950 1250 5950 1050
 $Comp
 L GND #PWR01
 U 1 1 4F5D70D7
@@ -1093,20 +1119,20 @@ $EndComp
 $Comp
 L C C51
 U 1 1 4F5D697F
-P 9900 1450
-F 0 "C51" H 9950 1550 50  0000 L CNN
-F 1 "22pF" H 9950 1350 50  0000 L CNN
-	1    9900 1450
-	0    -1   -1   0   
+P 5550 1250
+F 0 "C51" H 5600 1350 50  0000 L CNN
+F 1 "22pF" H 5600 1150 50  0000 L CNN
+	1    5550 1250
+	1    0    0    -1  
 $EndComp
 $Comp
 L C C52
 U 1 1 4F5D6938
-P 9500 1850
-F 0 "C52" H 9550 1950 50  0000 L CNN
-F 1 "22pF" H 9550 1750 50  0000 L CNN
-	1    9500 1850
-	0    -1   -1   0   
+P 5550 1850
+F 0 "C52" H 5600 1950 50  0000 L CNN
+F 1 "22pF" H 5600 1750 50  0000 L CNN
+	1    5550 1850
+	1    0    0    -1  
 $EndComp
 $Comp
 L C C53
