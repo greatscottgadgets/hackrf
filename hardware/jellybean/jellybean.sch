@@ -1,4 +1,4 @@
-EESchema Schematic File Version 2  date Fri 16 Mar 2012 09:12:28 AM MDT
+EESchema Schematic File Version 2  date Fri 16 Mar 2012 09:20:06 AM MDT
 LIBS:power
 LIBS:device
 LIBS:transistors
@@ -45,6 +45,14 @@ Comment2 ""
 Comment3 ""
 Comment4 ""
 $EndDescr
+Text Label 5000 6350 0    40   ~ 0
+TRST
+Wire Wire Line
+	5300 6350 5000 6350
+Wire Wire Line
+	6650 2600 6650 2500
+Wire Wire Line
+	7350 2600 7350 2500
 Connection ~ 2850 5050
 Wire Wire Line
 	2850 5150 2850 5050
@@ -358,6 +366,22 @@ Wire Wire Line
 Wire Wire Line
 	2650 5150 2650 5050
 Connection ~ 2650 5050
+Wire Wire Line
+	7450 2600 7450 2500
+Wire Wire Line
+	7250 2600 7250 2500
+Wire Wire Line
+	8650 2600 8650 2500
+Text Label 6650 2500 1    40   ~ 0
+TRACEDATA[3]
+Text Label 7250 2500 1    40   ~ 0
+TRACEDATA[2]
+Text Label 7350 2500 1    40   ~ 0
+TRACEDATA[1]
+Text Label 7450 2500 1    40   ~ 0
+TRACEDATA[0]
+Text Label 8650 2500 1    40   ~ 0
+TRACECLK
 $Comp
 L GND #PWR?
 U 1 1 4F6357FF
@@ -784,7 +808,6 @@ $EndComp
 NoConn ~ 7750 2600
 NoConn ~ 8150 2600
 NoConn ~ 8050 2600
-NoConn ~ 5300 6350
 $Comp
 L VCC #PWR?
 U 1 1 4F62B526
