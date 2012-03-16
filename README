@@ -1,2 +1,5 @@
 This repository contains hardware designs and software for HackRF, a project to
 produce a low cost, open source software radio platform.
+
+principal author: Michael Ossmann <mike@ossmann.com>
+source repository: https://github.com/mossmann/hackrf
