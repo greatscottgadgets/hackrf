@@ -1,4 +1,4 @@
-EESchema Schematic File Version 2  date Thu 15 Mar 2012 07:04:16 PM MDT
+EESchema Schematic File Version 2  date Thu 15 Mar 2012 07:38:01 PM MDT
 LIBS:power
 LIBS:device
 LIBS:transistors
@@ -44,4 +44,456 @@ Comment2 ""
 Comment3 ""
 Comment4 ""
 $EndDescr
+Connection ~ 5350 7450
+Wire Wire Line
+	5650 7450 1300 7450
+Connection ~ 4750 7450
+Connection ~ 4150 7450
+Connection ~ 5050 7050
+Connection ~ 4450 7050
+Connection ~ 3850 7450
+Connection ~ 3250 7450
+Connection ~ 2650 7450
+Connection ~ 3850 7050
+Connection ~ 3250 7050
+Connection ~ 2650 7050
+Connection ~ 2050 7050
+Connection ~ 1450 7050
+Connection ~ 2050 7450
+Connection ~ 1450 7450
+Wire Wire Line
+	4350 950  4350 1050
+Wire Wire Line
+	5350 950  5350 1050
+Wire Wire Line
+	8600 2100 8500 2100
+Wire Wire Line
+	8600 5100 8500 5100
+Wire Wire Line
+	6250 6550 6250 6450
+Wire Wire Line
+	3000 5500 3100 5500
+Wire Wire Line
+	3000 3600 3100 3600
+Wire Wire Line
+	3000 2400 3100 2400
+Wire Wire Line
+	7550 950  7550 1050
+Wire Wire Line
+	4350 6550 4350 6450
+Wire Wire Line
+	3000 3800 3100 3800
+Wire Wire Line
+	2800 3100 3100 3100
+Wire Wire Line
+	3000 2300 3100 2300
+Wire Wire Line
+	3000 4200 3100 4200
+Wire Wire Line
+	8600 5200 8500 5200
+Wire Wire Line
+	4950 950  4950 1050
+Wire Wire Line
+	3000 3500 3100 3500
+Wire Wire Line
+	3000 4400 3100 4400
+Wire Wire Line
+	4450 6550 4450 6450
+Wire Wire Line
+	7450 6550 7450 6450
+Wire Wire Line
+	8600 3400 8500 3400
+Wire Wire Line
+	7350 950  7350 1050
+Wire Wire Line
+	4750 950  4750 1050
+Wire Wire Line
+	1300 7450 1300 7550
+Connection ~ 1750 7450
+Wire Wire Line
+	1300 7000 1300 7050
+Connection ~ 1750 7050
+Connection ~ 2350 7050
+Connection ~ 2950 7050
+Connection ~ 3550 7050
+Connection ~ 2350 7450
+Connection ~ 2950 7450
+Connection ~ 3550 7450
+Connection ~ 4150 7050
+Connection ~ 4750 7050
+Wire Wire Line
+	1300 7050 5650 7050
+Connection ~ 5350 7050
+Connection ~ 4450 7450
+Connection ~ 5050 7450
+$Comp
+L GND #PWR?
+U 1 1 4F629931
+P 1300 7550
+F 0 "#PWR?" H 1300 7550 30  0001 C CNN
+F 1 "GND" H 1300 7480 30  0001 C CNN
+	1    1300 7550
+	1    0    0    -1  
+$EndComp
+$Comp
+L VCC #PWR?
+U 1 1 4F62992D
+P 1300 7000
+F 0 "#PWR?" H 1300 7100 30  0001 C CNN
+F 1 "VCC" H 1300 7100 30  0000 C CNN
+	1    1300 7000
+	1    0    0    -1  
+$EndComp
+$Comp
+L C C?
+U 1 1 4F62992C
+P 4450 7250
+F 0 "C?" H 4500 7350 50  0000 L CNN
+F 1 "100nF" H 4500 7150 50  0000 L CNN
+	1    4450 7250
+	1    0    0    -1  
+$EndComp
+$Comp
+L C C?
+U 1 1 4F62992B
+P 4750 7250
+F 0 "C?" H 4800 7350 50  0000 L CNN
+F 1 "100nF" H 4800 7150 50  0000 L CNN
+	1    4750 7250
+	1    0    0    -1  
+$EndComp
+$Comp
+L C C?
+U 1 1 4F62992A
+P 5050 7250
+F 0 "C?" H 5100 7350 50  0000 L CNN
+F 1 "100nF" H 5100 7150 50  0000 L CNN
+	1    5050 7250
+	1    0    0    -1  
+$EndComp
+$Comp
+L C C?
+U 1 1 4F629929
+P 5350 7250
+F 0 "C?" H 5400 7350 50  0000 L CNN
+F 1 "100nF" H 5400 7150 50  0000 L CNN
+	1    5350 7250
+	1    0    0    -1  
+$EndComp
+$Comp
+L C C?
+U 1 1 4F629928
+P 5650 7250
+F 0 "C?" H 5700 7350 50  0000 L CNN
+F 1 "100nF" H 5700 7150 50  0000 L CNN
+	1    5650 7250
+	1    0    0    -1  
+$EndComp
+$Comp
+L C C?
+U 1 1 4F629922
+P 2950 7250
+F 0 "C?" H 3000 7350 50  0000 L CNN
+F 1 "100nF" H 3000 7150 50  0000 L CNN
+	1    2950 7250
+	1    0    0    -1  
+$EndComp
+$Comp
+L C C?
+U 1 1 4F629921
+P 3250 7250
+F 0 "C?" H 3300 7350 50  0000 L CNN
+F 1 "100nF" H 3300 7150 50  0000 L CNN
+	1    3250 7250
+	1    0    0    -1  
+$EndComp
+$Comp
+L C C?
+U 1 1 4F629920
+P 3550 7250
+F 0 "C?" H 3600 7350 50  0000 L CNN
+F 1 "100nF" H 3600 7150 50  0000 L CNN
+	1    3550 7250
+	1    0    0    -1  
+$EndComp
+$Comp
+L C C?
+U 1 1 4F62991F
+P 3850 7250
+F 0 "C?" H 3900 7350 50  0000 L CNN
+F 1 "100nF" H 3900 7150 50  0000 L CNN
+	1    3850 7250
+	1    0    0    -1  
+$EndComp
+$Comp
+L C C?
+U 1 1 4F62991E
+P 4150 7250
+F 0 "C?" H 4200 7350 50  0000 L CNN
+F 1 "100nF" H 4200 7150 50  0000 L CNN
+	1    4150 7250
+	1    0    0    -1  
+$EndComp
+$Comp
+L C C?
+U 1 1 4F629915
+P 2650 7250
+F 0 "C?" H 2700 7350 50  0000 L CNN
+F 1 "100nF" H 2700 7150 50  0000 L CNN
+	1    2650 7250
+	1    0    0    -1  
+$EndComp
+$Comp
+L C C?
+U 1 1 4F629912
+P 2350 7250
+F 0 "C?" H 2400 7350 50  0000 L CNN
+F 1 "100nF" H 2400 7150 50  0000 L CNN
+	1    2350 7250
+	1    0    0    -1  
+$EndComp
+$Comp
+L C C?
+U 1 1 4F629907
+P 2050 7250
+F 0 "C?" H 2100 7350 50  0000 L CNN
+F 1 "100nF" H 2100 7150 50  0000 L CNN
+	1    2050 7250
+	1    0    0    -1  
+$EndComp
+$Comp
+L C C?
+U 1 1 4F629903
+P 1750 7250
+F 0 "C?" H 1800 7350 50  0000 L CNN
+F 1 "100nF" H 1800 7150 50  0000 L CNN
+	1    1750 7250
+	1    0    0    -1  
+$EndComp
+$Comp
+L C C?
+U 1 1 4F6298EA
+P 1450 7250
+F 0 "C?" H 1500 7350 50  0000 L CNN
+F 1 "100nF" H 1500 7150 50  0000 L CNN
+	1    1450 7250
+	1    0    0    -1  
+$EndComp
+$Comp
+L VCC #PWR?
+U 1 1 4F629520
+P 4350 950
+F 0 "#PWR?" H 4350 1050 30  0001 C CNN
+F 1 "VCC" H 4350 1050 30  0000 C CNN
+	1    4350 950 
+	1    0    0    -1  
+$EndComp
+$Comp
+L VCC #PWR?
+U 1 1 4F62951C
+P 4750 950
+F 0 "#PWR?" H 4750 1050 30  0001 C CNN
+F 1 "VCC" H 4750 1050 30  0000 C CNN
+	1    4750 950 
+	1    0    0    -1  
+$EndComp
+$Comp
+L VCC #PWR?
+U 1 1 4F62950C
+P 5350 950
+F 0 "#PWR?" H 5350 1050 30  0001 C CNN
+F 1 "VCC" H 5350 1050 30  0000 C CNN
+	1    5350 950 
+	1    0    0    -1  
+$EndComp
+$Comp
+L VCC #PWR?
+U 1 1 4F629507
+P 7350 950
+F 0 "#PWR?" H 7350 1050 30  0001 C CNN
+F 1 "VCC" H 7350 1050 30  0000 C CNN
+	1    7350 950 
+	1    0    0    -1  
+$EndComp
+$Comp
+L VCC #PWR?
+U 1 1 4F6294FC
+P 8600 2100
+F 0 "#PWR?" H 8600 2200 30  0001 C CNN
+F 1 "VCC" H 8600 2200 30  0000 C CNN
+	1    8600 2100
+	0    1    1    0   
+$EndComp
+$Comp
+L VCC #PWR?
+U 1 1 4F6294ED
+P 8600 3400
+F 0 "#PWR?" H 8600 3500 30  0001 C CNN
+F 1 "VCC" H 8600 3500 30  0000 C CNN
+	1    8600 3400
+	0    1    1    0   
+$EndComp
+$Comp
+L VCC #PWR?
+U 1 1 4F6294E6
+P 8600 5100
+F 0 "#PWR?" H 8600 5200 30  0001 C CNN
+F 1 "VCC" H 8600 5200 30  0000 C CNN
+	1    8600 5100
+	0    1    1    0   
+$EndComp
+$Comp
+L VCC #PWR?
+U 1 1 4F6294D6
+P 7450 6550
+F 0 "#PWR?" H 7450 6650 30  0001 C CNN
+F 1 "VCC" H 7450 6650 30  0000 C CNN
+	1    7450 6550
+	-1   0    0    1   
+$EndComp
+$Comp
+L VCC #PWR?
+U 1 1 4F6294C8
+P 6250 6550
+F 0 "#PWR?" H 6250 6650 30  0001 C CNN
+F 1 "VCC" H 6250 6650 30  0000 C CNN
+	1    6250 6550
+	-1   0    0    1   
+$EndComp
+$Comp
+L VCC #PWR?
+U 1 1 4F6294BE
+P 4450 6550
+F 0 "#PWR?" H 4450 6650 30  0001 C CNN
+F 1 "VCC" H 4450 6650 30  0000 C CNN
+	1    4450 6550
+	-1   0    0    1   
+$EndComp
+$Comp
+L VCC #PWR?
+U 1 1 4F6294B4
+P 3000 5500
+F 0 "#PWR?" H 3000 5600 30  0001 C CNN
+F 1 "VCC" H 3000 5600 30  0000 C CNN
+	1    3000 5500
+	0    -1   -1   0   
+$EndComp
+$Comp
+L VCC #PWR?
+U 1 1 4F6294A9
+P 3000 4400
+F 0 "#PWR?" H 3000 4500 30  0001 C CNN
+F 1 "VCC" H 3000 4500 30  0000 C CNN
+	1    3000 4400
+	0    -1   -1   0   
+$EndComp
+$Comp
+L VCC #PWR?
+U 1 1 4F6294A1
+P 3000 3600
+F 0 "#PWR?" H 3000 3700 30  0001 C CNN
+F 1 "VCC" H 3000 3700 30  0000 C CNN
+	1    3000 3600
+	0    -1   -1   0   
+$EndComp
+$Comp
+L VCC #PWR?
+U 1 1 4F629489
+P 3000 3500
+F 0 "#PWR?" H 3000 3600 30  0001 C CNN
+F 1 "VCC" H 3000 3600 30  0000 C CNN
+	1    3000 3500
+	0    -1   -1   0   
+$EndComp
+$Comp
+L VCC #PWR?
+U 1 1 4F629480
+P 3000 2400
+F 0 "#PWR?" H 3000 2500 30  0001 C CNN
+F 1 "VCC" H 3000 2500 30  0000 C CNN
+	1    3000 2400
+	0    -1   -1   0   
+$EndComp
+$Comp
+L GND #PWR?
+U 1 1 4F62944A
+P 4950 950
+F 0 "#PWR?" H 4950 950 30  0001 C CNN
+F 1 "GND" H 4950 880 30  0001 C CNN
+	1    4950 950 
+	-1   0    0    1   
+$EndComp
+$Comp
+L GND #PWR?
+U 1 1 4F62943D
+P 7550 950
+F 0 "#PWR?" H 7550 950 30  0001 C CNN
+F 1 "GND" H 7550 880 30  0001 C CNN
+	1    7550 950 
+	-1   0    0    1   
+$EndComp
+$Comp
+L GND #PWR?
+U 1 1 4F629430
+P 8600 5200
+F 0 "#PWR?" H 8600 5200 30  0001 C CNN
+F 1 "GND" H 8600 5130 30  0001 C CNN
+	1    8600 5200
+	0    -1   -1   0   
+$EndComp
+$Comp
+L GND #PWR?
+U 1 1 4F629425
+P 4350 6550
+F 0 "#PWR?" H 4350 6550 30  0001 C CNN
+F 1 "GND" H 4350 6480 30  0001 C CNN
+	1    4350 6550
+	1    0    0    -1  
+$EndComp
+$Comp
+L GND #PWR?
+U 1 1 4F629416
+P 3000 4200
+F 0 "#PWR?" H 3000 4200 30  0001 C CNN
+F 1 "GND" H 3000 4130 30  0001 C CNN
+	1    3000 4200
+	0    1    1    0   
+$EndComp
+$Comp
+L GND #PWR?
+U 1 1 4F6293C1
+P 3000 3800
+F 0 "#PWR?" H 3000 3800 30  0001 C CNN
+F 1 "GND" H 3000 3730 30  0001 C CNN
+	1    3000 3800
+	0    1    1    0   
+$EndComp
+$Comp
+L GND #PWR?
+U 1 1 4F6293BA
+P 3000 2300
+F 0 "#PWR?" H 3000 2300 30  0001 C CNN
+F 1 "GND" H 3000 2230 30  0001 C CNN
+	1    3000 2300
+	0    1    1    0   
+$EndComp
+NoConn ~ 3100 3200
+$Comp
+L C C?
+U 1 1 4F629276
+P 2600 3100
+F 0 "C?" H 2650 3200 50  0000 L CNN
+F 1 "100pF" H 2650 3000 50  0000 L CNN
+	1    2600 3100
+	0    1    1    0   
+$EndComp
+$Comp
+L LPC43XXFBD144 U?
+U 1 1 4F6291FC
+P 5800 3750
+F 0 "U?" H 5800 3900 60  0000 C CNN
+F 1 "LPC43XXFBD144" H 5800 3600 60  0000 C CNN
+	1    5800 3750
+	1    0    0    -1  
+$EndComp
 $EndSCHEMATC
