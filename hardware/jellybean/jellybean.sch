@@ -1,4 +1,4 @@
-EESchema Schematic File Version 2  date Sun Apr  1 09:50:50 2012
+EESchema Schematic File Version 2  date Mon Apr  2 14:46:55 2012
 LIBS:power
 LIBS:device
 LIBS:transistors
@@ -37,7 +37,7 @@ $Descr User 17000 11000
 encoding utf-8
 Sheet 1 1
 Title "jellybean"
-Date "1 apr 2012"
+Date "2 apr 2012"
 Rev ""
 Comp "Copyright 2012 Michael Ossmann"
 Comment1 "License: GPL v2"
