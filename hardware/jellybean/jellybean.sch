@@ -1,4 +1,4 @@
-EESchema Schematic File Version 2  date Mon Apr  9 10:36:38 2012
+EESchema Schematic File Version 2  date Mon Apr  9 15:57:28 2012
 LIBS:power
 LIBS:device
 LIBS:transistors
@@ -45,8 +45,26 @@ Comment2 ""
 Comment3 ""
 Comment4 ""
 $EndDescr
-Text Label 8450 7750 1    40   ~ 0
-CPLD_TDO
+Connection ~ 12500 3150
+Wire Wire Line
+	12400 3150 12500 3150
+Wire Wire Line
+	12400 3350 12500 3350
+Wire Wire Line
+	12500 3350 12500 3100
+Connection ~ 11500 3350
+Wire Wire Line
+	11600 3350 11500 3350
+Connection ~ 14300 3150
+Wire Wire Line
+	14200 3150 14300 3150
+Wire Wire Line
+	14200 3350 14300 3350
+Wire Wire Line
+	14300 3350 14300 3100
+Connection ~ 13300 3250
+Wire Wire Line
+	13400 3250 13300 3250
 Wire Wire Line
 	8450 7450 8450 7750
 Wire Wire Line
@@ -910,6 +928,82 @@ Wire Wire Line
 	9700 6000 10000 6000
 Wire Wire Line
 	9700 6500 10000 6500
+Wire Wire Line
+	13300 3450 13300 3150
+Wire Wire Line
+	13300 3150 13400 3150
+Wire Wire Line
+	13400 3350 13300 3350
+Connection ~ 13300 3350
+Wire Wire Line
+	14300 3250 14200 3250
+Connection ~ 14300 3250
+Wire Wire Line
+	11600 3150 11500 3150
+Wire Wire Line
+	11500 3150 11500 3450
+Wire Wire Line
+	11600 3250 11500 3250
+Connection ~ 11500 3250
+Wire Wire Line
+	12400 3250 12500 3250
+Connection ~ 12500 3250
+$Comp
+L 1V8 #PWR?
+U 1 1 4F835A68
+P 12500 3100
+F 0 "#PWR?" H 12500 3240 20  0001 C CNN
+F 1 "1V8" H 12500 3210 30  0000 C CNN
+	1    12500 3100
+	1    0    0    -1  
+$EndComp
+$Comp
+L GND #PWR?
+U 1 1 4F835A62
+P 11500 3450
+F 0 "#PWR?" H 11500 3450 30  0001 C CNN
+F 1 "GND" H 11500 3380 30  0001 C CNN
+	1    11500 3450
+	1    0    0    -1  
+$EndComp
+$Comp
+L VCC #PWR?
+U 1 1 4F835A55
+P 14300 3100
+F 0 "#PWR?" H 14300 3200 30  0001 C CNN
+F 1 "VCC" H 14300 3200 30  0000 C CNN
+	1    14300 3100
+	1    0    0    -1  
+$EndComp
+$Comp
+L GND #PWR?
+U 1 1 4F835A49
+P 13300 3450
+F 0 "#PWR?" H 13300 3450 30  0001 C CNN
+F 1 "GND" H 13300 3380 30  0001 C CNN
+	1    13300 3450
+	1    0    0    -1  
+$EndComp
+$Comp
+L CONN_3X2 P?
+U 1 1 4F835A39
+P 12000 3300
+F 0 "P?" H 12000 3550 50  0000 C CNN
+F 1 "1V8" V 12000 3350 40  0000 C CNN
+	1    12000 3300
+	1    0    0    -1  
+$EndComp
+$Comp
+L CONN_3X2 P?
+U 1 1 4F835A31
+P 13800 3300
+F 0 "P?" H 13800 3550 50  0000 C CNN
+F 1 "VCC" V 13800 3350 40  0000 C CNN
+	1    13800 3300
+	1    0    0    -1  
+$EndComp
+Text Label 8450 7750 1    40   ~ 0
+CPLD_TDO
 Text Label 10000 6500 2    40   ~ 0
 CPLD_TCK
 Text Label 10000 6400 2    40   ~ 0
@@ -1487,7 +1581,7 @@ L CONN_3 K?
 U 1 1 4F81F868
 P 13100 3950
 F 0 "K?" V 13050 3950 50  0000 C CNN
-F 1 "CONN_3" V 13150 3950 40  0000 C CNN
+F 1 "VCCIO2" V 13150 3950 40  0000 C CNN
 	1    13100 3950
 	1    0    0    -1  
 $EndComp
