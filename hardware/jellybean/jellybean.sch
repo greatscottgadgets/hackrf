@@ -1,4 +1,4 @@
-EESchema Schematic File Version 2  date Sun Apr  8 21:11:37 2012
+EESchema Schematic File Version 2  date Sun Apr  8 21:29:58 2012
 LIBS:power
 LIBS:device
 LIBS:transistors
@@ -1179,7 +1179,7 @@ L R R?
 U 1 1 4F8203D0
 P 13150 2650
 F 0 "R?" V 13230 2650 50  0000 C CNN
-F 1 "180k" V 13150 2650 50  0000 C CNN
+F 1 "190k" V 13150 2650 50  0000 C CNN
 	1    13150 2650
 	0    -1   -1   0   
 $EndComp
@@ -1197,7 +1197,7 @@ L R R?
 U 1 1 4F8203A7
 P 14250 2650
 F 0 "R?" V 14330 2650 50  0000 C CNN
-F 1 "634k" V 14250 2650 50  0000 C CNN
+F 1 "665k" V 14250 2650 50  0000 C CNN
 	1    14250 2650
 	0    1    1    0   
 $EndComp
