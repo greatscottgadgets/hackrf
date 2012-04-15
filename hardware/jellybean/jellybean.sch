@@ -1,4 +1,4 @@
-EESchema Schematic File Version 2  date Sun Apr 15 00:11:39 2012
+EESchema Schematic File Version 2  date Sun Apr 15 09:40:59 2012
 LIBS:power
 LIBS:device
 LIBS:transistors
@@ -3060,8 +3060,8 @@ F 1 "GND" H 13850 4280 30  0001 C CNN
 	1    13850 4350
 	1    0    0    -1  
 $EndComp
-Text Label 15900 3600 3    40   ~ 0
-VCCIO2
+Text Label 15650 3600 3    40   ~ 0
+VCCIO1
 $Comp
 L C C32
 U 1 1 4F81F7F3
