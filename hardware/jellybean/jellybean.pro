@@ -1,4 +1,4 @@
-update=Thu 15 Mar 2012 07:04:09 PM MDT
+update=Sun Apr 15 00:13:35 2012
 version=1
 last_client=pcbnew
 [cvpcb]
@@ -92,7 +92,7 @@ DrawLar=150
 EdgeLar=150
 TxtLar=120
 MSegLar=150
-LastNetListRead=
+LastNetListRead=jellybean.net
 [pcbnew/libraries]
 LibDir=../kicad
 LibName1=sockets
