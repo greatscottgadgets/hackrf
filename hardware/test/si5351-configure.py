@@ -25,6 +25,13 @@
 # via an I2C interface, using a Dangerous Prototypes Bus Pirate v3.5
 # and the pyBusPirateLite Python library.
 #
+# Si5351C:
+#   http://www.silabs.com/products/clocksoscillators/clock-generators-and-buffers/Pages/clock+vcxo.aspx
+# Bus Pirate:
+#   http://dangerousprototypes.com/docs/Bus_Pirate
+# pyBusPirateLite:
+#   http://code.google.com/p/the-bus-pirate/
+#
 # This Si5351C configuration is a work in progress, it does not yet
 # implement the clock plan described in the HackRF wiki:
 # https://github.com/mossmann/hackrf/wiki/Clocking
