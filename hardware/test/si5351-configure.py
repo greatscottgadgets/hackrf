@@ -43,6 +43,7 @@
 import sys
 
 from pyBusPirateLite.I2C import *
+from math import log
 
 if len(sys.argv) < 2:
     print('Usage: %s <path to serial device>' % (sys.argv[0],))
@@ -80,12 +81,13 @@ def write_registers(first_register_number, values):
     i2c.bulk_trans(len(data), data)
     i2c.send_stop_bit()
 
-def set_multisynth_parameters(ms_n, p1, p2, p3):
+# r is the R output divider (should be 1, 2, 4, 8. . .)
+def set_multisynth_parameters(ms_n, p1, p2, p3, r):
     register_number = 42 + (ms_n * 8)
     values = (
         (p3 >> 8) & 0xFF,
         (p3 >> 0) & 0xFF,
-        (0 << 4) | (0 << 2) | ((p1 >> 16) & 0x3),
+        (int(log(r, 2)) << 4) | (0 << 2) | ((p1 >> 16) & 0x3),
         (p1 >> 8) & 0xFF,
         (p1 >> 0) & 0xFF,
         (((p3 >> 16) & 0xF) << 4) | (((p2 >> 16) & 0xF) << 0),
@@ -93,16 +95,14 @@ def set_multisynth_parameters(ms_n, p1, p2, p3):
         (p2 >> 0) & 0xFF
     )
     write_registers(register_number, values)
-    
+
+# Get the appropriate P1 setting for a given frequency.
+# Assumes VCO is 800 MHz and you want integer division and R=4.
+def integer_p1(frequency):
+	return int(800e6/frequency) * 128 - 512
+
 def set_codec_rate(frequency):
-    ms1_p1_values = {
-         8.0e6: 12288,
-        10.0e6: 9728,
-        12.5e6: 7680,
-        16.0e6: 5888,
-        20.0e6: 4608,
-    }
-    set_multisynth_parameters(1, ms1_p1_values[frequency], 0, 0)
+    set_multisynth_parameters(1, integer_p1(frequency * 4), 0, 0, 4)
 
 print('Configuring Si5351...')
 
@@ -138,16 +138,20 @@ write_registers(26, (0x00, 0x00, 0x00, 0x0E, 0x00, 0x00, 0x00, 0x00))
 
 # MultiSynth 0
 # This is the source for the MAX2837 clock input.
-set_multisynth_parameters(0, 2048, 0, 0)    # 40MHz
+set_multisynth_parameters(0, integer_p1(40e6), 0, 0, 1)    # 40MHz
 
 # MultiSynth 1
 set_codec_rate(20e6)
 
 # MultiSynth 4
 # This is the source for the LPC43xx external clock input.
-set_multisynth_parameters(4, 8021, 1, 3)    # 12MHz
-#set_multisynth_parameters(4, 4608, 0, 0)    # 20MHz
-#set_multisynth_parameters(4, 3584, 0, 0)    # 25MHz
+set_multisynth_parameters(4, 8021, 1, 3, 1)    # 12MHz
+#set_multisynth_parameters(4, integer_p1(20e6), 0, 0, 1) # 20 MHz
+#set_multisynth_parameters(4, integer_p1(80e6), 0, 0, 4) # 20 MHz using R=4
+#set_multisynth_parameters(4, 3584, 0, 0, 1)    # 25MHz
+
+# MultiSynth 6/7 R dividers
+write_registers(92, 0x00)
 
 # Registers 16 through 23: CLKx Control
 # CLK0:
@@ -174,7 +178,7 @@ set_multisynth_parameters(4, 8021, 1, 3)    # 12MHz
 write_registers(16, (0x4F, 0x4F, 0x80, 0x80, 0x0F, 0x80, 0x80, 0x80))
 
 # Enable CLK outputs 0, 1, 4 only.
-write_registers(3, 0xEC)
+write_registers(3, 0xFF ^ 0b00010011)
 
 raw_input("<return> to quit...")
 
