@@ -138,10 +138,18 @@ write_registers(26, (0x00, 0x00, 0x00, 0x0E, 0x00, 0x00, 0x00, 0x00))
 
 # MultiSynth 0
 # This is the source for the MAX2837 clock input.
-set_multisynth_parameters(0, integer_p1(40e6), 0, 0, 1)    # 40MHz
+# It is also used to generate the ADC/DAC clocks.
+set_multisynth_parameters(0, integer_p1(80e6), 0, 0, 2) # 40MHz with R=2
 
-# MultiSynth 1
-set_codec_rate(20e6)
+# MultiSynth 1 (MAX5864 and CPLD)
+#set_codec_rate(20e6)
+set_multisynth_parameters(1, integer_p1(80e6), 0, 0, 4) # 20MHz with R=2
+
+# MultiSynth 2 (CPLD)
+set_multisynth_parameters(2, integer_p1(80e6), 0, 0, 1) # 20MHz with R=2
+
+# MultiSynth 3 (CPLD)
+set_multisynth_parameters(3, integer_p1(80e6), 0, 0, 1) # 20MHz with R=2
 
 # MultiSynth 4
 # This is the source for the LPC43xx external clock input.
@@ -166,8 +174,22 @@ write_registers(92, 0x00)
 #   MS1_INT=1 (integer mode)
 #   MS1_SRC=0 (PLLA as source for MultiSynth 1)
 #   CLK1_INV=0 (not inverted)
-#   CLK1_SRC=3 (MS1 as input source)
+#   CLK1_SRC=2 (MS0 as input source)
 #   CLK1_IDRV=3 (8mA)
+# CLK2:
+#   CLK2_PDN=0 (powered up)
+#   MS2_INT=1 (integer mode)
+#   MS2_SRC=0 (PLLA as source for MultiSynth 1)
+#   CLK2_INV=0 (not inverted)
+#   CLK2_SRC=2 (MS0 as input source)
+#   CLK2_IDRV=3 (8mA)
+# CLK3:
+#   CLK3_PDN=0 (powered up)
+#   MS3_INT=1 (integer mode)
+#   MS3_SRC=0 (PLLA as source for MultiSynth 1)
+#   CLK3_INV=0 (not inverted)
+#   CLK3_SRC=2 (MS0 as input source)
+#   CLK3_IDRV=3 (8mA)
 # CLK4:
 #   CLK4_PDN=0 (powered up)
 #   MS4_INT=0 (fractional mode -- to support 12MHz to LPC for USB DFU)
@@ -175,10 +197,10 @@ write_registers(92, 0x00)
 #   CLK4_INV=0 (not inverted)
 #   CLK4_SRC=3 (MS4 as input source)
 #   CLK4_IDRV=3 (8mA)
-write_registers(16, (0x4F, 0x4F, 0x80, 0x80, 0x0F, 0x80, 0xC0, 0xC0))
+write_registers(16, (0x4F, 0x4B, 0x4B, 0x4B, 0x0F, 0x80, 0xC0, 0xC0))
 
 # Enable CLK outputs 0, 1, 4 only.
-write_registers(3, 0xFF ^ 0b00010011)
+write_registers(3, 0xFF ^ 0b00011111)
 
 raw_input("<return> to quit...")
 
