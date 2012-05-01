@@ -82,6 +82,7 @@ def write_registers(first_register_number, values):
     i2c.send_stop_bit()
 
 # r is the R output divider (should be 1, 2, 4, 8. . .)
+# use p2=0 and p3=1 for integer mode
 def set_multisynth_parameters(ms_n, p1, p2, p3, r):
     register_number = 42 + (ms_n * 8)
     values = (
@@ -102,7 +103,7 @@ def integer_p1(frequency):
 	return int(800e6/frequency) * 128 - 512
 
 def set_codec_rate(frequency):
-    set_multisynth_parameters(1, integer_p1(frequency * 4), 0, 0, 4)
+    set_multisynth_parameters(1, integer_p1(frequency * 4), 0, 1, 4)
 
 print('Configuring Si5351...')
 
@@ -113,7 +114,7 @@ write_registers(3, 0xFF)
 write_registers(9, 0xFF)
 
 # Power down all CLKx
-write_registers(16, (0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80))
+write_registers(16, (0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0xC0, 0xC0))
 
 # Register 183: Crystal Internal Load Capacitance
 # Reads as 0xE4 on power-up
@@ -131,7 +132,7 @@ write_registers(187, 0x50)
 write_registers(15, 0x00)
 
 # MultiSynth NA (PLL1)
-write_registers(26, (0x00, 0x00, 0x00, 0x0E, 0x00, 0x00, 0x00, 0x00))
+write_registers(26, (0x00, 0x01, 0x00, 0x0E, 0x00, 0x00, 0x00, 0x00))
 
 # MultiSynth NB (PLL2)
 ###
@@ -139,24 +140,24 @@ write_registers(26, (0x00, 0x00, 0x00, 0x0E, 0x00, 0x00, 0x00, 0x00))
 # MultiSynth 0
 # This is the source for the MAX2837 clock input.
 # It is also used to generate the ADC/DAC clocks.
-set_multisynth_parameters(0, integer_p1(80e6), 0, 0, 2) # 40MHz with R=2
+set_multisynth_parameters(0, integer_p1(80e6), 0, 1, 2) # 40MHz with R=2
 
 # MultiSynth 1 (MAX5864 and CPLD)
 #set_codec_rate(20e6)
-set_multisynth_parameters(1, integer_p1(80e6), 0, 0, 4) # 20MHz with R=2
+set_multisynth_parameters(1, integer_p1(80e6), 0, 1, 4) # 20MHz with R=2
 
 # MultiSynth 2 (CPLD)
-set_multisynth_parameters(2, integer_p1(80e6), 0, 0, 1) # 20MHz with R=2
+set_multisynth_parameters(2, integer_p1(80e6), 0, 1, 1) # 20MHz with R=2
 
 # MultiSynth 3 (CPLD)
-set_multisynth_parameters(3, integer_p1(80e6), 0, 0, 1) # 20MHz with R=2
+set_multisynth_parameters(3, integer_p1(80e6), 0, 1, 1) # 20MHz with R=2
 
 # MultiSynth 4
 # This is the source for the LPC43xx external clock input.
 set_multisynth_parameters(4, 8021, 1, 3, 1)    # 12MHz
-#set_multisynth_parameters(4, integer_p1(20e6), 0, 0, 1) # 20 MHz
-#set_multisynth_parameters(4, integer_p1(80e6), 0, 0, 4) # 20 MHz using R=4
-#set_multisynth_parameters(4, 3584, 0, 0, 1)    # 25MHz
+#set_multisynth_parameters(4, integer_p1(20e6), 0, 1, 1) # 20 MHz
+#set_multisynth_parameters(4, integer_p1(80e6), 0, 1, 4) # 20 MHz using R=4
+#set_multisynth_parameters(4, 3584, 0, 1, 1)    # 25MHz
 
 # MultiSynth 6/7 R dividers
 write_registers(92, 0x00)
@@ -197,7 +198,7 @@ write_registers(92, 0x00)
 #   CLK4_INV=0 (not inverted)
 #   CLK4_SRC=3 (MS4 as input source)
 #   CLK4_IDRV=3 (8mA)
-write_registers(16, (0x0F, 0x0B, 0x0B, 0x0B, 0x0F, 0x80, 0x80, 0x80))
+write_registers(16, (0x4F, 0x4B, 0x4B, 0x4B, 0x0F, 0x80, 0xC0, 0xC0))
 
 # Enable CLK outputs 0, 1, 4 only.
 write_registers(3, 0xFF ^ 0b00011111)
