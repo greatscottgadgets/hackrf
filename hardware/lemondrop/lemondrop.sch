@@ -1,4 +1,4 @@
-EESchema Schematic File Version 2  date Sat May  5 10:58:55 2012
+EESchema Schematic File Version 2  date Sat May  5 11:07:56 2012
 LIBS:power
 LIBS:device
 LIBS:transistors
@@ -45,6 +45,8 @@ Comment2 ""
 Comment3 ""
 Comment4 ""
 $EndDescr
+Text Notes 2200 9600 0    40   ~ 0
+Either R36 should be installed or a jumper should\nbe used on P9 at all times when an external clock\nis not connected to P8.
 Wire Notes Line
 	11000 8600 11000 7400
 Wire Notes Line
