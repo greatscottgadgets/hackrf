@@ -1,4 +1,4 @@
-PCBNEW-BOARD Version 1 date Sun May  6 15:48:56 2012
+PCBNEW-BOARD Version 1 date Sun May  6 16:07:54 2012
 
 # Created by Pcbnew(2011-06-30 BZR 3033)-stable
 
@@ -8,10 +8,10 @@ LayerCount 4
 Ly 1FFF8007
 EnabledLayers 1FFF8007
 Links 355
-NoConn 4
+NoConn 0
 Di 17279 6424 41721 36110
 Ndraw 32
-Ntrack 1208
+Ntrack 1216
 Nzone 0
 BoardThickness 630
 Nmodule 124
@@ -37,7 +37,7 @@ Layer[0] Back signal
 Layer[1] Inner2 signal
 Layer[2] Inner3 signal
 Layer[15] Front signal
-TrackWidth 120
+TrackWidth 60
 TrackWidthList 120
 TrackWidthList 200
 TrackWidthList 500
@@ -65,7 +65,7 @@ PadSize 250 250
 PadDrill 150
 Pad2MaskClearance 100
 AuxiliaryAxisOrg 0 0
-PcbPlotParams (pcbplotparams (layerselection 284196871) (usegerberextensions true) (excludeedgelayer true) (linewidth 60) (plotframeref false) (viasonmask false) (mode 1) (useauxorigin false) (hpglpennumber 1) (hpglpenspeed 20) (hpglpendiameter 15) (hpglpenoverlay 0) (pscolor true) (psnegative false) (psa4output false) (plotreference false) (plotvalue false) (plotothertext true) (plotinvisibletext false) (padsonsilk false) (subtractmaskfromsilk false) (outputformat 1) (mirror false) (drillshape 1) (scaleselection 1) (outputdirectory ""))
+PcbPlotParams (pcbplotparams (layerselection 283148295) (usegerberextensions true) (excludeedgelayer true) (linewidth 60) (plotframeref false) (viasonmask false) (mode 1) (useauxorigin false) (hpglpennumber 1) (hpglpenspeed 20) (hpglpendiameter 15) (hpglpenoverlay 0) (pscolor true) (psnegative false) (psa4output false) (plotreference false) (plotvalue false) (plotothertext true) (plotinvisibletext false) (padsonsilk false) (subtractmaskfromsilk false) (outputformat 1) (mirror false) (drillshape 1) (scaleselection 1) (outputdirectory ""))
 $EndSETUP
 
 $EQUIPOT
@@ -2272,7 +2272,7 @@ $PAD
 Sh "3" R 98 217 0 0 0
 Dr 0 0 0
 At SMD N 00888000
-Ne 109 "N-000088"
+Ne 96 "N-000048"
 Po 197 167
 Le 343296
 $EndPAD
@@ -2280,7 +2280,7 @@ $PAD
 Sh "4" R 98 217 0 0 0
 Dr 0 0 0
 At SMD N 00888000
-Ne 96 "N-000048"
+Ne 109 "N-000088"
 Po 197 -167
 Le 87
 $EndPAD
@@ -2334,7 +2334,7 @@ $PAD
 Sh "3" R 98 217 0 0 0
 Dr 0 0 0
 At SMD N 00888000
-Ne 93 "N-000045"
+Ne 112 "N-000091"
 Po 197 167
 Le 343296
 $EndPAD
@@ -2342,7 +2342,7 @@ $PAD
 Sh "4" R 98 217 0 0 0
 Dr 0 0 0
 At SMD N 00888000
-Ne 112 "N-000091"
+Ne 93 "N-000045"
 Po 197 -167
 Le 87
 $EndPAD
@@ -8807,6 +8807,10 @@ Po 0 38500 30000 39000 29500 60 -1
 De 15 0 92 0 800000
 Po 0 31800 24300 37500 30000 60 -1
 De 15 0 92 0 0
+Po 0 22100 18300 21730 18300 120 -1
+De 15 0 93 0 400000
+Po 0 21730 18300 21697 18333 120 -1
+De 15 0 93 0 800000
 Po 0 22100 18300 22400 18300 120 -1
 De 15 0 93 0 C00000
 Po 0 22800 19700 23100 19700 120 -1
@@ -8825,6 +8829,10 @@ Po 0 23840 19380 23180 19380 60 -1
 De 15 0 95 0 0
 Po 0 23869 19351 23840 19380 60 -1
 De 15 0 95 0 0
+Po 0 22100 19700 21730 19700 120 -1
+De 15 0 96 0 400000
+Po 0 21730 19700 21697 19667 120 -1
+De 15 0 96 0 800000
 Po 0 22100 19700 22400 19700 120 -1
 De 15 0 96 0 C00000
 Po 0 33800 22600 33800 23800 60 -1
@@ -8919,6 +8927,10 @@ Po 0 27300 19900 27400 19900 60 -1
 De 15 0 108 0 800000
 Po 0 26751 19351 27300 19900 60 -1
 De 15 0 108 0 0
+Po 0 22100 19300 21730 19300 120 -1
+De 15 0 109 0 400000
+Po 0 21730 19300 21697 19333 120 -1
+De 15 0 109 0 800000
 Po 0 22100 19300 22400 19300 120 -1
 De 15 0 109 0 C00000
 Po 0 19787 22000 20600 22000 200 -1
@@ -8933,6 +8945,10 @@ Po 0 21300 20400 21300 19900 200 -1
 De 15 0 111 0 400000
 Po 0 21300 19670 21303 19667 120 -1
 De 15 0 111 0 800000
+Po 0 22100 18700 21730 18700 120 -1
+De 15 0 112 0 400000
+Po 0 21730 18700 21697 18667 120 -1
+De 15 0 112 0 800000
 Po 0 22100 18700 22400 18700 120 -1
 De 15 0 112 0 C00000
 Po 0 21200 18700 21270 18700 120 -1
@@ -13253,7 +13269,8 @@ $POLYSCORNERS
 21650 20024 0 0
 21697 20024 0 0
 21795 20024 0 0
-21835 20007 0 0
+21828 20010 0 0
+21838 20010 0 0
 21849 20021 0 0
 21940 20059 0 0
 22039 20059 0 0
@@ -15794,7 +15811,8 @@ $POLYSCORNERS
 22161 17941 0 0
 21941 17941 0 0
 21849 17979 0 0
-21835 17992 0 0
+21838 17990 0 0
+21829 17990 0 0
 21796 17976 0 0
 21697 17976 0 0
 21599 17976 0 0
@@ -21269,25 +21287,25 @@ $POLYSCORNERS
 35430 28586 0 0
 35430 28415 0 0
 35365 28257 0 0
-35280 28172 0 0
-35280 22596 0 0
-35280 22505 0 0
-35245 22420 0 0
-35181 22356 0 0
-35096 22320 0 0
-35005 22320 0 0
-34920 22355 0 0
-34856 22419 0 0
-34820 22504 0 0
-34820 22595 0 0
-34855 22680 0 0
-34919 22744 0 0
-35004 22780 0 0
-35095 22780 0 0
-35180 22745 0 0
-35244 22681 0 0
-35280 22596 0 0
-35280 28172 0 0
+35304 28196 0 0
+35304 22601 0 0
+35304 22500 0 0
+35266 22407 0 0
+35194 22335 0 0
+35101 22296 0 0
+35000 22296 0 0
+34907 22334 0 0
+34835 22406 0 0
+34796 22499 0 0
+34796 22600 0 0
+34834 22693 0 0
+34906 22765 0 0
+34999 22804 0 0
+35100 22804 0 0
+35193 22766 0 0
+35265 22694 0 0
+35304 22601 0 0
+35304 28196 0 0
 35244 28136 0 0
 35086 28070 0 0
 34915 28070 0 0
@@ -23797,25 +23815,6 @@ $POLYSCORNERS
 26426 22827 0 0
 26354 22755 0 0
 26261 22716 0 0
-26230 22716 0 0
-26230 14746 0 0
-26230 14655 0 0
-26195 14570 0 0
-26131 14506 0 0
-26046 14470 0 0
-25955 14470 0 0
-25870 14505 0 0
-25806 14569 0 0
-25770 14654 0 0
-25770 14745 0 0
-25805 14830 0 0
-25869 14894 0 0
-25954 14930 0 0
-26045 14930 0 0
-26130 14895 0 0
-26194 14831 0 0
-26230 14746 0 0
-26230 22716 0 0
 26160 22716 0 0
 26148 22720 0 0
 26148 19445 0 0
