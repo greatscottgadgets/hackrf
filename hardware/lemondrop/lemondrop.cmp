@@ -1,4 +1,4 @@
-Cmp-Mod V01 Created by CvPCB (2011-06-30 BZR 3033)-stable date = Sun May  6 09:12:00 2012
+Cmp-Mod V01 Created by CvPCB (2011-06-30 BZR 3033)-stable date = Sun May  6 09:54:00 2012
 
 BeginCmp
 TimeStamp = /4F5BBD0A;
@@ -379,41 +379,6 @@ IdModule  = GSG-0603;
 EndCmp
 
 BeginCmp
-TimeStamp = /4FA55B7C;
-Reference = K1;
-ValeurCmp = CONN_3;
-IdModule  = GSG-HEADER-1x3;
-EndCmp
-
-BeginCmp
-TimeStamp = /4FA55668;
-Reference = K2;
-ValeurCmp = CONN_3;
-IdModule  = GSG-HEADER-1x3;
-EndCmp
-
-BeginCmp
-TimeStamp = /4FA557FF;
-Reference = K3;
-ValeurCmp = CONN_3;
-IdModule  = GSG-HEADER-1x3;
-EndCmp
-
-BeginCmp
-TimeStamp = /4FA5580C;
-Reference = K4;
-ValeurCmp = CONN_3;
-IdModule  = GSG-HEADER-1x3;
-EndCmp
-
-BeginCmp
-TimeStamp = /4FA55803;
-Reference = K5;
-ValeurCmp = CONN_3;
-IdModule  = GSG-HEADER-1x3;
-EndCmp
-
-BeginCmp
 TimeStamp = /4F5BBD57;
 Reference = L1;
 ValeurCmp = 6.2nH;
@@ -505,10 +470,45 @@ IdModule  = GSG-HEADER-1x2;
 EndCmp
 
 BeginCmp
+TimeStamp = /4FA55B7C;
+Reference = P10;
+ValeurCmp = CONN_3;
+IdModule  = GSG-HEADER-1x3;
+EndCmp
+
+BeginCmp
 TimeStamp = /4FA46CE1;
 Reference = P11;
 ValeurCmp = 1V8;
 IdModule  = GSG-HEADER-2x3;
+EndCmp
+
+BeginCmp
+TimeStamp = /4FA55668;
+Reference = P12;
+ValeurCmp = CONN_3;
+IdModule  = GSG-HEADER-1x3;
+EndCmp
+
+BeginCmp
+TimeStamp = /4FA557FF;
+Reference = P13;
+ValeurCmp = CONN_3;
+IdModule  = GSG-HEADER-1x3;
+EndCmp
+
+BeginCmp
+TimeStamp = /4FA5580C;
+Reference = P14;
+ValeurCmp = CONN_3;
+IdModule  = GSG-HEADER-1x3;
+EndCmp
+
+BeginCmp
+TimeStamp = /4FA55803;
+Reference = P15;
+ValeurCmp = CONN_3;
+IdModule  = GSG-HEADER-1x3;
 EndCmp
 
 BeginCmp
