@@ -1,4 +1,4 @@
-Cmp-Mod V01 Created by CvPCB (2011-06-30 BZR 3033)-stable date = Mon 12 Mar 2012 01:30:10 AM MDT
+Cmp-Mod V01 Created by CvPCB (2011-06-30 BZR 3033)-stable date = Sun May  6 09:12:00 2012
 
 BeginCmp
 TimeStamp = /4F5BBD0A;
@@ -379,6 +379,41 @@ IdModule  = GSG-0603;
 EndCmp
 
 BeginCmp
+TimeStamp = /4FA55B7C;
+Reference = K1;
+ValeurCmp = CONN_3;
+IdModule  = GSG-HEADER-1x3;
+EndCmp
+
+BeginCmp
+TimeStamp = /4FA55668;
+Reference = K2;
+ValeurCmp = CONN_3;
+IdModule  = GSG-HEADER-1x3;
+EndCmp
+
+BeginCmp
+TimeStamp = /4FA557FF;
+Reference = K3;
+ValeurCmp = CONN_3;
+IdModule  = GSG-HEADER-1x3;
+EndCmp
+
+BeginCmp
+TimeStamp = /4FA5580C;
+Reference = K4;
+ValeurCmp = CONN_3;
+IdModule  = GSG-HEADER-1x3;
+EndCmp
+
+BeginCmp
+TimeStamp = /4FA55803;
+Reference = K5;
+ValeurCmp = CONN_3;
+IdModule  = GSG-HEADER-1x3;
+EndCmp
+
+BeginCmp
 TimeStamp = /4F5BBD57;
 Reference = L1;
 ValeurCmp = 6.2nH;
@@ -409,50 +444,50 @@ EndCmp
 BeginCmp
 TimeStamp = /4F5CCCDE;
 Reference = P1;
-ValeurCmp = GSG-SMA-CONN;
+ValeurCmp = RX_SMA;
 IdModule  = GSG-SMA-EDGE;
 EndCmp
 
 BeginCmp
 TimeStamp = /4F5CCC9A;
 Reference = P2;
-ValeurCmp = GSG-SMA-CONN;
+ValeurCmp = TX_SMA;
 IdModule  = GSG-SMA-EDGE;
 EndCmp
 
 BeginCmp
 TimeStamp = /4F5D1EF4;
 Reference = P3;
-ValeurCmp = CONN_3X2;
-IdModule  = pin_array_3x2;
+ValeurCmp = SPI;
+IdModule  = GSG-HEADER-2x3;
 EndCmp
 
 BeginCmp
 TimeStamp = /4F5D20DD;
 Reference = P4;
-ValeurCmp = CONN_3X2;
-IdModule  = pin_array_3x2;
+ValeurCmp = VCC;
+IdModule  = GSG-HEADER-2x3;
 EndCmp
 
 BeginCmp
 TimeStamp = /4F5D6CBE;
 Reference = P5;
-ValeurCmp = CONN_20X2;
-IdModule  = PIN_ARRAY_20X2;
+ValeurCmp = ADC/DAC;
+IdModule  = GSG-HEADER-2x20;
 EndCmp
 
 BeginCmp
 TimeStamp = /4F5D212C;
 Reference = P6;
-ValeurCmp = CONN_8X2;
-IdModule  = pin_array_8x2;
+ValeurCmp = XCVR_CTL;
+IdModule  = GSG-HEADER-2x8;
 EndCmp
 
 BeginCmp
 TimeStamp = /4F5D1DB4;
 Reference = P7;
-ValeurCmp = CONN_6X2;
-IdModule  = pin_array_6x2;
+ValeurCmp = CLOCK_CTL;
+IdModule  = GSG-HEADER-2x6;
 EndCmp
 
 BeginCmp
@@ -466,7 +501,14 @@ BeginCmp
 TimeStamp = /4F5D16F7;
 Reference = P9;
 ValeurCmp = CONN_2;
-IdModule  = PIN_ARRAY_2X1;
+IdModule  = GSG-HEADER-1x2;
+EndCmp
+
+BeginCmp
+TimeStamp = /4FA46CE1;
+Reference = P11;
+ValeurCmp = 1V8;
+IdModule  = GSG-HEADER-2x3;
 EndCmp
 
 BeginCmp
@@ -722,16 +764,51 @@ IdModule  = GSG-0402;
 EndCmp
 
 BeginCmp
-TimeStamp = /4F5D9740;
+TimeStamp = /4FA469DC;
+Reference = R37;
+ValeurCmp = 120;
+IdModule  = GSG-0402;
+EndCmp
+
+BeginCmp
+TimeStamp = /4FA55261;
+Reference = R38;
+ValeurCmp = 100;
+IdModule  = GSG-0402;
+EndCmp
+
+BeginCmp
+TimeStamp = /4FA552D3;
+Reference = R39;
+ValeurCmp = 100;
+IdModule  = GSG-0402;
+EndCmp
+
+BeginCmp
+TimeStamp = /4FA552B1;
+Reference = R40;
+ValeurCmp = 120;
+IdModule  = GSG-0402;
+EndCmp
+
+BeginCmp
+TimeStamp = /4FA552E8;
+Reference = R41;
+ValeurCmp = 120;
+IdModule  = GSG-0402;
+EndCmp
+
+BeginCmp
+TimeStamp = /4F5BDB90;
 Reference = T1;
-ValeurCmp = BALUN;
+ValeurCmp = RX_BALUN;
 IdModule  = GSG-2500BL14M100;
 EndCmp
 
 BeginCmp
-TimeStamp = /4F5D9750;
+TimeStamp = /4F5BDC0F;
 Reference = T2;
-ValeurCmp = BALUN;
+ValeurCmp = TX_BALUN;
 IdModule  = GSG-2500BL14M100;
 EndCmp
 

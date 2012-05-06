@@ -1,4 +1,4 @@
-# EESchema Netlist Version 1.1 created  Mon 12 Mar 2012 01:30:10 AM MDT
+# EESchema Netlist Version 1.1 created  Sun May  6 09:12:00 2012
 (
  ( /4F5BBD0A GSG-0402 C1 22pF
   ( 1 VCC )
@@ -45,24 +45,24 @@
   ( 2 GND )
  )
  ( /4F5BC9BB GSG-0402 C12 330nF
-  ( 1 N-000060 )
+  ( 1 /COM )
   ( 2 GND )
  )
  ( /4F5BCCE3 GSG-0402 C13 330nF
-  ( 1 N-000071 )
+  ( 1 /REFN )
   ( 2 GND )
  )
  ( /4F5BC9A4 GSG-0402 C14 330nF
-  ( 1 N-000063 )
+  ( 1 /REFP )
   ( 2 GND )
  )
  ( /4F5BBD67 GSG-0402 C15 22pF
-  ( 1 N-000066 )
-  ( 2 N-000018 )
+  ( 1 N-000082 )
+  ( 2 N-000051 )
  )
  ( /4F5BBD6B GSG-0402 C16 22pF
-  ( 1 N-000065 )
-  ( 2 N-000091 )
+  ( 1 N-000083 )
+  ( 2 N-000090 )
  )
  ( /4F5CD4B0 GSG-0603 C17 22pF
   ( 1 /QA+ )
@@ -81,20 +81,20 @@
   ( 2 GND )
  )
  ( /4F5BD6B0 GSG-0402 C21 22pF
-  ( 1 N-000082 )
-  ( 2 N-000083 )
+  ( 1 N-000089 )
+  ( 2 N-000088 )
  )
  ( /4F5BD68E GSG-0402 C22 3pF
-  ( 1 N-000020 )
-  ( 2 N-000092 )
+  ( 1 N-000070 )
+  ( 2 N-000087 )
  )
  ( /4F5BC172 GSG-0603 C23 1μF
-  ( 1 N-000067 )
+  ( 1 N-000086 )
   ( 2 GND )
  )
  ( /4F5BD678 GSG-0402 C24 3pF
-  ( 1 N-000019 )
-  ( 2 N-000021 )
+  ( 1 N-000069 )
+  ( 2 N-000071 )
  )
  ( /4F5BCA43 GSG-0402 C25 100nF
   ( 1 VCC )
@@ -121,11 +121,11 @@
   ( 2 GND )
  )
  ( /4F5BCC00 GSG-0402 C31 100nF
-  ( 1 VCC )
+  ( 1 /OVDD )
   ( 2 GND )
  )
  ( /4F5BCBFF GSG-0402 C32 2.2μF
-  ( 1 VCC )
+  ( 1 /OVDD )
   ( 2 GND )
  )
  ( /4F5CD360 GSG-0402 C33 100nF
@@ -157,12 +157,12 @@
   ( 2 GND )
  )
  ( /4F5BC054 GSG-0402 C40 180pF
-  ( 1 N-000086 )
-  ( 2 N-000069 )
+  ( 1 /CPOUT- )
+  ( 2 /CPOUT+ )
  )
  ( /4F5BC057 GSG-0402 C41 3.3nF
-  ( 1 N-000070 )
-  ( 2 N-000068 )
+  ( 1 N-000085 )
+  ( 2 N-000084 )
  )
  ( /4F5CCE6E GSG-0402 C42 1nF
   ( 1 /CLK0 )
@@ -174,18 +174,18 @@
  )
  ( /4F5D08AB GSG-0402 C44 1nF
   ( 1 /CLK1 )
-  ( 2 /CLK )
+  ( 2 N-000100 )
  )
  ( /4F5D08AA GSG-0402 C45 DNP
-  ( 1 /CLK )
+  ( 1 N-000100 )
   ( 2 GND )
  )
  ( /4F5D06F0 GSG-0402 C46 100nF
-  ( 1 VCC )
+  ( 1 /VDDOD )
   ( 2 GND )
  )
  ( /4F5D06FB GSG-0402 C47 100nF
-  ( 1 VCC )
+  ( 1 /VDDOC )
   ( 2 GND )
  )
  ( /4F5D0700 GSG-0402 C48 100nF
@@ -193,11 +193,11 @@
   ( 2 GND )
  )
  ( /4F5D0702 GSG-0402 C49 100nF
-  ( 1 VCC )
+  ( 1 /VDDOB )
   ( 2 GND )
  )
  ( /4F5D0705 GSG-0402 C50 100nF
-  ( 1 VCC )
+  ( 1 /VDDOA )
   ( 2 GND )
  )
  ( /4F5D697F GSG-0603 C51 22pF
@@ -216,45 +216,70 @@
   ( 1 /QA- )
   ( 2 /QA+ )
  )
+ ( /4FA55B7C GSG-HEADER-1x3 K1 CONN_3
+  ( 1 VCC )
+  ( 2 /OVDD )
+  ( 3 +1.8V )
+ )
+ ( /4FA55668 GSG-HEADER-1x3 K2 CONN_3
+  ( 1 VCC )
+  ( 2 /VDDOA )
+  ( 3 +1.8V )
+ )
+ ( /4FA557FF GSG-HEADER-1x3 K3 CONN_3
+  ( 1 VCC )
+  ( 2 /VDDOB )
+  ( 3 +1.8V )
+ )
+ ( /4FA5580C GSG-HEADER-1x3 K4 CONN_3
+  ( 1 VCC )
+  ( 2 /VDDOC )
+  ( 3 +1.8V )
+ )
+ ( /4FA55803 GSG-HEADER-1x3 K5 CONN_3
+  ( 1 VCC )
+  ( 2 /VDDOD )
+  ( 3 +1.8V )
+ )
  ( /4F5BBD57 GSG-0402 L1 6.2nH
-  ( 1 N-000066 )
-  ( 2 N-000065 )
+  ( 1 N-000082 )
+  ( 2 N-000083 )
  )
  ( /4F5D6AAA GSG-0402 L2 DNP
-  ( 1 N-000018 )
-  ( 2 N-000091 )
+  ( 1 N-000051 )
+  ( 2 N-000090 )
  )
  ( /4F5D6AFA GSG-0402 L3 DNP
-  ( 1 N-000092 )
-  ( 2 N-000021 )
+  ( 1 N-000087 )
+  ( 2 N-000071 )
  )
  ( /4F5D6AD6 GSG-0402 L4 DNP
-  ( 1 N-000020 )
-  ( 2 N-000019 )
+  ( 1 N-000070 )
+  ( 2 N-000069 )
  )
- ( /4F5CCCDE GSG-SMA-EDGE P1 GSG-SMA-CONN
-  ( 1 N-000079 )
+ ( /4F5CCCDE GSG-SMA-EDGE P1 RX_SMA
+  ( 1 N-000091 )
   ( 2 GND )
   ( 3 GND )
   ( 4 GND )
   ( 5 GND )
  )
- ( /4F5CCC9A GSG-SMA-EDGE P2 GSG-SMA-CONN
-  ( 1 N-000083 )
+ ( /4F5CCC9A GSG-SMA-EDGE P2 TX_SMA
+  ( 1 N-000088 )
   ( 2 GND )
   ( 3 GND )
   ( 4 GND )
   ( 5 GND )
  )
- ( /4F5D1EF4 pin_array_3x2 P3 CONN_3X2
+ ( /4F5D1EF4 GSG-HEADER-2x3 P3 SPI
   ( 1 GND )
-  ( 2 /SCLK )
+  ( 2 /SCLK_XCVR )
   ( 3 /CS_XCVR )
-  ( 4 /DIN )
+  ( 4 /DIN_XCVR )
   ( 5 /CS_AD )
-  ( 6 /DOUT )
+  ( 6 /DOUT_XCVR )
  )
- ( /4F5D20DD pin_array_3x2 P4 CONN_3X2
+ ( /4F5D20DD GSG-HEADER-2x3 P4 VCC
   ( 1 GND )
   ( 2 VCC )
   ( 3 GND )
@@ -262,24 +287,24 @@
   ( 5 GND )
   ( 6 VCC )
  )
- ( /4F5D6CBE PIN_ARRAY_20X2 P5 CONN_20X2
+ ( /4F5D6CBE GSG-HEADER-2x20 P5 ADC/DAC
   ( 1 GND )
   ( 2 GND )
-  ( 3 N-000030 )
+  ( 3 N-000029 )
   ( 4 GND )
-  ( 5 N-000105 )
+  ( 5 N-000028 )
   ( 6 GND )
-  ( 7 N-000029 )
+  ( 7 N-000030 )
   ( 8 GND )
-  ( 9 N-000104 )
+  ( 9 N-000040 )
   ( 10 GND )
-  ( 11 N-000028 )
+  ( 11 N-000067 )
   ( 12 GND )
-  ( 13 N-000103 )
+  ( 13 N-000064 )
   ( 14 GND )
-  ( 15 N-000035 )
+  ( 15 N-000061 )
   ( 16 GND )
-  ( 17 N-000102 )
+  ( 17 N-000075 )
   ( 18 GND )
   ( 19 /DD0 )
   ( 20 GND )
@@ -301,10 +326,10 @@
   ( 36 GND )
   ( 37 /DD9 )
   ( 38 GND )
-  ( 39 N-000108 )
+  ( 39 /CLK )
   ( 40 GND )
  )
- ( /4F5D212C pin_array_8x2 P6 CONN_8X2
+ ( /4F5D212C GSG-HEADER-2x8 P6 XCVR_CTL
   ( 1 GND )
   ( 2 VCC )
   ( 3 /B1 )
@@ -322,30 +347,38 @@
   ( 15 /TXENABLE )
   ( 16 /RXHP )
  )
- ( /4F5D1DB4 pin_array_6x2 P7 CONN_6X2
+ ( /4F5D1DB4 GSG-HEADER-2x6 P7 CLOCK_CTL
   ( 1 GND )
   ( 2 VCC )
   ( 3 /SCL )
   ( 4 /OEB )
   ( 5 /SDA )
-  ( 6 N-000045 )
+  ( 6 N-000024 )
   ( 7 /INTR )
-  ( 8 N-000100 )
-  ( 9 N-000107 )
-  ( 10 N-000044 )
-  ( 11 N-000043 )
-  ( 12 N-000101 )
+  ( 8 N-000026 )
+  ( 9 N-000037 )
+  ( 10 N-000025 )
+  ( 11 N-000039 )
+  ( 12 N-000038 )
  )
  ( /4F5D16D6 GSG-SMA-EDGE P8 GSG-SMA-CONN
-  ( 1 N-000004 )
+  ( 1 N-000015 )
   ( 2 GND )
   ( 3 GND )
   ( 4 GND )
   ( 5 GND )
  )
- ( /4F5D16F7 PIN_ARRAY_2X1 P9 CONN_2
+ ( /4F5D16F7 GSG-HEADER-1x2 P9 CONN_2
   ( 1 GND )
   ( 2 /CLKIN )
+ )
+ ( /4FA46CE1 GSG-HEADER-2x3 P11 1V8
+  ( 1 GND )
+  ( 2 +1.8V )
+  ( 3 GND )
+  ( 4 +1.8V )
+  ( 5 GND )
+  ( 6 +1.8V )
  )
  ( /4F5BC2E1 GSG-0603 R1 1k
   ( 1 /QD+ )
@@ -380,12 +413,12 @@
   ( 2 /TXBBQ- )
  )
  ( /4F5BC059 GSG-0402 R9 475
-  ( 1 N-000069 )
-  ( 2 N-000068 )
+  ( 1 /CPOUT+ )
+  ( 2 N-000084 )
  )
  ( /4F5BC065 GSG-0402 R10 475
-  ( 1 N-000086 )
-  ( 2 N-000070 )
+  ( 1 /CPOUT- )
+  ( 2 N-000085 )
  )
  ( /4F5D0602 GSG-0402 R11 2k
   ( 1 VCC )
@@ -425,89 +458,109 @@
  )
  ( /4F5D6FD7 GSG-0402 R20 100
   ( 1 /CLK )
-  ( 2 N-000108 )
+  ( 2 N-000100 )
  )
  ( /4F5D6E8D GSG-0402 R21 100
   ( 1 /DA7 )
-  ( 2 N-000102 )
+  ( 2 N-000075 )
  )
  ( /4F5D6E8A GSG-0402 R22 100
   ( 1 /DA6 )
-  ( 2 N-000035 )
+  ( 2 N-000061 )
  )
  ( /4F5D6E92 GSG-0402 R23 100
   ( 1 /DA5 )
-  ( 2 N-000103 )
+  ( 2 N-000064 )
  )
  ( /4F5D6F1B GSG-0402 R24 100
   ( 1 /CLK4 )
-  ( 2 N-000045 )
+  ( 2 N-000024 )
  )
  ( /4F5D6E88 GSG-0402 R25 100
   ( 1 /DA4 )
-  ( 2 N-000028 )
+  ( 2 N-000067 )
  )
  ( /4F5D6F34 GSG-0402 R26 100
   ( 1 /CLK5 )
-  ( 2 N-000100 )
+  ( 2 N-000026 )
  )
  ( /4F5D6E95 GSG-0402 R27 100
   ( 1 /DA3 )
-  ( 2 N-000104 )
+  ( 2 N-000040 )
  )
  ( /4F5D6F6B GSG-0402 R28 100
-  ( 1 N-000107 )
+  ( 1 N-000037 )
   ( 2 /CLK2 )
  )
  ( /4F5D6F31 GSG-0402 R29 100
   ( 1 /CLK6 )
-  ( 2 N-000044 )
+  ( 2 N-000025 )
  )
  ( /4F5D6E86 GSG-0402 R30 100
   ( 1 /DA2 )
-  ( 2 N-000029 )
+  ( 2 N-000030 )
  )
  ( /4F5D6F5C GSG-0402 R31 100
-  ( 1 N-000043 )
+  ( 1 N-000039 )
   ( 2 /CLK3 )
  )
  ( /4F5D6F3C GSG-0402 R32 100
   ( 1 /CLK7 )
-  ( 2 N-000101 )
+  ( 2 N-000038 )
  )
  ( /4F5D6E97 GSG-0402 R33 100
   ( 1 /DA1 )
-  ( 2 N-000105 )
+  ( 2 N-000028 )
  )
  ( /4F5D6DC1 GSG-0402 R34 100
   ( 1 /DA0 )
-  ( 2 N-000030 )
+  ( 2 N-000029 )
  )
  ( /4F5D70C1 GSG-0402 R35 0
   ( 1 /CLKIN )
-  ( 2 N-000004 )
+  ( 2 N-000015 )
  )
  ( /4F5D70C8 GSG-0402 R36 DNP
   ( 1 GND )
   ( 2 /CLKIN )
  )
- ( /4F5D9740 GSG-2500BL14M100 T1 BALUN
-  ( 1 N-000079 )
+ ( /4FA469DC GSG-0402 R37 120
+  ( 1 GND )
+  ( 2 /CLK )
+ )
+ ( /4FA55261 GSG-0402 R38 100
+  ( 1 /DIN_XCVR )
+  ( 2 /DIN_AD )
+ )
+ ( /4FA552D3 GSG-0402 R39 100
+  ( 1 /SCLK_XCVR )
+  ( 2 /SCLK_AD )
+ )
+ ( /4FA552B1 GSG-0402 R40 120
+  ( 1 /DIN_AD )
   ( 2 GND )
-  ( 3 N-000091 )
-  ( 4 N-000018 )
+ )
+ ( /4FA552E8 GSG-0402 R41 120
+  ( 1 /SCLK_AD )
+  ( 2 GND )
+ )
+ ( /4F5BDB90 GSG-2500BL14M100 T1 RX_BALUN
+  ( 1 N-000091 )
+  ( 2 GND )
+  ( 3 N-000051 )
+  ( 4 N-000090 )
   ( 5 GND )
  )
- ( /4F5D9750 GSG-2500BL14M100 T2 BALUN
-  ( 1 N-000082 )
+ ( /4F5BDC0F GSG-2500BL14M100 T2 TX_BALUN
+  ( 1 N-000089 )
   ( 2 GND )
-  ( 3 N-000021 )
-  ( 4 N-000092 )
+  ( 3 N-000087 )
+  ( 4 N-000071 )
   ( 5 GND )
  )
  ( /4F5BBCA6 GSG-QFN48-7 U1 MAX5864
   ( 0 GND )
-  ( 1 N-000063 )
+  ( 1 /REFP )
   ( 2 VCC )
   ( 3 /IA+ )
   ( 4 /IA- )
@@ -524,7 +577,7 @@
   ( 15 /DA2 )
   ( 16 /DA3 )
   ( 17 GND )
-  ( 18 VCC )
+  ( 18 /OVDD )
   ( 19 /DA4 )
   ( 20 /DA5 )
   ( 21 /DA6 )
@@ -540,8 +593,8 @@
   ( 31 /DD8 )
   ( 32 /DD9 )
   ( 33 VCC )
-  ( 34 /DIN )
-  ( 35 /SCLK )
+  ( 34 /DIN_AD )
+  ( 35 /SCLK_AD )
   ( 36 /CS_AD )
   ( 37 GND )
   ( 38 ? )
@@ -553,26 +606,26 @@
   ( 44 /ID- )
   ( 45 /ID+ )
   ( 46 VCC )
-  ( 47 N-000060 )
-  ( 48 N-000071 )
+  ( 47 /COM )
+  ( 48 /REFN )
  )
  ( /4F5BBC9D GSG-QFN48-6 U2 MAX2837
   ( 0 GND )
   ( 1 VCC )
   ( 2 GND )
   ( 3 /B5 )
-  ( 4 N-000066 )
-  ( 5 N-000065 )
+  ( 4 N-000082 )
+  ( 5 N-000083 )
   ( 6 /B4 )
   ( 7 VCC )
   ( 8 /B3 )
   ( 9 /B2 )
-  ( 10 N-000020 )
-  ( 11 N-000019 )
+  ( 10 N-000070 )
+  ( 11 N-000069 )
   ( 12 /B1 )
   ( 13 VCC )
   ( 14 /PABIAS )
-  ( 15 /SCLK )
+  ( 15 /SCLK_XCVR )
   ( 16 /CLOCKOUT )
   ( 17 /XTAL2 )
   ( 18 ? )
@@ -580,15 +633,15 @@
   ( 20 VCC )
   ( 21 VCC )
   ( 22 GND )
-  ( 23 N-000069 )
-  ( 24 N-000086 )
+  ( 23 /CPOUT+ )
+  ( 24 /CPOUT- )
   ( 25 /ENABLE )
   ( 26 GND )
-  ( 27 N-000067 )
+  ( 27 N-000086 )
   ( 28 VCC )
-  ( 29 /DOUT )
+  ( 29 /DOUT_XCVR )
   ( 30 /CS_XCVR )
-  ( 31 /DIN )
+  ( 31 /DIN_XCVR )
   ( 32 /RSSI )
   ( 33 /B7 )
   ( 34 /B6 )
@@ -1120,6 +1173,36 @@ $component R35
  R?-*
 $endlist
 $component R36
+ R?
+ SM0603
+ SM0805
+ R?-*
+$endlist
+$component R37
+ R?
+ SM0603
+ SM0805
+ R?-*
+$endlist
+$component R38
+ R?
+ SM0603
+ SM0805
+ R?-*
+$endlist
+$component R39
+ R?
+ SM0603
+ SM0805
+ R?-*
+$endlist
+$component R40
+ R?
+ SM0603
+ SM0805
+ R?-*
+$endlist
+$component R41
  R?
  SM0603
  SM0805
