@@ -1,4 +1,4 @@
-EESchema Schematic File Version 2  date Wed May  9 01:09:11 2012
+EESchema Schematic File Version 2  date Wed May  9 12:01:23 2012
 LIBS:power
 LIBS:device
 LIBS:transistors
@@ -45,6 +45,22 @@ Comment2 ""
 Comment3 ""
 Comment4 ""
 $EndDescr
+Text Notes 14800 9200 0    40   ~ 0
+balun here will not be needed when a\nboard is made with a direct connection\nto the MAX2837
+Text Notes 14800 2350 0    40   ~ 0
+balun here will not be needed when a\nboard is made with a direct connection\nto the MAX2837
+Text Notes 7250 7450 2    40   ~ 0
+RX bandpass path
+Text Notes 7250 6350 2    40   ~ 0
+RX lowpass path
+Text Notes 7250 5250 2    40   ~ 0
+RX highpass path
+Text Notes 7250 4050 2    40   ~ 0
+TX highpass path
+Text Notes 7250 2950 2    40   ~ 0
+TX lowpass path
+Text Notes 7250 1850 2    40   ~ 0
+TX bandpass path
 Wire Wire Line
 	4500 1650 4250 1650
 Wire Wire Line
@@ -699,6 +715,8 @@ Wire Wire Line
 	1150 4750 1150 4650
 Connection ~ 1150 4750
 Connection ~ 1150 6150
+Text Notes 3350 3850 2    40   ~ 0
+antenna diversity switches
 Text Label 4250 1650 0    40   ~ 0
 SWTXV1
 Text Label 5850 1550 2    40   ~ 0
