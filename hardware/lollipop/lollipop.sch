@@ -1,4 +1,4 @@
-EESchema Schematic File Version 2  date Sat May 12 14:39:51 2012
+EESchema Schematic File Version 2  date Sat May 12 14:43:51 2012
 LIBS:power
 LIBS:device
 LIBS:transistors
@@ -751,7 +751,7 @@ L C C?
 U 1 1 4FAEC8AD
 P 15600 4100
 F 0 "C?" H 15650 4200 50  0000 L CNN
-F 1 "82pF" H 15650 4000 50  0000 L CNN
+F 1 "8p2" H 15650 4000 50  0000 L CNN
 	1    15600 4100
 	1    0    0    -1  
 $EndComp
