@@ -1,3 +1,8 @@
-EESchema-DOCLIB  Version 2.0  Date: Tue May 15 18:32:00 2012
+EESchema-DOCLIB  Version 2.0  Date: Wed May 16 12:54:04 2012
+#
+$CMP GSG-DIODE-TVS-BI
+D Diode zener
+K DEV DIODE
+$ENDCMP
 #
 #End Doc Library
