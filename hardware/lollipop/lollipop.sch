@@ -1,4 +1,4 @@
-EESchema Schematic File Version 2  date Thu May 17 11:03:28 2012
+EESchema Schematic File Version 2  date Thu May 17 11:31:07 2012
 LIBS:power
 LIBS:device
 LIBS:transistors
@@ -45,6 +45,17 @@ Comment2 ""
 Comment3 ""
 Comment4 ""
 $EndDescr
+Text Notes 4550 9550 0    40   ~ 0
+Clock input should be 1.1 to 3.3 V\npeak-to-peak. It is divided down to\n0.5 to 1.5 V (REF_IN).
+$Comp
+L C C?
+U 1 1 4FB3CC76
+P 6000 10050
+F 0 "C?" H 6050 10150 50  0000 L CNN
+F 1 "1nF" H 6050 9950 50  0000 L CNN
+	1    6000 10050
+	1    0    0    -1  
+$EndComp
 Wire Wire Line
 	13200 5800 13300 5800
 Wire Wire Line
@@ -1026,15 +1037,6 @@ F 1 "GND" H 6000 10280 30  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L C C?
-U 1 1 4FB3CC76
-P 6000 10050
-F 0 "C?" H 6050 10150 50  0000 L CNN
-F 1 "DNP" H 6050 9950 50  0000 L CNN
-	1    6000 10050
-	1    0    0    -1  
-$EndComp
-$Comp
 L GND #PWR?
 U 1 1 4FB3CC5E
 P 5800 9450
@@ -1413,7 +1415,7 @@ L C C?
 U 1 1 4FAECD45
 P 6000 9450
 F 0 "C?" H 6050 9550 50  0000 L CNN
-F 1 "1nF" H 6050 9350 50  0000 L CNN
+F 1 "1.2nF" H 6050 9350 50  0000 L CNN
 	1    6000 9450
 	1    0    0    -1  
 $EndComp
