@@ -1,4 +1,4 @@
-EESchema Schematic File Version 2  date Thu May 17 17:21:13 2012
+EESchema Schematic File Version 2  date Thu May 17 17:24:32 2012
 LIBS:power
 LIBS:device
 LIBS:transistors
@@ -1280,7 +1280,7 @@ L C C76
 U 1 1 4FB2FF68
 P 2550 9950
 F 0 "C76" H 2600 10050 50  0000 L CNN
-F 1 "C" H 2600 9850 50  0000 L CNN
+F 1 "100nF" H 2600 9850 50  0000 L CNN
 	1    2550 9950
 	1    0    0    -1  
 $EndComp
@@ -1380,7 +1380,7 @@ L C C69
 U 1 1 4FB2FD07
 P 2550 8850
 F 0 "C69" H 2600 8950 50  0000 L CNN
-F 1 "C" H 2600 8750 50  0000 L CNN
+F 1 "100nF" H 2600 8750 50  0000 L CNN
 	1    2550 8850
 	1    0    0    -1  
 $EndComp
