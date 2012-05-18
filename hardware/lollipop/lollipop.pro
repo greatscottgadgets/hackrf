@@ -1,4 +1,4 @@
-update=Thu May 17 17:23:27 2012
+update=Fri May 18 15:00:42 2012
 version=1
 last_client=pcbnew
 [cvpcb]
@@ -92,7 +92,7 @@ DrawLar=150
 EdgeLar=150
 TxtLar=120
 MSegLar=150
-LastNetListRead=
+LastNetListRead=lollipop.net
 [pcbnew/libraries]
 LibDir=../kicad
 LibName1=sockets

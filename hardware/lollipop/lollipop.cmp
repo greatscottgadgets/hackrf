@@ -1,4 +1,4 @@
-Cmp-Mod V01 Created by CvPCB (2011-06-30 BZR 3033)-stable date = Thu May 17 17:26:26 2012
+Cmp-Mod V01 Created by CvPCB (2011-06-30 BZR 3033)-stable date = Fri May 18 15:00:15 2012
 
 BeginCmp
 TimeStamp = /4FA9C67C;
@@ -543,14 +543,14 @@ BeginCmp
 TimeStamp = /4FB3F7D4;
 Reference = D1;
 ValeurCmp = GSG-DIODE-TVS-BI;
-IdModule  = ;
+IdModule  = GSG-LXES1UBBB1-008;
 EndCmp
 
 BeginCmp
 TimeStamp = /4FB3F9B0;
 Reference = D2;
 ValeurCmp = GSG-DIODE-TVS-BI;
-IdModule  = ;
+IdModule  = GSG-LXES1UBBB1-008;
 EndCmp
 
 BeginCmp
@@ -697,189 +697,189 @@ BeginCmp
 TimeStamp = /4FA9C4DF;
 Reference = T1;
 ValeurCmp = TX_IF_BALUN;
-IdModule  = ;
+IdModule  = GSG-2500BL14M100;
 EndCmp
 
 BeginCmp
 TimeStamp = /4F94CC10;
 Reference = T2;
 ValeurCmp = TX_BANDPASS_BALUN;
-IdModule  = ;
+IdModule  = GSG-2500BL14M100;
 EndCmp
 
 BeginCmp
 TimeStamp = /4FB52489;
 Reference = T3;
 ValeurCmp = TX_LOWPASS_BALUN;
-IdModule  = ;
+IdModule  = GSG-CX2156NL;
 EndCmp
 
 BeginCmp
 TimeStamp = /4F94CC6F;
 Reference = T4;
 ValeurCmp = TX_HIGHPASS_BALUN;
-IdModule  = ;
+IdModule  = GSG-HHM1595A1;
 EndCmp
 
 BeginCmp
 TimeStamp = /4F94D601;
 Reference = T5;
 ValeurCmp = RX_HIGHPASS_BALUN;
-IdModule  = ;
+IdModule  = GSG-HHM1595A1;
 EndCmp
 
 BeginCmp
 TimeStamp = /4FB524EF;
 Reference = T6;
 ValeurCmp = RX_LOWPASS_BALUN;
-IdModule  = ;
+IdModule  = GSG-CX2156NL;
 EndCmp
 
 BeginCmp
 TimeStamp = /4F94D59C;
 Reference = T7;
 ValeurCmp = RX_BANDPASS_BALUN;
-IdModule  = ;
+IdModule  = GSG-2500BL14M100;
 EndCmp
 
 BeginCmp
 TimeStamp = /4FAA08F4;
 Reference = T8;
 ValeurCmp = RX_IF_BALUN;
-IdModule  = ;
+IdModule  = GSG-2500BL14M100;
 EndCmp
 
 BeginCmp
 TimeStamp = /4F957166;
 Reference = U1;
 ValeurCmp = RFFC5071;
-IdModule  = ;
+IdModule  = GSG-QFN32;
 EndCmp
 
 BeginCmp
-TimeStamp = /4F94CB86;
+TimeStamp = /4FB68137;
 Reference = U2;
 ValeurCmp = SKY13351;
-IdModule  = ;
+IdModule  = GSG-SKY13351-378LF;
 EndCmp
 
 BeginCmp
 TimeStamp = /4F94CFA9;
 Reference = U3;
 ValeurCmp = SKY13317;
-IdModule  = ;
+IdModule  = GSG-SKY13317-373LF;
 EndCmp
 
 BeginCmp
-TimeStamp = /4F94CBAF;
+TimeStamp = /4FB68133;
 Reference = U4;
 ValeurCmp = SKY13351;
-IdModule  = ;
+IdModule  = GSG-SKY13351-378LF;
 EndCmp
 
 BeginCmp
 TimeStamp = /4F94CF46;
 Reference = U5;
 ValeurCmp = TX_LOWPASS_FILTER;
-IdModule  = ;
+IdModule  = GSG-LP0603;
 EndCmp
 
 BeginCmp
-TimeStamp = /4FAA0C5A;
+TimeStamp = /4FB6811F;
 Reference = U6;
 ValeurCmp = SKY13351;
-IdModule  = ;
+IdModule  = GSG-SKY13351-378LF;
 EndCmp
 
 BeginCmp
 TimeStamp = /4FAA1575;
 Reference = U7;
 ValeurCmp = SKY13351;
-IdModule  = ;
+IdModule  = GSG-SKY13351-378LF;
 EndCmp
 
 BeginCmp
 TimeStamp = /4F94CF02;
 Reference = U8;
 ValeurCmp = TX_HIGHPASS_FILTER;
-IdModule  = ;
+IdModule  = GSG-HP-DEA;
 EndCmp
 
 BeginCmp
-TimeStamp = /4FAA0C59;
+TimeStamp = /4FB68122;
 Reference = U9;
 ValeurCmp = SKY13351;
-IdModule  = ;
+IdModule  = GSG-SKY13351-378LF;
 EndCmp
 
 BeginCmp
-TimeStamp = /4FAA1576;
+TimeStamp = /4FB680FF;
 Reference = U10;
 ValeurCmp = SKY13351;
-IdModule  = ;
+IdModule  = GSG-SKY13351-378LF;
 EndCmp
 
 BeginCmp
 TimeStamp = /4F94D4F4;
 Reference = U11;
 ValeurCmp = TX_HIGHPASS_FILTER;
-IdModule  = ;
+IdModule  = GSG-HP-DEA;
 EndCmp
 
 BeginCmp
-TimeStamp = /4FAA0C5B;
+TimeStamp = /4FB68124;
 Reference = U12;
 ValeurCmp = SKY13351;
-IdModule  = ;
+IdModule  = GSG-SKY13351-378LF;
 EndCmp
 
 BeginCmp
 TimeStamp = /4F94D561;
 Reference = U13;
 ValeurCmp = RX_LOWPASS_FILTER;
-IdModule  = ;
+IdModule  = GSG-LP0603;
 EndCmp
 
 BeginCmp
-TimeStamp = /4FAA0C5C;
+TimeStamp = /4FB68127;
 Reference = U14;
 ValeurCmp = SKY13351;
-IdModule  = ;
+IdModule  = GSG-SKY13351-378LF;
 EndCmp
 
 BeginCmp
-TimeStamp = /4F94CB80;
+TimeStamp = /4FB68075;
 Reference = U15;
 ValeurCmp = SKY13317;
-IdModule  = ;
+IdModule  = GSG-SKY13317-373LF;
 EndCmp
 
 BeginCmp
-TimeStamp = /4FAA08F6;
+TimeStamp = /4FB68130;
 Reference = U16;
 ValeurCmp = SKY13351;
-IdModule  = ;
+IdModule  = GSG-SKY13351-378LF;
 EndCmp
 
 BeginCmp
 TimeStamp = /4FB2F586;
 Reference = U17;
 ValeurCmp = GSG-74HC04;
-IdModule  = ;
+IdModule  = GSG-S-PVQFN-14;
 EndCmp
 
 BeginCmp
-TimeStamp = /4FAA08F5;
+TimeStamp = /4FB6812A;
 Reference = U18;
 ValeurCmp = SKY13351;
-IdModule  = ;
+IdModule  = GSG-SKY13351-378LF;
 EndCmp
 
 BeginCmp
 TimeStamp = /4FB2F209;
 Reference = U19;
 ValeurCmp = GSG-74HC08;
-IdModule  = ;
+IdModule  = GSG-S-PVQFN-14;
 EndCmp
 
 EndListe
