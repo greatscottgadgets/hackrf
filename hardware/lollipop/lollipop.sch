@@ -1,4 +1,4 @@
-EESchema Schematic File Version 2  date Sat May 19 15:59:16 2012
+EESchema Schematic File Version 2  date Sat May 19 16:05:01 2012
 LIBS:power
 LIBS:device
 LIBS:transistors
@@ -1199,7 +1199,7 @@ F 1 "1n8" V 7850 4300 40  0000 C CNN
 	1    0    0    -1  
 $EndComp
 Text Notes 4550 9550 0    40   ~ 0
-Clock input should be 1.1 to 3.3 V\npeak-to-peak. It is divided down to\n0.5 to 1.5 V (REF_IN).
+Expected clock input is 1.8 to 3.3 V\npeak-to-peak at 25 to 52 MHz. It is\ndivided down to 0.5 to 1.5 V (REF_IN).
 $Comp
 L C C77
 U 1 1 4FB3CC76
