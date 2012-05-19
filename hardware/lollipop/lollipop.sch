@@ -1,4 +1,4 @@
-EESchema Schematic File Version 2  date Fri May 18 23:02:13 2012
+EESchema Schematic File Version 2  date Sat May 19 15:59:16 2012
 LIBS:power
 LIBS:device
 LIBS:transistors
@@ -1205,7 +1205,7 @@ L C C77
 U 1 1 4FB3CC76
 P 6000 10050
 F 0 "C77" H 6050 10150 50  0000 L CNN
-F 1 "1nF" H 6050 9950 50  0000 L CNN
+F 1 "47pF" H 6050 9950 50  0000 L CNN
 	1    6000 10050
 	1    0    0    -1  
 $EndComp
@@ -1672,7 +1672,7 @@ L C C74
 U 1 1 4FAECD45
 P 6000 9450
 F 0 "C74" H 6050 9550 50  0000 L CNN
-F 1 "1.2nF" H 6050 9350 50  0000 L CNN
+F 1 "47pF" H 6050 9350 50  0000 L CNN
 	1    6000 9450
 	1    0    0    -1  
 $EndComp
