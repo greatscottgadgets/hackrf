@@ -1,4 +1,4 @@
-EESchema Schematic File Version 2  date Fri May 18 14:52:55 2012
+EESchema Schematic File Version 2  date Fri May 18 18:46:38 2012
 LIBS:power
 LIBS:device
 LIBS:transistors
@@ -37,7 +37,7 @@ $Descr User 17000 11000
 encoding utf-8
 Sheet 1 1
 Title ""
-Date "18 may 2012"
+Date "19 may 2012"
 Rev ""
 Comp ""
 Comment1 ""
@@ -45,6 +45,10 @@ Comment2 ""
 Comment3 ""
 Comment4 ""
 $EndDescr
+Text Notes 14800 8100 0    40   ~ 0
+balun here will not be needed when a\nboard is made with a direct connection\nto the MAX2837
+Wire Wire Line
+	15550 8850 15450 8850
 Connection ~ 14750 6800
 Wire Wire Line
 	14750 6800 14750 6300
@@ -527,14 +531,14 @@ Wire Wire Line
 	11900 9050 12100 9050
 Wire Wire Line
 	7600 8150 12100 8150
-Connection ~ 16150 1900
+Connection ~ 16150 2300
 Wire Wire Line
-	16150 2200 16150 1800
-Connection ~ 16150 2100
-Connection ~ 16150 8750
+	16150 2600 16150 2200
+Connection ~ 16150 2500
+Connection ~ 16150 9150
 Wire Wire Line
-	16150 9050 16150 8650
-Connection ~ 16150 8950
+	16150 9450 16150 9050
+Connection ~ 16150 9350
 Wire Wire Line
 	14550 8650 14650 8650
 Connection ~ 13800 9050
@@ -556,8 +560,6 @@ Wire Wire Line
 	13900 8850 13800 8850
 Wire Wire Line
 	13800 8850 13800 9150
-Wire Wire Line
-	15550 8850 15450 8850
 Wire Wire Line
 	14650 8450 14550 8450
 Wire Wire Line
@@ -687,8 +689,8 @@ Wire Wire Line
 Connection ~ 13800 2200
 Wire Wire Line
 	14550 1800 14650 1800
-Connection ~ 16150 8850
-Connection ~ 16150 2000
+Connection ~ 16150 9250
+Connection ~ 16150 2400
 Wire Wire Line
 	12100 9350 7500 9350
 Wire Wire Line
@@ -1226,7 +1228,7 @@ F 4 "Pulse Electronics" H 7000 6700 60  0001 C CNN "Manufacturer"
 F 5 "CX2156NL" H 7000 6700 60  0001 C CNN "Part Number"
 F 6 "TRANSFORMR BALUN 2.3-2700MHZ SMD" H 7000 6700 60  0001 C CNN "Description"
 	1    7000 6700
-	1    0    0    -1  
+	-1   0    0    -1  
 $EndComp
 $Comp
 L BALUN-CX2156NL T3
@@ -1238,7 +1240,7 @@ F 4 "Pulse Electronics" H 7000 3300 60  0001 C CNN "Manufacturer"
 F 5 "CX2156NL" H 7000 3300 60  0001 C CNN "Part Number"
 F 6 "TRANSFORMR BALUN 2.3-2700MHZ SMD" H 7000 3300 60  0001 C CNN "Description"
 	1    7000 3300
-	1    0    0    -1  
+	-1   0    0    -1  
 $EndComp
 $Comp
 L GSG-DIODE-TVS-BI D2
@@ -2121,9 +2123,7 @@ F 1 "2.2nF" H 3000 4950 50  0000 L CNN
 	1    2950 5050
 	0    1    -1   0   
 $EndComp
-Text Notes 14800 9200 0    40   ~ 0
-balun here will not be needed when a\nboard is made with a direct connection\nto the MAX2837
-Text Notes 14800 2350 0    40   ~ 0
+Text Notes 14750 1300 0    40   ~ 0
 balun here will not be needed when a\nboard is made with a direct connection\nto the MAX2837
 Text Notes 3350 3850 2    40   ~ 0
 antenna diversity switches
@@ -2718,19 +2718,19 @@ $EndComp
 $Comp
 L GND #PWR079
 U 1 1 4FAA08FD
-P 16150 2200
-F 0 "#PWR079" H 16150 2200 30  0001 C CNN
-F 1 "GND" H 16150 2130 30  0001 C CNN
-	1    16150 2200
+P 16150 2600
+F 0 "#PWR079" H 16150 2600 30  0001 C CNN
+F 1 "GND" H 16150 2530 30  0001 C CNN
+	1    16150 2600
 	1    0    0    -1  
 $EndComp
 $Comp
 L GND #PWR080
 U 1 1 4FAA08F7
-P 16150 9050
-F 0 "#PWR080" H 16150 9050 30  0001 C CNN
-F 1 "GND" H 16150 8980 30  0001 C CNN
-	1    16150 9050
+P 16150 9450
+F 0 "#PWR080" H 16150 9450 30  0001 C CNN
+F 1 "GND" H 16150 9380 30  0001 C CNN
+	1    16150 9450
 	1    0    0    -1  
 $EndComp
 $Comp
@@ -2743,7 +2743,7 @@ F 4 "Johanson Technology" H 15050 8650 60  0001 C CNN "Manufacturer"
 F 5 "2500BL14M100T" H 15050 8650 60  0001 C CNN "Part Number"
 F 6 "BALUN CERAMIC CHIP WIMAX 2.5GHZ" H 15050 8650 60  0001 C CNN "Description"
 	1    15050 8650
-	1    0    0    1   
+	1    0    0    -1  
 $EndComp
 $Comp
 L C C60
@@ -2824,10 +2824,10 @@ $EndComp
 $Comp
 L GND #PWR084
 U 1 1 4FAA08EA
-P 15550 8850
-F 0 "#PWR084" H 15550 8850 30  0001 C CNN
-F 1 "GND" H 15550 8780 30  0001 C CNN
-	1    15550 8850
+P 15550 8450
+F 0 "#PWR084" H 15550 8450 30  0001 C CNN
+F 1 "GND" H 15550 8380 30  0001 C CNN
+	1    15550 8450
 	0    -1   -1   0   
 $EndComp
 $Comp
@@ -3003,10 +3003,10 @@ $EndComp
 $Comp
 L GND #PWR093
 U 1 1 4FA9C887
-P 15550 2000
-F 0 "#PWR093" H 15550 2000 30  0001 C CNN
-F 1 "GND" H 15550 1930 30  0001 C CNN
-	1    15550 2000
+P 15550 1600
+F 0 "#PWR093" H 15550 1600 30  0001 C CNN
+F 1 "GND" H 15550 1530 30  0001 C CNN
+	1    15550 1600
 	0    -1   -1   0   
 $EndComp
 $Comp
@@ -3088,19 +3088,19 @@ $EndComp
 $Comp
 L GSG-SMA-CONN P5
 U 1 1 4FA9C5BB
-P 15850 8450
-F 0 "P5" H 15850 8600 60  0000 C CNN
-F 1 "RX-OUT" H 15850 8300 60  0000 C CNN
-	1    15850 8450
+P 15850 8850
+F 0 "P5" H 15850 9000 60  0000 C CNN
+F 1 "RX-OUT" H 15850 8700 60  0000 C CNN
+	1    15850 8850
 	-1   0    0    -1  
 $EndComp
 $Comp
 L GSG-SMA-CONN P1
 U 1 1 4FA9C5A4
-P 15850 1600
-F 0 "P1" H 15850 1750 60  0000 C CNN
-F 1 "TX-IN" H 15850 1450 60  0000 C CNN
-	1    15850 1600
+P 15850 2000
+F 0 "P1" H 15850 2150 60  0000 C CNN
+F 1 "TX-IN" H 15850 1850 60  0000 C CNN
+	1    15850 2000
 	-1   0    0    -1  
 $EndComp
 $Comp
@@ -3113,7 +3113,7 @@ F 4 "Johanson Technology" H 15050 1800 60  0001 C CNN "Manufacturer"
 F 5 "2500BL14M100T" H 15050 1800 60  0001 C CNN "Part Number"
 F 6 "BALUN CERAMIC CHIP WIMAX 2.5GHZ" H 15050 1800 60  0001 C CNN "Description"
 	1    15050 1800
-	1    0    0    1   
+	1    0    0    -1  
 $EndComp
 $Comp
 L BALUN T2
