@@ -1,4 +1,4 @@
-# EESchema Netlist Version 1.1 created  Fri May 18 18:46:44 2012
+# EESchema Netlist Version 1.1 created  Fri May 18 23:02:23 2012
 (
  ( /4FB68137 $noname  U2 SKY13351 {Lib=SKY13351}
   (    1 N-000109 )
@@ -369,14 +369,14 @@
  )
  ( /4FAAD183 $noname  C33 2.2nF {Lib=C}
   (    1 N-000010 )
-  (    2 N-000082 )
+  (    2 N-000081 )
  )
  ( /4FAAD181 $noname  C46 2.2nF {Lib=C}
   (    1 N-000008 )
   (    2 N-000102 )
  )
  ( /4FAAD17F $noname  C40 2.2nF {Lib=C}
-  (    1 N-000081 )
+  (    1 N-000082 )
   (    2 N-000112 )
  )
  ( /4FAA157E $noname  C48 33pF {Lib=C}
@@ -403,9 +403,9 @@
   (    1 N-000082 )
   (    2 GND )
   (    3 N-000081 )
-  (    4 /SWD2 )
+  (    4 /SWD1 )
   (    5 N-000080 )
-  (    6 /SWD1 )
+  (    6 /SWD2 )
  )
  ( /4FAA149B $noname  C59 47pF {Lib=C}
   (    1 N-000094 )
@@ -1264,9 +1264,9 @@ Net 8 "" ""
 Net 9 "/SWD2" "SWD2"
  C41 1
  U10 6
- U7 4
- C38 1
  U17 10
+ C38 1
+ U7 6
 Net 10 "" ""
  C33 1
  U3 1
@@ -1348,22 +1348,22 @@ Net 30 "/SWTXB1" "SWTXB1"
  U3 7
 Net 31 "/SWRXA1" "SWRXA1"
  U17 9
- P7 9
- U14 6
  U12 6
+ U14 6
+ P7 9
  C50 1
  C42 1
  U19 5
 Net 32 "/SWD1" "SWD1"
- U7 6
+ U17 11
  P7 11
  U10 4
  C48 1
- U17 11
+ U7 4
  C27 1
 Net 33 "" ""
- T3 3
  C23 2
+ T3 3
 Net 34 "" ""
  C53 2
  T6 1
@@ -1503,16 +1503,16 @@ Net 78 "" ""
  U12 1
  C43 2
 Net 79 "" ""
- U15 8
  C59 2
+ U15 8
 Net 80 "" ""
  C35 1
  U7 5
 Net 81 "" ""
- C40 1
+ C33 2
  U7 3
 Net 82 "" ""
- C33 2
+ C40 1
  U7 1
 Net 83 "" ""
  C65 2

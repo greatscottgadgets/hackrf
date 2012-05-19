@@ -1,4 +1,4 @@
-EESchema Schematic File Version 2  date Fri May 18 18:46:38 2012
+EESchema Schematic File Version 2  date Fri May 18 23:02:13 2012
 LIBS:power
 LIBS:device
 LIBS:transistors
@@ -2268,7 +2268,7 @@ F 4 "Skyworks" H 2950 4450 60  0001 C CNN "Manufacturer"
 F 5 "SKY13351-378LF" H 2950 4450 60  0001 C CNN "Part Number"
 F 6 "20 MHz-6.0 GHz GaAs SPDT Switch" H 2950 4450 60  0001 C CNN "Description"
 	1    2950 4450
-	-1   0    0    -1  
+	-1   0    0    1   
 $EndComp
 $Comp
 L GND #PWR045
