@@ -1,4 +1,4 @@
-EESchema Schematic File Version 2  date Sat May 19 16:05:01 2012
+EESchema Schematic File Version 2  date Sat May 19 16:28:34 2012
 LIBS:power
 LIBS:device
 LIBS:transistors
@@ -45,6 +45,48 @@ Comment2 ""
 Comment3 ""
 Comment4 ""
 $EndDescr
+NoConn ~ 12000 10350
+NoConn ~ 11900 10350
+NoConn ~ 11800 10350
+NoConn ~ 11700 10350
+Text Notes 11600 10000 0    40   ~ 0
+mounting holes
+$Comp
+L CONN_1 P9
+U 1 1 4FB81E54
+P 11700 10200
+F 0 "P9" H 11780 10200 40  0000 L CNN
+F 1 "CONN_1" H 11700 10255 30  0001 C CNN
+	1    11700 10200
+	0    -1   -1   0   
+$EndComp
+$Comp
+L CONN_1 P10
+U 1 1 4FB81E53
+P 11800 10200
+F 0 "P10" H 11880 10200 40  0000 L CNN
+F 1 "CONN_1" H 11800 10255 30  0001 C CNN
+	1    11800 10200
+	0    -1   -1   0   
+$EndComp
+$Comp
+L CONN_1 P11
+U 1 1 4FB81E51
+P 11900 10200
+F 0 "P11" H 11980 10200 40  0000 L CNN
+F 1 "CONN_1" H 11900 10255 30  0001 C CNN
+	1    11900 10200
+	0    -1   -1   0   
+$EndComp
+$Comp
+L CONN_1 P12
+U 1 1 4FB81E45
+P 12000 10200
+F 0 "P12" H 12080 10200 40  0000 L CNN
+F 1 "CONN_1" H 12000 10255 30  0001 C CNN
+	1    12000 10200
+	0    -1   -1   0   
+$EndComp
 Text Notes 14800 8100 0    40   ~ 0
 balun here will not be needed when a\nboard is made with a direct connection\nto the MAX2837
 Wire Wire Line

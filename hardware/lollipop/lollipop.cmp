@@ -1,4 +1,4 @@
-Cmp-Mod V01 Created by CvPCB (2011-06-30 BZR 3033)-stable date = Fri May 18 16:44:42 2012
+Cmp-Mod V01 Created by CvPCB (2011-06-30 BZR 3033)-stable date = Sat May 19 16:29:17 2012
 
 BeginCmp
 TimeStamp = /4FA9C67C;
@@ -514,7 +514,7 @@ EndCmp
 BeginCmp
 TimeStamp = /4FAECD45;
 Reference = C74;
-ValeurCmp = 1.2nF;
+ValeurCmp = 47pF;
 IdModule  = GSG-0402;
 EndCmp
 
@@ -535,7 +535,7 @@ EndCmp
 BeginCmp
 TimeStamp = /4FB3CC76;
 Reference = C77;
-ValeurCmp = 1nF;
+ValeurCmp = 47pF;
 IdModule  = GSG-0402;
 EndCmp
 
@@ -649,6 +649,34 @@ TimeStamp = /4FB3CB92;
 Reference = P8;
 ValeurCmp = VCC;
 IdModule  = GSG-HEADER-2x3;
+EndCmp
+
+BeginCmp
+TimeStamp = /4FB81E54;
+Reference = P9;
+ValeurCmp = CONN_1;
+IdModule  = GSG-HOLE-12MIL;
+EndCmp
+
+BeginCmp
+TimeStamp = /4FB81E53;
+Reference = P10;
+ValeurCmp = CONN_1;
+IdModule  = GSG-HOLE-12MIL;
+EndCmp
+
+BeginCmp
+TimeStamp = /4FB81E51;
+Reference = P11;
+ValeurCmp = CONN_1;
+IdModule  = GSG-HOLE-12MIL;
+EndCmp
+
+BeginCmp
+TimeStamp = /4FB81E45;
+Reference = P12;
+ValeurCmp = CONN_1;
+IdModule  = GSG-HOLE-12MIL;
 EndCmp
 
 BeginCmp
