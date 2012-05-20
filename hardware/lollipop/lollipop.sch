@@ -1,4 +1,4 @@
-EESchema Schematic File Version 2  date Sat May 19 16:28:34 2012
+EESchema Schematic File Version 2  date Sat May 19 17:56:57 2012
 LIBS:power
 LIBS:device
 LIBS:transistors
@@ -45,6 +45,18 @@ Comment2 ""
 Comment3 ""
 Comment4 ""
 $EndDescr
+$Comp
+L INDUCTOR L2
+U 1 1 4FB8333C
+P 11200 3700
+F 0 "L2" V 11150 3700 40  0000 C CNN
+F 1 "180nH" V 11300 3700 40  0000 C CNN
+F 4 "Wurth" H 11200 3700 60  0001 C CNN "Manufacturer"
+F 5 "744761218C" H 11200 3700 60  0001 C CNN "Part Number"
+F 6 "INDUCTOR 180NH .25A WW 0603" H 11200 3700 60  0001 C CNN "Description"
+	1    11200 3700
+	0    1    1    0   
+$EndComp
 NoConn ~ 12000 10350
 NoConn ~ 11900 10350
 NoConn ~ 11800 10350
@@ -1968,20 +1980,14 @@ F 1 "VCC" H 11600 2850 30  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L INDUCTOR L2
-U 1 1 4FAEC099
-P 11200 3700
-F 0 "L2" V 11150 3700 40  0000 C CNN
-F 1 "47nH" V 11300 3700 40  0000 C CNN
-	1    11200 3700
-	0    1    1    0   
-$EndComp
-$Comp
 L INDUCTOR L1
 U 1 1 4FAEC094
 P 11200 3400
 F 0 "L1" V 11150 3400 40  0000 C CNN
-F 1 "47nH" V 11300 3400 40  0000 C CNN
+F 1 "180nH" V 11300 3400 40  0000 C CNN
+F 4 "Wurth" H 11200 3400 60  0001 C CNN "Manufacturer"
+F 5 "744761218C" H 11200 3400 60  0001 C CNN "Part Number"
+F 6 "INDUCTOR 180NH .25A WW 0603" H 11200 3400 60  0001 C CNN "Description"
 	1    11200 3400
 	0    1    1    0   
 $EndComp
