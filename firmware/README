@@ -1,0 +1,3 @@
+The firmware is set up for compilation with the GCC toolchain available here:
+
+https://code.launchpad.net/gcc-arm-embedded

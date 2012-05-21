@@ -1,0 +1,3 @@
+This is the simplest example firmware for Project Ubertooth.  It leaves the
+CC2400 wireless transceiver and the USB peripheral off and flashes three LEDs
+with a period of 2 seconds.
