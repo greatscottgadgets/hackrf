@@ -33,9 +33,16 @@
 
 /* GPIO pins */
 //#ifdef JELLYBEAN
-#define PIN_LED1 (1 << 1) /* GPIO2[1] on P4_1 */
-#define PIN_LED2 (1 << 2) /* GPIO2[2] on P4_2 */
-#define PIN_LED3 (1 << 8) /* GPIO2[8] on P6_12 */
+#define PIN_LED1    (1 << 1) /* GPIO2[1] on P4_1 */
+#define PIN_LED2    (1 << 2) /* GPIO2[2] on P4_2 */
+#define PIN_LED3    (1 << 8) /* GPIO2[8] on P6_12 */
+
+#define PIN_EN1V8   (1 << 6) /* GPIO3[6] on P6_10 */
+
+#define PIN_BOOT0   (1 << 8) /* GPIO0[8] on P1_1 */
+#define PIN_BOOT1   (1 << 9) /* GPIO0[9] on P1_2 */
+#define PIN_BOOT2   (1 << 7) /* GPIO5[7] on P2_8 */
+#define PIN_BOOT3   (1 << 10) /* GPIO1[10] on P2_9 */
 //#endif
 
 /* indicator LED control */
@@ -49,6 +56,17 @@
 #define LED3     (GPIO_PIN2 & PIN_LED3)
 #define LED3_SET (GPIO_SET2 = PIN_LED3)
 #define LED3_CLR (GPIO_CLR2 = PIN_LED3)
+
+#define EN1V8    (GPIO_PIN3 & PIN_EN1V8)
+#define EN1V8_SET (GPIO_SET3 = PIN_EN1V8)
+#define EN1V8_CLR (GPIO_CLR3 = PIN_EN1V8)
+
+/* Input GPIO BOOT0 to 3 */
+#define BOOT0    (GPIO_PIN0 & PIN_BOOT0)
+#define BOOT1    (GPIO_PIN0 & PIN_BOOT1)
+#define BOOT2    (GPIO_PIN5 & PIN_BOOT2)
+#define BOOT3    (GPIO_PIN1 & PIN_BOOT3)
+
 //#endif
 
 void gpio_init(void);

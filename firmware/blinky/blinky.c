@@ -23,15 +23,26 @@
 
 void wait(uint8_t duration)
 {
-	uint32_t i;
+	volatile uint32_t i;
 	for (i = 0; i < duration * 1000000; i++);
 }
 
+uint32_t boot0, boot1, boot2, boot3;
+
 int main()
 {
+
 	gpio_init();
 
+	EN1V8_SET;
+	EN1V8_CLR;
+
 	while (1) {
+	    boot0 = BOOT0;
+	    boot1 = BOOT1;
+	    boot2 = BOOT2;
+	    boot3 = BOOT3;
+
 		LED1_SET;
 		LED2_SET;
 		LED3_SET;
@@ -41,4 +52,6 @@ int main()
 		LED3_CLR;
 		wait(1);
 	}
+
+	return 0 ;
 }
