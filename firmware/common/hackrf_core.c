@@ -31,6 +31,9 @@ void gpio_init()
 
 	/* set certain pins as outputs, all others inputs */
 	GPIO_DIR2 = (PIN_LED1 | PIN_LED2 | PIN_LED3);
+
+	/* set certain pins as outputs, all others inputs */
+	GPIO_DIR3 = (PIN_EN1V8);
 }
 
 void all_pins_off(void)
