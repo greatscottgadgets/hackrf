@@ -1,3 +1,10 @@
+/*
+ * 'gcc -DDEBUG -O2 -o test max2837.c' prints out what test program
+ * would do if it had a real spi library
+ *
+ * 'gcc -DBUS_PIRATE -O2 -o test max2837.c' prints out bus pirate commands to
+ * do the same thing.
+ */
 #include <stdint.h>
 #include "max2837.h"
 #include "max2837_regs.def" // private register def macros
