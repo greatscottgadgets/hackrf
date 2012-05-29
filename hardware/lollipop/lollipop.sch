@@ -1,4 +1,4 @@
-EESchema Schematic File Version 2  date Sat May 19 17:56:57 2012
+EESchema Schematic File Version 2  date Tue May 29 17:02:13 2012
 LIBS:power
 LIBS:device
 LIBS:transistors
@@ -37,7 +37,7 @@ $Descr User 17000 11000
 encoding utf-8
 Sheet 1 1
 Title ""
-Date "19 may 2012"
+Date "29 may 2012"
 Rev ""
 Comp ""
 Comment1 ""
@@ -45,6 +45,30 @@ Comment2 ""
 Comment3 ""
 Comment4 ""
 $EndDescr
+$Comp
+L BALUN-RFXF9503 T6
+U 1 1 4FC55556
+P 7000 6700
+F 0 "T6" H 7000 6900 70  0000 C CNN
+F 1 "RX_LOWPASS_BALUN" H 7000 6550 70  0000 C CNN
+F 4 "RFMD" H 7000 6700 60  0001 C CNN "Manufacturer"
+F 5 "RFXF9503" H 7000 6700 60  0001 C CNN "Part Number"
+F 6 "1:1 SMT TRANSFORMER" H 7000 6700 60  0001 C CNN "Description"
+	1    7000 6700
+	1    0    0    -1  
+$EndComp
+$Comp
+L BALUN-RFXF9503 T3
+U 1 1 4FC55501
+P 7000 3300
+F 0 "T3" H 7000 3500 70  0000 C CNN
+F 1 "TX_LOWPASS_BALUN" H 7000 3150 70  0000 C CNN
+F 4 "RFMD" H 7000 3300 60  0001 C CNN "Manufacturer"
+F 5 "RFXF9503" H 7000 3300 60  0001 C CNN "Part Number"
+F 6 "1:1 SMT TRANSFORMER" H 7000 3300 60  0001 C CNN "Description"
+	1    7000 3300
+	1    0    0    -1  
+$EndComp
 $Comp
 L INDUCTOR L2
 U 1 1 4FB8333C
@@ -1271,30 +1295,6 @@ F 0 "#PWR04" H 13300 5900 30  0001 C CNN
 F 1 "GND" H 13300 5830 30  0001 C CNN
 	1    13300 5900
 	1    0    0    -1  
-$EndComp
-$Comp
-L BALUN-CX2156NL T6
-U 1 1 4FB524EF
-P 7000 6700
-F 0 "T6" H 7000 6900 70  0000 C CNN
-F 1 "RX_LOWPASS_BALUN" H 7000 6550 70  0000 C CNN
-F 4 "Pulse Electronics" H 7000 6700 60  0001 C CNN "Manufacturer"
-F 5 "CX2156NL" H 7000 6700 60  0001 C CNN "Part Number"
-F 6 "TRANSFORMR BALUN 2.3-2700MHZ SMD" H 7000 6700 60  0001 C CNN "Description"
-	1    7000 6700
-	-1   0    0    -1  
-$EndComp
-$Comp
-L BALUN-CX2156NL T3
-U 1 1 4FB52489
-P 7000 3300
-F 0 "T3" H 7000 3500 70  0000 C CNN
-F 1 "TX_LOWPASS_BALUN" H 7000 3150 70  0000 C CNN
-F 4 "Pulse Electronics" H 7000 3300 60  0001 C CNN "Manufacturer"
-F 5 "CX2156NL" H 7000 3300 60  0001 C CNN "Part Number"
-F 6 "TRANSFORMR BALUN 2.3-2700MHZ SMD" H 7000 3300 60  0001 C CNN "Description"
-	1    7000 3300
-	-1   0    0    -1  
 $EndComp
 $Comp
 L GSG-DIODE-TVS-BI D2
