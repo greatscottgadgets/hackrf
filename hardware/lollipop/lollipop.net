@@ -1,4 +1,4 @@
-# EESchema Netlist Version 1.1 created  Tue May 29 17:10:49 2012
+# EESchema Netlist Version 1.1 created  Tue May 29 17:16:41 2012
 (
  ( /4FA9C67C GSG-0402 C1 33pF
   ( 1 /SWTXB1 )
@@ -316,11 +316,11 @@
   ( 1 GND )
   ( 2 N-000101 )
  )
- ( /4FAEC094 GSG-0402 L1 180nH
+ ( /4FAEC094 GSG-0603 L1 180nH
   ( 1 VCC )
   ( 2 N-000119 )
  )
- ( /4FB8333C GSG-0402 L2 180nH
+ ( /4FB8333C GSG-0603 L2 180nH
   ( 1 VCC )
   ( 2 N-000019 )
  )
