@@ -271,6 +271,7 @@ __MREG__(MAX2837_SYN_TEST_OUT,21,9,3)   // high bit locks CP in test mode
 #define MAX2837_SYN_TEST_CP_SINK_REF_DIV     0b110
 #define MAX2837_SYN_TEST_CP_HI_Z_MAIN_DIV    0b111
 
+/* REG 22 */
 __MREG__(MAX2837_VAS_EN,22,0,1)
 __MREG__(MAX2837_VAS_RELOCK_SEL,22,1,1)
 #define MAX2837_VAS_RELOCK_SELECTED 0
@@ -316,10 +317,89 @@ __MREG__(MAX2837_CLKOUT_DIV,24,8,1)
 #define MAX2837_CLKOUT_DIV_2 1
 __MREG__(MAX2837_XTAL_EN,24,9,1)    // set to override mode
 
-//__MREG__(MAX2837_,,,)
+/* REG 25 */
+__MREG__(MAX2837_VCO_BIAS_EN,25,0,1)     // enable override of vco bias trim
+__MREG__(MAX2837_VCO_BIAS,25,4,4)        // 0b1000 nominal
+__MREG__(MAX2837_VCO_CMEN,25,5,1)        // enable Miller capacitor
+__MREG__(MAX2837_VCO_PDET_TST,25,7,2)    // peak detector test output select
+#define MAX2837_VCO_PDET_TST_NORMAL 0
+#define MAX2837_VCO_PDET_TST_PDOUT  1 // peak detector output
+#define MAX2837_VCO_PDET_TST_PDREF  2 // peak detector reference
+#define MAX2837_VCO_PDET_TST_TEMP   3 // VCO temperature sensor
+__MREG__(MAX2837_VCO_BUF_BIAS,25,9,2)    // VCO buffer bias
+#define MAX2837_VCO_BUF_BIAS_800uA  0
+#define MAX2837_VCO_BUF_BIAS_1200uA 1 // default
+#define MAX2837_VCO_BUF_BIAS_1600uA 2
+#define MAX2837_VCO_BUF_BIAS_2000uA 3
 
-#define MAX2837_
-//__MREG__(MAX2837_,,,)
-//#define MAX2837_
+/* REG 26 */
+__MREG__(MAX2837_LOGEN_BIAS1,26,1,2)  // LOGEN emitter follower bias
+#define MAX2837_LOGEN_BIAS1_400u    0
+#define MAX2837_LOGEN_BIAS1_600u    1
+#define MAX2837_LOGEN_BIAS1_800u    2
+#define MAX2837_LOGEN_BIAS1_1000u   3
+__MREG__(MAX2837_LOGEN_BIAS2,26,2,1)  // LOGEN RX/TX Gm bias
+#define MAX2837_LOGEN_BIAS2_DEFAULT 0 // default
+#define MAX2837_LOGEN_BIAS2_PLUS25  1 // +25%
+__MREG__(MAX2837_LOGEN_2GM,26,3,1)    //
+__MREG__(MAX2837_LOGEN_TRIM1,26,4,1)  // mixer tank trim enable
+__MREG__(MAX2837_LOGEN_TRIM2,26,5,1)  // bandpass filter trim enable
+__MREG__(MAX2837_VAS_TST,26,9,4)       // DOUT test signal select
+#define MAX2837_VAS_TST_VCO_BSW0    0  // VAS band select output (5 bits)
+#define MAX2837_VAS_TST_VCO_BSW1    1
+#define MAX2837_VAS_TST_VCO_BSW2    2
+#define MAX2837_VAS_TST_VCO_BSW3    3
+#define MAX2837_VAS_TST_VCO_BSW4    4
+#define MAX2837_VAS_TST_Vtune_ADC0  5  // VCO Vtune ADC output (3 bits)
+#define MAX2837_VAS_TST_Vtune_ADC1  6
+#define MAX2837_VAS_TST_Vtune_ADC2  7
+#define MAX2837_VAS_TST_VASA        8  // VAS accomplish (success)
+#define MAX2837_VAS_TST_VASE        9  // VAS end (success or gave up)
+#define MAX2837_VAS_TST_ZERO        15 // default
+
+/* REG 27 */
+__MREG__(MAX2837_PADRV_BIAS,27,2,3)    // PA driver bias (0-7), default 3
+__MREG__(MAX2837_PADRV_DOWN_EN,27,3,1) // PA driver down process select enable
+__MREG__(MAX2837_PADRV_DOWN,27,4,1)    // PA driver down select
+#define MAX2837_PADRV_DOWN_DOWN     0
+#define MAX2837_PADRV_DOWN_UP       1  // default
+__MREG__(MAX2837_PADAC_IV,27,5,1)      // PA DAC I/V output select
+#define MAX2837_PADAC_IV_VOLTAGE    0
+#define MAX2837_PADAC_IV_CURRENT    1  // default
+__MREG__(MAX2837_PADAC_VMODE,27,6,1)   // set logic 0 or 1 for PADAC_IV out
+__MREG__(MAX2837_PADAC_DIV,27,7,1)     // PA DAC clock divide ratio
+#define MAX2837_PADAC_DIV_20MHz     0
+#define MAX2837_PADAC_DIV_40MHz     1
+__MREG__(MAX2837_TXGATE_EN,27,8,1)     // set to relock when TXOOL=1 or LD=0
+__MREG__(MAX2837_TXDCCORR_EN,27,9,1)   // TX DC offset correction enable
+
+/* REG 28 */
+__MREG__(MAX2837_PADAC_BIAS,28,5,6)    // PADAC output current control, 5uA step
+__MREG__(MAX2837_PADAC_DLY,28,9,4)     // PADAC turn-on delay control
+                                       // 0,1 are both 0us
+                                       // then 0.5us steps to 7.0us
+
+/* REG 29 */
+__MREG__(MAX2837_TXVGA_GAIN_EN,29,0,1) // Enable SPI control of TXVGA gain
+__MREG__(MAX2837_TXVGA_GAIN_MSB_EN,29,1,1)
+__MREG__(MAX2837_TX_DCCORR_EN,29,2,1)
+__MREG__(MAX2837_FUSE_ARM,29,3,1)      // Fuse burn enable
+__MREG__(MAX2837_TXVGA_GAIN,29,5,6)    // 0 = min atten, 63 = max atten
+
+/* REG 30 */
+__MREG__(MAX2837_TXLO_IQ,30,4,5)
+__MREG__(MAX2837_TXLO_IQ_EN,30,5,5)
+__MREG__(MAX2837_TXLO_BUFF_BIAS,30,7,2)
+#define MAX2837_TXLO_BUFF_BIAS_1_0mA 0
+#define MAX2837_TXLO_BUFF_BIAS_1_5mA 1
+#define MAX2837_TXLO_BUFF_BIAS_2_0mA 2 // default
+#define MAX2837_TXLO_BUFF_BIAS_2_5mA 3
+__MREG__(MAX2837_FUSE_GKT,30,8,1)
+__MREG__(MAX2837_FUSE_RTH,30,9,1)
+
+/* REG 31 */
+// 0 -> 992/0uA correction, 15 -> 0/992uA correction ... if TX_DCCORR_EN
+__MREG__(MAX2837_TX_DCCORR_I,31,4,5)
+__MREG__(MAX2837_TX_DCCORR_Q,31,9,5)
 
 #endif // __MAX2837_REGS_DEF
