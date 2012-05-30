@@ -1,9 +1,9 @@
 /*
- * 'gcc -DDEBUG -O2 -o test max2837.c' prints out what test program
- * would do if it had a real spi library
+ * 'gcc -DTEST -DDEBUG -O2 -o test max2837.c' prints out what test
+ * program would do if it had a real spi library
  *
- * 'gcc -DBUS_PIRATE -O2 -o test max2837.c' prints out bus pirate commands to
- * do the same thing.
+ * 'gcc -DTEST -DBUS_PIRATE -O2 -o test max2837.c' prints out bus
+ * pirate commands to do the same thing.
  */
 #include <stdint.h>
 #include "max2837.h"
@@ -166,6 +166,7 @@ void max2837_set_frequency(uint32_t freq)
 	max2837_regs_commit();
 }
 
+#ifdef TEST
 uint16_t test(void)
 {
 	LOG("# test\n");
@@ -184,3 +185,4 @@ int main(int ac, char **av)
 	max2837_set_frequency(2441000000);
 	max2837_stop();
 }
+#endif //TEST

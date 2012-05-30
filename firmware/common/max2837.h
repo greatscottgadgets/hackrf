@@ -32,4 +32,12 @@ extern void max2837_regs_read(void);
  * provided routines for those operations. */
 extern void max2837_regs_commit(void);
 
+/* Turn on/off all chip functions. Does not control oscillator and CLKOUT */
+extern void max2837_start(void);
+extern void max2837_stop(void);
+
+/* Set frequency in Hz. Frequency setting is a multi-step function
+ * where order of register writes matters. */
+extern void max2837_set_frequency(uint32_t freq);
+
 #endif // __MAX2837_H
