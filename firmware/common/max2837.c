@@ -171,7 +171,7 @@ void max2837_set_frequency(uint32_t freq)
 // 
 
 	/* Write order matters here, so commit INT and FRAC_HI before
-	 * committing FRAC_LOG, which is the trigger for VCO
+	 * committing FRAC_LO, which is the trigger for VCO
 	 * auto-select. TODO - it's cleaner this way, but it would be
 	 * faster to explicitly commit the registers explicitly so the
 	 * dirty bits aren't scanned twice. */
