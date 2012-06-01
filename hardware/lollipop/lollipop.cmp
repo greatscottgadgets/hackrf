@@ -1,4 +1,4 @@
-Cmp-Mod V01 Created by CvPCB (2011-06-30 BZR 3033)-stable date = Tue May 29 17:16:41 2012
+Cmp-Mod V01 Created by CvPCB (2011-06-30 BZR 3033)-stable date = Fri Jun  1 13:12:36 2012
 
 BeginCmp
 TimeStamp = /4FA9C67C;
@@ -570,7 +570,7 @@ EndCmp
 BeginCmp
 TimeStamp = /4FB546AD;
 Reference = L3;
-ValeurCmp = 1n8;
+ValeurCmp = DNP;
 IdModule  = GSG-0402;
 EndCmp
 
@@ -736,7 +736,7 @@ IdModule  = GSG-2500BL14M100;
 EndCmp
 
 BeginCmp
-TimeStamp = /4FB52489;
+TimeStamp = /4FC55501;
 Reference = T3;
 ValeurCmp = TX_LOWPASS_BALUN;
 IdModule  = GSG-RFXF9503;
@@ -757,7 +757,7 @@ IdModule  = GSG-HHM1595A1;
 EndCmp
 
 BeginCmp
-TimeStamp = /4FB524EF;
+TimeStamp = /4FC55556;
 Reference = T6;
 ValeurCmp = RX_LOWPASS_BALUN;
 IdModule  = GSG-RFXF9503;
