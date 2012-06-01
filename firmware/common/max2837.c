@@ -136,7 +136,10 @@ void max2837_set_frequency(uint32_t freq)
 {
 	uint8_t band;
 	uint32_t div_frac;
-	uint8_t div_int;
+	uint32_t div_int;
+	uint32_t div_rem;
+	uint32_t div_cmp;
+	int i;
 
 	/* Select band. Allow tuning outside specified bands. */
 	if (freq < 2400000000)
@@ -150,12 +153,25 @@ void max2837_set_frequency(uint32_t freq)
 
 	LOG("# max2837_set_frequency %ld, band %d\n", freq, band);
 
-	/* TODO - frac vs int, compute values */
-	div_int = 0x12;
-	div_frac = 0x34567;
+	/* ASSUME 40MHz PLL. Ratio = F*(4/3)/40,000,000 = F/30,000,000 */
+	div_int = freq / 30000000;
+	div_rem = freq % 30000000;
+	div_frac = 0;
+	div_cmp = 30000000;
+	for( i = 0; i < 20; i++) {
+		div_frac <<= 1;
+		div_cmp >>= 1;
+		if (div_rem > div_cmp) {
+			div_frac |= 0x1;
+			div_rem -= div_cmp;
+		}
+	}
+	LOG("# int %ld, frac %ld\n", div_int, div_frac);
+
+// 
 
 	/* Write order matters here, so commit INT and FRAC_HI before
-	 * committing FRAC_LOG, which is the trigger for VCO
+	 * committing FRAC_LO, which is the trigger for VCO
 	 * auto-select. TODO - it's cleaner this way, but it would be
 	 * faster to explicitly commit the registers explicitly so the
 	 * dirty bits aren't scanned twice. */
