@@ -1,4 +1,4 @@
-PCBNEW-BOARD Version 1 date Sun Jun  3 20:56:28 2012
+PCBNEW-BOARD Version 1 date Mon Jun  4 09:51:01 2012
 
 # Created by Pcbnew(2011-06-30 BZR 3033)-stable
 
@@ -37,7 +37,7 @@ Layer[0] Back signal
 Layer[1] Inner2 signal
 Layer[2] Inner3 signal
 Layer[15] Front signal
-TrackWidth 200
+TrackWidth 60
 TrackWidthList 90
 TrackWidthList 160
 TrackWidthList 200
@@ -67,9 +67,10 @@ TextModSize 600 600
 TextModWidth 120
 PadSize 600 600
 PadDrill 320
-Pad2MaskClearance 100
+Pad2MaskClearance 60
+Pad2PasteClearanceRatio -0.12
 AuxiliaryAxisOrg 0 0
-PcbPlotParams (pcbplotparams (layerselection 283148295) (usegerberextensions true) (excludeedgelayer true) (linewidth 60) (plotframeref false) (viasonmask false) (mode 1) (useauxorigin false) (hpglpennumber 1) (hpglpenspeed 20) (hpglpendiameter 15) (hpglpenoverlay 0) (pscolor true) (psnegative false) (psa4output false) (plotreference false) (plotvalue false) (plotothertext true) (plotinvisibletext false) (padsonsilk false) (subtractmaskfromsilk false) (outputformat 1) (mirror false) (drillshape 1) (scaleselection 1) (outputdirectory ""))
+PcbPlotParams (pcbplotparams (layerselection 283672583) (usegerberextensions true) (excludeedgelayer true) (linewidth 60) (plotframeref false) (viasonmask false) (mode 1) (useauxorigin false) (hpglpennumber 1) (hpglpenspeed 20) (hpglpendiameter 15) (hpglpenoverlay 0) (pscolor true) (psnegative false) (psa4output false) (plotreference false) (plotvalue false) (plotothertext true) (plotinvisibletext false) (padsonsilk false) (subtractmaskfromsilk false) (outputformat 1) (mirror false) (drillshape 1) (scaleselection 1) (outputdirectory ""))
 $EndSETUP
 
 $EQUIPOT
