@@ -5,7 +5,9 @@
  * 'gcc -DTEST -DBUS_PIRATE -O2 -o test max2837.c' prints out bus
  * pirate commands to do the same thing.
  */
+
 #include <stdint.h>
+#include <string.h>
 #include "max2837.h"
 #include "max2837_regs.def" // private register def macros
 
@@ -16,7 +18,8 @@
 #define LOG(x,...)
 #endif
 
-uint16_t max2837_regs[MAX2837_NUM_REGS] = { 
+/* Default register values. */
+static uint16_t max2837_regs_default[MAX2837_NUM_REGS] = { 
 	0x150,   /* 0 */
 	0x002,   /* 1 */
 	0x1f4,   /* 2 */
@@ -50,13 +53,15 @@ uint16_t max2837_regs[MAX2837_NUM_REGS] = {
 	0x080,   /* 30 */
 	0x000 }; /* 31 */
 
+uint16_t max2837_regs[MAX2837_NUM_REGS];
+
 /* Mark all regsisters dirty so all will be written at init. */
 uint32_t max2837_regs_dirty = 0xffffffff;
 
 void max2837_init(void)
 {
 	LOG("# max2837_init\n");
-	/* TODO - reset all register values to defaults? Where from? */
+	memcpy(max2837_regs, max2837_regs_default, sizeof(max2837_regs));
 	max2837_regs_dirty = 0xffffffff;
 
 	/* Write default register values to chip. */
@@ -96,6 +101,7 @@ void max2837_reg_write(uint8_t r, uint16_t v)
 	MAX2837_REG_SET_CLEAN(r);
 }
 
+/* This functions should not be needed, and might be confusing. DELETE. */
 void max2837_regs_read(void)
 {
 	;
@@ -135,6 +141,7 @@ void max2837_stop(void)
 void max2837_set_frequency(uint32_t freq)
 {
 	uint8_t band;
+	uint8_t lna_band;
 	uint32_t div_frac;
 	uint32_t div_int;
 	uint32_t div_rem;
@@ -142,16 +149,25 @@ void max2837_set_frequency(uint32_t freq)
 	int i;
 
 	/* Select band. Allow tuning outside specified bands. */
-	if (freq < 2400000000)
+	if (freq < 2400000000) {
 		band = MAX2837_LOGEN_BSW_2_3;
-	else if (freq < 2500000000)
+		lna_band = MAX2837_LNAband_2_4;
+	}
+	else if (freq < 2500000000) {
 		band = MAX2837_LOGEN_BSW_2_4;
-	else if (freq < 2600000000)
+		lna_band = MAX2837_LNAband_2_4;
+	}
+	else if (freq < 2600000000) {
 		band = MAX2837_LOGEN_BSW_2_5;
-	else
+		lna_band = MAX2837_LNAband_2_6;
+	}
+	else {
 		band = MAX2837_LOGEN_BSW_2_6;
+		lna_band = MAX2837_LNAband_2_6;
+	}
 
-	LOG("# max2837_set_frequency %ld, band %d\n", freq, band);
+	LOG("# max2837_set_frequency %ld, band %d, lna band %d\n",
+	    freq, band, lna_band);
 
 	/* ASSUME 40MHz PLL. Ratio = F*(4/3)/40,000,000 = F/30,000,000 */
 	div_int = freq / 30000000;
@@ -168,7 +184,9 @@ void max2837_set_frequency(uint32_t freq)
 	}
 	LOG("# int %ld, frac %ld\n", div_int, div_frac);
 
-// 
+	/* Band settings */
+	set_MAX2837_LOGEN_BSW(band);
+	set_MAX2837_LNAband(lna_band);
 
 	/* Write order matters here, so commit INT and FRAC_HI before
 	 * committing FRAC_LO, which is the trigger for VCO
