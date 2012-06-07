@@ -49,10 +49,10 @@ CFLAGS += -O2 -g -Wall -Wextra -I$(LIBOPENCM3)/include -I../common \
 		-fno-common -mcpu=cortex-m4 -mthumb -MD \
 		-mfloat-abi=hard -mfpu=fpv4-sp-d16 \
 		$(HACKRF_OPTS)
-LDSCRIPT ?= $(BINARY).ld
+LDSCRIPT ?= $(TARGET).ld
 LDFLAGS += -L$(TOOLCHAIN_DIR)/lib/armv7e-m/fpu \
 		-L$(LIBOPENCM3)/lib/lpc43xx -T$(LDSCRIPT) -nostartfiles \
-		-Wl,--gc-sections -Xlinker -Map=$(BINARY).map
+		-Wl,--gc-sections -Xlinker -Map=$(TARGET).map
 OBJ = $(SRC:.c=.o)
 
 # Be silent per default, but 'make V=1' will show all compiler calls.
@@ -69,8 +69,8 @@ endif
 
 all: images
 
-images: $(BINARY).images
-flash: $(BINARY).flash
+images: $(TARGET).images
+flash: $(TARGET).flash
 
 %.images: %.bin %.hex %.srec %.list
 	@#echo "*** $* images generated ***"
