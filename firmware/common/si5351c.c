@@ -20,9 +20,8 @@
  * Boston, MA 02110-1301, USA.
  */
 
+#include "si5351c.h"
 #include <libopencm3/lpc43xx/i2c.h>
-
-#define SI5351C_I2C_ADDR (0x60 << 1)
 
 /* FIXME return i2c0 status from each function */
 
@@ -37,7 +36,7 @@ void si5351c_write_single(uint8_t reg, uint8_t val)
 }
 
 /* read single register */
-uint8_t si5351c_read_reg(uint8_t reg)
+uint8_t si5351c_read_single(uint8_t reg)
 {
 	uint8_t val;
 
