@@ -108,6 +108,9 @@ clean:
 	$(Q)rm -f *.list
 	$(Q)rm -f *.map
 	$(Q)rm -f *.lst
+	$(Q)rm -f ../common/*.o
+	$(Q)rm -f ../common/*.d
+	$(Q)rm -f ../common/*.lst
 
 .PHONY: images clean
 
