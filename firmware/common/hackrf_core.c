@@ -22,6 +22,7 @@
 
 #include "hackrf_core.h"
 #include "si5351c.h"
+#include <libopencm3/lpc43xx/i2c.h>
 #include <libopencm3/lpc43xx/cgu.h>
 
 #ifdef JELLYBEAN
@@ -37,7 +38,7 @@ void delay(uint32_t duration)
 /* clock startup for Jellybean with Lemondrop attached */ 
 void cpu_clock_init(void)
 {
-	//FIXME I2C setup
+	i2c0_init();
 
 	si5351c_disable_all_outputs();
 	si5351c_disable_oeb_pin_control();
@@ -92,22 +93,50 @@ void cpu_clock_init(void)
 			| (CGU_SRC_XTAL << CGU_PLL1_CTRL_CLK_SEL_SHIFT));
 	while (CGU_PLL1_STAT & CGU_PLL1_STAT_LOCK);
 
-	//FIXME this may need to be done in several stages
-	/* configure PLL1 to produce 204 MHz clock from 12 MHz XTAL_OSC */
-	CGU_PLL1_CTRL |= (CGU_PLL1_CTRL_PD
-			| CGU_PLL1_CTRL_FBSEL
-			| CGU_PLL1_CTRL_DIRECT
-			| (0 << CGU_PLL1_CTRL_PSEL_SHIFT)
+	/* configure PLL1 to produce 12 MHz clock from 12 MHz XTAL_OSC */
+	CGU_PLL1_CTRL |= (CGU_PLL1_CTRL_FBSEL
+			| (3 << CGU_PLL1_CTRL_PSEL_SHIFT)
 			| (0 << CGU_PLL1_CTRL_NSEL_SHIFT)
-			| (16 << CGU_PLL1_CTRL_MSEL_SHIFT));
+			| (0 << CGU_PLL1_CTRL_MSEL_SHIFT));
+	//FIXME why can't we get past this point?
 
 	/* power on PLL1 and wait until stable */
 	CGU_PLL1_CTRL &= ~CGU_PLL1_CTRL_PD;
 	while (!(CGU_PLL1_STAT & CGU_PLL1_STAT_LOCK));
 
+	/* configure PLL1 to produce 108 MHz clock from 12 MHz XTAL_OSC */
+	CGU_PLL1_CTRL &= ~(CGU_PLL1_CTRL_BYPASS
+			| CGU_PLL1_CTRL_FBSEL
+			| CGU_PLL1_CTRL_DIRECT
+			| CGU_PLL1_CTRL_DIRECT
+			| (0x3 << CGU_PLL1_CTRL_PSEL_SHIFT)
+			| (0x3 << CGU_PLL1_CTRL_NSEL_SHIFT)
+			| (0xFF << CGU_PLL1_CTRL_MSEL_SHIFT));
+	CGU_PLL1_CTRL |= (CGU_PLL1_CTRL_FBSEL
+			| CGU_PLL1_CTRL_DIRECT
+			| (0 << CGU_PLL1_CTRL_PSEL_SHIFT)
+			| (0 << CGU_PLL1_CTRL_NSEL_SHIFT)
+			| (8 << CGU_PLL1_CTRL_MSEL_SHIFT));
+
 	/* use PLL1 as clock source for BASE_M4_CLK (CPU) */
 	CGU_BASE_M4_CLK = (CGU_BASE_CLK_AUTOBLOCK
 			| (CGU_SRC_PLL1 << CGU_BASE_CLK_SEL_SHIFT));
+	delay(1000000);
+
+	/* configure PLL1 to produce 204 MHz clock from 12 MHz XTAL_OSC */
+	CGU_PLL1_CTRL &= ~(CGU_PLL1_CTRL_BYPASS
+			| CGU_PLL1_CTRL_FBSEL
+			| CGU_PLL1_CTRL_DIRECT
+			| CGU_PLL1_CTRL_DIRECT
+			| (0x3 << CGU_PLL1_CTRL_PSEL_SHIFT)
+			| (0x3 << CGU_PLL1_CTRL_NSEL_SHIFT)
+			| (0xFF << CGU_PLL1_CTRL_MSEL_SHIFT));
+	CGU_PLL1_CTRL |= (CGU_PLL1_CTRL_FBSEL
+			| CGU_PLL1_CTRL_DIRECT
+			| (0 << CGU_PLL1_CTRL_PSEL_SHIFT)
+			| (0 << CGU_PLL1_CTRL_NSEL_SHIFT)
+			| (16 << CGU_PLL1_CTRL_MSEL_SHIFT));
+	delay(1000000);
 
 	/* use XTAL_OSC as clock source for PLL0USB */
 	CGU_PLL0USB_CTRL = (CGU_PLL0USB_CTRL_PD
