@@ -51,7 +51,7 @@ CFLAGS += -O2 -g -Wall -Wextra -I$(LIBOPENCM3)/include -I../common \
 		$(HACKRF_OPTS)
 LDSCRIPT ?= $(BINARY).ld
 LDFLAGS += -L$(TOOLCHAIN_DIR)/lib/armv7e-m/fpu \
-		-L$(LIBOPENCM3)/lib -T$(LDSCRIPT) -nostartfiles \
+		-L$(LIBOPENCM3)/lib/lpc43xx -T$(LDSCRIPT) -nostartfiles \
 		-Wl,--gc-sections -Xlinker -Map=$(BINARY).map
 OBJ = $(SRC:.c=.o)
 
@@ -91,7 +91,7 @@ flash: $(BINARY).flash
 	@#printf "  OBJDUMP $(*).list\n"
 	$(Q)$(OBJDUMP) -S $(*).elf > $(*).list
 
-%.elf: $(OBJ) $(LDSCRIPT) $(LIBOPENCM3)/lib/libopencm3_lpc43xx.a
+%.elf: $(OBJ) $(LDSCRIPT) #$(LIBOPENCM3)/lib/lpc43xx/libopencm3_lpc43xx.a
 	@#printf "  LD      $(subst $(shell pwd)/,,$(@))\n"
 	$(Q)$(LD) $(LDFLAGS) -o $(*).elf $(OBJ) -lopencm3_lpc43xx
 
