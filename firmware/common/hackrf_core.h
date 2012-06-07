@@ -28,6 +28,8 @@ extern "C"
 {
 #endif
 
+#include <lpc43.h>
+
 /* hardware identification number */
 #define BOARD_ID_JELLYBEAN 0
 
