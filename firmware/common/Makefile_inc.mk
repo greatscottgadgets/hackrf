@@ -53,7 +53,7 @@ LDSCRIPT ?= $(BINARY).ld
 LDFLAGS += -L$(TOOLCHAIN_DIR)/lib/armv7e-m/fpu \
 		-L$(LIBOPENCM3)/lib -T$(LDSCRIPT) -nostartfiles \
 		-Wl,--gc-sections -Xlinker -Map=$(BINARY).map
-		OBJ = $(SRC:.c=.o)
+OBJ = $(SRC:.c=.o)
 
 # Be silent per default, but 'make V=1' will show all compiler calls.
 ifneq ($(V),1)
