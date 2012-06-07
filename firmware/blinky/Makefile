@@ -2,4 +2,6 @@
 
 BINARY = blinky
 
+SRC = $(BINARY).c
+
 include ../common/Makefile_inc.mk

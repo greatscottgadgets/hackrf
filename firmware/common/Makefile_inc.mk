@@ -42,14 +42,17 @@ LD = $(PREFIX)-gcc
 OBJCOPY = $(PREFIX)-objcopy
 OBJDUMP = $(PREFIX)-objdump
 GDB = $(PREFIX)-gdb
+TOOLCHAIN_DIR := $(shell dirname `which $(CC)`)/../$(PREFIX)
+
 CFLAGS += -O2 -g -Wall -Wextra -I$(LIBOPENCM3)/include -I../common \
 		-fno-common -mcpu=cortex-m4 -mthumb -MD \
 		-mfloat-abi=hard -mfpu=fpv4-sp-d16 \
 		$(HACKRF_OPTS)
 LDSCRIPT ?= $(BINARY).ld
-LDFLAGS += -L$(LIBOPENCM3)/lib -T$(LDSCRIPT) -nostartfiles \
--Wl,--gc-sections -Xlinker -Map=$(BINARY).map
-OBJS += $(BINARY).o
+LDFLAGS += -L$(TOOLCHAIN_DIR)/lib/armv7e-m/fpu \
+		-L$(LIBOPENCM3)/lib -T$(LDSCRIPT) -nostartfiles \
+		-Wl,--gc-sections -Xlinker -Map=$(BINARY).map
+		OBJ = $(SRC:.c=.o)
 
 # Be silent per default, but 'make V=1' will show all compiler calls.
 ifneq ($(V),1)
@@ -87,9 +90,9 @@ flash: $(BINARY).flash
 	@#printf "  OBJDUMP $(*).list\n"
 	$(Q)$(OBJDUMP) -S $(*).elf > $(*).list
 
-%.elf: $(OBJS) $(LDSCRIPT) $(LIBOPENCM3)/lib/libopencm3_lpc43xx.a
+%.elf: $(OBJ) $(LDSCRIPT) $(LIBOPENCM3)/lib/libopencm3_lpc43xx.a
 	@#printf "  LD      $(subst $(shell pwd)/,,$(@))\n"
-	$(Q)$(LD) $(LDFLAGS) -o $(*).elf $(OBJS) -lopencm3_lpc43xx
+	$(Q)$(LD) $(LDFLAGS) -o $(*).elf $(OBJ) -lopencm3_lpc43xx
 
 %.o: %.c Makefile
 	@#printf "  CC      $(subst $(shell pwd)/,,$(@))\n"
@@ -111,4 +114,4 @@ clean:
 
 .PHONY: images clean
 
--include $(OBJS:.o=.d)
+-include $(OBJ:.o=.d)
