@@ -88,17 +88,14 @@ void cpu_clock_init(void)
 			| (CGU_SRC_XTAL << CGU_BASE_CLK_SEL_SHIFT));
 
 	/* use XTAL_OSC as clock source for PLL1 */
-	CGU_PLL1_CTRL = (CGU_PLL1_CTRL_PD
-			| CGU_PLL1_CTRL_AUTOBLOCK
+	CGU_PLL1_CTRL = (CGU_PLL1_CTRL_AUTOBLOCK
 			| (CGU_SRC_XTAL << CGU_PLL1_CTRL_CLK_SEL_SHIFT));
-	while (CGU_PLL1_STAT & CGU_PLL1_STAT_LOCK);
 
 	/* configure PLL1 to produce 12 MHz clock from 12 MHz XTAL_OSC */
 	CGU_PLL1_CTRL |= (CGU_PLL1_CTRL_FBSEL
 			| (3 << CGU_PLL1_CTRL_PSEL_SHIFT)
 			| (0 << CGU_PLL1_CTRL_NSEL_SHIFT)
 			| (0 << CGU_PLL1_CTRL_MSEL_SHIFT));
-	//FIXME why can't we get past this point?
 
 	/* power on PLL1 and wait until stable */
 	CGU_PLL1_CTRL &= ~CGU_PLL1_CTRL_PD;
