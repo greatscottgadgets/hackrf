@@ -1,3 +1,4 @@
+# Hey Emacs, this is a -*- makefile -*-
 #
 # Copyright 2009 Uwe Hermann <uwe@hermann-uwe.de>
 # Copyright 2010 Piotr Esden-Tempski <piotr@esden.net>
