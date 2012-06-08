@@ -77,11 +77,9 @@ void cpu_clock_init(void)
 
 	/* power on the oscillator and wait until stable */
 	CGU_XTAL_OSC_CTRL &= ~CGU_XTAL_OSC_CTRL_ENABLE;
-	delay(1000000);
 
 	/* use XTAL_OSC as clock source for BASE_M4_CLK (CPU) */
-	CGU_BASE_M4_CLK = (CGU_BASE_CLK_AUTOBLOCK
-			| (CGU_SRC_XTAL << CGU_BASE_CLK_SEL_SHIFT));
+	CGU_BASE_M4_CLK = ((CGU_SRC_XTAL << CGU_BASE_CLK_SEL_SHIFT));
 
 	/* use XTAL_OSC as clock source for APB1 */
 	CGU_BASE_APB1_CLK = (CGU_BASE_CLK_AUTOBLOCK
@@ -111,9 +109,7 @@ void cpu_clock_init(void)
 	while (!(CGU_PLL1_STAT & CGU_PLL1_STAT_LOCK));
 
 	/* use PLL1 as clock source for BASE_M4_CLK (CPU) */
-	CGU_BASE_M4_CLK = (CGU_BASE_CLK_AUTOBLOCK
-			| (CGU_SRC_PLL1 << CGU_BASE_CLK_SEL_SHIFT));
-	delay(1000000);
+	CGU_BASE_M4_CLK = ((CGU_SRC_PLL1 << CGU_BASE_CLK_SEL_SHIFT));
 
 	/* use XTAL_OSC as clock source for PLL0USB */
 	CGU_PLL0USB_CTRL = (CGU_PLL0USB_CTRL_PD
