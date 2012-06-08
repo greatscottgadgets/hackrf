@@ -10,6 +10,7 @@
 #include <string.h>
 #include "max2837.h"
 #include "max2837_regs.def" // private register def macros
+#include <libopencm3/lpc43xx/ssp.h>
 
 #if (defined DEBUG || defined BUS_PIRATE)
 #include <stdio.h>
@@ -84,6 +85,7 @@ void max2837_spi_write(uint8_t r, uint16_t v) {
 	LOG("0x%03x -> reg%d\n", v, r);
 #endif
 
+	ssp_write(SSP1_NUM, (uint16_t)((r << 10) | (v & 0x3ff)));
 }
 
 uint16_t max2837_reg_read(uint8_t r)
