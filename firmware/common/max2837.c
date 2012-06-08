@@ -210,22 +210,11 @@ void max2837_set_frequency(uint32_t freq)
 }
 
 #ifdef TEST
-uint16_t test(void)
-{
-	LOG("# test\n");
-	uint16_t t = get_MAX2837_Lbias();
-	set_MAX2837_Lbias(MAX2837_Lbias_NOMINAL);
-	set_MAX2837_Mbias(MAX2837_Mbias_NOMINAL);
-	max2837_regs_commit();
-	return t;
-}
-
 int main(int ac, char **av)
 {
 	max2837_init();
 	max2837_start();
 	max2837_tx();
-	test();
 	max2837_set_frequency(2441000000);
 	max2837_stop();
 }
