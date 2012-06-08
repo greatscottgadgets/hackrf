@@ -136,6 +136,7 @@ void max2837_tx(void)
 	LOG("# max2837_tx\n");
 	set_MAX2837_TXMX_SPI_EN(1);
 	set_MAX2837_TXLO_SPI_EN(1);
+	max2837_regs_commit();
 }
 
 /* TODO - placeholder */
