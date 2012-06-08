@@ -158,15 +158,15 @@ void max2837_set_frequency(uint32_t freq)
 	int i;
 
 	/* Select band. Allow tuning outside specified bands. */
-	if (freq < 2400000000) {
+	if (freq < 2400000000U) {
 		band = MAX2837_LOGEN_BSW_2_3;
 		lna_band = MAX2837_LNAband_2_4;
 	}
-	else if (freq < 2500000000) {
+	else if (freq < 2500000000U) {
 		band = MAX2837_LOGEN_BSW_2_4;
 		lna_band = MAX2837_LNAband_2_4;
 	}
-	else if (freq < 2600000000) {
+	else if (freq < 2600000000U) {
 		band = MAX2837_LOGEN_BSW_2_5;
 		lna_band = MAX2837_LNAband_2_6;
 	}
