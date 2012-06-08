@@ -80,12 +80,11 @@ void max2837_spi_write(uint8_t r, uint16_t v) {
 #ifdef BUS_PIRATE
 	LOG("{0x%02x 0x%02x]\n", 0x80 | ((uint16_t)r<<2) | ((v>>8) & 0x3),
 	    v & 0xff);
-#endif
-#ifdef DEBUG
+#elif DEBUG
 	LOG("0x%03x -> reg%d\n", v, r);
-#endif
-
+#else
 	ssp_write(SSP1_NUM, (uint16_t)((r << 10) | (v & 0x3ff)));
+#endif
 }
 
 uint16_t max2837_reg_read(uint8_t r)
@@ -130,6 +129,13 @@ void max2837_start(void)
 	LOG("# max2837_start\n");
 	set_MAX2837_EN_SPI(1);
 	max2837_regs_commit();
+}
+
+void max2837_tx(void)
+{
+	LOG("# max2837_tx\n");
+	set_MAX2837_TXMX_SPI_EN(1);
+	set_MAX2837_TXLO_SPI_EN(1);
 }
 
 /* TODO - placeholder */
@@ -217,6 +223,7 @@ int main(int ac, char **av)
 {
 	max2837_init();
 	max2837_start();
+	max2837_tx();
 	test();
 	max2837_set_frequency(2441000000);
 	max2837_stop();
