@@ -10,13 +10,13 @@
 #include <string.h>
 #include "max2837.h"
 #include "max2837_regs.def" // private register def macros
-#include <libopencm3/lpc43xx/ssp.h>
 
 #if (defined DEBUG || defined BUS_PIRATE)
 #include <stdio.h>
 #define LOG printf
 #else
 #define LOG(x,...)
+#include <libopencm3/lpc43xx/ssp.h>
 #endif
 
 /* Default register values. */
@@ -78,7 +78,7 @@ uint16_t max2837_spi_read(uint8_t r) {
 void max2837_spi_write(uint8_t r, uint16_t v) {
 
 #ifdef BUS_PIRATE
-	LOG("{0x%02x 0x%02x]\n", 0x80 | ((uint16_t)r<<2) | ((v>>8) & 0x3),
+	LOG("{0x%02x 0x%02x]\n", 0x00 | ((uint16_t)r<<2) | ((v>>8) & 0x3),
 	    v & 0xff);
 #elif DEBUG
 	LOG("0x%03x -> reg%d\n", v, r);
