@@ -51,7 +51,8 @@ CFLAGS += -O2 -g3 -Wall -Wextra -I$(LIBOPENCM3)/include -I../common \
 		$(HACKRF_OPTS)
 #LDSCRIPT ?= $(BINARY).ld
 LDFLAGS += -L$(TOOLCHAIN_DIR)/lib/armv7e-m/fpu \
-		-L$(LIBOPENCM3)/lib/lpc43xx -T$(LDSCRIPT) -nostartfiles \
+		-L$(LIBOPENCM3)/lib -L$(LIBOPENCM3)/lib/lpc43xx \
+		-T$(LDSCRIPT) -nostartfiles \
 		-Wl,--gc-sections -Xlinker -Map=$(BINARY).map
 OBJ = $(SRC:.c=.o)
 
