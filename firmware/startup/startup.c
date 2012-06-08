@@ -53,6 +53,8 @@ void gpio_setup(void)
 
 int main(void)
 {
+	u32 i;
+
 	gpio_setup();
 
 	gpio_set(PORT_EN1V8, PIN_EN1V8); /* 1V8 on */
@@ -61,7 +63,26 @@ int main(void)
 
 	gpio_set(PORT_LED1_3, (PIN_LED1|PIN_LED2|PIN_LED3)); /* LEDs on */
 
-	while (1);
+	while (1) 
+	{
+		gpio_set(PORT_LED1_3, (PIN_LED1)); /* LEDs on */
+		for (i = 0; i < 2000000; i++)	/* Wait a bit. */
+			__asm__("nop");
+
+		gpio_set(PORT_LED1_3, (PIN_LED1|PIN_LED2)); /* LEDs on */
+		for (i = 0; i < 2000000; i++)	/* Wait a bit. */
+			__asm__("nop");
+
+		gpio_set(PORT_LED1_3, (PIN_LED1|PIN_LED2|PIN_LED3)); /* LED off */
+		for (i = 0; i < 2000000; i++)	/* Wait a bit. */
+			__asm__("nop");
+
+		gpio_clear(PORT_LED1_3, (PIN_LED1|PIN_LED2|PIN_LED3)); /* LED off */
+		for (i = 0; i < 2000000; i++)	/* Wait a bit. */
+			__asm__("nop");
+	}
+
+
 
 	return 0;
 }
