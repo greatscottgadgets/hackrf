@@ -1,7 +1,7 @@
 # Hey Emacs, this is a -*- makefile -*-
 
-BINARY = blinky
+TARGET = blinky
 
-SRC = $(BINARY).c
+SRC = $(TARGET).c
 
 include ../common/Makefile_inc.mk

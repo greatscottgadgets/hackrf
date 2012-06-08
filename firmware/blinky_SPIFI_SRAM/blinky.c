@@ -19,6 +19,8 @@
  * Boston, MA 02110-1301, USA.
  */
 
+#include <stdint.h>
+
 #include "hackrf_core.h"
 
 void wait(uint8_t duration)

@@ -1,3 +1,4 @@
+# Hey Emacs, this is a -*- makefile -*-
 #
 # Copyright 2009 Uwe Hermann <uwe@hermann-uwe.de>
 # Copyright 2010 Piotr Esden-Tempski <piotr@esden.net>
@@ -48,11 +49,11 @@ CFLAGS += -O2 -g3 -Wall -Wextra -I$(LIBOPENCM3)/include -I../common \
 		-fno-common -mcpu=cortex-m4 -mthumb -MD \
 		-mfloat-abi=hard -mfpu=fpv4-sp-d16 \
 		$(HACKRF_OPTS)
-LDSCRIPT ?= $(BINARY).ld
+LDSCRIPT ?= $(TARGET).ld
 LDFLAGS += -L$(TOOLCHAIN_DIR)/lib/armv7e-m/fpu \
-		-L$(LIBOPENCM3)/lib -T$(LDSCRIPT) -nostartfiles \
-		-Wl,--gc-sections -Xlinker -Map=$(BINARY).map
-		OBJ = $(SRC:.c=.o)
+		-L$(LIBOPENCM3)/lib/lpc43xx -T$(LDSCRIPT) -nostartfiles \
+		-Wl,--gc-sections -Xlinker -Map=$(TARGET).map
+OBJ = $(SRC:.c=.o)
 
 # Be silent per default, but 'make V=1' will show all compiler calls.
 ifneq ($(V),1)
@@ -68,8 +69,8 @@ endif
 
 all: images
 
-images: $(BINARY).images
-flash: $(BINARY).flash
+images: $(TARGET).images
+flash: $(TARGET).flash
 
 %.images: %.bin %.hex %.srec %.list
 	@#echo "*** $* images generated ***"
@@ -90,7 +91,7 @@ flash: $(BINARY).flash
 	@#printf "  OBJDUMP $(*).list\n"
 	$(Q)$(OBJDUMP) -S $(*).elf > $(*).list
 
-%.elf: $(OBJ) $(LDSCRIPT) $(LIBOPENCM3)/lib/libopencm3_lpc43xx.a
+%.elf: $(OBJ) $(LDSCRIPT) #$(LIBOPENCM3)/lib/lpc43xx/libopencm3_lpc43xx.a
 	@#printf "  LD      $(subst $(shell pwd)/,,$(@))\n"
 	$(Q)$(LD) $(LDFLAGS) -o $(*).elf $(OBJ) -lopencm3_lpc43xx
 
