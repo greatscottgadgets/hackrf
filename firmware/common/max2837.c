@@ -123,20 +123,18 @@ void max2837_regs_commit(void)
 	}
 }
 
-/* TODO - placeholder */
 void max2837_start(void)
 {
 	LOG("# max2837_start\n");
 	set_MAX2837_EN_SPI(1);
 	max2837_regs_commit();
+	/* TODO ENABLE pin */
 }
 
 void max2837_tx(void)
 {
 	LOG("# max2837_tx\n");
-	set_MAX2837_TXMX_SPI_EN(1);
-	set_MAX2837_TXLO_SPI_EN(1);
-	max2837_regs_commit();
+	/* TODO TXENABLE pin */
 }
 
 /* TODO - placeholder */
@@ -145,6 +143,7 @@ void max2837_stop(void)
 	LOG("# max2837_stop\n");
 	set_MAX2837_EN_SPI(0);
 	max2837_regs_commit();
+	/* TODO ENABLE pin */
 }
 
 void max2837_set_frequency(uint32_t freq)
