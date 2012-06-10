@@ -32,7 +32,7 @@ HACKRF_OPTS = -D$(BOARD)
 # comment to disable RF transmission
 HACKRF_OPTS += -DTX_ENABLE
 
-LDSCRIPT = ../common/LPC4330_M4.ld
+LDSCRIPT ?= ../common/LPC4330_M4.ld
 
 LIBOPENCM3 ?= /usr/local/arm-none-eabi
 
