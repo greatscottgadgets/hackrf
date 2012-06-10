@@ -1,5 +1,5 @@
 // Created using Xilinx Cse Software [ISE - 13.4]
-// Date: Fri Jun 08 22:28:35 2012
+// Date: Sat Jun 09 22:05:18 2012
 
 TRST OFF;
 ENDIR IDLE;
@@ -7,7 +7,7 @@ ENDDR IDLE;
 STATE RESET;
 STATE IDLE;
 FREQUENCY 1E6 HZ;
-//Operation: Program -p 0 -e -v 
+//Operation: Erase -p 0 
 TIR 0 ;
 HIR 0 ;
 TDR 0 ;
@@ -18,6 +18,79 @@ HDR 0 ;
 TDR 0 ;
 //Loading device with 'idcode' instruction.
 SIR 8 TDI (01) SMASK (ff) ;
+SDR 32 TDI (00000000) SMASK (ffffffff) TDO (f6e5f093) MASK (0fff8fff) ;
+//Check for Read/Write Protect.
+SIR 8 TDI (ff) TDO (01) MASK (03) ;
+//Boundary Scan Chain Contents
+//Position 1: xc2c64a
+TIR 0 ;
+HIR 0 ;
+TDR 0 ;
+HDR 0 ;
+TIR 0 ;
+HIR 0 ;
+TDR 0 ;
+HDR 0 ;
+TIR 0 ;
+HIR 0 ;
+HDR 0 ;
+TDR 0 ;
+//Loading device with 'idcode' instruction.
+SIR 8 TDI (01) ;
+SDR 32 TDI (00000000) TDO (f6e5f093) ;
+//Check for Read/Write Protect.
+SIR 8 TDI (ff) TDO (01) MASK (03) ;
+TIR 0 ;
+HIR 0 ;
+HDR 0 ;
+TDR 0 ;
+// Loading devices with 'enable' or 'bypass' instruction.
+SIR 8 TDI (e8) ;
+// Loading devices with 'erase' or 'bypass' instruction.
+ENDIR IRPAUSE;
+SIR 8 TDI (ed) SMASK (ff) ;
+ENDIR IDLE;
+STATE  IREXIT2 IRUPDATE DRSELECT DRCAPTURE DREXIT1 DRPAUSE;
+RUNTEST DRPAUSE 20 TCK;
+STATE  IDLE;
+RUNTEST IDLE 100000 TCK;
+STATE  DRPAUSE;
+RUNTEST DRPAUSE 5000 TCK;
+RUNTEST IDLE 1 TCK;
+// Loading devices with 'init' or 'bypass' instruction.
+ENDIR IRPAUSE;
+SIR 8 TDI (f0) SMASK (ff) ;
+STATE  IDLE;
+RUNTEST IDLE 20 TCK;
+// Loading devices with 'init' or 'bypass' instruction.
+ENDIR IRPAUSE;
+SIR 8 TDI (f0) SMASK (ff) ;
+STATE  IREXIT2 IRUPDATE DRSELECT DRCAPTURE DREXIT1 DRUPDATE IDLE;
+RUNTEST 800 TCK;
+ENDIR IDLE;
+// Loading devices with 'conld' or 'bypass' instruction.
+SIR 8 TDI (c0) ;
+RUNTEST 100 TCK;
+// Loading devices with 'conld' or 'bypass' instruction.
+SIR 8 TDI (c0) ;
+RUNTEST 100 TCK;
+TIR 0 ;
+HIR 0 ;
+TDR 0 ;
+HDR 0 ;
+SIR 8 TDI (ff) ;
+SDR 1 TDI (00) SMASK (01) ;
+//Operation: Program -p 0 -e -v 
+TIR 0 ;
+HIR 0 ;
+TDR 0 ;
+HDR 0 ;
+TIR 0 ;
+HIR 0 ;
+HDR 0 ;
+TDR 0 ;
+//Loading device with 'idcode' instruction.
+SIR 8 TDI (01) ;
 SDR 32 TDI (00000000) SMASK (ffffffff) TDO (f6e5f093) MASK (0fff8fff) ;
 //Check for Read/Write Protect.
 SIR 8 TDI (ff) TDO (01) MASK (03) ;
