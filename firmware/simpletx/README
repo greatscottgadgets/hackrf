@@ -3,10 +3,10 @@ carrier.
 
 Required Lemondrop -> Jellybean connections:
 
-SCK:  Lemondrop P3 pin 2 -> Jellybean P2 2
-MOSI: Lemondrop P3 pin 4 -> Jellybean P2 4
-MISO: Lemondrop P3 pin 6 -> Jellybean P2 6
-SSEL: Lemondrop P3 pin 3 -> Jellybean P2 3
+SCK:  Lemondrop P3 pin 2 -> Jellybean P9 2
+MOSI: Lemondrop P3 pin 4 -> Jellybean P9 4
+MISO: Lemondrop P3 pin 6 -> Jellybean P9 6
+SSEL: Lemondrop P3 pin 3 -> Jellybean P9 3
 SCL:  Lemondrop P7 pin 3 -> Jellybean P6 pin 3
 SDA:  Lemondrop P7 pin 5 -> Jellybean P6 pin 5
 SDA:  Lemondrop P7 pin 6 -> Jellybean P6 pin 6
