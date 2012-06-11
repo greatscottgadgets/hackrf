@@ -1,0 +1,12 @@
+This program is an example of the startup sequence for HackRF (Jellybean with
+Lemondrop attached).
+LED1, LED2, and LED3 are blinking at exactly a frequency of 1Hz upon success.
+
+Required Lemondrop -> Jellybean connections:
+
+SCL: Lemondrop P7 pin 3 -> Jellybean P6 pin 3
+SDA: Lemondrop P7 pin 5 -> Jellybean P6 pin 5
+SDA: Lemondrop P7 pin 6 -> Jellybean P6 pin 6
+VCC: Lemondrop P4 pin 2, 4, or 6 -> Jellybean P17 pin 2, 4, or 6
+1V8: Lemondrop P11 pin 2, 4, or 6 -> Jellybean P16 pin 2, 4, or 6
+GND: Lemondrop P5 -> Jellybean P13
