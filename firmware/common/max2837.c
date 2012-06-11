@@ -202,9 +202,9 @@ void max2837_set_frequency(uint32_t freq)
 	 * faster to explicitly commit the registers explicitly so the
 	 * dirty bits aren't scanned twice. */
 	set_MAX2837_SYN_INT(div_int);
-	set_MAX2837_SYN_FRAC_HI((div_frac >> 10) & 0x3f);
+	set_MAX2837_SYN_FRAC_HI((div_frac >> 10) & 0x3ff);
 	max2837_regs_commit();
-	set_MAX2837_SYN_FRAC_LO(div_frac & 0x3f);
+	set_MAX2837_SYN_FRAC_LO(div_frac & 0x3ff);
 	max2837_regs_commit();
 }
 
