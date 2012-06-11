@@ -51,18 +51,11 @@ void pin_setup(void)
 
 	/* GPIO3[6] on P6_10  as output. */
 	GPIO3_DIR |= PIN_EN1V8;
-
-	/* Configure SSP1 Peripheral (to be moved later in SSP driver) */
-	scu_pinmux(SCU_SSP1_MISO, (SCU_SSP_IO | SCU_CONF_FUNCTION5));
-	scu_pinmux(SCU_SSP1_MOSI, (SCU_SSP_IO | SCU_CONF_FUNCTION5));
-	scu_pinmux(SCU_SSP1_SCK,  (SCU_SSP_IO | SCU_CONF_FUNCTION1));
-	scu_pinmux(SCU_SSP1_SSEL, (SCU_SSP_IO | SCU_CONF_FUNCTION1));
 }
 
 int main(void)
 {
-	u8 serial_clock_rate;
-	u8 clock_prescale_rate;
+	const uint32_t freq = 2441000000U;
 
 	pin_setup();
 	gpio_set(PORT_EN1V8, PIN_EN1V8); /* 1V8 on */
@@ -70,22 +63,12 @@ int main(void)
 
 	gpio_set(PORT_LED1_3, (PIN_LED1)); /* LED1 on */
 
-	clock_prescale_rate = 2;
-	serial_clock_rate = 128;
-
-	ssp_init(SSP1_NUM,
-			SSP_DATA_16BITS,
-			SSP_FRAME_SPI,
-			SSP_CPOL_0_CPHA_0,
-			serial_clock_rate,
-			clock_prescale_rate,
-			SSP_MODE_NORMAL,
-			SSP_MASTER,
-			SSP_SLAVE_OUT_ENABLE);
-
-	max2837_init();
+	max2837_setup();
+	gpio_set(PORT_LED1_3, (PIN_LED2)); /* LED2 on */
+	max2837_set_frequency(freq);
+	max2837_tx();
 	max2837_start();
-	max2837_set_frequency(2441000000);
+	gpio_set(PORT_LED1_3, (PIN_LED3)); /* LED3 on */
 	while (1);
 	max2837_stop();
 

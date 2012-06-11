@@ -17,6 +17,9 @@
 #else
 #define LOG(x,...)
 #include <libopencm3/lpc43xx/ssp.h>
+#include <libopencm3/lpc43xx/scu.h>
+#include <libopencm3/lpc43xx/gpio.h>
+#include "hackrf_core.h"
 #endif
 
 /* Default register values. */
@@ -59,6 +62,7 @@ uint16_t max2837_regs[MAX2837_NUM_REGS];
 /* Mark all regsisters dirty so all will be written at init. */
 uint32_t max2837_regs_dirty = 0xffffffff;
 
+/* Set up all registers according to defaults specified in docs. */
 void max2837_init(void)
 {
 	LOG("# max2837_init\n");
@@ -66,6 +70,66 @@ void max2837_init(void)
 	max2837_regs_dirty = 0xffffffff;
 
 	/* Write default register values to chip. */
+	max2837_regs_commit();
+}
+
+/*
+ * Set up pins for GPIO and SPI control, configure SSP peripheral for SPI, and
+ * set our own default register configuration.
+ */
+void max2837_setup(void)
+{
+	/* FIXME speed up once everything is working reliably */
+	const uint8_t serial_clock_rate = 32;
+	const uint8_t clock_prescale_rate = 128;
+
+	/* Configure XCVR_CTL GPIO pins. */
+	scu_pinmux(SCU_XCVR_ENABLE, SCU_GPIO_FAST);
+	scu_pinmux(SCU_XCVR_RXENABLE, SCU_GPIO_FAST);
+	scu_pinmux(SCU_XCVR_TXENABLE, SCU_GPIO_FAST);
+
+	/* Set GPIO pins as outputs. */
+	GPIO2_DIR |= (PIN_XCVR_ENABLE | PIN_XCVR_RXENABLE | PIN_XCVR_TXENABLE);
+
+	/* disable everything */
+	gpio_clear(PORT_XCVR_ENABLE,
+			(PIN_XCVR_ENABLE | PIN_XCVR_RXENABLE | PIN_XCVR_TXENABLE));
+
+	/*
+	 * Configure CS_AD pin to keep the MAX5864 SPI disabled while we use the
+	 * SPI bus for the MAX2837. FIXME: this should probably be somewhere else.
+	 */
+	scu_pinmux(SCU_CS_AD, SCU_GPIO_FAST);
+	GPIO2_DIR |= PIN_CS_AD;
+	gpio_set(PORT_CS_AD, PIN_CS_AD);
+
+	/* Configure SSP1 Peripheral (to be moved later in SSP driver) */
+	scu_pinmux(SCU_SSP1_MISO, (SCU_SSP_IO | SCU_CONF_FUNCTION5));
+	scu_pinmux(SCU_SSP1_MOSI, (SCU_SSP_IO | SCU_CONF_FUNCTION5));
+	scu_pinmux(SCU_SSP1_SCK,  (SCU_SSP_IO | SCU_CONF_FUNCTION1));
+	scu_pinmux(SCU_SSP1_SSEL, (SCU_SSP_IO | SCU_CONF_FUNCTION1));
+
+	ssp_init(SSP1_NUM,
+		SSP_DATA_16BITS,
+		SSP_FRAME_SPI,
+		SSP_CPOL_0_CPHA_0,
+		serial_clock_rate,
+		clock_prescale_rate,
+		SSP_MODE_NORMAL,
+		SSP_MASTER,
+		SSP_SLAVE_OUT_ENABLE);
+
+	max2837_init();
+
+	/* Use SPI control instead of B1-B7 pins for gain settings. */
+	set_MAX2837_TXVGA_GAIN_SPI_EN(1);
+	set_MAX2837_TXVGA_GAIN_MSB_SPI_EN(1);
+	set_MAX2837_TXVGA_GAIN(0x3f); /* maximum attenuation */
+	set_MAX2837_LNAgain_SPI_EN(1);
+	set_MAX2837_LNAgain(MAX2837_LNAgain_MAX); /* maximum gain */
+	set_MAX2837_VGAgain_SPI_EN(1);
+	set_MAX2837_VGA(0x00); /* minimum attenuation */
+
 	max2837_regs_commit();
 }
 
@@ -128,22 +192,22 @@ void max2837_start(void)
 	LOG("# max2837_start\n");
 	set_MAX2837_EN_SPI(1);
 	max2837_regs_commit();
-	/* TODO ENABLE pin */
+	gpio_set(PORT_XCVR_ENABLE, PIN_XCVR_ENABLE);
 }
 
 void max2837_tx(void)
 {
 	LOG("# max2837_tx\n");
-	/* TODO TXENABLE pin */
+	gpio_set(PORT_XCVR_ENABLE, PIN_XCVR_TXENABLE);
 }
 
-/* TODO - placeholder */
 void max2837_stop(void)
 {
 	LOG("# max2837_stop\n");
 	set_MAX2837_EN_SPI(0);
 	max2837_regs_commit();
-	/* TODO ENABLE pin */
+	gpio_clear(PORT_XCVR_ENABLE,
+			(PIN_XCVR_ENABLE | PIN_XCVR_RXENABLE | PIN_XCVR_TXENABLE));
 }
 
 void max2837_set_frequency(uint32_t freq)

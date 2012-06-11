@@ -59,6 +59,14 @@ extern "C"
 #define SCU_SSP1_SCK        (P1_19) /* P1_19 */
 #define SCU_SSP1_SSEL       (P1_20) /* P1_20 */
 
+/* MAX2837 GPIO (XCVR_CTL) PinMux */
+#define SCU_XCVR_ENABLE     (P4_6)  /* GPIO2[6] on P4_6 */
+#define SCU_XCVR_RXENABLE   (P4_5)  /* GPIO2[5] on P4_5 */
+#define SCU_XCVR_TXENABLE   (P4_4)  /* GPIO2[4] on P4_4 */
+
+/* MAX5864 SPI chip select (CS_AD) GPIO PinMux */
+#define SCU_CS_AD           (P5_7)  /* GPIO2[7] on P5_7 */
+
 /* TODO add other Pins */
 
 /*
@@ -74,6 +82,14 @@ extern "C"
 #define PIN_EN1V8   (BIT6) /* GPIO3[6] on P6_10 */
 #define PORT_EN1V8  (GPIO3)
 
+#define PIN_XCVR_ENABLE   (BIT6)  /* GPIO2[6] on P4_6 */
+#define PIN_XCVR_RXENABLE (BIT5)  /* GPIO2[5] on P4_5 */
+#define PIN_XCVR_TXENABLE (BIT4)  /* GPIO2[4] on P4_4 */
+#define PORT_XCVR_ENABLE  (GPIO2) /* PORT for ENABLE, TXENABLE, RXENABLE */
+
+#define PIN_CS_AD  (BIT7)  /* GPIO2[7] on P5_7 */
+#define PORT_CS_AD (GPIO2) /* PORT for CS_AD */
+
 /* GPIO Input */
 #define PIN_BOOT0   (BIT8)  /* GPIO0[8] on P1_1 */
 #define PIN_BOOT1   (BIT9)  /* GPIO0[9] on P1_2 */
@@ -85,18 +101,6 @@ extern "C"
 #define BOOT1_STATE ((GPIO0_PIN & PIN_BOOT1)==PIN_BOOT1)
 #define BOOT2_STATE ((GPIO5_PIN & PIN_BOOT2)==PIN_BOOT2)
 #define BOOT3_STATE ((GPIO1_PIN & PIN_BOOT3)==PIN_BOOT3)
-
-/* indicator LED control */
-#define LED1_SET (GPIO_SET2 = PIN_LED1)
-#define LED1_CLR (GPIO_CLR2 = PIN_LED1)
-#define LED2_SET (GPIO_SET2 = PIN_LED2)
-#define LED2_CLR (GPIO_CLR2 = PIN_LED2)
-#define LED3_SET (GPIO_SET2 = PIN_LED3)
-#define LED3_CLR (GPIO_CLR2 = PIN_LED3)
-
-/* 1V8 control */
-#define EN1V8_SET (GPIO_SET3 = PIN_EN1V8)
-#define EN1V8_CLR (GPIO_CLR3 = PIN_EN1V8)
 
 /* TODO add other Pins */
 #endif

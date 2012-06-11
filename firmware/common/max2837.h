@@ -15,6 +15,7 @@ extern uint32_t max2837_regs_dirty;
 
 /* Initialize chip. */
 extern void max2837_init(void);
+extern void max2837_setup(void);
 
 /* Read a register via SPI. Save a copy to memory and return
  * value. Mark clean. */
@@ -39,5 +40,7 @@ extern void max2837_stop(void);
 /* Set frequency in Hz. Frequency setting is a multi-step function
  * where order of register writes matters. */
 extern void max2837_set_frequency(uint32_t freq);
+
+extern void max2837_tx(void);
 
 #endif // __MAX2837_H
