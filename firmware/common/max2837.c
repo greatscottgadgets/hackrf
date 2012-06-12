@@ -67,7 +67,9 @@ void max2837_init(void)
 {
 	LOG("# max2837_init\n");
 	memcpy(max2837_regs, max2837_regs_default, sizeof(max2837_regs));
-	max2837_regs_dirty = 0xffffffff;
+	//max2837_regs_dirty = 0xffffffff;
+	//FIXME: not sure why, but one register breaks simpletx:
+	max2837_regs_dirty = 0xffdfffff;
 
 	/* Write default register values to chip. */
 	max2837_regs_commit();
@@ -79,6 +81,8 @@ void max2837_init(void)
  */
 void max2837_setup(void)
 {
+	LOG("# max2837_setup\n");
+#if !defined TEST
 	/* FIXME speed up once everything is working reliably */
 	const uint8_t serial_clock_rate = 32;
 	const uint8_t clock_prescale_rate = 128;
@@ -118,13 +122,16 @@ void max2837_setup(void)
 		SSP_MODE_NORMAL,
 		SSP_MASTER,
 		SSP_SLAVE_OUT_ENABLE);
+#endif
 
 	max2837_init();
+	LOG("# max2837_init done\n");
 
 	/* Use SPI control instead of B1-B7 pins for gain settings. */
 	set_MAX2837_TXVGA_GAIN_SPI_EN(1);
 	set_MAX2837_TXVGA_GAIN_MSB_SPI_EN(1);
-	set_MAX2837_TXVGA_GAIN(0x3f); /* maximum attenuation */
+	//set_MAX2837_TXVGA_GAIN(0x3f); /* maximum attenuation */
+	set_MAX2837_TXVGA_GAIN(0x00); /* minimum attenuation */
 	set_MAX2837_LNAgain_SPI_EN(1);
 	set_MAX2837_LNAgain(MAX2837_LNAgain_MAX); /* maximum gain */
 	set_MAX2837_VGAgain_SPI_EN(1);
@@ -192,13 +199,17 @@ void max2837_start(void)
 	LOG("# max2837_start\n");
 	set_MAX2837_EN_SPI(1);
 	max2837_regs_commit();
+#if !defined TEST
 	gpio_set(PORT_XCVR_ENABLE, PIN_XCVR_ENABLE);
+#endif
 }
 
 void max2837_tx(void)
 {
 	LOG("# max2837_tx\n");
+#if !defined TEST
 	gpio_set(PORT_XCVR_ENABLE, PIN_XCVR_TXENABLE);
+#endif
 }
 
 void max2837_stop(void)
@@ -206,8 +217,10 @@ void max2837_stop(void)
 	LOG("# max2837_stop\n");
 	set_MAX2837_EN_SPI(0);
 	max2837_regs_commit();
+#if !defined TEST
 	gpio_clear(PORT_XCVR_ENABLE,
 			(PIN_XCVR_ENABLE | PIN_XCVR_RXENABLE | PIN_XCVR_TXENABLE));
+#endif
 }
 
 void max2837_set_frequency(uint32_t freq)
@@ -275,10 +288,10 @@ void max2837_set_frequency(uint32_t freq)
 #ifdef TEST
 int main(int ac, char **av)
 {
-	max2837_init();
+	max2837_setup();
+	max2837_set_frequency(2441000000);
 	max2837_start();
 	max2837_tx();
-	max2837_set_frequency(2441000000);
 	max2837_stop();
 }
 #endif //TEST

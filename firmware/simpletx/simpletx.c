@@ -66,8 +66,8 @@ int main(void)
 	max2837_setup();
 	gpio_set(PORT_LED1_3, (PIN_LED2)); /* LED2 on */
 	max2837_set_frequency(freq);
-	max2837_tx();
 	max2837_start();
+	max2837_tx();
 	gpio_set(PORT_LED1_3, (PIN_LED3)); /* LED3 on */
 	while (1);
 	max2837_stop();
