@@ -45,7 +45,12 @@ static uint16_t max2837_regs_default[MAX2837_NUM_REGS] = {
 	0x155,   /* 18 */
 	0x153,   /* 19 */
 	0x241,   /* 20 */
-	0x02c,   /* 21 */
+	/*
+	 * Charge Pump Common Mode Enable bit (0) of register 21 must be set or TX
+	 * does not work.  Page 1 of the SPI doc says not to set it (0x02c), but
+	 * page 21 says it should be set by default (0x02d).
+	 */
+	0x02d,   /* 21 */
 	0x1a9,   /* 22 */
 	0x24f,   /* 23 */
 	0x180,   /* 24 */
@@ -67,9 +72,7 @@ void max2837_init(void)
 {
 	LOG("# max2837_init\n");
 	memcpy(max2837_regs, max2837_regs_default, sizeof(max2837_regs));
-	//max2837_regs_dirty = 0xffffffff;
-	//FIXME: not sure why, but one register breaks simpletx:
-	max2837_regs_dirty = 0xffdfffff;
+	max2837_regs_dirty = 0xffffffff;
 
 	/* Write default register values to chip. */
 	max2837_regs_commit();
