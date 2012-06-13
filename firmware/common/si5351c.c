@@ -87,7 +87,7 @@ void si5351c_disable_oeb_pin_control()
 /* Power down all CLKx */
 void si5351c_power_down_all_clocks()
 {
-	uint8_t data[] = { 16, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80 };
+	uint8_t data[] = { 16, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0xC0, 0xC0 };
 	si5351c_write(data, sizeof(data));
 }
 
@@ -131,19 +131,28 @@ void si5351c_configure_pll1_multisynth()
 	si5351c_write(data, sizeof(data));
 }
 
-void si5351c_configure_multisynth( const uint_fast8_t ms_number,
-    	const uint32_t p1, const uint32_t p2, const uint32_t p3)
+void si5351c_configure_multisynth(const uint_fast8_t ms_number,
+		const uint32_t p1, const uint32_t p2, const uint32_t p3,
+		const uint_fast8_t r)
 {
 	/*
 	 * TODO: Check for p3 > 0? 0 has no meaning in fractional mode?
 	 * And it makes for more jitter in integer mode.
+	 */
+	/*
+	 * r is the r divider value encoded:
+	 *   0 means divide by 1
+	 *   1 means divide by 2
+	 *   2 means divide by 4
+	 *   ...
+	 *   7 means divide by 128
 	 */
 	const uint_fast8_t register_number = 42 + (ms_number * 8);
 	uint8_t data[] = {
 			register_number,
 			(p3 >> 8) & 0xFF,
 			(p3 >> 0) & 0xFF,
-			(0 << 4) | (0 << 2) | ((p1 >> 16) & 0x3),
+			(r << 4) | (0 << 2) | ((p1 >> 16) & 0x3),
 			(p1 >> 8) & 0xFF,
 			(p1 >> 0) & 0xFF,
 			(((p3 >> 16) & 0xF) << 4) | (((p2 >> 16) & 0xF) << 0),
@@ -166,8 +175,22 @@ void si5351c_configure_multisynth( const uint_fast8_t ms_number,
  *   MS1_INT=1 (integer mode)
  *   MS1_SRC=0 (PLLA as source for MultiSynth 1)
  *   CLK1_INV=0 (not inverted)
- *   CLK1_SRC=3 (MS1 as input source)
+ *   CLK1_SRC=3 (MS0 as input source)
  *   CLK1_IDRV=3 (8mA)
+ * CLK2:
+ *   CLK2_PDN=0 (powered up)
+ *   MS2_INT=1 (integer mode)
+ *   MS2_SRC=0 (PLLA as source for MultiSynth 2)
+ *   CLK2_INV=0 (not inverted)
+ *   CLK2_SRC=3 (MS0 as input source)
+ *   CLK2_IDRV=3 (8mA)
+ * CLK3:
+ *   CLK3_PDN=0 (powered up)
+ *   MS3_INT=1 (integer mode)
+ *   MS3_SRC=0 (PLLA as source for MultiSynth 3)
+ *   CLK3_INV=0 (not inverted)
+ *   CLK3_SRC=3 (MS0 as input source)
+ *   CLK3_IDRV=3 (8mA)
  * CLK4:
  *   CLK4_PDN=0 (powered up)
  *   MS4_INT=0 (fractional mode -- to support 12MHz to LPC for USB DFU)
@@ -175,16 +198,23 @@ void si5351c_configure_multisynth( const uint_fast8_t ms_number,
  *   CLK4_INV=0 (not inverted)
  *   CLK4_SRC=3 (MS4 as input source)
  *   CLK4_IDRV=3 (8mA)
+ * CLK5:
+ *   CLK5_PDN=0 (powered up)
+ *   MS5_INT=1 (integer mode)
+ *   MS5_SRC=0 (PLLA as source for MultiSynth 5)
+ *   CLK5_INV=0 (not inverted)
+ *   CLK5_SRC=3 (MS5 as input source)
+ *   CLK5_IDRV=3 (8mA)
  */
 void si5351c_configure_clock_control()
 {
-	uint8_t data[] = { 16, 0x4F, 0x4F, 0x80, 0x80, 0x0F, 0x80, 0x80, 0x80 };
+	uint8_t data[] = { 16, 0x4F, 0x4B, 0x4B, 0x4B, 0x0F, 0x4F, 0xC0, 0xC0 };
 	si5351c_write(data, sizeof(data));
 }
 
-/* Enable CLK outputs 0, 1, 4 only. */
+/* Enable CLK outputs 0, 1, 4, 5 only. */
 void si5351c_enable_clock_outputs()
 {
-	uint8_t data[] = { 3, 0xEC };
+	uint8_t data[] = { 3, 0xCC };
 	si5351c_write(data, sizeof(data));
 }
