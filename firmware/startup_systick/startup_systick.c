@@ -275,7 +275,7 @@ u32 test_nb_instruction_per_sec(void)
 		asm volatile ("nop ");
 		asm volatile ("nop ");
 		asm volatile ("nop ");
-		nb_instructions_per_sec += 100;
+		nb_instructions_per_sec += 108;
 
         end = sys_tick_get_time_ms();
         tickms = sys_tick_delta_time_ms(start, end);
