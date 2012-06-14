@@ -40,7 +40,8 @@ void si5351c_enable_xo_and_ms_fanout();
 void si5351c_configure_pll_sources_for_xtal();
 void si5351c_configure_pll1_multisynth();
 void si5351c_configure_multisynth( const uint_fast8_t ms_number,
-    	const uint32_t p1, const uint32_t p2, const uint32_t p3);
+    	const uint32_t p1, const uint32_t p2, const uint32_t p3,
+    	const uint_fast8_t r_div);
 void si5351c_configure_clock_control();
 void si5351c_enable_clock_outputs();
 
