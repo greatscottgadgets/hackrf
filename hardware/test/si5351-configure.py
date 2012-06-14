@@ -82,6 +82,7 @@ def write_registers(first_register_number, values):
     i2c.send_stop_bit()
 
 # r is the R output divider (should be 1, 2, 4, 8. . .)
+# note: si5351c.c's r parameter is encoded (log not taken)
 # use p2=0 and p3=1 for integer mode
 def set_multisynth_parameters(ms_n, p1, p2, p3, r):
     register_number = 42 + (ms_n * 8)
