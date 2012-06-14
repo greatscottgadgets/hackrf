@@ -190,7 +190,7 @@ void configure_sgpio_test_tx() {
 
 	// Start SGPIO operation by enabling slice clocks.
 	SGPIO_CTRL_ENABLE =
-	    (1L <<  0)      // Slice A
+	    (1L << SGPIO_SLICE_A)
     ;
 
     // Enable codec data stream.
