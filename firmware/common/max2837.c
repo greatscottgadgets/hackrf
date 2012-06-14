@@ -86,10 +86,6 @@ void max2837_setup(void)
 {
 	LOG("# max2837_setup\n");
 #if !defined TEST
-	/* FIXME speed up once everything is working reliably */
-	const uint8_t serial_clock_rate = 32;
-	const uint8_t clock_prescale_rate = 128;
-
 	/* Configure XCVR_CTL GPIO pins. */
 	scu_pinmux(SCU_XCVR_ENABLE, SCU_GPIO_FAST);
 	scu_pinmux(SCU_XCVR_RXENABLE, SCU_GPIO_FAST);
@@ -101,30 +97,6 @@ void max2837_setup(void)
 	/* disable everything */
 	gpio_clear(PORT_XCVR_ENABLE,
 			(PIN_XCVR_ENABLE | PIN_XCVR_RXENABLE | PIN_XCVR_TXENABLE));
-
-	/*
-	 * Configure CS_AD pin to keep the MAX5864 SPI disabled while we use the
-	 * SPI bus for the MAX2837. FIXME: this should probably be somewhere else.
-	 */
-	scu_pinmux(SCU_CS_AD, SCU_GPIO_FAST);
-	GPIO2_DIR |= PIN_CS_AD;
-	gpio_set(PORT_CS_AD, PIN_CS_AD);
-
-	/* Configure SSP1 Peripheral (to be moved later in SSP driver) */
-	scu_pinmux(SCU_SSP1_MISO, (SCU_SSP_IO | SCU_CONF_FUNCTION5));
-	scu_pinmux(SCU_SSP1_MOSI, (SCU_SSP_IO | SCU_CONF_FUNCTION5));
-	scu_pinmux(SCU_SSP1_SCK,  (SCU_SSP_IO | SCU_CONF_FUNCTION1));
-	scu_pinmux(SCU_SSP1_SSEL, (SCU_SSP_IO | SCU_CONF_FUNCTION1));
-
-	ssp_init(SSP1_NUM,
-		SSP_DATA_16BITS,
-		SSP_FRAME_SPI,
-		SSP_CPOL_0_CPHA_0,
-		serial_clock_rate,
-		clock_prescale_rate,
-		SSP_MODE_NORMAL,
-		SSP_MASTER,
-		SSP_SLAVE_OUT_ENABLE);
 #endif
 
 	max2837_init();
@@ -145,6 +117,9 @@ void max2837_setup(void)
 
 /* SPI register read. */
 uint16_t max2837_spi_read(uint8_t r) {
+	gpio_clear(PORT_XCVR_CS, PIN_XCVR_CS);
+	// FIXME: Unimplemented.
+	gpio_set(PORT_XCVR_CS, PIN_XCVR_CS);
 	return 0;
 }
 
@@ -157,7 +132,9 @@ void max2837_spi_write(uint8_t r, uint16_t v) {
 #elif DEBUG
 	LOG("0x%03x -> reg%d\n", v, r);
 #else
+	gpio_clear(PORT_XCVR_CS, PIN_XCVR_CS);
 	ssp_write(SSP1_NUM, (uint16_t)((r << 10) | (v & 0x3ff)));
+	gpio_set(PORT_XCVR_CS, PIN_XCVR_CS);
 #endif
 }
 

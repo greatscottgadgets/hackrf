@@ -24,6 +24,9 @@
 #include "si5351c.h"
 #include <libopencm3/lpc43xx/i2c.h>
 #include <libopencm3/lpc43xx/cgu.h>
+#include <libopencm3/lpc43xx/gpio.h>
+#include <libopencm3/lpc43xx/scu.h>
+#include <libopencm3/lpc43xx/ssp.h>
 
 #ifdef JELLYBEAN
 
@@ -145,6 +148,60 @@ void cpu_clock_init(void)
 	/* use PLL0USB as clock source for USB0 */
 	CGU_BASE_USB0_CLK = (CGU_BASE_CLK_AUTOBLOCK
 			| (CGU_SRC_PLL0USB << CGU_BASE_CLK_SEL_SHIFT));
+}
+
+void ssp1_init(void)
+{
+	/*
+	 * Configure CS_AD pin to keep the MAX5864 SPI disabled while we use the
+	 * SPI bus for the MAX2837. FIXME: this should probably be somewhere else.
+	 */
+	scu_pinmux(SCU_AD_CS, SCU_GPIO_FAST);
+	GPIO_SET(PORT_AD_CS) = PIN_AD_CS;
+	GPIO_DIR(PORT_AD_CS) |= PIN_AD_CS;
+
+	scu_pinmux(SCU_XCVR_CS, SCU_GPIO_FAST);
+	GPIO_SET(PORT_XCVR_CS) = PIN_XCVR_CS;
+	GPIO_DIR(PORT_XCVR_CS) |= PIN_XCVR_CS;
+	
+	/* Configure SSP1 Peripheral (to be moved later in SSP driver) */
+	scu_pinmux(SCU_SSP1_MISO, (SCU_SSP_IO | SCU_CONF_FUNCTION5));
+	scu_pinmux(SCU_SSP1_MOSI, (SCU_SSP_IO | SCU_CONF_FUNCTION5));
+	scu_pinmux(SCU_SSP1_SCK,  (SCU_SSP_IO | SCU_CONF_FUNCTION1));
+}
+
+void ssp1_set_mode_max2837(void)
+{
+	/* FIXME speed up once everything is working reliably */
+	const uint8_t serial_clock_rate = 32;
+	const uint8_t clock_prescale_rate = 128;
+
+	ssp_init(SSP1_NUM,
+		SSP_DATA_16BITS,
+		SSP_FRAME_SPI,
+		SSP_CPOL_0_CPHA_0,
+		serial_clock_rate,
+		clock_prescale_rate,
+		SSP_MODE_NORMAL,
+		SSP_MASTER,
+		SSP_SLAVE_OUT_ENABLE);
+}
+
+void ssp1_set_mode_max5864(void)
+{
+	/* FIXME speed up once everything is working reliably */
+	const uint8_t serial_clock_rate = 32;
+	const uint8_t clock_prescale_rate = 128;
+
+	ssp_init(SSP1_NUM,
+		SSP_DATA_8BITS,
+		SSP_FRAME_SPI,
+		SSP_CPOL_0_CPHA_0,
+		serial_clock_rate,
+		clock_prescale_rate,
+		SSP_MODE_NORMAL,
+		SSP_MASTER,
+		SSP_SLAVE_OUT_ENABLE);
 }
 
 #endif

@@ -88,9 +88,10 @@ extern "C"
 #define SCU_XCVR_ENABLE     (P4_6)  /* GPIO2[6] on P4_6 */
 #define SCU_XCVR_RXENABLE   (P4_5)  /* GPIO2[5] on P4_5 */
 #define SCU_XCVR_TXENABLE   (P4_4)  /* GPIO2[4] on P4_4 */
+#define SCU_XCVR_CS         (P1_20) /* GPIO0[15] on P1_20 */
 
-/* MAX5864 SPI chip select (CS_AD) GPIO PinMux */
-#define SCU_CS_AD           (P5_7)  /* GPIO2[7] on P5_7 */
+/* MAX5864 SPI chip select (AD_CS) GPIO PinMux */
+#define SCU_AD_CS           (P5_7)  /* GPIO2[7] on P5_7 */
 
 /* RFFC5071 GPIO serial interface PinMux */
 #define SCU_MIXER_ENX       (P7_0)  /* GPIO3[8] on P7_0 */
@@ -112,13 +113,15 @@ extern "C"
 #define PIN_EN1V8   (BIT6) /* GPIO3[6] on P6_10 */
 #define PORT_EN1V8  (GPIO3)
 
+#define PIN_XCVR_CS       (BIT15) /* GPIO0[15] on P1_20 */
+#define PORT_XCVR_CS      (GPIO0) /* PORT for CS */
 #define PIN_XCVR_ENABLE   (BIT6)  /* GPIO2[6] on P4_6 */
 #define PIN_XCVR_RXENABLE (BIT5)  /* GPIO2[5] on P4_5 */
 #define PIN_XCVR_TXENABLE (BIT4)  /* GPIO2[4] on P4_4 */
 #define PORT_XCVR_ENABLE  (GPIO2) /* PORT for ENABLE, TXENABLE, RXENABLE */
 
-#define PIN_CS_AD  (BIT7)  /* GPIO2[7] on P5_7 */
-#define PORT_CS_AD (GPIO2) /* PORT for CS_AD */
+#define PIN_AD_CS  (BIT7)  /* GPIO2[7] on P5_7 */
+#define PORT_AD_CS (GPIO2) /* PORT for AD_CS */
 
 #define PIN_MIXER_ENX   (BIT8)  /* GPIO3[8] on P7_0 */
 #define PIN_MIXER_SCLK  (BIT9)  /* GPIO3[9] on P7_1 */
@@ -152,6 +155,9 @@ extern "C"
 #endif
 
 void cpu_clock_init(void);
+void ssp1_init(void);
+void ssp1_set_mode_max2837(void);
+void ssp1_set_mode_max5864(void);
 
 #ifdef __cplusplus
 }
