@@ -45,10 +45,11 @@ void pin_setup(void) {
 	GPIO6_DIR = 0;
 	GPIO7_DIR = 0;
 
-	/* Configure GPIO2[1/2/8] (P4_1/2 P6_12) as output. */GPIO2_DIR |= (PIN_LED1
-			| PIN_LED2 | PIN_LED3);
+	/* Configure GPIO2[1/2/8] (P4_1/2 P6_12) as output. */
+	GPIO2_DIR |= (PIN_LED1 | PIN_LED2 | PIN_LED3);
 
-	/* GPIO3[6] on P6_10  as output. */GPIO3_DIR |= PIN_EN1V8;
+	/* GPIO3[6] on P6_10  as output. */
+	GPIO3_DIR |= PIN_EN1V8;
 
 	/* Configure SSP1 Peripheral (to be moved later in SSP driver) */
 	scu_pinmux(SCU_SSP1_MISO, (SCU_SSP_IO | SCU_CONF_FUNCTION5));
