@@ -229,7 +229,7 @@ void configure_sgpio_test_rx() {
 
 	// Slice A
 	SGPIO_MUX_CFG(SGPIO_SLICE_A) =
-	    (0L << 12) |    // CONCAT_ORDER = 3 (8 slices)
+	    (0L << 12) |    // CONCAT_ORDER = X
 	    (0L << 11) |    // CONCAT_ENABLE = 0 (concatenate data)
 	    (0L <<  9) |    // QUALIFIER_SLICE_MODE = X
 	    (1L <<  7) |    // QUALIFIER_PIN_MODE = 1 (SGPIO9)
@@ -242,7 +242,7 @@ void configure_sgpio_test_rx() {
 	    (0L <<  8) |    // INV_QUALIFIER = 0 (use normal qualifier)
 	    (3L <<  6) |    // PARALLEL_MODE = 3 (shift 8 bits per clock)
 	    (0L <<  4) |    // DATA_CAPTURE_MODE = 0 (detect rising edge)
-	    (0L <<  3) |    // INV_OUT_CLK = 0 (normal clock)
+	    (0L <<  3) |    // INV_OUT_CLK = X
 	    (1L <<  2) |    // CLKGEN_MODE = 1 (use external pin clock)
 	    (0L <<  1) |    // CLK_CAPTURE_MODE = 0 (use rising clock edge)
 	    (0L <<  0);     // MATCH_MODE = 0 (do not match data)
@@ -253,13 +253,16 @@ void configure_sgpio_test_rx() {
 	SGPIO_REG(SGPIO_SLICE_A) = 0xCAFEBABE;     // Primary output data register
 	SGPIO_REG_SS(SGPIO_SLICE_A) = 0xDEADBEEF;  // Shadow output data register
     
-	// Start SGPIO operation by enabling slice clocks.
-    SGPIO_CTRL_ENABLE =
-        (1 << SGPIO_SLICE_A)
-    ;
-
     // Enable codec data stream.
     SGPIO_GPIO_OUTREG &= ~(1L << 10);
+
+    volatile uint32_t buffer[4096];
+    uint32_t i = 0;
+    while(true) {
+        while(SGPIO_STATUS_1 == 0);
+        SGPIO_CLR_STATUS_1 = 1;
+        buffer[i++ & 4095] = SGPIO_REG_SS(SGPIO_SLICE_A);
+    }
 }
 
 int main(void) {
