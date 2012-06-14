@@ -61,9 +61,11 @@ int main(void)
 	pin_setup();
 	gpio_set(PORT_EN1V8, PIN_EN1V8); /* 1V8 on */
 	cpu_clock_init();
+    ssp1_init();
 
 	gpio_set(PORT_LED1_3, (PIN_LED1)); /* LED1 on */
 
+	ssp1_set_mode_max2837();
 	max2837_setup();
 	rffc5071_init();
 	gpio_set(PORT_LED1_3, (PIN_LED2)); /* LED2 on */
