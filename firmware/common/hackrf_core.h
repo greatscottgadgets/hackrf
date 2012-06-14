@@ -67,6 +67,11 @@ extern "C"
 /* MAX5864 SPI chip select (CS_AD) GPIO PinMux */
 #define SCU_CS_AD           (P5_7)  /* GPIO2[7] on P5_7 */
 
+/* RFFC5071 GPIO serial interface PinMux */
+#define SCU_MIXER_ENX       (P7_0)  /* GPIO3[8] on P7_0 */
+#define SCU_MIXER_CLK       (P7_1)  /* GPIO3[9] on P7_1 */
+#define SCU_MIXER_DATA      (P7_2)  /* GPIO3[10] on P7_2 */
+
 /* TODO add other Pins */
 
 /*
@@ -90,6 +95,11 @@ extern "C"
 #define PIN_CS_AD  (BIT7)  /* GPIO2[7] on P5_7 */
 #define PORT_CS_AD (GPIO2) /* PORT for CS_AD */
 
+#define PIN_MIXER_ENX  (BIT8)  /* GPIO3[8] on P7_0 */
+#define PIN_MIXER_CLK  (BIT9)  /* GPIO3[9] on P7_1 */
+#define PIN_MIXER_DATA (BIT10) /* GPIO3[10] on P7_2 */
+#define PORT_MIXER     (GPIO3) /* PORT for mixer serial interface */
+
 /* GPIO Input */
 #define PIN_BOOT0   (BIT8)  /* GPIO0[8] on P1_1 */
 #define PIN_BOOT1   (BIT9)  /* GPIO0[9] on P1_2 */
@@ -101,6 +111,7 @@ extern "C"
 #define BOOT1_STATE ((GPIO0_PIN & PIN_BOOT1)==PIN_BOOT1)
 #define BOOT2_STATE ((GPIO5_PIN & PIN_BOOT2)==PIN_BOOT2)
 #define BOOT3_STATE ((GPIO1_PIN & PIN_BOOT3)==PIN_BOOT3)
+#define MIXER_DATA_STATE ((GPIO3_PIN & PIN_MIXER_DATA)==PIN_MIXER_DATA)
 
 /* TODO add other Pins */
 #endif
