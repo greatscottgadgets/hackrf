@@ -1,6 +1,7 @@
 /*
  * Copyright 2012 Michael Ossmann <mike@ossmann.com>
  * Copyright 2012 Benjamin Vernoux <titanmkd@gmail.com>
+ * Copyright (C) 2012 Jared Boone <jared@sharebrained.com>
  *
  * This file is part of HackRF.
  *
@@ -59,6 +60,30 @@ extern "C"
 #define SCU_SSP1_SCK        (P1_19) /* P1_19 */
 #define SCU_SSP1_SSEL       (P1_20) /* P1_20 */
 
+/* CPLD JTAG interface */
+#define SCU_PINMUX_CPLD_TDO (P9_5)  /* GPIO5[18] */
+#define SCU_PINMUX_CPLD_TCK (P6_1)  /* GPIO3[ 0] */
+#define SCU_PINMUX_CPLD_TMS (P6_2)  /* GPIO3[ 1] */
+#define SCU_PINMUX_CPLD_TDI (P6_5)  /* GPIO3[ 4] */
+
+/* CPLD SGPIO interface */
+#define SCU_PINMUX_SGPIO0   (P0_0)
+#define SCU_PINMUX_SGPIO1   (P0_1)
+#define SCU_PINMUX_SGPIO2   (P1_15)
+#define SCU_PINMUX_SGPIO3   (P1_16)
+#define SCU_PINMUX_SGPIO4   (P6_3)
+#define SCU_PINMUX_SGPIO5   (P6_6)
+#define SCU_PINMUX_SGPIO6   (P2_2)
+#define SCU_PINMUX_SGPIO7   (P1_0)
+#define SCU_PINMUX_SGPIO8   (P9_6)
+#define SCU_PINMUX_SGPIO9   (P4_3)
+#define SCU_PINMUX_SGPIO10  (P1_14)
+#define SCU_PINMUX_SGPIO11  (P1_17)
+#define SCU_PINMUX_SGPIO12  (P1_18)
+#define SCU_PINMUX_SGPIO13  (P4_8)
+#define SCU_PINMUX_SGPIO14  (P4_9)
+#define SCU_PINMUX_SGPIO15  (P4_10)
+
 /* MAX2837 GPIO (XCVR_CTL) PinMux */
 #define SCU_XCVR_ENABLE     (P4_6)  /* GPIO2[6] on P4_6 */
 #define SCU_XCVR_RXENABLE   (P4_5)  /* GPIO2[5] on P4_5 */
@@ -105,6 +130,16 @@ extern "C"
 #define PIN_BOOT1   (BIT9)  /* GPIO0[9] on P1_2 */
 #define PIN_BOOT2   (BIT7)  /* GPIO5[7] on P2_8 */
 #define PIN_BOOT3   (BIT10) /* GPIO1[10] on P2_9 */
+
+/* CPLD JTAG interface GPIO pins */
+#define PIN_CPLD_TDO    (GPIOPIN18)
+#define PORT_CPLD_TDO   (GPIO5)
+#define PIN_CPLD_TCK    (GPIOPIN0)
+#define PORT_CPLD_TCK   (GPIO3)
+#define PIN_CPLD_TMS    (GPIOPIN1)
+#define PORT_CPLD_TMS   (GPIO3)
+#define PIN_CPLD_TDI    (GPIOPIN4)
+#define PORT_CPLD_TDI   (GPIO3)
 
 /* Read GPIO Pin */
 #define BOOT0_STATE ((GPIO0_PIN & PIN_BOOT0)==PIN_BOOT0)

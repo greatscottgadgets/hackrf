@@ -1,0 +1,2 @@
+A program to demonstrate TX control of the MAX5864 DAC, via the
+SGPIO CPLD interface.
