@@ -20,7 +20,7 @@ GND: Lollipop P8 pin 1, 3, or 5 -> Jellybean P17 pin 1, 3, or 5
 VCC: Lollipop P8 pin 2, 4, or 6 -> Jellybean P17 pin 2, 4, or 6
 ENX: Lollipop P4 pin 5 -> Jellybean P5 pin 1
 SCLK: Lollipop P4 pin 3 -> Jellybean P5 pin 3
-DATA: Lollipop P4 pin 1 -> Jellybean P5 pin 5
+SDATA: Lollipop P4 pin 1 -> Jellybean P5 pin 5
 
 Also RF connectors, and you're on your own to get the RF switches configured
 properly.
