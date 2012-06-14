@@ -133,7 +133,7 @@ void test_sgpio_interface() {
 
 void configure_sgpio_test_tx() {
 	// Disable all counters during configuration
-	SGPIO_CTRL_DISABLE = 0xFFFF;
+	SGPIO_CTRL_ENABLE = 0;
 
     configure_sgpio_pin_functions();
 
@@ -199,7 +199,7 @@ void configure_sgpio_test_tx() {
 
 void configure_sgpio_test_rx() {
 	// Disable all counters during configuration
-	SGPIO_CTRL_DISABLE = 0xFFFF;
+	SGPIO_CTRL_ENABLE = 0;
 
     configure_sgpio_pin_functions();
 
