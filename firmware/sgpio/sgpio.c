@@ -187,33 +187,7 @@ void configure_sgpio_test_tx() {
 	SGPIO_POS(SGPIO_SLICE_A) = (0x3L << 8) | (0x3L << 0);
 	SGPIO_REG(SGPIO_SLICE_A) = 0xFF00FF00;     // Primary output data register
 	SGPIO_REG_SS(SGPIO_SLICE_A) = 0xFF00FF00;  // Shadow output data register
-    /*
-	// Slice D (clock for Slice A)
-	LPC_SGPIO->SGPIO_MUX_CFG[3] =
-	    (0L << 12) |    // CONCAT_ORDER = 0 (self-loop)
-	    (1L << 11) |    // CONCAT_ENABLE = 1 (concatenate data)
-	    (0L <<  9) |    // QUALIFIER_SLICE_MODE = X
-	    (0L <<  7) |    // QUALIFIER_PIN_MODE = X
-	    (0L <<  5) |    // QUALIFIER_MODE = 0 (enable)
-	    (0L <<  3) |    // CLK_SOURCE_SLICE_MODE = 0, slice D
-	    (0L <<  1) |    // CLK_SOURCE_PIN_MODE = X
-	    (0L <<  0);     // EXT_CLK_ENABLE = 0, internal clock signal (slice)
 
-	LPC_SGPIO->SLICE_MUX_CFG[3] =
-	    (0L <<  8) |    // INV_QUALIFIER = 0 (use normal qualifier)
-	    (0L <<  6) |    // PARALLEL_MODE = 0 (shift 1 bit per clock)
-	    (0L <<  4) |    // DATA_CAPTURE_MODE = 0 (detect rising edge)
-	    (0L <<  3) |    // INV_OUT_CLK = 0 (normal clock)
-	    (0L <<  2) |    // CLKGEN_MODE = 0 (use clock from COUNTER)
-	    (0L <<  1) |    // CLK_CAPTURE_MODE = 0 (use rising clock edge)
-	    (0L <<  0);     // MATCH_MODE = 0 (do not match data)
-
-	LPC_SGPIO->PRESET[3] = 0;
-	LPC_SGPIO->COUNT[3] = 0;
-	LPC_SGPIO->POS[3] = (0x1FL << 8) | (0x1FL << 0);
-	LPC_SGPIO->REG[0] = 0xAAAAAAAA;     // Primary output data register
-	LPC_SGPIO->REG_SS[0] = 0xAAAAAAAA;  // Shadow output data register
-    */
 	// Start SGPIO operation by enabling slice clocks.
 	SGPIO_CTRL_ENABLE =
 	    (1L <<  0)      // Slice A
