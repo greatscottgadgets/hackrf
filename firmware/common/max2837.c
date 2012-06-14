@@ -192,6 +192,14 @@ void max2837_tx(void)
 #endif
 }
 
+void max2837_rx(void)
+{
+	LOG("# max2837_rx\n");
+#if !defined TEST
+	gpio_set(PORT_XCVR_ENABLE, PIN_XCVR_RXENABLE);
+#endif
+}
+
 void max2837_stop(void)
 {
 	LOG("# max2837_stop\n");
