@@ -1,0 +1,26 @@
+This program activates the MAX2837 transceiver to transmit an unmodulated
+carrier.  It also configures the RFFC5071 to downconvert the carrier to a lower
+frequency.
+
+Required Lemondrop -> Jellybean connections:
+
+SCK:  Lemondrop P3 pin 2 -> Jellybean P9 2
+MOSI: Lemondrop P3 pin 4 -> Jellybean P9 4
+MISO: Lemondrop P3 pin 6 -> Jellybean P9 6
+SSEL: Lemondrop P3 pin 3 -> Jellybean P9 3
+SCL:  Lemondrop P7 pin 3 -> Jellybean P6 pin 3
+SDA:  Lemondrop P7 pin 5 -> Jellybean P6 pin 5
+SDA:  Lemondrop P7 pin 6 -> Jellybean P6 pin 6
+VCC:  Lemondrop P4 pin 2, 4, or 6 -> Jellybean P17 pin 2, 4, or 6
+1V8:  Lemondrop P11 pin 2, 4, or 6 -> Jellybean P16 pin 2, 4, or 6
+GND:  Lemondrop P5 -> Jellybean P13
+
+Required Lollipop -> Jellybean connections:
+GND: Lollipop P8 pin 1, 3, or 5 -> Jellybean P17 pin 1, 3, or 5
+VCC: Lollipop P8 pin 2, 4, or 6 -> Jellybean P17 pin 2, 4, or 6
+ENX: Lollipop P4 pin 5 -> Jellybean P5 pin 2
+SCLK: Lollipop P4 pin 3 -> Jellybean P5 pin 4
+SDATA: Lollipop P4 pin 1 -> Jellybean P5 pin 6
+
+Also RF connectors, and you're on your own to get the RF switches configured
+properly.

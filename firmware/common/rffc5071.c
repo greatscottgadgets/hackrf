@@ -31,15 +31,18 @@ void rffc5071_init(void)
 {
 	/* Configure GPIO pins. */
 	scu_pinmux(SCU_MIXER_ENX, SCU_GPIO_FAST);
-	scu_pinmux(SCU_MIXER_CLK, SCU_GPIO_FAST);
-	scu_pinmux(SCU_MIXER_DATA, SCU_GPIO_FAST);
+	scu_pinmux(SCU_MIXER_SCLK, SCU_GPIO_FAST);
+	scu_pinmux(SCU_MIXER_SDATA, SCU_GPIO_FAST);
 
 	/* Set GPIO pins as outputs. */
-	GPIO3_DIR |= (PIN_MIXER_ENX | PIN_MIXER_CLK | PIN_MIXER_DATA);
+	GPIO3_DIR |= (PIN_MIXER_ENX | PIN_MIXER_SCLK | PIN_MIXER_SDATA);
 
 	/* set to known state */
 	gpio_set(PORT_MIXER, PIN_MIXER_ENX); /* active low */
-	gpio_clear(PORT_MIXER, (PIN_MIXER_CLK | PIN_MIXER_DATA));
+	gpio_clear(PORT_MIXER, (PIN_MIXER_SCLK | PIN_MIXER_SDATA));
+
+	//FIXME no writes until we get reads sorted:
+	return;
 
 	//FIXME hard coded setup, fields not broken out
 	/* initial setup */
@@ -100,7 +103,7 @@ void rffc5071_reg_write(uint8_t reg, uint16_t val)
 
 	/* make sure everything is starting in the correct state */
 	gpio_set(PORT_MIXER, PIN_MIXER_ENX);
-	gpio_clear(PORT_MIXER, (PIN_MIXER_CLK | PIN_MIXER_DATA));
+	gpio_clear(PORT_MIXER, (PIN_MIXER_SCLK | PIN_MIXER_SDATA));
 	serial_delay();
 
 	/* start transaction by bringing ENX low */
@@ -109,16 +112,16 @@ void rffc5071_reg_write(uint8_t reg, uint16_t val)
 
 	while (bits--) {
 		if (data & msb)
-			gpio_set(PORT_MIXER, PIN_MIXER_DATA);
+			gpio_set(PORT_MIXER, PIN_MIXER_SDATA);
 		else
-			gpio_clear(PORT_MIXER, PIN_MIXER_DATA);
+			gpio_clear(PORT_MIXER, PIN_MIXER_SDATA);
 		data <<= 1;
 
 		serial_delay();
-		gpio_set(PORT_MIXER, PIN_MIXER_CLK);
+		gpio_set(PORT_MIXER, PIN_MIXER_SCLK);
 
 		serial_delay();
-		gpio_clear(PORT_MIXER, PIN_MIXER_CLK);
+		gpio_clear(PORT_MIXER, PIN_MIXER_SCLK);
 	}
 
 	serial_delay();
@@ -140,7 +143,7 @@ uint16_t rffc5071_reg_read(uint8_t reg)
 
 	/* make sure everything is starting in the correct state */
 	gpio_set(PORT_MIXER, PIN_MIXER_ENX);
-	gpio_clear(PORT_MIXER, (PIN_MIXER_CLK | PIN_MIXER_DATA));
+	gpio_clear(PORT_MIXER, (PIN_MIXER_SCLK | PIN_MIXER_SDATA));
 	serial_delay();
 
 	/* start transaction by bringing ENX low */
@@ -149,42 +152,42 @@ uint16_t rffc5071_reg_read(uint8_t reg)
 
 	while (bits--) {
 		if (data & msb)
-			gpio_set(PORT_MIXER, PIN_MIXER_DATA);
+			gpio_set(PORT_MIXER, PIN_MIXER_SDATA);
 		else
-			gpio_clear(PORT_MIXER, PIN_MIXER_DATA);
+			gpio_clear(PORT_MIXER, PIN_MIXER_SDATA);
 		data <<= 1;
 
 		serial_delay();
-		gpio_set(PORT_MIXER, PIN_MIXER_CLK);
+		gpio_set(PORT_MIXER, PIN_MIXER_SCLK);
 
 		serial_delay();
-		gpio_clear(PORT_MIXER, PIN_MIXER_CLK);
+		gpio_clear(PORT_MIXER, PIN_MIXER_SCLK);
 	}
 
 	serial_delay();
-	gpio_set(PORT_MIXER, PIN_MIXER_CLK);
+	gpio_set(PORT_MIXER, PIN_MIXER_SCLK);
 
 	serial_delay();
-	gpio_clear(PORT_MIXER, PIN_MIXER_CLK);
+	gpio_clear(PORT_MIXER, PIN_MIXER_SCLK);
 
 	bits = 16;
 	data = 0;
-	/* set DATA line as input */
-	GPIO3_DIR &= ~PIN_MIXER_DATA;
+	/* set SDATA line as input */
+	GPIO3_DIR &= ~PIN_MIXER_SDATA;
 
 	while (bits--) {
 		data <<= 1;
 
 		serial_delay();
-		gpio_set(PORT_MIXER, PIN_MIXER_CLK);
+		gpio_set(PORT_MIXER, PIN_MIXER_SCLK);
 
 		serial_delay();
-		gpio_clear(PORT_MIXER, PIN_MIXER_CLK);
-		if (MIXER_DATA_STATE)
+		gpio_clear(PORT_MIXER, PIN_MIXER_SCLK);
+		if (MIXER_SDATA_STATE)
 			data |= 1;
 	}
-	/* set DATA line as output */
-	GPIO3_DIR |= PIN_MIXER_DATA;
+	/* set SDATA line as output */
+	GPIO3_DIR |= PIN_MIXER_SDATA;
 
 	serial_delay();
 	gpio_set(PORT_MIXER, PIN_MIXER_ENX);
