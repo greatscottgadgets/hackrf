@@ -72,7 +72,7 @@ int main(void)
 	while (1) {
 		//rffc5071_init();
 		//rffc5071_reg_write(0x7a, 0xf0ca);
-		if (rffc5071_reg_read(0x00) == 0xbefb)
+		if (rffc5071_reg_read(0x00) == 0xbefa)
 			gpio_set(PORT_LED1_3, (PIN_LED3)); /* LED3 on */
 		else
 			gpio_clear(PORT_LED1_3, (PIN_LED3)); /* LED3 off */

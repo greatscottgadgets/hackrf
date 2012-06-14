@@ -144,11 +144,21 @@ uint16_t rffc5071_reg_read(uint8_t reg)
 	/* make sure everything is starting in the correct state */
 	gpio_set(PORT_MIXER, PIN_MIXER_ENX);
 	gpio_clear(PORT_MIXER, (PIN_MIXER_SCLK | PIN_MIXER_SDATA));
+
 	serial_delay();
+	gpio_set(PORT_MIXER, PIN_MIXER_SCLK);
+
+	serial_delay();
+	gpio_clear(PORT_MIXER, PIN_MIXER_SCLK);
+
+	serial_delay();
+	gpio_set(PORT_MIXER, PIN_MIXER_SCLK);
+
+	serial_delay();
+	gpio_clear(PORT_MIXER, PIN_MIXER_SCLK);
 
 	/* start transaction by bringing ENX low */
 	gpio_clear(PORT_MIXER, PIN_MIXER_ENX);
-	serial_delay();
 
 	while (bits--) {
 		if (data & msb)
