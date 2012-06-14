@@ -49,16 +49,22 @@ void cpu_clock_init(void)
 	si5351c_configure_pll1_multisynth();
 
 	/* MS0/CLK0 is the source for the MAX2837 clock input. */
-	si5351c_configure_multisynth(0, 2048, 0, 1, 0);   /* 40MHz */
+	si5351c_configure_multisynth(0, 2048, 0, 1, 0); /* 40MHz */
 
-	/* MS1/CLK1 is the source for the MAX5864 codec. */
-	si5351c_configure_multisynth(1, 4608, 0, 1, 1);   /* 20MHz derived from MS0 */
+	/* MS0/CLK1 is the source for the MAX5864 codec. */
+	si5351c_configure_multisynth(1, 4608, 0, 1, 2); /* 10MHz */
+
+	/* MS0/CLK2 is the source for the CPLD clock. */
+	si5351c_configure_multisynth(2, 4608, 0, 1, 1); /* 20MHz */
+
+	/* MS0/CLK3 is the source for the CPLD clock (inverted). */
+	si5351c_configure_multisynth(3, 4608, 0, 1, 1); /* 20MHz */
 
 	/* MS4/CLK4 is the source for the LPC43xx microcontroller. */
-	si5351c_configure_multisynth(4, 8021, 1, 3, 0);   /* 12MHz */
+	si5351c_configure_multisynth(4, 8021, 1, 3, 0); /* 12MHz */
 
 	/* MS5/CLK5 is the source for the RFFC5071 mixer. */
-	si5351c_configure_multisynth(5, 1536, 1, 1, 0);   /* 50MHz */
+	si5351c_configure_multisynth(5, 1536, 1, 1, 0); /* 50MHz */
 
 	si5351c_configure_clock_control();
 	si5351c_enable_clock_outputs();

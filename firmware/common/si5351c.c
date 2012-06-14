@@ -133,7 +133,7 @@ void si5351c_configure_pll1_multisynth()
 
 void si5351c_configure_multisynth(const uint_fast8_t ms_number,
 		const uint32_t p1, const uint32_t p2, const uint32_t p3,
-		const uint_fast8_t r)
+    	const uint_fast8_t r_div)
 {
 	/*
 	 * TODO: Check for p3 > 0? 0 has no meaning in fractional mode?
@@ -152,7 +152,7 @@ void si5351c_configure_multisynth(const uint_fast8_t ms_number,
 			register_number,
 			(p3 >> 8) & 0xFF,
 			(p3 >> 0) & 0xFF,
-			(r << 4) | (0 << 2) | ((p1 >> 16) & 0x3),
+			(r_div << 4) | (0 << 2) | ((p1 >> 16) & 0x3),
 			(p1 >> 8) & 0xFF,
 			(p1 >> 0) & 0xFF,
 			(((p3 >> 16) & 0xF) << 4) | (((p2 >> 16) & 0xF) << 0),
@@ -175,21 +175,21 @@ void si5351c_configure_multisynth(const uint_fast8_t ms_number,
  *   MS1_INT=1 (integer mode)
  *   MS1_SRC=0 (PLLA as source for MultiSynth 1)
  *   CLK1_INV=0 (not inverted)
- *   CLK1_SRC=3 (MS0 as input source)
+ *   CLK1_SRC=2 (MS0 as input source)
  *   CLK1_IDRV=3 (8mA)
  * CLK2:
  *   CLK2_PDN=0 (powered up)
  *   MS2_INT=1 (integer mode)
  *   MS2_SRC=0 (PLLA as source for MultiSynth 2)
  *   CLK2_INV=0 (not inverted)
- *   CLK2_SRC=3 (MS0 as input source)
+ *   CLK2_SRC=2 (MS0 as input source)
  *   CLK2_IDRV=3 (8mA)
  * CLK3:
  *   CLK3_PDN=0 (powered up)
  *   MS3_INT=1 (integer mode)
  *   MS3_SRC=0 (PLLA as source for MultiSynth 3)
- *   CLK3_INV=0 (not inverted)
- *   CLK3_SRC=3 (MS0 as input source)
+ *   CLK3_INV=1 (inverted)
+ *   CLK3_SRC=2 (MS0 as input source)
  *   CLK3_IDRV=3 (8mA)
  * CLK4:
  *   CLK4_PDN=0 (powered up)
@@ -208,13 +208,13 @@ void si5351c_configure_multisynth(const uint_fast8_t ms_number,
  */
 void si5351c_configure_clock_control()
 {
-	uint8_t data[] = { 16, 0x4F, 0x4B, 0x4B, 0x4B, 0x0F, 0x4F, 0xC0, 0xC0 };
+	uint8_t data[] = { 16, 0x4F, 0x4B, 0x4B, 0x5B, 0x0F, 0x4F, 0xC0, 0xC0 };
 	si5351c_write(data, sizeof(data));
 }
 
-/* Enable CLK outputs 0, 1, 4, 5 only. */
+/* Enable CLK outputs 0, 1, 2, 3, 4, 5 only. */
 void si5351c_enable_clock_outputs()
 {
-	uint8_t data[] = { 3, 0xCC };
+	uint8_t data[] = { 3, 0xC0 };
 	si5351c_write(data, sizeof(data));
 }
