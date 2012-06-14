@@ -41,6 +41,9 @@ void rffc5071_init(void)
 	gpio_set(PORT_MIXER, PIN_MIXER_ENX); /* active low */
 	gpio_clear(PORT_MIXER, (PIN_MIXER_CLK | PIN_MIXER_DATA));
 
+	//FIXME no writes until we get reads sorted:
+	return;
+
 	//FIXME hard coded setup, fields not broken out
 	/* initial setup */
 	rffc5071_reg_write(RFFC5071_P2_FREQ1, 0x0000);
