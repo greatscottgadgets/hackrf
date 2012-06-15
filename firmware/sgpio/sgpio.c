@@ -186,8 +186,8 @@ void configure_sgpio_test_tx() {
 	SGPIO_PRESET(SGPIO_SLICE_A) = 0;
 	SGPIO_COUNT(SGPIO_SLICE_A) = 0;
 	SGPIO_POS(SGPIO_SLICE_A) = (0x3L << 8) | (0x3L << 0);
-	SGPIO_REG(SGPIO_SLICE_A) = 0xFF00FF00;     // Primary output data register
-	SGPIO_REG_SS(SGPIO_SLICE_A) = 0xFF00FF00;  // Shadow output data register
+	SGPIO_REG(SGPIO_SLICE_A) = 0x80808080;     // Primary output data register
+	SGPIO_REG_SS(SGPIO_SLICE_A) = 0x80808080;  // Shadow output data register
 
 	// Start SGPIO operation by enabling slice clocks.
 	SGPIO_CTRL_ENABLE =
