@@ -254,11 +254,12 @@ void configure_sgpio_test_rx() {
 	SGPIO_REG(SGPIO_SLICE_A) = 0xCAFEBABE;     // Primary output data register
 	SGPIO_REG_SS(SGPIO_SLICE_A) = 0xDEADBEEF;  // Shadow output data register
     
+    volatile uint32_t buffer[4096];
+    uint32_t i = 0;
+
     // Enable codec data stream.
     SGPIO_GPIO_OUTREG &= ~(1L << 10);
 
-    volatile uint32_t buffer[4096];
-    uint32_t i = 0;
     while(true) {
         while(SGPIO_STATUS_1 == 0);
         SGPIO_CLR_STATUS_1 = 1;
