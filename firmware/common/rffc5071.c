@@ -41,9 +41,6 @@ void rffc5071_init(void)
 	gpio_set(PORT_MIXER, PIN_MIXER_ENX); /* active low */
 	gpio_clear(PORT_MIXER, (PIN_MIXER_SCLK | PIN_MIXER_SDATA));
 
-	//FIXME no writes until we get reads sorted:
-	return;
-
 	//FIXME hard coded setup, fields not broken out
 	/* initial setup */
 	rffc5071_reg_write(RFFC5071_P2_FREQ1, 0x0000);
@@ -59,9 +56,9 @@ void rffc5071_init(void)
 	rffc5071_reg_write(RFFC5071_MIX_CONT, 0x4800); /* half duplex */
 
 	/*
-	 * setup for 2 GHz LO:
- 	 * n_lo = 1
- 	 * lodiv = 2
+	 * setup for 250 MHz LO:
+ 	 * n_lo = 4
+ 	 * lodiv = 16 (2^4, so set to 4)
  	 * fvco = 4 GHz
  	 * fbkdiv = 4
  	 * ndiv = 20
@@ -69,12 +66,179 @@ void rffc5071_init(void)
  	 * nummsb = 0
  	 * numlsb = 0
  	 */
-	rffc5071_reg_write(RFFC5071_P1_FREQ1, 0x0a28);
+	//rffc5071_reg_write(RFFC5071_P1_FREQ1, 0x0a48);
+	//rffc5071_reg_write(RFFC5071_P1_FREQ2, 0x0000);
+	//rffc5071_reg_write(RFFC5071_P1_FREQ3, 0x0000);
+	/* charge pump set for VCO > 3.2 GHz */
+	//rffc5071_reg_write(RFFC5071_LF, 0xbefb);
+
+	/*
+	 * setup for 400 MHz LO:
+ 	 * lodiv = 8 (2^3, so set to 3)
+ 	 * fvco = 3200 MHz
+ 	 * fbkdiv = 2
+ 	 * ndiv = 32
+ 	 * n = 32
+ 	 * nummsb = 0
+ 	 * numlsb = 0
+ 	 */
+	//rffc5071_reg_write(RFFC5071_P1_FREQ1, 0x1034);
+	//rffc5071_reg_write(RFFC5071_P1_FREQ2, 0x0000);
+	//rffc5071_reg_write(RFFC5071_P1_FREQ3, 0x0000);
+
+	/*
+	 * setup for 500 MHz LO:
+ 	 * n_lo = 3
+ 	 * lodiv = 8 (2^3, so set to 3)
+ 	 * fvco = 4 GHz
+ 	 * fbkdiv = 4
+ 	 * ndiv = 20
+ 	 * n = 20
+ 	 * nummsb = 0
+ 	 * numlsb = 0
+ 	 */
+	rffc5071_reg_write(RFFC5071_P1_FREQ1, 0x0a39);
 	rffc5071_reg_write(RFFC5071_P1_FREQ2, 0x0000);
 	rffc5071_reg_write(RFFC5071_P1_FREQ3, 0x0000);
 	/* charge pump set for VCO > 3.2 GHz */
-	rffc5071_reg_write(RFFC5071_LF, 0xBEFB);
-	
+	rffc5071_reg_write(RFFC5071_LF, 0xbefb);
+
+	/*
+	 * setup for 513 MHz LO:
+ 	 * n_lo = 3
+ 	 * lodiv = 8 (2^3, so set to 3)
+ 	 * fvco = 4104 MHz
+ 	 * fbkdiv = 4
+ 	 * ndiv = 20.52
+ 	 * n = 20
+ 	 * nummsb = 34078 (0x851e)
+ 	 * numlsb = 184 (0xb8)
+ 	 */
+	//rffc5071_reg_write(RFFC5071_P1_FREQ1, 0x0a38);
+	//rffc5071_reg_write(RFFC5071_P1_FREQ2, 0x851e);
+	//rffc5071_reg_write(RFFC5071_P1_FREQ3, 0xb800);
+	/* charge pump set for VCO > 3.2 GHz */
+	//rffc5071_reg_write(RFFC5071_LF, 0xbefb);
+
+	/*
+	 * setup for 1 GHz LO:
+ 	 * n_lo = 2
+ 	 * lodiv = 4 (2^2, so set to 2)
+ 	 * fvco = 4 GHz
+ 	 * fbkdiv = 4
+ 	 * ndiv = 20
+ 	 * n = 20
+ 	 * nummsb = 0
+ 	 * numlsb = 0
+ 	 */
+	//rffc5071_reg_write(RFFC5071_P1_FREQ1, 0x0a29);
+	//rffc5071_reg_write(RFFC5071_P1_FREQ2, 0x0000);
+	//rffc5071_reg_write(RFFC5071_P1_FREQ3, 0x0000);
+	/* charge pump set for VCO > 3.2 GHz */
+	//rffc5071_reg_write(RFFC5071_LF, 0xbefb);
+
+	/*
+	 * setup for 1417 MHz LO:
+ 	 * n_lo = 1
+ 	 * lodiv = 2 (2^1, so set to 1)
+ 	 * fvco = 2834 MHz
+ 	 * fbkdiv = 2
+ 	 * ndiv = 28.34
+ 	 * n = 28
+ 	 * nummsb = 22282 (570a)
+ 	 * numlsb = 61 (0x3d)
+ 	 */
+	//rffc5071_reg_write(RFFC5071_P1_FREQ1, 0x0e14);
+	//rffc5071_reg_write(RFFC5071_P1_FREQ2, 0x570a);
+	//rffc5071_reg_write(RFFC5071_P1_FREQ3, 0x3d00);
+	/* charge pump set for VCO > 3.2 GHz */
+	//rffc5071_reg_write(RFFC5071_LF, 0xbefb);
+
+	/*
+	 * setup for 2 GHz LO:
+ 	 * n_lo = 1
+ 	 * lodiv = 2 (2^1, so set to 1)
+ 	 * fvco = 4 GHz
+ 	 * fbkdiv = 4
+ 	 * ndiv = 20
+ 	 * n = 20
+ 	 * nummsb = 0
+ 	 * numlsb = 0
+ 	 */
+	//rffc5071_reg_write(RFFC5071_P1_FREQ1, 0x0a19);
+	//rffc5071_reg_write(RFFC5071_P1_FREQ2, 0x0000);
+	//rffc5071_reg_write(RFFC5071_P1_FREQ3, 0x0000);
+	/* charge pump set for VCO > 3.2 GHz */
+	//rffc5071_reg_write(RFFC5071_LF, 0xbefb);
+
+	/*
+	 * setup for 2191 GHz LO:
+ 	 * n_lo = 1
+ 	 * lodiv = 2 (2^1, so set to 1)
+ 	 * fvco = 4382 MHz
+ 	 * fbkdiv = 4
+ 	 * ndiv = 21.91
+ 	 * n = 21
+ 	 * nummsb = 59637 (0xe8f5)
+ 	 * numlsb = 194 (0xc2)
+ 	 */
+	//rffc5071_reg_write(RFFC5071_P1_FREQ1, 0x0a98);
+	//rffc5071_reg_write(RFFC5071_P1_FREQ2, 0xe8f5);
+	//rffc5071_reg_write(RFFC5071_P1_FREQ3, 0xc200);
+	/* charge pump set for VCO > 3.2 GHz */
+	//rffc5071_reg_write(RFFC5071_LF, 0xbefb);
+
+	/*
+	 * setup for 2341 GHz LO:
+ 	 * n_lo = 1
+ 	 * lodiv = 2 (2^1, so set to 1)
+ 	 * fvco = 4682 MHz
+ 	 * fbkdiv = 4
+ 	 * ndiv = 23.41
+ 	 * n = 23
+ 	 * nummsb = 26869 (0x68f5)
+ 	 * numlsb = 194 (0xc2)
+ 	 */
+	//rffc5071_reg_write(RFFC5071_P1_FREQ1, 0x0b9a);
+	//rffc5071_reg_write(RFFC5071_P1_FREQ2, 0x68f5);
+	//rffc5071_reg_write(RFFC5071_P1_FREQ3, 0xc200);
+	/* charge pump set for VCO > 3.2 GHz */
+	//rffc5071_reg_write(RFFC5071_LF, 0xbefb);
+
+	/*
+	 * setup for 2341 GHz LO:
+ 	 * n_lo = 1
+ 	 * lodiv = 2 (2^1, so set to 1)
+ 	 * fvco = 4782 MHz
+ 	 * fbkdiv = 4
+ 	 * ndiv = 23.91
+ 	 * n = 23
+ 	 * nummsb = 59637 (0xe8f5)
+ 	 * numlsb = 194 (0xc2)
+ 	 */
+	//rffc5071_reg_write(RFFC5071_P1_FREQ1, 0x0b9a);
+	//rffc5071_reg_write(RFFC5071_P1_FREQ2, 0xe8f5);
+	//rffc5071_reg_write(RFFC5071_P1_FREQ3, 0xc200);
+	/* charge pump set for VCO > 3.2 GHz */
+	//rffc5071_reg_write(RFFC5071_LF, 0xbefb);
+
+	/*
+	 * setup for 2411 GHz LO:
+ 	 * n_lo = 1
+ 	 * lodiv = 2 (2^1, so set to 1)
+ 	 * fvco = 4822 MHz
+ 	 * fbkdiv = 4
+ 	 * ndiv = 24.11
+ 	 * n = 24
+ 	 * nummsb = 7208 (0x1c28)
+ 	 * numlsb = 245 (0xf5)
+ 	 */
+	//rffc5071_reg_write(RFFC5071_P1_FREQ1, 0x0c18);
+	//rffc5071_reg_write(RFFC5071_P1_FREQ2, 0x1c28);
+	//rffc5071_reg_write(RFFC5071_P1_FREQ3, 0xf500);
+	/* charge pump set for VCO > 3.2 GHz */
+	//rffc5071_reg_write(RFFC5071_LF, 0xbefb);
+
 	/* enable device */
 	rffc5071_reg_write(RFFC5071_SDI_CTRL, 0xc000); /* mixer 1 (TX) */
 	//rffc5071_reg_write(RFFC5071_SDI_CTRL, 0xe000); /* mixer 2 (RX) */
@@ -104,11 +268,25 @@ void rffc5071_reg_write(uint8_t reg, uint16_t val)
 	/* make sure everything is starting in the correct state */
 	gpio_set(PORT_MIXER, PIN_MIXER_ENX);
 	gpio_clear(PORT_MIXER, (PIN_MIXER_SCLK | PIN_MIXER_SDATA));
+
+	/*
+	 * The device requires two clocks while ENX is high before a serial
+	 * transaction.  This is not clearly documented.
+	 */
 	serial_delay();
+	gpio_set(PORT_MIXER, PIN_MIXER_SCLK);
+
+	serial_delay();
+	gpio_clear(PORT_MIXER, PIN_MIXER_SCLK);
+
+	serial_delay();
+	gpio_set(PORT_MIXER, PIN_MIXER_SCLK);
+
+	serial_delay();
+	gpio_clear(PORT_MIXER, PIN_MIXER_SCLK);
 
 	/* start transaction by bringing ENX low */
 	gpio_clear(PORT_MIXER, PIN_MIXER_ENX);
-	serial_delay();
 
 	while (bits--) {
 		if (data & msb)
@@ -144,11 +322,25 @@ uint16_t rffc5071_reg_read(uint8_t reg)
 	/* make sure everything is starting in the correct state */
 	gpio_set(PORT_MIXER, PIN_MIXER_ENX);
 	gpio_clear(PORT_MIXER, (PIN_MIXER_SCLK | PIN_MIXER_SDATA));
+
+	/*
+	 * The device requires two clocks while ENX is high before a serial
+	 * transaction.  This is not clearly documented.
+	 */
 	serial_delay();
+	gpio_set(PORT_MIXER, PIN_MIXER_SCLK);
+
+	serial_delay();
+	gpio_clear(PORT_MIXER, PIN_MIXER_SCLK);
+
+	serial_delay();
+	gpio_set(PORT_MIXER, PIN_MIXER_SCLK);
+
+	serial_delay();
+	gpio_clear(PORT_MIXER, PIN_MIXER_SCLK);
 
 	/* start transaction by bringing ENX low */
 	gpio_clear(PORT_MIXER, PIN_MIXER_ENX);
-	serial_delay();
 
 	while (bits--) {
 		if (data & msb)
