@@ -27,7 +27,6 @@ use UNISIM.vcomponents.all;
 entity top is
     Port(
         HOST_DATA       : inout std_logic_vector(7 downto 0);
-        HOST_CLK        : out   std_logic;
         HOST_CAPTURE    : out   std_logic;
         HOST_DISABLE    : in    std_logic;
         HOST_DIRECTION  : in    std_logic;
@@ -50,7 +49,6 @@ architecture Behavioral of top is
     signal dac_data_o : std_logic_vector(9 downto 0);
 
     signal host_clk_i : std_logic;
-    signal host_clk_o : std_logic;
 
     type transfer_direction is (from_adc, to_dac);
     signal transfer_direction_i : transfer_direction;
@@ -90,15 +88,10 @@ begin
                                 else (others => 'Z');
     data_from_host_i <= HOST_DATA;
 
-    HOST_CLK <= host_clk_o;
     HOST_CAPTURE <= host_data_capture_o;
     host_data_enable_i <= not HOST_DISABLE;
     transfer_direction_i <= to_dac when HOST_DIRECTION = '1'
                                    else from_adc;
-
-    ------------------------------------------------
-    
-    host_clk_o <= host_clk_i;
 
     ------------------------------------------------
     

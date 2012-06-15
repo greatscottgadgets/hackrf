@@ -29,7 +29,6 @@ ARCHITECTURE behavior OF top_tb IS
     COMPONENT top
     PORT(
         HOST_DATA : INOUT  std_logic_vector(7 downto 0);
-        HOST_CLK : OUT std_logic;
         HOST_CAPTURE : OUT std_logic;
         HOST_DISABLE : IN std_logic;
         HOST_DIRECTION : IN std_logic;
@@ -56,14 +55,12 @@ ARCHITECTURE behavior OF top_tb IS
 
  	--Outputs
     signal DD : std_logic_vector(9 downto 0);
-    signal HOST_CLK : std_logic;
     signal HOST_CAPTURE : std_logic;
     
 begin
  
     uut: top PORT MAP (
         HOST_DATA => HOST_DATA,
-        HOST_CLK => HOST_CLK,
         HOST_CAPTURE => HOST_CAPTURE,
         HOST_DISABLE => HOST_DISABLE,
         HOST_DIRECTION => HOST_DIRECTION,
@@ -126,10 +123,10 @@ begin
         
         for i in 0 to 10 loop
             HOST_DATA <= (others => '0');
-            wait until rising_edge(host_clk) and HOST_CAPTURE = '1';
+            wait until rising_edge(CODEC_CLK) and HOST_CAPTURE = '1';
             
             HOST_DATA <= (others => '1');
-            wait until rising_edge(host_clk) and HOST_CAPTURE = '1';
+            wait until rising_edge(CODEC_CLK) and HOST_CAPTURE = '1';
         end loop;
         
         wait;
