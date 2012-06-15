@@ -194,8 +194,23 @@ void configure_sgpio_test_tx() {
 	    (1L << SGPIO_SLICE_A)
     ;
 
-    // Enable codec data stream.
-    SGPIO_GPIO_OUTREG &= ~(1L << 10);
+	// LSB goes out first, samples are 0x<Q1><I1><Q0><I0>
+	volatile uint32_t buffer[] = {
+		0xda808080,
+		0xda80ff80,
+		0x26808080,
+		0x26800180,
+	};
+	uint32_t i = 0;
+
+	// Enable codec data stream.
+	SGPIO_GPIO_OUTREG &= ~(1L << 10);
+	
+	while(true) {
+		while(SGPIO_STATUS_1 == 0);
+		SGPIO_REG_SS(SGPIO_SLICE_A) = buffer[(i++) & 3];
+		SGPIO_CLR_STATUS_1 = 1;
+	}
 }
 
 void configure_sgpio_test_rx() {
