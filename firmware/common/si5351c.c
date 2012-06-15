@@ -188,7 +188,7 @@ void si5351c_configure_multisynth(const uint_fast8_t ms_number,
  *   CLK3_PDN=0 (powered up)
  *   MS3_INT=1 (integer mode)
  *   MS3_SRC=0 (PLLA as source for MultiSynth 3)
- *   CLK3_INV=1 (inverted)
+ *   CLK3_INV=0 (inverted)
  *   CLK3_SRC=2 (MS0 as input source)
  *   CLK3_IDRV=3 (8mA)
  * CLK4:
@@ -208,7 +208,7 @@ void si5351c_configure_multisynth(const uint_fast8_t ms_number,
  */
 void si5351c_configure_clock_control()
 {
-	uint8_t data[] = { 16, 0x4F, 0x4B, 0x4B, 0x5B, 0x0F, 0x4F, 0xC0, 0xC0 };
+	uint8_t data[] = { 16, 0x4F, 0x4B, 0x4B, 0x4B, 0x0F, 0x4F, 0xC0, 0xC0 };
 	si5351c_write(data, sizeof(data));
 }
 

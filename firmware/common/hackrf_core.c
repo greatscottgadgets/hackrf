@@ -57,10 +57,10 @@ void cpu_clock_init(void)
 	/* MS0/CLK1 is the source for the MAX5864 codec. */
 	si5351c_configure_multisynth(1, 4608, 0, 1, 2); /* 10MHz */
 
-	/* MS0/CLK2 is the source for the CPLD clock. */
-	si5351c_configure_multisynth(2, 4608, 0, 1, 1); /* 20MHz */
+	/* MS0/CLK2 is the source for the CPLD codec clock (same as CLK1). */
+	si5351c_configure_multisynth(2, 4608, 0, 1, 2); /* 10MHz */
 
-	/* MS0/CLK3 is the source for the CPLD clock (inverted). */
+	/* MS0/CLK3 is the source for the SGPIO clock. */
 	si5351c_configure_multisynth(3, 4608, 0, 1, 1); /* 20MHz */
 
 	/* MS4/CLK4 is the source for the LPC43xx microcontroller. */
