@@ -384,7 +384,7 @@ __MREG__(MAX2837_TXVGA_GAIN_SPI_EN,29,0,1) // Enable SPI control of TXVGA gain
 __MREG__(MAX2837_TXVGA_GAIN_MSB_SPI_EN,29,1,1)
 __MREG__(MAX2837_TX_DCCORR_SPI_EN,29,2,1)
 __MREG__(MAX2837_FUSE_ARM,29,3,1)      // Fuse burn enable
-__MREG__(MAX2837_TXVGA_GAIN,29,5,6)    // 0 = min atten, 63 = max atten
+__MREG__(MAX2837_TXVGA_GAIN,29,9,6)    // 0 = min atten, 63 = max atten
 
 /* REG 30 */
 __MREG__(MAX2837_TXLO_IQ,30,4,5)
