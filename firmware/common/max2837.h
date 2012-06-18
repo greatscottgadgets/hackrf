@@ -42,5 +42,6 @@ extern void max2837_stop(void);
 extern void max2837_set_frequency(uint32_t freq);
 
 extern void max2837_tx(void);
+extern void max2837_rx(void);
 
 #endif // __MAX2837_H
