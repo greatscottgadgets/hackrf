@@ -45,10 +45,11 @@ void pin_setup(void) {
 	GPIO6_DIR = 0;
 	GPIO7_DIR = 0;
 
-	/* Configure GPIO2[1/2/8] (P4_1/2 P6_12) as output. */GPIO2_DIR |= (PIN_LED1
-			| PIN_LED2 | PIN_LED3);
+	/* Configure GPIO2[1/2/8] (P4_1/2 P6_12) as output. */
+	GPIO2_DIR |= (PIN_LED1 | PIN_LED2 | PIN_LED3);
 
-	/* GPIO3[6] on P6_10  as output. */GPIO3_DIR |= PIN_EN1V8;
+	/* GPIO3[6] on P6_10  as output. */
+	GPIO3_DIR |= PIN_EN1V8;
 
 	/* Configure SSP1 Peripheral (to be moved later in SSP driver) */
 	scu_pinmux(SCU_SSP1_MISO, (SCU_SSP_IO | SCU_CONF_FUNCTION5));
@@ -67,10 +68,10 @@ void release_cpld_jtag_pins() {
 	scu_pinmux(SCU_PINMUX_CPLD_TMS, SCU_GPIO_NOPULL | SCU_CONF_FUNCTION0);
 	scu_pinmux(SCU_PINMUX_CPLD_TDI, SCU_GPIO_NOPULL | SCU_CONF_FUNCTION0);
 
-	GPIO_CLR(PORT_CPLD_TDO) = PIN_CPLD_TDO;
-	GPIO_CLR(PORT_CPLD_TCK) = PIN_CPLD_TCK;
-	GPIO_CLR(PORT_CPLD_TMS) = PIN_CPLD_TMS;
-	GPIO_CLR(PORT_CPLD_TDI) = PIN_CPLD_TDI;
+	GPIO_DIR(PORT_CPLD_TDO) &= ~PIN_CPLD_TDO;
+	GPIO_DIR(PORT_CPLD_TCK) &= ~PIN_CPLD_TCK;
+	GPIO_DIR(PORT_CPLD_TMS) &= ~PIN_CPLD_TMS;
+	GPIO_DIR(PORT_CPLD_TDI) &= ~PIN_CPLD_TDI;
 }
 
 void configure_sgpio_pin_functions() {
@@ -131,7 +132,7 @@ void test_sgpio_interface() {
 	}
 }
 
-void configure_sgpio() {
+void configure_sgpio_test_tx() {
 	// Disable all counters during configuration
 	SGPIO_CTRL_ENABLE = 0;
 
@@ -144,9 +145,11 @@ void configure_sgpio() {
 
 	// Enable SGPIO pin outputs.
 	SGPIO_GPIO_OENREG =
-		(1L << 11) |    // direction
+		(1L << 11) |    // direction: TX: data to CPLD
 	    (1L << 10) |    // disable
-        0xFF;
+	    (0L <<  9) |    // capture
+	    (0L <<  8) |    // clock
+        0xFF;           // data: output
 
 	SGPIO_OUT_MUX_CFG( 8) = 0;   // SGPIO: Input: clock
 	SGPIO_OUT_MUX_CFG( 9) = 0;   // SGPIO: Input: qualifier
@@ -183,42 +186,100 @@ void configure_sgpio() {
 	SGPIO_PRESET(SGPIO_SLICE_A) = 0;
 	SGPIO_COUNT(SGPIO_SLICE_A) = 0;
 	SGPIO_POS(SGPIO_SLICE_A) = (0x3L << 8) | (0x3L << 0);
-	SGPIO_REG(SGPIO_SLICE_A) = 0xFF00FF00;     // Primary output data register
-	SGPIO_REG_SS(SGPIO_SLICE_A) = 0xFF00FF00;  // Shadow output data register
-    /*
-	// Slice D (clock for Slice A)
-	LPC_SGPIO->SGPIO_MUX_CFG[3] =
-	    (0L << 12) |    // CONCAT_ORDER = 0 (self-loop)
-	    (1L << 11) |    // CONCAT_ENABLE = 1 (concatenate data)
-	    (0L <<  9) |    // QUALIFIER_SLICE_MODE = X
-	    (0L <<  7) |    // QUALIFIER_PIN_MODE = X
-	    (0L <<  5) |    // QUALIFIER_MODE = 0 (enable)
-	    (0L <<  3) |    // CLK_SOURCE_SLICE_MODE = 0, slice D
-	    (0L <<  1) |    // CLK_SOURCE_PIN_MODE = X
-	    (0L <<  0);     // EXT_CLK_ENABLE = 0, internal clock signal (slice)
+	SGPIO_REG(SGPIO_SLICE_A) = 0x80808080;     // Primary output data register
+	SGPIO_REG_SS(SGPIO_SLICE_A) = 0x80808080;  // Shadow output data register
 
-	LPC_SGPIO->SLICE_MUX_CFG[3] =
+	// Start SGPIO operation by enabling slice clocks.
+	SGPIO_CTRL_ENABLE =
+	    (1L << SGPIO_SLICE_A)
+    ;
+
+	// LSB goes out first, samples are 0x<Q1><I1><Q0><I0>
+	volatile uint32_t buffer[] = {
+		0xda808080,
+		0xda80ff80,
+		0x26808080,
+		0x26800180,
+	};
+	uint32_t i = 0;
+
+	// Enable codec data stream.
+	SGPIO_GPIO_OUTREG &= ~(1L << 10);
+	
+	while(true) {
+		while(SGPIO_STATUS_1 == 0);
+		SGPIO_REG_SS(SGPIO_SLICE_A) = buffer[(i++) & 3];
+		SGPIO_CLR_STATUS_1 = 1;
+	}
+}
+
+void configure_sgpio_test_rx() {
+	// Disable all counters during configuration
+	SGPIO_CTRL_ENABLE = 0;
+
+    configure_sgpio_pin_functions();
+
+    // Set SGPIO output values.
+    SGPIO_GPIO_OUTREG =
+        (0L << 11) |    // direction
+        (1L << 10);     // disable
+
+	// Enable SGPIO pin outputs.
+	SGPIO_GPIO_OENREG =
+		(1L << 11) |    // direction: RX: data from CPLD
+	    (1L << 10) |    // disable
+	    (0L <<  9) |    // capture
+	    (0L <<  8) |    // clock
+        0x00;           // data: input
+
+	SGPIO_OUT_MUX_CFG( 8) = 0;   // SGPIO: Input: clock
+	SGPIO_OUT_MUX_CFG( 9) = 0;   // SGPIO: Input: qualifier
+    SGPIO_OUT_MUX_CFG(10) = (0L << 4) | (4L << 0);   // GPIO: Output: disable
+    SGPIO_OUT_MUX_CFG(11) = (0L << 4) | (4L << 0);   // GPIO: Output: direction
+
+	for(uint_fast8_t i=0; i<8; i++) {
+		SGPIO_OUT_MUX_CFG(i) =
+		    (0L <<  4) |    // P_OE_CFG = 0
+		    (9L <<  0);     // P_OUT_CFG = 9, dout_doutm8a (8-bit mode 8a)
+	}
+
+	// Slice A
+	SGPIO_MUX_CFG(SGPIO_SLICE_A) =
+	    (0L << 12) |    // CONCAT_ORDER = X
+	    (0L << 11) |    // CONCAT_ENABLE = 0 (concatenate data)
+	    (0L <<  9) |    // QUALIFIER_SLICE_MODE = X
+	    (1L <<  7) |    // QUALIFIER_PIN_MODE = 1 (SGPIO9)
+	    (3L <<  5) |    // QUALIFIER_MODE = 3 (external SGPIO pin)
+	    (0L <<  3) |    // CLK_SOURCE_SLICE_MODE = X
+	    (0L <<  1) |    // CLK_SOURCE_PIN_MODE = 0 (SGPIO8)
+	    (1L <<  0);     // EXT_CLK_ENABLE = 1, external clock signal (slice)
+
+	SGPIO_SLICE_MUX_CFG(SGPIO_SLICE_A) =
 	    (0L <<  8) |    // INV_QUALIFIER = 0 (use normal qualifier)
-	    (0L <<  6) |    // PARALLEL_MODE = 0 (shift 1 bit per clock)
+	    (3L <<  6) |    // PARALLEL_MODE = 3 (shift 8 bits per clock)
 	    (0L <<  4) |    // DATA_CAPTURE_MODE = 0 (detect rising edge)
-	    (0L <<  3) |    // INV_OUT_CLK = 0 (normal clock)
-	    (0L <<  2) |    // CLKGEN_MODE = 0 (use clock from COUNTER)
+	    (0L <<  3) |    // INV_OUT_CLK = X
+	    (1L <<  2) |    // CLKGEN_MODE = 1 (use external pin clock)
 	    (0L <<  1) |    // CLK_CAPTURE_MODE = 0 (use rising clock edge)
 	    (0L <<  0);     // MATCH_MODE = 0 (do not match data)
 
-	LPC_SGPIO->PRESET[3] = 0;
-	LPC_SGPIO->COUNT[3] = 0;
-	LPC_SGPIO->POS[3] = (0x1FL << 8) | (0x1FL << 0);
-	LPC_SGPIO->REG[0] = 0xAAAAAAAA;     // Primary output data register
-	LPC_SGPIO->REG_SS[0] = 0xAAAAAAAA;  // Shadow output data register
-    */
-	// Start SGPIO operation by enabling slice clocks.
-	SGPIO_CTRL_ENABLE =
-	    (1L <<  0)      // Slice A
-    ;
+	SGPIO_PRESET(SGPIO_SLICE_A) = 0;
+	SGPIO_COUNT(SGPIO_SLICE_A) = 0;
+	SGPIO_POS(SGPIO_SLICE_A) = (3 << 8) | (3 << 0);
+	SGPIO_REG(SGPIO_SLICE_A) = 0xCAFEBABE;     // Primary output data register
+	SGPIO_REG_SS(SGPIO_SLICE_A) = 0xDEADBEEF;  // Shadow output data register
+    
+    volatile uint32_t buffer[4096];
+    uint32_t i = 0;
 
     // Enable codec data stream.
     SGPIO_GPIO_OUTREG &= ~(1L << 10);
+
+    while(true) {
+        while(SGPIO_STATUS_1 == 0);
+        SGPIO_CLR_STATUS_1 = 1;
+        buffer[i++ & 4095] = SGPIO_REG_SS(SGPIO_SLICE_A);
+    }
 }
 
 int main(void) {
@@ -235,7 +296,7 @@ int main(void) {
 	gpio_set(PORT_LED1_3, (PIN_LED1 | PIN_LED2 | PIN_LED3)); /* LEDs on */
 
 	//test_sgpio_interface();
-	configure_sgpio();
+	configure_sgpio_test_rx();
 
 	while (1) {
 
