@@ -1,4 +1,4 @@
-EESchema Schematic File Version 2  date Mon Jun  4 14:43:25 2012
+EESchema Schematic File Version 2  date Mon Jun 18 21:32:45 2012
 LIBS:power
 LIBS:device
 LIBS:transistors
@@ -37,7 +37,7 @@ $Descr User 17000 11000
 encoding utf-8
 Sheet 1 1
 Title ""
-Date "4 jun 2012"
+Date "19 jun 2012"
 Rev ""
 Comp ""
 Comment1 ""
@@ -1516,21 +1516,21 @@ SWTXV2
 Text Label 2350 9500 2    40   ~ 0
 SWTXA1
 Text Label 2350 9400 2    40   ~ 0
-SWTXB2
+SWTXB1
 Text Label 2350 9700 2    40   ~ 0
-SWTXB2
+SWTXB1
 Text Label 650  9800 0    40   ~ 0
 SWRXV3
 Text Label 650  9700 0    40   ~ 0
 SWRXA1
 Text Label 650  9600 0    40   ~ 0
-SWRXB1
+SWRXB2
 Text Label 650  9500 0    40   ~ 0
 SWRXV2
 Text Label 650  9400 0    40   ~ 0
 SWRXA2
 Text Label 650  9300 0    40   ~ 0
-SWRXB1
+SWRXB2
 $Comp
 L GND #PWR017
 U 1 1 4FB2FE41
@@ -2336,7 +2336,7 @@ antenna diversity switches
 Text Label 4250 1650 0    40   ~ 0
 SWTXV1
 Text Label 5850 1550 2    40   ~ 0
-SWTXB1
+SWTXB2
 Text Label 5850 1650 2    40   ~ 0
 SWTXV2
 $Comp
@@ -2501,7 +2501,7 @@ F 1 "GND" H 5050 2230 30  0001 C CNN
 	1    0    0    -1  
 $EndComp
 Text Label 4250 7950 0    40   ~ 0
-SWRXB2
+SWRXB1
 Text Label 5850 7950 2    40   ~ 0
 SWRXV2
 Text Label 5850 7850 2    40   ~ 0
