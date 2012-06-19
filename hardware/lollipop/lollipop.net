@@ -1,7 +1,7 @@
-# EESchema Netlist Version 1.1 created  Fri Jun  1 13:26:15 2012
+# EESchema Netlist Version 1.1 created  Tue Jun 19 10:24:29 2012
 (
  ( /4FC55556 $noname  T6 RX_LOWPASS_BALUN {Lib=BALUN-RFXF9503}
-  (    1 N-000051 )
+  (    1 N-000050 )
   (    3 GND )
   (    4 N-000097 )
   (    5 N-000021 )
@@ -55,7 +55,7 @@
  ( /4FB6812A $noname  U18 SKY13351 {Lib=SKY13351}
   (    1 N-000071 )
   (    2 GND )
-  (    3 N-000046 )
+  (    3 N-000045 )
   (    4 /SWRXB2 )
   (    5 N-000086 )
   (    6 /SWRXB1 )
@@ -104,7 +104,7 @@
   (    0 GND )
   (    1 N-000010 )
   (    2 ? )
-  (    3 /SWRXB2 )
+  (    3 /SWRXB1 )
   (    4 N-000094 )
   (    5 N-000096 )
   (    6 /SWRXV2 )
@@ -206,19 +206,19 @@
  )
  ( /4FB2F209 $noname  U19 GSG-74HC08 {Lib=GSG-74HC08}
   (    0 GND )
-  (    1 /SWRXB1 )
+  (    1 /SWRXB2 )
   (    2 /SWRXA2 )
   (    3 /SWRXV2 )
-  (    4 /SWRXB1 )
+  (    4 /SWRXB2 )
   (    5 /SWRXA1 )
   (    6 /SWRXV3 )
   (    7 GND )
   (    8 /SWTXV1 )
   (    9 /SWTXA2 )
-  (   10 /SWTXB2 )
+  (   10 /SWTXB1 )
   (   11 /SWTXV2 )
   (   12 /SWTXA1 )
-  (   13 /SWTXB2 )
+  (   13 /SWTXB1 )
   (   14 VCC )
  )
  ( /4FAECFAE $noname  R6 4k7 {Lib=R}
@@ -371,7 +371,7 @@
  )
  ( /4FAA1282 $noname  C5 47pF {Lib=C}
   (    1 N-000053 )
-  (    2 N-000043 )
+  (    2 N-000042 )
  )
  ( /4FAA138A $noname  C67 47pF {Lib=C}
   (    1 N-000094 )
@@ -459,7 +459,7 @@
  )
  ( /4FAA0C51 $noname  C25 100pF {Lib=C}
   (    1 N-000089 )
-  (    2 N-000041 )
+  (    2 N-000040 )
  )
  ( /4FAA0C50 $noname  C32 33pF {Lib=C}
   (    1 /SWTXA1 )
@@ -517,20 +517,20 @@
   (    2 N-000071 )
  )
  ( /4FAA08E4 $noname  C73 100pF {Lib=C}
-  (    1 N-000046 )
+  (    1 N-000045 )
   (    2 N-000064 )
  )
  ( /4FAA074B $noname  C12 100pF {Lib=C}
   (    1 N-000116 )
-  (    2 N-000049 )
+  (    2 N-000048 )
  )
  ( /4FAA0746 $noname  C10 100pF {Lib=C}
-  (    1 N-000042 )
+  (    1 N-000041 )
   (    2 N-000099 )
  )
  ( /4FAA071E $noname  C11 100pF {Lib=C}
   (    1 N-000115 )
-  (    2 N-000048 )
+  (    2 N-000047 )
  )
  ( /4FAA0711 $noname  C13 33pF {Lib=C}
   (    1 /SWTXB2 )
@@ -542,7 +542,7 @@
  )
  ( /4FA9C7B1 $noname  C4 100pF {Lib=C}
   (    1 N-000118 )
-  (    2 N-000047 )
+  (    2 N-000046 )
  )
  ( /4FA9C7AF $noname  C2 100pF {Lib=C}
   (    1 N-000098 )
@@ -550,7 +550,7 @@
  )
  ( /4FA9C6EF $noname  C3 100pF {Lib=C}
   (    1 N-000117 )
-  (    2 N-000044 )
+  (    2 N-000043 )
  )
  ( /4FA9C6ED $noname  C6 33pF {Lib=C}
   (    1 /SWTXB2 )
@@ -568,23 +568,23 @@
   (    5 GND )
  )
  ( /4FA9C5A4 $noname  P1 TX-IN {Lib=GSG-SMA-CONN}
-  (    1 N-000045 )
+  (    1 N-000044 )
   (    2 GND )
   (    3 GND )
   (    4 GND )
   (    5 GND )
  )
  ( /4FA9C4DF $noname  T1 TX_IF_BALUN {Lib=BALUN}
-  (    1 N-000045 )
+  (    1 N-000044 )
   (    2 GND )
-  (    3 N-000044 )
-  (    4 N-000048 )
+  (    3 N-000043 )
+  (    4 N-000047 )
   (    5 GND )
  )
  ( /4F94CC10 $noname  T2 TX_BANDPASS_BALUN {Lib=BALUN}
-  (    1 N-000043 )
+  (    1 N-000042 )
   (    2 GND )
-  (    3 N-000042 )
+  (    3 N-000041 )
   (    4 N-000098 )
   (    5 GND )
  )
@@ -592,11 +592,11 @@
   (    1 N-000052 )
   (    2 GND )
   (    3 N-000090 )
-  (    4 N-000041 )
+  (    4 N-000040 )
   (    5 GND )
  )
  ( /4F94D601 $noname  T5 RX_HIGHPASS_BALUN {Lib=BALUN}
-  (    1 N-000050 )
+  (    1 N-000049 )
   (    2 GND )
   (    3 N-000077 )
   (    4 N-000102 )
@@ -623,8 +623,8 @@
   (   10 /REF_IN )
   (   11 ? )
   (   12 GND )
-  (   13 N-000049 )
-  (   14 N-000047 )
+  (   13 N-000048 )
+  (   14 N-000046 )
   (   15 /GPO1 )
   (   16 /GPO2 )
   (   17 N-000031 )
@@ -645,7 +645,7 @@
   (   32 /SDATA )
  )
  ( /4F94D561 $noname  U13 RX_LOWPASS_FILTER {Lib=FIL-LP0603}
-  (    1 N-000051 )
+  (    1 N-000050 )
   (    2 N-000095 )
   (    3 GND )
   (    4 GND )
@@ -653,7 +653,7 @@
  ( /4F94D4F4 $noname  U11 TX_HIGHPASS_FILTER {Lib=FIL-DEA}
   (    1 N-000078 )
   (    2 GND )
-  (    3 N-000050 )
+  (    3 N-000049 )
   (    4 GND )
  )
  ( /4F94D0F2 $noname  P2 TX/RX {Lib=GSG-SMA-CONN}
@@ -678,7 +678,7 @@
   (    4 N-000056 )
   (    5 N-000055 )
   (    6 /SWTXV2 )
-  (    7 /SWTXB1 )
+  (    7 /SWTXB2 )
   (    8 N-000053 )
  )
  ( /4F94CF46 $noname  U5 TX_LOWPASS_FILTER {Lib=FIL-LP0603}
@@ -1138,11 +1138,12 @@ Net 2 "" ""
  C30 2
  R3 1
 Net 3 "GND" "GND"
+ U16 2
+ U17 0
+ C69 2
  U2 2
  U12 2
- C69 2
  U14 2
- U18 2
  U19 7
  P5 2
  P5 3
@@ -1151,14 +1152,14 @@ Net 3 "GND" "GND"
  P1 2
  C6 2
  U4 2
- U17 0
- U16 2
  D1 1
  U19 0
- U7 2
  P6 1
+ U7 2
  C27 2
  C38 2
+ U18 2
+ P4 9
  C50 2
  C58 2
  U17 7
@@ -1182,58 +1183,57 @@ Net 3 "GND" "GND"
  T6 3
  U5 3
  U5 4
+ T7 2
  U8 2
  U8 4
- T7 2
  T5 5
  U13 3
  U13 4
  T2 2
- U10 2
+ U1 12
  T1 5
+ U10 2
  T2 5
- U6 2
  T4 2
+ U6 2
  T4 5
  T1 2
  U9 2
- P4 9
  P1 3
  C1 2
  U15 0
  P1 4
  P1 5
- U1 12
- C26 2
  R4 1
+ C26 2
  C21 2
  C20 2
+ C70 2
  C75 2
  C48 2
- C70 2
- P4 10
+ C41 2
  C62 2
  C22 2
  C18 2
+ C32 2
  C19 2
  C17 2
+ P4 10
  C16 2
  C39 2
- C32 2
- C15 2
  C57 2
  C56 2
  C55 2
  C54 2
- C41 2
+ C15 2
  C42 2
  C49 2
  C29 2
  C28 2
- P8 1
+ P7 13
  P7 14
  C76 2
- P7 13
+ P8 1
  P8 3
  P8 5
  C14 2
@@ -1245,15 +1245,15 @@ Net 3 "GND" "GND"
  T8 5
  T8 2
 Net 4 "VCC" "VCC"
- U1 5
  U1 22
- C76 1
+ U1 5
+ P8 2
  L5 2
  L4 2
  L1 1
  P8 6
  P8 4
- P8 2
+ C76 1
  C61 1
  U17 14
  U19 14
@@ -1269,13 +1269,13 @@ Net 4 "VCC" "VCC"
  C20 1
  C21 1
  U1 19
- C69 1
  L2 1
+ C69 1
 Net 5 "/RESETX" "RESETX"
  P4 7
- U1 29
- C54 1
  P4 8
+ C54 1
+ U1 29
  R5 2
 Net 8 "" ""
  U10 3
@@ -1287,30 +1287,30 @@ Net 10 "" ""
  C44 2
  U15 1
 Net 11 "" ""
- C44 1
  U10 5
+ C44 1
 Net 12 "" ""
- T7 1
  C67 2
+ T7 1
 Net 13 "/SWD2" "SWD2"
+ C38 1
+ U7 6
  C41 1
  U10 6
- C38 1
  U17 10
- U7 6
 Net 14 "" ""
  C34 1
  U9 1
 Net 15 "" ""
- U6 5
  C24 1
+ U6 5
 Net 16 "" ""
  C36 1
  U9 5
 Net 17 "" ""
+ C64 1
  U1 28
  L6 1
- C64 1
  L5 1
 Net 18 "" ""
  T3 4
@@ -1319,14 +1319,14 @@ Net 19 "" ""
  C8 2
  U8 1
 Net 20 "" ""
- C63 1
  U15 8
+ C63 1
 Net 21 "" ""
- T6 5
  C47 2
+ T6 5
 Net 22 "" ""
- C52 1
  U14 5
+ C52 1
 Net 23 "" ""
  C45 1
  U12 5
@@ -1334,36 +1334,36 @@ Net 24 "" ""
  C23 2
  T3 5
 Net 25 "" ""
- C23 1
  U6 1
+ C23 1
 Net 26 "/SWRXB1" "SWRXB1"
  U18 6
- P7 3
- U17 3
+ U16 6
+ U15 3
  C60 1
  C70 1
- U19 1
- U16 6
- U19 4
+ P7 3
+ U17 3
 Net 27 "/SWTXB1" "SWTXB1"
- P7 1
- C1 1
  U4 6
+ C1 1
  U2 6
+ U19 10
+ U19 13
  U17 1
- U3 7
  C7 1
+ P7 1
 Net 28 "/SWRXA1" "SWRXA1"
- U14 6
  P7 9
- U17 9
  U19 5
+ U17 9
+ C42 1
+ U14 6
  U12 6
  C50 1
- C42 1
 Net 30 "/SWTXA1" "SWTXA1"
- C32 1
  P7 5
+ C32 1
  C15 1
  U6 6
  U9 6
@@ -1372,128 +1372,128 @@ Net 30 "/SWTXA1" "SWTXA1"
 Net 31 "" ""
  U1 17
  L1 2
- C24 2
  L3 2
+ C24 2
 Net 32 "/CLK" "CLK"
- C74 1
  P6 2
+ C74 1
 Net 35 "/SWRXV3" "SWRXV3"
- U15 7
  U19 6
-Net 36 "/SWRXA2" "SWRXA2"
- U14 4
- C49 1
- U12 4
- U19 2
- U17 8
- C58 1
-Net 37 "/SWRXV2" "SWRXV2"
- U19 3
- U15 6
-Net 38 "/SWTXB2" "SWTXB2"
- U4 4
- C13 1
- U17 2
- U19 13
- U19 10
- U2 4
- C6 1
-Net 39 "/SWTXA2" "SWTXA2"
- U17 6
- U6 4
- U9 4
- C39 1
- C26 1
- U19 9
-Net 40 "/SWRXB2" "SWRXB2"
- U15 3
+ U15 7
+Net 36 "/SWRXB2" "SWRXB2"
+ U19 4
+ U16 4
  C68 1
  U18 4
- U16 4
+ U19 1
  U17 4
  C75 1
-Net 41 "" ""
+Net 37 "/SWRXA2" "SWRXA2"
+ U19 2
+ C49 1
+ C58 1
+ U17 8
+ U12 4
+ U14 4
+Net 38 "/SWRXV2" "SWRXV2"
+ U15 6
+ U19 3
+Net 39 "/SWTXA2" "SWTXA2"
+ U9 4
+ U19 9
+ C39 1
+ U17 6
+ U6 4
+ C26 1
+Net 40 "" ""
  C25 2
  T4 4
-Net 42 "" ""
- T2 3
+Net 41 "" ""
  C10 1
-Net 43 "" ""
- T2 1
+ T2 3
+Net 42 "" ""
  C5 2
-Net 44 "" ""
+ T2 1
+Net 43 "" ""
  T1 3
  C3 2
-Net 45 "" ""
- T1 1
+Net 44 "" ""
  P1 1
-Net 46 "" ""
+ T1 1
+Net 45 "" ""
  C73 1
  U18 3
-Net 47 "" ""
+Net 46 "" ""
  U1 14
  C4 2
-Net 48 "" ""
+Net 47 "" ""
  C11 2
  T1 4
-Net 49 "" ""
+Net 48 "" ""
  C12 2
  U1 13
-Net 50 "" ""
- U11 3
+Net 49 "" ""
  T5 1
-Net 51 "" ""
- U13 1
+ U11 3
+Net 50 "" ""
  T6 1
+ U13 1
+Net 51 "/SWTXB2" "SWTXB2"
+ U2 4
+ C13 1
+ U4 4
+ U17 2
+ U3 7
+ C6 1
 Net 52 "" ""
- T4 1
  U8 3
+ T4 1
 Net 53 "" ""
- C5 1
  U3 8
+ C5 1
 Net 54 "/SWTXV2" "SWTXV2"
  U19 11
  U3 6
 Net 55 "" ""
- C9 2
  U3 5
+ C9 2
 Net 56 "" ""
  U3 4
  C8 1
 Net 57 "/SWTXV1" "SWTXV1"
- U19 8
  U3 3
+ U19 8
 Net 59 "/GPO6" "GPO6"
- U1 9
  P7 12
+ U1 9
 Net 60 "" ""
  R4 2
  U1 4
 Net 61 "/GPO5" "GPO5"
- P7 10
  U1 1
+ P7 10
 Net 62 "/REF_IN" "REF_IN"
  U1 10
  C74 2
  C77 1
 Net 63 "" ""
- T7 4
  C66 2
+ T7 4
 Net 64 "" ""
- T7 3
  C73 2
+ T7 3
 Net 65 "/GPO4" "GPO4"
  P7 8
  U1 26
 Net 66 "/GPO2" "GPO2"
- P7 4
  U1 16
+ P7 4
 Net 67 "/GPO3" "GPO3"
- P7 6
  U1 25
+ P7 6
 Net 68 "/GPO1" "GPO1"
- U1 15
  P7 2
+ U1 15
 Net 69 "" ""
  C52 2
  U1 24
@@ -1504,11 +1504,11 @@ Net 71 "" ""
  C71 2
  U18 1
 Net 75 "" ""
- C43 2
  U12 3
+ C43 2
 Net 76 "" ""
- U14 3
  C51 2
+ U14 3
 Net 77 "" ""
  T5 3
  C51 1
@@ -1519,17 +1519,17 @@ Net 79 "" ""
  U7 5
  C35 1
 Net 80 "" ""
- C33 2
  U7 3
+ C33 2
 Net 81 "" ""
  C40 1
  U7 1
 Net 82 "" ""
- C65 2
  T8 3
+ C65 2
 Net 83 "" ""
- U16 5
  C65 1
+ U16 5
 Net 84 "" ""
  C72 2
  T8 4
@@ -1540,32 +1540,32 @@ Net 86 "" ""
  U18 5
  C72 1
 Net 87 "" ""
- U16 3
  C66 1
+ U16 3
 Net 88 "" ""
- U16 1
  C64 2
+ U16 1
 Net 89 "" ""
- U6 3
  C25 1
+ U6 3
 Net 90 "" ""
- C37 2
  T4 3
+ C37 2
 Net 91 "" ""
- U9 3
  C37 1
+ U9 3
 Net 92 "" ""
- C53 1
  U14 1
+ C53 1
 Net 93 "" ""
- C47 1
  U12 1
+ C47 1
 Net 94 "" ""
  U15 4
  C67 1
 Net 95 "" ""
- C63 2
  U13 2
+ C63 2
 Net 96 "" ""
  C59 2
  U15 5
@@ -1573,32 +1573,32 @@ Net 97 "" ""
  T6 4
  C53 2
 Net 98 "" ""
- T2 4
  C2 1
+ T2 4
 Net 99 "" ""
- U4 1
  C10 2
+ U4 1
 Net 100 "/SWD1" "SWD1"
- C27 1
- U7 4
- P7 11
  U17 11
  C48 1
+ U7 4
+ C27 1
+ P7 11
  U10 4
 Net 101 "" ""
- U5 2
  C9 1
+ U5 2
 Net 102 "" ""
  T5 4
  C43 1
 Net 103 "" ""
  L3 1
  U1 18
- C36 2
  L2 2
+ C36 2
 Net 108 "" ""
- T3 1
  U5 1
+ T3 1
 Net 109 "" ""
  C46 2
  D2 2
@@ -1608,28 +1608,28 @@ Net 110 "" ""
  P2 1
  C35 2
 Net 111 "" ""
- U10 1
  C40 2
+ U10 1
 Net 112 "/ENX" "ENX"
- P4 5
+ R6 2
+ C55 1
  U1 30
  P4 6
- C55 1
- R6 2
+ P4 5
 Net 113 "/SDATA" "SDATA"
- U1 32
  C57 1
- P4 2
+ U1 32
  P4 1
+ P4 2
 Net 115 "" ""
- C11 1
  U4 5
+ C11 1
 Net 116 "" ""
- C12 1
  U4 3
+ C12 1
 Net 117 "" ""
- C3 1
  U2 5
+ C3 1
 Net 118 "" ""
  C4 1
  U2 3
@@ -1638,19 +1638,19 @@ Net 119 "" ""
  U2 1
 Net 120 "" ""
  C30 1
- R2 1
  C31 1
+ R2 1
  U1 7
 Net 121 "/SCLK" "SCLK"
  C56 1
  U1 31
- P4 4
  P4 3
+ P4 4
 Net 122 "" ""
- L6 2
- C71 1
- L4 1
  U1 27
+ L4 1
+ C71 1
+ L6 2
 Net 123 "" ""
  R2 2
  C29 1
