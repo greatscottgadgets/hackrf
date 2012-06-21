@@ -27,6 +27,7 @@
 #include <libopencm3/cm3/scs.h>
 
 #include <hackrf_core.h>
+#include <max5864.h>
 
 void pin_setup(void) {
 	/* Configure SCU Pin Mux as GPIO */
@@ -286,6 +287,7 @@ int main(void) {
 	pin_setup();
 	enable_1v8_power();
 	cpu_clock_init();
+	ssp1_init();
 
 	CGU_BASE_PERIPH_CLK = (CGU_BASE_CLK_AUTOBLOCK
 			| (CGU_SRC_PLL1 << CGU_BASE_CLK_SEL_SHIFT));
@@ -293,10 +295,10 @@ int main(void) {
 	CGU_BASE_APB1_CLK = (CGU_BASE_CLK_AUTOBLOCK
 			| (CGU_SRC_PLL1 << CGU_BASE_CLK_SEL_SHIFT));
 
-	gpio_set(PORT_LED1_3, (PIN_LED1 | PIN_LED2 | PIN_LED3)); /* LEDs on */
+	gpio_set(PORT_LED1_3, PIN_LED1);
 
-	//test_sgpio_interface();
-	configure_sgpio_test_rx();
+	ssp1_set_mode_max5864();
+	max5864_xcvr();
 
 	while (1) {
 
