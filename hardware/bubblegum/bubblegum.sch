@@ -1,4 +1,4 @@
-EESchema Schematic File Version 2  date Thu Jun 21 11:46:05 2012
+EESchema Schematic File Version 2  date Thu Jun 21 12:06:12 2012
 LIBS:power
 LIBS:device
 LIBS:transistors
@@ -45,6 +45,24 @@ Comment2 ""
 Comment3 ""
 Comment4 ""
 $EndDescr
+Text Notes 7400 7750 0    40   ~ 0
+DC connection to GND required on IF1, IF2?
+Text Notes 7700 3450 0    40   ~ 0
+DC connection to GND required on RF1, RF2?
+NoConn ~ 8100 7000
+$Comp
+L BALUN T2
+U 1 1 4FE35EF4
+P 7800 3050
+F 0 "T2" H 7800 3300 70  0000 C CNN
+F 1 "RX_BALUN" H 7800 2750 70  0000 C CNN
+F 4 "Anaren" H 7800 3050 60  0001 C CNN "Manufacturer"
+F 5 "B0310J50100AHF" H 7800 3050 60  0001 C CNN "Part Number"
+F 6 "Ultra Low Profile 0805 Balun 50 to 100 Balanced" H 7800 3050 60  0001 C CNN "Description"
+	1    7800 3050
+	-1   0    0    1   
+$EndComp
+NoConn ~ 8200 3050
 Text Notes 11850 1150 0    40   ~ 0
 balun here may not not be needed if\ndirect connection to MAX2837 is made
 Text Notes 3450 4550 0    40   ~ 0
@@ -410,8 +428,6 @@ Wire Wire Line
 Wire Wire Line
 	2250 5250 2250 5150
 Wire Wire Line
-	8300 3050 8200 3050
-Wire Wire Line
 	7300 3250 7400 3250
 Wire Wire Line
 	4150 3450 4150 3150
@@ -481,8 +497,6 @@ Wire Wire Line
 	3450 6800 3550 6800
 Wire Wire Line
 	8750 6500 8750 6600
-Wire Wire Line
-	8200 7000 8100 7000
 Wire Wire Line
 	5250 6800 5350 6800
 Wire Wire Line
@@ -2204,15 +2218,6 @@ F 1 "GND" H 2450 3480 30  0001 C CNN
 	-1   0    0    1   
 $EndComp
 $Comp
-L GND #PWR10
-U 1 1 4FE0E7AF
-P 8300 3050
-F 0 "#PWR10" H 8300 3050 30  0001 C CNN
-F 1 "GND" H 8300 2980 30  0001 C CNN
-	1    8300 3050
-	0    -1   -1   0   
-$EndComp
-$Comp
 L GND #PWR11
 U 1 1 4FE0E7A7
 P 6150 2050
@@ -2273,15 +2278,6 @@ P 5350 6800
 F 0 "#PWR62" H 5350 6800 30  0001 C CNN
 F 1 "GND" H 5350 6730 30  0001 C CNN
 	1    5350 6800
-	0    -1   -1   0   
-$EndComp
-$Comp
-L GND #PWR59
-U 1 1 4FE0E735
-P 8200 7000
-F 0 "#PWR59" H 8200 7000 30  0001 C CNN
-F 1 "GND" H 8200 6930 30  0001 C CNN
-	1    8200 7000
 	0    -1   -1   0   
 $EndComp
 $Comp
@@ -2420,20 +2416,14 @@ F 1 "RX_LOWPASS_FILTER" H 5350 3550 60  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L BALUN T2
-U 1 1 4FE0D339
-P 7800 3050
-F 0 "T2" H 7800 3300 70  0000 C CNN
-F 1 "RX_BALUN" H 7800 2750 70  0000 C CNN
-	1    7800 3050
-	-1   0    0    1   
-$EndComp
-$Comp
 L BALUN T4
 U 1 1 4FE0D2EC
 P 7700 7000
 F 0 "T4" H 7700 7250 70  0000 C CNN
 F 1 "TX_BALUN" H 7700 6700 70  0000 C CNN
+F 4 "Anaren" H 7700 7000 60  0001 C CNN "Manufacturer"
+F 5 "B0310J50100AHF" H 7700 7000 60  0001 C CNN "Part Number"
+F 6 "Ultra Low Profile 0805 Balun 50 to 100 Balanced" H 7700 7000 60  0001 C CNN "Description"
 	1    7700 7000
 	-1   0    0    1   
 $EndComp
