@@ -1,4 +1,4 @@
-EESchema Schematic File Version 2  date Wed Jun 20 13:55:40 2012
+EESchema Schematic File Version 2  date Thu Jun 21 18:47:05 2012
 LIBS:power
 LIBS:device
 LIBS:transistors
@@ -37,7 +37,7 @@ $Descr User 17000 11000
 encoding utf-8
 Sheet 1 1
 Title ""
-Date "20 jun 2012"
+Date "22 jun 2012"
 Rev ""
 Comp ""
 Comment1 ""
@@ -45,6 +45,7 @@ Comment2 ""
 Comment3 ""
 Comment4 ""
 $EndDescr
+NoConn ~ 6500 5500
 Connection ~ 2200 7900
 Wire Wire Line
 	2200 7900 2200 8000
@@ -305,7 +306,7 @@ Wire Wire Line
 Wire Wire Line
 	5100 5500 4800 5500
 Wire Wire Line
-	5000 5800 5100 5800
+	5000 5200 5100 5200
 Wire Wire Line
 	4400 1850 4400 1750
 Wire Wire Line
@@ -313,7 +314,7 @@ Wire Wire Line
 Wire Wire Line
 	5100 3200 5000 3200
 Wire Wire Line
-	6300 5800 6400 5800
+	6300 5200 6400 5200
 Wire Wire Line
 	6400 6900 6300 6900
 Wire Wire Line
@@ -2543,10 +2544,10 @@ $EndComp
 $Comp
 L GND #PWR050
 U 1 1 4FAA1424
-P 5000 5800
-F 0 "#PWR050" H 5000 5800 30  0001 C CNN
-F 1 "GND" H 5000 5730 30  0001 C CNN
-	1    5000 5800
+P 5000 5200
+F 0 "#PWR050" H 5000 5200 30  0001 C CNN
+F 1 "GND" H 5000 5130 30  0001 C CNN
+	1    5000 5200
 	0    1    1    0   
 $EndComp
 $Comp
@@ -2570,10 +2571,10 @@ $EndComp
 $Comp
 L GND #PWR053
 U 1 1 4FAA10AF
-P 6400 5800
-F 0 "#PWR053" H 6400 5800 30  0001 C CNN
-F 1 "GND" H 6400 5730 30  0001 C CNN
-	1    6400 5800
+P 6400 5200
+F 0 "#PWR053" H 6400 5200 30  0001 C CNN
+F 1 "GND" H 6400 5130 30  0001 C CNN
+	1    6400 5200
 	0    -1   -1   0   
 $EndComp
 $Comp
@@ -3508,14 +3509,14 @@ $EndComp
 $Comp
 L FIL-LP0603 U13
 U 1 1 4F94D561
-P 5700 5650
-F 0 "U13" H 5700 5700 60  0000 C CNN
-F 1 "RX_LOWPASS_FILTER" H 5700 5600 60  0000 C CNN
-F 4 "AVX" H 5700 5650 60  0001 C CNN "Manufacturer"
-F 5 "LP0603A1880ANTR" H 5700 5650 60  0001 C CNN "Part Number"
-F 6 "FILTER LOW PASS 1880MHZ 0603 SMD" H 5700 5650 60  0001 C CNN "Description"
-	1    5700 5650
-	1    0    0    -1  
+P 5700 5350
+F 0 "U13" H 5700 5400 60  0000 C CNN
+F 1 "RX_LOWPASS_FILTER" H 5700 5300 60  0000 C CNN
+F 4 "AVX" H 5700 5350 60  0001 C CNN "Manufacturer"
+F 5 "LP0603A1880ANTR" H 5700 5350 60  0001 C CNN "Part Number"
+F 6 "FILTER LOW PASS 1880MHZ 0603 SMD" H 5700 5350 60  0001 C CNN "Description"
+	1    5700 5350
+	-1   0    0    1   
 $EndComp
 $Comp
 L FIL-DEA U11
@@ -3587,6 +3588,6 @@ F 4 "TDK" H 5700 4450 60  0001 C CNN "Manufacturer"
 F 5 "DEA162400HT-8004B1" H 5700 4450 60  0001 C CNN "Part Number"
 F 6 "FILTER HIGHPASS WLAN&BLUETOOTH" H 5700 4450 60  0001 C CNN "Description"
 	1    5700 4450
-	1    0    0    -1  
+	-1   0    0    1   
 $EndComp
 $EndSCHEMATC
