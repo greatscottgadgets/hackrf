@@ -64,7 +64,7 @@ void systick_setup(void)
 	g_ulSysTickCount = 0;
 
 	/* Disable IRQ globally */
-	asm volatile ("cpsid i");
+	__asm__("cpsid i");
 
 	/* Set processor Clock as Source Clock */
 	systick_set_clocksource(STK_CTRL_CLKSOURCE);
@@ -90,7 +90,7 @@ void systick_setup(void)
 	nvic_set_priority(NVIC_SYSTICK_IRQ, 0xFF);
 
 	/* Enable IRQ globally */
-	asm volatile ("cpsie i");
+	__asm__("cpsie i");
 }
 
 void scs_dwt_cycle_counter_enabled(void)
@@ -166,115 +166,115 @@ u32 test_nb_instruction_per_sec(void)
 
     do
     {
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
+		__asm__("nop ");
+		__asm__("nop ");
+		__asm__("nop ");
+		__asm__("nop ");
+		__asm__("nop ");
+		__asm__("nop ");
+		__asm__("nop ");
+		__asm__("nop ");
+		__asm__("nop ");
+		__asm__("nop ");
 
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
+		__asm__("nop ");
+		__asm__("nop ");
+		__asm__("nop ");
+		__asm__("nop ");
+		__asm__("nop ");
+		__asm__("nop ");
+		__asm__("nop ");
+		__asm__("nop ");
+		__asm__("nop ");
+		__asm__("nop ");
 
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
+		__asm__("nop ");
+		__asm__("nop ");
+		__asm__("nop ");
+		__asm__("nop ");
+		__asm__("nop ");
+		__asm__("nop ");
+		__asm__("nop ");
+		__asm__("nop ");
+		__asm__("nop ");
+		__asm__("nop ");
 
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
+		__asm__("nop ");
+		__asm__("nop ");
+		__asm__("nop ");
+		__asm__("nop ");
+		__asm__("nop ");
+		__asm__("nop ");
+		__asm__("nop ");
+		__asm__("nop ");
+		__asm__("nop ");
+		__asm__("nop ");
 
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
+		__asm__("nop ");
+		__asm__("nop ");
+		__asm__("nop ");
+		__asm__("nop ");
+		__asm__("nop ");
+		__asm__("nop ");
+		__asm__("nop ");
+		__asm__("nop ");
+		__asm__("nop ");
+		__asm__("nop ");
 
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
+		__asm__("nop ");
+		__asm__("nop ");
+		__asm__("nop ");
+		__asm__("nop ");
+		__asm__("nop ");
+		__asm__("nop ");
+		__asm__("nop ");
+		__asm__("nop ");
+		__asm__("nop ");
+		__asm__("nop ");
 
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
+		__asm__("nop ");
+		__asm__("nop ");
+		__asm__("nop ");
+		__asm__("nop ");
+		__asm__("nop ");
+		__asm__("nop ");
+		__asm__("nop ");
+		__asm__("nop ");
+		__asm__("nop ");
+		__asm__("nop ");
 
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
+		__asm__("nop ");
+		__asm__("nop ");
+		__asm__("nop ");
+		__asm__("nop ");
+		__asm__("nop ");
+		__asm__("nop ");
+		__asm__("nop ");
+		__asm__("nop ");
+		__asm__("nop ");
+		__asm__("nop ");
 
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
+		__asm__("nop ");
+		__asm__("nop ");
+		__asm__("nop ");
+		__asm__("nop ");
+		__asm__("nop ");
+		__asm__("nop ");
+		__asm__("nop ");
+		__asm__("nop ");
+		__asm__("nop ");
+		__asm__("nop ");
 
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
+		__asm__("nop ");
+		__asm__("nop ");
+		__asm__("nop ");
+		__asm__("nop ");
+		__asm__("nop ");
+		__asm__("nop ");
+		__asm__("nop ");
+		__asm__("nop ");
+		__asm__("nop ");
+		__asm__("nop ");
 		nb_instructions_per_sec += 100;
 
         end = sys_tick_get_time_ms();
