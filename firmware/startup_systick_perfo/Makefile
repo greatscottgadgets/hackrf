@@ -1,0 +1,10 @@
+# Hey Emacs, this is a -*- makefile -*-
+
+BINARY = startup_systick_perfo_SPIFI
+
+SRC = startup_systick.c \
+	perf_mips.c \
+	../common/hackrf_core.c \
+	../common/si5351c.c
+
+include ../common/Makefile_inc.mk
