@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 Benjamin Vernoux
+ * Copyright 2010 - 2012 Michael Ossmann
  *
  * This file is part of HackRF.
  *
@@ -153,6 +153,19 @@ void sys_tick_handler(void)
 	g_ulSysTickCount++;
 }
 
+u32 nb_inst_per_sec[16];
+
+extern u32 test_nb_instruction_per_sec_100_nop_asm();
+extern u32 test_nb_instruction_per_sec_105_nop_asm();
+extern u32 test_nb_instruction_per_sec_110_nop_asm();
+extern u32 test_nb_instruction_per_sec_115_nop_asm();
+extern u32 test_nb_instruction_per_sec_120_nop_asm();
+extern u32 test_nb_instruction_per_sec_150_nop_asm();
+extern u32 test_nb_instruction_per_sec_200_nop_asm();
+extern u32 test_nb_instruction_per_sec_1000_nop_asm();
+
+#define LED1_TOGGLE()	(gpio_toggle(PORT_LED1_3, (PIN_LED1)))
+
 int main(void)
 {
 	gpio_setup();
@@ -165,21 +178,57 @@ int main(void)
 
 	systick_setup();
 
-	gpio_set(PORT_LED1_3, (PIN_LED1|PIN_LED2|PIN_LED3)); /* LEDs on */
+	gpio_clear(PORT_LED1_3, (PIN_LED1)); /* LED1 off */
 
+	/* Test number of instruction per second (MIPS) slow blink ON 1s, OFF 1s */
+LED1_TOGGLE();
+	nb_inst_per_sec[0] = test_nb_instruction_per_sec_100_nop_asm();
+LED1_TOGGLE();
+	nb_inst_per_sec[1]= test_nb_instruction_per_sec_105_nop_asm();
+LED1_TOGGLE();
+	nb_inst_per_sec[2]= test_nb_instruction_per_sec_110_nop_asm();
+LED1_TOGGLE();
+	nb_inst_per_sec[3]= test_nb_instruction_per_sec_115_nop_asm();
+LED1_TOGGLE();
+	nb_inst_per_sec[4] = test_nb_instruction_per_sec_120_nop_asm();
+LED1_TOGGLE();
+	nb_inst_per_sec[5] = test_nb_instruction_per_sec_150_nop_asm();
+LED1_TOGGLE();
+	nb_inst_per_sec[6] = test_nb_instruction_per_sec_200_nop_asm();
+LED1_TOGGLE();
+	nb_inst_per_sec[7] = test_nb_instruction_per_sec_1000_nop_asm();
+LED1_TOGGLE();
+	nb_inst_per_sec[8] = test_nb_instruction_per_sec_100_nop_asm();
+LED1_TOGGLE();
+	nb_inst_per_sec[9]= test_nb_instruction_per_sec_105_nop_asm();
+LED1_TOGGLE();
+	nb_inst_per_sec[10]= test_nb_instruction_per_sec_110_nop_asm();
+LED1_TOGGLE();
+	nb_inst_per_sec[11]= test_nb_instruction_per_sec_115_nop_asm();
+LED1_TOGGLE();
+	nb_inst_per_sec[12] = test_nb_instruction_per_sec_120_nop_asm();
+LED1_TOGGLE();
+	nb_inst_per_sec[13] = test_nb_instruction_per_sec_150_nop_asm();
+LED1_TOGGLE();
+	nb_inst_per_sec[14] = test_nb_instruction_per_sec_200_nop_asm();
+LED1_TOGGLE();
+	nb_inst_per_sec[15] = test_nb_instruction_per_sec_1000_nop_asm();
+LED1_TOGGLE();
+
+	/* Test finished fast blink */
 	while (1) 
 	{
 		gpio_set(PORT_LED1_3, (PIN_LED1)); /* LED1 on */
 		gpio_set(PORT_LED1_3, (PIN_LED2)); /* LED2 on */
 		gpio_set(PORT_LED1_3, (PIN_LED3)); /* LED3 on */
 
-		sys_tick_wait_time_ms(500);
+		sys_tick_wait_time_ms(250);
 
 		gpio_clear(PORT_LED1_3, (PIN_LED3)); /* LED3 off */
 		gpio_clear(PORT_LED1_3, (PIN_LED2)); /* LED2 off */
 		gpio_clear(PORT_LED1_3, (PIN_LED1)); /* LED1 off  */
 
-		sys_tick_wait_time_ms(500);
+		sys_tick_wait_time_ms(250);
 	}
 
 	return 0;
