@@ -1,0 +1,33 @@
+Frequency MCU Core M4 = 204MHz
+
+"nb_inst_per_sec"	0x10000008	
+	nb_inst_per_sec[0]	195609816	test_nb_instruction_per_sec_100_nop_asm();
+	nb_inst_per_sec[1]	195577462	test_nb_instruction_per_sec_105_nop_asm();
+	nb_inst_per_sec[2]	195525410	test_nb_instruction_per_sec_110_nop_asm();
+	nb_inst_per_sec[3]	35423508	test_nb_instruction_per_sec_115_nop_asm();
+	nb_inst_per_sec[4]	5058688	    test_nb_instruction_per_sec_120_nop_asm();
+	nb_inst_per_sec[5]	5094868	    test_nb_instruction_per_sec_150_nop_asm();
+	nb_inst_per_sec[6]	5162144	    test_nb_instruction_per_sec_200_nop_asm();
+	nb_inst_per_sec[7]	5505696	    test_nb_instruction_per_sec_1000_nop_asm();
+                                    
+	nb_inst_per_sec[8]	195600420	test_nb_instruction_per_sec_100_nop_asm();
+	nb_inst_per_sec[9]	195578027	test_nb_instruction_per_sec_105_nop_asm();
+	nb_inst_per_sec[10]	195525882	test_nb_instruction_per_sec_110_nop_asm();
+	nb_inst_per_sec[11]	35422647	test_nb_instruction_per_sec_115_nop_asm();
+	nb_inst_per_sec[12]	5058688	    test_nb_instruction_per_sec_120_nop_asm();
+	nb_inst_per_sec[13]	5094868	    test_nb_instruction_per_sec_150_nop_asm();
+	nb_inst_per_sec[14]	5162144	    test_nb_instruction_per_sec_200_nop_asm();
+	nb_inst_per_sec[15]	5505696	    test_nb_instruction_per_sec_1000_nop_asm();
+
+Real speed expected from SPIFI without cache (with lot of nop)
+Oscilloscope Freq SPIFI SCK = 22.50MHz to 22.83MHz (in reality 22.67MHz => 204/9 => SPIFI_CLK connected to IDIVB & IDIVB default=9)
+So worst case 22.50Mbits*4 = 90Mbits/s => 11.25MBytes/s with an overhead of about 50% due to SPIFI protocol addr ... => 5.625MB
+1 nop = 2 bytes (THUMB 0x00 0xBF) => Max 5.625 Millions instruction per second
+
+110 NOP is in fact 110 + 9 (including loop overhead)
+119*2 = 238 bytes
+
+115NOP + 9 => does not enter in cache !! (248bytes)
+Internal Cache size is about 256Bytes maybe shared Code/Data.
+
+SPIFI obtained min=5.05 MIPS, max=195.6 MIPS

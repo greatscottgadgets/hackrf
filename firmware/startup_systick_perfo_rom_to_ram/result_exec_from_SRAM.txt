@@ -1,0 +1,22 @@
+Frequency MCU Core M4 = 204MHz
+
+"nb_inst_per_sec"	0x10080008	
+	nb_inst_per_sec[0]	202091544	test_nb_instruction_per_sec_100_nop_asm();
+	nb_inst_per_sec[1]	202172820	test_nb_instruction_per_sec_105_nop_asm();
+	nb_inst_per_sec[2]	202247988	test_nb_instruction_per_sec_110_nop_asm();
+	nb_inst_per_sec[3]	202317165	test_nb_instruction_per_sec_115_nop_asm();
+	nb_inst_per_sec[4]	202381696	test_nb_instruction_per_sec_120_nop_asm();
+	nb_inst_per_sec[5]	202680030	test_nb_instruction_per_sec_150_nop_asm();
+	nb_inst_per_sec[6]	202986160	test_nb_instruction_per_sec_200_nop_asm();
+	nb_inst_per_sec[7]	203760144	test_nb_instruction_per_sec_1000_nop_asm();
+                                    
+	nb_inst_per_sec[8]	202091220	test_nb_instruction_per_sec_100_nop_asm();
+	nb_inst_per_sec[9]	202172820	test_nb_instruction_per_sec_105_nop_asm();
+	nb_inst_per_sec[10]	202247988	test_nb_instruction_per_sec_110_nop_asm();
+	nb_inst_per_sec[11]	202317165	test_nb_instruction_per_sec_115_nop_asm();
+	nb_inst_per_sec[12]	202381696	test_nb_instruction_per_sec_120_nop_asm();
+	nb_inst_per_sec[13]	202680030	test_nb_instruction_per_sec_150_nop_asm();
+	nb_inst_per_sec[14]	202986160	test_nb_instruction_per_sec_200_nop_asm();
+	nb_inst_per_sec[15]	203760144	test_nb_instruction_per_sec_1000_nop_asm();
+
+SRAM execution, expected 204 MIPS best case obtained min=202 MIPS, max=203.7 MIPS
