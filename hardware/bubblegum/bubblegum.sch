@@ -1,4 +1,4 @@
-EESchema Schematic File Version 2  date Thu Jun 21 12:06:12 2012
+EESchema Schematic File Version 2  date Wed Jun 27 21:51:49 2012
 LIBS:power
 LIBS:device
 LIBS:transistors
@@ -37,7 +37,7 @@ $Descr User 17000 11000
 encoding utf-8
 Sheet 1 1
 Title ""
-Date "21 jun 2012"
+Date "28 jun 2012"
 Rev ""
 Comp ""
 Comment1 ""
@@ -45,6 +45,8 @@ Comment2 ""
 Comment3 ""
 Comment4 ""
 $EndDescr
+Wire Wire Line
+	9650 7050 9650 7150
 Text Notes 7400 7750 0    40   ~ 0
 DC connection to GND required on IF1, IF2?
 Text Notes 7700 3450 0    40   ~ 0
@@ -375,8 +377,6 @@ Wire Wire Line
 	7850 5050 7850 5150
 Wire Wire Line
 	9800 2050 9800 2150
-Wire Wire Line
-	9650 7050 9650 7150
 Wire Wire Line
 	9800 4650 9800 4850
 Wire Wire Line
@@ -1178,7 +1178,7 @@ $EndComp
 Text Notes 14900 6650 0    40   ~ 0
 ferrite beads needed?
 Text Notes 5800 4900 0    40   ~ 0
-Bypass control signals allow the LO to be bypassed\n(essentially a zero Hz LO). The LO should be switched\noff when bypass is enabled (active low).
+Bypass control signals (active low) allow the LO to\nbe bypassed (essentially a zero Hz LO). The LO\nshould be switched off when bypass is enabled.
 Text Notes 11850 8000 0    40   ~ 0
 balun here may not not be needed if\ndirect connection to MAX2837 is made
 Text Notes 1600 3100 0    40   ~ 0
@@ -2022,7 +2022,7 @@ P 7750 5350
 F 0 "Q3" H 7750 5540 60  0000 R CNN
 F 1 "MOSFET_P" H 7750 5170 60  0000 R CNN
 	1    7750 5350
-	1    0    0    -1  
+	1    0    0    1   
 $EndComp
 $Comp
 L MOSFET_N Q4
@@ -2080,7 +2080,7 @@ P 8350 4150
 F 0 "Q1" H 8350 4340 60  0000 R CNN
 F 1 "MOSFET_P" H 8350 3970 60  0000 R CNN
 	1    8350 4150
-	1    0    0    -1  
+	1    0    0    1   
 $EndComp
 $Comp
 L GND #PWR16
