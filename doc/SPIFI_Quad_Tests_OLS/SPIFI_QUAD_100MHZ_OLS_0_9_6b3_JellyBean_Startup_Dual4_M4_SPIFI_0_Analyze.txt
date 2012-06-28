@@ -1,0 +1,127 @@
+
+OLS version used from: git://github.com/jawi/ols.git
+Warning sometimes there's a bug between Mode3 & Mode0 in OLS 0.9.6b3 
+Expected is when /CS = 0 at first SCK Rising Edge data shall be read.
+
+1) Read JDEC ID:
+----------------
+SPI Standard, Mode3, 8bits, MSB first, Show /CS & Honour /CS, SCK=About 32MHz:
+Send(MOSI)=0x9F(Read JDEC ID)
+Receive(MISO)=0xEF => Manufacturer ID(Winbond) and 0x40, 0x14 => Device ID
+
+2) Read Status Register-2:
+--------------------------
+SPI Standard, Mode3, 8bits, MSB first, Show /CS & Honour /CS, SCK=About 32MHz:
+Send(MOSI)=0x35(Read Status Register-2)
+Receive(MISO)=0x02 (Status Register-2 => S15-S8)
+
+3) Read Unknown Command 0xA3 (maybe for other SPIFI memory ??):
+---------------------------------------------------------------
+SPI Standard, Mode3, 8bits, MSB first, Show /CS & Honour /CS, SCK=About 32MHz:
+Send(MOSI)=0xA3
+Receive(MISO)=0x00 0x00 0x00
+
+4) Fast Read Quad I/O with "Continuous Read Mode"(0xEB):
+--------------------------------------------------------
+SPI Standard, Mode3, 8bits, MSB first, Show /CS & Honour /CS, SCK=About 32MHz:
+Send(MOSI)=0xEB(Fast Read Quad I/O)
+SPI Quad, Mode3, 8bits, MSB first, Show /CS & Honour /CS:
+Send(IO0 to IO3) hexa:
+00 00 00 (A23-16) (A15-8) (A7-0)
+A5 (M7-0) => A5 = 1010 0101 (Continuous Read Mode enabled)
+A5 A5 (Dummy 2 bytes)
+Receive(IO0 to IO3) hexa:
+00 00 02 10 B1 01 00 14 (Data) => Vect Table = 0x10020000(Stack Pointer), 0x140001B1(Thumb) Real Addr=0x140001B0 (Reset_Handler/ResetISR)
+79 01 00 14 7B 01 00 14 (Data)
+7D 01 00 14 7F 01 00 14 (Data)
+Dump from Debug (Big Endian to swap 32bits):
+0x80000000  00000210 B1010014 79010014 7B010014  ....±...y...{...
+0x80000010  7D010014 7F010014                    }.......
+
+5) Fast Read Quad I/O with "Continuous Read Mode"(0xEB):
+--------------------------------------------------------
+SPI Quad, Mode3, 8bits, MSB first, Show /CS & Honour /CS, SCK=About 32MHz:
+Send(IO0 to IO3) hexa:
+00 01 B0 (A23-16) (A15-8) (A7-0) (Corresponds to Real Addr=0x140001B0 (Reset_Handler/ResetISR))
+A5 (M7-0) => A5 = 1010 0101 (Continuous Read Mode enabled)
+A5 A5 (Dummy 2 bytes)
+Receive(IO0 to IO3) hexa:
+10 B5 72 B6 19 4B 1A 4A (Data)
+1A 60 1A 4A 5A 60 1A 4A (Data)
+4F F0 FF 33 13 60 53 60 (Data)
+Dump from Debug (Big Endian to swap 32bits):
+0x800001B0  10B572B6 194B1A4A 1A601A4A 5A601A4A  .µr¶.K.J.`.JZ`.J
+0x800001C0  4FF0FF33 13605360                    Oðÿ3.`S`
+
+6) Fast Read Quad I/O with "Continuous Read Mode"(0xEB):
+--------------------------------------------------------
+SPI Quad, Mode3, 8bits, MSB first, Show /CS & Honour /CS:
+Send(IO0 to IO3) hexa:
+00 02 18 (A23-16) (A15-8) (A7-0)
+A5 (M7-0) => A5 = 1010 0101 (Continuous Read Mode enabled)
+A5 A5 (Dummy 2 bytes)
+Receive(IO0 to IO3) hexa:
+FE E7 00 BF 00 31 05 40 (Data)
+00 00 DF 10 FF F7 DF 01 (Data)
+80 E2 00 E0 14 01 00 14 (Data)
+Dump from Debug (Big Endian to swap 32bits):
+0x80000218  FEE700BF 00310540 0000DF10 FFF7DF01  þç.¿.1.@..ß.ÿ÷ß.
+0x80000228  80E200E0 14010014                    .â.à....
+
+7) Fast Read Quad I/O with "Continuous Read Mode"(0xEB):
+--------------------------------------------------------
+SPI Quad, Mode3, 8bits, MSB first, Show /CS & Honour /CS:
+Send(IO0 to IO3) hexa:
+00 01 C8 (A23-16) (A15-8) (A7-0)
+A5 (M7-0) => A5 = 1010 0101 (Continuous Read Mode enabled)
+A5 A5 (Dummy 2 bytes)
+Receive(IO0 to IO3) hexa:
+93 60 D3 60 13 61 53 61 (Data)
+93 61 D3 61 62 B6 15 4C (Data)
+Dump from Debug (Big Endian to swap 32bits):
+0x800001C8  9360D360 13615361 9361D361 62B6154C  .`Ó`.aSa.aÓab¶.L
+
+8) Fast Read Quad I/O with "Continuous Read Mode"(0xEB):
+--------------------------------------------------------
+SPI Quad, Mode3, 8bits, MSB first, Show /CS & Honour /CS:
+Send(IO0 to IO3) hexa:
+00 02 30 (A23-16) (A15-8) (A7-0)
+A5 (M7-0) => A5 = 1010 0101 (Continuous Read Mode enabled)
+A5 A5 (Dummy 2 bytes)
+Receive(IO0 to IO3) hexa:
+50 01 00 14 78 01 00 14 (Data)
+Dump from Debug (Big Endian to swap 32bits):
+0x80000230  50010014 78010014                    P...x...
+
+9) Fast Read Quad I/O with "Continuous Read Mode"(0xEB):
+--------------------------------------------------------
+SPI Quad, Mode3, 8bits, MSB first, Show /CS & Honour /CS:
+Send(IO0 to IO3) hexa:
+00 01 D8 (A23-16) (A15-8) (A7-0)
+A5 (M7-0) => A5 = 1010 0101 (Continuous Read Mode enabled)
+A5 A5 (Dummy 2 bytes)
+Receive(IO0 to IO3) hexa:
+05 E0 20 68 61 68 A2 68 (Data)
+0C 34 FF F7 D2 FF 12 4B (Data
+9C 42 F6 D3 04 E0 20 68 (Data)
+61 68 08 34 FF F7 D2 FF (Data)
+0E 4B 9C 42 F7 D3 DF F8 (Data)
+Dump from Debug (Big Endian to swap 32bits):
+0x800001D8  05E02068 6168A268 0C34FFF7 D2FF124B  .à hah¢h.4ÿ÷Òÿ.K
+0x800001E8  9C42F6D3 04E02068 61680834 FFF7D2FF  .BöÓ.à hah.4ÿ÷Òÿ
+0x800001F8  0E4B9C42 F7D3DFF8                    .K.B÷Óßø
+
+Nota: 
+Tested on JellyBean.
+SCK is about 32MHz After about 620us from startup.
+SCK change to about 660KHz/700KHz during about 400us. (During Read from 00 0C 78 => During CGU SetPLL1 code).
+SCK change from 4MHz to about 8MHz during about 15us. (Read from 00 0D 98 => During CGU SetPLL1 code).
+SCK stabilize to 8MHz during 122us (no data anymore OLS memory is full) (Read from 00 05 B0).
+
+...
+During Code running the SCK run at 8MHz MCU is configured at 72MHz => 12MHz(IRC)*6.
+SPIFI CLK(0x40050070) = 0xD000800 0x0D=IDIVB & 0x800=AUTOBLOCK_CLOCK_BIT Enabled
+IDIVB_CTRL(0x4005004C) = 0x9000820 => IDIB=1000(8+1)=9 => for 72MHz Core => 72/9=8MHz
+IDIVB_CTRL(0x4005004C) = 0x9000800 => IDIB=0000(0+1)=1 => for 72MHz Core => 72/1=72MHz => This configuration just crash.
+IDIVB_CTRL(0x4005004C) = 0x9000800 => IDIB=0000(0+1)=1 => for 72MHz Core => 72/2=36MHz => This configuration works fine.
+
