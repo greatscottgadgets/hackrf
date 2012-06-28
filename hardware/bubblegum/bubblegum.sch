@@ -1,4 +1,4 @@
-EESchema Schematic File Version 2  date Wed Jun 27 21:51:49 2012
+EESchema Schematic File Version 2  date Wed Jun 27 21:56:30 2012
 LIBS:power
 LIBS:device
 LIBS:transistors
@@ -46,38 +46,26 @@ Comment3 ""
 Comment4 ""
 $EndDescr
 Wire Wire Line
+	10900 2550 11000 2550
+Wire Wire Line
+	11000 2550 11000 2450
+Wire Wire Line
+	10500 2250 10600 2250
+Wire Wire Line
+	10600 2250 10600 2350
+Wire Wire Line
+	10050 7250 10050 7350
+Wire Wire Line
+	10050 7350 9950 7350
+Wire Wire Line
 	9650 7050 9650 7150
-Text Notes 7400 7750 0    40   ~ 0
-DC connection to GND required on IF1, IF2?
-Text Notes 7700 3450 0    40   ~ 0
-DC connection to GND required on RF1, RF2?
-NoConn ~ 8100 7000
-$Comp
-L BALUN T2
-U 1 1 4FE35EF4
-P 7800 3050
-F 0 "T2" H 7800 3300 70  0000 C CNN
-F 1 "RX_BALUN" H 7800 2750 70  0000 C CNN
-F 4 "Anaren" H 7800 3050 60  0001 C CNN "Manufacturer"
-F 5 "B0310J50100AHF" H 7800 3050 60  0001 C CNN "Part Number"
-F 6 "Ultra Low Profile 0805 Balun 50 to 100 Balanced" H 7800 3050 60  0001 C CNN "Description"
-	1    7800 3050
-	-1   0    0    1   
-$EndComp
-NoConn ~ 8200 3050
-Text Notes 11850 1150 0    40   ~ 0
-balun here may not not be needed if\ndirect connection to MAX2837 is made
-Text Notes 3450 4550 0    40   ~ 0
-amplifier will likely\nend up here
-Text Notes 2450 6900 0    40   ~ 0
-amplifier will likely\nend up here
 Wire Wire Line
 	6900 1950 6900 2050
 Connection ~ 6300 8050
 Wire Wire Line
 	6300 8050 6550 8050
 Wire Wire Line
-	6300 7650 6300 8150
+	6300 8150 6300 7650
 Wire Wire Line
 	6400 5900 6400 6000
 Connection ~ 6600 3550
@@ -178,10 +166,10 @@ Wire Wire Line
 	1250 9400 1500 9400
 Connection ~ 7100 5350
 Wire Wire Line
-	7000 5350 7550 5350
+	7550 5350 7000 5350
 Connection ~ 7700 4150
 Wire Wire Line
-	7600 4150 8150 4150
+	8150 4150 7600 4150
 Connection ~ 1950 6250
 Wire Wire Line
 	1750 6250 2250 6250
@@ -201,11 +189,11 @@ Wire Wire Line
 	2550 4750 2550 4550
 Connection ~ 2650 3550
 Wire Wire Line
-	2650 3650 2650 3450
+	2650 3450 2650 3650
 Wire Wire Line
 	2850 3550 2650 3550
 Wire Wire Line
-	4150 2250 4150 1950
+	4150 1950 4150 2250
 Connection ~ 4050 3500
 Wire Wire Line
 	3800 3500 4050 3500
@@ -269,13 +257,13 @@ Wire Wire Line
 Wire Wire Line
 	14100 5750 14100 6050
 Wire Wire Line
-	12750 5250 13500 5250
+	13500 5250 12750 5250
 Connection ~ 14100 5250
 Wire Wire Line
 	14100 5350 14100 5250
 Connection ~ 13400 5250
 Wire Wire Line
-	13100 5350 13100 5250
+	13100 5250 13100 5350
 Wire Wire Line
 	11450 3950 11450 4050
 Wire Wire Line
@@ -376,8 +364,6 @@ Wire Wire Line
 Wire Wire Line
 	7850 5050 7850 5150
 Wire Wire Line
-	9800 2050 9800 2150
-Wire Wire Line
 	9800 4650 9800 4850
 Wire Wire Line
 	9800 4850 10850 4850
@@ -403,7 +389,7 @@ Wire Wire Line
 Wire Wire Line
 	8150 4750 7700 4750
 Wire Wire Line
-	8450 4350 8450 4550
+	8450 4550 8450 4350
 Connection ~ 9500 4150
 Wire Wire Line
 	9350 4150 9500 4150
@@ -473,7 +459,7 @@ Wire Wire Line
 Wire Wire Line
 	4250 3250 4250 3150
 Wire Wire Line
-	1550 5150 1750 5150
+	1750 5150 1550 5150
 Wire Wire Line
 	1650 5850 1650 5750
 Wire Wire Line
@@ -483,7 +469,7 @@ Wire Wire Line
 	950  5450 850  5450
 Connection ~ 850  5450
 Wire Wire Line
-	1550 3450 1750 3450
+	1750 3450 1550 3450
 Wire Wire Line
 	850  4050 850  3650
 Wire Wire Line
@@ -564,7 +550,7 @@ Wire Wire Line
 Wire Wire Line
 	7850 6250 7850 6150
 Wire Wire Line
-	7850 5750 7850 5550
+	7850 5550 7850 5750
 Wire Wire Line
 	7100 5950 7550 5950
 Wire Wire Line
@@ -584,10 +570,10 @@ Wire Wire Line
 Wire Wire Line
 	9500 4950 10850 4950
 Wire Wire Line
-	9650 6450 9650 5850
+	9650 5850 9650 6450
 Connection ~ 9650 6350
 Wire Wire Line
-	9800 2750 9800 4250
+	9800 4250 9800 2250
 Connection ~ 9800 2850
 Wire Wire Line
 	12750 8700 12850 8700
@@ -624,7 +610,7 @@ Wire Wire Line
 	10600 6150 10600 6050
 Connection ~ 10600 6050
 Wire Wire Line
-	10300 6750 10300 6550
+	10300 6550 10300 6750
 Wire Wire Line
 	10600 6550 10600 6650
 Connection ~ 10600 6650
@@ -663,12 +649,12 @@ Wire Wire Line
 Wire Wire Line
 	12150 3950 12150 4050
 Wire Wire Line
-	12750 4850 15400 4850
+	15400 4850 12750 4850
 Wire Wire Line
-	13400 5250 13400 5350
+	13400 5350 13400 5250
 Connection ~ 13100 5250
 Wire Wire Line
-	14000 5250 14200 5250
+	14200 5250 14000 5250
 Wire Wire Line
 	14800 5350 14800 5250
 Wire Wire Line
@@ -731,17 +717,17 @@ Wire Wire Line
 Wire Wire Line
 	16100 4850 16100 4750
 Wire Wire Line
-	3250 8150 3250 7800
+	3250 7800 3250 8150
 Wire Wire Line
 	3150 6700 3350 6700
 Wire Wire Line
-	3350 6900 3350 6600
+	3350 6600 3350 6900
 Connection ~ 3350 6700
 Wire Wire Line
 	7150 2050 6700 2050
 Connection ~ 6900 2050
 Wire Wire Line
-	4050 3600 4050 3150
+	4050 3150 4050 3600
 Wire Wire Line
 	4150 1450 4150 1550
 Wire Wire Line
@@ -854,9 +840,9 @@ Wire Wire Line
 Wire Wire Line
 	8200 7600 8750 7600
 Wire Wire Line
-	6600 3650 6600 3150
+	6600 3150 6600 3650
 Wire Wire Line
-	6400 6400 6400 6750
+	6400 6750 6400 6400
 Wire Wire Line
 	6650 6500 6400 6500
 Connection ~ 6400 6500
@@ -866,6 +852,74 @@ Wire Wire Line
 	2650 4650 3400 4650
 Wire Wire Line
 	3400 4650 3400 3150
+Wire Wire Line
+	9650 7550 9650 7650
+Wire Wire Line
+	10600 2850 10600 2750
+Wire Wire Line
+	9800 2250 9900 2250
+$Comp
+L VCC #PWR?
+U 1 1 4FEBD54F
+P 11000 2450
+F 0 "#PWR?" H 11000 2550 30  0001 C CNN
+F 1 "VCC" H 11000 2550 30  0000 C CNN
+	1    11000 2450
+	1    0    0    -1  
+$EndComp
+$Comp
+L MOSFET_N Q?
+U 1 1 4FEBD52A
+P 10700 2550
+F 0 "Q?" H 10710 2720 60  0000 R CNN
+F 1 "MOSFET_N" H 10710 2400 60  0000 R CNN
+F 4 "DMN2300UFB4" H 10700 2550 60  0001 C CNN "Part Number"
+	1    10700 2550
+	-1   0    0    -1  
+$EndComp
+$Comp
+L VCC #PWR?
+U 1 1 4FEBD516
+P 10050 7250
+F 0 "#PWR?" H 10050 7350 30  0001 C CNN
+F 1 "VCC" H 10050 7350 30  0000 C CNN
+	1    10050 7250
+	1    0    0    -1  
+$EndComp
+$Comp
+L MOSFET_N Q?
+U 1 1 4FEBD4FB
+P 9750 7350
+F 0 "Q?" H 9760 7520 60  0000 R CNN
+F 1 "MOSFET_N" H 9760 7200 60  0000 R CNN
+F 4 "DMN2300UFB4" H 9750 7350 60  0001 C CNN "Part Number"
+	1    9750 7350
+	-1   0    0    -1  
+$EndComp
+Text Notes 7400 7750 0    40   ~ 0
+DC connection to GND required on IF1, IF2?
+Text Notes 7700 3450 0    40   ~ 0
+DC connection to GND required on RF1, RF2?
+NoConn ~ 8100 7000
+$Comp
+L BALUN T2
+U 1 1 4FE35EF4
+P 7800 3050
+F 0 "T2" H 7800 3300 70  0000 C CNN
+F 1 "RX_BALUN" H 7800 2750 70  0000 C CNN
+F 4 "Anaren" H 7800 3050 60  0001 C CNN "Manufacturer"
+F 5 "B0310J50100AHF" H 7800 3050 60  0001 C CNN "Part Number"
+F 6 "Ultra Low Profile 0805 Balun 50 to 100 Balanced" H 7800 3050 60  0001 C CNN "Description"
+	1    7800 3050
+	-1   0    0    1   
+$EndComp
+NoConn ~ 8200 3050
+Text Notes 11850 1150 0    40   ~ 0
+balun here may not not be needed if\ndirect connection to MAX2837 is made
+Text Notes 3450 4550 0    40   ~ 0
+amplifier will likely\nend up here
+Text Notes 2450 6900 0    40   ~ 0
+amplifier will likely\nend up here
 Text Notes 4750 2750 0    60   ~ 0
 switchable image reject filters
 Text Notes 4100 7350 0    60   ~ 0
@@ -1973,10 +2027,10 @@ $EndComp
 $Comp
 L GND #PWR66
 U 1 1 4FE0EFAF
-P 9650 7150
-F 0 "#PWR66" H 9650 7150 30  0001 C CNN
-F 1 "GND" H 9650 7080 30  0001 C CNN
-	1    9650 7150
+P 9650 7650
+F 0 "#PWR66" H 9650 7650 30  0001 C CNN
+F 1 "GND" H 9650 7580 30  0001 C CNN
+	1    9650 7650
 	1    0    0    -1  
 $EndComp
 $Comp
@@ -2030,6 +2084,7 @@ U 1 1 4FE0EEDB
 P 7750 5950
 F 0 "Q4" H 7760 6120 60  0000 R CNN
 F 1 "MOSFET_N" H 7760 5800 60  0000 R CNN
+F 4 "DMN2300UFB4" H 7750 5950 60  0001 C CNN "Part Number"
 	1    7750 5950
 	1    0    0    -1  
 $EndComp
@@ -2070,6 +2125,7 @@ U 1 1 4FE0EE1A
 P 8350 4750
 F 0 "Q2" H 8360 4920 60  0000 R CNN
 F 1 "MOSFET_N" H 8360 4600 60  0000 R CNN
+F 4 "DMN2300UFB4" H 8350 4750 60  0001 C CNN "Part Number"
 	1    8350 4750
 	1    0    0    -1  
 $EndComp
@@ -2085,20 +2141,20 @@ $EndComp
 $Comp
 L GND #PWR16
 U 1 1 4FE0EDCF
-P 9800 2050
-F 0 "#PWR16" H 9800 2050 30  0001 C CNN
-F 1 "GND" H 9800 1980 30  0001 C CNN
-	1    9800 2050
-	-1   0    0    1   
+P 10600 2850
+F 0 "#PWR16" H 10600 2850 30  0001 C CNN
+F 1 "GND" H 10600 2780 30  0001 C CNN
+	1    10600 2850
+	1    0    0    -1  
 $EndComp
 $Comp
 L INDUCTOR L3
 U 1 1 4FE0EDC7
-P 9800 2450
-F 0 "L3" V 9750 2450 40  0000 C CNN
-F 1 "INDUCTOR" V 9900 2450 40  0000 C CNN
-	1    9800 2450
-	1    0    0    -1  
+P 10200 2250
+F 0 "L3" V 10150 2250 40  0000 C CNN
+F 1 "INDUCTOR" V 10300 2250 40  0000 C CNN
+	1    10200 2250
+	0    1    1    0   
 $EndComp
 $Comp
 L INDUCTOR L4
