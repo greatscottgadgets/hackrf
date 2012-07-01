@@ -1,4 +1,4 @@
-EESchema Schematic File Version 2  date Sun Jul  1 13:58:34 2012
+EESchema Schematic File Version 2  date Sun Jul  1 14:26:11 2012
 LIBS:power
 LIBS:device
 LIBS:transistors
@@ -1839,7 +1839,7 @@ L C C28
 U 1 1 4FE0FB36
 P 15300 5150
 F 0 "C28" H 15350 5250 50  0000 L CNN
-F 1 "C" H 15350 5050 50  0000 L CNN
+F 1 "DNP" H 15350 5050 50  0000 L CNN
 	1    15300 5150
 	-1   0    0    1   
 $EndComp
@@ -1931,7 +1931,7 @@ L C C27
 U 1 1 4FE0F7D1
 P 15600 4850
 F 0 "C27" H 15650 4950 50  0000 L CNN
-F 1 "C" H 15650 4750 50  0000 L CNN
+F 1 "22pF" H 15650 4750 50  0000 L CNN
 	1    15600 4850
 	0    1    1    0   
 $EndComp
