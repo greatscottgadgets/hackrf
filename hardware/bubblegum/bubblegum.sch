@@ -1,4 +1,4 @@
-EESchema Schematic File Version 2  date Sat Jun 30 12:21:44 2012
+EESchema Schematic File Version 2  date Sun Jul  1 07:30:52 2012
 LIBS:power
 LIBS:device
 LIBS:transistors
@@ -37,7 +37,7 @@ $Descr User 17000 11000
 encoding utf-8
 Sheet 1 1
 Title ""
-Date "30 jun 2012"
+Date "1 jul 2012"
 Rev ""
 Comp ""
 Comment1 ""
@@ -45,6 +45,8 @@ Comment2 ""
 Comment3 ""
 Comment4 ""
 $EndDescr
+Text Notes 11100 2450 0    40   ~ 0
+FIXME: This should be pulled below GND in bypass\nmode, or perhaps everything could be biased to 1V8\nin normal mode.
 Connection ~ 13600 6050
 Wire Wire Line
 	13600 6050 13600 6300
