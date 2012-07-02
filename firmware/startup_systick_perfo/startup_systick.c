@@ -64,7 +64,7 @@ void systick_setup(void)
 	g_ulSysTickCount = 0;
 
 	/* Disable IRQ globally */
-	asm volatile ("cpsid i");
+	__asm__("cpsid i");
 
 	/* Set processor Clock as Source Clock */
 	systick_set_clocksource(STK_CTRL_CLKSOURCE);
@@ -90,7 +90,7 @@ void systick_setup(void)
 	nvic_set_priority(NVIC_SYSTICK_IRQ, 0xFF);
 
 	/* Enable IRQ globally */
-	asm volatile ("cpsie i");
+	__asm__("cpsie i");
 }
 
 void scs_dwt_cycle_counter_enabled(void)
@@ -153,140 +153,18 @@ void sys_tick_handler(void)
 	g_ulSysTickCount++;
 }
 
-u32 test_nb_instruction_per_sec(void)
-{
-    u32 start, end, wait_ms;
-    u32 tickms;
-    u32 nb_instructions_per_sec;
+u32 nb_inst_per_sec[16];
 
-    nb_instructions_per_sec = 0;
-    wait_ms = 1000;
+extern u32 test_nb_instruction_per_sec_100_nop_asm();
+extern u32 test_nb_instruction_per_sec_105_nop_asm();
+extern u32 test_nb_instruction_per_sec_110_nop_asm();
+extern u32 test_nb_instruction_per_sec_115_nop_asm();
+extern u32 test_nb_instruction_per_sec_120_nop_asm();
+extern u32 test_nb_instruction_per_sec_150_nop_asm();
+extern u32 test_nb_instruction_per_sec_200_nop_asm();
+extern u32 test_nb_instruction_per_sec_1000_nop_asm();
 
-    start = sys_tick_get_time_ms();
-
-    do
-    {
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		asm volatile ("nop ");
-		nb_instructions_per_sec += 100;
-
-        end = sys_tick_get_time_ms();
-        tickms = sys_tick_delta_time_ms(start, end);
-    }while(tickms < wait_ms);
-
-    return nb_instructions_per_sec;
-}
-
-
-u32 nb_inst_per_sec0;
-u32 nb_inst_per_sec1;
+#define LED1_TOGGLE()	(gpio_toggle(PORT_LED1_3, (PIN_LED1)))
 
 int main(void)
 {
@@ -300,25 +178,57 @@ int main(void)
 
 	systick_setup();
 
-	/* Test number of instruction per second */
-	nb_inst_per_sec0 = test_nb_instruction_per_sec();
-	nb_inst_per_sec1 = test_nb_instruction_per_sec();
+	gpio_clear(PORT_LED1_3, (PIN_LED1)); /* LED1 off */
 
-	gpio_set(PORT_LED1_3, (PIN_LED1|PIN_LED2|PIN_LED3)); /* LEDs on */
+	/* Test number of instruction per second (MIPS) slow blink ON 1s, OFF 1s */
+LED1_TOGGLE();
+	nb_inst_per_sec[0] = test_nb_instruction_per_sec_100_nop_asm();
+LED1_TOGGLE();
+	nb_inst_per_sec[1]= test_nb_instruction_per_sec_105_nop_asm();
+LED1_TOGGLE();
+	nb_inst_per_sec[2]= test_nb_instruction_per_sec_110_nop_asm();
+LED1_TOGGLE();
+	nb_inst_per_sec[3]= test_nb_instruction_per_sec_115_nop_asm();
+LED1_TOGGLE();
+	nb_inst_per_sec[4] = test_nb_instruction_per_sec_120_nop_asm();
+LED1_TOGGLE();
+	nb_inst_per_sec[5] = test_nb_instruction_per_sec_150_nop_asm();
+LED1_TOGGLE();
+	nb_inst_per_sec[6] = test_nb_instruction_per_sec_200_nop_asm();
+LED1_TOGGLE();
+	nb_inst_per_sec[7] = test_nb_instruction_per_sec_1000_nop_asm();
+LED1_TOGGLE();
+	nb_inst_per_sec[8] = test_nb_instruction_per_sec_100_nop_asm();
+LED1_TOGGLE();
+	nb_inst_per_sec[9]= test_nb_instruction_per_sec_105_nop_asm();
+LED1_TOGGLE();
+	nb_inst_per_sec[10]= test_nb_instruction_per_sec_110_nop_asm();
+LED1_TOGGLE();
+	nb_inst_per_sec[11]= test_nb_instruction_per_sec_115_nop_asm();
+LED1_TOGGLE();
+	nb_inst_per_sec[12] = test_nb_instruction_per_sec_120_nop_asm();
+LED1_TOGGLE();
+	nb_inst_per_sec[13] = test_nb_instruction_per_sec_150_nop_asm();
+LED1_TOGGLE();
+	nb_inst_per_sec[14] = test_nb_instruction_per_sec_200_nop_asm();
+LED1_TOGGLE();
+	nb_inst_per_sec[15] = test_nb_instruction_per_sec_1000_nop_asm();
+LED1_TOGGLE();
 
+	/* Test finished fast blink */
 	while (1) 
 	{
 		gpio_set(PORT_LED1_3, (PIN_LED1)); /* LED1 on */
 		gpio_set(PORT_LED1_3, (PIN_LED2)); /* LED2 on */
 		gpio_set(PORT_LED1_3, (PIN_LED3)); /* LED3 on */
 
-		sys_tick_wait_time_ms(500);
+		sys_tick_wait_time_ms(250);
 
 		gpio_clear(PORT_LED1_3, (PIN_LED3)); /* LED3 off */
 		gpio_clear(PORT_LED1_3, (PIN_LED2)); /* LED2 off */
 		gpio_clear(PORT_LED1_3, (PIN_LED1)); /* LED1 off  */
 
-		sys_tick_wait_time_ms(500);
+		sys_tick_wait_time_ms(250);
 	}
 
 	return 0;

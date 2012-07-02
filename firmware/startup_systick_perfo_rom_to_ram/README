@@ -1,6 +1,11 @@
 This program is an example of the startup sequence for HackRF (Jellybean with
 Lemondrop attached).
-LED1, LED2, and LED3 are blinking at exactly a frequency of 1Hz upon success.
+Test number of instruction per second (MIPS) slow blink ON 1s, OFF 1s
+Then after 16s (the 16tests) it blink LED1/2/3 ON/OFF each 250ms.
+This example compute the number of instructions per second executed called also MIPS (Millions of Instructions Per Second)
+
+This example code run from SRAM so maximum performance expected is 204MIPS.
+See result details in result_exec_from_SRAM.txt
 
 Required Lemondrop -> Jellybean connections:
 

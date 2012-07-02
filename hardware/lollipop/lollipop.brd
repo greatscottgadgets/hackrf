@@ -1,4 +1,4 @@
-PCBNEW-BOARD Version 1 date Thu Jun 21 19:11:32 2012
+PCBNEW-BOARD Version 1 date Sat Jun 23 08:15:06 2012
 
 # Created by Pcbnew(2011-06-30 BZR 3033)-stable
 
@@ -10,7 +10,7 @@ EnabledLayers 1FFF8007
 Links 383
 NoConn 53
 Di 20440 8924 38560 29076
-Ndraw 12
+Ndraw 14
 Ntrack 1423
 Nzone 0
 BoardThickness 630
@@ -21,7 +21,7 @@ $EndGENERAL
 $SHEETDESCR
 Sheet User 6000 4000
 Title ""
-Date "22 jun 2012"
+Date "23 jun 2012"
 Rev ""
 Comp ""
 Comment1 ""
@@ -6857,6 +6857,16 @@ Po -246 -138
 Le -1954803976
 $EndPAD
 $EndMODULE  GSG-LP0603
+$TEXTPCB
+Te "23 Jun 2012"
+Po 28250 20890 600 800 120 0
+De 21 1 0 Normal
+$EndTEXTPCB
+$TEXTPCB
+Te "lollipop"
+Po 30980 22870 600 800 120 0
+De 21 1 0 Normal
+$EndTEXTPCB
 $TEXTPCB
 Te "TX-in"
 Po 37000 16250 300 400 75 0
