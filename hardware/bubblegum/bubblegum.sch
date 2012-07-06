@@ -1,4 +1,4 @@
-EESchema Schematic File Version 2  date Thu Jul  5 17:46:43 2012
+EESchema Schematic File Version 2  date Thu Jul  5 17:58:03 2012
 LIBS:power
 LIBS:device
 LIBS:transistors
@@ -45,10 +45,12 @@ Comment2 ""
 Comment3 ""
 Comment4 ""
 $EndDescr
+Text Label 7200 6800 0    40   ~ 0
+MIX_BIAS
+Text Label 7300 2850 0    40   ~ 0
+MIX_BIAS
 Wire Wire Line
-	7400 2850 7400 3100
-Wire Wire Line
-	7600 2850 7400 2850
+	7600 2850 7300 2850
 Wire Wire Line
 	8200 3000 8400 3000
 Wire Wire Line
@@ -77,11 +79,7 @@ Wire Wire Line
 Wire Wire Line
 	11800 2450 11800 2350
 Wire Wire Line
-	7400 3600 7400 3500
-Wire Wire Line
 	11750 9300 11750 9200
-Wire Wire Line
-	7150 7750 7150 7650
 Wire Wire Line
 	8250 10200 8250 10100
 Wire Wire Line
@@ -97,8 +95,6 @@ Wire Wire Line
 	7000 9800 7200 9800
 Wire Wire Line
 	2700 9900 3100 9900
-Wire Wire Line
-	7150 7250 7150 6800
 Connection ~ 10600 2250
 Wire Wire Line
 	10500 2250 10600 2250
@@ -621,7 +617,7 @@ Wire Wire Line
 Wire Wire Line
 	8750 7600 8750 7500
 Wire Wire Line
-	7150 6800 7500 6800
+	7200 6800 7500 6800
 Wire Wire Line
 	6050 3750 5950 3750
 Wire Wire Line
@@ -1322,24 +1318,6 @@ F 1 "100nF" H 11850 2050 50  0000 L CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L GND #PWR16
-U 1 1 4FF0A50C
-P 7400 3600
-F 0 "#PWR16" H 7400 3600 30  0001 C CNN
-F 1 "GND" H 7400 3530 30  0001 C CNN
-	1    7400 3600
-	1    0    0    -1  
-$EndComp
-$Comp
-L C C10
-U 1 1 4FF0A4DC
-P 7400 3300
-F 0 "C10" H 7450 3400 50  0000 L CNN
-F 1 "10nF" H 7450 3200 50  0000 L CNN
-	1    7400 3300
-	1    0    0    -1  
-$EndComp
-$Comp
 L GND #PWR72
 U 1 1 4FF0A4BF
 P 11750 9300
@@ -1355,24 +1333,6 @@ P 11750 9000
 F 0 "C67" H 11800 9100 50  0000 L CNN
 F 1 "100nF" H 11800 8900 50  0000 L CNN
 	1    11750 9000
-	1    0    0    -1  
-$EndComp
-$Comp
-L GND #PWR60
-U 1 1 4FF0A4AE
-P 7150 7750
-F 0 "#PWR60" H 7150 7750 30  0001 C CNN
-F 1 "GND" H 7150 7680 30  0001 C CNN
-	1    7150 7750
-	1    0    0    -1  
-$EndComp
-$Comp
-L C C61
-U 1 1 4FF0A494
-P 7150 7450
-F 0 "C61" H 7200 7550 50  0000 L CNN
-F 1 "10nF" H 7200 7350 50  0000 L CNN
-	1    7150 7450
 	1    0    0    -1  
 $EndComp
 $Comp
