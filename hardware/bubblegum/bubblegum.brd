@@ -1,0 +1,84 @@
+PCBNEW-BOARD Version 1 date Sun Jul  8 14:52:01 2012
+
+# Created by Pcbnew(2011-06-30 BZR 3033)-stable
+
+$GENERAL
+encoding utf-8
+LayerCount 2
+Ly 1FFF8001
+EnabledLayers 1FFF8001
+Links 0
+NoConn 0
+Di 0 0 117000 82670
+Ndraw 0
+Ntrack 0
+Nzone 0
+BoardThickness 630
+Nmodule 0
+Nnets 1
+$EndGENERAL
+
+$SHEETDESCR
+Sheet A4 11700 8267
+Title ""
+Date "8 jul 2012"
+Rev ""
+Comp ""
+Comment1 ""
+Comment2 ""
+Comment3 ""
+Comment4 ""
+$EndSHEETDESCR
+
+$SETUP
+InternalUnit 0.000100 INCH
+Layers 2
+Layer[0] Back signal
+Layer[15] Front signal
+TrackWidth 80
+TrackClearence 100
+ZoneClearence 200
+TrackMinWidth 80
+DrawSegmWidth 150
+EdgeSegmWidth 150
+ViaSize 350
+ViaDrill 250
+ViaMinSize 350
+ViaMinDrill 200
+MicroViaSize 200
+MicroViaDrill 50
+MicroViasAllowed 0
+MicroViaMinSize 200
+MicroViaMinDrill 50
+TextPcbWidth 120
+TextPcbSize 600 800
+EdgeModWidth 80
+TextModSize 600 600
+TextModWidth 120
+PadSize 161 130
+PadDrill 0
+Pad2MaskClearance 100
+AuxiliaryAxisOrg 0 0
+PcbPlotParams (pcbplotparams (layerselection 3178497) (usegerberextensions true) (excludeedgelayer true) (linewidth 60) (plotframeref false) (viasonmask false) (mode 1) (useauxorigin false) (hpglpennumber 1) (hpglpenspeed 20) (hpglpendiameter 15) (hpglpenoverlay 2) (pscolor true) (psnegative false) (psa4output false) (plotreference true) (plotvalue true) (plotothertext true) (plotinvisibletext false) (padsonsilk false) (subtractmaskfromsilk false) (outputformat 1) (mirror false) (drillshape 1) (scaleselection 1) (outputdirectory ""))
+$EndSETUP
+
+$EQUIPOT
+Na 0 ""
+St ~
+$EndEQUIPOT
+$NCLASS
+Name "Default"
+Desc "This is the default net class."
+Clearance 100
+TrackWidth 80
+ViaDia 350
+ViaDrill 250
+uViaDia 200
+uViaDrill 50
+AddNet ""
+$EndNCLASS
+$TRACK
+$EndTRACK
+$ZONE
+$EndZONE
+$EndBOARD
