@@ -1,4 +1,4 @@
-# EESchema Netlist Version 1.1 created  Sun Jul  8 10:50:24 2012
+# EESchema Netlist Version 1.1 created  Wed Jul 11 13:24:50 2012
 (
  ( /4FE2B60A GSG-0402 C1 100pF
   ( 1 N-000062 )
@@ -514,7 +514,7 @@
   ( 4 N-000042 )
   ( 5 /MIX_BIAS )
  )
- ( /4FF07EB1 $noname$ U1 DMN2400
+ ( /4FF07EB1 GSG-SOT563 U1 DMN2400
   ( 1 GND )
   ( 2 /RX_BYPASS )
   ( 3 N-000045 )
@@ -522,7 +522,7 @@
   ( 5 /!RX_BYPASS )
   ( 6 N-000045 )
  )
- ( /4FE2B4EB $noname$ U2 SKY13350
+ ( /4FE2B4EB GSG-SKY13350-385LF U2 SKY13350
   ( 1 /RX_HP )
   ( 2 N-000005 )
   ( 3 GND )
@@ -536,7 +536,7 @@
   ( 3 N-000062 )
   ( 4 GND )
  )
- ( /4FE0D255 $noname$ U4 SKY13350
+ ( /4FE0D255 GSG-SKY13350-385LF U4 SKY13350
   ( 1 /RX_LP )
   ( 2 N-000066 )
   ( 3 GND )
@@ -544,7 +544,7 @@
   ( 5 /RX_HP )
   ( 6 N-000055 )
  )
- ( /4FE0D185 $noname$ U5 SKY13350
+ ( /4FE0D185 GSG-SKY13350-385LF U5 SKY13350
   ( 1 /TX_ANT )
   ( 2 N-000058 )
   ( 3 GND )
@@ -552,7 +552,7 @@
   ( 5 /!TX_ANT )
   ( 6 N-000054 )
  )
- ( /4FE0D681 $noname$ U6 PE4140
+ ( /4FE0D681 GSG-DFN6-3 U6 PE4140
   ( 0 GND )
   ( 1 N-000083 )
   ( 2 N-000040 )
@@ -567,7 +567,7 @@
   ( 3 GND )
   ( 4 N-000071 )
  )
- ( /4FE0D1C4 $noname$ U8 SKY13350
+ ( /4FE0D1C4 GSG-SKY13350-385LF U8 SKY13350
   ( 1 /TX_ANT )
   ( 2 N-000052 )
   ( 3 GND )
@@ -575,7 +575,7 @@
   ( 5 /!TX_ANT )
   ( 6 N-000059 )
  )
- ( /4FE0DC31 $noname$ U9 TRF3765
+ ( /4FE0DC31 GSG-QFN32 U9 TRF3765
   ( 0 GND )
   ( 1 GND )
   ( 2 VCC )
@@ -616,7 +616,7 @@
   ( 3 N-000065 )
   ( 4 GND )
  )
- ( /4FE0D688 $noname$ U11 PE4140
+ ( /4FE0D688 GSG-DFN6-3 U11 PE4140
   ( 0 GND )
   ( 1 N-000036 )
   ( 2 N-000042 )
@@ -625,7 +625,7 @@
   ( 5 N-000091 )
   ( 6 N-000035 )
  )
- ( /4FE0D25C $noname$ U12 SKY13350
+ ( /4FE0D25C GSG-SKY13350-385LF U12 SKY13350
   ( 1 /TX_LP )
   ( 2 N-000067 )
   ( 3 GND )
@@ -639,7 +639,7 @@
   ( 3 GND )
   ( 4 N-000069 )
  )
- ( /4FF07992 $noname$ U14 DMC2400
+ ( /4FF07992 GSG-SOT563 U14 DMC2400
   ( 1 /MIX_BIAS )
   ( 2 /!RX_BYPASS )
   ( 3 N-000092 )
@@ -647,7 +647,7 @@
   ( 5 /!RX_BYPASS )
   ( 6 N-000092 )
  )
- ( /4FF07E88 $noname$ U15 DMC2400
+ ( /4FF07E88 GSG-SOT563 U15 DMC2400
   ( 1 /MIX_BIAS )
   ( 2 /!TX_BYPASS )
   ( 3 N-000032 )
@@ -672,7 +672,7 @@
   ( 13 VCC )
   ( 14 VCC )
  )
- ( /4FE2B7CC $noname$ U17 SKY13350
+ ( /4FE2B7CC GSG-SKY13350-385LF U17 SKY13350
   ( 1 /TX_HP )
   ( 2 N-000007 )
   ( 3 GND )
@@ -680,7 +680,7 @@
   ( 5 /TX_LP )
   ( 6 N-000082 )
  )
- ( /4FF07A29 $noname$ U18 DMN2400
+ ( /4FF07A29 GSG-SOT563 U18 DMN2400
   ( 1 GND )
   ( 2 /TX_BYPASS )
   ( 3 N-000038 )
@@ -688,7 +688,7 @@
   ( 5 /!TX_BYPASS )
   ( 6 N-000038 )
  )
- ( /4FF08E02 $noname$ U19 NCP699
+ ( /4FF08E02 SOT23-5 U19 NCP699
   ( 1 VCC )
   ( 2 GND )
   ( 3 VCC )

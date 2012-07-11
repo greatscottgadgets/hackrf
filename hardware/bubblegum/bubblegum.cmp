@@ -1,4 +1,4 @@
-Cmp-Mod V01 Created by CvPCB (2011-06-30 BZR 3033)-stable date = Sun Jul  8 10:50:24 2012
+Cmp-Mod V01 Created by CvPCB (2011-06-30 BZR 3033)-stable date = Wed Jul 11 13:24:50 2012
 
 BeginCmp
 TimeStamp = /4FE2B60A;
@@ -823,14 +823,14 @@ BeginCmp
 TimeStamp = /4FF07EB1;
 Reference = U1;
 ValeurCmp = DMN2400;
-IdModule  = ;
+IdModule  = GSG-SOT563;
 EndCmp
 
 BeginCmp
 TimeStamp = /4FE2B4EB;
 Reference = U2;
 ValeurCmp = SKY13350;
-IdModule  = ;
+IdModule  = GSG-SKY13350-385LF;
 EndCmp
 
 BeginCmp
@@ -844,21 +844,21 @@ BeginCmp
 TimeStamp = /4FE0D255;
 Reference = U4;
 ValeurCmp = SKY13350;
-IdModule  = ;
+IdModule  = GSG-SKY13350-385LF;
 EndCmp
 
 BeginCmp
 TimeStamp = /4FE0D185;
 Reference = U5;
 ValeurCmp = SKY13350;
-IdModule  = ;
+IdModule  = GSG-SKY13350-385LF;
 EndCmp
 
 BeginCmp
 TimeStamp = /4FE0D681;
 Reference = U6;
 ValeurCmp = PE4140;
-IdModule  = ;
+IdModule  = GSG-DFN6-3;
 EndCmp
 
 BeginCmp
@@ -872,14 +872,14 @@ BeginCmp
 TimeStamp = /4FE0D1C4;
 Reference = U8;
 ValeurCmp = SKY13350;
-IdModule  = ;
+IdModule  = GSG-SKY13350-385LF;
 EndCmp
 
 BeginCmp
 TimeStamp = /4FE0DC31;
 Reference = U9;
 ValeurCmp = TRF3765;
-IdModule  = ;
+IdModule  = GSG-QFN32;
 EndCmp
 
 BeginCmp
@@ -893,14 +893,14 @@ BeginCmp
 TimeStamp = /4FE0D688;
 Reference = U11;
 ValeurCmp = PE4140;
-IdModule  = ;
+IdModule  = GSG-DFN6-3;
 EndCmp
 
 BeginCmp
 TimeStamp = /4FE0D25C;
 Reference = U12;
 ValeurCmp = SKY13350;
-IdModule  = ;
+IdModule  = GSG-SKY13350-385LF;
 EndCmp
 
 BeginCmp
@@ -914,14 +914,14 @@ BeginCmp
 TimeStamp = /4FF07992;
 Reference = U14;
 ValeurCmp = DMC2400;
-IdModule  = ;
+IdModule  = GSG-SOT563;
 EndCmp
 
 BeginCmp
 TimeStamp = /4FF07E88;
 Reference = U15;
 ValeurCmp = DMC2400;
-IdModule  = ;
+IdModule  = GSG-SOT563;
 EndCmp
 
 BeginCmp
@@ -935,21 +935,21 @@ BeginCmp
 TimeStamp = /4FE2B7CC;
 Reference = U17;
 ValeurCmp = SKY13350;
-IdModule  = ;
+IdModule  = GSG-SKY13350-385LF;
 EndCmp
 
 BeginCmp
 TimeStamp = /4FF07A29;
 Reference = U18;
 ValeurCmp = DMN2400;
-IdModule  = ;
+IdModule  = GSG-SOT563;
 EndCmp
 
 BeginCmp
 TimeStamp = /4FF08E02;
 Reference = U19;
 ValeurCmp = NCP699;
-IdModule  = ;
+IdModule  = SOT23-5;
 EndCmp
 
 EndListe
