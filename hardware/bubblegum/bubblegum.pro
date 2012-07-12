@@ -1,4 +1,4 @@
-update=Sun Jul  8 08:01:35 2012
+update=Wed Jul 11 13:27:06 2012
 version=1
 last_client=pcbnew
 [cvpcb]
@@ -78,9 +78,9 @@ LibName30=valves
 LibName31=hackrf
 [pcbnew]
 version=1
-PadDrlX=320
-PadDimH=600
-PadDimV=600
+PadDrlX=0
+PadDimH=315
+PadDimV=157
 BoardThickness=630
 TxtPcbV=800
 TxtPcbH=600
@@ -91,8 +91,8 @@ VEgarde=100
 DrawLar=150
 EdgeLar=150
 TxtLar=120
-MSegLar=150
-LastNetListRead=
+MSegLar=80
+LastNetListRead=bubblegum.net
 [pcbnew/libraries]
 LibDir=../kicad
 LibName1=sockets
