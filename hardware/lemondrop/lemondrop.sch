@@ -1,4 +1,4 @@
-EESchema Schematic File Version 2  date Sun May  6 16:07:31 2012
+EESchema Schematic File Version 2  date Fri Jul 13 13:08:49 2012
 LIBS:power
 LIBS:device
 LIBS:transistors
@@ -37,7 +37,7 @@ $Descr User 17000 11000
 encoding utf-8
 Sheet 1 1
 Title "lemondrop"
-Date "6 may 2012"
+Date "13 jul 2012"
 Rev ""
 Comp "Copyright 2012 Michael Ossmann"
 Comment1 "License: GPL v2"
@@ -1946,8 +1946,8 @@ P 3050 7300
 F 0 "X1" H 3050 7450 60  0000 C CNN
 F 1 "GSG-XTAL4PIN" H 3050 7150 60  0000 C CNN
 F 4 "NDK" H 3050 7300 60  0001 C CNN "Manufacturer"
-F 5 "NX3225SA-27.000000MHZ" H 3050 7300 60  0001 C CNN "Part Number"
-F 6 "CRYSTAL 27.000000 MHZ 8PF SMD" H 3050 7300 60  0001 C CNN "Description"
+F 5 "NX3225SA-25.000000MHZ" H 3050 7300 60  0001 C CNN "Part Number"
+F 6 "CRYSTAL 25 MHZ 10.00PF SMD" H 3050 7300 60  0001 C CNN "Description"
 	1    3050 7300
 	1    0    0    -1  
 $EndComp
