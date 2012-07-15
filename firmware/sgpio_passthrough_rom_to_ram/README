@@ -1,0 +1,5 @@
+A program to test SGPIO with CPLD passthrough Input & Output via the SGPIO CPLD interface (P8 BANK2_AUX).
+For this test connect P10 BANK1_AUX AUX9 pin to +1V8 (in order to have P8 BANK2_AUX AUX1 to 16 as Output).
+This test requires:
+ * JellyBean+Lemondrop(to set clock at 204MHz).
+ * CPLD X2C64A hardware\jellybean\sgpio_if_passthrough\sgpio_if_passthrough.svf to be loaded first.
