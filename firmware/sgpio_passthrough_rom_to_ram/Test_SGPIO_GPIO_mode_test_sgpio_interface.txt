@@ -1,0 +1,68 @@
+
+Test SGPIO GPIO mode, with LPC4330@204MHz (JellyBean+Lemondrop) and code executed in RAM.
+
+Test1:
+------
+while(1)
+{
+	for (uint_fast8_t i = 0; i < 8; i++) 
+	{
+		SGPIO_GPIO_OUTREG ^= (1L << i);
+
+	}
+}
+Oscilloscope result (on SGPIO0): Frequency 750KHz => 272 cycles
+
+Test2:
+------
+while(1)
+{
+	__asm__(" nop");
+	__asm__(" nop");
+	__asm__(" nop");
+	__asm__(" nop");
+	__asm__(" nop");
+	__asm__(" nop");
+	__asm__(" nop");
+	__asm__(" nop");
+	__asm__(" nop");
+	__asm__(" nop");
+	__asm__(" nop");
+	__asm__(" nop");
+	SGPIO_GPIO_OUTREG ^= 0x5555;
+}
+Oscilloscope result (on SGPIO0): 3.923 MHz => 52 cycles
+
+Test3:
+------
+while(1)
+{
+	SGPIO_GPIO_OUTREG ^= 0x5555;
+}
+Oscilloscope result (on SGPIO0): Frequency 7.28MHz => 28 cycles
+
+Test4:
+------
+while(1)
+{
+	__asm__(" nop");
+	__asm__(" nop");
+	__asm__(" nop");
+	__asm__(" nop");
+	SGPIO_GPIO_OUTREG = 0x5555;
+	__asm__(" nop");
+	__asm__(" nop");
+	__asm__(" nop");
+	__asm__(" nop");
+	SGPIO_GPIO_OUTREG = 0xAAAA;
+}
+Oscilloscope result (on SGPIO0): Frequency 17MHz => 12 cycles
+
+Test5:
+------
+while(1)
+{
+	SGPIO_GPIO_OUTREG = 0x5555;
+	SGPIO_GPIO_OUTREG = 0xAAAA;
+}
+Oscilloscope result (on SGPIO0): Frequency 25.5MHz => 8 cycles
