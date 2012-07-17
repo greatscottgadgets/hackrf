@@ -1,4 +1,4 @@
-# EESchema Netlist Version 1.1 created  Tue Jul 17 11:41:18 2012
+# EESchema Netlist Version 1.1 created  Tue Jul 17 11:45:16 2012
 (
  ( /4FE2B60A GSG-0402 C1 100pF
   ( 1 N-000084 )
@@ -406,7 +406,7 @@
   ( 4 GND )
   ( 5 GND )
  )
- ( /500592BA GSG-HEADER-2x5 P3 SERIAL
+ ( /500592BA GSG-HEADER-2x7 P3 SERIAL
   ( 1 GND )
   ( 2 GND )
   ( 3 N-000116 )
@@ -452,7 +452,7 @@
   ( 9 GND )
   ( 10 VCC )
  )
- ( /5005912D GSG-HEADER-2x5 P8 SWITCH_CTRL
+ ( /5005912D GSG-HEADER-2x7 P8 SWITCH_CTRL
   ( 1 /RX_BYPASS )
   ( 2 GND )
   ( 3 /TX_BYPASS )

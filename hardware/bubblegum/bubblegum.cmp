@@ -1,4 +1,4 @@
-Cmp-Mod V01 Created by CvPCB (2011-06-30 BZR 3033)-stable date = Tue Jul 17 11:41:18 2012
+Cmp-Mod V01 Created by CvPCB (2011-06-30 BZR 3033)-stable date = Tue Jul 17 11:45:16 2012
 
 BeginCmp
 TimeStamp = /4FE2B60A;
@@ -704,7 +704,7 @@ BeginCmp
 TimeStamp = /500592BA;
 Reference = P3;
 ValeurCmp = SERIAL;
-IdModule  = GSG-HEADER-2x5;
+IdModule  = GSG-HEADER-2x7;
 EndCmp
 
 BeginCmp
@@ -739,7 +739,7 @@ BeginCmp
 TimeStamp = /5005912D;
 Reference = P8;
 ValeurCmp = SWITCH_CTRL;
-IdModule  = GSG-HEADER-2x5;
+IdModule  = GSG-HEADER-2x7;
 EndCmp
 
 BeginCmp
