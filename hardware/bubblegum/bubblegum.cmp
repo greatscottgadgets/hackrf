@@ -1,4 +1,4 @@
-Cmp-Mod V01 Created by CvPCB (2011-06-30 BZR 3033)-stable date = Wed Jul 11 17:41:38 2012
+Cmp-Mod V01 Created by CvPCB (2011-06-30 BZR 3033)-stable date = Tue Jul 17 11:41:18 2012
 
 BeginCmp
 TimeStamp = /4FE2B60A;
@@ -491,44 +491,100 @@ IdModule  = GSG-0402;
 EndCmp
 
 BeginCmp
-TimeStamp = /4FF72FE3;
+TimeStamp = /50058DCC;
 Reference = C71;
-ValeurCmp = DNP;
+ValeurCmp = 220pF;
 IdModule  = GSG-0402;
 EndCmp
 
 BeginCmp
-TimeStamp = /4FF72FE4;
+TimeStamp = /50058DC7;
 Reference = C72;
-ValeurCmp = DNP;
+ValeurCmp = 220pF;
 IdModule  = GSG-0402;
 EndCmp
 
 BeginCmp
-TimeStamp = /4FF72FE5;
+TimeStamp = /50058F03;
 Reference = C73;
-ValeurCmp = DNP;
+ValeurCmp = 33pF;
 IdModule  = GSG-0402;
 EndCmp
 
 BeginCmp
-TimeStamp = /4FF72FDF;
+TimeStamp = /50058F2C;
 Reference = C74;
-ValeurCmp = DNP;
+ValeurCmp = 33pF;
 IdModule  = GSG-0402;
 EndCmp
 
 BeginCmp
-TimeStamp = /4FF72FDE;
+TimeStamp = /50058C0A;
 Reference = C75;
-ValeurCmp = DNP;
+ValeurCmp = 220pF;
 IdModule  = GSG-0402;
 EndCmp
 
 BeginCmp
-TimeStamp = /4FF72E3F;
+TimeStamp = /50058BFA;
 Reference = C76;
-ValeurCmp = DNP;
+ValeurCmp = 220pF;
+IdModule  = GSG-0402;
+EndCmp
+
+BeginCmp
+TimeStamp = /50046E0E;
+Reference = C77;
+ValeurCmp = 220pF;
+IdModule  = GSG-0402;
+EndCmp
+
+BeginCmp
+TimeStamp = /50046E18;
+Reference = C78;
+ValeurCmp = 220pF;
+IdModule  = GSG-0402;
+EndCmp
+
+BeginCmp
+TimeStamp = /500474E3;
+Reference = C79;
+ValeurCmp = 33pF;
+IdModule  = GSG-0402;
+EndCmp
+
+BeginCmp
+TimeStamp = /50047438;
+Reference = C80;
+ValeurCmp = 33pF;
+IdModule  = GSG-0402;
+EndCmp
+
+BeginCmp
+TimeStamp = /50047399;
+Reference = C81;
+ValeurCmp = 220pF;
+IdModule  = GSG-0402;
+EndCmp
+
+BeginCmp
+TimeStamp = /50047390;
+Reference = C82;
+ValeurCmp = 220pF;
+IdModule  = GSG-0402;
+EndCmp
+
+BeginCmp
+TimeStamp = /500597A9;
+Reference = C83;
+ValeurCmp = 27pF;
+IdModule  = GSG-0402;
+EndCmp
+
+BeginCmp
+TimeStamp = /50059750;
+Reference = C84;
+ValeurCmp = 27pF;
 IdModule  = GSG-0402;
 EndCmp
 
@@ -645,7 +701,7 @@ IdModule  = GSG-SMA-EDGE;
 EndCmp
 
 BeginCmp
-TimeStamp = /4FE0FACB;
+TimeStamp = /500592BA;
 Reference = P3;
 ValeurCmp = SERIAL;
 IdModule  = GSG-HEADER-2x5;
@@ -680,7 +736,7 @@ IdModule  = GSG-HEADER-2x5;
 EndCmp
 
 BeginCmp
-TimeStamp = /4FE10458;
+TimeStamp = /5005912D;
 Reference = P8;
 ValeurCmp = SWITCH_CTRL;
 IdModule  = GSG-HEADER-2x5;
@@ -715,13 +771,6 @@ IdModule  = GSG-HOLE-12MIL;
 EndCmp
 
 BeginCmp
-TimeStamp = /4FF72E05;
-Reference = R1;
-ValeurCmp = 0;
-IdModule  = GSG-0402;
-EndCmp
-
-BeginCmp
 TimeStamp = /4FE0F4EE;
 Reference = R2;
 ValeurCmp = 100;
@@ -736,20 +785,6 @@ IdModule  = GSG-0402;
 EndCmp
 
 BeginCmp
-TimeStamp = /4FF72E2A;
-Reference = R4;
-ValeurCmp = 0;
-IdModule  = GSG-0402;
-EndCmp
-
-BeginCmp
-TimeStamp = /4FF72E0C;
-Reference = R5;
-ValeurCmp = 0;
-IdModule  = GSG-0402;
-EndCmp
-
-BeginCmp
 TimeStamp = /4FE0F81D;
 Reference = R6;
 ValeurCmp = 5k;
@@ -759,13 +794,6 @@ EndCmp
 BeginCmp
 TimeStamp = /4FE0F825;
 Reference = R7;
-ValeurCmp = 0;
-IdModule  = GSG-0402;
-EndCmp
-
-BeginCmp
-TimeStamp = /4FF72E28;
-Reference = R8;
 ValeurCmp = 0;
 IdModule  = GSG-0402;
 EndCmp
@@ -785,37 +813,9 @@ IdModule  = GSG-0402;
 EndCmp
 
 BeginCmp
-TimeStamp = /4FF72E0E;
-Reference = R11;
-ValeurCmp = 0;
-IdModule  = GSG-0402;
-EndCmp
-
-BeginCmp
-TimeStamp = /4FF72E2F;
-Reference = R12;
-ValeurCmp = 0;
-IdModule  = GSG-0402;
-EndCmp
-
-BeginCmp
 TimeStamp = /4FE0F80D;
 Reference = R13;
 ValeurCmp = 10k;
-IdModule  = GSG-0402;
-EndCmp
-
-BeginCmp
-TimeStamp = /4FF72E10;
-Reference = R14;
-ValeurCmp = 0;
-IdModule  = GSG-0402;
-EndCmp
-
-BeginCmp
-TimeStamp = /4FF72E31;
-Reference = R15;
-ValeurCmp = 0;
 IdModule  = GSG-0402;
 EndCmp
 
@@ -834,9 +834,23 @@ IdModule  = GSG-B0310J50100AHF;
 EndCmp
 
 BeginCmp
+TimeStamp = /50058BA6;
+Reference = T3;
+ValeurCmp = RX_LO_BALUN2;
+IdModule  = GSG-B0310J50100AHF;
+EndCmp
+
+BeginCmp
 TimeStamp = /4FF61AF3;
 Reference = T4;
 ValeurCmp = TX_BALUN;
+IdModule  = GSG-B0310J50100AHF;
+EndCmp
+
+BeginCmp
+TimeStamp = /50058C9F;
+Reference = T5;
+ValeurCmp = RX_LO_BALUN1;
 IdModule  = GSG-B0310J50100AHF;
 EndCmp
 
@@ -845,6 +859,20 @@ TimeStamp = /4FE0DF5A;
 Reference = T6;
 ValeurCmp = TX_IF_BALUN;
 IdModule  = GSG-2500BL14M100;
+EndCmp
+
+BeginCmp
+TimeStamp = /50046DEA;
+Reference = T7;
+ValeurCmp = TX_LO_BALUN1;
+IdModule  = GSG-B0310J50100AHF;
+EndCmp
+
+BeginCmp
+TimeStamp = /50046EB3;
+Reference = T8;
+ValeurCmp = TX_LO_BALUN2;
+IdModule  = GSG-B0310J50100AHF;
 EndCmp
 
 BeginCmp
@@ -978,6 +1006,34 @@ TimeStamp = /4FF08E02;
 Reference = U19;
 ValeurCmp = NCP699;
 IdModule  = SOT23-5;
+EndCmp
+
+BeginCmp
+TimeStamp = /50058D81;
+Reference = U20;
+ValeurCmp = RX_LO_FILTER;
+IdModule  = GSG-FI168B/L;
+EndCmp
+
+BeginCmp
+TimeStamp = /50058CDB;
+Reference = U21;
+ValeurCmp = SKY13411;
+IdModule  = GSG-SKY13411-374LF;
+EndCmp
+
+BeginCmp
+TimeStamp = /500472E8;
+Reference = U22;
+ValeurCmp = SKY13411;
+IdModule  = GSG-SKY13411-374LF;
+EndCmp
+
+BeginCmp
+TimeStamp = /50046E65;
+Reference = U23;
+ValeurCmp = TX_LO_FILTER;
+IdModule  = GSG-FI168B/L;
 EndCmp
 
 EndListe
