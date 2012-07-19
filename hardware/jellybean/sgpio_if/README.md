@@ -11,7 +11,7 @@ To build this VHDL project and produce an SVF file for flashing the CPLD:
 To program the SVF file into the CPLD:
 
 * Dangerous Prototypes Bus Blaster v2:
-  * Configured with JTAGKey buffers.
+  * Configured with [JTAGKey buffers](http://dangerousprototypes.com/docs/Bus_Blaster_v2_buffer_logic).
   * Connected to CPLD JTAG signals on Jellybean.
 
 * urJTAG built with libftdi support.
