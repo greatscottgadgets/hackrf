@@ -1,4 +1,4 @@
-EESchema Schematic File Version 2  date Thu Jun 21 18:47:05 2012
+EESchema Schematic File Version 2  date Sat Jun 30 17:09:21 2012
 LIBS:power
 LIBS:device
 LIBS:transistors
@@ -37,7 +37,7 @@ $Descr User 17000 11000
 encoding utf-8
 Sheet 1 1
 Title ""
-Date "22 jun 2012"
+Date "30 jun 2012"
 Rev ""
 Comp ""
 Comment1 ""
@@ -45,7 +45,6 @@ Comment2 ""
 Comment3 ""
 Comment4 ""
 $EndDescr
-NoConn ~ 6500 5500
 Connection ~ 2200 7900
 Wire Wire Line
 	2200 7900 2200 8000
