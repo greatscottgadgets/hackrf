@@ -31,3 +31,7 @@ To Program
 ...which connects to the Bus Blaster interface 0, sets the BSDL directory,
 detects devices on the JTAG chain, and writes the sgpio_if_passthrough.svf
 file to the CPLD.
+
+Usage:
+B1AUX9=0 control SGPIO0 to 15 as Input. B2AUX[1-16] => SGPIO[0-15]
+B1AUX9=1 control SGPIO0 to 15 as Output. SGPIO[0-15] => B2AUX[1-16]
