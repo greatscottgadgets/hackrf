@@ -314,6 +314,13 @@ int main(void) {
 	pin_setup();
 	enable_1v8_power();
 	cpu_clock_init();
+
+	CGU_BASE_PERIPH_CLK = (CGU_BASE_CLK_AUTOBLOCK
+			| (CGU_SRC_PLL1 << CGU_BASE_CLK_SEL_SHIFT));
+
+	CGU_BASE_APB1_CLK = (CGU_BASE_CLK_AUTOBLOCK
+			| (CGU_SRC_PLL1 << CGU_BASE_CLK_SEL_SHIFT));
+	
     ssp1_init();
     
 	ssp1_set_mode_max2837();
@@ -321,12 +328,6 @@ int main(void) {
 	max2837_set_frequency(freq);
 	max2837_start();
 	max2837_rx();
-
-	CGU_BASE_PERIPH_CLK = (CGU_BASE_CLK_AUTOBLOCK
-			| (CGU_SRC_PLL1 << CGU_BASE_CLK_SEL_SHIFT));
-
-	CGU_BASE_APB1_CLK = (CGU_BASE_CLK_AUTOBLOCK
-			| (CGU_SRC_PLL1 << CGU_BASE_CLK_SEL_SHIFT));
 
 	ssp1_set_mode_max5864();
 	max5864_xcvr();
