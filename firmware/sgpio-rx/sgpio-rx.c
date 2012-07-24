@@ -174,7 +174,7 @@ void configure_sgpio_test_tx() {
 	    (3L <<  5) |    // QUALIFIER_MODE = 3 (external SGPIO pin)
 	    (0L <<  3) |    // CLK_SOURCE_SLICE_MODE = X
 	    (0L <<  1) |    // CLK_SOURCE_PIN_MODE = 0 (SGPIO8)
-	    (1L <<  0);     // EXT_CLK_ENABLE = 1, external clock signal (slice)
+	    (1L <<  0);     // EXT_CLK_ENABLE = 1, external clock signal
 
 	SGPIO_SLICE_MUX_CFG(SGPIO_SLICE_A) =
 	    (0L <<  8) |    // INV_QUALIFIER = 0 (use normal qualifier)
@@ -254,7 +254,7 @@ void configure_sgpio_test_rx() {
 	    (3L <<  5) |    // QUALIFIER_MODE = 3 (external SGPIO pin)
 	    (0L <<  3) |    // CLK_SOURCE_SLICE_MODE = X
 	    (0L <<  1) |    // CLK_SOURCE_PIN_MODE = 0 (SGPIO8)
-	    (1L <<  0);     // EXT_CLK_ENABLE = 1, external clock signal (slice)
+	    (1L <<  0);     // EXT_CLK_ENABLE = 1, external clock signal
 
 	SGPIO_SLICE_MUX_CFG(SGPIO_SLICE_A) =
 	    (0L <<  8) |    // INV_QUALIFIER = 0 (use normal qualifier)
