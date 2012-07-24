@@ -262,7 +262,7 @@ void configure_sgpio_test_rx() {
 	    (0L <<  4) |    // DATA_CAPTURE_MODE = 0 (detect rising edge)
 	    (0L <<  3) |    // INV_OUT_CLK = X
 	    (1L <<  2) |    // CLKGEN_MODE = 1 (use external pin clock)
-	    (0L <<  1) |    // CLK_CAPTURE_MODE = 0 (use rising clock edge)
+	    (1L <<  1) |    // CLK_CAPTURE_MODE = 1 (use falling clock edge)
 	    (0L <<  0);     // MATCH_MODE = 0 (do not match data)
 
 	SGPIO_PRESET(SGPIO_SLICE_A) = 0;
