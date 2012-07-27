@@ -6,5 +6,5 @@ jtag <<COMMANDSEND
 cable jtagkey vid=0x0403 pid=0x6010 interface=0 driver=ftdi-mpsse
 bsdl path bsdl/xc2c
 detect
-svf sgpio_if.svf progress stop
+svf default.svf progress stop
 COMMANDSEND
