@@ -28,32 +28,6 @@
 #include "max2837.h"
 #include "rffc5071.h"
 
-void pin_setup(void)
-{
-	/* Configure SCU Pin Mux as GPIO */
-	scu_pinmux(SCU_PINMUX_LED1, SCU_GPIO_FAST);
-	scu_pinmux(SCU_PINMUX_LED2, SCU_GPIO_FAST);
-	scu_pinmux(SCU_PINMUX_LED3, SCU_GPIO_FAST);
-
-	scu_pinmux(SCU_PINMUX_EN1V8, SCU_GPIO_FAST);
-
-	/* Configure all GPIO as Input (safe state) */
-	GPIO0_DIR = 0;
-	GPIO1_DIR = 0;
-	GPIO2_DIR = 0;
-	GPIO3_DIR = 0;
-	GPIO4_DIR = 0;
-	GPIO5_DIR = 0;
-	GPIO6_DIR = 0;
-	GPIO7_DIR = 0;
-
-	/* Configure GPIO2[1/2/8] (P4_1/2 P6_12) as output. */
-	GPIO2_DIR |= (PIN_LED1|PIN_LED2|PIN_LED3);
-
-	/* GPIO3[6] on P6_10  as output. */
-	GPIO3_DIR |= PIN_EN1V8;
-}
-
 int main(void)
 {
 	const uint32_t freq = 2441000000U;

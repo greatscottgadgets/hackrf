@@ -29,52 +29,6 @@
 #include <hackrf_core.h>
 #include <max5864.h>
 
-void pin_setup(void) {
-	/* Configure SCU Pin Mux as GPIO */
-	scu_pinmux(SCU_PINMUX_LED1, SCU_GPIO_FAST);
-	scu_pinmux(SCU_PINMUX_LED2, SCU_GPIO_FAST);
-	scu_pinmux(SCU_PINMUX_LED3, SCU_GPIO_FAST);
-
-	scu_pinmux(SCU_PINMUX_EN1V8, SCU_GPIO_FAST);
-
-	/* Configure all GPIO as Input (safe state) */GPIO0_DIR = 0;
-	GPIO1_DIR = 0;
-	GPIO2_DIR = 0;
-	GPIO3_DIR = 0;
-	GPIO4_DIR = 0;
-	GPIO5_DIR = 0;
-	GPIO6_DIR = 0;
-	GPIO7_DIR = 0;
-
-	/* Configure GPIO2[1/2/8] (P4_1/2 P6_12) as output. */
-	GPIO2_DIR |= (PIN_LED1 | PIN_LED2 | PIN_LED3);
-
-	/* GPIO3[6] on P6_10  as output. */
-	GPIO3_DIR |= PIN_EN1V8;
-
-	/* Configure SSP1 Peripheral (to be moved later in SSP driver) */
-	scu_pinmux(SCU_SSP1_MISO, (SCU_SSP_IO | SCU_CONF_FUNCTION5));
-	scu_pinmux(SCU_SSP1_MOSI, (SCU_SSP_IO | SCU_CONF_FUNCTION5));
-	scu_pinmux(SCU_SSP1_SCK, (SCU_SSP_IO | SCU_CONF_FUNCTION1));
-	scu_pinmux(SCU_SSP1_SSEL, (SCU_SSP_IO | SCU_CONF_FUNCTION1));
-}
-
-void enable_1v8_power() {
-	gpio_set(PORT_EN1V8, PIN_EN1V8);
-}
-
-void release_cpld_jtag_pins() {
-	scu_pinmux(SCU_PINMUX_CPLD_TDO, SCU_GPIO_NOPULL | SCU_CONF_FUNCTION4);
-	scu_pinmux(SCU_PINMUX_CPLD_TCK, SCU_GPIO_NOPULL | SCU_CONF_FUNCTION0);
-	scu_pinmux(SCU_PINMUX_CPLD_TMS, SCU_GPIO_NOPULL | SCU_CONF_FUNCTION0);
-	scu_pinmux(SCU_PINMUX_CPLD_TDI, SCU_GPIO_NOPULL | SCU_CONF_FUNCTION0);
-
-	GPIO_DIR(PORT_CPLD_TDO) &= ~PIN_CPLD_TDO;
-	GPIO_DIR(PORT_CPLD_TCK) &= ~PIN_CPLD_TCK;
-	GPIO_DIR(PORT_CPLD_TMS) &= ~PIN_CPLD_TMS;
-	GPIO_DIR(PORT_CPLD_TDI) &= ~PIN_CPLD_TDI;
-}
-
 void configure_sgpio_pin_functions() {
 	scu_pinmux(SCU_PINMUX_SGPIO0, SCU_GPIO_FAST | SCU_CONF_FUNCTION3);
 	scu_pinmux(SCU_PINMUX_SGPIO1, SCU_GPIO_FAST | SCU_CONF_FUNCTION3);

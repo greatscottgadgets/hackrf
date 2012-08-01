@@ -159,6 +159,12 @@ void ssp1_init(void);
 void ssp1_set_mode_max2837(void);
 void ssp1_set_mode_max5864(void);
 
+void pin_setup(void);
+
+void release_cpld_jtag_pins(void);
+
+void enable_1v8_power(void);
+
 #ifdef __cplusplus
 }
 #endif
