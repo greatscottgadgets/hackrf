@@ -174,7 +174,7 @@ void configure_sgpio_test_tx() {
 	    (3L <<  5) |    // QUALIFIER_MODE = 3 (external SGPIO pin)
 	    (0L <<  3) |    // CLK_SOURCE_SLICE_MODE = X
 	    (0L <<  1) |    // CLK_SOURCE_PIN_MODE = 0 (SGPIO8)
-	    (1L <<  0);     // EXT_CLK_ENABLE = 1, external clock signal (slice)
+	    (1L <<  0);     // EXT_CLK_ENABLE = 1, external clock signal
 
 	SGPIO_SLICE_MUX_CFG(SGPIO_SLICE_A) =
 	    (0L <<  8) |    // INV_QUALIFIER = 0 (use normal qualifier)
@@ -254,7 +254,7 @@ void configure_sgpio_test_rx() {
 	    (3L <<  5) |    // QUALIFIER_MODE = 3 (external SGPIO pin)
 	    (0L <<  3) |    // CLK_SOURCE_SLICE_MODE = X
 	    (0L <<  1) |    // CLK_SOURCE_PIN_MODE = 0 (SGPIO8)
-	    (1L <<  0);     // EXT_CLK_ENABLE = 1, external clock signal (slice)
+	    (1L <<  0);     // EXT_CLK_ENABLE = 1, external clock signal
 
 	SGPIO_SLICE_MUX_CFG(SGPIO_SLICE_A) =
 	    (0L <<  8) |    // INV_QUALIFIER = 0 (use normal qualifier)
@@ -262,7 +262,7 @@ void configure_sgpio_test_rx() {
 	    (0L <<  4) |    // DATA_CAPTURE_MODE = 0 (detect rising edge)
 	    (0L <<  3) |    // INV_OUT_CLK = X
 	    (1L <<  2) |    // CLKGEN_MODE = 1 (use external pin clock)
-	    (0L <<  1) |    // CLK_CAPTURE_MODE = 0 (use rising clock edge)
+	    (1L <<  1) |    // CLK_CAPTURE_MODE = 1 (use falling clock edge)
 	    (0L <<  0);     // MATCH_MODE = 0 (do not match data)
 
 	SGPIO_PRESET(SGPIO_SLICE_A) = 0;
@@ -314,6 +314,13 @@ int main(void) {
 	pin_setup();
 	enable_1v8_power();
 	cpu_clock_init();
+
+	CGU_BASE_PERIPH_CLK = (CGU_BASE_CLK_AUTOBLOCK
+			| (CGU_SRC_PLL1 << CGU_BASE_CLK_SEL_SHIFT));
+
+	CGU_BASE_APB1_CLK = (CGU_BASE_CLK_AUTOBLOCK
+			| (CGU_SRC_PLL1 << CGU_BASE_CLK_SEL_SHIFT));
+	
     ssp1_init();
     
 	ssp1_set_mode_max2837();
@@ -321,12 +328,6 @@ int main(void) {
 	max2837_set_frequency(freq);
 	max2837_start();
 	max2837_rx();
-
-	CGU_BASE_PERIPH_CLK = (CGU_BASE_CLK_AUTOBLOCK
-			| (CGU_SRC_PLL1 << CGU_BASE_CLK_SEL_SHIFT));
-
-	CGU_BASE_APB1_CLK = (CGU_BASE_CLK_AUTOBLOCK
-			| (CGU_SRC_PLL1 << CGU_BASE_CLK_SEL_SHIFT));
 
 	ssp1_set_mode_max5864();
 	max5864_xcvr();
