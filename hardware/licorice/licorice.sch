@@ -1,4 +1,4 @@
-EESchema Schematic File Version 2  date Fri Aug 17 13:08:20 2012
+EESchema Schematic File Version 2  date Fri Aug 17 14:06:50 2012
 LIBS:power
 LIBS:device
 LIBS:transistors
@@ -953,7 +953,7 @@ F 4 "Murata" H 21250 10550 60  0001 C CNN "Manufacturer"
 F 5 "GRM1555C1H330JZ01D" H 21250 10550 60  0001 C CNN "Part Number"
 F 6 "CAP CER 33PF 50V 5% NP0 0402" H 21250 10550 60  0001 C CNN "Description"
 	1    9900 8300
-	1    0    0    1   
+	-1   0    0    1   
 $EndComp
 Text Label 15300 8400 3    40   ~ 0
 TX_AMP
@@ -988,7 +988,7 @@ F 4 "Murata" H 25050 11450 60  0001 C CNN "Manufacturer"
 F 5 "GRM1555C1H330JZ01D" H 25050 11450 60  0001 C CNN "Part Number"
 F 6 "CAP CER 33PF 50V 5% NP0 0402" H 25050 11450 60  0001 C CNN "Description"
 	1    13700 9200
-	1    0    0    1   
+	-1   0    0    1   
 $EndComp
 $Comp
 L GND #PWR06
@@ -1018,7 +1018,7 @@ F 4 "Murata" H 24500 11350 60  0001 C CNN "Manufacturer"
 F 5 "GRM1555C1H330JZ01D" H 24500 11350 60  0001 C CNN "Part Number"
 F 6 "CAP CER 33PF 50V 5% NP0 0402" H 24500 11350 60  0001 C CNN "Description"
 	1    13150 9100
-	1    0    0    1   
+	-1   0    0    1   
 $EndComp
 Text Label 13300 8900 0    40   ~ 0
 AMP_BYPASS
@@ -1038,7 +1038,7 @@ F 4 "Murata" H 23750 7700 60  0001 C CNN "Manufacturer"
 F 5 "GRM1555C1H330JZ01D" H 23750 7700 60  0001 C CNN "Part Number"
 F 6 "CAP CER 33PF 50V 5% NP0 0402" H 23750 7700 60  0001 C CNN "Description"
 	1    12400 5450
-	1    0    0    1   
+	-1   0    0    1   
 $EndComp
 $Comp
 L GND #PWR08
@@ -1068,7 +1068,7 @@ F 4 "Murata" H 24300 7800 60  0001 C CNN "Manufacturer"
 F 5 "GRM1555C1H330JZ01D" H 24300 7800 60  0001 C CNN "Part Number"
 F 6 "CAP CER 33PF 50V 5% NP0 0402" H 24300 7800 60  0001 C CNN "Description"
 	1    12950 5550
-	1    0    0    1   
+	-1   0    0    1   
 $EndComp
 Text Label 15200 5150 2    40   ~ 0
 TX_MIX_BP
@@ -1373,7 +1373,7 @@ F 4 "Murata" H 15400 9650 60  0001 C CNN "Manufacturer"
 F 5 "GRM1555C1H101JZ01D" H 15400 9650 60  0001 C CNN "Part Number"
 F 6 "CAP CER 100PF 50V 5% NP0 0402" H 15400 9650 60  0001 C CNN "Description"
 	1    12400 8100
-	0    1    1    0   
+	0    1    -1   0   
 $EndComp
 $Comp
 L GND #PWR021
@@ -2093,7 +2093,7 @@ L BALUN-B0310J50100AHF T2
 U 1 1 501EF4A4
 P 6100 6300
 F 0 "T2" H 6100 6500 70  0000 C CNN
-F 1 "TX_BALUN" H 6100 6150 70  0000 C CNN
+F 1 "MIX_OUT_BALUN" H 6100 6150 70  0000 C CNN
 	1    6100 6300
 	1    0    0    -1  
 $EndComp
@@ -2111,7 +2111,7 @@ L BALUN-B0310J50100AHF T1
 U 1 1 501EF483
 P 3650 4450
 F 0 "T1" H 3650 4650 70  0000 C CNN
-F 1 "RX_BALUN" H 3650 4300 70  0000 C CNN
+F 1 "MIX_IN_BALUN" H 3650 4300 70  0000 C CNN
 	1    3650 4450
 	-1   0    0    1   
 $EndComp
