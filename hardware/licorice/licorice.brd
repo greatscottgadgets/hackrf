@@ -1,4 +1,4 @@
-PCBNEW-BOARD Version 1 date Mon Aug 20 17:20:46 2012
+PCBNEW-BOARD Version 1 date Tue Aug 21 09:20:42 2012
 
 # Created by Pcbnew(2011-06-30 BZR 3033)-stable
 
@@ -10,7 +10,7 @@ EnabledLayers 1FFF8007
 Links 314
 NoConn 24
 Di 22440 9424 46060 27576
-Ndraw 13
+Ndraw 12
 Ntrack 1291
 Nzone 0
 BoardThickness 630
@@ -21,7 +21,7 @@ $EndGENERAL
 $SHEETDESCR
 Sheet User 6000 4000
 Title ""
-Date "20 aug 2012"
+Date "21 aug 2012"
 Rev ""
 Comp ""
 Comment1 ""
@@ -66,9 +66,9 @@ TextPcbSize 600 800
 EdgeModWidth 150
 TextModSize 600 600
 TextModWidth 120
-PadSize 28 56
-PadDrill 0
-Pad2MaskClearance 60
+PadSize 600 600
+PadDrill 320
+Pad2MaskClearance 100
 Pad2PasteClearanceRatio -0.12
 AuxiliaryAxisOrg 0 0
 PcbPlotParams (pcbplotparams (layerselection 283672583) (usegerberextensions true) (excludeedgelayer true) (linewidth 60) (plotframeref false) (viasonmask false) (mode 1) (useauxorigin false) (hpglpennumber 1) (hpglpenspeed 20) (hpglpendiameter 15) (hpglpenoverlay 0) (pscolor true) (psnegative false) (psa4output false) (plotreference false) (plotvalue false) (plotothertext true) (plotinvisibletext false) (padsonsilk false) (subtractmaskfromsilk false) (outputformat 1) (mirror false) (drillshape 1) (scaleselection 1) (outputdirectory ""))
@@ -5736,11 +5736,6 @@ $EndTEXTPCB
 $TEXTPCB
 Te "TX-IN"
 Po 24100 16300 400 600 100 0
-De 21 1 0 Normal
-$EndTEXTPCB
-$TEXTPCB
-Te "20 Aug 2012"
-Po 28250 11200 400 600 100 0
 De 21 1 0 Normal
 $EndTEXTPCB
 $TEXTPCB
