@@ -1,315 +1,309 @@
-# EESchema Netlist Version 1.1 created  Sun Aug  5 23:03:12 2012
+# EESchema Netlist Version 1.1 created  Mon Aug 20 15:47:31 2012
 (
- ( /501F4788 GSG-0402 C1 33pF
-  ( 1 GND )
-  ( 2 /TX_BYPASS )
- )
- ( /501F457B GSG-0402 C2 33pF
-  ( 1 /TX_BYPASS )
-  ( 2 GND )
- )
- ( /501EF768 GSG-0402 C3 47pF
-  ( 1 N-000056 )
-  ( 2 N-000046 )
- )
- ( /501EF782 GSG-0402 C4 47pF
-  ( 1 N-000043 )
-  ( 2 N-000068 )
- )
- ( /4FAA1282 GSG-0402 C5 47pF
-  ( 1 N-000094 )
-  ( 2 N-000045 )
- )
- ( /501F4793 GSG-0402 C6 33pF
-  ( 1 GND )
-  ( 2 /!TX_BYPASS )
- )
- ( /501F413C GSG-0402 C7 10nF
-  ( 1 N-000089 )
-  ( 2 N-000003 )
- )
- ( /501F4517 GSG-0402 C8 33pF
-  ( 1 /!TX_BYPASS )
-  ( 2 GND )
- )
- ( /501F4150 GSG-0402 C9 10nF
-  ( 1 N-000044 )
-  ( 2 N-000027 )
- )
- ( /501F414A GSG-0402 C10 10nF
-  ( 1 N-000063 )
-  ( 2 N-000021 )
- )
- ( /501F414C GSG-0402 C11 10nF
-  ( 1 N-000022 )
-  ( 2 N-000064 )
- )
- ( /501F453C GSG-0402 C12 33pF
-  ( 1 /RX_LP )
-  ( 2 GND )
- )
- ( /501F46D6 GSG-0402 C13 33pF
-  ( 1 GND )
-  ( 2 /RX_LP )
- )
- ( /4FB55FBB GSG-0402 C14 100pF
-  ( 1 GND )
-  ( 2 VCC )
- )
- ( /501F416B GSG-0402 C15 10nF
-  ( 1 N-000033 )
-  ( 2 N-000034 )
- )
- ( /4FAECB99 GSG-0402 C16 33pF
+ ( /4FAECB99 GSG-0402 C1 33pF
   ( 1 VCC )
   ( 2 GND )
  )
- ( /4FAECBA0 GSG-0402 C17 10nF
+ ( /4FAECBA0 GSG-0402 C2 10nF
   ( 1 VCC )
   ( 2 GND )
  )
- ( /4FAECBB6 GSG-0402 C18 33pF
+ ( /4FAECBB6 GSG-0402 C3 33pF
   ( 1 VCC )
   ( 2 GND )
  )
- ( /4FAECBB5 GSG-0402 C19 10nF
+ ( /4FAECBB5 GSG-0402 C4 10nF
   ( 1 VCC )
   ( 2 GND )
  )
- ( /4FAECBB9 GSG-0402 C20 33pF
+ ( /4FAECBB9 GSG-0402 C5 33pF
   ( 1 VCC )
   ( 2 GND )
  )
- ( /4FAECBBA GSG-0402 C21 10nF
+ ( /4FAECBBA GSG-0402 C6 10nF
   ( 1 VCC )
   ( 2 GND )
  )
- ( /4FAEC78D GSG-0402 C22 100pF
+ ( /501F4788 GSG-0402 C7 33pF
   ( 1 GND )
-  ( 2 VCC )
+  ( 2 /MIX_BYPASS )
  )
- ( /501EF3D9 GSG-0402 C23 47pF
-  ( 1 N-000010 )
-  ( 2 N-000065 )
- )
- ( /501F414E GSG-0402 C24 10nF
-  ( 1 N-000024 )
-  ( 2 N-000023 )
- )
- ( /501F45F6 GSG-0402 C25 33pF
-  ( 1 /RX_HP )
-  ( 2 GND )
- )
- ( /501F38B1 GSG-0402 C26 47pF
-  ( 1 N-000066 )
-  ( 2 N-000026 )
- )
- ( /4FAA1577 GSG-0402 C27 33pF
-  ( 1 /TX_ANT )
-  ( 2 GND )
- )
- ( /4FAEC84D GSG-0402 C28 330pF
-  ( 1 N-000083 )
-  ( 2 GND )
- )
- ( /4FAEC853 GSG-0402 C29 330pF
-  ( 1 N-000082 )
-  ( 2 GND )
- )
- ( /4FAEC8AD GSG-0402 C30 8p2
-  ( 1 N-000081 )
-  ( 2 N-000087 )
- )
- ( /4FAEC8B0 GSG-0402 C31 180pF
-  ( 1 N-000081 )
-  ( 2 N-000080 )
- )
- ( /501F46BD GSG-0402 C32 33pF
-  ( 1 GND )
-  ( 2 /RX_HP )
- )
- ( /501F41B9 GSG-0402 C33 10nF
-  ( 1 N-000060 )
-  ( 2 N-000025 )
- )
- ( /501F41BB GSG-0402 C34 10nF
-  ( 1 N-000030 )
-  ( 2 N-000059 )
- )
- ( /4FAA1579 GSG-0402 C35 10nF
-  ( 1 N-000004 )
-  ( 2 N-000011 )
- )
- ( /501F454C GSG-0402 C36 33pF
-  ( 1 /TX_LP )
-  ( 2 GND )
- )
- ( /501F4169 GSG-0402 C37 10nF
-  ( 1 N-000001 )
-  ( 2 N-000019 )
- )
- ( /4FAA1578 GSG-0402 C38 33pF
-  ( 1 /!TX_ANT )
-  ( 2 GND )
- )
- ( /501F4173 GSG-0402 C39 10nF
-  ( 1 N-000031 )
-  ( 2 N-000032 )
- )
- ( /501F46A8 GSG-0402 C40 33pF
-  ( 1 GND )
-  ( 2 /TX_LP )
- )
- ( /4FAA157D GSG-0402 C41 33pF
-  ( 1 /!TX_ANT )
-  ( 2 GND )
- )
- ( /501F3BC7 GSG-0402 C42 2.2nF
-  ( 1 N-000088 )
+ ( /501EF782 GSG-0402 C8 47pF
+  ( 1 N-000054 )
   ( 2 N-000020 )
  )
- ( /501F4625 GSG-0402 C43 33pF
-  ( 1 /!RX_BYPASS )
-  ( 2 GND )
+ ( /502B53A4 GSG-0402 C9 10nF
+  ( 1 N-000015 )
+  ( 2 N-000002 )
  )
- ( /501EF311 GSG-0402 C44 47pF
-  ( 1 N-000002 )
-  ( 2 N-000062 )
- )
- ( /501F41BD GSG-0402 C45 10nF
-  ( 1 N-000028 )
-  ( 2 N-000029 )
- )
- ( /501F45B9 GSG-0402 C46 33pF
+ ( /502E6EFB GSG-0402 C10 33pF
   ( 1 GND )
-  ( 2 /TX_HP )
+  ( 2 /RX )
  )
- ( /501F477D GSG-0402 C47 33pF
+ ( /501F46A8 GSG-0402 C11 33pF
   ( 1 GND )
-  ( 2 /!RX_BYPASS )
+  ( 2 /LP )
  )
- ( /4FAA157E GSG-0402 C48 33pF
-  ( 1 /TX_ANT )
+ ( /4FAEC84D GSG-0402 C12 330pF
+  ( 1 N-000059 )
   ( 2 GND )
  )
- ( /501F4613 GSG-0402 C49 33pF
-  ( 1 /RX_BYPASS )
-  ( 2 GND )
- )
- ( /501EF6A1 GSG-0402 C50 47pF
+ ( /4FAEC853 GSG-0402 C13 330pF
   ( 1 N-000048 )
-  ( 2 N-000091 )
- )
- ( /501EF6BA GSG-0402 C51 47pF
-  ( 1 N-000067 )
-  ( 2 N-000047 )
- )
- ( /501F4769 GSG-0402 C52 33pF
-  ( 1 /RX_BYPASS )
   ( 2 GND )
  )
- ( /4FAECE69 GSG-0402 C54 33pF
+ ( /4FAEC8AD GSG-0402 C14 8p2
+  ( 1 N-000049 )
+  ( 2 N-000051 )
+ )
+ ( /4FAEC8B0 GSG-0402 C15 180pF
+  ( 1 N-000049 )
+  ( 2 N-000050 )
+ )
+ ( /501F4793 GSG-0402 C16 33pF
+  ( 1 /!MIX_BYPASS )
+  ( 2 GND )
+ )
+ ( /501F41BB GSG-0402 C17 10nF
+  ( 1 N-000056 )
+  ( 2 N-000073 )
+ )
+ ( /501F41B9 GSG-0402 C18 10nF
+  ( 1 N-000017 )
+  ( 2 N-000057 )
+ )
+ ( /502E6F8B GSG-0402 C19 33pF
+  ( 1 GND )
+  ( 2 /LP )
+ )
+ ( /501F41BD GSG-0402 C20 10nF
+  ( 1 N-000072 )
+  ( 2 N-000001 )
+ )
+ ( /501EF768 GSG-0402 C21 47pF
+  ( 1 N-000019 )
+  ( 2 N-000044 )
+ )
+ ( /502B4779 GSG-0402 C22 33pF
+  ( 1 GND )
+  ( 2 /RX )
+ )
+ ( /502B4C6F GSG-0402 C23 10nF
+  ( 1 N-000013 )
+  ( 2 N-000086 )
+ )
+ ( /502E6F11 GSG-0402 C24 33pF
+  ( 1 GND )
+  ( 2 /TX )
+ )
+ ( /4FAA149B GSG-0402 C25 47pF
+  ( 1 N-000060 )
+  ( 2 N-000022 )
+ )
+ ( /501EF311 GSG-0402 C26 47pF
+  ( 1 N-000075 )
+  ( 2 N-000074 )
+ )
+ ( /502B477A GSG-0402 C27 10nF
+  ( 1 N-000069 )
+  ( 2 N-000007 )
+ )
+ ( /502E6FEE GSG-0402 C28 33pF
+  ( 1 /HP )
+  ( 2 GND )
+ )
+ ( /4FAA0C67 GSG-0402 C29 33pF
+  ( 1 /HP )
+  ( 2 GND )
+ )
+ ( /502B56C2 GSG-0402 C30 10nF
+  ( 1 N-000009 )
+  ( 2 N-000021 )
+ )
+ ( /502B571F GSG-0402 C31 47pF
+  ( 1 N-000018 )
+  ( 2 N-000010 )
+ )
+ ( /502B4780 GSG-0402 C32 33pF
+  ( 1 /TX )
+  ( 2 GND )
+ )
+ ( /4FAECE69 GSG-0402 C33 33pF
   ( 1 /RESETX )
   ( 2 GND )
  )
- ( /4FAECE70 GSG-0402 C55 33pF
+ ( /4FAECE70 GSG-0402 C34 33pF
   ( 1 /ENX )
   ( 2 GND )
  )
- ( /4FAECE73 GSG-0402 C56 33pF
+ ( /4FAECE73 GSG-0402 C35 33pF
   ( 1 /SCLK )
   ( 2 GND )
  )
- ( /4FAECE75 GSG-0402 C57 33pF
+ ( /4FAECE75 GSG-0402 C36 33pF
   ( 1 /SDATA )
   ( 2 GND )
  )
- ( /4FAA0C67 GSG-0402 C58 33pF
-  ( 1 /TX_HP )
-  ( 2 GND )
+ ( /502E792B GSG-0402 C37 33pF
+  ( 1 GND )
+  ( 2 /!MIX_BYPASS )
  )
- ( /4FAA149B GSG-0402 C59 47pF
-  ( 1 N-000049 )
-  ( 2 N-000061 )
+ ( /502E78E2 GSG-0402 C38 33pF
+  ( 1 GND )
+  ( 2 /TX_MIX_BP )
  )
- ( /4FB55FAD GSG-0402 C61 100pF
+ ( /502E7922 GSG-0402 C39 33pF
+  ( 1 GND )
+  ( 2 /RX_MIX_BP )
+ )
+ ( /4FB55FAD GSG-0402 C40 100pF
   ( 1 VCC )
   ( 2 GND )
  )
- ( /4FAEC781 GSG-0402 C62 100pF
+ ( /4FAEC781 GSG-0402 C41 100pF
   ( 1 VCC )
   ( 2 GND )
  )
- ( /4FAA138A GSG-0402 C67 47pF
-  ( 1 N-000054 )
+ ( /502B5738 GSG-0402 C42 47pF
+  ( 1 N-000012 )
+  ( 2 N-000087 )
+ )
+ ( /501F4169 GSG-0402 C43 10nF
+  ( 1 N-000088 )
+  ( 2 N-000008 )
+ )
+ ( /502E6ECB GSG-0402 C44 33pF
+  ( 1 GND )
+  ( 2 /TX )
+ )
+ ( /502B4C15 GSG-0402 C45 10nF
+  ( 1 N-000004 )
+  ( 2 N-000068 )
+ )
+ ( /501F477D GSG-0402 C46 33pF
+  ( 1 GND )
+  ( 2 /!MIX_BYPASS )
+ )
+ ( /501EF6BA GSG-0402 C47 47pF
+  ( 1 N-000014 )
   ( 2 N-000055 )
  )
- ( /4FB2FD07 GSG-0402 C69 100nF
-  ( 1 VCC )
+ ( /502E5F58 GSG-0402 C48 100pF
+  ( 1 N-000102 )
+  ( 2 /RX_AMP_OUT )
+ )
+ ( /501EF6A1 GSG-0402 C49 47pF
+  ( 1 N-000071 )
+  ( 2 N-000070 )
+ )
+ ( /502C6D36 GSG-0402 C50 100pF
+  ( 1 N-000039 )
   ( 2 GND )
  )
- ( /4FAECD45 GSG-0402 C74 47pF
+ ( /502C6DB4 GSG-0402 C51 1uF
+  ( 1 N-000039 )
+  ( 2 GND )
+ )
+ ( /502E6EB0 GSG-0402 C52 33pF
+  ( 1 /RX )
+  ( 2 GND )
+ )
+ ( /502E7A10 GSG-0402 C53 33pF
+  ( 1 /RX_AMP )
+  ( 2 GND )
+ )
+ ( /502E7A16 GSG-0402 C54 33pF
+  ( 1 /TX_AMP )
+  ( 2 GND )
+ )
+ ( /501F4769 GSG-0402 C55 33pF
+  ( 1 /MIX_BYPASS )
+  ( 2 GND )
+ )
+ ( /502E5F55 GSG-0402 C56 100pF
+  ( 1 /TX_AMP_OUT )
+  ( 2 N-000102 )
+ )
+ ( /502E665E GSG-0402 C57 100pF
+  ( 1 N-000089 )
+  ( 2 /TX_AMP_IN )
+ )
+ ( /502E79FA GSG-0402 C58 33pF
+  ( 1 GND )
+  ( 2 /AMP_BYPASS )
+ )
+ ( /502E6909 GSG-0402 C59 10nF
+  ( 1 N-000043 )
+  ( 2 N-000041 )
+ )
+ ( /502E6667 GSG-0402 C60 100pF
+  ( 1 /RX_AMP_IN )
+  ( 2 N-000089 )
+ )
+ ( /502E79CE GSG-0402 C61 33pF
+  ( 1 /TX_AMP )
+  ( 2 GND )
+ )
+ ( /502C6D4A GSG-0402 C62 10nF
+  ( 1 N-000046 )
+  ( 2 N-000094 )
+ )
+ ( /502E7989 GSG-0402 C63 33pF
+  ( 1 GND )
+  ( 2 /RX_AMP )
+ )
+ ( /502E798C GSG-0402 C64 33pF
+  ( 1 GND )
+  ( 2 /AMP_BYPASS )
+ )
+ ( /4FAECD45 GSG-0402 C65 47pF
   ( 1 /CLK )
   ( 2 /REF_IN )
  )
- ( /4FB3CC76 GSG-0402 C77 47pF
+ ( /4FB2FD07 GSG-0402 C66 100nF
+  ( 1 VCC )
+  ( 2 GND )
+ )
+ ( /502E7810 GSG-0402 C67 100nF
+  ( 1 VCC )
+  ( 2 GND )
+ )
+ ( /4FB3CC76 GSG-0402 C68 47pF
   ( 1 /REF_IN )
   ( 2 GND )
  )
- ( /4FB3F7D4 GSG-0402 D1 GSG-DIODE-TVS-BI
+ ( /4FB3F9B0 GSG-0402 D1 GSG-DIODE-TVS-BI
   ( 1 GND )
-  ( 2 N-000011 )
+  ( 2 N-000094 )
  )
- ( /4FB3F9B0 GSG-0402 D2 GSG-DIODE-TVS-BI
-  ( 1 GND )
-  ( 2 N-000019 )
- )
- ( /4FAEC094 GSG-0603 L1 180nH
-  ( 1 VCC )
-  ( 2 N-000095 )
- )
- ( /4FB8333C GSG-0603 L2 180nH
-  ( 1 VCC )
-  ( 2 N-000018 )
- )
- ( /4FB546AD GSG-0402 L3 DNP
+ ( /502AFA8C GSG-0402 L1 DNP
   ( 1 N-000095 )
-  ( 2 N-000018 )
+  ( 2 N-000096 )
  )
- ( /4FAEC078 GSG-0402 L4 47nH
-  ( 1 N-000017 )
+ ( /502B4BB2 GSG-0603 L2 180nH
+  ( 1 N-000003 )
   ( 2 VCC )
  )
- ( /4FAEC066 GSG-0402 L5 47nH
-  ( 1 N-000092 )
+ ( /502B4BB6 GSG-0603 L3 180nH
+  ( 1 N-000067 )
   ( 2 VCC )
  )
- ( /4FB55E30 GSG-0402 L6 3n3
-  ( 1 N-000092 )
-  ( 2 N-000017 )
+ ( /4FB55E30 GSG-0402 L4 DNP
+  ( 1 N-000067 )
+  ( 2 N-000003 )
+ )
+ ( /502C6D12 GSG-0603 L5 180nH
+  ( 1 N-000039 )
+  ( 2 N-000102 )
  )
  ( /4FA9C5A4 GSG-SMA-EDGE P1 TX-IN
-  ( 1 N-000068 )
+  ( 1 N-000054 )
   ( 2 GND )
   ( 3 GND )
   ( 4 GND )
   ( 5 GND )
  )
- ( /4F94D0F2 GSG-SMA-EDGE P2 TX/RX
-  ( 1 N-000011 )
-  ( 2 GND )
-  ( 3 GND )
-  ( 4 GND )
-  ( 5 GND )
- )
- ( /4F94D0E4 GSG-SMA-EDGE P3 RX-only
-  ( 1 N-000019 )
-  ( 2 GND )
-  ( 3 GND )
-  ( 4 GND )
-  ( 5 GND )
- )
- ( /4FB57544 GSG-HEADER-2x5 P4 SERIAL
+ ( /4FB57544 GSG-HEADER-2x5 P2 SERIAL
   ( 1 /SDATA )
   ( 2 /SDATA )
   ( 3 /SCLK )
@@ -321,34 +315,41 @@
   ( 9 GND )
   ( 10 GND )
  )
- ( /4FA9C5BB GSG-SMA-EDGE P5 RX-OUT
-  ( 1 N-000067 )
+ ( /4FA9C5BB GSG-SMA-EDGE P3 RX-OUT
+  ( 1 N-000055 )
   ( 2 GND )
   ( 3 GND )
   ( 4 GND )
   ( 5 GND )
  )
- ( /4FB3CC51 GSG-HEADER-1x2 P6 CLK
+ ( /4F94D0F2 GSG-SMA-EDGE P4 ANTENNA
+  ( 1 N-000094 )
+  ( 2 GND )
+  ( 3 GND )
+  ( 4 GND )
+  ( 5 GND )
+ )
+ ( /4FB3CC51 GSG-HEADER-1x2 P5 CLK
   ( 1 GND )
   ( 2 /CLK )
  )
- ( /4FB3CA54 GSG-HEADER-2x7 P7 SWITCH_CTRL
-  ( 1 /TX_BYPASS )
+ ( /4FB3CA54 GSG-HEADER-2x7 P6 SWITCH_CTRL
+  ( 1 /MIX_BYPASS )
   ( 2 /GPO1 )
-  ( 3 /RX_BYPASS )
+  ( 3 /AMP_BYPASS )
   ( 4 /GPO2 )
-  ( 5 /TX_HP )
+  ( 5 /TX )
   ( 6 /GPO3 )
   ( 7 ? )
   ( 8 /GPO4 )
-  ( 9 /RX_HP )
+  ( 9 /HP )
   ( 10 /GPO5 )
-  ( 11 /TX_ANT )
+  ( 11 /!AMP_PWR )
   ( 12 /GPO6 )
   ( 13 GND )
   ( 14 GND )
  )
- ( /501F4DC6 GSG-HEADER-2x7 P8 VCC
+ ( /501F4DC6 GSG-HEADER-2x7 P7 VCC
   ( 1 GND )
   ( 2 VCC )
   ( 3 GND )
@@ -364,33 +365,38 @@
   ( 13 GND )
   ( 14 VCC )
  )
- ( /4FB81E54 GSG-HOLE-12MIL P9 CONN_1
+ ( /4FB81E54 GSG-HOLE-12MIL P8 CONN_1
   ( 1 ? )
  )
- ( /4FB81E53 GSG-HOLE-12MIL P10 CONN_1
+ ( /4FB81E53 GSG-HOLE-12MIL P9 CONN_1
   ( 1 ? )
  )
- ( /4FB81E51 GSG-HOLE-12MIL P11 CONN_1
+ ( /4FB81E51 GSG-HOLE-12MIL P10 CONN_1
   ( 1 ? )
  )
- ( /4FB81E45 GSG-HOLE-12MIL P12 CONN_1
+ ( /4FB81E45 GSG-HOLE-12MIL P11 CONN_1
   ( 1 ? )
+ )
+ ( /502E69D1 SOT23GDS Q1 MOSFET_P
+  ( D N-000092 )
+  ( G /!AMP_PWR )
+  ( S VCC )
  )
  ( /4FAEC850 GSG-0402 R1 470
-  ( 1 N-000082 )
-  ( 2 N-000083 )
+  ( 1 N-000048 )
+  ( 2 N-000059 )
  )
  ( /4FAEC856 GSG-0402 R2 470
-  ( 1 N-000081 )
-  ( 2 N-000082 )
+  ( 1 N-000049 )
+  ( 2 N-000048 )
  )
  ( /4FAEC8B2 GSG-0402 R3 22k
-  ( 1 N-000087 )
-  ( 2 N-000080 )
+  ( 1 N-000051 )
+  ( 2 N-000050 )
  )
  ( /4FAECC79 GSG-0402 R4 51k
   ( 1 GND )
-  ( 2 N-000086 )
+  ( 2 N-000047 )
  )
  ( /4FAECE50 GSG-0402 R5 4k7
   ( 1 VCC )
@@ -400,186 +406,198 @@
   ( 1 VCC )
   ( 2 /ENX )
  )
- ( /4FA9C4DF GSG-2500BL14M100 T1 TX_IF_BALUN
-  ( 1 N-000056 )
-  ( 2 GND )
-  ( 3 N-000057 )
-  ( 4 N-000058 )
-  ( 5 GND )
+ ( /5032B025 GSG-0402 R7 33
+  ( 1 N-000092 )
+  ( 2 N-000039 )
  )
- ( /501EF4A4 GSG-B0310J50100AHF T2 TX_BALUN
-  ( 1 N-000024 )
+ ( /501EF483 GSG-B0310J50100AHF T1 MIX_IN_BALUN
+  ( 1 N-000069 )
   ( 2 GND )
-  ( 3 N-000018 )
+  ( 3 N-000096 )
   ( 4 N-000095 )
  )
- ( /501EF483 GSG-B0310J50100AHF T3 RX_BALUN
-  ( 1 N-000028 )
+ ( /501EF4A4 GSG-B0310J50100AHF T2 MIX_OUT_BALUN
+  ( 1 N-000068 )
   ( 2 GND )
-  ( 3 N-000041 )
-  ( 4 N-000009 )
+  ( 3 N-000067 )
+  ( 4 N-000003 )
  )
- ( /4FAA08F4 GSG-2500BL14M100 T8 RX_IF_BALUN
-  ( 1 N-000048 )
+ ( /501EF778 GSG-SKY13350-385LF U1 SKY13350
+  ( 1 /!MIX_BYPASS )
+  ( 2 N-000019 )
+  ( 3 GND )
+  ( 4 N-000018 )
+  ( 5 /MIX_BYPASS )
+  ( 6 N-000020 )
+ )
+ ( /502B490F GSG-SKY13350-385LF U2 SKY13350
+  ( 1 /RX )
+  ( 2 N-000002 )
+  ( 3 GND )
+  ( 4 N-000086 )
+  ( 5 /TX )
+  ( 6 N-000001 )
+ )
+ ( /4F94D561 GSG-LP0603 U3 RX_LOWPASS_FILTER
+  ( 1 N-000057 )
   ( 2 GND )
-  ( 3 N-000092 )
-  ( 4 N-000017 )
-  ( 5 GND )
+  ( 3 GND )
+  ( 4 N-000056 )
  )
- ( /4F957166 GSG-QFN32 U1 RFFC5071
+ ( /502BE21C GSG-QFN32 U4 RFFC5072
   ( 0 GND )
   ( 1 /GPO5 )
   ( 2 ? )
   ( 3 ? )
-  ( 4 N-000086 )
+  ( 4 N-000047 )
   ( 5 VCC )
-  ( 6 N-000087 )
-  ( 7 N-000081 )
-  ( 8 N-000083 )
+  ( 6 N-000051 )
+  ( 7 N-000049 )
+  ( 8 N-000059 )
   ( 9 /GPO6 )
   ( 10 /REF_IN )
   ( 11 ? )
   ( 12 GND )
-  ( 13 N-000058 )
-  ( 14 N-000057 )
+  ( 13 ? )
+  ( 14 ? )
   ( 15 /GPO1 )
   ( 16 /GPO2 )
-  ( 17 N-000095 )
-  ( 18 N-000018 )
+  ( 17 ? )
+  ( 18 ? )
   ( 19 VCC )
   ( 20 ? )
   ( 21 ? )
   ( 22 VCC )
-  ( 23 N-000009 )
-  ( 24 N-000041 )
+  ( 23 N-000095 )
+  ( 24 N-000096 )
   ( 25 /GPO3 )
   ( 26 /GPO4 )
-  ( 27 N-000017 )
-  ( 28 N-000092 )
+  ( 27 N-000003 )
+  ( 28 N-000067 )
   ( 29 /RESETX )
   ( 30 /ENX )
   ( 31 /SCLK )
   ( 32 /SDATA )
  )
- ( /501EF778 GSG-SKY13350-385LF U2 SKY13350
-  ( 1 /TX_BYPASS )
-  ( 2 N-000094 )
+ ( /501F3B20 GSG-SKY13350-385LF U5 SKY13350
+  ( 1 /LP )
+  ( 2 N-000017 )
   ( 3 GND )
-  ( 4 N-000046 )
-  ( 5 /!TX_BYPASS )
-  ( 6 N-000043 )
+  ( 4 N-000022 )
+  ( 5 /HP )
+  ( 6 N-000021 )
  )
- ( /501F38E0 GSG-SKY13350-385LF U3 SKY13350
-  ( 1 /!TX_BYPASS )
-  ( 2 N-000044 )
+ ( /501EF258 GSG-SKY13350-385LF U6 SKY13350
+  ( 1 /HP )
+  ( 2 N-000074 )
   ( 3 GND )
-  ( 4 N-000045 )
-  ( 5 /TX_BYPASS )
-  ( 6 N-000089 )
+  ( 4 N-000073 )
+  ( 5 /LP )
+  ( 6 N-000072 )
  )
- ( /501EEFA1 GSG-SKY13350-385LF U4 SKY13350
-  ( 1 /!TX_ANT )
-  ( 2 N-000033 )
+ ( /502B477E GSG-SKY13350-385LF U7 SKY13350
+  ( 1 /RX )
+  ( 2 N-000015 )
   ( 3 GND )
-  ( 4 N-000003 )
-  ( 5 /TX_ANT )
+  ( 4 N-000044 )
+  ( 5 /TX )
+  ( 6 N-000007 )
+ )
+ ( /4F94D4F4 GSG-HP-DEA U8 RX_HIGHPASS_FILTER
+  ( 1 N-000075 )
+  ( 2 GND )
+  ( 3 N-000060 )
+  ( 4 GND )
+ )
+ ( /502B5704 GSG-SKY13317-373LF U9 SKY13317
+  ( 0 GND )
+  ( 1 N-000008 )
+  ( 2 ? )
+  ( 3 /TX_MIX_BP )
+  ( 4 N-000010 )
+  ( 5 N-000009 )
+  ( 6 /!MIX_BYPASS )
+  ( 7 /RX_MIX_BP )
+  ( 8 N-000012 )
+ )
+ ( /502B4C1C GSG-SKY13350-385LF U10 SKY13350
+  ( 1 /RX )
+  ( 2 N-000070 )
+  ( 3 GND )
+  ( 4 N-000013 )
+  ( 5 /TX )
   ( 6 N-000004 )
  )
- ( /4F94CF46 GSG-LP0603 U5 TX_LOWPASS_FILTER
-  ( 1 N-000063 )
-  ( 2 GND )
+ ( /501EF646 GSG-SKY13350-385LF U11 SKY13350
+  ( 1 /MIX_BYPASS )
+  ( 2 N-000087 )
   ( 3 GND )
-  ( 4 N-000064 )
+  ( 4 N-000071 )
+  ( 5 /!MIX_BYPASS )
+  ( 6 N-000014 )
  )
- ( /501F3899 GSG-SKY13350-385LF U6 SKY13350
-  ( 1 /RX_HP )
-  ( 2 N-000026 )
-  ( 3 GND )
-  ( 4 N-000021 )
-  ( 5 /RX_LP )
-  ( 6 N-000027 )
- )
- ( /501EF273 GSG-SKY13350-385LF U7 SKY13350
-  ( 1 /RX_LP )
-  ( 2 N-000022 )
-  ( 3 GND )
-  ( 4 N-000010 )
-  ( 5 /RX_HP )
-  ( 6 N-000023 )
- )
- ( /4F94CF02 GSG-HP-DEA U8 TX_HIGHPASS_FILTER
-  ( 1 N-000065 )
-  ( 2 GND )
-  ( 3 N-000066 )
-  ( 4 GND )
- )
- ( /501EF09F GSG-SKY13350-385LF U9 SKY13350
-  ( 1 /!TX_ANT )
-  ( 2 N-000034 )
-  ( 3 GND )
-  ( 4 N-000001 )
-  ( 5 /TX_ANT )
-  ( 6 N-000032 )
- )
- ( /501F3B20 GSG-SKY13350-385LF U10 SKY13350
-  ( 1 /TX_HP )
-  ( 2 N-000049 )
-  ( 3 GND )
-  ( 4 N-000025 )
-  ( 5 /TX_LP )
-  ( 6 N-000088 )
- )
- ( /4F94D4F4 GSG-HP-DEA U11 RX_HIGHPASS_FILTER
-  ( 1 N-000061 )
-  ( 2 GND )
-  ( 3 N-000062 )
-  ( 4 GND )
- )
- ( /501EF258 GSG-SKY13350-385LF U12 SKY13350
-  ( 1 /TX_LP )
-  ( 2 N-000030 )
-  ( 3 GND )
-  ( 4 N-000002 )
-  ( 5 /TX_HP )
-  ( 6 N-000029 )
- )
- ( /4F94D561 GSG-LP0603 U13 RX_LOWPASS_FILTER
-  ( 1 N-000059 )
-  ( 2 GND )
-  ( 3 GND )
-  ( 4 N-000060 )
- )
- ( /501F3B60 GSG-SKY13350-385LF U14 SKY13350
-  ( 1 /RX_BYPASS )
-  ( 2 N-000055 )
-  ( 3 GND )
-  ( 4 N-000020 )
-  ( 5 /!RX_BYPASS )
-  ( 6 N-000031 )
- )
- ( /501EF646 GSG-SKY13350-385LF U15 SKY13350
-  ( 1 /!RX_BYPASS )
-  ( 2 N-000091 )
-  ( 3 GND )
-  ( 4 N-000054 )
-  ( 5 /RX_BYPASS )
-  ( 6 N-000047 )
- )
- ( /4FB2F586 GSG-S-PVQFN-14 U17 GSG-74HC04
+ ( /502C6BDF GSG-SKY13317-373LF U12 SKY13317
   ( 0 GND )
-  ( 1 /TX_BYPASS )
-  ( 2 /!TX_BYPASS )
-  ( 3 /RX_BYPASS )
-  ( 4 /!RX_BYPASS )
-  ( 5 /TX_HP )
-  ( 6 /TX_LP )
+  ( 1 N-000088 )
+  ( 2 ? )
+  ( 3 /AMP_BYPASS )
+  ( 4 N-000041 )
+  ( 5 /TX_AMP_IN )
+  ( 6 /TX_AMP )
+  ( 7 /RX_AMP )
+  ( 8 /RX_AMP_OUT )
+ )
+ ( /502DE480 GSG-SOT363 U13 MGA-81563
+  ( 1 GND )
+  ( 2 GND )
+  ( 3 N-000089 )
+  ( 4 GND )
+  ( 5 GND )
+  ( 6 N-000102 )
+ )
+ ( /502C6BE2 GSG-SKY13317-373LF U14 SKY13317
+  ( 0 GND )
+  ( 1 N-000046 )
+  ( 2 ? )
+  ( 3 /TX_AMP )
+  ( 4 /TX_AMP_OUT )
+  ( 5 /RX_AMP_IN )
+  ( 6 /RX_AMP )
+  ( 7 /AMP_BYPASS )
+  ( 8 N-000043 )
+ )
+ ( /4FB2F586 GSG-S-PVQFN-14 U15 GSG-74HC04
+  ( 0 GND )
+  ( 1 VCC )
+  ( 2 ? )
+  ( 3 /MIX_BYPASS )
+  ( 4 /!MIX_BYPASS )
+  ( 5 /AMP_BYPASS )
+  ( 6 /!AMP_BYPASS )
   ( 7 GND )
-  ( 8 /RX_LP )
-  ( 9 /RX_HP )
-  ( 10 /!TX_ANT )
-  ( 11 /TX_ANT )
+  ( 8 /LP )
+  ( 9 /HP )
+  ( 10 /RX )
+  ( 11 /TX )
   ( 12 ? )
   ( 13 VCC )
+  ( 14 VCC )
+ )
+ ( /502E7695 GSG-S-PVQFN-14 U16 GSG-74HC08
+  ( 0 GND )
+  ( 1 /MIX_BYPASS )
+  ( 2 /RX )
+  ( 3 /RX_MIX_BP )
+  ( 4 /MIX_BYPASS )
+  ( 5 /TX )
+  ( 6 /TX_MIX_BP )
+  ( 7 GND )
+  ( 8 /TX_AMP )
+  ( 9 /TX )
+  ( 10 /!AMP_BYPASS )
+  ( 11 /RX_AMP )
+  ( 12 /RX )
+  ( 13 /!AMP_BYPASS )
   ( 14 VCC )
  )
 )
@@ -845,6 +863,11 @@ $component C52
  C?
  C1-1
 $endlist
+$component C53
+ SM*
+ C?
+ C1-1
+$endlist
 $component C54
  SM*
  C?
@@ -875,6 +898,11 @@ $component C59
  C?
  C1-1
 $endlist
+$component C60
+ SM*
+ C?
+ C1-1
+$endlist
 $component C61
  SM*
  C?
@@ -885,32 +913,37 @@ $component C62
  C?
  C1-1
 $endlist
+$component C63
+ SM*
+ C?
+ C1-1
+$endlist
+$component C64
+ SM*
+ C?
+ C1-1
+$endlist
+$component C65
+ SM*
+ C?
+ C1-1
+$endlist
+$component C66
+ SM*
+ C?
+ C1-1
+$endlist
 $component C67
  SM*
  C?
  C1-1
 $endlist
-$component C69
- SM*
- C?
- C1-1
-$endlist
-$component C74
- SM*
- C?
- C1-1
-$endlist
-$component C77
+$component C68
  SM*
  C?
  C1-1
 $endlist
 $component D1
- D?
- SO*
- SM*
-$endlist
-$component D2
  D?
  SO*
  SM*
@@ -946,6 +979,12 @@ $component R5
  R?-*
 $endlist
 $component R6
+ R?
+ SM0603
+ SM0805
+ R?-*
+$endlist
+$component R7
  R?
  SM0603
  SM0805
