@@ -56,5 +56,8 @@
 #define RFFC5071_READBACK 0x1F
 
 void rffc5071_init(void);
+void rffc5071_config_synth_int(uint16_t lo);
+void rffc5071_enable_tx(void);
+void rffc5071_enable_rx(void);
 void rffc5071_reg_write(uint8_t reg, uint16_t val);
 uint16_t rffc5071_reg_read(uint8_t reg);
