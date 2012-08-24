@@ -127,7 +127,7 @@ void si5351c_configure_pll_sources_for_xtal()
 /* MultiSynth NA (PLL1) */
 void si5351c_configure_pll1_multisynth()
 {
-	uint8_t data[] = { 26, 0x00, 0x00, 0x00, 0x0E, 0x00, 0x00, 0x00, 0x00 };
+	uint8_t data[] = { 26, 0x00, 0x01, 0x00, 0x0E, 0x00, 0x00, 0x00, 0x00 };
 	si5351c_write(data, sizeof(data));
 }
 

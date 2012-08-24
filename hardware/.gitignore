@@ -1,0 +1,20 @@
+# kicad backup files
+*.000
+*.bak
+$savepcb.*
+
+# gerber and drill files
+*.gbl
+*.gtl
+*.gbr
+*.gbr
+*.gbs
+*.gts
+*.gbr
+*.gbo
+*.gto
+*.gtp
+*.drl
+
+# other kicad generated files
+*.csv
