@@ -1,4 +1,4 @@
-EESchema Schematic File Version 2  date Fri Aug 24 00:37:44 2012
+EESchema Schematic File Version 2  date Fri Aug 24 09:40:20 2012
 LIBS:power
 LIBS:device
 LIBS:transistors
@@ -45,6 +45,14 @@ Comment2 ""
 Comment3 ""
 Comment4 ""
 $EndDescr
+Text GLabel 4200 4000 0    40   Input ~ 0
+XCVR_EN
+Text GLabel 4200 3900 0    40   Input ~ 0
+RXENABLE
+Text GLabel 4200 3800 0    40   Input ~ 0
+TXENABLE
+Text GLabel 4200 3100 0    40   Input ~ 0
+RSSI
 Text GLabel 11400 7850 0    40   Input ~ 0
 GCK0
 $Comp
@@ -570,7 +578,7 @@ Wire Wire Line
 Wire Wire Line
 	8350 2050 8350 1750
 Wire Wire Line
-	4300 3100 4000 3100
+	4300 3100 4200 3100
 Wire Wire Line
 	9550 7400 9900 7400
 Wire Wire Line
@@ -723,13 +731,9 @@ Wire Wire Line
 Wire Wire Line
 	3100 8600 2900 8600
 Wire Wire Line
-	4300 3800 4000 3800
+	4300 3800 4200 3800
 Wire Wire Line
-	4300 4000 4000 4000
-Wire Wire Line
-	5450 9950 5750 9950
-Wire Wire Line
-	4650 10250 4350 10250
+	4300 4000 4200 4000
 Wire Wire Line
 	16150 2250 16150 2150
 Wire Wire Line
@@ -1589,11 +1593,7 @@ Wire Wire Line
 Wire Wire Line
 	16150 1650 16150 1550
 Wire Wire Line
-	4650 10150 4350 10150
-Wire Wire Line
-	5450 10050 5750 10050
-Wire Wire Line
-	4300 3900 4000 3900
+	4300 3900 4200 3900
 Wire Wire Line
 	3100 8700 2900 8700
 Wire Wire Line
@@ -1974,14 +1974,6 @@ NoConn ~ 6150 7450
 NoConn ~ 5450 7450
 NoConn ~ 5250 7450
 NoConn ~ 4300 3000
-NoConn ~ 5450 10250
-NoConn ~ 5450 9850
-NoConn ~ 5450 9750
-NoConn ~ 5450 9650
-NoConn ~ 4650 9950
-NoConn ~ 4650 9850
-NoConn ~ 4650 9750
-NoConn ~ 4650 9650
 Text Label 2300 9300 2    40   ~ 0
 BOOT3
 $Comp
@@ -2870,8 +2862,6 @@ Text Label 8350 1750 3    40   ~ 0
 GPIO3_9
 Text Label 8650 1750 3    40   ~ 0
 GPIO3_8
-Text Label 4000 3100 0    40   ~ 0
-RSSI
 $Comp
 L VCC #PWR026
 U 1 1 4F837E2D
@@ -3113,33 +3103,6 @@ P 3500 8750
 F 0 "P6" H 3500 9100 60  0000 C CNN
 F 1 "CLOCK_CTL" V 3500 8750 60  0000 C CNN
 	1    3500 8750
-	1    0    0    -1  
-$EndComp
-Text Label 4000 3800 0    40   ~ 0
-TXENABLE
-Text Label 4000 3900 0    40   ~ 0
-RXENABLE
-Text Label 4000 4000 0    40   ~ 0
-XCVR_EN
-NoConn ~ 4650 9550
-NoConn ~ 5450 9550
-NoConn ~ 4650 10050
-NoConn ~ 5450 10150
-Text Label 5750 10050 2    40   ~ 0
-XCVR_EN
-Text Label 5750 9950 2    40   ~ 0
-RSSI
-Text Label 4350 10150 0    40   ~ 0
-RXENABLE
-Text Label 4350 10250 0    40   ~ 0
-TXENABLE
-$Comp
-L CONN_8X2 P7
-U 1 1 4F836FF2
-P 5050 9900
-F 0 "P7" H 5050 10350 60  0000 C CNN
-F 1 "XCVR_CTL" V 5050 9900 50  0000 C CNN
-	1    5050 9900
 	1    0    0    -1  
 $EndComp
 NoConn ~ 6550 7450
@@ -3404,6 +3367,7 @@ U 1 1 4F825D84
 P 8650 950
 F 0 "P11" H 8650 1300 60  0000 C CNN
 F 1 "SPIFI" V 8650 950 60  0000 C CNN
+F 4 "DNP" H 8650 600 60  0000 C CNN "Note"
 	1    8650 950 
 	-1   0    0    1   
 $EndComp
