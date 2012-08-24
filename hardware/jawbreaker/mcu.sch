@@ -1,4 +1,4 @@
-EESchema Schematic File Version 2  date Fri Aug 24 09:40:20 2012
+EESchema Schematic File Version 2  date Fri Aug 24 09:46:49 2012
 LIBS:power
 LIBS:device
 LIBS:transistors
@@ -45,6 +45,10 @@ Comment2 ""
 Comment3 ""
 Comment4 ""
 $EndDescr
+NoConn ~ 9700 4300
+NoConn ~ 9700 4100
+NoConn ~ 3900 8600
+NoConn ~ 3100 8800
 Text GLabel 4200 4000 0    40   Input ~ 0
 XCVR_EN
 Text GLabel 4200 3900 0    40   Input ~ 0
@@ -727,8 +731,6 @@ Wire Wire Line
 Wire Wire Line
 	2900 8900 3100 8900
 Wire Wire Line
-	3900 8600 4200 8600
-Wire Wire Line
 	3100 8600 2900 8600
 Wire Wire Line
 	4300 3800 4200 3800
@@ -809,8 +811,6 @@ Wire Wire Line
 	9700 3800 10050 3800
 Wire Wire Line
 	10000 3400 9700 3400
-Wire Wire Line
-	9700 4100 9950 4100
 Wire Wire Line
 	4000 4400 4300 4400
 Wire Wire Line
@@ -1597,8 +1597,6 @@ Wire Wire Line
 Wire Wire Line
 	3100 8700 2900 8700
 Wire Wire Line
-	3100 8800 2900 8800
-Wire Wire Line
 	3100 9000 2900 9000
 Wire Wire Line
 	4800 9300 4800 9200
@@ -1789,8 +1787,6 @@ Connection ~ 1800 3450
 Wire Wire Line
 	3000 3000 3200 3000
 Connection ~ 3200 3750
-Wire Wire Line
-	9700 4300 9950 4300
 Wire Wire Line
 	8250 2050 8250 1650
 Wire Wire Line
@@ -2751,8 +2747,6 @@ Text Label 800  7700 0    40   ~ 0
 WAKEUP
 Text Label 800  7600 0    40   ~ 0
 TRACECLK
-Text Label 9950 4100 2    40   ~ 0
-INTR
 $Comp
 L GND #PWR023
 U 1 1 4F838489
@@ -2762,8 +2756,6 @@ F 1 "GND" H 2000 7930 30  0001 C CNN
 	1    2000 8000
 	1    0    0    -1  
 $EndComp
-Text Label 9950 4300 2    40   ~ 0
-OEB
 Text Label 800  7500 0    40   ~ 0
 CTIN_6
 Text Label 800  7400 0    40   ~ 0
@@ -3086,10 +3078,6 @@ Text Label 2900 9000 0    40   ~ 0
 GCK2
 Text Label 2900 8900 0    40   ~ 0
 GCK1
-Text Label 2900 8800 0    40   ~ 0
-INTR
-Text Label 4200 8600 2    40   ~ 0
-OEB
 Text Label 2900 8700 0    40   ~ 0
 SDA
 Text Label 2900 8600 0    40   ~ 0
