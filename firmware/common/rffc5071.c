@@ -89,6 +89,11 @@ void rffc5071_config_synth_int(uint16_t lo) {
 			(n << 7) | (n_lo << 4) | (fbkdiv << 1));
 	rffc5071_reg_write(RFFC5071_P1_FREQ2, 0x0000);
 	rffc5071_reg_write(RFFC5071_P1_FREQ3, 0x0000);
+
+	rffc5071_reg_write(RFFC5071_P2_FREQ1,
+			(n << 7) | (n_lo << 4) | (fbkdiv << 1));
+	rffc5071_reg_write(RFFC5071_P2_FREQ2, 0x0000);
+	rffc5071_reg_write(RFFC5071_P2_FREQ3, 0x0000);
 }
 
 void rffc5071_enable_tx(void) {
