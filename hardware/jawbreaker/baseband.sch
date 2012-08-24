@@ -1,4 +1,4 @@
-EESchema Schematic File Version 2  date Fri Aug 24 00:31:47 2012
+EESchema Schematic File Version 2  date Fri Aug 24 00:37:44 2012
 LIBS:power
 LIBS:device
 LIBS:transistors
@@ -45,6 +45,55 @@ Comment2 ""
 Comment3 ""
 Comment4 ""
 $EndDescr
+$Comp
+L R R?
+U 1 1 50372135
+P 11600 10300
+F 0 "R?" V 11680 10300 50  0000 C CNN
+F 1 "39" V 11600 10300 50  0000 C CNN
+	1    11600 10300
+	0    1    1    0   
+$EndComp
+$Comp
+L R R?
+U 1 1 50372131
+P 11250 10200
+F 0 "R?" V 11330 10200 50  0000 C CNN
+F 1 "39" V 11250 10200 50  0000 C CNN
+	1    11250 10200
+	0    1    1    0   
+$EndComp
+$Comp
+L R R?
+U 1 1 5037212F
+P 11600 10100
+F 0 "R?" V 11680 10100 50  0000 C CNN
+F 1 "39" V 11600 10100 50  0000 C CNN
+	1    11600 10100
+	0    1    1    0   
+$EndComp
+$Comp
+L R R?
+U 1 1 5037212C
+P 11250 10000
+F 0 "R?" V 11330 10000 50  0000 C CNN
+F 1 "39" V 11250 10000 50  0000 C CNN
+	1    11250 10000
+	0    1    1    0   
+$EndComp
+$Comp
+L R R?
+U 1 1 5037212A
+P 9700 10300
+F 0 "R?" V 9780 10300 50  0000 C CNN
+F 1 "39" V 9700 10300 50  0000 C CNN
+	1    9700 10300
+	0    1    1    0   
+$EndComp
+Text GLabel 6250 8850 2    40   Input ~ 0
+GCK0
+Text GLabel 13000 4900 0    40   Input ~ 0
+GCK0
 Text GLabel 14700 6350 3    40   Input ~ 0
 DA7
 Text GLabel 14600 6350 3    40   Input ~ 0
@@ -808,8 +857,6 @@ Wire Wire Line
 	11500 10000 11950 10000
 Wire Wire Line
 	9100 10200 8950 10200
-Wire Wire Line
-	14400 7000 14500 7000
 Connection ~ 4000 8850
 Wire Wire Line
 	4300 8850 4000 8850
@@ -945,7 +992,7 @@ Wire Wire Line
 	3200 3400 2900 3400
 Connection ~ 2900 3400
 Wire Wire Line
-	6350 8850 6150 8850
+	6250 8850 6150 8850
 Connection ~ 6150 8850
 Wire Wire Line
 	8500 7600 8400 7600
@@ -1299,10 +1346,6 @@ F 1 "CONN_3" V 8900 7700 40  0000 C CNN
 	1    8850 7700
 	1    0    0    -1  
 $EndComp
-Text Label 6350 8850 2    40   ~ 0
-GCK0
-Text Label 14500 7000 0    40   ~ 0
-CLK
 Text Notes 1750 3750 0    40   ~ 0
 Install R40 and R41 only\nif 1V8 is used for U1.
 Text Label 3200 3400 2    40   ~ 0
@@ -1407,7 +1450,7 @@ U 1 1 4FA469DC
 P 6150 9200
 F 0 "R37" V 6230 9200 50  0000 C CNN
 F 1 "47" V 6150 9200 50  0000 C CNN
-F 4 "DNP" V 6150 9200 60  0001 C CNN "Note"
+F 4 "DNP" V 6350 9200 60  0000 C CNN "Note"
 	1    6150 9200
 	-1   0    0    1   
 $EndComp
@@ -1500,17 +1543,8 @@ L R R28
 U 1 1 4F5D6F6B
 P 9350 10200
 F 0 "R28" V 9430 10200 50  0000 C CNN
-F 1 "100" V 9350 10200 50  0000 C CNN
+F 1 "39" V 9350 10200 50  0000 C CNN
 	1    9350 10200
-	0    1    1    0   
-$EndComp
-$Comp
-L R R31
-U 1 1 4F5D6F5C
-P 9700 10300
-F 0 "R31" V 9780 10300 50  0000 C CNN
-F 1 "100" V 9700 10300 50  0000 C CNN
-	1    9700 10300
 	0    1    1    0   
 $EndComp
 Text Label 11950 10300 0    40   ~ 0
@@ -1521,42 +1555,6 @@ Text Label 11950 10100 0    40   ~ 0
 CLK5
 Text Label 11950 10000 0    40   ~ 0
 CLK4
-$Comp
-L R R32
-U 1 1 4F5D6F3C
-P 11600 10300
-F 0 "R32" V 11680 10300 50  0000 C CNN
-F 1 "100" V 11600 10300 50  0000 C CNN
-	1    11600 10300
-	0    1    1    0   
-$EndComp
-$Comp
-L R R26
-U 1 1 4F5D6F34
-P 11600 10100
-F 0 "R26" V 11680 10100 50  0000 C CNN
-F 1 "100" V 11600 10100 50  0000 C CNN
-	1    11600 10100
-	0    1    1    0   
-$EndComp
-$Comp
-L R R29
-U 1 1 4F5D6F31
-P 11250 10200
-F 0 "R29" V 11330 10200 50  0000 C CNN
-F 1 "100" V 11250 10200 50  0000 C CNN
-	1    11250 10200
-	0    1    1    0   
-$EndComp
-$Comp
-L R R24
-U 1 1 4F5D6F1B
-P 11250 10000
-F 0 "R24" V 11330 10000 50  0000 C CNN
-F 1 "100" V 11250 10000 50  0000 C CNN
-	1    11250 10000
-	0    1    1    0   
-$EndComp
 $Comp
 L GND #PWR53
 U 1 1 4F5D6C22
@@ -1868,7 +1866,8 @@ L CONN_2 P9
 U 1 1 4F5D16F7
 P 3300 9100
 F 0 "P9" V 3250 9100 40  0000 C CNN
-F 1 "DNP" V 3350 9100 40  0000 C CNN
+F 1 "CLKIN_JMP" V 3350 9100 40  0000 C CNN
+F 4 "DNP" H 3500 9100 60  0000 C CNN "Note"
 	1    3300 9100
 	-1   0    0    1   
 $EndComp
@@ -1878,7 +1877,7 @@ U 1 1 4F5D16D6
 P 2250 8850
 F 0 "P8" H 2250 9000 60  0000 C CNN
 F 1 "CLKIN" H 2250 8700 60  0000 C CNN
-F 4 "DNP" H 2250 8850 60  0001 C CNN "Note"
+F 4 "DNP" H 2000 8800 60  0000 C CNN "Note"
 	1    2250 8850
 	1    0    0    -1  
 $EndComp
@@ -2431,8 +2430,6 @@ F 1 "VCC" H 13000 5500 30  0000 C CNN
 	1    13000 5400
 	0    -1   -1   0   
 $EndComp
-Text Label 13000 4900 0    40   ~ 0
-CLK
 $Comp
 L GND #PWR44
 U 1 1 4F5BCAE8
