@@ -1,4 +1,4 @@
-EESchema Schematic File Version 2  date Thu Aug 23 22:39:31 2012
+EESchema Schematic File Version 2  date Thu Aug 23 22:44:15 2012
 LIBS:power
 LIBS:device
 LIBS:transistors
@@ -35,7 +35,7 @@ EELAYER 25  0
 EELAYER END
 $Descr User 17000 11000
 encoding utf-8
-Sheet 1 2
+Sheet 3 3
 Title "jawbreaker mcu/usb/power"
 Date "24 aug 2012"
 Rev ""

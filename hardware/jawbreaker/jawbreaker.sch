@@ -1,4 +1,4 @@
-EESchema Schematic File Version 2  date Thu Aug 23 22:39:31 2012
+EESchema Schematic File Version 2  date Thu Aug 23 22:44:15 2012
 LIBS:power
 LIBS:device
 LIBS:transistors
@@ -35,7 +35,7 @@ EELAYER 25  0
 EELAYER END
 $Descr User 17000 11000
 encoding utf-8
-Sheet 1 2
+Sheet 1 3
 Title "jawbreaker"
 Date "24 aug 2012"
 Rev ""
@@ -45,6 +45,12 @@ Comment2 ""
 Comment3 ""
 Comment4 ""
 $EndDescr
+$Sheet
+S 2550 2850 1050 150 
+U 50370666
+F0 "baseband" 60
+F1 "baseband.sch" 60
+$EndSheet
 $Sheet
 S 2550 2400 1050 150 
 U 5037043E
