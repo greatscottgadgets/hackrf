@@ -1,4 +1,4 @@
-EESchema Schematic File Version 2  date Thu Aug 23 23:42:08 2012
+EESchema Schematic File Version 2  date Thu Aug 23 23:50:26 2012
 LIBS:power
 LIBS:device
 LIBS:transistors
@@ -45,6 +45,16 @@ Comment2 ""
 Comment3 ""
 Comment4 ""
 $EndDescr
+NoConn ~ 4400 2800
+NoConn ~ 5200 2900
+NoConn ~ 5200 3000
+NoConn ~ 5200 2600
+NoConn ~ 5200 2500
+NoConn ~ 5200 2400
+NoConn ~ 4400 2700
+NoConn ~ 4400 2600
+NoConn ~ 4400 2500
+NoConn ~ 4400 2400
 Text Label 4700 9000 1    40   ~ 0
 VDDOB
 Text Label 5550 8150 2    40   ~ 0
@@ -202,8 +212,6 @@ Wire Wire Line
 	14200 2700 14200 3750
 Connection ~ 1950 9150
 Wire Wire Line
-	5200 2900 5300 2900
-Wire Wire Line
 	4100 2300 4400 2300
 Wire Wire Line
 	7550 6250 7550 6750
@@ -298,14 +306,6 @@ Wire Wire Line
 	7250 1150 7150 1150
 Wire Wire Line
 	5200 2700 5300 2700
-Wire Wire Line
-	5200 2500 5300 2500
-Wire Wire Line
-	4400 2800 4100 2800
-Wire Wire Line
-	4400 2600 4100 2600
-Wire Wire Line
-	4400 2400 4100 2400
 Wire Wire Line
 	1150 2700 1450 2700
 Wire Wire Line
@@ -748,14 +748,6 @@ Wire Wire Line
 Wire Wire Line
 	1150 2600 1450 2600
 Wire Wire Line
-	4400 2500 4100 2500
-Wire Wire Line
-	4400 2700 4100 2700
-Wire Wire Line
-	5200 2400 5300 2400
-Wire Wire Line
-	5200 2600 5300 2600
-Wire Wire Line
 	5200 2800 5300 2800
 Wire Wire Line
 	7250 950  7250 1250
@@ -769,8 +761,6 @@ Wire Wire Line
 Connection ~ 6250 1150
 Wire Wire Line
 	4400 2900 4100 2900
-Wire Wire Line
-	5200 3000 5300 3000
 Wire Wire Line
 	5150 4500 5050 4500
 Wire Wire Line
@@ -1674,8 +1664,6 @@ F 1 "VCC" H 5300 2400 30  0000 C CNN
 	1    5300 2300
 	0    1    1    0   
 $EndComp
-Text Label 5300 3000 0    40   ~ 0
-RXHP
 Text Label 4100 3000 0    40   ~ 0
 TXENABLE
 Text Label 4100 2900 0    40   ~ 0
@@ -1716,28 +1704,10 @@ F 1 "VCC" V 6750 1250 40  0000 C CNN
 	1    6750 1200
 	1    0    0    -1  
 $EndComp
-Text Label 5300 2900 0    40   ~ 0
-CLOCKOUT
-Text Label 4100 2800 0    40   ~ 0
-PABIAS
 Text Label 5300 2800 0    40   ~ 0
 ENABLE
-Text Label 4100 2700 0    40   ~ 0
-B7
 Text Label 5300 2700 0    40   ~ 0
 RSSI
-Text Label 4100 2600 0    40   ~ 0
-B5
-Text Label 5300 2600 0    40   ~ 0
-B6
-Text Label 4100 2500 0    40   ~ 0
-B3
-Text Label 5300 2500 0    40   ~ 0
-B4
-Text Label 4100 2400 0    40   ~ 0
-B1
-Text Label 5300 2400 0    40   ~ 0
-B2
 $Comp
 L GND #PWR9
 U 1 1 4F5D1FEE

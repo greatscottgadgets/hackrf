@@ -1,4 +1,4 @@
-EESchema Schematic File Version 2  date Thu Aug 23 23:42:08 2012
+EESchema Schematic File Version 2  date Thu Aug 23 23:50:26 2012
 LIBS:power
 LIBS:device
 LIBS:transistors
@@ -45,38 +45,13 @@ Comment2 ""
 Comment3 ""
 Comment4 ""
 $EndDescr
-Text Label 2300 9300 2    40   ~ 0
-BOOT3
-$Comp
-L VCC #PWR?
-U 1 1 503713EC
-P 2050 8600
-F 0 "#PWR?" H 2050 8700 30  0001 C CNN
-F 1 "VCC" H 2050 8700 30  0000 C CNN
-	1    2050 8600
-	1    0    0    -1  
-$EndComp
-$Comp
-L R R?
-U 1 1 503713EB
-P 2050 8950
-F 0 "R?" V 2130 8950 50  0000 C CNN
-F 1 "DNP" V 2050 8950 50  0000 C CNN
-F 4 "Panasonic" H 2050 8950 60  0001 C CNN "Manufacturer"
-F 5 "ERJ-3GEYJ103V" H 2050 8950 60  0001 C CNN "Part Number"
-F 6 "RES 10K OHM 1/10W 5% 0603 SMD" H 2050 8950 60  0001 C CNN "Description"
-	1    2050 8950
-	-1   0    0    1   
-$EndComp
-$Comp
-L GND #PWR?
-U 1 1 503713EA
-P 2050 10000
-F 0 "#PWR?" H 2050 10000 30  0001 C CNN
-F 1 "GND" H 2050 9930 30  0001 C CNN
-	1    2050 10000
-	1    0    0    -1  
-$EndComp
+NoConn ~ 7850 7450
+NoConn ~ 7350 7450
+NoConn ~ 7250 7450
+NoConn ~ 6950 7450
+NoConn ~ 6150 7450
+NoConn ~ 5450 7450
+NoConn ~ 5250 7450
 Wire Wire Line
 	2050 10000 2050 9900
 Wire Wire Line
@@ -99,70 +74,6 @@ Wire Wire Line
 	1600 9300 1850 9300
 Wire Wire Line
 	1600 10000 1600 9900
-$Comp
-L GND #PWR?
-U 1 1 503713B9
-P 1600 10000
-F 0 "#PWR?" H 1600 10000 30  0001 C CNN
-F 1 "GND" H 1600 9930 30  0001 C CNN
-	1    1600 10000
-	1    0    0    -1  
-$EndComp
-$Comp
-L R R?
-U 1 1 503713B8
-P 1600 8950
-F 0 "R?" V 1680 8950 50  0000 C CNN
-F 1 "DNP" V 1600 8950 50  0000 C CNN
-F 4 "Panasonic" H 1600 8950 60  0001 C CNN "Manufacturer"
-F 5 "ERJ-3GEYJ103V" H 1600 8950 60  0001 C CNN "Part Number"
-F 6 "RES 10K OHM 1/10W 5% 0603 SMD" H 1600 8950 60  0001 C CNN "Description"
-	1    1600 8950
-	-1   0    0    1   
-$EndComp
-$Comp
-L VCC #PWR?
-U 1 1 503713B7
-P 1600 8600
-F 0 "#PWR?" H 1600 8700 30  0001 C CNN
-F 1 "VCC" H 1600 8700 30  0000 C CNN
-	1    1600 8600
-	1    0    0    -1  
-$EndComp
-Text Label 1850 9300 2    40   ~ 0
-BOOT2
-Text Label 1400 9300 2    40   ~ 0
-BOOT1
-$Comp
-L VCC #PWR?
-U 1 1 50371392
-P 1150 8600
-F 0 "#PWR?" H 1150 8700 30  0001 C CNN
-F 1 "VCC" H 1150 8700 30  0000 C CNN
-	1    1150 8600
-	1    0    0    -1  
-$EndComp
-$Comp
-L R R?
-U 1 1 50371390
-P 1150 8950
-F 0 "R?" V 1230 8950 50  0000 C CNN
-F 1 "DNP" V 1150 8950 50  0000 C CNN
-F 4 "Panasonic" H 1150 8950 60  0001 C CNN "Manufacturer"
-F 5 "ERJ-3GEYJ103V" H 1150 8950 60  0001 C CNN "Part Number"
-F 6 "RES 10K OHM 1/10W 5% 0603 SMD" H 1150 8950 60  0001 C CNN "Description"
-	1    1150 8950
-	-1   0    0    1   
-$EndComp
-$Comp
-L GND #PWR?
-U 1 1 5037138F
-P 1150 10000
-F 0 "#PWR?" H 1150 10000 30  0001 C CNN
-F 1 "GND" H 1150 9930 30  0001 C CNN
-	1    1150 10000
-	1    0    0    -1  
-$EndComp
 Wire Wire Line
 	1150 10000 1150 9900
 Wire Wire Line
@@ -527,21 +438,7 @@ Wire Wire Line
 Wire Wire Line
 	5450 9950 5750 9950
 Wire Wire Line
-	5450 9750 5750 9750
-Wire Wire Line
 	4650 10250 4350 10250
-Wire Wire Line
-	4650 9850 4350 9850
-Wire Wire Line
-	4650 9650 4350 9650
-Wire Wire Line
-	7350 7450 7350 7600
-Wire Wire Line
-	6950 7450 6950 7600
-Wire Wire Line
-	6150 7450 6150 7600
-Wire Wire Line
-	5250 7450 5250 7600
 Wire Wire Line
 	16150 2250 16150 2150
 Wire Wire Line
@@ -1552,29 +1449,11 @@ Wire Wire Line
 Wire Wire Line
 	16150 1650 16150 1550
 Wire Wire Line
-	5450 7450 5450 7600
-Wire Wire Line
-	7250 7450 7250 7600
-Wire Wire Line
-	7850 7450 7850 7600
-Wire Wire Line
-	4650 9750 4350 9750
-Wire Wire Line
-	4650 9950 4350 9950
-Wire Wire Line
 	4650 10150 4350 10150
-Wire Wire Line
-	5450 9650 5750 9650
-Wire Wire Line
-	5450 9850 5750 9850
 Wire Wire Line
 	5450 10050 5750 10050
 Wire Wire Line
-	5450 10250 5750 10250
-Wire Wire Line
 	4300 3900 4000 3900
-Wire Wire Line
-	4300 3000 4000 3000
 Wire Wire Line
 	3100 8700 2900 8700
 Wire Wire Line
@@ -1855,6 +1734,111 @@ Wire Wire Line
 	3650 10200 3650 10100
 Wire Wire Line
 	700  10000 700  9900
+NoConn ~ 4300 3000
+NoConn ~ 5450 10250
+NoConn ~ 5450 9850
+NoConn ~ 5450 9750
+NoConn ~ 5450 9650
+NoConn ~ 4650 9950
+NoConn ~ 4650 9850
+NoConn ~ 4650 9750
+NoConn ~ 4650 9650
+Text Label 2300 9300 2    40   ~ 0
+BOOT3
+$Comp
+L VCC #PWR?
+U 1 1 503713EC
+P 2050 8600
+F 0 "#PWR?" H 2050 8700 30  0001 C CNN
+F 1 "VCC" H 2050 8700 30  0000 C CNN
+	1    2050 8600
+	1    0    0    -1  
+$EndComp
+$Comp
+L R R?
+U 1 1 503713EB
+P 2050 8950
+F 0 "R?" V 2130 8950 50  0000 C CNN
+F 1 "DNP" V 2050 8950 50  0000 C CNN
+F 4 "Panasonic" H 2050 8950 60  0001 C CNN "Manufacturer"
+F 5 "ERJ-3GEYJ103V" H 2050 8950 60  0001 C CNN "Part Number"
+F 6 "RES 10K OHM 1/10W 5% 0603 SMD" H 2050 8950 60  0001 C CNN "Description"
+	1    2050 8950
+	-1   0    0    1   
+$EndComp
+$Comp
+L GND #PWR?
+U 1 1 503713EA
+P 2050 10000
+F 0 "#PWR?" H 2050 10000 30  0001 C CNN
+F 1 "GND" H 2050 9930 30  0001 C CNN
+	1    2050 10000
+	1    0    0    -1  
+$EndComp
+$Comp
+L GND #PWR?
+U 1 1 503713B9
+P 1600 10000
+F 0 "#PWR?" H 1600 10000 30  0001 C CNN
+F 1 "GND" H 1600 9930 30  0001 C CNN
+	1    1600 10000
+	1    0    0    -1  
+$EndComp
+$Comp
+L R R?
+U 1 1 503713B8
+P 1600 8950
+F 0 "R?" V 1680 8950 50  0000 C CNN
+F 1 "DNP" V 1600 8950 50  0000 C CNN
+F 4 "Panasonic" H 1600 8950 60  0001 C CNN "Manufacturer"
+F 5 "ERJ-3GEYJ103V" H 1600 8950 60  0001 C CNN "Part Number"
+F 6 "RES 10K OHM 1/10W 5% 0603 SMD" H 1600 8950 60  0001 C CNN "Description"
+	1    1600 8950
+	-1   0    0    1   
+$EndComp
+$Comp
+L VCC #PWR?
+U 1 1 503713B7
+P 1600 8600
+F 0 "#PWR?" H 1600 8700 30  0001 C CNN
+F 1 "VCC" H 1600 8700 30  0000 C CNN
+	1    1600 8600
+	1    0    0    -1  
+$EndComp
+Text Label 1850 9300 2    40   ~ 0
+BOOT2
+Text Label 1400 9300 2    40   ~ 0
+BOOT1
+$Comp
+L VCC #PWR?
+U 1 1 50371392
+P 1150 8600
+F 0 "#PWR?" H 1150 8700 30  0001 C CNN
+F 1 "VCC" H 1150 8700 30  0000 C CNN
+	1    1150 8600
+	1    0    0    -1  
+$EndComp
+$Comp
+L R R?
+U 1 1 50371390
+P 1150 8950
+F 0 "R?" V 1230 8950 50  0000 C CNN
+F 1 "DNP" V 1150 8950 50  0000 C CNN
+F 4 "Panasonic" H 1150 8950 60  0001 C CNN "Manufacturer"
+F 5 "ERJ-3GEYJ103V" H 1150 8950 60  0001 C CNN "Part Number"
+F 6 "RES 10K OHM 1/10W 5% 0603 SMD" H 1150 8950 60  0001 C CNN "Description"
+	1    1150 8950
+	-1   0    0    1   
+$EndComp
+$Comp
+L GND #PWR?
+U 1 1 5037138F
+P 1150 10000
+F 0 "#PWR?" H 1150 10000 30  0001 C CNN
+F 1 "GND" H 1150 9930 30  0001 C CNN
+	1    1150 10000
+	1    0    0    -1  
+$EndComp
 $Comp
 L GND #PWR?
 U 1 1 50371368
@@ -3000,8 +2984,6 @@ F 1 "CLOCK_CTL" V 3500 8750 60  0000 C CNN
 	1    3500 8750
 	1    0    0    -1  
 $EndComp
-Text Label 4000 3000 0    40   ~ 0
-RXHP
 Text Label 4000 3800 0    40   ~ 0
 TXENABLE
 Text Label 4000 3900 0    40   ~ 0
@@ -3012,26 +2994,10 @@ NoConn ~ 4650 9550
 NoConn ~ 5450 9550
 NoConn ~ 4650 10050
 NoConn ~ 5450 10150
-Text Label 5750 10250 2    40   ~ 0
-RXHP
 Text Label 5750 10050 2    40   ~ 0
 XCVR_EN
 Text Label 5750 9950 2    40   ~ 0
 RSSI
-Text Label 5750 9850 2    40   ~ 0
-B6
-Text Label 4350 9950 0    40   ~ 0
-B7
-Text Label 4350 9850 0    40   ~ 0
-B5
-Text Label 4350 9750 0    40   ~ 0
-B3
-Text Label 5750 9750 2    40   ~ 0
-B4
-Text Label 5750 9650 2    40   ~ 0
-B2
-Text Label 4350 9650 0    40   ~ 0
-B1
 Text Label 4350 10150 0    40   ~ 0
 RXENABLE
 Text Label 4350 10250 0    40   ~ 0
@@ -3045,21 +3011,7 @@ F 1 "XCVR_CTL" V 5050 9900 50  0000 C CNN
 	1    5050 9900
 	1    0    0    -1  
 $EndComp
-Text Label 7850 7600 1    40   ~ 0
-B7
-Text Label 7350 7600 1    40   ~ 0
-B6
-Text Label 7250 7600 1    40   ~ 0
-B5
-Text Label 6950 7600 1    40   ~ 0
-B4
-Text Label 6150 7600 1    40   ~ 0
-B3
-Text Label 5450 7600 1    40   ~ 0
-B2
 NoConn ~ 6550 7450
-Text Label 5250 7600 1    40   ~ 0
-B1
 Text Notes 7750 8150 0    40   ~ 0
 CS_AD
 Text Notes 7750 8250 0    40   ~ 0
