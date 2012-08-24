@@ -1,4 +1,4 @@
-EESchema Schematic File Version 2  date Thu Aug 23 22:44:15 2012
+EESchema Schematic File Version 2  date Thu Aug 23 23:24:41 2012
 LIBS:power
 LIBS:device
 LIBS:transistors
@@ -45,6 +45,1494 @@ Comment2 ""
 Comment3 ""
 Comment4 ""
 $EndDescr
+Text Label 3700 9600 2    40   ~ 0
+XTAL2
+Text Label 2500 9600 0    40   ~ 0
+XTAL1
+Wire Wire Line
+	2700 10200 2700 10100
+Connection ~ 2700 9600
+Wire Wire Line
+	2500 9600 2800 9600
+Wire Wire Line
+	3500 9600 3500 9700
+Wire Wire Line
+	3000 10000 3000 9900
+Wire Wire Line
+	4300 4200 4000 4200
+Wire Wire Line
+	10300 5800 10300 5900
+Wire Wire Line
+	2000 8000 2000 6800
+Wire Wire Line
+	9700 5300 10300 5300
+Wire Wire Line
+	1350 9550 1300 9550
+Wire Wire Line
+	1400 9650 1300 9650
+Wire Wire Line
+	1900 9650 2100 9650
+Wire Wire Line
+	1400 9750 1300 9750
+Wire Wire Line
+	1400 10150 1300 10150
+Wire Wire Line
+	1900 10050 2100 10050
+Wire Wire Line
+	1400 10050 1300 10050
+Wire Wire Line
+	1350 9950 1300 9950
+Wire Wire Line
+	1350 9150 1300 9150
+Wire Wire Line
+	1400 9250 1300 9250
+Wire Wire Line
+	1900 9250 2100 9250
+Wire Wire Line
+	1400 9350 1300 9350
+Wire Wire Line
+	1400 8950 1300 8950
+Wire Wire Line
+	1900 8850 2100 8850
+Wire Wire Line
+	3000 3550 3700 3550
+Wire Wire Line
+	2600 3450 3600 3450
+Wire Wire Line
+	3200 4450 3500 4450
+Wire Wire Line
+	4300 3200 4000 3200
+Wire Wire Line
+	4300 5000 3500 5000
+Wire Wire Line
+	3500 5000 3500 4450
+Connection ~ 3200 4450
+Wire Wire Line
+	3200 4350 3200 4550
+Wire Wire Line
+	3750 7400 3750 7500
+Wire Wire Line
+	3150 7400 3150 7500
+Wire Wire Line
+	2550 7900 2550 8000
+Wire Wire Line
+	2850 6650 2850 6900
+Wire Wire Line
+	3450 6900 3450 6750
+Wire Wire Line
+	3750 7900 3750 8000
+Wire Wire Line
+	2550 6900 2550 6650
+Connection ~ 12250 3250
+Wire Wire Line
+	12150 3250 12250 3250
+Connection ~ 12250 3050
+Wire Wire Line
+	12250 3050 12150 3050
+Wire Wire Line
+	11350 2850 11250 2850
+Wire Wire Line
+	11250 2850 11250 2750
+Wire Wire Line
+	10900 3150 11350 3150
+Wire Wire Line
+	11350 2950 10900 2950
+Wire Wire Line
+	9700 3900 10150 3900
+Wire Wire Line
+	8050 2050 8050 1650
+Wire Wire Line
+	10300 6400 10300 6500
+Connection ~ 1700 3550
+Wire Wire Line
+	1700 3550 1700 2900
+Wire Wire Line
+	1700 2900 1900 2900
+Wire Wire Line
+	1800 3000 1900 3000
+Wire Wire Line
+	3700 3550 3700 4900
+Wire Wire Line
+	1100 7900 800  7900
+Wire Wire Line
+	1100 7700 800  7700
+Connection ~ 2000 7600
+Wire Wire Line
+	2000 7600 1900 7600
+Connection ~ 2000 7800
+Wire Wire Line
+	2000 7800 1900 7800
+Connection ~ 2000 7500
+Wire Wire Line
+	2000 7500 1900 7500
+Connection ~ 2000 7300
+Wire Wire Line
+	2000 7300 1900 7300
+Connection ~ 2000 7100
+Wire Wire Line
+	2000 7100 1900 7100
+Connection ~ 2000 6900
+Wire Wire Line
+	2000 6900 1900 6900
+Wire Wire Line
+	800  7500 1100 7500
+Wire Wire Line
+	800  7400 1100 7400
+Wire Wire Line
+	800  7200 1100 7200
+Wire Wire Line
+	800  7100 1100 7100
+Wire Wire Line
+	800  6900 1100 6900
+Connection ~ 750  2100
+Wire Wire Line
+	850  2100 750  2100
+Connection ~ 750  1900
+Wire Wire Line
+	750  1900 850  1900
+Wire Wire Line
+	1650 2100 1900 2100
+Wire Wire Line
+	1650 1900 1900 1900
+Wire Wire Line
+	5250 1750 5250 2050
+Wire Wire Line
+	5450 2050 5450 1750
+Connection ~ 2850 2150
+Wire Wire Line
+	2850 2150 2950 2150
+Connection ~ 2850 1950
+Wire Wire Line
+	2850 1950 2950 1950
+Connection ~ 2850 1750
+Wire Wire Line
+	2850 1750 2950 1750
+Wire Wire Line
+	2950 1550 2850 1550
+Wire Wire Line
+	2850 1550 2850 2350
+Wire Wire Line
+	3750 2150 4050 2150
+Wire Wire Line
+	3750 1950 4050 1950
+Wire Wire Line
+	3750 1750 4050 1750
+Wire Wire Line
+	3750 1550 4050 1550
+Wire Wire Line
+	8350 2050 8350 1750
+Wire Wire Line
+	4300 3100 4000 3100
+Wire Wire Line
+	9550 7400 9900 7400
+Wire Wire Line
+	10700 7800 11000 7800
+Wire Wire Line
+	10700 7600 11000 7600
+Wire Wire Line
+	9900 7900 9600 7900
+Wire Wire Line
+	9900 7700 9600 7700
+Wire Wire Line
+	9900 7500 9600 7500
+Connection ~ 7300 10150
+Wire Wire Line
+	7300 10150 7200 10150
+Connection ~ 7300 9950
+Wire Wire Line
+	7300 9950 7200 9950
+Connection ~ 7300 9750
+Wire Wire Line
+	7300 9750 7200 9750
+Connection ~ 7300 9550
+Wire Wire Line
+	7300 9550 7200 9550
+Connection ~ 7300 9350
+Wire Wire Line
+	7300 9350 7200 9350
+Connection ~ 7300 9150
+Wire Wire Line
+	7300 9150 7200 9150
+Connection ~ 7300 8950
+Wire Wire Line
+	7300 8950 7200 8950
+Wire Wire Line
+	7200 8750 7300 8750
+Wire Wire Line
+	7300 8750 7300 10350
+Wire Wire Line
+	6100 10150 6400 10150
+Wire Wire Line
+	6100 9950 6400 9950
+Wire Wire Line
+	6100 9750 6400 9750
+Wire Wire Line
+	6100 9550 6400 9550
+Wire Wire Line
+	6100 9350 6400 9350
+Wire Wire Line
+	6400 9150 6100 9150
+Wire Wire Line
+	6400 8950 6100 8950
+Wire Wire Line
+	6400 8750 6100 8750
+Wire Wire Line
+	13000 4950 13000 4650
+Wire Wire Line
+	12500 4950 12500 4650
+Wire Wire Line
+	11300 5850 11600 5850
+Wire Wire Line
+	11600 6050 11300 6050
+Wire Wire Line
+	11600 6350 11300 6350
+Wire Wire Line
+	11600 6550 11300 6550
+Wire Wire Line
+	11600 6750 11300 6750
+Wire Wire Line
+	11600 6950 11300 6950
+Wire Wire Line
+	15600 7450 15900 7450
+Wire Wire Line
+	15600 7750 15900 7750
+Wire Wire Line
+	15600 8050 15900 8050
+Wire Wire Line
+	14700 8950 14700 9250
+Connection ~ 7650 9850
+Wire Wire Line
+	7650 9850 7750 9850
+Connection ~ 7650 9650
+Wire Wire Line
+	7650 9650 7750 9650
+Connection ~ 7650 9450
+Wire Wire Line
+	7650 9450 7750 9450
+Wire Wire Line
+	7750 9250 7650 9250
+Wire Wire Line
+	7650 9250 7650 10050
+Wire Wire Line
+	8550 9850 8850 9850
+Wire Wire Line
+	8550 9650 8850 9650
+Wire Wire Line
+	8550 9450 8850 9450
+Wire Wire Line
+	8550 9250 8850 9250
+Connection ~ 4800 8700
+Wire Wire Line
+	4800 8800 4800 8700
+Wire Wire Line
+	2900 8900 3100 8900
+Wire Wire Line
+	3900 8600 4200 8600
+Wire Wire Line
+	3100 8600 2900 8600
+Wire Wire Line
+	4300 3800 4000 3800
+Wire Wire Line
+	4300 4000 4000 4000
+Wire Wire Line
+	5450 9950 5750 9950
+Wire Wire Line
+	5450 9750 5750 9750
+Wire Wire Line
+	4650 10250 4350 10250
+Wire Wire Line
+	4650 9850 4350 9850
+Wire Wire Line
+	4650 9650 4350 9650
+Wire Wire Line
+	7350 7450 7350 7600
+Wire Wire Line
+	6950 7450 6950 7600
+Wire Wire Line
+	6150 7450 6150 7600
+Wire Wire Line
+	5250 7450 5250 7600
+Wire Wire Line
+	16150 2250 16150 2150
+Wire Wire Line
+	7700 8250 8550 8250
+Wire Wire Line
+	8550 8250 8550 7450
+Wire Wire Line
+	6900 8250 6250 8250
+Wire Wire Line
+	6250 8250 6250 7450
+Wire Wire Line
+	6900 8350 6600 8350
+Wire Wire Line
+	6600 8350 6600 8000
+Wire Wire Line
+	6600 8000 8350 8000
+Wire Wire Line
+	8350 8000 8350 7450
+Connection ~ 14450 3150
+Wire Wire Line
+	14450 3150 14350 3150
+Wire Wire Line
+	14350 3350 14450 3350
+Wire Wire Line
+	14450 3350 14450 3100
+Connection ~ 13450 3350
+Wire Wire Line
+	13450 3350 13550 3350
+Connection ~ 16150 3100
+Wire Wire Line
+	16150 3100 16050 3100
+Wire Wire Line
+	16050 3300 16150 3300
+Wire Wire Line
+	16150 3300 16150 3050
+Connection ~ 15150 3200
+Wire Wire Line
+	15150 3200 15250 3200
+Wire Wire Line
+	8450 7450 8450 7750
+Wire Wire Line
+	9700 6400 10000 6400
+Wire Wire Line
+	15300 650  15300 750 
+Wire Wire Line
+	14600 8950 14600 9250
+Wire Wire Line
+	14300 8950 14300 9250
+Wire Wire Line
+	15950 9200 15600 9200
+Wire Wire Line
+	15950 9000 15600 9000
+Wire Wire Line
+	15900 9500 15950 9500
+Connection ~ 6850 1400
+Wire Wire Line
+	7050 1400 6850 1400
+Wire Wire Line
+	8650 2050 8650 1750
+Wire Wire Line
+	9700 5600 10000 5600
+Wire Wire Line
+	10000 4700 9700 4700
+Wire Wire Line
+	9700 3800 10050 3800
+Wire Wire Line
+	10000 3400 9700 3400
+Wire Wire Line
+	9700 4100 9950 4100
+Wire Wire Line
+	4000 4400 4300 4400
+Wire Wire Line
+	11600 7350 11400 7350
+Wire Wire Line
+	12400 4950 12400 4650
+Wire Wire Line
+	15600 7050 15950 7050
+Wire Wire Line
+	13400 4950 13400 4650
+Wire Wire Line
+	14300 4650 14300 4950
+Wire Wire Line
+	14600 4650 14600 4950
+Wire Wire Line
+	9800 1850 9800 1750
+Wire Wire Line
+	9800 1750 9900 1750
+Wire Wire Line
+	11100 2350 11100 2250
+Wire Wire Line
+	11200 800  11200 1550
+Wire Wire Line
+	11200 800  9050 800 
+Wire Wire Line
+	9050 1000 11300 1000
+Wire Wire Line
+	11300 1000 11300 1650
+Wire Wire Line
+	11300 1650 11000 1650
+Wire Wire Line
+	11000 1450 11100 1450
+Wire Wire Line
+	9900 1550 9700 1550
+Wire Wire Line
+	9700 1550 9700 1200
+Wire Wire Line
+	9700 1200 9050 1200
+Wire Wire Line
+	8250 800  7750 800 
+Wire Wire Line
+	7750 800  7750 2050
+Wire Wire Line
+	8250 1000 7850 1000
+Wire Wire Line
+	7850 1000 7850 2050
+Wire Wire Line
+	8250 1200 7450 1200
+Wire Wire Line
+	7450 1200 7450 2050
+Wire Wire Line
+	9700 3200 10000 3200
+Wire Wire Line
+	15800 1750 16000 1750
+Connection ~ 15800 650 
+Wire Wire Line
+	15800 650  15800 750 
+Connection ~ 15800 2650
+Wire Wire Line
+	15800 2550 15800 2650
+Wire Wire Line
+	13900 1450 13800 1450
+Wire Wire Line
+	12800 2250 12800 2150
+Connection ~ 12800 1550
+Wire Wire Line
+	15500 2650 15500 2550
+Connection ~ 15500 650 
+Wire Wire Line
+	15500 650  15500 750 
+Wire Wire Line
+	15300 1350 15300 1450
+Wire Wire Line
+	15300 1450 15200 1450
+Wire Wire Line
+	13800 1750 13900 1750
+Connection ~ 14200 650 
+Wire Wire Line
+	14200 650  14200 900 
+Wire Wire Line
+	14200 900  14350 900 
+Connection ~ 13800 2650
+Wire Wire Line
+	13700 2650 14300 2650
+Connection ~ 13800 650 
+Wire Wire Line
+	13700 650  14300 650 
+Wire Wire Line
+	13800 2650 13800 1850
+Wire Wire Line
+	13800 1850 13900 1850
+Wire Wire Line
+	14550 2400 14550 2300
+Connection ~ 13550 1650
+Wire Wire Line
+	13550 1750 13550 1650
+Wire Wire Line
+	11500 6150 11600 6150
+Wire Wire Line
+	12800 4000 13050 4000
+Connection ~ 14250 4250
+Wire Wire Line
+	14550 4250 13850 4250
+Wire Wire Line
+	13850 3800 13850 3850
+Wire Wire Line
+	13850 4250 13850 4350
+Connection ~ 13950 4250
+Connection ~ 13950 3850
+Wire Wire Line
+	15650 3600 15650 3850
+Wire Wire Line
+	15650 4350 15650 4250
+Wire Wire Line
+	15650 4250 16050 4250
+Connection ~ 15750 4250
+Wire Wire Line
+	15650 3850 16050 3850
+Connection ~ 15750 3850
+Connection ~ 15000 3850
+Wire Wire Line
+	15300 3850 14900 3850
+Connection ~ 15000 4250
+Wire Wire Line
+	15300 4250 14900 4250
+Wire Wire Line
+	12600 4950 12600 4700
+Wire Wire Line
+	13600 9250 13600 8950
+Wire Wire Line
+	15700 7550 15600 7550
+Connection ~ 11200 8550
+Wire Wire Line
+	11200 8550 11100 8550
+Connection ~ 11200 8750
+Wire Wire Line
+	11200 8750 11100 8750
+Connection ~ 11200 8950
+Wire Wire Line
+	11200 8950 11100 8950
+Connection ~ 11200 9150
+Wire Wire Line
+	11200 9150 11100 9150
+Connection ~ 11200 9350
+Wire Wire Line
+	11200 9350 11100 9350
+Connection ~ 11200 9550
+Wire Wire Line
+	11200 9550 11100 9550
+Connection ~ 11200 9750
+Wire Wire Line
+	11200 9750 11100 9750
+Connection ~ 11200 9950
+Wire Wire Line
+	11200 9950 11100 9950
+Connection ~ 11200 10150
+Wire Wire Line
+	11200 10150 11100 10150
+Wire Wire Line
+	11200 10250 11100 10250
+Wire Wire Line
+	10300 10150 10100 10150
+Wire Wire Line
+	10300 9950 10100 9950
+Wire Wire Line
+	10300 9750 10100 9750
+Wire Wire Line
+	10300 9550 10100 9550
+Wire Wire Line
+	10200 9350 10300 9350
+Wire Wire Line
+	10200 9150 10300 9150
+Wire Wire Line
+	10200 8950 10300 8950
+Wire Wire Line
+	10200 8750 10300 8750
+Wire Wire Line
+	10200 8550 10300 8550
+Wire Wire Line
+	9700 9350 9150 9350
+Wire Wire Line
+	9700 9150 9150 9150
+Wire Wire Line
+	9700 8950 9150 8950
+Wire Wire Line
+	9700 8750 9150 8750
+Wire Wire Line
+	9350 8650 9150 8650
+Wire Wire Line
+	10300 8350 10100 8350
+Wire Wire Line
+	15600 5850 15900 5850
+Wire Wire Line
+	15600 6150 15900 6150
+Wire Wire Line
+	15600 6350 15950 6350
+Wire Wire Line
+	15600 6550 15900 6550
+Wire Wire Line
+	15600 7150 15900 7150
+Wire Wire Line
+	14000 8950 14000 9150
+Wire Wire Line
+	13800 8950 13800 9150
+Wire Wire Line
+	13500 8950 13500 9150
+Wire Wire Line
+	13300 8950 13300 9150
+Wire Wire Line
+	11600 7550 11400 7550
+Wire Wire Line
+	12600 8950 12600 9150
+Wire Wire Line
+	12800 8950 12800 9150
+Wire Wire Line
+	13000 8950 13000 9150
+Wire Wire Line
+	13200 8950 13200 9150
+Wire Wire Line
+	11600 7950 11400 7950
+Connection ~ 2400 3750
+Connection ~ 2700 3750
+Wire Wire Line
+	2700 3850 2700 3750
+Wire Wire Line
+	2400 4350 2400 4250
+Wire Wire Line
+	1600 3750 1400 3750
+Wire Wire Line
+	1400 3750 1400 3650
+Wire Wire Line
+	1400 3650 1300 3650
+Wire Wire Line
+	1400 3250 1300 3250
+Wire Wire Line
+	4300 4700 3600 4700
+Wire Wire Line
+	7650 2050 7650 1750
+Wire Wire Line
+	6250 2050 6250 1750
+Wire Wire Line
+	6450 2050 6450 1750
+Connection ~ 1100 4500
+Wire Wire Line
+	1100 4500 1100 4600
+Wire Wire Line
+	1500 4500 1500 4600
+Wire Wire Line
+	1200 5400 1200 5500
+Wire Wire Line
+	1200 5500 4300 5500
+Wire Wire Line
+	1400 5400 1400 5600
+Wire Wire Line
+	1400 5600 4300 5600
+Wire Wire Line
+	11950 4000 12050 4000
+Wire Wire Line
+	6850 750  6850 800 
+Wire Wire Line
+	11950 3800 12050 3800
+Wire Wire Line
+	12050 4400 12050 4300
+Wire Wire Line
+	12050 4300 11950 4300
+Connection ~ 2300 5700
+Wire Wire Line
+	1850 5700 4300 5700
+Connection ~ 2500 5600
+Wire Wire Line
+	2500 5400 2500 5600
+Wire Wire Line
+	4300 3600 4000 3600
+Wire Wire Line
+	7050 7450 7050 7750
+Wire Wire Line
+	6750 7750 6750 7450
+Wire Wire Line
+	4300 6200 4000 6200
+Wire Wire Line
+	9700 5500 9950 5500
+Wire Wire Line
+	6350 7450 6350 7750
+Wire Wire Line
+	8150 7450 8150 7750
+Wire Wire Line
+	7550 7450 7550 7750
+Wire Wire Line
+	5350 7450 5350 7750
+Wire Wire Line
+	7950 7450 7950 7750
+Wire Wire Line
+	4300 6300 4000 6300
+Connection ~ 10850 4600
+Wire Wire Line
+	11050 4600 9700 4600
+Connection ~ 10350 4200
+Wire Wire Line
+	10500 4200 9700 4200
+Connection ~ 2100 6000
+Wire Wire Line
+	5850 7450 5850 7750
+Wire Wire Line
+	9700 4000 9950 4000
+Wire Wire Line
+	9700 5000 9950 5000
+Wire Wire Line
+	2300 4850 2300 4900
+Wire Wire Line
+	2100 5400 2100 6000
+Wire Wire Line
+	9700 6300 9950 6300
+Wire Wire Line
+	10350 3550 10350 3600
+Wire Wire Line
+	10850 4400 10850 4600
+Wire Wire Line
+	10650 3850 10650 3900
+Wire Wire Line
+	4000 3500 4300 3500
+Wire Wire Line
+	6950 1950 6950 2050
+Wire Wire Line
+	3400 5300 3500 5300
+Connection ~ 4750 1200
+Wire Wire Line
+	5050 1200 700  1200
+Connection ~ 4150 1200
+Connection ~ 3550 1200
+Connection ~ 4450 800 
+Connection ~ 3850 800 
+Connection ~ 3250 1200
+Connection ~ 2650 1200
+Connection ~ 2050 1200
+Connection ~ 3250 800 
+Connection ~ 2650 800 
+Connection ~ 2050 800 
+Connection ~ 1450 800 
+Connection ~ 850  800 
+Connection ~ 1450 1200
+Connection ~ 850  1200
+Wire Wire Line
+	5550 1950 5550 2050
+Wire Wire Line
+	6550 1950 6550 2050
+Wire Wire Line
+	9800 3100 9700 3100
+Wire Wire Line
+	9800 6100 9700 6100
+Wire Wire Line
+	7450 7550 7450 7450
+Wire Wire Line
+	4200 6500 4300 6500
+Wire Wire Line
+	4200 4600 4300 4600
+Wire Wire Line
+	4200 3400 4300 3400
+Wire Wire Line
+	8750 1950 8750 2050
+Wire Wire Line
+	5550 7550 5550 7450
+Wire Wire Line
+	4200 4800 4300 4800
+Wire Wire Line
+	4000 4100 4300 4100
+Wire Wire Line
+	4200 3300 4300 3300
+Wire Wire Line
+	4200 5200 4300 5200
+Wire Wire Line
+	9800 6200 9700 6200
+Wire Wire Line
+	6150 1950 6150 2050
+Wire Wire Line
+	4200 4500 4300 4500
+Wire Wire Line
+	4200 5400 4300 5400
+Wire Wire Line
+	5650 7550 5650 7450
+Wire Wire Line
+	8650 7550 8650 7450
+Wire Wire Line
+	9800 4400 9700 4400
+Wire Wire Line
+	8550 1950 8550 2050
+Wire Wire Line
+	5950 1950 5950 2050
+Wire Wire Line
+	700  1200 700  1300
+Connection ~ 1150 1200
+Wire Wire Line
+	700  750  700  800 
+Connection ~ 1150 800 
+Connection ~ 1750 800 
+Connection ~ 2350 800 
+Connection ~ 2950 800 
+Connection ~ 1750 1200
+Connection ~ 2350 1200
+Connection ~ 2950 1200
+Connection ~ 3550 800 
+Connection ~ 4150 800 
+Wire Wire Line
+	700  800  5050 800 
+Connection ~ 4750 800 
+Connection ~ 3850 1200
+Connection ~ 4450 1200
+Wire Wire Line
+	4000 5300 4300 5300
+Wire Wire Line
+	6650 750  6650 800 
+Wire Wire Line
+	10850 3850 10850 3900
+Wire Wire Line
+	10650 4400 10650 4500
+Wire Wire Line
+	9700 5700 9950 5700
+Wire Wire Line
+	2100 4850 2100 4900
+Wire Wire Line
+	9700 5100 9950 5100
+Wire Wire Line
+	9700 3600 9950 3600
+Wire Wire Line
+	5750 7450 5750 7750
+Wire Wire Line
+	10350 4100 10350 4200
+Wire Wire Line
+	11050 4500 9700 4500
+Connection ~ 10650 4500
+Wire Wire Line
+	4300 6100 4000 6100
+Wire Wire Line
+	7750 7450 7750 7750
+Wire Wire Line
+	9950 5400 9700 5400
+Wire Wire Line
+	7150 7450 7150 7750
+Wire Wire Line
+	7650 7450 7650 7750
+Wire Wire Line
+	8250 7450 8250 7750
+Wire Wire Line
+	6450 7450 6450 7750
+Wire Wire Line
+	9700 5900 9950 5900
+Wire Wire Line
+	4300 6400 4000 6400
+Wire Wire Line
+	6650 7450 6650 7750
+Wire Wire Line
+	6850 7450 6850 7750
+Wire Wire Line
+	8750 7450 8750 7750
+Wire Wire Line
+	6050 7450 6050 7750
+Wire Wire Line
+	2300 5400 2300 5700
+Wire Wire Line
+	2500 4850 2500 4900
+Wire Wire Line
+	11950 4200 12050 4200
+Wire Wire Line
+	6850 1300 6850 2050
+Wire Wire Line
+	11950 3900 12050 3900
+Wire Wire Line
+	4300 5900 1500 5900
+Wire Wire Line
+	1500 5900 1500 5400
+Wire Wire Line
+	4300 6000 1300 6000
+Wire Wire Line
+	1300 6000 1300 5400
+Wire Wire Line
+	1100 5400 1100 5700
+Wire Wire Line
+	1400 4600 1400 4500
+Wire Wire Line
+	1400 4500 800  4500
+Wire Wire Line
+	800  4500 800  4600
+Wire Wire Line
+	1300 4500 1300 4600
+Connection ~ 1300 4500
+Wire Wire Line
+	6350 2050 6350 1750
+Wire Wire Line
+	5650 2050 5650 1750
+Wire Wire Line
+	3700 4900 4300 4900
+Wire Wire Line
+	2700 4350 2700 4250
+Wire Wire Line
+	2400 3750 2400 3850
+Wire Wire Line
+	11600 7850 11400 7850
+Wire Wire Line
+	12500 8950 12500 9150
+Wire Wire Line
+	13100 8950 13100 9150
+Wire Wire Line
+	12700 8950 12700 9150
+Wire Wire Line
+	11600 8050 11400 8050
+Wire Wire Line
+	11600 7450 11400 7450
+Wire Wire Line
+	13400 8950 13400 9150
+Wire Wire Line
+	13700 8950 13700 9150
+Wire Wire Line
+	13900 8950 13900 9150
+Wire Wire Line
+	14100 8950 14100 9150
+Wire Wire Line
+	15600 6850 15900 6850
+Wire Wire Line
+	15600 6450 15900 6450
+Wire Wire Line
+	15600 6250 15900 6250
+Wire Wire Line
+	15600 6050 15900 6050
+Wire Wire Line
+	14800 4650 14800 4950
+Wire Wire Line
+	9350 8450 9150 8450
+Wire Wire Line
+	9700 8550 9150 8550
+Wire Wire Line
+	9350 8850 9150 8850
+Wire Wire Line
+	9350 9050 9150 9050
+Wire Wire Line
+	9350 9250 9150 9250
+Wire Wire Line
+	9850 8450 10300 8450
+Wire Wire Line
+	9850 8650 10300 8650
+Wire Wire Line
+	9850 8850 10300 8850
+Wire Wire Line
+	9850 9050 10300 9050
+Wire Wire Line
+	9850 9250 10300 9250
+Wire Wire Line
+	10300 9450 10100 9450
+Wire Wire Line
+	10300 9650 10100 9650
+Wire Wire Line
+	10300 9850 10100 9850
+Wire Wire Line
+	10300 10050 10100 10050
+Wire Wire Line
+	10300 10250 10200 10250
+Wire Wire Line
+	10200 10250 10200 10350
+Wire Wire Line
+	11100 8350 11200 8350
+Wire Wire Line
+	11200 8350 11200 10350
+Connection ~ 11200 10250
+Wire Wire Line
+	11200 10050 11100 10050
+Connection ~ 11200 10050
+Wire Wire Line
+	11200 9850 11100 9850
+Connection ~ 11200 9850
+Wire Wire Line
+	11200 9650 11100 9650
+Connection ~ 11200 9650
+Wire Wire Line
+	11200 9450 11100 9450
+Connection ~ 11200 9450
+Wire Wire Line
+	11200 9250 11100 9250
+Connection ~ 11200 9250
+Wire Wire Line
+	11200 9050 11100 9050
+Connection ~ 11200 9050
+Wire Wire Line
+	11200 8850 11100 8850
+Connection ~ 11200 8850
+Wire Wire Line
+	11200 8650 11100 8650
+Connection ~ 11200 8650
+Wire Wire Line
+	11200 8450 11100 8450
+Connection ~ 11200 8450
+Wire Wire Line
+	12400 9050 12400 8950
+Wire Wire Line
+	15900 8150 15600 8150
+Wire Wire Line
+	13600 4950 13600 4700
+Wire Wire Line
+	14900 4250 14900 4350
+Wire Wire Line
+	14900 3850 14900 3800
+Wire Wire Line
+	13850 3850 14550 3850
+Connection ~ 14250 3850
+Wire Wire Line
+	13050 4100 12800 4100
+Wire Wire Line
+	13050 4200 12800 4200
+Wire Wire Line
+	13900 1650 13350 1650
+Wire Wire Line
+	13550 2250 13550 2150
+Wire Wire Line
+	15300 1650 15200 1650
+Wire Wire Line
+	15300 2650 15300 2550
+Wire Wire Line
+	13800 1450 13800 650 
+Wire Wire Line
+	13200 650  13100 650 
+Wire Wire Line
+	13200 2650 13100 2650
+Wire Wire Line
+	14750 900  14900 900 
+Wire Wire Line
+	14900 900  14900 650 
+Connection ~ 14900 650 
+Wire Wire Line
+	15200 1850 15300 1850
+Wire Wire Line
+	15300 1850 15300 1950
+Wire Wire Line
+	14800 650  15900 650 
+Connection ~ 15300 650 
+Wire Wire Line
+	15500 1250 15500 1150
+Wire Wire Line
+	15900 2650 14800 2650
+Connection ~ 15300 2650
+Connection ~ 15500 2650
+Wire Wire Line
+	15500 2050 15500 2150
+Wire Wire Line
+	12700 1550 13900 1550
+Wire Wire Line
+	12800 1450 12800 1650
+Wire Wire Line
+	12800 850  12800 950 
+Wire Wire Line
+	15200 1550 16400 1550
+Connection ~ 16150 1550
+Wire Wire Line
+	15800 2050 15800 2150
+Wire Wire Line
+	15800 1250 15800 1150
+Wire Wire Line
+	12200 1550 11850 1550
+Wire Wire Line
+	15300 1750 15200 1750
+Wire Wire Line
+	9700 3300 10000 3300
+Wire Wire Line
+	7350 2050 7350 1100
+Wire Wire Line
+	7350 1100 8250 1100
+Wire Wire Line
+	7250 2050 7250 900 
+Wire Wire Line
+	7250 900  8250 900 
+Wire Wire Line
+	7550 2050 7550 700 
+Wire Wire Line
+	7550 700  8250 700 
+Wire Wire Line
+	9050 1100 11400 1100
+Wire Wire Line
+	11400 1100 11400 1750
+Wire Wire Line
+	11400 1750 11000 1750
+Wire Wire Line
+	11200 1550 11000 1550
+Wire Wire Line
+	9900 1450 9800 1450
+Wire Wire Line
+	9800 1450 9800 900 
+Wire Wire Line
+	9800 900  9050 900 
+Wire Wire Line
+	9050 700  9600 700 
+Wire Wire Line
+	9600 700  9600 1650
+Wire Wire Line
+	9600 1650 9900 1650
+Wire Wire Line
+	11100 1850 11100 1350
+Connection ~ 11100 1450
+Wire Wire Line
+	14700 4950 14700 4650
+Wire Wire Line
+	14500 4950 14500 4650
+Wire Wire Line
+	13500 4950 13500 4650
+Wire Wire Line
+	13300 4950 13300 4650
+Wire Wire Line
+	11600 7750 11350 7750
+Wire Wire Line
+	14000 4950 14000 4600
+Wire Wire Line
+	12900 9200 12900 8950
+Wire Wire Line
+	9700 3700 10050 3700
+Wire Wire Line
+	9700 3000 10000 3000
+Wire Wire Line
+	9700 5800 10000 5800
+Wire Wire Line
+	9700 3500 10000 3500
+Wire Wire Line
+	7950 2050 7950 1750
+Wire Wire Line
+	6400 1400 6650 1400
+Connection ~ 6650 1400
+Wire Wire Line
+	6650 1300 6650 2050
+Wire Wire Line
+	15750 9400 15950 9400
+Wire Wire Line
+	15950 9100 15600 9100
+Wire Wire Line
+	15950 9300 15600 9300
+Wire Wire Line
+	14500 8950 14500 9250
+Wire Wire Line
+	14100 4950 14100 4650
+Wire Wire Line
+	9700 6000 10000 6000
+Wire Wire Line
+	15150 3400 15150 3100
+Wire Wire Line
+	15150 3100 15250 3100
+Wire Wire Line
+	15150 3300 15250 3300
+Connection ~ 15150 3300
+Wire Wire Line
+	16150 3200 16050 3200
+Connection ~ 16150 3200
+Wire Wire Line
+	13550 3150 13450 3150
+Wire Wire Line
+	13450 3150 13450 3450
+Wire Wire Line
+	13450 3250 13550 3250
+Connection ~ 13450 3250
+Wire Wire Line
+	14450 3250 14350 3250
+Connection ~ 14450 3250
+Wire Wire Line
+	5950 7450 5950 8150
+Wire Wire Line
+	5950 8150 6900 8150
+Wire Wire Line
+	8050 7450 8050 8150
+Wire Wire Line
+	8050 8150 7700 8150
+Wire Wire Line
+	16150 1650 16150 1550
+Wire Wire Line
+	5450 7450 5450 7600
+Wire Wire Line
+	7250 7450 7250 7600
+Wire Wire Line
+	7850 7450 7850 7600
+Wire Wire Line
+	4650 9750 4350 9750
+Wire Wire Line
+	4650 9950 4350 9950
+Wire Wire Line
+	4650 10150 4350 10150
+Wire Wire Line
+	5450 9650 5750 9650
+Wire Wire Line
+	5450 9850 5750 9850
+Wire Wire Line
+	5450 10050 5750 10050
+Wire Wire Line
+	5450 10250 5750 10250
+Wire Wire Line
+	4300 3900 4000 3900
+Wire Wire Line
+	4300 3000 4000 3000
+Wire Wire Line
+	3100 8700 2900 8700
+Wire Wire Line
+	3100 8800 2900 8800
+Wire Wire Line
+	3100 9000 2900 9000
+Wire Wire Line
+	4800 9300 4800 9200
+Wire Wire Line
+	4700 8700 5100 8700
+Wire Wire Line
+	4300 8700 3900 8700
+Wire Wire Line
+	8550 9350 8850 9350
+Wire Wire Line
+	8550 9550 8850 9550
+Wire Wire Line
+	8550 9750 8850 9750
+Wire Wire Line
+	8550 9950 8850 9950
+Wire Wire Line
+	7650 9350 7750 9350
+Connection ~ 7650 9350
+Wire Wire Line
+	7650 9550 7750 9550
+Connection ~ 7650 9550
+Wire Wire Line
+	7650 9750 7750 9750
+Connection ~ 7650 9750
+Wire Wire Line
+	7750 9950 7650 9950
+Connection ~ 7650 9950
+Wire Wire Line
+	14800 8950 14800 9250
+Wire Wire Line
+	15600 7950 15900 7950
+Wire Wire Line
+	15600 7650 15900 7650
+Wire Wire Line
+	15600 7250 15900 7250
+Wire Wire Line
+	11300 6850 11600 6850
+Wire Wire Line
+	11300 6650 11600 6650
+Wire Wire Line
+	11300 6450 11600 6450
+Wire Wire Line
+	11600 6250 11300 6250
+Wire Wire Line
+	11600 5950 11300 5950
+Wire Wire Line
+	11600 5750 11300 5750
+Wire Wire Line
+	12700 4950 12700 4650
+Wire Wire Line
+	13200 4950 13200 4650
+Wire Wire Line
+	6100 8850 6400 8850
+Wire Wire Line
+	6400 9050 6100 9050
+Wire Wire Line
+	6100 9250 6400 9250
+Wire Wire Line
+	6100 9450 6400 9450
+Wire Wire Line
+	6100 9650 6400 9650
+Wire Wire Line
+	6100 9850 6400 9850
+Wire Wire Line
+	6100 10050 6400 10050
+Wire Wire Line
+	6100 10250 6400 10250
+Wire Wire Line
+	7300 8850 7200 8850
+Connection ~ 7300 8850
+Wire Wire Line
+	7300 9050 7200 9050
+Connection ~ 7300 9050
+Wire Wire Line
+	7300 9250 7200 9250
+Connection ~ 7300 9250
+Wire Wire Line
+	7300 9450 7200 9450
+Connection ~ 7300 9450
+Wire Wire Line
+	7300 9650 7200 9650
+Connection ~ 7300 9650
+Wire Wire Line
+	7300 9850 7200 9850
+Connection ~ 7300 9850
+Wire Wire Line
+	7300 10050 7200 10050
+Connection ~ 7300 10050
+Wire Wire Line
+	7200 10250 7300 10250
+Connection ~ 7300 10250
+Wire Wire Line
+	9900 7600 9600 7600
+Wire Wire Line
+	9900 7800 9600 7800
+Wire Wire Line
+	10700 7500 11000 7500
+Wire Wire Line
+	10700 7700 11000 7700
+Wire Wire Line
+	11000 7400 10700 7400
+Wire Wire Line
+	8150 2050 8150 1750
+Wire Wire Line
+	3750 1650 4050 1650
+Wire Wire Line
+	3750 1850 4050 1850
+Wire Wire Line
+	3750 2050 4050 2050
+Wire Wire Line
+	3750 2250 4050 2250
+Wire Wire Line
+	2850 1650 2950 1650
+Connection ~ 2850 1650
+Wire Wire Line
+	2850 1850 2950 1850
+Connection ~ 2850 1850
+Wire Wire Line
+	2850 2050 2950 2050
+Connection ~ 2850 2050
+Wire Wire Line
+	2950 2250 2850 2250
+Connection ~ 2850 2250
+Wire Wire Line
+	5350 1750 5350 2050
+Wire Wire Line
+	1650 1800 1900 1800
+Wire Wire Line
+	1650 2000 1900 2000
+Wire Wire Line
+	750  2200 750  1800
+Wire Wire Line
+	750  1800 850  1800
+Wire Wire Line
+	750  2000 850  2000
+Connection ~ 750  2000
+Wire Wire Line
+	1100 6800 800  6800
+Wire Wire Line
+	800  7000 1100 7000
+Wire Wire Line
+	800  7300 1100 7300
+Wire Wire Line
+	1100 7600 800  7600
+Wire Wire Line
+	2000 6800 1900 6800
+Connection ~ 2000 6800
+Wire Wire Line
+	2000 7000 1900 7000
+Connection ~ 2000 7000
+Wire Wire Line
+	2000 7200 1900 7200
+Connection ~ 2000 7200
+Wire Wire Line
+	2000 7400 1900 7400
+Connection ~ 2000 7400
+Wire Wire Line
+	2000 7900 1900 7900
+Connection ~ 2000 7900
+Wire Wire Line
+	2000 7700 1900 7700
+Connection ~ 2000 7700
+Wire Wire Line
+	800  7800 1100 7800
+Wire Wire Line
+	4300 5800 4000 5800
+Wire Wire Line
+	3600 4700 3600 3450
+Wire Wire Line
+	2300 3750 3200 3750
+Wire Wire Line
+	1900 3100 1800 3100
+Wire Wire Line
+	1800 3100 1800 3450
+Connection ~ 1800 3450
+Wire Wire Line
+	3000 3000 3200 3000
+Connection ~ 3200 3750
+Wire Wire Line
+	9700 4300 9950 4300
+Wire Wire Line
+	8250 2050 8250 1650
+Wire Wire Line
+	8450 2050 8450 1650
+Wire Wire Line
+	10900 3050 11350 3050
+Wire Wire Line
+	10900 3250 11350 3250
+Wire Wire Line
+	12250 3350 12250 2850
+Wire Wire Line
+	12250 2850 12150 2850
+Wire Wire Line
+	12150 2950 12250 2950
+Connection ~ 12250 2950
+Wire Wire Line
+	12250 3150 12150 3150
+Connection ~ 12250 3150
+Wire Wire Line
+	3150 7900 3150 8000
+Wire Wire Line
+	3450 7900 3450 8000
+Wire Wire Line
+	2850 7900 2850 8000
+Wire Wire Line
+	3750 6650 3750 6900
+Wire Wire Line
+	3150 6650 3150 6900
+Wire Wire Line
+	2550 7400 2550 7500
+Wire Wire Line
+	2850 7400 2850 7500
+Wire Wire Line
+	3450 7400 3450 7500
+Wire Wire Line
+	3200 5150 3200 5050
+Wire Wire Line
+	3200 3000 3200 3850
+Wire Wire Line
+	4300 3700 4000 3700
+Wire Wire Line
+	1300 3450 2100 3450
+Wire Wire Line
+	1300 3550 2500 3550
+Wire Wire Line
+	1400 8850 1300 8850
+Wire Wire Line
+	1350 8750 1300 8750
+Wire Wire Line
+	9700 5200 10600 5200
+Wire Wire Line
+	10300 5300 10300 5400
+Wire Wire Line
+	10600 5200 10600 5400
+Wire Wire Line
+	10600 6400 10600 6500
+Wire Wire Line
+	10600 5800 10600 5900
+Wire Wire Line
+	4300 4300 4000 4300
+Wire Wire Line
+	3200 10000 3200 9900
+Wire Wire Line
+	2700 9600 2700 9700
+Wire Wire Line
+	3700 9600 3400 9600
+Connection ~ 3500 9600
+Wire Wire Line
+	3500 10200 3500 10100
+$Comp
+L GND #PWR?
+U 1 1 50370EE5
+P 3500 10200
+F 0 "#PWR?" H 3500 10200 30  0001 C CNN
+F 1 "GND" H 3500 10130 30  0001 C CNN
+	1    3500 10200
+	1    0    0    -1  
+$EndComp
+$Comp
+L GND #PWR?
+U 1 1 50370EE4
+P 2700 10200
+F 0 "#PWR?" H 2700 10200 30  0001 C CNN
+F 1 "GND" H 2700 10130 30  0001 C CNN
+	1    2700 10200
+	1    0    0    -1  
+$EndComp
+$Comp
+L C C?
+U 1 1 50370ED5
+P 2700 9900
+F 0 "C?" H 2750 10000 50  0000 L CNN
+F 1 "10pF" H 2750 9800 50  0000 L CNN
+	1    2700 9900
+	-1   0    0    -1  
+$EndComp
+$Comp
+L C C?
+U 1 1 50370ED2
+P 3500 9900
+F 0 "C?" H 3550 10000 50  0000 L CNN
+F 1 "10pF" H 3550 9800 50  0000 L CNN
+	1    3500 9900
+	1    0    0    -1  
+$EndComp
+$Comp
+L GND #PWR?
+U 1 1 50370EC9
+P 3200 10000
+F 0 "#PWR?" H 3200 10000 30  0001 C CNN
+F 1 "GND" H 3200 9930 30  0001 C CNN
+	1    3200 10000
+	1    0    0    -1  
+$EndComp
+$Comp
+L GND #PWR?
+U 1 1 50370EC7
+P 3000 10000
+F 0 "#PWR?" H 3000 10000 30  0001 C CNN
+F 1 "GND" H 3000 9930 30  0001 C CNN
+	1    3000 10000
+	1    0    0    -1  
+$EndComp
+$Comp
+L GSG-XTAL4PIN X?
+U 1 1 50370E89
+P 3100 9600
+F 0 "X?" H 3100 9750 60  0000 C CNN
+F 1 "MCU_XTAL" H 3100 9450 60  0000 C CNN
+F 4 "NDK" H 3100 9600 60  0001 C CNN "Manufacturer"
+F 5 "NX3225GA-12MHZ- STD-CRG-1" H 3100 9600 60  0001 C CNN "Part Number"
+F 6 "CRYSTAL 12.000 MHZ 8 PF SMD" H 3100 9600 60  0001 C CNN "Description"
+	1    3100 9600
+	1    0    0    -1  
+$EndComp
+Text Label 4000 4200 0    40   ~ 0
+XTAL2
+Text Label 4000 4300 0    40   ~ 0
+GP_CLKIN
 $Comp
 L R R2
 U 1 1 4F8C8EDB
@@ -381,1398 +1869,6 @@ F 6 "RES 10K OHM 1/10W 5% 0603 SMD" H 15550 1750 60  0001 C CNN "Description"
 	1    15550 1750
 	0    1    1    0   
 $EndComp
-Wire Wire Line
-	10300 5800 10300 5900
-Wire Wire Line
-	2000 8000 2000 6800
-Wire Wire Line
-	9700 5300 10300 5300
-Wire Wire Line
-	1350 9550 1300 9550
-Wire Wire Line
-	1400 9650 1300 9650
-Wire Wire Line
-	1900 9650 2100 9650
-Wire Wire Line
-	1400 9750 1300 9750
-Wire Wire Line
-	1400 10150 1300 10150
-Wire Wire Line
-	1900 10050 2100 10050
-Wire Wire Line
-	1400 10050 1300 10050
-Wire Wire Line
-	1350 9950 1300 9950
-Wire Wire Line
-	1350 9150 1300 9150
-Wire Wire Line
-	1400 9250 1300 9250
-Wire Wire Line
-	1900 9250 2100 9250
-Wire Wire Line
-	1400 9350 1300 9350
-Wire Wire Line
-	1400 8950 1300 8950
-Wire Wire Line
-	1900 8850 2100 8850
-Wire Wire Line
-	3000 3550 3700 3550
-Wire Wire Line
-	2600 3450 3600 3450
-Wire Wire Line
-	3200 4450 3500 4450
-Wire Wire Line
-	4300 3200 4000 3200
-Wire Wire Line
-	4300 5000 3500 5000
-Wire Wire Line
-	3500 5000 3500 4450
-Connection ~ 3200 4450
-Wire Wire Line
-	3200 4550 3200 4350
-Wire Wire Line
-	3750 7400 3750 7500
-Wire Wire Line
-	3150 7400 3150 7500
-Wire Wire Line
-	2550 7900 2550 8000
-Wire Wire Line
-	2850 6650 2850 6900
-Wire Wire Line
-	3450 6900 3450 6750
-Wire Wire Line
-	3750 7900 3750 8000
-Wire Wire Line
-	2550 6900 2550 6650
-Connection ~ 12250 3250
-Wire Wire Line
-	12150 3250 12250 3250
-Connection ~ 12250 3050
-Wire Wire Line
-	12250 3050 12150 3050
-Wire Wire Line
-	11350 2850 11250 2850
-Wire Wire Line
-	11250 2850 11250 2750
-Wire Wire Line
-	10900 3150 11350 3150
-Wire Wire Line
-	11350 2950 10900 2950
-Wire Wire Line
-	9700 3900 10150 3900
-Wire Wire Line
-	8050 2050 8050 1650
-Wire Wire Line
-	10300 6400 10300 6500
-Connection ~ 1700 3550
-Wire Wire Line
-	1700 3550 1700 2900
-Wire Wire Line
-	1700 2900 1900 2900
-Wire Wire Line
-	1800 3000 1900 3000
-Wire Wire Line
-	3700 3550 3700 4900
-Wire Wire Line
-	1100 7900 800  7900
-Wire Wire Line
-	1100 7700 800  7700
-Connection ~ 2000 7600
-Wire Wire Line
-	2000 7600 1900 7600
-Connection ~ 2000 7800
-Wire Wire Line
-	2000 7800 1900 7800
-Connection ~ 2000 7500
-Wire Wire Line
-	2000 7500 1900 7500
-Connection ~ 2000 7300
-Wire Wire Line
-	2000 7300 1900 7300
-Connection ~ 2000 7100
-Wire Wire Line
-	2000 7100 1900 7100
-Connection ~ 2000 6900
-Wire Wire Line
-	2000 6900 1900 6900
-Wire Wire Line
-	800  7500 1100 7500
-Wire Wire Line
-	800  7400 1100 7400
-Wire Wire Line
-	800  7200 1100 7200
-Wire Wire Line
-	800  7100 1100 7100
-Wire Wire Line
-	800  6900 1100 6900
-Connection ~ 750  2100
-Wire Wire Line
-	850  2100 750  2100
-Connection ~ 750  1900
-Wire Wire Line
-	750  1900 850  1900
-Wire Wire Line
-	1650 2100 1900 2100
-Wire Wire Line
-	1650 1900 1900 1900
-Wire Wire Line
-	5250 1750 5250 2050
-Wire Wire Line
-	5450 2050 5450 1750
-Connection ~ 2850 2150
-Wire Wire Line
-	2850 2150 2950 2150
-Connection ~ 2850 1950
-Wire Wire Line
-	2850 1950 2950 1950
-Connection ~ 2850 1750
-Wire Wire Line
-	2850 1750 2950 1750
-Wire Wire Line
-	2950 1550 2850 1550
-Wire Wire Line
-	2850 1550 2850 2350
-Wire Wire Line
-	3750 2150 4050 2150
-Wire Wire Line
-	3750 1950 4050 1950
-Wire Wire Line
-	3750 1750 4050 1750
-Wire Wire Line
-	3750 1550 4050 1550
-Wire Wire Line
-	8350 2050 8350 1750
-Wire Wire Line
-	4300 3100 4000 3100
-Wire Wire Line
-	9550 7400 9900 7400
-Wire Wire Line
-	10700 7800 11000 7800
-Wire Wire Line
-	10700 7600 11000 7600
-Wire Wire Line
-	9900 7900 9600 7900
-Wire Wire Line
-	9900 7700 9600 7700
-Wire Wire Line
-	9900 7500 9600 7500
-Connection ~ 6850 10150
-Wire Wire Line
-	6850 10150 6750 10150
-Connection ~ 6850 9950
-Wire Wire Line
-	6850 9950 6750 9950
-Connection ~ 6850 9750
-Wire Wire Line
-	6850 9750 6750 9750
-Connection ~ 6850 9550
-Wire Wire Line
-	6850 9550 6750 9550
-Connection ~ 6850 9350
-Wire Wire Line
-	6850 9350 6750 9350
-Connection ~ 6850 9150
-Wire Wire Line
-	6850 9150 6750 9150
-Connection ~ 6850 8950
-Wire Wire Line
-	6850 8950 6750 8950
-Wire Wire Line
-	6750 8750 6850 8750
-Wire Wire Line
-	6850 8750 6850 10350
-Wire Wire Line
-	5650 10150 5950 10150
-Wire Wire Line
-	5650 9950 5950 9950
-Wire Wire Line
-	5650 9750 5950 9750
-Wire Wire Line
-	5650 9550 5950 9550
-Wire Wire Line
-	5650 9350 5950 9350
-Wire Wire Line
-	5950 9150 5650 9150
-Wire Wire Line
-	5950 8950 5650 8950
-Wire Wire Line
-	5950 8750 5650 8750
-Wire Wire Line
-	13000 4950 13000 4650
-Wire Wire Line
-	12500 4950 12500 4650
-Wire Wire Line
-	11300 5850 11600 5850
-Wire Wire Line
-	11600 6050 11300 6050
-Wire Wire Line
-	11600 6350 11300 6350
-Wire Wire Line
-	11600 6550 11300 6550
-Wire Wire Line
-	11600 6750 11300 6750
-Wire Wire Line
-	11600 6950 11300 6950
-Wire Wire Line
-	15600 7450 15900 7450
-Wire Wire Line
-	15600 7750 15900 7750
-Wire Wire Line
-	15600 8050 15900 8050
-Wire Wire Line
-	14700 8950 14700 9250
-Connection ~ 7450 9850
-Wire Wire Line
-	7450 9850 7550 9850
-Connection ~ 7450 9650
-Wire Wire Line
-	7450 9650 7550 9650
-Connection ~ 7450 9450
-Wire Wire Line
-	7450 9450 7550 9450
-Wire Wire Line
-	7550 9250 7450 9250
-Wire Wire Line
-	7450 9250 7450 10050
-Wire Wire Line
-	8350 9850 8650 9850
-Wire Wire Line
-	8350 9650 8650 9650
-Wire Wire Line
-	8350 9450 8650 9450
-Wire Wire Line
-	8350 9250 8650 9250
-Connection ~ 4800 8700
-Wire Wire Line
-	4800 8800 4800 8700
-Wire Wire Line
-	2900 8900 3100 8900
-Wire Wire Line
-	3900 8600 4200 8600
-Wire Wire Line
-	3100 8600 2900 8600
-Wire Wire Line
-	4300 3800 4000 3800
-Wire Wire Line
-	4300 4000 4000 4000
-Wire Wire Line
-	4250 10000 4550 10000
-Wire Wire Line
-	4250 9800 4550 9800
-Wire Wire Line
-	3450 10300 3150 10300
-Wire Wire Line
-	3450 9900 3150 9900
-Wire Wire Line
-	3450 9700 3150 9700
-Wire Wire Line
-	7350 7450 7350 7600
-Wire Wire Line
-	6950 7450 6950 7600
-Wire Wire Line
-	6150 7450 6150 7600
-Wire Wire Line
-	5250 7450 5250 7600
-Wire Wire Line
-	16150 2250 16150 2150
-Wire Wire Line
-	7700 8250 8550 8250
-Wire Wire Line
-	8550 8250 8550 7450
-Wire Wire Line
-	6900 8250 6250 8250
-Wire Wire Line
-	6250 8250 6250 7450
-Wire Wire Line
-	6900 8350 6600 8350
-Wire Wire Line
-	6600 8350 6600 8000
-Wire Wire Line
-	6600 8000 8350 8000
-Wire Wire Line
-	8350 8000 8350 7450
-Connection ~ 14450 3150
-Wire Wire Line
-	14450 3150 14350 3150
-Wire Wire Line
-	14350 3350 14450 3350
-Wire Wire Line
-	14450 3350 14450 3100
-Connection ~ 13450 3350
-Wire Wire Line
-	13450 3350 13550 3350
-Connection ~ 16150 3100
-Wire Wire Line
-	16150 3100 16050 3100
-Wire Wire Line
-	16050 3300 16150 3300
-Wire Wire Line
-	16150 3300 16150 3050
-Connection ~ 15150 3200
-Wire Wire Line
-	15150 3200 15250 3200
-Wire Wire Line
-	8450 7450 8450 7750
-Wire Wire Line
-	9700 6400 10000 6400
-Wire Wire Line
-	15300 650  15300 750 
-Wire Wire Line
-	14600 8950 14600 9250
-Wire Wire Line
-	14300 8950 14300 9250
-Wire Wire Line
-	15950 9200 15600 9200
-Wire Wire Line
-	15950 9000 15600 9000
-Wire Wire Line
-	15900 9500 15950 9500
-Connection ~ 6850 1400
-Wire Wire Line
-	7050 1400 6850 1400
-Wire Wire Line
-	8650 2050 8650 1750
-Wire Wire Line
-	9700 5600 10000 5600
-Wire Wire Line
-	10000 4700 9700 4700
-Wire Wire Line
-	9700 3800 10050 3800
-Wire Wire Line
-	10000 3400 9700 3400
-Wire Wire Line
-	9700 4100 9950 4100
-Wire Wire Line
-	4000 4400 4300 4400
-Wire Wire Line
-	11600 7350 11400 7350
-Wire Wire Line
-	12400 4950 12400 4650
-Wire Wire Line
-	15600 7050 15950 7050
-Wire Wire Line
-	13400 4950 13400 4650
-Wire Wire Line
-	14300 4650 14300 4950
-Wire Wire Line
-	14600 4650 14600 4950
-Wire Wire Line
-	9800 1850 9800 1750
-Wire Wire Line
-	9800 1750 9900 1750
-Wire Wire Line
-	11100 2350 11100 2250
-Wire Wire Line
-	11200 800  11200 1550
-Wire Wire Line
-	11200 800  9050 800 
-Wire Wire Line
-	9050 1000 11300 1000
-Wire Wire Line
-	11300 1000 11300 1650
-Wire Wire Line
-	11300 1650 11000 1650
-Wire Wire Line
-	11000 1450 11100 1450
-Wire Wire Line
-	9900 1550 9700 1550
-Wire Wire Line
-	9700 1550 9700 1200
-Wire Wire Line
-	9700 1200 9050 1200
-Wire Wire Line
-	8250 800  7750 800 
-Wire Wire Line
-	7750 800  7750 2050
-Wire Wire Line
-	8250 1000 7850 1000
-Wire Wire Line
-	7850 1000 7850 2050
-Wire Wire Line
-	8250 1200 7450 1200
-Wire Wire Line
-	7450 1200 7450 2050
-Wire Wire Line
-	9700 3200 10000 3200
-Wire Wire Line
-	15800 1750 16000 1750
-Connection ~ 15800 650 
-Wire Wire Line
-	15800 750  15800 650 
-Connection ~ 15800 2650
-Wire Wire Line
-	15800 2650 15800 2550
-Wire Wire Line
-	13900 1450 13800 1450
-Wire Wire Line
-	12800 2250 12800 2150
-Connection ~ 12800 1550
-Wire Wire Line
-	15500 2650 15500 2550
-Connection ~ 15500 650 
-Wire Wire Line
-	15500 650  15500 750 
-Wire Wire Line
-	15300 1350 15300 1450
-Wire Wire Line
-	15300 1450 15200 1450
-Wire Wire Line
-	13800 1750 13900 1750
-Connection ~ 14200 650 
-Wire Wire Line
-	14200 650  14200 900 
-Wire Wire Line
-	14200 900  14350 900 
-Connection ~ 13800 2650
-Wire Wire Line
-	14300 2650 13700 2650
-Connection ~ 13800 650 
-Wire Wire Line
-	14300 650  13700 650 
-Wire Wire Line
-	13800 2650 13800 1850
-Wire Wire Line
-	13800 1850 13900 1850
-Wire Wire Line
-	14550 2400 14550 2300
-Connection ~ 13550 1650
-Wire Wire Line
-	13550 1750 13550 1650
-Wire Wire Line
-	11500 6150 11600 6150
-Wire Wire Line
-	12800 4000 13050 4000
-Connection ~ 14250 4250
-Wire Wire Line
-	14550 4250 13850 4250
-Wire Wire Line
-	13850 3800 13850 3850
-Wire Wire Line
-	13850 4250 13850 4350
-Connection ~ 13950 4250
-Connection ~ 13950 3850
-Wire Wire Line
-	15650 3600 15650 3850
-Wire Wire Line
-	15650 4350 15650 4250
-Wire Wire Line
-	15650 4250 16050 4250
-Connection ~ 15750 4250
-Wire Wire Line
-	15650 3850 16050 3850
-Connection ~ 15750 3850
-Connection ~ 15000 3850
-Wire Wire Line
-	15300 3850 14900 3850
-Connection ~ 15000 4250
-Wire Wire Line
-	15300 4250 14900 4250
-Wire Wire Line
-	12600 4950 12600 4700
-Wire Wire Line
-	13600 9250 13600 8950
-Wire Wire Line
-	15700 7550 15600 7550
-Connection ~ 11200 8550
-Wire Wire Line
-	11200 8550 11100 8550
-Connection ~ 11200 8750
-Wire Wire Line
-	11200 8750 11100 8750
-Connection ~ 11200 8950
-Wire Wire Line
-	11200 8950 11100 8950
-Connection ~ 11200 9150
-Wire Wire Line
-	11200 9150 11100 9150
-Connection ~ 11200 9350
-Wire Wire Line
-	11200 9350 11100 9350
-Connection ~ 11200 9550
-Wire Wire Line
-	11200 9550 11100 9550
-Connection ~ 11200 9750
-Wire Wire Line
-	11200 9750 11100 9750
-Connection ~ 11200 9950
-Wire Wire Line
-	11200 9950 11100 9950
-Connection ~ 11200 10150
-Wire Wire Line
-	11200 10150 11100 10150
-Wire Wire Line
-	11200 10250 11100 10250
-Wire Wire Line
-	10300 10150 10100 10150
-Wire Wire Line
-	10300 9950 10100 9950
-Wire Wire Line
-	10300 9750 10100 9750
-Wire Wire Line
-	10300 9550 10100 9550
-Wire Wire Line
-	10200 9350 10300 9350
-Wire Wire Line
-	10200 9150 10300 9150
-Wire Wire Line
-	10200 8950 10300 8950
-Wire Wire Line
-	10200 8750 10300 8750
-Wire Wire Line
-	10200 8550 10300 8550
-Wire Wire Line
-	9700 9350 9150 9350
-Wire Wire Line
-	9700 9150 9150 9150
-Wire Wire Line
-	9700 8950 9150 8950
-Wire Wire Line
-	9700 8750 9150 8750
-Wire Wire Line
-	9350 8650 9150 8650
-Wire Wire Line
-	10300 8350 10100 8350
-Wire Wire Line
-	15600 5850 15900 5850
-Wire Wire Line
-	15600 6150 15900 6150
-Wire Wire Line
-	15600 6350 15950 6350
-Wire Wire Line
-	15600 6550 15900 6550
-Wire Wire Line
-	15600 7150 15900 7150
-Wire Wire Line
-	14000 8950 14000 9150
-Wire Wire Line
-	13800 8950 13800 9150
-Wire Wire Line
-	13500 8950 13500 9150
-Wire Wire Line
-	13300 8950 13300 9150
-Wire Wire Line
-	11600 7550 11400 7550
-Wire Wire Line
-	12600 8950 12600 9150
-Wire Wire Line
-	12800 8950 12800 9150
-Wire Wire Line
-	13000 8950 13000 9150
-Wire Wire Line
-	13200 8950 13200 9150
-Wire Wire Line
-	11600 7950 11400 7950
-Connection ~ 2400 3750
-Connection ~ 2700 3750
-Wire Wire Line
-	2700 3750 2700 3850
-Wire Wire Line
-	2400 4350 2400 4250
-Wire Wire Line
-	1600 3750 1400 3750
-Wire Wire Line
-	1400 3750 1400 3650
-Wire Wire Line
-	1400 3650 1300 3650
-Wire Wire Line
-	1400 3250 1300 3250
-Wire Wire Line
-	4300 4700 3600 4700
-Wire Wire Line
-	7650 2050 7650 1750
-Wire Wire Line
-	6250 2050 6250 1750
-Wire Wire Line
-	6450 2050 6450 1750
-Connection ~ 1100 4500
-Wire Wire Line
-	1100 4500 1100 4600
-Wire Wire Line
-	1500 4500 1500 4600
-Wire Wire Line
-	1200 5400 1200 5500
-Wire Wire Line
-	1200 5500 4300 5500
-Wire Wire Line
-	1400 5400 1400 5600
-Wire Wire Line
-	1400 5600 4300 5600
-Wire Wire Line
-	11950 4000 12050 4000
-Wire Wire Line
-	6850 750  6850 800 
-Wire Wire Line
-	11950 3800 12050 3800
-Wire Wire Line
-	12050 4400 12050 4300
-Wire Wire Line
-	12050 4300 11950 4300
-Connection ~ 2300 5700
-Wire Wire Line
-	4300 5700 1850 5700
-Connection ~ 2500 5600
-Wire Wire Line
-	2500 5400 2500 5600
-Wire Wire Line
-	4300 3600 4000 3600
-Wire Wire Line
-	7050 7450 7050 7750
-Wire Wire Line
-	6750 7750 6750 7450
-Wire Wire Line
-	4300 6200 4000 6200
-Wire Wire Line
-	9700 5500 9950 5500
-Wire Wire Line
-	6350 7450 6350 7750
-Wire Wire Line
-	8150 7450 8150 7750
-Wire Wire Line
-	7550 7450 7550 7750
-Wire Wire Line
-	5350 7450 5350 7750
-Wire Wire Line
-	7950 7450 7950 7750
-Wire Wire Line
-	4300 6300 4000 6300
-Connection ~ 10850 4600
-Wire Wire Line
-	9700 4600 11050 4600
-Connection ~ 10350 4200
-Wire Wire Line
-	9700 4200 10500 4200
-Connection ~ 2100 6000
-Wire Wire Line
-	5850 7450 5850 7750
-Wire Wire Line
-	9700 4000 9950 4000
-Wire Wire Line
-	9700 5000 9950 5000
-Wire Wire Line
-	2300 4850 2300 4900
-Wire Wire Line
-	2100 5400 2100 6000
-Wire Wire Line
-	9700 6300 9950 6300
-Wire Wire Line
-	10350 3550 10350 3600
-Wire Wire Line
-	10850 4400 10850 4600
-Wire Wire Line
-	10650 3850 10650 3900
-Wire Wire Line
-	4000 3500 4300 3500
-Wire Wire Line
-	6950 1950 6950 2050
-Wire Wire Line
-	3400 5300 3500 5300
-Connection ~ 4750 1200
-Wire Wire Line
-	5050 1200 700  1200
-Connection ~ 4150 1200
-Connection ~ 3550 1200
-Connection ~ 4450 800 
-Connection ~ 3850 800 
-Connection ~ 3250 1200
-Connection ~ 2650 1200
-Connection ~ 2050 1200
-Connection ~ 3250 800 
-Connection ~ 2650 800 
-Connection ~ 2050 800 
-Connection ~ 1450 800 
-Connection ~ 850  800 
-Connection ~ 1450 1200
-Connection ~ 850  1200
-Wire Wire Line
-	5550 1950 5550 2050
-Wire Wire Line
-	6550 1950 6550 2050
-Wire Wire Line
-	9800 3100 9700 3100
-Wire Wire Line
-	9800 6100 9700 6100
-Wire Wire Line
-	7450 7550 7450 7450
-Wire Wire Line
-	4200 6500 4300 6500
-Wire Wire Line
-	4200 4600 4300 4600
-Wire Wire Line
-	4200 3400 4300 3400
-Wire Wire Line
-	8750 1950 8750 2050
-Wire Wire Line
-	5550 7550 5550 7450
-Wire Wire Line
-	4200 4800 4300 4800
-Wire Wire Line
-	4000 4100 4300 4100
-Wire Wire Line
-	4200 3300 4300 3300
-Wire Wire Line
-	4200 5200 4300 5200
-Wire Wire Line
-	9800 6200 9700 6200
-Wire Wire Line
-	6150 1950 6150 2050
-Wire Wire Line
-	4200 4500 4300 4500
-Wire Wire Line
-	4200 5400 4300 5400
-Wire Wire Line
-	5650 7550 5650 7450
-Wire Wire Line
-	8650 7550 8650 7450
-Wire Wire Line
-	9800 4400 9700 4400
-Wire Wire Line
-	8550 1950 8550 2050
-Wire Wire Line
-	5950 1950 5950 2050
-Wire Wire Line
-	700  1200 700  1300
-Connection ~ 1150 1200
-Wire Wire Line
-	700  750  700  800 
-Connection ~ 1150 800 
-Connection ~ 1750 800 
-Connection ~ 2350 800 
-Connection ~ 2950 800 
-Connection ~ 1750 1200
-Connection ~ 2350 1200
-Connection ~ 2950 1200
-Connection ~ 3550 800 
-Connection ~ 4150 800 
-Wire Wire Line
-	700  800  5050 800 
-Connection ~ 4750 800 
-Connection ~ 3850 1200
-Connection ~ 4450 1200
-Wire Wire Line
-	4000 5300 4300 5300
-Wire Wire Line
-	6650 750  6650 800 
-Wire Wire Line
-	10850 3850 10850 3900
-Wire Wire Line
-	10650 4400 10650 4500
-Wire Wire Line
-	9700 5700 9950 5700
-Wire Wire Line
-	2100 4850 2100 4900
-Wire Wire Line
-	9700 5100 9950 5100
-Wire Wire Line
-	9700 3600 9950 3600
-Wire Wire Line
-	5750 7450 5750 7750
-Wire Wire Line
-	10350 4100 10350 4200
-Wire Wire Line
-	9700 4500 11050 4500
-Connection ~ 10650 4500
-Wire Wire Line
-	4300 6100 4000 6100
-Wire Wire Line
-	7750 7450 7750 7750
-Wire Wire Line
-	9950 5400 9700 5400
-Wire Wire Line
-	7150 7450 7150 7750
-Wire Wire Line
-	7650 7450 7650 7750
-Wire Wire Line
-	8250 7450 8250 7750
-Wire Wire Line
-	6450 7450 6450 7750
-Wire Wire Line
-	9700 5900 9950 5900
-Wire Wire Line
-	4300 6400 4000 6400
-Wire Wire Line
-	6650 7450 6650 7750
-Wire Wire Line
-	6850 7450 6850 7750
-Wire Wire Line
-	8750 7450 8750 7750
-Wire Wire Line
-	6050 7450 6050 7750
-Wire Wire Line
-	2300 5400 2300 5700
-Wire Wire Line
-	2500 4850 2500 4900
-Wire Wire Line
-	11950 4200 12050 4200
-Wire Wire Line
-	6850 2050 6850 1300
-Wire Wire Line
-	11950 3900 12050 3900
-Wire Wire Line
-	4300 5900 1500 5900
-Wire Wire Line
-	1500 5900 1500 5400
-Wire Wire Line
-	4300 6000 1300 6000
-Wire Wire Line
-	1300 6000 1300 5400
-Wire Wire Line
-	1100 5400 1100 5700
-Wire Wire Line
-	1400 4600 1400 4500
-Wire Wire Line
-	1400 4500 800  4500
-Wire Wire Line
-	800  4500 800  4600
-Wire Wire Line
-	1300 4500 1300 4600
-Connection ~ 1300 4500
-Wire Wire Line
-	6350 2050 6350 1750
-Wire Wire Line
-	5650 2050 5650 1750
-Wire Wire Line
-	3700 4900 4300 4900
-Wire Wire Line
-	2700 4350 2700 4250
-Wire Wire Line
-	2400 3850 2400 3750
-Wire Wire Line
-	11600 7850 11400 7850
-Wire Wire Line
-	12500 8950 12500 9150
-Wire Wire Line
-	13100 8950 13100 9150
-Wire Wire Line
-	12700 8950 12700 9150
-Wire Wire Line
-	11600 8050 11400 8050
-Wire Wire Line
-	11600 7450 11400 7450
-Wire Wire Line
-	13400 8950 13400 9150
-Wire Wire Line
-	13700 8950 13700 9150
-Wire Wire Line
-	13900 8950 13900 9150
-Wire Wire Line
-	14100 8950 14100 9150
-Wire Wire Line
-	15600 6850 15900 6850
-Wire Wire Line
-	15600 6450 15900 6450
-Wire Wire Line
-	15600 6250 15900 6250
-Wire Wire Line
-	15600 6050 15900 6050
-Wire Wire Line
-	14800 4650 14800 4950
-Wire Wire Line
-	9350 8450 9150 8450
-Wire Wire Line
-	9700 8550 9150 8550
-Wire Wire Line
-	9350 8850 9150 8850
-Wire Wire Line
-	9350 9050 9150 9050
-Wire Wire Line
-	9350 9250 9150 9250
-Wire Wire Line
-	9850 8450 10300 8450
-Wire Wire Line
-	9850 8650 10300 8650
-Wire Wire Line
-	9850 8850 10300 8850
-Wire Wire Line
-	9850 9050 10300 9050
-Wire Wire Line
-	9850 9250 10300 9250
-Wire Wire Line
-	10300 9450 10100 9450
-Wire Wire Line
-	10300 9650 10100 9650
-Wire Wire Line
-	10300 9850 10100 9850
-Wire Wire Line
-	10300 10050 10100 10050
-Wire Wire Line
-	10300 10250 10200 10250
-Wire Wire Line
-	10200 10250 10200 10350
-Wire Wire Line
-	11100 8350 11200 8350
-Wire Wire Line
-	11200 8350 11200 10350
-Connection ~ 11200 10250
-Wire Wire Line
-	11200 10050 11100 10050
-Connection ~ 11200 10050
-Wire Wire Line
-	11200 9850 11100 9850
-Connection ~ 11200 9850
-Wire Wire Line
-	11200 9650 11100 9650
-Connection ~ 11200 9650
-Wire Wire Line
-	11200 9450 11100 9450
-Connection ~ 11200 9450
-Wire Wire Line
-	11200 9250 11100 9250
-Connection ~ 11200 9250
-Wire Wire Line
-	11200 9050 11100 9050
-Connection ~ 11200 9050
-Wire Wire Line
-	11200 8850 11100 8850
-Connection ~ 11200 8850
-Wire Wire Line
-	11200 8650 11100 8650
-Connection ~ 11200 8650
-Wire Wire Line
-	11200 8450 11100 8450
-Connection ~ 11200 8450
-Wire Wire Line
-	12400 9050 12400 8950
-Wire Wire Line
-	15900 8150 15600 8150
-Wire Wire Line
-	13600 4950 13600 4700
-Wire Wire Line
-	14900 4250 14900 4350
-Wire Wire Line
-	14900 3850 14900 3800
-Wire Wire Line
-	13850 3850 14550 3850
-Connection ~ 14250 3850
-Wire Wire Line
-	13050 4100 12800 4100
-Wire Wire Line
-	13050 4200 12800 4200
-Wire Wire Line
-	13350 1650 13900 1650
-Wire Wire Line
-	13550 2250 13550 2150
-Wire Wire Line
-	15300 1650 15200 1650
-Wire Wire Line
-	15300 2550 15300 2650
-Wire Wire Line
-	13800 1450 13800 650 
-Wire Wire Line
-	13200 650  13100 650 
-Wire Wire Line
-	13200 2650 13100 2650
-Wire Wire Line
-	14750 900  14900 900 
-Wire Wire Line
-	14900 900  14900 650 
-Connection ~ 14900 650 
-Wire Wire Line
-	15200 1850 15300 1850
-Wire Wire Line
-	15300 1850 15300 1950
-Wire Wire Line
-	15900 650  14800 650 
-Connection ~ 15300 650 
-Wire Wire Line
-	15500 1250 15500 1150
-Wire Wire Line
-	14800 2650 15900 2650
-Connection ~ 15300 2650
-Connection ~ 15500 2650
-Wire Wire Line
-	15500 2050 15500 2150
-Wire Wire Line
-	13900 1550 12700 1550
-Wire Wire Line
-	12800 1650 12800 1450
-Wire Wire Line
-	12800 850  12800 950 
-Wire Wire Line
-	16400 1550 15200 1550
-Connection ~ 16150 1550
-Wire Wire Line
-	15800 2050 15800 2150
-Wire Wire Line
-	15800 1250 15800 1150
-Wire Wire Line
-	12200 1550 11850 1550
-Wire Wire Line
-	15300 1750 15200 1750
-Wire Wire Line
-	9700 3300 10000 3300
-Wire Wire Line
-	7350 2050 7350 1100
-Wire Wire Line
-	7350 1100 8250 1100
-Wire Wire Line
-	7250 2050 7250 900 
-Wire Wire Line
-	7250 900  8250 900 
-Wire Wire Line
-	7550 2050 7550 700 
-Wire Wire Line
-	7550 700  8250 700 
-Wire Wire Line
-	9050 1100 11400 1100
-Wire Wire Line
-	11400 1100 11400 1750
-Wire Wire Line
-	11400 1750 11000 1750
-Wire Wire Line
-	11200 1550 11000 1550
-Wire Wire Line
-	9900 1450 9800 1450
-Wire Wire Line
-	9800 1450 9800 900 
-Wire Wire Line
-	9800 900  9050 900 
-Wire Wire Line
-	9050 700  9600 700 
-Wire Wire Line
-	9600 700  9600 1650
-Wire Wire Line
-	9600 1650 9900 1650
-Wire Wire Line
-	11100 1350 11100 1850
-Connection ~ 11100 1450
-Wire Wire Line
-	14700 4950 14700 4650
-Wire Wire Line
-	14500 4950 14500 4650
-Wire Wire Line
-	13500 4950 13500 4650
-Wire Wire Line
-	13300 4950 13300 4650
-Wire Wire Line
-	11600 7750 11350 7750
-Wire Wire Line
-	14000 4950 14000 4600
-Wire Wire Line
-	12900 9200 12900 8950
-Wire Wire Line
-	9700 3700 10050 3700
-Wire Wire Line
-	9700 3000 10000 3000
-Wire Wire Line
-	9700 5800 10000 5800
-Wire Wire Line
-	9700 3500 10000 3500
-Wire Wire Line
-	7950 2050 7950 1750
-Wire Wire Line
-	6400 1400 6650 1400
-Connection ~ 6650 1400
-Wire Wire Line
-	6650 2050 6650 1300
-Wire Wire Line
-	15750 9400 15950 9400
-Wire Wire Line
-	15950 9100 15600 9100
-Wire Wire Line
-	15950 9300 15600 9300
-Wire Wire Line
-	14500 8950 14500 9250
-Wire Wire Line
-	14100 4950 14100 4650
-Wire Wire Line
-	9700 6000 10000 6000
-Wire Wire Line
-	15150 3400 15150 3100
-Wire Wire Line
-	15150 3100 15250 3100
-Wire Wire Line
-	15150 3300 15250 3300
-Connection ~ 15150 3300
-Wire Wire Line
-	16150 3200 16050 3200
-Connection ~ 16150 3200
-Wire Wire Line
-	13550 3150 13450 3150
-Wire Wire Line
-	13450 3150 13450 3450
-Wire Wire Line
-	13450 3250 13550 3250
-Connection ~ 13450 3250
-Wire Wire Line
-	14450 3250 14350 3250
-Connection ~ 14450 3250
-Wire Wire Line
-	5950 7450 5950 8150
-Wire Wire Line
-	5950 8150 6900 8150
-Wire Wire Line
-	8050 7450 8050 8150
-Wire Wire Line
-	8050 8150 7700 8150
-Wire Wire Line
-	16150 1650 16150 1550
-Wire Wire Line
-	5450 7450 5450 7600
-Wire Wire Line
-	7250 7450 7250 7600
-Wire Wire Line
-	7850 7450 7850 7600
-Wire Wire Line
-	3450 9800 3150 9800
-Wire Wire Line
-	3450 10000 3150 10000
-Wire Wire Line
-	3450 10200 3150 10200
-Wire Wire Line
-	4250 9700 4550 9700
-Wire Wire Line
-	4250 9900 4550 9900
-Wire Wire Line
-	4250 10100 4550 10100
-Wire Wire Line
-	4250 10300 4550 10300
-Wire Wire Line
-	4300 3900 4000 3900
-Wire Wire Line
-	4300 3000 4000 3000
-Wire Wire Line
-	3100 8700 2900 8700
-Wire Wire Line
-	3100 8800 2900 8800
-Wire Wire Line
-	3100 9000 2900 9000
-Wire Wire Line
-	4800 9300 4800 9200
-Wire Wire Line
-	5050 8700 4700 8700
-Wire Wire Line
-	4300 8700 3900 8700
-Wire Wire Line
-	8350 9350 8650 9350
-Wire Wire Line
-	8350 9550 8650 9550
-Wire Wire Line
-	8350 9750 8650 9750
-Wire Wire Line
-	8350 9950 8650 9950
-Wire Wire Line
-	7450 9350 7550 9350
-Connection ~ 7450 9350
-Wire Wire Line
-	7450 9550 7550 9550
-Connection ~ 7450 9550
-Wire Wire Line
-	7450 9750 7550 9750
-Connection ~ 7450 9750
-Wire Wire Line
-	7550 9950 7450 9950
-Connection ~ 7450 9950
-Wire Wire Line
-	14800 8950 14800 9250
-Wire Wire Line
-	15600 7950 15900 7950
-Wire Wire Line
-	15600 7650 15900 7650
-Wire Wire Line
-	15600 7250 15900 7250
-Wire Wire Line
-	11300 6850 11600 6850
-Wire Wire Line
-	11300 6650 11600 6650
-Wire Wire Line
-	11300 6450 11600 6450
-Wire Wire Line
-	11600 6250 11300 6250
-Wire Wire Line
-	11600 5950 11300 5950
-Wire Wire Line
-	11600 5750 11300 5750
-Wire Wire Line
-	12700 4950 12700 4650
-Wire Wire Line
-	13200 4950 13200 4650
-Wire Wire Line
-	5650 8850 5950 8850
-Wire Wire Line
-	5950 9050 5650 9050
-Wire Wire Line
-	5650 9250 5950 9250
-Wire Wire Line
-	5650 9450 5950 9450
-Wire Wire Line
-	5650 9650 5950 9650
-Wire Wire Line
-	5650 9850 5950 9850
-Wire Wire Line
-	5650 10050 5950 10050
-Wire Wire Line
-	5650 10250 5950 10250
-Wire Wire Line
-	6850 8850 6750 8850
-Connection ~ 6850 8850
-Wire Wire Line
-	6850 9050 6750 9050
-Connection ~ 6850 9050
-Wire Wire Line
-	6850 9250 6750 9250
-Connection ~ 6850 9250
-Wire Wire Line
-	6850 9450 6750 9450
-Connection ~ 6850 9450
-Wire Wire Line
-	6850 9650 6750 9650
-Connection ~ 6850 9650
-Wire Wire Line
-	6850 9850 6750 9850
-Connection ~ 6850 9850
-Wire Wire Line
-	6850 10050 6750 10050
-Connection ~ 6850 10050
-Wire Wire Line
-	6750 10250 6850 10250
-Connection ~ 6850 10250
-Wire Wire Line
-	9900 7600 9600 7600
-Wire Wire Line
-	9900 7800 9600 7800
-Wire Wire Line
-	10700 7500 11000 7500
-Wire Wire Line
-	10700 7700 11000 7700
-Wire Wire Line
-	11000 7400 10700 7400
-Wire Wire Line
-	8150 2050 8150 1750
-Wire Wire Line
-	3750 1650 4050 1650
-Wire Wire Line
-	3750 1850 4050 1850
-Wire Wire Line
-	3750 2050 4050 2050
-Wire Wire Line
-	3750 2250 4050 2250
-Wire Wire Line
-	2850 1650 2950 1650
-Connection ~ 2850 1650
-Wire Wire Line
-	2850 1850 2950 1850
-Connection ~ 2850 1850
-Wire Wire Line
-	2850 2050 2950 2050
-Connection ~ 2850 2050
-Wire Wire Line
-	2950 2250 2850 2250
-Connection ~ 2850 2250
-Wire Wire Line
-	5350 1750 5350 2050
-Wire Wire Line
-	1650 1800 1900 1800
-Wire Wire Line
-	1650 2000 1900 2000
-Wire Wire Line
-	750  2200 750  1800
-Wire Wire Line
-	750  1800 850  1800
-Wire Wire Line
-	750  2000 850  2000
-Connection ~ 750  2000
-Wire Wire Line
-	1100 6800 800  6800
-Wire Wire Line
-	800  7000 1100 7000
-Wire Wire Line
-	800  7300 1100 7300
-Wire Wire Line
-	1100 7600 800  7600
-Wire Wire Line
-	2000 6800 1900 6800
-Connection ~ 2000 6800
-Wire Wire Line
-	2000 7000 1900 7000
-Connection ~ 2000 7000
-Wire Wire Line
-	2000 7200 1900 7200
-Connection ~ 2000 7200
-Wire Wire Line
-	2000 7400 1900 7400
-Connection ~ 2000 7400
-Wire Wire Line
-	2000 7900 1900 7900
-Connection ~ 2000 7900
-Wire Wire Line
-	2000 7700 1900 7700
-Connection ~ 2000 7700
-Wire Wire Line
-	800  7800 1100 7800
-Wire Wire Line
-	4300 5800 4000 5800
-Wire Wire Line
-	3600 4700 3600 3450
-Wire Wire Line
-	2300 3750 3200 3750
-Wire Wire Line
-	1900 3100 1800 3100
-Wire Wire Line
-	1800 3100 1800 3450
-Connection ~ 1800 3450
-Wire Wire Line
-	3000 3000 3200 3000
-Connection ~ 3200 3750
-Wire Wire Line
-	9700 4300 9950 4300
-Wire Wire Line
-	8250 2050 8250 1650
-Wire Wire Line
-	8450 2050 8450 1650
-Wire Wire Line
-	10900 3050 11350 3050
-Wire Wire Line
-	10900 3250 11350 3250
-Wire Wire Line
-	12250 3350 12250 2850
-Wire Wire Line
-	12250 2850 12150 2850
-Wire Wire Line
-	12150 2950 12250 2950
-Connection ~ 12250 2950
-Wire Wire Line
-	12250 3150 12150 3150
-Connection ~ 12250 3150
-Wire Wire Line
-	3150 7900 3150 8000
-Wire Wire Line
-	3450 7900 3450 8000
-Wire Wire Line
-	2850 7900 2850 8000
-Wire Wire Line
-	3750 6650 3750 6900
-Wire Wire Line
-	3150 6650 3150 6900
-Wire Wire Line
-	2550 7400 2550 7500
-Wire Wire Line
-	2850 7400 2850 7500
-Wire Wire Line
-	3450 7400 3450 7500
-Wire Wire Line
-	3200 5150 3200 5050
-Wire Wire Line
-	3200 3000 3200 3850
-Wire Wire Line
-	4300 3700 4000 3700
-Wire Wire Line
-	2100 3450 1300 3450
-Wire Wire Line
-	2500 3550 1300 3550
-Wire Wire Line
-	1400 8850 1300 8850
-Wire Wire Line
-	1350 8750 1300 8750
-Wire Wire Line
-	9700 5200 10600 5200
-Wire Wire Line
-	10300 5300 10300 5400
-Wire Wire Line
-	10600 5200 10600 5400
-Wire Wire Line
-	10600 6400 10600 6500
-Wire Wire Line
-	10600 5800 10600 5900
 $Comp
 L CONN_12X2 P3
 U 1 1 4F87AEBC
@@ -1822,7 +1918,6 @@ USB0_IND0
 Text Label 10000 3500 2    40   ~ 0
 LED3
 NoConn ~ 9700 6500
-NoConn ~ 4300 4300
 Text Label 7250 1550 1    40   ~ 0
 SPIFI_CS
 Text Label 7850 1550 1    40   ~ 0
@@ -2409,51 +2504,51 @@ Text Notes 13400 800  0    40   ~ 0
 $Comp
 L GND #PWR028
 U 1 1 4F837BDB
-P 6850 10350
-F 0 "#PWR028" H 6850 10350 30  0001 C CNN
-F 1 "GND" H 6850 10280 30  0001 C CNN
-	1    6850 10350
+P 7300 10350
+F 0 "#PWR028" H 7300 10350 30  0001 C CNN
+F 1 "GND" H 7300 10280 30  0001 C CNN
+	1    7300 10350
 	1    0    0    -1  
 $EndComp
-Text Label 5650 10250 0    40   ~ 0
+Text Label 6100 10250 0    40   ~ 0
 B2AUX16
-Text Label 5650 10150 0    40   ~ 0
+Text Label 6100 10150 0    40   ~ 0
 B2AUX15
-Text Label 5650 10050 0    40   ~ 0
+Text Label 6100 10050 0    40   ~ 0
 B2AUX14
-Text Label 5650 9950 0    40   ~ 0
+Text Label 6100 9950 0    40   ~ 0
 B2AUX13
-Text Label 5650 9850 0    40   ~ 0
+Text Label 6100 9850 0    40   ~ 0
 B2AUX12
-Text Label 5650 9750 0    40   ~ 0
+Text Label 6100 9750 0    40   ~ 0
 B2AUX11
-Text Label 5650 9650 0    40   ~ 0
+Text Label 6100 9650 0    40   ~ 0
 B2AUX10
-Text Label 5650 9550 0    40   ~ 0
+Text Label 6100 9550 0    40   ~ 0
 B2AUX9
-Text Label 5650 9450 0    40   ~ 0
+Text Label 6100 9450 0    40   ~ 0
 B2AUX8
-Text Label 5650 9350 0    40   ~ 0
+Text Label 6100 9350 0    40   ~ 0
 B2AUX7
-Text Label 5650 9250 0    40   ~ 0
+Text Label 6100 9250 0    40   ~ 0
 B2AUX6
-Text Label 5650 9150 0    40   ~ 0
+Text Label 6100 9150 0    40   ~ 0
 B2AUX5
-Text Label 5650 9050 0    40   ~ 0
+Text Label 6100 9050 0    40   ~ 0
 B2AUX4
-Text Label 5650 8950 0    40   ~ 0
+Text Label 6100 8950 0    40   ~ 0
 B2AUX3
-Text Label 5650 8850 0    40   ~ 0
+Text Label 6100 8850 0    40   ~ 0
 B2AUX2
-Text Label 5650 8750 0    40   ~ 0
+Text Label 6100 8750 0    40   ~ 0
 B2AUX1
 $Comp
 L CONN_16X2 P8
 U 1 1 4F837B4D
-P 6350 9500
-F 0 "P8" H 6350 10350 60  0000 C CNN
-F 1 "BANK2_AUX" V 6350 9500 50  0000 C CNN
-	1    6350 9500
+P 6800 9500
+F 0 "P8" H 6800 10350 60  0000 C CNN
+F 1 "BANK2_AUX" V 6800 9500 50  0000 C CNN
+	1    6800 9500
 	1    0    0    -1  
 $EndComp
 Text Label 13200 4650 3    40   ~ 0
@@ -2510,40 +2605,40 @@ B1AUX16
 $Comp
 L GND #PWR029
 U 1 1 4F8378E2
-P 7450 10050
-F 0 "#PWR029" H 7450 10050 30  0001 C CNN
-F 1 "GND" H 7450 9980 30  0001 C CNN
-	1    7450 10050
+P 7650 10050
+F 0 "#PWR029" H 7650 10050 30  0001 C CNN
+F 1 "GND" H 7650 9980 30  0001 C CNN
+	1    7650 10050
 	1    0    0    -1  
 $EndComp
-Text Label 8650 9950 2    40   ~ 0
+Text Label 8850 9950 2    40   ~ 0
 B1AUX16
-Text Label 8650 9850 2    40   ~ 0
+Text Label 8850 9850 2    40   ~ 0
 B1AUX15
-Text Label 8650 9750 2    40   ~ 0
+Text Label 8850 9750 2    40   ~ 0
 B1AUX14
-Text Label 8650 9650 2    40   ~ 0
+Text Label 8850 9650 2    40   ~ 0
 B1AUX13
-Text Label 8650 9550 2    40   ~ 0
+Text Label 8850 9550 2    40   ~ 0
 B1AUX12
-Text Label 8650 9450 2    40   ~ 0
+Text Label 8850 9450 2    40   ~ 0
 B1AUX11
-Text Label 8650 9350 2    40   ~ 0
+Text Label 8850 9350 2    40   ~ 0
 B1AUX10
-Text Label 8650 9250 2    40   ~ 0
+Text Label 8850 9250 2    40   ~ 0
 B1AUX9
 $Comp
 L CONN_8X2 P10
 U 1 1 4F837865
-P 7950 9600
-F 0 "P10" H 7950 10050 60  0000 C CNN
-F 1 "BANK1_AUX" V 7950 9600 50  0000 C CNN
-	1    7950 9600
+P 8150 9600
+F 0 "P10" H 8150 10050 60  0000 C CNN
+F 1 "BANK1_AUX" V 8150 9600 50  0000 C CNN
+	1    8150 9600
 	1    0    0    -1  
 $EndComp
 NoConn ~ 7700 8350
-Text Label 5050 8700 2    40   ~ 0
-XTAL1
+Text Label 5100 8700 2    40   ~ 0
+GP_CLKIN
 $Comp
 L GND #PWR030
 U 1 1 4F8375EA
@@ -2601,41 +2696,41 @@ Text Label 4000 3900 0    40   ~ 0
 RXENABLE
 Text Label 4000 4000 0    40   ~ 0
 XCVR_EN
-NoConn ~ 3450 9600
-NoConn ~ 4250 9600
-NoConn ~ 3450 10100
-NoConn ~ 4250 10200
-Text Label 4550 10300 2    40   ~ 0
+NoConn ~ 4650 9550
+NoConn ~ 5450 9550
+NoConn ~ 4650 10050
+NoConn ~ 5450 10150
+Text Label 5750 10250 2    40   ~ 0
 RXHP
-Text Label 4550 10100 2    40   ~ 0
+Text Label 5750 10050 2    40   ~ 0
 XCVR_EN
-Text Label 4550 10000 2    40   ~ 0
+Text Label 5750 9950 2    40   ~ 0
 RSSI
-Text Label 4550 9900 2    40   ~ 0
+Text Label 5750 9850 2    40   ~ 0
 B6
-Text Label 3150 10000 0    40   ~ 0
+Text Label 4350 9950 0    40   ~ 0
 B7
-Text Label 3150 9900 0    40   ~ 0
+Text Label 4350 9850 0    40   ~ 0
 B5
-Text Label 3150 9800 0    40   ~ 0
+Text Label 4350 9750 0    40   ~ 0
 B3
-Text Label 4550 9800 2    40   ~ 0
+Text Label 5750 9750 2    40   ~ 0
 B4
-Text Label 4550 9700 2    40   ~ 0
+Text Label 5750 9650 2    40   ~ 0
 B2
-Text Label 3150 9700 0    40   ~ 0
+Text Label 4350 9650 0    40   ~ 0
 B1
-Text Label 3150 10200 0    40   ~ 0
+Text Label 4350 10150 0    40   ~ 0
 RXENABLE
-Text Label 3150 10300 0    40   ~ 0
+Text Label 4350 10250 0    40   ~ 0
 TXENABLE
 $Comp
 L CONN_8X2 P7
 U 1 1 4F836FF2
-P 3850 9950
-F 0 "P7" H 3850 10400 60  0000 C CNN
-F 1 "XCVR_CTL" V 3850 9950 50  0000 C CNN
-	1    3850 9950
+P 5050 9900
+F 0 "P7" H 5050 10350 60  0000 C CNN
+F 1 "XCVR_CTL" V 5050 9900 50  0000 C CNN
+	1    5050 9900
 	1    0    0    -1  
 $EndComp
 Text Label 7850 7600 1    40   ~ 0
@@ -4372,7 +4467,6 @@ F 1 "GND" H 4200 3230 30  0001 C CNN
 	1    4200 3300
 	0    1    1    0   
 $EndComp
-NoConn ~ 4300 4200
 $Comp
 L C C16
 U 1 1 4F629276

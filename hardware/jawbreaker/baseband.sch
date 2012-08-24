@@ -1,4 +1,4 @@
-EESchema Schematic File Version 2  date Thu Aug 23 22:44:15 2012
+EESchema Schematic File Version 2  date Thu Aug 23 23:24:41 2012
 LIBS:power
 LIBS:device
 LIBS:transistors
@@ -37,7 +37,7 @@ $Descr User 17000 11000
 encoding utf-8
 Sheet 2 3
 Title "jawbreaker baseband"
-Date "13 jul 2012"
+Date "24 aug 2012"
 Rev ""
 Comp "Copyright 2012 Michael Ossmann"
 Comment1 "License: GPL v2"
