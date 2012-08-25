@@ -64,10 +64,10 @@ void cpu_clock_init(void)
 	si5351c_configure_multisynth(3, 4608, 0, 1, 1); /* 20MHz */
 
 	/* MS4/CLK4 is the source for the LPC43xx microcontroller. */
-	si5351c_configure_multisynth(4, 8021, 1, 3, 0); /* 12MHz */
+	si5351c_configure_multisynth(4, 8021, 0, 3, 0); /* 12MHz */
 
 	/* MS5/CLK5 is the source for the RFFC5071 mixer. */
-	si5351c_configure_multisynth(5, 1536, 1, 1, 0); /* 50MHz */
+	si5351c_configure_multisynth(5, 1536, 0, 1, 0); /* 50MHz */
 
 	si5351c_configure_clock_control();
 	si5351c_enable_clock_outputs();

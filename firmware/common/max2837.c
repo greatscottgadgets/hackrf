@@ -188,6 +188,13 @@ void max2837_tx(void)
 {
 	LOG("# max2837_tx\n");
 #if !defined TEST
+
+	/* configure baseband filter for 8 MHz TX */
+	set_MAX2837_LPF_EN(1);
+	set_MAX2837_ModeCtrl(MAX2837_ModeCtrl_TxLPF);
+	set_MAX2837_FT(MAX2837_FT_8M);
+	max2837_regs_commit();
+
 	gpio_set(PORT_XCVR_ENABLE, PIN_XCVR_TXENABLE);
 #endif
 }
@@ -195,6 +202,13 @@ void max2837_tx(void)
 void max2837_rx(void)
 {
 	LOG("# max2837_rx\n");
+
+	/* configure baseband filter for 8 MHz RX */
+	set_MAX2837_LPF_EN(1);
+	set_MAX2837_ModeCtrl(MAX2837_ModeCtrl_RxLPF);
+	set_MAX2837_FT(MAX2837_FT_8M);
+	max2837_regs_commit();
+
 #if !defined TEST
 	gpio_set(PORT_XCVR_ENABLE, PIN_XCVR_RXENABLE);
 #endif

@@ -29,6 +29,7 @@
 #include <hackrf_core.h>
 #include <max5864.h>
 #include <max2837.h>
+#include <rffc5071.h>
 
 void configure_sgpio_pin_functions() {
 	scu_pinmux(SCU_PINMUX_SGPIO0, SCU_GPIO_FAST | SCU_CONF_FUNCTION3);
@@ -263,7 +264,7 @@ void configure_sgpio_test_rx() {
 
 int main(void) {
 
-	const uint32_t freq = 2483000000U;
+	const uint32_t freq = 2700000000U;
 
 	pin_setup();
 	enable_1v8_power();
@@ -276,9 +277,31 @@ int main(void) {
 			| (CGU_SRC_PLL1 << CGU_BASE_CLK_SEL_SHIFT));
 	
     ssp1_init();
-    
 	ssp1_set_mode_max2837();
 	max2837_setup();
+	rffc5071_init();
+	rffc5071_config_synth_int(500);
+	rffc5071_enable_rx();
+	//rffc5071_reg_write(RFFC5071_GPO, 0x0001); /* PLL lock output on GPO4 */
+	/* lollipop */
+	uint8_t gpo = 
+			  (1 << 0)  /* SWTXB1 (!tx_bypass) */
+			| (0 << 1)  /* SWRXB1 (rx_bypass) */
+			| (1 << 2)  /* SWTXA1 (tx_hp) */
+			| (0 << 3)  /* unused */
+			| (1 << 4)  /* SWRXA1 (rx_hp) */
+			| (0 << 5); /* SWD1 (!tx_ant) */
+	/* licorice */
+	//uint8_t gpo = 
+			  //(0 << 0)  /* MIX_BYPASS */
+			//| (0 << 1)  /* AMP_BYPASS */
+			//| (0 << 2)  /* TX */
+			//| (0 << 3)  /* unused */
+			//| (0 << 4)  /* HP */
+			//| (0 << 5); /* !AMP_PWR */
+	rffc5071_reg_write(RFFC5071_GPO, (gpo << 9) | (gpo << 2) | 0x3);
+	gpio_set(PORT_LED1_3, (PIN_LED1)); /* LED1 on */
+
 	max2837_set_frequency(freq);
 	max2837_start();
 	max2837_rx();
@@ -286,6 +309,7 @@ int main(void) {
 	ssp1_set_mode_max5864();
 	max5864_xcvr();
 	configure_sgpio_test_rx();
+	gpio_set(PORT_LED1_3, (PIN_LED2)); /* LED2 on */
 
 	while (1) {
 

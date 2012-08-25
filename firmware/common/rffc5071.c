@@ -54,194 +54,54 @@ void rffc5071_init(void)
 
 	//rffc5071_reg_write(MIX_CONT, 0xc800); /* full duplex */
 	rffc5071_reg_write(RFFC5071_MIX_CONT, 0x4800); /* half duplex */
+}
 
-	/*
-	 * setup for 250 MHz LO:
- 	 * n_lo = 4
- 	 * lodiv = 16 (2^4, so set to 4)
- 	 * fvco = 4 GHz
- 	 * fbkdiv = 4
- 	 * ndiv = 20
- 	 * n = 20
- 	 * nummsb = 0
- 	 * numlsb = 0
- 	 */
-	//rffc5071_reg_write(RFFC5071_P1_FREQ1, 0x0a48);
-	//rffc5071_reg_write(RFFC5071_P1_FREQ2, 0x0000);
-	//rffc5071_reg_write(RFFC5071_P1_FREQ3, 0x0000);
-	/* charge pump set for VCO > 3.2 GHz */
-	//rffc5071_reg_write(RFFC5071_LF, 0xbefb);
+#define LO_MAX   5400
+#define REF_FREQ 50
 
-	/*
-	 * setup for 400 MHz LO:
- 	 * lodiv = 8 (2^3, so set to 3)
- 	 * fvco = 3200 MHz
- 	 * fbkdiv = 2
- 	 * ndiv = 32
- 	 * n = 32
- 	 * nummsb = 0
- 	 * numlsb = 0
- 	 */
-	//rffc5071_reg_write(RFFC5071_P1_FREQ1, 0x1034);
-	//rffc5071_reg_write(RFFC5071_P1_FREQ2, 0x0000);
-	//rffc5071_reg_write(RFFC5071_P1_FREQ3, 0x0000);
+/* configure frequency synthesizer in integer mode (lo in MHz) */
+void rffc5071_config_synth_int(uint16_t lo) {
+	uint8_t n_lo;
+	uint8_t lodiv;
+	uint16_t fvco;
+	uint8_t fbkdiv;
+	uint16_t n;
 
-	/*
-	 * setup for 500 MHz LO:
- 	 * n_lo = 3
- 	 * lodiv = 8 (2^3, so set to 3)
- 	 * fvco = 4 GHz
- 	 * fbkdiv = 4
- 	 * ndiv = 20
- 	 * n = 20
- 	 * nummsb = 0
- 	 * numlsb = 0
- 	 */
-	rffc5071_reg_write(RFFC5071_P1_FREQ1, 0x0a39);
+	/* n_lo = int(log2(LO_MAX/lo)) */
+	for (n_lo = 0; n_lo < 5; n_lo++)
+		if ((2 << n_lo) > (LO_MAX / lo))
+			break;
+
+	lodiv = 1 << n_lo;
+	fvco = lodiv * lo;
+
+	if (fvco > 3200) {
+		fbkdiv = 4;
+		/* set charge pump for VCO > 3.2 GHz */
+		rffc5071_reg_write(RFFC5071_LF, 0xbefb);
+	} else {
+		fbkdiv = 2;
+	}
+
+	n = (fvco / fbkdiv) / REF_FREQ;
+
+	rffc5071_reg_write(RFFC5071_P1_FREQ1,
+			(n << 7) | (n_lo << 4) | (fbkdiv << 1));
 	rffc5071_reg_write(RFFC5071_P1_FREQ2, 0x0000);
 	rffc5071_reg_write(RFFC5071_P1_FREQ3, 0x0000);
-	/* charge pump set for VCO > 3.2 GHz */
-	rffc5071_reg_write(RFFC5071_LF, 0xbefb);
 
-	/*
-	 * setup for 513 MHz LO:
- 	 * n_lo = 3
- 	 * lodiv = 8 (2^3, so set to 3)
- 	 * fvco = 4104 MHz
- 	 * fbkdiv = 4
- 	 * ndiv = 20.52
- 	 * n = 20
- 	 * nummsb = 34078 (0x851e)
- 	 * numlsb = 184 (0xb8)
- 	 */
-	//rffc5071_reg_write(RFFC5071_P1_FREQ1, 0x0a38);
-	//rffc5071_reg_write(RFFC5071_P1_FREQ2, 0x851e);
-	//rffc5071_reg_write(RFFC5071_P1_FREQ3, 0xb800);
-	/* charge pump set for VCO > 3.2 GHz */
-	//rffc5071_reg_write(RFFC5071_LF, 0xbefb);
+	rffc5071_reg_write(RFFC5071_P2_FREQ1,
+			(n << 7) | (n_lo << 4) | (fbkdiv << 1));
+	rffc5071_reg_write(RFFC5071_P2_FREQ2, 0x0000);
+	rffc5071_reg_write(RFFC5071_P2_FREQ3, 0x0000);
+}
 
-	/*
-	 * setup for 1 GHz LO:
- 	 * n_lo = 2
- 	 * lodiv = 4 (2^2, so set to 2)
- 	 * fvco = 4 GHz
- 	 * fbkdiv = 4
- 	 * ndiv = 20
- 	 * n = 20
- 	 * nummsb = 0
- 	 * numlsb = 0
- 	 */
-	//rffc5071_reg_write(RFFC5071_P1_FREQ1, 0x0a29);
-	//rffc5071_reg_write(RFFC5071_P1_FREQ2, 0x0000);
-	//rffc5071_reg_write(RFFC5071_P1_FREQ3, 0x0000);
-	/* charge pump set for VCO > 3.2 GHz */
-	//rffc5071_reg_write(RFFC5071_LF, 0xbefb);
-
-	/*
-	 * setup for 1417 MHz LO:
- 	 * n_lo = 1
- 	 * lodiv = 2 (2^1, so set to 1)
- 	 * fvco = 2834 MHz
- 	 * fbkdiv = 2
- 	 * ndiv = 28.34
- 	 * n = 28
- 	 * nummsb = 22282 (570a)
- 	 * numlsb = 61 (0x3d)
- 	 */
-	//rffc5071_reg_write(RFFC5071_P1_FREQ1, 0x0e14);
-	//rffc5071_reg_write(RFFC5071_P1_FREQ2, 0x570a);
-	//rffc5071_reg_write(RFFC5071_P1_FREQ3, 0x3d00);
-	/* charge pump set for VCO > 3.2 GHz */
-	//rffc5071_reg_write(RFFC5071_LF, 0xbefb);
-
-	/*
-	 * setup for 2 GHz LO:
- 	 * n_lo = 1
- 	 * lodiv = 2 (2^1, so set to 1)
- 	 * fvco = 4 GHz
- 	 * fbkdiv = 4
- 	 * ndiv = 20
- 	 * n = 20
- 	 * nummsb = 0
- 	 * numlsb = 0
- 	 */
-	//rffc5071_reg_write(RFFC5071_P1_FREQ1, 0x0a19);
-	//rffc5071_reg_write(RFFC5071_P1_FREQ2, 0x0000);
-	//rffc5071_reg_write(RFFC5071_P1_FREQ3, 0x0000);
-	/* charge pump set for VCO > 3.2 GHz */
-	//rffc5071_reg_write(RFFC5071_LF, 0xbefb);
-
-	/*
-	 * setup for 2191 GHz LO:
- 	 * n_lo = 1
- 	 * lodiv = 2 (2^1, so set to 1)
- 	 * fvco = 4382 MHz
- 	 * fbkdiv = 4
- 	 * ndiv = 21.91
- 	 * n = 21
- 	 * nummsb = 59637 (0xe8f5)
- 	 * numlsb = 194 (0xc2)
- 	 */
-	//rffc5071_reg_write(RFFC5071_P1_FREQ1, 0x0a98);
-	//rffc5071_reg_write(RFFC5071_P1_FREQ2, 0xe8f5);
-	//rffc5071_reg_write(RFFC5071_P1_FREQ3, 0xc200);
-	/* charge pump set for VCO > 3.2 GHz */
-	//rffc5071_reg_write(RFFC5071_LF, 0xbefb);
-
-	/*
-	 * setup for 2341 GHz LO:
- 	 * n_lo = 1
- 	 * lodiv = 2 (2^1, so set to 1)
- 	 * fvco = 4682 MHz
- 	 * fbkdiv = 4
- 	 * ndiv = 23.41
- 	 * n = 23
- 	 * nummsb = 26869 (0x68f5)
- 	 * numlsb = 194 (0xc2)
- 	 */
-	//rffc5071_reg_write(RFFC5071_P1_FREQ1, 0x0b9a);
-	//rffc5071_reg_write(RFFC5071_P1_FREQ2, 0x68f5);
-	//rffc5071_reg_write(RFFC5071_P1_FREQ3, 0xc200);
-	/* charge pump set for VCO > 3.2 GHz */
-	//rffc5071_reg_write(RFFC5071_LF, 0xbefb);
-
-	/*
-	 * setup for 2341 GHz LO:
- 	 * n_lo = 1
- 	 * lodiv = 2 (2^1, so set to 1)
- 	 * fvco = 4782 MHz
- 	 * fbkdiv = 4
- 	 * ndiv = 23.91
- 	 * n = 23
- 	 * nummsb = 59637 (0xe8f5)
- 	 * numlsb = 194 (0xc2)
- 	 */
-	//rffc5071_reg_write(RFFC5071_P1_FREQ1, 0x0b9a);
-	//rffc5071_reg_write(RFFC5071_P1_FREQ2, 0xe8f5);
-	//rffc5071_reg_write(RFFC5071_P1_FREQ3, 0xc200);
-	/* charge pump set for VCO > 3.2 GHz */
-	//rffc5071_reg_write(RFFC5071_LF, 0xbefb);
-
-	/*
-	 * setup for 2411 GHz LO:
- 	 * n_lo = 1
- 	 * lodiv = 2 (2^1, so set to 1)
- 	 * fvco = 4822 MHz
- 	 * fbkdiv = 4
- 	 * ndiv = 24.11
- 	 * n = 24
- 	 * nummsb = 7208 (0x1c28)
- 	 * numlsb = 245 (0xf5)
- 	 */
-	//rffc5071_reg_write(RFFC5071_P1_FREQ1, 0x0c18);
-	//rffc5071_reg_write(RFFC5071_P1_FREQ2, 0x1c28);
-	//rffc5071_reg_write(RFFC5071_P1_FREQ3, 0xf500);
-	/* charge pump set for VCO > 3.2 GHz */
-	//rffc5071_reg_write(RFFC5071_LF, 0xbefb);
-
-	/* enable device */
+void rffc5071_enable_tx(void) {
 	rffc5071_reg_write(RFFC5071_SDI_CTRL, 0xc000); /* mixer 1 (TX) */
-	//rffc5071_reg_write(RFFC5071_SDI_CTRL, 0xe000); /* mixer 2 (RX) */
+}
+
+void rffc5071_enable_rx(void) {
+	rffc5071_reg_write(RFFC5071_SDI_CTRL, 0xe000); /* mixer 2 (RX) */
 }
 
 void serial_delay(void)
