@@ -1,4 +1,4 @@
-EESchema Schematic File Version 2  date Mon Aug 27 23:13:08 2012
+EESchema Schematic File Version 2  date Thu Aug 30 09:18:56 2012
 LIBS:power
 LIBS:device
 LIBS:transistors
@@ -37,7 +37,7 @@ $Descr User 17000 11000
 encoding utf-8
 Sheet 2 4
 Title ""
-Date "28 aug 2012"
+Date "30 aug 2012"
 Rev ""
 Comp ""
 Comment1 ""
@@ -952,7 +952,7 @@ P 17550 6800
 F 0 "L12" V 17500 6800 40  0000 C CNN
 F 1 "1uH" V 17650 6800 40  0000 C CNN
 F 4 "Taiyo Yuden" H 17550 6800 60  0001 C CNN "Manufacturer"
-F 5 "Digi-Key 587-2897-1-ND" H 17550 6800 60  0001 C CNN "Part Number"
+F 5 "BRL1608T1R0M" H 17550 6800 60  0001 C CNN "Part Number"
 F 6 "INDUCTR 1.0UH 650MA 20% 0603 SMD" H 17550 6800 60  0001 C CNN "Description"
 	1    17550 6800
 	0    1    1    0   
@@ -1048,7 +1048,7 @@ P 5050 5350
 F 0 "L3" V 5000 5350 40  0000 C CNN
 F 1 "1uH" V 5150 5350 40  0000 C CNN
 F 4 "Taiyo Yuden" H 5050 5350 60  0001 C CNN "Manufacturer"
-F 5 "Digi-Key 587-2897-1-ND" H 5050 5350 60  0001 C CNN "Part Number"
+F 5 "BRL1608T1R0M" H 5050 5350 60  0001 C CNN "Part Number"
 F 6 "INDUCTR 1.0UH 650MA 20% 0603 SMD" H 5050 5350 60  0001 C CNN "Description"
 	1    5050 5350
 	0    1    1    0   
@@ -1060,7 +1060,7 @@ P 5050 5050
 F 0 "L2" V 5000 5050 40  0000 C CNN
 F 1 "1uH" V 5150 5050 40  0000 C CNN
 F 4 "Taiyo Yuden" H 5050 5050 60  0001 C CNN "Manufacturer"
-F 5 "Digi-Key 587-2897-1-ND" H 5050 5050 60  0001 C CNN "Part Number"
+F 5 "BRL1608T1R0M" H 5050 5050 60  0001 C CNN "Part Number"
 F 6 "INDUCTR 1.0UH 650MA 20% 0603 SMD" H 5050 5050 60  0001 C CNN "Description"
 	1    5050 5050
 	0    1    1    0   
@@ -1769,7 +1769,7 @@ P 14200 6850
 F 0 "L5" V 14150 6850 40  0000 C CNN
 F 1 "1uH" V 14300 6850 40  0000 C CNN
 F 4 "Taiyo Yuden" H 14200 6850 60  0001 C CNN "Manufacturer"
-F 5 "Digi-Key 587-2897-1-ND" H 14200 6850 60  0001 C CNN "Part Number"
+F 5 "BRL1608T1R0M" H 14200 6850 60  0001 C CNN "Part Number"
 F 6 "INDUCTR 1.0UH 650MA 20% 0603 SMD" H 14200 6850 60  0001 C CNN "Description"
 	1    14200 6850
 	0    1    1    0   
