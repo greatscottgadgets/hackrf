@@ -1,4 +1,4 @@
-EESchema Schematic File Version 2  date Thu Aug 30 11:17:10 2012
+EESchema Schematic File Version 2  date Sun Sep  2 14:58:26 2012
 LIBS:power
 LIBS:device
 LIBS:transistors
@@ -37,7 +37,7 @@ $Descr User 17000 11000
 encoding utf-8
 Sheet 3 4
 Title "jawbreaker baseband"
-Date "30 aug 2012"
+Date "2 sep 2012"
 Rev ""
 Comp "Copyright 2012 Michael Ossmann"
 Comment1 "License: GPL v2"
@@ -1185,10 +1185,10 @@ $EndComp
 Text Notes 4250 2600 0    60   ~ 0
 FIXME: optional VCC filtering or LDO
 $Comp
-L C C?
+L C C105
 U 1 1 503F888A
 P 3900 2700
-F 0 "C?" H 3950 2800 50  0000 L CNN
+F 0 "C105" H 3950 2800 50  0000 L CNN
 F 1 "10uF" H 3950 2600 50  0000 L CNN
 F 4 "Murata" H 3900 2700 60  0001 C CNN "Manufacturer"
 F 5 "GRM21BR61A106KE19L" H 3900 2700 60  0001 C CNN "Part Number"
@@ -1197,10 +1197,10 @@ F 6 "CAP CER 10UF 10V 10% X5R 0805" H 3900 2700 60  0001 C CNN "Description"
 	1    0    0    -1  
 $EndComp
 $Comp
-L FILTER FB?
+L FILTER FB2
 U 1 1 503F885C
 P 4300 2300
-F 0 "FB?" H 4300 2450 60  0000 C CNN
+F 0 "FB2" H 4300 2450 60  0000 C CNN
 F 1 "FILTER" H 4300 2200 60  0000 C CNN
 F 4 "Murata" H 4300 2300 60  0001 C CNN "Manufacturer"
 F 5 "BLM21PG221SN1D" H 4300 2300 60  0001 C CNN "Part Number"
@@ -1816,7 +1816,7 @@ VDDOD
 Text Label 4500 6900 3    40   ~ 0
 VDDOC
 Text Notes 2950 9500 0    40   ~ 0
-If trace is cut, a jumper should be used\non P9 at all times when an external\nclock is not connected to P8.
+If trace is cut, a jumper should be used\non P17 at all times when an external\nclock is not connected to P16.
 $Comp
 L GND #PWR162
 U 1 1 4FA55BA8
@@ -1877,7 +1877,7 @@ $EndComp
 Text Label 9650 8500 0    40   ~ 0
 VDDOA
 Text Notes 1150 3750 0    40   ~ 0
-Install R40 and R41 only\nif 1V8 is used for U1.
+Install R18 and R19 only\nif 1V8 is used for U18.
 Text Label 2700 3400 2    40   ~ 0
 SCLK_AD
 $Comp
@@ -1921,7 +1921,7 @@ F 4 "DNP" V 2050 3750 60  0000 C CNN "Note"
 	1    0    0    -1  
 $EndComp
 Text Notes 6300 9200 0    40   ~ 0
-Install R37 only if 1.8 V\noutput is desired and VDDOA\nis set to VCC.
+Install only if 1.8 V output\nis desired and VDDOA\nis set to VCC.
 $Comp
 L GND #PWR166
 U 1 1 4FA469EE
