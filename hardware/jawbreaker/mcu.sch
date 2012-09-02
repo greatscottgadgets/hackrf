@@ -1,4 +1,4 @@
-EESchema Schematic File Version 2  date Sun Sep  2 15:54:35 2012
+EESchema Schematic File Version 2  date Sun Sep  2 16:11:19 2012
 LIBS:power
 LIBS:device
 LIBS:transistors
@@ -45,6 +45,12 @@ Comment2 ""
 Comment3 ""
 Comment4 ""
 $EndDescr
+Text GLabel 7350 7750 3    40   Input ~ 0
+RESETX
+Text GLabel 7250 7750 3    40   Input ~ 0
+ENX
+Wire Wire Line
+	7350 7450 7350 7750
 Wire Wire Line
 	15250 3400 15250 3300
 Connection ~ 16150 2650
@@ -1330,6 +1336,8 @@ Wire Wire Line
 Connection ~ 15950 2650
 Wire Wire Line
 	15050 3400 15050 3300
+Wire Wire Line
+	7250 7450 7250 7750
 $Comp
 L GND #PWR215
 U 1 1 5043D25E
@@ -2461,8 +2469,6 @@ F 1 "VCC" H 12650 3800 30  0000 C CNN
 	1    0    0    -1  
 $EndComp
 NoConn ~ 7850 7450
-NoConn ~ 7350 7450
-NoConn ~ 7250 7450
 NoConn ~ 6950 7450
 NoConn ~ 6150 7450
 NoConn ~ 5450 7450
