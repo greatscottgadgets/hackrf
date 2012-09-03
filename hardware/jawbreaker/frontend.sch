@@ -1,4 +1,4 @@
-EESchema Schematic File Version 2  date Sun Sep  2 16:11:19 2012
+EESchema Schematic File Version 2  date Mon Sep  3 16:18:00 2012
 LIBS:power
 LIBS:device
 LIBS:transistors
@@ -37,7 +37,7 @@ $Descr User 17000 11000
 encoding utf-8
 Sheet 2 4
 Title ""
-Date "2 sep 2012"
+Date "3 sep 2012"
 Rev ""
 Comp ""
 Comment1 ""
@@ -45,3079 +45,3123 @@ Comment2 ""
 Comment3 ""
 Comment4 ""
 $EndDescr
-Text GLabel 7450 5150 2    40   Input ~ 0
+Wire Wire Line
+	15100 9100 15100 9200
+Connection ~ 14950 8600
+Wire Wire Line
+	14950 8600 14950 8700
+Wire Wire Line
+	13950 3200 13100 3200
+Wire Wire Line
+	15750 2800 15750 1150
+Wire Wire Line
+	7200 4750 6900 4750
+Wire Wire Line
+	6900 4750 5800 4750
+Wire Wire Line
+	5800 4750 5400 4750
+Wire Wire Line
+	7200 4550 6400 4550
+Wire Wire Line
+	6400 4550 5600 4550
+Wire Wire Line
+	5100 4350 5100 4250
+Wire Wire Line
+	6600 8350 6300 8350
+Wire Wire Line
+	6300 8350 6050 8350
+Wire Wire Line
+	6050 8350 5750 8350
+Wire Wire Line
+	5750 8350 5650 8350
+Wire Wire Line
+	5650 8350 5650 8450
+Connection ~ 16050 6150
+Wire Wire Line
+	16050 6050 16050 6150
+Wire Wire Line
+	6250 6550 6250 6450
+Wire Wire Line
+	3000 3900 3000 4000
+Wire Wire Line
+	14250 6450 14350 6450
+Wire Wire Line
+	14350 6450 14700 6450
+Wire Wire Line
+	14700 6450 15400 6450
+Wire Wire Line
+	13050 8500 13450 8500
+Wire Wire Line
+	13450 8500 13750 8500
+Wire Wire Line
+	4200 2950 4100 2950
+Connection ~ 11450 7350
+Wire Wire Line
+	11450 7100 11450 7350
+Wire Wire Line
+	11450 7350 11450 7600
+Wire Wire Line
+	11150 7500 11350 7500
+Wire Wire Line
+	15150 8250 15050 8250
+Wire Wire Line
+	14850 8400 15050 8400
+Wire Wire Line
+	12450 8200 12450 8300
+Wire Wire Line
+	12900 8500 12900 8400
+Wire Wire Line
+	13450 8600 13450 8500
+Wire Wire Line
+	13450 9100 13450 9000
+Wire Wire Line
+	12900 9000 12900 8900
+Connection ~ 13450 8500
+Connection ~ 12900 8400
+Connection ~ 13600 3400
+Wire Wire Line
+	13200 3400 13600 3400
+Wire Wire Line
+	13600 3400 14550 3400
+Connection ~ 14150 3500
+Wire Wire Line
+	14550 3500 14150 3500
+Wire Wire Line
+	14150 3500 13800 3500
+Wire Wire Line
+	13600 4000 13600 3900
+Wire Wire Line
+	14150 4100 14150 4000
+Connection ~ 16050 3400
+Wire Wire Line
+	16400 3400 16050 3400
+Wire Wire Line
+	16050 3400 15650 3400
+Wire Wire Line
+	16050 4000 16050 3900
+Wire Wire Line
+	4650 9250 5250 9250
+Wire Wire Line
+	5250 9850 5250 9750
+Wire Wire Line
+	5250 9350 5250 9250
+Wire Wire Line
+	5250 9250 5250 9150
+Connection ~ 5250 9250
+Wire Wire Line
+	4650 9850 5050 9850
+Wire Wire Line
+	4650 9650 5050 9650
+Wire Wire Line
+	4650 9450 5050 9450
+Wire Wire Line
+	3450 9750 3050 9750
+Wire Wire Line
+	3050 9550 3450 9550
+Wire Wire Line
+	3050 9350 3450 9350
+Wire Wire Line
+	4050 10300 4050 10200
+Wire Wire Line
+	2450 9050 2450 9250
+Wire Wire Line
+	2450 9250 2450 9350
+Wire Wire Line
+	2450 9050 1050 9050
+Wire Wire Line
+	1050 9050 1050 9250
+Wire Wire Line
+	1050 9250 1150 9250
+Wire Wire Line
+	14450 4100 14450 4900
+Wire Wire Line
+	15750 3700 15750 3600
+Connection ~ 12700 3850
+Wire Wire Line
+	12550 3850 12700 3850
+Wire Wire Line
+	12700 3600 12700 3850
+Wire Wire Line
+	12700 3850 12700 3950
+Wire Wire Line
+	12700 4450 12700 4350
+Wire Wire Line
+	12800 3600 12800 3700
+Wire Wire Line
+	12900 2600 12800 2600
+Wire Wire Line
+	9300 3450 9300 3350
+Wire Wire Line
+	9000 3250 9000 5800
+Wire Wire Line
+	9000 5800 6950 5800
+Wire Wire Line
+	9300 2650 9300 2850
+Wire Wire Line
+	9300 2850 9300 2950
+Connection ~ 9400 1650
+Wire Wire Line
+	9500 1650 9400 1650
+Wire Wire Line
+	7450 5600 7350 5600
+Wire Wire Line
+	6850 5450 6850 5600
+Wire Wire Line
+	6850 5600 6850 5900
+Connection ~ 6750 6900
+Wire Wire Line
+	6750 6800 6750 6900
+Wire Wire Line
+	6750 6900 6750 7050
+Wire Wire Line
+	16400 6150 16050 6150
+Wire Wire Line
+	16050 6150 15700 6150
+Connection ~ 14350 6450
+Connection ~ 13550 6450
+Wire Wire Line
+	13450 6450 13550 6450
+Wire Wire Line
+	13550 6450 13650 6450
+Wire Wire Line
+	13750 8600 13650 8600
+Wire Wire Line
+	13650 8600 13650 9200
+Wire Wire Line
+	13650 9200 9950 9200
+Wire Wire Line
+	9950 9200 9950 8200
+Wire Wire Line
+	13550 7500 13550 6450
+Wire Wire Line
+	13450 7500 13550 7500
+Wire Wire Line
+	13550 7500 13650 7500
+Wire Wire Line
+	12450 8300 13750 8300
+Wire Wire Line
+	11150 7700 11950 7700
+Wire Wire Line
+	12450 7500 12550 7500
+Wire Wire Line
+	13550 7600 13450 7600
+Wire Wire Line
+	15100 2750 15100 2850
+Wire Wire Line
+	10050 7700 9950 7700
+Wire Wire Line
+	9950 7700 9950 7800
+Wire Wire Line
+	10600 8250 10600 8150
+Wire Wire Line
+	14700 7050 14700 6950
+Wire Wire Line
+	14850 8300 14950 8300
+Wire Wire Line
+	1600 7700 1600 7300
+Wire Wire Line
+	1600 7300 1600 7200
+Wire Wire Line
+	14550 3300 14450 3300
+Wire Wire Line
+	14450 3300 14450 3200
+Wire Wire Line
+	15550 8700 15550 8600
+Wire Wire Line
+	1700 7200 1700 7450
+Wire Wire Line
+	15750 1150 1800 1150
+Wire Wire Line
+	12600 3600 12600 3700
+Wire Wire Line
+	12600 3700 12500 3700
+Wire Wire Line
+	12600 2600 12600 2700
+Wire Wire Line
+	10200 3850 10200 3750
+Wire Wire Line
+	10000 2850 10000 2750
+Wire Wire Line
+	10000 2750 9900 2750
+Wire Wire Line
+	9200 1650 9200 1750
+Wire Wire Line
+	9200 1450 9300 1450
+Wire Wire Line
+	1800 7200 1800 7300
+Wire Wire Line
+	1600 6300 1600 6200
+Wire Wire Line
+	1600 6200 1500 6200
+Wire Wire Line
+	2200 6300 2200 6200
+Wire Wire Line
+	2200 6200 1800 6200
+Wire Wire Line
+	1800 6200 1800 6300
+Wire Wire Line
+	1000 2250 1100 2250
+Wire Wire Line
+	1000 1150 1100 1150
+Wire Wire Line
+	1700 2650 1700 2150
+Wire Wire Line
+	6750 5900 6750 5800
+Wire Wire Line
+	6750 5800 6650 5800
+Wire Wire Line
+	5550 5800 5450 5800
+Wire Wire Line
+	5450 5800 5450 5150
+Wire Wire Line
+	5450 5150 5300 5150
+Wire Wire Line
+	2300 4150 1700 4150
+Wire Wire Line
+	8800 1450 2400 1450
+Wire Wire Line
+	2400 1450 2400 3150
+Wire Wire Line
+	3900 4050 3900 4150
+Wire Wire Line
+	3900 3450 3900 3350
+Connection ~ 10100 2000
+Wire Wire Line
+	10100 2850 10100 2000
+Wire Wire Line
+	10100 2000 10100 1850
+Wire Wire Line
+	10700 2000 10600 2000
+Wire Wire Line
+	10800 2450 10700 2450
+Wire Wire Line
+	5200 4250 5200 4750
+Wire Wire Line
+	5200 4750 5200 5950
+Wire Wire Line
+	5300 4250 5300 5050
+Wire Wire Line
+	5300 5050 5300 5150
+Wire Wire Line
+	5300 5150 5300 5250
+Connection ~ 5300 5150
+Wire Wire Line
+	10000 4600 10000 4500
+Wire Wire Line
+	10000 3750 10000 4000
+Wire Wire Line
+	10000 4000 10000 4100
+Wire Wire Line
+	12100 2450 12000 2450
+Wire Wire Line
+	1750 10300 1750 10200
+Wire Wire Line
+	4100 5650 4100 5550
+Wire Wire Line
+	8100 9200 8100 9100
+Wire Wire Line
+	8100 10300 8100 10200
+Connection ~ 2700 9250
+Wire Wire Line
+	2700 9350 2700 9250
+Wire Wire Line
+	2700 9250 2700 9150
+Wire Wire Line
+	2700 9850 2700 9750
+Wire Wire Line
+	2350 9650 2500 9650
+Wire Wire Line
+	2350 9850 2500 9850
+Wire Wire Line
+	1150 9750 750  9750
+Wire Wire Line
+	750  9550 1150 9550
+Connection ~ 7100 4650
+Wire Wire Line
+	7100 4650 7100 4350
+Wire Wire Line
+	6100 5350 6100 5250
+Wire Wire Line
+	6700 5350 6700 5250
+Connection ~ 6700 4450
+Wire Wire Line
+	6700 4850 6700 4450
+Connection ~ 6100 4650
+Wire Wire Line
+	6100 4850 6100 4650
+Wire Wire Line
+	6900 3750 6900 3850
+Wire Wire Line
+	5400 4750 5400 4250
+Wire Wire Line
+	5600 4550 5600 4250
+Wire Wire Line
+	7400 3150 7300 3150
+Connection ~ 6300 7950
+Wire Wire Line
+	5100 7950 4800 7950
+Wire Wire Line
+	4800 7950 4700 7950
+Connection ~ 5750 7950
+Connection ~ 4800 7950
+Connection ~ 6300 8350
+Wire Wire Line
+	5100 8350 4800 8350
+Wire Wire Line
+	4800 8350 4700 8350
+Connection ~ 5750 8350
+Connection ~ 4800 8350
+Wire Wire Line
+	6600 3050 6500 3050
+Connection ~ 8200 1750
+Wire Wire Line
+	8700 1850 8700 1750
+Wire Wire Line
+	8700 1750 8400 1750
+Wire Wire Line
+	8400 1750 8200 1750
+Wire Wire Line
+	8200 1750 8100 1750
+Connection ~ 8400 2950
+Wire Wire Line
+	8400 2250 8400 2950
+Wire Wire Line
+	8200 1750 8200 2850
+Wire Wire Line
+	8200 2850 6500 2850
+Wire Wire Line
+	6800 2350 6800 2250
+Wire Wire Line
+	7600 1750 7500 1750
+Wire Wire Line
+	7500 1750 7400 1750
+Wire Wire Line
+	6900 1750 6800 1750
+Wire Wire Line
+	6800 1750 6600 1750
+Wire Wire Line
+	6600 1750 6600 2750
+Wire Wire Line
+	6600 2750 6500 2750
+Wire Wire Line
+	4400 5650 4400 5550
+Wire Wire Line
+	5700 4250 5700 4450
+Wire Wire Line
+	5100 1950 5100 1550
+Wire Wire Line
+	6500 3450 6700 3450
+Wire Wire Line
+	5000 4250 5000 4450
+Connection ~ 5300 5050
+Wire Wire Line
+	5100 5050 5300 5050
+Wire Wire Line
+	4500 4750 4400 4750
+Connection ~ 16250 9000
+Wire Wire Line
+	10700 3700 10800 3700
+Wire Wire Line
+	4100 3250 4200 3250
+Wire Wire Line
+	5200 5950 5300 5950
+Wire Wire Line
+	5300 5950 5550 5950
+Wire Wire Line
+	6150 5950 6250 5950
+Wire Wire Line
+	12100 4000 12000 4000
+Wire Wire Line
+	12000 2150 12100 2150
+Wire Wire Line
+	10700 2150 10800 2150
+Connection ~ 16250 9100
+Wire Wire Line
+	16250 9200 16250 9100
+Wire Wire Line
+	16250 9100 16250 9000
+Wire Wire Line
+	16250 9000 16250 8900
+Wire Wire Line
+	16250 8900 16250 8800
+Connection ~ 16250 8900
+Wire Wire Line
+	5100 4750 5200 4750
+Connection ~ 5200 4750
+Wire Wire Line
+	4400 5050 4500 5050
+Connection ~ 4400 4750
+Wire Wire Line
+	5700 1950 5700 1600
+Wire Wire Line
+	5000 1950 5000 1550
+Wire Wire Line
+	4400 5150 4400 5050
+Wire Wire Line
+	4400 5050 4400 4950
+Wire Wire Line
+	4400 4950 4400 4750
+Wire Wire Line
+	4400 4750 4400 4650
+Connection ~ 4400 5050
+Wire Wire Line
+	6800 1850 6800 1750
+Connection ~ 6800 1750
+Wire Wire Line
+	7500 1850 7500 1750
+Connection ~ 7500 1750
+Wire Wire Line
+	7500 2350 7500 2250
+Wire Wire Line
+	6500 2950 8400 2950
+Wire Wire Line
+	8400 2950 8700 2950
+Wire Wire Line
+	8700 2950 8700 2850
+Wire Wire Line
+	8700 2350 8700 2250
+Wire Wire Line
+	8400 1750 8400 1850
+Connection ~ 8400 1750
+Wire Wire Line
+	4700 8350 4700 8450
+Connection ~ 5100 8350
+Connection ~ 6050 8350
+Wire Wire Line
+	4700 7950 4700 7850
+Connection ~ 5100 7950
+Connection ~ 6050 7950
+Wire Wire Line
+	6800 3150 6500 3150
+Wire Wire Line
+	5600 1750 5600 1950
+Wire Wire Line
+	5400 1850 5400 1950
+Wire Wire Line
+	5500 4250 5500 4650
+Wire Wire Line
+	6900 4750 6900 4350
+Connection ~ 6900 4750
+Wire Wire Line
+	5800 4850 5800 4750
+Connection ~ 5800 4750
+Wire Wire Line
+	6400 4850 6400 4550
+Connection ~ 6400 4550
+Wire Wire Line
+	6400 5350 6400 5250
+Wire Wire Line
+	5800 5350 5800 5250
+Wire Wire Line
+	7100 3750 7100 3850
+Wire Wire Line
+	1150 9450 750  9450
+Wire Wire Line
+	750  9650 1150 9650
+Wire Wire Line
+	1150 9850 1050 9850
+Wire Wire Line
+	1050 9850 1050 9950
+Wire Wire Line
+	2350 9750 2500 9750
+Wire Wire Line
+	2350 9550 2500 9550
+Wire Wire Line
+	2350 9250 2450 9250
+Wire Wire Line
+	2450 9250 2700 9250
+Wire Wire Line
+	8100 9800 8100 9700
+Wire Wire Line
+	8100 9700 8100 9600
+Wire Wire Line
+	8350 9700 8100 9700
+Connection ~ 8100 9700
+Wire Wire Line
+	15550 9300 15550 9200
+Wire Wire Line
+	6600 3850 6600 3750
+Wire Wire Line
+	6600 3750 6500 3750
+Wire Wire Line
+	5300 5850 5300 5950
+Connection ~ 5300 5950
+Wire Wire Line
+	4100 5150 4100 4950
+Wire Wire Line
+	4100 4950 4400 4950
+Connection ~ 4400 4950
+Wire Wire Line
+	2450 9350 2350 9350
+Connection ~ 2450 9250
+Wire Wire Line
+	12000 3700 12100 3700
+Wire Wire Line
+	9850 4000 10000 4000
+Connection ~ 10000 4000
+Wire Wire Line
+	10700 4000 10800 4000
+Wire Wire Line
+	10200 2000 10100 2000
+Wire Wire Line
+	1500 7300 1600 7300
+Connection ~ 1600 7300
+Wire Wire Line
+	1800 6050 1700 6050
+Wire Wire Line
+	2300 6050 2200 6050
+Wire Wire Line
+	1700 6300 1700 6050
+Wire Wire Line
+	1700 6050 1700 5650
+Connection ~ 1700 6050
+Connection ~ 1700 1000
+Wire Wire Line
+	1700 1250 1700 1000
+Wire Wire Line
+	1700 1000 1700 600 
+Wire Wire Line
+	2300 1000 2200 1000
+Wire Wire Line
+	1800 1000 1700 1000
+Wire Wire Line
+	1600 2650 1600 2250
+Wire Wire Line
+	1600 2250 1600 2150
+Connection ~ 1600 2250
+Wire Wire Line
+	3000 4000 3100 4000
+Wire Wire Line
+	4200 3350 3900 3350
+Wire Wire Line
+	3900 3350 3800 3350
+Wire Wire Line
+	3800 3350 3800 4000
+Wire Wire Line
+	3800 4000 3700 4000
+Connection ~ 3900 3350
+Wire Wire Line
+	3700 4150 3900 4150
+Wire Wire Line
+	3900 4150 4100 4150
+Wire Wire Line
+	4100 4150 4100 3450
+Wire Wire Line
+	4100 3450 4200 3450
+Connection ~ 3900 4150
+Wire Wire Line
+	2600 3050 2500 3050
+Wire Wire Line
+	2600 4150 2500 4150
+Wire Wire Line
+	2500 4150 2500 4050
+Connection ~ 2400 4250
+Wire Wire Line
+	2250 4250 2400 4250
+Wire Wire Line
+	2300 3050 2300 3150
+Wire Wire Line
+	2300 4150 2300 4050
+Wire Wire Line
+	2400 4050 2400 4250
+Wire Wire Line
+	2400 4250 2400 4350
+Wire Wire Line
+	2400 4850 2400 4750
+Wire Wire Line
+	3000 4150 3100 4150
+Wire Wire Line
+	3100 3050 3000 3050
+Wire Wire Line
+	2500 3150 2500 3050
+Wire Wire Line
+	2500 3050 2500 2900
+Connection ~ 2500 3050
+Wire Wire Line
+	1700 4150 1700 3050
+Wire Wire Line
+	6150 5800 6250 5800
+Wire Wire Line
+	6950 5800 6950 5900
+Wire Wire Line
+	1800 2250 1800 2150
+Wire Wire Line
+	1500 1150 1600 1150
+Wire Wire Line
+	1600 1150 1600 1250
+Wire Wire Line
+	1500 2250 1600 2250
+Wire Wire Line
+	1800 1150 1800 1250
+Wire Wire Line
+	2200 6700 2200 7200
+Wire Wire Line
+	2200 7200 6850 7200
+Wire Wire Line
+	6850 7200 6850 6800
+Wire Wire Line
+	1000 6200 1100 6200
+Wire Wire Line
+	1000 7300 1100 7300
+Wire Wire Line
+	9200 2650 9200 2750
+Wire Wire Line
+	9300 1450 9300 1750
+Wire Wire Line
+	9400 2650 9400 2750
+Wire Wire Line
+	9400 2750 9500 2750
+Wire Wire Line
+	10200 2850 10200 2450
+Wire Wire Line
+	10200 2450 10300 2450
+Wire Wire Line
+	10100 3750 10100 4000
+Wire Wire Line
+	10100 4000 10300 4000
+Wire Wire Line
+	12500 2450 12700 2450
+Wire Wire Line
+	12700 2450 12700 2700
+Wire Wire Line
+	15650 3300 15750 3300
+Wire Wire Line
+	15750 3300 15750 3200
+Wire Wire Line
+	14550 3600 14450 3600
+Wire Wire Line
+	15750 3600 15650 3600
+Wire Wire Line
+	15650 8600 15550 8600
+Wire Wire Line
+	15550 8600 15450 8600
+Connection ~ 15550 8600
+Wire Wire Line
+	14450 4900 9450 4900
+Wire Wire Line
+	9450 4900 9450 7450
+Wire Wire Line
+	9450 7450 1700 7450
+Wire Wire Line
+	11150 7400 11250 7400
+Wire Wire Line
+	9950 5150 15750 5150
+Wire Wire Line
+	9950 5150 9950 7400
+Wire Wire Line
+	9950 7400 10050 7400
+Wire Wire Line
+	14350 7050 14350 6950
+Wire Wire Line
+	14300 7750 14300 7850
+Connection ~ 13550 7500
+Connection ~ 12450 7700
+Wire Wire Line
+	13550 7700 13450 7700
+Wire Wire Line
+	12550 7600 12450 7600
+Wire Wire Line
+	12350 7700 12450 7700
+Wire Wire Line
+	12450 7700 12550 7700
+Wire Wire Line
+	14050 7500 14950 7500
+Wire Wire Line
+	14950 7500 14950 8300
+Wire Wire Line
+	11250 7400 11250 6450
+Wire Wire Line
+	11250 6450 13050 6450
+Wire Wire Line
+	15400 5850 15400 5950
+Wire Wire Line
+	14350 6450 14350 6550
+Connection ~ 14700 6450
+Wire Wire Line
+	6650 6900 6750 6900
+Wire Wire Line
+	6150 6900 6250 6900
+Wire Wire Line
+	6950 5600 6850 5600
+Connection ~ 6850 5600
+Wire Wire Line
+	9400 1500 9400 1650
+Wire Wire Line
+	9400 1650 9400 1750
+Wire Wire Line
+	10000 1650 9900 1650
+Wire Wire Line
+	9200 2750 9000 2750
+Wire Wire Line
+	9000 2750 9000 2850
+Wire Wire Line
+	9150 2850 9300 2850
+Connection ~ 9300 2850
+Wire Wire Line
+	13400 2600 13300 2600
+Wire Wire Line
+	12800 2700 12800 2600
+Wire Wire Line
+	12800 2600 12800 2450
+Connection ~ 12800 2600
+Wire Wire Line
+	15750 5150 15750 4100
+Wire Wire Line
+	14450 3600 14450 3700
+Wire Wire Line
+	3350 9950 3350 9850
+Wire Wire Line
+	3350 9850 3450 9850
+Wire Wire Line
+	3450 9250 3050 9250
+Wire Wire Line
+	3450 9450 3050 9450
+Wire Wire Line
+	3450 9650 3050 9650
+Wire Wire Line
+	4650 9350 5050 9350
+Wire Wire Line
+	4650 9550 5050 9550
+Wire Wire Line
+	4650 9750 5050 9750
+Wire Wire Line
+	16050 3500 16050 3400
+Wire Wire Line
+	14150 3600 14150 3500
+Wire Wire Line
+	13600 3500 13600 3400
+Wire Wire Line
+	12450 7800 12450 7700
+Wire Wire Line
+	15650 8250 15550 8250
+Wire Wire Line
+	15050 8400 15050 8250
+Wire Wire Line
+	15050 8250 15050 8000
+Connection ~ 15050 8250
+Connection ~ 9650 7600
+Wire Wire Line
+	10050 7600 9650 7600
+Wire Wire Line
+	9650 7600 9250 7600
+Wire Wire Line
+	9650 8200 9650 8100
+Wire Wire Line
+	9650 7700 9650 7600
+Connection ~ 11350 6900
+Wire Wire Line
+	11350 7500 11350 6900
+Wire Wire Line
+	11350 6900 11350 6650
+Wire Wire Line
+	11950 6900 11850 6900
+Wire Wire Line
+	11450 6900 11350 6900
+Wire Wire Line
+	12100 7350 12000 7350
+Wire Wire Line
+	11450 7600 11150 7600
+Wire Wire Line
+	11600 7350 11450 7350
+Wire Wire Line
+	12650 8400 12900 8400
+Wire Wire Line
+	12900 8400 13750 8400
+Wire Wire Line
+	6950 6900 6950 6800
+Wire Wire Line
+	14700 6550 14700 6450
+Wire Wire Line
+	15400 6450 15400 6350
+Wire Wire Line
+	3000 3400 3000 3500
+Wire Wire Line
+	6250 5950 6250 6050
+Wire Wire Line
+	18750 6300 18750 6400
+Wire Wire Line
+	18050 6500 18050 6400
+Connection ~ 18050 6400
+Wire Wire Line
+	17700 6400 17700 6500
+Wire Wire Line
+	17700 7000 17700 6900
+Wire Wire Line
+	18050 7000 18050 6900
+Connection ~ 17700 6400
+Wire Wire Line
+	16050 5450 16050 5550
+Wire Wire Line
+	18750 6400 18050 6400
+Wire Wire Line
+	18050 6400 17700 6400
+Wire Wire Line
+	17700 6400 17600 6400
+Wire Wire Line
+	5650 7850 5650 7950
+Wire Wire Line
+	5650 7950 5750 7950
+Wire Wire Line
+	5750 7950 6050 7950
+Wire Wire Line
+	6050 7950 6300 7950
+Wire Wire Line
+	6300 7950 6600 7950
+Wire Wire Line
+	5500 4650 6100 4650
+Wire Wire Line
+	6100 4650 7100 4650
+Wire Wire Line
+	7100 4650 7200 4650
+Wire Wire Line
+	5700 4450 6700 4450
+Wire Wire Line
+	6700 4450 7200 4450
+Wire Wire Line
+	12800 3700 13100 3700
+Wire Wire Line
+	13100 3700 13100 3200
+Wire Wire Line
+	14450 3200 14350 3200
+Wire Wire Line
+	14850 8600 14950 8600
+Wire Wire Line
+	14950 8600 15050 8600
+Wire Wire Line
+	14950 9100 14950 9200
+$Comp
+L GND #PWR?
+U 1 1 50452C2A
+P 15100 9100
+F 0 "#PWR?" H 15100 9100 30  0001 C CNN
+F 1 "GND" H 15100 9030 30  0001 C CNN
+	1    15100 9100
+	-1   0    0    1   
+$EndComp
+$Comp
+L GSG-900MHZ-F-ANTENNA J?
+U 1 1 50452C20
+P 14950 9200
+F 0 "J?" H 15250 9300 60  0000 C CNN
+F 1 "GSG-900MHZ-F-ANTENNA" H 15200 9850 60  0000 C CNN
+	1    14950 9200
+	-1   0    0    1   
+$EndComp
+$Comp
+L C C?
+U 1 1 50452A0F
+P 15250 8600
+F 0 "C?" H 15300 8700 50  0000 L CNN
+F 1 "10nF" H 15300 8500 50  0000 L CNN
+F 4 "Murata" H 21650 7350 60  0001 C CNN "Manufacturer"
+F 5 "GRM155R71C103KA01D" H 21650 7350 60  0001 C CNN "Part Number"
+F 6 "CAP CER 10000PF 16V 10% X7R 0402" H 21650 7350 60  0001 C CNN "Description"
+F 7 "DNP" V 15550 8600 60  0000 C CNN "Note"
+	1    15250 8600
+	0    -1   1    0   
+$EndComp
+Text GLabel 7200 4750 2    40   Input ~ 0
 RESETX
-Text GLabel 7450 5050 2    40   Input ~ 0
+Text GLabel 7200 4650 2    40   Input ~ 0
 ENX
-Text GLabel 7450 4950 2    40   Input ~ 0
+Text GLabel 7200 4550 2    40   Input ~ 0
 SSP1_SCLK
-Text GLabel 7450 4850 2    40   Input ~ 0
+Text GLabel 7200 4450 2    40   Input ~ 0
 SSP1_MOSI
-Wire Wire Line
-	7450 5150 7150 5150
-Wire Wire Line
-	7150 5150 6050 5150
-Wire Wire Line
-	6050 5150 5650 5150
-Wire Wire Line
-	7450 4950 6650 4950
-Wire Wire Line
-	6650 4950 5850 4950
-Wire Wire Line
-	5350 4750 5350 4650
-Wire Wire Line
-	6300 1200 6000 1200
-Wire Wire Line
-	6000 1200 5750 1200
-Wire Wire Line
-	5750 1200 5450 1200
-Wire Wire Line
-	5450 1200 5350 1200
-Wire Wire Line
-	5350 1200 5350 1300
-Connection ~ 16300 6550
-Wire Wire Line
-	16300 6450 16300 6550
-Wire Wire Line
-	6500 6950 6500 6850
-Wire Wire Line
-	3250 4300 3250 4400
-Wire Wire Line
-	14500 6850 14600 6850
-Wire Wire Line
-	14600 6850 14950 6850
-Wire Wire Line
-	14950 6850 15650 6850
-Wire Wire Line
-	14000 8900 13700 8900
-Wire Wire Line
-	13700 8900 13300 8900
-Wire Wire Line
-	4450 3350 4350 3350
-Connection ~ 11700 7750
-Wire Wire Line
-	11700 7500 11700 7750
-Wire Wire Line
-	11700 7750 11700 8000
-Wire Wire Line
-	11400 7900 11600 7900
-Wire Wire Line
-	15400 8650 15300 8650
-Wire Wire Line
-	15100 8800 15300 8800
-Wire Wire Line
-	12700 8600 12700 8700
-Wire Wire Line
-	13150 8900 13150 8800
-Wire Wire Line
-	13700 9000 13700 8900
-Wire Wire Line
-	13700 9500 13700 9400
-Wire Wire Line
-	13150 9400 13150 9300
-Connection ~ 13700 8900
-Connection ~ 13150 8800
-Connection ~ 12400 5150
-Wire Wire Line
-	13350 5150 12400 5150
-Wire Wire Line
-	12400 5150 12000 5150
-Connection ~ 12950 5250
-Wire Wire Line
-	12600 5250 12950 5250
-Wire Wire Line
-	12950 5250 13350 5250
-Wire Wire Line
-	12400 5750 12400 5650
-Wire Wire Line
-	12950 5850 12950 5750
-Connection ~ 14850 5150
-Wire Wire Line
-	14450 5150 14850 5150
-Wire Wire Line
-	14850 5150 15200 5150
-Wire Wire Line
-	14850 5750 14850 5650
-Wire Wire Line
-	4500 9300 5100 9300
-Wire Wire Line
-	5100 9900 5100 9800
-Wire Wire Line
-	5100 9200 5100 9300
-Wire Wire Line
-	5100 9300 5100 9400
-Connection ~ 5100 9300
-Wire Wire Line
-	4500 9900 4900 9900
-Wire Wire Line
-	4500 9700 4900 9700
-Wire Wire Line
-	4500 9500 4900 9500
-Wire Wire Line
-	3300 9800 2900 9800
-Wire Wire Line
-	2900 9600 3300 9600
-Wire Wire Line
-	2900 9400 3300 9400
-Wire Wire Line
-	3900 10350 3900 10250
-Wire Wire Line
-	2300 9100 2300 9300
-Wire Wire Line
-	2300 9300 2300 9400
-Wire Wire Line
-	2300 9100 900  9100
-Wire Wire Line
-	900  9100 900  9300
-Wire Wire Line
-	900  9300 1000 9300
-Wire Wire Line
-	13250 5850 13250 5950
-Wire Wire Line
-	14550 5450 14550 5350
-Connection ~ 12950 4250
-Wire Wire Line
-	12800 4250 12950 4250
-Wire Wire Line
-	12950 4350 12950 4250
-Wire Wire Line
-	12950 4250 12950 4000
-Wire Wire Line
-	12950 4850 12950 4750
-Wire Wire Line
-	13050 4000 13050 4100
-Wire Wire Line
-	13050 4100 13250 4100
-Wire Wire Line
-	13150 3000 13050 3000
-Wire Wire Line
-	9550 3850 9550 3750
-Wire Wire Line
-	9250 3650 9250 6200
-Wire Wire Line
-	9250 6200 7200 6200
-Wire Wire Line
-	9550 3350 9550 3250
-Wire Wire Line
-	9550 3250 9550 3050
-Connection ~ 9650 2050
-Wire Wire Line
-	9750 2050 9650 2050
-Wire Wire Line
-	7700 6000 7600 6000
-Wire Wire Line
-	7100 6300 7100 6000
-Wire Wire Line
-	7100 6000 7100 5850
-Connection ~ 7000 7300
-Wire Wire Line
-	7000 7450 7000 7300
-Wire Wire Line
-	7000 7300 7000 7200
-Wire Wire Line
-	15950 6550 16300 6550
-Wire Wire Line
-	16300 6550 16650 6550
-Connection ~ 14600 6850
-Connection ~ 13800 6850
-Wire Wire Line
-	13900 6850 13800 6850
-Wire Wire Line
-	13800 6850 13700 6850
-Wire Wire Line
-	14000 9000 13900 9000
-Wire Wire Line
-	13900 9000 13900 9600
-Wire Wire Line
-	13900 9600 10200 9600
-Wire Wire Line
-	10200 9600 10200 8600
-Wire Wire Line
-	13800 7900 13800 6850
-Wire Wire Line
-	13900 7900 13800 7900
-Wire Wire Line
-	13800 7900 13700 7900
-Wire Wire Line
-	12700 8700 14000 8700
-Wire Wire Line
-	11400 8100 12200 8100
-Wire Wire Line
-	12700 7900 12800 7900
-Wire Wire Line
-	13800 8000 13700 8000
-Wire Wire Line
-	13900 4500 13900 4600
-Wire Wire Line
-	10300 8100 10200 8100
-Wire Wire Line
-	10200 8100 10200 8200
-Wire Wire Line
-	10850 8650 10850 8550
-Wire Wire Line
-	14950 7450 14950 7350
-Wire Wire Line
-	15100 8700 15200 8700
-Wire Wire Line
-	1850 7600 1850 7700
-Wire Wire Line
-	1850 7700 1850 8100
-Wire Wire Line
-	13350 5050 13250 5050
-Wire Wire Line
-	13250 5050 13250 4950
-Wire Wire Line
-	15700 9100 15700 9000
-Wire Wire Line
-	1950 7600 1950 7850
-Wire Wire Line
-	14550 1600 2050 1600
-Wire Wire Line
-	14550 1600 14550 4550
-Wire Wire Line
-	12850 4000 12850 4100
-Wire Wire Line
-	12850 4100 12750 4100
-Wire Wire Line
-	12850 3000 12850 3100
-Wire Wire Line
-	10450 4250 10450 4150
-Wire Wire Line
-	10250 3250 10250 3150
-Wire Wire Line
-	10250 3150 10150 3150
-Wire Wire Line
-	9450 2050 9450 2150
-Wire Wire Line
-	9450 1900 9550 1900
-Wire Wire Line
-	2050 7600 2050 7700
-Wire Wire Line
-	1850 6700 1850 6600
-Wire Wire Line
-	1850 6600 1750 6600
-Wire Wire Line
-	2450 6700 2450 6600
-Wire Wire Line
-	2450 6600 2050 6600
-Wire Wire Line
-	2050 6600 2050 6700
-Wire Wire Line
-	1250 2700 1350 2700
-Wire Wire Line
-	1250 1600 1350 1600
-Wire Wire Line
-	1950 3100 1950 2600
-Wire Wire Line
-	7000 6300 7000 6200
-Wire Wire Line
-	7000 6200 6900 6200
-Wire Wire Line
-	5800 6200 5700 6200
-Wire Wire Line
-	5700 6200 5700 5550
-Wire Wire Line
-	5700 5550 5550 5550
-Wire Wire Line
-	2550 4550 1950 4550
-Wire Wire Line
-	9050 1900 2650 1900
-Wire Wire Line
-	2650 1900 2650 3550
-Wire Wire Line
-	4150 4450 4150 4550
-Wire Wire Line
-	4150 3850 4150 3750
-Connection ~ 10350 2400
-Wire Wire Line
-	10350 2250 10350 2400
-Wire Wire Line
-	10350 2400 10350 3250
-Wire Wire Line
-	10950 2400 10850 2400
-Wire Wire Line
-	11050 2850 10950 2850
-Wire Wire Line
-	5450 4650 5450 5150
-Wire Wire Line
-	5450 5150 5450 6350
-Wire Wire Line
-	5550 5650 5550 5550
-Wire Wire Line
-	5550 5550 5550 5450
-Wire Wire Line
-	5550 5450 5550 4650
-Connection ~ 5550 5550
-Wire Wire Line
-	10250 5000 10250 4900
-Wire Wire Line
-	10250 4500 10250 4400
-Wire Wire Line
-	10250 4400 10250 4150
-Wire Wire Line
-	12350 2850 12250 2850
-Wire Wire Line
-	1600 10350 1600 10250
-Wire Wire Line
-	4350 6050 4350 5950
-Wire Wire Line
-	9050 9200 9050 9100
-Wire Wire Line
-	9050 10300 9050 10200
-Connection ~ 2550 9300
-Wire Wire Line
-	2550 9200 2550 9300
-Wire Wire Line
-	2550 9300 2550 9400
-Wire Wire Line
-	2550 9900 2550 9800
-Wire Wire Line
-	2200 9700 2350 9700
-Wire Wire Line
-	2200 9900 2350 9900
-Wire Wire Line
-	1000 9800 600  9800
-Wire Wire Line
-	600  9600 1000 9600
-Connection ~ 7350 5050
-Wire Wire Line
-	7350 5050 7350 4750
-Wire Wire Line
-	6350 5750 6350 5650
-Wire Wire Line
-	6950 5750 6950 5650
-Connection ~ 6950 4850
-Wire Wire Line
-	6950 4850 6950 5250
-Connection ~ 6350 5050
-Wire Wire Line
-	6350 5250 6350 5050
-Wire Wire Line
-	7150 4150 7150 4250
-Wire Wire Line
-	5650 5150 5650 4650
-Wire Wire Line
-	5850 4950 5850 4650
-Wire Wire Line
-	7650 3550 7550 3550
-Connection ~ 6000 800 
-Wire Wire Line
-	4800 800  4500 800 
-Wire Wire Line
-	4500 800  4400 800 
-Connection ~ 5450 800 
-Connection ~ 4500 800 
-Connection ~ 6000 1200
-Wire Wire Line
-	4800 1200 4500 1200
-Wire Wire Line
-	4500 1200 4400 1200
-Connection ~ 5450 1200
-Connection ~ 4500 1200
-Wire Wire Line
-	6850 3450 6750 3450
-Connection ~ 8450 2150
-Wire Wire Line
-	8950 2250 8950 2150
-Wire Wire Line
-	8950 2150 8650 2150
-Wire Wire Line
-	8650 2150 8450 2150
-Wire Wire Line
-	8450 2150 8350 2150
-Connection ~ 8650 3350
-Wire Wire Line
-	8650 2650 8650 3350
-Wire Wire Line
-	8450 2150 8450 3250
-Wire Wire Line
-	8450 3250 6750 3250
-Wire Wire Line
-	7050 2750 7050 2650
-Wire Wire Line
-	7650 2150 7750 2150
-Wire Wire Line
-	7750 2150 7850 2150
-Wire Wire Line
-	7150 2150 7050 2150
-Wire Wire Line
-	7050 2150 6850 2150
-Wire Wire Line
-	6850 2150 6850 3150
-Wire Wire Line
-	6850 3150 6750 3150
-Wire Wire Line
-	4650 6050 4650 5950
-Wire Wire Line
-	5950 4650 5950 4850
-Wire Wire Line
-	5350 2350 5350 1950
-Wire Wire Line
-	6750 3850 6950 3850
-Wire Wire Line
-	5250 4650 5250 4850
-Connection ~ 5550 5450
-Wire Wire Line
-	5550 5450 5350 5450
-Wire Wire Line
-	4650 5150 4750 5150
-Connection ~ 16400 9400
-Wire Wire Line
-	10950 4100 11050 4100
-Wire Wire Line
-	4350 3650 4450 3650
-Wire Wire Line
-	5450 6350 5550 6350
-Wire Wire Line
-	5550 6350 5800 6350
-Wire Wire Line
-	6400 6350 6500 6350
-Wire Wire Line
-	12350 4400 12250 4400
-Wire Wire Line
-	12250 2550 12350 2550
-Wire Wire Line
-	10950 2550 11050 2550
-Connection ~ 16400 9500
-Wire Wire Line
-	16400 9200 16400 9300
-Wire Wire Line
-	16400 9300 16400 9400
-Wire Wire Line
-	16400 9400 16400 9500
-Wire Wire Line
-	16400 9500 16400 9600
-Connection ~ 16400 9300
-Wire Wire Line
-	5350 5150 5450 5150
-Connection ~ 5450 5150
-Wire Wire Line
-	4750 5450 4650 5450
-Connection ~ 4650 5150
-Wire Wire Line
-	5950 2350 5950 2000
-Wire Wire Line
-	5250 2350 5250 1950
-Wire Wire Line
-	4650 5050 4650 5150
-Wire Wire Line
-	4650 5150 4650 5350
-Wire Wire Line
-	4650 5350 4650 5450
-Wire Wire Line
-	4650 5450 4650 5550
-Connection ~ 4650 5450
-Wire Wire Line
-	7050 2250 7050 2150
-Connection ~ 7050 2150
-Wire Wire Line
-	7750 2250 7750 2150
-Connection ~ 7750 2150
-Wire Wire Line
-	7750 2750 7750 2650
-Wire Wire Line
-	6750 3350 8650 3350
-Wire Wire Line
-	8650 3350 8950 3350
-Wire Wire Line
-	8950 3350 8950 3250
-Wire Wire Line
-	8950 2750 8950 2650
-Wire Wire Line
-	8650 2150 8650 2250
-Connection ~ 8650 2150
-Wire Wire Line
-	4400 1200 4400 1300
-Connection ~ 4800 1200
-Connection ~ 5750 1200
-Wire Wire Line
-	4400 800  4400 700 
-Connection ~ 4800 800 
-Connection ~ 5750 800 
-Wire Wire Line
-	7050 3550 6750 3550
-Wire Wire Line
-	5850 2150 5850 2350
-Wire Wire Line
-	5650 2250 5650 2350
-Wire Wire Line
-	5750 4650 5750 5050
-Wire Wire Line
-	7150 5150 7150 4750
-Connection ~ 7150 5150
-Wire Wire Line
-	6050 5250 6050 5150
-Connection ~ 6050 5150
-Wire Wire Line
-	6650 4950 6650 5250
-Connection ~ 6650 4950
-Wire Wire Line
-	6650 5750 6650 5650
-Wire Wire Line
-	6050 5750 6050 5650
-Wire Wire Line
-	7350 4150 7350 4250
-Wire Wire Line
-	1000 9500 600  9500
-Wire Wire Line
-	600  9700 1000 9700
-Wire Wire Line
-	1000 9900 900  9900
-Wire Wire Line
-	900  9900 900  10000
-Wire Wire Line
-	2200 9800 2350 9800
-Wire Wire Line
-	2200 9600 2350 9600
-Wire Wire Line
-	2200 9300 2300 9300
-Wire Wire Line
-	2300 9300 2550 9300
-Wire Wire Line
-	9050 9600 9050 9700
-Wire Wire Line
-	9050 9700 9050 9800
-Wire Wire Line
-	9300 9700 9050 9700
-Connection ~ 9050 9700
-Wire Wire Line
-	15700 9700 15700 9600
-Wire Wire Line
-	6850 4250 6850 4150
-Wire Wire Line
-	6850 4150 6750 4150
-Wire Wire Line
-	5550 6250 5550 6350
-Connection ~ 5550 6350
-Wire Wire Line
-	4350 5550 4350 5350
-Wire Wire Line
-	4350 5350 4650 5350
-Connection ~ 4650 5350
-Wire Wire Line
-	2300 9400 2200 9400
-Connection ~ 2300 9300
-Wire Wire Line
-	12250 4100 12350 4100
-Wire Wire Line
-	10100 4400 10250 4400
-Connection ~ 10250 4400
-Wire Wire Line
-	10950 4400 11050 4400
-Wire Wire Line
-	10450 2400 10350 2400
-Wire Wire Line
-	1750 7700 1850 7700
-Connection ~ 1850 7700
-Wire Wire Line
-	2050 6450 1950 6450
-Wire Wire Line
-	2550 6450 2450 6450
-Wire Wire Line
-	1950 6050 1950 6450
-Wire Wire Line
-	1950 6450 1950 6700
-Connection ~ 1950 6450
-Connection ~ 1950 1450
-Wire Wire Line
-	1950 1050 1950 1450
-Wire Wire Line
-	1950 1450 1950 1700
-Wire Wire Line
-	2550 1450 2450 1450
-Wire Wire Line
-	2050 1450 1950 1450
-Wire Wire Line
-	1850 2600 1850 2700
-Wire Wire Line
-	1850 2700 1850 3100
-Connection ~ 1850 2700
-Wire Wire Line
-	3250 4400 3350 4400
-Wire Wire Line
-	4450 3750 4150 3750
-Wire Wire Line
-	4150 3750 4050 3750
-Wire Wire Line
-	4050 3750 4050 4400
-Wire Wire Line
-	4050 4400 3950 4400
-Connection ~ 4150 3750
-Wire Wire Line
-	3950 4550 4150 4550
-Wire Wire Line
-	4150 4550 4350 4550
-Wire Wire Line
-	4350 4550 4350 3850
-Wire Wire Line
-	4350 3850 4450 3850
-Connection ~ 4150 4550
-Wire Wire Line
-	2850 3450 2750 3450
-Wire Wire Line
-	2850 4550 2750 4550
-Wire Wire Line
-	2750 4550 2750 4450
-Connection ~ 2650 4650
-Wire Wire Line
-	2500 4650 2650 4650
-Wire Wire Line
-	2550 3450 2550 3550
-Wire Wire Line
-	2550 4550 2550 4450
-Wire Wire Line
-	2650 4750 2650 4650
-Wire Wire Line
-	2650 4650 2650 4450
-Wire Wire Line
-	2650 5250 2650 5150
-Wire Wire Line
-	3250 4550 3350 4550
-Wire Wire Line
-	3350 3450 3250 3450
-Wire Wire Line
-	2750 3300 2750 3450
-Wire Wire Line
-	2750 3450 2750 3550
-Connection ~ 2750 3450
-Wire Wire Line
-	1950 4550 1950 3500
-Wire Wire Line
-	6400 6200 6500 6200
-Wire Wire Line
-	7200 6200 7200 6300
-Wire Wire Line
-	2050 2700 2050 2600
-Wire Wire Line
-	1750 1600 1850 1600
-Wire Wire Line
-	1850 1600 1850 1700
-Wire Wire Line
-	1750 2700 1850 2700
-Wire Wire Line
-	2050 1600 2050 1700
-Wire Wire Line
-	2450 7100 2450 7600
-Wire Wire Line
-	2450 7600 7100 7600
-Wire Wire Line
-	7100 7600 7100 7200
-Wire Wire Line
-	1250 6600 1350 6600
-Wire Wire Line
-	1250 7700 1350 7700
-Wire Wire Line
-	9450 3050 9450 3150
-Wire Wire Line
-	9550 1900 9550 2150
-Wire Wire Line
-	9650 3050 9650 3150
-Wire Wire Line
-	9650 3150 9750 3150
-Wire Wire Line
-	10450 3250 10450 2850
-Wire Wire Line
-	10450 2850 10550 2850
-Wire Wire Line
-	10350 4150 10350 4400
-Wire Wire Line
-	10350 4400 10550 4400
-Wire Wire Line
-	12750 2850 12950 2850
-Wire Wire Line
-	12950 2850 12950 3100
-Wire Wire Line
-	13250 4100 13250 4550
-Wire Wire Line
-	14450 5050 14550 5050
-Wire Wire Line
-	14550 5050 14550 4950
-Wire Wire Line
-	13350 5350 13250 5350
-Wire Wire Line
-	14550 5350 14450 5350
-Wire Wire Line
-	15600 9000 15700 9000
-Wire Wire Line
-	15700 9000 15800 9000
-Connection ~ 15700 9000
-Wire Wire Line
-	13250 5950 9700 5950
-Wire Wire Line
-	9700 5950 9700 7850
-Wire Wire Line
-	9700 7850 1950 7850
-Wire Wire Line
-	11400 7800 11500 7800
-Wire Wire Line
-	10200 6250 14550 6250
-Wire Wire Line
-	10200 6250 10200 7800
-Wire Wire Line
-	10200 7800 10300 7800
-Wire Wire Line
-	14600 7450 14600 7350
-Wire Wire Line
-	14550 8150 14550 8250
-Connection ~ 13800 7900
-Connection ~ 12700 8100
-Wire Wire Line
-	13800 8100 13700 8100
-Wire Wire Line
-	12800 8000 12700 8000
-Wire Wire Line
-	12800 8100 12700 8100
-Wire Wire Line
-	12700 8100 12600 8100
-Wire Wire Line
-	14300 7900 15200 7900
-Wire Wire Line
-	15200 7900 15200 8700
-Wire Wire Line
-	11500 7800 11500 6850
-Wire Wire Line
-	11500 6850 13300 6850
-Wire Wire Line
-	15650 6250 15650 6350
-Wire Wire Line
-	14600 6850 14600 6950
-Connection ~ 14950 6850
-Wire Wire Line
-	6900 7300 7000 7300
-Wire Wire Line
-	6400 7300 6500 7300
-Wire Wire Line
-	7200 6000 7100 6000
-Connection ~ 7100 6000
-Wire Wire Line
-	9650 2150 9650 2050
-Wire Wire Line
-	9650 2050 9650 1900
-Wire Wire Line
-	10250 2050 10150 2050
-Wire Wire Line
-	9450 3150 9250 3150
-Wire Wire Line
-	9250 3150 9250 3250
-Wire Wire Line
-	9400 3250 9550 3250
-Connection ~ 9550 3250
-Wire Wire Line
-	13650 3000 13550 3000
-Wire Wire Line
-	13050 2850 13050 3000
-Wire Wire Line
-	13050 3000 13050 3100
-Connection ~ 13050 3000
-Wire Wire Line
-	15100 9000 15200 9000
-Wire Wire Line
-	14550 6250 14550 5850
-Wire Wire Line
-	13250 5350 13250 5450
-Wire Wire Line
-	3200 10000 3200 9900
-Wire Wire Line
-	3200 9900 3300 9900
-Wire Wire Line
-	3300 9300 2900 9300
-Wire Wire Line
-	3300 9500 2900 9500
-Wire Wire Line
-	3300 9700 2900 9700
-Wire Wire Line
-	4500 9400 4900 9400
-Wire Wire Line
-	4500 9600 4900 9600
-Wire Wire Line
-	4500 9800 4900 9800
-Wire Wire Line
-	14850 5250 14850 5150
-Wire Wire Line
-	12950 5350 12950 5250
-Wire Wire Line
-	12400 5250 12400 5150
-Wire Wire Line
-	12700 8200 12700 8100
-Wire Wire Line
-	15900 8650 15800 8650
-Wire Wire Line
-	15300 8800 15300 8650
-Wire Wire Line
-	15300 8650 15300 8400
-Connection ~ 15300 8650
-Connection ~ 9900 8000
-Wire Wire Line
-	9500 8000 9900 8000
-Wire Wire Line
-	9900 8000 10300 8000
-Wire Wire Line
-	9900 8600 9900 8500
-Wire Wire Line
-	9900 8100 9900 8000
-Connection ~ 11600 7300
-Wire Wire Line
-	11600 7900 11600 7300
-Wire Wire Line
-	11600 7300 11600 7050
-Wire Wire Line
-	12200 7300 12100 7300
-Wire Wire Line
-	11700 7300 11600 7300
-Wire Wire Line
-	12350 7750 12250 7750
-Wire Wire Line
-	11700 8000 11400 8000
-Wire Wire Line
-	11850 7750 11700 7750
-Wire Wire Line
-	14000 8800 13150 8800
-Wire Wire Line
-	13150 8800 12900 8800
-Wire Wire Line
-	7200 7300 7200 7200
-Wire Wire Line
-	14950 6950 14950 6850
-Wire Wire Line
-	15650 6850 15650 6750
-Wire Wire Line
-	3250 3800 3250 3900
-Wire Wire Line
-	6500 6350 6500 6450
-Wire Wire Line
-	19000 6700 19000 6800
-Wire Wire Line
-	18300 6900 18300 6800
-Connection ~ 18300 6800
-Wire Wire Line
-	17950 6800 17950 6900
-Wire Wire Line
-	17950 7400 17950 7300
-Wire Wire Line
-	18300 7400 18300 7300
-Connection ~ 17950 6800
-Wire Wire Line
-	16300 5850 16300 5950
-Wire Wire Line
-	19000 6800 18300 6800
-Wire Wire Line
-	18300 6800 17950 6800
-Wire Wire Line
-	17950 6800 17850 6800
-Wire Wire Line
-	5350 700  5350 800 
-Wire Wire Line
-	5350 800  5450 800 
-Wire Wire Line
-	5450 800  5750 800 
-Wire Wire Line
-	5750 800  6000 800 
-Wire Wire Line
-	6000 800  6300 800 
-Wire Wire Line
-	5750 5050 6350 5050
-Wire Wire Line
-	6350 5050 7350 5050
-Wire Wire Line
-	7350 5050 7450 5050
-Wire Wire Line
-	5950 4850 6950 4850
-Wire Wire Line
-	6950 4850 7450 4850
 $Comp
 L CONN_1 P?
 U 1 1 5043D78C
-P 5350 4900
-F 0 "P?" H 5430 4900 40  0000 L CNN
-F 1 "GPO4" H 5350 4955 30  0001 C CNN
-F 4 "DNP" H 5350 4900 60  0001 C CNN "Note"
-	1    5350 4900
+P 5100 4500
+F 0 "P?" H 5180 4500 40  0000 L CNN
+F 1 "GPO4" H 5100 4555 30  0001 C CNN
+F 4 "DNP" H 5100 4500 60  0001 C CNN "Note"
+	1    5100 4500
 	0    1    1    0   
 $EndComp
-Text Label 5250 4850 1    40   ~ 0
+Text Label 5000 4450 1    40   ~ 0
 TX
-Text GLabel 9050 9100 1    40   Input ~ 0
+Text GLabel 8100 9100 1    40   Input ~ 0
 MIX_CLK
 $Comp
 L VAA #PWR46
 U 1 1 5043D026
-P 16300 5850
-F 0 "#PWR46" H 16300 5910 30  0001 C CNN
-F 1 "VAA" H 16300 5960 30  0000 C CNN
-	1    16300 5850
+P 16050 5450
+F 0 "#PWR46" H 16050 5510 30  0001 C CNN
+F 1 "VAA" H 16050 5560 30  0000 C CNN
+	1    16050 5450
 	1    0    0    -1  
 $EndComp
 $Comp
 L VAA #PWR50
 U 1 1 5043D020
-P 15650 6250
-F 0 "#PWR50" H 15650 6310 30  0001 C CNN
-F 1 "VAA" H 15650 6360 30  0000 C CNN
-	1    15650 6250
+P 15400 5850
+F 0 "#PWR50" H 15400 5910 30  0001 C CNN
+F 1 "VAA" H 15400 5960 30  0000 C CNN
+	1    15400 5850
 	1    0    0    -1  
 $EndComp
 $Comp
 L VAA #PWR2
 U 1 1 5043CFFC
-P 5350 700
-F 0 "#PWR2" H 5350 760 30  0001 C CNN
-F 1 "VAA" H 5350 810 30  0000 C CNN
-	1    5350 700 
+P 5650 7850
+F 0 "#PWR2" H 5650 7910 30  0001 C CNN
+F 1 "VAA" H 5650 7960 30  0000 C CNN
+	1    5650 7850
 	1    0    0    -1  
 $EndComp
 $Comp
 L GND #PWR4
 U 1 1 5043CFF1
-P 5350 1300
-F 0 "#PWR4" H 5350 1300 30  0001 C CNN
-F 1 "GND" H 5350 1230 30  0001 C CNN
-	1    5350 1300
+P 5650 8450
+F 0 "#PWR4" H 5650 8450 30  0001 C CNN
+F 1 "GND" H 5650 8380 30  0001 C CNN
+	1    5650 8450
 	1    0    0    -1  
 $EndComp
 $Comp
 L VAA #PWR21
 U 1 1 5043CF9A
-P 6850 3450
-F 0 "#PWR21" H 6850 3510 30  0001 C CNN
-F 1 "VAA" H 6850 3560 30  0000 C CNN
-	1    6850 3450
+P 6600 3050
+F 0 "#PWR21" H 6600 3110 30  0001 C CNN
+F 1 "VAA" H 6600 3160 30  0000 C CNN
+	1    6600 3050
 	0    1    1    0   
 $EndComp
 $Comp
 L VAA #PWR23
 U 1 1 5043CF97
-P 4350 3650
-F 0 "#PWR23" H 4350 3710 30  0001 C CNN
-F 1 "VAA" H 4350 3760 30  0000 C CNN
-	1    4350 3650
+P 4100 3250
+F 0 "#PWR23" H 4100 3310 30  0001 C CNN
+F 1 "VAA" H 4100 3360 30  0000 C CNN
+	1    4100 3250
 	0    -1   -1   0   
 $EndComp
 $Comp
 L R R24
 U 1 1 503C490B
-P 19650 6150
-F 0 "R24" V 19730 6150 50  0000 C CNN
-F 1 "4k7" V 19650 6150 50  0000 C CNN
-F 4 "Stackpole" H 19650 6150 60  0001 C CNN "Manufacturer"
-F 5 "RMCF0402JT4K70" H 19650 6150 60  0001 C CNN "Part Number"
-F 6 "RES 4.7K OHM 1/16W 5% 0402 SMD" H 19650 6150 60  0001 C CNN "Description"
-	1    19650 6150
+P 19400 5750
+F 0 "R24" V 19480 5750 50  0000 C CNN
+F 1 "4k7" V 19400 5750 50  0000 C CNN
+F 4 "Stackpole" H 19400 5750 60  0001 C CNN "Manufacturer"
+F 5 "RMCF0402JT4K70" H 19400 5750 60  0001 C CNN "Part Number"
+F 6 "RES 4.7K OHM 1/16W 5% 0402 SMD" H 19400 5750 60  0001 C CNN "Description"
+	1    19400 5750
 	1    0    0    -1  
 $EndComp
 $Comp
 L R R29
 U 1 1 503C48ED
-P 16300 6200
-F 0 "R29" V 16380 6200 50  0000 C CNN
-F 1 "4k7" V 16300 6200 50  0000 C CNN
-F 4 "Stackpole" H 16300 6200 60  0001 C CNN "Manufacturer"
-F 5 "RMCF0402JT4K70" H 16300 6200 60  0001 C CNN "Part Number"
-F 6 "RES 4.7K OHM 1/16W 5% 0402 SMD" H 16300 6200 60  0001 C CNN "Description"
-	1    16300 6200
+P 16050 5800
+F 0 "R29" V 16130 5800 50  0000 C CNN
+F 1 "4k7" V 16050 5800 50  0000 C CNN
+F 4 "Stackpole" H 16050 5800 60  0001 C CNN "Manufacturer"
+F 5 "RMCF0402JT4K70" H 16050 5800 60  0001 C CNN "Part Number"
+F 6 "RES 4.7K OHM 1/16W 5% 0402 SMD" H 16050 5800 60  0001 C CNN "Description"
+	1    16050 5800
 	1    0    0    -1  
 $EndComp
 $Comp
 L MGA-81563 U25
 U 1 1 503BF2DD
-P 18100 7950
-F 0 "U25" H 18100 8000 60  0000 C CNN
-F 1 "MGA-81563" H 18100 7900 60  0000 C CNN
-F 4 "Avago" H 18100 7950 60  0001 C CNN "Manufacturer"
-F 5 "MGA-81563" H 18100 7950 60  0001 C CNN "Part Number"
-F 6 "0.1-6 GHz 3 V, 14 dBm Amplifier" H 18100 7950 60  0001 C CNN "Description"
-	1    18100 7950
+P 17850 7550
+F 0 "U25" H 17850 7600 60  0000 C CNN
+F 1 "MGA-81563" H 17850 7500 60  0000 C CNN
+F 4 "Avago" H 17850 7550 60  0001 C CNN "Manufacturer"
+F 5 "MGA-81563" H 17850 7550 60  0001 C CNN "Part Number"
+F 6 "0.1-6 GHz 3 V, 14 dBm Amplifier" H 17850 7550 60  0001 C CNN "Description"
+	1    17850 7550
 	0    1    1    0   
 $EndComp
 $Comp
 L INDUCTOR L12
 U 1 1 503BF2DC
-P 17550 6800
-F 0 "L12" V 17500 6800 40  0000 C CNN
-F 1 "1uH" V 17650 6800 40  0000 C CNN
-F 4 "Taiyo Yuden" H 17550 6800 60  0001 C CNN "Manufacturer"
-F 5 "BRL1608T1R0M" H 17550 6800 60  0001 C CNN "Part Number"
-F 6 "INDUCTR 1.0UH 650MA 20% 0603 SMD" H 17550 6800 60  0001 C CNN "Description"
-	1    17550 6800
+P 17300 6400
+F 0 "L12" V 17250 6400 40  0000 C CNN
+F 1 "1uH" V 17400 6400 40  0000 C CNN
+F 4 "Taiyo Yuden" H 17300 6400 60  0001 C CNN "Manufacturer"
+F 5 "BRL1608T1R0M" H 17300 6400 60  0001 C CNN "Part Number"
+F 6 "INDUCTR 1.0UH 650MA 20% 0603 SMD" H 17300 6400 60  0001 C CNN "Description"
+	1    17300 6400
 	0    1    1    0   
 $EndComp
 $Comp
 L C C160
 U 1 1 503BF2DB
-P 17950 7100
-F 0 "C160" H 18000 7200 50  0000 L CNN
-F 1 "100pF" H 18000 7000 50  0000 L CNN
-F 4 "Murata" H 20950 8650 60  0001 C CNN "Manufacturer"
-F 5 "GRM1555C1H101JZ01D" H 20950 8650 60  0001 C CNN "Part Number"
-F 6 "CAP CER 100PF 50V 5% NP0 0402" H 20950 8650 60  0001 C CNN "Description"
-	1    17950 7100
+P 17700 6700
+F 0 "C160" H 17750 6800 50  0000 L CNN
+F 1 "100pF" H 17750 6600 50  0000 L CNN
+F 4 "Murata" H 20700 8250 60  0001 C CNN "Manufacturer"
+F 5 "GRM1555C1H101JZ01D" H 20700 8250 60  0001 C CNN "Part Number"
+F 6 "CAP CER 100PF 50V 5% NP0 0402" H 20700 8250 60  0001 C CNN "Description"
+	1    17700 6700
 	1    0    0    -1  
 $EndComp
 $Comp
 L C C161
 U 1 1 503BF2DA
-P 18300 7100
-F 0 "C161" H 18350 7200 50  0000 L CNN
-F 1 "1uF" H 18350 7000 50  0000 L CNN
-F 4 "Murata" H 18300 7100 60  0001 C CNN "Manufacturer"
-F 5 "GRM155R61A105ME15D" H 18300 7100 60  0001 C CNN "Part Number"
-F 6 "CAP CER 1UF 10V 20% X5R 0402" H 18300 7100 60  0001 C CNN "Description"
-	1    18300 7100
+P 18050 6700
+F 0 "C161" H 18100 6800 50  0000 L CNN
+F 1 "1uF" H 18100 6600 50  0000 L CNN
+F 4 "Murata" H 18050 6700 60  0001 C CNN "Manufacturer"
+F 5 "GRM155R61A105ME15D" H 18050 6700 60  0001 C CNN "Part Number"
+F 6 "CAP CER 1UF 10V 20% X5R 0402" H 18050 6700 60  0001 C CNN "Description"
+	1    18050 6700
 	1    0    0    -1  
 $EndComp
 $Comp
 L GND #PWR56
 U 1 1 503BF2D9
-P 17950 7400
-F 0 "#PWR56" H 17950 7400 30  0001 C CNN
-F 1 "GND" H 17950 7330 30  0001 C CNN
-	1    17950 7400
+P 17700 7000
+F 0 "#PWR56" H 17700 7000 30  0001 C CNN
+F 1 "GND" H 17700 6930 30  0001 C CNN
+	1    17700 7000
 	1    0    0    -1  
 $EndComp
 $Comp
 L GND #PWR57
 U 1 1 503BF2D8
-P 18300 7400
-F 0 "#PWR57" H 18300 7400 30  0001 C CNN
-F 1 "GND" H 18300 7330 30  0001 C CNN
-	1    18300 7400
+P 18050 7000
+F 0 "#PWR57" H 18050 7000 30  0001 C CNN
+F 1 "GND" H 18050 6930 30  0001 C CNN
+	1    18050 7000
 	1    0    0    -1  
 $EndComp
 $Comp
 L MOSFET_P Q2
 U 1 1 503BF2D7
-P 19100 6500
-F 0 "Q2" H 19100 6690 60  0000 R CNN
-F 1 "MOSFET_P" H 19100 6320 60  0000 R CNN
-F 4 "Fairchild" H 19100 6500 60  0001 C CNN "Manufacturer"
-F 5 "BSS84" H 19100 6500 60  0001 C CNN "Part Number"
-F 6 "MOSFET P-CH 50V 130MA SOT-23" H 19100 6500 60  0001 C CNN "Description"
-	1    19100 6500
+P 18850 6100
+F 0 "Q2" H 18850 6290 60  0000 R CNN
+F 1 "MOSFET_P" H 18850 5920 60  0000 R CNN
+F 4 "Fairchild" H 18850 6100 60  0001 C CNN "Manufacturer"
+F 5 "BSS84" H 18850 6100 60  0001 C CNN "Part Number"
+F 6 "MOSFET P-CH 50V 130MA SOT-23" H 18850 6100 60  0001 C CNN "Description"
+	1    18850 6100
 	-1   0    0    1   
 $EndComp
 $Comp
 L C C162
 U 1 1 503BF2D5
-P 18700 7250
-F 0 "C162" H 18750 7350 50  0000 L CNN
-F 1 "10nF" H 18750 7150 50  0000 L CNN
-F 4 "Murata" H 25100 6000 60  0001 C CNN "Manufacturer"
-F 5 "GRM155R71C103KA01D" H 25100 6000 60  0001 C CNN "Part Number"
-F 6 "CAP CER 10000PF 16V 10% X7R 0402" H 25100 6000 60  0001 C CNN "Description"
-	1    18700 7250
+P 18450 6850
+F 0 "C162" H 18500 6950 50  0000 L CNN
+F 1 "10nF" H 18500 6750 50  0000 L CNN
+F 4 "Murata" H 24850 5600 60  0001 C CNN "Manufacturer"
+F 5 "GRM155R71C103KA01D" H 24850 5600 60  0001 C CNN "Part Number"
+F 6 "CAP CER 10000PF 16V 10% X7R 0402" H 24850 5600 60  0001 C CNN "Description"
+	1    18450 6850
 	1    0    0    1   
 $EndComp
 $Comp
 L C C163
 U 1 1 503BF2CB
-P 15350 7300
-F 0 "C163" H 15400 7400 50  0000 L CNN
-F 1 "10nF" H 15400 7200 50  0000 L CNN
-F 4 "Murata" H 21750 6050 60  0001 C CNN "Manufacturer"
-F 5 "GRM155R71C103KA01D" H 21750 6050 60  0001 C CNN "Part Number"
-F 6 "CAP CER 10000PF 16V 10% X7R 0402" H 21750 6050 60  0001 C CNN "Description"
-	1    15350 7300
+P 15100 6900
+F 0 "C163" H 15150 7000 50  0000 L CNN
+F 1 "10nF" H 15150 6800 50  0000 L CNN
+F 4 "Murata" H 21500 5650 60  0001 C CNN "Manufacturer"
+F 5 "GRM155R71C103KA01D" H 21500 5650 60  0001 C CNN "Part Number"
+F 6 "CAP CER 10000PF 16V 10% X7R 0402" H 21500 5650 60  0001 C CNN "Description"
+	1    15100 6900
 	1    0    0    1   
 $EndComp
 $Comp
 L INDUCTOR L3
 U 1 1 503BF2B7
-P 5050 5450
-F 0 "L3" V 5000 5450 40  0000 C CNN
-F 1 "1uH" V 5150 5450 40  0000 C CNN
-F 4 "Taiyo Yuden" H 5050 5450 60  0001 C CNN "Manufacturer"
-F 5 "BRL1608T1R0M" H 5050 5450 60  0001 C CNN "Part Number"
-F 6 "INDUCTR 1.0UH 650MA 20% 0603 SMD" H 5050 5450 60  0001 C CNN "Description"
-	1    5050 5450
+P 4800 5050
+F 0 "L3" V 4750 5050 40  0000 C CNN
+F 1 "1uH" V 4900 5050 40  0000 C CNN
+F 4 "Taiyo Yuden" H 4800 5050 60  0001 C CNN "Manufacturer"
+F 5 "BRL1608T1R0M" H 4800 5050 60  0001 C CNN "Part Number"
+F 6 "INDUCTR 1.0UH 650MA 20% 0603 SMD" H 4800 5050 60  0001 C CNN "Description"
+	1    4800 5050
 	0    1    1    0   
 $EndComp
 $Comp
 L INDUCTOR L2
 U 1 1 503BF2A7
-P 5050 5150
-F 0 "L2" V 5000 5150 40  0000 C CNN
-F 1 "1uH" V 5150 5150 40  0000 C CNN
-F 4 "Taiyo Yuden" H 5050 5150 60  0001 C CNN "Manufacturer"
-F 5 "BRL1608T1R0M" H 5050 5150 60  0001 C CNN "Part Number"
-F 6 "INDUCTR 1.0UH 650MA 20% 0603 SMD" H 5050 5150 60  0001 C CNN "Description"
-	1    5050 5150
+P 4800 4750
+F 0 "L2" V 4750 4750 40  0000 C CNN
+F 1 "1uH" V 4900 4750 40  0000 C CNN
+F 4 "Taiyo Yuden" H 4800 4750 60  0001 C CNN "Manufacturer"
+F 5 "BRL1608T1R0M" H 4800 4750 60  0001 C CNN "Part Number"
+F 6 "INDUCTR 1.0UH 650MA 20% 0603 SMD" H 4800 4750 60  0001 C CNN "Description"
+	1    4800 4750
 	0    1    1    0   
 $EndComp
-Text GLabel 1250 1600 0    60   Input ~ 0
+Text GLabel 1000 1150 0    60   Input ~ 0
 TX_IF
-Text GLabel 1250 6600 0    60   Input ~ 0
+Text GLabel 1000 6200 0    60   Input ~ 0
 RX_IF
 $Comp
 L C C49
 U 1 1 503BB2CE
-P 6500 6650
-F 0 "C49" H 6550 6750 50  0000 L CNN
-F 1 "10nF" H 6550 6550 50  0000 L CNN
-F 4 "Murata" H 12900 5400 60  0001 C CNN "Manufacturer"
-F 5 "GRM155R71C103KA01D" H 12900 5400 60  0001 C CNN "Part Number"
-F 6 "CAP CER 10000PF 16V 10% X7R 0402" H 12900 5400 60  0001 C CNN "Description"
-	1    6500 6650
+P 6250 6250
+F 0 "C49" H 6300 6350 50  0000 L CNN
+F 1 "10nF" H 6300 6150 50  0000 L CNN
+F 4 "Murata" H 12650 5000 60  0001 C CNN "Manufacturer"
+F 5 "GRM155R71C103KA01D" H 12650 5000 60  0001 C CNN "Part Number"
+F 6 "CAP CER 10000PF 16V 10% X7R 0402" H 12650 5000 60  0001 C CNN "Description"
+	1    6250 6250
 	-1   0    0    1   
 $EndComp
 $Comp
 L C C25
 U 1 1 503BB2BD
-P 3250 4100
-F 0 "C25" H 3300 4200 50  0000 L CNN
-F 1 "10nF" H 3300 4000 50  0000 L CNN
-F 4 "Murata" H 9650 2850 60  0001 C CNN "Manufacturer"
-F 5 "GRM155R71C103KA01D" H 9650 2850 60  0001 C CNN "Part Number"
-F 6 "CAP CER 10000PF 16V 10% X7R 0402" H 9650 2850 60  0001 C CNN "Description"
-	1    3250 4100
+P 3000 3700
+F 0 "C25" H 3050 3800 50  0000 L CNN
+F 1 "10nF" H 3050 3600 50  0000 L CNN
+F 4 "Murata" H 9400 2450 60  0001 C CNN "Manufacturer"
+F 5 "GRM155R71C103KA01D" H 9400 2450 60  0001 C CNN "Part Number"
+F 6 "CAP CER 10000PF 16V 10% X7R 0402" H 9400 2450 60  0001 C CNN "Description"
+	1    3000 3700
 	-1   0    0    1   
 $EndComp
 $Comp
 L GND #PWR54
 U 1 1 502E7B4C
-P 7200 7300
-F 0 "#PWR54" H 7200 7300 30  0001 C CNN
-F 1 "GND" H 7200 7230 30  0001 C CNN
-	1    7200 7300
+P 6950 6900
+F 0 "#PWR54" H 6950 6900 30  0001 C CNN
+F 1 "GND" H 6950 6830 30  0001 C CNN
+	1    6950 6900
 	1    0    0    -1  
 $EndComp
-Text Label 11700 7500 3    40   ~ 0
+Text Label 11450 7100 3    40   ~ 0
 TX_AMP
 $Comp
 L GND #PWR62
 U 1 1 502E7A17
-P 12350 7750
-F 0 "#PWR62" H 12350 7750 30  0001 C CNN
-F 1 "GND" H 12350 7680 30  0001 C CNN
-	1    12350 7750
+P 12100 7350
+F 0 "#PWR62" H 12100 7350 30  0001 C CNN
+F 1 "GND" H 12100 7280 30  0001 C CNN
+	1    12100 7350
 	0    -1   -1   0   
 $EndComp
 $Comp
 L C C57
 U 1 1 502E7A16
-P 12050 7750
-F 0 "C57" H 12100 7850 50  0000 L CNN
-F 1 "33pF" H 12100 7650 50  0000 L CNN
-F 4 "Murata" H 23400 10000 60  0001 C CNN "Manufacturer"
-F 5 "GRM1555C1H330JZ01D" H 23400 10000 60  0001 C CNN "Part Number"
-F 6 "CAP CER 33PF 50V 5% NP0 0402" H 23400 10000 60  0001 C CNN "Description"
-	1    12050 7750
+P 11800 7350
+F 0 "C57" H 11850 7450 50  0000 L CNN
+F 1 "33pF" H 11850 7250 50  0000 L CNN
+F 4 "Murata" H 23150 9600 60  0001 C CNN "Manufacturer"
+F 5 "GRM1555C1H330JZ01D" H 23150 9600 60  0001 C CNN "Part Number"
+F 6 "CAP CER 33PF 50V 5% NP0 0402" H 23150 9600 60  0001 C CNN "Description"
+	1    11800 7350
 	0    -1   1    0   
 $EndComp
 $Comp
 L C C55
 U 1 1 502E7A10
-P 11900 7300
-F 0 "C55" H 11950 7400 50  0000 L CNN
-F 1 "33pF" H 11950 7200 50  0000 L CNN
-F 4 "Murata" H 23250 9550 60  0001 C CNN "Manufacturer"
-F 5 "GRM1555C1H330JZ01D" H 23250 9550 60  0001 C CNN "Part Number"
-F 6 "CAP CER 33PF 50V 5% NP0 0402" H 23250 9550 60  0001 C CNN "Description"
-	1    11900 7300
+P 11650 6900
+F 0 "C55" H 11700 7000 50  0000 L CNN
+F 1 "33pF" H 11700 6800 50  0000 L CNN
+F 4 "Murata" H 23000 9150 60  0001 C CNN "Manufacturer"
+F 5 "GRM1555C1H330JZ01D" H 23000 9150 60  0001 C CNN "Part Number"
+F 6 "CAP CER 33PF 50V 5% NP0 0402" H 23000 9150 60  0001 C CNN "Description"
+	1    11650 6900
 	0    -1   1    0   
 $EndComp
 $Comp
 L GND #PWR55
 U 1 1 502E7A0F
-P 12200 7300
-F 0 "#PWR55" H 12200 7300 30  0001 C CNN
-F 1 "GND" H 12200 7230 30  0001 C CNN
-	1    12200 7300
+P 11950 6900
+F 0 "#PWR55" H 11950 6900 30  0001 C CNN
+F 1 "GND" H 11950 6830 30  0001 C CNN
+	1    11950 6900
 	0    -1   -1   0   
 $EndComp
-Text Label 11600 7050 3    40   ~ 0
+Text Label 11350 6650 3    40   ~ 0
 RX_AMP
-Text Label 9500 8000 0    40   ~ 0
+Text Label 9250 7600 0    40   ~ 0
 AMP_BYPASS
 $Comp
 L GND #PWR68
 U 1 1 502E79FB
-P 9900 8600
-F 0 "#PWR68" H 9900 8600 30  0001 C CNN
-F 1 "GND" H 9900 8530 30  0001 C CNN
-	1    9900 8600
+P 9650 8200
+F 0 "#PWR68" H 9650 8200 30  0001 C CNN
+F 1 "GND" H 9650 8130 30  0001 C CNN
+	1    9650 8200
 	1    0    0    -1  
 $EndComp
 $Comp
 L C C60
 U 1 1 502E79FA
-P 9900 8300
-F 0 "C60" H 9950 8400 50  0000 L CNN
-F 1 "33pF" H 9950 8200 50  0000 L CNN
-F 4 "Murata" H 21250 10550 60  0001 C CNN "Manufacturer"
-F 5 "GRM1555C1H330JZ01D" H 21250 10550 60  0001 C CNN "Part Number"
-F 6 "CAP CER 33PF 50V 5% NP0 0402" H 21250 10550 60  0001 C CNN "Description"
-	1    9900 8300
+P 9650 7900
+F 0 "C60" H 9700 8000 50  0000 L CNN
+F 1 "33pF" H 9700 7800 50  0000 L CNN
+F 4 "Murata" H 21000 10150 60  0001 C CNN "Manufacturer"
+F 5 "GRM1555C1H330JZ01D" H 21000 10150 60  0001 C CNN "Part Number"
+F 6 "CAP CER 33PF 50V 5% NP0 0402" H 21000 10150 60  0001 C CNN "Description"
+	1    9650 7900
 	-1   0    0    1   
 $EndComp
-Text Label 15300 8400 3    40   ~ 0
+Text Label 15050 8000 3    40   ~ 0
 TX_AMP
 $Comp
 L GND #PWR70
 U 1 1 502E79D7
-P 15900 8650
-F 0 "#PWR70" H 15900 8650 30  0001 C CNN
-F 1 "GND" H 15900 8580 30  0001 C CNN
-	1    15900 8650
+P 15650 8250
+F 0 "#PWR70" H 15650 8250 30  0001 C CNN
+F 1 "GND" H 15650 8180 30  0001 C CNN
+	1    15650 8250
 	0    -1   -1   0   
 $EndComp
 $Comp
 L C C63
 U 1 1 502E79CE
-P 15600 8650
-F 0 "C63" H 15650 8750 50  0000 L CNN
-F 1 "33pF" H 15650 8550 50  0000 L CNN
-F 4 "Murata" H 26950 10900 60  0001 C CNN "Manufacturer"
-F 5 "GRM1555C1H330JZ01D" H 26950 10900 60  0001 C CNN "Part Number"
-F 6 "CAP CER 33PF 50V 5% NP0 0402" H 26950 10900 60  0001 C CNN "Description"
-	1    15600 8650
+P 15350 8250
+F 0 "C63" H 15400 8350 50  0000 L CNN
+F 1 "33pF" H 15400 8150 50  0000 L CNN
+F 4 "Murata" H 26700 10500 60  0001 C CNN "Manufacturer"
+F 5 "GRM1555C1H330JZ01D" H 26700 10500 60  0001 C CNN "Part Number"
+F 6 "CAP CER 33PF 50V 5% NP0 0402" H 26700 10500 60  0001 C CNN "Description"
+	1    15350 8250
 	0    -1   1    0   
 $EndComp
 $Comp
 L C C66
 U 1 1 502E798C
-P 13700 9200
-F 0 "C66" H 13750 9300 50  0000 L CNN
-F 1 "33pF" H 13750 9100 50  0000 L CNN
-F 4 "Murata" H 25050 11450 60  0001 C CNN "Manufacturer"
-F 5 "GRM1555C1H330JZ01D" H 25050 11450 60  0001 C CNN "Part Number"
-F 6 "CAP CER 33PF 50V 5% NP0 0402" H 25050 11450 60  0001 C CNN "Description"
-	1    13700 9200
+P 13450 8800
+F 0 "C66" H 13500 8900 50  0000 L CNN
+F 1 "33pF" H 13500 8700 50  0000 L CNN
+F 4 "Murata" H 24800 11050 60  0001 C CNN "Manufacturer"
+F 5 "GRM1555C1H330JZ01D" H 24800 11050 60  0001 C CNN "Part Number"
+F 6 "CAP CER 33PF 50V 5% NP0 0402" H 24800 11050 60  0001 C CNN "Description"
+	1    13450 8800
 	-1   0    0    1   
 $EndComp
 $Comp
 L GND #PWR74
 U 1 1 502E798B
-P 13700 9500
-F 0 "#PWR74" H 13700 9500 30  0001 C CNN
-F 1 "GND" H 13700 9430 30  0001 C CNN
-	1    13700 9500
+P 13450 9100
+F 0 "#PWR74" H 13450 9100 30  0001 C CNN
+F 1 "GND" H 13450 9030 30  0001 C CNN
+	1    13450 9100
 	1    0    0    -1  
 $EndComp
 $Comp
 L GND #PWR73
 U 1 1 502E798A
-P 13150 9400
-F 0 "#PWR73" H 13150 9400 30  0001 C CNN
-F 1 "GND" H 13150 9330 30  0001 C CNN
-	1    13150 9400
+P 12900 9000
+F 0 "#PWR73" H 12900 9000 30  0001 C CNN
+F 1 "GND" H 12900 8930 30  0001 C CNN
+	1    12900 9000
 	1    0    0    -1  
 $EndComp
 $Comp
 L C C65
 U 1 1 502E7989
-P 13150 9100
-F 0 "C65" H 13200 9200 50  0000 L CNN
-F 1 "33pF" H 13200 9000 50  0000 L CNN
-F 4 "Murata" H 24500 11350 60  0001 C CNN "Manufacturer"
-F 5 "GRM1555C1H330JZ01D" H 24500 11350 60  0001 C CNN "Part Number"
-F 6 "CAP CER 33PF 50V 5% NP0 0402" H 24500 11350 60  0001 C CNN "Description"
-	1    13150 9100
+P 12900 8700
+F 0 "C65" H 12950 8800 50  0000 L CNN
+F 1 "33pF" H 12950 8600 50  0000 L CNN
+F 4 "Murata" H 24250 10950 60  0001 C CNN "Manufacturer"
+F 5 "GRM1555C1H330JZ01D" H 24250 10950 60  0001 C CNN "Part Number"
+F 6 "CAP CER 33PF 50V 5% NP0 0402" H 24250 10950 60  0001 C CNN "Description"
+	1    12900 8700
 	-1   0    0    1   
 $EndComp
-Text Label 13300 8900 0    40   ~ 0
+Text Label 13050 8500 0    40   ~ 0
 AMP_BYPASS
-Text Label 12900 8800 0    40   ~ 0
+Text Label 12650 8400 0    40   ~ 0
 RX_AMP
-Text Label 12000 5150 0    40   ~ 0
+Text Label 13200 3400 0    40   ~ 0
 !MIX_BYPASS
-Text Label 12600 5250 0    40   ~ 0
+Text Label 13800 3500 0    40   ~ 0
 RX_MIX_BP
 $Comp
 L C C38
 U 1 1 502E792B
-P 12400 5450
-F 0 "C38" H 12450 5550 50  0000 L CNN
-F 1 "33pF" H 12450 5350 50  0000 L CNN
-F 4 "Murata" H 23750 7700 60  0001 C CNN "Manufacturer"
-F 5 "GRM1555C1H330JZ01D" H 23750 7700 60  0001 C CNN "Part Number"
-F 6 "CAP CER 33PF 50V 5% NP0 0402" H 23750 7700 60  0001 C CNN "Description"
-	1    12400 5450
+P 13600 3700
+F 0 "C38" H 13650 3800 50  0000 L CNN
+F 1 "33pF" H 13650 3600 50  0000 L CNN
+F 4 "Murata" H 24950 5950 60  0001 C CNN "Manufacturer"
+F 5 "GRM1555C1H330JZ01D" H 24950 5950 60  0001 C CNN "Part Number"
+F 6 "CAP CER 33PF 50V 5% NP0 0402" H 24950 5950 60  0001 C CNN "Description"
+	1    13600 3700
 	-1   0    0    1   
 $EndComp
 $Comp
 L GND #PWR43
 U 1 1 502E792A
-P 12400 5750
-F 0 "#PWR43" H 12400 5750 30  0001 C CNN
-F 1 "GND" H 12400 5680 30  0001 C CNN
-	1    12400 5750
+P 13600 4000
+F 0 "#PWR43" H 13600 4000 30  0001 C CNN
+F 1 "GND" H 13600 3930 30  0001 C CNN
+	1    13600 4000
 	1    0    0    -1  
 $EndComp
 $Comp
 L GND #PWR45
 U 1 1 502E7923
-P 12950 5850
-F 0 "#PWR45" H 12950 5850 30  0001 C CNN
-F 1 "GND" H 12950 5780 30  0001 C CNN
-	1    12950 5850
+P 14150 4100
+F 0 "#PWR45" H 14150 4100 30  0001 C CNN
+F 1 "GND" H 14150 4030 30  0001 C CNN
+	1    14150 4100
 	1    0    0    -1  
 $EndComp
 $Comp
 L C C40
 U 1 1 502E7922
-P 12950 5550
-F 0 "C40" H 13000 5650 50  0000 L CNN
-F 1 "33pF" H 13000 5450 50  0000 L CNN
-F 4 "Murata" H 24300 7800 60  0001 C CNN "Manufacturer"
-F 5 "GRM1555C1H330JZ01D" H 24300 7800 60  0001 C CNN "Part Number"
-F 6 "CAP CER 33PF 50V 5% NP0 0402" H 24300 7800 60  0001 C CNN "Description"
-	1    12950 5550
+P 14150 3800
+F 0 "C40" H 14200 3900 50  0000 L CNN
+F 1 "33pF" H 14200 3700 50  0000 L CNN
+F 4 "Murata" H 25500 6050 60  0001 C CNN "Manufacturer"
+F 5 "GRM1555C1H330JZ01D" H 25500 6050 60  0001 C CNN "Part Number"
+F 6 "CAP CER 33PF 50V 5% NP0 0402" H 25500 6050 60  0001 C CNN "Description"
+	1    14150 3800
 	-1   0    0    1   
 $EndComp
-Text Label 15200 5150 2    40   ~ 0
+Text Label 16400 3400 2    40   ~ 0
 TX_MIX_BP
 $Comp
 L C C39
 U 1 1 502E78E2
-P 14850 5450
-F 0 "C39" H 14900 5550 50  0000 L CNN
-F 1 "33pF" H 14900 5350 50  0000 L CNN
-F 4 "Murata" H 26200 7700 60  0001 C CNN "Manufacturer"
-F 5 "GRM1555C1H330JZ01D" H 26200 7700 60  0001 C CNN "Part Number"
-F 6 "CAP CER 33PF 50V 5% NP0 0402" H 26200 7700 60  0001 C CNN "Description"
-	1    14850 5450
+P 16050 3700
+F 0 "C39" H 16100 3800 50  0000 L CNN
+F 1 "33pF" H 16100 3600 50  0000 L CNN
+F 4 "Murata" H 27400 5950 60  0001 C CNN "Manufacturer"
+F 5 "GRM1555C1H330JZ01D" H 27400 5950 60  0001 C CNN "Part Number"
+F 6 "CAP CER 33PF 50V 5% NP0 0402" H 27400 5950 60  0001 C CNN "Description"
+	1    16050 3700
 	1    0    0    1   
 $EndComp
 $Comp
 L GND #PWR44
 U 1 1 502E78E1
-P 14850 5750
-F 0 "#PWR44" H 14850 5750 30  0001 C CNN
-F 1 "GND" H 14850 5680 30  0001 C CNN
-	1    14850 5750
+P 16050 4000
+F 0 "#PWR44" H 16050 4000 30  0001 C CNN
+F 1 "GND" H 16050 3930 30  0001 C CNN
+	1    16050 4000
 	1    0    0    -1  
 $EndComp
 $Comp
 L C C69
 U 1 1 502E7810
-P 5100 9600
-F 0 "C69" H 5150 9700 50  0000 L CNN
-F 1 "100nF" H 5150 9500 50  0000 L CNN
-F 4 "Murata" H 5100 9600 60  0001 C CNN "Manufacturer"
-F 5 "GRM155R61A104KA01D" H 5100 9600 60  0001 C CNN "Part Number"
-F 6 "CAP CER 0.1UF 10V 10% X5R 0402" H 5100 9600 60  0001 C CNN "Description"
-	1    5100 9600
+P 5250 9550
+F 0 "C69" H 5300 9650 50  0000 L CNN
+F 1 "100nF" H 5300 9450 50  0000 L CNN
+F 4 "Murata" H 5250 9550 60  0001 C CNN "Manufacturer"
+F 5 "GRM155R61A104KA01D" H 5250 9550 60  0001 C CNN "Part Number"
+F 6 "CAP CER 0.1UF 10V 10% X5R 0402" H 5250 9550 60  0001 C CNN "Description"
+	1    5250 9550
 	1    0    0    -1  
 $EndComp
 $Comp
 L GND #PWR78
 U 1 1 502E780F
-P 5100 9900
-F 0 "#PWR78" H 5100 9900 30  0001 C CNN
-F 1 "GND" H 5100 9830 30  0001 C CNN
-	1    5100 9900
+P 5250 9850
+F 0 "#PWR78" H 5250 9850 30  0001 C CNN
+F 1 "GND" H 5250 9780 30  0001 C CNN
+	1    5250 9850
 	1    0    0    -1  
 $EndComp
 $Comp
 L VCC #PWR72
 U 1 1 502E780E
-P 5100 9200
-F 0 "#PWR72" H 5100 9300 30  0001 C CNN
-F 1 "VCC" H 5100 9300 30  0000 C CNN
-	1    5100 9200
+P 5250 9150
+F 0 "#PWR72" H 5250 9250 30  0001 C CNN
+F 1 "VCC" H 5250 9250 30  0000 C CNN
+	1    5250 9150
 	1    0    0    -1  
 $EndComp
-Text Label 4900 9900 2    40   ~ 0
+Text Label 5050 9850 2    40   ~ 0
 TX_AMP
-Text Label 4900 9600 2    40   ~ 0
+Text Label 5050 9550 2    40   ~ 0
 RX_AMP
-Text Label 4900 9800 2    40   ~ 0
+Text Label 5050 9750 2    40   ~ 0
 TX
-Text Label 4900 9500 2    40   ~ 0
+Text Label 5050 9450 2    40   ~ 0
 RX
-Text Label 4900 9700 2    40   ~ 0
+Text Label 5050 9650 2    40   ~ 0
 !AMP_BYPASS
-Text Label 4900 9400 2    40   ~ 0
+Text Label 5050 9350 2    40   ~ 0
 !AMP_BYPASS
-Text Label 2900 9500 0    40   ~ 0
+Text Label 3050 9450 0    40   ~ 0
 RX_MIX_BP
-Text Label 2900 9800 0    40   ~ 0
+Text Label 3050 9750 0    40   ~ 0
 TX_MIX_BP
-Text Label 2900 9700 0    40   ~ 0
+Text Label 3050 9650 0    40   ~ 0
 TX
-Text Label 2900 9400 0    40   ~ 0
+Text Label 3050 9350 0    40   ~ 0
 RX
-Text Label 2900 9600 0    40   ~ 0
+Text Label 3050 9550 0    40   ~ 0
 MIX_BYPASS
-Text Label 2900 9300 0    40   ~ 0
+Text Label 3050 9250 0    40   ~ 0
 MIX_BYPASS
 $Comp
 L GND #PWR85
 U 1 1 502E772E
-P 3900 10350
-F 0 "#PWR85" H 3900 10350 30  0001 C CNN
-F 1 "GND" H 3900 10280 30  0001 C CNN
-	1    3900 10350
+P 4050 10300
+F 0 "#PWR85" H 4050 10300 30  0001 C CNN
+F 1 "GND" H 4050 10230 30  0001 C CNN
+	1    4050 10300
 	1    0    0    -1  
 $EndComp
 $Comp
 L GND #PWR80
 U 1 1 502E772A
-P 3200 10000
-F 0 "#PWR80" H 3200 10000 30  0001 C CNN
-F 1 "GND" H 3200 9930 30  0001 C CNN
-	1    3200 10000
+P 3350 9950
+F 0 "#PWR80" H 3350 9950 30  0001 C CNN
+F 1 "GND" H 3350 9880 30  0001 C CNN
+	1    3350 9950
 	1    0    0    -1  
 $EndComp
-NoConn ~ 1000 9400
+NoConn ~ 1150 9350
 $Comp
 L GSG-74HC08 U16
 U 1 1 502E7695
-P 3900 9600
-F 0 "U16" V 3850 9600 60  0000 C CNN
-F 1 "GSG-74HC08" V 3950 9600 60  0000 C CNN
-F 4 "Texas Instruments" H 3900 9600 60  0001 C CNN "Manufacturer"
-F 5 "SN74AHC08RGYR" H 3900 9600 60  0001 C CNN "Part Number"
-F 6 "IC QUAD 2IN POS-AND GATE 14-QFN" H 3900 9600 60  0001 C CNN "Description"
-	1    3900 9600
+P 4050 9550
+F 0 "U16" V 4000 9550 60  0000 C CNN
+F 1 "GSG-74HC08" V 4100 9550 60  0000 C CNN
+F 4 "Texas Instruments" H 4050 9550 60  0001 C CNN "Manufacturer"
+F 5 "SN74AHC08RGYR" H 4050 9550 60  0001 C CNN "Part Number"
+F 6 "IC QUAD 2IN POS-AND GATE 14-QFN" H 4050 9550 60  0001 C CNN "Description"
+	1    4050 9550
 	1    0    0    -1  
 $EndComp
 $Comp
 L C C29
 U 1 1 502E6FEE
-P 12950 4550
-F 0 "C29" H 13000 4650 50  0000 L CNN
-F 1 "33pF" H 13000 4450 50  0000 L CNN
-F 4 "Murata" H 16100 4350 60  0001 C CNN "Manufacturer"
-F 5 "GRM1555C1H330JZ01D" H 16100 4350 60  0001 C CNN "Part Number"
-F 6 "CAP CER 33PF 50V 5% NP0 0402" H 16100 4350 60  0001 C CNN "Description"
-	1    12950 4550
+P 12700 4150
+F 0 "C29" H 12750 4250 50  0000 L CNN
+F 1 "33pF" H 12750 4050 50  0000 L CNN
+F 4 "Murata" H 15850 3950 60  0001 C CNN "Manufacturer"
+F 5 "GRM1555C1H330JZ01D" H 15850 3950 60  0001 C CNN "Part Number"
+F 6 "CAP CER 33PF 50V 5% NP0 0402" H 15850 3950 60  0001 C CNN "Description"
+	1    12700 4150
 	1    0    0    -1  
 $EndComp
 $Comp
 L GND #PWR33
 U 1 1 502E6FED
-P 12950 4850
-F 0 "#PWR33" H 12950 4850 30  0001 C CNN
-F 1 "GND" H 12950 4780 30  0001 C CNN
-	1    12950 4850
+P 12700 4450
+F 0 "#PWR33" H 12700 4450 30  0001 C CNN
+F 1 "GND" H 12700 4380 30  0001 C CNN
+	1    12700 4450
 	1    0    0    -1  
 $EndComp
-Text Label 12800 4250 0    40   ~ 0
+Text Label 12550 3850 0    40   ~ 0
 HP
-Text Label 13050 2850 3    40   ~ 0
+Text Label 12800 2450 3    40   ~ 0
 LP
 $Comp
 L GND #PWR17
 U 1 1 502E6F90
-P 13650 3000
-F 0 "#PWR17" H 13650 3000 30  0001 C CNN
-F 1 "GND" H 13650 2930 30  0001 C CNN
-	1    13650 3000
+P 13400 2600
+F 0 "#PWR17" H 13400 2600 30  0001 C CNN
+F 1 "GND" H 13400 2530 30  0001 C CNN
+	1    13400 2600
 	0    -1   -1   0   
 $EndComp
 $Comp
 L C C19
 U 1 1 502E6F8B
-P 13350 3000
-F 0 "C19" H 13400 3100 50  0000 L CNN
-F 1 "33pF" H 13400 2900 50  0000 L CNN
-F 4 "Murata" H 24700 5250 60  0001 C CNN "Manufacturer"
-F 5 "GRM1555C1H330JZ01D" H 24700 5250 60  0001 C CNN "Part Number"
-F 6 "CAP CER 33PF 50V 5% NP0 0402" H 24700 5250 60  0001 C CNN "Description"
-	1    13350 3000
+P 13100 2600
+F 0 "C19" H 13150 2700 50  0000 L CNN
+F 1 "33pF" H 13150 2500 50  0000 L CNN
+F 4 "Murata" H 24450 4850 60  0001 C CNN "Manufacturer"
+F 5 "GRM1555C1H330JZ01D" H 24450 4850 60  0001 C CNN "Part Number"
+F 6 "CAP CER 33PF 50V 5% NP0 0402" H 24450 4850 60  0001 C CNN "Description"
+	1    13100 2600
 	0    1    -1   0   
 $EndComp
 $Comp
 L GND #PWR25
 U 1 1 502E6F53
-P 9550 3850
-F 0 "#PWR25" H 9550 3850 30  0001 C CNN
-F 1 "GND" H 9550 3780 30  0001 C CNN
-	1    9550 3850
+P 9300 3450
+F 0 "#PWR25" H 9300 3450 30  0001 C CNN
+F 1 "GND" H 9300 3380 30  0001 C CNN
+	1    9300 3450
 	1    0    0    -1  
 $EndComp
-Text Label 9400 3250 0    40   ~ 0
+Text Label 9150 2850 0    40   ~ 0
 TX
 $Comp
 L C C24
 U 1 1 502E6F11
-P 9550 3550
-F 0 "C24" H 9600 3650 50  0000 L CNN
-F 1 "33pF" H 9600 3450 50  0000 L CNN
-F 4 "Murata" H 12700 3350 60  0001 C CNN "Manufacturer"
-F 5 "GRM1555C1H330JZ01D" H 12700 3350 60  0001 C CNN "Part Number"
-F 6 "CAP CER 33PF 50V 5% NP0 0402" H 12700 3350 60  0001 C CNN "Description"
-	1    9550 3550
+P 9300 3150
+F 0 "C24" H 9350 3250 50  0000 L CNN
+F 1 "33pF" H 9350 3050 50  0000 L CNN
+F 4 "Murata" H 12450 2950 60  0001 C CNN "Manufacturer"
+F 5 "GRM1555C1H330JZ01D" H 12450 2950 60  0001 C CNN "Part Number"
+F 6 "CAP CER 33PF 50V 5% NP0 0402" H 12450 2950 60  0001 C CNN "Description"
+	1    9300 3150
 	1    0    0    1   
 $EndComp
 $Comp
 L GND #PWR7
 U 1 1 502E6F0C
-P 10250 2050
-F 0 "#PWR7" H 10250 2050 30  0001 C CNN
-F 1 "GND" H 10250 1980 30  0001 C CNN
-	1    10250 2050
+P 10000 1650
+F 0 "#PWR7" H 10000 1650 30  0001 C CNN
+F 1 "GND" H 10000 1580 30  0001 C CNN
+	1    10000 1650
 	0    -1   -1   0   
 $EndComp
-Text Label 9650 1900 3    40   ~ 0
+Text Label 9400 1500 3    40   ~ 0
 RX
 $Comp
 L C C10
 U 1 1 502E6EFB
-P 9950 2050
-F 0 "C10" H 10000 2150 50  0000 L CNN
-F 1 "33pF" H 10000 1950 50  0000 L CNN
-F 4 "Murata" H 13100 1850 60  0001 C CNN "Manufacturer"
-F 5 "GRM1555C1H330JZ01D" H 13100 1850 60  0001 C CNN "Part Number"
-F 6 "CAP CER 33PF 50V 5% NP0 0402" H 13100 1850 60  0001 C CNN "Description"
-	1    9950 2050
+P 9700 1650
+F 0 "C10" H 9750 1750 50  0000 L CNN
+F 1 "33pF" H 9750 1550 50  0000 L CNN
+F 4 "Murata" H 12850 1450 60  0001 C CNN "Manufacturer"
+F 5 "GRM1555C1H330JZ01D" H 12850 1450 60  0001 C CNN "Part Number"
+F 6 "CAP CER 33PF 50V 5% NP0 0402" H 12850 1450 60  0001 C CNN "Description"
+	1    9700 1650
 	0    1    -1   0   
 $EndComp
 $Comp
 L GND #PWR49
 U 1 1 502E6EDE
-P 7700 6000
-F 0 "#PWR49" H 7700 6000 30  0001 C CNN
-F 1 "GND" H 7700 5930 30  0001 C CNN
-	1    7700 6000
+P 7450 5600
+F 0 "#PWR49" H 7450 5600 30  0001 C CNN
+F 1 "GND" H 7450 5530 30  0001 C CNN
+	1    7450 5600
 	0    -1   -1   0   
 $EndComp
-Text Label 7100 5850 3    40   ~ 0
+Text Label 6850 5450 3    40   ~ 0
 TX
 $Comp
 L C C45
 U 1 1 502E6ECB
-P 7400 6000
-F 0 "C45" H 7450 6100 50  0000 L CNN
-F 1 "33pF" H 7450 5900 50  0000 L CNN
-F 4 "Murata" H 10550 5800 60  0001 C CNN "Manufacturer"
-F 5 "GRM1555C1H330JZ01D" H 10550 5800 60  0001 C CNN "Part Number"
-F 6 "CAP CER 33PF 50V 5% NP0 0402" H 10550 5800 60  0001 C CNN "Description"
-	1    7400 6000
+P 7150 5600
+F 0 "C45" H 7200 5700 50  0000 L CNN
+F 1 "33pF" H 7200 5500 50  0000 L CNN
+F 4 "Murata" H 10300 5400 60  0001 C CNN "Manufacturer"
+F 5 "GRM1555C1H330JZ01D" H 10300 5400 60  0001 C CNN "Part Number"
+F 6 "CAP CER 33PF 50V 5% NP0 0402" H 10300 5400 60  0001 C CNN "Description"
+	1    7150 5600
 	0    1    -1   0   
 $EndComp
 $Comp
 L GND #PWR53
 U 1 1 502E6EC5
-P 6400 7300
-F 0 "#PWR53" H 6400 7300 30  0001 C CNN
-F 1 "GND" H 6400 7230 30  0001 C CNN
-	1    6400 7300
+P 6150 6900
+F 0 "#PWR53" H 6150 6900 30  0001 C CNN
+F 1 "GND" H 6150 6830 30  0001 C CNN
+	1    6150 6900
 	0    1    1    0   
 $EndComp
-Text Label 7000 7450 1    40   ~ 0
+Text Label 6750 7050 1    40   ~ 0
 RX
 $Comp
 L C C54
 U 1 1 502E6EB0
-P 6700 7300
-F 0 "C54" H 6750 7400 50  0000 L CNN
-F 1 "33pF" H 6750 7200 50  0000 L CNN
-F 4 "Murata" H 9850 7100 60  0001 C CNN "Manufacturer"
-F 5 "GRM1555C1H330JZ01D" H 9850 7100 60  0001 C CNN "Part Number"
-F 6 "CAP CER 33PF 50V 5% NP0 0402" H 9850 7100 60  0001 C CNN "Description"
-	1    6700 7300
+P 6450 6900
+F 0 "C54" H 6500 7000 50  0000 L CNN
+F 1 "33pF" H 6500 6800 50  0000 L CNN
+F 4 "Murata" H 9600 6700 60  0001 C CNN "Manufacturer"
+F 5 "GRM1555C1H330JZ01D" H 9600 6700 60  0001 C CNN "Part Number"
+F 6 "CAP CER 33PF 50V 5% NP0 0402" H 9600 6700 60  0001 C CNN "Description"
+	1    6450 6900
 	0    1    1    0   
 $EndComp
-Text Label 2750 3300 3    40   ~ 0
+Text Label 2500 2900 3    40   ~ 0
 RX
-Text Label 2500 4650 0    40   ~ 0
+Text Label 2250 4250 0    40   ~ 0
 TX
-Text Label 16650 6550 2    40   ~ 0
+Text Label 16400 6150 2    40   ~ 0
 !AMP_PWR
 $Comp
 L MOSFET_P Q1
 U 1 1 502E69D1
-P 15750 6550
-F 0 "Q1" H 15750 6740 60  0000 R CNN
-F 1 "MOSFET_P" H 15750 6370 60  0000 R CNN
-F 4 "Fairchild" H 15750 6550 60  0001 C CNN "Manufacturer"
-F 5 "BSS84" H 15750 6550 60  0001 C CNN "Part Number"
-F 6 "MOSFET P-CH 50V 130MA SOT-23" H 15750 6550 60  0001 C CNN "Description"
-	1    15750 6550
+P 15500 6150
+F 0 "Q1" H 15500 6340 60  0000 R CNN
+F 1 "MOSFET_P" H 15500 5970 60  0000 R CNN
+F 4 "Fairchild" H 15500 6150 60  0001 C CNN "Manufacturer"
+F 5 "BSS84" H 15500 6150 60  0001 C CNN "Part Number"
+F 6 "MOSFET P-CH 50V 130MA SOT-23" H 15500 6150 60  0001 C CNN "Description"
+	1    15500 6150
 	-1   0    0    1   
 $EndComp
 $Comp
 L C C61
 U 1 1 502E6909
-P 10200 8400
-F 0 "C61" H 10250 8500 50  0000 L CNN
-F 1 "10nF" H 10250 8300 50  0000 L CNN
-F 4 "Murata" H 16600 7150 60  0001 C CNN "Manufacturer"
-F 5 "GRM155R71C103KA01D" H 16600 7150 60  0001 C CNN "Part Number"
-F 6 "CAP CER 10000PF 16V 10% X7R 0402" H 16600 7150 60  0001 C CNN "Description"
-	1    10200 8400
+P 9950 8000
+F 0 "C61" H 10000 8100 50  0000 L CNN
+F 1 "10nF" H 10000 7900 50  0000 L CNN
+F 4 "Murata" H 16350 6750 60  0001 C CNN "Manufacturer"
+F 5 "GRM155R71C103KA01D" H 16350 6750 60  0001 C CNN "Part Number"
+F 6 "CAP CER 10000PF 16V 10% X7R 0402" H 16350 6750 60  0001 C CNN "Description"
+	1    9950 8000
 	1    0    0    1   
 $EndComp
-Text Label 14600 7900 0    40   ~ 0
+Text Label 14350 7500 0    40   ~ 0
 TX_AMP_OUT
-Text Label 12450 6850 0    40   ~ 0
+Text Label 12200 6450 0    40   ~ 0
 RX_AMP_OUT
-Text Label 11700 8100 0    40   ~ 0
+Text Label 11450 7700 0    40   ~ 0
 TX_AMP_IN
-Text Label 13400 8700 0    40   ~ 0
+Text Label 13150 8300 0    40   ~ 0
 RX_AMP_IN
 $Comp
 L C C62
 U 1 1 502E6667
-P 12700 8400
-F 0 "C62" H 12750 8500 50  0000 L CNN
-F 1 "100pF" H 12750 8300 50  0000 L CNN
-F 4 "Murata" H 15700 9950 60  0001 C CNN "Manufacturer"
-F 5 "GRM1555C1H101JZ01D" H 15700 9950 60  0001 C CNN "Part Number"
-F 6 "CAP CER 100PF 50V 5% NP0 0402" H 15700 9950 60  0001 C CNN "Description"
-	1    12700 8400
+P 12450 8000
+F 0 "C62" H 12500 8100 50  0000 L CNN
+F 1 "100pF" H 12500 7900 50  0000 L CNN
+F 4 "Murata" H 15450 9550 60  0001 C CNN "Manufacturer"
+F 5 "GRM1555C1H101JZ01D" H 15450 9550 60  0001 C CNN "Part Number"
+F 6 "CAP CER 100PF 50V 5% NP0 0402" H 15450 9550 60  0001 C CNN "Description"
+	1    12450 8000
 	-1   0    0    1   
 $EndComp
 $Comp
 L C C59
 U 1 1 502E665E
-P 12400 8100
-F 0 "C59" H 12450 8200 50  0000 L CNN
-F 1 "100pF" H 12450 8000 50  0000 L CNN
-F 4 "Murata" H 15400 9650 60  0001 C CNN "Manufacturer"
-F 5 "GRM1555C1H101JZ01D" H 15400 9650 60  0001 C CNN "Part Number"
-F 6 "CAP CER 100PF 50V 5% NP0 0402" H 15400 9650 60  0001 C CNN "Description"
-	1    12400 8100
+P 12150 7700
+F 0 "C59" H 12200 7800 50  0000 L CNN
+F 1 "100pF" H 12200 7600 50  0000 L CNN
+F 4 "Murata" H 15150 9250 60  0001 C CNN "Manufacturer"
+F 5 "GRM1555C1H101JZ01D" H 15150 9250 60  0001 C CNN "Part Number"
+F 6 "CAP CER 100PF 50V 5% NP0 0402" H 15150 9250 60  0001 C CNN "Description"
+	1    12150 7700
 	0    1    -1   0   
 $EndComp
 $Comp
 L GND #PWR63
 U 1 1 502E65FF
-P 12700 7900
-F 0 "#PWR63" H 12700 7900 30  0001 C CNN
-F 1 "GND" H 12700 7830 30  0001 C CNN
-	1    12700 7900
+P 12450 7500
+F 0 "#PWR63" H 12450 7500 30  0001 C CNN
+F 1 "GND" H 12450 7430 30  0001 C CNN
+	1    12450 7500
 	0    1    1    0   
 $EndComp
 $Comp
 L GND #PWR64
 U 1 1 502E65FB
-P 12700 8000
-F 0 "#PWR64" H 12700 8000 30  0001 C CNN
-F 1 "GND" H 12700 7930 30  0001 C CNN
-	1    12700 8000
+P 12450 7600
+F 0 "#PWR64" H 12450 7600 30  0001 C CNN
+F 1 "GND" H 12450 7530 30  0001 C CNN
+	1    12450 7600
 	0    1    1    0   
 $EndComp
 $Comp
 L GND #PWR65
 U 1 1 502E65F6
-P 13800 8000
-F 0 "#PWR65" H 13800 8000 30  0001 C CNN
-F 1 "GND" H 13800 7930 30  0001 C CNN
-	1    13800 8000
+P 13550 7600
+F 0 "#PWR65" H 13550 7600 30  0001 C CNN
+F 1 "GND" H 13550 7530 30  0001 C CNN
+	1    13550 7600
 	0    -1   -1   0   
 $EndComp
 $Comp
 L GND #PWR67
 U 1 1 502E6209
-P 14550 8150
-F 0 "#PWR67" H 14550 8150 30  0001 C CNN
-F 1 "GND" H 14550 8080 30  0001 C CNN
-	1    14550 8150
+P 14300 7750
+F 0 "#PWR67" H 14300 7750 30  0001 C CNN
+F 1 "GND" H 14300 7680 30  0001 C CNN
+	1    14300 7750
 	-1   0    0    1   
 $EndComp
 $Comp
 L GND #PWR32
 U 1 1 502E619A
-P 13900 4500
-F 0 "#PWR32" H 13900 4500 30  0001 C CNN
-F 1 "GND" H 13900 4430 30  0001 C CNN
-	1    13900 4500
+P 15100 2750
+F 0 "#PWR32" H 15100 2750 30  0001 C CNN
+F 1 "GND" H 15100 2680 30  0001 C CNN
+	1    15100 2750
 	-1   0    0    1   
 $EndComp
 $Comp
 L GND #PWR69
 U 1 1 502E6129
-P 10850 8650
-F 0 "#PWR69" H 10850 8650 30  0001 C CNN
-F 1 "GND" H 10850 8580 30  0001 C CNN
-	1    10850 8650
+P 10600 8250
+F 0 "#PWR69" H 10600 8250 30  0001 C CNN
+F 1 "GND" H 10600 8180 30  0001 C CNN
+	1    10600 8250
 	1    0    0    -1  
 $EndComp
 $Comp
 L GND #PWR66
 U 1 1 502E601D
-P 13800 8100
-F 0 "#PWR66" H 13800 8100 30  0001 C CNN
-F 1 "GND" H 13800 8030 30  0001 C CNN
-	1    13800 8100
+P 13550 7700
+F 0 "#PWR66" H 13550 7700 30  0001 C CNN
+F 1 "GND" H 13550 7630 30  0001 C CNN
+	1    13550 7700
 	0    -1   -1   0   
 $EndComp
 $Comp
 L C C50
 U 1 1 502E5F58
-P 13500 6850
-F 0 "C50" H 13550 6950 50  0000 L CNN
-F 1 "100pF" H 13550 6750 50  0000 L CNN
-F 4 "Murata" H 16500 8400 60  0001 C CNN "Manufacturer"
-F 5 "GRM1555C1H101JZ01D" H 16500 8400 60  0001 C CNN "Part Number"
-F 6 "CAP CER 100PF 50V 5% NP0 0402" H 16500 8400 60  0001 C CNN "Description"
-	1    13500 6850
+P 13250 6450
+F 0 "C50" H 13300 6550 50  0000 L CNN
+F 1 "100pF" H 13300 6350 50  0000 L CNN
+F 4 "Murata" H 16250 8000 60  0001 C CNN "Manufacturer"
+F 5 "GRM1555C1H101JZ01D" H 16250 8000 60  0001 C CNN "Part Number"
+F 6 "CAP CER 100PF 50V 5% NP0 0402" H 16250 8000 60  0001 C CNN "Description"
+	1    13250 6450
 	0    1    1    0   
 $EndComp
 $Comp
 L C C58
 U 1 1 502E5F55
-P 14100 7900
-F 0 "C58" H 14150 8000 50  0000 L CNN
-F 1 "100pF" H 14150 7800 50  0000 L CNN
-F 4 "Murata" H 17100 9450 60  0001 C CNN "Manufacturer"
-F 5 "GRM1555C1H101JZ01D" H 17100 9450 60  0001 C CNN "Part Number"
-F 6 "CAP CER 100PF 50V 5% NP0 0402" H 17100 9450 60  0001 C CNN "Description"
-	1    14100 7900
+P 13850 7500
+F 0 "C58" H 13900 7600 50  0000 L CNN
+F 1 "100pF" H 13900 7400 50  0000 L CNN
+F 4 "Murata" H 16850 9050 60  0001 C CNN "Manufacturer"
+F 5 "GRM1555C1H101JZ01D" H 16850 9050 60  0001 C CNN "Part Number"
+F 6 "CAP CER 100PF 50V 5% NP0 0402" H 16850 9050 60  0001 C CNN "Description"
+	1    13850 7500
 	0    1    1    0   
 $EndComp
 $Comp
 L MGA-81563 U13
 U 1 1 502DE480
-P 13250 8000
-F 0 "U13" H 13250 8050 60  0000 C CNN
-F 1 "MGA-81563" H 13250 7950 60  0000 C CNN
-F 4 "Avago" H 13250 8000 60  0001 C CNN "Manufacturer"
-F 5 "MGA-81563" H 13250 8000 60  0001 C CNN "Part Number"
-F 6 "0.1-6 GHz 3 V, 14 dBm Amplifier" H 13250 8000 60  0001 C CNN "Description"
-	1    13250 8000
+P 13000 7600
+F 0 "U13" H 13000 7650 60  0000 C CNN
+F 1 "MGA-81563" H 13000 7550 60  0000 C CNN
+F 4 "Avago" H 13000 7600 60  0001 C CNN "Manufacturer"
+F 5 "MGA-81563" H 13000 7600 60  0001 C CNN "Part Number"
+F 6 "0.1-6 GHz 3 V, 14 dBm Amplifier" H 13000 7600 60  0001 C CNN "Description"
+	1    13000 7600
 	0    1    1    0   
 $EndComp
 $Comp
 L GND #PWR59
 U 1 1 502C6DC4
-P 14950 7450
-F 0 "#PWR59" H 14950 7450 30  0001 C CNN
-F 1 "GND" H 14950 7380 30  0001 C CNN
-	1    14950 7450
+P 14700 7050
+F 0 "#PWR59" H 14700 7050 30  0001 C CNN
+F 1 "GND" H 14700 6980 30  0001 C CNN
+	1    14700 7050
 	1    0    0    -1  
 $EndComp
 $Comp
 L GND #PWR58
 U 1 1 502C6DC1
-P 14600 7450
-F 0 "#PWR58" H 14600 7450 30  0001 C CNN
-F 1 "GND" H 14600 7380 30  0001 C CNN
-	1    14600 7450
+P 14350 7050
+F 0 "#PWR58" H 14350 7050 30  0001 C CNN
+F 1 "GND" H 14350 6980 30  0001 C CNN
+	1    14350 7050
 	1    0    0    -1  
 $EndComp
 $Comp
 L C C53
 U 1 1 502C6DB4
-P 14950 7150
-F 0 "C53" H 15000 7250 50  0000 L CNN
-F 1 "1uF" H 15000 7050 50  0000 L CNN
-F 4 "Murata" H 14950 7150 60  0001 C CNN "Manufacturer"
-F 5 "GRM155R61A105ME15D" H 14950 7150 60  0001 C CNN "Part Number"
-F 6 "CAP CER 1UF 10V 20% X5R 0402" H 14950 7150 60  0001 C CNN "Description"
-	1    14950 7150
+P 14700 6750
+F 0 "C53" H 14750 6850 50  0000 L CNN
+F 1 "1uF" H 14750 6650 50  0000 L CNN
+F 4 "Murata" H 14700 6750 60  0001 C CNN "Manufacturer"
+F 5 "GRM155R61A105ME15D" H 14700 6750 60  0001 C CNN "Part Number"
+F 6 "CAP CER 1UF 10V 20% X5R 0402" H 14700 6750 60  0001 C CNN "Description"
+	1    14700 6750
 	1    0    0    -1  
 $EndComp
 $Comp
 L C C64
 U 1 1 502C6D4A
-P 15400 9000
-F 0 "C64" H 15450 9100 50  0000 L CNN
-F 1 "10nF" H 15450 8900 50  0000 L CNN
-F 4 "Murata" H 21800 7750 60  0001 C CNN "Manufacturer"
-F 5 "GRM155R71C103KA01D" H 21800 7750 60  0001 C CNN "Part Number"
-F 6 "CAP CER 10000PF 16V 10% X7R 0402" H 21800 7750 60  0001 C CNN "Description"
-	1    15400 9000
-	0    -1   1    0   
+P 14950 8900
+F 0 "C64" H 15000 9000 50  0000 L CNN
+F 1 "10nF" H 15000 8800 50  0000 L CNN
+F 4 "Murata" H 21350 7650 60  0001 C CNN "Manufacturer"
+F 5 "GRM155R71C103KA01D" H 21350 7650 60  0001 C CNN "Part Number"
+F 6 "CAP CER 10000PF 16V 10% X7R 0402" H 21350 7650 60  0001 C CNN "Description"
+	1    14950 8900
+	-1   0    0    -1  
 $EndComp
 $Comp
 L C C52
 U 1 1 502C6D36
-P 14600 7150
-F 0 "C52" H 14650 7250 50  0000 L CNN
-F 1 "100pF" H 14650 7050 50  0000 L CNN
-F 4 "Murata" H 17600 8700 60  0001 C CNN "Manufacturer"
-F 5 "GRM1555C1H101JZ01D" H 17600 8700 60  0001 C CNN "Part Number"
-F 6 "CAP CER 100PF 50V 5% NP0 0402" H 17600 8700 60  0001 C CNN "Description"
-	1    14600 7150
+P 14350 6750
+F 0 "C52" H 14400 6850 50  0000 L CNN
+F 1 "100pF" H 14400 6650 50  0000 L CNN
+F 4 "Murata" H 17350 8300 60  0001 C CNN "Manufacturer"
+F 5 "GRM1555C1H101JZ01D" H 17350 8300 60  0001 C CNN "Part Number"
+F 6 "CAP CER 100PF 50V 5% NP0 0402" H 17350 8300 60  0001 C CNN "Description"
+	1    14350 6750
 	1    0    0    -1  
 $EndComp
 $Comp
 L INDUCTOR L5
 U 1 1 502C6D12
-P 14200 6850
-F 0 "L5" V 14150 6850 40  0000 C CNN
-F 1 "1uH" V 14300 6850 40  0000 C CNN
-F 4 "Taiyo Yuden" H 14200 6850 60  0001 C CNN "Manufacturer"
-F 5 "BRL1608T1R0M" H 14200 6850 60  0001 C CNN "Part Number"
-F 6 "INDUCTR 1.0UH 650MA 20% 0603 SMD" H 14200 6850 60  0001 C CNN "Description"
-	1    14200 6850
+P 13950 6450
+F 0 "L5" V 13900 6450 40  0000 C CNN
+F 1 "1uH" V 14050 6450 40  0000 C CNN
+F 4 "Taiyo Yuden" H 13950 6450 60  0001 C CNN "Manufacturer"
+F 5 "BRL1608T1R0M" H 13950 6450 60  0001 C CNN "Part Number"
+F 6 "INDUCTR 1.0UH 650MA 20% 0603 SMD" H 13950 6450 60  0001 C CNN "Description"
+	1    13950 6450
 	0    1    1    0   
 $EndComp
 $Comp
 L SKY13317 U14
 U 1 1 502C6BE2
-P 14550 8850
-F 0 "U14" H 14550 8850 60  0000 C CNN
-F 1 "SKY13317" H 14550 9100 60  0000 C CNN
-F 4 "Skyworks" H 14550 8850 60  0001 C CNN "Manufacturer"
-F 5 "SKY13317-373LF" H 14550 8850 60  0001 C CNN "Part Number"
-F 6 "20 MHz-6.0 GHz pHEMT GaAs SP3T Switch" H 14550 8850 60  0001 C CNN "Description"
-	1    14550 8850
+P 14300 8450
+F 0 "U14" H 14300 8450 60  0000 C CNN
+F 1 "SKY13317" H 14300 8700 60  0000 C CNN
+F 4 "Skyworks" H 14300 8450 60  0001 C CNN "Manufacturer"
+F 5 "SKY13317-373LF" H 14300 8450 60  0001 C CNN "Part Number"
+F 6 "20 MHz-6.0 GHz pHEMT GaAs SP3T Switch" H 14300 8450 60  0001 C CNN "Description"
+	1    14300 8450
 	-1   0    0    1   
 $EndComp
 $Comp
 L SKY13317 U12
 U 1 1 502C6BDF
-P 10850 7950
-F 0 "U12" H 10850 7950 60  0000 C CNN
-F 1 "SKY13317" H 10850 8200 60  0000 C CNN
-F 4 "Skyworks" H 10850 7950 60  0001 C CNN "Manufacturer"
-F 5 "SKY13317-373LF" H 10850 7950 60  0001 C CNN "Part Number"
-F 6 "20 MHz-6.0 GHz pHEMT GaAs SP3T Switch" H 10850 7950 60  0001 C CNN "Description"
-	1    10850 7950
+P 10600 7550
+F 0 "U12" H 10600 7550 60  0000 C CNN
+F 1 "SKY13317" H 10600 7800 60  0000 C CNN
+F 4 "Skyworks" H 10600 7550 60  0001 C CNN "Manufacturer"
+F 5 "SKY13317-373LF" H 10600 7550 60  0001 C CNN "Part Number"
+F 6 "20 MHz-6.0 GHz pHEMT GaAs SP3T Switch" H 10600 7550 60  0001 C CNN "Description"
+	1    10600 7550
 	1    0    0    -1  
 $EndComp
 $Comp
 L RFFC5072 U4
 U 1 1 502BE21C
-P 5600 3500
-F 0 "U4" H 5600 3600 60  0000 C CNN
-F 1 "RFFC5072" H 5600 3400 60  0000 C CNN
-F 4 "RFMD" H 5600 3500 60  0001 C CNN "Manufacturer"
-F 5 "RFFC5072" H 5600 3500 60  0001 C CNN "Part Number"
-F 6 "WIDEBAND SYNTHESIZER/VCO WITH INTEGRATED 6GHz MIXER" H 5600 3500 60  0001 C CNN "Description"
-	1    5600 3500
+P 5350 3100
+F 0 "U4" H 5350 3200 60  0000 C CNN
+F 1 "RFFC5072" H 5350 3000 60  0000 C CNN
+F 4 "RFMD" H 5350 3100 60  0001 C CNN "Manufacturer"
+F 5 "RFFC5072" H 5350 3100 60  0001 C CNN "Part Number"
+F 6 "WIDEBAND SYNTHESIZER/VCO WITH INTEGRATED 6GHz MIXER" H 5350 3100 60  0001 C CNN "Description"
+	1    5350 3100
 	-1   0    0    1   
 $EndComp
 $Comp
 L C C43
 U 1 1 502B5738
-P 13250 5650
-F 0 "C43" H 13300 5750 50  0000 L CNN
-F 1 "47pF" H 13300 5550 50  0000 L CNN
-F 4 "Murata" H 14850 6750 60  0001 C CNN "Manufacturer"
-F 5 "GRM1555C1H470JZ01D" H 14850 6750 60  0001 C CNN "Part Number"
-F 6 "CAP CER 47PF 50V 5% NP0 0402" H 14850 6750 60  0001 C CNN "Description"
-	1    13250 5650
+P 14450 3900
+F 0 "C43" H 14500 4000 50  0000 L CNN
+F 1 "47pF" H 14500 3800 50  0000 L CNN
+F 4 "Murata" H 16050 5000 60  0001 C CNN "Manufacturer"
+F 5 "GRM1555C1H470JZ01D" H 16050 5000 60  0001 C CNN "Part Number"
+F 6 "CAP CER 47PF 50V 5% NP0 0402" H 16050 5000 60  0001 C CNN "Description"
+	1    14450 3900
 	1    0    0    -1  
 $EndComp
 $Comp
 L C C32
 U 1 1 502B571F
-P 14550 4750
-F 0 "C32" H 14600 4850 50  0000 L CNN
-F 1 "47pF" H 14600 4650 50  0000 L CNN
-F 4 "Murata" H 16150 5850 60  0001 C CNN "Manufacturer"
-F 5 "GRM1555C1H470JZ01D" H 16150 5850 60  0001 C CNN "Part Number"
-F 6 "CAP CER 47PF 50V 5% NP0 0402" H 16150 5850 60  0001 C CNN "Description"
-	1    14550 4750
+P 15750 3000
+F 0 "C32" H 15800 3100 50  0000 L CNN
+F 1 "47pF" H 15800 2900 50  0000 L CNN
+F 4 "Murata" H 17350 4100 60  0001 C CNN "Manufacturer"
+F 5 "GRM1555C1H470JZ01D" H 17350 4100 60  0001 C CNN "Part Number"
+F 6 "CAP CER 47PF 50V 5% NP0 0402" H 17350 4100 60  0001 C CNN "Description"
+	1    15750 3000
 	1    0    0    -1  
 $EndComp
 $Comp
 L SKY13317 U9
 U 1 1 502B5704
-P 13900 5200
-F 0 "U9" H 13900 5200 60  0000 C CNN
-F 1 "SKY13317" H 13900 5450 60  0000 C CNN
-F 4 "Skyworks" H 13900 5200 60  0001 C CNN "Manufacturer"
-F 5 "SKY13317-373LF" H 13900 5200 60  0001 C CNN "Part Number"
-F 6 "20 MHz-6.0 GHz pHEMT GaAs SP3T Switch" H 13900 5200 60  0001 C CNN "Description"
-	1    13900 5200
+P 15100 3450
+F 0 "U9" H 15100 3450 60  0000 C CNN
+F 1 "SKY13317" H 15100 3700 60  0000 C CNN
+F 4 "Skyworks" H 15100 3450 60  0001 C CNN "Manufacturer"
+F 5 "SKY13317-373LF" H 15100 3450 60  0001 C CNN "Part Number"
+F 6 "20 MHz-6.0 GHz pHEMT GaAs SP3T Switch" H 15100 3450 60  0001 C CNN "Description"
+	1    15100 3450
 	-1   0    0    1   
 $EndComp
 $Comp
 L C C31
 U 1 1 502B56C2
-P 13250 4750
-F 0 "C31" H 13300 4850 50  0000 L CNN
-F 1 "10nF" H 13300 4650 50  0000 L CNN
-F 4 "Murata" H 19650 3500 60  0001 C CNN "Manufacturer"
-F 5 "GRM155R71C103KA01D" H 19650 3500 60  0001 C CNN "Part Number"
-F 6 "CAP CER 10000PF 16V 10% X7R 0402" H 19650 3500 60  0001 C CNN "Description"
-	1    13250 4750
-	1    0    0    1   
+P 14150 3200
+F 0 "C31" H 14200 3300 50  0000 L CNN
+F 1 "10nF" H 14200 3100 50  0000 L CNN
+F 4 "Murata" H 20550 1950 60  0001 C CNN "Manufacturer"
+F 5 "GRM155R71C103KA01D" H 20550 1950 60  0001 C CNN "Part Number"
+F 6 "CAP CER 10000PF 16V 10% X7R 0402" H 20550 1950 60  0001 C CNN "Description"
+	1    14150 3200
+	0    1    -1   0   
 $EndComp
 $Comp
 L GND #PWR16
 U 1 1 502B5542
-P 12850 3000
-F 0 "#PWR16" H 12850 3000 30  0001 C CNN
-F 1 "GND" H 12850 2930 30  0001 C CNN
-	1    12850 3000
+P 12600 2600
+F 0 "#PWR16" H 12600 2600 30  0001 C CNN
+F 1 "GND" H 12600 2530 30  0001 C CNN
+	1    12600 2600
 	-1   0    0    1   
 $EndComp
 $Comp
 L GND #PWR30
 U 1 1 502B54A4
-P 10450 4250
-F 0 "#PWR30" H 10450 4250 30  0001 C CNN
-F 1 "GND" H 10450 4180 30  0001 C CNN
-	1    10450 4250
+P 10200 3850
+F 0 "#PWR30" H 10200 3850 30  0001 C CNN
+F 1 "GND" H 10200 3780 30  0001 C CNN
+	1    10200 3850
 	1    0    0    -1  
 $EndComp
 $Comp
 L GND #PWR6
 U 1 1 502B5428
-P 9450 2050
-F 0 "#PWR6" H 9450 2050 30  0001 C CNN
-F 1 "GND" H 9450 1980 30  0001 C CNN
-	1    9450 2050
+P 9200 1650
+F 0 "#PWR6" H 9200 1650 30  0001 C CNN
+F 1 "GND" H 9200 1580 30  0001 C CNN
+	1    9200 1650
 	-1   0    0    1   
 $EndComp
 $Comp
 L C C9
 U 1 1 502B53A4
-P 9250 1900
-F 0 "C9" H 9300 2000 50  0000 L CNN
-F 1 "10nF" H 9300 1800 50  0000 L CNN
-F 4 "Murata" H 15650 650 60  0001 C CNN "Manufacturer"
-F 5 "GRM155R71C103KA01D" H 15650 650 60  0001 C CNN "Part Number"
-F 6 "CAP CER 10000PF 16V 10% X7R 0402" H 15650 650 60  0001 C CNN "Description"
-	1    9250 1900
+P 9000 1450
+F 0 "C9" H 9050 1550 50  0000 L CNN
+F 1 "10nF" H 9050 1350 50  0000 L CNN
+F 4 "Murata" H 15400 200 60  0001 C CNN "Manufacturer"
+F 5 "GRM155R71C103KA01D" H 15400 200 60  0001 C CNN "Part Number"
+F 6 "CAP CER 10000PF 16V 10% X7R 0402" H 15400 200 60  0001 C CNN "Description"
+	1    9000 1450
 	0    -1   -1   0   
 $EndComp
 $Comp
 L C C48
 U 1 1 501EF6BA
-P 1550 6600
-F 0 "C48" H 1600 6700 50  0000 L CNN
-F 1 "47pF" H 1600 6500 50  0000 L CNN
-F 4 "Murata" H 3150 7700 60  0001 C CNN "Manufacturer"
-F 5 "GRM1555C1H470JZ01D" H 3150 7700 60  0001 C CNN "Part Number"
-F 6 "CAP CER 47PF 50V 5% NP0 0402" H 3150 7700 60  0001 C CNN "Description"
-	1    1550 6600
+P 1300 6200
+F 0 "C48" H 1350 6300 50  0000 L CNN
+F 1 "47pF" H 1350 6100 50  0000 L CNN
+F 4 "Murata" H 2900 7300 60  0001 C CNN "Manufacturer"
+F 5 "GRM1555C1H470JZ01D" H 2900 7300 60  0001 C CNN "Part Number"
+F 6 "CAP CER 47PF 50V 5% NP0 0402" H 2900 7300 60  0001 C CNN "Description"
+	1    1300 6200
 	0    1    1    0   
 $EndComp
 $Comp
 L C C23
 U 1 1 502B4C6F
-P 9250 3450
-F 0 "C23" H 9300 3550 50  0000 L CNN
-F 1 "10nF" H 9300 3350 50  0000 L CNN
-F 4 "Murata" H 15650 2200 60  0001 C CNN "Manufacturer"
-F 5 "GRM155R71C103KA01D" H 15650 2200 60  0001 C CNN "Part Number"
-F 6 "CAP CER 10000PF 16V 10% X7R 0402" H 15650 2200 60  0001 C CNN "Description"
-	1    9250 3450
+P 9000 3050
+F 0 "C23" H 9050 3150 50  0000 L CNN
+F 1 "10nF" H 9050 2950 50  0000 L CNN
+F 4 "Murata" H 15400 1800 60  0001 C CNN "Manufacturer"
+F 5 "GRM155R71C103KA01D" H 15400 1800 60  0001 C CNN "Part Number"
+F 6 "CAP CER 10000PF 16V 10% X7R 0402" H 15400 1800 60  0001 C CNN "Description"
+	1    9000 3050
 	-1   0    0    1   
 $EndComp
 $Comp
 L SKY13350 U10
 U 1 1 502B4C1C
-P 7100 6750
-F 0 "U10" H 7100 6950 60  0000 C CNN
-F 1 "SKY13350" H 7100 6550 60  0000 C CNN
-F 4 "Skyworks" H 7100 6750 60  0001 C CNN "Manufacturer"
-F 5 "SKY13350-385LF" H 7100 6750 60  0001 C CNN "Part Number"
-F 6 "0.01-6.0 GHz GaAs SPDT Switch" H 7100 6750 60  0001 C CNN "Description"
-	1    7100 6750
+P 6850 6350
+F 0 "U10" H 6850 6550 60  0000 C CNN
+F 1 "SKY13350" H 6850 6150 60  0000 C CNN
+F 4 "Skyworks" H 6850 6350 60  0001 C CNN "Manufacturer"
+F 5 "SKY13350-385LF" H 6850 6350 60  0001 C CNN "Part Number"
+F 6 "0.01-6.0 GHz GaAs SPDT Switch" H 6850 6350 60  0001 C CNN "Description"
+	1    6850 6350
 	0    -1   -1   0   
 $EndComp
 $Comp
 L C C46
 U 1 1 502B4C15
-P 6700 6200
-F 0 "C46" H 6750 6300 50  0000 L CNN
-F 1 "10nF" H 6750 6100 50  0000 L CNN
-F 4 "Murata" H 13100 4950 60  0001 C CNN "Manufacturer"
-F 5 "GRM155R71C103KA01D" H 13100 4950 60  0001 C CNN "Part Number"
-F 6 "CAP CER 10000PF 16V 10% X7R 0402" H 13100 4950 60  0001 C CNN "Description"
-	1    6700 6200
+P 6450 5800
+F 0 "C46" H 6500 5900 50  0000 L CNN
+F 1 "10nF" H 6500 5700 50  0000 L CNN
+F 4 "Murata" H 12850 4550 60  0001 C CNN "Manufacturer"
+F 5 "GRM155R71C103KA01D" H 12850 4550 60  0001 C CNN "Part Number"
+F 6 "CAP CER 10000PF 16V 10% X7R 0402" H 12850 4550 60  0001 C CNN "Description"
+	1    6450 5800
 	0    1    1    0   
 $EndComp
 $Comp
 L INDUCTOR L4
 U 1 1 4FB55E30
-P 5550 5950
-F 0 "L4" V 5500 5950 40  0000 C CNN
-F 1 "DNP" V 5650 5950 40  0000 C CNN
-	1    5550 5950
+P 5300 5550
+F 0 "L4" V 5250 5550 40  0000 C CNN
+F 1 "DNP" V 5400 5550 40  0000 C CNN
+	1    5300 5550
 	1    0    0    -1  
 $EndComp
 $Comp
 L SKY13350 U2
 U 1 1 502B490F
-P 9550 2600
-F 0 "U2" H 9550 2800 60  0000 C CNN
-F 1 "SKY13350" H 9550 2400 60  0000 C CNN
-F 4 "Skyworks" H 9550 2600 60  0001 C CNN "Manufacturer"
-F 5 "SKY13350-385LF" H 9550 2600 60  0001 C CNN "Part Number"
-F 6 "0.01-6.0 GHz GaAs SPDT Switch" H 9550 2600 60  0001 C CNN "Description"
-	1    9550 2600
+P 9300 2200
+F 0 "U2" H 9300 2400 60  0000 C CNN
+F 1 "SKY13350" H 9300 2000 60  0000 C CNN
+F 4 "Skyworks" H 9300 2200 60  0001 C CNN "Manufacturer"
+F 5 "SKY13350-385LF" H 9300 2200 60  0001 C CNN "Part Number"
+F 6 "0.01-6.0 GHz GaAs SPDT Switch" H 9300 2200 60  0001 C CNN "Description"
+	1    9300 2200
 	0    1    1    0   
 $EndComp
 $Comp
 L C C33
 U 1 1 502B4780
-P 2650 4950
-F 0 "C33" H 2700 5050 50  0000 L CNN
-F 1 "33pF" H 2700 4850 50  0000 L CNN
-F 4 "Murata" H 5800 4750 60  0001 C CNN "Manufacturer"
-F 5 "GRM1555C1H330JZ01D" H 5800 4750 60  0001 C CNN "Part Number"
-F 6 "CAP CER 33PF 50V 5% NP0 0402" H 5800 4750 60  0001 C CNN "Description"
-	1    2650 4950
+P 2400 4550
+F 0 "C33" H 2450 4650 50  0000 L CNN
+F 1 "33pF" H 2450 4450 50  0000 L CNN
+F 4 "Murata" H 5550 4350 60  0001 C CNN "Manufacturer"
+F 5 "GRM1555C1H330JZ01D" H 5550 4350 60  0001 C CNN "Part Number"
+F 6 "CAP CER 33PF 50V 5% NP0 0402" H 5550 4350 60  0001 C CNN "Description"
+	1    2400 4550
 	1    0    0    -1  
 $EndComp
 $Comp
 L GND #PWR36
 U 1 1 502B477F
-P 2650 5250
-F 0 "#PWR36" H 2650 5250 30  0001 C CNN
-F 1 "GND" H 2650 5180 30  0001 C CNN
-	1    2650 5250
+P 2400 4850
+F 0 "#PWR36" H 2400 4850 30  0001 C CNN
+F 1 "GND" H 2400 4780 30  0001 C CNN
+	1    2400 4850
 	1    0    0    -1  
 $EndComp
 $Comp
 L SKY13350 U7
 U 1 1 502B477E
-P 2650 4000
-F 0 "U7" H 2650 4200 60  0000 C CNN
-F 1 "SKY13350" H 2650 3800 60  0000 C CNN
-F 4 "Skyworks" H 2650 4000 60  0001 C CNN "Manufacturer"
-F 5 "SKY13350-385LF" H 2650 4000 60  0001 C CNN "Part Number"
-F 6 "0.01-6.0 GHz GaAs SPDT Switch" H 2650 4000 60  0001 C CNN "Description"
-	1    2650 4000
+P 2400 3600
+F 0 "U7" H 2400 3800 60  0000 C CNN
+F 1 "SKY13350" H 2400 3400 60  0000 C CNN
+F 4 "Skyworks" H 2400 3600 60  0001 C CNN "Manufacturer"
+F 5 "SKY13350-385LF" H 2400 3600 60  0001 C CNN "Part Number"
+F 6 "0.01-6.0 GHz GaAs SPDT Switch" H 2400 3600 60  0001 C CNN "Description"
+	1    2400 3600
 	0    1    1    0   
 $EndComp
 $Comp
 L GND #PWR19
 U 1 1 502B477C
-P 2550 3450
-F 0 "#PWR19" H 2550 3450 30  0001 C CNN
-F 1 "GND" H 2550 3380 30  0001 C CNN
-	1    2550 3450
+P 2300 3050
+F 0 "#PWR19" H 2300 3050 30  0001 C CNN
+F 1 "GND" H 2300 2980 30  0001 C CNN
+	1    2300 3050
 	-1   0    0    1   
 $EndComp
 $Comp
 L C C28
 U 1 1 502B477A
-P 3050 4550
-F 0 "C28" H 3100 4650 50  0000 L CNN
-F 1 "10nF" H 3100 4450 50  0000 L CNN
-F 4 "Murata" H 9450 3300 60  0001 C CNN "Manufacturer"
-F 5 "GRM155R71C103KA01D" H 9450 3300 60  0001 C CNN "Part Number"
-F 6 "CAP CER 10000PF 16V 10% X7R 0402" H 9450 3300 60  0001 C CNN "Description"
-	1    3050 4550
+P 2800 4150
+F 0 "C28" H 2850 4250 50  0000 L CNN
+F 1 "10nF" H 2850 4050 50  0000 L CNN
+F 4 "Murata" H 9200 2900 60  0001 C CNN "Manufacturer"
+F 5 "GRM155R71C103KA01D" H 9200 2900 60  0001 C CNN "Part Number"
+F 6 "CAP CER 10000PF 16V 10% X7R 0402" H 9200 2900 60  0001 C CNN "Description"
+	1    2800 4150
 	0    1    1    0   
 $EndComp
 $Comp
 L C C22
 U 1 1 502B4779
-P 3050 3450
-F 0 "C22" H 3100 3550 50  0000 L CNN
-F 1 "33pF" H 3100 3350 50  0000 L CNN
-F 4 "Murata" H 14400 5700 60  0001 C CNN "Manufacturer"
-F 5 "GRM1555C1H330JZ01D" H 14400 5700 60  0001 C CNN "Part Number"
-F 6 "CAP CER 33PF 50V 5% NP0 0402" H 14400 5700 60  0001 C CNN "Description"
-	1    3050 3450
+P 2800 3050
+F 0 "C22" H 2850 3150 50  0000 L CNN
+F 1 "33pF" H 2850 2950 50  0000 L CNN
+F 4 "Murata" H 14150 5300 60  0001 C CNN "Manufacturer"
+F 5 "GRM1555C1H330JZ01D" H 14150 5300 60  0001 C CNN "Part Number"
+F 6 "CAP CER 33PF 50V 5% NP0 0402" H 14150 5300 60  0001 C CNN "Description"
+	1    2800 3050
 	0    1    -1   0   
 $EndComp
 $Comp
 L GND #PWR20
 U 1 1 502B4778
-P 3350 3450
-F 0 "#PWR20" H 3350 3450 30  0001 C CNN
-F 1 "GND" H 3350 3380 30  0001 C CNN
-	1    3350 3450
+P 3100 3050
+F 0 "#PWR20" H 3100 3050 30  0001 C CNN
+F 1 "GND" H 3100 2980 30  0001 C CNN
+	1    3100 3050
 	0    -1   -1   0   
 $EndComp
 $Comp
 L INDUCTOR L1
 U 1 1 502AFA8C
-P 4150 4150
-F 0 "L1" V 4100 4150 40  0000 C CNN
-F 1 "DNP" V 4250 4150 40  0000 C CNN
-	1    4150 4150
+P 3900 3750
+F 0 "L1" V 3850 3750 40  0000 C CNN
+F 1 "DNP" V 4000 3750 40  0000 C CNN
+	1    3900 3750
 	1    0    0    -1  
 $EndComp
-Text Label 1950 6050 3    40   ~ 0
+Text Label 1700 5650 3    40   ~ 0
 !MIX_BYPASS
-Text Label 1850 8100 1    40   ~ 0
+Text Label 1600 7700 1    40   ~ 0
 MIX_BYPASS
-Text Label 1850 3100 1    40   ~ 0
+Text Label 1600 2650 1    40   ~ 0
 !MIX_BYPASS
-Text Label 1950 1050 3    40   ~ 0
+Text Label 1700 600  3    40   ~ 0
 MIX_BYPASS
-Text Label 10100 4400 0    40   ~ 0
+Text Label 9850 4000 0    40   ~ 0
 HP
-Text Label 10350 2250 3    40   ~ 0
+Text Label 10100 1850 3    40   ~ 0
 LP
 $Comp
 L GND #PWR12
 U 1 1 501F4794
-P 1250 2700
-F 0 "#PWR12" H 1250 2700 30  0001 C CNN
-F 1 "GND" H 1250 2630 30  0001 C CNN
-	1    1250 2700
+P 1000 2250
+F 0 "#PWR12" H 1000 2250 30  0001 C CNN
+F 1 "GND" H 1000 2180 30  0001 C CNN
+	1    1000 2250
 	0    1    1    0   
 $EndComp
 $Comp
 L C C16
 U 1 1 501F4793
-P 1550 2700
-F 0 "C16" H 1600 2800 50  0000 L CNN
-F 1 "33pF" H 1600 2600 50  0000 L CNN
-F 4 "Murata" H 4700 2500 60  0001 C CNN "Manufacturer"
-F 5 "GRM1555C1H330JZ01D" H 4700 2500 60  0001 C CNN "Part Number"
-F 6 "CAP CER 33PF 50V 5% NP0 0402" H 4700 2500 60  0001 C CNN "Description"
-	1    1550 2700
+P 1300 2250
+F 0 "C16" H 1350 2350 50  0000 L CNN
+F 1 "33pF" H 1350 2150 50  0000 L CNN
+F 4 "Murata" H 4450 2050 60  0001 C CNN "Manufacturer"
+F 5 "GRM1555C1H330JZ01D" H 4450 2050 60  0001 C CNN "Part Number"
+F 6 "CAP CER 33PF 50V 5% NP0 0402" H 4450 2050 60  0001 C CNN "Description"
+	1    1300 2250
 	0    1    1    0   
 $EndComp
 $Comp
 L GND #PWR5
 U 1 1 501F4789
-P 2550 1450
-F 0 "#PWR5" H 2550 1450 30  0001 C CNN
-F 1 "GND" H 2550 1380 30  0001 C CNN
-	1    2550 1450
+P 2300 1000
+F 0 "#PWR5" H 2300 1000 30  0001 C CNN
+F 1 "GND" H 2300 930 30  0001 C CNN
+	1    2300 1000
 	0    -1   -1   0   
 $EndComp
 $Comp
 L C C7
 U 1 1 501F4788
-P 2250 1450
-F 0 "C7" H 2300 1550 50  0000 L CNN
-F 1 "33pF" H 2300 1350 50  0000 L CNN
-F 4 "Murata" H 13600 3700 60  0001 C CNN "Manufacturer"
-F 5 "GRM1555C1H330JZ01D" H 13600 3700 60  0001 C CNN "Part Number"
-F 6 "CAP CER 33PF 50V 5% NP0 0402" H 13600 3700 60  0001 C CNN "Description"
-	1    2250 1450
+P 2000 1000
+F 0 "C7" H 2050 1100 50  0000 L CNN
+F 1 "33pF" H 2050 900 50  0000 L CNN
+F 4 "Murata" H 13350 3250 60  0001 C CNN "Manufacturer"
+F 5 "GRM1555C1H330JZ01D" H 13350 3250 60  0001 C CNN "Part Number"
+F 6 "CAP CER 33PF 50V 5% NP0 0402" H 13350 3250 60  0001 C CNN "Description"
+	1    2000 1000
 	0    1    -1   0   
 $EndComp
 $Comp
 L C C47
 U 1 1 501F477D
-P 2250 6450
-F 0 "C47" H 2300 6550 50  0000 L CNN
-F 1 "33pF" H 2300 6350 50  0000 L CNN
-F 4 "Murata" H 13600 8700 60  0001 C CNN "Manufacturer"
-F 5 "GRM1555C1H330JZ01D" H 13600 8700 60  0001 C CNN "Part Number"
-F 6 "CAP CER 33PF 50V 5% NP0 0402" H 13600 8700 60  0001 C CNN "Description"
-	1    2250 6450
+P 2000 6050
+F 0 "C47" H 2050 6150 50  0000 L CNN
+F 1 "33pF" H 2050 5950 50  0000 L CNN
+F 4 "Murata" H 13350 8300 60  0001 C CNN "Manufacturer"
+F 5 "GRM1555C1H330JZ01D" H 13350 8300 60  0001 C CNN "Part Number"
+F 6 "CAP CER 33PF 50V 5% NP0 0402" H 13350 8300 60  0001 C CNN "Description"
+	1    2000 6050
 	0    1    -1   0   
 $EndComp
 $Comp
 L GND #PWR51
 U 1 1 501F477C
-P 2550 6450
-F 0 "#PWR51" H 2550 6450 30  0001 C CNN
-F 1 "GND" H 2550 6380 30  0001 C CNN
-	1    2550 6450
+P 2300 6050
+F 0 "#PWR51" H 2300 6050 30  0001 C CNN
+F 1 "GND" H 2300 5980 30  0001 C CNN
+	1    2300 6050
 	0    -1   -1   0   
 $EndComp
 $Comp
 L C C56
 U 1 1 501F4769
-P 1550 7700
-F 0 "C56" H 1600 7800 50  0000 L CNN
-F 1 "33pF" H 1600 7600 50  0000 L CNN
-F 4 "Murata" H 4700 7500 60  0001 C CNN "Manufacturer"
-F 5 "GRM1555C1H330JZ01D" H 4700 7500 60  0001 C CNN "Part Number"
-F 6 "CAP CER 33PF 50V 5% NP0 0402" H 4700 7500 60  0001 C CNN "Description"
-	1    1550 7700
+P 1300 7300
+F 0 "C56" H 1350 7400 50  0000 L CNN
+F 1 "33pF" H 1350 7200 50  0000 L CNN
+F 4 "Murata" H 4450 7100 60  0001 C CNN "Manufacturer"
+F 5 "GRM1555C1H330JZ01D" H 4450 7100 60  0001 C CNN "Part Number"
+F 6 "CAP CER 33PF 50V 5% NP0 0402" H 4450 7100 60  0001 C CNN "Description"
+	1    1300 7300
 	0    1    1    0   
 $EndComp
 $Comp
 L GND #PWR60
 U 1 1 501F4768
-P 1250 7700
-F 0 "#PWR60" H 1250 7700 30  0001 C CNN
-F 1 "GND" H 1250 7630 30  0001 C CNN
-	1    1250 7700
+P 1000 7300
+F 0 "#PWR60" H 1000 7300 30  0001 C CNN
+F 1 "GND" H 1000 7230 30  0001 C CNN
+	1    1000 7300
 	0    1    1    0   
 $EndComp
 $Comp
 L GND #PWR9
 U 1 1 501F46AE
-P 10950 2400
-F 0 "#PWR9" H 10950 2400 30  0001 C CNN
-F 1 "GND" H 10950 2330 30  0001 C CNN
-	1    10950 2400
+P 10700 2000
+F 0 "#PWR9" H 10700 2000 30  0001 C CNN
+F 1 "GND" H 10700 1930 30  0001 C CNN
+	1    10700 2000
 	0    -1   -1   0   
 $EndComp
 $Comp
 L C C11
 U 1 1 501F46A8
-P 10650 2400
-F 0 "C11" H 10700 2500 50  0000 L CNN
-F 1 "33pF" H 10700 2300 50  0000 L CNN
-F 4 "Murata" H 22000 4650 60  0001 C CNN "Manufacturer"
-F 5 "GRM1555C1H330JZ01D" H 22000 4650 60  0001 C CNN "Part Number"
-F 6 "CAP CER 33PF 50V 5% NP0 0402" H 22000 4650 60  0001 C CNN "Description"
-	1    10650 2400
+P 10400 2000
+F 0 "C11" H 10450 2100 50  0000 L CNN
+F 1 "33pF" H 10450 1900 50  0000 L CNN
+F 4 "Murata" H 21750 4250 60  0001 C CNN "Manufacturer"
+F 5 "GRM1555C1H330JZ01D" H 21750 4250 60  0001 C CNN "Part Number"
+F 6 "CAP CER 33PF 50V 5% NP0 0402" H 21750 4250 60  0001 C CNN "Description"
+	1    10400 2000
 	0    1    -1   0   
 $EndComp
 $Comp
 L C C20
 U 1 1 501F41BD
-P 9950 3150
-F 0 "C20" H 10000 3250 50  0000 L CNN
-F 1 "10nF" H 10000 3050 50  0000 L CNN
-F 4 "Murata" H 16350 1900 60  0001 C CNN "Manufacturer"
-F 5 "GRM155R71C103KA01D" H 16350 1900 60  0001 C CNN "Part Number"
-F 6 "CAP CER 10000PF 16V 10% X7R 0402" H 16350 1900 60  0001 C CNN "Description"
-	1    9950 3150
+P 9700 2750
+F 0 "C20" H 9750 2850 50  0000 L CNN
+F 1 "10nF" H 9750 2650 50  0000 L CNN
+F 4 "Murata" H 16100 1500 60  0001 C CNN "Manufacturer"
+F 5 "GRM155R71C103KA01D" H 16100 1500 60  0001 C CNN "Part Number"
+F 6 "CAP CER 10000PF 16V 10% X7R 0402" H 16100 1500 60  0001 C CNN "Description"
+	1    9700 2750
 	0    1    1    0   
 $EndComp
 $Comp
 L C C17
 U 1 1 501F41BB
-P 10750 2850
-F 0 "C17" H 10800 2950 50  0000 L CNN
-F 1 "10nF" H 10800 2750 50  0000 L CNN
-F 4 "Murata" H 17150 1600 60  0001 C CNN "Manufacturer"
-F 5 "GRM155R71C103KA01D" H 17150 1600 60  0001 C CNN "Part Number"
-F 6 "CAP CER 10000PF 16V 10% X7R 0402" H 17150 1600 60  0001 C CNN "Description"
-	1    10750 2850
+P 10500 2450
+F 0 "C17" H 10550 2550 50  0000 L CNN
+F 1 "10nF" H 10550 2350 50  0000 L CNN
+F 4 "Murata" H 16900 1200 60  0001 C CNN "Manufacturer"
+F 5 "GRM155R71C103KA01D" H 16900 1200 60  0001 C CNN "Part Number"
+F 6 "CAP CER 10000PF 16V 10% X7R 0402" H 16900 1200 60  0001 C CNN "Description"
+	1    10500 2450
 	0    1    -1   0   
 $EndComp
 $Comp
 L C C18
 U 1 1 501F41B9
-P 12550 2850
-F 0 "C18" H 12600 2950 50  0000 L CNN
-F 1 "10nF" H 12600 2750 50  0000 L CNN
-F 4 "Murata" H 18950 1600 60  0001 C CNN "Manufacturer"
-F 5 "GRM155R71C103KA01D" H 18950 1600 60  0001 C CNN "Part Number"
-F 6 "CAP CER 10000PF 16V 10% X7R 0402" H 18950 1600 60  0001 C CNN "Description"
-	1    12550 2850
+P 12300 2450
+F 0 "C18" H 12350 2550 50  0000 L CNN
+F 1 "10nF" H 12350 2350 50  0000 L CNN
+F 4 "Murata" H 18700 1200 60  0001 C CNN "Manufacturer"
+F 5 "GRM155R71C103KA01D" H 18700 1200 60  0001 C CNN "Part Number"
+F 6 "CAP CER 10000PF 16V 10% X7R 0402" H 18700 1200 60  0001 C CNN "Description"
+	1    12300 2450
 	0    1    -1   0   
 $EndComp
 $Comp
 L C C44
 U 1 1 501F4169
-P 14550 5650
-F 0 "C44" H 14600 5750 50  0000 L CNN
-F 1 "10nF" H 14600 5550 50  0000 L CNN
-F 4 "Murata" H 20950 4400 60  0001 C CNN "Manufacturer"
-F 5 "GRM155R71C103KA01D" H 20950 4400 60  0001 C CNN "Part Number"
-F 6 "CAP CER 10000PF 16V 10% X7R 0402" H 20950 4400 60  0001 C CNN "Description"
-	1    14550 5650
+P 15750 3900
+F 0 "C44" H 15800 4000 50  0000 L CNN
+F 1 "10nF" H 15800 3800 50  0000 L CNN
+F 4 "Murata" H 22150 2650 60  0001 C CNN "Manufacturer"
+F 5 "GRM155R71C103KA01D" H 22150 2650 60  0001 C CNN "Part Number"
+F 6 "CAP CER 10000PF 16V 10% X7R 0402" H 22150 2650 60  0001 C CNN "Description"
+	1    15750 3900
 	1    0    0    1   
 $EndComp
-Text Notes 10950 3550 0    60   ~ 0
+Text Notes 10700 3150 0    60   ~ 0
 switchable image reject filters
 $Comp
 L SKY13350 U5
 U 1 1 501F3B20
-P 12950 3550
-F 0 "U5" H 12950 3750 60  0000 C CNN
-F 1 "SKY13350" H 12950 3350 60  0000 C CNN
-F 4 "Skyworks" H 12950 3550 60  0001 C CNN "Manufacturer"
-F 5 "SKY13350-385LF" H 12950 3550 60  0001 C CNN "Part Number"
-F 6 "0.01-6.0 GHz GaAs SPDT Switch" H 12950 3550 60  0001 C CNN "Description"
-	1    12950 3550
+P 12700 3150
+F 0 "U5" H 12700 3350 60  0000 C CNN
+F 1 "SKY13350" H 12700 2950 60  0000 C CNN
+F 4 "Skyworks" H 12700 3150 60  0001 C CNN "Manufacturer"
+F 5 "SKY13350-385LF" H 12700 3150 60  0001 C CNN "Part Number"
+F 6 "0.01-6.0 GHz GaAs SPDT Switch" H 12700 3150 60  0001 C CNN "Description"
+	1    12700 3150
 	0    1    1    0   
 $EndComp
 $Comp
 L GND #PWR13
 U 1 1 501EF7A8
-P 2050 2700
-F 0 "#PWR13" H 2050 2700 30  0001 C CNN
-F 1 "GND" H 2050 2630 30  0001 C CNN
-	1    2050 2700
+P 1800 2250
+F 0 "#PWR13" H 1800 2250 30  0001 C CNN
+F 1 "GND" H 1800 2180 30  0001 C CNN
+	1    1800 2250
 	1    0    0    -1  
 $EndComp
 $Comp
 L C C8
 U 1 1 501EF782
-P 1550 1600
-F 0 "C8" H 1600 1700 50  0000 L CNN
-F 1 "47pF" H 1600 1500 50  0000 L CNN
-F 4 "Murata" H 3150 2700 60  0001 C CNN "Manufacturer"
-F 5 "GRM1555C1H470JZ01D" H 3150 2700 60  0001 C CNN "Part Number"
-F 6 "CAP CER 47PF 50V 5% NP0 0402" H 3150 2700 60  0001 C CNN "Description"
-	1    1550 1600
+P 1300 1150
+F 0 "C8" H 1350 1250 50  0000 L CNN
+F 1 "47pF" H 1350 1050 50  0000 L CNN
+F 4 "Murata" H 2900 2250 60  0001 C CNN "Manufacturer"
+F 5 "GRM1555C1H470JZ01D" H 2900 2250 60  0001 C CNN "Part Number"
+F 6 "CAP CER 47PF 50V 5% NP0 0402" H 2900 2250 60  0001 C CNN "Description"
+	1    1300 1150
 	0    -1   -1   0   
 $EndComp
 $Comp
 L SKY13350 U1
 U 1 1 501EF778
-P 1950 2150
-F 0 "U1" H 1950 2350 60  0000 C CNN
-F 1 "SKY13350" H 1950 1950 60  0000 C CNN
-F 4 "Skyworks" H 1950 2150 60  0001 C CNN "Manufacturer"
-F 5 "SKY13350-385LF" H 1950 2150 60  0001 C CNN "Part Number"
-F 6 "0.01-6.0 GHz GaAs SPDT Switch" H 1950 2150 60  0001 C CNN "Description"
-	1    1950 2150
+P 1700 1700
+F 0 "U1" H 1700 1900 60  0000 C CNN
+F 1 "SKY13350" H 1700 1500 60  0000 C CNN
+F 4 "Skyworks" H 1700 1700 60  0001 C CNN "Manufacturer"
+F 5 "SKY13350-385LF" H 1700 1700 60  0001 C CNN "Part Number"
+F 6 "0.01-6.0 GHz GaAs SPDT Switch" H 1700 1700 60  0001 C CNN "Description"
+	1    1700 1700
 	0    -1   -1   0   
 $EndComp
 $Comp
 L C C21
 U 1 1 501EF768
-P 1950 3300
-F 0 "C21" H 2000 3400 50  0000 L CNN
-F 1 "47pF" H 2000 3200 50  0000 L CNN
-F 4 "Murata" H 3550 4400 60  0001 C CNN "Manufacturer"
-F 5 "GRM1555C1H470JZ01D" H 3550 4400 60  0001 C CNN "Part Number"
-F 6 "CAP CER 47PF 50V 5% NP0 0402" H 3550 4400 60  0001 C CNN "Description"
-	1    1950 3300
+P 1700 2850
+F 0 "C21" H 1750 2950 50  0000 L CNN
+F 1 "47pF" H 1750 2750 50  0000 L CNN
+F 4 "Murata" H 3300 3950 60  0001 C CNN "Manufacturer"
+F 5 "GRM1555C1H470JZ01D" H 3300 3950 60  0001 C CNN "Part Number"
+F 6 "CAP CER 47PF 50V 5% NP0 0402" H 3300 3950 60  0001 C CNN "Description"
+	1    1700 2850
 	1    0    0    -1  
 $EndComp
 $Comp
 L C C51
 U 1 1 501EF6A1
-P 2450 6900
-F 0 "C51" H 2500 7000 50  0000 L CNN
-F 1 "47pF" H 2500 6800 50  0000 L CNN
-F 4 "Murata" H 4050 8000 60  0001 C CNN "Manufacturer"
-F 5 "GRM1555C1H470JZ01D" H 4050 8000 60  0001 C CNN "Part Number"
-F 6 "CAP CER 47PF 50V 5% NP0 0402" H 4050 8000 60  0001 C CNN "Description"
-	1    2450 6900
+P 2200 6500
+F 0 "C51" H 2250 6600 50  0000 L CNN
+F 1 "47pF" H 2250 6400 50  0000 L CNN
+F 4 "Murata" H 3800 7600 60  0001 C CNN "Manufacturer"
+F 5 "GRM1555C1H470JZ01D" H 3800 7600 60  0001 C CNN "Part Number"
+F 6 "CAP CER 47PF 50V 5% NP0 0402" H 3800 7600 60  0001 C CNN "Description"
+	1    2200 6500
 	1    0    0    -1  
 $EndComp
 $Comp
 L GND #PWR61
 U 1 1 501EF65B
-P 2050 7700
-F 0 "#PWR61" H 2050 7700 30  0001 C CNN
-F 1 "GND" H 2050 7630 30  0001 C CNN
-	1    2050 7700
+P 1800 7300
+F 0 "#PWR61" H 1800 7300 30  0001 C CNN
+F 1 "GND" H 1800 7230 30  0001 C CNN
+	1    1800 7300
 	1    0    0    -1  
 $EndComp
 $Comp
 L SKY13350 U11
 U 1 1 501EF646
-P 1950 7150
-F 0 "U11" H 1950 7350 60  0000 C CNN
-F 1 "SKY13350" H 1950 6950 60  0000 C CNN
-F 4 "Skyworks" H 1950 7150 60  0001 C CNN "Manufacturer"
-F 5 "SKY13350-385LF" H 1950 7150 60  0001 C CNN "Part Number"
-F 6 "0.01-6.0 GHz GaAs SPDT Switch" H 1950 7150 60  0001 C CNN "Description"
-	1    1950 7150
+P 1700 6750
+F 0 "U11" H 1700 6950 60  0000 C CNN
+F 1 "SKY13350" H 1700 6550 60  0000 C CNN
+F 4 "Skyworks" H 1700 6750 60  0001 C CNN "Manufacturer"
+F 5 "SKY13350-385LF" H 1700 6750 60  0001 C CNN "Part Number"
+F 6 "0.01-6.0 GHz GaAs SPDT Switch" H 1700 6750 60  0001 C CNN "Description"
+	1    1700 6750
 	0    -1   -1   0   
 $EndComp
 $Comp
 L BALUN-B0310J50100AHF T2
 U 1 1 501EF4A4
-P 6100 6300
-F 0 "T2" H 6100 6500 70  0000 C CNN
-F 1 "MIX_OUT_BALUN" H 6000 6150 70  0000 C CNN
-F 4 "Anaren" H 6100 6300 60  0001 C CNN "Manufacturer"
-F 5 "B0310J50100AHF" H 6100 6300 60  0001 C CNN "Part Number"
-F 6 "Ultra Low Profile 0805 Balun 50 to 100 ohm Balanced" H 6100 6300 60  0001 C CNN "Description"
-	1    6100 6300
+P 5850 5900
+F 0 "T2" H 5850 6100 70  0000 C CNN
+F 1 "MIX_OUT_BALUN" H 5750 5750 70  0000 C CNN
+F 4 "Anaren" H 5850 5900 60  0001 C CNN "Manufacturer"
+F 5 "B0310J50100AHF" H 5850 5900 60  0001 C CNN "Part Number"
+F 6 "Ultra Low Profile 0805 Balun 50 to 100 ohm Balanced" H 5850 5900 60  0001 C CNN "Description"
+	1    5850 5900
 	1    0    0    -1  
 $EndComp
 $Comp
 L GND #PWR24
 U 1 1 501EF4A0
-P 3250 3800
-F 0 "#PWR24" H 3250 3800 30  0001 C CNN
-F 1 "GND" H 3250 3730 30  0001 C CNN
-	1    3250 3800
+P 3000 3400
+F 0 "#PWR24" H 3000 3400 30  0001 C CNN
+F 1 "GND" H 3000 3330 30  0001 C CNN
+	1    3000 3400
 	-1   0    0    1   
 $EndComp
 $Comp
 L BALUN-B0310J50100AHF T1
 U 1 1 501EF483
-P 3650 4450
-F 0 "T1" H 3650 4650 70  0000 C CNN
-F 1 "MIX_IN_BALUN" H 3650 4300 70  0000 C CNN
-F 4 "Anaren" H 3650 4450 60  0001 C CNN "Manufacturer"
-F 5 "B0310J50100AHF" H 3650 4450 60  0001 C CNN "Part Number"
-F 6 "Ultra Low Profile 0805 Balun 50 to 100 ohm Balanced" H 3650 4450 60  0001 C CNN "Description"
-	1    3650 4450
+P 3400 4050
+F 0 "T1" H 3400 4250 70  0000 C CNN
+F 1 "MIX_IN_BALUN" H 3400 3900 70  0000 C CNN
+F 4 "Anaren" H 3400 4050 60  0001 C CNN "Manufacturer"
+F 5 "B0310J50100AHF" H 3400 4050 60  0001 C CNN "Part Number"
+F 6 "Ultra Low Profile 0805 Balun 50 to 100 ohm Balanced" H 3400 4050 60  0001 C CNN "Description"
+	1    3400 4050
 	-1   0    0    1   
 $EndComp
 $Comp
 L C C27
 U 1 1 501EF311
-P 10750 4400
-F 0 "C27" H 10800 4500 50  0000 L CNN
-F 1 "47pF" H 10800 4300 50  0000 L CNN
-F 4 "Murata" H 10750 6100 60  0001 C CNN "Manufacturer"
-F 5 "GRM1555C1H470JZ01D" H 10750 6100 60  0001 C CNN "Part Number"
-F 6 "CAP CER 47PF 50V 5% NP0 0402" H 10750 6100 60  0001 C CNN "Description"
-	1    10750 4400
+P 10500 4000
+F 0 "C27" H 10550 4100 50  0000 L CNN
+F 1 "47pF" H 10550 3900 50  0000 L CNN
+F 4 "Murata" H 10500 5700 60  0001 C CNN "Manufacturer"
+F 5 "GRM1555C1H470JZ01D" H 10500 5700 60  0001 C CNN "Part Number"
+F 6 "CAP CER 47PF 50V 5% NP0 0402" H 10500 5700 60  0001 C CNN "Description"
+	1    10500 4000
 	0    1    1    0   
 $EndComp
 $Comp
 L SKY13350 U6
 U 1 1 501EF258
-P 10350 3700
-F 0 "U6" H 10350 3900 60  0000 C CNN
-F 1 "SKY13350" H 10350 3500 60  0000 C CNN
-F 4 "Skyworks" H 10350 3700 60  0001 C CNN "Manufacturer"
-F 5 "SKY13350-385LF" H 10350 3700 60  0001 C CNN "Part Number"
-F 6 "0.01-6.0 GHz GaAs SPDT Switch" H 10350 3700 60  0001 C CNN "Description"
-	1    10350 3700
+P 10100 3300
+F 0 "U6" H 10100 3500 60  0000 C CNN
+F 1 "SKY13350" H 10100 3100 60  0000 C CNN
+F 4 "Skyworks" H 10100 3300 60  0001 C CNN "Manufacturer"
+F 5 "SKY13350-385LF" H 10100 3300 60  0001 C CNN "Part Number"
+F 6 "0.01-6.0 GHz GaAs SPDT Switch" H 10100 3300 60  0001 C CNN "Description"
+	1    10100 3300
 	0    -1   -1   0   
 $EndComp
 $Comp
 L GND #PWR84
 U 1 1 4FC68E81
-P 1600 10350
-F 0 "#PWR84" H 1600 10350 30  0001 C CNN
-F 1 "GND" H 1600 10280 30  0001 C CNN
-	1    1600 10350
+P 1750 10300
+F 0 "#PWR84" H 1750 10300 30  0001 C CNN
+F 1 "GND" H 1750 10230 30  0001 C CNN
+	1    1750 10300
 	1    0    0    -1  
 $EndComp
 $Comp
 L C C41
 U 1 1 4FB55FAD
-P 4350 5750
-F 0 "C41" H 4400 5850 50  0000 L CNN
-F 1 "100pF" H 4400 5650 50  0000 L CNN
-F 4 "Murata" H 7650 7300 60  0001 C CNN "Manufacturer"
-F 5 "GRM1555C1H101JZ01D" H 7650 7300 60  0001 C CNN "Part Number"
-F 6 "CAP CER 100PF 50V 5% NP0 0402" H 7650 7300 60  0001 C CNN "Description"
-	1    4350 5750
+P 4100 5350
+F 0 "C41" H 4150 5450 50  0000 L CNN
+F 1 "100pF" H 4150 5250 50  0000 L CNN
+F 4 "Murata" H 7400 6900 60  0001 C CNN "Manufacturer"
+F 5 "GRM1555C1H101JZ01D" H 7400 6900 60  0001 C CNN "Part Number"
+F 6 "CAP CER 100PF 50V 5% NP0 0402" H 7400 6900 60  0001 C CNN "Description"
+	1    4100 5350
 	1    0    0    -1  
 $EndComp
 $Comp
 L GND #PWR47
 U 1 1 4FB55FAC
-P 4350 6050
-F 0 "#PWR47" H 4350 6050 30  0001 C CNN
-F 1 "GND" H 4350 5980 30  0001 C CNN
-	1    4350 6050
+P 4100 5650
+F 0 "#PWR47" H 4100 5650 30  0001 C CNN
+F 1 "GND" H 4100 5580 30  0001 C CNN
+	1    4100 5650
 	1    0    0    -1  
 $EndComp
-Text Notes 7750 9600 0    40   ~ 0
+Text Notes 6800 9600 0    40   ~ 0
 Expected MIX_CLK is 1.8 to 3.3 V\npeak-to-peak at 25 to 52 MHz. It is\ndivided down to 0.5 to 1.5 V (REF_IN).
 $Comp
 L C C70
 U 1 1 4FB3CC76
-P 9050 10000
-F 0 "C70" H 9100 10100 50  0000 L CNN
-F 1 "47pF" H 9100 9900 50  0000 L CNN
-F 4 "Murata" H 9050 9400 60  0001 C CNN "Manufacturer"
-F 5 "GRM1555C1H470JZ01D" H 9050 9400 60  0001 C CNN "Part Number"
-F 6 "CAP CER 47PF 50V 5% NP0 0402" H 9050 9400 60  0001 C CNN "Description"
-	1    9050 10000
+P 8100 10000
+F 0 "C70" H 8150 10100 50  0000 L CNN
+F 1 "47pF" H 8150 9900 50  0000 L CNN
+F 4 "Murata" H 8100 9400 60  0001 C CNN "Manufacturer"
+F 5 "GRM1555C1H470JZ01D" H 8100 9400 60  0001 C CNN "Part Number"
+F 6 "CAP CER 47PF 50V 5% NP0 0402" H 8100 9400 60  0001 C CNN "Description"
+	1    8100 10000
 	1    0    0    -1  
 $EndComp
 $Comp
 L GND #PWR29
 U 1 1 4FB52F5A
-P 6850 4250
-F 0 "#PWR29" H 6850 4250 30  0001 C CNN
-F 1 "GND" H 6850 4180 30  0001 C CNN
-	1    6850 4250
+P 6600 3850
+F 0 "#PWR29" H 6600 3850 30  0001 C CNN
+F 1 "GND" H 6600 3780 30  0001 C CNN
+	1    6600 3850
 	1    0    0    -1  
 $EndComp
 $Comp
 L GSG-DIODE-TVS-BI D1
 U 1 1 4FB3F9B0
-P 15700 9350
-F 0 "D1" H 15700 9450 50  0000 C CNN
-F 1 "GSG-DIODE-TVS-BI" H 15700 9250 40  0000 C CNN
-F 4 "Murata" H 15700 9350 60  0001 C CNN "Manufacturer"
-F 5 "LXES15AAA1-100" H 15700 9350 60  0001 C CNN "Part Number"
-F 6 "TVS DIODE ESD .05PF 15KV 0402" H 15700 9350 60  0001 C CNN "Description"
-	1    15700 9350
+P 15550 8950
+F 0 "D1" H 15550 9050 50  0000 C CNN
+F 1 "GSG-DIODE-TVS-BI" H 15550 8850 40  0000 C CNN
+F 4 "Murata" H 15550 8950 60  0001 C CNN "Manufacturer"
+F 5 "LXES15AAA1-100" H 15550 8950 60  0001 C CNN "Part Number"
+F 6 "TVS DIODE ESD .05PF 15KV 0402" H 15550 8950 60  0001 C CNN "Description"
+	1    15550 8950
 	0    -1   -1   0   
 $EndComp
 $Comp
 L GND #PWR76
 U 1 1 4FB3F838
-P 15700 9700
-F 0 "#PWR76" H 15700 9700 30  0001 C CNN
-F 1 "GND" H 15700 9630 30  0001 C CNN
-	1    15700 9700
+P 15550 9300
+F 0 "#PWR76" H 15550 9300 30  0001 C CNN
+F 1 "GND" H 15550 9230 30  0001 C CNN
+	1    15550 9300
 	1    0    0    -1  
 $EndComp
-Text Label 9300 9700 2    40   ~ 0
+Text Label 8350 9700 2    40   ~ 0
 REF_IN
 $Comp
 L GND #PWR83
 U 1 1 4FB3CC7B
-P 9050 10300
-F 0 "#PWR83" H 9050 10300 30  0001 C CNN
-F 1 "GND" H 9050 10230 30  0001 C CNN
-	1    9050 10300
+P 8100 10300
+F 0 "#PWR83" H 8100 10300 30  0001 C CNN
+F 1 "GND" H 8100 10230 30  0001 C CNN
+	1    8100 10300
 	1    0    0    -1  
 $EndComp
-Text Label 5850 2150 3    40   ~ 0
+Text Label 5600 1750 3    40   ~ 0
 REF_IN
-Text Notes 1900 8900 0    40   ~ 0
+Text Notes 2050 8850 0    40   ~ 0
 switch control logic ensures valid switch configurations
-Text Label 2350 9700 2    40   ~ 0
+Text Label 2500 9650 2    40   ~ 0
 RX
-Text Label 2350 9600 2    40   ~ 0
+Text Label 2500 9550 2    40   ~ 0
 TX
-Text Label 2350 9900 2    40   ~ 0
+Text Label 2500 9850 2    40   ~ 0
 LP
-Text Label 2350 9800 2    40   ~ 0
+Text Label 2500 9750 2    40   ~ 0
 HP
-Text Label 600  9800 0    40   ~ 0
+Text Label 750  9750 0    40   ~ 0
 !AMP_BYPASS
-Text Label 600  9700 0    40   ~ 0
+Text Label 750  9650 0    40   ~ 0
 AMP_BYPASS
-Text Label 600  9600 0    40   ~ 0
+Text Label 750  9550 0    40   ~ 0
 !MIX_BYPASS
-Text Label 600  9500 0    40   ~ 0
+Text Label 750  9450 0    40   ~ 0
 MIX_BYPASS
 $Comp
 L VCC #PWR71
 U 1 1 4FB2FD2A
-P 2550 9200
-F 0 "#PWR71" H 2550 9300 30  0001 C CNN
-F 1 "VCC" H 2550 9300 30  0000 C CNN
-	1    2550 9200
+P 2700 9150
+F 0 "#PWR71" H 2700 9250 30  0001 C CNN
+F 1 "VCC" H 2700 9250 30  0000 C CNN
+	1    2700 9150
 	1    0    0    -1  
 $EndComp
 $Comp
 L GND #PWR77
 U 1 1 4FB2FD23
-P 2550 9900
-F 0 "#PWR77" H 2550 9900 30  0001 C CNN
-F 1 "GND" H 2550 9830 30  0001 C CNN
-	1    2550 9900
+P 2700 9850
+F 0 "#PWR77" H 2700 9850 30  0001 C CNN
+F 1 "GND" H 2700 9780 30  0001 C CNN
+	1    2700 9850
 	1    0    0    -1  
 $EndComp
-NoConn ~ 2200 9500
+NoConn ~ 2350 9450
 $Comp
 L C C68
 U 1 1 4FB2FD07
-P 2550 9600
-F 0 "C68" H 2600 9700 50  0000 L CNN
-F 1 "100nF" H 2600 9500 50  0000 L CNN
-F 4 "Murata" H 2550 9600 60  0001 C CNN "Manufacturer"
-F 5 "GRM155R61A104KA01D" H 2550 9600 60  0001 C CNN "Part Number"
-F 6 "CAP CER 0.1UF 10V 10% X5R 0402" H 2550 9600 60  0001 C CNN "Description"
-	1    2550 9600
+P 2700 9550
+F 0 "C68" H 2750 9650 50  0000 L CNN
+F 1 "100nF" H 2750 9450 50  0000 L CNN
+F 4 "Murata" H 2700 9550 60  0001 C CNN "Manufacturer"
+F 5 "GRM155R61A104KA01D" H 2700 9550 60  0001 C CNN "Part Number"
+F 6 "CAP CER 0.1UF 10V 10% X5R 0402" H 2700 9550 60  0001 C CNN "Description"
+	1    2700 9550
 	1    0    0    -1  
 $EndComp
 $Comp
 L GND #PWR79
 U 1 1 4FB2FD02
-P 900 10000
-F 0 "#PWR79" H 900 10000 30  0001 C CNN
-F 1 "GND" H 900 9930 30  0001 C CNN
-	1    900  10000
+P 1050 9950
+F 0 "#PWR79" H 1050 9950 30  0001 C CNN
+F 1 "GND" H 1050 9880 30  0001 C CNN
+	1    1050 9950
 	1    0    0    -1  
 $EndComp
 $Comp
 L GSG-74HC04 U15
 U 1 1 4FB2F586
-P 1600 9600
-F 0 "U15" V 1550 9600 60  0000 C CNN
-F 1 "GSG-74HC04" V 1650 9600 60  0000 C CNN
-F 4 "Texas Instruments" H 1600 9600 60  0001 C CNN "Manufacturer"
-F 5 "SN74AHC04RGYR" H 1600 9600 60  0001 C CNN "Part Number"
-F 6 "IC HEX INVERTERS 14-QFN" H 1600 9600 60  0001 C CNN "Description"
-	1    1600 9600
+P 1750 9550
+F 0 "U15" V 1700 9550 60  0000 C CNN
+F 1 "GSG-74HC04" V 1800 9550 60  0000 C CNN
+F 4 "Texas Instruments" H 1750 9550 60  0001 C CNN "Manufacturer"
+F 5 "SN74AHC04RGYR" H 1750 9550 60  0001 C CNN "Part Number"
+F 6 "IC HEX INVERTERS 14-QFN" H 1750 9550 60  0001 C CNN "Description"
+	1    1750 9550
 	1    0    0    -1  
 $EndComp
 $Comp
 L VCC #PWR28
 U 1 1 4FAECFB5
-P 7350 4150
-F 0 "#PWR28" H 7350 4250 30  0001 C CNN
-F 1 "VCC" H 7350 4250 30  0000 C CNN
-	1    7350 4150
+P 7100 3750
+F 0 "#PWR28" H 7100 3850 30  0001 C CNN
+F 1 "VCC" H 7100 3850 30  0000 C CNN
+	1    7100 3750
 	1    0    0    -1  
 $EndComp
 $Comp
 L R R6
 U 1 1 4FAECFAE
-P 7350 4500
-F 0 "R6" V 7430 4500 50  0000 C CNN
-F 1 "4k7" V 7350 4500 50  0000 C CNN
-F 4 "Stackpole" H 7350 4500 60  0001 C CNN "Manufacturer"
-F 5 "RMCF0402JT4K70" H 7350 4500 60  0001 C CNN "Part Number"
-F 6 "RES 4.7K OHM 1/16W 5% 0402 SMD" H 7350 4500 60  0001 C CNN "Description"
-	1    7350 4500
+P 7100 4100
+F 0 "R6" V 7180 4100 50  0000 C CNN
+F 1 "4k7" V 7100 4100 50  0000 C CNN
+F 4 "Stackpole" H 7100 4100 60  0001 C CNN "Manufacturer"
+F 5 "RMCF0402JT4K70" H 7100 4100 60  0001 C CNN "Part Number"
+F 6 "RES 4.7K OHM 1/16W 5% 0402 SMD" H 7100 4100 60  0001 C CNN "Description"
+	1    7100 4100
 	1    0    0    -1  
 $EndComp
 $Comp
 L GND #PWR42
 U 1 1 4FAECE90
-P 6950 5750
-F 0 "#PWR42" H 6950 5750 30  0001 C CNN
-F 1 "GND" H 6950 5680 30  0001 C CNN
-	1    6950 5750
+P 6700 5350
+F 0 "#PWR42" H 6700 5350 30  0001 C CNN
+F 1 "GND" H 6700 5280 30  0001 C CNN
+	1    6700 5350
 	1    0    0    -1  
 $EndComp
 $Comp
 L GND #PWR41
 U 1 1 4FAECE8F
-P 6650 5750
-F 0 "#PWR41" H 6650 5750 30  0001 C CNN
-F 1 "GND" H 6650 5680 30  0001 C CNN
-	1    6650 5750
+P 6400 5350
+F 0 "#PWR41" H 6400 5350 30  0001 C CNN
+F 1 "GND" H 6400 5280 30  0001 C CNN
+	1    6400 5350
 	1    0    0    -1  
 $EndComp
 $Comp
 L GND #PWR40
 U 1 1 4FAECE8E
-P 6350 5750
-F 0 "#PWR40" H 6350 5750 30  0001 C CNN
-F 1 "GND" H 6350 5680 30  0001 C CNN
-	1    6350 5750
+P 6100 5350
+F 0 "#PWR40" H 6100 5350 30  0001 C CNN
+F 1 "GND" H 6100 5280 30  0001 C CNN
+	1    6100 5350
 	1    0    0    -1  
 $EndComp
 $Comp
 L GND #PWR39
 U 1 1 4FAECE8C
-P 6050 5750
-F 0 "#PWR39" H 6050 5750 30  0001 C CNN
-F 1 "GND" H 6050 5680 30  0001 C CNN
-	1    6050 5750
+P 5800 5350
+F 0 "#PWR39" H 5800 5350 30  0001 C CNN
+F 1 "GND" H 5800 5280 30  0001 C CNN
+	1    5800 5350
 	1    0    0    -1  
 $EndComp
 $Comp
 L C C37
 U 1 1 4FAECE75
-P 6950 5450
-F 0 "C37" H 7000 5550 50  0000 L CNN
-F 1 "33pF" H 7000 5350 50  0000 L CNN
-F 4 "Murata" H 6950 5450 60  0001 C CNN "Manufacturer"
-F 5 "GRM1555C1H330JZ01D" H 6950 5450 60  0001 C CNN "Part Number"
-F 6 "CAP CER 33PF 50V 5% NP0 0402" H 6950 5450 60  0001 C CNN "Description"
-	1    6950 5450
+P 6700 5050
+F 0 "C37" H 6750 5150 50  0000 L CNN
+F 1 "33pF" H 6750 4950 50  0000 L CNN
+F 4 "Murata" H 6700 5050 60  0001 C CNN "Manufacturer"
+F 5 "GRM1555C1H330JZ01D" H 6700 5050 60  0001 C CNN "Part Number"
+F 6 "CAP CER 33PF 50V 5% NP0 0402" H 6700 5050 60  0001 C CNN "Description"
+	1    6700 5050
 	1    0    0    -1  
 $EndComp
 $Comp
 L C C36
 U 1 1 4FAECE73
-P 6650 5450
-F 0 "C36" H 6700 5550 50  0000 L CNN
-F 1 "33pF" H 6700 5350 50  0000 L CNN
-F 4 "Murata" H 6950 5450 60  0001 C CNN "Manufacturer"
-F 5 "GRM1555C1H330JZ01D" H 6950 5450 60  0001 C CNN "Part Number"
-F 6 "CAP CER 33PF 50V 5% NP0 0402" H 6950 5450 60  0001 C CNN "Description"
-	1    6650 5450
+P 6400 5050
+F 0 "C36" H 6450 5150 50  0000 L CNN
+F 1 "33pF" H 6450 4950 50  0000 L CNN
+F 4 "Murata" H 6700 5050 60  0001 C CNN "Manufacturer"
+F 5 "GRM1555C1H330JZ01D" H 6700 5050 60  0001 C CNN "Part Number"
+F 6 "CAP CER 33PF 50V 5% NP0 0402" H 6700 5050 60  0001 C CNN "Description"
+	1    6400 5050
 	1    0    0    -1  
 $EndComp
 $Comp
 L C C35
 U 1 1 4FAECE70
-P 6350 5450
-F 0 "C35" H 6400 5550 50  0000 L CNN
-F 1 "33pF" H 6400 5350 50  0000 L CNN
-F 4 "Murata" H 6950 5450 60  0001 C CNN "Manufacturer"
-F 5 "GRM1555C1H330JZ01D" H 6950 5450 60  0001 C CNN "Part Number"
-F 6 "CAP CER 33PF 50V 5% NP0 0402" H 6950 5450 60  0001 C CNN "Description"
-	1    6350 5450
+P 6100 5050
+F 0 "C35" H 6150 5150 50  0000 L CNN
+F 1 "33pF" H 6150 4950 50  0000 L CNN
+F 4 "Murata" H 6700 5050 60  0001 C CNN "Manufacturer"
+F 5 "GRM1555C1H330JZ01D" H 6700 5050 60  0001 C CNN "Part Number"
+F 6 "CAP CER 33PF 50V 5% NP0 0402" H 6700 5050 60  0001 C CNN "Description"
+	1    6100 5050
 	1    0    0    -1  
 $EndComp
 $Comp
 L C C34
 U 1 1 4FAECE69
-P 6050 5450
-F 0 "C34" H 6100 5550 50  0000 L CNN
-F 1 "33pF" H 6100 5350 50  0000 L CNN
-F 4 "Murata" H 6950 5450 60  0001 C CNN "Manufacturer"
-F 5 "GRM1555C1H330JZ01D" H 6950 5450 60  0001 C CNN "Part Number"
-F 6 "CAP CER 33PF 50V 5% NP0 0402" H 6950 5450 60  0001 C CNN "Description"
-	1    6050 5450
+P 5800 5050
+F 0 "C34" H 5850 5150 50  0000 L CNN
+F 1 "33pF" H 5850 4950 50  0000 L CNN
+F 4 "Murata" H 6700 5050 60  0001 C CNN "Manufacturer"
+F 5 "GRM1555C1H330JZ01D" H 6700 5050 60  0001 C CNN "Part Number"
+F 6 "CAP CER 33PF 50V 5% NP0 0402" H 6700 5050 60  0001 C CNN "Description"
+	1    5800 5050
 	1    0    0    -1  
 $EndComp
 $Comp
 L VCC #PWR27
 U 1 1 4FAECE5B
-P 7150 4150
-F 0 "#PWR27" H 7150 4250 30  0001 C CNN
-F 1 "VCC" H 7150 4250 30  0000 C CNN
-	1    7150 4150
+P 6900 3750
+F 0 "#PWR27" H 6900 3850 30  0001 C CNN
+F 1 "VCC" H 6900 3850 30  0000 C CNN
+	1    6900 3750
 	1    0    0    -1  
 $EndComp
 $Comp
 L R R5
 U 1 1 4FAECE50
-P 7150 4500
-F 0 "R5" V 7230 4500 50  0000 C CNN
-F 1 "4k7" V 7150 4500 50  0000 C CNN
-F 4 "Stackpole" H 7150 4500 60  0001 C CNN "Manufacturer"
-F 5 "RMCF0402JT4K70" H 7150 4500 60  0001 C CNN "Part Number"
-F 6 "RES 4.7K OHM 1/16W 5% 0402 SMD" H 7150 4500 60  0001 C CNN "Description"
-	1    7150 4500
+P 6900 4100
+F 0 "R5" V 6980 4100 50  0000 C CNN
+F 1 "4k7" V 6900 4100 50  0000 C CNN
+F 4 "Stackpole" H 6900 4100 60  0001 C CNN "Manufacturer"
+F 5 "RMCF0402JT4K70" H 6900 4100 60  0001 C CNN "Part Number"
+F 6 "RES 4.7K OHM 1/16W 5% 0402 SMD" H 6900 4100 60  0001 C CNN "Description"
+	1    6900 4100
 	1    0    0    -1  
 $EndComp
 $Comp
 L GND #PWR8
 U 1 1 4FAECD9D
-P 5650 2250
-F 0 "#PWR8" H 5650 2250 30  0001 C CNN
-F 1 "GND" H 5650 2180 30  0001 C CNN
-	1    5650 2250
+P 5400 1850
+F 0 "#PWR8" H 5400 1850 30  0001 C CNN
+F 1 "GND" H 5400 1780 30  0001 C CNN
+	1    5400 1850
 	-1   0    0    1   
 $EndComp
 $Comp
 L C C67
 U 1 1 4FAECD45
-P 9050 9400
-F 0 "C67" H 9100 9500 50  0000 L CNN
-F 1 "47pF" H 9100 9300 50  0000 L CNN
-F 4 "Murata" H 9050 9400 60  0001 C CNN "Manufacturer"
-F 5 "GRM1555C1H470JZ01D" H 9050 9400 60  0001 C CNN "Part Number"
-F 6 "CAP CER 47PF 50V 5% NP0 0402" H 9050 9400 60  0001 C CNN "Description"
-	1    9050 9400
+P 8100 9400
+F 0 "C67" H 8150 9500 50  0000 L CNN
+F 1 "47pF" H 8150 9300 50  0000 L CNN
+F 4 "Murata" H 8100 9400 60  0001 C CNN "Manufacturer"
+F 5 "GRM1555C1H470JZ01D" H 8100 9400 60  0001 C CNN "Part Number"
+F 6 "CAP CER 47PF 50V 5% NP0 0402" H 8100 9400 60  0001 C CNN "Description"
+	1    8100 9400
 	1    0    0    -1  
 $EndComp
-NoConn ~ 6750 3750
-NoConn ~ 6750 3650
+NoConn ~ 6500 3350
+NoConn ~ 6500 3250
 $Comp
 L GND #PWR22
 U 1 1 4FAECC8F
-P 7650 3550
-F 0 "#PWR22" H 7650 3550 30  0001 C CNN
-F 1 "GND" H 7650 3480 30  0001 C CNN
-	1    7650 3550
+P 7400 3150
+F 0 "#PWR22" H 7400 3150 30  0001 C CNN
+F 1 "GND" H 7400 3080 30  0001 C CNN
+	1    7400 3150
 	0    -1   -1   0   
 $EndComp
-Text Notes 7250 3500 0    40   ~ 0
+Text Notes 7000 3100 0    40   ~ 0
 1%
 $Comp
 L R R4
 U 1 1 4FAECC79
-P 7300 3550
-F 0 "R4" V 7380 3550 50  0000 C CNN
-F 1 "51k" V 7300 3550 50  0000 C CNN
-F 4 "Stackpole" H 7300 3550 60  0001 C CNN "Manufacturer"
-F 5 "RMCF0402FT51K0" H 7300 3550 60  0001 C CNN "Part Number"
-F 6 "RES TF 51K OHM 1% 0.0625W 0402" H 7300 3550 60  0001 C CNN "Description"
-	1    7300 3550
+P 7050 3150
+F 0 "R4" V 7130 3150 50  0000 C CNN
+F 1 "51k" V 7050 3150 50  0000 C CNN
+F 4 "Stackpole" H 7050 3150 60  0001 C CNN "Manufacturer"
+F 5 "RMCF0402FT51K0" H 7050 3150 60  0001 C CNN "Part Number"
+F 6 "RES TF 51K OHM 1% 0.0625W 0402" H 7050 3150 60  0001 C CNN "Description"
+	1    7050 3150
 	0    1    1    0   
 $EndComp
 $Comp
 L GND #PWR3
 U 1 1 4FAECBE1
-P 4400 1300
-F 0 "#PWR3" H 4400 1300 30  0001 C CNN
-F 1 "GND" H 4400 1230 30  0001 C CNN
-	1    4400 1300
+P 4700 8450
+F 0 "#PWR3" H 4700 8450 30  0001 C CNN
+F 1 "GND" H 4700 8380 30  0001 C CNN
+	1    4700 8450
 	1    0    0    -1  
 $EndComp
 $Comp
 L VCC #PWR1
 U 1 1 4FAECBD8
-P 4400 700
-F 0 "#PWR1" H 4400 800 30  0001 C CNN
-F 1 "VCC" H 4400 800 30  0000 C CNN
-	1    4400 700 
+P 4700 7850
+F 0 "#PWR1" H 4700 7950 30  0001 C CNN
+F 1 "VCC" H 4700 7950 30  0000 C CNN
+	1    4700 7850
 	1    0    0    -1  
 $EndComp
 $Comp
 L C C6
 U 1 1 4FAECBBA
-P 6300 1000
-F 0 "C6" H 6350 1100 50  0000 L CNN
-F 1 "10nF" H 6350 900 50  0000 L CNN
-F 4 "Murata" H 5200 1000 60  0001 C CNN "Manufacturer"
-F 5 "GRM155R71C103KA01D" H 5200 1000 60  0001 C CNN "Part Number"
-F 6 "CAP CER 10000PF 16V 10% X7R 0402" H 5200 1000 60  0001 C CNN "Description"
-	1    6300 1000
+P 6600 8150
+F 0 "C6" H 6650 8250 50  0000 L CNN
+F 1 "10nF" H 6650 8050 50  0000 L CNN
+F 4 "Murata" H 5500 8150 60  0001 C CNN "Manufacturer"
+F 5 "GRM155R71C103KA01D" H 5500 8150 60  0001 C CNN "Part Number"
+F 6 "CAP CER 10000PF 16V 10% X7R 0402" H 5500 8150 60  0001 C CNN "Description"
+	1    6600 8150
 	1    0    0    -1  
 $EndComp
 $Comp
 L C C5
 U 1 1 4FAECBB9
-P 6000 1000
-F 0 "C5" H 6050 1100 50  0000 L CNN
-F 1 "33pF" H 6050 900 50  0000 L CNN
-F 4 "Murata" H 3400 5050 60  0001 C CNN "Manufacturer"
-F 5 "GRM1555C1H330JZ01D" H 3400 5050 60  0001 C CNN "Part Number"
-F 6 "CAP CER 33PF 50V 5% NP0 0402" H 3400 5050 60  0001 C CNN "Description"
-	1    6000 1000
+P 6300 8150
+F 0 "C5" H 6350 8250 50  0000 L CNN
+F 1 "33pF" H 6350 8050 50  0000 L CNN
+F 4 "Murata" H 3700 12200 60  0001 C CNN "Manufacturer"
+F 5 "GRM1555C1H330JZ01D" H 3700 12200 60  0001 C CNN "Part Number"
+F 6 "CAP CER 33PF 50V 5% NP0 0402" H 3700 12200 60  0001 C CNN "Description"
+	1    6300 8150
 	1    0    0    -1  
 $EndComp
 $Comp
 L C C3
 U 1 1 4FAECBB6
-P 5450 1000
-F 0 "C3" H 5500 1100 50  0000 L CNN
-F 1 "33pF" H 5500 900 50  0000 L CNN
-F 4 "Murata" H 3400 5050 60  0001 C CNN "Manufacturer"
-F 5 "GRM1555C1H330JZ01D" H 3400 5050 60  0001 C CNN "Part Number"
-F 6 "CAP CER 33PF 50V 5% NP0 0402" H 3400 5050 60  0001 C CNN "Description"
-	1    5450 1000
+P 5750 8150
+F 0 "C3" H 5800 8250 50  0000 L CNN
+F 1 "33pF" H 5800 8050 50  0000 L CNN
+F 4 "Murata" H 3700 12200 60  0001 C CNN "Manufacturer"
+F 5 "GRM1555C1H330JZ01D" H 3700 12200 60  0001 C CNN "Part Number"
+F 6 "CAP CER 33PF 50V 5% NP0 0402" H 3700 12200 60  0001 C CNN "Description"
+	1    5750 8150
 	1    0    0    -1  
 $EndComp
 $Comp
 L C C4
 U 1 1 4FAECBB5
-P 5750 1000
-F 0 "C4" H 5800 1100 50  0000 L CNN
-F 1 "10nF" H 5800 900 50  0000 L CNN
-F 4 "Murata" H 5200 1000 60  0001 C CNN "Manufacturer"
-F 5 "GRM155R71C103KA01D" H 5200 1000 60  0001 C CNN "Part Number"
-F 6 "CAP CER 10000PF 16V 10% X7R 0402" H 5200 1000 60  0001 C CNN "Description"
-	1    5750 1000
+P 6050 8150
+F 0 "C4" H 6100 8250 50  0000 L CNN
+F 1 "10nF" H 6100 8050 50  0000 L CNN
+F 4 "Murata" H 5500 8150 60  0001 C CNN "Manufacturer"
+F 5 "GRM155R71C103KA01D" H 5500 8150 60  0001 C CNN "Part Number"
+F 6 "CAP CER 10000PF 16V 10% X7R 0402" H 5500 8150 60  0001 C CNN "Description"
+	1    6050 8150
 	1    0    0    -1  
 $EndComp
 $Comp
 L C C2
 U 1 1 4FAECBA0
-P 4800 1000
-F 0 "C2" H 4850 1100 50  0000 L CNN
-F 1 "10nF" H 4850 900 50  0000 L CNN
-F 4 "Murata" H 4800 1000 60  0001 C CNN "Manufacturer"
-F 5 "GRM155R71C103KA01D" H 4800 1000 60  0001 C CNN "Part Number"
-F 6 "CAP CER 10000PF 16V 10% X7R 0402" H 4800 1000 60  0001 C CNN "Description"
-	1    4800 1000
+P 5100 8150
+F 0 "C2" H 5150 8250 50  0000 L CNN
+F 1 "10nF" H 5150 8050 50  0000 L CNN
+F 4 "Murata" H 5100 8150 60  0001 C CNN "Manufacturer"
+F 5 "GRM155R71C103KA01D" H 5100 8150 60  0001 C CNN "Part Number"
+F 6 "CAP CER 10000PF 16V 10% X7R 0402" H 5100 8150 60  0001 C CNN "Description"
+	1    5100 8150
 	1    0    0    -1  
 $EndComp
 $Comp
 L C C1
 U 1 1 4FAECB99
-P 4500 1000
-F 0 "C1" H 4550 1100 50  0000 L CNN
-F 1 "33pF" H 4550 900 50  0000 L CNN
-F 4 "Murata" H 3000 5050 60  0001 C CNN "Manufacturer"
-F 5 "GRM1555C1H330JZ01D" H 3000 5050 60  0001 C CNN "Part Number"
-F 6 "CAP CER 33PF 50V 5% NP0 0402" H 3000 5050 60  0001 C CNN "Description"
-	1    4500 1000
+P 4800 8150
+F 0 "C1" H 4850 8250 50  0000 L CNN
+F 1 "33pF" H 4850 8050 50  0000 L CNN
+F 4 "Murata" H 3300 12200 60  0001 C CNN "Manufacturer"
+F 5 "GRM1555C1H330JZ01D" H 3300 12200 60  0001 C CNN "Part Number"
+F 6 "CAP CER 33PF 50V 5% NP0 0402" H 3300 12200 60  0001 C CNN "Description"
+	1    4800 8150
 	1    0    0    -1  
 $EndComp
-Text Notes 7700 3050 0    60   ~ 0
+Text Notes 7450 2650 0    60   ~ 0
 loop filter
 $Comp
 L R R3
 U 1 1 4FAEC8B2
-P 8950 3000
-F 0 "R3" V 9030 3000 50  0000 C CNN
-F 1 "22k" V 8950 3000 50  0000 C CNN
-F 4 "Panasonic" H 8950 3000 60  0001 C CNN "Manufacturer"
-F 5 "ERJ-2GEJ223X" H 8950 3000 60  0001 C CNN "Part Number"
-F 6 "RES 22K OHM 1/10W 5% 0402 SMD" H 8950 3000 60  0001 C CNN "Description"
-	1    8950 3000
+P 8700 2600
+F 0 "R3" V 8780 2600 50  0000 C CNN
+F 1 "22k" V 8700 2600 50  0000 C CNN
+F 4 "Panasonic" H 8700 2600 60  0001 C CNN "Manufacturer"
+F 5 "ERJ-2GEJ223X" H 8700 2600 60  0001 C CNN "Part Number"
+F 6 "RES 22K OHM 1/10W 5% 0402 SMD" H 8700 2600 60  0001 C CNN "Description"
+	1    8700 2600
 	-1   0    0    1   
 $EndComp
 $Comp
 L C C15
 U 1 1 4FAEC8B0
-P 8950 2450
-F 0 "C15" H 9000 2550 50  0000 L CNN
-F 1 "180pF" H 9000 2350 50  0000 L CNN
-F 4 "Murata" H 8950 2450 60  0001 C CNN "Manufacturer"
-F 5 "GRM1555C1H181JA01D" H 8950 2450 60  0001 C CNN "Part Number"
-F 6 "CAP CER 180PF 50V 5% NP0 0402" H 8950 2450 60  0001 C CNN "Description"
-	1    8950 2450
+P 8700 2050
+F 0 "C15" H 8750 2150 50  0000 L CNN
+F 1 "180pF" H 8750 1950 50  0000 L CNN
+F 4 "Murata" H 8700 2050 60  0001 C CNN "Manufacturer"
+F 5 "GRM1555C1H181JA01D" H 8700 2050 60  0001 C CNN "Part Number"
+F 6 "CAP CER 180PF 50V 5% NP0 0402" H 8700 2050 60  0001 C CNN "Description"
+	1    8700 2050
 	1    0    0    -1  
 $EndComp
 $Comp
 L C C14
 U 1 1 4FAEC8AD
-P 8650 2450
-F 0 "C14" H 8700 2550 50  0000 L CNN
-F 1 "8p2" H 8700 2350 50  0000 L CNN
-F 4 "Murata" H 8650 2450 60  0001 C CNN "Manufacturer"
-F 5 "GJM1555C1H8R2CB01D" H 8650 2450 60  0001 C CNN "Part Number"
-F 6 "CAP CER 8.2PF 50V NP0 0402" H 8650 2450 60  0001 C CNN "Description"
-	1    8650 2450
+P 8400 2050
+F 0 "C14" H 8450 2150 50  0000 L CNN
+F 1 "8p2" H 8450 1950 50  0000 L CNN
+F 4 "Murata" H 8400 2050 60  0001 C CNN "Manufacturer"
+F 5 "GJM1555C1H8R2CB01D" H 8400 2050 60  0001 C CNN "Part Number"
+F 6 "CAP CER 8.2PF 50V NP0 0402" H 8400 2050 60  0001 C CNN "Description"
+	1    8400 2050
 	1    0    0    -1  
 $EndComp
 $Comp
 L GND #PWR15
 U 1 1 4FAEC88E
-P 7750 2750
-F 0 "#PWR15" H 7750 2750 30  0001 C CNN
-F 1 "GND" H 7750 2680 30  0001 C CNN
-	1    7750 2750
+P 7500 2350
+F 0 "#PWR15" H 7500 2350 30  0001 C CNN
+F 1 "GND" H 7500 2280 30  0001 C CNN
+	1    7500 2350
 	1    0    0    -1  
 $EndComp
 $Comp
 L GND #PWR14
 U 1 1 4FAEC88B
-P 7050 2750
-F 0 "#PWR14" H 7050 2750 30  0001 C CNN
-F 1 "GND" H 7050 2680 30  0001 C CNN
-	1    7050 2750
+P 6800 2350
+F 0 "#PWR14" H 6800 2350 30  0001 C CNN
+F 1 "GND" H 6800 2280 30  0001 C CNN
+	1    6800 2350
 	1    0    0    -1  
 $EndComp
 $Comp
 L R R2
 U 1 1 4FAEC856
-P 8100 2150
-F 0 "R2" V 8180 2150 50  0000 C CNN
-F 1 "470" V 8100 2150 50  0000 C CNN
-F 4 "Stackpole" H 8100 2150 60  0001 C CNN "Manufacturer"
-F 5 "RMCF0402JT470R" H 8100 2150 60  0001 C CNN "Part Number"
-F 6 "RES TF 1/16W 470 OHM 5% 0402" H 8100 2150 60  0001 C CNN "Description"
-	1    8100 2150
+P 7850 1750
+F 0 "R2" V 7930 1750 50  0000 C CNN
+F 1 "470" V 7850 1750 50  0000 C CNN
+F 4 "Stackpole" H 7850 1750 60  0001 C CNN "Manufacturer"
+F 5 "RMCF0402JT470R" H 7850 1750 60  0001 C CNN "Part Number"
+F 6 "RES TF 1/16W 470 OHM 5% 0402" H 7850 1750 60  0001 C CNN "Description"
+	1    7850 1750
 	0    1    1    0   
 $EndComp
 $Comp
 L C C13
 U 1 1 4FAEC853
-P 7750 2450
-F 0 "C13" H 7800 2550 50  0000 L CNN
-F 1 "330pF" H 7800 2350 50  0000 L CNN
-F 4 "Murata" H 7050 2450 60  0001 C CNN "Manufacturer"
-F 5 "GRM155R71H331KA01D" H 7050 2450 60  0001 C CNN "Part Number"
-F 6 "CAP CER 330PF 50V 10% X7R 0402" H 7050 2450 60  0001 C CNN "Description"
-	1    7750 2450
+P 7500 2050
+F 0 "C13" H 7550 2150 50  0000 L CNN
+F 1 "330pF" H 7550 1950 50  0000 L CNN
+F 4 "Murata" H 6800 2050 60  0001 C CNN "Manufacturer"
+F 5 "GRM155R71H331KA01D" H 6800 2050 60  0001 C CNN "Part Number"
+F 6 "CAP CER 330PF 50V 10% X7R 0402" H 6800 2050 60  0001 C CNN "Description"
+	1    7500 2050
 	1    0    0    -1  
 $EndComp
 $Comp
 L R R1
 U 1 1 4FAEC850
-P 7400 2150
-F 0 "R1" V 7480 2150 50  0000 C CNN
-F 1 "470" V 7400 2150 50  0000 C CNN
-F 4 "Stackpole" H 7400 2150 60  0001 C CNN "Manufacturer"
-F 5 "RMCF0402JT470R" H 7400 2150 60  0001 C CNN "Part Number"
-F 6 "RES TF 1/16W 470 OHM 5% 0402" H 7400 2150 60  0001 C CNN "Description"
-	1    7400 2150
+P 7150 1750
+F 0 "R1" V 7230 1750 50  0000 C CNN
+F 1 "470" V 7150 1750 50  0000 C CNN
+F 4 "Stackpole" H 7150 1750 60  0001 C CNN "Manufacturer"
+F 5 "RMCF0402JT470R" H 7150 1750 60  0001 C CNN "Part Number"
+F 6 "RES TF 1/16W 470 OHM 5% 0402" H 7150 1750 60  0001 C CNN "Description"
+	1    7150 1750
 	0    1    1    0   
 $EndComp
 $Comp
 L C C12
 U 1 1 4FAEC84D
-P 7050 2450
-F 0 "C12" H 7100 2550 50  0000 L CNN
-F 1 "330pF" H 7100 2350 50  0000 L CNN
-F 4 "Murata" H 7050 2450 60  0001 C CNN "Manufacturer"
-F 5 "GRM155R71H331KA01D" H 7050 2450 60  0001 C CNN "Part Number"
-F 6 "CAP CER 330PF 50V 10% X7R 0402" H 7050 2450 60  0001 C CNN "Description"
-	1    7050 2450
+P 6800 2050
+F 0 "C12" H 6850 2150 50  0000 L CNN
+F 1 "330pF" H 6850 1950 50  0000 L CNN
+F 4 "Murata" H 6800 2050 60  0001 C CNN "Manufacturer"
+F 5 "GRM155R71H331KA01D" H 6800 2050 60  0001 C CNN "Part Number"
+F 6 "CAP CER 330PF 50V 10% X7R 0402" H 6800 2050 60  0001 C CNN "Description"
+	1    6800 2050
 	1    0    0    -1  
 $EndComp
 $Comp
 L GND #PWR48
 U 1 1 4FAEC785
-P 4650 6050
-F 0 "#PWR48" H 4650 6050 30  0001 C CNN
-F 1 "GND" H 4650 5980 30  0001 C CNN
-	1    4650 6050
+P 4400 5650
+F 0 "#PWR48" H 4400 5650 30  0001 C CNN
+F 1 "GND" H 4400 5580 30  0001 C CNN
+	1    4400 5650
 	1    0    0    -1  
 $EndComp
 $Comp
 L C C42
 U 1 1 4FAEC781
-P 4650 5750
-F 0 "C42" H 4700 5850 50  0000 L CNN
-F 1 "100pF" H 4700 5650 50  0000 L CNN
-F 4 "Murata" H 7650 7300 60  0001 C CNN "Manufacturer"
-F 5 "GRM1555C1H101JZ01D" H 7650 7300 60  0001 C CNN "Part Number"
-F 6 "CAP CER 100PF 50V 5% NP0 0402" H 7650 7300 60  0001 C CNN "Description"
-	1    4650 5750
+P 4400 5350
+F 0 "C42" H 4450 5450 50  0000 L CNN
+F 1 "100pF" H 4450 5250 50  0000 L CNN
+F 4 "Murata" H 7400 6900 60  0001 C CNN "Manufacturer"
+F 5 "GRM1555C1H101JZ01D" H 7400 6900 60  0001 C CNN "Part Number"
+F 6 "CAP CER 100PF 50V 5% NP0 0402" H 7400 6900 60  0001 C CNN "Description"
+	1    4400 5350
 	1    0    0    -1  
 $EndComp
-Text Label 5350 1950 3    40   ~ 0
+Text Label 5100 1550 3    40   ~ 0
 MIX_BYPASS
-Text Label 5250 1950 3    40   ~ 0
+Text Label 5000 1550 3    40   ~ 0
 AMP_BYPASS
-Text Label 5950 2000 3    40   ~ 0
+Text Label 5700 1600 3    40   ~ 0
 !AMP_PWR
-Text Label 6950 3850 2    40   ~ 0
+Text Label 6700 3450 2    40   ~ 0
 HP
 $Comp
 L VCC #PWR34
 U 1 1 4FAEC085
-P 4650 5050
-F 0 "#PWR34" H 4650 5150 30  0001 C CNN
-F 1 "VCC" H 4650 5150 30  0000 C CNN
-	1    4650 5050
+P 4400 4650
+F 0 "#PWR34" H 4400 4750 30  0001 C CNN
+F 1 "VCC" H 4400 4750 30  0000 C CNN
+	1    4400 4650
 	1    0    0    -1  
 $EndComp
 $Comp
 L GND #PWR75
 U 1 1 4FAA165E
-P 16400 9600
-F 0 "#PWR75" H 16400 9600 30  0001 C CNN
-F 1 "GND" H 16400 9530 30  0001 C CNN
-	1    16400 9600
+P 16250 9200
+F 0 "#PWR75" H 16250 9200 30  0001 C CNN
+F 1 "GND" H 16250 9130 30  0001 C CNN
+	1    16250 9200
 	1    0    0    -1  
 $EndComp
 $Comp
 L C C26
 U 1 1 4FAA149B
-P 12550 4100
-F 0 "C26" H 12600 4200 50  0000 L CNN
-F 1 "47pF" H 12600 4000 50  0000 L CNN
-F 4 "Murata" H 12550 5800 60  0001 C CNN "Manufacturer"
-F 5 "GRM1555C1H470JZ01D" H 12550 5800 60  0001 C CNN "Part Number"
-F 6 "CAP CER 47PF 50V 5% NP0 0402" H 12550 5800 60  0001 C CNN "Description"
-	1    12550 4100
+P 12300 3700
+F 0 "C26" H 12350 3800 50  0000 L CNN
+F 1 "47pF" H 12350 3600 50  0000 L CNN
+F 4 "Murata" H 12300 5400 60  0001 C CNN "Manufacturer"
+F 5 "GRM1555C1H470JZ01D" H 12300 5400 60  0001 C CNN "Part Number"
+F 6 "CAP CER 47PF 50V 5% NP0 0402" H 12300 5400 60  0001 C CNN "Description"
+	1    12300 3700
 	0    -1   -1   0   
 $EndComp
 $Comp
 L GND #PWR26
 U 1 1 4FAA142A
-P 10950 4100
-F 0 "#PWR26" H 10950 4100 30  0001 C CNN
-F 1 "GND" H 10950 4030 30  0001 C CNN
-	1    10950 4100
+P 10700 3700
+F 0 "#PWR26" H 10700 3700 30  0001 C CNN
+F 1 "GND" H 10700 3630 30  0001 C CNN
+	1    10700 3700
 	0    1    1    0   
 $EndComp
 $Comp
 L GND #PWR10
 U 1 1 4FAA1424
-P 10950 2550
-F 0 "#PWR10" H 10950 2550 30  0001 C CNN
-F 1 "GND" H 10950 2480 30  0001 C CNN
-	1    10950 2550
+P 10700 2150
+F 0 "#PWR10" H 10700 2150 30  0001 C CNN
+F 1 "GND" H 10700 2080 30  0001 C CNN
+	1    10700 2150
 	0    1    1    0   
 $EndComp
 $Comp
 L GND #PWR11
 U 1 1 4FAA10AF
-P 12350 2550
-F 0 "#PWR11" H 12350 2550 30  0001 C CNN
-F 1 "GND" H 12350 2480 30  0001 C CNN
-	1    12350 2550
+P 12100 2150
+F 0 "#PWR11" H 12100 2150 30  0001 C CNN
+F 1 "GND" H 12100 2080 30  0001 C CNN
+	1    12100 2150
 	0    -1   -1   0   
 $EndComp
 $Comp
 L GND #PWR31
 U 1 1 4FAA1098
-P 12350 4400
-F 0 "#PWR31" H 12350 4400 30  0001 C CNN
-F 1 "GND" H 12350 4330 30  0001 C CNN
-	1    12350 4400
+P 12100 4000
+F 0 "#PWR31" H 12100 4000 30  0001 C CNN
+F 1 "GND" H 12100 3930 30  0001 C CNN
+	1    12100 4000
 	0    -1   -1   0   
 $EndComp
 $Comp
 L GND #PWR35
 U 1 1 4FAA0C6C
-P 10250 5000
-F 0 "#PWR35" H 10250 5000 30  0001 C CNN
-F 1 "GND" H 10250 4930 30  0001 C CNN
-	1    10250 5000
+P 10000 4600
+F 0 "#PWR35" H 10000 4600 30  0001 C CNN
+F 1 "GND" H 10000 4530 30  0001 C CNN
+	1    10000 4600
 	1    0    0    -1  
 $EndComp
 $Comp
 L C C30
 U 1 1 4FAA0C67
-P 10250 4700
-F 0 "C30" H 10300 4800 50  0000 L CNN
-F 1 "33pF" H 10300 4600 50  0000 L CNN
-F 4 "Murata" H 13400 4500 60  0001 C CNN "Manufacturer"
-F 5 "GRM1555C1H330JZ01D" H 13400 4500 60  0001 C CNN "Part Number"
-F 6 "CAP CER 33PF 50V 5% NP0 0402" H 13400 4500 60  0001 C CNN "Description"
-	1    10250 4700
+P 10000 4300
+F 0 "C30" H 10050 4400 50  0000 L CNN
+F 1 "33pF" H 10050 4200 50  0000 L CNN
+F 4 "Murata" H 13150 4100 60  0001 C CNN "Manufacturer"
+F 5 "GRM1555C1H330JZ01D" H 13150 4100 60  0001 C CNN "Part Number"
+F 6 "CAP CER 33PF 50V 5% NP0 0402" H 13150 4100 60  0001 C CNN "Description"
+	1    10000 4300
 	1    0    0    -1  
 $EndComp
 $Comp
 L VCC #PWR18
 U 1 1 4FAA0C0D
-P 4350 3350
-F 0 "#PWR18" H 4350 3450 30  0001 C CNN
-F 1 "VCC" H 4350 3450 30  0000 C CNN
-	1    4350 3350
+P 4100 2950
+F 0 "#PWR18" H 4100 3050 30  0001 C CNN
+F 1 "VCC" H 4100 3050 30  0000 C CNN
+	1    4100 2950
 	0    -1   -1   0   
 $EndComp
 $Comp
 L GND #PWR52
 U 1 1 4FAA08EA
-P 6500 6950
-F 0 "#PWR52" H 6500 6950 30  0001 C CNN
-F 1 "GND" H 6500 6880 30  0001 C CNN
-	1    6500 6950
+P 6250 6550
+F 0 "#PWR52" H 6250 6550 30  0001 C CNN
+F 1 "GND" H 6250 6480 30  0001 C CNN
+	1    6250 6550
 	1    0    0    -1  
 $EndComp
 $Comp
 L FIL-LP0603 U3
 U 1 1 4F94D561
-P 11650 2700
-F 0 "U3" H 11650 2750 60  0000 C CNN
-F 1 "RX_LOWPASS_FILTER" H 11650 2650 60  0000 C CNN
-F 4 "AVX" H 11650 2700 60  0001 C CNN "Manufacturer"
-F 5 "LP0603A1880ANTR" H 11650 2700 60  0001 C CNN "Part Number"
-F 6 "FILTER LOW PASS 1880MHZ 0603 SMD" H 11650 2700 60  0001 C CNN "Description"
-	1    11650 2700
+P 11400 2300
+F 0 "U3" H 11400 2350 60  0000 C CNN
+F 1 "RX_LOWPASS_FILTER" H 11400 2250 60  0000 C CNN
+F 4 "AVX" H 11400 2300 60  0001 C CNN "Manufacturer"
+F 5 "LP0603A1880ANTR" H 11400 2300 60  0001 C CNN "Part Number"
+F 6 "FILTER LOW PASS 1880MHZ 0603 SMD" H 11400 2300 60  0001 C CNN "Description"
+	1    11400 2300
 	-1   0    0    1   
 $EndComp
 $Comp
 L FIL-DEA U8
 U 1 1 4F94D4F4
-P 11650 4250
-F 0 "U8" H 11650 4300 60  0000 C CNN
-F 1 "RX_HIGHPASS_FILTER" H 11650 4200 60  0000 C CNN
-F 4 "TDK" H 11650 4250 60  0001 C CNN "Manufacturer"
-F 5 "DEA162400HT-8004B1" H 11650 4250 60  0001 C CNN "Part Number"
-F 6 "FILTER HIGHPASS WLAN&BLUETOOTH" H 11650 4250 60  0001 C CNN "Description"
-	1    11650 4250
+P 11400 3850
+F 0 "U8" H 11400 3900 60  0000 C CNN
+F 1 "RX_HIGHPASS_FILTER" H 11400 3800 60  0000 C CNN
+F 4 "TDK" H 11400 3850 60  0001 C CNN "Manufacturer"
+F 5 "DEA162400HT-8004B1" H 11400 3850 60  0001 C CNN "Part Number"
+F 6 "FILTER HIGHPASS WLAN&BLUETOOTH" H 11400 3850 60  0001 C CNN "Description"
+	1    11400 3850
 	1    0    0    -1  
 $EndComp
 $Comp
 L GSG-SMA-CONN P4
 U 1 1 4F94D0F2
-P 16100 9000
-F 0 "P4" H 16100 9150 60  0000 C CNN
-F 1 "ANTENNA" H 16100 8850 60  0000 C CNN
-F 4 "Linx" H 16100 9000 60  0001 C CNN "Manufacturer"
-F 5 "CONSMA003.062" H 16100 9000 60  0001 C CNN "Part Number"
-F 6 "CONN FEMALE EDGE MT FOR .062\" BD" H 16100 9000 60  0001 C CNN "Description"
-F 7 "DNP" H 15850 9000 60  0000 C CNN "Note"
-	1    16100 9000
+P 15950 8600
+F 0 "P4" H 15950 8750 60  0000 C CNN
+F 1 "ANTENNA" H 15950 8450 60  0000 C CNN
+F 4 "Linx" H 15950 8600 60  0001 C CNN "Manufacturer"
+F 5 "CONSMA003.062" H 15950 8600 60  0001 C CNN "Part Number"
+F 6 "CONN FEMALE EDGE MT FOR .062\" BD" H 15950 8600 60  0001 C CNN "Description"
+F 7 "DNP" H 15700 8600 60  0000 C CNN "Note"
+	1    15950 8600
 	-1   0    0    -1  
 $EndComp
 $EndSCHEMATC

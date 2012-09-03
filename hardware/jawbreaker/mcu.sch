@@ -1,4 +1,4 @@
-EESchema Schematic File Version 2  date Sun Sep  2 16:11:19 2012
+EESchema Schematic File Version 2  date Mon Sep  3 16:18:00 2012
 LIBS:power
 LIBS:device
 LIBS:transistors
@@ -37,7 +37,7 @@ $Descr User 17000 11000
 encoding utf-8
 Sheet 4 4
 Title "jawbreaker mcu/usb/power"
-Date "2 sep 2012"
+Date "3 sep 2012"
 Rev ""
 Comp "Copyright 2012 Michael Ossmann"
 Comment1 "License: GPL v2"
@@ -45,10 +45,18 @@ Comment2 ""
 Comment3 ""
 Comment4 ""
 $EndDescr
-Text GLabel 7350 7750 3    40   Input ~ 0
-RESETX
-Text GLabel 7250 7750 3    40   Input ~ 0
-ENX
+Wire Wire Line
+	2650 2000 2950 2000
+Wire Wire Line
+	2650 1800 2950 1800
+Wire Wire Line
+	4050 1700 3750 1700
+Wire Wire Line
+	4050 1900 3750 1900
+Wire Wire Line
+	3850 2200 3850 2100
+Wire Wire Line
+	3850 2100 3750 2100
 Wire Wire Line
 	7350 7450 7350 7750
 Wire Wire Line
@@ -247,26 +255,6 @@ Wire Wire Line
 	1650 1800 1900 1800
 Wire Wire Line
 	5350 1750 5350 2050
-Connection ~ 2850 2250
-Wire Wire Line
-	2950 2250 2850 2250
-Connection ~ 2850 2050
-Wire Wire Line
-	2850 2050 2950 2050
-Connection ~ 2850 1850
-Wire Wire Line
-	2850 1850 2950 1850
-Connection ~ 2850 1650
-Wire Wire Line
-	2850 1650 2950 1650
-Wire Wire Line
-	3750 2250 4050 2250
-Wire Wire Line
-	3750 2050 4050 2050
-Wire Wire Line
-	3750 1850 4050 1850
-Wire Wire Line
-	3750 1650 4050 1650
 Wire Wire Line
 	8150 2050 8150 1750
 Wire Wire Line
@@ -1122,27 +1110,6 @@ Wire Wire Line
 Wire Wire Line
 	8350 2050 8350 1750
 Wire Wire Line
-	3750 1550 4050 1550
-Wire Wire Line
-	3750 1750 4050 1750
-Wire Wire Line
-	3750 1950 4050 1950
-Wire Wire Line
-	3750 2150 4050 2150
-Wire Wire Line
-	2850 2350 2850 1550
-Wire Wire Line
-	2850 1550 2950 1550
-Wire Wire Line
-	2850 1750 2950 1750
-Connection ~ 2850 1750
-Wire Wire Line
-	2850 1950 2950 1950
-Connection ~ 2850 1950
-Wire Wire Line
-	2850 2150 2950 2150
-Connection ~ 2850 2150
-Wire Wire Line
 	5450 2050 5450 1750
 Wire Wire Line
 	5250 1750 5250 2050
@@ -1338,6 +1305,42 @@ Wire Wire Line
 	15050 3400 15050 3300
 Wire Wire Line
 	7250 7450 7250 7750
+Wire Wire Line
+	2850 2200 2850 2100
+Wire Wire Line
+	2850 2100 2950 2100
+Wire Wire Line
+	3750 2000 4050 2000
+Wire Wire Line
+	3750 1800 4050 1800
+Wire Wire Line
+	2950 1700 2650 1700
+Wire Wire Line
+	2950 1900 2650 1900
+$Comp
+L GND #PWR?
+U 1 1 5043DA37
+P 2850 2200
+F 0 "#PWR?" H 2850 2200 30  0001 C CNN
+F 1 "GND" H 2850 2130 30  0001 C CNN
+	1    2850 2200
+	1    0    0    -1  
+$EndComp
+$Comp
+L GND #PWR?
+U 1 1 5043DA33
+P 3850 2200
+F 0 "#PWR?" H 3850 2200 30  0001 C CNN
+F 1 "GND" H 3850 2130 30  0001 C CNN
+	1    3850 2200
+	1    0    0    -1  
+$EndComp
+Text Label 2650 1700 0    40   ~ 0
+GPIO3_8
+Text GLabel 7350 7750 3    40   Input ~ 0
+RESETX
+Text GLabel 7250 7750 3    40   Input ~ 0
+ENX
 $Comp
 L GND #PWR215
 U 1 1 5043D25E
@@ -2959,38 +2962,27 @@ Text Label 5250 1750 3    40   ~ 0
 ADC0_5
 Text Label 4000 3500 0    40   ~ 0
 ADC0_0
-$Comp
-L GND #PWR202
-U 1 1 4F8381B1
-P 2850 2350
-F 0 "#PWR202" H 2850 2350 30  0001 C CNN
-F 1 "GND" H 2850 2280 30  0001 C CNN
-	1    2850 2350
-	1    0    0    -1  
-$EndComp
-Text Label 4050 2250 2    40   ~ 0
+Text Label 4050 2000 2    40   ~ 0
 GPIO3_15
-Text Label 4050 2150 2    40   ~ 0
+Text Label 2650 2000 0    40   ~ 0
 GPIO3_14
-Text Label 4050 2050 2    40   ~ 0
+Text Label 4050 1900 2    40   ~ 0
 GPIO3_13
-Text Label 4050 1950 2    40   ~ 0
+Text Label 2650 1900 0    40   ~ 0
 GPIO3_12
-Text Label 4050 1850 2    40   ~ 0
+Text Label 4050 1800 2    40   ~ 0
 GPIO3_11
-Text Label 4050 1750 2    40   ~ 0
+Text Label 2650 1800 0    40   ~ 0
 GPIO3_10
-Text Label 4050 1650 2    40   ~ 0
+Text Label 4050 1700 2    40   ~ 0
 GPIO3_9
-Text Label 4050 1550 2    40   ~ 0
-GPIO3_8
 $Comp
-L CONN_8X2 P20
+L CONN_5X2 P20
 U 1 1 4F838167
 P 3350 1900
-F 0 "P20" H 3350 2350 60  0000 C CNN
+F 0 "P20" H 3350 2200 60  0000 C CNN
 F 1 "GPIO" V 3350 1900 50  0000 C CNN
-F 4 "DNP" H 3350 1400 60  0000 C CNN "Note"
+F 4 "DNP" H 3350 1600 60  0000 C CNN "Note"
 	1    3350 1900
 	1    0    0    -1  
 $EndComp
