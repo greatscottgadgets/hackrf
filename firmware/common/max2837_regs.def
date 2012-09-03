@@ -16,7 +16,7 @@
 /* n=name, r=regnum, o=offset (bits from LSB), l=length (bits) */
 #define __MREG__(n,r,o,l) \
 static inline uint16_t get_##n(void) { \
-        return (max2837_regs[r] >> o) & ((1<<l)-1); \
+	return (max2837_regs[r] >> (o-l+1)) & ((1<<l)-1);	\
 } \
 static inline void set_##n(uint16_t v) {      \
 	max2837_regs[r] &= ~(((1<<l)-1)<<(o-l+1));  \
