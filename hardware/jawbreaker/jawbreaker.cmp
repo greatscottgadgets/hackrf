@@ -1,4 +1,4 @@
-Cmp-Mod V01 Created by CvPCB (2011-06-30 BZR 3033)-stable date = Tue Sep  4 13:26:00 2012
+Cmp-Mod V01 Created by CvPCB (2011-06-30 BZR 3033)-stable date = Tue Sep  4 13:33:31 2012
 
 BeginCmp
 TimeStamp = /503BB638/4FAECB99;
@@ -1327,7 +1327,7 @@ BeginCmp
 TimeStamp = /50370666/50462549;
 Reference = P2;
 ValeurCmp = CLKOUT;
-IdModule  = ;
+IdModule  = GSG-SMA-EDGE;
 EndCmp
 
 BeginCmp
@@ -1341,28 +1341,28 @@ BeginCmp
 TimeStamp = /503BB638/4F94D0F2;
 Reference = P4;
 ValeurCmp = ANTENNA;
-IdModule  = ;
+IdModule  = GSG-SMA-EDGE;
 EndCmp
 
 BeginCmp
 TimeStamp = /5037043E/50457385;
 Reference = P5;
 ValeurCmp = WAKEUP;
-IdModule  = ;
+IdModule  = GSG-TESTPOINT-50MIL;
 EndCmp
 
 BeginCmp
 TimeStamp = /5037043E/504573A0;
 Reference = P6;
 ValeurCmp = TRACECLK;
-IdModule  = ;
+IdModule  = GSG-TESTPOINT-50MIL;
 EndCmp
 
 BeginCmp
 TimeStamp = /5037043E/5045740A;
 Reference = P7;
 ValeurCmp = CTIN_4;
-IdModule  = ;
+IdModule  = GSG-TESTPOINT-50MIL;
 EndCmp
 
 BeginCmp
@@ -1376,56 +1376,56 @@ BeginCmp
 TimeStamp = /5037043E/504573FD;
 Reference = P9;
 ValeurCmp = CTOUT_4;
-IdModule  = ;
+IdModule  = GSG-TESTPOINT-50MIL;
 EndCmp
 
 BeginCmp
 TimeStamp = /5037043E/504573E2;
 Reference = P10;
 ValeurCmp = CTOUT_2;
-IdModule  = ;
+IdModule  = GSG-TESTPOINT-50MIL;
 EndCmp
 
 BeginCmp
 TimeStamp = /5037043E/50457418;
 Reference = P11;
 ValeurCmp = CTIN_2;
-IdModule  = ;
+IdModule  = GSG-TESTPOINT-50MIL;
 EndCmp
 
 BeginCmp
 TimeStamp = /5037043E/504572EF;
 Reference = P12;
 ValeurCmp = U3_RXD;
-IdModule  = ;
+IdModule  = GSG-TESTPOINT-50MIL;
 EndCmp
 
 BeginCmp
 TimeStamp = /5037043E/50457304;
 Reference = P13;
 ValeurCmp = U3_TXD;
-IdModule  = ;
+IdModule  = GSG-TESTPOINT-50MIL;
 EndCmp
 
 BeginCmp
 TimeStamp = /50370666/50371714;
 Reference = P14;
 ValeurCmp = XCVR_CLKOUT;
-IdModule  = ;
+IdModule  = GSG-TESTPOINT-50MIL;
 EndCmp
 
 BeginCmp
 TimeStamp = /50370666/5037A16F;
 Reference = P15;
 ValeurCmp = INTR;
-IdModule  = ;
+IdModule  = GSG-TESTPOINT-50MIL;
 EndCmp
 
 BeginCmp
 TimeStamp = /50370666/4F5D16D6;
 Reference = P16;
 ValeurCmp = CLKIN;
-IdModule  = ;
+IdModule  = GSG-SMA-EDGE;
 EndCmp
 
 BeginCmp
@@ -1439,7 +1439,7 @@ BeginCmp
 TimeStamp = /50370666/5037A131;
 Reference = P18;
 ValeurCmp = OEB;
-IdModule  = ;
+IdModule  = GSG-TESTPOINT-50MIL;
 EndCmp
 
 BeginCmp
@@ -1474,14 +1474,14 @@ BeginCmp
 TimeStamp = /5037043E/5045734C;
 Reference = P23;
 ValeurCmp = DBGEN;
-IdModule  = ;
+IdModule  = GSG-TESTPOINT-50MIL;
 EndCmp
 
 BeginCmp
 TimeStamp = /5037043E/5045736F;
 Reference = P24;
 ValeurCmp = TRST;
-IdModule  = ;
+IdModule  = GSG-TESTPOINT-50MIL;
 EndCmp
 
 BeginCmp
