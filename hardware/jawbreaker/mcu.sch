@@ -1,4 +1,4 @@
-EESchema Schematic File Version 2  date Tue Sep  4 12:51:46 2012
+EESchema Schematic File Version 2  date Tue Sep  4 13:26:28 2012
 LIBS:power
 LIBS:device
 LIBS:transistors
@@ -333,9 +333,9 @@ Connection ~ 750  2000
 Wire Wire Line
 	750  2000 850  2000
 Wire Wire Line
-	750  1800 850  1800
+	850  1800 750  1800
 Wire Wire Line
-	750  2200 750  1800
+	750  1800 750  2200
 Wire Wire Line
 	1650 2000 1900 2000
 Wire Wire Line
@@ -435,9 +435,9 @@ Wire Wire Line
 Wire Wire Line
 	9900 1650 9600 1650
 Wire Wire Line
-	9600 700  9600 1650
+	9600 1650 9600 700 
 Wire Wire Line
-	9800 900  9800 1450
+	9800 1450 9800 900 
 Wire Wire Line
 	9800 1450 9900 1450
 Wire Wire Line
@@ -445,13 +445,13 @@ Wire Wire Line
 Wire Wire Line
 	11000 1750 11400 1750
 Wire Wire Line
-	11400 1100 11400 1750
+	11400 1750 11400 1100
 Wire Wire Line
-	7550 700  7550 2050
+	7550 2050 7550 700 
 Wire Wire Line
-	7250 900  7250 2050
+	7250 2050 7250 900 
 Wire Wire Line
-	7350 1100 7350 2050
+	7350 2050 7350 1100
 Wire Wire Line
 	15050 1750 14950 1750
 Wire Wire Line
@@ -507,9 +507,9 @@ Connection ~ 14250 3850
 Wire Wire Line
 	14550 3850 13850 3850
 Wire Wire Line
-	14900 3850 14900 3800
+	14900 3800 14900 3850
 Wire Wire Line
-	14900 4250 14900 4350
+	14900 4350 14900 4250
 Wire Wire Line
 	13600 4950 13600 4850
 Wire Wire Line
@@ -576,7 +576,7 @@ Connection ~ 1300 4500
 Wire Wire Line
 	1300 4500 1300 4600
 Wire Wire Line
-	800  4500 800  4600
+	800  4600 800  4500
 Wire Wire Line
 	800  4500 1400 4500
 Wire Wire Line
@@ -584,9 +584,9 @@ Wire Wire Line
 Wire Wire Line
 	1100 5400 1100 5700
 Wire Wire Line
-	1300 6000 1300 5400
+	1300 5400 1300 6000
 Wire Wire Line
-	4300 6000 1300 6000
+	1300 6000 4300 6000
 Wire Wire Line
 	1500 5400 1500 5900
 Wire Wire Line
@@ -661,7 +661,7 @@ Wire Wire Line
 	700  800  700  750 
 Connection ~ 1150 1200
 Wire Wire Line
-	700  1200 700  1300
+	700  1300 700  1200
 Wire Wire Line
 	5950 1950 5950 2050
 Wire Wire Line
@@ -723,7 +723,7 @@ Connection ~ 4450 800
 Connection ~ 3550 1200
 Connection ~ 4150 1200
 Wire Wire Line
-	5050 1200 700  1200
+	700  1200 5050 1200
 Connection ~ 4750 1200
 Wire Wire Line
 	3400 5300 3500 5300
@@ -876,10 +876,10 @@ Wire Wire Line
 Wire Wire Line
 	12600 4950 12600 4850
 Wire Wire Line
-	15300 4250 14900 4250
+	14900 4250 15300 4250
 Connection ~ 15000 4250
 Wire Wire Line
-	15300 3850 14900 3850
+	14900 3850 15300 3850
 Connection ~ 15000 3850
 Connection ~ 15750 3850
 Wire Wire Line
@@ -894,11 +894,11 @@ Wire Wire Line
 Connection ~ 13950 3850
 Connection ~ 13950 4250
 Wire Wire Line
-	13850 4250 13850 4350
+	13850 4350 13850 4250
 Wire Wire Line
 	13850 3850 13850 3800
 Wire Wire Line
-	14550 4250 13850 4250
+	13850 4250 14550 4250
 Connection ~ 14250 4250
 Wire Wire Line
 	11500 6150 11600 6150
@@ -1147,17 +1147,17 @@ Wire Wire Line
 	12950 4300 12950 4400
 Connection ~ 12950 4400
 Wire Wire Line
-	12650 4400 13200 4400
+	13200 4400 12650 4400
 Wire Wire Line
-	11400 1100 7350 1100
+	7350 1100 11400 1100
 Connection ~ 9050 1100
 Connection ~ 8250 1100
 Wire Wire Line
-	9800 900  7250 900 
+	7250 900  9800 900 
 Connection ~ 9050 900 
 Connection ~ 8250 900 
 Wire Wire Line
-	9600 700  7550 700 
+	7550 700  9600 700 
 Connection ~ 9050 700 
 Connection ~ 8250 700 
 Wire Wire Line
@@ -1197,7 +1197,7 @@ Wire Wire Line
 Connection ~ 2950 10100
 Connection ~ 2950 10000
 Wire Wire Line
-	12650 3700 12650 4400
+	12650 4400 12650 3700
 Connection ~ 12650 3800
 Connection ~ 12650 4300
 Wire Wire Line
@@ -1491,19 +1491,19 @@ $EndComp
 Text Label 550  10000 0    40   ~ 0
 BOOT1
 $Comp
-L CONN_3 K3
+L CONN_3 P33
 U 1 1 5043C57C
 P 1850 10000
-F 0 "K3" V 1800 10000 50  0000 C CNN
+F 0 "P33" V 1800 10000 50  0000 C CNN
 F 1 "CONN_3" V 1900 10000 40  0000 C CNN
 	1    1850 10000
 	1    0    0    -1  
 $EndComp
 $Comp
-L CONN_3 K1
+L CONN_3 P27
 U 1 1 5043C57B
 P 1850 9250
-F 0 "K1" V 1800 9250 50  0000 C CNN
+F 0 "P27" V 1800 9250 50  0000 C CNN
 F 1 "CONN_3" V 1900 9250 40  0000 C CNN
 	1    1850 9250
 	1    0    0    -1  
@@ -1549,19 +1549,19 @@ $EndComp
 Text Label 2100 9250 0    40   ~ 0
 BOOT2
 $Comp
-L CONN_3 K2
+L CONN_3 P32
 U 1 1 5043C551
 P 3400 9250
-F 0 "K2" V 3350 9250 50  0000 C CNN
+F 0 "P32" V 3350 9250 50  0000 C CNN
 F 1 "CONN_3" V 3450 9250 40  0000 C CNN
 	1    3400 9250
 	1    0    0    -1  
 $EndComp
 $Comp
-L CONN_3 K4
+L CONN_3 P34
 U 1 1 5043C4E5
 P 3400 10000
-F 0 "K4" V 3350 10000 50  0000 C CNN
+F 0 "P34" V 3350 10000 50  0000 C CNN
 F 1 "CONN_3" V 3450 10000 40  0000 C CNN
 	1    3400 10000
 	1    0    0    -1  
