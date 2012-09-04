@@ -1,4 +1,4 @@
-Cmp-Mod V01 Created by CvPCB (2011-06-30 BZR 3033)-stable date = Tue Sep  4 13:33:31 2012
+Cmp-Mod V01 Created by CvPCB (2011-06-30 BZR 3033)-stable date = Tue Sep  4 13:55:54 2012
 
 BeginCmp
 TimeStamp = /503BB638/4FAECB99;
@@ -1215,7 +1215,7 @@ BeginCmp
 TimeStamp = /503BB638/50452C20;
 Reference = J2;
 ValeurCmp = GSG-900MHZ-F-ANTENNA;
-IdModule  = ;
+IdModule  = GSG-900MHZ-INVERTED-F;
 EndCmp
 
 BeginCmp

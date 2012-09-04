@@ -1,4 +1,4 @@
-# EESchema Netlist Version 1.1 created  Tue Sep  4 13:33:31 2012
+# EESchema Netlist Version 1.1 created  Tue Sep  4 13:55:54 2012
 (
  ( /503BB638/4FAECB99 GSG-0402 C1 33pF
   ( 1 VCC )
@@ -695,7 +695,7 @@
   ( 4 ? )
   ( 5 GND )
  )
- ( /503BB638/50452C20 $noname$ J2 GSG-900MHZ-F-ANTENNA
+ ( /503BB638/50452C20 GSG-900MHZ-INVERTED-F J2 GSG-900MHZ-F-ANTENNA
   ( 1 N-000323 )
   ( 2 GND )
  )
