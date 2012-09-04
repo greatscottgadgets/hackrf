@@ -1,4 +1,4 @@
-EESchema Schematic File Version 2  date Mon Sep  3 22:23:28 2012
+EESchema Schematic File Version 2  date Tue Sep  4 10:12:04 2012
 LIBS:power
 LIBS:device
 LIBS:transistors
@@ -45,6 +45,9 @@ Comment2 ""
 Comment3 ""
 Comment4 ""
 $EndDescr
+Text GLabel 8750 7750 3    40   Input ~ 0
+SGPIO_CLK
+NoConn ~ 11600 7850
 $Comp
 L CONN_1 P11
 U 1 1 50457418
@@ -640,8 +643,6 @@ Wire Wire Line
 	13100 8950 13100 9050
 Wire Wire Line
 	12500 8950 12500 9050
-Wire Wire Line
-	11600 7850 11500 7850
 Wire Wire Line
 	2700 4350 2700 4250
 Wire Wire Line
@@ -1983,6 +1984,7 @@ F 1 "39" V 11200 9800 50  0000 C CNN
 F 4 "Stackpole" H 11200 9800 60  0001 C CNN "Manufacturer"
 F 5 "RMCF0402JT39R0" H 11200 9800 60  0001 C CNN "Part Number"
 F 6 "RES 39 OHM 1/16W 5% 0402 SMD" H 11200 9800 60  0001 C CNN "Description"
+F 7 "DNP" V 11250 10050 60  0000 C CNN "Note"
 	1    11200 9800
 	0    -1   -1   0   
 $EndComp
@@ -2591,8 +2593,6 @@ Text GLabel 4200 3800 0    40   Input ~ 0
 TXENABLE
 Text GLabel 4200 3100 0    40   Input ~ 0
 RSSI
-Text GLabel 11500 7850 0    40   Input ~ 0
-GCK0
 Text Label 9250 9400 0    40   ~ 0
 SGPIO0
 Text Label 9250 9200 0    40   ~ 0
@@ -3995,7 +3995,7 @@ Text Label 6050 7750 1    40   ~ 0
 SD_CLK
 Text Label 4000 3600 0    40   ~ 0
 SGPIO9
-Text Label 8750 7750 1    40   ~ 0
+Text Label 8750 7700 1    40   ~ 0
 SGPIO8
 Text Label 7050 7750 1    40   ~ 0
 SD_DAT2
