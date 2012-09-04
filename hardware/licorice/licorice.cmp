@@ -1,4 +1,4 @@
-Cmp-Mod V01 Created by CvPCB (2011-06-30 BZR 3033)-stable date = Mon Aug 20 15:47:31 2012
+Cmp-Mod V01 Created by CvPCB (2011-06-30 BZR 3033)-stable date = Mon Aug 27 11:49:46 2012
 
 BeginCmp
 TimeStamp = /4FAECB99;
@@ -473,6 +473,20 @@ BeginCmp
 TimeStamp = /4FB3CC76;
 Reference = C68;
 ValeurCmp = 47pF;
+IdModule  = GSG-0402;
+EndCmp
+
+BeginCmp
+TimeStamp = /503BB2BD;
+Reference = C69;
+ValeurCmp = 10nF;
+IdModule  = GSG-0402;
+EndCmp
+
+BeginCmp
+TimeStamp = /503BB2CE;
+Reference = C70;
+ValeurCmp = 10nF;
 IdModule  = GSG-0402;
 EndCmp
 

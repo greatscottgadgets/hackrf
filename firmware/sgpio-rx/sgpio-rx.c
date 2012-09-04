@@ -279,10 +279,11 @@ int main(void) {
     ssp1_init();
 	ssp1_set_mode_max2837();
 	max2837_setup();
-	rffc5071_init();
-	rffc5071_config_synth_int(500);
-	rffc5071_enable_rx();
-	//rffc5071_reg_write(RFFC5071_GPO, 0x0001); /* PLL lock output on GPO4 */
+	rffc5071_setup();
+	rffc5071_rx();
+	rffc5071_set_frequency(500, 0); // 500 MHz, 0 Hz (Hz ignored)
+
+#ifdef LOLLIPOP_SWITCH_SET_UP_DONE_IN_RFFC5071
 	/* lollipop */
 	uint8_t gpo = 
 			  (1 << 0)  /* SWTXB1 (!tx_bypass) */
@@ -301,6 +302,7 @@ int main(void) {
 			//| (0 << 5); /* !AMP_PWR */
 	rffc5071_reg_write(RFFC5071_GPO, (gpo << 9) | (gpo << 2) | 0x3);
 	gpio_set(PORT_LED1_3, (PIN_LED1)); /* LED1 on */
+#endif
 
 	max2837_set_frequency(freq);
 	max2837_start();

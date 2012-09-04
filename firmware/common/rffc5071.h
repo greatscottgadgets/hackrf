@@ -19,45 +19,47 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include <stdint.h>
+#ifndef __RFFC5071_H
+#define __RFFC5071_H
 
-/* register names */
-#define RFFC5071_LF       0x00
-#define RFFC5071_XO       0x01
-#define RFFC5071_CAL_TIME 0x02
-#define RFFC5071_VCO_CTRL 0x03
-#define RFFC5071_CT_CAL1  0x04
-#define RFFC5071_CT_CAL2  0x05
-#define RFFC5071_PLL_CAL1 0x06
-#define RFFC5071_PLL_CAL2 0x07
-#define RFFC5071_VCO_AUTO 0x08
-#define RFFC5071_PLL_CTRL 0x09
-#define RFFC5071_PLL_BIAS 0x0A
-#define RFFC5071_MIX_CONT 0x0B
-#define RFFC5071_P1_FREQ1 0x0C
-#define RFFC5071_P1_FREQ2 0x0D
-#define RFFC5071_P1_FREQ3 0x0E
-#define RFFC5071_P2_FREQ1 0x0F
-#define RFFC5071_P2_FREQ2 0x10
-#define RFFC5071_P2_FREQ3 0x11
-#define RFFC5071_FN_CTRL  0x12
-#define RFFC5071_EXT_MOD  0x13
-#define RFFC5071_FMOD     0x14
-#define RFFC5071_SDI_CTRL 0x15
-#define RFFC5071_GPO      0x16
-#define RFFC5071_T_VCO    0x17
-#define RFFC5071_IQMOD1   0x18
-#define RFFC5071_IQMOD2   0x19
-#define RFFC5071_IQMOD3   0x1A
-#define RFFC5071_IQMOD4   0x1B
-#define RFFC5071_T_CTRL   0x1C
-#define RFFC5071_DEV_CTRL 0x1D
-#define RFFC5071_TEST     0x1E
-#define RFFC5071_READBACK 0x1F
+/* 31 registers, each containing 16 bits of data. */
+#define RFFC5071_NUM_REGS 31
 
-void rffc5071_init(void);
-void rffc5071_config_synth_int(uint16_t lo);
-void rffc5071_enable_tx(void);
-void rffc5071_enable_rx(void);
-void rffc5071_reg_write(uint8_t reg, uint16_t val);
-uint16_t rffc5071_reg_read(uint8_t reg);
+extern uint16_t rffc5071_regs[RFFC5071_NUM_REGS];
+extern uint32_t rffc5071_regs_dirty;
+
+#define RFFC5071_REG_SET_CLEAN(r) rffc5071_regs_dirty &= ~(1UL<<r)
+#define RFFC5071_REG_SET_DIRTY(r) rffc5071_regs_dirty |= (1UL<<r)
+
+/* Initialize chip. Call _setup() externally, as it calls _init(). */
+extern void rffc5071_init(void);
+extern void rffc5071_setup(void);
+
+/* Read a register via SPI. Save a copy to memory and return
+ * value. Discard any uncommited changes and mark CLEAN. */
+extern uint16_t rffc5071_reg_read(uint8_t r);
+
+/* Write value to register via SPI and save a copy to memory. Mark
+ * CLEAN. */
+extern void rffc5071_reg_write(uint8_t r, uint16_t v);
+
+/* Write all dirty registers via SPI from memory. Mark all clean. Some
+ * operations require registers to be written in a certain order. Use
+ * provided routines for those operations. */
+extern void rffc5071_regs_commit(void);
+
+/* Set frequency (MHz). The 'hz' field is currently ignored. Actual
+ * tune frequency (MHz) is returned. Expect requested freq to be
+ * rounded down to the nearest multiple of 25MHz or 50MHz, depending
+ * internal calculations. */
+extern uint16_t rffc5071_set_frequency(uint16_t mhz, uint32_t hz);
+
+/* Set up rx only, tx only, or full duplex. Chip should be disabled
+ * before _tx, _rx, or _rxtx are called. */
+extern void rffc5071_tx(void);
+extern void rffc5071_rx(void);
+extern void rffc5071_rxtx(void);
+extern void rffc5071_enable(void);
+extern void rffc5071_disable(void);
+
+#endif // __RFFC5071_H
