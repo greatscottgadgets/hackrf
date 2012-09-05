@@ -39,12 +39,12 @@
  * l=length (bits) */
 #define __MREG__(n,r,o,l) \
 static inline uint16_t get_##n(void) { \
-        return (rffc5071_regs[r] >> o) & ((1<<l)-1); \
+        return (rffc5071_regs[r] >> o) & ((1L<<l)-1); \
 } \
 static inline void set_##n(uint16_t v) {      \
-	rffc5071_regs[r] &= ~(((1<<l)-1)<<o);  \
-	rffc5071_regs[r] |= ((v&((1<<l)-1))<<o); \
-	RFFC5071_REG_SET_DIRTY(r); \
+	rffc5071_regs[r] &= (uint16_t)(~(((1L<<l)-1)<<o));	\
+	rffc5071_regs[r] |= (uint16_t)(((v&((1L<<l)-1))<<o));	\
+	RFFC5071_REG_SET_DIRTY(r);				\
 }
 
 /* REG 00 (0): LF */
