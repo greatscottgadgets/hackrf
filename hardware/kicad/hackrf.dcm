@@ -1,8 +1,13 @@
-EESchema-DOCLIB  Version 2.0  Date: Mon Sep  3 16:15:50 2012
+EESchema-DOCLIB  Version 2.0  Date: Wed Sep  5 14:37:43 2012
 #
 $CMP GSG-DIODE-TVS-BI
 D Diode zener
 K DEV DIODE
+$ENDCMP
+#
+$CMP R-SHORTED
+D Resistor with PCB trace short
+K R DEV
 $ENDCMP
 #
 #End Doc Library
