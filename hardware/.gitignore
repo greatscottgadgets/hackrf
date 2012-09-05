@@ -1,6 +1,7 @@
 # kicad backup files
 *.000
 *.bak
+*.bck
 $savepcb.*
 
 # gerber and drill files
