@@ -1,4 +1,4 @@
-Cmp-Mod V01 Created by CvPcb (2012-05-21 BZR 3261)-stable date = Wed Sep  5 15:16:30 2012
+Cmp-Mod V01 Created by CvPcb (2012-05-21 BZR 3261)-stable date = Wed Sep  5 16:11:38 2012
 
 BeginCmp
 TimeStamp = /503BB638/4FAECB99;
@@ -1552,6 +1552,13 @@ TimeStamp = /5037043E/5043C4E5;
 Reference = P34;
 ValeurCmp = CONN_3;
 IdModule  = GSG-HEADER-1x3;
+EndCmp
+
+BeginCmp
+TimeStamp = /5037043E/5047CDF2;
+Reference = P35;
+ValeurCmp = U3_RXD;
+IdModule  = GSG-TESTPOINT-50MIL;
 EndCmp
 
 BeginCmp

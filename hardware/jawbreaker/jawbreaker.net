@@ -1,4 +1,4 @@
-# EESchema Netlist Version 1.1 created  Wed Sep  5 15:16:30 2012
+# EESchema Netlist Version 1.1 created  Wed Sep  5 16:11:38 2012
 (
  ( /503BB638/4FAECB99 GSG-0402 C1 33pF
   ( 1 VCC )
@@ -413,7 +413,7 @@
   ( 2 /baseband/QA+ )
  )
  ( /50370666/4F5BD68E GSG-0402 C104 3pF
-  ( 1 N-000282 )
+  ( 1 N-000288 )
   ( 2 N-000290 )
  )
  ( /50370666/503F888A GSG-0805 C105 10uF
@@ -441,7 +441,7 @@
   ( 2 GND )
  )
  ( /50370666/4F5BD678 GSG-0402 C111 3pF
-  ( 1 N-000288 )
+  ( 1 N-000282 )
   ( 2 N-000289 )
  )
  ( /50370666/503C527F GSG-0402 C112 180pF
@@ -494,7 +494,7 @@
  )
  ( /5037043E/503F91B4 GSG-0402 C125 22pF
   ( 1 +1.8V )
-  ( 2 N-000037 )
+  ( 2 N-000080 )
  )
  ( /5037043E/4F824FBD GSG-0805 C126 10uF
   ( 1 +1.8V )
@@ -654,34 +654,34 @@
  )
  ( /5037043E/4F83B14A GSG-0603D D2 USBLED1
   ( 1 /mcu/usb/power/USB0_IND1 )
-  ( 2 N-000065 )
+  ( 2 N-000048 )
  )
  ( /5037043E/4F87ACCD GSG-0603D D3 USBLED0
   ( 1 /mcu/usb/power/USB0_IND0 )
-  ( 2 N-000008 )
+  ( 2 N-000066 )
  )
  ( /5037043E/4F83C1DF GSG-0603D D4 LED1
-  ( 1 N-000042 )
+  ( 1 N-000069 )
   ( 2 GND )
  )
  ( /5037043E/4F83C276 GSG-0603D D5 LED2
-  ( 1 N-000043 )
+  ( 1 N-000068 )
   ( 2 GND )
  )
  ( /5037043E/4F83C1A7 GSG-0603D D6 LED3
-  ( 1 N-000067 )
-  ( 2 GND )
- )
- ( /5037043E/4F83C1D6 GSG-0603D D7 VCCLED
   ( 1 N-000044 )
   ( 2 GND )
  )
+ ( /5037043E/4F83C1D6 GSG-0603D D7 VCCLED
+  ( 1 N-000067 )
+  ( 2 GND )
+ )
  ( /5037043E/4F83C1E0 GSG-0603D D8 1V8LED
-  ( 1 N-000066 )
+  ( 1 N-000045 )
   ( 2 GND )
  )
  ( /5037043E/4F766F5E GSG-0805 FB1 FILTER
-  ( 1 N-000158 )
+  ( 1 N-000144 )
   ( 2 /mcu/usb/power/VBUS )
  )
  ( /50370666/503F885C GSG-0805 FB2 FILTER
@@ -689,9 +689,9 @@
   ( 2 VAA )
  )
  ( /5037043E/4F766BDF GSG-USB-MICROB-FCI-10103594 J1 GSG-USB-MICRO-B
-  ( 1 N-000158 )
-  ( 2 N-000130 )
-  ( 3 N-000041 )
+  ( 1 N-000144 )
+  ( 2 N-000064 )
+  ( 3 N-000141 )
   ( 4 ? )
   ( 5 GND )
  )
@@ -732,16 +732,16 @@
   ( 2 N-000289 )
  )
  ( /50370666/4F5D6AD6 GSG-0402 L9 DNP
-  ( 1 N-000282 )
-  ( 2 N-000288 )
+  ( 1 N-000288 )
+  ( 2 N-000282 )
  )
  ( /5037043E/4F820301 GSG-NRG4026 L10 4u7
-  ( 1 N-000136 )
+  ( 1 N-000154 )
   ( 2 +1.8V )
  )
  ( /5037043E/4F8249E7 GSG-NRG4026 L11 4u7
   ( 1 VCC )
-  ( 2 N-000038 )
+  ( 2 N-000136 )
  )
  ( /503BB638/503BF2DC GSG-0603 L12 1uH
   ( 1 N-000335 )
@@ -778,32 +778,32 @@
   ( 5 GND )
  )
  ( /5037043E/50457385 GSG-TESTPOINT-50MIL P5 WAKEUP
-  ( 1 N-000020 )
+  ( 1 N-000122 )
  )
  ( /5037043E/504573A0 GSG-TESTPOINT-50MIL P6 TRACECLK
-  ( 1 N-000019 )
+  ( 1 N-000025 )
  )
  ( /5037043E/5045740A GSG-TESTPOINT-50MIL P7 CTIN_4
-  ( 1 N-000015 )
+  ( 1 N-000021 )
  )
  ( /5037043E/5043D21B GSG-HEADER-1x2 P8 VCC
   ( 1 VCC )
   ( 2 VCC )
  )
  ( /5037043E/504573FD GSG-TESTPOINT-50MIL P9 CTOUT_4
-  ( 1 N-000016 )
+  ( 1 N-000022 )
  )
  ( /5037043E/504573E2 GSG-TESTPOINT-50MIL P10 CTOUT_2
-  ( 1 N-000017 )
- )
- ( /5037043E/50457418 GSG-TESTPOINT-50MIL P11 CTIN_2
-  ( 1 N-000014 )
- )
- ( /5037043E/504572EF GSG-TESTPOINT-50MIL P12 U3_RXD
   ( 1 N-000023 )
  )
+ ( /5037043E/50457418 GSG-TESTPOINT-50MIL P11 CTIN_2
+  ( 1 N-000020 )
+ )
+ ( /5037043E/504572EF GSG-TESTPOINT-50MIL P12 U3_RXD
+  ( 1 N-000028 )
+ )
  ( /5037043E/50457304 GSG-TESTPOINT-50MIL P13 U3_TXD
-  ( 1 N-000022 )
+  ( 1 N-000027 )
  )
  ( /50370666/50371714 GSG-TESTPOINT-50MIL P14 XCVR_CLKOUT
   ( 1 /baseband/XCVR_CLKOUT )
@@ -873,7 +873,7 @@
   ( 1 /mcu/usb/power/DBGEN )
  )
  ( /5037043E/5045736F GSG-TESTPOINT-50MIL P24 TRST
-  ( 1 N-000021 )
+  ( 1 N-000026 )
  )
  ( /5037043E/4F62D2D3 GSG-HEADER-1x6 P25 LPC_ISP
   ( 1 GND )
@@ -966,6 +966,9 @@
   ( 1 VCC )
   ( 2 /mcu/usb/power/BOOT3 )
   ( 3 GND )
+ )
+ ( /5037043E/5047CDF2 GSG-TESTPOINT-50MIL P35 U3_RXD
+  ( 1 N-000017 )
  )
  ( /503BB638/502E69D1 SOT23GDS Q1 MOSFET_P
   ( D N-000301 )
@@ -1159,15 +1162,15 @@
  )
  ( /5037043E/503F8429 GSG-0402 R46 162k
   ( 1 GND )
-  ( 2 N-000037 )
+  ( 2 N-000080 )
  )
  ( /5037043E/4F8203AD GSG-0402 R47 330k
   ( 1 +1.8V )
-  ( 2 N-000037 )
+  ( 2 N-000080 )
  )
  ( /5037043E/503F9989 GSG-0402 R48 10k
   ( 1 VCC )
-  ( 2 N-000020 )
+  ( 2 N-000122 )
  )
  ( /5037043E/503F999F GSG-0402 R49 10k
   ( 1 VCC )
@@ -1175,18 +1178,18 @@
  )
  ( /5037043E/4F8215A4 GSG-0402 R50 DNP
   ( 1 VCC )
-  ( 2 N-000135 )
+  ( 2 N-000059 )
  )
  ( /5037043E/503F99F3 GSG-0402 R51 10k
-  ( 1 N-000135 )
+  ( 1 N-000059 )
   ( 2 /mcu/usb/power/VREGMODE )
  )
  ( /5037043E/503F9A07 GSG-0402 R52 10k
   ( 1 /mcu/usb/power/VBUS )
-  ( 2 N-000040 )
+  ( 2 N-000058 )
  )
  ( /5037043E/4F821250 GSG-0402 R53 DNP
-  ( 1 N-000135 )
+  ( 1 N-000059 )
   ( 2 GND )
  )
  ( /5037043E/503F9A10 GSG-0402 R54 10k
@@ -1195,19 +1198,19 @@
  )
  ( /5037043E/4F8203D0 GSG-0402 R55 162k
   ( 1 GND )
-  ( 2 N-000137 )
+  ( 2 N-000152 )
  )
  ( /5037043E/4F8203A7 GSG-0402 R56 715k
   ( 1 VCC )
-  ( 2 N-000137 )
+  ( 2 N-000152 )
  )
  ( /5037043E/503F9D26 GSG-0402 R57 0
   ( 1 /mcu/usb/power/DP )
-  ( 2 N-000041 )
+  ( 2 N-000141 )
  )
  ( /5037043E/503F9D27 GSG-0402 R58 0
   ( 1 /mcu/usb/power/DM )
-  ( 2 N-000130 )
+  ( 2 N-000064 )
  )
  ( /5037043E/503F9A36 GSG-0402 R59 10k
   ( 1 VCC )
@@ -1223,7 +1226,7 @@
  )
  ( /5037043E/4F83C48F GSG-0402 R62 15k
   ( 1 /mcu/usb/power/VBUS )
-  ( 2 N-000143 )
+  ( 2 N-000046 )
  )
  ( /5037043E/503F996A GSG-0402 R63 10k
   ( 1 /mcu/usb/power/TDO )
@@ -1234,7 +1237,7 @@
   ( 2 VCC )
  )
  ( /5037043E/4F83C495 GSG-0402 R65 33k
-  ( 1 N-000143 )
+  ( 1 N-000046 )
   ( 2 GND )
  )
  ( /5037043E/503F997B GSG-0402 R66 10k
@@ -1255,30 +1258,30 @@
  )
  ( /5037043E/503C51AC GSG-0402 R70 470
   ( 1 GND )
-  ( 2 N-000065 )
+  ( 2 N-000048 )
  )
  ( /5037043E/503C51B5 GSG-0402 R71 470
   ( 1 GND )
-  ( 2 N-000008 )
+  ( 2 N-000066 )
  )
  ( /5037043E/503C519A GSG-0402 R72 470
-  ( 1 N-000042 )
+  ( 1 N-000069 )
   ( 2 /mcu/usb/power/LED1 )
  )
  ( /5037043E/503C51A4 GSG-0402 R73 470
-  ( 1 N-000043 )
+  ( 1 N-000068 )
   ( 2 /mcu/usb/power/LED2 )
  )
  ( /5037043E/503C51A6 GSG-0402 R74 470
-  ( 1 N-000067 )
+  ( 1 N-000044 )
   ( 2 /mcu/usb/power/LED3 )
  )
  ( /5037043E/503C51A8 GSG-0402 R75 470
-  ( 1 N-000044 )
+  ( 1 N-000067 )
   ( 2 VCC )
  )
  ( /5037043E/503C51AA GSG-0402 R76 470
-  ( 1 N-000066 )
+  ( 1 N-000045 )
   ( 2 /mcu/usb/power/EN1V8 )
  )
  ( /5037043E/503F983E GSG-0402 R77 39
@@ -1580,8 +1583,8 @@
   ( 7 VAA )
   ( 8 ? )
   ( 9 ? )
-  ( 10 N-000282 )
-  ( 11 N-000288 )
+  ( 10 N-000288 )
+  ( 11 N-000282 )
   ( 12 ? )
   ( 13 VAA )
   ( 14 ? )
@@ -1706,21 +1709,21 @@
  )
  ( /5037043E/4F8201BF GSG-S-PVSON-N10 U21 TPS62410
   ( 0 GND )
-  ( 1 N-000037 )
-  ( 2 N-000135 )
+  ( 1 N-000080 )
+  ( 2 N-000059 )
   ( 3 /mcu/usb/power/VBUS )
   ( 4 VCC )
-  ( 5 N-000137 )
-  ( 6 N-000038 )
-  ( 7 N-000040 )
+  ( 5 N-000152 )
+  ( 6 N-000136 )
+  ( 7 N-000058 )
   ( 8 GND )
   ( 9 /mcu/usb/power/EN1V8 )
-  ( 10 N-000136 )
+  ( 10 N-000154 )
  )
  ( /5037043E/4F766D4B GSG-SOT457 U22 GSG-IP4220CZ6
-  ( 1 N-000130 )
+  ( 1 N-000064 )
   ( 2 GND )
-  ( 3 N-000041 )
+  ( 3 N-000141 )
   ( 4 ? )
   ( 5 /mcu/usb/power/VBUS )
   ( 6 ? )
@@ -1746,7 +1749,7 @@
   ( 18 /mcu/usb/power/DP )
   ( 19 GND )
   ( 20 /mcu/usb/power/DM )
-  ( 21 N-000143 )
+  ( 21 N-000046 )
   ( 22 ? )
   ( 23 GND )
   ( 24 /mcu/usb/power/RREF )
@@ -1754,7 +1757,7 @@
   ( 26 /mcu/usb/power/TDI )
   ( 27 /mcu/usb/power/TCK )
   ( 28 /mcu/usb/power/DBGEN )
-  ( 29 N-000021 )
+  ( 29 N-000026 )
   ( 30 /mcu/usb/power/TMS )
   ( 31 /mcu/usb/power/TDO )
   ( 32 /mcu/usb/power/SGPIO0 )
@@ -1812,11 +1815,11 @@
   ( 84 /mcu/usb/power/SGPIO6 )
   ( 85 /mcu/usb/power/USB0_IND1 )
   ( 86 /mcu/usb/power/USB0_IND0 )
-  ( 87 N-000022 )
-  ( 88 N-000023 )
+  ( 87 N-000027 )
+  ( 88 N-000028 )
   ( 89 ? )
   ( 90 ? )
-  ( 91 N-000014 )
+  ( 91 N-000020 )
   ( 92 SCL )
   ( 93 SDA )
   ( 94 VCC )
@@ -1829,11 +1832,11 @@
   ( 101 /mcu/usb/power/VREGMODE )
   ( 102 /mcu/usb/power/BOOT3 )
   ( 103 /mcu/usb/power/LED3 )
-  ( 104 N-000017 )
+  ( 104 N-000023 )
   ( 105 ? )
-  ( 106 N-000016 )
+  ( 106 N-000022 )
   ( 107 VCC )
-  ( 108 N-000015 )
+  ( 108 N-000021 )
   ( 109 GND )
   ( 110 /mcu/usb/power/GPIO3_8 )
   ( 111 VCC )
@@ -1845,7 +1848,7 @@
   ( 117 /mcu/usb/power/GPIO3_11 )
   ( 118 /mcu/usb/power/SPIFI_SCK )
   ( 119 /mcu/usb/power/SPIFI_SIO3 )
-  ( 120 N-000019 )
+  ( 120 N-000025 )
   ( 121 /mcu/usb/power/SPIFI_SIO2 )
   ( 122 /mcu/usb/power/SPIFI_MISO )
   ( 123 /mcu/usb/power/SPIFI_MOSI )
@@ -1855,7 +1858,7 @@
   ( 127 VCC )
   ( 128 /mcu/usb/power/RESET )
   ( 129 ? )
-  ( 130 N-000020 )
+  ( 130 N-000122 )
   ( 131 VCC )
   ( 132 /mcu/usb/power/GPIO3_12 )
   ( 133 /mcu/usb/power/GPIO3_13 )
@@ -1893,7 +1896,7 @@
   ( 19 DD7 )
   ( 20 ? )
   ( 21 GND )
-  ( 22 ? )
+  ( 22 N-000017 )
   ( 23 GCK1 )
   ( 24 DD6 )
   ( 25 ? )
