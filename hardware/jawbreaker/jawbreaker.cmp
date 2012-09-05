@@ -1,4 +1,4 @@
-Cmp-Mod V01 Created by CvPcb (2012-05-21 BZR 3261)-stable date = Wed Sep  5 13:24:09 2012
+Cmp-Mod V01 Created by CvPcb (2012-05-21 BZR 3261)-stable date = Wed Sep  5 15:16:30 2012
 
 BeginCmp
 TimeStamp = /503BB638/4FAECB99;
@@ -813,6 +813,13 @@ IdModule  = GSG-0402;
 EndCmp
 
 BeginCmp
+TimeStamp = /50370666/5047BE90;
+Reference = C117;
+ValeurCmp = C;
+IdModule  = GSG-0402;
+EndCmp
+
+BeginCmp
 TimeStamp = /50370666/503C49AF;
 Reference = C119;
 ValeurCmp = 100nF;
@@ -1128,13 +1135,6 @@ IdModule  = GSG-0402;
 EndCmp
 
 BeginCmp
-TimeStamp = /503BB638/50452A0F;
-Reference = C164;
-ValeurCmp = 10nF;
-IdModule  = GSG-0402;
-EndCmp
-
-BeginCmp
 TimeStamp = /503BB638/4FB3F9B0;
 Reference = D1;
 ValeurCmp = GSG-DIODE-TVS-BI;
@@ -1214,7 +1214,7 @@ EndCmp
 BeginCmp
 TimeStamp = /503BB638/50452C20;
 Reference = J2;
-ValeurCmp = GSG-900MHZ-F-ANTENNA;
+ValeurCmp = 900MHZ-F-ANTENNA;
 IdModule  = GSG-900MHZ-INVERTED-F;
 EndCmp
 
@@ -1611,6 +1611,13 @@ IdModule  = GSG-0402;
 EndCmp
 
 BeginCmp
+TimeStamp = /5037043E/504786E0;
+Reference = R7;
+ValeurCmp = 10k;
+IdModule  = GSG-0402;
+EndCmp
+
+BeginCmp
 TimeStamp = /50370666/4F5BC2E1;
 Reference = R8;
 ValeurCmp = 1k;
@@ -1768,70 +1775,77 @@ BeginCmp
 TimeStamp = /50370666/5037B97D;
 Reference = R30;
 ValeurCmp = 0;
-IdModule  = GSG-0603;
+IdModule  = GSG-0402;
 EndCmp
 
 BeginCmp
-TimeStamp = /50370666/503F9B67;
+TimeStamp = /50370666/5047BACF;
 Reference = R31;
 ValeurCmp = 0;
-IdModule  = GSG-0603;
+IdModule  = GSG-0402-SHORT-10MIL;
 EndCmp
 
 BeginCmp
 TimeStamp = /50370666/5037B9E6;
 Reference = R32;
 ValeurCmp = 0;
-IdModule  = GSG-0603;
+IdModule  = GSG-0402;
 EndCmp
 
 BeginCmp
-TimeStamp = /50370666/503F9B7E;
+TimeStamp = /50370666/5047BAFC;
 Reference = R33;
 ValeurCmp = 0;
-IdModule  = GSG-0603;
+IdModule  = GSG-0402-SHORT-10MIL;
 EndCmp
 
 BeginCmp
 TimeStamp = /50370666/5037BA03;
 Reference = R34;
 ValeurCmp = 0;
-IdModule  = GSG-0603;
+IdModule  = GSG-0402;
 EndCmp
 
 BeginCmp
-TimeStamp = /50370666/503F9B89;
+TimeStamp = /50370666/5047BB1B;
 Reference = R35;
 ValeurCmp = 0;
-IdModule  = GSG-0603;
+IdModule  = GSG-0402-SHORT-10MIL;
 EndCmp
 
 BeginCmp
 TimeStamp = /50370666/5037BA00;
 Reference = R36;
 ValeurCmp = 0;
-IdModule  = GSG-0603;
+IdModule  = GSG-0402;
 EndCmp
 
 BeginCmp
-TimeStamp = /50370666/503F9B92;
+TimeStamp = /50370666/5047BB2A;
 Reference = R37;
 ValeurCmp = 0;
-IdModule  = GSG-0603;
+IdModule  = GSG-0402-SHORT-10MIL;
 EndCmp
 
 BeginCmp
 TimeStamp = /50370666/5037BA67;
 Reference = R38;
 ValeurCmp = 0;
-IdModule  = GSG-0603;
+IdModule  = GSG-0402;
 EndCmp
 
 BeginCmp
-TimeStamp = /50370666/503F9BAE;
+TimeStamp = /50370666/5047BB3A;
 Reference = R39;
 ValeurCmp = 0;
-IdModule  = GSG-0603;
+IdModule  = GSG-0402-SHORT-10MIL;
+EndCmp
+
+BeginCmp
+TimeStamp = /5037043E/504786D4;
+Reference = R40;
+ValeurCmp = 10k;
+IdModule  = GSG-0402;
 EndCmp
 
 BeginCmp
@@ -1839,6 +1853,34 @@ TimeStamp = /50370666/503C4ABC;
 Reference = R41;
 ValeurCmp = 4k7;
 IdModule  = GSG-0402;
+EndCmp
+
+BeginCmp
+TimeStamp = /5037043E/504785AD;
+Reference = R42;
+ValeurCmp = 10k;
+IdModule  = GSG-0402;
+EndCmp
+
+BeginCmp
+TimeStamp = /5037043E/504786DD;
+Reference = R43;
+ValeurCmp = 10k;
+IdModule  = GSG-0402;
+EndCmp
+
+BeginCmp
+TimeStamp = /503BB638/5047B833;
+Reference = R44;
+ValeurCmp = 0;
+IdModule  = GSG-0402-SHORT-20MIL;
+EndCmp
+
+BeginCmp
+TimeStamp = /50370666/5047BC87;
+Reference = R45;
+ValeurCmp = 0;
+IdModule  = GSG-0402-SHORT-10MIL;
 EndCmp
 
 BeginCmp
@@ -1940,17 +1982,17 @@ IdModule  = GSG-0402;
 EndCmp
 
 BeginCmp
-TimeStamp = /5037043E/503F99AB;
+TimeStamp = /5037043E/5047BC2F;
 Reference = R60;
 ValeurCmp = 0;
-IdModule  = GSG-0603;
+IdModule  = GSG-0402-SHORT-10MIL;
 EndCmp
 
 BeginCmp
 TimeStamp = /5037043E/503717B8;
 Reference = R61;
 ValeurCmp = 0;
-IdModule  = GSG-0603;
+IdModule  = GSG-0402;
 EndCmp
 
 BeginCmp
@@ -2101,10 +2143,10 @@ IdModule  = GSG-0402;
 EndCmp
 
 BeginCmp
-TimeStamp = /503BB638/504580E3;
+TimeStamp = /503BB638/5047BA5F;
 Reference = R83;
 ValeurCmp = 0;
-IdModule  = GSG-0402;
+IdModule  = GSG-0402-SHORT-10MIL;
 EndCmp
 
 BeginCmp
