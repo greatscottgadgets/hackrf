@@ -1,4 +1,4 @@
-Cmp-Mod V01 Created by CvPCB (2011-06-30 BZR 3033)-stable date = Tue Sep  4 13:55:54 2012
+Cmp-Mod V01 Created by CvPcb (2012-05-21 BZR 3261)-stable date = Wed Sep  5 13:24:09 2012
 
 BeginCmp
 TimeStamp = /503BB638/4FAECB99;
@@ -1327,7 +1327,7 @@ BeginCmp
 TimeStamp = /50370666/50462549;
 Reference = P2;
 ValeurCmp = CLKOUT;
-IdModule  = GSG-SMA-EDGE;
+IdModule  = GSG-SMA-VERTICAL;
 EndCmp
 
 BeginCmp
@@ -1341,7 +1341,7 @@ BeginCmp
 TimeStamp = /503BB638/4F94D0F2;
 Reference = P4;
 ValeurCmp = ANTENNA;
-IdModule  = GSG-SMA-EDGE;
+IdModule  = GSG-SMA-VERTICAL;
 EndCmp
 
 BeginCmp
@@ -1425,7 +1425,7 @@ BeginCmp
 TimeStamp = /50370666/4F5D16D6;
 Reference = P16;
 ValeurCmp = CLKIN;
-IdModule  = GSG-SMA-EDGE;
+IdModule  = GSG-SMA-VERTICAL;
 EndCmp
 
 BeginCmp

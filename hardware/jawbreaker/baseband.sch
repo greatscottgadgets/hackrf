@@ -1,4 +1,4 @@
-EESchema Schematic File Version 2  date Wed Sep  5 11:08:52 2012
+EESchema Schematic File Version 2  date Wed Sep  5 13:31:32 2012
 LIBS:power
 LIBS:device
 LIBS:transistors
@@ -746,7 +746,10 @@ U 1 1 50462549
 P 5750 9600
 F 0 "P2" H 5750 9750 60  0000 C CNN
 F 1 "CLKOUT" H 5750 9450 60  0000 C CNN
-F 4 "DNP" H 5500 9550 60  0000 C CNN "Note"
+F 4 "TE Connectivity" H 5750 9600 60  0001 C CNN "Manufacturer"
+F 5 "2081233-1" H 5750 9600 60  0001 C CNN "Part Number"
+F 6 "CONN JACK SMA PCB VERT" H 5750 9600 60  0001 C CNN "Description"
+F 7 "DNP" H 5500 9550 60  0000 C CNN "Note"
 	1    5750 9600
 	-1   0    0    -1  
 $EndComp
@@ -2380,7 +2383,10 @@ U 1 1 4F5D16D6
 P 2700 8850
 F 0 "P16" H 2700 9000 60  0000 C CNN
 F 1 "CLKIN" H 2700 8700 60  0000 C CNN
-F 4 "DNP" H 2450 8800 60  0000 C CNN "Note"
+F 4 "TE Connectivity" H 2700 8850 60  0001 C CNN "Manufacturer"
+F 5 "2081233-1" H 2700 8850 60  0001 C CNN "Part Number"
+F 6 "CONN JACK SMA PCB VERT" H 2700 8850 60  0001 C CNN "Description"
+F 7 "DNP" H 2450 8800 60  0000 C CNN "Note"
 	1    2700 8850
 	1    0    0    -1  
 $EndComp

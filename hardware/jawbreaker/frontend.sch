@@ -1,4 +1,4 @@
-EESchema Schematic File Version 2  date Wed Sep  5 11:08:52 2012
+EESchema Schematic File Version 2  date Wed Sep  5 13:31:32 2012
 LIBS:power
 LIBS:device
 LIBS:transistors
@@ -3139,9 +3139,9 @@ U 1 1 4F94D0F2
 P 16100 8600
 F 0 "P4" H 16100 8750 60  0000 C CNN
 F 1 "ANTENNA" H 16100 8450 60  0000 C CNN
-F 4 "Linx" H 16100 8600 60  0001 C CNN "Manufacturer"
-F 5 "CONSMA003.062" H 16100 8600 60  0001 C CNN "Part Number"
-F 6 "CONN FEMALE EDGE MT FOR .062\" BD" H 16100 8600 60  0001 C CNN "Description"
+F 4 "TE Connectivity" H 16100 8600 60  0001 C CNN "Manufacturer"
+F 5 "2081233-1" H 16100 8600 60  0001 C CNN "Part Number"
+F 6 "CONN JACK SMA PCB VERT" H 16100 8600 60  0001 C CNN "Description"
 F 7 "DNP" H 15850 8600 60  0000 C CNN "Note"
 	1    16100 8600
 	-1   0    0    -1  
