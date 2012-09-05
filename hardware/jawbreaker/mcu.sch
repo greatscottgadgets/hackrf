@@ -1,4 +1,4 @@
-EESchema Schematic File Version 2  date Wed Sep  5 10:36:00 2012
+EESchema Schematic File Version 2  date Wed Sep  5 10:46:14 2012
 LIBS:power
 LIBS:device
 LIBS:transistors
@@ -45,6 +45,10 @@ Comment2 ""
 Comment3 ""
 Comment4 ""
 $EndDescr
+Text Notes 8250 1400 0    40   ~ 0
+traces may be cut to install\nheader and jumpers
+Text Notes 12000 9550 0    40   ~ 0
+R97 may be installed to connect SGPIO8 to the CPLD.\nBy default SGPIO8 is used as a clock input.
 NoConn ~ 9700 5800
 Text GLabel 8750 7750 3    40   Input ~ 0
 SGPIO_CLK
