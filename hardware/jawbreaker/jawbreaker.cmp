@@ -1,4 +1,4 @@
-Cmp-Mod V01 Created by CvPcb (2012-05-21 BZR 3261)-stable date = Wed Sep  5 16:11:38 2012
+Cmp-Mod V01 Created by CvPcb (2012-05-21 BZR 3261)-stable date = Thu Sep  6 10:39:11 2012
 
 BeginCmp
 TimeStamp = /503BB638/4FAECB99;
@@ -1317,10 +1317,10 @@ IdModule  = GSG-0603;
 EndCmp
 
 BeginCmp
-TimeStamp = /5037043E/5043D1E3;
+TimeStamp = /5037043E/5048CF4D;
 Reference = P1;
 ValeurCmp = 1V8;
-IdModule  = GSG-HEADER-1x2;
+IdModule  = GSG-HEADER-1x2-SHORTED;
 EndCmp
 
 BeginCmp
@@ -1366,10 +1366,10 @@ IdModule  = GSG-TESTPOINT-50MIL;
 EndCmp
 
 BeginCmp
-TimeStamp = /5037043E/5043D21B;
+TimeStamp = /5037043E/5048CFC5;
 Reference = P8;
 ValeurCmp = VCC;
-IdModule  = GSG-HEADER-1x2;
+IdModule  = GSG-HEADER-1x2-SHORTED;
 EndCmp
 
 BeginCmp
@@ -1429,10 +1429,10 @@ IdModule  = GSG-SMA-VERTICAL;
 EndCmp
 
 BeginCmp
-TimeStamp = /50370666/4F5D16F7;
+TimeStamp = /50370666/5048D01E;
 Reference = P17;
 ValeurCmp = CLKIN_JMP;
-IdModule  = GSG-HEADER-1x2;
+IdModule  = GSG-HEADER-1x2-SHORTED;
 EndCmp
 
 BeginCmp
@@ -1557,7 +1557,7 @@ EndCmp
 BeginCmp
 TimeStamp = /5037043E/5047CDF2;
 Reference = P35;
-ValeurCmp = U3_RXD;
+ValeurCmp = GCK0;
 IdModule  = GSG-TESTPOINT-50MIL;
 EndCmp
 
@@ -1881,13 +1881,6 @@ TimeStamp = /503BB638/5047B833;
 Reference = R44;
 ValeurCmp = 0;
 IdModule  = GSG-0402-SHORT-20MIL;
-EndCmp
-
-BeginCmp
-TimeStamp = /50370666/5047BC87;
-Reference = R45;
-ValeurCmp = 0;
-IdModule  = GSG-0402-SHORT-10MIL;
 EndCmp
 
 BeginCmp

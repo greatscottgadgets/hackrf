@@ -1,4 +1,9 @@
-EESchema-DOCLIB  Version 2.0  Date: Wed Sep  5 14:37:43 2012
+EESchema-DOCLIB  Version 2.0  Date: Thu Sep  6 10:28:44 2012
+#
+$CMP CONN_2_SHORTED
+D Symbole general de connecteur
+K CONN
+$ENDCMP
 #
 $CMP GSG-DIODE-TVS-BI
 D Diode zener
