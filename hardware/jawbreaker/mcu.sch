@@ -1,4 +1,4 @@
-EESchema Schematic File Version 2  date Thu Sep  6 12:30:10 2012
+EESchema Schematic File Version 2  date Thu Sep  6 18:46:09 2012
 LIBS:power
 LIBS:device
 LIBS:transistors
@@ -37,7 +37,7 @@ $Descr User 17000 11000
 encoding utf-8
 Sheet 4 4
 Title "jawbreaker mcu/usb/power"
-Date "6 sep 2012"
+Date "7 sep 2012"
 Rev ""
 Comp "Copyright 2012 Michael Ossmann"
 Comment1 "License: GPL v2"

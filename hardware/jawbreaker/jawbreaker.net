@@ -1,4 +1,4 @@
-# EESchema Netlist Version 1.1 created  Thu Sep  6 12:30:15 2012
+# EESchema Netlist Version 1.1 created  Thu Sep  6 18:46:18 2012
 (
  ( /503BB638/5047BA5F $noname  R83 0 {Lib=R-SHORTED}
   (    1 /frontend/GPO4 )
@@ -54,7 +54,7 @@
   (    2 N-000303 )
  )
  ( /503BB638/503BF2B7 $noname  L3 1uH {Lib=INDUCTOR}
-  (    1 N-000363 )
+  (    1 N-000362 )
   (    2 VAA )
  )
  ( /503BB638/503BF2A7 $noname  L2 1uH {Lib=INDUCTOR}
@@ -226,11 +226,11 @@
   (    1 /frontend/HP )
   (    2 ? )
   (    3 ? )
-  (    4 N-000361 )
+  (    4 N-000360 )
   (    5 VAA )
-  (    6 N-000374 )
-  (    7 N-000373 )
-  (    8 N-000372 )
+  (    6 N-000373 )
+  (    7 N-000372 )
+  (    8 N-000371 )
   (    9 /frontend/!TX_AMP_PWR )
   (   10 /frontend/REF_IN )
   (   11 ? )
@@ -250,10 +250,10 @@
   (   25 /frontend/TX )
   (   26 /frontend/GPO4 )
   (   27 N-000320 )
-  (   28 N-000363 )
+  (   28 N-000362 )
   (   29 RESETX )
   (   30 ENX )
-  (   31 SSP1_SCLK )
+  (   31 SSP1_SCK )
   (   32 SSP1_MOSI )
  )
  ( /503BB638/502B5738 $noname  C43 47pF {Lib=C}
@@ -280,7 +280,7 @@
   (    2 N-000339 )
  )
  ( /503BB638/502B53A4 $noname  C9 10nF {Lib=C}
-  (    1 N-000370 )
+  (    1 N-000369 )
   (    2 N-000321 )
  )
  ( /503BB638/501EF6BA $noname  C48 47pF {Lib=C}
@@ -297,14 +297,14 @@
   (    3 GND )
   (    4 N-000344 )
   (    5 /frontend/TX )
-  (    6 N-000371 )
+  (    6 N-000370 )
  )
  ( /503BB638/502B4C15 $noname  C46 10nF {Lib=C}
-  (    1 N-000371 )
+  (    1 N-000370 )
   (    2 N-000325 )
  )
  ( /503BB638/4FB55E30 $noname  L4 DNP {Lib=INDUCTOR}
-  (    1 N-000363 )
+  (    1 N-000362 )
   (    2 N-000320 )
  )
  ( /503BB638/502B490F $noname  U2 SKY13350 {Lib=SKY13350}
@@ -321,7 +321,7 @@
  )
  ( /503BB638/502B477E $noname  U7 SKY13350 {Lib=SKY13350}
   (    1 /frontend/RX )
-  (    2 N-000370 )
+  (    2 N-000369 )
   (    3 GND )
   (    4 N-000327 )
   (    5 /frontend/TX )
@@ -364,12 +364,12 @@
   (    2 N-000304 )
  )
  ( /503BB638/501F41BB $noname  C17 10nF {Lib=C}
-  (    1 N-000369 )
+  (    1 N-000368 )
   (    2 N-000311 )
  )
  ( /503BB638/501F41B9 $noname  C18 10nF {Lib=C}
   (    1 N-000309 )
-  (    2 N-000364 )
+  (    2 N-000363 )
  )
  ( /503BB638/501F4169 $noname  C44 10nF {Lib=C}
   (    1 N-000302 )
@@ -414,7 +414,7 @@
  ( /503BB638/501EF4A4 $noname  T2 MIX_OUT_BALUN {Lib=BALUN-B0310J50100AHF}
   (    1 N-000325 )
   (    2 N-000340 )
-  (    3 N-000363 )
+  (    3 N-000362 )
   (    4 N-000320 )
  )
  ( /503BB638/501EF483 $noname  T1 MIX_IN_BALUN {Lib=BALUN-B0310J50100AHF}
@@ -477,7 +477,7 @@
   (    2 GND )
  )
  ( /503BB638/4FAECE73 $noname  C36 33pF {Lib=C}
-  (    1 SSP1_SCLK )
+  (    1 SSP1_SCK )
   (    2 GND )
  )
  ( /503BB638/4FAECE70 $noname  C35 33pF {Lib=C}
@@ -498,7 +498,7 @@
  )
  ( /503BB638/4FAECC79 $noname  R4 51k {Lib=R}
   (    1 GND )
-  (    2 N-000361 )
+  (    2 N-000360 )
  )
  ( /503BB638/4FAECBBA $noname  C6 10nF {Lib=C}
   (    1 VAA )
@@ -525,19 +525,19 @@
   (    2 GND )
  )
  ( /503BB638/4FAEC8B2 $noname  R3 22k {Lib=R}
-  (    1 N-000374 )
-  (    2 N-000362 )
+  (    1 N-000373 )
+  (    2 N-000361 )
  )
  ( /503BB638/4FAEC8B0 $noname  C15 180pF {Lib=C}
-  (    1 N-000373 )
-  (    2 N-000362 )
+  (    1 N-000372 )
+  (    2 N-000361 )
  )
  ( /503BB638/4FAEC8AD $noname  C14 8p2 {Lib=C}
-  (    1 N-000373 )
-  (    2 N-000374 )
+  (    1 N-000372 )
+  (    2 N-000373 )
  )
  ( /503BB638/4FAEC856 $noname  R2 470 {Lib=R}
-  (    1 N-000373 )
+  (    1 N-000372 )
   (    2 N-000355 )
  )
  ( /503BB638/4FAEC853 $noname  C13 330pF {Lib=C}
@@ -546,10 +546,10 @@
  )
  ( /503BB638/4FAEC850 $noname  R1 470 {Lib=R}
   (    1 N-000355 )
-  (    2 N-000372 )
+  (    2 N-000371 )
  )
  ( /503BB638/4FAEC84D $noname  C12 330pF {Lib=C}
-  (    1 N-000372 )
+  (    1 N-000371 )
   (    2 GND )
  )
  ( /503BB638/4FAEC781 $noname  C42 100pF {Lib=C}
@@ -565,10 +565,10 @@
   (    2 GND )
  )
  ( /503BB638/4F94D561 $noname  U3 RX_LOWPASS_FILTER {Lib=FIL-LP0603}
-  (    1 N-000364 )
+  (    1 N-000363 )
   (    2 GND )
   (    3 GND )
-  (    4 N-000369 )
+  (    4 N-000368 )
  )
  ( /503BB638/4F94D4F4 $noname  U8 RX_HIGHPASS_FILTER {Lib=FIL-DEA}
   (    1 N-000318 )
@@ -4268,59 +4268,59 @@ Net 144 "/mcu/usb/power/LED1" "LED1"
  U23 3
 Net 145 "/mcu/usb/power/VCCIO1" "VCCIO1"
  U24 38
- C153 1
- C154 1
  R61 1
+ C154 1
+ C153 1
  U24 51
  R60 2
 Net 146 "/mcu/usb/power/XTAL2" "XTAL2"
- X2 3
- C158 1
  U23 13
+ C158 1
+ X2 3
 Net 147 "" ""
  U23 21
  R65 1
  R62 2
 Net 148 "SDA" "SDA"
- U19 5
- U23 93
  R27 2
+ U23 93
+ U19 5
 Net 149 "/mcu/usb/power/BOOT3" "BOOT3"
- P34 2
- R93 1
  R43 2
  U23 102
+ P34 2
+ R93 1
 Net 150 "/mcu/usb/power/RREF" "RREF"
- U23 24
  R69 1
+ U23 24
 Net 151 "/mcu/usb/power/U0_RXD" "U0_RXD"
  U23 81
  P25 4
 Net 152 "/mcu/usb/power/SGPIO0" "SGPIO0"
- U23 32
  R79 1
+ U23 32
 Net 153 "/mcu/usb/power/SD_DAT3" "SD_DAT3"
  U23 56
  P28 4
 Net 154 "/mcu/usb/power/SD_CMD" "SD_CMD"
- U23 49
  P28 9
+ U23 49
 Net 155 "/mcu/usb/power/SD_VOLT0" "SD_VOLT0"
- U23 51
  P28 8
+ U23 51
 Net 156 "/mcu/usb/power/SD_DAT1" "SD_DAT1"
- U23 53
  P28 6
+ U23 53
 Net 157 "/mcu/usb/power/XTAL1" "XTAL1"
+ U23 12
  C157 1
  X2 1
- U23 12
 Net 158 "/mcu/usb/power/SD_CLK" "SD_CLK"
  U23 45
  P28 11
 Net 159 "GCK2" "GCK2"
- U19 12
  U24 27
+ U19 12
 Net 160 "" ""
  FB1 1
  J1 1
@@ -4334,11 +4334,11 @@ Net 163 "/mcu/usb/power/ADC0_0" "ADC0_0"
  U23 6
  P21 8
 Net 164 "/mcu/usb/power/SGPIO9" "SGPIO9"
- U23 7
  R77 1
+ U23 7
 Net 165 "/mcu/usb/power/SD_DAT2" "SD_DAT2"
- P28 5
  U23 55
+ P28 5
 Net 166 "/mcu/usb/power/SD_DAT0" "SD_DAT0"
  P28 7
  U23 52
@@ -4346,40 +4346,40 @@ Net 167 "/mcu/usb/power/SD_POW" "SD_POW"
  U23 48
  P28 10
 Net 168 "/mcu/usb/power/SD_CD" "SD_CD"
- P28 3
  U23 60
+ P28 3
 Net 183 "/mcu/usb/power/DBGEN" "DBGEN"
- R64 1
  U23 28
  P23 1
+ R64 1
 Net 184 "/mcu/usb/power/TMS" "TMS"
- P26 2
  U23 30
+ P26 2
 Net 185 "/mcu/usb/power/TDI" "TDI"
  P26 8
  U23 26
 Net 186 "/mcu/usb/power/SPIFI_SIO2" "SPIFI_SIO2"
+ P19 11
+ P19 12
  U23 121
  U20 3
- P19 12
- P19 11
 Net 187 "/mcu/usb/power/SPIFI_MOSI" "SPIFI_MOSI"
- U23 123
  U20 5
- P19 3
  P19 4
+ P19 3
+ U23 123
 Net 188 "/mcu/usb/power/SPIFI_MISO" "SPIFI_MISO"
- P19 1
  U20 2
- U23 122
  P19 2
+ P19 1
+ U23 122
 Net 189 "/mcu/usb/power/TDO" "TDO"
- P26 6
  U23 31
  R63 1
+ P26 6
 Net 190 "/mcu/usb/power/TCK" "TCK"
- P26 4
  R66 2
+ P26 4
  U23 27
 Net 191 "/mcu/usb/power/DM" "DM"
  R58 1
@@ -4389,16 +4389,16 @@ Net 192 "/mcu/usb/power/DP" "DP"
  R57 1
 Net 222 "+1.8V" "+1.8V"
  R61 2
- R38 1
- R34 1
- R36 1
- P1 1
  C151 1
  C152 1
  R32 1
+ P1 1
+ R36 1
  R30 1
+ R38 1
  U24 57
  U24 26
+ R34 1
 Net 223 "/mcu/usb/power/USB0_IND1" "USB0_IND1"
  U23 85
  D2 1
@@ -4406,74 +4406,76 @@ Net 226 "/mcu/usb/power/USB0_IND0" "USB0_IND0"
  U23 86
  D3 1
 Net 227 "/mcu/usb/power/SPIFI_CS" "SPIFI_CS"
- U20 1
- U23 124
  P19 7
+ U23 124
  P19 8
+ U20 1
 Net 228 "/mcu/usb/power/SPIFI_SCK" "SPIFI_SCK"
- P19 5
  U23 118
+ P19 5
  P19 6
  U20 6
 Net 229 "/mcu/usb/power/SPIFI_SIO3" "SPIFI_SIO3"
- P19 9
- U20 7
  U23 119
  P19 10
+ U20 7
+ P19 9
 Net 230 "TX_IF" "TX_IF"
- T4 1
  C8 1
+ T4 1
 Net 232 "/baseband/XTAL2" "XTAL2"
- U17 17
- C116 1
  C115 2
+ C116 1
+ U17 17
 Net 234 "RX_IF" "RX_IF"
  T3 1
  C48 2
 Net 235 "/baseband/CPOUT+" "CPOUT+"
- R25 1
- U17 23
  C112 2
+ U17 23
+ R25 1
 Net 236 "" ""
  R26 2
  C114 1
 Net 237 "" ""
- C114 2
  R25 2
+ C114 2
 Net 238 "SSP1_MOSI" "SSP1_MOSI"
+ U23 47
+ R11 2
+ U4 32
  C37 1
  U17 31
- U4 32
- R11 2
- U23 47
 Net 239 "SSP1_MISO" "SSP1_MISO"
- U23 44
  U17 29
+ U23 44
 Net 240 "" ""
- C102 1
  L7 2
+ C102 1
  U17 5
 Net 242 "SSP1_SCK" "SSP1_SCK"
- U17 15
+ C36 1
  R12 2
+ U17 15
+ U4 31
  U23 68
 Net 243 "/baseband/XCVR_CLKOUT" "XCVR_CLKOUT"
- P14 1
  U17 16
+ P14 1
 Net 244 "/baseband/OVDD" "OVDD"
  C123 1
  C124 1
  R38 2
- R39 2
  U18 18
+ R39 2
 Net 245 "/baseband/SCLK_AD" "SCLK_AD"
  R12 1
  R19 1
  U18 35
 Net 246 "/baseband/DIN_AD" "DIN_AD"
- R18 1
- R11 1
  U18 34
+ R11 1
+ R18 1
 Net 247 "" ""
  U17 27
  C106 1
@@ -4481,56 +4483,56 @@ Net 248 "" ""
  U26 4
  C117 1
 Net 249 "/baseband/CLK5" "CLK5"
- U19 17
  C115 1
+ U19 17
 Net 250 "GCK1" "GCK1"
- U19 13
  U18 6
+ U19 13
  U24 23
 Net 251 "/baseband/VDDOB" "VDDOB"
- R32 2
  C120 1
+ R32 2
  U19 10
  R33 2
 Net 252 "/baseband/VDDOD" "VDDOD"
- U19 14
- R36 2
  R37 2
+ R36 2
  C122 1
+ U19 14
 Net 253 "" ""
  U26 5
  L14 2
 Net 254 "" ""
- FB2 2
- C105 1
  P36 2
+ C105 1
+ FB2 2
  L14 1
 Net 255 "" ""
- L13 2
  C159 2
+ L13 2
  U26 1
 Net 256 "/baseband/VDDOC" "VDDOC"
- R35 2
  C121 1
- U19 18
  R34 2
+ U19 18
+ R35 2
 Net 257 "/baseband/VDDOA" "VDDOA"
- R31 2
- C119 1
- U19 11
  R30 2
+ R31 2
+ U19 11
+ C119 1
 Net 258 "" ""
- L7 1
  U17 4
  C99 1
+ L7 1
 Net 259 "/baseband/INTR" "INTR"
- R104 2
  U19 3
  P15 1
+ R104 2
 Net 260 "/baseband/CPOUT-" "CPOUT-"
- R26 1
- U17 24
  C112 1
+ U17 24
+ R26 1
 Net 261 "/baseband/REFP" "REFP"
  C100 1
  U18 1
@@ -4538,20 +4540,20 @@ Net 262 "/baseband/REFN" "REFN"
  C98 1
  U18 48
 Net 263 "/baseband/COM" "COM"
- C97 1
  U18 47
+ C97 1
 Net 264 "/baseband/ID+" "ID+"
- R13 1
  U18 45
+ R13 1
 Net 269 "/baseband/RXBBI+" "RXBBI+"
- R20 2
  U17 38
+ R20 2
 Net 270 "/baseband/RXBBI-" "RXBBI-"
- U17 37
  R21 2
+ U17 37
 Net 271 "/baseband/RXBBQ-" "RXBBQ-"
- U17 35
  R23 2
+ U17 35
 Net 272 "/baseband/RXBBQ+" "RXBBQ+"
  R22 2
  U17 36
@@ -4568,9 +4570,9 @@ Net 281 "/baseband/CLK3" "CLK3"
  P2 1
  U19 8
 Net 282 "/baseband/OEB" "OEB"
- P18 1
  R105 2
  U19 7
+ P18 1
 Net 283 "MIX_CLK" "MIX_CLK"
  C67 1
  U19 19
@@ -4578,147 +4580,147 @@ Net 284 "/baseband/XA" "XA"
  U19 1
  X1 3
 Net 285 "" ""
- T4 4
  C104 2
  L8 1
+ T4 4
 Net 286 "/baseband/XB" "XB"
- X1 1
  U19 2
+ X1 1
 Net 287 "/baseband/CLKIN" "CLKIN"
  U19 6
  P17 2
  P16 1
 Net 288 "" ""
- C102 2
  L6 2
+ C102 2
  T3 3
 Net 289 "" ""
- C99 2
- T3 4
  L6 1
+ T3 4
+ C99 2
 Net 290 "" ""
  C111 1
  U17 11
  L9 2
 Net 291 "" ""
  L9 1
- C104 1
  U17 10
+ C104 1
 Net 292 "" ""
- C111 2
- T4 3
  L8 2
+ T4 3
+ C111 2
 Net 293 "/baseband/TXBBQ+" "TXBBQ+"
- C95 2
- R16 1
- U17 44
  R9 2
+ C95 2
+ U17 44
+ R16 1
 Net 294 "/baseband/TXBBQ-" "TXBBQ-"
- R17 1
+ U17 45
  C95 1
  R8 2
- U17 45
+ R17 1
 Net 295 "/baseband/TXBBI-" "TXBBI-"
- R14 1
- U17 42
- R13 2
  C96 2
+ U17 42
+ R14 1
+ R13 2
 Net 296 "/baseband/TXBBI+" "TXBBI+"
- R10 2
- R15 1
  C96 1
  U17 43
+ R10 2
+ R15 1
 Net 297 "/baseband/IA-" "IA-"
  R21 1
+ C109 1
  U18 4
  C101 2
- C109 1
 Net 298 "/baseband/IA+" "IA+"
- R20 1
+ C101 1
  U18 3
  C110 1
- C101 1
+ R20 1
 Net 299 "/baseband/QA+" "QA+"
  R23 1
- U18 10
  C103 2
  C107 1
+ U18 10
 Net 300 "/baseband/QA-" "QA-"
  U18 9
  R22 1
- C108 1
  C103 1
+ C108 1
 Net 301 "VAA" "VAA"
- C3 1
- C5 1
  L2 2
- C41 1
- U18 39
- U17 28
- U17 19
- U17 39
  U17 21
  U17 41
- U17 13
  Q1 S
- U18 11
- U17 46
- C161 1
- U18 46
- C73 1
- C6 1
- Q2 S
- C84 1
- U18 43
- C86 1
- C78 1
- C80 1
- U17 7
- C82 1
- C77 1
- C79 1
- C81 1
- C94 1
- C85 1
- C53 1
- C83 1
- C75 1
- C87 1
- C76 1
- C91 1
- C74 1
+ U17 19
  L3 2
  U4 5
+ U17 28
+ U17 39
+ C53 1
+ U4 22
+ C72 1
+ C91 1
+ U17 7
  U17 1
  C4 1
- U18 2
- U4 22
- C90 1
- R24 2
- R29 1
- U18 33
- C89 1
- C71 1
- C72 1
- C93 1
  C42 1
- U18 8
- C92 1
  P36 1
+ C41 1
+ U17 13
+ C6 1
+ U17 46
+ C5 1
+ C3 1
+ C161 1
+ U18 33
+ U18 46
+ C86 1
+ C71 1
+ R29 1
+ R24 2
+ C85 1
+ C84 1
+ C73 1
+ U18 39
+ U18 8
+ U18 11
+ U18 43
+ Q2 S
+ C94 1
+ C79 1
+ C81 1
+ C83 1
+ C87 1
+ C77 1
+ C89 1
+ C92 1
+ C93 1
+ U18 2
+ C75 1
+ C90 1
+ C82 1
+ C74 1
+ C76 1
+ C78 1
+ C80 1
 Net 302 "" ""
- C44 1
  U12 1
+ C44 1
 Net 303 "" ""
  L5 1
- C163 2
  Q1 D
+ C163 2
  C52 1
 Net 304 "" ""
  U2 6
  C20 2
 Net 305 "" ""
- U11 2
  C43 2
+ U11 2
 Net 306 "" ""
  C44 2
  U9 1
@@ -4726,63 +4728,63 @@ Net 307 "" ""
  C43 1
  U9 8
 Net 308 "" ""
- U9 4
  C32 2
+ U9 4
 Net 309 "" ""
- U5 2
  C18 1
+ U5 2
 Net 310 "" ""
- U6 2
  C27 2
+ U6 2
 Net 311 "" ""
- C17 2
  U6 4
+ C17 2
 Net 312 "/frontend/RX_AMP" "RX_AMP"
- U16 11
- C60 2
  U14 7
  U12 3
+ U16 11
  C66 2
+ C60 2
 Net 313 "/frontend/TX_AMP" "TX_AMP"
+ U14 3
  U12 7
  U16 8
- U14 3
- C63 1
  C55 1
+ C63 1
 Net 314 "" ""
  C61 2
  U12 5
 Net 315 "/frontend/RX_MIX_BP" "RX_MIX_BP"
  U9 7
- C40 2
  U16 3
+ C40 2
 Net 316 "" ""
- T1 2
  C25 1
+ T1 2
 Net 317 "" ""
- U4 23
  L1 1
+ U4 23
  T1 4
 Net 318 "" ""
  U8 1
  C27 1
 Net 319 "" ""
- C26 1
  U8 3
+ C26 1
 Net 320 "" ""
- L2 1
- T2 4
- L4 2
  U4 27
+ L2 1
+ L4 2
+ T2 4
 Net 321 "" ""
- C9 2
  U2 2
+ C9 2
 Net 322 "" ""
  C51 2
  U10 2
 Net 323 "" ""
- U1 4
  C32 1
+ U1 4
 Net 324 "" ""
  C8 2
  U1 6
@@ -4790,54 +4792,54 @@ Net 325 "" ""
  C46 2
  T2 1
 Net 326 "" ""
- C28 1
  T1 1
+ C28 1
 Net 327 "" ""
  U7 4
  C21 2
 Net 328 "" ""
- C28 2
  U7 6
+ C28 2
 Net 329 "" ""
- L1 2
  U4 24
  T1 3
+ L1 2
 Net 330 "/frontend/TX" "TX"
- U10 5
- U15 11
- U4 25
- U2 5
  U16 5
  U16 9
- C45 2
+ U2 5
  C24 2
  U7 5
  C33 1
+ U15 11
+ U4 25
+ C45 2
+ U10 5
 Net 331 "/frontend/TX_AMP_IN" "TX_AMP_IN"
  C59 1
  U12 8
 Net 332 "/frontend/!RX_AMP_PWR" "!RX_AMP_PWR"
- R83 2
  R29 2
+ R83 2
  Q1 G
 Net 333 "/frontend/!TX_AMP_PWR" "!TX_AMP_PWR"
+ Q2 G
  U4 9
  R24 1
- Q2 G
 Net 334 "" ""
- C59 2
  U25 3
+ C59 2
 Net 335 "" ""
- U2 4
  C23 2
+ U2 4
 Net 336 "" ""
  C58 2
  U13 3
 Net 337 "" ""
- L12 1
- Q2 D
- C162 2
  C160 1
+ C162 2
+ Q2 D
+ L12 1
 Net 338 "" ""
  C31 1
  U9 5
@@ -4845,160 +4847,157 @@ Net 339 "" ""
  U5 6
  C31 2
 Net 340 "" ""
- T2 2
  C49 2
+ T2 2
 Net 341 "/frontend/GPO4" "GPO4"
- U4 26
  R83 1
+ U4 26
 Net 342 "" ""
  J2 1
  R44 1
 Net 343 "" ""
- C64 1
  U14 1
+ C64 1
 Net 344 "" ""
- U10 4
  C23 1
+ U10 4
 Net 345 "" ""
- U13 6
  C50 1
  L5 2
+ U13 6
 Net 346 "/frontend/TX_MIX_BP" "TX_MIX_BP"
- U9 3
  C39 2
  U16 6
+ U9 3
 Net 347 "" ""
- U5 4
  C26 2
+ U5 4
 Net 348 "" ""
- U11 4
  C51 1
+ U11 4
 Net 349 "" ""
- C48 1
  U11 6
+ C48 1
 Net 350 "" ""
- C20 1
  U6 6
+ C20 1
 Net 351 "" ""
- C61 1
  U14 5
+ C61 1
 Net 352 "" ""
- C62 2
- L12 2
  U25 6
+ L12 2
+ C62 2
 Net 353 "" ""
  C64 2
+ D1 2
  R44 2
  P4 1
- D1 2
 Net 354 "" ""
- U1 2
  C21 1
+ U1 2
 Net 355 "" ""
+ R1 1
  C13 1
  R2 2
- R1 1
 Net 356 "/frontend/HP" "HP"
- U5 5
  U4 1
- U15 9
- C29 1
  C30 1
  U6 1
+ U5 5
+ U15 9
+ C29 1
 Net 357 "/frontend/AMP_BYPASS" "AMP_BYPASS"
+ U12 6
  C57 1
  U14 6
- U15 5
- C65 2
- U12 6
  U4 16
+ C65 2
+ U15 5
 Net 358 "/frontend/MIX_BYPASS" "MIX_BYPASS"
- U4 15
- U15 3
- C56 1
- C7 2
- U16 4
- U11 1
  U16 1
+ C7 2
+ C56 1
+ U11 1
  U1 5
-Net 359 "SSP1_SCLK" "SSP1_SCLK"
- C36 1
- U4 31
-Net 360 "/frontend/REF_IN" "REF_IN"
+ U15 3
+ U16 4
+ U4 15
+Net 359 "/frontend/REF_IN" "REF_IN"
  C70 1
  C67 2
  U4 10
-Net 361 "" ""
- R4 2
+Net 360 "" ""
  U4 4
-Net 362 "" ""
- R3 2
+ R4 2
+Net 361 "" ""
  C15 2
-Net 363 "" ""
- T2 3
- L3 1
+ R3 2
+Net 362 "" ""
  U4 28
+ T2 3
  L4 1
-Net 364 "" ""
+ L3 1
+Net 363 "" ""
  U3 1
  C18 2
-Net 365 "/frontend/RX" "RX"
- U7 1
- U10 1
+Net 364 "/frontend/RX" "RX"
  U2 1
- U15 10
+ U10 1
  C22 2
+ U7 1
+ U15 10
  U16 2
  U16 12
- C54 1
  C10 2
-Net 366 "/frontend/LP" "LP"
+ C54 1
+Net 365 "/frontend/LP" "LP"
  U6 5
- C19 2
  U5 1
  C11 2
+ C19 2
  U15 8
-Net 367 "/frontend/!AMP_BYPASS" "!AMP_BYPASS"
+Net 366 "/frontend/!AMP_BYPASS" "!AMP_BYPASS"
  U15 6
- U16 10
  U16 13
-Net 368 "/frontend/!MIX_BYPASS" "!MIX_BYPASS"
- U11 5
- C47 2
- U15 4
- U9 6
+ U16 10
+Net 367 "/frontend/!MIX_BYPASS" "!MIX_BYPASS"
  C16 1
  U1 1
  C38 2
-Net 369 "" ""
+ U15 4
+ U11 5
+ U9 6
+ C47 2
+Net 368 "" ""
  U3 4
  C17 1
-Net 370 "" ""
+Net 369 "" ""
  C9 1
  U7 2
-Net 371 "" ""
- C46 1
+Net 370 "" ""
  U10 6
-Net 372 "" ""
- U4 8
+ C46 1
+Net 371 "" ""
  R1 2
  C12 1
-Net 373 "" ""
- R2 1
+ U4 8
+Net 372 "" ""
  U4 7
+ R2 1
  C14 1
  C15 1
-Net 374 "" ""
- C14 2
+Net 373 "" ""
  U4 6
  R3 1
-Net 387 "/frontend/RX_AMP_IN" "RX_AMP_IN"
- C58 1
+ C14 2
+Net 386 "/frontend/RX_AMP_IN" "RX_AMP_IN"
  U14 8
-Net 388 "/frontend/RX_AMP_OUT" "RX_AMP_OUT"
+ C58 1
+Net 387 "/frontend/RX_AMP_OUT" "RX_AMP_OUT"
  U12 4
  C50 2
-Net 389 "/frontend/TX_AMP_OUT" "TX_AMP_OUT"
+Net 388 "/frontend/TX_AMP_OUT" "TX_AMP_OUT"
  U14 4
  C62 1
 }

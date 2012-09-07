@@ -1,4 +1,4 @@
-EESchema Schematic File Version 2  date Thu Sep  6 12:30:10 2012
+EESchema Schematic File Version 2  date Thu Sep  6 18:46:09 2012
 LIBS:power
 LIBS:device
 LIBS:transistors
@@ -37,7 +37,7 @@ $Descr User 17000 11000
 encoding utf-8
 Sheet 2 4
 Title ""
-Date "6 sep 2012"
+Date "7 sep 2012"
 Rev ""
 Comp ""
 Comment1 ""
@@ -1012,7 +1012,7 @@ RESETX
 Text GLabel 7200 4650 2    40   Input ~ 0
 ENX
 Text GLabel 7200 4550 2    40   Input ~ 0
-SSP1_SCLK
+SSP1_SCK
 Text GLabel 7200 4450 2    40   Input ~ 0
 SSP1_MOSI
 Text Label 5000 4450 1    40   ~ 0
