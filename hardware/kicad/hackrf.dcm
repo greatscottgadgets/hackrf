@@ -1,8 +1,18 @@
-EESchema-DOCLIB  Version 2.0  Date: Mon Sep  3 16:15:50 2012
+EESchema-DOCLIB  Version 2.0  Date: Thu Sep  6 10:28:44 2012
+#
+$CMP CONN_2_SHORTED
+D Symbole general de connecteur
+K CONN
+$ENDCMP
 #
 $CMP GSG-DIODE-TVS-BI
 D Diode zener
 K DEV DIODE
+$ENDCMP
+#
+$CMP R-SHORTED
+D Resistor with PCB trace short
+K R DEV
 $ENDCMP
 #
 #End Doc Library

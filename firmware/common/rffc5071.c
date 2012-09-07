@@ -269,7 +269,7 @@ void rffc5071_spi_write(uint8_t r, uint16_t v) {
 
 	int bits = 25;
 	int msb = 1 << (bits -1);
-	uint32_t data = ((reg & 0x7f) << 16) | val;
+	uint32_t data = ((r & 0x7f) << 16) | v;
 
 	/* make sure everything is starting in the correct state */
 	gpio_set(PORT_MIXER, PIN_MIXER_ENX);
@@ -457,6 +457,9 @@ uint16_t rffc5071_config_synth_int(uint16_t lo) {
  * frequency requsted. Actual tuned value in MHz is returned. */
 uint16_t rffc5071_set_frequency(uint16_t mhz, uint32_t hz) {
 	uint16_t tune_freq;
+
+	// Fractional tuning unimplemented, 'hz' ignored
+	hz=hz;
 
 	rffc5071_disable();
 	tune_freq = rffc5071_config_synth_int(mhz);
