@@ -1,4 +1,4 @@
-EESchema Schematic File Version 2  date Fri Sep  7 00:25:09 2012
+EESchema Schematic File Version 2  date Fri Sep  7 01:59:43 2012
 LIBS:power
 LIBS:device
 LIBS:transistors
@@ -1209,7 +1209,7 @@ F 4 "DNP" H 16050 2900 60  0000 C CNN "Note"
 	0    1    1    0   
 $EndComp
 Text Label 15600 2650 0    40   ~ 0
-REG_OUT2
+REG_OUT1
 Text Label 15600 650  0    40   ~ 0
 REG_OUT2
 $Comp
