@@ -119,6 +119,7 @@ void max2837_setup(void)
 uint16_t max2837_spi_read(uint8_t r) {
 	gpio_clear(PORT_XCVR_CS, PIN_XCVR_CS);
 	// FIXME: Unimplemented.
+	r=r;
 	gpio_set(PORT_XCVR_CS, PIN_XCVR_CS);
 	return 0;
 }
