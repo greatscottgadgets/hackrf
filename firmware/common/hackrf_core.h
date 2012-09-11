@@ -29,6 +29,8 @@ extern "C"
 {
 #endif
 
+#include <stdint.h>
+
 /* hardware identification number */
 #define BOARD_ID_JELLYBEAN 0
 
@@ -153,6 +155,8 @@ extern "C"
 
 /* TODO add other Pins */
 #endif
+
+void delay(uint32_t duration);
 
 void cpu_clock_init(void);
 void ssp1_init(void);
