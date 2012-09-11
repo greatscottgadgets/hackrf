@@ -24,9 +24,9 @@
 
 #include <stdint.h>
 
-volatile uint_fast8_t* peripheral_bitband_address(volatile void* const address, const uint_fast8_t bit_number);
+volatile uint32_t* peripheral_bitband_address(volatile void* const address, const uint_fast8_t bit_number);
 void peripheral_bitband_set(volatile void* const peripheral_address, const uint_fast8_t bit_number);
 void peripheral_bitband_clear(volatile void* const peripheral_address, const uint_fast8_t bit_number);
-uint_fast8_t peripheral_bitband_get(volatile void* const peripheral_address, const uint_fast8_t bit_number);
+uint32_t peripheral_bitband_get(volatile void* const peripheral_address, const uint_fast8_t bit_number);
 
 #endif//__BITBAND_H__
