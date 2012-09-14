@@ -1,4 +1,4 @@
-EESchema Schematic File Version 2  date Fri Sep  7 01:59:43 2012
+EESchema Schematic File Version 2  date Thu Sep 13 21:18:58 2012
 LIBS:power
 LIBS:device
 LIBS:transistors
@@ -37,7 +37,7 @@ $Descr User 17000 11000
 encoding utf-8
 Sheet 4 4
 Title "jawbreaker mcu/usb/power"
-Date "7 sep 2012"
+Date "14 sep 2012"
 Rev ""
 Comp "Copyright 2012 Michael Ossmann"
 Comment1 "License: GPL v2"
@@ -45,6 +45,18 @@ Comment2 ""
 Comment3 ""
 Comment4 ""
 $EndDescr
+$Comp
+L C C158
+U 1 1 5052A211
+P 5000 9950
+F 0 "C158" H 5050 10050 50  0000 L CNN
+F 1 "18pF" H 5050 9850 50  0000 L CNN
+F 4 "Murata" H 5000 9950 60  0001 C CNN "Manufacturer"
+F 5 "GRM1555C1H180JZ01D" H 5000 9950 60  0001 C CNN "Part Number"
+F 6 "CAP CER 18PF 50V 5% NP0 0402" H 5000 9950 60  0001 C CNN "Description"
+	1    5000 9950
+	1    0    0    -1  
+$EndComp
 NoConn ~ 9700 4300
 Wire Wire Line
 	5250 7450 5250 7550
@@ -2594,24 +2606,12 @@ L C C157
 U 1 1 50370ED5
 P 4200 9950
 F 0 "C157" H 4250 10050 50  0000 L CNN
-F 1 "10pF" H 4250 9850 50  0000 L CNN
+F 1 "18pF" H 4250 9850 50  0000 L CNN
 F 4 "Murata" H 4200 9950 60  0001 C CNN "Manufacturer"
-F 5 "GRM1555C1H100JZ01D" H 4200 9950 60  0001 C CNN "Part Number"
-F 6 "CAP CER 10PF 50V 5% NP0 0402" H 4200 9950 60  0001 C CNN "Description"
+F 5 "GRM1555C1H180JZ01D" H 4200 9950 60  0001 C CNN "Part Number"
+F 6 "CAP CER 18PF 50V 5% NP0 0402" H 4200 9950 60  0001 C CNN "Description"
 	1    4200 9950
 	-1   0    0    -1  
-$EndComp
-$Comp
-L C C158
-U 1 1 50370ED2
-P 5000 9950
-F 0 "C158" H 5050 10050 50  0000 L CNN
-F 1 "10pF" H 5050 9850 50  0000 L CNN
-F 4 "Murata" H 5000 9950 60  0001 C CNN "Manufacturer"
-F 5 "GRM1555C1H100JZ01D" H 5000 9950 60  0001 C CNN "Part Number"
-F 6 "CAP CER 10PF 50V 5% NP0 0402" H 5000 9950 60  0001 C CNN "Description"
-	1    5000 9950
-	1    0    0    -1  
 $EndComp
 $Comp
 L GND #PWR0169
@@ -2637,9 +2637,9 @@ U 1 1 50370E89
 P 4600 9650
 F 0 "X2" H 4600 9800 60  0000 C CNN
 F 1 "MCU_XTAL" H 4600 9500 60  0000 C CNN
-F 4 "NDK" H 4600 9650 60  0001 C CNN "Manufacturer"
-F 5 "NX3225GA-12MHZ- STD-CRG-1" H 4600 9650 60  0001 C CNN "Part Number"
-F 6 "CRYSTAL 12.000 MHZ 8 PF SMD" H 4600 9650 60  0001 C CNN "Description"
+F 4 "TXC" H 4600 9650 60  0001 C CNN "Manufacturer"
+F 5 "7V-12.000MAAE-T" H 4600 9650 60  0001 C CNN "Part Number"
+F 6 "CRYSTAL 12.000 MHZ 12PF SMD" H 4600 9650 60  0001 C CNN "Description"
 	1    4600 9650
 	1    0    0    -1  
 $EndComp
