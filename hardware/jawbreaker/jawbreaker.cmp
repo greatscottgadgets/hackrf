@@ -1,4 +1,4 @@
-Cmp-Mod V01 Created by CvPcb (2012-05-21 BZR 3261)-stable date = Thu Sep 13 21:25:14 2012
+Cmp-Mod V01 Created by CvPcb (2012-05-21 BZR 3261)-stable date = Thu Sep 13 21:53:05 2012
 
 BeginCmp
 TimeStamp = /503BB638/4FAECB99;
@@ -820,6 +820,13 @@ IdModule  = GSG-0402;
 EndCmp
 
 BeginCmp
+TimeStamp = /50370666/5052A7BD;
+Reference = C118;
+ValeurCmp = DNP;
+IdModule  = GSG-0402;
+EndCmp
+
+BeginCmp
 TimeStamp = /50370666/503C49AF;
 Reference = C119;
 ValeurCmp = 100nF;
@@ -1131,6 +1138,20 @@ BeginCmp
 TimeStamp = /503BB638/503BF2CB;
 Reference = C163;
 ValeurCmp = 10nF;
+IdModule  = GSG-0402;
+EndCmp
+
+BeginCmp
+TimeStamp = /50370666/5052A87B;
+Reference = C164;
+ValeurCmp = DNP;
+IdModule  = GSG-0402;
+EndCmp
+
+BeginCmp
+TimeStamp = /50370666/5052A87E;
+Reference = C165;
+ValeurCmp = DNP;
 IdModule  = GSG-0402;
 EndCmp
 
@@ -1571,35 +1592,35 @@ EndCmp
 BeginCmp
 TimeStamp = /50370666/5052A309;
 Reference = P37;
-ValeurCmp = XCVR_CLKOUT;
+ValeurCmp = SCL;
 IdModule  = GSG-TESTPOINT-50MIL;
 EndCmp
 
 BeginCmp
 TimeStamp = /50370666/5052A32D;
 Reference = P38;
-ValeurCmp = XCVR_CLKOUT;
+ValeurCmp = SDA;
 IdModule  = GSG-TESTPOINT-50MIL;
 EndCmp
 
 BeginCmp
 TimeStamp = /50370666/5052A332;
 Reference = P39;
-ValeurCmp = XCVR_CLKOUT;
+ValeurCmp = SSP1_SCK;
 IdModule  = GSG-TESTPOINT-50MIL;
 EndCmp
 
 BeginCmp
 TimeStamp = /50370666/5052A336;
 Reference = P40;
-ValeurCmp = XCVR_CLKOUT;
+ValeurCmp = SSP1_MOSI;
 IdModule  = GSG-TESTPOINT-50MIL;
 EndCmp
 
 BeginCmp
 TimeStamp = /50370666/5052A335;
 Reference = P41;
-ValeurCmp = XCVR_CLKOUT;
+ValeurCmp = SSP1_MISO;
 IdModule  = GSG-TESTPOINT-50MIL;
 EndCmp
 
@@ -1926,6 +1947,13 @@ IdModule  = GSG-0402-SHORT-20MIL;
 EndCmp
 
 BeginCmp
+TimeStamp = /50370666/5052A8A8;
+Reference = R45;
+ValeurCmp = DNP;
+IdModule  = GSG-0402;
+EndCmp
+
+BeginCmp
 TimeStamp = /5037043E/503F8429;
 Reference = R46;
 ValeurCmp = 162k;
@@ -2192,6 +2220,20 @@ IdModule  = GSG-0402-SHORT-10MIL;
 EndCmp
 
 BeginCmp
+TimeStamp = /50370666/5052A892;
+Reference = R84;
+ValeurCmp = 50;
+IdModule  = GSG-0402;
+EndCmp
+
+BeginCmp
+TimeStamp = /50370666/5052A7D7;
+Reference = R85;
+ValeurCmp = DNP;
+IdModule  = GSG-0402;
+EndCmp
+
+BeginCmp
 TimeStamp = /5037043E/503F9874;
 Reference = R86;
 ValeurCmp = 39;
@@ -2230,6 +2272,13 @@ BeginCmp
 TimeStamp = /5037043E/503F9897;
 Reference = R91;
 ValeurCmp = 39;
+IdModule  = GSG-0402;
+EndCmp
+
+BeginCmp
+TimeStamp = /50370666/5052A841;
+Reference = R92;
+ValeurCmp = 50;
 IdModule  = GSG-0402;
 EndCmp
 
