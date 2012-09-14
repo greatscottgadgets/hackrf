@@ -1,4 +1,4 @@
-Cmp-Mod V01 Created by CvPcb (2012-05-21 BZR 3261)-stable date = Thu Sep  6 10:57:34 2012
+Cmp-Mod V01 Created by CvPcb (2012-05-21 BZR 3261)-stable date = Thu Sep 13 21:25:14 2012
 
 BeginCmp
 TimeStamp = /503BB638/4FAECB99;
@@ -1088,14 +1088,14 @@ EndCmp
 BeginCmp
 TimeStamp = /5037043E/50370ED5;
 Reference = C157;
-ValeurCmp = 10pF;
+ValeurCmp = 18pF;
 IdModule  = GSG-0402;
 EndCmp
 
 BeginCmp
-TimeStamp = /5037043E/50370ED2;
+TimeStamp = /5037043E/5052A211;
 Reference = C158;
-ValeurCmp = 10pF;
+ValeurCmp = 18pF;
 IdModule  = GSG-0402;
 EndCmp
 
@@ -1566,6 +1566,41 @@ TimeStamp = /50370666/5048D547;
 Reference = P36;
 ValeurCmp = VAA;
 IdModule  = GSG-HEADER-1x2-SHORTED;
+EndCmp
+
+BeginCmp
+TimeStamp = /50370666/5052A309;
+Reference = P37;
+ValeurCmp = XCVR_CLKOUT;
+IdModule  = GSG-TESTPOINT-50MIL;
+EndCmp
+
+BeginCmp
+TimeStamp = /50370666/5052A32D;
+Reference = P38;
+ValeurCmp = XCVR_CLKOUT;
+IdModule  = GSG-TESTPOINT-50MIL;
+EndCmp
+
+BeginCmp
+TimeStamp = /50370666/5052A332;
+Reference = P39;
+ValeurCmp = XCVR_CLKOUT;
+IdModule  = GSG-TESTPOINT-50MIL;
+EndCmp
+
+BeginCmp
+TimeStamp = /50370666/5052A336;
+Reference = P40;
+ValeurCmp = XCVR_CLKOUT;
+IdModule  = GSG-TESTPOINT-50MIL;
+EndCmp
+
+BeginCmp
+TimeStamp = /50370666/5052A335;
+Reference = P41;
+ValeurCmp = XCVR_CLKOUT;
+IdModule  = GSG-TESTPOINT-50MIL;
 EndCmp
 
 BeginCmp
