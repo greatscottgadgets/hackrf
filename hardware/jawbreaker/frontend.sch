@@ -1,4 +1,4 @@
-EESchema Schematic File Version 2  date Thu Sep 13 22:09:25 2012
+EESchema Schematic File Version 2  date Fri Sep 14 22:26:28 2012
 LIBS:power
 LIBS:device
 LIBS:transistors
@@ -37,7 +37,7 @@ $Descr User 17000 11000
 encoding utf-8
 Sheet 2 4
 Title ""
-Date "14 sep 2012"
+Date "15 sep 2012"
 Rev ""
 Comp ""
 Comment1 ""
@@ -1010,6 +1010,7 @@ U 1 1 50452C20
 P 14750 9600
 F 0 "J2" H 15050 9700 60  0000 C CNN
 F 1 "900MHZ-F-ANTENNA" H 15000 10250 60  0000 C CNN
+F 4 "DNP" H 14750 9600 60  0001 C CNN "Note"
 	1    14750 9600
 	0    -1   -1   0   
 $EndComp
