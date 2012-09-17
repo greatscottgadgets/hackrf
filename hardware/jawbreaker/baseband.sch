@@ -1,4 +1,4 @@
-EESchema Schematic File Version 2  date Fri Sep 14 22:26:28 2012
+EESchema Schematic File Version 2  date Sat Sep 15 09:33:17 2012
 LIBS:power
 LIBS:device
 LIBS:transistors
@@ -45,6 +45,18 @@ Comment2 ""
 Comment3 ""
 Comment4 ""
 $EndDescr
+$Comp
+L R R28
+U 1 1 50549522
+P 2300 7600
+F 0 "R28" V 2380 7600 50  0000 C CNN
+F 1 "1k8" V 2300 7600 50  0000 C CNN
+F 4 "Stackpole" H 2300 7600 60  0001 C CNN "Manufacturer"
+F 5 "RMCF0402JT1K80" H 2300 7600 60  0001 C CNN "Part Number"
+F 6 "RES TF 1.8K OHM 5% 1/16W 0402" H 2300 7600 60  0001 C CNN "Description"
+	1    2300 7600
+	1    0    0    -1  
+$EndComp
 Text Notes 5400 9050 0    40   ~ 0
 Install C165, and R92 as necessary to match output.\n\nFor CMOS output, install 0 ohm resistor in place of C165;\ndo not install R92.
 Text Notes 1150 10150 0    40   ~ 0
@@ -2656,9 +2668,9 @@ U 1 1 4F5D0B05
 P 3050 7300
 F 0 "X1" H 3050 7450 60  0000 C CNN
 F 1 "GSG-XTAL4PIN" H 3050 7150 60  0000 C CNN
-F 4 "NDK" H 3050 7300 60  0001 C CNN "Manufacturer"
-F 5 "NX3225SA-25.000000MHZ" H 3050 7300 60  0001 C CNN "Part Number"
-F 6 "CRYSTAL 25 MHZ 10.00PF SMD" H 3050 7300 60  0001 C CNN "Description"
+F 4 "AVX" H 3050 7300 60  0001 C CNN "Manufacturer"
+F 5 "CX3225GB25000D0HEQZ1" H 3050 7300 60  0001 C CNN "Part Number"
+F 6 "CRYSTAL 25.000MHZ 8PF SMD" H 3050 7300 60  0001 C CNN "Description"
 	1    3050 7300
 	1    0    0    -1  
 $EndComp
@@ -2703,23 +2715,11 @@ L R R27
 U 1 1 4F5D0602
 P 2100 7600
 F 0 "R27" V 2180 7600 50  0000 C CNN
-F 1 "2k" V 2100 7600 50  0000 C CNN
+F 1 "1k8" V 2100 7600 50  0000 C CNN
 F 4 "Stackpole" H 2100 7600 60  0001 C CNN "Manufacturer"
-F 5 "RMCF0402JT2K00" H 2100 7600 60  0001 C CNN "Part Number"
-F 6 "RES 2K OHM 1/16W 5% 0402 SMD" H 2100 7600 60  0001 C CNN "Description"
+F 5 "RMCF0402JT1K80" H 2100 7600 60  0001 C CNN "Part Number"
+F 6 "RES TF 1.8K OHM 5% 1/16W 0402" H 2100 7600 60  0001 C CNN "Description"
 	1    2100 7600
-	1    0    0    -1  
-$EndComp
-$Comp
-L R R28
-U 1 1 4F5D05F9
-P 2300 7600
-F 0 "R28" V 2380 7600 50  0000 C CNN
-F 1 "2k" V 2300 7600 50  0000 C CNN
-F 4 "Stackpole" H 2300 7600 60  0001 C CNN "Manufacturer"
-F 5 "RMCF0402JT2K00" H 2300 7600 60  0001 C CNN "Part Number"
-F 6 "RES 2K OHM 1/16W 5% 0402 SMD" H 2300 7600 60  0001 C CNN "Description"
-	1    2300 7600
 	1    0    0    -1  
 $EndComp
 $Comp
@@ -3076,9 +3076,9 @@ U 1 1 4F5BC172
 P 9700 5600
 F 0 "C106" H 9750 5700 50  0000 L CNN
 F 1 "1uF" H 9750 5500 50  0000 L CNN
-F 4 "Murata" H 9700 5600 60  0001 C CNN "Manufacturer"
-F 5 "GRM155R61A105ME15D" H 9700 5600 60  0001 C CNN "Part Number"
-F 6 "CAP CER 1UF 10V 20% X5R 0402" H 9700 5600 60  0001 C CNN "Description"
+F 4 "Taiyo Yuden" H 9700 5600 60  0001 C CNN "Manufacturer"
+F 5 "LMK105BJ105KV-F" H 9700 5600 60  0001 C CNN "Part Number"
+F 6 "CAP CER 1UF 10V 10% X5R 0402" H 9700 5600 60  0001 C CNN "Description"
 	1    9700 5600
 	1    0    0    -1  
 $EndComp
