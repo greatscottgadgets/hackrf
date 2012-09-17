@@ -1,4 +1,4 @@
-EESchema Schematic File Version 2  date Fri Sep 14 22:26:28 2012
+EESchema Schematic File Version 2  date Sat Sep 15 09:00:04 2012
 LIBS:power
 LIBS:device
 LIBS:transistors
@@ -4120,9 +4120,9 @@ U 1 1 4F62B3E5
 P 3750 5300
 F 0 "R69" V 3830 5300 50  0000 C CNN
 F 1 "12k" V 3750 5300 50  0000 C CNN
-F 4 "Stackpole" H 3750 5300 60  0001 C CNN "Manufacturer"
-F 5 "RMCF0402FT12K0" H 3750 5300 60  0001 C CNN "Part Number"
-F 6 "RES TF 1/16W 12K OHM 1% 0402" H 3750 5300 60  0001 C CNN "Description"
+F 4 "Rohm" H 3750 5300 60  0001 C CNN "Manufacturer"
+F 5 "MCR01MRTF1202" H 3750 5300 60  0001 C CNN "Part Number"
+F 6 "RES 12.0K OHM 1/16W 1% 0402 SMD" H 3750 5300 60  0001 C CNN "Description"
 	1    3750 5300
 	0    1    1    0   
 $EndComp
