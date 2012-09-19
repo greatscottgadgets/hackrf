@@ -1,4 +1,4 @@
-EESchema Schematic File Version 2  date Sat Sep 15 09:00:04 2012
+EESchema Schematic File Version 2  date Wed Sep 19 09:57:14 2012
 LIBS:power
 LIBS:device
 LIBS:transistors
@@ -37,7 +37,7 @@ $Descr User 17000 11000
 encoding utf-8
 Sheet 2 4
 Title ""
-Date "15 sep 2012"
+Date "19 sep 2012"
 Rev ""
 Comp ""
 Comment1 ""
@@ -1027,13 +1027,13 @@ F 4 "DNP" H 14750 9600 60  0001 C CNN "Note"
 	0    -1   -1   0   
 $EndComp
 Text GLabel 7200 4750 2    40   Input ~ 0
-RESETX
+MIXER_RESETX
 Text GLabel 7200 4650 2    40   Input ~ 0
-ENX
+MIXER_ENX
 Text GLabel 7200 4550 2    40   Input ~ 0
-SSP1_SCK
+MIXER_SCLK
 Text GLabel 7200 4450 2    40   Input ~ 0
-SSP1_MOSI
+MIXER_SDATA
 Text Label 5000 4450 1    40   ~ 0
 TX
 Text GLabel 7350 9100 1    40   Input ~ 0
