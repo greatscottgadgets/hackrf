@@ -1,4 +1,4 @@
-EESchema Schematic File Version 2  date Sat Sep 15 09:00:04 2012
+EESchema Schematic File Version 2  date Wed Sep 19 09:57:14 2012
 LIBS:power
 LIBS:device
 LIBS:transistors
@@ -37,7 +37,7 @@ $Descr User 17000 11000
 encoding utf-8
 Sheet 4 4
 Title "jawbreaker mcu/usb/power"
-Date "15 sep 2012"
+Date "19 sep 2012"
 Rev ""
 Comp "Copyright 2012 Michael Ossmann"
 Comment1 "License: GPL v2"
@@ -45,79 +45,10 @@ Comment2 ""
 Comment3 ""
 Comment4 ""
 $EndDescr
-Text Notes 2700 8800 0    40   ~ 0
-GND
-Text Notes 2400 8800 0    40   ~ 0
-GND
-Text Notes 2100 8800 0    40   ~ 0
-GND
-Text Notes 1800 8800 0    40   ~ 0
-VCC
-Text Notes 2700 8700 0    40   ~ 0
-VCC
-Text Notes 2400 8700 0    40   ~ 0
-VCC
-Text Notes 2100 8700 0    40   ~ 0
-VCC
-Text Notes 1800 8700 0    40   ~ 0
-GND
-Text Notes 2100 8600 0    40   ~ 0
-VCC
-Text Notes 2700 8600 0    40   ~ 0
-VCC
-Text Notes 2400 8600 0    40   ~ 0
-GND
-Text Notes 1800 8600 0    40   ~ 0
-GND
-Text Notes 2700 8500 0    40   ~ 0
-VCC
-Text Notes 2400 8500 0    40   ~ 0
-GND
-Text Notes 2100 8500 0    40   ~ 0
-GND
-Text Notes 1800 8500 0    40   ~ 0
-GND
-Text Notes 2700 8400 0    40   ~ 0
-GND
-Text Notes 2400 8400 0    40   ~ 0
-GND
-Text Notes 2100 8400 0    40   ~ 0
-GND
-Text Notes 1800 8400 0    40   ~ 0
-GND
-Text Notes 2700 8300 0    40   ~ 0
-BOOT0
-Text Notes 2400 8300 0    40   ~ 0
-BOOT1
-Text Notes 2100 8300 0    40   ~ 0
-BOOT2
-Text Notes 1800 8300 0    40   ~ 0
-BOOT3
-Text Notes 1400 8800 0    40   ~ 0
-USART3
-Text Notes 1400 8700 0    40   ~ 0
-SSP0
-Text Notes 1400 8600 0    40   ~ 0
-USB0
-Text Notes 1400 8500 0    40   ~ 0
-SPIFI
-Text Notes 1400 8400 0    40   ~ 0
-USART0
-Text Notes 1400 8200 0    40   ~ 0
-Boot selection:
-$Comp
-L C C158
-U 1 1 5052A211
-P 5000 9950
-F 0 "C158" H 5050 10050 50  0000 L CNN
-F 1 "18pF" H 5050 9850 50  0000 L CNN
-F 4 "Murata" H 5000 9950 60  0001 C CNN "Manufacturer"
-F 5 "GRM1555C1H180JZ01D" H 5000 9950 60  0001 C CNN "Part Number"
-F 6 "CAP CER 18PF 50V 5% NP0 0402" H 5000 9950 60  0001 C CNN "Description"
-	1    5000 9950
-	1    0    0    -1  
-$EndComp
-NoConn ~ 9700 4300
+Wire Wire Line
+	9700 5300 10400 5300
+Wire Wire Line
+	9800 5800 9700 5800
 Wire Wire Line
 	5250 7450 5250 7550
 Wire Wire Line
@@ -142,11 +73,11 @@ Wire Wire Line
 Wire Wire Line
 	2450 9900 2550 9900
 Wire Wire Line
-	3150 9350 3150 9450
+	3150 9450 3150 9350
 Wire Wire Line
 	3050 10100 3250 10100
 Wire Wire Line
-	1500 10100 1500 10200
+	1500 10200 1500 10100
 Connection ~ 850  10000
 Wire Wire Line
 	850  10000 850  10100
@@ -165,7 +96,7 @@ Connection ~ 1500 9350
 Wire Wire Line
 	1600 9350 1400 9350
 Wire Wire Line
-	1500 9150 1500 9050
+	1500 9050 1500 9150
 Wire Wire Line
 	8250 8700 7950 8700
 Wire Wire Line
@@ -279,9 +210,7 @@ Wire Wire Line
 Wire Wire Line
 	4300 4200 4000 4200
 Wire Wire Line
-	10300 5800 10300 5900
-Wire Wire Line
-	9700 5300 10300 5300
+	10400 5800 10400 5900
 Wire Wire Line
 	3000 3550 3700 3550
 Wire Wire Line
@@ -316,7 +245,7 @@ Wire Wire Line
 Wire Wire Line
 	8050 2050 8050 1650
 Wire Wire Line
-	10300 6400 10300 6500
+	10400 6400 10400 6500
 Connection ~ 1700 3550
 Wire Wire Line
 	1700 3550 1700 2900
@@ -466,10 +395,10 @@ Wire Wire Line
 	15550 1750 15750 1750
 Connection ~ 15550 650 
 Wire Wire Line
-	15550 650  15550 750 
+	15550 750  15550 650 
 Connection ~ 15550 2650
 Wire Wire Line
-	15550 2650 15550 2550
+	15550 2550 15550 2650
 Wire Wire Line
 	13650 1450 13550 1450
 Wire Wire Line
@@ -912,7 +841,7 @@ Wire Wire Line
 Wire Wire Line
 	15050 1650 14950 1650
 Wire Wire Line
-	15050 2550 15050 2650
+	15050 2650 15050 2550
 Wire Wire Line
 	13550 1450 13550 650 
 Wire Wire Line
@@ -1120,15 +1049,13 @@ Wire Wire Line
 Wire Wire Line
 	1300 3550 2500 3550
 Wire Wire Line
-	9700 5200 10600 5200
+	10400 5300 10400 5400
 Wire Wire Line
-	10300 5300 10300 5400
+	10700 5400 10700 5200
 Wire Wire Line
-	10600 5200 10600 5400
+	10700 6400 10700 6500
 Wire Wire Line
-	10600 6400 10600 6500
-Wire Wire Line
-	10600 5800 10600 5900
+	10700 5800 10700 5900
 Wire Wire Line
 	4300 4300 4000 4300
 Wire Wire Line
@@ -1161,9 +1088,9 @@ Wire Wire Line
 Wire Wire Line
 	9800 4600 9700 4600
 Wire Wire Line
-	3150 9900 3150 9800
+	3150 9800 3150 9900
 Wire Wire Line
-	3150 9150 3150 9050
+	3150 9050 3150 9150
 Wire Wire Line
 	1500 9450 1500 9350
 Wire Wire Line
@@ -1244,7 +1171,7 @@ Connection ~ 800  10000
 Wire Wire Line
 	1400 10100 1600 10100
 Wire Wire Line
-	3150 10100 3150 10200
+	3150 10200 3150 10100
 Wire Wire Line
 	3050 9350 3250 9350
 Wire Wire Line
@@ -1270,6 +1197,90 @@ Wire Wire Line
 	16150 650  16250 650 
 Wire Wire Line
 	15950 2650 14550 2650
+Wire Wire Line
+	9700 4300 9800 4300
+Wire Wire Line
+	10700 5200 9700 5200
+Text GLabel 9800 5800 2    40   Input ~ 0
+MIXER_SDATA
+Text GLabel 9800 4300 2    40   Input ~ 0
+MIXER_SCLK
+Text GLabel 7250 7750 3    40   Input ~ 0
+MIXER_ENX
+Text GLabel 7350 7750 3    40   Input ~ 0
+MIXER_RESETX
+Text Notes 2700 8800 0    40   ~ 0
+GND
+Text Notes 2400 8800 0    40   ~ 0
+GND
+Text Notes 2100 8800 0    40   ~ 0
+GND
+Text Notes 1800 8800 0    40   ~ 0
+VCC
+Text Notes 2700 8700 0    40   ~ 0
+VCC
+Text Notes 2400 8700 0    40   ~ 0
+VCC
+Text Notes 2100 8700 0    40   ~ 0
+VCC
+Text Notes 1800 8700 0    40   ~ 0
+GND
+Text Notes 2100 8600 0    40   ~ 0
+VCC
+Text Notes 2700 8600 0    40   ~ 0
+VCC
+Text Notes 2400 8600 0    40   ~ 0
+GND
+Text Notes 1800 8600 0    40   ~ 0
+GND
+Text Notes 2700 8500 0    40   ~ 0
+VCC
+Text Notes 2400 8500 0    40   ~ 0
+GND
+Text Notes 2100 8500 0    40   ~ 0
+GND
+Text Notes 1800 8500 0    40   ~ 0
+GND
+Text Notes 2700 8400 0    40   ~ 0
+GND
+Text Notes 2400 8400 0    40   ~ 0
+GND
+Text Notes 2100 8400 0    40   ~ 0
+GND
+Text Notes 1800 8400 0    40   ~ 0
+GND
+Text Notes 2700 8300 0    40   ~ 0
+BOOT0
+Text Notes 2400 8300 0    40   ~ 0
+BOOT1
+Text Notes 2100 8300 0    40   ~ 0
+BOOT2
+Text Notes 1800 8300 0    40   ~ 0
+BOOT3
+Text Notes 1400 8800 0    40   ~ 0
+USART3
+Text Notes 1400 8700 0    40   ~ 0
+SSP0
+Text Notes 1400 8600 0    40   ~ 0
+USB0
+Text Notes 1400 8500 0    40   ~ 0
+SPIFI
+Text Notes 1400 8400 0    40   ~ 0
+USART0
+Text Notes 1400 8200 0    40   ~ 0
+Boot selection:
+$Comp
+L C C158
+U 1 1 5052A211
+P 5000 9950
+F 0 "C158" H 5050 10050 50  0000 L CNN
+F 1 "18pF" H 5050 9850 50  0000 L CNN
+F 4 "Murata" H 5000 9950 60  0001 C CNN "Manufacturer"
+F 5 "GRM1555C1H180JZ01D" H 5000 9950 60  0001 C CNN "Part Number"
+F 6 "CAP CER 18PF 50V 5% NP0 0402" H 5000 9950 60  0001 C CNN "Description"
+	1    5000 9950
+	1    0    0    -1  
+$EndComp
 $Comp
 L CONN_2_SHORTED P8
 U 1 1 5048CFC5
@@ -1372,7 +1383,6 @@ Text Notes 8250 1400 0    40   ~ 0
 traces may be cut to install\nheader and jumpers
 Text Notes 12000 9550 0    40   ~ 0
 R97 may be installed to connect SGPIO8 to the CPLD.\nBy default SGPIO8 is used as a clock input.
-NoConn ~ 9700 5800
 Text GLabel 8750 7750 3    40   Input ~ 0
 SGPIO_CLK
 $Comp
@@ -1635,10 +1645,6 @@ F 1 "GND" H 3850 2130 30  0001 C CNN
 $EndComp
 Text Label 2650 1700 0    40   ~ 0
 GPIO3_8
-Text GLabel 7350 7750 3    40   Input ~ 0
-RESETX
-Text GLabel 7250 7750 3    40   Input ~ 0
-ENX
 $Comp
 L GND #PWR0159
 U 1 1 5043D25E
@@ -2157,25 +2163,25 @@ $EndComp
 $Comp
 L R R71
 U 1 1 503C51B5
-P 10600 6150
-F 0 "R71" V 10680 6150 50  0000 C CNN
-F 1 "470" V 10600 6150 50  0000 C CNN
-F 4 "Stackpole" H 10600 6150 60  0001 C CNN "Manufacturer"
-F 5 "RMCF0402JT470R" H 10600 6150 60  0001 C CNN "Part Number"
-F 6 "RES TF 1/16W 470 OHM 5% 0402" H 10600 6150 60  0001 C CNN "Description"
-	1    10600 6150
+P 10700 6150
+F 0 "R71" V 10780 6150 50  0000 C CNN
+F 1 "470" V 10700 6150 50  0000 C CNN
+F 4 "Stackpole" H 10700 6150 60  0001 C CNN "Manufacturer"
+F 5 "RMCF0402JT470R" H 10700 6150 60  0001 C CNN "Part Number"
+F 6 "RES TF 1/16W 470 OHM 5% 0402" H 10700 6150 60  0001 C CNN "Description"
+	1    10700 6150
 	-1   0    0    1   
 $EndComp
 $Comp
 L R R70
 U 1 1 503C51AC
-P 10300 6150
-F 0 "R70" V 10380 6150 50  0000 C CNN
-F 1 "470" V 10300 6150 50  0000 C CNN
-F 4 "Stackpole" H 10300 6150 60  0001 C CNN "Manufacturer"
-F 5 "RMCF0402JT470R" H 10300 6150 60  0001 C CNN "Part Number"
-F 6 "RES TF 1/16W 470 OHM 5% 0402" H 10300 6150 60  0001 C CNN "Description"
-	1    10300 6150
+P 10400 6150
+F 0 "R70" V 10480 6150 50  0000 C CNN
+F 1 "470" V 10400 6150 50  0000 C CNN
+F 4 "Stackpole" H 10400 6150 60  0001 C CNN "Manufacturer"
+F 5 "RMCF0402JT470R" H 10400 6150 60  0001 C CNN "Part Number"
+F 6 "RES TF 1/16W 470 OHM 5% 0402" H 10400 6150 60  0001 C CNN "Description"
+	1    10400 6150
 	-1   0    0    1   
 $EndComp
 $Comp
@@ -2723,22 +2729,22 @@ USB0_IND1
 $Comp
 L LED D3
 U 1 1 4F87ACCD
-P 10600 5600
-F 0 "D3" H 10600 5700 50  0000 C CNN
-F 1 "USBLED0" H 10600 5500 50  0000 C CNN
-F 4 "Everlight" H 10600 5600 60  0001 C CNN "Manufacturer"
-F 5 "QTLP600CYTR" H 10600 5600 60  0001 C CNN "Part Number"
-F 6 "LED YLW SUPER BRIGHT 0606 SMD" H 10600 5600 60  0001 C CNN "Description"
-	1    10600 5600
+P 10700 5600
+F 0 "D3" H 10700 5700 50  0000 C CNN
+F 1 "USBLED0" H 10700 5500 50  0000 C CNN
+F 4 "Everlight" H 10700 5600 60  0001 C CNN "Manufacturer"
+F 5 "QTLP600CYTR" H 10700 5600 60  0001 C CNN "Part Number"
+F 6 "LED YLW SUPER BRIGHT 0606 SMD" H 10700 5600 60  0001 C CNN "Description"
+	1    10700 5600
 	0    1    1    0   
 $EndComp
 $Comp
 L GND #PWR0175
 U 1 1 4F87ACCB
-P 10600 6500
-F 0 "#PWR0175" H 10600 6500 30  0001 C CNN
-F 1 "GND" H 10600 6430 30  0001 C CNN
-	1    10600 6500
+P 10700 6500
+F 0 "#PWR0175" H 10700 6500 30  0001 C CNN
+F 1 "GND" H 10700 6430 30  0001 C CNN
+	1    10700 6500
 	1    0    0    -1  
 $EndComp
 $Comp
@@ -2985,22 +2991,22 @@ I2S0_TX_WS
 $Comp
 L GND #PWR0187
 U 1 1 4F83B36A
-P 10300 6500
-F 0 "#PWR0187" H 10300 6500 30  0001 C CNN
-F 1 "GND" H 10300 6430 30  0001 C CNN
-	1    10300 6500
+P 10400 6500
+F 0 "#PWR0187" H 10400 6500 30  0001 C CNN
+F 1 "GND" H 10400 6430 30  0001 C CNN
+	1    10400 6500
 	1    0    0    -1  
 $EndComp
 $Comp
 L LED D2
 U 1 1 4F83B14A
-P 10300 5600
-F 0 "D2" H 10300 5700 50  0000 C CNN
-F 1 "USBLED1" H 10300 5500 50  0000 C CNN
-F 4 "Everlight" H 10300 5600 60  0001 C CNN "Manufacturer"
-F 5 "QTLP601C4TR" H 10300 5600 60  0001 C CNN "Part Number"
-F 6 "LED GREEN STD BRIGHT 0603 SMD" H 10300 5600 60  0001 C CNN "Description"
-	1    10300 5600
+P 10400 5600
+F 0 "D2" H 10400 5700 50  0000 C CNN
+F 1 "USBLED1" H 10400 5500 50  0000 C CNN
+F 4 "Everlight" H 10400 5600 60  0001 C CNN "Manufacturer"
+F 5 "QTLP601C4TR" H 10400 5600 60  0001 C CNN "Part Number"
+F 6 "LED GREEN STD BRIGHT 0603 SMD" H 10400 5600 60  0001 C CNN "Description"
+	1    10400 5600
 	0    1    1    0   
 $EndComp
 NoConn ~ 3000 2900
