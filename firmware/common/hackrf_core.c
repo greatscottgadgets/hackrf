@@ -28,8 +28,6 @@
 #include <libopencm3/lpc43xx/scu.h>
 #include <libopencm3/lpc43xx/ssp.h>
 
-#ifdef JELLYBEAN
-
 void delay(uint32_t duration)
 {
 	uint32_t i;
@@ -203,5 +201,3 @@ void ssp1_set_mode_max5864(void)
 		SSP_MASTER,
 		SSP_SLAVE_OUT_ENABLE);
 }
-
-#endif

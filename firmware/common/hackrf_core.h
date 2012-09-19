@@ -30,15 +30,19 @@ extern "C"
 #endif
 
 /* hardware identification number */
-#define BOARD_ID_JELLYBEAN 0
+#define BOARD_ID_JELLYBEAN  0
+#define BOARD_ID_JAWBREAKER 1
 
 #ifdef JELLYBEAN
 #define BOARD_ID BOARD_ID_JELLYBEAN
 #endif
 
-#ifdef JELLYBEAN
+#ifdef JAWBREAKER
+#define BOARD_ID BOARD_ID_JAWBREAKER
+#endif
+
 /*
- * Jellybean SCU PinMux
+ * SCU PinMux
  */
 
 /* GPIO Output PinMux */
@@ -94,14 +98,28 @@ extern "C"
 #define SCU_AD_CS           (P5_7)  /* GPIO2[7] on P5_7 */
 
 /* RFFC5071 GPIO serial interface PinMux */
+#ifdef JELLYBEAN
 #define SCU_MIXER_ENX       (P7_0)  /* GPIO3[8] on P7_0 */
 #define SCU_MIXER_SCLK      (P7_1)  /* GPIO3[9] on P7_1 */
 #define SCU_MIXER_SDATA     (P7_2)  /* GPIO3[10] on P7_2 */
+#define SCU_MIXER_RESETX    (P7_3)  /* GPIO3[11] on P7_3 */
+#endif
+#ifdef JAWBREAKER
+#define SCU_MIXER_ENX       (P5_4)  /* GPIO2[13] on P5_4 */
+#define SCU_MIXER_SCLK      (P2_6)  /* GPIO5[6] on P2_6 */
+#define SCU_MIXER_SDATA     (P6_4)  /* GPIO3[3] on P6_4 */
+#define SCU_MIXER_RESETX    (P5_5)  /* GPIO2[14] on P5_5 */
+#endif
+
+/* RF LDO control */
+#ifdef JAWBREAKER
+#define RF_LDO_ENABLE       (P5_0)  /* GPIO2[9] on P5_0 */
+#endif
 
 /* TODO add other Pins */
 
 /*
- * Jellybean GPIO Pins
+ * GPIO Pins
  */
 
 /* GPIO Output */
@@ -123,10 +141,31 @@ extern "C"
 #define PIN_AD_CS  (BIT7)  /* GPIO2[7] on P5_7 */
 #define PORT_AD_CS (GPIO2) /* PORT for AD_CS */
 
-#define PIN_MIXER_ENX   (BIT8)  /* GPIO3[8] on P7_0 */
-#define PIN_MIXER_SCLK  (BIT9)  /* GPIO3[9] on P7_1 */
-#define PIN_MIXER_SDATA (BIT10) /* GPIO3[10] on P7_2 */
-#define PORT_MIXER      (GPIO3) /* PORT for mixer serial interface */
+#ifdef JELLYBEAN
+#define PIN_MIXER_ENX     (BIT8)  /* GPIO3[8] on P7_0 */
+#define PORT_MIXER_ENX    (GPIO3)
+#define PIN_MIXER_SCLK    (BIT9)  /* GPIO3[9] on P7_1 */
+#define PORT_MIXER_SCLK   (GPIO3)
+#define PIN_MIXER_SDATA   (BIT10) /* GPIO3[10] on P7_2 */
+#define PORT_MIXER_SDATA  (GPIO3)
+#define PIN_MIXER_RESETX  (BIT11) /* GPIO3[11] on P7_3 */
+#define PORT_MIXER_RESETX (GPIO3)
+#endif
+#ifdef JAWBREAKER
+#define PIN_MIXER_ENX     (BIT13) /* GPIO2[13] on P5_4 */
+#define PORT_MIXER_ENX    (GPIO2)
+#define PIN_MIXER_SCLK    (BIT6)  /* GPIO5[6] on P2_6 */
+#define PORT_MIXER_SCLK   (GPIO5)
+#define PIN_MIXER_SDATA   (BIT3)  /* GPIO3[3] on P6_4 */
+#define PORT_MIXER_SDATA  (GPIO3)
+#define PIN_MIXER_RESETX  (BIT14) /* GPIO2[14] on P5_5 */
+#define PORT_MIXER_RESETX (GPIO2)
+#endif
+
+#ifdef JAWBREAKER
+#define PIN_RF_LDO_ENABLE  (BIT9)  /* GPIO2[9] on P5_0 */
+#define PORT_RF_LDO_ENABLE (GPIO2) /* PORT for RF_LDO_ENABLE */
+#endif
 
 /* GPIO Input */
 #define PIN_BOOT0   (BIT8)  /* GPIO0[8] on P1_1 */
@@ -145,14 +184,14 @@ extern "C"
 #define PORT_CPLD_TDI   (GPIO3)
 
 /* Read GPIO Pin */
-#define BOOT0_STATE ((GPIO0_PIN & PIN_BOOT0)==PIN_BOOT0)
-#define BOOT1_STATE ((GPIO0_PIN & PIN_BOOT1)==PIN_BOOT1)
-#define BOOT2_STATE ((GPIO5_PIN & PIN_BOOT2)==PIN_BOOT2)
-#define BOOT3_STATE ((GPIO1_PIN & PIN_BOOT3)==PIN_BOOT3)
-#define MIXER_SDATA_STATE ((GPIO3_PIN & PIN_MIXER_SDATA)==PIN_MIXER_SDATA)
+#define GPIO_STATE(port, pin) ((GPIO_PIN(port) & (pin)) == (pin))
+#define BOOT0_STATE       GPIO_STATE(GPIO0, PIN_BOOT0)
+#define BOOT1_STATE       GPIO_STATE(GPIO0, PIN_BOOT1)
+#define BOOT2_STATE       GPIO_STATE(GPIO5, PIN_BOOT2)
+#define BOOT3_STATE       GPIO_STATE(GPIO1, PIN_BOOT3)
+#define MIXER_SDATA_STATE GPIO_STATE(PORT_MIXER_SDATA, PIN_MIXER_SDATA)
 
 /* TODO add other Pins */
-#endif
 
 void cpu_clock_init(void);
 void ssp1_init(void);
