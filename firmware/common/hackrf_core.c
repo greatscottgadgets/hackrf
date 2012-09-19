@@ -49,6 +49,19 @@ void cpu_clock_init(void)
 	si5351c_configure_pll_sources_for_xtal();
 	si5351c_configure_pll1_multisynth();
 
+#ifdef JELLYBEAN
+	/*
+	 * Jellybean/Lemondrop clocks:
+	 *   CLK0 -> MAX2837
+	 *   CLK1 -> MAX5864/CPLD
+	 *   CLK2 -> CPLD
+	 *   CLK3 -> CPLD
+	 *   CLK4 -> LPC4330
+	 *   CLK5 -> RFFC5072
+	 *   CLK6 -> extra
+	 *   CLK7 -> extra
+	 */
+
 	/* MS0/CLK0 is the source for the MAX2837 clock input. */
 	si5351c_configure_multisynth(0, 2048, 0, 1, 0); /* 40MHz */
 
@@ -66,6 +79,42 @@ void cpu_clock_init(void)
 
 	/* MS5/CLK5 is the source for the RFFC5071 mixer. */
 	si5351c_configure_multisynth(5, 1536, 0, 1, 0); /* 50MHz */
+#endif
+
+#ifdef JAWBREAKER
+	/*
+	 * Jawbreaker clocks:
+	 *   CLK0 -> MAX5864/CPLD
+	 *   CLK1 -> CPLD
+	 *   CLK2 -> SGPIO
+	 *   CLK3 -> external clock output
+	 *   CLK4 -> RFFC5072
+	 *   CLK5 -> MAX2837
+	 *   CLK6 -> none
+	 *   CLK7 -> LPC4330 (but LPC4330 starts up on its own crystal)
+	 */
+
+	/* MS0/CLK0 is the source for the MAX5864/CPLD (CODEC_CLK). */
+	si5351c_configure_multisynth(0, 4608, 0, 1, 1); /* 10MHz */
+
+	/* MS0/CLK1 is the source for the CPLD (CODEC_X2_CLK). */
+	si5351c_configure_multisynth(1, 4608, 0, 1, 0); /* 20MHz */
+
+	/* MS0/CLK2 is the source for SGPIO (CODEC_X2_CLK) */
+	si5351c_configure_multisynth(2, 4608, 0, 1, 0); /* 20MHz */
+
+	/* MS0/CLK3 is the source for the external clock output. */
+	si5351c_configure_multisynth(3, 4608, 0, 1, 0); /* 20MHz */
+
+	/* MS4/CLK4 is the source for the RFFC5071 mixer. */
+	si5351c_configure_multisynth(4, 1536, 0, 1, 0); /* 50MHz */
+
+	/* MS5/CLK5 is the source for the MAX2837 clock input. */
+	si5351c_configure_multisynth(5, 2048, 0, 1, 0); /* 40MHz */
+
+	/* MS7/CLK7 is the source for the LPC43xx microcontroller. */
+	//si5351c_configure_multisynth(7, 8021, 0, 3, 0); /* 12MHz */
+#endif
 
 	si5351c_configure_clock_control();
 	si5351c_enable_clock_outputs();

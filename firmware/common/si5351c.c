@@ -161,6 +161,7 @@ void si5351c_configure_multisynth(const uint_fast8_t ms_number,
 	si5351c_write(data, sizeof(data));
 }
 
+#ifdef JELLYBEAN
 /*
  * Registers 16 through 23: CLKx Control
  * CLK0:
@@ -211,6 +212,66 @@ void si5351c_configure_clock_control()
 	uint8_t data[] = { 16, 0x4F, 0x4B, 0x4B, 0x4B, 0x0F, 0x4F, 0xC0, 0xC0 };
 	si5351c_write(data, sizeof(data));
 }
+#endif
+
+#ifdef JAWBREAKER
+/*
+ * Registers 16 through 23: CLKx Control
+ * CLK0:
+ *   CLK0_PDN=0 (powered up)
+ *   MS0_INT=1 (integer mode)
+ *   MS0_SRC=0 (PLLA as source for MultiSynth 0)
+ *   CLK0_INV=0 (not inverted)
+ *   CLK0_SRC=3 (MS0 as input source)
+ *   CLK0_IDRV=3 (8mA)
+ * CLK1:
+ *   CLK1_PDN=0 (powered up)
+ *   MS1_INT=1 (integer mode)
+ *   MS1_SRC=0 (PLLA as source for MultiSynth 1)
+ *   CLK1_INV=0 (not inverted)
+ *   CLK1_SRC=2 (MS0 as input source)
+ *   CLK1_IDRV=3 (8mA)
+ * CLK2:
+ *   CLK2_PDN=0 (powered up)
+ *   MS2_INT=1 (integer mode)
+ *   MS2_SRC=0 (PLLA as source for MultiSynth 2)
+ *   CLK2_INV=0 (not inverted)
+ *   CLK2_SRC=2 (MS0 as input source)
+ *   CLK2_IDRV=3 (8mA)
+ * CLK3:
+ *   CLK3_PDN=0 (powered up)
+ *   MS3_INT=1 (integer mode)
+ *   MS3_SRC=0 (PLLA as source for MultiSynth 3)
+ *   CLK3_INV=0 (inverted)
+ *   CLK3_SRC=2 (MS0 as input source)
+ *   CLK3_IDRV=3 (8mA)
+ * CLK4:
+ *   CLK4_PDN=0 (powered up)
+ *   MS4_INT=1 (integer mode)
+ *   MS4_SRC=0 (PLLA as source for MultiSynth 4)
+ *   CLK4_INV=0 (not inverted)
+ *   CLK4_SRC=3 (MS4 as input source)
+ *   CLK4_IDRV=3 (8mA)
+ * CLK5:
+ *   CLK5_PDN=0 (powered up)
+ *   MS5_INT=1 (integer mode)
+ *   MS5_SRC=0 (PLLA as source for MultiSynth 5)
+ *   CLK5_INV=0 (not inverted)
+ *   CLK5_SRC=3 (MS5 as input source)
+ *   CLK5_IDRV=3 (8mA)
+ * CLK6: (not connected)
+ *   CLK5_PDN=1 (powered down)
+ *   MS5_INT=1 (integer mode)
+ * CLK7: (not connected)
+ *   CLK7_PDN=1 (powered down)
+ *   MS7_INT=0 (fractional mode -- to support 12MHz to LPC)
+ */
+void si5351c_configure_clock_control()
+{
+	uint8_t data[] = { 16, 0x4F, 0x4B, 0x4B, 0x4B, 0x4F, 0x4F, 0xC0, 0x80 };
+	si5351c_write(data, sizeof(data));
+}
+#endif
 
 /* Enable CLK outputs 0, 1, 2, 3, 4, 5 only. */
 void si5351c_enable_clock_outputs()
