@@ -24,6 +24,12 @@
  * program would do if it had a real spi library
  */
 
+/*
+ * The actual part on Jawbreaker is the RFFC5072, not the RFFC5071, but the
+ * RFFC5071 may be installed instead.  The only difference between the parts is
+ * that the RFFC5071 includes a second mixer.
+ */
+
 #include <stdint.h>
 #include <string.h>
 #include "rffc5071.h"
@@ -139,24 +145,10 @@ void rffc5071_setup(void)
 	 * not control pins. */
 	set_RFFC5071_SIPIN(1);
 
-	/* Initial settings for Lollipop switches, same for both
-	 * paths. These could use some #defines that iron out the
-	 * (non)inverted signals.
-	 *
-	 * bit0: SWTXB1 (!tx_bypass)
-	 * bit1: SWRXB1 (rx_bypass)
-	 * bit2: SWTXA1 (tx_hp)
-	 * bit3: unused (lock bit)
-	 * bit4: SWRXA1 (rx_hp)
-	 * bit5 SWD1 (!tx_ant)
-	 *
-	 * Unknown whether shift is needed. There are 7 register bits
-	 * to hold 6 GPO bits. */
-	set_RFFC5071_P1GPO(0b010100<<1);
-	set_RFFC5071_P2GPO(0b010100<<1);
-
-	/* send lock flag on GPO4 */
-	set_RFFC5071_LOCK(1);
+#ifdef JAWBREAKER
+	/* initial safe switch control settings */
+	rffc5071_set_gpo(SWITCHCTRL_SAFE);
+#endif
 
 	/* GPOs are active at all times */
 	set_RFFC5071_GATE(1);
@@ -256,6 +248,15 @@ uint16_t rffc5071_spi_read(uint8_t r) {
 	serial_delay();
 	gpio_set(PORT_MIXER_ENX, PIN_MIXER_ENX);
 
+	/*
+	 * The device requires a clock while ENX is high after a serial
+	 * transaction.  This is not clearly documented.
+	 */
+	gpio_set(PORT_MIXER_SCLK, PIN_MIXER_SCLK);
+
+	serial_delay();
+	gpio_clear(PORT_MIXER_SCLK, PIN_MIXER_SCLK);
+
 	return data;
 #endif /* DEBUG */
 }
@@ -316,8 +317,17 @@ void rffc5071_spi_write(uint8_t r, uint16_t v) {
 		gpio_clear(PORT_MIXER_SCLK, PIN_MIXER_SCLK);
 	}
 
-	serial_delay();
 	gpio_set(PORT_MIXER_ENX, PIN_MIXER_ENX);
+
+	/*
+	 * The device requires a clock while ENX is high after a serial
+	 * transaction.  This is not clearly documented.
+	 */
+	serial_delay();
+	gpio_set(PORT_MIXER_SCLK, PIN_MIXER_SCLK);
+
+	serial_delay();
+	gpio_clear(PORT_MIXER_SCLK, PIN_MIXER_SCLK);
 #endif
 }
 
@@ -474,6 +484,15 @@ uint16_t rffc5071_set_frequency(uint16_t mhz, uint32_t hz) {
 	rffc5071_enable();
 
 	return tune_freq;
+}
+
+void rffc5071_set_gpo(uint8_t gpo)
+{
+	/* We set GPO for both paths just in case. */
+	set_RFFC5071_P1GPO(gpo);
+	set_RFFC5071_P2GPO(gpo);
+
+	rffc5071_regs_commit();
 }
 
 #ifdef TEST

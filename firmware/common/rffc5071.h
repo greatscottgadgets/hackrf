@@ -31,6 +31,21 @@ extern uint32_t rffc5071_regs_dirty;
 #define RFFC5071_REG_SET_CLEAN(r) rffc5071_regs_dirty &= ~(1UL<<r)
 #define RFFC5071_REG_SET_DIRTY(r) rffc5071_regs_dirty |= (1UL<<r)
 
+#ifdef JAWBREAKER
+/*
+ * RF switches on Jawbreaker are controlled by General Purpose Outputs (GPO) on
+ * the RFFC5072.
+ */
+#define SWITCHCTRL_NO_TX_AMP_PWR (1 << 0) /* turn off TX amp power */
+#define SWITCHCTRL_AMP_BYPASS    (1 << 1) /* bypass amp section */
+#define SWITCHCTRL_TX            (1 << 2) /* 1 for TX mode, 0 for RX mode */
+#define SWITCHCTRL_MIX_BYPASS    (1 << 3) /* bypass RFFC5072 mixer section */
+#define SWITCHCTRL_HP            (1 << 4) /* 1 for high-pass, 0 for low-pass */
+#define SWITCHCTRL_NO_RX_AMP_PWR (1 << 5) /* turn off RX amp power */
+
+#define SWITCHCTRL_SAFE (SWITCHCTRL_NO_TX_AMP_PWR | SWITCHCTRL_AMP_BYPASS | SWITCHCTRL_TX | SWITCHCTRL_MIX_BYPASS | SWITCHCTRL_HP | SWITCHCTRL_NO_RX_AMP_PWR)
+#endif
+
 /* Initialize chip. Call _setup() externally, as it calls _init(). */
 extern void rffc5071_init(void);
 extern void rffc5071_setup(void);
@@ -61,5 +76,7 @@ extern void rffc5071_rx(void);
 extern void rffc5071_rxtx(void);
 extern void rffc5071_enable(void);
 extern void rffc5071_disable(void);
+
+extern void rffc5071_set_gpo(uint8_t);
 
 #endif // __RFFC5071_H

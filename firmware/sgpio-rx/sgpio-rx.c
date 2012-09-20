@@ -329,27 +329,6 @@ int main(void) {
 	rffc5071_rx();
 	rffc5071_set_frequency(500, 0); // 500 MHz, 0 Hz (Hz ignored)
 
-#ifdef LOLLIPOP_SWITCH_SET_UP_DONE_IN_RFFC5071
-	/* lollipop */
-	uint8_t gpo = 
-			  (1 << 0)  /* SWTXB1 (!tx_bypass) */
-			| (0 << 1)  /* SWRXB1 (rx_bypass) */
-			| (1 << 2)  /* SWTXA1 (tx_hp) */
-			| (0 << 3)  /* unused */
-			| (1 << 4)  /* SWRXA1 (rx_hp) */
-			| (0 << 5); /* SWD1 (!tx_ant) */
-	/* licorice */
-	//uint8_t gpo = 
-			  //(0 << 0)  /* MIX_BYPASS */
-			//| (0 << 1)  /* AMP_BYPASS */
-			//| (0 << 2)  /* TX */
-			//| (0 << 3)  /* unused */
-			//| (0 << 4)  /* HP */
-			//| (0 << 5); /* !AMP_PWR */
-	rffc5071_reg_write(RFFC5071_GPO, (gpo << 9) | (gpo << 2) | 0x3);
-	gpio_set(PORT_LED1_3, (PIN_LED1)); /* LED1 on */
-#endif
-
 	max2837_set_frequency(freq);
 	max2837_start();
 	max2837_rx();
