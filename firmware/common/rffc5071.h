@@ -43,6 +43,10 @@ extern uint32_t rffc5071_regs_dirty;
 #define SWITCHCTRL_HP            (1 << 4) /* 1 for high-pass, 0 for low-pass */
 #define SWITCHCTRL_NO_RX_AMP_PWR (1 << 5) /* turn off RX amp power */
 
+/*
+ * Safe (initial) switch settings turn off both amplifiers and enable both amp
+ * bypass and mixer bypass.
+ */
 #define SWITCHCTRL_SAFE (SWITCHCTRL_NO_TX_AMP_PWR | SWITCHCTRL_AMP_BYPASS | SWITCHCTRL_TX | SWITCHCTRL_MIX_BYPASS | SWITCHCTRL_HP | SWITCHCTRL_NO_RX_AMP_PWR)
 #endif
 
@@ -71,8 +75,8 @@ extern uint16_t rffc5071_set_frequency(uint16_t mhz, uint32_t hz);
 
 /* Set up rx only, tx only, or full duplex. Chip should be disabled
  * before _tx, _rx, or _rxtx are called. */
-extern void rffc5071_tx(void);
-extern void rffc5071_rx(void);
+extern void rffc5071_tx(uint8_t);
+extern void rffc5071_rx(uint8_t);
 extern void rffc5071_rxtx(void);
 extern void rffc5071_enable(void);
 extern void rffc5071_disable(void);

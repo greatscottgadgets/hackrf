@@ -311,6 +311,7 @@ void configure_sgpio_test_rx() {
 int main(void) {
 
 	const uint32_t freq = 2700000000U;
+	uint8_t switchctrl = 0;
 
 	pin_setup();
 	enable_1v8_power();
@@ -326,8 +327,11 @@ int main(void) {
 	ssp1_set_mode_max2837();
 	max2837_setup();
 	rffc5071_setup();
-	rffc5071_rx();
 	rffc5071_set_frequency(500, 0); // 500 MHz, 0 Hz (Hz ignored)
+#ifdef JAWBREAKER
+	switchctrl = (SWITCHCTRL_AMP_BYPASS | SWITCHCTRL_HP);
+#endif
+	rffc5071_rx(switchctrl);
 
 	max2837_set_frequency(freq);
 	max2837_start();

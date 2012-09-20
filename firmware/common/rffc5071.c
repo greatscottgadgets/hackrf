@@ -367,26 +367,58 @@ void rffc5071_regs_commit(void)
 	}
 }
 
-void rffc5071_tx(void) {
+void rffc5071_tx(uint8_t gpo) {
 	LOG("# rffc5071_tx\n");
 	set_RFFC5071_ENBL(0);
 	set_RFFC5071_FULLD(0);
-	set_RFFC5071_MODE(0); /* mixer 1 only (TX) */
+	set_RFFC5071_MODE(1); /* mixer 2 used for both RX and TX */
+#ifdef JAWBREAKER
+	/* honor SWITCHCTRL_AMP_BYPASS and SWITCHCTRL_HP settings from caller */
+	gpo &= (SWITCHCTRL_AMP_BYPASS | SWITCHCTRL_HP);
+	if ((gpo & SWITCHCTRL_AMP_BYPASS) == SWITCHCTRL_AMP_BYPASS)
+		gpo |= SWITCHCTRL_NO_TX_AMP_PWR;
+	gpo |= (SWITCHCTRL_TX | SWITCHCTRL_NO_RX_AMP_PWR);
+	rffc5071_set_gpo(gpo);
+#endif
 	rffc5071_regs_commit();
 
-	rffc5071_enable();
+#ifdef JAWBREAKER
+	/* honor SWITCHCTRL_MIX_BYPASS setting from caller */
+	if ((gpo & SWITCHCTRL_MIX_BYPASS) == SWITCHCTRL_MIX_BYPASS)
+		rffc5071_disable();
+	else
+#endif
+		rffc5071_enable();
 }
 
-void rffc5071_rx(void) {
+void rffc5071_rx(uint8_t gpo) {
 	LOG("# rfc5071_rx\n");
 	set_RFFC5071_ENBL(0);
 	set_RFFC5071_FULLD(0);
-	set_RFFC5071_MODE(1); /* mixer 2 only (RX) */
+	set_RFFC5071_MODE(1); /* mixer 2 used for both RX and TX */
+#ifdef JAWBREAKER
+	/* honor SWITCHCTRL_AMP_BYPASS and SWITCHCTRL_HP settings from caller */
+	gpo &= (SWITCHCTRL_AMP_BYPASS | SWITCHCTRL_HP);
+	if ((gpo & SWITCHCTRL_AMP_BYPASS) == SWITCHCTRL_AMP_BYPASS)
+		gpo |= SWITCHCTRL_NO_RX_AMP_PWR;
+	gpo |= SWITCHCTRL_NO_TX_AMP_PWR;
+	rffc5071_set_gpo(gpo);
+#endif
 	rffc5071_regs_commit();
 
-	rffc5071_enable();
+#ifdef JAWBREAKER
+	/* honor SWITCHCTRL_MIX_BYPASS setting from caller */
+	if ((gpo & SWITCHCTRL_MIX_BYPASS) == SWITCHCTRL_MIX_BYPASS)
+		rffc5071_disable();
+	else
+#endif
+		rffc5071_enable();
 }
 
+/*
+ * This function turns on both mixer (full-duplex) on the RFFC5071, but our
+ * current hardware designs do not support full-duplex operation.
+ */
 void rffc5071_rxtx(void) {
 	LOG("# rfc5071_rxtx\n");
 	set_RFFC5071_ENBL(0);
