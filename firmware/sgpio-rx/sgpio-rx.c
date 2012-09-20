@@ -327,11 +327,11 @@ int main(void) {
 	ssp1_set_mode_max2837();
 	max2837_setup();
 	rffc5071_setup();
-	rffc5071_set_frequency(500, 0); // 500 MHz, 0 Hz (Hz ignored)
 #ifdef JAWBREAKER
 	switchctrl = (SWITCHCTRL_AMP_BYPASS | SWITCHCTRL_HP);
 #endif
 	rffc5071_rx(switchctrl);
+	rffc5071_set_frequency(500, 0); // 500 MHz, 0 Hz (Hz ignored)
 
 	max2837_set_frequency(freq);
 	max2837_start();
