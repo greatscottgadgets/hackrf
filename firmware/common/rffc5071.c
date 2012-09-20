@@ -483,14 +483,14 @@ uint16_t rffc5071_config_synth_int(uint16_t lo) {
 	    lo, n_lo, lodiv, fvco, fbkdiv, n, tune_freq);
 
 	/* Path 1 */
-	set_RFFC5071_P1LODIV(lodiv);
+	set_RFFC5071_P1LODIV(n_lo);
 	set_RFFC5071_P1N(n);
 	set_RFFC5071_P1PRESC(fbkdiv >> 1);
 	set_RFFC5071_P1NMSB(0);
 	set_RFFC5071_P1NLSB(0);
 
 	/* Path 2 */
-	set_RFFC5071_P2LODIV(lodiv);
+	set_RFFC5071_P2LODIV(n_lo);
 	set_RFFC5071_P2N(n);
 	set_RFFC5071_P2PRESC(fbkdiv >> 1);
 	set_RFFC5071_P2NMSB(0);
