@@ -24,6 +24,12 @@
  * program would do if it had a real spi library
  */
 
+/*
+ * The actual part on Jawbreaker is the RFFC5072, not the RFFC5071, but the
+ * RFFC5071 may be installed instead.  The only difference between the parts is
+ * that the RFFC5071 includes a second mixer.
+ */
+
 #include <stdint.h>
 #include <string.h>
 #include "rffc5071.h"
@@ -139,24 +145,10 @@ void rffc5071_setup(void)
 	 * not control pins. */
 	set_RFFC5071_SIPIN(1);
 
-	/* Initial settings for Lollipop switches, same for both
-	 * paths. These could use some #defines that iron out the
-	 * (non)inverted signals.
-	 *
-	 * bit0: SWTXB1 (!tx_bypass)
-	 * bit1: SWRXB1 (rx_bypass)
-	 * bit2: SWTXA1 (tx_hp)
-	 * bit3: unused (lock bit)
-	 * bit4: SWRXA1 (rx_hp)
-	 * bit5 SWD1 (!tx_ant)
-	 *
-	 * Unknown whether shift is needed. There are 7 register bits
-	 * to hold 6 GPO bits. */
-	set_RFFC5071_P1GPO(0b010100<<1);
-	set_RFFC5071_P2GPO(0b010100<<1);
-
-	/* send lock flag on GPO4 */
-	set_RFFC5071_LOCK(1);
+#ifdef JAWBREAKER
+	/* initial safe switch control settings */
+	rffc5071_set_gpo(SWITCHCTRL_SAFE);
+#endif
 
 	/* GPOs are active at all times */
 	set_RFFC5071_GATE(1);
@@ -256,6 +248,15 @@ uint16_t rffc5071_spi_read(uint8_t r) {
 	serial_delay();
 	gpio_set(PORT_MIXER_ENX, PIN_MIXER_ENX);
 
+	/*
+	 * The device requires a clock while ENX is high after a serial
+	 * transaction.  This is not clearly documented.
+	 */
+	gpio_set(PORT_MIXER_SCLK, PIN_MIXER_SCLK);
+
+	serial_delay();
+	gpio_clear(PORT_MIXER_SCLK, PIN_MIXER_SCLK);
+
 	return data;
 #endif /* DEBUG */
 }
@@ -316,8 +317,17 @@ void rffc5071_spi_write(uint8_t r, uint16_t v) {
 		gpio_clear(PORT_MIXER_SCLK, PIN_MIXER_SCLK);
 	}
 
-	serial_delay();
 	gpio_set(PORT_MIXER_ENX, PIN_MIXER_ENX);
+
+	/*
+	 * The device requires a clock while ENX is high after a serial
+	 * transaction.  This is not clearly documented.
+	 */
+	serial_delay();
+	gpio_set(PORT_MIXER_SCLK, PIN_MIXER_SCLK);
+
+	serial_delay();
+	gpio_clear(PORT_MIXER_SCLK, PIN_MIXER_SCLK);
 #endif
 }
 
@@ -357,26 +367,58 @@ void rffc5071_regs_commit(void)
 	}
 }
 
-void rffc5071_tx(void) {
+void rffc5071_tx(uint8_t gpo) {
 	LOG("# rffc5071_tx\n");
 	set_RFFC5071_ENBL(0);
 	set_RFFC5071_FULLD(0);
-	set_RFFC5071_MODE(0); /* mixer 1 only (TX) */
+	set_RFFC5071_MODE(1); /* mixer 2 used for both RX and TX */
+#ifdef JAWBREAKER
+	/* honor SWITCHCTRL_AMP_BYPASS and SWITCHCTRL_HP settings from caller */
+	gpo &= (SWITCHCTRL_AMP_BYPASS | SWITCHCTRL_HP);
+	if ((gpo & SWITCHCTRL_AMP_BYPASS) == SWITCHCTRL_AMP_BYPASS)
+		gpo |= SWITCHCTRL_NO_TX_AMP_PWR;
+	gpo |= (SWITCHCTRL_TX | SWITCHCTRL_NO_RX_AMP_PWR);
+	rffc5071_set_gpo(gpo);
+#endif
 	rffc5071_regs_commit();
 
-	rffc5071_enable();
+#ifdef JAWBREAKER
+	/* honor SWITCHCTRL_MIX_BYPASS setting from caller */
+	if ((gpo & SWITCHCTRL_MIX_BYPASS) == SWITCHCTRL_MIX_BYPASS)
+		rffc5071_disable();
+	else
+#endif
+		rffc5071_enable();
 }
 
-void rffc5071_rx(void) {
+void rffc5071_rx(uint8_t gpo) {
 	LOG("# rfc5071_rx\n");
 	set_RFFC5071_ENBL(0);
 	set_RFFC5071_FULLD(0);
-	set_RFFC5071_MODE(1); /* mixer 2 only (RX) */
+	set_RFFC5071_MODE(1); /* mixer 2 used for both RX and TX */
+#ifdef JAWBREAKER
+	/* honor SWITCHCTRL_AMP_BYPASS and SWITCHCTRL_HP settings from caller */
+	gpo &= (SWITCHCTRL_AMP_BYPASS | SWITCHCTRL_HP);
+	if ((gpo & SWITCHCTRL_AMP_BYPASS) == SWITCHCTRL_AMP_BYPASS)
+		gpo |= SWITCHCTRL_NO_RX_AMP_PWR;
+	gpo |= SWITCHCTRL_NO_TX_AMP_PWR;
+	rffc5071_set_gpo(gpo);
+#endif
 	rffc5071_regs_commit();
 
-	rffc5071_enable();
+#ifdef JAWBREAKER
+	/* honor SWITCHCTRL_MIX_BYPASS setting from caller */
+	if ((gpo & SWITCHCTRL_MIX_BYPASS) == SWITCHCTRL_MIX_BYPASS)
+		rffc5071_disable();
+	else
+#endif
+		rffc5071_enable();
 }
 
+/*
+ * This function turns on both mixer (full-duplex) on the RFFC5071, but our
+ * current hardware designs do not support full-duplex operation.
+ */
 void rffc5071_rxtx(void) {
 	LOG("# rfc5071_rxtx\n");
 	set_RFFC5071_ENBL(0);
@@ -441,14 +483,14 @@ uint16_t rffc5071_config_synth_int(uint16_t lo) {
 	    lo, n_lo, lodiv, fvco, fbkdiv, n, tune_freq);
 
 	/* Path 1 */
-	set_RFFC5071_P1LODIV(lodiv);
+	set_RFFC5071_P1LODIV(n_lo);
 	set_RFFC5071_P1N(n);
 	set_RFFC5071_P1PRESC(fbkdiv >> 1);
 	set_RFFC5071_P1NMSB(0);
 	set_RFFC5071_P1NLSB(0);
 
 	/* Path 2 */
-	set_RFFC5071_P2LODIV(lodiv);
+	set_RFFC5071_P2LODIV(n_lo);
 	set_RFFC5071_P2N(n);
 	set_RFFC5071_P2PRESC(fbkdiv >> 1);
 	set_RFFC5071_P2NMSB(0);
@@ -474,6 +516,15 @@ uint16_t rffc5071_set_frequency(uint16_t mhz, uint32_t hz) {
 	rffc5071_enable();
 
 	return tune_freq;
+}
+
+void rffc5071_set_gpo(uint8_t gpo)
+{
+	/* We set GPO for both paths just in case. */
+	set_RFFC5071_P1GPO(gpo);
+	set_RFFC5071_P2GPO(gpo);
+
+	rffc5071_regs_commit();
 }
 
 #ifdef TEST

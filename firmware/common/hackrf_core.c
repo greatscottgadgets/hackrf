@@ -122,14 +122,18 @@ void cpu_clock_init(void)
 	//FIXME disable I2C
 
 	/*
-	 * 12MHz clock is entering LPC XTAL1/OSC input now.
+	 * 12MHz clock is entering LPC XTAL1/OSC input now.  On
+	 * Jellybean/Lemondrop, this is a signal from the clock generator.  On
+	 * Jawbreaker, there is a 12 MHz crystal at the LPC.
 	 * Set up PLL1 to run from XTAL1 input.
 	 */
 
 	//FIXME a lot of the details here should be in a CGU driver
 
+#ifdef JELLYBEAN
 	/* configure xtal oscillator for external clock input signal */
 	CGU_XTAL_OSC_CTRL |= CGU_XTAL_OSC_CTRL_BYPASS;
+#endif
 
 	/* set xtal oscillator to low frequency mode */
 	CGU_XTAL_OSC_CTRL &= ~CGU_XTAL_OSC_CTRL_HF;
