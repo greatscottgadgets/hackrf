@@ -28,8 +28,6 @@
 #include <libopencm3/lpc43xx/scu.h>
 #include <libopencm3/lpc43xx/ssp.h>
 
-#ifdef JELLYBEAN
-
 void delay(uint32_t duration)
 {
 	uint32_t i;
@@ -51,6 +49,19 @@ void cpu_clock_init(void)
 	si5351c_configure_pll_sources_for_xtal();
 	si5351c_configure_pll1_multisynth();
 
+#ifdef JELLYBEAN
+	/*
+	 * Jellybean/Lemondrop clocks:
+	 *   CLK0 -> MAX2837
+	 *   CLK1 -> MAX5864/CPLD
+	 *   CLK2 -> CPLD
+	 *   CLK3 -> CPLD
+	 *   CLK4 -> LPC4330
+	 *   CLK5 -> RFFC5072
+	 *   CLK6 -> extra
+	 *   CLK7 -> extra
+	 */
+
 	/* MS0/CLK0 is the source for the MAX2837 clock input. */
 	si5351c_configure_multisynth(0, 2048, 0, 1, 0); /* 40MHz */
 
@@ -68,6 +79,42 @@ void cpu_clock_init(void)
 
 	/* MS5/CLK5 is the source for the RFFC5071 mixer. */
 	si5351c_configure_multisynth(5, 1536, 0, 1, 0); /* 50MHz */
+#endif
+
+#ifdef JAWBREAKER
+	/*
+	 * Jawbreaker clocks:
+	 *   CLK0 -> MAX5864/CPLD
+	 *   CLK1 -> CPLD
+	 *   CLK2 -> SGPIO
+	 *   CLK3 -> external clock output
+	 *   CLK4 -> RFFC5072
+	 *   CLK5 -> MAX2837
+	 *   CLK6 -> none
+	 *   CLK7 -> LPC4330 (but LPC4330 starts up on its own crystal)
+	 */
+
+	/* MS0/CLK0 is the source for the MAX5864/CPLD (CODEC_CLK). */
+	si5351c_configure_multisynth(0, 4608, 0, 1, 1); /* 10MHz */
+
+	/* MS0/CLK1 is the source for the CPLD (CODEC_X2_CLK). */
+	si5351c_configure_multisynth(1, 4608, 0, 1, 0); /* 20MHz */
+
+	/* MS0/CLK2 is the source for SGPIO (CODEC_X2_CLK) */
+	si5351c_configure_multisynth(2, 4608, 0, 1, 0); /* 20MHz */
+
+	/* MS0/CLK3 is the source for the external clock output. */
+	si5351c_configure_multisynth(3, 4608, 0, 1, 0); /* 20MHz */
+
+	/* MS4/CLK4 is the source for the RFFC5071 mixer. */
+	si5351c_configure_multisynth(4, 1536, 0, 1, 0); /* 50MHz */
+
+	/* MS5/CLK5 is the source for the MAX2837 clock input. */
+	si5351c_configure_multisynth(5, 2048, 0, 1, 0); /* 40MHz */
+
+	/* MS7/CLK7 is the source for the LPC43xx microcontroller. */
+	//si5351c_configure_multisynth(7, 8021, 0, 3, 0); /* 12MHz */
+#endif
 
 	si5351c_configure_clock_control();
 	si5351c_enable_clock_outputs();
@@ -75,14 +122,18 @@ void cpu_clock_init(void)
 	//FIXME disable I2C
 
 	/*
-	 * 12MHz clock is entering LPC XTAL1/OSC input now.
+	 * 12MHz clock is entering LPC XTAL1/OSC input now.  On
+	 * Jellybean/Lemondrop, this is a signal from the clock generator.  On
+	 * Jawbreaker, there is a 12 MHz crystal at the LPC.
 	 * Set up PLL1 to run from XTAL1 input.
 	 */
 
 	//FIXME a lot of the details here should be in a CGU driver
 
+#ifdef JELLYBEAN
 	/* configure xtal oscillator for external clock input signal */
 	CGU_XTAL_OSC_CTRL |= CGU_XTAL_OSC_CTRL_BYPASS;
+#endif
 
 	/* set xtal oscillator to low frequency mode */
 	CGU_XTAL_OSC_CTRL &= ~CGU_XTAL_OSC_CTRL_HF;
@@ -203,56 +254,3 @@ void ssp1_set_mode_max5864(void)
 		SSP_MASTER,
 		SSP_SLAVE_OUT_ENABLE);
 }
-
-void pin_setup(void) {
-	/* Release CPLD JTAG pins */
-	scu_pinmux(SCU_PINMUX_CPLD_TDO, SCU_GPIO_NOPULL | SCU_CONF_FUNCTION4);
-	scu_pinmux(SCU_PINMUX_CPLD_TCK, SCU_GPIO_NOPULL | SCU_CONF_FUNCTION0);
-	scu_pinmux(SCU_PINMUX_CPLD_TMS, SCU_GPIO_NOPULL | SCU_CONF_FUNCTION0);
-	scu_pinmux(SCU_PINMUX_CPLD_TDI, SCU_GPIO_NOPULL | SCU_CONF_FUNCTION0);
-
-	GPIO_DIR(PORT_CPLD_TDO) &= ~PIN_CPLD_TDO;
-	GPIO_DIR(PORT_CPLD_TCK) &= ~PIN_CPLD_TCK;
-	GPIO_DIR(PORT_CPLD_TMS) &= ~PIN_CPLD_TMS;
-	GPIO_DIR(PORT_CPLD_TDI) &= ~PIN_CPLD_TDI;
-
-	/* Configure SCU Pin Mux as GPIO */
-	scu_pinmux(SCU_PINMUX_LED1, SCU_GPIO_FAST);
-	scu_pinmux(SCU_PINMUX_LED2, SCU_GPIO_FAST);
-	scu_pinmux(SCU_PINMUX_LED3, SCU_GPIO_FAST);
-
-	scu_pinmux(SCU_PINMUX_EN1V8, SCU_GPIO_FAST);
-
-	scu_pinmux(SCU_PINMUX_BOOT0, SCU_GPIO_FAST);
-	scu_pinmux(SCU_PINMUX_BOOT1, SCU_GPIO_FAST);
-	scu_pinmux(SCU_PINMUX_BOOT2, SCU_GPIO_FAST);
-	scu_pinmux(SCU_PINMUX_BOOT3, SCU_GPIO_FAST);
-
-	/* Configure all GPIO as Input (safe state) */
-	GPIO0_DIR = 0;
-	GPIO1_DIR = 0;
-	GPIO2_DIR = 0;
-	GPIO3_DIR = 0;
-	GPIO4_DIR = 0;
-	GPIO5_DIR = 0;
-	GPIO6_DIR = 0;
-	GPIO7_DIR = 0;
-
-	/* Configure GPIO2[1/2/8] (P4_1/2 P6_12) as output. */
-	GPIO2_DIR |= (PIN_LED1 | PIN_LED2 | PIN_LED3);
-
-	/* GPIO3[6] on P6_10  as output. */
-	GPIO3_DIR |= PIN_EN1V8;
-
-	/* Configure SSP1 Peripheral (to be moved later in SSP driver) */
-	scu_pinmux(SCU_SSP1_MISO, (SCU_SSP_IO | SCU_CONF_FUNCTION5));
-	scu_pinmux(SCU_SSP1_MOSI, (SCU_SSP_IO | SCU_CONF_FUNCTION5));
-	scu_pinmux(SCU_SSP1_SCK, (SCU_SSP_IO | SCU_CONF_FUNCTION1));
-	scu_pinmux(SCU_SSP1_SSEL, (SCU_SSP_IO | SCU_CONF_FUNCTION1));
-}
-
-void enable_1v8_power(void) {
-	gpio_set(PORT_EN1V8, PIN_EN1V8);
-}
-
-#endif
