@@ -15,159 +15,16 @@
 
 #define ATTR_ALIGNED(x)	__attribute__ ((aligned(x)))
 #define __DATA(x) __attribute__ ((section("x")))
-/*
-#define REGISTER_START(register_name) \
-	#define REGISTER_FIELD_NAME(x) register_name##_x \
-	typedef enum {
-#define REGISTER_BIT(name, ordinal) \
-	REGISTER_FIELD_NAME(name##_bit) = ordinal, \
-	REGISTER_FIELD_NAME(name) = (1 << ordinal),
-#define REGISTER_END(x) \
-	} register_name_bit_t; \
-	#undef REGISTER_NAME
-*/
-	
-typedef enum {
-	RESET_CTRL0_USB0_RST_bit = 17,
-} RESET_CTRL0_bit_t;
-
-//REGISTER_START(RESET_CTRL0)
-//	REGISTER_BIT(USB0_RST, 17)
-//REGISTER_END(RESET_CTRL0)
-
-typedef enum {
-	CREG_CREG0_USB0PHY_bit = 5,
-} CREG_CREG0_bit_t;
-
-typedef enum {
-	USB0_USBCMD_D_RS_bit = 0,
-	USB0_USBCMD_D_RS = 1 << USB0_USBCMD_D_RS_bit,
-	
-	USB0_USBCMD_D_RST_bit = 1,
-	USB0_USBCMD_D_RST = 1 << USB0_USBCMD_D_RST_bit,
-	
-	USB0_USBCMD_D_ITC_base = 16,
-	USB0_USBCMD_D_ITC_width = 8,
-	USB0_USBCMD_D_ITC_mask = ((1 << USB0_USBCMD_D_ITC_width) - 1) << 
-	                         USB0_USBCMD_D_ITC_base,
-} USB0_USBCMD_D_bit_t;
-
-typedef enum {
-	USB0_USBSTS_UI_bit = 0,
-	USB0_USBSTS_UI = 1 << USB0_USBSTS_UI_bit,
-	
-	USB0_USBSTS_UEI_bit = 1,
-	USB0_USBSTS_UEI = 1 << USB0_USBSTS_UEI_bit,
-	
-	USB0_USBSTS_PCI_bit = 2,
-	USB0_USBSTS_PCI = 1 << USB0_USBSTS_PCI_bit,
-	
-	USB0_USBSTS_AAI_bit = 5,
-	USB0_USBSTS_AAI = 1 << USB0_USBSTS_AAI_bit,
-	
-	USB0_USBSTS_URI_bit = 6,
-	USB0_USBSTS_URI = 1 << USB0_USBSTS_URI_bit,
-	
-	USB0_USBSTS_SRI_bit = 7,
-	USB0_USBSTS_SRI = 1 << USB0_USBSTS_SRI_bit,
-	
-	USB0_USBSTS_SLI_bit = 8,
-	USB0_USBSTS_SLI = 1 << USB0_USBSTS_SLI_bit,
-	
-	USB0_USBSTS_NAKI_bit = 16,
-	USB0_USBSTS_NAKI = 1 << USB0_USBSTS_NAKI_bit,
-} USB0_USBSTS_bit_t;
-
-typedef enum {
-	USB0_USBINTR_D_UE_bit = 0,
-	USB0_USBINTR_D_UE = 1 << USB0_USBINTR_D_UE_bit,
-	
-	USB0_USBINTR_D_UEE_bit = 1,
-	USB0_USBINTR_D_UEE = 1 << USB0_USBINTR_D_UEE_bit,
-	
-	USB0_USBINTR_D_PCE_bit = 2,
-	USB0_USBINTR_D_PCE = 1 << USB0_USBINTR_D_PCE_bit,
-	
-	USB0_USBINTR_D_URE_bit = 6,
-	USB0_USBINTR_D_URE = 1 << USB0_USBINTR_D_URE_bit,
-	
-	USB0_USBINTR_D_SRE_bit = 7,
-	USB0_USBINTR_D_SRE = 1 << USB0_USBINTR_D_SRE_bit,
-	
-	USB0_USBINTR_D_SLE_bit = 8,
-	USB0_USBINTR_D_SLE = 1 << USB0_USBINTR_D_SLE_bit,
-	
-	USB0_USBINTR_D_NAKE_bit = 16,
-	USB0_USBINTR_D_NAKE = 1 << USB0_USBINTR_D_NAKE_bit,
-} USB0_USBINTR_D_bit_t;
-	
-typedef enum {
-	USB0_USBMODE_D_CM_base = 0,
-	USB0_USBMODE_D_SLOM_bit = 3,
-	USB0_USBMODE_D_SLOM = 1 << USB0_USBMODE_D_SLOM_bit,
-} USB0_USBMODE_D_bit_t;
-
-typedef enum {
-	USB0_ENDPTCTRL0_RXS_bit = 0,
-	USB0_ENDPTCTRL0_RXS = 1 << USB0_ENDPTCTRL0_RXS_bit,
-	
-	USB0_ENDPTCTRL0_RXT_base = 2,
-	
-	USB0_ENDPTCTRL0_RXE_bit = 7,
-	USB0_ENDPTCTRL0_RXE = 1 << USB0_ENDPTCTRL0_RXE_bit,
-	
-	USB0_ENDPTCTRL0_TXS_bit = 16,
-	USB0_ENDPTCTRL0_TXS = 1 << USB0_ENDPTCTRL0_TXS_bit,
-	
-	USB0_ENDPTCTRL0_TXT_base = 18,
-	USB0_ENDPTCTRL0_TXT_width = 2,
-	USB0_ENDPTCTRL0_TXT_mask = ((1 << USB0_ENDPTCTRL0_TXT_width) - 1) << 
-							   USB0_ENDPTCTRL0_TXT_base,
-	
-	USB0_ENDPTCTRL0_TXE_bit = 23,
-	USB0_ENDPTCTRL0_TXE = 1 << USB0_ENDPTCTRL0_TXE_bit,
-} USB0_ENDPTCTRL0_bit_t;
-
-typedef enum {
-	
-	USB0_ENDPTCTRL_RXS_bit = 0,
-	USB0_ENDPTCTRL_RXS = 1 << USB0_ENDPTCTRL_RXS_bit,
-	
-	USB0_ENDPTCTRL_RXT_base = 2,
-	USB0_ENDPTCTRL_RXT_width = 2,
-	USB0_ENDPTCTRL_RXT_mask = ((1 << USB0_ENDPTCTRL_RXT_width) - 1) << 
-							  USB0_ENDPTCTRL_RXT_base,
-	
-	USB0_ENDPTCTRL_RXI_bit = 5,
-	USB0_ENDPTCTRL_RXI = 1 << USB0_ENDPTCTRL_RXI_bit,
-	
-	USB0_ENDPTCTRL_RXR_bit = 6,
-	USB0_ENDPTCTRL_RXR = 1 << USB0_ENDPTCTRL_RXR_bit,
-	
-	USB0_ENDPTCTRL_RXE_bit = 7,
-	USB0_ENDPTCTRL_RXE = 1 << USB0_ENDPTCTRL_RXE_bit,
-	
-	USB0_ENDPTCTRL_TXS_bit = 16,
-	USB0_ENDPTCTRL_TXS = 1 << USB0_ENDPTCTRL_TXS_bit,
-	
-	USB0_ENDPTCTRL_TXT_base = 18,
-	USB0_ENDPTCTRL_TXT_width = 2,
-	USB0_ENDPTCTRL_TXT_mask = ((1 << USB0_ENDPTCTRL_TXT_width) - 1) << 
-							  USB0_ENDPTCTRL_TXT_base,
-	
-	USB0_ENDPTCTRL_TXE_bit = 23,
-	USB0_ENDPTCTRL_TXE = 1 << USB0_ENDPTCTRL_TXE_bit,
-} USB0_ENDPTCTRL_bit_t;
 
 void usb_reset_peripheral() {
-	RESET_CTRL0 = (1 << RESET_CTRL0_USB0_RST_bit);
+	RESET_CTRL0 = RESET_CTRL0_USB0_RST;
 	RESET_CTRL0 = 0;
 	
-	while( (RESET_ACTIVE_STATUS0 & (1 << RESET_CTRL0_USB0_RST_bit)) == 0 );
+	while( (RESET_ACTIVE_STATUS0 & RESET_CTRL0_USB0_RST) == 0 );
 }
 
 void usb_enable_phy() {
-	peripheral_bitband_clear(&CREG_CREG0, CREG_CREG0_USB0PHY_bit);
+	peripheral_bitband_clear(&CREG_CREG0, CREG_CREG0_USB0PHY_SHIFT);
 }
 
 void usb_wait_for_endpoint_priming_to_finish() {
@@ -185,11 +42,11 @@ void usb_flush_all_primed_endpoints() {
 }
 
 void usb_stop_controller() {
-    peripheral_bitband_clear(&USB0_USBCMD_D, USB0_USBCMD_D_RS_bit);
+    peripheral_bitband_clear(&USB0_USBCMD_D, USB0_USBCMD_D_RS_SHIFT);
 }
 
 void usb_run_controller() {
-    peripheral_bitband_set(&USB0_USBCMD_D, USB0_USBCMD_D_RS_bit);
+    peripheral_bitband_set(&USB0_USBCMD_D, USB0_USBCMD_D_RS_SHIFT);
 }
 
 uint_fast8_t usb_controller_is_resetting() {
@@ -279,13 +136,13 @@ void usb_init() {
 	usb_enable_phy();
 	usb_reset_controller();
 	USB0_USBMODE_D =
-		(1 << USB0_USBMODE_D_SLOM_bit) |
-		(2 << USB0_USBMODE_D_CM_base);
+		USB0_USBMODE_D_SLOM |
+		USB0_USBMODE_D_CM1_0(2);
 
 	nvic_enable_irq(NVIC_M4_USB0_IRQ);
 
 	// Set interrupt threshold interval to 0
-	USB0_USBCMD_D &= ~(USB0_USBCMD_D_ITC_mask);
+	USB0_USBCMD_D &= ~(USB0_USBCMD_D_ITC_MASK);
 
 	USB0_ENDPOINTLISTADDR = (uint32_t)&queue_head;
 	for(uint_fast8_t i=0; i<2; i++) {
@@ -319,11 +176,11 @@ int main(void) {
 	enable_1v8_power();
 	cpu_clock_init();
 
-	CGU_BASE_PERIPH_CLK = (CGU_BASE_CLK_AUTOBLOCK
-			| (CGU_SRC_PLL1 << CGU_BASE_CLK_SEL_SHIFT));
+	CGU_BASE_PERIPH_CLK = CGU_BASE_PERIPH_CLK_AUTOBLOCK
+			| CGU_BASE_PERIPH_CLK_CLK_SEL(CGU_SRC_PLL1);
 
-	CGU_BASE_APB1_CLK = (CGU_BASE_CLK_AUTOBLOCK
-			| (CGU_SRC_PLL1 << CGU_BASE_CLK_SEL_SHIFT));
+	CGU_BASE_APB1_CLK = CGU_BASE_APB1_CLK_AUTOBLOCK
+			| CGU_BASE_APB1_CLK_CLK_SEL(CGU_SRC_PLL1);
 
 	usb_reset_peripheral();
 
