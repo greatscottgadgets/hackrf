@@ -149,23 +149,12 @@ void cpu_clock_init(void)
 			| CGU_BASE_APB1_CLK_CLK_SEL(CGU_SRC_XTAL);
 
 	/* use XTAL_OSC as clock source for PLL1 */
-	CGU_PLL1_CTRL = (CGU_PLL1_CTRL_AUTOBLOCK
-			| (CGU_SRC_XTAL << CGU_PLL1_CTRL_CLK_SEL_SHIFT));
-
-	/* configure PLL1 to produce 204 MHz clock from 12 MHz XTAL_OSC */
-	/* not sure why, but it doesn't work without the following line */
-	CGU_PLL1_CTRL &= ~(CGU_PLL1_CTRL_BYPASS
-			| CGU_PLL1_CTRL_FBSEL
-			| CGU_PLL1_CTRL_DIRECT
-			| CGU_PLL1_CTRL_DIRECT
-			| (0x3 << CGU_PLL1_CTRL_PSEL_SHIFT)
-			| (0x3 << CGU_PLL1_CTRL_NSEL_SHIFT)
-			| (0xFF << CGU_PLL1_CTRL_MSEL_SHIFT));
-	CGU_PLL1_CTRL |= (CGU_PLL1_CTRL_FBSEL
-			| CGU_PLL1_CTRL_DIRECT
-			| (0 << CGU_PLL1_CTRL_PSEL_SHIFT)
-			| (0 << CGU_PLL1_CTRL_NSEL_SHIFT)
-			| (16 << CGU_PLL1_CTRL_MSEL_SHIFT));
+	/* Start PLL1 at 12MHz * 17 / 2 = 102MHz. */
+	CGU_PLL1_CTRL = CGU_PLL1_CTRL_CLK_SEL(CGU_SRC_XTAL)
+            | CGU_PLL1_CTRL_PSEL(1)
+            | CGU_PLL1_CTRL_NSEL(0)
+            | CGU_PLL1_CTRL_MSEL(16)
+            | CGU_PLL1_CTRL_PD;
 
 	/* power on PLL1 and wait until stable */
 	CGU_PLL1_CTRL &= ~CGU_PLL1_CTRL_PD;
@@ -173,6 +162,15 @@ void cpu_clock_init(void)
 
 	/* use PLL1 as clock source for BASE_M4_CLK (CPU) */
 	CGU_BASE_M4_CLK = CGU_BASE_M4_CLK_CLK_SEL(CGU_SRC_PLL1);
+
+	/* Move PLL1 up to 12MHz * 17 = 204MHz. */
+	CGU_PLL1_CTRL = CGU_PLL1_CTRL_CLK_SEL(CGU_SRC_XTAL)
+            | CGU_PLL1_CTRL_PSEL(0)
+            | CGU_PLL1_CTRL_NSEL(0)
+			| CGU_PLL1_CTRL_MSEL(16);
+
+	/* wait until stable */
+	while (!(CGU_PLL1_STAT & CGU_PLL1_STAT_LOCK));
 
 	/* use XTAL_OSC as clock source for PLL0USB */
 	CGU_PLL0USB_CTRL = CGU_PLL0USB_CTRL_PD
