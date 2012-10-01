@@ -1,4 +1,4 @@
-EESchema Schematic File Version 2  date Sat Sep 22 23:30:21 2012
+EESchema Schematic File Version 2  date Sun Sep 30 11:39:49 2012
 LIBS:power
 LIBS:device
 LIBS:transistors
@@ -36,11 +36,11 @@ EELAYER END
 $Descr User 17000 11000
 encoding utf-8
 Sheet 2 4
-Title ""
+Title "jawbreaker frontend"
 Date "23 sep 2012"
 Rev ""
-Comp ""
-Comment1 ""
+Comp "Copyright 2012 Michael Ossmann"
+Comment1 "License: GPL v2"
 Comment2 ""
 Comment3 ""
 Comment4 ""
