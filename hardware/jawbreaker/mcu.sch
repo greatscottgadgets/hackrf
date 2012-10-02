@@ -1,4 +1,4 @@
-EESchema Schematic File Version 2  date Tue Oct  2 15:01:30 2012
+EESchema Schematic File Version 2  date Tue Oct  2 15:08:35 2012
 LIBS:power
 LIBS:device
 LIBS:transistors
@@ -1371,7 +1371,6 @@ F 1 "10k" V 2800 9150 50  0000 C CNN
 F 4 "Stackpole" H 2800 9150 60  0001 C CNN "Manufacturer"
 F 5 "RMCF0402JT10K0" H 2800 9150 60  0001 C CNN "Part Number"
 F 6 "RES 10K OHM 1/16W 5% 0402 SMD" H 2800 9150 60  0001 C CNN "Description"
-F 7 "DNP" V 2700 9350 60  0000 C CNN "Note"
 	1    2800 9150
 	0    1    1    0   
 $EndComp
@@ -1965,6 +1964,7 @@ F 1 "10k" V 2800 9350 50  0000 C CNN
 F 4 "Stackpole" H 2800 9350 60  0001 C CNN "Manufacturer"
 F 5 "RMCF0402JT10K0" H 2800 9350 60  0001 C CNN "Part Number"
 F 6 "RES 10K OHM 1/16W 5% 0402 SMD" H 2800 9350 60  0001 C CNN "Description"
+F 7 "DNP" V 2900 9150 60  0000 C CNN "Note"
 	1    2800 9350
 	0    -1   1    0   
 $EndComp
