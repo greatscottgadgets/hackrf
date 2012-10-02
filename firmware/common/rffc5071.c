@@ -107,7 +107,7 @@ void rffc5071_setup(void)
 #if !defined TEST
 	/* Configure GPIO pins. */
 	scu_pinmux(SCU_MIXER_ENX, SCU_GPIO_FAST);
-	scu_pinmux(SCU_MIXER_SCLK, SCU_GPIO_FAST);
+	scu_pinmux(SCU_MIXER_SCLK, SCU_GPIO_FAST | SCU_CONF_FUNCTION4);
 	scu_pinmux(SCU_MIXER_SDATA, SCU_GPIO_FAST);
 	scu_pinmux(SCU_MIXER_RESETX, SCU_GPIO_FAST);
 
