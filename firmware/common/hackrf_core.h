@@ -79,7 +79,12 @@ extern "C"
 #define SCU_PINMUX_SGPIO5   (P6_6)
 #define SCU_PINMUX_SGPIO6   (P2_2)
 #define SCU_PINMUX_SGPIO7   (P1_0)
+#ifdef JELLYBEAN
 #define SCU_PINMUX_SGPIO8   (P1_12)
+#endif
+#ifdef JAWBREAKER
+#define SCU_PINMUX_SGPIO8   (P9_6)
+#endif
 #define SCU_PINMUX_SGPIO9   (P4_3)
 #define SCU_PINMUX_SGPIO10  (P1_14)
 #define SCU_PINMUX_SGPIO11  (P1_17)
