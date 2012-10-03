@@ -374,7 +374,7 @@ void rffc5071_tx(uint8_t gpo) {
 	set_RFFC5071_MODE(1); /* mixer 2 used for both RX and TX */
 #ifdef JAWBREAKER
 	/* honor SWITCHCTRL_AMP_BYPASS and SWITCHCTRL_HP settings from caller */
-	gpo &= (SWITCHCTRL_AMP_BYPASS | SWITCHCTRL_HP);
+	gpo &= (SWITCHCTRL_AMP_BYPASS | SWITCHCTRL_HP | SWITCHCTRL_MIX_BYPASS);
 	if ((gpo & SWITCHCTRL_AMP_BYPASS) == SWITCHCTRL_AMP_BYPASS)
 		gpo |= SWITCHCTRL_NO_TX_AMP_PWR;
 	gpo |= (SWITCHCTRL_TX | SWITCHCTRL_NO_RX_AMP_PWR);
@@ -398,7 +398,7 @@ void rffc5071_rx(uint8_t gpo) {
 	set_RFFC5071_MODE(1); /* mixer 2 used for both RX and TX */
 #ifdef JAWBREAKER
 	/* honor SWITCHCTRL_AMP_BYPASS and SWITCHCTRL_HP settings from caller */
-	gpo &= (SWITCHCTRL_AMP_BYPASS | SWITCHCTRL_HP);
+	gpo &= (SWITCHCTRL_AMP_BYPASS | SWITCHCTRL_HP | SWITCHCTRL_MIX_BYPASS);
 	if ((gpo & SWITCHCTRL_AMP_BYPASS) == SWITCHCTRL_AMP_BYPASS)
 		gpo |= SWITCHCTRL_NO_RX_AMP_PWR;
 	gpo |= SWITCHCTRL_NO_TX_AMP_PWR;
