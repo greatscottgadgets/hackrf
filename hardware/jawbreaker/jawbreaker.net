@@ -1,4 +1,4 @@
-# EESchema Netlist Version 1.1 created  Wed Sep 19 09:57:13 2012
+# EESchema Netlist Version 1.1 created  Tue Oct  2 15:01:35 2012
 (
  ( /503BB638/5054932E $noname  C53 1uF {Lib=C}
   (    1 VAA )
@@ -1185,6 +1185,18 @@
   (    1 VAA )
   (    2 GND )
  )
+ ( /5037043E/506B55A7 $noname  R65 10k {Lib=R}
+  (    1 N-000147 )
+  (    2 GND )
+ )
+ ( /5037043E/506B54E9 $noname  R62 0 {Lib=R}
+  (    1 /mcu/usb/power/VBUS )
+  (    2 N-000147 )
+ )
+ ( /5037043E/505E9E4C $noname  C125 33pF {Lib=C}
+  (    1 /mcu/usb/power/REG_OUT2 )
+  (    2 N-000034 )
+ )
  ( /5037043E/5052A211 $noname  C158 18pF {Lib=C}
   (    1 /mcu/usb/power/XTAL2 )
   (    2 GND )
@@ -1198,7 +1210,7 @@
   (    2 /mcu/usb/power/REG_OUT2 )
  )
  ( /5037043E/5047CDF2 $noname  P35 GCK0 {Lib=CONN_1}
-  (    1 N-000014 )
+  (    1 N-000013 )
  )
  ( /5037043E/5047BC2F $noname  R60 0 {Lib=R-SHORTED}
   (    1 VCC )
@@ -1221,34 +1233,34 @@
   (    2 /mcu/usb/power/BOOT1 )
  )
  ( /5037043E/50457418 $noname  P11 CTIN_2 {Lib=CONN_1}
-  (    1 N-000019 )
+  (    1 N-000081 )
  )
  ( /5037043E/5045740A $noname  P7 CTIN_4 {Lib=CONN_1}
-  (    1 N-000026 )
- )
- ( /5037043E/504573FD $noname  P9 CTOUT_4 {Lib=CONN_1}
-  (    1 N-000079 )
- )
- ( /5037043E/504573E2 $noname  P10 CTOUT_2 {Lib=CONN_1}
-  (    1 N-000080 )
- )
- ( /5037043E/504573A0 $noname  P6 TRACECLK {Lib=CONN_1}
-  (    1 N-000082 )
- )
- ( /5037043E/50457385 $noname  P5 WAKEUP {Lib=CONN_1}
   (    1 N-000029 )
  )
+ ( /5037043E/504573FD $noname  P9 CTOUT_4 {Lib=CONN_1}
+  (    1 N-000082 )
+ )
+ ( /5037043E/504573E2 $noname  P10 CTOUT_2 {Lib=CONN_1}
+  (    1 N-000083 )
+ )
+ ( /5037043E/504573A0 $noname  P6 TRACECLK {Lib=CONN_1}
+  (    1 N-000085 )
+ )
+ ( /5037043E/50457385 $noname  P5 WAKEUP {Lib=CONN_1}
+  (    1 N-000032 )
+ )
  ( /5037043E/5045736F $noname  P24 TRST {Lib=CONN_1}
-  (    1 N-000035 )
+  (    1 N-000039 )
  )
  ( /5037043E/5045734C $noname  P23 DBGEN {Lib=CONN_1}
   (    1 /mcu/usb/power/DBGEN )
  )
  ( /5037043E/50457304 $noname  P13 U3_TXD {Lib=CONN_1}
-  (    1 N-000083 )
+  (    1 N-000080 )
  )
  ( /5037043E/504572EF $noname  P12 U3_RXD {Lib=CONN_1}
-  (    1 N-000084 )
+  (    1 N-000086 )
  )
  ( /5037043E/504571A2 $noname  P30 BANK2_AUX {Lib=CONN_8X2}
   (    1 /mcu/usb/power/B2AUX1 )
@@ -1314,7 +1326,7 @@
  )
  ( /5037043E/503F9D27 $noname  R58 0 {Lib=R}
   (    1 /mcu/usb/power/DM )
-  (    2 N-000131 )
+  (    2 N-000130 )
  )
  ( /5037043E/503F9D26 $noname  R57 0 {Lib=R}
   (    1 /mcu/usb/power/DP )
@@ -1330,10 +1342,10 @@
  )
  ( /5037043E/503F9A07 $noname  R52 10k {Lib=R}
   (    1 /mcu/usb/power/VBUS )
-  (    2 N-000034 )
+  (    2 N-000025 )
  )
  ( /5037043E/503F99F3 $noname  R51 10k {Lib=R}
-  (    1 N-000135 )
+  (    1 N-000136 )
   (    2 /mcu/usb/power/VREGMODE )
  )
  ( /5037043E/503F999F $noname  R49 10k {Lib=R}
@@ -1342,7 +1354,7 @@
  )
  ( /5037043E/503F9989 $noname  R48 10k {Lib=R}
   (    1 VCC )
-  (    2 N-000029 )
+  (    2 N-000032 )
  )
  ( /5037043E/503F997B $noname  R66 10k {Lib=R}
   (    1 VCC )
@@ -1432,40 +1444,36 @@
   (    1 /mcu/usb/power/SGPIO9 )
   (    2 /mcu/usb/power/BANK2F3M1 )
  )
- ( /5037043E/503F91B4 $noname  C125 22pF {Lib=C}
-  (    1 /mcu/usb/power/REG_OUT2 )
-  (    2 N-000137 )
- )
  ( /5037043E/503F8429 $noname  R46 162k {Lib=R}
   (    1 GND )
-  (    2 N-000137 )
+  (    2 N-000034 )
  )
  ( /5037043E/503C51B5 $noname  R71 470 {Lib=R}
   (    1 GND )
-  (    2 N-000008 )
+  (    2 N-000011 )
  )
  ( /5037043E/503C51AC $noname  R70 470 {Lib=R}
   (    1 GND )
-  (    2 N-000057 )
+  (    2 N-000056 )
  )
  ( /5037043E/503C51AA $noname  R76 470 {Lib=R}
-  (    1 N-000058 )
+  (    1 N-000057 )
   (    2 /mcu/usb/power/EN1V8 )
  )
  ( /5037043E/503C51A8 $noname  R75 470 {Lib=R}
-  (    1 N-000039 )
+  (    1 N-000009 )
   (    2 VCC )
  )
  ( /5037043E/503C51A6 $noname  R74 470 {Lib=R}
-  (    1 N-000059 )
+  (    1 N-000058 )
   (    2 /mcu/usb/power/LED3 )
  )
  ( /5037043E/503C51A4 $noname  R73 470 {Lib=R}
-  (    1 N-000038 )
+  (    1 N-000023 )
   (    2 /mcu/usb/power/LED2 )
  )
  ( /5037043E/503C519A $noname  R72 470 {Lib=R}
-  (    1 N-000037 )
+  (    1 N-000040 )
   (    2 /mcu/usb/power/LED1 )
  )
  ( /5037043E/503C4ECA $noname  R67 10k {Lib=R}
@@ -1592,7 +1600,7 @@
  )
  ( /5037043E/4F87ACCD $noname  D3 USBLED0 {Lib=LED}
   (    1 /mcu/usb/power/USB0_IND0 )
-  (    2 N-000008 )
+  (    2 N-000011 )
  )
  ( /5037043E/4F6291FC $noname  U23 LPC43XXFBD144 {Lib=LPC43XXFBD144}
   (    1 ? )
@@ -1615,7 +1623,7 @@
   (   18 /mcu/usb/power/DP )
   (   19 GND )
   (   20 /mcu/usb/power/DM )
-  (   21 N-000148 )
+  (   21 N-000147 )
   (   22 ? )
   (   23 GND )
   (   24 /mcu/usb/power/RREF )
@@ -1623,7 +1631,7 @@
   (   26 /mcu/usb/power/TDI )
   (   27 /mcu/usb/power/TCK )
   (   28 /mcu/usb/power/DBGEN )
-  (   29 N-000035 )
+  (   29 N-000039 )
   (   30 /mcu/usb/power/TMS )
   (   31 /mcu/usb/power/TDO )
   (   32 /mcu/usb/power/SGPIO0 )
@@ -1681,11 +1689,11 @@
   (   84 /mcu/usb/power/SGPIO6 )
   (   85 /mcu/usb/power/USB0_IND1 )
   (   86 /mcu/usb/power/USB0_IND0 )
-  (   87 N-000083 )
-  (   88 N-000084 )
+  (   87 N-000080 )
+  (   88 N-000086 )
   (   89 ? )
   (   90 ? )
-  (   91 N-000019 )
+  (   91 N-000081 )
   (   92 SCL )
   (   93 SDA )
   (   94 VCC )
@@ -1698,11 +1706,11 @@
   (  101 /mcu/usb/power/VREGMODE )
   (  102 /mcu/usb/power/BOOT3 )
   (  103 /mcu/usb/power/LED3 )
-  (  104 N-000080 )
+  (  104 N-000083 )
   (  105 ? )
-  (  106 N-000079 )
+  (  106 N-000082 )
   (  107 VCC )
-  (  108 N-000026 )
+  (  108 N-000029 )
   (  109 GND )
   (  110 /mcu/usb/power/GPIO3_8 )
   (  111 VCC )
@@ -1714,7 +1722,7 @@
   (  117 /mcu/usb/power/GPIO3_11 )
   (  118 /mcu/usb/power/SPIFI_SCK )
   (  119 /mcu/usb/power/SPIFI_SIO3 )
-  (  120 N-000082 )
+  (  120 N-000085 )
   (  121 /mcu/usb/power/SPIFI_SIO2 )
   (  122 /mcu/usb/power/SPIFI_MISO )
   (  123 /mcu/usb/power/SPIFI_MOSI )
@@ -1724,7 +1732,7 @@
   (  127 VCC )
   (  128 /mcu/usb/power/RESET )
   (  129 ? )
-  (  130 N-000029 )
+  (  130 N-000032 )
   (  131 VCC )
   (  132 /mcu/usb/power/GPIO3_12 )
   (  133 /mcu/usb/power/GPIO3_13 )
@@ -1740,37 +1748,29 @@
   (  143 /mcu/usb/power/ADC0_2 )
   (  144 /mcu/usb/power/ADC0_5 )
  )
- ( /5037043E/4F83C495 $noname  R65 33k {Lib=R}
-  (    1 N-000148 )
-  (    2 GND )
- )
- ( /5037043E/4F83C48F $noname  R62 15k {Lib=R}
-  (    1 /mcu/usb/power/VBUS )
-  (    2 N-000148 )
- )
  ( /5037043E/4F83C276 $noname  D5 LED2 {Lib=LED}
-  (    1 N-000038 )
+  (    1 N-000023 )
   (    2 GND )
  )
  ( /5037043E/4F83C1E0 $noname  D8 1V8LED {Lib=LED}
-  (    1 N-000058 )
+  (    1 N-000057 )
   (    2 GND )
  )
  ( /5037043E/4F83C1DF $noname  D4 LED1 {Lib=LED}
-  (    1 N-000037 )
+  (    1 N-000040 )
   (    2 GND )
  )
  ( /5037043E/4F83C1D6 $noname  D7 VCCLED {Lib=LED}
-  (    1 N-000039 )
+  (    1 N-000009 )
   (    2 GND )
  )
  ( /5037043E/4F83C1A7 $noname  D6 LED3 {Lib=LED}
-  (    1 N-000059 )
+  (    1 N-000058 )
   (    2 GND )
  )
  ( /5037043E/4F83B14A $noname  D2 USBLED1 {Lib=LED}
   (    1 /mcu/usb/power/USB0_IND1 )
-  (    2 N-000057 )
+  (    2 N-000056 )
  )
  ( /5037043E/4F83821B $noname  P21 ANALOG {Lib=CONN_4X2}
   (    1 GND )
@@ -1858,30 +1858,30 @@
  )
  ( /5037043E/4F8249E7 $noname  L11 4u7 {Lib=INDUCTOR}
   (    1 /mcu/usb/power/REG_OUT1 )
-  (    2 N-000031 )
+  (    2 N-000033 )
  )
  ( /5037043E/4F8215A4 $noname  R50 DNP {Lib=R}
   (    1 VCC )
-  (    2 N-000135 )
+  (    2 N-000136 )
  )
  ( /5037043E/4F821250 $noname  R53 DNP {Lib=R}
-  (    1 N-000135 )
+  (    1 N-000136 )
   (    2 GND )
  )
  ( /5037043E/4F8203D0 $noname  R55 162k {Lib=R}
   (    1 GND )
-  (    2 N-000138 )
+  (    2 N-000139 )
  )
  ( /5037043E/4F8203AD $noname  R47 330k {Lib=R}
   (    1 /mcu/usb/power/REG_OUT2 )
-  (    2 N-000137 )
+  (    2 N-000034 )
  )
  ( /5037043E/4F8203A7 $noname  R56 715k {Lib=R}
   (    1 /mcu/usb/power/REG_OUT1 )
-  (    2 N-000138 )
+  (    2 N-000139 )
  )
  ( /5037043E/4F820301 $noname  L10 4u7 {Lib=INDUCTOR}
-  (    1 N-000136 )
+  (    1 N-000138 )
   (    2 /mcu/usb/power/REG_OUT2 )
  )
  ( /5037043E/4F820298 $noname  C143 10uF {Lib=C}
@@ -1890,16 +1890,16 @@
  )
  ( /5037043E/4F8201BF $noname  U21 TPS62410 {Lib=TPS62410}
   (    0 GND )
-  (    1 N-000137 )
-  (    2 N-000135 )
+  (    1 N-000034 )
+  (    2 N-000136 )
   (    3 /mcu/usb/power/VBUS )
   (    4 VCC )
-  (    5 N-000138 )
-  (    6 N-000031 )
-  (    7 N-000034 )
+  (    5 N-000139 )
+  (    6 N-000033 )
+  (    7 N-000025 )
   (    8 GND )
   (    9 /mcu/usb/power/EN1V8 )
-  (   10 N-000136 )
+  (   10 N-000138 )
  )
  ( /5037043E/4F7A3924 $noname  U24 GSG-XC2C64A-7VQG100C {Lib=GSG-XC2C64A-7VQG100C}
   (    1 /mcu/usb/power/B2AUX12 )
@@ -1923,7 +1923,7 @@
   (   19 DD7 )
   (   20 ? )
   (   21 GND )
-  (   22 N-000014 )
+  (   22 N-000013 )
   (   23 GCK1 )
   (   24 DD6 )
   (   25 ? )
@@ -2004,11 +2004,11 @@
   (  100 GND )
  )
  ( /5037043E/4F766F5E $noname  FB1 FILTER {Lib=FILTER}
-  (    1 N-000161 )
+  (    1 N-000162 )
   (    2 /mcu/usb/power/VBUS )
  )
  ( /5037043E/4F766D4B $noname  U22 GSG-IP4220CZ6 {Lib=GSG-IP4220CZ6}
-  (    1 N-000131 )
+  (    1 N-000130 )
   (    2 GND )
   (    3 N-000036 )
   (    4 ? )
@@ -2016,8 +2016,8 @@
   (    6 ? )
  )
  ( /5037043E/4F766BDF $noname  J1 GSG-USB-MICRO-B {Lib=GSG-USB-MICRO-B}
-  (    1 N-000161 )
-  (    2 N-000131 )
+  (    1 N-000162 )
+  (    2 N-000130 )
   (    3 N-000036 )
   (    4 ? )
   (    5 GND )
@@ -2991,6 +2991,23 @@ $component C84
  C?
  C1-1
 $endlist
+$component R65
+ R?
+ SM0603
+ SM0805
+ R?-*
+$endlist
+$component R62
+ R?
+ SM0603
+ SM0805
+ R?-*
+$endlist
+$component C125
+ SM*
+ C?
+ C1-1
+$endlist
 $component C158
  SM*
  C?
@@ -3206,11 +3223,6 @@ $component R77
  SM0805
  R?-*
 $endlist
-$component C125
- SM*
- C?
- C1-1
-$endlist
 $component R46
  R?
  SM0603
@@ -3415,18 +3427,6 @@ $component D3
  LED-1206
  LEDV
 $endlist
-$component R65
- R?
- SM0603
- SM0805
- R?-*
-$endlist
-$component R62
- R?
- SM0603
- SM0805
- R?-*
-$endlist
 $component D5
  LED-3MM
  LED-5MM
@@ -3545,895 +3545,895 @@ $endlist
 $endfootprintlist
 }
 { Pin List by Nets
-Net 1 "/mcu/usb/power/I2S0_TX_SCK" "I2S0_TX_SCK"
- P22 4
- U23 112
-Net 2 "MIXER_RESETX" "MIXER_RESETX"
- C34 1
- R5 2
- U23 58
- U4 29
-Net 3 "/mcu/usb/power/GPIO3_13" "GPIO3_13"
- U23 133
- P20 6
-Net 4 "/mcu/usb/power/GPIO3_14" "GPIO3_14"
- U23 134
- P20 7
-Net 5 "/mcu/usb/power/I2S0_TX_WS" "I2S0_TX_WS"
- U23 114
- P22 3
-Net 6 "/mcu/usb/power/B2AUX11" "B2AUX11"
- U24 2
- P30 11
-Net 7 "/mcu/usb/power/B2AUX15" "B2AUX15"
- P30 15
- U24 94
-Net 8 "" ""
- R71 2
- D3 2
-Net 9 "/mcu/usb/power/B2AUX14" "B2AUX14"
- U24 97
- P30 14
-Net 10 "/mcu/usb/power/SGPIO4" "SGPIO4"
- U23 79
- R98 1
-Net 11 "MCU_CLK" "MCU_CLK"
- U19 15
+Net 1 "MCU_CLK" "MCU_CLK"
  C155 1
-Net 12 "SCL" "SCL"
- U23 92
+ U19 15
+Net 2 "SCL" "SCL"
  P37 1
+ U23 92
  U19 4
  R28 2
-Net 13 "GND" "GND"
- C66 1
- C63 2
- C161 2
- C160 2
- U25 5
- J2 2
- U24 62
- U25 2
- U13 4
- U24 21
- U24 31
- U21 0
- C143 2
- U25 4
- U13 2
- U18 42
- U18 12
- U13 1
- U25 1
- U4 12
- U10 3
- U2 3
- U9 0
- U21 8
- R55 1
- C69 2
- C41 2
- C162 1
- D1 1
- C70 2
- C39 1
- C49 1
- C25 2
- C22 1
- C163 1
- R85 2
- R92 2
- C40 1
- U1 3
- C65 1
- C38 1
- U6 3
- U11 3
- D5 2
- D8 2
- D4 2
- U24 69
- D7 2
- D6 2
- P26 9
+Net 3 "VCC" "VCC"
+ C2 1
+ C1 1
+ U23 137
+ U23 127
+ U23 107
+ R67 2
+ R75 2
+ C138 1
+ C139 1
+ P34 1
+ C113 1
+ P32 1
+ C140 1
+ C141 1
+ P27 1
+ P33 1
+ U24 98
+ R42 1
+ FB2 1
+ P28 2
+ U16 14
+ P22 1
+ R27 1
+ P29 6
+ U24 5
+ U19 20
+ U24 88
+ R45 1
+ C69 1
+ R50 1
+ R28 1
+ U4 19
+ U20 8
+ C134 1
+ R6 1
+ C135 1
+ C133 1
+ C136 1
+ C68 1
+ C137 1
+ U23 94
+ C149 1
+ C148 1
+ C88 1
+ U21 4
+ P26 1
+ C128 1
+ C129 1
+ C130 1
+ R5 1
+ C131 1
+ C132 1
+ R35 1
+ U23 131
+ U23 111
+ U23 41
+ U23 71
+ U23 59
+ L13 1
+ R39 1
+ U23 77
+ U23 25
+ U15 1
+ U23 5
+ U23 17
+ R43 1
+ R7 1
+ R60 1
+ U23 36
+ R37 1
+ U23 16
+ R33 1
+ R31 1
+ P8 1
+ U17 20
+ U23 141
+ R49 1
+ R48 1
+ R59 1
+ R63 2
+ R104 1
+ U15 13
+ C150 1
+ C142 1
+ U15 14
+ R105 1
+ R66 1
+ C144 1
+ R64 2
+Net 4 "MIXER_RESETX" "MIXER_RESETX"
+ U23 58
+ C34 1
+ R5 2
+ U4 29
+Net 5 "/mcu/usb/power/GPIO3_13" "GPIO3_13"
+ P20 6
+ U23 133
+Net 6 "/mcu/usb/power/GPIO3_14" "GPIO3_14"
+ U23 134
+ P20 7
+Net 7 "/mcu/usb/power/I2S0_TX_SCK" "I2S0_TX_SCK"
+ P22 4
+ U23 112
+Net 8 "/mcu/usb/power/I2S0_TX_WS" "I2S0_TX_WS"
+ U23 114
+ P22 3
+Net 9 "" ""
+ R75 1
+ D7 1
+Net 10 "/mcu/usb/power/LED2" "LED2"
+ U23 8
+ R73 2
+Net 11 "" ""
+ R71 2
+ D3 2
+Net 12 "/mcu/usb/power/SGPIO4" "SGPIO4"
+ U23 79
+ R98 1
+Net 13 "" ""
+ U24 22
+ P35 1
+Net 14 "MIXER_SCLK" "MIXER_SCLK"
+ C36 1
+ U23 95
+ U4 31
+Net 15 "MIXER_SDATA" "MIXER_SDATA"
+ U4 32
+ U23 80
+ C37 1
+Net 16 "MIXER_ENX" "MIXER_ENX"
+ C35 1
+ R6 2
+ U4 30
+ U23 57
+Net 17 "/mcu/usb/power/XTAL2" "XTAL2"
+ C158 1
+ X2 3
+ U23 13
+Net 18 "/mcu/usb/power/B2AUX11" "B2AUX11"
+ U24 2
+ P30 11
+Net 19 "/mcu/usb/power/B2AUX15" "B2AUX15"
+ P30 15
+ U24 94
+Net 20 "/mcu/usb/power/B2AUX14" "B2AUX14"
+ U24 97
+ P30 14
+Net 21 "/mcu/usb/power/B2AUX10" "B2AUX10"
+ U24 3
+ P30 10
+Net 22 "/mcu/usb/power/BOOT0" "BOOT0"
+ P27 2
+ R67 1
+ R40 1
+ U23 42
+Net 23 "" ""
+ R73 1
+ D5 1
+Net 24 "/mcu/usb/power/BOOT2" "BOOT2"
+ R82 1
+ P32 2
+ U23 98
+ R7 2
+Net 25 "" ""
+ U21 7
+ R52 2
+Net 26 "/mcu/usb/power/BANK2F3M5" "BANK2F3M5"
+ R81 2
+ U24 79
+Net 27 "/mcu/usb/power/BANK2F3M3" "BANK2F3M3"
+ U24 89
+ R79 2
+Net 28 "/mcu/usb/power/VREGMODE" "VREGMODE"
+ R51 2
+ U23 101
+Net 29 "" ""
+ P7 1
+ U23 108
+Net 30 "/mcu/usb/power/LED3" "LED3"
+ R74 2
+ U23 103
+Net 31 "/mcu/usb/power/GPIO3_11" "GPIO3_11"
+ U23 117
+ P20 4
+Net 32 "" ""
+ P5 1
+ R48 2
+ U23 130
+Net 33 "" ""
+ L11 2
+ U21 6
+Net 34 "" ""
+ R47 2
+ R46 2
+ C125 2
+ U21 1
+Net 35 "/mcu/usb/power/EN1V8" "EN1V8"
+ R76 2
+ U21 9
+ R54 2
+ U23 100
+Net 36 "" ""
+ R57 2
+ J1 3
+ U22 3
+Net 37 "/mcu/usb/power/GPIO3_10" "GPIO3_10"
+ P20 3
+ U23 115
+Net 38 "/mcu/usb/power/ADC0_2" "ADC0_2"
+ U23 143
+ P21 4
+Net 39 "" ""
+ P24 1
+ U23 29
+Net 40 "" ""
+ D4 1
+ R72 1
+Net 41 "/mcu/usb/power/B1AUX12" "B1AUX12"
+ P31 4
+ U24 53
+Net 42 "/mcu/usb/power/CPLD_TCK" "CPLD_TCK"
+ U23 74
+ P29 4
+ U24 48
+Net 43 "/mcu/usb/power/CPLD_TMS" "CPLD_TMS"
+ U23 78
+ P29 1
+ U24 47
+Net 44 "CS_AD" "CS_AD"
+ U23 65
+ U18 36
+Net 45 "RXENABLE" "RXENABLE"
+ U17 48
+ U23 10
+Net 46 "/mcu/usb/power/GP_CLKIN" "GP_CLKIN"
+ C156 1
+ U23 14
+ C155 2
+Net 47 "/mcu/usb/power/B1AUX10" "B1AUX10"
+ P31 2
+ U24 50
+Net 48 "/mcu/usb/power/B1AUX14" "B1AUX14"
+ P31 6
+ U24 56
+Net 49 "/mcu/usb/power/B1AUX16" "B1AUX16"
+ U24 60
+ P31 8
+Net 50 "/mcu/usb/power/B2AUX2" "B2AUX2"
+ U24 12
+ P30 2
+Net 51 "/mcu/usb/power/B2AUX4" "B2AUX4"
+ U24 10
+ P30 4
+Net 52 "/mcu/usb/power/B2AUX6" "B2AUX6"
+ U24 8
+ P30 6
+Net 53 "/mcu/usb/power/ISP" "ISP"
+ U23 96
+ P25 2
+ R59 2
+Net 54 "RF_LDO_ENABLE" "RF_LDO_ENABLE"
+ U23 37
+ U26 3
+Net 55 "GND" "GND"
+ U18 17
+ U13 5
+ U18 0
+ C84 2
+ T4 2
+ U18 37
+ U18 5
+ U18 7
+ C116 2
+ C106 2
+ P21 7
+ P28 1
+ X2 4
+ X2 2
+ P20 9
+ C157 2
+ P21 5
+ P21 3
+ P21 1
  U23 135
  U23 109
- U24 84
- P21 1
- P21 3
- P21 5
- U24 100
- T4 5
- T3 5
- C53 2
- C98 2
- R65 2
- T3 2
- C139 2
- C152 2
- C153 2
- C154 2
- C144 2
- C142 2
- C141 2
- C140 2
- U23 76
- C138 2
- C137 2
- C157 2
- C131 2
- C132 2
- C130 2
- C133 2
- C134 2
- C136 2
- C135 2
- C129 2
- C128 2
- C147 2
- C149 2
- C150 2
- C151 2
  P20 10
- U23 23
- P26 3
- J1 5
- P20 9
- U22 2
- P25 1
- P26 5
+ C134 2
+ C147 2
+ C128 2
+ C129 2
+ C130 2
+ C138 2
+ C132 2
+ C133 2
+ C135 2
+ C136 2
+ C137 2
+ C131 2
+ U23 76
  U23 19
- X2 2
- X2 4
- U23 4
- U23 40
- P28 1
- P21 7
- U18 17
- P29 5
- U18 37
- C126 2
- C84 2
- C145 1
- C146 1
- U18 0
- R53 2
- U18 7
- U18 5
- U13 5
- C52 2
- R69 2
- U14 0
- U12 0
- U4 0
- U19 0
- C100 2
+ C153 2
+ C139 2
+ C140 2
+ C141 2
+ C142 2
+ C144 2
+ C154 2
+ C152 2
+ C151 2
+ C150 2
+ C149 2
+ C148 2
+ C156 2
  C97 2
- U20 4
- C106 2
- C116 2
- T4 2
- C127 2
- C80 2
- C82 2
- C124 2
+ C100 2
+ T4 5
+ U4 0
+ U12 0
+ U14 0
+ C52 2
+ D6 2
+ D7 2
+ D4 2
+ D8 2
+ D5 2
+ T3 2
+ U19 0
+ C98 2
+ C53 2
+ T3 5
+ P4 2
  C85 2
- C78 2
- P3 1
- P3 2
  C86 2
  C94 2
  U8 4
+ U16 0
+ C124 2
+ P4 3
+ P4 4
+ P4 5
+ C4 2
+ C2 2
+ C1 2
+ U3 2
+ R18 2
+ C108 2
+ C109 2
+ C110 2
  C30 2
  C90 2
  C3 2
- U3 2
  U3 3
  U8 2
  C105 2
  C74 2
  C76 2
+ C78 2
+ C80 2
+ C82 2
+ C56 2
+ C7 1
+ C47 1
+ C45 1
+ C10 1
+ C13 2
+ C24 1
+ C42 2
+ C107 2
+ C54 2
+ C12 2
  P17 1
- P4 3
- P4 4
- P4 5
- C4 2
- C159 1
- C2 2
- C1 2
+ U15 0
+ C68 2
+ C5 2
+ C6 2
+ R4 1
+ U15 7
+ U17 0
+ U17 2
+ R41 1
  C87 2
- P16 5
- P16 4
- U16 0
- P16 3
- P16 2
  U17 26
- P4 2
+ P16 2
+ P16 3
+ P16 4
+ P16 5
  P2 5
- R71 1
- R70 1
+ U26 2
+ C159 1
  P2 4
- C71 2
- C113 2
- R93 2
- U16 7
- C36 2
+ P2 3
  P2 2
- C93 2
- C35 2
- C156 2
- C119 2
  C72 2
- C148 2
+ U17 22
+ C117 2
+ C119 2
  C120 2
  C121 2
- C158 2
- C92 2
- R15 2
- P33 3
- C37 2
- P27 3
- R16 2
- R17 2
  C122 2
- P32 3
- P34 3
- U15 0
- R14 2
- P2 3
- R68 2
- C91 2
- R82 2
- R46 1
- P31 10
- X1 4
- C34 2
- X1 2
- P22 6
- R19 2
- P31 9
- C107 2
- R18 2
- C108 2
- C109 2
- C110 2
- C77 2
- C89 2
  C123 2
  C73 2
  C75 2
- R54 1
+ U16 7
+ C77 2
  C79 2
  C81 2
- C88 2
  C83 2
- U5 3
- R4 1
- R84 2
- C19 1
- U15 7
- C33 2
- C11 1
- C68 2
- C29 2
+ R19 2
+ C91 2
+ X1 2
+ C34 2
+ X1 4
+ C88 2
+ C89 2
+ C92 2
+ C35 2
+ C93 2
+ C36 2
+ R14 2
+ R15 2
+ C37 2
+ R16 2
+ R17 2
+ C71 2
+ C113 2
+ U25 5
+ J2 2
+ C38 1
+ C65 1
+ U13 4
+ U25 2
+ U25 1
+ U13 1
+ U18 12
+ U18 42
+ U13 2
+ U2 3
+ C161 2
+ C160 2
+ C66 1
+ C63 2
+ U9 0
+ U4 12
+ U10 3
+ U25 4
  C57 2
  C55 2
  C60 1
  C16 2
- C117 2
- C6 2
+ C22 1
+ C25 2
+ C49 1
+ C11 1
+ R84 2
+ U5 3
+ C19 1
+ C33 2
  U7 3
- U17 22
+ C29 2
+ P26 3
+ C70 2
+ D1 1
+ U1 3
+ C40 1
+ R92 2
+ R85 2
+ U11 3
+ U6 3
+ C163 1
+ C162 1
+ C41 2
+ C69 2
+ C39 1
+ U21 8
+ R55 1
+ C143 2
+ U21 0
+ R53 2
+ U20 4
+ C127 2
+ R69 2
+ U24 31
+ U24 62
+ U24 21
+ P29 5
+ C146 1
+ C145 1
+ C126 2
+ P27 3
+ P34 3
+ R54 1
+ R93 2
+ R82 2
+ P33 3
+ P32 3
+ R46 1
+ R71 1
+ R70 1
+ R68 2
+ P3 2
+ P31 9
+ C158 2
+ P31 10
+ R65 2
+ P22 6
  R40 2
- C5 2
- R41 1
- C12 2
- C13 2
- C7 1
- C47 1
- C45 1
- C42 2
- C54 2
- U17 0
- U26 2
- C56 2
- C24 1
- U17 2
- C10 1
-Net 14 "" ""
- P35 1
- U24 22
-Net 15 "MIXER_SDATA" "MIXER_SDATA"
- U4 32
- C37 1
- U23 80
-Net 16 "MIXER_SCLK" "MIXER_SCLK"
- U4 31
- U23 95
- C36 1
-Net 17 "MIXER_ENX" "MIXER_ENX"
- U23 57
- R6 2
- U4 30
- C35 1
-Net 18 "/mcu/usb/power/BOOT0" "BOOT0"
- P27 2
- R40 1
- R67 1
- U23 42
-Net 19 "" ""
- P11 1
- U23 91
-Net 20 "/mcu/usb/power/B2AUX10" "B2AUX10"
- P30 10
- U24 3
-Net 21 "/mcu/usb/power/BOOT2" "BOOT2"
- R82 1
- U23 98
- R7 2
- P32 2
-Net 22 "/mcu/usb/power/BANK2F3M7" "BANK2F3M7"
- R87 2
- U24 77
-Net 23 "/mcu/usb/power/BANK2F3M5" "BANK2F3M5"
- R81 2
- U24 79
-Net 24 "/mcu/usb/power/BANK2F3M3" "BANK2F3M3"
- R79 2
- U24 89
-Net 25 "/mcu/usb/power/VREGMODE" "VREGMODE"
- R51 2
- U23 101
-Net 26 "" ""
- U23 108
- P7 1
-Net 27 "/mcu/usb/power/LED3" "LED3"
- R74 2
- U23 103
-Net 28 "/mcu/usb/power/GPIO3_11" "GPIO3_11"
- U23 117
- P20 4
-Net 29 "" ""
- U23 130
- P5 1
- R48 2
-Net 30 "/mcu/usb/power/CPLD_TCK" "CPLD_TCK"
- U24 48
- U23 74
- P29 4
-Net 31 "" ""
- L11 2
- U21 6
-Net 32 "/mcu/usb/power/CPLD_TMS" "CPLD_TMS"
- P29 1
- U23 78
- U24 47
-Net 33 "/mcu/usb/power/EN1V8" "EN1V8"
- R76 2
- U21 9
- R54 2
- U23 100
-Net 34 "" ""
- U21 7
- R52 2
-Net 35 "" ""
- P24 1
- U23 29
-Net 36 "" ""
- R57 2
- J1 3
- U22 3
-Net 37 "" ""
- R72 1
- D4 1
-Net 38 "" ""
- R73 1
- D5 1
-Net 39 "" ""
- D7 1
- R75 1
-Net 40 "/mcu/usb/power/LED2" "LED2"
- U23 8
- R73 2
-Net 41 "CS_AD" "CS_AD"
- U23 65
- U18 36
-Net 42 "RXENABLE" "RXENABLE"
- U17 48
- U23 10
-Net 43 "/mcu/usb/power/GP_CLKIN" "GP_CLKIN"
- C155 2
- C156 1
- U23 14
-Net 44 "/mcu/usb/power/B1AUX10" "B1AUX10"
- P31 2
- U24 50
-Net 45 "/mcu/usb/power/B1AUX12" "B1AUX12"
- P31 4
- U24 53
-Net 46 "/mcu/usb/power/B1AUX14" "B1AUX14"
- P31 6
- U24 56
-Net 47 "/mcu/usb/power/B1AUX16" "B1AUX16"
- P31 8
- U24 60
-Net 48 "/mcu/usb/power/B2AUX2" "B2AUX2"
- U24 12
- P30 2
-Net 49 "/mcu/usb/power/B2AUX4" "B2AUX4"
- U24 10
- P30 4
-Net 50 "/mcu/usb/power/B2AUX6" "B2AUX6"
- U24 8
- P30 6
-Net 51 "/mcu/usb/power/GPIO3_10" "GPIO3_10"
- P20 3
- U23 115
-Net 52 "/mcu/usb/power/ADC0_2" "ADC0_2"
- U23 143
- P21 4
-Net 53 "/mcu/usb/power/ISP" "ISP"
- R59 2
- U23 96
- P25 2
-Net 54 "/mcu/usb/power/SGPIO6" "SGPIO6"
+ P3 1
+ P26 9
+ U23 4
+ P26 5
+ U24 84
+ U22 2
+ U24 69
+ U23 40
+ U23 23
+ J1 5
+ P25 1
+ U24 100
+Net 56 "" ""
+ D2 2
+ R70 2
+Net 57 "" ""
+ D8 1
+ R76 1
+Net 58 "" ""
+ R74 1
+ D6 1
+Net 59 "/mcu/usb/power/SGPIO3" "SGPIO3"
+ U23 64
+ R90 1
+Net 60 "/mcu/usb/power/SGPIO6" "SGPIO6"
  R100 1
  U23 84
-Net 55 "/mcu/usb/power/SGPIO5" "SGPIO5"
- R99 1
+Net 61 "/mcu/usb/power/SGPIO5" "SGPIO5"
  U23 83
-Net 56 "VCC" "VCC"
- R33 1
- C150 1
- C142 1
- L13 1
- C128 1
- R37 1
- R39 1
- C144 1
- C129 1
- C130 1
- P28 2
- C138 1
- U17 20
- R35 1
- C136 1
- C137 1
- R31 1
- C139 1
- C140 1
- C141 1
- U23 5
- C1 1
- C2 1
- U16 14
- U4 19
- FB2 1
- C69 1
- R45 1
- R28 1
- R6 1
- U19 20
- R5 1
- C88 1
- U23 137
- U23 127
- U23 107
- C68 1
- C113 1
- U15 13
- U15 1
- R104 1
- U15 14
- R105 1
- R27 1
- U21 4
- U23 25
- U23 94
- R50 1
- C149 1
- P26 1
- U24 98
- U24 88
- U20 8
- R49 1
- P33 1
- R63 2
- R64 2
- R59 1
- R66 1
- U23 59
- R48 1
- P27 1
- C131 1
- U23 111
- U23 131
- U23 141
- U23 71
- P32 1
- P34 1
- U23 41
- R75 2
- P22 1
- R67 2
- C148 1
- U24 5
- P29 6
- R7 1
- U23 77
- P8 1
- R60 1
- C135 1
- C134 1
- C133 1
- C132 1
- U23 17
- U23 16
- U23 36
- R42 1
- R43 1
-Net 57 "" ""
- R70 2
- D2 2
-Net 58 "" ""
- R76 1
- D8 1
-Net 59 "" ""
- D6 1
- R74 1
-Net 60 "/mcu/usb/power/SGPIO7" "SGPIO7"
- U23 38
- R87 1
-Net 61 "SGPIO_CLK" "SGPIO_CLK"
+ R99 1
+Net 62 "SGPIO_CLK" "SGPIO_CLK"
  R97 1
  U23 72
  U19 9
-Net 62 "/mcu/usb/power/SGPIO12" "SGPIO12"
+Net 63 "/mcu/usb/power/SGPIO12" "SGPIO12"
  R96 1
  U23 67
-Net 63 "/mcu/usb/power/SGPIO11" "SGPIO11"
- R91 1
+Net 64 "/mcu/usb/power/SGPIO11" "SGPIO11"
  U23 66
-Net 64 "/mcu/usb/power/SGPIO3" "SGPIO3"
- R90 1
- U23 64
+ R91 1
 Net 65 "/mcu/usb/power/SGPIO2" "SGPIO2"
  U23 62
  R89 1
 Net 66 "/mcu/usb/power/SGPIO10" "SGPIO10"
  R88 1
  U23 61
-Net 67 "/mcu/usb/power/SGPIO15" "SGPIO15"
- U23 35
+Net 67 "/mcu/usb/power/SGPIO7" "SGPIO7"
+ R87 1
+ U23 38
+Net 68 "/mcu/usb/power/SGPIO15" "SGPIO15"
  R86 1
-Net 68 "/mcu/usb/power/SGPIO1" "SGPIO1"
- R81 1
+ U23 35
+Net 69 "/mcu/usb/power/SGPIO1" "SGPIO1"
  U23 34
-Net 69 "/mcu/usb/power/SGPIO14" "SGPIO14"
+ R81 1
+Net 70 "/mcu/usb/power/SGPIO14" "SGPIO14"
  R80 1
  U23 33
-Net 70 "/mcu/usb/power/B1AUX9" "B1AUX9"
- P31 1
- U24 49
-Net 71 "/mcu/usb/power/I2S0_TX_SDA" "I2S0_TX_SDA"
- P22 2
- U23 116
-Net 72 "/mcu/usb/power/I2S0_TX_MCLK" "I2S0_TX_MCLK"
- P22 5
- U23 99
-Net 73 "/mcu/usb/power/BANK2F3M16" "BANK2F3M16"
- U24 61
- R100 2
-Net 74 "/mcu/usb/power/BANK2F3M15" "BANK2F3M15"
- R99 2
- U24 64
-Net 75 "/mcu/usb/power/BANK2F3M14" "BANK2F3M14"
- U24 67
- R98 2
-Net 76 "/mcu/usb/power/BANK2F3M13" "BANK2F3M13"
- R97 2
- U24 68
-Net 77 "/mcu/usb/power/BANK2F3M12" "BANK2F3M12"
- U24 70
- R96 2
-Net 78 "/mcu/usb/power/BANK2F3M11" "BANK2F3M11"
- R91 2
- U24 71
-Net 79 "" ""
- P9 1
- U23 106
-Net 80 "" ""
- P10 1
- U23 104
-Net 82 "" ""
- U23 120
- P6 1
-Net 83 "" ""
- U23 87
- P13 1
-Net 84 "" ""
- U23 88
- P12 1
-Net 85 "/mcu/usb/power/B2AUX8" "B2AUX8"
- P30 8
- U24 6
-Net 86 "/mcu/usb/power/B2AUX9" "B2AUX9"
- U24 4
- P30 9
-Net 87 "/mcu/usb/power/B2AUX12" "B2AUX12"
- P30 12
- U24 1
-Net 88 "/mcu/usb/power/B2AUX13" "B2AUX13"
+Net 71 "/mcu/usb/power/B2AUX13" "B2AUX13"
  P30 13
  U24 99
-Net 89 "/mcu/usb/power/B2AUX16" "B2AUX16"
+Net 72 "/mcu/usb/power/B2AUX16" "B2AUX16"
  U24 92
  P30 16
-Net 90 "DD0" "DD0"
- U24 34
- U18 23
-Net 91 "DD1" "DD1"
- U18 24
- U24 33
-Net 92 "DD2" "DD2"
- U18 25
- U24 32
-Net 93 "DD3" "DD3"
- U18 26
- U24 30
-Net 94 "DD4" "DD4"
- U18 27
- U24 29
-Net 95 "DD5" "DD5"
- U24 28
- U18 28
-Net 96 "DD6" "DD6"
- U24 24
- U18 29
-Net 97 "DD7" "DD7"
+Net 73 "/mcu/usb/power/B1AUX9" "B1AUX9"
+ U24 49
+ P31 1
+Net 74 "/mcu/usb/power/B2AUX12" "B2AUX12"
+ U24 1
+ P30 12
+Net 75 "/mcu/usb/power/I2S0_TX_SDA" "I2S0_TX_SDA"
+ P22 2
+ U23 116
+Net 76 "/mcu/usb/power/I2S0_TX_MCLK" "I2S0_TX_MCLK"
+ U23 99
+ P22 5
+Net 77 "/mcu/usb/power/BANK2F3M16" "BANK2F3M16"
+ R100 2
+ U24 61
+Net 78 "/mcu/usb/power/BANK2F3M15" "BANK2F3M15"
+ R99 2
+ U24 64
+Net 79 "/mcu/usb/power/BANK2F3M14" "BANK2F3M14"
+ R98 2
+ U24 67
+Net 80 "" ""
+ P13 1
+ U23 87
+Net 81 "" ""
+ P11 1
+ U23 91
+Net 82 "" ""
+ U23 106
+ P9 1
+Net 83 "" ""
+ U23 104
+ P10 1
+Net 85 "" ""
+ P6 1
+ U23 120
+Net 86 "" ""
+ P12 1
+ U23 88
+Net 87 "/mcu/usb/power/B2AUX8" "B2AUX8"
+ P30 8
+ U24 6
+Net 88 "/mcu/usb/power/B2AUX9" "B2AUX9"
+ P30 9
+ U24 4
+Net 89 "DD7" "DD7"
  U24 19
  U18 30
-Net 98 "DD8" "DD8"
- U18 31
- U24 18
-Net 99 "DD9" "DD9"
- U24 17
- U18 32
-Net 100 "DA7" "DA7"
- U24 35
- U18 22
-Net 101 "/mcu/usb/power/GPIO3_8" "GPIO3_8"
- P20 1
- U23 110
-Net 102 "RF_LDO_ENABLE" "RF_LDO_ENABLE"
- U23 37
- U26 3
-Net 103 "/mcu/usb/power/BANK2F3M4" "BANK2F3M4"
- U24 81
- R80 2
-Net 104 "/mcu/usb/power/BANK2F3M10" "BANK2F3M10"
- R90 2
- U24 72
-Net 105 "/mcu/usb/power/BANK2F3M9" "BANK2F3M9"
- R89 2
- U24 74
-Net 106 "/mcu/usb/power/BANK2F3M8" "BANK2F3M8"
- R88 2
- U24 76
-Net 107 "/mcu/usb/power/BANK2F3M6" "BANK2F3M6"
- R86 2
- U24 78
-Net 108 "/mcu/usb/power/BANK2F3M2" "BANK2F3M2"
- R78 2
- U24 90
-Net 109 "/mcu/usb/power/BANK2F3M1" "BANK2F3M1"
- U24 91
- R77 2
-Net 110 "DA0" "DA0"
- U18 13
- U24 43
-Net 111 "DA1" "DA1"
- U24 42
- U18 14
-Net 112 "DA2" "DA2"
- U24 41
+Net 90 "DA2" "DA2"
  U18 15
-Net 113 "DA3" "DA3"
- U24 40
+ U24 41
+Net 91 "DA3" "DA3"
  U18 16
-Net 114 "DA4" "DA4"
+ U24 40
+Net 92 "DA4" "DA4"
  U24 39
  U18 19
-Net 115 "DA5" "DA5"
- U18 20
+Net 93 "DA5" "DA5"
  U24 37
-Net 116 "DA6" "DA6"
- U18 21
+ U18 20
+Net 94 "DA6" "DA6"
  U24 36
-Net 117 "/mcu/usb/power/B2AUX5" "B2AUX5"
- U24 9
- P30 5
-Net 118 "/mcu/usb/power/B2AUX3" "B2AUX3"
- P30 3
- U24 11
-Net 119 "/mcu/usb/power/B2AUX1" "B2AUX1"
- P30 1
- U24 13
-Net 120 "/mcu/usb/power/B1AUX15" "B1AUX15"
- U24 58
- P31 7
-Net 121 "/mcu/usb/power/B1AUX13" "B1AUX13"
- U24 55
- P31 5
-Net 122 "/mcu/usb/power/B1AUX11" "B1AUX11"
- P31 3
- U24 52
-Net 123 "TXENABLE" "TXENABLE"
- U17 47
- U23 9
-Net 124 "XCVR_EN" "XCVR_EN"
- U17 25
- U23 11
- R41 2
-Net 125 "CS_XCVR" "CS_XCVR"
- U23 70
- U17 30
-Net 126 "/mcu/usb/power/B2AUX7" "B2AUX7"
+ U18 21
+Net 95 "DA7" "DA7"
+ U24 35
+ U18 22
+Net 96 "DD0" "DD0"
+ U18 23
+ U24 34
+Net 97 "DD1" "DD1"
+ U24 33
+ U18 24
+Net 98 "DD2" "DD2"
+ U18 25
+ U24 32
+Net 99 "DD3" "DD3"
+ U24 30
+ U18 26
+Net 100 "DD4" "DD4"
+ U18 27
+ U24 29
+Net 101 "DD5" "DD5"
+ U24 28
+ U18 28
+Net 102 "DD6" "DD6"
+ U18 29
+ U24 24
+Net 103 "DA1" "DA1"
+ U24 42
+ U18 14
+Net 104 "DD8" "DD8"
+ U18 31
+ U24 18
+Net 105 "DD9" "DD9"
+ U18 32
+ U24 17
+Net 106 "/mcu/usb/power/GPIO3_8" "GPIO3_8"
+ U23 110
+ P20 1
+Net 107 "/mcu/usb/power/BANK2F3M7" "BANK2F3M7"
+ U24 77
+ R87 2
+Net 108 "/mcu/usb/power/BANK2F3M13" "BANK2F3M13"
+ U24 68
+ R97 2
+Net 109 "/mcu/usb/power/BANK2F3M12" "BANK2F3M12"
+ R96 2
+ U24 70
+Net 110 "/mcu/usb/power/BANK2F3M11" "BANK2F3M11"
+ R91 2
+ U24 71
+Net 111 "/mcu/usb/power/BANK2F3M10" "BANK2F3M10"
+ R90 2
+ U24 72
+Net 112 "/mcu/usb/power/BANK2F3M9" "BANK2F3M9"
+ R89 2
+ U24 74
+Net 113 "/mcu/usb/power/BANK2F3M8" "BANK2F3M8"
+ R88 2
+ U24 76
+Net 114 "/mcu/usb/power/BANK2F3M6" "BANK2F3M6"
+ R86 2
+ U24 78
+Net 115 "/mcu/usb/power/BANK2F3M4" "BANK2F3M4"
+ U24 81
+ R80 2
+Net 116 "/mcu/usb/power/BANK2F3M2" "BANK2F3M2"
+ U24 90
+ R78 2
+Net 117 "/mcu/usb/power/BANK2F3M1" "BANK2F3M1"
+ R77 2
+ U24 91
+Net 118 "DA0" "DA0"
+ U18 13
+ U24 43
+Net 119 "/mcu/usb/power/B2AUX7" "B2AUX7"
  P30 7
  U24 7
-Net 127 "/mcu/usb/power/CPLD_TDO" "CPLD_TDO"
- P29 3
+Net 120 "/mcu/usb/power/B2AUX5" "B2AUX5"
+ P30 5
+ U24 9
+Net 121 "/mcu/usb/power/B2AUX3" "B2AUX3"
+ P30 3
+ U24 11
+Net 122 "/mcu/usb/power/B2AUX1" "B2AUX1"
+ P30 1
+ U24 13
+Net 123 "/mcu/usb/power/B1AUX15" "B1AUX15"
+ U24 58
+ P31 7
+Net 124 "/mcu/usb/power/B1AUX13" "B1AUX13"
+ U24 55
+ P31 5
+Net 125 "/mcu/usb/power/B1AUX11" "B1AUX11"
+ U24 52
+ P31 3
+Net 126 "TXENABLE" "TXENABLE"
+ U17 47
+ U23 9
+Net 127 "XCVR_EN" "XCVR_EN"
+ R41 2
+ U17 25
+ U23 11
+Net 128 "CS_XCVR" "CS_XCVR"
+ U23 70
+ U17 30
+Net 129 "/mcu/usb/power/CPLD_TDO" "CPLD_TDO"
  U23 69
+ P29 3
  U24 83
-Net 128 "/mcu/usb/power/RESET" "RESET"
- P25 6
- R49 2
- P26 10
- U23 128
-Net 129 "/mcu/usb/power/CPLD_TDI" "CPLD_TDI"
- P29 2
- U24 45
- U23 82
-Net 130 "/mcu/usb/power/ADC0_6" "ADC0_6"
- P21 2
- U23 142
-Net 131 "" ""
+Net 130 "" ""
+ R58 2
  U22 1
  J1 2
- R58 2
-Net 132 "/mcu/usb/power/ADC0_5" "ADC0_5"
- U23 144
+Net 131 "/mcu/usb/power/ADC0_5" "ADC0_5"
  P21 6
+ U23 144
+Net 132 "/mcu/usb/power/ADC0_6" "ADC0_6"
+ U23 142
+ P21 2
 Net 133 "/mcu/usb/power/GPIO3_9" "GPIO3_9"
- P20 2
  U23 113
+ P20 2
 Net 134 "RSSI" "RSSI"
  U17 32
  U23 2
-Net 135 "" ""
- R50 2
- R53 1
- U21 2
- R51 1
-Net 136 "" ""
- L10 1
- U21 10
-Net 137 "" ""
- C125 2
- R47 2
- U21 1
- R46 2
-Net 138 "" ""
- R56 2
- R55 2
- U21 5
-Net 139 "/mcu/usb/power/VBUS" "VBUS"
- FB1 2
- R52 1
- U21 3
- U22 5
- C143 1
- C147 1
- R62 1
-Net 140 "/mcu/usb/power/SGPIO13" "SGPIO13"
- U23 15
- R78 1
-Net 141 "/mcu/usb/power/REG_OUT2" "REG_OUT2"
- C126 1
- R47 1
- C125 1
- C127 1
- L10 2
- P1 2
-Net 142 "/mcu/usb/power/REG_OUT1" "REG_OUT1"
- R56 1
+Net 135 "/mcu/usb/power/REG_OUT1" "REG_OUT1"
  P8 2
  L11 1
+ R56 1
  C146 2
  C145 2
-Net 143 "/mcu/usb/power/GPIO3_15" "GPIO3_15"
- U23 140
- P20 8
+Net 136 "" ""
+ R51 1
+ R53 1
+ U21 2
+ R50 2
+Net 137 "/mcu/usb/power/REG_OUT2" "REG_OUT2"
+ C125 1
+ L10 2
+ P1 2
+ C126 1
+ R47 1
+ C127 1
+Net 138 "" ""
+ U21 10
+ L10 1
+Net 139 "" ""
+ R56 2
+ U21 5
+ R55 2
+Net 140 "/mcu/usb/power/VBUS" "VBUS"
+ R62 1
+ U22 5
+ FB1 2
+ R52 1
+ C147 1
+ C143 1
+ U21 3
+Net 141 "/mcu/usb/power/RESET" "RESET"
+ P26 10
+ P25 6
+ U23 128
+ R49 2
+Net 142 "/mcu/usb/power/CPLD_TDI" "CPLD_TDI"
+ P29 2
+ U23 82
+ U24 45
+Net 143 "/mcu/usb/power/SGPIO13" "SGPIO13"
+ U23 15
+ R78 1
 Net 144 "/mcu/usb/power/BOOT1" "BOOT1"
  P33 2
  U23 43
  R42 2
  R68 1
-Net 145 "/mcu/usb/power/LED1" "LED1"
+Net 145 "/mcu/usb/power/VCCIO1" "VCCIO1"
+ C154 1
+ R61 1
+ U24 51
+ R60 2
+ C153 1
+ U24 38
+Net 146 "/mcu/usb/power/LED1" "LED1"
  U23 3
  R72 2
-Net 146 "/mcu/usb/power/VCCIO1" "VCCIO1"
- C153 1
- U24 51
- R61 1
- R60 2
- U24 38
- C154 1
-Net 147 "/mcu/usb/power/XTAL2" "XTAL2"
- X2 3
- C158 1
- U23 13
-Net 148 "" ""
+Net 147 "" ""
  R62 2
  R65 1
  U23 21
+Net 148 "/mcu/usb/power/GPIO3_15" "GPIO3_15"
+ P20 8
+ U23 140
 Net 149 "SDA" "SDA"
- P38 1
  U19 5
  R27 2
  U23 93
-Net 150 "/mcu/usb/power/BOOT3" "BOOT3"
- U23 102
- P34 2
- R93 1
- R43 2
-Net 151 "/mcu/usb/power/RREF" "RREF"
- U23 24
+ P38 1
+Net 150 "/mcu/usb/power/RREF" "RREF"
  R69 1
-Net 152 "/mcu/usb/power/U0_RXD" "U0_RXD"
+ U23 24
+Net 151 "/mcu/usb/power/U0_RXD" "U0_RXD"
  U23 81
  P25 4
+Net 152 "/mcu/usb/power/BOOT3" "BOOT3"
+ R43 2
+ P34 2
+ U23 102
+ R93 1
 Net 153 "/mcu/usb/power/SGPIO0" "SGPIO0"
  R79 1
  U23 32
 Net 154 "/mcu/usb/power/SD_DAT3" "SD_DAT3"
- U23 56
  P28 4
-Net 155 "/mcu/usb/power/SD_CMD" "SD_CMD"
- U23 49
- P28 9
-Net 156 "/mcu/usb/power/SD_VOLT0" "SD_VOLT0"
- U23 51
- P28 8
-Net 157 "/mcu/usb/power/SD_DAT1" "SD_DAT1"
- U23 53
- P28 6
-Net 158 "/mcu/usb/power/XTAL1" "XTAL1"
- U23 12
+ U23 56
+Net 155 "/mcu/usb/power/XTAL1" "XTAL1"
  C157 1
  X2 1
-Net 159 "/mcu/usb/power/SD_CLK" "SD_CLK"
+ U23 12
+Net 156 "GCK2" "GCK2"
+ U19 12
+ U24 27
+Net 157 "/mcu/usb/power/SD_CMD" "SD_CMD"
+ U23 49
+ P28 9
+Net 158 "/mcu/usb/power/SD_VOLT0" "SD_VOLT0"
+ P28 8
+ U23 51
+Net 159 "/mcu/usb/power/SD_DAT1" "SD_DAT1"
+ P28 6
+ U23 53
+Net 160 "/mcu/usb/power/SD_CLK" "SD_CLK"
  P28 11
  U23 45
-Net 160 "GCK2" "GCK2"
- U24 27
- U19 12
-Net 161 "" ""
- FB1 1
- J1 1
-Net 162 "GCK1" "GCK1"
- U19 13
+Net 161 "GCK1" "GCK1"
  U18 6
  U24 23
+ U19 13
+Net 162 "" ""
+ FB1 1
+ J1 1
 Net 163 "/mcu/usb/power/GPIO3_12" "GPIO3_12"
  U23 132
  P20 5
 Net 164 "/mcu/usb/power/U0_TXD" "U0_TXD"
- U23 75
  P25 5
+ U23 75
 Net 165 "/mcu/usb/power/ADC0_0" "ADC0_0"
- U23 6
  P21 8
+ U23 6
 Net 166 "/mcu/usb/power/SGPIO9" "SGPIO9"
  R77 1
  U23 7
@@ -4457,17 +4457,17 @@ Net 186 "/mcu/usb/power/TMS" "TMS"
  U23 30
  P26 2
 Net 187 "/mcu/usb/power/TDI" "TDI"
- P26 8
  U23 26
+ P26 8
 Net 188 "/mcu/usb/power/SPIFI_SIO2" "SPIFI_SIO2"
- P19 12
- U20 3
  P19 11
+ P19 12
  U23 121
+ U20 3
 Net 189 "/mcu/usb/power/SPIFI_MOSI" "SPIFI_MOSI"
- P19 3
  P19 4
  U23 123
+ P19 3
  U20 5
 Net 190 "/mcu/usb/power/SPIFI_MISO" "SPIFI_MISO"
  U23 122
@@ -4475,30 +4475,30 @@ Net 190 "/mcu/usb/power/SPIFI_MISO" "SPIFI_MISO"
  P19 2
  U20 2
 Net 191 "/mcu/usb/power/TDO" "TDO"
+ U23 31
  P26 6
  R63 1
- U23 31
 Net 192 "/mcu/usb/power/TCK" "TCK"
  U23 27
- R66 2
  P26 4
+ R66 2
 Net 193 "/mcu/usb/power/DM" "DM"
- R58 1
  U23 20
+ R58 1
 Net 194 "/mcu/usb/power/DP" "DP"
  R57 1
  U23 18
 Net 224 "+1.8V" "+1.8V"
- P1 1
- U24 57
- C151 1
  C152 1
- R34 1
+ R61 2
+ P1 1
+ C151 1
+ U24 57
  R32 1
  R30 1
- R36 1
  R38 1
- R61 2
+ R34 1
+ R36 1
  U24 26
 Net 225 "/mcu/usb/power/USB0_IND1" "USB0_IND1"
  U23 85
@@ -4507,20 +4507,20 @@ Net 228 "/mcu/usb/power/USB0_IND0" "USB0_IND0"
  U23 86
  D3 1
 Net 229 "/mcu/usb/power/SPIFI_CS" "SPIFI_CS"
+ U23 124
  P19 7
  P19 8
  U20 1
- U23 124
 Net 230 "/mcu/usb/power/SPIFI_SCK" "SPIFI_SCK"
- P19 5
- P19 6
  U20 6
+ P19 6
+ P19 5
  U23 118
 Net 231 "/mcu/usb/power/SPIFI_SIO3" "SPIFI_SIO3"
  U23 119
+ P19 9
  U20 7
  P19 10
- P19 9
 Net 232 "RX_IF" "RX_IF"
  C48 2
  T3 1
@@ -4557,12 +4557,12 @@ Net 241 "SSP1_MOSI" "SSP1_MOSI"
  R11 2
  U17 31
 Net 242 "SSP1_MISO" "SSP1_MISO"
- U17 29
  P41 1
  U23 44
+ U17 29
 Net 243 "/baseband/CPOUT+" "CPOUT+"
- U17 23
  C112 2
+ U17 23
  R25 1
 Net 245 "/baseband/OVDD" "OVDD"
  C123 1
@@ -4586,8 +4586,8 @@ Net 249 "" ""
  R26 2
  C114 1
 Net 250 "" ""
- C114 2
  R25 2
+ C114 2
 Net 251 "/baseband/SCLK_AD" "SCLK_AD"
  U18 35
  R12 1
