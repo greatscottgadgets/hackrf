@@ -1,5 +1,6 @@
 /*
  * Copyright 2012 Michael Ossmann <mike@ossmann.com>
+ * Copyright 2012 Jared Boone <jared@sharebrained.com>
  *
  * This file is part of HackRF
  *
@@ -32,3 +33,5 @@ MEMORY
 
 /* Include the common ld script. */
 INCLUDE libopencm3_lpc43xx.ld
+
+INCLUDE usbram.ld

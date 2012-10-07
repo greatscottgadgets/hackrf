@@ -4,6 +4,7 @@
 # Copyright 2010 Piotr Esden-Tempski <piotr@esden.net>
 # Copyright 2012 Michael Ossmann <mike@ossmann.com>
 # Copyright 2012 Benjamin Vernoux <titanmkd@gmail.com>
+# Copyright 2012 Jared Boone <jared@sharebrained.com>
 #
 # This file is part of HackRF.
 #
@@ -51,6 +52,7 @@ CFLAGS += -std=c99 -O2 -g3 -Wall -Wextra -I$(LIBOPENCM3)/include -I../common \
 		$(HACKRF_OPTS)
 #LDSCRIPT ?= $(BINARY).ld
 LDFLAGS += -L$(TOOLCHAIN_DIR)/lib/armv7e-m/fpu \
+    -L../common \
 		-L$(LIBOPENCM3)/lib -L$(LIBOPENCM3)/lib/lpc43xx \
 		-T$(LDSCRIPT) -nostartfiles \
 		-Wl,--gc-sections -Xlinker -Map=$(BINARY).map
@@ -78,7 +80,7 @@ flash: $(BINARY).flash
 
 %.bin: %.elf
 	@#printf "  OBJCOPY $(*).bin\n"
-	$(Q)$(OBJCOPY) -Obinary $(*).elf $(*).bin
+	$(Q)$(OBJCOPY) -Obinary -R .usbram $(*).elf $(*).bin
 
 %.hex: %.elf
 	@#printf "  OBJCOPY $(*).hex\n"

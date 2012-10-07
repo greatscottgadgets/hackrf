@@ -1,5 +1,4 @@
 /*
- * Copyright 2012 Michael Ossmann <mike@ossmann.com>
  * Copyright 2012 Jared Boone <jared@sharebrained.com>
  *
  * This file is part of HackRF
@@ -20,16 +19,17 @@
  * Boston, MA 02110-1301, USA.
  */
 
-/* Linker script for HackRF Jellybean (LPC4330, 1M SPI flash, 264K SRAM). */
-
-MEMORY
+SECTIONS
 {
-	ram_local1 (rwx) : ORIGIN = 0x10000000, LENGTH =  128K
-	ram_local2 (rwx) : ORIGIN = 0x10080000, LENGTH =  72K
-	ram_ahb    (rwx) : ORIGIN = 0x20000000, LENGTH =  64K
+	. = ORIGIN(ram_ahb);
+
+   .usbram : {
+      . = ALIGN(4096);
+      *(.usb_data)
+      . = ALIGN(2048);
+      *(.usb_qh)
+      . = ALIGN(64);
+      *(.usb_td)
+   } >ram_ahb
+   
 }
-
-/* Include the common ld script. */
-INCLUDE libopencm3_lpc43xx_ram_only.ld
-
-INCLUDE usbram.ld
