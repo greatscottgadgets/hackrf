@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 Jared Boone
+ * Copyright 2012 Jared Boone <jared@sharebrained.com>
  *
  * This file is part of HackRF.
  *

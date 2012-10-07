@@ -1,7 +1,7 @@
 /*
  * Copyright 2012 Michael Ossmann <mike@ossmann.com>
  * Copyright 2012 Benjamin Vernoux <titanmkd@gmail.com>
- * Copyright (C) 2012 Jared Boone <jared@sharebrained.com>
+ * Copyright 2012 Jared Boone <jared@sharebrained.com>
  *
  * This file is part of HackRF.
  *
