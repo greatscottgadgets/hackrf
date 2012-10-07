@@ -27,6 +27,7 @@ MEMORY
 	rom (rx)  : ORIGIN = 0x00000000, LENGTH =  1M
 	ram (rwx) : ORIGIN = 0x10000000, LENGTH =  128K
 	/* there are some additional RAM regions */
+	ram_ahb    (rwx) : ORIGIN = 0x20000000, LENGTH =  64K
 }
 
 /* Include the common ld script. */

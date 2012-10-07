@@ -31,6 +31,7 @@ MEMORY
 	ram (rwx) : ORIGIN = 0x10000000, LENGTH =  128K
 	/* there are some additional RAM regions for data */
 	ram_data (rw) : ORIGIN = 0x10080000, LENGTH =  72K
+	ram_ahb    (rwx) : ORIGIN = 0x20000000, LENGTH =  64K
 }
 
 /* Include the common ld script. */
