@@ -1,175 +1,158 @@
 #include <string.h>
 
 #include <hackrf_core.h>
-#include <bitband.h>
 
 #include <libopencm3/lpc43xx/cgu.h>
-#include <libopencm3/lpc43xx/creg.h>
 #include <libopencm3/lpc43xx/gpio.h>
-#include <libopencm3/lpc43xx/nvic.h>
-#include <libopencm3/lpc43xx/rgu.h>
 
-#include <libopencm3/lpc43xx/usb.h>
+#include "usb.h"
+#include "usb_type.h"
+#include "usb_request.h"
+#include "usb_descriptor.h"
+#include "usb_standard_request.h"
 
-#include <libopencm3/usb/usbstd.h>
+volatile uint_fast8_t usb_bulk_buffer_index = 0;
+uint8_t usb_bulk_buffer[2][16384] ATTR_SECTION(".usb_data");
+const uint_fast8_t usb_bulk_buffer_count =
+	sizeof(usb_bulk_buffer) / sizeof(usb_bulk_buffer[0]);
 
-#define ATTR_ALIGNED(x)	__attribute__ ((aligned(x)))
-#define __DATA(x) __attribute__ ((section("x")))
-
-void usb_reset_peripheral() {
-	RESET_CTRL0 = RESET_CTRL0_USB0_RST;
-	RESET_CTRL0 = 0;
-	
-	while( (RESET_ACTIVE_STATUS0 & RESET_CTRL0_USB0_RST) == 0 );
+static void usb_endpoint_bulk_transfer(usb_endpoint_t* const endpoint) {
+	usb_endpoint_schedule(endpoint, usb_bulk_buffer[usb_bulk_buffer_index], sizeof(usb_bulk_buffer[usb_bulk_buffer_index]));
+	usb_bulk_buffer_index = (usb_bulk_buffer_index + 1) % usb_bulk_buffer_count;
 }
 
-void usb_enable_phy() {
-	peripheral_bitband_clear(&CREG_CREG0, CREG_CREG0_USB0PHY_SHIFT);
-}
+usb_configuration_t usb_configuration_high_speed = {
+	.number = 1,
+	.speed = USB_SPEED_HIGH,
+	.descriptor = usb_descriptor_configuration_high_speed,
+};
 
-void usb_wait_for_endpoint_priming_to_finish() {
-    while( USB0_ENDPTPRIME );
-}
+usb_configuration_t usb_configuration_full_speed = {
+	.number = 1,
+	.speed = USB_SPEED_FULL,
+	.descriptor = usb_descriptor_configuration_full_speed,
+};
 
-void usb_wait_for_endpoint_flushing_to_finish() {
-    while( USB0_ENDPTFLUSH );
-}
+usb_configuration_t* usb_configurations[] = {
+	&usb_configuration_high_speed,
+	&usb_configuration_full_speed,
+	0,
+};
 
-void usb_flush_all_primed_endpoints() {
-    usb_wait_for_endpoint_priming_to_finish();
-    USB0_ENDPTFLUSH = ~0;
-    usb_wait_for_endpoint_flushing_to_finish();
-}
+usb_device_t usb_device = {
+	.descriptor = usb_descriptor_device,
+	.configurations = &usb_configurations,
+	.configuration = 0,
+};
 
-void usb_stop_controller() {
-    peripheral_bitband_clear(&USB0_USBCMD_D, USB0_USBCMD_D_RS_SHIFT);
-}
+usb_endpoint_t usb_endpoint_control_out;
+usb_endpoint_t usb_endpoint_control_in;
 
-void usb_run_controller() {
-    peripheral_bitband_set(&USB0_USBCMD_D, USB0_USBCMD_D_RS_SHIFT);
-}
+usb_endpoint_t usb_endpoint_control_out = {
+	.address = 0x00,
+	.device = &usb_device,
+	.in = &usb_endpoint_control_in,
+	.out = &usb_endpoint_control_out,
+	.setup_complete = usb_setup_complete,
+	.transfer_complete = usb_control_out_complete,
+};
 
-uint_fast8_t usb_controller_is_resetting() {
-    return (USB0_USBCMD_D & USB0_USBCMD_D_RST) != 0;
-}
+usb_endpoint_t usb_endpoint_control_in = {
+	.address = 0x80,
+	.device = &usb_device,
+	.in = &usb_endpoint_control_in,
+	.out = &usb_endpoint_control_out,
+	.setup_complete = 0,
+	.transfer_complete = usb_control_in_complete,
+};
 
-void usb_reset_controller() {
-	USB0_USBCMD_D = USB0_USBCMD_D_RST;
-	while( usb_controller_is_resetting() );
-}
-/*
-void usb_reset() {
-    usb_flush_all_primed_endpoints();
-    usb_stop_controller();
-	usb_reset_controller();
-    //while( usb_controller_is_resetting() );
-}
-*/
-/*
-void usb_disable_endpoint(uint_fast8_t logical_endpoint_number) {
-	USB0_ENDPTCTRL(logical_endpoint_number) &= ~((1 << ) | (1 << ));
-}
+// NOTE: Endpoint number for IN and OUT are different. I wish I had some
+// evidence that having BULK IN and OUT on separate endpoint numbers was
+// actually a good idea. Seems like everybody does it that way, but why?
 
-void usb_disable_all_endpoints() {
-	// Endpoint 0 is always enabled.
-	for(uint_fast8_t i=1; i<6; i++) {
-		usb_disable_endpoint(i);
-	}
-}
+usb_endpoint_t usb_endpoint_bulk_in = {
+	.address = 0x81,
+	.device = &usb_device,
+	.in = &usb_endpoint_bulk_in,
+	.out = 0,
+	.setup_complete = 0,
+	.transfer_complete = usb_endpoint_bulk_transfer,
+};
 
-void usb_clear_all_pending_interrupts() {
-	
-}
+usb_endpoint_t usb_endpoint_bulk_out = {
+	.address = 0x02,
+	.device = &usb_device,
+	.in = 0,
+	.out = &usb_endpoint_bulk_out,
+	.setup_complete = 0,
+	.transfer_complete = usb_endpoint_bulk_transfer,
+};
 
-void usb_reset() {
-	usb_disable_all_endpoints();
-	usb_clear_all_pending_interrupts();
-}
-*/
-/*
-void usb_clear_all_interrupts() {
-	USB0_USBSTS =
-		USB0_USBSTS_UI |
-		USB0_USBSTS_UEI |
-		USB0_USBSTS_PCI |
-		USB0_USBSTS_URI |
-		USB0_USBSTS_SRI |
-		USB0_USBSTS_SLI;
-}
-*/
-typedef struct {
-	uint32_t next_dtd_pointer;
-	uint32_t total_bytes;
-	uint32_t buffer_pointer_page[5];
-} usb0_endpoint_transfer_descriptor_t;
+const usb_request_handlers_t usb_request_handlers = {
+	.standard = usb_standard_request,
+	.class = 0,
+	.vendor = 0,
+	.reserved = 0,
+};
 
-typedef enum {
-	queue_head_capabilities_IOS_bit = 15,
-	queue_head_capabilities_IOS = 1 << queue_head_capabilities_IOS_bit,
-	
-	queue_head_capabilities_MPL_base = 16,
-	queue_head_capabilities_MPL_length = 11,
-	
-	queue_head_capabilities_ZLT_bit = 29,
-	queue_head_capabilities_ZLT = 1 << queue_head_capabilities_ZLT_bit,
-	
-	queue_head_capabilities_MULT_base = 30,
-	queue_head_capabilities_MULT_length = 2,
-} queue_head_capabilities_t;
-	
-typedef volatile struct {
-	volatile uint32_t capabilities;
-	volatile uint32_t current_dtd_pointer;
-	//volatile usb0_endpoint_transfer_descriptor_t;
-	volatile uint32_t next_dtd_pointer;
-	volatile uint32_t total_bytes;
-	volatile uint32_t buffer_pointer_page[5];
-	volatile uint32_t _reserved_0;
-	volatile uint8_t setup[8];
-	volatile uint32_t _reserved_1[4];
-} usb0_queue_head_t;
+// TODO: Seems like this should live in usb_standard_request.c.
+bool usb_set_configuration(
+	usb_device_t* const device,
+	const uint_fast8_t configuration_number
+) {
+	const usb_configuration_t* new_configuration = 0;
+	if( configuration_number != 0 ) {
+		
+		// Locate requested configuration.
+		if( device->configurations ) {
+			usb_configuration_t** configurations = *(device->configurations);
+			uint32_t i = 0;
+			const usb_speed_t usb_speed_current = usb_speed(device);
+			while( configurations[i] ) {
+				if( (configurations[i]->speed == usb_speed_current) &&
+				    (configurations[i]->number == configuration_number) ) {
+					new_configuration = configurations[i];
+					break;
+				}
+				i++;
+			}
+		}
 
-volatile usb0_queue_head_t queue_head[12] ATTR_ALIGNED(2048) __DATA(USBRAM_SECTION);
-volatile usb0_endpoint_transfer_descriptor_t transfer_descriptor[12] ATTR_ALIGNED(64) __DATA(USBRAM_SECTION);
-
-void usb_init() {
-	usb_enable_phy();
-	usb_reset_controller();
-	USB0_USBMODE_D =
-		USB0_USBMODE_D_SLOM |
-		USB0_USBMODE_D_CM1_0(2);
-
-	nvic_enable_irq(NVIC_M4_USB0_IRQ);
-
-	// Set interrupt threshold interval to 0
-	USB0_USBCMD_D &= ~(USB0_USBCMD_D_ITC_MASK);
-
-	USB0_ENDPOINTLISTADDR = (uint32_t)&queue_head;
-	for(uint_fast8_t i=0; i<2; i++) {
-		queue_head[i].next_dtd_pointer = (uint32_t)&transfer_descriptor[i];
+		// Requested configuration not found: request error.
+		if( new_configuration == 0 ) {
+			return false;
+		}
 	}
 	
-	// Enable interrupts
-	USB0_USBINTR_D =
-		USB0_USBINTR_D_UE |
-		USB0_USBINTR_D_UEE |
-		USB0_USBINTR_D_PCE |
-		USB0_USBINTR_D_URE |
-		USB0_USBINTR_D_SRE |
-		USB0_USBINTR_D_SLE |
-		USB0_USBINTR_D_NAKE;
-	
-	queue_head[0].capabilities =
-		queue_head_capabilities_ZLT |
-		(64 << queue_head_capabilities_MPL_base) |
-		queue_head_capabilities_IOS;
-}
+	if( new_configuration != device->configuration ) {
+		// Configuration changed.
+		device->configuration = new_configuration;
 
-void usb0_irqhandler(void) {
-	gpio_clear(PORT_LED1_3, PIN_LED1);
-	gpio_clear(PORT_LED1_3, PIN_LED2);
-	gpio_clear(PORT_LED1_3, PIN_LED3);
-}
+		// TODO: This is lame. There should be a way to link stuff together so
+		// that changing the configuration will initialize the related
+		// endpoints. No hard-coding crap like this! Then, when there's no more
+		// hard-coding, this whole function can move into a shared/reusable
+		// library.
+		if( device->configuration && (device->configuration->number == 1) ) {
+			usb_endpoint_init(&usb_endpoint_bulk_in);
+			usb_endpoint_init(&usb_endpoint_bulk_out);
+			
+			usb_endpoint_bulk_transfer(&usb_endpoint_bulk_out);
+			//usb_endpoint_bulk_transfer(&usb_endpoint_bulk_in);
+		} else {
+			usb_endpoint_disable(&usb_endpoint_bulk_in);
+			usb_endpoint_disable(&usb_endpoint_bulk_out);
+		}
+
+		if( device->configuration ) {
+			gpio_set(PORT_LED1_3, PIN_LED1);
+		} else {
+			gpio_clear(PORT_LED1_3, PIN_LED1);
+		}
+	}
+
+	return true;
+};
 
 int main(void) {
 	pin_setup();
@@ -181,20 +164,17 @@ int main(void) {
 
 	CGU_BASE_APB1_CLK = CGU_BASE_APB1_CLK_AUTOBLOCK
 			| CGU_BASE_APB1_CLK_CLK_SEL(CGU_SRC_PLL1);
-
-	usb_reset_peripheral();
-
-	gpio_set(PORT_LED1_3, PIN_LED1);
-	gpio_set(PORT_LED1_3, PIN_LED2);
-	gpio_set(PORT_LED1_3, PIN_LED3);
-
-	usb_init();
+	
+	usb_peripheral_reset();
+	
+	usb_device_init(0, &usb_device);
+	
+	usb_endpoint_init(&usb_endpoint_control_out);
+	usb_endpoint_init(&usb_endpoint_control_in);
+	
+	usb_run(&usb_device);
 	
 	while (1) {
-		delay(10000000);
-		gpio_clear(PORT_LED1_3, PIN_LED1);
-		delay(10000000);
-		gpio_set(PORT_LED1_3, PIN_LED1);
 	}
 
 	return 0;
