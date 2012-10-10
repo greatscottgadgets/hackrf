@@ -37,7 +37,7 @@
 #include "usb_descriptor.h"
 #include "usb_standard_request.h"
 
-uint8_t* const usb_bulk_buffer = 0x20004000;
+uint8_t* const usb_bulk_buffer = (uint8_t*)0x20004000;
 static volatile uint32_t usb_bulk_buffer_offset = 0;
 static const uint32_t usb_bulk_buffer_mask = 32768 - 1;
 
