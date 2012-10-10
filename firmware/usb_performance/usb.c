@@ -195,7 +195,7 @@ void usb_endpoint_prime(
 		USB0_ENDPTPRIME = USB0_ENDPTPRIME_PERB(1 << endpoint_number);
 	}
 }
-
+/*
 static bool usb_endpoint_is_priming(
 	const usb_endpoint_t* const endpoint
 ) {
@@ -206,7 +206,7 @@ static bool usb_endpoint_is_priming(
 		return USB0_ENDPTPRIME & USB0_ENDPTPRIME_PERB(1 << endpoint_number);
 	}
 }
-
+*/
 void usb_endpoint_flush(
 	const usb_endpoint_t* const endpoint
 ) {
@@ -217,7 +217,7 @@ void usb_endpoint_flush(
 		usb_flush_primed_endpoints(USB0_ENDPTFLUSH_FERB(1 << endpoint_number));
 	}
 }
-
+/*
 static bool usb_endpoint_is_flushing(
 	const usb_endpoint_t* const endpoint
 ) {
@@ -228,7 +228,7 @@ static bool usb_endpoint_is_flushing(
 		return USB0_ENDPTFLUSH & USB0_ENDPTFLUSH_FERB(1 << endpoint_number);
 	}
 }
-
+*/
 bool usb_endpoint_is_ready(
 	const usb_endpoint_t* const endpoint
 ) {
