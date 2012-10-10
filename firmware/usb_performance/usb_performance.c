@@ -235,34 +235,15 @@ bool usb_set_configuration(
 void sgpio_irqhandler() {
 	SGPIO_CLR_STATUS_1 = 0xFFFFFFFF;
 
-	uint32_t* const p32 = &usb_bulk_buffer[usb_bulk_buffer_offset];
-	volatile const uint32_t* const sgpio_reg_ss_base = SGPIO_PORT_BASE + 0x100;
-	
-	__asm__(
-		"ldr r0, [%[sgpio_reg_ss_base], #0]\n\t"	// Slice A -> p_local[7]
-		"ldr r1, [%[sgpio_reg_ss_base], #32]\n\t"	// Slice I -> p_local[6]
-		"ldr r2, [%[sgpio_reg_ss_base], #16]\n\t"	// Slice E -> p_local[5]
-		"ldr r3, [%[sgpio_reg_ss_base], #36]\n\t"	// Slice J -> p_local[4]
-
-		"str r0, [%[p], #28]\n\t"
-		"str r1, [%[p], #24]\n\t"
-		"str r2, [%[p], #20]\n\t"
-		"str r3, [%[p], #16]\n\t"
-
-		"ldr r0, [%[sgpio_reg_ss_base], #8]\n\t"	// Slice C -> p_local[3]
-		"ldr r1, [%[sgpio_reg_ss_base], #40]\n\t"	// Slice K -> p_local[2]
-		"ldr r2, [%[sgpio_reg_ss_base], #20]\n\t"	// Slice F -> p_local[1]
-		"ldr r3, [%[sgpio_reg_ss_base], #44]\n\t"	// Slice L -> p_local[0]
-
-		"str r0, [%[p], #12]\n\t"
-		"str r1, [%[p], #8]\n\t"
-		"str r2, [%[p], #4]\n\t"
-		"str r3, [%[p], #0]\n\t"
-		: 
-		: [sgpio_reg_ss_base] "l" (sgpio_reg_ss_base),
-		  [p] "l" (p32)
-		: "r0", "r1", "r2", "r3"
-	);
+	uint32_t* const p = (uint32_t*)&usb_bulk_buffer[usb_bulk_buffer_offset];
+	p[7] = SGPIO_REG_SS(SGPIO_SLICE_A);
+	p[6] = SGPIO_REG_SS(SGPIO_SLICE_I);
+	p[5] = SGPIO_REG_SS(SGPIO_SLICE_E);
+	p[4] = SGPIO_REG_SS(SGPIO_SLICE_J);
+	p[3] = SGPIO_REG_SS(SGPIO_SLICE_C);
+	p[2] = SGPIO_REG_SS(SGPIO_SLICE_K);
+	p[1] = SGPIO_REG_SS(SGPIO_SLICE_F);
+	p[0] = SGPIO_REG_SS(SGPIO_SLICE_L);
 
 	usb_bulk_buffer_offset = (usb_bulk_buffer_offset + 32) & usb_bulk_buffer_mask;
 }
