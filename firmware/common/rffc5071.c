@@ -379,6 +379,8 @@ void rffc5071_tx(uint8_t gpo) {
 		gpo |= SWITCHCTRL_NO_TX_AMP_PWR;
 	gpo |= (SWITCHCTRL_TX | SWITCHCTRL_NO_RX_AMP_PWR);
 	rffc5071_set_gpo(gpo);
+#else
+	(void)gpo;
 #endif
 	rffc5071_regs_commit();
 
@@ -403,6 +405,8 @@ void rffc5071_rx(uint8_t gpo) {
 		gpo |= SWITCHCTRL_NO_RX_AMP_PWR;
 	gpo |= SWITCHCTRL_NO_TX_AMP_PWR;
 	rffc5071_set_gpo(gpo);
+#else
+	(void)gpo;
 #endif
 	rffc5071_regs_commit();
 
