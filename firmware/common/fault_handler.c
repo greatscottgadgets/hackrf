@@ -34,6 +34,7 @@ void hard_fault_handler(void) {
 
 
 void hard_fault_handler_c(uint32_t* args) {
+	(void)args;
 	// args[0-7]: r0, r1, r2, r3, r12, lr, pc, psr
 	// Other interesting registers to examine:
 	//	CFSR: Configurable Fault Status Register
