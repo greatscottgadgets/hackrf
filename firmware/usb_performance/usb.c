@@ -33,8 +33,8 @@
 
 usb_device_t* usb_device_usb0 = 0;
 
-usb_queue_head_t usb_qh[12] ATTR_SECTION(".usb_qh");
-usb_transfer_descriptor_t usb_td[12] ATTR_SECTION(".usb_td");
+usb_queue_head_t usb_qh[12] ATTR_ALIGNED(2048);
+usb_transfer_descriptor_t usb_td[12] ATTR_ALIGNED(64);
 
 #define USB_QH_INDEX(endpoint_address) (((endpoint_address & 0xF) * 2) + ((endpoint_address >> 7) & 1))
 #define USB_TD_INDEX(endpoint_address) (((endpoint_address & 0xF) * 2) + ((endpoint_address >> 7) & 1))
@@ -81,6 +81,18 @@ void usb_peripheral_reset() {
 
 static void usb_phy_enable() {
 	CREG_CREG0 &= ~CREG_CREG0_USB0PHY;
+}
+
+static void usb_clear_pending_interrupts(const uint32_t mask) {
+	USB0_ENDPTNAK = mask;
+	USB0_ENDPTNAKEN = mask;
+	USB0_USBSTS_D = mask;
+	USB0_ENDPTSETUPSTAT = USB0_ENDPTSETUPSTAT & mask;
+	USB0_ENDPTCOMPLETE = USB0_ENDPTCOMPLETE & mask;
+}
+
+static void usb_clear_all_pending_interrupts() {
+	usb_clear_pending_interrupts(0xFFFFFFFF);
 }
 
 static void usb_wait_for_endpoint_priming_to_finish(const uint32_t mask) {
@@ -139,6 +151,17 @@ static void usb_endpoint_enable(
 	}
 }
 
+static void usb_endpoint_clear_pending_interrupts(
+	const usb_endpoint_t* const endpoint
+) {
+	const uint_fast8_t endpoint_number = usb_endpoint_number(endpoint->address);
+	if( usb_endpoint_is_in(endpoint->address) ) {
+		usb_clear_pending_interrupts(USB0_ENDPTCOMPLETE_ETCE(1 << endpoint_number));
+	} else {
+		usb_clear_pending_interrupts(USB0_ENDPTCOMPLETE_ERCE(1 << endpoint_number));
+	}
+}
+
 void usb_endpoint_disable(
 	const usb_endpoint_t* const endpoint
 ) {
@@ -148,6 +171,8 @@ void usb_endpoint_disable(
 	} else {
 		USB0_ENDPTCTRL(endpoint_number) &= ~(USB0_ENDPTCTRL_RXE);
 	}
+	usb_endpoint_clear_pending_interrupts(endpoint);
+	usb_endpoint_flush(endpoint);
 }
 
 void usb_endpoint_prime(
@@ -212,6 +237,17 @@ bool usb_endpoint_is_ready(
 		return USB0_ENDPTSTAT & USB0_ENDPTSTAT_ETBR(1 << endpoint_number);
 	} else {
 		return USB0_ENDPTSTAT & USB0_ENDPTSTAT_ERBR(1 << endpoint_number);
+	}
+}
+
+bool usb_endpoint_is_complete(
+	const usb_endpoint_t* const endpoint
+) {
+	const uint_fast8_t endpoint_number = usb_endpoint_number(endpoint->address);
+	if( usb_endpoint_is_in(endpoint->address) ) {
+		return USB0_ENDPTCOMPLETE & USB0_ENDPTCOMPLETE_ETCE(1 << endpoint_number);
+	} else {
+		return USB0_ENDPTCOMPLETE & USB0_ENDPTCOMPLETE_ERCE(1 << endpoint_number);
 	}
 }
 
@@ -310,14 +346,6 @@ static void usb_disable_all_endpoints() {
 	USB0_ENDPTCTRL3 &= ~(USB0_ENDPTCTRL3_RXE | USB0_ENDPTCTRL3_TXE);
 	USB0_ENDPTCTRL4 &= ~(USB0_ENDPTCTRL4_RXE | USB0_ENDPTCTRL4_TXE);
 	USB0_ENDPTCTRL5 &= ~(USB0_ENDPTCTRL5_RXE | USB0_ENDPTCTRL5_TXE);
-}
-
-static void usb_clear_all_pending_interrupts() {
-	USB0_ENDPTNAK = ~0;
-	USB0_ENDPTNAKEN = 0;
-	USB0_USBSTS_D = ~0;
-	USB0_ENDPTSETUPSTAT = USB0_ENDPTSETUPSTAT;
-	USB0_ENDPTCOMPLETE = USB0_ENDPTCOMPLETE;
 }
 
 void usb_set_address_immediate(
@@ -489,7 +517,7 @@ void usb_endpoint_schedule(
 ) {
 	usb_transfer_descriptor_t* const td = usb_transfer_descriptor(endpoint->address);
 	
-	// Ensure that OUT endpoint is ready to be primed.
+	// Ensure that endpoint is ready to be primed.
 	// It may have been flushed due to an aborted transaction.
 	// TODO: This should be preceded by a flush?
 	while( usb_endpoint_is_ready(endpoint) );
