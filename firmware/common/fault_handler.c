@@ -21,6 +21,8 @@
 
 #include <stdint.h>
 
+#include "fault_handler.h"
+
 __attribute__((naked))
 void hard_fault_handler(void) {
 	__asm__("TST LR, #4");
@@ -30,15 +32,26 @@ void hard_fault_handler(void) {
 	__asm__("B hard_fault_handler_c");
 }
 
+
 void hard_fault_handler_c(uint32_t* args) {
 	// args[0-7]: r0, r1, r2, r3, r12, lr, pc, psr
 	// Other interesting registers to examine:
 	//	CFSR: Configurable Fault Status Register
 	//	HFSR: Hard Fault Status Register
 	//	DFSR: Debug Fault Status Register
-	//  AFSR: Auxiliary Fault Status Register
+	//	AFSR: Auxiliary Fault Status Register
 	//	MMAR: MemManage Fault Address Register
 	//	BFAR: Bus Fault Address Register
+	
+	/*
+	if( SCB->HFSR & SCB_HFSR_FORCED ) {	
+		if( SCB->CFSR & SCB_CFSR_BFSR_BFARVALID ) {
+			SCB->BFAR;
+			if( SCB->CFSR & CSCB_CFSR_BFSR_PRECISERR ) {
+			}
+		}
+	}
+	*/
 	while(1);
 }
 
