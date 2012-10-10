@@ -21,10 +21,15 @@
 
 #include <string.h>
 
-#include <hackrf_core.h>
-
 #include <libopencm3/lpc43xx/cgu.h>
 #include <libopencm3/lpc43xx/gpio.h>
+#include <libopencm3/lpc43xx/nvic.h>
+#include <libopencm3/lpc43xx/sgpio.h>
+
+#include <hackrf_core.h>
+#include <max5864.h>
+#include <max2837.h>
+#include <sgpio.h>
 
 #include "usb.h"
 #include "usb_type.h"
@@ -32,14 +37,55 @@
 #include "usb_descriptor.h"
 #include "usb_standard_request.h"
 
-volatile uint_fast8_t usb_bulk_buffer_index = 0;
-uint8_t usb_bulk_buffer[2][16384] ATTR_SECTION(".usb_data");
-const uint_fast8_t usb_bulk_buffer_count =
-	sizeof(usb_bulk_buffer) / sizeof(usb_bulk_buffer[0]);
+uint8_t* const usb_bulk_buffer = 0x20004000;
+static volatile uint32_t usb_bulk_buffer_offset = 0;
+static const uint32_t usb_bulk_buffer_mask = 32768 - 1;
 
-static void usb_endpoint_bulk_transfer(usb_endpoint_t* const endpoint) {
-	usb_endpoint_schedule(endpoint, usb_bulk_buffer[usb_bulk_buffer_index], sizeof(usb_bulk_buffer[usb_bulk_buffer_index]));
-	usb_bulk_buffer_index = (usb_bulk_buffer_index + 1) % usb_bulk_buffer_count;
+usb_transfer_descriptor_t usb_td_bulk[2] ATTR_ALIGNED(64);
+const uint_fast8_t usb_td_bulk_count = sizeof(usb_td_bulk) / sizeof(usb_td_bulk[0]);
+
+static void usb_init_buffers_bulk() {
+	usb_td_bulk[0].next_dtd_pointer = USB_TD_NEXT_DTD_POINTER_TERMINATE;
+	usb_td_bulk[0].total_bytes
+		= USB_TD_DTD_TOKEN_TOTAL_BYTES(16384)
+		| USB_TD_DTD_TOKEN_MULTO(0)
+		;
+	usb_td_bulk[0].buffer_pointer_page[0] = (uint32_t)&usb_bulk_buffer[0x0000];
+	usb_td_bulk[0].buffer_pointer_page[1] = (uint32_t)&usb_bulk_buffer[0x1000];
+	usb_td_bulk[0].buffer_pointer_page[2] = (uint32_t)&usb_bulk_buffer[0x2000];
+	usb_td_bulk[0].buffer_pointer_page[3] = (uint32_t)&usb_bulk_buffer[0x3000];
+	usb_td_bulk[0].buffer_pointer_page[4] = (uint32_t)&usb_bulk_buffer[0x4000];
+
+	usb_td_bulk[1].next_dtd_pointer = USB_TD_NEXT_DTD_POINTER_TERMINATE;
+	usb_td_bulk[1].total_bytes
+		= USB_TD_DTD_TOKEN_TOTAL_BYTES(16384)
+		| USB_TD_DTD_TOKEN_MULTO(0)
+		;
+	usb_td_bulk[1].buffer_pointer_page[0] = (uint32_t)&usb_bulk_buffer[0x4000];
+	usb_td_bulk[1].buffer_pointer_page[1] = (uint32_t)&usb_bulk_buffer[0x5000];
+	usb_td_bulk[1].buffer_pointer_page[2] = (uint32_t)&usb_bulk_buffer[0x6000];
+	usb_td_bulk[1].buffer_pointer_page[3] = (uint32_t)&usb_bulk_buffer[0x7000];
+	usb_td_bulk[1].buffer_pointer_page[4] = (uint32_t)&usb_bulk_buffer[0x8000];
+}
+
+void usb_endpoint_schedule_no_int(
+	const usb_endpoint_t* const endpoint,
+	usb_transfer_descriptor_t* const td
+) {
+	// Ensure that endpoint is ready to be primed.
+	// It may have been flushed due to an aborted transaction.
+	// TODO: This should be preceded by a flush?
+	while( usb_endpoint_is_ready(endpoint) );
+
+	// Configure a transfer.
+	td->total_bytes =
+		  USB_TD_DTD_TOKEN_TOTAL_BYTES(16384)
+		/*| USB_TD_DTD_TOKEN_IOC*/
+		| USB_TD_DTD_TOKEN_MULTO(0)
+		| USB_TD_DTD_TOKEN_STATUS_ACTIVE
+		;
+	
+	usb_endpoint_prime(endpoint, td);
 }
 
 usb_configuration_t usb_configuration_high_speed = {
@@ -97,7 +143,7 @@ usb_endpoint_t usb_endpoint_bulk_in = {
 	.in = &usb_endpoint_bulk_in,
 	.out = 0,
 	.setup_complete = 0,
-	.transfer_complete = usb_endpoint_bulk_transfer,
+	.transfer_complete = 0,
 };
 
 usb_endpoint_t usb_endpoint_bulk_out = {
@@ -106,7 +152,7 @@ usb_endpoint_t usb_endpoint_bulk_out = {
 	.in = 0,
 	.out = &usb_endpoint_bulk_out,
 	.setup_complete = 0,
-	.transfer_complete = usb_endpoint_bulk_transfer,
+	.transfer_complete = 0,
 };
 
 const usb_request_handlers_t usb_request_handlers = {
@@ -157,10 +203,21 @@ bool usb_set_configuration(
 		if( device->configuration && (device->configuration->number == 1) ) {
 			usb_endpoint_init(&usb_endpoint_bulk_in);
 			usb_endpoint_init(&usb_endpoint_bulk_out);
+
+			usb_init_buffers_bulk();
 			
-			usb_endpoint_bulk_transfer(&usb_endpoint_bulk_out);
-			//usb_endpoint_bulk_transfer(&usb_endpoint_bulk_in);
+			sgpio_configure_for_rx_deep();
+
+			nvic_set_priority(NVIC_M4_SGPIO_IRQ, 0);
+			nvic_enable_irq(NVIC_M4_SGPIO_IRQ);
+			SGPIO_SET_EN_1 = (1 << SGPIO_SLICE_A);
+
+		    sgpio_cpld_stream_enable();
 		} else {
+			sgpio_cpld_stream_disable();
+
+			nvic_disable_irq(NVIC_M4_SGPIO_IRQ);
+			
 			usb_endpoint_disable(&usb_endpoint_bulk_in);
 			usb_endpoint_disable(&usb_endpoint_bulk_out);
 		}
@@ -175,7 +232,45 @@ bool usb_set_configuration(
 	return true;
 };
 
+void sgpio_irqhandler() {
+	SGPIO_CLR_STATUS_1 = 0xFFFFFFFF;
+
+	uint32_t* const p32 = &usb_bulk_buffer[usb_bulk_buffer_offset];
+	volatile const uint32_t* const sgpio_reg_ss_base = SGPIO_PORT_BASE + 0x100;
+	
+	__asm__(
+		"ldr r0, [%[sgpio_reg_ss_base], #0]\n\t"	// Slice A -> p_local[7]
+		"ldr r1, [%[sgpio_reg_ss_base], #32]\n\t"	// Slice I -> p_local[6]
+		"ldr r2, [%[sgpio_reg_ss_base], #16]\n\t"	// Slice E -> p_local[5]
+		"ldr r3, [%[sgpio_reg_ss_base], #36]\n\t"	// Slice J -> p_local[4]
+
+		"str r0, [%[p], #28]\n\t"
+		"str r1, [%[p], #24]\n\t"
+		"str r2, [%[p], #20]\n\t"
+		"str r3, [%[p], #16]\n\t"
+
+		"ldr r0, [%[sgpio_reg_ss_base], #8]\n\t"	// Slice C -> p_local[3]
+		"ldr r1, [%[sgpio_reg_ss_base], #40]\n\t"	// Slice K -> p_local[2]
+		"ldr r2, [%[sgpio_reg_ss_base], #20]\n\t"	// Slice F -> p_local[1]
+		"ldr r3, [%[sgpio_reg_ss_base], #44]\n\t"	// Slice L -> p_local[0]
+
+		"str r0, [%[p], #12]\n\t"
+		"str r1, [%[p], #8]\n\t"
+		"str r2, [%[p], #4]\n\t"
+		"str r3, [%[p], #0]\n\t"
+		: 
+		: [sgpio_reg_ss_base] "l" (sgpio_reg_ss_base),
+		  [p] "l" (p32)
+		: "r0", "r1", "r2", "r3"
+	);
+
+	usb_bulk_buffer_offset = (usb_bulk_buffer_offset + 32) & usb_bulk_buffer_mask;
+}
+
 int main(void) {
+	const uint32_t freq = 2441000000U;
+	uint8_t switchctrl = 0;
+
 	pin_setup();
 	enable_1v8_power();
 	cpu_clock_init();
@@ -193,9 +288,33 @@ int main(void) {
 	usb_endpoint_init(&usb_endpoint_control_out);
 	usb_endpoint_init(&usb_endpoint_control_in);
 	
+	nvic_set_priority(NVIC_M4_USB0_IRQ, 255);
+
 	usb_run(&usb_device);
 	
-	while (1) {
+    ssp1_init();
+	ssp1_set_mode_max2837();
+	max2837_setup();
+	/*
+	rffc5071_setup();
+#ifdef JAWBREAKER
+	switchctrl = (SWITCHCTRL_AMP_BYPASS | SWITCHCTRL_HP);
+#endif
+	rffc5071_rx(switchctrl);
+	rffc5071_set_frequency(500, 0); // 500 MHz, 0 Hz (Hz ignored)
+	*/
+	max2837_set_frequency(freq);
+	max2837_start();
+	max2837_rx();
+	ssp1_set_mode_max5864();
+	max5864_xcvr();
+	
+	while(true) {
+		while( usb_bulk_buffer_offset < 16384 );
+		usb_endpoint_schedule_no_int(&usb_endpoint_bulk_in, &usb_td_bulk[0]);
+		
+		while( usb_bulk_buffer_offset >= 16384 );
+		usb_endpoint_schedule_no_int(&usb_endpoint_bulk_in, &usb_td_bulk[1]);
 	}
 
 	return 0;

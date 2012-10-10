@@ -29,8 +29,11 @@ SRC = $(BINARY).c \
   usb_descriptor.c \
   ../common/fault_handler.c \
 	../common/hackrf_core.c \
+	../common/sgpio.c \
 	../common/si5351c.c \
-	../common/bitband.c
+	../common/max2837.c \
+	../common/max5864.c \
+	../common/rffc5071.c
 
 LDSCRIPT = ../common/LPC4330_M4_ram_only.ld
 include ../common/Makefile_inc.mk
