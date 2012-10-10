@@ -53,9 +53,9 @@ void cpu_clock_init(void)
 	/*
 	 * Jellybean/Lemondrop clocks:
 	 *   CLK0 -> MAX2837
-	 *   CLK1 -> MAX5864/CPLD
-	 *   CLK2 -> CPLD
-	 *   CLK3 -> CPLD
+	 *   CLK1 -> MAX5864/CPLD.GCLK0
+	 *   CLK2 -> CPLD.GCLK1
+	 *   CLK3 -> CPLD.GCLK2
 	 *   CLK4 -> LPC4330
 	 *   CLK5 -> RFFC5072
 	 *   CLK6 -> extra
