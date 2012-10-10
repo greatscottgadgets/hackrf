@@ -80,7 +80,7 @@ flash: $(BINARY).flash
 
 %.bin: %.elf
 	@#printf "  OBJCOPY $(*).bin\n"
-	$(Q)$(OBJCOPY) -Obinary -R .usbram $(*).elf $(*).bin
+	$(Q)$(OBJCOPY) -Obinary $(*).elf $(*).bin
 
 %.hex: %.elf
 	@#printf "  OBJCOPY $(*).hex\n"
