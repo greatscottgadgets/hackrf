@@ -4,6 +4,7 @@
 # Copyright 2010 Piotr Esden-Tempski <piotr@esden.net>
 # Copyright 2012 Michael Ossmann <mike@ossmann.com>
 # Copyright 2012 Benjamin Vernoux <titanmkd@gmail.com>
+# Copyright 2012 Jared Boone <jared@sharebrained.com>
 #
 # This file is part of HackRF.
 #
@@ -45,12 +46,13 @@ OBJDUMP = $(PREFIX)-objdump
 GDB = $(PREFIX)-gdb
 TOOLCHAIN_DIR := $(shell dirname `which $(CC)`)/../$(PREFIX)
 
-CFLAGS += -std=c99 -O2 -g3 -Wall -Wextra -I$(LIBOPENCM3)/include -I../common \
+CFLAGS += -std=c99 -Os -g3 -Wall -Wextra -I$(LIBOPENCM3)/include -I../common \
 		-fno-common -mcpu=cortex-m4 -mthumb -MD \
 		-mfloat-abi=hard -mfpu=fpv4-sp-d16 \
 		$(HACKRF_OPTS)
 #LDSCRIPT ?= $(BINARY).ld
 LDFLAGS += -L$(TOOLCHAIN_DIR)/lib/armv7e-m/fpu \
+    -L../common \
 		-L$(LIBOPENCM3)/lib -L$(LIBOPENCM3)/lib/lpc43xx \
 		-T$(LDSCRIPT) -nostartfiles \
 		-Wl,--gc-sections -Xlinker -Map=$(BINARY).map

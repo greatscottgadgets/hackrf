@@ -1,6 +1,6 @@
 /*
- * Copyright 2012 Michael Ossmann
- * Copyright 2012 Jared Boone
+ * Copyright 2012 Michael Ossmann <mike@ossmann.com>
+ * Copyright 2012 Jared Boone <jared@sharebrained.com>
  *
  * This file is part of HackRF.
  *
@@ -53,9 +53,9 @@ void cpu_clock_init(void)
 	/*
 	 * Jellybean/Lemondrop clocks:
 	 *   CLK0 -> MAX2837
-	 *   CLK1 -> MAX5864/CPLD
-	 *   CLK2 -> CPLD
-	 *   CLK3 -> CPLD
+	 *   CLK1 -> MAX5864/CPLD.GCLK0
+	 *   CLK2 -> CPLD.GCLK1
+	 *   CLK3 -> CPLD.GCLK2
 	 *   CLK4 -> LPC4330
 	 *   CLK5 -> RFFC5072
 	 *   CLK6 -> extra
@@ -142,51 +142,46 @@ void cpu_clock_init(void)
 	CGU_XTAL_OSC_CTRL &= ~CGU_XTAL_OSC_CTRL_ENABLE;
 
 	/* use XTAL_OSC as clock source for BASE_M4_CLK (CPU) */
-	CGU_BASE_M4_CLK = ((CGU_SRC_XTAL << CGU_BASE_CLK_SEL_SHIFT));
+	CGU_BASE_M4_CLK = CGU_BASE_M4_CLK_CLK_SEL(CGU_SRC_XTAL);
 
 	/* use XTAL_OSC as clock source for APB1 */
-	CGU_BASE_APB1_CLK = (CGU_BASE_CLK_AUTOBLOCK
-			| (CGU_SRC_XTAL << CGU_BASE_CLK_SEL_SHIFT));
+	CGU_BASE_APB1_CLK = CGU_BASE_APB1_CLK_AUTOBLOCK
+			| CGU_BASE_APB1_CLK_CLK_SEL(CGU_SRC_XTAL);
 
 	/* use XTAL_OSC as clock source for PLL1 */
-	CGU_PLL1_CTRL = (CGU_PLL1_CTRL_AUTOBLOCK
-			| (CGU_SRC_XTAL << CGU_PLL1_CTRL_CLK_SEL_SHIFT));
-
-	/* configure PLL1 to produce 204 MHz clock from 12 MHz XTAL_OSC */
-	/* not sure why, but it doesn't work without the following line */
-	CGU_PLL1_CTRL &= ~(CGU_PLL1_CTRL_BYPASS
-			| CGU_PLL1_CTRL_FBSEL
-			| CGU_PLL1_CTRL_DIRECT
-			| CGU_PLL1_CTRL_DIRECT
-			| (0x3 << CGU_PLL1_CTRL_PSEL_SHIFT)
-			| (0x3 << CGU_PLL1_CTRL_NSEL_SHIFT)
-			| (0xFF << CGU_PLL1_CTRL_MSEL_SHIFT));
-	CGU_PLL1_CTRL |= (CGU_PLL1_CTRL_FBSEL
-			| CGU_PLL1_CTRL_DIRECT
-			| (0 << CGU_PLL1_CTRL_PSEL_SHIFT)
-			| (0 << CGU_PLL1_CTRL_NSEL_SHIFT)
-			| (16 << CGU_PLL1_CTRL_MSEL_SHIFT));
+	/* Start PLL1 at 12MHz * 17 / 2 = 102MHz. */
+	CGU_PLL1_CTRL = CGU_PLL1_CTRL_CLK_SEL(CGU_SRC_XTAL)
+            | CGU_PLL1_CTRL_PSEL(1)
+            | CGU_PLL1_CTRL_NSEL(0)
+            | CGU_PLL1_CTRL_MSEL(16)
+            | CGU_PLL1_CTRL_PD;
 
 	/* power on PLL1 and wait until stable */
 	CGU_PLL1_CTRL &= ~CGU_PLL1_CTRL_PD;
 	while (!(CGU_PLL1_STAT & CGU_PLL1_STAT_LOCK));
 
 	/* use PLL1 as clock source for BASE_M4_CLK (CPU) */
-	CGU_BASE_M4_CLK = ((CGU_SRC_PLL1 << CGU_BASE_CLK_SEL_SHIFT));
+	CGU_BASE_M4_CLK = CGU_BASE_M4_CLK_CLK_SEL(CGU_SRC_PLL1);
+
+	/* Move PLL1 up to 12MHz * 17 = 204MHz. */
+	CGU_PLL1_CTRL = CGU_PLL1_CTRL_CLK_SEL(CGU_SRC_XTAL)
+            | CGU_PLL1_CTRL_PSEL(0)
+            | CGU_PLL1_CTRL_NSEL(0)
+			| CGU_PLL1_CTRL_MSEL(16);
+
+	/* wait until stable */
+	while (!(CGU_PLL1_STAT & CGU_PLL1_STAT_LOCK));
 
 	/* use XTAL_OSC as clock source for PLL0USB */
-	CGU_PLL0USB_CTRL = (CGU_PLL0USB_CTRL_PD
+	CGU_PLL0USB_CTRL = CGU_PLL0USB_CTRL_PD
 			| CGU_PLL0USB_CTRL_AUTOBLOCK
-			| (CGU_SRC_XTAL << CGU_PLL0USB_CTRL_CLK_SEL_SHIFT));
+			| CGU_PLL0USB_CTRL_CLK_SEL(CGU_SRC_XTAL);
 	while (CGU_PLL0USB_STAT & CGU_PLL0USB_STAT_LOCK);
 
 	/* configure PLL0USB to produce 480 MHz clock from 12 MHz XTAL_OSC */
-	CGU_PLL0USB_MDIV = ((0x07FFA << CGU_PLL0USB_MDIV_MDEC_SHIFT)
-			| (0x0B << CGU_PLL0USB_SELP_MDEC_SHIFT)
-			| (0x10 << CGU_PLL0USB_SELI_MDEC_SHIFT)
-			| (0x0 << CGU_PLL0USB_SELR_MDEC_SHIFT));
-	CGU_PLL0USB_NP_DIV = (98 << CGU_PLL0USB_NP_DIV_PDEC_SHIFT)
-			| (514 << CGU_PLL0USB_NP_DIV_NDEC_SHIFT);
+	/* Values from User Manual v1.4 Table 94, for 12MHz oscillator. */
+	CGU_PLL0USB_MDIV = 0x06167FFA;
+	CGU_PLL0USB_NP_DIV = 0x00302062;
 	CGU_PLL0USB_CTRL |= (CGU_PLL0USB_CTRL_PD
 			| CGU_PLL0USB_CTRL_DIRECTI
 			| CGU_PLL0USB_CTRL_DIRECTO
@@ -197,8 +192,8 @@ void cpu_clock_init(void)
 	while (!(CGU_PLL0USB_STAT & CGU_PLL0USB_STAT_LOCK));
 
 	/* use PLL0USB as clock source for USB0 */
-	CGU_BASE_USB0_CLK = (CGU_BASE_CLK_AUTOBLOCK
-			| (CGU_SRC_PLL0USB << CGU_BASE_CLK_SEL_SHIFT));
+	CGU_BASE_USB0_CLK = CGU_BASE_USB0_CLK_AUTOBLOCK
+			| CGU_BASE_USB0_CLK_CLK_SEL(CGU_SRC_PLL0USB);
 }
 
 void ssp1_init(void)
@@ -253,4 +248,55 @@ void ssp1_set_mode_max5864(void)
 		SSP_MODE_NORMAL,
 		SSP_MASTER,
 		SSP_SLAVE_OUT_ENABLE);
+}
+
+void pin_setup(void) {
+	/* Release CPLD JTAG pins */
+	scu_pinmux(SCU_PINMUX_CPLD_TDO, SCU_GPIO_NOPULL | SCU_CONF_FUNCTION4);
+	scu_pinmux(SCU_PINMUX_CPLD_TCK, SCU_GPIO_NOPULL | SCU_CONF_FUNCTION0);
+	scu_pinmux(SCU_PINMUX_CPLD_TMS, SCU_GPIO_NOPULL | SCU_CONF_FUNCTION0);
+	scu_pinmux(SCU_PINMUX_CPLD_TDI, SCU_GPIO_NOPULL | SCU_CONF_FUNCTION0);
+	
+	GPIO_DIR(PORT_CPLD_TDO) &= ~PIN_CPLD_TDO;
+	GPIO_DIR(PORT_CPLD_TCK) &= ~PIN_CPLD_TCK;
+	GPIO_DIR(PORT_CPLD_TMS) &= ~PIN_CPLD_TMS;
+	GPIO_DIR(PORT_CPLD_TDI) &= ~PIN_CPLD_TDI;
+	
+	/* Configure SCU Pin Mux as GPIO */
+	scu_pinmux(SCU_PINMUX_LED1, SCU_GPIO_FAST);
+	scu_pinmux(SCU_PINMUX_LED2, SCU_GPIO_FAST);
+	scu_pinmux(SCU_PINMUX_LED3, SCU_GPIO_FAST);
+	
+	scu_pinmux(SCU_PINMUX_EN1V8, SCU_GPIO_FAST);
+	
+	scu_pinmux(SCU_PINMUX_BOOT0, SCU_GPIO_FAST);
+	scu_pinmux(SCU_PINMUX_BOOT1, SCU_GPIO_FAST);
+	scu_pinmux(SCU_PINMUX_BOOT2, SCU_GPIO_FAST);
+	scu_pinmux(SCU_PINMUX_BOOT3, SCU_GPIO_FAST);
+	
+	/* Configure all GPIO as Input (safe state) */
+	GPIO0_DIR = 0;
+	GPIO1_DIR = 0;
+	GPIO2_DIR = 0;
+	GPIO3_DIR = 0;
+	GPIO4_DIR = 0;
+	GPIO5_DIR = 0;
+	GPIO6_DIR = 0;
+	GPIO7_DIR = 0;
+	
+	/* Configure GPIO2[1/2/8] (P4_1/2 P6_12) as output. */
+	GPIO2_DIR |= (PIN_LED1 | PIN_LED2 | PIN_LED3);
+	
+	/* GPIO3[6] on P6_10  as output. */
+	GPIO3_DIR |= PIN_EN1V8;
+	
+	/* Configure SSP1 Peripheral (to be moved later in SSP driver) */
+	scu_pinmux(SCU_SSP1_MISO, (SCU_SSP_IO | SCU_CONF_FUNCTION5));
+	scu_pinmux(SCU_SSP1_MOSI, (SCU_SSP_IO | SCU_CONF_FUNCTION5));
+	scu_pinmux(SCU_SSP1_SCK, (SCU_SSP_IO | SCU_CONF_FUNCTION1));
+	scu_pinmux(SCU_SSP1_SSEL, (SCU_SSP_IO | SCU_CONF_FUNCTION1));
+}
+
+void enable_1v8_power(void) {
+	gpio_set(PORT_EN1V8, PIN_EN1V8);
 }
