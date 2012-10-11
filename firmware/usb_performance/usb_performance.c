@@ -205,10 +205,10 @@ bool usb_set_configuration(
 		// library.
 		if( device->configuration && (device->configuration->number == 1) ) {
 			if( transceiver_mode == TRANSCEIVER_MODE_RX ) {
-				sgpio_configure_deep(transceiver_mode);
+				sgpio_configure(transceiver_mode, true);
 				usb_endpoint_init(&usb_endpoint_bulk_in);
 			} else {
-				sgpio_configure_deep(transceiver_mode);
+				sgpio_configure(transceiver_mode, true);
 				usb_endpoint_init(&usb_endpoint_bulk_out);
 			}
 

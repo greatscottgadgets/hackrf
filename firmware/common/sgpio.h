@@ -26,9 +26,10 @@
 
 void sgpio_configure_pin_functions();
 void sgpio_test_interface();
-void sgpio_configure_for_tx();
-void sgpio_configure_for_rx();
-void sgpio_configure_deep(const transceiver_mode_t transceiver_mode);
+void sgpio_configure(
+	const transceiver_mode_t transceiver_mode,
+	const bool multi_slice
+);
 void sgpio_cpld_stream_enable();
 void sgpio_cpld_stream_disable();
 bool sgpio_cpld_stream_is_enabled();
