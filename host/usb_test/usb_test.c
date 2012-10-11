@@ -24,9 +24,19 @@
 #include <string.h>
 
 #include <fcntl.h>
+#include <errno.h>
 #include <unistd.h>
 
 #include <libusb-1.0/libusb.h>
+
+const uint16_t hackrf_usb_pid = 0x1d50;
+const uint16_t hackrf_usb_vid = 0x604b;
+
+typedef enum {
+	TRANSCEIVER_MODE_RX,
+	TRANSCEIVER_MODE_TX,
+} transceiver_mode_t;
+static transceiver_mode_t transceiver_mode = TRANSCEIVER_MODE_RX;
 
 static float
 TimevalDiff(const struct timeval *a, const struct timeval *b)
@@ -48,31 +58,27 @@ void write_callback(struct libusb_transfer* transfer) {
     }
 }
 
-int main(int argc, char** argv) {
-    if( argc != 2 ) {
-        printf("Usage: usb_test <file to capture to>\n");
-        return -1;
-    }
-	
-    const uint32_t buffer_size = 16384;
-
-	fd = open(argv[1], O_RDWR | O_CREAT | O_TRUNC, S_IRWXU | S_IRWXG | S_IRWXO);
-	if( fd == -1 ) {
-        printf("Failed to open file for write\n");
-		return -2;
+void read_callback(struct libusb_transfer* transfer) {
+	if( transfer->status == LIBUSB_TRANSFER_COMPLETED ) {
+		byte_count += transfer->actual_length;
+		read(fd, transfer->buffer, transfer->actual_length);
+		libusb_submit_transfer(transfer);
+	} else {
+		printf("transfer status was not 'completed'\n");
 	}
+}
 
-    libusb_context* context = NULL;
+libusb_device_handle* open_device(libusb_context* const context) {
     int result = libusb_init(NULL);
     if( result != 0 ) {
         printf("libusb_init() failed: %d\n", result);
-        return -4;
+        return NULL;
     }
     
-    libusb_device_handle* device = libusb_open_device_with_vid_pid(context, 0x1d50, 0x604b);
+    libusb_device_handle* device = libusb_open_device_with_vid_pid(context, hackrf_usb_pid, hackrf_usb_vid);
     if( device == NULL ) {
         printf("libusb_open_device_with_vid_pid() failed\n");
-        return -5;
+        return NULL;
     }
     
     //int speed = libusb_get_device_speed(device);
@@ -80,26 +86,46 @@ int main(int argc, char** argv) {
 
     result = libusb_set_configuration(device, 1);
     if( result != 0 ) {
+    	libusb_close(device);
         printf("libusb_set_configuration() failed: %d\n", result);
-        return -6;
+        return NULL;
     }
 
     result = libusb_claim_interface(device, 0);
     if( result != 0 ) {
+    	libusb_close(device);
         printf("libusb_claim_interface() failed: %d\n", result);
-        return -7;
+        return NULL;
     }
-    
-    unsigned char endpoint_address = 0x81;
-    //unsigned char endpoint_address = 0x02;
 
-    const uint32_t transfer_count = 1024;
-    struct libusb_transfer* transfers[transfer_count];
+	return device;
+}
+
+void free_transfers(struct libusb_transfer** const transfers, const uint32_t transfer_count) {
+	for(uint32_t transfer_index=0; transfer_index<transfer_count; transfer_index++) {
+		libusb_free_transfer(transfers[transfer_index]);
+	}
+	free(transfers);
+}
+
+struct libusb_transfer** prepare_transfers(
+	libusb_device_handle* const device,
+	const uint_fast8_t endpoint_address,
+	const uint32_t transfer_count,
+	const uint32_t buffer_size,
+	libusb_transfer_cb_fn callback
+) {
+    struct libusb_transfer** const transfers = calloc(transfer_count, sizeof(struct libusb_transfer));
+	if( transfers == NULL ) {
+		return NULL;
+	}
+	
     for(uint32_t transfer_index=0; transfer_index<transfer_count; transfer_index++) {
         transfers[transfer_index] = libusb_alloc_transfer(0);
-        if( transfers[transfer_index] == 0 ) {
+        if( transfers[transfer_index] == NULL ) {
+			free_transfers(transfers, transfer_count);
             printf("libusb_alloc_transfer() failed\n");
-            return -6;
+            return NULL;
         }
         
         libusb_fill_bulk_transfer(
@@ -108,23 +134,70 @@ int main(int argc, char** argv) {
             endpoint_address,
             (unsigned char*)malloc(buffer_size),
             buffer_size,
-            &write_callback,
+            callback,
             NULL,
             0
             );
         
-        if( transfers[transfer_index]->buffer == 0 ) {
+        if( transfers[transfer_index]->buffer == NULL ) {
+			free_transfers(transfers, transfer_count);
             printf("malloc() failed\n");
-            return -7;
+            return NULL;
         }
         
         int error = libusb_submit_transfer(transfers[transfer_index]);
         if( error != 0 ) {
+			free_transfers(transfers, transfer_count);
             printf("libusb_submit_transfer() failed: %d\n", error);
-            return -8;
+            return NULL;
         }
     }
 
+	return transfers;
+}
+
+int main(int argc, char** argv) {
+    if( argc != 2 ) {
+        printf("Usage: usb_test <file path>\n");
+        return -1;
+    }
+	
+	const char* const path = argv[1];
+	
+	fd = -1;
+	uint_fast8_t endpoint_address = 0;
+	libusb_transfer_cb_fn callback = NULL;
+	
+	if( transceiver_mode == TRANSCEIVER_MODE_RX ) {
+		fd = open(path, O_WRONLY | O_CREAT | O_TRUNC, S_IRWXU | S_IRWXG | S_IRWXO);
+		endpoint_address = 0x81;
+		callback = &write_callback;
+	} else {
+		fd = open(path, O_RDONLY, S_IRWXU | S_IRWXG | S_IRWXO);
+		endpoint_address = 0x02;
+		callback = &read_callback;
+	}
+	
+	if( fd == -1 ) {
+        printf("Failed to open file: errno %d\n", errno);
+		return fd;
+	}
+
+    libusb_context* const context = NULL;
+	libusb_device_handle* const device = open_device(context);
+    if( device == NULL ) {
+		return -3;
+	}
+
+	const uint32_t transfer_count = 1024;
+	const uint32_t buffer_size = 16384;
+	struct libusb_transfer** const transfers = prepare_transfers(
+		device, endpoint_address, transfer_count, buffer_size, callback
+	);
+	if( transfers == NULL ) {
+		return -4;
+	}
+	
     //////////////////////////////////////////////////////////////
     
     struct timeval timeout = { 0, 500000 };
@@ -158,7 +231,9 @@ int main(int argc, char** argv) {
         call_count += 1;
     } while(1);
 
-    result = libusb_release_interface(device, 0);
+	free_transfers(transfers, transfer_count);
+	
+    int result = libusb_release_interface(device, 0);
     if( result != 0 ) {
         printf("libusb_release_interface() failed: %d\n", result);
         return -2000;
