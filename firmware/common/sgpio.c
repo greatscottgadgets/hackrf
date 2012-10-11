@@ -146,6 +146,85 @@ void sgpio_configure_for_tx() {
     ;
 }
 
+void sgpio_configure_for_tx_deep() {
+	// Disable all counters during configuration
+	SGPIO_CTRL_ENABLE = 0;
+
+    sgpio_configure_pin_functions();
+
+    // Set SGPIO output values.
+    SGPIO_GPIO_OUTREG =
+        (1L << 11) |    // direction
+        (1L << 10);     // disable
+
+	// Enable SGPIO pin outputs.
+	SGPIO_GPIO_OENREG =
+		(1L << 11) |    // direction: TX: data to CPLD
+	    (1L << 10) |    // disable
+	    (0L <<  9) |    // capture
+	    (0L <<  8) |    // clock
+        0xFF;           // data: output
+
+	SGPIO_OUT_MUX_CFG( 8) = 0;   // SGPIO: Input: clock
+	SGPIO_OUT_MUX_CFG( 9) = 0;   // SGPIO: Input: qualifier
+    SGPIO_OUT_MUX_CFG(10) = (0L << 4) | (4L << 0);   // GPIO: Output: disable
+    SGPIO_OUT_MUX_CFG(11) = (0L << 4) | (4L << 0);   // GPIO: Output: direction
+
+	for(uint_fast8_t i=0; i<8; i++) {
+		// SGPIO pin 0 outputs slice A bit "i".
+		SGPIO_OUT_MUX_CFG(i) =
+		    (0L <<  4) |    // P_OE_CFG = 0
+		    (11L << 0);    	// P_OUT_CFG = 11, dout_doutm8c (8-bit mode 8c)
+	}
+
+	const uint_fast8_t slice_indices[] = {
+		SGPIO_SLICE_A,
+		SGPIO_SLICE_I,
+		SGPIO_SLICE_E,
+		SGPIO_SLICE_J,
+		SGPIO_SLICE_C,
+		SGPIO_SLICE_K,
+		SGPIO_SLICE_F,
+		SGPIO_SLICE_L,
+	};
+	
+	uint32_t slice_enable_mask = 0;
+	for(uint_fast8_t i=0; i<8; i++) {
+		uint_fast8_t slice_index = slice_indices[i];
+		const uint_fast8_t concat_order = 3;
+		const uint_fast8_t concat_enable = 1;
+		SGPIO_MUX_CFG(slice_index) =
+		    (concat_order << 12) |	// CONCAT_ORDER = 3 (eight slices)
+		    (concat_enable << 11) |	// CONCAT_ENABLE = 1 (concatenate data)
+		    (0L <<  9) |    // QUALIFIER_SLICE_MODE = X
+		    (1L <<  7) |    // QUALIFIER_PIN_MODE = 1 (SGPIO9)
+		    (3L <<  5) |    // QUALIFIER_MODE = 3 (external SGPIO pin)
+		    (0L <<  3) |    // CLK_SOURCE_SLICE_MODE = X
+		    (0L <<  1) |    // CLK_SOURCE_PIN_MODE = 0 (SGPIO8)
+		    (1L <<  0);     // EXT_CLK_ENABLE = 1, external clock signal (slice)
+
+		SGPIO_SLICE_MUX_CFG(slice_index) =
+		    (0L <<  8) |    // INV_QUALIFIER = 0 (use normal qualifier)
+		    (3L <<  6) |    // PARALLEL_MODE = 3 (shift 8 bits per clock)
+		    (0L <<  4) |    // DATA_CAPTURE_MODE = 0 (detect rising edge)
+		    (0L <<  3) |    // INV_OUT_CLK = X
+		    (1L <<  2) |    // CLKGEN_MODE = 1 (use external pin clock)
+		    (1L <<  1) |    // CLK_CAPTURE_MODE = 1 (use falling clock edge)
+		    (0L <<  0);     // MATCH_MODE = 0 (do not match data)
+
+		SGPIO_PRESET(slice_index) = 0;			// External clock, don't care
+		SGPIO_COUNT(slice_index) = 0;				// External clock, don't care
+		SGPIO_POS(slice_index) = (0x1f << 8) | (0x1f << 0);
+		SGPIO_REG(slice_index) = 0xFFFFFFFF;     // Primary output data register
+		SGPIO_REG_SS(slice_index) = 0xFFFFFFFF;  // Shadow output data register
+		
+		slice_enable_mask |= (1 << slice_index);
+	}
+	
+	// Start SGPIO operation by enabling slice clocks.
+	SGPIO_CTRL_ENABLE = slice_enable_mask;
+}
+
 void sgpio_configure_for_rx() {
 	// Disable all counters during configuration
 	SGPIO_CTRL_ENABLE = 0;

@@ -25,6 +25,7 @@
 void sgpio_configure_pin_functions();
 void sgpio_test_interface();
 void sgpio_configure_for_tx();
+void sgpio_configure_for_tx_deep();
 void sgpio_configure_for_rx();
 void sgpio_configure_for_rx_deep();
 void sgpio_cpld_stream_enable();
