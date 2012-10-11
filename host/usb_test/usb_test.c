@@ -21,7 +21,9 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <string.h>
+#include <getopt.h>
 
 #include <fcntl.h>
 #include <errno.h>
@@ -156,13 +158,56 @@ struct libusb_transfer** prepare_transfers(
 	return transfers;
 }
 
+static void usage() {
+	printf("Usage:\n");
+	printf("\tGo fish.\n");
+}
+
 int main(int argc, char** argv) {
-    if( argc != 2 ) {
-        printf("Usage: usb_test <file path>\n");
-        return -1;
-    }
+	int opt;
+	bool receive = false;
+	bool transmit = false;
+	const char* path = NULL;
 	
-	const char* const path = argv[1];
+	while( (opt = getopt(argc, argv, "r:t:")) != EOF ) {
+		switch( opt ) {
+		case 'r':
+			receive = true;
+			path = optarg;
+			break;
+		
+		case 't':
+			transmit = true;
+			path = optarg;
+			break;
+		
+		default:
+			usage();
+			return 1;
+		}
+	}
+	
+	if( transmit == receive ) {
+		if( transmit == true ) {
+			fprintf(stderr, "receive and transmit options are mutually exclusive\n");
+		} else {
+			fprintf(stderr, "specify either transmit or receive option\n");
+		}
+		return 1;
+	}
+
+	if( receive ) {
+		transceiver_mode = TRANSCEIVER_MODE_RX;
+	}
+	
+	if( transmit ) {
+		transceiver_mode = TRANSCEIVER_MODE_TX;
+	}
+	
+	if( path == NULL ) {
+		fprintf(stderr, "specify a path to a file to transmit/receive\n");
+		return 1;
+	}
 	
 	fd = -1;
 	uint_fast8_t endpoint_address = 0;
