@@ -307,35 +307,18 @@ int main(void) {
 	ssp1_set_mode_max5864();
 	max5864_xcvr();
 
-	// TODO: If this turns out to be the same code, simplify.
-	if( transceiver_mode == TRANSCEIVER_MODE_RX ) {
-		while(true) {
-			// Wait until buffer 0 is received.
-			while( usb_bulk_buffer_offset < 16384 );
+	while(true) {
+		// Wait until buffer 0 is transmitted/received.
+		while( usb_bulk_buffer_offset < 16384 );
 
-			// Set up IN transfer to send buffer 0.
-			usb_endpoint_schedule_no_int(&usb_endpoint_bulk_in, &usb_td_bulk[0]);
-		
-			// Wait until buffer 1 is received.
-			while( usb_bulk_buffer_offset >= 16384 );
+		// Set up IN transfer of buffer 0.
+		usb_endpoint_schedule_no_int(&usb_endpoint_bulk_in, &usb_td_bulk[0]);
+	
+		// Wait until buffer 1 is transmitted/received.
+		while( usb_bulk_buffer_offset >= 16384 );
 
-			// Set up IN transfer to send buffer 1.
-			usb_endpoint_schedule_no_int(&usb_endpoint_bulk_in, &usb_td_bulk[1]);
-		}
-	} else {
-		while(true) {
-			// Wait until buffer 0 is transmitted.
-			while( usb_bulk_buffer_offset < 16384 );
-
-			// Set up OUT transfer to fill buffer 0.
-			usb_endpoint_schedule_no_int(&usb_endpoint_bulk_out, &usb_td_bulk[0]);
-
-			// Wait until buffer 1 is transmitted.
-			while( usb_bulk_buffer_offset >= 16384 );
-			
-			// Set up OUT transfer to fill buffer 1.
-			usb_endpoint_schedule_no_int(&usb_endpoint_bulk_out, &usb_td_bulk[1]);
-		}
+		// Set up IN transfer of buffer 1.
+		usb_endpoint_schedule_no_int(&usb_endpoint_bulk_in, &usb_td_bulk[1]);
 	}
 	
 	return 0;
