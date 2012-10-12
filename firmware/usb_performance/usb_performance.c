@@ -312,13 +312,21 @@ int main(void) {
 		while( usb_bulk_buffer_offset < 16384 );
 
 		// Set up IN transfer of buffer 0.
-		usb_endpoint_schedule_no_int(&usb_endpoint_bulk_in, &usb_td_bulk[0]);
+		usb_endpoint_schedule_no_int(
+			(transceiver_mode == TRANSCEIVER_MODE_RX)
+			? &usb_endpoint_bulk_in : &usb_endpoint_bulk_out,
+			&usb_td_bulk[0]
+		);
 	
 		// Wait until buffer 1 is transmitted/received.
 		while( usb_bulk_buffer_offset >= 16384 );
 
 		// Set up IN transfer of buffer 1.
-		usb_endpoint_schedule_no_int(&usb_endpoint_bulk_in, &usb_td_bulk[1]);
+		usb_endpoint_schedule_no_int(
+			(transceiver_mode == TRANSCEIVER_MODE_RX)
+			? &usb_endpoint_bulk_in : &usb_endpoint_bulk_out,
+			&usb_td_bulk[1]
+		);
 	}
 	
 	return 0;
