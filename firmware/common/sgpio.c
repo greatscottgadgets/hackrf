@@ -157,6 +157,7 @@ void sgpio_configure(
 		SGPIO_SLICE_L,
 	};
 	
+	const uint_fast8_t pos = multi_slice ? 0x1f : 0x03;
 	const bool single_slice = !multi_slice;
 	const uint_fast8_t slice_count = multi_slice ? 8 : 1;
 	
@@ -166,7 +167,6 @@ void sgpio_configure(
 		const bool input_slice = (i == 0) && (transceiver_mode == TRANSCEIVER_MODE_RX);
 		const uint_fast8_t concat_order = (input_slice || single_slice) ? 0 : 3;
 		const uint_fast8_t concat_enable = (input_slice || single_slice) ? 0 : 1;
-		const uint_fast8_t pos = multi_slice ? 0x1f : 0x03;
 		
 		SGPIO_MUX_CFG(slice_index) =
 		      SGPIO_MUX_CFG_CONCAT_ORDER(concat_order)
