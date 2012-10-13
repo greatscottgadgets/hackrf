@@ -1,7 +1,6 @@
 # Hey Emacs, this is a -*- makefile -*-
 #
 # Copyright 2012 Jared Boone <jared@sharebrained.com>
-# Copyright 2012 Benjamin Vernoux <titanmkd@gmail.com>
 #
 # This file is part of HackRF.
 #
@@ -21,11 +20,20 @@
 # Boston, MA 02110-1301, USA.
 #
 
-BINARY = sgpio_passthrough
+BINARY = usb_performance
 
 SRC = $(BINARY).c \
+  usb.c \
+  usb_request.c \
+  usb_standard_request.c \
+  usb_descriptor.c \
+  ../common/fault_handler.c \
 	../common/hackrf_core.c \
-	../common/si5351c.c
+	../common/sgpio.c \
+	../common/si5351c.c \
+	../common/max2837.c \
+	../common/max5864.c \
+	../common/rffc5071.c
 
-LDSCRIPT = ../common/LPC4330_M4_rom_to_ram.ld
+LDSCRIPT = ../common/LPC4330_M4_ram_only.ld
 include ../common/Makefile_inc.mk

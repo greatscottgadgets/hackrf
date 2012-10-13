@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 Michael Ossmann
+ * Copyright 2012 Jared Boone
  *
  * This file is part of HackRF.
  *
@@ -19,37 +19,27 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include <libopencm3/lpc43xx/gpio.h>
-#include <libopencm3/lpc43xx/scu.h>
-#include <libopencm3/lpc43xx/i2c.h>
-#include <libopencm3/lpc43xx/ssp.h>
+#ifndef __USB_STANDARD_REQUEST_H__
+#define __USB_STANDARD_REQUEST_H__
 
-#include "hackrf_core.h"
-#include "max2837.h"
-#include "rffc5071.h"
+#include "usb_type.h"
+#include "usb_request.h"
 
-int main(void)
-{
-	const uint32_t freq = 2441000000U;
+void usb_standard_request(
+	usb_endpoint_t* const endpoint,
+	const usb_transfer_stage_t stage
+);
 
-	pin_setup();
-	gpio_set(PORT_EN1V8, PIN_EN1V8); /* 1V8 on */
-	cpu_clock_init();
-	ssp1_init();
+const uint8_t* usb_endpoint_descriptor(
+	const usb_endpoint_t* const endpoint
+);
 
-	gpio_set(PORT_LED1_3, (PIN_LED1)); /* LED1 on */
+uint_fast16_t usb_endpoint_descriptor_max_packet_size(
+	const uint8_t* const endpoint_descriptor
+);
 
-	ssp1_set_mode_max2837();
-	max2837_setup();
-	rffc5071_setup();
-	gpio_set(PORT_LED1_3, (PIN_LED2)); /* LED2 on */
+usb_transfer_type_t usb_endpoint_descriptor_transfer_type(
+	const uint8_t* const endpoint_descriptor
+);
 
-	max2837_set_frequency(freq);
-	max2837_start();
-	max2837_tx();
-	gpio_set(PORT_LED1_3, (PIN_LED3)); /* LED3 on */
-	while (1);
-	max2837_stop();
-
-	return 0;
-}
+#endif//__USB_STANDARD_REQUEST_H__

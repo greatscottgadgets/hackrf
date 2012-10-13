@@ -1,7 +1,7 @@
 /*
  * Copyright 2012 Michael Ossmann <mike@ossmann.com>
  * Copyright 2012 Benjamin Vernoux <titanmkd@gmail.com>
- * Copyright (C) 2012 Jared Boone <jared@sharebrained.com>
+ * Copyright 2012 Jared Boone <jared@sharebrained.com>
  *
  * This file is part of HackRF.
  *
@@ -28,6 +28,8 @@
 extern "C"
 {
 #endif
+
+#include <stdint.h>
 
 /* hardware identification number */
 #define BOARD_ID_JELLYBEAN  0
@@ -198,10 +200,16 @@ extern "C"
 
 /* TODO add other Pins */
 
+void delay(uint32_t duration);
+
 void cpu_clock_init(void);
 void ssp1_init(void);
 void ssp1_set_mode_max2837(void);
 void ssp1_set_mode_max5864(void);
+
+void pin_setup(void);
+
+void enable_1v8_power(void);
 
 #ifdef __cplusplus
 }
