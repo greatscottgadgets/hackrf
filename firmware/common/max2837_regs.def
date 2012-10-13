@@ -133,7 +133,7 @@ __MREG__(MAX2837_LPF_MODE_SEL,6,9,1) // set to enable mode in reg 2 ModeCtrl
 
 /* REG 8 */
 __MREG__(MAX2837_LNAgain_SPI_EN,8,0,1)  // set to override pin control of LNA
-__MREG__(MAX2837_VGAgain_SPI_EN,8,1,0)  // set to override pin control of VGA
+__MREG__(MAX2837_VGAgain_SPI_EN,8,1,1)  // set to override pin control of VGA
 __MREG__(MAX2837_EN_Bias_Trim,8,2,1)    // route bias current to bondpad
 __MREG__(MAX2837_BIAS_TRIM_SPI,8,7,3)   // down=00000, up=11111, nom=10000
 __MREG__(MAX2837_BIAS_TRIM_CNTRL,8,8,1) // enable BIAS_TRIM_SPI value
@@ -255,7 +255,7 @@ __MREG__(MAX2837_SYN_BIAS_TRIM,20,9,2) // 00=max 10=default 11=min
 /* REG 21 */
 __MREG__(MAX2837_SYN_CP_COMMON_MODE_EN,21,0,1)
 __MREG__(MAX2837_SYN_PRESCALER_BIAS_BOOST,21,1,1)  // 0=default 1=+20%
-__MREG__(MAX2837_SYN_CP_BETA_EN,21,2,0)
+__MREG__(MAX2837_SYN_CP_BETA_EN,21,2,1)
 __MREG__(MAX2837_SYN_SD_CLOCK_SEL,21,3,1)
 #define MAX2837_SYN_SD_CLOCK_PFD 0  // from PFD reset
 #define MAX2837_SYN_SD_CLOCK_PRE 1  // from prescaler
