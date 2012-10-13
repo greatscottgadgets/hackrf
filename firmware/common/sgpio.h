@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 Michael Ossmann
+ * Copyright 2012 Jared Boone <jared@sharebrained.com>
  *
  * This file is part of HackRF.
  *
@@ -19,37 +19,16 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include <libopencm3/lpc43xx/gpio.h>
-#include <libopencm3/lpc43xx/scu.h>
-#include <libopencm3/lpc43xx/i2c.h>
-#include <libopencm3/lpc43xx/ssp.h>
+#ifndef __SGPIO_H__
+#define __SGPIO_H__
 
-#include "hackrf_core.h"
-#include "max2837.h"
-#include "rffc5071.h"
+void sgpio_configure_pin_functions();
+void sgpio_test_interface();
+void sgpio_configure_for_tx();
+void sgpio_configure_for_rx();
+void sgpio_configure_for_rx_deep();
+void sgpio_cpld_stream_enable();
+void sgpio_cpld_stream_disable();
+bool sgpio_cpld_stream_is_enabled();
 
-int main(void)
-{
-	const uint32_t freq = 2441000000U;
-
-	pin_setup();
-	gpio_set(PORT_EN1V8, PIN_EN1V8); /* 1V8 on */
-	cpu_clock_init();
-	ssp1_init();
-
-	gpio_set(PORT_LED1_3, (PIN_LED1)); /* LED1 on */
-
-	ssp1_set_mode_max2837();
-	max2837_setup();
-	rffc5071_setup();
-	gpio_set(PORT_LED1_3, (PIN_LED2)); /* LED2 on */
-
-	max2837_set_frequency(freq);
-	max2837_start();
-	max2837_tx();
-	gpio_set(PORT_LED1_3, (PIN_LED3)); /* LED3 on */
-	while (1);
-	max2837_stop();
-
-	return 0;
-}
+#endif//__SGPIO_H__

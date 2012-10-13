@@ -112,6 +112,9 @@ void max2837_setup(void)
 	set_MAX2837_VGAgain_SPI_EN(1);
 	set_MAX2837_VGA(0x00); /* minimum attenuation */
 
+	/* maximum rx output common-mode voltage */
+	set_MAX2837_BUFF_VCM(MAX2837_BUFF_VCM_1_25);
+
 	max2837_regs_commit();
 }
 
