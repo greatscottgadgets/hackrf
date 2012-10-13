@@ -110,7 +110,7 @@ void max2837_setup(void)
 	set_MAX2837_LNAgain_SPI_EN(1);
 	set_MAX2837_LNAgain(MAX2837_LNAgain_MAX); /* maximum gain */
 	set_MAX2837_VGAgain_SPI_EN(1);
-	set_MAX2837_VGA(0x00); /* minimum attenuation */
+	set_MAX2837_VGA(0x18); /* reasonable gain for noisy 2.4GHz environment */
 
 	/* maximum rx output common-mode voltage */
 	set_MAX2837_BUFF_VCM(MAX2837_BUFF_VCM_1_25);
