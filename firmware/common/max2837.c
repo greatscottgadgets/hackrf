@@ -121,10 +121,9 @@ void max2837_setup(void)
 /* SPI register read. */
 uint16_t max2837_spi_read(uint8_t r) {
 	gpio_clear(PORT_XCVR_CS, PIN_XCVR_CS);
-	// FIXME: Unimplemented.
-	r=r;
+	const uint16_t value = ssp_transfer(SSP1_NUM, (uint16_t)((1 << 15) | (r << 10)));
 	gpio_set(PORT_XCVR_CS, PIN_XCVR_CS);
-	return 0;
+	return value & 0x3ff;
 }
 
 /* SPI register write */
@@ -137,7 +136,7 @@ void max2837_spi_write(uint8_t r, uint16_t v) {
 	LOG("0x%03x -> reg%d\n", v, r);
 #else
 	gpio_clear(PORT_XCVR_CS, PIN_XCVR_CS);
-	ssp_write(SSP1_NUM, (uint16_t)((r << 10) | (v & 0x3ff)));
+	ssp_transfer(SSP1_NUM, (uint16_t)((r << 10) | (v & 0x3ff)));
 	gpio_set(PORT_XCVR_CS, PIN_XCVR_CS);
 #endif
 }
