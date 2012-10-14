@@ -35,5 +35,4 @@ SRC = $(BINARY).c \
 	../common/max5864.c \
 	../common/rffc5071.c
 
-LDSCRIPT = ../common/LPC4330_M4_ram_only.ld
 include ../common/Makefile_inc.mk

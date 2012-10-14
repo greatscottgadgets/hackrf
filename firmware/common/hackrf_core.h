@@ -200,6 +200,11 @@ extern "C"
 
 /* TODO add other Pins */
 
+typedef enum {
+	TRANSCEIVER_MODE_RX,
+	TRANSCEIVER_MODE_TX,
+} transceiver_mode_t;
+
 void delay(uint32_t duration);
 
 void cpu_clock_init(void);

@@ -38,7 +38,7 @@ typedef enum {
 } usb_transfer_stage_t;
 
 typedef void (*usb_request_handler_fn)(
-	usb_endpoint_t* const response,
+	usb_endpoint_t* const endpoint,
 	const usb_transfer_stage_t stage
 );
 
