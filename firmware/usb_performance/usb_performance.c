@@ -38,7 +38,7 @@
 #include "usb_descriptor.h"
 #include "usb_standard_request.h"
 
-static volatile transceiver_mode_t transceiver_mode = TRANSCEIVER_MODE_TX;
+static volatile transceiver_mode_t transceiver_mode = TRANSCEIVER_MODE_RX;
 
 uint8_t* const usb_bulk_buffer = (uint8_t*)0x20004000;
 static volatile uint32_t usb_bulk_buffer_offset = 0;
@@ -158,10 +158,132 @@ usb_endpoint_t usb_endpoint_bulk_out = {
 	.transfer_complete = 0,
 };
 
+void baseband_streaming_disable() {
+	sgpio_cpld_stream_disable();
+
+	nvic_disable_irq(NVIC_M4_SGPIO_IRQ);
+	
+	usb_endpoint_disable(&usb_endpoint_bulk_in);
+	usb_endpoint_disable(&usb_endpoint_bulk_out);
+}
+
+void set_transceiver_mode(const transceiver_mode_t new_transceiver_mode) {
+	baseband_streaming_disable();
+	
+	transceiver_mode = new_transceiver_mode;
+	
+	usb_init_buffers_bulk();
+
+	if( transceiver_mode == TRANSCEIVER_MODE_RX ) {
+		gpio_clear(PORT_LED1_3, PIN_LED3);
+		usb_endpoint_init(&usb_endpoint_bulk_in);
+	} else {
+		gpio_set(PORT_LED1_3, PIN_LED3);
+		usb_endpoint_init(&usb_endpoint_bulk_out);
+	}
+
+	sgpio_configure(transceiver_mode, true);
+
+	nvic_set_priority(NVIC_M4_SGPIO_IRQ, 0);
+	nvic_enable_irq(NVIC_M4_SGPIO_IRQ);
+	SGPIO_SET_EN_1 = (1 << SGPIO_SLICE_A);
+
+    sgpio_cpld_stream_enable();
+}
+
+bool usb_vendor_request_set_transceiver_mode(
+	usb_endpoint_t* const endpoint,
+	const usb_transfer_stage_t stage
+) {
+	if( stage == USB_TRANSFER_STAGE_SETUP ) {
+		switch( endpoint->setup.value ) {
+		case 1:
+			set_transceiver_mode(TRANSCEIVER_MODE_RX);
+			usb_endpoint_schedule_ack(endpoint->in);
+			return true;
+			
+		case 2:
+			set_transceiver_mode(TRANSCEIVER_MODE_TX);
+			usb_endpoint_schedule_ack(endpoint->in);
+			return true;
+		
+		default:
+			return false;
+		}
+	} else {
+		return true;
+	}
+}
+
+bool usb_vendor_request_write_max2837(
+	usb_endpoint_t* const endpoint,
+	const usb_transfer_stage_t stage
+) {
+	if( stage == USB_TRANSFER_STAGE_SETUP ) {
+		if( endpoint->setup.index < 32 ) {
+			if( endpoint->setup.value < 0x3ff ) {
+				max2837_reg_write(endpoint->setup.index, endpoint->setup.value);
+				usb_endpoint_schedule_ack(endpoint->in);
+				return true;
+			}
+		}
+		return false;
+	} else {
+		return true;
+	}
+}
+
+bool usb_vendor_request_read_max2837(
+	usb_endpoint_t* const endpoint,
+	const usb_transfer_stage_t stage
+) {
+	if( stage == USB_TRANSFER_STAGE_SETUP ) {
+		if( endpoint->setup.index < 32 ) {
+			const uint16_t value = max2837_reg_read(endpoint->setup.index);
+			endpoint->buffer[0] = value >> 8;
+			endpoint->buffer[1] = value & 0xff;
+			usb_endpoint_schedule(endpoint->in, &endpoint->buffer, 2);
+			usb_endpoint_schedule_ack(endpoint->out);
+			return true;
+		}
+		return false;
+	} else {
+		return true;
+	}
+}
+
+void usb_vendor_request(
+	usb_endpoint_t* const endpoint,
+	const usb_transfer_stage_t stage
+) {
+	bool success = false;
+	
+	switch(endpoint->setup.request) {
+	case 1:
+		success = usb_vendor_request_set_transceiver_mode(endpoint, stage);
+		break;
+		
+	case 2:
+		success = usb_vendor_request_write_max2837(endpoint, stage);
+		break;
+		
+	case 3:
+		success = usb_vendor_request_read_max2837(endpoint, stage);
+		break;
+		
+	default:
+		break;
+	}
+	
+	if( success != true ) {
+		usb_endpoint_stall(endpoint);
+	}
+}
+
 const usb_request_handlers_t usb_request_handlers = {
 	.standard = usb_standard_request,
 	.class = 0,
-	.vendor = 0,
+	.vendor = usb_vendor_request,
 	.reserved = 0,
 };
 
@@ -197,36 +319,7 @@ bool usb_set_configuration(
 	if( new_configuration != device->configuration ) {
 		// Configuration changed.
 		device->configuration = new_configuration;
-
-		// TODO: This is lame. There should be a way to link stuff together so
-		// that changing the configuration will initialize the related
-		// endpoints. No hard-coding crap like this! Then, when there's no more
-		// hard-coding, this whole function can move into a shared/reusable
-		// library.
-		if( device->configuration && (device->configuration->number == 1) ) {
-			if( transceiver_mode == TRANSCEIVER_MODE_RX ) {
-				sgpio_configure(transceiver_mode, true);
-				usb_endpoint_init(&usb_endpoint_bulk_in);
-			} else {
-				sgpio_configure(transceiver_mode, true);
-				usb_endpoint_init(&usb_endpoint_bulk_out);
-			}
-
-			usb_init_buffers_bulk();
-
-			nvic_set_priority(NVIC_M4_SGPIO_IRQ, 0);
-			nvic_enable_irq(NVIC_M4_SGPIO_IRQ);
-			SGPIO_SET_EN_1 = (1 << SGPIO_SLICE_A);
-
-		    sgpio_cpld_stream_enable();
-		} else {
-			sgpio_cpld_stream_disable();
-
-			nvic_disable_irq(NVIC_M4_SGPIO_IRQ);
-			
-			usb_endpoint_disable(&usb_endpoint_bulk_in);
-			usb_endpoint_disable(&usb_endpoint_bulk_out);
-		}
+		set_transceiver_mode(transceiver_mode);
 
 		if( device->configuration ) {
 			gpio_set(PORT_LED1_3, PIN_LED1);
