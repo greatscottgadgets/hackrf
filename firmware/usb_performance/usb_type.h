@@ -30,15 +30,30 @@
 #define ATTR_ALIGNED(x)	__attribute__ ((aligned(x)))
 #define ATTR_SECTION(x) __attribute__ ((section(x)))
 
-typedef struct {
+typedef struct ATTR_PACKED {
 	uint8_t request_type;
 	uint8_t request;
-	uint8_t value_l;
-	uint8_t value_h;
-	uint8_t index_l;
-	uint8_t index_h;
-	uint8_t length_l;
-	uint8_t length_h;
+	union {
+		struct {
+			uint8_t value_l;
+			uint8_t value_h;
+		};
+		uint16_t value;
+	};
+	union {
+		struct {
+			uint8_t index_l;
+			uint8_t index_h;
+		};
+		uint16_t index;
+	};
+	union {
+		struct {
+			uint8_t length_l;
+			uint8_t length_h;
+		};
+		uint16_t length;
+	};
 } usb_setup_t;
 
 typedef enum {
