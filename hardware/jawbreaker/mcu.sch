@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-EESchema Schematic File Version 2  date Wed Sep 19 09:57:14 2012
-=======
 EESchema Schematic File Version 2  date Tue Oct  2 15:08:35 2012
->>>>>>> upstream/master
 LIBS:power
 LIBS:device
 LIBS:transistors
@@ -41,11 +37,7 @@ $Descr User 17000 11000
 encoding utf-8
 Sheet 4 4
 Title "jawbreaker mcu/usb/power"
-<<<<<<< HEAD
-Date "19 sep 2012"
-=======
 Date "2 oct 2012"
->>>>>>> upstream/master
 Rev ""
 Comp "Copyright 2012 Michael Ossmann"
 Comment1 "License: GPL v2"
@@ -53,8 +45,6 @@ Comment2 ""
 Comment3 ""
 Comment4 ""
 $EndDescr
-<<<<<<< HEAD
-=======
 $Comp
 L R R65
 U 1 1 506B55A7
@@ -92,7 +82,6 @@ F 6 "CAP CER 33PF 50V 5% NP0 0402" H 17450 700 60  0001 C CNN "Description"
 	1    14300 900 
 	0    1    1    0   
 $EndComp
->>>>>>> upstream/master
 Wire Wire Line
 	9700 5300 10400 5300
 Wire Wire Line
@@ -2183,18 +2172,6 @@ F 5 "RMCF0402JT39R0" H 9800 9000 60  0001 C CNN "Part Number"
 F 6 "RES 39 OHM 1/16W 5% 0402 SMD" H 9800 9000 60  0001 C CNN "Description"
 	1    9800 9000
 	0    -1   -1   0   
-$EndComp
-$Comp
-L C C125
-U 1 1 503F91B4
-P 14300 900
-F 0 "C125" H 14350 1000 50  0000 L CNN
-F 1 "22pF" H 14350 800 50  0000 L CNN
-F 4 "Murata" H 14300 900 60  0001 C CNN "Manufacturer"
-F 5 "GRM1555C1H220JA01D" H 14300 900 60  0001 C CNN "Part Number"
-F 6 "CAP CER 22PF 50V 5% NP0 0402" H 14300 900 60  0001 C CNN "Description"
-	1    14300 900 
-	0    1    1    0   
 $EndComp
 $Comp
 L R R46
