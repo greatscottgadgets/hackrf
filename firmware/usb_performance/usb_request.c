@@ -19,6 +19,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
+#include "usb.h"
 #include "usb_request.h"
 
 #include <stdbool.h>
@@ -49,6 +50,9 @@ static void usb_request(
 	
 	if( handler ) {
 		handler(endpoint, stage);
+	} else {
+		// USB 2.0 section 9.2.7 "Request Error"
+		usb_endpoint_stall(endpoint);
 	}
 }
 

@@ -75,12 +75,23 @@ all: images
 images: $(BINARY).images
 flash: $(BINARY).flash
 
+program: $(BINARY).dfu
+	$(Q)dfu-util --device 1fc9:000c --alt 0 --download $(BINARY).dfu
+
 %.images: %.bin %.hex %.srec %.list
 	@#echo "*** $* images generated ***"
 
+%.dfu: %.bin
+	$(Q)rm -f _tmp.dfu _header.bin
+	$(Q)cp $(*).bin _tmp.dfu
+	$(Q)dfu-suffix --vid=0x1fc9 --pid=0x000c --did=0x0 -s 0 -a _tmp.dfu
+	$(Q)python -c "import os.path; import struct; print('0000000: da ff ' + ' '.join(map(lambda s: '%02x' % ord(s), struct.pack('<H', os.path.getsize('$(*).bin') / 512 + 1))) + ' ff ff ff ff')" | xxd -g1 -r > _header.bin
+	$(Q)cat _header.bin _tmp.dfu >$(*).dfu
+	$(Q)rm -f _tmp.dfu _header.bin
+
 %.bin: %.elf
 	@#printf "  OBJCOPY $(*).bin\n"
-	$(Q)$(OBJCOPY) -Obinary $(*).elf $(*).bin
+	$(Q)$(OBJCOPY) -Obinary -j .text -j .ARM.exidx $(*).elf $(*).bin
 
 %.hex: %.elf
 	@#printf "  OBJCOPY $(*).hex\n"
@@ -107,6 +118,8 @@ clean:
 	$(Q)rm -f *.d
 	$(Q)rm -f *.elf
 	$(Q)rm -f *.bin
+	$(Q)rm -f *.dfu
+	$(Q)rm -f _tmp.dfu _header.bin
 	$(Q)rm -f *.hex
 	$(Q)rm -f *.srec
 	$(Q)rm -f *.list

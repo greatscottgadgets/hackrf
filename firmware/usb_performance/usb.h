@@ -28,9 +28,8 @@
 
 #include "usb_type.h"
 
-#define ATTR_ALIGNED(x)	__attribute__ ((aligned(x)))
-#define ATTR_SECTION(x) __attribute__ ((section(x)))
-
+// TODO: This is a lame move, requiring an extern to be defined to complete
+// the interface between this API and the application.
 extern bool usb_set_configuration(
 	usb_device_t* const device,
 	const uint_fast8_t configuration_number
