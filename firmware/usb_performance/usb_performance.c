@@ -38,6 +38,8 @@
 #include "usb_descriptor.h"
 #include "usb_standard_request.h"
 
+static volatile transceiver_mode_t transceiver_mode = TRANSCEIVER_MODE_TX;
+
 uint8_t* const usb_bulk_buffer = (uint8_t*)0x20004000;
 static volatile uint32_t usb_bulk_buffer_offset = 0;
 static const uint32_t usb_bulk_buffer_mask = 32768 - 1;
@@ -202,12 +204,15 @@ bool usb_set_configuration(
 		// hard-coding, this whole function can move into a shared/reusable
 		// library.
 		if( device->configuration && (device->configuration->number == 1) ) {
-			usb_endpoint_init(&usb_endpoint_bulk_in);
-			usb_endpoint_init(&usb_endpoint_bulk_out);
+			if( transceiver_mode == TRANSCEIVER_MODE_RX ) {
+				sgpio_configure(transceiver_mode, true);
+				usb_endpoint_init(&usb_endpoint_bulk_in);
+			} else {
+				sgpio_configure(transceiver_mode, true);
+				usb_endpoint_init(&usb_endpoint_bulk_out);
+			}
 
 			usb_init_buffers_bulk();
-			
-			sgpio_configure_for_rx_deep();
 
 			nvic_set_priority(NVIC_M4_SGPIO_IRQ, 0);
 			nvic_enable_irq(NVIC_M4_SGPIO_IRQ);
@@ -237,15 +242,26 @@ void sgpio_irqhandler() {
 	SGPIO_CLR_STATUS_1 = 0xFFFFFFFF;
 
 	uint32_t* const p = (uint32_t*)&usb_bulk_buffer[usb_bulk_buffer_offset];
-	p[7] = SGPIO_REG_SS(SGPIO_SLICE_A);
-	p[6] = SGPIO_REG_SS(SGPIO_SLICE_I);
-	p[5] = SGPIO_REG_SS(SGPIO_SLICE_E);
-	p[4] = SGPIO_REG_SS(SGPIO_SLICE_J);
-	p[3] = SGPIO_REG_SS(SGPIO_SLICE_C);
-	p[2] = SGPIO_REG_SS(SGPIO_SLICE_K);
-	p[1] = SGPIO_REG_SS(SGPIO_SLICE_F);
-	p[0] = SGPIO_REG_SS(SGPIO_SLICE_L);
-
+	if( transceiver_mode == TRANSCEIVER_MODE_RX ) {
+		p[7] = SGPIO_REG_SS(SGPIO_SLICE_A);
+		p[6] = SGPIO_REG_SS(SGPIO_SLICE_I);
+		p[5] = SGPIO_REG_SS(SGPIO_SLICE_E);
+		p[4] = SGPIO_REG_SS(SGPIO_SLICE_J);
+		p[3] = SGPIO_REG_SS(SGPIO_SLICE_C);
+		p[2] = SGPIO_REG_SS(SGPIO_SLICE_K);
+		p[1] = SGPIO_REG_SS(SGPIO_SLICE_F);
+		p[0] = SGPIO_REG_SS(SGPIO_SLICE_L);
+	} else {
+		SGPIO_REG_SS(SGPIO_SLICE_A) = p[7];
+		SGPIO_REG_SS(SGPIO_SLICE_I) = p[6];
+		SGPIO_REG_SS(SGPIO_SLICE_E) = p[5];
+		SGPIO_REG_SS(SGPIO_SLICE_J) = p[4];
+		SGPIO_REG_SS(SGPIO_SLICE_C) = p[3];
+		SGPIO_REG_SS(SGPIO_SLICE_K) = p[2];
+		SGPIO_REG_SS(SGPIO_SLICE_F) = p[1];
+		SGPIO_REG_SS(SGPIO_SLICE_L) = p[0];
+	}
+	
 	usb_bulk_buffer_offset = (usb_bulk_buffer_offset + 32) & usb_bulk_buffer_mask;
 }
 
@@ -290,14 +306,28 @@ int main(void) {
 	max2837_rx();
 	ssp1_set_mode_max5864();
 	max5864_xcvr();
-	
-	while(true) {
-		while( usb_bulk_buffer_offset < 16384 );
-		usb_endpoint_schedule_no_int(&usb_endpoint_bulk_in, &usb_td_bulk[0]);
-		
-		while( usb_bulk_buffer_offset >= 16384 );
-		usb_endpoint_schedule_no_int(&usb_endpoint_bulk_in, &usb_td_bulk[1]);
-	}
 
+	while(true) {
+		// Wait until buffer 0 is transmitted/received.
+		while( usb_bulk_buffer_offset < 16384 );
+
+		// Set up IN transfer of buffer 0.
+		usb_endpoint_schedule_no_int(
+			(transceiver_mode == TRANSCEIVER_MODE_RX)
+			? &usb_endpoint_bulk_in : &usb_endpoint_bulk_out,
+			&usb_td_bulk[0]
+		);
+	
+		// Wait until buffer 1 is transmitted/received.
+		while( usb_bulk_buffer_offset >= 16384 );
+
+		// Set up IN transfer of buffer 1.
+		usb_endpoint_schedule_no_int(
+			(transceiver_mode == TRANSCEIVER_MODE_RX)
+			? &usb_endpoint_bulk_in : &usb_endpoint_bulk_out,
+			&usb_td_bulk[1]
+		);
+	}
+	
 	return 0;
 }

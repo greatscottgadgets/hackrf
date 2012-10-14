@@ -67,7 +67,7 @@ static void usb_send_descriptor(
 	usb_endpoint_t* const endpoint,
 	uint8_t* const descriptor_data
 ) {
-	const uint32_t setup_length = (endpoint->setup.length_h << 8) | endpoint->setup.length_l;
+	const uint32_t setup_length = endpoint->setup.length;
 	uint32_t descriptor_length = descriptor_data[0];
 	if( descriptor_data[1] == USB_DESCRIPTOR_TYPE_CONFIGURATION ) {
 		descriptor_length = (descriptor_data[3] << 8) | descriptor_data[2];
@@ -221,7 +221,7 @@ static void usb_standard_request_set_configuration(
 static void usb_standard_request_get_configuration_setup(
 	usb_endpoint_t* const endpoint
 ) {
-	if( (endpoint->setup.length_h == 0) && (endpoint->setup.length_l == 1) ) {
+	if( endpoint->setup.length == 1 ) {
 		endpoint->buffer[0] = 0;
 		if( endpoint->device->configuration ) {
 			endpoint->buffer[0] = endpoint->device->configuration->number;

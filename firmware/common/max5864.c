@@ -29,7 +29,7 @@
 
 void max5864_spi_write(uint_fast8_t value) {
 	gpio_clear(PORT_AD_CS, PIN_AD_CS);
-	ssp_write(SSP1_NUM, value);
+	ssp_transfer(SSP1_NUM, value);
 	gpio_set(PORT_AD_CS, PIN_AD_CS);
 }
 
