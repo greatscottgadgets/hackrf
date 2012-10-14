@@ -38,7 +38,7 @@
 #include "usb_descriptor.h"
 #include "usb_standard_request.h"
 
-static volatile transceiver_mode_t transceiver_mode = TRANSCEIVER_MODE_TX;
+static volatile transceiver_mode_t transceiver_mode = TRANSCEIVER_MODE_RX;
 
 uint8_t* const usb_bulk_buffer = (uint8_t*)0x20004000;
 static volatile uint32_t usb_bulk_buffer_offset = 0;
