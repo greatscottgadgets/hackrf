@@ -135,7 +135,7 @@ __MREG__(MAX2837_LPF_MODE_SEL,6,9,1) // set to enable mode in reg 2 ModeCtrl
 __MREG__(MAX2837_LNAgain_SPI_EN,8,0,1)  // set to override pin control of LNA
 __MREG__(MAX2837_VGAgain_SPI_EN,8,1,1)  // set to override pin control of VGA
 __MREG__(MAX2837_EN_Bias_Trim,8,2,1)    // route bias current to bondpad
-__MREG__(MAX2837_BIAS_TRIM_SPI,8,7,3)   // down=00000, up=11111, nom=10000
+__MREG__(MAX2837_BIAS_TRIM_SPI,8,7,5)   // down=00000, up=11111, nom=10000
 __MREG__(MAX2837_BIAS_TRIM_CNTRL,8,8,1) // enable BIAS_TRIM_SPI value
 __MREG__(MAX2837_RX_IQERR_SPI_EN,8,9,1) // ???
 
@@ -388,7 +388,7 @@ __MREG__(MAX2837_TXVGA_GAIN,29,9,6)    // 0 = min atten, 63 = max atten
 
 /* REG 30 */
 __MREG__(MAX2837_TXLO_IQ,30,4,5)
-__MREG__(MAX2837_TXLO_IQ_SPI_EN,30,5,5)
+__MREG__(MAX2837_TXLO_IQ_SPI_EN,30,5,1)
 __MREG__(MAX2837_TXLO_BUFF_BIAS,30,7,2)
 #define MAX2837_TXLO_BUFF_BIAS_1_0mA 0
 #define MAX2837_TXLO_BUFF_BIAS_1_5mA 1
