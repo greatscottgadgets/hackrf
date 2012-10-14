@@ -25,6 +25,11 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+// TODO: Move this to some common compiler-tricks location.
+#define ATTR_PACKED __attribute__((packed))
+#define ATTR_ALIGNED(x)	__attribute__ ((aligned(x)))
+#define ATTR_SECTION(x) __attribute__ ((section(x)))
+
 typedef struct {
 	uint8_t request_type;
 	uint8_t request;
