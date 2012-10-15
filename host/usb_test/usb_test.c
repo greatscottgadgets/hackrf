@@ -31,8 +31,8 @@
 
 #include <libusb-1.0/libusb.h>
 
-const uint16_t hackrf_usb_pid = 0x1d50;
-const uint16_t hackrf_usb_vid = 0x604b;
+const uint16_t hackrf_usb_vid = 0x1d50;
+const uint16_t hackrf_usb_pid = 0x604b;
 
 typedef enum {
 	TRANSCEIVER_MODE_RX,
@@ -77,7 +77,7 @@ libusb_device_handle* open_device(libusb_context* const context) {
         return NULL;
     }
     
-    libusb_device_handle* device = libusb_open_device_with_vid_pid(context, hackrf_usb_pid, hackrf_usb_vid);
+    libusb_device_handle* device = libusb_open_device_with_vid_pid(context, hackrf_usb_vid, hackrf_usb_pid);
     if( device == NULL ) {
         printf("libusb_open_device_with_vid_pid() failed\n");
         return NULL;
