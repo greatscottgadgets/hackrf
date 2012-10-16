@@ -27,7 +27,7 @@ device = usb.core.find(idVendor=0x1d50, idProduct=0x604b)
 device.set_configuration()
 
 def read_max2837_register(register_number):
-    return struct.unpack('>H', device.ctrl_transfer(0xC0, 3, 0, register_number, 2))[0]
+    return struct.unpack('<H', device.ctrl_transfer(0xC0, 3, 0, register_number, 2))[0]
 
 def write_max2837_register(register_number, value):
     device.ctrl_transfer(0x40, 2, value, register_number)

@@ -240,8 +240,8 @@ bool usb_vendor_request_read_max2837(
 	if( stage == USB_TRANSFER_STAGE_SETUP ) {
 		if( endpoint->setup.index < 32 ) {
 			const uint16_t value = max2837_reg_read(endpoint->setup.index);
-			endpoint->buffer[0] = value >> 8;
-			endpoint->buffer[1] = value & 0xff;
+			endpoint->buffer[0] = value & 0xff;
+			endpoint->buffer[1] = value >> 8;
 			usb_endpoint_schedule(endpoint->in, &endpoint->buffer, 2);
 			usb_endpoint_schedule_ack(endpoint->out);
 			return true;
