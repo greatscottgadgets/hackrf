@@ -53,8 +53,16 @@ volatile uint32_t byte_count = 0;
 void write_callback(struct libusb_transfer* transfer) {
     if( transfer->status == LIBUSB_TRANSFER_COMPLETED ) {
         byte_count += transfer->actual_length;
-		write(fd, transfer->buffer, transfer->actual_length);
-        libusb_submit_transfer(transfer);
+		if( fd != -1 ) {
+			const ssize_t bytes_written = write(fd, transfer->buffer, transfer->actual_length);
+			if( bytes_written == transfer->actual_length ) {
+        		libusb_submit_transfer(transfer);
+			} else {
+				printf("write failed: errno %d\n", errno);
+				close(fd);
+				fd = -1;
+			}
+		}
     } else {
         printf("transfer status was not 'completed'\n");
     }
@@ -63,8 +71,16 @@ void write_callback(struct libusb_transfer* transfer) {
 void read_callback(struct libusb_transfer* transfer) {
 	if( transfer->status == LIBUSB_TRANSFER_COMPLETED ) {
 		byte_count += transfer->actual_length;
-		read(fd, transfer->buffer, transfer->actual_length);
-		libusb_submit_transfer(transfer);
+		if( fd != -1 ) {
+			const ssize_t bytes_read = read(fd, transfer->buffer, transfer->length);
+			if( bytes_read == transfer->length ) {
+				libusb_submit_transfer(transfer);
+			} else {
+				printf("read failed: errno %d\n", errno);
+				close(fd);
+				fd = -1;
+			}
+		}
 	} else {
 		printf("transfer status was not 'completed'\n");
 	}
