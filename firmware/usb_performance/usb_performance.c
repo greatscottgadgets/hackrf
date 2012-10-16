@@ -332,27 +332,55 @@ bool usb_set_configuration(
 };
 
 void sgpio_irqhandler() {
-	SGPIO_CLR_STATUS_1 = 0xFFFFFFFF;
+	SGPIO_CLR_STATUS_1 = (1 << SGPIO_SLICE_A);
 
 	uint32_t* const p = (uint32_t*)&usb_bulk_buffer[usb_bulk_buffer_offset];
 	if( transceiver_mode == TRANSCEIVER_MODE_RX ) {
-		p[7] = SGPIO_REG_SS(SGPIO_SLICE_A);
-		p[6] = SGPIO_REG_SS(SGPIO_SLICE_I);
-		p[5] = SGPIO_REG_SS(SGPIO_SLICE_E);
-		p[4] = SGPIO_REG_SS(SGPIO_SLICE_J);
-		p[3] = SGPIO_REG_SS(SGPIO_SLICE_C);
-		p[2] = SGPIO_REG_SS(SGPIO_SLICE_K);
-		p[1] = SGPIO_REG_SS(SGPIO_SLICE_F);
-		p[0] = SGPIO_REG_SS(SGPIO_SLICE_L);
+		__asm__(
+			"ldr r0, [%[SGPIO_REG_SS], #44]\n\t"
+			"str r0, [%[p], #0]\n\t"
+			"ldr r0, [%[SGPIO_REG_SS], #20]\n\t"
+			"str r0, [%[p], #4]\n\t"
+			"ldr r0, [%[SGPIO_REG_SS], #40]\n\t"
+			"str r0, [%[p], #8]\n\t"
+			"ldr r0, [%[SGPIO_REG_SS], #8]\n\t"
+			"str r0, [%[p], #12]\n\t"
+			"ldr r0, [%[SGPIO_REG_SS], #36]\n\t"
+			"str r0, [%[p], #16]\n\t"
+			"ldr r0, [%[SGPIO_REG_SS], #16]\n\t"
+			"str r0, [%[p], #20]\n\t"
+			"ldr r0, [%[SGPIO_REG_SS], #32]\n\t"
+			"str r0, [%[p], #24]\n\t"
+			"ldr r0, [%[SGPIO_REG_SS], #0]\n\t"
+			"str r0, [%[p], #28]\n\t"
+			:
+			: [SGPIO_REG_SS] "l" (SGPIO_PORT_BASE + 0x100),
+			  [p] "l" (p)
+			: "r0"
+		);
 	} else {
-		SGPIO_REG_SS(SGPIO_SLICE_A) = p[7];
-		SGPIO_REG_SS(SGPIO_SLICE_I) = p[6];
-		SGPIO_REG_SS(SGPIO_SLICE_E) = p[5];
-		SGPIO_REG_SS(SGPIO_SLICE_J) = p[4];
-		SGPIO_REG_SS(SGPIO_SLICE_C) = p[3];
-		SGPIO_REG_SS(SGPIO_SLICE_K) = p[2];
-		SGPIO_REG_SS(SGPIO_SLICE_F) = p[1];
-		SGPIO_REG_SS(SGPIO_SLICE_L) = p[0];
+		__asm__(
+			"ldr r0, [%[p], #0]\n\t"
+			"str r0, [%[SGPIO_REG_SS], #44]\n\t"
+			"ldr r0, [%[p], #4]\n\t"
+			"str r0, [%[SGPIO_REG_SS], #20]\n\t"
+			"ldr r0, [%[p], #8]\n\t"
+			"str r0, [%[SGPIO_REG_SS], #40]\n\t"
+			"ldr r0, [%[p], #12]\n\t"
+			"str r0, [%[SGPIO_REG_SS], #8]\n\t"
+			"ldr r0, [%[p], #16]\n\t"
+			"str r0, [%[SGPIO_REG_SS], #36]\n\t"
+			"ldr r0, [%[p], #20]\n\t"
+			"str r0, [%[SGPIO_REG_SS], #16]\n\t"
+			"ldr r0, [%[p], #24]\n\t"
+			"str r0, [%[SGPIO_REG_SS], #32]\n\t"
+			"ldr r0, [%[p], #28]\n\t"
+			"str r0, [%[SGPIO_REG_SS], #0]\n\t"
+			:
+			: [SGPIO_REG_SS] "l" (SGPIO_PORT_BASE + 0x100),
+			  [p] "l" (p)
+			: "r0"
+		);
 	}
 	
 	usb_bulk_buffer_offset = (usb_bulk_buffer_offset + 32) & usb_bulk_buffer_mask;
