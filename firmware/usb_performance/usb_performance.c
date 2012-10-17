@@ -394,12 +394,6 @@ int main(void) {
 	enable_1v8_power();
 	cpu_clock_init();
 
-	CGU_BASE_PERIPH_CLK = CGU_BASE_PERIPH_CLK_AUTOBLOCK
-			| CGU_BASE_PERIPH_CLK_CLK_SEL(CGU_SRC_PLL1);
-
-	CGU_BASE_APB1_CLK = CGU_BASE_APB1_CLK_AUTOBLOCK
-			| CGU_BASE_APB1_CLK_CLK_SEL(CGU_SRC_PLL1);
-	
 	usb_peripheral_reset();
 	
 	usb_device_init(0, &usb_device);

@@ -194,6 +194,14 @@ void cpu_clock_init(void)
 	/* use PLL0USB as clock source for USB0 */
 	CGU_BASE_USB0_CLK = CGU_BASE_USB0_CLK_AUTOBLOCK
 			| CGU_BASE_USB0_CLK_CLK_SEL(CGU_SRC_PLL0USB);
+
+	/* Switch peripheral clock over to use PLL1 (204MHz) */
+	CGU_BASE_PERIPH_CLK = CGU_BASE_PERIPH_CLK_AUTOBLOCK
+			| CGU_BASE_PERIPH_CLK_CLK_SEL(CGU_SRC_PLL1);
+
+	/* Switch APB1 clock over to use PLL1 (204MHz) */
+	CGU_BASE_APB1_CLK = CGU_BASE_APB1_CLK_AUTOBLOCK
+			| CGU_BASE_APB1_CLK_CLK_SEL(CGU_SRC_PLL1);
 }
 
 void ssp1_init(void)
