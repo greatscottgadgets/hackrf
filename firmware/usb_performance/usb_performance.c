@@ -178,9 +178,13 @@ void set_transceiver_mode(const transceiver_mode_t new_transceiver_mode) {
 	if( transceiver_mode == TRANSCEIVER_MODE_RX ) {
 		gpio_clear(PORT_LED1_3, PIN_LED3);
 		usb_endpoint_init(&usb_endpoint_bulk_in);
+
+		max2837_rx();
 	} else {
 		gpio_set(PORT_LED1_3, PIN_LED3);
 		usb_endpoint_init(&usb_endpoint_bulk_out);
+
+		max2837_tx();
 	}
 
 	sgpio_configure(transceiver_mode, true);
@@ -443,6 +447,9 @@ int main(void) {
 	usb_run(&usb_device);
 	
     ssp1_init();
+	ssp1_set_mode_max5864();
+	max5864_xcvr();
+
 	ssp1_set_mode_max2837();
 	max2837_setup();
 
@@ -456,8 +463,6 @@ int main(void) {
 	max2837_set_frequency(freq);
 	max2837_start();
 	max2837_rx();
-	ssp1_set_mode_max5864();
-	max5864_xcvr();
 
 	while(true) {
 		// Wait until buffer 0 is transmitted/received.
