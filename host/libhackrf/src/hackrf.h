@@ -66,6 +66,9 @@ bool hackrf_is_streaming(hackrf_device* device);
 int hackrf_max2837_read(hackrf_device* device, uint8_t register_number, uint16_t* value);
 int hackrf_max2837_write(hackrf_device* device, uint8_t register_number, uint16_t value);
 
+int hackrf_si5351c_read(hackrf_device* device, uint16_t register_number, uint16_t* value);
+int hackrf_si5351c_write(hackrf_device* device, uint16_t register_number, uint16_t value);
+
 const char* hackrf_error_name(enum hackrf_error errcode);
 
 #endif//__HACKRF_H__

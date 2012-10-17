@@ -24,9 +24,11 @@ option(EXAMPLES "Build example programs" ON)
 
 IF( EXAMPLES )
    add_executable(hackrf_max2837 hackrf_max2837.c)
+   add_executable(hackrf_si5351c hackrf_si5351c.c)
    add_executable(hackrf_transfer hackrf_transfer.c)
    
    target_link_libraries(hackrf_max2837 hackrf)
+   target_link_libraries(hackrf_si5351c hackrf)
    target_link_libraries(hackrf_transfer hackrf)
    
    include_directories(BEFORE ${CMAKE_SOURCE_DIR}/src)

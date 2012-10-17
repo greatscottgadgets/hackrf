@@ -32,6 +32,8 @@ typedef enum {
 	HACKRF_VENDOR_REQUEST_SET_TRANSCEIVER_MODE = 1,
 	HACKRF_VENDOR_REQUEST_MAX2837_WRITE = 2,
 	HACKRF_VENDOR_REQUEST_MAX2837_READ = 3,
+	HACKRF_VENDOR_REQUEST_SI5351C_WRITE = 4,
+	HACKRF_VENDOR_REQUEST_SI5351C_READ = 5,
 } hackrf_vendor_request;
 
 typedef enum {
@@ -266,6 +268,57 @@ int hackrf_max2837_write(hackrf_device* device, uint8_t register_number, uint16_
 		device->usb_device,
 		LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
 		HACKRF_VENDOR_REQUEST_MAX2837_WRITE,
+		value,
+		register_number,
+		NULL,
+		0,
+		0
+	);
+	
+	if( result != 0 ) {
+		return HACKRF_ERROR_LIBUSB;
+	} else {
+		return HACKRF_SUCCESS;
+	}
+}
+
+int hackrf_si5351c_read(hackrf_device* device, uint16_t register_number, uint16_t* value) {
+	if( register_number >= 256 ) {
+		return HACKRF_ERROR_INVALID_PARAM;
+	}
+
+	uint8_t temp_value = 0;
+	int result = libusb_control_transfer(
+		device->usb_device,
+		LIBUSB_ENDPOINT_IN | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_SI5351C_READ,
+		0,
+		register_number,
+		(unsigned char*)&temp_value,
+		1,
+		0
+	);
+	
+	if( result < 1 ) {
+		return HACKRF_ERROR_LIBUSB;
+	} else {
+		*value = temp_value;
+		return HACKRF_SUCCESS;
+	}
+}
+
+int hackrf_si5351c_write(hackrf_device* device, uint16_t register_number, uint16_t value) {
+	if( register_number >= 256 ) {
+		return HACKRF_ERROR_INVALID_PARAM;
+	}
+	if( value >= 256 ) {
+		return HACKRF_ERROR_INVALID_PARAM;
+	}
+	
+	int result = libusb_control_transfer(
+		device->usb_device,
+		LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_SI5351C_WRITE,
 		value,
 		register_number,
 		NULL,

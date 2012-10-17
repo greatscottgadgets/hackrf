@@ -27,6 +27,7 @@
 #include <libopencm3/lpc43xx/sgpio.h>
 
 #include <hackrf_core.h>
+#include <si5351c.h>
 #include <max5864.h>
 #include <max2837.h>
 #include <rffc5071.h>
@@ -243,6 +244,42 @@ bool usb_vendor_request_read_max2837(
 			endpoint->buffer[0] = value & 0xff;
 			endpoint->buffer[1] = value >> 8;
 			usb_endpoint_schedule(endpoint->in, &endpoint->buffer, 2);
+			usb_endpoint_schedule_ack(endpoint->out);
+			return true;
+		}
+		return false;
+	} else {
+		return true;
+	}
+}
+
+bool usb_vendor_request_write_si5351c(
+	usb_endpoint_t* const endpoint,
+	const usb_transfer_stage_t stage
+) {
+	if( stage == USB_TRANSFER_STAGE_SETUP ) {
+		if( endpoint->setup.index < 256 ) {
+			if( endpoint->setup.value < 256 ) {
+				si5351c_write_single(endpoint->setup.index, endpoint->setup.value);
+				usb_endpoint_schedule_ack(endpoint->in);
+				return true;
+			}
+		}
+		return false;
+	} else {
+		return true;
+	}
+}
+
+bool usb_vendor_request_read_si5351c(
+	usb_endpoint_t* const endpoint,
+	const usb_transfer_stage_t stage
+) {
+	if( stage == USB_TRANSFER_STAGE_SETUP ) {
+		if( endpoint->setup.index < 256 ) {
+			const uint8_t value = si5351c_read_single(endpoint->setup.index);
+			endpoint->buffer[0] = value;
+			usb_endpoint_schedule(endpoint->in, &endpoint->buffer, 1);
 			usb_endpoint_schedule_ack(endpoint->out);
 			return true;
 		}
