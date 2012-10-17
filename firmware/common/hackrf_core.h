@@ -30,6 +30,7 @@ extern "C"
 #endif
 
 #include <stdint.h>
+#include <stdbool.h>
 
 /* hardware identification number */
 #define BOARD_ID_JELLYBEAN  0
@@ -215,6 +216,8 @@ void ssp1_set_mode_max5864(void);
 void pin_setup(void);
 
 void enable_1v8_power(void);
+
+bool sample_rate_set(const uint32_t sampling_rate_hz);
 
 #ifdef __cplusplus
 }

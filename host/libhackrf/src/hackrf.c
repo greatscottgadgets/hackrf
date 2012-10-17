@@ -34,6 +34,7 @@ typedef enum {
 	HACKRF_VENDOR_REQUEST_MAX2837_READ = 3,
 	HACKRF_VENDOR_REQUEST_SI5351C_WRITE = 4,
 	HACKRF_VENDOR_REQUEST_SI5351C_READ = 5,
+	HACKRF_VENDOR_REQUEST_SAMPLE_RATE_SET = 6,
 } hackrf_vendor_request;
 
 typedef enum {
@@ -321,6 +322,25 @@ int hackrf_si5351c_write(hackrf_device* device, uint16_t register_number, uint16
 		HACKRF_VENDOR_REQUEST_SI5351C_WRITE,
 		value,
 		register_number,
+		NULL,
+		0,
+		0
+	);
+	
+	if( result != 0 ) {
+		return HACKRF_ERROR_LIBUSB;
+	} else {
+		return HACKRF_SUCCESS;
+	}
+}
+
+int hackrf_sample_rate_set(hackrf_device* device, const uint32_t sampling_rate_hz) {
+	int result = libusb_control_transfer(
+		device->usb_device,
+		LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_SAMPLE_RATE_SET,
+		sampling_rate_hz & 0xffff,
+		sampling_rate_hz >> 16,
 		NULL,
 		0,
 		0

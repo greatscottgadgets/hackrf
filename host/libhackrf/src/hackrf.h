@@ -53,8 +53,6 @@ int hackrf_exit();
 int hackrf_open(hackrf_device** device);
 int hackrf_close(hackrf_device* device);
 
-//int hackrf_set_sampling_rate(float sampling_rate_hz);
-
 int hackrf_start_rx(hackrf_device* device, hackrf_sample_block_cb_fn callback);
 int hackrf_stop_rx(hackrf_device* device);
 
@@ -68,6 +66,8 @@ int hackrf_max2837_write(hackrf_device* device, uint8_t register_number, uint16_
 
 int hackrf_si5351c_read(hackrf_device* device, uint16_t register_number, uint16_t* value);
 int hackrf_si5351c_write(hackrf_device* device, uint16_t register_number, uint16_t value);
+
+int hackrf_sample_rate_set(hackrf_device* device, const uint32_t sampling_rate_hz);
 
 const char* hackrf_error_name(enum hackrf_error errcode);
 

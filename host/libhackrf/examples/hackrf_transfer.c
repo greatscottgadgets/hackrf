@@ -165,6 +165,12 @@ int main(int argc, char** argv) {
 
 	signal(SIGINT, sigint_callback_handler);
 	
+	result = hackrf_sample_rate_set(device, 10000000);
+	if( result != HACKRF_SUCCESS ) {
+		printf("hackrf_sample_rate_set() failed: %s (%d)\n", hackrf_error_name(result), result);
+		return -1;
+	}
+	
 	if( transceiver_mode == TRANSCEIVER_MODE_RX ) {
 		result = hackrf_start_rx(device, rx_callback);
 	} else {

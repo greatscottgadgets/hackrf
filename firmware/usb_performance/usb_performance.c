@@ -293,6 +293,22 @@ bool usb_vendor_request_read_si5351c(
 	}
 }
 
+bool usb_vendor_request_set_sample_rate(
+	usb_endpoint_t* const endpoint,
+	const usb_transfer_stage_t stage
+) {
+	if( stage == USB_TRANSFER_STAGE_SETUP ) {
+		const uint32_t sample_rate = (endpoint->setup.index << 16) | endpoint->setup.value;
+		if( sample_rate_set(sample_rate) ) {
+			usb_endpoint_schedule_ack(endpoint->in);
+			return true;
+		}
+		return false;
+	} else {
+		return true;
+	}
+}
+
 void usb_vendor_request(
 	usb_endpoint_t* const endpoint,
 	const usb_transfer_stage_t stage
@@ -312,6 +328,18 @@ void usb_vendor_request(
 		success = usb_vendor_request_read_max2837(endpoint, stage);
 		break;
 		
+	case 4:
+		success = usb_vendor_request_write_si5351c(endpoint, stage);
+		break;
+		
+	case 5:
+		success = usb_vendor_request_read_si5351c(endpoint, stage);
+		break;
+	
+	case 6:
+		success = usb_vendor_request_set_sample_rate(endpoint, stage);
+		break;
+
 	default:
 		break;
 	}
