@@ -39,7 +39,10 @@ void delay(uint32_t duration)
 /* clock startup for Jellybean with Lemondrop attached */ 
 void cpu_clock_init(void)
 {
-	i2c0_init();
+	/* use IRC as clock source for APB1 (including I2C0) */
+	CGU_BASE_APB1_CLK = CGU_BASE_APB1_CLK_CLK_SEL(CGU_SRC_IRC);
+
+	i2c0_init(15);
 
 	si5351c_disable_all_outputs();
 	si5351c_disable_oeb_pin_control();
@@ -120,6 +123,8 @@ void cpu_clock_init(void)
 	si5351c_enable_clock_outputs();
 
 	//FIXME disable I2C
+	/* Kick I2C0 down to 400kHz when we switch over to APB1 clock = 204MHz */
+	i2c0_init(255);
 
 	/*
 	 * 12MHz clock is entering LPC XTAL1/OSC input now.  On
