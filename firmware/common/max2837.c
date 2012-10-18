@@ -87,16 +87,25 @@ void max2837_setup(void)
 	LOG("# max2837_setup\n");
 #if !defined TEST
 	/* Configure XCVR_CTL GPIO pins. */
+#ifdef JELLYBEAN
+	scu_pinmux(SCU_XCVR_RXHP, SCU_GPIO_FAST);
+#endif
 	scu_pinmux(SCU_XCVR_ENABLE, SCU_GPIO_FAST);
 	scu_pinmux(SCU_XCVR_RXENABLE, SCU_GPIO_FAST);
 	scu_pinmux(SCU_XCVR_TXENABLE, SCU_GPIO_FAST);
 
 	/* Set GPIO pins as outputs. */
 	GPIO2_DIR |= (PIN_XCVR_ENABLE | PIN_XCVR_RXENABLE | PIN_XCVR_TXENABLE);
+#ifdef JELLYBEAN
+	GPIO2_DIR |= PIN_XCVR_RXHP;
+#endif
 
 	/* disable everything */
 	gpio_clear(PORT_XCVR_ENABLE,
 			(PIN_XCVR_ENABLE | PIN_XCVR_RXENABLE | PIN_XCVR_TXENABLE));
+#ifdef JELLYBEAN
+	gpio_set(PORT_XCVR_RXHP, PIN_XCVR_RXHP);
+#endif
 #endif
 
 	max2837_init();

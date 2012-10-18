@@ -97,6 +97,9 @@ extern "C"
 #define SCU_PINMUX_SGPIO15  (P4_10)
 
 /* MAX2837 GPIO (XCVR_CTL) PinMux */
+#ifdef JELLYBEAN
+#define SCU_XCVR_RXHP		(P4_0)	/* GPIO2[0] on P4_0 */
+#endif
 #define SCU_XCVR_ENABLE     (P4_6)  /* GPIO2[6] on P4_6 */
 #define SCU_XCVR_RXENABLE   (P4_5)  /* GPIO2[5] on P4_5 */
 #define SCU_XCVR_TXENABLE   (P4_4)  /* GPIO2[4] on P4_4 */
@@ -145,6 +148,10 @@ extern "C"
 #define PIN_XCVR_RXENABLE (BIT5)  /* GPIO2[5] on P4_5 */
 #define PIN_XCVR_TXENABLE (BIT4)  /* GPIO2[4] on P4_4 */
 #define PORT_XCVR_ENABLE  (GPIO2) /* PORT for ENABLE, TXENABLE, RXENABLE */
+#ifdef JELLYBEAN
+#define PIN_XCVR_RXHP     (BIT0)  /* GPIO2[0] on P4_0 */
+#define PORT_XCVR_RXHP	  (GPIO2)
+#endif
 
 #define PIN_AD_CS  (BIT7)  /* GPIO2[7] on P5_7 */
 #define PORT_AD_CS (GPIO2) /* PORT for AD_CS */
