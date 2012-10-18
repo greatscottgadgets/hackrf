@@ -140,13 +140,13 @@ int main(int argc, char** argv) {
 	}
 	
 	int result = hackrf_init();
-	if( result ) {
+	if( result != HACKRF_SUCCESS ) {
 		printf("hackrf_init() failed: %s (%d)\n", hackrf_error_name(result), result);
 		return -1;
 	}
 	
 	result = hackrf_open(&device);
-	if( result ) {
+	if( result != HACKRF_SUCCESS ) {
 		printf("hackrf_open() failed: %s (%d)\n", hackrf_error_name(result), result);
 		return -1;
 	}
@@ -182,7 +182,7 @@ int main(int argc, char** argv) {
 	} else {
 		result = hackrf_start_tx(device, tx_callback);
 	}
-	if( result ) {
+	if( result != HACKRF_SUCCESS ) {
 		printf("hackrf_start_?x() failed: %s (%d)\n", hackrf_error_name(result), result);
 		return -1;
 	}
@@ -211,7 +211,7 @@ int main(int argc, char** argv) {
 	}
 	
 	result = hackrf_close(device);
-	if( result ) {
+	if( result != HACKRF_SUCCESS ) {
 		printf("hackrf_close() failed: %s (%d)\n", hackrf_error_name(result), result);
 		return -1;
 	}
