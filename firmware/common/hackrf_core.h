@@ -30,6 +30,7 @@ extern "C"
 #endif
 
 #include <stdint.h>
+#include <stdbool.h>
 
 /* hardware identification number */
 #define BOARD_ID_JELLYBEAN  0
@@ -96,6 +97,16 @@ extern "C"
 #define SCU_PINMUX_SGPIO15  (P4_10)
 
 /* MAX2837 GPIO (XCVR_CTL) PinMux */
+#ifdef JELLYBEAN
+#define SCU_XCVR_RXHP		(P4_0)	/* GPIO2[0] on P4_0 */
+#define SCU_XCVR_B1			(P5_0)	/* GPIO2[9] on P5_0 */
+#define SCU_XCVR_B2			(P5_1)	/* GPIO2[10] on P5_1 */
+#define SCU_XCVR_B3			(P5_2)	/* GPIO2[11] on P5_2 */
+#define SCU_XCVR_B4			(P5_3)	/* GPIO2[12] on P5_3 */
+#define SCU_XCVR_B5			(P5_4)	/* GPIO2[13] on P5_4 */
+#define SCU_XCVR_B6			(P5_5)	/* GPIO2[14] on P5_5 */
+#define SCU_XCVR_B7			(P5_6)	/* GPIO2[15] on P5_6 */
+#endif
 #define SCU_XCVR_ENABLE     (P4_6)  /* GPIO2[6] on P4_6 */
 #define SCU_XCVR_RXENABLE   (P4_5)  /* GPIO2[5] on P4_5 */
 #define SCU_XCVR_TXENABLE   (P4_4)  /* GPIO2[4] on P4_4 */
@@ -144,6 +155,18 @@ extern "C"
 #define PIN_XCVR_RXENABLE (BIT5)  /* GPIO2[5] on P4_5 */
 #define PIN_XCVR_TXENABLE (BIT4)  /* GPIO2[4] on P4_4 */
 #define PORT_XCVR_ENABLE  (GPIO2) /* PORT for ENABLE, TXENABLE, RXENABLE */
+#ifdef JELLYBEAN
+#define PIN_XCVR_RXHP     (BIT0)  /* GPIO2[0] on P4_0 */
+#define PORT_XCVR_RXHP	  (GPIO2)
+#define PIN_XCVR_B1		  (BIT9)  /* GPIO2[9] on P5_0 */
+#define PIN_XCVR_B2		  (BIT10) /* GPIO2[10] on P5_1 */
+#define PIN_XCVR_B3		  (BIT11) /* GPIO2[11] on P5_2 */
+#define PIN_XCVR_B4		  (BIT12) /* GPIO2[12] on P5_3 */
+#define PIN_XCVR_B5		  (BIT13) /* GPIO2[13] on P5_4 */
+#define PIN_XCVR_B6		  (BIT14) /* GPIO2[14] on P5_5 */
+#define PIN_XCVR_B7		  (BIT15) /* GPIO2[15] on P5_6 */
+#define PORT_XCVR_B	  	  (GPIO2)
+#endif
 
 #define PIN_AD_CS  (BIT7)  /* GPIO2[7] on P5_7 */
 #define PORT_AD_CS (GPIO2) /* PORT for AD_CS */
@@ -215,6 +238,9 @@ void ssp1_set_mode_max5864(void);
 void pin_setup(void);
 
 void enable_1v8_power(void);
+
+bool sample_rate_set(const uint32_t sampling_rate_hz);
+bool baseband_filter_bandwidth_set(const uint32_t bandwidth_hz);
 
 #ifdef __cplusplus
 }

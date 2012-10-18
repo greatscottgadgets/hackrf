@@ -96,13 +96,6 @@ int main(void) {
 	pin_setup();
 	enable_1v8_power();
 	cpu_clock_init();
-
-	CGU_BASE_PERIPH_CLK = CGU_BASE_PERIPH_CLK_AUTOBLOCK
-			| CGU_BASE_PERIPH_CLK_CLK_SEL(CGU_SRC_PLL1);
-
-	CGU_BASE_APB1_CLK = CGU_BASE_APB1_CLK_AUTOBLOCK
-			| CGU_BASE_APB1_CLK_CLK_SEL(CGU_SRC_PLL1);
-	
     ssp1_init();
 	ssp1_set_mode_max2837();
 	max2837_setup();

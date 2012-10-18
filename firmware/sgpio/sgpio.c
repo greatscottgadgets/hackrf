@@ -72,12 +72,6 @@ int main(void) {
 	cpu_clock_init();
 	ssp1_init();
 
-	CGU_BASE_PERIPH_CLK = CGU_BASE_PERIPH_CLK_AUTOBLOCK
-			| CGU_BASE_PERIPH_CLK_CLK_SEL(CGU_SRC_PLL1);
-
-	CGU_BASE_APB1_CLK = CGU_BASE_APB1_CLK_AUTOBLOCK
-			| CGU_BASE_APB1_CLK_CLK_SEL(CGU_SRC_PLL1);
-
 	gpio_set(PORT_LED1_3, PIN_LED1);
 
 	ssp1_set_mode_max5864();
