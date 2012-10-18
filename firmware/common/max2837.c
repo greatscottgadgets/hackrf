@@ -89,6 +89,13 @@ void max2837_setup(void)
 	/* Configure XCVR_CTL GPIO pins. */
 #ifdef JELLYBEAN
 	scu_pinmux(SCU_XCVR_RXHP, SCU_GPIO_FAST);
+	scu_pinmux(SCU_XCVR_B1, SCU_GPIO_FAST);
+	scu_pinmux(SCU_XCVR_B2, SCU_GPIO_FAST);
+	scu_pinmux(SCU_XCVR_B3, SCU_GPIO_FAST);
+	scu_pinmux(SCU_XCVR_B4, SCU_GPIO_FAST);
+	scu_pinmux(SCU_XCVR_B5, SCU_GPIO_FAST);
+	scu_pinmux(SCU_XCVR_B6, SCU_GPIO_FAST);
+	scu_pinmux(SCU_XCVR_B7, SCU_GPIO_FAST);
 #endif
 	scu_pinmux(SCU_XCVR_ENABLE, SCU_GPIO_FAST);
 	scu_pinmux(SCU_XCVR_RXENABLE, SCU_GPIO_FAST);
@@ -97,7 +104,16 @@ void max2837_setup(void)
 	/* Set GPIO pins as outputs. */
 	GPIO2_DIR |= (PIN_XCVR_ENABLE | PIN_XCVR_RXENABLE | PIN_XCVR_TXENABLE);
 #ifdef JELLYBEAN
-	GPIO2_DIR |= PIN_XCVR_RXHP;
+	GPIO_DIR(PORT_XCVR_RXHP) |= PIN_XCVR_RXHP;
+	GPIO_DIR(PORT_XCVR_B) |=
+		  PIN_XCVR_B1
+		| PIN_XCVR_B2
+		| PIN_XCVR_B3
+		| PIN_XCVR_B4
+		| PIN_XCVR_B5
+		| PIN_XCVR_B6
+		| PIN_XCVR_B7
+		;
 #endif
 
 	/* disable everything */
@@ -105,6 +121,15 @@ void max2837_setup(void)
 			(PIN_XCVR_ENABLE | PIN_XCVR_RXENABLE | PIN_XCVR_TXENABLE));
 #ifdef JELLYBEAN
 	gpio_set(PORT_XCVR_RXHP, PIN_XCVR_RXHP);
+	gpio_set(PORT_XCVR_B,
+		  PIN_XCVR_B1
+		| PIN_XCVR_B2
+		| PIN_XCVR_B3
+		| PIN_XCVR_B4
+		| PIN_XCVR_B5
+		| PIN_XCVR_B6
+		| PIN_XCVR_B7
+	);
 #endif
 #endif
 

@@ -99,6 +99,13 @@ extern "C"
 /* MAX2837 GPIO (XCVR_CTL) PinMux */
 #ifdef JELLYBEAN
 #define SCU_XCVR_RXHP		(P4_0)	/* GPIO2[0] on P4_0 */
+#define SCU_XCVR_B1			(P5_0)	/* GPIO2[9] on P5_0 */
+#define SCU_XCVR_B2			(P5_1)	/* GPIO2[10] on P5_1 */
+#define SCU_XCVR_B3			(P5_2)	/* GPIO2[11] on P5_2 */
+#define SCU_XCVR_B4			(P5_3)	/* GPIO2[12] on P5_3 */
+#define SCU_XCVR_B5			(P5_4)	/* GPIO2[13] on P5_4 */
+#define SCU_XCVR_B6			(P5_5)	/* GPIO2[14] on P5_5 */
+#define SCU_XCVR_B7			(P5_6)	/* GPIO2[15] on P5_6 */
 #endif
 #define SCU_XCVR_ENABLE     (P4_6)  /* GPIO2[6] on P4_6 */
 #define SCU_XCVR_RXENABLE   (P4_5)  /* GPIO2[5] on P4_5 */
@@ -151,6 +158,14 @@ extern "C"
 #ifdef JELLYBEAN
 #define PIN_XCVR_RXHP     (BIT0)  /* GPIO2[0] on P4_0 */
 #define PORT_XCVR_RXHP	  (GPIO2)
+#define PIN_XCVR_B1		  (BIT9)  /* GPIO2[9] on P5_0 */
+#define PIN_XCVR_B2		  (BIT10) /* GPIO2[10] on P5_1 */
+#define PIN_XCVR_B3		  (BIT11) /* GPIO2[11] on P5_2 */
+#define PIN_XCVR_B4		  (BIT12) /* GPIO2[12] on P5_3 */
+#define PIN_XCVR_B5		  (BIT13) /* GPIO2[13] on P5_4 */
+#define PIN_XCVR_B6		  (BIT14) /* GPIO2[14] on P5_5 */
+#define PIN_XCVR_B7		  (BIT15) /* GPIO2[15] on P5_6 */
+#define PORT_XCVR_B	  	  (GPIO2)
 #endif
 
 #define PIN_AD_CS  (BIT7)  /* GPIO2[7] on P5_7 */
