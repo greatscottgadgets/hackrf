@@ -27,6 +27,7 @@
 
 static void usage() {
 	printf("\nUsage:\n");
+	printf("\t-c, --config: print textual configuration information\n");
 	printf("\t-n, --register <n>: set register number for subsequent read/write operations\n");
 	printf("\t-r, --read: read register specified by last -n argument, or all registers\n");
 	printf("\t-w, --write <v>: write register specified by last -n argument with value <v>\n");
@@ -37,6 +38,7 @@ static void usage() {
 }
 
 static struct option long_options[] = {
+	{ "config", no_argument, 0, 'c' },
 	{ "register", required_argument, 0, 'n' },
 	{ "write", required_argument, 0, 'w' },
 	{ "read", no_argument, 0, 'r' },
@@ -99,6 +101,56 @@ int write_register(
 
 #define REGISTER_INVALID 32767
 
+int dump_multisynth_config(hackrf_device* device, const uint_fast8_t ms_number) {
+	uint16_t parameters[8];
+	uint_fast8_t reg_base = 42 + (ms_number * 8);
+	for(uint_fast8_t i=0; i<8; i++) {
+		uint_fast8_t reg_number = reg_base + i;
+		int result = hackrf_si5351c_read(device, reg_number, &parameters[i]);
+		if( result != HACKRF_SUCCESS ) {
+			return result;
+		}
+	}
+	
+	const uint32_t p1 =
+		  (parameters[2] & 0x03 << 16)
+		| (parameters[3] << 8)
+		| parameters[4]
+		;
+	const uint32_t p2 =
+		  (parameters[5] & 0x0F << 16)
+		| (parameters[6] << 8)
+		| parameters[7]
+		;
+	const uint32_t p3 =
+		  (parameters[5] & 0xF0 << 12)
+		| (parameters[0] << 8)
+		|  parameters[1]
+		;
+	const uint32_t r_div =
+		(parameters[2] >> 4) & 0x7
+		;
+		
+	printf("MS%d:", ms_number);
+	printf("\tp1 = %u\n", p1);
+	printf("\tp2 = %u\n", p2);
+	printf("\tp3 = %u\n", p3);
+	printf("\toutput divider = %u\n", 1 << r_div);
+	
+	return HACKRF_SUCCESS;
+}
+
+int dump_configuration(hackrf_device* device) {
+	for(uint_fast8_t ms_number=0; ms_number<8; ms_number++) {
+		int result = dump_multisynth_config(device, ms_number);
+		if( result != HACKRF_SUCCESS ) {
+			return result;
+		}
+	}
+	
+	return HACKRF_SUCCESS;
+}
+
 int main(int argc, char** argv) {
 	int opt;
 	uint16_t register_number = REGISTER_INVALID;
@@ -118,7 +170,7 @@ int main(int argc, char** argv) {
 	}
 
 	int option_index = 0;
-	while( (opt = getopt_long(argc, argv, "n:rw:", long_options, &option_index)) != EOF ) {
+	while( (opt = getopt_long(argc, argv, "cn:rw:", long_options, &option_index)) != EOF ) {
 		switch( opt ) {
 		case 'n':
 			result = parse_int(optarg, &register_number);
@@ -139,6 +191,10 @@ int main(int argc, char** argv) {
 			}
 			break;
 		
+		case 'c':
+			dump_configuration(device);
+			break;
+
 		default:
 			usage();
 		}
