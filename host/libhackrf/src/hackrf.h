@@ -68,6 +68,7 @@ int hackrf_si5351c_read(hackrf_device* device, uint16_t register_number, uint16_
 int hackrf_si5351c_write(hackrf_device* device, uint16_t register_number, uint16_t value);
 
 int hackrf_sample_rate_set(hackrf_device* device, const uint32_t sampling_rate_hz);
+int hackrf_baseband_filter_bandwidth_set(hackrf_device* device, const uint32_t bandwidth_hz);
 
 const char* hackrf_error_name(enum hackrf_error errcode);
 

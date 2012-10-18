@@ -1,6 +1,9 @@
 #ifndef __MAX2837_H
 #define __MAX2837_H
 
+#include <stdint.h>
+#include <stdbool.h>
+
 /* TODO - make this a private header for max2837.c only, make new max2837.h */
 
 /* 32 registers, each containing 10 bits of data. */
@@ -40,6 +43,7 @@ extern void max2837_stop(void);
 /* Set frequency in Hz. Frequency setting is a multi-step function
  * where order of register writes matters. */
 extern void max2837_set_frequency(uint32_t freq);
+bool max2837_set_lpf_bandwidth(const uint32_t bandwidth_hz);
 
 extern void max2837_tx(void);
 extern void max2837_rx(void);

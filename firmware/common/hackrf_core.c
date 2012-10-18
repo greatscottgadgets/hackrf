@@ -22,6 +22,7 @@
 
 #include "hackrf_core.h"
 #include "si5351c.h"
+#include "max2837.h"
 #include <libopencm3/lpc43xx/i2c.h>
 #include <libopencm3/lpc43xx/cgu.h>
 #include <libopencm3/lpc43xx/gpio.h>
@@ -124,6 +125,10 @@ bool sample_rate_set(const uint32_t sample_rate_hz) {
 
 	return true;
 #endif
+}
+
+bool baseband_filter_bandwidth_set(const uint32_t bandwidth_hz) {
+	return max2837_set_lpf_bandwidth(bandwidth_hz);
 }
 
 /* clock startup for Jellybean with Lemondrop attached */ 

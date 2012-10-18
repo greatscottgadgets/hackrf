@@ -171,6 +171,12 @@ int main(int argc, char** argv) {
 		return -1;
 	}
 	
+	result = hackrf_baseband_filter_bandwidth_set(device, 5000000);
+	if( result != HACKRF_SUCCESS ) {
+		printf("hackrf_baseband_filter_bandwidth_set() failed: %s (%d)\n", hackrf_error_name(result), result);
+		return -1;
+	}
+	
 	if( transceiver_mode == TRANSCEIVER_MODE_RX ) {
 		result = hackrf_start_rx(device, rx_callback);
 	} else {

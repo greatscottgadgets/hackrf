@@ -309,6 +309,22 @@ bool usb_vendor_request_set_sample_rate(
 	}
 }
 
+bool usb_vendor_request_set_baseband_filter_bandwidth(
+	usb_endpoint_t* const endpoint,
+	const usb_transfer_stage_t stage
+) {
+	if( stage == USB_TRANSFER_STAGE_SETUP ) {
+		const uint32_t bandwidth = (endpoint->setup.index << 16) | endpoint->setup.value;
+		if( baseband_filter_bandwidth_set(bandwidth) ) {
+			usb_endpoint_schedule_ack(endpoint->in);
+			return true;
+		}
+		return false;
+	} else {
+		return true;
+	}
+}
+
 void usb_vendor_request(
 	usb_endpoint_t* const endpoint,
 	const usb_transfer_stage_t stage
@@ -340,6 +356,10 @@ void usb_vendor_request(
 		success = usb_vendor_request_set_sample_rate(endpoint, stage);
 		break;
 
+	case 7:
+		success = usb_vendor_request_set_baseband_filter_bandwidth(endpoint, stage);
+		break;
+		
 	default:
 		break;
 	}
