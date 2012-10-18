@@ -22,6 +22,7 @@
 #include <hackrf.h>
 
 #include <stdio.h>
+#include <string.h>
 #include <stdlib.h>
 #include <getopt.h>
 
@@ -43,9 +44,22 @@ static struct option long_options[] = {
 	{ 0, 0, 0, 0 },
 };
 
-int parse_int(char* const s, uint16_t* const value) {
+int parse_int(char* s, uint16_t* const value) {
+	uint_fast8_t base = 10;
+	if( strlen(s) > 2 ) {
+		if( s[0] == '0' ) {
+			if( (s[1] == 'x') || (s[1] == 'X') ) {
+				base = 16;
+				s += 2;
+			} else if( (s[1] == 'b') || (s[1] == 'B') ) {
+				base = 2;
+				s += 2;
+			}
+		}
+	}
+
 	char* s_end = s;
-	const long long_value = strtol(s, &s_end, 10);
+	const long long_value = strtol(s, &s_end, base);
 	if( (s != s_end) && (*s_end == 0) ) {
 		*value = long_value;
 		return HACKRF_SUCCESS;
