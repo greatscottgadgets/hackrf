@@ -557,6 +557,9 @@ static void usb_check_for_setup_events() {
 					);
 				if( endpoint && endpoint->setup_complete ) {
 					copy_setup(&endpoint->setup, usb_queue_head(endpoint->address)->setup);
+					// TODO: Clean up this duplicated effort by providing
+					// a cleaner way to get the SETUP data.
+					copy_setup(&endpoint->in->setup, usb_queue_head(endpoint->address)->setup);
 					usb_clear_endpoint_setup_status(endptsetupstat_bit);
 					endpoint->setup_complete(endpoint);
 				} else {
