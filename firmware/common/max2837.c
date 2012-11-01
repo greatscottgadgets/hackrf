@@ -87,16 +87,50 @@ void max2837_setup(void)
 	LOG("# max2837_setup\n");
 #if !defined TEST
 	/* Configure XCVR_CTL GPIO pins. */
+#ifdef JELLYBEAN
+	scu_pinmux(SCU_XCVR_RXHP, SCU_GPIO_FAST);
+	scu_pinmux(SCU_XCVR_B1, SCU_GPIO_FAST);
+	scu_pinmux(SCU_XCVR_B2, SCU_GPIO_FAST);
+	scu_pinmux(SCU_XCVR_B3, SCU_GPIO_FAST);
+	scu_pinmux(SCU_XCVR_B4, SCU_GPIO_FAST);
+	scu_pinmux(SCU_XCVR_B5, SCU_GPIO_FAST);
+	scu_pinmux(SCU_XCVR_B6, SCU_GPIO_FAST);
+	scu_pinmux(SCU_XCVR_B7, SCU_GPIO_FAST);
+#endif
 	scu_pinmux(SCU_XCVR_ENABLE, SCU_GPIO_FAST);
 	scu_pinmux(SCU_XCVR_RXENABLE, SCU_GPIO_FAST);
 	scu_pinmux(SCU_XCVR_TXENABLE, SCU_GPIO_FAST);
 
 	/* Set GPIO pins as outputs. */
 	GPIO2_DIR |= (PIN_XCVR_ENABLE | PIN_XCVR_RXENABLE | PIN_XCVR_TXENABLE);
+#ifdef JELLYBEAN
+	GPIO_DIR(PORT_XCVR_RXHP) |= PIN_XCVR_RXHP;
+	GPIO_DIR(PORT_XCVR_B) |=
+		  PIN_XCVR_B1
+		| PIN_XCVR_B2
+		| PIN_XCVR_B3
+		| PIN_XCVR_B4
+		| PIN_XCVR_B5
+		| PIN_XCVR_B6
+		| PIN_XCVR_B7
+		;
+#endif
 
 	/* disable everything */
 	gpio_clear(PORT_XCVR_ENABLE,
 			(PIN_XCVR_ENABLE | PIN_XCVR_RXENABLE | PIN_XCVR_TXENABLE));
+#ifdef JELLYBEAN
+	gpio_set(PORT_XCVR_RXHP, PIN_XCVR_RXHP);
+	gpio_set(PORT_XCVR_B,
+		  PIN_XCVR_B1
+		| PIN_XCVR_B2
+		| PIN_XCVR_B3
+		| PIN_XCVR_B4
+		| PIN_XCVR_B5
+		| PIN_XCVR_B6
+		| PIN_XCVR_B7
+	);
+#endif
 #endif
 
 	max2837_init();
@@ -114,6 +148,11 @@ void max2837_setup(void)
 
 	/* maximum rx output common-mode voltage */
 	set_MAX2837_BUFF_VCM(MAX2837_BUFF_VCM_1_25);
+
+	/* configure baseband filter for 8 MHz TX */
+	set_MAX2837_LPF_EN(1);
+	set_MAX2837_ModeCtrl(MAX2837_ModeCtrl_RxLPF);
+	set_MAX2837_FT(MAX2837_FT_5M);
 
 	max2837_regs_commit();
 }
@@ -192,10 +231,7 @@ void max2837_tx(void)
 	LOG("# max2837_tx\n");
 #if !defined TEST
 
-	/* configure baseband filter for 8 MHz TX */
-	set_MAX2837_LPF_EN(1);
 	set_MAX2837_ModeCtrl(MAX2837_ModeCtrl_TxLPF);
-	set_MAX2837_FT(MAX2837_FT_8M);
 	max2837_regs_commit();
 
 	gpio_set(PORT_XCVR_ENABLE, PIN_XCVR_TXENABLE);
@@ -206,10 +242,7 @@ void max2837_rx(void)
 {
 	LOG("# max2837_rx\n");
 
-	/* configure baseband filter for 8 MHz RX */
-	set_MAX2837_LPF_EN(1);
 	set_MAX2837_ModeCtrl(MAX2837_ModeCtrl_RxLPF);
-	set_MAX2837_FT(MAX2837_FT_8M);
 	max2837_regs_commit();
 
 #if !defined TEST
@@ -288,6 +321,49 @@ void max2837_set_frequency(uint32_t freq)
 	max2837_regs_commit();
 	set_MAX2837_SYN_FRAC_LO(div_frac & 0x3ff);
 	max2837_regs_commit();
+}
+
+typedef struct {
+	uint32_t bandwidth_hz;
+	uint32_t ft;
+} max2837_ft_t;
+
+static const max2837_ft_t max2837_ft[] = {
+	{  1750000, MAX2837_FT_1_75M },
+	{  2500000, MAX2837_FT_2_5M },
+	{  3500000, MAX2837_FT_3_5M },
+	{  5000000, MAX2837_FT_5M },
+	{  5500000, MAX2837_FT_5_5M },
+	{  6000000, MAX2837_FT_6M },
+	{  7000000, MAX2837_FT_7M },
+	{  8000000, MAX2837_FT_8M },
+	{  9000000, MAX2837_FT_9M },
+	{ 10000000, MAX2837_FT_10M },
+	{ 12000000, MAX2837_FT_12M },
+	{ 14000000, MAX2837_FT_14M },
+	{ 15000000, MAX2837_FT_15M },
+	{ 20000000, MAX2837_FT_20M },
+	{ 24000000, MAX2837_FT_24M },
+	{ 28000000, MAX2837_FT_28M },
+	{        0, 0 },
+};
+
+bool max2837_set_lpf_bandwidth(const uint32_t bandwidth_hz) {
+	const max2837_ft_t* p = max2837_ft;
+	while( p->bandwidth_hz != 0 ) {
+		if( p->bandwidth_hz >= bandwidth_hz ) {
+			break;
+		}
+		p++;
+	}
+	
+	if( p->bandwidth_hz != 0 ) {
+		set_MAX2837_FT(p->ft);
+		max2837_regs_commit();
+		return true;
+	} else {
+		return false;
+	}
 }
 
 #ifdef TEST

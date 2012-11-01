@@ -45,6 +45,9 @@ void si5351c_configure_multisynth(const uint_fast8_t ms_number,
 void si5351c_configure_clock_control();
 void si5351c_enable_clock_outputs();
 
+void si5351c_write_single(uint8_t reg, uint8_t val);
+uint8_t si5351c_read_single(uint8_t reg);
+
 #ifdef __cplusplus
 }
 #endif

@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-#
 # Copyright 2012 Jared Boone
 #
 # This file is part of HackRF.
@@ -20,20 +18,24 @@
 # Boston, MA 02110-1301, USA.
 #
 
-import usb
-import struct
+# Based heavily upon the libftdi cmake setup.
 
-device = usb.core.find(idVendor=0x1d50, idProduct=0x604b)
-device.set_configuration()
+project(libhackrf)
+set(MAJOR_VERSION 0)
+set(MINOR_VERSION 1)
+set(PACKAGE libhackrf)
+set(VERSION_STRING ${MAJOR_VERSION}.${MINOR_VERSION})
+set(VERSION ${VERSION_STRING})
+set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}")
 
-def read_max2837_register(register_number):
-    return struct.unpack('>H', device.ctrl_transfer(0xC0, 3, 0, register_number, 2))[0]
+cmake_minimum_required(VERSION 2.8)
 
-def write_max2837_register(register_number, value):
-    device.ctrl_transfer(0x40, 2, value, register_number)
+add_definitions(-Wall)
+add_definitions(-std=c99)
 
-def dump_max2837():
-    for i in range(32):
-        print('%2d: %03x' % (i, read_max2837_register(i)))
+find_package(USB1 REQUIRED)
+include_directories(${LIBUSB_INCLUDE_DIR})
 
-dump_max2837()
+add_subdirectory(src)
+add_subdirectory(examples)
+

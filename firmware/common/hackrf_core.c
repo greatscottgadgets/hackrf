@@ -22,6 +22,7 @@
 
 #include "hackrf_core.h"
 #include "si5351c.h"
+#include "max2837.h"
 #include <libopencm3/lpc43xx/i2c.h>
 #include <libopencm3/lpc43xx/cgu.h>
 #include <libopencm3/lpc43xx/gpio.h>
@@ -36,10 +37,107 @@ void delay(uint32_t duration)
 		__asm__("nop");
 }
 
+bool sample_rate_set(const uint32_t sample_rate_hz) {
+#ifdef JELLYBEAN
+	/* Due to design issues, Jellybean/Lemondrop frequency plan is limited.
+	 * Long version of the story: The MAX2837 reference frequency
+	 * originates from the same PLL as the sample clocks, and in order to
+	 * keep the sample clocks in phase and keep jitter noise down, the MAX2837
+	 * and sample clocks must be integer-related.
+	 */
+	uint32_t r_div_sample = 2;
+	uint32_t r_div_sgpio = 1;
+	
+	switch( sample_rate_hz ) {
+	case 5000000:
+		r_div_sample = 3;	/* 800 MHz / 20 / 8 =  5 MHz */
+		r_div_sgpio = 2;	/* 800 MHz / 20 / 4 = 10 MHz */
+		break;
+		
+	case 10000000:
+		r_div_sample = 2;	/* 800 MHz / 20 / 4 = 10 MHz */
+		r_div_sgpio = 1;	/* 800 MHz / 20 / 2 = 20 MHz */
+		break;
+		
+	case 20000000:
+		r_div_sample = 1;	/* 800 MHz / 20 / 2 = 20 MHz */
+		r_div_sgpio = 0;	/* 800 MHz / 20 / 1 = 40 MHz */
+		break;
+		
+	default:
+		return false;
+	}
+	
+	/* NOTE: Because MS1, 2, 3 outputs are slaved to PLLA, the p1, p2, p3
+	 * values are irrelevant. */
+	
+	/* MS0/CLK1 is the source for the MAX5864 codec. */
+	si5351c_configure_multisynth(1, 4608, 0, 1, r_div_sample);
+
+	/* MS0/CLK2 is the source for the CPLD codec clock (same as CLK1). */
+	si5351c_configure_multisynth(2, 4608, 0, 1, r_div_sample);
+
+	/* MS0/CLK3 is the source for the SGPIO clock. */
+	si5351c_configure_multisynth(3, 4608, 0, 1, r_div_sgpio);
+	
+	return true;
+#endif
+	
+#ifdef JAWBREAKER
+	uint32_t p1 = 4608;
+	
+	switch(sample_rate_hz) {
+	case 5000000:
+		p1 = 9728;	// 800MHz / 80 = 10 MHz (SGPIO), 5 MHz (codec)
+		break;
+	
+	case 10000000:
+		p1 = 4608;	// 800MHz / 40 = 20 MHz (SGPIO), 10 MHz (codec)
+		break;
+
+	case 12500000:
+		p1 = 3584;	// 800MHz / 32 = 25 MHz (SGPIO), 12.5 MHz (codec)
+		break;
+
+	case 16000000:
+		p1 = 2688;	// 800MHz / 25 = 32 MHz (SGPIO), 16 MHz (codec)
+		break;
+	
+	case 20000000:
+		p1 = 2048;	// 800MHz / 20 = 40 MHz (SGPIO), 20 MHz (codec)
+		break;
+	
+	default:
+		return false;
+	}
+	
+	/* MS0/CLK0 is the source for the MAX5864/CPLD (CODEC_CLK). */
+	si5351c_configure_multisynth(0, p1, 0, 1, 1);
+
+	/* MS0/CLK1 is the source for the CPLD (CODEC_X2_CLK). */
+	si5351c_configure_multisynth(1, p1, 0, 1, 0);
+
+	/* MS0/CLK2 is the source for SGPIO (CODEC_X2_CLK) */
+	si5351c_configure_multisynth(2, p1, 0, 1, 0);
+
+	/* MS0/CLK3 is the source for the external clock output. */
+	si5351c_configure_multisynth(3, p1, 0, 1, 0);
+
+	return true;
+#endif
+}
+
+bool baseband_filter_bandwidth_set(const uint32_t bandwidth_hz) {
+	return max2837_set_lpf_bandwidth(bandwidth_hz);
+}
+
 /* clock startup for Jellybean with Lemondrop attached */ 
 void cpu_clock_init(void)
 {
-	i2c0_init();
+	/* use IRC as clock source for APB1 (including I2C0) */
+	CGU_BASE_APB1_CLK = CGU_BASE_APB1_CLK_CLK_SEL(CGU_SRC_IRC);
+
+	i2c0_init(15);
 
 	si5351c_disable_all_outputs();
 	si5351c_disable_oeb_pin_control();
@@ -65,15 +163,6 @@ void cpu_clock_init(void)
 	/* MS0/CLK0 is the source for the MAX2837 clock input. */
 	si5351c_configure_multisynth(0, 2048, 0, 1, 0); /* 40MHz */
 
-	/* MS0/CLK1 is the source for the MAX5864 codec. */
-	si5351c_configure_multisynth(1, 4608, 0, 1, 2); /* 10MHz */
-
-	/* MS0/CLK2 is the source for the CPLD codec clock (same as CLK1). */
-	si5351c_configure_multisynth(2, 4608, 0, 1, 2); /* 10MHz */
-
-	/* MS0/CLK3 is the source for the SGPIO clock. */
-	si5351c_configure_multisynth(3, 4608, 0, 1, 1); /* 20MHz */
-
 	/* MS4/CLK4 is the source for the LPC43xx microcontroller. */
 	si5351c_configure_multisynth(4, 8021, 0, 3, 0); /* 12MHz */
 
@@ -94,18 +183,6 @@ void cpu_clock_init(void)
 	 *   CLK7 -> LPC4330 (but LPC4330 starts up on its own crystal)
 	 */
 
-	/* MS0/CLK0 is the source for the MAX5864/CPLD (CODEC_CLK). */
-	si5351c_configure_multisynth(0, 4608, 0, 1, 1); /* 10MHz */
-
-	/* MS0/CLK1 is the source for the CPLD (CODEC_X2_CLK). */
-	si5351c_configure_multisynth(1, 4608, 0, 1, 0); /* 20MHz */
-
-	/* MS0/CLK2 is the source for SGPIO (CODEC_X2_CLK) */
-	si5351c_configure_multisynth(2, 4608, 0, 1, 0); /* 20MHz */
-
-	/* MS0/CLK3 is the source for the external clock output. */
-	si5351c_configure_multisynth(3, 4608, 0, 1, 0); /* 20MHz */
-
 	/* MS4/CLK4 is the source for the RFFC5071 mixer. */
 	si5351c_configure_multisynth(4, 1536, 0, 1, 0); /* 50MHz */
 
@@ -116,10 +193,15 @@ void cpu_clock_init(void)
 	//si5351c_configure_multisynth(7, 8021, 0, 3, 0); /* 12MHz */
 #endif
 
+	/* Set to 10 MHz, the common rate between Jellybean and Jawbreaker. */
+	sample_rate_set(10000000);
+
 	si5351c_configure_clock_control();
 	si5351c_enable_clock_outputs();
 
 	//FIXME disable I2C
+	/* Kick I2C0 down to 400kHz when we switch over to APB1 clock = 204MHz */
+	i2c0_init(255);
 
 	/*
 	 * 12MHz clock is entering LPC XTAL1/OSC input now.  On
@@ -194,6 +276,14 @@ void cpu_clock_init(void)
 	/* use PLL0USB as clock source for USB0 */
 	CGU_BASE_USB0_CLK = CGU_BASE_USB0_CLK_AUTOBLOCK
 			| CGU_BASE_USB0_CLK_CLK_SEL(CGU_SRC_PLL0USB);
+
+	/* Switch peripheral clock over to use PLL1 (204MHz) */
+	CGU_BASE_PERIPH_CLK = CGU_BASE_PERIPH_CLK_AUTOBLOCK
+			| CGU_BASE_PERIPH_CLK_CLK_SEL(CGU_SRC_PLL1);
+
+	/* Switch APB1 clock over to use PLL1 (204MHz) */
+	CGU_BASE_APB1_CLK = CGU_BASE_APB1_CLK_AUTOBLOCK
+			| CGU_BASE_APB1_CLK_CLK_SEL(CGU_SRC_PLL1);
 }
 
 void ssp1_init(void)

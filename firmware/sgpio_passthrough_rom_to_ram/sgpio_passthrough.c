@@ -354,13 +354,6 @@ int main(void)
 	enable_1v8_power();
 	cpu_clock_init();
 	ssp1_init();
-
-	CGU_BASE_PERIPH_CLK = (CGU_BASE_CLK_AUTOBLOCK
-			| (CGU_SRC_PLL1 << CGU_BASE_CLK_SEL_SHIFT));
-
-	CGU_BASE_APB1_CLK = (CGU_BASE_CLK_AUTOBLOCK
-			| (CGU_SRC_PLL1 << CGU_BASE_CLK_SEL_SHIFT));
-
 	gpio_set(PORT_LED1_3, PIN_LED1);
 
 	//test_sgpio_sliceA_D();
