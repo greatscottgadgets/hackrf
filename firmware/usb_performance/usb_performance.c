@@ -196,7 +196,7 @@ void set_transceiver_mode(const transceiver_mode_t new_transceiver_mode) {
     sgpio_cpld_stream_enable();
 }
 
-bool usb_vendor_request_set_transceiver_mode(
+usb_request_status_t usb_vendor_request_set_transceiver_mode(
 	usb_endpoint_t* const endpoint,
 	const usb_transfer_stage_t stage
 ) {
@@ -205,22 +205,22 @@ bool usb_vendor_request_set_transceiver_mode(
 		case 1:
 			set_transceiver_mode(TRANSCEIVER_MODE_RX);
 			usb_endpoint_schedule_ack(endpoint->in);
-			return true;
+			return USB_REQUEST_STATUS_OK;
 			
 		case 2:
 			set_transceiver_mode(TRANSCEIVER_MODE_TX);
 			usb_endpoint_schedule_ack(endpoint->in);
-			return true;
+			return USB_REQUEST_STATUS_OK;
 		
 		default:
-			return false;
+			return USB_REQUEST_STATUS_STALL;
 		}
 	} else {
-		return true;
+		return USB_REQUEST_STATUS_OK;
 	}
 }
 
-bool usb_vendor_request_write_max2837(
+usb_request_status_t usb_vendor_request_write_max2837(
 	usb_endpoint_t* const endpoint,
 	const usb_transfer_stage_t stage
 ) {
@@ -229,16 +229,16 @@ bool usb_vendor_request_write_max2837(
 			if( endpoint->setup.value < 0x3ff ) {
 				max2837_reg_write(endpoint->setup.index, endpoint->setup.value);
 				usb_endpoint_schedule_ack(endpoint->in);
-				return true;
+				return USB_REQUEST_STATUS_OK;
 			}
 		}
-		return false;
+		return USB_REQUEST_STATUS_STALL;
 	} else {
-		return true;
+		return USB_REQUEST_STATUS_OK;
 	}
 }
 
-bool usb_vendor_request_read_max2837(
+usb_request_status_t usb_vendor_request_read_max2837(
 	usb_endpoint_t* const endpoint,
 	const usb_transfer_stage_t stage
 ) {
@@ -249,15 +249,15 @@ bool usb_vendor_request_read_max2837(
 			endpoint->buffer[1] = value >> 8;
 			usb_endpoint_schedule(endpoint->in, &endpoint->buffer, 2);
 			usb_endpoint_schedule_ack(endpoint->out);
-			return true;
+			return USB_REQUEST_STATUS_OK;
 		}
-		return false;
+		return USB_REQUEST_STATUS_STALL;
 	} else {
-		return true;
+		return USB_REQUEST_STATUS_OK;
 	}
 }
 
-bool usb_vendor_request_write_si5351c(
+usb_request_status_t usb_vendor_request_write_si5351c(
 	usb_endpoint_t* const endpoint,
 	const usb_transfer_stage_t stage
 ) {
@@ -266,16 +266,16 @@ bool usb_vendor_request_write_si5351c(
 			if( endpoint->setup.value < 256 ) {
 				si5351c_write_single(endpoint->setup.index, endpoint->setup.value);
 				usb_endpoint_schedule_ack(endpoint->in);
-				return true;
+				return USB_REQUEST_STATUS_OK;
 			}
 		}
-		return false;
+		return USB_REQUEST_STATUS_STALL;
 	} else {
-		return true;
+		return USB_REQUEST_STATUS_OK;
 	}
 }
 
-bool usb_vendor_request_read_si5351c(
+usb_request_status_t usb_vendor_request_read_si5351c(
 	usb_endpoint_t* const endpoint,
 	const usb_transfer_stage_t stage
 ) {
@@ -285,15 +285,15 @@ bool usb_vendor_request_read_si5351c(
 			endpoint->buffer[0] = value;
 			usb_endpoint_schedule(endpoint->in, &endpoint->buffer, 1);
 			usb_endpoint_schedule_ack(endpoint->out);
-			return true;
+			return USB_REQUEST_STATUS_OK;
 		}
-		return false;
+		return USB_REQUEST_STATUS_STALL;
 	} else {
-		return true;
+		return USB_REQUEST_STATUS_OK;
 	}
 }
 
-bool usb_vendor_request_set_sample_rate(
+usb_request_status_t usb_vendor_request_set_sample_rate(
 	usb_endpoint_t* const endpoint,
 	const usb_transfer_stage_t stage
 ) {
@@ -301,15 +301,15 @@ bool usb_vendor_request_set_sample_rate(
 		const uint32_t sample_rate = (endpoint->setup.index << 16) | endpoint->setup.value;
 		if( sample_rate_set(sample_rate) ) {
 			usb_endpoint_schedule_ack(endpoint->in);
-			return true;
+			return USB_REQUEST_STATUS_OK;
 		}
-		return false;
+		return USB_REQUEST_STATUS_STALL;
 	} else {
-		return true;
+		return USB_REQUEST_STATUS_OK;
 	}
 }
 
-bool usb_vendor_request_set_baseband_filter_bandwidth(
+usb_request_status_t usb_vendor_request_set_baseband_filter_bandwidth(
 	usb_endpoint_t* const endpoint,
 	const usb_transfer_stage_t stage
 ) {
@@ -317,56 +317,42 @@ bool usb_vendor_request_set_baseband_filter_bandwidth(
 		const uint32_t bandwidth = (endpoint->setup.index << 16) | endpoint->setup.value;
 		if( baseband_filter_bandwidth_set(bandwidth) ) {
 			usb_endpoint_schedule_ack(endpoint->in);
-			return true;
+			return USB_REQUEST_STATUS_OK;
 		}
-		return false;
+		return USB_REQUEST_STATUS_STALL;
 	} else {
-		return true;
+		return USB_REQUEST_STATUS_OK;
 	}
 }
 
-void usb_vendor_request(
+static const usb_request_handler_fn vendor_request_handler[] = {
+	NULL,
+	usb_vendor_request_set_transceiver_mode,
+	usb_vendor_request_write_max2837,
+	usb_vendor_request_read_max2837,
+	usb_vendor_request_write_si5351c,
+	usb_vendor_request_read_si5351c,
+	usb_vendor_request_set_sample_rate,
+	usb_vendor_request_set_baseband_filter_bandwidth,
+};
+
+static const uint32_t vendor_request_handler_count =
+	sizeof(vendor_request_handler) / sizeof(vendor_request_handler[0]);
+
+usb_request_status_t usb_vendor_request(
 	usb_endpoint_t* const endpoint,
 	const usb_transfer_stage_t stage
 ) {
-	bool success = false;
+	usb_request_status_t status = USB_REQUEST_STATUS_STALL;
 	
-	switch(endpoint->setup.request) {
-	case 1:
-		success = usb_vendor_request_set_transceiver_mode(endpoint, stage);
-		break;
-		
-	case 2:
-		success = usb_vendor_request_write_max2837(endpoint, stage);
-		break;
-		
-	case 3:
-		success = usb_vendor_request_read_max2837(endpoint, stage);
-		break;
-		
-	case 4:
-		success = usb_vendor_request_write_si5351c(endpoint, stage);
-		break;
-		
-	case 5:
-		success = usb_vendor_request_read_si5351c(endpoint, stage);
-		break;
-	
-	case 6:
-		success = usb_vendor_request_set_sample_rate(endpoint, stage);
-		break;
-
-	case 7:
-		success = usb_vendor_request_set_baseband_filter_bandwidth(endpoint, stage);
-		break;
-		
-	default:
-		break;
+	if( endpoint->setup.request < vendor_request_handler_count ) {
+		usb_request_handler_fn handler = vendor_request_handler[endpoint->setup.request];
+		if( handler ) {
+			status = handler(endpoint, stage);
+		}
 	}
 	
-	if( success != true ) {
-		usb_endpoint_stall(endpoint);
-	}
+	return status;
 }
 
 const usb_request_handlers_t usb_request_handlers = {

@@ -28,6 +28,7 @@ static void usb_request(
 	usb_endpoint_t* const endpoint,
 	const usb_transfer_stage_t stage
 ) {
+	usb_request_status_t status = USB_REQUEST_STATUS_STALL;
 	usb_request_handler_fn handler = 0;
 	
 	switch( endpoint->setup.request_type & USB_SETUP_REQUEST_TYPE_mask ) {
@@ -49,8 +50,10 @@ static void usb_request(
 	}
 	
 	if( handler ) {
-		handler(endpoint, stage);
-	} else {
+		status = handler(endpoint, stage);
+	}
+
+	if( status != USB_REQUEST_STATUS_OK ) {
 		// USB 2.0 section 9.2.7 "Request Error"
 		usb_endpoint_stall(endpoint);
 	}
