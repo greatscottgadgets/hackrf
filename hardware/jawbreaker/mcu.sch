@@ -1,4 +1,4 @@
-EESchema Schematic File Version 2  date Tue Oct  2 15:08:35 2012
+EESchema Schematic File Version 2  date Sun Nov  4 15:23:31 2012
 LIBS:power
 LIBS:device
 LIBS:transistors
@@ -37,7 +37,7 @@ $Descr User 17000 11000
 encoding utf-8
 Sheet 4 4
 Title "jawbreaker mcu/usb/power"
-Date "2 oct 2012"
+Date "4 nov 2012"
 Rev ""
 Comp "Copyright 2012 Michael Ossmann"
 Comment1 "License: GPL v2"
@@ -1365,14 +1365,14 @@ $EndComp
 $Comp
 L R R7
 U 1 1 504786E0
-P 2800 9150
-F 0 "R7" V 2700 9150 50  0000 C CNN
-F 1 "10k" V 2800 9150 50  0000 C CNN
-F 4 "Stackpole" H 2800 9150 60  0001 C CNN "Manufacturer"
-F 5 "RMCF0402JT10K0" H 2800 9150 60  0001 C CNN "Part Number"
-F 6 "RES 10K OHM 1/16W 5% 0402 SMD" H 2800 9150 60  0001 C CNN "Description"
-	1    2800 9150
-	0    1    1    0   
+P 2800 9350
+F 0 "R7" V 2700 9350 50  0000 C CNN
+F 1 "10k" V 2800 9350 50  0000 C CNN
+F 4 "Stackpole" H 2800 9350 60  0001 C CNN "Manufacturer"
+F 5 "RMCF0402JT10K0" H 2800 9350 60  0001 C CNN "Part Number"
+F 6 "RES 10K OHM 1/16W 5% 0402 SMD" H 2800 9350 60  0001 C CNN "Description"
+	1    2800 9350
+	0    -1   -1   0   
 $EndComp
 $Comp
 L R R43
@@ -1958,15 +1958,15 @@ $EndComp
 $Comp
 L R R82
 U 1 1 503F994E
-P 2800 9350
-F 0 "R82" V 2880 9350 50  0000 C CNN
-F 1 "10k" V 2800 9350 50  0000 C CNN
-F 4 "Stackpole" H 2800 9350 60  0001 C CNN "Manufacturer"
-F 5 "RMCF0402JT10K0" H 2800 9350 60  0001 C CNN "Part Number"
-F 6 "RES 10K OHM 1/16W 5% 0402 SMD" H 2800 9350 60  0001 C CNN "Description"
-F 7 "DNP" V 2900 9150 60  0000 C CNN "Note"
-	1    2800 9350
-	0    -1   1    0   
+P 2800 9150
+F 0 "R82" V 2880 9150 50  0000 C CNN
+F 1 "10k" V 2800 9150 50  0000 C CNN
+F 4 "Stackpole" H 2800 9150 60  0001 C CNN "Manufacturer"
+F 5 "RMCF0402JT10K0" H 2800 9150 60  0001 C CNN "Part Number"
+F 6 "RES 10K OHM 1/16W 5% 0402 SMD" H 2800 9150 60  0001 C CNN "Description"
+F 7 "DNP" V 2900 8950 60  0000 C CNN "Note"
+	1    2800 9150
+	0    1    -1   0   
 $EndComp
 $Comp
 L R R68

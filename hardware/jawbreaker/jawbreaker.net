@@ -1,4 +1,4 @@
-# EESchema Netlist Version 1.1 created  Tue Oct  2 15:01:35 2012
+# EESchema Netlist Version 1.1 created  Sun Nov  4 15:23:40 2012
 (
  ( /503BB638/5054932E $noname  C53 1uF {Lib=C}
   (    1 VAA )
@@ -1217,8 +1217,8 @@
   (    2 /mcu/usb/power/VCCIO1 )
  )
  ( /5037043E/504786E0 $noname  R7 10k {Lib=R}
-  (    1 VCC )
-  (    2 /mcu/usb/power/BOOT2 )
+  (    1 /mcu/usb/power/BOOT2 )
+  (    2 GND )
  )
  ( /5037043E/504786DD $noname  R43 10k {Lib=R}
   (    1 VCC )
@@ -1373,8 +1373,8 @@
   (    2 GND )
  )
  ( /5037043E/503F994E $noname  R82 10k {Lib=R}
-  (    1 /mcu/usb/power/BOOT2 )
-  (    2 GND )
+  (    1 VCC )
+  (    2 /mcu/usb/power/BOOT2 )
  )
  ( /5037043E/503F9945 $noname  R68 10k {Lib=R}
   (    1 /mcu/usb/power/BOOT1 )
@@ -3587,14 +3587,13 @@ Net 3 "VCC" "VCC"
  R28 1
  U4 19
  U20 8
- C134 1
+ C133 1
+ R82 1
  R6 1
  C135 1
- C133 1
  C136 1
  C68 1
  C137 1
- U23 94
  C149 1
  C148 1
  C88 1
@@ -3614,14 +3613,15 @@ Net 3 "VCC" "VCC"
  U23 59
  L13 1
  R39 1
+ U23 94
  U23 77
  U23 25
  U15 1
  U23 5
  U23 17
  R43 1
- R7 1
  R60 1
+ C134 1
  U23 36
  R37 1
  U23 16
@@ -3630,24 +3630,24 @@ Net 3 "VCC" "VCC"
  P8 1
  U17 20
  U23 141
- R49 1
+ R105 1
+ C142 1
+ U15 13
+ U15 14
  R48 1
+ R64 2
  R59 1
  R63 2
- R104 1
- U15 13
- C150 1
- C142 1
- U15 14
- R105 1
- R66 1
  C144 1
- R64 2
+ R66 1
+ R104 1
+ R49 1
+ C150 1
 Net 4 "MIXER_RESETX" "MIXER_RESETX"
- U23 58
  C34 1
  R5 2
  U4 29
+ U23 58
 Net 5 "/mcu/usb/power/GPIO3_13" "GPIO3_13"
  P20 6
  U23 133
@@ -3655,14 +3655,14 @@ Net 6 "/mcu/usb/power/GPIO3_14" "GPIO3_14"
  U23 134
  P20 7
 Net 7 "/mcu/usb/power/I2S0_TX_SCK" "I2S0_TX_SCK"
- P22 4
  U23 112
+ P22 4
 Net 8 "/mcu/usb/power/I2S0_TX_WS" "I2S0_TX_WS"
- U23 114
  P22 3
+ U23 114
 Net 9 "" ""
- R75 1
  D7 1
+ R75 1
 Net 10 "/mcu/usb/power/LED2" "LED2"
  U23 8
  R73 2
@@ -3670,53 +3670,53 @@ Net 11 "" ""
  R71 2
  D3 2
 Net 12 "/mcu/usb/power/SGPIO4" "SGPIO4"
- U23 79
  R98 1
+ U23 79
 Net 13 "" ""
- U24 22
  P35 1
+ U24 22
 Net 14 "MIXER_SCLK" "MIXER_SCLK"
  C36 1
  U23 95
  U4 31
 Net 15 "MIXER_SDATA" "MIXER_SDATA"
- U4 32
- U23 80
  C37 1
+ U23 80
+ U4 32
 Net 16 "MIXER_ENX" "MIXER_ENX"
- C35 1
- R6 2
  U4 30
  U23 57
+ R6 2
+ C35 1
 Net 17 "/mcu/usb/power/XTAL2" "XTAL2"
+ U23 13
  C158 1
  X2 3
- U23 13
 Net 18 "/mcu/usb/power/B2AUX11" "B2AUX11"
  U24 2
  P30 11
 Net 19 "/mcu/usb/power/B2AUX15" "B2AUX15"
- P30 15
  U24 94
+ P30 15
 Net 20 "/mcu/usb/power/B2AUX14" "B2AUX14"
- U24 97
  P30 14
+ U24 97
 Net 21 "/mcu/usb/power/B2AUX10" "B2AUX10"
  U24 3
  P30 10
 Net 22 "/mcu/usb/power/BOOT0" "BOOT0"
- P27 2
  R67 1
  R40 1
  U23 42
+ P27 2
 Net 23 "" ""
  R73 1
  D5 1
 Net 24 "/mcu/usb/power/BOOT2" "BOOT2"
- R82 1
- P32 2
  U23 98
- R7 2
+ R82 2
+ P32 2
+ R7 1
 Net 25 "" ""
  U21 7
  R52 2
@@ -3724,17 +3724,17 @@ Net 26 "/mcu/usb/power/BANK2F3M5" "BANK2F3M5"
  R81 2
  U24 79
 Net 27 "/mcu/usb/power/BANK2F3M3" "BANK2F3M3"
- U24 89
  R79 2
+ U24 89
 Net 28 "/mcu/usb/power/VREGMODE" "VREGMODE"
- R51 2
  U23 101
+ R51 2
 Net 29 "" ""
- P7 1
  U23 108
+ P7 1
 Net 30 "/mcu/usb/power/LED3" "LED3"
- R74 2
  U23 103
+ R74 2
 Net 31 "/mcu/usb/power/GPIO3_11" "GPIO3_11"
  U23 117
  P20 4
@@ -3743,25 +3743,25 @@ Net 32 "" ""
  R48 2
  U23 130
 Net 33 "" ""
- L11 2
  U21 6
+ L11 2
 Net 34 "" ""
- R47 2
  R46 2
+ R47 2
  C125 2
  U21 1
 Net 35 "/mcu/usb/power/EN1V8" "EN1V8"
- R76 2
  U21 9
  R54 2
+ R76 2
  U23 100
 Net 36 "" ""
- R57 2
- J1 3
  U22 3
+ J1 3
+ R57 2
 Net 37 "/mcu/usb/power/GPIO3_10" "GPIO3_10"
- P20 3
  U23 115
+ P20 3
 Net 38 "/mcu/usb/power/ADC0_2" "ADC0_2"
  U23 143
  P21 4
@@ -3769,32 +3769,32 @@ Net 39 "" ""
  P24 1
  U23 29
 Net 40 "" ""
- D4 1
  R72 1
+ D4 1
 Net 41 "/mcu/usb/power/B1AUX12" "B1AUX12"
  P31 4
  U24 53
 Net 42 "/mcu/usb/power/CPLD_TCK" "CPLD_TCK"
- U23 74
  P29 4
+ U23 74
  U24 48
 Net 43 "/mcu/usb/power/CPLD_TMS" "CPLD_TMS"
  U23 78
- P29 1
  U24 47
+ P29 1
 Net 44 "CS_AD" "CS_AD"
  U23 65
  U18 36
 Net 45 "RXENABLE" "RXENABLE"
- U17 48
  U23 10
+ U17 48
 Net 46 "/mcu/usb/power/GP_CLKIN" "GP_CLKIN"
- C156 1
  U23 14
  C155 2
+ C156 1
 Net 47 "/mcu/usb/power/B1AUX10" "B1AUX10"
- P31 2
  U24 50
+ P31 2
 Net 48 "/mcu/usb/power/B1AUX14" "B1AUX14"
  P31 6
  U24 56
@@ -3811,23 +3811,23 @@ Net 52 "/mcu/usb/power/B2AUX6" "B2AUX6"
  U24 8
  P30 6
 Net 53 "/mcu/usb/power/ISP" "ISP"
- U23 96
- P25 2
  R59 2
+ P25 2
+ U23 96
 Net 54 "RF_LDO_ENABLE" "RF_LDO_ENABLE"
  U23 37
  U26 3
 Net 55 "GND" "GND"
+ C116 2
+ C84 2
+ U18 0
  U18 17
  U13 5
- U18 0
- C84 2
+ C106 2
  T4 2
  U18 37
  U18 5
  U18 7
- C116 2
- C106 2
  P21 7
  P28 1
  X2 4
@@ -4046,7 +4046,6 @@ Net 55 "GND" "GND"
  P34 3
  R54 1
  R93 2
- R82 2
  P33 3
  P32 3
  R46 1
@@ -4056,6 +4055,7 @@ Net 55 "GND" "GND"
  P3 2
  P31 9
  C158 2
+ R7 2
  P31 10
  R65 2
  P22 6
@@ -4248,8 +4248,8 @@ Net 114 "/mcu/usb/power/BANK2F3M6" "BANK2F3M6"
  R86 2
  U24 78
 Net 115 "/mcu/usb/power/BANK2F3M4" "BANK2F3M4"
- U24 81
  R80 2
+ U24 81
 Net 116 "/mcu/usb/power/BANK2F3M2" "BANK2F3M2"
  U24 90
  R78 2
@@ -4281,26 +4281,26 @@ Net 125 "/mcu/usb/power/B1AUX11" "B1AUX11"
  U24 52
  P31 3
 Net 126 "TXENABLE" "TXENABLE"
- U17 47
  U23 9
+ U17 47
 Net 127 "XCVR_EN" "XCVR_EN"
+ U23 11
  R41 2
  U17 25
- U23 11
 Net 128 "CS_XCVR" "CS_XCVR"
  U23 70
  U17 30
 Net 129 "/mcu/usb/power/CPLD_TDO" "CPLD_TDO"
  U23 69
- P29 3
  U24 83
+ P29 3
 Net 130 "" ""
  R58 2
- U22 1
  J1 2
+ U22 1
 Net 131 "/mcu/usb/power/ADC0_5" "ADC0_5"
- P21 6
  U23 144
+ P21 6
 Net 132 "/mcu/usb/power/ADC0_6" "ADC0_6"
  U23 142
  P21 2
@@ -4358,14 +4358,14 @@ Net 143 "/mcu/usb/power/SGPIO13" "SGPIO13"
 Net 144 "/mcu/usb/power/BOOT1" "BOOT1"
  P33 2
  U23 43
- R42 2
  R68 1
+ R42 2
 Net 145 "/mcu/usb/power/VCCIO1" "VCCIO1"
  C154 1
  R61 1
+ C153 1
  U24 51
  R60 2
- C153 1
  U24 38
 Net 146 "/mcu/usb/power/LED1" "LED1"
  U23 3
@@ -4380,29 +4380,29 @@ Net 148 "/mcu/usb/power/GPIO3_15" "GPIO3_15"
 Net 149 "SDA" "SDA"
  U19 5
  R27 2
- U23 93
  P38 1
+ U23 93
 Net 150 "/mcu/usb/power/RREF" "RREF"
- R69 1
  U23 24
+ R69 1
 Net 151 "/mcu/usb/power/U0_RXD" "U0_RXD"
- U23 81
  P25 4
+ U23 81
 Net 152 "/mcu/usb/power/BOOT3" "BOOT3"
- R43 2
  P34 2
- U23 102
  R93 1
+ R43 2
+ U23 102
 Net 153 "/mcu/usb/power/SGPIO0" "SGPIO0"
  R79 1
  U23 32
 Net 154 "/mcu/usb/power/SD_DAT3" "SD_DAT3"
- P28 4
  U23 56
+ P28 4
 Net 155 "/mcu/usb/power/XTAL1" "XTAL1"
- C157 1
  X2 1
  U23 12
+ C157 1
 Net 156 "GCK2" "GCK2"
  U19 12
  U24 27
@@ -4416,8 +4416,8 @@ Net 159 "/mcu/usb/power/SD_DAT1" "SD_DAT1"
  P28 6
  U23 53
 Net 160 "/mcu/usb/power/SD_CLK" "SD_CLK"
- P28 11
  U23 45
+ P28 11
 Net 161 "GCK1" "GCK1"
  U18 6
  U24 23
@@ -4435,8 +4435,8 @@ Net 165 "/mcu/usb/power/ADC0_0" "ADC0_0"
  P21 8
  U23 6
 Net 166 "/mcu/usb/power/SGPIO9" "SGPIO9"
- R77 1
  U23 7
+ R77 1
 Net 167 "/mcu/usb/power/SD_DAT2" "SD_DAT2"
  P28 5
  U23 55
@@ -4450,50 +4450,50 @@ Net 170 "/mcu/usb/power/SD_CD" "SD_CD"
  P28 3
  U23 60
 Net 185 "/mcu/usb/power/DBGEN" "DBGEN"
+ P23 1
  U23 28
  R64 1
- P23 1
 Net 186 "/mcu/usb/power/TMS" "TMS"
- U23 30
  P26 2
+ U23 30
 Net 187 "/mcu/usb/power/TDI" "TDI"
- U23 26
  P26 8
+ U23 26
 Net 188 "/mcu/usb/power/SPIFI_SIO2" "SPIFI_SIO2"
- P19 11
- P19 12
- U23 121
  U20 3
+ U23 121
+ P19 12
+ P19 11
 Net 189 "/mcu/usb/power/SPIFI_MOSI" "SPIFI_MOSI"
  P19 4
  U23 123
  P19 3
  U20 5
 Net 190 "/mcu/usb/power/SPIFI_MISO" "SPIFI_MISO"
- U23 122
  P19 1
- P19 2
  U20 2
+ U23 122
+ P19 2
 Net 191 "/mcu/usb/power/TDO" "TDO"
- U23 31
  P26 6
+ U23 31
  R63 1
 Net 192 "/mcu/usb/power/TCK" "TCK"
+ R66 2
  U23 27
  P26 4
- R66 2
 Net 193 "/mcu/usb/power/DM" "DM"
- U23 20
  R58 1
+ U23 20
 Net 194 "/mcu/usb/power/DP" "DP"
  R57 1
  U23 18
 Net 224 "+1.8V" "+1.8V"
  C152 1
+ U24 57
  R61 2
  P1 1
  C151 1
- U24 57
  R32 1
  R30 1
  R38 1
