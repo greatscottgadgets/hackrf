@@ -1,4 +1,4 @@
-EESchema Schematic File Version 2  date Sun Nov  4 15:23:31 2012
+EESchema Schematic File Version 2  date Tue Nov  6 13:57:33 2012
 LIBS:power
 LIBS:device
 LIBS:transistors
@@ -37,7 +37,7 @@ $Descr User 17000 11000
 encoding utf-8
 Sheet 4 4
 Title "jawbreaker mcu/usb/power"
-Date "4 nov 2012"
+Date "6 nov 2012"
 Rev ""
 Comp "Copyright 2012 Michael Ossmann"
 Comment1 "License: GPL v2"
@@ -45,6 +45,12 @@ Comment2 ""
 Comment3 ""
 Comment4 ""
 $EndDescr
+Text Notes 500  5200 0    40   ~ 0
+Cortex Debug\nConnector\n(10 pin 50 mil)
+Text Notes 4150 9050 0    40   ~ 0
+U23 starts up on this 12 MHz\ncrystal. This makes it possible\nto use USB0 DFU boot mode.\nIt should be possible to switch\nto GP_CLKIN provided by the\nclock generator IC (MCL_CLK)\nif desired.
+Text Notes 5900 9400 0    40   ~ 0
+C155 and C156 values\nare a guess. The datasheet\ndoesn't state the acceptable\nvoltage range for GP_CLKIN.
 $Comp
 L R R65
 U 1 1 506B55A7
