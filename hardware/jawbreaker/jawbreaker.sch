@@ -1,4 +1,4 @@
-EESchema Schematic File Version 2  date Sun Nov  4 15:23:31 2012
+EESchema Schematic File Version 2  date Tue Nov  6 14:03:07 2012
 LIBS:power
 LIBS:device
 LIBS:transistors
@@ -37,7 +37,7 @@ $Descr User 17000 11000
 encoding utf-8
 Sheet 1 4
 Title "jawbreaker"
-Date "4 nov 2012"
+Date "6 nov 2012"
 Rev ""
 Comp "Copyright 2012 Michael Ossmann"
 Comment1 "License: GPL v2"
