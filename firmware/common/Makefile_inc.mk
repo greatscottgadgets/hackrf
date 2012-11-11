@@ -91,7 +91,7 @@ program: $(BINARY).dfu
 
 %.bin: %.elf
 	@#printf "  OBJCOPY $(*).bin\n"
-	$(Q)$(OBJCOPY) -Obinary -j .text -j .ARM.exidx $(*).elf $(*).bin
+	$(Q)$(OBJCOPY) -Obinary $(*).elf $(*).bin
 
 %.hex: %.elf
 	@#printf "  OBJCOPY $(*).hex\n"

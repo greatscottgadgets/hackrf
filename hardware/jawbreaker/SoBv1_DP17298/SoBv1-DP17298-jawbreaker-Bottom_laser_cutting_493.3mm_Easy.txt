@@ -1,0 +1,2 @@
+For file SoBv1-DP17298-jawbreaker-Bottom.svg:
+Laser cutting size 493.3mm => Seeed Studio Difficulty Easy (Length of Cutting line Below 60cm)
