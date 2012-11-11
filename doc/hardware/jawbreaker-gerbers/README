@@ -1,0 +1,19 @@
+order of copper layers:
+    Copper 1: Front
+    Copper 2: Inner3
+    Copper 3: Inner2
+    Copper 4: Back
+
+PCB description: 4 layer PCB 0.062 in
+    Copper        1   0.5 oz foil plated to approximately 0.0017 in
+    Dielectric  1-2   0.0119 in
+    Copper        2   1 oz foil (0.0014 in)
+    Dielectric  2-3   0.0280 in
+    Copper        3   1 oz foil (0.0014 in)
+    Dielectric  3-4   0.0119 in
+    Copper        4   0.5 oz foil plated to approximately 0.0017 in
+FR4 or similar substrate with Er=4.5 (+/- 0.1)
+double side solder mask black
+single side silkscreen white
+6 mil min trace width and
+6 mil min isolation
