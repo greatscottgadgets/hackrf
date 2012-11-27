@@ -231,7 +231,7 @@ void cpu_clock_init(void)
 			| CGU_BASE_APB1_CLK_CLK_SEL(CGU_SRC_XTAL);
 
 	/* use XTAL_OSC as clock source for PLL1 */
-	/* Start PLL1 at 12MHz * 17 / 2 = 102MHz. */
+	/* Start PLL1 at 12MHz * 17 / (2+2) = 51MHz. */
 	CGU_PLL1_CTRL = CGU_PLL1_CTRL_CLK_SEL(CGU_SRC_XTAL)
             | CGU_PLL1_CTRL_PSEL(1)
             | CGU_PLL1_CTRL_NSEL(0)
@@ -249,7 +249,8 @@ void cpu_clock_init(void)
 	CGU_PLL1_CTRL = CGU_PLL1_CTRL_CLK_SEL(CGU_SRC_XTAL)
             | CGU_PLL1_CTRL_PSEL(0)
             | CGU_PLL1_CTRL_NSEL(0)
-			| CGU_PLL1_CTRL_MSEL(16);
+			| CGU_PLL1_CTRL_MSEL(16)
+			| CGU_PLL1_CTRL_FBSEL;
 
 	/* wait until stable */
 	while (!(CGU_PLL1_STAT & CGU_PLL1_STAT_LOCK));
