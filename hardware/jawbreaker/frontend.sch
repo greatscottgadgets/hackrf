@@ -1,4 +1,4 @@
-EESchema Schematic File Version 2  date Tue Nov  6 14:03:07 2012
+EESchema Schematic File Version 2  date Thu Dec  6 15:37:44 2012
 LIBS:power
 LIBS:device
 LIBS:transistors
@@ -31,13 +31,13 @@ LIBS:contrib
 LIBS:valves
 LIBS:hackrf
 LIBS:jawbreaker-cache
-EELAYER 25  0
+EELAYER 27 0
 EELAYER END
 $Descr User 17000 11000
 encoding utf-8
 Sheet 2 4
 Title "jawbreaker frontend"
-Date "6 nov 2012"
+Date "6 dec 2012"
 Rev ""
 Comp "Copyright 2012 Michael Ossmann"
 Comment1 "License: GPL v2"
@@ -322,16 +322,16 @@ Connection ~ 3900 4150
 Wire Wire Line
 	4200 3450 4100 3450
 Wire Wire Line
-	4100 4150 4100 3450
+	4100 3450 4100 4150
 Wire Wire Line
-	3700 4150 4100 4150
+	4100 4150 3700 4150
 Connection ~ 3900 3350
 Wire Wire Line
 	3700 4000 3800 4000
 Wire Wire Line
-	3800 3350 3800 4000
+	3800 4000 3800 3350
 Wire Wire Line
-	4200 3350 3800 3350
+	3800 3350 4200 3350
 Wire Wire Line
 	3100 4000 3000 4000
 Connection ~ 1600 2250
@@ -497,9 +497,9 @@ Wire Wire Line
 Wire Wire Line
 	6500 2750 6600 2750
 Wire Wire Line
-	6600 1750 6600 2750
+	6600 2750 6600 1750
 Wire Wire Line
-	6900 1750 6600 1750
+	6600 1750 6900 1750
 Wire Wire Line
 	7600 1750 7400 1750
 Wire Wire Line
@@ -714,9 +714,9 @@ Wire Wire Line
 Wire Wire Line
 	1050 9250 1050 9050
 Wire Wire Line
-	2450 9050 1050 9050
+	1050 9050 2450 9050
 Wire Wire Line
-	2450 9350 2450 9050
+	2450 9050 2450 9350
 Wire Wire Line
 	4050 10300 4050 10200
 Wire Wire Line

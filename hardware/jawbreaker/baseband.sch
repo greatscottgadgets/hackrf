@@ -1,4 +1,4 @@
-EESchema Schematic File Version 2  date Tue Nov  6 14:03:07 2012
+EESchema Schematic File Version 2  date Thu Dec  6 15:37:44 2012
 LIBS:power
 LIBS:device
 LIBS:transistors
@@ -31,13 +31,13 @@ LIBS:contrib
 LIBS:valves
 LIBS:hackrf
 LIBS:jawbreaker-cache
-EELAYER 25  0
+EELAYER 27 0
 EELAYER END
 $Descr User 17000 11000
 encoding utf-8
 Sheet 3 4
 Title "jawbreaker baseband"
-Date "6 nov 2012"
+Date "6 dec 2012"
 Rev ""
 Comp "Copyright 2012 Michael Ossmann"
 Comment1 "License: GPL v2"
@@ -57,7 +57,7 @@ F 6 "RES TF 1.8K OHM 5% 1/16W 0402" H 2300 7600 60  0001 C CNN "Description"
 	1    2300 7600
 	1    0    0    -1  
 $EndComp
-Text Notes 5400 9050 0    40   ~ 0
+Text Notes 7150 9950 0    40   ~ 0
 Install C165, and R92 as necessary to match output.\n\nFor CMOS output, install 0 ohm resistor in place of C165;\ndo not install R92.
 Text Notes 1150 10150 0    40   ~ 0
 Install C118, C164, R45, R84, and R85 as necessary to match input.\n\nFor CMOS input, install 0 ohm resistors in place of C118 and C164;\ndo not install R45, R84, or R85.
@@ -109,7 +109,7 @@ Wire Wire Line
 Wire Wire Line
 	3150 9150 3150 8850
 Wire Wire Line
-	3150 9150 2400 9150
+	2400 9150 3150 9150
 Wire Wire Line
 	1800 9150 2000 9150
 Wire Wire Line
@@ -139,24 +139,24 @@ Wire Wire Line
 Wire Wire Line
 	11450 7900 11450 7800
 Wire Wire Line
-	10800 8400 10800 8500
+	10800 8500 10800 8400
 Wire Wire Line
-	10100 8400 10100 8500
+	10100 8500 10100 8400
 Wire Wire Line
 	4400 6800 4400 7150
 Connection ~ 6900 9900
 Connection ~ 6900 10000
 Connection ~ 6900 10100
 Wire Wire Line
-	6900 10200 6900 9800
+	6900 9800 6900 10200
 Wire Wire Line
-	4600 9100 4600 8750
+	4600 9200 4600 8750
 Wire Wire Line
 	6700 7200 6700 7400
 Connection ~ 6700 7300
 Connection ~ 2850 1500
 Wire Wire Line
-	4350 1500 1450 1500
+	1450 1500 4350 1500
 Wire Wire Line
 	4950 1000 4950 1100
 Wire Wire Line
@@ -180,9 +180,9 @@ Wire Notes Line
 Wire Notes Line
 	13100 9300 13100 7300
 Wire Wire Line
-	14300 8600 14300 8500
+	14300 8500 14300 8600
 Wire Wire Line
-	14300 8500 13600 8500
+	13600 8500 14300 8500
 Connection ~ 13850 8500
 Wire Wire Line
 	13850 8400 13850 8500
@@ -202,7 +202,7 @@ Wire Notes Line
 Wire Notes Line
 	9550 9300 9550 7300
 Wire Wire Line
-	10100 8500 9650 8500
+	9650 8500 10100 8500
 Wire Wire Line
 	9900 7800 9900 7900
 Wire Wire Line
@@ -227,7 +227,7 @@ Wire Wire Line
 	2200 2600 1750 2600
 Connection ~ 2100 8150
 Wire Wire Line
-	3700 8150 1900 8150
+	1900 8150 3700 8150
 Connection ~ 2500 7950
 Connection ~ 11650 4300
 Wire Wire Line
@@ -255,9 +255,9 @@ Wire Wire Line
 Wire Wire Line
 	9800 4500 9000 4500
 Wire Wire Line
-	13150 5300 10700 5300
+	10700 5300 13150 5300
 Wire Wire Line
-	12200 5200 12200 4900
+	12200 4900 12200 5200
 Wire Wire Line
 	12200 5200 13150 5200
 Connection ~ 11700 3100
@@ -282,10 +282,10 @@ Wire Wire Line
 Wire Wire Line
 	4500 6900 4500 7150
 Wire Wire Line
-	4300 8750 4300 8850
+	4300 8850 4300 8750
 Connection ~ 15550 1050
 Wire Wire Line
-	15650 1000 15650 1050
+	15650 1050 15650 1000
 Wire Wire Line
 	9100 5600 9100 5500
 Connection ~ 5300 4800
@@ -306,7 +306,7 @@ Wire Wire Line
 Wire Wire Line
 	5000 9900 5100 9900
 Wire Wire Line
-	700  9750 700  9350
+	700  9350 700  9750
 Connection ~ 700  9650
 Wire Wire Line
 	3900 9200 3800 9200
@@ -337,7 +337,7 @@ Wire Wire Line
 	10900 5900 10900 6000
 Connection ~ 4050 1100
 Wire Wire Line
-	4350 1100 1450 1100
+	1450 1100 4350 1100
 Wire Wire Line
 	13900 3750 13900 3450
 Wire Wire Line
@@ -467,7 +467,7 @@ Wire Wire Line
 Wire Wire Line
 	4150 4700 4250 4700
 Wire Wire Line
-	6400 4800 5800 4800
+	5800 4800 6400 4800
 Wire Wire Line
 	4250 5800 4150 5800
 Wire Wire Line
@@ -515,7 +515,6 @@ Wire Wire Line
 	1450 1500 1450 1600
 Connection ~ 1950 1500
 Connection ~ 2550 1500
-Connection ~ 3150 1500
 Connection ~ 3450 1500
 Wire Wire Line
 	9000 5300 9700 5300
@@ -615,7 +614,7 @@ Wire Wire Line
 Wire Wire Line
 	6100 5400 6100 5900
 Wire Wire Line
-	6400 5300 5800 5300
+	5800 5300 6400 5300
 Connection ~ 5900 5300
 Wire Wire Line
 	5050 5800 5050 5900
@@ -623,17 +622,17 @@ Wire Wire Line
 	5050 5900 5400 5900
 Connection ~ 5300 5900
 Wire Wire Line
-	5400 4200 5050 4200
+	5050 4200 5400 4200
 Wire Wire Line
 	5050 4200 5050 4300
 Connection ~ 5300 4200
 Wire Wire Line
 	9100 6200 9100 6100
 Wire Wire Line
-	15650 1550 15650 1450
+	15650 1450 15650 1550
 Connection ~ 15550 1450
 Wire Wire Line
-	4300 8850 3150 8850
+	3150 8850 4300 8850
 Connection ~ 3900 8850
 Wire Wire Line
 	7550 6250 7550 7300
@@ -652,14 +651,14 @@ Wire Wire Line
 Connection ~ 11500 2700
 Connection ~ 11500 2500
 Wire Wire Line
-	12500 2100 7450 2100
+	7450 2100 12500 2100
 Wire Wire Line
 	7450 2100 7450 3650
 Connection ~ 11500 2100
 Wire Wire Line
 	7750 3100 12500 3100
 Wire Wire Line
-	12200 4900 10700 4900
+	10700 4900 12200 4900
 Connection ~ 11950 4900
 Wire Wire Line
 	10200 4900 9900 4900
@@ -685,10 +684,10 @@ Connection ~ 11400 4700
 Wire Wire Line
 	9000 5500 9200 5500
 Wire Wire Line
-	3700 8050 1900 8050
+	1900 8050 3700 8050
 Connection ~ 2300 8050
 Wire Wire Line
-	4400 10000 4400 8750
+	4400 8750 4400 10000
 Connection ~ 4400 9900
 Wire Wire Line
 	2200 4100 2200 4000
@@ -725,7 +724,7 @@ Connection ~ 10700 8500
 Wire Wire Line
 	10600 7800 10600 7900
 Wire Wire Line
-	10800 8500 10350 8500
+	10350 8500 10800 8500
 Wire Wire Line
 	11700 8500 12150 8500
 Wire Wire Line
@@ -762,7 +761,7 @@ Connection ~ 5650 2900
 Wire Wire Line
 	5650 2000 5650 2100
 Wire Wire Line
-	5650 3100 5650 2800
+	5650 2800 5650 3100
 Wire Wire Line
 	5650 3000 6050 3000
 Connection ~ 5650 3000
@@ -787,9 +786,9 @@ Wire Wire Line
 Wire Wire Line
 	5650 7750 5300 7750
 Wire Wire Line
-	15650 1050 11950 1050
+	11950 1050 15650 1050
 Wire Wire Line
-	15650 1450 11950 1450
+	11950 1450 15650 1450
 Wire Wire Line
 	10100 7900 10100 7800
 Wire Wire Line
@@ -1087,7 +1086,7 @@ F 1 "GND" H 6900 10130 30  0001 C CNN
 	1    6900 10200
 	1    0    0    -1  
 $EndComp
-Text GLabel 4600 9100 3    40   Input ~ 0
+Text GLabel 5300 9200 2    40   Input ~ 0
 SGPIO_CLK
 Text Notes 5900 8400 0    40   ~ 0
 CLK0 is at the sample rate\nCLK1 is at sample rate x2\nCLK2 is at sample rate x2
@@ -2729,8 +2728,8 @@ P 4500 7950
 F 0 "U19" H 4500 8000 60  0000 C CNN
 F 1 "SI5351C" H 4500 7900 60  0000 C CNN
 F 4 "Silicon Laboratories Inc" H 4500 7950 60  0001 C CNN "Manufacturer"
-F 5 "SI5351C-A-GM" H 4500 7950 60  0001 C CNN "Part Number"
-F 6 "IC CLK GEN PLL BLANK CUST 20-QFN" H 4500 7950 60  0001 C CNN "Description"
+F 5 "SI5351C-B-GM" H 4500 7950 60  0001 C CNN "Part Number"
+F 6 "IC CLK GENERATOR 160MHZ 20QFN" H 4500 7950 60  0001 C CNN "Description"
 	1    4500 7950
 	1    0    0    -1  
 $EndComp
@@ -3200,4 +3199,20 @@ F 1 "GND" H 6250 3980 30  0001 C CNN
 	1    6250 4050
 	0    1    1    0   
 $EndComp
+$Comp
+L R R94
+U 1 1 50C136DB
+P 4950 9200
+F 0 "R94" V 5030 9200 50  0000 C CNN
+F 1 "39" V 4950 9200 50  0000 C CNN
+F 4 "Stackpole" H 4950 9200 60  0001 C CNN "Manufacturer"
+F 5 "RMCF0402JT39R0" H 4950 9200 60  0001 C CNN "Part Number"
+F 6 "RES 39 OHM 1/16W 5% 0402 SMD" H 4950 9200 60  0001 C CNN "Description"
+	1    4950 9200
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	5200 9200 5300 9200
+Wire Wire Line
+	4600 9200 4700 9200
 $EndSCHEMATC
