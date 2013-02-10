@@ -1,4 +1,5 @@
 # Copyright 2012 Jared Boone
+# Copyright 2013 Benjamin Vernoux
 #
 # This file is part of HackRF.
 #
@@ -36,7 +37,13 @@ set_target_properties(hackrf PROPERTIES CLEAN_DIRECT_OUTPUT 1)
 set_target_properties(hackrf-static PROPERTIES CLEAN_DIRECT_OUTPUT 1)
 
 # Dependencies
-target_link_libraries(hackrf ${LIBUSB_LIBRARIES})
+target_link_libraries(hackrf ${LIBUSB_LIBRARIES} pthread)
+   
+# For cygwin just force UNIX OFF and WIN32 ON
+if( ${CYGWIN} )
+  SET(UNIX OFF)
+  SET(WIN32 ON)
+endif( ${CYGWIN} )
 
 if( ${UNIX} )
    install(TARGETS hackrf

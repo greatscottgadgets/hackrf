@@ -25,7 +25,8 @@ BINARY = blinky
 
 SRC = $(BINARY).c \
 	../common/hackrf_core.c \
-	../common/si5351c.c
+	../common/si5351c.c \
+	../common/max2837.c
 
 LDSCRIPT = ../common/LPC4330_M4_rom_to_ram.ld
 include ../common/Makefile_inc.mk

@@ -1,5 +1,6 @@
 /*
  * Copyright 2012 Jared Boone <jared@sharebrained.com>
+ * Copyright 2013 Benjamin Vernoux <titanmkd@gmail.com>
  *
  * This file is part of HackRF.
  *
@@ -36,6 +37,8 @@ typedef enum {
 	HACKRF_VENDOR_REQUEST_SI5351C_READ = 5,
 	HACKRF_VENDOR_REQUEST_SAMPLE_RATE_SET = 6,
 	HACKRF_VENDOR_REQUEST_BASEBAND_FILTER_BANDWIDTH_SET = 7,
+	HACKRF_VENDOR_REQUEST_RFFC5071_WRITE = 8,
+	HACKRF_VENDOR_REQUEST_RFFC5071_READ = 9
 } hackrf_vendor_request;
 
 typedef enum {
@@ -47,6 +50,7 @@ struct hackrf_device {
 	libusb_device_handle* usb_device;
 	struct libusb_transfer** transfers;
 	hackrf_sample_block_cb_fn callback;
+	bool transfer_thread_started;
 	pthread_t transfer_thread;
 	uint32_t transfer_count;
 	uint32_t buffer_size;
@@ -198,9 +202,14 @@ int hackrf_open(hackrf_device** device) {
 	lib_device->usb_device = usb_device;
 	lib_device->transfers = NULL;
 	lib_device->callback = NULL;
-	lib_device->transfer_thread = 0;
+	//lib_device->transfer_thread = (pthread_t)NULL;
+	lib_device->transfer_thread_started = false;
+	/*
 	lib_device->transfer_count = 1024;
 	lib_device->buffer_size = 16384;
+	*/
+	lib_device->transfer_count = 4;
+	lib_device->buffer_size = 262144; /* 1048576; */
 	lib_device->streaming = false;
 	
 	result = allocate_transfers(lib_device);
@@ -373,6 +382,55 @@ int hackrf_baseband_filter_bandwidth_set(hackrf_device* device, const uint32_t b
 	}
 }
 
+
+int hackrf_rffc5071_read(hackrf_device* device, uint8_t register_number, uint16_t* value)
+{
+	if( register_number >= 31 ) {
+		return HACKRF_ERROR_INVALID_PARAM;
+	}
+	
+	int result = libusb_control_transfer(
+		device->usb_device,
+		LIBUSB_ENDPOINT_IN | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_RFFC5071_READ,
+		0,
+		register_number,
+		(unsigned char*)value,
+		2,
+		0
+	);
+	
+	if( result < 2 ) {
+		return HACKRF_ERROR_LIBUSB;
+	} else {
+		return HACKRF_SUCCESS;
+	}
+}
+
+int hackrf_rffc5071_write(hackrf_device* device, uint8_t register_number, uint16_t value)
+{
+	if( register_number >= 31 ) {
+		return HACKRF_ERROR_INVALID_PARAM;
+	}
+	
+	int result = libusb_control_transfer(
+		device->usb_device,
+		LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_RFFC5071_WRITE,
+		value,
+		register_number,
+		NULL,
+		0,
+		0
+	);
+	
+	if( result != 0 ) {
+		return HACKRF_ERROR_LIBUSB;
+	} else {
+		return HACKRF_SUCCESS;
+	}
+}
+
 static void* transfer_threadproc(void* arg) {
 	hackrf_device* device = (hackrf_device*)arg;
 	
@@ -411,13 +469,13 @@ static void hackrf_libusb_transfer_callback(struct libusb_transfer* usb_transfer
 static int kill_transfer_thread(hackrf_device* device) {
 	device->streaming = false;
 	
-	if( device->transfer_thread != 0 ) {
+	if( device->transfer_thread_started != false ) {
 		void* value = NULL;
 		int result = pthread_join(device->transfer_thread, &value);
 		if( result != 0 ) {
 			return HACKRF_ERROR_THREAD;
 		}
-		device->transfer_thread = 0;
+		device->transfer_thread_started = false;
 	}
 
 	return HACKRF_SUCCESS;
@@ -428,10 +486,10 @@ static int create_transfer_thread(
 	const uint8_t endpoint_address,
 	hackrf_sample_block_cb_fn callback
 ) {
-	if( device->transfer_thread == 0 ) {
+	if( device->transfer_thread_started == false ) {
 		int result = prepare_transfers(
 			device, endpoint_address,
-			hackrf_libusb_transfer_callback
+			(libusb_transfer_cb_fn)hackrf_libusb_transfer_callback
 		);
 		if( result != HACKRF_SUCCESS ) {
 			return result;
@@ -440,8 +498,10 @@ static int create_transfer_thread(
 		device->callback = callback;
 		device->streaming = true;
 
+		device->transfer_thread_started = true;
 		result = pthread_create(&device->transfer_thread, 0, transfer_threadproc, device);
 		if( result != 0 ) {
+			device->transfer_thread_started = false;
 			return HACKRF_ERROR_THREAD;
 		}
 	} else {
