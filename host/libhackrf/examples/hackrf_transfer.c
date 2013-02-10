@@ -1,5 +1,6 @@
 /*
  * Copyright 2012 Jared Boone <jared@sharebrained.com>
+ * Copyright 2013 Benjamin Vernoux <titanmkd@gmail.com>
  *
  * This file is part of HackRF.
  *
@@ -31,9 +32,19 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <errno.h>
+
+#ifdef _WIN32
+#include <windows.h> 
+#else
 #include <unistd.h>
+#endif
+
 #include <sys/time.h>
 #include <signal.h>
+
+#if defined _WIN32
+	#define sleep(a) Sleep( (a*1000) )
+#endif
 
 typedef enum {
 	TRANSCEIVER_MODE_RX,
@@ -47,18 +58,24 @@ TimevalDiff(const struct timeval *a, const struct timeval *b)
    return (a->tv_sec - b->tv_sec) + 1e-6f * (a->tv_usec - b->tv_usec);
 }
 
-int fd = -1;
+FILE* fd = NULL;
 volatile uint32_t byte_count = 0;
 
+bool receive = false;
+bool transmit = false;
+struct timeval time_start;
+struct timeval t_start;
+	
 int rx_callback(hackrf_transfer* transfer) {
-	if( fd != -1 ) {
+	if( fd != NULL ) 
+	{
 		byte_count += transfer->valid_length;
-		const ssize_t bytes_written = write(fd, transfer->buffer, transfer->valid_length);
+		const ssize_t bytes_written = fwrite(transfer->buffer, 1, transfer->valid_length, fd);
 		if( bytes_written == transfer->valid_length ) {
        		return 0;
 		} else {
-			close(fd);
-			fd = -1;
+			fclose(fd);
+			fd = NULL;
 			return -1;
 		}
 	} else {
@@ -67,14 +84,15 @@ int rx_callback(hackrf_transfer* transfer) {
 }
 
 int tx_callback(hackrf_transfer* transfer) {
-	if( fd != -1 ) {
+	if( fd != NULL )
+	{
 		byte_count += transfer->valid_length;
-		const ssize_t bytes_read = read(fd, transfer->buffer, transfer->valid_length);
+		const ssize_t bytes_read = fread(transfer->buffer, 1, transfer->valid_length, fd);
 		if( bytes_read == transfer->valid_length ) {
 			return 0;
 		} else {
-			close(fd);
-			fd = -1;
+			fclose(fd);
+			fd = NULL;
 			return -1;
 		}
 	} else {
@@ -90,15 +108,64 @@ static void usage() {
 
 static hackrf_device* device = NULL;
 
-void sigint_callback_handler(int signum) {
-	hackrf_stop_rx(device);
-	hackrf_stop_tx(device);
+void sigint_callback_handler(int signum) 
+{
+	int result;
+	printf("Caught signal %d\n", signum);
+
+	struct timeval t_end;
+	gettimeofday(&t_end, NULL);
+	const float time_diff = TimevalDiff(&t_end, &t_start);
+	printf("Total time: %5.5f s\n", time_diff);
+
+	if(device != NULL)
+	{
+		if( receive ) 
+		{
+			printf("hackrf_stop_rx \n");
+			result = hackrf_stop_rx(device);
+			if( result != HACKRF_SUCCESS ) {
+				printf("hackrf_stop_rx() failed: %s (%d)\n", hackrf_error_name(result), result);
+			}else {
+				printf("hackrf_stop_rx() done\n");
+			}
+		}
+	
+		if( transmit ) 
+		{
+			result = hackrf_stop_tx(device);
+			if( result != HACKRF_SUCCESS ) {
+				printf("hackrf_stop_tx() failed: %s (%d)\n", hackrf_error_name(result), result);
+			}else {
+				printf("hackrf_stop_tx() done\n");
+			}
+		}
+		
+		result = hackrf_close(device);
+		if( result != HACKRF_SUCCESS ) 
+		{
+			printf("hackrf_close() failed: %s (%d)\n", hackrf_error_name(result), result);
+		}
+		
+		printf("hackrf_close() done\n");
+		
+		hackrf_exit();
+	}
+		
+	if(fd != NULL)
+	{
+		fclose(fd);
+		fd = NULL;
+		printf("fclose() file handle done\n");
+	}
+	
+	printf("Exit\n");	
+	/* Terminate program */
+	exit(signum);
 }
 
 int main(int argc, char** argv) {
 	int opt;
-	bool receive = false;
-	bool transmit = false;
 	const char* path = NULL;
 	
 	while( (opt = getopt(argc, argv, "r:t:")) != EOF ) {
@@ -115,17 +182,20 @@ int main(int argc, char** argv) {
 		
 		default:
 			usage();
-			return 1;
+			return EXIT_FAILURE;
 		}
 	}
 	
-	if( transmit == receive ) {
-		if( transmit == true ) {
+	if( transmit == receive ) 
+	{
+		if( transmit == true ) 
+		{
 			fprintf(stderr, "receive and transmit options are mutually exclusive\n");
 		} else {
 			fprintf(stderr, "specify either transmit or receive option\n");
 		}
-		return 1;
+		usage();
+		return EXIT_FAILURE;
 	}
 
 	if( receive ) {
@@ -138,31 +208,33 @@ int main(int argc, char** argv) {
 	
 	if( path == NULL ) {
 		fprintf(stderr, "specify a path to a file to transmit/receive\n");
-		return 1;
+		usage();
+		return EXIT_FAILURE;
 	}
 	
 	int result = hackrf_init();
 	if( result != HACKRF_SUCCESS ) {
 		printf("hackrf_init() failed: %s (%d)\n", hackrf_error_name(result), result);
-		return -1;
+		usage();
+		return EXIT_FAILURE;
 	}
 	
 	result = hackrf_open(&device);
 	if( result != HACKRF_SUCCESS ) {
 		printf("hackrf_open() failed: %s (%d)\n", hackrf_error_name(result), result);
-		return -1;
+		return EXIT_FAILURE;
 	}
 	
-	fd = -1;	
-	if( transceiver_mode == TRANSCEIVER_MODE_RX ) {
-		fd = open(path, O_WRONLY | O_CREAT | O_TRUNC, S_IRWXU | S_IRWXG | S_IRWXO);
+	if( transceiver_mode == TRANSCEIVER_MODE_RX ) 
+	{
+		fd = fopen(path, "wb");
 	} else {
-		fd = open(path, O_RDONLY, S_IRWXU | S_IRWXG | S_IRWXO);
+		fd = fopen(path, "rb");
 	}
 	
-	if( fd == -1 ) {
-        printf("Failed to open file: errno %d\n", errno);
-		return fd;
+	if( fd == NULL ) {
+		printf("Failed to open file: %s\n", path);
+		return EXIT_FAILURE;
 	}
 
 	signal(SIGINT, sigint_callback_handler);
@@ -170,13 +242,13 @@ int main(int argc, char** argv) {
 	result = hackrf_sample_rate_set(device, 10000000);
 	if( result != HACKRF_SUCCESS ) {
 		printf("hackrf_sample_rate_set() failed: %s (%d)\n", hackrf_error_name(result), result);
-		return -1;
+		return EXIT_FAILURE;
 	}
 	
 	result = hackrf_baseband_filter_bandwidth_set(device, 5000000);
 	if( result != HACKRF_SUCCESS ) {
 		printf("hackrf_baseband_filter_bandwidth_set() failed: %s (%d)\n", hackrf_error_name(result), result);
-		return -1;
+		return EXIT_FAILURE;
 	}
 	
 	if( transceiver_mode == TRANSCEIVER_MODE_RX ) {
@@ -186,32 +258,30 @@ int main(int argc, char** argv) {
 	}
 	if( result != HACKRF_SUCCESS ) {
 		printf("hackrf_start_?x() failed: %s (%d)\n", hackrf_error_name(result), result);
-		return -1;
+		return EXIT_FAILURE;
 	}
-	
-	struct timeval time_start;
-    gettimeofday(&time_start, NULL);
 
-	while( hackrf_is_streaming(device) ) {
+	gettimeofday(&t_start, NULL);
+	gettimeofday(&time_start, NULL);
+
+	while( hackrf_is_streaming(device) ) 
+	{
 		sleep(1);
-
-    	struct timeval time_now;
+		
+		struct timeval time_now;
 		gettimeofday(&time_now, NULL);
 		
 		uint32_t byte_count_now = byte_count;
 		byte_count = 0;
 		
 		const float time_difference = TimevalDiff(&time_now, &time_start);
-	    const float rate = (float)byte_count_now / time_difference;
-	    printf("%4.1f MiB / %5.3f sec = %4.1f MiB/second\n",
-	        byte_count_now / 1e6f,
-	        time_difference,
-	        rate / 1e6f
-	    );
+		const float rate = (float)byte_count_now / time_difference;
+		printf("%4.1f MiB / %5.3f sec = %4.1f MiB/second\n",
+				(byte_count_now / 1e6f), time_difference, (rate / 1e6f) );
 
-	    time_start = time_now;
+		time_start = time_now;
 	}
-	
+
 	result = hackrf_close(device);
 	if( result != HACKRF_SUCCESS ) {
 		printf("hackrf_close() failed: %s (%d)\n", hackrf_error_name(result), result);
@@ -219,6 +289,11 @@ int main(int argc, char** argv) {
 	}
 	
 	hackrf_exit();
-    
-    return 0;
+	
+	if(fd != NULL)
+	{
+		fclose(fd);
+	}
+
+	return EXIT_SUCCESS;
 }

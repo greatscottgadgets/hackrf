@@ -26,7 +26,8 @@
 
 # derived primarily from Makefiles in libopencm3
 
-BOARD ?= JELLYBEAN
+#BOARD ?= JELLYBEAN
+BOARD ?= JAWBREAKER
 
 HACKRF_OPTS = -D$(BOARD)
 

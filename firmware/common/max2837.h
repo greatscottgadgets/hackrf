@@ -8,6 +8,7 @@
 
 /* 32 registers, each containing 10 bits of data. */
 #define MAX2837_NUM_REGS 32
+#define MAX2837_DATA_REGS_MAX_VALUE 1024
 
 /* TODO - these externs will be local to max2837.c ... don't define here? */
 extern uint16_t max2837_regs[MAX2837_NUM_REGS];
