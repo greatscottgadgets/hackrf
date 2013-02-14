@@ -52,7 +52,8 @@ void w25q80bv_setup(void)
 			SSP_SLAVE_OUT_ENABLE);
 }
 
-uint8_t w25q80bv_get_status(void) {
+uint8_t w25q80bv_get_status(void)
+{
 	uint8_t value;
 
 	gpio_clear(PORT_SSP0_SSEL, PIN_SSP0_SSEL);
@@ -63,18 +64,21 @@ uint8_t w25q80bv_get_status(void) {
 	return value;
 }
 
-void w25q80bv_wait_while_busy(void) {
+void w25q80bv_wait_while_busy(void)
+{
 	while (w25q80bv_get_status() & W25Q80BV_STATUS_BUSY);
 }
 
-void w25q80bv_write_enable(void) {
+void w25q80bv_write_enable(void)
+{
 	w25q80bv_wait_while_busy();
 	gpio_clear(PORT_SSP0_SSEL, PIN_SSP0_SSEL);
 	ssp_transfer(SSP0_NUM, W25Q80BV_WRITE_ENABLE);
 	gpio_set(PORT_SSP0_SSEL, PIN_SSP0_SSEL);
 }
 
-void w25q80bv_chip_erase(void) {
+void w25q80bv_chip_erase(void)
+{
 	w25q80bv_write_enable();
 	w25q80bv_wait_while_busy();
 	gpio_clear(PORT_SSP0_SSEL, PIN_SSP0_SSEL);
@@ -83,7 +87,8 @@ void w25q80bv_chip_erase(void) {
 }
 
 /* write up a 256 byte page or partial page */
-void w25q80bv_page_program(uint32_t addr, uint16_t len, uint8_t* data) {
+void w25q80bv_page_program(uint32_t addr, uint16_t len, uint8_t* data)
+{
 	int i;
 
 	/* do nothing if asked to write beyond a page boundary */
