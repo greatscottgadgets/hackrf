@@ -134,6 +134,14 @@ extern "C"
 #define RF_LDO_ENABLE       (P5_0)  /* GPIO2[9] on P5_0 */
 #endif
 
+/* SPI flash */
+#define SCU_SSP0_MISO       (P3_6)
+#define SCU_SSP0_MOSI       (P3_7)
+#define SCU_SSP0_SCK        (P3_3)
+#define SCU_SSP0_SSEL       (P3_8) /* GPIO5[11] on P3_8 */
+#define SCU_FLASH_HOLD      (P3_4) /* GPIO1[14] on P3_4 */
+#define SCU_FLASH_WP        (P3_5) /* GPIO1[15] on P3_5 */
+
 /* TODO add other Pins */
 
 /*
@@ -196,6 +204,12 @@ extern "C"
 #define PIN_RF_LDO_ENABLE  (BIT9)  /* GPIO2[9] on P5_0 */
 #define PORT_RF_LDO_ENABLE (GPIO2) /* PORT for RF_LDO_ENABLE */
 #endif
+
+#define PIN_FLASH_HOLD (BIT14) /* GPIO1[14] on P3_4 */
+#define PIN_FLASH_WP   (BIT15) /* GPIO1[15] on P3_5 */
+#define PORT_FLASH     (GPIO1)
+#define PIN_SSP0_SSEL  (BIT11) /* GPIO5[11] on P3_8 */
+#define PORT_SSP0_SSEL (GPIO5)
 
 /* GPIO Input */
 #define PIN_BOOT0   (BIT8)  /* GPIO0[8] on P1_1 */
