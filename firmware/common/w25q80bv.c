@@ -87,7 +87,7 @@ void w25q80bv_chip_erase(void)
 }
 
 /* write up a 256 byte page or partial page */
-void w25q80bv_page_program(uint32_t addr, uint16_t len, uint8_t* data)
+void w25q80bv_page_program(const uint32_t addr, const uint16_t len, const uint8_t* data)
 {
 	int i;
 
@@ -113,7 +113,7 @@ void w25q80bv_page_program(uint32_t addr, uint16_t len, uint8_t* data)
 }
 
 /* write an arbitrary number of bytes */
-void w25q80bv_program(uint32_t addr, uint32_t len, uint8_t* data)
+void w25q80bv_program(uint32_t addr, uint32_t len, const uint8_t* data)
 {
 	uint16_t first_block_len;
 

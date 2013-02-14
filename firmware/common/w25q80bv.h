@@ -11,4 +11,4 @@
 
 void w25q80bv_setup(void);
 void w25q80bv_chip_erase(void);
-void w25q80bv_program(uint32_t addr, uint32_t len, uint8_t* data);
+void w25q80bv_program(uint32_t addr, uint32_t len, const uint8_t* data);
