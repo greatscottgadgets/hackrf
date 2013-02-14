@@ -57,7 +57,7 @@
                      2500      20000  - required for blank check
                                       - blank check max 1 device = 16384 bits
 */
-#define MAX_LEN 7000
+#define MAX_LEN 256
 
 
 typedef struct var_len_byte
