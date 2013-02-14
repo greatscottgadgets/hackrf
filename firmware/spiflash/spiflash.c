@@ -28,14 +28,19 @@
 int main(void)
 {
 	int i;
+	uint8_t buf[515];
+
 	pin_setup();
 
 	/* Set 1V8 */
 	gpio_set(PORT_EN1V8, PIN_EN1V8);
 
-	/* program a test page to SPI flash */
+	/* program test data to SPI flash */
+	for (i = 0; i < 515; i++)
+		buf[i] = (i * 3) & 0xFF;
 	w25q80bv_setup();
-	w25q80bv_page_program();
+	w25q80bv_chip_erase();
+	w25q80bv_program(790, 515, &buf[0]);
 
 	/* blink LED1 and LED3 */
 	while (1) 

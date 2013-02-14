@@ -5,7 +5,6 @@
  */
 
 #include <stdint.h>
-#include <string.h>
 #include "w25q80bv.h"
 #include "hackrf_core.h"
 #include <libopencm3/lpc43xx/ssp.h>
@@ -68,13 +67,6 @@ void w25q80bv_wait_while_busy(void) {
 	while (w25q80bv_get_status() & W25Q80BV_STATUS_BUSY);
 }
 
-void w25q80bv_chip_erase(void) {
-	w25q80bv_wait_while_busy();
-	gpio_clear(PORT_SSP0_SSEL, PIN_SSP0_SSEL);
-	ssp_transfer(SSP0_NUM, W25Q80BV_CHIP_ERASE);
-	gpio_set(PORT_SSP0_SSEL, PIN_SSP0_SSEL);
-}
-
 void w25q80bv_write_enable(void) {
 	w25q80bv_wait_while_busy();
 	gpio_clear(PORT_SSP0_SSEL, PIN_SSP0_SSEL);
@@ -82,19 +74,70 @@ void w25q80bv_write_enable(void) {
 	gpio_set(PORT_SSP0_SSEL, PIN_SSP0_SSEL);
 }
 
-/* write a 256 byte page */
-void w25q80bv_page_program(void) {
+void w25q80bv_chip_erase(void) {
+	w25q80bv_write_enable();
+	w25q80bv_wait_while_busy();
+	gpio_clear(PORT_SSP0_SSEL, PIN_SSP0_SSEL);
+	ssp_transfer(SSP0_NUM, W25Q80BV_CHIP_ERASE);
+	gpio_set(PORT_SSP0_SSEL, PIN_SSP0_SSEL);
+}
+
+/* write up a 256 byte page or partial page */
+void w25q80bv_page_program(uint32_t addr, uint16_t len, uint8_t* data) {
 	int i;
+
+	/* do nothing if asked to write beyond a page boundary */
+	if (((addr & 0xFF) + len) > W25Q80BV_PAGE_LEN)
+		return;
+
+	/* do nothing if we would overflow the flash */
+	if (addr > (W25Q80BV_NUM_BYTES - len))
+		return;
 
 	w25q80bv_write_enable();
 	w25q80bv_wait_while_busy();
 
 	gpio_clear(PORT_SSP0_SSEL, PIN_SSP0_SSEL);
 	ssp_transfer(SSP0_NUM, W25Q80BV_PAGE_PROGRAM);
-	ssp_transfer(SSP0_NUM, 0x00); //FIXME real address high byte
-	ssp_transfer(SSP0_NUM, 0x00); //FIXME real address middle byte
-	ssp_transfer(SSP0_NUM, 0x00); //FIXME real address low byte
-	for (i = 0; i < 256; i++)
-		ssp_transfer(SSP0_NUM, i); //FIXME real data
+	ssp_transfer(SSP0_NUM, (addr & 0xFF0000) >> 16);
+	ssp_transfer(SSP0_NUM, (addr & 0xFF00) >> 8);
+	ssp_transfer(SSP0_NUM, addr & 0xFF);
+	for (i = 0; i < len; i++)
+		ssp_transfer(SSP0_NUM, data[i]);
 	gpio_set(PORT_SSP0_SSEL, PIN_SSP0_SSEL);
+}
+
+/* write an arbitrary number of bytes */
+void w25q80bv_program(uint32_t addr, uint32_t len, uint8_t* data)
+{
+	uint16_t first_block_len;
+
+	/* do nothing if we would overflow the flash */
+	if ((len > W25Q80BV_NUM_BYTES) || (addr > W25Q80BV_NUM_BYTES)
+			|| ((addr + len) > W25Q80BV_NUM_BYTES))
+		return;
+
+	/* handle start not at page boundary */
+	first_block_len = W25Q80BV_PAGE_LEN - (addr % W25Q80BV_PAGE_LEN);
+	if (len < first_block_len)
+		first_block_len = len;
+	if (first_block_len) {
+		w25q80bv_page_program(addr, first_block_len, data);
+		addr += first_block_len;
+		data += first_block_len;
+		len -= first_block_len;
+	}
+
+	/* one page at a time on boundaries */
+	while (len >= W25Q80BV_PAGE_LEN) {
+		w25q80bv_page_program(addr, W25Q80BV_PAGE_LEN, data);
+		addr += W25Q80BV_PAGE_LEN;
+		data += W25Q80BV_PAGE_LEN;
+		len -= W25Q80BV_PAGE_LEN;
+	}
+
+	/* handle end not at page boundary */
+	if (len) {
+		w25q80bv_page_program(addr, len, data);
+	}
 }
