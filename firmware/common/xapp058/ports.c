@@ -12,11 +12,13 @@
 #include "ports.h"
 /*#include "prgispx.h"*/
 
-#include "stdio.h"
+//#include "stdio.h"
+#include "hackrf_core.h"
+
 extern FILE *in;
-static int  g_iTCK = 0; /* For xapp058_example .exe */
-static int  g_iTMS = 0; /* For xapp058_example .exe */
-static int  g_iTDI = 0; /* For xapp058_example .exe */
+//static int  g_iTCK = 0; /* For xapp058_example .exe */
+//static int  g_iTMS = 0; /* For xapp058_example .exe */
+//static int  g_iTDI = 0; /* For xapp058_example .exe */
 
 #ifdef WIN95PP
 #include "conio.h"
@@ -95,6 +97,7 @@ void setPort(short p,short val)
     /* Printing code for the xapp058_example.exe.  You must set the specified
        JTAG signal (p) to the new value (v).  See the above, old Win95 code
        as an implementation example. */
+/*
     if (p==TMS)
         g_iTMS = val;
     if (p==TDI)
@@ -103,6 +106,25 @@ void setPort(short p,short val)
         g_iTCK = val;
         printf( "TCK = %d;  TMS = %d;  TDI = %d\n", g_iTCK, g_iTMS, g_iTDI );
     }
+*/
+	if (p==TMS)
+		if (val)
+			gpio_set(PORT_CPLD_TMS, PIN_CPLD_TMS);
+		else
+			gpio_clear(PORT_CPLD_TMS, PIN_CPLD_TMS);
+	if (p==TDI)
+		if (val)
+			gpio_set(PORT_CPLD_TDI, PIN_CPLD_TDI);
+		else
+			gpio_clear(PORT_CPLD_TDI, PIN_CPLD_TDI);
+	if (p==TCK)
+		if (val)
+			gpio_set(PORT_CPLD_TCK, PIN_CPLD_TCK);
+		else
+			gpio_clear(PORT_CPLD_TCK, PIN_CPLD_TCK);
+
+	/* conservative delay */
+	delay(20000);
 }
 
 
@@ -139,7 +161,10 @@ unsigned char readTDOBit()
     }
 #endif
     /* You must return the current value of the JTAG TDO signal. */
-    return( (unsigned char) 0 );
+    //return( (unsigned char) 0 );
+
+	delay(2000);
+	return CPLD_TDO_STATE;
 }
 
 /* waitTime:  Implement as follows: */
