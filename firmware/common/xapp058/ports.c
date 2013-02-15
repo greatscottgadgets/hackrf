@@ -132,7 +132,9 @@ void setPort(short p,short val)
 void pulseClock()
 {
     setPort(TCK,0);  /* set the TCK port to low  */
+	delay(200);
     setPort(TCK,1);  /* set the TCK port to high */
+	delay(200);
 }
 
 
