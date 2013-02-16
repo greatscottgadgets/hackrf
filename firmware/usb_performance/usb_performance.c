@@ -504,7 +504,7 @@ void sgpio_irqhandler() {
 }
 
 int main(void) {
-	const uint32_t freq = 2441000000U;
+	const uint32_t ifreq = 2600000000U;
 	uint8_t switchctrl = 0;
 
 	pin_setup();
@@ -532,17 +532,12 @@ int main(void) {
 	rffc5071_setup();
 	
 #ifdef JAWBREAKER
-	switchctrl = (SWITCHCTRL_AMP_BYPASS | SWITCHCTRL_HP);
+	switchctrl = (SWITCHCTRL_AMP_BYPASS | SWITCHCTRL_LP);
 #endif
 	rffc5071_rx(switchctrl);
-	
-#ifdef JAWBREAKER
-	rffc5071_set_frequency(900, 0); // 900 MHz, 0 Hz (Hz ignored) default antenna
-#else
-	rffc5071_set_frequency(500, 0); // 500 MHz, 0 Hz (Hz ignored)	
-#endif
+	rffc5071_set_frequency(1700, 0); // 2600 MHz IF - 1700 MHz LO = 900 MHz RF
 
-	max2837_set_frequency(freq);
+	max2837_set_frequency(ifreq);
 	max2837_start();
 	max2837_rx();
 
