@@ -23,16 +23,21 @@
 BINARY = usb_performance
 
 SRC = $(BINARY).c \
-  usb.c \
-  usb_request.c \
-  usb_standard_request.c \
-  usb_descriptor.c \
-  ../common/fault_handler.c \
+	usb.c \
+	usb_request.c \
+	usb_standard_request.c \
+	usb_descriptor.c \
+	../common/fault_handler.c \
 	../common/hackrf_core.c \
 	../common/sgpio.c \
 	../common/si5351c.c \
 	../common/max2837.c \
 	../common/max5864.c \
-	../common/rffc5071.c
+	../common/rffc5071.c \
+	../common/w25q80bv.c \
+	../common/cpld_jtag.c \
+	../common/xapp058/lenval.c \
+	../common/xapp058/micro.c \
+	../common/xapp058/ports.c
 
 include ../common/Makefile_inc.mk

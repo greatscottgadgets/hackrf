@@ -31,6 +31,8 @@
 #include <max5864.h>
 #include <max2837.h>
 #include <rffc5071.h>
+#include <w25q80bv.h>
+#include <cpld_jtag.h>
 #include <sgpio.h>
 
 #include "usb.h"
@@ -365,6 +367,69 @@ usb_request_status_t usb_vendor_request_read_rffc5071(
 	}
 }
 
+usb_request_status_t usb_vendor_request_write_spiflash(
+	usb_endpoint_t* const endpoint,
+	const usb_transfer_stage_t stage
+) {
+	uint32_t addr;
+	uint16_t len;
+	if( stage == USB_TRANSFER_STAGE_SETUP )
+	{
+		addr = (endpoint->setup.value << 16) | endpoint->setup.index;
+		len = endpoint->setup.length;
+		if ((len > W25Q80BV_NUM_BYTES) || (addr > W25Q80BV_NUM_BYTES)
+		            || ((addr + len) > W25Q80BV_NUM_BYTES)) {
+			return USB_REQUEST_STATUS_STALL;
+		} else {
+			//FIXME endpoint->buffer can't be used like this
+			w25q80bv_program(addr, len, endpoint->buffer);
+			usb_endpoint_schedule_ack(endpoint->in);
+			return USB_REQUEST_STATUS_OK;
+		}
+	} else {
+		return USB_REQUEST_STATUS_OK;
+	}
+}
+
+usb_request_status_t usb_vendor_request_read_spiflash(
+	usb_endpoint_t* const endpoint,
+	const usb_transfer_stage_t stage
+) {
+	uint32_t addr;
+	uint16_t len;
+	if( stage == USB_TRANSFER_STAGE_SETUP )
+	{
+		addr = (endpoint->setup.value << 16) | endpoint->setup.index;
+		len = endpoint->setup.length;
+		if ((len > W25Q80BV_NUM_BYTES) || (addr > W25Q80BV_NUM_BYTES)
+		            || ((addr + len) > W25Q80BV_NUM_BYTES)) {
+			return USB_REQUEST_STATUS_STALL;
+		} else {
+			//FIXME need implementation
+			//usb_endpoint_schedule(endpoint->in, &endpoint->buffer, len);
+			usb_endpoint_schedule_ack(endpoint->out);
+			return USB_REQUEST_STATUS_OK;
+		}
+	} else {
+		return USB_REQUEST_STATUS_OK;
+	}
+}
+
+usb_request_status_t usb_vendor_request_write_cpld(
+	usb_endpoint_t* const endpoint,
+	const usb_transfer_stage_t stage
+) {
+	if( stage == USB_TRANSFER_STAGE_SETUP )
+	{
+		//FIXME endpoint->buffer can't be used like this
+		cpld_jtag_program(endpoint->setup.length, endpoint->buffer);
+		usb_endpoint_schedule_ack(endpoint->in);
+		return USB_REQUEST_STATUS_OK;
+	} else {
+		return USB_REQUEST_STATUS_OK;
+	}
+}
+
 static const usb_request_handler_fn vendor_request_handler[] = {
 	NULL,
 	usb_vendor_request_set_transceiver_mode,
@@ -375,7 +440,10 @@ static const usb_request_handler_fn vendor_request_handler[] = {
 	usb_vendor_request_set_sample_rate,
 	usb_vendor_request_set_baseband_filter_bandwidth,
 	usb_vendor_request_write_rffc5071,
-	usb_vendor_request_read_rffc5071
+	usb_vendor_request_read_rffc5071,
+	usb_vendor_request_write_spiflash,
+	usb_vendor_request_read_spiflash,
+	usb_vendor_request_write_cpld
 };
 
 static const uint32_t vendor_request_handler_count =
