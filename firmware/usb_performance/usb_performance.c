@@ -532,7 +532,7 @@ int main(void) {
 	rffc5071_setup();
 	
 #ifdef JAWBREAKER
-	switchctrl = (SWITCHCTRL_AMP_BYPASS | SWITCHCTRL_LP);
+	switchctrl = SWITCHCTRL_AMP_BYPASS;
 #endif
 	rffc5071_rx(switchctrl);
 	rffc5071_set_frequency(1700, 0); // 2600 MHz IF - 1700 MHz LO = 900 MHz RF
