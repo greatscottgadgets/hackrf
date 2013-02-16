@@ -1554,6 +1554,7 @@ int xsvfDoXCOMMENT( SXsvfInfo* pXsvfInfo )
     /* Otherwise, read through the comment to the end '\0' and ignore */
     unsigned char   ucText;
 
+#ifdef DEBUG_MODE
     if ( xsvf_iDebugLevel > 0 )
     {
         putchar( ' ' );
@@ -1567,6 +1568,7 @@ int xsvfDoXCOMMENT( SXsvfInfo* pXsvfInfo )
             putchar( ucText ? ucText : '\n' );
         }
     } while ( ucText );
+#endif
 
     pXsvfInfo->iErrorCode   = XSVF_ERROR_NONE;
 

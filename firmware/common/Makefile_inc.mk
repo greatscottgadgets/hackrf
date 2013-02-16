@@ -129,6 +129,8 @@ clean:
 	$(Q)rm -f ../common/*.o
 	$(Q)rm -f ../common/*.d
 	$(Q)rm -f ../common/*.lst
+	$(Q)rm -f ../common/xapp058/*.o
+	$(Q)rm -f ../common/xapp058/*.d
 
 .PHONY: images clean
 

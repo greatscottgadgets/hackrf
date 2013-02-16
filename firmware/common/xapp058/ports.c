@@ -14,8 +14,10 @@
 
 //#include "stdio.h"
 #include "hackrf_core.h"
+#include "cpld_jtag.h"
+#include <libopencm3/lpc43xx/gpio.h>
 
-extern FILE *in;
+//extern FILE *in;
 //static int  g_iTCK = 0; /* For xapp058_example .exe */
 //static int  g_iTMS = 0; /* For xapp058_example .exe */
 //static int  g_iTDI = 0; /* For xapp058_example .exe */
@@ -107,21 +109,22 @@ void setPort(short p,short val)
         printf( "TCK = %d;  TMS = %d;  TDI = %d\n", g_iTCK, g_iTMS, g_iTDI );
     }
 */
-	if (p==TMS)
+	if (p==TMS) {
 		if (val)
 			gpio_set(PORT_CPLD_TMS, PIN_CPLD_TMS);
 		else
 			gpio_clear(PORT_CPLD_TMS, PIN_CPLD_TMS);
-	if (p==TDI)
+	} if (p==TDI) {
 		if (val)
 			gpio_set(PORT_CPLD_TDI, PIN_CPLD_TDI);
 		else
 			gpio_clear(PORT_CPLD_TDI, PIN_CPLD_TDI);
-	if (p==TCK)
+	} if (p==TCK) {
 		if (val)
 			gpio_set(PORT_CPLD_TCK, PIN_CPLD_TCK);
 		else
 			gpio_clear(PORT_CPLD_TCK, PIN_CPLD_TCK);
+	}
 
 	/* conservative delay */
 	delay(20000);
@@ -143,8 +146,9 @@ void pulseClock()
 void readByte(unsigned char *data)
 {
     /* pretend reading using a file */
-    *data   = (unsigned char)fgetc( in );
+    //*data   = (unsigned char)fgetc( in );
     /**data=*xsvf_data++;*/
+	*data = cpld_jtag_get_next_byte();
 }
 
 /* readTDOBit:  Implement to return the current value of the JTAG TDO signal.*/
