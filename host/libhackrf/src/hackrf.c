@@ -38,7 +38,10 @@ typedef enum {
 	HACKRF_VENDOR_REQUEST_SAMPLE_RATE_SET = 6,
 	HACKRF_VENDOR_REQUEST_BASEBAND_FILTER_BANDWIDTH_SET = 7,
 	HACKRF_VENDOR_REQUEST_RFFC5071_WRITE = 8,
-	HACKRF_VENDOR_REQUEST_RFFC5071_READ = 9
+	HACKRF_VENDOR_REQUEST_RFFC5071_READ = 9,
+	HACKRF_VENDOR_REQUEST_SPIFLASH_WRITE = 10,
+	HACKRF_VENDOR_REQUEST_SPIFLASH_READ = 11,
+	HACKRF_VENDOR_REQUEST_CPLD_WRITE = 12
 } hackrf_vendor_request;
 
 typedef enum {
@@ -424,6 +427,77 @@ int hackrf_rffc5071_write(hackrf_device* device, uint8_t register_number, uint16
 		0
 	);
 	
+	if( result != 0 ) {
+		return HACKRF_ERROR_LIBUSB;
+	} else {
+		return HACKRF_SUCCESS;
+	}
+}
+
+int hackrf_spiflash_write(hackrf_device* device, const uint32_t address,
+		const uint16_t length, unsigned char* const data)
+{
+	if (address > 0x0FFFFF) {
+		return HACKRF_ERROR_INVALID_PARAM;
+	}
+
+	int result = libusb_control_transfer(
+		device->usb_device,
+		LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_SPIFLASH_WRITE,
+		address >> 16,
+		address & 0xFFFF,
+		data,
+		length,
+		0
+	);
+
+	if( result != 0 ) {
+		return HACKRF_ERROR_LIBUSB;
+	} else {
+		return HACKRF_SUCCESS;
+	}
+}
+
+int hackrf_spiflash_read(hackrf_device* device, const uint32_t address,
+		const uint16_t length, unsigned char* data)
+{
+	if (address > 0x0FFFFF) {
+		return HACKRF_ERROR_INVALID_PARAM;
+	}
+
+	int result = libusb_control_transfer(
+		device->usb_device,
+		LIBUSB_ENDPOINT_IN | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_SPIFLASH_READ,
+		address >> 16,
+		address & 0xFFFF,
+		data,
+		length,
+		0
+	);
+
+	if( result < 2 ) {
+		return HACKRF_ERROR_LIBUSB;
+	} else {
+		return HACKRF_SUCCESS;
+	}
+}
+
+int hackrf_cpld_write(hackrf_device* device, const uint16_t length,
+		unsigned char* const data)
+{
+	int result = libusb_control_transfer(
+		device->usb_device,
+		LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_CPLD_WRITE,
+		0,
+		0,
+		data,
+		length,
+		0
+	);
+
 	if( result != 0 ) {
 		return HACKRF_ERROR_LIBUSB;
 	} else {
