@@ -146,6 +146,17 @@ int main(int argc, char** argv)
 		return EXIT_FAILURE;
 	}
 
+	if (read) {
+		fd = fopen(path, "wb");
+	} else {
+		fd = fopen(path, "rb");
+	}
+
+	if (fd == NULL) {
+		fprintf(stderr, "Failed to open file: %s\n", path);
+		return EXIT_FAILURE;
+	}
+
 	result = hackrf_init();
 	if (result != HACKRF_SUCCESS) {
 		fprintf(stderr, "hackrf_init() failed: %s (%d)\n",
@@ -161,35 +172,35 @@ int main(int argc, char** argv)
 	}
 
 	if (read) {
-		fd = fopen(path, "wb");
-	} else {
-		fd = fopen(path, "rb");
-	}
-
-	if (fd == NULL) {
-		fprintf(stderr, "Failed to open file: %s\n", path);
-		return EXIT_FAILURE;
-	}
-
-	if (read) {
 		result = hackrf_spiflash_read(device, address, length, data);
-		if (result == HACKRF_SUCCESS) {
-			const ssize_t bytes_written = fwrite(data, 1, length, fd);
-			if (bytes_written != length) {
-				fprintf(stderr, "Failed write to file (wrote %d bytes).\n",
-						(int)bytes_written);
-				fclose(fd);
-				fd = NULL;
-				return EXIT_FAILURE;
-			}
+		if (result != HACKRF_SUCCESS) {
+			fprintf(stderr, "hackrf_spiflash_read() failed: %s (%d)\n",
+					hackrf_error_name(result), result);
+			fclose(fd);
+			fd = NULL;
+			return EXIT_FAILURE;
+		}
+		const ssize_t bytes_written = fwrite(data, 1, length, fd);
+		if (bytes_written != length) {
+			fprintf(stderr, "Failed write to file (wrote %d bytes).\n",
+					(int)bytes_written);
+			fclose(fd);
+			fd = NULL;
+			return EXIT_FAILURE;
 		}
 	} else {
 		const ssize_t bytes_read = fread(data, 1, length, fd);
-		if (bytes_read == length) {
-			result = hackrf_spiflash_write(device, address, length, data);
-		} else {
+		if (bytes_read != length) {
 			fprintf(stderr, "Failed read file (read %d bytes).\n",
 					(int)bytes_read);
+			fclose(fd);
+			fd = NULL;
+			return EXIT_FAILURE;
+		}
+		result = hackrf_spiflash_write(device, address, length, data);
+		if (result != HACKRF_SUCCESS) {
+			fprintf(stderr, "hackrf_spiflash_write() failed: %s (%d)\n",
+					hackrf_error_name(result), result);
 			fclose(fd);
 			fd = NULL;
 			return EXIT_FAILURE;
@@ -200,7 +211,9 @@ int main(int argc, char** argv)
 	if (result != HACKRF_SUCCESS) {
 		fprintf(stderr, "hackrf_close() failed: %s (%d)\n",
 				hackrf_error_name(result), result);
-		return -1;
+		fclose(fd);
+		fd = NULL;
+		return EXIT_FAILURE;
 	}
 
 	hackrf_exit();
