@@ -37,6 +37,12 @@ enum hackrf_error {
 	HACKRF_ERROR_OTHER = -9999,
 };
 
+enum hackrf_board_id {
+	BOARD_ID_JELLYBEAN  = 0,
+	BOARD_ID_JAWBREAKER = 1,
+	BOARD_ID_INVALID = 0xFF,
+};
+
 typedef struct hackrf_device hackrf_device;
 
 typedef struct {
@@ -82,6 +88,9 @@ int hackrf_spiflash_read(hackrf_device* device, const uint32_t address,
 int hackrf_cpld_write(hackrf_device* device, const uint16_t length,
 		unsigned char* const data);
 
+int hackrf_board_id_read(hackrf_device* device, uint8_t* value);
+
 const char* hackrf_error_name(enum hackrf_error errcode);
+const char* hackrf_board_id_name(enum hackrf_board_id board_id);
 
 #endif//__HACKRF_H__

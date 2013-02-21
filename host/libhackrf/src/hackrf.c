@@ -41,7 +41,8 @@ typedef enum {
 	HACKRF_VENDOR_REQUEST_RFFC5071_READ = 9,
 	HACKRF_VENDOR_REQUEST_SPIFLASH_WRITE = 10,
 	HACKRF_VENDOR_REQUEST_SPIFLASH_READ = 11,
-	HACKRF_VENDOR_REQUEST_CPLD_WRITE = 12
+	HACKRF_VENDOR_REQUEST_CPLD_WRITE = 12,
+	HACKRF_VENDOR_REQUEST_BOARD_ID_READ = 13
 } hackrf_vendor_request;
 
 typedef enum {
@@ -505,6 +506,25 @@ int hackrf_cpld_write(hackrf_device* device, const uint16_t length,
 	}
 }
 
+int hackrf_board_id_read(hackrf_device* device, uint8_t* value) {
+	int result = libusb_control_transfer(
+		device->usb_device,
+		LIBUSB_ENDPOINT_IN | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_BOARD_ID_READ,
+		0,
+		0,
+		value,
+		1,
+		0
+	);
+
+	if( result < 2 ) {
+		return HACKRF_ERROR_LIBUSB;
+	} else {
+		return HACKRF_SUCCESS;
+	}
+}
+
 static void* transfer_threadproc(void* arg) {
 	hackrf_device* device = (hackrf_device*)arg;
 	
@@ -674,5 +694,21 @@ const char* hackrf_error_name(enum hackrf_error errcode) {
 	
 	default:
 		return "HACKRF unknown error";
+	}
+}
+
+const char* hackrf_board_id_name(enum hackrf_board_id board_id) {
+	switch(board_id) {
+	case BOARD_ID_JELLYBEAN:
+		return "Jellybean";
+
+	case BOARD_ID_JAWBREAKER:
+		return "Jawbreaker";
+
+	case BOARD_ID_INVALID:
+		return "Invalid Board ID";
+
+	default:
+		return "Unknown Board ID";
 	}
 }
