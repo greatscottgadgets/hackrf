@@ -50,7 +50,7 @@ int main(int argc, char** argv)
 
 	result = hackrf_board_id_read(device, &board_id);
 	if (result != HACKRF_SUCCESS) {
-		fprintf(stderr, "hackrf_cpld_write() failed: %s (%d)\n",
+		fprintf(stderr, "hackrf_board_id_read() failed: %s (%d)\n",
 				hackrf_error_name(result), result);
 		return EXIT_FAILURE;
 	}
