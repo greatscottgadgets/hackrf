@@ -57,12 +57,16 @@ void cpld_jtag_release(void) {
 	GPIO_DIR(PORT_CPLD_TDI) &= ~PIN_CPLD_TDI;
 }
 
-void cpld_jtag_program(const uint32_t len, unsigned char* const data) {
+/* return 0 if success else return error code see xsvfExecute() */
+int cpld_jtag_program(const uint32_t len, unsigned char* const data) {
+	int error;
 	cpld_jtag_setup();
 	xsvf_data = data;
 	xsvf_len = len;
-	xsvfExecute();
+	error = xsvfExecute();
 	cpld_jtag_release();
+	
+	return error;
 }
 
 /* this gets called by the XAPP058 code */

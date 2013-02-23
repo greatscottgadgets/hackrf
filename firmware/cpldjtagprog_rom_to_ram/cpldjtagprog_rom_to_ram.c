@@ -24,7 +24,7 @@
 
 #include "hackrf_core.h"
 #include "cpld_jtag.h"
-#include "sgpio_if_xsvf.h"
+#include "../cpldjtagprog/sgpio_if_xsvf.h"
 
 #define WAIT_LOOP_DELAY (6000000)
 

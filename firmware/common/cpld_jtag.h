@@ -25,7 +25,8 @@
 #include <stdint.h>
 
 void cpld_jtag_release(void);
-void cpld_jtag_program(const uint32_t len, unsigned char* const data);
+/* return 0 if success else return error code see xsvfExecute() see micro.h */
+int cpld_jtag_program(const uint32_t len, unsigned char* const data);
 unsigned char cpld_jtag_get_next_byte(void);
 
 #endif//__CPLD_JTAG_H__
