@@ -35,6 +35,8 @@ int main(void)
 	/* Set 1V8 */
 	gpio_set(PORT_EN1V8, PIN_EN1V8);
 
+	cpu_clock_init();
+
 	/* program test data to SPI flash */
 	for (i = 0; i < 515; i++)
 		buf[i] = (i * 3) & 0xFF;
