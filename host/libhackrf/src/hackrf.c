@@ -453,7 +453,7 @@ int hackrf_spiflash_write(hackrf_device* device, const uint32_t address,
 		0
 	);
 
-	if( result != 0 ) {
+	if (result < length) {
 		return HACKRF_ERROR_LIBUSB;
 	} else {
 		return HACKRF_SUCCESS;
@@ -478,7 +478,7 @@ int hackrf_spiflash_read(hackrf_device* device, const uint32_t address,
 		0
 	);
 
-	if( result < 2 ) {
+	if (result < length) {
 		return HACKRF_ERROR_LIBUSB;
 	} else {
 		return HACKRF_SUCCESS;
@@ -499,7 +499,7 @@ int hackrf_cpld_write(hackrf_device* device, const uint16_t length,
 		0
 	);
 
-	if( result != 0 ) {
+	if (result < length) {
 		return HACKRF_ERROR_LIBUSB;
 	} else {
 		return HACKRF_SUCCESS;
