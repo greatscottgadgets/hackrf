@@ -50,6 +50,8 @@ static const uint32_t usb_bulk_buffer_mask = 32768 - 1;
 usb_transfer_descriptor_t usb_td_bulk[2] ATTR_ALIGNED(64);
 const uint_fast8_t usb_td_bulk_count = sizeof(usb_td_bulk) / sizeof(usb_td_bulk[0]);
 
+uint8_t spiflash_buffer[W25Q80BV_PAGE_LEN];
+
 static void usb_init_buffers_bulk() {
 	usb_td_bulk[0].next_dtd_pointer = USB_TD_NEXT_DTD_POINTER_TERMINATE;
 	usb_td_bulk[0].total_bytes
@@ -370,41 +372,50 @@ usb_request_status_t usb_vendor_request_read_rffc5071(
 usb_request_status_t usb_vendor_request_write_spiflash(
 	usb_endpoint_t* const endpoint, const usb_transfer_stage_t stage)
 {
-	static uint32_t addr;
-	static uint16_t len;
-	static uint8_t spiflash_buffer[0xffff];
+	uint32_t addr = 0;
+	uint16_t len = 0;
+
+	//FIXME This should refuse to run if executing from SPI flash.
 
 	if (stage == USB_TRANSFER_STAGE_SETUP) {
 		addr = (endpoint->setup.value << 16) | endpoint->setup.index;
 		len = endpoint->setup.length;
-		if ((len > W25Q80BV_NUM_BYTES) || (addr > W25Q80BV_NUM_BYTES)
+		if ((len > W25Q80BV_PAGE_LEN) || (addr > W25Q80BV_NUM_BYTES)
 				|| ((addr + len) > W25Q80BV_NUM_BYTES)) {
 			return USB_REQUEST_STATUS_STALL;
 		} else {
 			usb_endpoint_schedule(endpoint->out, &spiflash_buffer[0], len);
+			w25q80bv_setup();
 			return USB_REQUEST_STATUS_OK;
 		}
 	} else if (stage == USB_TRANSFER_STAGE_DATA) {
-			//FIXME still trying to make this work
+		addr = (endpoint->setup.value << 16) | endpoint->setup.index;
+		len = endpoint->setup.length;
+		/* This check is redundant but makes me feel better. */
+		if ((len > W25Q80BV_PAGE_LEN) || (addr > W25Q80BV_NUM_BYTES)
+				|| ((addr + len) > W25Q80BV_NUM_BYTES)) {
+			return USB_REQUEST_STATUS_STALL;
+		} else {
 			w25q80bv_program(addr, len, &spiflash_buffer[0]);
 			usb_endpoint_schedule_ack(endpoint->in);
+			//FIXME probably should undo w25q80bv_setup()
 			return USB_REQUEST_STATUS_OK;
+		}
 	} else {
 		return USB_REQUEST_STATUS_OK;
 	}
 }
 
 usb_request_status_t usb_vendor_request_read_spiflash(
-	usb_endpoint_t* const endpoint,
-	const usb_transfer_stage_t stage
-) {
+	usb_endpoint_t* const endpoint, const usb_transfer_stage_t stage)
+{
 	uint32_t addr;
 	uint16_t len;
-	if( stage == USB_TRANSFER_STAGE_SETUP )
-	{
+
+	if (stage == USB_TRANSFER_STAGE_SETUP) {
 		addr = (endpoint->setup.value << 16) | endpoint->setup.index;
 		len = endpoint->setup.length;
-		if ((len > W25Q80BV_NUM_BYTES) || (addr > W25Q80BV_NUM_BYTES)
+		if ((len > W25Q80BV_PAGE_LEN) || (addr > W25Q80BV_NUM_BYTES)
 		            || ((addr + len) > W25Q80BV_NUM_BYTES)) {
 			return USB_REQUEST_STATUS_STALL;
 		} else {
