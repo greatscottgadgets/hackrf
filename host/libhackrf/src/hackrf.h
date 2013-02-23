@@ -90,6 +90,8 @@ int hackrf_cpld_write(hackrf_device* device, const uint16_t length,
 		unsigned char* const data);
 
 int hackrf_board_id_read(hackrf_device* device, uint8_t* value);
+int hackrf_version_string_read(hackrf_device* device, char* version,
+		uint8_t length);
 
 const char* hackrf_error_name(enum hackrf_error errcode);
 const char* hackrf_board_id_name(enum hackrf_board_id board_id);

@@ -51,6 +51,7 @@ usb_transfer_descriptor_t usb_td_bulk[2] ATTR_ALIGNED(64);
 const uint_fast8_t usb_td_bulk_count = sizeof(usb_td_bulk) / sizeof(usb_td_bulk[0]);
 
 uint8_t spiflash_buffer[W25Q80BV_PAGE_LEN];
+char version_string[] = VERSION_STRING;
 
 static void usb_init_buffers_bulk() {
 	usb_td_bulk[0].next_dtd_pointer = USB_TD_NEXT_DTD_POINTER_TERMINATE;
@@ -470,6 +471,19 @@ usb_request_status_t usb_vendor_request_read_board_id(
 	return USB_REQUEST_STATUS_OK;
 }
 
+usb_request_status_t usb_vendor_request_read_version_string(
+	usb_endpoint_t* const endpoint, const usb_transfer_stage_t stage)
+{
+	uint8_t length;
+
+	if (stage == USB_TRANSFER_STAGE_SETUP) {
+		length = (uint8_t)strlen(version_string);
+		usb_endpoint_schedule(endpoint->in, version_string, length);
+		usb_endpoint_schedule_ack(endpoint->out);
+	}
+	return USB_REQUEST_STATUS_OK;
+}
+
 static const usb_request_handler_fn vendor_request_handler[] = {
 	NULL,
 	usb_vendor_request_set_transceiver_mode,
@@ -485,7 +499,8 @@ static const usb_request_handler_fn vendor_request_handler[] = {
 	usb_vendor_request_write_spiflash,
 	usb_vendor_request_read_spiflash,
 	usb_vendor_request_write_cpld,
-	usb_vendor_request_read_board_id
+	usb_vendor_request_read_board_id,
+	usb_vendor_request_read_version_string
 };
 
 static const uint32_t vendor_request_handler_count =

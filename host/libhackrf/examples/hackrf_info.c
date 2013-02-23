@@ -31,6 +31,7 @@ int main(int argc, char** argv)
 	hackrf_device* device = NULL;
 	int result = HACKRF_SUCCESS;
 	uint8_t board_id = BOARD_ID_INVALID;
+	char version[255 + 1];
 
 	result = hackrf_init();
 	if (result != HACKRF_SUCCESS) {
@@ -57,6 +58,15 @@ int main(int argc, char** argv)
 
 	printf("Board ID Number: %d (%s)\n", board_id,
 			hackrf_board_id_name(board_id));
+
+	result = hackrf_version_string_read(device, &version[0], 255);
+	if (result != HACKRF_SUCCESS) {
+		fprintf(stderr, "hackrf_version_string_read() failed: %s (%d)\n",
+				hackrf_error_name(result), result);
+		return EXIT_FAILURE;
+	}
+
+	printf("Firmware Version: %s\n", version);
 
 	result = hackrf_close(device);
 	if (result != HACKRF_SUCCESS) {
