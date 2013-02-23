@@ -518,7 +518,7 @@ int hackrf_board_id_read(hackrf_device* device, uint8_t* value) {
 		0
 	);
 
-	if( result < 2 ) {
+	if (result < 1) {
 		return HACKRF_ERROR_LIBUSB;
 	} else {
 		return HACKRF_SUCCESS;
