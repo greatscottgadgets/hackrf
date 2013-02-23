@@ -368,21 +368,22 @@ usb_request_status_t usb_vendor_request_read_rffc5071(
 }
 
 usb_request_status_t usb_vendor_request_write_spiflash(
-	usb_endpoint_t* const endpoint,
-	const usb_transfer_stage_t stage
-) {
+	usb_endpoint_t* const endpoint, const usb_transfer_stage_t stage)
+{
 	uint32_t addr;
 	uint16_t len;
-	if( stage == USB_TRANSFER_STAGE_SETUP )
-	{
+	uint8_t spiflash_buffer[0xffff];
+
+	if (stage == USB_TRANSFER_STAGE_DATA) {
+		//FIXME this never seems to get called with USB_TRANSFER_STAGE_DATA
 		addr = (endpoint->setup.value << 16) | endpoint->setup.index;
 		len = endpoint->setup.length;
 		if ((len > W25Q80BV_NUM_BYTES) || (addr > W25Q80BV_NUM_BYTES)
-		            || ((addr + len) > W25Q80BV_NUM_BYTES)) {
+				|| ((addr + len) > W25Q80BV_NUM_BYTES)) {
 			return USB_REQUEST_STATUS_STALL;
 		} else {
-			//FIXME endpoint->buffer can't be used like this
-			w25q80bv_program(addr, len, endpoint->buffer);
+			usb_endpoint_schedule(endpoint->out, &spiflash_buffer[0], len);
+			w25q80bv_program(addr, len, &spiflash_buffer[0]);
 			usb_endpoint_schedule_ack(endpoint->in);
 			return USB_REQUEST_STATUS_OK;
 		}
