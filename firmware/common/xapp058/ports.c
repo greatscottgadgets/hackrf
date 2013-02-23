@@ -22,6 +22,28 @@
 //static int  g_iTMS = 0; /* For xapp058_example .exe */
 //static int  g_iTDI = 0; /* For xapp058_example .exe */
 
+void delay_jtag(uint32_t duration)
+{
+	#define DIVISOR	(1024)
+	#define MIN_NOP (8)
+
+	uint32_t i;
+	uint32_t delay_nop;
+
+	/* @204Mhz duration of about 400ns for delay_nop=20 */
+	if(duration < DIVISOR)
+	{
+		delay_nop = MIN_NOP;
+	}else
+	{
+		delay_nop = (duration / DIVISOR) + MIN_NOP;
+	}
+
+	for (i = 0; i < delay_nop; i++)
+		__asm__("nop");
+}
+
+
 #ifdef WIN95PP
 #include "conio.h"
 
@@ -127,7 +149,7 @@ void setPort(short p,short val)
 	}
 
 	/* conservative delay */
-	delay(20000);
+	delay_jtag(20000);
 }
 
 
@@ -135,9 +157,9 @@ void setPort(short p,short val)
 void pulseClock()
 {
     setPort(TCK,0);  /* set the TCK port to low  */
-	delay(200);
+	delay_jtag(200);
     setPort(TCK,1);  /* set the TCK port to high */
-	delay(200);
+	delay_jtag(200);
 }
 
 
@@ -169,7 +191,7 @@ unsigned char readTDOBit()
     /* You must return the current value of the JTAG TDO signal. */
     //return( (unsigned char) 0 );
 
-	delay(2000);
+	delay_jtag(2000);
 	return CPLD_TDO_STATE;
 }
 
