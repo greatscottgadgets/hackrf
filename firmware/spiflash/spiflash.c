@@ -48,10 +48,10 @@ int main(void)
 	while (1) 
 	{
 		gpio_set(PORT_LED1_3, (PIN_LED1|PIN_LED3)); /* LEDs on */
-		for (i = 0; i < 2000000; i++)	/* Wait a bit. */
+		for (i = 0; i < 8000000; i++)	/* Wait a bit. */
 			__asm__("nop");
 		gpio_clear(PORT_LED1_3, (PIN_LED1|PIN_LED3)); /* LED off */
-		for (i = 0; i < 2000000; i++)	/* Wait a bit. */
+		for (i = 0; i < 8000000; i++)	/* Wait a bit. */
 			__asm__("nop");
 	}
 
