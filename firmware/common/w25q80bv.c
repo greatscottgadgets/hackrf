@@ -39,9 +39,8 @@
 
 void w25q80bv_setup(void)
 {
-	/* FIXME speed up once everything is working reliably */
-	const uint8_t serial_clock_rate = 32;
-	const uint8_t clock_prescale_rate = 128;
+	const uint8_t serial_clock_rate = 2;
+	const uint8_t clock_prescale_rate = 2;
 
 	/* configure SSP pins */
 	scu_pinmux(SCU_SSP0_MISO, (SCU_SSP_IO | SCU_CONF_FUNCTION5));
