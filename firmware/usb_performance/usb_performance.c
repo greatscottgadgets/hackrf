@@ -369,6 +369,21 @@ usb_request_status_t usb_vendor_request_read_rffc5071(
 	}
 }
 
+usb_request_status_t usb_vendor_request_erase_spiflash(
+		usb_endpoint_t* const endpoint, const usb_transfer_stage_t stage)
+{
+	//FIXME This should refuse to run if executing from SPI flash.
+
+	if (stage == USB_TRANSFER_STAGE_SETUP) {
+		w25q80bv_setup();
+		/* only chip erase is implemented */
+		w25q80bv_chip_erase();
+		usb_endpoint_schedule_ack(endpoint->in);
+		//FIXME probably should undo w25q80bv_setup()
+	}
+	return USB_REQUEST_STATUS_OK;
+}
+
 usb_request_status_t usb_vendor_request_write_spiflash(
 	usb_endpoint_t* const endpoint, const usb_transfer_stage_t stage)
 {
@@ -451,7 +466,6 @@ usb_request_status_t usb_vendor_request_read_board_id(
 		endpoint->buffer[0] = BOARD_ID;
 		usb_endpoint_schedule(endpoint->in, &endpoint->buffer, 1);
 		usb_endpoint_schedule_ack(endpoint->out);
-		return USB_REQUEST_STATUS_OK;
 	}
 	return USB_REQUEST_STATUS_OK;
 }
@@ -467,6 +481,7 @@ static const usb_request_handler_fn vendor_request_handler[] = {
 	usb_vendor_request_set_baseband_filter_bandwidth,
 	usb_vendor_request_write_rffc5071,
 	usb_vendor_request_read_rffc5071,
+	usb_vendor_request_erase_spiflash,
 	usb_vendor_request_write_spiflash,
 	usb_vendor_request_read_spiflash,
 	usb_vendor_request_write_cpld,

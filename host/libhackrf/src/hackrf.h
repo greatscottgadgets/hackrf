@@ -80,6 +80,7 @@ int hackrf_baseband_filter_bandwidth_set(hackrf_device* device, const uint32_t b
 int hackrf_rffc5071_read(hackrf_device* device, uint8_t register_number, uint16_t* value);
 int hackrf_rffc5071_write(hackrf_device* device, uint8_t register_number, uint16_t value);
 
+int hackrf_spiflash_erase(hackrf_device* device);
 int hackrf_spiflash_write(hackrf_device* device, const uint32_t address,
 		const uint16_t length, unsigned char* const data);
 int hackrf_spiflash_read(hackrf_device* device, const uint32_t address,

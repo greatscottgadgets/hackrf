@@ -39,10 +39,11 @@ typedef enum {
 	HACKRF_VENDOR_REQUEST_BASEBAND_FILTER_BANDWIDTH_SET = 7,
 	HACKRF_VENDOR_REQUEST_RFFC5071_WRITE = 8,
 	HACKRF_VENDOR_REQUEST_RFFC5071_READ = 9,
-	HACKRF_VENDOR_REQUEST_SPIFLASH_WRITE = 10,
-	HACKRF_VENDOR_REQUEST_SPIFLASH_READ = 11,
-	HACKRF_VENDOR_REQUEST_CPLD_WRITE = 12,
-	HACKRF_VENDOR_REQUEST_BOARD_ID_READ = 13
+	HACKRF_VENDOR_REQUEST_SPIFLASH_ERASE = 10,
+	HACKRF_VENDOR_REQUEST_SPIFLASH_WRITE = 11,
+	HACKRF_VENDOR_REQUEST_SPIFLASH_READ = 12,
+	HACKRF_VENDOR_REQUEST_CPLD_WRITE = 13,
+	HACKRF_VENDOR_REQUEST_BOARD_ID_READ = 14
 } hackrf_vendor_request;
 
 typedef enum {
@@ -429,6 +430,25 @@ int hackrf_rffc5071_write(hackrf_device* device, uint8_t register_number, uint16
 	);
 	
 	if( result != 0 ) {
+		return HACKRF_ERROR_LIBUSB;
+	} else {
+		return HACKRF_SUCCESS;
+	}
+}
+
+int hackrf_spiflash_erase(hackrf_device* device) {
+	int result = libusb_control_transfer(
+		device->usb_device,
+		LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_SPIFLASH_ERASE,
+		0,
+		0,
+		NULL,
+		0,
+		0
+	);
+
+	if (result != 0) {
 		return HACKRF_ERROR_LIBUSB;
 	} else {
 		return HACKRF_SUCCESS;

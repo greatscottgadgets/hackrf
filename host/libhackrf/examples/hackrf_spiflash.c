@@ -80,11 +80,13 @@ int main(int argc, char** argv)
 	int opt;
 	uint32_t address = 0;
 	uint32_t length = 0;
+	uint16_t xfer_len = 0;
 	const char* path = NULL;
 	hackrf_device* device = NULL;
 	int result = HACKRF_SUCCESS;
 	int option_index = 0;
 	uint8_t data[MAX_LENGTH];
+	uint8_t* pdata = &data[0];
 	FILE* fd = NULL;
 	bool read = false;
 	bool write = false;
@@ -129,6 +131,12 @@ int main(int argc, char** argv)
 		} else {
 			fprintf(stderr, "Specify either read or write option.\n");
 		}
+		usage();
+		return EXIT_FAILURE;
+	}
+
+	if (length == 0) {
+		fprintf(stderr, "Requested transfer of zero bytes.\n");
 		usage();
 		return EXIT_FAILURE;
 	}
@@ -197,13 +205,29 @@ int main(int argc, char** argv)
 			fd = NULL;
 			return EXIT_FAILURE;
 		}
-		result = hackrf_spiflash_write(device, address, length, data);
+		printf("Erasing SPI flash.\n");
+		result = hackrf_spiflash_erase(device);
 		if (result != HACKRF_SUCCESS) {
-			fprintf(stderr, "hackrf_spiflash_write() failed: %s (%d)\n",
+			fprintf(stderr, "hackrf_spiflash_erase() failed: %s (%d)\n",
 					hackrf_error_name(result), result);
 			fclose(fd);
 			fd = NULL;
 			return EXIT_FAILURE;
+		}
+		while (length) {
+			xfer_len = (length > 256) ? 256 : length;
+			printf("Writing %d bytes at 0x%06x.\n", xfer_len, address);
+			result = hackrf_spiflash_write(device, address, xfer_len, pdata);
+			if (result != HACKRF_SUCCESS) {
+				fprintf(stderr, "hackrf_spiflash_write() failed: %s (%d)\n",
+						hackrf_error_name(result), result);
+				fclose(fd);
+				fd = NULL;
+				return EXIT_FAILURE;
+			}
+			address += xfer_len;
+			pdata += xfer_len;
+			length -= xfer_len;
 		}
 	}
 
