@@ -41,7 +41,7 @@
 #include "usb_descriptor.h"
 #include "usb_standard_request.h"
 
-static volatile transceiver_mode_t transceiver_mode = TRANSCEIVER_MODE_RX;
+static volatile transceiver_mode_t transceiver_mode = TRANSCEIVER_MODE_OFF;
 
 uint8_t* const usb_bulk_buffer = (uint8_t*)0x20004000;
 static volatile uint32_t usb_bulk_buffer_offset = 0;
@@ -52,6 +52,8 @@ const uint_fast8_t usb_td_bulk_count = sizeof(usb_td_bulk) / sizeof(usb_td_bulk[
 
 uint8_t spiflash_buffer[W25Q80BV_PAGE_LEN];
 char version_string[] = VERSION_STRING;
+
+uint8_t switchctrl = 0;
 
 static void usb_init_buffers_bulk() {
 	usb_td_bulk[0].next_dtd_pointer = USB_TD_NEXT_DTD_POINTER_TERMINATE;
@@ -185,13 +187,20 @@ void set_transceiver_mode(const transceiver_mode_t new_transceiver_mode) {
 		gpio_set(PORT_LED1_3, PIN_LED2);
 		usb_endpoint_init(&usb_endpoint_bulk_in);
 
+		max2837_start();
 		max2837_rx();
-	} else {
+	} else if (transceiver_mode == TRANSCEIVER_MODE_TX) {
 		gpio_clear(PORT_LED1_3, PIN_LED2);
 		gpio_set(PORT_LED1_3, PIN_LED3);
 		usb_endpoint_init(&usb_endpoint_bulk_out);
 
+		max2837_start();
 		max2837_tx();
+	} else {
+		gpio_clear(PORT_LED1_3, PIN_LED2);
+		gpio_clear(PORT_LED1_3, PIN_LED3);
+		max2837_stop();
+		return;
 	}
 
 	sgpio_configure(transceiver_mode, true);
@@ -209,16 +218,12 @@ usb_request_status_t usb_vendor_request_set_transceiver_mode(
 ) {
 	if( stage == USB_TRANSFER_STAGE_SETUP ) {
 		switch( endpoint->setup.value ) {
-		case 1:
-			set_transceiver_mode(TRANSCEIVER_MODE_RX);
+		case TRANSCEIVER_MODE_OFF:
+		case TRANSCEIVER_MODE_RX:
+		case TRANSCEIVER_MODE_TX:
+			set_transceiver_mode(endpoint->setup.value);
 			usb_endpoint_schedule_ack(endpoint->in);
 			return USB_REQUEST_STATUS_OK;
-			
-		case 2:
-			set_transceiver_mode(TRANSCEIVER_MODE_TX);
-			usb_endpoint_schedule_ack(endpoint->in);
-			return USB_REQUEST_STATUS_OK;
-		
 		default:
 			return USB_REQUEST_STATUS_STALL;
 		}
@@ -632,7 +637,6 @@ void sgpio_irqhandler() {
 
 int main(void) {
 	const uint32_t ifreq = 2600000000U;
-	uint8_t switchctrl = 0;
 
 	pin_setup();
 	enable_1v8_power();
@@ -655,18 +659,15 @@ int main(void) {
 
 	ssp1_set_mode_max2837();
 	max2837_setup();
+	max2837_set_frequency(ifreq);
 
 	rffc5071_setup();
-	
+
 #ifdef JAWBREAKER
 	switchctrl = SWITCHCTRL_AMP_BYPASS;
 #endif
 	rffc5071_rx(switchctrl);
 	rffc5071_set_frequency(1700, 0); // 2600 MHz IF - 1700 MHz LO = 900 MHz RF
-
-	max2837_set_frequency(ifreq);
-	max2837_start();
-	max2837_rx();
 
 	while(true) {
 		// Wait until buffer 0 is transmitted/received.

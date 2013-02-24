@@ -47,8 +47,9 @@
 #endif
 
 typedef enum {
-	TRANSCEIVER_MODE_RX,
-	TRANSCEIVER_MODE_TX,
+	TRANSCEIVER_MODE_OFF = 0,
+	TRANSCEIVER_MODE_RX = 1,
+	TRANSCEIVER_MODE_TX = 2
 } transceiver_mode_t;
 static transceiver_mode_t transceiver_mode = TRANSCEIVER_MODE_RX;
 

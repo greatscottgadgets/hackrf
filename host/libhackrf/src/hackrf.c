@@ -48,6 +48,7 @@ typedef enum {
 } hackrf_vendor_request;
 
 typedef enum {
+	HACKRF_TRANSCEIVER_MODE_OFF = 0,
 	HACKRF_TRANSCEIVER_MODE_RECEIVE = 1,
 	HACKRF_TRANSCEIVER_MODE_TRANSMIT = 2,
 } hackrf_transceiver_mode;
@@ -662,7 +663,12 @@ int hackrf_start_rx(hackrf_device* device, hackrf_sample_block_cb_fn callback) {
 }
 
 int hackrf_stop_rx(hackrf_device* device) {
-	return kill_transfer_thread(device);
+	int result1, result2;
+	result1 = kill_transfer_thread(device);
+	result2 = hackrf_set_transceiver_mode(device, HACKRF_TRANSCEIVER_MODE_OFF);
+	if (result2 != HACKRF_SUCCESS)
+		return result2;
+	return result1;
 }
 
 int hackrf_start_tx(hackrf_device* device, hackrf_sample_block_cb_fn callback) {
@@ -675,7 +681,12 @@ int hackrf_start_tx(hackrf_device* device, hackrf_sample_block_cb_fn callback) {
 }
 
 int hackrf_stop_tx(hackrf_device* device) {
-	return kill_transfer_thread(device);
+	int result1, result2;
+	result1 = kill_transfer_thread(device);
+	result2 = hackrf_set_transceiver_mode(device, HACKRF_TRANSCEIVER_MODE_OFF);
+	if (result2 != HACKRF_SUCCESS)
+		return result2;
+	return result1;
 }
 
 int hackrf_close(hackrf_device* device) {

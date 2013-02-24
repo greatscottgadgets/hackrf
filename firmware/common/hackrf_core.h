@@ -239,8 +239,9 @@ extern "C"
 /* TODO add other Pins */
 
 typedef enum {
-	TRANSCEIVER_MODE_RX,
-	TRANSCEIVER_MODE_TX,
+	TRANSCEIVER_MODE_OFF = 0,
+	TRANSCEIVER_MODE_RX = 1,
+	TRANSCEIVER_MODE_TX = 2
 } transceiver_mode_t;
 
 void delay(uint32_t duration);
