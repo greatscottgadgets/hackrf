@@ -182,10 +182,12 @@ void set_transceiver_mode(const transceiver_mode_t new_transceiver_mode) {
 
 	if( transceiver_mode == TRANSCEIVER_MODE_RX ) {
 		gpio_clear(PORT_LED1_3, PIN_LED3);
+		gpio_set(PORT_LED1_3, PIN_LED2);
 		usb_endpoint_init(&usb_endpoint_bulk_in);
 
 		max2837_rx();
 	} else {
+		gpio_clear(PORT_LED1_3, PIN_LED2);
 		gpio_set(PORT_LED1_3, PIN_LED3);
 		usb_endpoint_init(&usb_endpoint_bulk_out);
 
