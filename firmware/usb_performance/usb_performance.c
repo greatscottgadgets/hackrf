@@ -42,6 +42,7 @@
 #include "usb_standard_request.h"
 
 static volatile transceiver_mode_t transceiver_mode = TRANSCEIVER_MODE_OFF;
+static volatile transceiver_mode_t new_transceiver_mode = TRANSCEIVER_MODE_OFF;
 
 uint8_t* const usb_bulk_buffer = (uint8_t*)0x20004000;
 static volatile uint32_t usb_bulk_buffer_offset = 0;
@@ -175,7 +176,10 @@ void baseband_streaming_disable() {
 	usb_endpoint_disable(&usb_endpoint_bulk_out);
 }
 
-void set_transceiver_mode(const transceiver_mode_t new_transceiver_mode) {
+void set_transceiver_mode() {
+	if (new_transceiver_mode == transceiver_mode)
+		return;
+
 	baseband_streaming_disable();
 	
 	transceiver_mode = new_transceiver_mode;
@@ -187,6 +191,8 @@ void set_transceiver_mode(const transceiver_mode_t new_transceiver_mode) {
 		gpio_set(PORT_LED1_3, PIN_LED2);
 		usb_endpoint_init(&usb_endpoint_bulk_in);
 
+		rffc5071_rx(switchctrl);
+		rffc5071_set_frequency(1700, 0); // 2600 MHz IF - 1700 MHz LO = 900 MHz RF
 		max2837_start();
 		max2837_rx();
 	} else if (transceiver_mode == TRANSCEIVER_MODE_TX) {
@@ -194,6 +200,8 @@ void set_transceiver_mode(const transceiver_mode_t new_transceiver_mode) {
 		gpio_set(PORT_LED1_3, PIN_LED3);
 		usb_endpoint_init(&usb_endpoint_bulk_out);
 
+		rffc5071_tx(switchctrl);
+		rffc5071_set_frequency(1700, 0); // 2600 MHz IF - 1700 MHz LO = 900 MHz RF
 		max2837_start();
 		max2837_tx();
 	} else {
@@ -221,7 +229,9 @@ usb_request_status_t usb_vendor_request_set_transceiver_mode(
 		case TRANSCEIVER_MODE_OFF:
 		case TRANSCEIVER_MODE_RX:
 		case TRANSCEIVER_MODE_TX:
-			set_transceiver_mode(endpoint->setup.value);
+			// testing having the actual change made in the main loop instead of here
+			new_transceiver_mode = endpoint->setup.value;
+			//set_transceiver_mode(endpoint->setup.value);
 			usb_endpoint_schedule_ack(endpoint->in);
 			return USB_REQUEST_STATUS_OK;
 		default:
@@ -568,7 +578,8 @@ bool usb_set_configuration(
 	if( new_configuration != device->configuration ) {
 		// Configuration changed.
 		device->configuration = new_configuration;
-		set_transceiver_mode(transceiver_mode);
+		// This seems to not be necessary until going into RX or TX mode
+		//set_transceiver_mode(transceiver_mode);
 
 		if( device->configuration ) {
 			gpio_set(PORT_LED1_3, PIN_LED1);
@@ -666,12 +677,13 @@ int main(void) {
 #ifdef JAWBREAKER
 	switchctrl = SWITCHCTRL_AMP_BYPASS;
 #endif
-	rffc5071_rx(switchctrl);
-	rffc5071_set_frequency(1700, 0); // 2600 MHz IF - 1700 MHz LO = 900 MHz RF
+	//rffc5071_tx(switchctrl);
+	//rffc5071_set_frequency(1700, 0); // 2600 MHz IF - 1700 MHz LO = 900 MHz RF
 
 	while(true) {
 		// Wait until buffer 0 is transmitted/received.
-		while( usb_bulk_buffer_offset < 16384 );
+		while( usb_bulk_buffer_offset < 16384 )
+			set_transceiver_mode();
 
 		// Set up IN transfer of buffer 0.
 		usb_endpoint_schedule_no_int(
@@ -681,7 +693,8 @@ int main(void) {
 		);
 	
 		// Wait until buffer 1 is transmitted/received.
-		while( usb_bulk_buffer_offset >= 16384 );
+		while( usb_bulk_buffer_offset >= 16384 )
+			set_transceiver_mode();
 
 		// Set up IN transfer of buffer 1.
 		usb_endpoint_schedule_no_int(
