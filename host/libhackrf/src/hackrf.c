@@ -44,7 +44,8 @@ typedef enum {
 	HACKRF_VENDOR_REQUEST_SPIFLASH_READ = 12,
 	HACKRF_VENDOR_REQUEST_CPLD_WRITE = 13,
 	HACKRF_VENDOR_REQUEST_BOARD_ID_READ = 14,
-	HACKRF_VENDOR_REQUEST_VERSION_STRING_READ = 15
+	HACKRF_VENDOR_REQUEST_VERSION_STRING_READ = 15,
+	HACKRF_VENDOR_REQUEST_SET_FREQ = 16
 } hackrf_vendor_request;
 
 typedef enum {
@@ -565,6 +566,26 @@ int hackrf_version_string_read(hackrf_device* device, char* version,
 		return HACKRF_ERROR_LIBUSB;
 	} else {
 		version[result] = '\0';
+		return HACKRF_SUCCESS;
+	}
+}
+
+int hackrf_set_freq(hackrf_device* device, const uint32_t freq_mhz) {
+	/* TODO add freq_hz in addition from 0 to 999999Hz */
+	int result = libusb_control_transfer(
+		device->usb_device,
+		LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_SET_FREQ,
+		freq_mhz & 0xffff,
+		freq_mhz >> 16,
+		NULL,
+		0,
+		0
+	);
+	
+	if( result != 0 ) {
+		return HACKRF_ERROR_LIBUSB;
+	} else {
 		return HACKRF_SUCCESS;
 	}
 }

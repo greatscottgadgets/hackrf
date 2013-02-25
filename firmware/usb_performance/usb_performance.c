@@ -491,6 +491,23 @@ usb_request_status_t usb_vendor_request_read_version_string(
 	return USB_REQUEST_STATUS_OK;
 }
 
+usb_request_status_t usb_vendor_request_set_freq(
+	usb_endpoint_t* const endpoint,
+	const usb_transfer_stage_t stage
+) {
+	if( stage == USB_TRANSFER_STAGE_SETUP ) {
+		const uint32_t freq_mhz = (endpoint->setup.index << 16) | endpoint->setup.value;
+		const uint32_t freq_hz = 0; /* TODO fix this and retrieve a 32bits */
+		if( set_freq(freq_mhz, freq_hz) ) {
+			usb_endpoint_schedule_ack(endpoint->in);
+			return USB_REQUEST_STATUS_OK;
+		}
+		return USB_REQUEST_STATUS_STALL;
+	} else {
+		return USB_REQUEST_STATUS_OK;
+	}
+}
+
 static const usb_request_handler_fn vendor_request_handler[] = {
 	NULL,
 	usb_vendor_request_set_transceiver_mode,
@@ -507,7 +524,8 @@ static const usb_request_handler_fn vendor_request_handler[] = {
 	usb_vendor_request_read_spiflash,
 	usb_vendor_request_write_cpld,
 	usb_vendor_request_read_board_id,
-	usb_vendor_request_read_version_string
+	usb_vendor_request_read_version_string,
+	usb_vendor_request_set_freq
 };
 
 static const uint32_t vendor_request_handler_count =

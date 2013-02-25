@@ -1,6 +1,7 @@
 /*
  * Copyright 2012 Michael Ossmann <mike@ossmann.com>
  * Copyright 2012 Jared Boone <jared@sharebrained.com>
+ * Copyright 2013 Benjamin Vernoux <titanmkd@gmail.com>
  *
  * This file is part of HackRF.
  *
@@ -23,11 +24,27 @@
 #include "hackrf_core.h"
 #include "si5351c.h"
 #include "max2837.h"
+#include "rffc5071.h"
 #include <libopencm3/lpc43xx/i2c.h>
 #include <libopencm3/lpc43xx/cgu.h>
 #include <libopencm3/lpc43xx/gpio.h>
 #include <libopencm3/lpc43xx/scu.h>
 #include <libopencm3/lpc43xx/ssp.h>
+
+/* Define for set_tune_freq() */
+#define FREQ_ONE_MHZ	 (1000*1000)
+
+#define MIN_LP_FREQ_MHZ (30)
+#define MAX_LP_FREQ_MHZ (2300)
+
+#define MIN_BYPASS_FREQ_MHZ (2300)
+#define MAX_BYPASS_FREQ_MHZ (2700)
+
+#define MIN_HP_FREQ_MHZ (2700)
+#define MAX_HP_FREQ_MHZ (6000)
+
+#define MAX2837_FREQ_NOMINAL_HZ (2600000000)
+#define MAX2837_FREQ_NOMINAL_MHZ (MAX2837_FREQ_NOMINAL_HZ / FREQ_ONE_MHZ)
 
 void delay(uint32_t duration)
 {
@@ -390,4 +407,77 @@ void pin_setup(void) {
 
 void enable_1v8_power(void) {
 	gpio_set(PORT_EN1V8, PIN_EN1V8);
+}
+
+/* 
+Set freq/tuning between 30MHz to 6000 MHz
+hz between 0 to 999999 Hz (not checked)
+return false on error or true if success.
+*/
+bool set_freq(uint32_t freq_mhz, uint32_t freq_hz)
+{
+	bool success;
+	uint32_t RFFC5071_freq_mhz;
+	uint32_t MAX2837_freq_hz;
+	uint32_t real_RFFC5071_freq_mhz;
+	uint32_t tmp_hz;
+
+	success = true;
+	
+	if(freq_mhz >= MIN_LP_FREQ_MHZ)
+	{
+		if(freq_mhz < MAX_LP_FREQ_MHZ)
+		{
+			/* TODO fix/check Switch to LP mode (shall not change RX/TX mode) */
+			rffc5071_set_gpo(0); /* SWITCHCTRL_LP = 0 */
+			
+			RFFC5071_freq_mhz = MAX2837_FREQ_NOMINAL_MHZ - freq_mhz;
+			/* Set Freq and read real freq */
+			real_RFFC5071_freq_mhz = rffc5071_set_frequency(RFFC5071_freq_mhz, 0);
+			if(real_RFFC5071_freq_mhz < RFFC5071_freq_mhz)
+			{
+				tmp_hz = -((RFFC5071_freq_mhz - real_RFFC5071_freq_mhz) * FREQ_ONE_MHZ);
+			}else
+			{
+				tmp_hz = ((real_RFFC5071_freq_mhz - RFFC5071_freq_mhz) * FREQ_ONE_MHZ);
+			}
+			MAX2837_freq_hz = MAX2837_FREQ_NOMINAL_HZ + tmp_hz + freq_hz;
+			max2837_set_frequency(MAX2837_freq_hz);
+		}else if( (freq_mhz >= MIN_BYPASS_FREQ_MHZ) && (freq_mhz < MAX_BYPASS_FREQ_MHZ) )
+		{
+			/* TODO fix/check Switch to SWITCHCTRL_MIX_BYPASS mode (shall not change RX/TX mode) */
+			rffc5071_set_gpo(SWITCHCTRL_MIX_BYPASS);
+
+			MAX2837_freq_hz = (freq_mhz * FREQ_ONE_MHZ) + freq_hz;
+			/* RFFC5071_freq_mhz <= not used in Bypass mode */
+			max2837_set_frequency(MAX2837_freq_hz);
+		}else if(  (freq_mhz >= MIN_HP_FREQ_MHZ) && (freq_mhz < MAX_HP_FREQ_MHZ) )
+		{
+			/* TODO fix/check Switch to SWITCHCTRL_HP mode (shall not change RX/TX mode) */
+			rffc5071_set_gpo(SWITCHCTRL_HP);
+			
+			//switch_ctrl = SWITCHCTRL_HP;
+			RFFC5071_freq_mhz = freq_mhz - MAX2837_FREQ_NOMINAL_MHZ;
+			/* Set Freq and read real freq */
+			real_RFFC5071_freq_mhz = rffc5071_set_frequency(RFFC5071_freq_mhz, 0);
+			if(real_RFFC5071_freq_mhz < RFFC5071_freq_mhz)
+			{
+				tmp_hz = ((RFFC5071_freq_mhz - real_RFFC5071_freq_mhz) * FREQ_ONE_MHZ);
+			}else
+			{
+				tmp_hz = -((real_RFFC5071_freq_mhz - RFFC5071_freq_mhz) * FREQ_ONE_MHZ);
+			}
+			MAX2837_freq_hz = MAX2837_FREQ_NOMINAL_HZ + tmp_hz + freq_hz;
+			max2837_set_frequency(MAX2837_freq_hz);
+		}else
+		{
+			/* Error freq_mhz too high */
+			success = false;
+		}
+	}else
+	{
+		/* Error freq_mhz too low */
+		success = false;		
+	}
+	return success;
 }
