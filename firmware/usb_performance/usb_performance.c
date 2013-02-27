@@ -195,9 +195,6 @@ void set_transceiver_mode() {
 	
 	usb_init_buffers_bulk();
 
-	usb_endpoint_disable(&usb_endpoint_bulk_in);
-	usb_endpoint_disable(&usb_endpoint_bulk_out);
-
 	if( transceiver_mode == TRANSCEIVER_MODE_RX ) {
 		gpio_clear(PORT_LED1_3, PIN_LED3);
 		gpio_set(PORT_LED1_3, PIN_LED2);
