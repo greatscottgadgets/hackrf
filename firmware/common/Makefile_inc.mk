@@ -50,7 +50,7 @@ OBJDUMP = $(PREFIX)-objdump
 GDB = $(PREFIX)-gdb
 TOOLCHAIN_DIR := $(shell dirname `which $(CC)`)/../$(PREFIX)
 
-CFLAGS += -std=c99 -Os -g3 -Wall -Wextra -I$(LIBOPENCM3)/include -I../common \
+CFLAGS += -std=c99 -O1 -g3 -Wall -Wextra -I$(LIBOPENCM3)/include -I../common \
 		-fno-common -mcpu=cortex-m4 -mthumb -MD \
 		-mfloat-abi=hard -mfpu=fpv4-sp-d16 \
 		$(HACKRF_OPTS)
