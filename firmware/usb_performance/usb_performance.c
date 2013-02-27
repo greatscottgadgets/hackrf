@@ -87,7 +87,13 @@ void usb_endpoint_schedule_no_int(
 	// Ensure that endpoint is ready to be primed.
 	// It may have been flushed due to an aborted transaction.
 	// TODO: This should be preceded by a flush?
-	while( usb_endpoint_is_ready(endpoint) );
+	while( usb_endpoint_is_ready(endpoint) )
+	{
+		if( usb_endpoint_is_ready(endpoint) )
+		{
+			usb_endpoint_flush(endpoint);
+		}
+	}
 
 	// Configure a transfer.
 	td->total_bytes =
@@ -180,11 +186,17 @@ void set_transceiver_mode() {
 	if (new_transceiver_mode == transceiver_mode)
 		return;
 
+	/* Disable IRQ globally to be sure no IRQ happen during config */
+	__asm__("cpsid i");
+
 	baseband_streaming_disable();
 	
 	transceiver_mode = new_transceiver_mode;
 	
 	usb_init_buffers_bulk();
+
+	usb_endpoint_disable(&usb_endpoint_bulk_in);
+	usb_endpoint_disable(&usb_endpoint_bulk_out);
 
 	if( transceiver_mode == TRANSCEIVER_MODE_RX ) {
 		gpio_clear(PORT_LED1_3, PIN_LED3);
@@ -218,6 +230,9 @@ void set_transceiver_mode() {
 	SGPIO_SET_EN_1 = (1 << SGPIO_SLICE_A);
 
     sgpio_cpld_stream_enable();
+
+	/* Enable IRQ globally */
+	__asm__("cpsie i");
 }
 
 usb_request_status_t usb_vendor_request_set_transceiver_mode(
