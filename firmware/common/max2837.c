@@ -222,6 +222,7 @@ void max2837_start(void)
 	set_MAX2837_EN_SPI(1);
 	max2837_regs_commit();
 #if !defined TEST
+	gpio_clear(PORT_XCVR_ENABLE, (PIN_XCVR_RXENABLE | PIN_XCVR_TXENABLE));
 	gpio_set(PORT_XCVR_ENABLE, PIN_XCVR_ENABLE);
 #endif
 }
@@ -234,6 +235,7 @@ void max2837_tx(void)
 	set_MAX2837_ModeCtrl(MAX2837_ModeCtrl_TxLPF);
 	max2837_regs_commit();
 
+	gpio_clear(PORT_XCVR_ENABLE, PIN_XCVR_RXENABLE);
 	gpio_set(PORT_XCVR_ENABLE, PIN_XCVR_TXENABLE);
 #endif
 }
@@ -246,6 +248,7 @@ void max2837_rx(void)
 	max2837_regs_commit();
 
 #if !defined TEST
+	gpio_clear(PORT_XCVR_ENABLE, PIN_XCVR_TXENABLE);
 	gpio_set(PORT_XCVR_ENABLE, PIN_XCVR_RXENABLE);
 #endif
 }

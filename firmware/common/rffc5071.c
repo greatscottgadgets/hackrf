@@ -160,7 +160,7 @@ void serial_delay(void)
 {
 	uint32_t i;
 
-	for (i = 0; i < 1000; i++)
+	for (i = 0; i < 2; i++)
 		__asm__("nop");
 }
 

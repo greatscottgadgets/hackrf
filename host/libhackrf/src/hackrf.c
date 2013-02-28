@@ -39,13 +39,16 @@ typedef enum {
 	HACKRF_VENDOR_REQUEST_BASEBAND_FILTER_BANDWIDTH_SET = 7,
 	HACKRF_VENDOR_REQUEST_RFFC5071_WRITE = 8,
 	HACKRF_VENDOR_REQUEST_RFFC5071_READ = 9,
-	HACKRF_VENDOR_REQUEST_SPIFLASH_WRITE = 10,
-	HACKRF_VENDOR_REQUEST_SPIFLASH_READ = 11,
-	HACKRF_VENDOR_REQUEST_CPLD_WRITE = 12,
-	HACKRF_VENDOR_REQUEST_BOARD_ID_READ = 13
+	HACKRF_VENDOR_REQUEST_SPIFLASH_ERASE = 10,
+	HACKRF_VENDOR_REQUEST_SPIFLASH_WRITE = 11,
+	HACKRF_VENDOR_REQUEST_SPIFLASH_READ = 12,
+	HACKRF_VENDOR_REQUEST_CPLD_WRITE = 13,
+	HACKRF_VENDOR_REQUEST_BOARD_ID_READ = 14,
+	HACKRF_VENDOR_REQUEST_VERSION_STRING_READ = 15
 } hackrf_vendor_request;
 
 typedef enum {
+	HACKRF_TRANSCEIVER_MODE_OFF = 0,
 	HACKRF_TRANSCEIVER_MODE_RECEIVE = 1,
 	HACKRF_TRANSCEIVER_MODE_TRANSMIT = 2,
 } hackrf_transceiver_mode;
@@ -435,6 +438,25 @@ int hackrf_rffc5071_write(hackrf_device* device, uint8_t register_number, uint16
 	}
 }
 
+int hackrf_spiflash_erase(hackrf_device* device) {
+	int result = libusb_control_transfer(
+		device->usb_device,
+		LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_SPIFLASH_ERASE,
+		0,
+		0,
+		NULL,
+		0,
+		0
+	);
+
+	if (result != 0) {
+		return HACKRF_ERROR_LIBUSB;
+	} else {
+		return HACKRF_SUCCESS;
+	}
+}
+
 int hackrf_spiflash_write(hackrf_device* device, const uint32_t address,
 		const uint16_t length, unsigned char* const data)
 {
@@ -453,7 +475,7 @@ int hackrf_spiflash_write(hackrf_device* device, const uint32_t address,
 		0
 	);
 
-	if( result != 0 ) {
+	if (result < length) {
 		return HACKRF_ERROR_LIBUSB;
 	} else {
 		return HACKRF_SUCCESS;
@@ -478,7 +500,7 @@ int hackrf_spiflash_read(hackrf_device* device, const uint32_t address,
 		0
 	);
 
-	if( result < 2 ) {
+	if (result < length) {
 		return HACKRF_ERROR_LIBUSB;
 	} else {
 		return HACKRF_SUCCESS;
@@ -499,7 +521,7 @@ int hackrf_cpld_write(hackrf_device* device, const uint16_t length,
 		0
 	);
 
-	if( result != 0 ) {
+	if (result < length) {
 		return HACKRF_ERROR_LIBUSB;
 	} else {
 		return HACKRF_SUCCESS;
@@ -521,6 +543,28 @@ int hackrf_board_id_read(hackrf_device* device, uint8_t* value) {
 	if (result < 1) {
 		return HACKRF_ERROR_LIBUSB;
 	} else {
+		return HACKRF_SUCCESS;
+	}
+}
+
+int hackrf_version_string_read(hackrf_device* device, char* version,
+		uint8_t length)
+{
+	int result = libusb_control_transfer(
+		device->usb_device,
+		LIBUSB_ENDPOINT_IN | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_VERSION_STRING_READ,
+		0,
+		0,
+		(unsigned char*)version,
+		length,
+		0
+	);
+
+	if (result < 0) {
+		return HACKRF_ERROR_LIBUSB;
+	} else {
+		version[result] = '\0';
 		return HACKRF_SUCCESS;
 	}
 }
@@ -619,7 +663,12 @@ int hackrf_start_rx(hackrf_device* device, hackrf_sample_block_cb_fn callback) {
 }
 
 int hackrf_stop_rx(hackrf_device* device) {
-	return kill_transfer_thread(device);
+	int result1, result2;
+	result1 = kill_transfer_thread(device);
+	result2 = hackrf_set_transceiver_mode(device, HACKRF_TRANSCEIVER_MODE_OFF);
+	if (result2 != HACKRF_SUCCESS)
+		return result2;
+	return result1;
 }
 
 int hackrf_start_tx(hackrf_device* device, hackrf_sample_block_cb_fn callback) {
@@ -632,7 +681,12 @@ int hackrf_start_tx(hackrf_device* device, hackrf_sample_block_cb_fn callback) {
 }
 
 int hackrf_stop_tx(hackrf_device* device) {
-	return kill_transfer_thread(device);
+	int result1, result2;
+	result1 = kill_transfer_thread(device);
+	result2 = hackrf_set_transceiver_mode(device, HACKRF_TRANSCEIVER_MODE_OFF);
+	if (result2 != HACKRF_SUCCESS)
+		return result2;
+	return result1;
 }
 
 int hackrf_close(hackrf_device* device) {
