@@ -1,5 +1,5 @@
 // Created using Xilinx Cse Software [ISE - 13.4]
-// Date: Thu Feb 14 12:00:19 2013
+// Date: Wed Feb 27 16:39:56 2013
 
 TRST OFF;
 ENDIR IDLE;
@@ -254,7 +254,7 @@ SDR 281 TDI (002bc9fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
 RUNTEST 10000 TCK;
 SDR 281 TDI (0128fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe1d) ;
 RUNTEST 10000 TCK;
-SDR 281 TDI (01aa01fffff7ffffffffffffffffffffffebfefffffffffffffffffffffffffffffffe7c) ;
+SDR 281 TDI (01aa01ffffefffffffffffffffffffffffebfefffffffffffffffffffffffffffffffe7c) ;
 RUNTEST 10000 TCK;
 SDR 281 TDI (00abc1fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe0f) ;
 RUNTEST 10000 TCK;
@@ -785,7 +785,7 @@ SDR 7 TDI (6a) SMASK (7f) ;
 RUNTEST DRPAUSE 20 TCK;
 ENDDR IDLE;
 RUNTEST IDLE 100 TCK;
-SDR 274 TDI (03ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff) SMASK (03ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff) TDO (0201fffff7ffffffffffffffffffffffebfefffffffffffffffffffffffffffffffe7c) MASK (
+SDR 274 TDI (03ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff) SMASK (03ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff) TDO (0201ffffefffffffffffffffffffffffebfefffffffffffffffffffffffffffffffe7c) MASK (
 03ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff) ;
 RUNTEST 100 TCK;
 ENDDR DRPAUSE;
@@ -1666,7 +1666,7 @@ SDR 7 TDI (6a) SMASK (7f) ;
 RUNTEST DRPAUSE 20 TCK;
 ENDDR IDLE;
 RUNTEST IDLE 100 TCK;
-SDR 274 TDI (03ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff) SMASK (03ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff) TDO (0201fffff7ffffffffffffffffffffffebfefffffffffffffffffffffffffffffffe7c) MASK (
+SDR 274 TDI (03ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff) SMASK (03ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff) TDO (0201ffffefffffffffffffffffffffffebfefffffffffffffffffffffffffffffffe7c) MASK (
 03ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff) ;
 RUNTEST 100 TCK;
 ENDDR DRPAUSE;

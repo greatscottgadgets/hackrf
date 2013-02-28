@@ -116,7 +116,7 @@ begin
     process(host_clk_i, codec_clk_i)
     begin
         if rising_edge(host_clk_i) then
-            if codec_clk_i = '1' then
+            if codec_clk_i = '0' then
                 host_data_capture_o <= host_data_enable_i;
             end if;
         end if;
