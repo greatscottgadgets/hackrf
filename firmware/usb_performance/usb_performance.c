@@ -182,42 +182,53 @@ void baseband_streaming_disable() {
 	usb_endpoint_disable(&usb_endpoint_bulk_out);
 }
 
-void set_transceiver_mode() {
+/* return true is transceiver mode state changed, else return false */
+bool set_transceiver_mode(void)
+{
 	if (new_transceiver_mode == transceiver_mode)
-		return;
+		return false;
 
 	/* Disable IRQ globally to be sure no IRQ happen during config */
 	__asm__("cpsid i");
 
-	baseband_streaming_disable();
+	sgpio_cpld_stream_disable();
+	nvic_disable_irq(NVIC_M4_SGPIO_IRQ);
 	
 	transceiver_mode = new_transceiver_mode;
 	
-	usb_init_buffers_bulk();
-
 	if( transceiver_mode == TRANSCEIVER_MODE_RX ) {
 		gpio_clear(PORT_LED1_3, PIN_LED3);
 		gpio_set(PORT_LED1_3, PIN_LED2);
-		usb_endpoint_init(&usb_endpoint_bulk_in);
-
+		
 		rffc5071_rx(switchctrl);
 		rffc5071_set_frequency(1700, 0); // 2600 MHz IF - 1700 MHz LO = 900 MHz RF
 		max2837_start();
 		max2837_rx();
+		
+		/* Flush USB EP before to start */
+		usb_endpoint_flush(&usb_endpoint_bulk_in);
+		
 	} else if (transceiver_mode == TRANSCEIVER_MODE_TX) {
 		gpio_clear(PORT_LED1_3, PIN_LED2);
 		gpio_set(PORT_LED1_3, PIN_LED3);
-		usb_endpoint_init(&usb_endpoint_bulk_out);
-
+		
 		rffc5071_tx(switchctrl);
 		rffc5071_set_frequency(1700, 0); // 2600 MHz IF - 1700 MHz LO = 900 MHz RF
 		max2837_start();
 		max2837_tx();
+		
+		/* Flush endpoint before to start */
+		usb_endpoint_flush(&usb_endpoint_bulk_out);	
+		
 	} else {
 		gpio_clear(PORT_LED1_3, PIN_LED2);
 		gpio_clear(PORT_LED1_3, PIN_LED3);
 		max2837_stop();
-		return;
+		
+		/* Enable IRQ globally */
+		__asm__("cpsie i");
+
+		return true;
 	}
 
 	sgpio_configure(transceiver_mode, true);
@@ -230,6 +241,8 @@ void set_transceiver_mode() {
 
 	/* Enable IRQ globally */
 	__asm__("cpsie i");
+
+	return true;
 }
 
 usb_request_status_t usb_vendor_request_set_transceiver_mode(
@@ -557,6 +570,18 @@ const usb_request_handlers_t usb_request_handlers = {
 	.vendor = usb_vendor_request,
 	.reserved = 0,
 };
+void init_conf_transceiver(void) {
+	baseband_streaming_disable();
+	
+	usb_init_buffers_bulk();
+
+	usb_endpoint_init(&usb_endpoint_bulk_in);
+	usb_endpoint_init(&usb_endpoint_bulk_out);
+	
+	gpio_clear(PORT_LED1_3, PIN_LED2);
+	gpio_clear(PORT_LED1_3, PIN_LED3);
+	max2837_stop();
+}
 
 // TODO: Seems like this should live in usb_standard_request.c.
 bool usb_set_configuration(
@@ -592,6 +617,7 @@ bool usb_set_configuration(
 		device->configuration = new_configuration;
 		// This seems to not be necessary until going into RX or TX mode
 		//set_transceiver_mode(transceiver_mode);
+		init_conf_transceiver();
 
 		if( device->configuration ) {
 			gpio_set(PORT_LED1_3, PIN_LED1);
@@ -602,6 +628,21 @@ bool usb_set_configuration(
 
 	return true;
 };
+
+/* 
+   Stop IRQ (shall be only SGPIO but it is better to stop all IRQ),
+   Set usb_bulk_buffer_offset = 16384, continue (will wait until buffer full).
+*/
+void update_usb_bulk_buffer_offset(uint32_t usb_bulk_buffer_offset_val)
+{
+	/* Enter critical section (Disable IRQ globally) */
+	__asm__("cpsid i");
+
+	usb_bulk_buffer_offset = usb_bulk_buffer_offset_val;
+
+	/* Exit critical section (Enable IRQ globally) */
+	__asm__("cpsie i");
+}
 
 void sgpio_irqhandler() {
 	SGPIO_CLR_STATUS_1 = (1 << SGPIO_SLICE_A);
@@ -660,7 +701,8 @@ void sgpio_irqhandler() {
 
 int main(void) {
 	const uint32_t ifreq = 2600000000U;
-
+	bool transceiver_mode_changed = false;
+	
 	pin_setup();
 	enable_1v8_power();
 	cpu_clock_init();
@@ -669,9 +711,17 @@ int main(void) {
 	
 	usb_device_init(0, &usb_device);
 	
+	/* Init/Enable Control Ep */
 	usb_endpoint_init(&usb_endpoint_control_out);
 	usb_endpoint_init(&usb_endpoint_control_in);
 	
+	/* Init/Enable Bulk In/Out Ep */
+	/*
+	usb_init_buffers_bulk();
+	TODO fix usb.c -> usb_endpoint_init() configure only transfer_type CONTROL mode ??
+	usb_endpoint_init(&usb_endpoint_bulk_in);
+	usb_endpoint_init(&usb_endpoint_bulk_out);
+	*/
 	nvic_set_priority(NVIC_M4_USB0_IRQ, 255);
 
 	usb_run(&usb_device);
@@ -691,29 +741,58 @@ int main(void) {
 #endif
 	//rffc5071_tx(switchctrl);
 	//rffc5071_set_frequency(1700, 0); // 2600 MHz IF - 1700 MHz LO = 900 MHz RF
-
-	while(true) {
+	
+	while(true) 
+	{	
 		// Wait until buffer 0 is transmitted/received.
 		while( usb_bulk_buffer_offset < 16384 )
-			set_transceiver_mode();
+		{
+			if( set_transceiver_mode() )
+				transceiver_mode_changed = true;
+		}
+		
+		if( transceiver_mode_changed == false )
+		{
+			// Set up IN transfer of buffer 0.
+			usb_endpoint_schedule_no_int(
+				(transceiver_mode == TRANSCEIVER_MODE_RX)
+				? &usb_endpoint_bulk_in : &usb_endpoint_bulk_out,
+				&usb_td_bulk[0]);
+		}else
+		{
+			/* Transceiver mode changed so do not Set up IN buffer (it is like flushing old data for RX mode) */
+			transceiver_mode_changed = false; /* Reset the state */
+			if( transceiver_mode == TRANSCEIVER_MODE_TX )
+			{
+				/* Ignore actual buffer (contains data from previous state and new state) by changing usb_bulk_buffer_offset */
+				update_usb_bulk_buffer_offset(16384);
+			}
+		}
 
-		// Set up IN transfer of buffer 0.
-		usb_endpoint_schedule_no_int(
-			(transceiver_mode == TRANSCEIVER_MODE_RX)
-			? &usb_endpoint_bulk_in : &usb_endpoint_bulk_out,
-			&usb_td_bulk[0]
-		);
-	
 		// Wait until buffer 1 is transmitted/received.
 		while( usb_bulk_buffer_offset >= 16384 )
-			set_transceiver_mode();
-
-		// Set up IN transfer of buffer 1.
-		usb_endpoint_schedule_no_int(
-			(transceiver_mode == TRANSCEIVER_MODE_RX)
-			? &usb_endpoint_bulk_in : &usb_endpoint_bulk_out,
-			&usb_td_bulk[1]
-		);
+		{
+			if( set_transceiver_mode() )
+				transceiver_mode_changed = true;
+		}
+		
+		if( transceiver_mode_changed == false )
+		{
+			// Set up IN transfer of buffer 1.
+			usb_endpoint_schedule_no_int(
+				(transceiver_mode == TRANSCEIVER_MODE_RX)
+				? &usb_endpoint_bulk_in : &usb_endpoint_bulk_out,
+				&usb_td_bulk[1]);
+		}else
+		{
+			/* Transceiver mode changed so do not Set up IN buffer (it is like flushing old data for RX mode) */
+			transceiver_mode_changed = false; /* Reset the state */
+			if( transceiver_mode == TRANSCEIVER_MODE_TX )
+			{
+				/* Ignore actual buffer (contains data from previous state and new state) by changing usb_bulk_buffer_offset */
+				update_usb_bulk_buffer_offset(0);
+			}
+		}
 	}
 	
 	return 0;
