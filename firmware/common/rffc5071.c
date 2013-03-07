@@ -535,7 +535,7 @@ void rffc5071_set_gpo(uint8_t gpo)
 int main(int ac, char **av)
 {
 	rffc5071_setup();
-	rffc5071_tx();
+	rffc5071_tx(0);
 	rffc5071_set_frequency(500, 0);
 	rffc5071_set_frequency(525, 0);
 	rffc5071_set_frequency(550, 0);
@@ -543,7 +543,7 @@ int main(int ac, char **av)
 	rffc5071_set_frequency(1525, 0);
 	rffc5071_set_frequency(1550, 0);
 	rffc5071_disable();
-	rffc5071_rx();
+	rffc5071_rx(0);
 	rffc5071_disable();
 	rffc5071_rxtx();
 	rffc5071_disable();
