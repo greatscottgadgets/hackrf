@@ -571,26 +571,6 @@ int hackrf_version_string_read(hackrf_device* device, char* version,
 	}
 }
 
-static int hackrf_set_amp_enable(hackrf_device* device, uint8_t value)
-{
-	int result = libusb_control_transfer(
-		device->usb_device,
-		LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
-		HACKRF_VENDOR_REQUEST_AMP_ENABLE,
-		value,
-		0,
-		NULL,
-		0,
-		0
-	);
-
-	if (result != 0) {
-		return HACKRF_ERROR_LIBUSB;
-	} else {
-		return HACKRF_SUCCESS;
-	}
-}
-
 typedef struct {
 	uint32_t freq_mhz; /* From 30 to 6000MHz */
 	uint32_t freq_hz;  /* From 0 to 999999Hz */
@@ -624,6 +604,26 @@ int hackrf_set_freq(hackrf_device* device, const uint64_t freq_hz)
 	);
 	
 	if (result < length) {
+		return HACKRF_ERROR_LIBUSB;
+	} else {
+		return HACKRF_SUCCESS;
+	}
+}
+
+int hackrf_set_amp_enable(hackrf_device* device, const uint8_t value)
+{
+	int result = libusb_control_transfer(
+		device->usb_device,
+		LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_AMP_ENABLE,
+		value,
+		0,
+		NULL,
+		0,
+		0
+	);
+
+	if (result != 0) {
 		return HACKRF_ERROR_LIBUSB;
 	} else {
 		return HACKRF_SUCCESS;
