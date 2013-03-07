@@ -95,6 +95,8 @@ int hackrf_version_string_read(hackrf_device* device, char* version,
 
 int hackrf_set_freq(hackrf_device* device, const uint64_t freq_hz);
 
+int hackrf_set_amp_enable(hackrf_device* device, const uint8_t value);
+
 const char* hackrf_error_name(enum hackrf_error errcode);
 const char* hackrf_board_id_name(enum hackrf_board_id board_id);
 
