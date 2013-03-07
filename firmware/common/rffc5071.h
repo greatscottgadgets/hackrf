@@ -36,12 +36,12 @@ extern uint32_t rffc5071_regs_dirty;
  * RF switches on Jawbreaker are controlled by General Purpose Outputs (GPO) on
  * the RFFC5072.
  */
-#define SWITCHCTRL_NO_TX_AMP_PWR (1 << 0) /* turn off TX amp power */
-#define SWITCHCTRL_AMP_BYPASS    (1 << 1) /* bypass amp section */
-#define SWITCHCTRL_TX            (1 << 2) /* 1 for TX mode, 0 for RX mode */
-#define SWITCHCTRL_MIX_BYPASS    (1 << 3) /* bypass RFFC5072 mixer section */
-#define SWITCHCTRL_HP            (1 << 4) /* 1 for high-pass, 0 for low-pass */
-#define SWITCHCTRL_NO_RX_AMP_PWR (1 << 5) /* turn off RX amp power */
+#define SWITCHCTRL_NO_TX_AMP_PWR (1 << 0) /* GPO1 turn off TX amp power */
+#define SWITCHCTRL_AMP_BYPASS    (1 << 1) /* GPO2 bypass amp section */
+#define SWITCHCTRL_TX            (1 << 2) /* GPO3 1 for TX mode, 0 for RX mode */
+#define SWITCHCTRL_MIX_BYPASS    (1 << 3) /* GPO4 bypass RFFC5072 mixer section */
+#define SWITCHCTRL_HP            (1 << 4) /* GPO5 1 for high-pass, 0 for low-pass */
+#define SWITCHCTRL_NO_RX_AMP_PWR (1 << 5) /* GPO6 turn off RX amp power */
 
 /*
  * Safe (initial) switch settings turn off both amplifiers and enable both amp
