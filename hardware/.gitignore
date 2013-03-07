@@ -19,3 +19,5 @@ $savepcb.*
 
 # other kicad generated files
 *.csv
+*.svg
+*.pdf

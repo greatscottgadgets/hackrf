@@ -6,3 +6,4 @@
 *.map
 *.o
 *.srec
+*.dfu

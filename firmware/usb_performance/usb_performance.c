@@ -520,8 +520,39 @@ usb_request_status_t usb_vendor_request_set_freq(
 			return USB_REQUEST_STATUS_OK;
 		}
 		return USB_REQUEST_STATUS_STALL;
-	} else 
+	} else
 	{
+		return USB_REQUEST_STATUS_OK;
+	}
+}
+
+usb_request_status_t usb_vendor_request_set_amp_enable(
+	usb_endpoint_t* const endpoint, const usb_transfer_stage_t stage)
+{
+	if (stage == USB_TRANSFER_STAGE_SETUP) {
+		switch (endpoint->setup.value) {
+		case 0:
+			switchctrl |= SWITCHCTRL_AMP_BYPASS;
+			if (transceiver_mode == TRANSCEIVER_MODE_RX) {
+				rffc5071_rx(switchctrl);
+			} else if (transceiver_mode == TRANSCEIVER_MODE_TX) {
+				rffc5071_tx(switchctrl);
+			}
+			usb_endpoint_schedule_ack(endpoint->in);
+			return USB_REQUEST_STATUS_OK;
+		case 1:
+			switchctrl &= ~SWITCHCTRL_AMP_BYPASS;
+			if (transceiver_mode == TRANSCEIVER_MODE_RX) {
+				rffc5071_rx(switchctrl);
+			} else if (transceiver_mode == TRANSCEIVER_MODE_TX) {
+				rffc5071_tx(switchctrl);
+			}
+			usb_endpoint_schedule_ack(endpoint->in);
+			return USB_REQUEST_STATUS_OK;
+		default:
+			return USB_REQUEST_STATUS_STALL;
+		}
+	} else {
 		return USB_REQUEST_STATUS_OK;
 	}
 }
@@ -543,7 +574,8 @@ static const usb_request_handler_fn vendor_request_handler[] = {
 	usb_vendor_request_write_cpld,
 	usb_vendor_request_read_board_id,
 	usb_vendor_request_read_version_string,
-	usb_vendor_request_set_freq
+	usb_vendor_request_set_freq,
+	usb_vendor_request_set_amp_enable
 };
 
 static const uint32_t vendor_request_handler_count =
