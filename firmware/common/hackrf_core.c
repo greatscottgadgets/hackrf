@@ -410,7 +410,7 @@ void enable_1v8_power(void) {
 }
 
 /* 
-Set freq/tuning between 30MHz to 6000 MHz
+Set freq/tuning between 30MHz to 6000 MHz (less than 16bits really used)
 hz between 0 to 999999 Hz (not checked)
 return false on error or true if success.
 */

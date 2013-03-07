@@ -42,8 +42,8 @@
 #include <sys/time.h>
 #include <signal.h>
 
-#define FREQ_MIN_MHZ	(30)
-#define FREQ_MAX_MHZ	(6000)
+#define FREQ_MIN_HZ	(30000000ull) /* 30MHz */
+#define FREQ_MAX_HZ	(6000000000ull) /* 6000MHz */
 
 #if defined _WIN32
 	#define sleep(a) Sleep( (a*1000) )
@@ -62,7 +62,7 @@ TimevalDiff(const struct timeval *a, const struct timeval *b)
    return (a->tv_sec - b->tv_sec) + 1e-6f * (a->tv_usec - b->tv_usec);
 }
 
-int parse_int(char* s, uint32_t* const value) {
+int parse_u64(char* s, uint64_t* const value) {
 	uint_fast8_t base = 10;
 	if( strlen(s) > 2 ) {
 		if( s[0] == '0' ) {
@@ -77,9 +77,9 @@ int parse_int(char* s, uint32_t* const value) {
 	}
 
 	char* s_end = s;
-	const unsigned long ulong_value = strtoul(s, &s_end, base);
+	const unsigned long long u64_value = strtoull(s, &s_end, base);
 	if( (s != s_end) && (*s_end == 0) ) {
-		*value = ulong_value;
+		*value = u64_value;
 		return HACKRF_SUCCESS;
 	} else {
 		return HACKRF_ERROR_INVALID_PARAM;
@@ -95,7 +95,7 @@ struct timeval time_start;
 struct timeval t_start;
 	
 bool freq = false;
-uint32_t freq_mhz;
+uint64_t freq_hz;
 	
 int rx_callback(hackrf_transfer* transfer) {
 	if( fd != NULL ) 
@@ -135,7 +135,7 @@ static void usage() {
 	printf("Usage:\n");
 	printf("\t-r <filename> # Receive data into file.\n");
 	printf("\t-t <filename> # Transmit data from file.\n");
-	printf("\t-f <set_freq_MHz> # Set Frequency in MHz (between [%ld, %ld[).\n", FREQ_MIN_MHZ, FREQ_MAX_MHZ);
+	printf("\t-f <set_freq_MHz> # Set Frequency in MHz (between [%lld, %lld[).\n", FREQ_MIN_HZ, FREQ_MAX_HZ);
 }
 
 static hackrf_device* device = NULL;
@@ -216,7 +216,7 @@ int main(int argc, char** argv) {
 		
 		case 'f':
 			freq = true;
-			result = parse_int(optarg, &freq_mhz);
+			result = parse_u64(optarg, &freq_hz);
 			break;
 			
 		default:
@@ -232,8 +232,8 @@ int main(int argc, char** argv) {
 	}
 
 	if( freq ) {
-		if( (freq_mhz >= 6000) || (freq_mhz < 30) )
-			printf("argument error: frequency shall be between [%ld, %ld[.\n", FREQ_MIN_MHZ, FREQ_MAX_MHZ);
+		if( (freq_hz >= FREQ_MAX_HZ) || (freq_hz < FREQ_MIN_HZ) )
+			printf("argument error: frequency shall be between [%lld, %lld[.\n", FREQ_MIN_HZ, FREQ_MAX_HZ);
 	}
 	
 	if( transmit == receive ) 
@@ -312,8 +312,8 @@ int main(int argc, char** argv) {
 	}
 
 	if( freq ) {
-		printf("call hackrf_set_freq(%ld MHz)\n", freq_mhz);
-		result = hackrf_set_freq(device, freq_mhz);
+		printf("call hackrf_set_freq(%lld Hz)\n", freq_hz);
+		result = hackrf_set_freq(device, freq_hz);
 		if( result != HACKRF_SUCCESS ) {
 			printf("hackrf_set_freq() failed: %s (%d)\n", hackrf_error_name(result), result);
 			return EXIT_FAILURE;

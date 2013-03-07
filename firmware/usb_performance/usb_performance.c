@@ -53,6 +53,15 @@ const uint_fast8_t usb_td_bulk_count = sizeof(usb_td_bulk) / sizeof(usb_td_bulk[
 uint8_t spiflash_buffer[W25Q80BV_PAGE_LEN];
 char version_string[] = VERSION_STRING;
 
+typedef struct {
+	uint32_t freq_mhz;
+	uint32_t freq_hz;
+} set_freq_params_t;
+
+set_freq_params_t set_freq_params;
+
+uint8_t spiflash_buffer[W25Q80BV_PAGE_LEN];
+
 uint8_t switchctrl = 0;
 
 static void usb_init_buffers_bulk() {
@@ -497,17 +506,22 @@ usb_request_status_t usb_vendor_request_read_version_string(
 
 usb_request_status_t usb_vendor_request_set_freq(
 	usb_endpoint_t* const endpoint,
-	const usb_transfer_stage_t stage
-) {
-	if( stage == USB_TRANSFER_STAGE_SETUP ) {
-		const uint32_t freq_mhz = (endpoint->setup.index << 16) | endpoint->setup.value;
-		const uint32_t freq_hz = 0; /* TODO fix this and retrieve a 32bits */
-		if( set_freq(freq_mhz, freq_hz) ) {
+	const usb_transfer_stage_t stage) 
+{
+	if (stage == USB_TRANSFER_STAGE_SETUP) 
+	{
+		usb_endpoint_schedule(endpoint->out, &set_freq_params, sizeof(set_freq_params_t));
+		return USB_REQUEST_STATUS_OK;
+	} else if (stage == USB_TRANSFER_STAGE_DATA) 
+	{
+		if( set_freq(set_freq_params.freq_mhz, set_freq_params.freq_hz) ) 
+		{
 			usb_endpoint_schedule_ack(endpoint->in);
 			return USB_REQUEST_STATUS_OK;
 		}
 		return USB_REQUEST_STATUS_STALL;
-	} else {
+	} else 
+	{
 		return USB_REQUEST_STATUS_OK;
 	}
 }

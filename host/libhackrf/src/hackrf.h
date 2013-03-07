@@ -93,8 +93,8 @@ int hackrf_board_id_read(hackrf_device* device, uint8_t* value);
 int hackrf_version_string_read(hackrf_device* device, char* version,
 		uint8_t length);
 
-int hackrf_set_freq(hackrf_device* device, const uint32_t freq_mhz);
-		
+int hackrf_set_freq(hackrf_device* device, const uint64_t freq_hz);
+
 const char* hackrf_error_name(enum hackrf_error errcode);
 const char* hackrf_board_id_name(enum hackrf_board_id board_id);
 

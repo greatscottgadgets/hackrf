@@ -570,20 +570,39 @@ int hackrf_version_string_read(hackrf_device* device, char* version,
 	}
 }
 
-int hackrf_set_freq(hackrf_device* device, const uint32_t freq_mhz) {
-	/* TODO add freq_hz in addition from 0 to 999999Hz */
+typedef struct {
+	uint32_t freq_mhz; /* From 30 to 6000MHz */
+	uint32_t freq_hz;  /* From 0 to 999999Hz */
+	/* Final Freq = freq_mhz+freq_hz */
+} set_freq_params_t;
+#define FREQ_ONE_MHZ	(1000*1000ull)
+
+int hackrf_set_freq(hackrf_device* device, const uint64_t freq_hz)
+{
+	uint32_t l_freq_mhz;
+	uint32_t l_freq_hz;
+	set_freq_params_t set_freq_params;
+	uint8_t length;
+
+	/* Convert Freq Hz 64bits to Freq MHz (32bits) & Freq Hz (32bits) */
+	l_freq_mhz = (uint32_t)(freq_hz / FREQ_ONE_MHZ);
+	l_freq_hz = (uint32_t)(freq_hz - (((uint64_t)l_freq_mhz) * FREQ_ONE_MHZ));
+	set_freq_params.freq_mhz = l_freq_mhz;
+	set_freq_params.freq_hz = l_freq_hz;
+	length = sizeof(set_freq_params_t);
+	
 	int result = libusb_control_transfer(
 		device->usb_device,
 		LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
 		HACKRF_VENDOR_REQUEST_SET_FREQ,
-		freq_mhz & 0xffff,
-		freq_mhz >> 16,
-		NULL,
 		0,
+		0,
+		(unsigned char*)&set_freq_params,
+		length,
 		0
 	);
 	
-	if( result != 0 ) {
+	if (result < length) {
 		return HACKRF_ERROR_LIBUSB;
 	} else {
 		return HACKRF_SUCCESS;
