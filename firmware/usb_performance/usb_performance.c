@@ -197,7 +197,7 @@ void set_transceiver_mode(const transceiver_mode_t new_transceiver_mode) {
 		usb_endpoint_init(&usb_endpoint_bulk_in);
 
 		rffc5071_rx(switchctrl);
-		rffc5071_set_frequency(1700, 0); // 2600 MHz IF - 1700 MHz LO = 900 MHz RF
+		//rffc5071_set_frequency(1700, 0); // 2600 MHz IF - 1700 MHz LO = 900 MHz RF
 		max2837_start();
 		max2837_rx();
 	} else if (transceiver_mode == TRANSCEIVER_MODE_TX) {
@@ -206,7 +206,7 @@ void set_transceiver_mode(const transceiver_mode_t new_transceiver_mode) {
 		usb_endpoint_init(&usb_endpoint_bulk_out);
 
 		rffc5071_tx(switchctrl);
-		rffc5071_set_frequency(1700, 0); // 2600 MHz IF - 1700 MHz LO = 900 MHz RF
+		//rffc5071_set_frequency(1700, 0); // 2600 MHz IF - 1700 MHz LO = 900 MHz RF
 		max2837_start();
 		max2837_tx();
 	} else {

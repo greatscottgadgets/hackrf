@@ -429,7 +429,7 @@ bool set_freq(uint32_t freq_mhz, uint32_t freq_hz)
 		if(freq_mhz < MAX_LP_FREQ_MHZ)
 		{
 			/* TODO fix/check Switch to LP mode (shall not change RX/TX mode) */
-			rffc5071_set_gpo(0); /* SWITCHCTRL_LP = 0 */
+			//rffc5071_set_gpo(0); /* SWITCHCTRL_LP = 0 */
 			
 			RFFC5071_freq_mhz = MAX2837_FREQ_NOMINAL_MHZ - freq_mhz;
 			/* Set Freq and read real freq */
@@ -443,18 +443,20 @@ bool set_freq(uint32_t freq_mhz, uint32_t freq_hz)
 			}
 			MAX2837_freq_hz = MAX2837_FREQ_NOMINAL_HZ + tmp_hz + freq_hz;
 			max2837_set_frequency(MAX2837_freq_hz);
+			rffc5071_tx(0);
 		}else if( (freq_mhz >= MIN_BYPASS_FREQ_MHZ) && (freq_mhz < MAX_BYPASS_FREQ_MHZ) )
 		{
 			/* TODO fix/check Switch to SWITCHCTRL_MIX_BYPASS mode (shall not change RX/TX mode) */
-			rffc5071_set_gpo(SWITCHCTRL_MIX_BYPASS);
+			//rffc5071_set_gpo(SWITCHCTRL_MIX_BYPASS);
 
 			MAX2837_freq_hz = (freq_mhz * FREQ_ONE_MHZ) + freq_hz;
 			/* RFFC5071_freq_mhz <= not used in Bypass mode */
 			max2837_set_frequency(MAX2837_freq_hz);
+			rffc5071_tx(SWITCHCTRL_MIX_BYPASS);
 		}else if(  (freq_mhz >= MIN_HP_FREQ_MHZ) && (freq_mhz < MAX_HP_FREQ_MHZ) )
 		{
 			/* TODO fix/check Switch to SWITCHCTRL_HP mode (shall not change RX/TX mode) */
-			rffc5071_set_gpo(SWITCHCTRL_HP);
+			//rffc5071_set_gpo(SWITCHCTRL_HP);
 			
 			//switch_ctrl = SWITCHCTRL_HP;
 			RFFC5071_freq_mhz = freq_mhz - MAX2837_FREQ_NOMINAL_MHZ;
@@ -469,6 +471,7 @@ bool set_freq(uint32_t freq_mhz, uint32_t freq_hz)
 			}
 			MAX2837_freq_hz = MAX2837_FREQ_NOMINAL_HZ + tmp_hz + freq_hz;
 			max2837_set_frequency(MAX2837_freq_hz);
+			rffc5071_tx(SWITCHCTRL_HP);
 		}else
 		{
 			/* Error freq_mhz too high */
