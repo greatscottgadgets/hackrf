@@ -541,22 +541,44 @@ usb_request_status_t usb_vendor_request_write_spiflash(
 usb_request_status_t usb_vendor_request_read_spiflash(
 	usb_endpoint_t* const endpoint, const usb_transfer_stage_t stage)
 {
+	uint32_t i;
 	uint32_t addr;
 	uint16_t len;
+	uint8_t* u8_addr_pt;
 
-	if (stage == USB_TRANSFER_STAGE_SETUP) {
+	if (stage == USB_TRANSFER_STAGE_SETUP) 
+	{
 		addr = (endpoint->setup.value << 16) | endpoint->setup.index;
 		len = endpoint->setup.length;
 		if ((len > W25Q80BV_PAGE_LEN) || (addr > W25Q80BV_NUM_BYTES)
 		            || ((addr + len) > W25Q80BV_NUM_BYTES)) {
 			return USB_REQUEST_STATUS_STALL;
 		} else {
-			//FIXME need implementation
-			//usb_endpoint_schedule(endpoint->in, &endpoint->buffer, len);
-			usb_endpoint_schedule_ack(endpoint->out);
+			/* TODO flush SPIFI "cache" before to read the SPIFI memory */
+			u8_addr_pt = (uint8_t*)addr;
+			for(i=0; i<len; i++)
+			{
+				spiflash_buffer[i] = u8_addr_pt[i];
+			}
+			usb_endpoint_schedule(endpoint->in, &spiflash_buffer[0], len);
 			return USB_REQUEST_STATUS_OK;
 		}
-	} else {
+	} else if (stage == USB_TRANSFER_STAGE_DATA) 
+	{
+			addr = (endpoint->setup.value << 16) | endpoint->setup.index;
+			len = endpoint->setup.length;
+			/* This check is redundant but makes me feel better. */
+			if ((len > W25Q80BV_PAGE_LEN) || (addr > W25Q80BV_NUM_BYTES)
+					|| ((addr + len) > W25Q80BV_NUM_BYTES)) 
+			{
+				return USB_REQUEST_STATUS_STALL;
+			} else
+			{
+				usb_endpoint_schedule_ack(endpoint->out);
+				return USB_REQUEST_STATUS_OK;
+			}
+	} else 
+	{
 		return USB_REQUEST_STATUS_OK;
 	}
 }
