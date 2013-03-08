@@ -64,6 +64,15 @@ uint8_t spiflash_buffer[W25Q80BV_PAGE_LEN];
 
 uint8_t switchctrl = 0;
 
+void update_switches(void)
+{
+	if (transceiver_mode == TRANSCEIVER_MODE_RX) {
+		rffc5071_rx(switchctrl);
+	} else if (transceiver_mode == TRANSCEIVER_MODE_TX) {
+		rffc5071_tx(switchctrl);
+	}
+}
+
 #define FREQ_ONE_MHZ     (1000*1000)
 
 #define MIN_LP_FREQ_MHZ (30)
@@ -111,7 +120,7 @@ bool set_freq(uint32_t freq_mhz, uint32_t freq_hz)
 			}
 			MAX2837_freq_hz = MAX2837_FREQ_NOMINAL_HZ + tmp_hz + freq_hz;
 			max2837_set_frequency(MAX2837_freq_hz);
-			rffc5071_tx(switchctrl);
+			update_switches();
 		}else if( (freq_mhz >= MIN_BYPASS_FREQ_MHZ) && (freq_mhz < MAX_BYPASS_FREQ_MHZ) )
 		{
 			switchctrl |= SWITCHCTRL_MIX_BYPASS;
@@ -119,7 +128,7 @@ bool set_freq(uint32_t freq_mhz, uint32_t freq_hz)
 			MAX2837_freq_hz = (freq_mhz * FREQ_ONE_MHZ) + freq_hz;
 			/* RFFC5071_freq_mhz <= not used in Bypass mode */
 			max2837_set_frequency(MAX2837_freq_hz);
-			rffc5071_tx(switchctrl);
+			update_switches();
 		}else if(  (freq_mhz >= MIN_HP_FREQ_MHZ) && (freq_mhz < MAX_HP_FREQ_MHZ) )
 		{
 			switchctrl &= ~SWITCHCTRL_MIX_BYPASS;
@@ -137,7 +146,7 @@ bool set_freq(uint32_t freq_mhz, uint32_t freq_hz)
 			}
 			MAX2837_freq_hz = MAX2837_FREQ_NOMINAL_HZ + tmp_hz + freq_hz;
 			max2837_set_frequency(MAX2837_freq_hz);
-			rffc5071_tx(switchctrl);
+			update_switches();
 		}else
 		{
 			/* Error freq_mhz too high */
@@ -620,20 +629,12 @@ usb_request_status_t usb_vendor_request_set_amp_enable(
 		switch (endpoint->setup.value) {
 		case 0:
 			switchctrl |= SWITCHCTRL_AMP_BYPASS;
-			if (transceiver_mode == TRANSCEIVER_MODE_RX) {
-				rffc5071_rx(switchctrl);
-			} else if (transceiver_mode == TRANSCEIVER_MODE_TX) {
-				rffc5071_tx(switchctrl);
-			}
+			update_switches();
 			usb_endpoint_schedule_ack(endpoint->in);
 			return USB_REQUEST_STATUS_OK;
 		case 1:
 			switchctrl &= ~SWITCHCTRL_AMP_BYPASS;
-			if (transceiver_mode == TRANSCEIVER_MODE_RX) {
-				rffc5071_rx(switchctrl);
-			} else if (transceiver_mode == TRANSCEIVER_MODE_TX) {
-				rffc5071_tx(switchctrl);
-			}
+			update_switches();
 			usb_endpoint_schedule_ack(endpoint->in);
 			return USB_REQUEST_STATUS_OK;
 		default:
