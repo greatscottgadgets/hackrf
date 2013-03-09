@@ -38,6 +38,7 @@ SRC = $(BINARY).c \
 	../common/cpld_jtag.c \
 	../common/xapp058/lenval.c \
 	../common/xapp058/micro.c \
-	../common/xapp058/ports.c
+	../common/xapp058/ports.c \
+	../common/rom_iap.c
 
 include ../common/Makefile_inc.mk
