@@ -32,6 +32,7 @@ int main(int argc, char** argv)
 	int result = HACKRF_SUCCESS;
 	uint8_t board_id = BOARD_ID_INVALID;
 	char version[255 + 1];
+	read_partid_serialno_t read_partid_serialno;
 
 	result = hackrf_init();
 	if (result != HACKRF_SUCCESS) {
@@ -55,7 +56,6 @@ int main(int argc, char** argv)
 				hackrf_error_name(result), result);
 		return EXIT_FAILURE;
 	}
-
 	printf("Board ID Number: %d (%s)\n", board_id,
 			hackrf_board_id_name(board_id));
 
@@ -65,9 +65,23 @@ int main(int argc, char** argv)
 				hackrf_error_name(result), result);
 		return EXIT_FAILURE;
 	}
-
 	printf("Firmware Version: %s\n", version);
 
+	result = hackrf_board_partid_serialno_read(device, &read_partid_serialno);	
+	if (result != HACKRF_SUCCESS) {
+		fprintf(stderr, "hackrf_board_partid_serialno_read() failed: %s (%d)\n",
+				hackrf_error_name(result), result);
+		return EXIT_FAILURE;
+	}
+	printf("Part ID Number: 0x%08x 0x%08x\n", 
+				read_partid_serialno.part_id[0],
+				read_partid_serialno.part_id[1]);
+	printf("Serial Number: 0x%08x 0x%08x 0x%08x 0x%08x\n", 
+				read_partid_serialno.serial_no[0],
+				read_partid_serialno.serial_no[1],
+				read_partid_serialno.serial_no[2],
+				read_partid_serialno.serial_no[3]);
+	
 	result = hackrf_close(device);
 	if (result != HACKRF_SUCCESS) {
 		fprintf(stderr, "hackrf_close() failed: %s (%d)\n",
