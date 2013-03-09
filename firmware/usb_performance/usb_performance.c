@@ -34,6 +34,7 @@
 #include <w25q80bv.h>
 #include <cpld_jtag.h>
 #include <sgpio.h>
+#include <rom_iap.h>
 
 #include "usb.h"
 #include "usb_type.h"
@@ -667,6 +668,47 @@ usb_request_status_t usb_vendor_request_set_amp_enable(
 	}
 }
 
+typedef struct {
+	uint32_t part_id[2];
+	uint32_t serial_no[4];
+} read_partid_serialno_t;
+
+usb_request_status_t usb_vendor_request_read_partid_serialno(
+	usb_endpoint_t* const endpoint, const usb_transfer_stage_t stage)
+{
+	uint8_t length;
+	read_partid_serialno_t read_partid_serialno;
+	iap_cmd_res_t iap_cmd_res;
+
+	if (stage == USB_TRANSFER_STAGE_SETUP) 
+	{
+		/* Read IAP Part Number Identification */
+		iap_cmd_res.cmd_param.command_code = IAP_CMD_READ_PART_ID_NO;
+		iap_cmd_call(&iap_cmd_res);
+		if(iap_cmd_res.status_res.status_ret != CMD_SUCCESS)
+			return USB_REQUEST_STATUS_STALL;
+
+		read_partid_serialno.part_id[0] = iap_cmd_res.status_res.iap_result[0];
+		read_partid_serialno.part_id[1] = iap_cmd_res.status_res.iap_result[1];
+		
+		/* Read IAP Serial Number Identification */
+		iap_cmd_res.cmd_param.command_code = IAP_CMD_READ_SERIAL_NO;
+		iap_cmd_call(&iap_cmd_res);
+		if(iap_cmd_res.status_res.status_ret != CMD_SUCCESS)
+			return USB_REQUEST_STATUS_STALL;
+
+		read_partid_serialno.serial_no[0] = iap_cmd_res.status_res.iap_result[0];
+		read_partid_serialno.serial_no[1] = iap_cmd_res.status_res.iap_result[1];
+		read_partid_serialno.serial_no[2] = iap_cmd_res.status_res.iap_result[2];
+		read_partid_serialno.serial_no[3] = iap_cmd_res.status_res.iap_result[3];
+		
+		length = (uint8_t)sizeof(read_partid_serialno_t);
+		usb_endpoint_schedule(endpoint->in, &read_partid_serialno, length);
+		usb_endpoint_schedule_ack(endpoint->out);
+	}
+	return USB_REQUEST_STATUS_OK;
+}
+
 static const usb_request_handler_fn vendor_request_handler[] = {
 	NULL,
 	usb_vendor_request_set_transceiver_mode,
@@ -685,7 +727,8 @@ static const usb_request_handler_fn vendor_request_handler[] = {
 	usb_vendor_request_read_board_id,
 	usb_vendor_request_read_version_string,
 	usb_vendor_request_set_freq,
-	usb_vendor_request_set_amp_enable
+	usb_vendor_request_set_amp_enable,
+	usb_vendor_request_read_partid_serialno
 };
 
 static const uint32_t vendor_request_handler_count =
