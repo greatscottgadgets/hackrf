@@ -1,5 +1,6 @@
 /*
  * Copyright 2012 Jared Boone <jared@sharebrained.com>
+ * Copyright 2013 Benjamin Vernoux <titanmkd@gmail.com>
  *
  * This file is part of HackRF.
  *
@@ -23,6 +24,18 @@
 
 #include "fault_handler.h"
 
+typedef struct
+{
+	uint32_t r0;
+	uint32_t r1;
+	uint32_t r2;
+	uint32_t r3;
+	uint32_t r12;
+	uint32_t lr; /* Link Register. */
+	uint32_t pc; /* Program Counter. */
+	uint32_t psr;/* Program Status Register. */
+} hard_fault_stack_t;
+
 __attribute__((naked))
 void hard_fault_handler(void) {
 	__asm__("TST LR, #4");
@@ -32,9 +45,13 @@ void hard_fault_handler(void) {
 	__asm__("B hard_fault_handler_c");
 }
 
+volatile hard_fault_stack_t* hard_fault_stack_pt;
 
-void hard_fault_handler_c(uint32_t* args) {
-	(void)args;
+void hard_fault_handler_c(uint32_t* args) 
+{
+	/* hard_fault_stack_pt contains registers saved before the hard fault */
+	hard_fault_stack_pt = (hard_fault_stack_t*)args;
+	
 	// args[0-7]: r0, r1, r2, r3, r12, lr, pc, psr
 	// Other interesting registers to examine:
 	//	CFSR: Configurable Fault Status Register
