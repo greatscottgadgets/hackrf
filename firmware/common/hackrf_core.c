@@ -312,9 +312,15 @@ void ssp1_init(void)
 void ssp1_set_mode_max2837(void)
 {
 	/* FIXME speed up once everything is working reliably */
+	/*
+	// Freq About 0.0498MHz / 49.8KHz => Freq = PCLK / (CPSDVSR * [SCR+1]) with PCLK=PLL1=204MHz
 	const uint8_t serial_clock_rate = 32;
 	const uint8_t clock_prescale_rate = 128;
-
+	*/
+	// Freq About 4.857MHz => Freq = PCLK / (CPSDVSR * [SCR+1]) with PCLK=PLL1=204MHz
+	const uint8_t serial_clock_rate = 21;
+	const uint8_t clock_prescale_rate = 2;
+	
 	ssp_init(SSP1_NUM,
 		SSP_DATA_16BITS,
 		SSP_FRAME_SPI,
@@ -329,9 +335,15 @@ void ssp1_set_mode_max2837(void)
 void ssp1_set_mode_max5864(void)
 {
 	/* FIXME speed up once everything is working reliably */
+	/*
+	// Freq About 0.0498MHz / 49.8KHz => Freq = PCLK / (CPSDVSR * [SCR+1]) with PCLK=PLL1=204MHz
 	const uint8_t serial_clock_rate = 32;
 	const uint8_t clock_prescale_rate = 128;
-
+	*/
+	// Freq About 4.857MHz => Freq = PCLK / (CPSDVSR * [SCR+1]) with PCLK=PLL1=204MHz
+	const uint8_t serial_clock_rate = 21;
+	const uint8_t clock_prescale_rate = 2;
+	
 	ssp_init(SSP1_NUM,
 		SSP_DATA_8BITS,
 		SSP_FRAME_SPI,
