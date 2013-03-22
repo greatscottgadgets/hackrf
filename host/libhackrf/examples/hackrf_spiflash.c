@@ -41,7 +41,7 @@ static struct option long_options[] = {
 	{ 0, 0, 0, 0 },
 };
 
-int parse_int(char* s, uint32_t* const value)
+int parse_u32(char* s, uint32_t* const value)
 {
 	uint_fast8_t base = 10;
 	if (strlen(s) > 2) {
@@ -57,9 +57,9 @@ int parse_int(char* s, uint32_t* const value)
 	}
 
 	char* s_end = s;
-	const long long_value = strtol(s, &s_end, base);
+	const uint32_t u32_value = strtoul(s, &s_end, base);
 	if ((s != s_end) && (*s_end == 0)) {
-		*value = long_value;
+		*value = u32_value;
 		return HACKRF_SUCCESS;
 	} else {
 		return HACKRF_ERROR_INVALID_PARAM;
@@ -80,12 +80,13 @@ int main(int argc, char** argv)
 	int opt;
 	uint32_t address = 0;
 	uint32_t length = 0;
+	uint32_t tmp_length;
 	uint16_t xfer_len = 0;
 	const char* path = NULL;
 	hackrf_device* device = NULL;
 	int result = HACKRF_SUCCESS;
 	int option_index = 0;
-	uint8_t data[MAX_LENGTH];
+	static uint8_t data[MAX_LENGTH];
 	uint8_t* pdata = &data[0];
 	FILE* fd = NULL;
 	bool read = false;
@@ -95,11 +96,11 @@ int main(int argc, char** argv)
 			&option_index)) != EOF) {
 		switch (opt) {
 		case 'a':
-			result = parse_int(optarg, &address);
+			result = parse_u32(optarg, &address);
 			break;
 
 		case 'l':
-			result = parse_int(optarg, &length);
+			result = parse_u32(optarg, &length);
 			break;
 
 		case 'r':
@@ -113,6 +114,7 @@ int main(int argc, char** argv)
 			break;
 
 		default:
+			fprintf(stderr, "opt error: %d\n", opt);
 			usage();
 			return EXIT_FAILURE;
 		}
@@ -179,14 +181,24 @@ int main(int argc, char** argv)
 		return EXIT_FAILURE;
 	}
 
-	if (read) {
-		result = hackrf_spiflash_read(device, address, length, data);
-		if (result != HACKRF_SUCCESS) {
-			fprintf(stderr, "hackrf_spiflash_read() failed: %s (%d)\n",
-					hackrf_error_name(result), result);
-			fclose(fd);
-			fd = NULL;
-			return EXIT_FAILURE;
+	if (read) 
+	{
+		tmp_length = length;
+		while (tmp_length) 
+		{
+			xfer_len = (tmp_length > 256) ? 256 : tmp_length;
+			printf("Reading %d bytes from 0x%06x.\n", xfer_len, address);
+			result = hackrf_spiflash_read(device, address, xfer_len, pdata);
+			if (result != HACKRF_SUCCESS) {
+				fprintf(stderr, "hackrf_spiflash_read() failed: %s (%d)\n",
+						hackrf_error_name(result), result);
+				fclose(fd);
+				fd = NULL;
+				return EXIT_FAILURE;
+			}			
+			address += xfer_len;
+			pdata += xfer_len;
+			tmp_length -= xfer_len;
 		}
 		const ssize_t bytes_written = fwrite(data, 1, length, fd);
 		if (bytes_written != length) {

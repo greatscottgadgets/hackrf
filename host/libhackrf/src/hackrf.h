@@ -52,6 +52,11 @@ typedef struct {
 	int valid_length;
 } hackrf_transfer;
 
+typedef struct {
+	uint32_t part_id[2];
+	uint32_t serial_no[4];
+} read_partid_serialno_t;
+
 typedef int (*hackrf_sample_block_cb_fn)(hackrf_transfer* transfer);
 
 int hackrf_init();
@@ -92,6 +97,12 @@ int hackrf_cpld_write(hackrf_device* device, const uint16_t length,
 int hackrf_board_id_read(hackrf_device* device, uint8_t* value);
 int hackrf_version_string_read(hackrf_device* device, char* version,
 		uint8_t length);
+
+int hackrf_set_freq(hackrf_device* device, const uint64_t freq_hz);
+
+int hackrf_set_amp_enable(hackrf_device* device, const uint8_t value);
+
+int hackrf_board_partid_serialno_read(hackrf_device* device, read_partid_serialno_t* read_partid_serialno);
 
 const char* hackrf_error_name(enum hackrf_error errcode);
 const char* hackrf_board_id_name(enum hackrf_board_id board_id);

@@ -34,6 +34,7 @@
 #include <w25q80bv.h>
 #include <cpld_jtag.h>
 #include <sgpio.h>
+#include <rom_iap.h>
 
 #include "usb.h"
 #include "usb_type.h"
@@ -53,7 +54,112 @@ const uint_fast8_t usb_td_bulk_count = sizeof(usb_td_bulk) / sizeof(usb_td_bulk[
 uint8_t spiflash_buffer[W25Q80BV_PAGE_LEN];
 char version_string[] = VERSION_STRING;
 
+typedef struct {
+	uint32_t freq_mhz;
+	uint32_t freq_hz;
+} set_freq_params_t;
+
+set_freq_params_t set_freq_params;
+
+uint8_t spiflash_buffer[W25Q80BV_PAGE_LEN];
+
 uint8_t switchctrl = 0;
+
+void update_switches(void)
+{
+	if (transceiver_mode == TRANSCEIVER_MODE_RX) {
+		rffc5071_rx(switchctrl);
+	} else if (transceiver_mode == TRANSCEIVER_MODE_TX) {
+		rffc5071_tx(switchctrl);
+	}
+}
+
+#define FREQ_ONE_MHZ     (1000*1000)
+
+#define MIN_LP_FREQ_MHZ (30)
+#define MAX_LP_FREQ_MHZ (2300)
+
+#define MIN_BYPASS_FREQ_MHZ (2300)
+#define MAX_BYPASS_FREQ_MHZ (2700)
+
+#define MIN_HP_FREQ_MHZ (2700)
+#define MAX_HP_FREQ_MHZ (6000)
+
+#define MAX2837_FREQ_NOMINAL_HZ (2600000000)
+#define MAX2837_FREQ_NOMINAL_MHZ (MAX2837_FREQ_NOMINAL_HZ / FREQ_ONE_MHZ)
+
+/*
+ * Set freq/tuning between 30MHz to 6000 MHz (less than 16bits really used)
+ * hz between 0 to 999999 Hz (not checked)
+ * return false on error or true if success.
+ */
+bool set_freq(uint32_t freq_mhz, uint32_t freq_hz)
+{
+	bool success;
+	uint32_t RFFC5071_freq_mhz;
+	uint32_t MAX2837_freq_hz;
+	uint32_t real_RFFC5071_freq_mhz;
+	uint32_t tmp_hz;
+
+	success = true;
+
+	if(freq_mhz >= MIN_LP_FREQ_MHZ)
+	{
+		if(freq_mhz < MAX_LP_FREQ_MHZ)
+		{
+			switchctrl &= ~(SWITCHCTRL_HP | SWITCHCTRL_MIX_BYPASS);
+
+			RFFC5071_freq_mhz = MAX2837_FREQ_NOMINAL_MHZ - freq_mhz;
+			/* Set Freq and read real freq */
+			real_RFFC5071_freq_mhz = rffc5071_set_frequency(RFFC5071_freq_mhz, 0);
+			if(real_RFFC5071_freq_mhz < RFFC5071_freq_mhz)
+			{
+				tmp_hz = -((RFFC5071_freq_mhz - real_RFFC5071_freq_mhz) * FREQ_ONE_MHZ);
+			}else
+			{
+				tmp_hz = ((real_RFFC5071_freq_mhz - RFFC5071_freq_mhz) * FREQ_ONE_MHZ);
+			}
+			MAX2837_freq_hz = MAX2837_FREQ_NOMINAL_HZ + tmp_hz + freq_hz;
+			max2837_set_frequency(MAX2837_freq_hz);
+			update_switches();
+		}else if( (freq_mhz >= MIN_BYPASS_FREQ_MHZ) && (freq_mhz < MAX_BYPASS_FREQ_MHZ) )
+		{
+			switchctrl |= SWITCHCTRL_MIX_BYPASS;
+
+			MAX2837_freq_hz = (freq_mhz * FREQ_ONE_MHZ) + freq_hz;
+			/* RFFC5071_freq_mhz <= not used in Bypass mode */
+			max2837_set_frequency(MAX2837_freq_hz);
+			update_switches();
+		}else if(  (freq_mhz >= MIN_HP_FREQ_MHZ) && (freq_mhz < MAX_HP_FREQ_MHZ) )
+		{
+			switchctrl &= ~SWITCHCTRL_MIX_BYPASS;
+			switchctrl |= SWITCHCTRL_HP;
+
+			RFFC5071_freq_mhz = freq_mhz - MAX2837_FREQ_NOMINAL_MHZ;
+			/* Set Freq and read real freq */
+			real_RFFC5071_freq_mhz = rffc5071_set_frequency(RFFC5071_freq_mhz, 0);
+			if(real_RFFC5071_freq_mhz < RFFC5071_freq_mhz)
+			{
+				tmp_hz = ((RFFC5071_freq_mhz - real_RFFC5071_freq_mhz) * FREQ_ONE_MHZ);
+			}else
+			{
+				tmp_hz = -((real_RFFC5071_freq_mhz - RFFC5071_freq_mhz) * FREQ_ONE_MHZ);
+			}
+			MAX2837_freq_hz = MAX2837_FREQ_NOMINAL_HZ + tmp_hz + freq_hz;
+			max2837_set_frequency(MAX2837_freq_hz);
+			update_switches();
+		}else
+		{
+			/* Error freq_mhz too high */
+			success = false;
+		}
+	}else
+	{
+		/* Error freq_mhz too low */
+		success = false;
+	}
+	return success;
+}
 
 static void usb_init_buffers_bulk() {
 	usb_td_bulk[0].next_dtd_pointer = USB_TD_NEXT_DTD_POINTER_TERMINATE;
@@ -187,6 +293,8 @@ void set_transceiver_mode(const transceiver_mode_t new_transceiver_mode) {
 		gpio_set(PORT_LED1_3, PIN_LED2);
 		usb_endpoint_init(&usb_endpoint_bulk_in);
 
+		rffc5071_rx(switchctrl);
+		//rffc5071_set_frequency(1700, 0); // 2600 MHz IF - 1700 MHz LO = 900 MHz RF
 		max2837_start();
 		max2837_rx();
 	} else if (transceiver_mode == TRANSCEIVER_MODE_TX) {
@@ -194,6 +302,8 @@ void set_transceiver_mode(const transceiver_mode_t new_transceiver_mode) {
 		gpio_set(PORT_LED1_3, PIN_LED3);
 		usb_endpoint_init(&usb_endpoint_bulk_out);
 
+		rffc5071_tx(switchctrl);
+		//rffc5071_set_frequency(1700, 0); // 2600 MHz IF - 1700 MHz LO = 900 MHz RF
 		max2837_start();
 		max2837_tx();
 	} else {
@@ -432,22 +542,44 @@ usb_request_status_t usb_vendor_request_write_spiflash(
 usb_request_status_t usb_vendor_request_read_spiflash(
 	usb_endpoint_t* const endpoint, const usb_transfer_stage_t stage)
 {
+	uint32_t i;
 	uint32_t addr;
 	uint16_t len;
+	uint8_t* u8_addr_pt;
 
-	if (stage == USB_TRANSFER_STAGE_SETUP) {
+	if (stage == USB_TRANSFER_STAGE_SETUP) 
+	{
 		addr = (endpoint->setup.value << 16) | endpoint->setup.index;
 		len = endpoint->setup.length;
 		if ((len > W25Q80BV_PAGE_LEN) || (addr > W25Q80BV_NUM_BYTES)
 		            || ((addr + len) > W25Q80BV_NUM_BYTES)) {
 			return USB_REQUEST_STATUS_STALL;
 		} else {
-			//FIXME need implementation
-			//usb_endpoint_schedule(endpoint->in, &endpoint->buffer, len);
-			usb_endpoint_schedule_ack(endpoint->out);
+			/* TODO flush SPIFI "cache" before to read the SPIFI memory */
+			u8_addr_pt = (uint8_t*)addr;
+			for(i=0; i<len; i++)
+			{
+				spiflash_buffer[i] = u8_addr_pt[i];
+			}
+			usb_endpoint_schedule(endpoint->in, &spiflash_buffer[0], len);
 			return USB_REQUEST_STATUS_OK;
 		}
-	} else {
+	} else if (stage == USB_TRANSFER_STAGE_DATA) 
+	{
+			addr = (endpoint->setup.value << 16) | endpoint->setup.index;
+			len = endpoint->setup.length;
+			/* This check is redundant but makes me feel better. */
+			if ((len > W25Q80BV_PAGE_LEN) || (addr > W25Q80BV_NUM_BYTES)
+					|| ((addr + len) > W25Q80BV_NUM_BYTES)) 
+			{
+				return USB_REQUEST_STATUS_STALL;
+			} else
+			{
+				usb_endpoint_schedule_ack(endpoint->out);
+				return USB_REQUEST_STATUS_OK;
+			}
+	} else 
+	{
 		return USB_REQUEST_STATUS_OK;
 	}
 }
@@ -491,6 +623,92 @@ usb_request_status_t usb_vendor_request_read_version_string(
 	return USB_REQUEST_STATUS_OK;
 }
 
+usb_request_status_t usb_vendor_request_set_freq(
+	usb_endpoint_t* const endpoint,
+	const usb_transfer_stage_t stage) 
+{
+	if (stage == USB_TRANSFER_STAGE_SETUP) 
+	{
+		usb_endpoint_schedule(endpoint->out, &set_freq_params, sizeof(set_freq_params_t));
+		return USB_REQUEST_STATUS_OK;
+	} else if (stage == USB_TRANSFER_STAGE_DATA) 
+	{
+		if( set_freq(set_freq_params.freq_mhz, set_freq_params.freq_hz) ) 
+		{
+			usb_endpoint_schedule_ack(endpoint->in);
+			return USB_REQUEST_STATUS_OK;
+		}
+		return USB_REQUEST_STATUS_STALL;
+	} else
+	{
+		return USB_REQUEST_STATUS_OK;
+	}
+}
+
+usb_request_status_t usb_vendor_request_set_amp_enable(
+	usb_endpoint_t* const endpoint, const usb_transfer_stage_t stage)
+{
+	if (stage == USB_TRANSFER_STAGE_SETUP) {
+		switch (endpoint->setup.value) {
+		case 0:
+			switchctrl |= SWITCHCTRL_AMP_BYPASS;
+			update_switches();
+			usb_endpoint_schedule_ack(endpoint->in);
+			return USB_REQUEST_STATUS_OK;
+		case 1:
+			switchctrl &= ~SWITCHCTRL_AMP_BYPASS;
+			update_switches();
+			usb_endpoint_schedule_ack(endpoint->in);
+			return USB_REQUEST_STATUS_OK;
+		default:
+			return USB_REQUEST_STATUS_STALL;
+		}
+	} else {
+		return USB_REQUEST_STATUS_OK;
+	}
+}
+
+typedef struct {
+	uint32_t part_id[2];
+	uint32_t serial_no[4];
+} read_partid_serialno_t;
+
+usb_request_status_t usb_vendor_request_read_partid_serialno(
+	usb_endpoint_t* const endpoint, const usb_transfer_stage_t stage)
+{
+	uint8_t length;
+	read_partid_serialno_t read_partid_serialno;
+	iap_cmd_res_t iap_cmd_res;
+
+	if (stage == USB_TRANSFER_STAGE_SETUP) 
+	{
+		/* Read IAP Part Number Identification */
+		iap_cmd_res.cmd_param.command_code = IAP_CMD_READ_PART_ID_NO;
+		iap_cmd_call(&iap_cmd_res);
+		if(iap_cmd_res.status_res.status_ret != CMD_SUCCESS)
+			return USB_REQUEST_STATUS_STALL;
+
+		read_partid_serialno.part_id[0] = iap_cmd_res.status_res.iap_result[0];
+		read_partid_serialno.part_id[1] = iap_cmd_res.status_res.iap_result[1];
+		
+		/* Read IAP Serial Number Identification */
+		iap_cmd_res.cmd_param.command_code = IAP_CMD_READ_SERIAL_NO;
+		iap_cmd_call(&iap_cmd_res);
+		if(iap_cmd_res.status_res.status_ret != CMD_SUCCESS)
+			return USB_REQUEST_STATUS_STALL;
+
+		read_partid_serialno.serial_no[0] = iap_cmd_res.status_res.iap_result[0];
+		read_partid_serialno.serial_no[1] = iap_cmd_res.status_res.iap_result[1];
+		read_partid_serialno.serial_no[2] = iap_cmd_res.status_res.iap_result[2];
+		read_partid_serialno.serial_no[3] = iap_cmd_res.status_res.iap_result[3];
+		
+		length = (uint8_t)sizeof(read_partid_serialno_t);
+		usb_endpoint_schedule(endpoint->in, &read_partid_serialno, length);
+		usb_endpoint_schedule_ack(endpoint->out);
+	}
+	return USB_REQUEST_STATUS_OK;
+}
+
 static const usb_request_handler_fn vendor_request_handler[] = {
 	NULL,
 	usb_vendor_request_set_transceiver_mode,
@@ -507,7 +725,10 @@ static const usb_request_handler_fn vendor_request_handler[] = {
 	usb_vendor_request_read_spiflash,
 	usb_vendor_request_write_cpld,
 	usb_vendor_request_read_board_id,
-	usb_vendor_request_read_version_string
+	usb_vendor_request_read_version_string,
+	usb_vendor_request_set_freq,
+	usb_vendor_request_set_amp_enable,
+	usb_vendor_request_read_partid_serialno
 };
 
 static const uint32_t vendor_request_handler_count =
@@ -666,8 +887,6 @@ int main(void) {
 #ifdef JAWBREAKER
 	switchctrl = SWITCHCTRL_AMP_BYPASS;
 #endif
-	rffc5071_rx(switchctrl);
-	rffc5071_set_frequency(1700, 0); // 2600 MHz IF - 1700 MHz LO = 900 MHz RF
 
 	while(true) {
 		// Wait until buffer 0 is transmitted/received.

@@ -38,7 +38,8 @@ SRC = usb_performance.c \
 	../common/cpld_jtag.c \
 	../common/xapp058/lenval.c \
 	../common/xapp058/micro.c \
-	../common/xapp058/ports.c
+	../common/xapp058/ports.c \
+	../common/rom_iap.c
 
 LDSCRIPT = ../common/LPC4330_M4_rom_to_ram.ld
 include ../common/Makefile_inc.mk

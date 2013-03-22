@@ -1,6 +1,7 @@
 /*
  * Copyright 2012 Michael Ossmann <mike@ossmann.com>
  * Copyright 2012 Jared Boone <jared@sharebrained.com>
+ * Copyright 2013 Benjamin Vernoux <titanmkd@gmail.com>
  *
  * This file is part of HackRF.
  *
@@ -23,6 +24,7 @@
 #include "hackrf_core.h"
 #include "si5351c.h"
 #include "max2837.h"
+#include "rffc5071.h"
 #include <libopencm3/lpc43xx/i2c.h>
 #include <libopencm3/lpc43xx/cgu.h>
 #include <libopencm3/lpc43xx/gpio.h>
