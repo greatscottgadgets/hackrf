@@ -124,17 +124,31 @@ uint64_t freq_hz;
 bool amp = false;
 uint32_t amp_enable;
 
+bool limit_num_samples = false;
+uint64_t samples_to_xfer = 0;
+uint64_t bytes_to_xfer = 0;
+
 int rx_callback(hackrf_transfer* transfer) {
+	int bytes_to_write;
+
 	if( fd != NULL ) 
 	{
 		byte_count += transfer->valid_length;
-		const ssize_t bytes_written = fwrite(transfer->buffer, 1, transfer->valid_length, fd);
-		if( bytes_written == transfer->valid_length ) {
-       		return 0;
-		} else {
+		bytes_to_write = transfer->valid_length;
+		if (limit_num_samples) {
+			if (bytes_to_write >= bytes_to_xfer) {
+				bytes_to_write = bytes_to_xfer;
+			}
+			bytes_to_xfer -= bytes_to_write;
+		}
+		const ssize_t bytes_written = fwrite(transfer->buffer, 1, bytes_to_write, fd);
+		if ((bytes_written != bytes_to_write)
+				|| (limit_num_samples && (bytes_to_xfer == 0))) {
 			fclose(fd);
 			fd = NULL;
 			return -1;
+		} else {
+			return 0;
 		}
 	} else {
 		return -1;
@@ -142,16 +156,30 @@ int rx_callback(hackrf_transfer* transfer) {
 }
 
 int tx_callback(hackrf_transfer* transfer) {
+	int bytes_to_read;
+
 	if( fd != NULL )
 	{
 		byte_count += transfer->valid_length;
-		const ssize_t bytes_read = fread(transfer->buffer, 1, transfer->valid_length, fd);
-		if( bytes_read == transfer->valid_length ) {
-			return 0;
-		} else {
+		bytes_to_read = transfer->valid_length;
+		if (limit_num_samples) {
+			if (bytes_to_read >= bytes_to_xfer) {
+				/*
+				 * In this condition, we probably tx some of the previous
+				 * buffer contents at the end.  :-(
+				 */
+				bytes_to_read = bytes_to_xfer;
+			}
+			bytes_to_xfer -= bytes_to_read;
+		}
+		const ssize_t bytes_read = fread(transfer->buffer, 1, bytes_to_read, fd);
+		if ((bytes_read != bytes_to_read)
+				|| (limit_num_samples && (bytes_to_xfer == 0))) {
 			fclose(fd);
 			fd = NULL;
 			return -1;
+		} else {
+			return 0;
 		}
 	} else {
 		return -1;
@@ -164,6 +192,7 @@ static void usage() {
 	printf("\t-t <filename> # Transmit data from file.\n");
 	printf("\t[-f set_freq_hz] # Set Freq in Hz (between [%lld, %lld[).\n", FREQ_MIN_HZ, FREQ_MAX_HZ);
 	printf("\t[-a set_amp] # Set Amp 1=Enable, 0=Disable.\n");
+	printf("\t[-n num_samples] # Number of samples to transfer (default is unlimited).\n");
 }
 
 static hackrf_device* device = NULL;
@@ -229,7 +258,7 @@ int main(int argc, char** argv) {
 	const char* path = NULL;
 	int result;
 	
-	while( (opt = getopt(argc, argv, "r:t:f:a:")) != EOF ) {
+	while( (opt = getopt(argc, argv, "r:t:f:a:n:")) != EOF ) {
 		result = HACKRF_SUCCESS;
 		switch( opt ) {
 		case 'r':
@@ -252,6 +281,12 @@ int main(int argc, char** argv) {
 			result = parse_int(optarg, &amp_enable);
 			break;
 
+		case 'n':
+			limit_num_samples = true;
+			result = parse_u64(optarg, &samples_to_xfer);
+			bytes_to_xfer = samples_to_xfer * 2;
+			break;
+
 		default:
 			usage();
 			return EXIT_FAILURE;
@@ -262,6 +297,12 @@ int main(int argc, char** argv) {
 			usage();
 			break;
 		}		
+	}
+
+	if (samples_to_xfer >= 0x8000000000000000ul) {
+		printf("argument error: num_samples must be less than %lu\n", 0x8000000000000000ul);
+		usage();
+		return EXIT_FAILURE;
 	}
 
 	if( freq ) {
@@ -358,7 +399,7 @@ int main(int argc, char** argv) {
 	}
 
 	if( freq ) {
-		printf("call hackrf_set_freq(%lld Hz)\n", freq_hz);
+		printf("call hackrf_set_freq(%lu Hz)\n", freq_hz);
 		result = hackrf_set_freq(device, freq_hz);
 		if( result != HACKRF_SUCCESS ) {
 			printf("hackrf_set_freq() failed: %s (%d)\n", hackrf_error_name(result), result);
@@ -367,7 +408,7 @@ int main(int argc, char** argv) {
 	}
 
 	if( amp ) {
-		printf("call hackrf_set_amp_enable(%ld)\n", amp_enable);
+		printf("call hackrf_set_amp_enable(%u)\n", amp_enable);
 		result = hackrf_set_amp_enable(device, (uint8_t)amp_enable);
 		if( result != HACKRF_SUCCESS ) {
 			printf("hackrf_set_amp_enable() failed: %s (%d)\n", hackrf_error_name(result), result);
