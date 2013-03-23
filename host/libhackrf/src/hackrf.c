@@ -67,6 +67,8 @@ struct hackrf_device {
 	bool streaming;
 };
 
+volatile bool do_exit = false;
+
 static const uint16_t hackrf_usb_vid = 0x1d50;
 static const uint16_t hackrf_usb_pid = 0x604b;
 
@@ -221,6 +223,7 @@ int hackrf_open(hackrf_device** device) {
 	lib_device->transfer_count = 4;
 	lib_device->buffer_size = 262144; /* 1048576; */
 	lib_device->streaming = false;
+	do_exit = false;
 	
 	result = allocate_transfers(lib_device);
 	if( result != 0 ) {
@@ -659,7 +662,8 @@ static void* transfer_threadproc(void* arg) {
 	
     struct timeval timeout = { 0, 500000 };
 
-    while( device->streaming ) {
+    while( (device->streaming) && (do_exit == false) ) 
+	{
         int error = libusb_handle_events_timeout(g_libusb_context, &timeout);
         if( error != 0 ) {
 			device->streaming = false;
@@ -691,6 +695,7 @@ static void hackrf_libusb_transfer_callback(struct libusb_transfer* usb_transfer
 
 static int kill_transfer_thread(hackrf_device* device) {
 	device->streaming = false;
+	do_exit = true;
 	
 	if( device->transfer_thread_started != false ) {
 		void* value = NULL;

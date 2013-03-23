@@ -37,13 +37,21 @@
 #include <windows.h> 
 #else
 #include <unistd.h>
+#include <io.h>
+#include <fcntl.h>
 #endif
 
 #include <sys/time.h>
 #include <signal.h>
 
+#define FREQ_ONE_MHZ (1000000)
+
 #define FREQ_MIN_HZ	(30000000ull) /* 30MHz */
 #define FREQ_MAX_HZ	(6000000000ull) /* 6000MHz */
+
+#define DEFAULT_SAMPLE_RATE_HZ (10000000) /* 10MHz default sample rate */
+
+#define DEFAULT_BASEBAND_FILTER_BANDWIDTH (5000000) /* 5MHz default */
 
 #if defined _WIN32
 	#define sleep(a) Sleep( (a*1000) )
@@ -86,7 +94,7 @@ int parse_u64(char* s, uint64_t* const value) {
 	}
 }
 
-int parse_int(char* s, uint32_t* const value) {
+int parse_u32(char* s, uint32_t* const value) {
 	uint_fast8_t base = 10;
 	if( strlen(s) > 2 ) {
 		if( s[0] == '0' ) {
@@ -110,6 +118,8 @@ int parse_int(char* s, uint32_t* const value) {
 	}
 }
 
+volatile bool do_exit = false;
+
 FILE* fd = NULL;
 volatile uint32_t byte_count = 0;
 
@@ -123,6 +133,9 @@ uint64_t freq_hz;
 
 bool amp = false;
 uint32_t amp_enable;
+
+bool sample_rate = false;
+uint32_t sample_rate_hz;
 
 int rx_callback(hackrf_transfer* transfer) {
 	if( fd != NULL ) 
@@ -162,74 +175,28 @@ static void usage() {
 	printf("Usage:\n");
 	printf("\t-r <filename> # Receive data into file.\n");
 	printf("\t-t <filename> # Transmit data from file.\n");
-	printf("\t[-f set_freq_hz] # Set Freq in Hz (between [%lld, %lld[).\n", FREQ_MIN_HZ, FREQ_MAX_HZ);
+	printf("\t[-f set_freq_hz] # Set Freq in Hz between [%lldMHz, %lldMHz[.\n", FREQ_MIN_HZ/FREQ_ONE_MHZ, FREQ_MAX_HZ/FREQ_ONE_MHZ);
 	printf("\t[-a set_amp] # Set Amp 1=Enable, 0=Disable.\n");
+	printf("\t[-s sample_rate_hz] # Set sample rate in Hz (5/10/12.5/16/20MHz, default %dMHz).\n", DEFAULT_SAMPLE_RATE_HZ/FREQ_ONE_MHZ);
 }
 
 static hackrf_device* device = NULL;
 
 void sigint_callback_handler(int signum) 
 {
-	int result;
-	printf("Caught signal %d\n", signum);
-
-	struct timeval t_end;
-	gettimeofday(&t_end, NULL);
-	const float time_diff = TimevalDiff(&t_end, &t_start);
-	printf("Total time: %5.5f s\n", time_diff);
-
-	if(device != NULL)
-	{
-		if( receive ) 
-		{
-			printf("hackrf_stop_rx \n");
-			result = hackrf_stop_rx(device);
-			if( result != HACKRF_SUCCESS ) {
-				printf("hackrf_stop_rx() failed: %s (%d)\n", hackrf_error_name(result), result);
-			}else {
-				printf("hackrf_stop_rx() done\n");
-			}
-		}
-	
-		if( transmit ) 
-		{
-			result = hackrf_stop_tx(device);
-			if( result != HACKRF_SUCCESS ) {
-				printf("hackrf_stop_tx() failed: %s (%d)\n", hackrf_error_name(result), result);
-			}else {
-				printf("hackrf_stop_tx() done\n");
-			}
-		}
-		
-		result = hackrf_close(device);
-		if( result != HACKRF_SUCCESS ) 
-		{
-			printf("hackrf_close() failed: %s (%d)\n", hackrf_error_name(result), result);
-		}
-		
-		printf("hackrf_close() done\n");
-		
-		hackrf_exit();
-	}
-		
-	if(fd != NULL)
-	{
-		fclose(fd);
-		fd = NULL;
-		printf("fclose() file handle done\n");
-	}
-	
-	printf("Exit\n");	
-	/* Terminate program */
-	exit(signum);
+	fprintf(stdout, "Caught signal %d\n", signum);
+	do_exit = true;
 }
 
 int main(int argc, char** argv) {
 	int opt;
 	const char* path = NULL;
 	int result;
+#ifndef _WIN32
+    struct sigaction sigact;
+#endif
 	
-	while( (opt = getopt(argc, argv, "r:t:f:a:")) != EOF ) {
+	while( (opt = getopt(argc, argv, "r:t:f:a:s:")) != EOF ) {
 		result = HACKRF_SUCCESS;
 		switch( opt ) {
 		case 'r':
@@ -249,7 +216,12 @@ int main(int argc, char** argv) {
 
 		case 'a':
 			amp = true;
-			result = parse_int(optarg, &amp_enable);
+			result = parse_u32(optarg, &amp_enable);
+			break;
+
+		case 's':
+			sample_rate = true;
+			result = parse_u32(optarg, &sample_rate_hz);
 			break;
 
 		default:
@@ -280,7 +252,7 @@ int main(int argc, char** argv) {
 			usage();
 			return EXIT_FAILURE;
 		}
-	}	
+	}
 	
 	if( transmit == receive ) 
 	{
@@ -333,15 +305,35 @@ int main(int argc, char** argv) {
 		return EXIT_FAILURE;
 	}
 
-	signal(SIGINT, sigint_callback_handler);
+    signal(SIGINT, &sigint_callback_handler);
+	signal(SIGILL, &sigint_callback_handler);
+	signal(SIGFPE, &sigint_callback_handler);
+	signal(SIGSEGV, &sigint_callback_handler);
+	signal(SIGTERM, &sigint_callback_handler);
+	signal(SIGBREAK, &sigint_callback_handler);
+	signal(SIGABRT, &sigint_callback_handler);
 	
-	result = hackrf_sample_rate_set(device, 10000000);
-	if( result != HACKRF_SUCCESS ) {
-		printf("hackrf_sample_rate_set() failed: %s (%d)\n", hackrf_error_name(result), result);
-		return EXIT_FAILURE;
+	if( sample_rate ) 
+	{
+		printf("call hackrf_sample_rate_set(%ld Hz/%ld MHz)\n", sample_rate_hz, sample_rate_hz/FREQ_ONE_MHZ);
+		result = hackrf_sample_rate_set(device, sample_rate_hz);
+		if( result != HACKRF_SUCCESS ) {
+			printf("hackrf_sample_rate_set() failed: %s (%d)\n", hackrf_error_name(result), result);
+			return EXIT_FAILURE;
+		}
+	}else
+	{
+		printf("call hackrf_sample_rate_set(%ld Hz/%ld MHz)\n", DEFAULT_SAMPLE_RATE_HZ, DEFAULT_SAMPLE_RATE_HZ/FREQ_ONE_MHZ);
+		result = hackrf_sample_rate_set(device, DEFAULT_SAMPLE_RATE_HZ);
+		if( result != HACKRF_SUCCESS ) {
+			printf("hackrf_sample_rate_set() failed: %s (%d)\n", hackrf_error_name(result), result);
+			return EXIT_FAILURE;
+		}
 	}
-	
-	result = hackrf_baseband_filter_bandwidth_set(device, 5000000);
+
+	printf("call hackrf_baseband_filter_bandwidth_set(%ld Hz/%ld MHz)\n",
+		DEFAULT_BASEBAND_FILTER_BANDWIDTH, DEFAULT_BASEBAND_FILTER_BANDWIDTH/FREQ_ONE_MHZ);
+	result = hackrf_baseband_filter_bandwidth_set(device, DEFAULT_BASEBAND_FILTER_BANDWIDTH);
 	if( result != HACKRF_SUCCESS ) {
 		printf("hackrf_baseband_filter_bandwidth_set() failed: %s (%d)\n", hackrf_error_name(result), result);
 		return EXIT_FAILURE;
@@ -358,7 +350,7 @@ int main(int argc, char** argv) {
 	}
 
 	if( freq ) {
-		printf("call hackrf_set_freq(%lld Hz)\n", freq_hz);
+		printf("call hackrf_set_freq(%lld Hz/%ld MHz)\n", freq_hz, (freq_hz/FREQ_ONE_MHZ) );
 		result = hackrf_set_freq(device, freq_hz);
 		if( result != HACKRF_SUCCESS ) {
 			printf("hackrf_set_freq() failed: %s (%d)\n", hackrf_error_name(result), result);
@@ -378,7 +370,9 @@ int main(int argc, char** argv) {
 	gettimeofday(&t_start, NULL);
 	gettimeofday(&time_start, NULL);
 
-	while( hackrf_is_streaming(device) ) 
+	printf("Stop with Ctrl-C\n");
+	while( (hackrf_is_streaming(device)) &&
+		   (do_exit == false) ) 
 	{
 		sleep(1);
 		
@@ -396,18 +390,57 @@ int main(int argc, char** argv) {
 		time_start = time_now;
 	}
 
-	result = hackrf_close(device);
-	if( result != HACKRF_SUCCESS ) {
-		printf("hackrf_close() failed: %s (%d)\n", hackrf_error_name(result), result);
-		return -1;
+    if (do_exit)
+        printf("\nUser cancel, exiting...\n");
+    else
+        printf("\nhackrf library error, exiting...\n");
+	
+	struct timeval t_end;
+	gettimeofday(&t_end, NULL);
+	const float time_diff = TimevalDiff(&t_end, &t_start);
+	printf("Total time: %5.5f s\n", time_diff);
+	
+	if(device != NULL)
+	{
+		if( receive ) 
+		{
+			printf("hackrf_stop_rx \n");
+			result = hackrf_stop_rx(device);
+			if( result != HACKRF_SUCCESS ) {
+				printf("hackrf_stop_rx() failed: %s (%d)\n", hackrf_error_name(result), result);
+			}else {
+				printf("hackrf_stop_rx() done\n");
+			}
+		}
+	
+		if( transmit ) 
+		{
+			result = hackrf_stop_tx(device);
+			if( result != HACKRF_SUCCESS ) {
+				printf("hackrf_stop_tx() failed: %s (%d)\n", hackrf_error_name(result), result);
+			}else {
+				printf("hackrf_stop_tx() done\n");
+			}
+		}
+		
+		result = hackrf_close(device);
+		if( result != HACKRF_SUCCESS ) 
+		{
+			printf("hackrf_close() failed: %s (%d)\n", hackrf_error_name(result), result);
+		}else {
+			printf("hackrf_close() done\n");
+		}
+		
+		hackrf_exit();
+		printf("hackrf_exit() done\n");
 	}
-	
-	hackrf_exit();
-	
+		
 	if(fd != NULL)
 	{
 		fclose(fd);
+		fd = NULL;
+		printf("fclose(fd) done\n");
 	}
-
+	printf("exit\n");
 	return EXIT_SUCCESS;
 }
