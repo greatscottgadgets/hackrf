@@ -134,20 +134,35 @@ uint64_t freq_hz;
 bool amp = false;
 uint32_t amp_enable;
 
+
 bool sample_rate = false;
 uint32_t sample_rate_hz;
 
+bool limit_num_samples = false;
+uint64_t samples_to_xfer = 0;
+uint64_t bytes_to_xfer = 0;
+
 int rx_callback(hackrf_transfer* transfer) {
+	int bytes_to_write;
+
 	if( fd != NULL ) 
 	{
 		byte_count += transfer->valid_length;
-		const ssize_t bytes_written = fwrite(transfer->buffer, 1, transfer->valid_length, fd);
-		if( bytes_written == transfer->valid_length ) {
-       		return 0;
-		} else {
+		bytes_to_write = transfer->valid_length;
+		if (limit_num_samples) {
+			if (bytes_to_write >= bytes_to_xfer) {
+				bytes_to_write = bytes_to_xfer;
+			}
+			bytes_to_xfer -= bytes_to_write;
+		}
+		const ssize_t bytes_written = fwrite(transfer->buffer, 1, bytes_to_write, fd);
+		if ((bytes_written != bytes_to_write)
+				|| (limit_num_samples && (bytes_to_xfer == 0))) {
 			fclose(fd);
 			fd = NULL;
 			return -1;
+		} else {
+			return 0;
 		}
 	} else {
 		return -1;
@@ -155,16 +170,30 @@ int rx_callback(hackrf_transfer* transfer) {
 }
 
 int tx_callback(hackrf_transfer* transfer) {
+	int bytes_to_read;
+
 	if( fd != NULL )
 	{
 		byte_count += transfer->valid_length;
-		const ssize_t bytes_read = fread(transfer->buffer, 1, transfer->valid_length, fd);
-		if( bytes_read == transfer->valid_length ) {
-			return 0;
-		} else {
+		bytes_to_read = transfer->valid_length;
+		if (limit_num_samples) {
+			if (bytes_to_read >= bytes_to_xfer) {
+				/*
+				 * In this condition, we probably tx some of the previous
+				 * buffer contents at the end.  :-(
+				 */
+				bytes_to_read = bytes_to_xfer;
+			}
+			bytes_to_xfer -= bytes_to_read;
+		}
+		const ssize_t bytes_read = fread(transfer->buffer, 1, bytes_to_read, fd);
+		if ((bytes_read != bytes_to_read)
+				|| (limit_num_samples && (bytes_to_xfer == 0))) {
 			fclose(fd);
 			fd = NULL;
 			return -1;
+		} else {
+			return 0;
 		}
 	} else {
 		return -1;
@@ -178,6 +207,7 @@ static void usage() {
 	printf("\t[-f set_freq_hz] # Set Freq in Hz between [%lldMHz, %lldMHz[.\n", FREQ_MIN_HZ/FREQ_ONE_MHZ, FREQ_MAX_HZ/FREQ_ONE_MHZ);
 	printf("\t[-a set_amp] # Set Amp 1=Enable, 0=Disable.\n");
 	printf("\t[-s sample_rate_hz] # Set sample rate in Hz (5/10/12.5/16/20MHz, default %dMHz).\n", DEFAULT_SAMPLE_RATE_HZ/FREQ_ONE_MHZ);
+	printf("\t[-n num_samples] # Number of samples to transfer (default is unlimited).\n");
 }
 
 static hackrf_device* device = NULL;
@@ -192,11 +222,9 @@ int main(int argc, char** argv) {
 	int opt;
 	const char* path = NULL;
 	int result;
-#ifndef _WIN32
-    struct sigaction sigact;
-#endif
 	
-	while( (opt = getopt(argc, argv, "r:t:f:a:s:")) != EOF ) {
+	while( (opt = getopt(argc, argv, "r:t:f:a:s:n:")) != EOF )
+	{
 		result = HACKRF_SUCCESS;
 		switch( opt ) {
 		case 'r':
@@ -224,16 +252,28 @@ int main(int argc, char** argv) {
 			result = parse_u32(optarg, &sample_rate_hz);
 			break;
 
+		case 'n':
+			limit_num_samples = true;
+			result = parse_u64(optarg, &samples_to_xfer);
+			bytes_to_xfer = samples_to_xfer * 2ull;
+			break;
+
 		default:
 			usage();
 			return EXIT_FAILURE;
 		}
 		
 		if( result != HACKRF_SUCCESS ) {
-			printf("argument error: %s (%d)\n", hackrf_error_name(result), result);
+			printf("argument error: '-%c %s' %s (%d)\n", opt, optarg, hackrf_error_name(result), result);
 			usage();
-			break;
+			return EXIT_FAILURE;
 		}		
+	}
+
+	if (samples_to_xfer >= 0x8000000000000000ull) {
+		printf("argument error: num_samples must be less than %lu\n", 0x8000000000000000ull);
+		usage();
+		return EXIT_FAILURE;
 	}
 
 	if( freq ) {
@@ -350,7 +390,7 @@ int main(int argc, char** argv) {
 	}
 
 	if( freq ) {
-		printf("call hackrf_set_freq(%lld Hz/%ld MHz)\n", freq_hz, (freq_hz/FREQ_ONE_MHZ) );
+		printf("call hackrf_set_freq(%llu Hz/%llu MHz)\n", freq_hz, (freq_hz/FREQ_ONE_MHZ) );
 		result = hackrf_set_freq(device, freq_hz);
 		if( result != HACKRF_SUCCESS ) {
 			printf("hackrf_set_freq() failed: %s (%d)\n", hackrf_error_name(result), result);
@@ -359,12 +399,16 @@ int main(int argc, char** argv) {
 	}
 
 	if( amp ) {
-		printf("call hackrf_set_amp_enable(%ld)\n", amp_enable);
+		printf("call hackrf_set_amp_enable(%u)\n", amp_enable);
 		result = hackrf_set_amp_enable(device, (uint8_t)amp_enable);
 		if( result != HACKRF_SUCCESS ) {
 			printf("hackrf_set_amp_enable() failed: %s (%d)\n", hackrf_error_name(result), result);
 			return EXIT_FAILURE;
 		}
+	}
+	
+	if( limit_num_samples ) {
+		printf("samples_to_xfer %llu/%lluMi\n", samples_to_xfer, (samples_to_xfer/FREQ_ONE_MHZ) );
 	}
 	
 	gettimeofday(&t_start, NULL);
@@ -393,7 +437,7 @@ int main(int argc, char** argv) {
     if (do_exit)
         printf("\nUser cancel, exiting...\n");
     else
-        printf("\nhackrf library error, exiting...\n");
+        printf("\nExiting...\n");
 	
 	struct timeval t_end;
 	gettimeofday(&t_end, NULL);
