@@ -37,8 +37,6 @@
 #include <windows.h> 
 #else
 #include <unistd.h>
-#include <io.h>
-#include <fcntl.h>
 #endif
 
 #include <sys/time.h>
