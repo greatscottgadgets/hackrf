@@ -51,6 +51,8 @@
 
 #define DEFAULT_BASEBAND_FILTER_BANDWIDTH (5000000) /* 5MHz default */
 
+#define SAMPLES_TO_XFER_MAX (0x8000000000000000ull) /* Max value */
+
 #if defined _WIN32
 	#define sleep(a) Sleep( (a*1000) )
 #endif
@@ -268,8 +270,8 @@ int main(int argc, char** argv) {
 		}		
 	}
 
-	if (samples_to_xfer >= 0x8000000000000000ull) {
-		printf("argument error: num_samples must be less than %lu\n", 0x8000000000000000ull);
+	if (samples_to_xfer >= SAMPLES_TO_XFER_MAX) {
+		printf("argument error: num_samples must be less than %llu/%lluMio\n", SAMPLES_TO_XFER_MAX, SAMPLES_TO_XFER_MAX/FREQ_ONE_MHZ);
 		usage();
 		return EXIT_FAILURE;
 	}
@@ -277,7 +279,7 @@ int main(int argc, char** argv) {
 	if( freq ) {
 		if( (freq_hz >= FREQ_MAX_HZ) || (freq_hz < FREQ_MIN_HZ) )
 		{
-			printf("argument error: set_freq_hz shall be between [%lld, %lld[.\n", FREQ_MIN_HZ, FREQ_MAX_HZ);
+			printf("argument error: set_freq_hz shall be between [%llu, %llu[.\n", FREQ_MIN_HZ, FREQ_MAX_HZ);
 			usage();
 			return EXIT_FAILURE;
 		}
@@ -343,17 +345,16 @@ int main(int argc, char** argv) {
 		return EXIT_FAILURE;
 	}
 
-    signal(SIGINT, &sigint_callback_handler);
+	signal(SIGINT, &sigint_callback_handler);
 	signal(SIGILL, &sigint_callback_handler);
 	signal(SIGFPE, &sigint_callback_handler);
 	signal(SIGSEGV, &sigint_callback_handler);
 	signal(SIGTERM, &sigint_callback_handler);
-	signal(SIGBREAK, &sigint_callback_handler);
 	signal(SIGABRT, &sigint_callback_handler);
 	
 	if( sample_rate ) 
 	{
-		printf("call hackrf_sample_rate_set(%ld Hz/%ld MHz)\n", sample_rate_hz, sample_rate_hz/FREQ_ONE_MHZ);
+		printf("call hackrf_sample_rate_set(%u Hz/%u MHz)\n", sample_rate_hz, sample_rate_hz/FREQ_ONE_MHZ);
 		result = hackrf_sample_rate_set(device, sample_rate_hz);
 		if( result != HACKRF_SUCCESS ) {
 			printf("hackrf_sample_rate_set() failed: %s (%d)\n", hackrf_error_name(result), result);
@@ -361,7 +362,7 @@ int main(int argc, char** argv) {
 		}
 	}else
 	{
-		printf("call hackrf_sample_rate_set(%ld Hz/%ld MHz)\n", DEFAULT_SAMPLE_RATE_HZ, DEFAULT_SAMPLE_RATE_HZ/FREQ_ONE_MHZ);
+		printf("call hackrf_sample_rate_set(%u Hz/%u MHz)\n", DEFAULT_SAMPLE_RATE_HZ, DEFAULT_SAMPLE_RATE_HZ/FREQ_ONE_MHZ);
 		result = hackrf_sample_rate_set(device, DEFAULT_SAMPLE_RATE_HZ);
 		if( result != HACKRF_SUCCESS ) {
 			printf("hackrf_sample_rate_set() failed: %s (%d)\n", hackrf_error_name(result), result);
@@ -369,7 +370,7 @@ int main(int argc, char** argv) {
 		}
 	}
 
-	printf("call hackrf_baseband_filter_bandwidth_set(%ld Hz/%ld MHz)\n",
+	printf("call hackrf_baseband_filter_bandwidth_set(%d Hz/%d MHz)\n",
 		DEFAULT_BASEBAND_FILTER_BANDWIDTH, DEFAULT_BASEBAND_FILTER_BANDWIDTH/FREQ_ONE_MHZ);
 	result = hackrf_baseband_filter_bandwidth_set(device, DEFAULT_BASEBAND_FILTER_BANDWIDTH);
 	if( result != HACKRF_SUCCESS ) {
@@ -406,7 +407,7 @@ int main(int argc, char** argv) {
 	}
 	
 	if( limit_num_samples ) {
-		printf("samples_to_xfer %llu/%lluMi\n", samples_to_xfer, (samples_to_xfer/FREQ_ONE_MHZ) );
+		printf("samples_to_xfer %llu/%lluMio\n", samples_to_xfer, (samples_to_xfer/FREQ_ONE_MHZ) );
 	}
 	
 	gettimeofday(&t_start, NULL);
