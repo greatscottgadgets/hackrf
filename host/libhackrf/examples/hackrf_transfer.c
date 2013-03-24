@@ -447,7 +447,6 @@ int main(int argc, char** argv) {
 	{
 		if( receive ) 
 		{
-			printf("hackrf_stop_rx \n");
 			result = hackrf_stop_rx(device);
 			if( result != HACKRF_SUCCESS ) {
 				printf("hackrf_stop_rx() failed: %s (%d)\n", hackrf_error_name(result), result);
