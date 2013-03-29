@@ -27,6 +27,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <getopt.h>
+#include <time.h>
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -44,6 +45,7 @@
 
 #define FREQ_ONE_MHZ (1000000)
 
+#define DEFAULT_FREQ_HZ (900000000ull) /* 900MHz */
 #define FREQ_MIN_HZ	(30000000ull) /* 30MHz */
 #define FREQ_MAX_HZ	(6000000000ull) /* 6000MHz */
 
@@ -59,6 +61,68 @@
 #if defined _WIN32
 	#define sleep(a) Sleep( (a*1000) )
 #endif
+
+/* WAVE or RIFF WAVE file format containing IQ 2x8bits data for HackRF compatible with SDR# Wav IQ file */
+typedef struct 
+{
+    char groupID[4]; /* "RIFF" */
+    uint32_t size; /* File size + 8bytes */
+    char riffType[4]; /* WAVE */
+} t_WAVRIFF_hdr;
+
+#define FormatID "fmt "   /* chunkID for Format Chunk. NOTE: There is a space at the end of this ID. */
+
+typedef struct {
+  char		chunkID[4]; /* "fmt " */
+  uint32_t	chunkSize; /* 16 fixed */
+
+  uint16_t	wFormatTag; /* 1 fixed */
+  uint16_t	wChannels;  /* 2 fixed */
+  uint32_t	dwSamplesPerSec; /* Freq Hz sampling */
+  uint32_t	dwAvgBytesPerSec; /* Freq Hz sampling x 2 */
+  uint16_t	wBlockAlign; /* 2 fixed */
+  uint16_t	wBitsPerSample; /* 8 fixed */
+} t_FormatChunk;
+
+typedef struct 
+{
+    char		chunkID[4]; /* "data" */
+    uint32_t	chunkSize; /* Size of data in bytes */
+	/* Samples I(8bits) then Q(8bits), I, Q ... */
+} t_DataChunk;
+
+typedef struct
+{
+	t_WAVRIFF_hdr hdr;
+	t_FormatChunk fmt_chunk;
+	t_DataChunk data_chunk;
+} t_wav_file_hdr;
+
+t_wav_file_hdr wave_file_hdr = 
+{
+	/* t_WAVRIFF_hdr */
+	{
+		"RIFF", /* groupID */
+		0, /* size to update later */
+		"WAVE"
+	},
+	/* t_FormatChunk */
+	{
+		"fmt ", /* char		chunkID[4];  */
+		16, /* uint32_t	chunkSize; */
+		1, /* uint16_t	wFormatTag; 1 fixed */
+		2, /* uint16_t	wChannels; 2 fixed */
+		0, /* uint32_t	dwSamplesPerSec; Freq Hz sampling to update later */
+		0, /* uint32_t	dwAvgBytesPerSec; Freq Hz sampling x 2 to update later */
+		2, /* uint16_t	wBlockAlign; 2 fixed */
+		8, /* uint16_t	wBitsPerSample; 8 fixed */
+	},
+	/* t_DataChunk */
+	{
+	    "data", /* char chunkID[4]; */
+		0, /* uint32_t	chunkSize; to update later */
+	}
+};
 
 typedef struct {
 	uint32_t bandwidth_hz;
@@ -192,6 +256,8 @@ FILE* fd = NULL;
 volatile uint32_t byte_count = 0;
 
 bool receive = false;
+bool receive_wav = false;
+
 bool transmit = false;
 struct timeval time_start;
 struct timeval t_start;
@@ -272,6 +338,7 @@ int tx_callback(hackrf_transfer* transfer) {
 
 static void usage() {
 	printf("Usage:\n");
+	printf("\t-w # Receive data into file with WAV header and automatic name.\n");
 	printf("\t-r <filename> # Receive data into file.\n");
 	printf("\t-t <filename> # Transmit data from file.\n");
 	printf("\t[-f set_freq_hz] # Set Freq in Hz between [%lluMHz, %lluMHz[.\n", FREQ_MIN_HZ/FREQ_ONE_MHZ, FREQ_MAX_HZ/FREQ_ONE_MHZ);
@@ -289,15 +356,28 @@ void sigint_callback_handler(int signum)
 	do_exit = true;
 }
 
+#define PATH_FILE_MAX_LEN (FILENAME_MAX)
+#define DATE_TIME_MAX_LEN (32)
+
 int main(int argc, char** argv) {
 	int opt;
+	char path_file[PATH_FILE_MAX_LEN];
+	char date_time[DATE_TIME_MAX_LEN];
 	const char* path = NULL;
 	int result;
-	
-	while( (opt = getopt(argc, argv, "r:t:f:a:s:n:b:")) != EOF )
+	time_t rawtime;
+	struct tm * timeinfo;
+	long int file_pos;
+  
+	while( (opt = getopt(argc, argv, "wr:t:f:a:s:n:b:")) != EOF )
 	{
 		result = HACKRF_SUCCESS;
-		switch( opt ) {
+		switch( opt ) 
+		{
+		case 'w':
+			receive_wav = true;
+			break;
+		
 		case 'r':
 			receive = true;
 			path = optarg;
@@ -335,6 +415,7 @@ int main(int argc, char** argv) {
 			break;
 
 		default:
+			printf("unknown argument '-%c %s'\n", opt, optarg);
 			usage();
 			return EXIT_FAILURE;
 		}
@@ -360,6 +441,10 @@ int main(int argc, char** argv) {
 			usage();
 			return EXIT_FAILURE;
 		}
+	}else
+	{
+		/* Use default freq */
+		freq_hz = DEFAULT_FREQ_HZ;
 	}
 
 	if( amp ) {
@@ -400,18 +485,29 @@ int main(int argc, char** argv) {
 		return EXIT_FAILURE;
 	}
 
-	if( transmit == receive ) 
+	if( (transmit == false) && (receive == receive_wav) )
 	{
-		if( transmit == true ) 
-		{
-			fprintf(stderr, "receive and transmit options are mutually exclusive\n");
-		} else {
-			fprintf(stderr, "specify either transmit or receive option\n");
-		}
+		printf("receive -r and receive_wav -w options are mutually exclusive\n");
 		usage();
 		return EXIT_FAILURE;
 	}
-
+	
+	if( receive_wav == false )
+	{
+		if( transmit == receive ) 
+		{
+			if( transmit == true ) 
+			{
+				printf("receive -r and transmit -t options are mutually exclusive\n");
+			} else
+			{
+				printf("specify either transmit -t or receive -r or receive_wav -w option\n");
+			}
+			usage();
+			return EXIT_FAILURE;
+		}
+	}
+	
 	if( receive ) {
 		transceiver_mode = TRANSCEIVER_MODE_RX;
 	}
@@ -419,9 +515,21 @@ int main(int argc, char** argv) {
 	if( transmit ) {
 		transceiver_mode = TRANSCEIVER_MODE_TX;
 	}
-	
+
+	if( receive_wav ) 
+	{
+		time (&rawtime);
+		timeinfo = localtime (&rawtime);
+		transceiver_mode = TRANSCEIVER_MODE_RX;
+		/* File format HackRF Year(2013), Month(11), Day(28), Hour Min Sec+Z, Freq kHz, IQ.wav */
+		strftime(date_time, DATE_TIME_MAX_LEN, "%Y%m%d_%H%M%S", timeinfo);
+		snprintf(path_file, PATH_FILE_MAX_LEN, "HackRF_%sZ_%ukHz_IQ.wav", date_time, (uint32_t)(freq_hz/(1000ull)) );
+		path = path_file;
+		printf("Receive wav file: %s\n", path);
+	}	
+
 	if( path == NULL ) {
-		fprintf(stderr, "specify a path to a file to transmit/receive\n");
+		printf("specify a path to a file to transmit/receive\n");
 		usage();
 		return EXIT_FAILURE;
 	}
@@ -452,6 +560,12 @@ int main(int argc, char** argv) {
 		return EXIT_FAILURE;
 	}
 
+	/* Write Wav header */
+	if( receive_wav ) 
+	{
+		fwrite(&wave_file_hdr, 1, sizeof(t_wav_file_hdr), fd);
+	}
+	
 	signal(SIGINT, &sigint_callback_handler);
 	signal(SIGILL, &sigint_callback_handler);
 	signal(SIGFPE, &sigint_callback_handler);
@@ -487,14 +601,12 @@ int main(int argc, char** argv) {
 		return EXIT_FAILURE;
 	}
 
-	if( freq ) {
-		printf("call hackrf_set_freq(%llu Hz/%llu MHz)\n", freq_hz, (freq_hz/FREQ_ONE_MHZ) );
-		result = hackrf_set_freq(device, freq_hz);
-		if( result != HACKRF_SUCCESS ) {
-			printf("hackrf_set_freq() failed: %s (%d)\n", hackrf_error_name(result), result);
-			usage();
-			return EXIT_FAILURE;
-		}
+	printf("call hackrf_set_freq(%llu Hz/%llu MHz)\n", freq_hz, (freq_hz/FREQ_ONE_MHZ) );
+	result = hackrf_set_freq(device, freq_hz);
+	if( result != HACKRF_SUCCESS ) {
+		printf("hackrf_set_freq() failed: %s (%d)\n", hackrf_error_name(result), result);
+		usage();
+		return EXIT_FAILURE;
 	}
 
 	if( amp ) {
@@ -580,6 +692,19 @@ int main(int argc, char** argv) {
 		
 	if(fd != NULL)
 	{
+		if( receive_wav ) 
+		{
+			/* Get size of file */
+			file_pos = ftell(fd);
+			/* Update Wav Header */
+			wave_file_hdr.hdr.size = file_pos+8;
+			wave_file_hdr.fmt_chunk.dwSamplesPerSec = sample_rate_hz;
+			wave_file_hdr.fmt_chunk.dwAvgBytesPerSec = wave_file_hdr.fmt_chunk.dwSamplesPerSec*2;
+			wave_file_hdr.data_chunk.chunkSize = file_pos - sizeof(t_wav_file_hdr);
+			/* Overwrite header with updated data */
+			rewind(fd);
+			fwrite(&wave_file_hdr, 1, sizeof(t_wav_file_hdr), fd);
+		}	
 		fclose(fd);
 		fd = NULL;
 		printf("fclose(fd) done\n");
