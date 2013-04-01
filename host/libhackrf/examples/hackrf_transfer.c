@@ -368,6 +368,7 @@ int main(int argc, char** argv) {
 	time_t rawtime;
 	struct tm * timeinfo;
 	long int file_pos;
+	int exit_code = EXIT_SUCCESS;
   
 	while( (opt = getopt(argc, argv, "wr:t:f:a:s:n:b:")) != EOF )
 	{
@@ -644,6 +645,12 @@ int main(int argc, char** argv) {
 				(byte_count_now / 1e6f), time_difference, (rate / 1e6f) );
 
 		time_start = time_now;
+
+		if (byte_count_now == 0) {
+			exit_code = EXIT_FAILURE;
+			printf("\nCouldn't transfer any bytes for one second.\n");
+			break;
+		}
 	}
 
     if (do_exit)
@@ -710,5 +717,5 @@ int main(int argc, char** argv) {
 		printf("fclose(fd) done\n");
 	}
 	printf("exit\n");
-	return EXIT_SUCCESS;
+	return exit_code;
 }
