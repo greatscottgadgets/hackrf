@@ -43,7 +43,9 @@
 #include <sys/time.h>
 #include <signal.h>
 
-#define FREQ_ONE_MHZ (1000000)
+#define FD_BUFFER_SIZE (8*1024)
+
+#define FREQ_ONE_MHZ (1000000ull)
 
 #define DEFAULT_FREQ_HZ (900000000ull) /* 900MHz */
 #define FREQ_MIN_HZ	(30000000ull) /* 30MHz */
@@ -124,30 +126,6 @@ t_wav_file_hdr wave_file_hdr =
 	}
 };
 
-typedef struct {
-	uint32_t bandwidth_hz;
-} max2837_ft_t;
-
-static const max2837_ft_t max2837_ft[] = {
-	{ 1750000  },
-	{ 2500000  },
-	{ 3500000  },
-	{ 5000000  },
-	{ 5500000  },
-	{ 6000000  },
-	{ 7000000  },
-	{ 8000000  },
-	{ 9000000  },
-	{ 10000000 },
-	{ 12000000 },
-	{ 14000000 },
-	{ 15000000 },
-	{ 20000000 },
-	{ 24000000 },
-	{ 28000000 },
-	{ 0        },
-};
-
 typedef enum {
 	TRANSCEIVER_MODE_OFF = 0,
 	TRANSCEIVER_MODE_RX = 1,
@@ -207,47 +185,6 @@ int parse_u32(char* s, uint32_t* const value) {
 	} else {
 		return HACKRF_ERROR_INVALID_PARAM;
 	}
-}
-
-/* Return final bw round down and less than expected bw. */
-uint32_t compute_baseband_filter_bw_round_down_lt(const uint32_t bandwidth_hz)
-{
-	const max2837_ft_t* p = max2837_ft;
-	while( p->bandwidth_hz != 0 )
-	{
-		if( p->bandwidth_hz >= bandwidth_hz ) {
-			break;
-		}
-		p++;
-	}
-	/* Round down (if no equal to first entry) */
-	if(p != max2837_ft)
-	{
-		p--;
-	}
-	return p->bandwidth_hz;
-}
-
-/* Return final bw. */
-uint32_t compute_baseband_filter_bw(const uint32_t bandwidth_hz)
-{
-	const max2837_ft_t* p = max2837_ft;
-	while( p->bandwidth_hz != 0 )
-	{
-		if( p->bandwidth_hz >= bandwidth_hz ) {
-			break;
-		}
-		p++;
-	}
-	
-	/* Round down (if no equal to first entry) and if > bandwidth_hz */
-	if(p != max2837_ft)
-	{
-		if(p->bandwidth_hz > bandwidth_hz)
-			p--;
-	}
-	
-	return p->bandwidth_hz;
 }
 
 volatile bool do_exit = false;
@@ -464,11 +401,11 @@ int main(int argc, char** argv) {
 	if( baseband_filter_bw )
 	{
 		/* Compute nearest freq for bw filter */
-		baseband_filter_bw_hz = compute_baseband_filter_bw(baseband_filter_bw_hz);
+		baseband_filter_bw_hz = hackrf_compute_baseband_filter_bw(baseband_filter_bw_hz);
 	}else
 	{
 		/* Compute default value depending on sample rate */
-		baseband_filter_bw_hz = compute_baseband_filter_bw_round_down_lt(sample_rate_hz);
+		baseband_filter_bw_hz = hackrf_compute_baseband_filter_bw_round_down_lt(sample_rate_hz);
 	}
 
 	if (baseband_filter_bw_hz > BASEBAND_FILTER_BW_MAX) {
@@ -559,7 +496,14 @@ int main(int argc, char** argv) {
 		printf("Failed to open file: %s\n", path);
 		return EXIT_FAILURE;
 	}
-
+	/* Change fd buffer to have bigger one to store or read data on/to HDD */
+	result = setvbuf(fd , NULL , _IOFBF , FD_BUFFER_SIZE);
+	if( result != 0 ) {
+		printf("setvbuf() failed: %d\n", result);
+		usage();
+		return EXIT_FAILURE;
+	}
+	
 	/* Write Wav header */
 	if( receive_wav ) 
 	{
@@ -573,7 +517,7 @@ int main(int argc, char** argv) {
 	signal(SIGTERM, &sigint_callback_handler);
 	signal(SIGABRT, &sigint_callback_handler);
 
-	printf("call hackrf_sample_rate_set(%u Hz/%.02f MHz)\n", sample_rate_hz,((float)sample_rate_hz/(float)FREQ_ONE_MHZ));
+	printf("call hackrf_sample_rate_set(%u Hz/%.03f MHz)\n", sample_rate_hz,((float)sample_rate_hz/(float)FREQ_ONE_MHZ));
 	result = hackrf_sample_rate_set(device, sample_rate_hz);
 	if( result != HACKRF_SUCCESS ) {
 		printf("hackrf_sample_rate_set() failed: %s (%d)\n", hackrf_error_name(result), result);
@@ -581,7 +525,7 @@ int main(int argc, char** argv) {
 		return EXIT_FAILURE;
 	}
 
-	printf("call hackrf_baseband_filter_bandwidth_set(%d Hz/%.02f MHz)\n",
+	printf("call hackrf_baseband_filter_bandwidth_set(%d Hz/%.03f MHz)\n",
 			baseband_filter_bw_hz, ((float)baseband_filter_bw_hz/(float)FREQ_ONE_MHZ));
 	result = hackrf_baseband_filter_bandwidth_set(device, baseband_filter_bw_hz);
 	if( result != HACKRF_SUCCESS ) {
@@ -591,9 +535,9 @@ int main(int argc, char** argv) {
 	}
 
 	if( transceiver_mode == TRANSCEIVER_MODE_RX ) {
-		result = hackrf_start_rx(device, rx_callback);
+		result = hackrf_start_rx(device, rx_callback, NULL);
 	} else {
-		result = hackrf_start_tx(device, tx_callback);
+		result = hackrf_start_tx(device, tx_callback, NULL);
 	}
 	if( result != HACKRF_SUCCESS ) {
 		printf("hackrf_start_?x() failed: %s (%d)\n", hackrf_error_name(result), result);
@@ -601,7 +545,7 @@ int main(int argc, char** argv) {
 		return EXIT_FAILURE;
 	}
 
-	printf("call hackrf_set_freq(%llu Hz/%llu MHz)\n", freq_hz, (freq_hz/FREQ_ONE_MHZ) );
+	printf("call hackrf_set_freq(%llu Hz/%.03f MHz)\n", freq_hz, ((float)freq_hz/(float)FREQ_ONE_MHZ) );
 	result = hackrf_set_freq(device, freq_hz);
 	if( result != HACKRF_SUCCESS ) {
 		printf("hackrf_set_freq() failed: %s (%d)\n", hackrf_error_name(result), result);

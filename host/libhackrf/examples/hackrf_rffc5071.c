@@ -83,9 +83,10 @@ int dump_register(hackrf_device* device, const uint16_t register_number) {
 }
 
 int dump_registers(hackrf_device* device) {
+	uint16_t register_number;
 	int result = HACKRF_SUCCESS;
 	
-	for(uint16_t register_number=0; register_number<31; register_number++) {
+	for(register_number=0; register_number<31; register_number++) {
 		result = dump_register(device, register_number);
 		if( result != HACKRF_SUCCESS ) {
 			break;

@@ -70,9 +70,10 @@ int dump_register(hackrf_device* device, const uint16_t register_number) {
 }
 
 int dump_registers(hackrf_device* device) {
+	uint16_t register_number;
 	int result = HACKRF_SUCCESS;
 	
-	for(uint16_t register_number=0; register_number<256; register_number++) {
+	for(register_number=0; register_number<256; register_number++) {
 		result = dump_register(device, register_number);
 		if( result != HACKRF_SUCCESS ) {
 			break;
@@ -102,9 +103,12 @@ int write_register(
 #define REGISTER_INVALID 32767
 
 int dump_multisynth_config(hackrf_device* device, const uint_fast8_t ms_number) {
+	uint_fast8_t i;
+	uint_fast8_t reg_base;
 	uint16_t parameters[8];
-	uint_fast8_t reg_base = 42 + (ms_number * 8);
-	for(uint_fast8_t i=0; i<8; i++) {
+	
+	reg_base = 42 + (ms_number * 8);
+	for(i=0; i<8; i++) {
 		uint_fast8_t reg_number = reg_base + i;
 		int result = hackrf_si5351c_read(device, reg_number, &parameters[i]);
 		if( result != HACKRF_SUCCESS ) {
@@ -141,8 +145,11 @@ int dump_multisynth_config(hackrf_device* device, const uint_fast8_t ms_number) 
 }
 
 int dump_configuration(hackrf_device* device) {
-	for(uint_fast8_t ms_number=0; ms_number<8; ms_number++) {
-		int result = dump_multisynth_config(device, ms_number);
+	uint_fast8_t ms_number;
+	int result;
+			
+	for(ms_number=0; ms_number<8; ms_number++) {
+		result = dump_multisynth_config(device, ms_number);
 		if( result != HACKRF_SUCCESS ) {
 			return result;
 		}
