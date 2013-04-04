@@ -1,4 +1,4 @@
-EESchema Schematic File Version 2  date Thu Dec  6 15:37:44 2012
+EESchema Schematic File Version 2  date Wed Mar 27 01:00:29 2013
 LIBS:power
 LIBS:device
 LIBS:transistors
@@ -37,7 +37,7 @@ $Descr User 17000 11000
 encoding utf-8
 Sheet 2 4
 Title "jawbreaker frontend"
-Date "6 dec 2012"
+Date "27 mar 2013"
 Rev ""
 Comp "Copyright 2012 Michael Ossmann"
 Comment1 "License: GPL v2"
@@ -2058,6 +2058,7 @@ U 1 1 4FB55E30
 P 5300 5550
 F 0 "L4" V 5250 5550 40  0000 C CNN
 F 1 "DNP" V 5400 5550 40  0000 C CNN
+F 4 "DNP" V 5150 5550 60  0000 C CNN "Note"
 	1    5300 5550
 	1    0    0    -1  
 $EndComp
@@ -2154,6 +2155,7 @@ U 1 1 502AFA8C
 P 3900 3750
 F 0 "L1" V 3850 3750 40  0000 C CNN
 F 1 "DNP" V 4000 3750 40  0000 C CNN
+F 4 "DNP" V 4050 3600 60  0000 C CNN "Note"
 	1    3900 3750
 	1    0    0    -1  
 $EndComp
@@ -3150,7 +3152,6 @@ F 1 "ANTENNA" H 16100 8300 60  0000 C CNN
 F 4 "TE Connectivity" H 16100 8450 60  0001 C CNN "Manufacturer"
 F 5 "2081233-1" H 16100 8450 60  0001 C CNN "Part Number"
 F 6 "CONN JACK SMA PCB VERT" H 16100 8450 60  0001 C CNN "Description"
-F 7 "DNP" H 15850 8450 60  0000 C CNN "Note"
 	1    16100 8450
 	-1   0    0    -1  
 $EndComp

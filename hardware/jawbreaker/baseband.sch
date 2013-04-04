@@ -1,4 +1,4 @@
-EESchema Schematic File Version 2  date Thu Dec  6 15:37:44 2012
+EESchema Schematic File Version 2  date Wed Mar 27 01:00:29 2013
 LIBS:power
 LIBS:device
 LIBS:transistors
@@ -37,7 +37,7 @@ $Descr User 17000 11000
 encoding utf-8
 Sheet 3 4
 Title "jawbreaker baseband"
-Date "6 dec 2012"
+Date "27 mar 2013"
 Rev ""
 Comp "Copyright 2012 Michael Ossmann"
 Comment1 "License: GPL v2"
@@ -987,8 +987,8 @@ L C C117
 U 1 1 5047BE90
 P 4950 3400
 F 0 "C117" H 5000 3500 50  0000 L CNN
-F 1 "C" H 5000 3300 50  0000 L CNN
-F 4 "DNP" V 5150 3350 60  0000 C CNN "Note"
+F 1 "DNP" H 5000 3300 50  0000 L CNN
+F 4 "DNP" V 4800 3400 60  0000 C CNN "Note"
 	1    4950 3400
 	1    0    0    -1  
 $EndComp
@@ -2570,7 +2570,7 @@ U 1 1 4F5D6AAA
 P 5300 4500
 F 0 "L6" V 5250 4500 40  0000 C CNN
 F 1 "DNP" V 5400 4500 40  0000 C CNN
-F 4 "DNP" H 5300 4500 60  0001 C CNN "Note"
+F 4 "DNP" V 5500 4450 60  0000 C CNN "Note"
 	1    5300 4500
 	1    0    0    -1  
 $EndComp
