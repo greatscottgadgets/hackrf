@@ -63,7 +63,7 @@ architecture Behavioral of top is
 begin
     
     B1AUX <= (others => '0');
-    --B2AUX <= (others => '0');
+    B2AUX <= (others => '0');
     
     ------------------------------------------------
     -- Codec interface
@@ -94,7 +94,6 @@ begin
     transfer_direction_i <= to_dac when HOST_DIRECTION = '1'
                                    else from_adc;
 
-	B2AUX <= HOST_DATA & host_clk_i & host_data_enable_i &  host_data_capture_o & "00000";
     ------------------------------------------------
     
     process(host_clk_i)
@@ -118,15 +117,15 @@ begin
     process(host_clk_i, codec_clk_i)
     begin
         if rising_edge(host_clk_i) then
-				if transfer_direction_i = to_dac then
-					if codec_clk_i = '1' then
-						 host_data_capture_o <= host_data_enable_i;
-					end if;
-				else
-					if codec_clk_i = '0' then
-						 host_data_capture_o <= host_data_enable_i;
-					end if;
-				end if;
+            if transfer_direction_i = to_dac then
+                if codec_clk_i = '1' then
+                    host_data_capture_o <= host_data_enable_i;
+                end if;
+            else
+                if codec_clk_i = '0' then
+                    host_data_capture_o <= host_data_enable_i;
+                end if;
+            end if;
         end if;
     end process;
     

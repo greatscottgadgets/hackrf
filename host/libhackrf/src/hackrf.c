@@ -252,8 +252,8 @@ int ADDCALL hackrf_open(hackrf_device** device) {
 	lib_device->transfer_count = 1024;
 	lib_device->buffer_size = 16384;
 	*/
-	lib_device->transfer_count = 32;
-	lib_device->buffer_size = 16384; //262144; /* 1048576; */
+	lib_device->transfer_count = 4;
+	lib_device->buffer_size = 262144; /* 1048576; */
 	lib_device->streaming = false;
 	do_exit = false;
 	
@@ -692,7 +692,7 @@ int ADDCALL hackrf_board_partid_serialno_read(hackrf_device* device, read_partid
 static void* transfer_threadproc(void* arg) {
 	hackrf_device* device = (hackrf_device*)arg;
 	
-    struct timeval timeout = { 1, 000000 };
+    struct timeval timeout = { 0, 500000 };
 
     while( (device->streaming) && (do_exit == false) ) 
 	{
@@ -708,23 +708,43 @@ static void* transfer_threadproc(void* arg) {
 static void hackrf_libusb_transfer_callback(struct libusb_transfer* usb_transfer) {
 	hackrf_device* device = (hackrf_device*)usb_transfer->user_data;
 
-    if( usb_transfer->status == LIBUSB_TRANSFER_COMPLETED ) {
-		hackrf_transfer transfer = {
-			transfer.device = device,
-			transfer.buffer = usb_transfer->buffer,
-			transfer.buffer_length = usb_transfer->length,
-			transfer.valid_length = usb_transfer->actual_length,
-			transfer.rx_ctx = device->rx_ctx,
-			transfer.tx_ctx = device->tx_ctx
-		};
+	switch(usb_transfer->status)
+	{
+		case LIBUSB_TRANSFER_COMPLETED:
+		{
+			hackrf_transfer transfer = {
+				transfer.device = device,
+				transfer.buffer = usb_transfer->buffer,
+				transfer.buffer_length = usb_transfer->length,
+				transfer.valid_length = usb_transfer->actual_length,
+				transfer.rx_ctx = device->rx_ctx,
+				transfer.tx_ctx = device->tx_ctx
+			};
 
-		if( device->callback(&transfer) == 0 ) {
-	    	libusb_submit_transfer(usb_transfer);
-			return;
+			if( device->callback(&transfer) == 0 ) 
+			{
+				libusb_submit_transfer(usb_transfer);
+				return;
+			}else
+			{
+				device->streaming = false;
+			}
 		}
+		break;
+	
+		case LIBUSB_TRANSFER_NO_DEVICE:
+			device->streaming = false; /* Fatal error stop transfer */
+		break;
+		
+		case LIBUSB_TRANSFER_ERROR:
+		case LIBUSB_TRANSFER_TIMED_OUT:
+		case LIBUSB_TRANSFER_STALL:
+		case LIBUSB_TRANSFER_OVERFLOW:
+		case LIBUSB_TRANSFER_CANCELLED:
+		default:
+			/* Do nothing and continue */
+		break;
 	}
-
-	device->streaming = false;
 }
 
 static int kill_transfer_thread(hackrf_device* device) {

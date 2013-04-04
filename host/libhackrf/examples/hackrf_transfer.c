@@ -280,7 +280,7 @@ static void usage() {
 	printf("\t-t <filename> # Transmit data from file.\n");
 	printf("\t[-f set_freq_hz] # Set Freq in Hz between [%lluMHz, %lluMHz[.\n", FREQ_MIN_HZ/FREQ_ONE_MHZ, FREQ_MAX_HZ/FREQ_ONE_MHZ);
 	printf("\t[-a set_amp] # Set Amp 1=Enable, 0=Disable.\n");
-	printf("\t[-s sample_rate_hz] # Set sample rate in Hz (5/10/12.5/16/20MHz, default %dMHz).\n", DEFAULT_SAMPLE_RATE_HZ/FREQ_ONE_MHZ);
+	printf("\t[-s sample_rate_hz] # Set sample rate in Hz (5/10/12.5/16/20MHz, default %lldMHz).\n", DEFAULT_SAMPLE_RATE_HZ/FREQ_ONE_MHZ);
 	printf("\t[-n num_samples] # Number of samples to transfer (default is unlimited).\n");
 	printf("\t[-b baseband_filter_bw_hz] # Set baseband filter bandwidth in MHz.\n\tPossible values: 1.75/2.5/3.5/5/5.5/6/7/8/9/10/12/14/15/20/24/28MHz, default < sample_rate_hz.\n" );
 }
