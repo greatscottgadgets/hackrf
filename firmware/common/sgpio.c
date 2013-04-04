@@ -1,6 +1,6 @@
 /*
  * Copyright 2012 Jared Boone <jared@sharebrained.com>
- * Copyright 2013 Benjamin Vernouxe <titanmkd@gmail.com>
+ * Copyright 2013 Benjamin Vernoux <titanmkd@gmail.com>
  *
  * This file is part of HackRF.
  *
