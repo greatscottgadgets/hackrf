@@ -1,5 +1,6 @@
 /*
  * Copyright 2013 Michael Ossmann
+ * Copyright 2013 Benjamin Vernoux
  *
  * This file is part of HackRF.
  *
@@ -30,11 +31,25 @@
 #define W25Q80BV_CHIP_ERASE   0xC7
 #define W25Q80BV_READ_STATUS1 0x05
 #define W25Q80BV_PAGE_PROGRAM 0x02
+#define W25Q80BV_DEVICE_ID    0xAB
+#define W25Q80BV_UNIQUE_ID    0x4B
 
 #define W25Q80BV_STATUS_BUSY  0x01
+
+
+#define W25Q80BV_DEVICE_ID_RES  0x13 /* Expected device_id for W25Q80BV */
+
+typedef union
+{
+	uint64_t id_64b;
+	uint32_t id_32b[2]; /* 2*32bits 64bits Unique ID */
+	uint8_t id_8b[8]; /* 8*8bits 64bits Unique ID */
+} w25q80bv_unique_id_t;
 
 void w25q80bv_setup(void);
 void w25q80bv_chip_erase(void);
 void w25q80bv_program(uint32_t addr, uint32_t len, const uint8_t* data);
+uint8_t w25q80bv_get_device_id(void);
+void w25q80bv_get_unique_id(w25q80bv_unique_id_t* unique_id);
 
 #endif//__W25Q80BV_H__

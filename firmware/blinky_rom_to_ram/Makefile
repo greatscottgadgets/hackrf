@@ -1,7 +1,6 @@
 # Hey Emacs, this is a -*- makefile -*-
 #
-# Copyright 2012 Michael Ossmann <mike@ossmann.com>
-# Copyright 2012 Jared Boone <jared@sharebrained.com>
+# Copyright 2013 Benjamin Vernoux <titanmkd@gmail.com>
 #
 # This file is part of HackRF.
 #
@@ -21,12 +20,19 @@
 # Boston, MA 02110-1301, USA.
 #
 
-BINARY = blinky
+BINARY = blinky_rom_to_ram
 
-SRC = $(BINARY).c \
+SRC_DIR = blinky
+
+SRC = blinky.c \
 	../common/hackrf_core.c \
 	../common/si5351c.c \
 	../common/max2837.c
 
 LDSCRIPT = ../common/LPC4330_M4_rom_to_ram.ld
+
+%.o: ../$(SRC_DIR)/%.c  Makefile
+	@printf "  CC      $(subst $(shell pwd)/,,$(@))\n"
+	$(Q)$(CC) $(CFLAGS) -o $@ -c $<
+
 include ../common/Makefile_inc.mk

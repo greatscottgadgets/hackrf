@@ -23,12 +23,12 @@
 #include <stdint.h>
 
 #include "rom_iap.h"
+#include "w25q80bv.h"
 
 #define ROM_IAP_ADDR (0x10400100)
 #define ROM_IAP_UNDEF_ADDR (0x12345678)
 
 #define ROM_OTP_PART_ID_ADDR (0x40045000)
-#define ROM_OTP_SERIAL_NO_ADDR (0x40045050) /* To be confirmed */
 
 typedef void (* IAP_t)(uint32_t [],uint32_t[]);
 
@@ -73,7 +73,12 @@ isp_iap_ret_code_t iap_cmd_call(iap_cmd_res_t* iap_cmd_res)
 		pROM_API->IAP( (uint32_t*)&iap_cmd_res->cmd_param, (uint32_t*)&iap_cmd_res->status_res);
 	}else
 	{
-		/* Alternative way to retrieve Part Id & Serial No on MCU with no IAP */
+		/* 
+		  Alternative way to retrieve Part Id on MCU with no IAP 
+		  Read Serial No => Read Unique ID in SPIFI (only compatible with W25Q80BV
+		*/
+		w25q80bv_setup();
+
 		switch(iap_cmd_res->cmd_param.command_code)
 		{
 			case IAP_CMD_READ_PART_ID_NO:
@@ -84,11 +89,10 @@ isp_iap_ret_code_t iap_cmd_call(iap_cmd_res_t* iap_cmd_res)
 			break;
 			
 			case IAP_CMD_READ_SERIAL_NO:
-				p_u32_data = (uint32_t*)ROM_OTP_SERIAL_NO_ADDR;
-				iap_cmd_res->status_res.iap_result[0] = p_u32_data[0];
-				iap_cmd_res->status_res.iap_result[1] = p_u32_data[1];
-				iap_cmd_res->status_res.iap_result[2] = p_u32_data[2];
-				iap_cmd_res->status_res.iap_result[3] = p_u32_data[3];
+			/* Only 64bits used */
+			iap_cmd_res->status_res.iap_result[0] = 0;
+			iap_cmd_res->status_res.iap_result[1] = 0;
+			w25q80bv_get_unique_id( (w25q80bv_unique_id_t*)&iap_cmd_res->status_res.iap_result[2] );
 				iap_cmd_res->status_res.status_ret = CMD_SUCCESS;
 			break;
 			
