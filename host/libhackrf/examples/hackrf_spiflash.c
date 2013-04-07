@@ -70,7 +70,7 @@ static void usage()
 {
 	printf("Usage:\n");
 	printf("\t-a, --address <n>: starting address (default: 0)\n");
-	printf("\t-l, --length <n>: number of bytes to read or write (default: 0)\n");
+	printf("\t-l, --length <n>: number of bytes to read (default: 0)\n");
 	printf("\t-r <filename>: Read data into file.\n");
 	printf("\t-w <filename>: Write data from file.\n");
 }
@@ -136,9 +136,28 @@ int main(int argc, char** argv)
 		usage();
 		return EXIT_FAILURE;
 	}
+	
+	if (path == NULL) {
+		fprintf(stderr, "Specify a path to a file.\n");
+		usage();
+		return EXIT_FAILURE;
+	}	
+	
+	if( write )
+	{
+		fd = fopen(path, "rb");
+		/* Get size of the file  */
+		fseek(fd, 0, SEEK_END); /* Not really portable but work on major OS Linux/Win32 */
+		length = ftell(fd);
+		/* Move to start */
+		rewind(fd);
+		printf("File size %d bytes.\n", length);
+	}
 
 	if (length == 0) {
 		fprintf(stderr, "Requested transfer of zero bytes.\n");
+		if(fd != NULL)
+			fclose(fd);
 		usage();
 		return EXIT_FAILURE;
 	}
@@ -146,20 +165,14 @@ int main(int argc, char** argv)
 	if ((length > MAX_LENGTH) || (address > MAX_LENGTH)
 			|| ((address + length) > MAX_LENGTH)) {
 		fprintf(stderr, "Request exceeds size of flash memory.\n");
-		usage();
-		return EXIT_FAILURE;
-	}
-
-	if (path == NULL) {
-		fprintf(stderr, "Specify a path to a file.\n");
+		if(fd != NULL)
+			fclose(fd);
 		usage();
 		return EXIT_FAILURE;
 	}
 
 	if (read) {
 		fd = fopen(path, "wb");
-	} else {
-		fd = fopen(path, "rb");
 	}
 
 	if (fd == NULL) {
