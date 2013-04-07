@@ -20,18 +20,28 @@
 # Boston, MA 02110-1301, USA.
 #
 
-BINARY = cpldjtagprog_rom_to_ram
+BINARY = usb_performance_rom_to_ram
 
-SRC_DIR = cpldjtagprog
+SRC_DIR = usb_performance
 
-SRC = cpldjtagprog.c \
+SRC = usb_performance.c \
+	usb.c \
+	usb_request.c \
+	usb_standard_request.c \
+	usb_descriptor.c \
+	../common/fault_handler.c \
 	../common/hackrf_core.c \
+	../common/sgpio.c \
 	../common/si5351c.c \
 	../common/max2837.c \
+	../common/max5864.c \
+	../common/rffc5071.c \
+	../common/w25q80bv.c \
 	../common/cpld_jtag.c \
 	../common/xapp058/lenval.c \
 	../common/xapp058/micro.c \
-	../common/xapp058/ports.c
+	../common/xapp058/ports.c \
+	../common/rom_iap.c
 
 LDSCRIPT = ../common/LPC4330_M4_rom_to_ram.ld
 
@@ -40,3 +50,4 @@ LDSCRIPT = ../common/LPC4330_M4_rom_to_ram.ld
 	$(Q)$(CC) $(CFLAGS) -o $@ -c $<
 
 include ../common/Makefile_inc.mk
+
