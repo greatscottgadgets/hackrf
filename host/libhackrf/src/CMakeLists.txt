@@ -25,9 +25,6 @@
 set(c_sources ${CMAKE_CURRENT_SOURCE_DIR}/hackrf.c CACHE INTERNAL "List of C sources")
 set(c_headers ${CMAKE_CURRENT_SOURCE_DIR}/hackrf.h CACHE INTERNAL "List of C headers")
 
-set_source_files_properties(hackrf.c PROPERTIES LANGUAGE CXX )
-set_source_files_properties(hackrf.h PROPERTIES LANGUAGE CXX )
-
 # Dynamic library
 add_library(hackrf SHARED ${c_sources})
 set_target_properties(hackrf PROPERTIES VERSION ${MAJOR_VERSION}.${MINOR_VERSION}.0 SOVERSION 0)
@@ -40,7 +37,7 @@ set_target_properties(hackrf PROPERTIES CLEAN_DIRECT_OUTPUT 1)
 set_target_properties(hackrf-static PROPERTIES CLEAN_DIRECT_OUTPUT 1)
 
 # Dependencies
-target_link_libraries(hackrf ${LIBUSB_LIBRARIES} pthread)
+target_link_libraries(hackrf ${LIBUSB_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
    
 # For cygwin just force UNIX OFF and WIN32 ON
 if( ${CYGWIN} )
