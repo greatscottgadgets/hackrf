@@ -24,7 +24,6 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdbool.h>
 #include <string.h>
 #include <getopt.h>
 #include <time.h>
@@ -187,32 +186,32 @@ int parse_u32(char* s, uint32_t* const value) {
 	}
 }
 
-volatile bool do_exit = false;
+volatile int do_exit = 0;
 
 FILE* fd = NULL;
 volatile uint32_t byte_count = 0;
 
-bool receive = false;
-bool receive_wav = false;
+int receive = 0;
+int receive_wav = 0;
 
-bool transmit = false;
+int transmit = 0;
 struct timeval time_start;
 struct timeval t_start;
 	
-bool freq = false;
+int freq = 0;
 uint64_t freq_hz;
 
-bool amp = false;
+int amp = 0;
 uint32_t amp_enable;
 
-bool sample_rate = false;
+int sample_rate = 0;
 uint32_t sample_rate_hz;
 
-bool limit_num_samples = false;
+int limit_num_samples = 0;
 uint64_t samples_to_xfer = 0;
 uint64_t bytes_to_xfer = 0;
 
-bool baseband_filter_bw = false;
+int baseband_filter_bw = 0;
 uint32_t baseband_filter_bw_hz = 0;
 
 int rx_callback(hackrf_transfer* transfer) {
@@ -290,7 +289,7 @@ static hackrf_device* device = NULL;
 void sigint_callback_handler(int signum) 
 {
 	fprintf(stdout, "Caught signal %d\n", signum);
-	do_exit = true;
+	do_exit = 1;
 }
 
 #define PATH_FILE_MAX_LEN (FILENAME_MAX)
@@ -313,42 +312,42 @@ int main(int argc, char** argv) {
 		switch( opt ) 
 		{
 		case 'w':
-			receive_wav = true;
+			receive_wav = 1;
 			break;
 		
 		case 'r':
-			receive = true;
+			receive = 1;
 			path = optarg;
 			break;
 		
 		case 't':
-			transmit = true;
+			transmit = 1;
 			path = optarg;
 			break;
 		
 		case 'f':
-			freq = true;
+			freq = 1;
 			result = parse_u64(optarg, &freq_hz);
 			break;
 
 		case 'a':
-			amp = true;
+			amp = 1;
 			result = parse_u32(optarg, &amp_enable);
 			break;
 
 		case 's':
-			sample_rate = true;
+			sample_rate = 1;
 			result = parse_u32(optarg, &sample_rate_hz);
 			break;
 
 		case 'n':
-			limit_num_samples = true;
+			limit_num_samples = 1;
 			result = parse_u64(optarg, &samples_to_xfer);
 			bytes_to_xfer = samples_to_xfer * 2ull;
 			break;
 
 		case 'b':
-			baseband_filter_bw = true;
+			baseband_filter_bw = 1;
 			result = parse_u32(optarg, &baseband_filter_bw_hz);
 			break;
 
@@ -394,7 +393,7 @@ int main(int argc, char** argv) {
 		}
 	}
 
-	if( sample_rate == false ) 
+	if( sample_rate == 0 ) 
 	{
 		sample_rate_hz = DEFAULT_SAMPLE_RATE_HZ;
 	}
@@ -423,18 +422,18 @@ int main(int argc, char** argv) {
 		return EXIT_FAILURE;
 	}
 
-	if( (transmit == false) && (receive == receive_wav) )
+	if( (transmit == 0) && (receive == receive_wav) )
 	{
 		printf("receive -r and receive_wav -w options are mutually exclusive\n");
 		usage();
 		return EXIT_FAILURE;
 	}
 	
-	if( receive_wav == false )
+	if( receive_wav == 0 )
 	{
 		if( transmit == receive ) 
 		{
-			if( transmit == true ) 
+			if( transmit == 1 ) 
 			{
 				printf("receive -r and transmit -t options are mutually exclusive\n");
 			} else
@@ -573,7 +572,7 @@ int main(int argc, char** argv) {
 
 	printf("Stop with Ctrl-C\n");
 	while( (hackrf_is_streaming(device)) &&
-		   (do_exit == false) ) 
+		   (do_exit == 0) ) 
 	{
 		sleep(1);
 		

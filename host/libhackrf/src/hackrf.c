@@ -60,11 +60,11 @@ struct hackrf_device {
 	libusb_device_handle* usb_device;
 	struct libusb_transfer** transfers;
 	hackrf_sample_block_cb_fn callback;
-	bool transfer_thread_started;
+	int transfer_thread_started;
 	pthread_t transfer_thread;
 	uint32_t transfer_count;
 	uint32_t buffer_size;
-	bool streaming;
+	int streaming;
 	void* rx_ctx;
 	void* tx_ctx;
 };
@@ -94,7 +94,7 @@ static const max2837_ft_t max2837_ft[] = {
 	{ 0        },
 };
 
-volatile bool do_exit = false;
+volatile int do_exit = 0;
 
 static const uint16_t hackrf_usb_vid = 0x1d50;
 static const uint16_t hackrf_usb_pid = 0x604b;
@@ -247,15 +247,15 @@ int ADDCALL hackrf_open(hackrf_device** device) {
 	lib_device->transfers = NULL;
 	lib_device->callback = NULL;
 	//lib_device->transfer_thread = (pthread_t)NULL;
-	lib_device->transfer_thread_started = false;
+	lib_device->transfer_thread_started = 0;
 	/*
 	lib_device->transfer_count = 1024;
 	lib_device->buffer_size = 16384;
 	*/
 	lib_device->transfer_count = 4;
 	lib_device->buffer_size = 262144; /* 1048576; */
-	lib_device->streaming = false;
-	do_exit = false;
+	lib_device->streaming = 0;
+	do_exit = 0;
 	
 	result = allocate_transfers(lib_device);
 	if( result != 0 ) {
@@ -694,11 +694,11 @@ static void* transfer_threadproc(void* arg) {
 	
     struct timeval timeout = { 0, 500000 };
 
-    while( (device->streaming) && (do_exit == false) ) 
+    while( (device->streaming) && (do_exit == 0) ) 
 	{
         int error = libusb_handle_events_timeout(g_libusb_context, &timeout);
         if( error != 0 ) {
-			device->streaming = false;
+			device->streaming = 0;
         }
     }
 	
@@ -727,13 +727,13 @@ static void hackrf_libusb_transfer_callback(struct libusb_transfer* usb_transfer
 				return;
 			}else
 			{
-				device->streaming = false;
+				device->streaming = 0;
 			}
 		}
 		break;
 	
 		case LIBUSB_TRANSFER_NO_DEVICE:
-			device->streaming = false; /* Fatal error stop transfer */
+			device->streaming = 0; /* Fatal error stop transfer */
 		break;
 		
 		case LIBUSB_TRANSFER_ERROR:
@@ -748,16 +748,16 @@ static void hackrf_libusb_transfer_callback(struct libusb_transfer* usb_transfer
 }
 
 static int kill_transfer_thread(hackrf_device* device) {
-	device->streaming = false;
-	do_exit = true;
+	device->streaming = 0;
+	do_exit = 1;
 	
-	if( device->transfer_thread_started != false ) {
+	if( device->transfer_thread_started != 0 ) {
 		void* value = NULL;
 		int result = pthread_join(device->transfer_thread, &value);
 		if( result != 0 ) {
 			return HACKRF_ERROR_THREAD;
 		}
-		device->transfer_thread_started = false;
+		device->transfer_thread_started = 0;
 	}
 
 	return HACKRF_SUCCESS;
@@ -768,7 +768,7 @@ static int create_transfer_thread(
 	const uint8_t endpoint_address,
 	hackrf_sample_block_cb_fn callback
 ) {
-	if( device->transfer_thread_started == false ) {
+	if( device->transfer_thread_started == 0 ) {
 		int result = prepare_transfers(
 			device, endpoint_address,
 			(libusb_transfer_cb_fn)hackrf_libusb_transfer_callback
@@ -778,12 +778,12 @@ static int create_transfer_thread(
 		}
 	
 		device->callback = callback;
-		device->streaming = true;
+		device->streaming = 1;
 
-		device->transfer_thread_started = true;
+		device->transfer_thread_started = 1;
 		result = pthread_create(&device->transfer_thread, 0, transfer_threadproc, device);
 		if( result != 0 ) {
-			device->transfer_thread_started = false;
+			device->transfer_thread_started = 0;
 			return HACKRF_ERROR_THREAD;
 		}
 	} else {
@@ -793,7 +793,7 @@ static int create_transfer_thread(
 	return HACKRF_SUCCESS;
 }
 
-bool ADDCALL hackrf_is_streaming(hackrf_device* device) {
+int ADDCALL hackrf_is_streaming(hackrf_device* device) {
 	return device->streaming;
 }
 

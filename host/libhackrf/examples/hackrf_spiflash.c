@@ -25,7 +25,6 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdbool.h>
 #include <string.h>
 #include <getopt.h>
 #include <sys/types.h>
@@ -89,8 +88,8 @@ int main(int argc, char** argv)
 	static uint8_t data[MAX_LENGTH];
 	uint8_t* pdata = &data[0];
 	FILE* fd = NULL;
-	bool read = false;
-	bool write = false;
+	int read = 0;
+	int write = 0;
 
 	while ((opt = getopt_long(argc, argv, "a:l:r:w:", long_options,
 			&option_index)) != EOF) {
@@ -104,12 +103,12 @@ int main(int argc, char** argv)
 			break;
 
 		case 'r':
-			read = true;
+			read = 1;
 			path = optarg;
 			break;
 
 		case 'w':
-			write = true;
+			write = 1;
 			path = optarg;
 			break;
 
@@ -128,7 +127,7 @@ int main(int argc, char** argv)
 	}
 
 	if (write == read) {
-		if (write == true) {
+		if (write == 1) {
 			fprintf(stderr, "Read and write options are mutually exclusive.\n");
 		} else {
 			fprintf(stderr, "Specify either read or write option.\n");

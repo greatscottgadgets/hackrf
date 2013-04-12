@@ -24,7 +24,6 @@
 #define __HACKRF_H__
 
 #include <stdint.h>
-#include <stdbool.h>
 
 #ifdef _WIN32
    #define ADD_EXPORTS
@@ -99,7 +98,7 @@ extern ADDAPI int ADDCALL hackrf_stop_rx(hackrf_device* device);
 extern ADDAPI int ADDCALL hackrf_start_tx(hackrf_device* device, hackrf_sample_block_cb_fn callback, void* tx_ctx);
 extern ADDAPI int ADDCALL hackrf_stop_tx(hackrf_device* device);
  
-extern ADDAPI bool ADDCALL hackrf_is_streaming(hackrf_device* device);
+extern ADDAPI int ADDCALL hackrf_is_streaming(hackrf_device* device);
  
 extern ADDAPI int ADDCALL hackrf_max2837_read(hackrf_device* device, uint8_t register_number, uint16_t* value);
 extern ADDAPI int ADDCALL hackrf_max2837_write(hackrf_device* device, uint8_t register_number, uint16_t value);
