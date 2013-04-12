@@ -35,11 +35,13 @@
 
 #ifdef _WIN32
 #include <windows.h> 
+#define snprintf _snprintf
+#define strtoull _strtoui64
 #else
 #include <unistd.h>
+#include <sys/time.h>
 #endif
 
-#include <sys/time.h>
 #include <signal.h>
 
 #define FD_BUFFER_SIZE (8*1024)
@@ -103,13 +105,13 @@ t_wav_file_hdr wave_file_hdr =
 {
 	/* t_WAVRIFF_hdr */
 	{
-		"RIFF", /* groupID */
+		{'R','I','F','F'}, /* groupID */
 		0, /* size to update later */
-		"WAVE"
+		{'W','A','V','E'}
 	},
 	/* t_FormatChunk */
 	{
-		"fmt ", /* char		chunkID[4];  */
+		{'f','m','t',' '}, /* char		chunkID[4];  */
 		16, /* uint32_t	chunkSize; */
 		1, /* uint16_t	wFormatTag; 1 fixed */
 		2, /* uint16_t	wChannels; 2 fixed */
@@ -120,7 +122,7 @@ t_wav_file_hdr wave_file_hdr =
 	},
 	/* t_DataChunk */
 	{
-	    "data", /* char chunkID[4]; */
+		{'d','a','t','a'}, /* char chunkID[4]; */
 		0, /* uint32_t	chunkSize; to update later */
 	}
 };
@@ -132,6 +134,26 @@ typedef enum {
 } transceiver_mode_t;
 static transceiver_mode_t transceiver_mode = TRANSCEIVER_MODE_RX;
 
+
+#ifdef _WIN32
+int gettimeofday(struct timeval *tv, void* ignored)
+{
+	FILETIME ft;
+	unsigned __int64 tmp = 0;
+	if (NULL != tv) {
+		GetSystemTimeAsFileTime(&ft);
+		tmp |= ft.dwHighDateTime;
+		tmp <<= 32;
+		tmp |= ft.dwLowDateTime;
+		tmp /= 10;
+		tmp -= 11644473600000000Ui64;
+		tv->tv_sec = (long)(tmp / 1000000UL);
+		tv->tv_usec = (long)(tmp % 1000000UL);
+	}
+	return 0;
+}
+#endif
+
 static float
 TimevalDiff(const struct timeval *a, const struct timeval *b)
 {
@@ -140,6 +162,9 @@ TimevalDiff(const struct timeval *a, const struct timeval *b)
 
 int parse_u64(char* s, uint64_t* const value) {
 	uint_fast8_t base = 10;
+	char* s_end;
+	unsigned long long u64_value;
+
 	if( strlen(s) > 2 ) {
 		if( s[0] == '0' ) {
 			if( (s[1] == 'x') || (s[1] == 'X') ) {
@@ -152,8 +177,8 @@ int parse_u64(char* s, uint64_t* const value) {
 		}
 	}
 
-	char* s_end = s;
-	const unsigned long long u64_value = strtoull(s, &s_end, base);
+	s_end = s;
+	u64_value = strtoull(s, &s_end, base);
 	if( (s != s_end) && (*s_end == 0) ) {
 		*value = u64_value;
 		return HACKRF_SUCCESS;
@@ -164,6 +189,9 @@ int parse_u64(char* s, uint64_t* const value) {
 
 int parse_u32(char* s, uint32_t* const value) {
 	uint_fast8_t base = 10;
+	char* s_end;
+	unsigned long ulong_value;
+
 	if( strlen(s) > 2 ) {
 		if( s[0] == '0' ) {
 			if( (s[1] == 'x') || (s[1] == 'X') ) {
@@ -176,8 +204,8 @@ int parse_u32(char* s, uint32_t* const value) {
 		}
 	}
 
-	char* s_end = s;
-	const unsigned long ulong_value = strtoul(s, &s_end, base);
+	s_end = s;
+	ulong_value = strtoul(s, &s_end, base);
 	if( (s != s_end) && (*s_end == 0) ) {
 		*value = ulong_value;
 		return HACKRF_SUCCESS;
@@ -219,6 +247,7 @@ int rx_callback(hackrf_transfer* transfer) {
 
 	if( fd != NULL ) 
 	{
+		size_t bytes_written;
 		byte_count += transfer->valid_length;
 		bytes_to_write = transfer->valid_length;
 		if (limit_num_samples) {
@@ -227,7 +256,7 @@ int rx_callback(hackrf_transfer* transfer) {
 			}
 			bytes_to_xfer -= bytes_to_write;
 		}
-		const ssize_t bytes_written = fwrite(transfer->buffer, 1, bytes_to_write, fd);
+		bytes_written = fwrite(transfer->buffer, 1, bytes_to_write, fd);
 		if ((bytes_written != bytes_to_write)
 				|| (limit_num_samples && (bytes_to_xfer == 0))) {
 			fclose(fd);
@@ -246,6 +275,7 @@ int tx_callback(hackrf_transfer* transfer) {
 
 	if( fd != NULL )
 	{
+		size_t bytes_read;
 		byte_count += transfer->valid_length;
 		bytes_to_read = transfer->valid_length;
 		if (limit_num_samples) {
@@ -258,7 +288,7 @@ int tx_callback(hackrf_transfer* transfer) {
 			}
 			bytes_to_xfer -= bytes_to_read;
 		}
-		const ssize_t bytes_read = fread(transfer->buffer, 1, bytes_to_read, fd);
+		bytes_read = fread(transfer->buffer, 1, bytes_to_read, fd);
 		if ((bytes_read != bytes_to_read)
 				|| (limit_num_samples && (bytes_to_xfer == 0))) {
 			fclose(fd);
@@ -305,6 +335,8 @@ int main(int argc, char** argv) {
 	struct tm * timeinfo;
 	long int file_pos;
 	int exit_code = EXIT_SUCCESS;
+	struct timeval t_end;
+	float time_diff;
   
 	while( (opt = getopt(argc, argv, "wr:t:f:a:s:n:b:")) != EOF )
 	{
@@ -574,16 +606,18 @@ int main(int argc, char** argv) {
 	while( (hackrf_is_streaming(device)) &&
 		   (do_exit == 0) ) 
 	{
+		uint32_t byte_count_now;
+		float time_difference, rate;
+		struct timeval time_now;
 		sleep(1);
 		
-		struct timeval time_now;
 		gettimeofday(&time_now, NULL);
 		
-		uint32_t byte_count_now = byte_count;
+		byte_count_now = byte_count;
 		byte_count = 0;
 		
-		const float time_difference = TimevalDiff(&time_now, &time_start);
-		const float rate = (float)byte_count_now / time_difference;
+		time_difference = TimevalDiff(&time_now, &time_start);
+		rate = (float)byte_count_now / time_difference;
 		printf("%4.1f MiB / %5.3f sec = %4.1f MiB/second\n",
 				(byte_count_now / 1e6f), time_difference, (rate / 1e6f) );
 
@@ -601,9 +635,9 @@ int main(int argc, char** argv) {
     else
         printf("\nExiting...\n");
 	
-	struct timeval t_end;
+
 	gettimeofday(&t_end, NULL);
-	const float time_diff = TimevalDiff(&t_end, &t_start);
+	time_diff = TimevalDiff(&t_end, &t_start);
 	printf("Total time: %5.5f s\n", time_diff);
 	
 	if(device != NULL)

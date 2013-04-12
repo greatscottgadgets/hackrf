@@ -46,6 +46,9 @@ static struct option long_options[] = {
 
 int parse_int(char* s, uint16_t* const value) {
 	uint_fast8_t base = 10;
+	char* s_end;
+	long long_value;
+
 	if( strlen(s) > 2 ) {
 		if( s[0] == '0' ) {
 			if( (s[1] == 'x') || (s[1] == 'X') ) {
@@ -58,8 +61,8 @@ int parse_int(char* s, uint16_t* const value) {
 		}
 	}
 
-	char* s_end = s;
-	const long long_value = strtol(s, &s_end, base);
+	s_end = s;
+	long_value = strtol(s, &s_end, base);
 	if( (s != s_end) && (*s_end == 0) ) {
 		*value = long_value;
 		return HACKRF_SUCCESS;
@@ -118,21 +121,21 @@ int main(int argc, char** argv) {
 	int opt;
 	uint16_t register_number = REGISTER_INVALID;
 	uint16_t register_value;
-	
+	hackrf_device* device = NULL;
+	int option_index = 0;
+
 	int result = hackrf_init();
 	if( result ) {
 		printf("hackrf_init() failed: %s (%d)\n", hackrf_error_name(result), result);
 		return -1;
 	}
 	
-	hackrf_device* device = NULL;
 	result = hackrf_open(&device);
 	if( result ) {
 		printf("hackrf_open() failed: %s (%d)\n", hackrf_error_name(result), result);
 		return -1;
 	}
 
-	int option_index = 0;
 	while( (opt = getopt_long(argc, argv, "n:rw:", long_options, &option_index)) != EOF ) {
 		switch( opt ) {
 		case 'n':

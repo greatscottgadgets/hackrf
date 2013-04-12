@@ -41,6 +41,14 @@ set_target_properties(hackrf-static PROPERTIES CLEAN_DIRECT_OUTPUT 1)
 # Dependencies
 target_link_libraries(hackrf ${LIBUSB_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
    
+   
+if(WIN32)
+add_library(libgetopt_static STATIC
+    getopt/getopt.c
+)
+target_link_libraries(hackrf libgetopt_static)
+endif()
+
 # For cygwin just force UNIX OFF and WIN32 ON
 if( ${CYGWIN} )
   SET(UNIX OFF)

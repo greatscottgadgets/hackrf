@@ -41,7 +41,6 @@ find_package(USB1 REQUIRED)
 include_directories(${LIBUSB_INCLUDE_DIR})
 
 if(CMAKE_COMPILER_IS_GNUCC)
-add_definitions(-std=c89)
 add_definitions(-Wall)
 endif()
 
