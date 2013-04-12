@@ -27,11 +27,11 @@ set(PACKAGE libhackrf)
 set(VERSION_STRING ${MAJOR_VERSION}.${MINOR_VERSION})
 set(VERSION ${VERSION_STRING})
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}")
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/Modules)
 
 cmake_minimum_required(VERSION 2.8)
 
 if (WIN32)
-list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/Modules)
   set(THREADS_USE_PTHREADS_WIN32 true)
   find_package(Threads REQUIRED)
   include_directories(${THREADS_PTHREADS_INCLUDE_DIR})
