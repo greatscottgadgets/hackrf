@@ -20,21 +20,29 @@
 
 # Based heavily upon the libftdi cmake setup.
 
-project(libhackrf)
+project(libhackrf C)
 set(MAJOR_VERSION 0)
 set(MINOR_VERSION 1)
 set(PACKAGE libhackrf)
 set(VERSION_STRING ${MAJOR_VERSION}.${MINOR_VERSION})
 set(VERSION ${VERSION_STRING})
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}")
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/Modules)
 
 cmake_minimum_required(VERSION 2.8)
 
-add_definitions(-Wall)
-add_definitions(-std=c99)
+if (WIN32)
+  set(THREADS_USE_PTHREADS_WIN32 true)
+  find_package(Threads REQUIRED)
+  include_directories(${THREADS_PTHREADS_INCLUDE_DIR})
+endif()
 
 find_package(USB1 REQUIRED)
 include_directories(${LIBUSB_INCLUDE_DIR})
+
+if(CMAKE_COMPILER_IS_GNUCC)
+add_definitions(-Wall)
+endif()
 
 add_subdirectory(src)
 add_subdirectory(examples)

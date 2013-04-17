@@ -25,7 +25,6 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdbool.h>
 #include <string.h>
 #include <getopt.h>
 #include <sys/types.h>
@@ -44,6 +43,9 @@ static struct option long_options[] = {
 int parse_u32(char* s, uint32_t* const value)
 {
 	uint_fast8_t base = 10;
+	char* s_end;
+	uint32_t u32_value;
+
 	if (strlen(s) > 2) {
 		if (s[0] == '0')  {
 			if ((s[1] == 'x') || (s[1] == 'X')) {
@@ -56,8 +58,8 @@ int parse_u32(char* s, uint32_t* const value)
 		}
 	}
 
-	char* s_end = s;
-	const uint32_t u32_value = strtoul(s, &s_end, base);
+	s_end = s;
+	u32_value = strtoul(s, &s_end, base);
 	if ((s != s_end) && (*s_end == 0)) {
 		*value = u32_value;
 		return HACKRF_SUCCESS;
@@ -89,8 +91,8 @@ int main(int argc, char** argv)
 	static uint8_t data[MAX_LENGTH];
 	uint8_t* pdata = &data[0];
 	FILE* fd = NULL;
-	bool read = false;
-	bool write = false;
+	int read = 0;
+	int write = 0;
 
 	while ((opt = getopt_long(argc, argv, "a:l:r:w:", long_options,
 			&option_index)) != EOF) {
@@ -104,12 +106,12 @@ int main(int argc, char** argv)
 			break;
 
 		case 'r':
-			read = true;
+			read = 1;
 			path = optarg;
 			break;
 
 		case 'w':
-			write = true;
+			write = 1;
 			path = optarg;
 			break;
 
@@ -128,7 +130,7 @@ int main(int argc, char** argv)
 	}
 
 	if (write == read) {
-		if (write == true) {
+		if (write == 1) {
 			fprintf(stderr, "Read and write options are mutually exclusive.\n");
 		} else {
 			fprintf(stderr, "Specify either read or write option.\n");
@@ -196,6 +198,7 @@ int main(int argc, char** argv)
 
 	if (read) 
 	{
+		size_t bytes_written;
 		tmp_length = length;
 		while (tmp_length) 
 		{
@@ -213,7 +216,7 @@ int main(int argc, char** argv)
 			pdata += xfer_len;
 			tmp_length -= xfer_len;
 		}
-		const ssize_t bytes_written = fwrite(data, 1, length, fd);
+		bytes_written = fwrite(data, 1, length, fd);
 		if (bytes_written != length) {
 			fprintf(stderr, "Failed write to file (wrote %d bytes).\n",
 					(int)bytes_written);
@@ -222,7 +225,7 @@ int main(int argc, char** argv)
 			return EXIT_FAILURE;
 		}
 	} else {
-		const ssize_t bytes_read = fread(data, 1, length, fd);
+		const size_t bytes_read = fread(data, 1, length, fd);
 		if (bytes_read != length) {
 			fprintf(stderr, "Failed read file (read %d bytes).\n",
 					(int)bytes_read);

@@ -41,4 +41,7 @@ IF( EXAMPLES )
    target_link_libraries(hackrf_info hackrf)
    
    include_directories(BEFORE ${CMAKE_SOURCE_DIR}/src)
+   if(WIN32)
+		include_directories(BEFORE ${CMAKE_SOURCE_DIR}/src/getopt)
+   endif()
 endif(EXAMPLES)

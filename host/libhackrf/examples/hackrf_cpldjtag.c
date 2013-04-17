@@ -41,6 +41,9 @@ static struct option long_options[] = {
 int parse_int(char* s, uint32_t* const value)
 {
 	uint_fast8_t base = 10;
+	char* s_end;
+	long long_value;
+
 	if (strlen(s) > 2) {
 		if (s[0] == '0')  {
 			if ((s[1] == 'x') || (s[1] == 'X')) {
@@ -53,8 +56,8 @@ int parse_int(char* s, uint32_t* const value)
 		}
 	}
 
-	char* s_end = s;
-	const long long_value = strtol(s, &s_end, base);
+	s_end = s;
+	long_value = strtol(s, &s_end, base);
 	if ((s != s_end) && (*s_end == 0)) {
 		*value = long_value;
 		return HACKRF_SUCCESS;
@@ -81,6 +84,7 @@ int main(int argc, char** argv)
 	int option_index = 0;
 	uint8_t data[MAX_XSVF_LENGTH];
 	FILE* fd = NULL;
+	size_t bytes_read;
 
 	while ((opt = getopt_long(argc, argv, "l:x:", long_options,
 			&option_index)) != EOF) {
@@ -124,7 +128,7 @@ int main(int argc, char** argv)
 		return EXIT_FAILURE;
 	}
 
-	const ssize_t bytes_read = fread(data, 1, length, fd);
+	bytes_read = fread(data, 1, length, fd);
 	if (bytes_read != length) {
 		fprintf(stderr, "Failed read file (read %d bytes).\n",
 				(int)bytes_read);
