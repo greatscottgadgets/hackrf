@@ -50,6 +50,11 @@ static const uint32_t usb_bulk_buffer_mask = 32768 - 1;
 
 usb_transfer_descriptor_t usb_td_bulk[2] ATTR_ALIGNED(64);
 const uint_fast8_t usb_td_bulk_count = sizeof(usb_td_bulk) / sizeof(usb_td_bulk[0]);
+ 
+/* TODO remove this big buffer and use streaming for CPLD */ 
+#define CPLD_XSVF_MAX_LEN (65536)
+uint8_t cpld_xsvf_buffer[CPLD_XSVF_MAX_LEN];
+uint16_t write_cpld_idx = 0;
 
 uint8_t spiflash_buffer[W25Q80BV_PAGE_LEN];
 char version_string[] = VERSION_STRING;
@@ -60,8 +65,6 @@ typedef struct {
 } set_freq_params_t;
 
 set_freq_params_t set_freq_params;
-
-uint8_t spiflash_buffer[W25Q80BV_PAGE_LEN];
 
 uint8_t switchctrl = 0;
 
@@ -586,15 +589,62 @@ usb_request_status_t usb_vendor_request_read_spiflash(
 
 usb_request_status_t usb_vendor_request_write_cpld(
 	usb_endpoint_t* const endpoint,
-	const usb_transfer_stage_t stage
-) {
-	if( stage == USB_TRANSFER_STAGE_SETUP )
+	const usb_transfer_stage_t stage)
+{
+	int error, i;
+	uint16_t total_len;
+	uint16_t len;
+	#define WAIT_LOOP_DELAY (6000000)
+	#define ALL_LEDS	(PIN_LED1|PIN_LED2|PIN_LED3)
+
+	if (stage == USB_TRANSFER_STAGE_SETUP) 
 	{
-		//FIXME endpoint->buffer can't be used like this
-		cpld_jtag_program(endpoint->setup.length, endpoint->buffer);
-		usb_endpoint_schedule_ack(endpoint->in);
+		// len is limited to 64KB 16bits no overflow can happen
+		total_len = endpoint->setup.value;
+		len = endpoint->setup.length;
+		usb_endpoint_schedule(endpoint->out, &cpld_xsvf_buffer[write_cpld_idx], len);
 		return USB_REQUEST_STATUS_OK;
-	} else {
+	} else if (stage == USB_TRANSFER_STAGE_DATA) 
+	{
+		// len is limited to 64KB 16bits no overflow can happen
+		total_len = endpoint->setup.value;
+		len = endpoint->setup.length;
+		write_cpld_idx = write_cpld_idx + len;
+		// Check if all bytes received and write CPLD
+		if(write_cpld_idx == total_len)
+		{
+			write_cpld_idx = 0;
+			error = cpld_jtag_program(total_len, &cpld_xsvf_buffer[write_cpld_idx]);
+			// TO FIX ACK shall be not delayed so much as cpld prog can take up to 5s.
+			if(error == 0)
+			{		
+				usb_endpoint_schedule_ack(endpoint->in);
+				
+				/* blink LED1, LED2, and LED3 on success */
+				while (1)
+				{
+					gpio_set(PORT_LED1_3, ALL_LEDS); /* LEDs on */
+					for (i = 0; i < WAIT_LOOP_DELAY; i++)	/* Wait a bit. */
+						__asm__("nop");
+					gpio_clear(PORT_LED1_3, ALL_LEDS); /* LEDs off */
+					for (i = 0; i < WAIT_LOOP_DELAY; i++)	/* Wait a bit. */
+						__asm__("nop");
+				}
+				return USB_REQUEST_STATUS_OK;
+			}else
+			{
+				/* LED3 (Red) steady on error */
+				gpio_set(PORT_LED1_3, PIN_LED3); /* LEDs on */
+				while (1);
+				return USB_REQUEST_STATUS_STALL;
+			}
+		}else
+		{
+			usb_endpoint_schedule_ack(endpoint->in);
+			return USB_REQUEST_STATUS_OK;
+		}
+	} else 
+	{
 		return USB_REQUEST_STATUS_OK;
 	}
 }
