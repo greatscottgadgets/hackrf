@@ -49,12 +49,16 @@
 
 enum hackrf_error {
 	HACKRF_SUCCESS = 0,
+	HACKRF_TRUE = 1,
 	HACKRF_ERROR_INVALID_PARAM = -2,
 	HACKRF_ERROR_NOT_FOUND = -5,
 	HACKRF_ERROR_BUSY = -6,
 	HACKRF_ERROR_NO_MEM = -11,
 	HACKRF_ERROR_LIBUSB = -1000,
 	HACKRF_ERROR_THREAD = -1001,
+	HACKRF_ERROR_STREAMING_THREAD_ERR = -1002,
+	HACKRF_ERROR_STREAMING_STOPPED = -1003,
+	HACKRF_ERROR_STREAMING_EXIT_CALLED = -1004,
 	HACKRF_ERROR_OTHER = -9999,
 };
 
@@ -98,8 +102,9 @@ extern ADDAPI int ADDCALL hackrf_stop_rx(hackrf_device* device);
  
 extern ADDAPI int ADDCALL hackrf_start_tx(hackrf_device* device, hackrf_sample_block_cb_fn callback, void* tx_ctx);
 extern ADDAPI int ADDCALL hackrf_stop_tx(hackrf_device* device);
- 
-extern ADDAPI bool ADDCALL hackrf_is_streaming(hackrf_device* device);
+
+/* return HACKRF_TRUE if success */
+extern ADDAPI int ADDCALL hackrf_is_streaming(hackrf_device* device);
  
 extern ADDAPI int ADDCALL hackrf_max2837_read(hackrf_device* device, uint8_t register_number, uint16_t* value);
 extern ADDAPI int ADDCALL hackrf_max2837_write(hackrf_device* device, uint8_t register_number, uint16_t value);
