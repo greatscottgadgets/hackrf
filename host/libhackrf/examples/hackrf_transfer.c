@@ -572,8 +572,8 @@ int main(int argc, char** argv) {
 	gettimeofday(&time_start, NULL);
 
 	printf("Stop with Ctrl-C\n");
-	while( (hackrf_is_streaming(device)) &&
-		   (do_exit == false) ) 
+	while( (hackrf_is_streaming(device) == HACKRF_TRUE) &&
+			(do_exit == false) ) 
 	{
 		sleep(1);
 		
@@ -596,11 +596,14 @@ int main(int argc, char** argv) {
 			break;
 		}
 	}
-
-    if (do_exit)
-        printf("\nUser cancel, exiting...\n");
-    else
-        printf("\nExiting...\n");
+	
+	result = hackrf_is_streaming(device);	
+	if (do_exit)
+	{
+		printf("\nUser cancel, exiting...\n");
+	} else {
+		printf("\nExiting... hackrf_is_streaming() result: %s (%d)\n", hackrf_error_name(result), result);
+	}
 	
 	struct timeval t_end;
 	gettimeofday(&t_end, NULL);
