@@ -121,9 +121,10 @@ extern ADDAPI int ADDCALL hackrf_rffc5071_write(hackrf_device* device, uint8_t r
 extern ADDAPI int ADDCALL hackrf_spiflash_erase(hackrf_device* device);
 extern ADDAPI int ADDCALL hackrf_spiflash_write(hackrf_device* device, const uint32_t address, const uint16_t length, unsigned char* const data);
 extern ADDAPI int ADDCALL hackrf_spiflash_read(hackrf_device* device, const uint32_t address, const uint16_t length, unsigned char* data);
-     
-extern ADDAPI int ADDCALL hackrf_cpld_write(hackrf_device* device, const uint16_t length, unsigned char* const data);
 
+extern ADDAPI int ADDCALL hackrf_cpld_write(hackrf_device* device, const uint16_t length,
+		unsigned char* const data, const uint16_t total_length);
+		
 extern ADDAPI int ADDCALL hackrf_board_id_read(hackrf_device* device, uint8_t* value);
 extern ADDAPI int ADDCALL hackrf_version_string_read(hackrf_device* device, char* version, uint8_t length);
 
