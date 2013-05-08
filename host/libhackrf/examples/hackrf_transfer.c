@@ -67,15 +67,15 @@
 /* WAVE or RIFF WAVE file format containing IQ 2x8bits data for HackRF compatible with SDR# Wav IQ file */
 typedef struct 
 {
-    char groupID[4]; /* "RIFF" */
+    char groupID[4]; /* 'RIFF' */
     uint32_t size; /* File size + 8bytes */
-    char riffType[4]; /* WAVE */
+    char riffType[4]; /* 'WAVE'*/
 } t_WAVRIFF_hdr;
 
 #define FormatID "fmt "   /* chunkID for Format Chunk. NOTE: There is a space at the end of this ID. */
 
 typedef struct {
-  char		chunkID[4]; /* "fmt " */
+  char		chunkID[4]; /* 'fmt ' */
   uint32_t	chunkSize; /* 16 fixed */
 
   uint16_t	wFormatTag; /* 1 fixed */
@@ -88,7 +88,7 @@ typedef struct {
 
 typedef struct 
 {
-    char		chunkID[4]; /* "data" */
+    char		chunkID[4]; /* 'data' */
     uint32_t	chunkSize; /* Size of data in bytes */
 	/* Samples I(8bits) then Q(8bits), I, Q ... */
 } t_DataChunk;
@@ -104,13 +104,13 @@ t_wav_file_hdr wave_file_hdr =
 {
 	/* t_WAVRIFF_hdr */
 	{
-		"RIFF", /* groupID */
+		{ 'R', 'I', 'F', 'F' }, /* groupID */
 		0, /* size to update later */
-		"WAVE"
+		{ 'W', 'A', 'V', 'E' }
 	},
 	/* t_FormatChunk */
 	{
-		"fmt ", /* char		chunkID[4];  */
+		{ 'f', 'm', 't', ' ' }, /* char		chunkID[4];  */
 		16, /* uint32_t	chunkSize; */
 		1, /* uint16_t	wFormatTag; 1 fixed */
 		2, /* uint16_t	wChannels; 2 fixed */
@@ -121,7 +121,7 @@ t_wav_file_hdr wave_file_hdr =
 	},
 	/* t_DataChunk */
 	{
-	    "data", /* char chunkID[4]; */
+	    { 'd', 'a', 't', 'a' }, /* char chunkID[4]; */
 		0, /* uint32_t	chunkSize; to update later */
 	}
 };
@@ -572,8 +572,8 @@ int main(int argc, char** argv) {
 	gettimeofday(&time_start, NULL);
 
 	printf("Stop with Ctrl-C\n");
-	while( (hackrf_is_streaming(device)) &&
-		   (do_exit == false) ) 
+	while( (hackrf_is_streaming(device) == HACKRF_TRUE) &&
+			(do_exit == false) ) 
 	{
 		sleep(1);
 		
@@ -596,11 +596,14 @@ int main(int argc, char** argv) {
 			break;
 		}
 	}
-
-    if (do_exit)
-        printf("\nUser cancel, exiting...\n");
-    else
-        printf("\nExiting...\n");
+	
+	result = hackrf_is_streaming(device);	
+	if (do_exit)
+	{
+		printf("\nUser cancel, exiting...\n");
+	} else {
+		printf("\nExiting... hackrf_is_streaming() result: %s (%d)\n", hackrf_error_name(result), result);
+	}
 	
 	struct timeval t_end;
 	gettimeofday(&t_end, NULL);
