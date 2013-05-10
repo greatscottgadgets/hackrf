@@ -21,14 +21,16 @@
 #
 
 TARGETS = blinky \
-	      mixertx \
+		  blinky_rom_to_ram \
+		  mixertx \
 		  sgpio \
 		  sgpio-rx \
 		  simpletx \
 		  startup \
 		  startup_systick \
 		  startup_systick_perfo \
-		  usb_performance
+		  usb_performance \
+		  usb_performance_rom_to_ram
 
 #	      blinky_rom_to_ram
 #		  sgpio_passthrough_rom_to_ram

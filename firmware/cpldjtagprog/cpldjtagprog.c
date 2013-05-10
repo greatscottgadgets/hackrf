@@ -34,7 +34,6 @@ int main(void)
 {
 	int i;
 	int error;
-	int LED;
 	
 	pin_setup();
 
@@ -46,26 +45,22 @@ int main(void)
 	/* program test bitstream to CPLD */
 	error = cpld_jtag_program(sgpio_if_xsvf_len, &sgpio_if_xsvf[0]);
 
-	if(error == 0)
-	{
-		/* blink only LED1 (Green) on success */
-		LED = PIN_LED1;
-	}else
-	{
-		/* blink LED3 (Red) on error */
-		LED = PIN_LED3;
-	}
-
 	gpio_clear(PORT_LED1_3, ALL_LEDS); /* All LEDs off */
 
-	while (1)
-	{
-		gpio_set(PORT_LED1_3, LED); /* LEDs on */
-		for (i = 0; i < WAIT_LOOP_DELAY; i++)	/* Wait a bit. */
-			__asm__("nop");
-		gpio_clear(PORT_LED1_3, LED); /* LED off */
-		for (i = 0; i < WAIT_LOOP_DELAY; i++)	/* Wait a bit. */
-			__asm__("nop");
+	if (error == 0) {
+		/* blink LED1, LED2, and LED3 on success */
+		while (1) {
+			gpio_set(PORT_LED1_3, ALL_LEDS); /* LEDs on */
+			for (i = 0; i < WAIT_LOOP_DELAY; i++)	/* Wait a bit. */
+				__asm__("nop");
+			gpio_clear(PORT_LED1_3, ALL_LEDS); /* LEDs off */
+			for (i = 0; i < WAIT_LOOP_DELAY; i++)	/* Wait a bit. */
+				__asm__("nop");
+		}
+	} else {
+		/* LED3 (Red) steady on error */
+		gpio_set(PORT_LED1_3, PIN_LED3); /* LEDs on */
+		while (1);
 	}
 
 	return 0;
