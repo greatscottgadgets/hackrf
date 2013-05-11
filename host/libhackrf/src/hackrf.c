@@ -634,22 +634,20 @@ int ADDCALL hackrf_spiflash_read(hackrf_device* device, const uint32_t address,
 }
 
 int ADDCALL hackrf_cpld_write(hackrf_device* device, const uint16_t length,
-		unsigned char* const data)
+		unsigned char* const data, const uint16_t total_length)
 {
-	int result;
-	result = libusb_control_transfer(
+	int result = libusb_control_transfer(
 		device->usb_device,
 		LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
 		HACKRF_VENDOR_REQUEST_CPLD_WRITE,
-		0,
+		total_length,
 		0,
 		data,
 		length,
 		0
 	);
 
-	if (result < length)
-	{
+	if (result < length) {
 		return HACKRF_ERROR_LIBUSB;
 	} else {
 		return HACKRF_SUCCESS;
