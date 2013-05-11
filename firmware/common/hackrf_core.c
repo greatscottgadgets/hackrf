@@ -252,6 +252,7 @@ void cpu_clock_init(void)
             | CGU_PLL1_CTRL_PSEL(0)
             | CGU_PLL1_CTRL_NSEL(0)
 			| CGU_PLL1_CTRL_MSEL(16)
+			| CGU_PLL1_CTRL_FBSEL
 			| CGU_PLL1_CTRL_DIRECT;
 
 	/* wait until stable */
