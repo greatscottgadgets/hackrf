@@ -61,6 +61,10 @@ extern "C"
 #define SCU_PINMUX_BOOT2    (P2_8)  /* GPIO5[7] on P2_8 */
 #define SCU_PINMUX_BOOT3    (P2_9)  /* GPIO1[10] on P2_9 */
 
+/* USB peripheral */
+#define SCU_PINMUX_USB_LED0 (P6_8)
+#define SCU_PINMUX_USB_LED1 (P6_7)
+
 /* SSP1 Peripheral PinMux */
 #define SCU_SSP1_MISO       (P1_3)  /* P1_3 */
 #define SCU_SSP1_MOSI       (P1_4)  /* P1_4 */
