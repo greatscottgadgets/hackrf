@@ -252,7 +252,8 @@ void cpu_clock_init(void)
             | CGU_PLL1_CTRL_PSEL(0)
             | CGU_PLL1_CTRL_NSEL(0)
 			| CGU_PLL1_CTRL_MSEL(16)
-			| CGU_PLL1_CTRL_FBSEL;
+			| CGU_PLL1_CTRL_FBSEL
+			| CGU_PLL1_CTRL_DIRECT;
 
 	/* wait until stable */
 	while (!(CGU_PLL1_STAT & CGU_PLL1_STAT_LOCK));
@@ -368,16 +369,20 @@ void pin_setup(void) {
 	GPIO_DIR(PORT_CPLD_TDI) &= ~PIN_CPLD_TDI;
 	
 	/* Configure SCU Pin Mux as GPIO */
-	scu_pinmux(SCU_PINMUX_LED1, SCU_GPIO_FAST);
-	scu_pinmux(SCU_PINMUX_LED2, SCU_GPIO_FAST);
-	scu_pinmux(SCU_PINMUX_LED3, SCU_GPIO_FAST);
+	scu_pinmux(SCU_PINMUX_LED1, SCU_GPIO_NOPULL);
+	scu_pinmux(SCU_PINMUX_LED2, SCU_GPIO_NOPULL);
+	scu_pinmux(SCU_PINMUX_LED3, SCU_GPIO_NOPULL);
 	
-	scu_pinmux(SCU_PINMUX_EN1V8, SCU_GPIO_FAST);
+	scu_pinmux(SCU_PINMUX_EN1V8, SCU_GPIO_NOPULL);
 	
 	scu_pinmux(SCU_PINMUX_BOOT0, SCU_GPIO_FAST);
 	scu_pinmux(SCU_PINMUX_BOOT1, SCU_GPIO_FAST);
 	scu_pinmux(SCU_PINMUX_BOOT2, SCU_GPIO_FAST);
 	scu_pinmux(SCU_PINMUX_BOOT3, SCU_GPIO_FAST);
+	
+	/* Configure USB indicators */
+	scu_pinmux(SCU_PINMUX_USB_LED0, SCU_CONF_FUNCTION3);
+	scu_pinmux(SCU_PINMUX_USB_LED1, SCU_CONF_FUNCTION3);
 	
 	/* Configure all GPIO as Input (safe state) */
 	GPIO0_DIR = 0;
