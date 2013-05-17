@@ -38,5 +38,4 @@ find_package(USB1 REQUIRED)
 include_directories(${LIBUSB_INCLUDE_DIR})
 
 add_subdirectory(src)
-add_subdirectory(examples)
 
