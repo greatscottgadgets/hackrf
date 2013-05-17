@@ -1,4 +1,5 @@
 # Copyright 2012 Jared Boone
+# Copyright 2013 Benjamin Vernoux
 #
 # This file is part of HackRF.
 #
@@ -37,7 +38,8 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++98")
 find_package(USB1 REQUIRED)
 include_directories(${LIBUSB_INCLUDE_DIR})
 
-include_directories(${CMAKE_SOURCE_DIR}/../libhackrf/src)
-link_directories(${CMAKE_SOURCE_DIR}/../libhackrf/src)
+find_package(LIBHACKRF REQUIRED)
+include_directories(${LIBHACKRF_INCLUDE_DIR})
+link_directories(${LIBHACKRF_LIBRARIES} ${CMAKE_SOURCE_DIR}/../libhackrf/src)
 
 add_subdirectory(src)
