@@ -1,5 +1,6 @@
 /*
  * Copyright 2012 Jared Boone
+ * Copyright 2013 Benjamin Vernoux
  *
  * This file is part of HackRF.
  *
@@ -79,20 +80,20 @@ void update_switches(void)
 
 #define FREQ_ONE_MHZ     (1000*1000)
 
-#define MIN_LP_FREQ_MHZ (30)
+#define MIN_LP_FREQ_MHZ (5)
 #define MAX_LP_FREQ_MHZ (2300)
 
 #define MIN_BYPASS_FREQ_MHZ (2300)
 #define MAX_BYPASS_FREQ_MHZ (2700)
 
 #define MIN_HP_FREQ_MHZ (2700)
-#define MAX_HP_FREQ_MHZ (6000)
+#define MAX_HP_FREQ_MHZ (6800)
 
 #define MAX2837_FREQ_NOMINAL_HZ (2600000000)
 #define MAX2837_FREQ_NOMINAL_MHZ (MAX2837_FREQ_NOMINAL_HZ / FREQ_ONE_MHZ)
 
 /*
- * Set freq/tuning between 30MHz to 6000 MHz (less than 16bits really used)
+ * Set freq/tuning between 5MHz to 6800 MHz (less than 16bits really used)
  * hz between 0 to 999999 Hz (not checked)
  * return false on error or true if success.
  */

@@ -48,8 +48,8 @@
 #define FREQ_ONE_MHZ (1000000ull)
 
 #define DEFAULT_FREQ_HZ (900000000ull) /* 900MHz */
-#define FREQ_MIN_HZ	(30000000ull) /* 30MHz */
-#define FREQ_MAX_HZ	(6000000000ull) /* 6000MHz */
+#define FREQ_MIN_HZ	(5000000ull) /* 5MHz */
+#define FREQ_MAX_HZ	(6800000000ull) /* 6800MHz */
 
 #define DEFAULT_SAMPLE_RATE_HZ (10000000) /* 10MHz default sample rate */
 
