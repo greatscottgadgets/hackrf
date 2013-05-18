@@ -40,6 +40,5 @@ include_directories(${LIBUSB_INCLUDE_DIR})
 
 find_package(LIBHACKRF REQUIRED)
 include_directories(${LIBHACKRF_INCLUDE_DIR})
-link_directories(${LIBHACKRF_LIBRARIES} ${CMAKE_SOURCE_DIR}/../libhackrf/src)
 
 add_subdirectory(src)
