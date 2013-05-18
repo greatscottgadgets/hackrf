@@ -20,11 +20,11 @@
 # Boston, MA 02110-1301, USA.
 #
 
-BINARY = usb_performance_rom_to_ram
+BINARY = hackrf_usb_rom_to_ram
 
-SRC_DIR = usb_performance
+SRC_DIR = hackrf_usb
 
-SRC = usb_performance.c \
+SRC = hackrf_usb.c \
 	usb.c \
 	usb_request.c \
 	usb_standard_request.c \

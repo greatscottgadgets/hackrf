@@ -1,3 +1,8 @@
+The primary firmware source code for USB HackRF devices is hackrf_usb.  Most of
+the other directories contain firmware source code for test and development.
+The common directory contains source code shared by multiple HackRF firmware
+projects.
+
 The firmware is set up for compilation with the GCC toolchain available here:
 
 https://code.launchpad.net/gcc-arm-embedded

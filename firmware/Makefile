@@ -29,8 +29,8 @@ TARGETS = blinky \
 		  startup \
 		  startup_systick \
 		  startup_systick_perfo \
-		  usb_performance \
-		  usb_performance_rom_to_ram
+		  hackrf_usb \
+		  hackrf_usb_rom_to_ram
 
 #	      blinky_rom_to_ram
 #		  sgpio_passthrough_rom_to_ram

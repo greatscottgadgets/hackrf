@@ -20,7 +20,7 @@
 # Boston, MA 02110-1301, USA.
 #
 
-BINARY = usb_performance
+BINARY = hackrf_usb
 
 SRC = $(BINARY).c \
 	usb.c \
