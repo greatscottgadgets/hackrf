@@ -21,24 +21,22 @@
 
 # Based heavily upon the libftdi cmake setup.
 
-option(EXAMPLES "Build example programs" ON)
+add_executable(hackrf_max2837 hackrf_max2837.c)
+add_executable(hackrf_si5351c hackrf_si5351c.c)
+add_executable(hackrf_transfer hackrf_transfer.c)
+add_executable(hackrf_rffc5071 hackrf_rffc5071.c)
+add_executable(hackrf_spiflash hackrf_spiflash.c)
+add_executable(hackrf_cpldjtag hackrf_cpldjtag.c)
+add_executable(hackrf_info hackrf_info.c)
 
-IF( EXAMPLES )
-   add_executable(hackrf_max2837 hackrf_max2837.c)
-   add_executable(hackrf_si5351c hackrf_si5351c.c)
-   add_executable(hackrf_transfer hackrf_transfer.c)
-   add_executable(hackrf_rffc5071 hackrf_rffc5071.c)
-   add_executable(hackrf_spiflash hackrf_spiflash.c)
-   add_executable(hackrf_cpldjtag hackrf_cpldjtag.c)
-   add_executable(hackrf_info hackrf_info.c)
-   
-   target_link_libraries(hackrf_max2837 hackrf)
-   target_link_libraries(hackrf_si5351c hackrf)
-   target_link_libraries(hackrf_transfer hackrf)
-   target_link_libraries(hackrf_rffc5071 hackrf)
-   target_link_libraries(hackrf_spiflash hackrf)
-   target_link_libraries(hackrf_cpldjtag hackrf)
-   target_link_libraries(hackrf_info hackrf)
-   
-   include_directories(BEFORE ${CMAKE_SOURCE_DIR}/../libhackrf/src)
-endif(EXAMPLES)
+include_directories(${LIBHACKRF_INCLUDE_DIR})
+
+target_link_libraries(hackrf_max2837 ${LIBHACKRF_LIBRARIES})
+target_link_libraries(hackrf_si5351c ${LIBHACKRF_LIBRARIES})
+target_link_libraries(hackrf_transfer ${LIBHACKRF_LIBRARIES})
+target_link_libraries(hackrf_rffc5071 ${LIBHACKRF_LIBRARIES})
+target_link_libraries(hackrf_spiflash ${LIBHACKRF_LIBRARIES})
+target_link_libraries(hackrf_cpldjtag ${LIBHACKRF_LIBRARIES})
+target_link_libraries(hackrf_info ${LIBHACKRF_LIBRARIES})
+
+
