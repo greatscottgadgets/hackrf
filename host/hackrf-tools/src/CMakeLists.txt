@@ -22,12 +22,25 @@
 # Based heavily upon the libftdi cmake setup.
 
 add_executable(hackrf_max2837 hackrf_max2837.c)
+install(TARGETS hackrf_max2837 RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX})
+
 add_executable(hackrf_si5351c hackrf_si5351c.c)
+install(TARGETS hackrf_si5351c RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX})
+
 add_executable(hackrf_transfer hackrf_transfer.c)
+install(TARGETS hackrf_transfer RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX})
+
 add_executable(hackrf_rffc5071 hackrf_rffc5071.c)
+install(TARGETS hackrf_rffc5071 RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX})
+
 add_executable(hackrf_spiflash hackrf_spiflash.c)
+install(TARGETS hackrf_spiflash RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX})
+
 add_executable(hackrf_cpldjtag hackrf_cpldjtag.c)
+install(TARGETS hackrf_cpldjtag RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX})
+
 add_executable(hackrf_info hackrf_info.c)
+install(TARGETS hackrf_info RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX})
 
 include_directories(${LIBHACKRF_INCLUDE_DIR})
 
