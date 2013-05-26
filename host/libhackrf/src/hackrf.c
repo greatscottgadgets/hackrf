@@ -48,7 +48,10 @@ typedef enum {
 	HACKRF_VENDOR_REQUEST_VERSION_STRING_READ = 15,
 	HACKRF_VENDOR_REQUEST_SET_FREQ = 16,
 	HACKRF_VENDOR_REQUEST_AMP_ENABLE = 17,
-	HACKRF_VENDOR_REQUEST_BOARD_PARTID_SERIALNO_READ = 18
+	HACKRF_VENDOR_REQUEST_BOARD_PARTID_SERIALNO_READ = 18,
+	HACKRF_VENDOR_REQUEST_SET_LNA_GAIN = 19,
+	HACKRF_VENDOR_REQUEST_SET_VGA_GAIN = 20,
+	HACKRF_VENDOR_REQUEST_SET_TXVGA_GAIN = 21,
 } hackrf_vendor_request;
 
 typedef enum {
@@ -784,6 +787,90 @@ int ADDCALL hackrf_board_partid_serialno_read(hackrf_device* device, read_partid
 	if (result < length)
 	{
 		return HACKRF_ERROR_LIBUSB;
+	} else {
+		return HACKRF_SUCCESS;
+	}
+}
+
+int ADDCALL hackrf_set_lna_gain(hackrf_device* device, uint32_t value)
+{
+	int result;
+	
+	if( value > 40 )
+	{
+		return HACKRF_ERROR_INVALID_PARAM;
+	}
+
+	result = libusb_control_transfer(
+		device->usb_device,
+		LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_SET_LNA_GAIN,
+		0,
+		value,
+		NULL,
+		0,
+		0
+	);
+
+	if( result != 0 )
+	{
+		return HACKRF_ERROR_INVALID_PARAM;
+	} else {
+		return HACKRF_SUCCESS;
+	}
+}
+
+int ADDCALL hackrf_set_vga_gain(hackrf_device* device, uint32_t value)
+{
+	int result;
+	
+	if( value > 62 )
+	{
+		return HACKRF_ERROR_INVALID_PARAM;
+	}
+
+	result = libusb_control_transfer(
+		device->usb_device,
+		LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_SET_VGA_GAIN,
+		0,
+		value,
+		NULL,
+		0,
+		0
+	);
+
+	if( result != 0 )
+	{
+		return HACKRF_ERROR_INVALID_PARAM;
+	} else {
+		return HACKRF_SUCCESS;
+	}
+}
+
+int ADDCALL hackrf_set_txvga_gain(hackrf_device* device, uint32_t value, uint32_t plus16db)
+{
+	int result;
+	
+	if( value > 47 )
+	{
+		return HACKRF_ERROR_INVALID_PARAM;
+	}
+
+	result = libusb_control_transfer(
+		device->usb_device,
+		LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_SET_TXVGA_GAIN,
+		plus16db,
+		value,
+		NULL,
+		0,
+		0
+	);
+
+	if( result != 0 )
+	{
+		return HACKRF_ERROR_INVALID_PARAM;
 	} else {
 		return HACKRF_SUCCESS;
 	}
