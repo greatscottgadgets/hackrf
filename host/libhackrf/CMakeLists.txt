@@ -31,12 +31,18 @@ set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}")
 
 cmake_minimum_required(VERSION 2.8)
 
+if(MSVC)
+set(THREADS_USE_PTHREADS_WIN32 true)
+find_package(Threads REQUIRED)
+else()
 add_definitions(-Wall)
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++98")
-
+endif()
 find_package(USB1 REQUIRED)
-include_directories(${LIBUSB_INCLUDE_DIR})
+
+
+include_directories(${LIBUSB_INCLUDE_DIR} ${THREADS_PTHREADS_INCLUDE_DIR})
 
 add_subdirectory(src)
 
