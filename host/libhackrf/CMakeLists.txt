@@ -21,7 +21,7 @@
 
 # Based heavily upon the libftdi cmake setup.
 
-project(libhackrf)
+project(libhackrf C)
 set(MAJOR_VERSION 0)
 set(MINOR_VERSION 1)
 set(PACKAGE libhackrf)
@@ -36,8 +36,7 @@ set(THREADS_USE_PTHREADS_WIN32 true)
 find_package(Threads REQUIRED)
 else()
 add_definitions(-Wall)
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++98")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu90")
 endif()
 find_package(USB1 REQUIRED)
 

@@ -28,7 +28,11 @@
 #include <string.h>
 #include <getopt.h>
 #include <sys/types.h>
+#include <stdint.h>
 
+#ifdef _MSC_VER
+typedef int ssize_t;
+#endif
 /* input file shouldn't be any longer than this */
 #define MAX_XSVF_LENGTH 0x10000
 #define PACKET_LEN	4096
@@ -43,6 +47,9 @@ static struct option long_options[] = {
 int parse_int(char* s, uint32_t* const value)
 {
 	uint_fast8_t base = 10;
+	char* s_end;
+	long long_value;
+
 	if (strlen(s) > 2) {
 		if (s[0] == '0')  {
 			if ((s[1] == 'x') || (s[1] == 'X')) {
@@ -55,8 +62,8 @@ int parse_int(char* s, uint32_t* const value)
 		}
 	}
 
-	char* s_end = s;
-	const long long_value = strtol(s, &s_end, base);
+	s_end = s;
+	long_value = strtol(s, &s_end, base);
 	if ((s != s_end) && (*s_end == 0)) {
 		*value = long_value;
 		return HACKRF_SUCCESS;

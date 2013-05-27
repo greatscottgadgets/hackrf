@@ -23,6 +23,12 @@
 
 set(INSTALL_DEFAULT_BINDIR "bin" CACHE STRING "Appended to CMAKE_INSTALL_PREFIX")
 
+if(MSVC)
+add_library(libgetopt_static STATIC
+    ../getopt/getopt.c
+)
+endif()
+
 add_executable(hackrf_max2837 hackrf_max2837.c)
 install(TARGETS hackrf_max2837 RUNTIME DESTINATION ${INSTALL_DEFAULT_BINDIR})
 
@@ -54,4 +60,12 @@ target_link_libraries(hackrf_spiflash ${LIBHACKRF_LIBRARIES})
 target_link_libraries(hackrf_cpldjtag ${LIBHACKRF_LIBRARIES})
 target_link_libraries(hackrf_info ${LIBHACKRF_LIBRARIES})
 
-
+if(MSVC)
+target_link_libraries(hackrf_max2837  libgetopt_static)
+target_link_libraries(hackrf_si5351c  libgetopt_static)
+target_link_libraries(hackrf_transfer  libgetopt_static)
+target_link_libraries(hackrf_rffc5071  libgetopt_static)
+target_link_libraries(hackrf_spiflash  libgetopt_static)
+target_link_libraries(hackrf_cpldjtag  libgetopt_static)
+target_link_libraries(hackrf_info  libgetopt_static)
+endif()
