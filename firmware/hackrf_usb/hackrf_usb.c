@@ -760,6 +760,47 @@ usb_request_status_t usb_vendor_request_read_partid_serialno(
 	return USB_REQUEST_STATUS_OK;
 }
 
+usb_request_status_t usb_vendor_request_set_lna_gain(
+	usb_endpoint_t* const endpoint,	const usb_transfer_stage_t stage)
+{
+	if( stage == USB_TRANSFER_STAGE_SETUP ) {
+			const uint8_t value = max2837_set_lna_gain(endpoint->setup.index);
+			endpoint->buffer[0] = value;
+			usb_endpoint_schedule(endpoint->in, &endpoint->buffer, 1);
+			usb_endpoint_schedule_ack(endpoint->out);
+			return USB_REQUEST_STATUS_OK;
+	}
+	return USB_REQUEST_STATUS_OK;
+}
+
+usb_request_status_t usb_vendor_request_set_vga_gain(
+	usb_endpoint_t* const endpoint,	const usb_transfer_stage_t stage)
+{
+	if( stage == USB_TRANSFER_STAGE_SETUP ) {
+			const uint8_t value = max2837_set_vga_gain(endpoint->setup.index);
+			endpoint->buffer[0] = value;
+			usb_endpoint_schedule(endpoint->in, &endpoint->buffer, 1);
+			usb_endpoint_schedule_ack(endpoint->out);
+			return USB_REQUEST_STATUS_OK;
+	}
+	return USB_REQUEST_STATUS_OK;
+}
+
+usb_request_status_t usb_vendor_request_set_txvga_gain(
+	usb_endpoint_t* const endpoint,	const usb_transfer_stage_t stage)
+{
+	if( stage == USB_TRANSFER_STAGE_SETUP ) {
+			const uint8_t value = max2837_set_txvga_gain(
+				endpoint->setup.index, endpoint->setup.value);
+			
+			endpoint->buffer[0] = value;
+			usb_endpoint_schedule(endpoint->in, &endpoint->buffer, 1);
+			usb_endpoint_schedule_ack(endpoint->out);
+			return USB_REQUEST_STATUS_OK;
+	}
+	return USB_REQUEST_STATUS_OK;
+}
+
 static const usb_request_handler_fn vendor_request_handler[] = {
 	NULL,
 	usb_vendor_request_set_transceiver_mode,
@@ -779,7 +820,10 @@ static const usb_request_handler_fn vendor_request_handler[] = {
 	usb_vendor_request_read_version_string,
 	usb_vendor_request_set_freq,
 	usb_vendor_request_set_amp_enable,
-	usb_vendor_request_read_partid_serialno
+	usb_vendor_request_read_partid_serialno,
+	usb_vendor_request_set_lna_gain,
+	usb_vendor_request_set_vga_gain,
+	usb_vendor_request_set_txvga_gain
 };
 
 static const uint32_t vendor_request_handler_count =

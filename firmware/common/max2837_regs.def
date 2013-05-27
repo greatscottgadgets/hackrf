@@ -56,7 +56,7 @@ __MREG__(MAX2837_LNAgain,1,4,3)
 #define MAX2837_LNAgain_M8  0b100
 #define MAX2837_LNAgain_M16 0b010
 #define MAX2837_LNAgain_M24 0b110
-#define MAX2837_LNAgain_M32 0b001
+#define MAX2837_LNAgain_M32 0b011
 #define MAX2837_LNAgain_M40 0b111
 __MREG__(MAX2837_iqerr_trim,1,9,5)
 // 0b00000 = +4.0 degree phase error
