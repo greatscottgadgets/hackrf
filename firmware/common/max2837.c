@@ -412,7 +412,7 @@ bool max2837_set_txvga_gain(const uint32_t gain_db, const uint32_t plus16) {
 	if(gain_db > 31)/* 0b111111 mind the bit 6 weigth*/
 		return false;
 	
-	if(plus16)
+    if(!plus16)
 		val |=  0x20; /* +16db */
 	
 	set_MAX2837_TXVGA_GAIN(val);
