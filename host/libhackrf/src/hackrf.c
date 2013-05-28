@@ -28,6 +28,11 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 #include <libusb.h>
 #include <pthread.h>
 
+#ifndef bool
+typedef int bool;
+#define true 1
+#define false 1
+#endif
 // TODO: Factor this into a shared #include so that firmware can use
 // the same values.
 typedef enum {
@@ -48,7 +53,10 @@ typedef enum {
 	HACKRF_VENDOR_REQUEST_VERSION_STRING_READ = 15,
 	HACKRF_VENDOR_REQUEST_SET_FREQ = 16,
 	HACKRF_VENDOR_REQUEST_AMP_ENABLE = 17,
-	HACKRF_VENDOR_REQUEST_BOARD_PARTID_SERIALNO_READ = 18
+	HACKRF_VENDOR_REQUEST_BOARD_PARTID_SERIALNO_READ = 18,
+	HACKRF_VENDOR_REQUEST_SET_LNA_GAIN = 19,
+	HACKRF_VENDOR_REQUEST_SET_VGA_GAIN = 20,
+	HACKRF_VENDOR_REQUEST_SET_TXVGA_GAIN = 21,
 } hackrf_vendor_request;
 
 typedef enum {
@@ -150,13 +158,14 @@ static int allocate_transfers(hackrf_device* const device)
 {
 	if( device->transfers == NULL )
 	{
-		device->transfers = (libusb_transfer**) calloc(device->transfer_count, sizeof(struct libusb_transfer));
+		uint32_t transfer_index;
+		device->transfers = (struct libusb_transfer**) calloc(device->transfer_count, sizeof(struct libusb_transfer));
 		if( device->transfers == NULL )
 		{
 			return HACKRF_ERROR_NO_MEM;
 		}
 
-		for(uint32_t transfer_index=0; transfer_index<device->transfer_count; transfer_index++)
+		for(transfer_index=0; transfer_index<device->transfer_count; transfer_index++)
 		{
 			device->transfers[transfer_index] = libusb_alloc_transfer(0);
 			if( device->transfers[transfer_index] == NULL )
@@ -192,9 +201,10 @@ static int prepare_transfers(
 	libusb_transfer_cb_fn callback)
 {
 	int error;
+	uint32_t transfer_index;
 	if( device->transfers != NULL )
 	{
-		for(uint32_t transfer_index=0; transfer_index<device->transfer_count; transfer_index++)
+		for(transfer_index=0; transfer_index<device->transfer_count; transfer_index++)
 		{
 			device->transfers[transfer_index]->endpoint = endpoint_address;
 			device->transfers[transfer_index]->callback = callback;
@@ -242,6 +252,8 @@ int ADDCALL hackrf_exit(void)
 int ADDCALL hackrf_open(hackrf_device** device)
 {
 	int result;
+	libusb_device_handle* usb_device;
+	hackrf_device* lib_device;
 	
 	if( device == NULL )
 	{
@@ -250,7 +262,7 @@ int ADDCALL hackrf_open(hackrf_device** device)
 
 	// TODO: Do proper scanning of available devices, searching for
 	// unit serial number (if specified?).
-	libusb_device_handle* usb_device = libusb_open_device_with_vid_pid(g_libusb_context, hackrf_usb_vid, hackrf_usb_pid);
+	usb_device = libusb_open_device_with_vid_pid(g_libusb_context, hackrf_usb_vid, hackrf_usb_pid);
 	if( usb_device == NULL )
 	{
 		return HACKRF_ERROR_NOT_FOUND;
@@ -273,7 +285,7 @@ int ADDCALL hackrf_open(hackrf_device** device)
 		return HACKRF_ERROR_LIBUSB;
 	}
 
-	hackrf_device* lib_device = NULL;
+	lib_device = NULL;
 	lib_device = (hackrf_device*)malloc(sizeof(*lib_device));
 	if( lib_device == NULL )
 	{
@@ -784,6 +796,90 @@ int ADDCALL hackrf_board_partid_serialno_read(hackrf_device* device, read_partid
 	if (result < length)
 	{
 		return HACKRF_ERROR_LIBUSB;
+	} else {
+		return HACKRF_SUCCESS;
+	}
+}
+
+int ADDCALL hackrf_set_lna_gain(hackrf_device* device, uint32_t value)
+{
+	int result;
+	
+	if( value > 40 )
+	{
+		return HACKRF_ERROR_INVALID_PARAM;
+	}
+
+	result = libusb_control_transfer(
+		device->usb_device,
+		LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_SET_LNA_GAIN,
+		0,
+		value,
+		NULL,
+		0,
+		0
+	);
+
+	if( result != 0 )
+	{
+		return HACKRF_ERROR_INVALID_PARAM;
+	} else {
+		return HACKRF_SUCCESS;
+	}
+}
+
+int ADDCALL hackrf_set_vga_gain(hackrf_device* device, uint32_t value)
+{
+	int result;
+	
+	if( value > 62 )
+	{
+		return HACKRF_ERROR_INVALID_PARAM;
+	}
+
+	result = libusb_control_transfer(
+		device->usb_device,
+		LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_SET_VGA_GAIN,
+		0,
+		value,
+		NULL,
+		0,
+		0
+	);
+
+	if( result != 0 )
+	{
+		return HACKRF_ERROR_INVALID_PARAM;
+	} else {
+		return HACKRF_SUCCESS;
+	}
+}
+
+int ADDCALL hackrf_set_txvga_gain(hackrf_device* device, uint32_t value)
+{
+	int result;
+	
+	if( value > 47 )
+	{
+		return HACKRF_ERROR_INVALID_PARAM;
+	}
+
+	result = libusb_control_transfer(
+		device->usb_device,
+		LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_SET_TXVGA_GAIN,
+		0,
+		value,
+		NULL,
+		0,
+		0
+	);
+
+	if( result != 0 )
+	{
+		return HACKRF_ERROR_INVALID_PARAM;
 	} else {
 		return HACKRF_SUCCESS;
 	}
