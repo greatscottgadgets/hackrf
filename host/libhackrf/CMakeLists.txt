@@ -21,15 +21,14 @@
 
 # Based heavily upon the libftdi cmake setup.
 
+cmake_minimum_required(VERSION 2.8)
 project(libhackrf C)
 set(MAJOR_VERSION 0)
 set(MINOR_VERSION 1)
 set(PACKAGE libhackrf)
 set(VERSION_STRING ${MAJOR_VERSION}.${MINOR_VERSION})
 set(VERSION ${VERSION_STRING})
-set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}")
-
-cmake_minimum_required(VERSION 2.8)
+set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/../cmake/modules)
 
 if(MSVC)
 set(THREADS_USE_PTHREADS_WIN32 true)
@@ -48,11 +47,13 @@ add_subdirectory(src)
 ########################################################################
 # Create uninstall target
 ########################################################################
+if(NOT hackrf_all_SOURCE_DIR)
 configure_file(
-    ${CMAKE_SOURCE_DIR}/cmake_uninstall.cmake.in
+    ${PROJECT_SOURCE_DIR}/../cmake/cmake_uninstall.cmake.in
     ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake
 @ONLY)
 
 add_custom_target(uninstall
     ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake
 )
+endif()
