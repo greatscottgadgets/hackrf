@@ -790,9 +790,7 @@ usb_request_status_t usb_vendor_request_set_txvga_gain(
 	usb_endpoint_t* const endpoint,	const usb_transfer_stage_t stage)
 {
 	if( stage == USB_TRANSFER_STAGE_SETUP ) {
-			const uint8_t value = max2837_set_txvga_gain(
-				endpoint->setup.index, endpoint->setup.value);
-			
+			const uint8_t value = max2837_set_txvga_gain(endpoint->setup.index);
 			endpoint->buffer[0] = value;
 			usb_endpoint_schedule(endpoint->in, &endpoint->buffer, 1);
 			usb_endpoint_schedule_ack(endpoint->out);

@@ -130,13 +130,19 @@ extern ADDAPI int ADDCALL hackrf_version_string_read(hackrf_device* device, char
 
 extern ADDAPI int ADDCALL hackrf_set_freq(hackrf_device* device, const uint64_t freq_hz);
 
+/* external amp, bool on/off */
 extern ADDAPI int ADDCALL hackrf_set_amp_enable(hackrf_device* device, const uint8_t value);
 
 extern ADDAPI int ADDCALL hackrf_board_partid_serialno_read(hackrf_device* device, read_partid_serialno_t* read_partid_serialno);
 
+/* range 0-40 step 8db */
 extern ADDAPI int ADDCALL hackrf_set_lna_gain(hackrf_device* device, uint32_t value);
+
+/* range 0-62 step 2db */
 extern ADDAPI int ADDCALL hackrf_set_vga_gain(hackrf_device* device, uint32_t value);
-extern ADDAPI int ADDCALL hackrf_set_txvga_gain(hackrf_device* device, uint32_t value, uint32_t plus16db);
+
+/* range 0-47 step 1db */
+extern ADDAPI int ADDCALL hackrf_set_txvga_gain(hackrf_device* device, uint32_t value);
 
 extern ADDAPI const char* ADDCALL hackrf_error_name(enum hackrf_error errcode);
 extern ADDAPI const char* ADDCALL hackrf_board_id_name(enum hackrf_board_id board_id);

@@ -47,7 +47,7 @@ extern void max2837_set_frequency(uint32_t freq);
 bool max2837_set_lpf_bandwidth(const uint32_t bandwidth_hz);
 bool max2837_set_lna_gain(const uint32_t gain_db);
 bool max2837_set_vga_gain(const uint32_t gain_db);
-bool max2837_set_txvga_gain(const uint32_t gain_db, const uint32_t plus16);
+bool max2837_set_txvga_gain(const uint32_t gain_db);
 	
 extern void max2837_tx(void);
 extern void max2837_rx(void);

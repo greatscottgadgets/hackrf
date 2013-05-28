@@ -407,13 +407,14 @@ bool max2837_set_vga_gain(const uint32_t gain_db) {
 	return true;
 }
 
-bool max2837_set_txvga_gain(const uint32_t gain_db, const uint32_t plus16) {
-	uint16_t val = 31-gain_db;
-	if(gain_db > 31)/* 0b111111 mind the bit 6 weigth*/
-		return false;
-	
-    if(!plus16)
-		val |=  0x20; /* +16db */
+bool max2837_set_txvga_gain(const uint32_t gain_db) {
+	uint16_t val=0;
+	if(gain_db <16){
+		val = 31-gain_db;
+		val |= (1 << 5); // bit6: 16db
+	} else{
+		val = 31-(gain_db-16);
+	}
 	
 	set_MAX2837_TXVGA_GAIN(val);
 	max2837_reg_commit(29);

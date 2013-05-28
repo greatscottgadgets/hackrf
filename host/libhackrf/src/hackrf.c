@@ -857,7 +857,7 @@ int ADDCALL hackrf_set_vga_gain(hackrf_device* device, uint32_t value)
 	}
 }
 
-int ADDCALL hackrf_set_txvga_gain(hackrf_device* device, uint32_t value, uint32_t plus16db)
+int ADDCALL hackrf_set_txvga_gain(hackrf_device* device, uint32_t value)
 {
 	int result;
 	
@@ -870,7 +870,7 @@ int ADDCALL hackrf_set_txvga_gain(hackrf_device* device, uint32_t value, uint32_
 		device->usb_device,
 		LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
 		HACKRF_VENDOR_REQUEST_SET_TXVGA_GAIN,
-		plus16db,
+		0,
 		value,
 		NULL,
 		0,
