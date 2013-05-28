@@ -325,11 +325,24 @@ static void usage() {
 
 static hackrf_device* device = NULL;
 
+#ifdef _MSC_VER
+BOOL WINAPI
+sighandler(int signum)
+{
+	if (CTRL_C_EVENT == signum) {
+		fprintf(stdout, "Caught signal %d\n", signum);
+		do_exit = true;
+		return TRUE;
+	}
+	return FALSE;
+}
+#else
 void sigint_callback_handler(int signum) 
 {
 	fprintf(stdout, "Caught signal %d\n", signum);
 	do_exit = true;
 }
+#endif
 
 #define PATH_FILE_MAX_LEN (FILENAME_MAX)
 #define DATE_TIME_MAX_LEN (32)
@@ -551,13 +564,16 @@ int main(int argc, char** argv) {
 		fwrite(&wave_file_hdr, 1, sizeof(t_wav_file_hdr), fd);
 	}
 	
+#ifdef _MSC_VER
+	SetConsoleCtrlHandler( (PHANDLER_ROUTINE) sighandler, TRUE );
+#else
 	signal(SIGINT, &sigint_callback_handler);
 	signal(SIGILL, &sigint_callback_handler);
 	signal(SIGFPE, &sigint_callback_handler);
 	signal(SIGSEGV, &sigint_callback_handler);
 	signal(SIGTERM, &sigint_callback_handler);
 	signal(SIGABRT, &sigint_callback_handler);
-
+#endif
 	printf("call hackrf_sample_rate_set(%u Hz/%.03f MHz)\n", sample_rate_hz,((float)sample_rate_hz/(float)FREQ_ONE_MHZ));
 	result = hackrf_sample_rate_set(device, sample_rate_hz);
 	if( result != HACKRF_SUCCESS ) {
