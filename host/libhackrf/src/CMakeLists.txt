@@ -32,7 +32,11 @@ set_target_properties(hackrf PROPERTIES VERSION ${MAJOR_VERSION}.${MINOR_VERSION
 
 # Static library
 add_library(hackrf-static STATIC ${c_sources})
-set_target_properties(hackrf-static PROPERTIES OUTPUT_NAME "hackrf")
+if(MSVC)
+	set_target_properties(hackrf-static PROPERTIES OUTPUT_NAME "hackrf_static")
+else()
+	set_target_properties(hackrf-static PROPERTIES OUTPUT_NAME "hackrf")
+endif()
 
 set_target_properties(hackrf PROPERTIES CLEAN_DIRECT_OUTPUT 1)
 set_target_properties(hackrf-static PROPERTIES CLEAN_DIRECT_OUTPUT 1)
