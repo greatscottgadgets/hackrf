@@ -89,10 +89,6 @@ bool sample_rate_set(const uint32_t sample_rate_hz) {
 	uint32_t p1 = 4608;
 	
  	switch(sample_rate_hz) {
- 	case 5000000:
-		p1 = SI_INTDIV(80);	// 800MHz / 80 = 10 MHz (SGPIO), 5 MHz (codec)
- 		break;
- 	
 	case 8000000:
 		p1 = SI_INTDIV(50);	// 800MHz / 50 = 16 MHz (SGPIO), 8 MHz (codec)
 		break;
