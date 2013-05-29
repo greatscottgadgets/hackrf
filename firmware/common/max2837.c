@@ -369,6 +369,58 @@ bool max2837_set_lpf_bandwidth(const uint32_t bandwidth_hz) {
 	}
 }
 
+bool max2837_set_lna_gain(const uint32_t gain_db) {
+	uint16_t val;
+	switch(gain_db){
+		case 40:
+			val = MAX2837_LNAgain_MAX;
+			break;
+		case 32:
+			val = MAX2837_LNAgain_M8;
+			break;
+		case 24:
+			val = MAX2837_LNAgain_M16;
+			break;
+		case 16:
+			val = MAX2837_LNAgain_M24;
+			break;
+		case 8:
+			val = MAX2837_LNAgain_M32;
+			break;
+		case 0:
+			val = MAX2837_LNAgain_M40;
+			break;
+		default:
+			return false;
+	}
+	set_MAX2837_LNAgain(val);
+	max2837_reg_commit(1);
+	return true;
+}
+
+bool max2837_set_vga_gain(const uint32_t gain_db) {
+	if( (gain_db & 0x1) || gain_db > 62)/* 0b11111*2 */
+		return false;
+		
+	set_MAX2837_VGA( 31-(gain_db >> 1) );
+	max2837_reg_commit(5);
+	return true;
+}
+
+bool max2837_set_txvga_gain(const uint32_t gain_db) {
+	uint16_t val=0;
+	if(gain_db <16){
+		val = 31-gain_db;
+		val |= (1 << 5); // bit6: 16db
+	} else{
+		val = 31-(gain_db-16);
+	}
+	
+	set_MAX2837_TXVGA_GAIN(val);
+	max2837_reg_commit(29);
+	return true;
+}
+
 #ifdef TEST
 int main(int ac, char **av)
 {

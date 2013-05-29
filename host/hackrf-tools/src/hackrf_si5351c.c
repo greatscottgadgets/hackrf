@@ -106,7 +106,8 @@ int dump_multisynth_config(hackrf_device* device, const uint_fast8_t ms_number) 
 	uint_fast8_t i;
 	uint_fast8_t reg_base;
 	uint16_t parameters[8];
-	
+	uint32_t p1,p2,p3,r_div;
+
 	reg_base = 42 + (ms_number * 8);
 	for(i=0; i<8; i++) {
 		uint_fast8_t reg_number = reg_base + i;
@@ -116,22 +117,22 @@ int dump_multisynth_config(hackrf_device* device, const uint_fast8_t ms_number) 
 		}
 	}
 	
-	const uint32_t p1 =
+	p1 =
 		  (parameters[2] & 0x03 << 16)
 		| (parameters[3] << 8)
 		| parameters[4]
 		;
-	const uint32_t p2 =
+	p2 =
 		  (parameters[5] & 0x0F << 16)
 		| (parameters[6] << 8)
 		| parameters[7]
 		;
-	const uint32_t p3 =
+	p3 =
 		  (parameters[5] & 0xF0 << 12)
 		| (parameters[0] << 8)
 		|  parameters[1]
 		;
-	const uint32_t r_div =
+	r_div =
 		(parameters[2] >> 4) & 0x7
 		;
 		
@@ -162,21 +163,21 @@ int main(int argc, char** argv) {
 	int opt;
 	uint16_t register_number = REGISTER_INVALID;
 	uint16_t register_value;
-	
+	hackrf_device* device = NULL;
+	int option_index = 0;
+
 	int result = hackrf_init();
 	if( result ) {
 		printf("hackrf_init() failed: %s (%d)\n", hackrf_error_name(result), result);
 		return -1;
 	}
 	
-	hackrf_device* device = NULL;
 	result = hackrf_open(&device);
 	if( result ) {
 		printf("hackrf_open() failed: %s (%d)\n", hackrf_error_name(result), result);
 		return -1;
 	}
 
-	int option_index = 0;
 	while( (opt = getopt_long(argc, argv, "cn:rw:", long_options, &option_index)) != EOF ) {
 		switch( opt ) {
 		case 'n':

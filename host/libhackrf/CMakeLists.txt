@@ -21,33 +21,39 @@
 
 # Based heavily upon the libftdi cmake setup.
 
-project(libhackrf)
+cmake_minimum_required(VERSION 2.8)
+project(libhackrf C)
 set(MAJOR_VERSION 0)
 set(MINOR_VERSION 1)
 set(PACKAGE libhackrf)
 set(VERSION_STRING ${MAJOR_VERSION}.${MINOR_VERSION})
 set(VERSION ${VERSION_STRING})
-set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}")
+set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/../cmake/modules)
 
-cmake_minimum_required(VERSION 2.8)
-
+if(MSVC)
+set(THREADS_USE_PTHREADS_WIN32 true)
+find_package(Threads REQUIRED)
+else()
 add_definitions(-Wall)
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++98")
-
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu90")
+endif()
 find_package(USB1 REQUIRED)
-include_directories(${LIBUSB_INCLUDE_DIR})
+
+
+include_directories(${LIBUSB_INCLUDE_DIR} ${THREADS_PTHREADS_INCLUDE_DIR})
 
 add_subdirectory(src)
 
 ########################################################################
 # Create uninstall target
 ########################################################################
+if(NOT hackrf_all_SOURCE_DIR)
 configure_file(
-    ${CMAKE_SOURCE_DIR}/cmake_uninstall.cmake.in
+    ${PROJECT_SOURCE_DIR}/../cmake/cmake_uninstall.cmake.in
     ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake
 @ONLY)
 
 add_custom_target(uninstall
     ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake
 )
+endif()

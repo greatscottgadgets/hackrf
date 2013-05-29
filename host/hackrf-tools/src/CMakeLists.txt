@@ -23,6 +23,12 @@
 
 set(INSTALL_DEFAULT_BINDIR "bin" CACHE STRING "Appended to CMAKE_INSTALL_PREFIX")
 
+if(MSVC)
+add_library(libgetopt_static STATIC
+    ../getopt/getopt.c
+)
+endif()
+
 add_executable(hackrf_max2837 hackrf_max2837.c)
 install(TARGETS hackrf_max2837 RUNTIME DESTINATION ${INSTALL_DEFAULT_BINDIR})
 
@@ -44,14 +50,22 @@ install(TARGETS hackrf_cpldjtag RUNTIME DESTINATION ${INSTALL_DEFAULT_BINDIR})
 add_executable(hackrf_info hackrf_info.c)
 install(TARGETS hackrf_info RUNTIME DESTINATION ${INSTALL_DEFAULT_BINDIR})
 
+if(NOT libhackrf_SOURCE_DIR)
 include_directories(${LIBHACKRF_INCLUDE_DIR})
+LIST(APPEND TOOLS_LINK_LIBS ${LIBHACKRF_LIBRARIES})
+else()
+LIST(APPEND TOOLS_LINK_LIBS hackrf)
+endif()
 
-target_link_libraries(hackrf_max2837 ${LIBHACKRF_LIBRARIES})
-target_link_libraries(hackrf_si5351c ${LIBHACKRF_LIBRARIES})
-target_link_libraries(hackrf_transfer ${LIBHACKRF_LIBRARIES})
-target_link_libraries(hackrf_rffc5071 ${LIBHACKRF_LIBRARIES})
-target_link_libraries(hackrf_spiflash ${LIBHACKRF_LIBRARIES})
-target_link_libraries(hackrf_cpldjtag ${LIBHACKRF_LIBRARIES})
-target_link_libraries(hackrf_info ${LIBHACKRF_LIBRARIES})
+if(MSVC)
+LIST(APPEND TOOLS_LINK_LIBS libgetopt_static)
+endif()
 
 
+target_link_libraries(hackrf_max2837 ${TOOLS_LINK_LIBS})
+target_link_libraries(hackrf_si5351c ${TOOLS_LINK_LIBS})
+target_link_libraries(hackrf_transfer ${TOOLS_LINK_LIBS})
+target_link_libraries(hackrf_rffc5071 ${TOOLS_LINK_LIBS})
+target_link_libraries(hackrf_spiflash ${TOOLS_LINK_LIBS})
+target_link_libraries(hackrf_cpldjtag ${TOOLS_LINK_LIBS})
+target_link_libraries(hackrf_info ${TOOLS_LINK_LIBS})
