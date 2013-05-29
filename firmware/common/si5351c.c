@@ -87,7 +87,16 @@ void si5351c_disable_oeb_pin_control()
 /* Power down all CLKx */
 void si5351c_power_down_all_clocks()
 {
-	uint8_t data[] = { 16, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0xC0, 0xC0 };
+	uint8_t data[] = { 16
+	, SI5351C_CLK_POWERDOWN
+	, SI5351C_CLK_POWERDOWN
+	, SI5351C_CLK_POWERDOWN
+	, SI5351C_CLK_POWERDOWN
+	, SI5351C_CLK_POWERDOWN
+	, SI5351C_CLK_POWERDOWN
+	, SI5351C_CLK_POWERDOWN | SI5351C_CLK_INT_MODE 
+	, SI5351C_CLK_POWERDOWN | SI5351C_CLK_INT_MODE
+	};
 	si5351c_write(data, sizeof(data));
 }
 
@@ -127,7 +136,10 @@ void si5351c_configure_pll_sources_for_xtal()
 /* MultiSynth NA (PLL1) */
 void si5351c_configure_pll1_multisynth()
 {
-	uint8_t data[] = { 26, 0x00, 0x01, 0x00, 0x0E, 0x00, 0x00, 0x00, 0x00 };
+	//init plla and pllb to (0x0e00+512)/128*25mhz xtal = 800mhz -> int mode
+ 	uint8_t data[] = { 26, 0x00, 0x01, 0x00, 0x0E, 0x00, 0x00, 0x00, 0x00 };
+ 	si5351c_write(data, sizeof(data));
+	data[0] =34;// pllb
 	si5351c_write(data, sizeof(data));
 }
 
@@ -215,67 +227,25 @@ void si5351c_configure_clock_control()
 #endif
 
 #ifdef JAWBREAKER
-/*
- * Registers 16 through 23: CLKx Control
- * CLK0:
- *   CLK0_PDN=0 (powered up)
- *   MS0_INT=1 (integer mode)
- *   MS0_SRC=0 (PLLA as source for MultiSynth 0)
- *   CLK0_INV=0 (not inverted)
- *   CLK0_SRC=3 (MS0 as input source)
- *   CLK0_IDRV=3 (8mA)
- * CLK1:
- *   CLK1_PDN=0 (powered up)
- *   MS1_INT=1 (integer mode)
- *   MS1_SRC=0 (PLLA as source for MultiSynth 1)
- *   CLK1_INV=0 (not inverted)
- *   CLK1_SRC=2 (MS0 as input source)
- *   CLK1_IDRV=3 (8mA)
- * CLK2:
- *   CLK2_PDN=0 (powered up)
- *   MS2_INT=1 (integer mode)
- *   MS2_SRC=0 (PLLA as source for MultiSynth 2)
- *   CLK2_INV=0 (not inverted)
- *   CLK2_SRC=2 (MS0 as input source)
- *   CLK2_IDRV=3 (8mA)
- * CLK3:
- *   CLK3_PDN=0 (powered up)
- *   MS3_INT=1 (integer mode)
- *   MS3_SRC=0 (PLLA as source for MultiSynth 3)
- *   CLK3_INV=0 (inverted)
- *   CLK3_SRC=2 (MS0 as input source)
- *   CLK3_IDRV=3 (8mA)
- * CLK4:
- *   CLK4_PDN=0 (powered up)
- *   MS4_INT=1 (integer mode)
- *   MS4_SRC=0 (PLLA as source for MultiSynth 4)
- *   CLK4_INV=0 (not inverted)
- *   CLK4_SRC=3 (MS4 as input source)
- *   CLK4_IDRV=3 (8mA)
- * CLK5:
- *   CLK5_PDN=0 (powered up)
- *   MS5_INT=1 (integer mode)
- *   MS5_SRC=0 (PLLA as source for MultiSynth 5)
- *   CLK5_INV=0 (not inverted)
- *   CLK5_SRC=3 (MS5 as input source)
- *   CLK5_IDRV=3 (8mA)
- * CLK6: (not connected)
- *   CLK5_PDN=1 (powered down)
- *   MS5_INT=1 (integer mode)
- * CLK7: (not connected)
- *   CLK7_PDN=1 (powered down)
- *   MS7_INT=0 (fractional mode -- to support 12MHz to LPC)
- */
 void si5351c_configure_clock_control()
 {
-	uint8_t data[] = { 16, 0x4F, 0x4B, 0x4B, 0x4B, 0x4F, 0x4F, 0xC0, 0x80 };
+	uint8_t data[] = {16
+	,SI5351C_CLK_INT_MODE | SI5351C_CLK_PLL_SRC(SI5351C_CLK_PLL_SRC_B) | SI5351C_CLK_SRC(SI5351C_CLK_SRC_MULTISYNTH_SELF) | SI5351C_CLK_IDRV(SI5351C_CLK_IDRV_8MA)
+	,SI5351C_CLK_INT_MODE | SI5351C_CLK_PLL_SRC(SI5351C_CLK_PLL_SRC_B) | SI5351C_CLK_SRC(SI5351C_CLK_SRC_MULTISYNTH_0_4) | SI5351C_CLK_IDRV(SI5351C_CLK_IDRV_8MA)
+	,SI5351C_CLK_INT_MODE | SI5351C_CLK_PLL_SRC(SI5351C_CLK_PLL_SRC_B) | SI5351C_CLK_SRC(SI5351C_CLK_SRC_MULTISYNTH_0_4) | SI5351C_CLK_IDRV(SI5351C_CLK_IDRV_8MA)
+	,SI5351C_CLK_POWERDOWN /*not connected, clock out*/
+	,SI5351C_CLK_INT_MODE | SI5351C_CLK_PLL_SRC(SI5351C_CLK_PLL_SRC_B) | SI5351C_CLK_SRC(SI5351C_CLK_SRC_MULTISYNTH_SELF) | SI5351C_CLK_IDRV(SI5351C_CLK_IDRV_8MA)
+	,SI5351C_CLK_INT_MODE | SI5351C_CLK_PLL_SRC(SI5351C_CLK_PLL_SRC_B) | SI5351C_CLK_SRC(SI5351C_CLK_SRC_MULTISYNTH_SELF) | SI5351C_CLK_IDRV(SI5351C_CLK_IDRV_8MA)
+	,SI5351C_CLK_POWERDOWN | SI5351C_CLK_INT_MODE /*not connected, but: plla int mode*/
+	,SI5351C_CLK_INT_MODE/* pllb int mode*/| SI5351C_CLK_PLL_SRC(SI5351C_CLK_PLL_SRC_A) | SI5351C_CLK_SRC(SI5351C_CLK_SRC_MULTISYNTH_SELF) | SI5351C_CLK_IDRV(SI5351C_CLK_IDRV_8MA)
+	 };
 	si5351c_write(data, sizeof(data));
 }
 #endif
 
-/* Enable CLK outputs 0, 1, 2, 3, 4, 5 only. */
-void si5351c_enable_clock_outputs()
-{
-	uint8_t data[] = { 3, 0xC0 };
-	si5351c_write(data, sizeof(data));
-}
+/* Enable CLK outputs 0, 1, 2, 4, 5, 7 only. */
+ void si5351c_enable_clock_outputs()
+ {
+	uint8_t data[] = { 3, 0x48 };
+ 	si5351c_write(data, sizeof(data));
+ }

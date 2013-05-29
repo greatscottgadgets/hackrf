@@ -88,26 +88,30 @@ bool sample_rate_set(const uint32_t sample_rate_hz) {
 #ifdef JAWBREAKER
 	uint32_t p1 = 4608;
 	
-	switch(sample_rate_hz) {
-	case 5000000:
-		p1 = 9728;	// 800MHz / 80 = 10 MHz (SGPIO), 5 MHz (codec)
+ 	switch(sample_rate_hz) {
+ 	case 5000000:
+		p1 = SI_INTDIV(80);	// 800MHz / 80 = 10 MHz (SGPIO), 5 MHz (codec)
+ 		break;
+ 	
+	case 8000000:
+		p1 = SI_INTDIV(50);	// 800MHz / 50 = 16 MHz (SGPIO), 8 MHz (codec)
 		break;
-	
-	case 10000000:
-		p1 = 4608;	// 800MHz / 40 = 20 MHz (SGPIO), 10 MHz (codec)
-		break;
-
-	case 12500000:
-		p1 = 3584;	// 800MHz / 32 = 25 MHz (SGPIO), 12.5 MHz (codec)
-		break;
-
-	case 16000000:
-		p1 = 2688;	// 800MHz / 25 = 32 MHz (SGPIO), 16 MHz (codec)
-		break;
-	
-	case 20000000:
-		p1 = 2048;	// 800MHz / 20 = 40 MHz (SGPIO), 20 MHz (codec)
-		break;
+		
+ 	case 10000000:
+		p1 = SI_INTDIV(40);	// 800MHz / 40 = 20 MHz (SGPIO), 10 MHz (codec)
+ 		break;
+ 
+ 	case 12500000:
+		p1 = SI_INTDIV(32);	// 800MHz / 32 = 25 MHz (SGPIO), 12.5 MHz (codec)
+ 		break;
+ 
+ 	case 16000000:
+		p1 = SI_INTDIV(25);	// 800MHz / 25 = 32 MHz (SGPIO), 16 MHz (codec)
+ 		break;
+ 	
+ 	case 20000000:
+		p1 = SI_INTDIV(20);	// 800MHz / 20 = 40 MHz (SGPIO), 20 MHz (codec)
+ 		break;
 	
 	default:
 		return false;
@@ -117,13 +121,13 @@ bool sample_rate_set(const uint32_t sample_rate_hz) {
 	si5351c_configure_multisynth(0, p1, 0, 1, 1);
 
 	/* MS0/CLK1 is the source for the CPLD (CODEC_X2_CLK). */
-	si5351c_configure_multisynth(1, p1, 0, 1, 0);
+	si5351c_configure_multisynth(1, p1, 0, 1, 0);//p1 doesn't matter
 
 	/* MS0/CLK2 is the source for SGPIO (CODEC_X2_CLK) */
-	si5351c_configure_multisynth(2, p1, 0, 1, 0);
+	si5351c_configure_multisynth(2, p1, 0, 1, 0);//p1 doesn't matter
 
 	/* MS0/CLK3 is the source for the external clock output. */
-	si5351c_configure_multisynth(3, p1, 0, 1, 0);
+	//si5351c_configure_multisynth(3, p1, 0, 1, 0); // no clk out
 
 	return true;
 #endif
@@ -186,19 +190,23 @@ void cpu_clock_init(void)
 	 */
 
 	/* MS4/CLK4 is the source for the RFFC5071 mixer. */
-	si5351c_configure_multisynth(4, 1536, 0, 1, 0); /* 50MHz */
-
-	/* MS5/CLK5 is the source for the MAX2837 clock input. */
-	si5351c_configure_multisynth(5, 2048, 0, 1, 0); /* 40MHz */
+	si5351c_configure_multisynth(4, 16*128-512, 0, 1, 0); /* 800/16 = 50MHz */
+ 
+ 	/* MS5/CLK5 is the source for the MAX2837 clock input. */
+	si5351c_configure_multisynth(5, 20*128-512, 0, 1, 0); /* 800/20 = 40MHz */
 
 	/* MS7/CLK7 is the source for the LPC43xx microcontroller. */
-	//si5351c_configure_multisynth(7, 8021, 0, 3, 0); /* 12MHz */
+	//uint8_t ms7data[] = { 91, 40, 0x0 };
+	//si5351c_write(ms7data, sizeof(ms7data));
 #endif
 
 	/* Set to 10 MHz, the common rate between Jellybean and Jawbreaker. */
 	sample_rate_set(10000000);
 
 	si5351c_configure_clock_control();
+	// soft reset
+	uint8_t resetdata[] = { 177, 0xac };
+	si5351c_write(resetdata, sizeof(resetdata));
 	si5351c_enable_clock_outputs();
 
 	//FIXME disable I2C
@@ -405,6 +413,9 @@ void pin_setup(void) {
 	scu_pinmux(SCU_SSP1_MOSI, (SCU_SSP_IO | SCU_CONF_FUNCTION5));
 	scu_pinmux(SCU_SSP1_SCK, (SCU_SSP_IO | SCU_CONF_FUNCTION1));
 	scu_pinmux(SCU_SSP1_SSEL, (SCU_SSP_IO | SCU_CONF_FUNCTION1));
+	
+	/* Configure external clock in */
+	//scu_pinmux(P4_7, SCU_CLK_IN | SCU_CONF_FUNCTION1);
 }
 
 void enable_1v8_power(void) {
