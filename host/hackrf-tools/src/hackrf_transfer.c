@@ -318,6 +318,9 @@ static void usage() {
 	printf("\t-t <filename> # Transmit data from file.\n");
 	printf("\t[-f set_freq_hz] # Set Freq in Hz between [%lluMHz, %lluMHz[.\n", FREQ_MIN_HZ/FREQ_ONE_MHZ, FREQ_MAX_HZ/FREQ_ONE_MHZ);
 	printf("\t[-a set_amp] # Set Amp 1=Enable, 0=Disable.\n");
+	printf("\t[-l gain_db] # Set lna gain, 0-40dB, 8dB steps\n");
+	printf("\t[-i gain_db] # Set vga(if) gain, 0-62dB, 2dB steps\n");
+	printf("\t[-x gain_db] # Set TX vga gain, 0-47dB, 1dB steps\n");
 	printf("\t[-s sample_rate_hz] # Set sample rate in Hz (5/10/12.5/16/20MHz, default %lldMHz).\n", DEFAULT_SAMPLE_RATE_HZ/FREQ_ONE_MHZ);
 	printf("\t[-n num_samples] # Number of samples to transfer (default is unlimited).\n");
 	printf("\t[-b baseband_filter_bw_hz] # Set baseband filter bandwidth in MHz.\n\tPossible values: 1.75/2.5/3.5/5/5.5/6/7/8/9/10/12/14/15/20/24/28MHz, default < sample_rate_hz.\n" );
@@ -359,8 +362,9 @@ int main(int argc, char** argv) {
 	int exit_code = EXIT_SUCCESS;
 	struct timeval t_end;
 	float time_diff;
+	unsigned int lna_gain=8, vga_gain=20, txvga_gain=0;
   
-	while( (opt = getopt(argc, argv, "wr:t:f:a:s:n:b:")) != EOF )
+	while( (opt = getopt(argc, argv, "wr:t:f:a:s:n:b:l:i:x:")) != EOF )
 	{
 		result = HACKRF_SUCCESS;
 		switch( opt ) 
@@ -387,6 +391,18 @@ int main(int argc, char** argv) {
 		case 'a':
 			amp = true;
 			result = parse_u32(optarg, &amp_enable);
+			break;
+
+		case 'l':
+			result = parse_u32(optarg, &lna_gain);
+			break;
+
+		case 'i':
+			result = parse_u32(optarg, &vga_gain);
+			break;
+
+		case 'x':
+			result = parse_u32(optarg, &txvga_gain);
 			break;
 
 		case 's':
@@ -592,9 +608,12 @@ int main(int argc, char** argv) {
 	}
 
 	if( transceiver_mode == TRANSCEIVER_MODE_RX ) {
-		result = hackrf_start_rx(device, rx_callback, NULL);
+		result = hackrf_set_vga_gain(device, vga_gain);
+		result |= hackrf_set_lna_gain(device, lna_gain);
+		result |= hackrf_start_rx(device, rx_callback, NULL);
 	} else {
-		result = hackrf_start_tx(device, tx_callback, NULL);
+		result = hackrf_set_txvga_gain(device, txvga_gain);
+		result |= hackrf_start_tx(device, tx_callback, NULL);
 	}
 	if( result != HACKRF_SUCCESS ) {
 		printf("hackrf_start_?x() failed: %s (%d)\n", hackrf_error_name(result), result);
