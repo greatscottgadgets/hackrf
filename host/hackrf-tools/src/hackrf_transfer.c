@@ -30,11 +30,8 @@
 
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <sys/time.h>
 #include <fcntl.h>
 #include <errno.h>
-
-#include <inttypes.h>
 
 #ifndef bool
 typedef int bool;
@@ -319,9 +316,9 @@ static void usage() {
 	printf("\t-w # Receive data into file with WAV header and automatic name.\n");
 	printf("\t-r <filename> # Receive data into file.\n");
 	printf("\t-t <filename> # Transmit data from file.\n");
-	printf("\t[-f set_freq_hz] # Set Freq in Hz between [%"PRIu64"MHz, %"PRIu64"MHz[.\n", FREQ_MIN_HZ/FREQ_ONE_MHZ, FREQ_MAX_HZ/FREQ_ONE_MHZ);
+	printf("\t[-f set_freq_hz] # Set Freq in Hz between [%lluMHz, %lluMHz[.\n", FREQ_MIN_HZ/FREQ_ONE_MHZ, FREQ_MAX_HZ/FREQ_ONE_MHZ);
 	printf("\t[-a set_amp] # Set Amp 1=Enable, 0=Disable.\n");
-	printf("\t[-s sample_rate_hz] # Set sample rate in Hz (5/10/12.5/16/20MHz, default %"PRId64"MHz).\n", DEFAULT_SAMPLE_RATE_HZ/FREQ_ONE_MHZ);
+	printf("\t[-s sample_rate_hz] # Set sample rate in Hz (5/10/12.5/16/20MHz, default %lldMHz).\n", DEFAULT_SAMPLE_RATE_HZ/FREQ_ONE_MHZ);
 	printf("\t[-n num_samples] # Number of samples to transfer (default is unlimited).\n");
 	printf("\t[-b baseband_filter_bw_hz] # Set baseband filter bandwidth in MHz.\n\tPossible values: 1.75/2.5/3.5/5/5.5/6/7/8/9/10/12/14/15/20/24/28MHz, default < sample_rate_hz.\n" );
 }
@@ -422,7 +419,7 @@ int main(int argc, char** argv) {
 	}
 
 	if (samples_to_xfer >= SAMPLES_TO_XFER_MAX) {
-		printf("argument error: num_samples must be less than %"PRIu64"/%"PRIu64"Mio\n",
+		printf("argument error: num_samples must be less than %llu/%lluMio\n",
 				SAMPLES_TO_XFER_MAX, SAMPLES_TO_XFER_MAX/FREQ_ONE_MHZ);
 		usage();
 		return EXIT_FAILURE;
@@ -431,7 +428,7 @@ int main(int argc, char** argv) {
 	if( freq ) {
 		if( (freq_hz >= FREQ_MAX_HZ) || (freq_hz < FREQ_MIN_HZ) )
 		{
-			printf("argument error: set_freq_hz shall be between [%"PRIu64", %"PRIu64"[.\n", FREQ_MIN_HZ, FREQ_MAX_HZ);
+			printf("argument error: set_freq_hz shall be between [%llu, %llu[.\n", FREQ_MIN_HZ, FREQ_MAX_HZ);
 			usage();
 			return EXIT_FAILURE;
 		}
@@ -605,7 +602,7 @@ int main(int argc, char** argv) {
 		return EXIT_FAILURE;
 	}
 
-	printf("call hackrf_set_freq(%"PRIu64" Hz/%.03f MHz)\n", freq_hz, ((float)freq_hz/(float)FREQ_ONE_MHZ) );
+	printf("call hackrf_set_freq(%llu Hz/%.03f MHz)\n", freq_hz, ((float)freq_hz/(float)FREQ_ONE_MHZ) );
 	result = hackrf_set_freq(device, freq_hz);
 	if( result != HACKRF_SUCCESS ) {
 		printf("hackrf_set_freq() failed: %s (%d)\n", hackrf_error_name(result), result);
@@ -624,7 +621,7 @@ int main(int argc, char** argv) {
 	}
 	
 	if( limit_num_samples ) {
-		printf("samples_to_xfer %"PRIu64"/%"PRIu64"Mio\n", samples_to_xfer, (samples_to_xfer/FREQ_ONE_MHZ) );
+		printf("samples_to_xfer %llu/%lluMio\n", samples_to_xfer, (samples_to_xfer/FREQ_ONE_MHZ) );
 	}
 	
 	gettimeofday(&t_start, NULL);
