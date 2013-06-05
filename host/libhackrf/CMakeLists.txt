@@ -32,13 +32,12 @@ set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/../cmake/modules)
 
 if(MSVC)
 set(THREADS_USE_PTHREADS_WIN32 true)
-find_package(Threads REQUIRED)
 else()
 add_definitions(-Wall)
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu90")
 endif()
 find_package(USB1 REQUIRED)
-
+find_package(Threads REQUIRED)
 
 include_directories(${LIBUSB_INCLUDE_DIR} ${THREADS_PTHREADS_INCLUDE_DIR})
 

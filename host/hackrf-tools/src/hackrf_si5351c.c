@@ -107,40 +107,56 @@ int dump_multisynth_config(hackrf_device* device, const uint_fast8_t ms_number) 
 	uint_fast8_t reg_base;
 	uint16_t parameters[8];
 	uint32_t p1,p2,p3,r_div;
+	uint_fast8_t div_lut[] = {1,2,4,8,16,32,64,128};
 
-	reg_base = 42 + (ms_number * 8);
-	for(i=0; i<8; i++) {
-		uint_fast8_t reg_number = reg_base + i;
-		int result = hackrf_si5351c_read(device, reg_number, &parameters[i]);
-		if( result != HACKRF_SUCCESS ) {
-			return result;
-		}
-	}
-	
-	p1 =
-		  (parameters[2] & 0x03 << 16)
-		| (parameters[3] << 8)
-		| parameters[4]
-		;
-	p2 =
-		  (parameters[5] & 0x0F << 16)
-		| (parameters[6] << 8)
-		| parameters[7]
-		;
-	p3 =
-		  (parameters[5] & 0xF0 << 12)
-		| (parameters[0] << 8)
-		|  parameters[1]
-		;
-	r_div =
-		(parameters[2] >> 4) & 0x7
-		;
-		
-	printf("MS%d:", ms_number);
-	printf("\tp1 = %u\n", p1);
-	printf("\tp2 = %u\n", p2);
-	printf("\tp3 = %u\n", p3);
-	printf("\toutput divider = %u\n", 1 << r_div);
+    printf("MS%d:", ms_number);
+    if(ms_number <6){
+        reg_base = 42 + (ms_number * 8);
+        for(i=0; i<8; i++) {
+            uint_fast8_t reg_number = reg_base + i;
+            int result = hackrf_si5351c_read(device, reg_number, &parameters[i]);
+            if( result != HACKRF_SUCCESS ) {
+                return result;
+            }
+        }
+
+        p1 =
+              (parameters[2] & 0x03 << 16)
+            | (parameters[3] << 8)
+            | parameters[4]
+            ;
+        p2 =
+              (parameters[5] & 0x0F << 16)
+            | (parameters[6] << 8)
+            | parameters[7]
+            ;
+        p3 =
+              (parameters[5] & 0xF0 << 12)
+            | (parameters[0] << 8)
+            |  parameters[1]
+            ;
+        r_div =
+            (parameters[2] >> 4) & 0x7
+            ;
+
+        printf("\tp1 = %u\n", p1);
+        printf("\tp2 = %u\n", p2);
+        printf("\tp3 = %u\n", p3);
+    } else {
+        // MS6 and 7 are integer only
+        reg_base = 90;
+        for(i=0; i<3; i++) {
+            uint_fast8_t reg_number = reg_base + i;
+            int result = hackrf_si5351c_read(device, reg_number, &parameters[i]);
+            if( result != HACKRF_SUCCESS ) {
+                return result;
+            }
+        }
+
+        r_div = (ms_number == 6) ? parameters[2] & 0x7 : parameters[2] & 0x70 >> 4 ;
+		printf("\tp1_int = %u\n", (ms_number == 6) ? parameters[0] : parameters[1]);
+    }
+	printf("\toutput divider = %u\n", div_lut[r_div]);
 	
 	return HACKRF_SUCCESS;
 }
