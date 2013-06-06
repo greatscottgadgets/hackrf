@@ -321,7 +321,7 @@ static void usage() {
 	printf("\t[-l gain_db] # Set lna gain, 0-40dB, 8dB steps\n");
 	printf("\t[-i gain_db] # Set vga(if) gain, 0-62dB, 2dB steps\n");
 	printf("\t[-x gain_db] # Set TX vga gain, 0-47dB, 1dB steps\n");
-	printf("\t[-s sample_rate_hz] # Set sample rate in Hz (5/10/12.5/16/20MHz, default %lldMHz).\n", DEFAULT_SAMPLE_RATE_HZ/FREQ_ONE_MHZ);
+	printf("\t[-s sample_rate_hz] # Set sample rate in Hz (8/10/12.5/16/20MHz, default %lldMHz).\n", DEFAULT_SAMPLE_RATE_HZ/FREQ_ONE_MHZ);
 	printf("\t[-n num_samples] # Number of samples to transfer (default is unlimited).\n");
 	printf("\t[-b baseband_filter_bw_hz] # Set baseband filter bandwidth in MHz.\n\tPossible values: 1.75/2.5/3.5/5/5.5/6/7/8/9/10/12/14/15/20/24/28MHz, default < sample_rate_hz.\n" );
 }
