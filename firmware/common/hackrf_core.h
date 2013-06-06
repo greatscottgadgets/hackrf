@@ -259,6 +259,7 @@ void pin_setup(void);
 
 void enable_1v8_power(void);
 
+bool set_fracrate(const float sampling_rate_mhz);
 bool sample_rate_set(const uint32_t sampling_rate_hz);
 bool baseband_filter_bandwidth_set(const uint32_t bandwidth_hz);
 
