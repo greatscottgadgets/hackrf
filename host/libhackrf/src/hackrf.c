@@ -57,6 +57,7 @@ typedef enum {
 	HACKRF_VENDOR_REQUEST_SET_LNA_GAIN = 19,
 	HACKRF_VENDOR_REQUEST_SET_VGA_GAIN = 20,
 	HACKRF_VENDOR_REQUEST_SET_TXVGA_GAIN = 21,
+	HACKRF_VENDOR_REQUEST_SET_FRACRATE = 22,
 } hackrf_vendor_request;
 
 typedef enum {
@@ -742,6 +743,42 @@ int ADDCALL hackrf_set_freq(hackrf_device* device, const uint64_t freq_hz)
 		0,
 		0,
 		(unsigned char*)&set_freq_params,
+		length,
+		0
+	);
+
+	if (result < length)
+	{
+		return HACKRF_ERROR_LIBUSB;
+	} else {
+		return HACKRF_SUCCESS;
+	}
+}
+
+
+typedef struct {
+	float freq_mhz;
+} set_fracrate_params_t;
+
+
+int ADDCALL hackrf_set_fracrate(hackrf_device* device, const float freq_mhz)
+{
+	uint32_t l_freq_mhz;
+	uint32_t l_freq_hz;
+	set_fracrate_params_t set_fracrate_params;
+	uint8_t length;
+	int result;
+	
+	set_fracrate_params.freq_mhz = freq_mhz;
+	length = sizeof(set_fracrate_params_t);
+
+	result = libusb_control_transfer(
+		device->usb_device,
+		LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_SET_FRACRATE,
+		0,
+		0,
+		(unsigned char*)&set_fracrate_params,
 		length,
 		0
 	);
