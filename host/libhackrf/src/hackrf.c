@@ -894,7 +894,7 @@ static void* transfer_threadproc(void* arg)
 	while( (device->streaming) && (do_exit == false) )
 	{
 		error = libusb_handle_events_timeout(g_libusb_context, &timeout);
-		if( error != 0 )
+		if( (error != 0) && (error != LIBUSB_ERROR_INTERRUPTED) )
 		{
 			device->streaming = false;
 		}
