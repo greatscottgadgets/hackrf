@@ -158,6 +158,11 @@ int main(int argc, char** argv)
 	if( write )
 	{
 		fd = fopen(path, "rb");
+		if(fd == NULL)
+		{
+			printf("Error to open file %s\n", path);
+			return EXIT_FAILURE;
+		}
 		/* Get size of the file  */
 		fseek(fd, 0, SEEK_END); /* Not really portable but work on major OS Linux/Win32 */
 		length = ftell(fd);
@@ -185,6 +190,11 @@ int main(int argc, char** argv)
 
 	if (read) {
 		fd = fopen(path, "wb");
+		if(fd == NULL)
+		{
+			printf("Error to open file %s\n", path);
+			return EXIT_FAILURE;
+		}
 	}
 
 	if (fd == NULL) {
