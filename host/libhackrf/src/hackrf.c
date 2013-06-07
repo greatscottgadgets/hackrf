@@ -33,6 +33,13 @@ typedef int bool;
 #define true 1
 #define false 0
 #endif
+
+#ifdef BIG_ENDIAN
+#define TO_LE(x) __builtin_bswap32(x)
+#else
+#define TO_LE(x) x
+#endif
+
 // TODO: Factor this into a shared #include so that firmware can use
 // the same values.
 typedef enum {
@@ -732,8 +739,8 @@ int ADDCALL hackrf_set_freq(hackrf_device* device, const uint64_t freq_hz)
 	/* Convert Freq Hz 64bits to Freq MHz (32bits) & Freq Hz (32bits) */
 	l_freq_mhz = (uint32_t)(freq_hz / FREQ_ONE_MHZ);
 	l_freq_hz = (uint32_t)(freq_hz - (((uint64_t)l_freq_mhz) * FREQ_ONE_MHZ));
-	set_freq_params.freq_mhz = l_freq_mhz;
-	set_freq_params.freq_hz = l_freq_hz;
+	set_freq_params.freq_mhz = TO_LE(l_freq_mhz);
+	set_freq_params.freq_hz = TO_LE(l_freq_hz);
 	length = sizeof(set_freq_params_t);
 
 	result = libusb_control_transfer(
@@ -769,7 +776,7 @@ int ADDCALL hackrf_set_fracrate(hackrf_device* device, const float freq_mhz)
 	uint8_t length;
 	int result;
 	
-	set_fracrate_params.freq_mhz = freq_mhz;
+	set_fracrate_params.freq_mhz = TO_LE(freq_mhz);
 	length = sizeof(set_fracrate_params_t);
 
 	result = libusb_control_transfer(
@@ -834,6 +841,14 @@ int ADDCALL hackrf_board_partid_serialno_read(hackrf_device* device, read_partid
 	{
 		return HACKRF_ERROR_LIBUSB;
 	} else {
+
+		read_partid_serialno->part_id[0] = TO_LE(read_partid_serialno->part_id[0]);
+		read_partid_serialno->part_id[0] = TO_LE(read_partid_serialno->part_id[1]);
+		read_partid_serialno->serial_no[0] = TO_LE(read_partid_serialno->serial_no[0]);
+		read_partid_serialno->serial_no[1] = TO_LE(read_partid_serialno->serial_no[1]);
+		read_partid_serialno->serial_no[2] = TO_LE(read_partid_serialno->serial_no[2]);
+		read_partid_serialno->serial_no[3] = TO_LE(read_partid_serialno->serial_no[3]);
+
 		return HACKRF_SUCCESS;
 	}
 }
