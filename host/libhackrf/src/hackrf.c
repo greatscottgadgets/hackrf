@@ -34,7 +34,7 @@ typedef int bool;
 #define false 0
 #endif
 
-#ifdef BIG_ENDIAN
+#ifdef HACKRF_BIG_ENDIAN
 #define TO_LE(x) __builtin_bswap32(x)
 #else
 #define TO_LE(x) x
