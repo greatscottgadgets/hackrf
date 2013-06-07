@@ -35,6 +35,7 @@ extern "C"
 
 #define SI5351C_CLK_POWERDOWN	(1<<7)
 #define SI5351C_CLK_INT_MODE	(1<<6)
+#define SI5351C_CLK_FRAC_MODE	(0<<6)
 
 #define SI5351C_CLK_PLL_SRC(x)	(x<<5)
 #define SI5351C_CLK_PLL_SRC_A	0

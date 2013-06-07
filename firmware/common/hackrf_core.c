@@ -39,6 +39,69 @@ void delay(uint32_t duration)
 		__asm__("nop");
 }
 
+bool set_fracrate(const float freq) {
+
+	uint32_t MSx_P1,MSx_P2,MSx_P3;
+	uint32_t b,c;
+	float div = (800/freq);
+	uint32_t a = (uint32_t)div;
+	float x = div-a;
+
+	if(a != div){
+		uint32_t j=0,k=1,l=1,m=1;
+		while (k <= 0xFFFF && m <= 0xFFFF){
+			float n = (float)(j+l)/(k+m);
+			if( x == n){
+				if(k + m <= 0xFFFF){
+					b=j+l;	c=k+m;
+					break;
+				} else if(m > k){
+					b=l; c=m;
+					break;
+				} else {
+					b=j; c=k;
+					break;
+				}
+			}
+			else if(x > n){
+				j+=l; k+=m;
+			}
+			else{
+				l+=j; m+=k;
+			}
+		}
+		if (k > 0xFFFF){
+			b=l; c=m;
+		}
+		else{
+			b=j; c=k;
+		}
+	} else {
+		b=0; c=1;
+	}
+
+	MSx_P1 = 128*a + (128 * b/c) - 512;
+	MSx_P2 = (128*b)%c;
+	MSx_P3 = c;
+
+	
+	/* MS0/CLK0 is the source for the MAX5864/CPLD (CODEC_CLK). */
+	si5351c_configure_multisynth(0, MSx_P1, MSx_P2, MSx_P3, 1);
+
+	/* MS0/CLK1 is the source for the CPLD (CODEC_X2_CLK). */
+	si5351c_configure_multisynth(1, 0, 0, 0, 0);//p1 doesn't matter
+
+	/* MS0/CLK2 is the source for SGPIO (CODEC_X2_CLK) */
+	si5351c_configure_multisynth(2, 0, 0, 0, 0);//p1 doesn't matter
+
+	/* MS0/CLK3 is the source for the external clock output. */
+	//si5351c_configure_multisynth(3, p1, 0, 1, 0); // no clk out
+
+	return true;
+
+}
+
+
 bool sample_rate_set(const uint32_t sample_rate_hz) {
 #ifdef JELLYBEAN
 	/* Due to design issues, Jellybean/Lemondrop frequency plan is limited.
