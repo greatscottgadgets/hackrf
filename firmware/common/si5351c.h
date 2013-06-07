@@ -30,7 +30,30 @@ extern "C"
 
 #include <stdint.h>
 
+#define SI_INTDIV(x)  (x*128-512)
 #define SI5351C_I2C_ADDR (0x60 << 1)
+
+#define SI5351C_CLK_POWERDOWN	(1<<7)
+#define SI5351C_CLK_INT_MODE	(1<<6)
+#define SI5351C_CLK_FRAC_MODE	(0<<6)
+
+#define SI5351C_CLK_PLL_SRC(x)	(x<<5)
+#define SI5351C_CLK_PLL_SRC_A	0
+#define SI5351C_CLK_PLL_SRC_B	1
+
+#define SI5351C_CLK_INV			(1<<4)
+
+#define SI5351C_CLK_SRC(x)		(x<<2)
+#define SI5351C_CLK_SRC_XTAL			0
+#define SI5351C_CLK_SRC_CLKIN			1
+#define SI5351C_CLK_SRC_MULTISYNTH_0_4	2
+#define SI5351C_CLK_SRC_MULTISYNTH_SELF	3
+
+#define SI5351C_CLK_IDRV(x) (x<<0)
+#define SI5351C_CLK_IDRV_2MA 0
+#define SI5351C_CLK_IDRV_4MA 1
+#define SI5351C_CLK_IDRV_6MA 2
+#define SI5351C_CLK_IDRV_8MA 3
 
 void si5351c_disable_all_outputs();
 void si5351c_disable_oeb_pin_control();

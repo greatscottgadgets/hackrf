@@ -67,6 +67,12 @@ typedef struct {
 
 set_freq_params_t set_freq_params;
 
+typedef struct {
+	float freq_mhz;
+} set_sample_r_params_t;
+
+set_sample_r_params_t set_sample_r_params;
+
 uint8_t switchctrl = 0;
 
 void update_switches(void)
@@ -696,6 +702,28 @@ usb_request_status_t usb_vendor_request_set_freq(
 	}
 }
 
+usb_request_status_t usb_vendor_request_set_fracrate(
+	usb_endpoint_t* const endpoint,
+	const usb_transfer_stage_t stage) 
+{
+	if (stage == USB_TRANSFER_STAGE_SETUP) 
+	{
+		usb_endpoint_schedule(endpoint->out, &set_sample_r_params, sizeof(set_sample_r_params_t));
+		return USB_REQUEST_STATUS_OK;
+	} else if (stage == USB_TRANSFER_STAGE_DATA) 
+	{
+		if( set_fracrate(set_sample_r_params.freq_mhz*2) ) 
+		{
+			usb_endpoint_schedule_ack(endpoint->in);
+			return USB_REQUEST_STATUS_OK;
+		}
+		return USB_REQUEST_STATUS_STALL;
+	} else
+	{
+		return USB_REQUEST_STATUS_OK;
+	}
+}
+
 usb_request_status_t usb_vendor_request_set_amp_enable(
 	usb_endpoint_t* const endpoint, const usb_transfer_stage_t stage)
 {
@@ -821,7 +849,8 @@ static const usb_request_handler_fn vendor_request_handler[] = {
 	usb_vendor_request_read_partid_serialno,
 	usb_vendor_request_set_lna_gain,
 	usb_vendor_request_set_vga_gain,
-	usb_vendor_request_set_txvga_gain
+	usb_vendor_request_set_txvga_gain,
+	usb_vendor_request_set_fracrate
 };
 
 static const uint32_t vendor_request_handler_count =
