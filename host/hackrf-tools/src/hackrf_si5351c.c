@@ -142,9 +142,13 @@ int dump_multisynth_config(hackrf_device* device, const uint_fast8_t ms_number) 
         printf("\tp1 = %u\n", p1);
         printf("\tp2 = %u\n", p2);
         printf("\tp3 = %u\n", p3);
+		if(p3)
+			printf("\tOutput (800Mhz PLL): %#.10f Mhz\n", (800 / (float)((p1*p3 + p2 + 512*p3)/(128*p3))) / div_lut[r_div] );
     } else {
         // MS6 and 7 are integer only
+		unsigned int parms;
         reg_base = 90;
+
         for(i=0; i<3; i++) {
             uint_fast8_t reg_number = reg_base + i;
             int result = hackrf_si5351c_read(device, reg_number, &parameters[i]);
@@ -154,7 +158,10 @@ int dump_multisynth_config(hackrf_device* device, const uint_fast8_t ms_number) 
         }
 
         r_div = (ms_number == 6) ? parameters[2] & 0x7 : parameters[2] & 0x70 >> 4 ;
-		printf("\tp1_int = %u\n", (ms_number == 6) ? parameters[0] : parameters[1]);
+		parms = (ms_number == 6) ? parameters[0] : parameters[1];
+		printf("\tp1_int = %u\n", parms);
+		if(parms)
+			printf("\tOutput (800Mhz PLL): %#.10f Mhz\n", (800.0f / parms) / div_lut[r_div] );
     }
 	printf("\toutput divider = %u\n", div_lut[r_div]);
 	
