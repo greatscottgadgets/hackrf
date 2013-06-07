@@ -856,6 +856,7 @@ int ADDCALL hackrf_board_partid_serialno_read(hackrf_device* device, read_partid
 int ADDCALL hackrf_set_lna_gain(hackrf_device* device, uint32_t value)
 {
 	int result;
+	uint8_t retval;
 	
 	if( value > 40 )
 	{
@@ -864,16 +865,16 @@ int ADDCALL hackrf_set_lna_gain(hackrf_device* device, uint32_t value)
 
 	result = libusb_control_transfer(
 		device->usb_device,
-		LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
+		LIBUSB_ENDPOINT_IN | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
 		HACKRF_VENDOR_REQUEST_SET_LNA_GAIN,
 		0,
 		value,
-		NULL,
-		0,
+		&retval,
+		1,
 		0
 	);
 
-	if( result != 0 )
+	if( result != 1 || !retval )
 	{
 		return HACKRF_ERROR_INVALID_PARAM;
 	} else {
@@ -884,6 +885,7 @@ int ADDCALL hackrf_set_lna_gain(hackrf_device* device, uint32_t value)
 int ADDCALL hackrf_set_vga_gain(hackrf_device* device, uint32_t value)
 {
 	int result;
+	uint8_t retval;
 	
 	if( value > 62 )
 	{
@@ -892,16 +894,16 @@ int ADDCALL hackrf_set_vga_gain(hackrf_device* device, uint32_t value)
 
 	result = libusb_control_transfer(
 		device->usb_device,
-		LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
+		LIBUSB_ENDPOINT_IN | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
 		HACKRF_VENDOR_REQUEST_SET_VGA_GAIN,
 		0,
 		value,
-		NULL,
-		0,
+		&retval,
+		1,
 		0
 	);
 
-	if( result != 0 )
+	if( result != 1 || !retval )
 	{
 		return HACKRF_ERROR_INVALID_PARAM;
 	} else {
@@ -912,6 +914,7 @@ int ADDCALL hackrf_set_vga_gain(hackrf_device* device, uint32_t value)
 int ADDCALL hackrf_set_txvga_gain(hackrf_device* device, uint32_t value)
 {
 	int result;
+	uint8_t retval;
 	
 	if( value > 47 )
 	{
@@ -920,16 +923,16 @@ int ADDCALL hackrf_set_txvga_gain(hackrf_device* device, uint32_t value)
 
 	result = libusb_control_transfer(
 		device->usb_device,
-		LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
+		LIBUSB_ENDPOINT_IN | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
 		HACKRF_VENDOR_REQUEST_SET_TXVGA_GAIN,
 		0,
 		value,
-		NULL,
-		0,
+		&retval,
+		1,
 		0
 	);
 
-	if( result != 0 )
+	if( result != 1 || !retval )
 	{
 		return HACKRF_ERROR_INVALID_PARAM;
 	} else {
