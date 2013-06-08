@@ -68,7 +68,8 @@ typedef struct {
 set_freq_params_t set_freq_params;
 
 typedef struct {
-	float freq_mhz;
+	uint32_t freq_hz;
+	uint32_t divider;
 } set_sample_r_params_t;
 
 set_sample_r_params_t set_sample_r_params;
@@ -702,7 +703,7 @@ usb_request_status_t usb_vendor_request_set_freq(
 	}
 }
 
-usb_request_status_t usb_vendor_request_set_fracrate(
+usb_request_status_t usb_vendor_request_set_sample_rate_frac(
 	usb_endpoint_t* const endpoint,
 	const usb_transfer_stage_t stage) 
 {
@@ -712,7 +713,7 @@ usb_request_status_t usb_vendor_request_set_fracrate(
 		return USB_REQUEST_STATUS_OK;
 	} else if (stage == USB_TRANSFER_STAGE_DATA) 
 	{
-		if( set_fracrate(set_sample_r_params.freq_mhz*2) ) 
+		if( sample_rate_frac_set(set_sample_r_params.freq_hz * 2, set_sample_r_params.divider ) )
 		{
 			usb_endpoint_schedule_ack(endpoint->in);
 			return USB_REQUEST_STATUS_OK;
@@ -850,7 +851,7 @@ static const usb_request_handler_fn vendor_request_handler[] = {
 	usb_vendor_request_set_lna_gain,
 	usb_vendor_request_set_vga_gain,
 	usb_vendor_request_set_txvga_gain,
-	usb_vendor_request_set_fracrate
+	usb_vendor_request_set_sample_rate_frac
 };
 
 static const uint32_t vendor_request_handler_count =

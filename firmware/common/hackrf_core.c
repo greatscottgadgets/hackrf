@@ -39,59 +39,90 @@ void delay(uint32_t duration)
 		__asm__("nop");
 }
 
-bool set_fracrate(const float freq) {
+/* GCD algo from wikipedia */
+/* http://en.wikipedia.org/wiki/Greatest_common_divisor */
+static uint32_t
+gcd(uint32_t u, uint32_t v)
+{
+	int s;
 
-	uint32_t MSx_P1,MSx_P2,MSx_P3;
-	uint32_t b,c;
-	float div = (800/freq);
-	uint32_t a = (uint32_t)div;
-	float x = div-a;
+	if (!u || !v)
+		return u | v;
 
-	if(a != div){
-		uint32_t j=0,k=1,l=1,m=1;
-
-        si5351c_set_int_mode(0, 0);
-
-		while (k <= 0xFFFF && m <= 0xFFFF){
-			float n = (float)(j+l)/(k+m);
-			if( x == n){
-				if(k + m <= 0xFFFF){
-					b=j+l;	c=k+m;
-					break;
-				} else if(m > k){
-					b=l; c=m;
-					break;
-				} else {
-					b=j; c=k;
-					break;
-				}
-			}
-			else if(x > n){
-				j+=l; k+=m;
-			}
-			else{
-				l+=j; m+=k;
-			}
-		}
-		if (k > 0xFFFF){
-			b=l; c=m;
-		}
-		else{
-			b=j; c=k;
-		}
-	} else {
-        if(a & 0x1) // odd integer, needs frac mode
-            si5351c_set_int_mode(0, 0);
-        else
-            si5351c_set_int_mode(0, 1);
-		b=0; c=1;
+	for (s=0; !((u|v)&1); s++) {
+		u >>= 1;
+		v >>= 1;
 	}
 
+	while (!(u&1))
+		u >>= 1;
+
+	do {
+		while (!(v&1))
+			v >>= 1;
+
+		if (u>v) {
+			uint32_t t;
+			t = v;
+			v = u;
+			u = t;
+		}
+
+		v = v - u;
+	}
+	while (v);
+
+	return u << s;
+}
+
+bool sample_rate_frac_set(uint32_t rate_num, uint32_t rate_denom)
+{
+	const uint64_t VCO_FREQ = 800 * 1000 * 1000; /* 800 MHz */
+	uint32_t MSx_P1,MSx_P2,MSx_P3;
+	uint32_t a, b, c;
+	uint32_t rem;
+
+	/* Find best config */
+	a = (VCO_FREQ * rate_denom) / rate_num;
+
+	rem = (VCO_FREQ * rate_denom) - (a * rate_num);
+
+	if (!rem) {
+		/* Integer mode */
+		b = 0;
+		c = 1;
+	} else {
+		/* Fractional */
+		uint32_t g = gcd(rem, rate_num);
+		rem /= g;
+		rate_num /= g;
+
+		if (rate_num < (1<<20)) {
+			/* Perfect match */
+			b = rem;
+			c = rate_num;
+		} else {
+			/* Approximate */
+			c = (1<<20) - 1;
+			b = ((uint64_t)c * (uint64_t)rem) / rate_num;
+
+			g = gcd(b, c);
+			b /= g;
+			c /= g;
+		}
+	}
+
+	/* Can we enable integer mode ? */
+	if (a & 0x1 || b)
+		si5351c_set_int_mode(0, 0);
+	else
+		si5351c_set_int_mode(0, 1);
+
+	/* Final MS values */
 	MSx_P1 = 128*a + (128 * b/c) - 512;
-	MSx_P2 = (128*b)%c;
+	MSx_P2 = (128*b) % c;
 	MSx_P3 = c;
 
-	
 	/* MS0/CLK0 is the source for the MAX5864/CPLD (CODEC_CLK). */
 	si5351c_configure_multisynth(0, MSx_P1, MSx_P2, MSx_P3, 1);
 
@@ -105,9 +136,7 @@ bool set_fracrate(const float freq) {
 	//si5351c_configure_multisynth(3, p1, 0, 1, 0); // no clk out
 
 	return true;
-
 }
-
 
 bool sample_rate_set(const uint32_t sample_rate_hz) {
 #ifdef JELLYBEAN
