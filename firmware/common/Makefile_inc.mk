@@ -54,8 +54,8 @@ CFLAGS += -std=gnu99 -Os -g3 -Wall -Wextra -I$(LIBOPENCM3)/include -I../common \
 		-fno-common -mcpu=cortex-m4 -mthumb -MD \
 		-mfloat-abi=hard -mfpu=fpv4-sp-d16 \
 		$(HACKRF_OPTS)
-LDFLAGS += -L$(TOOLCHAIN_DIR)/lib/armv7e-m/fpu \
-    -L../common \
+LDFLAGS += -mcpu=cortex-m4 -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16 \
+		-L$(TOOLCHAIN_DIR)/lib/armv7e-m/fpu -L../common \
 		-L$(LIBOPENCM3)/lib -L$(LIBOPENCM3)/lib/lpc43xx \
 		-T$(LDSCRIPT) -nostartfiles \
 		-Wl,--gc-sections -Xlinker -Map=$(BINARY).map
