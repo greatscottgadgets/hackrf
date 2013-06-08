@@ -49,6 +49,9 @@ bool set_fracrate(const float freq) {
 
 	if(a != div){
 		uint32_t j=0,k=1,l=1,m=1;
+
+        si5351c_set_int_mode(0, 0);
+
 		while (k <= 0xFFFF && m <= 0xFFFF){
 			float n = (float)(j+l)/(k+m);
 			if( x == n){
@@ -77,6 +80,10 @@ bool set_fracrate(const float freq) {
 			b=j; c=k;
 		}
 	} else {
+        if(a & 0x1) // odd integer, needs frac mode
+            si5351c_set_int_mode(0, 0);
+        else
+            si5351c_set_int_mode(0, 1);
 		b=0; c=1;
 	}
 

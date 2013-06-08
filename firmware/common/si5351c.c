@@ -249,3 +249,21 @@ void si5351c_configure_clock_control()
 	uint8_t data[] = { 3, 0xC8 };
  	si5351c_write(data, sizeof(data));
  }
+
+
+ void si5351c_set_int_mode(const uint_fast8_t ms_number, const uint_fast8_t on){
+  uint8_t data[] = {16, 0};
+
+  if(ms_number < 8){
+      data[0] = 16 + ms_number;
+      data[1] = si5351c_read_single(data[0]);
+
+      if(on)
+          data[1] |= SI5351C_CLK_INT_MODE;
+      else
+          data[1] &= ~(SI5351C_CLK_INT_MODE);
+
+      si5351c_write(data, 2);
+  }
+
+ }

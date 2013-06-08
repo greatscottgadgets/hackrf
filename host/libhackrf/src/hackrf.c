@@ -770,8 +770,6 @@ typedef struct {
 
 int ADDCALL hackrf_set_fracrate(hackrf_device* device, const float freq_mhz)
 {
-	uint32_t l_freq_mhz;
-	uint32_t l_freq_hz;
 	set_fracrate_params_t set_fracrate_params;
 	uint8_t length;
 	int result;
