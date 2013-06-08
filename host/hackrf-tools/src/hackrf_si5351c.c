@@ -121,17 +121,17 @@ int dump_multisynth_config(hackrf_device* device, const uint_fast8_t ms_number) 
 		}
 
 		p1 =
-			  (parameters[2] & 0x03 << 16)
+			  ((parameters[2] & 0x03) << 16)
 			| (parameters[3] << 8)
 			| parameters[4]
 			;
 		p2 =
-			  (parameters[5] & 0x0F << 16)
+			  ((parameters[5] & 0x0F) << 16)
 			| (parameters[6] << 8)
 			| parameters[7]
 			;
 		p3 =
-			  (parameters[5] & 0xF0 << 12)
+			  ((parameters[5] & 0xF0) << 12)
 			| (parameters[0] << 8)
 			|  parameters[1]
 			;
@@ -143,7 +143,7 @@ int dump_multisynth_config(hackrf_device* device, const uint_fast8_t ms_number) 
 		printf("\tp2 = %u\n", p2);
 		printf("\tp3 = %u\n", p3);
 		if(p3)
-			printf("\tOutput (800Mhz PLL): %#.10f Mhz\n", (800 / (float)((p1*p3 + p2 + 512*p3)/(128*p3))) / div_lut[r_div] );
+			printf("\tOutput (800Mhz PLL): %#.10f Mhz\n", ((double)800 / (double)(((double)p1*p3 + p2 + 512*p3)/(double)(128*p3))) / div_lut[r_div] );
 	} else {
 		// MS6 and 7 are integer only
 		unsigned int parms;
@@ -157,7 +157,7 @@ int dump_multisynth_config(hackrf_device* device, const uint_fast8_t ms_number) 
 			}
 		}
 
-		r_div = (ms_number == 6) ? parameters[2] & 0x7 : parameters[2] & 0x70 >> 4 ;
+		r_div = (ms_number == 6) ? parameters[2] & 0x7 : (parameters[2] & 0x70) >> 4 ;
 		parms = (ms_number == 6) ? parameters[0] : parameters[1];
 		printf("\tp1_int = %u\n", parms);
 		if(parms)
