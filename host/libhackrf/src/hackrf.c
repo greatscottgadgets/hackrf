@@ -64,7 +64,6 @@ typedef enum {
 	HACKRF_VENDOR_REQUEST_SET_LNA_GAIN = 19,
 	HACKRF_VENDOR_REQUEST_SET_VGA_GAIN = 20,
 	HACKRF_VENDOR_REQUEST_SET_TXVGA_GAIN = 21,
-	HACKRF_VENDOR_REQUEST_SET_FRACRATE = 22,
 } hackrf_vendor_request;
 
 typedef enum {
@@ -473,29 +472,7 @@ int ADDCALL hackrf_si5351c_write(hackrf_device* device, uint16_t register_number
 	}
 }
 
-int ADDCALL hackrf_sample_rate_set(hackrf_device* device, const uint32_t sampling_rate_hz)
-{
-	int result;
-	result = libusb_control_transfer(
-		device->usb_device,
-		LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
-		HACKRF_VENDOR_REQUEST_SAMPLE_RATE_SET,
-		sampling_rate_hz & 0xffff,
-		sampling_rate_hz >> 16,
-		NULL,
-		0,
-		0
-	);
-
-	if( result != 0 )
-	{
-		return HACKRF_ERROR_LIBUSB;
-	} else {
-		return HACKRF_SUCCESS;
-	}
-}
-
-int ADDCALL hackrf_baseband_filter_bandwidth_set(hackrf_device* device, const uint32_t bandwidth_hz)
+int ADDCALL hackrf_set_baseband_filter_bandwidth(hackrf_device* device, const uint32_t bandwidth_hz)
 {
 	int result;
 	result = libusb_control_transfer(
@@ -769,7 +746,7 @@ typedef struct {
 } set_fracrate_params_t;
 
 
-int ADDCALL hackrf_set_fracrate_manual(hackrf_device* device,
+int ADDCALL hackrf_set_sample_rate_manual(hackrf_device* device,
                                        const uint32_t freq_hz, uint32_t divider)
 {
 	set_fracrate_params_t set_fracrate_params;
@@ -783,7 +760,7 @@ int ADDCALL hackrf_set_fracrate_manual(hackrf_device* device,
 	result = libusb_control_transfer(
 		device->usb_device,
 		LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
-		HACKRF_VENDOR_REQUEST_SET_FRACRATE,
+		HACKRF_VENDOR_REQUEST_SAMPLE_RATE_SET,
 		0,
 		0,
 		(unsigned char*)&set_fracrate_params,
@@ -799,7 +776,7 @@ int ADDCALL hackrf_set_fracrate_manual(hackrf_device* device,
 	}
 }
 
-int ADDCALL hackrf_set_fracrate(hackrf_device* device, const double freq)
+int ADDCALL hackrf_set_sample_rate(hackrf_device* device, const double freq)
 {
 	const int MAX_N = 32;
 	uint32_t freq_hz, divider;
@@ -831,7 +808,7 @@ int ADDCALL hackrf_set_fracrate(hackrf_device* device, const double freq)
 	freq_hz = (uint32_t)(freq * i + 0.5);
 	divider = i;
 
-	return hackrf_set_fracrate_manual(device, freq_hz, divider);
+	return hackrf_set_sample_rate_manual(device, freq_hz, divider);
 }
 
 int ADDCALL hackrf_set_amp_enable(hackrf_device* device, const uint8_t value)

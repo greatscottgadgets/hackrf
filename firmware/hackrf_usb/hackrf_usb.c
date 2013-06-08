@@ -426,22 +426,6 @@ usb_request_status_t usb_vendor_request_read_si5351c(
 	}
 }
 
-usb_request_status_t usb_vendor_request_set_sample_rate(
-	usb_endpoint_t* const endpoint,
-	const usb_transfer_stage_t stage
-) {
-	if( stage == USB_TRANSFER_STAGE_SETUP ) {
-		const uint32_t sample_rate = (endpoint->setup.index << 16) | endpoint->setup.value;
-		if( sample_rate_set(sample_rate) ) {
-			usb_endpoint_schedule_ack(endpoint->in);
-			return USB_REQUEST_STATUS_OK;
-		}
-		return USB_REQUEST_STATUS_STALL;
-	} else {
-		return USB_REQUEST_STATUS_OK;
-	}
-}
-
 usb_request_status_t usb_vendor_request_set_baseband_filter_bandwidth(
 	usb_endpoint_t* const endpoint,
 	const usb_transfer_stage_t stage
@@ -835,7 +819,7 @@ static const usb_request_handler_fn vendor_request_handler[] = {
 	usb_vendor_request_read_max2837,
 	usb_vendor_request_write_si5351c,
 	usb_vendor_request_read_si5351c,
-	usb_vendor_request_set_sample_rate,
+	usb_vendor_request_set_sample_rate_frac,
 	usb_vendor_request_set_baseband_filter_bandwidth,
 	usb_vendor_request_write_rffc5071,
 	usb_vendor_request_read_rffc5071,
@@ -851,7 +835,6 @@ static const usb_request_handler_fn vendor_request_handler[] = {
 	usb_vendor_request_set_lna_gain,
 	usb_vendor_request_set_vga_gain,
 	usb_vendor_request_set_txvga_gain,
-	usb_vendor_request_set_sample_rate_frac
 };
 
 static const uint32_t vendor_request_handler_count =

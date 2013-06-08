@@ -112,8 +112,7 @@ extern ADDAPI int ADDCALL hackrf_max2837_write(hackrf_device* device, uint8_t re
 extern ADDAPI int ADDCALL hackrf_si5351c_read(hackrf_device* device, uint16_t register_number, uint16_t* value);
 extern ADDAPI int ADDCALL hackrf_si5351c_write(hackrf_device* device, uint16_t register_number, uint16_t value);
  
-extern ADDAPI int ADDCALL hackrf_sample_rate_set(hackrf_device* device, const uint32_t sampling_rate_hz);
-extern ADDAPI int ADDCALL hackrf_baseband_filter_bandwidth_set(hackrf_device* device, const uint32_t bandwidth_hz);
+extern ADDAPI int ADDCALL hackrf_set_baseband_filter_bandwidth(hackrf_device* device, const uint32_t bandwidth_hz);
  
 extern ADDAPI int ADDCALL hackrf_rffc5071_read(hackrf_device* device, uint8_t register_number, uint16_t* value);
 extern ADDAPI int ADDCALL hackrf_rffc5071_write(hackrf_device* device, uint8_t register_number, uint16_t value);
@@ -129,8 +128,11 @@ extern ADDAPI int ADDCALL hackrf_board_id_read(hackrf_device* device, uint8_t* v
 extern ADDAPI int ADDCALL hackrf_version_string_read(hackrf_device* device, char* version, uint8_t length);
 
 extern ADDAPI int ADDCALL hackrf_set_freq(hackrf_device* device, const uint64_t freq_hz);
-extern ADDAPI int ADDCALL hackrf_set_fracrate_manual(hackrf_device* device, const uint32_t freq_hz, const uint32_t divider);
-extern ADDAPI int ADDCALL hackrf_set_fracrate(hackrf_device* device, const double freq_hz);
+
+/* currently 8-20Mhz - either as a fraction, i.e. freq 20000000hz divider 2 -> 10Mhz or as plain old 10000000hz (double)
+	preferred rates are 8, 10, 12.5, 16, 20Mhz due to less jitter */
+extern ADDAPI int ADDCALL hackrf_set_sample_rate_manual(hackrf_device* device, const uint32_t freq_hz, const uint32_t divider);
+extern ADDAPI int ADDCALL hackrf_set_sample_rate(hackrf_device* device, const double freq_hz);
 
 /* external amp, bool on/off */
 extern ADDAPI int ADDCALL hackrf_set_amp_enable(hackrf_device* device, const uint8_t value);
