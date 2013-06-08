@@ -129,7 +129,8 @@ extern ADDAPI int ADDCALL hackrf_board_id_read(hackrf_device* device, uint8_t* v
 extern ADDAPI int ADDCALL hackrf_version_string_read(hackrf_device* device, char* version, uint8_t length);
 
 extern ADDAPI int ADDCALL hackrf_set_freq(hackrf_device* device, const uint64_t freq_hz);
-extern ADDAPI int ADDCALL hackrf_set_fracrate(hackrf_device* device, const float freq_mhz);
+extern ADDAPI int ADDCALL hackrf_set_fracrate_manual(hackrf_device* device, const uint32_t freq_hz, const uint32_t divider);
+extern ADDAPI int ADDCALL hackrf_set_fracrate(hackrf_device* device, const double freq_hz);
 
 /* external amp, bool on/off */
 extern ADDAPI int ADDCALL hackrf_set_amp_enable(hackrf_device* device, const uint8_t value);

@@ -764,17 +764,20 @@ int ADDCALL hackrf_set_freq(hackrf_device* device, const uint64_t freq_hz)
 
 
 typedef struct {
-	float freq_mhz;
+	uint32_t freq_hz;
+	uint32_t divider;
 } set_fracrate_params_t;
 
 
-int ADDCALL hackrf_set_fracrate(hackrf_device* device, const float freq_mhz)
+int ADDCALL hackrf_set_fracrate_manual(hackrf_device* device,
+                                       const uint32_t freq_hz, uint32_t divider)
 {
 	set_fracrate_params_t set_fracrate_params;
 	uint8_t length;
 	int result;
-	
-	set_fracrate_params.freq_mhz = TO_LE(freq_mhz);
+
+	set_fracrate_params.freq_hz = TO_LE(freq_hz);
+	set_fracrate_params.divider = TO_LE(divider);
 	length = sizeof(set_fracrate_params_t);
 
 	result = libusb_control_transfer(
@@ -794,6 +797,41 @@ int ADDCALL hackrf_set_fracrate(hackrf_device* device, const float freq_mhz)
 	} else {
 		return HACKRF_SUCCESS;
 	}
+}
+
+int ADDCALL hackrf_set_fracrate(hackrf_device* device, const double freq)
+{
+	const int MAX_N = 32;
+	uint32_t freq_hz, divider;
+	double freq_frac = 1.0 + freq - (int)freq;
+	uint64_t v, a, m;
+	int i, e;
+
+	v = *((uint64_t*)&freq);
+	e = (v >> 52) - 1023;
+
+	m = ((1ULL << 52) - 1);
+
+	v = *((uint64_t*)&freq_frac);
+	v &= m;
+
+	m &= ~((1 << (e+4)) - 1);
+
+	a = 0;
+
+	for (i=1; i<MAX_N; i++) {
+		a += v;
+		if (!(a & m) || !(~a & m))
+			break;
+	}
+
+	if (i == MAX_N)
+		i = 1;
+
+	freq_hz = (uint32_t)(freq * i + 0.5);
+	divider = i;
+
+	return hackrf_set_fracrate_manual(device, freq_hz, divider);
 }
 
 int ADDCALL hackrf_set_amp_enable(hackrf_device* device, const uint8_t value)
