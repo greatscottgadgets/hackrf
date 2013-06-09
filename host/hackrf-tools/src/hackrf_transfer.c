@@ -591,7 +591,7 @@ int main(int argc, char** argv) {
 	signal(SIGABRT, &sigint_callback_handler);
 #endif
 	printf("call hackrf_sample_rate_set(%u Hz/%.03f MHz)\n", sample_rate_hz,((float)sample_rate_hz/(float)FREQ_ONE_MHZ));
-	result = hackrf_sample_rate_set(device, sample_rate_hz);
+	result = hackrf_set_sample_rate_manual(device, sample_rate_hz, 1);
 	if( result != HACKRF_SUCCESS ) {
 		printf("hackrf_sample_rate_set() failed: %s (%d)\n", hackrf_error_name(result), result);
 		usage();
@@ -600,7 +600,7 @@ int main(int argc, char** argv) {
 
 	printf("call hackrf_baseband_filter_bandwidth_set(%d Hz/%.03f MHz)\n",
 			baseband_filter_bw_hz, ((float)baseband_filter_bw_hz/(float)FREQ_ONE_MHZ));
-	result = hackrf_baseband_filter_bandwidth_set(device, baseband_filter_bw_hz);
+	result = hackrf_set_baseband_filter_bandwidth(device, baseband_filter_bw_hz);
 	if( result != HACKRF_SUCCESS ) {
 		printf("hackrf_baseband_filter_bandwidth_set() failed: %s (%d)\n", hackrf_error_name(result), result);
 		usage();
