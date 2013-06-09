@@ -71,6 +71,7 @@ void si5351c_set_int_mode(const uint_fast8_t ms_number, const uint_fast8_t on);
 
 void si5351c_write_single(uint8_t reg, uint8_t val);
 uint8_t si5351c_read_single(uint8_t reg);
+void si5351c_write(uint8_t* const data, const uint_fast8_t data_count);
 
 #ifdef __cplusplus
 }
