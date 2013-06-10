@@ -1,4 +1,4 @@
-EESchema Schematic File Version 2  date Wed Mar 27 01:00:29 2013
+EESchema Schematic File Version 2  date Sun Jun  9 23:35:01 2013
 LIBS:power
 LIBS:device
 LIBS:transistors
@@ -37,7 +37,7 @@ $Descr User 17000 11000
 encoding utf-8
 Sheet 3 4
 Title "jawbreaker baseband"
-Date "27 mar 2013"
+Date "10 jun 2013"
 Rev ""
 Comp "Copyright 2012 Michael Ossmann"
 Comment1 "License: GPL v2"
@@ -2785,8 +2785,10 @@ L C C116
 U 1 1 4F5CCE79
 P 6700 7600
 F 0 "C116" H 6750 7700 50  0000 L CNN
-F 1 "DNP" H 6750 7500 50  0000 L CNN
-F 4 "DNP" H 6700 7600 60  0001 C CNN "Note"
+F 1 "100pF" H 6750 7500 50  0000 L CNN
+F 4 "Murata" H 6700 7600 60  0001 C CNN "Manufacturer"
+F 5 "GRM1555C1H101JZ01D" H 6700 7600 60  0001 C CNN "Part Number"
+F 6 "CAP CER 100PF 50V 5% NP0 0402" H 6700 7600 60  0001 C CNN "Description"
 	1    6700 7600
 	1    0    0    -1  
 $EndComp
