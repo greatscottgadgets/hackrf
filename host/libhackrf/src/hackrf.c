@@ -781,23 +781,27 @@ int ADDCALL hackrf_set_sample_rate(hackrf_device* device, const double freq)
 	const int MAX_N = 32;
 	uint32_t freq_hz, divider;
 	double freq_frac = 1.0 + freq - (int)freq;
-	uint64_t v, a, m;
+	uint64_t a, m;
 	int i, e;
 
-	v = *((uint64_t*)&freq);
-	e = (v >> 52) - 1023;
+	union {
+		uint64_t u64;
+		double d;
+	} v = { .d = freq };
+
+	e = (v.u64 >> 52) - 1023;
 
 	m = ((1ULL << 52) - 1);
 
-	v = *((uint64_t*)&freq_frac);
-	v &= m;
+	v.d = freq_frac;
+	v.u64 &= m;
 
 	m &= ~((1 << (e+4)) - 1);
 
 	a = 0;
 
 	for (i=1; i<MAX_N; i++) {
-		a += v;
+		a += v.u64;
 		if (!(a & m) || !(~a & m))
 			break;
 	}
