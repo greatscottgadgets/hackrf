@@ -787,7 +787,8 @@ int ADDCALL hackrf_set_sample_rate(hackrf_device* device, const double freq)
 	union {
 		uint64_t u64;
 		double d;
-	} v = { .d = freq };
+	} v;
+	v.d = freq;
 
 	e = (v.u64 >> 52) - 1023;
 

@@ -64,7 +64,7 @@ int parse_int(char* s, uint16_t* const value) {
 	s_end = s;
 	long_value = strtol(s, &s_end, base);
 	if( (s != s_end) && (*s_end == 0) ) {
-		*value = long_value;
+		*value = (uint16_t)long_value;
 		return HACKRF_SUCCESS;
 	} else {
 		return HACKRF_ERROR_INVALID_PARAM;
@@ -73,7 +73,7 @@ int parse_int(char* s, uint16_t* const value) {
 
 int dump_register(hackrf_device* device, const uint16_t register_number) {
 	uint16_t register_value;
-	int result = hackrf_max2837_read(device, register_number, &register_value);
+	int result = hackrf_max2837_read(device, (uint8_t)register_number, &register_value);
 	
 	if( result == HACKRF_SUCCESS ) {
 		printf("[%2d] -> 0x%03x\n", register_number, register_value);
@@ -104,7 +104,7 @@ int write_register(
 	const uint16_t register_value
 ) {
 	int result = HACKRF_SUCCESS;
-	result = hackrf_max2837_write(device, register_number, register_value);
+	result = hackrf_max2837_write(device, (uint8_t)register_number, register_value);
 	
 	if( result == HACKRF_SUCCESS ) {
 		printf("0x%03x -> [%2d]\n", register_value, register_number);
