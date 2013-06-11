@@ -43,7 +43,13 @@ typedef int bool;
 #include <windows.h>
 
 #ifdef _MSC_VER
-typedef int ssize_t;
+
+#ifdef _WIN64
+typedef int64_t ssize_t;
+#else
+typedef int32_t ssize_t;
+#endif
+
 #define strtoull _strtoui64
 #define snprintf _snprintf
 

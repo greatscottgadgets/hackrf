@@ -31,7 +31,11 @@
 #include <stdint.h>
 
 #ifdef _MSC_VER
-typedef int ssize_t;
+#ifdef _WIN64
+typedef int64_t ssize_t;
+#else
+typedef int32_t ssize_t;
+#endif
 #endif
 /* input file shouldn't be any longer than this */
 #define MAX_XSVF_LENGTH 0x10000
