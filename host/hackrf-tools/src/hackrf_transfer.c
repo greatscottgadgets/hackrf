@@ -216,7 +216,7 @@ int parse_u32(char* s, uint32_t* const value) {
 	s_end = s;
 	ulong_value = strtoul(s, &s_end, base);
 	if( (s != s_end) && (*s_end == 0) ) {
-		*value = ulong_value;
+		*value = (uint32_t)ulong_value;
 		return HACKRF_SUCCESS;
 	} else {
 		return HACKRF_ERROR_INVALID_PARAM;
@@ -261,7 +261,7 @@ int rx_callback(hackrf_transfer* transfer) {
 		bytes_to_write = transfer->valid_length;
 		if (limit_num_samples) {
 			if (bytes_to_write >= bytes_to_xfer) {
-				bytes_to_write = bytes_to_xfer;
+				bytes_to_write = (int)bytes_to_xfer;
 			}
 			bytes_to_xfer -= bytes_to_write;
 		}
@@ -293,7 +293,7 @@ int tx_callback(hackrf_transfer* transfer) {
 				 * In this condition, we probably tx some of the previous
 				 * buffer contents at the end.  :-(
 				 */
-				bytes_to_read = bytes_to_xfer;
+				bytes_to_read = (int)bytes_to_xfer;
 			}
 			bytes_to_xfer -= bytes_to_read;
 		}

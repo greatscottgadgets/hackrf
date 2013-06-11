@@ -49,7 +49,7 @@ int parse_int(char* const s, uint16_t* const value) {
 	char* s_end = s;
 	const long long_value = strtol(s, &s_end, 10);
 	if( (s != s_end) && (*s_end == 0) ) {
-		*value = long_value;
+		*value = (uint16_t)long_value;
 		return HACKRF_SUCCESS;
 	} else {
 		return HACKRF_ERROR_INVALID_PARAM;
