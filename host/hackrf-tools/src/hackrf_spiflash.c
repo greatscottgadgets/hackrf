@@ -36,7 +36,11 @@ typedef int bool;
 #endif
 
 #ifdef _MSC_VER
-typedef int ssize_t;
+#ifdef _WIN64
+typedef int64_t ssize_t;
+#else
+typedef int32_t ssize_t;
+#endif
 #endif
 
 /* 8 Mbit flash */
