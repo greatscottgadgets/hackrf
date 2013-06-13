@@ -29,7 +29,7 @@
 #BOARD ?= JELLYBEAN
 BOARD ?= JAWBREAKER
 
-HACKRF_OPTS = -D$(BOARD)
+HACKRF_OPTS = -D$(BOARD) -DLPC43XX
 
 # comment to disable RF transmission
 HACKRF_OPTS += -DTX_ENABLE
