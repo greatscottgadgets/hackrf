@@ -295,7 +295,7 @@ usb_endpoint_t usb_endpoint_bulk_out = {
 void baseband_streaming_disable() {
 	sgpio_cpld_stream_disable();
 
-	nvic_disable_irq(NVIC_M4_SGPIO_IRQ);
+	nvic_disable_irq(NVIC_SGPIO_IRQ);
 	
 	usb_endpoint_disable(&usb_endpoint_bulk_in);
 	usb_endpoint_disable(&usb_endpoint_bulk_out);
@@ -335,8 +335,8 @@ void set_transceiver_mode(const transceiver_mode_t new_transceiver_mode) {
 
 	sgpio_configure(transceiver_mode, true);
 
-	nvic_set_priority(NVIC_M4_SGPIO_IRQ, 0);
-	nvic_enable_irq(NVIC_M4_SGPIO_IRQ);
+	nvic_set_priority(NVIC_SGPIO_IRQ, 0);
+	nvic_enable_irq(NVIC_SGPIO_IRQ);
 	SGPIO_SET_EN_1 = (1 << SGPIO_SLICE_A);
 
     sgpio_cpld_stream_enable();
@@ -896,7 +896,7 @@ void usb_configuration_changed(
 	}
 };
 
-void sgpio_irqhandler() {
+void sgpio_isr() {
 	SGPIO_CLR_STATUS_1 = (1 << SGPIO_SLICE_A);
 
 	uint32_t* const p = (uint32_t*)&usb_bulk_buffer[usb_bulk_buffer_offset];
@@ -973,7 +973,7 @@ int main(void) {
 	usb_endpoint_init(&usb_endpoint_control_out);
 	usb_endpoint_init(&usb_endpoint_control_in);
 	
-	nvic_set_priority(NVIC_M4_USB0_IRQ, 255);
+	nvic_set_priority(NVIC_USB0_IRQ, 255);
 
 	usb_run(&usb_device);
 	
