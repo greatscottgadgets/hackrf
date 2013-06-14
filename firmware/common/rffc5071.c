@@ -454,7 +454,9 @@ uint16_t rffc5071_config_synth_int(uint16_t lo) {
 	uint8_t fbkdiv;
 	uint16_t n;
 	uint16_t tune_freq;
-
+	uint16_t p1nmsb;
+	uint8_t p1nlsb;
+	
 	LOG("# config_synth_int\n");
 
 	/* Calculate n_lo */
@@ -481,8 +483,12 @@ uint16_t rffc5071_config_synth_int(uint16_t lo) {
 		set_RFFC5071_PLLCPL(2);
 	}
 
-	n = (fvco / fbkdiv) / REF_FREQ;
-	tune_freq = 50*n*fbkdiv/lodiv;
+	uint64_t tmp_n = ((uint64_t)fvco << 29ULL) / (fbkdiv*REF_FREQ) ;
+	n = tmp_n >> 29ULL;
+	p1nmsb = (tmp_n >> 13ULL) & 0xffff;
+	p1nlsb = (tmp_n >> 5ULL) & 0xff;
+	
+	tune_freq = REF_FREQ*tmp_n*fbkdiv/lodiv / (1 << 29);
 	LOG("# lo=%d n_lo=%d lodiv=%d fvco=%d fbkdiv=%d n=%d tune_freq=%d\n",
 	    lo, n_lo, lodiv, fvco, fbkdiv, n, tune_freq);
 
@@ -490,15 +496,15 @@ uint16_t rffc5071_config_synth_int(uint16_t lo) {
 	set_RFFC5071_P1LODIV(n_lo);
 	set_RFFC5071_P1N(n);
 	set_RFFC5071_P1PRESC(fbkdiv >> 1);
-	set_RFFC5071_P1NMSB(0);
-	set_RFFC5071_P1NLSB(0);
+	set_RFFC5071_P1NMSB(p1nmsb);
+	set_RFFC5071_P1NLSB(p1nlsb);
 
 	/* Path 2 */
 	set_RFFC5071_P2LODIV(n_lo);
 	set_RFFC5071_P2N(n);
 	set_RFFC5071_P2PRESC(fbkdiv >> 1);
-	set_RFFC5071_P2NMSB(0);
-	set_RFFC5071_P2NLSB(0);
+	set_RFFC5071_P2NMSB(p1nmsb);
+	set_RFFC5071_P2NLSB(p1nlsb);
 
 	rffc5071_regs_commit();
 

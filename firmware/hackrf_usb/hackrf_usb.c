@@ -96,7 +96,7 @@ void update_switches(void)
 #define MIN_HP_FREQ_MHZ (2700)
 #define MAX_HP_FREQ_MHZ (6800)
 
-#define MAX2837_FREQ_NOMINAL_HZ (2600000000)
+static uint32_t MAX2837_FREQ_NOMINAL_HZ=2600000000;
 #define MAX2837_FREQ_NOMINAL_MHZ (MAX2837_FREQ_NOMINAL_HZ / FREQ_ONE_MHZ)
 
 /*
@@ -812,6 +812,17 @@ usb_request_status_t usb_vendor_request_set_txvga_gain(
 	return USB_REQUEST_STATUS_OK;
 }
 
+usb_request_status_t usb_vendor_request_set_if_freq(
+	usb_endpoint_t* const endpoint,	const usb_transfer_stage_t stage
+) {
+	if( stage == USB_TRANSFER_STAGE_SETUP ) {
+		MAX2837_FREQ_NOMINAL_HZ = (uint32_t)endpoint->setup.index * 1000 * 1000;
+		return USB_REQUEST_STATUS_STALL;
+	} else {
+		return USB_REQUEST_STATUS_OK;
+	}
+}
+
 static const usb_request_handler_fn vendor_request_handler[] = {
 	NULL,
 	usb_vendor_request_set_transceiver_mode,
@@ -835,6 +846,7 @@ static const usb_request_handler_fn vendor_request_handler[] = {
 	usb_vendor_request_set_lna_gain,
 	usb_vendor_request_set_vga_gain,
 	usb_vendor_request_set_txvga_gain,
+	usb_vendor_request_set_if_freq,
 };
 
 static const uint32_t vendor_request_handler_count =
