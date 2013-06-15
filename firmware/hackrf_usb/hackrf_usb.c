@@ -109,7 +109,7 @@ bool set_freq(uint32_t freq_mhz, uint32_t freq_hz)
 	bool success;
 	uint32_t RFFC5071_freq_mhz;
 	uint32_t MAX2837_freq_hz;
-	uint32_t real_RFFC5071_freq_mhz;
+	uint32_t real_RFFC5071_freq_hz;
 	uint32_t tmp_hz;
 
 	success = true;
@@ -122,13 +122,13 @@ bool set_freq(uint32_t freq_mhz, uint32_t freq_hz)
 
 			RFFC5071_freq_mhz = MAX2837_FREQ_NOMINAL_MHZ - freq_mhz;
 			/* Set Freq and read real freq */
-			real_RFFC5071_freq_mhz = rffc5071_set_frequency(RFFC5071_freq_mhz, 0);
-			if(real_RFFC5071_freq_mhz < RFFC5071_freq_mhz)
+			real_RFFC5071_freq_hz = rffc5071_set_frequency(RFFC5071_freq_mhz, 0);
+			if(real_RFFC5071_freq_hz < RFFC5071_freq_mhz * FREQ_ONE_MHZ)
 			{
-				tmp_hz = -((RFFC5071_freq_mhz - real_RFFC5071_freq_mhz) * FREQ_ONE_MHZ);
+				tmp_hz = -(RFFC5071_freq_mhz  * FREQ_ONE_MHZ - real_RFFC5071_freq_hz);
 			}else
 			{
-				tmp_hz = ((real_RFFC5071_freq_mhz - RFFC5071_freq_mhz) * FREQ_ONE_MHZ);
+				tmp_hz = (real_RFFC5071_freq_hz - RFFC5071_freq_mhz  * FREQ_ONE_MHZ);
 			}
 			MAX2837_freq_hz = MAX2837_FREQ_NOMINAL_HZ + tmp_hz + freq_hz;
 			max2837_set_frequency(MAX2837_freq_hz);
@@ -148,13 +148,13 @@ bool set_freq(uint32_t freq_mhz, uint32_t freq_hz)
 
 			RFFC5071_freq_mhz = freq_mhz - MAX2837_FREQ_NOMINAL_MHZ;
 			/* Set Freq and read real freq */
-			real_RFFC5071_freq_mhz = rffc5071_set_frequency(RFFC5071_freq_mhz, 0);
-			if(real_RFFC5071_freq_mhz < RFFC5071_freq_mhz)
+			real_RFFC5071_freq_hz = rffc5071_set_frequency(RFFC5071_freq_mhz, 0);
+			if(real_RFFC5071_freq_hz < RFFC5071_freq_mhz * FREQ_ONE_MHZ)
 			{
-				tmp_hz = ((RFFC5071_freq_mhz - real_RFFC5071_freq_mhz) * FREQ_ONE_MHZ);
+				tmp_hz = (RFFC5071_freq_mhz * FREQ_ONE_MHZ - real_RFFC5071_freq_hz);
 			}else
 			{
-				tmp_hz = -((real_RFFC5071_freq_mhz - RFFC5071_freq_mhz) * FREQ_ONE_MHZ);
+				tmp_hz = -(real_RFFC5071_freq_hz - RFFC5071_freq_mhz * FREQ_ONE_MHZ);
 			}
 			MAX2837_freq_hz = MAX2837_FREQ_NOMINAL_HZ + tmp_hz + freq_hz;
 			max2837_set_frequency(MAX2837_freq_hz);

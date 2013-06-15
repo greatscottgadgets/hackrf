@@ -448,12 +448,12 @@ void rffc5071_enable(void)  {
 #define REF_FREQ 50
 
 /* configure frequency synthesizer in integer mode (lo in MHz) */
-uint16_t rffc5071_config_synth_int(uint16_t lo) {
+uint32_t rffc5071_config_synth_int(uint16_t lo) {
 	uint8_t lodiv;
 	uint16_t fvco;
 	uint8_t fbkdiv;
 	uint16_t n;
-	uint16_t tune_freq;
+	uint32_t tune_freq_hz;
 	uint16_t p1nmsb;
 	uint8_t p1nlsb;
 	
@@ -488,8 +488,9 @@ uint16_t rffc5071_config_synth_int(uint16_t lo) {
 	p1nmsb = (tmp_n >> 13ULL) & 0xffff;
 	p1nlsb = (tmp_n >> 5ULL) & 0xff;
 	
-	tune_freq = REF_FREQ*tmp_n*fbkdiv/lodiv / (1 << 29);
-	LOG("# lo=%d n_lo=%d lodiv=%d fvco=%d fbkdiv=%d n=%d tune_freq=%d\n",
+	//~ tune_freq = REF_FREQ*tmp_n*fbkdiv/lodiv / (1 << 29);
+	tune_freq_hz = (uint32_t)(REF_FREQ*tmp_n*fbkdiv/lodiv * 1000*1000 / (1 << 29ULL));
+	LOG("# lo=%d n_lo=%d lodiv=%d fvco=%d fbkdiv=%d n=%d tune_freq_hz=%d\n",
 	    lo, n_lo, lodiv, fvco, fbkdiv, n, tune_freq);
 
 	/* Path 1 */
@@ -508,15 +509,15 @@ uint16_t rffc5071_config_synth_int(uint16_t lo) {
 
 	rffc5071_regs_commit();
 
-	return tune_freq;
+	return tune_freq_hz;
 }
 
 /* !!!!!!!!!!! hz is currently ignored !!!!!!!!!!!
  *
  * Tuning is rounded down to the nearest 25MHz or 50MHz depending on
  * frequency requsted. Actual tuned value in MHz is returned. */
-uint16_t rffc5071_set_frequency(uint16_t mhz, uint32_t hz) {
-	uint16_t tune_freq;
+uint32_t rffc5071_set_frequency(uint16_t mhz, uint32_t hz) {
+	uint32_t tune_freq;
 
 	// Fractional tuning unimplemented, 'hz' ignored
 	hz=hz;

@@ -71,7 +71,7 @@ extern void rffc5071_regs_commit(void);
  * tune frequency (MHz) is returned. Expect requested freq to be
  * rounded down to the nearest multiple of 25MHz or 50MHz, depending
  * internal calculations. */
-extern uint16_t rffc5071_set_frequency(uint16_t mhz, uint32_t hz);
+extern uint32_t rffc5071_set_frequency(uint16_t mhz, uint32_t hz);
 
 /* Set up rx only, tx only, or full duplex. Chip should be disabled
  * before _tx, _rx, or _rxtx are called. */
