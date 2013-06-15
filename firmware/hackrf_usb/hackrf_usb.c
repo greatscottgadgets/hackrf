@@ -99,6 +99,7 @@ void update_switches(void)
 static uint32_t MAX2837_FREQ_NOMINAL_HZ=2600000000;
 #define MAX2837_FREQ_NOMINAL_MHZ (MAX2837_FREQ_NOMINAL_HZ / FREQ_ONE_MHZ)
 
+uint32_t freq_mhz_cache=100, freq_hz_cache=0;
 /*
  * Set freq/tuning between 5MHz to 6800 MHz (less than 16bits really used)
  * hz between 0 to 999999 Hz (not checked)
@@ -169,6 +170,8 @@ bool set_freq(uint32_t freq_mhz, uint32_t freq_hz)
 		/* Error freq_mhz too low */
 		success = false;
 	}
+	freq_mhz_cache = freq_mhz;
+	freq_hz_cache = freq_hz;
 	return success;
 }
 
@@ -817,6 +820,7 @@ usb_request_status_t usb_vendor_request_set_if_freq(
 ) {
 	if( stage == USB_TRANSFER_STAGE_SETUP ) {
 		MAX2837_FREQ_NOMINAL_HZ = (uint32_t)endpoint->setup.index * 1000 * 1000;
+		set_freq(freq_mhz_cache, freq_hz_cache);
 		usb_endpoint_schedule_ack(endpoint->in);
 	}
 	return USB_REQUEST_STATUS_OK;
