@@ -817,10 +817,9 @@ usb_request_status_t usb_vendor_request_set_if_freq(
 ) {
 	if( stage == USB_TRANSFER_STAGE_SETUP ) {
 		MAX2837_FREQ_NOMINAL_HZ = (uint32_t)endpoint->setup.index * 1000 * 1000;
-		return USB_REQUEST_STATUS_STALL;
-	} else {
-		return USB_REQUEST_STATUS_OK;
+		usb_endpoint_schedule_ack(endpoint->in);
 	}
+	return USB_REQUEST_STATUS_OK;
 }
 
 static const usb_request_handler_fn vendor_request_handler[] = {
