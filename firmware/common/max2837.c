@@ -141,6 +141,10 @@ void max2837_setup(void)
 	set_MAX2837_TXVGA_GAIN_MSB_SPI_EN(1);
 	//set_MAX2837_TXVGA_GAIN(0x3f); /* maximum attenuation */
 	set_MAX2837_TXVGA_GAIN(0x00); /* minimum attenuation */
+	set_MAX2837_VGAMUX_enable(1);
+	set_MAX2837_VGA_EN(1);
+	set_MAX2837_HPC_RXGAIN_EN(0);
+	set_MAX2837_HPC_STOP(MAX2837_STOP_1K);
 	set_MAX2837_LNAgain_SPI_EN(1);
 	set_MAX2837_LNAgain(MAX2837_LNAgain_MAX); /* maximum gain */
 	set_MAX2837_VGAgain_SPI_EN(1);
