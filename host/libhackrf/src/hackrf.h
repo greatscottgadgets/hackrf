@@ -129,6 +129,9 @@ extern ADDAPI int ADDCALL hackrf_version_string_read(hackrf_device* device, char
 
 extern ADDAPI int ADDCALL hackrf_set_freq(hackrf_device* device, const uint64_t freq_hz);
 
+/* range 2300-2700 Mhz */
+extern ADDAPI int ADDCALL hackrf_set_if_freq(hackrf_device* device, const uint32_t freq_mhz);
+
 /* currently 8-20Mhz - either as a fraction, i.e. freq 20000000hz divider 2 -> 10Mhz or as plain old 10000000hz (double)
 	preferred rates are 8, 10, 12.5, 16, 20Mhz due to less jitter */
 extern ADDAPI int ADDCALL hackrf_set_sample_rate_manual(hackrf_device* device, const uint32_t freq_hz, const uint32_t divider);

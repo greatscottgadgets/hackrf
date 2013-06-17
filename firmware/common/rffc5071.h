@@ -67,11 +67,8 @@ extern void rffc5071_reg_write(uint8_t r, uint16_t v);
  * provided routines for those operations. */
 extern void rffc5071_regs_commit(void);
 
-/* Set frequency (MHz). The 'hz' field is currently ignored. Actual
- * tune frequency (MHz) is returned. Expect requested freq to be
- * rounded down to the nearest multiple of 25MHz or 50MHz, depending
- * internal calculations. */
-extern uint16_t rffc5071_set_frequency(uint16_t mhz, uint32_t hz);
+/* Set frequency (MHz). */
+extern uint32_t rffc5071_set_frequency(uint16_t mhz);
 
 /* Set up rx only, tx only, or full duplex. Chip should be disabled
  * before _tx, _rx, or _rxtx are called. */
