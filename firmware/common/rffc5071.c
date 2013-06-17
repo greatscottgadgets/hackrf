@@ -512,15 +512,9 @@ uint32_t rffc5071_config_synth_int(uint16_t lo) {
 	return tune_freq_hz;
 }
 
-/* !!!!!!!!!!! hz is currently ignored !!!!!!!!!!!
- *
- * Tuning is rounded down to the nearest 25MHz or 50MHz depending on
- * frequency requsted. Actual tuned value in MHz is returned. */
-uint32_t rffc5071_set_frequency(uint16_t mhz, uint32_t hz) {
+/* !!!!!!!!!!! hz is currently ignored !!!!!!!!!!! */
+uint32_t rffc5071_set_frequency(uint16_t mhz) {
 	uint32_t tune_freq;
-
-	// Fractional tuning unimplemented, 'hz' ignored
-	hz=hz;
 
 	rffc5071_disable();
 	tune_freq = rffc5071_config_synth_int(mhz);

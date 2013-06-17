@@ -124,7 +124,7 @@ bool set_freq(uint32_t freq_mhz, uint32_t freq_hz)
 
 			RFFC5071_freq_mhz = MAX2837_FREQ_NOMINAL_MHZ - freq_mhz;
 			/* Set Freq and read real freq */
-			real_RFFC5071_freq_hz = rffc5071_set_frequency(RFFC5071_freq_mhz, 0);
+			real_RFFC5071_freq_hz = rffc5071_set_frequency(RFFC5071_freq_mhz);
 			if(real_RFFC5071_freq_hz < RFFC5071_freq_mhz * FREQ_ONE_MHZ)
 			{
 				tmp_hz = -(RFFC5071_freq_mhz  * FREQ_ONE_MHZ - real_RFFC5071_freq_hz);
@@ -150,7 +150,7 @@ bool set_freq(uint32_t freq_mhz, uint32_t freq_hz)
 
 			RFFC5071_freq_mhz = freq_mhz - MAX2837_FREQ_NOMINAL_MHZ;
 			/* Set Freq and read real freq */
-			real_RFFC5071_freq_hz = rffc5071_set_frequency(RFFC5071_freq_mhz, 0);
+			real_RFFC5071_freq_hz = rffc5071_set_frequency(RFFC5071_freq_mhz);
 			if(real_RFFC5071_freq_hz < RFFC5071_freq_mhz * FREQ_ONE_MHZ)
 			{
 				tmp_hz = (RFFC5071_freq_mhz * FREQ_ONE_MHZ - real_RFFC5071_freq_hz);
