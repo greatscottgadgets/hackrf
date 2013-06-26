@@ -627,7 +627,7 @@ int main(int argc, char** argv) {
 		return EXIT_FAILURE;
 	}
 
-	printf("call hackrf_set_freq(%lu Hz/%.03f MHz)\n", freq_hz, ((float)freq_hz/(float)FREQ_ONE_MHZ) );
+	printf("call hackrf_set_freq(%llu Hz/%.03f MHz)\n", freq_hz, ((float)freq_hz/(float)FREQ_ONE_MHZ) );
 	result = hackrf_set_freq(device, freq_hz);
 	if( result != HACKRF_SUCCESS ) {
 		printf("hackrf_set_freq() failed: %s (%d)\n", hackrf_error_name(result), result);
@@ -646,7 +646,7 @@ int main(int argc, char** argv) {
 	}
 	
 	if( limit_num_samples ) {
-		printf("samples_to_xfer %lu/%lluMio\n", samples_to_xfer, (samples_to_xfer/FREQ_ONE_MHZ) );
+		printf("samples_to_xfer %llu/%lluMio\n", samples_to_xfer, (samples_to_xfer/FREQ_ONE_MHZ) );
 	}
 	
 	gettimeofday(&t_start, NULL);
