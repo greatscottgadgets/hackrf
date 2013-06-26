@@ -319,9 +319,10 @@ int tx_callback(hackrf_transfer* transfer) {
 
 static void usage() {
 	printf("Usage:\n");
-	printf("\t-w # Receive data into file with WAV header and automatic name.\n");
 	printf("\t-r <filename> # Receive data into file.\n");
 	printf("\t-t <filename> # Transmit data from file.\n");
+	printf("\t-w # Receive data into file with WAV header and automatic name.\n");
+	printf("\t   # This is for SDR# compatibility and may not work with other software.\n");
 	printf("\t[-f set_freq_hz] # Set Freq in Hz between [%lluMHz, %lluMHz].\n", FREQ_MIN_HZ/FREQ_ONE_MHZ, FREQ_MAX_HZ/FREQ_ONE_MHZ);
 	printf("\t[-a set_amp] # Set Amp 1=Enable, 0=Disable.\n");
 	printf("\t[-l gain_db] # Set lna gain, 0-40dB, 8dB steps\n");
