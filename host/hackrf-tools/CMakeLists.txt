@@ -62,3 +62,17 @@ add_custom_target(uninstall
     ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake
 )
 endif()
+
+########################################################################
+# Install udev rules
+########################################################################
+option(INSTALL_UDEV_RULES "Install udev rules for HackRF" OFF)
+if (INSTALL_UDEV_RULES)
+    install (
+        FILES 52-hackrf.rules
+        DESTINATION "/etc/udev/rules.d"
+        COMPONENT "udev"
+        )
+else (INSTALL_UDEV_RULES)
+    message (STATUS "Udev rules not being installed, install them with -DINSTALL_UDEV_RULES=ON")
+endif (INSTALL_UDEV_RULES)
