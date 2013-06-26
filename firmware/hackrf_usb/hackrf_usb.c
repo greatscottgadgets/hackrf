@@ -96,9 +96,10 @@ void update_switches(void)
 #define MIN_HP_FREQ_MHZ (2700)
 #define MAX_HP_FREQ_MHZ (6800)
 
-#define MAX2837_FREQ_NOMINAL_HZ (2600000000)
+static uint32_t MAX2837_FREQ_NOMINAL_HZ=2600000000;
 #define MAX2837_FREQ_NOMINAL_MHZ (MAX2837_FREQ_NOMINAL_HZ / FREQ_ONE_MHZ)
 
+uint32_t freq_mhz_cache=100, freq_hz_cache=0;
 /*
  * Set freq/tuning between 5MHz to 6800 MHz (less than 16bits really used)
  * hz between 0 to 999999 Hz (not checked)
@@ -109,11 +110,12 @@ bool set_freq(uint32_t freq_mhz, uint32_t freq_hz)
 	bool success;
 	uint32_t RFFC5071_freq_mhz;
 	uint32_t MAX2837_freq_hz;
-	uint32_t real_RFFC5071_freq_mhz;
+	uint32_t real_RFFC5071_freq_hz;
 	uint32_t tmp_hz;
 
 	success = true;
 
+	gpio_clear(PORT_XCVR_ENABLE, (PIN_XCVR_RXENABLE | PIN_XCVR_TXENABLE));
 	if(freq_mhz >= MIN_LP_FREQ_MHZ)
 	{
 		if(freq_mhz < MAX_LP_FREQ_MHZ)
@@ -122,13 +124,13 @@ bool set_freq(uint32_t freq_mhz, uint32_t freq_hz)
 
 			RFFC5071_freq_mhz = MAX2837_FREQ_NOMINAL_MHZ - freq_mhz;
 			/* Set Freq and read real freq */
-			real_RFFC5071_freq_mhz = rffc5071_set_frequency(RFFC5071_freq_mhz, 0);
-			if(real_RFFC5071_freq_mhz < RFFC5071_freq_mhz)
+			real_RFFC5071_freq_hz = rffc5071_set_frequency(RFFC5071_freq_mhz);
+			if(real_RFFC5071_freq_hz < RFFC5071_freq_mhz * FREQ_ONE_MHZ)
 			{
-				tmp_hz = -((RFFC5071_freq_mhz - real_RFFC5071_freq_mhz) * FREQ_ONE_MHZ);
+				tmp_hz = -(RFFC5071_freq_mhz  * FREQ_ONE_MHZ - real_RFFC5071_freq_hz);
 			}else
 			{
-				tmp_hz = ((real_RFFC5071_freq_mhz - RFFC5071_freq_mhz) * FREQ_ONE_MHZ);
+				tmp_hz = (real_RFFC5071_freq_hz - RFFC5071_freq_mhz  * FREQ_ONE_MHZ);
 			}
 			MAX2837_freq_hz = MAX2837_FREQ_NOMINAL_HZ + tmp_hz + freq_hz;
 			max2837_set_frequency(MAX2837_freq_hz);
@@ -148,13 +150,13 @@ bool set_freq(uint32_t freq_mhz, uint32_t freq_hz)
 
 			RFFC5071_freq_mhz = freq_mhz - MAX2837_FREQ_NOMINAL_MHZ;
 			/* Set Freq and read real freq */
-			real_RFFC5071_freq_mhz = rffc5071_set_frequency(RFFC5071_freq_mhz, 0);
-			if(real_RFFC5071_freq_mhz < RFFC5071_freq_mhz)
+			real_RFFC5071_freq_hz = rffc5071_set_frequency(RFFC5071_freq_mhz);
+			if(real_RFFC5071_freq_hz < RFFC5071_freq_mhz * FREQ_ONE_MHZ)
 			{
-				tmp_hz = ((RFFC5071_freq_mhz - real_RFFC5071_freq_mhz) * FREQ_ONE_MHZ);
+				tmp_hz = (RFFC5071_freq_mhz * FREQ_ONE_MHZ - real_RFFC5071_freq_hz);
 			}else
 			{
-				tmp_hz = -((real_RFFC5071_freq_mhz - RFFC5071_freq_mhz) * FREQ_ONE_MHZ);
+				tmp_hz = -(real_RFFC5071_freq_hz - RFFC5071_freq_mhz * FREQ_ONE_MHZ);
 			}
 			MAX2837_freq_hz = MAX2837_FREQ_NOMINAL_HZ + tmp_hz + freq_hz;
 			max2837_set_frequency(MAX2837_freq_hz);
@@ -169,6 +171,13 @@ bool set_freq(uint32_t freq_mhz, uint32_t freq_hz)
 		/* Error freq_mhz too low */
 		success = false;
 	}
+	if(transceiver_mode == TRANSCEIVER_MODE_RX)
+		gpio_set(PORT_XCVR_ENABLE, PIN_XCVR_RXENABLE);
+	else if(transceiver_mode == TRANSCEIVER_MODE_TX)
+		gpio_set(PORT_XCVR_ENABLE, PIN_XCVR_TXENABLE);
+	
+	freq_mhz_cache = freq_mhz;
+	freq_hz_cache = freq_hz;
 	return success;
 }
 
@@ -812,6 +821,17 @@ usb_request_status_t usb_vendor_request_set_txvga_gain(
 	return USB_REQUEST_STATUS_OK;
 }
 
+usb_request_status_t usb_vendor_request_set_if_freq(
+	usb_endpoint_t* const endpoint,	const usb_transfer_stage_t stage
+) {
+	if( stage == USB_TRANSFER_STAGE_SETUP ) {
+		MAX2837_FREQ_NOMINAL_HZ = (uint32_t)endpoint->setup.index * 1000 * 1000;
+		set_freq(freq_mhz_cache, freq_hz_cache);
+		usb_endpoint_schedule_ack(endpoint->in);
+	}
+	return USB_REQUEST_STATUS_OK;
+}
+
 static const usb_request_handler_fn vendor_request_handler[] = {
 	NULL,
 	usb_vendor_request_set_transceiver_mode,
@@ -835,6 +855,7 @@ static const usb_request_handler_fn vendor_request_handler[] = {
 	usb_vendor_request_set_lna_gain,
 	usb_vendor_request_set_vga_gain,
 	usb_vendor_request_set_txvga_gain,
+	usb_vendor_request_set_if_freq,
 };
 
 static const uint32_t vendor_request_handler_count =

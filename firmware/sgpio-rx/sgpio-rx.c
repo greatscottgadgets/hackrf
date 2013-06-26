@@ -104,7 +104,7 @@ int main(void) {
 	switchctrl = (SWITCHCTRL_AMP_BYPASS | SWITCHCTRL_HP);
 #endif
 	rffc5071_rx(switchctrl);
-	rffc5071_set_frequency(500, 0); // 500 MHz, 0 Hz (Hz ignored)
+	rffc5071_set_frequency(500); // 500 MHz
 
 	max2837_set_frequency(freq);
 	max2837_start();
