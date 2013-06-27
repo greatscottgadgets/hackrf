@@ -1,1 +1,1 @@
-ATTR{idVendor}=="1d50", ATTR{idProduct}=="604b", SYMLINK+="hackrf-%k", MODE="666", GROUP="plugdev"
+ATTR{idVendor}=="1d50", ATTR{idProduct}=="604b", SYMLINK+="hackrf-%k", MODE="660", GROUP="plugdev"
