@@ -195,6 +195,39 @@ void usb_endpoint_prime(
 		USB0_ENDPTPRIME = USB0_ENDPTPRIME_PERB(1 << endpoint_number);
 	}
 }
+
+// Schedule an already filled-up transfer descriptor for execution on
+// the given endpoint. Note that this requires that one knows the tail
+// of the endpoint's TD queue
+void usb_endpoint_append_td(
+        const usb_endpoint_t* const endpoint,
+        usb_transfer_descriptor_t* const tail_td,
+        usb_transfer_descriptor_t* const new_td
+) {
+        const uint_fast8_t endpoint_number = usb_endpoint_number(endpoint->address);
+        bool done;
+
+        tail_td->next_dtd_pointer = new_td;
+
+        do {
+                if( usb_endpoint_is_in(endpoint->address) ) {
+                        if (USB0_ENDPTPRIME & USB0_ENDPTPRIME_PETB(1 << endpoint_number) )
+                                return;
+                } else {
+                        if (USB0_ENDPTPRIME & USB0_ENDPTPRIME_PERB(1 << endpoint_number) )
+                                return;
+                }
+
+                USB0_USBCMD_D |= USB0_USBCMD_D_ATDTW;
+                done = usb_endpoint_is_ready(endpoint);
+        } while (!(USB0_USBCMD_D & USB0_USBCMD_D_ATDTW));
+    
+        USB0_USBCMD_D &= ~USB0_USBCMD_D_ATDTW;
+        if(!done) {
+                usb_endpoint_prime(endpoint, new_td);
+        }
+}
+
 /*
 static bool usb_endpoint_is_priming(
 	const usb_endpoint_t* const endpoint

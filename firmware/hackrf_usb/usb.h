@@ -92,4 +92,10 @@ void usb_endpoint_prime(
 	usb_transfer_descriptor_t* const first_td
 );
 
+void usb_endpoint_append_td(
+        const usb_endpoint_t* const endpoint,
+        usb_transfer_descriptor_t* const tail_td,
+        usb_transfer_descriptor_t* const new_td
+);
+
 #endif//__USB_H__
