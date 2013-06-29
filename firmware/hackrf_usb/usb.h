@@ -61,16 +61,6 @@ void usb_endpoint_init(
 	const usb_endpoint_t* const endpoint
 );
 
-void usb_endpoint_schedule(
-	const usb_endpoint_t* const endpoint,
-	void* const data,
-	const uint32_t maximum_length
-);
-
-void usb_endpoint_schedule_ack(
-	const usb_endpoint_t* const endpoint
-);
-
 void usb_endpoint_stall(
 	const usb_endpoint_t* const endpoint
 );

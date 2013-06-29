@@ -39,6 +39,7 @@
 
 #include "usb.h"
 #include "usb_type.h"
+#include "usb_queue.h"
 #include "usb_request.h"
 #include "usb_descriptor.h"
 #include "usb_standard_request.h"
