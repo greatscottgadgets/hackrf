@@ -188,6 +188,34 @@ void usb_endpoint_prime(
 	}
 }
 
+void usb_endpoint_schedule_wait(
+	const usb_endpoint_t* const endpoint,
+        usb_transfer_descriptor_t* const td,
+	void* const data,
+	const uint32_t maximum_length
+) {
+	// Ensure that endpoint is ready to be primed.
+	// It may have been flushed due to an aborted transaction.
+	// TODO: This should be preceded by a flush?
+	while( usb_endpoint_is_ready(endpoint) );
+
+	// Configure a transfer.
+	td->next_dtd_pointer = USB_TD_NEXT_DTD_POINTER_TERMINATE;
+	td->total_bytes =
+		  USB_TD_DTD_TOKEN_TOTAL_BYTES(maximum_length)
+		| USB_TD_DTD_TOKEN_IOC
+		| USB_TD_DTD_TOKEN_MULTO(0)
+		| USB_TD_DTD_TOKEN_STATUS_ACTIVE
+		;
+	td->buffer_pointer_page[0] =  (uint32_t)data;
+	td->buffer_pointer_page[1] = ((uint32_t)data + 0x1000) & 0xfffff000;
+	td->buffer_pointer_page[2] = ((uint32_t)data + 0x2000) & 0xfffff000;
+	td->buffer_pointer_page[3] = ((uint32_t)data + 0x3000) & 0xfffff000;
+	td->buffer_pointer_page[4] = ((uint32_t)data + 0x4000) & 0xfffff000;
+	
+	usb_endpoint_prime(endpoint, td);
+}
+
 // Schedule an already filled-up transfer descriptor for execution on
 // the given endpoint. Note that this requires that one knows the tail
 // of the endpoint's TD queue
