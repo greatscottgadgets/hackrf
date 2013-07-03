@@ -21,6 +21,7 @@
 
 #include "usb.h"
 #include "usb_request.h"
+#include "usb_queue.h"
 
 #include <stdbool.h>
 
@@ -75,6 +76,7 @@ void usb_control_out_complete(
 	} else {
 		usb_request(endpoint, USB_TRANSFER_STAGE_DATA);
 	}
+        usb_queue_transfer_complete(endpoint);
 }
 
 void usb_control_in_complete(
@@ -87,5 +89,6 @@ void usb_control_in_complete(
 	} else {
 		usb_request(endpoint, USB_TRANSFER_STAGE_STATUS);
 	}
+        usb_queue_transfer_complete(endpoint);
 }
 
