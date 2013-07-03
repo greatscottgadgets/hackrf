@@ -137,6 +137,7 @@ void usb_transfer_schedule(
         usb_transfer_t* const transfer = allocate_transfer();
         uint_fast8_t index = USB_ENDPOINT_INDEX(endpoint->address);
         fill_in_transfer(transfer, data, maximum_length);
+        transfer->td.next_dtd_pointer = USB_TD_NEXT_DTD_POINTER_TERMINATE;
         transfer->completion_cb = completion_cb;
         // TODO: disable_interrupts();
         usb_transfer_t* tail = endpoint_transfers[index];

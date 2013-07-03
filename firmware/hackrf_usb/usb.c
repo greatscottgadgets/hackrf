@@ -218,7 +218,8 @@ void usb_endpoint_schedule_wait(
 // Schedule an already filled-in transfer descriptor for execution on
 // the given endpoint, appending to the end of the endpoint's queue if
 // there are pending TDs. Note that this requires that one knows the
-// tail of the endpoint's TD queue
+// tail of the endpoint's TD queue. Moreover, the user is responsible
+// for setting the TERMINATE bit of next_dtd_pointer if needed.
 void usb_endpoint_schedule_append(
         const usb_endpoint_t* const endpoint,
         usb_transfer_descriptor_t* const tail_td,
