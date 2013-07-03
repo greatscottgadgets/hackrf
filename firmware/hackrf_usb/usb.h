@@ -82,7 +82,12 @@ void usb_endpoint_prime(
 	usb_transfer_descriptor_t* const first_td
 );
 
-void usb_endpoint_append_td(
+void usb_endpoint_schedule_wait(
+	const usb_endpoint_t* const endpoint,
+        usb_transfer_descriptor_t* const td
+);
+
+void usb_endpoint_schedule_append(
         const usb_endpoint_t* const endpoint,
         usb_transfer_descriptor_t* const tail_td,
         usb_transfer_descriptor_t* const new_td

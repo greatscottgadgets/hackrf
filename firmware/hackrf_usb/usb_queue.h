@@ -27,20 +27,38 @@
 
 #include "usb_type.h"
 
+typedef struct _usb_transfer_t usb_transfer_t;
+
+typedef void (*transfer_completion_cb)(struct _usb_transfer_t*, unsigned int);
+
 void usb_endpoint_schedule(
 	const usb_endpoint_t* const endpoint,
 	void* const data,
 	const uint32_t maximum_length
 );
 
-void usb_endpoint_schedule_ack(
+void usb_transfer_schedule_wait(
+	const usb_endpoint_t* const endpoint,
+	void* const data,
+	const uint32_t maximum_length
+);
+
+void usb_transfer_schedule_append(
+	const usb_endpoint_t* const endpoint,
+	void* const data,
+	const uint32_t maximum_length
+);
+
+void usb_transfer_schedule_ack(
 	const usb_endpoint_t* const endpoint
 );
 
-void usb_endpoint_schedule(
+void usb_transfer_schedule(
 	const usb_endpoint_t* const endpoint,
 	void* const data,
 	const uint32_t maximum_length
 );
+
+void init_transfers(void);
 
 #endif//__USB_QUEUE_H__
