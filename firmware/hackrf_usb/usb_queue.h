@@ -37,14 +37,7 @@ void usb_endpoint_schedule(
 	const uint32_t maximum_length
 );
 
-void usb_transfer_schedule_wait(
-	const usb_endpoint_t* const endpoint,
-	void* const data,
-	const uint32_t maximum_length,
-        const transfer_completion_cb completion_cb
-);
-
-void usb_transfer_schedule_append(
+void usb_transfer_schedule(
 	const usb_endpoint_t* const endpoint,
 	void* const data,
 	const uint32_t maximum_length,

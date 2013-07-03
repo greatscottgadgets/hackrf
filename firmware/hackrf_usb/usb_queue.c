@@ -128,20 +128,7 @@ static usb_transfer_t* endpoint_pop_transfer(
         return transfer;
 }
 
-void usb_transfer_schedule_wait(
-	const usb_endpoint_t* const endpoint,
-	void* const data,
-	const uint32_t maximum_length,
-        const transfer_completion_cb completion_cb
-) {
-        usb_transfer_t* const transfer = allocate_transfer();
-        fill_in_transfer(transfer, data, maximum_length);
-        transfer->completion_cb = completion_cb;
-        endpoint_add_transfer(endpoint, transfer);
-        usb_endpoint_schedule_wait(endpoint, &transfer->td);
-}
-
-void usb_transfer_schedule_append(
+void usb_transfer_schedule(
 	const usb_endpoint_t* const endpoint,
 	void* const data,
 	const uint32_t maximum_length,
@@ -153,16 +140,20 @@ void usb_transfer_schedule_append(
         transfer->completion_cb = completion_cb;
         // TODO: disable_interrupts();
         usb_transfer_t* tail = endpoint_transfers[index];
-        for (; tail->next != NULL; tail = tail->next);
-        endpoint_add_transfer(endpoint, transfer);
-        usb_endpoint_schedule_append(endpoint, &tail->td, &transfer->td);
+        if (tail == NULL) {
+                usb_endpoint_schedule_wait(endpoint, &transfer->td);
+        } else {
+            for (; tail->next != NULL; tail = tail->next);
+            endpoint_add_transfer(endpoint, transfer);
+            usb_endpoint_schedule_append(endpoint, &tail->td, &transfer->td);
+        }
         //enable_interrupts();
 }
 	
 void usb_transfer_schedule_ack(
 	const usb_endpoint_t* const endpoint
 ) {
-        usb_transfer_schedule_wait(endpoint, 0, 0, NULL);
+        usb_transfer_schedule(endpoint, 0, 0, NULL);
 }
 
 void usb_queue_transfer_complete(usb_endpoint_t* const endpoint)
