@@ -31,9 +31,8 @@
 struct _usb_transfer_t {
         struct _usb_transfer_t* next;
         usb_transfer_descriptor_t td ATTR_ALIGNED(64);
-        unsigned int actual_length;
+        unsigned int maximum_length;
         usb_endpoint_t* endpoint;
-        bool finished;
         transfer_completion_cb completion_cb;
 };
 
@@ -56,25 +55,13 @@ void usb_queue_init() {
         t->next = NULL;
 }
 
-static bool usb_endpoint_is_in(const uint_fast8_t endpoint_address) {
-	return (endpoint_address & 0x80) ? true : false;
-}
-
-#if 0
-static usb_transfer_t* usb_transfer(
-	const uint_fast8_t endpoint_address
-) {
-	return endpoint_transfers[USB_ENDPOINT_INDEX(endpoint_address)];
-}
-#endif
-
 static void fill_in_transfer(usb_transfer_t* transfer,
                              void* const data,
                              const uint32_t maximum_length
 ) {
         usb_transfer_descriptor_t* const td = &transfer->td;
 
-	// Configure a transfer.
+	// Configure the transfer. descriptor
 	td->total_bytes =
 		  USB_TD_DTD_TOKEN_TOTAL_BYTES(maximum_length)
 		| USB_TD_DTD_TOKEN_IOC
@@ -86,8 +73,11 @@ static void fill_in_transfer(usb_transfer_t* transfer,
 	td->buffer_pointer_page[2] = ((uint32_t)data + 0x2000) & 0xfffff000;
 	td->buffer_pointer_page[3] = ((uint32_t)data + 0x3000) & 0xfffff000;
 	td->buffer_pointer_page[4] = ((uint32_t)data + 0x4000) & 0xfffff000;
+
+        transfer->maximum_length = maximum_length;
 }
                              
+/* Allocate a transfer */
 static usb_transfer_t* allocate_transfer()
 {
         while (free_transfers == NULL);
@@ -95,10 +85,19 @@ static usb_transfer_t* allocate_transfer()
         usb_transfer_t* const transfer = free_transfers;
         free_transfers = transfer->next;
         //enable_irqs();
-        transfer->finished = false;
         return transfer;
 }
 
+/* Place a transfer in the free list */
+static void free_transfer(usb_transfer_t* const transfer)
+{
+        //disable_irqs(); // FIXME
+        transfer->next = free_transfers;
+        free_transfers = transfer;
+        //enable_irqs();
+}
+
+/* Add a transfer to the end of an endpoint's queue */
 static void endpoint_add_transfer(
         const usb_endpoint_t* const endpoint,
         usb_transfer_t* const transfer
@@ -116,6 +115,7 @@ static void endpoint_add_transfer(
         //enable_irqs();
 }
 
+/* Pop off the transfer at the top of an endpoint's queue */
 static usb_transfer_t* endpoint_pop_transfer(
         const usb_endpoint_t* const endpoint
 ) {
@@ -162,15 +162,14 @@ void usb_transfer_schedule_append(
 void usb_transfer_schedule_ack(
 	const usb_endpoint_t* const endpoint
 ) {
-  usb_transfer_schedule_wait(endpoint, 0, 0, NULL);
+        usb_transfer_schedule_wait(endpoint, 0, 0, NULL);
 }
 
 void usb_queue_transfer_complete(usb_endpoint_t* const endpoint)
 {
         usb_transfer_t* transfer = endpoint_pop_transfer(endpoint);
-        unsigned int transferred = transfer->actual_length - transfer->td.total_bytes;
+        unsigned int transferred = transfer->maximum_length - transfer->td.total_bytes;
         if (transfer->completion_cb)
                 transfer->completion_cb(transfer, transferred);
-        else if (usb_endpoint_is_in(transfer->endpoint->address))
-                transfer->finished = true;
+        free_transfer(transfer);
 }
