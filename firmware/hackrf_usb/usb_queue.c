@@ -118,6 +118,7 @@ void usb_transfer_schedule(
         uint_fast8_t index = USB_ENDPOINT_INDEX(endpoint->address);
 
 	// Configure the transfer descriptor
+        td->next_dtd_pointer = USB_TD_NEXT_DTD_POINTER_TERMINATE;
 	td->total_bytes =
 		  USB_TD_DTD_TOKEN_TOTAL_BYTES(maximum_length)
 		| USB_TD_DTD_TOKEN_IOC
@@ -132,8 +133,8 @@ void usb_transfer_schedule(
 
         // Fill in transfer fields
         transfer->maximum_length = maximum_length;
-        transfer->td.next_dtd_pointer = USB_TD_NEXT_DTD_POINTER_TERMINATE;
         transfer->completion_cb = completion_cb;
+        transfer->endpoint = endpoint;
 
         // TODO: disable_interrupts();
         usb_transfer_t* tail = endpoint_transfers[index];
