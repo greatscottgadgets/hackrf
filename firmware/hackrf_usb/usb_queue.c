@@ -93,19 +93,6 @@ static void endpoint_add_transfer(
         //enable_irqs();
 }
 
-/* Pop off the transfer at the top of an endpoint's queue */
-static usb_transfer_t* endpoint_pop_transfer(
-        const usb_endpoint_t* const endpoint
-) {
-        uint_fast8_t index = USB_ENDPOINT_INDEX(endpoint->address);
-        //FIXME disable_irqs();
-        usb_transfer_t* transfer = endpoint_transfers[index];
-        assert(transfer != NULL);
-        endpoint_transfers[index] = transfer->next;
-        //enable_irqs();
-        return transfer;
-}
-
 void usb_transfer_schedule(
 	const usb_endpoint_t* const endpoint,
 	void* const data,
@@ -134,12 +121,12 @@ void usb_transfer_schedule(
         // Fill in transfer fields
         transfer->maximum_length = maximum_length;
         transfer->completion_cb = completion_cb;
-        transfer->endpoint = endpoint;
+        transfer->endpoint = (usb_endpoint_t*) endpoint;
 
         // TODO: disable_interrupts();
         usb_transfer_t* tail = endpoint_transfers[index];
         endpoint_add_transfer(endpoint, transfer);
-        if (tail == NULL) {
+        if (1 || tail == NULL) {
                 // The queue is currently empty, we need to re-prime
                 usb_endpoint_schedule_wait(endpoint, &transfer->td);
         } else {
@@ -156,19 +143,36 @@ void usb_transfer_schedule_ack(
         usb_transfer_schedule(endpoint, 0, 0, NULL);
 }
 
+/* Called when an endpoint might have completed a transfer */
 void usb_queue_transfer_complete(usb_endpoint_t* const endpoint)
 {
-        usb_transfer_t* transfer = endpoint_pop_transfer(endpoint);
-        unsigned int total_bytes = (transfer->td.total_bytes & USB_TD_DTD_TOKEN_TOTAL_BYTES_MASK) >> USB_TD_DTD_TOKEN_TOTAL_BYTES_SHIFT;
-        unsigned int transferred = transfer->maximum_length - total_bytes;
-        uint8_t status = transfer->td.total_bytes;
-        if (status & USB_TD_DTD_TOKEN_STATUS_ACTIVE
-            || status & USB_TD_DTD_TOKEN_STATUS_HALTED
-            || status & USB_TD_DTD_TOKEN_STATUS_BUFFER_ERROR
-            || status & USB_TD_DTD_TOKEN_STATUS_TRANSACTION_ERROR) {
-                assert(0);
+        uint_fast8_t index = USB_ENDPOINT_INDEX(endpoint->address);
+        usb_transfer_t* transfer = endpoint_transfers[index];
+
+        while (transfer != NULL) {
+                uint8_t status = transfer->td.total_bytes;
+
+                // Check for failures
+                if (   status & USB_TD_DTD_TOKEN_STATUS_HALTED
+                    || status & USB_TD_DTD_TOKEN_STATUS_BUFFER_ERROR
+                    || status & USB_TD_DTD_TOKEN_STATUS_TRANSACTION_ERROR) {
+                        assert(0);
+                }
+
+                // Still not finished
+                if (status & USB_TD_DTD_TOKEN_STATUS_ACTIVE) 
+                        break;
+
+                // Invoke completion callback
+                unsigned int total_bytes = (transfer->td.total_bytes & USB_TD_DTD_TOKEN_TOTAL_BYTES_MASK) >> USB_TD_DTD_TOKEN_TOTAL_BYTES_SHIFT;
+                unsigned int transferred = transfer->maximum_length - total_bytes;
+                if (transfer->completion_cb)
+                        transfer->completion_cb(transfer, transferred);
+
+                // Advance head and free
+                endpoint_transfers[index] = transfer->next;
+                usb_transfer_t* next = transfer->next;
+                free_transfer(transfer);
+                transfer = next;
         }
-        if (transfer->completion_cb)
-                transfer->completion_cb(transfer, transferred);
-        free_transfer(transfer);
 }
