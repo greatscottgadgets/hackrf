@@ -23,6 +23,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include <assert.h>
 
 #include "usb.h"
 #include "usb_queue.h"
@@ -46,10 +47,10 @@ usb_transfer_t* free_transfers;
 // Pending transfer heads
 usb_transfer_t* endpoint_transfers[12] = {};
 
-void init_transfers() {
+void usb_queue_init() {
         usb_transfer_t* t = &transfer_pool[0];
         free_transfers = t;
-        for (unsigned int i=0; i < sizeof(transfer_pool) / sizeof(usb_transfer_t); i++, t++) {
+        for (unsigned int i=0; i < sizeof(transfer_pool) / sizeof(usb_transfer_t) - 1; i++, t++) {
                 t->next = t+1;
         }
         t->next = NULL;
@@ -104,10 +105,14 @@ static void endpoint_add_transfer(
 ) {
         uint_fast8_t index = USB_ENDPOINT_INDEX(endpoint->address);
         //FIXME disable_irqs();
-        usb_transfer_t* t = endpoint_transfers[index];
         transfer->next = NULL;
-        for (; t->next != NULL; t = t->next);
-        t->next = transfer;
+        if (endpoint_transfers[index] != NULL) {
+            usb_transfer_t* t = endpoint_transfers[index];
+            for (; t->next != NULL; t = t->next);
+            t->next = transfer;
+        } else {
+            endpoint_transfers[index] = transfer;
+        }
         //enable_irqs();
 }
 
@@ -117,6 +122,7 @@ static usb_transfer_t* endpoint_pop_transfer(
         uint_fast8_t index = USB_ENDPOINT_INDEX(endpoint->address);
         //FIXME disable_irqs();
         usb_transfer_t* transfer = endpoint_transfers[index];
+        assert(transfer != NULL);
         endpoint_transfers[index] = transfer->next;
         //enable_irqs();
         return transfer;
@@ -155,7 +161,7 @@ void usb_transfer_schedule_ack(
 	usb_transfer_schedule_wait(endpoint, 0, 0);
 }
 
-void transfer_complete(const usb_endpoint_t* const endpoint)
+void usb_queue_transfer_complete(usb_endpoint_t* const endpoint)
 {
         usb_transfer_t* transfer = endpoint_pop_transfer(endpoint);
         unsigned int transferred = transfer->actual_length - transfer->td.total_bytes;

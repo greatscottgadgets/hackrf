@@ -59,6 +59,10 @@ void usb_transfer_schedule(
 	const uint32_t maximum_length
 );
 
-void init_transfers(void);
+void usb_queue_init(void);
+
+void usb_queue_transfer_complete(
+        usb_endpoint_t* const endpoint
+);
 
 #endif//__USB_QUEUE_H__
