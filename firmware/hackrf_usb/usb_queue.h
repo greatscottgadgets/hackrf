@@ -29,7 +29,7 @@
 
 typedef struct _usb_transfer_t usb_transfer_t;
 
-typedef void (*transfer_completion_cb)(struct _usb_transfer_t*, unsigned int);
+typedef void (*transfer_completion_cb)(usb_transfer_t*, unsigned int);
 
 void usb_endpoint_schedule(
 	const usb_endpoint_t* const endpoint,
