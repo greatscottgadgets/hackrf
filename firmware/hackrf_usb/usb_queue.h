@@ -40,13 +40,15 @@ void usb_endpoint_schedule(
 void usb_transfer_schedule_wait(
 	const usb_endpoint_t* const endpoint,
 	void* const data,
-	const uint32_t maximum_length
+	const uint32_t maximum_length,
+        const transfer_completion_cb completion_cb
 );
 
 void usb_transfer_schedule_append(
 	const usb_endpoint_t* const endpoint,
 	void* const data,
-	const uint32_t maximum_length
+	const uint32_t maximum_length,
+        const transfer_completion_cb completion_cb
 );
 
 void usb_transfer_schedule_ack(
