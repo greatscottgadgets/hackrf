@@ -54,28 +54,6 @@ void usb_queue_init() {
         }
         t->next = NULL;
 }
-
-static void fill_in_transfer(usb_transfer_t* transfer,
-                             void* const data,
-                             const uint32_t maximum_length
-) {
-        usb_transfer_descriptor_t* const td = &transfer->td;
-
-	// Configure the transfer. descriptor
-	td->total_bytes =
-		  USB_TD_DTD_TOKEN_TOTAL_BYTES(maximum_length)
-		| USB_TD_DTD_TOKEN_IOC
-		| USB_TD_DTD_TOKEN_MULTO(0)
-		| USB_TD_DTD_TOKEN_STATUS_ACTIVE
-		;
-	td->buffer_pointer_page[0] =  (uint32_t)data;
-	td->buffer_pointer_page[1] = ((uint32_t)data + 0x1000) & 0xfffff000;
-	td->buffer_pointer_page[2] = ((uint32_t)data + 0x2000) & 0xfffff000;
-	td->buffer_pointer_page[3] = ((uint32_t)data + 0x3000) & 0xfffff000;
-	td->buffer_pointer_page[4] = ((uint32_t)data + 0x4000) & 0xfffff000;
-
-        transfer->maximum_length = maximum_length;
-}
                              
 /* Allocate a transfer */
 static usb_transfer_t* allocate_transfer()
@@ -135,16 +113,36 @@ void usb_transfer_schedule(
         const transfer_completion_cb completion_cb
 ) {
         usb_transfer_t* const transfer = allocate_transfer();
+        assert(transfer != NULL);
+        usb_transfer_descriptor_t* const td = &transfer->td;
         uint_fast8_t index = USB_ENDPOINT_INDEX(endpoint->address);
-        fill_in_transfer(transfer, data, maximum_length);
+
+	// Configure the transfer descriptor
+	td->total_bytes =
+		  USB_TD_DTD_TOKEN_TOTAL_BYTES(maximum_length)
+		| USB_TD_DTD_TOKEN_IOC
+		| USB_TD_DTD_TOKEN_MULTO(0)
+		| USB_TD_DTD_TOKEN_STATUS_ACTIVE
+		;
+	td->buffer_pointer_page[0] =  (uint32_t)data;
+	td->buffer_pointer_page[1] = ((uint32_t)data + 0x1000) & 0xfffff000;
+	td->buffer_pointer_page[2] = ((uint32_t)data + 0x2000) & 0xfffff000;
+	td->buffer_pointer_page[3] = ((uint32_t)data + 0x3000) & 0xfffff000;
+	td->buffer_pointer_page[4] = ((uint32_t)data + 0x4000) & 0xfffff000;
+
+        // Fill in transfer fields
+        transfer->maximum_length = maximum_length;
         transfer->td.next_dtd_pointer = USB_TD_NEXT_DTD_POINTER_TERMINATE;
         transfer->completion_cb = completion_cb;
+
         // TODO: disable_interrupts();
         usb_transfer_t* tail = endpoint_transfers[index];
         endpoint_add_transfer(endpoint, transfer);
         if (tail == NULL) {
+                // The queue is currently empty, we need to re-prime
                 usb_endpoint_schedule_wait(endpoint, &transfer->td);
         } else {
+                // The queue is currently running, try to append
                 for (; tail->next != NULL; tail = tail->next);
                 usb_endpoint_schedule_append(endpoint, &tail->td, &transfer->td);
         }
