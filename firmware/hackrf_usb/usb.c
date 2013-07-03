@@ -228,11 +228,11 @@ void usb_endpoint_schedule_append(
 
         tail_td->next_dtd_pointer = new_td;
 
-        do {
-                if (usb_endpoint_is_priming(endpoint)) {
-                        return;
-                }
+        if (usb_endpoint_is_priming(endpoint)) {
+                return;
+        }
 
+        do {
                 USB0_USBCMD_D |= USB0_USBCMD_D_ATDTW;
                 done = usb_endpoint_is_ready(endpoint);
         } while (!(USB0_USBCMD_D & USB0_USBCMD_D_ATDTW));
