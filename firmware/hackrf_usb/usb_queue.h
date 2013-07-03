@@ -55,12 +55,6 @@ void usb_transfer_schedule_ack(
 	const usb_endpoint_t* const endpoint
 );
 
-void usb_transfer_schedule(
-	const usb_endpoint_t* const endpoint,
-	void* const data,
-	const uint32_t maximum_length
-);
-
 void usb_queue_init(void);
 
 void usb_queue_transfer_complete(
