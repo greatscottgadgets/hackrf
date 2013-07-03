@@ -139,13 +139,13 @@ void usb_transfer_schedule(
         fill_in_transfer(transfer, data, maximum_length);
         transfer->completion_cb = completion_cb;
         // TODO: disable_interrupts();
+        endpoint_add_transfer(endpoint, transfer);
         usb_transfer_t* tail = endpoint_transfers[index];
         if (tail == NULL) {
                 usb_endpoint_schedule_wait(endpoint, &transfer->td);
         } else {
-            for (; tail->next != NULL; tail = tail->next);
-            endpoint_add_transfer(endpoint, transfer);
-            usb_endpoint_schedule_append(endpoint, &tail->td, &transfer->td);
+                for (; tail->next != NULL; tail = tail->next);
+                usb_endpoint_schedule_append(endpoint, &tail->td, &transfer->td);
         }
         //enable_interrupts();
 }
