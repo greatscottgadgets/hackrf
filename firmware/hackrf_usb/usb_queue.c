@@ -159,7 +159,8 @@ void usb_transfer_schedule_ack(
 void usb_queue_transfer_complete(usb_endpoint_t* const endpoint)
 {
         usb_transfer_t* transfer = endpoint_pop_transfer(endpoint);
-        unsigned int transferred = transfer->maximum_length - transfer->td.total_bytes;
+        unsigned int total_bytes = (transfer->td.total_bytes & USB_TD_DTD_TOKEN_TOTAL_BYTES_MASK) >> USB_TD_DTD_TOKEN_TOTAL_BYTES_SHIFT;
+        unsigned int transferred = transfer->maximum_length - total_bytes;
         uint8_t status = transfer->td.total_bytes;
         if (status & USB_TD_DTD_TOKEN_STATUS_ACTIVE
             || status & USB_TD_DTD_TOKEN_STATUS_HALTED
