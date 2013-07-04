@@ -156,7 +156,8 @@ void usb_queue_transfer_complete(usb_endpoint_t* const endpoint)
                 if (   status & USB_TD_DTD_TOKEN_STATUS_HALTED
                     || status & USB_TD_DTD_TOKEN_STATUS_BUFFER_ERROR
                     || status & USB_TD_DTD_TOKEN_STATUS_TRANSACTION_ERROR) {
-                        assert(0);
+                        // TODO: Uh oh, do something useful here
+                        while (1);
                 }
 
                 // Still not finished
