@@ -169,7 +169,7 @@ void usb_queue_transfer_complete(usb_endpoint_t* const endpoint)
                 if (transfer->completion_cb)
                         transfer->completion_cb(transfer, transferred);
 
-                // Advance head and free
+                // Advance head and free transfer
                 endpoint_transfers[index] = transfer->next;
                 usb_transfer_t* next = transfer->next;
                 free_transfer(transfer);
