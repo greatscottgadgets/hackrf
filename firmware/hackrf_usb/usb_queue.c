@@ -127,7 +127,7 @@ void usb_transfer_schedule(
         // TODO: disable_interrupts();
         usb_transfer_t* tail = endpoint_transfers[index];
         endpoint_add_transfer(endpoint, transfer);
-        if (1 || tail == NULL) {
+        if (tail == NULL) {
                 // The queue is currently empty, we need to re-prime
                 usb_endpoint_schedule_wait(endpoint, &transfer->td);
         } else {
