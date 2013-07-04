@@ -946,6 +946,9 @@ int main(void) {
 #endif
 
 	while(true) {
+                if (transceiver_mode == TRANSCEIVER_MODE_OFF)
+                        continue;
+                
 		// Wait until buffer 0 is transmitted/received.
 		while( usb_bulk_buffer_offset < 16384 );
 
