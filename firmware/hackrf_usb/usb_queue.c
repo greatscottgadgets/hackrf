@@ -36,7 +36,8 @@ struct _usb_transfer_t {
         transfer_completion_cb completion_cb;
 };
 
-usb_transfer_t transfer_pool[16];
+usb_transfer_t transfer_pool[8];
+const unsigned int transfer_pool_size = sizeof(transfer_pool) / sizeof(usb_transfer_t);
 
 // Available transfer list
 usb_transfer_t* free_transfers;
@@ -49,7 +50,7 @@ usb_transfer_t* endpoint_transfers[12] = {};
 void usb_queue_init() {
         usb_transfer_t* t = &transfer_pool[0];
         free_transfers = t;
-        for (unsigned int i=0; i < sizeof(transfer_pool) / sizeof(usb_transfer_t) - 1; i++, t++) {
+        for (unsigned int i=0; i < transfer_pool_size - 1; i++, t++) {
                 t->next = t+1;
         }
         t->next = NULL;
