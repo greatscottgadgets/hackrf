@@ -50,9 +50,6 @@ uint8_t* const usb_bulk_buffer = (uint8_t*)0x20004000;
 static volatile uint32_t usb_bulk_buffer_offset = 0;
 static const uint32_t usb_bulk_buffer_mask = 32768 - 1;
 
-usb_transfer_descriptor_t usb_td_bulk[2] ATTR_ALIGNED(64);
-const uint_fast8_t usb_td_bulk_count = sizeof(usb_td_bulk) / sizeof(usb_td_bulk[0]);
- 
 /* TODO remove this big buffer and use streaming for CPLD */ 
 #define CPLD_XSVF_MAX_LEN (65536)
 uint8_t cpld_xsvf_buffer[CPLD_XSVF_MAX_LEN];
@@ -182,50 +179,6 @@ bool set_freq(uint32_t freq_mhz, uint32_t freq_hz)
 	return success;
 }
 
-static void usb_init_buffers_bulk() {
-	usb_td_bulk[0].next_dtd_pointer = USB_TD_NEXT_DTD_POINTER_TERMINATE;
-	usb_td_bulk[0].total_bytes
-		= USB_TD_DTD_TOKEN_TOTAL_BYTES(16384)
-		| USB_TD_DTD_TOKEN_MULTO(0)
-		;
-	usb_td_bulk[0].buffer_pointer_page[0] = (uint32_t)&usb_bulk_buffer[0x0000];
-	usb_td_bulk[0].buffer_pointer_page[1] = (uint32_t)&usb_bulk_buffer[0x1000];
-	usb_td_bulk[0].buffer_pointer_page[2] = (uint32_t)&usb_bulk_buffer[0x2000];
-	usb_td_bulk[0].buffer_pointer_page[3] = (uint32_t)&usb_bulk_buffer[0x3000];
-	usb_td_bulk[0].buffer_pointer_page[4] = (uint32_t)&usb_bulk_buffer[0x4000];
-
-	usb_td_bulk[1].next_dtd_pointer = USB_TD_NEXT_DTD_POINTER_TERMINATE;
-	usb_td_bulk[1].total_bytes
-		= USB_TD_DTD_TOKEN_TOTAL_BYTES(16384)
-		| USB_TD_DTD_TOKEN_MULTO(0)
-		;
-	usb_td_bulk[1].buffer_pointer_page[0] = (uint32_t)&usb_bulk_buffer[0x4000];
-	usb_td_bulk[1].buffer_pointer_page[1] = (uint32_t)&usb_bulk_buffer[0x5000];
-	usb_td_bulk[1].buffer_pointer_page[2] = (uint32_t)&usb_bulk_buffer[0x6000];
-	usb_td_bulk[1].buffer_pointer_page[3] = (uint32_t)&usb_bulk_buffer[0x7000];
-	usb_td_bulk[1].buffer_pointer_page[4] = (uint32_t)&usb_bulk_buffer[0x8000];
-}
-
-void usb_endpoint_schedule_no_int(
-	const usb_endpoint_t* const endpoint,
-	usb_transfer_descriptor_t* const td
-) {
-	// Ensure that endpoint is ready to be primed.
-	// It may have been flushed due to an aborted transaction.
-	// TODO: This should be preceded by a flush?
-	while( usb_endpoint_is_ready(endpoint) );
-
-	// Configure a transfer.
-	td->total_bytes =
-		  USB_TD_DTD_TOKEN_TOTAL_BYTES(16384)
-		/*| USB_TD_DTD_TOKEN_IOC*/
-		| USB_TD_DTD_TOKEN_MULTO(0)
-		| USB_TD_DTD_TOKEN_STATUS_ACTIVE
-		;
-	
-	usb_endpoint_prime(endpoint, td);
-}
-
 usb_configuration_t usb_configuration_high_speed = {
 	.number = 1,
 	.speed = USB_SPEED_HIGH,
@@ -281,7 +234,7 @@ usb_endpoint_t usb_endpoint_bulk_in = {
 	.in = &usb_endpoint_bulk_in,
 	.out = 0,
 	.setup_complete = 0,
-	.transfer_complete = 0,
+	.transfer_complete = usb_queue_transfer_complete
 };
 
 usb_endpoint_t usb_endpoint_bulk_out = {
@@ -290,7 +243,7 @@ usb_endpoint_t usb_endpoint_bulk_out = {
 	.in = 0,
 	.out = &usb_endpoint_bulk_out,
 	.setup_complete = 0,
-	.transfer_complete = 0,
+	.transfer_complete = usb_queue_transfer_complete
 };
 
 void baseband_streaming_disable() {
@@ -307,8 +260,6 @@ void set_transceiver_mode(const transceiver_mode_t new_transceiver_mode) {
 	
 	transceiver_mode = new_transceiver_mode;
 	
-	usb_init_buffers_bulk();
-
 	if( transceiver_mode == TRANSCEIVER_MODE_RX ) {
 		gpio_clear(PORT_LED1_3, PIN_LED3);
 		gpio_set(PORT_LED1_3, PIN_LED2);
@@ -997,20 +948,24 @@ int main(void) {
 		while( usb_bulk_buffer_offset < 16384 );
 
 		// Set up IN transfer of buffer 0.
-		usb_endpoint_schedule_no_int(
+		usb_transfer_schedule(
 			(transceiver_mode == TRANSCEIVER_MODE_RX)
 			? &usb_endpoint_bulk_in : &usb_endpoint_bulk_out,
-			&usb_td_bulk[0]
+			&usb_bulk_buffer[0x0000],
+                        0x4000,
+                        NULL
 		);
 	
 		// Wait until buffer 1 is transmitted/received.
 		while( usb_bulk_buffer_offset >= 16384 );
 
 		// Set up IN transfer of buffer 1.
-		usb_endpoint_schedule_no_int(
+		usb_transfer_schedule(
 			(transceiver_mode == TRANSCEIVER_MODE_RX)
 			? &usb_endpoint_bulk_in : &usb_endpoint_bulk_out,
-			&usb_td_bulk[1]
+			&usb_bulk_buffer[0x4000],
+                        0x4000,
+                        NULL
 		);
 	}
 	
