@@ -55,7 +55,7 @@ void usb_queue_init() {
         }
         t->next = NULL;
 }
-                             
+
 /* Allocate a transfer */
 static usb_transfer_t* allocate_transfer()
 {
@@ -92,6 +92,17 @@ static void endpoint_add_transfer(
             endpoint_transfers[index] = transfer;
         }
         //enable_irqs();
+}
+                
+void usb_queue_flush_endpoint(const usb_endpoint_t* const endpoint)
+{
+        uint_fast8_t index = USB_ENDPOINT_INDEX(endpoint->address);
+        //FIXME disable_irqs();
+        while (endpoint_transfers[index]) {
+                usb_transfer_t * transfer = endpoint_transfers[index];
+                endpoint_transfers[index] = transfer->next;
+                free_transfer(transfer);
+        }
 }
 
 void usb_transfer_schedule(
