@@ -42,12 +42,12 @@ usb_transfer_t transfer_pool[8];
 const unsigned int transfer_pool_size = sizeof(transfer_pool) / sizeof(usb_transfer_t);
 
 // Available transfer list
-usb_transfer_t* free_transfers;
+usb_transfer_t* volatile free_transfers;
 
 #define USB_ENDPOINT_INDEX(endpoint_address) (((endpoint_address & 0xF) * 2) + ((endpoint_address >> 7) & 1))
 
 // Pending transfer heads
-usb_transfer_t* endpoint_transfers[12] = {};
+usb_transfer_t* volatile endpoint_transfers[12] = {};
 
 void usb_queue_init() {
         usb_transfer_t* t = &transfer_pool[0];
