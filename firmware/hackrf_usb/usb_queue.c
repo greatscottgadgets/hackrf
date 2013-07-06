@@ -25,6 +25,8 @@
 #include <stddef.h>
 #include <assert.h>
 
+#include <libopencm3/cm3/cortex.h>
+
 #include "usb.h"
 #include "usb_queue.h"
 
@@ -60,20 +62,16 @@ void usb_queue_init() {
 static usb_transfer_t* allocate_transfer()
 {
         while (free_transfers == NULL);
-        //disable_irqs(); // FIXME
         usb_transfer_t* const transfer = free_transfers;
         free_transfers = transfer->next;
-        //enable_irqs();
         return transfer;
 }
 
 /* Place a transfer in the free list */
 static void free_transfer(usb_transfer_t* const transfer)
 {
-        //disable_irqs(); // FIXME
         transfer->next = free_transfers;
         free_transfers = transfer;
-        //enable_irqs();
 }
 
 /* Add a transfer to the end of an endpoint's queue */
@@ -82,7 +80,6 @@ static void endpoint_add_transfer(
         usb_transfer_t* const transfer
 ) {
         uint_fast8_t index = USB_ENDPOINT_INDEX(endpoint->address);
-        //FIXME disable_irqs();
         transfer->next = NULL;
         if (endpoint_transfers[index] != NULL) {
             usb_transfer_t* t = endpoint_transfers[index];
@@ -91,18 +88,18 @@ static void endpoint_add_transfer(
         } else {
             endpoint_transfers[index] = transfer;
         }
-        //enable_irqs();
 }
                 
 void usb_queue_flush_endpoint(const usb_endpoint_t* const endpoint)
 {
         uint_fast8_t index = USB_ENDPOINT_INDEX(endpoint->address);
-        //FIXME disable_irqs();
+        cc_disable_interrupts();
         while (endpoint_transfers[index]) {
                 usb_transfer_t * transfer = endpoint_transfers[index];
                 endpoint_transfers[index] = transfer->next;
                 free_transfer(transfer);
         }
+        cc_enable_interrupts();
 }
 
 void usb_transfer_schedule(
@@ -135,7 +132,7 @@ void usb_transfer_schedule(
         transfer->completion_cb = completion_cb;
         transfer->endpoint = (usb_endpoint_t*) endpoint;
 
-        // TODO: disable_interrupts();
+        cc_disable_interrupts();
         usb_transfer_t* tail = endpoint_transfers[index];
         endpoint_add_transfer(endpoint, transfer);
         if (tail == NULL) {
@@ -146,7 +143,7 @@ void usb_transfer_schedule(
                 for (; tail->next != NULL; tail = tail->next);
                 usb_endpoint_schedule_append(endpoint, &tail->td, &transfer->td);
         }
-        //enable_interrupts();
+        cc_enable_interrupts();
 }
 	
 void usb_transfer_schedule_ack(
