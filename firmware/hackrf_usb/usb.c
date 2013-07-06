@@ -24,6 +24,7 @@
 
 #include "usb.h"
 #include "usb_type.h"
+#include "usb_queue.h"
 #include "usb_standard_request.h"
 
 #include <libopencm3/lpc43xx/creg.h>
@@ -163,6 +164,7 @@ void usb_endpoint_disable(
 	} else {
 		USB0_ENDPTCTRL(endpoint_number) &= ~(USB0_ENDPTCTRL_RXE);
 	}
+        usb_queue_flush_endpoint(endpoint);
 	usb_endpoint_clear_pending_interrupts(endpoint);
 	usb_endpoint_flush(endpoint);
 }
@@ -248,6 +250,7 @@ void usb_endpoint_flush(
 	const usb_endpoint_t* const endpoint
 ) {
 	const uint_fast8_t endpoint_number = usb_endpoint_number(endpoint->address);
+        usb_queue_flush_endpoint(endpoint);
 	if( usb_endpoint_is_in(endpoint->address) ) {
 		usb_flush_primed_endpoints(USB0_ENDPTFLUSH_FETB(1 << endpoint_number));
 	} else {
