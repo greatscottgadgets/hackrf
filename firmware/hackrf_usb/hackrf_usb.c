@@ -946,32 +946,33 @@ int main(void) {
 #endif
 
 	while(true) {
-                if (transceiver_mode == TRANSCEIVER_MODE_OFF)
-                        continue;
-                
 		// Wait until buffer 0 is transmitted/received.
 		while( usb_bulk_buffer_offset < 16384 );
 
 		// Set up IN transfer of buffer 0.
-		usb_transfer_schedule(
-			(transceiver_mode == TRANSCEIVER_MODE_RX)
-			? &usb_endpoint_bulk_in : &usb_endpoint_bulk_out,
-			&usb_bulk_buffer[0x0000],
-                        0x4000,
-                        NULL
-		);
+                if (transceiver_mode != TRANSCEIVER_MODE_OFF) {
+                        usb_transfer_schedule(
+                                (transceiver_mode == TRANSCEIVER_MODE_RX)
+                                ? &usb_endpoint_bulk_in : &usb_endpoint_bulk_out,
+                                &usb_bulk_buffer[0x0000],
+                                0x4000,
+                                NULL
+                                );
+                }
 	
 		// Wait until buffer 1 is transmitted/received.
 		while( usb_bulk_buffer_offset >= 16384 );
 
 		// Set up IN transfer of buffer 1.
-		usb_transfer_schedule(
-			(transceiver_mode == TRANSCEIVER_MODE_RX)
-			? &usb_endpoint_bulk_in : &usb_endpoint_bulk_out,
-			&usb_bulk_buffer[0x4000],
-                        0x4000,
-                        NULL
-		);
+                if (transceiver_mode != TRANSCEIVER_MODE_OFF) {
+                        usb_transfer_schedule(
+                                (transceiver_mode == TRANSCEIVER_MODE_RX)
+                                ? &usb_endpoint_bulk_in : &usb_endpoint_bulk_out,
+                                &usb_bulk_buffer[0x4000],
+                                0x4000,
+                                NULL
+                        );
+                }
 	}
 	
 	return 0;
