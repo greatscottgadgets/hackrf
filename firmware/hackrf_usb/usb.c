@@ -27,7 +27,7 @@
 #include "usb_standard_request.h"
 
 #include <libopencm3/lpc43xx/creg.h>
-#include <libopencm3/lpc43xx/nvic.h>
+#include <libopencm3/lpc43xx/m4/nvic.h>
 #include <libopencm3/lpc43xx/rgu.h>
 #include <libopencm3/lpc43xx/usb.h>
 

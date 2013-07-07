@@ -24,7 +24,7 @@
 
 #include <libopencm3/lpc43xx/cgu.h>
 #include <libopencm3/lpc43xx/gpio.h>
-#include <libopencm3/lpc43xx/nvic.h>
+#include <libopencm3/lpc43xx/m4/nvic.h>
 #include <libopencm3/lpc43xx/sgpio.h>
 
 #include <hackrf_core.h>
