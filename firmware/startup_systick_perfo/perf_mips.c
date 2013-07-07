@@ -22,8 +22,8 @@
 #include <libopencm3/lpc43xx/gpio.h>
 #include <libopencm3/lpc43xx/scu.h>
 #include <libopencm3/lpc43xx/i2c.h>
-#include <libopencm3/lpc43xx/nvic.h>
-#include <libopencm3/lpc43xx/systick.h>
+#include <libopencm3/lpc43xx/m4/nvic.h>
+#include <libopencm3/cm3/systick.h>
 #include <libopencm3/cm3/scs.h>
 
 #include "hackrf_core.h"
