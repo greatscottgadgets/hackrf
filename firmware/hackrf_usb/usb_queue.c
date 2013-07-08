@@ -93,13 +93,13 @@ static void endpoint_add_transfer(
 void usb_queue_flush_endpoint(const usb_endpoint_t* const endpoint)
 {
         uint_fast8_t index = USB_ENDPOINT_INDEX(endpoint->address);
-        cc_disable_interrupts();
+        cm_disable_interrupts();
         while (endpoint_transfers[index]) {
                 usb_transfer_t * transfer = endpoint_transfers[index];
                 endpoint_transfers[index] = transfer->next;
                 free_transfer(transfer);
         }
-        cc_enable_interrupts();
+        cm_enable_interrupts();
 }
 
 void usb_transfer_schedule(
@@ -132,7 +132,7 @@ void usb_transfer_schedule(
         transfer->completion_cb = completion_cb;
         transfer->endpoint = (usb_endpoint_t*) endpoint;
 
-        cc_disable_interrupts();
+        cm_disable_interrupts();
         usb_transfer_t* tail = endpoint_transfers[index];
         endpoint_add_transfer(endpoint, transfer);
         if (tail == NULL) {
@@ -143,7 +143,7 @@ void usb_transfer_schedule(
                 for (; tail->next != NULL; tail = tail->next);
                 usb_endpoint_schedule_append(endpoint, &tail->td, &transfer->td);
         }
-        cc_enable_interrupts();
+        cm_enable_interrupts();
 }
 	
 void usb_transfer_schedule_ack(
