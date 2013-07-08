@@ -92,7 +92,7 @@ static void endpoint_add_transfer(
         transfer->next = NULL;
         if (endpoint_transfers[index] != NULL) {
             usb_transfer_t* t = endpoint_transfers[index];
-            for (; t->next != NULL; t = t->next);
+            while (t->next != NULL) t = t->next;
             t->next = transfer;
         } else {
             endpoint_transfers[index] = transfer;
