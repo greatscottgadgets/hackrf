@@ -102,8 +102,8 @@ bool usb_set_configuration(
 		device->configuration = new_configuration;
 	}
 
-        if (usb_configuration_changed_cb)
-                usb_configuration_changed_cb(device);
+	if (usb_configuration_changed_cb)
+		usb_configuration_changed_cb(device);
 
 	return true;
 }
