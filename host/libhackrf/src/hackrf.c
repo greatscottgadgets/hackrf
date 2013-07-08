@@ -1141,7 +1141,7 @@ int ADDCALL hackrf_start_rx(hackrf_device* device, hackrf_sample_block_cb_fn cal
 
 int ADDCALL hackrf_stop_rx(hackrf_device* device)
 {
-        int result;
+	int result;
 	result = hackrf_set_transceiver_mode(device, HACKRF_TRANSCEIVER_MODE_OFF);
 	if (result != HACKRF_SUCCESS)
 	{
