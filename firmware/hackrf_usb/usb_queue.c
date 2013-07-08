@@ -26,6 +26,7 @@
 #include <assert.h>
 
 #include <libopencm3/cm3/cortex.h>
+#include <libopencm3/cm3/sync.h>
 
 #include "usb.h"
 #include "usb_queue.h"
@@ -61,19 +62,25 @@ void usb_queue_init() {
 /* Allocate a transfer */
 static usb_transfer_t* allocate_transfer()
 {
+        bool aborted;
+        usb_transfer_t* transfer;
         while (free_transfers == NULL);
-        cm_disable_interrupts();
-        usb_transfer_t* const transfer = free_transfers;
-        free_transfers = transfer->next;
-        cm_enable_interrupts();
+        do {
+                transfer = (void *) __ldrex((uint32_t *) &free_transfers);
+                aborted = __strex((uint32_t) transfer->next, (uint32_t *) &free_transfers);
+        } while (aborted);
+        transfer->next = NULL;
         return transfer;
 }
 
 /* Place a transfer in the free list */
 static void free_transfer(usb_transfer_t* const transfer)
 {
-        transfer->next = free_transfers;
-        free_transfers = transfer;
+        bool aborted;
+        do {
+                transfer->next = (void *) __ldrex((uint32_t *) &free_transfers);
+                aborted = __strex((uint32_t) transfer, (uint32_t *) &free_transfers);
+        } while (aborted);
 }
 
 /* Add a transfer to the end of an endpoint's queue */
