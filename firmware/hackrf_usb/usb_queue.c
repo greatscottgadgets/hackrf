@@ -62,8 +62,10 @@ void usb_queue_init() {
 static usb_transfer_t* allocate_transfer()
 {
         while (free_transfers == NULL);
+        cm_disable_interrupts();
         usb_transfer_t* const transfer = free_transfers;
         free_transfers = transfer->next;
+        cm_enable_interrupts();
         return transfer;
 }
 
