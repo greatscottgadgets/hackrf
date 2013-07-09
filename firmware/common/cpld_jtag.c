@@ -26,8 +26,9 @@
 #include <libopencm3/lpc43xx/scu.h>
 #include <stdint.h>
 
-uint32_t xsvf_len;
-unsigned char* xsvf_data;
+static refill_buffer_cb refill_buffer;
+static uint32_t xsvf_buffer_len, xsvf_pos;
+static unsigned char* xsvf_buffer;
 
 void cpld_jtag_setup(void) {
 	scu_pinmux(SCU_PINMUX_CPLD_TDO, SCU_GPIO_NOPULL | SCU_CONF_FUNCTION4);
@@ -58,11 +59,16 @@ void cpld_jtag_release(void) {
 }
 
 /* return 0 if success else return error code see xsvfExecute() */
-int cpld_jtag_program(const uint32_t len, unsigned char* const data) {
+int cpld_jtag_program(
+        const uint32_t buffer_length,
+        unsigned char* const buffer,
+        refill_buffer_cb refill
+) {
 	int error;
 	cpld_jtag_setup();
-	xsvf_data = data;
-	xsvf_len = len;
+	xsvf_buffer = buffer;
+	xsvf_buffer_len = buffer_length;
+        refill_buffer = refill;
 	error = xsvfExecute();
 	cpld_jtag_release();
 	
@@ -71,12 +77,12 @@ int cpld_jtag_program(const uint32_t len, unsigned char* const data) {
 
 /* this gets called by the XAPP058 code */
 unsigned char cpld_jtag_get_next_byte(void) {
-	unsigned char byte = *xsvf_data;
+        if (xsvf_pos == xsvf_buffer_len) {
+                refill_buffer();
+                xsvf_pos = 0;
+        }
 
-	if (xsvf_len > 1) {
-		xsvf_data++;
-		xsvf_len--;
-	}
-
+	unsigned char byte = xsvf_buffer[xsvf_pos];
+        xsvf_pos++;
 	return byte;
 }
