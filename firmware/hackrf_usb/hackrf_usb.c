@@ -607,12 +607,15 @@ usb_request_status_t usb_vendor_request_write_cpld(
 		total_len = endpoint->setup.value;
 		len = endpoint->setup.length;
 
-                // Notify the cpld_program process we have new data
-                cpld_wait = false;
-                start_cpld_program = true;
+                if (!start_cpld_program) {
+                        start_cpld_program = true;
+                } else {
+                        // Notify the cpld_program process we have new data
+                        cpld_wait = false;
 
-                // Wait until we're done processing this packet before ACKing
-                while (cpld_wait);
+                        // Wait until we're done processing this packet before ACKing
+                        while (cpld_wait);
+                }
 
                 usb_endpoint_schedule_ack(endpoint->in);
                 return USB_REQUEST_STATUS_OK;
