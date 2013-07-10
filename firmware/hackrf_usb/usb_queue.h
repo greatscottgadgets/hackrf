@@ -33,12 +33,6 @@ typedef void (*transfer_completion_cb)(usb_transfer_t*, unsigned int);
 
 void usb_queue_flush_endpoint(const usb_endpoint_t* const endpoint);
 
-void usb_endpoint_schedule(
-	const usb_endpoint_t* const endpoint,
-	void* const data,
-	const uint32_t maximum_length
-);
-
 void usb_transfer_schedule(
 	const usb_endpoint_t* const endpoint,
 	void* const data,
