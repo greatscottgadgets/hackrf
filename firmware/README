@@ -11,3 +11,7 @@ https://code.launchpad.net/gcc-arm-embedded
 Required dependency:
 
 https://github.com/mossmann/libopencm3
+
+For loading firmware into RAM with DFU you will also need:
+
+git://git.openezx.org/dfu-util.git
