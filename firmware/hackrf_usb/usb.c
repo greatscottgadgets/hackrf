@@ -27,7 +27,7 @@
 #include "usb_standard_request.h"
 
 #include <libopencm3/lpc43xx/creg.h>
-#include <libopencm3/lpc43xx/nvic.h>
+#include <libopencm3/lpc43xx/m4/nvic.h>
 #include <libopencm3/lpc43xx/rgu.h>
 #include <libopencm3/lpc43xx/usb.h>
 
@@ -412,7 +412,7 @@ static void usb_interrupt_enable(
 	usb_device_t* const device
 ) {
 	if( device == usb_device_usb0 ) {
-		nvic_enable_irq(NVIC_M4_USB0_IRQ);
+		nvic_enable_irq(NVIC_USB0_IRQ);
 	}
 }
 
@@ -602,7 +602,7 @@ static void usb_check_for_transfer_events() {
 	}
 }
 
-void usb0_irqhandler() {
+void usb0_isr() {
 	const uint32_t status = usb_get_status();
 	
 	if( status == 0 ) {

@@ -24,7 +24,7 @@
 
 #include "hackrf_core.h"
 
-u32 boot0, boot1, boot2, boot3;
+uint32_t boot0, boot1, boot2, boot3;
 
 int main(void)
 {

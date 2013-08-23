@@ -25,6 +25,10 @@
 #include "usb_type.h"
 #include "usb_request.h"
 
+void usb_set_configuration_changed_cb(
+        void (*callback)(usb_device_t* const)
+);
+
 usb_request_status_t usb_standard_request(
 	usb_endpoint_t* const endpoint,
 	const usb_transfer_stage_t stage
@@ -40,6 +44,11 @@ uint_fast16_t usb_endpoint_descriptor_max_packet_size(
 
 usb_transfer_type_t usb_endpoint_descriptor_transfer_type(
 	const uint8_t* const endpoint_descriptor
+);
+
+bool usb_set_configuration(
+	usb_device_t* const device,
+	const uint_fast8_t configuration_number
 );
 
 #endif//__USB_STANDARD_REQUEST_H__
