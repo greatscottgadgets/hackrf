@@ -911,11 +911,17 @@ bool usb_set_configuration(
 		if( new_configuration == 0 ) {
 			return false;
 		}
-	}
+	}else
+    {
+        /* Configuration number equal 0 means usb bus reset, 
+        set MCU freq to low power consumption */
+        cpu_clock_pll1_low_speed();
+    }
 	
 	if( new_configuration != device->configuration ) {
 		// Configuration changed.
 		device->configuration = new_configuration;
+        cpu_clock_pll1_max_speed(); /* Switch MCU clock to max speed */
 		set_transceiver_mode(transceiver_mode);
 
 		if( device->configuration ) {
@@ -997,7 +1003,8 @@ int main(void) {
 	pin_setup();
 	enable_1v8_power();
 	cpu_clock_init();
-
+    cpu_clock_pll1_low_speed();
+    
 	usb_peripheral_reset();
 	
 	usb_device_init(0, &usb_device);

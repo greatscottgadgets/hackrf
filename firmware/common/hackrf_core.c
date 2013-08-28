@@ -31,6 +31,8 @@
 #include <libopencm3/lpc43xx/scu.h>
 #include <libopencm3/lpc43xx/ssp.h>
 
+#define WAIT_CPU_CLOCK_INIT_DELAY   (10000)
+
 void delay(uint32_t duration)
 {
 	uint32_t i;
@@ -232,9 +234,13 @@ bool baseband_filter_bandwidth_set(const uint32_t bandwidth_hz) {
 	return max2837_set_lpf_bandwidth(bandwidth_hz);
 }
 
-/* clock startup for Jellybean with Lemondrop attached */ 
+/* clock startup for Jellybean with Lemondrop attached
+Configure PLL1 to max speed (204MHz).
+Note: PLL1 clock is used by M4/M0 core, Peripheral, APB1. */ 
 void cpu_clock_init(void)
 {
+	uint32_t pll_reg;
+
 	/* use IRC as clock source for APB1 (including I2C0) */
 	CGU_BASE_APB1_CLK = CGU_BASE_APB1_CLK_CLK_SEL(CGU_SRC_IRC);
 
@@ -328,36 +334,59 @@ void cpu_clock_init(void)
 	/* power on the oscillator and wait until stable */
 	CGU_XTAL_OSC_CTRL &= ~CGU_XTAL_OSC_CTRL_ENABLE;
 
+	/* Wait about 100us after Crystal Power ON */
+	delay(WAIT_CPU_CLOCK_INIT_DELAY);
+
 	/* use XTAL_OSC as clock source for BASE_M4_CLK (CPU) */
-	CGU_BASE_M4_CLK = CGU_BASE_M4_CLK_CLK_SEL(CGU_SRC_XTAL);
+	CGU_BASE_M4_CLK = (CGU_BASE_M4_CLK_CLK_SEL(CGU_SRC_XTAL) | CGU_BASE_M4_CLK_AUTOBLOCK);
 
 	/* use XTAL_OSC as clock source for APB1 */
 	CGU_BASE_APB1_CLK = CGU_BASE_APB1_CLK_AUTOBLOCK
 			| CGU_BASE_APB1_CLK_CLK_SEL(CGU_SRC_XTAL);
 
-	/* use XTAL_OSC as clock source for PLL1 */
-	/* Start PLL1 at 12MHz * 17 / (2+2) = 51MHz. */
-	CGU_PLL1_CTRL = CGU_PLL1_CTRL_CLK_SEL(CGU_SRC_XTAL)
-            | CGU_PLL1_CTRL_PSEL(1)
-            | CGU_PLL1_CTRL_NSEL(0)
-            | CGU_PLL1_CTRL_MSEL(16)
-            | CGU_PLL1_CTRL_PD;
-
-	/* power on PLL1 and wait until stable */
-	CGU_PLL1_CTRL &= ~CGU_PLL1_CTRL_PD;
+	/* Configure PLL1 to Intermediate Clock (between 90 MHz and 110 MHz) */
+	/* Integer mode:
+		FCLKOUT = M*(FCLKIN/N) 
+		FCCO = 2*P*FCLKOUT = 2*P*M*(FCLKIN/N) 
+	*/
+	pll_reg = CGU_PLL1_CTRL;
+	/* Clear PLL1 bits */
+	pll_reg &= ~( CGU_PLL1_CTRL_CLK_SEL_MASK | CGU_PLL1_CTRL_PD | CGU_PLL1_CTRL_FBSEL |  /* CLK SEL, PowerDown , FBSEL */
+				  CGU_PLL1_CTRL_BYPASS | /* BYPASS */
+				  CGU_PLL1_CTRL_DIRECT | /* DIRECT */
+				  CGU_PLL1_CTRL_PSEL_MASK | CGU_PLL1_CTRL_MSEL_MASK | CGU_PLL1_CTRL_NSEL_MASK ); /* PSEL, MSEL, NSEL- divider ratios */
+	/* Set PLL1 up to 12MHz * 8 = 96MHz. */
+	pll_reg |= CGU_PLL1_CTRL_CLK_SEL(CGU_SRC_XTAL)
+				| CGU_PLL1_CTRL_PSEL(0)
+				| CGU_PLL1_CTRL_NSEL(0)
+				| CGU_PLL1_CTRL_MSEL(7)
+				| CGU_PLL1_CTRL_FBSEL;
+	CGU_PLL1_CTRL = pll_reg;
+	/* wait until stable */
 	while (!(CGU_PLL1_STAT & CGU_PLL1_STAT_LOCK));
 
 	/* use PLL1 as clock source for BASE_M4_CLK (CPU) */
-	CGU_BASE_M4_CLK = CGU_BASE_M4_CLK_CLK_SEL(CGU_SRC_PLL1);
+	CGU_BASE_M4_CLK = (CGU_BASE_M4_CLK_CLK_SEL(CGU_SRC_PLL1) | CGU_BASE_M4_CLK_AUTOBLOCK);
 
-	/* Move PLL1 up to 12MHz * 17 = 204MHz. */
-	CGU_PLL1_CTRL = CGU_PLL1_CTRL_CLK_SEL(CGU_SRC_XTAL)
-            | CGU_PLL1_CTRL_PSEL(0)
-            | CGU_PLL1_CTRL_NSEL(0)
+	/* Wait before to switch to max speed */
+	delay(WAIT_CPU_CLOCK_INIT_DELAY);
+
+	/* Configure PLL1 Max Speed */
+	/* Direct mode: FCLKOUT = FCCO = M*(FCLKIN/N) */
+	pll_reg = CGU_PLL1_CTRL;
+	/* Clear PLL1 bits */
+	pll_reg &= ~( CGU_PLL1_CTRL_CLK_SEL_MASK | CGU_PLL1_CTRL_PD | CGU_PLL1_CTRL_FBSEL |  /* CLK SEL, PowerDown , FBSEL */
+				  CGU_PLL1_CTRL_BYPASS | /* BYPASS */
+				  CGU_PLL1_CTRL_DIRECT | /* DIRECT */
+				  CGU_PLL1_CTRL_PSEL_MASK | CGU_PLL1_CTRL_MSEL_MASK | CGU_PLL1_CTRL_NSEL_MASK ); /* PSEL, MSEL, NSEL- divider ratios */
+	/* Set PLL1 up to 12MHz * 17 = 204MHz. */
+	pll_reg |= CGU_PLL1_CTRL_CLK_SEL(CGU_SRC_XTAL)
+			| CGU_PLL1_CTRL_PSEL(0)
+			| CGU_PLL1_CTRL_NSEL(0)
 			| CGU_PLL1_CTRL_MSEL(16)
-			| CGU_PLL1_CTRL_FBSEL;
-			//| CGU_PLL1_CTRL_DIRECT;
-
+			| CGU_PLL1_CTRL_FBSEL
+			| CGU_PLL1_CTRL_DIRECT;
+	CGU_PLL1_CTRL = pll_reg;
 	/* wait until stable */
 	while (!(CGU_PLL1_STAT & CGU_PLL1_STAT_LOCK));
 
@@ -391,6 +420,97 @@ void cpu_clock_init(void)
 	/* Switch APB1 clock over to use PLL1 (204MHz) */
 	CGU_BASE_APB1_CLK = CGU_BASE_APB1_CLK_AUTOBLOCK
 			| CGU_BASE_APB1_CLK_CLK_SEL(CGU_SRC_PLL1);
+}
+
+
+/* 
+Configure PLL1 to low speed (48MHz).
+Note: PLL1 clock is used by M4/M0 core, Peripheral, APB1.
+This function shall be called after cpu_clock_init().
+This function is mainly used to lower power consumption.
+*/
+void cpu_clock_pll1_low_speed(void)
+{
+	uint32_t pll_reg;
+
+	/* Configure PLL1 Clock (48MHz) */
+	/* Integer mode:
+		FCLKOUT = M*(FCLKIN/N) 
+		FCCO = 2*P*FCLKOUT = 2*P*M*(FCLKIN/N) 
+	*/
+	pll_reg = CGU_PLL1_CTRL;
+	/* Clear PLL1 bits */
+	pll_reg &= ~( CGU_PLL1_CTRL_CLK_SEL_MASK | CGU_PLL1_CTRL_PD | CGU_PLL1_CTRL_FBSEL |  /* CLK SEL, PowerDown , FBSEL */
+				  CGU_PLL1_CTRL_BYPASS | /* BYPASS */
+				  CGU_PLL1_CTRL_DIRECT | /* DIRECT */
+				  CGU_PLL1_CTRL_PSEL_MASK | CGU_PLL1_CTRL_MSEL_MASK | CGU_PLL1_CTRL_NSEL_MASK ); /* PSEL, MSEL, NSEL- divider ratios */
+	/* Set PLL1 up to 12MHz * 7 = 48MHz. */
+	pll_reg |= CGU_PLL1_CTRL_CLK_SEL(CGU_SRC_XTAL)
+				| CGU_PLL1_CTRL_PSEL(0)
+				| CGU_PLL1_CTRL_NSEL(0)
+				| CGU_PLL1_CTRL_MSEL(6)
+				| CGU_PLL1_CTRL_FBSEL
+				| CGU_PLL1_CTRL_DIRECT;
+	CGU_PLL1_CTRL = pll_reg;
+	/* wait until stable */
+	while (!(CGU_PLL1_STAT & CGU_PLL1_STAT_LOCK));
+
+	/* Wait a delay after switch to new frequency with Direct mode */
+	delay(WAIT_CPU_CLOCK_INIT_DELAY);
+}
+
+/* 
+Configure PLL1 (Main MCU Clock) to max speed (204MHz).
+Note: PLL1 clock is used by M4/M0 core, Peripheral, APB1.
+This function shall be called after cpu_clock_init().
+*/
+void cpu_clock_pll1_max_speed(void)
+{
+	uint32_t pll_reg;
+
+	/* Configure PLL1 to Intermediate Clock (between 90 MHz and 110 MHz) */
+	/* Integer mode:
+		FCLKOUT = M*(FCLKIN/N) 
+		FCCO = 2*P*FCLKOUT = 2*P*M*(FCLKIN/N) 
+	*/
+	pll_reg = CGU_PLL1_CTRL;
+	/* Clear PLL1 bits */
+	pll_reg &= ~( CGU_PLL1_CTRL_CLK_SEL_MASK | CGU_PLL1_CTRL_PD | CGU_PLL1_CTRL_FBSEL |  /* CLK SEL, PowerDown , FBSEL */
+				  CGU_PLL1_CTRL_BYPASS | /* BYPASS */
+				  CGU_PLL1_CTRL_DIRECT | /* DIRECT */
+				  CGU_PLL1_CTRL_PSEL_MASK | CGU_PLL1_CTRL_MSEL_MASK | CGU_PLL1_CTRL_NSEL_MASK ); /* PSEL, MSEL, NSEL- divider ratios */
+	/* Set PLL1 up to 12MHz * 8 = 96MHz. */
+	pll_reg |= CGU_PLL1_CTRL_CLK_SEL(CGU_SRC_XTAL)
+				| CGU_PLL1_CTRL_PSEL(0)
+				| CGU_PLL1_CTRL_NSEL(0)
+				| CGU_PLL1_CTRL_MSEL(7)
+				| CGU_PLL1_CTRL_FBSEL;
+	CGU_PLL1_CTRL = pll_reg;
+	/* wait until stable */
+	while (!(CGU_PLL1_STAT & CGU_PLL1_STAT_LOCK));
+
+	/* Wait before to switch to max speed */
+	delay(WAIT_CPU_CLOCK_INIT_DELAY);
+
+	/* Configure PLL1 Max Speed */
+	/* Direct mode: FCLKOUT = FCCO = M*(FCLKIN/N) */
+	pll_reg = CGU_PLL1_CTRL;
+	/* Clear PLL1 bits */
+	pll_reg &= ~( CGU_PLL1_CTRL_CLK_SEL_MASK | CGU_PLL1_CTRL_PD | CGU_PLL1_CTRL_FBSEL |  /* CLK SEL, PowerDown , FBSEL */
+				  CGU_PLL1_CTRL_BYPASS | /* BYPASS */
+				  CGU_PLL1_CTRL_DIRECT | /* DIRECT */
+				  CGU_PLL1_CTRL_PSEL_MASK | CGU_PLL1_CTRL_MSEL_MASK | CGU_PLL1_CTRL_NSEL_MASK ); /* PSEL, MSEL, NSEL- divider ratios */
+	/* Set PLL1 up to 12MHz * 17 = 204MHz. */
+	pll_reg |= CGU_PLL1_CTRL_CLK_SEL(CGU_SRC_XTAL)
+			| CGU_PLL1_CTRL_PSEL(0)
+			| CGU_PLL1_CTRL_NSEL(0)
+			| CGU_PLL1_CTRL_MSEL(16)
+			| CGU_PLL1_CTRL_FBSEL
+			| CGU_PLL1_CTRL_DIRECT;
+	CGU_PLL1_CTRL = pll_reg;
+	/* wait until stable */
+	while (!(CGU_PLL1_STAT & CGU_PLL1_STAT_LOCK));
+
 }
 
 void ssp1_init(void)
