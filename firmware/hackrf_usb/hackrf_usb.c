@@ -50,10 +50,11 @@ uint8_t* const usb_bulk_buffer = (uint8_t*)0x20004000;
 static volatile uint32_t usb_bulk_buffer_offset = 0;
 static const uint32_t usb_bulk_buffer_mask = 32768 - 1;
 
-/* TODO remove this big buffer and use streaming for CPLD */ 
-#define CPLD_XSVF_MAX_LEN (65536)
-uint8_t cpld_xsvf_buffer[CPLD_XSVF_MAX_LEN];
-uint16_t write_cpld_idx = 0;
+usb_transfer_descriptor_t usb_td_bulk[2] ATTR_ALIGNED(64);
+const uint_fast8_t usb_td_bulk_count = sizeof(usb_td_bulk) / sizeof(usb_td_bulk[0]);
+
+uint8_t cpld_xsvf_buffer[512];
+volatile bool cpld_wait = false;
 
 uint8_t spiflash_buffer[W25Q80BV_PAGE_LEN];
 char version_string[] = VERSION_STRING;
@@ -191,9 +192,23 @@ usb_configuration_t usb_configuration_full_speed = {
 	.descriptor = usb_descriptor_configuration_full_speed,
 };
 
+usb_configuration_t usb_configuration_cpld_update_full_speed = {
+	.number = 2,
+	.speed = USB_SPEED_FULL,
+	.descriptor = usb_descriptor_configuration_cpld_update_full_speed,
+};
+
+usb_configuration_t usb_configuration_cpld_update_high_speed = {
+	.number = 2,
+	.speed = USB_SPEED_HIGH,
+	.descriptor = usb_descriptor_configuration_cpld_update_high_speed,
+};
+
 usb_configuration_t* usb_configurations[] = {
 	&usb_configuration_high_speed,
 	&usb_configuration_full_speed,
+	&usb_configuration_cpld_update_full_speed,
+	&usb_configuration_cpld_update_high_speed,
 	0,
 };
 
@@ -549,69 +564,6 @@ usb_request_status_t usb_vendor_request_read_spiflash(
 	}
 }
 
-usb_request_status_t usb_vendor_request_write_cpld(
-	usb_endpoint_t* const endpoint,
-	const usb_transfer_stage_t stage)
-{
-	int error, i;
-	uint16_t total_len;
-	uint16_t len;
-	#define WAIT_LOOP_DELAY (6000000)
-	#define ALL_LEDS	(PIN_LED1|PIN_LED2|PIN_LED3)
-
-	if (stage == USB_TRANSFER_STAGE_SETUP) 
-	{
-		// len is limited to 64KB 16bits no overflow can happen
-		total_len = endpoint->setup.value;
-		len = endpoint->setup.length;
-		usb_transfer_schedule_block(endpoint->out, &cpld_xsvf_buffer[write_cpld_idx], len,
-                                            NULL, NULL);
-		return USB_REQUEST_STATUS_OK;
-	} else if (stage == USB_TRANSFER_STAGE_DATA) 
-	{
-		// len is limited to 64KB 16bits no overflow can happen
-		total_len = endpoint->setup.value;
-		len = endpoint->setup.length;
-		write_cpld_idx = write_cpld_idx + len;
-		// Check if all bytes received and write CPLD
-		if(write_cpld_idx == total_len)
-		{
-			write_cpld_idx = 0;
-			error = cpld_jtag_program(total_len, &cpld_xsvf_buffer[write_cpld_idx]);
-			// TO FIX ACK shall be not delayed so much as cpld prog can take up to 5s.
-			if(error == 0)
-			{		
-				usb_transfer_schedule_ack(endpoint->in);
-				
-				/* blink LED1, LED2, and LED3 on success */
-				while (1)
-				{
-					gpio_set(PORT_LED1_3, ALL_LEDS); /* LEDs on */
-					for (i = 0; i < WAIT_LOOP_DELAY; i++)	/* Wait a bit. */
-						__asm__("nop");
-					gpio_clear(PORT_LED1_3, ALL_LEDS); /* LEDs off */
-					for (i = 0; i < WAIT_LOOP_DELAY; i++)	/* Wait a bit. */
-						__asm__("nop");
-				}
-				return USB_REQUEST_STATUS_OK;
-			}else
-			{
-				/* LED3 (Red) steady on error */
-				gpio_set(PORT_LED1_3, PIN_LED3); /* LEDs on */
-				while (1);
-				return USB_REQUEST_STATUS_STALL;
-			}
-		}else
-		{
-			usb_transfer_schedule_ack(endpoint->in);
-			return USB_REQUEST_STATUS_OK;
-		}
-	} else 
-	{
-		return USB_REQUEST_STATUS_OK;
-	}
-}
-
 usb_request_status_t usb_vendor_request_read_board_id(
 		usb_endpoint_t* const endpoint, const usb_transfer_stage_t stage)
 {
@@ -815,7 +767,7 @@ static const usb_request_handler_fn vendor_request_handler[] = {
 	usb_vendor_request_erase_spiflash,
 	usb_vendor_request_write_spiflash,
 	usb_vendor_request_read_spiflash,
-	usb_vendor_request_write_cpld,
+	NULL, // used to be write_cpld
 	usb_vendor_request_read_board_id,
 	usb_vendor_request_read_version_string,
 	usb_vendor_request_set_freq,
@@ -853,13 +805,72 @@ const usb_request_handlers_t usb_request_handlers = {
 	.reserved = 0,
 };
 
+static void cpld_buffer_refilled(void* user_data, unsigned int length)
+{
+	cpld_wait = false;
+}
+
+static void refill_cpld_buffer(void)
+{
+	cpld_wait = true;
+	usb_transfer_schedule(
+		&usb_endpoint_bulk_out,
+		cpld_xsvf_buffer,
+		sizeof(cpld_xsvf_buffer),
+		cpld_buffer_refilled,
+		NULL
+		);
+
+	// Wait until transfer finishes
+	while (cpld_wait);
+}
+
+static void cpld_update(void)
+{
+	#define WAIT_LOOP_DELAY (6000000)
+	#define ALL_LEDS  (PIN_LED1|PIN_LED2|PIN_LED3)
+	int i;
+	int error;
+
+	usb_queue_flush_endpoint(&usb_endpoint_bulk_in);
+	usb_queue_flush_endpoint(&usb_endpoint_bulk_out);
+
+	refill_cpld_buffer();
+
+	error = cpld_jtag_program(sizeof(cpld_xsvf_buffer),
+				  cpld_xsvf_buffer,
+				  refill_cpld_buffer);
+	if(error == 0)
+	{
+		/* blink LED1, LED2, and LED3 on success */
+		while (1)
+		{
+			gpio_set(PORT_LED1_3, ALL_LEDS); /* LEDs on */
+			for (i = 0; i < WAIT_LOOP_DELAY; i++)  /* Wait a bit. */
+				__asm__("nop");
+			gpio_clear(PORT_LED1_3, ALL_LEDS); /* LEDs off */
+			for (i = 0; i < WAIT_LOOP_DELAY; i++)  /* Wait a bit. */
+				__asm__("nop");
+		}
+	}else
+	{
+		/* LED3 (Red) steady on error */
+		gpio_set(PORT_LED1_3, PIN_LED3); /* LEDs on */
+		while (1);
+	}
+}
+
 void usb_configuration_changed(
 	usb_device_t* const device
 ) {
 	set_transceiver_mode(transceiver_mode);
 	
-	if( device->configuration->number ) {
+	if( device->configuration->number == 1 ) {
+		// transceiver mode
 		gpio_set(PORT_LED1_3, PIN_LED1);
+	} else if( device->configuration->number == 2 ) {
+		// CPLD update mode
+		cpld_update();
 	} else {
 		gpio_clear(PORT_LED1_3, PIN_LED1);
 	}

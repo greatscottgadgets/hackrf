@@ -51,7 +51,7 @@ uint8_t usb_descriptor_device[] = {
 	0x01,				   // iManufacturer
 	0x02,				   // iProduct
 	0x00,				   // iSerialNumber
-	0x01				   // bNumConfigurations
+	0x02				   // bNumConfigurations
 };
 
 uint8_t usb_descriptor_device_qualifier[] = {
@@ -62,7 +62,7 @@ uint8_t usb_descriptor_device_qualifier[] = {
 	0x00,					// bDeviceSubClass
 	0x00,					// bDeviceProtocol
 	64,					// bMaxPacketSize0
-	0x01,					// bNumOtherSpeedConfigurations
+	0x02,					// bNumOtherSpeedConfigurations
 	0x00					// bReserved
 };
 
@@ -110,6 +110,80 @@ uint8_t usb_descriptor_configuration_high_speed[] = {
 	0x01,							// bNumInterfaces
 	0x01,							// bConfigurationValue
 	0x03,							// iConfiguration
+	0x80,							// bmAttributes: USB-powered
+	250,							// bMaxPower: 500mA
+
+	9,							// bLength
+	USB_DESCRIPTOR_TYPE_INTERFACE,		// bDescriptorType
+	0x00,							// bInterfaceNumber
+	0x00,							// bAlternateSetting
+	0x02,							// bNumEndpoints
+	0xFF,							// bInterfaceClass: vendor-specific
+	0xFF,							// bInterfaceSubClass
+	0xFF,							// bInterfaceProtocol: vendor-specific
+	0x00,							// iInterface
+
+	7,							// bLength
+	USB_DESCRIPTOR_TYPE_ENDPOINT,		// bDescriptorType
+	USB_BULK_IN_EP_ADDR,				// bEndpointAddress
+	0x02,							// bmAttributes: BULK
+	USB_WORD(USB_MAX_PACKET_BULK_HS),	// wMaxPacketSize
+	0x00,							// bInterval: no NAK
+
+	7,								// bLength
+	USB_DESCRIPTOR_TYPE_ENDPOINT,		// bDescriptorType
+	USB_BULK_OUT_EP_ADDR,			// bEndpointAddress
+	0x02,							// bmAttributes: BULK
+	USB_WORD(USB_MAX_PACKET_BULK_HS),	// wMaxPacketSize
+	0x00,							// bInterval: no NAK
+
+	0,									// TERMINATOR
+};
+
+uint8_t usb_descriptor_configuration_cpld_update_full_speed[] = {
+	9,					// bLength
+	USB_DESCRIPTOR_TYPE_CONFIGURATION,	// bDescriptorType
+	USB_WORD(32),				// wTotalLength
+	0x01,					// bNumInterfaces
+	0x02,					// bConfigurationValue
+	0x04,					// iConfiguration
+	0x80,					// bmAttributes: USB-powered
+	250,					// bMaxPower: 500mA
+
+	9,							// bLength
+	USB_DESCRIPTOR_TYPE_INTERFACE,		// bDescriptorType
+	0x00,							// bInterfaceNumber
+	0x00,							// bAlternateSetting
+	0x02,							// bNumEndpoints
+	0xFF,							// bInterfaceClass: vendor-specific
+	0xFF,							// bInterfaceSubClass
+	0xFF,							// bInterfaceProtocol: vendor-specific
+	0x00,							// iInterface
+
+	7,							// bLength
+	USB_DESCRIPTOR_TYPE_ENDPOINT,		// bDescriptorType
+	USB_BULK_IN_EP_ADDR,				// bEndpointAddress
+	0x02,							// bmAttributes: BULK
+	USB_WORD(USB_MAX_PACKET_BULK_FS),	// wMaxPacketSize
+	0x00,							// bInterval: no NAK
+
+	7,							// bLength
+	USB_DESCRIPTOR_TYPE_ENDPOINT,		// bDescriptorType
+	USB_BULK_OUT_EP_ADDR,			// bEndpointAddress
+	0x02,							// bmAttributes: BULK
+	USB_WORD(USB_MAX_PACKET_BULK_FS),	// wMaxPacketSize
+	0x00,							// bInterval: no NAK
+
+	0,									// TERMINATOR
+};
+
+uint8_t usb_descriptor_configuration_cpld_update_high_speed[] = {
+	9,							// bLength
+	USB_DESCRIPTOR_TYPE_CONFIGURATION,	// bDescriptorType
+	USB_WORD(32),						// wTotalLength
+	0x01,							// bNumInterfaces
+	0x02,							// bConfigurationValue
+	0x04,							// iConfiguration
 	0x80,							// bmAttributes: USB-powered
 	250,							// bMaxPower: 500mA
 
@@ -197,11 +271,28 @@ uint8_t usb_descriptor_string_config1_description[] = {
 	'r', 0x00,
 };
 
+uint8_t usb_descriptor_string_config2_description[] = {
+	24,						// bLength
+	USB_DESCRIPTOR_TYPE_STRING,		// bDescriptorType
+	'C', 0x00,
+	'P', 0x00,
+	'L', 0x00,
+	'D', 0x00,
+	' ', 0x00,
+	'u', 0x00,
+	'p', 0x00,
+	'd', 0x00,
+	'a', 0x00,
+	't', 0x00,
+	'e', 0x00,
+};
+
 uint8_t* const usb_descriptor_strings[] = {
 	usb_descriptor_string_languages,
 	usb_descriptor_string_manufacturer,
 	usb_descriptor_string_product,
 	usb_descriptor_string_config1_description,
+	usb_descriptor_string_config2_description,
 	
 	0,		// TERMINATOR
 };
