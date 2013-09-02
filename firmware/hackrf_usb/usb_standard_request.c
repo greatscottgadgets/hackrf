@@ -20,6 +20,7 @@
  */
 
 #include <stdint.h>
+#include <stddef.h>
 
 #include "usb_standard_request.h"
 
@@ -58,10 +59,51 @@ usb_transfer_type_t usb_endpoint_descriptor_transfer_type(
 	return (endpoint_descriptor[3] & 0x3);
 }
 
-extern bool usb_set_configuration(
+void (*usb_configuration_changed_cb)(usb_device_t* const) = NULL;
+
+void usb_set_configuration_changed_cb(
+	void (*callback)(usb_device_t* const)
+) {
+	usb_configuration_changed_cb = callback;
+}
+
+bool usb_set_configuration(
 	usb_device_t* const device,
 	const uint_fast8_t configuration_number
-);
+) {
+
+	const usb_configuration_t* new_configuration = 0;
+	if( configuration_number != 0 ) {
+		
+		// Locate requested configuration.
+		if( device->configurations ) {
+			usb_configuration_t** configurations = *(device->configurations);
+			uint32_t i = 0;
+			const usb_speed_t usb_speed_current = usb_speed(device);
+			while( configurations[i] ) {
+				if( (configurations[i]->speed == usb_speed_current) &&
+				    (configurations[i]->number == configuration_number) ) {
+					new_configuration = configurations[i];
+					break;
+				}
+				i++;
+			}
+		}
+
+		// Requested configuration not found: request error.
+		if( new_configuration == 0 ) {
+			return false;
+		}
+	}
+	
+	if( new_configuration != device->configuration ) {
+		// Configuration changed.
+		device->configuration = new_configuration;
+		if (usb_configuration_changed_cb)
+			usb_configuration_changed_cb(device);
+	}
+	return true;
+}
 	
 static usb_request_status_t usb_send_descriptor(
 	usb_endpoint_t* const endpoint,

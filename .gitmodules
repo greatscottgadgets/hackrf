@@ -1,0 +1,3 @@
+[submodule "firmware/libopencm3"]
+	path = firmware/libopencm3
+	url = https://github.com/mossmann/libopencm3.git
