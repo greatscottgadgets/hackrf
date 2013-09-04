@@ -969,6 +969,7 @@ int main(void) {
 	enable_1v8_power();
 	cpu_clock_init();
 
+	usb_set_configuration_changed_cb(usb_configuration_changed);
 	usb_peripheral_reset();
 	
 	usb_device_init(0, &usb_device);
