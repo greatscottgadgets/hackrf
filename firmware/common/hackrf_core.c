@@ -344,51 +344,10 @@ void cpu_clock_init(void)
 	CGU_BASE_APB1_CLK = CGU_BASE_APB1_CLK_AUTOBLOCK
 			| CGU_BASE_APB1_CLK_CLK_SEL(CGU_SRC_XTAL);
 
-	/* Configure PLL1 to Intermediate Clock (between 90 MHz and 110 MHz) */
-	/* Integer mode:
-		FCLKOUT = M*(FCLKIN/N) 
-		FCCO = 2*P*FCLKOUT = 2*P*M*(FCLKIN/N) 
-	*/
-	pll_reg = CGU_PLL1_CTRL;
-	/* Clear PLL1 bits */
-	pll_reg &= ~( CGU_PLL1_CTRL_CLK_SEL_MASK | CGU_PLL1_CTRL_PD | CGU_PLL1_CTRL_FBSEL |  /* CLK SEL, PowerDown , FBSEL */
-				  CGU_PLL1_CTRL_BYPASS | /* BYPASS */
-				  CGU_PLL1_CTRL_DIRECT | /* DIRECT */
-				  CGU_PLL1_CTRL_PSEL_MASK | CGU_PLL1_CTRL_MSEL_MASK | CGU_PLL1_CTRL_NSEL_MASK ); /* PSEL, MSEL, NSEL- divider ratios */
-	/* Set PLL1 up to 12MHz * 8 = 96MHz. */
-	pll_reg |= CGU_PLL1_CTRL_CLK_SEL(CGU_SRC_XTAL)
-				| CGU_PLL1_CTRL_PSEL(0)
-				| CGU_PLL1_CTRL_NSEL(0)
-				| CGU_PLL1_CTRL_MSEL(7)
-				| CGU_PLL1_CTRL_FBSEL;
-	CGU_PLL1_CTRL = pll_reg;
-	/* wait until stable */
-	while (!(CGU_PLL1_STAT & CGU_PLL1_STAT_LOCK));
+	cpu_clock_pll1_low_speed();
 
 	/* use PLL1 as clock source for BASE_M4_CLK (CPU) */
 	CGU_BASE_M4_CLK = (CGU_BASE_M4_CLK_CLK_SEL(CGU_SRC_PLL1) | CGU_BASE_M4_CLK_AUTOBLOCK);
-
-	/* Wait before to switch to max speed */
-	delay(WAIT_CPU_CLOCK_INIT_DELAY);
-
-	/* Configure PLL1 Max Speed */
-	/* Direct mode: FCLKOUT = FCCO = M*(FCLKIN/N) */
-	pll_reg = CGU_PLL1_CTRL;
-	/* Clear PLL1 bits */
-	pll_reg &= ~( CGU_PLL1_CTRL_CLK_SEL_MASK | CGU_PLL1_CTRL_PD | CGU_PLL1_CTRL_FBSEL |  /* CLK SEL, PowerDown , FBSEL */
-				  CGU_PLL1_CTRL_BYPASS | /* BYPASS */
-				  CGU_PLL1_CTRL_DIRECT | /* DIRECT */
-				  CGU_PLL1_CTRL_PSEL_MASK | CGU_PLL1_CTRL_MSEL_MASK | CGU_PLL1_CTRL_NSEL_MASK ); /* PSEL, MSEL, NSEL- divider ratios */
-	/* Set PLL1 up to 12MHz * 17 = 204MHz. */
-	pll_reg |= CGU_PLL1_CTRL_CLK_SEL(CGU_SRC_XTAL)
-			| CGU_PLL1_CTRL_PSEL(0)
-			| CGU_PLL1_CTRL_NSEL(0)
-			| CGU_PLL1_CTRL_MSEL(16)
-			| CGU_PLL1_CTRL_FBSEL
-			| CGU_PLL1_CTRL_DIRECT;
-	CGU_PLL1_CTRL = pll_reg;
-	/* wait until stable */
-	while (!(CGU_PLL1_STAT & CGU_PLL1_STAT_LOCK));
 
 	/* use XTAL_OSC as clock source for PLL0USB */
 	CGU_PLL0USB_CTRL = CGU_PLL0USB_CTRL_PD
