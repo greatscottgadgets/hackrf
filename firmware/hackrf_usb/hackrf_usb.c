@@ -335,11 +335,13 @@ void set_transceiver_mode(const transceiver_mode_t new_transceiver_mode) {
 
 	sgpio_configure(transceiver_mode, true);
 
-	nvic_set_priority(NVIC_SGPIO_IRQ, 0);
-	nvic_enable_irq(NVIC_SGPIO_IRQ);
-	SGPIO_SET_EN_1 = (1 << SGPIO_SLICE_A);
+	if( transceiver_mode != TRANSCEIVER_MODE_OFF ) {
+		nvic_set_priority(NVIC_SGPIO_IRQ, 0);
+		nvic_enable_irq(NVIC_SGPIO_IRQ);
+		SGPIO_SET_EN_1 = (1 << SGPIO_SLICE_A);
 
-    sgpio_cpld_stream_enable();
+	    sgpio_cpld_stream_enable();
+	}
 }
 
 usb_request_status_t usb_vendor_request_set_transceiver_mode(
@@ -887,17 +889,17 @@ const usb_request_handlers_t usb_request_handlers = {
 void usb_configuration_changed(
 	usb_device_t* const device
 ) {
-	set_transceiver_mode(transceiver_mode);
-	
 	if( device->configuration->number ) {
 		cpu_clock_pll1_max_speed();
+		set_transceiver_mode(transceiver_mode);
 		gpio_set(PORT_LED1_3, PIN_LED1);
 	} else {
 		/* Configuration number equal 0 means usb bus reset. */
+		set_transceiver_mode(TRANSCEIVER_MODE_OFF);
 		cpu_clock_pll1_low_speed();
 		gpio_clear(PORT_LED1_3, PIN_LED1);
 	}
-};
+}
 
 void sgpio_isr() {
 	SGPIO_CLR_STATUS_1 = (1 << SGPIO_SLICE_A);
