@@ -890,8 +890,11 @@ void usb_configuration_changed(
 	set_transceiver_mode(transceiver_mode);
 	
 	if( device->configuration->number ) {
+		cpu_clock_pll1_max_speed();
 		gpio_set(PORT_LED1_3, PIN_LED1);
 	} else {
+		/* Configuration number equal 0 means usb bus reset. */
+		cpu_clock_pll1_low_speed();
 		gpio_clear(PORT_LED1_3, PIN_LED1);
 	}
 };
