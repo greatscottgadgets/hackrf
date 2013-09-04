@@ -403,11 +403,11 @@ void cpu_clock_pll1_low_speed(void)
 				  CGU_PLL1_CTRL_BYPASS | /* BYPASS */
 				  CGU_PLL1_CTRL_DIRECT | /* DIRECT */
 				  CGU_PLL1_CTRL_PSEL_MASK | CGU_PLL1_CTRL_MSEL_MASK | CGU_PLL1_CTRL_NSEL_MASK ); /* PSEL, MSEL, NSEL- divider ratios */
-	/* Set PLL1 up to 12MHz * 7 = 48MHz. */
+	/* Set PLL1 up to 12MHz * 4 = 48MHz. */
 	pll_reg |= CGU_PLL1_CTRL_CLK_SEL(CGU_SRC_XTAL)
 				| CGU_PLL1_CTRL_PSEL(0)
 				| CGU_PLL1_CTRL_NSEL(0)
-				| CGU_PLL1_CTRL_MSEL(6)
+				| CGU_PLL1_CTRL_MSEL(3)
 				| CGU_PLL1_CTRL_FBSEL
 				| CGU_PLL1_CTRL_DIRECT;
 	CGU_PLL1_CTRL = pll_reg;
