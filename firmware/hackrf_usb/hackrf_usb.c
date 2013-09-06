@@ -96,8 +96,8 @@ void update_switches(void)
 #define MIN_HP_FREQ_MHZ (2700)
 #define MAX_HP_FREQ_MHZ (6800)
 
-static uint32_t MAX2837_FREQ_NOMINAL_HZ=2600000000;
-#define MAX2837_FREQ_NOMINAL_MHZ (MAX2837_FREQ_NOMINAL_HZ / FREQ_ONE_MHZ)
+static uint32_t max2837_freq_nominal_hz=2600000000;
+#define MAX2837_FREQ_NOMINAL_MHZ (max2837_freq_nominal_hz / FREQ_ONE_MHZ)
 
 uint32_t freq_mhz_cache=100, freq_hz_cache=0;
 /*
@@ -132,7 +132,7 @@ bool set_freq(uint32_t freq_mhz, uint32_t freq_hz)
 			{
 				tmp_hz = (real_RFFC5071_freq_hz - RFFC5071_freq_mhz  * FREQ_ONE_MHZ);
 			}
-			MAX2837_freq_hz = MAX2837_FREQ_NOMINAL_HZ + tmp_hz + freq_hz;
+			MAX2837_freq_hz = max2837_freq_nominal_hz + tmp_hz + freq_hz;
 			max2837_set_frequency(MAX2837_freq_hz);
 			update_switches();
 		}else if( (freq_mhz >= MIN_BYPASS_FREQ_MHZ) && (freq_mhz < MAX_BYPASS_FREQ_MHZ) )
@@ -158,7 +158,7 @@ bool set_freq(uint32_t freq_mhz, uint32_t freq_hz)
 			{
 				tmp_hz = -(real_RFFC5071_freq_hz - RFFC5071_freq_mhz * FREQ_ONE_MHZ);
 			}
-			MAX2837_freq_hz = MAX2837_FREQ_NOMINAL_HZ + tmp_hz + freq_hz;
+			MAX2837_freq_hz = max2837_freq_nominal_hz + tmp_hz + freq_hz;
 			max2837_set_frequency(MAX2837_freq_hz);
 			update_switches();
 		}else
@@ -178,6 +178,15 @@ bool set_freq(uint32_t freq_mhz, uint32_t freq_hz)
 	
 	freq_mhz_cache = freq_mhz;
 	freq_hz_cache = freq_hz;
+	return success;
+}
+
+bool set_freq_if(const uint32_t freq_if_hz) {
+	bool success = false;
+	if( (freq_if_hz >= MIN_BYPASS_FREQ_MHZ) && (freq_if_hz <= MAX_BYPASS_FREQ_MHZ) ) {
+		max2837_freq_nominal_hz = freq_if_hz;
+		success = set_freq(freq_mhz_cache, freq_hz_cache);
+	}
 	return success;
 }
 
@@ -827,9 +836,11 @@ usb_request_status_t usb_vendor_request_set_if_freq(
 	usb_endpoint_t* const endpoint,	const usb_transfer_stage_t stage
 ) {
 	if( stage == USB_TRANSFER_STAGE_SETUP ) {
-		MAX2837_FREQ_NOMINAL_HZ = (uint32_t)endpoint->setup.index * 1000 * 1000;
-		set_freq(freq_mhz_cache, freq_hz_cache);
-		usb_endpoint_schedule_ack(endpoint->in);
+		if( set_freq_if((uint32_t)endpoint->setup.index * 1000 * 1000) ) {
+			usb_endpoint_schedule_ack(endpoint->in);
+		} else {
+			return USB_REQUEST_STATUS_STALL;
+		}
 	}
 	return USB_REQUEST_STATUS_OK;
 }
