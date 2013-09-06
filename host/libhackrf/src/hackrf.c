@@ -1145,7 +1145,7 @@ int ADDCALL hackrf_stop_rx(hackrf_device* device)
 	result = hackrf_set_transceiver_mode(device, HACKRF_TRANSCEIVER_MODE_OFF);
 	if (result != HACKRF_SUCCESS)
 	{
-		return result2;
+		return result;
 	}
 	return kill_transfer_thread(device);
 }
