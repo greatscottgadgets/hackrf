@@ -145,11 +145,6 @@ void rffc5071_setup(void)
 	 * not control pins. */
 	set_RFFC5071_SIPIN(1);
 
-#ifdef JAWBREAKER
-	/* initial safe switch control settings */
-	rffc5071_set_gpo(SWITCHCTRL_SAFE);
-#endif
-
 	/* GPOs are active at all times */
 	set_RFFC5071_GATE(1);
 
@@ -367,56 +362,20 @@ void rffc5071_regs_commit(void)
 	}
 }
 
-void rffc5071_tx(uint8_t gpo) {
+void rffc5071_tx(void) {
 	LOG("# rffc5071_tx\n");
 	set_RFFC5071_ENBL(0);
 	set_RFFC5071_FULLD(0);
 	set_RFFC5071_MODE(1); /* mixer 2 used for both RX and TX */
-#ifdef JAWBREAKER
-	/* honor SWITCHCTRL_AMP_BYPASS and SWITCHCTRL_HP settings from caller */
-	gpo &= (SWITCHCTRL_AMP_BYPASS | SWITCHCTRL_HP | SWITCHCTRL_MIX_BYPASS);
-	if ((gpo & SWITCHCTRL_AMP_BYPASS) == SWITCHCTRL_AMP_BYPASS)
-		gpo |= SWITCHCTRL_NO_TX_AMP_PWR;
-	gpo |= (SWITCHCTRL_TX | SWITCHCTRL_NO_RX_AMP_PWR);
-	rffc5071_set_gpo(gpo);
-#else
-	(void)gpo;
-#endif
 	rffc5071_regs_commit();
-
-#ifdef JAWBREAKER
-	/* honor SWITCHCTRL_MIX_BYPASS setting from caller */
-	if ((gpo & SWITCHCTRL_MIX_BYPASS) == SWITCHCTRL_MIX_BYPASS)
-		rffc5071_disable();
-	else
-#endif
-		rffc5071_enable();
 }
 
-void rffc5071_rx(uint8_t gpo) {
+void rffc5071_rx(void) {
 	LOG("# rfc5071_rx\n");
 	set_RFFC5071_ENBL(0);
 	set_RFFC5071_FULLD(0);
 	set_RFFC5071_MODE(1); /* mixer 2 used for both RX and TX */
-#ifdef JAWBREAKER
-	/* honor SWITCHCTRL_AMP_BYPASS and SWITCHCTRL_HP settings from caller */
-	gpo &= (SWITCHCTRL_AMP_BYPASS | SWITCHCTRL_HP | SWITCHCTRL_MIX_BYPASS);
-	if ((gpo & SWITCHCTRL_AMP_BYPASS) == SWITCHCTRL_AMP_BYPASS)
-		gpo |= SWITCHCTRL_NO_RX_AMP_PWR;
-	gpo |= SWITCHCTRL_NO_TX_AMP_PWR;
-	rffc5071_set_gpo(gpo);
-#else
-	(void)gpo;
-#endif
 	rffc5071_regs_commit();
-
-#ifdef JAWBREAKER
-	/* honor SWITCHCTRL_MIX_BYPASS setting from caller */
-	if ((gpo & SWITCHCTRL_MIX_BYPASS) == SWITCHCTRL_MIX_BYPASS)
-		rffc5071_disable();
-	else
-#endif
-		rffc5071_enable();
 }
 
 /*
