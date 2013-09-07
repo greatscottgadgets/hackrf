@@ -260,6 +260,43 @@ void max2837_mode_rx(void) {
 			(PIN_XCVR_ENABLE | PIN_XCVR_RXENABLE));
 }
 
+max2837_mode_t max2837_mode(void) {
+	if( gpio_get(PORT_XCVR_ENABLE, PIN_XCVR_ENABLE) ) {
+		if( gpio_get(PORT_XCVR_ENABLE, PIN_XCVR_TXENABLE) ) {
+			return MAX2837_MODE_TX;
+		} else if( gpio_get(PORT_XCVR_ENABLE, PIN_XCVR_RXENABLE) ) {
+			return MAX2837_MODE_RX;
+		} else {
+			return MAX2837_MODE_STANDBY;
+		}
+	} else {
+		return MAX2837_MODE_SHUTDOWN;
+	}
+}
+
+void max2837_set_mode(const max2837_mode_t new_mode) {
+	switch(new_mode) {
+	case MAX2837_MODE_SHUTDOWN:
+		max2837_mode_shutdown();
+		break;
+		
+	case MAX2837_MODE_STANDBY:
+		max2837_mode_standby();
+		break;
+		
+	case MAX2837_MODE_TX:
+		max2837_mode_tx();
+		break;
+
+	case MAX2837_MODE_RX:
+		max2837_mode_rx();
+		break;
+		
+	default:
+		break;
+	}
+}
+
 void max2837_start(void)
 {
 	LOG("# max2837_start\n");
