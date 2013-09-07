@@ -115,6 +115,7 @@ bool set_freq(uint32_t freq_mhz, uint32_t freq_hz)
 
 	success = true;
 
+	const max2837_mode_t prior_max2837_mode = max2837_mode();
 	max2837_mode_standby();
 	if(freq_mhz >= MIN_LP_FREQ_MHZ)
 	{
@@ -171,10 +172,7 @@ bool set_freq(uint32_t freq_mhz, uint32_t freq_hz)
 		/* Error freq_mhz too low */
 		success = false;
 	}
-	if(transceiver_mode == TRANSCEIVER_MODE_RX)
-		max2837_mode_rx();
-	else if(transceiver_mode == TRANSCEIVER_MODE_TX)
-		max2837_mode_tx();
+	max2837_set_mode(prior_max2837_mode);
 	freq_mhz_cache = freq_mhz;
 	freq_hz_cache = freq_hz;
 	return success;
