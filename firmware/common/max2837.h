@@ -37,6 +37,11 @@ extern void max2837_regs_read(void);
  * provided routines for those operations. */
 extern void max2837_regs_commit(void);
 
+void max2837_mode_shutdown(void);
+void max2837_mode_standby(void);
+void max2837_mode_tx(void);
+void max2837_mode_rx(void);
+
 /* Turn on/off all chip functions. Does not control oscillator and CLKOUT */
 extern void max2837_start(void);
 extern void max2837_stop(void);

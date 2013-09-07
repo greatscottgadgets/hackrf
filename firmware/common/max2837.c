@@ -220,14 +220,53 @@ void max2837_regs_commit(void)
 	}
 }
 
+void max2837_mode_shutdown(void) {
+	/* All circuit blocks are powered down, except the 4-wire serial bus
+	 * and its internal programmable registers.
+	 */
+	gpio_clear(PORT_XCVR_ENABLE,
+			(PIN_XCVR_ENABLE | PIN_XCVR_RXENABLE | PIN_XCVR_TXENABLE));
+}
+
+void max2837_mode_standby(void) {
+	/* Used to enable the frequency synthesizer block while the rest of the
+	 * device is powered down. In this mode, PLL, VCO, and LO generator
+	 * are on, so that Tx or Rx modes can be quickly enabled from this mode.
+	 * These and other blocks can be selectively enabled in this mode.
+	 */
+	gpio_clear(PORT_XCVR_ENABLE, (PIN_XCVR_RXENABLE | PIN_XCVR_TXENABLE));
+	gpio_set(PORT_XCVR_ENABLE, PIN_XCVR_ENABLE);
+}
+
+void max2837_mode_tx(void) {
+	/* All Tx circuit blocks are powered on. The external PA is powered on
+	 * after a programmable delay using the on-chip PA bias DAC. The slow-
+	 * charging Rx circuits are in a precharged “idle-off” state for fast
+	 * Tx-to-Rx turnaround time.
+	 */
+	gpio_clear(PORT_XCVR_ENABLE, PIN_XCVR_RXENABLE);
+	gpio_set(PORT_XCVR_ENABLE,
+			(PIN_XCVR_ENABLE | PIN_XCVR_TXENABLE));
+}
+
+void max2837_mode_rx(void) {
+	/* All Rx circuit blocks are powered on and active. Antenna signal is
+	 * applied; RF is downconverted, filtered, and buffered at Rx BB I and Q
+	 * outputs. The slow- charging Tx circuits are in a precharged “idle-off”
+	 * state for fast Rx-to-Tx turnaround time.
+	 */
+	gpio_clear(PORT_XCVR_ENABLE, PIN_XCVR_TXENABLE);
+	gpio_set(PORT_XCVR_ENABLE,
+			(PIN_XCVR_ENABLE | PIN_XCVR_RXENABLE));
+}
+
 void max2837_start(void)
 {
 	LOG("# max2837_start\n");
 	set_MAX2837_EN_SPI(1);
 	max2837_regs_commit();
 #if !defined TEST
-	gpio_clear(PORT_XCVR_ENABLE, (PIN_XCVR_RXENABLE | PIN_XCVR_TXENABLE));
-	gpio_set(PORT_XCVR_ENABLE, PIN_XCVR_ENABLE);
+	max2837_mode_standby();
 #endif
 }
 
@@ -238,9 +277,7 @@ void max2837_tx(void)
 
 	set_MAX2837_ModeCtrl(MAX2837_ModeCtrl_TxLPF);
 	max2837_regs_commit();
-
-	gpio_clear(PORT_XCVR_ENABLE, PIN_XCVR_RXENABLE);
-	gpio_set(PORT_XCVR_ENABLE, PIN_XCVR_TXENABLE);
+	max2837_mode_tx();
 #endif
 }
 
@@ -252,8 +289,7 @@ void max2837_rx(void)
 	max2837_regs_commit();
 
 #if !defined TEST
-	gpio_clear(PORT_XCVR_ENABLE, PIN_XCVR_TXENABLE);
-	gpio_set(PORT_XCVR_ENABLE, PIN_XCVR_RXENABLE);
+	max2837_mode_rx();
 #endif
 }
 
@@ -263,8 +299,7 @@ void max2837_stop(void)
 	set_MAX2837_EN_SPI(0);
 	max2837_regs_commit();
 #if !defined TEST
-	gpio_clear(PORT_XCVR_ENABLE,
-			(PIN_XCVR_ENABLE | PIN_XCVR_RXENABLE | PIN_XCVR_TXENABLE));
+	max2837_mode_shutdown();
 #endif
 }
 
