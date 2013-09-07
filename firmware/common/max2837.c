@@ -116,9 +116,7 @@ void max2837_setup(void)
 		;
 #endif
 
-	/* disable everything */
-	gpio_clear(PORT_XCVR_ENABLE,
-			(PIN_XCVR_ENABLE | PIN_XCVR_RXENABLE | PIN_XCVR_TXENABLE));
+	max2837_mode_shutdown();
 #ifdef JELLYBEAN
 	gpio_set(PORT_XCVR_RXHP, PIN_XCVR_RXHP);
 	gpio_set(PORT_XCVR_B,
