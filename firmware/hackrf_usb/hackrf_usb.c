@@ -87,6 +87,23 @@ set_sample_r_params_t set_sample_r_params;
 #define SWITCHCTRL_NO_RX_AMP_PWR (1 << 5) /* GPO6 turn off RX amp power */
 
 /*
+ GPO6  GPO5  GPO4 GPO3  GPO2  GPO1
+!RXAMP  HP  MIXBP  TX  AMPBP !TXAMP  Mix mode   Amp mode
+   1    X     1    1     1      1    TX bypass  Bypass
+   1    X     1    1     0      0    TX bypass  TX amplified
+   1    1     0    1     1      1    TX high    Bypass
+   1    1     0    1     0      0    TX high    TX amplified
+   1    0     0    1     1      1    TX low     Bypass
+   1    0     0    1     0      0    TX low     TX amplified
+   1    X     1    0     1      1    RX bypass  Bypass
+   0    X     1    0     0      1    RX bypass  RX amplified
+   1    1     0    0     1      1    RX high    Bypass
+   0    1     0    0     0      1    RX high    RX amplified
+   1    0     0    0     1      1    RX low     Bypass
+   0    0     0    0     0      1    RX low     RX amplified
+*/
+
+/*
  * Safe (initial) switch settings turn off both amplifiers and enable both amp
  * bypass and mixer bypass.
  */
