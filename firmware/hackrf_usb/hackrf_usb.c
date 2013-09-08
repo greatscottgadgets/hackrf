@@ -102,15 +102,13 @@ void update_switches(void)
 #ifdef JAWBREAKER
 		/* honor SWITCHCTRL_AMP_BYPASS and SWITCHCTRL_HP settings from caller */
 		switchctrl &= (SWITCHCTRL_AMP_BYPASS | SWITCHCTRL_HP | SWITCHCTRL_MIX_BYPASS);
-		if ((switchctrl & SWITCHCTRL_AMP_BYPASS) == SWITCHCTRL_AMP_BYPASS)
+		if (switchctrl & SWITCHCTRL_AMP_BYPASS)
 			switchctrl |= SWITCHCTRL_NO_RX_AMP_PWR;
 		switchctrl |= SWITCHCTRL_NO_TX_AMP_PWR;
 		rffc5071_set_gpo(switchctrl);
-#endif
 		
-#ifdef JAWBREAKER
 		/* honor SWITCHCTRL_MIX_BYPASS setting from caller */
-		if ((switchctrl & SWITCHCTRL_MIX_BYPASS) == SWITCHCTRL_MIX_BYPASS)
+		if (switchctrl & SWITCHCTRL_MIX_BYPASS)
 			rffc5071_disable();
 		else
 #endif
@@ -120,15 +118,13 @@ void update_switches(void)
 #ifdef JAWBREAKER
 		/* honor SWITCHCTRL_AMP_BYPASS and SWITCHCTRL_HP settings from caller */
 		switchctrl &= (SWITCHCTRL_AMP_BYPASS | SWITCHCTRL_HP | SWITCHCTRL_MIX_BYPASS);
-		if ((switchctrl & SWITCHCTRL_AMP_BYPASS) == SWITCHCTRL_AMP_BYPASS)
+		if (switchctrl & SWITCHCTRL_AMP_BYPASS)
 			switchctrl |= SWITCHCTRL_NO_TX_AMP_PWR;
 		switchctrl |= (SWITCHCTRL_TX | SWITCHCTRL_NO_RX_AMP_PWR);
 		rffc5071_set_gpo(switchctrl);
-#endif
 		
-#ifdef JAWBREAKER
 		/* honor SWITCHCTRL_MIX_BYPASS setting from caller */
-		if ((switchctrl & SWITCHCTRL_MIX_BYPASS) == SWITCHCTRL_MIX_BYPASS)
+		if (switchctrl & SWITCHCTRL_MIX_BYPASS)
 			rffc5071_disable();
 		else
 #endif
