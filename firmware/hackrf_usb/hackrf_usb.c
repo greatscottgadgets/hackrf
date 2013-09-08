@@ -45,7 +45,7 @@
 #include "usb_descriptor.h"
 #include "usb_standard_request.h"
 
-static transceiver_mode_t transceiver_mode = TRANSCEIVER_MODE_OFF;
+static volatile transceiver_mode_t transceiver_mode = TRANSCEIVER_MODE_OFF;
 
 void sgpio_isr_rx();
 void sgpio_isr_tx();
