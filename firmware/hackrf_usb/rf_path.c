@@ -77,6 +77,11 @@ void rf_path_set_direction(const rf_path_direction_t direction) {
 			switchctrl &= ~SWITCHCTRL_NO_TX_AMP_PWR;
 		}
 		rffc5071_tx();
+		if( switchctrl & SWITCHCTRL_MIX_BYPASS ) {
+			rffc5071_disable();
+		} else {
+			rffc5071_enable();
+		}
 		break;
 	
 	case RF_PATH_DIRECTION_RX:
@@ -86,6 +91,11 @@ void rf_path_set_direction(const rf_path_direction_t direction) {
 			switchctrl &= ~SWITCHCTRL_NO_RX_AMP_PWR;
 		}
 		rffc5071_rx();
+		if( switchctrl & SWITCHCTRL_MIX_BYPASS ) {
+			rffc5071_disable();
+		} else {
+			rffc5071_enable();
+		}
 		break;
 		
 	case RF_PATH_DIRECTION_OFF:
