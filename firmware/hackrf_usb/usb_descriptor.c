@@ -72,7 +72,7 @@ uint8_t usb_descriptor_configuration_full_speed[] = {
 	USB_WORD(32),				// wTotalLength
 	0x01,					// bNumInterfaces
 	0x01,					// bConfigurationValue
-	0x00,					// iConfiguration
+	0x03,					// iConfiguration
 	0x80,					// bmAttributes: USB-powered
 	250,					// bMaxPower: 500mA
 
@@ -109,7 +109,7 @@ uint8_t usb_descriptor_configuration_high_speed[] = {
 	USB_WORD(32),						// wTotalLength
 	0x01,							// bNumInterfaces
 	0x01,							// bConfigurationValue
-	0x00,							// iConfiguration
+	0x03,							// iConfiguration
 	0x80,							// bmAttributes: USB-powered
 	250,							// bMaxPower: 500mA
 
@@ -181,10 +181,27 @@ uint8_t usb_descriptor_string_product[] = {
 	'F', 0x00,
 };
 
+uint8_t usb_descriptor_string_config1_description[] = {
+	24,						// bLength
+	USB_DESCRIPTOR_TYPE_STRING,		// bDescriptorType
+	'T', 0x00,
+	'r', 0x00,
+	'a', 0x00,
+	'n', 0x00,
+	's', 0x00,
+	'c', 0x00,
+	'e', 0x00,
+	'i', 0x00,
+	'v', 0x00,
+	'e', 0x00,
+	'r', 0x00,
+};
+
 uint8_t* const usb_descriptor_strings[] = {
 	usb_descriptor_string_languages,
 	usb_descriptor_string_manufacturer,
 	usb_descriptor_string_product,
+	usb_descriptor_string_config1_description,
 	
 	0,		// TERMINATOR
 };
