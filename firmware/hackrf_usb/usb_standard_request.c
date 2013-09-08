@@ -27,6 +27,7 @@
 #include "usb.h"
 #include "usb_type.h"
 #include "usb_descriptor.h"
+#include "usb_queue.h"
 
 const uint8_t* usb_endpoint_descriptor(
 	const usb_endpoint_t* const endpoint
@@ -99,9 +100,11 @@ bool usb_set_configuration(
 	if( new_configuration != device->configuration ) {
 		// Configuration changed.
 		device->configuration = new_configuration;
-		if (usb_configuration_changed_cb)
-			usb_configuration_changed_cb(device);
 	}
+
+	if (usb_configuration_changed_cb)
+		usb_configuration_changed_cb(device);
+
 	return true;
 }
 	
@@ -114,12 +117,13 @@ static usb_request_status_t usb_send_descriptor(
 	if( descriptor_data[1] == USB_DESCRIPTOR_TYPE_CONFIGURATION ) {
 		descriptor_length = (descriptor_data[3] << 8) | descriptor_data[2];
 	}
-	usb_endpoint_schedule(
+	usb_transfer_schedule_block(
 		endpoint->in,
 		descriptor_data,
-	 	(setup_length > descriptor_length) ? descriptor_length : setup_length
+	 	(setup_length > descriptor_length) ? descriptor_length : setup_length,
+		NULL, NULL
 	);
-	usb_endpoint_schedule_ack(endpoint->out);
+	usb_transfer_schedule_ack(endpoint->out);
 	return USB_REQUEST_STATUS_OK;
 }
 
@@ -195,7 +199,7 @@ static usb_request_status_t usb_standard_request_set_address_setup(
 	usb_endpoint_t* const endpoint
 ) {
 	usb_set_address_deferred(endpoint->device, endpoint->setup.value_l);
-	usb_endpoint_schedule_ack(endpoint->in);
+	usb_transfer_schedule_ack(endpoint->in);
 	return USB_REQUEST_STATUS_OK;
 }
 
@@ -231,7 +235,7 @@ static usb_request_status_t usb_standard_request_set_configuration_setup(
 			// TODO: Should this be done immediately?
 			usb_set_address_immediate(endpoint->device, 0);
 		}
-		usb_endpoint_schedule_ack(endpoint->in);
+		usb_transfer_schedule_ack(endpoint->in);
 		return USB_REQUEST_STATUS_OK;
 	} else {
 		return USB_REQUEST_STATUS_STALL;
@@ -265,8 +269,8 @@ static usb_request_status_t usb_standard_request_get_configuration_setup(
 		if( endpoint->device->configuration ) {
 			endpoint->buffer[0] = endpoint->device->configuration->number;
 		}
-		usb_endpoint_schedule(endpoint->in, &endpoint->buffer, 1);
-		usb_endpoint_schedule_ack(endpoint->out);
+		usb_transfer_schedule_block(endpoint->in, &endpoint->buffer, 1, NULL, NULL);
+		usb_transfer_schedule_ack(endpoint->out);
 		return USB_REQUEST_STATUS_OK;
 	} else {
 		return USB_REQUEST_STATUS_STALL;
