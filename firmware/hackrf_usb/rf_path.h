@@ -28,6 +28,7 @@
 void rf_path_init(void);
 
 typedef enum {
+	RF_PATH_DIRECTION_OFF,
 	RF_PATH_DIRECTION_RX,
 	RF_PATH_DIRECTION_TX,
 } rf_path_direction_t;

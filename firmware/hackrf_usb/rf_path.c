@@ -87,6 +87,13 @@ void rf_path_set_direction(const rf_path_direction_t direction) {
 		}
 		rffc5071_rx();
 		break;
+		
+	case RF_PATH_DIRECTION_OFF:
+	default:
+		/* Set RF path to receive direction when "off" */
+		switchctrl &= ~SWITCHCTRL_TX;
+		rffc5071_disable();
+		break;
 	}
 	
 	rffc5071_set_gpo(switchctrl);
