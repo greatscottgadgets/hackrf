@@ -69,20 +69,24 @@ void rf_path_init(void) {
 void rf_path_set_direction(const rf_path_direction_t direction) {
 	/* Turn off TX and RX amplifiers, then enable based on direction and bypass state. */
 	switchctrl |= SWITCHCTRL_NO_TX_AMP_PWR | SWITCHCTRL_NO_RX_AMP_PWR;
-	if( direction == RF_PATH_DIRECTION_TX ) {
+	switch(direction) {
+	case RF_PATH_DIRECTION_TX:
 		switchctrl |= SWITCHCTRL_TX;
 		if( (switchctrl & SWITCHCTRL_AMP_BYPASS) == 0 ) {
 			/* TX amplifier is in path, be sure to enable TX amplifier. */
 			switchctrl &= ~SWITCHCTRL_NO_TX_AMP_PWR;
 		}
 		rffc5071_tx();
-	} else {
+		break;
+	
+	case RF_PATH_DIRECTION_RX:
 		switchctrl &= ~SWITCHCTRL_TX;
 		if( (switchctrl & SWITCHCTRL_AMP_BYPASS) == 0 ) {
 			/* RX amplifier is in path, be sure to enable RX amplifier. */
 			switchctrl &= ~SWITCHCTRL_NO_RX_AMP_PWR;
 		}
 		rffc5071_rx();
+		break;
 	}
 	
 	rffc5071_set_gpo(switchctrl);
