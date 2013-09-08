@@ -117,41 +117,79 @@ set_sample_r_params_t set_sample_r_params;
 
 uint8_t switchctrl = SWITCHCTRL_SAFE;
 
-void update_switches(void)
-{
-	if (transceiver_mode == TRANSCEIVER_MODE_RX) {
-		rffc5071_rx();
-#ifdef JAWBREAKER
-		/* honor SWITCHCTRL_AMP_BYPASS and SWITCHCTRL_HP settings from caller */
-		switchctrl &= (SWITCHCTRL_AMP_BYPASS | SWITCHCTRL_HP | SWITCHCTRL_MIX_BYPASS);
-		if (switchctrl & SWITCHCTRL_AMP_BYPASS)
-			switchctrl |= SWITCHCTRL_NO_RX_AMP_PWR;
-		switchctrl |= SWITCHCTRL_NO_TX_AMP_PWR;
-		rffc5071_set_gpo(switchctrl);
-		
-		/* honor SWITCHCTRL_MIX_BYPASS setting from caller */
-		if (switchctrl & SWITCHCTRL_MIX_BYPASS)
-			rffc5071_disable();
-		else
-#endif
-			rffc5071_enable();
-	} else if (transceiver_mode == TRANSCEIVER_MODE_TX) {
+typedef enum {
+	RF_PATH_DIRECTION_RX,
+	RF_PATH_DIRECTION_TX,
+} rf_path_direction_t;
+
+void rf_path_set_direction(const rf_path_direction_t direction) {
+	/* Turn off TX and RX amplifiers, then enable based on direction and bypass state. */
+	switchctrl |= SWITCHCTRL_NO_TX_AMP_PWR | SWITCHCTRL_NO_RX_AMP_PWR;
+	if( direction == RF_PATH_DIRECTION_TX ) {
+		switchctrl |= SWITCHCTRL_TX;
+		if( (switchctrl & SWITCHCTRL_AMP_BYPASS) == 0 ) {
+			/* TX amplifier is in path, be sure to enable TX amplifier. */
+			switchctrl &= ~SWITCHCTRL_NO_TX_AMP_PWR;
+		}
 		rffc5071_tx();
-#ifdef JAWBREAKER
-		/* honor SWITCHCTRL_AMP_BYPASS and SWITCHCTRL_HP settings from caller */
-		switchctrl &= (SWITCHCTRL_AMP_BYPASS | SWITCHCTRL_HP | SWITCHCTRL_MIX_BYPASS);
-		if (switchctrl & SWITCHCTRL_AMP_BYPASS)
-			switchctrl |= SWITCHCTRL_NO_TX_AMP_PWR;
-		switchctrl |= (SWITCHCTRL_TX | SWITCHCTRL_NO_RX_AMP_PWR);
-		rffc5071_set_gpo(switchctrl);
-		
-		/* honor SWITCHCTRL_MIX_BYPASS setting from caller */
-		if (switchctrl & SWITCHCTRL_MIX_BYPASS)
-			rffc5071_disable();
-		else
-#endif
-			rffc5071_enable();
+	} else {
+		switchctrl &= ~SWITCHCTRL_TX;
+		if( (switchctrl & SWITCHCTRL_AMP_BYPASS) == 0 ) {
+			/* RX amplifier is in path, be sure to enable RX amplifier. */
+			switchctrl &= ~SWITCHCTRL_NO_RX_AMP_PWR;
+		}
+		rffc5071_rx();
 	}
+	
+	rffc5071_set_gpo(switchctrl);
+}
+
+typedef enum {
+	RF_PATH_FILTER_BYPASS,
+	RF_PATH_FILTER_LOW_PASS,
+	RF_PATH_FILTER_HIGH_PASS,
+} rf_path_filter_t;
+
+void rf_path_set_filter(const rf_path_filter_t filter) {
+	switch(filter) {
+	default:
+	case RF_PATH_FILTER_BYPASS:
+		switchctrl |= SWITCHCTRL_MIX_BYPASS;
+		rffc5071_disable();
+		break;
+		
+	case RF_PATH_FILTER_LOW_PASS:
+		switchctrl &= ~(SWITCHCTRL_HP | SWITCHCTRL_MIX_BYPASS);
+		rffc5071_enable();
+		break;
+		
+	case RF_PATH_FILTER_HIGH_PASS:
+		switchctrl &= ~SWITCHCTRL_MIX_BYPASS;
+		switchctrl |= SWITCHCTRL_HP;
+		rffc5071_enable();
+		break;
+	}
+	
+	rffc5071_set_gpo(switchctrl);
+}
+
+void rf_path_set_lna(const uint_fast8_t enable) {
+	if( enable ) {
+		if( switchctrl & SWITCHCTRL_TX ) {
+			/* AMP_BYPASS=0, NO_RX_AMP_PWR=1, NO_TX_AMP_PWR=0 */
+			switchctrl |= SWITCHCTRL_NO_RX_AMP_PWR;
+			switchctrl &= ~(SWITCHCTRL_AMP_BYPASS | SWITCHCTRL_NO_TX_AMP_PWR);
+		} else {
+			/* AMP_BYPASS=0, NO_RX_AMP_PWR=0, NO_TX_AMP_PWR=1 */
+			switchctrl |= SWITCHCTRL_NO_TX_AMP_PWR;
+			switchctrl &= ~(SWITCHCTRL_AMP_BYPASS | SWITCHCTRL_NO_RX_AMP_PWR);
+		}
+	} else {
+		/* AMP_BYPASS=1, NO_RX_AMP_PWR=1, NO_TX_AMP_PWR=1 */
+		switchctrl |= SWITCHCTRL_AMP_BYPASS | SWITCHCTRL_NO_TX_AMP_PWR | SWITCHCTRL_NO_RX_AMP_PWR;
+	}
+	
+	rffc5071_set_gpo(switchctrl);
 }
 
 #define FREQ_ONE_MHZ     (1000*1000)
@@ -190,8 +228,6 @@ bool set_freq(uint32_t freq_mhz, uint32_t freq_hz)
 	{
 		if(freq_mhz < MAX_LP_FREQ_MHZ)
 		{
-			switchctrl &= ~(SWITCHCTRL_HP | SWITCHCTRL_MIX_BYPASS);
-
 			RFFC5071_freq_mhz = MAX2837_FREQ_NOMINAL_MHZ - freq_mhz;
 			/* Set Freq and read real freq */
 			real_RFFC5071_freq_hz = rffc5071_set_frequency(RFFC5071_freq_mhz);
@@ -204,20 +240,15 @@ bool set_freq(uint32_t freq_mhz, uint32_t freq_hz)
 			}
 			MAX2837_freq_hz = max2837_freq_nominal_hz + tmp_hz + freq_hz;
 			max2837_set_frequency(MAX2837_freq_hz);
-			update_switches();
+			rf_path_set_filter(RF_PATH_FILTER_LOW_PASS);
 		}else if( (freq_mhz >= MIN_BYPASS_FREQ_MHZ) && (freq_mhz < MAX_BYPASS_FREQ_MHZ) )
 		{
-			switchctrl |= SWITCHCTRL_MIX_BYPASS;
-
 			MAX2837_freq_hz = (freq_mhz * FREQ_ONE_MHZ) + freq_hz;
 			/* RFFC5071_freq_mhz <= not used in Bypass mode */
 			max2837_set_frequency(MAX2837_freq_hz);
-			update_switches();
+			rf_path_set_filter(RF_PATH_FILTER_BYPASS);
 		}else if(  (freq_mhz >= MIN_HP_FREQ_MHZ) && (freq_mhz < MAX_HP_FREQ_MHZ) )
 		{
-			switchctrl &= ~SWITCHCTRL_MIX_BYPASS;
-			switchctrl |= SWITCHCTRL_HP;
-
 			RFFC5071_freq_mhz = freq_mhz - MAX2837_FREQ_NOMINAL_MHZ;
 			/* Set Freq and read real freq */
 			real_RFFC5071_freq_hz = rffc5071_set_frequency(RFFC5071_freq_mhz);
@@ -230,7 +261,7 @@ bool set_freq(uint32_t freq_mhz, uint32_t freq_hz)
 			}
 			MAX2837_freq_hz = max2837_freq_nominal_hz + tmp_hz + freq_hz;
 			max2837_set_frequency(MAX2837_freq_hz);
-			update_switches();
+			rf_path_set_filter(RF_PATH_FILTER_HIGH_PASS);
 		}else
 		{
 			/* Error freq_mhz too high */
@@ -388,7 +419,7 @@ void set_transceiver_mode(const transceiver_mode_t new_transceiver_mode) {
 		gpio_set(PORT_LED1_3, PIN_LED2);
 		usb_endpoint_init(&usb_endpoint_bulk_in);
 
-		update_switches();
+		rf_path_set_direction(RF_PATH_DIRECTION_RX);
 		//rffc5071_set_frequency(1700, 0); // 2600 MHz IF - 1700 MHz LO = 900 MHz RF
 		max2837_start();
 		max2837_rx();
@@ -397,7 +428,7 @@ void set_transceiver_mode(const transceiver_mode_t new_transceiver_mode) {
 		gpio_set(PORT_LED1_3, PIN_LED3);
 		usb_endpoint_init(&usb_endpoint_bulk_out);
 
-		update_switches();
+		rf_path_set_direction(RF_PATH_DIRECTION_TX);
 		//rffc5071_set_frequency(1700, 0); // 2600 MHz IF - 1700 MHz LO = 900 MHz RF
 		max2837_start();
 		max2837_tx();
@@ -807,13 +838,11 @@ usb_request_status_t usb_vendor_request_set_amp_enable(
 	if (stage == USB_TRANSFER_STAGE_SETUP) {
 		switch (endpoint->setup.value) {
 		case 0:
-			switchctrl |= SWITCHCTRL_AMP_BYPASS;
-			update_switches();
+			rf_path_set_lna(0);
 			usb_endpoint_schedule_ack(endpoint->in);
 			return USB_REQUEST_STATUS_OK;
 		case 1:
-			switchctrl &= ~SWITCHCTRL_AMP_BYPASS;
-			update_switches();
+			rf_path_set_lna(1);
 			usb_endpoint_schedule_ack(endpoint->in);
 			return USB_REQUEST_STATUS_OK;
 		default:
