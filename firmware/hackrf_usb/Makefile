@@ -25,6 +25,8 @@ BINARY = hackrf_usb
 SRC = $(BINARY).c \
 	rf_path.c \
 	tuning.c \
+	sgpio_isr.c \
+	usb_bulk_buffer.c \
 	usb.c \
 	usb_request.c \
 	usb_standard_request.c \

@@ -47,15 +47,10 @@
 
 #include "rf_path.h"
 #include "tuning.h"
+#include "sgpio_isr.h"
+#include "usb_bulk_buffer.h"
 
 static volatile transceiver_mode_t transceiver_mode = TRANSCEIVER_MODE_OFF;
-
-void sgpio_isr_rx();
-void sgpio_isr_tx();
-
-uint8_t* const usb_bulk_buffer = (uint8_t*)0x20004000;
-static volatile uint32_t usb_bulk_buffer_offset = 0;
-static const uint32_t usb_bulk_buffer_mask = 32768 - 1;
 
 usb_transfer_descriptor_t usb_td_bulk[2] ATTR_ALIGNED(64);
 const uint_fast8_t usb_td_bulk_count = sizeof(usb_td_bulk) / sizeof(usb_td_bulk[0]);
@@ -806,72 +801,6 @@ void usb_configuration_changed(
 		cpu_clock_pll1_low_speed();
 		gpio_clear(PORT_LED1_3, PIN_LED1);
 	}
-}
-
-void sgpio_isr_rx() {
-	SGPIO_CLR_STATUS_1 = (1 << SGPIO_SLICE_A);
-
-	uint32_t* const p = (uint32_t*)&usb_bulk_buffer[usb_bulk_buffer_offset];
-	__asm__(
-		"ldr r0, [%[SGPIO_REG_SS], #44]\n\t"
-		"rev16 r0, r0\n\t" /* Swap QI -> IQ */
-		"str r0, [%[p], #0]\n\t"
-		"ldr r0, [%[SGPIO_REG_SS], #20]\n\t"
-		"rev16 r0, r0\n\t" /* Swap QI -> IQ */
-		"str r0, [%[p], #4]\n\t"
-		"ldr r0, [%[SGPIO_REG_SS], #40]\n\t"
-		"rev16 r0, r0\n\t" /* Swap QI -> IQ */
-		"str r0, [%[p], #8]\n\t"
-		"ldr r0, [%[SGPIO_REG_SS], #8]\n\t"
-		"rev16 r0, r0\n\t" /* Swap QI -> IQ */
-		"str r0, [%[p], #12]\n\t"
-		"ldr r0, [%[SGPIO_REG_SS], #36]\n\t"
-		"rev16 r0, r0\n\t" /* Swap QI -> IQ */
-		"str r0, [%[p], #16]\n\t"
-		"ldr r0, [%[SGPIO_REG_SS], #16]\n\t"
-		"rev16 r0, r0\n\t" /* Swap QI -> IQ */
-		"str r0, [%[p], #20]\n\t"
-		"ldr r0, [%[SGPIO_REG_SS], #32]\n\t"
-		"rev16 r0, r0\n\t" /* Swap QI -> IQ */
-		"str r0, [%[p], #24]\n\t"
-		"ldr r0, [%[SGPIO_REG_SS], #0]\n\t"
-		"rev16 r0, r0\n\t" /* Swap QI -> IQ */
-		"str r0, [%[p], #28]\n\t"
-		:
-		: [SGPIO_REG_SS] "l" (SGPIO_PORT_BASE + 0x100),
-		  [p] "l" (p)
-		: "r0"
-	);
-	usb_bulk_buffer_offset = (usb_bulk_buffer_offset + 32) & usb_bulk_buffer_mask;
-}
-
-void sgpio_isr_tx() {
-	SGPIO_CLR_STATUS_1 = (1 << SGPIO_SLICE_A);
-
-	uint32_t* const p = (uint32_t*)&usb_bulk_buffer[usb_bulk_buffer_offset];
-	__asm__(
-		"ldr r0, [%[p], #0]\n\t"
-		"str r0, [%[SGPIO_REG_SS], #44]\n\t"
-		"ldr r0, [%[p], #4]\n\t"
-		"str r0, [%[SGPIO_REG_SS], #20]\n\t"
-		"ldr r0, [%[p], #8]\n\t"
-		"str r0, [%[SGPIO_REG_SS], #40]\n\t"
-		"ldr r0, [%[p], #12]\n\t"
-		"str r0, [%[SGPIO_REG_SS], #8]\n\t"
-		"ldr r0, [%[p], #16]\n\t"
-		"str r0, [%[SGPIO_REG_SS], #36]\n\t"
-		"ldr r0, [%[p], #20]\n\t"
-		"str r0, [%[SGPIO_REG_SS], #16]\n\t"
-		"ldr r0, [%[p], #24]\n\t"
-		"str r0, [%[SGPIO_REG_SS], #32]\n\t"
-		"ldr r0, [%[p], #28]\n\t"
-		"str r0, [%[SGPIO_REG_SS], #0]\n\t"
-		:
-		: [SGPIO_REG_SS] "l" (SGPIO_PORT_BASE + 0x100),
-		  [p] "l" (p)
-		: "r0"
-	);
-	usb_bulk_buffer_offset = (usb_bulk_buffer_offset + 32) & usb_bulk_buffer_mask;
 }
 
 int main(void) {

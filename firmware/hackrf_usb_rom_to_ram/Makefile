@@ -27,6 +27,8 @@ SRC_DIR = hackrf_usb
 SRC = hackrf_usb.c \
 	rf_path.c \
 	tuning.c \
+	sgpio_isr.c \
+	usb_bulk_buffer.c \
 	usb.c \
 	usb_request.c \
 	usb_standard_request.c \
