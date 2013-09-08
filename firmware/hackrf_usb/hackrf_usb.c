@@ -790,13 +790,13 @@ const usb_request_handlers_t usb_request_handlers = {
 void usb_configuration_changed(
 	usb_device_t* const device
 ) {
+	/* Reset transceiver to idle state until other commands are received */
+	set_transceiver_mode(TRANSCEIVER_MODE_OFF);
 	if( device->configuration->number ) {
 		cpu_clock_pll1_max_speed();
-		set_transceiver_mode(transceiver_mode);
 		gpio_set(PORT_LED1_3, PIN_LED1);
 	} else {
 		/* Configuration number equal 0 means usb bus reset. */
-		set_transceiver_mode(TRANSCEIVER_MODE_OFF);
 		cpu_clock_pll1_low_speed();
 		gpio_clear(PORT_LED1_3, PIN_LED1);
 	}
