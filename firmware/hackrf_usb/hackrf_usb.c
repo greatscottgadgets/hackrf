@@ -22,6 +22,8 @@
 
 #include <string.h>
 
+#include <libopencm3/cm3/vector.h>
+
 #include <libopencm3/lpc43xx/cgu.h>
 #include <libopencm3/lpc43xx/gpio.h>
 #include <libopencm3/lpc43xx/m4/nvic.h>
@@ -43,7 +45,10 @@
 #include "usb_descriptor.h"
 #include "usb_standard_request.h"
 
-static volatile transceiver_mode_t transceiver_mode = TRANSCEIVER_MODE_OFF;
+static transceiver_mode_t transceiver_mode = TRANSCEIVER_MODE_OFF;
+
+void sgpio_isr_rx();
+void sgpio_isr_tx();
 
 uint8_t* const usb_bulk_buffer = (uint8_t*)0x20004000;
 static volatile uint32_t usb_bulk_buffer_offset = 0;
@@ -406,6 +411,12 @@ void set_transceiver_mode(const transceiver_mode_t new_transceiver_mode) {
 	sgpio_configure(transceiver_mode, true);
 
 	if( transceiver_mode != TRANSCEIVER_MODE_OFF ) {
+		vector_table_entry_t sgpio_isr_fn = sgpio_isr_rx;
+		if( transceiver_mode == TRANSCEIVER_MODE_TX ) {
+			sgpio_isr_fn = sgpio_isr_tx;
+		}
+		vector_table.irq[NVIC_SGPIO_IRQ] = sgpio_isr_fn;
+		
 		nvic_set_priority(NVIC_SGPIO_IRQ, 0);
 		nvic_enable_irq(NVIC_SGPIO_IRQ);
 		SGPIO_SET_EN_1 = (1 << SGPIO_SLICE_A);
@@ -973,66 +984,69 @@ void usb_configuration_changed(
 	}
 }
 
-void sgpio_isr() {
+void sgpio_isr_rx() {
 	SGPIO_CLR_STATUS_1 = (1 << SGPIO_SLICE_A);
 
 	uint32_t* const p = (uint32_t*)&usb_bulk_buffer[usb_bulk_buffer_offset];
-	if( transceiver_mode == TRANSCEIVER_MODE_RX ) {
-		__asm__(
-			"ldr r0, [%[SGPIO_REG_SS], #44]\n\t"
-			"rev16 r0, r0\n\t" /* Swap QI -> IQ */
-			"str r0, [%[p], #0]\n\t"
-			"ldr r0, [%[SGPIO_REG_SS], #20]\n\t"
-			"rev16 r0, r0\n\t" /* Swap QI -> IQ */
-			"str r0, [%[p], #4]\n\t"
-			"ldr r0, [%[SGPIO_REG_SS], #40]\n\t"
-			"rev16 r0, r0\n\t" /* Swap QI -> IQ */
-			"str r0, [%[p], #8]\n\t"
-			"ldr r0, [%[SGPIO_REG_SS], #8]\n\t"
-			"rev16 r0, r0\n\t" /* Swap QI -> IQ */
-			"str r0, [%[p], #12]\n\t"
-			"ldr r0, [%[SGPIO_REG_SS], #36]\n\t"
-			"rev16 r0, r0\n\t" /* Swap QI -> IQ */
-			"str r0, [%[p], #16]\n\t"
-			"ldr r0, [%[SGPIO_REG_SS], #16]\n\t"
-			"rev16 r0, r0\n\t" /* Swap QI -> IQ */
-			"str r0, [%[p], #20]\n\t"
-			"ldr r0, [%[SGPIO_REG_SS], #32]\n\t"
-			"rev16 r0, r0\n\t" /* Swap QI -> IQ */
-			"str r0, [%[p], #24]\n\t"
-			"ldr r0, [%[SGPIO_REG_SS], #0]\n\t"
-			"rev16 r0, r0\n\t" /* Swap QI -> IQ */
-			"str r0, [%[p], #28]\n\t"
-			:
-			: [SGPIO_REG_SS] "l" (SGPIO_PORT_BASE + 0x100),
-			  [p] "l" (p)
-			: "r0"
-		);
-	} else {
-		__asm__(
-			"ldr r0, [%[p], #0]\n\t"
-			"str r0, [%[SGPIO_REG_SS], #44]\n\t"
-			"ldr r0, [%[p], #4]\n\t"
-			"str r0, [%[SGPIO_REG_SS], #20]\n\t"
-			"ldr r0, [%[p], #8]\n\t"
-			"str r0, [%[SGPIO_REG_SS], #40]\n\t"
-			"ldr r0, [%[p], #12]\n\t"
-			"str r0, [%[SGPIO_REG_SS], #8]\n\t"
-			"ldr r0, [%[p], #16]\n\t"
-			"str r0, [%[SGPIO_REG_SS], #36]\n\t"
-			"ldr r0, [%[p], #20]\n\t"
-			"str r0, [%[SGPIO_REG_SS], #16]\n\t"
-			"ldr r0, [%[p], #24]\n\t"
-			"str r0, [%[SGPIO_REG_SS], #32]\n\t"
-			"ldr r0, [%[p], #28]\n\t"
-			"str r0, [%[SGPIO_REG_SS], #0]\n\t"
-			:
-			: [SGPIO_REG_SS] "l" (SGPIO_PORT_BASE + 0x100),
-			  [p] "l" (p)
-			: "r0"
-		);
-	}
-	
+	__asm__(
+		"ldr r0, [%[SGPIO_REG_SS], #44]\n\t"
+		"rev16 r0, r0\n\t" /* Swap QI -> IQ */
+		"str r0, [%[p], #0]\n\t"
+		"ldr r0, [%[SGPIO_REG_SS], #20]\n\t"
+		"rev16 r0, r0\n\t" /* Swap QI -> IQ */
+		"str r0, [%[p], #4]\n\t"
+		"ldr r0, [%[SGPIO_REG_SS], #40]\n\t"
+		"rev16 r0, r0\n\t" /* Swap QI -> IQ */
+		"str r0, [%[p], #8]\n\t"
+		"ldr r0, [%[SGPIO_REG_SS], #8]\n\t"
+		"rev16 r0, r0\n\t" /* Swap QI -> IQ */
+		"str r0, [%[p], #12]\n\t"
+		"ldr r0, [%[SGPIO_REG_SS], #36]\n\t"
+		"rev16 r0, r0\n\t" /* Swap QI -> IQ */
+		"str r0, [%[p], #16]\n\t"
+		"ldr r0, [%[SGPIO_REG_SS], #16]\n\t"
+		"rev16 r0, r0\n\t" /* Swap QI -> IQ */
+		"str r0, [%[p], #20]\n\t"
+		"ldr r0, [%[SGPIO_REG_SS], #32]\n\t"
+		"rev16 r0, r0\n\t" /* Swap QI -> IQ */
+		"str r0, [%[p], #24]\n\t"
+		"ldr r0, [%[SGPIO_REG_SS], #0]\n\t"
+		"rev16 r0, r0\n\t" /* Swap QI -> IQ */
+		"str r0, [%[p], #28]\n\t"
+		:
+		: [SGPIO_REG_SS] "l" (SGPIO_PORT_BASE + 0x100),
+		  [p] "l" (p)
+		: "r0"
+	);
+	usb_bulk_buffer_offset = (usb_bulk_buffer_offset + 32) & usb_bulk_buffer_mask;
+}
+
+void sgpio_isr_tx() {
+	SGPIO_CLR_STATUS_1 = (1 << SGPIO_SLICE_A);
+
+	uint32_t* const p = (uint32_t*)&usb_bulk_buffer[usb_bulk_buffer_offset];
+	__asm__(
+		"ldr r0, [%[p], #0]\n\t"
+		"str r0, [%[SGPIO_REG_SS], #44]\n\t"
+		"ldr r0, [%[p], #4]\n\t"
+		"str r0, [%[SGPIO_REG_SS], #20]\n\t"
+		"ldr r0, [%[p], #8]\n\t"
+		"str r0, [%[SGPIO_REG_SS], #40]\n\t"
+		"ldr r0, [%[p], #12]\n\t"
+		"str r0, [%[SGPIO_REG_SS], #8]\n\t"
+		"ldr r0, [%[p], #16]\n\t"
+		"str r0, [%[SGPIO_REG_SS], #36]\n\t"
+		"ldr r0, [%[p], #20]\n\t"
+		"str r0, [%[SGPIO_REG_SS], #16]\n\t"
+		"ldr r0, [%[p], #24]\n\t"
+		"str r0, [%[SGPIO_REG_SS], #32]\n\t"
+		"ldr r0, [%[p], #28]\n\t"
+		"str r0, [%[SGPIO_REG_SS], #0]\n\t"
+		:
+		: [SGPIO_REG_SS] "l" (SGPIO_PORT_BASE + 0x100),
+		  [p] "l" (p)
+		: "r0"
+	);
 	usb_bulk_buffer_offset = (usb_bulk_buffer_offset + 32) & usb_bulk_buffer_mask;
 }
 
