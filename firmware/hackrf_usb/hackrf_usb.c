@@ -864,15 +864,17 @@ static void cpld_update(void)
 void usb_configuration_changed(
 	usb_device_t* const device
 ) {
-	set_transceiver_mode(transceiver_mode);
-	
 	if( device->configuration->number == 1 ) {
-		// transceiver mode
+		// transceiver configuration
+		set_transceiver_mode(transceiver_mode);
 		gpio_set(PORT_LED1_3, PIN_LED1);
 	} else if( device->configuration->number == 2 ) {
-		// CPLD update mode
+		// CPLD update configuration
+		set_transceiver_mode(TRANSCEIVER_MODE_OFF);
+		usb_endpoint_init(&usb_endpoint_bulk_out);
 		start_cpld_update = true;
 	} else {
+		set_transceiver_mode(TRANSCEIVER_MODE_OFF);
 		gpio_clear(PORT_LED1_3, PIN_LED1);
 	}
 };
