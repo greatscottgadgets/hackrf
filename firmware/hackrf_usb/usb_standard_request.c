@@ -110,16 +110,17 @@ bool usb_set_configuration(
 	
 static usb_request_status_t usb_send_descriptor(
 	usb_endpoint_t* const endpoint,
-	uint8_t* const descriptor_data
+	const uint8_t* const descriptor_data
 ) {
 	const uint32_t setup_length = endpoint->setup.length;
 	uint32_t descriptor_length = descriptor_data[0];
 	if( descriptor_data[1] == USB_DESCRIPTOR_TYPE_CONFIGURATION ) {
 		descriptor_length = (descriptor_data[3] << 8) | descriptor_data[2];
 	}
+	// We cast the const away but this shouldn't be a problem as this is a write transfer
 	usb_transfer_schedule_block(
 		endpoint->in,
-		descriptor_data,
+		(uint8_t* const) descriptor_data,
 	 	(setup_length > descriptor_length) ? descriptor_length : setup_length,
 		NULL, NULL
 	);
