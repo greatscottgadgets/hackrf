@@ -978,16 +978,16 @@ int main(void) {
 	switchctrl = SWITCHCTRL_AMP_BYPASS;
 #endif
 
+	unsigned int phase = 0;
 	while(true) {
 		// Check whether we need to initiate a CPLD update
 		if (start_cpld_update)
 			cpld_update();
 
-		// Wait until buffer 0 is transmitted/received.
-		while( usb_bulk_buffer_offset < 16384 );
-
 		// Set up IN transfer of buffer 0.
-		if (transceiver_mode != TRANSCEIVER_MODE_OFF) {
+		if ( usb_bulk_buffer_offset >= 16384
+		     && phase == 1
+		     && transceiver_mode != TRANSCEIVER_MODE_OFF) {
 			usb_transfer_schedule_block(
 				(transceiver_mode == TRANSCEIVER_MODE_RX)
 				? &usb_endpoint_bulk_in : &usb_endpoint_bulk_out,
@@ -995,13 +995,13 @@ int main(void) {
 				0x4000,
 				NULL, NULL
 				);
+			phase = 0;
 		}
 	
-		// Wait until buffer 1 is transmitted/received.
-		while( usb_bulk_buffer_offset >= 16384 );
-
 		// Set up IN transfer of buffer 1.
-		if (transceiver_mode != TRANSCEIVER_MODE_OFF) {
+		if ( usb_bulk_buffer_offset < 16384
+		     && phase == 0
+		     && transceiver_mode != TRANSCEIVER_MODE_OFF) {
 			usb_transfer_schedule_block(
 				(transceiver_mode == TRANSCEIVER_MODE_RX)
 				? &usb_endpoint_bulk_in : &usb_endpoint_bulk_out,
@@ -1009,6 +1009,7 @@ int main(void) {
 				0x4000,
 				NULL, NULL
 			);
+			phase = 1;
 		}
 	}
 	
