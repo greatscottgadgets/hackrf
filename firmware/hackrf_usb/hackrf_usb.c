@@ -53,6 +53,7 @@ static const uint32_t usb_bulk_buffer_mask = 32768 - 1;
 usb_transfer_descriptor_t usb_td_bulk[2] ATTR_ALIGNED(64);
 const uint_fast8_t usb_td_bulk_count = sizeof(usb_td_bulk) / sizeof(usb_td_bulk[0]);
 
+static volatile bool start_cpld_update = false;
 uint8_t cpld_xsvf_buffer[512];
 volatile bool cpld_wait = false;
 
@@ -870,7 +871,7 @@ void usb_configuration_changed(
 		gpio_set(PORT_LED1_3, PIN_LED1);
 	} else if( device->configuration->number == 2 ) {
 		// CPLD update mode
-		cpld_update();
+		start_cpld_update = true;
 	} else {
 		gpio_clear(PORT_LED1_3, PIN_LED1);
 	}
@@ -978,6 +979,10 @@ int main(void) {
 #endif
 
 	while(true) {
+		// Check whether we need to initiate a CPLD update
+		if (start_cpld_update)
+			cpld_update();
+
 		// Wait until buffer 0 is transmitted/received.
 		while( usb_bulk_buffer_offset < 16384 );
 
