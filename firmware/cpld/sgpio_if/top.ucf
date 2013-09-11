@@ -96,6 +96,7 @@ INST "DA<4>" TNM=adc_data;
 INST "DA<5>" TNM=adc_data;
 INST "DA<6>" TNM=adc_data;
 INST "DA<7>" TNM=adc_data;
+INST "CODEC_CLK" TNM=adc_data;
 
 TIMESPEC "TS_adc_data" = FROM "adc_data" TO "CODEC_X2_CLK" 16 ns;
 
