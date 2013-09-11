@@ -36,10 +36,7 @@ entity top is
         DD              : out   std_logic_vector(9 downto 0);
 
         CODEC_CLK       : in    std_logic;
-        CODEC_X2_CLK    : in    std_logic;
-           
-        B1AUX           : inout std_logic_vector(16 downto 9);
-        B2AUX           : inout std_logic_vector(16 downto 1)
+        CODEC_X2_CLK    : in    std_logic
     );
 
 end top;
@@ -61,9 +58,6 @@ architecture Behavioral of top is
     signal data_to_host_o : std_logic_vector(7 downto 0);
 
 begin
-    
-    B1AUX <= (others => '0');
-    B2AUX <= (others => '0');
     
     ------------------------------------------------
     -- Codec interface
