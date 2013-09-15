@@ -24,6 +24,7 @@
 
 #include "usb.h"
 #include "usb_type.h"
+#include "usb_queue.h"
 #include "usb_standard_request.h"
 
 #include <libopencm3/lpc43xx/creg.h>
@@ -34,21 +35,13 @@
 usb_device_t* usb_device_usb0 = 0;
 
 usb_queue_head_t usb_qh[12] ATTR_ALIGNED(2048);
-usb_transfer_descriptor_t usb_td[12] ATTR_ALIGNED(64);
 
 #define USB_QH_INDEX(endpoint_address) (((endpoint_address & 0xF) * 2) + ((endpoint_address >> 7) & 1))
-#define USB_TD_INDEX(endpoint_address) (((endpoint_address & 0xF) * 2) + ((endpoint_address >> 7) & 1))
 
 usb_queue_head_t* usb_queue_head(
 	const uint_fast8_t endpoint_address
 ) {
 	return &usb_qh[USB_QH_INDEX(endpoint_address)];
-}
-
-usb_transfer_descriptor_t* usb_transfer_descriptor(
-	const uint_fast8_t endpoint_address
-) {
-	return &usb_td[USB_TD_INDEX(endpoint_address)];
 }
 
 static usb_endpoint_t* usb_endpoint_from_address(
@@ -98,25 +91,25 @@ static void usb_clear_all_pending_interrupts() {
 static void usb_wait_for_endpoint_priming_to_finish(const uint32_t mask) {
 	// Wait until controller has parsed new transfer descriptors and prepared
 	// receive buffers.
-    while( USB0_ENDPTPRIME & mask );
+	while( USB0_ENDPTPRIME & mask );
 }
 
 static void usb_flush_endpoints(const uint32_t mask) {
 	// Clear any primed buffers. If a packet is in progress, that transfer
 	// will continue until completion.
-    USB0_ENDPTFLUSH = mask;
+	USB0_ENDPTFLUSH = mask;
 }
 
 static void usb_wait_for_endpoint_flushing_to_finish(const uint32_t mask) {
 	// Wait until controller has flushed all endpoints / cleared any primed
 	// buffers.
-    while( USB0_ENDPTFLUSH & mask );
+	while( USB0_ENDPTFLUSH & mask );
 }
 
 static void usb_flush_primed_endpoints(const uint32_t mask) {
-    usb_wait_for_endpoint_priming_to_finish(mask);
+	usb_wait_for_endpoint_priming_to_finish(mask);
 	usb_flush_endpoints(mask);
-    usb_wait_for_endpoint_flushing_to_finish(mask);
+	usb_wait_for_endpoint_flushing_to_finish(mask);
 }
 
 static void usb_flush_all_primed_endpoints() {
@@ -171,6 +164,7 @@ void usb_endpoint_disable(
 	} else {
 		USB0_ENDPTCTRL(endpoint_number) &= ~(USB0_ENDPTCTRL_RXE);
 	}
+        usb_queue_flush_endpoint(endpoint);
 	usb_endpoint_clear_pending_interrupts(endpoint);
 	usb_endpoint_flush(endpoint);
 }
@@ -195,7 +189,7 @@ void usb_endpoint_prime(
 		USB0_ENDPTPRIME = USB0_ENDPTPRIME_PERB(1 << endpoint_number);
 	}
 }
-/*
+
 static bool usb_endpoint_is_priming(
 	const usb_endpoint_t* const endpoint
 ) {
@@ -206,11 +200,57 @@ static bool usb_endpoint_is_priming(
 		return USB0_ENDPTPRIME & USB0_ENDPTPRIME_PERB(1 << endpoint_number);
 	}
 }
-*/
+
+// Schedule an already filled-in transfer descriptor for execution on
+// the given endpoint, waiting until the endpoint has finished.
+void usb_endpoint_schedule_wait(
+	const usb_endpoint_t* const endpoint,
+	usb_transfer_descriptor_t* const td
+) {
+	// Ensure that endpoint is ready to be primed.
+	// It may have been flushed due to an aborted transaction.
+	// TODO: This should be preceded by a flush?
+	while( usb_endpoint_is_ready(endpoint) );
+
+	td->next_dtd_pointer = USB_TD_NEXT_DTD_POINTER_TERMINATE;
+
+	usb_endpoint_prime(endpoint, td);
+}
+
+// Schedule an already filled-in transfer descriptor for execution on
+// the given endpoint, appending to the end of the endpoint's queue if
+// there are pending TDs. Note that this requires that one knows the
+// tail of the endpoint's TD queue. Moreover, the user is responsible
+// for setting the TERMINATE bit of next_dtd_pointer if needed.
+void usb_endpoint_schedule_append(
+	const usb_endpoint_t* const endpoint,
+	usb_transfer_descriptor_t* const tail_td,
+	usb_transfer_descriptor_t* const new_td
+) {
+	bool done;
+
+	tail_td->next_dtd_pointer = new_td;
+
+	if (usb_endpoint_is_priming(endpoint)) {
+		return;
+	}
+
+	do {
+		USB0_USBCMD_D |= USB0_USBCMD_D_ATDTW;
+		done = usb_endpoint_is_ready(endpoint);
+	} while (!(USB0_USBCMD_D & USB0_USBCMD_D_ATDTW));
+
+	USB0_USBCMD_D &= ~USB0_USBCMD_D_ATDTW;
+	if(!done) {
+		usb_endpoint_prime(endpoint, new_td);
+	}
+}
+
 void usb_endpoint_flush(
 	const usb_endpoint_t* const endpoint
 ) {
 	const uint_fast8_t endpoint_number = usb_endpoint_number(endpoint->address);
+	usb_queue_flush_endpoint(endpoint);
 	if( usb_endpoint_is_in(endpoint->address) ) {
 		usb_flush_primed_endpoints(USB0_ENDPTFLUSH_FETB(1 << endpoint_number));
 	} else {
@@ -510,48 +550,13 @@ void usb_endpoint_init(
 	usb_endpoint_enable(endpoint);
 }
 
-void usb_endpoint_schedule(
-	const usb_endpoint_t* const endpoint,
-	void* const data,
-	const uint32_t maximum_length
-) {
-	usb_transfer_descriptor_t* const td = usb_transfer_descriptor(endpoint->address);
-	
-	// Ensure that endpoint is ready to be primed.
-	// It may have been flushed due to an aborted transaction.
-	// TODO: This should be preceded by a flush?
-	while( usb_endpoint_is_ready(endpoint) );
-
-	// Configure a transfer.
-	td->next_dtd_pointer = USB_TD_NEXT_DTD_POINTER_TERMINATE;
-	td->total_bytes =
-		  USB_TD_DTD_TOKEN_TOTAL_BYTES(maximum_length)
-		| USB_TD_DTD_TOKEN_IOC
-		| USB_TD_DTD_TOKEN_MULTO(0)
-		| USB_TD_DTD_TOKEN_STATUS_ACTIVE
-		;
-	td->buffer_pointer_page[0] =  (uint32_t)data;
-	td->buffer_pointer_page[1] = ((uint32_t)data + 0x1000) & 0xfffff000;
-	td->buffer_pointer_page[2] = ((uint32_t)data + 0x2000) & 0xfffff000;
-	td->buffer_pointer_page[3] = ((uint32_t)data + 0x3000) & 0xfffff000;
-	td->buffer_pointer_page[4] = ((uint32_t)data + 0x4000) & 0xfffff000;
-	
-	usb_endpoint_prime(endpoint, td);
-}
-
-void usb_endpoint_schedule_ack(
-	const usb_endpoint_t* const endpoint
-) {
-	usb_endpoint_schedule(endpoint, 0, 0);
-}
-
 static void usb_check_for_setup_events() {
 	const uint32_t endptsetupstat = usb_get_endpoint_setup_status();
 	if( endptsetupstat ) {
 		for( uint_fast8_t i=0; i<6; i++ ) {
 			const uint32_t endptsetupstat_bit = USB0_ENDPTSETUPSTAT_ENDPTSETUPSTAT(1 << i);
 			if( endptsetupstat & endptsetupstat_bit ) {
-			 	usb_endpoint_t* const endpoint = 
+				usb_endpoint_t* const endpoint = 
 					usb_endpoint_from_address(
 						usb_endpoint_address(USB_TRANSFER_DIRECTION_OUT, i)
 					);

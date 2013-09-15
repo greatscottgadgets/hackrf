@@ -27,6 +27,7 @@ SRC = $(BINARY).c \
 	usb_request.c \
 	usb_standard_request.c \
 	usb_descriptor.c \
+	usb_queue.c \
 	../common/fault_handler.c \
 	../common/hackrf_core.c \
 	../common/sgpio.c \

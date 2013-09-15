@@ -39,6 +39,7 @@
 
 #include "usb.h"
 #include "usb_type.h"
+#include "usb_queue.h"
 #include "usb_request.h"
 #include "usb_descriptor.h"
 #include "usb_standard_request.h"
@@ -51,11 +52,10 @@ static const uint32_t usb_bulk_buffer_mask = 32768 - 1;
 
 usb_transfer_descriptor_t usb_td_bulk[2] ATTR_ALIGNED(64);
 const uint_fast8_t usb_td_bulk_count = sizeof(usb_td_bulk) / sizeof(usb_td_bulk[0]);
- 
-/* TODO remove this big buffer and use streaming for CPLD */ 
-#define CPLD_XSVF_MAX_LEN (65536)
-uint8_t cpld_xsvf_buffer[CPLD_XSVF_MAX_LEN];
-uint16_t write_cpld_idx = 0;
+
+static volatile bool start_cpld_update = false;
+uint8_t cpld_xsvf_buffer[512];
+volatile bool cpld_wait = false;
 
 uint8_t spiflash_buffer[W25Q80BV_PAGE_LEN];
 char version_string[] = VERSION_STRING;
@@ -181,50 +181,6 @@ bool set_freq(uint32_t freq_mhz, uint32_t freq_hz)
 	return success;
 }
 
-static void usb_init_buffers_bulk() {
-	usb_td_bulk[0].next_dtd_pointer = USB_TD_NEXT_DTD_POINTER_TERMINATE;
-	usb_td_bulk[0].total_bytes
-		= USB_TD_DTD_TOKEN_TOTAL_BYTES(16384)
-		| USB_TD_DTD_TOKEN_MULTO(0)
-		;
-	usb_td_bulk[0].buffer_pointer_page[0] = (uint32_t)&usb_bulk_buffer[0x0000];
-	usb_td_bulk[0].buffer_pointer_page[1] = (uint32_t)&usb_bulk_buffer[0x1000];
-	usb_td_bulk[0].buffer_pointer_page[2] = (uint32_t)&usb_bulk_buffer[0x2000];
-	usb_td_bulk[0].buffer_pointer_page[3] = (uint32_t)&usb_bulk_buffer[0x3000];
-	usb_td_bulk[0].buffer_pointer_page[4] = (uint32_t)&usb_bulk_buffer[0x4000];
-
-	usb_td_bulk[1].next_dtd_pointer = USB_TD_NEXT_DTD_POINTER_TERMINATE;
-	usb_td_bulk[1].total_bytes
-		= USB_TD_DTD_TOKEN_TOTAL_BYTES(16384)
-		| USB_TD_DTD_TOKEN_MULTO(0)
-		;
-	usb_td_bulk[1].buffer_pointer_page[0] = (uint32_t)&usb_bulk_buffer[0x4000];
-	usb_td_bulk[1].buffer_pointer_page[1] = (uint32_t)&usb_bulk_buffer[0x5000];
-	usb_td_bulk[1].buffer_pointer_page[2] = (uint32_t)&usb_bulk_buffer[0x6000];
-	usb_td_bulk[1].buffer_pointer_page[3] = (uint32_t)&usb_bulk_buffer[0x7000];
-	usb_td_bulk[1].buffer_pointer_page[4] = (uint32_t)&usb_bulk_buffer[0x8000];
-}
-
-void usb_endpoint_schedule_no_int(
-	const usb_endpoint_t* const endpoint,
-	usb_transfer_descriptor_t* const td
-) {
-	// Ensure that endpoint is ready to be primed.
-	// It may have been flushed due to an aborted transaction.
-	// TODO: This should be preceded by a flush?
-	while( usb_endpoint_is_ready(endpoint) );
-
-	// Configure a transfer.
-	td->total_bytes =
-		  USB_TD_DTD_TOKEN_TOTAL_BYTES(16384)
-		/*| USB_TD_DTD_TOKEN_IOC*/
-		| USB_TD_DTD_TOKEN_MULTO(0)
-		| USB_TD_DTD_TOKEN_STATUS_ACTIVE
-		;
-	
-	usb_endpoint_prime(endpoint, td);
-}
-
 usb_configuration_t usb_configuration_high_speed = {
 	.number = 1,
 	.speed = USB_SPEED_HIGH,
@@ -237,9 +193,23 @@ usb_configuration_t usb_configuration_full_speed = {
 	.descriptor = usb_descriptor_configuration_full_speed,
 };
 
+usb_configuration_t usb_configuration_cpld_update_full_speed = {
+	.number = 2,
+	.speed = USB_SPEED_FULL,
+	.descriptor = usb_descriptor_configuration_cpld_update_full_speed,
+};
+
+usb_configuration_t usb_configuration_cpld_update_high_speed = {
+	.number = 2,
+	.speed = USB_SPEED_HIGH,
+	.descriptor = usb_descriptor_configuration_cpld_update_high_speed,
+};
+
 usb_configuration_t* usb_configurations[] = {
 	&usb_configuration_high_speed,
 	&usb_configuration_full_speed,
+	&usb_configuration_cpld_update_full_speed,
+	&usb_configuration_cpld_update_high_speed,
 	0,
 };
 
@@ -260,6 +230,7 @@ usb_endpoint_t usb_endpoint_control_out = {
 	.setup_complete = usb_setup_complete,
 	.transfer_complete = usb_control_out_complete,
 };
+USB_DEFINE_QUEUE(usb_endpoint_control_out, 4);
 
 usb_endpoint_t usb_endpoint_control_in = {
 	.address = 0x80,
@@ -269,6 +240,7 @@ usb_endpoint_t usb_endpoint_control_in = {
 	.setup_complete = 0,
 	.transfer_complete = usb_control_in_complete,
 };
+static USB_DEFINE_QUEUE(usb_endpoint_control_in, 4);
 
 // NOTE: Endpoint number for IN and OUT are different. I wish I had some
 // evidence that having BULK IN and OUT on separate endpoint numbers was
@@ -280,8 +252,9 @@ usb_endpoint_t usb_endpoint_bulk_in = {
 	.in = &usb_endpoint_bulk_in,
 	.out = 0,
 	.setup_complete = 0,
-	.transfer_complete = 0,
+	.transfer_complete = usb_queue_transfer_complete
 };
+static USB_DEFINE_QUEUE(usb_endpoint_bulk_in, 4);
 
 usb_endpoint_t usb_endpoint_bulk_out = {
 	.address = 0x02,
@@ -289,8 +262,9 @@ usb_endpoint_t usb_endpoint_bulk_out = {
 	.in = 0,
 	.out = &usb_endpoint_bulk_out,
 	.setup_complete = 0,
-	.transfer_complete = 0,
+	.transfer_complete = usb_queue_transfer_complete
 };
+static USB_DEFINE_QUEUE(usb_endpoint_bulk_out, 4);
 
 void baseband_streaming_disable() {
 	sgpio_cpld_stream_disable();
@@ -306,8 +280,6 @@ void set_transceiver_mode(const transceiver_mode_t new_transceiver_mode) {
 	
 	transceiver_mode = new_transceiver_mode;
 	
-	usb_init_buffers_bulk();
-
 	if( transceiver_mode == TRANSCEIVER_MODE_RX ) {
 		gpio_clear(PORT_LED1_3, PIN_LED3);
 		gpio_set(PORT_LED1_3, PIN_LED2);
@@ -339,7 +311,7 @@ void set_transceiver_mode(const transceiver_mode_t new_transceiver_mode) {
 	nvic_enable_irq(NVIC_SGPIO_IRQ);
 	SGPIO_SET_EN_1 = (1 << SGPIO_SLICE_A);
 
-    sgpio_cpld_stream_enable();
+	sgpio_cpld_stream_enable();
 }
 
 usb_request_status_t usb_vendor_request_set_transceiver_mode(
@@ -352,7 +324,7 @@ usb_request_status_t usb_vendor_request_set_transceiver_mode(
 		case TRANSCEIVER_MODE_RX:
 		case TRANSCEIVER_MODE_TX:
 			set_transceiver_mode(endpoint->setup.value);
-			usb_endpoint_schedule_ack(endpoint->in);
+			usb_transfer_schedule_ack(endpoint->in);
 			return USB_REQUEST_STATUS_OK;
 		default:
 			return USB_REQUEST_STATUS_STALL;
@@ -370,7 +342,7 @@ usb_request_status_t usb_vendor_request_write_max2837(
 		if( endpoint->setup.index < MAX2837_NUM_REGS ) {
 			if( endpoint->setup.value < MAX2837_DATA_REGS_MAX_VALUE ) {
 				max2837_reg_write(endpoint->setup.index, endpoint->setup.value);
-				usb_endpoint_schedule_ack(endpoint->in);
+				usb_transfer_schedule_ack(endpoint->in);
 				return USB_REQUEST_STATUS_OK;
 			}
 		}
@@ -389,8 +361,9 @@ usb_request_status_t usb_vendor_request_read_max2837(
 			const uint16_t value = max2837_reg_read(endpoint->setup.index);
 			endpoint->buffer[0] = value & 0xff;
 			endpoint->buffer[1] = value >> 8;
-			usb_endpoint_schedule(endpoint->in, &endpoint->buffer, 2);
-			usb_endpoint_schedule_ack(endpoint->out);
+			usb_transfer_schedule_block(endpoint->in, &endpoint->buffer, 2,
+						    NULL, NULL);
+			usb_transfer_schedule_ack(endpoint->out);
 			return USB_REQUEST_STATUS_OK;
 		}
 		return USB_REQUEST_STATUS_STALL;
@@ -407,7 +380,7 @@ usb_request_status_t usb_vendor_request_write_si5351c(
 		if( endpoint->setup.index < 256 ) {
 			if( endpoint->setup.value < 256 ) {
 				si5351c_write_single(endpoint->setup.index, endpoint->setup.value);
-				usb_endpoint_schedule_ack(endpoint->in);
+				usb_transfer_schedule_ack(endpoint->in);
 				return USB_REQUEST_STATUS_OK;
 			}
 		}
@@ -425,8 +398,9 @@ usb_request_status_t usb_vendor_request_read_si5351c(
 		if( endpoint->setup.index < 256 ) {
 			const uint8_t value = si5351c_read_single(endpoint->setup.index);
 			endpoint->buffer[0] = value;
-			usb_endpoint_schedule(endpoint->in, &endpoint->buffer, 1);
-			usb_endpoint_schedule_ack(endpoint->out);
+			usb_transfer_schedule_block(endpoint->in, &endpoint->buffer, 1,
+						    NULL, NULL);
+			usb_transfer_schedule_ack(endpoint->out);
 			return USB_REQUEST_STATUS_OK;
 		}
 		return USB_REQUEST_STATUS_STALL;
@@ -442,7 +416,7 @@ usb_request_status_t usb_vendor_request_set_baseband_filter_bandwidth(
 	if( stage == USB_TRANSFER_STAGE_SETUP ) {
 		const uint32_t bandwidth = (endpoint->setup.index << 16) | endpoint->setup.value;
 		if( baseband_filter_bandwidth_set(bandwidth) ) {
-			usb_endpoint_schedule_ack(endpoint->in);
+			usb_transfer_schedule_ack(endpoint->in);
 			return USB_REQUEST_STATUS_OK;
 		}
 		return USB_REQUEST_STATUS_STALL;
@@ -460,7 +434,7 @@ usb_request_status_t usb_vendor_request_write_rffc5071(
 		if( endpoint->setup.index < RFFC5071_NUM_REGS ) 
 		{
 			rffc5071_reg_write(endpoint->setup.index, endpoint->setup.value);
-			usb_endpoint_schedule_ack(endpoint->in);
+			usb_transfer_schedule_ack(endpoint->in);
 			return USB_REQUEST_STATUS_OK;
 		}
 		return USB_REQUEST_STATUS_STALL;
@@ -481,8 +455,9 @@ usb_request_status_t usb_vendor_request_read_rffc5071(
 			value = rffc5071_reg_read(endpoint->setup.index);
 			endpoint->buffer[0] = value & 0xff;
 			endpoint->buffer[1] = value >> 8;
-			usb_endpoint_schedule(endpoint->in, &endpoint->buffer, 2);
-			usb_endpoint_schedule_ack(endpoint->out);
+			usb_transfer_schedule_block(endpoint->in, &endpoint->buffer, 2,
+						    NULL, NULL);
+			usb_transfer_schedule_ack(endpoint->out);
 			return USB_REQUEST_STATUS_OK;
 		}
 		return USB_REQUEST_STATUS_STALL;
@@ -500,7 +475,7 @@ usb_request_status_t usb_vendor_request_erase_spiflash(
 		w25q80bv_setup();
 		/* only chip erase is implemented */
 		w25q80bv_chip_erase();
-		usb_endpoint_schedule_ack(endpoint->in);
+		usb_transfer_schedule_ack(endpoint->in);
 		//FIXME probably should undo w25q80bv_setup()
 	}
 	return USB_REQUEST_STATUS_OK;
@@ -521,7 +496,8 @@ usb_request_status_t usb_vendor_request_write_spiflash(
 				|| ((addr + len) > W25Q80BV_NUM_BYTES)) {
 			return USB_REQUEST_STATUS_STALL;
 		} else {
-			usb_endpoint_schedule(endpoint->out, &spiflash_buffer[0], len);
+			usb_transfer_schedule_block(endpoint->out, &spiflash_buffer[0], len,
+						    NULL, NULL);
 			w25q80bv_setup();
 			return USB_REQUEST_STATUS_OK;
 		}
@@ -534,7 +510,7 @@ usb_request_status_t usb_vendor_request_write_spiflash(
 			return USB_REQUEST_STATUS_STALL;
 		} else {
 			w25q80bv_program(addr, len, &spiflash_buffer[0]);
-			usb_endpoint_schedule_ack(endpoint->in);
+			usb_transfer_schedule_ack(endpoint->in);
 			//FIXME probably should undo w25q80bv_setup()
 			return USB_REQUEST_STATUS_OK;
 		}
@@ -556,7 +532,7 @@ usb_request_status_t usb_vendor_request_read_spiflash(
 		addr = (endpoint->setup.value << 16) | endpoint->setup.index;
 		len = endpoint->setup.length;
 		if ((len > W25Q80BV_PAGE_LEN) || (addr > W25Q80BV_NUM_BYTES)
-		            || ((addr + len) > W25Q80BV_NUM_BYTES)) {
+			    || ((addr + len) > W25Q80BV_NUM_BYTES)) {
 			return USB_REQUEST_STATUS_STALL;
 		} else {
 			/* TODO flush SPIFI "cache" before to read the SPIFI memory */
@@ -565,7 +541,8 @@ usb_request_status_t usb_vendor_request_read_spiflash(
 			{
 				spiflash_buffer[i] = u8_addr_pt[i];
 			}
-			usb_endpoint_schedule(endpoint->in, &spiflash_buffer[0], len);
+			usb_transfer_schedule_block(endpoint->in, &spiflash_buffer[0], len,
+						    NULL, NULL);
 			return USB_REQUEST_STATUS_OK;
 		}
 	} else if (stage == USB_TRANSFER_STAGE_DATA) 
@@ -579,71 +556,9 @@ usb_request_status_t usb_vendor_request_read_spiflash(
 				return USB_REQUEST_STATUS_STALL;
 			} else
 			{
-				usb_endpoint_schedule_ack(endpoint->out);
+				usb_transfer_schedule_ack(endpoint->out);
 				return USB_REQUEST_STATUS_OK;
 			}
-	} else 
-	{
-		return USB_REQUEST_STATUS_OK;
-	}
-}
-
-usb_request_status_t usb_vendor_request_write_cpld(
-	usb_endpoint_t* const endpoint,
-	const usb_transfer_stage_t stage)
-{
-	int error, i;
-	uint16_t total_len;
-	uint16_t len;
-	#define WAIT_LOOP_DELAY (6000000)
-	#define ALL_LEDS	(PIN_LED1|PIN_LED2|PIN_LED3)
-
-	if (stage == USB_TRANSFER_STAGE_SETUP) 
-	{
-		// len is limited to 64KB 16bits no overflow can happen
-		total_len = endpoint->setup.value;
-		len = endpoint->setup.length;
-		usb_endpoint_schedule(endpoint->out, &cpld_xsvf_buffer[write_cpld_idx], len);
-		return USB_REQUEST_STATUS_OK;
-	} else if (stage == USB_TRANSFER_STAGE_DATA) 
-	{
-		// len is limited to 64KB 16bits no overflow can happen
-		total_len = endpoint->setup.value;
-		len = endpoint->setup.length;
-		write_cpld_idx = write_cpld_idx + len;
-		// Check if all bytes received and write CPLD
-		if(write_cpld_idx == total_len)
-		{
-			write_cpld_idx = 0;
-			error = cpld_jtag_program(total_len, &cpld_xsvf_buffer[write_cpld_idx]);
-			// TO FIX ACK shall be not delayed so much as cpld prog can take up to 5s.
-			if(error == 0)
-			{		
-				usb_endpoint_schedule_ack(endpoint->in);
-				
-				/* blink LED1, LED2, and LED3 on success */
-				while (1)
-				{
-					gpio_set(PORT_LED1_3, ALL_LEDS); /* LEDs on */
-					for (i = 0; i < WAIT_LOOP_DELAY; i++)	/* Wait a bit. */
-						__asm__("nop");
-					gpio_clear(PORT_LED1_3, ALL_LEDS); /* LEDs off */
-					for (i = 0; i < WAIT_LOOP_DELAY; i++)	/* Wait a bit. */
-						__asm__("nop");
-				}
-				return USB_REQUEST_STATUS_OK;
-			}else
-			{
-				/* LED3 (Red) steady on error */
-				gpio_set(PORT_LED1_3, PIN_LED3); /* LEDs on */
-				while (1);
-				return USB_REQUEST_STATUS_STALL;
-			}
-		}else
-		{
-			usb_endpoint_schedule_ack(endpoint->in);
-			return USB_REQUEST_STATUS_OK;
-		}
 	} else 
 	{
 		return USB_REQUEST_STATUS_OK;
@@ -655,8 +570,8 @@ usb_request_status_t usb_vendor_request_read_board_id(
 {
 	if (stage == USB_TRANSFER_STAGE_SETUP) {
 		endpoint->buffer[0] = BOARD_ID;
-		usb_endpoint_schedule(endpoint->in, &endpoint->buffer, 1);
-		usb_endpoint_schedule_ack(endpoint->out);
+		usb_transfer_schedule_block(endpoint->in, &endpoint->buffer, 1, NULL, NULL);
+		usb_transfer_schedule_ack(endpoint->out);
 	}
 	return USB_REQUEST_STATUS_OK;
 }
@@ -668,8 +583,8 @@ usb_request_status_t usb_vendor_request_read_version_string(
 
 	if (stage == USB_TRANSFER_STAGE_SETUP) {
 		length = (uint8_t)strlen(version_string);
-		usb_endpoint_schedule(endpoint->in, version_string, length);
-		usb_endpoint_schedule_ack(endpoint->out);
+		usb_transfer_schedule_block(endpoint->in, version_string, length, NULL, NULL);
+		usb_transfer_schedule_ack(endpoint->out);
 	}
 	return USB_REQUEST_STATUS_OK;
 }
@@ -680,13 +595,14 @@ usb_request_status_t usb_vendor_request_set_freq(
 {
 	if (stage == USB_TRANSFER_STAGE_SETUP) 
 	{
-		usb_endpoint_schedule(endpoint->out, &set_freq_params, sizeof(set_freq_params_t));
+		usb_transfer_schedule_block(endpoint->out, &set_freq_params, sizeof(set_freq_params_t),
+					    NULL, NULL);
 		return USB_REQUEST_STATUS_OK;
 	} else if (stage == USB_TRANSFER_STAGE_DATA) 
 	{
 		if( set_freq(set_freq_params.freq_mhz, set_freq_params.freq_hz) ) 
 		{
-			usb_endpoint_schedule_ack(endpoint->in);
+			usb_transfer_schedule_ack(endpoint->in);
 			return USB_REQUEST_STATUS_OK;
 		}
 		return USB_REQUEST_STATUS_STALL;
@@ -702,13 +618,14 @@ usb_request_status_t usb_vendor_request_set_sample_rate_frac(
 {
 	if (stage == USB_TRANSFER_STAGE_SETUP) 
 	{
-		usb_endpoint_schedule(endpoint->out, &set_sample_r_params, sizeof(set_sample_r_params_t));
+                usb_transfer_schedule_block(endpoint->out, &set_sample_r_params, sizeof(set_sample_r_params_t),
+					    NULL, NULL);
 		return USB_REQUEST_STATUS_OK;
 	} else if (stage == USB_TRANSFER_STAGE_DATA) 
 	{
 		if( sample_rate_frac_set(set_sample_r_params.freq_hz * 2, set_sample_r_params.divider ) )
 		{
-			usb_endpoint_schedule_ack(endpoint->in);
+			usb_transfer_schedule_ack(endpoint->in);
 			return USB_REQUEST_STATUS_OK;
 		}
 		return USB_REQUEST_STATUS_STALL;
@@ -726,12 +643,12 @@ usb_request_status_t usb_vendor_request_set_amp_enable(
 		case 0:
 			switchctrl |= SWITCHCTRL_AMP_BYPASS;
 			update_switches();
-			usb_endpoint_schedule_ack(endpoint->in);
+			usb_transfer_schedule_ack(endpoint->in);
 			return USB_REQUEST_STATUS_OK;
 		case 1:
 			switchctrl &= ~SWITCHCTRL_AMP_BYPASS;
 			update_switches();
-			usb_endpoint_schedule_ack(endpoint->in);
+			usb_transfer_schedule_ack(endpoint->in);
 			return USB_REQUEST_STATUS_OK;
 		default:
 			return USB_REQUEST_STATUS_STALL;
@@ -776,20 +693,23 @@ usb_request_status_t usb_vendor_request_read_partid_serialno(
 		read_partid_serialno.serial_no[3] = iap_cmd_res.status_res.iap_result[3];
 		
 		length = (uint8_t)sizeof(read_partid_serialno_t);
-		usb_endpoint_schedule(endpoint->in, &read_partid_serialno, length);
-		usb_endpoint_schedule_ack(endpoint->out);
+		usb_transfer_schedule_block(endpoint->in, &read_partid_serialno, length,
+					    NULL, NULL);
+		usb_transfer_schedule_ack(endpoint->out);
 	}
 	return USB_REQUEST_STATUS_OK;
 }
 
 usb_request_status_t usb_vendor_request_set_lna_gain(
-	usb_endpoint_t* const endpoint,	const usb_transfer_stage_t stage)
+	usb_endpoint_t* const endpoint,
+	const usb_transfer_stage_t stage)
 {
 	if( stage == USB_TRANSFER_STAGE_SETUP ) {
 			const uint8_t value = max2837_set_lna_gain(endpoint->setup.index);
 			endpoint->buffer[0] = value;
-			usb_endpoint_schedule(endpoint->in, &endpoint->buffer, 1);
-			usb_endpoint_schedule_ack(endpoint->out);
+			usb_transfer_schedule_block(endpoint->in, &endpoint->buffer, 1,
+						    NULL, NULL);
+			usb_transfer_schedule_ack(endpoint->out);
 			return USB_REQUEST_STATUS_OK;
 	}
 	return USB_REQUEST_STATUS_OK;
@@ -801,8 +721,9 @@ usb_request_status_t usb_vendor_request_set_vga_gain(
 	if( stage == USB_TRANSFER_STAGE_SETUP ) {
 			const uint8_t value = max2837_set_vga_gain(endpoint->setup.index);
 			endpoint->buffer[0] = value;
-			usb_endpoint_schedule(endpoint->in, &endpoint->buffer, 1);
-			usb_endpoint_schedule_ack(endpoint->out);
+			usb_transfer_schedule_block(endpoint->in, &endpoint->buffer, 1,
+						    NULL, NULL);
+			usb_transfer_schedule_ack(endpoint->out);
 			return USB_REQUEST_STATUS_OK;
 	}
 	return USB_REQUEST_STATUS_OK;
@@ -814,8 +735,9 @@ usb_request_status_t usb_vendor_request_set_txvga_gain(
 	if( stage == USB_TRANSFER_STAGE_SETUP ) {
 			const uint8_t value = max2837_set_txvga_gain(endpoint->setup.index);
 			endpoint->buffer[0] = value;
-			usb_endpoint_schedule(endpoint->in, &endpoint->buffer, 1);
-			usb_endpoint_schedule_ack(endpoint->out);
+			usb_transfer_schedule_block(endpoint->in, &endpoint->buffer, 1,
+						    NULL, NULL);
+			usb_transfer_schedule_ack(endpoint->out);
 			return USB_REQUEST_STATUS_OK;
 	}
 	return USB_REQUEST_STATUS_OK;
@@ -827,7 +749,7 @@ usb_request_status_t usb_vendor_request_set_if_freq(
 	if( stage == USB_TRANSFER_STAGE_SETUP ) {
 		MAX2837_FREQ_NOMINAL_HZ = (uint32_t)endpoint->setup.index * 1000 * 1000;
 		set_freq(freq_mhz_cache, freq_hz_cache);
-		usb_endpoint_schedule_ack(endpoint->in);
+		usb_transfer_schedule_ack(endpoint->in);
 	}
 	return USB_REQUEST_STATUS_OK;
 }
@@ -846,7 +768,7 @@ static const usb_request_handler_fn vendor_request_handler[] = {
 	usb_vendor_request_erase_spiflash,
 	usb_vendor_request_write_spiflash,
 	usb_vendor_request_read_spiflash,
-	usb_vendor_request_write_cpld,
+	NULL, // used to be write_cpld
 	usb_vendor_request_read_board_id,
 	usb_vendor_request_read_version_string,
 	usb_vendor_request_set_freq,
@@ -884,14 +806,75 @@ const usb_request_handlers_t usb_request_handlers = {
 	.reserved = 0,
 };
 
+static void cpld_buffer_refilled(void* user_data, unsigned int length)
+{
+	cpld_wait = false;
+}
+
+static void refill_cpld_buffer(void)
+{
+	cpld_wait = true;
+	usb_transfer_schedule(
+		&usb_endpoint_bulk_out,
+		cpld_xsvf_buffer,
+		sizeof(cpld_xsvf_buffer),
+		cpld_buffer_refilled,
+		NULL
+		);
+
+	// Wait until transfer finishes
+	while (cpld_wait);
+}
+
+static void cpld_update(void)
+{
+	#define WAIT_LOOP_DELAY (6000000)
+	#define ALL_LEDS  (PIN_LED1|PIN_LED2|PIN_LED3)
+	int i;
+	int error;
+
+	usb_queue_flush_endpoint(&usb_endpoint_bulk_in);
+	usb_queue_flush_endpoint(&usb_endpoint_bulk_out);
+
+	refill_cpld_buffer();
+
+	error = cpld_jtag_program(sizeof(cpld_xsvf_buffer),
+				  cpld_xsvf_buffer,
+				  refill_cpld_buffer);
+	if(error == 0)
+	{
+		/* blink LED1, LED2, and LED3 on success */
+		while (1)
+		{
+			gpio_set(PORT_LED1_3, ALL_LEDS); /* LEDs on */
+			for (i = 0; i < WAIT_LOOP_DELAY; i++)  /* Wait a bit. */
+				__asm__("nop");
+			gpio_clear(PORT_LED1_3, ALL_LEDS); /* LEDs off */
+			for (i = 0; i < WAIT_LOOP_DELAY; i++)  /* Wait a bit. */
+				__asm__("nop");
+		}
+	}else
+	{
+		/* LED3 (Red) steady on error */
+		gpio_set(PORT_LED1_3, PIN_LED3); /* LEDs on */
+		while (1);
+	}
+}
+
 void usb_configuration_changed(
 	usb_device_t* const device
 ) {
-	set_transceiver_mode(transceiver_mode);
-	
-	if( device->configuration->number ) {
+	if( device->configuration->number == 1 ) {
+		// transceiver configuration
+		set_transceiver_mode(transceiver_mode);
 		gpio_set(PORT_LED1_3, PIN_LED1);
+	} else if( device->configuration->number == 2 ) {
+		// CPLD update configuration
+		set_transceiver_mode(TRANSCEIVER_MODE_OFF);
+		usb_endpoint_init(&usb_endpoint_bulk_out);
+		start_cpld_update = true;
 	} else {
+		set_transceiver_mode(TRANSCEIVER_MODE_OFF);
 		gpio_clear(PORT_LED1_3, PIN_LED1);
 	}
 };
@@ -966,10 +949,16 @@ int main(void) {
 	enable_1v8_power();
 	cpu_clock_init();
 
+	usb_set_configuration_changed_cb(usb_configuration_changed);
 	usb_peripheral_reset();
 	
 	usb_device_init(0, &usb_device);
 	
+	usb_queue_init(&usb_endpoint_control_out_queue);
+	usb_queue_init(&usb_endpoint_control_in_queue);
+	usb_queue_init(&usb_endpoint_bulk_out_queue);
+	usb_queue_init(&usb_endpoint_bulk_in_queue);
+
 	usb_endpoint_init(&usb_endpoint_control_out);
 	usb_endpoint_init(&usb_endpoint_control_in);
 	
@@ -977,7 +966,7 @@ int main(void) {
 
 	usb_run(&usb_device);
 	
-    ssp1_init();
+	ssp1_init();
 	ssp1_set_mode_max5864();
 	max5864_xcvr();
 
@@ -991,26 +980,39 @@ int main(void) {
 	switchctrl = SWITCHCTRL_AMP_BYPASS;
 #endif
 
+	unsigned int phase = 0;
 	while(true) {
-		// Wait until buffer 0 is transmitted/received.
-		while( usb_bulk_buffer_offset < 16384 );
+		// Check whether we need to initiate a CPLD update
+		if (start_cpld_update)
+			cpld_update();
 
 		// Set up IN transfer of buffer 0.
-		usb_endpoint_schedule_no_int(
-			(transceiver_mode == TRANSCEIVER_MODE_RX)
-			? &usb_endpoint_bulk_in : &usb_endpoint_bulk_out,
-			&usb_td_bulk[0]
-		);
+		if ( usb_bulk_buffer_offset >= 16384
+		     && phase == 1
+		     && transceiver_mode != TRANSCEIVER_MODE_OFF) {
+			usb_transfer_schedule_block(
+				(transceiver_mode == TRANSCEIVER_MODE_RX)
+				? &usb_endpoint_bulk_in : &usb_endpoint_bulk_out,
+				&usb_bulk_buffer[0x0000],
+				0x4000,
+				NULL, NULL
+				);
+			phase = 0;
+		}
 	
-		// Wait until buffer 1 is transmitted/received.
-		while( usb_bulk_buffer_offset >= 16384 );
-
 		// Set up IN transfer of buffer 1.
-		usb_endpoint_schedule_no_int(
-			(transceiver_mode == TRANSCEIVER_MODE_RX)
-			? &usb_endpoint_bulk_in : &usb_endpoint_bulk_out,
-			&usb_td_bulk[1]
-		);
+		if ( usb_bulk_buffer_offset < 16384
+		     && phase == 0
+		     && transceiver_mode != TRANSCEIVER_MODE_OFF) {
+			usb_transfer_schedule_block(
+				(transceiver_mode == TRANSCEIVER_MODE_RX)
+				? &usb_endpoint_bulk_in : &usb_endpoint_bulk_out,
+				&usb_bulk_buffer[0x4000],
+				0x4000,
+				NULL, NULL
+			);
+			phase = 1;
+		}
 	}
 	
 	return 0;
