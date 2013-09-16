@@ -870,6 +870,7 @@ void usb_configuration_changed(
 		gpio_set(PORT_LED1_3, PIN_LED1);
 	} else if( device->configuration->number == 2 ) {
 		// CPLD update configuration
+		cpu_clock_pll1_max_speed();
 		set_transceiver_mode(TRANSCEIVER_MODE_OFF);
 		usb_endpoint_init(&usb_endpoint_bulk_out);
 		start_cpld_update = true;
