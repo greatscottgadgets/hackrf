@@ -93,7 +93,7 @@ begin
     process(host_clk_i)
     begin
         if rising_edge(host_clk_i) then
-            data_to_host_o <= adc_data_i;
+            data_to_host_o <= adc_data_i xor X"80";
         end if;
     end process;
     
@@ -101,7 +101,7 @@ begin
     begin
         if rising_edge(host_clk_i) then
             if transfer_direction_i = to_dac then
-                dac_data_o <= data_from_host_i & "00";
+                dac_data_o <= (data_from_host_i xor X"80") & "00";
             else
                 dac_data_o <= (dac_data_o'high => '1', others => '0');
             end if;
