@@ -91,25 +91,25 @@ static void usb_clear_all_pending_interrupts() {
 static void usb_wait_for_endpoint_priming_to_finish(const uint32_t mask) {
 	// Wait until controller has parsed new transfer descriptors and prepared
 	// receive buffers.
-        while( USB0_ENDPTPRIME & mask );
+	while( USB0_ENDPTPRIME & mask );
 }
 
 static void usb_flush_endpoints(const uint32_t mask) {
 	// Clear any primed buffers. If a packet is in progress, that transfer
 	// will continue until completion.
-        USB0_ENDPTFLUSH = mask;
+	USB0_ENDPTFLUSH = mask;
 }
 
 static void usb_wait_for_endpoint_flushing_to_finish(const uint32_t mask) {
 	// Wait until controller has flushed all endpoints / cleared any primed
 	// buffers.
-        while( USB0_ENDPTFLUSH & mask );
+	while( USB0_ENDPTFLUSH & mask );
 }
 
 static void usb_flush_primed_endpoints(const uint32_t mask) {
-        usb_wait_for_endpoint_priming_to_finish(mask);
+	usb_wait_for_endpoint_priming_to_finish(mask);
 	usb_flush_endpoints(mask);
-        usb_wait_for_endpoint_flushing_to_finish(mask);
+	usb_wait_for_endpoint_flushing_to_finish(mask);
 }
 
 static void usb_flush_all_primed_endpoints() {
@@ -205,7 +205,7 @@ static bool usb_endpoint_is_priming(
 // the given endpoint, waiting until the endpoint has finished.
 void usb_endpoint_schedule_wait(
 	const usb_endpoint_t* const endpoint,
-        usb_transfer_descriptor_t* const td
+	usb_transfer_descriptor_t* const td
 ) {
 	// Ensure that endpoint is ready to be primed.
 	// It may have been flushed due to an aborted transaction.
@@ -213,7 +213,7 @@ void usb_endpoint_schedule_wait(
 	while( usb_endpoint_is_ready(endpoint) );
 
 	td->next_dtd_pointer = USB_TD_NEXT_DTD_POINTER_TERMINATE;
-	
+
 	usb_endpoint_prime(endpoint, td);
 }
 
@@ -223,34 +223,34 @@ void usb_endpoint_schedule_wait(
 // tail of the endpoint's TD queue. Moreover, the user is responsible
 // for setting the TERMINATE bit of next_dtd_pointer if needed.
 void usb_endpoint_schedule_append(
-        const usb_endpoint_t* const endpoint,
-        usb_transfer_descriptor_t* const tail_td,
-        usb_transfer_descriptor_t* const new_td
+	const usb_endpoint_t* const endpoint,
+	usb_transfer_descriptor_t* const tail_td,
+	usb_transfer_descriptor_t* const new_td
 ) {
-        bool done;
+	bool done;
 
-        tail_td->next_dtd_pointer = new_td;
+	tail_td->next_dtd_pointer = new_td;
 
-        if (usb_endpoint_is_priming(endpoint)) {
-                return;
-        }
+	if (usb_endpoint_is_priming(endpoint)) {
+		return;
+	}
 
-        do {
-                USB0_USBCMD_D |= USB0_USBCMD_D_ATDTW;
-                done = usb_endpoint_is_ready(endpoint);
-        } while (!(USB0_USBCMD_D & USB0_USBCMD_D_ATDTW));
-    
-        USB0_USBCMD_D &= ~USB0_USBCMD_D_ATDTW;
-        if(!done) {
-                usb_endpoint_prime(endpoint, new_td);
-        }
+	do {
+		USB0_USBCMD_D |= USB0_USBCMD_D_ATDTW;
+		done = usb_endpoint_is_ready(endpoint);
+	} while (!(USB0_USBCMD_D & USB0_USBCMD_D_ATDTW));
+
+	USB0_USBCMD_D &= ~USB0_USBCMD_D_ATDTW;
+	if(!done) {
+		usb_endpoint_prime(endpoint, new_td);
+	}
 }
 
 void usb_endpoint_flush(
 	const usb_endpoint_t* const endpoint
 ) {
 	const uint_fast8_t endpoint_number = usb_endpoint_number(endpoint->address);
-        usb_queue_flush_endpoint(endpoint);
+	usb_queue_flush_endpoint(endpoint);
 	if( usb_endpoint_is_in(endpoint->address) ) {
 		usb_flush_primed_endpoints(USB0_ENDPTFLUSH_FETB(1 << endpoint_number));
 	} else {
@@ -556,7 +556,7 @@ static void usb_check_for_setup_events() {
 		for( uint_fast8_t i=0; i<6; i++ ) {
 			const uint32_t endptsetupstat_bit = USB0_ENDPTSETUPSTAT_ENDPTSETUPSTAT(1 << i);
 			if( endptsetupstat & endptsetupstat_bit ) {
-			 	usb_endpoint_t* const endpoint = 
+				usb_endpoint_t* const endpoint = 
 					usb_endpoint_from_address(
 						usb_endpoint_address(USB_TRANSFER_DIRECTION_OUT, i)
 					);

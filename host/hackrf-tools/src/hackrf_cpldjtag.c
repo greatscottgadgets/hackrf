@@ -93,8 +93,7 @@ int main(int argc, char** argv)
 	int option_index = 0;
 	FILE* fd = NULL;
 	ssize_t bytes_read;
-	uint16_t xfer_len = 0;	
-	uint8_t* pdata = &data[0];	
+	uint8_t* pdata = &data[0];
 
 	while ((opt = getopt_long(argc, argv, "x:", long_options,
 			&option_index)) != EOF) {
@@ -127,20 +126,20 @@ int main(int argc, char** argv)
 	{
 		fprintf(stderr, "Failed to open file: %s\n", path);
 		return EXIT_FAILURE;
-	}	
+	}
 	/* Get size of the file  */
 	fseek(fd, 0, SEEK_END); /* Not really portable but work on major OS Linux/Win32 */
 	length = ftell(fd);
 	/* Move to start */
 	rewind(fd);
-	printf("File size %d bytes.\n", length);	
+	printf("File size %d bytes.\n", length);
 
 	if (length > MAX_XSVF_LENGTH) {
 		fprintf(stderr, "XSVF file too large.\n");
 		usage();
 		return EXIT_FAILURE;
 	}
-	
+
 	total_length = length;
 	bytes_read = fread(data, 1, total_length, fd);
 	if (bytes_read != total_length)
@@ -168,27 +167,20 @@ int main(int argc, char** argv)
 
 	printf("LED1/2/3 blinking means CPLD program success.\nLED3/RED steady means error.\n");
 	printf("Wait message 'Write finished' or in case of LED3/RED steady, Power OFF/Disconnect the Jawbreaker.\n");
-	while( length )
+	result = hackrf_cpld_write(device, pdata, total_length);
+	if (result != HACKRF_SUCCESS)
 	{
-		xfer_len = (length > PACKET_LEN) ? PACKET_LEN : length;
-		result = hackrf_cpld_write(device, xfer_len, pdata, total_length);
-		if (result != HACKRF_SUCCESS)
-		{
-			fprintf(stderr, "hackrf_cpld_write() failed: %s (%d)\n",
-					hackrf_error_name(result), result);
-			fclose(fd);
-			fd = NULL;
-			return EXIT_FAILURE;
-		}
-		pdata += xfer_len;
-		length -= xfer_len;
-		printf("hackrf_cpld_write() Writing %d bytes, remaining %d bytes.\n",
-			xfer_len, length);		
+		fprintf(stderr, "hackrf_cpld_write() failed: %s (%d)\n",
+				hackrf_error_name(result), result);
+		fclose(fd);
+		fd = NULL;
+		return EXIT_FAILURE;
 	}
+
 	printf("Write finished.\n");
 	printf("Please Power OFF/Disconnect the Jawbreaker.\n");
 	fflush(stdout);
-		
+
 	result = hackrf_close(device);
 	if( result != HACKRF_SUCCESS )
 	{

@@ -110,18 +110,19 @@ bool usb_set_configuration(
 	
 static usb_request_status_t usb_send_descriptor(
 	usb_endpoint_t* const endpoint,
-	uint8_t* const descriptor_data
+	const uint8_t* const descriptor_data
 ) {
 	const uint32_t setup_length = endpoint->setup.length;
 	uint32_t descriptor_length = descriptor_data[0];
 	if( descriptor_data[1] == USB_DESCRIPTOR_TYPE_CONFIGURATION ) {
 		descriptor_length = (descriptor_data[3] << 8) | descriptor_data[2];
 	}
-	usb_transfer_schedule(
+	// We cast the const away but this shouldn't be a problem as this is a write transfer
+	usb_transfer_schedule_block(
 		endpoint->in,
-		descriptor_data,
+		(uint8_t* const) descriptor_data,
 	 	(setup_length > descriptor_length) ? descriptor_length : setup_length,
-		NULL
+		NULL, NULL
 	);
 	usb_transfer_schedule_ack(endpoint->out);
 	return USB_REQUEST_STATUS_OK;
@@ -140,6 +141,25 @@ static usb_request_status_t usb_send_descriptor_string(
 	return USB_REQUEST_STATUS_STALL;
 }
 
+static usb_request_status_t usb_send_descriptor_config(
+	usb_endpoint_t* const endpoint,
+	usb_speed_t speed,
+	const uint8_t config_num
+) {
+	usb_configuration_t** config = *(endpoint->device->configurations);
+	unsigned int i = 0;
+	for( ; *config != NULL; config++ ) {
+		if( (*config)->speed == speed) {
+			if (i == config_num) {
+				return usb_send_descriptor(endpoint, (*config)->descriptor);
+			} else {
+				i++;
+			}
+		}
+	}
+	return USB_REQUEST_STATUS_STALL;
+}
+
 static usb_request_status_t usb_standard_request_get_descriptor_setup(
 	usb_endpoint_t* const endpoint
 ) {
@@ -150,9 +170,9 @@ static usb_request_status_t usb_standard_request_get_descriptor_setup(
 	case USB_DESCRIPTOR_TYPE_CONFIGURATION:
 		// TODO: Duplicated code. Refactor.
 		if( usb_speed(endpoint->device) == USB_SPEED_HIGH ) {
-			return usb_send_descriptor(endpoint, usb_descriptor_configuration_high_speed);
+			return usb_send_descriptor_config(endpoint, USB_SPEED_HIGH, endpoint->setup.value_l);
 		} else {
-			return usb_send_descriptor(endpoint, usb_descriptor_configuration_full_speed);
+			return usb_send_descriptor_config(endpoint, USB_SPEED_FULL, endpoint->setup.value_l);
 		}
 	
 	case USB_DESCRIPTOR_TYPE_DEVICE_QUALIFIER:
@@ -161,9 +181,9 @@ static usb_request_status_t usb_standard_request_get_descriptor_setup(
 	case USB_DESCRIPTOR_TYPE_OTHER_SPEED_CONFIGURATION:
 		// TODO: Duplicated code. Refactor.
 		if( usb_speed(endpoint->device) == USB_SPEED_HIGH ) {
-			return usb_send_descriptor(endpoint, usb_descriptor_configuration_full_speed);
+			return usb_send_descriptor_config(endpoint, USB_SPEED_FULL, endpoint->setup.value_l);
 		} else {
-			return usb_send_descriptor(endpoint, usb_descriptor_configuration_high_speed);
+			return usb_send_descriptor_config(endpoint, USB_SPEED_HIGH, endpoint->setup.value_l);
 		}
 	
 	case USB_DESCRIPTOR_TYPE_STRING:
@@ -269,7 +289,7 @@ static usb_request_status_t usb_standard_request_get_configuration_setup(
 		if( endpoint->device->configuration ) {
 			endpoint->buffer[0] = endpoint->device->configuration->number;
 		}
-		usb_transfer_schedule(endpoint->in, &endpoint->buffer, 1, NULL);
+		usb_transfer_schedule_block(endpoint->in, &endpoint->buffer, 1, NULL, NULL);
 		usb_transfer_schedule_ack(endpoint->out);
 		return USB_REQUEST_STATUS_OK;
 	} else {
