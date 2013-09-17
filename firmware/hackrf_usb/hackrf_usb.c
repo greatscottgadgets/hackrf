@@ -189,7 +189,6 @@ void set_transceiver_mode(const transceiver_mode_t new_transceiver_mode) {
 		gpio_clear(PORT_LED1_3, PIN_LED2);
 		gpio_clear(PORT_LED1_3, PIN_LED3);
 		rf_path_set_direction(RF_PATH_DIRECTION_OFF);
-		return;
 	}
 
 	sgpio_configure(transceiver_mode, true);
