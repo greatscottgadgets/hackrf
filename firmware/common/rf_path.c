@@ -23,6 +23,7 @@
 #include "rf_path.h"
 
 #include <rffc5071.h>
+#include <max2837.h>
 
 #ifdef JAWBREAKER
 /*
