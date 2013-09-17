@@ -23,15 +23,15 @@
 BINARY = hackrf_usb
 
 SRC = $(BINARY).c \
-	rf_path.c \
-	tuning.c \
+	../common/rf_path.c \
+	../common/tuning.c \
 	sgpio_isr.c \
 	usb_bulk_buffer.c \
-	usb.c \
-	usb_request.c \
-	usb_standard_request.c \
+	../common/usb.c \
+	../common/usb_request.c \
+	../common/usb_standard_request.c \
 	usb_descriptor.c \
-	usb_queue.c \
+	../common/usb_queue.c \
 	../common/fault_handler.c \
 	../common/hackrf_core.c \
 	../common/sgpio.c \
