@@ -108,6 +108,8 @@ usb_configuration_t* usb_configurations[] = {
 
 usb_device_t usb_device = {
 	.descriptor = usb_descriptor_device,
+	.descriptor_strings = usb_descriptor_strings,
+	.qualifier_descriptor = usb_descriptor_device_qualifier,
 	.configurations = &usb_configurations,
 	.configuration = 0,
 };

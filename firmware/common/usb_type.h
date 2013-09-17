@@ -123,6 +123,8 @@ typedef struct {
 
 typedef struct {
 	const uint8_t* const descriptor;
+	uint8_t** descriptor_strings;
+	const uint8_t* const qualifier_descriptor;
 	usb_configuration_t* (*configurations)[];
 	const usb_configuration_t* configuration;
 } usb_device_t;

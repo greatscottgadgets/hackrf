@@ -26,7 +26,6 @@
 
 #include "usb.h"
 #include "usb_type.h"
-#include "usb_descriptor.h"
 #include "usb_queue.h"
 
 const uint8_t* usb_endpoint_descriptor(
@@ -132,9 +131,9 @@ static usb_request_status_t usb_send_descriptor_string(
 	usb_endpoint_t* const endpoint
 ) {
 	uint_fast8_t index = endpoint->setup.value_l;
-	for( uint_fast8_t i=0; usb_descriptor_strings[i] != 0; i++ ) {
+	for( uint_fast8_t i=0; endpoint->device->descriptor_strings[i] != 0; i++ ) {
 		if( i == index ) {
-			return usb_send_descriptor(endpoint, usb_descriptor_strings[i]);
+			return usb_send_descriptor(endpoint, endpoint->device->descriptor_strings[i]);
 		}
 	}
 
@@ -165,7 +164,7 @@ static usb_request_status_t usb_standard_request_get_descriptor_setup(
 ) {
 	switch( endpoint->setup.value_h ) {
 	case USB_DESCRIPTOR_TYPE_DEVICE:
-		return usb_send_descriptor(endpoint, usb_descriptor_device);
+		return usb_send_descriptor(endpoint, endpoint->device->descriptor);
 		
 	case USB_DESCRIPTOR_TYPE_CONFIGURATION:
 		// TODO: Duplicated code. Refactor.
@@ -176,7 +175,7 @@ static usb_request_status_t usb_standard_request_get_descriptor_setup(
 		}
 	
 	case USB_DESCRIPTOR_TYPE_DEVICE_QUALIFIER:
-		return usb_send_descriptor(endpoint, usb_descriptor_device_qualifier);
+		return usb_send_descriptor(endpoint, endpoint->device->qualifier_descriptor);
 
 	case USB_DESCRIPTOR_TYPE_OTHER_SPEED_CONFIGURATION:
 		// TODO: Duplicated code. Refactor.
