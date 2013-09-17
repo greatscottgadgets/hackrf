@@ -24,9 +24,20 @@
 
 #include <stdint.h>
 
+typedef void (*refill_buffer_cb)(void);
+
 void cpld_jtag_release(void);
-/* return 0 if success else return error code see xsvfExecute() see micro.h */
-int cpld_jtag_program(const uint32_t len, unsigned char* const data);
+
+/* Return 0 if success else return error code see xsvfExecute() see micro.h.
+ *
+ * We expect the buffer to be initially full of data. After the entire
+ * contents of the buffer has been streamed to the CPLD the given
+ * refill_buffer callback will be called. */
+int cpld_jtag_program(
+        const uint32_t buffer_length,
+        unsigned char* const buffer,
+        refill_buffer_cb refill
+);
 unsigned char cpld_jtag_get_next_byte(void);
 
 #endif//__CPLD_JTAG_H__
