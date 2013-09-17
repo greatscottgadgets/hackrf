@@ -179,23 +179,16 @@ void set_transceiver_mode(const transceiver_mode_t new_transceiver_mode) {
 		gpio_clear(PORT_LED1_3, PIN_LED3);
 		gpio_set(PORT_LED1_3, PIN_LED2);
 		usb_endpoint_init(&usb_endpoint_bulk_in);
-
 		rf_path_set_direction(RF_PATH_DIRECTION_RX);
-		max2837_start();
-		max2837_rx();
 	} else if (transceiver_mode == TRANSCEIVER_MODE_TX) {
 		gpio_clear(PORT_LED1_3, PIN_LED2);
 		gpio_set(PORT_LED1_3, PIN_LED3);
 		usb_endpoint_init(&usb_endpoint_bulk_out);
-
 		rf_path_set_direction(RF_PATH_DIRECTION_TX);
-		max2837_start();
-		max2837_tx();
 	} else {
 		gpio_clear(PORT_LED1_3, PIN_LED2);
 		gpio_clear(PORT_LED1_3, PIN_LED3);
 		rf_path_set_direction(RF_PATH_DIRECTION_OFF);
-		max2837_stop();
 		return;
 	}
 

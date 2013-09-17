@@ -82,6 +82,8 @@ void rf_path_set_direction(const rf_path_direction_t direction) {
 		} else {
 			rffc5071_enable();
 		}
+		max2837_start();
+		max2837_tx();
 		break;
 	
 	case RF_PATH_DIRECTION_RX:
@@ -96,6 +98,8 @@ void rf_path_set_direction(const rf_path_direction_t direction) {
 		} else {
 			rffc5071_enable();
 		}
+		max2837_start();
+		max2837_rx();
 		break;
 		
 	case RF_PATH_DIRECTION_OFF:
@@ -103,6 +107,7 @@ void rf_path_set_direction(const rf_path_direction_t direction) {
 		/* Set RF path to receive direction when "off" */
 		switchctrl &= ~SWITCHCTRL_TX;
 		rffc5071_disable();
+		max2837_stop();
 		break;
 	}
 	
