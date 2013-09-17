@@ -463,7 +463,7 @@ usb_request_status_t usb_vendor_request_read_spiflash(
 			return USB_REQUEST_STATUS_STALL;
 		} else {
 			/* TODO flush SPIFI "cache" before to read the SPIFI memory */
-			u8_addr_pt = (uint8_t*)addr;
+			u8_addr_pt = (uint8_t*)(addr + SPIFI_DATA_UNCACHED_BASE);
 			for(i=0; i<len; i++)
 			{
 				spiflash_buffer[i] = u8_addr_pt[i];
