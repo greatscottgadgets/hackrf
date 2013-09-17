@@ -181,10 +181,10 @@ void sgpio_configure(
 	for(uint_fast8_t i=0; i<slice_count; i++)
 	{
 		const uint_fast8_t slice_index = slice_indices[i];
-		const bool input_slice = (i == 0) && (transceiver_mode == TRANSCEIVER_MODE_RX); /* Only for slice0/A and RX mode set input_slice to 1 */
+		const bool input_slice = (i == 0) && (transceiver_mode != TRANSCEIVER_MODE_TX); /* Only for slice0/A and RX mode set input_slice to 1 */
 		const uint_fast8_t concat_order = (input_slice || single_slice) ? 0 : 3; /* 0x0=Self-loop(slice0/A RX mode), 0x3=8 slices */
 		const uint_fast8_t concat_enable = (input_slice || single_slice) ? 0 : 1; /* 0x0=External data pin(slice0/A RX mode), 0x1=Concatenate data */
-		const uint_fast8_t clk_capture_mode = (transceiver_mode == TRANSCEIVER_MODE_RX) ? 1 : 0;
+		const uint_fast8_t clk_capture_mode = (transceiver_mode == TRANSCEIVER_MODE_TX) ? 0 : 1;
 		
 		SGPIO_MUX_CFG(slice_index) =
 		      SGPIO_MUX_CFG_CONCAT_ORDER(concat_order)
