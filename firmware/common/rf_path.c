@@ -22,8 +22,11 @@
 
 #include "rf_path.h"
 
+#include <hackrf_core.h>
+
 #include <rffc5071.h>
 #include <max2837.h>
+#include <max5864.h>
 
 #ifdef JAWBREAKER
 /*
@@ -64,7 +67,14 @@
 uint8_t switchctrl = SWITCHCTRL_SAFE;
 
 void rf_path_init(void) {
-	rffc5071_set_gpo(switchctrl);
+	ssp1_set_mode_max5864();
+	max5864_shutdown();
+	
+	ssp1_set_mode_max2837();
+	max2837_setup();
+	max2837_mode_shutdown();
+	
+	rffc5071_setup();
 }
 
 void rf_path_set_direction(const rf_path_direction_t direction) {
@@ -83,6 +93,9 @@ void rf_path_set_direction(const rf_path_direction_t direction) {
 		} else {
 			rffc5071_enable();
 		}
+		ssp1_set_mode_max5864();
+		max5864_tx();
+		ssp1_set_mode_max2837();
 		max2837_start();
 		max2837_tx();
 		break;
@@ -99,6 +112,9 @@ void rf_path_set_direction(const rf_path_direction_t direction) {
 		} else {
 			rffc5071_enable();
 		}
+		ssp1_set_mode_max5864();
+		max5864_rx();
+		ssp1_set_mode_max2837();
 		max2837_start();
 		max2837_rx();
 		break;
@@ -108,6 +124,9 @@ void rf_path_set_direction(const rf_path_direction_t direction) {
 		/* Set RF path to receive direction when "off" */
 		switchctrl &= ~SWITCHCTRL_TX;
 		rffc5071_disable();
+		ssp1_set_mode_max5864();
+		max5864_shutdown();
+		ssp1_set_mode_max2837();
 		max2837_stop();
 		break;
 	}

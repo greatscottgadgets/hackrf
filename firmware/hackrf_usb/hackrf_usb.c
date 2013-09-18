@@ -777,8 +777,6 @@ void usb_configuration_changed(
 }
 
 int main(void) {
-	const uint32_t ifreq = 2600000000U;
-
 	pin_setup();
 	enable_1v8_power();
 	cpu_clock_init();
@@ -801,15 +799,7 @@ int main(void) {
 	usb_run(&usb_device);
 	
 	ssp1_init();
-	ssp1_set_mode_max5864();
-	max5864_xcvr();
 
-	ssp1_set_mode_max2837();
-	max2837_setup();
-	max2837_set_frequency(ifreq);
-
-	rffc5071_setup();
-	
 	rf_path_init();
 
 	unsigned int phase = 0;
