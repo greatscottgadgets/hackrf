@@ -161,17 +161,25 @@ usb_endpoint_t usb_endpoint_bulk_out = {
 };
 static USB_DEFINE_QUEUE(usb_endpoint_bulk_out, 4);
 
+void baseband_streaming_enable() {
+	nvic_set_priority(NVIC_SGPIO_IRQ, 0);
+	nvic_enable_irq(NVIC_SGPIO_IRQ);
+	SGPIO_SET_EN_1 = (1 << SGPIO_SLICE_A);
+
+    sgpio_cpld_stream_enable();
+}
+
 void baseband_streaming_disable() {
 	sgpio_cpld_stream_disable();
 
 	nvic_disable_irq(NVIC_SGPIO_IRQ);
-	
-	usb_endpoint_disable(&usb_endpoint_bulk_in);
-	usb_endpoint_disable(&usb_endpoint_bulk_out);
 }
 
 void set_transceiver_mode(const transceiver_mode_t new_transceiver_mode) {
 	baseband_streaming_disable();
+	
+	usb_endpoint_disable(&usb_endpoint_bulk_in);
+	usb_endpoint_disable(&usb_endpoint_bulk_out);
 	
 	transceiver_mode = new_transceiver_mode;
 	
@@ -199,12 +207,7 @@ void set_transceiver_mode(const transceiver_mode_t new_transceiver_mode) {
 			sgpio_isr_fn = sgpio_isr_tx;
 		}
 		vector_table.irq[NVIC_SGPIO_IRQ] = sgpio_isr_fn;
-		
-		nvic_set_priority(NVIC_SGPIO_IRQ, 0);
-		nvic_enable_irq(NVIC_SGPIO_IRQ);
-		SGPIO_SET_EN_1 = (1 << SGPIO_SLICE_A);
-
-	    sgpio_cpld_stream_enable();
+		baseband_streaming_enable();
 	}
 }
 
