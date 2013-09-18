@@ -27,6 +27,7 @@
 #include <rffc5071.h>
 #include <max2837.h>
 #include <max5864.h>
+#include <sgpio.h>
 
 #ifdef JAWBREAKER
 /*
@@ -98,6 +99,7 @@ void rf_path_set_direction(const rf_path_direction_t direction) {
 		ssp1_set_mode_max2837();
 		max2837_start();
 		max2837_tx();
+		sgpio_configure(SGPIO_DIRECTION_TX, true);
 		break;
 	
 	case RF_PATH_DIRECTION_RX:
@@ -117,6 +119,7 @@ void rf_path_set_direction(const rf_path_direction_t direction) {
 		ssp1_set_mode_max2837();
 		max2837_start();
 		max2837_rx();
+		sgpio_configure(SGPIO_DIRECTION_RX, true);
 		break;
 		
 	case RF_PATH_DIRECTION_OFF:
@@ -128,6 +131,7 @@ void rf_path_set_direction(const rf_path_direction_t direction) {
 		max5864_shutdown();
 		ssp1_set_mode_max2837();
 		max2837_stop();
+		sgpio_configure(SGPIO_DIRECTION_RX, true);
 		break;
 	}
 	
