@@ -63,6 +63,7 @@ bool set_freq(uint32_t freq_mhz, uint32_t freq_hz)
 	{
 		if(freq_mhz < MAX_LP_FREQ_MHZ)
 		{
+			rf_path_set_filter(RF_PATH_FILTER_LOW_PASS);
 			RFFC5071_freq_mhz = MAX2837_FREQ_NOMINAL_MHZ - freq_mhz;
 			/* Set Freq and read real freq */
 			real_RFFC5071_freq_hz = rffc5071_set_frequency(RFFC5071_freq_mhz);
@@ -75,15 +76,15 @@ bool set_freq(uint32_t freq_mhz, uint32_t freq_hz)
 			}
 			MAX2837_freq_hz = max2837_freq_nominal_hz + tmp_hz + freq_hz;
 			max2837_set_frequency(MAX2837_freq_hz);
-			rf_path_set_filter(RF_PATH_FILTER_LOW_PASS);
 		}else if( (freq_mhz >= MIN_BYPASS_FREQ_MHZ) && (freq_mhz < MAX_BYPASS_FREQ_MHZ) )
 		{
+			rf_path_set_filter(RF_PATH_FILTER_BYPASS);
 			MAX2837_freq_hz = (freq_mhz * FREQ_ONE_MHZ) + freq_hz;
 			/* RFFC5071_freq_mhz <= not used in Bypass mode */
 			max2837_set_frequency(MAX2837_freq_hz);
-			rf_path_set_filter(RF_PATH_FILTER_BYPASS);
 		}else if(  (freq_mhz >= MIN_HP_FREQ_MHZ) && (freq_mhz < MAX_HP_FREQ_MHZ) )
 		{
+			rf_path_set_filter(RF_PATH_FILTER_HIGH_PASS);
 			RFFC5071_freq_mhz = freq_mhz - MAX2837_FREQ_NOMINAL_MHZ;
 			/* Set Freq and read real freq */
 			real_RFFC5071_freq_hz = rffc5071_set_frequency(RFFC5071_freq_mhz);
@@ -96,7 +97,6 @@ bool set_freq(uint32_t freq_mhz, uint32_t freq_hz)
 			}
 			MAX2837_freq_hz = max2837_freq_nominal_hz + tmp_hz + freq_hz;
 			max2837_set_frequency(MAX2837_freq_hz);
-			rf_path_set_filter(RF_PATH_FILTER_HIGH_PASS);
 		}else
 		{
 			/* Error freq_mhz too high */
