@@ -188,18 +188,19 @@ void set_transceiver_mode(const transceiver_mode_t new_transceiver_mode) {
 		gpio_set(PORT_LED1_3, PIN_LED2);
 		usb_endpoint_init(&usb_endpoint_bulk_in);
 		rf_path_set_direction(RF_PATH_DIRECTION_RX);
+		sgpio_configure(SGPIO_DIRECTION_RX, true);
 	} else if (transceiver_mode == TRANSCEIVER_MODE_TX) {
 		gpio_clear(PORT_LED1_3, PIN_LED2);
 		gpio_set(PORT_LED1_3, PIN_LED3);
 		usb_endpoint_init(&usb_endpoint_bulk_out);
 		rf_path_set_direction(RF_PATH_DIRECTION_TX);
+		sgpio_configure(SGPIO_DIRECTION_TX, true);
 	} else {
 		gpio_clear(PORT_LED1_3, PIN_LED2);
 		gpio_clear(PORT_LED1_3, PIN_LED3);
 		rf_path_set_direction(RF_PATH_DIRECTION_OFF);
+		sgpio_configure(SGPIO_DIRECTION_RX, true);
 	}
-
-	sgpio_configure(transceiver_mode, true);
 
 	if( transceiver_mode != TRANSCEIVER_MODE_OFF ) {
 		vector_table_entry_t sgpio_isr_fn = sgpio_isr_rx;

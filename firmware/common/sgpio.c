@@ -25,6 +25,8 @@
 
 #include <hackrf_core.h>
 
+#include <sgpio.h>
+
 void sgpio_configure_pin_functions() {
 	scu_pinmux(SCU_PINMUX_SGPIO0, SCU_GPIO_FAST | SCU_CONF_FUNCTION3);
 	scu_pinmux(SCU_PINMUX_SGPIO1, SCU_GPIO_FAST | SCU_CONF_FUNCTION3);
@@ -104,7 +106,7 @@ void sgpio_test_interface() {
  SGPIO11 Direction Output (1/High=TX mode LPC43xx=>CPLD=>DAC, 0/Low=RX mode LPC43xx<=CPLD<=ADC)
 */
 void sgpio_configure(
-	const transceiver_mode_t transceiver_mode,
+	const sgpio_direction_t direction,
 	const bool multi_slice
 ) {
 	// Disable all counters during configuration
@@ -114,7 +116,7 @@ void sgpio_configure(
 
     // Set SGPIO output values.
 	const uint_fast8_t cpld_direction =
-		(transceiver_mode == TRANSCEIVER_MODE_TX) ? 1 : 0;
+		(direction == SGPIO_DIRECTION_TX) ? 1 : 0;
     SGPIO_GPIO_OUTREG =
           (cpld_direction << 11) /* 1=Output SGPIO11 High(TX mode), 0=Output SGPIO11 Low(RX mode)*/
         | (1L << 10)	// disable codec data stream during configuration (Output SGPIO10 High)
@@ -122,7 +124,7 @@ void sgpio_configure(
 
 	// Enable SGPIO pin outputs.
 	const uint_fast16_t sgpio_gpio_data_direction =
-		(transceiver_mode == TRANSCEIVER_MODE_TX)
+		(direction == SGPIO_DIRECTION_TX)
 		? (0xFF << 0)
 		: (0x00 << 0);
 	SGPIO_GPIO_OENREG =
@@ -181,10 +183,10 @@ void sgpio_configure(
 	for(uint_fast8_t i=0; i<slice_count; i++)
 	{
 		const uint_fast8_t slice_index = slice_indices[i];
-		const bool input_slice = (i == 0) && (transceiver_mode != TRANSCEIVER_MODE_TX); /* Only for slice0/A and RX mode set input_slice to 1 */
+		const bool input_slice = (i == 0) && (direction != SGPIO_DIRECTION_TX); /* Only for slice0/A and RX mode set input_slice to 1 */
 		const uint_fast8_t concat_order = (input_slice || single_slice) ? 0 : 3; /* 0x0=Self-loop(slice0/A RX mode), 0x3=8 slices */
 		const uint_fast8_t concat_enable = (input_slice || single_slice) ? 0 : 1; /* 0x0=External data pin(slice0/A RX mode), 0x1=Concatenate data */
-		const uint_fast8_t clk_capture_mode = (transceiver_mode == TRANSCEIVER_MODE_TX) ? 0 : 1;
+		const uint_fast8_t clk_capture_mode = (direction == SGPIO_DIRECTION_TX) ? 0 : 1;
 		
 		SGPIO_MUX_CFG(slice_index) =
 		      SGPIO_MUX_CFG_CONCAT_ORDER(concat_order)
