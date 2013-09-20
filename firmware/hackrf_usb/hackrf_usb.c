@@ -46,6 +46,10 @@
 #include "usb_descriptor.h"
 #include "usb_standard_request.h"
 
+#include "usb_device.h"
+#include "usb_endpoint.h"
+#include "usb_api_cpld.h"
+
 #include "rf_path.h"
 #include "tuning.h"
 #include "sgpio_isr.h"
@@ -73,93 +77,6 @@ typedef struct {
 } set_sample_r_params_t;
 
 set_sample_r_params_t set_sample_r_params;
-
-usb_configuration_t usb_configuration_high_speed = {
-	.number = 1,
-	.speed = USB_SPEED_HIGH,
-	.descriptor = usb_descriptor_configuration_high_speed,
-};
-
-usb_configuration_t usb_configuration_full_speed = {
-	.number = 1,
-	.speed = USB_SPEED_FULL,
-	.descriptor = usb_descriptor_configuration_full_speed,
-};
-
-usb_configuration_t usb_configuration_cpld_update_full_speed = {
-	.number = 2,
-	.speed = USB_SPEED_FULL,
-	.descriptor = usb_descriptor_configuration_cpld_update_full_speed,
-};
-
-usb_configuration_t usb_configuration_cpld_update_high_speed = {
-	.number = 2,
-	.speed = USB_SPEED_HIGH,
-	.descriptor = usb_descriptor_configuration_cpld_update_high_speed,
-};
-
-usb_configuration_t* usb_configurations[] = {
-	&usb_configuration_high_speed,
-	&usb_configuration_full_speed,
-	&usb_configuration_cpld_update_full_speed,
-	&usb_configuration_cpld_update_high_speed,
-	0,
-};
-
-usb_device_t usb_device = {
-	.descriptor = usb_descriptor_device,
-	.descriptor_strings = usb_descriptor_strings,
-	.qualifier_descriptor = usb_descriptor_device_qualifier,
-	.configurations = &usb_configurations,
-	.configuration = 0,
-};
-
-usb_endpoint_t usb_endpoint_control_out;
-usb_endpoint_t usb_endpoint_control_in;
-
-usb_endpoint_t usb_endpoint_control_out = {
-	.address = 0x00,
-	.device = &usb_device,
-	.in = &usb_endpoint_control_in,
-	.out = &usb_endpoint_control_out,
-	.setup_complete = usb_setup_complete,
-	.transfer_complete = usb_control_out_complete,
-};
-USB_DEFINE_QUEUE(usb_endpoint_control_out, 4);
-
-usb_endpoint_t usb_endpoint_control_in = {
-	.address = 0x80,
-	.device = &usb_device,
-	.in = &usb_endpoint_control_in,
-	.out = &usb_endpoint_control_out,
-	.setup_complete = 0,
-	.transfer_complete = usb_control_in_complete,
-};
-static USB_DEFINE_QUEUE(usb_endpoint_control_in, 4);
-
-// NOTE: Endpoint number for IN and OUT are different. I wish I had some
-// evidence that having BULK IN and OUT on separate endpoint numbers was
-// actually a good idea. Seems like everybody does it that way, but why?
-
-usb_endpoint_t usb_endpoint_bulk_in = {
-	.address = 0x81,
-	.device = &usb_device,
-	.in = &usb_endpoint_bulk_in,
-	.out = 0,
-	.setup_complete = 0,
-	.transfer_complete = usb_queue_transfer_complete
-};
-static USB_DEFINE_QUEUE(usb_endpoint_bulk_in, 4);
-
-usb_endpoint_t usb_endpoint_bulk_out = {
-	.address = 0x02,
-	.device = &usb_device,
-	.in = 0,
-	.out = &usb_endpoint_bulk_out,
-	.setup_complete = 0,
-	.transfer_complete = usb_queue_transfer_complete
-};
-static USB_DEFINE_QUEUE(usb_endpoint_bulk_out, 4);
 
 void baseband_streaming_enable() {
 	nvic_set_priority(NVIC_SGPIO_IRQ, 0);

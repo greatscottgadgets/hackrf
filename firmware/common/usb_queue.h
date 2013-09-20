@@ -49,6 +49,8 @@ struct _usb_queue_t {
         usb_transfer_t* volatile active;
 };
 
+#define USB_DECLARE_QUEUE(endpoint_name)                                \
+        struct _usb_queue_t endpoint_name##_queue;
 #define USB_DEFINE_QUEUE(endpoint_name, _pool_size)                     \
         struct _usb_transfer_t endpoint_name##_transfers[_pool_size];   \
         struct _usb_queue_t endpoint_name##_queue = {                   \
