@@ -34,6 +34,7 @@ SRC = $(BINARY).c \
 	usb_device.c \
 	usb_endpoint.c \
 	usb_api_cpld.c \
+	usb_api_spiflash.c \
 	../common/usb_queue.c \
 	../common/fault_handler.c \
 	../common/hackrf_core.c \
