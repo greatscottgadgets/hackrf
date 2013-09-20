@@ -116,6 +116,10 @@ program: $(BINARY).dfu
 	@#printf "  CC      $(subst $(shell pwd)/,,$(@))\n"
 	$(Q)$(CC) $(CFLAGS) -o $@ -c $<
 
+%.o: %.s Makefile
+	@#printf "  CC      $(subst $(shell pwd)/,,$(@))\n"
+	$(Q)$(CC) $(CFLAGS) -o $@ -c $<
+
 clean:
 	$(Q)rm -f *.o
 	$(Q)rm -f *.d
