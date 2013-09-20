@@ -147,6 +147,33 @@ extern "C"
 #define SCU_FLASH_WP        (P3_5) /* GPIO1[15] on P3_5 */
 
 /* TODO add other Pins */
+#define SCU_PINMUX_GPIO3_8  (P7_0)  /* GPIO3[8] */
+#define SCU_PINMUX_GPIO3_9  (P7_1)  /* GPIO3[9] */
+#define SCU_PINMUX_GPIO3_10 (P7_2)  /* GPIO3[10] */
+#define SCU_PINMUX_GPIO3_11 (P7_3)  /* GPIO3[11] */
+#define SCU_PINMUX_GPIO3_12 (P7_4)  /* GPIO3[12] */
+#define SCU_PINMUX_GPIO3_13 (P7_5)  /* GPIO3[13] */
+#define SCU_PINMUX_GPIO3_14 (P7_6)  /* GPIO3[14] */
+#define SCU_PINMUX_GPIO3_15 (P7_7)  /* GPIO3[15] */
+
+#define SCU_PINMUX_SD_POW   (P1_5)  /* GPIO1[8] */
+#define SCU_PINMUX_SD_CMD   (P1_6)  /* GPIO1[9] */
+#define SCU_PINMUX_SD_VOLT0 (P1_8)  /* GPIO1[1] */
+#define SCU_PINMUX_SD_DAT0  (P1_9)  /* GPIO1[2] */
+#define SCU_PINMUX_SD_DAT1  (P1_10) /* GPIO1[3] */
+#define SCU_PINMUX_SD_DAT2  (P1_11) /* GPIO1[4] */
+#define SCU_PINMUX_SD_DAT3  (P1_12) /* GPIO1[5] */
+#define SCU_PINMUX_SD_CD    (P1_13) /* GPIO1[6] */
+
+#define SCU_PINMUX_U0_TXD   (P2_0)  /* GPIO5[0] */
+#define SCU_PINMUX_U0_RXD   (P2_1)  /* GPIO5[1] */
+
+#define SCU_PINMUX_ISP      (P2_7)  /* GPIO0[7] */
+
+#define SCU_PINMUX_I2S0_TX_SDA (P3_2)
+#define SCU_PINMUX_I2S0_TX_WS (P3_1)
+#define SCU_PINMUX_I2S0_TX_SCK (P3_0)
+#define SCU_PINMUX_I2S0_TX_MCLK (CLK2)
 
 /*
  * GPIO Pins
