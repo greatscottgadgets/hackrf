@@ -22,8 +22,12 @@
 
 #include <stddef.h>
 
+#include <libopencm3/cm3/vector.h>
+
 #include <libopencm3/lpc43xx/gpio.h>
 #include <libopencm3/lpc43xx/m4/nvic.h>
+
+#include <streaming.h>
 
 #include "usb.h"
 #include "usb_standard_request.h"
@@ -37,7 +41,66 @@
 
 #include "usb_api_transceiver.h"
 #include "rf_path.h"
+#include "sgpio_isr.h"
 #include "usb_bulk_buffer.h"
+ 
+static volatile transceiver_mode_t _transceiver_mode = TRANSCEIVER_MODE_OFF;
+
+void set_transceiver_mode(const transceiver_mode_t new_transceiver_mode) {
+	baseband_streaming_disable();
+	
+	usb_endpoint_disable(&usb_endpoint_bulk_in);
+	usb_endpoint_disable(&usb_endpoint_bulk_out);
+	
+	_transceiver_mode = new_transceiver_mode;
+	
+	if( _transceiver_mode == TRANSCEIVER_MODE_RX ) {
+		gpio_clear(PORT_LED1_3, PIN_LED3);
+		gpio_set(PORT_LED1_3, PIN_LED2);
+		usb_endpoint_init(&usb_endpoint_bulk_in);
+		rf_path_set_direction(RF_PATH_DIRECTION_RX);
+		vector_table.irq[NVIC_SGPIO_IRQ] = sgpio_isr_rx;
+	} else if (_transceiver_mode == TRANSCEIVER_MODE_TX) {
+		gpio_clear(PORT_LED1_3, PIN_LED2);
+		gpio_set(PORT_LED1_3, PIN_LED3);
+		usb_endpoint_init(&usb_endpoint_bulk_out);
+		rf_path_set_direction(RF_PATH_DIRECTION_TX);
+		vector_table.irq[NVIC_SGPIO_IRQ] = sgpio_isr_tx;
+	} else {
+		gpio_clear(PORT_LED1_3, PIN_LED2);
+		gpio_clear(PORT_LED1_3, PIN_LED3);
+		rf_path_set_direction(RF_PATH_DIRECTION_OFF);
+		vector_table.irq[NVIC_SGPIO_IRQ] = sgpio_isr_rx;
+	}
+
+	if( _transceiver_mode != TRANSCEIVER_MODE_OFF ) {
+		baseband_streaming_enable();
+	}
+}
+
+transceiver_mode_t transceiver_mode(void) {
+	return _transceiver_mode;
+}
+
+usb_request_status_t usb_vendor_request_set_transceiver_mode(
+	usb_endpoint_t* const endpoint,
+	const usb_transfer_stage_t stage
+) {
+	if( stage == USB_TRANSFER_STAGE_SETUP ) {
+		switch( endpoint->setup.value ) {
+		case TRANSCEIVER_MODE_OFF:
+		case TRANSCEIVER_MODE_RX:
+		case TRANSCEIVER_MODE_TX:
+			set_transceiver_mode(endpoint->setup.value);
+			usb_transfer_schedule_ack(endpoint->in);
+			return USB_REQUEST_STATUS_OK;
+		default:
+			return USB_REQUEST_STATUS_STALL;
+		}
+	} else {
+		return USB_REQUEST_STATUS_OK;
+	}
+}
 
 static const usb_request_handler_fn vendor_request_handler[] = {
 	NULL,

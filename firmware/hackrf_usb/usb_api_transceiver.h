@@ -27,9 +27,6 @@
 #include <usb_type.h>
 #include <usb_request.h>
 
-void set_transceiver_mode(const transceiver_mode_t new_transceiver_mode);
-transceiver_mode_t transceiver_mode(void);
-
 usb_request_status_t usb_vendor_request_set_transceiver_mode(
 	usb_endpoint_t* const endpoint,
 	const usb_transfer_stage_t stage);
