@@ -33,6 +33,12 @@ SRC = hackrf_usb.c \
 	../common/usb_request.c \
 	../common/usb_standard_request.c \
 	usb_descriptor.c \
+	usb_device.c \
+	usb_endpoint.c \
+	usb_api_board_info.c \
+	usb_api_cpld.c \
+	usb_api_register.c \
+	usb_api_spiflash.c \
 	../common/usb_queue.c \
 	../common/fault_handler.c \
 	../common/hackrf_core.c \
