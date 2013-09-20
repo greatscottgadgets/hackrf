@@ -34,7 +34,6 @@
 #include <max2837.h>
 #include <w25q80bv.h>
 #include <sgpio.h>
-#include <rom_iap.h>
 
 #include "usb.h"
 #include "usb_type.h"
@@ -45,6 +44,7 @@
 
 #include "usb_device.h"
 #include "usb_endpoint.h"
+#include "usb_api_board_info.h"
 #include "usb_api_cpld.h"
 #include "usb_api_register.h"
 #include "usb_api_spiflash.h"
@@ -55,8 +55,6 @@
 #include "usb_bulk_buffer.h"
 
 static volatile transceiver_mode_t transceiver_mode = TRANSCEIVER_MODE_OFF;
-
-char version_string[] = VERSION_STRING;
 
 typedef struct {
 	uint32_t freq_mhz;
@@ -154,30 +152,6 @@ usb_request_status_t usb_vendor_request_set_baseband_filter_bandwidth(
 	}
 }
 
-usb_request_status_t usb_vendor_request_read_board_id(
-		usb_endpoint_t* const endpoint, const usb_transfer_stage_t stage)
-{
-	if (stage == USB_TRANSFER_STAGE_SETUP) {
-		endpoint->buffer[0] = BOARD_ID;
-		usb_transfer_schedule_block(endpoint->in, &endpoint->buffer, 1, NULL, NULL);
-		usb_transfer_schedule_ack(endpoint->out);
-	}
-	return USB_REQUEST_STATUS_OK;
-}
-
-usb_request_status_t usb_vendor_request_read_version_string(
-	usb_endpoint_t* const endpoint, const usb_transfer_stage_t stage)
-{
-	uint8_t length;
-
-	if (stage == USB_TRANSFER_STAGE_SETUP) {
-		length = (uint8_t)strlen(version_string);
-		usb_transfer_schedule_block(endpoint->in, version_string, length, NULL, NULL);
-		usb_transfer_schedule_ack(endpoint->out);
-	}
-	return USB_REQUEST_STATUS_OK;
-}
-
 usb_request_status_t usb_vendor_request_set_freq(
 	usb_endpoint_t* const endpoint,
 	const usb_transfer_stage_t stage) 
@@ -243,48 +217,6 @@ usb_request_status_t usb_vendor_request_set_amp_enable(
 	} else {
 		return USB_REQUEST_STATUS_OK;
 	}
-}
-
-typedef struct {
-	uint32_t part_id[2];
-	uint32_t serial_no[4];
-} read_partid_serialno_t;
-
-usb_request_status_t usb_vendor_request_read_partid_serialno(
-	usb_endpoint_t* const endpoint, const usb_transfer_stage_t stage)
-{
-	uint8_t length;
-	read_partid_serialno_t read_partid_serialno;
-	iap_cmd_res_t iap_cmd_res;
-
-	if (stage == USB_TRANSFER_STAGE_SETUP) 
-	{
-		/* Read IAP Part Number Identification */
-		iap_cmd_res.cmd_param.command_code = IAP_CMD_READ_PART_ID_NO;
-		iap_cmd_call(&iap_cmd_res);
-		if(iap_cmd_res.status_res.status_ret != CMD_SUCCESS)
-			return USB_REQUEST_STATUS_STALL;
-
-		read_partid_serialno.part_id[0] = iap_cmd_res.status_res.iap_result[0];
-		read_partid_serialno.part_id[1] = iap_cmd_res.status_res.iap_result[1];
-		
-		/* Read IAP Serial Number Identification */
-		iap_cmd_res.cmd_param.command_code = IAP_CMD_READ_SERIAL_NO;
-		iap_cmd_call(&iap_cmd_res);
-		if(iap_cmd_res.status_res.status_ret != CMD_SUCCESS)
-			return USB_REQUEST_STATUS_STALL;
-
-		read_partid_serialno.serial_no[0] = iap_cmd_res.status_res.iap_result[0];
-		read_partid_serialno.serial_no[1] = iap_cmd_res.status_res.iap_result[1];
-		read_partid_serialno.serial_no[2] = iap_cmd_res.status_res.iap_result[2];
-		read_partid_serialno.serial_no[3] = iap_cmd_res.status_res.iap_result[3];
-		
-		length = (uint8_t)sizeof(read_partid_serialno_t);
-		usb_transfer_schedule_block(endpoint->in, &read_partid_serialno, length,
-					    NULL, NULL);
-		usb_transfer_schedule_ack(endpoint->out);
-	}
-	return USB_REQUEST_STATUS_OK;
 }
 
 usb_request_status_t usb_vendor_request_set_lna_gain(

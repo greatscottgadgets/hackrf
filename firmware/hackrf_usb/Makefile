@@ -33,6 +33,7 @@ SRC = $(BINARY).c \
 	usb_descriptor.c \
 	usb_device.c \
 	usb_endpoint.c \
+	usb_api_board_info.c \
 	usb_api_cpld.c \
 	usb_api_register.c \
 	usb_api_spiflash.c \
