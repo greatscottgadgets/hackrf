@@ -20,26 +20,12 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include <string.h>
+#include <stddef.h>
 
-#include <libopencm3/cm3/vector.h>
-
-#include <libopencm3/lpc43xx/cgu.h>
 #include <libopencm3/lpc43xx/gpio.h>
 #include <libopencm3/lpc43xx/m4/nvic.h>
-#include <libopencm3/lpc43xx/sgpio.h>
-
-#include <hackrf_core.h>
-#include <max5864.h>
-#include <max2837.h>
-#include <w25q80bv.h>
-#include <sgpio.h>
 
 #include "usb.h"
-#include "usb_type.h"
-#include "usb_queue.h"
-#include "usb_request.h"
-#include "usb_descriptor.h"
 #include "usb_standard_request.h"
 
 #include "usb_device.h"
@@ -49,231 +35,9 @@
 #include "usb_api_register.h"
 #include "usb_api_spiflash.h"
 
+#include "usb_api_transceiver.h"
 #include "rf_path.h"
-#include "tuning.h"
-#include "sgpio_isr.h"
 #include "usb_bulk_buffer.h"
-
-static volatile transceiver_mode_t transceiver_mode = TRANSCEIVER_MODE_OFF;
-
-typedef struct {
-	uint32_t freq_mhz;
-	uint32_t freq_hz;
-} set_freq_params_t;
-
-set_freq_params_t set_freq_params;
-
-typedef struct {
-	uint32_t freq_hz;
-	uint32_t divider;
-} set_sample_r_params_t;
-
-set_sample_r_params_t set_sample_r_params;
-
-void baseband_streaming_enable() {
-	nvic_set_priority(NVIC_SGPIO_IRQ, 0);
-	nvic_enable_irq(NVIC_SGPIO_IRQ);
-	SGPIO_SET_EN_1 = (1 << SGPIO_SLICE_A);
-
-    sgpio_cpld_stream_enable();
-}
-
-void baseband_streaming_disable() {
-	sgpio_cpld_stream_disable();
-
-	nvic_disable_irq(NVIC_SGPIO_IRQ);
-}
-
-void set_transceiver_mode(const transceiver_mode_t new_transceiver_mode) {
-	baseband_streaming_disable();
-	
-	usb_endpoint_disable(&usb_endpoint_bulk_in);
-	usb_endpoint_disable(&usb_endpoint_bulk_out);
-	
-	transceiver_mode = new_transceiver_mode;
-	
-	if( transceiver_mode == TRANSCEIVER_MODE_RX ) {
-		gpio_clear(PORT_LED1_3, PIN_LED3);
-		gpio_set(PORT_LED1_3, PIN_LED2);
-		usb_endpoint_init(&usb_endpoint_bulk_in);
-		rf_path_set_direction(RF_PATH_DIRECTION_RX);
-		vector_table.irq[NVIC_SGPIO_IRQ] = sgpio_isr_rx;
-	} else if (transceiver_mode == TRANSCEIVER_MODE_TX) {
-		gpio_clear(PORT_LED1_3, PIN_LED2);
-		gpio_set(PORT_LED1_3, PIN_LED3);
-		usb_endpoint_init(&usb_endpoint_bulk_out);
-		rf_path_set_direction(RF_PATH_DIRECTION_TX);
-		vector_table.irq[NVIC_SGPIO_IRQ] = sgpio_isr_tx;
-	} else {
-		gpio_clear(PORT_LED1_3, PIN_LED2);
-		gpio_clear(PORT_LED1_3, PIN_LED3);
-		rf_path_set_direction(RF_PATH_DIRECTION_OFF);
-		vector_table.irq[NVIC_SGPIO_IRQ] = sgpio_isr_rx;
-	}
-
-	if( transceiver_mode != TRANSCEIVER_MODE_OFF ) {
-		baseband_streaming_enable();
-	}
-}
-
-usb_request_status_t usb_vendor_request_set_transceiver_mode(
-	usb_endpoint_t* const endpoint,
-	const usb_transfer_stage_t stage
-) {
-	if( stage == USB_TRANSFER_STAGE_SETUP ) {
-		switch( endpoint->setup.value ) {
-		case TRANSCEIVER_MODE_OFF:
-		case TRANSCEIVER_MODE_RX:
-		case TRANSCEIVER_MODE_TX:
-			set_transceiver_mode(endpoint->setup.value);
-			usb_transfer_schedule_ack(endpoint->in);
-			return USB_REQUEST_STATUS_OK;
-		default:
-			return USB_REQUEST_STATUS_STALL;
-		}
-	} else {
-		return USB_REQUEST_STATUS_OK;
-	}
-}
-
-usb_request_status_t usb_vendor_request_set_baseband_filter_bandwidth(
-	usb_endpoint_t* const endpoint,
-	const usb_transfer_stage_t stage
-) {
-	if( stage == USB_TRANSFER_STAGE_SETUP ) {
-		const uint32_t bandwidth = (endpoint->setup.index << 16) | endpoint->setup.value;
-		if( baseband_filter_bandwidth_set(bandwidth) ) {
-			usb_transfer_schedule_ack(endpoint->in);
-			return USB_REQUEST_STATUS_OK;
-		}
-		return USB_REQUEST_STATUS_STALL;
-	} else {
-		return USB_REQUEST_STATUS_OK;
-	}
-}
-
-usb_request_status_t usb_vendor_request_set_freq(
-	usb_endpoint_t* const endpoint,
-	const usb_transfer_stage_t stage) 
-{
-	if (stage == USB_TRANSFER_STAGE_SETUP) 
-	{
-		usb_transfer_schedule_block(endpoint->out, &set_freq_params, sizeof(set_freq_params_t),
-					    NULL, NULL);
-		return USB_REQUEST_STATUS_OK;
-	} else if (stage == USB_TRANSFER_STAGE_DATA) 
-	{
-		if( set_freq(set_freq_params.freq_mhz, set_freq_params.freq_hz) ) 
-		{
-			usb_transfer_schedule_ack(endpoint->in);
-			return USB_REQUEST_STATUS_OK;
-		}
-		return USB_REQUEST_STATUS_STALL;
-	} else
-	{
-		return USB_REQUEST_STATUS_OK;
-	}
-}
-
-usb_request_status_t usb_vendor_request_set_sample_rate_frac(
-	usb_endpoint_t* const endpoint,
-	const usb_transfer_stage_t stage) 
-{
-	if (stage == USB_TRANSFER_STAGE_SETUP) 
-	{
-                usb_transfer_schedule_block(endpoint->out, &set_sample_r_params, sizeof(set_sample_r_params_t),
-					    NULL, NULL);
-		return USB_REQUEST_STATUS_OK;
-	} else if (stage == USB_TRANSFER_STAGE_DATA) 
-	{
-		if( sample_rate_frac_set(set_sample_r_params.freq_hz * 2, set_sample_r_params.divider ) )
-		{
-			usb_transfer_schedule_ack(endpoint->in);
-			return USB_REQUEST_STATUS_OK;
-		}
-		return USB_REQUEST_STATUS_STALL;
-	} else
-	{
-		return USB_REQUEST_STATUS_OK;
-	}
-}
-
-usb_request_status_t usb_vendor_request_set_amp_enable(
-	usb_endpoint_t* const endpoint, const usb_transfer_stage_t stage)
-{
-	if (stage == USB_TRANSFER_STAGE_SETUP) {
-		switch (endpoint->setup.value) {
-		case 0:
-			rf_path_set_lna(0);
-			usb_transfer_schedule_ack(endpoint->in);
-			return USB_REQUEST_STATUS_OK;
-		case 1:
-			rf_path_set_lna(1);
-			usb_transfer_schedule_ack(endpoint->in);
-			return USB_REQUEST_STATUS_OK;
-		default:
-			return USB_REQUEST_STATUS_STALL;
-		}
-	} else {
-		return USB_REQUEST_STATUS_OK;
-	}
-}
-
-usb_request_status_t usb_vendor_request_set_lna_gain(
-	usb_endpoint_t* const endpoint,
-	const usb_transfer_stage_t stage)
-{
-	if( stage == USB_TRANSFER_STAGE_SETUP ) {
-			const uint8_t value = max2837_set_lna_gain(endpoint->setup.index);
-			endpoint->buffer[0] = value;
-			usb_transfer_schedule_block(endpoint->in, &endpoint->buffer, 1,
-						    NULL, NULL);
-			usb_transfer_schedule_ack(endpoint->out);
-			return USB_REQUEST_STATUS_OK;
-	}
-	return USB_REQUEST_STATUS_OK;
-}
-
-usb_request_status_t usb_vendor_request_set_vga_gain(
-	usb_endpoint_t* const endpoint,	const usb_transfer_stage_t stage)
-{
-	if( stage == USB_TRANSFER_STAGE_SETUP ) {
-			const uint8_t value = max2837_set_vga_gain(endpoint->setup.index);
-			endpoint->buffer[0] = value;
-			usb_transfer_schedule_block(endpoint->in, &endpoint->buffer, 1,
-						    NULL, NULL);
-			usb_transfer_schedule_ack(endpoint->out);
-			return USB_REQUEST_STATUS_OK;
-	}
-	return USB_REQUEST_STATUS_OK;
-}
-
-usb_request_status_t usb_vendor_request_set_txvga_gain(
-	usb_endpoint_t* const endpoint,	const usb_transfer_stage_t stage)
-{
-	if( stage == USB_TRANSFER_STAGE_SETUP ) {
-			const uint8_t value = max2837_set_txvga_gain(endpoint->setup.index);
-			endpoint->buffer[0] = value;
-			usb_transfer_schedule_block(endpoint->in, &endpoint->buffer, 1,
-						    NULL, NULL);
-			usb_transfer_schedule_ack(endpoint->out);
-			return USB_REQUEST_STATUS_OK;
-	}
-	return USB_REQUEST_STATUS_OK;
-}
-
-usb_request_status_t usb_vendor_request_set_if_freq(
-	usb_endpoint_t* const endpoint,	const usb_transfer_stage_t stage
-) {
-	if( stage == USB_TRANSFER_STAGE_SETUP ) {
-		if( set_freq_if((uint32_t)endpoint->setup.index * 1000 * 1000) ) {
-			usb_transfer_schedule_ack(endpoint->in);
-		} else {
-			return USB_REQUEST_STATUS_STALL;
-		}
-	}
-	return USB_REQUEST_STATUS_OK;
-}
 
 static const usb_request_handler_fn vendor_request_handler[] = {
 	NULL,
@@ -383,9 +147,9 @@ int main(void) {
 		// Set up IN transfer of buffer 0.
 		if ( usb_bulk_buffer_offset >= 16384
 		     && phase == 1
-		     && transceiver_mode != TRANSCEIVER_MODE_OFF) {
+		     && transceiver_mode() != TRANSCEIVER_MODE_OFF) {
 			usb_transfer_schedule_block(
-				(transceiver_mode == TRANSCEIVER_MODE_RX)
+				(transceiver_mode() == TRANSCEIVER_MODE_RX)
 				? &usb_endpoint_bulk_in : &usb_endpoint_bulk_out,
 				&usb_bulk_buffer[0x0000],
 				0x4000,
@@ -397,9 +161,9 @@ int main(void) {
 		// Set up IN transfer of buffer 1.
 		if ( usb_bulk_buffer_offset < 16384
 		     && phase == 0
-		     && transceiver_mode != TRANSCEIVER_MODE_OFF) {
+		     && transceiver_mode() != TRANSCEIVER_MODE_OFF) {
 			usb_transfer_schedule_block(
-				(transceiver_mode == TRANSCEIVER_MODE_RX)
+				(transceiver_mode() == TRANSCEIVER_MODE_RX)
 				? &usb_endpoint_bulk_in : &usb_endpoint_bulk_out,
 				&usb_bulk_buffer[0x4000],
 				0x4000,
