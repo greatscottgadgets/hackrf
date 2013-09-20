@@ -35,7 +35,6 @@
 #include <max2837.h>
 #include <rffc5071.h>
 #include <w25q80bv.h>
-#include <cpld_jtag.h>
 #include <sgpio.h>
 #include <rom_iap.h>
 
@@ -56,10 +55,6 @@
 #include "usb_bulk_buffer.h"
 
 static volatile transceiver_mode_t transceiver_mode = TRANSCEIVER_MODE_OFF;
-
-static volatile bool start_cpld_update = false;
-uint8_t cpld_xsvf_buffer[512];
-volatile bool cpld_wait = false;
 
 uint8_t spiflash_buffer[W25Q80BV_PAGE_LEN];
 char version_string[] = VERSION_STRING;
@@ -615,61 +610,6 @@ const usb_request_handlers_t usb_request_handlers = {
 	.vendor = usb_vendor_request,
 	.reserved = 0,
 };
-
-static void cpld_buffer_refilled(void* user_data, unsigned int length)
-{
-	cpld_wait = false;
-}
-
-static void refill_cpld_buffer(void)
-{
-	cpld_wait = true;
-	usb_transfer_schedule(
-		&usb_endpoint_bulk_out,
-		cpld_xsvf_buffer,
-		sizeof(cpld_xsvf_buffer),
-		cpld_buffer_refilled,
-		NULL
-		);
-
-	// Wait until transfer finishes
-	while (cpld_wait);
-}
-
-static void cpld_update(void)
-{
-	#define WAIT_LOOP_DELAY (6000000)
-	#define ALL_LEDS  (PIN_LED1|PIN_LED2|PIN_LED3)
-	int i;
-	int error;
-
-	usb_queue_flush_endpoint(&usb_endpoint_bulk_in);
-	usb_queue_flush_endpoint(&usb_endpoint_bulk_out);
-
-	refill_cpld_buffer();
-
-	error = cpld_jtag_program(sizeof(cpld_xsvf_buffer),
-				  cpld_xsvf_buffer,
-				  refill_cpld_buffer);
-	if(error == 0)
-	{
-		/* blink LED1, LED2, and LED3 on success */
-		while (1)
-		{
-			gpio_set(PORT_LED1_3, ALL_LEDS); /* LEDs on */
-			for (i = 0; i < WAIT_LOOP_DELAY; i++)  /* Wait a bit. */
-				__asm__("nop");
-			gpio_clear(PORT_LED1_3, ALL_LEDS); /* LEDs off */
-			for (i = 0; i < WAIT_LOOP_DELAY; i++)  /* Wait a bit. */
-				__asm__("nop");
-		}
-	}else
-	{
-		/* LED3 (Red) steady on error */
-		gpio_set(PORT_LED1_3, PIN_LED3); /* LEDs on */
-		while (1);
-	}
-}
 
 void usb_configuration_changed(
 	usb_device_t* const device
