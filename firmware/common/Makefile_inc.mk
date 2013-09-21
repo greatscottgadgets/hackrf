@@ -29,7 +29,9 @@
 #BOARD ?= JELLYBEAN
 BOARD ?= JAWBREAKER
 
-HACKRF_OPTS = -D$(BOARD) -DLPC43XX -DLPC43XX_M4
+LPC43XX_TARGET ?= M4
+
+HACKRF_OPTS = -D$(BOARD) -DLPC43XX -DLPC43XX_$(LPC43XX_TARGET)
 
 # comment to disable RF transmission
 HACKRF_OPTS += -DTX_ENABLE
@@ -37,8 +39,6 @@ HACKRF_OPTS += -DTX_ENABLE
 # automatic git version when working out of git
 VERSION_STRING ?= -D'VERSION_STRING="git-$(shell git log -n 1 --format=%h)"'
 HACKRF_OPTS += $(VERSION_STRING)
-
-LDSCRIPT ?= ../common/LPC4330_M4.ld
 
 LIBOPENCM3 ?= ../libopencm3
 
@@ -51,14 +51,25 @@ GDB = $(PREFIX)-gdb
 TOOLCHAIN_DIR := $(shell dirname `which $(CC)`)/../$(PREFIX)
 
 CFLAGS += -std=gnu99 -Os -g3 -Wall -Wextra -I$(LIBOPENCM3)/include -I../common \
-		-fno-common -mcpu=cortex-m4 -mthumb -MD \
-		-mfloat-abi=hard -mfpu=fpv4-sp-d16 \
-		$(HACKRF_OPTS)
-LDFLAGS += -mcpu=cortex-m4 -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16 \
-		-L$(TOOLCHAIN_DIR)/lib/armv7e-m/fpu -L../common \
+		$(HACKRF_OPTS) -fno-common -mthumb -MD
+LDFLAGS += -mthumb \
+		-L../common \
 		-L$(LIBOPENCM3)/lib -L$(LIBOPENCM3)/lib/lpc43xx \
 		-T$(LDSCRIPT) -nostartfiles \
-		-Wl,--gc-sections -Xlinker -Map=$(BINARY).map
+		-Wl,--gc-sections -Xlinker -Map=$(BINARY).map \
+		-lc -lnosys
+ifeq ($(LPC43XX_TARGET),M0)
+	CFLAGS += -mcpu=cortex-m0
+	LDFLAGS += -mcpu=cortex-m0
+	LDFLAGS += -lopencm3_lpc43xx_m0
+	LDSCRIPT ?= ../common/LPC4330_M0.ld
+else
+	CFLAGS += -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16
+	LDFLAGS += -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16
+	LDFLAGS += -L$(TOOLCHAIN_DIR)/lib/armv7e-m/fpu
+	LDFLAGS += -lopencm3_lpc43xx -lm
+	LDSCRIPT ?= ../common/LPC4330_M4.ld
+endif
 OBJ = $(SRC:.c=.o)
 
 # Be silent per default, but 'make V=1' will show all compiler calls.
@@ -110,7 +121,7 @@ program: $(BINARY).dfu
 
 %.elf: $(OBJ) $(LDSCRIPT)
 	@#printf "  LD      $(subst $(shell pwd)/,,$(@))\n"
-	$(Q)$(LD) $(LDFLAGS) -o $(*).elf $(OBJ) -lopencm3_lpc43xx -lm -lc -lnosys
+	$(Q)$(LD) -o $(*).elf $(OBJ) $(LDFLAGS)
 
 %.o: %.c Makefile
 	@#printf "  CC      $(subst $(shell pwd)/,,$(@))\n"
