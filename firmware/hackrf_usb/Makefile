@@ -20,9 +20,14 @@
 # Boston, MA 02110-1301, USA.
 #
 
-BINARY = hackrf_usb
+ifeq ($(RUN_FROM),RAM)
+	BINARY = hackrf_usb_ram
+else
+	BINARY = hackrf_usb_rom_to_ram
+	LDSCRIPT = ../common/LPC4330_M4_rom_to_ram.ld
+endif
 
-SRC = $(BINARY).c \
+SRC = hackrf_usb.c \
 	../common/rf_path.c \
 	../common/tuning.c \
 	../common/streaming.c \
