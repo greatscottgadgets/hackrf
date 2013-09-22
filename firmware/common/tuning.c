@@ -38,8 +38,7 @@
 #define MIN_HP_FREQ_MHZ (2700)
 #define MAX_HP_FREQ_MHZ (6800)
 
-static uint32_t max2837_freq_nominal_hz=2600000000;
-#define MAX2837_FREQ_NOMINAL_MHZ (max2837_freq_nominal_hz / FREQ_ONE_MHZ)
+static uint32_t max2837_freq_nominal_hz=2560000000;
 
 uint32_t freq_mhz_cache=100, freq_hz_cache=0;
 /*
@@ -64,7 +63,7 @@ bool set_freq(uint32_t freq_mhz, uint32_t freq_hz)
 		if(freq_mhz < MAX_LP_FREQ_MHZ)
 		{
 			rf_path_set_filter(RF_PATH_FILTER_LOW_PASS);
-			RFFC5071_freq_mhz = MAX2837_FREQ_NOMINAL_MHZ - freq_mhz;
+			RFFC5071_freq_mhz = (max2837_freq_nominal_hz / FREQ_ONE_MHZ) - freq_mhz;
 			/* Set Freq and read real freq */
 			real_RFFC5071_freq_hz = rffc5071_set_frequency(RFFC5071_freq_mhz);
 			if(real_RFFC5071_freq_hz < RFFC5071_freq_mhz * FREQ_ONE_MHZ)
@@ -85,7 +84,7 @@ bool set_freq(uint32_t freq_mhz, uint32_t freq_hz)
 		}else if(  (freq_mhz >= MIN_HP_FREQ_MHZ) && (freq_mhz < MAX_HP_FREQ_MHZ) )
 		{
 			rf_path_set_filter(RF_PATH_FILTER_HIGH_PASS);
-			RFFC5071_freq_mhz = freq_mhz - MAX2837_FREQ_NOMINAL_MHZ;
+			RFFC5071_freq_mhz = freq_mhz - (max2837_freq_nominal_hz / FREQ_ONE_MHZ);
 			/* Set Freq and read real freq */
 			real_RFFC5071_freq_hz = rffc5071_set_frequency(RFFC5071_freq_mhz);
 			if(real_RFFC5071_freq_hz < RFFC5071_freq_mhz * FREQ_ONE_MHZ)
