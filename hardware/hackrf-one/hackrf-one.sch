@@ -1,4 +1,4 @@
-EESchema Schematic File Version 2  date Sun Jun  9 23:35:01 2013
+EESchema Schematic File Version 2
 LIBS:power
 LIBS:device
 LIBS:transistors
@@ -37,7 +37,7 @@ $Descr User 17000 11000
 encoding utf-8
 Sheet 1 4
 Title "HackRF One"
-Date "10 jun 2013"
+Date "30 sep 2013"
 Rev ""
 Comp "Copyright 2012 Michael Ossmann"
 Comment1 "License: GPL v2"
