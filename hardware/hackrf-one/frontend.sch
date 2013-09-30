@@ -58,8 +58,6 @@ Wire Wire Line
 Wire Wire Line
 	10800 8500 11650 8500
 Wire Wire Line
-	15200 9350 15200 9450
-Wire Wire Line
 	15000 8450 15100 8450
 Wire Wire Line
 	11200 10150 9550 10150
@@ -116,8 +114,6 @@ Wire Wire Line
 	7900 3550 9000 3550
 Wire Wire Line
 	9000 3550 9000 2750
-Wire Wire Line
-	15200 9450 14750 9450
 Wire Wire Line
 	14350 3200 14450 3200
 Wire Wire Line
@@ -238,8 +234,6 @@ Wire Wire Line
 Wire Wire Line
 	8200 4900 14450 4900
 Connection ~ 15700 8450
-Wire Wire Line
-	15800 8450 15500 8450
 Wire Wire Line
 	15650 3600 15750 3600
 Wire Wire Line
@@ -800,8 +794,6 @@ Wire Wire Line
 Wire Wire Line
 	13100 3200 13950 3200
 Wire Wire Line
-	14850 9600 14750 9600
-Wire Wire Line
 	9550 9050 9550 9150
 Wire Wire Line
 	9350 9150 9350 8800
@@ -845,13 +837,6 @@ Wire Wire Line
 Wire Wire Line
 	8500 8800 8650 8800
 Wire Wire Line
-	15600 8450 15600 8750
-Connection ~ 15600 8450
-Wire Wire Line
-	15600 8750 15200 8750
-Wire Wire Line
-	15200 8750 15200 8850
-Wire Wire Line
 	5550 800  5750 800 
 Wire Wire Line
 	8500 5150 8500 7250
@@ -886,20 +871,6 @@ F 3 "" H 5300 800 60  0001 C CNN
 F 4 "DNP" V 5450 800 60  0000 C CNN "Note"
 	1    5300 800 
 	0    1    1    0   
-$EndComp
-Text Notes 15350 9400 0    60   ~ 0
-Install P4 and cut R44\nto disable 900 MHz\nPCB antenna and\nenable external antenna.
-$Comp
-L R-SHORTED R44
-U 1 1 5047B833
-P 15200 9100
-F 0 "R44" V 15280 9100 50  0000 C CNN
-F 1 "0" V 15100 9100 50  0000 C CNN
-F 2 "" H 15200 9100 60  0001 C CNN
-F 3 "" H 15200 9100 60  0001 C CNN
-F 4 "DNP" V 15350 9100 60  0000 C CNN "Note"
-	1    15200 9100
-	-1   0    0    1   
 $EndComp
 $Comp
 L VAA #PWR34
@@ -1042,29 +1013,6 @@ F 2 "" H 9450 9050 60  0001 C CNN
 F 3 "" H 9450 9050 60  0001 C CNN
 	1    9450 9050
 	-1   0    0    1   
-$EndComp
-$Comp
-L GND #PWR79
-U 1 1 50452C2A
-P 14850 9600
-F 0 "#PWR79" H 14850 9600 30  0001 C CNN
-F 1 "GND" H 14850 9530 30  0001 C CNN
-F 2 "" H 14850 9600 60  0001 C CNN
-F 3 "" H 14850 9600 60  0001 C CNN
-	1    14850 9600
-	0    -1   -1   0   
-$EndComp
-$Comp
-L GSG-900MHZ-F-ANTENNA J2
-U 1 1 50452C20
-P 14750 9450
-F 0 "J2" H 15050 9550 60  0000 C CNN
-F 1 "900MHZ-F-ANTENNA" H 15000 10100 60  0000 C CNN
-F 2 "" H 14750 9450 60  0001 C CNN
-F 3 "" H 14750 9450 60  0001 C CNN
-F 4 "DNP" H 14750 9450 60  0001 C CNN "Note"
-	1    14750 9450
-	0    -1   -1   0   
 $EndComp
 Text GLabel 7200 4750 2    40   Input ~ 0
 MIXER_RESETX
@@ -3559,4 +3507,6 @@ F 6 "CONN JACK SMA PCB VERT" H 16100 8450 60  0001 C CNN "Description"
 	1    16100 8450
 	-1   0    0    -1  
 $EndComp
+Wire Wire Line
+	15500 8450 15800 8450
 $EndSCHEMATC
