@@ -151,30 +151,10 @@ Wire Wire Line
 	11450 9400 11850 9400
 Wire Wire Line
 	11450 10000 11850 10000
-Connection ~ 8250 700 
-Connection ~ 9050 700 
 Wire Wire Line
-	7550 700  8250 700 
+	7550 700  9600 700 
 Wire Wire Line
-	8250 700  9050 700 
-Wire Wire Line
-	9050 700  9600 700 
-Connection ~ 8250 900 
-Connection ~ 9050 900 
-Wire Wire Line
-	7250 900  8250 900 
-Wire Wire Line
-	8250 900  9050 900 
-Wire Wire Line
-	9050 900  9800 900 
-Connection ~ 8250 1100
-Connection ~ 9050 1100
-Wire Wire Line
-	7350 1100 8250 1100
-Wire Wire Line
-	8250 1100 9050 1100
-Wire Wire Line
-	9050 1100 11400 1100
+	7250 900  9800 900 
 Wire Wire Line
 	12650 4400 12950 4400
 Wire Wire Line
@@ -200,22 +180,15 @@ Wire Wire Line
 Wire Wire Line
 	10400 5800 10400 5900
 Wire Wire Line
-	3000 3550 3700 3550
+	1300 3550 1700 3550
 Wire Wire Line
-	2600 3450 3600 3450
+	1700 3550 3500 3550
 Wire Wire Line
-	3200 4450 3500 4450
+	1300 3450 1800 3450
+Wire Wire Line
+	1800 3450 3600 3450
 Wire Wire Line
 	4300 3200 4000 3200
-Wire Wire Line
-	4300 5000 3500 5000
-Wire Wire Line
-	3500 5000 3500 4450
-Connection ~ 3200 4450
-Wire Wire Line
-	3200 4350 3200 4450
-Wire Wire Line
-	3200 4450 3200 4550
 Wire Wire Line
 	1900 7050 1900 7150
 Wire Wire Line
@@ -244,7 +217,7 @@ Wire Wire Line
 Wire Wire Line
 	1800 3000 1900 3000
 Wire Wire Line
-	3700 3550 3700 4900
+	3500 3550 3500 4900
 Connection ~ 750  2100
 Wire Wire Line
 	750  2100 850  2100
@@ -848,7 +821,7 @@ Wire Wire Line
 Wire Wire Line
 	5650 2050 5650 1750
 Wire Wire Line
-	3700 4900 4300 4900
+	3500 4900 4300 4900
 Wire Wire Line
 	2700 4350 2700 4250
 Wire Wire Line
@@ -1141,21 +1114,7 @@ Wire Wire Line
 Wire Wire Line
 	1600 7050 1600 7150
 Wire Wire Line
-	3200 5150 3200 5050
-Wire Wire Line
-	3200 3000 3200 3750
-Wire Wire Line
-	3200 3750 3200 3850
-Wire Wire Line
 	4300 3700 4000 3700
-Wire Wire Line
-	1300 3450 1800 3450
-Wire Wire Line
-	1800 3450 2100 3450
-Wire Wire Line
-	1300 3550 1700 3550
-Wire Wire Line
-	1700 3550 2500 3550
 Wire Wire Line
 	10400 5300 10400 5400
 Wire Wire Line
@@ -1178,29 +1137,9 @@ Connection ~ 5000 9650
 Wire Wire Line
 	5000 10250 5000 10150
 Wire Wire Line
-	7450 1200 8250 1200
+	7850 1000 11300 1000
 Wire Wire Line
-	8250 1200 9050 1200
-Wire Wire Line
-	9050 1200 9700 1200
-Connection ~ 9050 1200
-Connection ~ 8250 1200
-Wire Wire Line
-	7850 1000 8250 1000
-Wire Wire Line
-	8250 1000 9050 1000
-Wire Wire Line
-	9050 1000 11300 1000
-Connection ~ 9050 1000
-Connection ~ 8250 1000
-Wire Wire Line
-	7750 800  8250 800 
-Wire Wire Line
-	8250 800  9050 800 
-Wire Wire Line
-	9050 800  11200 800 
-Connection ~ 9050 800 
-Connection ~ 8250 800 
+	7750 800  11200 800 
 Wire Wire Line
 	10950 10000 10650 10000
 Wire Wire Line
@@ -1295,35 +1234,6 @@ Text Notes 4150 9050 0    40   ~ 0
 U23 starts up on this 12 MHz\ncrystal. This makes it possible\nto use USB0 DFU boot mode.\nIt should be possible to switch\nto GP_CLKIN provided by the\nclock generator IC (MCL_CLK)\nif desired.
 Text Notes 5900 9400 0    40   ~ 0
 C155 and C156 values\nare a guess. The datasheet\ndoesn't state the acceptable\nvoltage range for GP_CLKIN.
-$Comp
-L R R65
-U 1 1 506B55A7
-P 3200 4800
-F 0 "R65" V 3280 4800 50  0000 C CNN
-F 1 "10k" V 3200 4800 50  0000 C CNN
-F 2 "" H 3200 4800 60  0001 C CNN
-F 3 "" H 3200 4800 60  0001 C CNN
-F 4 "Stackpole" H 3200 4800 60  0001 C CNN "Manufacturer"
-F 5 "RMCF0402JT10K0" H 3200 4800 60  0001 C CNN "Part Number"
-F 6 "RES 10K OHM 1/16W 5% 0402 SMD" H 3200 4800 60  0001 C CNN "Description"
-F 7 "DNP" V 3100 4800 60  0000 C CNN "Note"
-	1    3200 4800
-	-1   0    0    -1  
-$EndComp
-$Comp
-L R R62
-U 1 1 506B54E9
-P 3200 4100
-F 0 "R62" V 3280 4100 50  0000 C CNN
-F 1 "0" V 3200 4100 50  0000 C CNN
-F 2 "" H 3200 4100 60  0001 C CNN
-F 3 "" H 3200 4100 60  0001 C CNN
-F 4 "Stackpole" H 3200 4100 60  0001 C CNN "Manufacturer"
-F 5 "RMCF0402ZT0R00" H 3200 4100 60  0001 C CNN "Part Number"
-F 6 "RES 0.0 OHM 1/16W 0402 SMD" H 3200 4100 60  0001 C CNN "Description"
-	1    3200 4100
-	1    0    0    -1  
-$EndComp
 $Comp
 L C C125
 U 1 1 505E9E4C
@@ -1488,8 +1398,6 @@ F 6 "RES 10K OHM 1/16W 5% 0402 SMD" H 1250 9400 60  0001 C CNN "Description"
 $EndComp
 Text Notes 2200 9200 0    40   ~ 0
 Default boot configuration is SPIFI.\nPress SW1 during reset to switch to\nUSB0 (DFU mode).
-Text Notes 8250 1400 0    40   ~ 0
-traces may be cut to install\nheader and jumpers
 Text Notes 12000 9550 0    40   ~ 0
 R97 may be installed to connect SGPIO8 to the CPLD.\nBy default SGPIO8 is used as a clock input.
 Text GLabel 8750 7750 3    40   Input ~ 0
@@ -1872,34 +1780,6 @@ F 3 "" H 1700 9200 60  0001 C CNN
 $EndComp
 Text Label 650  9400 0    40   ~ 0
 P2_8
-$Comp
-L R R58
-U 1 1 503F9D27
-P 2750 3550
-F 0 "R58" V 2830 3550 50  0000 C CNN
-F 1 "0" V 2750 3550 50  0000 C CNN
-F 2 "" H 2750 3550 60  0001 C CNN
-F 3 "" H 2750 3550 60  0001 C CNN
-F 4 "Stackpole" H 2750 3550 60  0001 C CNN "Manufacturer"
-F 5 "RMCF0402ZT0R00" H 2750 3550 60  0001 C CNN "Part Number"
-F 6 "RES 0.0 OHM 1/16W 0402 SMD" H 2750 3550 60  0001 C CNN "Description"
-	1    2750 3550
-	0    1    1    0   
-$EndComp
-$Comp
-L R R57
-U 1 1 503F9D26
-P 2350 3450
-F 0 "R57" V 2430 3450 50  0000 C CNN
-F 1 "0" V 2350 3450 50  0000 C CNN
-F 2 "" H 2350 3450 60  0001 C CNN
-F 3 "" H 2350 3450 60  0001 C CNN
-F 4 "Stackpole" H 2350 3450 60  0001 C CNN "Manufacturer"
-F 5 "RMCF0402ZT0R00" H 2350 3450 60  0001 C CNN "Part Number"
-F 6 "RES 0.0 OHM 1/16W 0402 SMD" H 2350 3450 60  0001 C CNN "Description"
-	1    2350 3450
-	0    1    1    0   
-$EndComp
 $Comp
 L R R59
 U 1 1 503F9A36
@@ -3021,17 +2901,6 @@ Text Label 4000 3700 0    40   ~ 0
 LED2
 Text Label 4000 3200 0    40   ~ 0
 LED1
-$Comp
-L GND #PWR245
-U 1 1 4F83C49F
-P 3200 5150
-F 0 "#PWR245" H 3200 5150 30  0001 C CNN
-F 1 "GND" H 3200 5080 30  0001 C CNN
-F 2 "" H 3200 5150 60  0001 C CNN
-F 3 "" H 3200 5150 60  0001 C CNN
-	1    3200 5150
-	1    0    0    -1  
-$EndComp
 Text Label 1300 6300 3    40   ~ 0
 LED3
 Text Label 1000 6300 3    40   ~ 0
@@ -3695,18 +3564,6 @@ F 2 "" H 9800 1850 60  0001 C CNN
 F 3 "" H 9800 1850 60  0001 C CNN
 	1    9800 1850
 	1    0    0    -1  
-$EndComp
-$Comp
-L CONN_6X2 P19
-U 1 1 4F825D84
-P 8650 950
-F 0 "P19" H 8650 1300 60  0000 C CNN
-F 1 "SPIFI" V 8650 950 60  0000 C CNN
-F 2 "" H 8650 950 60  0001 C CNN
-F 3 "" H 8650 950 60  0001 C CNN
-F 4 "DNP" H 8650 600 60  0000 C CNN "Note"
-	1    8650 950 
-	-1   0    0    1   
 $EndComp
 $Comp
 L W25Q80BV U20
@@ -4846,4 +4703,14 @@ Wire Wire Line
 	750  8600 1000 8600
 Text Label 750  8600 0    40   ~ 0
 RESET
+Wire Wire Line
+	4300 5000 3200 5000
+Wire Wire Line
+	3200 5000 3200 3750
+Wire Wire Line
+	3200 3750 3200 3000
+Wire Wire Line
+	7350 1100 11400 1100
+Wire Wire Line
+	7450 1200 9700 1200
 $EndSCHEMATC
