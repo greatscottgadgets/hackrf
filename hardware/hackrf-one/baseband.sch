@@ -37,7 +37,7 @@ $Descr User 17000 11000
 encoding utf-8
 Sheet 3 4
 Title "HackRF One baseband"
-Date "30 sep 2013"
+Date "24 oct 2013"
 Rev ""
 Comp "Copyright 2012 Michael Ossmann"
 Comment1 "License: GPL v2"
@@ -59,95 +59,24 @@ F 6 "RES TF 1.8K OHM 5% 1/16W 0402" H 2300 7600 60  0001 C CNN "Description"
 	1    2300 7600
 	1    0    0    -1  
 $EndComp
-Text Notes 7150 9950 0    40   ~ 0
-Install C165, and R92 as necessary to match output.\n\nFor CMOS output, install 0 ohm resistor in place of C165;\ndo not install R92.
-Text Notes 1150 10150 0    40   ~ 0
-Install C118, C164, R45, R84, and R85 as necessary to match input.\n\nFor CMOS input, install 0 ohm resistors in place of C118 and C164;\ndo not install R45, R84, or R85.
-$Comp
-L R R45
-U 1 1 5052A8A8
-P 2500 8800
-F 0 "R45" V 2580 8800 50  0000 C CNN
-F 1 "DNP" V 2500 8800 50  0000 C CNN
-F 2 "" H 2500 8800 60  0001 C CNN
-F 3 "" H 2500 8800 60  0001 C CNN
-F 4 "DNP" V 2400 8800 60  0000 C CNN "Note"
-	1    2500 8800
-	1    0    0    -1  
-$EndComp
-$Comp
-L R R84
-U 1 1 5052A892
-P 1900 9500
-F 0 "R84" V 1980 9500 50  0000 C CNN
-F 1 "50" V 1900 9500 50  0000 C CNN
-F 2 "" H 1900 9500 60  0001 C CNN
-F 3 "" H 1900 9500 60  0001 C CNN
-F 4 "DNP" V 1800 9500 60  0000 C CNN "Note"
-	1    1900 9500
-	1    0    0    -1  
-$EndComp
-$Comp
-L C C165
-U 1 1 5052A87E
-P 6000 9600
-F 0 "C165" H 6050 9700 50  0000 L CNN
-F 1 "DNP" H 6050 9500 50  0000 L CNN
-F 2 "" H 6000 9600 60  0001 C CNN
-F 3 "" H 6000 9600 60  0001 C CNN
-F 4 "DNP" V 5800 9600 60  0000 C CNN "Note"
-	1    6000 9600
-	0    -1   -1   0   
-$EndComp
-$Comp
-L C C164
-U 1 1 5052A87B
-P 2200 9150
-F 0 "C164" H 2250 9250 50  0000 L CNN
-F 1 "DNP" H 2250 9050 50  0000 L CNN
-F 2 "" H 2200 9150 60  0001 C CNN
-F 3 "" H 2200 9150 60  0001 C CNN
-F 4 "DNP" V 2000 9150 60  0000 C CNN "Note"
-	1    2200 9150
-	0    -1   -1   0   
-$EndComp
-Connection ~ 5700 9600
+Text Notes 5850 9600 0    40   ~ 0
+3.3 V CMOS clock output at 10 MHz\n(or other frequency with firmware modification)
+Text Notes 1550 8800 0    40   ~ 0
+3.3 V CMOS clock input at 10 MHz\n(or 10 MHz to 100 MHz with firmware modification)
 Wire Wire Line
-	5700 9700 5700 9600
+	3800 8850 3900 8850
 Wire Wire Line
-	5700 10200 5700 10300
+	3900 9450 3900 9550
 Wire Wire Line
-	3150 9150 3150 8850
-Wire Wire Line
-	2400 9150 2500 9150
-Wire Wire Line
-	2500 9150 3150 9150
-Wire Wire Line
-	1800 9150 1900 9150
-Wire Wire Line
-	1900 9150 2000 9150
-Wire Wire Line
-	2500 9750 2500 9850
-Wire Wire Line
-	2500 9050 2500 9150
-Wire Wire Line
-	2500 9150 2500 9250
-Wire Wire Line
-	1300 9150 1400 9150
+	3900 8850 3900 8950
 Wire Wire Line
 	6250 3100 6250 3000
 Wire Wire Line
 	6250 3000 6350 3000
 Wire Wire Line
-	3800 9000 3900 9000
-Wire Wire Line
-	3900 9000 3900 8850
-Wire Wire Line
 	4950 3700 4950 3600
 Wire Wire Line
 	3250 2200 3250 2100
-Wire Wire Line
-	3900 9300 3900 9200
 Wire Wire Line
 	12150 7900 12150 7800
 Wire Wire Line
@@ -158,17 +87,17 @@ Wire Wire Line
 	10100 8500 10100 8400
 Wire Wire Line
 	4400 6800 4400 7150
-Connection ~ 6900 9900
-Connection ~ 6900 10000
-Connection ~ 6900 10100
+Connection ~ 5800 9900
+Connection ~ 5800 10000
+Connection ~ 5800 10100
 Wire Wire Line
-	6900 9800 6900 9900
+	5800 9800 5800 9900
 Wire Wire Line
-	6900 9900 6900 10000
+	5800 9900 5800 10000
 Wire Wire Line
-	6900 10000 6900 10100
+	5800 10000 5800 10100
 Wire Wire Line
-	6900 10100 6900 10200
+	5800 10100 5800 10200
 Wire Wire Line
 	4600 9200 4600 8750
 Wire Wire Line
@@ -340,16 +269,14 @@ Wire Wire Line
 Wire Wire Line
 	5000 9900 5100 9900
 Wire Wire Line
-	700  9350 700  9450
+	3200 9050 3200 9150
 Wire Wire Line
-	700  9450 700  9550
+	3200 9150 3200 9250
 Wire Wire Line
-	700  9550 700  9650
+	3200 9250 3200 9350
 Wire Wire Line
-	700  9650 700  9750
-Connection ~ 700  9650
-Wire Wire Line
-	3900 9200 3800 9200
+	3200 9350 3200 9450
+Connection ~ 3200 9350
 Wire Wire Line
 	2950 7700 2950 7600
 Wire Wire Line
@@ -670,7 +597,7 @@ Wire Wire Line
 	2750 7850 3700 7850
 Wire Wire Line
 	3150 7600 3150 7700
-Connection ~ 700  9550
+Connection ~ 3200 9250
 Wire Wire Line
 	4500 9900 4400 9900
 Wire Wire Line
@@ -700,13 +627,10 @@ Wire Wire Line
 	15650 1450 15650 1550
 Connection ~ 15550 1450
 Wire Wire Line
-	3150 8850 3900 8850
-Wire Wire Line
 	3900 8850 4300 8850
-Connection ~ 3900 8850
 Wire Wire Line
 	7550 6250 7550 7300
-Connection ~ 700  9450
+Connection ~ 3200 9150
 Wire Wire Line
 	14200 3750 14200 2700
 Wire Wire Line
@@ -883,9 +807,7 @@ Wire Wire Line
 Wire Wire Line
 	4500 8750 4500 9600
 Wire Wire Line
-	4500 9600 5700 9600
-Wire Wire Line
-	5700 9600 5800 9600
+	4500 9600 5200 9600
 Wire Wire Line
 	5650 7750 5300 7750
 Wire Wire Line
@@ -964,95 +886,30 @@ Wire Wire Line
 	1950 5450 1950 5550
 Wire Wire Line
 	1800 5450 1800 5550
-Wire Wire Line
-	2500 8450 2500 8550
-Connection ~ 2500 9150
-Wire Wire Line
-	1900 9750 1900 9850
-Wire Wire Line
-	1900 9250 1900 9150
-Connection ~ 1900 9150
-Wire Wire Line
-	6200 9600 6300 9600
-$Comp
-L R R92
-U 1 1 5052A841
-P 5700 9950
-F 0 "R92" V 5780 9950 50  0000 C CNN
-F 1 "50" V 5700 9950 50  0000 C CNN
-F 2 "" H 5700 9950 60  0001 C CNN
-F 3 "" H 5700 9950 60  0001 C CNN
-F 4 "DNP" V 5600 9950 60  0000 C CNN "Note"
-	1    5700 9950
-	1    0    0    -1  
-$EndComp
-$Comp
-L GND #PWR180
-U 1 1 5052A840
-P 5700 10300
-F 0 "#PWR180" H 5700 10300 30  0001 C CNN
-F 1 "GND" H 5700 10230 30  0001 C CNN
-F 2 "" H 5700 10300 60  0001 C CNN
-F 3 "" H 5700 10300 60  0001 C CNN
-	1    5700 10300
-	1    0    0    -1  
-$EndComp
-$Comp
-L VCC #PWR167
-U 1 1 5052A7F6
-P 2500 8450
-F 0 "#PWR167" H 2500 8550 30  0001 C CNN
-F 1 "VCC" H 2500 8550 30  0000 C CNN
-F 2 "" H 2500 8450 60  0001 C CNN
-F 3 "" H 2500 8450 60  0001 C CNN
-	1    2500 8450
-	1    0    0    -1  
-$EndComp
 $Comp
 L GND #PWR177
 U 1 1 5052A7F1
-P 2500 9850
-F 0 "#PWR177" H 2500 9850 30  0001 C CNN
-F 1 "GND" H 2500 9780 30  0001 C CNN
-F 2 "" H 2500 9850 60  0001 C CNN
-F 3 "" H 2500 9850 60  0001 C CNN
-	1    2500 9850
-	1    0    0    -1  
-$EndComp
-$Comp
-L GND #PWR176
-U 1 1 5052A7EF
-P 1900 9850
-F 0 "#PWR176" H 1900 9850 30  0001 C CNN
-F 1 "GND" H 1900 9780 30  0001 C CNN
-F 2 "" H 1900 9850 60  0001 C CNN
-F 3 "" H 1900 9850 60  0001 C CNN
-	1    1900 9850
+P 3900 9550
+F 0 "#PWR177" H 3900 9550 30  0001 C CNN
+F 1 "GND" H 3900 9480 30  0001 C CNN
+F 2 "" H 3900 9550 60  0001 C CNN
+F 3 "" H 3900 9550 60  0001 C CNN
+	1    3900 9550
 	1    0    0    -1  
 $EndComp
 $Comp
 L R R85
 U 1 1 5052A7D7
-P 2500 9500
-F 0 "R85" V 2580 9500 50  0000 C CNN
-F 1 "DNP" V 2500 9500 50  0000 C CNN
-F 2 "" H 2500 9500 60  0001 C CNN
-F 3 "" H 2500 9500 60  0001 C CNN
-F 4 "DNP" V 2400 9500 60  0000 C CNN "Note"
-	1    2500 9500
+P 3900 9200
+F 0 "R85" V 3980 9200 50  0000 C CNN
+F 1 "10k" V 3900 9200 50  0000 C CNN
+F 2 "" H 3900 9200 60  0001 C CNN
+F 3 "" H 3900 9200 60  0001 C CNN
+F 4 "Stackpole" H 3900 9200 60  0001 C CNN "Manufacturer"
+F 5 "RMCF0402JT10K0" H 3900 9200 60  0001 C CNN "Part Number"
+F 6 "RES 10K OHM 1/16W 5% 0402 SMD" H 3900 9200 60  0001 C CNN "Description"
+	1    3900 9200
 	1    0    0    -1  
-$EndComp
-$Comp
-L C C118
-U 1 1 5052A7BD
-P 1600 9150
-F 0 "C118" H 1650 9250 50  0000 L CNN
-F 1 "DNP" H 1650 9050 50  0000 L CNN
-F 2 "" H 1600 9150 60  0001 C CNN
-F 3 "" H 1600 9150 60  0001 C CNN
-F 4 "DNP" V 1400 9150 60  0000 C CNN "Note"
-	1    1600 9150
-	0    -1   -1   0   
 $EndComp
 Text Notes 1400 5050 0    40   ~ 0
 serial test points
@@ -1139,18 +996,6 @@ F 4 "DNP" V 6300 3450 60  0000 C CNN "Note"
 	0    1    1    0   
 $EndComp
 $Comp
-L CONN_2_SHORTED P17
-U 1 1 5048D01E
-P 3450 9100
-F 0 "P17" V 3400 9100 40  0000 C CNN
-F 1 "CLKIN_JMP" V 3500 9100 40  0000 C CNN
-F 2 "" H 3450 9100 60  0001 C CNN
-F 3 "" H 3450 9100 60  0001 C CNN
-F 4 "DNP" V 3600 9100 60  0000 C CNN "Note"
-	1    3450 9100
-	-1   0    0    1   
-$EndComp
-$Comp
 L GND #PWR109
 U 1 1 5047BE95
 P 4950 3700
@@ -1171,17 +1016,6 @@ F 2 "" H 4950 3400 60  0001 C CNN
 F 3 "" H 4950 3400 60  0001 C CNN
 F 4 "DNP" V 4800 3400 60  0000 C CNN "Note"
 	1    4950 3400
-	1    0    0    -1  
-$EndComp
-$Comp
-L GND #PWR174
-U 1 1 5047BCD8
-P 3900 9300
-F 0 "#PWR174" H 3900 9300 30  0001 C CNN
-F 1 "GND" H 3900 9230 30  0001 C CNN
-F 2 "" H 3900 9300 60  0001 C CNN
-F 3 "" H 3900 9300 60  0001 C CNN
-	1    3900 9300
 	1    0    0    -1  
 $EndComp
 $Comp
@@ -1250,27 +1084,26 @@ NoConn ~ 4700 7150
 $Comp
 L GSG-SMA-CONN P2
 U 1 1 50462549
-P 6600 9600
-F 0 "P2" H 6600 9750 60  0000 C CNN
-F 1 "CLKOUT" H 6600 9450 60  0000 C CNN
-F 2 "" H 6600 9600 60  0001 C CNN
-F 3 "" H 6600 9600 60  0001 C CNN
-F 4 "TE Connectivity" H 6600 9600 60  0001 C CNN "Manufacturer"
-F 5 "2081233-1" H 6600 9600 60  0001 C CNN "Part Number"
-F 6 "CONN JACK SMA PCB VERT" H 6600 9600 60  0001 C CNN "Description"
-F 7 "DNP" H 6350 9550 60  0000 C CNN "Note"
-	1    6600 9600
+P 5500 9600
+F 0 "P2" H 5500 9750 60  0000 C CNN
+F 1 "CLKOUT" H 5500 9450 60  0000 C CNN
+F 2 "" H 5500 9600 60  0001 C CNN
+F 3 "" H 5500 9600 60  0001 C CNN
+F 4 "TE Connectivity" H 5500 9600 60  0001 C CNN "Manufacturer"
+F 5 "2081233-1" H 5500 9600 60  0001 C CNN "Part Number"
+F 6 "CONN JACK SMA PCB VERT" H 5500 9600 60  0001 C CNN "Description"
+	1    5500 9600
 	-1   0    0    -1  
 $EndComp
 $Comp
 L GND #PWR179
 U 1 1 50462548
-P 6900 10200
-F 0 "#PWR179" H 6900 10200 30  0001 C CNN
-F 1 "GND" H 6900 10130 30  0001 C CNN
-F 2 "" H 6900 10200 60  0001 C CNN
-F 3 "" H 6900 10200 60  0001 C CNN
-	1    6900 10200
+P 5800 10200
+F 0 "#PWR179" H 5800 10200 30  0001 C CNN
+F 1 "GND" H 5800 10130 30  0001 C CNN
+F 2 "" H 5800 10200 60  0001 C CNN
+F 3 "" H 5800 10200 60  0001 C CNN
+	1    5800 10200
 	1    0    0    -1  
 $EndComp
 Text GLabel 5300 9200 2    40   Input ~ 0
@@ -2722,8 +2555,6 @@ Text Label 5550 7850 2    40   ~ 0
 VDDOD
 Text Label 4500 6900 3    40   ~ 0
 VDDOC
-Text Notes 2750 9650 0    40   ~ 0
-Cut P17 short and install P16 and P17 to enable\nexternal clock input.  If short is cut, a jumper\nshould be used on P17 at all times when an\nexternal clock is not connected to P16.
 Text Notes 10250 7500 0    40   ~ 0
 Use 0 ohm resistors to select clock output voltage.
 $Comp
@@ -2931,27 +2762,26 @@ CLK2
 $Comp
 L GND #PWR175
 U 1 1 4F5D1728
-P 700 9750
-F 0 "#PWR175" H 700 9750 30  0001 C CNN
-F 1 "GND" H 700 9680 30  0001 C CNN
-F 2 "" H 700 9750 60  0001 C CNN
-F 3 "" H 700 9750 60  0001 C CNN
-	1    700  9750
+P 3200 9450
+F 0 "#PWR175" H 3200 9450 30  0001 C CNN
+F 1 "GND" H 3200 9380 30  0001 C CNN
+F 2 "" H 3200 9450 60  0001 C CNN
+F 3 "" H 3200 9450 60  0001 C CNN
+	1    3200 9450
 	1    0    0    -1  
 $EndComp
 $Comp
 L GSG-SMA-CONN P16
 U 1 1 4F5D16D6
-P 1000 9150
-F 0 "P16" H 1000 9300 60  0000 C CNN
-F 1 "CLKIN" H 1000 9000 60  0000 C CNN
-F 2 "" H 1000 9150 60  0001 C CNN
-F 3 "" H 1000 9150 60  0001 C CNN
-F 4 "TE Connectivity" H 1000 9150 60  0001 C CNN "Manufacturer"
-F 5 "2081233-1" H 1000 9150 60  0001 C CNN "Part Number"
-F 6 "CONN JACK SMA PCB VERT" H 1000 9150 60  0001 C CNN "Description"
-F 7 "DNP" H 750 9100 60  0000 C CNN "Note"
-	1    1000 9150
+P 3500 8850
+F 0 "P16" H 3500 9000 60  0000 C CNN
+F 1 "CLKIN" H 3500 8700 60  0000 C CNN
+F 2 "" H 3500 8850 60  0001 C CNN
+F 3 "" H 3500 8850 60  0001 C CNN
+F 4 "TE Connectivity" H 3500 8850 60  0001 C CNN "Manufacturer"
+F 5 "2081233-1" H 3500 8850 60  0001 C CNN "Part Number"
+F 6 "CONN JACK SMA PCB VERT" H 3500 8850 60  0001 C CNN "Description"
+	1    3500 8850
 	1    0    0    -1  
 $EndComp
 $Comp
@@ -3663,4 +3493,5 @@ Text GLabel 9100 4900 2    40   Input ~ 0
 SSP1_MOSI
 Text GLabel 9100 5100 2    40   Input ~ 0
 SSP1_MISO
+Connection ~ 3900 8850
 $EndSCHEMATC
