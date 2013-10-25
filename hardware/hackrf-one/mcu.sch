@@ -1591,9 +1591,7 @@ F 3 "" H 13600 4850 60  0001 C CNN
 	1    13600 4850
 	1    0    0    -1  
 $EndComp
-NoConn ~ 1300 3350
 NoConn ~ 3000 3100
-NoConn ~ 4300 5100
 Text Label 4000 3700 0    40   ~ 0
 LED2
 Text Label 4000 3200 0    40   ~ 0
@@ -4421,4 +4419,10 @@ Wire Wire Line
 	6950 1500 5950 1500
 Wire Wire Line
 	5950 1500 5950 1100
+Wire Wire Line
+	4300 5100 3100 5100
+Wire Wire Line
+	3100 5100 3100 3350
+Wire Wire Line
+	3100 3350 1300 3350
 $EndSCHEMATC
