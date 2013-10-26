@@ -37,7 +37,7 @@ $Descr User 17000 11000
 encoding utf-8
 Sheet 2 4
 Title "HackRF One frontend"
-Date "25 oct 2013"
+Date "26 oct 2013"
 Rev ""
 Comp "Copyright 2012 Michael Ossmann"
 Comment1 "License: GPL v2"
@@ -54,10 +54,6 @@ Wire Wire Line
 Wire Wire Line
 	7600 7450 1700 7450
 Wire Wire Line
-	5050 800  4650 800 
-Wire Wire Line
-	10800 8500 11650 8500
-Wire Wire Line
 	15000 8450 15100 8450
 Wire Wire Line
 	11200 10150 9550 10150
@@ -70,8 +66,6 @@ Wire Wire Line
 Wire Wire Line
 	15100 6650 15100 8150
 Connection ~ 12350 6650
-Wire Wire Line
-	11900 6650 12750 6650
 Wire Wire Line
 	14050 6650 14050 6550
 Connection ~ 10500 8100
@@ -88,7 +82,7 @@ Wire Wire Line
 	13350 6800 13350 6700
 Connection ~ 13350 6950
 Wire Wire Line
-	13450 6950 13050 6950
+	13050 6950 13450 6950
 Wire Wire Line
 	14150 6950 14050 6950
 Wire Wire Line
@@ -121,11 +115,11 @@ Wire Wire Line
 Wire Wire Line
 	13100 3700 12800 3700
 Wire Wire Line
-	7200 4450 5700 4450
+	5700 4450 7200 4450
 Wire Wire Line
-	7200 4650 5500 4650
+	5500 4650 7200 4650
 Wire Wire Line
-	6600 7950 5650 7950
+	5650 7950 6600 7950
 Wire Wire Line
 	5650 7950 5650 7850
 Wire Wire Line
@@ -139,30 +133,24 @@ Wire Wire Line
 Wire Wire Line
 	6950 6900 6950 6800
 Wire Wire Line
-	12650 8250 13900 8250
+	12900 8250 13900 8250
 Wire Wire Line
-	10150 7200 10000 7200
+	10100 7300 10000 7300
 Wire Wire Line
 	10000 7450 9700 7450
 Wire Wire Line
-	10650 7200 10550 7200
+	10600 7300 10500 7300
 Wire Wire Line
 	10000 6750 9900 6750
 Wire Wire Line
 	10500 6750 10400 6750
-Wire Wire Line
-	9900 6500 9900 7350
 Connection ~ 9900 6750
 Wire Wire Line
 	8200 7550 8200 7450
 Wire Wire Line
 	8200 8050 8200 7950
-Wire Wire Line
-	8600 7450 7950 7450
 Connection ~ 8200 7450
 Connection ~ 15200 8100
-Wire Wire Line
-	15200 7850 15200 8250
 Wire Wire Line
 	15800 8100 15700 8100
 Wire Wire Line
@@ -174,39 +162,17 @@ Wire Wire Line
 Wire Wire Line
 	16050 3500 16050 3400
 Wire Wire Line
-	4650 9750 5050 9750
-Wire Wire Line
-	4650 9550 5050 9550
-Wire Wire Line
-	4650 9350 5050 9350
-Wire Wire Line
-	3450 9650 3050 9650
-Wire Wire Line
-	3450 9450 3050 9450
-Wire Wire Line
-	3450 9250 3050 9250
-Wire Wire Line
-	3450 9850 3350 9850
-Wire Wire Line
-	3350 9850 3350 9950
-Wire Wire Line
 	14450 3700 14450 3600
 Wire Wire Line
 	15750 4100 15750 5150
 Connection ~ 12800 2600
 Wire Wire Line
-	12800 2700 12800 2450
-Wire Wire Line
 	13400 2600 13300 2600
 Connection ~ 9300 2850
-Wire Wire Line
-	9150 2850 9300 2850
 Wire Wire Line
 	9000 2750 9200 2750
 Wire Wire Line
 	10000 1650 9900 1650
-Wire Wire Line
-	9400 1500 9400 1750
 Connection ~ 6850 5600
 Wire Wire Line
 	6950 5600 6850 5600
@@ -290,8 +256,6 @@ Wire Wire Line
 	1700 3050 1700 4150
 Connection ~ 2500 3050
 Wire Wire Line
-	2500 3150 2500 2900
-Wire Wire Line
 	3100 3050 3000 3050
 Wire Wire Line
 	3000 4150 3100 4150
@@ -303,8 +267,6 @@ Wire Wire Line
 	2300 4050 2300 4150
 Wire Wire Line
 	2300 3050 2300 3150
-Wire Wire Line
-	2250 4250 2400 4250
 Connection ~ 2400 4250
 Wire Wire Line
 	2500 4050 2500 4150
@@ -330,17 +292,13 @@ Wire Wire Line
 	3100 4000 3000 4000
 Connection ~ 1600 2250
 Wire Wire Line
-	1600 2650 1600 2150
-Wire Wire Line
 	1800 1000 1700 1000
 Wire Wire Line
 	2300 1000 2200 1000
 Wire Wire Line
-	1700 1250 1700 600 
+	1700 900  1700 1250
 Connection ~ 1700 1000
 Connection ~ 1700 6050
-Wire Wire Line
-	1700 6300 1700 5650
 Wire Wire Line
 	2300 6050 2200 6050
 Wire Wire Line
@@ -354,12 +312,7 @@ Wire Wire Line
 	10700 4000 10800 4000
 Connection ~ 10000 4000
 Wire Wire Line
-	9850 4000 10000 4000
-Wire Wire Line
 	12000 3700 12100 3700
-Connection ~ 2450 9250
-Wire Wire Line
-	2450 9350 2350 9350
 Connection ~ 4400 4950
 Wire Wire Line
 	4400 4950 4100 4950
@@ -378,21 +331,7 @@ Connection ~ 7350 9700
 Wire Wire Line
 	7600 9700 7350 9700
 Wire Wire Line
-	7350 9800 7350 9600
-Wire Wire Line
-	2350 9250 2700 9250
-Wire Wire Line
-	2350 9550 2500 9550
-Wire Wire Line
-	2350 9750 2500 9750
-Wire Wire Line
-	1050 9950 1050 9850
-Wire Wire Line
-	1050 9850 1150 9850
-Wire Wire Line
-	750  9650 1150 9650
-Wire Wire Line
-	1150 9450 750  9450
+	7350 9600 7350 9800
 Wire Wire Line
 	7100 3750 7100 3850
 Wire Wire Line
@@ -443,11 +382,7 @@ Wire Wire Line
 	6800 1850 6800 1750
 Connection ~ 4400 5050
 Wire Wire Line
-	4400 5150 4400 4650
-Wire Wire Line
-	5000 1950 5000 1550
-Wire Wire Line
-	5700 1950 5700 1550
+	4400 4650 4400 5150
 Connection ~ 4400 4750
 Wire Wire Line
 	4500 5050 4400 5050
@@ -456,7 +391,7 @@ Wire Wire Line
 	5100 4750 5200 4750
 Connection ~ 16400 8750
 Wire Wire Line
-	16400 9050 16400 8650
+	16400 8650 16400 9050
 Connection ~ 16400 8950
 Wire Wire Line
 	10700 2150 10800 2150
@@ -479,12 +414,6 @@ Wire Wire Line
 	5100 5050 5300 5050
 Connection ~ 5300 5050
 Wire Wire Line
-	5000 4250 5000 4450
-Wire Wire Line
-	6500 3450 6700 3450
-Wire Wire Line
-	5100 1950 5100 1550
-Wire Wire Line
 	5700 4450 5700 4250
 Wire Wire Line
 	4400 5650 4400 5550
@@ -495,7 +424,7 @@ Wire Wire Line
 Wire Wire Line
 	6600 1750 6900 1750
 Wire Wire Line
-	7600 1750 7400 1750
+	7400 1750 7600 1750
 Wire Wire Line
 	6800 2350 6800 2250
 Wire Wire Line
@@ -515,12 +444,12 @@ Wire Wire Line
 Connection ~ 4800 8350
 Connection ~ 5750 8350
 Wire Wire Line
-	5100 8350 4700 8350
+	4700 8350 5100 8350
 Connection ~ 6300 8350
 Connection ~ 4800 7950
 Connection ~ 5750 7950
 Wire Wire Line
-	5100 7950 4700 7950
+	4700 7950 5100 7950
 Connection ~ 6300 7950
 Wire Wire Line
 	7400 3150 7300 3150
@@ -544,26 +473,11 @@ Wire Wire Line
 	7100 4650 7100 4350
 Connection ~ 7100 4650
 Wire Wire Line
-	750  9550 1150 9550
-Wire Wire Line
-	1150 9750 750  9750
-Wire Wire Line
-	2350 9850 2500 9850
-Wire Wire Line
-	2350 9650 2500 9650
-Wire Wire Line
-	2700 9850 2700 9750
-Wire Wire Line
-	2700 9350 2700 9150
-Connection ~ 2700 9250
-Wire Wire Line
 	7350 10300 7350 10200
 Wire Wire Line
 	7350 9200 7350 9100
 Wire Wire Line
 	4100 5650 4100 5550
-Wire Wire Line
-	1750 10300 1750 10200
 Wire Wire Line
 	12100 2450 12000 2450
 Wire Wire Line
@@ -579,8 +493,6 @@ Wire Wire Line
 	10800 2450 10700 2450
 Wire Wire Line
 	10700 2000 10600 2000
-Wire Wire Line
-	10100 2850 10100 1850
 Connection ~ 10100 2000
 Wire Wire Line
 	3900 3450 3900 3350
@@ -647,7 +559,7 @@ Wire Wire Line
 Wire Wire Line
 	14450 3300 14550 3300
 Wire Wire Line
-	1600 7700 1600 7200
+	1600 7200 1600 7400
 Wire Wire Line
 	15100 8150 15000 8150
 Wire Wire Line
@@ -671,10 +583,8 @@ Wire Wire Line
 Connection ~ 9350 8800
 Connection ~ 10150 8800
 Wire Wire Line
-	6750 6800 6750 7050
+	6750 6800 6750 7000
 Connection ~ 6750 6900
-Wire Wire Line
-	6850 5450 6850 5900
 Wire Wire Line
 	7450 5600 7350 5600
 Wire Wire Line
@@ -696,56 +606,19 @@ Wire Wire Line
 	12700 4450 12700 4350
 Wire Wire Line
 	12700 3600 12700 3950
-Wire Wire Line
-	12550 3850 12700 3850
 Connection ~ 12700 3850
 Wire Wire Line
 	15750 3600 15750 3700
 Wire Wire Line
 	14450 4900 14450 4100
 Wire Wire Line
-	1150 9250 1050 9250
-Wire Wire Line
-	1050 9250 1050 9050
-Wire Wire Line
-	1050 9050 2450 9050
-Wire Wire Line
-	2450 9050 2450 9350
-Wire Wire Line
-	4050 10300 4050 10200
-Wire Wire Line
-	3050 9350 3450 9350
-Wire Wire Line
-	3050 9550 3450 9550
-Wire Wire Line
-	3450 9750 3050 9750
-Wire Wire Line
-	4650 9450 5050 9450
-Wire Wire Line
-	4650 9650 5050 9650
-Wire Wire Line
-	4650 9850 5050 9850
-Connection ~ 5250 9250
-Wire Wire Line
-	5250 9350 5250 9150
-Wire Wire Line
-	5250 9850 5250 9750
-Wire Wire Line
-	4650 9250 5250 9250
-Wire Wire Line
 	16050 4000 16050 3900
-Wire Wire Line
-	16400 3400 15650 3400
 Connection ~ 16050 3400
 Wire Wire Line
 	14150 4100 14150 4000
 Wire Wire Line
 	13600 4000 13600 3900
-Wire Wire Line
-	14550 3500 13800 3500
 Connection ~ 14150 3500
-Wire Wire Line
-	13200 3400 14550 3400
 Connection ~ 13600 3400
 Connection ~ 13050 8250
 Connection ~ 13600 8350
@@ -765,13 +638,9 @@ Wire Wire Line
 	15300 8100 15200 8100
 Wire Wire Line
 	9900 7350 9700 7350
-Wire Wire Line
-	10000 6950 10000 7450
-Connection ~ 10000 7200
+Connection ~ 10000 7300
 Wire Wire Line
 	4200 2950 4100 2950
-Wire Wire Line
-	13350 8350 13900 8350
 Wire Wire Line
 	3000 4000 3000 3900
 Wire Wire Line
@@ -782,13 +651,13 @@ Connection ~ 11200 8500
 Wire Wire Line
 	5650 8350 5650 8450
 Wire Wire Line
-	6600 8350 5650 8350
+	5650 8350 6600 8350
 Wire Wire Line
-	5100 4450 5100 4250
+	5100 4350 5100 4250
 Wire Wire Line
-	7200 4550 5600 4550
+	5600 4550 7200 4550
 Wire Wire Line
-	7200 4750 5400 4750
+	5400 4750 7200 4750
 Wire Wire Line
 	15750 1150 15750 2800
 Wire Wire Line
@@ -811,7 +680,7 @@ Connection ~ 14150 6650
 Wire Wire Line
 	13350 7050 13350 6950
 Wire Wire Line
-	13050 7050 13050 6850
+	13050 6850 13050 7050
 Connection ~ 13050 6950
 Wire Wire Line
 	10500 8700 10500 8900
@@ -837,8 +706,6 @@ Wire Wire Line
 Wire Wire Line
 	8500 8800 8650 8800
 Wire Wire Line
-	5550 800  5750 800 
-Wire Wire Line
 	8500 5150 8500 7250
 Text Notes 11650 7500 0    40   ~ 0
 amplifier bypass path
@@ -856,22 +723,6 @@ F 6 "CAP CER 1UF 10V 10% X5R 0402" H 10150 8300 60  0001 C CNN "Description"
 	1    10150 8300
 	1    0    0    -1  
 $EndComp
-Text Label 5700 1550 3    40   ~ 0
-!RX_AMP_PWR
-Text Label 4650 800  0    40   ~ 0
-MIX_BYPASS
-$Comp
-L R-SHORTED R83
-U 1 1 5047BA5F
-P 5300 800
-F 0 "R83" V 5380 800 50  0000 C CNN
-F 1 "0" V 5200 800 50  0000 C CNN
-F 2 "" H 5300 800 60  0001 C CNN
-F 3 "" H 5300 800 60  0001 C CNN
-F 4 "DNP" V 5450 800 60  0000 C CNN "Note"
-	1    5300 800 
-	0    1    1    0   
-$EndComp
 $Comp
 L VAA #PWR34
 U 1 1 50471BB9
@@ -883,14 +734,6 @@ F 3 "" H 4400 4650 60  0001 C CNN
 	1    4400 4650
 	1    0    0    -1  
 $EndComp
-Text Label 5750 800  2    40   ~ 0
-GPO4
-Text Label 11650 8500 2    40   ~ 0
-!RX_AMP_PWR
-Text Label 11900 6650 0    40   ~ 0
-!TX_AMP_PWR
-Text Label 5100 4450 1    40   ~ 0
-GPO4
 $Comp
 L GND #PWR49
 U 1 1 50457E6B
@@ -1022,8 +865,6 @@ Text GLabel 7200 4550 2    40   Input ~ 0
 MIXER_SCLK
 Text GLabel 7200 4450 2    40   Input ~ 0
 MIXER_SDATA
-Text Label 5000 4450 1    40   ~ 0
-TX
 Text GLabel 7350 9100 1    40   Input ~ 0
 MIX_CLK
 $Comp
@@ -1300,31 +1141,29 @@ F 3 "" H 6950 6900 60  0001 C CNN
 	1    6950 6900
 	1    0    0    -1  
 $EndComp
-Text Label 9900 6500 3    40   ~ 0
-TX_AMP
 $Comp
 L GND #PWR54
 U 1 1 502E7A17
-P 10650 7200
-F 0 "#PWR54" H 10650 7200 30  0001 C CNN
-F 1 "GND" H 10650 7130 30  0001 C CNN
-F 2 "" H 10650 7200 60  0001 C CNN
-F 3 "" H 10650 7200 60  0001 C CNN
-	1    10650 7200
+P 10600 7300
+F 0 "#PWR54" H 10600 7300 30  0001 C CNN
+F 1 "GND" H 10600 7230 30  0001 C CNN
+F 2 "" H 10600 7300 60  0001 C CNN
+F 3 "" H 10600 7300 60  0001 C CNN
+	1    10600 7300
 	0    -1   -1   0   
 $EndComp
 $Comp
 L C C57
 U 1 1 502E7A16
-P 10350 7200
-F 0 "C57" H 10400 7300 50  0000 L CNN
-F 1 "33pF" H 10400 7100 50  0000 L CNN
-F 2 "" H 10350 7200 60  0001 C CNN
-F 3 "" H 10350 7200 60  0001 C CNN
-F 4 "Murata" H 21700 9450 60  0001 C CNN "Manufacturer"
-F 5 "GRM1555C1H330JZ01D" H 21700 9450 60  0001 C CNN "Part Number"
-F 6 "CAP CER 33PF 50V 5% NP0 0402" H 21700 9450 60  0001 C CNN "Description"
-	1    10350 7200
+P 10300 7300
+F 0 "C57" H 10350 7400 50  0000 L CNN
+F 1 "33pF" H 10350 7200 50  0000 L CNN
+F 2 "" H 10300 7300 60  0001 C CNN
+F 3 "" H 10300 7300 60  0001 C CNN
+F 4 "Murata" H 21650 9550 60  0001 C CNN "Manufacturer"
+F 5 "GRM1555C1H330JZ01D" H 21650 9550 60  0001 C CNN "Part Number"
+F 6 "CAP CER 33PF 50V 5% NP0 0402" H 21650 9550 60  0001 C CNN "Description"
+	1    10300 7300
 	0    -1   1    0   
 $EndComp
 $Comp
@@ -1352,10 +1191,6 @@ F 3 "" H 10500 6750 60  0001 C CNN
 	1    10500 6750
 	0    -1   -1   0   
 $EndComp
-Text Label 7950 7450 0    40   ~ 0
-RX_AMP
-Text Label 10000 6950 3    40   ~ 0
-AMP_BYPASS
 $Comp
 L GND #PWR63
 U 1 1 502E79FB
@@ -1381,8 +1216,6 @@ F 6 "CAP CER 33PF 50V 5% NP0 0402" H 19550 10000 60  0001 C CNN "Description"
 	1    8200 7750
 	-1   0    0    1   
 $EndComp
-Text Label 15200 7850 3    40   ~ 0
-TX_AMP
 $Comp
 L GND #PWR65
 U 1 1 502E79D7
@@ -1458,14 +1291,6 @@ F 6 "CAP CER 33PF 50V 5% NP0 0402" H 24400 10800 60  0001 C CNN "Description"
 	1    13050 8550
 	-1   0    0    1   
 $EndComp
-Text Label 12650 8250 0    40   ~ 0
-AMP_BYPASS
-Text Label 13350 8350 0    40   ~ 0
-RX_AMP
-Text Label 13200 3400 0    40   ~ 0
-!MIX_BYPASS
-Text Label 13800 3500 0    40   ~ 0
-RX_MIX_BP
 $Comp
 L C C38
 U 1 1 502E792B
@@ -1516,8 +1341,6 @@ F 6 "CAP CER 33PF 50V 5% NP0 0402" H 25500 6050 60  0001 C CNN "Description"
 	1    14150 3800
 	-1   0    0    1   
 $EndComp
-Text Label 16400 3400 2    40   ~ 0
-TX_MIX_BP
 $Comp
 L C C39
 U 1 1 502E78E2
@@ -1541,103 +1364,6 @@ F 1 "GND" H 16050 3930 30  0001 C CNN
 F 2 "" H 16050 4000 60  0001 C CNN
 F 3 "" H 16050 4000 60  0001 C CNN
 	1    16050 4000
-	1    0    0    -1  
-$EndComp
-$Comp
-L C C69
-U 1 1 502E7810
-P 5250 9550
-F 0 "C69" H 5300 9650 50  0000 L CNN
-F 1 "100nF" H 5300 9450 50  0000 L CNN
-F 2 "" H 5250 9550 60  0001 C CNN
-F 3 "" H 5250 9550 60  0001 C CNN
-F 4 "Murata" H 5250 9550 60  0001 C CNN "Manufacturer"
-F 5 "GRM155R61A104KA01D" H 5250 9550 60  0001 C CNN "Part Number"
-F 6 "CAP CER 0.1UF 10V 10% X5R 0402" H 5250 9550 60  0001 C CNN "Description"
-	1    5250 9550
-	1    0    0    -1  
-$EndComp
-$Comp
-L GND #PWR80
-U 1 1 502E780F
-P 5250 9850
-F 0 "#PWR80" H 5250 9850 30  0001 C CNN
-F 1 "GND" H 5250 9780 30  0001 C CNN
-F 2 "" H 5250 9850 60  0001 C CNN
-F 3 "" H 5250 9850 60  0001 C CNN
-	1    5250 9850
-	1    0    0    -1  
-$EndComp
-$Comp
-L VCC #PWR75
-U 1 1 502E780E
-P 5250 9150
-F 0 "#PWR75" H 5250 9250 30  0001 C CNN
-F 1 "VCC" H 5250 9250 30  0000 C CNN
-F 2 "" H 5250 9150 60  0001 C CNN
-F 3 "" H 5250 9150 60  0001 C CNN
-	1    5250 9150
-	1    0    0    -1  
-$EndComp
-Text Label 5050 9850 2    40   ~ 0
-TX_AMP
-Text Label 5050 9550 2    40   ~ 0
-RX_AMP
-Text Label 5050 9750 2    40   ~ 0
-TX
-Text Label 5050 9450 2    40   ~ 0
-RX
-Text Label 5050 9650 2    40   ~ 0
-!AMP_BYPASS
-Text Label 5050 9350 2    40   ~ 0
-!AMP_BYPASS
-Text Label 3050 9450 0    40   ~ 0
-RX_MIX_BP
-Text Label 3050 9750 0    40   ~ 0
-TX_MIX_BP
-Text Label 3050 9650 0    40   ~ 0
-TX
-Text Label 3050 9350 0    40   ~ 0
-RX
-Text Label 3050 9550 0    40   ~ 0
-MIX_BYPASS
-Text Label 3050 9250 0    40   ~ 0
-MIX_BYPASS
-$Comp
-L GND #PWR86
-U 1 1 502E772E
-P 4050 10300
-F 0 "#PWR86" H 4050 10300 30  0001 C CNN
-F 1 "GND" H 4050 10230 30  0001 C CNN
-F 2 "" H 4050 10300 60  0001 C CNN
-F 3 "" H 4050 10300 60  0001 C CNN
-	1    4050 10300
-	1    0    0    -1  
-$EndComp
-$Comp
-L GND #PWR82
-U 1 1 502E772A
-P 3350 9950
-F 0 "#PWR82" H 3350 9950 30  0001 C CNN
-F 1 "GND" H 3350 9880 30  0001 C CNN
-F 2 "" H 3350 9950 60  0001 C CNN
-F 3 "" H 3350 9950 60  0001 C CNN
-	1    3350 9950
-	1    0    0    -1  
-$EndComp
-NoConn ~ 1150 9350
-$Comp
-L GSG-74HC08 U16
-U 1 1 502E7695
-P 4050 9550
-F 0 "U16" V 4000 9550 60  0000 C CNN
-F 1 "GSG-74HC08" V 4100 9550 60  0000 C CNN
-F 2 "" H 4050 9550 60  0001 C CNN
-F 3 "" H 4050 9550 60  0001 C CNN
-F 4 "Texas Instruments" H 4050 9550 60  0001 C CNN "Manufacturer"
-F 5 "SN74AHC08RGYR" H 4050 9550 60  0001 C CNN "Part Number"
-F 6 "IC QUAD 2IN POS-AND GATE 14-QFN" H 4050 9550 60  0001 C CNN "Description"
-	1    4050 9550
 	1    0    0    -1  
 $EndComp
 $Comp
@@ -1665,10 +1391,6 @@ F 3 "" H 12700 4450 60  0001 C CNN
 	1    12700 4450
 	1    0    0    -1  
 $EndComp
-Text Label 12550 3850 0    40   ~ 0
-HP
-Text Label 12800 2450 3    40   ~ 0
-LP
 $Comp
 L GND #PWR13
 U 1 1 502E6F90
@@ -1705,8 +1427,6 @@ F 3 "" H 9300 3450 60  0001 C CNN
 	1    9300 3450
 	1    0    0    -1  
 $EndComp
-Text Label 9150 2850 0    40   ~ 0
-TX
 $Comp
 L C C24
 U 1 1 502E6F11
@@ -1732,8 +1452,6 @@ F 3 "" H 10000 1650 60  0001 C CNN
 	1    10000 1650
 	0    -1   -1   0   
 $EndComp
-Text Label 9400 1500 3    40   ~ 0
-RX
 $Comp
 L C C10
 U 1 1 502E6EFB
@@ -1759,8 +1477,6 @@ F 3 "" H 7450 5600 60  0001 C CNN
 	1    7450 5600
 	0    -1   -1   0   
 $EndComp
-Text Label 6850 5450 3    40   ~ 0
-TX
 $Comp
 L C C45
 U 1 1 502E6ECB
@@ -1786,8 +1502,6 @@ F 3 "" H 6150 6900 60  0001 C CNN
 	1    6150 6900
 	0    1    1    0   
 $EndComp
-Text Label 6750 7050 1    40   ~ 0
-RX
 $Comp
 L C C54
 U 1 1 502E6EB0
@@ -1802,10 +1516,6 @@ F 6 "CAP CER 33PF 50V 5% NP0 0402" H 9600 6700 60  0001 C CNN "Description"
 	1    6450 6900
 	0    1    1    0   
 $EndComp
-Text Label 2500 2900 3    40   ~ 0
-RX
-Text Label 2250 4250 0    40   ~ 0
-TX
 $Comp
 L MOSFET_P Q1
 U 1 1 502E69D1
@@ -2335,18 +2045,6 @@ F 4 "DNP" V 4050 3600 60  0000 C CNN "Note"
 	1    3900 3750
 	1    0    0    -1  
 $EndComp
-Text Label 1700 5650 3    40   ~ 0
-!MIX_BYPASS
-Text Label 1600 7700 1    40   ~ 0
-MIX_BYPASS
-Text Label 1600 2650 1    40   ~ 0
-!MIX_BYPASS
-Text Label 1700 600  3    40   ~ 0
-MIX_BYPASS
-Text Label 9850 4000 0    40   ~ 0
-HP
-Text Label 10100 1850 3    40   ~ 0
-LP
 $Comp
 L GND #PWR8
 U 1 1 501F4794
@@ -2704,17 +2402,6 @@ F 6 "0.01-6.0 GHz GaAs SPDT Switch" H 10100 3300 60  0001 C CNN "Description"
 	0    -1   -1   0   
 $EndComp
 $Comp
-L GND #PWR85
-U 1 1 4FC68E81
-P 1750 10300
-F 0 "#PWR85" H 1750 10300 30  0001 C CNN
-F 1 "GND" H 1750 10230 30  0001 C CNN
-F 2 "" H 1750 10300 60  0001 C CNN
-F 3 "" H 1750 10300 60  0001 C CNN
-	1    1750 10300
-	1    0    0    -1  
-$EndComp
-$Comp
 L C C41
 U 1 1 4FB55FAD
 P 4100 5350
@@ -2806,86 +2493,6 @@ F 3 "" H 7350 10300 60  0001 C CNN
 $EndComp
 Text Label 5600 1750 3    40   ~ 0
 REF_IN
-Text Notes 2050 8850 0    40   ~ 0
-switch control logic ensures valid switch configurations
-Text Label 2500 9650 2    40   ~ 0
-RX
-Text Label 2500 9550 2    40   ~ 0
-TX
-Text Label 2500 9850 2    40   ~ 0
-LP
-Text Label 2500 9750 2    40   ~ 0
-HP
-Text Label 750  9750 0    40   ~ 0
-!AMP_BYPASS
-Text Label 750  9650 0    40   ~ 0
-AMP_BYPASS
-Text Label 750  9550 0    40   ~ 0
-!MIX_BYPASS
-Text Label 750  9450 0    40   ~ 0
-MIX_BYPASS
-$Comp
-L VCC #PWR74
-U 1 1 4FB2FD2A
-P 2700 9150
-F 0 "#PWR74" H 2700 9250 30  0001 C CNN
-F 1 "VCC" H 2700 9250 30  0000 C CNN
-F 2 "" H 2700 9150 60  0001 C CNN
-F 3 "" H 2700 9150 60  0001 C CNN
-	1    2700 9150
-	1    0    0    -1  
-$EndComp
-$Comp
-L GND #PWR79
-U 1 1 4FB2FD23
-P 2700 9850
-F 0 "#PWR79" H 2700 9850 30  0001 C CNN
-F 1 "GND" H 2700 9780 30  0001 C CNN
-F 2 "" H 2700 9850 60  0001 C CNN
-F 3 "" H 2700 9850 60  0001 C CNN
-	1    2700 9850
-	1    0    0    -1  
-$EndComp
-NoConn ~ 2350 9450
-$Comp
-L C C68
-U 1 1 4FB2FD07
-P 2700 9550
-F 0 "C68" H 2750 9650 50  0000 L CNN
-F 1 "100nF" H 2750 9450 50  0000 L CNN
-F 2 "" H 2700 9550 60  0001 C CNN
-F 3 "" H 2700 9550 60  0001 C CNN
-F 4 "Murata" H 2700 9550 60  0001 C CNN "Manufacturer"
-F 5 "GRM155R61A104KA01D" H 2700 9550 60  0001 C CNN "Part Number"
-F 6 "CAP CER 0.1UF 10V 10% X5R 0402" H 2700 9550 60  0001 C CNN "Description"
-	1    2700 9550
-	1    0    0    -1  
-$EndComp
-$Comp
-L GND #PWR81
-U 1 1 4FB2FD02
-P 1050 9950
-F 0 "#PWR81" H 1050 9950 30  0001 C CNN
-F 1 "GND" H 1050 9880 30  0001 C CNN
-F 2 "" H 1050 9950 60  0001 C CNN
-F 3 "" H 1050 9950 60  0001 C CNN
-	1    1050 9950
-	1    0    0    -1  
-$EndComp
-$Comp
-L GSG-74HC04 U15
-U 1 1 4FB2F586
-P 1750 9550
-F 0 "U15" V 1700 9550 60  0000 C CNN
-F 1 "GSG-74HC04" V 1800 9550 60  0000 C CNN
-F 2 "" H 1750 9550 60  0001 C CNN
-F 3 "" H 1750 9550 60  0001 C CNN
-F 4 "Texas Instruments" H 1750 9550 60  0001 C CNN "Manufacturer"
-F 5 "SN74AHC04RGYR" H 1750 9550 60  0001 C CNN "Part Number"
-F 6 "IC HEX INVERTERS 14-QFN" H 1750 9550 60  0001 C CNN "Description"
-	1    1750 9550
-	1    0    0    -1  
-$EndComp
 $Comp
 L VCC #PWR25
 U 1 1 4FAECFB5
@@ -3343,12 +2950,6 @@ F 6 "CAP CER 100PF 50V 5% NP0 0402" H 7400 6900 60  0001 C CNN "Description"
 	1    4400 5350
 	1    0    0    -1  
 $EndComp
-Text Label 5000 1550 3    40   ~ 0
-AMP_BYPASS
-Text Label 5100 1550 3    40   ~ 0
-!TX_AMP_PWR
-Text Label 6700 3450 2    40   ~ 0
-HP
 $Comp
 L GND #PWR73
 U 1 1 4FAA165E
@@ -3509,4 +3110,123 @@ F 6 "CONN JACK SMA PCB VERT" H 16100 8450 60  0001 C CNN "Description"
 $EndComp
 Wire Wire Line
 	15500 8450 15800 8450
+Text GLabel 1600 7400 3    40   Input ~ 0
+MIX_BYPASS
+Text GLabel 1700 900  1    40   Input ~ 0
+MIX_BYPASS
+Text GLabel 13250 3500 3    40   Input ~ 0
+!MIX_BYPASS
+Wire Wire Line
+	13250 3500 13250 3400
+Wire Wire Line
+	13250 3400 14550 3400
+Text GLabel 1700 5950 1    40   Input ~ 0
+!MIX_BYPASS
+Wire Wire Line
+	1700 5950 1700 6300
+Text GLabel 1500 2600 0    40   Input ~ 0
+!MIX_BYPASS
+Wire Wire Line
+	1600 2600 1500 2600
+Wire Wire Line
+	1600 2150 1600 2600
+$Comp
+L CONN_1 P?
+U 1 1 526B7056
+P 5100 4500
+F 0 "P?" H 5180 4500 40  0000 L CNN
+F 1 "GPO4" H 5100 4555 30  0001 C CNN
+F 2 "" H 5100 4500 60  0001 C CNN
+F 3 "" H 5100 4500 60  0001 C CNN
+F 4 "DNP" H 5100 4500 60  0001 C CNN "Note"
+	1    5100 4500
+	0    1    1    0   
+$EndComp
+NoConn ~ 5000 1950
+Text GLabel 12900 8250 0    40   Input ~ 0
+AMP_BYPASS
+Text GLabel 10100 7100 2    40   Input ~ 0
+AMP_BYPASS
+Wire Wire Line
+	10000 7100 10000 7450
+Wire Wire Line
+	10100 7100 10000 7100
+Text GLabel 6750 7000 3    40   Input ~ 0
+RX
+Text GLabel 9400 1550 1    40   Input ~ 0
+RX
+Wire Wire Line
+	9400 1550 9400 1750
+Text GLabel 2500 2950 1    40   Input ~ 0
+RX
+Wire Wire Line
+	2500 2950 2500 3150
+NoConn ~ 5000 4250
+Text GLabel 6850 5500 1    40   Input ~ 0
+TX
+Wire Wire Line
+	6850 5500 6850 5900
+Text GLabel 9200 2850 0    40   Input ~ 0
+TX
+Wire Wire Line
+	9200 2850 9300 2850
+Text GLabel 2300 4250 0    40   Input ~ 0
+TX
+Wire Wire Line
+	2300 4250 2400 4250
+Text GLabel 12600 3850 0    40   Input ~ 0
+HP
+Wire Wire Line
+	12600 3850 12700 3850
+Text GLabel 9900 4000 0    40   Input ~ 0
+HP
+Wire Wire Line
+	9900 4000 10000 4000
+Text GLabel 10100 1900 1    40   Input ~ 0
+LP
+Wire Wire Line
+	10100 1900 10100 2850
+Text GLabel 12800 2500 1    40   Input ~ 0
+LP
+Wire Wire Line
+	12800 2500 12800 2700
+NoConn ~ 6500 3450
+Text GLabel 13850 3600 3    40   Input ~ 0
+RX_MIX_BP
+Wire Wire Line
+	13850 3600 13850 3500
+Wire Wire Line
+	13850 3500 14550 3500
+Text GLabel 16150 3300 1    40   Input ~ 0
+TX_MIX_BP
+Wire Wire Line
+	16150 3400 16150 3300
+Wire Wire Line
+	15650 3400 16150 3400
+Text GLabel 13500 8350 0    40   Input ~ 0
+RX_AMP
+Wire Wire Line
+	13500 8350 13900 8350
+Text GLabel 15200 8000 1    40   Input ~ 0
+TX_AMP
+Wire Wire Line
+	15200 8000 15200 8250
+Text GLabel 9900 6650 1    40   Input ~ 0
+TX_AMP
+Wire Wire Line
+	9900 6650 9900 7350
+Text GLabel 8100 7450 0    40   Input ~ 0
+RX_AMP
+Wire Wire Line
+	8100 7450 8600 7450
+Text GLabel 11300 8500 2    40   Input ~ 0
+!RX_AMP_PWR
+Wire Wire Line
+	10800 8500 11300 8500
+Text GLabel 12250 6650 0    40   Input ~ 0
+!TX_AMP_PWR
+Wire Wire Line
+	12250 6650 12750 6650
+NoConn ~ 5700 1950
+NoConn ~ 5100 1950
 $EndSCHEMATC
