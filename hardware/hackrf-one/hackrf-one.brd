@@ -1,4 +1,4 @@
-PCBNEW-BOARD Version 2 date Mon Oct 28 18:21:35 2013
+PCBNEW-BOARD Version 2 date Mon Oct 28 18:46:16 2013
 
 # Created by Pcbnew(2013-07-24 BZR 4024)-stable
 
@@ -7,14 +7,14 @@ encoding utf-8
 Units mm
 LayerCount 4
 EnabledLayers 12FF8007
-Links 883
+Links 0
 NoConn 94
 Di 8.011888 5.92836 227.820764 175.190501
 Ndraw 97
 Ntrack 3897
 Nzone 0
 BoardThickness 1.6002
-Nmodule 319
+Nmodule 320
 Nnets 305
 $EndGENERAL
 
@@ -67,8 +67,8 @@ TextPcbSize 0.762 1.016
 EdgeModWidth 0.2032
 TextModSize 1.524 1.524
 TextModWidth 0.3048
-PadSize 0.5842 0.5842
-PadDrill 0.3302
+PadSize 3.35 1
+PadDrill 0
 Pad2MaskClearance 0.1524
 SolderMaskMinWidth 0
 Pad2PasteClearanceRatio -0.12
@@ -17411,6 +17411,240 @@ Po -0.24892 -0.42418
 Le -2147.483648
 $EndPAD
 $EndMODULE GSG-SKY13317-373LF
+$MODULE GSG-SHIELD-BMI-S-230
+Po 95 153 0 15 526F04F7 526F6C03 ~~
+Li GSG-SHIELD-BMI-S-230
+Kw SHIELD
+Sc 526F6C03
+AR GSG-HEADER-1x1
+Op 0 0 0
+T0 0 21 1.016 1.016 0 0.2032 N V 21 N "SHIELD-BMI-S-230"
+T1 0 21 1.016 1.016 0 0.2032 N I 21 N "Val**"
+$PAD
+Sh "0" R 3.85 1 0 0 0
+Dr 0 0 0
+At SMD N 00888000
+Ne 0 ""
+Po -23.875 18.95
+$EndPAD
+$PAD
+Sh "0" R 3.8 1 0 0 0
+Dr 0 0 0
+At SMD N 00888000
+Ne 0 ""
+Po -18 18.95
+$EndPAD
+$PAD
+Sh "0" R 3.8 1 0 0 0
+Dr 0 0 0
+At SMD N 00888000
+Ne 0 ""
+Po -12 18.95
+$EndPAD
+$PAD
+Sh "0" R 3.8 1 0 0 0
+Dr 0 0 0
+At SMD N 00888000
+Ne 0 ""
+Po -6 18.95
+$EndPAD
+$PAD
+Sh "0" R 3.8 1 0 0 0
+Dr 0 0 0
+At SMD N 00888000
+Ne 0 ""
+Po 0 18.95
+$EndPAD
+$PAD
+Sh "0" R 3.8 1 0 0 0
+Dr 0 0 0
+At SMD N 00888000
+Ne 0 ""
+Po 6 18.95
+$EndPAD
+$PAD
+Sh "0" R 3.8 1 0 0 0
+Dr 0 0 0
+At SMD N 00888000
+Ne 0 ""
+Po 12 18.95
+$EndPAD
+$PAD
+Sh "0" R 3.8 1 0 0 0
+Dr 0 0 0
+At SMD N 00888000
+Ne 0 ""
+Po 18 18.95
+$EndPAD
+$PAD
+Sh "0" R 3.85 1 0 0 0
+Dr 0 0 0
+At SMD N 00888000
+Ne 0 ""
+Po 23.875 18.95
+$EndPAD
+$PAD
+Sh "0" R 3.35 1 0 0 900
+Dr 0 0 0
+At SMD N 00888000
+Ne 0 ""
+Po 25.3 17.775
+$EndPAD
+$PAD
+Sh "0" R 3.8 1 0 0 900
+Dr 0 0 0
+At SMD N 00888000
+Ne 0 ""
+Po 25.3 12
+$EndPAD
+$PAD
+Sh "0" R 3.8 1 0 0 900
+Dr 0 0 0
+At SMD N 00888000
+Ne 0 ""
+Po 25.3 6
+$EndPAD
+$PAD
+Sh "0" R 3.8 1 0 0 900
+Dr 0 0 0
+At SMD N 00888000
+Ne 0 ""
+Po 25.3 0
+$EndPAD
+$PAD
+Sh "0" R 3.8 1 0 0 900
+Dr 0 0 0
+At SMD N 00888000
+Ne 0 ""
+Po 25.3 -6
+$EndPAD
+$PAD
+Sh "0" R 3.8 1 0 0 900
+Dr 0 0 0
+At SMD N 00888000
+Ne 0 ""
+Po 25.3 -12
+$EndPAD
+$PAD
+Sh "0" R 3.35 1 0 0 900
+Dr 0 0 0
+At SMD N 00888000
+Ne 0 ""
+Po 25.3 -17.775
+$EndPAD
+$PAD
+Sh "0" R 3.85 1 0 0 0
+Dr 0 0 0
+At SMD N 00888000
+Ne 0 ""
+Po 23.875 -18.95
+$EndPAD
+$PAD
+Sh "0" R 3.8 1 0 0 0
+Dr 0 0 0
+At SMD N 00888000
+Ne 0 ""
+Po 18 -18.95
+$EndPAD
+$PAD
+Sh "0" R 3.8 1 0 0 0
+Dr 0 0 0
+At SMD N 00888000
+Ne 0 ""
+Po 12 -18.95
+$EndPAD
+$PAD
+Sh "0" R 3.8 1 0 0 0
+Dr 0 0 0
+At SMD N 00888000
+Ne 0 ""
+Po 6 -18.95
+$EndPAD
+$PAD
+Sh "0" R 3.8 1 0 0 0
+Dr 0 0 0
+At SMD N 00888000
+Ne 0 ""
+Po 0 -18.95
+$EndPAD
+$PAD
+Sh "0" R 3.8 1 0 0 0
+Dr 0 0 0
+At SMD N 00888000
+Ne 0 ""
+Po -6 -18.95
+$EndPAD
+$PAD
+Sh "0" R 3.8 1 0 0 0
+Dr 0 0 0
+At SMD N 00888000
+Ne 0 ""
+Po -12 -18.95
+$EndPAD
+$PAD
+Sh "0" R 3.8 1 0 0 0
+Dr 0 0 0
+At SMD N 00888000
+Ne 0 ""
+Po -18 -18.95
+$EndPAD
+$PAD
+Sh "0" R 3.85 1 0 0 0
+Dr 0 0 0
+At SMD N 00888000
+Ne 0 ""
+Po -23.875 -18.95
+$EndPAD
+$PAD
+Sh "0" R 3.35 1 0 0 900
+Dr 0 0 0
+At SMD N 00888000
+Ne 0 ""
+Po -25.3 -17.775
+$EndPAD
+$PAD
+Sh "0" R 3.8 1 0 0 900
+Dr 0 0 0
+At SMD N 00888000
+Ne 0 ""
+Po -25.3 -12
+$EndPAD
+$PAD
+Sh "0" R 3.8 1 0 0 900
+Dr 0 0 0
+At SMD N 00888000
+Ne 0 ""
+Po -25.3 -6
+$EndPAD
+$PAD
+Sh "0" R 3.8 1 0 0 900
+Dr 0 0 0
+At SMD N 00888000
+Ne 0 ""
+Po -25.3 0
+$EndPAD
+$PAD
+Sh "0" R 3.8 1 0 0 900
+Dr 0 0 0
+At SMD N 00888000
+Ne 0 ""
+Po -25.3 6
+$EndPAD
+$PAD
+Sh "0" R 3.8 1 0 0 900
+Dr 0 0 0
+At SMD N 00888000
+Ne 0 ""
+Po -25.3 12
+$EndPAD
+$PAD
+Sh "0" R 3.35 1 0 0 900
+Dr 0 0 0
+At SMD N 00888000
+Ne 0 ""
+Po -25.3 17.775
+$EndPAD
+$EndMODULE GSG-SHIELD-BMI-S-230
 $DRAWSEGMENT
 Po 0 173 104 173 102 0.2032
 De 25 0 900 0 0
