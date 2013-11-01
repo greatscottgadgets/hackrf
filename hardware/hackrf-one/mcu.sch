@@ -191,8 +191,6 @@ F 6 "RES 10K OHM 1/16W 5% 0402 SMD" H 1250 9400 60  0001 C CNN "Description"
 $EndComp
 Text Notes 2200 9200 0    40   ~ 0
 Default boot configuration is SPIFI.\nPress SW1 during reset to switch to\nUSB0 (DFU mode).
-Text Notes 12000 9550 0    40   ~ 0
-R97 may be installed to connect SGPIO8 to the CPLD.\nBy default SGPIO8 is used as a clock input.
 Text GLabel 8750 7750 3    40   Input ~ 0
 SGPIO_CLK
 $Comp
@@ -280,10 +278,6 @@ Text Label 16000 6550 2    40   ~ 0
 BANK2F3M14
 Text Label 11850 10000 2    40   ~ 0
 BANK2F3M14
-Text Label 16000 6450 2    40   ~ 0
-BANK2F3M13
-Text Label 11850 9800 2    40   ~ 0
-BANK2F3M13
 Text Label 16000 6250 2    40   ~ 0
 BANK2F3M12
 Text Label 11850 9600 2    40   ~ 0
@@ -670,21 +664,6 @@ F 4 "Stackpole" H 11200 10000 60  0001 C CNN "Manufacturer"
 F 5 "RMCF0402JT39R0" H 11200 10000 60  0001 C CNN "Part Number"
 F 6 "RES 39 OHM 1/16W 5% 0402 SMD" H 11200 10000 60  0001 C CNN "Description"
 	1    11200 10000
-	0    -1   -1   0   
-$EndComp
-$Comp
-L R R97
-U 1 1 503F98AA
-P 11200 9800
-F 0 "R97" V 11280 9800 50  0000 C CNN
-F 1 "39" V 11200 9800 50  0000 C CNN
-F 2 "" H 11200 9800 60  0001 C CNN
-F 3 "" H 11200 9800 60  0001 C CNN
-F 4 "Stackpole" H 11200 9800 60  0001 C CNN "Manufacturer"
-F 5 "RMCF0402JT39R0" H 11200 9800 60  0001 C CNN "Part Number"
-F 6 "RES 39 OHM 1/16W 5% 0402 SMD" H 11200 9800 60  0001 C CNN "Description"
-F 7 "DNP" V 11250 10050 60  0000 C CNN "Note"
-	1    11200 9800
 	0    -1   -1   0   
 $EndComp
 $Comp
@@ -2519,8 +2498,6 @@ Text Label 10650 9400 0    40   ~ 0
 SGPIO11
 Text Label 10650 9600 0    40   ~ 0
 SGPIO12
-Text Label 10650 9800 0    40   ~ 0
-SGPIO8
 Text Label 10650 10000 0    40   ~ 0
 SGPIO4
 Text Label 10650 10200 0    40   ~ 0
@@ -3565,13 +3542,9 @@ Wire Wire Line
 Wire Wire Line
 	10650 9400 10950 9400
 Wire Wire Line
-	10650 9800 10950 9800
-Wire Wire Line
 	10650 10200 10950 10200
 Wire Wire Line
 	11450 10400 11850 10400
-Wire Wire Line
-	11450 9800 11850 9800
 Wire Wire Line
 	11450 10200 11850 10200
 Wire Wire Line
@@ -4146,8 +4119,6 @@ Wire Wire Line
 Wire Wire Line
 	15600 6850 16000 6850
 Wire Wire Line
-	15600 6450 16000 6450
-Wire Wire Line
 	15600 6250 16000 6250
 Wire Wire Line
 	15600 6050 16000 6050
@@ -4535,4 +4506,5 @@ Wire Wire Line
 	1600 3150 1600 3350
 Connection ~ 1600 3350
 NoConn ~ 11600 7850
+NoConn ~ 15600 6450
 $EndSCHEMATC
