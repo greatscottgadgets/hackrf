@@ -2202,7 +2202,7 @@ $EndComp
 Text Label 16150 1550 2    40   ~ 0
 EN1V8
 Text Label 15750 1750 2    40   ~ 0
-VBUS
+VIN
 $Comp
 L GND #PWR0199
 U 1 1 4F824A0E
@@ -4507,4 +4507,6 @@ Wire Wire Line
 Connection ~ 1600 3350
 NoConn ~ 11600 7850
 NoConn ~ 15600 6450
+Text Label 12200 1650 0    40   ~ 0
+VIN
 $EndSCHEMATC
