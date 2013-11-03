@@ -32,7 +32,7 @@ from struct import unpack
 
 address = 0x40050014
 
-f = open('cgu.bin', 'read')
+f = open(sys.argv[1], 'read')
 d = '\x00' * 20 + f.read()
 length = len(d)
 f.close()
@@ -123,6 +123,243 @@ registers = {
 			('AUTOBLOCK', 11, 1),
 			('NSEL', 12, 2),
 			('MSEL', 16, 8),
+			('CLK_SEL', 24, 5),
+		),
+	},
+	0x48: {
+		'name': 'IDIVA_CTRL',
+		'fields': (
+			('PD', 0, 1),
+			('IDIV', 2, 2),
+			('AUTOBLOCK', 11, 1),
+			('CLK_SEL', 24, 5),
+		),
+	},
+	0x4C: {
+		'name': 'IDIVB_CTRL',
+		'fields': (
+			('PD', 0, 1),
+			('IDIV', 2, 4),
+			('AUTOBLOCK', 11, 1),
+			('CLK_SEL', 24, 5),
+		),
+	},
+	0x50: {
+		'name': 'IDIVC_CTRL',
+		'fields': (
+			('PD', 0, 1),
+			('IDIV', 2, 4),
+			('AUTOBLOCK', 11, 1),
+			('CLK_SEL', 24, 5),
+		),
+	},
+	0x54: {
+		'name': 'IDIVD_CTRL',
+		'fields': (
+			('PD', 0, 1),
+			('IDIV', 2, 4),
+			('AUTOBLOCK', 11, 1),
+			('CLK_SEL', 24, 5),
+		),
+	},
+	0x58: {
+		'name': 'IDIVE_CTRL',
+		'fields': (
+			('PD', 0, 1),
+			('IDIV', 2, 8),
+			('AUTOBLOCK', 11, 1),
+			('CLK_SEL', 24, 5),
+		),
+	},
+	0x5C: {
+		'name': 'BASE_SAFE_CLK',
+		'fields': (
+			('PD', 0, 1),
+			('AUTOBLOCK', 11, 1),
+			('CLK_SEL', 24, 5),
+		),
+	},
+	0x60: {
+		'name': 'BASE_USB0_CLK',
+		'fields': (
+			('PD', 0, 1),
+			('AUTOBLOCK', 11, 1),
+			('CLK_SEL', 24, 5),
+		),
+	},
+	0x64: {
+		'name': 'BASE_PERIPH_CLK',
+		'fields': (
+			('PD', 0, 1),
+			('AUTOBLOCK', 11, 1),
+			('CLK_SEL', 24, 5),
+		),
+	},
+	0x68: {
+		'name': 'BASE_USB1_CLK',
+		'fields': (
+			('PD', 0, 1),
+			('AUTOBLOCK', 11, 1),
+			('CLK_SEL', 24, 5),
+		),
+	},
+	0x6C: {
+		'name': 'BASE_M4_CLK',
+		'fields': (
+			('PD', 0, 1),
+			('AUTOBLOCK', 11, 1),
+			('CLK_SEL', 24, 5),
+		),
+	},
+	0x70: {
+		'name': 'BASE_SPIFI_CLK',
+		'fields': (
+			('PD', 0, 1),
+			('AUTOBLOCK', 11, 1),
+			('CLK_SEL', 24, 5),
+		),
+	},
+	0x74: {
+		'name': 'BASE_SPI_CLK',
+		'fields': (
+			('PD', 0, 1),
+			('AUTOBLOCK', 11, 1),
+			('CLK_SEL', 24, 5),
+		),
+	},
+	0x78: {
+		'name': 'BASE_PHY_RX_CLK',
+		'fields': (
+			('PD', 0, 1),
+			('AUTOBLOCK', 11, 1),
+			('CLK_SEL', 24, 5),
+		),
+	},
+	0x7C: {
+		'name': 'BASE_PHY_TX_CLK',
+		'fields': (
+			('PD', 0, 1),
+			('AUTOBLOCK', 11, 1),
+			('CLK_SEL', 24, 5),
+		),
+	},
+	0x80: {
+		'name': 'BASE_APB1_CLK',
+		'fields': (
+			('PD', 0, 1),
+			('AUTOBLOCK', 11, 1),
+			('CLK_SEL', 24, 5),
+		),
+	},
+	0x84: {
+		'name': 'BASE_APB3_CLK',
+		'fields': (
+			('PD', 0, 1),
+			('AUTOBLOCK', 11, 1),
+			('CLK_SEL', 24, 5),
+		),
+	},
+	0x88: {
+		'name': 'BASE_LCD_CLK',
+		'fields': (
+			('PD', 0, 1),
+			('AUTOBLOCK', 11, 1),
+			('CLK_SEL', 24, 5),
+		),
+	},
+	0x8C: {
+		'name': 'BASE_VADC_CLK',
+		'fields': (
+			('PD', 0, 1),
+			('AUTOBLOCK', 11, 1),
+			('CLK_SEL', 24, 5),
+		),
+	},
+	0x90: {
+		'name': 'BASE_SDIO_CLK',
+		'fields': (
+			('PD', 0, 1),
+			('AUTOBLOCK', 11, 1),
+			('CLK_SEL', 24, 5),
+		),
+	},
+	0x94: {
+		'name': 'BASE_SSP0_CLK',
+		'fields': (
+			('PD', 0, 1),
+			('AUTOBLOCK', 11, 1),
+			('CLK_SEL', 24, 5),
+		),
+	},
+	0x98: {
+		'name': 'BASE_SSP1_CLK',
+		'fields': (
+			('PD', 0, 1),
+			('AUTOBLOCK', 11, 1),
+			('CLK_SEL', 24, 5),
+		),
+	},
+	0x9C: {
+		'name': 'BASE_UART0_CLK',
+		'fields': (
+			('PD', 0, 1),
+			('AUTOBLOCK', 11, 1),
+			('CLK_SEL', 24, 5),
+		),
+	},
+	0xA0: {
+		'name': 'BASE_UART1_CLK',
+		'fields': (
+			('PD', 0, 1),
+			('AUTOBLOCK', 11, 1),
+			('CLK_SEL', 24, 5),
+		),
+	},
+	0xA4: {
+		'name': 'BASE_UART2_CLK',
+		'fields': (
+			('PD', 0, 1),
+			('AUTOBLOCK', 11, 1),
+			('CLK_SEL', 24, 5),
+		),
+	},
+	0xA8: {
+		'name': 'BASE_UART3_CLK',
+		'fields': (
+			('PD', 0, 1),
+			('AUTOBLOCK', 11, 1),
+			('CLK_SEL', 24, 5),
+		),
+	},
+	0xAC: {
+		'name': 'BASE_OUT_CLK',
+		'fields': (
+			('PD', 0, 1),
+			('AUTOBLOCK', 11, 1),
+			('CLK_SEL', 24, 5),
+		),
+	},
+	0xC0: {
+		'name': 'BASE_APLL_CLK',
+		'fields': (
+			('PD', 0, 1),
+			('AUTOBLOCK', 11, 1),
+			('CLK_SEL', 24, 5),
+		),
+	},
+	0xC4: {
+		'name': 'BASE_CGU_OUT0_CLK',
+		'fields': (
+			('PD', 0, 1),
+			('AUTOBLOCK', 11, 1),
+			('CLK_SEL', 24, 5),
+		),
+	},
+	0xC8: {
+		'name': 'BASE_CGU_OUT1_CLK',
+		'fields': (
+			('PD', 0, 1),
+			('AUTOBLOCK', 11, 1),
 			('CLK_SEL', 24, 5),
 		),
 	},
