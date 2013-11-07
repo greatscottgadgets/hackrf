@@ -1,4 +1,4 @@
-Cmp-Mod V01 Created by PcbNew date = Wed Nov  6 22:46:18 2013
+Cmp-Mod V01 Created by PcbNew date = Thu Nov  7 09:47:42 2013
 
 BeginCmp
 TimeStamp = /503BB638/4FAECB99;
@@ -1303,24 +1303,10 @@ IdModule  = GSG-SMA-EDGE;
 EndCmp
 
 BeginCmp
-TimeStamp = /5037043E/50457385;
-Reference = P5;
-ValeurCmp = WAKEUP;
-IdModule  = GSG-TESTPOINT-50MIL;
-EndCmp
-
-BeginCmp
 TimeStamp = /503BB638/526B7056;
 Reference = P6;
 ValeurCmp = GPO4;
 IdModule  = GSG-TESTPOINT-50MIL;
-EndCmp
-
-BeginCmp
-TimeStamp = /5037043E/526AE91F;
-Reference = P7;
-ValeurCmp = RTC;
-IdModule  = GSG-HEADER-1x2;
 EndCmp
 
 BeginCmp
@@ -1404,14 +1390,7 @@ BeginCmp
 TimeStamp = /5037043E/4F838167;
 Reference = P20;
 ValeurCmp = GPIO;
-IdModule  = GSG-HEADER-2x5;
-EndCmp
-
-BeginCmp
-TimeStamp = /5037043E/4F83821B;
-Reference = P21;
-ValeurCmp = ANALOG;
-IdModule  = GSG-HEADER-2x4;
+IdModule  = GSG-HEADER-2x12;
 EndCmp
 
 BeginCmp
@@ -1468,13 +1447,6 @@ TimeStamp = /5037043E/504571A2;
 Reference = P30;
 ValeurCmp = BANK2_AUX;
 IdModule  = GSG-HEADER-2x10;
-EndCmp
-
-BeginCmp
-TimeStamp = /5037043E/50457061;
-Reference = P31;
-ValeurCmp = BANK1_AUX;
-IdModule  = GSG-HEADER-2x5;
 EndCmp
 
 BeginCmp
