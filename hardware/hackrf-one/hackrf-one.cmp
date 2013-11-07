@@ -1,4 +1,4 @@
-Cmp-Mod V01 Created by CvPcb (2013-07-24 BZR 4024)-stable date = Wed Nov  6 14:42:38 2013
+Cmp-Mod V01 Created by PcbNew date = Wed Nov  6 22:46:18 2013
 
 BeginCmp
 TimeStamp = /503BB638/4FAECB99;
@@ -1453,7 +1453,7 @@ BeginCmp
 TimeStamp = /5037043E/4F837D97;
 Reference = P28;
 ValeurCmp = SD;
-IdModule  = GSG-HEADER-2x6;
+IdModule  = GSG-HEADER-2x10;
 EndCmp
 
 BeginCmp
@@ -1467,7 +1467,7 @@ BeginCmp
 TimeStamp = /5037043E/504571A2;
 Reference = P30;
 ValeurCmp = BANK2_AUX;
-IdModule  = GSG-HEADER-2x8;
+IdModule  = GSG-HEADER-2x10;
 EndCmp
 
 BeginCmp
