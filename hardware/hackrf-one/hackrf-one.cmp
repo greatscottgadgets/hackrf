@@ -1,4 +1,4 @@
-Cmp-Mod V01 Created by CvPcb (2013-07-24 BZR 4024)-stable date = Fri Nov  8 17:07:53 2013
+Cmp-Mod V01 Created by CvPcb (2013-07-24 BZR 4024)-stable date = Fri Nov  8 18:35:54 2013
 
 BeginCmp
 TimeStamp = /503BB638/4FAECB99;
@@ -1138,35 +1138,35 @@ BeginCmp
 TimeStamp = /5037043E/4F83C1DF;
 Reference = D4;
 ValeurCmp = LED1;
-IdModule  = GSG-0603D;
+IdModule  = GSG-LTST-S220;
 EndCmp
 
 BeginCmp
 TimeStamp = /5037043E/4F83C276;
 Reference = D5;
 ValeurCmp = LED2;
-IdModule  = GSG-0603D;
+IdModule  = GSG-LTST-S220;
 EndCmp
 
 BeginCmp
 TimeStamp = /5037043E/4F83C1A7;
 Reference = D6;
 ValeurCmp = LED3;
-IdModule  = GSG-0603D;
+IdModule  = GSG-LTST-S220;
 EndCmp
 
 BeginCmp
 TimeStamp = /5037043E/4F83C1D6;
 Reference = D7;
 ValeurCmp = VCCLED;
-IdModule  = GSG-0603D;
+IdModule  = GSG-LTST-S220;
 EndCmp
 
 BeginCmp
 TimeStamp = /5037043E/4F83C1E0;
 Reference = D8;
 ValeurCmp = 1V8LED;
-IdModule  = GSG-0603D;
+IdModule  = GSG-LTST-S220;
 EndCmp
 
 BeginCmp
