@@ -1,4 +1,4 @@
-Cmp-Mod V01 Created by PcbNew date = Thu Nov  7 09:47:42 2013
+Cmp-Mod V01 Created by CvPcb (2013-07-24 BZR 4024)-stable date = Fri Nov  8 17:07:53 2013
 
 BeginCmp
 TimeStamp = /503BB638/4FAECB99;
@@ -1345,13 +1345,6 @@ IdModule  = GSG-HEADER-1x2;
 EndCmp
 
 BeginCmp
-TimeStamp = /5037043E/526B0AFE;
-Reference = P13;
-ValeurCmp = VBUS;
-IdModule  = GSG-HEADER-1x2-SHORTED;
-EndCmp
-
-BeginCmp
 TimeStamp = /50370666/50371714;
 Reference = P14;
 ValeurCmp = XCVR_CLKOUT;
@@ -1999,14 +1992,14 @@ BeginCmp
 TimeStamp = /5037043E/5248E27D;
 Reference = SW1;
 ValeurCmp = DFU;
-IdModule  = GSG-HEADER-1x2;
+IdModule  = GSG-SWITCH-LC2259OANP-SIMPLE;
 EndCmp
 
 BeginCmp
 TimeStamp = /5037043E/5248FF4F;
 Reference = SW2;
 ValeurCmp = RESET;
-IdModule  = GSG-HEADER-1x2;
+IdModule  = GSG-SWITCH-LC2259OANP-SIMPLE;
 EndCmp
 
 BeginCmp

@@ -37,7 +37,7 @@ $Descr User 17000 11000
 encoding utf-8
 Sheet 4 4
 Title "HackRF One mcu/usb/power"
-Date "7 nov 2013"
+Date "9 nov 2013"
 Rev ""
 Comp "Copyright 2012 Michael Ossmann"
 Comment1 "License: GPL v2"
@@ -3011,8 +3011,11 @@ F 0 "SW1" H 1450 9310 50  0000 C CNN
 F 1 "DFU" H 1300 9120 50  0000 C CNN
 F 2 "" H 1300 9200 60  0000 C CNN
 F 3 "" H 1300 9200 60  0000 C CNN
+F 4 "E-Switch" H 1300 9200 60  0001 C CNN "Manufacturer"
+F 5 "LC2259OANP" H 1300 9200 60  0001 C CNN "Part Number"
+F 6 "SWITCH PUSH DPDT 0.3A 30V" H 1300 9200 60  0001 C CNN "Description"
 	1    1300 9200
-	1    0    0    -1  
+	-1   0    0    -1  
 $EndComp
 $Comp
 L SW_PUSH SW2
@@ -3022,8 +3025,11 @@ F 0 "SW2" H 1450 8710 50  0000 C CNN
 F 1 "RESET" H 1300 8520 50  0000 C CNN
 F 2 "" H 1300 8600 60  0000 C CNN
 F 3 "" H 1300 8600 60  0000 C CNN
+F 4 "E-Switch" H 1300 8600 60  0001 C CNN "Manufacturer"
+F 5 "LC2259OANP" H 1300 8600 60  0001 C CNN "Part Number"
+F 6 "SWITCH PUSH DPDT 0.3A 30V" H 1300 8600 60  0001 C CNN "Description"
 	1    1300 8600
-	1    0    0    -1  
+	-1   0    0    -1  
 $EndComp
 $Comp
 L GND #PWR0247
@@ -3487,7 +3493,6 @@ Wire Wire Line
 	10000 7450 9700 7450
 Wire Wire Line
 	11100 7450 10800 7450
-Connection ~ 7950 2650
 Wire Wire Line
 	5850 1200 5950 1200
 Wire Wire Line
