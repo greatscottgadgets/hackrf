@@ -161,7 +161,7 @@ F 4 "DNP" H 1350 5300 60  0001 C CNN "Note"
 	0    -1   -1   0   
 $EndComp
 $Comp
-L CONN_2_SHORTED P36
+L CONN_2 P36
 U 1 1 5048D547
 P 2500 4350
 F 0 "P36" V 2450 4350 40  0000 C CNN
@@ -3047,4 +3047,12 @@ Wire Wire Line
 	14500 2500 14500 3750
 Wire Wire Line
 	14100 3100 14100 3750
+Wire Notes Line
+	2300 3900 2300 3800
+Wire Notes Line
+	2300 3800 2700 3800
+Wire Notes Line
+	2700 3800 2700 3900
+Text Notes 2250 3750 0    40   ~ 0
+PCB trace jumper
 $EndSCHEMATC

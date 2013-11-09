@@ -1,7 +1,7 @@
 (export (version D)
   (design
     (source /home/mossmann/src/hackrf/hardware/hackrf-one/hackrf-one.sch)
-    (date "Fri Nov  8 20:48:28 2013")
+    (date "Sat Nov  9 10:27:26 2013")
     (tool "eeschema (2013-07-24 BZR 4024)-stable"))
   (components
     (comp (ref C53)
@@ -1027,7 +1027,7 @@
       (value VAA)
       (fields
         (field (name Note) DNP))
-      (libsource (lib hackrf) (part CONN_2_SHORTED))
+      (libsource (lib conn) (part CONN_2))
       (sheetpath (names /baseband/) (tstamps /50370666/))
       (tstamp 5048D547))
     (comp (ref C72)
@@ -1877,14 +1877,14 @@
       (value VCC)
       (fields
         (field (name Note) DNP))
-      (libsource (lib hackrf) (part CONN_2_SHORTED))
+      (libsource (lib conn) (part CONN_2))
       (sheetpath (names /mcu/usb/power/) (tstamps /5037043E/))
       (tstamp 5048CFC5))
     (comp (ref P1)
       (value 1V8)
       (fields
         (field (name Note) DNP))
-      (libsource (lib hackrf) (part CONN_2_SHORTED))
+      (libsource (lib conn) (part CONN_2))
       (sheetpath (names /mcu/usb/power/) (tstamps /5037043E/))
       (tstamp 5048CF4D))
     (comp (ref R7)
@@ -3032,14 +3032,6 @@
         (pin (num 2) (name S2) (type passive))
         (pin (num 3) (name PR1) (type passive))
         (pin (num 4) (name PR2) (type passive))))
-    (libpart (lib hackrf) (part CONN_2_SHORTED)
-      (description "Symbole general de connecteur")
-      (fields
-        (field (name Reference) P)
-        (field (name Value) CONN_2_SHORTED))
-      (pins
-        (pin (num 1) (name P1) (type passive))
-        (pin (num 2) (name PM) (type passive))))
     (libpart (lib hackrf) (part FIL-DEA)
       (fields
         (field (name Reference) U)
@@ -3602,10 +3594,10 @@
         (pin (num 7) (name HOLD) (type BiDi))
         (pin (num 8) (name VCC) (type power_in)))))
   (libraries
-    (library (logical conn)
-      (uri /usr/local/share/kicad/library/conn.lib))
     (library (logical device)
       (uri /usr/local/share/kicad/library/device.lib))
+    (library (logical conn)
+      (uri /usr/local/share/kicad/library/conn.lib))
     (library (logical hackrf)
       (uri ../kicad/hackrf.lib)))
   (nets
