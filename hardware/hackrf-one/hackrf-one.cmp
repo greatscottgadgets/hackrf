@@ -1,4 +1,4 @@
-Cmp-Mod V01 Created by CvPcb (2013-07-24 BZR 4024)-stable date = Sat Nov  9 10:27:57 2013
+Cmp-Mod V01 Created by CvPcb (2013-07-24 BZR 4024)-stable date = Sat Nov  9 12:53:25 2013
 
 BeginCmp
 TimeStamp = /503BB638/4FAECB99;
@@ -1195,6 +1195,20 @@ TimeStamp = /5037043E/4F766BDF;
 Reference = J1;
 ValeurCmp = GSG-USB-MICRO-B;
 IdModule  = GSG-USB-MICROB-FCI-10103594;
+EndCmp
+
+BeginCmp
+TimeStamp = /503BB638/527E97CF;
+Reference = J2;
+ValeurCmp = RF-SHIELD-FRAME;
+IdModule  = GSG-SHIELD-BMI-S-230;
+EndCmp
+
+BeginCmp
+TimeStamp = /503BB638/527EAA54;
+Reference = J3;
+ValeurCmp = RF-SHIELD-COVER;
+IdModule  = ;
 EndCmp
 
 BeginCmp
