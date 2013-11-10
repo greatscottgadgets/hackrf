@@ -1,4 +1,4 @@
-Cmp-Mod V01 Created by CvPcb (2013-07-24 BZR 4024)-stable date = Sat Nov  9 22:24:28 2013
+Cmp-Mod V01 Created by CvPcb (2013-07-24 BZR 4024)-stable date = Sun Nov 10 16:19:06 2013
 
 BeginCmp
 TimeStamp = /503BB638/4FAECB99;
@@ -2227,6 +2227,13 @@ IdModule  = GSG-SKY13317-373LF;
 EndCmp
 
 BeginCmp
+TimeStamp = /5037043E/528007F8;
+Reference = U15;
+ValeurCmp = LXES1TBCC2-004;
+IdModule  = GSG-LXES1TBCC2-004;
+EndCmp
+
+BeginCmp
 TimeStamp = /50370666/4F5BBC9D;
 Reference = U17;
 ValeurCmp = MAX2837;
@@ -2259,13 +2266,6 @@ TimeStamp = /5037043E/4F8201BF;
 Reference = U21;
 ValeurCmp = TPS62410;
 IdModule  = GSG-S-PVSON-N10;
-EndCmp
-
-BeginCmp
-TimeStamp = /5037043E/4F766D4B;
-Reference = U22;
-ValeurCmp = GSG-IP4220CZ6;
-IdModule  = GSG-SOT457;
 EndCmp
 
 BeginCmp
