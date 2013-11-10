@@ -1,4 +1,4 @@
-Cmp-Mod V01 Created by CvPcb (2013-07-24 BZR 4024)-stable date = Sat Nov  9 18:50:05 2013
+Cmp-Mod V01 Created by CvPcb (2013-07-24 BZR 4024)-stable date = Sat Nov  9 19:09:18 2013
 
 BeginCmp
 TimeStamp = /503BB638/4FAECB99;
@@ -466,6 +466,20 @@ BeginCmp
 TimeStamp = /503BB638/4FAECD45;
 Reference = C67;
 ValeurCmp = 47pF;
+IdModule  = GSG-0402;
+EndCmp
+
+BeginCmp
+TimeStamp = /50370666/527F1CB9;
+Reference = C68;
+ValeurCmp = 100pF;
+IdModule  = GSG-0402;
+EndCmp
+
+BeginCmp
+TimeStamp = /50370666/527F1D24;
+Reference = C69;
+ValeurCmp = 100pF;
 IdModule  = GSG-0402;
 EndCmp
 
@@ -1093,6 +1107,13 @@ IdModule  = GSG-0402;
 EndCmp
 
 BeginCmp
+TimeStamp = /50370666/527F2F05;
+Reference = C159;
+ValeurCmp = 100pF;
+IdModule  = GSG-0402;
+EndCmp
+
+BeginCmp
 TimeStamp = /503BB638/503BF2DB;
 Reference = C160;
 ValeurCmp = 100pF;
@@ -1124,6 +1145,13 @@ BeginCmp
 TimeStamp = /5037043E/524910C3;
 Reference = C164;
 ValeurCmp = 12pF;
+IdModule  = GSG-0402;
+EndCmp
+
+BeginCmp
+TimeStamp = /50370666/527F3355;
+Reference = C165;
+ValeurCmp = 100pF;
 IdModule  = GSG-0402;
 EndCmp
 
@@ -1733,6 +1761,27 @@ BeginCmp
 TimeStamp = /5037043E/527F0529;
 Reference = R30;
 ValeurCmp = 39;
+IdModule  = GSG-0402;
+EndCmp
+
+BeginCmp
+TimeStamp = /50370666/527F1CB0;
+Reference = R31;
+ValeurCmp = 0;
+IdModule  = GSG-0402;
+EndCmp
+
+BeginCmp
+TimeStamp = /50370666/527F1D1A;
+Reference = R32;
+ValeurCmp = 0;
+IdModule  = GSG-0402;
+EndCmp
+
+BeginCmp
+TimeStamp = /50370666/527F334B;
+Reference = R33;
+ValeurCmp = 0;
 IdModule  = GSG-0402;
 EndCmp
 
