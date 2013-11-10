@@ -37,7 +37,7 @@ $Descr User 17000 11000
 encoding utf-8
 Sheet 2 4
 Title "HackRF One frontend"
-Date "9 nov 2013"
+Date "10 nov 2013"
 Rev ""
 Comp "Copyright 2012 Michael Ossmann"
 Comment1 "License: GPL v2"

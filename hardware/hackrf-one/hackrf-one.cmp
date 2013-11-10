@@ -1,4 +1,4 @@
-Cmp-Mod V01 Created by CvPcb (2013-07-24 BZR 4024)-stable date = Sat Nov  9 12:53:25 2013
+Cmp-Mod V01 Created by CvPcb (2013-07-24 BZR 4024)-stable date = Sat Nov  9 16:59:36 2013
 
 BeginCmp
 TimeStamp = /503BB638/4FAECB99;
@@ -2020,14 +2020,14 @@ BeginCmp
 TimeStamp = /5037043E/5248E27D;
 Reference = SW1;
 ValeurCmp = DFU;
-IdModule  = GSG-SWITCH-LC2259OANP-SIMPLE;
+IdModule  = GSG-SWITCH-FSMRA;
 EndCmp
 
 BeginCmp
 TimeStamp = /5037043E/5248FF4F;
 Reference = SW2;
 ValeurCmp = RESET;
-IdModule  = GSG-SWITCH-LC2259OANP-SIMPLE;
+IdModule  = GSG-SWITCH-FSMRA;
 EndCmp
 
 BeginCmp

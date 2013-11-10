@@ -37,7 +37,7 @@ $Descr User 17000 11000
 encoding utf-8
 Sheet 4 4
 Title "HackRF One mcu/usb/power"
-Date "9 nov 2013"
+Date "10 nov 2013"
 Rev ""
 Comp "Copyright 2012 Michael Ossmann"
 Comment1 "License: GPL v2"
@@ -3011,9 +3011,9 @@ F 0 "SW1" H 1450 9310 50  0000 C CNN
 F 1 "DFU" H 1300 9120 50  0000 C CNN
 F 2 "" H 1300 9200 60  0000 C CNN
 F 3 "" H 1300 9200 60  0000 C CNN
-F 4 "E-Switch" H 1300 9200 60  0001 C CNN "Manufacturer"
-F 5 "LC2259OANP" H 1300 9200 60  0001 C CNN "Part Number"
-F 6 "SWITCH PUSH DPDT 0.3A 30V" H 1300 9200 60  0001 C CNN "Description"
+F 4 "TE Connectivity" H 1300 9200 60  0001 C CNN "Manufacturer"
+F 5 "FSMRA3JH" H 1300 9200 60  0001 C CNN "Part Number"
+F 6 "SWITCH TACTILE SPST-NO 0.05A 12V" H 1300 9200 60  0001 C CNN "Description"
 	1    1300 9200
 	-1   0    0    -1  
 $EndComp
@@ -3025,9 +3025,9 @@ F 0 "SW2" H 1450 8710 50  0000 C CNN
 F 1 "RESET" H 1300 8520 50  0000 C CNN
 F 2 "" H 1300 8600 60  0000 C CNN
 F 3 "" H 1300 8600 60  0000 C CNN
-F 4 "E-Switch" H 1300 8600 60  0001 C CNN "Manufacturer"
-F 5 "LC2259OANP" H 1300 8600 60  0001 C CNN "Part Number"
-F 6 "SWITCH PUSH DPDT 0.3A 30V" H 1300 8600 60  0001 C CNN "Description"
+F 4 "TE Connectivity" H 1300 8600 60  0001 C CNN "Manufacturer"
+F 5 "FSMRA3JH" H 1300 8600 60  0001 C CNN "Part Number"
+F 6 "SWITCH TACTILE SPST-NO 0.05A 12V" H 1300 8600 60  0001 C CNN "Description"
 	1    1300 8600
 	-1   0    0    -1  
 $EndComp
