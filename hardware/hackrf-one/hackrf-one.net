@@ -1,7 +1,7 @@
 (export (version D)
   (design
     (source /home/mossmann/src/hackrf/hardware/hackrf-one/hackrf-one.sch)
-    (date "Sat Nov  9 12:53:17 2013")
+    (date "Sat Nov  9 18:19:33 2013")
     (tool "eeschema (2013-07-24 BZR 4024)-stable"))
   (components
     (comp (ref C53)
@@ -957,9 +957,9 @@
     (comp (ref P4)
       (value ANTENNA)
       (fields
-        (field (name Manufacturer) "TE Connectivity")
-        (field (name "Part Number") 2081233-1)
-        (field (name Description) "CONN JACK SMA PCB VERT"))
+        (field (name Manufacturer) "Linx Technologies")
+        (field (name "Part Number") CONSMA003.062)
+        (field (name Description) "CONN SMA JACK 50 OHM EDGE MNT"))
       (libsource (lib hackrf) (part GSG-SMA-CONN))
       (sheetpath (names /frontend/) (tstamps /503BB638/))
       (tstamp 4F94D0F2))
@@ -975,7 +975,8 @@
       (fields
         (field (name Manufacturer) Laird)
         (field (name "Part Number") BMI-S-230-F-R)
-        (field (name Description) "BOARD SHIELD 2INX1.5IN FRAME"))
+        (field (name Description) "BOARD SHIELD 2INX1.5IN FRAME")
+        (field (name Note) DNP))
       (libsource (lib hackrf) (part RF-SHIELD-FRAME))
       (sheetpath (names /frontend/) (tstamps /503BB638/))
       (tstamp 527E97CF))
@@ -984,7 +985,8 @@
       (fields
         (field (name Manufacturer) Laird)
         (field (name "Part Number") BMI-S-230-C)
-        (field (name Description) "BOARD SHIELD 2INX1.5IN COVER"))
+        (field (name Description) "BOARD SHIELD 2INX1.5IN COVER")
+        (field (name Note) DNP))
       (libsource (lib hackrf) (part RF-SHIELD-COVER))
       (sheetpath (names /frontend/) (tstamps /503BB638/))
       (tstamp 527EAA54))
@@ -1060,9 +1062,9 @@
     (comp (ref P2)
       (value CLKOUT)
       (fields
-        (field (name Manufacturer) "TE Connectivity")
-        (field (name "Part Number") 2081233-1)
-        (field (name Description) "CONN JACK SMA PCB VERT"))
+        (field (name Manufacturer) "Linx Technologies")
+        (field (name "Part Number") CONSMA003.062)
+        (field (name Description) "CONN SMA JACK 50 OHM EDGE MNT"))
       (libsource (lib hackrf) (part GSG-SMA-CONN))
       (sheetpath (names /baseband/) (tstamps /50370666/))
       (tstamp 50462549))
@@ -1641,9 +1643,9 @@
     (comp (ref P16)
       (value CLKIN)
       (fields
-        (field (name Manufacturer) "TE Connectivity")
-        (field (name "Part Number") 2081233-1)
-        (field (name Description) "CONN JACK SMA PCB VERT"))
+        (field (name Manufacturer) "Linx Technologies")
+        (field (name "Part Number") CONSMA003.062)
+        (field (name Description) "CONN SMA JACK 50 OHM EDGE MNT"))
       (libsource (lib hackrf) (part GSG-SMA-CONN))
       (sheetpath (names /baseband/) (tstamps /50370666/))
       (tstamp 4F5D16D6))
@@ -2727,18 +2729,18 @@
     (comp (ref SW1)
       (value DFU)
       (fields
-        (field (name Manufacturer) E-Switch)
-        (field (name "Part Number") LC2259OANP)
-        (field (name Description) "SWITCH PUSH DPDT 0.3A 30V"))
+        (field (name Manufacturer) "TE Connectivity")
+        (field (name "Part Number") FSMRA3JH)
+        (field (name Description) "SWITCH TACTILE SPST-NO 0.05A 12V"))
       (libsource (lib device) (part SW_PUSH))
       (sheetpath (names /mcu/usb/power/) (tstamps /5037043E/))
       (tstamp 5248E27D))
     (comp (ref SW2)
       (value RESET)
       (fields
-        (field (name Manufacturer) E-Switch)
-        (field (name "Part Number") LC2259OANP)
-        (field (name Description) "SWITCH PUSH DPDT 0.3A 30V"))
+        (field (name Manufacturer) "TE Connectivity")
+        (field (name "Part Number") FSMRA3JH)
+        (field (name Description) "SWITCH TACTILE SPST-NO 0.05A 12V"))
       (libsource (lib device) (part SW_PUSH))
       (sheetpath (names /mcu/usb/power/) (tstamps /5037043E/))
       (tstamp 5248FF4F))
@@ -3034,7 +3036,9 @@
     (libpart (lib hackrf) (part BALUN)
       (fields
         (field (name Reference) T)
-        (field (name Value) BALUN))
+        (field (name Value) BALUN)
+        (field (name Footprint) ~)
+        (field (name Datasheet) ~))
       (pins
         (pin (num 1) (name S1) (type passive))
         (pin (num 2) (name S2) (type passive))
@@ -3044,7 +3048,9 @@
     (libpart (lib hackrf) (part BALUN-B0310J50100AHF)
       (fields
         (field (name Reference) T)
-        (field (name Value) BALUN-B0310J50100AHF))
+        (field (name Value) BALUN-B0310J50100AHF)
+        (field (name Footprint) ~)
+        (field (name Datasheet) ~))
       (pins
         (pin (num 1) (name S1) (type passive))
         (pin (num 2) (name S2) (type passive))
@@ -3053,7 +3059,9 @@
     (libpart (lib hackrf) (part FIL-DEA)
       (fields
         (field (name Reference) U)
-        (field (name Value) FIL-DEA))
+        (field (name Value) FIL-DEA)
+        (field (name Footprint) ~)
+        (field (name Datasheet) ~))
       (pins
         (pin (num 1) (name IN) (type BiDi))
         (pin (num 2) (name GND) (type power_in))
@@ -3062,7 +3070,9 @@
     (libpart (lib hackrf) (part FIL-LP0603)
       (fields
         (field (name Reference) U)
-        (field (name Value) FIL-LP0603))
+        (field (name Value) FIL-LP0603)
+        (field (name Footprint) ~)
+        (field (name Datasheet) ~))
       (pins
         (pin (num 1) (name OUT) (type BiDi))
         (pin (num 2) (name GND) (type power_in))
@@ -3076,14 +3086,18 @@
         (fp SM*))
       (fields
         (field (name Reference) D)
-        (field (name Value) GSG-DIODE-TVS-BI))
+        (field (name Value) GSG-DIODE-TVS-BI)
+        (field (name Footprint) ~)
+        (field (name Datasheet) ~))
       (pins
         (pin (num 1) (name A) (type passive))
         (pin (num 2) (name K) (type passive))))
     (libpart (lib hackrf) (part GSG-IP4220CZ6)
       (fields
         (field (name Reference) U)
-        (field (name Value) GSG-IP4220CZ6))
+        (field (name Value) GSG-IP4220CZ6)
+        (field (name Footprint) ~)
+        (field (name Datasheet) ~))
       (pins
         (pin (num 1) (name ESD1) (type input))
         (pin (num 2) (name GND) (type power_in))
@@ -3094,7 +3108,9 @@
     (libpart (lib hackrf) (part GSG-SMA-CONN)
       (fields
         (field (name Reference) P)
-        (field (name Value) GSG-SMA-CONN))
+        (field (name Value) GSG-SMA-CONN)
+        (field (name Footprint) ~)
+        (field (name Datasheet) ~))
       (pins
         (pin (num 1) (name RF) (type BiDi))
         (pin (num 2) (name GND) (type power_in))
@@ -3104,7 +3120,9 @@
     (libpart (lib hackrf) (part GSG-USB-MICRO-B)
       (fields
         (field (name Reference) J)
-        (field (name Value) GSG-USB-MICRO-B))
+        (field (name Value) GSG-USB-MICRO-B)
+        (field (name Footprint) ~)
+        (field (name Datasheet) ~))
       (pins
         (pin (num 1) (name VBUS) (type power_out))
         (pin (num 2) (name D-) (type BiDi))
@@ -3114,7 +3132,9 @@
     (libpart (lib hackrf) (part GSG-XC2C64A-7VQG100C)
       (fields
         (field (name Reference) U)
-        (field (name Value) GSG-XC2C64A-7VQG100C))
+        (field (name Value) GSG-XC2C64A-7VQG100C)
+        (field (name Footprint) ~)
+        (field (name Datasheet) ~))
       (pins
         (pin (num 1) (name BANK2F1M12) (type BiDi))
         (pin (num 2) (name BANK2F1M11) (type BiDi))
@@ -3219,7 +3239,9 @@
     (libpart (lib hackrf) (part GSG-XTAL4PIN)
       (fields
         (field (name Reference) X)
-        (field (name Value) GSG-XTAL4PIN))
+        (field (name Value) GSG-XTAL4PIN)
+        (field (name Footprint) ~)
+        (field (name Datasheet) ~))
       (pins
         (pin (num 1) (name 1) (type passive))
         (pin (num 2) (name 2) (type passive))
@@ -3228,7 +3250,9 @@
     (libpart (lib hackrf) (part LPC43XXFBD144)
       (fields
         (field (name Reference) U)
-        (field (name Value) LPC43XXFBD144))
+        (field (name Value) LPC43XXFBD144)
+        (field (name Footprint) ~)
+        (field (name Datasheet) ~))
       (pins
         (pin (num 1) (name P4_0) (type BiDi))
         (pin (num 2) (name ADC0_1/ADC1_1) (type input))
@@ -3377,7 +3401,9 @@
     (libpart (lib hackrf) (part MAX2837)
       (fields
         (field (name Reference) U)
-        (field (name Value) MAX2837))
+        (field (name Value) MAX2837)
+        (field (name Footprint) ~)
+        (field (name Datasheet) ~))
       (pins
         (pin (num 0) (name EP) (type power_in))
         (pin (num 1) (name VCCRXLNA) (type power_in))
@@ -3431,7 +3457,9 @@
     (libpart (lib hackrf) (part MAX5864)
       (fields
         (field (name Reference) U)
-        (field (name Value) MAX5864))
+        (field (name Value) MAX5864)
+        (field (name Footprint) ~)
+        (field (name Datasheet) ~))
       (pins
         (pin (num 0) (name EP) (type power_in))
         (pin (num 1) (name REFP) (type output))
@@ -3485,7 +3513,9 @@
     (libpart (lib hackrf) (part MGA-81563)
       (fields
         (field (name Reference) U)
-        (field (name Value) MGA-81563))
+        (field (name Value) MGA-81563)
+        (field (name Footprint) ~)
+        (field (name Datasheet) ~))
       (pins
         (pin (num 1) (name GND) (type power_in))
         (pin (num 2) (name GND) (type power_in))
@@ -3493,10 +3523,26 @@
         (pin (num 4) (name GND) (type power_in))
         (pin (num 5) (name GND) (type power_in))
         (pin (num 6) (name OUT) (type output))))
+    (libpart (lib hackrf) (part RF-SHIELD-COVER)
+      (fields
+        (field (name Reference) J)
+        (field (name Value) RF-SHIELD-COVER)
+        (field (name Footprint) ~)
+        (field (name Datasheet) ~)))
+    (libpart (lib hackrf) (part RF-SHIELD-FRAME)
+      (fields
+        (field (name Reference) J)
+        (field (name Value) RF-SHIELD-FRAME)
+        (field (name Footprint) ~)
+        (field (name Datasheet) ~))
+      (pins
+        (pin (num 0) (name SHIELD) (type passive))))
     (libpart (lib hackrf) (part RFFC5072)
       (fields
         (field (name Reference) U)
-        (field (name Value) RFFC5072))
+        (field (name Value) RFFC5072)
+        (field (name Footprint) ~)
+        (field (name Datasheet) ~))
       (pins
         (pin (num 0) (name EP) (type power_in))
         (pin (num 1) (name ENBL/GPO5) (type BiDi))
@@ -3534,7 +3580,9 @@
     (libpart (lib hackrf) (part SI5351C)
       (fields
         (field (name Reference) U)
-        (field (name Value) SI5351C))
+        (field (name Value) SI5351C)
+        (field (name Footprint) ~)
+        (field (name Datasheet) ~))
       (pins
         (pin (num 0) (name GND) (type power_in))
         (pin (num 1) (name XA) (type input))
@@ -3560,7 +3608,9 @@
     (libpart (lib hackrf) (part SKY13317)
       (fields
         (field (name Reference) U)
-        (field (name Value) SKY13317))
+        (field (name Value) SKY13317)
+        (field (name Footprint) ~)
+        (field (name Datasheet) ~))
       (pins
         (pin (num 0) (name GND) (type power_in))
         (pin (num 1) (name RFC) (type BiDi))
@@ -3574,7 +3624,9 @@
     (libpart (lib hackrf) (part SKY13350)
       (fields
         (field (name Reference) U)
-        (field (name Value) SKY13350))
+        (field (name Value) SKY13350)
+        (field (name Footprint) ~)
+        (field (name Datasheet) ~))
       (pins
         (pin (num 1) (name VCTL1) (type input))
         (pin (num 2) (name OUT1) (type BiDi))
@@ -3585,7 +3637,9 @@
     (libpart (lib hackrf) (part TPS62410)
       (fields
         (field (name Reference) U)
-        (field (name Value) TPS62410))
+        (field (name Value) TPS62410)
+        (field (name Footprint) ~)
+        (field (name Datasheet) ~))
       (pins
         (pin (num 0) (name PP) (type power_in))
         (pin (num 1) (name ADJ2) (type input))
@@ -3601,7 +3655,9 @@
     (libpart (lib hackrf) (part W25Q80BV)
       (fields
         (field (name Reference) U)
-        (field (name Value) W25Q80BV))
+        (field (name Value) W25Q80BV)
+        (field (name Footprint) ~)
+        (field (name Datasheet) ~))
       (pins
         (pin (num 1) (name CS) (type input))
         (pin (num 2) (name DO) (type BiDi))
@@ -3610,22 +3666,12 @@
         (pin (num 5) (name DI) (type BiDi))
         (pin (num 6) (name CLK) (type input))
         (pin (num 7) (name HOLD) (type BiDi))
-        (pin (num 8) (name VCC) (type power_in))))
-    (libpart (lib hackrf) (part RF-SHIELD-FRAME)
-      (fields
-        (field (name Reference) J)
-        (field (name Value) RF-SHIELD-FRAME))
-      (pins
-        (pin (num 0) (name SHIELD) (type passive))))
-    (libpart (lib hackrf) (part RF-SHIELD-COVER)
-      (fields
-        (field (name Reference) J)
-        (field (name Value) RF-SHIELD-COVER))))
+        (pin (num 8) (name VCC) (type power_in)))))
   (libraries
-    (library (logical conn)
-      (uri /usr/local/share/kicad/library/conn.lib))
     (library (logical device)
       (uri /usr/local/share/kicad/library/device.lib))
+    (library (logical conn)
+      (uri /usr/local/share/kicad/library/conn.lib))
     (library (logical hackrf)
       (uri ../kicad/hackrf.lib)))
   (nets
