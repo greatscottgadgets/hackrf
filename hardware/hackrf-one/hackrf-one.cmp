@@ -1,4 +1,4 @@
-Cmp-Mod V01 Created by CvPcb (2013-07-24 BZR 4024)-stable date = Sat Nov  9 21:07:52 2013
+Cmp-Mod V01 Created by CvPcb (2013-07-24 BZR 4024)-stable date = Sat Nov  9 22:24:28 2013
 
 BeginCmp
 TimeStamp = /503BB638/4FAECB99;
@@ -1415,13 +1415,6 @@ IdModule  = GSG-SMA-EDGE;
 EndCmp
 
 BeginCmp
-TimeStamp = /5037043E/526B1E9B;
-Reference = P17;
-ValeurCmp = SSP0;
-IdModule  = GSG-HEADER-2x3;
-EndCmp
-
-BeginCmp
 TimeStamp = /50370666/5037A131;
 Reference = P18;
 ValeurCmp = OEB;
@@ -1439,7 +1432,7 @@ BeginCmp
 TimeStamp = /5037043E/526B4073;
 Reference = P22;
 ValeurCmp = I2S;
-IdModule  = GSG-HEADER-2x4;
+IdModule  = GSG-HEADER-2x13;
 EndCmp
 
 BeginCmp
