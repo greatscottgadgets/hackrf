@@ -1,4 +1,4 @@
-Cmp-Mod V01 Created by CvPcb (2013-07-24 BZR 4024)-stable date = Sun Nov 10 16:19:06 2013
+Cmp-Mod V01 Created by CvPcb (2013-07-24 BZR 4024)-stable date = Sun Nov 10 19:43:03 2013
 
 BeginCmp
 TimeStamp = /503BB638/4FAECB99;
@@ -1352,9 +1352,23 @@ IdModule  = GSG-SMA-EDGE;
 EndCmp
 
 BeginCmp
+TimeStamp = /5037043E/528023DB;
+Reference = P5;
+ValeurCmp = LEDS;
+IdModule  = GSG-HEADER-2x3;
+EndCmp
+
+BeginCmp
 TimeStamp = /503BB638/526B7056;
 Reference = P6;
 ValeurCmp = GPO4;
+IdModule  = GSG-TESTPOINT-50MIL;
+EndCmp
+
+BeginCmp
+TimeStamp = /503BB638/528044D2;
+Reference = P7;
+ValeurCmp = GPO2;
 IdModule  = GSG-TESTPOINT-50MIL;
 EndCmp
 
@@ -1394,6 +1408,13 @@ IdModule  = GSG-HEADER-1x2;
 EndCmp
 
 BeginCmp
+TimeStamp = /503BB638/528044D9;
+Reference = P13;
+ValeurCmp = GPO1;
+IdModule  = GSG-TESTPOINT-50MIL;
+EndCmp
+
+BeginCmp
 TimeStamp = /50370666/50371714;
 Reference = P14;
 ValeurCmp = XCVR_CLKOUT;
@@ -1415,9 +1436,23 @@ IdModule  = GSG-SMA-EDGE;
 EndCmp
 
 BeginCmp
+TimeStamp = /503BB638/52805038;
+Reference = P17;
+ValeurCmp = GPO6;
+IdModule  = GSG-TESTPOINT-50MIL;
+EndCmp
+
+BeginCmp
 TimeStamp = /50370666/5037A131;
 Reference = P18;
 ValeurCmp = OEB;
+IdModule  = GSG-TESTPOINT-50MIL;
+EndCmp
+
+BeginCmp
+TimeStamp = /503BB638/5280432B;
+Reference = P19;
+ValeurCmp = GPO3;
 IdModule  = GSG-TESTPOINT-50MIL;
 EndCmp
 
@@ -1426,6 +1461,13 @@ TimeStamp = /5037043E/4F838167;
 Reference = P20;
 ValeurCmp = GPIO;
 IdModule  = GSG-HEADER-2x12;
+EndCmp
+
+BeginCmp
+TimeStamp = /503BB638/528044E0;
+Reference = P21;
+ValeurCmp = REF_IN;
+IdModule  = GSG-TESTPOINT-50MIL;
 EndCmp
 
 BeginCmp
@@ -1464,6 +1506,13 @@ IdModule  = GSG-50MIL-HEADER-2x5-TH;
 EndCmp
 
 BeginCmp
+TimeStamp = /503BB638/528054F2;
+Reference = P27;
+ValeurCmp = MIXER_SDATA;
+IdModule  = GSG-TESTPOINT-50MIL;
+EndCmp
+
+BeginCmp
 TimeStamp = /5037043E/4F837D97;
 Reference = P28;
 ValeurCmp = SD;
@@ -1482,6 +1531,41 @@ TimeStamp = /5037043E/504571A2;
 Reference = P30;
 ValeurCmp = BANK2_AUX;
 IdModule  = GSG-HEADER-2x10;
+EndCmp
+
+BeginCmp
+TimeStamp = /503BB638/528054F9;
+Reference = P31;
+ValeurCmp = MIXER_SCLK;
+IdModule  = GSG-TESTPOINT-50MIL;
+EndCmp
+
+BeginCmp
+TimeStamp = /503BB638/52805500;
+Reference = P32;
+ValeurCmp = MIXER_ENX;
+IdModule  = GSG-TESTPOINT-50MIL;
+EndCmp
+
+BeginCmp
+TimeStamp = /503BB638/52805507;
+Reference = P33;
+ValeurCmp = MIXER_RESETX;
+IdModule  = GSG-TESTPOINT-50MIL;
+EndCmp
+
+BeginCmp
+TimeStamp = /503BB638/52805C27;
+Reference = P34;
+ValeurCmp = MIX_BYPASS;
+IdModule  = GSG-TESTPOINT-50MIL;
+EndCmp
+
+BeginCmp
+TimeStamp = /503BB638/52805C2E;
+Reference = P35;
+ValeurCmp = !MIX_BYPASS;
+IdModule  = GSG-TESTPOINT-50MIL;
 EndCmp
 
 BeginCmp
@@ -1523,6 +1607,272 @@ BeginCmp
 TimeStamp = /50370666/5052A335;
 Reference = P41;
 ValeurCmp = SSP1_MISO;
+IdModule  = GSG-TESTPOINT-50MIL;
+EndCmp
+
+BeginCmp
+TimeStamp = /503BB638/52805C35;
+Reference = P42;
+ValeurCmp = TX;
+IdModule  = GSG-TESTPOINT-50MIL;
+EndCmp
+
+BeginCmp
+TimeStamp = /503BB638/52805C3C;
+Reference = P43;
+ValeurCmp = RX;
+IdModule  = GSG-TESTPOINT-50MIL;
+EndCmp
+
+BeginCmp
+TimeStamp = /503BB638/52805C47;
+Reference = P44;
+ValeurCmp = HP;
+IdModule  = GSG-TESTPOINT-50MIL;
+EndCmp
+
+BeginCmp
+TimeStamp = /503BB638/52805C4E;
+Reference = P45;
+ValeurCmp = LP;
+IdModule  = GSG-TESTPOINT-50MIL;
+EndCmp
+
+BeginCmp
+TimeStamp = /503BB638/52805C55;
+Reference = P46;
+ValeurCmp = TX_MIX_BP;
+IdModule  = GSG-TESTPOINT-50MIL;
+EndCmp
+
+BeginCmp
+TimeStamp = /503BB638/52805C5C;
+Reference = P47;
+ValeurCmp = RX_MIX_BP;
+IdModule  = GSG-TESTPOINT-50MIL;
+EndCmp
+
+BeginCmp
+TimeStamp = /503BB638/52805C67;
+Reference = P48;
+ValeurCmp = TX_AMP;
+IdModule  = GSG-TESTPOINT-50MIL;
+EndCmp
+
+BeginCmp
+TimeStamp = /503BB638/52805C6E;
+Reference = P49;
+ValeurCmp = RX_AMP;
+IdModule  = GSG-TESTPOINT-50MIL;
+EndCmp
+
+BeginCmp
+TimeStamp = /503BB638/52805C75;
+Reference = P50;
+ValeurCmp = AMP_BYPASS;
+IdModule  = GSG-TESTPOINT-50MIL;
+EndCmp
+
+BeginCmp
+TimeStamp = /503BB638/52805C7C;
+Reference = P51;
+ValeurCmp = !TX_AMP_PWR;
+IdModule  = GSG-TESTPOINT-50MIL;
+EndCmp
+
+BeginCmp
+TimeStamp = /503BB638/52805C87;
+Reference = P52;
+ValeurCmp = !RX_AMP_PWR;
+IdModule  = GSG-TESTPOINT-50MIL;
+EndCmp
+
+BeginCmp
+TimeStamp = /50370666/52806F99;
+Reference = P53;
+ValeurCmp = CS_XCVR;
+IdModule  = GSG-TESTPOINT-50MIL;
+EndCmp
+
+BeginCmp
+TimeStamp = /50370666/528076FC;
+Reference = P54;
+ValeurCmp = CS_AD;
+IdModule  = GSG-TESTPOINT-50MIL;
+EndCmp
+
+BeginCmp
+TimeStamp = /50370666/52806F80;
+Reference = P55;
+ValeurCmp = TXENABLE;
+IdModule  = GSG-TESTPOINT-50MIL;
+EndCmp
+
+BeginCmp
+TimeStamp = /50370666/52806F87;
+Reference = P56;
+ValeurCmp = RXENABLE;
+IdModule  = GSG-TESTPOINT-50MIL;
+EndCmp
+
+BeginCmp
+TimeStamp = /50370666/52807566;
+Reference = P57;
+ValeurCmp = XTAL2;
+IdModule  = GSG-TESTPOINT-50MIL;
+EndCmp
+
+BeginCmp
+TimeStamp = /50370666/52807897;
+Reference = P58;
+ValeurCmp = GCK1;
+IdModule  = GSG-TESTPOINT-50MIL;
+EndCmp
+
+BeginCmp
+TimeStamp = /50370666/52807889;
+Reference = P59;
+ValeurCmp = GCK2;
+IdModule  = GSG-TESTPOINT-50MIL;
+EndCmp
+
+BeginCmp
+TimeStamp = /50370666/52807890;
+Reference = P60;
+ValeurCmp = SGPIO_CLK;
+IdModule  = GSG-TESTPOINT-50MIL;
+EndCmp
+
+BeginCmp
+TimeStamp = /50370666/528078B5;
+Reference = P61;
+ValeurCmp = DA0;
+IdModule  = GSG-TESTPOINT-50MIL;
+EndCmp
+
+BeginCmp
+TimeStamp = /50370666/528078BD;
+Reference = P62;
+ValeurCmp = DA7;
+IdModule  = GSG-TESTPOINT-50MIL;
+EndCmp
+
+BeginCmp
+TimeStamp = /50370666/528078A7;
+Reference = P63;
+ValeurCmp = DD0;
+IdModule  = GSG-TESTPOINT-50MIL;
+EndCmp
+
+BeginCmp
+TimeStamp = /50370666/528078AE;
+Reference = P64;
+ValeurCmp = DD9;
+IdModule  = GSG-TESTPOINT-50MIL;
+EndCmp
+
+BeginCmp
+TimeStamp = /50370666/52807C28;
+Reference = P65;
+ValeurCmp = DA4;
+IdModule  = GSG-TESTPOINT-50MIL;
+EndCmp
+
+BeginCmp
+TimeStamp = /50370666/52807A95;
+Reference = P66;
+ValeurCmp = DD5;
+IdModule  = GSG-TESTPOINT-50MIL;
+EndCmp
+
+BeginCmp
+TimeStamp = /50370666/5280A12A;
+Reference = P67;
+ValeurCmp = RSSI;
+IdModule  = GSG-TESTPOINT-50MIL;
+EndCmp
+
+BeginCmp
+TimeStamp = /5037043E/52809276;
+Reference = P68;
+ValeurCmp = SPIFI_CS;
+IdModule  = GSG-TESTPOINT-50MIL;
+EndCmp
+
+BeginCmp
+TimeStamp = /5037043E/52809504;
+Reference = P69;
+ValeurCmp = VREGMODE;
+IdModule  = GSG-TESTPOINT-50MIL;
+EndCmp
+
+BeginCmp
+TimeStamp = /5037043E/52809857;
+Reference = P70;
+ValeurCmp = EN_1V8;
+IdModule  = GSG-TESTPOINT-50MIL;
+EndCmp
+
+BeginCmp
+TimeStamp = /5037043E/52808FE9;
+Reference = P71;
+ValeurCmp = ID;
+IdModule  = GSG-TESTPOINT-50MIL;
+EndCmp
+
+BeginCmp
+TimeStamp = /5037043E/52808CBF;
+Reference = P72;
+ValeurCmp = GP_CLKIN;
+IdModule  = GSG-TESTPOINT-50MIL;
+EndCmp
+
+BeginCmp
+TimeStamp = /5037043E/52809B46;
+Reference = P73;
+ValeurCmp = P1_2;
+IdModule  = GSG-TESTPOINT-50MIL;
+EndCmp
+
+BeginCmp
+TimeStamp = /5037043E/52809BA9;
+Reference = P74;
+ValeurCmp = P1_1;
+IdModule  = GSG-TESTPOINT-50MIL;
+EndCmp
+
+BeginCmp
+TimeStamp = /5037043E/5280A7B0;
+Reference = P75;
+ValeurCmp = GP_CLKIN;
+IdModule  = GSG-TESTPOINT-50MIL;
+EndCmp
+
+BeginCmp
+TimeStamp = /5037043E/5280ACAD;
+Reference = P76;
+ValeurCmp = GP_CLKIN;
+IdModule  = GSG-TESTPOINT-50MIL;
+EndCmp
+
+BeginCmp
+TimeStamp = /5037043E/5280ACB7;
+Reference = P77;
+ValeurCmp = GP_CLKIN;
+IdModule  = GSG-TESTPOINT-50MIL;
+EndCmp
+
+BeginCmp
+TimeStamp = /5037043E/5280ACC0;
+Reference = P78;
+ValeurCmp = GP_CLKIN;
+IdModule  = GSG-TESTPOINT-50MIL;
+EndCmp
+
+BeginCmp
+TimeStamp = /5037043E/5280ACCC;
+Reference = P79;
+ValeurCmp = GP_CLKIN;
 IdModule  = GSG-TESTPOINT-50MIL;
 EndCmp
 
