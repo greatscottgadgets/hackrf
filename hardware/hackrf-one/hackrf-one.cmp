@@ -1,4 +1,4 @@
-Cmp-Mod V01 Created by CvPcb (2013-07-24 BZR 4024)-stable date = Sun Nov 10 20:14:52 2013
+Cmp-Mod V01 Created by CvPcb (2013-07-24 BZR 4024)-stable date = Sun Nov 10 23:16:57 2013
 
 BeginCmp
 TimeStamp = /503BB638/4FAECB99;
@@ -1895,6 +1895,20 @@ TimeStamp = /5037043E/528064FC;
 Reference = P80;
 ValeurCmp = SHIELD;
 IdModule  = GSG-HEADER-1x2;
+EndCmp
+
+BeginCmp
+TimeStamp = /5037043E/52808621;
+Reference = P81;
+ValeurCmp = SPIFI_SIO2;
+IdModule  = GSG-TESTPOINT-50MIL;
+EndCmp
+
+BeginCmp
+TimeStamp = /5037043E/52808DC0;
+Reference = P82;
+ValeurCmp = SPIFI_SIO3;
+IdModule  = GSG-TESTPOINT-50MIL;
 EndCmp
 
 BeginCmp
