@@ -1,4 +1,4 @@
-Cmp-Mod V01 Created by CvPcb (2013-07-24 BZR 4024)-stable date = Mon Nov 11 19:22:35 2013
+Cmp-Mod V01 Created by CvPcb (2013-07-24 BZR 4024)-stable date = Mon Nov 11 20:45:33 2013
 
 BeginCmp
 TimeStamp = /503BB638/4FAECB99;
@@ -1369,7 +1369,7 @@ BeginCmp
 TimeStamp = /5037043E/5043D24D;
 Reference = P3;
 ValeurCmp = GND;
-IdModule  = GSG-HEADER-1x2;
+IdModule  = GSG-HEADER-NOMARK-1x2;
 EndCmp
 
 BeginCmp
@@ -1411,28 +1411,28 @@ BeginCmp
 TimeStamp = /50370666/52734660;
 Reference = P9;
 ValeurCmp = TXBBQ;
-IdModule  = GSG-HEADER-1x2;
+IdModule  = GSG-HEADER-NOMARK-1x2;
 EndCmp
 
 BeginCmp
 TimeStamp = /50370666/52734688;
 Reference = P10;
 ValeurCmp = TXBBI;
-IdModule  = GSG-HEADER-1x2;
+IdModule  = GSG-HEADER-NOMARK-1x2;
 EndCmp
 
 BeginCmp
 TimeStamp = /50370666/527339FD;
 Reference = P11;
 ValeurCmp = RXBBI;
-IdModule  = GSG-HEADER-1x2;
+IdModule  = GSG-HEADER-NOMARK-1x2;
 EndCmp
 
 BeginCmp
 TimeStamp = /50370666/52733E2B;
 Reference = P12;
 ValeurCmp = RXBBQ;
-IdModule  = GSG-HEADER-1x2;
+IdModule  = GSG-HEADER-NOMARK-1x2;
 EndCmp
 
 BeginCmp
@@ -1551,7 +1551,7 @@ BeginCmp
 TimeStamp = /5037043E/4F82F4C0;
 Reference = P29;
 ValeurCmp = CPLD_JTAG;
-IdModule  = GSG-HEADER-1x6;
+IdModule  = GSG-HEADER-NOMARK-1x6;
 EndCmp
 
 BeginCmp
@@ -1908,7 +1908,7 @@ BeginCmp
 TimeStamp = /5037043E/528064FC;
 Reference = P80;
 ValeurCmp = SHIELD;
-IdModule  = GSG-HEADER-1x2;
+IdModule  = GSG-HEADER-NOMARK-1x2;
 EndCmp
 
 BeginCmp
@@ -1999,7 +1999,7 @@ BeginCmp
 TimeStamp = /50370666/5281CFA3;
 Reference = P93;
 ValeurCmp = GND;
-IdModule  = GSG-HEADER-1x2;
+IdModule  = GSG-HEADER-NOMARK-1x2;
 EndCmp
 
 BeginCmp
