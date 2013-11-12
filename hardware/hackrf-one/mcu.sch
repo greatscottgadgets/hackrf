@@ -37,7 +37,7 @@ $Descr User 17000 11000
 encoding utf-8
 Sheet 4 4
 Title "HackRF One mcu/usb/power"
-Date "11 nov 2013"
+Date "12 nov 2013"
 Rev ""
 Comp "Copyright 2012 Michael Ossmann"
 Comment1 "License: GPL v2"
@@ -1797,14 +1797,6 @@ Text Label 15900 7750 2    40   ~ 0
 B1AUX13
 Text Label 15900 7650 2    40   ~ 0
 B1AUX14
-Text Label 15900 7450 2    40   ~ 0
-B1AUX15
-Text Label 15900 7250 2    40   ~ 0
-B1AUX16
-Text Label 7100 9250 0    40   ~ 0
-B1AUX16
-Text Label 8500 9250 2    40   ~ 0
-B1AUX15
 Text Label 7100 9350 0    40   ~ 0
 B1AUX14
 Text Label 8500 9350 2    40   ~ 0
@@ -3285,17 +3277,6 @@ F 3 "" H 8500 8650 60  0001 C CNN
 	0    -1   -1   0   
 $EndComp
 $Comp
-L 1V8 #PWR234
-U 1 1 527B35C0
-P 9700 7450
-F 0 "#PWR234" H 9700 7590 20  0001 C CNN
-F 1 "1V8" H 9700 7560 30  0000 C CNN
-F 2 "" H 9700 7450 60  0001 C CNN
-F 3 "" H 9700 7450 60  0001 C CNN
-	1    9700 7450
-	0    -1   -1   0   
-$EndComp
-$Comp
 L GND #PWR254
 U 1 1 527B35E2
 P 9700 8350
@@ -3779,8 +3760,6 @@ Wire Wire Line
 	11600 6750 11300 6750
 Wire Wire Line
 	11600 6950 11300 6950
-Wire Wire Line
-	15600 7450 15900 7450
 Wire Wire Line
 	15600 7750 15900 7750
 Wire Wire Line
@@ -4397,8 +4376,6 @@ Wire Wire Line
 Wire Wire Line
 	15600 7650 15900 7650
 Wire Wire Line
-	15600 7250 15900 7250
-Wire Wire Line
 	11300 6850 11600 6850
 Wire Wire Line
 	11300 6650 11600 6650
@@ -4586,8 +4563,6 @@ Wire Wire Line
 	5850 1200 5950 1200
 Wire Wire Line
 	11100 7450 10800 7450
-Wire Wire Line
-	10000 7450 9700 7450
 Wire Wire Line
 	8500 9150 8200 9150
 Wire Wire Line
@@ -5037,4 +5012,23 @@ F 4 "DNP" H 3650 6650 60  0001 C CNN "Note"
 $EndComp
 Wire Wire Line
 	3650 7150 3650 6800
+Wire Wire Line
+	10000 7450 9700 7450
+$Comp
+L GND #PWR?
+U 1 1 52818F8B
+P 9700 7450
+F 0 "#PWR?" H 9700 7450 30  0001 C CNN
+F 1 "GND" H 9700 7380 30  0001 C CNN
+F 2 "" H 9700 7450 60  0001 C CNN
+F 3 "" H 9700 7450 60  0001 C CNN
+	1    9700 7450
+	0    1    1    0   
+$EndComp
+NoConn ~ 15600 7250
+NoConn ~ 15600 7450
+Text GLabel 8500 9250 2    40   Input ~ 0
+GCK1
+Text GLabel 7100 9250 0    40   Input ~ 0
+GCK2
 $EndSCHEMATC
