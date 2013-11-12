@@ -1,4 +1,4 @@
-Cmp-Mod V01 Created by CvPcb (2013-07-24 BZR 4024)-stable date = Mon Nov 11 18:57:42 2013
+Cmp-Mod V01 Created by CvPcb (2013-07-24 BZR 4024)-stable date = Mon Nov 11 19:22:35 2013
 
 BeginCmp
 TimeStamp = /503BB638/4FAECB99;
@@ -1923,6 +1923,83 @@ TimeStamp = /5037043E/52808DC0;
 Reference = P82;
 ValeurCmp = SPIFI_SIO3;
 IdModule  = GSG-TESTPOINT-50MIL;
+EndCmp
+
+BeginCmp
+TimeStamp = /50370666/5281C7E9;
+Reference = P83;
+ValeurCmp = GND;
+IdModule  = GSG-TESTPOINT-50MIL;
+EndCmp
+
+BeginCmp
+TimeStamp = /50370666/5281C9AD;
+Reference = P84;
+ValeurCmp = GND;
+IdModule  = GSG-TESTPOINT-50MIL;
+EndCmp
+
+BeginCmp
+TimeStamp = /50370666/5281C9BB;
+Reference = P85;
+ValeurCmp = GND;
+IdModule  = GSG-TESTPOINT-50MIL;
+EndCmp
+
+BeginCmp
+TimeStamp = /50370666/5281C9C9;
+Reference = P86;
+ValeurCmp = GND;
+IdModule  = GSG-TESTPOINT-50MIL;
+EndCmp
+
+BeginCmp
+TimeStamp = /50370666/5281C9D7;
+Reference = P87;
+ValeurCmp = GND;
+IdModule  = GSG-TESTPOINT-50MIL;
+EndCmp
+
+BeginCmp
+TimeStamp = /50370666/5281C9E5;
+Reference = P88;
+ValeurCmp = GND;
+IdModule  = GSG-TESTPOINT-50MIL;
+EndCmp
+
+BeginCmp
+TimeStamp = /50370666/5281C9F3;
+Reference = P89;
+ValeurCmp = GND;
+IdModule  = GSG-TESTPOINT-50MIL;
+EndCmp
+
+BeginCmp
+TimeStamp = /50370666/5281CA01;
+Reference = P90;
+ValeurCmp = GND;
+IdModule  = GSG-TESTPOINT-50MIL;
+EndCmp
+
+BeginCmp
+TimeStamp = /50370666/5281CEEC;
+Reference = P91;
+ValeurCmp = GND;
+IdModule  = GSG-TESTPOINT-50MIL;
+EndCmp
+
+BeginCmp
+TimeStamp = /50370666/5281CEFA;
+Reference = P92;
+ValeurCmp = GND;
+IdModule  = GSG-TESTPOINT-50MIL;
+EndCmp
+
+BeginCmp
+TimeStamp = /50370666/5281CFA3;
+Reference = P93;
+ValeurCmp = GND;
+IdModule  = GSG-HEADER-1x2;
 EndCmp
 
 BeginCmp
