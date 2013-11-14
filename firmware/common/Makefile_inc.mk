@@ -29,7 +29,7 @@
 #BOARD ?= JELLYBEAN
 BOARD ?= JAWBREAKER
 
-HACKRF_OPTS = -D$(BOARD)
+HACKRF_OPTS = -D$(BOARD) -DLPC43XX -DLPC43XX_M4
 
 # comment to disable RF transmission
 HACKRF_OPTS += -DTX_ENABLE
@@ -40,7 +40,7 @@ HACKRF_OPTS += $(VERSION_STRING)
 
 LDSCRIPT ?= ../common/LPC4330_M4.ld
 
-LIBOPENCM3 ?= /usr/local/arm-none-eabi
+LIBOPENCM3 ?= ../libopencm3
 
 PREFIX ?= arm-none-eabi
 CC = $(PREFIX)-gcc

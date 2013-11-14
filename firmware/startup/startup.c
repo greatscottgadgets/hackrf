@@ -27,7 +27,7 @@
 
 int main(void)
 {
-	u32 i;
+	uint32_t i;
 
 	pin_setup();
 

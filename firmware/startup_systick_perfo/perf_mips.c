@@ -22,24 +22,24 @@
 #include <libopencm3/lpc43xx/gpio.h>
 #include <libopencm3/lpc43xx/scu.h>
 #include <libopencm3/lpc43xx/i2c.h>
-#include <libopencm3/lpc43xx/nvic.h>
-#include <libopencm3/lpc43xx/systick.h>
+#include <libopencm3/lpc43xx/m4/nvic.h>
+#include <libopencm3/cm3/systick.h>
 #include <libopencm3/cm3/scs.h>
 
 #include "hackrf_core.h"
 
 /* Global counter incremented by SysTick Interrupt each millisecond */
-extern volatile u32 g_ulSysTickCount;
-extern u32 g_NbCyclePerSecond;
+extern volatile uint32_t g_ulSysTickCount;
+extern uint32_t g_NbCyclePerSecond;
 
-extern u32 sys_tick_get_time_ms(void);
-extern u32 sys_tick_delta_time_ms(u32 start, u32 end);
-extern void sys_tick_wait_time_ms(u32 wait_ms);
+extern uint32_t sys_tick_get_time_ms(void);
+extern uint32_t sys_tick_delta_time_ms(uint32_t start, uint32_t end);
+extern void sys_tick_wait_time_ms(uint32_t wait_ms);
 
 
-u32 test_nb_instruction_per_sec_100_nop_asm(void)
+uint32_t test_nb_instruction_per_sec_100_nop_asm(void)
 {
-	register u32 val __asm__("r0");
+	register uint32_t val __asm__("r0");
 
 	__asm__(" ldr	r1, =g_ulSysTickCount");
 	__asm__(" ldr	r2, [r1]"); /* g_ulSysTickCount */
@@ -165,9 +165,9 @@ u32 test_nb_instruction_per_sec_100_nop_asm(void)
 	return val;
 };
 
-u32 test_nb_instruction_per_sec_105_nop_asm(void)
+uint32_t test_nb_instruction_per_sec_105_nop_asm(void)
 {
-	register u32 val __asm__("r0");
+	register uint32_t val __asm__("r0");
 
 	__asm__(" ldr	r1, =g_ulSysTickCount");
 	__asm__(" ldr	r2, [r1]"); /* g_ulSysTickCount */
@@ -302,9 +302,9 @@ u32 test_nb_instruction_per_sec_105_nop_asm(void)
 	return val;
 };
 
-u32 test_nb_instruction_per_sec_110_nop_asm(void)
+uint32_t test_nb_instruction_per_sec_110_nop_asm(void)
 {
-	register u32 val __asm__("r0");
+	register uint32_t val __asm__("r0");
 
 	__asm__(" ldr	r1, =g_ulSysTickCount");
 	__asm__(" ldr	r2, [r1]"); /* g_ulSysTickCount */
@@ -444,9 +444,9 @@ u32 test_nb_instruction_per_sec_110_nop_asm(void)
 	return val;
 };
 
-u32 test_nb_instruction_per_sec_115_nop_asm(void)
+uint32_t test_nb_instruction_per_sec_115_nop_asm(void)
 {
-	register u32 val __asm__("r0");
+	register uint32_t val __asm__("r0");
 
 	__asm__(" ldr	r1, =g_ulSysTickCount");
 	__asm__(" ldr	r2, [r1]"); /* g_ulSysTickCount */
@@ -592,9 +592,9 @@ u32 test_nb_instruction_per_sec_115_nop_asm(void)
 	return val;
 };
 
-u32 test_nb_instruction_per_sec_120_nop_asm(void)
+uint32_t test_nb_instruction_per_sec_120_nop_asm(void)
 {
-	register u32 val __asm__("r0");
+	register uint32_t val __asm__("r0");
 
 	__asm__(" ldr	r1, =g_ulSysTickCount");
 	__asm__(" ldr	r2, [r1]"); /* g_ulSysTickCount */
@@ -745,9 +745,9 @@ u32 test_nb_instruction_per_sec_120_nop_asm(void)
 	return val;
 };
 
-u32 test_nb_instruction_per_sec_150_nop_asm(void)
+uint32_t test_nb_instruction_per_sec_150_nop_asm(void)
 {
-	register u32 val __asm__("r0");
+	register uint32_t val __asm__("r0");
 
 	__asm__(" ldr	r1, =g_ulSysTickCount");
 	__asm__(" ldr	r2, [r1]"); /* g_ulSysTickCount */
@@ -931,9 +931,9 @@ u32 test_nb_instruction_per_sec_150_nop_asm(void)
 	return val;
 };
 
-u32 test_nb_instruction_per_sec_200_nop_asm(void)
+uint32_t test_nb_instruction_per_sec_200_nop_asm(void)
 {
-	register u32 val __asm__("r0");
+	register uint32_t val __asm__("r0");
 
 	__asm__(" ldr	r1, =g_ulSysTickCount");
 	__asm__(" ldr	r2, [r1]"); /* g_ulSysTickCount */
@@ -1163,9 +1163,9 @@ u32 test_nb_instruction_per_sec_200_nop_asm(void)
 	return val;
 };
 
-u32 test_nb_instruction_per_sec_1000_nop_asm(void)
+uint32_t test_nb_instruction_per_sec_1000_nop_asm(void)
 {
-	register u32 val __asm__("r0");
+	register uint32_t val __asm__("r0");
 
 	__asm__(" ldr	r1, =g_ulSysTickCount");
 	__asm__(" ldr	r2, [r1]"); /* g_ulSysTickCount */

@@ -28,13 +28,6 @@
 
 #include "usb_type.h"
 
-// TODO: This is a lame move, requiring an extern to be defined to complete
-// the interface between this API and the application.
-extern bool usb_set_configuration(
-	usb_device_t* const device,
-	const uint_fast8_t configuration_number
-);
-
 void usb_peripheral_reset();
 
 void usb_device_init(

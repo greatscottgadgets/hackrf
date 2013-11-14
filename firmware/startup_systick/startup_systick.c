@@ -22,19 +22,19 @@
 #include <libopencm3/lpc43xx/gpio.h>
 #include <libopencm3/lpc43xx/scu.h>
 #include <libopencm3/lpc43xx/i2c.h>
-#include <libopencm3/lpc43xx/nvic.h>
-#include <libopencm3/lpc43xx/systick.h>
+#include <libopencm3/lpc43xx/m4/nvic.h>
+#include <libopencm3/cm3/systick.h>
 #include <libopencm3/cm3/scs.h>
 
 #include "hackrf_core.h"
 
 /* Global counter incremented by SysTick Interrupt each millisecond */
-volatile u32 g_ulSysTickCount;
-u32 g_NbCyclePerSecond;
+volatile uint32_t g_ulSysTickCount;
+uint32_t g_NbCyclePerSecond;
 
 void systick_setup(void)
 {
-	u32 systick_reload_val;
+	uint32_t systick_reload_val;
 	g_ulSysTickCount = 0;
 
 	/* Disable IRQ globally */
@@ -73,15 +73,15 @@ void scs_dwt_cycle_counter_enabled(void)
 	SCS_DWT_CTRL  |= SCS_DWT_CTRL_CYCCNTENA;
 }
 
-u32 sys_tick_get_time_ms(void)
+uint32_t sys_tick_get_time_ms(void)
 {
     return g_ulSysTickCount;
 }
 
-u32 sys_tick_delta_time_ms(u32 start, u32 end)
+uint32_t sys_tick_delta_time_ms(uint32_t start, uint32_t end)
 {
 	#define MAX_T_U32 ((2^32)-1)
-    u32 diff;
+    uint32_t diff;
 
     if(end > start)
     {
@@ -94,10 +94,10 @@ u32 sys_tick_delta_time_ms(u32 start, u32 end)
     return diff;
 }
 
-void sys_tick_wait_time_ms(u32 wait_ms)
+void sys_tick_wait_time_ms(uint32_t wait_ms)
 {
-    u32 start, end;
-    u32 tickms;
+    uint32_t start, end;
+    uint32_t tickms;
 
     start = sys_tick_get_time_ms();
 
