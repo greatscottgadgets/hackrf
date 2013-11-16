@@ -32,28 +32,20 @@ void sgpio_isr_rx() {
 	uint32_t* const p = (uint32_t*)&usb_bulk_buffer[usb_bulk_buffer_offset];
 	__asm__(
 		"ldr r0, [%[SGPIO_REG_SS], #44]\n\t"
-		"rev16 r0, r0\n\t" /* Swap QI -> IQ */
 		"str r0, [%[p], #0]\n\t"
 		"ldr r0, [%[SGPIO_REG_SS], #20]\n\t"
-		"rev16 r0, r0\n\t" /* Swap QI -> IQ */
 		"str r0, [%[p], #4]\n\t"
 		"ldr r0, [%[SGPIO_REG_SS], #40]\n\t"
-		"rev16 r0, r0\n\t" /* Swap QI -> IQ */
 		"str r0, [%[p], #8]\n\t"
 		"ldr r0, [%[SGPIO_REG_SS], #8]\n\t"
-		"rev16 r0, r0\n\t" /* Swap QI -> IQ */
 		"str r0, [%[p], #12]\n\t"
 		"ldr r0, [%[SGPIO_REG_SS], #36]\n\t"
-		"rev16 r0, r0\n\t" /* Swap QI -> IQ */
 		"str r0, [%[p], #16]\n\t"
 		"ldr r0, [%[SGPIO_REG_SS], #16]\n\t"
-		"rev16 r0, r0\n\t" /* Swap QI -> IQ */
 		"str r0, [%[p], #20]\n\t"
 		"ldr r0, [%[SGPIO_REG_SS], #32]\n\t"
-		"rev16 r0, r0\n\t" /* Swap QI -> IQ */
 		"str r0, [%[p], #24]\n\t"
 		"ldr r0, [%[SGPIO_REG_SS], #0]\n\t"
-		"rev16 r0, r0\n\t" /* Swap QI -> IQ */
 		"str r0, [%[p], #28]\n\t"
 		:
 		: [SGPIO_REG_SS] "l" (SGPIO_PORT_BASE + 0x100),
