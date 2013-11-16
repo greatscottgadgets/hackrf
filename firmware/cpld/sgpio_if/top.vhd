@@ -93,7 +93,13 @@ begin
     process(host_clk_i)
     begin
         if rising_edge(host_clk_i) then
-            data_to_host_o <= adc_data_i xor X"80";
+		      if codec_clk_i = '1' then
+					 -- I: non-inverted between MAX2837 and MAX5864
+                data_to_host_o <= adc_data_i xor X"80";
+            else
+					 -- Q: inverted between MAX2837 and MAX5864
+				    data_to_host_o <= adc_data_i xor X"7f";
+				end if;
         end if;
     end process;
     
@@ -101,14 +107,14 @@ begin
     begin
         if rising_edge(host_clk_i) then
             if transfer_direction_i = to_dac then
-                dac_data_o <= (data_from_host_i xor X"80") & "00";
+                dac_data_o <= (data_from_host_i xor X"7f") & "11";
             else
-                dac_data_o <= (dac_data_o'high => '1', others => '0');
+                dac_data_o <= (dac_data_o'high => '0', others => '1');
             end if;
         end if;
     end process;
     
-    process(host_clk_i, codec_clk_i)
+    process(host_clk_i)
     begin
         if rising_edge(host_clk_i) then
             if transfer_direction_i = to_dac then
