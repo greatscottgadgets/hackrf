@@ -1,7 +1,7 @@
 (export (version D)
   (design
     (source /home/mossmann/src/hackrf/hardware/hackrf-one/hackrf-one.sch)
-    (date "Sat Nov 16 18:36:56 2013")
+    (date "Sat Nov 16 21:25:18 2013")
     (tool "eeschema (2013-07-24 BZR 4024)-stable"))
   (components
     (comp (ref C53)
