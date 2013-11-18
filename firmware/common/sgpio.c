@@ -215,8 +215,8 @@ void sgpio_configure(
 			  SGPIO_POS_POS_RESET(pos)
 			| SGPIO_POS_POS(pos)
 			;
-		SGPIO_REG(slice_index) = 0x80808080;     // Primary output data register
-		SGPIO_REG_SS(slice_index) = 0x80808080;  // Shadow output data register
+		SGPIO_REG(slice_index) = 0x00000000;     // Primary output data register
+		SGPIO_REG_SS(slice_index) = 0x00000000;  // Shadow output data register
 		
 		slice_enable_mask |= (1 << slice_index);
 	}
