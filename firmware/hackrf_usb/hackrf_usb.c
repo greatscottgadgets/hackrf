@@ -964,6 +964,9 @@ int main(void) {
 
 	pin_setup();
 	enable_1v8_power();
+#ifdef HACKRF_ONE
+	enable_rf_power();
+#endif
 	cpu_clock_init();
 
 	usb_peripheral_reset();

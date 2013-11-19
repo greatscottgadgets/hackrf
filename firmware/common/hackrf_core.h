@@ -35,6 +35,7 @@ extern "C"
 /* hardware identification number */
 #define BOARD_ID_JELLYBEAN  0
 #define BOARD_ID_JAWBREAKER 1
+#define BOARD_ID_HACKRF_ONE 2
 
 #ifdef JELLYBEAN
 #define BOARD_ID BOARD_ID_JELLYBEAN
@@ -42,6 +43,10 @@ extern "C"
 
 #ifdef JAWBREAKER
 #define BOARD_ID BOARD_ID_JAWBREAKER
+#endif
+
+#ifdef HACKRF_ONE
+#define BOARD_ID BOARD_ID_HACKRF_ONE
 #endif
 
 /*
@@ -74,6 +79,7 @@ extern "C"
 /* CPLD JTAG interface */
 #define SCU_PINMUX_CPLD_TDO (P9_5)  /* GPIO5[18] */
 #define SCU_PINMUX_CPLD_TCK (P6_1)  /* GPIO3[ 0] */
+//FIXME swap TDI and TMS once more recent HackRF One PCBs are built:
 #define SCU_PINMUX_CPLD_TMS (P6_2)  /* GPIO3[ 1] */
 #define SCU_PINMUX_CPLD_TDI (P6_5)  /* GPIO3[ 4] */
 
@@ -89,7 +95,7 @@ extern "C"
 #ifdef JELLYBEAN
 #define SCU_PINMUX_SGPIO8   (P1_12)
 #endif
-#ifdef JAWBREAKER
+#if (defined JAWBREAKER || defined HACKRF_ONE)
 #define SCU_PINMUX_SGPIO8   (P9_6)
 #endif
 #define SCU_PINMUX_SGPIO9   (P4_3)
@@ -126,7 +132,7 @@ extern "C"
 #define SCU_MIXER_SDATA     (P7_2)  /* GPIO3[10] on P7_2 */
 #define SCU_MIXER_RESETX    (P7_3)  /* GPIO3[11] on P7_3 */
 #endif
-#ifdef JAWBREAKER
+#if (defined JAWBREAKER || defined HACKRF_ONE)
 #define SCU_MIXER_ENX       (P5_4)  /* GPIO2[13] on P5_4 */
 #define SCU_MIXER_SCLK      (P2_6)  /* GPIO5[6] on P2_6 */
 #define SCU_MIXER_SDATA     (P6_4)  /* GPIO3[3] on P6_4 */
@@ -135,7 +141,12 @@ extern "C"
 
 /* RF LDO control */
 #ifdef JAWBREAKER
-#define RF_LDO_ENABLE       (P5_0)  /* GPIO2[9] on P5_0 */
+#define SCU_RF_LDO_ENABLE   (P5_0)  /* GPIO2[9] on P5_0 */
+#endif
+
+/* RF supply (VAA) control */
+#ifdef HACKRF_ONE
+#define SCU_NO_VAA_ENABLE   (P5_0)  /* GPIO2[9] on P5_0 */
 #endif
 
 /* SPI flash */
@@ -146,7 +157,22 @@ extern "C"
 #define SCU_FLASH_HOLD      (P3_4) /* GPIO1[14] on P3_4 */
 #define SCU_FLASH_WP        (P3_5) /* GPIO1[15] on P3_5 */
 
-/* TODO add other Pins */
+/* RF switch control */
+#ifdef HACKRF_ONE
+#define SCU_HP              (P4_0)  /* GPIO2[0] on P4_0 */
+#define SCU_LP              (P5_1)  /* GPIO2[10] on P5_1 */
+#define SCU_TX_MIX_BP       (P5_2)  /* GPIO2[11] on P5_2 */
+#define SCU_NO_MIX_BYPASS   (P1_7)  /* GPIO1[0] on P1_7 */
+#define SCU_RX_MIX_BP       (P5_3)  /* GPIO2[12] on P5_3 */
+#define SCU_TX_AMP          (P5_6)  /* GPIO2[15] on P5_6 */
+#define SCU_TX              (P6_7)  /* GPIO5[15] on P6_7 */
+#define SCU_MIX_BYPASS      (P6_8)  /* GPIO5[16] on P6_8 */
+#define SCU_RX              (P2_5)  /* GPIO5[5] on P2_5 */
+#define SCU_NO_TX_AMP_PWR   (P6_9)  /* GPIO3[5] on P6_9 */
+#define SCU_AMP_BYPASS      (P2_10) /* GPIO0[14] on P2_10 */
+#define SCU_RX_AMP          (P2_11) /* GPIO1[11] on P2_11 */
+#define SCU_NO_RX_AMP_PWR   (P2_12) /* GPIO1[12] on P2_12 */
+#endif
 
 /*
  * GPIO Pins
@@ -193,7 +219,7 @@ extern "C"
 #define PIN_MIXER_RESETX  (BIT11) /* GPIO3[11] on P7_3 */
 #define PORT_MIXER_RESETX (GPIO3)
 #endif
-#ifdef JAWBREAKER
+#if (defined JAWBREAKER || defined HACKRF_ONE)
 #define PIN_MIXER_ENX     (BIT13) /* GPIO2[13] on P5_4 */
 #define PORT_MIXER_ENX    (GPIO2)
 #define PIN_MIXER_SCLK    (BIT6)  /* GPIO5[6] on P2_6 */
@@ -209,11 +235,46 @@ extern "C"
 #define PORT_RF_LDO_ENABLE (GPIO2) /* PORT for RF_LDO_ENABLE */
 #endif
 
+#ifdef HACKRF_ONE
+#define PIN_NO_VAA_ENABLE  (BIT9)  /* GPIO2[9] on P5_0 */
+#define PORT_NO_VAA_ENABLE (GPIO2) /* PORT for NO_VAA_ENABLE */
+#endif
+
 #define PIN_FLASH_HOLD (BIT14) /* GPIO1[14] on P3_4 */
 #define PIN_FLASH_WP   (BIT15) /* GPIO1[15] on P3_5 */
 #define PORT_FLASH     (GPIO1)
 #define PIN_SSP0_SSEL  (BIT11) /* GPIO5[11] on P3_8 */
 #define PORT_SSP0_SSEL (GPIO5)
+
+/* RF switch control */
+#ifdef HACKRF_ONE
+#define PIN_HP              (GPIOPIN0)  /* GPIO2[0] on P4_0 */
+#define PORT_HP             (GPIO2)
+#define PIN_LP              (GPIOPIN10) /* GPIO2[10] on P5_1 */
+#define PORT_LP             (GPIO2)
+#define PIN_TX_MIX_BP       (GPIOPIN11) /* GPIO2[11] on P5_2 */
+#define PORT_TX_MIX_BP      (GPIO2)
+#define PIN_NO_MIX_BYPASS   (GPIOPIN0)  /* GPIO1[0] on P1_7 */
+#define PORT_NO_MIX_BYPASS  (GPIO1)
+#define PIN_RX_MIX_BP       (GPIOPIN12) /* GPIO2[12] on P5_3 */
+#define PORT_RX_MIX_BP      (GPIO2)
+#define PIN_TX_AMP          (GPIOPIN15) /* GPIO2[15] on P5_6 */
+#define PORT_TX_AMP         (GPIO2)
+#define PIN_TX              (GPIOPIN15) /* GPIO5[15] on P6_7 */
+#define PORT_TX             (GPIO5)
+#define PIN_MIX_BYPASS      (GPIOPIN16) /* GPIO5[16] on P6_8 */
+#define PORT_MIX_BYPASS     (GPIO5)
+#define PIN_RX              (GPIOPIN5)  /* GPIO5[5] on P2_5 */
+#define PORT_RX             (GPIO5)
+#define PIN_NO_TX_AMP_PWR   (GPIOPIN5)  /* GPIO3[5] on P6_9 */
+#define PORT_NO_TX_AMP_PWR  (GPIO3)
+#define PIN_AMP_BYPASS      (GPIOPIN14) /* GPIO0[14] on P2_10 */
+#define PORT_AMP_BYPASS     (GPIO0)
+#define PIN_RX_AMP          (GPIOPIN11) /* GPIO1[11] on P2_11 */
+#define PORT_RX_AMP         (GPIO1)
+#define PIN_NO_RX_AMP_PWR   (GPIOPIN12) /* GPIO1[12] on P2_12 */
+#define PORT_NO_RX_AMP_PWR  (GPIO1)
+#endif
 
 /* GPIO Input */
 #define PIN_BOOT0   (BIT8)  /* GPIO0[8] on P1_1 */
@@ -240,7 +301,27 @@ extern "C"
 #define MIXER_SDATA_STATE GPIO_STATE(PORT_MIXER_SDATA, PIN_MIXER_SDATA)
 #define CPLD_TDO_STATE    GPIO_STATE(PORT_CPLD_TDO, PIN_CPLD_TDO)
 
-/* TODO add other Pins */
+/*
+ * RF switches on Jawbreaker are controlled by General Purpose Outputs (GPO) on
+ * the RFFC5072.
+ *
+ * On HackRF One, the same signals are controlled by GPIO on the LPC.
+ * SWITCHCTRL_NO_TX_AMP_PWR and SWITCHCTRL_NO_RX_AMP_PWR are not normally used
+ * on HackRF One as the amplifier power is instead controlled only by
+ * SWITCHCTRL_AMP_BYPASS.
+ */
+#define SWITCHCTRL_NO_TX_AMP_PWR (1 << 0) /* GPO1 turn off TX amp power */
+#define SWITCHCTRL_AMP_BYPASS    (1 << 1) /* GPO2 bypass amp section */
+#define SWITCHCTRL_TX            (1 << 2) /* GPO3 1 for TX mode, 0 for RX mode */
+#define SWITCHCTRL_MIX_BYPASS    (1 << 3) /* GPO4 bypass RFFC5072 mixer section */
+#define SWITCHCTRL_HP            (1 << 4) /* GPO5 1 for high-pass, 0 for low-pass */
+#define SWITCHCTRL_NO_RX_AMP_PWR (1 << 5) /* GPO6 turn off RX amp power */
+
+/*
+ * Safe (initial) switch settings turn off both amplifiers and enable both amp
+ * bypass and mixer bypass.
+ */
+#define SWITCHCTRL_SAFE (SWITCHCTRL_NO_TX_AMP_PWR | SWITCHCTRL_AMP_BYPASS | SWITCHCTRL_TX | SWITCHCTRL_MIX_BYPASS | SWITCHCTRL_HP | SWITCHCTRL_NO_RX_AMP_PWR)
 
 typedef enum {
 	TRANSCEIVER_MODE_OFF = 0,
@@ -258,10 +339,17 @@ void ssp1_set_mode_max5864(void);
 void pin_setup(void);
 
 void enable_1v8_power(void);
+void disable_1v8_power(void);
 
 bool sample_rate_frac_set(uint32_t rate_num, uint32_t rate_denom);
 bool sample_rate_set(const uint32_t sampling_rate_hz);
 bool baseband_filter_bandwidth_set(const uint32_t bandwidth_hz);
+
+#ifdef HACKRF_ONE
+void enable_rf_power(void);
+void disable_rf_power(void);
+void switchctrl_set(uint8_t ctrl);
+#endif
 
 #ifdef __cplusplus
 }

@@ -226,7 +226,7 @@ void si5351c_configure_clock_control()
 }
 #endif
 
-#ifdef JAWBREAKER
+#if (defined JAWBREAKER || defined HACKRF_ONE)
 void si5351c_configure_clock_control()
 {
 	uint8_t data[] = {16
