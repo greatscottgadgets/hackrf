@@ -20,7 +20,7 @@
 # Boston, MA 02110-1301, USA.
 #
 
-BINARY = sgpio
+BINARY = sgpio_test
 
 SRC = $(BINARY).c \
 	../common/hackrf_core.c \
