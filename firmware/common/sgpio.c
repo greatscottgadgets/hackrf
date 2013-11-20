@@ -20,6 +20,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
+#include <libopencm3/lpc43xx/gpio.h>
 #include <libopencm3/lpc43xx/scu.h>
 #include <libopencm3/lpc43xx/sgpio.h>
 
@@ -41,9 +42,13 @@ void sgpio_configure_pin_functions() {
 	scu_pinmux(SCU_PINMUX_SGPIO10, SCU_GPIO_FAST | SCU_CONF_FUNCTION6);
 	scu_pinmux(SCU_PINMUX_SGPIO11, SCU_GPIO_FAST | SCU_CONF_FUNCTION6);
 	scu_pinmux(SCU_PINMUX_SGPIO12, SCU_GPIO_FAST | SCU_CONF_FUNCTION6);
-	scu_pinmux(SCU_PINMUX_SGPIO13, SCU_GPIO_FAST | SCU_CONF_FUNCTION7);
-	scu_pinmux(SCU_PINMUX_SGPIO14, SCU_GPIO_FAST | SCU_CONF_FUNCTION7);
-	scu_pinmux(SCU_PINMUX_SGPIO15, SCU_GPIO_FAST | SCU_CONF_FUNCTION7);
+	scu_pinmux(SCU_PINMUX_SGPIO13, SCU_GPIO_FAST | SCU_CONF_FUNCTION4);	/* GPIO5[12] */
+	scu_pinmux(SCU_PINMUX_SGPIO14, SCU_GPIO_FAST | SCU_CONF_FUNCTION4);	/* GPIO5[13] */
+	scu_pinmux(SCU_PINMUX_SGPIO15, SCU_GPIO_FAST | SCU_CONF_FUNCTION4);	/* GPIO5[14] */
+
+	sgpio_cpld_stream_rx_set_decimation(0);
+
+	GPIO_DIR(GPIO5) |= GPIOPIN14 | GPIOPIN13 | GPIOPIN12;
 }
 
 
@@ -237,4 +242,16 @@ void sgpio_cpld_stream_disable() {
 
 bool sgpio_cpld_stream_is_enabled() {
 	return (SGPIO_GPIO_OUTREG & (1L << 10)) == 0; /* SGPIO10 */
+}
+
+bool sgpio_cpld_stream_rx_set_decimation(const uint_fast8_t skip_n) {
+	/* CPLD interface is three bits, SGPIO[15:13]:
+	 * 111: decimate by 1 (skip_n=0, skip no samples)
+	 * 110: decimate by 2 (skip_n=1, skip every other sample)
+	 * 101: decimate by 3 (skip_n=2, skip two of three samples)
+	 * ...
+	 * 000: decimate by 8 (skip_n=7, skip seven of eight samples)
+	 */
+	GPIO_SET(GPIO5) = GPIOPIN14 | GPIOPIN13 | GPIOPIN12;
+	GPIO_CLR(GPIO5) = (skip_n & 7) << 12;
 }

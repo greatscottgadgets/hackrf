@@ -32,12 +32,11 @@ ARCHITECTURE behavior OF top_tb IS
         HOST_CAPTURE : OUT std_logic;
         HOST_DISABLE : IN std_logic;
         HOST_DIRECTION : IN std_logic;
+		  HOST_DECIM_SEL : IN std_logic_vector(2 downto 0);
         DA : IN  std_logic_vector(7 downto 0);
         DD : OUT  std_logic_vector(9 downto 0);
         CODEC_CLK : IN  std_logic;
-        CODEC_X2_CLK : IN  std_logic;
-        B1AUX : INOUT  std_logic_vector(16 downto 9);
-        B2AUX : INOUT  std_logic_vector(16 downto 1)
+        CODEC_X2_CLK : IN  std_logic
     );
     END COMPONENT;
 
@@ -47,11 +46,10 @@ ARCHITECTURE behavior OF top_tb IS
     signal CODEC_X2_CLK : std_logic := '0';
     signal HOST_DISABLE : std_logic := '1';
     signal HOST_DIRECTION : std_logic := '0';
+	 signal HOST_DECIM_SEL : std_logic_vector(2 downto 0) := "010";
     
 	--BiDirs
     signal HOST_DATA : std_logic_vector(7 downto 0);
-    signal B1AUX : std_logic_vector(16 downto 9);
-    signal B2AUX : std_logic_vector(16 downto 1);
 
  	--Outputs
     signal DD : std_logic_vector(9 downto 0);
@@ -64,12 +62,11 @@ begin
         HOST_CAPTURE => HOST_CAPTURE,
         HOST_DISABLE => HOST_DISABLE,
         HOST_DIRECTION => HOST_DIRECTION,
+		  HOST_DECIM_SEL => HOST_DECIM_SEL,
         DA => DA,
         DD => DD,
         CODEC_CLK => CODEC_CLK,
-        CODEC_X2_CLK => CODEC_X2_CLK,
-        B1AUX => B1AUX,
-        B2AUX => B2AUX
+        CODEC_X2_CLK => CODEC_X2_CLK
     );
 
     clk_process :process
@@ -90,11 +87,11 @@ begin
     begin
         wait until rising_edge(CODEC_CLK);
         wait for 9 ns;
-        DA <= (others => '0');
+        DA <= "00000000";
         
         wait until falling_edge(CODEC_CLK);
         wait for 9 ns;
-        DA <= (others => '1');
+        DA <= "00000001";
         
     end process;
 
@@ -132,4 +129,4 @@ begin
         wait;
     end process;
 
-end;
+end;

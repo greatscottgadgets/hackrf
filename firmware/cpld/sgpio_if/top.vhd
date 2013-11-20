@@ -21,6 +21,7 @@
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
+use ieee.std_logic_unsigned.all;
 
 library UNISIM;
 use UNISIM.vcomponents.all;
@@ -31,6 +32,7 @@ entity top is
         HOST_CAPTURE    : out   std_logic;
         HOST_DISABLE    : in    std_logic;
         HOST_DIRECTION  : in    std_logic;
+		  HOST_DECIM_SEL  : in    std_logic_vector(2 downto 0);
            
         DA              : in    std_logic_vector(7 downto 0);
         DD              : out   std_logic_vector(9 downto 0);
@@ -56,6 +58,10 @@ architecture Behavioral of top is
 
     signal data_from_host_i : std_logic_vector(7 downto 0);
     signal data_to_host_o : std_logic_vector(7 downto 0);
+
+    signal decimate_count : std_logic_vector(2 downto 0) := "111";
+	 signal decimate_sel_i : std_logic_vector(2 downto 0);
+	 signal decimate_en : std_logic;
 
 begin
     
@@ -88,8 +94,25 @@ begin
     transfer_direction_i <= to_dac when HOST_DIRECTION = '1'
                                    else from_adc;
 
+	 decimate_sel_i <= HOST_DECIM_SEL;
+	 
     ------------------------------------------------
-    
+	 
+	 decimate_en <= '1' when decimate_count = "111" else '0';
+	 
+    process(host_clk_i)
+    begin
+        if rising_edge(host_clk_i) then
+		      if codec_clk_i = '1' then
+				    if decimate_count = "111" then
+						  decimate_count <= decimate_sel_i;
+					 else
+					     decimate_count <= decimate_count + 1;
+                end if;
+			   end if;
+        end if;
+    end process;
+        
     process(host_clk_i)
     begin
         if rising_edge(host_clk_i) then
@@ -123,7 +146,7 @@ begin
                 end if;
             else
                 if codec_clk_i = '0' then
-                    host_data_capture_o <= host_data_enable_i;
+                    host_data_capture_o <= host_data_enable_i and decimate_en;
                 end if;
             end if;
         end if;
