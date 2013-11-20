@@ -170,11 +170,6 @@ extern "C"
 
 #define SCU_PINMUX_ISP      (P2_7)  /* GPIO0[7] */
 
-#define SCU_PINMUX_I2S0_TX_SDA (P3_2)
-#define SCU_PINMUX_I2S0_TX_WS (P3_1)
-#define SCU_PINMUX_I2S0_TX_SCK (P3_0)
-#define SCU_PINMUX_I2S0_TX_MCLK (CLK2)
-
 /*
  * GPIO Pins
  */
