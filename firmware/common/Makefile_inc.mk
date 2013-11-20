@@ -26,12 +26,10 @@
 
 # derived primarily from Makefiles in libopencm3
 
-#BOARD ?= JELLYBEAN
 BOARD ?= JAWBREAKER
+RUN_FROM ?= SPIFI
 
-LPC43XX_TARGET ?= M4
-
-HACKRF_OPTS = -D$(BOARD) -DLPC43XX -DLPC43XX_$(LPC43XX_TARGET)
+HACKRF_OPTS = -D$(BOARD) -DLPC43XX
 
 # comment to disable RF transmission
 HACKRF_OPTS += -DTX_ENABLE
@@ -42,6 +40,28 @@ HACKRF_OPTS += $(VERSION_STRING)
 
 LIBOPENCM3 ?= ../libopencm3
 
+VPATH += ../common/xapp058
+VPATH += ../common
+
+SRC_M4_C ?= $(SRC)
+SRC_M0_C ?= ../common/m0_sleep.c
+
+BUILD_DIR = build
+OBJDIR_M4 = $(BUILD_DIR)/m4
+OBJDIR_M0 = $(BUILD_DIR)/m0
+
+OBJ_M4_C = $(patsubst %.c, $(OBJDIR_M4)/%.o, $(notdir $(SRC_M4_C)))
+OBJ_M4_S = $(patsubst %.s, $(OBJDIR_M4)/%.o, $(notdir $(SRC_M4_S)))
+
+OBJ_M0_C = $(patsubst %.c, $(OBJDIR_M0)/%.o, $(notdir $(SRC_M0_C)))
+OBJ_M0_S = $(patsubst %.s, $(OBJDIR_M0)/%.o, $(notdir $(SRC_M0_S)))
+
+ifeq ($(RUN_FROM),RAM)
+	LDSCRIPT_M4 = ../common/LPC4330_M4.ld
+else
+	LDSCRIPT_M4 = ../common/LPC4330_M4_rom_to_ram.ld
+endif
+
 PREFIX ?= arm-none-eabi
 CC = $(PREFIX)-gcc
 LD = $(PREFIX)-gcc
@@ -50,34 +70,34 @@ OBJDUMP = $(PREFIX)-objdump
 GDB = $(PREFIX)-gdb
 TOOLCHAIN_DIR := $(shell dirname `which $(CC)`)/../$(PREFIX)
 
-CFLAGS += -std=gnu99 -Os -g3 -Wall -Wextra -I$(LIBOPENCM3)/include -I../common \
+CFLAGS_COMMON += -std=gnu99 -Os -g3 -Wall -Wextra -I$(LIBOPENCM3)/include -I../common \
 		$(HACKRF_OPTS) -fno-common -mthumb -MD
-LDFLAGS += -mthumb \
+LDFLAGS_COMMON += -mthumb \
 		-L../common \
 		-L$(LIBOPENCM3)/lib -L$(LIBOPENCM3)/lib/lpc43xx \
-		-T$(LDSCRIPT) -nostartfiles \
-		-Wl,--gc-sections -Xlinker -Map=$(BINARY).map \
+		-nostartfiles \
+		-Wl,--gc-sections \
 		-lc -lnosys
-ifeq ($(LPC43XX_TARGET),M0)
-	CFLAGS += -mcpu=cortex-m0
-	LDFLAGS += -mcpu=cortex-m0
-	LDFLAGS += -lopencm3_lpc43xx_m0
-	LDSCRIPT ?= ../common/LPC4330_M0.ld
-else
-	CFLAGS += -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16
-	LDFLAGS += -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16
-	LDFLAGS += -L$(TOOLCHAIN_DIR)/lib/armv7e-m/fpu
-	LDFLAGS += -lopencm3_lpc43xx -lm
-	LDSCRIPT ?= ../common/LPC4330_M4.ld
-endif
-OBJ = $(SRC:.c=.o)
+CFLAGS_M0 += -mcpu=cortex-m0 -DLPC43XX_M0
+LDSCRIPT_M0 ?= ../common/LPC4330_M0.ld
+LDFLAGS_M0 += -mcpu=cortex-m0 -DLPC43XX_M0
+LDFLAGS_M0 += -T$(LDSCRIPT_M0)
+LDFLAGS_M0 += -Xlinker -Map=$(OBJDIR_M0)/m0.map
+LDFLAGS_M0 += -lopencm3_lpc43xx_m0
+
+CFLAGS_M4 += -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -DLPC43XX_M4
+LDFLAGS_M4 += -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -DLPC43XX_M4
+LDFLAGS_M4 += -L$(TOOLCHAIN_DIR)/lib/armv7e-m/fpu
+LDFLAGS_M4 += -T$(LDSCRIPT_M4)
+LDFLAGS_M4 += -Xlinker -Map=$(OBJDIR_M4)/m4.map
+LDFLAGS_M4 += -lopencm3_lpc43xx -lm
 
 # Be silent per default, but 'make V=1' will show all compiler calls.
 ifneq ($(V),1)
 Q := @
 NULL := 2>/dev/null
 else
-LDFLAGS += -Wl,--print-gc-sections
+LDFLAGS_COMMON += -Wl,--print-gc-sections
 endif
 
 .SUFFIXES: .elf .bin .hex .srec .list .images
@@ -92,44 +112,77 @@ flash: $(BINARY).flash
 program: $(BINARY).dfu
 	$(Q)dfu-util --device 1fc9:000c --alt 0 --download $(BINARY).dfu
 
-%.images: %.bin %.hex %.srec %.list
+$(BINARY).images: $(BINARY).bin $(BINARY).hex $(BINARY).srec $(BINARY).list
 	@#echo "*** $* images generated ***"
 
-%.dfu: %.bin
+$(BINARY).dfu: $(BINARY).bin
 	$(Q)rm -f _tmp.dfu _header.bin
-	$(Q)cp $(*).bin _tmp.dfu
+	$(Q)cp $(BINARY).bin _tmp.dfu
 	$(Q)dfu-suffix --vid=0x1fc9 --pid=0x000c --did=0x0 -s 0 -a _tmp.dfu
 	$(Q)python -c "import os.path; import struct; print('0000000: da ff ' + ' '.join(map(lambda s: '%02x' % ord(s), struct.pack('<H', os.path.getsize('$(*).bin') / 512 + 1))) + ' ff ff ff ff')" | xxd -g1 -r > _header.bin
-	$(Q)cat _header.bin _tmp.dfu >$(*).dfu
+	$(Q)cat _header.bin _tmp.dfu >$(BINARY).dfu
 	$(Q)rm -f _tmp.dfu _header.bin
 
-%.bin: %.elf
+$(BINARY).bin: $(BINARY).elf
 	@#printf "  OBJCOPY $(*).bin\n"
-	$(Q)$(OBJCOPY) -Obinary $(*).elf $(*).bin
+	$(Q)$(OBJCOPY) -Obinary $(BINARY).elf $(BINARY).bin
 
-%.hex: %.elf
-	@#printf "  OBJCOPY $(*).hex\n"
-	$(Q)$(OBJCOPY) -Oihex $(*).elf $(*).hex
+$(OBJDIR_M0)/m0.bin: $(OBJDIR_M0)/m0.elf
+	@#printf "  OBJCOPY $(*).bin\n"
+	$(Q)$(OBJCOPY) -Obinary $(OBJDIR_M0)/m0.elf $(OBJDIR_M0)/m0.bin
 
-%.srec: %.elf
-	@#printf "  OBJCOPY $(*).srec\n"
-	$(Q)$(OBJCOPY) -Osrec $(*).elf $(*).srec
+#$(OBJDIR_M0)/m0.o: $(OBJDIR_M0)/m0.bin
+#	$(Q)$(OBJCOPY) -I binary -B arm -O elf32-littlearm $(OBJDIR_M0)/m0.bin $(OBJDIR_M0)/m0.o
 
-%.list: %.elf
-	@#printf "  OBJDUMP $(*).list\n"
-	$(Q)$(OBJDUMP) -S $(*).elf > $(*).list
+$(BINARY).hex: $(BINARY).elf
+	@#printf "  OBJCOPY $(BINARY).hex\n"
+	$(Q)$(OBJCOPY) -Oihex $(BINARY).elf $(BINARY).hex
 
-%.elf: $(OBJ) $(LDSCRIPT)
+$(BINARY).srec: $(BINARY).elf
+	@#printf "  OBJCOPY $(BINARY).srec\n"
+	$(Q)$(OBJCOPY) -Osrec $(BINARY).elf $(BINARY).srec
+
+$(BINARY).list: $(BINARY).elf
+	@#printf "  OBJDUMP $(BINARY).list\n"
+	$(Q)$(OBJDUMP) -S $(BINARY).elf > $(BINARY).list
+
+$(BINARY).elf: obj_m4
 	@#printf "  LD      $(subst $(shell pwd)/,,$(@))\n"
-	$(Q)$(LD) -o $(*).elf $(OBJ) $(LDFLAGS)
+	$(Q)$(LD) -o $(BINARY).elf $(OBJ_M4_C) $(OBJDIR_M4)/m0_bin.o $(LDFLAGS_COMMON) $(LDFLAGS_M4)
 
-%.o: %.c Makefile
-	@#printf "  CC      $(subst $(shell pwd)/,,$(@))\n"
-	$(Q)$(CC) $(CFLAGS) -o $@ -c $<
+$(OBJDIR_M0)/m0.elf: obj_m0
+	@#printf "  LD      $(subst $(shell pwd)/,,$(@))\n"
+	$(Q)$(LD) -o $(OBJDIR_M0)/m0.elf $(OBJ_M0_C) $(LDFLAGS_COMMON) $(LDFLAGS_M0)
 
-%.o: %.s Makefile
-	@#printf "  CC      $(subst $(shell pwd)/,,$(@))\n"
-	$(Q)$(CC) $(CFLAGS) -o $@ -c $<
+obj_m4: $(OBJ_M4_C) $(OBJDIR_M4)/m0_bin.o
+
+obj_m0: $(OBJ_M0_C)
+
+$(OBJDIR_M4)/%.o: %.c | $(OBJDIR_M4)
+	@printf "  CC      $(subst $(shell pwd)/,,$(@))\n"
+	$(Q)$(CC) $(CFLAGS_COMMON) $(CFLAGS_M4) -o $@ -c $<
+
+$(OBJDIR_M4)/%.o: %.s | $(OBJDIR_M4)
+	@printf "  CC      $(subst $(shell pwd)/,,$(@))\n"
+	$(Q)$(CC) $(CFLAGS_COMMON) $(CFLAGS_M4) -o $@ -c $<
+
+$(OBJDIR_M4)/m0_bin.o: m0_bin.s $(OBJDIR_M0)/m0.bin | $(OBJDIR_M4)
+	@printf "  CC      $(subst $(shell pwd)/,,$(@))\n"
+	$(Q)$(CC) $(CFLAGS_COMMON) $(CFLAGS_M4) -o $@ -c $<
+
+$(OBJDIR_M0)/%.o: %.c | $(OBJDIR_M0)
+	@printf "  CC      $(subst $(shell pwd)/,,$(@))\n"
+	$(Q)$(CC) $(CFLAGS_COMMON) $(CFLAGS_M0) -o $@ -c $<
+
+$(OBJDIR_M0)/%.o: %.s | $(OBJDIR_M0)
+	@printf "  CC      $(subst $(shell pwd)/,,$(@))\n"
+	$(Q)$(CC) $(CFLAGS_COMMON) $(CFLAGS_M0) -o $@ -c $<
+
+$(OBJDIR_M4):
+	$(Q)mkdir -p $@
+
+$(OBJDIR_M0):
+	$(Q)mkdir -p $@
 
 clean:
 	$(Q)rm -f *.o
@@ -143,12 +196,28 @@ clean:
 	$(Q)rm -f *.list
 	$(Q)rm -f *.map
 	$(Q)rm -f *.lst
+	$(Q)rm -f ../hackrf_usb/*.o
+	$(Q)rm -f ../hackrf_usb/*.d
+	$(Q)rm -f ../hackrf_usb/*.lst
 	$(Q)rm -f ../common/*.o
 	$(Q)rm -f ../common/*.d
 	$(Q)rm -f ../common/*.lst
 	$(Q)rm -f ../common/xapp058/*.o
 	$(Q)rm -f ../common/xapp058/*.d
+	$(Q)rm -f $(OBJDIR_M4)/*.o
+	$(Q)rm -f $(OBJDIR_M4)/*.d
+	$(Q)rm -f $(OBJDIR_M4)/*.elf
+	$(Q)rm -f $(OBJDIR_M4)/*.bin
+	$(Q)rm -f $(OBJDIR_M4)/*.map
+	$(Q)rm -f $(OBJDIR_M0)/*.o
+	$(Q)rm -f $(OBJDIR_M0)/*.d
+	$(Q)rm -f $(OBJDIR_M0)/*.elf
+	$(Q)rm -f $(OBJDIR_M0)/*.bin
+	$(Q)rm -f $(OBJDIR_M0)/*.map
+	$(Q)rm -f $(OBJDIR_M0)/*.map
+	$(Q)rm -rf $(BUILD_DIR)
 
 .PHONY: images clean
 
--include $(OBJ:.o=.d)
+-include $(OBJ_M4_C:.o=.d)
+-include $(OBJ_M0_C:.o=.d)
