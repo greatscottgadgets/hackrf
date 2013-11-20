@@ -40,3 +40,13 @@ MEMORY
 
 /* Include the common ld script. */
 INCLUDE libopencm3_lpc43xx.ld
+
+SECTIONS
+{
+	.m0 0x10090000 : {
+		PROVIDE(__m0_start__ = .);
+		KEEP(*(.m0_bin*));
+		. = ALIGN(4);
+		PROVIDE(__m0_end__ = .);
+	} >ram_m0
+}
