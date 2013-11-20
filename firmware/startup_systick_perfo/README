@@ -4,6 +4,9 @@ Test number of instruction per second (MIPS) slow blink ON 1s, OFF 1s
 Then after 16s (the 16tests) it blink LED1/2/3 ON/OFF each 250ms.
 This example compute the number of instructions per second executed called also MIPS (Millions of Instructions Per Second)
 
+This example code run from SRAM so maximum performance expected is 204MIPS.
+See result details in result_exec_from_SRAM.txt
+
 This example code run from SPIFI (SPI Quad mode) and the tests check different loop size to compute the cache size used with SPIFI and estimated to less than 256Bytes (about 128 instructions in best case and in Thumb2).
 See result_exec_from_SPIFI.txt for more details.
 

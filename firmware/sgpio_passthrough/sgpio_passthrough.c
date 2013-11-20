@@ -169,7 +169,7 @@ void test_sgpio_sliceA_D(void)
 /* SGPIO pin 14 outputs slice H bit 0. */
 /* SGPIO pin 15 outputs slice P bit 0. */
 /*******************************************************************************/
-const u8 slice_preset_tab[16] =
+const uint8_t slice_preset_tab[16] =
 {
 	0,  /* Idx00 = Slice A => SGPIO0  Freq Div by 1=0 */
 	8,  /* Idx01 = Slice B => SGPIO8  Freq Div by 9=8 */
