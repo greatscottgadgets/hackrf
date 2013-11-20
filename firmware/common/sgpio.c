@@ -63,8 +63,6 @@ void sgpio_test_interface() {
 	// Disable all counters during configuration
 	SGPIO_CTRL_ENABLE = 0;
 
-	sgpio_configure_pin_functions();
-
 	// Make all SGPIO controlled by SGPIO's "GPIO" registers
 	for (uint_fast8_t i = 0; i < 16; i++) {
 		SGPIO_OUT_MUX_CFG(i) =
@@ -116,8 +114,6 @@ void sgpio_configure(
 ) {
 	// Disable all counters during configuration
 	SGPIO_CTRL_ENABLE = 0;
-
-    sgpio_configure_pin_functions();
 
     // Set SGPIO output values.
 	const uint_fast8_t cpld_direction =

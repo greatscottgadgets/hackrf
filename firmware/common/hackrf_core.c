@@ -25,6 +25,7 @@
 #include "si5351c.h"
 #include "max2837.h"
 #include "rffc5071.h"
+#include "sgpio.h"
 #include <libopencm3/lpc43xx/i2c.h>
 #include <libopencm3/lpc43xx/cgu.h>
 #include <libopencm3/lpc43xx/gpio.h>
@@ -588,6 +589,8 @@ void pin_setup(void) {
 	
 	/* Configure external clock in */
 	//scu_pinmux(P4_7, SCU_CLK_IN | SCU_CONF_FUNCTION1);
+
+	sgpio_configure_pin_functions();
 }
 
 void enable_1v8_power(void) {
