@@ -250,4 +250,6 @@ bool sgpio_cpld_stream_rx_set_decimation(const uint_fast8_t skip_n) {
 	 */
 	GPIO_SET(GPIO5) = GPIOPIN14 | GPIOPIN13 | GPIOPIN12;
 	GPIO_CLR(GPIO5) = (skip_n & 7) << 12;
+
+	return (skip_n < 8);
 }
