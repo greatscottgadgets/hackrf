@@ -26,6 +26,7 @@
 #include "max2837.h"
 #include "rffc5071.h"
 #include "sgpio.h"
+#include "rf_path.h"
 #include <libopencm3/lpc43xx/i2c.h>
 #include <libopencm3/lpc43xx/cgu.h>
 #include <libopencm3/lpc43xx/gpio.h>
