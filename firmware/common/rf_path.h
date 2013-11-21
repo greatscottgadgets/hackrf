@@ -25,6 +25,7 @@
 
 #include <stdint.h>
 
+void rf_path_pin_setup(void);
 void rf_path_init(void);
 
 typedef enum {

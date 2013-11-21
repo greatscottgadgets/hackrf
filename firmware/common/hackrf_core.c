@@ -186,8 +186,8 @@ bool sample_rate_set(const uint32_t sample_rate_hz) {
 	
 	return true;
 #endif
-	
-#ifdef JAWBREAKER
+
+#if (defined JAWBREAKER || defined HACKRF_ONE)
 	uint32_t p1 = 4608;
 	
  	switch(sample_rate_hz) {
@@ -276,7 +276,7 @@ void cpu_clock_init(void)
 	si5351c_configure_multisynth(5, 1536, 0, 1, 0); /* 50MHz */
 #endif
 
-#ifdef JAWBREAKER
+#if (defined JAWBREAKER || defined HACKRF_ONE)
 	/*
 	 * Jawbreaker clocks:
 	 *   CLK0 -> MAX5864/CPLD
@@ -564,7 +564,7 @@ void pin_setup(void) {
 	/* Configure USB indicators */
 	scu_pinmux(SCU_PINMUX_USB_LED0, SCU_CONF_FUNCTION3);
 	scu_pinmux(SCU_PINMUX_USB_LED1, SCU_CONF_FUNCTION3);
-	
+
 	/* Configure all GPIO as Input (safe state) */
 	GPIO0_DIR = 0;
 	GPIO1_DIR = 0;
@@ -574,12 +574,14 @@ void pin_setup(void) {
 	GPIO5_DIR = 0;
 	GPIO6_DIR = 0;
 	GPIO7_DIR = 0;
-	
+
 	/* Configure GPIO2[1/2/8] (P4_1/2 P6_12) as output. */
 	GPIO2_DIR |= (PIN_LED1 | PIN_LED2 | PIN_LED3);
-	
+
 	/* GPIO3[6] on P6_10  as output. */
 	GPIO3_DIR |= PIN_EN1V8;
+
+	rf_path_pin_setup();
 	
 	/* Configure SSP1 Peripheral (to be moved later in SSP driver) */
 	scu_pinmux(SCU_SSP1_MISO, (SCU_SSP_IO | SCU_CONF_FUNCTION5));
@@ -596,3 +598,17 @@ void pin_setup(void) {
 void enable_1v8_power(void) {
 	gpio_set(PORT_EN1V8, PIN_EN1V8);
 }
+
+void disable_1v8_power(void) {
+	gpio_clear(PORT_EN1V8, PIN_EN1V8);
+}
+
+#ifdef HACKRF_ONE
+void enable_rf_power(void) {
+	gpio_clear(PORT_NO_VAA_ENABLE, PIN_NO_VAA_ENABLE);
+}
+
+void disable_rf_power(void) {
+	gpio_set(PORT_NO_VAA_ENABLE, PIN_NO_VAA_ENABLE);
+}
+#endif

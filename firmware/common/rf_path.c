@@ -22,6 +22,9 @@
 
 #include "rf_path.h"
 
+#include <libopencm3/lpc43xx/gpio.h>
+#include <libopencm3/lpc43xx/scu.h>
+
 #include <hackrf_core.h>
 
 #include <rffc5071.h>
@@ -29,10 +32,15 @@
 #include <max5864.h>
 #include <sgpio.h>
 
-#ifdef JAWBREAKER
+#if (defined JAWBREAKER || defined HACKRF_ONE)
 /*
  * RF switches on Jawbreaker are controlled by General Purpose Outputs (GPO) on
  * the RFFC5072.
+ *
+ * On HackRF One, the same signals are controlled by GPIO on the LPC.
+ * SWITCHCTRL_NO_TX_AMP_PWR and SWITCHCTRL_NO_RX_AMP_PWR are not normally used
+ * on HackRF One as the amplifier power is instead controlled only by
+ * SWITCHCTRL_AMP_BYPASS.
  */
 #define SWITCHCTRL_NO_TX_AMP_PWR (1 << 0) /* GPO1 turn off TX amp power */
 #define SWITCHCTRL_AMP_BYPASS    (1 << 1) /* GPO2 bypass amp section */
@@ -67,6 +75,124 @@
 
 uint8_t switchctrl = SWITCHCTRL_SAFE;
 
+#ifdef HACKRF_ONE
+static void switchctrl_set_hackrf_one(uint8_t ctrl) {
+	if (ctrl & SWITCHCTRL_TX) {
+		gpio_set(PORT_TX, PIN_TX);
+		gpio_clear(PORT_RX, PIN_RX);
+	} else {
+		gpio_clear(PORT_TX, PIN_TX);
+		gpio_set(PORT_RX, PIN_RX);
+	}
+
+	if (ctrl & SWITCHCTRL_MIX_BYPASS) {
+		gpio_set(PORT_MIX_BYPASS, PIN_MIX_BYPASS);
+		gpio_clear(PORT_NO_MIX_BYPASS, PIN_NO_MIX_BYPASS);
+		if (ctrl & SWITCHCTRL_TX) {
+			gpio_set(PORT_TX_MIX_BP, PIN_TX_MIX_BP);
+			gpio_clear(PORT_RX_MIX_BP, PIN_RX_MIX_BP);
+		} else {
+			gpio_clear(PORT_TX_MIX_BP, PIN_TX_MIX_BP);
+			gpio_set(PORT_RX_MIX_BP, PIN_RX_MIX_BP);
+		}
+	} else {
+		gpio_clear(PORT_MIX_BYPASS, PIN_MIX_BYPASS);
+		gpio_set(PORT_NO_MIX_BYPASS, PIN_NO_MIX_BYPASS);
+		gpio_clear(PORT_TX_MIX_BP, PIN_TX_MIX_BP);
+		gpio_clear(PORT_RX_MIX_BP, PIN_RX_MIX_BP);
+	}
+
+	if (ctrl & SWITCHCTRL_HP) {
+		gpio_set(PORT_HP, PIN_HP);
+		gpio_clear(PORT_LP, PIN_LP);
+	} else {
+		gpio_clear(PORT_HP, PIN_HP);
+		gpio_set(PORT_LP, PIN_LP);
+	}
+
+	if (ctrl & SWITCHCTRL_AMP_BYPASS) {
+		gpio_set(PORT_AMP_BYPASS, PIN_AMP_BYPASS);
+		gpio_clear(PORT_TX_AMP, PIN_TX_AMP);
+		gpio_set(PORT_NO_TX_AMP_PWR, PIN_NO_TX_AMP_PWR);
+		gpio_clear(PORT_RX_AMP, PIN_RX_AMP);
+		gpio_set(PORT_NO_RX_AMP_PWR, PIN_NO_RX_AMP_PWR);
+	} else if (ctrl & SWITCHCTRL_TX) {
+		gpio_clear(PORT_AMP_BYPASS, PIN_AMP_BYPASS);
+		gpio_set(PORT_TX_AMP, PIN_TX_AMP);
+		gpio_clear(PORT_NO_TX_AMP_PWR, PIN_NO_TX_AMP_PWR);
+		gpio_clear(PORT_RX_AMP, PIN_RX_AMP);
+		gpio_set(PORT_NO_RX_AMP_PWR, PIN_NO_RX_AMP_PWR);
+	} else {
+		gpio_clear(PORT_AMP_BYPASS, PIN_AMP_BYPASS);
+		gpio_clear(PORT_TX_AMP, PIN_TX_AMP);
+		gpio_set(PORT_NO_TX_AMP_PWR, PIN_NO_TX_AMP_PWR);
+		gpio_set(PORT_RX_AMP, PIN_RX_AMP);
+		gpio_clear(PORT_NO_RX_AMP_PWR, PIN_NO_RX_AMP_PWR);
+	}
+
+	/*
+	 * These normally shouldn't be set post-Jawbreaker, but they can be
+	 * used to explicitly turn off power to the amplifiers while AMP_BYPASS
+	 * is unset:
+	 */
+	if (ctrl & SWITCHCTRL_NO_TX_AMP_PWR)
+		gpio_set(PORT_NO_TX_AMP_PWR, PIN_NO_TX_AMP_PWR);
+	if (ctrl & SWITCHCTRL_NO_RX_AMP_PWR)
+		gpio_set(PORT_NO_RX_AMP_PWR, PIN_NO_RX_AMP_PWR);
+}
+#endif
+
+static void switchctrl_set(const uint8_t gpo) {
+#ifdef JAWBREAKER
+	rffc5071_set_gpo(gpo);
+#elif HACKRF_ONE
+	switchctrl_set_hackrf_one(gpo);
+#else
+	(void)gpo;
+#endif
+}
+
+void rf_path_pin_setup() {
+#ifdef HACKRF_ONE
+	/* Configure RF switch control signals */
+	scu_pinmux(SCU_HP,             SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+	scu_pinmux(SCU_LP,             SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+	scu_pinmux(SCU_TX_MIX_BP,      SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+	scu_pinmux(SCU_NO_MIX_BYPASS,  SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+	scu_pinmux(SCU_RX_MIX_BP,      SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+	scu_pinmux(SCU_TX_AMP,         SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+	scu_pinmux(SCU_TX,             SCU_GPIO_FAST | SCU_CONF_FUNCTION4);
+	scu_pinmux(SCU_MIX_BYPASS,     SCU_GPIO_FAST | SCU_CONF_FUNCTION4);
+	scu_pinmux(SCU_RX,             SCU_GPIO_FAST | SCU_CONF_FUNCTION4);
+	scu_pinmux(SCU_NO_TX_AMP_PWR,  SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+	scu_pinmux(SCU_AMP_BYPASS,     SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+	scu_pinmux(SCU_RX_AMP,         SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+	scu_pinmux(SCU_NO_RX_AMP_PWR,  SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+
+	/* Configure RF power supply (VAA) switch */
+	scu_pinmux(SCU_NO_VAA_ENABLE,  SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+
+	/* Configure RF switch control signals as outputs */
+	GPIO0_DIR |= PIN_AMP_BYPASS;
+	GPIO1_DIR |= (PIN_NO_MIX_BYPASS | PIN_RX_AMP | PIN_NO_RX_AMP_PWR);
+	GPIO2_DIR |= (PIN_HP | PIN_LP | PIN_TX_MIX_BP | PIN_RX_MIX_BP | PIN_TX_AMP);
+	GPIO3_DIR |= PIN_NO_TX_AMP_PWR;
+	GPIO5_DIR |= (PIN_TX | PIN_MIX_BYPASS | PIN_RX);
+
+	/*
+	 * Safe (initial) switch settings turn off both amplifiers and enable both
+	 * amp bypass and mixer bypass.
+	 */
+	switchctrl_set(SWITCHCTRL_AMP_BYPASS | SWITCHCTRL_MIX_BYPASS);
+
+	/* Configure RF power supply (VAA) switch control signal as output */
+	GPIO_DIR(PORT_NO_VAA_ENABLE) |= PIN_NO_VAA_ENABLE;
+
+	/* Safe state: start with VAA turned off: */
+	disable_rf_power();
+#endif
+}
+
 void rf_path_init(void) {
 	ssp1_set_mode_max5864();
 	max5864_shutdown();
@@ -76,6 +202,7 @@ void rf_path_init(void) {
 	max2837_start();
 	
 	rffc5071_setup();
+	switchctrl_set(switchctrl);
 }
 
 void rf_path_set_direction(const rf_path_direction_t direction) {
@@ -132,8 +259,8 @@ void rf_path_set_direction(const rf_path_direction_t direction) {
 		sgpio_configure(SGPIO_DIRECTION_RX, true);
 		break;
 	}
-	
-	rffc5071_set_gpo(switchctrl);
+
+	switchctrl_set(switchctrl);
 }
 
 void rf_path_set_filter(const rf_path_filter_t filter) {
@@ -155,8 +282,8 @@ void rf_path_set_filter(const rf_path_filter_t filter) {
 		rffc5071_enable();
 		break;
 	}
-	
-	rffc5071_set_gpo(switchctrl);
+
+	switchctrl_set(switchctrl);
 }
 
 void rf_path_set_lna(const uint_fast8_t enable) {
@@ -175,5 +302,5 @@ void rf_path_set_lna(const uint_fast8_t enable) {
 		switchctrl |= SWITCHCTRL_AMP_BYPASS | SWITCHCTRL_NO_TX_AMP_PWR | SWITCHCTRL_NO_RX_AMP_PWR;
 	}
 	
-	rffc5071_set_gpo(switchctrl);
+	switchctrl_set(switchctrl);
 }
