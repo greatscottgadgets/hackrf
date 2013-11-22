@@ -1,4 +1,4 @@
-Cmp-Mod V01 Created by CvPcb (2013-07-24 BZR 4024)-stable date = Thu Nov 21 16:56:37 2013
+Cmp-Mod V01 Created by CvPcb (2013-07-24 BZR 4024)-stable date = Fri Nov 22 09:26:25 2013
 
 BeginCmp
 TimeStamp = /503BB638/4FAECB99;
@@ -1268,6 +1268,48 @@ IdModule  = GSG-NULL-MODULE;
 EndCmp
 
 BeginCmp
+TimeStamp = /503BB638/528FA040;
+Reference = J4;
+ValeurCmp = MOUNTING_HOLE;
+IdModule  = GSG-HOLE126MIL-COPPER;
+EndCmp
+
+BeginCmp
+TimeStamp = /503BB638/528FA22A;
+Reference = J5;
+ValeurCmp = MOUNTING_HOLE;
+IdModule  = GSG-HOLE126MIL-COPPER;
+EndCmp
+
+BeginCmp
+TimeStamp = /503BB638/528FA29A;
+Reference = J6;
+ValeurCmp = MOUNTING_HOLE;
+IdModule  = GSG-HOLE126MIL-COPPER;
+EndCmp
+
+BeginCmp
+TimeStamp = /503BB638/528FA2A8;
+Reference = J7;
+ValeurCmp = MOUNTING_HOLE;
+IdModule  = GSG-HOLE126MIL-COPPER;
+EndCmp
+
+BeginCmp
+TimeStamp = /503BB638/528FA2B6;
+Reference = J8;
+ValeurCmp = MOUNTING_HOLE;
+IdModule  = GSG-HOLE126MIL-COPPER;
+EndCmp
+
+BeginCmp
+TimeStamp = /503BB638/528FA2C4;
+Reference = J9;
+ValeurCmp = MOUNTING_HOLE;
+IdModule  = GSG-HOLE126MIL-COPPER;
+EndCmp
+
+BeginCmp
 TimeStamp = /503BB638/502AFA8C;
 Reference = L1;
 ValeurCmp = DNP;
@@ -2234,16 +2276,16 @@ IdModule  = GSG-0402;
 EndCmp
 
 BeginCmp
-TimeStamp = /50370666/527F1CB0;
+TimeStamp = /50370666/528ED054;
 Reference = R31;
-ValeurCmp = 0;
+ValeurCmp = 39;
 IdModule  = GSG-0402;
 EndCmp
 
 BeginCmp
-TimeStamp = /50370666/527F1D1A;
+TimeStamp = /50370666/528ED034;
 Reference = R32;
-ValeurCmp = 0;
+ValeurCmp = 39;
 IdModule  = GSG-0402;
 EndCmp
 
