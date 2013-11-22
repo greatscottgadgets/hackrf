@@ -37,7 +37,7 @@ $Descr User 17000 11000
 encoding utf-8
 Sheet 3 4
 Title "HackRF One baseband"
-Date "21 nov 2013"
+Date "22 nov 2013"
 Rev ""
 Comp "Copyright 2012 Michael Ossmann"
 Comment1 "License: GPL v2"
@@ -3047,20 +3047,6 @@ Wire Notes Line
 Text Notes 2250 3750 0    40   ~ 0
 PCB trace jumper
 $Comp
-L R R31
-U 1 1 527F1CB0
-P 8000 8100
-F 0 "R31" V 8080 8100 50  0000 C CNN
-F 1 "0" V 8000 8100 50  0000 C CNN
-F 2 "" H 8000 8100 60  0001 C CNN
-F 3 "" H 8000 8100 60  0001 C CNN
-F 4 "Stackpole" H 8000 8100 60  0001 C CNN "Manufacturer"
-F 5 "RMCF0402ZT0R00" H 8000 8100 60  0001 C CNN "Part Number"
-F 6 "RES 0.0 OHM 1/16W 0402 SMD" H 8000 8100 60  0001 C CNN "Description"
-	1    8000 8100
-	0    1    1    0   
-$EndComp
-$Comp
 L C C68
 U 1 1 527F1CB9
 P 8350 8400
@@ -3077,20 +3063,6 @@ F 7 "DNP" H 8200 8250 60  0000 C CNN "Note"
 $EndComp
 Wire Wire Line
 	6700 6700 4600 6700
-$Comp
-L R R32
-U 1 1 527F1D1A
-P 7300 8500
-F 0 "R32" V 7380 8500 50  0000 C CNN
-F 1 "0" V 7300 8500 50  0000 C CNN
-F 2 "" H 7300 8500 60  0001 C CNN
-F 3 "" H 7300 8500 60  0001 C CNN
-F 4 "Stackpole" H 7300 8500 60  0001 C CNN "Manufacturer"
-F 5 "RMCF0402ZT0R00" H 7300 8500 60  0001 C CNN "Part Number"
-F 6 "RES 0.0 OHM 1/16W 0402 SMD" H 7300 8500 60  0001 C CNN "Description"
-	1    7300 8500
-	0    1    1    0   
-$EndComp
 $Comp
 L C C69
 U 1 1 527F1D24
@@ -3868,4 +3840,32 @@ Wire Wire Line
 	950  4400 950  4500
 Wire Wire Line
 	1150 4500 1150 4400
+$Comp
+L R R32
+U 1 1 528ED034
+P 7300 8500
+F 0 "R32" V 7380 8500 50  0000 C CNN
+F 1 "39" V 7300 8500 50  0000 C CNN
+F 2 "" H 7300 8500 60  0001 C CNN
+F 3 "" H 7300 8500 60  0001 C CNN
+F 4 "Stackpole" H 7300 8500 60  0001 C CNN "Manufacturer"
+F 5 "RMCF0402JT39R0" H 7300 8500 60  0001 C CNN "Part Number"
+F 6 "RES 39 OHM 1/16W 5% 0402 SMD" H 7300 8500 60  0001 C CNN "Description"
+	1    7300 8500
+	0    1    1    0   
+$EndComp
+$Comp
+L R R31
+U 1 1 528ED054
+P 8000 8100
+F 0 "R31" V 8080 8100 50  0000 C CNN
+F 1 "39" V 8000 8100 50  0000 C CNN
+F 2 "" H 8000 8100 60  0001 C CNN
+F 3 "" H 8000 8100 60  0001 C CNN
+F 4 "Stackpole" H 8000 8100 60  0001 C CNN "Manufacturer"
+F 5 "RMCF0402JT39R0" H 8000 8100 60  0001 C CNN "Part Number"
+F 6 "RES 39 OHM 1/16W 5% 0402 SMD" H 8000 8100 60  0001 C CNN "Description"
+	1    8000 8100
+	0    1    1    0   
+$EndComp
 $EndSCHEMATC
