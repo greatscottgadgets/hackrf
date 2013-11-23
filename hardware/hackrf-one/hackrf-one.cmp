@@ -1,4 +1,4 @@
-Cmp-Mod V01 Created by CvPcb (2013-07-24 BZR 4024)-stable date = Fri Nov 22 18:39:33 2013
+Cmp-Mod V01 Created by PcbNew date = Fri Nov 22 23:26:22 2013
 
 BeginCmp
 TimeStamp = /503BB638/4FAECB99;
@@ -2825,7 +2825,7 @@ BeginCmp
 TimeStamp = /5037043E/52490BB4;
 Reference = X3;
 ValeurCmp = RTC_XTAL;
-IdModule  = GSG-XTAL-AB26T;
+IdModule  = GSG-XTAL-AB26TRQ;
 EndCmp
 
 EndListe
