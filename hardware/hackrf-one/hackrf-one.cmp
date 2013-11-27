@@ -1,4 +1,4 @@
-Cmp-Mod V01 Created by CvPcb (2013-07-24 BZR 4024)-stable date = Mon Nov 25 16:51:34 2013
+Cmp-Mod V01 Created by CvPcb (2013-07-24 BZR 4024)-stable date = Mon Nov 25 17:43:20 2013
 
 BeginCmp
 TimeStamp = /503BB638/4FAECB99;
@@ -1457,31 +1457,10 @@ IdModule  = GSG-HEADER-1x2;
 EndCmp
 
 BeginCmp
-TimeStamp = /50370666/52734660;
+TimeStamp = /50370666/5294060F;
 Reference = P9;
-ValeurCmp = TXBBQ;
-IdModule  = GSG-HEADER-NOMARK-1x2;
-EndCmp
-
-BeginCmp
-TimeStamp = /50370666/52734688;
-Reference = P10;
-ValeurCmp = TXBBI;
-IdModule  = GSG-HEADER-NOMARK-1x2;
-EndCmp
-
-BeginCmp
-TimeStamp = /50370666/527339FD;
-Reference = P11;
-ValeurCmp = RXBBI;
-IdModule  = GSG-HEADER-NOMARK-1x2;
-EndCmp
-
-BeginCmp
-TimeStamp = /50370666/52733E2B;
-Reference = P12;
-ValeurCmp = RXBBQ;
-IdModule  = GSG-HEADER-NOMARK-1x2;
+ValeurCmp = BASEBAND;
+IdModule  = GSG-HEADER-2x8;
 EndCmp
 
 BeginCmp
@@ -2042,13 +2021,6 @@ TimeStamp = /50370666/5281CEFA;
 Reference = P92;
 ValeurCmp = GND;
 IdModule  = GSG-TESTPOINT-50MIL;
-EndCmp
-
-BeginCmp
-TimeStamp = /50370666/5281CFA3;
-Reference = P93;
-ValeurCmp = GND;
-IdModule  = GSG-HEADER-NOMARK-1x2;
 EndCmp
 
 BeginCmp

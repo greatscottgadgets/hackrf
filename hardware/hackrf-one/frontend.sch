@@ -37,7 +37,7 @@ $Descr User 17000 11000
 encoding utf-8
 Sheet 2 4
 Title "HackRF One frontend"
-Date "25 nov 2013"
+Date "27 nov 2013"
 Rev ""
 Comp "Copyright 2012 Michael Ossmann"
 Comment1 "License: GPL v2"
@@ -3811,7 +3811,10 @@ F 0 "J10" H 2680 9850 40  0000 L CNN
 F 1 "GND_CLIP" H 2600 9905 30  0001 C CNN
 F 2 "" H 2600 9850 60  0001 C CNN
 F 3 "" H 2600 9850 60  0001 C CNN
-F 4 "DNP" H 2600 9850 60  0001 C CNN "Note"
+F 4 "Harwin" H 2600 9850 60  0001 C CNN "Manufacturer"
+F 5 "S1751-46R" H 2600 9850 60  0001 C CNN "Part Number"
+F 6 "PC TEST POINT TIN SMD" H 2600 9850 60  0001 C CNN "Description"
+F 7 "DNP" H 2600 9850 60  0001 C CNN "Note"
 	1    2600 9850
 	0    -1   -1   0   
 $EndComp

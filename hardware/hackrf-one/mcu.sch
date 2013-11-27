@@ -37,7 +37,7 @@ $Descr User 17000 11000
 encoding utf-8
 Sheet 4 4
 Title "HackRF One mcu/usb/power"
-Date "25 nov 2013"
+Date "27 nov 2013"
 Rev ""
 Comp "Copyright 2012 Michael Ossmann"
 Comment1 "License: GPL v2"
@@ -2444,7 +2444,10 @@ F 0 "P26" H 1300 5300 60  0000 C CNN
 F 1 "LPC_JTAG" V 1300 5000 50  0000 C CNN
 F 2 "" H 1300 5000 60  0001 C CNN
 F 3 "" H 1300 5000 60  0001 C CNN
-F 4 "DNP" H 1300 4650 60  0000 C CNN "Note"
+F 4 "Sullins" H 1300 5000 60  0001 C CNN "Manufacturer"
+F 5 "GRPB052VWVN-RC" H 1300 5000 60  0001 C CNN "Part Number"
+F 6 "CONN HEADER .050\" 10PS DL PCB AU" H 1300 5000 60  0001 C CNN "Description"
+F 7 "DNP" H 1300 4650 60  0000 C CNN "Note"
 	1    1300 5000
 	0    1    1    0   
 $EndComp
