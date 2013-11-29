@@ -1,4 +1,4 @@
-Cmp-Mod V01 Created by CvPcb (2013-07-24 BZR 4024)-stable date = Wed Nov 27 11:42:47 2013
+Cmp-Mod V01 Created by CvPcb (2013-07-24 BZR 4024)-stable date = Fri Nov 29 14:50:34 2013
 
 BeginCmp
 TimeStamp = /503BB638/4FAECB99;
@@ -2171,9 +2171,9 @@ IdModule  = GSG-0402;
 EndCmp
 
 BeginCmp
-TimeStamp = /5037043E/527DC2DF;
+TimeStamp = /5037043E/529905C9;
 Reference = R18;
-ValeurCmp = 470;
+ValeurCmp = 1k8;
 IdModule  = GSG-0402;
 EndCmp
 
@@ -2437,16 +2437,16 @@ IdModule  = GSG-0402;
 EndCmp
 
 BeginCmp
-TimeStamp = /5037043E/503C51A4;
+TimeStamp = /5037043E/5298FBA8;
 Reference = R73;
-ValeurCmp = 470;
+ValeurCmp = 1k;
 IdModule  = GSG-0402;
 EndCmp
 
 BeginCmp
-TimeStamp = /5037043E/503C51A6;
+TimeStamp = /5037043E/5299055B;
 Reference = R74;
-ValeurCmp = 470;
+ValeurCmp = 1k8;
 IdModule  = GSG-0402;
 EndCmp
 
@@ -2458,9 +2458,9 @@ IdModule  = GSG-0402;
 EndCmp
 
 BeginCmp
-TimeStamp = /5037043E/503C51AA;
+TimeStamp = /5037043E/5298FC35;
 Reference = R76;
-ValeurCmp = 470;
+ValeurCmp = 1k;
 IdModule  = GSG-0402;
 EndCmp
 
