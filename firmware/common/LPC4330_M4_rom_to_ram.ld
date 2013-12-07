@@ -21,23 +21,22 @@
  * Boston, MA 02110-1301, USA.
  */
 
-/* Linker script for HackRF Jellybean (LPC4330, 1M SPI flash, 264K SRAM). */
+/* Linker script for HackRF Jellybean/Jawbreaker (LPC4330, 1M SPI flash, 264K SRAM). */
 
 MEMORY
 {
 	/* Physical address in Flash used to copy Code from Flash to RAM */
 	rom_flash (rx)  : ORIGIN = 0x80000000, LENGTH =  1M
 	/* rom is really the shadow region that points to SPI flash or elsewhere */
-	rom (rx)  : ORIGIN = 0x00000000, LENGTH =  1M
+	rom (rx)  : ORIGIN = 0x00000000, LENGTH =  128K
 	ram_local1 (rwx) : ORIGIN = 0x10000000, LENGTH =  128K
 	ram_local2 (rwx) : ORIGIN = 0x10080000, LENGTH =  64K
-	ram_m0 (rwx) : ORIGIN = 0x10090000, LENGTH = 8K
-	ram_ahb1   (rwx) : ORIGIN = 0x20000000, LENGTH =  16K
+	ram_sleep (rwx) : ORIGIN = 0x10090000, LENGTH = 8K
 	/* Removed 32K of AHB SRAM for USB buffer. Straddles two blocks of RAM
 	 * to get performance benefit of having two USB buffers addressable
 	 * simultaneously (on two different buses of the AHB multilayer matrix)
 	 */
-	ram_ahb2   (rwx) : ORIGIN = 0x2000C000, LENGTH =  16K
+	ram_m0 (rwx) : ORIGIN = 0x2000C000, LENGTH = 16K
 }
 
 /* Include the common ld script. */
