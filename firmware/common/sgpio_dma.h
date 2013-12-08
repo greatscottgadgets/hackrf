@@ -24,12 +24,17 @@
 
 #include <stddef.h>
 
+#include <libopencm3/lpc43xx/gpdma.h>
+
 void sgpio_dma_init(void* const buffer, const size_t byte_count);
 void sgpio_dma_rx_start();
 void sgpio_dma_tx_start();
 void sgpio_dma_irq_tc_acknowledge();
 void sgpio_dma_stop();
 
-size_t sgpio_dma_current_transfer_index();
+size_t sgpio_dma_current_transfer_index(
+	const gpdma_lli_t* const lli,
+	const size_t lli_count
+);
 
 #endif/*__SGPIO_DMA_H__*/

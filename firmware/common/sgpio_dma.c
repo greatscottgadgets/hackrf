@@ -29,15 +29,18 @@
 #include <sgpio.h>
 #include <gpdma.h>
 
-#define LLI_COUNT 4
-
-static void configure_dma_lli(gpdma_lli_t* const lli, const bool direction_transmit, void* const buffer, const size_t byte_count) {
-	const size_t transfer_count = LLI_COUNT;
+static void configure_dma_lli(
+	gpdma_lli_t* const lli,
+	const size_t lli_count,
+	const bool direction_transmit,
+	void* const buffer,
+	const size_t byte_count
+) {
 	const size_t transfer_bytes = 4;
-	const size_t transfer_size = byte_count / transfer_count / transfer_bytes;
+	const size_t transfer_size = byte_count / lli_count / transfer_bytes;
 	const size_t transfer_size_bytes = transfer_size * transfer_bytes;
 
-	for(size_t i=0; i<transfer_count; i++) {
+	for(size_t i=0; i<lli_count; i++) {
 		void* const peripheral_address = (void*)&SGPIO_REG_SS(0);
 		void* const memory_address = buffer + (transfer_size_bytes * i);
 		
@@ -48,7 +51,7 @@ static void configure_dma_lli(gpdma_lli_t* const lli, const bool direction_trans
 
 		lli[i].csrcaddr = direction_transmit ? memory_address : peripheral_address;
 		lli[i].cdestaddr = direction_transmit ? peripheral_address : memory_address;
-		lli[i].clli = (gpdma_lli_t*)((uint32_t)&lli[(i + 1) % transfer_count] | lli_fetch_master);
+		lli[i].clli = (gpdma_lli_t*)((uint32_t)&lli[(i + 1) % lli_count] | lli_fetch_master);
 		lli[i].ccontrol =
 			GPDMA_CCONTROL_TRANSFERSIZE(transfer_size) |
 			GPDMA_CCONTROL_SBSIZE(0) |
@@ -95,12 +98,15 @@ static void sgpio_dma_enable(const uint_fast8_t channel, const gpdma_lli_t* cons
 	gpdma_channel_enable(channel);
 }
 
-static gpdma_lli_t lli_rx[LLI_COUNT];
-static gpdma_lli_t lli_tx[LLI_COUNT];
+#define RX_LLI_COUNT 4
+#define TX_LLI_COUNT 4
+
+static gpdma_lli_t lli_rx[RX_LLI_COUNT];
+static gpdma_lli_t lli_tx[TX_LLI_COUNT];
 
 void sgpio_dma_init(void* const buffer, const size_t byte_count) {
-	configure_dma_lli(lli_rx, false, buffer, byte_count);
-	configure_dma_lli(lli_tx, true, buffer, byte_count);
+	configure_dma_lli(lli_rx, RX_LLI_COUNT, false, buffer, byte_count);
+	configure_dma_lli(lli_tx, TX_LLI_COUNT, true, buffer, byte_count);
 
 	/* DMA peripheral/source 0, option 2 (SGPIO14) -- BREQ */
 	CREG_DMAMUX &= ~(CREG_DMAMUX_DMAMUXPER0_MASK);
@@ -131,10 +137,13 @@ void sgpio_dma_stop() {
 	gpdma_channel_disable(dma_channel_sgpio);
 }
 
-size_t sgpio_dma_current_transfer_index() {
+size_t sgpio_dma_current_transfer_index(
+	const gpdma_lli_t* const lli,
+	const size_t lli_count
+) {
 	const gpdma_lli_t* const next_lli = (gpdma_lli_t*)GPDMA_CLLI(dma_channel_sgpio);
-	for(size_t i=0; i<LLI_COUNT; i++) {
-		if( (lli_rx[i].clli == next_lli) || (lli_tx[i].clli == next_lli) ) {
+	for(size_t i=0; i<lli_count; i++) {
+		if( lli[i].clli == next_lli ) {
 			return i;
 		}
 	}
