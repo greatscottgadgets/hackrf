@@ -34,15 +34,14 @@ static void configure_dma_lli(
 	const size_t lli_count,
 	const bool direction_transmit,
 	void* const buffer,
-	const size_t byte_count
+	const size_t transfer_bytes
 ) {
-	const size_t transfer_bytes = 4;
-	const size_t transfer_size = byte_count / lli_count / transfer_bytes;
-	const size_t transfer_size_bytes = transfer_size * transfer_bytes;
+	const size_t bytes_per_word = 4;
+	const size_t transfer_words = (transfer_bytes + bytes_per_word - 1) / bytes_per_word;
 
 	for(size_t i=0; i<lli_count; i++) {
 		void* const peripheral_address = (void*)&SGPIO_REG_SS(0);
-		void* const memory_address = buffer + (transfer_size_bytes * i);
+		void* const memory_address = buffer + (transfer_words * bytes_per_word * i);
 		
 		const uint_fast8_t source_master = direction_transmit ? 1 : 0;
 		const uint_fast8_t destination_master = direction_transmit ? 0 : 1;
@@ -53,7 +52,7 @@ static void configure_dma_lli(
 		lli[i].cdestaddr = direction_transmit ? peripheral_address : memory_address;
 		lli[i].clli = (gpdma_lli_t*)((uint32_t)&lli[(i + 1) % lli_count] | lli_fetch_master);
 		lli[i].ccontrol =
-			GPDMA_CCONTROL_TRANSFERSIZE(transfer_size) |
+			GPDMA_CCONTROL_TRANSFERSIZE(transfer_words) |
 			GPDMA_CCONTROL_SBSIZE(0) |
 			GPDMA_CCONTROL_DBSIZE(0) |
 			GPDMA_CCONTROL_SWIDTH(2) |
@@ -104,9 +103,9 @@ static void sgpio_dma_enable(const uint_fast8_t channel, const gpdma_lli_t* cons
 static gpdma_lli_t lli_rx[RX_LLI_COUNT];
 static gpdma_lli_t lli_tx[TX_LLI_COUNT];
 
-void sgpio_dma_init(void* const buffer, const size_t byte_count) {
-	configure_dma_lli(lli_rx, RX_LLI_COUNT, false, buffer, byte_count);
-	configure_dma_lli(lli_tx, TX_LLI_COUNT, true, buffer, byte_count);
+void sgpio_dma_init(void* const buffer, const size_t transfer_bytes) {
+	configure_dma_lli(lli_rx, RX_LLI_COUNT, false, buffer, transfer_bytes);
+	configure_dma_lli(lli_tx, TX_LLI_COUNT, true, buffer, transfer_bytes);
 
 	/* DMA peripheral/source 0, option 2 (SGPIO14) -- BREQ */
 	CREG_DMAMUX &= ~(CREG_DMAMUX_DMAMUXPER0_MASK);
