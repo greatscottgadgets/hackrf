@@ -29,7 +29,7 @@
 #include <sgpio.h>
 #include <gpdma.h>
 
-static void configure_dma_lli(
+static void sgpio_dma_configure_lli(
 	gpdma_lli_t* const lli,
 	const size_t lli_count,
 	const bool direction_transmit,
@@ -104,8 +104,8 @@ static gpdma_lli_t lli_rx[RX_LLI_COUNT];
 static gpdma_lli_t lli_tx[TX_LLI_COUNT];
 
 void sgpio_dma_init(void* const buffer, const size_t transfer_bytes) {
-	configure_dma_lli(lli_rx, RX_LLI_COUNT, false, buffer, transfer_bytes);
-	configure_dma_lli(lli_tx, TX_LLI_COUNT, true, buffer, transfer_bytes);
+	sgpio_dma_configure_lli(lli_rx, RX_LLI_COUNT, false, buffer, transfer_bytes);
+	sgpio_dma_configure_lli(lli_tx, TX_LLI_COUNT, true, buffer, transfer_bytes);
 
 	/* DMA peripheral/source 0, option 2 (SGPIO14) -- BREQ */
 	CREG_DMAMUX &= ~(CREG_DMAMUX_DMAMUXPER0_MASK);
