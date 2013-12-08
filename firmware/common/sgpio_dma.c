@@ -74,10 +74,10 @@ static void sgpio_dma_enable(const uint_fast8_t channel, const gpdma_lli_t* cons
 	gpdma_channel_interrupt_tc_clear(channel);
 	gpdma_channel_interrupt_error_clear(channel);
 
-	GPDMA_CSRCADDR(channel) = (uint32_t)lli[0].csrcaddr;
-	GPDMA_CDESTADDR(channel) = (uint32_t)lli[0].cdestaddr;
-	GPDMA_CLLI(channel) = (uint32_t)lli[0].clli;
-	GPDMA_CCONTROL(channel) = lli[0].ccontrol;
+	GPDMA_CSRCADDR(channel) = (uint32_t)lli->csrcaddr;
+	GPDMA_CDESTADDR(channel) = (uint32_t)lli->cdestaddr;
+	GPDMA_CLLI(channel) = (uint32_t)lli->clli;
+	GPDMA_CCONTROL(channel) = lli->ccontrol;
 
 	/* 1: Memory -> Peripheral
 	 * 2: Peripheral -> Memory */
