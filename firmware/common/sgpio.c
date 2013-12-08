@@ -28,6 +28,8 @@
 
 #include <sgpio.h>
 
+static bool sgpio_slice_mode_multislice = true;
+
 void sgpio_configure_pin_functions() {
 	scu_pinmux(SCU_PINMUX_SGPIO0, SCU_GPIO_FAST | SCU_CONF_FUNCTION3);
 	scu_pinmux(SCU_PINMUX_SGPIO1, SCU_GPIO_FAST | SCU_CONF_FUNCTION3);
@@ -95,6 +97,11 @@ void sgpio_test_interface() {
 	}
 }
 
+void sgpio_set_slice_mode(
+	const bool multi_slice
+) {
+	sgpio_slice_mode_multislice = multi_slice;
+}
 
 /*
  SGPIO0 to 7 = DAC/ADC data bits 0 to 7 (Nota: DAC is 10bits but only bit9 to bit2 are used bit1 & 0 are forced to 0 by CPLD)
@@ -109,8 +116,7 @@ void sgpio_test_interface() {
  SGPIO11 Direction Output (1/High=TX mode LPC43xx=>CPLD=>DAC, 0/Low=RX mode LPC43xx<=CPLD<=ADC)
 */
 void sgpio_configure(
-	const sgpio_direction_t direction,
-	const bool multi_slice
+	const sgpio_direction_t direction
 ) {
 	// Disable all counters during configuration
 	SGPIO_CTRL_ENABLE = 0;
@@ -159,7 +165,7 @@ void sgpio_configure(
 		;
 
 	const uint_fast8_t output_multiplexing_mode =
-		multi_slice ? 11 : 9;
+		sgpio_slice_mode_multislice ? 11 : 9;
 	/* SGPIO0 to SGPIO7 */
 	for(uint_fast8_t i=0; i<8; i++) {
 		// SGPIO pin 0 outputs slice A bit "i".
@@ -181,13 +187,13 @@ void sgpio_configure(
 	};
 	const uint_fast8_t slice_gpdma = SGPIO_SLICE_H;
 	
-	const uint_fast8_t pos = multi_slice ? 0x1f : 0x03;
-	const bool single_slice = !multi_slice;
-	const uint_fast8_t slice_count = multi_slice ? 8 : 1;
+	const uint_fast8_t pos = sgpio_slice_mode_multislice ? 0x1f : 0x03;
+	const bool single_slice = !sgpio_slice_mode_multislice;
+	const uint_fast8_t slice_count = sgpio_slice_mode_multislice ? 8 : 1;
 	const uint_fast8_t clk_capture_mode = (direction == SGPIO_DIRECTION_TX) ? 0 : 1;
 	
 	uint32_t slice_enable_mask = 0;
-	/* Configure Slice A, I, E, J, C, K, F, L (multi_slice mode) */
+	/* Configure Slice A, I, E, J, C, K, F, L (sgpio_slice_mode_multislice mode) */
 	for(uint_fast8_t i=0; i<slice_count; i++)
 	{
 		const uint_fast8_t slice_index = slice_indices[i];
@@ -228,7 +234,7 @@ void sgpio_configure(
 		slice_enable_mask |= (1 << slice_index);
 	}
 
-	if( multi_slice == false ) {
+	if( sgpio_slice_mode_multislice == false ) {
 		SGPIO_MUX_CFG(slice_gpdma) =
 			  SGPIO_MUX_CFG_CONCAT_ORDER(0) /* Self-loop */
 			| SGPIO_MUX_CFG_CONCAT_ENABLE(1)
@@ -261,7 +267,7 @@ void sgpio_configure(
 		
 		slice_enable_mask |= (1 << slice_gpdma);
 	}
-		
+
 	// Start SGPIO operation by enabling slice clocks.
 	SGPIO_CTRL_ENABLE = slice_enable_mask;
 }

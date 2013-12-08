@@ -31,9 +31,11 @@ typedef enum {
 	
 void sgpio_configure_pin_functions();
 void sgpio_test_interface();
-void sgpio_configure(
-	const sgpio_direction_t direction,
+void sgpio_set_slice_mode(
 	const bool multi_slice
+);
+void sgpio_configure(
+	const sgpio_direction_t direction
 );
 void sgpio_cpld_stream_enable();
 void sgpio_cpld_stream_disable();
