@@ -29,7 +29,7 @@
 #include <sgpio.h>
 #include <gpdma.h>
 
-static void sgpio_dma_configure_lli(
+void sgpio_dma_configure_lli(
 	gpdma_lli_t* const lli,
 	const size_t lli_count,
 	const bool direction_transmit,
@@ -97,16 +97,7 @@ static void sgpio_dma_enable(const uint_fast8_t channel, const gpdma_lli_t* cons
 	gpdma_channel_enable(channel);
 }
 
-#define RX_LLI_COUNT 4
-#define TX_LLI_COUNT 4
-
-static gpdma_lli_t lli_rx[RX_LLI_COUNT];
-static gpdma_lli_t lli_tx[TX_LLI_COUNT];
-
-void sgpio_dma_init(void* const buffer, const size_t transfer_bytes) {
-	sgpio_dma_configure_lli(lli_rx, RX_LLI_COUNT, false, buffer, transfer_bytes);
-	sgpio_dma_configure_lli(lli_tx, TX_LLI_COUNT, true, buffer, transfer_bytes);
-
+void sgpio_dma_init() {
 	/* DMA peripheral/source 0, option 2 (SGPIO14) -- BREQ */
 	CREG_DMAMUX &= ~(CREG_DMAMUX_DMAMUXPER0_MASK);
 	CREG_DMAMUX |= CREG_DMAMUX_DMAMUXPER0(0x2);
@@ -120,12 +111,12 @@ void sgpio_dma_init(void* const buffer, const size_t transfer_bytes) {
 
 static const uint_fast8_t dma_channel_sgpio = 0;
 
-void sgpio_dma_rx_start() {
-	sgpio_dma_enable(dma_channel_sgpio, lli_rx, false);
+void sgpio_dma_rx_start(const gpdma_lli_t* const start_lli) {
+	sgpio_dma_enable(dma_channel_sgpio, start_lli, false);
 }
 
-void sgpio_dma_tx_start() {
-	sgpio_dma_enable(dma_channel_sgpio, lli_tx, true);
+void sgpio_dma_tx_start(const gpdma_lli_t* const start_lli) {
+	sgpio_dma_enable(dma_channel_sgpio, start_lli, true);
 }
 
 void sgpio_dma_irq_tc_acknowledge() {

@@ -26,9 +26,17 @@
 
 #include <libopencm3/lpc43xx/gpdma.h>
 
-void sgpio_dma_init(void* const buffer, const size_t byte_count);
-void sgpio_dma_rx_start();
-void sgpio_dma_tx_start();
+void sgpio_dma_configure_lli(
+	gpdma_lli_t* const lli,
+	const size_t lli_count,
+	const bool direction_transmit,
+	void* const buffer,
+	const size_t transfer_bytes
+);
+
+void sgpio_dma_init();
+void sgpio_dma_rx_start(const gpdma_lli_t* const start_lli);
+void sgpio_dma_tx_start(const gpdma_lli_t* const start_lli);
 void sgpio_dma_irq_tc_acknowledge();
 void sgpio_dma_stop();
 
