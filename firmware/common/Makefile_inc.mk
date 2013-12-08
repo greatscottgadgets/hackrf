@@ -38,13 +38,18 @@ HACKRF_OPTS += -DTX_ENABLE
 VERSION_STRING ?= -D'VERSION_STRING="git-$(shell git log -n 1 --format=%h)"'
 HACKRF_OPTS += $(VERSION_STRING)
 
-LIBOPENCM3 ?= ../libopencm3
+PATH_HACKRF ?= ../..
 
-VPATH += ../common/xapp058
-VPATH += ../common
+PATH_HACKRF_FIRMWARE = $(PATH_HACKRF)/firmware
+PATH_HACKRF_FIRMWARE_COMMON = $(PATH_HACKRF_FIRMWARE)/common
+
+LIBOPENCM3 ?= $(PATH_HACKRF_FIRMWARE)/libopencm3
+
+VPATH += $(PATH_HACKRF_FIRMWARE_COMMON)/xapp058
+VPATH += $(PATH_HACKRF_FIRMWARE_COMMON)
 
 SRC_M4_C ?= $(SRC)
-SRC_M0_C ?= ../common/m0_sleep.c
+SRC_M0_C ?= $(PATH_HACKRF_FIRMWARE_COMMON)/m0_sleep.c
 
 BUILD_DIR = build
 OBJDIR_M4 = $(BUILD_DIR)/m4
@@ -57,9 +62,9 @@ OBJ_M0_C = $(patsubst %.c, $(OBJDIR_M0)/%.o, $(notdir $(SRC_M0_C)))
 OBJ_M0_S = $(patsubst %.s, $(OBJDIR_M0)/%.o, $(notdir $(SRC_M0_S)))
 
 ifeq ($(RUN_FROM),RAM)
-	LDSCRIPT_M4 = ../common/LPC4330_M4.ld
+	LDSCRIPT_M4 = $(PATH_HACKRF_FIRMWARE_COMMON)/LPC4330_M4.ld
 else
-	LDSCRIPT_M4 = ../common/LPC4330_M4_rom_to_ram.ld
+	LDSCRIPT_M4 = $(PATH_HACKRF_FIRMWARE_COMMON)/LPC4330_M4_rom_to_ram.ld
 endif
 
 PREFIX ?= arm-none-eabi
@@ -70,7 +75,7 @@ OBJDUMP = $(PREFIX)-objdump
 GDB = $(PREFIX)-gdb
 TOOLCHAIN_DIR := $(shell dirname `which $(CC)`)/../$(PREFIX)
 
-CFLAGS_COMMON += -std=gnu99 -Os -g3 -Wall -Wextra -I$(LIBOPENCM3)/include -I../common \
+CFLAGS_COMMON += -std=gnu99 -Os -g3 -Wall -Wextra -I$(LIBOPENCM3)/include -I$(PATH_HACKRF_FIRMWARE_COMMON) \
 		$(HACKRF_OPTS) -fno-common -mthumb -MD
 LDFLAGS_COMMON += -mthumb \
 		-L../common \
@@ -79,7 +84,7 @@ LDFLAGS_COMMON += -mthumb \
 		-Wl,--gc-sections \
 		-lc -lnosys
 CFLAGS_M0 += -mcpu=cortex-m0 -DLPC43XX_M0
-LDSCRIPT_M0 ?= ../common/LPC4330_M0.ld
+LDSCRIPT_M0 ?= $(PATH_HACKRF_FIRMWARE_COMMON)/LPC4330_M0.ld
 LDFLAGS_M0 += -mcpu=cortex-m0 -DLPC43XX_M0
 LDFLAGS_M0 += -T$(LDSCRIPT_M0)
 LDFLAGS_M0 += -Xlinker -Map=$(OBJDIR_M0)/m0.map
@@ -196,14 +201,14 @@ clean:
 	$(Q)rm -f *.list
 	$(Q)rm -f *.map
 	$(Q)rm -f *.lst
-	$(Q)rm -f ../hackrf_usb/*.o
-	$(Q)rm -f ../hackrf_usb/*.d
-	$(Q)rm -f ../hackrf_usb/*.lst
-	$(Q)rm -f ../common/*.o
-	$(Q)rm -f ../common/*.d
-	$(Q)rm -f ../common/*.lst
-	$(Q)rm -f ../common/xapp058/*.o
-	$(Q)rm -f ../common/xapp058/*.d
+	$(Q)rm -f $(PATH_HACKRF_FIRMWARE)/hackrf_usb/*.o
+	$(Q)rm -f $(PATH_HACKRF_FIRMWARE)/hackrf_usb/*.d
+	$(Q)rm -f $(PATH_HACKRF_FIRMWARE)/hackrf_usb/*.lst
+	$(Q)rm -f $(PATH_HACKRF_FIRMWARE_COMMON)/*.o
+	$(Q)rm -f $(PATH_HACKRF_FIRMWARE_COMMON)/*.d
+	$(Q)rm -f $(PATH_HACKRF_FIRMWARE_COMMON)/*.lst
+	$(Q)rm -f $(PATH_HACKRF_FIRMWARE_COMMON)/xapp058/*.o
+	$(Q)rm -f $(PATH_HACKRF_FIRMWARE_COMMON)/xapp058/*.d
 	$(Q)rm -f $(OBJDIR_M4)/*.o
 	$(Q)rm -f $(OBJDIR_M4)/*.d
 	$(Q)rm -f $(OBJDIR_M4)/*.elf
@@ -213,7 +218,6 @@ clean:
 	$(Q)rm -f $(OBJDIR_M0)/*.d
 	$(Q)rm -f $(OBJDIR_M0)/*.elf
 	$(Q)rm -f $(OBJDIR_M0)/*.bin
-	$(Q)rm -f $(OBJDIR_M0)/*.map
 	$(Q)rm -f $(OBJDIR_M0)/*.map
 	$(Q)rm -rf $(BUILD_DIR)
 
