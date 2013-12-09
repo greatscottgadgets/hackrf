@@ -39,6 +39,8 @@ void sgpio_dma_configure_lli(
 	const size_t bytes_per_word = 4;
 	const size_t transfer_words = (transfer_bytes + bytes_per_word - 1) / bytes_per_word;
 
+	gpdma_lli_create_loop(lli, lli_count);
+
 	for(size_t i=0; i<lli_count; i++) {
 		void* const peripheral_address = (void*)&SGPIO_REG_SS(0);
 		void* const memory_address = buffer + (transfer_words * bytes_per_word * i);
