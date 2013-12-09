@@ -46,7 +46,6 @@ void sgpio_dma_configure_lli(
 		const uint_fast8_t source_master = direction_transmit ? 1 : 0;
 		const uint_fast8_t destination_master = direction_transmit ? 0 : 1;
 		const uint_fast8_t lli_fetch_master = direction_transmit ? 0 : 1;
-		const uint_fast8_t interrupt_after_this_lli = i & 1;
 
 		lli[i].csrcaddr = direction_transmit ? memory_address : peripheral_address;
 		lli[i].cdestaddr = direction_transmit ? peripheral_address : memory_address;
@@ -64,7 +63,7 @@ void sgpio_dma_configure_lli(
 			GPDMA_CCONTROL_PROT1(0) |
 			GPDMA_CCONTROL_PROT2(0) |
 			GPDMA_CCONTROL_PROT3(0) |
-			GPDMA_CCONTROL_I(interrupt_after_this_lli)
+			GPDMA_CCONTROL_I(0)
 			;
 	}
 }

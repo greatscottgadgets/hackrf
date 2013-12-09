@@ -44,3 +44,7 @@ void gpdma_channel_interrupt_tc_clear(const uint_fast8_t channel) {
 void gpdma_channel_interrupt_error_clear(const uint_fast8_t channel) {
 	GPDMA_INTERRCLR = GPDMA_INTERRCLR_INTERRCLR(1 << channel);
 }
+
+void gpdma_lli_enable_interrupt(gpdma_lli_t* const lli) {
+	lli->ccontrol |= GPDMA_CCONTROL_I(1);
+}
