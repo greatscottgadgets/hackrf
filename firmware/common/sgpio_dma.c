@@ -49,7 +49,7 @@ void sgpio_dma_configure_lli(
 
 		lli[i].csrcaddr = direction_transmit ? memory_address : peripheral_address;
 		lli[i].cdestaddr = direction_transmit ? peripheral_address : memory_address;
-		lli[i].clli = (gpdma_lli_t*)((uint32_t)&lli[(i + 1) % lli_count] | lli_fetch_master);
+		lli[i].clli = (lli[i].clli & ~GPDMA_CLLI_LM_MASK) | GPDMA_CLLI_LM(lli_fetch_master);
 		lli[i].ccontrol =
 			GPDMA_CCONTROL_TRANSFERSIZE(transfer_words) |
 			GPDMA_CCONTROL_SBSIZE(0) |
@@ -130,7 +130,7 @@ size_t sgpio_dma_current_transfer_index(
 	const gpdma_lli_t* const lli,
 	const size_t lli_count
 ) {
-	const gpdma_lli_t* const next_lli = (gpdma_lli_t*)GPDMA_CLLI(dma_channel_sgpio);
+	const uint32_t next_lli = GPDMA_CLLI(dma_channel_sgpio);
 	for(size_t i=0; i<lli_count; i++) {
 		if( lli[i].clli == next_lli ) {
 			return i;
