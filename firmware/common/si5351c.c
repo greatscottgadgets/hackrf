@@ -103,11 +103,11 @@ void si5351c_power_down_all_clocks()
 /*
  * Register 183: Crystal Internal Load Capacitance
  * Reads as 0xE4 on power-up
- * Set to 10pF (until I find out what loading the crystal/PCB likes best)
+ * Set to 8pF based on crystal specs and HackRF One testing
  */
 void si5351c_set_crystal_configuration()
 {
-	uint8_t data[] = { 183, 0xE4 };
+	uint8_t data[] = { 183, 0x80 };
 	si5351c_write(data, sizeof(data));
 }
 
