@@ -37,7 +37,7 @@ $Descr User 17000 11000
 encoding utf-8
 Sheet 3 4
 Title "HackRF One baseband"
-Date "29 nov 2013"
+Date "12 dec 2013"
 Rev ""
 Comp "Copyright 2012 Michael Ossmann"
 Comment1 "License: GPL v2"
@@ -936,7 +936,7 @@ F 2 "" H 12100 3500 60  0001 C CNN
 F 3 "" H 12100 3500 60  0001 C CNN
 F 4 "Stackpole" H 12100 3500 60  0001 C CNN "Manufacturer"
 F 5 "RMCF0402FT4K70" H 12100 3500 60  0001 C CNN "Part Number"
-F 6 "RES 4.7KRES 4.7K OHM 1/16W 1% 0402 OHM 1/16W 5% 0402 SMD" H 12100 3500 60  0001 C CNN "Description"
+F 6 "RES 4.7K OHM 1/16W 1% 0402" H 12100 3500 60  0001 C CNN "Description"
 	1    12100 3500
 	1    0    0    -1  
 $EndComp
