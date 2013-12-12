@@ -1,4 +1,4 @@
-PCBNEW-BOARD Version 2 date Thu Dec 12 15:54:19 2013
+PCBNEW-BOARD Version 2 date Thu Dec 12 16:35:21 2013
 
 # Created by Pcbnew(2013-07-24 BZR 4024)-stable
 
@@ -36,7 +36,7 @@ Layer[0] Back signal
 Layer[1] Inner2 signal
 Layer[2] Inner3 signal
 Layer[15] Front signal
-TrackWidth 0.254
+TrackWidth 0.2794
 TrackWidthList 0.1524
 TrackWidthList 0.2032
 TrackWidthList 0.254
@@ -17002,7 +17002,7 @@ AR /50370666/527F334B
 Op 0 0 0
 .SolderMask 0.1016
 T0 0 0.0508 0.4064 0.4064 900 0.1016 N V 21 N "R33"
-T1 0 0.0508 0.4064 0.4064 900 0.1016 N I 21 N "0"
+T1 0 0.0508 0.4064 0.4064 900 0.1016 N I 21 N "39"
 DS 0.889 -0.381 0.889 0.381 0.2032 21
 DS 0.889 0.381 -0.889 0.381 0.2032 21
 DS -0.889 0.381 -0.889 -0.381 0.2032 21

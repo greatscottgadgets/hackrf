@@ -1,7 +1,7 @@
 (export (version D)
   (design
     (source /home/mossmann/src/hackrf/hardware/hackrf-one/hackrf-one.sch)
-    (date "Thu Dec 12 15:48:16 2013")
+    (date "Thu Dec 12 16:35:09 2013")
     (tool "eeschema (2013-07-24 BZR 4024)-stable"))
   (components
     (comp (ref C53)
@@ -2075,11 +2075,11 @@
       (sheetpath (names /baseband/) (tstamps /50370666/))
       (tstamp 527F2F05))
     (comp (ref R33)
-      (value 0)
+      (value 39)
       (fields
         (field (name Manufacturer) Stackpole)
-        (field (name "Part Number") RMCF0402ZT0R00)
-        (field (name Description) "RES 0.0 OHM 1/16W 0402 SMD"))
+        (field (name "Part Number") RMCF0402JT39R0)
+        (field (name Description) "RES 39 OHM 1/16W 5% 0402 SMD"))
       (libsource (lib device) (part R))
       (sheetpath (names /baseband/) (tstamps /50370666/))
       (tstamp 527F334B))
@@ -4400,10 +4400,10 @@
         (pin (num 7) (name HOLD) (type BiDi))
         (pin (num 8) (name VCC) (type power_in)))))
   (libraries
-    (library (logical conn)
-      (uri /usr/local/share/kicad/library/conn.lib))
     (library (logical device)
       (uri /usr/local/share/kicad/library/device.lib))
+    (library (logical conn)
+      (uri /usr/local/share/kicad/library/conn.lib))
     (library (logical hackrf)
       (uri ../kicad/hackrf.lib)))
   (nets
