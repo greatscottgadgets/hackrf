@@ -1,4 +1,4 @@
-Cmp-Mod V01 Created by CvPcb (2013-07-24 BZR 4024)-stable date = Thu Dec 12 15:48:27 2013
+Cmp-Mod V01 Created by PcbNew date = Thu Dec 12 16:40:10 2013
 
 BeginCmp
 TimeStamp = /503BB638/4FAECB99;
@@ -1537,7 +1537,7 @@ BeginCmp
 TimeStamp = /5037043E/4F838167;
 Reference = P20;
 ValeurCmp = GPIO;
-IdModule  = GSG-HEADER-2x12;
+IdModule  = GSG-HEADER-2x11;
 EndCmp
 
 BeginCmp
@@ -2292,7 +2292,7 @@ EndCmp
 BeginCmp
 TimeStamp = /50370666/527F334B;
 Reference = R33;
-ValeurCmp = 0;
+ValeurCmp = 39;
 IdModule  = GSG-0402;
 EndCmp
 
