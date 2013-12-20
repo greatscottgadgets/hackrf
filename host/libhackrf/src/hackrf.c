@@ -113,7 +113,7 @@ static const max2837_ft_t max2837_ft[] = {
 volatile bool do_exit = false;
 
 static const uint16_t hackrf_usb_vid = 0x1d50;
-static const uint16_t hackrf_usb_pid = 0x604b;
+static const uint16_t hackrf_usb_pid = 0xffff;
 
 static libusb_context* g_libusb_context = NULL;
 

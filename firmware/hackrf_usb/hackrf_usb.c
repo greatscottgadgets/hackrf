@@ -96,7 +96,7 @@ void update_switches(void)
 #define MIN_HP_FREQ_MHZ (2700)
 #define MAX_HP_FREQ_MHZ (6800)
 
-static uint32_t MAX2837_FREQ_NOMINAL_HZ=2600000000;
+static uint32_t MAX2837_FREQ_NOMINAL_HZ=2700000000;
 #define MAX2837_FREQ_NOMINAL_MHZ (MAX2837_FREQ_NOMINAL_HZ / FREQ_ONE_MHZ)
 
 uint32_t freq_mhz_cache=100, freq_hz_cache=0;
