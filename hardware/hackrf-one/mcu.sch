@@ -37,7 +37,7 @@ $Descr User 17000 11000
 encoding utf-8
 Sheet 4 4
 Title "HackRF One mcu/usb/power"
-Date "12 dec 2013"
+Date "23 dec 2013"
 Rev ""
 Comp "Copyright 2012 Michael Ossmann"
 Comment1 "License: GPL v2"
@@ -1585,9 +1585,9 @@ F 0 "P20" H 3450 8450 60  0000 C CNN
 F 1 "GPIO" V 3450 8150 50  0000 C CNN
 F 2 "" H 3450 8150 60  0001 C CNN
 F 3 "" H 3450 8150 60  0001 C CNN
-F 4 "Samtec" H 3450 8150 60  0001 C CNN "Manufacturer"
-F 5 "CES-111-01-T-D" H 3450 8150 60  0001 C CNN "Part Number"
-F 6 "CONN RCPT 22POS .100\" DUAL TIN" H 3450 8150 60  0001 C CNN "Description"
+F 4 "Sullins" H 3450 8150 60  0001 C CNN "Manufacturer"
+F 5 "PPPC112LFBN-RC" H 3450 8150 60  0001 C CNN "Part Number"
+F 6 "CONN HEADER FMAL 22PS.1\" DL GOLD" H 3450 8150 60  0001 C CNN "Description"
 	1    3450 8150
 	1    0    0    -1  
 $EndComp
@@ -1653,9 +1653,9 @@ F 0 "P28" H 7800 9500 60  0000 C CNN
 F 1 "SD" V 7800 9150 60  0000 C CNN
 F 2 "" H 7800 9150 60  0001 C CNN
 F 3 "" H 7800 9150 60  0001 C CNN
-F 4 "Samtec" H 7800 9150 60  0001 C CNN "Manufacturer"
-F 5 "CES-111-01-T-D" H 7800 9150 60  0001 C CNN "Part Number"
-F 6 "CONN RCPT 22POS .100\" DUAL TIN" H 7800 9150 60  0001 C CNN "Description"
+F 4 "Sullins" H 7800 9150 60  0001 C CNN "Manufacturer"
+F 5 "PPPC112LFBN-RC" H 7800 9150 60  0001 C CNN "Part Number"
+F 6 "CONN HEADER FMAL 22PS.1\" DL GOLD" H 7800 9150 60  0001 C CNN "Description"
 	1    7800 9150
 	1    0    0    -1  
 $EndComp
@@ -3051,9 +3051,9 @@ F 0 "P22" H 11950 3950 50  0000 C CNN
 F 1 "I2S" V 11950 3700 40  0000 C CNN
 F 2 "" H 11950 3700 60  0001 C CNN
 F 3 "" H 11950 3700 60  0001 C CNN
-F 4 "Samtec" H 11950 3700 60  0001 C CNN "Manufacturer"
-F 5 "CES-113-01-T-D" H 11950 3700 60  0001 C CNN "Part Number"
-F 6 "CONN RCPT 26POS .100\" DUAL TIN" H 11950 3700 60  0001 C CNN "Description"
+F 4 "Sullins" H 11950 3700 60  0001 C CNN "Manufacturer"
+F 5 "PPPC132LFBN-RC" H 11950 3700 60  0001 C CNN "Part Number"
+F 6 "CONN HEADER FMAL 26PS.1\" DL GOLD" H 11950 3700 60  0001 C CNN "Description"
 	1    11950 3700
 	1    0    0    -1  
 $EndComp

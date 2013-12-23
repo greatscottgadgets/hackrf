@@ -37,7 +37,7 @@ $Descr User 17000 11000
 encoding utf-8
 Sheet 3 4
 Title "HackRF One baseband"
-Date "12 dec 2013"
+Date "23 dec 2013"
 Rev ""
 Comp "Copyright 2012 Michael Ossmann"
 Comment1 "License: GPL v2"
@@ -3065,9 +3065,9 @@ F 0 "P9" H 11800 8400 60  0000 C CNN
 F 1 "BASEBAND" V 11800 7950 50  0000 C CNN
 F 2 "" H 11800 7950 60  0000 C CNN
 F 3 "" H 11800 7950 60  0000 C CNN
-F 4 "Samtec" H 11800 7950 60  0001 C CNN "Manufacturer"
-F 5 "CES-108-01-T-D" H 11800 7950 60  0001 C CNN "Part Number"
-F 6 "CONN RCPT 16POS .100\" DUAL TIN" H 11800 7950 60  0001 C CNN "Description"
+F 4 "Sullins" H 11800 7950 60  0001 C CNN "Manufacturer"
+F 5 "PPPC082LFBN-RC" H 11800 7950 60  0001 C CNN "Part Number"
+F 6 "CONN HEADER FMAL 16PS.1\" DL GOLD" H 11800 7950 60  0001 C CNN "Description"
 	1    11800 7950
 	1    0    0    -1  
 $EndComp
