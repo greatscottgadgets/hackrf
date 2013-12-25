@@ -24,7 +24,7 @@
 #include "usb_type.h"
 
 #define USB_VENDOR_ID			(0x1D50)
-#define USB_PRODUCT_ID			(0xFFFF)
+#define USB_PRODUCT_ID			(0x604B)
 
 #define USB_WORD(x)	(x & 0xFF), ((x >> 8) & 0xFF)
 
