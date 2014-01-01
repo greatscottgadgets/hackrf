@@ -190,16 +190,32 @@ bool sample_rate_set(const uint32_t sample_rate_hz) {
 
 #if (defined JAWBREAKER || defined HACKRF_ONE)
 	uint32_t p1 = 4608;
+	uint32_t p2 = 0;
+	uint32_t p3 = 0;
 	
  	switch(sample_rate_hz) {
 	case 8000000:
 		p1 = SI_INTDIV(50);	// 800MHz / 50 = 16 MHz (SGPIO), 8 MHz (codec)
 		break;
 		
+ 	case 9216000:
+ 		// 43.40277777777778: a = 43; b = 29; c = 72
+ 		p1 = 5043;
+ 		p2 = 40;
+ 		p3 = 72;
+ 		break;
+
  	case 10000000:
 		p1 = SI_INTDIV(40);	// 800MHz / 40 = 20 MHz (SGPIO), 10 MHz (codec)
  		break;
  
+ 	case 12288000:
+ 		// 32.552083333333336: a = 32; b = 159; c = 288
+ 		p1 = 3654;
+ 		p2 = 192;
+ 		p3 = 288;
+ 		break;
+
  	case 12500000:
 		p1 = SI_INTDIV(32);	// 800MHz / 32 = 25 MHz (SGPIO), 12.5 MHz (codec)
  		break;
@@ -208,6 +224,13 @@ bool sample_rate_set(const uint32_t sample_rate_hz) {
 		p1 = SI_INTDIV(25);	// 800MHz / 25 = 32 MHz (SGPIO), 16 MHz (codec)
  		break;
  	
+ 	case 18432000:
+ 		// 21.70138888889: a = 21; b = 101; c = 144
+ 		p1 = 2265;
+ 		p2 = 112;
+ 		p3 = 144;
+ 		break;
+
  	case 20000000:
 		p1 = SI_INTDIV(20);	// 800MHz / 20 = 40 MHz (SGPIO), 20 MHz (codec)
  		break;
@@ -217,7 +240,7 @@ bool sample_rate_set(const uint32_t sample_rate_hz) {
 	}
 	
 	/* MS0/CLK0 is the source for the MAX5864/CPLD (CODEC_CLK). */
-	si5351c_configure_multisynth(0, p1, 0, 1, 1);
+	si5351c_configure_multisynth(0, p1, p2, p3, 1);
 
 	/* MS0/CLK1 is the source for the CPLD (CODEC_X2_CLK). */
 	si5351c_configure_multisynth(1, p1, 0, 1, 0);//p1 doesn't matter
