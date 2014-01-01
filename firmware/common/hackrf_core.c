@@ -319,9 +319,10 @@ void cpu_clock_init(void)
  	/* MS5/CLK5 is the source for the MAX2837 clock input. */
 	si5351c_configure_multisynth(5, 20*128-512, 0, 1, 0); /* 800/20 = 40MHz */
 
+	/* MS6/CLK6 is unused. */
 	/* MS7/CLK7 is the source for the LPC43xx microcontroller. */
-	//uint8_t ms7data[] = { 91, 40, 0x0 };
-	//si5351c_write(ms7data, sizeof(ms7data));
+	uint8_t ms7data[] = { 90, 255, 20, 0 };
+	si5351c_write(ms7data, sizeof(ms7data));
 #endif
 
 	/* Set to 10 MHz, the common rate between Jellybean and Jawbreaker. */
