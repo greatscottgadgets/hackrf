@@ -262,8 +262,8 @@ void sgpio_configure(
 			  SGPIO_POS_POS_RESET(0x1f)
 			| SGPIO_POS_POS(0x1f)
 			;
-		SGPIO_REG(slice_gpdma) = 0x77777777;     // Primary output data register, LSB -> out
-		SGPIO_REG_SS(slice_gpdma) = 0x77777777;  // Shadow output data register, LSB -> out1
+		SGPIO_REG(slice_gpdma) = 0x11111111;     // Primary output data register, LSB -> out
+		SGPIO_REG_SS(slice_gpdma) = 0x11111111;  // Shadow output data register, LSB -> out1
 		
 		slice_enable_mask |= (1 << slice_gpdma);
 	}
