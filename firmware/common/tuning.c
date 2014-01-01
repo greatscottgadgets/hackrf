@@ -40,19 +40,22 @@
 
 static uint32_t max2837_freq_nominal_hz=2560000000;
 
-uint32_t freq_mhz_cache=100, freq_hz_cache=0;
+uint64_t freq_cache = 100000000;
 /*
  * Set freq/tuning between 5MHz to 6800 MHz (less than 16bits really used)
  * hz between 0 to 999999 Hz (not checked)
  * return false on error or true if success.
  */
-bool set_freq(uint32_t freq_mhz, uint32_t freq_hz)
+bool set_freq(const uint64_t freq)
 {
 	bool success;
 	uint32_t RFFC5071_freq_mhz;
 	uint32_t MAX2837_freq_hz;
 	uint32_t real_RFFC5071_freq_hz;
 	uint32_t tmp_hz;
+
+	const uint32_t freq_mhz = freq / 1000000;
+	const uint32_t freq_hz = freq % 1000000;
 
 	success = true;
 
@@ -107,8 +110,7 @@ bool set_freq(uint32_t freq_mhz, uint32_t freq_hz)
 		success = false;
 	}
 	max2837_set_mode(prior_max2837_mode);
-	freq_mhz_cache = freq_mhz;
-	freq_hz_cache = freq_hz;
+	freq_cache = freq;
 	return success;
 }
 
@@ -116,7 +118,7 @@ bool set_freq_if(const uint32_t freq_if_hz) {
 	bool success = false;
 	if( (freq_if_hz >= MIN_BYPASS_FREQ_MHZ) && (freq_if_hz <= MAX_BYPASS_FREQ_MHZ) ) {
 		max2837_freq_nominal_hz = freq_if_hz;
-		success = set_freq(freq_mhz_cache, freq_hz_cache);
+		success = set_freq(freq_cache);
 	}
 	return success;
 }

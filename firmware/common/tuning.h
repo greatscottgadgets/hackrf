@@ -26,7 +26,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-bool set_freq(uint32_t freq_mhz, uint32_t freq_hz);
+bool set_freq(const uint64_t freq);
 bool set_freq_if(const uint32_t freq_if_hz);
 
 #endif/*__TUNING_H__*/

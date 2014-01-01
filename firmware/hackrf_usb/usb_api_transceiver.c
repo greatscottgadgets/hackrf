@@ -75,7 +75,8 @@ usb_request_status_t usb_vendor_request_set_freq(
 		return USB_REQUEST_STATUS_OK;
 	} else if (stage == USB_TRANSFER_STAGE_DATA) 
 	{
-		if( set_freq(set_freq_params.freq_mhz, set_freq_params.freq_hz) ) 
+		const uint64_t freq = set_freq_params.freq_mhz * 1000000 + set_freq_params.freq_hz;
+		if( set_freq(freq) ) 
 		{
 			usb_transfer_schedule_ack(endpoint->in);
 			return USB_REQUEST_STATUS_OK;
