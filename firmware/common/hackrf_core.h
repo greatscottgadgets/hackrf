@@ -198,6 +198,8 @@ extern "C"
 
 #define SCU_PINMUX_ISP      (P2_7)  /* GPIO0[7] */
 
+#define SCU_PINMUX_GP_CLKIN	(P4_7)
+
 /*
  * GPIO Pins
  */

@@ -614,7 +614,7 @@ void pin_setup(void) {
 	scu_pinmux(SCU_SSP1_SSEL, (SCU_SSP_IO | SCU_CONF_FUNCTION1));
 	
 	/* Configure external clock in */
-	//scu_pinmux(P4_7, SCU_CLK_IN | SCU_CONF_FUNCTION1);
+	scu_pinmux(SCU_PINMUX_GP_CLKIN, SCU_CLK_IN | SCU_CONF_FUNCTION1);
 
 	sgpio_configure_pin_functions();
 }
