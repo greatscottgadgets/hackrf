@@ -22,7 +22,7 @@
 
 MEMORY
 {
-	ram (rwx) : ORIGIN = 0x00000000, LENGTH = 4K
+	ram (rwx) : ORIGIN = 0x00000000, LENGTH = 32K
 }
 
 /* Include the common ld script. */

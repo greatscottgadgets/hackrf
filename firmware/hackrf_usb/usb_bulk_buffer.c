@@ -22,6 +22,6 @@
 
 #include "usb_bulk_buffer.h"
 
-uint8_t* const usb_bulk_buffer = (uint8_t*)0x20004000;
+uint8_t* const usb_bulk_buffer = (uint8_t*)0x20008000;
 const uint32_t usb_bulk_buffer_mask = 32768 - 1;
 volatile uint32_t usb_bulk_buffer_offset = 0;

@@ -35,7 +35,7 @@ MEMORY
 	 * to get performance benefit of having two USB buffers addressable
 	 * simultaneously (on two different buses of the AHB multilayer matrix)
 	 */
-	ram_m0 (rwx) : ORIGIN = 0x2000C000, LENGTH = 16K
+	ram_m0 (rwx) : ORIGIN = 0x20000000, LENGTH = 32K
 }
 
 /* Include the common ld script. */
@@ -43,7 +43,7 @@ INCLUDE libopencm3_lpc43xx.ld
 
 SECTIONS
 {
-	.m0 0x2000C000 : {
+	.m0 0x20000000 : {
 		PROVIDE(__m0_start__ = .);
 		KEEP(*(.m0_bin*));
 		. = ALIGN(4);
