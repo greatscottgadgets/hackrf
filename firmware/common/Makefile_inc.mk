@@ -87,6 +87,7 @@ CFLAGS_M0 += -mcpu=cortex-m0 -DLPC43XX_M0
 LDSCRIPT_M0 ?= $(PATH_HACKRF_FIRMWARE_COMMON)/LPC4330_M0.ld
 LDFLAGS_M0 += -mcpu=cortex-m0 -DLPC43XX_M0
 LDFLAGS_M0 += -T$(LDSCRIPT_M0)
+LDFLAGS_M0 += --specs=nano.specs
 LDFLAGS_M0 += -Xlinker -Map=$(OBJDIR_M0)/m0.map
 LDFLAGS_M0 += -lopencm3_lpc43xx_m0
 
