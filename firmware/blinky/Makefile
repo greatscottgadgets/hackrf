@@ -26,7 +26,10 @@ BINARY = blinky
 SRC = $(BINARY).c \
 	../common/hackrf_core.c \
 	../common/sgpio.c \
+	../common/rf_path.c \
 	../common/si5351c.c \
-	../common/max2837.c
+	../common/max2837.c \
+	../common/max5864.c \
+	../common/rffc5071.c
 
 include ../common/Makefile_inc.mk

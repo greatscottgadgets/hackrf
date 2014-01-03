@@ -31,7 +31,8 @@
 #include <sgpio.h>
 
 void tx_test() {
-	sgpio_configure(TRANSCEIVER_MODE_TX, false);
+	sgpio_set_slice_mode(false);
+	sgpio_configure(TRANSCEIVER_MODE_TX);
 
 	// LSB goes out first, samples are 0x<Q1><I1><Q0><I0>
 	volatile uint32_t buffer[] = {
@@ -52,7 +53,8 @@ void tx_test() {
 }
 
 void rx_test() {
-	sgpio_configure(TRANSCEIVER_MODE_RX, false);
+	sgpio_set_slice_mode(false);
+	sgpio_configure(TRANSCEIVER_MODE_RX);
     
     volatile uint32_t buffer[4096];
     uint32_t i = 0;
