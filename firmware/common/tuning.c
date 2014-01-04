@@ -110,7 +110,9 @@ bool set_freq(const uint64_t freq)
 		success = false;
 	}
 	max2837_set_mode(prior_max2837_mode);
-	freq_cache = freq;
+	if( success ) {
+		freq_cache = freq;
+	}
 	return success;
 }
 
