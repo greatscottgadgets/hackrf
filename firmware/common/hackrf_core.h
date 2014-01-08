@@ -79,9 +79,13 @@ extern "C"
 /* CPLD JTAG interface */
 #define SCU_PINMUX_CPLD_TDO (P9_5)  /* GPIO5[18] */
 #define SCU_PINMUX_CPLD_TCK (P6_1)  /* GPIO3[ 0] */
-//FIXME swap TDI and TMS once more recent HackRF One PCBs are built:
+#ifdef HACKRF_ONE
+#define SCU_PINMUX_CPLD_TMS (P6_5)  /* GPIO3[ 4] */
+#define SCU_PINMUX_CPLD_TDI (P6_2)  /* GPIO3[ 1] */
+#else
 #define SCU_PINMUX_CPLD_TMS (P6_2)  /* GPIO3[ 1] */
 #define SCU_PINMUX_CPLD_TDI (P6_5)  /* GPIO3[ 4] */
+#endif
 
 /* CPLD SGPIO interface */
 #define SCU_PINMUX_SGPIO0   (P0_0)
@@ -313,11 +317,18 @@ extern "C"
 #define PORT_CPLD_TDO   (GPIO5)
 #define PIN_CPLD_TCK    (GPIOPIN0)
 #define PORT_CPLD_TCK   (GPIO3)
+#ifdef HACKRF_ONE
+#define PIN_CPLD_TMS    (GPIOPIN4)
+#define PORT_CPLD_TMS   (GPIO3)
+#define PIN_CPLD_TDI    (GPIOPIN1)
+#define PORT_CPLD_TDI   (GPIO3)
+#else
 #define PIN_CPLD_TMS    (GPIOPIN1)
 #define PORT_CPLD_TMS   (GPIO3)
 #define PIN_CPLD_TDI    (GPIOPIN4)
 #define PORT_CPLD_TDI   (GPIO3)
-
+#endif
+ 
 /* Read GPIO Pin */
 #define GPIO_STATE(port, pin) ((GPIO_PIN(port) & (pin)) == (pin))
 #define BOOT0_STATE       GPIO_STATE(GPIO0, PIN_BOOT0)
