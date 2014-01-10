@@ -1,7 +1,7 @@
 (export (version D)
   (design
     (source /home/mossmann/src/hackrf/hardware/hackrf-one/hackrf-one.sch)
-    (date "Fri Jan 10 12:03:37 2014")
+    (date "Fri Jan 10 12:57:14 2014")
     (tool "eeschema (2013-07-24 BZR 4024)-stable"))
   (components
     (comp (ref C53)
@@ -903,9 +903,9 @@
     (comp (ref P4)
       (value ANTENNA)
       (fields
-        (field (name Manufacturer) "Linx Technologies")
-        (field (name "Part Number") CONSMA003.062)
-        (field (name Description) "CONN SMA JACK 50 OHM EDGE MNT"))
+        (field (name Manufacturer) Molex)
+        (field (name "Part Number") 73251-2121)
+        (field (name Description) "CONN SMA JACK 50 OHM EDGE MNT W/JAM NUT & LOCK WASHER"))
       (libsource (lib hackrf) (part GSG-RF-CONN))
       (sheetpath (names /frontend/) (tstamps /503BB638/))
       (tstamp 4F94D0F2))
@@ -1277,9 +1277,9 @@
     (comp (ref P2)
       (value CLKOUT)
       (fields
-        (field (name Manufacturer) "Linx Technologies")
-        (field (name "Part Number") CONSMA003.062)
-        (field (name Description) "CONN SMA JACK 50 OHM EDGE MNT"))
+        (field (name Manufacturer) Molex)
+        (field (name "Part Number") 73251-2121)
+        (field (name Description) "CONN SMA JACK 50 OHM EDGE MNT W/JAM NUT & LOCK WASHER"))
       (libsource (lib hackrf) (part GSG-RF-CONN))
       (sheetpath (names /baseband/) (tstamps /50370666/))
       (tstamp 50462549))
@@ -1849,9 +1849,9 @@
     (comp (ref P16)
       (value CLKIN)
       (fields
-        (field (name Manufacturer) "Linx Technologies")
-        (field (name "Part Number") CONSMA003.062)
-        (field (name Description) "CONN SMA JACK 50 OHM EDGE MNT"))
+        (field (name Manufacturer) Molex)
+        (field (name "Part Number") 73251-2121)
+        (field (name Description) "CONN SMA JACK 50 OHM EDGE MNT W/JAM NUT & LOCK WASHER"))
       (libsource (lib hackrf) (part GSG-RF-CONN))
       (sheetpath (names /baseband/) (tstamps /50370666/))
       (tstamp 4F5D16D6))
