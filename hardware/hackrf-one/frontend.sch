@@ -37,7 +37,7 @@ $Descr User 17000 11000
 encoding utf-8
 Sheet 2 4
 Title "HackRF One frontend"
-Date "23 dec 2013"
+Date "10 jan 2014"
 Rev ""
 Comp "Copyright 2012 Michael Ossmann"
 Comment1 "License: GPL v2"
@@ -389,10 +389,6 @@ Wire Wire Line
 Connection ~ 5200 4750
 Wire Wire Line
 	5100 4750 5200 4750
-Connection ~ 16400 8750
-Wire Wire Line
-	16400 8650 16400 9050
-Connection ~ 16400 8950
 Wire Wire Line
 	10700 2150 10800 2150
 Wire Wire Line
@@ -407,7 +403,6 @@ Wire Wire Line
 	4100 3250 4200 3250
 Wire Wire Line
 	10700 3700 10800 3700
-Connection ~ 16400 8850
 Wire Wire Line
 	4400 4750 4500 4750
 Wire Wire Line
@@ -2869,12 +2864,12 @@ $EndComp
 $Comp
 L GND #PWR73
 U 1 1 4FAA165E
-P 16400 9050
-F 0 "#PWR73" H 16400 9050 30  0001 C CNN
-F 1 "GND" H 16400 8980 30  0001 C CNN
-F 2 "" H 16400 9050 60  0001 C CNN
-F 3 "" H 16400 9050 60  0001 C CNN
-	1    16400 9050
+P 16100 8950
+F 0 "#PWR73" H 16100 8950 30  0001 C CNN
+F 1 "GND" H 16100 8880 30  0001 C CNN
+F 2 "" H 16100 8950 60  0001 C CNN
+F 3 "" H 16100 8950 60  0001 C CNN
+	1    16100 8950
 	1    0    0    -1  
 $EndComp
 $Comp
@@ -3011,7 +3006,7 @@ F 6 "FILTER HIGHPASS WLAN&BLUETOOTH" H 11400 3850 60  0001 C CNN "Description"
 	1    0    0    -1  
 $EndComp
 $Comp
-L GSG-SMA-CONN P4
+L GSG-RF-CONN P4
 U 1 1 4F94D0F2
 P 16100 8450
 F 0 "P4" H 16100 8600 60  0000 C CNN
@@ -3833,4 +3828,6 @@ Wire Wire Line
 	2600 10000 2600 10100
 Text Notes 2350 10250 0    40   ~ 0
 optional alligator\nclip test point
+Wire Wire Line
+	16100 8850 16100 8950
 $EndSCHEMATC

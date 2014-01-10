@@ -1,4 +1,4 @@
-Cmp-Mod V01 Created by PcbNew date = Thu Dec 12 16:40:10 2013
+Cmp-Mod V01 Created by CvPcb (2013-07-24 BZR 4024)-stable date = Fri Jan 10 12:04:11 2014
 
 BeginCmp
 TimeStamp = /503BB638/4FAECB99;
@@ -1432,7 +1432,7 @@ BeginCmp
 TimeStamp = /50370666/50462549;
 Reference = P2;
 ValeurCmp = CLKOUT;
-IdModule  = GSG-SMA-EDGE;
+IdModule  = GSG-SMA-73251-2120;
 EndCmp
 
 BeginCmp
@@ -1446,7 +1446,7 @@ BeginCmp
 TimeStamp = /503BB638/4F94D0F2;
 Reference = P4;
 ValeurCmp = ANTENNA;
-IdModule  = GSG-SMA-EDGE;
+IdModule  = GSG-SMA-73251-2120;
 EndCmp
 
 BeginCmp
@@ -1509,7 +1509,7 @@ BeginCmp
 TimeStamp = /50370666/4F5D16D6;
 Reference = P16;
 ValeurCmp = CLKIN;
-IdModule  = GSG-SMA-EDGE;
+IdModule  = GSG-SMA-73251-2120;
 EndCmp
 
 BeginCmp
