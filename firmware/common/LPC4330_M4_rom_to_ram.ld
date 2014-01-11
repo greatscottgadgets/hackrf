@@ -32,11 +32,14 @@ MEMORY
 	ram_local1 (rwx) : ORIGIN = 0x10000000, LENGTH =  128K
 	ram_local2 (rwx) : ORIGIN = 0x10080000, LENGTH =  64K
 	ram_sleep (rwx) : ORIGIN = 0x10090000, LENGTH = 8K
-	/* Removed 32K of AHB SRAM for USB buffer. Straddles two blocks of RAM
+	ram_m0 (rwx) : ORIGIN = 0x20000000, LENGTH = 28K
+	ram_shared (rwx) : ORIGIN = 0x20007000, LENGTH =  4K
+	ram_usb0 (rwx) : ORIGIN = 0x20008000, LENGTH = 16K
+	ram_usb1 (rwx) : ORIGIN = 0x2000c000, LENGTH = 16K
+	/* ram_usb[01]: USB buffer. Straddles two blocks of RAM
 	 * to get performance benefit of having two USB buffers addressable
 	 * simultaneously (on two different buses of the AHB multilayer matrix)
 	 */
-	ram_m0 (rwx) : ORIGIN = 0x20000000, LENGTH = 28K
 }
 
 /* Include the common ld script. */
