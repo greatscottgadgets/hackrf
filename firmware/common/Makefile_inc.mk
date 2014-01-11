@@ -154,15 +154,15 @@ $(BINARY).list: $(BINARY).elf
 
 $(BINARY).elf: obj_m4
 	@#printf "  LD      $(subst $(shell pwd)/,,$(@))\n"
-	$(Q)$(LD) -o $(BINARY).elf $(OBJ_M4_C) $(OBJDIR_M4)/m0_bin.o $(LDFLAGS_COMMON) $(LDFLAGS_M4)
+	$(Q)$(LD) -o $(BINARY).elf $(OBJ_M4_C) $(OBJ_M4_S) $(OBJDIR_M4)/m0_bin.o $(LDFLAGS_COMMON) $(LDFLAGS_M4)
 
 $(OBJDIR_M0)/m0.elf: obj_m0
 	@#printf "  LD      $(subst $(shell pwd)/,,$(@))\n"
-	$(Q)$(LD) -o $(OBJDIR_M0)/m0.elf $(OBJ_M0_C) $(LDFLAGS_COMMON) $(LDFLAGS_M0)
+	$(Q)$(LD) -o $(OBJDIR_M0)/m0.elf $(OBJ_M0_C) $(OBJ_M0_S) $(LDFLAGS_COMMON) $(LDFLAGS_M0)
 
-obj_m4: $(OBJ_M4_C) $(OBJDIR_M4)/m0_bin.o
+obj_m4: $(OBJ_M4_C) $(OBJ_M4_S) $(OBJDIR_M4)/m0_bin.o
 
-obj_m0: $(OBJ_M0_C)
+obj_m0: $(OBJ_M0_C) $(OBJ_M0_S)
 
 $(OBJDIR_M4)/%.o: %.c | $(OBJDIR_M4)
 	@printf "  CC      $(subst $(shell pwd)/,,$(@))\n"
