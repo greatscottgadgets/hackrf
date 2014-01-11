@@ -35,7 +35,7 @@ MEMORY
 	 * to get performance benefit of having two USB buffers addressable
 	 * simultaneously (on two different buses of the AHB multilayer matrix)
 	 */
-	ram_m0 (rwx) : ORIGIN = 0x20000000, LENGTH = 32K
+	ram_m0 (rwx) : ORIGIN = 0x20000000, LENGTH = 28K
 }
 
 /* Include the common ld script. */
