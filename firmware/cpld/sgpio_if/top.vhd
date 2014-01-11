@@ -104,7 +104,7 @@ begin
     begin
         if rising_edge(host_clk_i) then
 		      if codec_clk_i = '1' then
-				    if decimate_count = "111" then
+				    if decimate_count = "111" or host_data_enable_i = '0' then
 						  decimate_count <= decimate_sel_i;
 					 else
 					     decimate_count <= decimate_count + 1;
