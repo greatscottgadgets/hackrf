@@ -1,4 +1,4 @@
-PCBNEW-BOARD Version 2 date Sat Jan 11 08:09:55 2014
+PCBNEW-BOARD Version 2 date Sat Jan 11 09:19:34 2014
 
 # Created by Pcbnew(2013-07-24 BZR 4024)-stable
 
@@ -21051,7 +21051,7 @@ Po 164.9 101.3 1.016 1.016 0.1778 0
 De 15 1 0 Normal
 $EndTEXTPCB
 $TEXTPCB
-Te "10 January 2014"
+Te "11 January 2014"
 Po 78.796 113.278 1.27 1.778 0.3048 900
 De 21 1 0 Normal
 $EndTEXTPCB
