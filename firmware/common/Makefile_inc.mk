@@ -29,7 +29,13 @@
 BOARD ?= JAWBREAKER
 RUN_FROM ?= SPIFI
 
-HACKRF_OPTS = -D$(BOARD) -DLPC43XX
+ifeq ($(BOARD),HACKRF_ONE)
+	MCU_PARTNO=LPC4320
+else
+	MCU_PARTNO=LPC4330
+endif
+
+HACKRF_OPTS = -D$(BOARD) -DLPC43XX -D$(MCU_PARTNO)
 
 # comment to disable RF transmission
 HACKRF_OPTS += -DTX_ENABLE
@@ -62,9 +68,9 @@ OBJ_M0_C = $(patsubst %.c, $(OBJDIR_M0)/%.o, $(notdir $(SRC_M0_C)))
 OBJ_M0_S = $(patsubst %.s, $(OBJDIR_M0)/%.o, $(notdir $(SRC_M0_S)))
 
 ifeq ($(RUN_FROM),RAM)
-	LDSCRIPT_M4 = $(PATH_HACKRF_FIRMWARE_COMMON)/LPC4330_M4.ld
+	LDSCRIPT_M4 = $(PATH_HACKRF_FIRMWARE_COMMON)/$(MCU_PARTNO)_M4.ld
 else
-	LDSCRIPT_M4 = $(PATH_HACKRF_FIRMWARE_COMMON)/LPC4330_M4_rom_to_ram.ld
+	LDSCRIPT_M4 = $(PATH_HACKRF_FIRMWARE_COMMON)/$(MCU_PARTNO)_M4_rom_to_ram.ld
 endif
 
 PREFIX ?= arm-none-eabi
@@ -84,7 +90,7 @@ LDFLAGS_COMMON += -mthumb \
 		-Wl,--gc-sections \
 		-lc -lnosys
 CFLAGS_M0 += -mcpu=cortex-m0 -DLPC43XX_M0
-LDSCRIPT_M0 ?= $(PATH_HACKRF_FIRMWARE_COMMON)/LPC4330_M0.ld
+LDSCRIPT_M0 ?= $(PATH_HACKRF_FIRMWARE_COMMON)/$(MCU_PARTNO)_M0.ld
 LDFLAGS_M0 += -mcpu=cortex-m0 -DLPC43XX_M0
 LDFLAGS_M0 += -T$(LDSCRIPT_M0)
 LDFLAGS_M0 += --specs=nano.specs
