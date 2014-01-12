@@ -20,10 +20,12 @@
  * Boston, MA 02110-1301, USA.
  */
 
-MEMORY
+SECTIONS
 {
-	ram (rwx) : ORIGIN = 0x00000000, LENGTH = 28K
+	.text : {
+		PROVIDE(__m0_start__ = .);
+		KEEP(*(.m0_bin*));
+		. = ALIGN(4);
+		PROVIDE(__m0_end__ = .);
+	} >rom
 }
-
-/* Include the common ld script. */
-INCLUDE libopencm3_lpc43xx_m0_ram_only.ld

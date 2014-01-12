@@ -1,6 +1,5 @@
 /*
  * Copyright 2012 Michael Ossmann <mike@ossmann.com>
- * Copyright (C) 2012 Benjamin Vernoux <titanmkd@gmail.com>
  * Copyright 2012 Jared Boone <jared@sharebrained.com>
  *
  * This file is part of HackRF
@@ -25,33 +24,11 @@
 
 MEMORY
 {
-	/* Physical address in Flash used to copy Code from Flash to RAM */
-	rom_flash (rx)  : ORIGIN = 0x80000000, LENGTH =  1M
 	/* rom is really the shadow region that points to SPI flash or elsewhere */
 	rom (rx)  : ORIGIN = 0x00000000, LENGTH =  96K
 	ram_local1 (rwx) : ORIGIN = 0x10000000, LENGTH =  96K
 	ram_local2 (rwx) : ORIGIN = 0x10080000, LENGTH =  32K
 	ram_sleep (rwx) : ORIGIN = 0x10088000, LENGTH = 8K
-	ram_m0 (rwx) : ORIGIN = 0x20000000, LENGTH = 28K
-	ram_shared (rwx) : ORIGIN = 0x20007000, LENGTH =  4K
-	ram_usb (rwx) : ORIGIN = 0x20008000, LENGTH = 32K
-	/* ram_usb: USB buffer. Straddles two blocks of RAM
-	 * to get performance benefit of having two USB buffers addressable
-	 * simultaneously (on two different buses of the AHB multilayer matrix)
-	 */
 }
 
-usb_bulk_buffer = ORIGIN(ram_usb);
-
-/* Include the common ld script. */
-INCLUDE libopencm3_lpc43xx_rom_to_ram.ld
-
-SECTIONS
-{
-	.text : {
-		PROVIDE(__m0_start__ = .);
-		KEEP(*(.m0_bin*));
-		. = ALIGN(4);
-		PROVIDE(__m0_end__ = .);
-	} >rom
-}
+INCLUDE LPC43xx_M4_memory.ld

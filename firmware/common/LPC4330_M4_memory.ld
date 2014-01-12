@@ -20,10 +20,15 @@
  * Boston, MA 02110-1301, USA.
  */
 
+/* Linker script for HackRF Jellybean/Jawbreaker (LPC4330, 1M SPI flash, 264K SRAM). */
+
 MEMORY
 {
-	ram (rwx) : ORIGIN = 0x00000000, LENGTH = 28K
+	/* rom is really the shadow region that points to SPI flash or elsewhere */
+	rom (rx)  : ORIGIN = 0x00000000, LENGTH =  128K
+	ram_local1 (rwx) : ORIGIN = 0x10000000, LENGTH =  128K
+	ram_local2 (rwx) : ORIGIN = 0x10080000, LENGTH =  64K
+	ram_sleep (rwx) : ORIGIN = 0x10090000, LENGTH = 8K
 }
 
-/* Include the common ld script. */
-INCLUDE libopencm3_lpc43xx_m0_ram_only.ld
+INCLUDE LPC43xx_M4_memory.ld

@@ -67,11 +67,17 @@ OBJ_M4_S = $(patsubst %.s, $(OBJDIR_M4)/%.o, $(notdir $(SRC_M4_S)))
 OBJ_M0_C = $(patsubst %.c, $(OBJDIR_M0)/%.o, $(notdir $(SRC_M0_C)))
 OBJ_M0_S = $(patsubst %.s, $(OBJDIR_M0)/%.o, $(notdir $(SRC_M0_S)))
 
+LDSCRIPT_M4 += -T$(PATH_HACKRF_FIRMWARE_COMMON)/$(MCU_PARTNO)_M4_memory.ld
 ifeq ($(RUN_FROM),RAM)
-	LDSCRIPT_M4 = $(PATH_HACKRF_FIRMWARE_COMMON)/$(MCU_PARTNO)_M4.ld
+	LDSCRIPT_M4 += -Tlibopencm3_lpc43xx.ld
+	LDSCRIPT_M4 += -T$(PATH_HACKRF_FIRMWARE_COMMON)/LPC43xx_M4_M0_image_in_ram.ld
 else
-	LDSCRIPT_M4 = $(PATH_HACKRF_FIRMWARE_COMMON)/$(MCU_PARTNO)_M4_rom_to_ram.ld
+	LDSCRIPT_M4 += -Tlibopencm3_lpc43xx_rom_to_ram.ld
+	LDSCRIPT_M4 += -T$(PATH_HACKRF_FIRMWARE_COMMON)/LPC43xx_M4_M0_image_from_spifi.ld
 endif
+
+LDSCRIPT_M0 += -T$(PATH_HACKRF_FIRMWARE_COMMON)/LPC43xx_M0_memory.ld
+LDSCRIPT_M0 += -Tlibopencm3_lpc43xx_m0_ram_only.ld
 
 PREFIX ?= arm-none-eabi
 CC = $(PREFIX)-gcc
@@ -90,9 +96,8 @@ LDFLAGS_COMMON += -mthumb \
 		-Wl,--gc-sections \
 		-lc -lnosys
 CFLAGS_M0 += -mcpu=cortex-m0 -DLPC43XX_M0
-LDSCRIPT_M0 ?= $(PATH_HACKRF_FIRMWARE_COMMON)/$(MCU_PARTNO)_M0.ld
 LDFLAGS_M0 += -mcpu=cortex-m0 -DLPC43XX_M0
-LDFLAGS_M0 += -T$(LDSCRIPT_M0)
+LDFLAGS_M0 += $(LDSCRIPT_M0)
 LDFLAGS_M0 += --specs=nano.specs
 LDFLAGS_M0 += -Xlinker -Map=$(OBJDIR_M0)/m0.map
 LDFLAGS_M0 += -lopencm3_lpc43xx_m0
@@ -100,7 +105,7 @@ LDFLAGS_M0 += -lopencm3_lpc43xx_m0
 CFLAGS_M4 += -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -DLPC43XX_M4
 LDFLAGS_M4 += -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -DLPC43XX_M4
 LDFLAGS_M4 += -L$(TOOLCHAIN_DIR)/lib/armv7e-m/fpu
-LDFLAGS_M4 += -T$(LDSCRIPT_M4)
+LDFLAGS_M4 += $(LDSCRIPT_M4)
 LDFLAGS_M4 += -Xlinker -Map=$(OBJDIR_M4)/m4.map
 LDFLAGS_M4 += -lopencm3_lpc43xx -lm
 
