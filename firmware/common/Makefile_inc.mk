@@ -90,7 +90,7 @@ TOOLCHAIN_DIR := $(shell dirname `which $(CC)`)/../$(PREFIX)
 CFLAGS_COMMON += -std=gnu99 -Os -g3 -Wall -Wextra -I$(LIBOPENCM3)/include -I$(PATH_HACKRF_FIRMWARE_COMMON) \
 		$(HACKRF_OPTS) -fno-common -mthumb -MD
 LDFLAGS_COMMON += -mthumb \
-		-L../common \
+		-L$(PATH_HACKRF_FIRMWARE_COMMON) \
 		-L$(LIBOPENCM3)/lib -L$(LIBOPENCM3)/lib/lpc43xx \
 		-nostartfiles \
 		-Wl,--gc-sections \
