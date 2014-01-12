@@ -33,13 +33,14 @@ MEMORY
 	ram_sleep (rwx) : ORIGIN = 0x10090000, LENGTH = 8K
 	ram_m0 (rwx) : ORIGIN = 0x20000000, LENGTH = 28K
 	ram_shared (rwx) : ORIGIN = 0x20007000, LENGTH =  4K
-	ram_usb0 (rwx) : ORIGIN = 0x20008000, LENGTH = 16K
-	ram_usb1 (rwx) : ORIGIN = 0x2000c000, LENGTH = 16K
-	/* ram_usb[01]: USB buffer. Straddles two blocks of RAM
+	ram_usb (rwx) : ORIGIN = 0x20008000, LENGTH = 32K
+	/* ram_usb: USB buffer. Straddles two blocks of RAM
 	 * to get performance benefit of having two USB buffers addressable
 	 * simultaneously (on two different buses of the AHB multilayer matrix)
 	 */
 }
+
+usb_bulk_buffer = ORIGIN(ram_usb);
 
 /* Include the common ld script. */
 INCLUDE libopencm3_lpc43xx.ld

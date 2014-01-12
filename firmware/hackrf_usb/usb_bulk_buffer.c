@@ -22,6 +22,11 @@
 
 #include "usb_bulk_buffer.h"
 
-uint8_t* const usb_bulk_buffer = (uint8_t*)0x20008000;
+/* Address of usb_bulk_buffer is set in ldscripts. If you change the name of this
+ * variable, it won't be where it needs to be in the processor's address space,
+ * unless you also adjust the ldscripts.
+ */
+uint8_t usb_bulk_buffer[32768];
+
 const uint32_t usb_bulk_buffer_mask = 32768 - 1;
 volatile uint32_t usb_bulk_buffer_offset = 0;

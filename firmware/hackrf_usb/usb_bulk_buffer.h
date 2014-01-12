@@ -25,7 +25,7 @@
 
 #include <stdint.h>
 
-extern uint8_t* const usb_bulk_buffer;
+extern uint8_t usb_bulk_buffer[32768];
 extern const uint32_t usb_bulk_buffer_mask;
 
 extern volatile uint32_t usb_bulk_buffer_offset;
