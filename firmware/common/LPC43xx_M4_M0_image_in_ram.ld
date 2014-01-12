@@ -22,7 +22,7 @@
 
 SECTIONS
 {
-	.m0 0x20000000 : {
+	.m0 ORIGIN(ram_m0) : {
 		PROVIDE(__m0_start__ = .);
 		KEEP(*(.m0_bin*));
 		. = ALIGN(4);
