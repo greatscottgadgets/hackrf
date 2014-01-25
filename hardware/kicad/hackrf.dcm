@@ -1,4 +1,4 @@
-EESchema-DOCLIB  Version 2.0  Date: Sun Nov 10 19:57:26 2013
+EESchema-DOCLIB  Version 2.0  Date: Fri Jan 10 12:02:24 2014
 #
 $CMP CONN_2_SHORTED
 D Symbole general de connecteur
@@ -13,6 +13,11 @@ $ENDCMP
 $CMP R-SHORTED
 D Resistor with PCB trace short
 K R DEV
+$ENDCMP
+#
+$CMP SW_PUSH_SHIELDED
+D Push Button with Shield
+K Switch
 $ENDCMP
 #
 #End Doc Library

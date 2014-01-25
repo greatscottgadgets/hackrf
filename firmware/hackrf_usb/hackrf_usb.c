@@ -1002,6 +1002,9 @@ int main(void) {
 
 	pin_setup();
 	enable_1v8_power();
+#ifdef HACKRF_ONE
+	enable_rf_power();
+#endif
 	cpu_clock_init();
     cpu_clock_pll1_low_speed();
     
