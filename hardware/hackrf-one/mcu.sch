@@ -49,8 +49,6 @@ Text Notes 500  5200 0    40   ~ 0
 Cortex Debug\nConnector\n(10 pin 50 mil)
 Text Notes 4150 9050 0    40   ~ 0
 U23 starts up on this 12 MHz\ncrystal. This makes it possible\nto use USB0 DFU boot mode.\nIt should be possible to switch\nto GP_CLKIN provided by the\nclock generator IC (MCL_CLK)\nif desired.
-Text Notes 5900 8850 0    40   ~ 0
-C155 and C156 values\nare a guess. The datasheet\ndoesn't state the acceptable\nvoltage range for GP_CLKIN.
 $Comp
 L C C125
 U 1 1 505E9E4C
@@ -2351,13 +2349,13 @@ $EndComp
 $Comp
 L GND #PWR0244
 U 1 1 4F766C2C
-P 1400 3250
-F 0 "#PWR0244" H 1400 3250 30  0001 C CNN
-F 1 "GND" H 1400 3180 30  0001 C CNN
-F 2 "" H 1400 3250 60  0001 C CNN
-F 3 "" H 1400 3250 60  0001 C CNN
-	1    1400 3250
-	0    -1   -1   0   
+P 2400 4200
+F 0 "#PWR0244" H 2400 4200 30  0001 C CNN
+F 1 "GND" H 2400 4130 30  0001 C CNN
+F 2 "" H 2400 4200 60  0001 C CNN
+F 3 "" H 2400 4200 60  0001 C CNN
+	1    2400 4200
+	1    0    0    -1  
 $EndComp
 $Comp
 L GSG-USB-MICRO-B-SHIELDED J1
@@ -2368,8 +2366,8 @@ F 1 "USB-MICRO-B" V 1500 3450 60  0000 C CNN
 F 2 "" H 1050 3450 60  0001 C CNN
 F 3 "" H 1050 3450 60  0001 C CNN
 F 4 "FCI" H 1050 3450 60  0001 C CNN "Manufacturer"
-F 5 "10103594-0001LF" H 1050 3450 60  0001 C CNN "Part Number"
-F 6 "CONN RCPT STD MICRO USB TYPE B" H 1050 3450 60  0001 C CNN "Description"
+F 5 "10103592-0001LF" H 1050 3450 60  0001 C CNN "Part Number"
+F 6 "CONN RCPT REV MICRO USB TYPE B" H 1050 3450 60  0001 C CNN "Description"
 	1    1050 3450
 	-1   0    0    1   
 $EndComp
@@ -3816,8 +3814,6 @@ Wire Wire Line
 Wire Wire Line
 	1400 3650 1300 3650
 Wire Wire Line
-	1400 3250 1300 3250
-Wire Wire Line
 	3600 4700 4300 4700
 Wire Wire Line
 	7650 2050 7650 1650
@@ -5056,4 +5052,28 @@ F 6 "RES TF 1.8K OHM 5% 1/16W 0402" H 2200 6700 60  0001 C CNN "Description"
 	1    2200 6700
 	-1   0    0    1   
 $EndComp
+$Comp
+L FILTER FB3
+U 1 1 52EA190B
+P 1950 4100
+F 0 "FB3" H 1950 4250 60  0000 C CNN
+F 1 "FILTER" H 1950 4000 60  0000 C CNN
+F 2 "" H 1950 4100 60  0001 C CNN
+F 3 "" H 1950 4100 60  0001 C CNN
+F 4 "Murata" H 1950 4100 60  0001 C CNN "Manufacturer"
+F 5 "BLM21PG221SN1D" H 1950 4100 60  0001 C CNN "Part Number"
+F 6 "FERRITE CHIP 220 OHM 2000MA 0805" H 1950 4100 60  0001 C CNN "Description"
+	1    1950 4100
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	2300 4100 2400 4100
+Wire Wire Line
+	2400 4100 2400 4200
+Wire Wire Line
+	1300 3250 1500 3250
+Wire Wire Line
+	1500 3250 1500 4100
+Wire Wire Line
+	1500 4100 1600 4100
 $EndSCHEMATC

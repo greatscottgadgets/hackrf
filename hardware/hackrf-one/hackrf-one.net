@@ -1,7 +1,7 @@
 (export (version D)
   (design
     (source /home/mossmann/src/hackrf/hardware/hackrf-one/hackrf-one.sch)
-    (date "Thu Jan 30 00:20:22 2014")
+    (date "Thu Jan 30 11:06:36 2014")
     (tool "eeschema (2013-07-24 BZR 4024)-stable"))
   (components
     (comp (ref C53)
@@ -3185,8 +3185,8 @@
       (value USB-MICRO-B)
       (fields
         (field (name Manufacturer) FCI)
-        (field (name "Part Number") 10103594-0001LF)
-        (field (name Description) "CONN RCPT STD MICRO USB TYPE B"))
+        (field (name "Part Number") 10103592-0001LF)
+        (field (name Description) "CONN RCPT REV MICRO USB TYPE B"))
       (libsource (lib hackrf) (part GSG-USB-MICRO-B-SHIELDED))
       (sheetpath (names /mcu/usb/power/) (tstamps /5037043E/))
       (tstamp 4F766BDF))
