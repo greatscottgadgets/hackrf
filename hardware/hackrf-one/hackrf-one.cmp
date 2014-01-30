@@ -1,4 +1,4 @@
-Cmp-Mod V01 Created by CvPcb (2013-07-24 BZR 4024)-stable date = Wed Jan 29 23:50:41 2014
+Cmp-Mod V01 Created by CvPcb (2013-07-24 BZR 4024)-stable date = Thu Jan 30 00:20:36 2014
 
 BeginCmp
 TimeStamp = /503BB638/4FAECB99;
@@ -1270,6 +1270,13 @@ EndCmp
 BeginCmp
 TimeStamp = /50370666/503F885C;
 Reference = FB2;
+ValeurCmp = FILTER;
+IdModule  = GSG-0805;
+EndCmp
+
+BeginCmp
+TimeStamp = /5037043E/52EA190B;
+Reference = FB3;
 ValeurCmp = FILTER;
 IdModule  = GSG-0805;
 EndCmp
