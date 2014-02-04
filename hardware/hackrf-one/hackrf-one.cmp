@@ -1,4 +1,4 @@
-Cmp-Mod V01 Created by CvPcb (2013-07-24 BZR 4024)-stable date = Fri Jan 10 12:04:11 2014
+Cmp-Mod V01 Created by CvPcb (2013-07-24 BZR 4024)-stable date = Thu Jan 30 00:20:36 2014
 
 BeginCmp
 TimeStamp = /503BB638/4FAECB99;
@@ -1191,6 +1191,13 @@ IdModule  = GSG-0402;
 EndCmp
 
 BeginCmp
+TimeStamp = /503BB638/52EA119B;
+Reference = C171;
+ValeurCmp = 1uF;
+IdModule  = GSG-0402;
+EndCmp
+
+BeginCmp
 TimeStamp = /503BB638/4FB3F9B0;
 Reference = D1;
 ValeurCmp = GSG-DIODE-TVS-BI;
@@ -1263,6 +1270,13 @@ EndCmp
 BeginCmp
 TimeStamp = /50370666/503F885C;
 Reference = FB2;
+ValeurCmp = FILTER;
+IdModule  = GSG-0805;
+EndCmp
+
+BeginCmp
+TimeStamp = /5037043E/52EA190B;
+Reference = FB3;
 ValeurCmp = FILTER;
 IdModule  = GSG-0805;
 EndCmp
@@ -1417,6 +1431,13 @@ EndCmp
 BeginCmp
 TimeStamp = /503BB638/503BF2DC;
 Reference = L12;
+ValeurCmp = 1uH;
+IdModule  = GSG-0603;
+EndCmp
+
+BeginCmp
+TimeStamp = /503BB638/52EA1189;
+Reference = L13;
 ValeurCmp = 1uH;
 IdModule  = GSG-0603;
 EndCmp
@@ -2066,6 +2087,13 @@ IdModule  = SOT23GDS;
 EndCmp
 
 BeginCmp
+TimeStamp = /503BB638/52EA11B0;
+Reference = Q4;
+ValeurCmp = MOSFET_P;
+IdModule  = SOT23GDS;
+EndCmp
+
+BeginCmp
 TimeStamp = /503BB638/4FAEC850;
 Reference = R1;
 ValeurCmp = 470;
@@ -2308,6 +2336,13 @@ TimeStamp = /5037043E/5294026C;
 Reference = R35;
 ValeurCmp = DNP;
 IdModule  = GSG-0805;
+EndCmp
+
+BeginCmp
+TimeStamp = /503BB638/52EA1180;
+Reference = R36;
+ValeurCmp = 10k;
+IdModule  = GSG-0402;
 EndCmp
 
 BeginCmp
