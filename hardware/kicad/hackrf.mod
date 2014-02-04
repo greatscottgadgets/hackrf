@@ -1,4 +1,4 @@
-PCBNEW-LibModule-V1  Tue Feb  4 11:15:26 2014
+PCBNEW-LibModule-V1  Tue Feb  4 11:23:34 2014
 # encoding utf-8
 Units mm
 $INDEX
@@ -5105,7 +5105,7 @@ Le -2147.483648
 $EndPAD
 $EndMODULE GSG-LTST-S220
 $MODULE GSG-LXES1TBCC2-004
-Po 0 0 0 15 52AA31A3 00000000 ~~
+Po 0 0 0 15 52F13010 00000000 ~~
 Li GSG-LXES1TBCC2-004
 Sc 0
 AR 
@@ -5118,50 +5118,50 @@ DS 0.8 0.8 -0.8 0.8 0.2032 21
 DS -0.8 0.8 -0.8 -0.8 0.2032 21
 DS -0.8 -0.8 0.8 -0.8 0.2032 21
 $PAD
-Sh "1" R 0.3 0.6 0 0 0
+Sh "1" R 0.3 0.9 0 0 0
 Dr 0 0 0
 At SMD N 00888000
 Ne 0 ""
-Po 0.5 -0.8
+Po 0.5 -0.95
 Le -2147.483648
 $EndPAD
 $PAD
-Sh "2" R 0.3 0.6 0 0 0
+Sh "2" R 0.3 0.9 0 0 0
 Dr 0 0 0
 At SMD N 00888000
 Ne 0 ""
-Po 0 -0.8
+Po 0 -0.95
 Le -2147.483648
 $EndPAD
 $PAD
-Sh "3" R 0.3 0.6 0 0 0
+Sh "3" R 0.3 0.9 0 0 0
 Dr 0 0 0
 At SMD N 00888000
 Ne 0 ""
-Po -0.5 -0.8
+Po -0.5 -0.95
 Le -2147.483648
 $EndPAD
 $PAD
-Sh "4" R 0.3 0.6 0 0 0
+Sh "4" R 0.3 0.9 0 0 0
 Dr 0 0 0
 At SMD N 00888000
 Ne 0 ""
-Po -0.5 0.8
+Po -0.5 0.95
 Le 0.01524
 $EndPAD
 $PAD
-Sh "5" R 0.3 0.6 0 0 0
+Sh "5" R 0.3 0.9 0 0 0
 Dr 0 0 0
 At SMD N 00888000
 Ne 0 ""
-Po 0 0.8
+Po 0 0.95
 $EndPAD
 $PAD
-Sh "6" R 0.3 0.6 0 0 0
+Sh "6" R 0.3 0.9 0 0 0
 Dr 0 0 0
 At SMD N 00888000
 Ne 0 ""
-Po 0.5 0.8
+Po 0.5 0.95
 Le 0.08128
 $EndPAD
 $PAD
