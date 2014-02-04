@@ -3345,7 +3345,6 @@ F 3 "" H 2900 4800 60  0001 C CNN
 F 4 "Stackpole" H 2900 4800 60  0001 C CNN "Manufacturer"
 F 5 "RMCF0402JT10K0" H 2900 4800 60  0001 C CNN "Part Number"
 F 6 "RES 10K OHM 1/16W 5% 0402 SMD" H 2900 4800 60  0001 C CNN "Description"
-F 7 "DNP" V 2800 4800 60  0000 C CNN "Note"
 	1    2900 4800
 	-1   0    0    1   
 $EndComp
