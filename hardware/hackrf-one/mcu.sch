@@ -37,7 +37,7 @@ $Descr User 17000 11000
 encoding utf-8
 Sheet 4 4
 Title "HackRF One mcu/usb/power"
-Date "4 feb 2014"
+Date "5 feb 2014"
 Rev ""
 Comp "Copyright 2012 Michael Ossmann"
 Comment1 "License: GPL v2"
@@ -2322,17 +2322,6 @@ F 6 "IC CR-II CPLD 64MCELL 100-VQFP" H 13600 6950 60  0001 C CNN "Description"
 	1    0    0    -1  
 $EndComp
 $Comp
-L GND #PWR0243
-U 1 1 4F787903
-P 2700 4350
-F 0 "#PWR0243" H 2700 4350 30  0001 C CNN
-F 1 "GND" H 2700 4280 30  0001 C CNN
-F 2 "" H 2700 4350 60  0001 C CNN
-F 3 "" H 2700 4350 60  0001 C CNN
-	1    2700 4350
-	1    0    0    -1  
-$EndComp
-$Comp
 L FILTER FB1
 U 1 1 4F766F5E
 P 1950 3750
@@ -2992,20 +2981,6 @@ VBAT
 Text Label 6750 1700 3    40   ~ 0
 RTC_ALARM
 $Comp
-L C C117
-U 1 1 526B0B13
-P 2700 4050
-F 0 "C117" H 2750 4150 50  0000 L CNN
-F 1 "100nF" H 2750 3950 50  0000 L CNN
-F 2 "" H 2700 4050 60  0001 C CNN
-F 3 "" H 2700 4050 60  0001 C CNN
-F 4 "Murata" H 2700 4050 60  0001 C CNN "Manufacturer"
-F 5 "GRM155R61A104KA01D" H 2700 4050 60  0001 C CNN "Part Number"
-F 6 "CAP CER 0.1UF 10V 10% X5R 0402" H 2700 4050 60  0001 C CNN "Description"
-	1    2700 4050
-	1    0    0    -1  
-$EndComp
-$Comp
 L GND #PWR0283
 U 1 1 526B0BAC
 P 12900 2300
@@ -3185,9 +3160,9 @@ F 3 "" H 11100 8350 60  0000 C CNN
 	1    11100 8350
 	0    1    1    0   
 $EndComp
-Text Label 4100 8650 2    40   ~ 0
-VBUS
 Text Label 2750 8650 0    40   ~ 0
+VBUS
+Text Label 4100 8650 2    40   ~ 0
 VEXT
 $Comp
 L GND #PWR0290
@@ -3332,7 +3307,7 @@ F 4 "Stackpole" H 3100 4100 60  0001 C CNN "Manufacturer"
 F 5 "RMCF0402ZT0R00" H 3100 4100 60  0001 C CNN "Part Number"
 F 6 "RES 0.0 OHM 1/16W 0402 SMD" H 3100 4100 60  0001 C CNN "Description"
 	1    3100 4100
-	1    0    0    1   
+	-1   0    0    1   
 $EndComp
 $Comp
 L R R65
@@ -4106,9 +4081,6 @@ Wire Wire Line
 	9700 3900 10150 3900
 Wire Wire Line
 	8050 2050 8050 1650
-Connection ~ 1700 3550
-Wire Wire Line
-	1700 3550 1700 2900
 Wire Wire Line
 	1700 2900 1900 2900
 Wire Wire Line
@@ -4346,9 +4318,6 @@ Wire Wire Line
 	13200 8950 13200 9050
 Wire Wire Line
 	11600 7950 11500 7950
-Connection ~ 2700 3750
-Wire Wire Line
-	2700 3850 2700 3750
 Wire Wire Line
 	1600 3750 1400 3750
 Wire Wire Line
@@ -4584,8 +4553,6 @@ Wire Wire Line
 Wire Wire Line
 	5650 2050 5650 1750
 Wire Wire Line
-	2700 4350 2700 4250
-Wire Wire Line
 	12500 8950 12500 9050
 Wire Wire Line
 	13100 8950 13100 9050
@@ -4783,12 +4750,7 @@ Wire Wire Line
 Wire Wire Line
 	4300 5800 4200 5800
 Wire Wire Line
-	2300 3750 3100 3750
-Wire Wire Line
 	1900 3100 1800 3100
-Wire Wire Line
-	1800 3100 1800 3450
-Connection ~ 1800 3450
 Wire Wire Line
 	3000 3000 3100 3000
 Connection ~ 3100 3750
@@ -5188,4 +5150,12 @@ Wire Wire Line
 	3400 4250 3400 4900
 Wire Wire Line
 	3400 4900 4300 4900
+Wire Wire Line
+	1700 3450 1700 2900
+Connection ~ 1700 3450
+Wire Wire Line
+	1800 3100 1800 3550
+Connection ~ 1800 3550
+Wire Wire Line
+	2300 3750 3100 3750
 $EndSCHEMATC

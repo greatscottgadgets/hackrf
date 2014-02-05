@@ -1,4 +1,4 @@
-Cmp-Mod V01 Created by CvPcb (2013-07-24 BZR 4024)-stable date = Thu Jan 30 00:20:36 2014
+Cmp-Mod V01 Created by CvPcb (2013-07-24 BZR 4024)-stable date = Tue Feb  4 14:44:24 2014
 
 BeginCmp
 TimeStamp = /503BB638/4FAECB99;
@@ -1285,7 +1285,7 @@ BeginCmp
 TimeStamp = /5037043E/4F766BDF;
 Reference = J1;
 ValeurCmp = USB-MICRO-B;
-IdModule  = GSG-USB-MICROB-FCI-10103594;
+IdModule  = GSG-USB-MICROB-FCI-10103592;
 EndCmp
 
 BeginCmp
@@ -2094,6 +2094,20 @@ IdModule  = SOT23GDS;
 EndCmp
 
 BeginCmp
+TimeStamp = /5037043E/52F14FDB;
+Reference = Q5;
+ValeurCmp = MOSFET_P;
+IdModule  = SOT23GDS;
+EndCmp
+
+BeginCmp
+TimeStamp = /5037043E/52F16DD9;
+Reference = Q6;
+ValeurCmp = MOSFET_P;
+IdModule  = SOT23GDS;
+EndCmp
+
+BeginCmp
 TimeStamp = /503BB638/4FAEC850;
 Reference = R1;
 ValeurCmp = 470;
@@ -2346,6 +2360,13 @@ IdModule  = GSG-0402;
 EndCmp
 
 BeginCmp
+TimeStamp = /5037043E/52F14FFA;
+Reference = R37;
+ValeurCmp = 10k;
+IdModule  = GSG-0402;
+EndCmp
+
+BeginCmp
 TimeStamp = /50370666/503C4ABC;
 Reference = R41;
 ValeurCmp = 10k;
@@ -2412,6 +2433,20 @@ BeginCmp
 TimeStamp = /5037043E/4F8203A7;
 Reference = R56;
 ValeurCmp = 715k;
+IdModule  = GSG-0402;
+EndCmp
+
+BeginCmp
+TimeStamp = /5037043E/52F18AF9;
+Reference = R57;
+ValeurCmp = 0;
+IdModule  = GSG-0402;
+EndCmp
+
+BeginCmp
+TimeStamp = /5037043E/52F18B02;
+Reference = R58;
+ValeurCmp = 0;
 IdModule  = GSG-0402;
 EndCmp
 
