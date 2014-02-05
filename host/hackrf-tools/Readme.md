@@ -29,6 +29,15 @@ cmake ./
 make
 make install
 
+Clean Cmake temporary files/dirs:
+cd host
+find . -name CMakeCache.txt -type f -exec rm -v {} \;
+find . -name cmake_install.cmake -type f -exec rm -v {} \;
+find . -name cmake_uninstall.cmake -type f -exec rm -v {} \;
+find . -name Makefile -type f -exec rm -v {} \;
+find . -type d -name CMakeFiles -exec rm -rf {} +
+
+
 principal author: Michael Ossmann <mike@ossmann.com>
 
 http://greatscottgadgets.com/hackrf/

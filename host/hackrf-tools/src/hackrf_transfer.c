@@ -71,8 +71,9 @@ int gettimeofday(struct timeval *tv, void* ignored)
 }
 
 #endif
+#endif
 
-#else
+#if defined(__GNUC__)
 #include <unistd.h>
 #include <sys/time.h>
 #endif
@@ -81,7 +82,7 @@ int gettimeofday(struct timeval *tv, void* ignored)
 
 #define FD_BUFFER_SIZE (8*1024)
 
-#define FREQ_ONE_MHZ (1000000ull)
+#define FREQ_ONE_MHZ (1000000)
 
 #define DEFAULT_FREQ_HZ (900000000ull) /* 900MHz */
 #define FREQ_MIN_HZ	(5000000ull) /* 5MHz */
@@ -103,29 +104,29 @@ int gettimeofday(struct timeval *tv, void* ignored)
 /* WAVE or RIFF WAVE file format containing IQ 2x8bits data for HackRF compatible with SDR# Wav IQ file */
 typedef struct 
 {
-    char groupID[4]; /* 'RIFF' */
-    uint32_t size; /* File size + 8bytes */
-    char riffType[4]; /* 'WAVE'*/
+		char groupID[4]; /* 'RIFF' */
+		uint32_t size; /* File size + 8bytes */
+		char riffType[4]; /* 'WAVE'*/
 } t_WAVRIFF_hdr;
 
 #define FormatID "fmt "   /* chunkID for Format Chunk. NOTE: There is a space at the end of this ID. */
 
 typedef struct {
-  char		chunkID[4]; /* 'fmt ' */
-  uint32_t	chunkSize; /* 16 fixed */
+	char		chunkID[4]; /* 'fmt ' */
+	uint32_t	chunkSize; /* 16 fixed */
 
-  uint16_t	wFormatTag; /* 1 fixed */
-  uint16_t	wChannels;  /* 2 fixed */
-  uint32_t	dwSamplesPerSec; /* Freq Hz sampling */
-  uint32_t	dwAvgBytesPerSec; /* Freq Hz sampling x 2 */
-  uint16_t	wBlockAlign; /* 2 fixed */
-  uint16_t	wBitsPerSample; /* 8 fixed */
+	uint16_t	wFormatTag; /* 1 fixed */
+	uint16_t	wChannels;  /* 2 fixed */
+	uint32_t	dwSamplesPerSec; /* Freq Hz sampling */
+	uint32_t	dwAvgBytesPerSec; /* Freq Hz sampling x 2 */
+	uint16_t	wBlockAlign; /* 2 fixed */
+	uint16_t	wBitsPerSample; /* 8 fixed */
 } t_FormatChunk;
 
 typedef struct 
 {
-    char		chunkID[4]; /* 'data' */
-    uint32_t	chunkSize; /* Size of data in bytes */
+		char		chunkID[4]; /* 'data' */
+		uint32_t	chunkSize; /* Size of data in bytes */
 	/* Samples I(8bits) then Q(8bits), I, Q ... */
 } t_DataChunk;
 
@@ -169,10 +170,19 @@ typedef enum {
 } transceiver_mode_t;
 static transceiver_mode_t transceiver_mode = TRANSCEIVER_MODE_RX;
 
+#define U64TOA_MAX_DIGIT (31)
+typedef struct 
+{
+		char data[U64TOA_MAX_DIGIT+1];
+} t_u64toa;
+
+t_u64toa ascii_u64_data1;
+t_u64toa ascii_u64_data2;
+
 static float
 TimevalDiff(const struct timeval *a, const struct timeval *b)
 {
-   return (a->tv_sec - b->tv_sec) + 1e-6f * (a->tv_usec - b->tv_usec);
+	 return (a->tv_sec - b->tv_sec) + 1e-6f * (a->tv_usec - b->tv_usec);
 }
 
 int parse_u64(char* s, uint64_t* const value) {
@@ -229,6 +239,54 @@ int parse_u32(char* s, uint32_t* const value) {
 	}
 }
 
+
+static char *stringrev(char *str)
+{
+	char *p1, *p2;
+
+	if(! str || ! *str)
+		return str;
+
+	for(p1 = str, p2 = str + strlen(str) - 1; p2 > p1; ++p1, --p2)
+	{
+		*p1 ^= *p2;
+		*p2 ^= *p1;
+		*p1 ^= *p2;
+	}
+	return str;
+}
+
+char* u64toa(uint64_t val, t_u64toa* str)
+{
+	#define BASE (10ull) /* Base10 by default */
+	uint64_t sum;
+	int pos;
+	int digit;
+	int max_len;
+	char* res;
+
+	sum = val;
+	max_len = U64TOA_MAX_DIGIT;
+	pos = 0;
+
+	do
+	{
+		digit = (sum % BASE);
+		str->data[pos] = digit + '0';
+		pos++;
+
+		sum /= BASE;
+	}while( (sum>0) && (pos < max_len) );
+
+	if( (pos == max_len) && (sum>0) )
+		return NULL;
+
+	str->data[pos] = '\0';
+	res = stringrev(str->data);
+
+	return res;
+}
+
 volatile bool do_exit = false;
 
 FILE* fd = NULL;
@@ -252,13 +310,13 @@ uint32_t sample_rate_hz;
 
 bool limit_num_samples = false;
 uint64_t samples_to_xfer = 0;
-uint64_t bytes_to_xfer = 0;
+size_t bytes_to_xfer = 0;
 
 bool baseband_filter_bw = false;
 uint32_t baseband_filter_bw_hz = 0;
 
 int rx_callback(hackrf_transfer* transfer) {
-	int bytes_to_write;
+	size_t bytes_to_write;
 
 	if( fd != NULL ) 
 	{
@@ -267,7 +325,7 @@ int rx_callback(hackrf_transfer* transfer) {
 		bytes_to_write = transfer->valid_length;
 		if (limit_num_samples) {
 			if (bytes_to_write >= bytes_to_xfer) {
-				bytes_to_write = (int)bytes_to_xfer;
+				bytes_to_write = bytes_to_xfer;
 			}
 			bytes_to_xfer -= bytes_to_write;
 		}
@@ -286,7 +344,7 @@ int rx_callback(hackrf_transfer* transfer) {
 }
 
 int tx_callback(hackrf_transfer* transfer) {
-	int bytes_to_read;
+	size_t bytes_to_read;
 
 	if( fd != NULL )
 	{
@@ -299,7 +357,7 @@ int tx_callback(hackrf_transfer* transfer) {
 				 * In this condition, we probably tx some of the previous
 				 * buffer contents at the end.  :-(
 				 */
-				bytes_to_read = (int)bytes_to_xfer;
+				bytes_to_read = bytes_to_xfer;
 			}
 			bytes_to_xfer -= bytes_to_read;
 		}
@@ -323,12 +381,14 @@ static void usage() {
 	printf("\t-t <filename> # Transmit data from file.\n");
 	printf("\t-w # Receive data into file with WAV header and automatic name.\n");
 	printf("\t   # This is for SDR# compatibility and may not work with other software.\n");
-	printf("\t[-f set_freq_hz] # Set Freq in Hz between [%lluMHz, %lluMHz].\n", FREQ_MIN_HZ/FREQ_ONE_MHZ, FREQ_MAX_HZ/FREQ_ONE_MHZ);
+	printf("\t[-f set_freq_hz] # Set Freq in Hz between [%sMHz, %sMHz].\n",
+				u64toa((FREQ_MIN_HZ/FREQ_ONE_MHZ),&ascii_u64_data1),
+				u64toa((FREQ_MAX_HZ/FREQ_ONE_MHZ),&ascii_u64_data2));
 	printf("\t[-a set_amp] # Set Amp 1=Enable, 0=Disable.\n");
 	printf("\t[-l gain_db] # Set lna gain, 0-40dB, 8dB steps\n");
 	printf("\t[-i gain_db] # Set vga(if) gain, 0-62dB, 2dB steps\n");
 	printf("\t[-x gain_db] # Set TX vga gain, 0-47dB, 1dB steps\n");
-	printf("\t[-s sample_rate_hz] # Set sample rate in Hz (8/10/12.5/16/20MHz, default %lldMHz).\n", DEFAULT_SAMPLE_RATE_HZ/FREQ_ONE_MHZ);
+	printf("\t[-s sample_rate_hz] # Set sample rate in Hz (8/10/12.5/16/20MHz, default %uMHz).\n",(DEFAULT_SAMPLE_RATE_HZ/FREQ_ONE_MHZ) );
 	printf("\t[-n num_samples] # Number of samples to transfer (default is unlimited).\n");
 	printf("\t[-b baseband_filter_bw_hz] # Set baseband filter bandwidth in MHz.\n\tPossible values: 1.75/2.5/3.5/5/5.5/6/7/8/9/10/12/14/15/20/24/28MHz, default < sample_rate_hz.\n" );
 }
@@ -370,7 +430,7 @@ int main(int argc, char** argv) {
 	struct timeval t_end;
 	float time_diff;
 	unsigned int lna_gain=8, vga_gain=20, txvga_gain=0;
-  
+	
 	while( (opt = getopt(argc, argv, "wr:t:f:a:s:n:b:l:i:x:")) != EOF )
 	{
 		result = HACKRF_SUCCESS;
@@ -442,8 +502,9 @@ int main(int argc, char** argv) {
 	}
 
 	if (samples_to_xfer >= SAMPLES_TO_XFER_MAX) {
-		printf("argument error: num_samples must be less than %llu/%lluMio\n",
-				SAMPLES_TO_XFER_MAX, SAMPLES_TO_XFER_MAX/FREQ_ONE_MHZ);
+		printf("argument error: num_samples must be less than %s/%sMio\n",
+				u64toa(SAMPLES_TO_XFER_MAX,&ascii_u64_data1),
+				u64toa((SAMPLES_TO_XFER_MAX/FREQ_ONE_MHZ),&ascii_u64_data2));
 		usage();
 		return EXIT_FAILURE;
 	}
@@ -451,7 +512,9 @@ int main(int argc, char** argv) {
 	if( freq ) {
 		if( (freq_hz >= FREQ_MAX_HZ) || (freq_hz < FREQ_MIN_HZ) )
 		{
-			printf("argument error: set_freq_hz shall be between [%llu, %llu[.\n", FREQ_MIN_HZ, FREQ_MAX_HZ);
+			printf("argument error: set_freq_hz shall be between [%s, %s[.\n",
+			u64toa(FREQ_MIN_HZ,&ascii_u64_data1),
+			u64toa(FREQ_MAX_HZ,&ascii_u64_data2));
 			usage();
 			return EXIT_FAILURE;
 		}
@@ -485,16 +548,11 @@ int main(int argc, char** argv) {
 		baseband_filter_bw_hz = hackrf_compute_baseband_filter_bw_round_down_lt(sample_rate_hz);
 	}
 
-	if (baseband_filter_bw_hz > BASEBAND_FILTER_BW_MAX) {
-		printf("argument error: baseband_filter_bw_hz must be less or equal to %u Hz/%.03f MHz\n",
-				BASEBAND_FILTER_BW_MAX, (float)(BASEBAND_FILTER_BW_MAX/FREQ_ONE_MHZ));
-		usage();
-		return EXIT_FAILURE;
-	}
-
-	if (baseband_filter_bw_hz < BASEBAND_FILTER_BW_MIN) {
-		printf("argument error: baseband_filter_bw_hz must be greater or equal to %u Hz/%.03f MHz\n",
-				BASEBAND_FILTER_BW_MIN, (float)(BASEBAND_FILTER_BW_MIN/FREQ_ONE_MHZ));
+	if((baseband_filter_bw_hz < BASEBAND_FILTER_BW_MIN) ||
+		(baseband_filter_bw_hz > BASEBAND_FILTER_BW_MAX))
+	{
+		printf("argument error: baseband_filter_bw shall be between %.0f Hz and %.0f Hz\n",
+				(float)BASEBAND_FILTER_BW_MIN, (float)BASEBAND_FILTER_BW_MAX);
 		usage();
 		return EXIT_FAILURE;
 	}
@@ -597,19 +655,19 @@ int main(int argc, char** argv) {
 	signal(SIGTERM, &sigint_callback_handler);
 	signal(SIGABRT, &sigint_callback_handler);
 #endif
-	printf("call hackrf_sample_rate_set(%u Hz/%.03f MHz)\n", sample_rate_hz,((float)sample_rate_hz/(float)FREQ_ONE_MHZ));
+	printf("call hackrf_set_sample_rate_manual(%u Hz/%.03f MHz)\n", sample_rate_hz,((float)sample_rate_hz/(float)FREQ_ONE_MHZ));
 	result = hackrf_set_sample_rate_manual(device, sample_rate_hz, 1);
 	if( result != HACKRF_SUCCESS ) {
-		printf("hackrf_sample_rate_set() failed: %s (%d)\n", hackrf_error_name(result), result);
+		printf("hackrf_set_sample_rate_manual() failed: %s (%d)\n", hackrf_error_name(result), result);
 		usage();
 		return EXIT_FAILURE;
 	}
 
-	printf("call hackrf_baseband_filter_bandwidth_set(%d Hz/%.03f MHz)\n",
+	printf("call hackrf_set_baseband_filter_bandwidth(%d Hz/%.03f MHz)\n",
 			baseband_filter_bw_hz, ((float)baseband_filter_bw_hz/(float)FREQ_ONE_MHZ));
 	result = hackrf_set_baseband_filter_bandwidth(device, baseband_filter_bw_hz);
 	if( result != HACKRF_SUCCESS ) {
-		printf("hackrf_baseband_filter_bandwidth_set() failed: %s (%d)\n", hackrf_error_name(result), result);
+		printf("hackrf_set_baseband_filter_bandwidth() failed: %s (%d)\n", hackrf_error_name(result), result);
 		usage();
 		return EXIT_FAILURE;
 	}
@@ -628,7 +686,7 @@ int main(int argc, char** argv) {
 		return EXIT_FAILURE;
 	}
 
-	printf("call hackrf_set_freq(%lu Hz/%.03f MHz)\n", freq_hz, ((double)freq_hz/(double)FREQ_ONE_MHZ) );
+	printf("call hackrf_set_freq(%s Hz/%.03f MHz)\n",u64toa(freq_hz,&ascii_u64_data1),((double)freq_hz/(double)FREQ_ONE_MHZ));
 	result = hackrf_set_freq(device, freq_hz);
 	if( result != HACKRF_SUCCESS ) {
 		printf("hackrf_set_freq() failed: %s (%d)\n", hackrf_error_name(result), result);
@@ -647,7 +705,9 @@ int main(int argc, char** argv) {
 	}
 	
 	if( limit_num_samples ) {
-		printf("samples_to_xfer %lu/%lluMio\n", samples_to_xfer, (samples_to_xfer/FREQ_ONE_MHZ) );
+		printf("samples_to_xfer %s/%sMio\n",
+		u64toa(samples_to_xfer,&ascii_u64_data1),
+		u64toa((samples_to_xfer/FREQ_ONE_MHZ),&ascii_u64_data2) );
 	}
 	
 	gettimeofday(&t_start, NULL);
