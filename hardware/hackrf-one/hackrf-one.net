@@ -1,7 +1,7 @@
 (export (version D)
   (design
     (source /home/mossmann/src/hackrf/hardware/hackrf-one/hackrf-one.sch)
-    (date "Tue Feb  4 18:13:39 2014")
+    (date "Wed Feb  5 12:00:36 2014")
     (tool "eeschema (2013-07-24 BZR 4024)-stable"))
   (components
     (comp (ref C53)
@@ -2984,12 +2984,11 @@
       (sheetpath (names /mcu/usb/power/) (tstamps /5037043E/))
       (tstamp 50370E89))
     (comp (ref D5)
-      (value LED2)
+      (value RXLED)
       (fields
         (field (name Manufacturer) Lite-On)
         (field (name "Part Number") LTST-S220KSKT)
-        (field (name Description) "LED YELLOW CLEAR RT ANG 0805")
-        (field (name Note) RX))
+        (field (name Description) "LED YELLOW CLEAR RT ANG 0805"))
       (libsource (lib device) (part LED))
       (sheetpath (names /mcu/usb/power/) (tstamps /5037043E/))
       (tstamp 4F83C276))
@@ -3003,7 +3002,7 @@
       (sheetpath (names /mcu/usb/power/) (tstamps /5037043E/))
       (tstamp 4F83C1E0))
     (comp (ref D4)
-      (value LED1)
+      (value USBLED)
       (fields
         (field (name Manufacturer) Lite-On)
         (field (name "Part Number") LTST-S220KGKT)
@@ -3021,12 +3020,11 @@
       (sheetpath (names /mcu/usb/power/) (tstamps /5037043E/))
       (tstamp 4F83C1D6))
     (comp (ref D6)
-      (value LED3)
+      (value TXLED)
       (fields
         (field (name Manufacturer) Lite-On)
         (field (name "Part Number") LTST-S220KRKT)
-        (field (name Description) "LED SUPR RED CLR RT ANG 0805")
-        (field (name Note) TX))
+        (field (name Description) "LED SUPR RED CLR RT ANG 0805"))
       (libsource (lib device) (part LED))
       (sheetpath (names /mcu/usb/power/) (tstamps /5037043E/))
       (tstamp 4F83C1A7))
