@@ -1,4 +1,4 @@
-Cmp-Mod V01 Created by CvPcb (2013-07-24 BZR 4024)-stable date = Sat Feb  8 16:37:28 2014
+Cmp-Mod V01 Created by CvPcb (2013-07-24 BZR 4024)-stable date = Sun Feb  9 09:06:40 2014
 
 BeginCmp
 TimeStamp = /52F69ECC;
@@ -152,6 +152,20 @@ TimeStamp = /52F6A116;
 Reference = P2;
 ValeurCmp = ANTENNA;
 IdModule  = GSG-SMA-EDGE;
+EndCmp
+
+BeginCmp
+TimeStamp = /52F7A9D0;
+Reference = P3;
+ValeurCmp = CONN_1;
+IdModule  = GSG-HOLE-62MIL-COPPER;
+EndCmp
+
+BeginCmp
+TimeStamp = /52F7A9E7;
+Reference = P4;
+ValeurCmp = CONN_1;
+IdModule  = GSG-HOLE-62MIL-COPPER;
 EndCmp
 
 BeginCmp

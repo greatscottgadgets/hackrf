@@ -37,7 +37,7 @@ $Descr A4 11693 8268
 encoding utf-8
 Sheet 1 1
 Title ""
-Date "8 feb 2014"
+Date "9 feb 2014"
 Rev ""
 Comp ""
 Comment1 ""
@@ -949,4 +949,54 @@ F 6 "RES 100K OHM 1/16W 5% 0402" H 6450 2300 60  0001 C CNN "Description"
 	1    6450 2300
 	1    0    0    1   
 $EndComp
+$Comp
+L CONN_1 P3
+U 1 1 52F7A9D0
+P 1700 6650
+F 0 "P3" H 1780 6650 40  0000 L CNN
+F 1 "CONN_1" H 1700 6705 30  0001 C CNN
+F 2 "" H 1700 6650 60  0000 C CNN
+F 3 "" H 1700 6650 60  0000 C CNN
+	1    1700 6650
+	0    -1   -1   0   
+$EndComp
+$Comp
+L CONN_1 P4
+U 1 1 52F7A9E7
+P 1900 6650
+F 0 "P4" H 1980 6650 40  0000 L CNN
+F 1 "CONN_1" H 1900 6705 30  0001 C CNN
+F 2 "" H 1900 6650 60  0000 C CNN
+F 3 "" H 1900 6650 60  0000 C CNN
+	1    1900 6650
+	0    -1   -1   0   
+$EndComp
+$Comp
+L GND #PWR028
+U 1 1 52F7A9EF
+P 1700 6900
+F 0 "#PWR028" H 1700 6900 30  0001 C CNN
+F 1 "GND" H 1700 6830 30  0001 C CNN
+F 2 "" H 1700 6900 60  0000 C CNN
+F 3 "" H 1700 6900 60  0000 C CNN
+	1    1700 6900
+	1    0    0    -1  
+$EndComp
+$Comp
+L GND #PWR029
+U 1 1 52F7A9FC
+P 1900 6900
+F 0 "#PWR029" H 1900 6900 30  0001 C CNN
+F 1 "GND" H 1900 6830 30  0001 C CNN
+F 2 "" H 1900 6900 60  0000 C CNN
+F 3 "" H 1900 6900 60  0000 C CNN
+	1    1900 6900
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	1900 6800 1900 6900
+Wire Wire Line
+	1700 6800 1700 6900
+Text Notes 1250 6400 0    60   ~ 0
+grounded mounting holes
 $EndSCHEMATC
