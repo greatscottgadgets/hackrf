@@ -332,8 +332,6 @@ int rx_callback(hackrf_transfer* transfer) {
 		bytes_written = fwrite(transfer->buffer, 1, bytes_to_write, fd);
 		if ((bytes_written != bytes_to_write)
 				|| (limit_num_samples && (bytes_to_xfer == 0))) {
-			fclose(fd);
-			fd = NULL;
 			return -1;
 		} else {
 			return 0;
@@ -364,8 +362,6 @@ int tx_callback(hackrf_transfer* transfer) {
 		bytes_read = fread(transfer->buffer, 1, bytes_to_read, fd);
 		if ((bytes_read != bytes_to_read)
 				|| (limit_num_samples && (bytes_to_xfer == 0))) {
-			fclose(fd);
-			fd = NULL;
 			return -1;
 		} else {
 			return 0;
