@@ -31,7 +31,7 @@
   )
 
   (setup
-    (last_trace_width 0.24)
+    (last_trace_width 0.1524)
     (user_trace_width 0.2032)
     (user_trace_width 0.24)
     (user_trace_width 0.3048)
@@ -57,7 +57,7 @@
     (mod_text_width 0.15)
     (pad_size 0.762 0.762)
     (pad_drill 0.3048)
-    (pad_to_mask_clearance 0.003)
+    (pad_to_mask_clearance 0.0762)
     (pad_to_paste_clearance_ratio -0.12)
     (aux_axis_origin 0 0)
     (visible_elements FFFFFBBF)
