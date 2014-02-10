@@ -1,0 +1,51 @@
+Copyright 2014 Michael Ossmann
+
+These files are part of HackRF.
+
+This is a free hardware design; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2, or (at your option)
+any later version.
+
+This design is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this design; see the file COPYING.  If not, write to
+the Free Software Foundation, Inc., 51 Franklin Street,
+Boston, MA 02110-1301, USA.
+
+
+LNA915 is a SAW filter and LNA for the 902 to 928 MHz ISM band.  It is designed
+for in-line connection between an antenna and HackRF One and is powered by the
+HackRF One.
+
+hardware notes:
+
+Schematic and layout files were designed in KiCad, an open source electronic
+design automation package.
+
+order of copper layers:
+    Copper 1:  C1F (front)
+    Copper 2:  C2
+    Copper 3:  C3
+    Copper 4:  C1B (back)
+
+PCB description: 4 layer PCB 0.0646 in
+    Copper       1:  1 oz copper (1.4 mil)
+    Dielectric 1-2:  6.7 mil prepreg
+    Copper       2:  0.5 oz copper (0.7 mil)
+    Dielectric 2-3:  47 mil core
+    Copper       3:  0.5 oz copper (0.7 mil)
+    Dielectric 3-4:  6.7 mil prepreg
+    Copper       4:  1 oz copper (1.4 mil)
+
+FR408 or similar substrate with Er=3.66 (+/- 0.1)
+double side solder mask green
+double side silkscreen white
+6 mil min trace width and
+6 mil min isolation
+
+PCBs of this specification are available from OSH Park.
