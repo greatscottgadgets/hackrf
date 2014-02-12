@@ -1,4 +1,4 @@
-PCBNEW-BOARD Version 2 date Wed Feb  5 12:01:24 2014
+PCBNEW-BOARD Version 2 date Tue Feb 11 21:29:37 2014
 
 # Created by Pcbnew(2013-07-24 BZR 4024)-stable
 
@@ -22,7 +22,7 @@ $EndGENERAL
 $SHEETDESCR
 Sheet A4 11693 8268
 Title ""
-Date "5 feb 2014"
+Date "12 feb 2014"
 Rev ""
 Comp ""
 Comment1 ""
@@ -76,7 +76,7 @@ Pad2MaskClearance 0.0762
 SolderMaskMinWidth 0
 Pad2PasteClearanceRatio -0.12
 AuxiliaryAxisOrg 0 0
-VisibleElements FFFFFFBF
+VisibleElements FFFEFFFF
 PcbPlotParams (pcbplotparams (layerselection 283672583) (usegerberextensions true) (excludeedgelayer true) (linewidth 0.150000) (plotframeref false) (viasonmask false) (mode 1) (useauxorigin false) (hpglpennumber 1) (hpglpenspeed 20) (hpglpendiameter 15) (hpglpenoverlay 0) (psnegative false) (psa4output false) (plotreference false) (plotvalue false) (plotothertext true) (plotinvisibletext false) (padsonsilk false) (subtractmaskfromsilk false) (outputformat 1) (mirror false) (drillshape 0) (scaleselection 1) (outputdirectory gerbers))
 $EndSETUP
 
@@ -21430,7 +21430,7 @@ Po 164.9 101.3 1.016 1.016 0.1778 0
 De 15 1 0 Normal
 $EndTEXTPCB
 $TEXTPCB
-Te "5 February 2014"
+Te "11 February 2014"
 Po 78.796 113.278 1.27 1.778 0.3048 900
 De 21 1 0 Normal
 $EndTEXTPCB
@@ -21957,7 +21957,7 @@ Po 0 124.9994 114.04 123.698 115.3414 1.27 -1
 De 15 0 5 52816E6F 0
 Po 0 145.09 112.77 140.01 112.77 1.27 -1
 De 0 0 5 0 10
-Po 3 128.707 114.04 128.707 114.04 0.7874 0.4064
+Po 3 128.707 114.04 128.707 114.04 1.0668 0.635
 De 15 1 5 0 0
 Po 0 138.74 114.04 128.707 114.04 1.27 -1
 De 0 0 5 52816E36 0
@@ -25107,7 +25107,7 @@ Po 0 167.925 122.701 167.925 124.875 1.016 -1
 De 0 0 161 52F1D504 0
 Po 0 168.585 122.041 167.925 122.701 1.016 -1
 De 0 0 161 52F1D503 0
-Po 3 168.585 122.041 168.585 122.041 0.7874 0.4064
+Po 3 168.585 122.041 168.585 122.041 1.0668 0.635
 De 15 1 161 0 0
 Po 0 168.594 122.05 168.585 122.041 1.016 -1
 De 15 0 161 52F1D501 0
@@ -25141,11 +25141,11 @@ Po 0 164.013 121.5584 165.283 121.5584 1.016 -1
 De 15 0 163 0 0
 Po 0 176.08308 111.12154 176.08308 116.24472 1.016 -1
 De 0 0 163 0 0
-Po 3 176.08308 111.12154 176.08308 111.12154 0.6858 -1
-De 15 1 163 0 0
+Po 3 176.08308 111.12154 176.08308 111.12154 1.0668 0.635
+De 15 1 163 0 1000000
 Po 0 165.283 120.3138 165.283 121.5584 1.016 -1
 De 15 0 163 52F1D514 0
-Po 3 165.283 120.3138 165.283 120.3138 0.7874 0.4064
+Po 3 165.283 120.3138 165.283 120.3138 1.0668 0.635
 De 15 1 163 0 0
 Po 0 172.014 120.3138 165.283 120.3138 1.016 -1
 De 0 0 163 52F1D511 0
