@@ -1,4 +1,4 @@
-PCBNEW-BOARD Version 2 date Thu Feb 13 12:26:19 2014
+PCBNEW-BOARD Version 2 date Thu Feb 13 15:33:30 2014
 
 # Created by Pcbnew(2013-07-24 BZR 4024)-stable
 
@@ -7,7 +7,6 @@ encoding utf-8
 Units mm
 LayerCount 4
 EnabledLayers 12FF8007
-VisibleLayers 12FF8001
 Links 1221
 NoConn 0
 Di 56.518289 17.0375 275.101601 175.693733
@@ -33,10 +32,10 @@ $EndSHEETDESCR
 
 $SETUP
 Layers 4
-Layer[0] Back signal
-Layer[1] Inner2 signal
-Layer[2] Inner3 signal
-Layer[15] Front signal
+Layer[0] C4B signal
+Layer[1] C3 signal
+Layer[2] C2 signal
+Layer[15] C1F signal
 TrackWidth 0.2794
 TrackWidthList 0.1524
 TrackWidthList 0.2032
