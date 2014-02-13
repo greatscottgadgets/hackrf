@@ -1,4 +1,4 @@
-Cmp-Mod V01 Created by CvPcb (2013-07-24 BZR 4024)-stable date = Wed Feb  5 12:00:49 2014
+Cmp-Mod V01 Created by CvPcb (2013-07-24 BZR 4024)-stable date = Thu Feb 13 04:39:22 2014
 
 BeginCmp
 TimeStamp = /503BB638/4FAECB99;
@@ -2089,13 +2089,6 @@ EndCmp
 BeginCmp
 TimeStamp = /5037043E/52F14FDB;
 Reference = Q5;
-ValeurCmp = MOSFET_P;
-IdModule  = SOT23GDS;
-EndCmp
-
-BeginCmp
-TimeStamp = /5037043E/52F16DD9;
-Reference = Q6;
 ValeurCmp = MOSFET_P;
 IdModule  = SOT23GDS;
 EndCmp
