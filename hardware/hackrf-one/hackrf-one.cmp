@@ -1,4 +1,4 @@
-Cmp-Mod V01 Created by CvPcb (2013-07-24 BZR 4024)-stable date = Thu Feb 13 04:39:22 2014
+Cmp-Mod V01 Created by CvPcb (2013-07-24 BZR 4024)-stable date = Thu Feb 13 12:25:56 2014
 
 BeginCmp
 TimeStamp = /503BB638/4FAECB99;
@@ -52,14 +52,14 @@ EndCmp
 BeginCmp
 TimeStamp = /503BB638/501EF782;
 Reference = C8;
-ValeurCmp = 47pF;
+ValeurCmp = 22pF;
 IdModule  = GSG-0402;
 EndCmp
 
 BeginCmp
 TimeStamp = /503BB638/502B53A4;
 Reference = C9;
-ValeurCmp = 10nF;
+ValeurCmp = 100nF;
 IdModule  = GSG-0402;
 EndCmp
 
@@ -115,14 +115,14 @@ EndCmp
 BeginCmp
 TimeStamp = /503BB638/501F41BB;
 Reference = C17;
-ValeurCmp = 10nF;
+ValeurCmp = 100nF;
 IdModule  = GSG-0402;
 EndCmp
 
 BeginCmp
 TimeStamp = /503BB638/501F41B9;
 Reference = C18;
-ValeurCmp = 10nF;
+ValeurCmp = 100nF;
 IdModule  = GSG-0402;
 EndCmp
 
@@ -136,14 +136,14 @@ EndCmp
 BeginCmp
 TimeStamp = /503BB638/501F41BD;
 Reference = C20;
-ValeurCmp = 10nF;
+ValeurCmp = 100nF;
 IdModule  = GSG-0402;
 EndCmp
 
 BeginCmp
 TimeStamp = /503BB638/501EF768;
 Reference = C21;
-ValeurCmp = 47pF;
+ValeurCmp = 22pF;
 IdModule  = GSG-0402;
 EndCmp
 
@@ -157,7 +157,7 @@ EndCmp
 BeginCmp
 TimeStamp = /503BB638/502B4C6F;
 Reference = C23;
-ValeurCmp = 10nF;
+ValeurCmp = 100nF;
 IdModule  = GSG-0402;
 EndCmp
 
@@ -171,7 +171,7 @@ EndCmp
 BeginCmp
 TimeStamp = /503BB638/503BB2BD;
 Reference = C25;
-ValeurCmp = 10nF;
+ValeurCmp = 100nF;
 IdModule  = GSG-0402;
 EndCmp
 
@@ -192,7 +192,7 @@ EndCmp
 BeginCmp
 TimeStamp = /503BB638/502B477A;
 Reference = C28;
-ValeurCmp = 10nF;
+ValeurCmp = 100nF;
 IdModule  = GSG-0402;
 EndCmp
 
@@ -213,14 +213,14 @@ EndCmp
 BeginCmp
 TimeStamp = /503BB638/502B56C2;
 Reference = C31;
-ValeurCmp = 10nF;
+ValeurCmp = 100nF;
 IdModule  = GSG-0402;
 EndCmp
 
 BeginCmp
 TimeStamp = /503BB638/502B571F;
 Reference = C32;
-ValeurCmp = 47pF;
+ValeurCmp = 22pF;
 IdModule  = GSG-0402;
 EndCmp
 
@@ -297,14 +297,14 @@ EndCmp
 BeginCmp
 TimeStamp = /503BB638/502B5738;
 Reference = C43;
-ValeurCmp = 47pF;
+ValeurCmp = 22pF;
 IdModule  = GSG-0402;
 EndCmp
 
 BeginCmp
 TimeStamp = /503BB638/501F4169;
 Reference = C44;
-ValeurCmp = 10nF;
+ValeurCmp = 100nF;
 IdModule  = GSG-0402;
 EndCmp
 
@@ -318,7 +318,7 @@ EndCmp
 BeginCmp
 TimeStamp = /503BB638/502B4C15;
 Reference = C46;
-ValeurCmp = 10nF;
+ValeurCmp = 100nF;
 IdModule  = GSG-0402;
 EndCmp
 
@@ -332,28 +332,28 @@ EndCmp
 BeginCmp
 TimeStamp = /503BB638/501EF6BA;
 Reference = C48;
-ValeurCmp = 47pF;
+ValeurCmp = 22pF;
 IdModule  = GSG-0402;
 EndCmp
 
 BeginCmp
 TimeStamp = /503BB638/503BB2CE;
 Reference = C49;
-ValeurCmp = 10nF;
+ValeurCmp = 100nF;
 IdModule  = GSG-0402;
 EndCmp
 
 BeginCmp
 TimeStamp = /503BB638/528EA90E;
 Reference = C50;
-ValeurCmp = 10nF;
+ValeurCmp = 100nF;
 IdModule  = GSG-0402;
 EndCmp
 
 BeginCmp
 TimeStamp = /503BB638/501EF6A1;
 Reference = C51;
-ValeurCmp = 47pF;
+ValeurCmp = 22pF;
 IdModule  = GSG-0402;
 EndCmp
 
@@ -402,14 +402,14 @@ EndCmp
 BeginCmp
 TimeStamp = /503BB638/528EA8DE;
 Reference = C58;
-ValeurCmp = 10nF;
+ValeurCmp = 100nF;
 IdModule  = GSG-0402;
 EndCmp
 
 BeginCmp
 TimeStamp = /503BB638/528EA93E;
 Reference = C59;
-ValeurCmp = 10nF;
+ValeurCmp = 100nF;
 IdModule  = GSG-0402;
 EndCmp
 
@@ -423,14 +423,14 @@ EndCmp
 BeginCmp
 TimeStamp = /503BB638/502E6909;
 Reference = C61;
-ValeurCmp = 10nF;
+ValeurCmp = 100nF;
 IdModule  = GSG-0402;
 EndCmp
 
 BeginCmp
 TimeStamp = /503BB638/528EA96E;
 Reference = C62;
-ValeurCmp = 10nF;
+ValeurCmp = 100nF;
 IdModule  = GSG-0402;
 EndCmp
 
@@ -444,7 +444,7 @@ EndCmp
 BeginCmp
 TimeStamp = /503BB638/502C6D4A;
 Reference = C64;
-ValeurCmp = 10nF;
+ValeurCmp = 100nF;
 IdModule  = GSG-0402;
 EndCmp
 
@@ -1354,14 +1354,14 @@ EndCmp
 BeginCmp
 TimeStamp = /503BB638/503BF2A7;
 Reference = L2;
-ValeurCmp = 1uH;
+ValeurCmp = 10uH;
 IdModule  = GSG-0603;
 EndCmp
 
 BeginCmp
 TimeStamp = /503BB638/503BF2B7;
 Reference = L3;
-ValeurCmp = 1uH;
+ValeurCmp = 10uH;
 IdModule  = GSG-0603;
 EndCmp
 
@@ -1375,7 +1375,7 @@ EndCmp
 BeginCmp
 TimeStamp = /503BB638/502C6D12;
 Reference = L5;
-ValeurCmp = 1uH;
+ValeurCmp = 10uH;
 IdModule  = GSG-0603;
 EndCmp
 
@@ -1424,14 +1424,14 @@ EndCmp
 BeginCmp
 TimeStamp = /503BB638/503BF2DC;
 Reference = L12;
-ValeurCmp = 1uH;
+ValeurCmp = 10uH;
 IdModule  = GSG-0603;
 EndCmp
 
 BeginCmp
 TimeStamp = /503BB638/52EA1189;
 Reference = L13;
-ValeurCmp = 1uH;
+ValeurCmp = 10uH;
 IdModule  = GSG-0603;
 EndCmp
 
