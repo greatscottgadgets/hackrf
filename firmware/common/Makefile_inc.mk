@@ -77,7 +77,7 @@ else
 endif
 
 LDSCRIPT_M0 += -T$(PATH_HACKRF_FIRMWARE_COMMON)/LPC43xx_M0_memory.ld
-LDSCRIPT_M0 += -Tlibopencm3_lpc43xx_m0_ram_only.ld
+LDSCRIPT_M0 += -Tlibopencm3_lpc43xx_m0.ld
 
 PREFIX ?= arm-none-eabi
 CC = $(PREFIX)-gcc
