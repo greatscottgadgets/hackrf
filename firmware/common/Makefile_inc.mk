@@ -26,7 +26,7 @@
 
 # derived primarily from Makefiles in libopencm3
 
-BOARD ?= JAWBREAKER
+BOARD ?= HACKRF_ONE
 RUN_FROM ?= SPIFI
 
 ifeq ($(BOARD),HACKRF_ONE)
