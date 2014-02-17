@@ -24,6 +24,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 #include "hackrf.h"
 
 #include <stdlib.h>
+#include <string.h>
 
 #include <libusb.h>
 #include <pthread.h>
@@ -114,6 +115,12 @@ volatile bool do_exit = false;
 
 static const uint16_t hackrf_usb_vid = 0x1d50;
 static const uint16_t hackrf_usb_pid = 0x604b;
+
+#define USB_PRODUCT_ID (2)
+#define STR_DESCRIPTOR_SIZE (250)
+unsigned char str_desc[STR_DESCRIPTOR_SIZE+1] = { 0 };
+#define STR_PRODUCT_HACKRF_SIZE (6)
+const unsigned char str_product_hackrf[STR_PRODUCT_HACKRF_SIZE] = {	'H',	'a',	'c',	'k',	'R',	'F' };
 
 static libusb_context* g_libusb_context = NULL;
 
@@ -275,6 +282,24 @@ int ADDCALL hackrf_open(hackrf_device** device)
 	{
 		return HACKRF_ERROR_NOT_FOUND;
 	}
+
+	/* Get Product Descriptor */
+	result = libusb_get_string_descriptor_ascii(usb_device, USB_PRODUCT_ID, str_desc, STR_DESCRIPTOR_SIZE);
+	if( result != 0 )
+	{
+		/* Check Product corresponds to HACKRF product */
+		result = memcmp(str_desc, str_product_hackrf, STR_PRODUCT_HACKRF_SIZE);
+		if(result != 0)
+		{
+			libusb_close(usb_device);
+			return HACKRF_ERROR_NOT_FOUND;
+		}
+	}else
+	{
+		libusb_close(usb_device);
+		return HACKRF_ERROR_LIBUSB;
+	}
+
 
 	//int speed = libusb_get_device_speed(usb_device);
 	// TODO: Error or warning if not high speed USB?

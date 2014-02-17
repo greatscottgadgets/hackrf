@@ -24,7 +24,7 @@
 
 #include <libopencm3/lpc43xx/cgu.h>
 #include <libopencm3/lpc43xx/gpio.h>
-#include <libopencm3/lpc43xx/m4/nvic.h>
+#include <libopencm3/lpc43xx/nvic.h>
 #include <libopencm3/lpc43xx/sgpio.h>
 
 #include <hackrf_core.h>
@@ -295,7 +295,7 @@ usb_endpoint_t usb_endpoint_bulk_out = {
 void baseband_streaming_disable() {
 	sgpio_cpld_stream_disable();
 
-	nvic_disable_irq(NVIC_SGPIO_IRQ);
+	nvic_disable_irq(NVIC_M4_SGPIO_IRQ);
 	
 	usb_endpoint_disable(&usb_endpoint_bulk_in);
 	usb_endpoint_disable(&usb_endpoint_bulk_out);
@@ -335,8 +335,8 @@ void set_transceiver_mode(const transceiver_mode_t new_transceiver_mode) {
 
 	sgpio_configure(transceiver_mode, true);
 
-	nvic_set_priority(NVIC_SGPIO_IRQ, 0);
-	nvic_enable_irq(NVIC_SGPIO_IRQ);
+	nvic_set_priority(NVIC_M4_SGPIO_IRQ, 0);
+	nvic_enable_irq(NVIC_M4_SGPIO_IRQ);
 	SGPIO_SET_EN_1 = (1 << SGPIO_SLICE_A);
 
     sgpio_cpld_stream_enable();
@@ -884,19 +884,57 @@ const usb_request_handlers_t usb_request_handlers = {
 	.reserved = 0,
 };
 
-void usb_configuration_changed(
-	usb_device_t* const device
+// TODO: Seems like this should live in usb_standard_request.c.
+bool usb_set_configuration(
+	usb_device_t* const device,
+	const uint_fast8_t configuration_number
 ) {
-	set_transceiver_mode(transceiver_mode);
+	const usb_configuration_t* new_configuration = 0;
+	if( configuration_number != 0 ) {
+		
+		// Locate requested configuration.
+		if( device->configurations ) {
+			usb_configuration_t** configurations = *(device->configurations);
+			uint32_t i = 0;
+			const usb_speed_t usb_speed_current = usb_speed(device);
+			while( configurations[i] ) {
+				if( (configurations[i]->speed == usb_speed_current) &&
+				    (configurations[i]->number == configuration_number) ) {
+					new_configuration = configurations[i];
+					break;
+				}
+				i++;
+			}
+		}
+
+		// Requested configuration not found: request error.
+		if( new_configuration == 0 ) {
+			return false;
+		}
+	}else
+    {
+        /* Configuration number equal 0 means usb bus reset, 
+        set MCU freq to low power consumption */
+        cpu_clock_pll1_low_speed();
+    }
 	
-	if( device->configuration->number ) {
-		gpio_set(PORT_LED1_3, PIN_LED1);
-	} else {
-		gpio_clear(PORT_LED1_3, PIN_LED1);
+	if( new_configuration != device->configuration ) {
+		// Configuration changed.
+		device->configuration = new_configuration;
+        cpu_clock_pll1_max_speed(); /* Switch MCU clock to max speed */
+		set_transceiver_mode(transceiver_mode);
+
+		if( device->configuration ) {
+			gpio_set(PORT_LED1_3, PIN_LED1);
+		} else {
+			gpio_clear(PORT_LED1_3, PIN_LED1);
+		}
 	}
+
+	return true;
 };
 
-void sgpio_isr() {
+void sgpio_irqhandler() {
 	SGPIO_CLR_STATUS_1 = (1 << SGPIO_SLICE_A);
 
 	uint32_t* const p = (uint32_t*)&usb_bulk_buffer[usb_bulk_buffer_offset];
@@ -968,7 +1006,8 @@ int main(void) {
 	enable_rf_power();
 #endif
 	cpu_clock_init();
-
+    cpu_clock_pll1_low_speed();
+    
 	usb_peripheral_reset();
 	
 	usb_device_init(0, &usb_device);
@@ -976,7 +1015,7 @@ int main(void) {
 	usb_endpoint_init(&usb_endpoint_control_out);
 	usb_endpoint_init(&usb_endpoint_control_in);
 	
-	nvic_set_priority(NVIC_USB0_IRQ, 255);
+	nvic_set_priority(NVIC_M4_USB0_IRQ, 255);
 
 	usb_run(&usb_device);
 	
