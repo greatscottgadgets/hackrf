@@ -1,5 +1,6 @@
 /*
  * Copyright 2012 Michael Ossmann
+ * Copyright 2014 Jared Boone <jared@sharebrained.com>
  *
  * This file is part of HackRF.
  *
@@ -407,12 +408,12 @@ void rffc5071_enable(void)  {
 #define REF_FREQ 50
 
 /* configure frequency synthesizer in integer mode (lo in MHz) */
-uint32_t rffc5071_config_synth_int(uint16_t lo) {
+uint64_t rffc5071_config_synth_int(uint16_t lo) {
 	uint8_t lodiv;
 	uint16_t fvco;
 	uint8_t fbkdiv;
 	uint16_t n;
-	uint32_t tune_freq_hz;
+	uint64_t tune_freq_hz;
 	uint16_t p1nmsb;
 	uint8_t p1nlsb;
 	
@@ -448,7 +449,7 @@ uint32_t rffc5071_config_synth_int(uint16_t lo) {
 	p1nlsb = (tmp_n >> 5ULL) & 0xff;
 	
 	//~ tune_freq = REF_FREQ*tmp_n*fbkdiv/lodiv / (1 << 29);
-	tune_freq_hz = (uint32_t)(REF_FREQ*tmp_n*fbkdiv/lodiv * 1000*1000 / (1 << 29ULL));
+	tune_freq_hz = REF_FREQ*tmp_n*fbkdiv/lodiv * 1000*1000 / (1 << 29ULL);
 	LOG("# lo=%d n_lo=%d lodiv=%d fvco=%d fbkdiv=%d n=%d tune_freq_hz=%d\n",
 	    lo, n_lo, lodiv, fvco, fbkdiv, n, tune_freq);
 
@@ -472,7 +473,7 @@ uint32_t rffc5071_config_synth_int(uint16_t lo) {
 }
 
 /* !!!!!!!!!!! hz is currently ignored !!!!!!!!!!! */
-uint32_t rffc5071_set_frequency(uint16_t mhz) {
+uint64_t rffc5071_set_frequency(uint16_t mhz) {
 	uint32_t tune_freq;
 
 	rffc5071_disable();
