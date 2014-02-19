@@ -70,11 +70,10 @@ OBJ_M0_S = $(patsubst %.s, $(OBJDIR_M0)/%.o, $(notdir $(SRC_M0_S)))
 LDSCRIPT_M4 += -T$(PATH_HACKRF_FIRMWARE_COMMON)/$(MCU_PARTNO)_M4_memory.ld
 ifeq ($(RUN_FROM),RAM)
 	LDSCRIPT_M4 += -Tlibopencm3_lpc43xx.ld
-	LDSCRIPT_M4 += -T$(PATH_HACKRF_FIRMWARE_COMMON)/LPC43xx_M4_M0_image_in_ram.ld
 else
 	LDSCRIPT_M4 += -Tlibopencm3_lpc43xx_rom_to_ram.ld
-	LDSCRIPT_M4 += -T$(PATH_HACKRF_FIRMWARE_COMMON)/LPC43xx_M4_M0_image_from_spifi.ld
 endif
+LDSCRIPT_M4 += -T$(PATH_HACKRF_FIRMWARE_COMMON)/LPC43xx_M4_M0_image_from_text.ld
 
 LDSCRIPT_M0 += -T$(PATH_HACKRF_FIRMWARE_COMMON)/LPC43xx_M0_memory.ld
 LDSCRIPT_M0 += -Tlibopencm3_lpc43xx_m0.ld
