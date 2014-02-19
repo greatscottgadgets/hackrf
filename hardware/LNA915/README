@@ -1,4 +1,4 @@
-Copyright 2012, 2013 Michael Ossmann
+Copyright 2014 Michael Ossmann
 
 These files are part of HackRF.
 
@@ -18,7 +18,9 @@ the Free Software Foundation, Inc., 51 Franklin Street,
 Boston, MA 02110-1301, USA.
 
 
-HackRF One is a wideband software radio transceiver with a USB interface.
+LNA915 is a SAW filter and LNA for the 902 to 928 MHz ISM band.  It is designed
+for in-line connection between an antenna and HackRF One and is powered by the
+HackRF One.
 
 hardware notes:
 
@@ -31,17 +33,19 @@ order of copper layers:
     Copper 3:  C3
     Copper 4:  C1B (back)
 
-PCB description: 4 layer PCB 0.062 in
-    Copper        1   0.5 oz foil plated to approximately 0.0017 in
-    Dielectric  1-2   0.0119 in
-    Copper        2   1 oz foil (0.0014 in)
-    Dielectric  2-3   0.0280 in
-    Copper        3   1 oz foil (0.0014 in)
-    Dielectric  3-4   0.0119 in
-    Copper        4   0.5 oz foil plated to approximately 0.0017 in
+PCB description: 4 layer PCB 0.0646 in
+    Copper       1:  1 oz copper (1.4 mil)
+    Dielectric 1-2:  6.7 mil prepreg
+    Copper       2:  0.5 oz copper (0.7 mil)
+    Dielectric 2-3:  47 mil core
+    Copper       3:  0.5 oz copper (0.7 mil)
+    Dielectric 3-4:  6.7 mil prepreg
+    Copper       4:  1 oz copper (1.4 mil)
 
-FR4 or similar substrate with Er=4.5 (+/- 0.1)
+FR408 or similar substrate with Er=3.66 (+/- 0.1)
 double side solder mask green
-single side silkscreen white
+double side silkscreen white
 6 mil min trace width and
 6 mil min isolation
+
+PCBs of this specification are available from OSH Park.
