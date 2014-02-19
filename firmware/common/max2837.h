@@ -37,6 +37,21 @@ extern void max2837_regs_read(void);
  * provided routines for those operations. */
 extern void max2837_regs_commit(void);
 
+typedef enum {
+	MAX2837_MODE_SHUTDOWN,
+	MAX2837_MODE_STANDBY,
+	MAX2837_MODE_TX,
+	MAX2837_MODE_RX
+} max2837_mode_t;
+
+void max2837_mode_shutdown(void);
+void max2837_mode_standby(void);
+void max2837_mode_tx(void);
+void max2837_mode_rx(void);
+
+max2837_mode_t max2837_mode(void);
+void max2837_set_mode(const max2837_mode_t new_mode);
+
 /* Turn on/off all chip functions. Does not control oscillator and CLKOUT */
 extern void max2837_start(void);
 extern void max2837_stop(void);

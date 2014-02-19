@@ -24,14 +24,23 @@
 
 #include <hackrf_core.h>
 
+typedef enum {
+	SGPIO_DIRECTION_RX,
+	SGPIO_DIRECTION_TX,
+} sgpio_direction_t;
+	
 void sgpio_configure_pin_functions();
 void sgpio_test_interface();
-void sgpio_configure(
-	const transceiver_mode_t transceiver_mode,
+void sgpio_set_slice_mode(
 	const bool multi_slice
+);
+void sgpio_configure(
+	const sgpio_direction_t direction
 );
 void sgpio_cpld_stream_enable();
 void sgpio_cpld_stream_disable();
 bool sgpio_cpld_stream_is_enabled();
+
+bool sgpio_cpld_stream_rx_set_decimation(const uint_fast8_t skip_n);
 
 #endif//__SGPIO_H__

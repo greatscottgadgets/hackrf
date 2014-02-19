@@ -55,7 +55,6 @@ typedef enum {
 	HACKRF_VENDOR_REQUEST_SPIFLASH_ERASE = 10,
 	HACKRF_VENDOR_REQUEST_SPIFLASH_WRITE = 11,
 	HACKRF_VENDOR_REQUEST_SPIFLASH_READ = 12,
-	HACKRF_VENDOR_REQUEST_CPLD_WRITE = 13,
 	HACKRF_VENDOR_REQUEST_BOARD_ID_READ = 14,
 	HACKRF_VENDOR_REQUEST_VERSION_STRING_READ = 15,
 	HACKRF_VENDOR_REQUEST_SET_FREQ = 16,
@@ -632,25 +631,44 @@ int ADDCALL hackrf_spiflash_read(hackrf_device* device, const uint32_t address,
 	}
 }
 
-int ADDCALL hackrf_cpld_write(hackrf_device* device, const uint16_t length,
-		unsigned char* const data, const uint16_t total_length)
+int ADDCALL hackrf_cpld_write(hackrf_device* device,
+		unsigned char* const data, const unsigned int total_length)
 {
-	int result = libusb_control_transfer(
-		device->usb_device,
-		LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
-		HACKRF_VENDOR_REQUEST_CPLD_WRITE,
-		total_length,
-		0,
-		data,
-		length,
-		0
-	);
-
-	if (result < length) {
+	int result = libusb_release_interface(device->usb_device, 0);
+	if (result != LIBUSB_SUCCESS) {
 		return HACKRF_ERROR_LIBUSB;
-	} else {
-		return HACKRF_SUCCESS;
 	}
+
+	result = libusb_set_configuration(device->usb_device, 2);
+	if (result != LIBUSB_SUCCESS) {
+		return HACKRF_ERROR_LIBUSB;
+	}
+
+	result = libusb_claim_interface(device->usb_device, 0);
+	if (result != LIBUSB_SUCCESS) {
+		return HACKRF_ERROR_LIBUSB;
+	}
+
+	const unsigned int chunk_size = 512;
+	unsigned int i;
+	int transferred = 0;
+	for (i = 0; i < total_length; i += chunk_size)
+	{
+		result = libusb_bulk_transfer(
+			device->usb_device,
+			LIBUSB_ENDPOINT_OUT | 2,
+			&data[i],
+			chunk_size,
+			&transferred,
+			10000 // long timeout to allow for CPLD programming
+		);
+
+		if (result != LIBUSB_SUCCESS) {
+			return HACKRF_ERROR_LIBUSB;
+		}
+	}
+
+	return HACKRF_SUCCESS;
 }
 
 int ADDCALL hackrf_board_id_read(hackrf_device* device, uint8_t* value)
@@ -1141,14 +1159,13 @@ int ADDCALL hackrf_start_rx(hackrf_device* device, hackrf_sample_block_cb_fn cal
 
 int ADDCALL hackrf_stop_rx(hackrf_device* device)
 {
-	int result1, result2;
-	result1 = kill_transfer_thread(device);
-	result2 = hackrf_set_transceiver_mode(device, HACKRF_TRANSCEIVER_MODE_OFF);
-	if (result2 != HACKRF_SUCCESS)
+	int result;
+	result = hackrf_set_transceiver_mode(device, HACKRF_TRANSCEIVER_MODE_OFF);
+	if (result != HACKRF_SUCCESS)
 	{
-		return result2;
+		return result;
 	}
-	return result1;
+	return kill_transfer_thread(device);
 }
 
 int ADDCALL hackrf_start_tx(hackrf_device* device, hackrf_sample_block_cb_fn callback, void* tx_ctx)

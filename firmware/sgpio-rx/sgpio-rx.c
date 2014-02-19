@@ -21,19 +21,16 @@
  */
 
 #include <libopencm3/lpc43xx/gpio.h>
-#include <libopencm3/lpc43xx/scu.h>
 #include <libopencm3/lpc43xx/sgpio.h>
-#include <libopencm3/lpc43xx/cgu.h>
-#include <libopencm3/cm3/scs.h>
 
 #include <hackrf_core.h>
-#include <max5864.h>
-#include <max2837.h>
-#include <rffc5071.h>
+#include <rf_path.h>
 #include <sgpio.h>
+#include <tuning.h>
 
 void tx_test() {
-	sgpio_configure(TRANSCEIVER_MODE_TX, false);
+	sgpio_set_slice_mode(false);
+	sgpio_configure(TRANSCEIVER_MODE_TX);
 	
 	// LSB goes out first, samples are 0x<Q1><I1><Q0><I0>
 	volatile uint32_t buffer[] = {
@@ -54,7 +51,8 @@ void tx_test() {
 }
 
 void rx_test() {
-	sgpio_configure(TRANSCEIVER_MODE_RX, false);
+	sgpio_set_slice_mode(false);
+	sgpio_configure(TRANSCEIVER_MODE_RX);
 
     volatile uint32_t buffer[4096];
     uint32_t i = 0;
@@ -90,28 +88,17 @@ void rx_test() {
 
 int main(void) {
 
-	const uint32_t freq = 2700000000U;
-	uint8_t switchctrl = 0;
+	const uint64_t freq = 2700000000U;
 
 	pin_setup();
 	enable_1v8_power();
 	cpu_clock_init();
     ssp1_init();
-	ssp1_set_mode_max2837();
-	max2837_setup();
-	rffc5071_setup();
-#ifdef JAWBREAKER
-	switchctrl = (SWITCHCTRL_AMP_BYPASS | SWITCHCTRL_HP);
-#endif
-	rffc5071_rx(switchctrl);
-	rffc5071_set_frequency(500); // 500 MHz
+    rf_path_init();
+    rf_path_set_direction(RF_PATH_DIRECTION_RX);
 
-	max2837_set_frequency(freq);
-	max2837_start();
-	max2837_rx();
+	set_freq(freq);
 
-	ssp1_set_mode_max5864();
-	max5864_xcvr();
 	rx_test();
 	gpio_set(PORT_LED1_3, (PIN_LED2)); /* LED2 on */
 

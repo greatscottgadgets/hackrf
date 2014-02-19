@@ -79,8 +79,13 @@ extern "C"
 /* CPLD JTAG interface */
 #define SCU_PINMUX_CPLD_TDO (P9_5)  /* GPIO5[18] */
 #define SCU_PINMUX_CPLD_TCK (P6_1)  /* GPIO3[ 0] */
+#ifdef HACKRF_ONE
 #define SCU_PINMUX_CPLD_TMS (P6_5)  /* GPIO3[ 4] */
 #define SCU_PINMUX_CPLD_TDI (P6_2)  /* GPIO3[ 1] */
+#else
+#define SCU_PINMUX_CPLD_TMS (P6_2)  /* GPIO3[ 1] */
+#define SCU_PINMUX_CPLD_TDI (P6_5)  /* GPIO3[ 4] */
+#endif
 
 /* CPLD SGPIO interface */
 #define SCU_PINMUX_SGPIO0   (P0_0)
@@ -172,6 +177,32 @@ extern "C"
 #define SCU_RX_AMP          (P2_11) /* GPIO1[11] on P2_11 */
 #define SCU_NO_RX_AMP_PWR   (P2_12) /* GPIO1[12] on P2_12 */
 #endif
+
+/* TODO add other Pins */
+#define SCU_PINMUX_GPIO3_8  (P7_0)  /* GPIO3[8] */
+#define SCU_PINMUX_GPIO3_9  (P7_1)  /* GPIO3[9] */
+#define SCU_PINMUX_GPIO3_10 (P7_2)  /* GPIO3[10] */
+#define SCU_PINMUX_GPIO3_11 (P7_3)  /* GPIO3[11] */
+#define SCU_PINMUX_GPIO3_12 (P7_4)  /* GPIO3[12] */
+#define SCU_PINMUX_GPIO3_13 (P7_5)  /* GPIO3[13] */
+#define SCU_PINMUX_GPIO3_14 (P7_6)  /* GPIO3[14] */
+#define SCU_PINMUX_GPIO3_15 (P7_7)  /* GPIO3[15] */
+
+#define SCU_PINMUX_SD_POW   (P1_5)  /* GPIO1[8] */
+#define SCU_PINMUX_SD_CMD   (P1_6)  /* GPIO1[9] */
+#define SCU_PINMUX_SD_VOLT0 (P1_8)  /* GPIO1[1] */
+#define SCU_PINMUX_SD_DAT0  (P1_9)  /* GPIO1[2] */
+#define SCU_PINMUX_SD_DAT1  (P1_10) /* GPIO1[3] */
+#define SCU_PINMUX_SD_DAT2  (P1_11) /* GPIO1[4] */
+#define SCU_PINMUX_SD_DAT3  (P1_12) /* GPIO1[5] */
+#define SCU_PINMUX_SD_CD    (P1_13) /* GPIO1[6] */
+
+#define SCU_PINMUX_U0_TXD   (P2_0)  /* GPIO5[0] */
+#define SCU_PINMUX_U0_RXD   (P2_1)  /* GPIO5[1] */
+
+#define SCU_PINMUX_ISP      (P2_7)  /* GPIO0[7] */
+
+#define SCU_PINMUX_GP_CLKIN	(P4_7)
 
 /*
  * GPIO Pins
@@ -286,11 +317,18 @@ extern "C"
 #define PORT_CPLD_TDO   (GPIO5)
 #define PIN_CPLD_TCK    (GPIOPIN0)
 #define PORT_CPLD_TCK   (GPIO3)
+#ifdef HACKRF_ONE
 #define PIN_CPLD_TMS    (GPIOPIN4)
 #define PORT_CPLD_TMS   (GPIO3)
 #define PIN_CPLD_TDI    (GPIOPIN1)
 #define PORT_CPLD_TDI   (GPIO3)
-
+#else
+#define PIN_CPLD_TMS    (GPIOPIN1)
+#define PORT_CPLD_TMS   (GPIO3)
+#define PIN_CPLD_TDI    (GPIOPIN4)
+#define PORT_CPLD_TDI   (GPIO3)
+#endif
+ 
 /* Read GPIO Pin */
 #define GPIO_STATE(port, pin) ((GPIO_PIN(port) & (pin)) == (pin))
 #define BOOT0_STATE       GPIO_STATE(GPIO0, PIN_BOOT0)
@@ -300,27 +338,7 @@ extern "C"
 #define MIXER_SDATA_STATE GPIO_STATE(PORT_MIXER_SDATA, PIN_MIXER_SDATA)
 #define CPLD_TDO_STATE    GPIO_STATE(PORT_CPLD_TDO, PIN_CPLD_TDO)
 
-/*
- * RF switches on Jawbreaker are controlled by General Purpose Outputs (GPO) on
- * the RFFC5072.
- *
- * On HackRF One, the same signals are controlled by GPIO on the LPC.
- * SWITCHCTRL_NO_TX_AMP_PWR and SWITCHCTRL_NO_RX_AMP_PWR are not normally used
- * on HackRF One as the amplifier power is instead controlled only by
- * SWITCHCTRL_AMP_BYPASS.
- */
-#define SWITCHCTRL_NO_TX_AMP_PWR (1 << 0) /* GPO1 turn off TX amp power */
-#define SWITCHCTRL_AMP_BYPASS    (1 << 1) /* GPO2 bypass amp section */
-#define SWITCHCTRL_TX            (1 << 2) /* GPO3 1 for TX mode, 0 for RX mode */
-#define SWITCHCTRL_MIX_BYPASS    (1 << 3) /* GPO4 bypass RFFC5072 mixer section */
-#define SWITCHCTRL_HP            (1 << 4) /* GPO5 1 for high-pass, 0 for low-pass */
-#define SWITCHCTRL_NO_RX_AMP_PWR (1 << 5) /* GPO6 turn off RX amp power */
-
-/*
- * Safe (initial) switch settings turn off both amplifiers and enable both amp
- * bypass and mixer bypass.
- */
-#define SWITCHCTRL_SAFE (SWITCHCTRL_NO_TX_AMP_PWR | SWITCHCTRL_AMP_BYPASS | SWITCHCTRL_TX | SWITCHCTRL_MIX_BYPASS | SWITCHCTRL_HP | SWITCHCTRL_NO_RX_AMP_PWR)
+/* TODO add other Pins */
 
 typedef enum {
 	TRANSCEIVER_MODE_OFF = 0,
@@ -331,6 +349,8 @@ typedef enum {
 void delay(uint32_t duration);
 
 void cpu_clock_init(void);
+void cpu_clock_pll1_low_speed(void);
+void cpu_clock_pll1_max_speed(void);
 void ssp1_init(void);
 void ssp1_set_mode_max2837(void);
 void ssp1_set_mode_max5864(void);
@@ -347,7 +367,6 @@ bool baseband_filter_bandwidth_set(const uint32_t bandwidth_hz);
 #ifdef HACKRF_ONE
 void enable_rf_power(void);
 void disable_rf_power(void);
-void switchctrl_set(uint8_t ctrl);
 #endif
 
 #ifdef __cplusplus

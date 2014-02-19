@@ -25,11 +25,15 @@
 #include "si5351c.h"
 #include "max2837.h"
 #include "rffc5071.h"
+#include "sgpio.h"
+#include "rf_path.h"
 #include <libopencm3/lpc43xx/i2c.h>
 #include <libopencm3/lpc43xx/cgu.h>
 #include <libopencm3/lpc43xx/gpio.h>
 #include <libopencm3/lpc43xx/scu.h>
 #include <libopencm3/lpc43xx/ssp.h>
+
+#define WAIT_CPU_CLOCK_INIT_DELAY   (10000)
 
 void delay(uint32_t duration)
 {
@@ -186,16 +190,32 @@ bool sample_rate_set(const uint32_t sample_rate_hz) {
 
 #if (defined JAWBREAKER || defined HACKRF_ONE)
 	uint32_t p1 = 4608;
+	uint32_t p2 = 0;
+	uint32_t p3 = 0;
 	
  	switch(sample_rate_hz) {
 	case 8000000:
 		p1 = SI_INTDIV(50);	// 800MHz / 50 = 16 MHz (SGPIO), 8 MHz (codec)
 		break;
 		
+ 	case 9216000:
+ 		// 43.40277777777778: a = 43; b = 29; c = 72
+ 		p1 = 5043;
+ 		p2 = 40;
+ 		p3 = 72;
+ 		break;
+
  	case 10000000:
 		p1 = SI_INTDIV(40);	// 800MHz / 40 = 20 MHz (SGPIO), 10 MHz (codec)
  		break;
  
+ 	case 12288000:
+ 		// 32.552083333333336: a = 32; b = 159; c = 288
+ 		p1 = 3654;
+ 		p2 = 192;
+ 		p3 = 288;
+ 		break;
+
  	case 12500000:
 		p1 = SI_INTDIV(32);	// 800MHz / 32 = 25 MHz (SGPIO), 12.5 MHz (codec)
  		break;
@@ -204,6 +224,13 @@ bool sample_rate_set(const uint32_t sample_rate_hz) {
 		p1 = SI_INTDIV(25);	// 800MHz / 25 = 32 MHz (SGPIO), 16 MHz (codec)
  		break;
  	
+ 	case 18432000:
+ 		// 21.70138888889: a = 21; b = 101; c = 144
+ 		p1 = 2265;
+ 		p2 = 112;
+ 		p3 = 144;
+ 		break;
+
  	case 20000000:
 		p1 = SI_INTDIV(20);	// 800MHz / 20 = 40 MHz (SGPIO), 20 MHz (codec)
  		break;
@@ -213,7 +240,7 @@ bool sample_rate_set(const uint32_t sample_rate_hz) {
 	}
 	
 	/* MS0/CLK0 is the source for the MAX5864/CPLD (CODEC_CLK). */
-	si5351c_configure_multisynth(0, p1, 0, 1, 1);
+	si5351c_configure_multisynth(0, p1, p2, p3, 1);
 
 	/* MS0/CLK1 is the source for the CPLD (CODEC_X2_CLK). */
 	si5351c_configure_multisynth(1, p1, 0, 1, 0);//p1 doesn't matter
@@ -232,7 +259,9 @@ bool baseband_filter_bandwidth_set(const uint32_t bandwidth_hz) {
 	return max2837_set_lpf_bandwidth(bandwidth_hz);
 }
 
-/* clock startup for Jellybean with Lemondrop attached */ 
+/* clock startup for Jellybean with Lemondrop attached
+Configure PLL1 to max speed (204MHz).
+Note: PLL1 clock is used by M4/M0 core, Peripheral, APB1. */ 
 void cpu_clock_init(void)
 {
 	/* use IRC as clock source for APB1 (including I2C0) */
@@ -290,9 +319,10 @@ void cpu_clock_init(void)
  	/* MS5/CLK5 is the source for the MAX2837 clock input. */
 	si5351c_configure_multisynth(5, 20*128-512, 0, 1, 0); /* 800/20 = 40MHz */
 
+	/* MS6/CLK6 is unused. */
 	/* MS7/CLK7 is the source for the LPC43xx microcontroller. */
-	//uint8_t ms7data[] = { 91, 40, 0x0 };
-	//si5351c_write(ms7data, sizeof(ms7data));
+	uint8_t ms7data[] = { 90, 255, 20, 0 };
+	si5351c_write(ms7data, sizeof(ms7data));
 #endif
 
 	/* Set to 10 MHz, the common rate between Jellybean and Jawbreaker. */
@@ -323,74 +353,147 @@ void cpu_clock_init(void)
 #endif
 
 	/* set xtal oscillator to low frequency mode */
-	CGU_XTAL_OSC_CTRL &= ~CGU_XTAL_OSC_CTRL_HF;
+	CGU_XTAL_OSC_CTRL &= ~CGU_XTAL_OSC_CTRL_HF_MASK;
 
 	/* power on the oscillator and wait until stable */
-	CGU_XTAL_OSC_CTRL &= ~CGU_XTAL_OSC_CTRL_ENABLE;
+	CGU_XTAL_OSC_CTRL &= ~CGU_XTAL_OSC_CTRL_ENABLE_MASK;
+
+	/* Wait about 100us after Crystal Power ON */
+	delay(WAIT_CPU_CLOCK_INIT_DELAY);
 
 	/* use XTAL_OSC as clock source for BASE_M4_CLK (CPU) */
-	CGU_BASE_M4_CLK = CGU_BASE_M4_CLK_CLK_SEL(CGU_SRC_XTAL);
+	CGU_BASE_M4_CLK = (CGU_BASE_M4_CLK_CLK_SEL(CGU_SRC_XTAL) | CGU_BASE_M4_CLK_AUTOBLOCK(1));
 
 	/* use XTAL_OSC as clock source for APB1 */
-	CGU_BASE_APB1_CLK = CGU_BASE_APB1_CLK_AUTOBLOCK
+	CGU_BASE_APB1_CLK = CGU_BASE_APB1_CLK_AUTOBLOCK(1)
 			| CGU_BASE_APB1_CLK_CLK_SEL(CGU_SRC_XTAL);
 
-	/* use XTAL_OSC as clock source for PLL1 */
-	/* Start PLL1 at 12MHz * 17 / (2+2) = 51MHz. */
-	CGU_PLL1_CTRL = CGU_PLL1_CTRL_CLK_SEL(CGU_SRC_XTAL)
-            | CGU_PLL1_CTRL_PSEL(1)
-            | CGU_PLL1_CTRL_NSEL(0)
-            | CGU_PLL1_CTRL_MSEL(16)
-            | CGU_PLL1_CTRL_PD;
-
-	/* power on PLL1 and wait until stable */
-	CGU_PLL1_CTRL &= ~CGU_PLL1_CTRL_PD;
-	while (!(CGU_PLL1_STAT & CGU_PLL1_STAT_LOCK));
+	cpu_clock_pll1_low_speed();
 
 	/* use PLL1 as clock source for BASE_M4_CLK (CPU) */
-	CGU_BASE_M4_CLK = CGU_BASE_M4_CLK_CLK_SEL(CGU_SRC_PLL1);
-
-	/* Move PLL1 up to 12MHz * 17 = 204MHz. */
-	CGU_PLL1_CTRL = CGU_PLL1_CTRL_CLK_SEL(CGU_SRC_XTAL)
-            | CGU_PLL1_CTRL_PSEL(0)
-            | CGU_PLL1_CTRL_NSEL(0)
-			| CGU_PLL1_CTRL_MSEL(16)
-			| CGU_PLL1_CTRL_FBSEL;
-			//| CGU_PLL1_CTRL_DIRECT;
-
-	/* wait until stable */
-	while (!(CGU_PLL1_STAT & CGU_PLL1_STAT_LOCK));
+	CGU_BASE_M4_CLK = (CGU_BASE_M4_CLK_CLK_SEL(CGU_SRC_PLL1) | CGU_BASE_M4_CLK_AUTOBLOCK(1));
 
 	/* use XTAL_OSC as clock source for PLL0USB */
-	CGU_PLL0USB_CTRL = CGU_PLL0USB_CTRL_PD
-			| CGU_PLL0USB_CTRL_AUTOBLOCK
+	CGU_PLL0USB_CTRL = CGU_PLL0USB_CTRL_PD(1)
+			| CGU_PLL0USB_CTRL_AUTOBLOCK(1)
 			| CGU_PLL0USB_CTRL_CLK_SEL(CGU_SRC_XTAL);
-	while (CGU_PLL0USB_STAT & CGU_PLL0USB_STAT_LOCK);
+	while (CGU_PLL0USB_STAT & CGU_PLL0USB_STAT_LOCK_MASK);
 
 	/* configure PLL0USB to produce 480 MHz clock from 12 MHz XTAL_OSC */
 	/* Values from User Manual v1.4 Table 94, for 12MHz oscillator. */
 	CGU_PLL0USB_MDIV = 0x06167FFA;
 	CGU_PLL0USB_NP_DIV = 0x00302062;
-	CGU_PLL0USB_CTRL |= (CGU_PLL0USB_CTRL_PD
-			| CGU_PLL0USB_CTRL_DIRECTI
-			| CGU_PLL0USB_CTRL_DIRECTO
-			| CGU_PLL0USB_CTRL_CLKEN);
+	CGU_PLL0USB_CTRL |= (CGU_PLL0USB_CTRL_PD(1)
+			| CGU_PLL0USB_CTRL_DIRECTI(1)
+			| CGU_PLL0USB_CTRL_DIRECTO(1)
+			| CGU_PLL0USB_CTRL_CLKEN(1));
 
 	/* power on PLL0USB and wait until stable */
-	CGU_PLL0USB_CTRL &= ~CGU_PLL0USB_CTRL_PD;
-	while (!(CGU_PLL0USB_STAT & CGU_PLL0USB_STAT_LOCK));
+	CGU_PLL0USB_CTRL &= ~CGU_PLL0USB_CTRL_PD_MASK;
+	while (!(CGU_PLL0USB_STAT & CGU_PLL0USB_STAT_LOCK_MASK));
 
 	/* use PLL0USB as clock source for USB0 */
-	CGU_BASE_USB0_CLK = CGU_BASE_USB0_CLK_AUTOBLOCK
+	CGU_BASE_USB0_CLK = CGU_BASE_USB0_CLK_AUTOBLOCK(1)
 			| CGU_BASE_USB0_CLK_CLK_SEL(CGU_SRC_PLL0USB);
 
 	/* Switch peripheral clock over to use PLL1 (204MHz) */
-	CGU_BASE_PERIPH_CLK = CGU_BASE_PERIPH_CLK_AUTOBLOCK
+	CGU_BASE_PERIPH_CLK = CGU_BASE_PERIPH_CLK_AUTOBLOCK(1)
 			| CGU_BASE_PERIPH_CLK_CLK_SEL(CGU_SRC_PLL1);
 
 	/* Switch APB1 clock over to use PLL1 (204MHz) */
-	CGU_BASE_APB1_CLK = CGU_BASE_APB1_CLK_AUTOBLOCK
+	CGU_BASE_APB1_CLK = CGU_BASE_APB1_CLK_AUTOBLOCK(1)
 			| CGU_BASE_APB1_CLK_CLK_SEL(CGU_SRC_PLL1);
+}
+
+
+/* 
+Configure PLL1 to low speed (48MHz).
+Note: PLL1 clock is used by M4/M0 core, Peripheral, APB1.
+This function shall be called after cpu_clock_init().
+This function is mainly used to lower power consumption.
+*/
+void cpu_clock_pll1_low_speed(void)
+{
+	uint32_t pll_reg;
+
+	/* Configure PLL1 Clock (48MHz) */
+	/* Integer mode:
+		FCLKOUT = M*(FCLKIN/N) 
+		FCCO = 2*P*FCLKOUT = 2*P*M*(FCLKIN/N) 
+	*/
+	pll_reg = CGU_PLL1_CTRL;
+	/* Clear PLL1 bits */
+	pll_reg &= ~( CGU_PLL1_CTRL_CLK_SEL_MASK | CGU_PLL1_CTRL_PD_MASK | CGU_PLL1_CTRL_FBSEL_MASK |  /* CLK SEL, PowerDown , FBSEL */
+				  CGU_PLL1_CTRL_BYPASS_MASK | /* BYPASS */
+				  CGU_PLL1_CTRL_DIRECT_MASK | /* DIRECT */
+				  CGU_PLL1_CTRL_PSEL_MASK | CGU_PLL1_CTRL_MSEL_MASK | CGU_PLL1_CTRL_NSEL_MASK ); /* PSEL, MSEL, NSEL- divider ratios */
+	/* Set PLL1 up to 12MHz * 4 = 48MHz. */
+	pll_reg |= CGU_PLL1_CTRL_CLK_SEL(CGU_SRC_XTAL)
+				| CGU_PLL1_CTRL_PSEL(0)
+				| CGU_PLL1_CTRL_NSEL(0)
+				| CGU_PLL1_CTRL_MSEL(3)
+				| CGU_PLL1_CTRL_FBSEL(1)
+				| CGU_PLL1_CTRL_DIRECT(1);
+	CGU_PLL1_CTRL = pll_reg;
+	/* wait until stable */
+	while (!(CGU_PLL1_STAT & CGU_PLL1_STAT_LOCK_MASK));
+
+	/* Wait a delay after switch to new frequency with Direct mode */
+	delay(WAIT_CPU_CLOCK_INIT_DELAY);
+}
+
+/* 
+Configure PLL1 (Main MCU Clock) to max speed (204MHz).
+Note: PLL1 clock is used by M4/M0 core, Peripheral, APB1.
+This function shall be called after cpu_clock_init().
+*/
+void cpu_clock_pll1_max_speed(void)
+{
+	uint32_t pll_reg;
+
+	/* Configure PLL1 to Intermediate Clock (between 90 MHz and 110 MHz) */
+	/* Integer mode:
+		FCLKOUT = M*(FCLKIN/N) 
+		FCCO = 2*P*FCLKOUT = 2*P*M*(FCLKIN/N) 
+	*/
+	pll_reg = CGU_PLL1_CTRL;
+	/* Clear PLL1 bits */
+	pll_reg &= ~( CGU_PLL1_CTRL_CLK_SEL_MASK | CGU_PLL1_CTRL_PD_MASK | CGU_PLL1_CTRL_FBSEL_MASK |  /* CLK SEL, PowerDown , FBSEL */
+				  CGU_PLL1_CTRL_BYPASS_MASK | /* BYPASS */
+				  CGU_PLL1_CTRL_DIRECT_MASK | /* DIRECT */
+				  CGU_PLL1_CTRL_PSEL_MASK | CGU_PLL1_CTRL_MSEL_MASK | CGU_PLL1_CTRL_NSEL_MASK ); /* PSEL, MSEL, NSEL- divider ratios */
+	/* Set PLL1 up to 12MHz * 8 = 96MHz. */
+	pll_reg |= CGU_PLL1_CTRL_CLK_SEL(CGU_SRC_XTAL)
+				| CGU_PLL1_CTRL_PSEL(0)
+				| CGU_PLL1_CTRL_NSEL(0)
+				| CGU_PLL1_CTRL_MSEL(7)
+				| CGU_PLL1_CTRL_FBSEL(1);
+	CGU_PLL1_CTRL = pll_reg;
+	/* wait until stable */
+	while (!(CGU_PLL1_STAT & CGU_PLL1_STAT_LOCK_MASK));
+
+	/* Wait before to switch to max speed */
+	delay(WAIT_CPU_CLOCK_INIT_DELAY);
+
+	/* Configure PLL1 Max Speed */
+	/* Direct mode: FCLKOUT = FCCO = M*(FCLKIN/N) */
+	pll_reg = CGU_PLL1_CTRL;
+	/* Clear PLL1 bits */
+	pll_reg &= ~( CGU_PLL1_CTRL_CLK_SEL_MASK | CGU_PLL1_CTRL_PD_MASK | CGU_PLL1_CTRL_FBSEL_MASK |  /* CLK SEL, PowerDown , FBSEL */
+				  CGU_PLL1_CTRL_BYPASS_MASK | /* BYPASS */
+				  CGU_PLL1_CTRL_DIRECT_MASK | /* DIRECT */
+				  CGU_PLL1_CTRL_PSEL_MASK | CGU_PLL1_CTRL_MSEL_MASK | CGU_PLL1_CTRL_NSEL_MASK ); /* PSEL, MSEL, NSEL- divider ratios */
+	/* Set PLL1 up to 12MHz * 17 = 204MHz. */
+	pll_reg |= CGU_PLL1_CTRL_CLK_SEL(CGU_SRC_XTAL)
+			| CGU_PLL1_CTRL_PSEL(0)
+			| CGU_PLL1_CTRL_NSEL(0)
+			| CGU_PLL1_CTRL_MSEL(16)
+			| CGU_PLL1_CTRL_FBSEL(1)
+			| CGU_PLL1_CTRL_DIRECT(1);
+	CGU_PLL1_CTRL = pll_reg;
+	/* wait until stable */
+	while (!(CGU_PLL1_STAT & CGU_PLL1_STAT_LOCK_MASK));
+
 }
 
 void ssp1_init(void)
@@ -487,26 +590,6 @@ void pin_setup(void) {
 	scu_pinmux(SCU_PINMUX_USB_LED0, SCU_CONF_FUNCTION3);
 	scu_pinmux(SCU_PINMUX_USB_LED1, SCU_CONF_FUNCTION3);
 
-#ifdef HACKRF_ONE
-	/* Configure RF switch control signals */
-	scu_pinmux(SCU_HP,             SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
-	scu_pinmux(SCU_LP,             SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
-	scu_pinmux(SCU_TX_MIX_BP,      SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
-	scu_pinmux(SCU_NO_MIX_BYPASS,  SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
-	scu_pinmux(SCU_RX_MIX_BP,      SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
-	scu_pinmux(SCU_TX_AMP,         SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
-	scu_pinmux(SCU_TX,             SCU_GPIO_FAST | SCU_CONF_FUNCTION4);
-	scu_pinmux(SCU_MIX_BYPASS,     SCU_GPIO_FAST | SCU_CONF_FUNCTION4);
-	scu_pinmux(SCU_RX,             SCU_GPIO_FAST | SCU_CONF_FUNCTION4);
-	scu_pinmux(SCU_NO_TX_AMP_PWR,  SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
-	scu_pinmux(SCU_AMP_BYPASS,     SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
-	scu_pinmux(SCU_RX_AMP,         SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
-	scu_pinmux(SCU_NO_RX_AMP_PWR,  SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
-
-	/* Configure RF power supply (VAA) switch */
-	scu_pinmux(SCU_NO_VAA_ENABLE,  SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
-#endif
-
 	/* Configure all GPIO as Input (safe state) */
 	GPIO0_DIR = 0;
 	GPIO1_DIR = 0;
@@ -523,27 +606,8 @@ void pin_setup(void) {
 	/* GPIO3[6] on P6_10  as output. */
 	GPIO3_DIR |= PIN_EN1V8;
 
-#ifdef HACKRF_ONE
-	/* Configure RF switch control signals as outputs */
-	GPIO0_DIR |= PIN_AMP_BYPASS;
-	GPIO1_DIR |= (PIN_NO_MIX_BYPASS | PIN_RX_AMP | PIN_NO_RX_AMP_PWR);
-	GPIO2_DIR |= (PIN_HP | PIN_LP | PIN_TX_MIX_BP | PIN_RX_MIX_BP | PIN_TX_AMP);
-	GPIO3_DIR |= PIN_NO_TX_AMP_PWR;
-	GPIO5_DIR |= (PIN_TX | PIN_MIX_BYPASS | PIN_RX);
-
-	/*
-	 * Safe (initial) switch settings turn off both amplifiers and enable both
-	 * amp bypass and mixer bypass.
-	 */
-	switchctrl_set(SWITCHCTRL_AMP_BYPASS | SWITCHCTRL_MIX_BYPASS);
-
-	/* Configure RF power supply (VAA) switch control signal as output */
-	GPIO_DIR(PORT_NO_VAA_ENABLE) |= PIN_NO_VAA_ENABLE;
-
-	/* Safe state: start with VAA turned off: */
-	disable_rf_power();
-#endif
-
+	rf_path_pin_setup();
+	
 	/* Configure SSP1 Peripheral (to be moved later in SSP driver) */
 	scu_pinmux(SCU_SSP1_MISO, (SCU_SSP_IO | SCU_CONF_FUNCTION5));
 	scu_pinmux(SCU_SSP1_MOSI, (SCU_SSP_IO | SCU_CONF_FUNCTION5));
@@ -551,7 +615,9 @@ void pin_setup(void) {
 	scu_pinmux(SCU_SSP1_SSEL, (SCU_SSP_IO | SCU_CONF_FUNCTION1));
 	
 	/* Configure external clock in */
-	//scu_pinmux(P4_7, SCU_CLK_IN | SCU_CONF_FUNCTION1);
+	scu_pinmux(SCU_PINMUX_GP_CLKIN, SCU_CLK_IN | SCU_CONF_FUNCTION1);
+
+	sgpio_configure_pin_functions();
 }
 
 void enable_1v8_power(void) {
@@ -569,70 +635,5 @@ void enable_rf_power(void) {
 
 void disable_rf_power(void) {
 	gpio_set(PORT_NO_VAA_ENABLE, PIN_NO_VAA_ENABLE);
-}
-
-void switchctrl_set(uint8_t ctrl) {
-	if (ctrl & SWITCHCTRL_TX) {
-		gpio_set(PORT_TX, PIN_TX);
-		gpio_clear(PORT_RX, PIN_RX);
-	} else {
-		gpio_clear(PORT_TX, PIN_TX);
-		gpio_set(PORT_RX, PIN_RX);
-	}
-
-	if (ctrl & SWITCHCTRL_MIX_BYPASS) {
-		gpio_set(PORT_MIX_BYPASS, PIN_MIX_BYPASS);
-		gpio_clear(PORT_NO_MIX_BYPASS, PIN_NO_MIX_BYPASS);
-		if (ctrl & SWITCHCTRL_TX) {
-			gpio_set(PORT_TX_MIX_BP, PIN_TX_MIX_BP);
-			gpio_clear(PORT_RX_MIX_BP, PIN_RX_MIX_BP);
-		} else {
-			gpio_clear(PORT_TX_MIX_BP, PIN_TX_MIX_BP);
-			gpio_set(PORT_RX_MIX_BP, PIN_RX_MIX_BP);
-		}
-	} else {
-		gpio_clear(PORT_MIX_BYPASS, PIN_MIX_BYPASS);
-		gpio_set(PORT_NO_MIX_BYPASS, PIN_NO_MIX_BYPASS);
-		gpio_clear(PORT_TX_MIX_BP, PIN_TX_MIX_BP);
-		gpio_clear(PORT_RX_MIX_BP, PIN_RX_MIX_BP);
-	}
-
-	if (ctrl & SWITCHCTRL_HP) {
-		gpio_set(PORT_HP, PIN_HP);
-		gpio_clear(PORT_LP, PIN_LP);
-	} else {
-		gpio_clear(PORT_HP, PIN_HP);
-		gpio_set(PORT_LP, PIN_LP);
-	}
-
-	if (ctrl & SWITCHCTRL_AMP_BYPASS) {
-		gpio_set(PORT_AMP_BYPASS, PIN_AMP_BYPASS);
-		gpio_clear(PORT_TX_AMP, PIN_TX_AMP);
-		gpio_set(PORT_NO_TX_AMP_PWR, PIN_NO_TX_AMP_PWR);
-		gpio_clear(PORT_RX_AMP, PIN_RX_AMP);
-		gpio_set(PORT_NO_RX_AMP_PWR, PIN_NO_RX_AMP_PWR);
-	} else if (ctrl & SWITCHCTRL_TX) {
-		gpio_clear(PORT_AMP_BYPASS, PIN_AMP_BYPASS);
-		gpio_set(PORT_TX_AMP, PIN_TX_AMP);
-		gpio_clear(PORT_NO_TX_AMP_PWR, PIN_NO_TX_AMP_PWR);
-		gpio_clear(PORT_RX_AMP, PIN_RX_AMP);
-		gpio_set(PORT_NO_RX_AMP_PWR, PIN_NO_RX_AMP_PWR);
-	} else {
-		gpio_clear(PORT_AMP_BYPASS, PIN_AMP_BYPASS);
-		gpio_clear(PORT_TX_AMP, PIN_TX_AMP);
-		gpio_set(PORT_NO_TX_AMP_PWR, PIN_NO_TX_AMP_PWR);
-		gpio_set(PORT_RX_AMP, PIN_RX_AMP);
-		gpio_clear(PORT_NO_RX_AMP_PWR, PIN_NO_RX_AMP_PWR);
-	}
-
-	/*
-	 * These normally shouldn't be set post-Jawbreaker, but they can be
-	 * used to explicitly turn off power to the amplifiers while AMP_BYPASS
-	 * is unset:
-	 */
-	if (ctrl & SWITCHCTRL_NO_TX_AMP_PWR)
-		gpio_set(PORT_NO_TX_AMP_PWR, PIN_NO_TX_AMP_PWR);
-	if (ctrl & SWITCHCTRL_NO_RX_AMP_PWR)
-		gpio_set(PORT_NO_RX_AMP_PWR, PIN_NO_RX_AMP_PWR);
 }
 #endif
