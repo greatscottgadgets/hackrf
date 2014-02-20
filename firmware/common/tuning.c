@@ -51,7 +51,7 @@ bool set_freq(const uint64_t freq)
 	bool success;
 	uint32_t RFFC5071_freq_mhz;
 	uint32_t MAX2837_freq_hz;
-	uint32_t real_RFFC5071_freq_hz;
+	uint64_t real_RFFC5071_freq_hz;
 	uint32_t tmp_hz;
 
 	const uint32_t freq_mhz = freq / 1000000;
