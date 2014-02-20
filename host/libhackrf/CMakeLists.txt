@@ -24,7 +24,7 @@
 cmake_minimum_required(VERSION 2.8)
 project(libhackrf C)
 set(MAJOR_VERSION 0)
-set(MINOR_VERSION 2)
+set(MINOR_VERSION 3)
 set(PACKAGE libhackrf)
 set(VERSION_STRING ${MAJOR_VERSION}.${MINOR_VERSION})
 set(VERSION ${VERSION_STRING})
