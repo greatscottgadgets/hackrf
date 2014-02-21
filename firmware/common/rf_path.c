@@ -76,6 +76,13 @@
 uint8_t switchctrl = SWITCHCTRL_SAFE;
 
 #ifdef HACKRF_ONE
+/*
+ * Antenna port power on HackRF One is controlled by GPO1 on the RFFC5072.
+ * This is the only thing we use RFFC5072 GPO for on HackRF One.  The value of
+ * SWITCHCTRL_NO_ANT_PWR does not correspond to the GPO1 bit in the gpo
+ * register.
+ */
+#define SWITCHCTRL_ANT_PWR (1 << 6) /* turn on antenna port power */
 static void switchctrl_set_hackrf_one(uint8_t ctrl) {
 	if (ctrl & SWITCHCTRL_TX) {
 		gpio_set(PORT_TX, PIN_TX);
@@ -139,6 +146,12 @@ static void switchctrl_set_hackrf_one(uint8_t ctrl) {
 		gpio_set(PORT_NO_TX_AMP_PWR, PIN_NO_TX_AMP_PWR);
 	if (ctrl & SWITCHCTRL_NO_RX_AMP_PWR)
 		gpio_set(PORT_NO_RX_AMP_PWR, PIN_NO_RX_AMP_PWR);
+
+	if (ctrl & SWITCHCTRL_ANT_PWR) {
+		rffc5071_set_gpo(0x00); /* turn on antenna power by clearing GPO1 */
+	} else {
+		rffc5071_set_gpo(0x01); /* turn off antenna power by setting GPO1 */
+	}
 }
 #endif
 
@@ -180,8 +193,8 @@ void rf_path_pin_setup() {
 	GPIO5_DIR |= (PIN_TX | PIN_MIX_BYPASS | PIN_RX);
 
 	/*
-	 * Safe (initial) switch settings turn off both amplifiers and enable both
-	 * amp bypass and mixer bypass.
+	 * Safe (initial) switch settings turn off both amplifiers and antenna port
+	 * power and enable both amp bypass and mixer bypass.
 	 */
 	switchctrl_set(SWITCHCTRL_AMP_BYPASS | SWITCHCTRL_MIX_BYPASS);
 
