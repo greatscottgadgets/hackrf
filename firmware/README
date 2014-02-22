@@ -1,8 +1,8 @@
 The primary firmware source code for USB HackRF devices is hackrf_usb.  Most of
 the other directories contain firmware source code for test and development.
 The common directory contains source code shared by multiple HackRF firmware
-projects.  The cpld directory contains HDL source for the CPLD present on the
-Jawbreaker and Jellybean designs.
+projects.  The cpld directory contains HDL source for the CPLD.
+
 
 The firmware is set up for compilation with the GCC toolchain available here:
 
@@ -12,6 +12,28 @@ Required dependency:
 
 https://github.com/mossmann/libopencm3
 
+If you are using git, the preferred way to install libopencm3 is to use the
+submodule:
+
+$ cd ..
+$ git submodule init
+$ git submodule update
+$ mkdir firmware/libopencm3/build
+$ cd firmware/libopencm3/build
+$ cmake ../
+$ make
+
+
 For loading firmware into RAM with DFU you will also need:
 
 git://git.openezx.org/dfu-util.git
+
+To start up HackRF One in DFU mode, hold down the DFU button while powering it
+on or while pressing and releasing the RESET button.  Release the DFU button
+after the 3V3 LED illuminates.
+
+With dfu-util and dfu-suffix (from the dfu-util package) installed and with the
+HackRF operating in DFU mode, you can build firmware for RAM and load it with:
+
+$ cd hackrf_usb
+$ make -e BOARD=HACKRF_ONE RUN_FROM=RAM program
