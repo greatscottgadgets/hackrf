@@ -36,13 +36,13 @@
 #define MAX_BYPASS_FREQ_MHZ (2750)
 
 #define MIN_HP_FREQ_MHZ (2750)
-#define MAX_HP_FREQ_MHZ (6800)
+#define MAX_HP_FREQ_MHZ (7250)
 
 static uint32_t max2837_freq_nominal_hz=2560000000;
 
 uint64_t freq_cache = 100000000;
 /*
- * Set freq/tuning between 5MHz to 6800 MHz (less than 16bits really used)
+ * Set freq/tuning between 0MHz to 7250 MHz (less than 16bits really used)
  * hz between 0 to 999999 Hz (not checked)
  * return false on error or true if success.
  */
@@ -84,7 +84,7 @@ bool set_freq(const uint64_t freq)
 			MAX2837_freq_hz = (freq_mhz * FREQ_ONE_MHZ) + freq_hz;
 			/* RFFC5071_freq_mhz <= not used in Bypass mode */
 			max2837_set_frequency(MAX2837_freq_hz);
-		}else if(  (freq_mhz >= MIN_HP_FREQ_MHZ) && (freq_mhz < MAX_HP_FREQ_MHZ) )
+		}else if(  (freq_mhz >= MIN_HP_FREQ_MHZ) && (freq_mhz <= MAX_HP_FREQ_MHZ) )
 		{
 			rf_path_set_filter(RF_PATH_FILTER_HIGH_PASS);
 			RFFC5071_freq_mhz = freq_mhz - (max2837_freq_nominal_hz / FREQ_ONE_MHZ);

@@ -85,7 +85,7 @@ int gettimeofday(struct timeval *tv, void* ignored)
 
 #define DEFAULT_FREQ_HZ (900000000ull) /* 900MHz */
 #define FREQ_MIN_HZ	(0ull) /* 0 Hz */
-#define FREQ_MAX_HZ	(6800000000ull) /* 6800MHz */
+#define FREQ_MAX_HZ	(7250000000ull) /* 7250MHz */
 
 #define DEFAULT_SAMPLE_RATE_HZ (10000000) /* 10MHz default sample rate */
 
