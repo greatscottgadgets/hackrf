@@ -30,12 +30,12 @@
 #define FREQ_ONE_MHZ     (1000*1000)
 
 #define MIN_LP_FREQ_MHZ (5)
-#define MAX_LP_FREQ_MHZ (2300)
+#define MAX_LP_FREQ_MHZ (2150)
 
-#define MIN_BYPASS_FREQ_MHZ (2300)
-#define MAX_BYPASS_FREQ_MHZ (2700)
+#define MIN_BYPASS_FREQ_MHZ (2150)
+#define MAX_BYPASS_FREQ_MHZ (2750)
 
-#define MIN_HP_FREQ_MHZ (2700)
+#define MIN_HP_FREQ_MHZ (2750)
 #define MAX_HP_FREQ_MHZ (6800)
 
 static uint32_t max2837_freq_nominal_hz=2560000000;
