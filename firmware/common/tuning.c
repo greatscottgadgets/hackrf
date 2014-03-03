@@ -36,6 +36,8 @@
 #define MAX_BYPASS_FREQ_MHZ (2750)
 
 #define MIN_HP_FREQ_MHZ (2750)
+#define MID1_HP_FREQ_MHZ (3600)
+#define MID2_HP_FREQ_MHZ (5100)
 #define MAX_HP_FREQ_MHZ (7250)
 
 static uint32_t max2837_freq_nominal_hz=2560000000;
@@ -64,6 +66,7 @@ bool set_freq(const uint64_t freq)
 	if(freq_mhz < MAX_LP_FREQ_MHZ)
 	{
 		rf_path_set_filter(RF_PATH_FILTER_LOW_PASS);
+		/* IF is graduated from 2650 MHz to 2343 MHz */
 		max2837_freq_nominal_hz = 2650000000 - (freq / 7);
 		RFFC5071_freq_mhz = (max2837_freq_nominal_hz / FREQ_ONE_MHZ) + freq_mhz;
 		/* Set Freq and read real freq */
@@ -85,6 +88,16 @@ bool set_freq(const uint64_t freq)
 		max2837_set_frequency(MAX2837_freq_hz);
 	}else if(  (freq_mhz >= MIN_HP_FREQ_MHZ) && (freq_mhz <= MAX_HP_FREQ_MHZ) )
 	{
+		if (freq_mhz < MID1_HP_FREQ_MHZ) {
+			/* IF is graduated from 2150 MHz to 2750 MHz */
+			max2837_freq_nominal_hz = 2150000000 + (((freq - 2750000000) * 60) / 85);
+		} else if (freq_mhz < MID2_HP_FREQ_MHZ) {
+			/* IF is graduated from 2350 MHz to 2650 MHz */
+			max2837_freq_nominal_hz = 2350000000 + ((freq - 3600000000) / 5);
+		} else {
+			/* IF is graduated from 2500 MHz to 2738 MHz */
+			max2837_freq_nominal_hz = 2500000000 + ((freq - 5100000000) / 9);
+		}
 		rf_path_set_filter(RF_PATH_FILTER_HIGH_PASS);
 		RFFC5071_freq_mhz = freq_mhz - (max2837_freq_nominal_hz / FREQ_ONE_MHZ);
 		/* Set Freq and read real freq */
