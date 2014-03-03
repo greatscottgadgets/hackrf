@@ -66,7 +66,8 @@ bool set_freq(const uint64_t freq)
 		if(freq_mhz < MAX_LP_FREQ_MHZ)
 		{
 			rf_path_set_filter(RF_PATH_FILTER_LOW_PASS);
-			RFFC5071_freq_mhz = (max2837_freq_nominal_hz / FREQ_ONE_MHZ) - freq_mhz;
+			max2837_freq_nominal_hz = 2650000000 - (freq / 7);
+			RFFC5071_freq_mhz = (max2837_freq_nominal_hz / FREQ_ONE_MHZ) + freq_mhz;
 			/* Set Freq and read real freq */
 			real_RFFC5071_freq_hz = rffc5071_set_frequency(RFFC5071_freq_mhz);
 			if(real_RFFC5071_freq_hz < RFFC5071_freq_mhz * FREQ_ONE_MHZ)
@@ -76,7 +77,7 @@ bool set_freq(const uint64_t freq)
 			{
 				tmp_hz = (real_RFFC5071_freq_hz - RFFC5071_freq_mhz  * FREQ_ONE_MHZ);
 			}
-			MAX2837_freq_hz = max2837_freq_nominal_hz + tmp_hz + freq_hz;
+			MAX2837_freq_hz = max2837_freq_nominal_hz - tmp_hz + freq_hz;
 			max2837_set_frequency(MAX2837_freq_hz);
 		}else if( (freq_mhz >= MIN_BYPASS_FREQ_MHZ) && (freq_mhz < MAX_BYPASS_FREQ_MHZ) )
 		{
