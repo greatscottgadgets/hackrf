@@ -29,7 +29,7 @@
 
 #define FREQ_ONE_MHZ     (1000*1000)
 
-#define MIN_LP_FREQ_MHZ (5)
+#define MIN_LP_FREQ_MHZ (0)
 #define MAX_LP_FREQ_MHZ (2150)
 
 #define MIN_BYPASS_FREQ_MHZ (2150)
