@@ -61,53 +61,46 @@ bool set_freq(const uint64_t freq)
 
 	const max2837_mode_t prior_max2837_mode = max2837_mode();
 	max2837_mode_standby();
-	if(freq_mhz >= MIN_LP_FREQ_MHZ)
+	if(freq_mhz < MAX_LP_FREQ_MHZ)
 	{
-		if(freq_mhz < MAX_LP_FREQ_MHZ)
+		rf_path_set_filter(RF_PATH_FILTER_LOW_PASS);
+		max2837_freq_nominal_hz = 2650000000 - (freq / 7);
+		RFFC5071_freq_mhz = (max2837_freq_nominal_hz / FREQ_ONE_MHZ) + freq_mhz;
+		/* Set Freq and read real freq */
+		real_RFFC5071_freq_hz = rffc5071_set_frequency(RFFC5071_freq_mhz);
+		if(real_RFFC5071_freq_hz < RFFC5071_freq_mhz * FREQ_ONE_MHZ)
 		{
-			rf_path_set_filter(RF_PATH_FILTER_LOW_PASS);
-			max2837_freq_nominal_hz = 2650000000 - (freq / 7);
-			RFFC5071_freq_mhz = (max2837_freq_nominal_hz / FREQ_ONE_MHZ) + freq_mhz;
-			/* Set Freq and read real freq */
-			real_RFFC5071_freq_hz = rffc5071_set_frequency(RFFC5071_freq_mhz);
-			if(real_RFFC5071_freq_hz < RFFC5071_freq_mhz * FREQ_ONE_MHZ)
-			{
-				tmp_hz = -(RFFC5071_freq_mhz  * FREQ_ONE_MHZ - real_RFFC5071_freq_hz);
-			}else
-			{
-				tmp_hz = (real_RFFC5071_freq_hz - RFFC5071_freq_mhz  * FREQ_ONE_MHZ);
-			}
-			MAX2837_freq_hz = max2837_freq_nominal_hz - tmp_hz + freq_hz;
-			max2837_set_frequency(MAX2837_freq_hz);
-		}else if( (freq_mhz >= MIN_BYPASS_FREQ_MHZ) && (freq_mhz < MAX_BYPASS_FREQ_MHZ) )
-		{
-			rf_path_set_filter(RF_PATH_FILTER_BYPASS);
-			MAX2837_freq_hz = (freq_mhz * FREQ_ONE_MHZ) + freq_hz;
-			/* RFFC5071_freq_mhz <= not used in Bypass mode */
-			max2837_set_frequency(MAX2837_freq_hz);
-		}else if(  (freq_mhz >= MIN_HP_FREQ_MHZ) && (freq_mhz <= MAX_HP_FREQ_MHZ) )
-		{
-			rf_path_set_filter(RF_PATH_FILTER_HIGH_PASS);
-			RFFC5071_freq_mhz = freq_mhz - (max2837_freq_nominal_hz / FREQ_ONE_MHZ);
-			/* Set Freq and read real freq */
-			real_RFFC5071_freq_hz = rffc5071_set_frequency(RFFC5071_freq_mhz);
-			if(real_RFFC5071_freq_hz < RFFC5071_freq_mhz * FREQ_ONE_MHZ)
-			{
-				tmp_hz = (RFFC5071_freq_mhz * FREQ_ONE_MHZ - real_RFFC5071_freq_hz);
-			}else
-			{
-				tmp_hz = -(real_RFFC5071_freq_hz - RFFC5071_freq_mhz * FREQ_ONE_MHZ);
-			}
-			MAX2837_freq_hz = max2837_freq_nominal_hz + tmp_hz + freq_hz;
-			max2837_set_frequency(MAX2837_freq_hz);
+			tmp_hz = -(RFFC5071_freq_mhz  * FREQ_ONE_MHZ - real_RFFC5071_freq_hz);
 		}else
 		{
-			/* Error freq_mhz too high */
-			success = false;
+			tmp_hz = (real_RFFC5071_freq_hz - RFFC5071_freq_mhz  * FREQ_ONE_MHZ);
 		}
+		MAX2837_freq_hz = max2837_freq_nominal_hz - tmp_hz + freq_hz;
+		max2837_set_frequency(MAX2837_freq_hz);
+	}else if( (freq_mhz >= MIN_BYPASS_FREQ_MHZ) && (freq_mhz < MAX_BYPASS_FREQ_MHZ) )
+	{
+		rf_path_set_filter(RF_PATH_FILTER_BYPASS);
+		MAX2837_freq_hz = (freq_mhz * FREQ_ONE_MHZ) + freq_hz;
+		/* RFFC5071_freq_mhz <= not used in Bypass mode */
+		max2837_set_frequency(MAX2837_freq_hz);
+	}else if(  (freq_mhz >= MIN_HP_FREQ_MHZ) && (freq_mhz <= MAX_HP_FREQ_MHZ) )
+	{
+		rf_path_set_filter(RF_PATH_FILTER_HIGH_PASS);
+		RFFC5071_freq_mhz = freq_mhz - (max2837_freq_nominal_hz / FREQ_ONE_MHZ);
+		/* Set Freq and read real freq */
+		real_RFFC5071_freq_hz = rffc5071_set_frequency(RFFC5071_freq_mhz);
+		if(real_RFFC5071_freq_hz < RFFC5071_freq_mhz * FREQ_ONE_MHZ)
+		{
+			tmp_hz = (RFFC5071_freq_mhz * FREQ_ONE_MHZ - real_RFFC5071_freq_hz);
+		}else
+		{
+			tmp_hz = -(real_RFFC5071_freq_hz - RFFC5071_freq_mhz * FREQ_ONE_MHZ);
+		}
+		MAX2837_freq_hz = max2837_freq_nominal_hz + tmp_hz + freq_hz;
+		max2837_set_frequency(MAX2837_freq_hz);
 	}else
 	{
-		/* Error freq_mhz too low */
+		/* Error freq_mhz too high */
 		success = false;
 	}
 	max2837_set_mode(prior_max2837_mode);
