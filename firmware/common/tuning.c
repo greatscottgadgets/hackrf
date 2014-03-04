@@ -78,7 +78,7 @@ bool set_freq(const uint64_t freq)
 		{
 			tmp_hz = (real_RFFC5071_freq_hz - RFFC5071_freq_mhz  * FREQ_ONE_MHZ);
 		}
-		MAX2837_freq_hz = max2837_freq_nominal_hz - tmp_hz + freq_hz;
+		MAX2837_freq_hz = max2837_freq_nominal_hz - tmp_hz - freq_hz;
 		max2837_set_frequency(MAX2837_freq_hz);
 	}else if( (freq_mhz >= MIN_BYPASS_FREQ_MHZ) && (freq_mhz < MAX_BYPASS_FREQ_MHZ) )
 	{
