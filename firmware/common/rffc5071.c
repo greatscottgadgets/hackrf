@@ -406,6 +406,7 @@ void rffc5071_enable(void)  {
 
 #define LO_MAX 5400
 #define REF_FREQ 50
+#define FREQ_ONE_MHZ (1000*1000)
 
 /* configure frequency synthesizer in integer mode (lo in MHz) */
 uint64_t rffc5071_config_synth_int(uint16_t lo) {
@@ -422,7 +423,7 @@ uint64_t rffc5071_config_synth_int(uint16_t lo) {
 	/* Calculate n_lo */
 	uint8_t n_lo = 0;
 	uint16_t x = LO_MAX / lo;
-	while (x > 1) {
+	while ((x > 1) && (n_lo < 5)) {
 		n_lo++;
 		x >>= 1;
 	}
@@ -445,13 +446,14 @@ uint64_t rffc5071_config_synth_int(uint16_t lo) {
 
 	uint64_t tmp_n = ((uint64_t)fvco << 29ULL) / (fbkdiv*REF_FREQ) ;
 	n = tmp_n >> 29ULL;
+
 	p1nmsb = (tmp_n >> 13ULL) & 0xffff;
 	p1nlsb = (tmp_n >> 5ULL) & 0xff;
 	
-	//~ tune_freq = REF_FREQ*tmp_n*fbkdiv/lodiv / (1 << 29);
-	tune_freq_hz = REF_FREQ*tmp_n*fbkdiv/lodiv * 1000*1000 / (1 << 29ULL);
+	tune_freq_hz = (REF_FREQ * (tmp_n >> 5ULL) * fbkdiv * FREQ_ONE_MHZ)
+			/ (lodiv * (1 << 24ULL));
 	LOG("# lo=%d n_lo=%d lodiv=%d fvco=%d fbkdiv=%d n=%d tune_freq_hz=%d\n",
-	    lo, n_lo, lodiv, fvco, fbkdiv, n, tune_freq);
+			lo, n_lo, lodiv, fvco, fbkdiv, n, tune_freq);
 
 	/* Path 1 */
 	set_RFFC5071_P1LODIV(n_lo);
