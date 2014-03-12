@@ -112,7 +112,8 @@ static const max2837_ft_t max2837_ft[] = {
 volatile bool do_exit = false;
 
 static const uint16_t hackrf_usb_vid = 0x1d50;
-static const uint16_t hackrf_usb_pid = 0x604b;
+static const uint16_t hackrf_jawbreaker_usb_pid = 0x604b;
+static const uint16_t hackrf_one_usb_pid = 0x6089;
 
 static libusb_context* g_libusb_context = NULL;
 
@@ -269,7 +270,11 @@ int ADDCALL hackrf_open(hackrf_device** device)
 
 	// TODO: Do proper scanning of available devices, searching for
 	// unit serial number (if specified?).
-	usb_device = libusb_open_device_with_vid_pid(g_libusb_context, hackrf_usb_vid, hackrf_usb_pid);
+	usb_device = libusb_open_device_with_vid_pid(g_libusb_context, hackrf_usb_vid, hackrf_one_usb_pid);
+	if( usb_device == NULL )
+	{
+		usb_device = libusb_open_device_with_vid_pid(g_libusb_context, hackrf_usb_vid, hackrf_jawbreaker_usb_pid);
+	}
 	if( usb_device == NULL )
 	{
 		return HACKRF_ERROR_NOT_FOUND;
@@ -1277,6 +1282,9 @@ const char* ADDCALL hackrf_board_id_name(enum hackrf_board_id board_id)
 
 	case BOARD_ID_JAWBREAKER:
 		return "Jawbreaker";
+
+	case BOARD_ID_HACKRF_ONE:
+		return "HackRF One";
 
 	case BOARD_ID_INVALID:
 		return "Invalid Board ID";
