@@ -66,7 +66,6 @@ bool set_freq(const uint64_t freq)
 	if(freq_mhz < MAX_LP_FREQ_MHZ)
 	{
 		rf_path_set_filter(RF_PATH_FILTER_LOW_PASS);
-		/* IF is graduated from 2650 MHz to 2343 MHz */
 		RFFC5071_freq_mhz = (max2837_freq_nominal_hz / FREQ_ONE_MHZ) - freq_mhz;
 		/* Set Freq and read real freq */
 		real_RFFC5071_freq_hz = rffc5071_set_frequency(RFFC5071_freq_mhz);
