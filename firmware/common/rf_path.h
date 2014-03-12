@@ -45,5 +45,6 @@ typedef enum {
 void rf_path_set_filter(const rf_path_filter_t filter);
 
 void rf_path_set_lna(const uint_fast8_t enable);
+void rf_path_set_antenna(const uint_fast8_t enable);
 
 #endif/*__RFPATH_H__*/

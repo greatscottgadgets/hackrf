@@ -75,7 +75,6 @@
 
 uint8_t switchctrl = SWITCHCTRL_SAFE;
 
-#ifdef HACKRF_ONE
 /*
  * Antenna port power on HackRF One is controlled by GPO1 on the RFFC5072.
  * This is the only thing we use RFFC5072 GPO for on HackRF One.  The value of
@@ -83,6 +82,8 @@ uint8_t switchctrl = SWITCHCTRL_SAFE;
  * register.
  */
 #define SWITCHCTRL_ANT_PWR (1 << 6) /* turn on antenna port power */
+
+#ifdef HACKRF_ONE
 static void switchctrl_set_hackrf_one(uint8_t ctrl) {
 	if (ctrl & SWITCHCTRL_TX) {
 		gpio_set(PORT_TX, PIN_TX);
@@ -262,6 +263,9 @@ void rf_path_set_direction(const rf_path_direction_t direction) {
 		
 	case RF_PATH_DIRECTION_OFF:
 	default:
+#ifdef HACKRF_ONE
+		rf_path_set_antenna(0);
+#endif
 		/* Set RF path to receive direction when "off" */
 		switchctrl &= ~SWITCHCTRL_TX;
 		rffc5071_disable();
@@ -315,5 +319,16 @@ void rf_path_set_lna(const uint_fast8_t enable) {
 		switchctrl |= SWITCHCTRL_AMP_BYPASS | SWITCHCTRL_NO_TX_AMP_PWR | SWITCHCTRL_NO_RX_AMP_PWR;
 	}
 	
+	switchctrl_set(switchctrl);
+}
+
+/* antenna port power control */
+void rf_path_set_antenna(const uint_fast8_t enable) {
+	if (enable) {
+		switchctrl |= SWITCHCTRL_ANT_PWR;
+	} else {
+		switchctrl &= ~(SWITCHCTRL_ANT_PWR);
+	}
+
 	switchctrl_set(switchctrl);
 }

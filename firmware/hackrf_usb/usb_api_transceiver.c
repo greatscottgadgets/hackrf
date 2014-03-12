@@ -187,3 +187,24 @@ usb_request_status_t usb_vendor_request_set_if_freq(
 	}
 	return USB_REQUEST_STATUS_OK;
 }
+
+usb_request_status_t usb_vendor_request_set_antenna_enable(
+	usb_endpoint_t* const endpoint, const usb_transfer_stage_t stage)
+{
+	if (stage == USB_TRANSFER_STAGE_SETUP) {
+		switch (endpoint->setup.value) {
+		case 0:
+			rf_path_set_antenna(0);
+			usb_transfer_schedule_ack(endpoint->in);
+			return USB_REQUEST_STATUS_OK;
+		case 1:
+			rf_path_set_antenna(1);
+			usb_transfer_schedule_ack(endpoint->in);
+			return USB_REQUEST_STATUS_OK;
+		default:
+			return USB_REQUEST_STATUS_STALL;
+		}
+	} else {
+		return USB_REQUEST_STATUS_OK;
+	}
+}

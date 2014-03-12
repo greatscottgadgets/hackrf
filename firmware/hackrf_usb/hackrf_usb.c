@@ -126,6 +126,11 @@ static const usb_request_handler_fn vendor_request_handler[] = {
 	usb_vendor_request_set_vga_gain,
 	usb_vendor_request_set_txvga_gain,
 	usb_vendor_request_set_if_freq,
+#ifdef HACKRF_ONE
+	usb_vendor_request_set_antenna_enable,
+#else
+	NULL,
+#endif
 };
 
 static const uint32_t vendor_request_handler_count =

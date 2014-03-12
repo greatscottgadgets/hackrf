@@ -247,6 +247,9 @@ uint64_t freq_hz;
 bool amp = false;
 uint32_t amp_enable;
 
+bool antenna = false;
+uint32_t antenna_enable;
+
 bool sample_rate = false;
 uint32_t sample_rate_hz;
 
@@ -325,6 +328,7 @@ static void usage() {
 	printf("\t   # This is for SDR# compatibility and may not work with other software.\n");
 	printf("\t[-f set_freq_hz] # Set Freq in Hz between [%lluMHz, %lluMHz].\n", FREQ_MIN_HZ/FREQ_ONE_MHZ, FREQ_MAX_HZ/FREQ_ONE_MHZ);
 	printf("\t[-a set_amp] # Set Amp 1=Enable, 0=Disable.\n");
+	printf("\t[-p set_antenna] # Set antenna port power, 1=Enable, 0=Disable.\n");
 	printf("\t[-l gain_db] # Set lna gain, 0-40dB, 8dB steps\n");
 	printf("\t[-i gain_db] # Set vga(if) gain, 0-62dB, 2dB steps\n");
 	printf("\t[-x gain_db] # Set TX vga gain, 0-47dB, 1dB steps\n");
@@ -371,7 +375,7 @@ int main(int argc, char** argv) {
 	float time_diff;
 	unsigned int lna_gain=8, vga_gain=20, txvga_gain=0;
   
-	while( (opt = getopt(argc, argv, "wr:t:f:a:s:n:b:l:i:x:")) != EOF )
+	while( (opt = getopt(argc, argv, "wr:t:f:a:p:s:n:b:l:i:x:")) != EOF )
 	{
 		result = HACKRF_SUCCESS;
 		switch( opt ) 
@@ -398,6 +402,11 @@ int main(int argc, char** argv) {
 		case 'a':
 			amp = true;
 			result = parse_u32(optarg, &amp_enable);
+			break;
+
+		case 'p':
+			antenna = true;
+			result = parse_u32(optarg, &antenna_enable);
 			break;
 
 		case 'l':
@@ -465,6 +474,14 @@ int main(int argc, char** argv) {
 		if( amp_enable > 1 )
 		{
 			printf("argument error: set_amp shall be 0 or 1.\n");
+			usage();
+			return EXIT_FAILURE;
+		}
+	}
+
+	if (antenna) {
+		if (antenna_enable > 1) {
+			printf("argument error: set_antenna shall be 0 or 1.\n");
 			usage();
 			return EXIT_FAILURE;
 		}
@@ -645,7 +662,17 @@ int main(int argc, char** argv) {
 			return EXIT_FAILURE;
 		}
 	}
-	
+
+	if (antenna) {
+		printf("call hackrf_set_antenna_enable(%u)\n", antenna_enable);
+		result = hackrf_set_antenna_enable(device, (uint8_t)antenna_enable);
+		if (result != HACKRF_SUCCESS) {
+			printf("hackrf_set_antenna_enable() failed: %s (%d)\n", hackrf_error_name(result), result);
+			usage();
+			return EXIT_FAILURE;
+		}
+	}
+
 	if( limit_num_samples ) {
 		printf("samples_to_xfer %lu/%lluMio\n", samples_to_xfer, (samples_to_xfer/FREQ_ONE_MHZ) );
 	}
