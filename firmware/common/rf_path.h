@@ -37,9 +37,9 @@ typedef enum {
 void rf_path_set_direction(const rf_path_direction_t direction);
 
 typedef enum {
-	RF_PATH_FILTER_BYPASS,
-	RF_PATH_FILTER_LOW_PASS,
-	RF_PATH_FILTER_HIGH_PASS,
+	RF_PATH_FILTER_BYPASS = 0,
+	RF_PATH_FILTER_LOW_PASS = 1,
+	RF_PATH_FILTER_HIGH_PASS = 2,
 } rf_path_filter_t;
 
 void rf_path_set_filter(const rf_path_filter_t filter);

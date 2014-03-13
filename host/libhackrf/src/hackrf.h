@@ -69,6 +69,12 @@ enum hackrf_board_id {
 	BOARD_ID_INVALID = 0xFF,
 };
 
+enum rf_path_filter {
+	RF_PATH_FILTER_BYPASS = 0,
+	RF_PATH_FILTER_LOW_PASS = 1,
+	RF_PATH_FILTER_HIGH_PASS = 2,
+};
+
 typedef struct hackrf_device hackrf_device;
 
 typedef struct {
@@ -130,9 +136,9 @@ extern ADDAPI int ADDCALL hackrf_board_id_read(hackrf_device* device, uint8_t* v
 extern ADDAPI int ADDCALL hackrf_version_string_read(hackrf_device* device, char* version, uint8_t length);
 
 extern ADDAPI int ADDCALL hackrf_set_freq(hackrf_device* device, const uint64_t freq_hz);
-
-/* range 2300-2700 Mhz */
-extern ADDAPI int ADDCALL hackrf_set_if_freq(hackrf_device* device, const uint32_t freq_mhz);
+extern ADDAPI int ADDCALL hackrf_set_freq_explicit(hackrf_device* device,
+		const uint64_t if_freq_hz, const uint64_t lo_freq_hz,
+		const enum rf_path_filter path);
 
 /* currently 8-20Mhz - either as a fraction, i.e. freq 20000000hz divider 2 -> 10Mhz or as plain old 10000000hz (double)
 	preferred rates are 8, 10, 12.5, 16, 20Mhz due to less jitter */
@@ -158,6 +164,7 @@ extern ADDAPI int ADDCALL hackrf_set_antenna_enable(hackrf_device* device, const
 
 extern ADDAPI const char* ADDCALL hackrf_error_name(enum hackrf_error errcode);
 extern ADDAPI const char* ADDCALL hackrf_board_id_name(enum hackrf_board_id board_id);
+extern ADDAPI const char* ADDCALL hackrf_filter_path_name(const enum rf_path_filter path);
 
 /* Compute nearest freq for bw filter (manual filter) */
 extern ADDAPI uint32_t ADDCALL hackrf_compute_baseband_filter_bw_round_down_lt(const uint32_t bandwidth_hz);

@@ -41,6 +41,14 @@ typedef struct {
 
 set_freq_params_t set_freq_params;
 
+struct set_freq_explicit_params {
+	uint64_t if_freq_hz; /* intermediate frequency */
+	uint64_t lo_freq_hz; /* front-end local oscillator frequency */
+	uint8_t path;        /* image rejection filter path */
+};
+
+struct set_freq_explicit_params explicit_params;
+
 typedef struct {
 	uint32_t freq_hz;
 	uint32_t divider;
@@ -175,19 +183,6 @@ usb_request_status_t usb_vendor_request_set_txvga_gain(
 	return USB_REQUEST_STATUS_OK;
 }
 
-usb_request_status_t usb_vendor_request_set_if_freq(
-	usb_endpoint_t* const endpoint,	const usb_transfer_stage_t stage
-) {
-	if( stage == USB_TRANSFER_STAGE_SETUP ) {
-		if( set_freq_if((uint32_t)endpoint->setup.index * 1000 * 1000) ) {
-			usb_transfer_schedule_ack(endpoint->in);
-		} else {
-			return USB_REQUEST_STATUS_STALL;
-		}
-	}
-	return USB_REQUEST_STATUS_OK;
-}
-
 usb_request_status_t usb_vendor_request_set_antenna_enable(
 	usb_endpoint_t* const endpoint, const usb_transfer_stage_t stage)
 {
@@ -204,6 +199,26 @@ usb_request_status_t usb_vendor_request_set_antenna_enable(
 		default:
 			return USB_REQUEST_STATUS_STALL;
 		}
+	} else {
+		return USB_REQUEST_STATUS_OK;
+	}
+}
+
+usb_request_status_t usb_vendor_request_set_freq_explicit(
+	usb_endpoint_t* const endpoint,
+	const usb_transfer_stage_t stage)
+{
+	if (stage == USB_TRANSFER_STAGE_SETUP) {
+		usb_transfer_schedule_block(endpoint->out, &explicit_params,
+				sizeof(struct set_freq_explicit_params), NULL, NULL);
+		return USB_REQUEST_STATUS_OK;
+	} else if (stage == USB_TRANSFER_STAGE_DATA) {
+		if (set_freq_explicit(explicit_params.if_freq_hz,
+				explicit_params.lo_freq_hz, explicit_params.path)) {
+			usb_transfer_schedule_ack(endpoint->in);
+			return USB_REQUEST_STATUS_OK;
+		}
+		return USB_REQUEST_STATUS_STALL;
 	} else {
 		return USB_REQUEST_STATUS_OK;
 	}

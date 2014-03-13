@@ -86,6 +86,11 @@ int gettimeofday(struct timeval *tv, void* ignored)
 #define DEFAULT_FREQ_HZ (900000000ull) /* 900MHz */
 #define FREQ_MIN_HZ	(0ull) /* 0 Hz */
 #define FREQ_MAX_HZ	(7250000000ull) /* 7250MHz */
+#define IF_MIN_HZ (2150000000ull)
+#define IF_MAX_HZ (2750000000ull)
+#define LO_MIN_HZ (84375000ull)
+#define LO_MAX_HZ (5400000000ull)
+#define DEFAULT_LO_HZ (1000000000ull)
 
 #define DEFAULT_SAMPLE_RATE_HZ (10000000) /* 10MHz default sample rate */
 
@@ -240,9 +245,18 @@ bool receive_wav = false;
 bool transmit = false;
 struct timeval time_start;
 struct timeval t_start;
-	
-bool freq = false;
+
+bool automatic_tuning = false;
 uint64_t freq_hz;
+
+bool if_freq = false;
+uint64_t if_freq_hz;
+
+bool lo_freq = false;
+uint64_t lo_freq_hz = DEFAULT_LO_HZ;
+
+bool image_reject = false;
+uint32_t image_reject_selection;
 
 bool amp = false;
 uint32_t amp_enable;
@@ -326,13 +340,16 @@ static void usage() {
 	printf("\t-t <filename> # Transmit data from file.\n");
 	printf("\t-w # Receive data into file with WAV header and automatic name.\n");
 	printf("\t   # This is for SDR# compatibility and may not work with other software.\n");
-	printf("\t[-f set_freq_hz] # Set Freq in Hz between [%lluMHz, %lluMHz].\n", FREQ_MIN_HZ/FREQ_ONE_MHZ, FREQ_MAX_HZ/FREQ_ONE_MHZ);
-	printf("\t[-a set_amp] # Set Amp 1=Enable, 0=Disable.\n");
-	printf("\t[-p set_antenna] # Set antenna port power, 1=Enable, 0=Disable.\n");
-	printf("\t[-l gain_db] # Set lna gain, 0-40dB, 8dB steps\n");
-	printf("\t[-i gain_db] # Set vga(if) gain, 0-62dB, 2dB steps\n");
-	printf("\t[-x gain_db] # Set TX vga gain, 0-47dB, 1dB steps\n");
-	printf("\t[-s sample_rate_hz] # Set sample rate in Hz (8/10/12.5/16/20MHz, default %lldMHz).\n", DEFAULT_SAMPLE_RATE_HZ/FREQ_ONE_MHZ);
+	printf("\t[-f freq_hz] # Frequency in Hz between [%lluMHz, %lluMHz].\n", FREQ_MIN_HZ/FREQ_ONE_MHZ, FREQ_MAX_HZ/FREQ_ONE_MHZ);
+	printf("\t[-e if_freq_hz] # Intermediate Frequency (IF) in Hz [%lluMHz to %lluMHz].\n", IF_MIN_HZ/FREQ_ONE_MHZ, IF_MAX_HZ/FREQ_ONE_MHZ);
+	printf("\t[-o lo_freq_hz] # Front-end Local Oscillator (LO) frequency in Hz [%lluMHz to %lluMHz].\n", LO_MIN_HZ/FREQ_ONE_MHZ, LO_MAX_HZ/FREQ_ONE_MHZ);
+	printf("\t[-m image_reject] # Image rejection filter selection, 0=bypass, 1=low pass, 2=high pass.\n");
+	printf("\t[-a amp_enable] # Amplifier 1=Enable, 0=Disable.\n");
+	printf("\t[-p antenna_enable] # Antenna port power, 1=Enable, 0=Disable.\n");
+	printf("\t[-l gain_db] # LNA gain, 0-40dB, 8dB steps\n");
+	printf("\t[-i gain_db] # VGA(IF) gain, 0-62dB, 2dB steps\n");
+	printf("\t[-x gain_db] # TX VGA gain, 0-47dB, 1dB steps\n");
+	printf("\t[-s sample_rate_hz] # Sample rate in Hz (8/10/12.5/16/20MHz, default %lldMHz).\n", DEFAULT_SAMPLE_RATE_HZ/FREQ_ONE_MHZ);
 	printf("\t[-n num_samples] # Number of samples to transfer (default is unlimited).\n");
 	printf("\t[-b baseband_filter_bw_hz] # Set baseband filter bandwidth in MHz.\n\tPossible values: 1.75/2.5/3.5/5/5.5/6/7/8/9/10/12/14/15/20/24/28MHz, default < sample_rate_hz.\n" );
 }
@@ -375,7 +392,7 @@ int main(int argc, char** argv) {
 	float time_diff;
 	unsigned int lna_gain=8, vga_gain=20, txvga_gain=0;
   
-	while( (opt = getopt(argc, argv, "wr:t:f:a:p:s:n:b:l:i:x:")) != EOF )
+	while( (opt = getopt(argc, argv, "wr:t:f:e:o:m:a:p:s:n:b:l:i:x:")) != EOF )
 	{
 		result = HACKRF_SUCCESS;
 		switch( opt ) 
@@ -393,10 +410,25 @@ int main(int argc, char** argv) {
 			transmit = true;
 			path = optarg;
 			break;
-		
+
 		case 'f':
-			freq = true;
+			automatic_tuning = true;
 			result = parse_u64(optarg, &freq_hz);
+			break;
+
+		case 'e':
+			if_freq = true;
+			result = parse_u64(optarg, &if_freq_hz);
+			break;
+
+		case 'o':
+			lo_freq = true;
+			result = parse_u64(optarg, &lo_freq_hz);
+			break;
+
+		case 'm':
+			image_reject = true;
+			result = parse_u32(optarg, &image_reject_selection);
 			break;
 
 		case 'a':
@@ -457,23 +489,74 @@ int main(int argc, char** argv) {
 		return EXIT_FAILURE;
 	}
 
-	if( freq ) {
-		if( (freq_hz >= FREQ_MAX_HZ) || (freq_hz < FREQ_MIN_HZ) )
-		{
-			printf("argument error: set_freq_hz shall be between [%llu, %llu[.\n", FREQ_MIN_HZ, FREQ_MAX_HZ);
+	if (if_freq || lo_freq || image_reject) {
+		/* explicit tuning selected */
+		if (!if_freq) {
+			printf("argument error: if_freq_hz must be specified for explicit tuning.\n");
 			usage();
 			return EXIT_FAILURE;
 		}
-	}else
-	{
+		if (!image_reject) {
+			printf("argument error: image_reject must be specified for explicit tuning.\n");
+			usage();
+			return EXIT_FAILURE;
+		}
+		if (!lo_freq && (image_reject_selection != RF_PATH_FILTER_BYPASS)) {
+			printf("argument error: lo_freq_hz must be specified for explicit tuning unless image_reject is set to bypass.\n");
+			usage();
+			return EXIT_FAILURE;
+		}
+		if ((if_freq_hz > IF_MAX_HZ) || (if_freq_hz < IF_MIN_HZ)) {
+			printf("argument error: if_freq_hz shall be between %llu and %llu.\n", IF_MIN_HZ, IF_MAX_HZ);
+			usage();
+			return EXIT_FAILURE;
+		}
+		if ((lo_freq_hz > LO_MAX_HZ) || (lo_freq_hz < LO_MIN_HZ)) {
+			printf("argument error: lo_freq_hz shall be between %llu and %llu.\n", LO_MIN_HZ, LO_MAX_HZ);
+			usage();
+			return EXIT_FAILURE;
+		}
+		if (image_reject_selection > 2) {
+			printf("argument error: image_reject must be 0, 1, or 2 .\n");
+			usage();
+			return EXIT_FAILURE;
+		}
+		if (automatic_tuning) {
+			printf("warning: freq_hz ignored by explicit tuning selection.\n");
+			automatic_tuning = false;
+		}
+		switch (image_reject_selection) {
+		case RF_PATH_FILTER_BYPASS:
+			freq_hz = if_freq_hz;
+			break;
+		case RF_PATH_FILTER_LOW_PASS:
+			freq_hz = abs(if_freq_hz - lo_freq_hz);
+			break;
+		case RF_PATH_FILTER_HIGH_PASS:
+			freq_hz = if_freq_hz + lo_freq_hz;
+			break;
+		default:
+			freq_hz = DEFAULT_FREQ_HZ;
+			break;
+		}
+		printf("explicit tuning specified for %lu Hz.\n", freq_hz);
+	} else if (automatic_tuning) {
+		if( (freq_hz > FREQ_MAX_HZ) || (freq_hz < FREQ_MIN_HZ) )
+		{
+			printf("argument error: freq_hz shall be between %llu and %llu.\n", FREQ_MIN_HZ, FREQ_MAX_HZ);
+			usage();
+			return EXIT_FAILURE;
+		}
+	} else {
 		/* Use default freq */
 		freq_hz = DEFAULT_FREQ_HZ;
+		automatic_tuning = true;
 	}
 
 	if( amp ) {
 		if( amp_enable > 1 )
 		{
-			printf("argument error: set_amp shall be 0 or 1.\n");
+			printf("argument error: amp_enable shall be 0 or 1.\n");
 			usage();
 			return EXIT_FAILURE;
 		}
@@ -481,7 +564,7 @@ int main(int argc, char** argv) {
 
 	if (antenna) {
 		if (antenna_enable > 1) {
-			printf("argument error: set_antenna shall be 0 or 1.\n");
+			printf("argument error: antenna_enable shall be 0 or 1.\n");
 			usage();
 			return EXIT_FAILURE;
 		}
@@ -645,12 +728,25 @@ int main(int argc, char** argv) {
 		return EXIT_FAILURE;
 	}
 
-	printf("call hackrf_set_freq(%lu Hz/%.03f MHz)\n", freq_hz, ((double)freq_hz/(double)FREQ_ONE_MHZ) );
-	result = hackrf_set_freq(device, freq_hz);
-	if( result != HACKRF_SUCCESS ) {
-		printf("hackrf_set_freq() failed: %s (%d)\n", hackrf_error_name(result), result);
-		usage();
-		return EXIT_FAILURE;
+	if (automatic_tuning) {
+		printf("call hackrf_set_freq(%lu Hz/%.03f MHz)\n", freq_hz, ((double)freq_hz/(double)FREQ_ONE_MHZ) );
+		result = hackrf_set_freq(device, freq_hz);
+		if( result != HACKRF_SUCCESS ) {
+			printf("hackrf_set_freq() failed: %s (%d)\n", hackrf_error_name(result), result);
+			usage();
+			return EXIT_FAILURE;
+		}
+	} else {
+		printf("call hackrf_set_freq_explicit() with %lu Hz IF, %lu Hz LO, %s\n",
+				if_freq_hz, lo_freq_hz, hackrf_filter_path_name(image_reject_selection));
+		result = hackrf_set_freq_explicit(device, if_freq_hz, lo_freq_hz,
+				image_reject_selection);
+		if (result != HACKRF_SUCCESS) {
+			printf("hackrf_set_freq_explicit() failed: %s (%d)\n",
+					hackrf_error_name(result), result);
+			usage();
+			return EXIT_FAILURE;
+		}
 	}
 
 	if( amp ) {

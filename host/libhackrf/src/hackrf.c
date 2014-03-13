@@ -36,8 +36,10 @@ typedef int bool;
 
 #ifdef HACKRF_BIG_ENDIAN
 #define TO_LE(x) __builtin_bswap32(x)
+#define TO_LE64(x) __builtin_bswap64(x)
 #else
 #define TO_LE(x) x
+#define TO_LE64(x) x
 #endif
 
 // TODO: Factor this into a shared #include so that firmware can use
@@ -63,8 +65,8 @@ typedef enum {
 	HACKRF_VENDOR_REQUEST_SET_LNA_GAIN = 19,
 	HACKRF_VENDOR_REQUEST_SET_VGA_GAIN = 20,
 	HACKRF_VENDOR_REQUEST_SET_TXVGA_GAIN = 21,
-	HACKRF_VENDOR_REQUEST_SET_IF_FREQ = 22,
 	HACKRF_VENDOR_REQUEST_ANTENNA_ENABLE = 23,
+	HACKRF_VENDOR_REQUEST_SET_FREQ_EXPLICIT = 24,
 } hackrf_vendor_request;
 
 typedef enum {
@@ -724,7 +726,7 @@ int ADDCALL hackrf_version_string_read(hackrf_device* device, char* version,
 }
 
 typedef struct {
-	uint32_t freq_mhz; /* From 30 to 6000MHz */
+	uint32_t freq_mhz; /* From 0 to 6000+MHz */
 	uint32_t freq_hz; /* From 0 to 999999Hz */
 	/* Final Freq = freq_mhz+freq_hz */
 } set_freq_params_t;
@@ -764,6 +766,56 @@ int ADDCALL hackrf_set_freq(hackrf_device* device, const uint64_t freq_hz)
 	}
 }
 
+struct set_freq_explicit_params {
+	uint64_t if_freq_hz; /* intermediate frequency */
+	uint64_t lo_freq_hz; /* front-end local oscillator frequency */
+	uint8_t path;        /* image rejection filter path */
+};
+
+int ADDCALL hackrf_set_freq_explicit(hackrf_device* device,
+		const uint64_t if_freq_hz, const uint64_t lo_freq_hz,
+		const enum rf_path_filter path)
+{
+	struct set_freq_explicit_params params;
+	uint8_t length;
+	int result;
+
+	if (if_freq_hz < 2150000000 || if_freq_hz > 2750000000) {
+		return HACKRF_ERROR_INVALID_PARAM;
+	}
+
+	if ((path != RF_PATH_FILTER_BYPASS) &&
+			(lo_freq_hz < 84375000 || lo_freq_hz > 5400000000)) {
+		return HACKRF_ERROR_INVALID_PARAM;
+	}
+
+	if (path > 2) {
+		return HACKRF_ERROR_INVALID_PARAM;
+	}
+
+	params.if_freq_hz = TO_LE(if_freq_hz);
+	params.lo_freq_hz = TO_LE(lo_freq_hz);
+	params.path = (uint8_t)path;
+	length = sizeof(struct set_freq_explicit_params);
+
+	result = libusb_control_transfer(
+		device->usb_device,
+		LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_SET_FREQ_EXPLICIT,
+		0,
+		0,
+		(unsigned char*)&params,
+		length,
+		0
+	);
+
+	if (result < length)
+	{
+		return HACKRF_ERROR_LIBUSB;
+	} else {
+		return HACKRF_SUCCESS;
+	}
+}
 
 typedef struct {
 	uint32_t freq_hz;
@@ -978,34 +1030,6 @@ int ADDCALL hackrf_set_txvga_gain(hackrf_device* device, uint32_t value)
 	if( result != 1 || !retval )
 	{
 		return HACKRF_ERROR_INVALID_PARAM;
-	} else {
-		return HACKRF_SUCCESS;
-	}
-}
-
-int ADDCALL hackrf_set_if_freq(hackrf_device* device, const uint32_t freq_mhz)
-{
-	int result;
-
-	if(freq_mhz < 2300 || freq_mhz > 2700)
-	{
-		return HACKRF_ERROR_INVALID_PARAM;
-	}
-
-	result = libusb_control_transfer(
-		device->usb_device,
-		LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
-		HACKRF_VENDOR_REQUEST_SET_IF_FREQ,
-		0,
-		freq_mhz,
-		NULL,
-		0,
-		0
-	);
-
-	if( result != 0 )
-	{
-		return HACKRF_ERROR_LIBUSB;
 	} else {
 		return HACKRF_SUCCESS;
 	}
@@ -1314,6 +1338,20 @@ const char* ADDCALL hackrf_board_id_name(enum hackrf_board_id board_id)
 
 	default:
 		return "Unknown Board ID";
+	}
+}
+
+const char* ADDCALL hackrf_filter_path_name(const enum rf_path_filter path)
+{
+	switch(path) {
+	case RF_PATH_FILTER_BYPASS:
+		return "mixer bypass";
+	case RF_PATH_FILTER_LOW_PASS:
+		return "low pass filter";
+	case RF_PATH_FILTER_HIGH_PASS:
+		return "high pass filter";
+	default:
+		return "invalid filter path";
 	}
 }
 

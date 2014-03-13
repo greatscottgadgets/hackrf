@@ -25,8 +25,6 @@
 #include <rffc5071.h>
 #include <max2837.h>
 
-#include "rf_path.h"
-
 #define FREQ_ONE_MHZ     (1000*1000)
 
 #define MIN_LP_FREQ_MHZ (0)
@@ -39,6 +37,9 @@
 #define MID1_HP_FREQ_MHZ (3600)
 #define MID2_HP_FREQ_MHZ (5100)
 #define MAX_HP_FREQ_MHZ (7250)
+
+#define MIN_LO_FREQ_HZ (84375000)
+#define MAX_LO_FREQ_HZ (5400000000ULL)
 
 static uint32_t max2837_freq_nominal_hz=2560000000;
 
@@ -54,7 +55,6 @@ bool set_freq(const uint64_t freq)
 	uint32_t RFFC5071_freq_mhz;
 	uint32_t MAX2837_freq_hz;
 	uint64_t real_RFFC5071_freq_hz;
-	uint32_t tmp_hz;
 
 	const uint32_t freq_mhz = freq / 1000000;
 	const uint32_t freq_hz = freq % 1000000;
@@ -105,11 +105,27 @@ bool set_freq(const uint64_t freq)
 	return success;
 }
 
-bool set_freq_if(const uint32_t freq_if_hz) {
-	bool success = false;
-	if( (freq_if_hz >= MIN_BYPASS_FREQ_MHZ) && (freq_if_hz <= MAX_BYPASS_FREQ_MHZ) ) {
-		max2837_freq_nominal_hz = freq_if_hz;
-		success = set_freq(freq_cache);
+bool set_freq_explicit(const uint64_t if_freq_hz, const uint64_t lo_freq_hz,
+		const rf_path_filter_t path)
+{
+	if ((if_freq_hz < ((uint64_t)MIN_BYPASS_FREQ_MHZ * FREQ_ONE_MHZ))
+			|| (if_freq_hz > ((uint64_t)MAX_BYPASS_FREQ_MHZ * FREQ_ONE_MHZ))) {
+		return false;
 	}
-	return success;
+
+	if ((path != RF_PATH_FILTER_BYPASS) &&
+			(lo_freq_hz < MIN_LO_FREQ_HZ) || (lo_freq_hz > MAX_LO_FREQ_HZ)) {
+		return false;
+	}
+
+	if (path > 2) {
+		return false;
+	}
+
+	rf_path_set_filter(path);
+	max2837_set_frequency(if_freq_hz);
+	if (path != RF_PATH_FILTER_BYPASS) {
+		(void)rffc5071_set_frequency(lo_freq_hz / FREQ_ONE_MHZ);
+	}
+	return true;
 }
