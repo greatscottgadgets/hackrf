@@ -18,9 +18,7 @@ submodule:
 $ cd ..
 $ git submodule init
 $ git submodule update
-$ mkdir firmware/libopencm3/build
-$ cd firmware/libopencm3/build
-$ cmake ../
+$ cd firmware/libopencm3
 $ make
 
 
