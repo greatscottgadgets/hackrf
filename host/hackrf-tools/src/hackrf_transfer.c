@@ -341,14 +341,14 @@ static void usage() {
 	printf("\t-w # Receive data into file with WAV header and automatic name.\n");
 	printf("\t   # This is for SDR# compatibility and may not work with other software.\n");
 	printf("\t[-f freq_hz] # Frequency in Hz between [%lluMHz, %lluMHz].\n", FREQ_MIN_HZ/FREQ_ONE_MHZ, FREQ_MAX_HZ/FREQ_ONE_MHZ);
-	printf("\t[-e if_freq_hz] # Intermediate Frequency (IF) in Hz [%lluMHz to %lluMHz].\n", IF_MIN_HZ/FREQ_ONE_MHZ, IF_MAX_HZ/FREQ_ONE_MHZ);
+	printf("\t[-i if_freq_hz] # Intermediate Frequency (IF) in Hz [%lluMHz to %lluMHz].\n", IF_MIN_HZ/FREQ_ONE_MHZ, IF_MAX_HZ/FREQ_ONE_MHZ);
 	printf("\t[-o lo_freq_hz] # Front-end Local Oscillator (LO) frequency in Hz [%lluMHz to %lluMHz].\n", LO_MIN_HZ/FREQ_ONE_MHZ, LO_MAX_HZ/FREQ_ONE_MHZ);
 	printf("\t[-m image_reject] # Image rejection filter selection, 0=bypass, 1=low pass, 2=high pass.\n");
-	printf("\t[-a amp_enable] # Amplifier 1=Enable, 0=Disable.\n");
+	printf("\t[-a amp_enable] # RX/TX RF amplifier 1=Enable, 0=Disable.\n");
 	printf("\t[-p antenna_enable] # Antenna port power, 1=Enable, 0=Disable.\n");
-	printf("\t[-l gain_db] # LNA gain, 0-40dB, 8dB steps\n");
-	printf("\t[-i gain_db] # VGA(IF) gain, 0-62dB, 2dB steps\n");
-	printf("\t[-x gain_db] # TX VGA gain, 0-47dB, 1dB steps\n");
+	printf("\t[-l gain_db] # RX LNA (IF) gain, 0-40dB, 8dB steps\n");
+	printf("\t[-g gain_db] # RX VGA (baseband) gain, 0-62dB, 2dB steps\n");
+	printf("\t[-x gain_db] # TX VGA (IF) gain, 0-47dB, 1dB steps\n");
 	printf("\t[-s sample_rate_hz] # Sample rate in Hz (8/10/12.5/16/20MHz, default %lldMHz).\n", DEFAULT_SAMPLE_RATE_HZ/FREQ_ONE_MHZ);
 	printf("\t[-n num_samples] # Number of samples to transfer (default is unlimited).\n");
 	printf("\t[-b baseband_filter_bw_hz] # Set baseband filter bandwidth in MHz.\n\tPossible values: 1.75/2.5/3.5/5/5.5/6/7/8/9/10/12/14/15/20/24/28MHz, default < sample_rate_hz.\n" );
@@ -392,7 +392,7 @@ int main(int argc, char** argv) {
 	float time_diff;
 	unsigned int lna_gain=8, vga_gain=20, txvga_gain=0;
   
-	while( (opt = getopt(argc, argv, "wr:t:f:e:o:m:a:p:s:n:b:l:i:x:")) != EOF )
+	while( (opt = getopt(argc, argv, "wr:t:f:i:o:m:a:p:s:n:b:l:g:x:")) != EOF )
 	{
 		result = HACKRF_SUCCESS;
 		switch( opt ) 
@@ -416,7 +416,7 @@ int main(int argc, char** argv) {
 			result = parse_u64(optarg, &freq_hz);
 			break;
 
-		case 'e':
+		case 'i':
 			if_freq = true;
 			result = parse_u64(optarg, &if_freq_hz);
 			break;
@@ -445,7 +445,7 @@ int main(int argc, char** argv) {
 			result = parse_u32(optarg, &lna_gain);
 			break;
 
-		case 'i':
+		case 'g':
 			result = parse_u32(optarg, &vga_gain);
 			break;
 
