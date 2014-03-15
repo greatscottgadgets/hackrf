@@ -268,7 +268,8 @@ void cpu_clock_init(void)
 	si5351c_power_down_all_clocks();
 	si5351c_set_crystal_configuration();
 	si5351c_enable_xo_and_ms_fanout();
-	si5351c_set_clock_source(PLL_SOURCE_XTAL);
+	si5351c_configure_pll_sources();
+	si5351c_configure_pll_multisynth();
 
 #ifdef JELLYBEAN
 	/*
@@ -324,7 +325,7 @@ void cpu_clock_init(void)
 	/* Set to 10 MHz, the common rate between Jellybean and Jawbreaker. */
 	sample_rate_set(10000000);
 
-	si5351c_configure_clock_control();
+	si5351c_set_clock_source(PLL_SOURCE_XTAL);
 	// soft reset
 	uint8_t resetdata[] = { 177, 0xac };
 	si5351c_write(resetdata, sizeof(resetdata));

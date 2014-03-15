@@ -67,12 +67,13 @@ void si5351c_disable_oeb_pin_control();
 void si5351c_power_down_all_clocks();
 void si5351c_set_crystal_configuration();
 void si5351c_enable_xo_and_ms_fanout();
-void si5351c_configure_pll_sources(const enum pll_sources source);
-void si5351c_configure_pll1_multisynth(const enum pll_sources source);
+void si5351c_configure_pll_sources(void);
+void si5351c_configure_pll_multisynth(void);
+void si5351c_reset_pll(void);
 void si5351c_configure_multisynth(const uint_fast8_t ms_number,
     	const uint32_t p1, const uint32_t p2, const uint32_t p3,
     	const uint_fast8_t r_div);
-void si5351c_configure_clock_control();
+void si5351c_configure_clock_control(const enum pll_sources source);
 void si5351c_enable_clock_outputs();
 void si5351c_set_int_mode(const uint_fast8_t ms_number, const uint_fast8_t on);
 
