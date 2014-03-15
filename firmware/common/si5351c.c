@@ -23,6 +23,8 @@
 #include "si5351c.h"
 #include <libopencm3/lpc43xx/i2c.h>
 
+enum pll_sources active_clock_source;
+
 /* FIXME return i2c0 status from each function */
 
 /* write to single register */
@@ -117,7 +119,7 @@ void si5351c_set_crystal_configuration()
  */
 void si5351c_enable_xo_and_ms_fanout()
 {
-	uint8_t data[] = { 187, 0x50 };
+	uint8_t data[] = { 187, 0xD0 };
 	si5351c_write(data, sizeof(data));
 }
 
@@ -127,18 +129,29 @@ void si5351c_enable_xo_and_ms_fanout()
  * PLLB_SRC=0 (XTAL input)
  * PLLA_SRC=0 (XTAL input)
  */
-void si5351c_configure_pll_sources_for_xtal()
+void si5351c_configure_pll_sources(const enum pll_sources source)
 {
 	uint8_t data[] = { 15, 0x00 };
+
+	if (source == PLL_SOURCE_CLKIN) {
+		data[1] = 0x0C;
+	}
+
 	si5351c_write(data, sizeof(data));
 }
 
 /* MultiSynth NA (PLL1) */
-void si5351c_configure_pll1_multisynth()
+void si5351c_configure_pll1_multisynth(const enum pll_sources source)
 {
-	//init plla and pllb to (0x0e00+512)/128*25mhz xtal = 800mhz -> int mode
- 	uint8_t data[] = { 26, 0x00, 0x01, 0x00, 0x0E, 0x00, 0x00, 0x00, 0x00 };
- 	si5351c_write(data, sizeof(data));
+	//init plla to (0x0e00+512)/128*25mhz xtal = 800mhz -> int mode
+	uint8_t data[] = { 26, 0x00, 0x01, 0x00, 0x0E, 0x00, 0x00, 0x00, 0x00 };
+
+	if (source == PLL_SOURCE_CLKIN) {
+		/* 10 MHz input on CLKIN instead of 25 MHz XTAL */
+		data[4] = 0x26;
+	}
+
+	si5351c_write(data, sizeof(data));
 	//~ data[0] =34;// pllb
 	//~ si5351c_write(data, sizeof(data));
 }
@@ -233,7 +246,7 @@ void si5351c_configure_clock_control()
 	,SI5351C_CLK_FRAC_MODE | SI5351C_CLK_PLL_SRC(SI5351C_CLK_PLL_SRC_A) | SI5351C_CLK_SRC(SI5351C_CLK_SRC_MULTISYNTH_SELF) | SI5351C_CLK_IDRV(SI5351C_CLK_IDRV_2MA)
 	,SI5351C_CLK_INT_MODE | SI5351C_CLK_PLL_SRC(SI5351C_CLK_PLL_SRC_A) | SI5351C_CLK_SRC(SI5351C_CLK_SRC_MULTISYNTH_0_4) | SI5351C_CLK_IDRV(SI5351C_CLK_IDRV_2MA)
 	,SI5351C_CLK_INT_MODE | SI5351C_CLK_PLL_SRC(SI5351C_CLK_PLL_SRC_A) | SI5351C_CLK_SRC(SI5351C_CLK_SRC_MULTISYNTH_0_4) | SI5351C_CLK_IDRV(SI5351C_CLK_IDRV_2MA)
-	,SI5351C_CLK_POWERDOWN /*not connected, clock out*/
+	,SI5351C_CLK_INT_MODE | SI5351C_CLK_PLL_SRC(SI5351C_CLK_PLL_SRC_A) | SI5351C_CLK_SRC(SI5351C_CLK_SRC_MULTISYNTH_SELF) | SI5351C_CLK_IDRV(SI5351C_CLK_IDRV_8MA)
 	,SI5351C_CLK_INT_MODE | SI5351C_CLK_PLL_SRC(SI5351C_CLK_PLL_SRC_A) | SI5351C_CLK_SRC(SI5351C_CLK_SRC_MULTISYNTH_SELF) | SI5351C_CLK_IDRV(SI5351C_CLK_IDRV_6MA)
 	,SI5351C_CLK_INT_MODE | SI5351C_CLK_PLL_SRC(SI5351C_CLK_PLL_SRC_A) | SI5351C_CLK_SRC(SI5351C_CLK_SRC_MULTISYNTH_SELF) | SI5351C_CLK_IDRV(SI5351C_CLK_IDRV_4MA)
 	,SI5351C_CLK_POWERDOWN | SI5351C_CLK_INT_MODE /*not connected, but: plla int mode*/
@@ -243,10 +256,10 @@ void si5351c_configure_clock_control()
 }
 #endif
 
-/* Enable CLK outputs 0, 1, 2, 4, 5, 7 only. */
+/* Enable CLK outputs 0, 1, 2, 3, 4, 5, 7 only. */
  void si5351c_enable_clock_outputs()
  {
-	uint8_t data[] = { 3, 0x48 };
+	uint8_t data[] = { 3, 0x40 };
  	si5351c_write(data, sizeof(data));
  }
 
@@ -267,3 +280,28 @@ void si5351c_configure_clock_control()
   }
 
  }
+
+void si5351c_set_clock_source(const enum pll_sources source)
+{
+	si5351c_configure_pll_sources(source);
+	si5351c_configure_pll1_multisynth(source);
+
+	active_clock_source = source;
+}
+
+void si5351c_activate_best_clock_source(void)
+{
+	uint8_t device_status = si5351c_read_single(0);
+
+	if (device_status & SI5351C_LOS) {
+		/* CLKIN not detected */
+		if (active_clock_source == PLL_SOURCE_CLKIN) {
+			si5351c_set_clock_source(PLL_SOURCE_XTAL);
+		}
+	} else {
+		/* CLKIN detected */
+		if (active_clock_source == PLL_SOURCE_XTAL) {
+			si5351c_set_clock_source(PLL_SOURCE_CLKIN);
+		}
+	}
+}

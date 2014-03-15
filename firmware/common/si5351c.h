@@ -55,13 +55,20 @@ extern "C"
 #define SI5351C_CLK_IDRV_6MA 2
 #define SI5351C_CLK_IDRV_8MA 3
 
+#define SI5351C_LOS (1<<4)
+
+enum pll_sources {
+	PLL_SOURCE_XTAL = 0,
+	PLL_SOURCE_CLKIN = 1,
+};
+
 void si5351c_disable_all_outputs();
 void si5351c_disable_oeb_pin_control();
 void si5351c_power_down_all_clocks();
 void si5351c_set_crystal_configuration();
 void si5351c_enable_xo_and_ms_fanout();
-void si5351c_configure_pll_sources_for_xtal();
-void si5351c_configure_pll1_multisynth();
+void si5351c_configure_pll_sources(const enum pll_sources source);
+void si5351c_configure_pll1_multisynth(const enum pll_sources source);
 void si5351c_configure_multisynth(const uint_fast8_t ms_number,
     	const uint32_t p1, const uint32_t p2, const uint32_t p3,
     	const uint_fast8_t r_div);
@@ -72,6 +79,8 @@ void si5351c_set_int_mode(const uint_fast8_t ms_number, const uint_fast8_t on);
 void si5351c_write_single(uint8_t reg, uint8_t val);
 uint8_t si5351c_read_single(uint8_t reg);
 void si5351c_write(uint8_t* const data, const uint_fast8_t data_count);
+void si5351c_set_clock_source(const enum pll_sources source);
+void si5351c_activate_best_clock_source(void);
 
 #ifdef __cplusplus
 }

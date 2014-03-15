@@ -136,9 +136,6 @@ bool sample_rate_frac_set(uint32_t rate_num, uint32_t rate_denom)
 	/* MS0/CLK2 is the source for SGPIO (CODEC_X2_CLK) */
 	si5351c_configure_multisynth(2, 0, 0, 0, 0);//p1 doesn't matter
 
-	/* MS0/CLK3 is the source for the external clock output. */
-	//si5351c_configure_multisynth(3, p1, 0, 1, 0); // no clk out
-
 	return true;
 }
 
@@ -248,9 +245,6 @@ bool sample_rate_set(const uint32_t sample_rate_hz) {
 	/* MS0/CLK2 is the source for SGPIO (CODEC_X2_CLK) */
 	si5351c_configure_multisynth(2, p1, 0, 1, 0);//p1 doesn't matter
 
-	/* MS0/CLK3 is the source for the external clock output. */
-	//si5351c_configure_multisynth(3, p1, 0, 1, 0); // no clk out
-
 	return true;
 #endif
 }
@@ -274,8 +268,7 @@ void cpu_clock_init(void)
 	si5351c_power_down_all_clocks();
 	si5351c_set_crystal_configuration();
 	si5351c_enable_xo_and_ms_fanout();
-	si5351c_configure_pll_sources_for_xtal();
-	si5351c_configure_pll1_multisynth();
+	si5351c_set_clock_source(PLL_SOURCE_XTAL);
 
 #ifdef JELLYBEAN
 	/*
@@ -312,6 +305,9 @@ void cpu_clock_init(void)
 	 *   CLK6 -> none
 	 *   CLK7 -> LPC4330 (but LPC4330 starts up on its own crystal)
 	 */
+
+	/* MS3/CLK3 is the source for the external clock output. */
+	si5351c_configure_multisynth(3, 80*128-512, 0, 1, 0); /* 800/80 = 10MHz */
 
 	/* MS4/CLK4 is the source for the RFFC5071 mixer. */
 	si5351c_configure_multisynth(4, 16*128-512, 0, 1, 0); /* 800/16 = 50MHz */
