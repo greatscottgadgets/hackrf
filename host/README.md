@@ -13,7 +13,7 @@ produce a low cost, open source software radio platform.
   - If you want to use Zadig  select HackRF USB device and just install/replace it with WinUSB driver.
 
 >**Note for Windows build:**
- You shall always execute hackrf_tools from Windows command shell and not from Cygwin or Mingw shell because on Cygwin/Mingw
+ You shall always execute hackrf-tools from Windows command shell and not from Cygwin or Mingw shell because on Cygwin/Mingw
  Ctrl C is not managed correctly and especially for hackrf_transfer the Ctrl C(abort) will not stop correctly and will corrupt the file.
 
 ###For Cygwin:
