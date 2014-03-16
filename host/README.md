@@ -9,12 +9,12 @@ produce a low cost, open source software radio platform.
 
 * cmake-2.8.12.1 or more see http://www.cmake.org/cmake/resources/software.html
 * libusbx-1.0.18 or more see http://sourceforge.net/projects/libusbx/files/latest/download?source=files
-* Install Windows driver for AirSpy hardware or use Zadig see http://sourceforge.net/projects/libwdi/files/zadig
-  - If you want to use Zadig  select AirSpy USB device and just install/replace it with WinUSB driver.
+* Install Windows driver for HackRF hardware or use Zadig see http://sourceforge.net/projects/libwdi/files/zadig
+  - If you want to use Zadig  select HackRF USB device and just install/replace it with WinUSB driver.
 
 >**Note for Windows build:**
- You shall always execute airspy_tools from Windows command shell and not from Cygwin or Mingw shell because on Cygwin/Mingw
- Ctrl C is not managed correctly and especially for airspy_rx the Ctrl C(abort) will not stop correctly and will corrupt the file.
+ You shall always execute hackrf_tools from Windows command shell and not from Cygwin or Mingw shell because on Cygwin/Mingw
+ Ctrl C is not managed correctly and especially for hackrf_transfer the Ctrl C(abort) will not stop correctly and will corrupt the file.
 
 ###For Cygwin:
 
