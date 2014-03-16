@@ -334,6 +334,7 @@ uint32_t baseband_filter_bw_hz = 0;
 
 int rx_callback(hackrf_transfer* transfer) {
 	size_t bytes_to_write;
+	int i;
 
 	if( fd != NULL ) 
 	{
@@ -345,6 +346,12 @@ int rx_callback(hackrf_transfer* transfer) {
 				bytes_to_write = bytes_to_xfer;
 			}
 			bytes_to_xfer -= bytes_to_write;
+		}
+		if (receive_wav) {
+			/* convert .wav contents from signed to unsigned */
+			for (i = 0; i < bytes_to_write; i++) {
+				*(transfer->buffer + i) ^= (uint8_t)0x80;
+			}
 		}
 		bytes_written = fwrite(transfer->buffer, 1, bytes_to_write, fd);
 		if ((bytes_written != bytes_to_write)
