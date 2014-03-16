@@ -1,7 +1,5 @@
-This repository contains hardware designs and software for HackRF, a project to
+This repository contains host software (Linux/Windows) for HackRF, a project to
 produce a low cost, open source software radio platform.
-
-![Jawbreaker](https://raw.github.com/mossmann/hackrf/master/doc/jawbreaker.jpeg)
 
 ##How to build host software on Windows:
 
