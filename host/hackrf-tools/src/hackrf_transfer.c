@@ -1,6 +1,6 @@
 /*
  * Copyright 2012 Jared Boone <jared@sharebrained.com>
- * Copyright 2013 Benjamin Vernoux <titanmkd@gmail.com>
+ * Copyright 2013-2014 Benjamin Vernoux <titanmkd@gmail.com>
  *
  * This file is part of HackRF.
  *
@@ -71,8 +71,9 @@ int gettimeofday(struct timeval *tv, void* ignored)
 }
 
 #endif
+#endif
 
-#else
+#if defined(__GNUC__)
 #include <unistd.h>
 #include <sys/time.h>
 #endif
@@ -174,6 +175,15 @@ typedef enum {
 } transceiver_mode_t;
 static transceiver_mode_t transceiver_mode = TRANSCEIVER_MODE_RX;
 
+#define U64TOA_MAX_DIGIT (31)
+typedef struct 
+{
+		char data[U64TOA_MAX_DIGIT+1];
+} t_u64toa;
+
+t_u64toa ascii_u64_data1;
+t_u64toa ascii_u64_data2;
+
 static float
 TimevalDiff(const struct timeval *a, const struct timeval *b)
 {
@@ -234,6 +244,54 @@ int parse_u32(char* s, uint32_t* const value) {
 	}
 }
 
+
+static char *stringrev(char *str)
+{
+	char *p1, *p2;
+
+	if(! str || ! *str)
+		return str;
+
+	for(p1 = str, p2 = str + strlen(str) - 1; p2 > p1; ++p1, --p2)
+	{
+		*p1 ^= *p2;
+		*p2 ^= *p1;
+		*p1 ^= *p2;
+	}
+	return str;
+}
+
+char* u64toa(uint64_t val, t_u64toa* str)
+{
+	#define BASE (10ull) /* Base10 by default */
+	uint64_t sum;
+	int pos;
+	int digit;
+	int max_len;
+	char* res;
+
+	sum = val;
+	max_len = U64TOA_MAX_DIGIT;
+	pos = 0;
+
+	do
+	{
+		digit = (sum % BASE);
+		str->data[pos] = digit + '0';
+		pos++;
+
+		sum /= BASE;
+	}while( (sum>0) && (pos < max_len) );
+
+	if( (pos == max_len) && (sum>0) )
+		return NULL;
+
+	str->data[pos] = '\0';
+	res = stringrev(str->data);
+
+	return res;
+}
+
 volatile bool do_exit = false;
 
 FILE* fd = NULL;
@@ -269,13 +327,13 @@ uint32_t sample_rate_hz;
 
 bool limit_num_samples = false;
 uint64_t samples_to_xfer = 0;
-uint64_t bytes_to_xfer = 0;
+size_t bytes_to_xfer = 0;
 
 bool baseband_filter_bw = false;
 uint32_t baseband_filter_bw_hz = 0;
 
 int rx_callback(hackrf_transfer* transfer) {
-	int bytes_to_write;
+	size_t bytes_to_write;
 
 	if( fd != NULL ) 
 	{
@@ -284,15 +342,13 @@ int rx_callback(hackrf_transfer* transfer) {
 		bytes_to_write = transfer->valid_length;
 		if (limit_num_samples) {
 			if (bytes_to_write >= bytes_to_xfer) {
-				bytes_to_write = (int)bytes_to_xfer;
+				bytes_to_write = bytes_to_xfer;
 			}
 			bytes_to_xfer -= bytes_to_write;
 		}
 		bytes_written = fwrite(transfer->buffer, 1, bytes_to_write, fd);
 		if ((bytes_written != bytes_to_write)
 				|| (limit_num_samples && (bytes_to_xfer == 0))) {
-			fclose(fd);
-			fd = NULL;
 			return -1;
 		} else {
 			return 0;
@@ -303,7 +359,7 @@ int rx_callback(hackrf_transfer* transfer) {
 }
 
 int tx_callback(hackrf_transfer* transfer) {
-	int bytes_to_read;
+	size_t bytes_to_read;
 
 	if( fd != NULL )
 	{
@@ -316,15 +372,13 @@ int tx_callback(hackrf_transfer* transfer) {
 				 * In this condition, we probably tx some of the previous
 				 * buffer contents at the end.  :-(
 				 */
-				bytes_to_read = (int)bytes_to_xfer;
+				bytes_to_read = bytes_to_xfer;
 			}
 			bytes_to_xfer -= bytes_to_read;
 		}
 		bytes_read = fread(transfer->buffer, 1, bytes_to_read, fd);
 		if ((bytes_read != bytes_to_read)
 				|| (limit_num_samples && (bytes_to_xfer == 0))) {
-			fclose(fd);
-			fd = NULL;
 			return -1;
 		} else {
 			return 0;
@@ -340,16 +394,23 @@ static void usage() {
 	printf("\t-t <filename> # Transmit data from file.\n");
 	printf("\t-w # Receive data into file with WAV header and automatic name.\n");
 	printf("\t   # This is for SDR# compatibility and may not work with other software.\n");
-	printf("\t[-f freq_hz] # Frequency in Hz between [%lluMHz, %lluMHz].\n", FREQ_MIN_HZ/FREQ_ONE_MHZ, FREQ_MAX_HZ/FREQ_ONE_MHZ);
-	printf("\t[-i if_freq_hz] # Intermediate Frequency (IF) in Hz [%lluMHz to %lluMHz].\n", IF_MIN_HZ/FREQ_ONE_MHZ, IF_MAX_HZ/FREQ_ONE_MHZ);
-	printf("\t[-o lo_freq_hz] # Front-end Local Oscillator (LO) frequency in Hz [%lluMHz to %lluMHz].\n", LO_MIN_HZ/FREQ_ONE_MHZ, LO_MAX_HZ/FREQ_ONE_MHZ);
+	printf("\t[-f freq_hz] # Frequency in Hz [%sMHz to %sMHz].\n",
+		u64toa((FREQ_MIN_HZ/FREQ_ONE_MHZ),&ascii_u64_data1),
+		u64toa((FREQ_MAX_HZ/FREQ_ONE_MHZ),&ascii_u64_data2));
+	printf("\t[-i if_freq_hz] # Intermediate Frequency (IF) in Hz [%sMHz to %sMHz].\n",
+		u64toa((IF_MIN_HZ/FREQ_ONE_MHZ),&ascii_u64_data1),
+		u64toa((IF_MAX_HZ/FREQ_ONE_MHZ),&ascii_u64_data2));
+	printf("\t[-o lo_freq_hz] # Front-end Local Oscillator (LO) frequency in Hz [%sMHz to %sMHz].\n",
+		u64toa((LO_MIN_HZ/FREQ_ONE_MHZ),&ascii_u64_data1),
+		u64toa((LO_MAX_HZ/FREQ_ONE_MHZ),&ascii_u64_data2));
 	printf("\t[-m image_reject] # Image rejection filter selection, 0=bypass, 1=low pass, 2=high pass.\n");
 	printf("\t[-a amp_enable] # RX/TX RF amplifier 1=Enable, 0=Disable.\n");
 	printf("\t[-p antenna_enable] # Antenna port power, 1=Enable, 0=Disable.\n");
 	printf("\t[-l gain_db] # RX LNA (IF) gain, 0-40dB, 8dB steps\n");
 	printf("\t[-g gain_db] # RX VGA (baseband) gain, 0-62dB, 2dB steps\n");
 	printf("\t[-x gain_db] # TX VGA (IF) gain, 0-47dB, 1dB steps\n");
-	printf("\t[-s sample_rate_hz] # Sample rate in Hz (8/10/12.5/16/20MHz, default %lldMHz).\n", DEFAULT_SAMPLE_RATE_HZ/FREQ_ONE_MHZ);
+	printf("\t[-s sample_rate_hz] # Sample rate in Hz (8/10/12.5/16/20MHz, default %sMHz).\n",
+		u64toa((DEFAULT_SAMPLE_RATE_HZ/FREQ_ONE_MHZ),&ascii_u64_data1));
 	printf("\t[-n num_samples] # Number of samples to transfer (default is unlimited).\n");
 	printf("\t[-b baseband_filter_bw_hz] # Set baseband filter bandwidth in MHz.\n\tPossible values: 1.75/2.5/3.5/5/5.5/6/7/8/9/10/12/14/15/20/24/28MHz, default < sample_rate_hz.\n" );
 }
@@ -483,8 +544,9 @@ int main(int argc, char** argv) {
 	}
 
 	if (samples_to_xfer >= SAMPLES_TO_XFER_MAX) {
-		printf("argument error: num_samples must be less than %llu/%lluMio\n",
-				SAMPLES_TO_XFER_MAX, SAMPLES_TO_XFER_MAX/FREQ_ONE_MHZ);
+		printf("argument error: num_samples must be less than %s/%sMio\n",
+			u64toa(SAMPLES_TO_XFER_MAX,&ascii_u64_data1),
+			u64toa((SAMPLES_TO_XFER_MAX/FREQ_ONE_MHZ),&ascii_u64_data2));
 		usage();
 		return EXIT_FAILURE;
 	}
@@ -507,12 +569,16 @@ int main(int argc, char** argv) {
 			return EXIT_FAILURE;
 		}
 		if ((if_freq_hz > IF_MAX_HZ) || (if_freq_hz < IF_MIN_HZ)) {
-			printf("argument error: if_freq_hz shall be between %llu and %llu.\n", IF_MIN_HZ, IF_MAX_HZ);
+			printf("argument error: if_freq_hz shall be between %s and %s.\n",
+				u64toa(IF_MIN_HZ,&ascii_u64_data1),
+				u64toa(IF_MAX_HZ,&ascii_u64_data2));
 			usage();
 			return EXIT_FAILURE;
 		}
 		if ((lo_freq_hz > LO_MAX_HZ) || (lo_freq_hz < LO_MIN_HZ)) {
-			printf("argument error: lo_freq_hz shall be between %llu and %llu.\n", LO_MIN_HZ, LO_MAX_HZ);
+			printf("argument error: lo_freq_hz shall be between %s and %s.\n",
+				u64toa(LO_MIN_HZ,&ascii_u64_data1),
+				u64toa(LO_MAX_HZ,&ascii_u64_data2));
 			usage();
 			return EXIT_FAILURE;
 		}
@@ -539,11 +605,15 @@ int main(int argc, char** argv) {
 			freq_hz = DEFAULT_FREQ_HZ;
 			break;
 		}
-		printf("explicit tuning specified for %lu Hz.\n", freq_hz);
+		printf("explicit tuning specified for %s Hz.\n",
+			u64toa(freq_hz,&ascii_u64_data1));
+
 	} else if (automatic_tuning) {
 		if( (freq_hz > FREQ_MAX_HZ) || (freq_hz < FREQ_MIN_HZ) )
 		{
-			printf("argument error: freq_hz shall be between %llu and %llu.\n", FREQ_MIN_HZ, FREQ_MAX_HZ);
+			printf("argument error: freq_hz shall be between %s and %s.\n",
+				u64toa(FREQ_MIN_HZ,&ascii_u64_data1),
+				u64toa(FREQ_MAX_HZ,&ascii_u64_data2));
 			usage();
 			return EXIT_FAILURE;
 		}
@@ -729,7 +799,8 @@ int main(int argc, char** argv) {
 	}
 
 	if (automatic_tuning) {
-		printf("call hackrf_set_freq(%lu Hz/%.03f MHz)\n", freq_hz, ((double)freq_hz/(double)FREQ_ONE_MHZ) );
+		printf("call hackrf_set_freq(%s Hz/%.03f MHz)\n",
+			u64toa(freq_hz, &ascii_u64_data1),((double)freq_hz/(double)FREQ_ONE_MHZ) );
 		result = hackrf_set_freq(device, freq_hz);
 		if( result != HACKRF_SUCCESS ) {
 			printf("hackrf_set_freq() failed: %s (%d)\n", hackrf_error_name(result), result);
@@ -737,8 +808,10 @@ int main(int argc, char** argv) {
 			return EXIT_FAILURE;
 		}
 	} else {
-		printf("call hackrf_set_freq_explicit() with %lu Hz IF, %lu Hz LO, %s\n",
-				if_freq_hz, lo_freq_hz, hackrf_filter_path_name(image_reject_selection));
+		printf("call hackrf_set_freq_explicit() with %s Hz IF, %s Hz LO, %s\n",
+				u64toa(if_freq_hz,&ascii_u64_data1),
+				u64toa(lo_freq_hz,&ascii_u64_data2),
+				hackrf_filter_path_name(image_reject_selection));
 		result = hackrf_set_freq_explicit(device, if_freq_hz, lo_freq_hz,
 				image_reject_selection);
 		if (result != HACKRF_SUCCESS) {
@@ -770,7 +843,9 @@ int main(int argc, char** argv) {
 	}
 
 	if( limit_num_samples ) {
-		printf("samples_to_xfer %lu/%lluMio\n", samples_to_xfer, (samples_to_xfer/FREQ_ONE_MHZ) );
+		printf("samples_to_xfer %s/%sMio\n",
+		u64toa(samples_to_xfer,&ascii_u64_data1),
+		u64toa((samples_to_xfer/FREQ_ONE_MHZ),&ascii_u64_data2) );
 	}
 	
 	gettimeofday(&t_start, NULL);
