@@ -350,7 +350,7 @@ int rx_callback(hackrf_transfer* transfer) {
 		if (receive_wav) {
 			/* convert .wav contents from signed to unsigned */
 			for (i = 0; i < bytes_to_write; i++) {
-				*(transfer->buffer + i) ^= (uint8_t)0x80;
+				transfer->buffer[i] ^= (uint8_t)0x80;
 			}
 		}
 		bytes_written = fwrite(transfer->buffer, 1, bytes_to_write, fd);
