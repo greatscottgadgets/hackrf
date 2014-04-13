@@ -1,4 +1,4 @@
-(kicad_pcb (version 3) (host pcbnew "(2013-07-24 BZR 4024)-stable")
+(kicad_pcb (version 3) (host pcbnew "(2012-nov-02)-stable")
 
   (general
     (links 97)
@@ -6,7 +6,7 @@
     (area 124.5976 95.137423 163.4024 105.05496)
     (thickness 1.6)
     (drawings 14)
-    (tracks 143)
+    (tracks 144)
     (zones 0)
     (modules 34)
     (nets 18)
@@ -31,7 +31,7 @@
   )
 
   (setup
-    (last_trace_width 0.3048)
+    (last_trace_width 0.24)
     (user_trace_width 0.2032)
     (user_trace_width 0.24)
     (user_trace_width 0.3048)
@@ -65,7 +65,7 @@
       (layerselection 284721159)
       (usegerberextensions true)
       (excludeedgelayer true)
-      (linewidth 0.150000)
+      (linewidth 0)
       (plotframeref false)
       (viasonmask false)
       (mode 1)
@@ -1313,11 +1313,12 @@
   (segment (start 139.65 97.4) (end 139.55 97.3) (width 0.3048) (layer C1F) (net 1))
   (via (at 138.6 97.3) (size 0.635) (layers C1F C4B) (net 1))
   (segment (start 139.55 97.3) (end 138.6 97.3) (width 0.3048) (layer C1F) (net 1) (tstamp 52F6D66E))
+  (segment (start 135.18 100.4) (end 135.81268 100.4) (width 0.24) (layer C1F) (net 2) (status 400000))
+  (segment (start 136.7982 100.4316) (end 135.84428 100.4316) (width 0.3048) (layer C1F) (net 2) (tstamp 534B1463) (status 400000))
+  (segment (start 136.7982 100.4316) (end 136.9 100.5334) (width 0.3048) (layer C1F) (net 2) (status C00000))
+  (segment (start 135.81268 100.4) (end 135.84428 100.4316) (width 0.24) (layer C1F) (net 2) (tstamp 534B1A34))
   (segment (start 136.9 100.5334) (end 137.8668 100.5334) (width 0.3048) (layer C1F) (net 2))
   (segment (start 137.8668 100.5334) (end 138 100.6666) (width 0.3048) (layer C1F) (net 2) (tstamp 52F6D615))
-  (segment (start 135.18 100.4) (end 135.8 100.4) (width 0.24) (layer C1F) (net 2))
-  (segment (start 136.7666 100.4) (end 136.9 100.5334) (width 0.24) (layer C1F) (net 2))
-  (segment (start 136.7666 100.4) (end 135.8 100.4) (width 0.24) (layer C1F) (net 2) (tstamp 52F6D60C))
   (segment (start 139.1 102.8334) (end 139.9 102.8334) (width 0.3048) (layer C1F) (net 3))
   (segment (start 139.9 102.8334) (end 140.1666 103.1) (width 0.3048) (layer C1F) (net 3) (tstamp 52F6D69A))
   (segment (start 139.1 102.8334) (end 138.0668 102.8334) (width 0.3048) (layer C1F) (net 3))
