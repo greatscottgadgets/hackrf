@@ -1,0 +1,9 @@
+The primary CPLD image is: sgpio_if/default.xsvf
+
+This is a binary file built from HDL source in sgpio_if.  You do not need
+Xilinx tools unless you want to make your own modifications.
+
+To update the CPLD, first update the firmware, libhackrf, and hackrf-tools.
+Then:
+
+$ hackrf_cpldjtag -x sgpio_if/default.xsvf
