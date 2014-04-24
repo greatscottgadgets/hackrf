@@ -22,6 +22,15 @@ $ cd firmware/libopencm3
 $ make
 
 
+To build and install a standard firmware image for HackRF One:
+
+$ cd hackrf_usb
+$ make -e BOARD=HACKRF_ONE
+$ hackrf_spiflash -w hackrf_usb_rom_to_ram.bin
+
+If you have a Jawbreaker, use BOARD=JAWBREAKER instead.
+
+
 For loading firmware into RAM with DFU you will also need:
 
 git://git.openezx.org/dfu-util.git
