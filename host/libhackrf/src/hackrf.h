@@ -101,7 +101,7 @@ extern "C"
 extern ADDAPI int ADDCALL hackrf_init();
 extern ADDAPI int ADDCALL hackrf_exit();
  
-extern ADDAPI int ADDCALL hackrf_open(hackrf_device** device);
+extern ADDAPI int ADDCALL hackrf_open(const char* const desired_serial_number, hackrf_device** device);
 extern ADDAPI int ADDCALL hackrf_close(hackrf_device* device);
  
 extern ADDAPI int ADDCALL hackrf_start_rx(hackrf_device* device, hackrf_sample_block_cb_fn callback, void* rx_ctx);

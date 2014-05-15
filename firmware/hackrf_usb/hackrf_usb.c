@@ -32,6 +32,9 @@
 #include "usb.h"
 #include "usb_standard_request.h"
 
+#include <rom_iap.h>
+#include "usb_descriptor.h"
+
 #include "usb_device.h"
 #include "usb_endpoint.h"
 #include "usb_api_board_info.h"
@@ -190,6 +193,27 @@ int main(void) {
 	enable_rf_power();
 #endif
 	cpu_clock_init();
+
+
+/* HACK!
+*/
+	iap_cmd_res_t iap_cmd_res;
+	/* Read IAP Serial Number Identification */
+	iap_cmd_res.cmd_param.command_code = IAP_CMD_READ_SERIAL_NO;
+	iap_cmd_call(&iap_cmd_res);
+	if(iap_cmd_res.status_res.status_ret == CMD_SUCCESS) {
+		usb_descriptor_string_serial_number[0] = 66;
+		usb_descriptor_string_serial_number[1] = USB_DESCRIPTOR_TYPE_STRING;
+		for(size_t i=0; i<32; i++) {
+			const uint_fast8_t nibble = (iap_cmd_res.status_res.iap_result[i >> 3] >> (28 - (i & 7) * 4)) & 0xf;
+			const char c = (nibble > 9) ? ('a' + nibble - 10) : ('0' + nibble);
+			usb_descriptor_string_serial_number[2 + i * 2] = c;
+			usb_descriptor_string_serial_number[3 + i * 2] = 0x00;
+		}
+	} else {
+		usb_descriptor_string_serial_number[0] = 2;
+		usb_descriptor_string_serial_number[1] = USB_DESCRIPTOR_TYPE_STRING;
+	}
 
 	usb_set_configuration_changed_cb(usb_configuration_changed);
 	usb_peripheral_reset();

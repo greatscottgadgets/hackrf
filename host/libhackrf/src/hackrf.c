@@ -260,7 +260,10 @@ int ADDCALL hackrf_exit(void)
 	return HACKRF_SUCCESS;
 }
 
-int ADDCALL hackrf_open(hackrf_device** device)
+#include <stdio.h>
+#include <string.h>
+
+int ADDCALL hackrf_open(const char* const desired_serial_number, hackrf_device** device)
 {
 	int result;
 	libusb_device_handle* usb_device;
@@ -271,13 +274,61 @@ int ADDCALL hackrf_open(hackrf_device** device)
 		return HACKRF_ERROR_INVALID_PARAM;
 	}
 
+
+libusb_device** devices = NULL;
+const ssize_t list_length = libusb_get_device_list(g_libusb_context, &devices);
+printf("All devices: %ld\n", list_length);
+for(ssize_t i=0; i<list_length; i++) {
+	struct libusb_device_descriptor device_descriptor;
+	libusb_get_device_descriptor(devices[i], &device_descriptor);
+	if( device_descriptor.idVendor == hackrf_usb_vid ) {
+		if( (device_descriptor.idProduct == hackrf_one_usb_pid) ||  (device_descriptor.idProduct == hackrf_jawbreaker_usb_pid) ) {
+			printf("%4x:%4x", device_descriptor.idVendor, device_descriptor.idProduct);
+			if( desired_serial_number != NULL ) {
+				const uint_fast8_t serial_descriptor_index = device_descriptor.iSerialNumber;
+				if( serial_descriptor_index > 0 ) {
+					if( libusb_open(devices[i], &usb_device) != 0 ) {
+						usb_device = NULL;
+						continue;
+					}
+					char serial_number[64];
+					const int serial_number_length = libusb_get_string_descriptor_ascii(usb_device, serial_descriptor_index, (unsigned char*)serial_number, sizeof(serial_number));
+					if( serial_number_length == 32 ) {
+						serial_number[32] = 0;
+						printf(" %s", serial_number);
+						if( strncmp(serial_number, desired_serial_number, 32) == 0 ) {
+							printf(" match\n");
+							break;
+						} else {
+							printf(" skip\n");
+							libusb_close(usb_device);
+							usb_device = NULL;
+						}
+					} else {
+						printf(" error\n");
+						libusb_close(usb_device);
+						usb_device = NULL;
+					}
+				}
+			} else {
+				printf(" default\n");
+				libusb_open(devices[i], &usb_device);
+				break;
+			}
+		}
+	}
+}
+libusb_free_device_list(devices, 1);
+
 	// TODO: Do proper scanning of available devices, searching for
 	// unit serial number (if specified?).
+/*
 	usb_device = libusb_open_device_with_vid_pid(g_libusb_context, hackrf_usb_vid, hackrf_one_usb_pid);
 	if( usb_device == NULL )
 	{
 		usb_device = libusb_open_device_with_vid_pid(g_libusb_context, hackrf_usb_vid, hackrf_jawbreaker_usb_pid);
 	}
+*/
 	if( usb_device == NULL )
 	{
 		return HACKRF_ERROR_NOT_FOUND;
