@@ -1,4 +1,4 @@
-PCBNEW-LibModule-V1  Thu Feb 13 16:50:20 2014
+PCBNEW-LibModule-V1  Mon 19 May 2014 01:01:43 PM MDT
 # encoding utf-8
 Units mm
 $INDEX
@@ -7696,7 +7696,7 @@ Po -25.3 17.775
 $EndPAD
 $EndMODULE GSG-SHIELD-BMI-S-230
 $MODULE GSG-SKY13317-373LF
-Po 0 0 0 15 527E993A 00000000 ~~
+Po 0 0 0 15 537A5509 00000000 ~~
 Li GSG-SKY13317-373LF
 Sc 0
 AR 
@@ -7713,60 +7713,60 @@ DS 0.75 -0.05 0.75 0.05 0.1016 21
 DS 0.75 -0.45 0.75 -0.35 0.1016 21
 DS -0.75 0.75 0.75 0.75 0.1016 21
 $PAD
-Sh "1" R 0.675 0.2 0 0 0
+Sh "1" R 0.8 0.24 0 0 0
 Dr 0 0 0
 At SMD N 00888000
 Ne 0 ""
-Po -0.8875 -0.6
+Po -0.95 -0.6
 $EndPAD
 $PAD
-Sh "2" R 0.675 0.2 0 0 0
+Sh "2" R 0.8 0.24 0 0 0
 Dr 0 0 0
 At SMD N 00888000
 Ne 0 ""
-Po -0.8875 -0.2
+Po -0.95 -0.2
 $EndPAD
 $PAD
-Sh "3" R 0.675 0.2 0 0 0
+Sh "3" R 0.8 0.24 0 0 0
 Dr 0 0 0
 At SMD N 00888000
 Ne 0 ""
-Po -0.8875 0.2
+Po -0.95 0.2
 $EndPAD
 $PAD
-Sh "4" R 0.675 0.2 0 0 0
+Sh "4" R 0.8 0.24 0 0 0
 Dr 0 0 0
 At SMD N 00888000
 Ne 0 ""
-Po -0.8875 0.6
+Po -0.95 0.6
 $EndPAD
 $PAD
-Sh "5" R 0.675 0.2 0 0 0
+Sh "5" R 0.8 0.24 0 0 0
 Dr 0 0 0
 At SMD N 00888000
 Ne 0 ""
-Po 0.8875 0.6
+Po 0.95 0.6
 $EndPAD
 $PAD
-Sh "6" R 0.675 0.2 0 0 0
+Sh "6" R 0.8 0.24 0 0 0
 Dr 0 0 0
 At SMD N 00888000
 Ne 0 ""
-Po 0.8875 0.2
+Po 0.95 0.2
 $EndPAD
 $PAD
-Sh "7" R 0.675 0.2 0 0 0
+Sh "7" R 0.8 0.24 0 0 0
 Dr 0 0 0
 At SMD N 00888000
 Ne 0 ""
-Po 0.8875 -0.2
+Po 0.95 -0.2
 $EndPAD
 $PAD
-Sh "8" R 0.675 0.2 0 0 0
+Sh "8" R 0.8 0.24 0 0 0
 Dr 0 0 0
 At SMD N 00888000
 Ne 0 ""
-Po 0.8875 -0.6
+Po 0.95 -0.6
 $EndPAD
 $PAD
 Sh "0" R 0.2 1.3 0 0 0
