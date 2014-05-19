@@ -1,4 +1,4 @@
-PCBNEW-BOARD Version 2 date Mon 19 May 2014 01:12:38 PM MDT
+PCBNEW-BOARD Version 2 date Mon 19 May 2014 01:15:01 PM MDT
 
 # Created by Pcbnew(2012-nov-02)-stable
 
@@ -36,7 +36,7 @@ Layer[0] C4B signal
 Layer[1] C3 signal
 Layer[2] C2 signal
 Layer[15] C1F signal
-TrackWidth 0.2032
+TrackWidth 0.2794
 TrackWidthList 0.1524
 TrackWidthList 0.2032
 TrackWidthList 0.254
@@ -21411,7 +21411,7 @@ Po 164.9 101.3 1.016 1.016 0.1778 0
 De 15 1 0 Normal
 $EndTEXTPCB
 $TEXTPCB
-Te "13 February 2014"
+Te "19 May 2014"
 Po 78.796 113.278 1.27 1.778 0.3048 900
 De 21 1 0 Normal
 $EndTEXTPCB
