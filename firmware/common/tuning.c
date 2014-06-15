@@ -114,7 +114,7 @@ bool set_freq_explicit(const uint64_t if_freq_hz, const uint64_t lo_freq_hz,
 	}
 
 	if ((path != RF_PATH_FILTER_BYPASS) &&
-			(lo_freq_hz < MIN_LO_FREQ_HZ) || (lo_freq_hz > MAX_LO_FREQ_HZ)) {
+			((lo_freq_hz < MIN_LO_FREQ_HZ) || (lo_freq_hz > MAX_LO_FREQ_HZ))) {
 		return false;
 	}
 
