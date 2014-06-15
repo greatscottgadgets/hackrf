@@ -32,8 +32,7 @@ int main(void)
 
 	pin_setup();
 
-	/* Set 1V8 */
-	gpio_set(PORT_EN1V8, PIN_EN1V8);
+	enable_1v8_power();
 
 	cpu_clock_init();
 
