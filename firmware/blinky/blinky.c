@@ -33,9 +33,6 @@ int main(void)
 
 	/* enable all power supplies */
 	enable_1v8_power();
-#ifdef HACKRF_ONE
-	enable_rf_power();
-#endif
 
 	/* Blink LED1/2/3 on the board and Read BOOT0/1/2/3 pins. */
 	while (1) 
