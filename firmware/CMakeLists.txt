@@ -1,6 +1,3 @@
-# Hey Emacs, this is a -*- makefile -*-
-#
-# Copyright 2012 Michael Ossmann <mike@ossmann.com>
 # Copyright 2012 Jared Boone <jared@sharebrained.com>
 #
 # This file is part of HackRF.
@@ -21,13 +18,17 @@
 # Boston, MA 02110-1301, USA.
 #
 
-BINARY = spiflash
+# Top directory CMake project for HackRF firmware
 
-SRC = $(BINARY).c \
-	../common/hackrf_core.c \
-	../common/sgpio.c \
-	../common/si5351c.c \
-	../common/max2837.c \
-	../common/w25q80bv.c
+cmake_minimum_required(VERSION 2.8.9)
+project (hackrf_firmware_all)
 
-include ../common/Makefile_inc.mk
+add_subdirectory(blinky)
+add_subdirectory(mixertx)
+add_subdirectory(sgpio)
+add_subdirectory(sgpio-rx)
+add_subdirectory(simpletx)
+add_subdirectory(startup)
+add_subdirectory(startup_systick)
+add_subdirectory(startup_systick_perfo)
+add_subdirectory(hackrf_usb)

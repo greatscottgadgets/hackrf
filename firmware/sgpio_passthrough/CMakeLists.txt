@@ -1,6 +1,5 @@
-# Hey Emacs, this is a -*- makefile -*-
-#
 # Copyright 2012 Jared Boone <jared@sharebrained.com>
+# Copyright 2012 Benjamin Vernoux <titanmkd@gmail.com>
 #
 # This file is part of HackRF.
 #
@@ -20,35 +19,13 @@
 # Boston, MA 02110-1301, USA.
 #
 
-TARGETS = blinky \
-		  mixertx \
-		  sgpio \
-		  sgpio-rx \
-		  simpletx \
-		  startup \
-		  startup_systick \
-		  startup_systick_perfo \
-		  hackrf_usb
+cmake_minimum_required(VERSION 2.8.9)
+project(sgpio_passthrough)
 
-all: build
+include(../hackrf-common.cmake)
 
-build: examples
+set(SRC_M4
+	sgpio_passthrough.c
+)
 
-examples:
-	$(Q)for i in $(TARGETS); do \
-		if [ -d $$i ]; then \
-			printf "  BUILD   $$i\n"; \
-			$(MAKE) -C $$i || exit $?; \
-		fi; \
-	done
-
-clean:
-	$(Q)for i in $(addprefix lib/,$(TARGETS)) \
-		     $(TARGETS); do \
-		if [ -d $$i ]; then \
-			printf "  CLEAN   $$i\n"; \
-			$(MAKE) -C $$i clean || exit $?; \
-		fi; \
-	done
-
-.PHONY: build examples
+DeclareTargets()

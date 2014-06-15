@@ -1,5 +1,3 @@
-# Hey Emacs, this is a -*- makefile -*-
-#
 # Copyright 2012 Jared Boone <jared@sharebrained.com>
 #
 # This file is part of HackRF.
@@ -20,16 +18,13 @@
 # Boston, MA 02110-1301, USA.
 #
 
-BINARY = sgpio-rx
+cmake_minimum_required(VERSION 2.8.9)
+project(sgpio_test)
 
-SRC = $(BINARY).c \
-	../common/hackrf_core.c \
-	../common/tuning.c \
-	../common/rf_path.c \
-	../common/sgpio.c \
-	../common/si5351c.c \
-	../common/max2837.c \
-	../common/max5864.c \
-	../common/rffc5071.c
+include(../hackrf-common.cmake)
 
-include ../common/Makefile_inc.mk
+set(SRC_M4
+	sgpio_test.c
+)
+
+DeclareTargets()
