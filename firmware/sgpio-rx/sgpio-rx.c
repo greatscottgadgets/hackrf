@@ -92,6 +92,9 @@ int main(void) {
 
 	pin_setup();
 	enable_1v8_power();
+#ifdef HACKRF_ONE
+	enable_rf_power();
+#endif
 	cpu_clock_init();
     ssp1_init();
     rf_path_init();
