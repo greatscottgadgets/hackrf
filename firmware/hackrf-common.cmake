@@ -112,7 +112,11 @@ SET(LDSCRIPT_M4 "${LDSCRIPT_M4} -T${PATH_HACKRF_FIRMWARE_COMMON}/LPC43xx_M4_M0_i
 SET(LDSCRIPT_M0 "-T${PATH_HACKRF_FIRMWARE_COMMON}/LPC43xx_M0_memory.ld -Tlibopencm3_lpc43xx_m0.ld")
 
 SET(CFLAGS_COMMON "-Os -g3 -Wall -Wextra ${HACKRF_OPTS} ${COMMON_FLAGS} -fno-common -MD")
-SET(LDFLAGS_COMMON "-nostartfiles -Wl,--gc-sections -Wl,--print-gc-sections")
+SET(LDFLAGS_COMMON "-nostartfiles -Wl,--gc-sections")
+
+if(V STREQUAL "1")
+	SET(LDFLAGS_COMMON "${LDFLAGS_COMMON} -Wl,--print-gc-sections")
+endif()
 
 SET(CPUFLAGS_M0 "-mthumb -mcpu=cortex-m0 -mfloat-abi=soft")
 SET(CFLAGS_M0 "-std=gnu99 ${CFLAGS_COMMON} ${CPUFLAGS_M0} -DLPC43XX_M0")
