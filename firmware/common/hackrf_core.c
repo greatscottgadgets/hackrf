@@ -595,8 +595,10 @@ void pin_setup(void) {
 	scu_pinmux(SCU_PINMUX_BOOT3, SCU_GPIO_FAST);
 	
 	/* Configure USB indicators */
+#if (defined JELLYBEAN || defined JAWBREAKER)
 	scu_pinmux(SCU_PINMUX_USB_LED0, SCU_CONF_FUNCTION3);
 	scu_pinmux(SCU_PINMUX_USB_LED1, SCU_CONF_FUNCTION3);
+#endif
 
 	/* Configure all GPIO as Input (safe state) */
 	GPIO0_DIR = 0;
