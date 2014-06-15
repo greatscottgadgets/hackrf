@@ -171,7 +171,7 @@ macro(DeclareTargets)
 	)
 
 	add_custom_target(
-		program
+		${PROJECT_NAME}-program
 		DEPENDS ${PROJECT_NAME}.dfu
 		COMMAND dfu-util --device 1fc9:000c --alt 0 --download ${PROJECT_NAME}.dfu
 	)
