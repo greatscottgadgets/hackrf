@@ -75,6 +75,7 @@ void set_transceiver_mode(const transceiver_mode_t new_transceiver_mode) {
 	}
 
 	if( _transceiver_mode != TRANSCEIVER_MODE_OFF ) {
+		si5351c_activate_best_clock_source();
 		baseband_streaming_enable();
 	}
 }
@@ -211,17 +212,11 @@ int main(void) {
 
 	rf_path_init();
 
-	uint16_t periodic_event_counter = 0;
-
 	unsigned int phase = 0;
 	while(true) {
 		// Check whether we need to initiate a CPLD update
 		if (start_cpld_update)
 			cpld_update();
-
-		//if (++periodic_event_counter == 0) {
-			//si5351c_activate_best_clock_source();
-		//}
 
 		// Set up IN transfer of buffer 0.
 		if ( usb_bulk_buffer_offset >= 16384
