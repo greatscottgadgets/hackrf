@@ -219,9 +219,9 @@ int main(void) {
 		if (start_cpld_update)
 			cpld_update();
 
-		if (++periodic_event_counter == 0) {
-			si5351c_activate_best_clock_source();
-		}
+		//if (++periodic_event_counter == 0) {
+			//si5351c_activate_best_clock_source();
+		//}
 
 		// Set up IN transfer of buffer 0.
 		if ( usb_bulk_buffer_offset >= 16384
