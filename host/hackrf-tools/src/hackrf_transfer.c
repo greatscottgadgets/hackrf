@@ -416,8 +416,9 @@ int tx_callback(hackrf_transfer* transfer) {
 		} else {
 			return 0;
 		}
-
-	}
+	} else {
+        return -1;
+    }
 }
 
 static void usage() {
