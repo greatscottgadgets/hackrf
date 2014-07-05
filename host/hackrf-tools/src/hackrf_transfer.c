@@ -171,7 +171,9 @@ t_wav_file_hdr wave_file_hdr =
 typedef enum {
 	TRANSCEIVER_MODE_OFF = 0,
 	TRANSCEIVER_MODE_RX = 1,
-	TRANSCEIVER_MODE_TX = 2
+	TRANSCEIVER_MODE_TX = 2,
+	TRANSCEIVER_MODE_SS = 3
+
 } transceiver_mode_t;
 static transceiver_mode_t transceiver_mode = TRANSCEIVER_MODE_RX;
 
@@ -297,6 +299,9 @@ volatile bool do_exit = false;
 FILE* fd = NULL;
 volatile uint32_t byte_count = 0;
 
+bool signalsource = false;
+uint32_t power_level = 1;
+
 bool receive = false;
 bool receive_wav = false;
 
@@ -367,6 +372,7 @@ int rx_callback(hackrf_transfer* transfer) {
 
 int tx_callback(hackrf_transfer* transfer) {
 	size_t bytes_to_read;
+	int i;
 
 	if( fd != NULL )
 	{
@@ -390,8 +396,27 @@ int tx_callback(hackrf_transfer* transfer) {
 		} else {
 			return 0;
 		}
-	} else {
-		return -1;
+	} else if (transceiver_mode == TRANSCEIVER_MODE_SS) {
+		/* Transmit SINE signal with specific powerlevel */
+		ssize_t bytes_read;
+		byte_count += transfer->valid_length;
+		bytes_to_read = transfer->valid_length;
+		if (limit_num_samples) {
+			if (bytes_to_read >= bytes_to_xfer) {
+				bytes_to_read = bytes_to_xfer;
+			}
+			bytes_to_xfer -= bytes_to_read;
+		}
+
+		for(i = 0;i<bytes_to_read;i++)
+			transfer->buffer[i] = power_level;
+
+		if (limit_num_samples && (bytes_to_xfer == 0)) {
+			return -1;
+		} else {
+			return 0;
+		}
+
 	}
 }
 
@@ -419,6 +444,7 @@ static void usage() {
 	printf("\t[-s sample_rate_hz] # Sample rate in Hz (8/10/12.5/16/20MHz, default %sMHz).\n",
 		u64toa((DEFAULT_SAMPLE_RATE_HZ/FREQ_ONE_MHZ),&ascii_u64_data1));
 	printf("\t[-n num_samples] # Number of samples to transfer (default is unlimited).\n");
+	printf("\t[-c power_level] # Signal source mode, power level, 0-255, dc value to DAC (default is 1).\n");
 	printf("\t[-b baseband_filter_bw_hz] # Set baseband filter bandwidth in MHz.\n\tPossible values: 1.75/2.5/3.5/5/5.5/6/7/8/9/10/12/14/15/20/24/28MHz, default < sample_rate_hz.\n" );
 }
 
@@ -460,7 +486,7 @@ int main(int argc, char** argv) {
 	float time_diff;
 	unsigned int lna_gain=8, vga_gain=20, txvga_gain=0;
   
-	while( (opt = getopt(argc, argv, "wr:t:f:i:o:m:a:p:s:n:b:l:g:x:")) != EOF )
+	while( (opt = getopt(argc, argv, "wr:t:f:i:o:m:a:p:s:n:b:l:g:x:z:")) != EOF )
 	{
 		result = HACKRF_SUCCESS;
 		switch( opt ) 
@@ -535,6 +561,12 @@ int main(int argc, char** argv) {
 		case 'b':
 			baseband_filter_bw = true;
 			result = parse_u32(optarg, &baseband_filter_bw_hz);
+			break;
+
+		case 'c':
+			transmit = true;
+			signalsource = true;
+			result = parse_u32(optarg, &power_level);
 			break;
 
 		default:
@@ -707,7 +739,16 @@ int main(int argc, char** argv) {
 		transceiver_mode = TRANSCEIVER_MODE_TX;
 	}
 
-	if( receive_wav ) 
+	if (signalsource) {
+		transceiver_mode = TRANSCEIVER_MODE_SS;
+		if (power_level >255) {
+			printf("argument error: power level shall be in between 0 and 255.\n");
+			usage();
+			return EXIT_FAILURE;
+		}
+	}
+
+	if( receive_wav )
 	{
 		time (&rawtime);
 		timeinfo = localtime (&rawtime);
@@ -719,12 +760,15 @@ int main(int argc, char** argv) {
 		printf("Receive wav file: %s\n", path);
 	}	
 
-	if( path == NULL ) {
-		printf("specify a path to a file to transmit/receive\n");
-		usage();
-		return EXIT_FAILURE;
+	// In signal source mode, the PATH argument is neglected.
+	if (transceiver_mode != TRANSCEIVER_MODE_SS) {
+		if( path == NULL ) {
+			printf("specify a path to a file to transmit/receive\n");
+			usage();
+			return EXIT_FAILURE;
+		}
 	}
-	
+
 	result = hackrf_init();
 	if( result != HACKRF_SUCCESS ) {
 		printf("hackrf_init() failed: %s (%d)\n", hackrf_error_name(result), result);
@@ -739,25 +783,27 @@ int main(int argc, char** argv) {
 		return EXIT_FAILURE;
 	}
 	
-	if( transceiver_mode == TRANSCEIVER_MODE_RX ) 
-	{
-		fd = fopen(path, "wb");
-	} else {
-		fd = fopen(path, "rb");
-	}
+	if (transceiver_mode != TRANSCEIVER_MODE_SS) {
+		if( transceiver_mode == TRANSCEIVER_MODE_RX )
+		{
+			fd = fopen(path, "wb");
+		} else {
+			fd = fopen(path, "rb");
+		}
 	
-	if( fd == NULL ) {
-		printf("Failed to open file: %s\n", path);
-		return EXIT_FAILURE;
+		if( fd == NULL ) {
+			printf("Failed to open file: %s\n", path);
+			return EXIT_FAILURE;
+		}
+		/* Change fd buffer to have bigger one to store or read data on/to HDD */
+		result = setvbuf(fd , NULL , _IOFBF , FD_BUFFER_SIZE);
+		if( result != 0 ) {
+			printf("setvbuf() failed: %d\n", result);
+			usage();
+			return EXIT_FAILURE;
+		}
 	}
-	/* Change fd buffer to have bigger one to store or read data on/to HDD */
-	result = setvbuf(fd , NULL , _IOFBF , FD_BUFFER_SIZE);
-	if( result != 0 ) {
-		printf("setvbuf() failed: %d\n", result);
-		usage();
-		return EXIT_FAILURE;
-	}
-	
+
 	/* Write Wav header */
 	if( receive_wav ) 
 	{
