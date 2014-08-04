@@ -42,5 +42,6 @@ void sgpio_cpld_stream_disable();
 bool sgpio_cpld_stream_is_enabled();
 
 bool sgpio_cpld_stream_rx_set_decimation(const uint_fast8_t n);
+void sgpio_cpld_stream_rx_set_q_invert(const uint_fast8_t invert);
 
 #endif//__SGPIO_H__
