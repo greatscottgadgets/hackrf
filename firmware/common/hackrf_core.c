@@ -261,6 +261,9 @@ void cpu_clock_init(void)
 	/* use IRC as clock source for APB1 (including I2C0) */
 	CGU_BASE_APB1_CLK = CGU_BASE_APB1_CLK_CLK_SEL(CGU_SRC_IRC);
 
+	/* use IRC as clock source for APB3 */
+	CGU_BASE_APB3_CLK = CGU_BASE_APB3_CLK_CLK_SEL(CGU_SRC_IRC);
+
 	i2c0_init(15);
 
 	si5351c_disable_all_outputs();
@@ -365,6 +368,10 @@ void cpu_clock_init(void)
 	CGU_BASE_APB1_CLK = CGU_BASE_APB1_CLK_AUTOBLOCK(1)
 			| CGU_BASE_APB1_CLK_CLK_SEL(CGU_SRC_XTAL);
 
+	/* use XTAL_OSC as clock source for APB3 */
+	CGU_BASE_APB3_CLK = CGU_BASE_APB3_CLK_AUTOBLOCK(1)
+			| CGU_BASE_APB3_CLK_CLK_SEL(CGU_SRC_XTAL);
+
 	cpu_clock_pll1_low_speed();
 
 	/* use PLL1 as clock source for BASE_M4_CLK (CPU) */
@@ -400,6 +407,10 @@ void cpu_clock_init(void)
 	/* Switch APB1 clock over to use PLL1 (204MHz) */
 	CGU_BASE_APB1_CLK = CGU_BASE_APB1_CLK_AUTOBLOCK(1)
 			| CGU_BASE_APB1_CLK_CLK_SEL(CGU_SRC_PLL1);
+
+	/* Switch APB3 clock over to use PLL1 (204MHz) */
+	CGU_BASE_APB3_CLK = CGU_BASE_APB3_CLK_AUTOBLOCK(1)
+			| CGU_BASE_APB3_CLK_CLK_SEL(CGU_SRC_PLL1);
 }
 
 
@@ -578,14 +589,11 @@ void pin_setup(void) {
 	
 	scu_pinmux(SCU_PINMUX_EN1V8, SCU_GPIO_NOPULL);
 	
-	scu_pinmux(SCU_PINMUX_BOOT0, SCU_GPIO_FAST);
-	scu_pinmux(SCU_PINMUX_BOOT1, SCU_GPIO_FAST);
-	scu_pinmux(SCU_PINMUX_BOOT2, SCU_GPIO_FAST);
-	scu_pinmux(SCU_PINMUX_BOOT3, SCU_GPIO_FAST);
-	
 	/* Configure USB indicators */
+#if (defined JELLYBEAN || defined JAWBREAKER)
 	scu_pinmux(SCU_PINMUX_USB_LED0, SCU_CONF_FUNCTION3);
 	scu_pinmux(SCU_PINMUX_USB_LED1, SCU_CONF_FUNCTION3);
+#endif
 
 	/* Configure all GPIO as Input (safe state) */
 	GPIO0_DIR = 0;

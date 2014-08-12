@@ -33,7 +33,10 @@ int main(void)
 	const uint32_t freq = 2441000000U;
 
 	pin_setup();
-	gpio_set(PORT_EN1V8, PIN_EN1V8); /* 1V8 on */
+	enable_1v8_power();
+#ifdef HACKRF_ONE
+	enable_rf_power();
+#endif
 	cpu_clock_init();
 	ssp1_init();
 

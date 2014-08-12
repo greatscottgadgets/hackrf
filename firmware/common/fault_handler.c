@@ -47,7 +47,7 @@ void hard_fault_handler(void) {
 
 volatile hard_fault_stack_t* hard_fault_stack_pt;
 
-void hard_fault_handler_c(uint32_t* args) 
+__attribute__((used)) void hard_fault_handler_c(uint32_t* args) 
 {
 	/* hard_fault_stack_pt contains registers saved before the hard fault */
 	hard_fault_stack_pt = (hard_fault_stack_t*)args;
