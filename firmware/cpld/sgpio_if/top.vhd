@@ -33,6 +33,7 @@ entity top is
         HOST_DISABLE    : in    std_logic;
         HOST_DIRECTION  : in    std_logic;
 		  HOST_DECIM_SEL  : in    std_logic_vector(2 downto 0);
+        HOST_Q_INVERT   : in    std_logic;
            
         DA              : in    std_logic_vector(7 downto 0);
         DD              : out   std_logic_vector(9 downto 0);
@@ -62,6 +63,9 @@ architecture Behavioral of top is
     signal decimate_count : std_logic_vector(2 downto 0) := "111";
 	 signal decimate_sel_i : std_logic_vector(2 downto 0);
 	 signal decimate_en : std_logic;
+	 
+	 signal q_invert : std_logic;
+	 signal q_invert_mask : std_logic_vector(7 downto 0);
 
 begin
     
@@ -113,6 +117,9 @@ begin
         end if;
     end process;
         
+    q_invert <= HOST_Q_INVERT;
+    q_invert_mask <= X"80" when q_invert = '1' else X"7f";
+	 
     process(host_clk_i)
     begin
         if rising_edge(host_clk_i) then
@@ -121,7 +128,7 @@ begin
                 data_to_host_o <= adc_data_i xor X"80";
             else
 					 -- Q: inverted between MAX2837 and MAX5864
-				    data_to_host_o <= adc_data_i xor X"7f";
+				    data_to_host_o <= adc_data_i xor q_invert_mask;
 				end if;
         end if;
     end process;
