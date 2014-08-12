@@ -300,7 +300,7 @@ FILE* fd = NULL;
 volatile uint32_t byte_count = 0;
 
 bool signalsource = false;
-uint32_t power_level = 1;
+uint32_t amplitude = 0;
 
 bool receive = false;
 bool receive_wav = false;
@@ -397,7 +397,7 @@ int tx_callback(hackrf_transfer* transfer) {
 			return 0;
 		}
 	} else if (transceiver_mode == TRANSCEIVER_MODE_SS) {
-		/* Transmit SINE signal with specific powerlevel */
+		/* Transmit continuous wave with specific amplitude */
 		ssize_t bytes_read;
 		byte_count += transfer->valid_length;
 		bytes_to_read = transfer->valid_length;
@@ -409,7 +409,7 @@ int tx_callback(hackrf_transfer* transfer) {
 		}
 
 		for(i = 0;i<bytes_to_read;i++)
-			transfer->buffer[i] = power_level;
+			transfer->buffer[i] = amplitude;
 
 		if (limit_num_samples && (bytes_to_xfer == 0)) {
 			return -1;
@@ -445,7 +445,7 @@ static void usage() {
 	printf("\t[-s sample_rate_hz] # Sample rate in Hz (8/10/12.5/16/20MHz, default %sMHz).\n",
 		u64toa((DEFAULT_SAMPLE_RATE_HZ/FREQ_ONE_MHZ),&ascii_u64_data1));
 	printf("\t[-n num_samples] # Number of samples to transfer (default is unlimited).\n");
-	printf("\t[-c power_level] # Signal source mode, power level, 0-255, dc value to DAC (default is 1).\n");
+	printf("\t[-c amplitude] # CW signal source mode, amplitude 0-127 (DC value to DAC).\n");
 	printf("\t[-b baseband_filter_bw_hz] # Set baseband filter bandwidth in MHz.\n\tPossible values: 1.75/2.5/3.5/5/5.5/6/7/8/9/10/12/14/15/20/24/28MHz, default < sample_rate_hz.\n" );
 }
 
@@ -487,7 +487,7 @@ int main(int argc, char** argv) {
 	float time_diff;
 	unsigned int lna_gain=8, vga_gain=20, txvga_gain=0;
   
-	while( (opt = getopt(argc, argv, "wr:t:f:i:o:m:a:p:s:n:b:l:g:x:z:")) != EOF )
+	while( (opt = getopt(argc, argv, "wr:t:f:i:o:m:a:p:s:n:b:l:g:x:c:")) != EOF )
 	{
 		result = HACKRF_SUCCESS;
 		switch( opt ) 
@@ -567,7 +567,7 @@ int main(int argc, char** argv) {
 		case 'c':
 			transmit = true;
 			signalsource = true;
-			result = parse_u32(optarg, &power_level);
+			result = parse_u32(optarg, &amplitude);
 			break;
 
 		default:
@@ -742,8 +742,8 @@ int main(int argc, char** argv) {
 
 	if (signalsource) {
 		transceiver_mode = TRANSCEIVER_MODE_SS;
-		if (power_level >255) {
-			printf("argument error: power level shall be in between 0 and 255.\n");
+		if (amplitude >127) {
+			printf("argument error: amplitude shall be in between 0 and 128.\n");
 			usage();
 			return EXIT_FAILURE;
 		}
