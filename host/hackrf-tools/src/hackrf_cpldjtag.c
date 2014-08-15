@@ -166,7 +166,7 @@ int main(int argc, char** argv)
 	}
 
 	printf("LED1/2/3 blinking means CPLD program success.\nLED3/RED steady means error.\n");
-	printf("Wait message 'Write finished' or in case of LED3/RED steady, Power OFF/Disconnect the Jawbreaker.\n");
+	printf("Wait message 'Write finished' or in case of LED3/RED steady, Power OFF/Disconnect the HackRF.\n");
 	result = hackrf_cpld_write(device, pdata, total_length);
 	if (result != HACKRF_SUCCESS)
 	{
@@ -178,7 +178,7 @@ int main(int argc, char** argv)
 	}
 
 	printf("Write finished.\n");
-	printf("Please Power OFF/Disconnect the Jawbreaker.\n");
+	printf("Please Power OFF/Disconnect the HackRF.\n");
 	fflush(stdout);
 
 	result = hackrf_close(device);
