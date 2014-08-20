@@ -938,7 +938,7 @@ int ADDCALL hackrf_board_partid_serialno_read(hackrf_device* device, read_partid
 	} else {
 
 		read_partid_serialno->part_id[0] = TO_LE(read_partid_serialno->part_id[0]);
-		read_partid_serialno->part_id[0] = TO_LE(read_partid_serialno->part_id[1]);
+		read_partid_serialno->part_id[1] = TO_LE(read_partid_serialno->part_id[1]);
 		read_partid_serialno->serial_no[0] = TO_LE(read_partid_serialno->serial_no[0]);
 		read_partid_serialno->serial_no[1] = TO_LE(read_partid_serialno->serial_no[1]);
 		read_partid_serialno->serial_no[2] = TO_LE(read_partid_serialno->serial_no[2]);
