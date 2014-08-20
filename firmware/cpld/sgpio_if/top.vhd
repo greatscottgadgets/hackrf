@@ -137,7 +137,11 @@ begin
     begin
         if rising_edge(host_clk_i) then
             if transfer_direction_i = to_dac then
-                dac_data_o <= (data_from_host_i xor X"7f") & "11";
+                if codec_clk_i = '1' then
+                    dac_data_o <= (data_from_host_i xor q_invert_mask) & q_invert_mask(0) & q_invert_mask(0);
+                else
+                    dac_data_o <= (data_from_host_i xor X"80") & "00";
+                end if;
             else
                 dac_data_o <= (dac_data_o'high => '0', others => '1');
             end if;
