@@ -32,7 +32,7 @@ entity top is
         HOST_CAPTURE    : out   std_logic;
         HOST_DISABLE    : in    std_logic;
         HOST_DIRECTION  : in    std_logic;
-		  HOST_DECIM_SEL  : in    std_logic_vector(2 downto 0);
+        HOST_DECIM_SEL  : in    std_logic_vector(2 downto 0);
         HOST_Q_INVERT   : in    std_logic;
            
         DA              : in    std_logic_vector(7 downto 0);
@@ -61,11 +61,12 @@ architecture Behavioral of top is
     signal data_to_host_o : std_logic_vector(7 downto 0);
 
     signal decimate_count : std_logic_vector(2 downto 0) := "111";
-	 signal decimate_sel_i : std_logic_vector(2 downto 0);
-	 signal decimate_en : std_logic;
-	 
-	 signal q_invert : std_logic;
-	 signal q_invert_mask : std_logic_vector(7 downto 0);
+    signal decimate_sel_i : std_logic_vector(2 downto 0);
+    signal decimate_en : std_logic;
+     
+    signal q_invert : std_logic;
+    signal rx_q_invert_mask : std_logic_vector(7 downto 0);
+    signal tx_q_invert_mask : std_logic_vector(7 downto 0);
 
 begin
     
@@ -98,38 +99,39 @@ begin
     transfer_direction_i <= to_dac when HOST_DIRECTION = '1'
                                    else from_adc;
 
-	 decimate_sel_i <= HOST_DECIM_SEL;
-	 
+    decimate_sel_i <= HOST_DECIM_SEL;
+     
     ------------------------------------------------
-	 
-	 decimate_en <= '1' when decimate_count = "111" else '0';
-	 
+     
+    decimate_en <= '1' when decimate_count = "111" else '0';
+     
     process(host_clk_i)
     begin
         if rising_edge(host_clk_i) then
-		      if codec_clk_i = '1' then
-				    if decimate_count = "111" or host_data_enable_i = '0' then
-						  decimate_count <= decimate_sel_i;
-					 else
-					     decimate_count <= decimate_count + 1;
+            if codec_clk_i = '1' then
+                if decimate_count = "111" or host_data_enable_i = '0' then
+                    decimate_count <= decimate_sel_i;
+                else
+                    decimate_count <= decimate_count + 1;
                 end if;
-			   end if;
+            end if;
         end if;
     end process;
         
     q_invert <= HOST_Q_INVERT;
-    q_invert_mask <= X"80" when q_invert = '1' else X"7f";
-	 
+    rx_q_invert_mask <= X"80" when q_invert = '1' else X"7f";
+    tx_q_invert_mask <= X"7F" when q_invert = '1' else X"80";
+     
     process(host_clk_i)
     begin
         if rising_edge(host_clk_i) then
-		      if codec_clk_i = '1' then
-					 -- I: non-inverted between MAX2837 and MAX5864
+            if codec_clk_i = '1' then
+                -- I: non-inverted between MAX2837 and MAX5864
                 data_to_host_o <= adc_data_i xor X"80";
             else
-					 -- Q: inverted between MAX2837 and MAX5864
-				    data_to_host_o <= adc_data_i xor q_invert_mask;
-				end if;
+                -- Q: inverted between MAX2837 and MAX5864
+                data_to_host_o <= adc_data_i xor rx_q_invert_mask;
+            end if;
         end if;
     end process;
     
@@ -138,7 +140,7 @@ begin
         if rising_edge(host_clk_i) then
             if transfer_direction_i = to_dac then
                 if codec_clk_i = '1' then
-                    dac_data_o <= (data_from_host_i xor q_invert_mask) & q_invert_mask(0) & q_invert_mask(0);
+                    dac_data_o <= (data_from_host_i xor tx_q_invert_mask) & tx_q_invert_mask(0) & tx_q_invert_mask(0);
                 else
                     dac_data_o <= (data_from_host_i xor X"80") & "00";
                 end if;
