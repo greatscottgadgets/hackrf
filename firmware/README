@@ -33,7 +33,7 @@ If you have a Jawbreaker, use BOARD=JAWBREAKER instead.
 
 For loading firmware into RAM with DFU you will also need:
 
-git://git.openezx.org/dfu-util.git
+http://dfu-util.gnumonks.org/
 
 To start up HackRF One in DFU mode, hold down the DFU button while powering it
 on or while pressing and releasing the RESET button.  Release the DFU button
@@ -44,3 +44,7 @@ HackRF operating in DFU mode, you can build firmware for RAM and load it with:
 
 $ cd hackrf_usb
 $ make -e BOARD=HACKRF_ONE RUN_FROM=RAM program
+
+Alternatively you can load a .dfu file from a release package with:
+
+$ dfu-util --device 1fc9:000c --alt 0 --download hackrf_usb_ram.dfu
