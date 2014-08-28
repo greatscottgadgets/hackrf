@@ -171,27 +171,47 @@ int dump_multisynth_config(hackrf_device* device, const uint_fast8_t ms_number) 
 int device_status(hackrf_device* device) {
 	//Refer to page 14 of the si5351 manual
 	int result = dump_register(device, 0); //register 0 = status
-	if( result != HACKRF_SUCCESS ) {
-		return result;
+	if (result != HACKRF_SUCCESS) { return result; }
+	int reg0 = result;
+
+	int device_ready = reg0<<7; //0 = ready, 1 = initializing
+	int pllB_loss_of_lock = reg0<<6; //0 = locked, 1 = not locked
+	int pllA_loss_of_lock = reg0<<5; //0 = locked, 1 = not locked
+	int clkin_loss_of_signal = reg0<<4; //0 = valid clock at CLKIN, 1 = no valid CLKIN
+	
+	result = dump_register(device, 15); //register 15 = PLL input source
+	if (result != HACKRF_SUCCESS) { return result; }
+	int reg15 = result;
+
+	int pllB_source = reg15<<3; //0 = XTAL, 1 = CLKIN
+	int pllA_source = reg15<<3; //0 = XTAL, 1 = CLKIN
+	char* pllB;
+	char* pllA;
+	if (pllB_source == 0) {
+		pllB = "Crystal";
+	} else {
+		pllB = "CLKIN";
 	}
-	int device_ready = result<<7; //0 = ready, 1 = initializing
-	int pllB_loss_of_lock = result<<6; //0 = locked, 1 = not locked
-	int pllA_loss_of_lock = result<<5; //0 = locked, 1 = not locked
-	int clkin_loss_of_signal = result<<4; //0 = valid clock at CLKIN, 1 = no valid CLKIN
+	if (pllA_source == 0) {
+		pllA = "Crystal";
+	} else {
+		pllA = "CLKIN";
+	}
+
 	if (device_ready == 0) {
 		printf("si5351 is Ready\n");
 	} else {
 		printf("si5351 is Initializing\n");
 	}
 	if (pllB_loss_of_lock == 0) {
-		printf("PLLB is locked / synced\n");
+		printf("%s is locked / synced\n", pllB);
 	} else {
-		printf("PLLB is not locked / synced\n");
+		printf("%s is not locked / synced\n", pllB);
 	}
 	if (pllA_loss_of_lock == 0) {
-		printf("PLLA is locked / synced\n");
+		printf("%s is locked / synced\n", pllA);
 	} else {
-		printf("PLLA is not locked / synced\n");
+		printf("%s is not locked / synced\n", pllA);
 	}
 	if (clkin_loss_of_signal == 0) {
 		printf("Valid CLKIN detected\n");
