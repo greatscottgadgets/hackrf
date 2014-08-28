@@ -292,7 +292,7 @@ void si5351c_configure_clock_control(const enum pll_sources source)
 
 void si5351c_set_clock_source(const enum pll_sources source)
 {
-	si5351c_configure_clock_control(PLL_SOURCE_XTAL);
+	si5351c_configure_clock_control(source);
 	active_clock_source = source;
 }
 
