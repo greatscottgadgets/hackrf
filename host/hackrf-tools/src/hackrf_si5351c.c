@@ -168,10 +168,48 @@ int dump_multisynth_config(hackrf_device* device, const uint_fast8_t ms_number) 
 	return HACKRF_SUCCESS;
 }
 
+int device_status(hackrf_device* device) {
+	//Refer to page 14 of the si5351 manual
+	int result = dump_register(device, 0); //register 0 = status
+	if( result != HACKRF_SUCCESS ) {
+		return result;
+	}
+	int device_ready = result<<7; //0 = ready, 1 = initializing
+	int pllB_loss_of_lock = result<<6; //0 = locked, 1 = not locked
+	int pllA_loss_of_lock = result<<5; //0 = locked, 1 = not locked
+	int clkin_loss_of_signal = result<<4; //0 = valid clock at CLKIN, 1 = no valid CLKIN
+	if (device_ready == 0) {
+		printf("si5351 is Ready\n");
+	} else {
+		printf("si5351 is Initializing\n");
+	}
+	if (pllB_loss_of_lock == 0) {
+		printf("PLLB is locked / synced\n");
+	} else {
+		printf("PLLB is not locked / synced\n");
+	}
+	if (pllA_loss_of_lock == 0) {
+		printf("PLLA is locked / synced\n");
+	} else {
+		printf("PLLA is not locked / synced\n");
+	}
+	if (clkin_loss_of_signal == 0) {
+		printf("Valid CLKIN detected\n");
+	} else {
+		printf("CLKIN not detected\n");
+	}
+	printf("\n");
+	return result;
+}
+
 int dump_configuration(hackrf_device* device) {
 	uint_fast8_t ms_number;
 	int result;
-			
+	
+	result = device_status(device);
+	if( result != HACKRF_SUCCESS ) {
+		return result;
+	}
 	for(ms_number=0; ms_number<8; ms_number++) {
 		result = dump_multisynth_config(device, ms_number);
 		if( result != HACKRF_SUCCESS ) {
