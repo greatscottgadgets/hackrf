@@ -101,7 +101,7 @@ endif()
 option(INSTALL_UDEV_RULES "Install udev rules for HackRF" OFF)
 if (INSTALL_UDEV_RULES)
     install (
-        FILES 52-hackrf.rules
+        FILES 53-hackrf.rules
         DESTINATION "/etc/udev/rules.d"
         COMPONENT "udev"
         )
