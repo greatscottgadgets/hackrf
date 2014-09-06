@@ -24,6 +24,15 @@ import sys
 import usb
 
 device = usb.core.find(idVendor=0x1d50, idProduct=0x604b)
+if device:
+    print 'Find: HackRF Jawbreaker'
+else:
+    device = usb.core.find(idVendor=0x1d50, idProduct=0x6089)
+    if device:
+        print 'Find: HackRF One'
+    else:
+        print 'Not find any HackRF device.'
+        sys.exit()
 device.set_configuration()
 
 def set_rx():
@@ -37,3 +46,5 @@ if len(sys.argv) == 2:
         set_tx()
     elif sys.argv[1] == 'rx':
         set_rx()
+else:
+    print 'Usage: %s [rx|tx]' % sys.argv[0]
