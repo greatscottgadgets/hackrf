@@ -984,7 +984,7 @@ int main(int argc, char** argv) {
 			/* Get size of file */
 			file_pos = ftell(fd);
 			/* Update Wav Header */
-			wave_file_hdr.hdr.size = file_pos+8;
+			wave_file_hdr.hdr.size = file_pos-8;
 			wave_file_hdr.fmt_chunk.dwSamplesPerSec = sample_rate_hz;
 			wave_file_hdr.fmt_chunk.dwAvgBytesPerSec = wave_file_hdr.fmt_chunk.dwSamplesPerSec*2;
 			wave_file_hdr.data_chunk.chunkSize = file_pos - sizeof(t_wav_file_hdr);
