@@ -175,4 +175,7 @@ extern ADDAPI uint32_t ADDCALL hackrf_compute_baseband_filter_bw(const uint32_t 
 } // __cplusplus defined.
 #endif
 
+#define DEVICE_TRANSFER_COUNT	4
+#define DEVICE_BUFFER_SIZE	262144
+
 #endif//__HACKRF_H__

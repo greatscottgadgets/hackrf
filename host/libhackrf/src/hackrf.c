@@ -316,9 +316,13 @@ int ADDCALL hackrf_open(hackrf_device** device)
 	/*
 	lib_device->transfer_count = 1024;
 	lib_device->buffer_size = 16384;
-	*/
 	lib_device->transfer_count = 4;
-	lib_device->buffer_size = 262144; /* 1048576; */
+	lib_device->buffer_size = 262144; // 1048576;
+	*/
+
+	lib_device->transfer_count = DEVICE_TRANSFER_COUNT;
+	lib_device->buffer_size = DEVICE_BUFFER_SIZE;
+
 	lib_device->streaming = false;
 	do_exit = false;
 
