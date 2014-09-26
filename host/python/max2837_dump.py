@@ -22,8 +22,18 @@
 
 import usb
 import struct
+import sys
 
 device = usb.core.find(idVendor=0x1d50, idProduct=0x604b)
+if device:
+    print 'Find: HackRF Jawbreaker'
+else:
+    device = usb.core.find(idVendor=0x1d50, idProduct=0x6089)
+    if device:
+        print 'Find: HackRF One'
+    else:
+        print 'Not find any HackRF device.'
+        sys.exit()
 device.set_configuration()
 
 def read_max2837_register(register_number):
