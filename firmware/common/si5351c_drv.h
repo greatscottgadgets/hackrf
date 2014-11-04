@@ -30,9 +30,13 @@ extern "C"
 
 #include <stdint.h>
 
-void si5351c_write_single(uint8_t reg, uint8_t val);
-uint8_t si5351c_read_single(uint8_t reg);
-void si5351c_write(uint8_t* const data, const uint_fast8_t data_count);
+typedef struct {
+	uint8_t i2c_address;
+} si5351c_driver_t;
+
+void si5351c_write_single(si5351c_driver_t* const drv, uint8_t reg, uint8_t val);
+uint8_t si5351c_read_single(si5351c_driver_t* const drv, uint8_t reg);
+void si5351c_write(si5351c_driver_t* const drv, uint8_t* const data, const uint_fast8_t data_count);
 
 #ifdef __cplusplus
 }

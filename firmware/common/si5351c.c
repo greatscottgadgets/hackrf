@@ -27,21 +27,21 @@
 enum pll_sources active_clock_source;
 
 /* Disable all CLKx outputs. */
-void si5351c_disable_all_outputs()
+void si5351c_disable_all_outputs(si5351c_driver_t* const drv)
 {
 	uint8_t data[] = { 3, 0xFF };
-	si5351c_write(data, sizeof(data));
+	si5351c_write(drv, data, sizeof(data));
 }
 
 /* Turn off OEB pin control for all CLKx */
-void si5351c_disable_oeb_pin_control()
+void si5351c_disable_oeb_pin_control(si5351c_driver_t* const drv)
 {
 	uint8_t data[] = { 9, 0xFF };
-	si5351c_write(data, sizeof(data));
+	si5351c_write(drv, data, sizeof(data));
 }
 
 /* Power down all CLKx */
-void si5351c_power_down_all_clocks()
+void si5351c_power_down_all_clocks(si5351c_driver_t* const drv)
 {
 	uint8_t data[] = { 16
 	, SI5351C_CLK_POWERDOWN
@@ -53,7 +53,7 @@ void si5351c_power_down_all_clocks()
 	, SI5351C_CLK_POWERDOWN | SI5351C_CLK_INT_MODE 
 	, SI5351C_CLK_POWERDOWN | SI5351C_CLK_INT_MODE
 	};
-	si5351c_write(data, sizeof(data));
+	si5351c_write(drv, data, sizeof(data));
 }
 
 /*
@@ -61,20 +61,20 @@ void si5351c_power_down_all_clocks()
  * Reads as 0xE4 on power-up
  * Set to 8pF based on crystal specs and HackRF One testing
  */
-void si5351c_set_crystal_configuration()
+void si5351c_set_crystal_configuration(si5351c_driver_t* const drv)
 {
 	uint8_t data[] = { 183, 0x80 };
-	si5351c_write(data, sizeof(data));
+	si5351c_write(drv, data, sizeof(data));
 }
 
 /*
  * Register 187: Fanout Enable
  * Turn on XO and MultiSynth fanout only.
  */
-void si5351c_enable_xo_and_ms_fanout()
+void si5351c_enable_xo_and_ms_fanout(si5351c_driver_t* const drv)
 {
 	uint8_t data[] = { 187, 0xD0 };
-	si5351c_write(data, sizeof(data));
+	si5351c_write(drv, data, sizeof(data));
 }
 
 /*
@@ -83,34 +83,35 @@ void si5351c_enable_xo_and_ms_fanout()
  * PLLA_SRC=0 (XTAL)
  * PLLB_SRC=1 (CLKIN)
  */
-void si5351c_configure_pll_sources(void)
+void si5351c_configure_pll_sources(si5351c_driver_t* const drv)
 {
 	uint8_t data[] = { 15, 0x08 };
 
-	si5351c_write(data, sizeof(data));
+	si5351c_write(drv, data, sizeof(data));
 }
 
 /* MultiSynth NA (PLLA) and NB (PLLB) */
-void si5351c_configure_pll_multisynth(void)
+void si5351c_configure_pll_multisynth(si5351c_driver_t* const drv)
 {
 	//init plla to (0x0e00+512)/128*25mhz xtal = 800mhz -> int mode
 	uint8_t data[] = { 26, 0x00, 0x01, 0x00, 0x0E, 0x00, 0x00, 0x00, 0x00 };
-	si5351c_write(data, sizeof(data));
+	si5351c_write(drv, data, sizeof(data));
 
 	/* 10 MHz input on CLKIN for PLLB */
 	data[0] = 34;
 	data[4] = 0x26;
-	si5351c_write(data, sizeof(data));
+	si5351c_write(drv, data, sizeof(data));
 }
 
-void si5351c_reset_pll(void)
+void si5351c_reset_pll(si5351c_driver_t* const drv)
 {
 	/* reset PLLA and PLLB */
 	uint8_t data[] = { 177, 0xA0 };
-	si5351c_write(data, sizeof(data));
+	si5351c_write(drv, data, sizeof(data));
 }
 
-void si5351c_configure_multisynth(const uint_fast8_t ms_number,
+void si5351c_configure_multisynth(si5351c_driver_t* const drv,
+		const uint_fast8_t ms_number,
 		const uint32_t p1, const uint32_t p2, const uint32_t p3,
     	const uint_fast8_t r_div)
 {
@@ -137,7 +138,7 @@ void si5351c_configure_multisynth(const uint_fast8_t ms_number,
 			(((p3 >> 16) & 0xF) << 4) | (((p2 >> 16) & 0xF) << 0),
 			(p2 >> 8) & 0xFF,
 			(p2 >> 0) & 0xFF };
-	si5351c_write(data, sizeof(data));
+	si5351c_write(drv, data, sizeof(data));
 }
 
 #ifdef JELLYBEAN
@@ -186,15 +187,15 @@ void si5351c_configure_multisynth(const uint_fast8_t ms_number,
  *   CLK5_SRC=3 (MS5 as input source)
  *   CLK5_IDRV=3 (8mA)
  */
-void si5351c_configure_clock_control()
+void si5351c_configure_clock_control(si5351c_driver_t* const drv)
 {
 	uint8_t data[] = { 16, 0x4F, 0x4B, 0x4B, 0x4B, 0x0F, 0x4F, 0xC0, 0xC0 };
-	si5351c_write(data, sizeof(data));
+	si5351c_write(drv, data, sizeof(data));
 }
 #endif
 
 #if (defined JAWBREAKER || defined HACKRF_ONE)
-void si5351c_configure_clock_control(const enum pll_sources source)
+void si5351c_configure_clock_control(si5351c_driver_t* const drv, const enum pll_sources source)
 {
 	uint8_t pll;
 
@@ -215,54 +216,54 @@ void si5351c_configure_clock_control(const enum pll_sources source)
 	,SI5351C_CLK_POWERDOWN | SI5351C_CLK_INT_MODE /*not connected, but: plla int mode*/
 	,SI5351C_CLK_INT_MODE | SI5351C_CLK_PLL_SRC(pll) | SI5351C_CLK_SRC(SI5351C_CLK_SRC_MULTISYNTH_SELF) | SI5351C_CLK_IDRV(SI5351C_CLK_IDRV_8MA)
 	 };
-	si5351c_write(data, sizeof(data));
+	si5351c_write(drv, data, sizeof(data));
 }
 #endif
 
 /* Enable CLK outputs 0, 1, 2, 3, 4, 5, 7 only. */
- void si5351c_enable_clock_outputs()
+ void si5351c_enable_clock_outputs(si5351c_driver_t* const drv)
  {
 	uint8_t data[] = { 3, 0x40 };
- 	si5351c_write(data, sizeof(data));
+ 	si5351c_write(drv, data, sizeof(data));
  }
 
 
- void si5351c_set_int_mode(const uint_fast8_t ms_number, const uint_fast8_t on){
+ void si5351c_set_int_mode(si5351c_driver_t* const drv, const uint_fast8_t ms_number, const uint_fast8_t on){
   uint8_t data[] = {16, 0};
 
   if(ms_number < 8){
       data[0] = 16 + ms_number;
-      data[1] = si5351c_read_single(data[0]);
+      data[1] = si5351c_read_single(drv, data[0]);
 
       if(on)
           data[1] |= SI5351C_CLK_INT_MODE;
       else
           data[1] &= ~(SI5351C_CLK_INT_MODE);
 
-      si5351c_write(data, 2);
+      si5351c_write(drv, data, 2);
   }
 
  }
 
-void si5351c_set_clock_source(const enum pll_sources source)
+void si5351c_set_clock_source(si5351c_driver_t* const drv, const enum pll_sources source)
 {
-	si5351c_configure_clock_control(source);
+	si5351c_configure_clock_control(drv, source);
 	active_clock_source = source;
 }
 
-void si5351c_activate_best_clock_source(void)
+void si5351c_activate_best_clock_source(si5351c_driver_t* const drv)
 {
-	uint8_t device_status = si5351c_read_single(0);
+	uint8_t device_status = si5351c_read_single(drv, 0);
 
 	if (device_status & SI5351C_LOS) {
 		/* CLKIN not detected */
 		if (active_clock_source == PLL_SOURCE_CLKIN) {
-			si5351c_set_clock_source(PLL_SOURCE_XTAL);
+			si5351c_set_clock_source(drv, PLL_SOURCE_XTAL);
 		}
 	} else {
 		/* CLKIN detected */
 		if (active_clock_source == PLL_SOURCE_XTAL) {
-			si5351c_set_clock_source(PLL_SOURCE_CLKIN);
+			si5351c_set_clock_source(drv, PLL_SOURCE_CLKIN);
 		}
 	}
 }

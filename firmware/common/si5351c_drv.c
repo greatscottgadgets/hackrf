@@ -29,28 +29,28 @@
 /* FIXME return i2c0 status from each function */
 
 /* write to single register */
-void si5351c_write_single(uint8_t reg, uint8_t val)
+void si5351c_write_single(si5351c_driver_t* const drv, uint8_t reg, uint8_t val)
 {
 	i2c0_tx_start();
-	i2c0_tx_byte(SI5351C_I2C_ADDR | I2C_WRITE);
+	i2c0_tx_byte((drv->i2c_address << 1) | I2C_WRITE);
 	i2c0_tx_byte(reg);
 	i2c0_tx_byte(val);
 	i2c0_stop();
 }
 
 /* read single register */
-uint8_t si5351c_read_single(uint8_t reg)
+uint8_t si5351c_read_single(si5351c_driver_t* const drv, uint8_t reg)
 {
 	uint8_t val;
 
 	/* set register address with write */
 	i2c0_tx_start();
-	i2c0_tx_byte(SI5351C_I2C_ADDR | I2C_WRITE);
+	i2c0_tx_byte((drv->i2c_address << 1) | I2C_WRITE);
 	i2c0_tx_byte(reg);
 
 	/* read the value */
 	i2c0_tx_start();
-	i2c0_tx_byte(SI5351C_I2C_ADDR | I2C_READ);
+	i2c0_tx_byte((drv->i2c_address << 1) | I2C_READ);
 	val = i2c0_rx_byte();
 	i2c0_stop();
 
@@ -61,12 +61,12 @@ uint8_t si5351c_read_single(uint8_t reg)
  * Write to one or more contiguous registers. data[0] should be the first
  * register number, one or more values follow.
  */
-void si5351c_write(uint8_t* const data, const uint_fast8_t data_count)
+void si5351c_write(si5351c_driver_t* const drv, uint8_t* const data, const uint_fast8_t data_count)
 {
 	uint_fast8_t i;
 
 	i2c0_tx_start();
-	i2c0_tx_byte(SI5351C_I2C_ADDR | I2C_WRITE);
+	i2c0_tx_byte((drv->i2c_address << 1) | I2C_WRITE);
 	
 	for (i = 0; i < data_count; i++)
 		i2c0_tx_byte(data[i]);
