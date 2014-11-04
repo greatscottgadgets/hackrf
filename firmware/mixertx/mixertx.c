@@ -44,7 +44,7 @@ int main(void)
 
 	ssp1_set_mode_max2837();
 	max2837_setup(&max2837);
-	rffc5071_setup();
+	rffc5071_setup(&rffc5072);
 	gpio_set(PORT_LED1_3, (PIN_LED2)); /* LED2 on */
 
 	max2837_set_frequency(&max2837, freq);

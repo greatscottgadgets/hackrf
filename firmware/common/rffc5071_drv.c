@@ -31,7 +31,8 @@
 #include "hackrf_core.h"
 #endif
 
-void rffc5071_pin_config() {
+void rffc5071_pin_config(rffc5071_driver_t* const drv) {
+	(void)drv;
 #if !defined TEST
 	/* Configure GPIO pins. */
 	scu_pinmux(SCU_MIXER_ENX, SCU_GPIO_FAST);
@@ -69,7 +70,8 @@ static void serial_delay(void)
  *   next 7 bits are register address.
  * Then receive 16 bits (register value).
  */
-uint16_t rffc5071_spi_read(uint8_t r) {
+uint16_t rffc5071_spi_read(rffc5071_driver_t* const drv, uint8_t r) {
+	(void)drv;
 
 	int bits = 9;
 	int msb = 1 << (bits -1);
@@ -166,8 +168,9 @@ uint16_t rffc5071_spi_read(uint8_t r) {
  *   next 7 bits are register address,
  *   next 16 bits are register value.
  */
-void rffc5071_spi_write(uint8_t r, uint16_t v) {
-
+void rffc5071_spi_write(rffc5071_driver_t* const drv, uint8_t r, uint16_t v) {
+	(void)drv;
+	
 #if DEBUG
 	LOG("0x%04x -> reg%d\n", v, r);
 #else

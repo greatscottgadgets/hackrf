@@ -149,16 +149,16 @@ static void switchctrl_set_hackrf_one(uint8_t ctrl) {
 		gpio_set(PORT_NO_RX_AMP_PWR, PIN_NO_RX_AMP_PWR);
 
 	if (ctrl & SWITCHCTRL_ANT_PWR) {
-		rffc5071_set_gpo(0x00); /* turn on antenna power by clearing GPO1 */
+		rffc5071_set_gpo(&rffc5072, 0x00); /* turn on antenna power by clearing GPO1 */
 	} else {
-		rffc5071_set_gpo(0x01); /* turn off antenna power by setting GPO1 */
+		rffc5071_set_gpo(&rffc5072, 0x01); /* turn off antenna power by setting GPO1 */
 	}
 }
 #endif
 
 static void switchctrl_set(const uint8_t gpo) {
 #ifdef JAWBREAKER
-	rffc5071_set_gpo(gpo);
+	rffc5071_set_gpo(&rffc5072, gpo);
 #elif HACKRF_ONE
 	switchctrl_set_hackrf_one(gpo);
 #else
@@ -215,7 +215,7 @@ void rf_path_init(void) {
 	max2837_setup(&max2837);
 	max2837_start(&max2837);
 	
-	rffc5071_setup();
+	rffc5071_setup(&rffc5072);
 	switchctrl_set(switchctrl);
 }
 
@@ -229,11 +229,11 @@ void rf_path_set_direction(const rf_path_direction_t direction) {
 			/* TX amplifier is in path, be sure to enable TX amplifier. */
 			switchctrl &= ~SWITCHCTRL_NO_TX_AMP_PWR;
 		}
-		rffc5071_tx();
+		rffc5071_tx(&rffc5072);
 		if( switchctrl & SWITCHCTRL_MIX_BYPASS ) {
-			rffc5071_disable();
+			rffc5071_disable(&rffc5072);
 		} else {
-			rffc5071_enable();
+			rffc5071_enable(&rffc5072);
 		}
 		ssp1_set_mode_max5864();
 		max5864_tx();
@@ -248,11 +248,11 @@ void rf_path_set_direction(const rf_path_direction_t direction) {
 			/* RX amplifier is in path, be sure to enable RX amplifier. */
 			switchctrl &= ~SWITCHCTRL_NO_RX_AMP_PWR;
 		}
-		rffc5071_rx();
+		rffc5071_rx(&rffc5072);
 		if( switchctrl & SWITCHCTRL_MIX_BYPASS ) {
-			rffc5071_disable();
+			rffc5071_disable(&rffc5072);
 		} else {
-			rffc5071_enable();
+			rffc5071_enable(&rffc5072);
 		}
 		ssp1_set_mode_max5864();
 		max5864_rx();
@@ -268,7 +268,7 @@ void rf_path_set_direction(const rf_path_direction_t direction) {
 #endif
 		/* Set RF path to receive direction when "off" */
 		switchctrl &= ~SWITCHCTRL_TX;
-		rffc5071_disable();
+		rffc5071_disable(&rffc5072);
 		ssp1_set_mode_max5864();
 		max5864_standby();
 		ssp1_set_mode_max2837();
@@ -285,18 +285,18 @@ void rf_path_set_filter(const rf_path_filter_t filter) {
 	default:
 	case RF_PATH_FILTER_BYPASS:
 		switchctrl |= SWITCHCTRL_MIX_BYPASS;
-		rffc5071_disable();
+		rffc5071_disable(&rffc5072);
 		break;
 		
 	case RF_PATH_FILTER_LOW_PASS:
 		switchctrl &= ~(SWITCHCTRL_HP | SWITCHCTRL_MIX_BYPASS);
-		rffc5071_enable();
+		rffc5071_enable(&rffc5072);
 		break;
 		
 	case RF_PATH_FILTER_HIGH_PASS:
 		switchctrl &= ~SWITCHCTRL_MIX_BYPASS;
 		switchctrl |= SWITCHCTRL_HP;
-		rffc5071_enable();
+		rffc5071_enable(&rffc5072);
 		break;
 	}
 

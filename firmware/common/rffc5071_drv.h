@@ -23,9 +23,17 @@
 #ifndef __RFFC5071_DRV_H
 #define __RFFC5071_DRV_H
 
-void rffc5071_pin_config();
+/* 31 registers, each containing 16 bits of data. */
+#define RFFC5071_NUM_REGS 31
 
-uint16_t rffc5071_spi_read(uint8_t r);
-void rffc5071_spi_write(uint8_t r, uint16_t v);
+typedef struct {
+	uint16_t regs[RFFC5071_NUM_REGS];
+	uint32_t regs_dirty;
+} rffc5071_driver_t;
+
+void rffc5071_pin_config(rffc5071_driver_t* const drv);
+
+uint16_t rffc5071_spi_read(rffc5071_driver_t* const drv, uint8_t r);
+void rffc5071_spi_write(rffc5071_driver_t* const drv, uint8_t r, uint16_t v);
 
 #endif // __RFFC5071_DRV_H

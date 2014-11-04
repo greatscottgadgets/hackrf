@@ -23,6 +23,9 @@
 #ifndef __RFFC5071_REGS_DEF
 #define __RFFC5071_REGS_DEF
 
+#define RFFC5071_REG_SET_CLEAN(_d, _r) (_d->regs_dirty &= ~(1UL<<_r))
+#define RFFC5071_REG_SET_DIRTY(_d, _r) (_d->regs_dirty |= (1UL<<_r))
+
 #define RFFC5071_READBACK_REG 31
 
 /* Generate static inline accessors that operate on the global
@@ -38,13 +41,13 @@
 /* n=name, r=regnum, o=offset (bits from LSB) of LSB of field,
  * l=length (bits) */
 #define __MREG__(n,r,o,l) \
-static inline uint16_t get_##n(void) { \
-        return (rffc5071_regs[r] >> o) & ((1L<<l)-1); \
+static inline uint16_t get_##n(rffc5071_driver_t* const _d) { \
+        return (_d->regs[r] >> o) & ((1L<<l)-1); \
 } \
-static inline void set_##n(uint16_t v) {      \
-	rffc5071_regs[r] &= (uint16_t)(~(((1L<<l)-1)<<o));	\
-	rffc5071_regs[r] |= (uint16_t)(((v&((1L<<l)-1))<<o));	\
-	RFFC5071_REG_SET_DIRTY(r);				\
+static inline void set_##n(rffc5071_driver_t* const _d, uint16_t v) {      \
+	_d->regs[r] &= (uint16_t)(~(((1L<<l)-1)<<o));	\
+	_d->regs[r] |= (uint16_t)(((v&((1L<<l)-1))<<o));	\
+	RFFC5071_REG_SET_DIRTY(_d, r);				\
 }
 
 /* REG 00 (0): LF */

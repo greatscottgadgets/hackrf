@@ -37,6 +37,8 @@
 
 max2837_driver_t max2837;
 
+rffc5071_driver_t rffc5072;
+
 void delay(uint32_t duration)
 {
 	uint32_t i;
