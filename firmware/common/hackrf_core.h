@@ -32,6 +32,8 @@ extern "C"
 #include <stdint.h>
 #include <stdbool.h>
 
+#include "max2837_drv.h"
+
 /* hardware identification number */
 #define BOARD_ID_JELLYBEAN  0
 #define BOARD_ID_JAWBREAKER 1
@@ -349,6 +351,7 @@ typedef enum {
 } transceiver_mode_t;
 
 void delay(uint32_t duration);
+extern max2837_driver_t max2837;
 
 void cpu_clock_init(void);
 void cpu_clock_pll1_low_speed(void);

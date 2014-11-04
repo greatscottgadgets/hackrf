@@ -43,16 +43,16 @@ int main(void)
 	gpio_set(PORT_LED1_3, (PIN_LED1)); /* LED1 on */
 
 	ssp1_set_mode_max2837();
-	max2837_setup();
+	max2837_setup(&max2837);
 	rffc5071_setup();
 	gpio_set(PORT_LED1_3, (PIN_LED2)); /* LED2 on */
 
-	max2837_set_frequency(freq);
-	max2837_start();
-	max2837_tx();
+	max2837_set_frequency(&max2837, freq);
+	max2837_start(&max2837);
+	max2837_tx(&max2837);
 	gpio_set(PORT_LED1_3, (PIN_LED3)); /* LED3 on */
 	while (1);
-	max2837_stop();
+	max2837_stop(&max2837);
 
 	return 0;
 }

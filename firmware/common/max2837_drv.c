@@ -33,7 +33,7 @@
 #include "hackrf_core.h"
 #endif
 
-void max2837_pin_config(void) {
+void max2837_pin_config(max2837_driver_t* const drv) {
 #if !defined TEST
 	/* Configure XCVR_CTL GPIO pins. */
 #ifdef JELLYBEAN
@@ -65,7 +65,7 @@ void max2837_pin_config(void) {
 		;
 #endif
 
-	max2837_mode_shutdown();
+	max2837_mode_shutdown(drv);
 #ifdef JELLYBEAN
 	gpio_set(PORT_XCVR_RXHP, PIN_XCVR_RXHP);
 	gpio_set(PORT_XCVR_B,
@@ -81,7 +81,8 @@ void max2837_pin_config(void) {
 #endif
 }
 
-void max2837_mode_shutdown(void) {
+void max2837_mode_shutdown(max2837_driver_t* const drv) {
+	(void)drv;
 	/* All circuit blocks are powered down, except the 4-wire serial bus
 	 * and its internal programmable registers.
 	 */
@@ -89,7 +90,8 @@ void max2837_mode_shutdown(void) {
 			(PIN_XCVR_ENABLE | PIN_XCVR_RXENABLE | PIN_XCVR_TXENABLE));
 }
 
-void max2837_mode_standby(void) {
+void max2837_mode_standby(max2837_driver_t* const drv) {
+	(void)drv;
 	/* Used to enable the frequency synthesizer block while the rest of the
 	 * device is powered down. In this mode, PLL, VCO, and LO generator
 	 * are on, so that Tx or Rx modes can be quickly enabled from this mode.
@@ -99,7 +101,8 @@ void max2837_mode_standby(void) {
 	gpio_set(PORT_XCVR_ENABLE, PIN_XCVR_ENABLE);
 }
 
-void max2837_mode_tx(void) {
+void max2837_mode_tx(max2837_driver_t* const drv) {
+	(void)drv;
 	/* All Tx circuit blocks are powered on. The external PA is powered on
 	 * after a programmable delay using the on-chip PA bias DAC. The slow-
 	 * charging Rx circuits are in a precharged “idle-off” state for fast
@@ -110,7 +113,8 @@ void max2837_mode_tx(void) {
 			(PIN_XCVR_ENABLE | PIN_XCVR_TXENABLE));
 }
 
-void max2837_mode_rx(void) {
+void max2837_mode_rx(max2837_driver_t* const drv) {
+	(void)drv;
 	/* All Rx circuit blocks are powered on and active. Antenna signal is
 	 * applied; RF is downconverted, filtered, and buffered at Rx BB I and Q
 	 * outputs. The slow- charging Tx circuits are in a precharged “idle-off”
@@ -121,7 +125,8 @@ void max2837_mode_rx(void) {
 			(PIN_XCVR_ENABLE | PIN_XCVR_RXENABLE));
 }
 
-max2837_mode_t max2837_mode(void) {
+max2837_mode_t max2837_mode(max2837_driver_t* const drv) {
+	(void)drv;
 	if( gpio_get(PORT_XCVR_ENABLE, PIN_XCVR_ENABLE) ) {
 		if( gpio_get(PORT_XCVR_ENABLE, PIN_XCVR_TXENABLE) ) {
 			return MAX2837_MODE_TX;
@@ -136,7 +141,8 @@ max2837_mode_t max2837_mode(void) {
 }
 
 /* SPI register read. */
-uint16_t max2837_spi_read(uint8_t r) {
+uint16_t max2837_spi_read(max2837_driver_t* const drv, uint8_t r) {
+	(void)drv;
 	gpio_clear(PORT_XCVR_CS, PIN_XCVR_CS);
 	const uint16_t value = ssp_transfer(SSP1_NUM, (uint16_t)((1 << 15) | (r << 10)));
 	gpio_set(PORT_XCVR_CS, PIN_XCVR_CS);
@@ -144,7 +150,8 @@ uint16_t max2837_spi_read(uint8_t r) {
 }
 
 /* SPI register write */
-void max2837_spi_write(uint8_t r, uint16_t v) {
+void max2837_spi_write(max2837_driver_t* const drv, uint8_t r, uint16_t v) {
+	(void)drv;
 
 #ifdef BUS_PIRATE
 	LOG("{0x%02x 0x%02x]\n", 0x00 | ((uint16_t)r<<2) | ((v>>8) & 0x3),

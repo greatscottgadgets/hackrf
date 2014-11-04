@@ -35,6 +35,8 @@
 
 #define WAIT_CPU_CLOCK_INIT_DELAY   (10000)
 
+max2837_driver_t max2837;
+
 void delay(uint32_t duration)
 {
 	uint32_t i;
@@ -250,7 +252,7 @@ bool sample_rate_set(const uint32_t sample_rate_hz) {
 }
 
 bool baseband_filter_bandwidth_set(const uint32_t bandwidth_hz) {
-	return max2837_set_lpf_bandwidth(bandwidth_hz);
+	return max2837_set_lpf_bandwidth(&max2837, bandwidth_hz);
 }
 
 /* clock startup for Jellybean with Lemondrop attached

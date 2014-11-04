@@ -43,7 +43,7 @@
 #endif
 
 /* Default register values. */
-static uint16_t max2837_regs_default[MAX2837_NUM_REGS] = { 
+static const uint16_t max2837_regs_default[MAX2837_NUM_REGS] = { 
 	0x150,   /* 0 */
 	0x002,   /* 1 */
 	0x1f4,   /* 2 */
@@ -82,105 +82,100 @@ static uint16_t max2837_regs_default[MAX2837_NUM_REGS] = {
 	0x080,   /* 30 */
 	0x000 }; /* 31 */
 
-uint16_t max2837_regs[MAX2837_NUM_REGS];
-
-/* Mark all regsisters dirty so all will be written at init. */
-uint32_t max2837_regs_dirty = 0xffffffff;
-
 /* Set up all registers according to defaults specified in docs. */
-void max2837_init(void)
+void max2837_init(max2837_driver_t* const drv)
 {
 	LOG("# max2837_init\n");
-	memcpy(max2837_regs, max2837_regs_default, sizeof(max2837_regs));
-	max2837_regs_dirty = 0xffffffff;
+	memcpy(drv->regs, max2837_regs_default, sizeof(drv->regs));
+	drv->regs_dirty = 0xffffffff;
 
 	/* Write default register values to chip. */
-	max2837_regs_commit();
+	max2837_regs_commit(drv);
 }
 
 /*
  * Set up pins for GPIO and SPI control, configure SSP peripheral for SPI, and
  * set our own default register configuration.
  */
-void max2837_setup(void)
+void max2837_setup(max2837_driver_t* const drv)
 {
 	LOG("# max2837_setup\n");
-	max2837_pin_config();
+	max2837_pin_config(drv);
 
-	max2837_init();
+	max2837_init(drv);
 	LOG("# max2837_init done\n");
 
 	/* Use SPI control instead of B1-B7 pins for gain settings. */
-	set_MAX2837_TXVGA_GAIN_SPI_EN(1);
-	set_MAX2837_TXVGA_GAIN_MSB_SPI_EN(1);
+	set_MAX2837_TXVGA_GAIN_SPI_EN(drv, 1);
+	set_MAX2837_TXVGA_GAIN_MSB_SPI_EN(drv, 1);
 	//set_MAX2837_TXVGA_GAIN(0x3f); /* maximum attenuation */
-	set_MAX2837_TXVGA_GAIN(0x00); /* minimum attenuation */
-	set_MAX2837_VGAMUX_enable(1);
-	set_MAX2837_VGA_EN(1);
-	set_MAX2837_HPC_RXGAIN_EN(0);
-	set_MAX2837_HPC_STOP(MAX2837_STOP_1K);
-	set_MAX2837_LNAgain_SPI_EN(1);
-	set_MAX2837_LNAgain(MAX2837_LNAgain_MAX); /* maximum gain */
-	set_MAX2837_VGAgain_SPI_EN(1);
-	set_MAX2837_VGA(0x18); /* reasonable gain for noisy 2.4GHz environment */
+	set_MAX2837_TXVGA_GAIN(drv, 0x00); /* minimum attenuation */
+	set_MAX2837_VGAMUX_enable(drv, 1);
+	set_MAX2837_VGA_EN(drv, 1);
+	set_MAX2837_HPC_RXGAIN_EN(drv, 0);
+	set_MAX2837_HPC_STOP(drv, MAX2837_STOP_1K);
+	set_MAX2837_LNAgain_SPI_EN(drv, 1);
+	set_MAX2837_LNAgain(drv, MAX2837_LNAgain_MAX); /* maximum gain */
+	set_MAX2837_VGAgain_SPI_EN(drv, 1);
+	set_MAX2837_VGA(drv, 0x18); /* reasonable gain for noisy 2.4GHz environment */
 
 	/* maximum rx output common-mode voltage */
-	set_MAX2837_BUFF_VCM(MAX2837_BUFF_VCM_1_25);
+	set_MAX2837_BUFF_VCM(drv, MAX2837_BUFF_VCM_1_25);
 
 	/* configure baseband filter for 8 MHz TX */
-	set_MAX2837_LPF_EN(1);
-	set_MAX2837_ModeCtrl(MAX2837_ModeCtrl_RxLPF);
-	set_MAX2837_FT(MAX2837_FT_5M);
+	set_MAX2837_LPF_EN(drv, 1);
+	set_MAX2837_ModeCtrl(drv, MAX2837_ModeCtrl_RxLPF);
+	set_MAX2837_FT(drv, MAX2837_FT_5M);
 
-	max2837_regs_commit();
+	max2837_regs_commit(drv);
 }
 
-uint16_t max2837_reg_read(uint8_t r)
+uint16_t max2837_reg_read(max2837_driver_t* const drv, uint8_t r)
 {
-	if ((max2837_regs_dirty >> r) & 0x1) {
-		max2837_regs[r] = max2837_spi_read(r);
+	if ((drv->regs_dirty >> r) & 0x1) {
+		drv->regs[r] = max2837_spi_read(drv, r);
 	};
-	return max2837_regs[r];
+	return drv->regs[r];
 }
 
-void max2837_reg_write(uint8_t r, uint16_t v)
+void max2837_reg_write(max2837_driver_t* const drv, uint8_t r, uint16_t v)
 {
-	max2837_regs[r] = v;
-	max2837_spi_write(r, v);
-	MAX2837_REG_SET_CLEAN(r);
+	drv->regs[r] = v;
+	max2837_spi_write(drv, r, v);
+	MAX2837_REG_SET_CLEAN(drv, r);
 }
 
-static inline void max2837_reg_commit(uint8_t r)
+static inline void max2837_reg_commit(max2837_driver_t* const drv, uint8_t r)
 {
-	max2837_reg_write(r,max2837_regs[r]);
+	max2837_reg_write(drv, r, drv->regs[r]);
 }
 
-void max2837_regs_commit(void)
+void max2837_regs_commit(max2837_driver_t* const drv)
 {
 	int r;
 	for(r = 0; r < MAX2837_NUM_REGS; r++) {
-		if ((max2837_regs_dirty >> r) & 0x1) {
-			max2837_reg_commit(r);
+		if ((drv->regs_dirty >> r) & 0x1) {
+			max2837_reg_commit(drv, r);
 		}
 	}
 }
 
-void max2837_set_mode(const max2837_mode_t new_mode) {
+void max2837_set_mode(max2837_driver_t* const drv, const max2837_mode_t new_mode) {
 	switch(new_mode) {
 	case MAX2837_MODE_SHUTDOWN:
-		max2837_mode_shutdown();
+		max2837_mode_shutdown(drv);
 		break;
 		
 	case MAX2837_MODE_STANDBY:
-		max2837_mode_standby();
+		max2837_mode_standby(drv);
 		break;
 		
 	case MAX2837_MODE_TX:
-		max2837_mode_tx();
+		max2837_mode_tx(drv);
 		break;
 
 	case MAX2837_MODE_RX:
-		max2837_mode_rx();
+		max2837_mode_rx(drv);
 		break;
 		
 	default:
@@ -188,50 +183,50 @@ void max2837_set_mode(const max2837_mode_t new_mode) {
 	}
 }
 
-void max2837_start(void)
+void max2837_start(max2837_driver_t* const drv)
 {
 	LOG("# max2837_start\n");
-	set_MAX2837_EN_SPI(1);
-	max2837_regs_commit();
+	set_MAX2837_EN_SPI(drv, 1);
+	max2837_regs_commit(drv);
 #if !defined TEST
-	max2837_mode_standby();
+	max2837_mode_standby(drv);
 #endif
 }
 
-void max2837_tx(void)
+void max2837_tx(max2837_driver_t* const drv)
 {
 	LOG("# max2837_tx\n");
 #if !defined TEST
 
-	set_MAX2837_ModeCtrl(MAX2837_ModeCtrl_TxLPF);
-	max2837_regs_commit();
-	max2837_mode_tx();
+	set_MAX2837_ModeCtrl(drv, MAX2837_ModeCtrl_TxLPF);
+	max2837_regs_commit(drv);
+	max2837_mode_tx(drv);
 #endif
 }
 
-void max2837_rx(void)
+void max2837_rx(max2837_driver_t* const drv)
 {
 	LOG("# max2837_rx\n");
 
-	set_MAX2837_ModeCtrl(MAX2837_ModeCtrl_RxLPF);
-	max2837_regs_commit();
+	set_MAX2837_ModeCtrl(drv, MAX2837_ModeCtrl_RxLPF);
+	max2837_regs_commit(drv);
 
 #if !defined TEST
-	max2837_mode_rx();
+	max2837_mode_rx(drv);
 #endif
 }
 
-void max2837_stop(void)
+void max2837_stop(max2837_driver_t* const drv)
 {
 	LOG("# max2837_stop\n");
-	set_MAX2837_EN_SPI(0);
-	max2837_regs_commit();
+	set_MAX2837_EN_SPI(drv, 0);
+	max2837_regs_commit(drv);
 #if !defined TEST
-	max2837_mode_shutdown();
+	max2837_mode_shutdown(drv);
 #endif
 }
 
-void max2837_set_frequency(uint32_t freq)
+void max2837_set_frequency(max2837_driver_t* const drv, uint32_t freq)
 {
 	uint8_t band;
 	uint8_t lna_band;
@@ -278,19 +273,19 @@ void max2837_set_frequency(uint32_t freq)
 	LOG("# int %ld, frac %ld\n", div_int, div_frac);
 
 	/* Band settings */
-	set_MAX2837_LOGEN_BSW(band);
-	set_MAX2837_LNAband(lna_band);
+	set_MAX2837_LOGEN_BSW(drv, band);
+	set_MAX2837_LNAband(drv, lna_band);
 
 	/* Write order matters here, so commit INT and FRAC_HI before
 	 * committing FRAC_LO, which is the trigger for VCO
 	 * auto-select. TODO - it's cleaner this way, but it would be
 	 * faster to explicitly commit the registers explicitly so the
 	 * dirty bits aren't scanned twice. */
-	set_MAX2837_SYN_INT(div_int);
-	set_MAX2837_SYN_FRAC_HI((div_frac >> 10) & 0x3ff);
-	max2837_regs_commit();
-	set_MAX2837_SYN_FRAC_LO(div_frac & 0x3ff);
-	max2837_regs_commit();
+	set_MAX2837_SYN_INT(drv, div_int);
+	set_MAX2837_SYN_FRAC_HI(drv, (div_frac >> 10) & 0x3ff);
+	max2837_regs_commit(drv);
+	set_MAX2837_SYN_FRAC_LO(drv, div_frac & 0x3ff);
+	max2837_regs_commit(drv);
 }
 
 typedef struct {
@@ -318,7 +313,7 @@ static const max2837_ft_t max2837_ft[] = {
 	{        0, 0 },
 };
 
-bool max2837_set_lpf_bandwidth(const uint32_t bandwidth_hz) {
+bool max2837_set_lpf_bandwidth(max2837_driver_t* const drv, const uint32_t bandwidth_hz) {
 	const max2837_ft_t* p = max2837_ft;
 	while( p->bandwidth_hz != 0 ) {
 		if( p->bandwidth_hz >= bandwidth_hz ) {
@@ -328,15 +323,15 @@ bool max2837_set_lpf_bandwidth(const uint32_t bandwidth_hz) {
 	}
 	
 	if( p->bandwidth_hz != 0 ) {
-		set_MAX2837_FT(p->ft);
-		max2837_regs_commit();
+		set_MAX2837_FT(drv, p->ft);
+		max2837_regs_commit(drv);
 		return true;
 	} else {
 		return false;
 	}
 }
 
-bool max2837_set_lna_gain(const uint32_t gain_db) {
+bool max2837_set_lna_gain(max2837_driver_t* const drv, const uint32_t gain_db) {
 	uint16_t val;
 	switch(gain_db){
 		case 40:
@@ -360,21 +355,21 @@ bool max2837_set_lna_gain(const uint32_t gain_db) {
 		default:
 			return false;
 	}
-	set_MAX2837_LNAgain(val);
-	max2837_reg_commit(1);
+	set_MAX2837_LNAgain(drv, val);
+	max2837_reg_commit(drv, 1);
 	return true;
 }
 
-bool max2837_set_vga_gain(const uint32_t gain_db) {
+bool max2837_set_vga_gain(max2837_driver_t* const drv, const uint32_t gain_db) {
 	if( (gain_db & 0x1) || gain_db > 62)/* 0b11111*2 */
 		return false;
 		
-	set_MAX2837_VGA( 31-(gain_db >> 1) );
-	max2837_reg_commit(5);
+	set_MAX2837_VGA(drv, 31-(gain_db >> 1) );
+	max2837_reg_commit(drv, 5);
 	return true;
 }
 
-bool max2837_set_txvga_gain(const uint32_t gain_db) {
+bool max2837_set_txvga_gain(max2837_driver_t* const drv, const uint32_t gain_db) {
 	uint16_t val=0;
 	if(gain_db <16){
 		val = 31-gain_db;
@@ -383,18 +378,18 @@ bool max2837_set_txvga_gain(const uint32_t gain_db) {
 		val = 31-(gain_db-16);
 	}
 	
-	set_MAX2837_TXVGA_GAIN(val);
-	max2837_reg_commit(29);
+	set_MAX2837_TXVGA_GAIN(drv, val);
+	max2837_reg_commit(drv, 29);
 	return true;
 }
 
 #ifdef TEST
 int main(int ac, char **av)
 {
-	max2837_setup();
-	max2837_set_frequency(2441000000);
-	max2837_start();
-	max2837_tx();
-	max2837_stop();
+	max2837_setup(drv);
+	max2837_set_frequency(drv, 2441000000);
+	max2837_start(drv);
+	max2837_tx(drv);
+	max2837_stop(drv);
 }
 #endif //TEST

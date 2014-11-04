@@ -145,7 +145,7 @@ usb_request_status_t usb_vendor_request_set_lna_gain(
 	const usb_transfer_stage_t stage)
 {
 	if( stage == USB_TRANSFER_STAGE_SETUP ) {
-			const uint8_t value = max2837_set_lna_gain(endpoint->setup.index);
+			const uint8_t value = max2837_set_lna_gain(&max2837, endpoint->setup.index);
 			endpoint->buffer[0] = value;
 			usb_transfer_schedule_block(endpoint->in, &endpoint->buffer, 1,
 						    NULL, NULL);
@@ -159,7 +159,7 @@ usb_request_status_t usb_vendor_request_set_vga_gain(
 	usb_endpoint_t* const endpoint,	const usb_transfer_stage_t stage)
 {
 	if( stage == USB_TRANSFER_STAGE_SETUP ) {
-			const uint8_t value = max2837_set_vga_gain(endpoint->setup.index);
+			const uint8_t value = max2837_set_vga_gain(&max2837, endpoint->setup.index);
 			endpoint->buffer[0] = value;
 			usb_transfer_schedule_block(endpoint->in, &endpoint->buffer, 1,
 						    NULL, NULL);
@@ -173,7 +173,7 @@ usb_request_status_t usb_vendor_request_set_txvga_gain(
 	usb_endpoint_t* const endpoint,	const usb_transfer_stage_t stage)
 {
 	if( stage == USB_TRANSFER_STAGE_SETUP ) {
-			const uint8_t value = max2837_set_txvga_gain(endpoint->setup.index);
+			const uint8_t value = max2837_set_txvga_gain(&max2837, endpoint->setup.index);
 			endpoint->buffer[0] = value;
 			usb_transfer_schedule_block(endpoint->in, &endpoint->buffer, 1,
 						    NULL, NULL);
