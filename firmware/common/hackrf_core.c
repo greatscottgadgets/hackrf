@@ -23,6 +23,7 @@
 
 #include "hackrf_core.h"
 #include "si5351c.h"
+#include "si5351c_drv.h"
 #include "max2837.h"
 #include "rffc5071.h"
 #include "sgpio.h"

@@ -31,7 +31,6 @@ extern "C"
 #include <stdint.h>
 
 #define SI_INTDIV(x)  (x*128-512)
-#define SI5351C_I2C_ADDR (0x60 << 1)
 
 #define SI5351C_CLK_POWERDOWN	(1<<7)
 #define SI5351C_CLK_INT_MODE	(1<<6)
@@ -76,10 +75,6 @@ void si5351c_configure_multisynth(const uint_fast8_t ms_number,
 void si5351c_configure_clock_control(const enum pll_sources source);
 void si5351c_enable_clock_outputs();
 void si5351c_set_int_mode(const uint_fast8_t ms_number, const uint_fast8_t on);
-
-void si5351c_write_single(uint8_t reg, uint8_t val);
-uint8_t si5351c_read_single(uint8_t reg);
-void si5351c_write(uint8_t* const data, const uint_fast8_t data_count);
 void si5351c_set_clock_source(const enum pll_sources source);
 void si5351c_activate_best_clock_source(void);
 

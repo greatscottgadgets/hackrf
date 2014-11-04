@@ -24,7 +24,7 @@
 
 #include <usb_queue.h>
 #include <max2837.h>
-#include <si5351c.h>
+#include <si5351c_drv.h>
 #include <rffc5071.h>
 
 #include <stddef.h>
