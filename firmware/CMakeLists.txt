@@ -1,5 +1,3 @@
-# Hey Emacs, this is a -*- makefile -*-
-#
 # Copyright 2012 Jared Boone <jared@sharebrained.com>
 #
 # This file is part of HackRF.
@@ -20,35 +18,19 @@
 # Boston, MA 02110-1301, USA.
 #
 
-TARGETS = blinky \
-		  mixertx \
-		  sgpio \
-		  sgpio-rx \
-		  simpletx \
-		  startup \
-		  startup_systick \
-		  startup_systick_perfo \
-		  hackrf_usb
+# Top directory CMake project for HackRF firmware
 
-all: build
+cmake_minimum_required(VERSION 2.8.9)
+set(CMAKE_TOOLCHAIN_FILE toolchain-arm-cortex-m.cmake)
 
-build: examples
+project (hackrf_firmware_all)
 
-examples:
-	$(Q)for i in $(TARGETS); do \
-		if [ -d $$i ]; then \
-			printf "  BUILD   $$i\n"; \
-			$(MAKE) -C $$i || exit $?; \
-		fi; \
-	done
-
-clean:
-	$(Q)for i in $(addprefix lib/,$(TARGETS)) \
-		     $(TARGETS); do \
-		if [ -d $$i ]; then \
-			printf "  CLEAN   $$i\n"; \
-			$(MAKE) -C $$i clean || exit $?; \
-		fi; \
-	done
-
-.PHONY: build examples
+add_subdirectory(blinky)
+add_subdirectory(mixertx)
+add_subdirectory(sgpio)
+add_subdirectory(sgpio-rx)
+add_subdirectory(simpletx)
+add_subdirectory(startup)
+add_subdirectory(startup_systick)
+add_subdirectory(startup_systick_perfo)
+add_subdirectory(hackrf_usb)

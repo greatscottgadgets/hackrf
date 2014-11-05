@@ -1,5 +1,3 @@
-# Hey Emacs, this is a -*- makefile -*-
-#
 # Copyright 2012 Michael Ossmann <mike@ossmann.com>
 # Copyright 2012 Jared Boone <jared@sharebrained.com>
 #
@@ -21,13 +19,16 @@
 # Boston, MA 02110-1301, USA.
 #
 
-BINARY = spiflash
+cmake_minimum_required(VERSION 2.8.9)
+set(CMAKE_TOOLCHAIN_FILE ../toolchain-arm-cortex-m.cmake)
 
-SRC = $(BINARY).c \
-	../common/hackrf_core.c \
-	../common/sgpio.c \
-	../common/si5351c.c \
-	../common/max2837.c \
-	../common/w25q80bv.c
+project(spiflash)
 
-include ../common/Makefile_inc.mk
+include(../hackrf-common.cmake)
+
+set(SRC_M4
+	spiflash.c
+	"${PATH_HACKRF_FIRMWARE_COMMON}/w25q80bv.c"
+)
+
+DeclareTargets()
