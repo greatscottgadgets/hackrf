@@ -175,7 +175,7 @@ void w25q80bv_page_program(w25q80bv_driver_t* const drv, const uint32_t addr, co
 }
 
 /* write an arbitrary number of bytes */
-void w25q80bv_program(w25q80bv_driver_t* const drv, uint32_t addr, uint32_t len, const uint8_t* data)
+void w25q80bv_program(w25q80bv_driver_t* const drv, uint32_t addr, uint32_t len, uint8_t* data)
 {
 	uint16_t first_block_len;
 	uint8_t device_id;
