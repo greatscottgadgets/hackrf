@@ -185,7 +185,7 @@ void max2837_spi_write(uint8_t r, uint16_t v) {
 uint16_t max2837_reg_read(uint8_t r)
 {
 	if ((max2837_regs_dirty >> r) & 0x1) {
-		max2837_spi_read(r);
+		max2837_regs[r] = max2837_spi_read(r);
 	};
 	return max2837_regs[r];
 }
