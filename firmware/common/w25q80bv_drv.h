@@ -25,15 +25,23 @@
 #define __W25Q80BV_DRV_H__
 
 #include <stdint.h>
+#include <stddef.h>
+
+typedef struct {
+	uint8_t* const data;
+	const size_t count;
+} w25q80bv_transfer_t;
 
 typedef struct {
 	/* Empty for now */
 } w25q80bv_hw_t;
 
-void w25q80bv_spi_init(w25q80bv_hw_t* const hw);
-
-void w25q80bv_spi_select(w25q80bv_hw_t* const hw);
-uint16_t w25q80bv_spi_transfer(w25q80bv_hw_t* const hw, const uint16_t tx_data);
-void w25q80bv_spi_unselect(w25q80bv_hw_t* const hw);
+void w25q80bv_hw_init(w25q80bv_hw_t* const hw);
+void w25q80bv_hw_transfer(w25q80bv_hw_t* const hw, uint8_t* data, const size_t count);
+void w25q80bv_hw_transfer_multiple(
+	w25q80bv_hw_t* const hw,
+	const w25q80bv_transfer_t* const transfers,
+	const size_t transfer_count
+);
 
 #endif//__W25Q80BV_DRV_H__

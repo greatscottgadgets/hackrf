@@ -31,6 +31,8 @@
 #include "w25q80bv.h"
 #include "w25q80bv_drv.h"
 
+#define ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]))
+
 #define W25Q80BV_WRITE_ENABLE 0x06
 #define W25Q80BV_CHIP_ERASE   0xC7
 #define W25Q80BV_READ_STATUS1 0x05
@@ -55,7 +57,7 @@ void w25q80bv_setup(w25q80bv_driver_t* const drv)
 	drv->num_pages = 4096U;
 	drv->num_bytes = 1048576U;
 
-	w25q80bv_spi_init(drv->hw);
+	w25q80bv_hw_init(drv->hw);
 
 	device_id = 0;
 	while(device_id != W25Q80BV_DEVICE_ID_RES)
@@ -66,56 +68,34 @@ void w25q80bv_setup(w25q80bv_driver_t* const drv)
 
 uint8_t w25q80bv_get_status(w25q80bv_driver_t* const drv)
 {
-	uint8_t value;
-
-	w25q80bv_spi_select(drv->hw);
-	w25q80bv_spi_transfer(drv->hw, W25Q80BV_READ_STATUS1);
-	value = w25q80bv_spi_transfer(drv->hw, 0xFF);
-	w25q80bv_spi_unselect(drv->hw);
-
-	return value;
+	uint8_t data[] = { W25Q80BV_READ_STATUS1, 0xFF };
+	w25q80bv_hw_transfer(drv->hw, data, ARRAY_SIZE(data));
+	return data[1];
 }
 
 /* Release power down / Device ID */  
 uint8_t w25q80bv_get_device_id(w25q80bv_driver_t* const drv)
 {
-	uint8_t value;
-
-	w25q80bv_spi_select(drv->hw);
-	w25q80bv_spi_transfer(drv->hw, W25Q80BV_DEVICE_ID);
-
-	/* Read 3 dummy bytes */
-	value = w25q80bv_spi_transfer(drv->hw, 0xFF);
-	value = w25q80bv_spi_transfer(drv->hw, 0xFF);
-	value = w25q80bv_spi_transfer(drv->hw, 0xFF);
-	/* Read Device ID shall return 0x13 for W25Q80BV */
-	value = w25q80bv_spi_transfer(drv->hw, 0xFF);
-	
-	w25q80bv_spi_unselect(drv->hw);
-
-	return value;
+	uint8_t data[] = {
+		W25Q80BV_DEVICE_ID,
+		0xFF, 0xFF, 0xFF, 0xFF
+	};
+	w25q80bv_hw_transfer(drv->hw, data, ARRAY_SIZE(data));
+	return data[4];
 }
 
 void w25q80bv_get_unique_id(w25q80bv_driver_t* const drv, w25q80bv_unique_id_t* unique_id)
 {
-	int i;
-	uint8_t value;
+	uint8_t data[] = {
+		W25Q80BV_UNIQUE_ID,
+		0xFF, 0xFF, 0xFF, 0xFF,
+		0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF
+	};
+	w25q80bv_hw_transfer(drv->hw, data, ARRAY_SIZE(data));
 
-	w25q80bv_spi_select(drv->hw);
-	w25q80bv_spi_transfer(drv->hw, W25Q80BV_UNIQUE_ID);
-
-	/* Read 4 dummy bytes */
-	for(i=0; i<4; i++)
-		value = w25q80bv_spi_transfer(drv->hw, 0xFF);
-
-	/* Read Unique ID 64bits (8*8) */
-	for(i=0; i<8; i++)
-	{
-		value = w25q80bv_spi_transfer(drv->hw, 0xFF);
-		unique_id->id_8b[i]  = value;
+	for(size_t i=0; i<8; i++) {
+		unique_id->id_8b[i]  = data[5+i];
 	}
-
-	w25q80bv_spi_unselect(drv->hw);
 }
 
 void w25q80bv_wait_while_busy(w25q80bv_driver_t* const drv)
@@ -126,9 +106,9 @@ void w25q80bv_wait_while_busy(w25q80bv_driver_t* const drv)
 void w25q80bv_write_enable(w25q80bv_driver_t* const drv)
 {
 	w25q80bv_wait_while_busy(drv);
-	w25q80bv_spi_select(drv->hw);
-	w25q80bv_spi_transfer(drv->hw, W25Q80BV_WRITE_ENABLE);
-	w25q80bv_spi_unselect(drv->hw);
+
+	uint8_t data[] = { W25Q80BV_WRITE_ENABLE };
+	w25q80bv_hw_transfer(drv->hw, data, ARRAY_SIZE(data));
 }
 
 void w25q80bv_chip_erase(w25q80bv_driver_t* const drv)
@@ -143,16 +123,14 @@ void w25q80bv_chip_erase(w25q80bv_driver_t* const drv)
 
 	w25q80bv_write_enable(drv);
 	w25q80bv_wait_while_busy(drv);
-	w25q80bv_spi_select(drv->hw);
-	w25q80bv_spi_transfer(drv->hw, W25Q80BV_CHIP_ERASE);
-	w25q80bv_spi_unselect(drv->hw);
+
+	uint8_t data[] = { W25Q80BV_CHIP_ERASE };
+	w25q80bv_hw_transfer(drv->hw, data, ARRAY_SIZE(data));
 }
 
 /* write up a 256 byte page or partial page */
-void w25q80bv_page_program(w25q80bv_driver_t* const drv, const uint32_t addr, const uint16_t len, const uint8_t* data)
+static void w25q80bv_page_program(w25q80bv_driver_t* const drv, const uint32_t addr, const uint16_t len, uint8_t* data)
 {
-	int i;
-
 	/* do nothing if asked to write beyond a page boundary */
 	if (((addr & 0xFF) + len) > drv->page_len)
 		return;
@@ -164,14 +142,19 @@ void w25q80bv_page_program(w25q80bv_driver_t* const drv, const uint32_t addr, co
 	w25q80bv_write_enable(drv);
 	w25q80bv_wait_while_busy(drv);
 
-	w25q80bv_spi_select(drv->hw);
-	w25q80bv_spi_transfer(drv->hw, W25Q80BV_PAGE_PROGRAM);
-	w25q80bv_spi_transfer(drv->hw, (addr & 0xFF0000) >> 16);
-	w25q80bv_spi_transfer(drv->hw, (addr & 0xFF00) >> 8);
-	w25q80bv_spi_transfer(drv->hw, addr & 0xFF);
-	for (i = 0; i < len; i++)
-		w25q80bv_spi_transfer(drv->hw, data[i]);
-	w25q80bv_spi_unselect(drv->hw);
+	uint8_t header[] = {
+		W25Q80BV_PAGE_PROGRAM,
+		(addr & 0xFF0000) >> 16,
+		(addr & 0xFF00) >> 8,
+		addr & 0xFF
+	};
+
+	const w25q80bv_transfer_t transfers[] = {
+		{ header, ARRAY_SIZE(header) },
+		{ data, len }
+	};
+
+	w25q80bv_hw_transfer_multiple(drv->hw, transfers, ARRAY_SIZE(transfers));
 }
 
 /* write an arbitrary number of bytes */

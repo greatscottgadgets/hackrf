@@ -45,7 +45,7 @@ static uint16_t w25q80bv_spi_transfer(w25q80bv_hw_t* const hw, const uint16_t tx
 	return ssp_transfer(SSP0_NUM, tx_data);
 }
 
-void w25q80bv_spi_init(w25q80bv_hw_t* const hw) {
+void w25q80bv_hw_init(w25q80bv_hw_t* const hw) {
 	const uint8_t serial_clock_rate = 2;
 	const uint8_t clock_prescale_rate = 2;
 
@@ -88,4 +88,25 @@ void w25q80bv_spi_init(w25q80bv_hw_t* const hw) {
 			SSP_MODE_NORMAL,
 			SSP_MASTER,
 			SSP_SLAVE_OUT_ENABLE);
+}
+
+void w25q80bv_hw_transfer_multiple(
+	w25q80bv_hw_t* const hw,
+	const w25q80bv_transfer_t* const transfers,
+	const size_t transfer_count
+) {
+	w25q80bv_spi_select(hw);
+	for(size_t i=0; i<transfer_count; i++) {
+		for(size_t j=0; j<transfers[i].count; j++) {
+			transfers[i].data[j] = w25q80bv_spi_transfer(hw, transfers[i].data[j]);
+		}
+	}
+	w25q80bv_spi_unselect(hw);
+}
+
+void w25q80bv_hw_transfer(w25q80bv_hw_t* const hw, uint8_t* data, const size_t count) {
+	const w25q80bv_transfer_t transfer = {
+		data, count
+	};
+	w25q80bv_hw_transfer_multiple(hw, &transfer, 1);
 }
