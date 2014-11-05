@@ -31,6 +31,17 @@
 #include "w25q80bv.h"
 #include "w25q80bv_drv.h"
 
+#define W25Q80BV_WRITE_ENABLE 0x06
+#define W25Q80BV_CHIP_ERASE   0xC7
+#define W25Q80BV_READ_STATUS1 0x05
+#define W25Q80BV_PAGE_PROGRAM 0x02
+#define W25Q80BV_DEVICE_ID    0xAB
+#define W25Q80BV_UNIQUE_ID    0x4B
+
+#define W25Q80BV_STATUS_BUSY  0x01
+
+#define W25Q80BV_DEVICE_ID_RES  0x13 /* Expected device_id for W25Q80BV */
+
 /*
  * Set up pins for GPIO and SPI control, configure SSP0 peripheral for SPI.
  * SSP0_SSEL is controlled by GPIO in order to handle various transfer lengths.
