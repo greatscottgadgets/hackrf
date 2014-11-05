@@ -41,7 +41,7 @@ void systick_setup(void)
 	__asm__("cpsid i");
 
 	/* Set processor Clock as Source Clock */
-	systick_set_clocksource(STK_CSR_CLKSOURCE);
+	systick_set_clocksource(STK_CTRL_CLKSOURCE);
 
 	/* Get SysTick calibration value to obtain by default 1 tick = 10ms */
 	systick_reload_val = systick_get_calib();
