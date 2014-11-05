@@ -28,12 +28,12 @@
 
 typedef struct {
 	/* Empty for now */
-} w25q80bv_driver_t;
+} w25q80bv_hw_t;
 
-void w25q80bv_spi_init(w25q80bv_driver_t* const drv);
+void w25q80bv_spi_init(w25q80bv_hw_t* const hw);
 
-void w25q80bv_spi_select(w25q80bv_driver_t* const drv);
-uint16_t w25q80bv_spi_transfer(w25q80bv_driver_t* const drv, const uint16_t tx_data);
-void w25q80bv_spi_unselect(w25q80bv_driver_t* const drv);
+void w25q80bv_spi_select(w25q80bv_hw_t* const hw);
+uint16_t w25q80bv_spi_transfer(w25q80bv_hw_t* const hw, const uint16_t tx_data);
+void w25q80bv_spi_unselect(w25q80bv_hw_t* const hw);
 
 #endif//__W25Q80BV_DRV_H__

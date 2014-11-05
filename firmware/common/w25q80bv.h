@@ -24,11 +24,9 @@
 #ifndef __W25Q80BV_H__
 #define __W25Q80BV_H__
 
-#include "w25q80bv_drv.h"
+#include <stddef.h>
 
-#define W25Q80BV_PAGE_LEN     256U
-#define W25Q80BV_NUM_PAGES    4096U
-#define W25Q80BV_NUM_BYTES    1048576U
+#include "w25q80bv_drv.h"
 
 typedef union
 {
@@ -36,6 +34,13 @@ typedef union
 	uint32_t id_32b[2]; /* 2*32bits 64bits Unique ID */
 	uint8_t id_8b[8]; /* 8*8bits 64bits Unique ID */
 } w25q80bv_unique_id_t;
+
+typedef struct {
+	w25q80bv_hw_t* hw;
+	size_t page_len;
+	size_t num_pages;
+	size_t num_bytes;
+} w25q80bv_driver_t;
 
 void w25q80bv_setup(w25q80bv_driver_t* const drv);
 void w25q80bv_chip_erase(w25q80bv_driver_t* const drv);

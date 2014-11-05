@@ -34,7 +34,7 @@ extern "C"
 
 #include "max2837_drv.h"
 #include "rffc5071_drv.h"
-#include "w25q80bv_drv.h"
+#include "w25q80bv.h"
 
 /* hardware identification number */
 #define BOARD_ID_JELLYBEAN  0
