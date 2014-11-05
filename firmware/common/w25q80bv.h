@@ -1,6 +1,7 @@
 /*
  * Copyright 2013 Michael Ossmann
  * Copyright 2013 Benjamin Vernoux
+ * Copyright 2014 Jared Boone, ShareBrained Technology
  *
  * This file is part of HackRF.
  *

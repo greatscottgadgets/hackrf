@@ -1,6 +1,7 @@
 /*
  * Copyright 2013 Michael Ossmann
  * Copyright 2013 Benjamin Vernoux
+ * Copyright 2014 Jared Boone, ShareBrained Technology
  *
  * This file is part of HackRF.
  *
@@ -28,11 +29,7 @@
 
 #include <stdint.h>
 #include "w25q80bv.h"
-#include "hackrf_core.h"
-#include <libopencm3/lpc43xx/ssp.h>
-#include <libopencm3/lpc43xx/scu.h>
-#include <libopencm3/lpc43xx/gpio.h>
-#include <libopencm3/lpc43xx/rgu.h>
+#include "w25q80bv_drv.h"
 
 /*
  * Set up pins for GPIO and SPI control, configure SSP0 peripheral for SPI.
@@ -42,48 +39,8 @@
 void w25q80bv_setup(void)
 {
 	uint8_t device_id;
-	const uint8_t serial_clock_rate = 2;
-	const uint8_t clock_prescale_rate = 2;
 
-	/* Reset SPIFI peripheral before to Erase/Write SPIFI memory through SPI */
-	RESET_CTRL1 = RESET_CTRL1_SPIFI_RST;
-	
-	/* Init SPIFI GPIO to Normal GPIO */
-	scu_pinmux(P3_3, (SCU_SSP_IO | SCU_CONF_FUNCTION2));    // P3_3 SPIFI_SCK => SSP0_SCK
-	scu_pinmux(P3_4, (SCU_GPIO_FAST | SCU_CONF_FUNCTION0)); // P3_4 SPIFI SPIFI_SIO3 IO3 => GPIO1[14]
-	scu_pinmux(P3_5, (SCU_GPIO_FAST | SCU_CONF_FUNCTION0)); // P3_5 SPIFI SPIFI_SIO2 IO2 => GPIO1[15]
-	scu_pinmux(P3_6, (SCU_GPIO_FAST | SCU_CONF_FUNCTION0)); // P3_6 SPIFI SPIFI_MISO IO1 => GPIO0[6]
-	scu_pinmux(P3_7, (SCU_GPIO_FAST | SCU_CONF_FUNCTION4)); // P3_7 SPIFI SPIFI_MOSI IO0 => GPIO5[10]
-	scu_pinmux(P3_8, (SCU_GPIO_FAST | SCU_CONF_FUNCTION4)); // P3_8 SPIFI SPIFI_CS => GPIO5[11]
-	
-	/* configure SSP pins */
-	scu_pinmux(SCU_SSP0_MISO, (SCU_SSP_IO | SCU_CONF_FUNCTION5));
-	scu_pinmux(SCU_SSP0_MOSI, (SCU_SSP_IO | SCU_CONF_FUNCTION5));
-	scu_pinmux(SCU_SSP0_SCK,  (SCU_SSP_IO | SCU_CONF_FUNCTION2));
-
-	/* configure GPIO pins */
-	scu_pinmux(SCU_FLASH_HOLD, SCU_GPIO_FAST);
-	scu_pinmux(SCU_FLASH_WP, SCU_GPIO_FAST);
-	scu_pinmux(SCU_SSP0_SSEL, (SCU_GPIO_FAST | SCU_CONF_FUNCTION4));
-
-	/* drive SSEL, HOLD, and WP pins high */
-	gpio_set(PORT_FLASH, (PIN_FLASH_HOLD | PIN_FLASH_WP));
-	gpio_set(PORT_SSP0_SSEL, PIN_SSP0_SSEL);
-
-	/* Set GPIO pins as outputs. */
-	GPIO1_DIR |= (PIN_FLASH_HOLD | PIN_FLASH_WP);
-	GPIO5_DIR |= PIN_SSP0_SSEL;
-	
-	/* initialize SSP0 */
-	ssp_init(SSP0_NUM,
-			SSP_DATA_8BITS,
-			SSP_FRAME_SPI,
-			SSP_CPOL_0_CPHA_0,
-			serial_clock_rate,
-			clock_prescale_rate,
-			SSP_MODE_NORMAL,
-			SSP_MASTER,
-			SSP_SLAVE_OUT_ENABLE);
+	w25q80bv_spi_init();
 
 	device_id = 0;
 	while(device_id != W25Q80BV_DEVICE_ID_RES)
@@ -96,10 +53,10 @@ uint8_t w25q80bv_get_status(void)
 {
 	uint8_t value;
 
-	gpio_clear(PORT_SSP0_SSEL, PIN_SSP0_SSEL);
-	ssp_transfer(SSP0_NUM, W25Q80BV_READ_STATUS1);
-	value = ssp_transfer(SSP0_NUM, 0xFF);
-	gpio_set(PORT_SSP0_SSEL, PIN_SSP0_SSEL);
+	w25q80bv_spi_select();
+	w25q80bv_spi_transfer(W25Q80BV_READ_STATUS1);
+	value = w25q80bv_spi_transfer(0xFF);
+	w25q80bv_spi_unselect();
 
 	return value;
 }
@@ -109,17 +66,17 @@ uint8_t w25q80bv_get_device_id(void)
 {
 	uint8_t value;
 
-	gpio_clear(PORT_SSP0_SSEL, PIN_SSP0_SSEL);
-	ssp_transfer(SSP0_NUM, W25Q80BV_DEVICE_ID);
+	w25q80bv_spi_select();
+	w25q80bv_spi_transfer(W25Q80BV_DEVICE_ID);
 
 	/* Read 3 dummy bytes */
-	value = ssp_transfer(SSP0_NUM, 0xFF);
-	value = ssp_transfer(SSP0_NUM, 0xFF);
-	value = ssp_transfer(SSP0_NUM, 0xFF);
+	value = w25q80bv_spi_transfer(0xFF);
+	value = w25q80bv_spi_transfer(0xFF);
+	value = w25q80bv_spi_transfer(0xFF);
 	/* Read Device ID shall return 0x13 for W25Q80BV */
-	value = ssp_transfer(SSP0_NUM, 0xFF);
+	value = w25q80bv_spi_transfer(0xFF);
 	
-	gpio_set(PORT_SSP0_SSEL, PIN_SSP0_SSEL);
+	w25q80bv_spi_unselect();
 
 	return value;
 }
@@ -129,21 +86,21 @@ void w25q80bv_get_unique_id(w25q80bv_unique_id_t* unique_id)
 	int i;
 	uint8_t value;
 
-	gpio_clear(PORT_SSP0_SSEL, PIN_SSP0_SSEL);
-	ssp_transfer(SSP0_NUM, W25Q80BV_UNIQUE_ID);
+	w25q80bv_spi_select();
+	w25q80bv_spi_transfer(W25Q80BV_UNIQUE_ID);
 
 	/* Read 4 dummy bytes */
 	for(i=0; i<4; i++)
-		value = ssp_transfer(SSP0_NUM, 0xFF);
+		value = w25q80bv_spi_transfer(0xFF);
 
 	/* Read Unique ID 64bits (8*8) */
 	for(i=0; i<8; i++)
 	{
-		value = ssp_transfer(SSP0_NUM, 0xFF);
+		value = w25q80bv_spi_transfer(0xFF);
 		unique_id->id_8b[i]  = value;
 	}
 
-	gpio_set(PORT_SSP0_SSEL, PIN_SSP0_SSEL);
+	w25q80bv_spi_unselect();
 }
 
 void w25q80bv_wait_while_busy(void)
@@ -154,9 +111,9 @@ void w25q80bv_wait_while_busy(void)
 void w25q80bv_write_enable(void)
 {
 	w25q80bv_wait_while_busy();
-	gpio_clear(PORT_SSP0_SSEL, PIN_SSP0_SSEL);
-	ssp_transfer(SSP0_NUM, W25Q80BV_WRITE_ENABLE);
-	gpio_set(PORT_SSP0_SSEL, PIN_SSP0_SSEL);
+	w25q80bv_spi_select();
+	w25q80bv_spi_transfer(W25Q80BV_WRITE_ENABLE);
+	w25q80bv_spi_unselect();
 }
 
 void w25q80bv_chip_erase(void)
@@ -171,9 +128,9 @@ void w25q80bv_chip_erase(void)
 
 	w25q80bv_write_enable();
 	w25q80bv_wait_while_busy();
-	gpio_clear(PORT_SSP0_SSEL, PIN_SSP0_SSEL);
-	ssp_transfer(SSP0_NUM, W25Q80BV_CHIP_ERASE);
-	gpio_set(PORT_SSP0_SSEL, PIN_SSP0_SSEL);
+	w25q80bv_spi_select();
+	w25q80bv_spi_transfer(W25Q80BV_CHIP_ERASE);
+	w25q80bv_spi_unselect();
 }
 
 /* write up a 256 byte page or partial page */
@@ -192,14 +149,14 @@ void w25q80bv_page_program(const uint32_t addr, const uint16_t len, const uint8_
 	w25q80bv_write_enable();
 	w25q80bv_wait_while_busy();
 
-	gpio_clear(PORT_SSP0_SSEL, PIN_SSP0_SSEL);
-	ssp_transfer(SSP0_NUM, W25Q80BV_PAGE_PROGRAM);
-	ssp_transfer(SSP0_NUM, (addr & 0xFF0000) >> 16);
-	ssp_transfer(SSP0_NUM, (addr & 0xFF00) >> 8);
-	ssp_transfer(SSP0_NUM, addr & 0xFF);
+	w25q80bv_spi_select();
+	w25q80bv_spi_transfer(W25Q80BV_PAGE_PROGRAM);
+	w25q80bv_spi_transfer((addr & 0xFF0000) >> 16);
+	w25q80bv_spi_transfer((addr & 0xFF00) >> 8);
+	w25q80bv_spi_transfer(addr & 0xFF);
 	for (i = 0; i < len; i++)
-		ssp_transfer(SSP0_NUM, data[i]);
-	gpio_set(PORT_SSP0_SSEL, PIN_SSP0_SSEL);
+		w25q80bv_spi_transfer(data[i]);
+	w25q80bv_spi_unselect();
 }
 
 /* write an arbitrary number of bytes */
