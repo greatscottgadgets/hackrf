@@ -34,6 +34,7 @@ extern "C"
 
 #include "max2837_drv.h"
 #include "rffc5071_drv.h"
+#include "w25q80bv_drv.h"
 
 /* hardware identification number */
 #define BOARD_ID_JELLYBEAN  0
@@ -354,6 +355,7 @@ typedef enum {
 void delay(uint32_t duration);
 extern max2837_driver_t max2837;
 extern rffc5071_driver_t rffc5072;
+extern w25q80bv_driver_t spi_flash;
 
 void cpu_clock_init(void);
 void cpu_clock_pll1_low_speed(void);

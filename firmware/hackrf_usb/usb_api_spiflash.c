@@ -26,6 +26,8 @@
 
 #include <stddef.h>
 
+#include <hackrf_core.h>
+
 #include <w25q80bv.h>
 
 uint8_t spiflash_buffer[W25Q80BV_PAGE_LEN];
@@ -36,9 +38,9 @@ usb_request_status_t usb_vendor_request_erase_spiflash(
 	//FIXME This should refuse to run if executing from SPI flash.
 
 	if (stage == USB_TRANSFER_STAGE_SETUP) {
-		w25q80bv_setup();
+		w25q80bv_setup(&spi_flash);
 		/* only chip erase is implemented */
-		w25q80bv_chip_erase();
+		w25q80bv_chip_erase(&spi_flash);
 		usb_transfer_schedule_ack(endpoint->in);
 		//FIXME probably should undo w25q80bv_setup()
 	}
@@ -62,7 +64,7 @@ usb_request_status_t usb_vendor_request_write_spiflash(
 		} else {
 			usb_transfer_schedule_block(endpoint->out, &spiflash_buffer[0], len,
 						    NULL, NULL);
-			w25q80bv_setup();
+			w25q80bv_setup(&spi_flash);
 			return USB_REQUEST_STATUS_OK;
 		}
 	} else if (stage == USB_TRANSFER_STAGE_DATA) {
@@ -73,7 +75,7 @@ usb_request_status_t usb_vendor_request_write_spiflash(
 				|| ((addr + len) > W25Q80BV_NUM_BYTES)) {
 			return USB_REQUEST_STATUS_STALL;
 		} else {
-			w25q80bv_program(addr, len, &spiflash_buffer[0]);
+			w25q80bv_program(&spi_flash, addr, len, &spiflash_buffer[0]);
 			usb_transfer_schedule_ack(endpoint->in);
 			//FIXME probably should undo w25q80bv_setup()
 			return USB_REQUEST_STATUS_OK;

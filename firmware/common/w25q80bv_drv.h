@@ -26,10 +26,14 @@
 
 #include <stdint.h>
 
-void w25q80bv_spi_init(void);
+typedef struct {
+	/* Empty for now */
+} w25q80bv_driver_t;
 
-void w25q80bv_spi_select(void);
-uint16_t w25q80bv_spi_transfer(const uint16_t tx_data);
-void w25q80bv_spi_unselect(void);
+void w25q80bv_spi_init(w25q80bv_driver_t* const drv);
+
+void w25q80bv_spi_select(w25q80bv_driver_t* const drv);
+uint16_t w25q80bv_spi_transfer(w25q80bv_driver_t* const drv, const uint16_t tx_data);
+void w25q80bv_spi_unselect(w25q80bv_driver_t* const drv);
 
 #endif//__W25Q80BV_DRV_H__

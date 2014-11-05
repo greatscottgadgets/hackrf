@@ -77,7 +77,7 @@ isp_iap_ret_code_t iap_cmd_call(iap_cmd_res_t* iap_cmd_res)
 		  Alternative way to retrieve Part Id on MCU with no IAP 
 		  Read Serial No => Read Unique ID in SPIFI (only compatible with W25Q80BV
 		*/
-		w25q80bv_setup();
+		w25q80bv_setup(&spi_flash);
 
 		switch(iap_cmd_res->cmd_param.command_code)
 		{
@@ -92,7 +92,7 @@ isp_iap_ret_code_t iap_cmd_call(iap_cmd_res_t* iap_cmd_res)
 			/* Only 64bits used */
 			iap_cmd_res->status_res.iap_result[0] = 0;
 			iap_cmd_res->status_res.iap_result[1] = 0;
-			w25q80bv_get_unique_id( (w25q80bv_unique_id_t*)&iap_cmd_res->status_res.iap_result[2] );
+			w25q80bv_get_unique_id(&spi_flash, (w25q80bv_unique_id_t*)&iap_cmd_res->status_res.iap_result[2] );
 				iap_cmd_res->status_res.status_ret = CMD_SUCCESS;
 			break;
 			

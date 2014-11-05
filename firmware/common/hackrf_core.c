@@ -39,6 +39,8 @@ max2837_driver_t max2837;
 
 rffc5071_driver_t rffc5072;
 
+w25q80bv_driver_t spi_flash;
+
 void delay(uint32_t duration)
 {
 	uint32_t i;
