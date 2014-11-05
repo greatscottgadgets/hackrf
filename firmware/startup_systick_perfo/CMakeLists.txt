@@ -1,4 +1,4 @@
-# Copyright 2013 Jared Boone <jared@sharebrained.com>
+# Copyright 2014 Jared Boone <jared@sharebrained.com>
 #
 # This file is part of HackRF.
 #
@@ -16,8 +16,18 @@
 # along with this program; see the file COPYING.  If not, write to
 # the Free Software Foundation, Inc., 51 Franklin Street,
 # Boston, MA 02110-1301, USA.
+#
 
-	.data
-	.section	.m0_bin, "ax"
-	
-	.incbin		"build/m0/m0.bin"
+cmake_minimum_required(VERSION 2.8.9)
+set(CMAKE_TOOLCHAIN_FILE ../toolchain-arm-cortex-m.cmake)
+
+project(startup_systick_perfo_SPIFI)
+
+include(../hackrf-common.cmake)
+
+set(SRC_M4
+	startup_systick.c
+	perf_mips.c
+)
+
+DeclareTargets()

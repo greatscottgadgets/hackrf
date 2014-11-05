@@ -64,3 +64,5 @@ firmware/cpld/**/*.xrpt
 firmware/cpld/**/*.xsl
 firmware/cpld/**/*.xst
 firmware/cpld/**/*.xwbt
+
+firmware/**/build
