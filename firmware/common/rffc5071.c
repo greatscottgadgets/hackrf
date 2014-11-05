@@ -336,7 +336,7 @@ uint16_t rffc5071_reg_read(uint8_t r)
 	/* Discard uncommited write when reading. This shouldn't
 	 * happen, and probably has not been tested. */
 	if ((rffc5071_regs_dirty >> r) & 0x1) {
-		rffc5071_spi_read(r);
+		rffc5071_regs[r] = rffc5071_spi_read(r);
 	};
 	return rffc5071_regs[r];
 }
