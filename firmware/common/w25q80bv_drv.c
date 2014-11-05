@@ -30,6 +30,21 @@
 #include <libopencm3/lpc43xx/gpio.h>
 #include <libopencm3/lpc43xx/rgu.h>
 
+static void w25q80bv_spi_select(w25q80bv_hw_t* const hw) {
+	(void)hw;
+	gpio_clear(PORT_SSP0_SSEL, PIN_SSP0_SSEL);
+}
+
+static void w25q80bv_spi_unselect(w25q80bv_hw_t* const hw) {
+	(void)hw;
+	gpio_set(PORT_SSP0_SSEL, PIN_SSP0_SSEL);
+}
+
+static uint16_t w25q80bv_spi_transfer(w25q80bv_hw_t* const hw, const uint16_t tx_data) {
+	(void)hw;
+	return ssp_transfer(SSP0_NUM, tx_data);
+}
+
 void w25q80bv_spi_init(w25q80bv_hw_t* const hw) {
 	const uint8_t serial_clock_rate = 2;
 	const uint8_t clock_prescale_rate = 2;
@@ -73,19 +88,4 @@ void w25q80bv_spi_init(w25q80bv_hw_t* const hw) {
 			SSP_MODE_NORMAL,
 			SSP_MASTER,
 			SSP_SLAVE_OUT_ENABLE);
-}
-
-void w25q80bv_spi_select(w25q80bv_hw_t* const hw) {
-	(void)hw;
-	gpio_clear(PORT_SSP0_SSEL, PIN_SSP0_SSEL);
-}
-
-void w25q80bv_spi_unselect(w25q80bv_hw_t* const hw) {
-	(void)hw;
-	gpio_set(PORT_SSP0_SSEL, PIN_SSP0_SSEL);
-}
-
-uint16_t w25q80bv_spi_transfer(w25q80bv_hw_t* const hw, const uint16_t tx_data) {
-	(void)hw;
-	return ssp_transfer(SSP0_NUM, tx_data);
 }
