@@ -68,7 +68,7 @@ ENDIF(CMAKE_CROSSCOMPILING)
 
 set(prefix ${CMAKE_INSTALL_PREFIX})
 set(exec_prefix \${prefix})
-set(libdir \${exec_prefix}/lib)
+set(libdir \${exec_prefix}/lib${LIB_SUFFIX})
 set(includedir \${prefix}/include)
 
 CONFIGURE_FILE(
@@ -78,7 +78,7 @@ CONFIGURE_FILE(
 
 INSTALL(
     FILES ${CMAKE_CURRENT_BINARY_DIR}/libhackrf.pc
-    DESTINATION lib/pkgconfig
+    DESTINATION lib${LIB_SUFFIX}/pkgconfig
 )
 
 ########################################################################
