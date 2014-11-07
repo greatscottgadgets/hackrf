@@ -22,19 +22,12 @@
 
 #include "max2837_drv.h"
 
-#if (defined DEBUG || defined BUS_PIRATE)
-#include <stdio.h>
-#define LOG printf
-#else
-#define LOG(x,...)
 #include <libopencm3/lpc43xx/ssp.h>
 #include <libopencm3/lpc43xx/scu.h>
 #include <libopencm3/lpc43xx/gpio.h>
 #include "hackrf_core.h"
-#endif
 
 void max2837_pin_config(max2837_driver_t* const drv) {
-#if !defined TEST
 	/* Configure XCVR_CTL GPIO pins. */
 #ifdef JELLYBEAN
 	scu_pinmux(SCU_XCVR_RXHP, SCU_GPIO_FAST);
@@ -77,7 +70,6 @@ void max2837_pin_config(max2837_driver_t* const drv) {
 		| PIN_XCVR_B6
 		| PIN_XCVR_B7
 	);
-#endif
 #endif
 }
 
@@ -152,15 +144,7 @@ uint16_t max2837_spi_read(max2837_driver_t* const drv, uint8_t r) {
 /* SPI register write */
 void max2837_spi_write(max2837_driver_t* const drv, uint8_t r, uint16_t v) {
 	(void)drv;
-
-#ifdef BUS_PIRATE
-	LOG("{0x%02x 0x%02x]\n", 0x00 | ((uint16_t)r<<2) | ((v>>8) & 0x3),
-	    v & 0xff);
-#elif DEBUG
-	LOG("0x%03x -> reg%d\n", v, r);
-#else
 	gpio_clear(PORT_XCVR_CS, PIN_XCVR_CS);
 	ssp_transfer(SSP1_NUM, (uint16_t)((r << 10) | (v & 0x3ff)));
 	gpio_set(PORT_XCVR_CS, PIN_XCVR_CS);
-#endif
 }

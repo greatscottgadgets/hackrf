@@ -34,13 +34,7 @@
 #include "max2837_drv.h"
 #include "max2837_regs.def" // private register def macros
 
-#if (defined DEBUG || defined BUS_PIRATE)
-#include <stdio.h>
-#define LOG printf
-#else
-#define LOG(x,...)
 #include "hackrf_core.h"
-#endif
 
 /* Default register values. */
 static const uint16_t max2837_regs_default[MAX2837_NUM_REGS] = { 
@@ -85,7 +79,6 @@ static const uint16_t max2837_regs_default[MAX2837_NUM_REGS] = {
 /* Set up all registers according to defaults specified in docs. */
 void max2837_init(max2837_driver_t* const drv)
 {
-	LOG("# max2837_init\n");
 	memcpy(drv->regs, max2837_regs_default, sizeof(drv->regs));
 	drv->regs_dirty = 0xffffffff;
 
@@ -99,11 +92,9 @@ void max2837_init(max2837_driver_t* const drv)
  */
 void max2837_setup(max2837_driver_t* const drv)
 {
-	LOG("# max2837_setup\n");
 	max2837_pin_config(drv);
 
 	max2837_init(drv);
-	LOG("# max2837_init done\n");
 
 	/* Use SPI control instead of B1-B7 pins for gain settings. */
 	set_MAX2837_TXVGA_GAIN_SPI_EN(drv, 1);
@@ -185,45 +176,30 @@ void max2837_set_mode(max2837_driver_t* const drv, const max2837_mode_t new_mode
 
 void max2837_start(max2837_driver_t* const drv)
 {
-	LOG("# max2837_start\n");
 	set_MAX2837_EN_SPI(drv, 1);
 	max2837_regs_commit(drv);
-#if !defined TEST
 	max2837_mode_standby(drv);
-#endif
 }
 
 void max2837_tx(max2837_driver_t* const drv)
 {
-	LOG("# max2837_tx\n");
-#if !defined TEST
-
 	set_MAX2837_ModeCtrl(drv, MAX2837_ModeCtrl_TxLPF);
 	max2837_regs_commit(drv);
 	max2837_mode_tx(drv);
-#endif
 }
 
 void max2837_rx(max2837_driver_t* const drv)
 {
-	LOG("# max2837_rx\n");
-
 	set_MAX2837_ModeCtrl(drv, MAX2837_ModeCtrl_RxLPF);
 	max2837_regs_commit(drv);
-
-#if !defined TEST
 	max2837_mode_rx(drv);
-#endif
 }
 
 void max2837_stop(max2837_driver_t* const drv)
 {
-	LOG("# max2837_stop\n");
 	set_MAX2837_EN_SPI(drv, 0);
 	max2837_regs_commit(drv);
-#if !defined TEST
 	max2837_mode_shutdown(drv);
-#endif
 }
 
 void max2837_set_frequency(max2837_driver_t* const drv, uint32_t freq)
@@ -254,9 +230,6 @@ void max2837_set_frequency(max2837_driver_t* const drv, uint32_t freq)
 		lna_band = MAX2837_LNAband_2_6;
 	}
 
-	LOG("# max2837_set_frequency %ld, band %d, lna band %d\n",
-	    freq, band, lna_band);
-
 	/* ASSUME 40MHz PLL. Ratio = F*(4/3)/40,000,000 = F/30,000,000 */
 	div_int = freq / 30000000;
 	div_rem = freq % 30000000;
@@ -270,7 +243,6 @@ void max2837_set_frequency(max2837_driver_t* const drv, uint32_t freq)
 			div_rem -= div_cmp;
 		}
 	}
-	LOG("# int %ld, frac %ld\n", div_int, div_frac);
 
 	/* Band settings */
 	set_MAX2837_LOGEN_BSW(drv, band);
@@ -382,14 +354,3 @@ bool max2837_set_txvga_gain(max2837_driver_t* const drv, const uint32_t gain_db)
 	max2837_reg_commit(drv, 29);
 	return true;
 }
-
-#ifdef TEST
-int main(int ac, char **av)
-{
-	max2837_setup(drv);
-	max2837_set_frequency(drv, 2441000000);
-	max2837_start(drv);
-	max2837_tx(drv);
-	max2837_stop(drv);
-}
-#endif //TEST
