@@ -20,20 +20,13 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#if (defined DEBUG)
-#include <stdio.h>
-#define LOG printf
-#else
-#define LOG(x,...)
 #include <libopencm3/lpc43xx/ssp.h>
 #include <libopencm3/lpc43xx/scu.h>
 #include <libopencm3/lpc43xx/gpio.h>
 #include "hackrf_core.h"
-#endif
 
 void rffc5071_pin_config(rffc5071_driver_t* const drv) {
 	(void)drv;
-#if !defined TEST
 	/* Configure GPIO pins. */
 	scu_pinmux(SCU_MIXER_ENX, SCU_GPIO_FAST);
 	scu_pinmux(SCU_MIXER_SCLK, SCU_GPIO_FAST | SCU_CONF_FUNCTION4);
@@ -51,7 +44,6 @@ void rffc5071_pin_config(rffc5071_driver_t* const drv) {
 	gpio_clear(PORT_MIXER_SCLK, PIN_MIXER_SCLK);
 	gpio_clear(PORT_MIXER_SDATA, PIN_MIXER_SDATA);
 	gpio_set(PORT_MIXER_RESETX, PIN_MIXER_RESETX); /* active low */
-#endif
 }
 
 static void serial_delay(void)
@@ -77,10 +69,6 @@ uint16_t rffc5071_spi_read(rffc5071_driver_t* const drv, uint8_t r) {
 	int msb = 1 << (bits -1);
 	uint32_t data = 0x80 | (r & 0x7f);
 
-#if DEBUG
-	LOG("reg%d = 0\n", r);
-	return 0;
-#else
 	/* make sure everything is starting in the correct state */
 	gpio_set(PORT_MIXER_ENX, PIN_MIXER_ENX);
 	gpio_clear(PORT_MIXER_SCLK, PIN_MIXER_SCLK);
@@ -157,7 +145,6 @@ uint16_t rffc5071_spi_read(rffc5071_driver_t* const drv, uint8_t r) {
 	gpio_clear(PORT_MIXER_SCLK, PIN_MIXER_SCLK);
 
 	return data;
-#endif /* DEBUG */
 }
 
 /* SPI register write
@@ -171,10 +158,6 @@ uint16_t rffc5071_spi_read(rffc5071_driver_t* const drv, uint8_t r) {
 void rffc5071_spi_write(rffc5071_driver_t* const drv, uint8_t r, uint16_t v) {
 	(void)drv;
 	
-#if DEBUG
-	LOG("0x%04x -> reg%d\n", v, r);
-#else
-
 	int bits = 25;
 	int msb = 1 << (bits -1);
 	uint32_t data = ((r & 0x7f) << 16) | v;
@@ -228,5 +211,4 @@ void rffc5071_spi_write(rffc5071_driver_t* const drv, uint8_t r, uint16_t v) {
 
 	serial_delay();
 	gpio_clear(PORT_MIXER_SCLK, PIN_MIXER_SCLK);
-#endif
 }

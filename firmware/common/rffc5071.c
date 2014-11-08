@@ -37,13 +37,7 @@
 #include "rffc5071_drv.h"
 #include "rffc5071_regs.def" // private register def macros
 
-#if (defined DEBUG)
-#include <stdio.h>
-#define LOG printf
-#else
-#define LOG(x,...)
 #include "hackrf_core.h"
-#endif
 
 /* Default register values. */
 static const uint16_t rffc5071_regs_default[RFFC5071_NUM_REGS] = { 
@@ -82,7 +76,6 @@ static const uint16_t rffc5071_regs_default[RFFC5071_NUM_REGS] = {
 /* Set up all registers according to defaults specified in docs. */
 void rffc5071_init(rffc5071_driver_t* const drv)
 {
-	LOG("# rffc5071_init\n");
 	memcpy(drv->regs, rffc5071_regs_default, sizeof(drv->regs));
 	drv->regs_dirty = 0x7fffffff;
 
@@ -97,7 +90,6 @@ void rffc5071_init(rffc5071_driver_t* const drv)
 void rffc5071_setup(rffc5071_driver_t* const drv)
 {
 	rffc5071_init(drv);
-	LOG("# rffc5071_setup\n");
 
 	rffc5071_pin_config(drv);
 
@@ -165,7 +157,6 @@ void rffc5071_regs_commit(rffc5071_driver_t* const drv)
 }
 
 void rffc5071_tx(rffc5071_driver_t* const drv) {
-	LOG("# rffc5071_tx\n");
 	set_RFFC5071_ENBL(drv, 0);
 	set_RFFC5071_FULLD(drv, 0);
 	set_RFFC5071_MODE(drv, 1); /* mixer 2 used for both RX and TX */
@@ -173,7 +164,6 @@ void rffc5071_tx(rffc5071_driver_t* const drv) {
 }
 
 void rffc5071_rx(rffc5071_driver_t* const drv) {
-	LOG("# rfc5071_rx\n");
 	set_RFFC5071_ENBL(drv, 0);
 	set_RFFC5071_FULLD(drv, 0);
 	set_RFFC5071_MODE(drv, 1); /* mixer 2 used for both RX and TX */
@@ -185,7 +175,6 @@ void rffc5071_rx(rffc5071_driver_t* const drv) {
  * current hardware designs do not support full-duplex operation.
  */
 void rffc5071_rxtx(rffc5071_driver_t* const drv) {
-	LOG("# rfc5071_rxtx\n");
 	set_RFFC5071_ENBL(drv, 0);
 	set_RFFC5071_FULLD(drv, 1); /* mixer 1 and mixer 2 (RXTX) */
 	rffc5071_regs_commit(drv);
@@ -194,13 +183,11 @@ void rffc5071_rxtx(rffc5071_driver_t* const drv) {
 }
 
 void rffc5071_disable(rffc5071_driver_t* const drv)  {
-	LOG("# rfc5071_disable\n");
 	set_RFFC5071_ENBL(drv, 0);
 	rffc5071_regs_commit(drv);
 }
 
 void rffc5071_enable(rffc5071_driver_t* const drv)  {
-	LOG("# rfc5071_enable\n");
 	set_RFFC5071_ENBL(drv, 1);
 	rffc5071_regs_commit(drv);
 }
@@ -219,8 +206,6 @@ uint64_t rffc5071_config_synth_int(rffc5071_driver_t* const drv, uint16_t lo) {
 	uint16_t p1nmsb;
 	uint8_t p1nlsb;
 	
-	LOG("# config_synth_int\n");
-
 	/* Calculate n_lo */
 	uint8_t n_lo = 0;
 	uint16_t x = LO_MAX / lo;
@@ -253,8 +238,6 @@ uint64_t rffc5071_config_synth_int(rffc5071_driver_t* const drv, uint16_t lo) {
 	
 	tune_freq_hz = (REF_FREQ * (tmp_n >> 5ULL) * fbkdiv * FREQ_ONE_MHZ)
 			/ (lodiv * (1 << 24ULL));
-	LOG("# lo=%d n_lo=%d lodiv=%d fvco=%d fbkdiv=%d n=%d tune_freq_hz=%d\n",
-			lo, n_lo, lodiv, fvco, fbkdiv, n, tune_freq);
 
 	/* Path 1 */
 	set_RFFC5071_P1LODIV(drv, n_lo);
@@ -294,22 +277,3 @@ void rffc5071_set_gpo(rffc5071_driver_t* const drv, uint8_t gpo)
 
 	rffc5071_regs_commit(drv);
 }
-
-#ifdef TEST
-int main(int ac, char **av)
-{
-	rffc5071_setup(drv);
-	rffc5071_tx(drv, 0);
-	rffc5071_set_frequency(drv, 500, 0);
-	rffc5071_set_frequency(drv, 525, 0);
-	rffc5071_set_frequency(drv, 550, 0);
-	rffc5071_set_frequency(drv, 1500, 0);
-	rffc5071_set_frequency(drv, 1525, 0);
-	rffc5071_set_frequency(drv, 1550, 0);
-	rffc5071_disable(drv);
-	rffc5071_rx(drv, 0);
-	rffc5071_disable(drv);
-	rffc5071_rxtx(drv);
-	rffc5071_disable(drv);
-}
-#endif //TEST
