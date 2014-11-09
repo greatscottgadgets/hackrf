@@ -20,35 +20,18 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __MAX2837_DRV_H
-#define __MAX2837_DRV_H
+#ifndef __MAX2837_TARGET_H
+#define __MAX2837_TARGET_H
 
 #include <stdint.h>
 
-/* 32 registers, each containing 10 bits of data. */
-#define MAX2837_NUM_REGS 32
-#define MAX2837_DATA_REGS_MAX_VALUE 1024
+#include "max2837.h"
 
-typedef enum {
-	MAX2837_MODE_SHUTDOWN,
-	MAX2837_MODE_STANDBY,
-	MAX2837_MODE_TX,
-	MAX2837_MODE_RX
-} max2837_mode_t;
-
-typedef struct {
-	uint16_t regs[MAX2837_NUM_REGS];
-	uint32_t regs_dirty;
-} max2837_driver_t;
-
-void max2837_pin_config(max2837_driver_t* const drv);
+void max2837_target_init(max2837_driver_t* const drv);
 void max2837_mode_shutdown(max2837_driver_t* const drv);
 void max2837_mode_standby(max2837_driver_t* const drv);
 void max2837_mode_tx(max2837_driver_t* const drv);
 void max2837_mode_rx(max2837_driver_t* const drv);
 max2837_mode_t max2837_mode(max2837_driver_t* const drv);
 
-uint16_t max2837_spi_read(max2837_driver_t* const drv, uint8_t r);
-void max2837_spi_write(max2837_driver_t* const drv, uint8_t r, uint16_t v);
-
-#endif // __MAX2837_DRV_H
+#endif // __MAX2837_TARGET_H

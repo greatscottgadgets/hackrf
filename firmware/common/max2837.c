@@ -31,7 +31,8 @@
 #include <stdint.h>
 #include <string.h>
 #include "max2837.h"
-#include "max2837_drv.h"
+#include "max2837_spi.h"
+#include "max2837_target.h"
 #include "max2837_regs.def" // private register def macros
 
 #include "hackrf_core.h"
@@ -77,8 +78,12 @@ static const uint16_t max2837_regs_default[MAX2837_NUM_REGS] = {
 	0x000 }; /* 31 */
 
 /* Set up all registers according to defaults specified in docs. */
-void max2837_init(max2837_driver_t* const drv)
+static void max2837_init(max2837_driver_t* const drv)
 {
+	max2837_spi_init(drv->spi);
+	max2837_mode_shutdown(drv);
+	max2837_target_init(drv);
+
 	memcpy(drv->regs, max2837_regs_default, sizeof(drv->regs));
 	drv->regs_dirty = 0xffffffff;
 
@@ -92,10 +97,8 @@ void max2837_init(max2837_driver_t* const drv)
  */
 void max2837_setup(max2837_driver_t* const drv)
 {
-	max2837_pin_config(drv);
-
 	max2837_init(drv);
-
+	
 	/* Use SPI control instead of B1-B7 pins for gain settings. */
 	set_MAX2837_TXVGA_GAIN_SPI_EN(drv, 1);
 	set_MAX2837_TXVGA_GAIN_MSB_SPI_EN(drv, 1);
@@ -121,10 +124,21 @@ void max2837_setup(max2837_driver_t* const drv)
 	max2837_regs_commit(drv);
 }
 
+static uint16_t max2837_read(max2837_driver_t* const drv, uint8_t r) {
+	uint16_t value = (1 << 15) | (r << 10);
+	max2837_spi_transfer(drv->spi, &value, 1);
+	return value & 0x3ff;
+}
+
+static void max2837_write(max2837_driver_t* const drv, uint8_t r, uint16_t v) {
+	uint16_t value = (r << 10) | (v & 0x3ff);
+	max2837_spi_transfer(drv->spi, &value, 1);
+}
+
 uint16_t max2837_reg_read(max2837_driver_t* const drv, uint8_t r)
 {
 	if ((drv->regs_dirty >> r) & 0x1) {
-		drv->regs[r] = max2837_spi_read(drv, r);
+		drv->regs[r] = max2837_read(drv, r);
 	};
 	return drv->regs[r];
 }
@@ -132,7 +146,7 @@ uint16_t max2837_reg_read(max2837_driver_t* const drv, uint8_t r)
 void max2837_reg_write(max2837_driver_t* const drv, uint8_t r, uint16_t v)
 {
 	drv->regs[r] = v;
-	max2837_spi_write(drv, r, v);
+	max2837_write(drv, r, v);
 	MAX2837_REG_SET_CLEAN(drv, r);
 }
 

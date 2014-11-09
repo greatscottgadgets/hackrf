@@ -26,10 +26,26 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "max2837_drv.h"
+#include "spi.h"
+
+/* 32 registers, each containing 10 bits of data. */
+#define MAX2837_NUM_REGS 32
+#define MAX2837_DATA_REGS_MAX_VALUE 1024
+
+typedef enum {
+	MAX2837_MODE_SHUTDOWN,
+	MAX2837_MODE_STANDBY,
+	MAX2837_MODE_TX,
+	MAX2837_MODE_RX
+} max2837_mode_t;
+
+typedef struct {
+	spi_t* const spi;
+	uint16_t regs[MAX2837_NUM_REGS];
+	uint32_t regs_dirty;
+} max2837_driver_t;
 
 /* Initialize chip. */
-extern void max2837_init(max2837_driver_t* const drv);
 extern void max2837_setup(max2837_driver_t* const drv);
 
 /* Read a register via SPI. Save a copy to memory and return

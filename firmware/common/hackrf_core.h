@@ -32,7 +32,7 @@ extern "C"
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "max2837_drv.h"
+#include "max2837.h"
 #include "rffc5071.h"
 #include "w25q80bv.h"
 

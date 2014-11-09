@@ -20,14 +20,19 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include "max2837_drv.h"
+#include "max2837_target.h"
 
-#include <libopencm3/lpc43xx/ssp.h>
 #include <libopencm3/lpc43xx/scu.h>
 #include <libopencm3/lpc43xx/gpio.h>
 #include "hackrf_core.h"
 
-void max2837_pin_config(max2837_driver_t* const drv) {
+void max2837_target_init(max2837_driver_t* const drv) {
+	(void)drv;
+	
+	scu_pinmux(SCU_XCVR_CS, SCU_GPIO_FAST);
+	GPIO_SET(PORT_XCVR_CS) = PIN_XCVR_CS;
+	GPIO_DIR(PORT_XCVR_CS) |= PIN_XCVR_CS;
+
 	/* Configure XCVR_CTL GPIO pins. */
 #ifdef JELLYBEAN
 	scu_pinmux(SCU_XCVR_RXHP, SCU_GPIO_FAST);
@@ -58,7 +63,6 @@ void max2837_pin_config(max2837_driver_t* const drv) {
 		;
 #endif
 
-	max2837_mode_shutdown(drv);
 #ifdef JELLYBEAN
 	gpio_set(PORT_XCVR_RXHP, PIN_XCVR_RXHP);
 	gpio_set(PORT_XCVR_B,
@@ -130,21 +134,4 @@ max2837_mode_t max2837_mode(max2837_driver_t* const drv) {
 	} else {
 		return MAX2837_MODE_SHUTDOWN;
 	}
-}
-
-/* SPI register read. */
-uint16_t max2837_spi_read(max2837_driver_t* const drv, uint8_t r) {
-	(void)drv;
-	gpio_clear(PORT_XCVR_CS, PIN_XCVR_CS);
-	const uint16_t value = ssp_transfer(SSP1_NUM, (uint16_t)((1 << 15) | (r << 10)));
-	gpio_set(PORT_XCVR_CS, PIN_XCVR_CS);
-	return value & 0x3ff;
-}
-
-/* SPI register write */
-void max2837_spi_write(max2837_driver_t* const drv, uint8_t r, uint16_t v) {
-	(void)drv;
-	gpio_clear(PORT_XCVR_CS, PIN_XCVR_CS);
-	ssp_transfer(SSP1_NUM, (uint16_t)((r << 10) | (v & 0x3ff)));
-	gpio_set(PORT_XCVR_CS, PIN_XCVR_CS);
 }

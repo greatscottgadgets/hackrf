@@ -24,6 +24,8 @@
 #include "hackrf_core.h"
 #include "si5351c.h"
 #include "max2837.h"
+#include "max2837_spi.h"
+#include "max2837_target.h"
 #include "rffc5071.h"
 #include "rffc5071_spi.h"
 #include "sgpio.h"
@@ -36,7 +38,10 @@
 
 #define WAIT_CPU_CLOCK_INIT_DELAY   (10000)
 
-max2837_driver_t max2837;
+max2837_driver_t max2837 = {
+	.spi = NULL,	/* TODO */
+};
+
 
 spi_t rffc5071_spi = {
 	.init = rffc5071_spi_init,
@@ -528,38 +533,11 @@ void ssp1_init(void)
 	scu_pinmux(SCU_AD_CS, SCU_GPIO_FAST);
 	GPIO_SET(PORT_AD_CS) = PIN_AD_CS;
 	GPIO_DIR(PORT_AD_CS) |= PIN_AD_CS;
-
-	scu_pinmux(SCU_XCVR_CS, SCU_GPIO_FAST);
-	GPIO_SET(PORT_XCVR_CS) = PIN_XCVR_CS;
-	GPIO_DIR(PORT_XCVR_CS) |= PIN_XCVR_CS;
-	
-	/* Configure SSP1 Peripheral (to be moved later in SSP driver) */
-	scu_pinmux(SCU_SSP1_MISO, (SCU_SSP_IO | SCU_CONF_FUNCTION5));
-	scu_pinmux(SCU_SSP1_MOSI, (SCU_SSP_IO | SCU_CONF_FUNCTION5));
-	scu_pinmux(SCU_SSP1_SCK,  (SCU_SSP_IO | SCU_CONF_FUNCTION1));
 }
 
 void ssp1_set_mode_max2837(void)
 {
-	/* FIXME speed up once everything is working reliably */
-	/*
-	// Freq About 0.0498MHz / 49.8KHz => Freq = PCLK / (CPSDVSR * [SCR+1]) with PCLK=PLL1=204MHz
-	const uint8_t serial_clock_rate = 32;
-	const uint8_t clock_prescale_rate = 128;
-	*/
-	// Freq About 4.857MHz => Freq = PCLK / (CPSDVSR * [SCR+1]) with PCLK=PLL1=204MHz
-	const uint8_t serial_clock_rate = 21;
-	const uint8_t clock_prescale_rate = 2;
-	
-	ssp_init(SSP1_NUM,
-		SSP_DATA_16BITS,
-		SSP_FRAME_SPI,
-		SSP_CPOL_0_CPHA_0,
-		serial_clock_rate,
-		clock_prescale_rate,
-		SSP_MODE_NORMAL,
-		SSP_MASTER,
-		SSP_SLAVE_OUT_ENABLE);
+	max2837_spi_init(max2837.spi);
 }
 
 void ssp1_set_mode_max5864(void)
