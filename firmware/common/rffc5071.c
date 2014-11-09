@@ -34,7 +34,7 @@
 #include <stdint.h>
 #include <string.h>
 #include "rffc5071.h"
-#include "rffc5071_drv.h"
+#include "rffc5071_spi.h"
 #include "rffc5071_regs.def" // private register def macros
 
 #include "hackrf_core.h"

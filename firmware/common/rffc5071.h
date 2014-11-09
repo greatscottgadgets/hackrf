@@ -25,7 +25,7 @@
 
 #include <stdint.h>
 
-#include "rffc5071_drv.h"
+#include "rffc5071_spi.h"
 
 /* Initialize chip. Call _setup() externally, as it calls _init(). */
 extern void rffc5071_init(rffc5071_driver_t* const drv);

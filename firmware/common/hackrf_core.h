@@ -33,7 +33,7 @@ extern "C"
 #include <stdbool.h>
 
 #include "max2837_drv.h"
-#include "rffc5071_drv.h"
+#include "rffc5071.h"
 #include "w25q80bv.h"
 
 /* hardware identification number */
