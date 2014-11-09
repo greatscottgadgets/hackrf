@@ -25,33 +25,96 @@
 #include <libopencm3/lpc43xx/gpio.h>
 #include "hackrf_core.h"
 
-void rffc5071_pin_config(rffc5071_driver_t* const drv) {
-	(void)drv;
-	/* Configure GPIO pins. */
-	scu_pinmux(SCU_MIXER_ENX, SCU_GPIO_FAST);
+static void rffc5071_target_select() {
+	gpio_clear(PORT_MIXER_ENX, PIN_MIXER_ENX);
+}
+
+static void rffc5071_target_unselect() {
+	gpio_set(PORT_MIXER_ENX, PIN_MIXER_ENX);
+}
+
+static void rffc5071_spi_direction_out() {
+	GPIO_DIR(PORT_MIXER_SDATA) |= PIN_MIXER_SDATA;
+}
+
+static void rffc5071_spi_direction_in() {
+	GPIO_DIR(PORT_MIXER_SDATA) &= ~PIN_MIXER_SDATA;
+}
+
+static void rffc5071_spi_data_out(const bool bit) {
+	if (bit)
+		gpio_set(PORT_MIXER_SDATA, PIN_MIXER_SDATA);
+	else
+		gpio_clear(PORT_MIXER_SDATA, PIN_MIXER_SDATA);
+}
+
+static bool rffc5071_spi_data_in() {
+	return MIXER_SDATA_STATE;
+}
+
+static void rffc5071_spi_init() {
 	scu_pinmux(SCU_MIXER_SCLK, SCU_GPIO_FAST | SCU_CONF_FUNCTION4);
 	scu_pinmux(SCU_MIXER_SDATA, SCU_GPIO_FAST);
+
+	GPIO_DIR(PORT_MIXER_SCLK) |= PIN_MIXER_SCLK;
+	rffc5071_spi_direction_out();
+
+	gpio_clear(PORT_MIXER_SCLK, PIN_MIXER_SCLK);
+	gpio_clear(PORT_MIXER_SDATA, PIN_MIXER_SDATA);
+}
+
+static void rffc5071_target_init() {
+	/* Configure GPIO pins. */
+	scu_pinmux(SCU_MIXER_ENX, SCU_GPIO_FAST);
 	scu_pinmux(SCU_MIXER_RESETX, SCU_GPIO_FAST);
 
 	/* Set GPIO pins as outputs. */
 	GPIO_DIR(PORT_MIXER_ENX) |= PIN_MIXER_ENX;
-	GPIO_DIR(PORT_MIXER_SCLK) |= PIN_MIXER_SCLK;
-	GPIO_DIR(PORT_MIXER_SDATA) |= PIN_MIXER_SDATA;
 	GPIO_DIR(PORT_MIXER_RESETX) |= PIN_MIXER_RESETX;
 
 	/* set to known state */
-	gpio_set(PORT_MIXER_ENX, PIN_MIXER_ENX); /* active low */
-	gpio_clear(PORT_MIXER_SCLK, PIN_MIXER_SCLK);
-	gpio_clear(PORT_MIXER_SDATA, PIN_MIXER_SDATA);
+	rffc5071_target_unselect();
 	gpio_set(PORT_MIXER_RESETX, PIN_MIXER_RESETX); /* active low */
 }
 
-static void serial_delay(void)
-{
-	uint32_t i;
+void rffc5071_pin_config(rffc5071_driver_t* const drv) {
+	(void)drv;
+
+	rffc5071_spi_init();
+	rffc5071_target_init();
+}
+
+static void rffc5071_spi_serial_delay(void) {
+	volatile uint32_t i;
 
 	for (i = 0; i < 2; i++)
 		__asm__("nop");
+}
+
+static void rffc5071_spi_sck() {
+	rffc5071_spi_serial_delay();
+	gpio_set(PORT_MIXER_SCLK, PIN_MIXER_SCLK);
+
+	rffc5071_spi_serial_delay();
+	gpio_clear(PORT_MIXER_SCLK, PIN_MIXER_SCLK);
+}
+
+static uint32_t rffc5071_spi_exchange_bit(const uint32_t bit) {
+	rffc5071_spi_data_out(bit);
+	rffc5071_spi_sck();
+	return rffc5071_spi_data_in() ? 1 : 0;
+}
+
+static uint32_t rffc5071_spi_exchange_word(const uint32_t data, const size_t count) {
+	size_t bits = count;
+	const uint32_t msb = 1UL << (count - 1);
+	uint32_t t = data;
+
+	while (bits--) {
+		t = (t << 1) | rffc5071_spi_exchange_bit(t & msb);
+	}
+
+	return t & ((1UL << count) - 1);
 }
 
 /* SPI register read.
@@ -62,91 +125,6 @@ static void serial_delay(void)
  *   next 7 bits are register address.
  * Then receive 16 bits (register value).
  */
-uint16_t rffc5071_spi_read(rffc5071_driver_t* const drv, uint8_t r) {
-	(void)drv;
-
-	int bits = 9;
-	int msb = 1 << (bits -1);
-	uint32_t data = 0x80 | (r & 0x7f);
-
-	/* make sure everything is starting in the correct state */
-	gpio_set(PORT_MIXER_ENX, PIN_MIXER_ENX);
-	gpio_clear(PORT_MIXER_SCLK, PIN_MIXER_SCLK);
-	gpio_clear(PORT_MIXER_SDATA, PIN_MIXER_SDATA);
-
-	/*
-	 * The device requires two clocks while ENX is high before a serial
-	 * transaction.  This is not clearly documented.
-	 */
-	serial_delay();
-	gpio_set(PORT_MIXER_SCLK, PIN_MIXER_SCLK);
-
-	serial_delay();
-	gpio_clear(PORT_MIXER_SCLK, PIN_MIXER_SCLK);
-
-	serial_delay();
-	gpio_set(PORT_MIXER_SCLK, PIN_MIXER_SCLK);
-
-	serial_delay();
-	gpio_clear(PORT_MIXER_SCLK, PIN_MIXER_SCLK);
-
-	/* start transaction by bringing ENX low */
-	gpio_clear(PORT_MIXER_ENX, PIN_MIXER_ENX);
-
-	while (bits--) {
-		if (data & msb)
-			gpio_set(PORT_MIXER_SDATA, PIN_MIXER_SDATA);
-		else
-			gpio_clear(PORT_MIXER_SDATA, PIN_MIXER_SDATA);
-		data <<= 1;
-
-		serial_delay();
-		gpio_set(PORT_MIXER_SCLK, PIN_MIXER_SCLK);
-
-		serial_delay();
-		gpio_clear(PORT_MIXER_SCLK, PIN_MIXER_SCLK);
-	}
-
-	serial_delay();
-	gpio_set(PORT_MIXER_SCLK, PIN_MIXER_SCLK);
-
-	serial_delay();
-	gpio_clear(PORT_MIXER_SCLK, PIN_MIXER_SCLK);
-
-	bits = 16;
-	data = 0;
-	/* set SDATA line as input */
-	GPIO_DIR(PORT_MIXER_SDATA) &= ~PIN_MIXER_SDATA;
-
-	while (bits--) {
-		data <<= 1;
-
-		serial_delay();
-		gpio_set(PORT_MIXER_SCLK, PIN_MIXER_SCLK);
-
-		serial_delay();
-		gpio_clear(PORT_MIXER_SCLK, PIN_MIXER_SCLK);
-		if (MIXER_SDATA_STATE)
-			data |= 1;
-	}
-	/* set SDATA line as output */
-	GPIO_DIR(PORT_MIXER_SDATA) |= PIN_MIXER_SDATA;
-
-	serial_delay();
-	gpio_set(PORT_MIXER_ENX, PIN_MIXER_ENX);
-
-	/*
-	 * The device requires a clock while ENX is high after a serial
-	 * transaction.  This is not clearly documented.
-	 */
-	gpio_set(PORT_MIXER_SCLK, PIN_MIXER_SCLK);
-
-	serial_delay();
-	gpio_clear(PORT_MIXER_SCLK, PIN_MIXER_SCLK);
-
-	return data;
-}
-
 /* SPI register write
  *
  * Send 25 bits:
@@ -155,60 +133,38 @@ uint16_t rffc5071_spi_read(rffc5071_driver_t* const drv, uint8_t r) {
  *   next 7 bits are register address,
  *   next 16 bits are register value.
  */
-void rffc5071_spi_write(rffc5071_driver_t* const drv, uint8_t r, uint16_t v) {
+void rffc5071_spi_transfer(rffc5071_driver_t* const drv, uint16_t* const data, const size_t count) {
 	(void)drv;
-	
-	int bits = 25;
-	int msb = 1 << (bits -1);
-	uint32_t data = ((r & 0x7f) << 16) | v;
 
-	/* make sure everything is starting in the correct state */
-	gpio_set(PORT_MIXER_ENX, PIN_MIXER_ENX);
-	gpio_clear(PORT_MIXER_SCLK, PIN_MIXER_SCLK);
-	gpio_clear(PORT_MIXER_SDATA, PIN_MIXER_SDATA);
+	if( count != 2 ) {
+		return;
+	}
+
+	const bool direction_read = (data[0] >> 7) & 1;
 
 	/*
 	 * The device requires two clocks while ENX is high before a serial
 	 * transaction.  This is not clearly documented.
 	 */
-	serial_delay();
-	gpio_set(PORT_MIXER_SCLK, PIN_MIXER_SCLK);
+	rffc5071_spi_sck();
+	rffc5071_spi_sck();
 
-	serial_delay();
-	gpio_clear(PORT_MIXER_SCLK, PIN_MIXER_SCLK);
+	rffc5071_target_select();
+	data[0] = rffc5071_spi_exchange_word(data[0], 9);
 
-	serial_delay();
-	gpio_set(PORT_MIXER_SCLK, PIN_MIXER_SCLK);
-
-	serial_delay();
-	gpio_clear(PORT_MIXER_SCLK, PIN_MIXER_SCLK);
-
-	/* start transaction by bringing ENX low */
-	gpio_clear(PORT_MIXER_ENX, PIN_MIXER_ENX);
-
-	while (bits--) {
-		if (data & msb)
-			gpio_set(PORT_MIXER_SDATA, PIN_MIXER_SDATA);
-		else
-			gpio_clear(PORT_MIXER_SDATA, PIN_MIXER_SDATA);
-		data <<= 1;
-
-		serial_delay();
-		gpio_set(PORT_MIXER_SCLK, PIN_MIXER_SCLK);
-
-		serial_delay();
-		gpio_clear(PORT_MIXER_SCLK, PIN_MIXER_SCLK);
+	if( direction_read ) {
+		rffc5071_spi_direction_in();
+		rffc5071_spi_sck();
 	}
+	data[1] = rffc5071_spi_exchange_word(data[1], 16);
+	rffc5071_spi_direction_out();
 
-	gpio_set(PORT_MIXER_ENX, PIN_MIXER_ENX);
+	rffc5071_spi_serial_delay();
+	rffc5071_target_unselect();
 
 	/*
 	 * The device requires a clock while ENX is high after a serial
 	 * transaction.  This is not clearly documented.
 	 */
-	serial_delay();
-	gpio_set(PORT_MIXER_SCLK, PIN_MIXER_SCLK);
-
-	serial_delay();
-	gpio_clear(PORT_MIXER_SCLK, PIN_MIXER_SCLK);
+	rffc5071_spi_sck();
 }

@@ -33,7 +33,6 @@ typedef struct {
 
 void rffc5071_pin_config(rffc5071_driver_t* const drv);
 
-uint16_t rffc5071_spi_read(rffc5071_driver_t* const drv, uint8_t r);
-void rffc5071_spi_write(rffc5071_driver_t* const drv, uint8_t r, uint16_t v);
+void rffc5071_spi_transfer(rffc5071_driver_t* const drv, uint16_t* const data, const size_t count);
 
 #endif // __RFFC5071_DRV_H
