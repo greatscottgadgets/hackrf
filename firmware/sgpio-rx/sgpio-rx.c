@@ -96,7 +96,6 @@ int main(void) {
 	enable_rf_power();
 #endif
 	cpu_clock_init();
-    ssp1_init();
     rf_path_init();
     rf_path_set_direction(RF_PATH_DIRECTION_RX);
 

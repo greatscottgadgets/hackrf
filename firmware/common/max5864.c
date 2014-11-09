@@ -21,16 +21,20 @@
 
 #include <stdint.h>
 
-#include <libopencm3/lpc43xx/gpio.h>
-#include <libopencm3/lpc43xx/ssp.h>
-
-#include "hackrf_core.h"
 #include "max5864.h"
+#include "max5864_target.h"
 
-void max5864_spi_write(uint_fast8_t value) {
-	gpio_clear(PORT_AD_CS, PIN_AD_CS);
-	ssp_transfer(SSP1_NUM, value);
-	gpio_set(PORT_AD_CS, PIN_AD_CS);
+static void max5864_write(max5864_driver_t* const drv, uint8_t value) {
+	spi_transfer(drv->spi, &value, 1);
+}
+
+void max5864_init(max5864_driver_t* const drv) {
+	spi_init(drv->spi);
+	max5864_target_init(drv);
+}
+
+void max5864_setup(max5864_driver_t* const drv) {
+	max5864_init(drv);
 }
 
 /* Set MAX5864 operation mode to "Shutdown":
@@ -39,9 +43,9 @@ void max5864_spi_write(uint_fast8_t value) {
  *   ADCs: off (bus is tri-stated)
  *   DACs: off (set input bus to zero or OVdd)
  */
-void max5864_shutdown()
+void max5864_shutdown(max5864_driver_t* const drv)
 {
-	max5864_spi_write(0x00);
+	max5864_write(drv, 0x00);
 }
 
 /* Set MAX5864 operation mode to "Standby":
@@ -50,9 +54,9 @@ void max5864_shutdown()
  *   ADCs: off (bus is tri-stated)
  *   DACs: off (set input bus to zero or OVdd)
  */
-void max5864_standby()
+void max5864_standby(max5864_driver_t* const drv)
 {
-	max5864_spi_write(0x05);
+	max5864_write(drv, 0x05);
 }
 
 /* Set MAX5864 operation mode to "Idle":
@@ -61,9 +65,9 @@ void max5864_standby()
  *   ADCs: off (bus is tri-stated)
  *   DACs: off (set input bus to zero or OVdd)
  */
-void max5864_idle()
+void max5864_idle(max5864_driver_t* const drv)
 {
-	max5864_spi_write(0x01);
+	max5864_write(drv, 0x01);
 }
 
 /* Set MAX5864 operation mode to "Rx":
@@ -72,9 +76,9 @@ void max5864_idle()
  *   ADCs: on
  *   DACs: off (set input bus to zero or OVdd)
  */
-void max5864_rx()
+void max5864_rx(max5864_driver_t* const drv)
 {
-	max5864_spi_write(0x02);
+	max5864_write(drv, 0x02);
 }
 
 /* Set MAX5864 operation mode to "Tx":
@@ -83,9 +87,9 @@ void max5864_rx()
  *   ADCs: off (bus is tri-stated)
  *   DACs: on
  */
-void max5864_tx()
+void max5864_tx(max5864_driver_t* const drv)
 {
-	max5864_spi_write(0x03);
+	max5864_write(drv, 0x03);
 }
 
 /* Set MAX5864 operation mode to "Xcvr":
@@ -94,7 +98,7 @@ void max5864_tx()
  *   ADCs: on
  *   DACs: on
  */
-void max5864_xcvr()
+void max5864_xcvr(max5864_driver_t* const drv)
 {
-	max5864_spi_write(0x04);
+	max5864_write(drv, 0x04);
 }

@@ -208,8 +208,6 @@ int main(void) {
 
 	usb_run(&usb_device);
 	
-	ssp1_init();
-
 	rf_path_init();
 
 	unsigned int phase = 0;

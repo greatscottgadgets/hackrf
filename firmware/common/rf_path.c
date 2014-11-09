@@ -209,7 +209,8 @@ void rf_path_pin_setup() {
 
 void rf_path_init(void) {
 	ssp1_set_mode_max5864();
-	max5864_shutdown();
+	max5864_setup(&max5864);
+	max5864_shutdown(&max5864);
 	
 	ssp1_set_mode_max2837();
 	max2837_setup(&max2837);
@@ -236,7 +237,7 @@ void rf_path_set_direction(const rf_path_direction_t direction) {
 			rffc5071_enable(&rffc5072);
 		}
 		ssp1_set_mode_max5864();
-		max5864_tx();
+		max5864_tx(&max5864);
 		ssp1_set_mode_max2837();
 		max2837_tx(&max2837);
 		sgpio_configure(SGPIO_DIRECTION_TX);
@@ -255,7 +256,7 @@ void rf_path_set_direction(const rf_path_direction_t direction) {
 			rffc5071_enable(&rffc5072);
 		}
 		ssp1_set_mode_max5864();
-		max5864_rx();
+		max5864_rx(&max5864);
 		ssp1_set_mode_max2837();
 		max2837_rx(&max2837);
 		sgpio_configure(SGPIO_DIRECTION_RX);
@@ -270,7 +271,7 @@ void rf_path_set_direction(const rf_path_direction_t direction) {
 		switchctrl &= ~SWITCHCTRL_TX;
 		rffc5071_disable(&rffc5072);
 		ssp1_set_mode_max5864();
-		max5864_standby();
+		max5864_standby(&max5864);
 		ssp1_set_mode_max2837();
 		max2837_set_mode(&max2837, MAX2837_MODE_STANDBY);
 		sgpio_configure(SGPIO_DIRECTION_RX);

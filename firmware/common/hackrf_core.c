@@ -26,6 +26,9 @@
 #include "max2837.h"
 #include "max2837_spi.h"
 #include "max2837_target.h"
+#include "max5864.h"
+#include "max5864_spi.h"
+#include "max5864_target.h"
 #include "rffc5071.h"
 #include "rffc5071_spi.h"
 #include "sgpio.h"
@@ -48,6 +51,15 @@ max2837_driver_t max2837 = {
 	.spi = &max2837_spi,
 };
 
+spi_t max5864_spi = {
+	.init = max5864_spi_init,
+	.transfer = max5864_spi_transfer,
+	.transfer_gather = max5864_spi_transfer_gather,
+};
+
+max5864_driver_t max5864 = {
+	.spi = &max5864_spi,
+};
 
 spi_t rffc5071_spi = {
 	.init = rffc5071_spi_init,
@@ -530,17 +542,6 @@ void cpu_clock_pll1_max_speed(void)
 
 }
 
-void ssp1_init(void)
-{
-	/*
-	 * Configure CS_AD pin to keep the MAX5864 SPI disabled while we use the
-	 * SPI bus for the MAX2837. FIXME: this should probably be somewhere else.
-	 */
-	scu_pinmux(SCU_AD_CS, SCU_GPIO_FAST);
-	GPIO_SET(PORT_AD_CS) = PIN_AD_CS;
-	GPIO_DIR(PORT_AD_CS) |= PIN_AD_CS;
-}
-
 void ssp1_set_mode_max2837(void)
 {
 	spi_init(max2837.spi);
@@ -548,25 +549,7 @@ void ssp1_set_mode_max2837(void)
 
 void ssp1_set_mode_max5864(void)
 {
-	/* FIXME speed up once everything is working reliably */
-	/*
-	// Freq About 0.0498MHz / 49.8KHz => Freq = PCLK / (CPSDVSR * [SCR+1]) with PCLK=PLL1=204MHz
-	const uint8_t serial_clock_rate = 32;
-	const uint8_t clock_prescale_rate = 128;
-	*/
-	// Freq About 4.857MHz => Freq = PCLK / (CPSDVSR * [SCR+1]) with PCLK=PLL1=204MHz
-	const uint8_t serial_clock_rate = 21;
-	const uint8_t clock_prescale_rate = 2;
-	
-	ssp_init(SSP1_NUM,
-		SSP_DATA_8BITS,
-		SSP_FRAME_SPI,
-		SSP_CPOL_0_CPHA_0,
-		serial_clock_rate,
-		clock_prescale_rate,
-		SSP_MODE_NORMAL,
-		SSP_MASTER,
-		SSP_SLAVE_OUT_ENABLE);
+	spi_init(max5864.spi);
 }
 
 void pin_setup(void) {
@@ -611,12 +594,6 @@ void pin_setup(void) {
 	GPIO3_DIR |= PIN_EN1V8;
 
 	rf_path_pin_setup();
-	
-	/* Configure SSP1 Peripheral (to be moved later in SSP driver) */
-	scu_pinmux(SCU_SSP1_MISO, (SCU_SSP_IO | SCU_CONF_FUNCTION5));
-	scu_pinmux(SCU_SSP1_MOSI, (SCU_SSP_IO | SCU_CONF_FUNCTION5));
-	scu_pinmux(SCU_SSP1_SCK, (SCU_SSP_IO | SCU_CONF_FUNCTION1));
-	scu_pinmux(SCU_SSP1_SSEL, (SCU_SSP_IO | SCU_CONF_FUNCTION1));
 	
 	/* Configure external clock in */
 	scu_pinmux(SCU_PINMUX_GP_CLKIN, SCU_CLK_IN | SCU_CONF_FUNCTION1);

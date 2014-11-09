@@ -353,7 +353,6 @@ int main(void)
 	pin_setup();
 	enable_1v8_power();
 	cpu_clock_init();
-	ssp1_init();
 	gpio_set(PORT_LED1_3, PIN_LED1);
 
 	//test_sgpio_sliceA_D();

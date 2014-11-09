@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 Jared Boone <jared@sharebrained.com>
+ * Copyright (C) 2014 Jared Boone, ShareBrained Technology, Inc.
  *
  * This file is part of HackRF.
  *
@@ -19,22 +19,15 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __MAX5864_H
-#define __MAX5864_H
+#ifndef __MAX5864_SPI_H__
+#define __MAX5864_SPI_H__
+
+#include <stddef.h>
 
 #include "spi.h"
 
-typedef struct max5864_driver_t {
-	spi_t* const spi;
-} max5864_driver_t;
+void max5864_spi_init(spi_t* const spi);
+void max5864_spi_transfer(spi_t* const spi, void* const value, const size_t count);
+void max5864_spi_transfer_gather(spi_t* const spi, const spi_transfer_t* const transfers, const size_t count);
 
-void max5864_setup(max5864_driver_t* const drv);
-
-void max5864_shutdown(max5864_driver_t* const drv);
-void max5864_standby(max5864_driver_t* const drv);
-void max5864_idle(max5864_driver_t* const drv);
-void max5864_rx(max5864_driver_t* const drv);
-void max5864_tx(max5864_driver_t* const drv);
-void max5864_xcvr(max5864_driver_t* const drv);
-
-#endif // __MAX5864_H
+#endif/*__MAX5864_SPI_H__*/

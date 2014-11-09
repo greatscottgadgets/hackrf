@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 Jared Boone <jared@sharebrained.com>
+ * Copyright (C) 2014 Jared Boone, ShareBrained Technology, Inc.
  *
  * This file is part of HackRF.
  *
@@ -19,22 +19,20 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __MAX5864_H
-#define __MAX5864_H
+#include "max5864_target.h"
 
-#include "spi.h"
+#include <libopencm3/lpc43xx/scu.h>
+#include <libopencm3/lpc43xx/gpio.h>
+#include "hackrf_core.h"
 
-typedef struct max5864_driver_t {
-	spi_t* const spi;
-} max5864_driver_t;
-
-void max5864_setup(max5864_driver_t* const drv);
-
-void max5864_shutdown(max5864_driver_t* const drv);
-void max5864_standby(max5864_driver_t* const drv);
-void max5864_idle(max5864_driver_t* const drv);
-void max5864_rx(max5864_driver_t* const drv);
-void max5864_tx(max5864_driver_t* const drv);
-void max5864_xcvr(max5864_driver_t* const drv);
-
-#endif // __MAX5864_H
+void max5864_target_init(max5864_driver_t* const drv) {
+	(void)drv;
+	
+	/*
+	 * Configure CS_AD pin to keep the MAX5864 SPI disabled while we use the
+	 * SPI bus for the MAX2837. FIXME: this should probably be somewhere else.
+	 */
+	scu_pinmux(SCU_AD_CS, SCU_GPIO_FAST);
+	GPIO_SET(PORT_AD_CS) = PIN_AD_CS;
+	GPIO_DIR(PORT_AD_CS) |= PIN_AD_CS;
+}

@@ -37,7 +37,6 @@ int main(void)
 	enable_rf_power();
 #endif
 	cpu_clock_init();
-    ssp1_init();
     
 	gpio_set(PORT_LED1_3, (PIN_LED1)); /* LED1 on */
 

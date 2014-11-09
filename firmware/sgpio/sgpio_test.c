@@ -72,12 +72,12 @@ int main(void) {
 	pin_setup();
 	enable_1v8_power();
 	cpu_clock_init();
-	ssp1_init();
 
 	gpio_set(PORT_LED1_3, PIN_LED1);
 
 	ssp1_set_mode_max5864();
-	max5864_xcvr();
+	max5864_setup(&max5864);
+	max5864_xcvr(&max5864);
 
 	while (1) {
 
