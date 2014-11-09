@@ -157,10 +157,10 @@ void rffc5071_spi_transfer(rffc5071_driver_t* const drv, uint16_t* const data, c
 		rffc5071_spi_sck();
 	}
 	data[1] = rffc5071_spi_exchange_word(data[1], 16);
-	rffc5071_spi_direction_out();
 
 	rffc5071_spi_serial_delay();
 	rffc5071_target_unselect();
+	rffc5071_spi_direction_out();
 
 	/*
 	 * The device requires a clock while ENX is high after a serial
