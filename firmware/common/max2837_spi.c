@@ -57,14 +57,23 @@ void max2837_spi_init(spi_t* const spi) {
 	scu_pinmux(SCU_SSP1_SCK,  (SCU_SSP_IO | SCU_CONF_FUNCTION1));
 }
 
-void max2837_spi_transfer(spi_t* const spi, void* const _data, const size_t count) {
+void max2837_spi_transfer_gather(spi_t* const spi, const spi_transfer_t* const transfers, const size_t count) {
 	(void)spi;
-	
-	uint16_t* const data = _data;
 
 	gpio_clear(PORT_XCVR_CS, PIN_XCVR_CS);
 	for(size_t i=0; i<count; i++) {
-		data[i] = ssp_transfer(SSP1_NUM, data[i]);
-	}
+		const size_t data_count = transfers[i].count;
+		uint16_t* const data = transfers[i].data;
+		for(size_t j=0; j<data_count; j++) {
+			data[j] = ssp_transfer(SSP1_NUM, data[j]);
+		}
+	}		
 	gpio_set(PORT_XCVR_CS, PIN_XCVR_CS);
+}
+
+void max2837_spi_transfer(spi_t* const spi, void* const data, const size_t count) {
+	const spi_transfer_t transfers[] = {
+		{ data, count },
+	};
+	max2837_spi_transfer_gather(spi, transfers, 1);
 }

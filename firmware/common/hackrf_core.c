@@ -38,8 +38,14 @@
 
 #define WAIT_CPU_CLOCK_INIT_DELAY   (10000)
 
+spi_t max2837_spi = {
+	.init = max2837_spi_init,
+	.transfer = max2837_spi_transfer,
+	.transfer_gather = max2837_spi_transfer_gather,
+};
+
 max2837_driver_t max2837 = {
-	.spi = NULL,	/* TODO */
+	.spi = &max2837_spi,
 };
 
 
@@ -537,7 +543,7 @@ void ssp1_init(void)
 
 void ssp1_set_mode_max2837(void)
 {
-	max2837_spi_init(max2837.spi);
+	spi_init(max2837.spi);
 }
 
 void ssp1_set_mode_max5864(void)

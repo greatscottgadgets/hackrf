@@ -30,5 +30,6 @@
 
 void max2837_spi_init(spi_t* const spi);
 void max2837_spi_transfer(spi_t* const spi, void* const data, const size_t count);
+void max2837_spi_transfer_gather(spi_t* const spi, const spi_transfer_t* const transfers, const size_t count);
 
 #endif/*__MAX2837_SPI_H__*/
