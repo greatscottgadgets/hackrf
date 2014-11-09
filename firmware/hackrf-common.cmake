@@ -139,6 +139,7 @@ macro(DeclareTargets)
 		${PATH_HACKRF_FIRMWARE_COMMON}/max5864.c
 		${PATH_HACKRF_FIRMWARE_COMMON}/rffc5071.c
 		${PATH_HACKRF_FIRMWARE_COMMON}/rffc5071_spi.c
+		${PATH_HACKRF_FIRMWARE_COMMON}/spi.c
 		m0_bin.s
 	)
 

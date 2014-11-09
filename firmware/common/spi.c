@@ -1,6 +1,5 @@
 /*
- * Copyright 2012 Michael Ossmann
- * Copyright 2014 Jared Boone <jared@sharebrained.com>
+ * Copyright (C) 2014 Jared Boone, ShareBrained Technology, Inc.
  *
  * This file is part of HackRF.
  *
@@ -20,13 +19,16 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __RFFC5071_SPI_H
-#define __RFFC5071_SPI_H
-
 #include "spi.h"
 
-void rffc5071_spi_init(spi_t* const spi);
-void rffc5071_spi_transfer(spi_t* const spi, void* const data, const size_t count);
-void rffc5071_spi_transfer_gather(spi_t* const spi, const spi_transfer_t* const transfer, const size_t count);
+void spi_init(spi_t* const spi) {
+	spi->init(spi);
+}
 
-#endif // __RFFC5071_SPI_H
+void spi_transfer(spi_t* const spi, void* const data, const size_t count) {
+	spi->transfer(spi, data, count);
+}
+
+void spi_transfer_gather(spi_t* const spi, const spi_transfer_t* const transfers, const size_t count) {
+	spi->transfer_gather(spi, transfers, count);
+}

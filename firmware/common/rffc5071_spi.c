@@ -138,11 +138,13 @@ static uint32_t rffc5071_spi_exchange_word(spi_t* const spi, const uint32_t data
  *   next 7 bits are register address,
  *   next 16 bits are register value.
  */
-void rffc5071_spi_transfer(spi_t* const spi, uint16_t* const data, const size_t count) {
+void rffc5071_spi_transfer(spi_t* const spi, void* const _data, const size_t count) {
 	if( count != 2 ) {
 		return;
 	}
 
+	uint16_t* const data = _data;
+	
 	const bool direction_read = (data[0] >> 7) & 1;
 
 	/*
@@ -170,4 +172,10 @@ void rffc5071_spi_transfer(spi_t* const spi, uint16_t* const data, const size_t 
 	 * transaction.  This is not clearly documented.
 	 */
 	rffc5071_spi_sck(spi);
+}
+
+void rffc5071_spi_transfer_gather(spi_t* const spi, const spi_transfer_t* const transfer, const size_t count) {
+	if( count == 1 ) {
+		rffc5071_spi_transfer(spi, transfer[0].data, transfer[0].count);
+	}
 }

@@ -25,6 +25,7 @@
 #include "si5351c.h"
 #include "max2837.h"
 #include "rffc5071.h"
+#include "rffc5071_spi.h"
 #include "sgpio.h"
 #include "rf_path.h"
 #include <libopencm3/lpc43xx/i2c.h>
@@ -37,9 +38,17 @@
 
 max2837_driver_t max2837;
 
-rffc5071_driver_t rffc5072;
+spi_t rffc5071_spi = {
+	.init = rffc5071_spi_init,
+	.transfer = rffc5071_spi_transfer,
+	.transfer_gather = rffc5071_spi_transfer_gather,
+};
 
 w25q80bv_driver_t spi_flash;
+rffc5071_driver_t rffc5072 = {
+	.spi = &rffc5071_spi,
+};
+
 
 void delay(uint32_t duration)
 {

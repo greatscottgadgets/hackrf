@@ -25,7 +25,16 @@
 
 #include <stdint.h>
 
-#include "rffc5071_spi.h"
+#include "spi.h"
+
+/* 31 registers, each containing 16 bits of data. */
+#define RFFC5071_NUM_REGS 31
+
+typedef struct {
+	spi_t* const spi;
+	uint16_t regs[RFFC5071_NUM_REGS];
+	uint32_t regs_dirty;
+} rffc5071_driver_t;
 
 /* Initialize chip. Call _setup() externally, as it calls _init(). */
 extern void rffc5071_init(rffc5071_driver_t* const drv);
