@@ -23,7 +23,6 @@
 #ifndef __MAX2837_SPI_H__
 #define __MAX2837_SPI_H__
 
-#include "stdint.h"
 #include "stddef.h"
 
 #include "spi.h"

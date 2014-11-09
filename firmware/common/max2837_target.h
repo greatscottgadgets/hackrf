@@ -23,8 +23,6 @@
 #ifndef __MAX2837_TARGET_H
 #define __MAX2837_TARGET_H
 
-#include <stdint.h>
-
 #include "max2837.h"
 
 void max2837_target_init(max2837_driver_t* const drv);
