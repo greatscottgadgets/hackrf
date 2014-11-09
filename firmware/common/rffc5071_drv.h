@@ -20,19 +20,21 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __RFFC5071_DRV_H
-#define __RFFC5071_DRV_H
+#ifndef __RFFC5071_SPI_H
+#define __RFFC5071_SPI_H
+
+#include "spi.h"
 
 /* 31 registers, each containing 16 bits of data. */
 #define RFFC5071_NUM_REGS 31
 
 typedef struct {
+	spi_t* const spi;
 	uint16_t regs[RFFC5071_NUM_REGS];
 	uint32_t regs_dirty;
 } rffc5071_driver_t;
 
-void rffc5071_pin_config(rffc5071_driver_t* const drv);
+void rffc5071_spi_init(spi_t* const spi);
+void rffc5071_spi_transfer(spi_t* const spi, uint16_t* const data, const size_t count);
 
-void rffc5071_spi_transfer(rffc5071_driver_t* const drv, uint16_t* const data, const size_t count);
-
-#endif // __RFFC5071_DRV_H
+#endif // __RFFC5071_SPI_H

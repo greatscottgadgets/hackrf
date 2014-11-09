@@ -25,45 +25,51 @@
 #include <libopencm3/lpc43xx/gpio.h>
 #include "hackrf_core.h"
 
-static void rffc5071_target_select() {
+static void rffc5071_spi_target_select(spi_t* const spi) {
+	(void)spi;
 	gpio_clear(PORT_MIXER_ENX, PIN_MIXER_ENX);
 }
 
-static void rffc5071_target_unselect() {
+static void rffc5071_spi_target_unselect(spi_t* const spi) {
+	(void)spi;
 	gpio_set(PORT_MIXER_ENX, PIN_MIXER_ENX);
 }
 
-static void rffc5071_spi_direction_out() {
+static void rffc5071_spi_direction_out(spi_t* const spi) {
+	(void)spi;
 	GPIO_DIR(PORT_MIXER_SDATA) |= PIN_MIXER_SDATA;
 }
 
-static void rffc5071_spi_direction_in() {
+static void rffc5071_spi_direction_in(spi_t* const spi) {
+	(void)spi;
 	GPIO_DIR(PORT_MIXER_SDATA) &= ~PIN_MIXER_SDATA;
 }
 
-static void rffc5071_spi_data_out(const bool bit) {
+static void rffc5071_spi_data_out(spi_t* const spi, const bool bit) {
+	(void)spi;
 	if (bit)
 		gpio_set(PORT_MIXER_SDATA, PIN_MIXER_SDATA);
 	else
 		gpio_clear(PORT_MIXER_SDATA, PIN_MIXER_SDATA);
 }
 
-static bool rffc5071_spi_data_in() {
+static bool rffc5071_spi_data_in(spi_t* const spi) {
+	(void)spi;
 	return MIXER_SDATA_STATE;
 }
 
-static void rffc5071_spi_init() {
+static void rffc5071_spi_bus_init(spi_t* const spi) {
 	scu_pinmux(SCU_MIXER_SCLK, SCU_GPIO_FAST | SCU_CONF_FUNCTION4);
 	scu_pinmux(SCU_MIXER_SDATA, SCU_GPIO_FAST);
 
 	GPIO_DIR(PORT_MIXER_SCLK) |= PIN_MIXER_SCLK;
-	rffc5071_spi_direction_out();
+	rffc5071_spi_direction_out(spi);
 
 	gpio_clear(PORT_MIXER_SCLK, PIN_MIXER_SCLK);
 	gpio_clear(PORT_MIXER_SDATA, PIN_MIXER_SDATA);
 }
 
-static void rffc5071_target_init() {
+static void rffc5071_spi_target_init(spi_t* const spi) {
 	/* Configure GPIO pins. */
 	scu_pinmux(SCU_MIXER_ENX, SCU_GPIO_FAST);
 	scu_pinmux(SCU_MIXER_RESETX, SCU_GPIO_FAST);
@@ -73,45 +79,44 @@ static void rffc5071_target_init() {
 	GPIO_DIR(PORT_MIXER_RESETX) |= PIN_MIXER_RESETX;
 
 	/* set to known state */
-	rffc5071_target_unselect();
+	rffc5071_spi_target_unselect(spi);
 	gpio_set(PORT_MIXER_RESETX, PIN_MIXER_RESETX); /* active low */
 }
 
-void rffc5071_pin_config(rffc5071_driver_t* const drv) {
-	(void)drv;
-
-	rffc5071_spi_init();
-	rffc5071_target_init();
+void rffc5071_spi_init(spi_t* const spi) {
+	rffc5071_spi_bus_init(spi);
+	rffc5071_spi_target_init(spi);
 }
 
-static void rffc5071_spi_serial_delay(void) {
+static void rffc5071_spi_serial_delay(spi_t* const spi) {
+	(void)spi;
 	volatile uint32_t i;
 
 	for (i = 0; i < 2; i++)
 		__asm__("nop");
 }
 
-static void rffc5071_spi_sck() {
-	rffc5071_spi_serial_delay();
+static void rffc5071_spi_sck(spi_t* const spi) {
+	rffc5071_spi_serial_delay(spi);
 	gpio_set(PORT_MIXER_SCLK, PIN_MIXER_SCLK);
 
-	rffc5071_spi_serial_delay();
+	rffc5071_spi_serial_delay(spi);
 	gpio_clear(PORT_MIXER_SCLK, PIN_MIXER_SCLK);
 }
 
-static uint32_t rffc5071_spi_exchange_bit(const uint32_t bit) {
-	rffc5071_spi_data_out(bit);
-	rffc5071_spi_sck();
-	return rffc5071_spi_data_in() ? 1 : 0;
+static uint32_t rffc5071_spi_exchange_bit(spi_t* const spi, const uint32_t bit) {
+	rffc5071_spi_data_out(spi, bit);
+	rffc5071_spi_sck(spi);
+	return rffc5071_spi_data_in(spi) ? 1 : 0;
 }
 
-static uint32_t rffc5071_spi_exchange_word(const uint32_t data, const size_t count) {
+static uint32_t rffc5071_spi_exchange_word(spi_t* const spi, const uint32_t data, const size_t count) {
 	size_t bits = count;
 	const uint32_t msb = 1UL << (count - 1);
 	uint32_t t = data;
 
 	while (bits--) {
-		t = (t << 1) | rffc5071_spi_exchange_bit(t & msb);
+		t = (t << 1) | rffc5071_spi_exchange_bit(spi, t & msb);
 	}
 
 	return t & ((1UL << count) - 1);
@@ -133,9 +138,7 @@ static uint32_t rffc5071_spi_exchange_word(const uint32_t data, const size_t cou
  *   next 7 bits are register address,
  *   next 16 bits are register value.
  */
-void rffc5071_spi_transfer(rffc5071_driver_t* const drv, uint16_t* const data, const size_t count) {
-	(void)drv;
-
+void rffc5071_spi_transfer(spi_t* const spi, uint16_t* const data, const size_t count) {
 	if( count != 2 ) {
 		return;
 	}
@@ -146,25 +149,25 @@ void rffc5071_spi_transfer(rffc5071_driver_t* const drv, uint16_t* const data, c
 	 * The device requires two clocks while ENX is high before a serial
 	 * transaction.  This is not clearly documented.
 	 */
-	rffc5071_spi_sck();
-	rffc5071_spi_sck();
+	rffc5071_spi_sck(spi);
+	rffc5071_spi_sck(spi);
 
-	rffc5071_target_select();
-	data[0] = rffc5071_spi_exchange_word(data[0], 9);
+	rffc5071_spi_target_select(spi);
+	data[0] = rffc5071_spi_exchange_word(spi, data[0], 9);
 
 	if( direction_read ) {
-		rffc5071_spi_direction_in();
-		rffc5071_spi_sck();
+		rffc5071_spi_direction_in(spi);
+		rffc5071_spi_sck(spi);
 	}
-	data[1] = rffc5071_spi_exchange_word(data[1], 16);
+	data[1] = rffc5071_spi_exchange_word(spi, data[1], 16);
 
-	rffc5071_spi_serial_delay();
-	rffc5071_target_unselect();
-	rffc5071_spi_direction_out();
+	rffc5071_spi_serial_delay(spi);
+	rffc5071_spi_target_unselect(spi);
+	rffc5071_spi_direction_out(spi);
 
 	/*
 	 * The device requires a clock while ENX is high after a serial
 	 * transaction.  This is not clearly documented.
 	 */
-	rffc5071_spi_sck();
+	rffc5071_spi_sck(spi);
 }

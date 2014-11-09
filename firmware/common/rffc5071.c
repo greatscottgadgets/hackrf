@@ -91,7 +91,7 @@ void rffc5071_setup(rffc5071_driver_t* const drv)
 {
 	rffc5071_init(drv);
 
-	rffc5071_pin_config(drv);
+	rffc5071_spi_init(drv->spi);
 
 	/* initial setup */
 	/* put zeros in freq contol registers */
@@ -124,7 +124,7 @@ static uint16_t rffc5071_spi_read(rffc5071_driver_t* const drv, uint8_t r) {
 	(void)drv;
 
 	uint16_t data[] = { 0x80 | (r & 0x7f), 0xffff };
-	rffc5071_spi_transfer(drv, data, 2);
+	rffc5071_spi_transfer(drv->spi, data, 2);
 	return data[1];
 }
 
@@ -132,7 +132,7 @@ static void rffc5071_spi_write(rffc5071_driver_t* const drv, uint8_t r, uint16_t
 	(void)drv;
 
 	uint16_t data[] = { 0x00 | (r & 0x7f), v };
-	rffc5071_spi_transfer(drv, data, 2);
+	rffc5071_spi_transfer(drv->spi, data, 2);
 }
 
 uint16_t rffc5071_reg_read(rffc5071_driver_t* const drv, uint8_t r)
