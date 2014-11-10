@@ -38,7 +38,7 @@ typedef struct ssp1_config_t {
 } ssp1_config_t;
 
 void spi_ssp1_init(spi_t* const spi, const void* const config);
-void spi_ssp1_transfer(spi_t* const spi, void* const value, const size_t count);
+void spi_ssp1_transfer(spi_t* const spi, void* const data, const size_t count);
 void spi_ssp1_transfer_gather(spi_t* const spi, const spi_transfer_t* const transfers, const size_t count);
 
 #endif/*__SPI_SSP1_H__*/
