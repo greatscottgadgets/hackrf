@@ -40,6 +40,8 @@ volatile bool cpld_wait = false;
 
 static void cpld_buffer_refilled(void* user_data, unsigned int length)
 {
+	(void)user_data;
+	(void)length;
 	cpld_wait = false;
 }
 
