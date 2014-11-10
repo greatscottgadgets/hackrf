@@ -31,7 +31,7 @@ static void max5864_write(max5864_driver_t* const drv, uint8_t value) {
 }
 
 static void max5864_init(max5864_driver_t* const drv) {
-	spi_init(drv->spi, &ssp1_config_max5864);
+	spi_init(drv->spi, &ssp_config_max5864);
 	max5864_target_init(drv);
 }
 

@@ -59,7 +59,7 @@ void w25q80bv_setup(w25q80bv_driver_t* const drv)
 	drv->num_pages = 4096U;
 	drv->num_bytes = 1048576U;
 
-	spi_init(drv->spi, &ssp0_config_w25q80bv);
+	spi_init(drv->spi, &ssp_config_w25q80bv);
 	w25q80bv_target_init(drv);
 
 	device_id = 0;

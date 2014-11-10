@@ -79,7 +79,7 @@ static const uint16_t max2837_regs_default[MAX2837_NUM_REGS] = {
 /* Set up all registers according to defaults specified in docs. */
 static void max2837_init(max2837_driver_t* const drv)
 {
-	spi_init(drv->spi, &ssp1_config_max2837);
+	spi_init(drv->spi, &ssp_config_max2837);
 	max2837_mode_shutdown(drv);
 	max2837_target_init(drv);
 

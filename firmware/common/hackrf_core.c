@@ -23,8 +23,7 @@
 
 #include "hackrf_core.h"
 #include "si5351c.h"
-#include "spi_ssp0.h"
-#include "spi_ssp1.h"
+#include "spi_ssp.h"
 #include "max2837.h"
 #include "max2837_target.h"
 #include "max5864.h"
@@ -43,7 +42,7 @@
 
 #define WAIT_CPU_CLOCK_INIT_DELAY   (10000)
 
-const ssp1_config_t ssp1_config_max2837 = {
+const ssp_config_t ssp_config_max2837 = {
 	/* FIXME speed up once everything is working reliably */
 	/*
 	// Freq About 0.0498MHz / 49.8KHz => Freq = PCLK / (CPSDVSR * [SCR+1]) with PCLK=PLL1=204MHz
@@ -58,7 +57,7 @@ const ssp1_config_t ssp1_config_max2837 = {
 	.unselect = max2837_target_spi_unselect,
 };
 
-const ssp1_config_t ssp1_config_max5864 = {
+const ssp_config_t ssp_config_max5864 = {
 	/* FIXME speed up once everything is working reliably */
 	/*
 	// Freq About 0.0498MHz / 49.8KHz => Freq = PCLK / (CPSDVSR * [SCR+1]) with PCLK=PLL1=204MHz
@@ -74,10 +73,11 @@ const ssp1_config_t ssp1_config_max5864 = {
 };
 
 spi_t spi_ssp1 = {
-	.config = &ssp1_config_max2837,
-	.init = spi_ssp1_init,
-	.transfer = spi_ssp1_transfer,
-	.transfer_gather = spi_ssp1_transfer_gather,
+	.obj = (void*)SSP1_BASE,
+	.config = &ssp_config_max2837,
+	.init = spi_ssp_init,
+	.transfer = spi_ssp_transfer,
+	.transfer_gather = spi_ssp_transfer_gather,
 };
 
 max2837_driver_t max2837 = {
@@ -99,7 +99,7 @@ rffc5071_driver_t rffc5072 = {
 	.spi = &rffc5071_spi,
 };
 
-const ssp0_config_t ssp0_config_w25q80bv = {
+const ssp_config_t ssp_config_w25q80bv = {
 	.data_bits = SSP_DATA_8BITS,
 	.serial_clock_rate = 2,
 	.clock_prescale_rate = 2,
@@ -108,10 +108,11 @@ const ssp0_config_t ssp0_config_w25q80bv = {
 };
 
 spi_t spi_ssp0 = {
-	.config = &ssp0_config_w25q80bv,
-	.init = spi_ssp0_init,
-	.transfer = spi_ssp0_transfer,
-	.transfer_gather = spi_ssp0_transfer_gather,
+	.obj = (void*)SSP0_BASE,
+	.config = &ssp_config_w25q80bv,
+	.init = spi_ssp_init,
+	.transfer = spi_ssp_transfer,
+	.transfer_gather = spi_ssp_transfer_gather,
 };
 
 w25q80bv_driver_t spi_flash = {
@@ -494,6 +495,12 @@ void cpu_clock_init(void)
 	/* Switch APB3 clock over to use PLL1 (204MHz) */
 	CGU_BASE_APB3_CLK = CGU_BASE_APB3_CLK_AUTOBLOCK(1)
 			| CGU_BASE_APB3_CLK_CLK_SEL(CGU_SRC_PLL1);
+
+	CGU_BASE_SSP0_CLK = CGU_BASE_SSP0_CLK_AUTOBLOCK(1)
+			| CGU_BASE_SSP0_CLK_CLK_SEL(CGU_SRC_PLL1);
+
+	CGU_BASE_SSP1_CLK = CGU_BASE_SSP1_CLK_AUTOBLOCK(1)
+			| CGU_BASE_SSP1_CLK_CLK_SEL(CGU_SRC_PLL1);
 }
 
 
@@ -589,12 +596,12 @@ void cpu_clock_pll1_max_speed(void)
 
 void ssp1_set_mode_max2837(void)
 {
-	spi_init(max2837.spi, &ssp1_config_max2837);
+	spi_init(max2837.spi, &ssp_config_max2837);
 }
 
 void ssp1_set_mode_max5864(void)
 {
-	spi_init(max5864.spi, &ssp1_config_max5864);
+	spi_init(max5864.spi, &ssp_config_max5864);
 }
 
 void pin_setup(void) {

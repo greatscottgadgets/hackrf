@@ -32,8 +32,7 @@ extern "C"
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "spi_ssp0.h"
-#include "spi_ssp1.h"
+#include "spi_ssp.h"
 
 #include "max2837.h"
 #include "max5864.h"
@@ -359,9 +358,9 @@ typedef enum {
 void delay(uint32_t duration);
 
 /* TODO: Hide these configurations */
-extern const ssp0_config_t ssp0_config_w25q80bv;
-extern const ssp1_config_t ssp1_config_max2837;
-extern const ssp1_config_t ssp1_config_max5864;
+extern const ssp_config_t ssp_config_w25q80bv;
+extern const ssp_config_t ssp_config_max2837;
+extern const ssp_config_t ssp_config_max5864;
 
 extern max2837_driver_t max2837;
 extern max5864_driver_t max5864;
