@@ -21,7 +21,6 @@
 
 #include "spi_ssp1.h"
 
-#include <libopencm3/lpc43xx/scu.h>
 #include <libopencm3/lpc43xx/ssp.h>
 
 #include "hackrf_core.h"
@@ -40,11 +39,6 @@ void spi_ssp1_init(spi_t* const spi, const void* const _config) {
 		SSP_SLAVE_OUT_ENABLE);
 
 	spi->config = config;
-	
-	/* Configure SSP1 Peripheral (to be moved later in SSP driver) */
-	scu_pinmux(SCU_SSP1_MISO, (SCU_SSP_IO | SCU_CONF_FUNCTION5));
-	scu_pinmux(SCU_SSP1_MOSI, (SCU_SSP_IO | SCU_CONF_FUNCTION5));
-	scu_pinmux(SCU_SSP1_SCK,  (SCU_SSP_IO | SCU_CONF_FUNCTION1));
 }
 
 void spi_ssp1_transfer_gather(spi_t* const spi, const spi_transfer_t* const transfers, const size_t count) {
