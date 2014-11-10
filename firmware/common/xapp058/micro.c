@@ -454,6 +454,7 @@ int xsvfInfoInit( SXsvfInfo* pXsvfInfo )
 *****************************************************************************/
 void xsvfInfoCleanup( SXsvfInfo* pXsvfInfo )
 {
+    (void)pXsvfInfo;
 }
 
 /*****************************************************************************
