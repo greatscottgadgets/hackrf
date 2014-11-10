@@ -39,6 +39,7 @@ usb_request_status_t usb_vendor_request_erase_spiflash(
 	//FIXME This should refuse to run if executing from SPI flash.
 
 	if (stage == USB_TRANSFER_STAGE_SETUP) {
+		spi_init(spi_flash.spi, &ssp_config_w25q80bv);
 		w25q80bv_setup(&spi_flash);
 		/* only chip erase is implemented */
 		w25q80bv_chip_erase(&spi_flash);
@@ -65,6 +66,7 @@ usb_request_status_t usb_vendor_request_write_spiflash(
 		} else {
 			usb_transfer_schedule_block(endpoint->out, &spiflash_buffer[0], len,
 						    NULL, NULL);
+			spi_init(spi_flash.spi, &ssp_config_w25q80bv);
 			w25q80bv_setup(&spi_flash);
 			return USB_REQUEST_STATUS_OK;
 		}

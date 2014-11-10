@@ -23,14 +23,11 @@
 
 #include "max5864.h"
 
-#include "hackrf_core.h"
-
 static void max5864_write(max5864_driver_t* const drv, uint8_t value) {
 	spi_transfer(drv->spi, &value, 1);
 }
 
 static void max5864_init(max5864_driver_t* const drv) {
-	spi_init(drv->spi, &ssp_config_max5864);
 	drv->target_init(drv);
 }
 

@@ -32,8 +32,6 @@
 
 #include "w25q80bv.h"
 
-#include "hackrf_core.h"
-
 #define ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]))
 
 #define W25Q80BV_WRITE_ENABLE 0x06
@@ -59,7 +57,6 @@ void w25q80bv_setup(w25q80bv_driver_t* const drv)
 	drv->num_pages = 4096U;
 	drv->num_bytes = 1048576U;
 
-	spi_init(drv->spi, &ssp_config_w25q80bv);
 	drv->target_init(drv);
 
 	device_id = 0;

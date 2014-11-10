@@ -649,6 +649,9 @@ void pin_setup(void) {
 	/* GPIO3[6] on P6_10  as output. */
 	GPIO3_DIR |= PIN_EN1V8;
 
+	spi_init(&spi_ssp1, &ssp_config_max2837);
+	spi_init(&rffc5071_spi, NULL);
+
 	rf_path_pin_setup();
 	
 	/* Configure external clock in */
