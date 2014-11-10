@@ -454,6 +454,7 @@ int xsvfInfoInit( SXsvfInfo* pXsvfInfo )
 *****************************************************************************/
 void xsvfInfoCleanup( SXsvfInfo* pXsvfInfo )
 {
+    (void)pXsvfInfo;
 }
 
 /*****************************************************************************
@@ -1559,16 +1560,18 @@ int xsvfDoXCOMMENT( SXsvfInfo* pXsvfInfo )
     {
         putchar( ' ' );
     }
-
+#endif
+    
     do
     {
         readByte( &ucText );
+#ifdef DEBUG_MODE
         if ( xsvf_iDebugLevel > 0 )
         {
             putchar( ucText ? ucText : '\n' );
         }
-    } while ( ucText );
 #endif
+    } while ( ucText );
 
     pXsvfInfo->iErrorCode   = XSVF_ERROR_NONE;
 

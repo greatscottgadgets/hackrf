@@ -30,17 +30,18 @@
 #include <max5864.h>
 #include <sgpio.h>
 
+volatile uint32_t buffer[4096];
+
 void tx_test() {
 	sgpio_set_slice_mode(false);
 	sgpio_configure(TRANSCEIVER_MODE_TX);
 
 	// LSB goes out first, samples are 0x<Q1><I1><Q0><I0>
-	volatile uint32_t buffer[] = {
-		0xda808080,
-		0xda80ff80,
-		0x26808080,
-		0x26800180,
-	};
+	buffer[0] = 0xda808080;
+	buffer[1] = 0xda80ff80;
+	buffer[2] = 0x26808080;
+	buffer[3] = 0x26800180;
+
 	uint32_t i = 0;
 
 	sgpio_cpld_stream_enable();
@@ -56,7 +57,6 @@ void rx_test() {
 	sgpio_set_slice_mode(false);
 	sgpio_configure(TRANSCEIVER_MODE_RX);
     
-    volatile uint32_t buffer[4096];
     uint32_t i = 0;
 
 	sgpio_cpld_stream_enable();
