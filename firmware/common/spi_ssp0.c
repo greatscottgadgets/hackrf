@@ -21,7 +21,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include "w25q80bv_spi.h"
+#include "spi_ssp0.h"
 
 #include <libopencm3/lpc43xx/gpio.h>
 #include <libopencm3/lpc43xx/rgu.h>
@@ -30,26 +30,23 @@
 
 #include "hackrf_core.h"
 
-void w25q80bv_spi_init(spi_t* const spi, const void* const config) {
-	(void)spi;
-	(void)config;
-	
-	const uint8_t serial_clock_rate = 2;
-	const uint8_t clock_prescale_rate = 2;
-
+void spi_ssp0_init(spi_t* const spi, const void* const _config) {
 	/* Reset SPIFI peripheral before to Erase/Write SPIFI memory through SPI */
 	RESET_CTRL1 = RESET_CTRL1_SPIFI_RST;
 	
-	/* initialize SSP0 */
+	const ssp0_config_t* const config = _config;
+
 	ssp_init(SSP0_NUM,
-			SSP_DATA_8BITS,
-			SSP_FRAME_SPI,
-			SSP_CPOL_0_CPHA_0,
-			serial_clock_rate,
-			clock_prescale_rate,
-			SSP_MODE_NORMAL,
-			SSP_MASTER,
-			SSP_SLAVE_OUT_ENABLE);
+		config->data_bits,
+		SSP_FRAME_SPI,
+		SSP_CPOL_0_CPHA_0,
+		config->serial_clock_rate,
+		config->clock_prescale_rate,
+		SSP_MODE_NORMAL,
+		SSP_MASTER,
+		SSP_SLAVE_OUT_ENABLE);
+
+	spi->config = config;
 
 	/* Init SPIFI GPIO to Normal GPIO */
 	scu_pinmux(P3_3, (SCU_SSP_IO | SCU_CONF_FUNCTION2));    // P3_3 SPIFI_SCK => SSP0_SCK
@@ -67,37 +64,41 @@ void w25q80bv_spi_init(spi_t* const spi, const void* const config) {
 	/* configure GPIO pins */
 	scu_pinmux(SCU_FLASH_HOLD, SCU_GPIO_FAST);
 	scu_pinmux(SCU_FLASH_WP, SCU_GPIO_FAST);
-	scu_pinmux(SCU_SSP0_SSEL, (SCU_GPIO_FAST | SCU_CONF_FUNCTION4));
 
 	/* drive SSEL, HOLD, and WP pins high */
 	gpio_set(PORT_FLASH, (PIN_FLASH_HOLD | PIN_FLASH_WP));
-	gpio_set(PORT_SSP0_SSEL, PIN_SSP0_SSEL);
 
 	/* Set GPIO pins as outputs. */
 	GPIO1_DIR |= (PIN_FLASH_HOLD | PIN_FLASH_WP);
-	GPIO5_DIR |= PIN_SSP0_SSEL;
 }
 
-void w25q80bv_spi_transfer_gather(
-	spi_t* const spi,
-	const spi_transfer_t* const transfers,
-	const size_t transfer_count
-) {
-	(void)spi;
+void spi_ssp0_transfer_gather(spi_t* const spi, const spi_transfer_t* const transfers, const size_t count) {
+	const ssp0_config_t* const config = spi->config;
 
-	gpio_clear(PORT_SSP0_SSEL, PIN_SSP0_SSEL);
-	for(size_t i=0; i<transfer_count; i++) {
-		uint8_t* const p = transfers[i].data;
-		for(size_t j=0; j<transfers[i].count; j++) {
-			p[j] = ssp_transfer(SSP0_NUM, p[j]);
+	const size_t word_size = (SSP0_CR0 & 0xf) + 1;
+
+	config->select(spi);
+	for(size_t i=0; i<count; i++) {
+		const size_t data_count = transfers[i].count;
+
+		if( word_size > 8 ) {
+			uint16_t* const data = transfers[i].data;
+			for(size_t j=0; j<data_count; j++) {
+				data[j] = ssp_transfer(SSP0_NUM, data[j]);
+			}
+		} else {
+			uint8_t* const data = transfers[i].data;
+			for(size_t j=0; j<data_count; j++) {
+				data[j] = ssp_transfer(SSP0_NUM, data[j]);
+			}
 		}
 	}
-	gpio_set(PORT_SSP0_SSEL, PIN_SSP0_SSEL);
+	config->unselect(spi);
 }
 
-void w25q80bv_spi_transfer(spi_t* const spi, void* const data, const size_t count) {
+void spi_ssp0_transfer(spi_t* const spi, void* const data, const size_t count) {
 	const spi_transfer_t transfers[] = {
 		{ data, count },
 	};
-	w25q80bv_spi_transfer_gather(spi, transfers, 1);
+	spi_ssp0_transfer_gather(spi, transfers, 1);
 }

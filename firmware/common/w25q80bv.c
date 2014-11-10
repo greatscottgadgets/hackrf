@@ -30,7 +30,9 @@
 #include <stdint.h>
 
 #include "w25q80bv.h"
-#include "w25q80bv_spi.h"
+#include "w25q80bv_target.h"
+
+#include "hackrf_core.h"
 
 #define ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]))
 
@@ -49,7 +51,6 @@
  * Set up pins for GPIO and SPI control, configure SSP0 peripheral for SPI.
  * SSP0_SSEL is controlled by GPIO in order to handle various transfer lengths.
  */
-
 void w25q80bv_setup(w25q80bv_driver_t* const drv)
 {
 	uint8_t device_id;
@@ -58,7 +59,8 @@ void w25q80bv_setup(w25q80bv_driver_t* const drv)
 	drv->num_pages = 4096U;
 	drv->num_bytes = 1048576U;
 
-	spi_init(drv->spi, NULL);
+	spi_init(drv->spi, &ssp0_config_w25q80bv);
+	w25q80bv_target_init(drv);
 
 	device_id = 0;
 	while(device_id != W25Q80BV_DEVICE_ID_RES)
@@ -199,14 +201,3 @@ void w25q80bv_program(w25q80bv_driver_t* const drv, uint32_t addr, uint32_t len,
 		w25q80bv_page_program(drv, addr, len, data);
 	}
 }
-
-spi_t w25q80bv_spi = {
-	.config = NULL,
-	.init = w25q80bv_spi_init,
-	.transfer = w25q80bv_spi_transfer,
-	.transfer_gather = w25q80bv_spi_transfer_gather,
-};
-
-w25q80bv_driver_t spi_flash = {
-	.spi = &w25q80bv_spi,
-};

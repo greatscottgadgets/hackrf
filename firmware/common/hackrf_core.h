@@ -32,11 +32,13 @@ extern "C"
 #include <stdint.h>
 #include <stdbool.h>
 
+#include "spi_ssp0.h"
 #include "spi_ssp1.h"
 
 #include "max2837.h"
 #include "max5864.h"
 #include "rffc5071.h"
+#include "w25q80bv.h"
 
 /* hardware identification number */
 #define BOARD_ID_JELLYBEAN  0
@@ -356,12 +358,15 @@ typedef enum {
 
 void delay(uint32_t duration);
 
+/* TODO: Hide these configurations */
+extern const ssp0_config_t ssp0_config_w25q80bv;
 extern const ssp1_config_t ssp1_config_max2837;
 extern const ssp1_config_t ssp1_config_max5864;
 
 extern max2837_driver_t max2837;
 extern max5864_driver_t max5864;
 extern rffc5071_driver_t rffc5072;
+extern w25q80bv_driver_t spi_flash;
 
 void cpu_clock_init(void);
 void cpu_clock_pll1_low_speed(void);

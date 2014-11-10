@@ -1,7 +1,5 @@
 /*
- * Copyright 2013 Michael Ossmann
- * Copyright 2013 Benjamin Vernoux
- * Copyright 2014 Jared Boone, ShareBrained Technology
+ * Copyright (C) 2014 Jared Boone, ShareBrained Technology
  *
  * This file is part of HackRF.
  *
@@ -21,15 +19,26 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __W25Q80BV_SPI_H__
-#define __W25Q80BV_SPI_H__
+#ifndef __SPI_SSP0_H__
+#define __SPI_SSP0_H__
 
+#include <stdint.h>
 #include <stddef.h>
 
 #include "spi.h"
 
-void w25q80bv_spi_init(spi_t* const spi, const void* const config);
-void w25q80bv_spi_transfer_gather(spi_t* const spi, const spi_transfer_t* const transfers, const size_t transfer_count);
-void w25q80bv_spi_transfer(spi_t* const spi, void* const data, const size_t count);
+#include <libopencm3/lpc43xx/ssp.h>
 
-#endif/*__W25Q80BV_SPI_H__*/
+typedef struct ssp0_config_t {
+	ssp_datasize_t data_bits;
+	uint8_t serial_clock_rate;
+	uint8_t clock_prescale_rate;
+	void (*select)(spi_t* const spi);
+	void (*unselect)(spi_t* const spi);
+} ssp0_config_t;
+
+void spi_ssp0_init(spi_t* const spi, const void* const config);
+void spi_ssp0_transfer(spi_t* const spi, void* const data, const size_t count);
+void spi_ssp0_transfer_gather(spi_t* const spi, const spi_transfer_t* const transfers, const size_t count);
+
+#endif/*__SPI_SSP0_H__*/

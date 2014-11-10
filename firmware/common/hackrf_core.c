@@ -23,6 +23,7 @@
 
 #include "hackrf_core.h"
 #include "si5351c.h"
+#include "spi_ssp0.h"
 #include "spi_ssp1.h"
 #include "max2837.h"
 #include "max2837_target.h"
@@ -30,6 +31,8 @@
 #include "max5864_target.h"
 #include "rffc5071.h"
 #include "rffc5071_spi.h"
+#include "w25q80bv.h"
+#include "w25q80bv_target.h"
 #include "sgpio.h"
 #include "rf_path.h"
 #include <libopencm3/lpc43xx/i2c.h>
@@ -94,6 +97,25 @@ spi_t rffc5071_spi = {
 
 rffc5071_driver_t rffc5072 = {
 	.spi = &rffc5071_spi,
+};
+
+const ssp0_config_t ssp0_config_w25q80bv = {
+	.data_bits = SSP_DATA_8BITS,
+	.serial_clock_rate = 2,
+	.clock_prescale_rate = 2,
+	.select = w25q80bv_target_spi_select,
+	.unselect = w25q80bv_target_spi_unselect,
+};
+
+spi_t spi_ssp0 = {
+	.config = &ssp0_config_w25q80bv,
+	.init = spi_ssp0_init,
+	.transfer = spi_ssp0_transfer,
+	.transfer_gather = spi_ssp0_transfer_gather,
+};
+
+w25q80bv_driver_t spi_flash = {
+	.spi = &spi_ssp0,
 };
 
 void delay(uint32_t duration)
