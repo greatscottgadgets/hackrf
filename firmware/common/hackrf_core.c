@@ -23,11 +23,10 @@
 
 #include "hackrf_core.h"
 #include "si5351c.h"
+#include "spi_ssp1.h"
 #include "max2837.h"
-#include "max2837_spi.h"
 #include "max2837_target.h"
 #include "max5864.h"
-#include "max5864_spi.h"
 #include "max5864_target.h"
 #include "rffc5071.h"
 #include "rffc5071_spi.h"
@@ -41,27 +40,53 @@
 
 #define WAIT_CPU_CLOCK_INIT_DELAY   (10000)
 
-spi_t max2837_spi = {
-	.init = max2837_spi_init,
-	.transfer = max2837_spi_transfer,
-	.transfer_gather = max2837_spi_transfer_gather,
+const ssp1_config_t ssp1_config_max2837 = {
+	/* FIXME speed up once everything is working reliably */
+	/*
+	// Freq About 0.0498MHz / 49.8KHz => Freq = PCLK / (CPSDVSR * [SCR+1]) with PCLK=PLL1=204MHz
+	const uint8_t serial_clock_rate = 32;
+	const uint8_t clock_prescale_rate = 128;
+	*/
+	// Freq About 4.857MHz => Freq = PCLK / (CPSDVSR * [SCR+1]) with PCLK=PLL1=204MHz
+	.data_bits = SSP_DATA_16BITS,
+	.serial_clock_rate = 21,
+	.clock_prescale_rate = 2,
+	.select = max2837_target_spi_select,
+	.unselect = max2837_target_spi_unselect,
+};
+
+const ssp1_config_t ssp1_config_max5864 = {
+	/* FIXME speed up once everything is working reliably */
+	/*
+	// Freq About 0.0498MHz / 49.8KHz => Freq = PCLK / (CPSDVSR * [SCR+1]) with PCLK=PLL1=204MHz
+	const uint8_t serial_clock_rate = 32;
+	const uint8_t clock_prescale_rate = 128;
+	*/
+	// Freq About 4.857MHz => Freq = PCLK / (CPSDVSR * [SCR+1]) with PCLK=PLL1=204MHz
+	.data_bits = SSP_DATA_8BITS,
+	.serial_clock_rate = 21,
+	.clock_prescale_rate = 2,
+	.select = max5864_target_spi_select,
+	.unselect = max5864_target_spi_unselect,
+};
+
+spi_t spi_ssp1 = {
+	.config = &ssp1_config_max2837,
+	.init = spi_ssp1_init,
+	.transfer = spi_ssp1_transfer,
+	.transfer_gather = spi_ssp1_transfer_gather,
 };
 
 max2837_driver_t max2837 = {
-	.spi = &max2837_spi,
-};
-
-spi_t max5864_spi = {
-	.init = max5864_spi_init,
-	.transfer = max5864_spi_transfer,
-	.transfer_gather = max5864_spi_transfer_gather,
+	.spi = &spi_ssp1,
 };
 
 max5864_driver_t max5864 = {
-	.spi = &max5864_spi,
+	.spi = &spi_ssp1,
 };
 
 spi_t rffc5071_spi = {
+	.config = NULL,
 	.init = rffc5071_spi_init,
 	.transfer = rffc5071_spi_transfer,
 	.transfer_gather = rffc5071_spi_transfer_gather,
@@ -542,12 +567,12 @@ void cpu_clock_pll1_max_speed(void)
 
 void ssp1_set_mode_max2837(void)
 {
-	spi_init(max2837.spi);
+	spi_init(max2837.spi, &ssp1_config_max2837);
 }
 
 void ssp1_set_mode_max5864(void)
 {
-	spi_init(max5864.spi);
+	spi_init(max5864.spi, &ssp1_config_max5864);
 }
 
 void pin_setup(void) {

@@ -58,7 +58,7 @@ void w25q80bv_setup(w25q80bv_driver_t* const drv)
 	drv->num_pages = 4096U;
 	drv->num_bytes = 1048576U;
 
-	spi_init(drv->spi);
+	spi_init(drv->spi, NULL);
 
 	device_id = 0;
 	while(device_id != W25Q80BV_DEVICE_ID_RES)
@@ -201,6 +201,7 @@ void w25q80bv_program(w25q80bv_driver_t* const drv, uint32_t addr, uint32_t len,
 }
 
 spi_t w25q80bv_spi = {
+	.config = NULL,
 	.init = w25q80bv_spi_init,
 	.transfer = w25q80bv_spi_transfer,
 	.transfer_gather = w25q80bv_spi_transfer_gather,

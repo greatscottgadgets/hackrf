@@ -77,6 +77,16 @@ void max2837_target_init(max2837_driver_t* const drv) {
 #endif
 }
 
+void max2837_target_spi_select(spi_t* const spi) {
+	(void)spi;
+	gpio_clear(PORT_XCVR_CS, PIN_XCVR_CS);
+}
+
+void max2837_target_spi_unselect(spi_t* const spi) {
+	(void)spi;
+	gpio_set(PORT_XCVR_CS, PIN_XCVR_CS);
+}
+
 void max2837_mode_shutdown(max2837_driver_t* const drv) {
 	(void)drv;
 	/* All circuit blocks are powered down, except the 4-wire serial bus

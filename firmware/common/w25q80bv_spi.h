@@ -28,7 +28,7 @@
 
 #include "spi.h"
 
-void w25q80bv_spi_init(spi_t* const spi);
+void w25q80bv_spi_init(spi_t* const spi, const void* const config);
 void w25q80bv_spi_transfer_gather(spi_t* const spi, const spi_transfer_t* const transfers, const size_t transfer_count);
 void w25q80bv_spi_transfer(spi_t* const spi, void* const data, const size_t count);
 

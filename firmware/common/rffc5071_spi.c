@@ -83,7 +83,8 @@ static void rffc5071_spi_target_init(spi_t* const spi) {
 	gpio_set(PORT_MIXER_RESETX, PIN_MIXER_RESETX); /* active low */
 }
 
-void rffc5071_spi_init(spi_t* const spi) {
+void rffc5071_spi_init(spi_t* const spi, const void* const config) {
+	(void)config;
 	rffc5071_spi_bus_init(spi);
 	rffc5071_spi_target_init(spi);
 }

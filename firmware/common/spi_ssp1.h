@@ -19,15 +19,26 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __MAX5864_SPI_H__
-#define __MAX5864_SPI_H__
+#ifndef __SPI_SSP1_H__
+#define __SPI_SSP1_H__
 
+#include <stdint.h>
 #include <stddef.h>
 
 #include "spi.h"
 
-void max5864_spi_init(spi_t* const spi);
-void max5864_spi_transfer(spi_t* const spi, void* const value, const size_t count);
-void max5864_spi_transfer_gather(spi_t* const spi, const spi_transfer_t* const transfers, const size_t count);
+#include <libopencm3/lpc43xx/ssp.h>
 
-#endif/*__MAX5864_SPI_H__*/
+typedef struct ssp1_config_t {
+	ssp_datasize_t data_bits;
+	uint8_t serial_clock_rate;
+	uint8_t clock_prescale_rate;
+	void (*select)(spi_t* const spi);
+	void (*unselect)(spi_t* const spi);
+} ssp1_config_t;
+
+void spi_ssp1_init(spi_t* const spi, const void* const config);
+void spi_ssp1_transfer(spi_t* const spi, void* const value, const size_t count);
+void spi_ssp1_transfer_gather(spi_t* const spi, const spi_transfer_t* const transfers, const size_t count);
+
+#endif/*__SPI_SSP1_H__*/

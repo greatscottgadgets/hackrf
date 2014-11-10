@@ -1,5 +1,4 @@
 /*
- * Copyright 2012 Will Code? (TODO: Proper attribution)
  * Copyright (C) 2014 Jared Boone, ShareBrained Technology, Inc.
  *
  * This file is part of HackRF.
@@ -20,60 +19,61 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include "max2837_spi.h"
+#include "spi_ssp1.h"
 
-#include <libopencm3/lpc43xx/gpio.h>
 #include <libopencm3/lpc43xx/scu.h>
 #include <libopencm3/lpc43xx/ssp.h>
 
 #include "hackrf_core.h"
 
-void max2837_spi_init(spi_t* const spi) {
-	(void)spi;
+void spi_ssp1_init(spi_t* const spi, const void* const _config) {
+	const ssp1_config_t* const config = _config;
 
-	/* FIXME speed up once everything is working reliably */
-	/*
-	// Freq About 0.0498MHz / 49.8KHz => Freq = PCLK / (CPSDVSR * [SCR+1]) with PCLK=PLL1=204MHz
-	const uint8_t serial_clock_rate = 32;
-	const uint8_t clock_prescale_rate = 128;
-	*/
-	// Freq About 4.857MHz => Freq = PCLK / (CPSDVSR * [SCR+1]) with PCLK=PLL1=204MHz
-	const uint8_t serial_clock_rate = 21;
-	const uint8_t clock_prescale_rate = 2;
-	
 	ssp_init(SSP1_NUM,
-		SSP_DATA_16BITS,
+		config->data_bits,
 		SSP_FRAME_SPI,
 		SSP_CPOL_0_CPHA_0,
-		serial_clock_rate,
-		clock_prescale_rate,
+		config->serial_clock_rate,
+		config->clock_prescale_rate,
 		SSP_MODE_NORMAL,
 		SSP_MASTER,
 		SSP_SLAVE_OUT_ENABLE);
 
+	spi->config = config;
+	
 	/* Configure SSP1 Peripheral (to be moved later in SSP driver) */
 	scu_pinmux(SCU_SSP1_MISO, (SCU_SSP_IO | SCU_CONF_FUNCTION5));
 	scu_pinmux(SCU_SSP1_MOSI, (SCU_SSP_IO | SCU_CONF_FUNCTION5));
 	scu_pinmux(SCU_SSP1_SCK,  (SCU_SSP_IO | SCU_CONF_FUNCTION1));
 }
 
-void max2837_spi_transfer_gather(spi_t* const spi, const spi_transfer_t* const transfers, const size_t count) {
-	(void)spi;
+void spi_ssp1_transfer_gather(spi_t* const spi, const spi_transfer_t* const transfers, const size_t count) {
+	const ssp1_config_t* const config = spi->config;
 
-	gpio_clear(PORT_XCVR_CS, PIN_XCVR_CS);
+	const size_t word_size = (SSP1_CR0 & 0xf) + 1;
+
+	config->select(spi);
 	for(size_t i=0; i<count; i++) {
 		const size_t data_count = transfers[i].count;
-		uint16_t* const data = transfers[i].data;
-		for(size_t j=0; j<data_count; j++) {
-			data[j] = ssp_transfer(SSP1_NUM, data[j]);
+
+		if( word_size > 8 ) {
+			uint16_t* const data = transfers[i].data;
+			for(size_t j=0; j<data_count; j++) {
+				data[j] = ssp_transfer(SSP1_NUM, data[j]);
+			}
+		} else {
+			uint8_t* const data = transfers[i].data;
+			for(size_t j=0; j<data_count; j++) {
+				data[j] = ssp_transfer(SSP1_NUM, data[j]);
+			}
 		}
-	}		
-	gpio_set(PORT_XCVR_CS, PIN_XCVR_CS);
+	}
+	config->unselect(spi);
 }
 
-void max2837_spi_transfer(spi_t* const spi, void* const data, const size_t count) {
+void spi_ssp1_transfer(spi_t* const spi, void* const data, const size_t count) {
 	const spi_transfer_t transfers[] = {
 		{ data, count },
 	};
-	max2837_spi_transfer_gather(spi, transfers, 1);
+	spi_ssp1_transfer_gather(spi, transfers, 1);
 }

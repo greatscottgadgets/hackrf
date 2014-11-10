@@ -90,7 +90,7 @@ void rffc5071_setup(rffc5071_driver_t* const drv)
 {
 	rffc5071_init(drv);
 
-	spi_init(drv->spi);
+	spi_init(drv->spi, NULL);
 
 	/* initial setup */
 	/* put zeros in freq contol registers */

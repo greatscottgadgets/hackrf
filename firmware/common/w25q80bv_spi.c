@@ -30,8 +30,9 @@
 
 #include "hackrf_core.h"
 
-void w25q80bv_spi_init(spi_t* const spi) {
+void w25q80bv_spi_init(spi_t* const spi, const void* const config) {
 	(void)spi;
+	(void)config;
 	
 	const uint8_t serial_clock_rate = 2;
 	const uint8_t clock_prescale_rate = 2;

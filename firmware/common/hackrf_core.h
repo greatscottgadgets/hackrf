@@ -32,6 +32,8 @@ extern "C"
 #include <stdint.h>
 #include <stdbool.h>
 
+#include "spi_ssp1.h"
+
 #include "max2837.h"
 #include "max5864.h"
 #include "rffc5071.h"
@@ -353,6 +355,10 @@ typedef enum {
 } transceiver_mode_t;
 
 void delay(uint32_t duration);
+
+extern const ssp1_config_t ssp1_config_max2837;
+extern const ssp1_config_t ssp1_config_max5864;
+
 extern max2837_driver_t max2837;
 extern max5864_driver_t max5864;
 extern rffc5071_driver_t rffc5072;

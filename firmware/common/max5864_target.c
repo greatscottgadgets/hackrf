@@ -36,3 +36,13 @@ void max5864_target_init(max5864_driver_t* const drv) {
 	GPIO_SET(PORT_AD_CS) = PIN_AD_CS;
 	GPIO_DIR(PORT_AD_CS) |= PIN_AD_CS;
 }
+
+void max5864_target_spi_select(spi_t* const spi) {
+	(void)spi;
+	gpio_clear(PORT_AD_CS, PIN_AD_CS);
+}
+
+void max5864_target_spi_unselect(spi_t* const spi) {
+	(void)spi;
+	gpio_set(PORT_AD_CS, PIN_AD_CS);
+}

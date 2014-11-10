@@ -24,8 +24,12 @@
 #define __MAX2837_TARGET_H
 
 #include "max2837.h"
+#include "spi.h"
 
 void max2837_target_init(max2837_driver_t* const drv);
+void max2837_target_spi_select(spi_t* const spi);
+void max2837_target_spi_unselect(spi_t* const spi);
+
 void max2837_mode_shutdown(max2837_driver_t* const drv);
 void max2837_mode_standby(max2837_driver_t* const drv);
 void max2837_mode_tx(max2837_driver_t* const drv);
