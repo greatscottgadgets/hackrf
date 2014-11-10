@@ -35,7 +35,6 @@ extern "C"
 #include "max2837.h"
 #include "max5864.h"
 #include "rffc5071.h"
-#include "w25q80bv.h"
 
 /* hardware identification number */
 #define BOARD_ID_JELLYBEAN  0
@@ -357,7 +356,6 @@ void delay(uint32_t duration);
 extern max2837_driver_t max2837;
 extern max5864_driver_t max5864;
 extern rffc5071_driver_t rffc5072;
-extern w25q80bv_driver_t spi_flash;
 
 void cpu_clock_init(void);
 void cpu_clock_pll1_low_speed(void);

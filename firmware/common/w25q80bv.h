@@ -24,9 +24,10 @@
 #ifndef __W25Q80BV_H__
 #define __W25Q80BV_H__
 
+#include <stdint.h>
 #include <stddef.h>
 
-#include "w25q80bv_drv.h"
+#include "spi.h"
 
 typedef union
 {
@@ -36,7 +37,7 @@ typedef union
 } w25q80bv_unique_id_t;
 
 typedef struct {
-	w25q80bv_hw_t* hw;
+	spi_t* spi;
 	size_t page_len;
 	size_t num_pages;
 	size_t num_bytes;
@@ -47,5 +48,7 @@ void w25q80bv_chip_erase(w25q80bv_driver_t* const drv);
 void w25q80bv_program(w25q80bv_driver_t* const drv, uint32_t addr, uint32_t len, uint8_t* data);
 uint8_t w25q80bv_get_device_id(w25q80bv_driver_t* const drv);
 void w25q80bv_get_unique_id(w25q80bv_driver_t* const drv, w25q80bv_unique_id_t* unique_id);
+
+extern w25q80bv_driver_t spi_flash;
 
 #endif//__W25Q80BV_H__

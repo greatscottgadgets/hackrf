@@ -21,27 +21,15 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __W25Q80BV_DRV_H__
-#define __W25Q80BV_DRV_H__
+#ifndef __W25Q80BV_SPI_H__
+#define __W25Q80BV_SPI_H__
 
-#include <stdint.h>
 #include <stddef.h>
 
-typedef struct {
-	uint8_t* const data;
-	const size_t count;
-} w25q80bv_transfer_t;
+#include "spi.h"
 
-typedef struct {
-	/* Empty for now */
-} w25q80bv_hw_t;
+void w25q80bv_spi_init(spi_t* const spi);
+void w25q80bv_spi_transfer_gather(spi_t* const spi, const spi_transfer_t* const transfers, const size_t transfer_count);
+void w25q80bv_spi_transfer(spi_t* const spi, void* const data, const size_t count);
 
-void w25q80bv_hw_init(w25q80bv_hw_t* const hw);
-void w25q80bv_hw_transfer(w25q80bv_hw_t* const hw, uint8_t* data, const size_t count);
-void w25q80bv_hw_transfer_multiple(
-	w25q80bv_hw_t* const hw,
-	const w25q80bv_transfer_t* const transfers,
-	const size_t transfer_count
-);
-
-#endif//__W25Q80BV_DRV_H__
+#endif/*__W25Q80BV_SPI_H__*/

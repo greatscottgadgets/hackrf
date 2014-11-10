@@ -67,11 +67,9 @@ spi_t rffc5071_spi = {
 	.transfer_gather = rffc5071_spi_transfer_gather,
 };
 
-w25q80bv_driver_t spi_flash;
 rffc5071_driver_t rffc5072 = {
 	.spi = &rffc5071_spi,
 };
-
 
 void delay(uint32_t duration)
 {
