@@ -31,7 +31,6 @@
 #include <stdint.h>
 #include <string.h>
 #include "max2837.h"
-#include "max2837_target.h"
 #include "max2837_regs.def" // private register def macros
 
 #include "hackrf_core.h"
@@ -80,7 +79,7 @@ static const uint16_t max2837_regs_default[MAX2837_NUM_REGS] = {
 static void max2837_init(max2837_driver_t* const drv)
 {
 	spi_init(drv->spi, &ssp_config_max2837);
-	max2837_target_init(drv);
+	drv->target_init(drv);
 	max2837_set_mode(drv, MAX2837_MODE_SHUTDOWN);
 
 	memcpy(drv->regs, max2837_regs_default, sizeof(drv->regs));

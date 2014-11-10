@@ -28,9 +28,9 @@
  */
 
 #include <stdint.h>
+#include <stddef.h>
 
 #include "w25q80bv.h"
-#include "w25q80bv_target.h"
 
 #include "hackrf_core.h"
 
@@ -60,7 +60,7 @@ void w25q80bv_setup(w25q80bv_driver_t* const drv)
 	drv->num_bytes = 1048576U;
 
 	spi_init(drv->spi, &ssp_config_w25q80bv);
-	w25q80bv_target_init(drv);
+	drv->target_init(drv);
 
 	device_id = 0;
 	while(device_id != W25Q80BV_DEVICE_ID_RES)

@@ -26,7 +26,6 @@
 #include <rffc5071.h>
 #include <max2837.h>
 #include <sgpio.h>
-#include "max2837_target.h"
 
 #define FREQ_ONE_MHZ     (1000*1000)
 

@@ -24,9 +24,13 @@
 
 #include "spi.h"
 
-typedef struct max5864_driver_t {
+struct max5864_driver_t;
+typedef struct max5864_driver_t max5864_driver_t;
+
+struct max5864_driver_t {
 	spi_t* const spi;
-} max5864_driver_t;
+	void (*target_init)(max5864_driver_t* const drv);
+};
 
 void max5864_setup(max5864_driver_t* const drv);
 

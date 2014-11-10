@@ -82,11 +82,13 @@ spi_t spi_ssp1 = {
 
 max2837_driver_t max2837 = {
 	.spi = &spi_ssp1,
+	.target_init = max2837_target_init,
 	.set_mode = max2837_target_set_mode,
 };
 
 max5864_driver_t max5864 = {
 	.spi = &spi_ssp1,
+	.target_init = max5864_target_init,
 };
 
 spi_t rffc5071_spi = {
@@ -118,6 +120,7 @@ spi_t spi_ssp0 = {
 
 w25q80bv_driver_t spi_flash = {
 	.spi = &spi_ssp0,
+	.target_init = w25q80bv_target_init,
 };
 
 void delay(uint32_t duration)

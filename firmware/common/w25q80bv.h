@@ -36,12 +36,16 @@ typedef union
 	uint8_t id_8b[8]; /* 8*8bits 64bits Unique ID */
 } w25q80bv_unique_id_t;
 
-typedef struct {
+struct w25q80bv_driver_t;
+typedef struct w25q80bv_driver_t w25q80bv_driver_t;
+
+struct w25q80bv_driver_t {
 	spi_t* spi;
+	void (*target_init)(w25q80bv_driver_t* const drv);
 	size_t page_len;
 	size_t num_pages;
 	size_t num_bytes;
-} w25q80bv_driver_t;
+};
 
 void w25q80bv_setup(w25q80bv_driver_t* const drv);
 void w25q80bv_chip_erase(w25q80bv_driver_t* const drv);
