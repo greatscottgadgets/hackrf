@@ -65,7 +65,7 @@ bool set_freq(const uint64_t freq)
 	success = true;
 
 	const max2837_mode_t prior_max2837_mode = max2837_mode(&max2837);
-	max2837_mode_standby(&max2837);
+	max2837_set_mode(&max2837, MAX2837_MODE_STANDBY);
 	if(freq_mhz < MAX_LP_FREQ_MHZ)
 	{
 		rf_path_set_filter(RF_PATH_FILTER_LOW_PASS);

@@ -27,13 +27,9 @@
 #include "spi.h"
 
 void max2837_target_init(max2837_driver_t* const drv);
+void max2837_target_set_mode(max2837_driver_t* const drv, const max2837_mode_t new_mode);
+
 void max2837_target_spi_select(spi_t* const spi);
 void max2837_target_spi_unselect(spi_t* const spi);
-
-void max2837_mode_shutdown(max2837_driver_t* const drv);
-void max2837_mode_standby(max2837_driver_t* const drv);
-void max2837_mode_tx(max2837_driver_t* const drv);
-void max2837_mode_rx(max2837_driver_t* const drv);
-max2837_mode_t max2837_mode(max2837_driver_t* const drv);
 
 #endif // __MAX2837_TARGET_H

@@ -82,6 +82,7 @@ spi_t spi_ssp1 = {
 
 max2837_driver_t max2837 = {
 	.spi = &spi_ssp1,
+	.set_mode = max2837_target_set_mode,
 };
 
 max5864_driver_t max5864 = {

@@ -41,6 +41,8 @@ typedef enum {
 
 typedef struct {
 	spi_t* const spi;
+	void (*set_mode)(max2837_driver_t* const drv, const max2837_mode_t new_mode);
+	max2837_mode_t mode;
 	uint16_t regs[MAX2837_NUM_REGS];
 	uint32_t regs_dirty;
 } max2837_driver_t;

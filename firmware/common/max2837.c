@@ -80,8 +80,8 @@ static const uint16_t max2837_regs_default[MAX2837_NUM_REGS] = {
 static void max2837_init(max2837_driver_t* const drv)
 {
 	spi_init(drv->spi, &ssp_config_max2837);
-	max2837_mode_shutdown(drv);
 	max2837_target_init(drv);
+	max2837_set_mode(drv, MAX2837_MODE_SHUTDOWN);
 
 	memcpy(drv->regs, max2837_regs_default, sizeof(drv->regs));
 	drv->regs_dirty = 0xffffffff;
@@ -165,54 +165,39 @@ void max2837_regs_commit(max2837_driver_t* const drv)
 }
 
 void max2837_set_mode(max2837_driver_t* const drv, const max2837_mode_t new_mode) {
-	switch(new_mode) {
-	case MAX2837_MODE_SHUTDOWN:
-		max2837_mode_shutdown(drv);
-		break;
-		
-	case MAX2837_MODE_STANDBY:
-		max2837_mode_standby(drv);
-		break;
-		
-	case MAX2837_MODE_TX:
-		max2837_mode_tx(drv);
-		break;
+	drv->set_mode(drv, new_mode);
+}
 
-	case MAX2837_MODE_RX:
-		max2837_mode_rx(drv);
-		break;
-		
-	default:
-		break;
-	}
+max2837_mode_t max2837_mode(max2837_driver_t* const drv) {
+	return drv->mode;
 }
 
 void max2837_start(max2837_driver_t* const drv)
 {
 	set_MAX2837_EN_SPI(drv, 1);
 	max2837_regs_commit(drv);
-	max2837_mode_standby(drv);
+	max2837_set_mode(drv, MAX2837_MODE_STANDBY);
 }
 
 void max2837_tx(max2837_driver_t* const drv)
 {
 	set_MAX2837_ModeCtrl(drv, MAX2837_ModeCtrl_TxLPF);
 	max2837_regs_commit(drv);
-	max2837_mode_tx(drv);
+	max2837_set_mode(drv, MAX2837_MODE_TX);
 }
 
 void max2837_rx(max2837_driver_t* const drv)
 {
 	set_MAX2837_ModeCtrl(drv, MAX2837_ModeCtrl_RxLPF);
 	max2837_regs_commit(drv);
-	max2837_mode_rx(drv);
+	max2837_set_mode(drv, MAX2837_MODE_RX);
 }
 
 void max2837_stop(max2837_driver_t* const drv)
 {
 	set_MAX2837_EN_SPI(drv, 0);
 	max2837_regs_commit(drv);
-	max2837_mode_shutdown(drv);
+	max2837_set_mode(drv, MAX2837_MODE_SHUTDOWN);
 }
 
 void max2837_set_frequency(max2837_driver_t* const drv, uint32_t freq)

@@ -92,17 +92,16 @@ void max2837_target_spi_unselect(spi_t* const spi) {
 	gpio_set(PORT_XCVR_CS, PIN_XCVR_CS);
 }
 
-void max2837_mode_shutdown(max2837_driver_t* const drv) {
-	(void)drv;
+static void max2837_target_mode_shutdown(max2837_driver_t* const drv) {
 	/* All circuit blocks are powered down, except the 4-wire serial bus
 	 * and its internal programmable registers.
 	 */
 	gpio_clear(PORT_XCVR_ENABLE,
 			(PIN_XCVR_ENABLE | PIN_XCVR_RXENABLE | PIN_XCVR_TXENABLE));
+	drv->mode = MAX2837_MODE_SHUTDOWN;
 }
 
-void max2837_mode_standby(max2837_driver_t* const drv) {
-	(void)drv;
+static void max2837_target_mode_standby(max2837_driver_t* const drv) {
 	/* Used to enable the frequency synthesizer block while the rest of the
 	 * device is powered down. In this mode, PLL, VCO, and LO generator
 	 * are on, so that Tx or Rx modes can be quickly enabled from this mode.
@@ -110,10 +109,10 @@ void max2837_mode_standby(max2837_driver_t* const drv) {
 	 */
 	gpio_clear(PORT_XCVR_ENABLE, (PIN_XCVR_RXENABLE | PIN_XCVR_TXENABLE));
 	gpio_set(PORT_XCVR_ENABLE, PIN_XCVR_ENABLE);
+	drv->mode = MAX2837_MODE_STANDBY;
 }
 
-void max2837_mode_tx(max2837_driver_t* const drv) {
-	(void)drv;
+static void max2837_target_mode_tx(max2837_driver_t* const drv) {
 	/* All Tx circuit blocks are powered on. The external PA is powered on
 	 * after a programmable delay using the on-chip PA bias DAC. The slow-
 	 * charging Rx circuits are in a precharged “idle-off” state for fast
@@ -122,10 +121,10 @@ void max2837_mode_tx(max2837_driver_t* const drv) {
 	gpio_clear(PORT_XCVR_ENABLE, PIN_XCVR_RXENABLE);
 	gpio_set(PORT_XCVR_ENABLE,
 			(PIN_XCVR_ENABLE | PIN_XCVR_TXENABLE));
+	drv->mode = MAX2837_MODE_TX;
 }
 
-void max2837_mode_rx(max2837_driver_t* const drv) {
-	(void)drv;
+static void max2837_target_mode_rx(max2837_driver_t* const drv) {
 	/* All Rx circuit blocks are powered on and active. Antenna signal is
 	 * applied; RF is downconverted, filtered, and buffered at Rx BB I and Q
 	 * outputs. The slow- charging Tx circuits are in a precharged “idle-off”
@@ -134,19 +133,26 @@ void max2837_mode_rx(max2837_driver_t* const drv) {
 	gpio_clear(PORT_XCVR_ENABLE, PIN_XCVR_TXENABLE);
 	gpio_set(PORT_XCVR_ENABLE,
 			(PIN_XCVR_ENABLE | PIN_XCVR_RXENABLE));
+	drv->mode = MAX2837_MODE_RX;
 }
 
-max2837_mode_t max2837_mode(max2837_driver_t* const drv) {
-	(void)drv;
-	if( gpio_get(PORT_XCVR_ENABLE, PIN_XCVR_ENABLE) ) {
-		if( gpio_get(PORT_XCVR_ENABLE, PIN_XCVR_TXENABLE) ) {
-			return MAX2837_MODE_TX;
-		} else if( gpio_get(PORT_XCVR_ENABLE, PIN_XCVR_RXENABLE) ) {
-			return MAX2837_MODE_RX;
-		} else {
-			return MAX2837_MODE_STANDBY;
-		}
-	} else {
-		return MAX2837_MODE_SHUTDOWN;
+void max2837_target_set_mode(max2837_driver_t* const drv, const max2837_mode_t new_mode) {
+	switch(new_mode) {
+	default:
+	case MAX2837_MODE_SHUTDOWN:
+		max2837_target_mode_shutdown(drv);
+		break;
+
+	case MAX2837_MODE_STANDBY:
+		max2837_target_mode_standby(drv);
+		break;
+
+	case MAX2837_MODE_TX:
+		max2837_target_mode_tx(drv);
+		break;
+
+	case MAX2837_MODE_RX:
+		max2837_target_mode_rx(drv);
+		break;
 	}
 }
