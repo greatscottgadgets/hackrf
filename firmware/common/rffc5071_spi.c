@@ -20,7 +20,6 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include <libopencm3/lpc43xx/ssp.h>
 #include <libopencm3/lpc43xx/scu.h>
 #include <libopencm3/lpc43xx/gpio.h>
 #include "hackrf_core.h"
