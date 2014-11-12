@@ -28,6 +28,30 @@
 
 /* FIXME return i2c0 status from each function */
 
+static void i2c0_transfer(si5351c_driver_t* const drv,
+	const uint_fast8_t address,
+	const uint8_t* const data_tx, const size_t count_tx,
+	uint8_t* const data_rx, const size_t count_rx
+) {
+	(void)drv;
+	
+	i2c0_tx_start();
+	i2c0_tx_byte((address << 1) | I2C_WRITE);
+	for(size_t i=0; i<count_tx; i++) {
+		i2c0_tx_byte(data_tx[i]);
+	}
+
+	if( data_rx ) {
+		i2c0_tx_start();
+		i2c0_tx_byte((address << 1) | I2C_READ);
+		for(size_t i=0; i<count_rx; i++) {
+			data_rx[i] = i2c0_rx_byte();
+		}
+	}
+
+	i2c0_stop();
+}
+
 /* write to single register */
 void si5351c_write_single(si5351c_driver_t* const drv, uint8_t reg, uint8_t val)
 {
@@ -38,20 +62,10 @@ void si5351c_write_single(si5351c_driver_t* const drv, uint8_t reg, uint8_t val)
 /* read single register */
 uint8_t si5351c_read_single(si5351c_driver_t* const drv, uint8_t reg)
 {
-	uint8_t val;
-
-	/* set register address with write */
-	i2c0_tx_start();
-	i2c0_tx_byte((drv->i2c_address << 1) | I2C_WRITE);
-	i2c0_tx_byte(reg);
-
-	/* read the value */
-	i2c0_tx_start();
-	i2c0_tx_byte((drv->i2c_address << 1) | I2C_READ);
-	val = i2c0_rx_byte();
-	i2c0_stop();
-
-	return val;
+	const uint8_t data_tx[] = { reg };
+	uint8_t data_rx[] = { 0x00 };
+	i2c0_transfer(drv, drv->i2c_address, data_tx, 1, data_rx, 1);
+	return data_rx[0];
 }
 
 /*
@@ -60,12 +74,5 @@ uint8_t si5351c_read_single(si5351c_driver_t* const drv, uint8_t reg)
  */
 void si5351c_write(si5351c_driver_t* const drv, const uint8_t* const data, const size_t data_count)
 {
-	uint_fast8_t i;
-
-	i2c0_tx_start();
-	i2c0_tx_byte((drv->i2c_address << 1) | I2C_WRITE);
-	
-	for (i = 0; i < data_count; i++)
-		i2c0_tx_byte(data[i]);
-	i2c0_stop();
+	i2c0_transfer(drv, drv->i2c_address, data, data_count, NULL, 0);
 }
