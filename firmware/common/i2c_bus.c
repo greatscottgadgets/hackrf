@@ -1,6 +1,5 @@
 /*
- * Copyright 2012 Michael Ossmann <mike@ossmann.com>
- * Copyright 2012 Jared Boone <jared@sharebrained.com>
+ * Copyright (C) 2014 Jared Boone, ShareBrained Technology, Inc.
  *
  * This file is part of HackRF.
  *
@@ -20,30 +19,17 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __SI5351C_DRV_H
-#define __SI5351C_DRV_H
-
-#ifdef __cplusplus
-extern "C"
-{
-#endif
-
-#include <stdint.h>
-#include <stddef.h>
-
 #include "i2c_bus.h"
 
-typedef struct {
-	i2c_bus_t* const bus;
-	uint8_t i2c_address;
-} si5351c_driver_t;
-
-void si5351c_write_single(si5351c_driver_t* const drv, uint8_t reg, uint8_t val);
-uint8_t si5351c_read_single(si5351c_driver_t* const drv, uint8_t reg);
-void si5351c_write(si5351c_driver_t* const drv, const uint8_t* const data, const size_t data_count);
-
-#ifdef __cplusplus
+void i2c_bus_init(i2c_bus_t* const bus, const void* const config) {
+	bus->init(bus, config);
 }
-#endif
 
-#endif /* __SI5351C_DRV_H */
+void i2c_bus_transfer(
+	i2c_bus_t* const bus,
+	const uint_fast8_t slave_address,
+	const uint8_t* const tx, const size_t tx_count,
+	uint8_t* const rx, const size_t rx_count
+) {
+	bus->transfer(bus, slave_address, tx, tx_count, rx, rx_count);
+}

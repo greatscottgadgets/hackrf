@@ -1,6 +1,5 @@
 /*
- * Copyright 2012 Michael Ossmann <mike@ossmann.com>
- * Copyright 2012 Jared Boone <jared@sharebrained.com>
+ * Copyright (C) 2014 Jared Boone, ShareBrained Technology, Inc.
  *
  * This file is part of HackRF.
  *
@@ -20,30 +19,23 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __SI5351C_DRV_H
-#define __SI5351C_DRV_H
-
-#ifdef __cplusplus
-extern "C"
-{
-#endif
+#ifndef __I2C_LPC_H__
+#define __I2C_LPC_H__
 
 #include <stdint.h>
 #include <stddef.h>
 
 #include "i2c_bus.h"
 
-typedef struct {
-	i2c_bus_t* const bus;
-	uint8_t i2c_address;
-} si5351c_driver_t;
+typedef struct i2c_lpc_config_t {
+	const uint16_t duty_cycle_count;
+} i2c_lpc_config_t;
 
-void si5351c_write_single(si5351c_driver_t* const drv, uint8_t reg, uint8_t val);
-uint8_t si5351c_read_single(si5351c_driver_t* const drv, uint8_t reg);
-void si5351c_write(si5351c_driver_t* const drv, const uint8_t* const data, const size_t data_count);
+void i2c_lpc_init(i2c_bus_t* const bus, const void* const config);
+void i2c_lpc_transfer(i2c_bus_t* const bus,
+	const uint_fast8_t slave_address,
+	const uint8_t* const data_tx, const size_t count_tx,
+	uint8_t* const data_rx, const size_t count_rx
+);
 
-#ifdef __cplusplus
-}
-#endif
-
-#endif /* __SI5351C_DRV_H */
+#endif/*__I2C_LPC_H__*/

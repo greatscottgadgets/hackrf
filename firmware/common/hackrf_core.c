@@ -27,7 +27,8 @@
 #include "rffc5071.h"
 #include "sgpio.h"
 #include "rf_path.h"
-#include <libopencm3/lpc43xx/i2c.h>
+#include "i2c_bus.h"
+#include "i2c_lpc.h"
 #include <libopencm3/lpc43xx/cgu.h>
 #include <libopencm3/lpc43xx/gpio.h>
 #include <libopencm3/lpc43xx/scu.h>
@@ -35,7 +36,28 @@
 
 #define WAIT_CPU_CLOCK_INIT_DELAY   (10000)
 
+i2c_bus_t i2c0 = {
+	.obj = (void*)I2C0_BASE,
+	.init = i2c_lpc_init,
+	.transfer = i2c_lpc_transfer,
+};
+
+i2c_bus_t i2c1 = {
+	.obj = (void*)I2C1_BASE,
+	.init = i2c_lpc_init,
+	.transfer = i2c_lpc_transfer,
+};
+
+const i2c_lpc_config_t i2c_config_si5351c_slow_clock = {
+	.duty_cycle_count = 15,
+};
+
+const i2c_lpc_config_t i2c_config_si5351c_fast_clock = {
+	.duty_cycle_count = 255,
+};
+
 si5351c_driver_t clock_gen = {
+	.bus = &i2c0,
 	.i2c_address = 0x60,
 };
 
@@ -268,7 +290,7 @@ void cpu_clock_init(void)
 	/* use IRC as clock source for APB3 */
 	CGU_BASE_APB3_CLK = CGU_BASE_APB3_CLK_CLK_SEL(CGU_SRC_IRC);
 
-	i2c0_init(15);
+	i2c_bus_init(clock_gen.bus, &i2c_config_si5351c_slow_clock);
 
 	si5351c_disable_all_outputs(&clock_gen);
 	si5351c_disable_oeb_pin_control(&clock_gen);
@@ -340,7 +362,7 @@ void cpu_clock_init(void)
 
 	//FIXME disable I2C
 	/* Kick I2C0 down to 400kHz when we switch over to APB1 clock = 204MHz */
-	i2c0_init(255);
+	i2c_bus_init(clock_gen.bus, &i2c_config_si5351c_fast_clock);
 
 	/*
 	 * 12MHz clock is entering LPC XTAL1/OSC input now.  On
@@ -614,6 +636,9 @@ void pin_setup(void) {
 
 	/* GPIO3[6] on P6_10  as output. */
 	GPIO3_DIR |= PIN_EN1V8;
+
+	/* enable input on SCL and SDA pins */
+	SCU_SFSI2C0 = SCU_I2C0_NOMINAL;
 
 	rf_path_pin_setup();
 	
