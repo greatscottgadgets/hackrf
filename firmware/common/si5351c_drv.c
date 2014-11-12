@@ -31,11 +31,8 @@
 /* write to single register */
 void si5351c_write_single(si5351c_driver_t* const drv, uint8_t reg, uint8_t val)
 {
-	i2c0_tx_start();
-	i2c0_tx_byte((drv->i2c_address << 1) | I2C_WRITE);
-	i2c0_tx_byte(reg);
-	i2c0_tx_byte(val);
-	i2c0_stop();
+	const uint8_t data_tx[] = { reg, val };
+	si5351c_write(drv, data_tx, 2);
 }
 
 /* read single register */
