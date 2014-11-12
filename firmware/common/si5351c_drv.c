@@ -58,7 +58,7 @@ uint8_t si5351c_read_single(si5351c_driver_t* const drv, uint8_t reg)
  * Write to one or more contiguous registers. data[0] should be the first
  * register number, one or more values follow.
  */
-void si5351c_write(si5351c_driver_t* const drv, const uint8_t* const data, const uint_fast8_t data_count)
+void si5351c_write(si5351c_driver_t* const drv, const uint8_t* const data, const size_t data_count)
 {
 	uint_fast8_t i;
 
