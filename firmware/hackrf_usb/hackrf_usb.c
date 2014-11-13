@@ -75,7 +75,7 @@ void set_transceiver_mode(const transceiver_mode_t new_transceiver_mode) {
 	}
 
 	if( _transceiver_mode != TRANSCEIVER_MODE_OFF ) {
-		si5351c_activate_best_clock_source();
+		si5351c_activate_best_clock_source(&clock_gen);
 		baseband_streaming_enable();
 	}
 }

@@ -34,13 +34,41 @@
 #include "w25q80bv_target.h"
 #include "sgpio.h"
 #include "rf_path.h"
-#include <libopencm3/lpc43xx/i2c.h>
+#include "i2c_bus.h"
+#include "i2c_lpc.h"
 #include <libopencm3/lpc43xx/cgu.h>
 #include <libopencm3/lpc43xx/gpio.h>
 #include <libopencm3/lpc43xx/scu.h>
 #include <libopencm3/lpc43xx/ssp.h>
 
 #define WAIT_CPU_CLOCK_INIT_DELAY   (10000)
+
+i2c_bus_t i2c0 = {
+	.obj = (void*)I2C0_BASE,
+	.start = i2c_lpc_start,
+	.stop = i2c_lpc_stop,
+	.transfer = i2c_lpc_transfer,
+};
+
+i2c_bus_t i2c1 = {
+	.obj = (void*)I2C1_BASE,
+	.start = i2c_lpc_start,
+	.stop = i2c_lpc_stop,
+	.transfer = i2c_lpc_transfer,
+};
+
+const i2c_lpc_config_t i2c_config_si5351c_slow_clock = {
+	.duty_cycle_count = 15,
+};
+
+const i2c_lpc_config_t i2c_config_si5351c_fast_clock = {
+	.duty_cycle_count = 255,
+};
+
+si5351c_driver_t clock_gen = {
+	.bus = &i2c0,
+	.i2c_address = 0x60,
+};
 
 const ssp_config_t ssp_config_max2837 = {
 	/* FIXME speed up once everything is working reliably */
@@ -209,9 +237,9 @@ bool sample_rate_frac_set(uint32_t rate_num, uint32_t rate_denom)
 
 	/* Can we enable integer mode ? */
 	if (a & 0x1 || b)
-		si5351c_set_int_mode(0, 0);
+		si5351c_set_int_mode(&clock_gen, 0, 0);
 	else
-		si5351c_set_int_mode(0, 1);
+		si5351c_set_int_mode(&clock_gen, 0, 1);
 
 	/* Final MS values */
 	MSx_P1 = 128*a + (128 * b/c) - 512;
@@ -219,13 +247,13 @@ bool sample_rate_frac_set(uint32_t rate_num, uint32_t rate_denom)
 	MSx_P3 = c;
 
 	/* MS0/CLK0 is the source for the MAX5864/CPLD (CODEC_CLK). */
-	si5351c_configure_multisynth(0, MSx_P1, MSx_P2, MSx_P3, 1);
+	si5351c_configure_multisynth(&clock_gen, 0, MSx_P1, MSx_P2, MSx_P3, 1);
 
 	/* MS0/CLK1 is the source for the CPLD (CODEC_X2_CLK). */
-	si5351c_configure_multisynth(1, 0, 0, 0, 0);//p1 doesn't matter
+	si5351c_configure_multisynth(&clock_gen, 1, 0, 0, 0, 0);//p1 doesn't matter
 
 	/* MS0/CLK2 is the source for SGPIO (CODEC_X2_CLK) */
-	si5351c_configure_multisynth(2, 0, 0, 0, 0);//p1 doesn't matter
+	si5351c_configure_multisynth(&clock_gen, 2, 0, 0, 0, 0);//p1 doesn't matter
 
 	return true;
 }
@@ -265,13 +293,13 @@ bool sample_rate_set(const uint32_t sample_rate_hz) {
 	 * values are irrelevant. */
 	
 	/* MS0/CLK1 is the source for the MAX5864 codec. */
-	si5351c_configure_multisynth(1, 4608, 0, 1, r_div_sample);
+	si5351c_configure_multisynth(&clock_gen, 1, 4608, 0, 1, r_div_sample);
 
 	/* MS0/CLK2 is the source for the CPLD codec clock (same as CLK1). */
-	si5351c_configure_multisynth(2, 4608, 0, 1, r_div_sample);
+	si5351c_configure_multisynth(&clock_gen, 2, 4608, 0, 1, r_div_sample);
 
 	/* MS0/CLK3 is the source for the SGPIO clock. */
-	si5351c_configure_multisynth(3, 4608, 0, 1, r_div_sgpio);
+	si5351c_configure_multisynth(&clock_gen, 3, 4608, 0, 1, r_div_sgpio);
 	
 	return true;
 #endif
@@ -328,13 +356,13 @@ bool sample_rate_set(const uint32_t sample_rate_hz) {
 	}
 	
 	/* MS0/CLK0 is the source for the MAX5864/CPLD (CODEC_CLK). */
-	si5351c_configure_multisynth(0, p1, p2, p3, 1);
+	si5351c_configure_multisynth(&clock_gen, 0, p1, p2, p3, 1);
 
 	/* MS0/CLK1 is the source for the CPLD (CODEC_X2_CLK). */
-	si5351c_configure_multisynth(1, p1, 0, 1, 0);//p1 doesn't matter
+	si5351c_configure_multisynth(&clock_gen, 1, p1, 0, 1, 0);//p1 doesn't matter
 
 	/* MS0/CLK2 is the source for SGPIO (CODEC_X2_CLK) */
-	si5351c_configure_multisynth(2, p1, 0, 1, 0);//p1 doesn't matter
+	si5351c_configure_multisynth(&clock_gen, 2, p1, 0, 1, 0);//p1 doesn't matter
 
 	return true;
 #endif
@@ -355,15 +383,15 @@ void cpu_clock_init(void)
 	/* use IRC as clock source for APB3 */
 	CGU_BASE_APB3_CLK = CGU_BASE_APB3_CLK_CLK_SEL(CGU_SRC_IRC);
 
-	i2c0_init(15);
+	i2c_bus_start(clock_gen.bus, &i2c_config_si5351c_slow_clock);
 
-	si5351c_disable_all_outputs();
-	si5351c_disable_oeb_pin_control();
-	si5351c_power_down_all_clocks();
-	si5351c_set_crystal_configuration();
-	si5351c_enable_xo_and_ms_fanout();
-	si5351c_configure_pll_sources();
-	si5351c_configure_pll_multisynth();
+	si5351c_disable_all_outputs(&clock_gen);
+	si5351c_disable_oeb_pin_control(&clock_gen);
+	si5351c_power_down_all_clocks(&clock_gen);
+	si5351c_set_crystal_configuration(&clock_gen);
+	si5351c_enable_xo_and_ms_fanout(&clock_gen);
+	si5351c_configure_pll_sources(&clock_gen);
+	si5351c_configure_pll_multisynth(&clock_gen);
 
 #ifdef JELLYBEAN
 	/*
@@ -379,13 +407,13 @@ void cpu_clock_init(void)
 	 */
 
 	/* MS0/CLK0 is the source for the MAX2837 clock input. */
-	si5351c_configure_multisynth(0, 2048, 0, 1, 0); /* 40MHz */
+	si5351c_configure_multisynth(&clock_gen, 0, 2048, 0, 1, 0); /* 40MHz */
 
 	/* MS4/CLK4 is the source for the LPC43xx microcontroller. */
-	si5351c_configure_multisynth(4, 8021, 0, 3, 0); /* 12MHz */
+	si5351c_configure_multisynth(&clock_gen, 4, 8021, 0, 3, 0); /* 12MHz */
 
 	/* MS5/CLK5 is the source for the RFFC5071 mixer. */
-	si5351c_configure_multisynth(5, 1536, 0, 1, 0); /* 50MHz */
+	si5351c_configure_multisynth(&clock_gen, 5, 1536, 0, 1, 0); /* 50MHz */
 #endif
 
 #if (defined JAWBREAKER || defined HACKRF_ONE)
@@ -402,32 +430,32 @@ void cpu_clock_init(void)
 	 */
 
 	/* MS3/CLK3 is the source for the external clock output. */
-	si5351c_configure_multisynth(3, 80*128-512, 0, 1, 0); /* 800/80 = 10MHz */
+	si5351c_configure_multisynth(&clock_gen, 3, 80*128-512, 0, 1, 0); /* 800/80 = 10MHz */
 
 	/* MS4/CLK4 is the source for the RFFC5071 mixer. */
-	si5351c_configure_multisynth(4, 16*128-512, 0, 1, 0); /* 800/16 = 50MHz */
+	si5351c_configure_multisynth(&clock_gen, 4, 16*128-512, 0, 1, 0); /* 800/16 = 50MHz */
  
  	/* MS5/CLK5 is the source for the MAX2837 clock input. */
-	si5351c_configure_multisynth(5, 20*128-512, 0, 1, 0); /* 800/20 = 40MHz */
+	si5351c_configure_multisynth(&clock_gen, 5, 20*128-512, 0, 1, 0); /* 800/20 = 40MHz */
 
 	/* MS6/CLK6 is unused. */
 	/* MS7/CLK7 is the source for the LPC43xx microcontroller. */
 	uint8_t ms7data[] = { 90, 255, 20, 0 };
-	si5351c_write(ms7data, sizeof(ms7data));
+	si5351c_write(&clock_gen, ms7data, sizeof(ms7data));
 #endif
 
 	/* Set to 10 MHz, the common rate between Jellybean and Jawbreaker. */
 	sample_rate_set(10000000);
 
-	si5351c_set_clock_source(PLL_SOURCE_XTAL);
+	si5351c_set_clock_source(&clock_gen, PLL_SOURCE_XTAL);
 	// soft reset
 	uint8_t resetdata[] = { 177, 0xac };
-	si5351c_write(resetdata, sizeof(resetdata));
-	si5351c_enable_clock_outputs();
+	si5351c_write(&clock_gen, resetdata, sizeof(resetdata));
+	si5351c_enable_clock_outputs(&clock_gen);
 
 	//FIXME disable I2C
 	/* Kick I2C0 down to 400kHz when we switch over to APB1 clock = 204MHz */
-	i2c0_init(255);
+	i2c_bus_start(clock_gen.bus, &i2c_config_si5351c_fast_clock);
 
 	/*
 	 * 12MHz clock is entering LPC XTAL1/OSC input now.  On
@@ -651,6 +679,9 @@ void pin_setup(void) {
 
 	/* GPIO3[6] on P6_10  as output. */
 	GPIO3_DIR |= PIN_EN1V8;
+
+	/* enable input on SCL and SDA pins */
+	SCU_SFSI2C0 = SCU_I2C0_NOMINAL;
 
 	spi_bus_start(&spi_bus_ssp1, &ssp_config_max2837);
 	spi_bus_start(&spi_bus_rffc5071, NULL);

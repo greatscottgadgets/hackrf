@@ -22,9 +22,9 @@
 
 #include "usb_api_register.h"
 
+#include <hackrf_core.h>
 #include <usb_queue.h>
 #include <max2837.h>
-#include <si5351c.h>
 #include <rffc5071.h>
 
 #include <stddef.h>
@@ -77,7 +77,7 @@ usb_request_status_t usb_vendor_request_write_si5351c(
 	if( stage == USB_TRANSFER_STAGE_SETUP ) {
 		if( endpoint->setup.index < 256 ) {
 			if( endpoint->setup.value < 256 ) {
-				si5351c_write_single(endpoint->setup.index, endpoint->setup.value);
+				si5351c_write_single(&clock_gen, endpoint->setup.index, endpoint->setup.value);
 				usb_transfer_schedule_ack(endpoint->in);
 				return USB_REQUEST_STATUS_OK;
 			}
@@ -94,7 +94,7 @@ usb_request_status_t usb_vendor_request_read_si5351c(
 ) {
 	if( stage == USB_TRANSFER_STAGE_SETUP ) {
 		if( endpoint->setup.index < 256 ) {
-			const uint8_t value = si5351c_read_single(endpoint->setup.index);
+			const uint8_t value = si5351c_read_single(&clock_gen, endpoint->setup.index);
 			endpoint->buffer[0] = value;
 			usb_transfer_schedule_block(endpoint->in, &endpoint->buffer, 1,
 						    NULL, NULL);
