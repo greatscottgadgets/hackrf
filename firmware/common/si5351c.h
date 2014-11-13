@@ -30,7 +30,7 @@ extern "C"
 
 #include <stdint.h>
 
-#include "si5351c_drv.h"
+#include "i2c_bus.h"
 
 #define SI_INTDIV(x)  (x*128-512)
 
@@ -63,6 +63,11 @@ enum pll_sources {
 	PLL_SOURCE_CLKIN = 1,
 };
 
+typedef struct {
+	i2c_bus_t* const bus;
+	uint8_t i2c_address;
+} si5351c_driver_t;
+
 void si5351c_disable_all_outputs(si5351c_driver_t* const drv);
 void si5351c_disable_oeb_pin_control(si5351c_driver_t* const drv);
 void si5351c_power_down_all_clocks(si5351c_driver_t* const drv);
@@ -80,6 +85,10 @@ void si5351c_enable_clock_outputs(si5351c_driver_t* const drv);
 void si5351c_set_int_mode(si5351c_driver_t* const drv, const uint_fast8_t ms_number, const uint_fast8_t on);
 void si5351c_set_clock_source(si5351c_driver_t* const drv, const enum pll_sources source);
 void si5351c_activate_best_clock_source(si5351c_driver_t* const drv);
+
+void si5351c_write_single(si5351c_driver_t* const drv, uint8_t reg, uint8_t val);
+uint8_t si5351c_read_single(si5351c_driver_t* const drv, uint8_t reg);
+void si5351c_write(si5351c_driver_t* const drv, const uint8_t* const data, const size_t data_count);
 
 #ifdef __cplusplus
 }

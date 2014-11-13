@@ -32,7 +32,7 @@ extern "C"
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "si5351c_drv.h"
+#include "si5351c.h"
 
 /* hardware identification number */
 #define BOARD_ID_JELLYBEAN  0

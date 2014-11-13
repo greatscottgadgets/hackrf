@@ -22,9 +22,32 @@
 
 #include "si5351c.h"
 
-#include "si5351c_drv.h"
-
 enum pll_sources active_clock_source;
+
+/* write to single register */
+void si5351c_write_single(si5351c_driver_t* const drv, uint8_t reg, uint8_t val)
+{
+	const uint8_t data_tx[] = { reg, val };
+	si5351c_write(drv, data_tx, 2);
+}
+
+/* read single register */
+uint8_t si5351c_read_single(si5351c_driver_t* const drv, uint8_t reg)
+{
+	const uint8_t data_tx[] = { reg };
+	uint8_t data_rx[] = { 0x00 };
+	i2c_bus_transfer(drv->bus, drv->i2c_address, data_tx, 1, data_rx, 1);
+	return data_rx[0];
+}
+
+/*
+ * Write to one or more contiguous registers. data[0] should be the first
+ * register number, one or more values follow.
+ */
+void si5351c_write(si5351c_driver_t* const drv, const uint8_t* const data, const size_t data_count)
+{
+	i2c_bus_transfer(drv->bus, drv->i2c_address, data, data_count, NULL, 0);
+}
 
 /* Disable all CLKx outputs. */
 void si5351c_disable_all_outputs(si5351c_driver_t* const drv)
