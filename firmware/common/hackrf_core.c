@@ -75,7 +75,8 @@ const ssp_config_t ssp_config_max5864 = {
 spi_t spi_ssp1 = {
 	.obj = (void*)SSP1_BASE,
 	.config = &ssp_config_max2837,
-	.init = spi_ssp_init,
+	.start = spi_ssp_start,
+	.stop = spi_ssp_stop,
 	.transfer = spi_ssp_transfer,
 	.transfer_gather = spi_ssp_transfer_gather,
 };
@@ -93,7 +94,8 @@ max5864_driver_t max5864 = {
 
 spi_t rffc5071_spi = {
 	.config = NULL,
-	.init = rffc5071_spi_init,
+	.start = rffc5071_spi_start,
+	.stop = rffc5071_spi_stop,
 	.transfer = rffc5071_spi_transfer,
 	.transfer_gather = rffc5071_spi_transfer_gather,
 };
@@ -113,7 +115,8 @@ const ssp_config_t ssp_config_w25q80bv = {
 spi_t spi_ssp0 = {
 	.obj = (void*)SSP0_BASE,
 	.config = &ssp_config_w25q80bv,
-	.init = spi_ssp_init,
+	.start = spi_ssp_start,
+	.stop = spi_ssp_stop,
 	.transfer = spi_ssp_transfer,
 	.transfer_gather = spi_ssp_transfer_gather,
 };
@@ -600,12 +603,12 @@ void cpu_clock_pll1_max_speed(void)
 
 void ssp1_set_mode_max2837(void)
 {
-	spi_init(max2837.spi, &ssp_config_max2837);
+	spi_start(max2837.spi, &ssp_config_max2837);
 }
 
 void ssp1_set_mode_max5864(void)
 {
-	spi_init(max5864.spi, &ssp_config_max5864);
+	spi_start(max5864.spi, &ssp_config_max5864);
 }
 
 void pin_setup(void) {
@@ -649,8 +652,8 @@ void pin_setup(void) {
 	/* GPIO3[6] on P6_10  as output. */
 	GPIO3_DIR |= PIN_EN1V8;
 
-	spi_init(&spi_ssp1, &ssp_config_max2837);
-	spi_init(&rffc5071_spi, NULL);
+	spi_start(&spi_ssp1, &ssp_config_max2837);
+	spi_start(&rffc5071_spi, NULL);
 
 	rf_path_pin_setup();
 	

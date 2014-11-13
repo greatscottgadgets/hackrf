@@ -21,8 +21,12 @@
 
 #include "spi.h"
 
-void spi_init(spi_t* const spi, const void* const config) {
-	spi->init(spi, config);
+void spi_start(spi_t* const spi, const void* const config) {
+	spi->start(spi, config);
+}
+
+void spi_stop(spi_t* const spi) {
+	spi->stop(spi);
 }
 
 void spi_transfer(spi_t* const spi, void* const data, const size_t count) {

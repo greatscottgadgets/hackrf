@@ -24,7 +24,7 @@
 #include <libopencm3/lpc43xx/rgu.h>
 #include <libopencm3/lpc43xx/ssp.h>
 
-void spi_ssp_init(spi_t* const spi, const void* const _config) {
+void spi_ssp_start(spi_t* const spi, const void* const _config) {
 	const ssp_config_t* const config = _config;
 
 	if( spi->obj == (void*)SSP0_BASE ) {
@@ -48,6 +48,10 @@ void spi_ssp_init(spi_t* const spi, const void* const _config) {
 		;
 
 	spi->config = config;
+}
+
+void spi_ssp_stop(spi_t* const spi) {
+	SSP_CR1(spi->obj) = 0;
 }
 
 static void spi_ssp_wait_for_tx_fifo_not_full(spi_t* const spi) {

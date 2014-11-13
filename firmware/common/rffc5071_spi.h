@@ -25,7 +25,8 @@
 
 #include "spi.h"
 
-void rffc5071_spi_init(spi_t* const spi, const void* const config);
+void rffc5071_spi_start(spi_t* const spi, const void* const config);
+void rffc5071_spi_stop(spi_t* const spi);
 void rffc5071_spi_transfer(spi_t* const spi, void* const data, const size_t count);
 void rffc5071_spi_transfer_gather(spi_t* const spi, const spi_transfer_t* const transfer, const size_t count);
 

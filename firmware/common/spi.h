@@ -35,12 +35,14 @@ typedef struct spi_t spi_t;
 struct spi_t {
 	void* const obj;
 	const void* config;
-	void (*init)(spi_t* const spi, const void* const config);
+	void (*start)(spi_t* const spi, const void* const config);
+	void (*stop)(spi_t* const spi);
 	void (*transfer)(spi_t* const spi, void* const data, const size_t count);
 	void (*transfer_gather)(spi_t* const spi, const spi_transfer_t* const transfers, const size_t count);
 };
 
-void spi_init(spi_t* const spi, const void* const config);
+void spi_start(spi_t* const spi, const void* const config);
+void spi_stop(spi_t* const spi);
 void spi_transfer(spi_t* const spi, void* const data, const size_t count);
 void spi_transfer_gather(spi_t* const spi, const spi_transfer_t* const transfers, const size_t count);
 
