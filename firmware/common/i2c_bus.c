@@ -21,8 +21,12 @@
 
 #include "i2c_bus.h"
 
-void i2c_bus_init(i2c_bus_t* const bus, const void* const config) {
-	bus->init(bus, config);
+void i2c_bus_start(i2c_bus_t* const bus, const void* const config) {
+	bus->start(bus, config);
+}
+
+void i2c_bus_stop(i2c_bus_t* const bus) {
+	bus->stop(bus);
 }
 
 void i2c_bus_transfer(

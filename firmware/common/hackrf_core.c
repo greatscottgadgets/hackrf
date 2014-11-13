@@ -38,13 +38,15 @@
 
 i2c_bus_t i2c0 = {
 	.obj = (void*)I2C0_BASE,
-	.init = i2c_lpc_init,
+	.start = i2c_lpc_start,
+	.stop = i2c_lpc_stop,
 	.transfer = i2c_lpc_transfer,
 };
 
 i2c_bus_t i2c1 = {
 	.obj = (void*)I2C1_BASE,
-	.init = i2c_lpc_init,
+	.start = i2c_lpc_start,
+	.stop = i2c_lpc_stop,
 	.transfer = i2c_lpc_transfer,
 };
 
@@ -290,7 +292,7 @@ void cpu_clock_init(void)
 	/* use IRC as clock source for APB3 */
 	CGU_BASE_APB3_CLK = CGU_BASE_APB3_CLK_CLK_SEL(CGU_SRC_IRC);
 
-	i2c_bus_init(clock_gen.bus, &i2c_config_si5351c_slow_clock);
+	i2c_bus_start(clock_gen.bus, &i2c_config_si5351c_slow_clock);
 
 	si5351c_disable_all_outputs(&clock_gen);
 	si5351c_disable_oeb_pin_control(&clock_gen);
@@ -362,7 +364,7 @@ void cpu_clock_init(void)
 
 	//FIXME disable I2C
 	/* Kick I2C0 down to 400kHz when we switch over to APB1 clock = 204MHz */
-	i2c_bus_init(clock_gen.bus, &i2c_config_si5351c_fast_clock);
+	i2c_bus_start(clock_gen.bus, &i2c_config_si5351c_fast_clock);
 
 	/*
 	 * 12MHz clock is entering LPC XTAL1/OSC input now.  On

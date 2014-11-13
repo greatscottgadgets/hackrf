@@ -30,7 +30,8 @@ typedef struct i2c_bus_t i2c_bus_t;
 
 struct i2c_bus_t {
 	void* const obj;
-	void (*init)(i2c_bus_t* const bus, const void* const config);
+	void (*start)(i2c_bus_t* const bus, const void* const config);
+	void (*stop)(i2c_bus_t* const bus);
 	void (*transfer)(
 		i2c_bus_t* const bus,
 		const uint_fast8_t slave_address,
@@ -39,7 +40,8 @@ struct i2c_bus_t {
 	);
 };
 
-void i2c_bus_init(i2c_bus_t* const bus, const void* const config);
+void i2c_bus_start(i2c_bus_t* const bus, const void* const config);
+void i2c_bus_stop(i2c_bus_t* const bus);
 void i2c_bus_transfer(
 	i2c_bus_t* const bus,
 	const uint_fast8_t slave_address,
