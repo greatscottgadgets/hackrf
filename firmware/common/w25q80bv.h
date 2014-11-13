@@ -27,7 +27,7 @@
 #include <stdint.h>
 #include <stddef.h>
 
-#include "spi.h"
+#include "spi_bus.h"
 
 typedef union
 {
@@ -40,7 +40,7 @@ struct w25q80bv_driver_t;
 typedef struct w25q80bv_driver_t w25q80bv_driver_t;
 
 struct w25q80bv_driver_t {
-	spi_t* spi;
+	spi_bus_t* bus;
 	void (*target_init)(w25q80bv_driver_t* const drv);
 	size_t page_len;
 	size_t num_pages;

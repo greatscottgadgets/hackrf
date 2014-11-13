@@ -24,51 +24,51 @@
 #include <libopencm3/lpc43xx/gpio.h>
 #include "hackrf_core.h"
 
-static void rffc5071_spi_target_select(spi_t* const spi) {
-	(void)spi;
+static void rffc5071_spi_target_select(spi_bus_t* const bus) {
+	(void)bus;
 	gpio_clear(PORT_MIXER_ENX, PIN_MIXER_ENX);
 }
 
-static void rffc5071_spi_target_unselect(spi_t* const spi) {
-	(void)spi;
+static void rffc5071_spi_target_unselect(spi_bus_t* const bus) {
+	(void)bus;
 	gpio_set(PORT_MIXER_ENX, PIN_MIXER_ENX);
 }
 
-static void rffc5071_spi_direction_out(spi_t* const spi) {
-	(void)spi;
+static void rffc5071_spi_direction_out(spi_bus_t* const bus) {
+	(void)bus;
 	GPIO_DIR(PORT_MIXER_SDATA) |= PIN_MIXER_SDATA;
 }
 
-static void rffc5071_spi_direction_in(spi_t* const spi) {
-	(void)spi;
+static void rffc5071_spi_direction_in(spi_bus_t* const bus) {
+	(void)bus;
 	GPIO_DIR(PORT_MIXER_SDATA) &= ~PIN_MIXER_SDATA;
 }
 
-static void rffc5071_spi_data_out(spi_t* const spi, const bool bit) {
-	(void)spi;
+static void rffc5071_spi_data_out(spi_bus_t* const bus, const bool bit) {
+	(void)bus;
 	if (bit)
 		gpio_set(PORT_MIXER_SDATA, PIN_MIXER_SDATA);
 	else
 		gpio_clear(PORT_MIXER_SDATA, PIN_MIXER_SDATA);
 }
 
-static bool rffc5071_spi_data_in(spi_t* const spi) {
-	(void)spi;
+static bool rffc5071_spi_data_in(spi_bus_t* const bus) {
+	(void)bus;
 	return MIXER_SDATA_STATE;
 }
 
-static void rffc5071_spi_bus_init(spi_t* const spi) {
+static void rffc5071_spi_bus_init(spi_bus_t* const bus) {
 	scu_pinmux(SCU_MIXER_SCLK, SCU_GPIO_FAST | SCU_CONF_FUNCTION4);
 	scu_pinmux(SCU_MIXER_SDATA, SCU_GPIO_FAST);
 
 	GPIO_DIR(PORT_MIXER_SCLK) |= PIN_MIXER_SCLK;
-	rffc5071_spi_direction_out(spi);
+	rffc5071_spi_direction_out(bus);
 
 	gpio_clear(PORT_MIXER_SCLK, PIN_MIXER_SCLK);
 	gpio_clear(PORT_MIXER_SDATA, PIN_MIXER_SDATA);
 }
 
-static void rffc5071_spi_target_init(spi_t* const spi) {
+static void rffc5071_spi_target_init(spi_bus_t* const bus) {
 	/* Configure GPIO pins. */
 	scu_pinmux(SCU_MIXER_ENX, SCU_GPIO_FAST);
 	scu_pinmux(SCU_MIXER_RESETX, SCU_GPIO_FAST);
@@ -78,49 +78,49 @@ static void rffc5071_spi_target_init(spi_t* const spi) {
 	GPIO_DIR(PORT_MIXER_RESETX) |= PIN_MIXER_RESETX;
 
 	/* set to known state */
-	rffc5071_spi_target_unselect(spi);
+	rffc5071_spi_target_unselect(bus);
 	gpio_set(PORT_MIXER_RESETX, PIN_MIXER_RESETX); /* active low */
 }
 
-void rffc5071_spi_start(spi_t* const spi, const void* const config) {
+void rffc5071_spi_start(spi_bus_t* const bus, const void* const config) {
 	(void)config;
-	rffc5071_spi_bus_init(spi);
-	rffc5071_spi_target_init(spi);
+	rffc5071_spi_bus_init(bus);
+	rffc5071_spi_target_init(bus);
 }
 
-void rffc5071_spi_stop(spi_t* const spi) {
-	(void)spi;
+void rffc5071_spi_stop(spi_bus_t* const bus) {
+	(void)bus;
 }
 
-static void rffc5071_spi_serial_delay(spi_t* const spi) {
-	(void)spi;
+static void rffc5071_spi_serial_delay(spi_bus_t* const bus) {
+	(void)bus;
 	volatile uint32_t i;
 
 	for (i = 0; i < 2; i++)
 		__asm__("nop");
 }
 
-static void rffc5071_spi_sck(spi_t* const spi) {
-	rffc5071_spi_serial_delay(spi);
+static void rffc5071_spi_sck(spi_bus_t* const bus) {
+	rffc5071_spi_serial_delay(bus);
 	gpio_set(PORT_MIXER_SCLK, PIN_MIXER_SCLK);
 
-	rffc5071_spi_serial_delay(spi);
+	rffc5071_spi_serial_delay(bus);
 	gpio_clear(PORT_MIXER_SCLK, PIN_MIXER_SCLK);
 }
 
-static uint32_t rffc5071_spi_exchange_bit(spi_t* const spi, const uint32_t bit) {
-	rffc5071_spi_data_out(spi, bit);
-	rffc5071_spi_sck(spi);
-	return rffc5071_spi_data_in(spi) ? 1 : 0;
+static uint32_t rffc5071_spi_exchange_bit(spi_bus_t* const bus, const uint32_t bit) {
+	rffc5071_spi_data_out(bus, bit);
+	rffc5071_spi_sck(bus);
+	return rffc5071_spi_data_in(bus) ? 1 : 0;
 }
 
-static uint32_t rffc5071_spi_exchange_word(spi_t* const spi, const uint32_t data, const size_t count) {
+static uint32_t rffc5071_spi_exchange_word(spi_bus_t* const bus, const uint32_t data, const size_t count) {
 	size_t bits = count;
 	const uint32_t msb = 1UL << (count - 1);
 	uint32_t t = data;
 
 	while (bits--) {
-		t = (t << 1) | rffc5071_spi_exchange_bit(spi, t & msb);
+		t = (t << 1) | rffc5071_spi_exchange_bit(bus, t & msb);
 	}
 
 	return t & ((1UL << count) - 1);
@@ -142,7 +142,7 @@ static uint32_t rffc5071_spi_exchange_word(spi_t* const spi, const uint32_t data
  *   next 7 bits are register address,
  *   next 16 bits are register value.
  */
-void rffc5071_spi_transfer(spi_t* const spi, void* const _data, const size_t count) {
+void rffc5071_spi_transfer(spi_bus_t* const bus, void* const _data, const size_t count) {
 	if( count != 2 ) {
 		return;
 	}
@@ -155,31 +155,31 @@ void rffc5071_spi_transfer(spi_t* const spi, void* const _data, const size_t cou
 	 * The device requires two clocks while ENX is high before a serial
 	 * transaction.  This is not clearly documented.
 	 */
-	rffc5071_spi_sck(spi);
-	rffc5071_spi_sck(spi);
+	rffc5071_spi_sck(bus);
+	rffc5071_spi_sck(bus);
 
-	rffc5071_spi_target_select(spi);
-	data[0] = rffc5071_spi_exchange_word(spi, data[0], 9);
+	rffc5071_spi_target_select(bus);
+	data[0] = rffc5071_spi_exchange_word(bus, data[0], 9);
 
 	if( direction_read ) {
-		rffc5071_spi_direction_in(spi);
-		rffc5071_spi_sck(spi);
+		rffc5071_spi_direction_in(bus);
+		rffc5071_spi_sck(bus);
 	}
-	data[1] = rffc5071_spi_exchange_word(spi, data[1], 16);
+	data[1] = rffc5071_spi_exchange_word(bus, data[1], 16);
 
-	rffc5071_spi_serial_delay(spi);
-	rffc5071_spi_target_unselect(spi);
-	rffc5071_spi_direction_out(spi);
+	rffc5071_spi_serial_delay(bus);
+	rffc5071_spi_target_unselect(bus);
+	rffc5071_spi_direction_out(bus);
 
 	/*
 	 * The device requires a clock while ENX is high after a serial
 	 * transaction.  This is not clearly documented.
 	 */
-	rffc5071_spi_sck(spi);
+	rffc5071_spi_sck(bus);
 }
 
-void rffc5071_spi_transfer_gather(spi_t* const spi, const spi_transfer_t* const transfer, const size_t count) {
+void rffc5071_spi_transfer_gather(spi_bus_t* const bus, const spi_transfer_t* const transfer, const size_t count) {
 	if( count == 1 ) {
-		rffc5071_spi_transfer(spi, transfer[0].data, transfer[0].count);
+		rffc5071_spi_transfer(bus, transfer[0].data, transfer[0].count);
 	}
 }

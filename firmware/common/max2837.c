@@ -121,13 +121,13 @@ void max2837_setup(max2837_driver_t* const drv)
 
 static uint16_t max2837_read(max2837_driver_t* const drv, uint8_t r) {
 	uint16_t value = (1 << 15) | (r << 10);
-	spi_transfer(drv->spi, &value, 1);
+	spi_bus_transfer(drv->bus, &value, 1);
 	return value & 0x3ff;
 }
 
 static void max2837_write(max2837_driver_t* const drv, uint8_t r, uint16_t v) {
 	uint16_t value = (r << 10) | (v & 0x3ff);
-	spi_transfer(drv->spi, &value, 1);
+	spi_bus_transfer(drv->bus, &value, 1);
 }
 
 uint16_t max2837_reg_read(max2837_driver_t* const drv, uint8_t r)

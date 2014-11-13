@@ -82,13 +82,13 @@ void max2837_target_init(max2837_driver_t* const drv) {
 #endif
 }
 
-void max2837_target_spi_select(spi_t* const spi) {
-	(void)spi;
+void max2837_target_spi_select(spi_bus_t* const bus) {
+	(void)bus;
 	gpio_clear(PORT_XCVR_CS, PIN_XCVR_CS);
 }
 
-void max2837_target_spi_unselect(spi_t* const spi) {
-	(void)spi;
+void max2837_target_spi_unselect(spi_bus_t* const bus) {
+	(void)bus;
 	gpio_set(PORT_XCVR_CS, PIN_XCVR_CS);
 }
 

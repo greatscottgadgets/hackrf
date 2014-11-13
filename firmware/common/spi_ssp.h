@@ -25,7 +25,7 @@
 #include <stdint.h>
 #include <stddef.h>
 
-#include "spi.h"
+#include "spi_bus.h"
 
 #include <libopencm3/lpc43xx/ssp.h>
 
@@ -33,13 +33,13 @@ typedef struct ssp_config_t {
 	ssp_datasize_t data_bits;
 	uint8_t serial_clock_rate;
 	uint8_t clock_prescale_rate;
-	void (*select)(spi_t* const spi);
-	void (*unselect)(spi_t* const spi);
+	void (*select)(spi_bus_t* const bus);
+	void (*unselect)(spi_bus_t* const bus);
 } ssp_config_t;
 
-void spi_ssp_start(spi_t* const spi, const void* const config);
-void spi_ssp_stop(spi_t* const spi);
-void spi_ssp_transfer(spi_t* const spi, void* const data, const size_t count);
-void spi_ssp_transfer_gather(spi_t* const spi, const spi_transfer_t* const transfers, const size_t count);
+void spi_ssp_start(spi_bus_t* const bus, const void* const config);
+void spi_ssp_stop(spi_bus_t* const bus);
+void spi_ssp_transfer(spi_bus_t* const bus, void* const data, const size_t count);
+void spi_ssp_transfer_gather(spi_bus_t* const bus, const spi_transfer_t* const transfers, const size_t count);
 
 #endif/*__SPI_SSP_H__*/

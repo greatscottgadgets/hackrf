@@ -19,20 +19,20 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include "spi.h"
+#include "spi_bus.h"
 
-void spi_start(spi_t* const spi, const void* const config) {
-	spi->start(spi, config);
+void spi_bus_start(spi_bus_t* const bus, const void* const config) {
+	bus->start(bus, config);
 }
 
-void spi_stop(spi_t* const spi) {
-	spi->stop(spi);
+void spi_bus_stop(spi_bus_t* const bus) {
+	bus->stop(bus);
 }
 
-void spi_transfer(spi_t* const spi, void* const data, const size_t count) {
-	spi->transfer(spi, data, count);
+void spi_bus_transfer(spi_bus_t* const bus, void* const data, const size_t count) {
+	bus->transfer(bus, data, count);
 }
 
-void spi_transfer_gather(spi_t* const spi, const spi_transfer_t* const transfers, const size_t count) {
-	spi->transfer_gather(spi, transfers, count);
+void spi_bus_transfer_gather(spi_bus_t* const bus, const spi_transfer_t* const transfers, const size_t count) {
+	bus->transfer_gather(bus, transfers, count);
 }

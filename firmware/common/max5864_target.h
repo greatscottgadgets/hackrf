@@ -23,10 +23,10 @@
 #define __MAX5864_TARGET_H__
 
 #include "max5864.h"
-#include "spi.h"
+#include "spi_bus.h"
 
 void max5864_target_init(max5864_driver_t* const drv);
-void max5864_target_spi_select(spi_t* const spi);
-void max5864_target_spi_unselect(spi_t* const spi);
+void max5864_target_spi_select(spi_bus_t* const bus);
+void max5864_target_spi_unselect(spi_bus_t* const bus);
 
 #endif/*__MAX5864_TARGET_H__*/

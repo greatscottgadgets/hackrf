@@ -26,7 +26,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "spi.h"
+#include "spi_bus.h"
 
 /* 32 registers, each containing 10 bits of data. */
 #define MAX2837_NUM_REGS 32
@@ -43,7 +43,7 @@ struct max2837_driver_t;
 typedef struct max2837_driver_t max2837_driver_t;
 
 struct max2837_driver_t {
-	spi_t* const spi;
+	spi_bus_t* const bus;
 	void (*target_init)(max2837_driver_t* const drv);
 	void (*set_mode)(max2837_driver_t* const drv, const max2837_mode_t new_mode);
 	max2837_mode_t mode;

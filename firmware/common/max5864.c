@@ -24,7 +24,7 @@
 #include "max5864.h"
 
 static void max5864_write(max5864_driver_t* const drv, uint8_t value) {
-	spi_transfer(drv->spi, &value, 1);
+	spi_bus_transfer(drv->bus, &value, 1);
 }
 
 static void max5864_init(max5864_driver_t* const drv) {

@@ -59,12 +59,12 @@ void w25q80bv_target_init(w25q80bv_driver_t* const drv) {
 	GPIO5_DIR |= PIN_SSP0_SSEL;
 }
 
-void w25q80bv_target_spi_select(spi_t* const spi) {
-	(void)spi;
+void w25q80bv_target_spi_select(spi_bus_t* const bus) {
+	(void)bus;
 	gpio_clear(PORT_SSP0_SSEL, PIN_SSP0_SSEL);
 }
 
-void w25q80bv_target_spi_unselect(spi_t* const spi) {
-	(void)spi;
+void w25q80bv_target_spi_unselect(spi_bus_t* const bus) {
+	(void)bus;
 	gpio_set(PORT_SSP0_SSEL, PIN_SSP0_SSEL);
 }

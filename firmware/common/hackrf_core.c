@@ -72,7 +72,7 @@ const ssp_config_t ssp_config_max5864 = {
 	.unselect = max5864_target_spi_unselect,
 };
 
-spi_t spi_ssp1 = {
+spi_bus_t spi_bus_ssp1 = {
 	.obj = (void*)SSP1_BASE,
 	.config = &ssp_config_max2837,
 	.start = spi_ssp_start,
@@ -82,17 +82,17 @@ spi_t spi_ssp1 = {
 };
 
 max2837_driver_t max2837 = {
-	.spi = &spi_ssp1,
+	.bus = &spi_bus_ssp1,
 	.target_init = max2837_target_init,
 	.set_mode = max2837_target_set_mode,
 };
 
 max5864_driver_t max5864 = {
-	.spi = &spi_ssp1,
+	.bus = &spi_bus_ssp1,
 	.target_init = max5864_target_init,
 };
 
-spi_t rffc5071_spi = {
+spi_bus_t spi_bus_rffc5071 = {
 	.config = NULL,
 	.start = rffc5071_spi_start,
 	.stop = rffc5071_spi_stop,
@@ -101,7 +101,7 @@ spi_t rffc5071_spi = {
 };
 
 rffc5071_driver_t rffc5072 = {
-	.spi = &rffc5071_spi,
+	.bus = &spi_bus_rffc5071,
 };
 
 const ssp_config_t ssp_config_w25q80bv = {
@@ -112,7 +112,7 @@ const ssp_config_t ssp_config_w25q80bv = {
 	.unselect = w25q80bv_target_spi_unselect,
 };
 
-spi_t spi_ssp0 = {
+spi_bus_t spi_bus_ssp0 = {
 	.obj = (void*)SSP0_BASE,
 	.config = &ssp_config_w25q80bv,
 	.start = spi_ssp_start,
@@ -122,7 +122,7 @@ spi_t spi_ssp0 = {
 };
 
 w25q80bv_driver_t spi_flash = {
-	.spi = &spi_ssp0,
+	.bus = &spi_bus_ssp0,
 	.target_init = w25q80bv_target_init,
 };
 
@@ -603,12 +603,12 @@ void cpu_clock_pll1_max_speed(void)
 
 void ssp1_set_mode_max2837(void)
 {
-	spi_start(max2837.spi, &ssp_config_max2837);
+	spi_bus_start(max2837.bus, &ssp_config_max2837);
 }
 
 void ssp1_set_mode_max5864(void)
 {
-	spi_start(max5864.spi, &ssp_config_max5864);
+	spi_bus_start(max5864.bus, &ssp_config_max5864);
 }
 
 void pin_setup(void) {
@@ -652,8 +652,8 @@ void pin_setup(void) {
 	/* GPIO3[6] on P6_10  as output. */
 	GPIO3_DIR |= PIN_EN1V8;
 
-	spi_start(&spi_ssp1, &ssp_config_max2837);
-	spi_start(&rffc5071_spi, NULL);
+	spi_bus_start(&spi_bus_ssp1, &ssp_config_max2837);
+	spi_bus_start(&spi_bus_rffc5071, NULL);
 
 	rf_path_pin_setup();
 	

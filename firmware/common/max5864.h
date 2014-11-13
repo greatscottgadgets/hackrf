@@ -22,13 +22,13 @@
 #ifndef __MAX5864_H
 #define __MAX5864_H
 
-#include "spi.h"
+#include "spi_bus.h"
 
 struct max5864_driver_t;
 typedef struct max5864_driver_t max5864_driver_t;
 
 struct max5864_driver_t {
-	spi_t* const spi;
+	spi_bus_t* const bus;
 	void (*target_init)(max5864_driver_t* const drv);
 };
 

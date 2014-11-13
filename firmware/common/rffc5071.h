@@ -25,13 +25,13 @@
 
 #include <stdint.h>
 
-#include "spi.h"
+#include "spi_bus.h"
 
 /* 31 registers, each containing 16 bits of data. */
 #define RFFC5071_NUM_REGS 31
 
 typedef struct {
-	spi_t* const spi;
+	spi_bus_t* const bus;
 	uint16_t regs[RFFC5071_NUM_REGS];
 	uint32_t regs_dirty;
 } rffc5071_driver_t;
