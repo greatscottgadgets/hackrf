@@ -146,6 +146,7 @@ macro(DeclareTargets)
 		${PATH_HACKRF_FIRMWARE_COMMON}/w25q80bv_target.c
 		${PATH_HACKRF_FIRMWARE_COMMON}/spi_bus.c
 		${PATH_HACKRF_FIRMWARE_COMMON}/spi_ssp.c
+		${PATH_HACKRF_FIRMWARE_COMMON}/pin_lpc.c
 		m0_bin.s
 	)
 
