@@ -25,8 +25,7 @@
 
 #include <stdint.h>
 
-void rf_path_pin_setup(void);
-void rf_path_init(void);
+#include "gpio.h"
 
 typedef enum {
 	RF_PATH_DIRECTION_OFF,
@@ -34,17 +33,39 @@ typedef enum {
 	RF_PATH_DIRECTION_TX,
 } rf_path_direction_t;
 
-void rf_path_set_direction(const rf_path_direction_t direction);
-
 typedef enum {
 	RF_PATH_FILTER_BYPASS = 0,
 	RF_PATH_FILTER_LOW_PASS = 1,
 	RF_PATH_FILTER_HIGH_PASS = 2,
 } rf_path_filter_t;
 
-void rf_path_set_filter(const rf_path_filter_t filter);
+typedef struct rf_path_t {
+	uint8_t switchctrl;
+#ifdef HACKRF_ONE
+	gpio_t gpio_hp;
+	gpio_t gpio_lp;
+	gpio_t gpio_tx_mix_bp;
+	gpio_t gpio_no_mix_bypass;
+	gpio_t gpio_rx_mix_bp;
+	gpio_t gpio_tx_amp;
+	gpio_t gpio_tx;
+	gpio_t gpio_mix_bypass;
+	gpio_t gpio_rx;
+	gpio_t gpio_no_tx_amp_pwr;
+	gpio_t gpio_amp_bypass;
+	gpio_t gpio_rx_amp;
+	gpio_t gpio_no_rx_amp_pwr;
+#endif
+} rf_path_t;
 
-void rf_path_set_lna(const uint_fast8_t enable);
-void rf_path_set_antenna(const uint_fast8_t enable);
+void rf_path_pin_setup(rf_path_t* const rf_path);
+void rf_path_init(rf_path_t* const rf_path);
+
+void rf_path_set_direction(rf_path_t* const rf_path, const rf_path_direction_t direction);
+
+void rf_path_set_filter(rf_path_t* const rf_path, const rf_path_filter_t filter);
+
+void rf_path_set_lna(rf_path_t* const rf_path, const uint_fast8_t enable);
+void rf_path_set_antenna(rf_path_t* const rf_path, const uint_fast8_t enable);
 
 #endif/*__RFPATH_H__*/

@@ -19,19 +19,20 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __PIN_H__
-#define __PIN_H__
+#ifndef __GPIO_H__
+#define __GPIO_H__
 
 #include <stdbool.h>
 
-typedef const struct pin_t* pin_t;
+typedef const struct gpio_t* gpio_t;
 
-void pin_set(pin_t pin);
-void pin_clear(pin_t pin);
-void pin_toggle(pin_t pin);
-void pin_output(pin_t pin);
-void pin_input(pin_t pin);
-void pin_write(pin_t pin, const bool value);
-bool pin_read(pin_t pin);
+void gpio_init();
+void gpio_set(gpio_t gpio);
+void gpio_clear(gpio_t gpio);
+void gpio_toggle(gpio_t gpio);
+void gpio_output(gpio_t gpio);
+void gpio_input(gpio_t gpio);
+void gpio_write(gpio_t gpio, const bool value);
+bool gpio_read(gpio_t gpio);
 
-#endif/*__PIN_H__*/
+#endif/*__GPIO_H__*/

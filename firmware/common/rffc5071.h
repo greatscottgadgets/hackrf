@@ -26,12 +26,14 @@
 #include <stdint.h>
 
 #include "spi_bus.h"
+#include "gpio.h"
 
 /* 31 registers, each containing 16 bits of data. */
 #define RFFC5071_NUM_REGS 31
 
 typedef struct {
 	spi_bus_t* const bus;
+	gpio_t gpio_reset;
 	uint16_t regs[RFFC5071_NUM_REGS];
 	uint32_t regs_dirty;
 } rffc5071_driver_t;

@@ -28,6 +28,7 @@
 #include <stddef.h>
 
 #include "spi_bus.h"
+#include "gpio.h"
 
 typedef union
 {
@@ -41,6 +42,8 @@ typedef struct w25q80bv_driver_t w25q80bv_driver_t;
 
 struct w25q80bv_driver_t {
 	spi_bus_t* bus;
+	gpio_t gpio_hold;
+	gpio_t gpio_wp;
 	void (*target_init)(w25q80bv_driver_t* const drv);
 	size_t page_len;
 	size_t num_pages;

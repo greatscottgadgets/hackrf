@@ -27,14 +27,15 @@
 
 #include "spi_bus.h"
 
+#include "gpio.h"
+
 #include <libopencm3/lpc43xx/ssp.h>
 
 typedef struct ssp_config_t {
 	ssp_datasize_t data_bits;
 	uint8_t serial_clock_rate;
 	uint8_t clock_prescale_rate;
-	void (*select)(spi_bus_t* const bus);
-	void (*unselect)(spi_bus_t* const bus);
+	gpio_t gpio_select;
 } ssp_config_t;
 
 void spi_ssp_start(spi_bus_t* const bus, const void* const config);

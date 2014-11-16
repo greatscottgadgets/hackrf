@@ -24,7 +24,6 @@
 
 #include <libopencm3/cm3/vector.h>
 
-#include <libopencm3/lpc43xx/gpio.h>
 #include <libopencm3/lpc43xx/m4/nvic.h>
 
 #include <streaming.h>
@@ -40,15 +39,13 @@
 #include "usb_api_spiflash.h"
 
 #include "usb_api_transceiver.h"
-#include "rf_path.h"
 #include "sgpio_isr.h"
 #include "usb_bulk_buffer.h"
-#include "si5351c.h"
  
 static volatile transceiver_mode_t _transceiver_mode = TRANSCEIVER_MODE_OFF;
 
 void set_transceiver_mode(const transceiver_mode_t new_transceiver_mode) {
-	baseband_streaming_disable();
+	baseband_streaming_disable(&sgpio_config);
 	
 	usb_endpoint_disable(&usb_endpoint_bulk_in);
 	usb_endpoint_disable(&usb_endpoint_bulk_out);
@@ -56,27 +53,27 @@ void set_transceiver_mode(const transceiver_mode_t new_transceiver_mode) {
 	_transceiver_mode = new_transceiver_mode;
 	
 	if( _transceiver_mode == TRANSCEIVER_MODE_RX ) {
-		gpio_clear(PORT_LED1_3, PIN_LED3);
-		gpio_set(PORT_LED1_3, PIN_LED2);
+		led_off(LED3);
+		led_on(LED2);
 		usb_endpoint_init(&usb_endpoint_bulk_in);
-		rf_path_set_direction(RF_PATH_DIRECTION_RX);
+		rf_path_set_direction(&rf_path, RF_PATH_DIRECTION_RX);
 		vector_table.irq[NVIC_SGPIO_IRQ] = sgpio_isr_rx;
 	} else if (_transceiver_mode == TRANSCEIVER_MODE_TX) {
-		gpio_clear(PORT_LED1_3, PIN_LED2);
-		gpio_set(PORT_LED1_3, PIN_LED3);
+		led_off(LED2);
+		led_on(LED3);
 		usb_endpoint_init(&usb_endpoint_bulk_out);
-		rf_path_set_direction(RF_PATH_DIRECTION_TX);
+		rf_path_set_direction(&rf_path, RF_PATH_DIRECTION_TX);
 		vector_table.irq[NVIC_SGPIO_IRQ] = sgpio_isr_tx;
 	} else {
-		gpio_clear(PORT_LED1_3, PIN_LED2);
-		gpio_clear(PORT_LED1_3, PIN_LED3);
-		rf_path_set_direction(RF_PATH_DIRECTION_OFF);
+		led_off(LED2);
+		led_off(LED3);
+		rf_path_set_direction(&rf_path, RF_PATH_DIRECTION_OFF);
 		vector_table.irq[NVIC_SGPIO_IRQ] = sgpio_isr_rx;
 	}
 
 	if( _transceiver_mode != TRANSCEIVER_MODE_OFF ) {
 		si5351c_activate_best_clock_source(&clock_gen);
-		baseband_streaming_enable();
+		baseband_streaming_enable(&sgpio_config);
 	}
 }
 
@@ -170,7 +167,7 @@ void usb_configuration_changed(
 	if( device->configuration->number == 1 ) {
 		// transceiver configuration
 		cpu_clock_pll1_max_speed();
-		gpio_set(PORT_LED1_3, PIN_LED1);
+		led_on(LED1);
 	} else if( device->configuration->number == 2 ) {
 		// CPLD update configuration
 		cpu_clock_pll1_max_speed();
@@ -179,7 +176,7 @@ void usb_configuration_changed(
 	} else {
 		/* Configuration number equal 0 means usb bus reset. */
 		cpu_clock_pll1_low_speed();
-		gpio_clear(PORT_LED1_3, PIN_LED1);
+		led_off(LED1);
 	}
 }
 
@@ -208,7 +205,7 @@ int main(void) {
 
 	usb_run(&usb_device);
 	
-	rf_path_init();
+	rf_path_init(&rf_path);
 
 	unsigned int phase = 0;
 	while(true) {

@@ -22,7 +22,6 @@
 #include "w25q80bv_target.h"
 
 #include <libopencm3/lpc43xx/scu.h>
-#include <libopencm3/lpc43xx/gpio.h>
 #include "hackrf_core.h"
 
 /* TODO: Why is SSEL being controlled manually when SSP0 could do it
@@ -51,20 +50,10 @@ void w25q80bv_target_init(w25q80bv_driver_t* const drv) {
 	scu_pinmux(SCU_SSP0_SSEL, (SCU_GPIO_FAST | SCU_CONF_FUNCTION4));
 
 	/* drive SSEL, HOLD, and WP pins high */
-	gpio_set(PORT_FLASH, (PIN_FLASH_HOLD | PIN_FLASH_WP));
-	gpio_set(PORT_SSP0_SSEL, PIN_SSP0_SSEL);
+	gpio_set(drv->gpio_hold);
+	gpio_set(drv->gpio_wp);
 
 	/* Set GPIO pins as outputs. */
-	GPIO1_DIR |= (PIN_FLASH_HOLD | PIN_FLASH_WP);
-	GPIO5_DIR |= PIN_SSP0_SSEL;
-}
-
-void w25q80bv_target_spi_select(spi_bus_t* const bus) {
-	(void)bus;
-	gpio_clear(PORT_SSP0_SSEL, PIN_SSP0_SSEL);
-}
-
-void w25q80bv_target_spi_unselect(spi_bus_t* const bus) {
-	(void)bus;
-	gpio_set(PORT_SSP0_SSEL, PIN_SSP0_SSEL);
+	gpio_output(drv->gpio_hold);
+	gpio_output(drv->gpio_wp);
 }

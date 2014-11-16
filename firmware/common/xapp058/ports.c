@@ -13,7 +13,8 @@
 
 #include "hackrf_core.h"
 #include "cpld_jtag.h"
-#include <libopencm3/lpc43xx/gpio.h>
+
+#include "gpio.h"
 
 void delay_jtag(uint32_t duration)
 {
@@ -38,23 +39,23 @@ void delay_jtag(uint32_t duration)
 
 /* setPort:  Implement to set the named JTAG signal (p) to the new value (v).*/
 /* if in debugging mode, then just set the variables */
-void setPort(short p,short val)
+void setPort(jtag_gpio_t* const gpio, short p, short val)
 {
 	if (p==TMS) {
 		if (val)
-			gpio_set(PORT_CPLD_TMS, PIN_CPLD_TMS);
+			gpio_set(gpio->gpio_tms);
 		else
-			gpio_clear(PORT_CPLD_TMS, PIN_CPLD_TMS);
+			gpio_clear(gpio->gpio_tms);
 	} if (p==TDI) {
 		if (val)
-			gpio_set(PORT_CPLD_TDI, PIN_CPLD_TDI);
+			gpio_set(gpio->gpio_tdi);
 		else
-			gpio_clear(PORT_CPLD_TDI, PIN_CPLD_TDI);
+			gpio_clear(gpio->gpio_tdi);
 	} if (p==TCK) {
 		if (val)
-			gpio_set(PORT_CPLD_TCK, PIN_CPLD_TCK);
+			gpio_set(gpio->gpio_tck);
 		else
-			gpio_clear(PORT_CPLD_TCK, PIN_CPLD_TCK);
+			gpio_clear(gpio->gpio_tck);
 	}
 
 	/* conservative delay */
@@ -63,11 +64,11 @@ void setPort(short p,short val)
 
 
 /* toggle tck LH.  No need to modify this code.  It is output via setPort. */
-void pulseClock()
+void pulseClock(jtag_gpio_t* const gpio)
 {
-    setPort(TCK,0);  /* set the TCK port to low  */
+    setPort(gpio, TCK,0);  /* set the TCK port to low  */
 	delay_jtag(200);
-    setPort(TCK,1);  /* set the TCK port to high */
+    setPort(gpio, TCK,1);  /* set the TCK port to high */
 	delay_jtag(200);
 }
 
@@ -81,10 +82,10 @@ void readByte(unsigned char *data)
 
 /* readTDOBit:  Implement to return the current value of the JTAG TDO signal.*/
 /* read the TDO bit from port */
-unsigned char readTDOBit()
+unsigned char readTDOBit(jtag_gpio_t* const gpio)
 {
 	delay_jtag(2000);
-	return CPLD_TDO_STATE;
+	return gpio_read(gpio->gpio_tdo);;
 }
 
 /* waitTime:  Implement as follows: */
@@ -96,7 +97,7 @@ unsigned char readTDOBit()
 /* RECOMMENDED IMPLEMENTATION:  Pulse TCK at least microsec times AND        */
 /*                              continue pulsing TCK until the microsec wait */
 /*                              requirement is also satisfied.               */
-void waitTime(long microsec)
+void waitTime(jtag_gpio_t* const gpio, long microsec)
 {
     static long tckCyclesPerMicrosec    = 1; /* must be at least 1 */
     long        tckCycles   = microsec * tckCyclesPerMicrosec;
@@ -108,6 +109,6 @@ void waitTime(long microsec)
        in order to satisfy the microsec wait time requirement. */
     for ( i = 0; i < tckCycles; ++i )
     {
-        pulseClock();
+        pulseClock(gpio);
     }
 }

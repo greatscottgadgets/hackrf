@@ -19,23 +19,40 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __PIN_LPC_H__
-#define __PIN_LPC_H__
+#include "gpio_lpc.h"
 
-#include <stdint.h>
+#include <stddef.h>
 
-#include "pin.h"
+void gpio_init() {
+	for(size_t i=0; i<8; i++) {
+		GPIO_LPC_PORT(i)->dir = 0;
+	}
+}
 
-struct pin_t {
-	uint32_t gpio;
-	uint32_t mask;
-	uint32_t gpio_w;
-};
+void gpio_set(gpio_t gpio) {
+	gpio->port->set = gpio->mask;
+}
 
-#define PIN_LPC(_port_num, _pin_num) { \
-	.gpio = (GPIO0) + (_port_num) * 4, \
-	.mask = (1UL << (_pin_num)), \
-	.gpio_w = GPIO_PORT_BASE + 0x1000 + ((_port_num) * 0x80) + ((_pin_num) * 4), \
-};
+void gpio_clear(gpio_t gpio) {
+	gpio->port->clr = gpio->mask;
+}
 
-#endif/*__PIN_LPC_H__*/
+void gpio_toggle(gpio_t gpio) {
+	gpio->port->not = gpio->mask;
+}
+
+void gpio_output(gpio_t gpio) {
+	gpio->port->dir |= gpio->mask;
+}
+
+void gpio_input(gpio_t gpio) {
+	gpio->port->dir &= ~gpio->mask;
+}
+
+void gpio_write(gpio_t gpio, const bool value) {
+	*gpio->gpio_w = value;
+}
+
+bool gpio_read(gpio_t gpio) {
+	return *gpio->gpio_w;
+}

@@ -23,10 +23,7 @@
 #define __W25Q80BV_TARGET_H__
 
 #include "w25q80bv.h"
-#include "spi_bus.h"
 
 void w25q80bv_target_init(w25q80bv_driver_t* const drv);
-void w25q80bv_target_spi_select(spi_bus_t* const bus);
-void w25q80bv_target_spi_unselect(spi_bus_t* const bus);
 
 #endif/*__W25Q80BV_TARGET_H__*/

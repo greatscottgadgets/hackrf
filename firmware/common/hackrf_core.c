@@ -32,16 +32,117 @@
 #include "rffc5071_spi.h"
 #include "w25q80bv.h"
 #include "w25q80bv_target.h"
-#include "sgpio.h"
-#include "rf_path.h"
 #include "i2c_bus.h"
 #include "i2c_lpc.h"
 #include <libopencm3/lpc43xx/cgu.h>
-#include <libopencm3/lpc43xx/gpio.h>
 #include <libopencm3/lpc43xx/scu.h>
 #include <libopencm3/lpc43xx/ssp.h>
 
+#include "gpio_lpc.h"
+
+/* TODO: Consolidate ARRAY_SIZE declarations */
+#define ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]))
+
 #define WAIT_CPU_CLOCK_INIT_DELAY   (10000)
+
+/* GPIO Output PinMux */
+static struct gpio_t gpio_led[3] = {
+	GPIO(2,  1),
+	GPIO(2,  2),
+	GPIO(2,  8)
+};
+
+static struct gpio_t gpio_1v8_enable		= GPIO(3,  6);
+
+/* MAX2837 GPIO (XCVR_CTL) PinMux */
+static struct gpio_t gpio_max2837_select	= GPIO(0, 15);
+static struct gpio_t gpio_max2837_enable	= GPIO(2,  6);
+static struct gpio_t gpio_max2837_rx_enable	= GPIO(2,  5);
+static struct gpio_t gpio_max2837_tx_enable	= GPIO(2,  4);
+#ifdef JELLYBEAN
+static struct gpio_t gpio_max2837_rxhp		= GPIO(2,  0);
+static struct gpio_t gpio_max2837_b1		= GPIO(2,  9);
+static struct gpio_t gpio_max2837_b2		= GPIO(2, 10);
+static struct gpio_t gpio_max2837_b3		= GPIO(2, 11);
+static struct gpio_t gpio_max2837_b4		= GPIO(2, 12);
+static struct gpio_t gpio_max2837_b5		= GPIO(2, 13);
+static struct gpio_t gpio_max2837_b6		= GPIO(2, 14);
+static struct gpio_t gpio_max2837_b7		= GPIO(2, 15);
+#endif
+
+/* MAX5864 SPI chip select (AD_CS) GPIO PinMux */
+static struct gpio_t gpio_max5864_select	= GPIO(2,  7);
+
+/* RFFC5071 GPIO serial interface PinMux */
+#ifdef JELLYBEAN
+static struct gpio_t gpio_rffc5072_select	= GPIO(3,  8);
+static struct gpio_t gpio_rffc5072_clock	= GPIO(3,  9);
+static struct gpio_t gpio_rffc5072_data		= GPIO(3, 10);
+static struct gpio_t gpio_rffc5072_reset	= GPIO(3, 11);
+#endif
+#if (defined JAWBREAKER || defined HACKRF_ONE)
+static struct gpio_t gpio_rffc5072_select	= GPIO(2, 13);
+static struct gpio_t gpio_rffc5072_clock	= GPIO(5,  6);
+static struct gpio_t gpio_rffc5072_data		= GPIO(3,  3);
+static struct gpio_t gpio_rffc5072_reset	= GPIO(2, 14);
+#endif
+
+/* RF LDO control */
+#ifdef JAWBREAKER
+static struct gpio_t gpio_rf_ldo_enable		= GPIO(2, 9);
+#endif
+
+/* RF supply (VAA) control */
+#ifdef HACKRF_ONE
+static struct gpio_t gpio_vaa_disable		= GPIO(2, 9);
+#endif
+
+static struct gpio_t gpio_w25q80bv_hold		= GPIO(1, 14);
+static struct gpio_t gpio_w25q80bv_wp		= GPIO(1, 15);
+static struct gpio_t gpio_w25q80bv_select	= GPIO(5, 11);
+
+/* RF switch control */
+#ifdef HACKRF_ONE
+static struct gpio_t gpio_hp				= GPIO(2,  0);
+static struct gpio_t gpio_lp				= GPIO(2, 10);
+static struct gpio_t gpio_tx_mix_bp			= GPIO(2, 11);
+static struct gpio_t gpio_no_mix_bypass		= GPIO(1,  0);
+static struct gpio_t gpio_rx_mix_bp			= GPIO(2, 12);
+static struct gpio_t gpio_tx_amp			= GPIO(2, 15);
+static struct gpio_t gpio_tx				= GPIO(5, 15);
+static struct gpio_t gpio_mix_bypass		= GPIO(5, 16);
+static struct gpio_t gpio_rx				= GPIO(5,  5);
+static struct gpio_t gpio_no_tx_amp_pwr		= GPIO(3,  5);
+static struct gpio_t gpio_amp_bypass		= GPIO(0, 14);
+static struct gpio_t gpio_rx_amp			= GPIO(1, 11);
+static struct gpio_t gpio_no_rx_amp_pwr		= GPIO(1, 12);
+#endif
+#if 0
+/* GPIO Input */
+static struct gpio_t gpio_boot[] = {
+	GPIO(0,  8),
+	GPIO(0,  9),
+	GPIO(5,  7),
+	GPIO(1, 10),
+};
+#endif
+/* CPLD JTAG interface GPIO pins */
+static struct gpio_t gpio_cpld_tdo			= GPIO(5, 18);
+static struct gpio_t gpio_cpld_tck			= GPIO(3,  0);
+#ifdef HACKRF_ONE
+static struct gpio_t gpio_cpld_tms			= GPIO(3,  4);
+static struct gpio_t gpio_cpld_tdi			= GPIO(3,  1);
+#else
+static struct gpio_t gpio_cpld_tms			= GPIO(3,  1);
+static struct gpio_t gpio_cpld_tdi			= GPIO(3,  4);
+#endif
+
+static struct gpio_t gpio_rx_decimation[3] = {
+	GPIO(5, 12),
+	GPIO(5, 13),
+	GPIO(5, 14),
+};
+static struct gpio_t gpio_rx_q_invert 		= GPIO(0, 13);
 
 i2c_bus_t i2c0 = {
 	.obj = (void*)I2C0_BASE,
@@ -81,8 +182,7 @@ const ssp_config_t ssp_config_max2837 = {
 	.data_bits = SSP_DATA_16BITS,
 	.serial_clock_rate = 21,
 	.clock_prescale_rate = 2,
-	.select = max2837_target_spi_select,
-	.unselect = max2837_target_spi_unselect,
+	.gpio_select = &gpio_max2837_select,
 };
 
 const ssp_config_t ssp_config_max5864 = {
@@ -96,8 +196,7 @@ const ssp_config_t ssp_config_max5864 = {
 	.data_bits = SSP_DATA_8BITS,
 	.serial_clock_rate = 21,
 	.clock_prescale_rate = 2,
-	.select = max5864_target_spi_select,
-	.unselect = max5864_target_spi_unselect,
+	.gpio_select = &gpio_max5864_select,
 };
 
 spi_bus_t spi_bus_ssp1 = {
@@ -111,6 +210,19 @@ spi_bus_t spi_bus_ssp1 = {
 
 max2837_driver_t max2837 = {
 	.bus = &spi_bus_ssp1,
+	.gpio_enable = &gpio_max2837_enable,
+	.gpio_rx_enable = &gpio_max2837_rx_enable,
+	.gpio_tx_enable = &gpio_max2837_tx_enable,
+#ifdef JELLYBEAN
+	.gpio_rxhp = &gpio_max2837_rxhp,
+	.gpio_b1 = &gpio_max2837_b1,
+	.gpio_b2 = &gpio_max2837_b2,
+	.gpio_b3 = &gpio_max2837_b3,
+	.gpio_b4 = &gpio_max2837_b4,
+	.gpio_b5 = &gpio_max2837_b5,
+	.gpio_b6 = &gpio_max2837_b6,
+	.gpio_b7 = &gpio_max2837_b7,
+#endif
 	.target_init = max2837_target_init,
 	.set_mode = max2837_target_set_mode,
 };
@@ -120,8 +232,14 @@ max5864_driver_t max5864 = {
 	.target_init = max5864_target_init,
 };
 
+const rffc5071_spi_config_t rffc5071_spi_config = {
+	.gpio_select = &gpio_rffc5072_select,
+	.gpio_clock = &gpio_rffc5072_clock,
+	.gpio_data = &gpio_rffc5072_data,
+};
+
 spi_bus_t spi_bus_rffc5071 = {
-	.config = NULL,
+	.config = &rffc5071_spi_config,
 	.start = rffc5071_spi_start,
 	.stop = rffc5071_spi_stop,
 	.transfer = rffc5071_spi_transfer,
@@ -130,14 +248,14 @@ spi_bus_t spi_bus_rffc5071 = {
 
 rffc5071_driver_t rffc5072 = {
 	.bus = &spi_bus_rffc5071,
+	.gpio_reset = &gpio_rffc5072_reset,
 };
 
 const ssp_config_t ssp_config_w25q80bv = {
 	.data_bits = SSP_DATA_8BITS,
 	.serial_clock_rate = 2,
 	.clock_prescale_rate = 2,
-	.select = w25q80bv_target_spi_select,
-	.unselect = w25q80bv_target_spi_unselect,
+	.gpio_select = &gpio_w25q80bv_select,
 };
 
 spi_bus_t spi_bus_ssp0 = {
@@ -151,7 +269,47 @@ spi_bus_t spi_bus_ssp0 = {
 
 w25q80bv_driver_t spi_flash = {
 	.bus = &spi_bus_ssp0,
+	.gpio_hold = &gpio_w25q80bv_hold,
+	.gpio_wp = &gpio_w25q80bv_wp,
 	.target_init = w25q80bv_target_init,
+};
+
+sgpio_config_t sgpio_config = {
+	.gpio_rx_q_invert = &gpio_rx_q_invert,
+	.gpio_rx_decimation = {
+		&gpio_rx_decimation[0],
+		&gpio_rx_decimation[1],
+		&gpio_rx_decimation[2],
+	},
+	.slice_mode_multislice = true,
+};
+
+rf_path_t rf_path = {
+	.switchctrl = 0,
+	.gpio_hp = &gpio_hp,
+	.gpio_lp = &gpio_lp,
+	.gpio_tx_mix_bp = &gpio_tx_mix_bp,
+	.gpio_no_mix_bypass = &gpio_no_mix_bypass,
+	.gpio_rx_mix_bp = &gpio_rx_mix_bp,
+	.gpio_tx_amp = &gpio_tx_amp,
+	.gpio_tx = &gpio_tx,
+	.gpio_mix_bypass = &gpio_mix_bypass,
+	.gpio_rx = &gpio_rx,
+	.gpio_no_tx_amp_pwr = &gpio_no_tx_amp_pwr,
+	.gpio_amp_bypass = &gpio_amp_bypass,
+	.gpio_rx_amp = &gpio_rx_amp,
+	.gpio_no_rx_amp_pwr = &gpio_no_rx_amp_pwr,
+};
+
+jtag_gpio_t jtag_gpio_cpld = {
+	.gpio_tms = &gpio_cpld_tms,
+	.gpio_tck = &gpio_cpld_tck,
+	.gpio_tdi = &gpio_cpld_tdi,
+	.gpio_tdo = &gpio_cpld_tdo,
+};
+
+jtag_t jtag_cpld = {
+	.gpio = &jtag_gpio_cpld,
 };
 
 void delay(uint32_t duration)
@@ -646,10 +804,10 @@ void pin_setup(void) {
 	scu_pinmux(SCU_PINMUX_CPLD_TMS, SCU_GPIO_NOPULL | SCU_CONF_FUNCTION0);
 	scu_pinmux(SCU_PINMUX_CPLD_TDI, SCU_GPIO_NOPULL | SCU_CONF_FUNCTION0);
 	
-	GPIO_DIR(PORT_CPLD_TDO) &= ~PIN_CPLD_TDO;
-	GPIO_DIR(PORT_CPLD_TCK) &= ~PIN_CPLD_TCK;
-	GPIO_DIR(PORT_CPLD_TMS) &= ~PIN_CPLD_TMS;
-	GPIO_DIR(PORT_CPLD_TDI) &= ~PIN_CPLD_TDI;
+	gpio_input(&gpio_cpld_tdo);
+	gpio_input(&gpio_cpld_tck);
+	gpio_input(&gpio_cpld_tms);
+	gpio_input(&gpio_cpld_tdi);
 	
 	/* Configure SCU Pin Mux as GPIO */
 	scu_pinmux(SCU_PINMUX_LED1, SCU_GPIO_NOPULL);
@@ -665,49 +823,62 @@ void pin_setup(void) {
 #endif
 
 	/* Configure all GPIO as Input (safe state) */
-	GPIO0_DIR = 0;
-	GPIO1_DIR = 0;
-	GPIO2_DIR = 0;
-	GPIO3_DIR = 0;
-	GPIO4_DIR = 0;
-	GPIO5_DIR = 0;
-	GPIO6_DIR = 0;
-	GPIO7_DIR = 0;
+	gpio_init();
 
-	/* Configure GPIO2[1/2/8] (P4_1/2 P6_12) as output. */
-	GPIO2_DIR |= (PIN_LED1 | PIN_LED2 | PIN_LED3);
+	gpio_output(&gpio_led[0]);
+	gpio_output(&gpio_led[1]);
+	gpio_output(&gpio_led[2]);
 
-	/* GPIO3[6] on P6_10  as output. */
-	GPIO3_DIR |= PIN_EN1V8;
+	gpio_output(&gpio_1v8_enable);
+
+#ifdef HACKRF_ONE
+	/* Configure RF power supply (VAA) switch control signal as output */
+	gpio_output(&gpio_vaa_disable);
+
+	/* Safe state: start with VAA turned off: */
+	disable_rf_power();
+#endif
 
 	/* enable input on SCL and SDA pins */
 	SCU_SFSI2C0 = SCU_I2C0_NOMINAL;
 
 	spi_bus_start(&spi_bus_ssp1, &ssp_config_max2837);
-	spi_bus_start(&spi_bus_rffc5071, NULL);
+	spi_bus_start(&spi_bus_rffc5071, &rffc5071_spi_config);
 
-	rf_path_pin_setup();
+	rf_path_pin_setup(&rf_path);
 	
 	/* Configure external clock in */
 	scu_pinmux(SCU_PINMUX_GP_CLKIN, SCU_CLK_IN | SCU_CONF_FUNCTION1);
 
-	sgpio_configure_pin_functions();
+	sgpio_configure_pin_functions(&sgpio_config);
 }
 
 void enable_1v8_power(void) {
-	gpio_set(PORT_EN1V8, PIN_EN1V8);
+	gpio_set(&gpio_1v8_enable);
 }
 
 void disable_1v8_power(void) {
-	gpio_clear(PORT_EN1V8, PIN_EN1V8);
+	gpio_clear(&gpio_1v8_enable);
 }
 
 #ifdef HACKRF_ONE
 void enable_rf_power(void) {
-	gpio_clear(PORT_NO_VAA_ENABLE, PIN_NO_VAA_ENABLE);
+	gpio_clear(&gpio_vaa_disable);
 }
 
 void disable_rf_power(void) {
-	gpio_set(PORT_NO_VAA_ENABLE, PIN_NO_VAA_ENABLE);
+	gpio_set(&gpio_vaa_disable);
 }
 #endif
+
+void led_on(const led_t led) {
+	gpio_set(&gpio_led[led]);
+}
+
+void led_off(const led_t led) {
+	gpio_clear(&gpio_led[led]);
+}
+
+void led_toggle(const led_t led) {
+	gpio_toggle(&gpio_led[led]);
+}

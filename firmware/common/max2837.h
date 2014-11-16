@@ -26,6 +26,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#include "gpio.h"
 #include "spi_bus.h"
 
 /* 32 registers, each containing 10 bits of data. */
@@ -44,6 +45,19 @@ typedef struct max2837_driver_t max2837_driver_t;
 
 struct max2837_driver_t {
 	spi_bus_t* const bus;
+	gpio_t gpio_enable;
+	gpio_t gpio_rx_enable;
+	gpio_t gpio_tx_enable;
+#ifdef JELLYBEAN
+	gpio_t gpio_rxhp;
+	gpio_t gpio_b1;
+	gpio_t gpio_b2;
+	gpio_t gpio_b3;
+	gpio_t gpio_b4;
+	gpio_t gpio_b5;
+	gpio_t gpio_b6;
+	gpio_t gpio_b7;
+#endif
 	void (*target_init)(max2837_driver_t* const drv);
 	void (*set_mode)(max2837_driver_t* const drv, const max2837_mode_t new_mode);
 	max2837_mode_t mode;

@@ -25,6 +25,14 @@
 
 #include "spi_bus.h"
 
+#include "gpio.h"
+
+typedef struct rffc5071_spi_config_t {
+	gpio_t gpio_select;
+	gpio_t gpio_clock;
+	gpio_t gpio_data;
+} rffc5071_spi_config_t;
+
 void rffc5071_spi_start(spi_bus_t* const bus, const void* const config);
 void rffc5071_spi_stop(spi_bus_t* const bus);
 void rffc5071_spi_transfer(spi_bus_t* const bus, void* const data, const size_t count);

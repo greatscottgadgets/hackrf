@@ -22,7 +22,6 @@
 #include "max5864_target.h"
 
 #include <libopencm3/lpc43xx/scu.h>
-#include <libopencm3/lpc43xx/gpio.h>
 #include "hackrf_core.h"
 
 void max5864_target_init(max5864_driver_t* const drv) {
@@ -38,16 +37,4 @@ void max5864_target_init(max5864_driver_t* const drv) {
 	 * SPI bus for the MAX2837. FIXME: this should probably be somewhere else.
 	 */
 	scu_pinmux(SCU_AD_CS, SCU_GPIO_FAST);
-	GPIO_SET(PORT_AD_CS) = PIN_AD_CS;
-	GPIO_DIR(PORT_AD_CS) |= PIN_AD_CS;
-}
-
-void max5864_target_spi_select(spi_bus_t* const bus) {
-	(void)bus;
-	gpio_clear(PORT_AD_CS, PIN_AD_CS);
-}
-
-void max5864_target_spi_unselect(spi_bus_t* const bus) {
-	(void)bus;
-	gpio_set(PORT_AD_CS, PIN_AD_CS);
 }

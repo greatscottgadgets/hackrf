@@ -20,17 +20,14 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include <libopencm3/lpc43xx/gpio.h>
 #include <libopencm3/lpc43xx/sgpio.h>
 
 #include <hackrf_core.h>
-#include <rf_path.h>
-#include <sgpio.h>
 #include <tuning.h>
 
 void tx_test() {
-	sgpio_set_slice_mode(false);
-	sgpio_configure(TRANSCEIVER_MODE_TX);
+	sgpio_set_slice_mode(&sgpio_config, false);
+	sgpio_configure(&sgpio_config, TRANSCEIVER_MODE_TX);
 	
 	// LSB goes out first, samples are 0x<Q1><I1><Q0><I0>
 	volatile uint32_t buffer[] = {
@@ -41,7 +38,7 @@ void tx_test() {
 	};
 	uint32_t i = 0;
 
-	sgpio_cpld_stream_enable();
+	sgpio_cpld_stream_enable(&sgpio_config);
 	
 	while(true) {
 		while(SGPIO_STATUS_1 == 0);
@@ -51,20 +48,20 @@ void tx_test() {
 }
 
 void rx_test() {
-	sgpio_set_slice_mode(false);
-	sgpio_configure(TRANSCEIVER_MODE_RX);
+	sgpio_set_slice_mode(&sgpio_config, false);
+	sgpio_configure(&sgpio_config, TRANSCEIVER_MODE_RX);
 
     volatile uint32_t buffer[4096];
     uint32_t i = 0;
 	int16_t magsq;
 	int8_t sigi, sigq;
 
-    sgpio_cpld_stream_enable();
+    sgpio_cpld_stream_enable(&sgpio_config);
 
-	gpio_set(PORT_LED1_3, (PIN_LED2)); /* LED2 on */
+	led_on(LED2);
     while(true) {
         while(SGPIO_STATUS_1 == 0);
-		gpio_set(PORT_LED1_3, (PIN_LED1)); /* LED1 on */
+		led_on(LED1);
         SGPIO_CLR_STATUS_1 = 1;
         buffer[i & 4095] = SGPIO_REG_SS(SGPIO_SLICE_A);
 
@@ -79,9 +76,9 @@ void rx_test() {
 		
 		/* illuminate LED3 only when magsq exceeds threshold */
 		if (magsq > 0x3c00)
-			gpio_set(PORT_LED1_3, (PIN_LED3)); /* LED3 on */
+			led_on(LED3);
 		else
-			gpio_clear(PORT_LED1_3, (PIN_LED3)); /* LED3 off */
+			led_off(LED3);
 		i++;
     }
 }
@@ -96,13 +93,13 @@ int main(void) {
 	enable_rf_power();
 #endif
 	cpu_clock_init();
-    rf_path_init();
-    rf_path_set_direction(RF_PATH_DIRECTION_RX);
+    rf_path_init(&rf_path);
+    rf_path_set_direction(&rf_path, RF_PATH_DIRECTION_RX);
 
 	set_freq(freq);
 
 	rx_test();
-	gpio_set(PORT_LED1_3, (PIN_LED2)); /* LED2 on */
+	led_on(LED2);
 
 	while (1) {
 

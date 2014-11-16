@@ -22,8 +22,6 @@
 
 #include "usb_api_transceiver.h"
 
-#include <libopencm3/lpc43xx/gpio.h>
-
 #include <max2837.h>
 #include <rf_path.h>
 #include <tuning.h>
@@ -125,11 +123,11 @@ usb_request_status_t usb_vendor_request_set_amp_enable(
 	if (stage == USB_TRANSFER_STAGE_SETUP) {
 		switch (endpoint->setup.value) {
 		case 0:
-			rf_path_set_lna(0);
+			rf_path_set_lna(&rf_path, 0);
 			usb_transfer_schedule_ack(endpoint->in);
 			return USB_REQUEST_STATUS_OK;
 		case 1:
-			rf_path_set_lna(1);
+			rf_path_set_lna(&rf_path, 1);
 			usb_transfer_schedule_ack(endpoint->in);
 			return USB_REQUEST_STATUS_OK;
 		default:
@@ -189,11 +187,11 @@ usb_request_status_t usb_vendor_request_set_antenna_enable(
 	if (stage == USB_TRANSFER_STAGE_SETUP) {
 		switch (endpoint->setup.value) {
 		case 0:
-			rf_path_set_antenna(0);
+			rf_path_set_antenna(&rf_path, 0);
 			usb_transfer_schedule_ack(endpoint->in);
 			return USB_REQUEST_STATUS_OK;
 		case 1:
-			rf_path_set_antenna(1);
+			rf_path_set_antenna(&rf_path, 1);
 			usb_transfer_schedule_ack(endpoint->in);
 			return USB_REQUEST_STATUS_OK;
 		default:
