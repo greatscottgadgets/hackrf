@@ -49,7 +49,7 @@ $ cd hackrf_usb
 $ mkdir build
 $ cd build
 $ cmake .. -DRUN_FROM=RAM
-$ make program
+$ make hackrf_usb-program
 
 Alternatively you can load a .dfu file from a release package with:
 
