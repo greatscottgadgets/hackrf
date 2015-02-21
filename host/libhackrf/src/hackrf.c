@@ -287,7 +287,12 @@ int ADDCALL hackrf_open(hackrf_device** device)
 	// TODO: Error or warning if not high speed USB?
 
 	result = libusb_set_configuration(usb_device, 1);
-	if( result != 0 )
+	if( result == LIBUSB_ERROR_BUSY )
+	{
+		libusb_close(usb_device);
+		return HACKRF_ERROR_BUSY;
+	}
+	else if( result != LIBUSB_SUCCESS )
 	{
 		libusb_close(usb_device);
 		return HACKRF_ERROR_LIBUSB;
