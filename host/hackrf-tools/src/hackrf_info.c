@@ -28,7 +28,6 @@
 
 int main(int argc, char** argv)
 {
-	hackrf_device* device = NULL;
 	int result = HACKRF_SUCCESS;
 	uint8_t board_id = BOARD_ID_INVALID;
 	char version[255 + 1];
@@ -51,18 +50,21 @@ int main(int argc, char** argv)
 	}
 	
 	for (i = 0; i < list->devicecount; i++) {
-		
 		if (i > 0)
 			printf("\n");
 			
+		printf("Found HackRF board %d:\n", i);
+		
+		if (list->serial_numbers[i])
+			printf("USB descriptor string: %s\n", list->serial_numbers[i]);
+
+		hackrf_device* device = NULL;
 		result = hackrf_device_list_open(list, i, &device);
 		if (result != HACKRF_SUCCESS) {
 			fprintf(stderr, "hackrf_open() failed: %s (%d)\n",
 					hackrf_error_name(result), result);
 			return EXIT_FAILURE;
 		}
-
-		printf("Found HackRF board %d:\n", i);
 
 		result = hackrf_board_id_read(device, &board_id);
 		if (result != HACKRF_SUCCESS) {
@@ -100,10 +102,10 @@ int main(int argc, char** argv)
 		if (result != HACKRF_SUCCESS) {
 			fprintf(stderr, "hackrf_close() failed: %s (%d)\n",
 					hackrf_error_name(result), result);
-			return EXIT_FAILURE;
 		}
 	}
 	
+	hackrf_device_list_free(list);
 	hackrf_exit();
 
 	return EXIT_SUCCESS;
