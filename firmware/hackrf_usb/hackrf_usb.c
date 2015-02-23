@@ -195,10 +195,11 @@ void usb_set_descriptor_by_serial_number(void)
 	iap_cmd_call(&iap_cmd_res);
 	
 	if (iap_cmd_res.status_res.status_ret == CMD_SUCCESS) {
-		usb_descriptor_string_serial_number[0] = 66;
+		usb_descriptor_string_serial_number[0] = USB_DESCRIPTOR_STRING_SERIAL_BUF_LEN;
 		usb_descriptor_string_serial_number[1] = USB_DESCRIPTOR_TYPE_STRING;
 		
-		for (size_t i=0; i<32; i++) {
+		/* 32 characters of serial number, convert to UTF-16LE */
+		for (size_t i=0; i<USB_DESCRIPTOR_STRING_SERIAL_LEN; i++) {
 			const uint_fast8_t nibble = (iap_cmd_res.status_res.iap_result[i >> 3] >> (28 - (i & 7) * 4)) & 0xf;
 			const char c = (nibble > 9) ? ('a' + nibble - 10) : ('0' + nibble);
 			usb_descriptor_string_serial_number[2 + i * 2] = c;

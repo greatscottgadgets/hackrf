@@ -30,6 +30,9 @@ extern uint8_t usb_descriptor_configuration_cpld_update_high_speed[];
 extern uint8_t usb_descriptor_string_languages[];
 extern uint8_t usb_descriptor_string_manufacturer[];
 extern uint8_t usb_descriptor_string_product[];
+
+#define USB_DESCRIPTOR_STRING_SERIAL_LEN 32
+#define USB_DESCRIPTOR_STRING_SERIAL_BUF_LEN (USB_DESCRIPTOR_STRING_SERIAL_LEN*2 + 2) /* UTF-16LE */
 extern uint8_t usb_descriptor_string_serial_number[];
 
 extern uint8_t* usb_descriptor_strings[];
