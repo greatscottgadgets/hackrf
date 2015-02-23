@@ -287,7 +287,7 @@ libusb_device_handle* hackrf_open_usb(const char* const desired_serial_number)
 		
 		if( device_descriptor.idVendor == hackrf_usb_vid ) {
 			if( (device_descriptor.idProduct == hackrf_one_usb_pid) ||  (device_descriptor.idProduct == hackrf_jawbreaker_usb_pid) ) {
-				printf("%4x:%4x", device_descriptor.idVendor, device_descriptor.idProduct);
+				printf("USB device %4x:%4x:", device_descriptor.idVendor, device_descriptor.idProduct);
 				
 				if( desired_serial_number != NULL ) {
 					const uint_fast8_t serial_descriptor_index = device_descriptor.iSerialNumber;
@@ -310,7 +310,7 @@ libusb_device_handle* hackrf_open_usb(const char* const desired_serial_number)
 								usb_device = NULL;
 							}
 						} else {
-							printf(" error\n");
+							printf(" wrong length of serial number: %d\n", serial_number_length);
 							libusb_close(usb_device);
 							usb_device = NULL;
 						}
