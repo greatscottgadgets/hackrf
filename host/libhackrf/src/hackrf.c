@@ -485,7 +485,9 @@ int ADDCALL hackrf_device_list_open(hackrf_device_list_t *list, int idx, hackrf_
 		return HACKRF_ERROR_INVALID_PARAM;
 	}
 	
-	if( libusb_open(list->usb_devices[idx], &usb_device) != 0 ) {
+	int i = list->usb_device_index[idx];
+
+	if( libusb_open(list->usb_devices[i], &usb_device) != 0 ) {
 		usb_device = NULL;
 		return HACKRF_ERROR_LIBUSB;
 	}
