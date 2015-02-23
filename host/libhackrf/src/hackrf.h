@@ -91,6 +91,18 @@ typedef struct {
 	uint32_t serial_no[4];
 } read_partid_serialno_t;
 
+
+struct hackrf_device_list {
+	char **serial_numbers;
+	int *product_ids;
+	int *usb_device_index;
+	int devicecount;
+	
+	void **usb_devices;
+	int usb_devicecount;
+};
+typedef struct hackrf_device_list hackrf_device_list_t;
+
 typedef int (*hackrf_sample_block_cb_fn)(hackrf_transfer* transfer);
 
 #ifdef __cplusplus
@@ -100,6 +112,10 @@ extern "C"
 
 extern ADDAPI int ADDCALL hackrf_init();
 extern ADDAPI int ADDCALL hackrf_exit();
+
+extern ADDAPI hackrf_device_list_t* ADDCALL hackrf_device_list();
+extern ADDAPI int ADDCALL hackrf_device_list_open(hackrf_device_list_t *list, int idx, hackrf_device** device);
+extern ADDAPI void ADDCALL hackrf_device_list_free(hackrf_device_list_t *list);
  
 extern ADDAPI int ADDCALL hackrf_open(const char* const desired_serial_number, hackrf_device** device);
 extern ADDAPI int ADDCALL hackrf_close(hackrf_device* device);
