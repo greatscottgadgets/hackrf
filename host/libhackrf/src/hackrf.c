@@ -268,15 +268,27 @@ libusb_device_handle* hackrf_open_usb(const char* const desired_serial_number)
 	libusb_device_handle* usb_device = NULL;
 	libusb_device** devices = NULL;
 	const ssize_t list_length = libusb_get_device_list(g_libusb_context, &devices);
+	int match_len = 0;
 	
 	printf("Number of USB devices: %ld\n", list_length);
+	
+	if( desired_serial_number ) {
+		/* If a shorter serial number is specified, only match against the suffix.
+		 * Should probably complain if the match is not unique, currently doesn't.
+		 */
+		match_len = strlen(desired_serial_number);
+		if ( match_len > 32 )
+			return NULL;
+	}
 	
 	for (ssize_t i=0; i<list_length; i++) {
 		struct libusb_device_descriptor device_descriptor;
 		libusb_get_device_descriptor(devices[i], &device_descriptor);
+		
 		if( device_descriptor.idVendor == hackrf_usb_vid ) {
 			if( (device_descriptor.idProduct == hackrf_one_usb_pid) ||  (device_descriptor.idProduct == hackrf_jawbreaker_usb_pid) ) {
 				printf("%4x:%4x", device_descriptor.idVendor, device_descriptor.idProduct);
+				
 				if( desired_serial_number != NULL ) {
 					const uint_fast8_t serial_descriptor_index = device_descriptor.iSerialNumber;
 					if( serial_descriptor_index > 0 ) {
@@ -289,7 +301,7 @@ libusb_device_handle* hackrf_open_usb(const char* const desired_serial_number)
 						if( serial_number_length == 32 ) {
 							serial_number[32] = 0;
 							printf(" %s", serial_number);
-							if( strncmp(serial_number, desired_serial_number, 32) == 0 ) {
+							if( strncmp(serial_number + 32-match_len, desired_serial_number, match_len) == 0 ) {
 								printf(" match\n");
 								break;
 							} else {
