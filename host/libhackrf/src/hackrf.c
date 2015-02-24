@@ -267,11 +267,19 @@ hackrf_device_list_t* ADDCALL hackrf_device_list()
 {
 	libusb_device_handle* usb_device = NULL;
 	hackrf_device_list_t* list = calloc(1, sizeof(*list));
+	if ( list == NULL )
+		return NULL;
+		
 	list->usb_devicecount = libusb_get_device_list(g_libusb_context, (libusb_device ***)&list->usb_devices);
 	
 	list->serial_numbers = calloc(list->usb_devicecount, sizeof(void *));
-	list->product_ids = calloc(list->usb_devicecount, sizeof(int));
+	list->usb_board_ids = calloc(list->usb_devicecount, sizeof(enum hackrf_usb_board_id));
 	list->usb_device_index = calloc(list->usb_devicecount, sizeof(int));
+	
+	if ( list->serial_numbers == NULL || list->usb_board_ids == NULL || list->usb_device_index == NULL) {
+		hackrf_device_list_free(list);
+		return NULL;
+	}
 	
 	for (ssize_t i=0; i<list->usb_devicecount; i++) {
 		struct libusb_device_descriptor device_descriptor;
@@ -280,7 +288,7 @@ hackrf_device_list_t* ADDCALL hackrf_device_list()
 		if( device_descriptor.idVendor == hackrf_usb_vid ) {
 			if( (device_descriptor.idProduct == hackrf_one_usb_pid) ||  (device_descriptor.idProduct == hackrf_jawbreaker_usb_pid) ) {
 				int idx = list->devicecount++;
-				list->product_ids[idx] = device_descriptor.idProduct;
+				list->usb_board_ids[idx] = device_descriptor.idProduct;
 				list->usb_device_index[idx] = i;
 				
 				const uint_fast8_t serial_descriptor_index = device_descriptor.iSerialNumber;
@@ -318,7 +326,7 @@ void ADDCALL hackrf_device_list_free(hackrf_device_list_t *list)
 	}
 	
 	free(list->serial_numbers);
-	free(list->product_ids);
+	free(list->usb_board_ids);
 	free(list->usb_device_index);
 	free(list);
 }

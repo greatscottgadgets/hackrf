@@ -100,7 +100,7 @@ typedef struct {
 
 struct hackrf_device_list {
 	char **serial_numbers;
-	int *product_ids;
+	enum hackrf_usb_board_id *usb_board_ids;
 	int *usb_device_index;
 	int devicecount;
 	
