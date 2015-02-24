@@ -1519,6 +1519,24 @@ const char* ADDCALL hackrf_board_id_name(enum hackrf_board_id board_id)
 	}
 }
 
+extern ADDAPI const char* ADDCALL hackrf_usb_board_id_name(enum hackrf_usb_board_id usb_board_id)
+{
+	switch(usb_board_id)
+	{
+	case USB_BOARD_ID_JAWBREAKER:
+		return "Jawbreaker";
+
+	case USB_BOARD_ID_HACKRF_ONE:
+		return "HackRF One";
+
+	case USB_BOARD_ID_INVALID:
+		return "Invalid Board ID";
+
+	default:
+		return "Unknown Board ID";
+	}
+}
+
 const char* ADDCALL hackrf_filter_path_name(const enum rf_path_filter path)
 {
 	switch(path) {

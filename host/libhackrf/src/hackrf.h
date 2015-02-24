@@ -69,6 +69,12 @@ enum hackrf_board_id {
 	BOARD_ID_INVALID = 0xFF,
 };
 
+enum hackrf_usb_board_id {
+	USB_BOARD_ID_JAWBREAKER = 0x604B,
+	USB_BOARD_ID_HACKRF_ONE = 0x6089,
+	USB_BOARD_ID_INVALID = 0xFFFF,
+};
+
 enum rf_path_filter {
 	RF_PATH_FILTER_BYPASS = 0,
 	RF_PATH_FILTER_LOW_PASS = 1,
@@ -181,6 +187,7 @@ extern ADDAPI int ADDCALL hackrf_set_antenna_enable(hackrf_device* device, const
 
 extern ADDAPI const char* ADDCALL hackrf_error_name(enum hackrf_error errcode);
 extern ADDAPI const char* ADDCALL hackrf_board_id_name(enum hackrf_board_id board_id);
+extern ADDAPI const char* ADDCALL hackrf_usb_board_id_name(enum hackrf_usb_board_id usb_board_id);
 extern ADDAPI const char* ADDCALL hackrf_filter_path_name(const enum rf_path_filter path);
 
 /* Compute nearest freq for bw filter (manual filter) */
