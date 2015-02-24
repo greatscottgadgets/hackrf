@@ -240,6 +240,10 @@ extern "C"
 
 int ADDCALL hackrf_init(void)
 {
+	if (g_libusb_context != NULL) {
+		return HACKRF_SUCCESS;
+	}
+	
 	const int libusb_error = libusb_init(&g_libusb_context);
 	if( libusb_error != 0 )
 	{
