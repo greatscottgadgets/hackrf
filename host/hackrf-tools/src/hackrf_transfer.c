@@ -782,7 +782,7 @@ int main(int argc, char** argv) {
 		return EXIT_FAILURE;
 	}
 	
-	result = hackrf_open(serial_number, &device);
+	result = hackrf_open_by_serial(serial_number, &device);
 	if( result != HACKRF_SUCCESS ) {
 		printf("hackrf_open() failed: %s (%d)\n", hackrf_error_name(result), result);
 		usage();

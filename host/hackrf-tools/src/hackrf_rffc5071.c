@@ -131,7 +131,7 @@ int main(int argc, char** argv) {
 		return -1;
 	}
 	
-	result = hackrf_open(NULL, &device);
+	result = hackrf_open(&device);
 	if( result ) {
 		printf("hackrf_open() failed: %s (%d)\n", hackrf_error_name(result), result);
 		return -1;

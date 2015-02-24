@@ -447,7 +447,7 @@ static int hackrf_open_setup(libusb_device_handle* usb_device, hackrf_device** d
 	return HACKRF_SUCCESS;
 }
 
-int ADDCALL hackrf_open(const char* const desired_serial_number, hackrf_device** device)
+int ADDCALL hackrf_open(hackrf_device** device)
 {
 	libusb_device_handle* usb_device;
 	
@@ -456,17 +456,36 @@ int ADDCALL hackrf_open(const char* const desired_serial_number, hackrf_device**
 		return HACKRF_ERROR_INVALID_PARAM;
 	}
 	
-	if( desired_serial_number )
+	usb_device = libusb_open_device_with_vid_pid(g_libusb_context, hackrf_usb_vid, hackrf_one_usb_pid);
+	
+	if( usb_device == NULL )
 	{
-		usb_device = hackrf_open_usb(desired_serial_number);
-	} else {
-		usb_device = libusb_open_device_with_vid_pid(g_libusb_context, hackrf_usb_vid, hackrf_one_usb_pid);
-		
-		if( usb_device == NULL )
-		{
-			usb_device = libusb_open_device_with_vid_pid(g_libusb_context, hackrf_usb_vid, hackrf_jawbreaker_usb_pid);
-		}
+		usb_device = libusb_open_device_with_vid_pid(g_libusb_context, hackrf_usb_vid, hackrf_jawbreaker_usb_pid);
 	}
+	
+	if( usb_device == NULL )
+	{
+		return HACKRF_ERROR_NOT_FOUND;
+	}
+	
+	return hackrf_open_setup(usb_device, device);
+}
+
+int ADDCALL hackrf_open_by_serial(const char* const desired_serial_number, hackrf_device** device)
+{
+	libusb_device_handle* usb_device;
+	
+	if( desired_serial_number == NULL )
+	{
+		return hackrf_open(device);
+	}
+	
+	if( device == NULL )
+	{
+		return HACKRF_ERROR_INVALID_PARAM;
+	}
+	
+	usb_device = hackrf_open_usb(desired_serial_number);
 	
 	if( usb_device == NULL )
 	{

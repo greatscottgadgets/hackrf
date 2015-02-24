@@ -117,7 +117,8 @@ extern ADDAPI hackrf_device_list_t* ADDCALL hackrf_device_list();
 extern ADDAPI int ADDCALL hackrf_device_list_open(hackrf_device_list_t *list, int idx, hackrf_device** device);
 extern ADDAPI void ADDCALL hackrf_device_list_free(hackrf_device_list_t *list);
  
-extern ADDAPI int ADDCALL hackrf_open(const char* const desired_serial_number, hackrf_device** device);
+extern ADDAPI int ADDCALL hackrf_open(hackrf_device** device);
+extern ADDAPI int ADDCALL hackrf_open_by_serial(const char* const desired_serial_number, hackrf_device** device);
 extern ADDAPI int ADDCALL hackrf_close(hackrf_device* device);
  
 extern ADDAPI int ADDCALL hackrf_start_rx(hackrf_device* device, hackrf_sample_block_cb_fn callback, void* rx_ctx);
