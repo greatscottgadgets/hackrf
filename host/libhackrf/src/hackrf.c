@@ -697,6 +697,9 @@ int ADDCALL hackrf_spiflash_read(hackrf_device* device, const uint32_t address,
 int ADDCALL hackrf_cpld_write(hackrf_device* device,
 		unsigned char* const data, const unsigned int total_length)
 {
+	const unsigned int chunk_size = 512;
+	unsigned int i;
+	int transferred = 0;
 	int result = libusb_release_interface(device->usb_device, 0);
 	if (result != LIBUSB_SUCCESS) {
 		return HACKRF_ERROR_LIBUSB;
@@ -712,9 +715,6 @@ int ADDCALL hackrf_cpld_write(hackrf_device* device,
 		return HACKRF_ERROR_LIBUSB;
 	}
 
-	const unsigned int chunk_size = 512;
-	unsigned int i;
-	int transferred = 0;
 	for (i = 0; i < total_length; i += chunk_size)
 	{
 		result = libusb_bulk_transfer(
