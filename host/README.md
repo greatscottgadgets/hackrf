@@ -51,14 +51,16 @@ Debug version:
 
 `make install`
 
+###For Visual Studio 2012 x64
+`c:\hackrf\host\cmake>cmake ../ -G "Visual Studio 11 2012 Win64" -DLIBUSB_INCLUDE_DIR=c:\libusb-1.0.18-win\include\libusb-1.0 -DLIBUSB_LIBRARIES=c:\libusb-1.0.18-win\MS64\static\libusb-1.0.lib  -DTHREADS_PTHREADS_INCLUDE_DIR=c:\pthreads-w32-2-9-1-release\Pre-built.2\include -DTHREADS_PTHREADS_WIN32_LIBRARY=c:\pthreads-w32-2-9-1-release\Pre-built.2\lib\x64\pthreadVC2.lib`
+
+Solution file: `c:\hackrf\host\cmake\hackrf_all.sln`
 
 ##How to build the host software on Linux:
 
 ###Prerequisites for Linux (Debian/Ubuntu):
 
-
 `sudo apt-get install build-essential cmake libusb-1.0-0-dev`
-
 
 ###Build host software on Linux:
 
