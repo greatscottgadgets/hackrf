@@ -233,6 +233,43 @@ static int prepare_transfers(
 	}
 }
 
+static int detach_kernel_driver(libusb_device_handle* usb_device_handle)
+{
+	int i, j, result;
+	libusb_device* dev;
+	struct libusb_config_descriptor* config;
+	const struct libusb_interface* iface;
+	const struct libusb_interface_descriptor* altsetting;
+
+	dev = libusb_get_device(usb_device_handle);
+	result = libusb_get_active_config_descriptor(dev, &config);
+	if( result < 0 )
+	{
+		return HACKRF_ERROR_LIBUSB;
+	}
+
+	for(i=0; i<config->bNumInterfaces; i++)
+	{
+		iface = config->interface + i;
+		for(j=0; j<iface->num_altsetting; j++)
+		{
+			altsetting = iface->altsetting + j;
+			result = libusb_kernel_driver_active(usb_device_handle, altsetting->bInterfaceNumber);
+			if( result < 0 )
+			{
+				return HACKRF_ERROR_LIBUSB;
+			} else if( result == 1 ) {
+				result = libusb_detach_kernel_driver(usb_device_handle, altsetting->bInterfaceNumber);
+				if( result != 0 )
+				{
+					return HACKRF_ERROR_LIBUSB;
+				}
+			}
+		}
+	}
+	return HACKRF_SUCCESS;
+}
+
 #ifdef __cplusplus
 extern "C"
 {
@@ -262,7 +299,7 @@ int ADDCALL hackrf_exit(void)
 
 int ADDCALL hackrf_open(hackrf_device** device)
 {
-	int result;
+	int result, config;
 	libusb_device_handle* usb_device;
 	hackrf_device* lib_device;
 	
@@ -286,13 +323,34 @@ int ADDCALL hackrf_open(hackrf_device** device)
 	//int speed = libusb_get_device_speed(usb_device);
 	// TODO: Error or warning if not high speed USB?
 
-	result = libusb_set_configuration(usb_device, 1);
+	result = libusb_get_configuration(usb_device, &config);
 	if( result != 0 )
 	{
 		libusb_close(usb_device);
 		return HACKRF_ERROR_LIBUSB;
 	}
+	if(config != 1)
+	{
+		result = detach_kernel_driver(usb_device);
+		if( result != 0 )
+		{
+			libusb_close(usb_device);
+			return result;
+		}
+		result = libusb_set_configuration(usb_device, 1);
+		if( result != 0 )
+		{
+			libusb_close(usb_device);
+			return HACKRF_ERROR_LIBUSB;
+		}
+	}
 
+	result = detach_kernel_driver(usb_device);
+	if( result != 0 )
+	{
+		libusb_close(usb_device);
+		return result;
+	}
 	result = libusb_claim_interface(usb_device, 0);
 	if( result != 0 )
 	{
