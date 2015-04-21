@@ -233,13 +233,11 @@ static int prepare_transfers(
 	}
 }
 
-static int detach_kernel_driver(libusb_device_handle* usb_device_handle)
+static int detach_kernel_drivers(libusb_device_handle* usb_device_handle)
 {
-	int i, j, result;
+	int i, result;
 	libusb_device* dev;
 	struct libusb_config_descriptor* config;
-	const struct libusb_interface* iface;
-	const struct libusb_interface_descriptor* altsetting;
 
 	dev = libusb_get_device(usb_device_handle);
 	result = libusb_get_active_config_descriptor(dev, &config);
@@ -250,22 +248,21 @@ static int detach_kernel_driver(libusb_device_handle* usb_device_handle)
 
 	for(i=0; i<config->bNumInterfaces; i++)
 	{
-		iface = config->interface + i;
-		for(j=0; j<iface->num_altsetting; j++)
+		result = libusb_kernel_driver_active(usb_device_handle, i);
+		if( result < 0 )
 		{
-			altsetting = iface->altsetting + j;
-			result = libusb_kernel_driver_active(usb_device_handle, altsetting->bInterfaceNumber);
-			if( result < 0 )
+			if( result == LIBUSB_ERROR_NOT_SUPPORTED ) {
+				return 0;
+			}
+			return HACKRF_ERROR_LIBUSB;
+		} else if( result == 1 ) {
+			result = libusb_detach_kernel_driver(usb_device_handle, i);
+			if( result != 0 )
 			{
 				return HACKRF_ERROR_LIBUSB;
-			} else if( result == 1 ) {
-				result = libusb_detach_kernel_driver(usb_device_handle, altsetting->bInterfaceNumber);
-				if( result != 0 )
-				{
-					return HACKRF_ERROR_LIBUSB;
-				}
 			}
 		}
+		
 	}
 	return HACKRF_SUCCESS;
 }
@@ -331,7 +328,7 @@ int ADDCALL hackrf_open(hackrf_device** device)
 	}
 	if(config != 1)
 	{
-		result = detach_kernel_driver(usb_device);
+		result = detach_kernel_drivers(usb_device);
 		if( result != 0 )
 		{
 			libusb_close(usb_device);
@@ -345,7 +342,7 @@ int ADDCALL hackrf_open(hackrf_device** device)
 		}
 	}
 
-	result = detach_kernel_driver(usb_device);
+	result = detach_kernel_drivers(usb_device);
 	if( result != 0 )
 	{
 		libusb_close(usb_device);
