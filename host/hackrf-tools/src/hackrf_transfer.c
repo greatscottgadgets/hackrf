@@ -305,6 +305,9 @@ uint32_t amplitude = 0;
 bool receive = false;
 bool receive_wav = false;
 
+uint16_t output_sample_type = 1;
+void *output_sample_buf;
+
 bool transmit = false;
 struct timeval time_start;
 struct timeval t_start;
@@ -340,11 +343,16 @@ uint32_t baseband_filter_bw_hz = 0;
 int rx_callback(hackrf_transfer* transfer) {
 	size_t bytes_to_write;
 	int i;
+	int sample_size = 1;
+	void *buffy;
+
 
 	if( fd != NULL ) 
 	{
 		ssize_t bytes_written;
+
 		byte_count += transfer->valid_length;
+
 		bytes_to_write = transfer->valid_length;
 		if (limit_num_samples) {
 			if (bytes_to_write >= bytes_to_xfer) {
@@ -352,13 +360,41 @@ int rx_callback(hackrf_transfer* transfer) {
 			}
 			bytes_to_xfer -= bytes_to_write;
 		}
-		if (receive_wav) {
-			/* convert .wav contents from signed to unsigned */
-			for (i = 0; i < bytes_to_write; i++) {
+		switch( output_sample_type ) {
+		    case 1:
+			if (receive_wav) {
+			    /* convert .wav contents from signed to unsigned */
+			    for (i = 0; i < bytes_to_write; i++) {
 				transfer->buffer[i] ^= (uint8_t)0x80;
+			    }
 			}
+			buffy = (void *) transfer->buffer;
+			sample_size = 1;
+			break;
+		    case 2:
+			for (i = 0; i < bytes_to_write; i++) {
+			    ((short *) output_sample_buf)[i] = ( transfer->buffer[i] << 8 ) + transfer->buffer[i];
+			}
+			buffy = (void *) transfer->buffer;
+			sample_size = 2;
+			break;
+
+
+		    /* FLOAT 
+		    case 2:
+			for (i = 0; i < bytes_to_write; i++) {
+			    ((float *) output_sample_buf)[i] =  transfer->buffer[i] / (float) 256 );
+			}
+			buffy = (void *) transfer->buffer;
+			sample_size = 4;
+			break;
+		    */
+
+		    default:
+			    buffy = (void *) transfer->buffer;
+			break;
 		}
-		bytes_written = fwrite(transfer->buffer, 1, bytes_to_write, fd);
+		bytes_written = fwrite(transfer->buffer, sample_size, bytes_to_write, fd);
 		if ((bytes_written != bytes_to_write)
 				|| (limit_num_samples && (bytes_to_xfer == 0))) {
 			return -1;
@@ -389,6 +425,13 @@ int tx_callback(hackrf_transfer* transfer) {
 			}
 			bytes_to_xfer -= bytes_to_read;
 		}
+
+		// switch( output_sample_type ) {
+		//
+		// ADD CODE TO convert to 8bit
+		// }
+
+
 		bytes_read = fread(transfer->buffer, 1, bytes_to_read, fd);
 		if ((bytes_read != bytes_to_read)
 				|| (limit_num_samples && (bytes_to_xfer == 0))) {
@@ -464,7 +507,10 @@ sighandler(int signum)
 #else
 void sigint_callback_handler(int signum) 
 {
-	fprintf(stdout, "Caught signal %d\n", signum);
+	fprintf(stdout, "Caught Signal %d\n", signum);
+	if (signum == 11 )  {
+		exit(1);
+	}
 	do_exit = true;
 }
 #endif
@@ -486,7 +532,7 @@ int main(int argc, char** argv) {
 	float time_diff;
 	unsigned int lna_gain=8, vga_gain=20, txvga_gain=0;
   
-	while( (opt = getopt(argc, argv, "wr:t:f:i:o:m:a:p:s:n:b:l:g:x:c:")) != EOF )
+	while( (opt = getopt(argc, argv, "O:wr:t:f:i:o:m:a:p:s:n:b:l:g:x:c:")) != EOF )
 	{
 		result = HACKRF_SUCCESS;
 		switch( opt ) 
@@ -567,6 +613,27 @@ int main(int argc, char** argv) {
 			transmit = true;
 			signalsource = true;
 			result = parse_u32(optarg, &amplitude);
+			break;
+		case 'O':
+			// NOTE output_sample_type's value also happens to be the size of the sample
+			switch (*optarg)
+			{
+			case '1':// 2 byte
+			case 'b':// 1 byte
+			    output_sample_type = 1;
+			    break;
+			case '2': // 2 byte
+			case 's': // short
+			    output_sample_type = 2;
+			    break;
+			case 'f': // float
+			    output_sample_type = 4;
+			    break;
+			default:
+			    printf("Unknown argument '-%c %s'\n", opt, optarg);
+			    usage();
+			    return EXIT_FAILURE;
+			}
 			break;
 
 		default:
@@ -731,6 +798,10 @@ int main(int argc, char** argv) {
 		}
 	}
 	
+	if  ( output_sample_type != 1 &&  (receive || transmit || receive_wav)) {
+		// NEED TO Free this
+		output_sample_buf = calloc( DEVICE_BUFFER_SIZE , output_sample_type );  
+	}
 	if( receive ) {
 		transceiver_mode = TRANSCEIVER_MODE_RX;
 	}
@@ -803,6 +874,10 @@ int main(int argc, char** argv) {
 			return EXIT_FAILURE;
 		}
 	}
+
+	// Add code to detect of we are transmitting a  .wav file
+	// seek to data chunk
+	// set output_sample_type for data conversion
 
 	/* Write Wav header */
 	if( receive_wav ) 
@@ -985,10 +1060,12 @@ int main(int argc, char** argv) {
 			/* Get size of file */
 			file_pos = ftell(fd);
 			/* Update Wav Header */
-			wave_file_hdr.hdr.size = file_pos+8;
+			wave_file_hdr.fmt_chunk.wBitsPerSample = ( 8 * output_sample_type );
+			wave_file_hdr.hdr.size = file_pos-8;
 			wave_file_hdr.fmt_chunk.dwSamplesPerSec = sample_rate_hz;
-			wave_file_hdr.fmt_chunk.dwAvgBytesPerSec = wave_file_hdr.fmt_chunk.dwSamplesPerSec*2;
+			wave_file_hdr.fmt_chunk.dwAvgBytesPerSec = (wave_file_hdr.fmt_chunk.dwSamplesPerSec*2) * output_sample_type;
 			wave_file_hdr.data_chunk.chunkSize = file_pos - sizeof(t_wav_file_hdr);
+			wave_file_hdr.fmt_chunk.wBlockAlign = ( 2 * output_sample_type );
 			/* Overwrite header with updated data */
 			rewind(fd);
 			fwrite(&wave_file_hdr, 1, sizeof(t_wav_file_hdr), fd);
