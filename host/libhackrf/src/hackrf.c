@@ -269,6 +269,7 @@ int ADDCALL hackrf_exit(void)
 
 hackrf_device_list_t* ADDCALL hackrf_device_list()
 {
+	ssize_t i;
 	libusb_device_handle* usb_device = NULL;
 	hackrf_device_list_t* list = calloc(1, sizeof(*list));
 	if ( list == NULL )
@@ -285,7 +286,7 @@ hackrf_device_list_t* ADDCALL hackrf_device_list()
 		return NULL;
 	}
 	
-	for (ssize_t i=0; i<list->usb_devicecount; i++) {
+	for (i=0; i<list->usb_devicecount; i++) {
 		struct libusb_device_descriptor device_descriptor;
 		libusb_get_device_descriptor(list->usb_devices[i], &device_descriptor);
 		
@@ -341,6 +342,7 @@ libusb_device_handle* hackrf_open_usb(const char* const desired_serial_number)
 	libusb_device** devices = NULL;
 	const ssize_t list_length = libusb_get_device_list(g_libusb_context, &devices);
 	int match_len = 0;
+	ssize_t i;
 	
 	printf("Number of USB devices: %ld\n", list_length);
 	
@@ -353,7 +355,7 @@ libusb_device_handle* hackrf_open_usb(const char* const desired_serial_number)
 			return NULL;
 	}
 	
-	for (ssize_t i=0; i<list_length; i++) {
+	for (i=0; i<list_length; i++) {
 		struct libusb_device_descriptor device_descriptor;
 		libusb_get_device_descriptor(devices[i], &device_descriptor);
 		
