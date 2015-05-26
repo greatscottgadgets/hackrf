@@ -582,6 +582,18 @@ int main(int argc, char** argv) {
 		}		
 	}
 
+	if (lna_gain % 8) {
+		printf("argument error: lna_gain (-l) must be a multiple of 8\n");
+		usage();
+		return EXIT_FAILURE;
+	}
+
+	if (vga_gain % 8) {
+		printf("argument error: vga_gain (-g) must be a multiple of 2\n");
+		usage();
+		return EXIT_FAILURE;
+	}
+
 	if (samples_to_xfer >= SAMPLES_TO_XFER_MAX) {
 		printf("argument error: num_samples must be less than %s/%sMio\n",
 			u64toa(SAMPLES_TO_XFER_MAX,&ascii_u64_data1),
