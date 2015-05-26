@@ -582,14 +582,12 @@ int main(int argc, char** argv) {
 		}		
 	}
 
-	if (lna_gain % 8) {
-		printf("argument error: lna_gain (-l) must be a multiple of 8\n");
-		usage();
-		return EXIT_FAILURE;
-	}
+	if ((lna_gain % 8) || (vga_gain % 2)) {
+		if (lna_gain % 8)
+			printf("argument error: lna_gain (-l) must be a multiple of 8\n");
+		if (vga_gain % 2)
+			printf("argument error: vga_gain (-g) must be a multiple of 2\n");
 
-	if (vga_gain % 8) {
-		printf("argument error: vga_gain (-g) must be a multiple of 2\n");
 		usage();
 		return EXIT_FAILURE;
 	}
