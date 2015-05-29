@@ -28,11 +28,12 @@
 
 int main(int argc, char** argv)
 {
-	hackrf_device* device = NULL;
 	int result = HACKRF_SUCCESS;
 	uint8_t board_id = BOARD_ID_INVALID;
 	char version[255 + 1];
 	read_partid_serialno_t read_partid_serialno;
+	hackrf_device_list_t *list;
+	int i;
 
 	result = hackrf_init();
 	if (result != HACKRF_SUCCESS) {
@@ -40,55 +41,71 @@ int main(int argc, char** argv)
 				hackrf_error_name(result), result);
 		return EXIT_FAILURE;
 	}
-
-	result = hackrf_open(&device);
-	if (result != HACKRF_SUCCESS) {
-		fprintf(stderr, "hackrf_open() failed: %s (%d)\n",
-				hackrf_error_name(result), result);
-		return EXIT_FAILURE;
-	}
-
-	printf("Found HackRF board.\n");
-
-	result = hackrf_board_id_read(device, &board_id);
-	if (result != HACKRF_SUCCESS) {
-		fprintf(stderr, "hackrf_board_id_read() failed: %s (%d)\n",
-				hackrf_error_name(result), result);
-		return EXIT_FAILURE;
-	}
-	printf("Board ID Number: %d (%s)\n", board_id,
-			hackrf_board_id_name(board_id));
-
-	result = hackrf_version_string_read(device, &version[0], 255);
-	if (result != HACKRF_SUCCESS) {
-		fprintf(stderr, "hackrf_version_string_read() failed: %s (%d)\n",
-				hackrf_error_name(result), result);
-		return EXIT_FAILURE;
-	}
-	printf("Firmware Version: %s\n", version);
-
-	result = hackrf_board_partid_serialno_read(device, &read_partid_serialno);	
-	if (result != HACKRF_SUCCESS) {
-		fprintf(stderr, "hackrf_board_partid_serialno_read() failed: %s (%d)\n",
-				hackrf_error_name(result), result);
-		return EXIT_FAILURE;
-	}
-	printf("Part ID Number: 0x%08x 0x%08x\n", 
-				read_partid_serialno.part_id[0],
-				read_partid_serialno.part_id[1]);
-	printf("Serial Number: 0x%08x 0x%08x 0x%08x 0x%08x\n", 
-				read_partid_serialno.serial_no[0],
-				read_partid_serialno.serial_no[1],
-				read_partid_serialno.serial_no[2],
-				read_partid_serialno.serial_no[3]);
 	
-	result = hackrf_close(device);
-	if (result != HACKRF_SUCCESS) {
-		fprintf(stderr, "hackrf_close() failed: %s (%d)\n",
-				hackrf_error_name(result), result);
+	list = hackrf_device_list();
+	
+	if (list->devicecount < 1 ) {
+		printf("No HackRF boards found.\n");
 		return EXIT_FAILURE;
 	}
+	
+	for (i = 0; i < list->devicecount; i++) {
+		if (i > 0)
+			printf("\n");
+			
+		printf("Found HackRF board %d:\n", i);
+		
+		if (list->serial_numbers[i])
+			printf("USB descriptor string: %s\n", list->serial_numbers[i]);
 
+		hackrf_device* device = NULL;
+		result = hackrf_device_list_open(list, i, &device);
+		if (result != HACKRF_SUCCESS) {
+			fprintf(stderr, "hackrf_open() failed: %s (%d)\n",
+					hackrf_error_name(result), result);
+			return EXIT_FAILURE;
+		}
+
+		result = hackrf_board_id_read(device, &board_id);
+		if (result != HACKRF_SUCCESS) {
+			fprintf(stderr, "hackrf_board_id_read() failed: %s (%d)\n",
+					hackrf_error_name(result), result);
+			return EXIT_FAILURE;
+		}
+		printf("Board ID Number: %d (%s)\n", board_id,
+				hackrf_board_id_name(board_id));
+
+		result = hackrf_version_string_read(device, &version[0], 255);
+		if (result != HACKRF_SUCCESS) {
+			fprintf(stderr, "hackrf_version_string_read() failed: %s (%d)\n",
+					hackrf_error_name(result), result);
+			return EXIT_FAILURE;
+		}
+		printf("Firmware Version: %s\n", version);
+
+		result = hackrf_board_partid_serialno_read(device, &read_partid_serialno);	
+		if (result != HACKRF_SUCCESS) {
+			fprintf(stderr, "hackrf_board_partid_serialno_read() failed: %s (%d)\n",
+					hackrf_error_name(result), result);
+			return EXIT_FAILURE;
+		}
+		printf("Part ID Number: 0x%08x 0x%08x\n", 
+					read_partid_serialno.part_id[0],
+					read_partid_serialno.part_id[1]);
+		printf("Serial Number: 0x%08x 0x%08x 0x%08x 0x%08x\n", 
+					read_partid_serialno.serial_no[0],
+					read_partid_serialno.serial_no[1],
+					read_partid_serialno.serial_no[2],
+					read_partid_serialno.serial_no[3]);
+		
+		result = hackrf_close(device);
+		if (result != HACKRF_SUCCESS) {
+			fprintf(stderr, "hackrf_close() failed: %s (%d)\n",
+					hackrf_error_name(result), result);
+		}
+	}
+	
+	hackrf_device_list_free(list);
 	hackrf_exit();
 
 	return EXIT_SUCCESS;

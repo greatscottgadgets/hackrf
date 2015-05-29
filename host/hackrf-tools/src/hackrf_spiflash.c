@@ -89,6 +89,7 @@ static void usage()
 	printf("\t-l, --length <n>: number of bytes to read (default: 0)\n");
 	printf("\t-r <filename>: Read data into file.\n");
 	printf("\t-w <filename>: Write data from file.\n");
+	printf("\t-d <serialnumber>: Serial number of device, if multiple devices\n");
 }
 
 int main(int argc, char** argv)
@@ -99,6 +100,7 @@ int main(int argc, char** argv)
 	uint32_t tmp_length;
 	uint16_t xfer_len = 0;
 	const char* path = NULL;
+	const char* serial_number = NULL;
 	hackrf_device* device = NULL;
 	int result = HACKRF_SUCCESS;
 	int option_index = 0;
@@ -108,7 +110,7 @@ int main(int argc, char** argv)
 	bool read = false;
 	bool write = false;
 
-	while ((opt = getopt_long(argc, argv, "a:l:r:w:", long_options,
+	while ((opt = getopt_long(argc, argv, "a:l:r:w:d:", long_options,
 			&option_index)) != EOF) {
 		switch (opt) {
 		case 'a':
@@ -127,6 +129,10 @@ int main(int argc, char** argv)
 		case 'w':
 			write = true;
 			path = optarg;
+			break;
+		
+		case 'd':
+			serial_number = optarg;
 			break;
 
 		default:
@@ -213,7 +219,7 @@ int main(int argc, char** argv)
 		return EXIT_FAILURE;
 	}
 
-	result = hackrf_open(&device);
+	result = hackrf_open_by_serial(serial_number, &device);
 	if (result != HACKRF_SUCCESS) {
 		fprintf(stderr, "hackrf_open() failed: %s (%d)\n",
 				hackrf_error_name(result), result);

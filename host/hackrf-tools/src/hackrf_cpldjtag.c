@@ -80,6 +80,7 @@ static void usage()
 {
 	printf("Usage:\n");
 	printf("\t-x <filename>: XSVF file to be written to CPLD.\n");
+	printf("\t-d <serialnumber>: Serial number of device, if multiple devices\n");
 }
 
 int main(int argc, char** argv)
@@ -88,6 +89,7 @@ int main(int argc, char** argv)
 	uint32_t length = 0;
 	uint32_t total_length = 0;
 	const char* path = NULL;
+	const char* serial_number = NULL;
 	hackrf_device* device = NULL;
 	int result = HACKRF_SUCCESS;
 	int option_index = 0;
@@ -95,11 +97,15 @@ int main(int argc, char** argv)
 	ssize_t bytes_read;
 	uint8_t* pdata = &data[0];
 
-	while ((opt = getopt_long(argc, argv, "x:", long_options,
+	while ((opt = getopt_long(argc, argv, "x:d:", long_options,
 			&option_index)) != EOF) {
 		switch (opt) {
 		case 'x':
 			path = optarg;
+			break;
+
+		case 'd':
+			serial_number = optarg;
 			break;
 
 		default:
@@ -158,7 +164,7 @@ int main(int argc, char** argv)
 		return EXIT_FAILURE;
 	}
 
-	result = hackrf_open(&device);
+	result = hackrf_open_by_serial(serial_number, &device);
 	if (result != HACKRF_SUCCESS) {
 		fprintf(stderr, "hackrf_open() failed: %s (%d)\n",
 				hackrf_error_name(result), result);

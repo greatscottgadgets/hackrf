@@ -69,6 +69,12 @@ enum hackrf_board_id {
 	BOARD_ID_INVALID = 0xFF,
 };
 
+enum hackrf_usb_board_id {
+	USB_BOARD_ID_JAWBREAKER = 0x604B,
+	USB_BOARD_ID_HACKRF_ONE = 0x6089,
+	USB_BOARD_ID_INVALID = 0xFFFF,
+};
+
 enum rf_path_filter {
 	RF_PATH_FILTER_BYPASS = 0,
 	RF_PATH_FILTER_LOW_PASS = 1,
@@ -91,6 +97,18 @@ typedef struct {
 	uint32_t serial_no[4];
 } read_partid_serialno_t;
 
+
+struct hackrf_device_list {
+	char **serial_numbers;
+	enum hackrf_usb_board_id *usb_board_ids;
+	int *usb_device_index;
+	int devicecount;
+	
+	void **usb_devices;
+	int usb_devicecount;
+};
+typedef struct hackrf_device_list hackrf_device_list_t;
+
 typedef int (*hackrf_sample_block_cb_fn)(hackrf_transfer* transfer);
 
 #ifdef __cplusplus
@@ -100,8 +118,13 @@ extern "C"
 
 extern ADDAPI int ADDCALL hackrf_init();
 extern ADDAPI int ADDCALL hackrf_exit();
+
+extern ADDAPI hackrf_device_list_t* ADDCALL hackrf_device_list();
+extern ADDAPI int ADDCALL hackrf_device_list_open(hackrf_device_list_t *list, int idx, hackrf_device** device);
+extern ADDAPI void ADDCALL hackrf_device_list_free(hackrf_device_list_t *list);
  
 extern ADDAPI int ADDCALL hackrf_open(hackrf_device** device);
+extern ADDAPI int ADDCALL hackrf_open_by_serial(const char* const desired_serial_number, hackrf_device** device);
 extern ADDAPI int ADDCALL hackrf_close(hackrf_device* device);
  
 extern ADDAPI int ADDCALL hackrf_start_rx(hackrf_device* device, hackrf_sample_block_cb_fn callback, void* rx_ctx);
@@ -164,6 +187,7 @@ extern ADDAPI int ADDCALL hackrf_set_antenna_enable(hackrf_device* device, const
 
 extern ADDAPI const char* ADDCALL hackrf_error_name(enum hackrf_error errcode);
 extern ADDAPI const char* ADDCALL hackrf_board_id_name(enum hackrf_board_id board_id);
+extern ADDAPI const char* ADDCALL hackrf_usb_board_id_name(enum hackrf_usb_board_id usb_board_id);
 extern ADDAPI const char* ADDCALL hackrf_filter_path_name(const enum rf_path_filter path);
 
 /* Compute nearest freq for bw filter (manual filter) */

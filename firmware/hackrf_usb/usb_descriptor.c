@@ -22,6 +22,7 @@
 #include <stdint.h>
 
 #include "usb_type.h"
+#include "usb_descriptor.h"
 
 #define USB_VENDOR_ID			(0x1D50)
 
@@ -57,7 +58,7 @@ uint8_t usb_descriptor_device[] = {
 	USB_WORD(0x0100),		   // bcdDevice
 	0x01,				   // iManufacturer
 	0x02,				   // iProduct
-	0x00,				   // iSerialNumber
+	0x05,				   // iSerialNumber
 	0x02				   // bNumConfigurations
 };
 
@@ -329,12 +330,14 @@ uint8_t usb_descriptor_string_config2_description[] = {
 	'e', 0x00,
 };
 
-uint8_t* const usb_descriptor_strings[] = {
+uint8_t usb_descriptor_string_serial_number[USB_DESCRIPTOR_STRING_SERIAL_BUF_LEN];
+
+uint8_t* usb_descriptor_strings[] = {
 	usb_descriptor_string_languages,
 	usb_descriptor_string_manufacturer,
 	usb_descriptor_string_product,
 	usb_descriptor_string_config1_description,
 	usb_descriptor_string_config2_description,
-	
+	usb_descriptor_string_serial_number,
 	0,		// TERMINATOR
 };
