@@ -582,15 +582,11 @@ int main(int argc, char** argv) {
 		}		
 	}
 
-	if ((lna_gain % 8) || (vga_gain % 2)) {
-		if (lna_gain % 8)
-			printf("argument error: lna_gain (-l) must be a multiple of 8\n");
-		if (vga_gain % 2)
-			printf("argument error: vga_gain (-g) must be a multiple of 2\n");
+	if (lna_gain % 8)
+		printf("warning: lna_gain (-l) must be a multiple of 8\n");
 
-		usage();
-		return EXIT_FAILURE;
-	}
+	if (vga_gain % 2)
+		printf("warning: vga_gain (-g) must be a multiple of 2\n");
 
 	if (samples_to_xfer >= SAMPLES_TO_XFER_MAX) {
 		printf("argument error: num_samples must be less than %s/%sMio\n",
