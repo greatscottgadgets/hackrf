@@ -965,7 +965,10 @@ int main(int argc, char** argv) {
 				printf("hackrf_stop_tx() done\n");
 			}
 		}
-		
+
+		if( hackrf_set_amp_enable(device, 0) != HACKRF_SUCCESS )
+			printf("WARNING: failed to disable RF amp: %s (%d)\n", hackrf_error_name(result), result);
+
 		result = hackrf_close(device);
 		if( result != HACKRF_SUCCESS ) 
 		{
