@@ -57,6 +57,9 @@ extern "C"
 #define SCU_PINMUX_LED1     (P4_1)  /* GPIO2[1] on P4_1 */
 #define SCU_PINMUX_LED2     (P4_2)  /* GPIO2[2] on P4_2 */
 #define SCU_PINMUX_LED3     (P6_12) /* GPIO2[8] on P6_12 */
+#ifdef RAD10
+#define SCU_PINMUX_LED4     (PB_6) /* GPIO5[26] on PB_6 */
+#endif
 
 #define SCU_PINMUX_EN1V8    (P6_10) /* GPIO3[6] on P6_10 */
 
@@ -81,7 +84,7 @@ extern "C"
 /* CPLD JTAG interface */
 #define SCU_PINMUX_CPLD_TDO (P9_5)  /* GPIO5[18] */
 #define SCU_PINMUX_CPLD_TCK (P6_1)  /* GPIO3[ 0] */
-#ifdef HACKRF_ONE
+#if (defined HACKRF_ONE || defined RAD10)
 #define SCU_PINMUX_CPLD_TMS (P6_5)  /* GPIO3[ 4] */
 #define SCU_PINMUX_CPLD_TDI (P6_2)  /* GPIO3[ 1] */
 #else
@@ -123,6 +126,13 @@ extern "C"
 #define SCU_XCVR_B6			(P5_5)	/* GPIO2[14] on P5_5 */
 #define SCU_XCVR_B7			(P5_6)	/* GPIO2[15] on P5_6 */
 #endif
+
+#ifdef RAD10
+#define SCU_XCVR_RXHP		(P8_1)	/* GPIO[] on P8_1 */
+#define SCU_XCVR_B6			(P8_2)	/* GPIO[] on P8_2 */
+#define SCU_XCVR_B7			(P9_3)	/* GPIO[] on P8_3 */
+#endif
+
 #define SCU_XCVR_ENABLE     (P4_6)  /* GPIO2[6] on P4_6 */
 #define SCU_XCVR_RXENABLE   (P4_5)  /* GPIO2[5] on P4_5 */
 #define SCU_XCVR_TXENABLE   (P4_4)  /* GPIO2[4] on P4_4 */
@@ -144,6 +154,12 @@ extern "C"
 #define SCU_MIXER_SDATA     (P6_4)  /* GPIO3[3] on P6_4 */
 #define SCU_MIXER_RESETX    (P5_5)  /* GPIO2[14] on P5_5 */
 #endif
+#ifdef RAD10
+#define SCU_MIXER_ENX       (P5_4)  /* GPIO2[13] on P5_4 */
+#define SCU_MIXER_SCLK      (P2_6)  /* GPIO5[6] on P2_6 */
+#define SCU_MIXER_SDATA     (P6_4)  /* GPIO3[3] on P6_4 */
+#define SCU_MIXER_LE        (P5_5)  /* GPIO2[14] on P5_5 */
+#endif
 
 /* RF LDO control */
 #ifdef JAWBREAKER
@@ -151,7 +167,7 @@ extern "C"
 #endif
 
 /* RF supply (VAA) control */
-#ifdef HACKRF_ONE
+#if (defined HACKRF_ONE || defined RAD10)
 #define SCU_NO_VAA_ENABLE   (P5_0)  /* GPIO2[9] on P5_0 */
 #endif
 
@@ -178,6 +194,20 @@ extern "C"
 #define SCU_AMP_BYPASS      (P2_10) /* GPIO0[14] on P2_10 */
 #define SCU_RX_AMP          (P2_11) /* GPIO1[11] on P2_11 */
 #define SCU_NO_RX_AMP_PWR   (P2_12) /* GPIO1[12] on P2_12 */
+#endif
+
+#ifdef RAD10
+#define SCU_BY_AMP          (P1_7)  /* GPIO1[0] on P1_7 */
+#define SCU_BY_AMP_N        (P2_5)  /* GPIO5[5] on P2_5 */
+#define SCU_TX_RX           (P2_10) /* GPIO0[14] on P2_10 */
+#define SCU_TX_RX_N         (P2_11) /* GPIO1[11] on P2_11 */
+#define SCU_BY_MIX          (P2_12) /* GPIO1[12] on P2_12 */
+#define SCU_BY_MIX_N        (P5_1) /* GPIO2[10] on P5_1 */
+#define SCU_LOW_HIGH_FILT   (P5_2) /* GPIO2[11] on P5_2 */
+#define SCU_LOW_HIGH_FILT_N (P5_3) /* GPIO2[12] on P5_3 */
+#define SCU_TX_AMP          (P5_6) /* GPIO2[15] on P5_6 */
+#define SCU_RX_LNA          (P5_7) /* GPIO5[15] on P6_7 */
+#define SCU_MIXER_EN        (P6_8) /* GPIO5[16] on P6_8 */
 #endif
 
 /* TODO add other Pins */
@@ -216,6 +246,11 @@ extern "C"
 #define PIN_LED3    (BIT8) /* GPIO2[8] on P6_12 */
 #define PORT_LED1_3 (GPIO2) /* PORT for LED1, 2 & 3 */
 
+#ifdef RAD10
+#define PIN_LED4    (BIT26) /* GPIO5[26] on PB_6 */
+#define PORT_LED4   (GPIO5) /* PORT for LED4 */
+#endif
+
 #define PIN_EN1V8   (BIT6) /* GPIO3[6] on P6_10 */
 #define PORT_EN1V8  (GPIO3)
 
@@ -236,6 +271,14 @@ extern "C"
 #define PIN_XCVR_B6		  (BIT14) /* GPIO2[14] on P5_5 */
 #define PIN_XCVR_B7		  (BIT15) /* GPIO2[15] on P5_6 */
 #define PORT_XCVR_B	  	  (GPIO2)
+#endif
+
+#ifdef RAD10
+#define PIN_XCVR_RXHP     (BIT1)  /* GPIO4[1] on P8_1 */
+#define PORT_XCVR_RXHP	  (GPIO4)
+#define PIN_XCVR_B6		  (BIT2) /* GPIO4[2] on P8_2 */
+#define PIN_XCVR_B7		  (BIT3) /* GPIO4[3] on P8_3 */
+#define PORT_XCVR_B	  	  (GPIO4)
 #endif
 
 #define PIN_AD_CS  (BIT7)  /* GPIO2[7] on P5_7 */
@@ -261,6 +304,16 @@ extern "C"
 #define PIN_MIXER_RESETX  (BIT14) /* GPIO2[14] on P5_5 */
 #define PORT_MIXER_RESETX (GPIO2)
 #endif
+#ifdef RAD10
+#define PIN_MIXER_ENX     (BIT13) /* GPIO2[13] on P5_4 */
+#define PORT_MIXER_ENX    (GPIO2)
+#define PIN_MIXER_SCLK    (BIT6)  /* GPIO5[6] on P2_6 */
+#define PORT_MIXER_SCLK   (GPIO5)
+#define PIN_MIXER_SDATA   (BIT3)  /* GPIO3[3] on P6_4 */
+#define PORT_MIXER_SDATA  (GPIO3)
+#define PIN_MIXER_LE      (BIT14) /* GPIO2[14] on P5_5 */
+#define PORT_MIXER_LE     (GPIO2)
+#endif
 
 #ifdef JAWBREAKER
 #define PIN_RF_LDO_ENABLE  (BIT9)  /* GPIO2[9] on P5_0 */
@@ -270,6 +323,11 @@ extern "C"
 #ifdef HACKRF_ONE
 #define PIN_NO_VAA_ENABLE  (BIT9)  /* GPIO2[9] on P5_0 */
 #define PORT_NO_VAA_ENABLE (GPIO2) /* PORT for NO_VAA_ENABLE */
+#endif
+
+#ifdef RAD10
+#define PIN_VDD_ENABLE  (BIT9)  /* GPIO2[9] on P5_0 */
+#define PORT_VDD_ENABLE (GPIO2) /* PORT for VDD_ENABLE */
 #endif
 
 #define PIN_FLASH_HOLD (BIT14) /* GPIO1[14] on P3_4 */
@@ -308,6 +366,31 @@ extern "C"
 #define PORT_NO_RX_AMP_PWR  (GPIO1)
 #endif
 
+#ifdef RAD10
+#define PIN_BY_AMP          (GPIOPIN0)  /* GPIO1[0] on P1_7 */
+#define PORT_BY_AMP         (GPIO1)
+#define PIN_BY_AMP_N        (GPIOPIN5)  /* GPIO5[5] on P2_5 */
+#define PORT_BY_AMP_N       (GPIO5)
+#define PIN_TX_RX           (GPIOPIN14) /* GPIO0[14] on P2_10 */
+#define PORT_TX_RX          (GPIO0)
+#define PIN_TX_RX_N         (GPIOPIN11) /* GPIO1[11] on P2_11 */
+#define PORT_TX_RX_N        (GPIO1)
+#define PIN_BY_MIX          (GPIOPIN12) /* GPIO1[12] on P2_12 */
+#define PORT_BY_MIX         (GPIO1)
+#define PIN_BY_MIX_N        (GPIOPIN10) /* GPIO2[10] on P5_1 */
+#define PORT_BY_MIX_N       (GPIO2)
+#define PIN_LOW_HIGH_FILT   (GPIOPIN11) /* GPIO2[11] on P5_2 */
+#define PORT_LOW_HIGH_FILT  (GPIO2)
+#define PIN_LOW_HIGH_FILT_N (GPIOPIN12) /* GPIO2[12] on P5_3 */
+#define PORT_LOW_HIGH_FILT_N    (GPIO2)
+#define PIN_TX_AMP          (GPIOPIN15) /* GPIO2[15] on P5_6 */
+#define PORT_TX_AMP         (GPIO2)
+#define PIN_RX_LNA          (GPIOPIN15) /* GPIO5[15] on P6_7 */
+#define PORT_RX_LNA         (GPIO5)
+#define PIN_MIXER_EN        (GPIOPIN16) /* GPIO5[16] on P6_8 */
+#define PORT_MIXER_EN       (GPIO5)
+#endif
+
 /* GPIO Input */
 #define PIN_BOOT0   (BIT8)  /* GPIO0[8] on P1_1 */
 #define PIN_BOOT1   (BIT9)  /* GPIO0[9] on P1_2 */
@@ -319,7 +402,7 @@ extern "C"
 #define PORT_CPLD_TDO   (GPIO5)
 #define PIN_CPLD_TCK    (GPIOPIN0)
 #define PORT_CPLD_TCK   (GPIO3)
-#ifdef HACKRF_ONE
+#if (defined HACKRF_ONE || defined RAD10)
 #define PIN_CPLD_TMS    (GPIOPIN4)
 #define PORT_CPLD_TMS   (GPIO3)
 #define PIN_CPLD_TDI    (GPIOPIN1)
