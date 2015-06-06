@@ -36,6 +36,7 @@ extern "C"
 #define BOARD_ID_JELLYBEAN  0
 #define BOARD_ID_JAWBREAKER 1
 #define BOARD_ID_HACKRF_ONE 2
+#define BOARD_ID_RAD10      3
 
 #ifdef JELLYBEAN
 #define BOARD_ID BOARD_ID_JELLYBEAN
@@ -47,6 +48,10 @@ extern "C"
 
 #ifdef HACKRF_ONE
 #define BOARD_ID BOARD_ID_HACKRF_ONE
+#endif
+
+#ifdef RAD10
+#define BOARD_ID BOARD_ID_RAD10
 #endif
 
 /*
@@ -104,7 +109,7 @@ extern "C"
 #ifdef JELLYBEAN
 #define SCU_PINMUX_SGPIO8   (P1_12)
 #endif
-#if (defined JAWBREAKER || defined HACKRF_ONE)
+#if (defined JAWBREAKER || defined HACKRF_ONE || defined RAD10)
 #define SCU_PINMUX_SGPIO8   (P9_6)
 #endif
 #define SCU_PINMUX_SGPIO9   (P4_3)

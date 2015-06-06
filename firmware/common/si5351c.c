@@ -239,7 +239,7 @@ void si5351c_configure_clock_control()
 }
 #endif
 
-#if (defined JAWBREAKER || defined HACKRF_ONE)
+#if (defined JAWBREAKER || defined HACKRF_ONE || defined RAD10)
 void si5351c_configure_clock_control(const enum pll_sources source)
 {
 	uint8_t pll;

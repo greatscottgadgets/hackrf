@@ -25,7 +25,10 @@
 #include <usb_queue.h>
 #include <max2837.h>
 #include <si5351c.h>
+
+#ifndef RAD10
 #include <rffc5071.h>
+#endif
 
 #include <stddef.h>
 #include <stdint.h>
@@ -105,6 +108,7 @@ usb_request_status_t usb_vendor_request_read_si5351c(
 	}
 }
 
+#ifndef RAD10
 usb_request_status_t usb_vendor_request_write_rffc5071(
 	usb_endpoint_t* const endpoint,
 	const usb_transfer_stage_t stage
@@ -145,3 +149,4 @@ usb_request_status_t usb_vendor_request_read_rffc5071(
 		return USB_REQUEST_STATUS_OK;
 	}
 }
+#endif

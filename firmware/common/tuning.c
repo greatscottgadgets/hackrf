@@ -22,7 +22,7 @@
 
 #include "tuning.h"
 
-#include <rffc5071.h>
+#include <mixer.h>
 #include <max2837.h>
 #include <sgpio.h>
 
@@ -53,9 +53,9 @@ uint64_t freq_cache = 100000000;
 bool set_freq(const uint64_t freq)
 {
 	bool success;
-	uint32_t RFFC5071_freq_mhz;
+	uint32_t mixer_freq_mhz;
 	uint32_t MAX2837_freq_hz;
-	uint64_t real_RFFC5071_freq_hz;
+	uint64_t real_mixer_freq_hz;
 
 	const uint32_t freq_mhz = freq / 1000000;
 	const uint32_t freq_hz = freq % 1000000;
@@ -69,16 +69,16 @@ bool set_freq(const uint64_t freq)
 		rf_path_set_filter(RF_PATH_FILTER_LOW_PASS);
 		/* IF is graduated from 2650 MHz to 2343 MHz */
 		max2837_freq_nominal_hz = 2650000000 - (freq / 7);
-		RFFC5071_freq_mhz = (max2837_freq_nominal_hz / FREQ_ONE_MHZ) + freq_mhz;
+		mixer_freq_mhz = (max2837_freq_nominal_hz / FREQ_ONE_MHZ) + freq_mhz;
 		/* Set Freq and read real freq */
-		real_RFFC5071_freq_hz = rffc5071_set_frequency(RFFC5071_freq_mhz);
-		max2837_set_frequency(real_RFFC5071_freq_hz - freq);
+		real_mixer_freq_hz = mixer_set_frequency(mixer_freq_mhz);
+		max2837_set_frequency(real_mixer_freq_hz - freq);
 		sgpio_cpld_stream_rx_set_q_invert(1);
 	}else if( (freq_mhz >= MIN_BYPASS_FREQ_MHZ) && (freq_mhz < MAX_BYPASS_FREQ_MHZ) )
 	{
 		rf_path_set_filter(RF_PATH_FILTER_BYPASS);
 		MAX2837_freq_hz = (freq_mhz * FREQ_ONE_MHZ) + freq_hz;
-		/* RFFC5071_freq_mhz <= not used in Bypass mode */
+		/* mixer_freq_mhz <= not used in Bypass mode */
 		max2837_set_frequency(MAX2837_freq_hz);
 		sgpio_cpld_stream_rx_set_q_invert(0);
 	}else if(  (freq_mhz >= MIN_HP_FREQ_MHZ) && (freq_mhz <= MAX_HP_FREQ_MHZ) )
@@ -94,10 +94,10 @@ bool set_freq(const uint64_t freq)
 			max2837_freq_nominal_hz = 2500000000 + ((freq - 5100000000) / 9);
 		}
 		rf_path_set_filter(RF_PATH_FILTER_HIGH_PASS);
-		RFFC5071_freq_mhz = freq_mhz - (max2837_freq_nominal_hz / FREQ_ONE_MHZ);
+		mixer_freq_mhz = freq_mhz - (max2837_freq_nominal_hz / FREQ_ONE_MHZ);
 		/* Set Freq and read real freq */
-		real_RFFC5071_freq_hz = rffc5071_set_frequency(RFFC5071_freq_mhz);
-		max2837_set_frequency(freq - real_RFFC5071_freq_hz);
+		real_mixer_freq_hz = mixer_set_frequency(mixer_freq_mhz);
+		max2837_set_frequency(freq - real_mixer_freq_hz);
 		sgpio_cpld_stream_rx_set_q_invert(0);
 	}else
 	{
@@ -136,7 +136,7 @@ bool set_freq_explicit(const uint64_t if_freq_hz, const uint64_t lo_freq_hz,
 		sgpio_cpld_stream_rx_set_q_invert(0);
 	}
 	if (path != RF_PATH_FILTER_BYPASS) {
-		(void)rffc5071_set_frequency(lo_freq_hz / FREQ_ONE_MHZ);
+		(void)mixer_set_frequency(lo_freq_hz / FREQ_ONE_MHZ);
 	}
 	return true;
 }

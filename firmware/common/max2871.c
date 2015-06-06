@@ -1,3 +1,5 @@
+#include <stdint.h>
+
 /*
  * - The input is fixed to 50 MHz
  * f_REF = 50 MHz
@@ -113,3 +115,32 @@
  *  f_ERROR range: 0 MHz - 1 MHz
  *
  */
+
+void mixer_init(void)
+{}
+void mixer_setup(void)
+{}
+
+/* Set frequency (MHz). */
+uint64_t mixer_set_frequency(uint16_t mhz)
+{
+    (void) mhz;
+    return mhz;
+}
+
+void mixer_tx(void)
+{}
+void mixer_rx(void)
+{}
+void mixer_rxtx(void)
+{}
+void mixer_enable(void)
+{}
+void mixer_disable(void)
+{}
+void mixer_set_gpo(uint8_t gpo)
+{
+    (void) gpo;
+}
+
+
