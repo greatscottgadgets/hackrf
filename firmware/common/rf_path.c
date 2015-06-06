@@ -88,16 +88,15 @@ uint8_t switchctrl = SWITCHCTRL_SAFE;
 
 #ifdef RAD10
 static void switchctrl_set_rad10(uint8_t ctrl) {
-	(void)ctrl;
-#if 0
 	if (ctrl & SWITCHCTRL_TX) {
-		gpio_set(PORT_TX, PIN_TX);
-		gpio_clear(PORT_RX, PIN_RX);
+		gpio_set(PORT_TX_RX_N, PIN_TX_RX_N);
+		gpio_clear(PORT_TX_RX, PIN_TX_RX);
 	} else {
-		gpio_clear(PORT_TX, PIN_TX);
-		gpio_set(PORT_RX, PIN_RX);
+		gpio_clear(PORT_TX_RX_N, PIN_TX_RX_N);
+		gpio_set(PORT_TX_RX, PIN_TX_RX);
 	}
 
+#if 0
 	if (ctrl & SWITCHCTRL_MIX_BYPASS) {
 		gpio_set(PORT_MIX_BYPASS, PIN_MIX_BYPASS);
 		gpio_clear(PORT_NO_MIX_BYPASS, PIN_NO_MIX_BYPASS);
