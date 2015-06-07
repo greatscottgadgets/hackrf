@@ -160,10 +160,10 @@ extern "C"
 #define SCU_MIXER_RESETX    (P5_5)  /* GPIO2[14] on P5_5 */
 #endif
 #ifdef RAD10
-#define SCU_MIXER_ENX       (P5_4)  /* GPIO2[13] on P5_4 */
-#define SCU_MIXER_SCLK      (P2_6)  /* GPIO5[6] on P2_6 */
-#define SCU_MIXER_SDATA     (P6_4)  /* GPIO3[3] on P6_4 */
-#define SCU_MIXER_LE        (P5_5)  /* GPIO2[14] on P5_5 */
+#define SCU_VCO_CE          (P5_4)  /* GPIO2[13] on P5_4 */
+#define SCU_VCO_SCLK        (P2_6)  /* GPIO5[6] on P2_6 */
+#define SCU_VCO_SDATA       (P6_4)  /* GPIO3[3] on P6_4 */
+#define SCU_VCO_LE          (P5_5)  /* GPIO2[14] on P5_5 */
 #define SCU_MIXER_EN        (P6_8)  /* GPIO5[16] on P6_8 */
 #endif
 
@@ -315,14 +315,14 @@ extern "C"
 #define PORT_MIXER_RESETX (GPIO2)
 #endif
 #ifdef RAD10
-#define PIN_MIXER_ENX     (BIT13) /* GPIO2[13] on P5_4 */
-#define PORT_MIXER_ENX    (GPIO2)
-#define PIN_MIXER_SCLK    (BIT6)  /* GPIO5[6] on P2_6 */
-#define PORT_MIXER_SCLK   (GPIO5)
-#define PIN_MIXER_SDATA   (BIT3)  /* GPIO3[3] on P6_4 */
-#define PORT_MIXER_SDATA  (GPIO3)
-#define PIN_MIXER_LE      (BIT14) /* GPIO2[14] on P5_5 */
-#define PORT_MIXER_LE     (GPIO2)
+#define PIN_VCO_CE        (BIT13) /* GPIO2[13] on P5_4 */
+#define PORT_VCO_CE       (GPIO2)
+#define PIN_VCO_SCLK      (BIT6)  /* GPIO5[6] on P2_6 */
+#define PORT_VCO_SCLK     (GPIO5)
+#define PIN_VCO_SDATA     (BIT3)  /* GPIO3[3] on P6_4 */
+#define PORT_VCO_SDATA    (GPIO3)
+#define PIN_VCO_LE        (BIT14) /* GPIO2[14] on P5_5 */
+#define PORT_VCO_LE       (GPIO2)
 #define PIN_MIXER_EN      (BIT16) /* GPIO5[16] on P6_8 */
 #define PORT_MIXER_EN     (GPIO5)
 #endif

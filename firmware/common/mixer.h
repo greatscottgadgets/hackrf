@@ -23,6 +23,8 @@
 #ifndef __MIXER_H
 #define __MIXER_H
 
+#include <stdint.h>
+
 /* Initialize chip. Call _setup() externally, as it calls _init(). */
 extern void mixer_init(void);
 extern void mixer_setup(void);

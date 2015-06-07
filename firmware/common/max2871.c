@@ -1,5 +1,25 @@
-#include <stdint.h>
+#include "mixer.h"
+//#include "max2871.h"
+//#include "mac2871_regs.def" // private register def macros
 
+#if (defined DEBUG)
+#include <stdio.h>
+#define LOG printf
+#else
+#define LOG(x,...)
+#include <libopencm3/lpc43xx/ssp.h>
+#include <libopencm3/lpc43xx/scu.h>
+#include <libopencm3/lpc43xx/gpio.h>
+#include "hackrf_core.h"
+#endif
+
+#include <stdint.h>
+#include <string.h>
+
+static void max2871_spi_write(uint8_t r, uint32_t v);
+static void delay_ms(int ms);
+
+static uint32_t registers[6];
 /*
  * - The input is fixed to 50 MHz
  * f_REF = 50 MHz
@@ -116,10 +136,110 @@
  *
  */
 
-void mixer_init(void)
-{}
 void mixer_setup(void)
-{}
+{
+	/* Configure GPIO pins. */
+	scu_pinmux(SCU_VCO_CE, SCU_GPIO_FAST);
+	//scu_pinmux(SCU_VCO_SCLK, SCU_GPIO_FAST | SCU_CONF_FUNCTION4);
+	scu_pinmux(SCU_VCO_SCLK, SCU_GPIO_FAST);
+	scu_pinmux(SCU_VCO_SDATA, SCU_GPIO_FAST);
+	scu_pinmux(SCU_VCO_LE, SCU_GPIO_FAST);
+
+	/* Set GPIO pins as outputs. */
+	GPIO_DIR(PORT_VCO_CE) |= PIN_VCO_CE;
+	GPIO_DIR(PORT_VCO_SCLK) |= PIN_VCO_SCLK;
+	GPIO_DIR(PORT_VCO_SDATA) |= PIN_VCO_SDATA;
+	GPIO_DIR(PORT_VCO_LE) |= PIN_VCO_LE;
+
+	/* set to known state */
+	gpio_set(PORT_VCO_CE, PIN_VCO_CE); /* active high */
+	gpio_clear(PORT_VCO_SCLK, PIN_VCO_SCLK);
+	gpio_clear(PORT_VCO_SDATA, PIN_VCO_SDATA);
+	gpio_set(PORT_VCO_LE, PIN_VCO_LE); /* active low */
+
+    registers[0] = 0x007D0000;
+    registers[1] = 0x2000FFF9;
+    registers[2] = 0x00004042;
+    registers[3] = 0x0000000B;
+    registers[4] = 0x6180B23C;
+    registers[5] = 0x00400005;
+
+    int i;
+    for(i = 5; i >= 0; i--) {
+        max2871_spi_write(i, registers[i]);
+        delay_ms(20);
+    }
+}
+
+static void delay_ms(int ms)
+{
+	uint32_t i;
+    while(ms--) {
+        for (i = 0; i < 20000; i++) {
+            __asm__("nop");
+        }
+    }
+}
+
+
+static void serial_delay(void)
+{
+	uint32_t i;
+
+	for (i = 0; i < 2; i++)
+		__asm__("nop");
+}
+
+
+/* SPI register write
+ *
+ * Send 32 bits:
+ *  First 29 bits are data
+ *  Last 3 bits are register number
+ */
+static void max2871_spi_write(uint8_t r, uint32_t v) {
+
+#if DEBUG
+	LOG("0x%04x -> reg%d\n", v, r);
+#else
+
+	uint32_t bits = 32;
+	uint32_t msb = 1 << (bits -1);
+	uint32_t data = v | r;
+
+	/* make sure everything is starting in the correct state */
+	gpio_set(PORT_VCO_LE, PIN_VCO_LE);
+	gpio_clear(PORT_VCO_SCLK, PIN_VCO_SCLK);
+	gpio_clear(PORT_VCO_SDATA, PIN_VCO_SDATA);
+
+	/* start transaction by bringing LE low */
+	gpio_clear(PORT_VCO_LE, PIN_VCO_LE);
+
+	while (bits--) {
+		if (data & msb)
+			gpio_set(PORT_VCO_SDATA, PIN_VCO_SDATA);
+		else
+			gpio_clear(PORT_VCO_SDATA, PIN_VCO_SDATA);
+		data <<= 1;
+
+		serial_delay();
+		gpio_set(PORT_VCO_SCLK, PIN_VCO_SCLK);
+
+		serial_delay();
+		gpio_clear(PORT_VCO_SCLK, PIN_VCO_SCLK);
+	}
+
+	gpio_set(PORT_VCO_LE, PIN_VCO_LE);
+#endif
+}
+
+void max2871_write_registers(void)
+{
+    int i;
+    for(i = 5; i >= 0; i--) {
+        max2871_spi_write(i, registers[i]);
+    }
+}
 
 /* Set frequency (MHz). */
 uint64_t mixer_set_frequency(uint16_t mhz)

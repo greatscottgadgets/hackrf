@@ -219,7 +219,7 @@ void usb_set_descriptor_by_serial_number(void)
 int main(void) {
 	pin_setup();
 	enable_1v8_power();
-#ifdef HACKRF_ONE
+#if (defined HACKRF_ONE || defined RAD10)
 	enable_rf_power();
 #endif
 	cpu_clock_init();

@@ -99,9 +99,11 @@ static void switchctrl_set_rad10(uint8_t ctrl) {
 	if (ctrl & SWITCHCTRL_MIX_BYPASS) {
 		gpio_clear(PORT_BY_MIX, PIN_BY_MIX);
 		gpio_set(PORT_BY_MIX_N, PIN_BY_MIX_N);
+		gpio_clear(PORT_MIXER_EN, PIN_MIXER_EN);
 	} else {
 		gpio_set(PORT_BY_MIX, PIN_BY_MIX);
 		gpio_clear(PORT_BY_MIX_N, PIN_BY_MIX_N);
+		gpio_set(PORT_MIXER_EN, PIN_MIXER_EN);
 	}
 
 	if (ctrl & SWITCHCTRL_HP) {
@@ -301,6 +303,7 @@ void rf_path_pin_setup() {
     scu_pinmux(SCU_LOW_HIGH_FILT_N,SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
     scu_pinmux(SCU_TX_AMP,         SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
     scu_pinmux(SCU_RX_LNA,         SCU_GPIO_FAST | SCU_CONF_FUNCTION4);
+    scu_pinmux(SCU_MIXER_EN,       SCU_GPIO_FAST | SCU_CONF_FUNCTION4);
 
 	/* Configure RF power supply (VAA) switch */
 	scu_pinmux(SCU_VAA_ENABLE,  SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
@@ -310,6 +313,7 @@ void rf_path_pin_setup() {
 	GPIO1_DIR |= PIN_BY_AMP | PIN_TX_RX_N | PIN_BY_MIX;
 	GPIO2_DIR |= PIN_BY_MIX_N | PIN_LOW_HIGH_FILT | PIN_LOW_HIGH_FILT_N | PIN_TX_AMP;
 	GPIO5_DIR |= PIN_BY_AMP_N | PIN_RX_LNA;
+	GPIO_DIR(PORT_MIXER_EN) |= PIN_MIXER_EN;
 
 	/*
 	 * Safe (initial) switch settings turn off both amplifiers and antenna port
