@@ -1,6 +1,7 @@
 #include "mixer.h"
 //#include "max2871.h"
-//#include "mac2871_regs.def" // private register def macros
+// TODO: put max2871_regs.c into the build system
+#include "max2871_regs.c"
 
 #if (defined DEBUG)
 #include <stdio.h>
@@ -17,9 +18,9 @@
 #include <string.h>
 
 static void max2871_spi_write(uint8_t r, uint32_t v);
+static void max2871_write_registers(void);
 static void delay_ms(int ms);
 
-static uint32_t registers[6];
 /*
  * - The input is fixed to 50 MHz
  * f_REF = 50 MHz
@@ -140,35 +141,81 @@ void mixer_setup(void)
 {
 	/* Configure GPIO pins. */
 	scu_pinmux(SCU_VCO_CE, SCU_GPIO_FAST);
-	//scu_pinmux(SCU_VCO_SCLK, SCU_GPIO_FAST | SCU_CONF_FUNCTION4);
-	scu_pinmux(SCU_VCO_SCLK, SCU_GPIO_FAST);
+	scu_pinmux(SCU_VCO_SCLK, SCU_GPIO_FAST | SCU_CONF_FUNCTION4);
+	//Only used for the debug pin config: scu_pinmux(SCU_VCO_SCLK, SCU_GPIO_FAST);
 	scu_pinmux(SCU_VCO_SDATA, SCU_GPIO_FAST);
 	scu_pinmux(SCU_VCO_LE, SCU_GPIO_FAST);
+    scu_pinmux(SCU_SYNT_RFOUT_EN, SCU_GPIO_FAST);
 
 	/* Set GPIO pins as outputs. */
 	GPIO_DIR(PORT_VCO_CE) |= PIN_VCO_CE;
 	GPIO_DIR(PORT_VCO_SCLK) |= PIN_VCO_SCLK;
 	GPIO_DIR(PORT_VCO_SDATA) |= PIN_VCO_SDATA;
 	GPIO_DIR(PORT_VCO_LE) |= PIN_VCO_LE;
+	GPIO_DIR(PORT_SYNT_RFOUT_EN) |= PIN_SYNT_RFOUT_EN;
 
 	/* set to known state */
 	gpio_set(PORT_VCO_CE, PIN_VCO_CE); /* active high */
 	gpio_clear(PORT_VCO_SCLK, PIN_VCO_SCLK);
 	gpio_clear(PORT_VCO_SDATA, PIN_VCO_SDATA);
 	gpio_set(PORT_VCO_LE, PIN_VCO_LE); /* active low */
+	gpio_set(PORT_SYNT_RFOUT_EN, PIN_SYNT_RFOUT_EN); /* active high */
 
-    registers[0] = 0x007D0000;
-    registers[1] = 0x2000FFF9;
-    registers[2] = 0x00004042;
-    registers[3] = 0x0000000B;
-    registers[4] = 0x6180B23C;
-    registers[5] = 0x00400005;
-
+    max2871_regs_init();
     int i;
     for(i = 5; i >= 0; i--) {
-        max2871_spi_write(i, registers[i]);
+        max2871_spi_write(i, max2871_get_register(i));
         delay_ms(20);
     }
+
+    max2871_set_INT(1);
+    max2871_set_N(4500);
+    max2871_set_FRAC(0);
+    max2871_set_CPL(0);
+    max2871_set_CPT(0);
+    max2871_set_P(1);
+    max2871_set_M(0);
+    max2871_set_LDS(0);
+    max2871_set_SDN(0);
+    max2871_set_MUX(3);
+    max2871_set_DBR(0);
+    max2871_set_RDIV2(0);
+    max2871_set_R(50); // 1 MHz f_PFD
+    max2871_set_REG4DB(0);
+    max2871_set_CP(3); // ?: CP current up 0-3
+    max2871_set_LDF(1); // INT-N
+    max2871_set_LDP(0); // ?: Lock-Detect Precision
+    max2871_set_PDP(1);
+    max2871_set_SHDN(0);
+    max2871_set_TRI(0);
+    max2871_set_RST(0);
+    max2871_set_VCO(0);
+    max2871_set_VAS_SHDN(0);
+    max2871_set_VAS_TEMP(0);
+    max2871_set_CSM(0);
+    max2871_set_MUTEDEL(1);
+    max2871_set_CDM(0);
+    max2871_set_CDIV(0);
+    max2871_set_SDLDO(0);
+    max2871_set_SDDIV(0);
+    max2871_set_SDREF(0);
+    max2871_set_BS(20); // For 1 MHz f_PFD
+    max2871_set_FB(1); // Do not put DIVA into the feedback loop
+    max2871_set_DIVA(0);
+    max2871_set_SDVCO(0);
+    max2871_set_MTLD(1);
+    max2871_set_BDIV(0);
+    max2871_set_RFB_EN(0);
+    max2871_set_BPWR(0);
+    max2871_set_RFA_EN(1);
+    max2871_set_APWR(3);
+    max2871_set_SDPLL(0);
+    max2871_set_F01(1);
+    max2871_set_LD(1);
+    max2871_set_ADCS(0);
+    max2871_set_ADCM(0);
+
+    max2871_write_registers();
 }
 
 static void delay_ms(int ms)
@@ -233,11 +280,11 @@ static void max2871_spi_write(uint8_t r, uint32_t v) {
 #endif
 }
 
-void max2871_write_registers(void)
+static void max2871_write_registers(void)
 {
     int i;
     for(i = 5; i >= 0; i--) {
-        max2871_spi_write(i, registers[i]);
+        max2871_spi_write(i, max2871_get_register(i));
     }
 }
 

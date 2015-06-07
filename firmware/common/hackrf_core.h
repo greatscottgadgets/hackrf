@@ -165,6 +165,7 @@ extern "C"
 #define SCU_VCO_SDATA       (P6_4)  /* GPIO3[3] on P6_4 */
 #define SCU_VCO_LE          (P5_5)  /* GPIO2[14] on P5_5 */
 #define SCU_MIXER_EN        (P6_8)  /* GPIO5[16] on P6_8 */
+#define SCU_SYNT_RFOUT_EN   (P6_9)  /* GPIO3[5] on P6_9 */
 #endif
 
 /* RF LDO control */
@@ -325,6 +326,8 @@ extern "C"
 #define PORT_VCO_LE       (GPIO2)
 #define PIN_MIXER_EN      (BIT16) /* GPIO5[16] on P6_8 */
 #define PORT_MIXER_EN     (GPIO5)
+#define PIN_SYNT_RFOUT_EN (BIT5)  /* GPIO3[5] on P6_9 */
+#define PORT_SYNT_RFOUT_EN (GPIO3)
 #endif
 
 #ifdef JAWBREAKER
