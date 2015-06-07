@@ -164,6 +164,7 @@ extern "C"
 #define SCU_MIXER_SCLK      (P2_6)  /* GPIO5[6] on P2_6 */
 #define SCU_MIXER_SDATA     (P6_4)  /* GPIO3[3] on P6_4 */
 #define SCU_MIXER_LE        (P5_5)  /* GPIO2[14] on P5_5 */
+#define SCU_MIXER_EN        (P6_8)  /* GPIO5[16] on P6_8 */
 #endif
 
 /* RF LDO control */
@@ -172,9 +173,14 @@ extern "C"
 #endif
 
 /* RF supply (VAA) control */
-#if (defined HACKRF_ONE || defined RAD10)
+#ifdef HACKRF_ONE
 #define SCU_NO_VAA_ENABLE   (P5_0)  /* GPIO2[9] on P5_0 */
 #endif
+
+#ifdef RAD10
+#define SCU_VAA_ENABLE      (P5_0)  /* GPIO2[9] on P5_0 */
+#endif
+
 
 /* SPI flash */
 #define SCU_SSP0_MISO       (P3_6)
@@ -211,8 +217,7 @@ extern "C"
 #define SCU_LOW_HIGH_FILT   (P5_2) /* GPIO2[11] on P5_2 */
 #define SCU_LOW_HIGH_FILT_N (P5_3) /* GPIO2[12] on P5_3 */
 #define SCU_TX_AMP          (P5_6) /* GPIO2[15] on P5_6 */
-#define SCU_RX_LNA          (P5_7) /* GPIO5[15] on P6_7 */
-#define SCU_MIXER_EN        (P6_8) /* GPIO5[16] on P6_8 */
+#define SCU_RX_LNA          (P6_7) /* GPIO5[15] on P6_7 */
 #endif
 
 /* TODO add other Pins */
@@ -318,6 +323,8 @@ extern "C"
 #define PORT_MIXER_SDATA  (GPIO3)
 #define PIN_MIXER_LE      (BIT14) /* GPIO2[14] on P5_5 */
 #define PORT_MIXER_LE     (GPIO2)
+#define PIN_MIXER_EN      (BIT16) /* GPIO5[16] on P6_8 */
+#define PORT_MIXER_EN     (GPIO5)
 #endif
 
 #ifdef JAWBREAKER
@@ -331,8 +338,8 @@ extern "C"
 #endif
 
 #ifdef RAD10
-#define PIN_VDD_ENABLE  (BIT9)  /* GPIO2[9] on P5_0 */
-#define PORT_VDD_ENABLE (GPIO2) /* PORT for VDD_ENABLE */
+#define PIN_VAA_ENABLE  (BIT9)  /* GPIO2[9] on P5_0 */
+#define PORT_VAA_ENABLE (GPIO2) /* PORT for VAA_ENABLE */
 #endif
 
 #define PIN_FLASH_HOLD (BIT14) /* GPIO1[14] on P3_4 */
@@ -392,8 +399,6 @@ extern "C"
 #define PORT_TX_AMP         (GPIO2)
 #define PIN_RX_LNA          (GPIOPIN15) /* GPIO5[15] on P6_7 */
 #define PORT_RX_LNA         (GPIO5)
-#define PIN_MIXER_EN        (GPIOPIN16) /* GPIO5[16] on P6_8 */
-#define PORT_MIXER_EN       (GPIO5)
 #endif
 
 /* GPIO Input */
@@ -454,7 +459,7 @@ bool sample_rate_frac_set(uint32_t rate_num, uint32_t rate_denom);
 bool sample_rate_set(const uint32_t sampling_rate_hz);
 bool baseband_filter_bandwidth_set(const uint32_t bandwidth_hz);
 
-#ifdef HACKRF_ONE
+#if (defined HACKRF_ONE || defined RAD10)
 void enable_rf_power(void);
 void disable_rf_power(void);
 #endif

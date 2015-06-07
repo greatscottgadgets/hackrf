@@ -645,10 +645,10 @@ void disable_rf_power(void) {
 
 #ifdef RAD10
 void enable_rf_power(void) {
-	gpio_set(PORT_VDD_ENABLE, PIN_VDD_ENABLE);
+	gpio_set(PORT_VAA_ENABLE, PIN_VAA_ENABLE);
 }
 
 void disable_rf_power(void) {
-	gpio_clear(PORT_VDD_ENABLE, PIN_VDD_ENABLE);
+	gpio_clear(PORT_VAA_ENABLE, PIN_VAA_ENABLE);
 }
 #endif
