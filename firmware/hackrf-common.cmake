@@ -59,7 +59,7 @@ else()
 	set(MCU_PARTNO LPC4330)
 endif()
 
-if(BOARD STREQUAL "RAD10")
+if(BOARD STREQUAL "RAD1O")
     set(MIXER max2871)
 else()
     set(MIXER rffc5071)

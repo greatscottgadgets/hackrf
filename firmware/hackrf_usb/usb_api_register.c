@@ -26,7 +26,7 @@
 #include <max2837.h>
 #include <si5351c.h>
 
-#ifndef RAD10
+#ifndef RAD1O
 #include <rffc5071.h>
 #endif
 
@@ -108,7 +108,7 @@ usb_request_status_t usb_vendor_request_read_si5351c(
 	}
 }
 
-#ifndef RAD10
+#ifndef RAD1O
 usb_request_status_t usb_vendor_request_write_rffc5071(
 	usb_endpoint_t* const endpoint,
 	const usb_transfer_stage_t stage

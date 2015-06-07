@@ -32,7 +32,7 @@
 #include <max5864.h>
 #include <sgpio.h>
 
-#if (defined JAWBREAKER || defined HACKRF_ONE || defined RAD10)
+#if (defined JAWBREAKER || defined HACKRF_ONE || defined RAD1O)
 /*
  * RF switches on Jawbreaker are controlled by General Purpose Outputs (GPO) on
  * the RFFC5072.
@@ -42,7 +42,7 @@
  * on HackRF One as the amplifier power is instead controlled only by
  * SWITCHCTRL_AMP_BYPASS.
  *
- * The rad10 also uses GPIO pins to control the different switches. The amplifiers
+ * The rad1o also uses GPIO pins to control the different switches. The amplifiers
  * are also connected to the LPC.
  */
 #define SWITCHCTRL_NO_TX_AMP_PWR (1 << 0) /* GPO1 turn off TX amp power */
@@ -86,8 +86,8 @@ uint8_t switchctrl = SWITCHCTRL_SAFE;
  */
 #define SWITCHCTRL_ANT_PWR (1 << 6) /* turn on antenna port power */
 
-#ifdef RAD10
-static void switchctrl_set_rad10(uint8_t ctrl) {
+#ifdef RAD1O
+static void switchctrl_set_rad1o(uint8_t ctrl) {
 	if (ctrl & SWITCHCTRL_TX) {
 		gpio_set(PORT_TX_RX_N, PIN_TX_RX_N);
 		gpio_clear(PORT_TX_RX, PIN_TX_RX);
@@ -244,8 +244,8 @@ static void switchctrl_set(const uint8_t gpo) {
 	mixer_set_gpo(gpo);
 #elif HACKRF_ONE
 	switchctrl_set_hackrf_one(gpo);
-#elif RAD10
-    switchctrl_set_rad10(gpo);
+#elif RAD1O
+    switchctrl_set_rad1o(gpo);
 #else
 	(void)gpo;
 #endif
@@ -291,7 +291,7 @@ void rf_path_pin_setup() {
 	disable_rf_power();
 #endif
 
-#ifdef RAD10
+#ifdef RAD1O
 	/* Configure RF switch control signals */
     scu_pinmux(SCU_BY_AMP,         SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
     scu_pinmux(SCU_BY_AMP_N,       SCU_GPIO_FAST | SCU_CONF_FUNCTION4);

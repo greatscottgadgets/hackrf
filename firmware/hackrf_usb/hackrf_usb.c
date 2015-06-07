@@ -116,7 +116,7 @@ static const usb_request_handler_fn vendor_request_handler[] = {
 	usb_vendor_request_read_si5351c,
 	usb_vendor_request_set_sample_rate_frac,
 	usb_vendor_request_set_baseband_filter_bandwidth,
-#ifdef RAD10
+#ifdef RAD1O
     NULL,
     NULL,
 #else
@@ -219,7 +219,7 @@ void usb_set_descriptor_by_serial_number(void)
 int main(void) {
 	pin_setup();
 	enable_1v8_power();
-#if (defined HACKRF_ONE || defined RAD10)
+#if (defined HACKRF_ONE || defined RAD1O)
 	enable_rf_power();
 #endif
 	cpu_clock_init();
