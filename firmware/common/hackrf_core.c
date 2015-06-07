@@ -185,7 +185,7 @@ bool sample_rate_set(const uint32_t sample_rate_hz) {
 	return true;
 #endif
 
-#if (defined JAWBREAKER || defined HACKRF_ONE)
+#if (defined JAWBREAKER || defined HACKRF_ONE || defined RAD1O)
 	uint32_t p1 = 4608;
 	uint32_t p2 = 0;
 	uint32_t p3 = 0;
@@ -297,7 +297,7 @@ void cpu_clock_init(void)
 	si5351c_configure_multisynth(5, 1536, 0, 1, 0); /* 50MHz */
 #endif
 
-#if (defined JAWBREAKER || defined HACKRF_ONE)
+#if (defined JAWBREAKER || defined HACKRF_ONE || defined RAD1O)
 	/*
 	 * Jawbreaker clocks:
 	 *   CLK0 -> MAX5864/CPLD
@@ -640,5 +640,15 @@ void enable_rf_power(void) {
 
 void disable_rf_power(void) {
 	gpio_set(PORT_NO_VAA_ENABLE, PIN_NO_VAA_ENABLE);
+}
+#endif
+
+#ifdef RAD1O
+void enable_rf_power(void) {
+	gpio_set(PORT_VAA_ENABLE, PIN_VAA_ENABLE);
+}
+
+void disable_rf_power(void) {
+	gpio_clear(PORT_VAA_ENABLE, PIN_VAA_ENABLE);
 }
 #endif

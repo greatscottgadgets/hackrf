@@ -33,6 +33,7 @@
 
 #include <stdint.h>
 #include <string.h>
+#include "mixer.h"
 #include "rffc5071.h"
 #include "rffc5071_regs.def" // private register def macros
 
@@ -87,9 +88,9 @@ uint16_t rffc5071_regs[RFFC5071_NUM_REGS];
 uint32_t rffc5071_regs_dirty = 0x7fffffff;
 
 /* Set up all registers according to defaults specified in docs. */
-void rffc5071_init(void)
+void mixer_init(void)
 {
-	LOG("# rffc5071_init\n");
+	LOG("# mixer_init\n");
 	memcpy(rffc5071_regs, rffc5071_regs_default, sizeof(rffc5071_regs));
 	rffc5071_regs_dirty = 0x7fffffff;
 
@@ -101,10 +102,10 @@ void rffc5071_init(void)
  * Set up pins for GPIO and SPI control, configure SSP peripheral for SPI, and
  * set our own default register configuration.
  */
-void rffc5071_setup(void)
+void mixer_setup(void)
 {
-	rffc5071_init();
-	LOG("# rffc5071_setup\n");
+	mixer_init();
+	LOG("# mixer_setup\n");
 #if !defined TEST
 	/* Configure GPIO pins. */
 	scu_pinmux(SCU_MIXER_ENX, SCU_GPIO_FAST);
@@ -363,7 +364,7 @@ void rffc5071_regs_commit(void)
 	}
 }
 
-void rffc5071_tx(void) {
+void mixer_tx(void) {
 	LOG("# rffc5071_tx\n");
 	set_RFFC5071_ENBL(0);
 	set_RFFC5071_FULLD(0);
@@ -371,7 +372,7 @@ void rffc5071_tx(void) {
 	rffc5071_regs_commit();
 }
 
-void rffc5071_rx(void) {
+void mixer_rx(void) {
 	LOG("# rfc5071_rx\n");
 	set_RFFC5071_ENBL(0);
 	set_RFFC5071_FULLD(0);
@@ -383,22 +384,22 @@ void rffc5071_rx(void) {
  * This function turns on both mixer (full-duplex) on the RFFC5071, but our
  * current hardware designs do not support full-duplex operation.
  */
-void rffc5071_rxtx(void) {
+void mixer_rxtx(void) {
 	LOG("# rfc5071_rxtx\n");
 	set_RFFC5071_ENBL(0);
 	set_RFFC5071_FULLD(1); /* mixer 1 and mixer 2 (RXTX) */
 	rffc5071_regs_commit();
 
-	rffc5071_enable();
+	mixer_enable();
 }
 
-void rffc5071_disable(void)  {
+void mixer_disable(void)  {
 	LOG("# rfc5071_disable\n");
 	set_RFFC5071_ENBL(0);
 	rffc5071_regs_commit();
 }
 
-void rffc5071_enable(void)  {
+void mixer_enable(void)  {
 	LOG("# rfc5071_enable\n");
 	set_RFFC5071_ENBL(1);
 	rffc5071_regs_commit();
@@ -475,17 +476,17 @@ uint64_t rffc5071_config_synth_int(uint16_t lo) {
 }
 
 /* !!!!!!!!!!! hz is currently ignored !!!!!!!!!!! */
-uint64_t rffc5071_set_frequency(uint16_t mhz) {
+uint64_t mixer_set_frequency(uint16_t mhz) {
 	uint32_t tune_freq;
 
-	rffc5071_disable();
+	mixer_disable();
 	tune_freq = rffc5071_config_synth_int(mhz);
-	rffc5071_enable();
+	mixer_enable();
 
 	return tune_freq;
 }
 
-void rffc5071_set_gpo(uint8_t gpo)
+void mixer_set_gpo(uint8_t gpo)
 {
 	/* We set GPO for both paths just in case. */
 	set_RFFC5071_P1GPO(gpo);
@@ -497,18 +498,18 @@ void rffc5071_set_gpo(uint8_t gpo)
 #ifdef TEST
 int main(int ac, char **av)
 {
-	rffc5071_setup();
+	mixer_setup();
 	rffc5071_tx(0);
-	rffc5071_set_frequency(500, 0);
-	rffc5071_set_frequency(525, 0);
-	rffc5071_set_frequency(550, 0);
-	rffc5071_set_frequency(1500, 0);
-	rffc5071_set_frequency(1525, 0);
-	rffc5071_set_frequency(1550, 0);
-	rffc5071_disable();
-	rffc5071_rx(0);
-	rffc5071_disable();
-	rffc5071_rxtx();
-	rffc5071_disable();
+	mixer_set_frequency(500, 0);
+	mixer_set_frequency(525, 0);
+	mixer_set_frequency(550, 0);
+	mixer_set_frequency(1500, 0);
+	mixer_set_frequency(1525, 0);
+	mixer_set_frequency(1550, 0);
+	mixer_disable();
+	mixer_rx(0);
+	mixer_disable();
+	mixer_rxtx();
+	mixer_disable();
 }
 #endif //TEST

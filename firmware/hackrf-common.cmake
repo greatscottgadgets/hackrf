@@ -59,6 +59,12 @@ else()
 	set(MCU_PARTNO LPC4330)
 endif()
 
+if(BOARD STREQUAL "RAD1O")
+    set(MIXER max2871)
+else()
+    set(MIXER rffc5071)
+endif()
+
 if(NOT DEFINED SRC_M0)
 	set(SRC_M0 "${PATH_HACKRF_FIRMWARE_COMMON}/m0_sleep.c")
 endif()
@@ -136,7 +142,7 @@ macro(DeclareTargets)
 		${PATH_HACKRF_FIRMWARE_COMMON}/si5351c.c
 		${PATH_HACKRF_FIRMWARE_COMMON}/max2837.c
 		${PATH_HACKRF_FIRMWARE_COMMON}/max5864.c
-		${PATH_HACKRF_FIRMWARE_COMMON}/rffc5071.c
+		${PATH_HACKRF_FIRMWARE_COMMON}/${MIXER}.c
 		m0_bin.s
 	)
 

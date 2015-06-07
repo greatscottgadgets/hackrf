@@ -32,10 +32,6 @@ extern uint32_t rffc5071_regs_dirty;
 #define RFFC5071_REG_SET_CLEAN(r) rffc5071_regs_dirty &= ~(1UL<<r)
 #define RFFC5071_REG_SET_DIRTY(r) rffc5071_regs_dirty |= (1UL<<r)
 
-/* Initialize chip. Call _setup() externally, as it calls _init(). */
-extern void rffc5071_init(void);
-extern void rffc5071_setup(void);
-
 /* Read a register via SPI. Save a copy to memory and return
  * value. Discard any uncommited changes and mark CLEAN. */
 extern uint16_t rffc5071_reg_read(uint8_t r);
@@ -48,18 +44,5 @@ extern void rffc5071_reg_write(uint8_t r, uint16_t v);
  * operations require registers to be written in a certain order. Use
  * provided routines for those operations. */
 extern void rffc5071_regs_commit(void);
-
-/* Set frequency (MHz). */
-extern uint64_t rffc5071_set_frequency(uint16_t mhz);
-
-/* Set up rx only, tx only, or full duplex. Chip should be disabled
- * before _tx, _rx, or _rxtx are called. */
-extern void rffc5071_tx(void);
-extern void rffc5071_rx(void);
-extern void rffc5071_rxtx(void);
-extern void rffc5071_enable(void);
-extern void rffc5071_disable(void);
-
-extern void rffc5071_set_gpo(uint8_t);
 
 #endif // __RFFC5071_H
