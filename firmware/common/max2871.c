@@ -185,6 +185,7 @@ uint64_t mixer_set_frequency(uint16_t mhz)
 
     max2871_set_N(n);
     max2871_set_DIVA(diva);
+    max2871_write_registers();
     return mhz;
 }
 
