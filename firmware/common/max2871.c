@@ -69,8 +69,8 @@ void mixer_setup(void)
     max2871_set_DBR(0);
     max2871_set_RDIV2(0);
     max2871_set_R(50); // 1 MHz f_PFD
-    max2871_set_REG4DB(0);
-    max2871_set_CP(3); // ?: CP current up 0-3
+    max2871_set_REG4DB(1);
+    max2871_set_CP(15); // ?: CP charge pump current 0-15
     max2871_set_LDF(1); // INT-N
     max2871_set_LDP(0); // ?: Lock-Detect Precision
     max2871_set_PDP(1);
@@ -79,7 +79,7 @@ void mixer_setup(void)
     max2871_set_RST(0);
     max2871_set_VCO(0);
     max2871_set_VAS_SHDN(0);
-    max2871_set_VAS_TEMP(0);
+    max2871_set_VAS_TEMP(1);
     max2871_set_CSM(0);
     max2871_set_MUTEDEL(1);
     max2871_set_CDM(0);
@@ -104,6 +104,8 @@ void mixer_setup(void)
     max2871_set_ADCM(0);
 
     max2871_write_registers();
+
+    mixer_set_frequency(3500);
 }
 
 static void delay_ms(int ms)
