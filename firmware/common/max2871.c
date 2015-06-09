@@ -29,6 +29,7 @@ void mixer_setup(void)
 	//Only used for the debug pin config: scu_pinmux(SCU_VCO_SCLK, SCU_GPIO_FAST);
 	scu_pinmux(SCU_VCO_SDATA, SCU_GPIO_FAST);
 	scu_pinmux(SCU_VCO_LE, SCU_GPIO_FAST);
+	scu_pinmux(SCU_VCO_MUX, SCU_GPIO_FAST | SCU_CONF_FUNCTION4);
     scu_pinmux(SCU_SYNT_RFOUT_EN, SCU_GPIO_FAST);
 
 	/* Set GPIO pins as outputs. */
@@ -37,6 +38,9 @@ void mixer_setup(void)
 	GPIO_DIR(PORT_VCO_SDATA) |= PIN_VCO_SDATA;
 	GPIO_DIR(PORT_VCO_LE) |= PIN_VCO_LE;
 	GPIO_DIR(PORT_SYNT_RFOUT_EN) |= PIN_SYNT_RFOUT_EN;
+
+    /* MUX is an input */
+	GPIO_DIR(PORT_VCO_MUX) &= ~(PIN_VCO_MUX);
 
 	/* set to known state */
 	gpio_set(PORT_VCO_CE, PIN_VCO_CE); /* active high */
@@ -61,7 +65,7 @@ void mixer_setup(void)
     max2871_set_M(0);
     max2871_set_LDS(0);
     max2871_set_SDN(0);
-    max2871_set_MUX(3);
+    max2871_set_MUX(0x0C);  // Register 6 readback
     max2871_set_DBR(0);
     max2871_set_RDIV2(0);
     max2871_set_R(50); // 1 MHz f_PFD
@@ -91,7 +95,7 @@ void mixer_setup(void)
     max2871_set_BDIV(0);
     max2871_set_RFB_EN(0);
     max2871_set_BPWR(0);
-    max2871_set_RFA_EN(1);
+    max2871_set_RFA_EN(0);
     max2871_set_APWR(3);
     max2871_set_SDPLL(0);
     max2871_set_F01(1);
@@ -164,6 +168,32 @@ static void max2871_spi_write(uint8_t r, uint32_t v) {
 #endif
 }
 
+static uint32_t max2871_spi_read(void)
+{
+	uint32_t bits = 32;
+	uint32_t data = 0;
+
+    max2871_spi_write(0x06, 0x0);
+
+    serial_delay();
+    gpio_set(PORT_VCO_SCLK, PIN_VCO_SCLK);
+    serial_delay();
+    gpio_clear(PORT_VCO_SCLK, PIN_VCO_SCLK);
+    serial_delay();
+
+	while (bits--) {
+		gpio_set(PORT_VCO_SCLK, PIN_VCO_SCLK);
+		serial_delay();
+
+		gpio_clear(PORT_VCO_SCLK, PIN_VCO_SCLK);
+		serial_delay();
+
+		data <<= 1;
+        data |= GPIO_STATE(PORT_VCO_MUX, PIN_VCO_MUX) ? 1 : 0;
+	}
+    return data;
+}
+
 static void max2871_write_registers(void)
 {
     int i;
@@ -182,9 +212,18 @@ uint64_t mixer_set_frequency(uint16_t mhz)
         n *= 2;
         diva += 1;
     }
+    max2871_set_RFA_EN(0);
+    max2871_write_registers();
 
     max2871_set_N(n);
     max2871_set_DIVA(diva);
+    max2871_write_registers();
+
+    while(max2871_spi_read() & MAX2871_VASA);
+
+    max2871_set_RFA_EN(1);
+    max2871_write_registers();
+
     return mhz;
 }
 

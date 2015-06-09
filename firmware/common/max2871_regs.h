@@ -2,6 +2,8 @@
 #define MAX2871_H
 #include <stdint.h>
 
+#define MAX2871_VASA    (1 << 9)
+
 void max2871_regs_init(void);
 uint32_t max2871_get_register(int reg);
 
