@@ -193,6 +193,7 @@ void usb_configuration_changed(
 
 void usb_set_descriptor_by_serial_number(void)
 {
+#ifndef RAD1O
 	iap_cmd_res_t iap_cmd_res;
 	
 	/* Read IAP Serial Number Identification */
@@ -211,6 +212,9 @@ void usb_set_descriptor_by_serial_number(void)
 			usb_descriptor_string_serial_number[3 + i * 2] = 0x00;
 		}
 	} else {
+#else
+    {
+#endif
 		usb_descriptor_string_serial_number[0] = 2;
 		usb_descriptor_string_serial_number[1] = USB_DESCRIPTOR_TYPE_STRING;
 	}
@@ -243,6 +247,7 @@ int main(void) {
 
 	usb_run(&usb_device);
 	
+
 	ssp1_init();
 
 	rf_path_init();
