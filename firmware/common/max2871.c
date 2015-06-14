@@ -226,7 +226,7 @@ uint64_t mixer_set_frequency(uint16_t mhz)
     max2871_set_RFA_EN(1);
     max2871_write_registers();
 
-    return mhz;
+    return mhz * 1000000;
 }
 
 void mixer_tx(void)
