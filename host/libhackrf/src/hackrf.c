@@ -277,7 +277,6 @@ static int set_hackrf_configuration(libusb_device_handle* usb_device, int config
 	result = libusb_get_configuration(usb_device, &curr_config);
 	if( result != 0 )
 	{
-		libusb_close(usb_device);
 		return HACKRF_ERROR_LIBUSB;
 	}
 
@@ -286,13 +285,11 @@ static int set_hackrf_configuration(libusb_device_handle* usb_device, int config
 		result = detach_kernel_drivers(usb_device);
 		if( result != 0 )
 		{
-			libusb_close(usb_device);
 			return result;
 		}
 		result = libusb_set_configuration(usb_device, config);
 		if( result != 0 )
 		{
-			libusb_close(usb_device);
 			return HACKRF_ERROR_LIBUSB;
 		}
 	}
@@ -300,7 +297,6 @@ static int set_hackrf_configuration(libusb_device_handle* usb_device, int config
 	result = detach_kernel_drivers(usb_device);
 	if( result != 0 )
 	{
-		libusb_close(usb_device);
 		return result;
 	}
 	return LIBUSB_SUCCESS;
@@ -487,6 +483,7 @@ static int hackrf_open_setup(libusb_device_handle* usb_device, hackrf_device** d
 	result = set_hackrf_configuration(usb_device, USB_CONFIG_STANDARD);
 	if( result != LIBUSB_SUCCESS )
 	{
+		libusb_close(usb_device);
 		return result;
 	}
 
@@ -919,8 +916,6 @@ int ADDCALL hackrf_cpld_write(hackrf_device* device,
 	{
 		return result;
 	}
-	result = libusb_set_configuration(device->usb_device, 2);
-
 
 	result = libusb_claim_interface(device->usb_device, 0);
 	if (result != LIBUSB_SUCCESS) {
