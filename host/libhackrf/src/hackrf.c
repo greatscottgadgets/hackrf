@@ -240,7 +240,7 @@ static int prepare_transfers(
 
 static int detach_kernel_drivers(libusb_device_handle* usb_device_handle)
 {
-	int i, result;
+	int i, num_interfaces, result;
 	libusb_device* dev;
 	struct libusb_config_descriptor* config;
 
@@ -251,7 +251,9 @@ static int detach_kernel_drivers(libusb_device_handle* usb_device_handle)
 		return HACKRF_ERROR_LIBUSB;
 	}
 
-	for(i=0; i<config->bNumInterfaces; i++)
+	num_interfaces = config->bNumInterfaces;
+	libusb_free_config_descriptor(config);
+	for(i=0; i<num_interfaces; i++)
 	{
 		result = libusb_kernel_driver_active(usb_device_handle, i);
 		if( result < 0 )
