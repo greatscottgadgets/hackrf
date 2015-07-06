@@ -907,23 +907,12 @@ int ADDCALL hackrf_cpld_write(hackrf_device* device,
 {
 	const unsigned int chunk_size = 512;
 	unsigned int i;
-	int transferred = 0;
-	int result = libusb_release_interface(device->usb_device, 0);
-	if (result != LIBUSB_SUCCESS) {
-		return HACKRF_ERROR_LIBUSB;
-	}
-
-	result = set_hackrf_configuration(device->usb_device, USB_CONFIG_CPLD_UPDATE);
-	if( result != LIBUSB_SUCCESS )
-	{
+	int result, transferred = 0;
+	
+	result = hackrf_set_transceiver_mode(device, TRANSCEIVER_MODE_CPLD_UPDATE);
+	if (result != 0)
 		return result;
-	}
-
-	result = libusb_claim_interface(device->usb_device, 0);
-	if (result != LIBUSB_SUCCESS) {
-		return HACKRF_ERROR_LIBUSB;
-	}
-
+	
 	for (i = 0; i < total_length; i += chunk_size)
 	{
 		result = libusb_bulk_transfer(
