@@ -345,7 +345,9 @@ extern "C"
 typedef enum {
 	TRANSCEIVER_MODE_OFF = 0,
 	TRANSCEIVER_MODE_RX = 1,
-	TRANSCEIVER_MODE_TX = 2
+	TRANSCEIVER_MODE_TX = 2,
+	TRANSCEIVER_MODE_SS = 3,
+    TRANSCEIVER_MODE_CPLD_UPDATE = 4
 } transceiver_mode_t;
 
 void delay(uint32_t duration);

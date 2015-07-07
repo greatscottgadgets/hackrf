@@ -168,13 +168,6 @@ t_wav_file_hdr wave_file_hdr =
 	}
 };
 
-typedef enum {
-	TRANSCEIVER_MODE_OFF = 0,
-	TRANSCEIVER_MODE_RX = 1,
-	TRANSCEIVER_MODE_TX = 2,
-	TRANSCEIVER_MODE_SS = 3
-
-} transceiver_mode_t;
 static transceiver_mode_t transceiver_mode = TRANSCEIVER_MODE_RX;
 
 #define U64TOA_MAX_DIGIT (31)
