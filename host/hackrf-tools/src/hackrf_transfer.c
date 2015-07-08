@@ -168,13 +168,6 @@ t_wav_file_hdr wave_file_hdr =
 	}
 };
 
-typedef enum {
-	TRANSCEIVER_MODE_OFF = 0,
-	TRANSCEIVER_MODE_RX = 1,
-	TRANSCEIVER_MODE_TX = 2,
-	TRANSCEIVER_MODE_SS = 3
-
-} transceiver_mode_t;
 static transceiver_mode_t transceiver_mode = TRANSCEIVER_MODE_RX;
 
 #define U64TOA_MAX_DIGIT (31)
@@ -422,6 +415,7 @@ int tx_callback(hackrf_transfer* transfer) {
 
 static void usage() {
 	printf("Usage:\n");
+	printf("\t[-d serial_number] # Serial number of desired HackRF.\n");
 	printf("\t-r <filename> # Receive data into file.\n");
 	printf("\t-t <filename> # Transmit data from file.\n");
 	printf("\t-w # Receive data into file with WAV header and automatic name.\n");
@@ -477,6 +471,7 @@ int main(int argc, char** argv) {
 	char path_file[PATH_FILE_MAX_LEN];
 	char date_time[DATE_TIME_MAX_LEN];
 	const char* path = NULL;
+	const char* serial_number = NULL;
 	int result;
 	time_t rawtime;
 	struct tm * timeinfo;
@@ -486,7 +481,7 @@ int main(int argc, char** argv) {
 	float time_diff;
 	unsigned int lna_gain=8, vga_gain=20, txvga_gain=0;
   
-	while( (opt = getopt(argc, argv, "wr:t:f:i:o:m:a:p:s:n:b:l:g:x:c:")) != EOF )
+	while( (opt = getopt(argc, argv, "wr:t:f:i:o:m:a:p:s:n:b:l:g:x:c:d:")) != EOF )
 	{
 		result = HACKRF_SUCCESS;
 		switch( opt ) 
@@ -503,6 +498,10 @@ int main(int argc, char** argv) {
 		case 't':
 			transmit = true;
 			path = optarg;
+			break;
+
+		case 'd':
+			serial_number = optarg;
 			break;
 
 		case 'f':
@@ -782,7 +781,7 @@ int main(int argc, char** argv) {
 		return EXIT_FAILURE;
 	}
 	
-	result = hackrf_open(&device);
+	result = hackrf_open_by_serial(serial_number, &device);
 	if( result != HACKRF_SUCCESS ) {
 		printf("hackrf_open() failed: %s (%d)\n", hackrf_error_name(result), result);
 		usage();
