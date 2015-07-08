@@ -445,12 +445,12 @@ static void usage() {
 	printf("\t[-l gain_db] # RX LNA (IF) gain, 0-40dB, 8dB steps\n");
 	printf("\t[-g gain_db] # RX VGA (baseband) gain, 0-62dB, 2dB steps\n");
 	printf("\t[-x gain_db] # TX VGA (IF) gain, 0-47dB, 1dB steps\n");
-	printf("\t[-s sample_rate_hz] # Sample rate in Hz (8/10/12.5/16/20MHz, default %sMHz).\n",
+	printf("\t[-s sample_rate_hz] # Sample rate in Hz (4/8/10/12.5/16/20MHz, default %sMHz).\n",
 		u64toa((DEFAULT_SAMPLE_RATE_HZ/FREQ_ONE_MHZ),&ascii_u64_data1));
 	printf("\t[-n num_samples] # Number of samples to transfer (default is unlimited).\n");
 	printf("\t[-c amplitude] # CW signal source mode, amplitude 0-127 (DC value to DAC).\n");
         printf("\t[-R] # Repeat TX mode (default is off) \n");
-	printf("\t[-b baseband_filter_bw_hz] # Set baseband filter bandwidth in MHz.\n\tPossible values: 1.75/2.5/3.5/5/5.5/6/7/8/9/10/12/14/15/20/24/28MHz, default < sample_rate_hz.\n" );
+	printf("\t[-b baseband_filter_bw_hz] # Set baseband filter bandwidth in Hz.\n\tPossible values: 1.75/2.5/3.5/5/5.5/6/7/8/9/10/12/14/15/20/24/28MHz, default < sample_rate_hz.\n" );
 }
 
 static hackrf_device* device = NULL;
@@ -516,18 +516,33 @@ int main(int argc, char** argv) {
 			break;
 
 		case 'f':
+			{
+			double f = atof(optarg);
+			if (f < 0)
+				break;
+			freq_hz = f;
 			automatic_tuning = true;
-			result = parse_u64(optarg, &freq_hz);
+			}
 			break;
 
 		case 'i':
+			{
+			double f = atof(optarg);
+			if (f < 0)
+				break;
+			if_freq_hz = f;
 			if_freq = true;
-			result = parse_u64(optarg, &if_freq_hz);
+			}
 			break;
 
 		case 'o':
+			{
+			double f = atof(optarg);
+			if (f < 0)
+				break;
+			lo_freq_hz = f;
 			lo_freq = true;
-			result = parse_u64(optarg, &lo_freq_hz);
+			}
 			break;
 
 		case 'm':
@@ -558,8 +573,13 @@ int main(int argc, char** argv) {
 			break;
 
 		case 's':
+			{
+			double f = atof(optarg);
+			if (f < 0)
+				break;
+			sample_rate_hz = f;
 			sample_rate = true;
-			result = parse_u32(optarg, &sample_rate_hz);
+			}
 			break;
 
 		case 'n':
@@ -569,8 +589,14 @@ int main(int argc, char** argv) {
 			break;
 
 		case 'b':
+			{
+			double f = atof(optarg);
+			if (f < 0)
+				break;
+
+			baseband_filter_bw_hz = f;
 			baseband_filter_bw = true;
-			result = parse_u32(optarg, &baseband_filter_bw_hz);
+			}
 			break;
 
 		case 'c':
