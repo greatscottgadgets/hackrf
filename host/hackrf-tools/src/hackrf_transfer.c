@@ -420,8 +420,10 @@ static void usage() {
 	printf("\t-t <filename> # Transmit data from file.\n");
 	printf("\t-w # Receive data into file with WAV header and automatic name.\n");
 	printf("\t   # This is for SDR# compatibility and may not work with other software.\n");
-	printf("\t[-f freq_hz] # Frequency in Hz [%sMHz to %sMHz].\n",
+	printf("\t[-f freq] # Frequency from %sMHz to %sMHz. Values <=%s will be interpreted as MHz, >%s as Hz.\n",
 		u64toa((FREQ_MIN_HZ/FREQ_ONE_MHZ),&ascii_u64_data1),
+		u64toa((FREQ_MAX_HZ/FREQ_ONE_MHZ),&ascii_u64_data2),
+		u64toa((FREQ_MAX_HZ/FREQ_ONE_MHZ),&ascii_u64_data2),
 		u64toa((FREQ_MAX_HZ/FREQ_ONE_MHZ),&ascii_u64_data2));
 	printf("\t[-i if_freq_hz] # Intermediate Frequency (IF) in Hz [%sMHz to %sMHz].\n",
 		u64toa((IF_MIN_HZ/FREQ_ONE_MHZ),&ascii_u64_data1),
@@ -435,11 +437,11 @@ static void usage() {
 	printf("\t[-l gain_db] # RX LNA (IF) gain, 0-40dB, 8dB steps\n");
 	printf("\t[-g gain_db] # RX VGA (baseband) gain, 0-62dB, 2dB steps\n");
 	printf("\t[-x gain_db] # TX VGA (IF) gain, 0-47dB, 1dB steps\n");
-	printf("\t[-s sample_rate_hz] # Sample rate in Hz (8/10/12.5/16/20MHz, default %sMHz).\n",
+	printf("\t[-s sample_rate_mhz] # Sample rate in MHz (4/8/10/12.5/16/20MHz, default %sMHz).\n",
 		u64toa((DEFAULT_SAMPLE_RATE_HZ/FREQ_ONE_MHZ),&ascii_u64_data1));
 	printf("\t[-n num_samples] # Number of samples to transfer (default is unlimited).\n");
 	printf("\t[-c amplitude] # CW signal source mode, amplitude 0-127 (DC value to DAC).\n");
-	printf("\t[-b baseband_filter_bw_hz] # Set baseband filter bandwidth in MHz.\n\tPossible values: 1.75/2.5/3.5/5/5.5/6/7/8/9/10/12/14/15/20/24/28MHz, default < sample_rate_hz.\n" );
+	printf("\t[-b baseband_filter_bw_mhz] # Set baseband filter bandwidth in MHz.\n\tPossible values: 1.75/2.5/3.5/5/5.5/6/7/8/9/10/12/14/15/20/24/28MHz, default < sample_rate_mhz.\n" );
 }
 
 static hackrf_device* device = NULL;
@@ -505,18 +507,42 @@ int main(int argc, char** argv) {
 			break;
 
 		case 'f':
+			{
+			double f = atof(optarg);
+			if (f < 0)
+				break;
+			if (f <= FREQ_MAX_HZ/FREQ_ONE_MHZ)
+				freq_hz = f * FREQ_ONE_MHZ;
+			else
+				freq_hz = f;
 			automatic_tuning = true;
-			result = parse_u64(optarg, &freq_hz);
+			}
 			break;
 
 		case 'i':
+			{
+			double f = atof(optarg);
+			if (f < 0)
+				break;
+			if (f < IF_MIN_HZ)
+				if_freq_hz = f * FREQ_ONE_MHZ;
+			else
+				if_freq_hz = f;
 			if_freq = true;
-			result = parse_u64(optarg, &if_freq_hz);
+			}
 			break;
 
 		case 'o':
+			{
+			double f = atof(optarg);
+			if (f < 0)
+				break;
+			if (f < LO_MIN_HZ)
+				lo_freq_hz = f * FREQ_ONE_MHZ;
+			else
+				lo_freq_hz = f;
 			lo_freq = true;
-			result = parse_u64(optarg, &lo_freq_hz);
+			}
 			break;
 
 		case 'm':
@@ -547,8 +573,16 @@ int main(int argc, char** argv) {
 			break;
 
 		case 's':
+			{
+			double f = atof(optarg);
+			if (f < 1)
+				break;
+			if (f < 2*FREQ_ONE_MHZ)
+				sample_rate_hz = f * FREQ_ONE_MHZ;
+			else
+				sample_rate_hz = f;
 			sample_rate = true;
-			result = parse_u32(optarg, &sample_rate_hz);
+			}
 			break;
 
 		case 'n':
@@ -558,8 +592,17 @@ int main(int argc, char** argv) {
 			break;
 
 		case 'b':
+			{
+			double f = atof(optarg);
+			if (f < 1)
+				break;
+
+			if (f >=1 && f <= 28)
+				baseband_filter_bw_hz = f * FREQ_ONE_MHZ;
+			else
+				baseband_filter_bw_hz = f;
 			baseband_filter_bw = true;
-			result = parse_u32(optarg, &baseband_filter_bw_hz);
+			}
 			break;
 
 		case 'c':
