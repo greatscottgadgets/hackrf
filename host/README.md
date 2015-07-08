@@ -56,6 +56,18 @@ Debug version:
 
 Solution file: `c:\hackrf\host\cmake\hackrf_all.sln`
 
+##How to build host the software on FreeBSD
+
+[Tomek "CeDeROM" CEDRO](http://www.tomek.cedro.info) is working on a Port for you - stay tuned! :-)
+
+You can use the binary package:
+`# pkg install hackrf`
+
+You can build and install from ports:
+`# cd /usr/ports/comms/hackrf`
+`# make install`
+
+
 ##How to build the host software on Linux:
 
 ###Prerequisites for Linux (Debian/Ubuntu):
