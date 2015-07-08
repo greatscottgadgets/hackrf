@@ -1211,6 +1211,7 @@ int ADDCALL hackrf_set_lna_gain(hackrf_device* device, uint32_t value)
 		return HACKRF_ERROR_INVALID_PARAM;
 	}
 
+	value &= ~0x07;
 	result = libusb_control_transfer(
 		device->usb_device,
 		LIBUSB_ENDPOINT_IN | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
@@ -1240,6 +1241,7 @@ int ADDCALL hackrf_set_vga_gain(hackrf_device* device, uint32_t value)
 		return HACKRF_ERROR_INVALID_PARAM;
 	}
 
+	value &= ~0x01;
 	result = libusb_control_transfer(
 		device->usb_device,
 		LIBUSB_ENDPOINT_IN | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
