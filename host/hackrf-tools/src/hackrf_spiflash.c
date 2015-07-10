@@ -51,6 +51,7 @@ static struct option long_options[] = {
 	{ "length", required_argument, 0, 'l' },
 	{ "read", required_argument, 0, 'r' },
 	{ "write", required_argument, 0, 'w' },
+	{ "verbose", no_argument, 0, 'v' },
 	{ 0, 0, 0, 0 },
 };
 
@@ -90,6 +91,7 @@ static void usage()
 	printf("\t-r <filename>: Read data into file.\n");
 	printf("\t-w <filename>: Write data from file.\n");
 	printf("\t-d <serialnumber>: Serial number of device, if multiple devices\n");
+	printf("\t-v: Verbose output.\n");
 }
 
 int main(int argc, char** argv)
@@ -109,8 +111,9 @@ int main(int argc, char** argv)
 	FILE* fd = NULL;
 	bool read = false;
 	bool write = false;
+	bool verbose = false;
 
-	while ((opt = getopt_long(argc, argv, "a:l:r:w:d:", long_options,
+	while ((opt = getopt_long(argc, argv, "a:l:r:w:d:v", long_options,
 			&option_index)) != EOF) {
 		switch (opt) {
 		case 'a':
@@ -133,6 +136,9 @@ int main(int argc, char** argv)
 		
 		case 'd':
 			serial_number = optarg;
+
+		case 'v':
+			verbose = true;
 			break;
 
 		default:
@@ -233,7 +239,7 @@ int main(int argc, char** argv)
 		while (tmp_length) 
 		{
 			xfer_len = (tmp_length > 256) ? 256 : tmp_length;
-			printf("Reading %d bytes from 0x%06x.\n", xfer_len, address);
+			if( verbose ) printf("Reading %d bytes from 0x%06x.\n", xfer_len, address);
 			result = hackrf_spiflash_read(device, address, xfer_len, pdata);
 			if (result != HACKRF_SUCCESS) {
 				fprintf(stderr, "hackrf_spiflash_read() failed: %s (%d)\n",
@@ -272,9 +278,10 @@ int main(int argc, char** argv)
 			fd = NULL;
 			return EXIT_FAILURE;
 		}
+		if( !verbose ) printf("Writing %d bytes at 0x%06x.\n", length, address);
 		while (length) {
 			xfer_len = (length > 256) ? 256 : length;
-			printf("Writing %d bytes at 0x%06x.\n", xfer_len, address);
+			if( verbose ) printf("Writing %d bytes at 0x%06x.\n", xfer_len, address);
 			result = hackrf_spiflash_write(device, address, xfer_len, pdata);
 			if (result != HACKRF_SUCCESS) {
 				fprintf(stderr, "hackrf_spiflash_write() failed: %s (%d)\n",
