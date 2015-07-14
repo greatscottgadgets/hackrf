@@ -26,7 +26,12 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 #include <stdlib.h>
 
 #include <libusb.h>
+#ifdef _MSC_VER
+#include <windows.h>
+typedef HANDLE pthread_t;
+#else
 #include <pthread.h>
+#endif
 
 #ifndef bool
 typedef int bool;
@@ -1322,7 +1327,11 @@ int ADDCALL hackrf_set_antenna_enable(hackrf_device* device, const uint8_t value
 	}
 }
 
+#ifdef _MSC_VER
+DWORD WINAPI transfer_threadproc(void* arg)
+#else
 static void* transfer_threadproc(void* arg)
+#endif
 {
 	hackrf_device* device = (hackrf_device*)arg;
 	int error;
@@ -1337,7 +1346,11 @@ static void* transfer_threadproc(void* arg)
 		}
 	}
 
+#ifdef _MSC_VER 
+	return 0;
+#else
 	return NULL;
+#endif
 }
 
 static void hackrf_libusb_transfer_callback(struct libusb_transfer* usb_transfer)
@@ -1386,7 +1399,12 @@ static int kill_transfer_thread(hackrf_device* device)
 	if( device->transfer_thread_started != false )
 	{
 		value = NULL;
+#ifdef _MSC_VER 
+		WaitForSingleObject(device->transfer_thread, INFINITE);
+		result = !CloseHandle(device->transfer_thread);
+#else
 		result = pthread_join(device->transfer_thread, &value);
+#endif
 		if( result != 0 )
 		{
 			return HACKRF_ERROR_THREAD;
@@ -1422,7 +1440,12 @@ static int create_transfer_thread(hackrf_device* device,
 
 		device->streaming = true;
 		device->callback = callback;
+#ifdef _MSC_VER 
+		device->transfer_thread = CreateThread(0, 0, (LPTHREAD_START_ROUTINE)transfer_threadproc, device, 0, 0);
+		if(device->transfer_thread==0)return HACKRF_ERROR_THREAD;
+#else
 		result = pthread_create(&device->transfer_thread, 0, transfer_threadproc, device);
+#endif
 		if( result == 0 )
 		{
 			device->transfer_thread_started = true;
