@@ -387,7 +387,7 @@ int tx_callback(hackrf_transfer* transfer) {
 		bytes_read = fread(transfer->buffer, 1, bytes_to_read, fd);
 		if ((bytes_read != bytes_to_read)
 				|| (limit_num_samples && (bytes_to_xfer == 0))) {
-                       if (repeat) { // added by scateu. repeat mode.
+                       if (repeat) {
                                printf("Input file end reached. Rewind to beginning.\n");
                                rewind(fd);
                                fread(transfer->buffer + bytes_read, 1, bytes_to_read - bytes_read, fd);
