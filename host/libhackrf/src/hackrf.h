@@ -72,6 +72,7 @@ enum hackrf_board_id {
 enum hackrf_usb_board_id {
 	USB_BOARD_ID_JAWBREAKER = 0x604B,
 	USB_BOARD_ID_HACKRF_ONE = 0x6089,
+	USB_BOARD_ID_RAD1O = 0xCC15,
 	USB_BOARD_ID_INVALID = 0xFFFF,
 };
 

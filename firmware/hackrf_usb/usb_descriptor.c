@@ -26,10 +26,12 @@
 
 #define USB_VENDOR_ID			(0x1D50)
 
-#if (defined HACKRF_ONE || defined RAD1O)
+#ifdef HACKRF_ONE
 #define USB_PRODUCT_ID			(0x6089)
 #elif JAWBREAKER
 #define USB_PRODUCT_ID			(0x604B)
+#elif RAD1O
+#define USB_PRODUCT_ID			(0x6089) /* TBD: (0xCC15) */
 #else
 #define USB_PRODUCT_ID			(0xFFFF)
 #endif

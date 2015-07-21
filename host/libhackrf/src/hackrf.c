@@ -117,6 +117,7 @@ volatile bool do_exit = false;
 static const uint16_t hackrf_usb_vid = 0x1d50;
 static const uint16_t hackrf_jawbreaker_usb_pid = 0x604b;
 static const uint16_t hackrf_one_usb_pid = 0x6089;
+static const uint16_t rad1o_usb_pid = 0xcc15;
 
 static libusb_context* g_libusb_context = NULL;
 
@@ -291,7 +292,9 @@ hackrf_device_list_t* ADDCALL hackrf_device_list()
 		libusb_get_device_descriptor(list->usb_devices[i], &device_descriptor);
 		
 		if( device_descriptor.idVendor == hackrf_usb_vid ) {
-			if( (device_descriptor.idProduct == hackrf_one_usb_pid) ||  (device_descriptor.idProduct == hackrf_jawbreaker_usb_pid) ) {
+			if((device_descriptor.idProduct == hackrf_one_usb_pid) ||
+			   (device_descriptor.idProduct == hackrf_jawbreaker_usb_pid) ||
+			   (device_descriptor.idProduct == rad1o_usb_pid)) {
 				int idx = list->devicecount++;
 				list->usb_board_ids[idx] = device_descriptor.idProduct;
 				list->usb_device_index[idx] = i;
@@ -360,7 +363,9 @@ libusb_device_handle* hackrf_open_usb(const char* const desired_serial_number)
 		libusb_get_device_descriptor(devices[i], &device_descriptor);
 		
 		if( device_descriptor.idVendor == hackrf_usb_vid ) {
-			if( (device_descriptor.idProduct == hackrf_one_usb_pid) ||  (device_descriptor.idProduct == hackrf_jawbreaker_usb_pid) ) {
+			if((device_descriptor.idProduct == hackrf_one_usb_pid) ||
+			   (device_descriptor.idProduct == hackrf_jawbreaker_usb_pid) ||
+			   (device_descriptor.idProduct == rad1o_usb_pid)) {
 				printf("USB device %4x:%4x:", device_descriptor.idVendor, device_descriptor.idProduct);
 				
 				if( desired_serial_number != NULL ) {
@@ -475,6 +480,11 @@ int ADDCALL hackrf_open(hackrf_device** device)
 	if( usb_device == NULL )
 	{
 		usb_device = libusb_open_device_with_vid_pid(g_libusb_context, hackrf_usb_vid, hackrf_jawbreaker_usb_pid);
+	}
+	
+	if( usb_device == NULL )
+	{
+		usb_device = libusb_open_device_with_vid_pid(g_libusb_context, hackrf_usb_vid, rad1o_usb_pid);
 	}
 	
 	if( usb_device == NULL )
