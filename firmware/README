@@ -27,11 +27,9 @@ To build and install a standard firmware image for HackRF One:
 $ cd hackrf_usb
 $ mkdir build
 $ cd build
-$ cmake .. -DBOARD=HACKRF_ONE
+$ cmake .. -DBOARD=RAD1O
 $ make
 $ hackrf_spiflash -w hackrf_usb.bin
-
-If you have a Jawbreaker, use -DBOARD=JAWBREAKER instead.
 
 
 For loading firmware into RAM with DFU you will also need:
