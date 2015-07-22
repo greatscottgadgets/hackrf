@@ -168,12 +168,7 @@ macro(DeclareTargets)
 	add_custom_target(
 		${PROJECT_NAME}.dfu ALL
 		DEPENDS ${PROJECT_NAME}.bin
-		COMMAND rm -f _tmp.dfu _header.bin
-		COMMAND cp ${PROJECT_NAME}.bin _tmp.dfu
-		COMMAND dfu-suffix --vid=0x1fc9 --pid=0x000c --did=0x0 -s 0 -a _tmp.dfu
-		COMMAND python -c \"import os.path\; import struct\; print\('0000000: da ff ' + ' '.join\(map\(lambda s: '%02x' % ord\(s\), struct.pack\('<H', os.path.getsize\('${PROJECT_NAME}.bin'\) / 512 + 1\)\)\) + ' ff ff ff ff'\)\" | xxd -g1 -r > _header.bin
-		COMMAND cat _header.bin _tmp.dfu >${PROJECT_NAME}.dfu
-		COMMAND rm -f _tmp.dfu _header.bin
+		COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/../tools/make-dfu.py ${PROJECT_NAME}.bin ${PROJECT_NAME}.dfu
 	)
 
 	add_custom_target(
