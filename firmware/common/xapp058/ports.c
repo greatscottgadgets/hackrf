@@ -11,8 +11,8 @@
 /*******************************************************/
 #include "ports.h"
 
-#include "hackrf_core.h"
-#include "cpld_jtag.h"
+#include "../hackrf_core.h"
+#include "../cpld_jtag.h"
 #include <libopencm3/lpc43xx/gpio.h>
 
 void delay_jtag(uint32_t duration)
