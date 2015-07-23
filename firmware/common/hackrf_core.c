@@ -314,10 +314,10 @@ void cpu_clock_init(void)
 	si5351c_configure_multisynth(3, 80*128-512, 0, 1, 0); /* 800/80 = 10MHz */
 
 	/* MS4/CLK4 is the source for the RFFC5071 mixer. */
-	si5351c_configure_multisynth(4, 16*128-512, 0, 1, 0); /* 800/16 = 50MHz */
+	si5351c_configure_multisynth(5, 16*128-512, 0, 1, 0); /* 800/16 = 50MHz */
  
  	/* MS5/CLK5 is the source for the MAX2837 clock input. */
-	si5351c_configure_multisynth(5, 20*128-512, 0, 1, 0); /* 800/20 = 40MHz */
+	si5351c_configure_multisynth(4, 20*128-512, 0, 1, 0); /* 800/20 = 40MHz */
 
 	/* MS6/CLK6 is unused. */
 	/* MS7/CLK7 is the source for the LPC43xx microcontroller. */
