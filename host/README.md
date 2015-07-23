@@ -1,6 +1,34 @@
 This repository contains host software (Linux/Windows) for HackRF, a project to
 produce a low cost, open source software radio platform.
 
+##How to build the host software on Linux:
+
+###Prerequisites for Linux (Debian/Ubuntu):
+
+`sudo apt-get install build-essential cmake libusb-1.0-0-dev`
+
+###Build host software on Linux:
+
+`cd host`
+
+`mkdir build`
+
+`cd build`
+
+`cmake ../ -DINSTALL_UDEV_RULES=ON`
+
+`make`
+
+`sudo make install`
+
+`sudo ldconfig`
+
+##Clean CMake temporary files/dirs:
+
+`cd host/build`
+
+`rm -rf *`
+
 ##How to build host software on Windows:
 
 ###Prerequisites for cygwin or mingw:
@@ -58,43 +86,12 @@ Solution file: `c:\hackrf\host\cmake\hackrf_all.sln`
 
 ##How to build host the software on FreeBSD
 
-[Tomek "CeDeROM" CEDRO](http://www.tomek.cedro.info) is working on a Port for you - stay tuned! :-)
-
 You can use the binary package:
 `# pkg install hackrf`
 
 You can build and install from ports:
 `# cd /usr/ports/comms/hackrf`
 `# make install`
-
-
-##How to build the host software on Linux:
-
-###Prerequisites for Linux (Debian/Ubuntu):
-
-`sudo apt-get install build-essential cmake libusb-1.0-0-dev`
-
-###Build host software on Linux:
-
-`cd host`
-
-`mkdir build`
-
-`cd build`
-
-`cmake ../ -DINSTALL_UDEV_RULES=ON`
-
-`make`
-
-`sudo make install`
-
-`sudo ldconfig`
-
-##Clean CMake temporary files/dirs:
-
-`cd host/build`
-
-`rm -rf *`
 
 
 principal author: Michael Ossmann <mike@ossmann.com>
