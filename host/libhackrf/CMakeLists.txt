@@ -70,7 +70,7 @@ set(prefix ${CMAKE_INSTALL_PREFIX})
 set(exec_prefix \${prefix})
 set(libdir \${exec_prefix}/lib${LIB_SUFFIX})
 set(includedir \${prefix}/include)
-set(libpkgdata "lib"${LIB_SUFFIX})
+set(libpkgdata lib${LIB_SUFFIX})
 
 if(CMAKE_SYSTEM_NAME MATCHES "FreeBSD")
     set(libpkgdata "libdata")
