@@ -24,7 +24,7 @@
 cmake_minimum_required(VERSION 2.8)
 project(hackrf-tools C)
 set(MAJOR_VERSION 0)
-set(MINOR_VERSION 3)
+set(MINOR_VERSION 4)
 set(PACKAGE hackrf-tools)
 set(VERSION_STRING ${MAJOR_VERSION}.${MINOR_VERSION})
 set(VERSION ${VERSION_STRING})
