@@ -5,7 +5,6 @@ project (hackrf_all)
 
 add_subdirectory(libhackrf)
 add_subdirectory(hackrf-tools)
-add_subdirectory(misc)
 
 ########################################################################
 # Create uninstall target
