@@ -5,7 +5,7 @@ produce a low cost, open source software radio platform.
 
 ###Prerequisites for Linux (Debian/Ubuntu):
 
-`sudo apt-get install build-essential cmake libusb-1.0-0-dev`
+`sudo apt-get install build-essential cmake libusb-1.0-0-dev`pkg-config
 
 ###Build host software on Linux:
 
