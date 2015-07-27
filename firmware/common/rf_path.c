@@ -118,9 +118,6 @@ static void switchctrl_set_rad1o(uint8_t ctrl) {
 		gpio_clear(PORT_BY_AMP, PIN_BY_AMP);
 		gpio_set(PORT_BY_AMP_N, PIN_BY_AMP_N);
 
-		gpio_clear(PORT_TX_RX, PIN_TX_RX);
-		gpio_set(PORT_TX_RX_N, PIN_TX_RX_N);
-
 		gpio_clear(PORT_TX_AMP, PIN_TX_AMP);
 		gpio_clear(PORT_RX_LNA, PIN_RX_LNA);
 
@@ -128,18 +125,12 @@ static void switchctrl_set_rad1o(uint8_t ctrl) {
 		gpio_set(PORT_BY_AMP, PIN_BY_AMP);
 		gpio_clear(PORT_BY_AMP_N, PIN_BY_AMP_N);
 
-		gpio_clear(PORT_TX_RX, PIN_TX_RX);
-		gpio_set(PORT_TX_RX_N, PIN_TX_RX_N);
-
 		gpio_set(PORT_TX_AMP, PIN_TX_AMP);
 		gpio_clear(PORT_RX_LNA, PIN_RX_LNA);
 
 	} else {
 		gpio_set(PORT_BY_AMP, PIN_BY_AMP);
 		gpio_clear(PORT_BY_AMP_N, PIN_BY_AMP_N);
-
-		gpio_set(PORT_TX_RX, PIN_TX_RX);
-		gpio_clear(PORT_TX_RX_N, PIN_TX_RX_N);
 
 		gpio_clear(PORT_TX_AMP, PIN_TX_AMP);
 		gpio_set(PORT_RX_LNA, PIN_RX_LNA);
