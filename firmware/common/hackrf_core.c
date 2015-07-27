@@ -594,7 +594,11 @@ void pin_setup(void) {
 	scu_pinmux(SCU_PINMUX_LED3, SCU_GPIO_NOPULL);
 	
 	scu_pinmux(SCU_PINMUX_EN1V8, SCU_GPIO_NOPULL);
-	
+
+	/* Disable unused clock outputs. They generate noise. */
+	scu_pinmux(CLK0, SCU_CLK_IN | SCU_CONF_FUNCTION7);
+	scu_pinmux(CLK2, SCU_CLK_IN | SCU_CONF_FUNCTION7);
+
 	/* Configure USB indicators */
 #if (defined JELLYBEAN || defined JAWBREAKER)
 	scu_pinmux(SCU_PINMUX_USB_LED0, SCU_CONF_FUNCTION3);
