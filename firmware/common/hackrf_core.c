@@ -320,9 +320,15 @@ void cpu_clock_init(void)
 	si5351c_configure_multisynth(4, 20*128-512, 0, 1, 0); /* 800/20 = 40MHz */
 
 	/* MS6/CLK6 is unused. */
+
 	/* MS7/CLK7 is the source for the LPC43xx microcontroller. */
+
+#if 0
+	/* Clock is deactivated as it is not used and creates noise */
 	uint8_t ms7data[] = { 90, 255, 20, 0 };
 	si5351c_write(ms7data, sizeof(ms7data));
+#endif
+
 #endif
 
 	/* Set to 10 MHz, the common rate between Jellybean and Jawbreaker. */
