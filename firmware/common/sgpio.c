@@ -30,6 +30,10 @@
 
 static bool sgpio_slice_mode_multislice = true;
 
+#ifdef RAD1O
+static void update_q_invert(void);
+#endif
+
 void sgpio_configure_pin_functions() {
 	scu_pinmux(SCU_PINMUX_SGPIO0, SCU_GPIO_FAST | SCU_CONF_FUNCTION3);
 	scu_pinmux(SCU_PINMUX_SGPIO1, SCU_GPIO_FAST | SCU_CONF_FUNCTION3);
@@ -130,6 +134,12 @@ void sgpio_configure(
           (cpld_direction << 11) /* 1=Output SGPIO11 High(TX mode), 0=Output SGPIO11 Low(RX mode)*/
         | (1L << 10)	// disable codec data stream during configuration (Output SGPIO10 High)
 		;
+
+#ifdef RAD1O
+	// The data direction might have changed. Check if we need to
+	// adjust the q inversion.
+	update_q_invert();
+#endif
 
 	// Enable SGPIO pin outputs.
 	const uint_fast16_t sgpio_gpio_data_direction =
@@ -303,10 +313,57 @@ bool sgpio_cpld_stream_rx_set_decimation(const uint_fast8_t n) {
 	return (skip_n < 8);
 }
 
+#ifdef RAD1O
+/* The rad1o hardware has a bug which makes it
+ * necessary to also switch between the two options based
+ * on TX or RX mode.
+ *
+ * We use the state of the pin to determine which way we
+ * have to go.
+ *
+ * As TX/RX can change without sgpio_cpld_stream_rx_set_q_invert
+ * being called, we store a local copy of its parameter.
+ */
+static bool sgpio_invert = false;
+
+/*
+ * Called when TX/RX changes od sgpio_cpld_stream_rx_set_q_invert
+ * gets called.
+ */
+static void update_q_invert(void) {
+	/* 1=Output SGPIO11 High(TX mode), 0=Output SGPIO11 Low(RX mode)*/
+	bool tx_mode = (SGPIO_GPIO_OUTREG & (1 << 11)) > 0;
+
+	// 0.13: P1_18
+	if( !sgpio_invert & !tx_mode) {
+		GPIO_SET(GPIO0) = GPIOPIN13;
+	} else if( !sgpio_invert & tx_mode) {
+		GPIO_CLR(GPIO0) = GPIOPIN13;
+	} else if( sgpio_invert & !tx_mode) {
+		GPIO_CLR(GPIO0) = GPIOPIN13;
+	} else if( sgpio_invert & tx_mode) {
+		GPIO_SET(GPIO0) = GPIOPIN13;
+	}
+}
+
 void sgpio_cpld_stream_rx_set_q_invert(const uint_fast8_t invert) {
+	if( invert ) {
+		sgpio_invert = true;
+	} else {
+		sgpio_invert = false;
+	}
+
+	update_q_invert();
+}
+
+#else
+
+void sgpio_cpld_stream_rx_set_q_invert(const uint_fast8_t invert) {
+	// 0.13: P1_18
 	if( invert ) {
 		GPIO_SET(GPIO0) = GPIOPIN13;
 	} else {
 		GPIO_CLR(GPIO0) = GPIOPIN13;
 	}
 }
+#endif
