@@ -297,7 +297,7 @@ void cpu_clock_init(void)
 	si5351c_configure_multisynth(5, 1536, 0, 1, 0); /* 50MHz */
 #endif
 
-#if (defined JAWBREAKER || defined HACKRF_ONE || defined RAD1O)
+#if (defined JAWBREAKER || defined HACKRF_ONE)
 	/*
 	 * Jawbreaker clocks:
 	 *   CLK0 -> MAX5864/CPLD
@@ -314,21 +314,48 @@ void cpu_clock_init(void)
 	si5351c_configure_multisynth(3, 80*128-512, 0, 1, 0); /* 800/80 = 10MHz */
 
 	/* MS4/CLK4 is the source for the RFFC5071 mixer. */
-	si5351c_configure_multisynth(5, 16*128-512, 0, 1, 0); /* 800/16 = 50MHz */
+	si5351c_configure_multisynth(4, 16*128-512, 0, 1, 0); /* 800/16 = 50MHz */
  
  	/* MS5/CLK5 is the source for the MAX2837 clock input. */
-	si5351c_configure_multisynth(4, 20*128-512, 0, 1, 0); /* 800/20 = 40MHz */
+	si5351c_configure_multisynth(5, 20*128-512, 0, 1, 0); /* 800/20 = 40MHz */
 
 	/* MS6/CLK6 is unused. */
 
 	/* MS7/CLK7 is the source for the LPC43xx microcontroller. */
+	uint8_t ms7data[] = { 90, 255, 20, 0 };
+	si5351c_write(ms7data, sizeof(ms7data));
+#endif
 
+#ifdef RAD1O
+	/*
+	 * rad1o clocks:
+	 *   CLK0 -> MAX5864/CPLD
+	 *   CLK1 -> CPLD
+	 *   CLK2 -> SGPIO
+	 *   CLK3 -> External Clock Output
+	 *   CLK4 -> MAX2837
+	 *   CLK5 -> MAX2871
+	 *   CLK6 -> none
+	 *   CLK7 -> LPC4330 (but LPC4330 starts up on its own crystal)
+	 */
+
+	/* MS3/CLK3 is the source for the external clock output. */
+	si5351c_configure_multisynth(3, 80*128-512, 0, 1, 0); /* 800/80 = 10MHz */
+
+	/* MS4/CLK4 is the source for the MAX2837 clock input. */
+	si5351c_configure_multisynth(4, 20*128-512, 0, 1, 0); /* 800/20 = 40MHz */
+
+	/* MS5/CLK5 is the source for the RFFC5071 mixer. */
+	si5351c_configure_multisynth(5, 16*128-512, 0, 1, 0); /* 800/16 = 50MHz */
+
+	/* MS6/CLK6 is unused. */
+
+	/* MS7/CLK7 is the source for the LPC43xx microcontroller. */
 #if 0
 	/* Clock is deactivated as it is not used and creates noise */
 	uint8_t ms7data[] = { 90, 255, 20, 0 };
 	si5351c_write(ms7data, sizeof(ms7data));
 #endif
-
 #endif
 
 	/* Set to 10 MHz, the common rate between Jellybean and Jawbreaker. */
