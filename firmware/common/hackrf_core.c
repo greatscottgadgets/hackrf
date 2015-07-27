@@ -592,7 +592,10 @@ void pin_setup(void) {
 	scu_pinmux(SCU_PINMUX_LED1, SCU_GPIO_NOPULL);
 	scu_pinmux(SCU_PINMUX_LED2, SCU_GPIO_NOPULL);
 	scu_pinmux(SCU_PINMUX_LED3, SCU_GPIO_NOPULL);
-	
+#ifdef RAD1O
+	scu_pinmux(SCU_PINMUX_LED4, SCU_GPIO_NOPULL | SCU_CONF_FUNCTION4);
+#endif
+
 	scu_pinmux(SCU_PINMUX_EN1V8, SCU_GPIO_NOPULL);
 
 	/* Disable unused clock outputs. They generate noise. */
@@ -617,6 +620,10 @@ void pin_setup(void) {
 
 	/* Configure GPIO2[1/2/8] (P4_1/2 P6_12) as output. */
 	GPIO2_DIR |= (PIN_LED1 | PIN_LED2 | PIN_LED3);
+
+#ifdef RAD1O
+	GPIO5_DIR |= PIN_LED4;
+#endif
 
 	/* GPIO3[6] on P6_10  as output. */
 	GPIO3_DIR |= PIN_EN1V8;
