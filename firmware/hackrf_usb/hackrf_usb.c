@@ -225,6 +225,7 @@ int main(void) {
 	enable_1v8_power();
 #if (defined HACKRF_ONE || defined RAD1O)
 	enable_rf_power();
+	delay(1000000);
 #endif
 	cpu_clock_init();
 
