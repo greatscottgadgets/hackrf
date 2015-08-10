@@ -1,3 +1,5 @@
+default: lib hackrf-usb
+
 all: lib hackrf-usb hackrf-tools
 
 force: clean all
