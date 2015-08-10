@@ -18,10 +18,7 @@ lib: firmware/libopencm3/README firmware/libopencm3/lib/libopencm3_lpc43xx.a
 
 FDIR=firmware/hackrf_usb/build
 
-hackrf-usb: hackrf.bin
-
-hackrf.bin: $(FDIR)/hackrf_usb.bin
-	cp $< $@
+hackrf-usb: $(FDIR)/hackrf_usb.bin
 
 $(FDIR)/hackrf_usb.bin: $(FDIR) $(FDIR)/Makefile $(FORCE)
 	$(MAKE) -C $(FDIR)
@@ -42,9 +39,10 @@ hackrf-tools: $(TDIR) $(TDIR)/hackrf-tools/src/hackrf_info
 $(TDIR)/hackrf-tools/src/hackrf_info: $(FORCE)
 	cd $(TDIR) && cmake .. && $(MAKE)
 
-
-clean:
+hack-clean:
 	$(RM) -r $(FDIR) $(TDIR)
+
+clean: hack-clean
 	$(MAKE) -C firmware/libopencm3 clean
 
 FORCE:
