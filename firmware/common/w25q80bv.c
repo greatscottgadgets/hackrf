@@ -85,11 +85,10 @@ void w25q80bv_setup(void)
 			SSP_MASTER,
 			SSP_SLAVE_OUT_ENABLE);
 
-	device_id = 0;
-	while(device_id != W25Q80BV_DEVICE_ID_RES)
-	{
+	do {
 		device_id = w25q80bv_get_device_id();
-	}
+	} while(device_id != W25Q80BV_DEVICE_ID_RES &&
+		device_id != W25Q16DV_DEVICE_ID_RES);
 }
 
 uint8_t w25q80bv_get_status(void)
@@ -163,11 +162,10 @@ void w25q80bv_chip_erase(void)
 {
 	uint8_t device_id;
 
-	device_id = 0;
-	while(device_id != W25Q80BV_DEVICE_ID_RES)
-	{
+	do {
 		device_id = w25q80bv_get_device_id();
-	}
+	} while(device_id != W25Q80BV_DEVICE_ID_RES &&
+		device_id != W25Q16DV_DEVICE_ID_RES);
 
 	w25q80bv_write_enable();
 	w25q80bv_wait_while_busy();
@@ -208,11 +206,10 @@ void w25q80bv_program(uint32_t addr, uint32_t len, const uint8_t* data)
 	uint16_t first_block_len;
 	uint8_t device_id;
 
-	device_id = 0;
-	while(device_id != W25Q80BV_DEVICE_ID_RES)
-	{
+	do {
 		device_id = w25q80bv_get_device_id();
-	}	
+	} while(device_id != W25Q80BV_DEVICE_ID_RES &&
+		device_id != W25Q16DV_DEVICE_ID_RES);
 	
 	/* do nothing if we would overflow the flash */
 	if ((len > W25Q80BV_NUM_BYTES) || (addr > W25Q80BV_NUM_BYTES)
