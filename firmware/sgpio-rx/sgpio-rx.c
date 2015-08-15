@@ -69,8 +69,8 @@ void rx_test() {
         buffer[i & 4095] = SGPIO_REG_SS(SGPIO_SLICE_A);
 
 		/* find the magnitude squared */
-		sigi = (buffer[i & 4095] & 0xff) - 0x80;
-		sigq = ((buffer[i & 4095] >> 8) & 0xff) - 0x80;
+		sigi = buffer[i & 4095] & 0xff;
+		sigq = (buffer[i & 4095] >> 8) & 0xff;
 		magsq = sigi * sigq;
 		if ((uint16_t)magsq & 0x8000) {
 			magsq ^= 0xffff;
