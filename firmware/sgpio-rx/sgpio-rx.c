@@ -80,6 +80,7 @@ int main(void) {
 
 	const uint64_t freq = 2441000000U;
 
+	sgpio_set_slice_mode(false);
 	pin_setup();
 	enable_1v8_power();
 #ifdef HACKRF_ONE
