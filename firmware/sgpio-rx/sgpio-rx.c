@@ -88,7 +88,7 @@ void rx_test() {
 
 int main(void) {
 
-	const uint64_t freq = 2700000000U;
+	const uint64_t freq = 2441000000U;
 
 	pin_setup();
 	enable_1v8_power();
