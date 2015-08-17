@@ -68,7 +68,7 @@ void rx_test() {
 		magsq = sigi * sigi + sigq * sigq;
 		
 		/* illuminate LED3 only when magsq exceeds threshold */
-		if (magsq > 0x3c00)
+		if (magsq > 0x1000)
 			gpio_set(PORT_LED1_3, (PIN_LED3)); /* LED3 on */
 		else
 			gpio_clear(PORT_LED1_3, (PIN_LED3)); /* LED3 off */
