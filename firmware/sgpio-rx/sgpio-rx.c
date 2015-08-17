@@ -56,7 +56,7 @@ void rx_test() {
 
     volatile uint32_t buffer[4096];
     uint32_t i = 0;
-	int16_t magsq;
+	uint32_t magsq;
 	int8_t sigi, sigq;
 
     sgpio_cpld_stream_enable();
@@ -71,11 +71,7 @@ void rx_test() {
 		/* find the magnitude squared */
 		sigi = buffer[i & 4095] & 0xff;
 		sigq = (buffer[i & 4095] >> 8) & 0xff;
-		magsq = sigi * sigq;
-		if ((uint16_t)magsq & 0x8000) {
-			magsq ^= 0xffff;
-			magsq++;
-		}
+		magsq = sigi * sigi + sigq * sigq;
 		
 		/* illuminate LED3 only when magsq exceeds threshold */
 		if (magsq > 0x3c00)
