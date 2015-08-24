@@ -38,6 +38,7 @@ void tx_test() {
 	};
 	uint32_t i = 0;
 
+    rf_path_set_direction(RF_PATH_DIRECTION_TX);
 	sgpio_cpld_stream_enable();
 	
 	while(true) {
@@ -53,6 +54,7 @@ void rx_test() {
 	uint32_t magsq;
 	int8_t sigi, sigq;
 
+    rf_path_set_direction(RF_PATH_DIRECTION_RX);
     sgpio_cpld_stream_enable();
 
 	gpio_set(PORT_LED1_3, (PIN_LED2)); /* LED2 on */
@@ -89,7 +91,6 @@ int main(void) {
 	cpu_clock_init();
     ssp1_init();
     rf_path_init();
-    rf_path_set_direction(RF_PATH_DIRECTION_RX);
 
 	set_freq(freq);
 
