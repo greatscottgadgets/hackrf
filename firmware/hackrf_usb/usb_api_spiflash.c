@@ -33,14 +33,10 @@ uint8_t spiflash_buffer[W25Q80BV_PAGE_LEN];
 usb_request_status_t usb_vendor_request_erase_spiflash(
 		usb_endpoint_t* const endpoint, const usb_transfer_stage_t stage)
 {
-	//FIXME This should refuse to run if executing from SPI flash.
-
 	if (stage == USB_TRANSFER_STAGE_SETUP) {
-		w25q80bv_setup();
 		/* only chip erase is implemented */
 		w25q80bv_chip_erase();
 		usb_transfer_schedule_ack(endpoint->in);
-		//FIXME probably should undo w25q80bv_setup()
 	}
 	return USB_REQUEST_STATUS_OK;
 }
@@ -51,8 +47,6 @@ usb_request_status_t usb_vendor_request_write_spiflash(
 	uint32_t addr = 0;
 	uint16_t len = 0;
 
-	//FIXME This should refuse to run if executing from SPI flash.
-
 	if (stage == USB_TRANSFER_STAGE_SETUP) {
 		addr = (endpoint->setup.value << 16) | endpoint->setup.index;
 		len = endpoint->setup.length;
@@ -62,7 +56,6 @@ usb_request_status_t usb_vendor_request_write_spiflash(
 		} else {
 			usb_transfer_schedule_block(endpoint->out, &spiflash_buffer[0], len,
 						    NULL, NULL);
-			w25q80bv_setup();
 			return USB_REQUEST_STATUS_OK;
 		}
 	} else if (stage == USB_TRANSFER_STAGE_DATA) {
@@ -75,7 +68,6 @@ usb_request_status_t usb_vendor_request_write_spiflash(
 		} else {
 			w25q80bv_program(addr, len, &spiflash_buffer[0]);
 			usb_transfer_schedule_ack(endpoint->in);
-			//FIXME probably should undo w25q80bv_setup()
 			return USB_REQUEST_STATUS_OK;
 		}
 	} else {
@@ -97,7 +89,6 @@ usb_request_status_t usb_vendor_request_read_spiflash(
 			    || ((addr + len) > W25Q80BV_NUM_BYTES)) {
 			return USB_REQUEST_STATUS_STALL;
 		} else {
-			w25q80bv_setup();
 			w25q80bv_read(addr, len, &spiflash_buffer[0]);
 			usb_transfer_schedule_block(endpoint->in, &spiflash_buffer[0], len,
 						    NULL, NULL);

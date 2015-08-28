@@ -47,6 +47,7 @@
 #include "sgpio_isr.h"
 #include "usb_bulk_buffer.h"
 #include "si5351c.h"
+#include "w25q80bv.h"
  
 static volatile transceiver_mode_t _transceiver_mode = TRANSCEIVER_MODE_OFF;
 
@@ -223,6 +224,9 @@ int main(void) {
 	enable_rf_power();
 #endif
 	cpu_clock_init();
+
+	/* Code is not running from SPI flash, initialize for flash read/write over USB */
+	w25q80bv_setup();
 
 	usb_set_descriptor_by_serial_number();
 
