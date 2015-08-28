@@ -86,10 +86,8 @@ usb_request_status_t usb_vendor_request_write_spiflash(
 usb_request_status_t usb_vendor_request_read_spiflash(
 	usb_endpoint_t* const endpoint, const usb_transfer_stage_t stage)
 {
-	uint32_t i;
 	uint32_t addr;
 	uint16_t len;
-	uint8_t* u8_addr_pt;
 
 	if (stage == USB_TRANSFER_STAGE_SETUP) 
 	{
@@ -99,12 +97,8 @@ usb_request_status_t usb_vendor_request_read_spiflash(
 			    || ((addr + len) > W25Q80BV_NUM_BYTES)) {
 			return USB_REQUEST_STATUS_STALL;
 		} else {
-			/* TODO flush SPIFI "cache" before to read the SPIFI memory */
-			u8_addr_pt = (uint8_t*)(addr + SPIFI_DATA_UNCACHED_BASE);
-			for(i=0; i<len; i++)
-			{
-				spiflash_buffer[i] = u8_addr_pt[i];
-			}
+			w25q80bv_setup();
+			w25q80bv_read(addr, len, &spiflash_buffer[0]);
 			usb_transfer_schedule_block(endpoint->in, &spiflash_buffer[0], len,
 						    NULL, NULL);
 			return USB_REQUEST_STATUS_OK;
