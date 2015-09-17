@@ -378,7 +378,7 @@ hackrf_device_list_t* ADDCALL hackrf_device_list()
 					const int serial_number_length = libusb_get_string_descriptor_ascii(usb_device, serial_descriptor_index, (unsigned char*)serial_number, sizeof(serial_number));
 					if( serial_number_length == 32 ) {
 						serial_number[32] = 0;
-						list->serial_numbers[idx] = strdup(serial_number);
+						list->serial_numbers[idx] = _strdup(serial_number);
 					}
 					
 					libusb_close(usb_device);
@@ -1489,13 +1489,14 @@ int ADDCALL hackrf_start_rx(hackrf_device* device, hackrf_sample_block_cb_fn cal
 
 int ADDCALL hackrf_stop_rx(hackrf_device* device)
 {
-	int result;
-	result = hackrf_set_transceiver_mode(device, TRANSCEIVER_MODE_OFF);
-	if (result != HACKRF_SUCCESS)
+	int result1, result2;
+	result1 = kill_transfer_thread(device);
+	result2 = hackrf_set_transceiver_mode(device, TRANSCEIVER_MODE_OFF);
+	if (result2 != HACKRF_SUCCESS)
 	{
-		return result;
+		return result2;
 	}
-	return kill_transfer_thread(device);
+	return result1;
 }
 
 int ADDCALL hackrf_start_tx(hackrf_device* device, hackrf_sample_block_cb_fn callback, void* tx_ctx)
