@@ -492,6 +492,7 @@ int main(int argc, char** argv) {
 	struct timeval t_end;
 	float time_diff;
 	unsigned int lna_gain=8, vga_gain=20, txvga_gain=0;
+	int requested_modes = 0;
   
 	while( (opt = getopt(argc, argv, "hwr:t:f:i:o:m:a:p:s:n:b:l:g:x:c:d:R")) != EOF )
 	{
@@ -504,16 +505,19 @@ int main(int argc, char** argv) {
 
 		case 'w':
 			receive_wav = true;
+			requested_modes++;
 			break;
 		
 		case 'r':
 			receive = true;
 			path = optarg;
+			requested_modes++;
 			break;
 		
 		case 't':
 			transmit = true;
 			path = optarg;
+			requested_modes++;
 			break;
 
 		case 'd':
@@ -582,6 +586,7 @@ int main(int argc, char** argv) {
 			transmit = true;
 			signalsource = true;
 			result = parse_u32(optarg, &amplitude);
+			requested_modes++;
 			break;
 
                 case 'R':
@@ -733,29 +738,12 @@ int main(int argc, char** argv) {
 		return EXIT_FAILURE;
 	}
 
-	if( (transmit == false) && (receive == receive_wav) )
-	{
-		printf("receive -r and receive_wav -w options are mutually exclusive\n");
-		usage();
-		return EXIT_FAILURE;
-	}
-	
-	if( receive_wav == false )
-	{
-		if( transmit == receive ) 
-		{
-			if( transmit == true ) 
-			{
-				printf("receive -r and transmit -t options are mutually exclusive\n");
-			} else
-			{
-				printf("specify either transmit -t or receive -r or receive_wav -w option\n");
-			}
+	if (requested_modes != 1) {
+			printf("specify one and only one of: -t, -r, -w, -c\n");
 			usage();
 			return EXIT_FAILURE;
-		}
 	}
-	
+
 	if( receive ) {
 		transceiver_mode = TRANSCEIVER_MODE_RX;
 	}
