@@ -330,6 +330,7 @@ bool baseband_filter_bw = false;
 uint32_t baseband_filter_bw_hz = 0;
 
 bool repeat = false;
+bool quiet = false;
 
 int rx_callback(hackrf_transfer* transfer) {
 	size_t bytes_to_write;
@@ -387,7 +388,9 @@ int tx_callback(hackrf_transfer* transfer) {
 		if ((bytes_read != bytes_to_read)
 				|| (limit_num_samples && (bytes_to_xfer == 0))) {
 			if (repeat) {
-				printf("Input file end reached. Rewind to beginning.\n");
+				if (!quiet) {
+					printf("Input file end reached. Rewind to beginning.\n");
+				}
 				rewind(fd);
 				fread(transfer->buffer + bytes_read, 1, bytes_to_read - bytes_read, fd);
 				return 0;
@@ -452,6 +455,7 @@ static void usage() {
 	printf("    [-R] # Repeat TX mode (default is off) \n");
 	printf("    [-b baseband_filter_bw_hz] # Set baseband filter bandwidth in MHz.\n      # Possible values: 1.75/2.5/3.5/5/5.5/6/7/8/9/10/12/14/15/20/24/28MHz, default < sample_rate_hz.\n" );
 	printf("    [-d serial_number] # Serial number of desired HackRF.\n");
+	printf("    [-q] # suppress transfer progress output\n");
 	printf("    [-h] # this help\n");
 }
 
@@ -495,7 +499,7 @@ int main(int argc, char** argv) {
 	unsigned int lna_gain=8, vga_gain=20, txvga_gain=0;
 	int requested_modes = 0;
 
-	while( (opt = getopt(argc, argv, "hwr:t:f:i:o:m:a:p:s:n:b:l:g:x:c:d:R")) != EOF )
+	while( (opt = getopt(argc, argv, "hqwr:t:f:i:o:m:a:p:s:n:b:l:g:x:c:d:R")) != EOF )
 	{
 		result = HACKRF_SUCCESS;
 		switch( opt )
@@ -592,6 +596,10 @@ int main(int argc, char** argv) {
 
 		case 'R':
 			repeat = true;
+			break;
+
+		case 'q':
+			quiet = true;
 			break;
 
 		default:
@@ -801,6 +809,7 @@ int main(int argc, char** argv) {
 		if( transceiver_mode == TRANSCEIVER_MODE_RX ) {
 			if (*path == '-') {
 				fd = stdout;
+				quiet = true;
 			} else {
 				fd = fopen(path, "wb");
 			}
@@ -941,8 +950,10 @@ int main(int argc, char** argv) {
 
 		time_difference = TimevalDiff(&time_now, &time_start);
 		rate = (float)byte_count_now / time_difference;
-		printf("%4.1f MiB / %5.3f sec = %4.1f MiB/second\n",
-				(byte_count_now / 1e6f), time_difference, (rate / 1e6f) );
+		if (!quiet) {
+			printf("%4.1f MiB / %5.3f sec = %4.1f MiB/second\n",
+					(byte_count_now / 1e6f), time_difference, (rate / 1e6f) );
+		}
 
 		time_start = time_now;
 
