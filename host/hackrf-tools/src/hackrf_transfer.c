@@ -107,31 +107,30 @@ int gettimeofday(struct timeval *tv, void* ignored)
 #endif
 
 /* WAVE or RIFF WAVE file format containing IQ 2x8bits data for HackRF compatible with SDR# Wav IQ file */
-typedef struct 
+typedef struct
 {
-    char groupID[4]; /* 'RIFF' */
-    uint32_t size; /* File size + 8bytes */
-    char riffType[4]; /* 'WAVE'*/
+	char groupID[4]; /* 'RIFF' */
+	uint32_t size; /* File size + 8bytes */
+	char riffType[4]; /* 'WAVE'*/
 } t_WAVRIFF_hdr;
 
-#define FormatID "fmt "   /* chunkID for Format Chunk. NOTE: There is a space at the end of this ID. */
+#define FormatID "fmt " /* chunkID for Format Chunk. NOTE: There is a space at the end of this ID. */
 
 typedef struct {
-  char		chunkID[4]; /* 'fmt ' */
-  uint32_t	chunkSize; /* 16 fixed */
-
-  uint16_t	wFormatTag; /* 1 fixed */
-  uint16_t	wChannels;  /* 2 fixed */
-  uint32_t	dwSamplesPerSec; /* Freq Hz sampling */
-  uint32_t	dwAvgBytesPerSec; /* Freq Hz sampling x 2 */
-  uint16_t	wBlockAlign; /* 2 fixed */
-  uint16_t	wBitsPerSample; /* 8 fixed */
+	char		chunkID[4]; /* 'fmt ' */
+	uint32_t	chunkSize; /* 16 fixed */
+	uint16_t	wFormatTag; /* 1 fixed */
+	uint16_t	wChannels;	/* 2 fixed */
+	uint32_t	dwSamplesPerSec; /* Freq Hz sampling */
+	uint32_t	dwAvgBytesPerSec; /* Freq Hz sampling x 2 */
+	uint16_t	wBlockAlign; /* 2 fixed */
+	uint16_t	wBitsPerSample; /* 8 fixed */
 } t_FormatChunk;
 
-typedef struct 
+typedef struct
 {
-    char		chunkID[4]; /* 'data' */
-    uint32_t	chunkSize; /* Size of data in bytes */
+	char		chunkID[4]; /* 'data' */
+	uint32_t	chunkSize; /* Size of data in bytes */
 	/* Samples I(8bits) then Q(8bits), I, Q ... */
 } t_DataChunk;
 
@@ -142,7 +141,7 @@ typedef struct
 	t_DataChunk data_chunk;
 } t_wav_file_hdr;
 
-t_wav_file_hdr wave_file_hdr = 
+t_wav_file_hdr wave_file_hdr =
 {
 	/* t_WAVRIFF_hdr */
 	{
@@ -152,7 +151,7 @@ t_wav_file_hdr wave_file_hdr =
 	},
 	/* t_FormatChunk */
 	{
-		{ 'f', 'm', 't', ' ' }, /* char		chunkID[4];  */
+		{ 'f', 'm', 't', ' ' }, /* char		chunkID[4]; */
 		16, /* uint32_t	chunkSize; */
 		1, /* uint16_t	wFormatTag; 1 fixed */
 		2, /* uint16_t	wChannels; 2 fixed */
@@ -163,7 +162,7 @@ t_wav_file_hdr wave_file_hdr =
 	},
 	/* t_DataChunk */
 	{
-	    { 'd', 'a', 't', 'a' }, /* char chunkID[4]; */
+		{ 'd', 'a', 't', 'a' }, /* char chunkID[4]; */
 		0, /* uint32_t	chunkSize; to update later */
 	}
 };
@@ -171,7 +170,7 @@ t_wav_file_hdr wave_file_hdr =
 static transceiver_mode_t transceiver_mode = TRANSCEIVER_MODE_RX;
 
 #define U64TOA_MAX_DIGIT (31)
-typedef struct 
+typedef struct
 {
 		char data[U64TOA_MAX_DIGIT+1];
 } t_u64toa;
@@ -182,7 +181,7 @@ t_u64toa ascii_u64_data2;
 static float
 TimevalDiff(const struct timeval *a, const struct timeval *b)
 {
-   return (a->tv_sec - b->tv_sec) + 1e-6f * (a->tv_usec - b->tv_usec);
+	return (a->tv_sec - b->tv_sec) + 1e-6f * (a->tv_usec - b->tv_usec);
 }
 
 int parse_u64(char* s, uint64_t* const value) {
@@ -336,7 +335,7 @@ int rx_callback(hackrf_transfer* transfer) {
 	size_t bytes_to_write;
 	int i;
 
-	if( fd != NULL ) 
+	if( fd != NULL )
 	{
 		ssize_t bytes_written;
 		byte_count += transfer->valid_length;
@@ -387,15 +386,14 @@ int tx_callback(hackrf_transfer* transfer) {
 		bytes_read = fread(transfer->buffer, 1, bytes_to_read, fd);
 		if ((bytes_read != bytes_to_read)
 				|| (limit_num_samples && (bytes_to_xfer == 0))) {
-                       if (repeat) {
-                               printf("Input file end reached. Rewind to beginning.\n");
-                               rewind(fd);
-                               fread(transfer->buffer + bytes_read, 1, bytes_to_read - bytes_read, fd);
-			       return 0;
-                       } else {
-                               return -1; // not loopback mode, EOF
-                       }
-
+			if (repeat) {
+				printf("Input file end reached. Rewind to beginning.\n");
+				rewind(fd);
+				fread(transfer->buffer + bytes_read, 1, bytes_to_read - bytes_read, fd);
+				return 0;
+			} else {
+				return -1; // not loopback mode, EOF
+			}
 		} else {
 			return 0;
 		}
@@ -419,8 +417,8 @@ int tx_callback(hackrf_transfer* transfer) {
 			return 0;
 		}
 	} else {
-        return -1;
-    }
+		return -1;
+	}
 }
 
 static void usage() {
@@ -448,7 +446,7 @@ static void usage() {
 		u64toa((DEFAULT_SAMPLE_RATE_HZ/FREQ_ONE_MHZ),&ascii_u64_data1));
 	printf("\t[-n num_samples] # Number of samples to transfer (default is unlimited).\n");
 	printf("\t[-c amplitude] # CW signal source mode, amplitude 0-127 (DC value to DAC).\n");
-        printf("\t[-R] # Repeat TX mode (default is off) \n");
+	printf("\t[-R] # Repeat TX mode (default is off) \n");
 	printf("\t[-b baseband_filter_bw_hz] # Set baseband filter bandwidth in MHz.\n\t  # Possible values: 1.75/2.5/3.5/5/5.5/6/7/8/9/10/12/14/15/20/24/28MHz, default < sample_rate_hz.\n" );
 	printf("\t[-d serial_number] # Serial number of desired HackRF.\n");
 	printf("\t[-h] # this help\n");
@@ -468,7 +466,7 @@ sighandler(int signum)
 	return FALSE;
 }
 #else
-void sigint_callback_handler(int signum) 
+void sigint_callback_handler(int signum)
 {
 	fprintf(stderr, "Caught signal %d\n", signum);
 	do_exit = true;
@@ -493,11 +491,11 @@ int main(int argc, char** argv) {
 	float time_diff;
 	unsigned int lna_gain=8, vga_gain=20, txvga_gain=0;
 	int requested_modes = 0;
-  
+
 	while( (opt = getopt(argc, argv, "hwr:t:f:i:o:m:a:p:s:n:b:l:g:x:c:d:R")) != EOF )
 	{
 		result = HACKRF_SUCCESS;
-		switch( opt ) 
+		switch( opt 1
 		{
 		case 'h':
 			usage();
@@ -507,13 +505,13 @@ int main(int argc, char** argv) {
 			receive_wav = true;
 			requested_modes++;
 			break;
-		
+
 		case 'r':
 			receive = true;
 			path = optarg;
 			requested_modes++;
 			break;
-		
+
 		case 't':
 			transmit = true;
 			path = optarg;
@@ -589,21 +587,21 @@ int main(int argc, char** argv) {
 			requested_modes++;
 			break;
 
-                case 'R':
-                        repeat = true;
-                        break;
+		case 'R':
+			repeat = true;
+			break;
 
 		default:
 			printf("unknown argument '-%c %s'\n", opt, optarg);
 			usage();
 			return EXIT_FAILURE;
 		}
-		
+
 		if( result != HACKRF_SUCCESS ) {
 			printf("argument error: '-%c %s' %s (%d)\n", opt, optarg, hackrf_error_name(result), result);
 			usage();
 			return EXIT_FAILURE;
-		}		
+		}
 	}
 
 	if (lna_gain % 8)
@@ -709,7 +707,7 @@ int main(int argc, char** argv) {
 		}
 	}
 
-	if( sample_rate == false ) 
+	if( sample_rate == false )
 	{
 		sample_rate_hz = DEFAULT_SAMPLE_RATE_HZ;
 	}
@@ -747,7 +745,7 @@ int main(int argc, char** argv) {
 	if( receive ) {
 		transceiver_mode = TRANSCEIVER_MODE_RX;
 	}
-	
+
 	if( transmit ) {
 		transceiver_mode = TRANSCEIVER_MODE_TX;
 	}
@@ -771,7 +769,7 @@ int main(int argc, char** argv) {
 		snprintf(path_file, PATH_FILE_MAX_LEN, "HackRF_%sZ_%ukHz_IQ.wav", date_time, (uint32_t)(freq_hz/(1000ull)) );
 		path = path_file;
 		printf("Receive wav file: %s\n", path);
-	}	
+	}
 
 	// In signal source mode, the PATH argument is neglected.
 	if (transceiver_mode != TRANSCEIVER_MODE_SS) {
@@ -788,14 +786,14 @@ int main(int argc, char** argv) {
 		usage();
 		return EXIT_FAILURE;
 	}
-	
+
 	result = hackrf_open_by_serial(serial_number, &device);
 	if( result != HACKRF_SUCCESS ) {
 		printf("hackrf_open() failed: %s (%d)\n", hackrf_error_name(result), result);
 		usage();
 		return EXIT_FAILURE;
 	}
-	
+
 	if (transceiver_mode != TRANSCEIVER_MODE_SS) {
 		if( transceiver_mode == TRANSCEIVER_MODE_RX ) {
 			if (*path == '-') {
@@ -810,7 +808,7 @@ int main(int argc, char** argv) {
 				fd = fopen(path, "rb");
 			}
 		}
-	
+
 		if( fd == NULL ) {
 			printf("Failed to open file: %s\n", path);
 			return EXIT_FAILURE;
@@ -825,11 +823,11 @@ int main(int argc, char** argv) {
 	}
 
 	/* Write Wav header */
-	if( receive_wav ) 
+	if( receive_wav )
 	{
 		fwrite(&wave_file_hdr, 1, sizeof(t_wav_file_hdr), fd);
 	}
-	
+
 #ifdef _MSC_VER
 	SetConsoleCtrlHandler( (PHANDLER_ROUTINE) sighandler, TRUE );
 #else
@@ -920,24 +918,24 @@ int main(int argc, char** argv) {
 		u64toa(samples_to_xfer,&ascii_u64_data1),
 		u64toa((samples_to_xfer/FREQ_ONE_MHZ),&ascii_u64_data2) );
 	}
-	
+
 	gettimeofday(&t_start, NULL);
 	gettimeofday(&time_start, NULL);
 
 	printf("Stop with Ctrl-C\n");
 	while( (hackrf_is_streaming(device) == HACKRF_TRUE) &&
-			(do_exit == false) ) 
+			(do_exit == false) )
 	{
 		uint32_t byte_count_now;
 		struct timeval time_now;
 		float time_difference, rate;
 		sleep(1);
-		
+
 		gettimeofday(&time_now, NULL);
-		
+
 		byte_count_now = byte_count;
 		byte_count = 0;
-		
+
 		time_difference = TimevalDiff(&time_now, &time_start);
 		rate = (float)byte_count_now / time_difference;
 		printf("%4.1f MiB / %5.3f sec = %4.1f MiB/second\n",
@@ -951,22 +949,22 @@ int main(int argc, char** argv) {
 			break;
 		}
 	}
-	
-	result = hackrf_is_streaming(device);	
+
+	result = hackrf_is_streaming(device);
 	if (do_exit)
 	{
 		fprintf(stderr, "\nUser cancel, exiting...\n");
 	} else {
 		fprintf(stderr, "\nExiting... hackrf_is_streaming() result: %s (%d)\n", hackrf_error_name(result), result);
 	}
-	
+
 	gettimeofday(&t_end, NULL);
 	time_diff = TimevalDiff(&t_end, &t_start);
 	printf("Total time: %5.5f s\n", time_diff);
-	
+
 	if(device != NULL)
 	{
-		if( receive ) 
+		if( receive )
 		{
 			result = hackrf_stop_rx(device);
 			if( result != HACKRF_SUCCESS ) {
@@ -975,8 +973,8 @@ int main(int argc, char** argv) {
 				printf("hackrf_stop_rx() done\n");
 			}
 		}
-	
-		if( transmit ) 
+
+		if( transmit )
 		{
 			result = hackrf_stop_tx(device);
 			if( result != HACKRF_SUCCESS ) {
@@ -985,22 +983,22 @@ int main(int argc, char** argv) {
 				printf("hackrf_stop_tx() done\n");
 			}
 		}
-		
+
 		result = hackrf_close(device);
-		if( result != HACKRF_SUCCESS ) 
+		if( result != HACKRF_SUCCESS )
 		{
 			printf("hackrf_close() failed: %s (%d)\n", hackrf_error_name(result), result);
 		}else {
 			printf("hackrf_close() done\n");
 		}
-		
+
 		hackrf_exit();
 		printf("hackrf_exit() done\n");
 	}
-		
+
 	if(fd != NULL)
 	{
-		if( receive_wav ) 
+		if( receive_wav )
 		{
 			/* Get size of file */
 			file_pos = ftell(fd);
@@ -1012,7 +1010,7 @@ int main(int argc, char** argv) {
 			/* Overwrite header with updated data */
 			rewind(fd);
 			fwrite(&wave_file_hdr, 1, sizeof(t_wav_file_hdr), fd);
-		}	
+		}
 		fclose(fd);
 		fd = NULL;
 		printf("fclose(fd) done\n");
