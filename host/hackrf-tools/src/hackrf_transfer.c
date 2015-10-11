@@ -423,33 +423,36 @@ int tx_callback(hackrf_transfer* transfer) {
 
 static void usage() {
 	printf("Usage:\n");
-	printf("\t-r <filename> # Receive data into file (or \"-\" for stdout).\n");
-	printf("\t-t <filename> # Transmit data from file (or \"-\" for stdin).\n");
-	printf("\t-w # Receive data into file with WAV header and automatic name.\n");
-	printf("\t   # This is for SDR# compatibility and may not work with other software.\n");
-	printf("\t[-f freq_hz] # Frequency in Hz [%sMHz to %sMHz].\n",
+	printf("  Select one of the four modes of operation:\n");
+	printf("    hackrf_transfer -r <filename> # Receive data into file (or \"-\" for stdout).\n");
+	printf("    hackrf_transfer -t <filename> # Transmit data from file (or \"-\" for stdin).\n");
+	printf("    hackrf_transfer -c <amplitude> # CW signal source mode, amplitude 0-127 (DC value to DAC).\n");
+	printf("    hackrf_transfer -w # Receive data into file with WAV header and automatic name.\n");
+	printf("      # This is for SDR# compatibility and may not work with other software.\n");
+	printf("\n");
+	printf("  Options:\n");
+	printf("    [-f freq_hz] # Frequency in Hz [%sMHz to %sMHz].\n",
 		u64toa((FREQ_MIN_HZ/FREQ_ONE_MHZ),&ascii_u64_data1),
 		u64toa((FREQ_MAX_HZ/FREQ_ONE_MHZ),&ascii_u64_data2));
-	printf("\t[-i if_freq_hz] # Intermediate Frequency (IF) in Hz [%sMHz to %sMHz].\n",
+	printf("    [-i if_freq_hz] # Intermediate Frequency (IF) in Hz [%sMHz to %sMHz].\n",
 		u64toa((IF_MIN_HZ/FREQ_ONE_MHZ),&ascii_u64_data1),
 		u64toa((IF_MAX_HZ/FREQ_ONE_MHZ),&ascii_u64_data2));
-	printf("\t[-o lo_freq_hz] # Front-end Local Oscillator (LO) frequency in Hz [%sMHz to %sMHz].\n",
+	printf("    [-o lo_freq_hz] # Front-end Local Oscillator (LO) frequency in Hz [%sMHz to %sMHz].\n",
 		u64toa((LO_MIN_HZ/FREQ_ONE_MHZ),&ascii_u64_data1),
 		u64toa((LO_MAX_HZ/FREQ_ONE_MHZ),&ascii_u64_data2));
-	printf("\t[-m image_reject] # Image rejection filter selection, 0=bypass, 1=low pass, 2=high pass.\n");
-	printf("\t[-a amp_enable] # RX/TX RF amplifier 1=Enable, 0=Disable.\n");
-	printf("\t[-p antenna_enable] # Antenna port power, 1=Enable, 0=Disable.\n");
-	printf("\t[-l gain_db] # RX LNA (IF) gain, 0-40dB, 8dB steps\n");
-	printf("\t[-g gain_db] # RX VGA (baseband) gain, 0-62dB, 2dB steps\n");
-	printf("\t[-x gain_db] # TX VGA (IF) gain, 0-47dB, 1dB steps\n");
-	printf("\t[-s sample_rate_hz] # Sample rate in Hz (8/10/12.5/16/20MHz, default %sMHz).\n",
+	printf("    [-m image_reject] # Image rejection filter selection, 0=bypass, 1=low pass, 2=high pass.\n");
+	printf("    [-a amp_enable] # RX/TX RF amplifier 1=Enable, 0=Disable.\n");
+	printf("    [-p antenna_enable] # Antenna port power, 1=Enable, 0=Disable.\n");
+	printf("    [-l gain_db] # RX LNA (IF) gain, 0-40dB, 8dB steps\n");
+	printf("    [-g gain_db] # RX VGA (baseband) gain, 0-62dB, 2dB steps\n");
+	printf("    [-x gain_db] # TX VGA (IF) gain, 0-47dB, 1dB steps\n");
+	printf("    [-s sample_rate_hz] # Sample rate in Hz (8/10/12.5/16/20MHz, default %sMHz).\n",
 		u64toa((DEFAULT_SAMPLE_RATE_HZ/FREQ_ONE_MHZ),&ascii_u64_data1));
-	printf("\t[-n num_samples] # Number of samples to transfer (default is unlimited).\n");
-	printf("\t[-c amplitude] # CW signal source mode, amplitude 0-127 (DC value to DAC).\n");
-	printf("\t[-R] # Repeat TX mode (default is off) \n");
-	printf("\t[-b baseband_filter_bw_hz] # Set baseband filter bandwidth in MHz.\n\t  # Possible values: 1.75/2.5/3.5/5/5.5/6/7/8/9/10/12/14/15/20/24/28MHz, default < sample_rate_hz.\n" );
-	printf("\t[-d serial_number] # Serial number of desired HackRF.\n");
-	printf("\t[-h] # this help\n");
+	printf("    [-n num_samples] # Number of samples to transfer (default is unlimited).\n");
+	printf("    [-R] # Repeat TX mode (default is off) \n");
+	printf("    [-b baseband_filter_bw_hz] # Set baseband filter bandwidth in MHz.\n      # Possible values: 1.75/2.5/3.5/5/5.5/6/7/8/9/10/12/14/15/20/24/28MHz, default < sample_rate_hz.\n" );
+	printf("    [-d serial_number] # Serial number of desired HackRF.\n");
+	printf("    [-h] # this help\n");
 }
 
 static hackrf_device* device = NULL;
@@ -495,7 +498,7 @@ int main(int argc, char** argv) {
 	while( (opt = getopt(argc, argv, "hwr:t:f:i:o:m:a:p:s:n:b:l:g:x:c:d:R")) != EOF )
 	{
 		result = HACKRF_SUCCESS;
-		switch( opt 1
+		switch( opt )
 		{
 		case 'h':
 			usage();
