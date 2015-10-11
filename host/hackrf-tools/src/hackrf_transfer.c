@@ -460,7 +460,7 @@ BOOL WINAPI
 sighandler(int signum)
 {
 	if (CTRL_C_EVENT == signum) {
-		fprintf(stdout, "Caught signal %d\n", signum);
+		fprintf(stderr, "Caught signal %d\n", signum);
 		do_exit = true;
 		return TRUE;
 	}
@@ -469,7 +469,7 @@ sighandler(int signum)
 #else
 void sigint_callback_handler(int signum) 
 {
-	fprintf(stdout, "Caught signal %d\n", signum);
+	fprintf(stderr, "Caught signal %d\n", signum);
 	do_exit = true;
 }
 #endif
@@ -954,7 +954,7 @@ int main(int argc, char** argv) {
 
 		if (byte_count_now == 0) {
 			exit_code = EXIT_FAILURE;
-			printf("\nCouldn't transfer any bytes for one second.\n");
+			fprintf(stderr, "\nCouldn't transfer any bytes for one second.\n");
 			break;
 		}
 	}
@@ -962,9 +962,9 @@ int main(int argc, char** argv) {
 	result = hackrf_is_streaming(device);	
 	if (do_exit)
 	{
-		printf("\nUser cancel, exiting...\n");
+		fprintf(stderr, "\nUser cancel, exiting...\n");
 	} else {
-		printf("\nExiting... hackrf_is_streaming() result: %s (%d)\n", hackrf_error_name(result), result);
+		fprintf(stderr, "\nExiting... hackrf_is_streaming() result: %s (%d)\n", hackrf_error_name(result), result);
 	}
 	
 	gettimeofday(&t_end, NULL);
