@@ -804,11 +804,18 @@ int main(int argc, char** argv) {
 	}
 	
 	if (transceiver_mode != TRANSCEIVER_MODE_SS) {
-		if( transceiver_mode == TRANSCEIVER_MODE_RX )
-		{
-			fd = fopen(path, "wb");
+		if( transceiver_mode == TRANSCEIVER_MODE_RX ) {
+			if (*path == '-') {
+				fd = stdout;
+			} else {
+				fd = fopen(path, "wb");
+			}
 		} else {
-			fd = fopen(path, "rb");
+			if (*path == '-') {
+				fd = stdin;
+			} else {
+				fd = fopen(path, "rb");
+			}
 		}
 	
 		if( fd == NULL ) {
