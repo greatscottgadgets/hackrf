@@ -425,7 +425,6 @@ int tx_callback(hackrf_transfer* transfer) {
 
 static void usage() {
 	printf("Usage:\n");
-	printf("\t[-d serial_number] # Serial number of desired HackRF.\n");
 	printf("\t-r <filename> # Receive data into file (or \"-\" for stdout).\n");
 	printf("\t-t <filename> # Transmit data from file (or \"-\" for stdin).\n");
 	printf("\t-w # Receive data into file with WAV header and automatic name.\n");
@@ -450,7 +449,9 @@ static void usage() {
 	printf("\t[-n num_samples] # Number of samples to transfer (default is unlimited).\n");
 	printf("\t[-c amplitude] # CW signal source mode, amplitude 0-127 (DC value to DAC).\n");
         printf("\t[-R] # Repeat TX mode (default is off) \n");
-	printf("\t[-b baseband_filter_bw_hz] # Set baseband filter bandwidth in MHz.\n\tPossible values: 1.75/2.5/3.5/5/5.5/6/7/8/9/10/12/14/15/20/24/28MHz, default < sample_rate_hz.\n" );
+	printf("\t[-b baseband_filter_bw_hz] # Set baseband filter bandwidth in MHz.\n\t  # Possible values: 1.75/2.5/3.5/5/5.5/6/7/8/9/10/12/14/15/20/24/28MHz, default < sample_rate_hz.\n" );
+	printf("\t[-d serial_number] # Serial number of desired HackRF.\n");
+	printf("\t[-h] # this help\n");
 }
 
 static hackrf_device* device = NULL;
@@ -492,11 +493,15 @@ int main(int argc, char** argv) {
 	float time_diff;
 	unsigned int lna_gain=8, vga_gain=20, txvga_gain=0;
   
-	while( (opt = getopt(argc, argv, "wr:t:f:i:o:m:a:p:s:n:b:l:g:x:c:d:R")) != EOF )
+	while( (opt = getopt(argc, argv, "hwr:t:f:i:o:m:a:p:s:n:b:l:g:x:c:d:R")) != EOF )
 	{
 		result = HACKRF_SUCCESS;
 		switch( opt ) 
 		{
+		case 'h':
+			usage();
+			return 0;
+
 		case 'w':
 			receive_wav = true;
 			break;
