@@ -426,8 +426,8 @@ int tx_callback(hackrf_transfer* transfer) {
 static void usage() {
 	printf("Usage:\n");
 	printf("\t[-d serial_number] # Serial number of desired HackRF.\n");
-	printf("\t-r <filename> # Receive data into file.\n");
-	printf("\t-t <filename> # Transmit data from file.\n");
+	printf("\t-r <filename> # Receive data into file (or \"-\" for stdout).\n");
+	printf("\t-t <filename> # Transmit data from file (or \"-\" for stdin).\n");
 	printf("\t-w # Receive data into file with WAV header and automatic name.\n");
 	printf("\t   # This is for SDR# compatibility and may not work with other software.\n");
 	printf("\t[-f freq_hz] # Frequency in Hz [%sMHz to %sMHz].\n",
