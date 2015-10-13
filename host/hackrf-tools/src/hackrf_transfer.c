@@ -974,7 +974,9 @@ int main(int argc, char** argv) {
 
 	gettimeofday(&t_end, NULL);
 	time_diff = TimevalDiff(&t_end, &t_start);
-	printf("Total time: %5.5f s\n", time_diff);
+	if (!quiet) {
+		printf("Total time: %5.5f s\n", time_diff);
+	}
 
 	if(device != NULL)
 	{
@@ -982,8 +984,8 @@ int main(int argc, char** argv) {
 		{
 			result = hackrf_stop_rx(device);
 			if( result != HACKRF_SUCCESS ) {
-				printf("hackrf_stop_rx() failed: %s (%d)\n", hackrf_error_name(result), result);
-			}else {
+				fprintf(stderr, "hackrf_stop_rx() failed: %s (%d)\n", hackrf_error_name(result), result);
+			} else if (!quiet) {
 				printf("hackrf_stop_rx() done\n");
 			}
 		}
@@ -992,8 +994,8 @@ int main(int argc, char** argv) {
 		{
 			result = hackrf_stop_tx(device);
 			if( result != HACKRF_SUCCESS ) {
-				printf("hackrf_stop_tx() failed: %s (%d)\n", hackrf_error_name(result), result);
-			}else {
+				fprintf(stderr, "hackrf_stop_tx() failed: %s (%d)\n", hackrf_error_name(result), result);
+			} else if (!quiet) {
 				printf("hackrf_stop_tx() done\n");
 			}
 		}
@@ -1001,13 +1003,15 @@ int main(int argc, char** argv) {
 		result = hackrf_close(device);
 		if( result != HACKRF_SUCCESS )
 		{
-			printf("hackrf_close() failed: %s (%d)\n", hackrf_error_name(result), result);
-		}else {
+			fprintf(stderr, "hackrf_close() failed: %s (%d)\n", hackrf_error_name(result), result);
+		} else if (!quiet) {
 			printf("hackrf_close() done\n");
 		}
 
 		hackrf_exit();
-		printf("hackrf_exit() done\n");
+		if (!quiet) {
+			printf("hackrf_exit() done\n");
+		}
 	}
 
 	if(fd != NULL)
@@ -1027,7 +1031,9 @@ int main(int argc, char** argv) {
 		}
 		fclose(fd);
 		fd = NULL;
-		printf("fclose(fd) done\n");
+		if (!quiet) {
+			printf("fclose(fd) done\n");
+		}
 	}
 	printf("exit\n");
 	return exit_code;
