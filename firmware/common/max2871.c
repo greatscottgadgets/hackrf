@@ -68,7 +68,7 @@ void mixer_setup(void)
     max2871_set_MUX(0x0C);  // Register 6 readback
     max2871_set_DBR(0);
     max2871_set_RDIV2(0);
-    max2871_set_R(50); // 1 MHz f_PFD
+    max2871_set_R(1); // 50 MHz f_PFD
     max2871_set_REG4DB(1);
     max2871_set_CP(15); // ?: CP charge pump current 0-15
     max2871_set_LDF(1); // INT-N
@@ -87,7 +87,7 @@ void mixer_setup(void)
     max2871_set_SDLDO(0);
     max2871_set_SDDIV(0);
     max2871_set_SDREF(0);
-    max2871_set_BS(20); // For 1 MHz f_PFD
+    max2871_set_BS(20*50); // For 50 MHz f_PFD
     max2871_set_FB(1); // Do not put DIVA into the feedback loop
     max2871_set_DIVA(0);
     max2871_set_SDVCO(0);
@@ -207,13 +207,14 @@ static void max2871_write_registers(void)
 /* Set frequency (MHz). */
 uint64_t mixer_set_frequency(uint16_t mhz)
 {
-    int n = mhz;
+    int n = mhz / 50;
     int diva = 0;
 
-    while(n < 3000) {
+    while(n * 50 < 3000) {
         n *= 2;
         diva += 1;
     }
+
     max2871_set_RFA_EN(0);
     max2871_write_registers();
 
@@ -226,7 +227,7 @@ uint64_t mixer_set_frequency(uint16_t mhz)
     max2871_set_RFA_EN(1);
     max2871_write_registers();
 
-    return mhz * 1000000;
+    return (mhz/50)*50 * 1000000;
 }
 
 void mixer_tx(void)
