@@ -239,7 +239,7 @@ void si5351c_configure_clock_control()
 }
 #endif
 
-#if (defined JAWBREAKER || defined HACKRF_ONE || defined RAD1O)
+#if (defined JAWBREAKER || defined HACKRF_ONE)
 void si5351c_configure_clock_control(const enum pll_sources source)
 {
 	uint8_t pll;
@@ -265,10 +265,41 @@ void si5351c_configure_clock_control(const enum pll_sources source)
 }
 #endif
 
-/* Enable CLK outputs 0, 1, 2, 3, 4, 5, 7 only. */
+#ifdef RAD1O
+void si5351c_configure_clock_control(const enum pll_sources source)
+{
+	uint8_t pll;
+
+	/* PLLA on XTAL */
+	pll = SI5351C_CLK_PLL_SRC_A;
+
+	/* Clock to CPU is deactivated as it is not used and creates noise */
+	/* External clock output is deactivated as it is not used and creates noise */
+	uint8_t data[] = {16
+	,SI5351C_CLK_FRAC_MODE | SI5351C_CLK_PLL_SRC(pll) | SI5351C_CLK_SRC(SI5351C_CLK_SRC_MULTISYNTH_SELF) | SI5351C_CLK_IDRV(SI5351C_CLK_IDRV_2MA)
+	,SI5351C_CLK_INT_MODE | SI5351C_CLK_PLL_SRC(pll) | SI5351C_CLK_SRC(SI5351C_CLK_SRC_MULTISYNTH_0_4) | SI5351C_CLK_IDRV(SI5351C_CLK_IDRV_2MA)
+	,SI5351C_CLK_INT_MODE | SI5351C_CLK_PLL_SRC(pll) | SI5351C_CLK_SRC(SI5351C_CLK_SRC_MULTISYNTH_0_4) | SI5351C_CLK_IDRV(SI5351C_CLK_IDRV_2MA)
+	,SI5351C_CLK_POWERDOWN | SI5351C_CLK_INT_MODE /*not connected, but: plla int mode*/
+	,SI5351C_CLK_INT_MODE | SI5351C_CLK_PLL_SRC(pll) | SI5351C_CLK_SRC(SI5351C_CLK_SRC_MULTISYNTH_SELF) | SI5351C_CLK_IDRV(SI5351C_CLK_IDRV_6MA)
+	,SI5351C_CLK_INT_MODE | SI5351C_CLK_PLL_SRC(pll) | SI5351C_CLK_SRC(SI5351C_CLK_SRC_MULTISYNTH_SELF) | SI5351C_CLK_IDRV(SI5351C_CLK_IDRV_4MA)
+	,SI5351C_CLK_POWERDOWN | SI5351C_CLK_INT_MODE /*not connected, but: plla int mode*/
+	,SI5351C_CLK_POWERDOWN | SI5351C_CLK_INT_MODE /*not connected, but: plla int mode*/
+	 };
+	si5351c_write(data, sizeof(data));
+}
+#endif
+
  void si5351c_enable_clock_outputs()
  {
+#ifdef RAD1O
+    /* Enable CLK outputs 0, 1, 2, 4, 5 only. */
+	/* 7: Clock to CPU is deactivated as it is not used and creates noise */
+	/* 3: External clock output is deactivated as it is not used and creates noise */
+    uint8_t data[] = { 3, ~((1 << 0) | (1 << 1) | (1 << 2) | (1 << 4) | (1 << 5))};
+#else
+    /* Enable CLK outputs 0, 1, 2, 3, 4, 5, 7 only. */
 	uint8_t data[] = { 3, 0x40 };
+#endif
  	si5351c_write(data, sizeof(data));
  }
 
