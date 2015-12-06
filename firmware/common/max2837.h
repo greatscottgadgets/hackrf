@@ -59,7 +59,7 @@ extern void max2837_stop(void);
 /* Set frequency in Hz. Frequency setting is a multi-step function
  * where order of register writes matters. */
 extern void max2837_set_frequency(uint32_t freq);
-bool max2837_set_lpf_bandwidth(const uint32_t bandwidth_hz);
+uint32_t max2837_set_lpf_bandwidth(const uint32_t bandwidth_hz);
 bool max2837_set_lna_gain(const uint32_t gain_db);
 bool max2837_set_vga_gain(const uint32_t gain_db);
 bool max2837_set_txvga_gain(const uint32_t gain_db);

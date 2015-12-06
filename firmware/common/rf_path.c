@@ -27,6 +27,10 @@
 
 #include <hackrf_core.h>
 
+#if HACKRF_ENABLE_UI
+#include "hackrf-ui.h"
+#endif
+
 #include <mixer.h>
 #include <max2837.h>
 #include <max5864.h>
@@ -392,6 +396,10 @@ void rf_path_set_direction(const rf_path_direction_t direction) {
 	}
 
 	switchctrl_set(switchctrl);
+
+#if HACKRF_ENABLE_UI
+	hackrf_ui_setDirection(direction);
+#endif
 }
 
 void rf_path_set_filter(const rf_path_filter_t filter) {
@@ -434,6 +442,10 @@ void rf_path_set_lna(const uint_fast8_t enable) {
 	}
 	
 	switchctrl_set(switchctrl);
+
+#if HACKRF_ENABLE_UI
+	hackrf_ui_setLNAPower(enable);
+#endif
 }
 
 /* antenna port power control */

@@ -48,6 +48,10 @@
 #include "usb_bulk_buffer.h"
 #include "si5351c.h"
  
+#if HACKRF_ENABLE_UI
+#include "hackrf-ui.h"
+#endif
+
 static volatile transceiver_mode_t _transceiver_mode = TRANSCEIVER_MODE_OFF;
 
 void set_transceiver_mode(const transceiver_mode_t new_transceiver_mode) {
@@ -246,10 +250,15 @@ int main(void) {
 	
 	nvic_set_priority(NVIC_USB0_IRQ, 255);
 
+#if HACKRF_ENABLE_UI
+	hackrf_ui_init();
+#endif
+
 	usb_run(&usb_device);
 	
 
 	ssp1_init();
+
 
 	rf_path_init();
 
