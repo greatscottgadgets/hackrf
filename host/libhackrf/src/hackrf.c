@@ -22,11 +22,16 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 */
 
 #include "hackrf.h"
-
+#include <string.h>
 #include <stdlib.h>
 
 #include <libusb.h>
+#ifdef _MSC_VER
+#include <windows.h>
+typedef HANDLE pthread_t;
+#else
 #include <pthread.h>
+#endif
 
 #ifndef bool
 typedef int bool;
@@ -74,11 +79,6 @@ typedef enum {
 	USB_CONFIG_CPLD_UPDATE  = 0x2,
 } hackrf_usb_configurations;
 
-typedef enum {
-	HACKRF_TRANSCEIVER_MODE_OFF = 0,
-	HACKRF_TRANSCEIVER_MODE_RECEIVE = 1,
-	HACKRF_TRANSCEIVER_MODE_TRANSMIT = 2,
-} hackrf_transceiver_mode;
 
 struct hackrf_device {
 	libusb_device_handle* usb_device;
@@ -336,8 +336,6 @@ int ADDCALL hackrf_exit(void)
 	return HACKRF_SUCCESS;
 }
 
-#include <stdio.h>
-#include <string.h>
 
 hackrf_device_list_t* ADDCALL hackrf_device_list()
 {
@@ -417,9 +415,7 @@ libusb_device_handle* hackrf_open_usb(const char* const desired_serial_number)
 	const ssize_t list_length = libusb_get_device_list(g_libusb_context, &devices);
 	int match_len = 0;
 	ssize_t i;
-	
-	printf("Number of USB devices: %ld\n", list_length);
-	
+		
 	if( desired_serial_number ) {
 		/* If a shorter serial number is specified, only match against the suffix.
 		 * Should probably complain if the match is not unique, currently doesn't.
@@ -437,7 +433,6 @@ libusb_device_handle* hackrf_open_usb(const char* const desired_serial_number)
 			if((device_descriptor.idProduct == hackrf_one_usb_pid) ||
 			   (device_descriptor.idProduct == hackrf_jawbreaker_usb_pid) ||
 			   (device_descriptor.idProduct == rad1o_usb_pid)) {
-				printf("USB device %4x:%4x:", device_descriptor.idVendor, device_descriptor.idProduct);
 				
 				if( desired_serial_number != NULL ) {
 					const uint_fast8_t serial_descriptor_index = device_descriptor.iSerialNumber;
@@ -450,23 +445,23 @@ libusb_device_handle* hackrf_open_usb(const char* const desired_serial_number)
 						const int serial_number_length = libusb_get_string_descriptor_ascii(usb_device, serial_descriptor_index, (unsigned char*)serial_number, sizeof(serial_number));
 						if( serial_number_length == 32 ) {
 							serial_number[32] = 0;
-							printf(" %s", serial_number);
+
 							if( strncmp(serial_number + 32-match_len, desired_serial_number, match_len) == 0 ) {
-								printf(" match\n");
+
 								break;
 							} else {
-								printf(" skip\n");
+
 								libusb_close(usb_device);
 								usb_device = NULL;
 							}
 						} else {
-							printf(" wrong length of serial number: %d\n", serial_number_length);
+
 							libusb_close(usb_device);
 							usb_device = NULL;
 						}
 					}
 				} else {
-					printf(" default\n");
+
 					libusb_open(devices[i], &usb_device);
 					break;
 				}
@@ -609,7 +604,7 @@ int ADDCALL hackrf_device_list_open(hackrf_device_list_t *list, int idx, hackrf_
 	return hackrf_open_setup(usb_device, device);
 }
 
-int ADDCALL hackrf_set_transceiver_mode(hackrf_device* device, hackrf_transceiver_mode value)
+int ADDCALL hackrf_set_transceiver_mode(hackrf_device* device, transceiver_mode_t value)
 {
 	int result;
 	result = libusb_control_transfer(
@@ -1322,7 +1317,11 @@ int ADDCALL hackrf_set_antenna_enable(hackrf_device* device, const uint8_t value
 	}
 }
 
+#ifdef _MSC_VER
+DWORD WINAPI transfer_threadproc(void* arg)
+#else
 static void* transfer_threadproc(void* arg)
+#endif
 {
 	hackrf_device* device = (hackrf_device*)arg;
 	int error;
@@ -1337,7 +1336,11 @@ static void* transfer_threadproc(void* arg)
 		}
 	}
 
+#ifdef _MSC_VER 
+	return 0;
+#else
 	return NULL;
+#endif
 }
 
 static void hackrf_libusb_transfer_callback(struct libusb_transfer* usb_transfer)
@@ -1366,11 +1369,12 @@ static void hackrf_libusb_transfer_callback(struct libusb_transfer* usb_transfer
 		}else {
 			request_exit();
 		}
-	} else {
+	} else if(usb_transfer->status == LIBUSB_TRANSFER_CANCELLED){
+		// Ignore 
+		}else {
 		/* Other cases LIBUSB_TRANSFER_NO_DEVICE
 		LIBUSB_TRANSFER_ERROR, LIBUSB_TRANSFER_TIMED_OUT
-		LIBUSB_TRANSFER_STALL,	LIBUSB_TRANSFER_OVERFLOW
-		LIBUSB_TRANSFER_CANCELLED ...
+		LIBUSB_TRANSFER_STALL,	LIBUSB_TRANSFER_OVERFLOW ...
 		*/
 		request_exit(); /* Fatal error stop transfer */
 	}
@@ -1386,7 +1390,12 @@ static int kill_transfer_thread(hackrf_device* device)
 	if( device->transfer_thread_started != false )
 	{
 		value = NULL;
+#ifdef _MSC_VER 
+		WaitForSingleObject(device->transfer_thread, INFINITE);
+		result = !CloseHandle(device->transfer_thread);
+#else
 		result = pthread_join(device->transfer_thread, &value);
+#endif
 		if( result != 0 )
 		{
 			return HACKRF_ERROR_THREAD;
@@ -1422,7 +1431,12 @@ static int create_transfer_thread(hackrf_device* device,
 
 		device->streaming = true;
 		device->callback = callback;
+#ifdef _MSC_VER 
+		device->transfer_thread = CreateThread(0, 0, (LPTHREAD_START_ROUTINE)transfer_threadproc, device, 0, 0);
+		if(device->transfer_thread==0)return HACKRF_ERROR_THREAD;
+#else
 		result = pthread_create(&device->transfer_thread, 0, transfer_threadproc, device);
+#endif
 		if( result == 0 )
 		{
 			device->transfer_thread_started = true;
@@ -1465,7 +1479,8 @@ int ADDCALL hackrf_start_rx(hackrf_device* device, hackrf_sample_block_cb_fn cal
 {
 	int result;
 	const uint8_t endpoint_address = LIBUSB_ENDPOINT_IN | 1;
-	result = hackrf_set_transceiver_mode(device, HACKRF_TRANSCEIVER_MODE_RECEIVE);
+	do_exit=false;
+	result = hackrf_set_transceiver_mode(device, TRANSCEIVER_MODE_RX);
 	if( result == HACKRF_SUCCESS )
 	{
 		device->rx_ctx = rx_ctx;
@@ -1476,20 +1491,22 @@ int ADDCALL hackrf_start_rx(hackrf_device* device, hackrf_sample_block_cb_fn cal
 
 int ADDCALL hackrf_stop_rx(hackrf_device* device)
 {
-	int result;
-	result = hackrf_set_transceiver_mode(device, HACKRF_TRANSCEIVER_MODE_OFF);
-	if (result != HACKRF_SUCCESS)
+	int result1, result2;
+	result1 = kill_transfer_thread(device);
+	result2 = hackrf_set_transceiver_mode(device, TRANSCEIVER_MODE_OFF);
+	if (result2 != HACKRF_SUCCESS)
 	{
-		return result;
+		return result2;
 	}
-	return kill_transfer_thread(device);
+	return result1;
 }
 
 int ADDCALL hackrf_start_tx(hackrf_device* device, hackrf_sample_block_cb_fn callback, void* tx_ctx)
 {
 	int result;
 	const uint8_t endpoint_address = LIBUSB_ENDPOINT_OUT | 2;
-	result = hackrf_set_transceiver_mode(device, HACKRF_TRANSCEIVER_MODE_TRANSMIT);
+	do_exit=false;
+	result = hackrf_set_transceiver_mode(device, TRANSCEIVER_MODE_TX);
 	if( result == HACKRF_SUCCESS )
 	{
 		device->tx_ctx = tx_ctx;
@@ -1502,7 +1519,7 @@ int ADDCALL hackrf_stop_tx(hackrf_device* device)
 {
 	int result1, result2;
 	result1 = kill_transfer_thread(device);
-	result2 = hackrf_set_transceiver_mode(device, HACKRF_TRANSCEIVER_MODE_OFF);
+	result2 = hackrf_set_transceiver_mode(device, TRANSCEIVER_MODE_OFF);
 	if (result2 != HACKRF_SUCCESS)
 	{
 		return result2;

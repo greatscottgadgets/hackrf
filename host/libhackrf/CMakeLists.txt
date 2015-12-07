@@ -31,7 +31,7 @@ set(VERSION ${VERSION_STRING})
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/../cmake/modules)
 
 if(MSVC)
-	set(THREADS_USE_PTHREADS_WIN32 true)
+	set(CMAKE_USE_WIN32_THREADS_INIT true)
 else()
 	add_definitions(-Wall)
 	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu90")
