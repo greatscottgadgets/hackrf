@@ -70,6 +70,11 @@ typedef enum {
 } hackrf_vendor_request;
 
 typedef enum {
+	USB_CONFIG_STANDARD = 0x1,
+	USB_CONFIG_CPLD_UPDATE  = 0x2,
+} hackrf_usb_configurations;
+
+typedef enum {
 	HACKRF_TRANSCEIVER_MODE_OFF = 0,
 	HACKRF_TRANSCEIVER_MODE_RECEIVE = 1,
 	HACKRF_TRANSCEIVER_MODE_TRANSMIT = 2,
@@ -232,6 +237,72 @@ static int prepare_transfers(
 		// This shouldn't happen.
 		return HACKRF_ERROR_OTHER;
 	}
+}
+
+static int detach_kernel_drivers(libusb_device_handle* usb_device_handle)
+{
+	int i, num_interfaces, result;
+	libusb_device* dev;
+	struct libusb_config_descriptor* config;
+
+	dev = libusb_get_device(usb_device_handle);
+	result = libusb_get_active_config_descriptor(dev, &config);
+	if( result < 0 )
+	{
+		return HACKRF_ERROR_LIBUSB;
+	}
+
+	num_interfaces = config->bNumInterfaces;
+	libusb_free_config_descriptor(config);
+	for(i=0; i<num_interfaces; i++)
+	{
+		result = libusb_kernel_driver_active(usb_device_handle, i);
+		if( result < 0 )
+		{
+			if( result == LIBUSB_ERROR_NOT_SUPPORTED ) {
+				return 0;
+			}
+			return HACKRF_ERROR_LIBUSB;
+		} else if( result == 1 ) {
+			result = libusb_detach_kernel_driver(usb_device_handle, i);
+			if( result != 0 )
+			{
+				return HACKRF_ERROR_LIBUSB;
+			}
+		}
+	}
+	return HACKRF_SUCCESS;
+}
+
+static int set_hackrf_configuration(libusb_device_handle* usb_device, int config)
+{
+	int result, curr_config;
+	result = libusb_get_configuration(usb_device, &curr_config);
+	if( result != 0 )
+	{
+		return HACKRF_ERROR_LIBUSB;
+	}
+
+	if(curr_config != config)
+	{
+		result = detach_kernel_drivers(usb_device);
+		if( result != 0 )
+		{
+			return result;
+		}
+		result = libusb_set_configuration(usb_device, config);
+		if( result != 0 )
+		{
+			return HACKRF_ERROR_LIBUSB;
+		}
+	}
+
+	result = detach_kernel_drivers(usb_device);
+	if( result != 0 )
+	{
+		return result;
+	}
+	return LIBUSB_SUCCESS;
 }
 
 #ifdef __cplusplus
@@ -415,16 +486,16 @@ static int hackrf_open_setup(libusb_device_handle* usb_device, hackrf_device** d
 
 	//int speed = libusb_get_device_speed(usb_device);
 	// TODO: Error or warning if not high speed USB?
-
-	result = libusb_set_configuration(usb_device, 1);
-	if( result != 0 )
+	
+	result = set_hackrf_configuration(usb_device, USB_CONFIG_STANDARD);
+	if( result != LIBUSB_SUCCESS )
 	{
 		libusb_close(usb_device);
-		return HACKRF_ERROR_LIBUSB;
+		return result;
 	}
 
 	result = libusb_claim_interface(usb_device, 0);
-	if( result != 0 )
+	if( result != LIBUSB_SUCCESS )
 	{
 		libusb_close(usb_device);
 		return HACKRF_ERROR_LIBUSB;
@@ -846,22 +917,12 @@ int ADDCALL hackrf_cpld_write(hackrf_device* device,
 {
 	const unsigned int chunk_size = 512;
 	unsigned int i;
-	int transferred = 0;
-	int result = libusb_release_interface(device->usb_device, 0);
-	if (result != LIBUSB_SUCCESS) {
-		return HACKRF_ERROR_LIBUSB;
-	}
-
-	result = libusb_set_configuration(device->usb_device, 2);
-	if (result != LIBUSB_SUCCESS) {
-		return HACKRF_ERROR_LIBUSB;
-	}
-
-	result = libusb_claim_interface(device->usb_device, 0);
-	if (result != LIBUSB_SUCCESS) {
-		return HACKRF_ERROR_LIBUSB;
-	}
-
+	int result, transferred = 0;
+	
+	result = hackrf_set_transceiver_mode(device, TRANSCEIVER_MODE_CPLD_UPDATE);
+	if (result != 0)
+		return result;
+	
 	for (i = 0; i < total_length; i += chunk_size)
 	{
 		result = libusb_bulk_transfer(
@@ -1160,6 +1221,7 @@ int ADDCALL hackrf_set_lna_gain(hackrf_device* device, uint32_t value)
 		return HACKRF_ERROR_INVALID_PARAM;
 	}
 
+	value &= ~0x07;
 	result = libusb_control_transfer(
 		device->usb_device,
 		LIBUSB_ENDPOINT_IN | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
@@ -1189,6 +1251,7 @@ int ADDCALL hackrf_set_vga_gain(hackrf_device* device, uint32_t value)
 		return HACKRF_ERROR_INVALID_PARAM;
 	}
 
+	value &= ~0x01;
 	result = libusb_control_transfer(
 		device->usb_device,
 		LIBUSB_ENDPOINT_IN | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,

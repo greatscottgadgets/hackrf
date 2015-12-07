@@ -384,6 +384,7 @@ void rf_path_set_direction(const rf_path_direction_t direction) {
 #ifdef HACKRF_ONE
 		rf_path_set_antenna(0);
 #endif
+		rf_path_set_lna(0);
 		/* Set RF path to receive direction when "off" */
 		switchctrl &= ~SWITCHCTRL_TX;
 		mixer_disable();

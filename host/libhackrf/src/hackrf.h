@@ -82,6 +82,14 @@ enum rf_path_filter {
 	RF_PATH_FILTER_HIGH_PASS = 2,
 };
 
+typedef enum {
+	TRANSCEIVER_MODE_OFF = 0,
+	TRANSCEIVER_MODE_RX = 1,
+	TRANSCEIVER_MODE_TX = 2,
+	TRANSCEIVER_MODE_SS = 3,
+	TRANSCEIVER_MODE_CPLD_UPDATE = 4
+} transceiver_mode_t;
+
 typedef struct hackrf_device hackrf_device;
 
 typedef struct {
@@ -200,4 +208,4 @@ extern ADDAPI uint32_t ADDCALL hackrf_compute_baseband_filter_bw(const uint32_t 
 } // __cplusplus defined.
 #endif
 
-#endif//__HACKRF_H__
+#endif /*__HACKRF_H__*/

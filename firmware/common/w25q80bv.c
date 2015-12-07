@@ -240,3 +240,25 @@ void w25q80bv_program(uint32_t addr, uint32_t len, const uint8_t* data)
 		w25q80bv_page_program(addr, len, data);
 	}
 }
+
+void w25q80bv_read(uint32_t addr, uint32_t len, uint8_t* const data)
+{
+	uint32_t i;
+
+	/* do nothing if we would overflow the flash */
+	if ((len > W25Q80BV_NUM_BYTES) || (addr > W25Q80BV_NUM_BYTES)
+			|| ((addr + len) > W25Q80BV_NUM_BYTES))
+		return;
+
+	w25q80bv_wait_while_busy();
+
+	gpio_clear(PORT_SSP0_SSEL, PIN_SSP0_SSEL);
+	ssp_transfer(SSP0_NUM, W25Q80BV_FAST_READ);
+	ssp_transfer(SSP0_NUM, (addr >> 16) & 0xFF);
+	ssp_transfer(SSP0_NUM, (addr >>  8) & 0xFF);
+	ssp_transfer(SSP0_NUM, (addr >>  0) & 0xFF);
+	ssp_transfer(SSP0_NUM, 0xFF);
+	for (i = 0; i < len; i++)
+		data[i] = ssp_transfer(SSP0_NUM, 0xFF);
+	gpio_set(PORT_SSP0_SSEL, PIN_SSP0_SSEL);
+}

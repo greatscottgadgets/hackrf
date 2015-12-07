@@ -1,6 +1,34 @@
 This repository contains host software (Linux/Windows) for HackRF, a project to
 produce a low cost, open source software radio platform.
 
+##How to build the host software on Linux:
+
+###Prerequisites for Linux (Debian/Ubuntu):
+
+`sudo apt-get install build-essential cmake libusb-1.0-0-dev pkg-config`
+
+###Build host software on Linux:
+
+`cd host`
+
+`mkdir build`
+
+`cd build`
+
+`cmake ../ -DINSTALL_UDEV_RULES=ON`
+
+`make`
+
+`sudo make install`
+
+`sudo ldconfig`
+
+##Clean CMake temporary files/dirs:
+
+`cd host/build`
+
+`rm -rf *`
+
 ##How to build host software on Windows:
 
 ###Prerequisites for cygwin or mingw:
@@ -51,36 +79,19 @@ Debug version:
 
 `make install`
 
+###For Visual Studio 2012 x64
+`c:\hackrf\host\cmake>cmake ../ -G "Visual Studio 11 2012 Win64" -DLIBUSB_INCLUDE_DIR=c:\libusb-1.0.18-win\include\libusb-1.0 -DLIBUSB_LIBRARIES=c:\libusb-1.0.18-win\MS64\static\libusb-1.0.lib  -DTHREADS_PTHREADS_INCLUDE_DIR=c:\pthreads-w32-2-9-1-release\Pre-built.2\include -DTHREADS_PTHREADS_WIN32_LIBRARY=c:\pthreads-w32-2-9-1-release\Pre-built.2\lib\x64\pthreadVC2.lib`
 
-##How to build the host software on Linux:
+Solution file: `c:\hackrf\host\cmake\hackrf_all.sln`
 
-###Prerequisites for Linux (Debian/Ubuntu):
+##How to build host the software on FreeBSD
 
+You can use the binary package:
+`# pkg install hackrf`
 
-`sudo apt-get install build-essential cmake libusb-1.0-0-dev`
-
-
-###Build host software on Linux:
-
-`cd host`
-
-`mkdir build`
-
-`cd build`
-
-`cmake ../ -DINSTALL_UDEV_RULES=ON`
-
-`make`
-
-`sudo make install`
-
-`sudo ldconfig`
-
-##Clean CMake temporary files/dirs:
-
-`cd host/build`
-
-`rm -rf *`
+You can build and install from ports:
+`# cd /usr/ports/comms/hackrf`
+`# make install`
 
 
 principal author: Michael Ossmann <mike@ossmann.com>

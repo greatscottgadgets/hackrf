@@ -47,6 +47,7 @@
 #include "sgpio_isr.h"
 #include "usb_bulk_buffer.h"
 #include "si5351c.h"
+#include "w25q80bv.h"
  
 #if HACKRF_ENABLE_UI
 #include "hackrf-ui.h"
@@ -101,6 +102,11 @@ usb_request_status_t usb_vendor_request_set_transceiver_mode(
 		case TRANSCEIVER_MODE_RX:
 		case TRANSCEIVER_MODE_TX:
 			set_transceiver_mode(endpoint->setup.value);
+			usb_transfer_schedule_ack(endpoint->in);
+			return USB_REQUEST_STATUS_OK;
+		case TRANSCEIVER_MODE_CPLD_UPDATE:
+			usb_endpoint_init(&usb_endpoint_bulk_out);
+			start_cpld_update = true;
 			usb_transfer_schedule_ack(endpoint->in);
 			return USB_REQUEST_STATUS_OK;
 		default:
@@ -232,6 +238,9 @@ int main(void) {
 	delay(1000000);
 #endif
 	cpu_clock_init();
+
+	/* Code is not running from SPI flash, initialize for flash read/write over USB */
+	w25q80bv_setup();
 
 	usb_set_descriptor_by_serial_number();
 

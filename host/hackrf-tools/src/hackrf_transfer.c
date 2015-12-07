@@ -168,13 +168,6 @@ t_wav_file_hdr wave_file_hdr =
 	}
 };
 
-typedef enum {
-	TRANSCEIVER_MODE_OFF = 0,
-	TRANSCEIVER_MODE_RX = 1,
-	TRANSCEIVER_MODE_TX = 2,
-	TRANSCEIVER_MODE_SS = 3
-
-} transceiver_mode_t;
 static transceiver_mode_t transceiver_mode = TRANSCEIVER_MODE_RX;
 
 #define U64TOA_MAX_DIGIT (31)
@@ -337,6 +330,8 @@ size_t bytes_to_xfer = 0;
 bool baseband_filter_bw = false;
 uint32_t baseband_filter_bw_hz = 0;
 
+bool repeat = false;
+
 int rx_callback(hackrf_transfer* transfer) {
 	size_t bytes_to_write;
 	int i;
@@ -392,7 +387,15 @@ int tx_callback(hackrf_transfer* transfer) {
 		bytes_read = fread(transfer->buffer, 1, bytes_to_read, fd);
 		if ((bytes_read != bytes_to_read)
 				|| (limit_num_samples && (bytes_to_xfer == 0))) {
-			return -1;
+                       if (repeat) {
+                               printf("Input file end reached. Rewind to beginning.\n");
+                               rewind(fd);
+                               fread(transfer->buffer + bytes_read, 1, bytes_to_read - bytes_read, fd);
+			       return 0;
+                       } else {
+                               return -1; // not loopback mode, EOF
+                       }
+
 		} else {
 			return 0;
 		}
@@ -446,6 +449,7 @@ static void usage() {
 		u64toa((DEFAULT_SAMPLE_RATE_HZ/FREQ_ONE_MHZ),&ascii_u64_data1));
 	printf("\t[-n num_samples] # Number of samples to transfer (default is unlimited).\n");
 	printf("\t[-c amplitude] # CW signal source mode, amplitude 0-127 (DC value to DAC).\n");
+        printf("\t[-R] # Repeat TX mode (default is off) \n");
 	printf("\t[-b baseband_filter_bw_hz] # Set baseband filter bandwidth in MHz.\n\tPossible values: 1.75/2.5/3.5/5/5.5/6/7/8/9/10/12/14/15/20/24/28MHz, default < sample_rate_hz.\n" );
 }
 
@@ -488,7 +492,7 @@ int main(int argc, char** argv) {
 	float time_diff;
 	unsigned int lna_gain=8, vga_gain=20, txvga_gain=0;
   
-	while( (opt = getopt(argc, argv, "wr:t:f:i:o:m:a:p:s:n:b:l:g:x:c:d:")) != EOF )
+	while( (opt = getopt(argc, argv, "wr:t:f:i:o:m:a:p:s:n:b:l:g:x:c:d:R")) != EOF )
 	{
 		result = HACKRF_SUCCESS;
 		switch( opt ) 
@@ -575,6 +579,10 @@ int main(int argc, char** argv) {
 			result = parse_u32(optarg, &amplitude);
 			break;
 
+                case 'R':
+                        repeat = true;
+                        break;
+
 		default:
 			printf("unknown argument '-%c %s'\n", opt, optarg);
 			usage();
@@ -587,6 +595,12 @@ int main(int argc, char** argv) {
 			return EXIT_FAILURE;
 		}		
 	}
+
+	if (lna_gain % 8)
+		printf("warning: lna_gain (-l) must be a multiple of 8\n");
+
+	if (vga_gain % 2)
+		printf("warning: vga_gain (-g) must be a multiple of 2\n");
 
 	if (samples_to_xfer >= SAMPLES_TO_XFER_MAX) {
 		printf("argument error: num_samples must be less than %s/%sMio\n",
@@ -991,7 +1005,7 @@ int main(int argc, char** argv) {
 			/* Get size of file */
 			file_pos = ftell(fd);
 			/* Update Wav Header */
-			wave_file_hdr.hdr.size = file_pos+8;
+			wave_file_hdr.hdr.size = file_pos-8;
 			wave_file_hdr.fmt_chunk.dwSamplesPerSec = sample_rate_hz;
 			wave_file_hdr.fmt_chunk.dwAvgBytesPerSec = wave_file_hdr.fmt_chunk.dwSamplesPerSec*2;
 			wave_file_hdr.data_chunk.chunkSize = file_pos - sizeof(t_wav_file_hdr);
