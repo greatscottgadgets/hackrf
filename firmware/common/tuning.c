@@ -22,9 +22,7 @@
 
 #include "tuning.h"
 
-#if HACKRF_ENABLE_UI
 #include "hackrf-ui.h"
-#endif
 
 #include <mixer.h>
 #include <max2837.h>
@@ -112,9 +110,7 @@ bool set_freq(const uint64_t freq)
 	max2837_set_mode(prior_max2837_mode);
 	if( success ) {
 		freq_cache = freq;
-#if HACKRF_ENABLE_UI
 		hackrf_ui_setFrequency(freq);
-#endif
 	}
 	return success;
 }

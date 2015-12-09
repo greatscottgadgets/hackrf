@@ -49,9 +49,7 @@
 #include "si5351c.h"
 #include "w25q80bv.h"
  
-#if HACKRF_ENABLE_UI
 #include "hackrf-ui.h"
-#endif
 
 static volatile transceiver_mode_t _transceiver_mode = TRANSCEIVER_MODE_OFF;
 
@@ -259,9 +257,7 @@ int main(void) {
 	
 	nvic_set_priority(NVIC_USB0_IRQ, 255);
 
-#if HACKRF_ENABLE_UI
 	hackrf_ui_init();
-#endif
 
 	usb_run(&usb_device);
 	

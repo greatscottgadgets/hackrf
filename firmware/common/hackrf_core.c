@@ -28,9 +28,7 @@
 #include "sgpio.h"
 #include "rf_path.h"
 
-#if HACKRF_ENABLE_UI
 #include "hackrf-ui.h"
-#endif
 
 #include <libopencm3/lpc43xx/i2c.h>
 #include <libopencm3/lpc43xx/cgu.h>
@@ -91,9 +89,7 @@ bool sample_rate_frac_set(uint32_t rate_num, uint32_t rate_denom)
 	uint32_t a, b, c;
 	uint32_t rem;
 
-#if HACKRF_ENABLE_UI
 	hackrf_ui_setSampleRate(rate_num/2);
-#endif
 
 	/* Find best config */
 	a = (VCO_FREQ * rate_denom) / rate_num;
@@ -179,9 +175,7 @@ bool sample_rate_set(const uint32_t sample_rate_hz) {
 		return false;
 	}
 
-#if HACKRF_ENABLE_UI
 	hackrf_ui_setSampleRate(sample_rate_hz);
-#endif
 
 	/* NOTE: Because MS1, 2, 3 outputs are slaved to PLLA, the p1, p2, p3
 	 * values are irrelevant. */
@@ -262,12 +256,11 @@ bool sample_rate_set(const uint32_t sample_rate_hz) {
 #endif
 }
 
+
 bool baseband_filter_bandwidth_set(const uint32_t bandwidth_hz) {
 	uint32_t bandwidth_hz_real = max2837_set_lpf_bandwidth(bandwidth_hz);
 
-#if HACKRF_ENABLE_UI
 	if(bandwidth_hz_real) hackrf_ui_setFilterBW(bandwidth_hz_real);
-#endif
 
 	return bandwidth_hz_real != 0;
 }

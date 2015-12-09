@@ -24,9 +24,7 @@
 
 #include <libopencm3/lpc43xx/gpio.h>
 
-#if HACKRF_ENABLE_UI
 #include "hackrf-ui.h"
-#endif
 
 #include <max2837.h>
 #include <rf_path.h>
@@ -151,9 +149,7 @@ usb_request_status_t usb_vendor_request_set_lna_gain(
 	if( stage == USB_TRANSFER_STAGE_SETUP ) {
 			const uint8_t value = max2837_set_lna_gain(endpoint->setup.index);
 			endpoint->buffer[0] = value;
-#if HACKRF_ENABLE_UI
 			if(value) hackrf_ui_setBBLNAGain(endpoint->setup.index);
-#endif
 			usb_transfer_schedule_block(endpoint->in, &endpoint->buffer, 1,
 						    NULL, NULL);
 			usb_transfer_schedule_ack(endpoint->out);
@@ -168,9 +164,7 @@ usb_request_status_t usb_vendor_request_set_vga_gain(
 	if( stage == USB_TRANSFER_STAGE_SETUP ) {
 			const uint8_t value = max2837_set_vga_gain(endpoint->setup.index);
 			endpoint->buffer[0] = value;
-#if HACKRF_ENABLE_UI
 			if(value) hackrf_ui_setBBVGAGain(endpoint->setup.index);
-#endif
 			usb_transfer_schedule_block(endpoint->in, &endpoint->buffer, 1,
 						    NULL, NULL);
 			usb_transfer_schedule_ack(endpoint->out);
@@ -185,9 +179,7 @@ usb_request_status_t usb_vendor_request_set_txvga_gain(
 	if( stage == USB_TRANSFER_STAGE_SETUP ) {
 			const uint8_t value = max2837_set_txvga_gain(endpoint->setup.index);
 			endpoint->buffer[0] = value;
-#if HACKRF_ENABLE_UI
 			if(value) hackrf_ui_setBBTXVGAGain(endpoint->setup.index);
-#endif
 			usb_transfer_schedule_block(endpoint->in, &endpoint->buffer, 1,
 						    NULL, NULL);
 			usb_transfer_schedule_ack(endpoint->out);
