@@ -26,6 +26,8 @@
 
 enable_language(C CXX ASM)
 
+include(../dfu-util.cmake)
+
 SET(PATH_HACKRF ../..)
 SET(PATH_HACKRF_FIRMWARE ${PATH_HACKRF}/firmware)
 SET(PATH_HACKRF_FIRMWARE_COMMON ${PATH_HACKRF_FIRMWARE}/common)
@@ -160,11 +162,11 @@ macro(DeclareTargets)
 	)
 
 	add_custom_target(
-		${PROJECT_NAME}.dfu ALL
+		${PROJECT_NAME}.dfu ${DFU_ALL}
 		DEPENDS ${PROJECT_NAME}.bin
 		COMMAND rm -f _tmp.dfu _header.bin
 		COMMAND cp ${PROJECT_NAME}.bin _tmp.dfu
-		COMMAND dfu-suffix --vid=0x1fc9 --pid=0x000c --did=0x0 -s 0 -a _tmp.dfu
+		COMMAND ${DFU_COMMAND}
 		COMMAND python -c \"import os.path\; import struct\; print\('0000000: da ff ' + ' '.join\(map\(lambda s: '%02x' % ord\(s\), struct.pack\('<H', os.path.getsize\('${PROJECT_NAME}.bin'\) / 512 + 1\)\)\) + ' ff ff ff ff'\)\" | xxd -g1 -r > _header.bin
 		COMMAND cat _header.bin _tmp.dfu >${PROJECT_NAME}.dfu
 		COMMAND rm -f _tmp.dfu _header.bin
