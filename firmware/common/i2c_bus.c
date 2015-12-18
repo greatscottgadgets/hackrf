@@ -1,6 +1,5 @@
 /*
- * Copyright 2012 Jared Boone
- * Copyright 2013 Benjamin Vernoux
+ * Copyright (C) 2014 Jared Boone, ShareBrained Technology, Inc.
  *
  * This file is part of HackRF.
  *
@@ -20,21 +19,21 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include <streaming.h>
+#include "i2c_bus.h"
 
-#include <libopencm3/lpc43xx/m4/nvic.h>
-#include <libopencm3/lpc43xx/sgpio.h>
-
-void baseband_streaming_enable(sgpio_config_t* const sgpio_config) {
-	nvic_set_priority(NVIC_SGPIO_IRQ, 0);
-	nvic_enable_irq(NVIC_SGPIO_IRQ);
-	SGPIO_SET_EN_1 = (1 << SGPIO_SLICE_A);
-
-	sgpio_cpld_stream_enable(sgpio_config);
+void i2c_bus_start(i2c_bus_t* const bus, const void* const config) {
+	bus->start(bus, config);
 }
 
-void baseband_streaming_disable(sgpio_config_t* const sgpio_config) {
-	sgpio_cpld_stream_disable(sgpio_config);
+void i2c_bus_stop(i2c_bus_t* const bus) {
+	bus->stop(bus);
+}
 
-	nvic_disable_irq(NVIC_SGPIO_IRQ);
+void i2c_bus_transfer(
+	i2c_bus_t* const bus,
+	const uint_fast8_t slave_address,
+	const uint8_t* const tx, const size_t tx_count,
+	uint8_t* const rx, const size_t rx_count
+) {
+	bus->transfer(bus, slave_address, tx, tx_count, rx, rx_count);
 }

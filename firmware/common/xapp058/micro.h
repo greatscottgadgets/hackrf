@@ -13,6 +13,8 @@
 #ifndef XSVF_MICRO_H
 #define XSVF_MICRO_H
 
+#include "cpld_jtag.h"
+
 /* Legacy error codes for xsvfExecute from original XSVF player v2.0 */
 #define XSVF_LEGACY_SUCCESS 1
 #define XSVF_LEGACY_ERROR   0
@@ -36,7 +38,7 @@
 * Parameters:   none.
 * Returns:      int - For error codes see above.
 *****************************************************************************/
-extern int xsvfExecute();
+extern int xsvfExecute(jtag_gpio_t* const gpio);
 
 #endif  /* XSVF_MICRO_H */
 

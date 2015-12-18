@@ -22,8 +22,6 @@
 
 #include "usb_api_transceiver.h"
 
-#include <libopencm3/lpc43xx/gpio.h>
-
 #include <max2837.h>
 #include <rf_path.h>
 #include <tuning.h>
@@ -125,11 +123,11 @@ usb_request_status_t usb_vendor_request_set_amp_enable(
 	if (stage == USB_TRANSFER_STAGE_SETUP) {
 		switch (endpoint->setup.value) {
 		case 0:
-			rf_path_set_lna(0);
+			rf_path_set_lna(&rf_path, 0);
 			usb_transfer_schedule_ack(endpoint->in);
 			return USB_REQUEST_STATUS_OK;
 		case 1:
-			rf_path_set_lna(1);
+			rf_path_set_lna(&rf_path, 1);
 			usb_transfer_schedule_ack(endpoint->in);
 			return USB_REQUEST_STATUS_OK;
 		default:
@@ -145,7 +143,7 @@ usb_request_status_t usb_vendor_request_set_lna_gain(
 	const usb_transfer_stage_t stage)
 {
 	if( stage == USB_TRANSFER_STAGE_SETUP ) {
-			const uint8_t value = max2837_set_lna_gain(endpoint->setup.index);
+			const uint8_t value = max2837_set_lna_gain(&max2837, endpoint->setup.index);
 			endpoint->buffer[0] = value;
 			usb_transfer_schedule_block(endpoint->in, &endpoint->buffer, 1,
 						    NULL, NULL);
@@ -159,7 +157,7 @@ usb_request_status_t usb_vendor_request_set_vga_gain(
 	usb_endpoint_t* const endpoint,	const usb_transfer_stage_t stage)
 {
 	if( stage == USB_TRANSFER_STAGE_SETUP ) {
-			const uint8_t value = max2837_set_vga_gain(endpoint->setup.index);
+			const uint8_t value = max2837_set_vga_gain(&max2837, endpoint->setup.index);
 			endpoint->buffer[0] = value;
 			usb_transfer_schedule_block(endpoint->in, &endpoint->buffer, 1,
 						    NULL, NULL);
@@ -173,7 +171,7 @@ usb_request_status_t usb_vendor_request_set_txvga_gain(
 	usb_endpoint_t* const endpoint,	const usb_transfer_stage_t stage)
 {
 	if( stage == USB_TRANSFER_STAGE_SETUP ) {
-			const uint8_t value = max2837_set_txvga_gain(endpoint->setup.index);
+			const uint8_t value = max2837_set_txvga_gain(&max2837, endpoint->setup.index);
 			endpoint->buffer[0] = value;
 			usb_transfer_schedule_block(endpoint->in, &endpoint->buffer, 1,
 						    NULL, NULL);
@@ -189,11 +187,11 @@ usb_request_status_t usb_vendor_request_set_antenna_enable(
 	if (stage == USB_TRANSFER_STAGE_SETUP) {
 		switch (endpoint->setup.value) {
 		case 0:
-			rf_path_set_antenna(0);
+			rf_path_set_antenna(&rf_path, 0);
 			usb_transfer_schedule_ack(endpoint->in);
 			return USB_REQUEST_STATUS_OK;
 		case 1:
-			rf_path_set_antenna(1);
+			rf_path_set_antenna(&rf_path, 1);
 			usb_transfer_schedule_ack(endpoint->in);
 			return USB_REQUEST_STATUS_OK;
 		default:

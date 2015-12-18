@@ -19,9 +19,6 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include <libopencm3/lpc43xx/gpio.h>
-#include <libopencm3/lpc43xx/scu.h>
-#include <libopencm3/lpc43xx/i2c.h>
 #include <libopencm3/lpc43xx/m4/nvic.h>
 #include <libopencm3/cm3/systick.h>
 #include <libopencm3/cm3/scs.h>
@@ -138,7 +135,7 @@ extern uint32_t test_nb_instruction_per_sec_150_nop_asm();
 extern uint32_t test_nb_instruction_per_sec_200_nop_asm();
 extern uint32_t test_nb_instruction_per_sec_1000_nop_asm();
 
-#define LED1_TOGGLE()	(gpio_toggle(PORT_LED1_3, (PIN_LED1)))
+#define LED1_TOGGLE()	(led_toggle(LED1))
 
 int main(void)
 {
@@ -152,7 +149,7 @@ int main(void)
 
 	systick_setup();
 
-	gpio_clear(PORT_LED1_3, (PIN_LED1)); /* LED1 off */
+	led_off(LED1);
 
 	/* Test number of instruction per second (MIPS) slow blink ON 1s, OFF 1s */
 LED1_TOGGLE();
@@ -192,15 +189,15 @@ LED1_TOGGLE();
 	/* Test finished fast blink */
 	while (1) 
 	{
-		gpio_set(PORT_LED1_3, (PIN_LED1)); /* LED1 on */
-		gpio_set(PORT_LED1_3, (PIN_LED2)); /* LED2 on */
-		gpio_set(PORT_LED1_3, (PIN_LED3)); /* LED3 on */
+		led_on(LED1);
+		led_on(LED2);
+		led_on(LED3);
 
 		sys_tick_wait_time_ms(250);
 
-		gpio_clear(PORT_LED1_3, (PIN_LED3)); /* LED3 off */
-		gpio_clear(PORT_LED1_3, (PIN_LED2)); /* LED2 off */
-		gpio_clear(PORT_LED1_3, (PIN_LED1)); /* LED1 off  */
+		led_off(LED1);
+		led_off(LED2);
+		led_off(LED3);
 
 		sys_tick_wait_time_ms(250);
 	}

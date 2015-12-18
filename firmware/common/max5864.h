@@ -22,11 +22,23 @@
 #ifndef __MAX5864_H
 #define __MAX5864_H
 
-void max5864_shutdown();
-void max5864_standby();
-void max5864_idle();
-void max5864_rx();
-void max5864_tx();
-void max5864_xcvr();
+#include "spi_bus.h"
+
+struct max5864_driver_t;
+typedef struct max5864_driver_t max5864_driver_t;
+
+struct max5864_driver_t {
+	spi_bus_t* const bus;
+	void (*target_init)(max5864_driver_t* const drv);
+};
+
+void max5864_setup(max5864_driver_t* const drv);
+
+void max5864_shutdown(max5864_driver_t* const drv);
+void max5864_standby(max5864_driver_t* const drv);
+void max5864_idle(max5864_driver_t* const drv);
+void max5864_rx(max5864_driver_t* const drv);
+void max5864_tx(max5864_driver_t* const drv);
+void max5864_xcvr(max5864_driver_t* const drv);
 
 #endif // __MAX5864_H

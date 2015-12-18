@@ -1,6 +1,5 @@
 /*
- * Copyright 2012 Jared Boone
- * Copyright 2013 Benjamin Vernoux
+ * Copyright (C) 2014 Jared Boone, ShareBrained Technology, Inc.
  *
  * This file is part of HackRF.
  *
@@ -20,21 +19,28 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include <streaming.h>
+#ifndef __SPI_SSP_H__
+#define __SPI_SSP_H__
 
-#include <libopencm3/lpc43xx/m4/nvic.h>
-#include <libopencm3/lpc43xx/sgpio.h>
+#include <stdint.h>
+#include <stddef.h>
 
-void baseband_streaming_enable(sgpio_config_t* const sgpio_config) {
-	nvic_set_priority(NVIC_SGPIO_IRQ, 0);
-	nvic_enable_irq(NVIC_SGPIO_IRQ);
-	SGPIO_SET_EN_1 = (1 << SGPIO_SLICE_A);
+#include "spi_bus.h"
 
-	sgpio_cpld_stream_enable(sgpio_config);
-}
+#include "gpio.h"
 
-void baseband_streaming_disable(sgpio_config_t* const sgpio_config) {
-	sgpio_cpld_stream_disable(sgpio_config);
+#include <libopencm3/lpc43xx/ssp.h>
 
-	nvic_disable_irq(NVIC_SGPIO_IRQ);
-}
+typedef struct ssp_config_t {
+	ssp_datasize_t data_bits;
+	uint8_t serial_clock_rate;
+	uint8_t clock_prescale_rate;
+	gpio_t gpio_select;
+} ssp_config_t;
+
+void spi_ssp_start(spi_bus_t* const bus, const void* const config);
+void spi_ssp_stop(spi_bus_t* const bus);
+void spi_ssp_transfer(spi_bus_t* const bus, void* const data, const size_t count);
+void spi_ssp_transfer_gather(spi_bus_t* const bus, const spi_transfer_t* const transfers, const size_t count);
+
+#endif/*__SPI_SSP_H__*/

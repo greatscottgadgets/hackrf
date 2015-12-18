@@ -19,9 +19,6 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include <libopencm3/lpc43xx/gpio.h>
-#include <libopencm3/lpc43xx/scu.h>
-#include <libopencm3/lpc43xx/i2c.h>
 #include <libopencm3/lpc43xx/m4/nvic.h>
 #include <libopencm3/cm3/systick.h>
 #include <libopencm3/cm3/scs.h>
@@ -139,19 +136,21 @@ int main(void)
 
 	systick_setup();
 
-	gpio_set(PORT_LED1_3, (PIN_LED1|PIN_LED2|PIN_LED3)); /* LEDs on */
+	led_on(LED1);
+	led_on(LED2);
+	led_on(LED3);
 
 	while (1) 
 	{
-		gpio_set(PORT_LED1_3, (PIN_LED1)); /* LED1 on */
-		gpio_set(PORT_LED1_3, (PIN_LED2)); /* LED2 on */
-		gpio_set(PORT_LED1_3, (PIN_LED3)); /* LED3 on */
+		led_on(LED1);
+		led_on(LED2);
+		led_on(LED3);
 
 		sys_tick_wait_time_ms(500);
 
-		gpio_clear(PORT_LED1_3, (PIN_LED3)); /* LED3 off */
-		gpio_clear(PORT_LED1_3, (PIN_LED2)); /* LED2 off */
-		gpio_clear(PORT_LED1_3, (PIN_LED1)); /* LED1 off  */
+		led_off(LED1);
+		led_off(LED2);
+		led_off(LED3);
 
 		sys_tick_wait_time_ms(500);
 	}

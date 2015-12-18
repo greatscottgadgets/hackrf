@@ -20,7 +20,6 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include <libopencm3/lpc43xx/gpio.h>
 #include <libopencm3/lpc43xx/scu.h>
 #include <libopencm3/lpc43xx/sgpio.h>
 
@@ -28,9 +27,7 @@
 
 #include <sgpio.h>
 
-static bool sgpio_slice_mode_multislice = true;
-
-void sgpio_configure_pin_functions() {
+void sgpio_configure_pin_functions(sgpio_config_t* const config) {
 	scu_pinmux(SCU_PINMUX_SGPIO0, SCU_GPIO_FAST | SCU_CONF_FUNCTION3);
 	scu_pinmux(SCU_PINMUX_SGPIO1, SCU_GPIO_FAST | SCU_CONF_FUNCTION3);
 	scu_pinmux(SCU_PINMUX_SGPIO2, SCU_GPIO_FAST | SCU_CONF_FUNCTION2);
@@ -48,61 +45,20 @@ void sgpio_configure_pin_functions() {
 	scu_pinmux(SCU_PINMUX_SGPIO14, SCU_GPIO_FAST | SCU_CONF_FUNCTION4);	/* GPIO5[13] */
 	scu_pinmux(SCU_PINMUX_SGPIO15, SCU_GPIO_FAST | SCU_CONF_FUNCTION4);	/* GPIO5[14] */
 
-	sgpio_cpld_stream_rx_set_decimation(1);
-	sgpio_cpld_stream_rx_set_q_invert(0);
+	sgpio_cpld_stream_rx_set_decimation(config, 1);
+	sgpio_cpld_stream_rx_set_q_invert(config, 0);
 
-	GPIO_DIR(GPIO0) |= GPIOPIN13;
-	GPIO_DIR(GPIO5) |= GPIOPIN14 | GPIOPIN13 | GPIOPIN12;
-}
-
-
-void sgpio_test_interface() {
-	const uint_fast8_t host_clock_sgpio_pin = 8; // Input
-	const uint_fast8_t host_capture_sgpio_pin = 9; // Input
-	const uint_fast8_t host_disable_sgpio_pin = 10; // Output
-	const uint_fast8_t host_direction_sgpio_pin = 11; // Output
-
-	SGPIO_GPIO_OENREG = 0; // All inputs for the moment.
-
-	// Disable all counters during configuration
-	SGPIO_CTRL_ENABLE = 0;
-
-	// Make all SGPIO controlled by SGPIO's "GPIO" registers
-	for (uint_fast8_t i = 0; i < 16; i++) {
-		SGPIO_OUT_MUX_CFG(i) =
-			  SGPIO_OUT_MUX_CFG_P_OE_CFG(0)
-			| SGPIO_OUT_MUX_CFG_P_OUT_CFG(4);
-	}
-
-	// Set SGPIO output values.
-	SGPIO_GPIO_OUTREG =
-		  (1L << host_direction_sgpio_pin)
-		| (1L << host_disable_sgpio_pin);
-
-	// Enable SGPIO pin outputs.
-	SGPIO_GPIO_OENREG =
-		  (1L << host_direction_sgpio_pin)
-		| (1L << host_disable_sgpio_pin)
-		| (0L << host_capture_sgpio_pin)
-		| (0L << host_clock_sgpio_pin)
-		| (0xFF << 0);
-
-	// Configure SGPIO slices.
-
-	// Enable codec data stream.
-	SGPIO_GPIO_OUTREG &= ~(1L << host_disable_sgpio_pin);
-
-	while (1) {
-		for (uint_fast8_t i = 0; i < 8; i++) {
-			SGPIO_GPIO_OUTREG ^= (1L << i);
-		}
-	}
+	gpio_output(config->gpio_rx_q_invert);
+	gpio_output(config->gpio_rx_decimation[0]);
+	gpio_output(config->gpio_rx_decimation[1]);
+	gpio_output(config->gpio_rx_decimation[2]);
 }
 
 void sgpio_set_slice_mode(
+	sgpio_config_t* const config,
 	const bool multi_slice
 ) {
-	sgpio_slice_mode_multislice = multi_slice;
+	config->slice_mode_multislice = multi_slice;
 }
 
 /*
@@ -118,6 +74,7 @@ void sgpio_set_slice_mode(
  SGPIO11 Direction Output (1/High=TX mode LPC43xx=>CPLD=>DAC, 0/Low=RX mode LPC43xx<=CPLD<=ADC)
 */
 void sgpio_configure(
+	sgpio_config_t* const config,
 	const sgpio_direction_t direction
 ) {
 	// Disable all counters during configuration
@@ -167,7 +124,7 @@ void sgpio_configure(
 		;
 
 	const uint_fast8_t output_multiplexing_mode =
-		sgpio_slice_mode_multislice ? 11 : 9;
+		config->slice_mode_multislice ? 11 : 9;
 	/* SGPIO0 to SGPIO7 */
 	for(uint_fast8_t i=0; i<8; i++) {
 		// SGPIO pin 0 outputs slice A bit "i".
@@ -189,9 +146,9 @@ void sgpio_configure(
 	};
 	const uint_fast8_t slice_gpdma = SGPIO_SLICE_H;
 	
-	const uint_fast8_t pos = sgpio_slice_mode_multislice ? 0x1f : 0x03;
-	const bool single_slice = !sgpio_slice_mode_multislice;
-	const uint_fast8_t slice_count = sgpio_slice_mode_multislice ? 8 : 1;
+	const uint_fast8_t pos = config->slice_mode_multislice ? 0x1f : 0x03;
+	const bool single_slice = !config->slice_mode_multislice;
+	const uint_fast8_t slice_count = config->slice_mode_multislice ? 8 : 1;
 	const uint_fast8_t clk_capture_mode = (direction == SGPIO_DIRECTION_TX) ? 0 : 1;
 	
 	uint32_t slice_enable_mask = 0;
@@ -236,7 +193,7 @@ void sgpio_configure(
 		slice_enable_mask |= (1 << slice_index);
 	}
 
-	if( sgpio_slice_mode_multislice == false ) {
+	if( config->slice_mode_multislice == false ) {
 		SGPIO_MUX_CFG(slice_gpdma) =
 			  SGPIO_MUX_CFG_CONCAT_ORDER(0) /* Self-loop */
 			| SGPIO_MUX_CFG_CONCAT_ENABLE(1)
@@ -274,21 +231,24 @@ void sgpio_configure(
 	SGPIO_CTRL_ENABLE = slice_enable_mask;
 }
 
-void sgpio_cpld_stream_enable() {
+void sgpio_cpld_stream_enable(sgpio_config_t* const config) {
+	(void)config;
 	// Enable codec data stream.
 	SGPIO_GPIO_OUTREG &= ~(1L << 10); /* SGPIO10 */
 }
 
-void sgpio_cpld_stream_disable() {
+void sgpio_cpld_stream_disable(sgpio_config_t* const config) {
+	(void)config;
 	// Disable codec data stream.
 	SGPIO_GPIO_OUTREG |= (1L << 10); /* SGPIO10 */
 }
 
-bool sgpio_cpld_stream_is_enabled() {
+bool sgpio_cpld_stream_is_enabled(sgpio_config_t* const config) {
+	(void)config;
 	return (SGPIO_GPIO_OUTREG & (1L << 10)) == 0; /* SGPIO10 */
 }
 
-bool sgpio_cpld_stream_rx_set_decimation(const uint_fast8_t n) {
+bool sgpio_cpld_stream_rx_set_decimation(sgpio_config_t* const config, const uint_fast8_t n) {
 	/* CPLD interface is three bits, SGPIO[15:13]:
 	 * 111: decimate by 1 (skip_n=0, skip no samples)
 	 * 110: decimate by 2 (skip_n=1, skip every other sample)
@@ -297,16 +257,13 @@ bool sgpio_cpld_stream_rx_set_decimation(const uint_fast8_t n) {
 	 * 000: decimate by 8 (skip_n=7, skip seven of eight samples)
 	 */
 	const uint_fast8_t skip_n = n - 1;
-	GPIO_SET(GPIO5) = GPIOPIN14 | GPIOPIN13 | GPIOPIN12;
-	GPIO_CLR(GPIO5) = (skip_n & 7) << 12;
+	gpio_write(config->gpio_rx_decimation[0], (skip_n & 1) == 0);
+	gpio_write(config->gpio_rx_decimation[1], (skip_n & 2) == 0);
+	gpio_write(config->gpio_rx_decimation[2], (skip_n & 4) == 0);
 
 	return (skip_n < 8);
 }
 
-void sgpio_cpld_stream_rx_set_q_invert(const uint_fast8_t invert) {
-	if( invert ) {
-		GPIO_SET(GPIO0) = GPIOPIN13;
-	} else {
-		GPIO_CLR(GPIO0) = GPIOPIN13;
-	}
+void sgpio_cpld_stream_rx_set_q_invert(sgpio_config_t* const config, const uint_fast8_t invert) {
+	gpio_write(config->gpio_rx_q_invert, invert);
 }
