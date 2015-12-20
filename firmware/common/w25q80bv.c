@@ -201,24 +201,27 @@ void w25q80bv_program(w25q80bv_driver_t* const drv, uint32_t addr, uint32_t len,
 	}
 }
 
-void w25q80bv_read(uint32_t addr, uint32_t len, uint8_t* const data)
+/* write an arbitrary number of bytes */
+void w25q80bv_read(w25q80bv_driver_t* const drv, uint32_t addr, uint32_t len, uint8_t* const data)
 {
-	uint32_t i;
-
 	/* do nothing if we would overflow the flash */
-	if ((len > W25Q80BV_NUM_BYTES) || (addr > W25Q80BV_NUM_BYTES)
-			|| ((addr + len) > W25Q80BV_NUM_BYTES))
+	if ((len > drv->num_bytes) || (addr > drv->num_bytes)
+			|| ((addr + len) > drv->num_bytes))
 		return;
 
-	w25q80bv_wait_while_busy();
+	w25q80bv_wait_while_busy(drv);
 
-	gpio_clear(PORT_SSP0_SSEL, PIN_SSP0_SSEL);
-	ssp_transfer(SSP0_NUM, W25Q80BV_FAST_READ);
-	ssp_transfer(SSP0_NUM, (addr >> 16) & 0xFF);
-	ssp_transfer(SSP0_NUM, (addr >>  8) & 0xFF);
-	ssp_transfer(SSP0_NUM, (addr >>  0) & 0xFF);
-	ssp_transfer(SSP0_NUM, 0xFF);
-	for (i = 0; i < len; i++)
-		data[i] = ssp_transfer(SSP0_NUM, 0xFF);
-	gpio_set(PORT_SSP0_SSEL, PIN_SSP0_SSEL);
+	uint8_t header[] = {
+		W25Q80BV_FAST_READ,
+		(addr & 0xFF0000) >> 16,
+		(addr & 0xFF00) >> 8,
+		addr & 0xFF
+	};
+
+	const spi_transfer_t transfers[] = {
+		{ header, ARRAY_SIZE(header) },
+		{ data, len }
+	};
+
+	spi_bus_transfer_gather(drv->bus, transfers, ARRAY_SIZE(transfers));
 }

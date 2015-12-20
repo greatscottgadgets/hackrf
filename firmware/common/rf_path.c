@@ -268,7 +268,7 @@ void rf_path_set_direction(rf_path_t* const rf_path, const rf_path_direction_t d
 #ifdef HACKRF_ONE
 		rf_path_set_antenna(rf_path, 0);
 #endif
-		rf_path_set_lna(0);
+		rf_path_set_lna(rf_path, 0);
 		/* Set RF path to receive direction when "off" */
 		rf_path->switchctrl &= ~SWITCHCTRL_TX;
 		rffc5071_disable(&rffc5072);

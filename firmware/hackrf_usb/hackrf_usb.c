@@ -221,9 +221,6 @@ int main(void) {
 #endif
 	cpu_clock_init();
 
-	/* Code is not running from SPI flash, initialize for flash read/write over USB */
-	w25q80bv_setup();
-
 	usb_set_descriptor_by_serial_number();
 
 	usb_set_configuration_changed_cb(usb_configuration_changed);
