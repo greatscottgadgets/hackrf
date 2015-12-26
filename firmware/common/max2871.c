@@ -237,9 +237,13 @@ void mixer_rx(void)
 void mixer_rxtx(void)
 {}
 void mixer_enable(void)
-{}
+{
+	gpio_set(PORT_VCO_CE, PIN_VCO_CE); /* active high */
+}
 void mixer_disable(void)
-{}
+{
+	gpio_clear(PORT_VCO_CE, PIN_VCO_CE); /* active high */
+}
 void mixer_set_gpo(uint8_t gpo)
 {
     (void) gpo;
