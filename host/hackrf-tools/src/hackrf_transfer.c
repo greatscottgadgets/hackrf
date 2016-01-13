@@ -19,6 +19,9 @@
  * the Free Software Foundation, Inc., 51 Franklin Street,
  * Boston, MA 02110-1301, USA.
  */
+/* Modified by Peter Zhang<tpzwhu@gmail.com>, 2016/01/13.
+ * Added the Crystal error correction function.(ppm correction)
+*/
 
 #include <hackrf.h>
 
@@ -332,6 +335,9 @@ uint32_t baseband_filter_bw_hz = 0;
 
 bool repeat = false;
 
+bool crystal_correct = false;
+uint32_t crystal_correct_ppm ;
+
 int rx_callback(hackrf_transfer* transfer) {
 	size_t bytes_to_write;
 	int i;
@@ -451,6 +457,9 @@ static void usage() {
 	printf("\t[-c amplitude] # CW signal source mode, amplitude 0-127 (DC value to DAC).\n");
         printf("\t[-R] # Repeat TX mode (default is off) \n");
 	printf("\t[-b baseband_filter_bw_hz] # Set baseband filter bandwidth in MHz.\n\tPossible values: 1.75/2.5/3.5/5/5.5/6/7/8/9/10/12/14/15/20/24/28MHz, default < sample_rate_hz.\n" );
+	printf("\t[-C Crystal error in ppm] # Set Internal crystal clock error , in ppm. \n");
+
+	
 }
 
 static hackrf_device* device = NULL;
@@ -492,7 +501,7 @@ int main(int argc, char** argv) {
 	float time_diff;
 	unsigned int lna_gain=8, vga_gain=20, txvga_gain=0;
   
-	while( (opt = getopt(argc, argv, "wr:t:f:i:o:m:a:p:s:n:b:l:g:x:c:d:R")) != EOF )
+	while( (opt = getopt(argc, argv, "wr:t:f:i:o:m:a:p:s:n:b:l:g:x:c:d:C:R")) != EOF )
 	{
 		result = HACKRF_SUCCESS;
 		switch( opt ) 
@@ -582,6 +591,13 @@ int main(int argc, char** argv) {
                 case 'R':
                         repeat = true;
                         break;
+                      
+                case 'C':
+			crystal_correct = true;
+			result = parse_u32(optarg, &crystal_correct_ppm);
+			break;
+
+
 
 		default:
 			printf("unknown argument '-%c %s'\n", opt, optarg);
@@ -787,6 +803,14 @@ int main(int argc, char** argv) {
 			usage();
 			return EXIT_FAILURE;
 		}
+	}
+
+	// Change the freq and sample rate to correct the crystal clock error.
+	if( crystal_correct ) {
+
+		sample_rate_hz = (uint)((double)sample_rate_hz * (1000000 - crystal_correct_ppm)/1000000+0.5);
+		freq_hz = freq_hz * (1000000 - crystal_correct_ppm)/1000000;
+		
 	}
 
 	result = hackrf_init();
