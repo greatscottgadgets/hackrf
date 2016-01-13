@@ -19,22 +19,15 @@
  * the Free Software Foundation, Inc., 51 Franklin Street,
  * Boston, MA 02110-1301, USA.
  */
-
-#include <libopencm3/lpc43xx/gpio.h>
-#include <libopencm3/lpc43xx/scu.h>
 #include <libopencm3/lpc43xx/sgpio.h>
-#include <libopencm3/lpc43xx/cgu.h>
-#include <libopencm3/cm3/scs.h>
 
 #include <hackrf_core.h>
-#include <max5864.h>
-#include <sgpio.h>
 
 volatile uint32_t buffer[4096];
 
 void tx_test() {
-	sgpio_set_slice_mode(false);
-	sgpio_configure(TRANSCEIVER_MODE_TX);
+	sgpio_set_slice_mode(&sgpio_config, false);
+	sgpio_configure(&sgpio_config, TRANSCEIVER_MODE_TX);
 
 	// LSB goes out first, samples are 0x<Q1><I1><Q0><I0>
 	buffer[0] = 0xda808080;
@@ -44,7 +37,7 @@ void tx_test() {
 
 	uint32_t i = 0;
 
-	sgpio_cpld_stream_enable();
+	sgpio_cpld_stream_enable(&sgpio_config);
 
 	while(true) {
 		while(SGPIO_STATUS_1 == 0);
@@ -54,12 +47,12 @@ void tx_test() {
 }
 
 void rx_test() {
-	sgpio_set_slice_mode(false);
-	sgpio_configure(TRANSCEIVER_MODE_RX);
+	sgpio_set_slice_mode(&sgpio_config, false);
+	sgpio_configure(&sgpio_config, TRANSCEIVER_MODE_RX);
     
     uint32_t i = 0;
 
-	sgpio_cpld_stream_enable();
+	sgpio_cpld_stream_enable(&sgpio_config);
 
     while(true) {
         while(SGPIO_STATUS_1 == 0);
@@ -72,12 +65,12 @@ int main(void) {
 	pin_setup();
 	enable_1v8_power();
 	cpu_clock_init();
-	ssp1_init();
 
-	gpio_set(PORT_LED1_3, PIN_LED1);
+	led_on(LED1);
 
 	ssp1_set_mode_max5864();
-	max5864_xcvr();
+	max5864_setup(&max5864);
+	max5864_xcvr(&max5864);
 
 	while (1) {
 

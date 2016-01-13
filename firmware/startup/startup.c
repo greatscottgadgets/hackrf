@@ -19,10 +19,6 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include <libopencm3/lpc43xx/gpio.h>
-#include <libopencm3/lpc43xx/scu.h>
-#include <libopencm3/lpc43xx/i2c.h>
-
 #include "hackrf_core.h"
 
 int main(void)
@@ -35,23 +31,27 @@ int main(void)
 
 	cpu_clock_init();
 
-	gpio_set(PORT_LED1_3, (PIN_LED1|PIN_LED2|PIN_LED3)); /* LEDs on */
+	led_on(LED1);
+	led_on(LED2);
+	led_on(LED3);
 
 	while (1) 
 	{
-		gpio_set(PORT_LED1_3, (PIN_LED1)); /* LEDs on */
+		led_on(LED1);
 		for (i = 0; i < 2000000; i++)	/* Wait a bit. */
 			__asm__("nop");
 
-		gpio_set(PORT_LED1_3, (PIN_LED1|PIN_LED2)); /* LEDs on */
+		led_on(LED2);
 		for (i = 0; i < 2000000; i++)	/* Wait a bit. */
 			__asm__("nop");
 
-		gpio_set(PORT_LED1_3, (PIN_LED1|PIN_LED2|PIN_LED3)); /* LED off */
+		led_on(LED3);
 		for (i = 0; i < 2000000; i++)	/* Wait a bit. */
 			__asm__("nop");
 
-		gpio_clear(PORT_LED1_3, (PIN_LED1|PIN_LED2|PIN_LED3)); /* LED off */
+		led_off(LED1);
+		led_off(LED2);
+		led_off(LED3);
 		for (i = 0; i < 2000000; i++)	/* Wait a bit. */
 			__asm__("nop");
 	}

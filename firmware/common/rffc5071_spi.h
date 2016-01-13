@@ -1,6 +1,6 @@
 /*
- * Copyright 2012 Jared Boone
- * Copyright 2013 Benjamin Vernoux
+ * Copyright 2012 Michael Ossmann
+ * Copyright 2014 Jared Boone <jared@sharebrained.com>
  *
  * This file is part of HackRF.
  *
@@ -20,21 +20,22 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include <streaming.h>
+#ifndef __RFFC5071_SPI_H
+#define __RFFC5071_SPI_H
 
-#include <libopencm3/lpc43xx/m4/nvic.h>
-#include <libopencm3/lpc43xx/sgpio.h>
+#include "spi_bus.h"
 
-void baseband_streaming_enable(sgpio_config_t* const sgpio_config) {
-	nvic_set_priority(NVIC_SGPIO_IRQ, 0);
-	nvic_enable_irq(NVIC_SGPIO_IRQ);
-	SGPIO_SET_EN_1 = (1 << SGPIO_SLICE_A);
+#include "gpio.h"
 
-	sgpio_cpld_stream_enable(sgpio_config);
-}
+typedef struct rffc5071_spi_config_t {
+	gpio_t gpio_select;
+	gpio_t gpio_clock;
+	gpio_t gpio_data;
+} rffc5071_spi_config_t;
 
-void baseband_streaming_disable(sgpio_config_t* const sgpio_config) {
-	sgpio_cpld_stream_disable(sgpio_config);
+void rffc5071_spi_start(spi_bus_t* const bus, const void* const config);
+void rffc5071_spi_stop(spi_bus_t* const bus);
+void rffc5071_spi_transfer(spi_bus_t* const bus, void* const data, const size_t count);
+void rffc5071_spi_transfer_gather(spi_bus_t* const bus, const spi_transfer_t* const transfer, const size_t count);
 
-	nvic_disable_irq(NVIC_SGPIO_IRQ);
-}
+#endif // __RFFC5071_SPI_H

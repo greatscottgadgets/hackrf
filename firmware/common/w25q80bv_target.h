@@ -1,6 +1,5 @@
 /*
- * Copyright 2012 Jared Boone
- * Copyright 2013 Benjamin Vernoux
+ * Copyright (C) 2014 Jared Boone, ShareBrained Technology, Inc.
  *
  * This file is part of HackRF.
  *
@@ -20,21 +19,11 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include <streaming.h>
+#ifndef __W25Q80BV_TARGET_H__
+#define __W25Q80BV_TARGET_H__
 
-#include <libopencm3/lpc43xx/m4/nvic.h>
-#include <libopencm3/lpc43xx/sgpio.h>
+#include "w25q80bv.h"
 
-void baseband_streaming_enable(sgpio_config_t* const sgpio_config) {
-	nvic_set_priority(NVIC_SGPIO_IRQ, 0);
-	nvic_enable_irq(NVIC_SGPIO_IRQ);
-	SGPIO_SET_EN_1 = (1 << SGPIO_SLICE_A);
+void w25q80bv_target_init(w25q80bv_driver_t* const drv);
 
-	sgpio_cpld_stream_enable(sgpio_config);
-}
-
-void baseband_streaming_disable(sgpio_config_t* const sgpio_config) {
-	sgpio_cpld_stream_disable(sgpio_config);
-
-	nvic_disable_irq(NVIC_SGPIO_IRQ);
-}
+#endif/*__W25Q80BV_TARGET_H__*/

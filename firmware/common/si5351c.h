@@ -30,8 +30,9 @@ extern "C"
 
 #include <stdint.h>
 
+#include "i2c_bus.h"
+
 #define SI_INTDIV(x)  (x*128-512)
-#define SI5351C_I2C_ADDR (0x60 << 1)
 
 #define SI5351C_CLK_POWERDOWN	(1<<7)
 #define SI5351C_CLK_INT_MODE	(1<<6)
@@ -62,26 +63,32 @@ enum pll_sources {
 	PLL_SOURCE_CLKIN = 1,
 };
 
-void si5351c_disable_all_outputs();
-void si5351c_disable_oeb_pin_control();
-void si5351c_power_down_all_clocks();
-void si5351c_set_crystal_configuration();
-void si5351c_enable_xo_and_ms_fanout();
-void si5351c_configure_pll_sources(void);
-void si5351c_configure_pll_multisynth(void);
-void si5351c_reset_pll(void);
-void si5351c_configure_multisynth(const uint_fast8_t ms_number,
+typedef struct {
+	i2c_bus_t* const bus;
+	uint8_t i2c_address;
+} si5351c_driver_t;
+
+void si5351c_disable_all_outputs(si5351c_driver_t* const drv);
+void si5351c_disable_oeb_pin_control(si5351c_driver_t* const drv);
+void si5351c_power_down_all_clocks(si5351c_driver_t* const drv);
+void si5351c_set_crystal_configuration(si5351c_driver_t* const drv);
+void si5351c_enable_xo_and_ms_fanout(si5351c_driver_t* const drv);
+void si5351c_configure_pll_sources(si5351c_driver_t* const drv);
+void si5351c_configure_pll_multisynth(si5351c_driver_t* const drv);
+void si5351c_reset_pll(si5351c_driver_t* const drv);
+void si5351c_configure_multisynth(si5351c_driver_t* const drv,
+		const uint_fast8_t ms_number,
     	const uint32_t p1, const uint32_t p2, const uint32_t p3,
     	const uint_fast8_t r_div);
-void si5351c_configure_clock_control(const enum pll_sources source);
-void si5351c_enable_clock_outputs();
-void si5351c_set_int_mode(const uint_fast8_t ms_number, const uint_fast8_t on);
+void si5351c_configure_clock_control(si5351c_driver_t* const drv, const enum pll_sources source);
+void si5351c_enable_clock_outputs(si5351c_driver_t* const drv);
+void si5351c_set_int_mode(si5351c_driver_t* const drv, const uint_fast8_t ms_number, const uint_fast8_t on);
+void si5351c_set_clock_source(si5351c_driver_t* const drv, const enum pll_sources source);
+void si5351c_activate_best_clock_source(si5351c_driver_t* const drv);
 
-void si5351c_write_single(uint8_t reg, uint8_t val);
-uint8_t si5351c_read_single(uint8_t reg);
-void si5351c_write(uint8_t* const data, const uint_fast8_t data_count);
-void si5351c_set_clock_source(const enum pll_sources source);
-void si5351c_activate_best_clock_source(void);
+void si5351c_write_single(si5351c_driver_t* const drv, uint8_t reg, uint8_t val);
+uint8_t si5351c_read_single(si5351c_driver_t* const drv, uint8_t reg);
+void si5351c_write(si5351c_driver_t* const drv, const uint8_t* const data, const size_t data_count);
 
 #ifdef __cplusplus
 }

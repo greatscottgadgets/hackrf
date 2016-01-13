@@ -19,11 +19,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include <libopencm3/lpc43xx/gpio.h>
-#include <libopencm3/lpc43xx/scu.h>
-
 #include "hackrf_core.h"
-#include "w25q80bv.h"
 
 int main(void)
 {
@@ -39,17 +35,19 @@ int main(void)
 	/* program test data to SPI flash */
 	for (i = 0; i < 515; i++)
 		buf[i] = (i * 3) & 0xFF;
-	w25q80bv_setup();
-	w25q80bv_chip_erase();
-	w25q80bv_program(790, 515, &buf[0]);
+	w25q80bv_setup(&w25q80bv);
+	w25q80bv_chip_erase(&w25q80bv);
+	w25q80bv_program(&w25q80bv, 790, 515, &buf[0]);
 
 	/* blink LED1 and LED3 */
 	while (1) 
 	{
-		gpio_set(PORT_LED1_3, (PIN_LED1|PIN_LED3)); /* LEDs on */
+		led_on(LED1);
+		led_on(LED3);
 		for (i = 0; i < 8000000; i++)	/* Wait a bit. */
 			__asm__("nop");
-		gpio_clear(PORT_LED1_3, (PIN_LED1|PIN_LED3)); /* LED off */
+		led_off(LED1);
+		led_off(LED3);
 		for (i = 0; i < 8000000; i++)	/* Wait a bit. */
 			__asm__("nop");
 	}

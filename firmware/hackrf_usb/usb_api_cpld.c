@@ -22,8 +22,6 @@
 
 #include "usb_api_cpld.h"
 
-#include <libopencm3/lpc43xx/gpio.h>
-
 #include <hackrf_core.h>
 #include <cpld_jtag.h>
 #include <usb_queue.h>
@@ -63,7 +61,6 @@ static void refill_cpld_buffer(void)
 void cpld_update(void)
 {
 	#define WAIT_LOOP_DELAY (6000000)
-	#define ALL_LEDS  (PIN_LED1|PIN_LED2|PIN_LED3)
 	int i;
 	int error;
 
@@ -72,7 +69,7 @@ void cpld_update(void)
 
 	refill_cpld_buffer();
 
-	error = cpld_jtag_program(sizeof(cpld_xsvf_buffer),
+	error = cpld_jtag_program(&jtag_cpld, sizeof(cpld_xsvf_buffer),
 				  cpld_xsvf_buffer,
 				  refill_cpld_buffer);
 	if(error == 0)
@@ -80,17 +77,21 @@ void cpld_update(void)
 		/* blink LED1, LED2, and LED3 on success */
 		while (1)
 		{
-			gpio_set(PORT_LED1_3, ALL_LEDS); /* LEDs on */
+			led_on(LED1);
+			led_on(LED2);
+			led_on(LED3);
 			for (i = 0; i < WAIT_LOOP_DELAY; i++)  /* Wait a bit. */
 				__asm__("nop");
-			gpio_clear(PORT_LED1_3, ALL_LEDS); /* LEDs off */
+			led_off(LED1);
+			led_off(LED2);
+			led_off(LED3);
 			for (i = 0; i < WAIT_LOOP_DELAY; i++)  /* Wait a bit. */
 				__asm__("nop");
 		}
 	}else
 	{
 		/* LED3 (Red) steady on error */
-		gpio_set(PORT_LED1_3, PIN_LED3); /* LEDs on */
+		led_on(LED3);
 		while (1);
 	}
 }

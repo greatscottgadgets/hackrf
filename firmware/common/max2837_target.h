@@ -1,6 +1,6 @@
 /*
- * Copyright 2012 Jared Boone
- * Copyright 2013 Benjamin Vernoux
+ * Copyright 2012 Will Code? (TODO: Proper attribution)
+ * Copyright 2014 Jared Boone <jared@sharebrained.com>
  *
  * This file is part of HackRF.
  *
@@ -20,21 +20,12 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include <streaming.h>
+#ifndef __MAX2837_TARGET_H
+#define __MAX2837_TARGET_H
 
-#include <libopencm3/lpc43xx/m4/nvic.h>
-#include <libopencm3/lpc43xx/sgpio.h>
+#include "max2837.h"
 
-void baseband_streaming_enable(sgpio_config_t* const sgpio_config) {
-	nvic_set_priority(NVIC_SGPIO_IRQ, 0);
-	nvic_enable_irq(NVIC_SGPIO_IRQ);
-	SGPIO_SET_EN_1 = (1 << SGPIO_SLICE_A);
+void max2837_target_init(max2837_driver_t* const drv);
+void max2837_target_set_mode(max2837_driver_t* const drv, const max2837_mode_t new_mode);
 
-	sgpio_cpld_stream_enable(sgpio_config);
-}
-
-void baseband_streaming_disable(sgpio_config_t* const sgpio_config) {
-	sgpio_cpld_stream_disable(sgpio_config);
-
-	nvic_disable_irq(NVIC_SGPIO_IRQ);
-}
+#endif // __MAX2837_TARGET_H

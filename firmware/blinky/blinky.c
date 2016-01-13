@@ -19,12 +19,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include <libopencm3/lpc43xx/gpio.h>
-#include <libopencm3/lpc43xx/scu.h>
-
 #include "hackrf_core.h"
-
-uint32_t boot0, boot1, boot2, boot3;
 
 int main(void)
 {
@@ -34,18 +29,20 @@ int main(void)
 	/* enable all power supplies */
 	enable_1v8_power();
 
-	/* Blink LED1/2/3 on the board and Read BOOT0/1/2/3 pins. */
+	/* Blink LED1/2/3 on the board. */
 	while (1) 
 	{
-		boot0 = BOOT0_STATE;
-		boot1 = BOOT1_STATE;
-		boot2 = BOOT2_STATE;
-		boot3 = BOOT3_STATE;
+		led_on(LED1);
+		led_on(LED2);
+		led_on(LED3);
 
-		gpio_set(PORT_LED1_3, (PIN_LED1|PIN_LED2|PIN_LED3)); /* LEDs on */
 		for (i = 0; i < 2000000; i++)	/* Wait a bit. */
 			__asm__("nop");
-		gpio_clear(PORT_LED1_3, (PIN_LED1|PIN_LED2|PIN_LED3)); /* LED off */
+		
+		led_off(LED1);
+		led_off(LED2);
+		led_off(LED3);
+		
 		for (i = 0; i < 2000000; i++)	/* Wait a bit. */
 			__asm__("nop");
 	}

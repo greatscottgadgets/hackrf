@@ -1,6 +1,5 @@
 /*
- * Copyright 2012 Jared Boone
- * Copyright 2013 Benjamin Vernoux
+ * Copyright (C) 2014 Jared Boone, ShareBrained Technology, Inc.
  *
  * This file is part of HackRF.
  *
@@ -20,21 +19,24 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include <streaming.h>
+#ifndef __I2C_LPC_H__
+#define __I2C_LPC_H__
 
-#include <libopencm3/lpc43xx/m4/nvic.h>
-#include <libopencm3/lpc43xx/sgpio.h>
+#include <stdint.h>
+#include <stddef.h>
 
-void baseband_streaming_enable(sgpio_config_t* const sgpio_config) {
-	nvic_set_priority(NVIC_SGPIO_IRQ, 0);
-	nvic_enable_irq(NVIC_SGPIO_IRQ);
-	SGPIO_SET_EN_1 = (1 << SGPIO_SLICE_A);
+#include "i2c_bus.h"
 
-	sgpio_cpld_stream_enable(sgpio_config);
-}
+typedef struct i2c_lpc_config_t {
+	const uint16_t duty_cycle_count;
+} i2c_lpc_config_t;
 
-void baseband_streaming_disable(sgpio_config_t* const sgpio_config) {
-	sgpio_cpld_stream_disable(sgpio_config);
+void i2c_lpc_start(i2c_bus_t* const bus, const void* const config);
+void i2c_lpc_stop(i2c_bus_t* const bus);
+void i2c_lpc_transfer(i2c_bus_t* const bus,
+	const uint_fast8_t slave_address,
+	const uint8_t* const data_tx, const size_t count_tx,
+	uint8_t* const data_rx, const size_t count_rx
+);
 
-	nvic_disable_irq(NVIC_SGPIO_IRQ);
-}
+#endif/*__I2C_LPC_H__*/

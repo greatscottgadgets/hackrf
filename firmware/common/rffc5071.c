@@ -36,19 +36,10 @@
 #include "rffc5071.h"
 #include "rffc5071_regs.def" // private register def macros
 
-#if (defined DEBUG)
-#include <stdio.h>
-#define LOG printf
-#else
-#define LOG(x,...)
-#include <libopencm3/lpc43xx/ssp.h>
-#include <libopencm3/lpc43xx/scu.h>
-#include <libopencm3/lpc43xx/gpio.h>
 #include "hackrf_core.h"
-#endif
 
 /* Default register values. */
-static uint16_t rffc5071_regs_default[RFFC5071_NUM_REGS] = { 
+static const uint16_t rffc5071_regs_default[RFFC5071_NUM_REGS] = { 
 	0xbefa,   /* 00 */
 	0x4064,   /* 01 */
 	0x9055,   /* 02 */
@@ -81,327 +72,139 @@ static uint16_t rffc5071_regs_default[RFFC5071_NUM_REGS] = {
 	0x1000,   /* 1D */
 	0x0005,   /* 1E */ };
 
-uint16_t rffc5071_regs[RFFC5071_NUM_REGS];
-
-/* Mark all regsisters dirty so all will be written at init. */
-uint32_t rffc5071_regs_dirty = 0x7fffffff;
-
 /* Set up all registers according to defaults specified in docs. */
-void rffc5071_init(void)
+void rffc5071_init(rffc5071_driver_t* const drv)
 {
-	LOG("# rffc5071_init\n");
-	memcpy(rffc5071_regs, rffc5071_regs_default, sizeof(rffc5071_regs));
-	rffc5071_regs_dirty = 0x7fffffff;
+	memcpy(drv->regs, rffc5071_regs_default, sizeof(drv->regs));
+	drv->regs_dirty = 0x7fffffff;
 
 	/* Write default register values to chip. */
-	rffc5071_regs_commit();
+	rffc5071_regs_commit(drv);
 }
 
 /*
  * Set up pins for GPIO and SPI control, configure SSP peripheral for SPI, and
  * set our own default register configuration.
  */
-void rffc5071_setup(void)
+void rffc5071_setup(rffc5071_driver_t* const drv)
 {
-	rffc5071_init();
-	LOG("# rffc5071_setup\n");
-#if !defined TEST
-	/* Configure GPIO pins. */
-	scu_pinmux(SCU_MIXER_ENX, SCU_GPIO_FAST);
-	scu_pinmux(SCU_MIXER_SCLK, SCU_GPIO_FAST | SCU_CONF_FUNCTION4);
-	scu_pinmux(SCU_MIXER_SDATA, SCU_GPIO_FAST);
-	scu_pinmux(SCU_MIXER_RESETX, SCU_GPIO_FAST);
+	gpio_set(drv->gpio_reset);
+	gpio_output(drv->gpio_reset);
 
-	/* Set GPIO pins as outputs. */
-	GPIO_DIR(PORT_MIXER_ENX) |= PIN_MIXER_ENX;
-	GPIO_DIR(PORT_MIXER_SCLK) |= PIN_MIXER_SCLK;
-	GPIO_DIR(PORT_MIXER_SDATA) |= PIN_MIXER_SDATA;
-	GPIO_DIR(PORT_MIXER_RESETX) |= PIN_MIXER_RESETX;
-
-	/* set to known state */
-	gpio_set(PORT_MIXER_ENX, PIN_MIXER_ENX); /* active low */
-	gpio_clear(PORT_MIXER_SCLK, PIN_MIXER_SCLK);
-	gpio_clear(PORT_MIXER_SDATA, PIN_MIXER_SDATA);
-	gpio_set(PORT_MIXER_RESETX, PIN_MIXER_RESETX); /* active low */
-#endif
+	rffc5071_init(drv);
 
 	/* initial setup */
 	/* put zeros in freq contol registers */
-	set_RFFC5071_P2N(0);
-	set_RFFC5071_P2LODIV(0);
-	set_RFFC5071_P2PRESC(0);
-	set_RFFC5071_P2VCOSEL(0);
+	set_RFFC5071_P2N(drv, 0);
+	set_RFFC5071_P2LODIV(drv, 0);
+	set_RFFC5071_P2PRESC(drv, 0);
+	set_RFFC5071_P2VCOSEL(drv, 0);
 
-	set_RFFC5071_P2N(0);
-	set_RFFC5071_P2LODIV(0);
-	set_RFFC5071_P2PRESC(0);
-	set_RFFC5071_P2VCOSEL(0);
+	set_RFFC5071_P2N(drv, 0);
+	set_RFFC5071_P2LODIV(drv, 0);
+	set_RFFC5071_P2PRESC(drv, 0);
+	set_RFFC5071_P2VCOSEL(drv, 0);
 
-	set_RFFC5071_P2N(0);
-	set_RFFC5071_P2LODIV(0);
-	set_RFFC5071_P2PRESC(0);
-	set_RFFC5071_P2VCOSEL(0);
+	set_RFFC5071_P2N(drv, 0);
+	set_RFFC5071_P2LODIV(drv, 0);
+	set_RFFC5071_P2PRESC(drv, 0);
+	set_RFFC5071_P2VCOSEL(drv, 0);
 
 	/* set ENBL and MODE to be configured via 3-wire interface,
 	 * not control pins. */
-	set_RFFC5071_SIPIN(1);
+	set_RFFC5071_SIPIN(drv, 1);
 
 	/* GPOs are active at all times */
-	set_RFFC5071_GATE(1);
+	set_RFFC5071_GATE(drv, 1);
 
-	rffc5071_regs_commit();
+	rffc5071_regs_commit(drv);
 }
 
-void serial_delay(void)
-{
-	uint32_t i;
+static uint16_t rffc5071_spi_read(rffc5071_driver_t* const drv, uint8_t r) {
+	(void)drv;
 
-	for (i = 0; i < 2; i++)
-		__asm__("nop");
+	uint16_t data[] = { 0x80 | (r & 0x7f), 0xffff };
+	spi_bus_transfer(drv->bus, data, 2);
+	return data[1];
 }
 
-/* SPI register read.
- *
- * Send 9 bits:
- *   first bit is ignored,
- *   second bit is one for read operation,
- *   next 7 bits are register address.
- * Then receive 16 bits (register value).
- */
-uint16_t rffc5071_spi_read(uint8_t r) {
+static void rffc5071_spi_write(rffc5071_driver_t* const drv, uint8_t r, uint16_t v) {
+	(void)drv;
 
-	int bits = 9;
-	int msb = 1 << (bits -1);
-	uint32_t data = 0x80 | (r & 0x7f);
-
-#if DEBUG
-	LOG("reg%d = 0\n", r);
-	return 0;
-#else
-	/* make sure everything is starting in the correct state */
-	gpio_set(PORT_MIXER_ENX, PIN_MIXER_ENX);
-	gpio_clear(PORT_MIXER_SCLK, PIN_MIXER_SCLK);
-	gpio_clear(PORT_MIXER_SDATA, PIN_MIXER_SDATA);
-
-	/*
-	 * The device requires two clocks while ENX is high before a serial
-	 * transaction.  This is not clearly documented.
-	 */
-	serial_delay();
-	gpio_set(PORT_MIXER_SCLK, PIN_MIXER_SCLK);
-
-	serial_delay();
-	gpio_clear(PORT_MIXER_SCLK, PIN_MIXER_SCLK);
-
-	serial_delay();
-	gpio_set(PORT_MIXER_SCLK, PIN_MIXER_SCLK);
-
-	serial_delay();
-	gpio_clear(PORT_MIXER_SCLK, PIN_MIXER_SCLK);
-
-	/* start transaction by bringing ENX low */
-	gpio_clear(PORT_MIXER_ENX, PIN_MIXER_ENX);
-
-	while (bits--) {
-		if (data & msb)
-			gpio_set(PORT_MIXER_SDATA, PIN_MIXER_SDATA);
-		else
-			gpio_clear(PORT_MIXER_SDATA, PIN_MIXER_SDATA);
-		data <<= 1;
-
-		serial_delay();
-		gpio_set(PORT_MIXER_SCLK, PIN_MIXER_SCLK);
-
-		serial_delay();
-		gpio_clear(PORT_MIXER_SCLK, PIN_MIXER_SCLK);
-	}
-
-	serial_delay();
-	gpio_set(PORT_MIXER_SCLK, PIN_MIXER_SCLK);
-
-	serial_delay();
-	gpio_clear(PORT_MIXER_SCLK, PIN_MIXER_SCLK);
-
-	bits = 16;
-	data = 0;
-	/* set SDATA line as input */
-	GPIO_DIR(PORT_MIXER_SDATA) &= ~PIN_MIXER_SDATA;
-
-	while (bits--) {
-		data <<= 1;
-
-		serial_delay();
-		gpio_set(PORT_MIXER_SCLK, PIN_MIXER_SCLK);
-
-		serial_delay();
-		gpio_clear(PORT_MIXER_SCLK, PIN_MIXER_SCLK);
-		if (MIXER_SDATA_STATE)
-			data |= 1;
-	}
-	/* set SDATA line as output */
-	GPIO_DIR(PORT_MIXER_SDATA) |= PIN_MIXER_SDATA;
-
-	serial_delay();
-	gpio_set(PORT_MIXER_ENX, PIN_MIXER_ENX);
-
-	/*
-	 * The device requires a clock while ENX is high after a serial
-	 * transaction.  This is not clearly documented.
-	 */
-	gpio_set(PORT_MIXER_SCLK, PIN_MIXER_SCLK);
-
-	serial_delay();
-	gpio_clear(PORT_MIXER_SCLK, PIN_MIXER_SCLK);
-
-	return data;
-#endif /* DEBUG */
+	uint16_t data[] = { 0x00 | (r & 0x7f), v };
+	spi_bus_transfer(drv->bus, data, 2);
 }
 
-/* SPI register write
- *
- * Send 25 bits:
- *   first bit is ignored,
- *   second bit is zero for write operation,
- *   next 7 bits are register address,
- *   next 16 bits are register value.
- */
-void rffc5071_spi_write(uint8_t r, uint16_t v) {
-
-#if DEBUG
-	LOG("0x%04x -> reg%d\n", v, r);
-#else
-
-	int bits = 25;
-	int msb = 1 << (bits -1);
-	uint32_t data = ((r & 0x7f) << 16) | v;
-
-	/* make sure everything is starting in the correct state */
-	gpio_set(PORT_MIXER_ENX, PIN_MIXER_ENX);
-	gpio_clear(PORT_MIXER_SCLK, PIN_MIXER_SCLK);
-	gpio_clear(PORT_MIXER_SDATA, PIN_MIXER_SDATA);
-
-	/*
-	 * The device requires two clocks while ENX is high before a serial
-	 * transaction.  This is not clearly documented.
-	 */
-	serial_delay();
-	gpio_set(PORT_MIXER_SCLK, PIN_MIXER_SCLK);
-
-	serial_delay();
-	gpio_clear(PORT_MIXER_SCLK, PIN_MIXER_SCLK);
-
-	serial_delay();
-	gpio_set(PORT_MIXER_SCLK, PIN_MIXER_SCLK);
-
-	serial_delay();
-	gpio_clear(PORT_MIXER_SCLK, PIN_MIXER_SCLK);
-
-	/* start transaction by bringing ENX low */
-	gpio_clear(PORT_MIXER_ENX, PIN_MIXER_ENX);
-
-	while (bits--) {
-		if (data & msb)
-			gpio_set(PORT_MIXER_SDATA, PIN_MIXER_SDATA);
-		else
-			gpio_clear(PORT_MIXER_SDATA, PIN_MIXER_SDATA);
-		data <<= 1;
-
-		serial_delay();
-		gpio_set(PORT_MIXER_SCLK, PIN_MIXER_SCLK);
-
-		serial_delay();
-		gpio_clear(PORT_MIXER_SCLK, PIN_MIXER_SCLK);
-	}
-
-	gpio_set(PORT_MIXER_ENX, PIN_MIXER_ENX);
-
-	/*
-	 * The device requires a clock while ENX is high after a serial
-	 * transaction.  This is not clearly documented.
-	 */
-	serial_delay();
-	gpio_set(PORT_MIXER_SCLK, PIN_MIXER_SCLK);
-
-	serial_delay();
-	gpio_clear(PORT_MIXER_SCLK, PIN_MIXER_SCLK);
-#endif
-}
-
-uint16_t rffc5071_reg_read(uint8_t r)
+uint16_t rffc5071_reg_read(rffc5071_driver_t* const drv, uint8_t r)
 {
 	/* Readback register is not cached. */
 	if (r == RFFC5071_READBACK_REG)
-		return rffc5071_spi_read(r);
+		return rffc5071_spi_read(drv, r);
 
 	/* Discard uncommited write when reading. This shouldn't
 	 * happen, and probably has not been tested. */
-	if ((rffc5071_regs_dirty >> r) & 0x1) {
-		rffc5071_regs[r] = rffc5071_spi_read(r);
+	if ((drv->regs_dirty >> r) & 0x1) {
+		drv->regs[r] = rffc5071_spi_read(drv, r);
 	};
-	return rffc5071_regs[r];
+	return drv->regs[r];
 }
 
-void rffc5071_reg_write(uint8_t r, uint16_t v)
+void rffc5071_reg_write(rffc5071_driver_t* const drv, uint8_t r, uint16_t v)
 {
-	rffc5071_regs[r] = v;
-	rffc5071_spi_write(r, v);
-	RFFC5071_REG_SET_CLEAN(r);
+	drv->regs[r] = v;
+	rffc5071_spi_write(drv, r, v);
+	RFFC5071_REG_SET_CLEAN(drv, r);
 }
 
-static inline void rffc5071_reg_commit(uint8_t r)
+static inline void rffc5071_reg_commit(rffc5071_driver_t* const drv, uint8_t r)
 {
-	rffc5071_reg_write(r,rffc5071_regs[r]);
+	rffc5071_reg_write(drv, r, drv->regs[r]);
 }
 
-void rffc5071_regs_commit(void)
+void rffc5071_regs_commit(rffc5071_driver_t* const drv)
 {
 	int r;
 	for(r = 0; r < RFFC5071_NUM_REGS; r++) {
-		if ((rffc5071_regs_dirty >> r) & 0x1) {
-			rffc5071_reg_commit(r);
+		if ((drv->regs_dirty >> r) & 0x1) {
+			rffc5071_reg_commit(drv, r);
 		}
 	}
 }
 
-void rffc5071_tx(void) {
-	LOG("# rffc5071_tx\n");
-	set_RFFC5071_ENBL(0);
-	set_RFFC5071_FULLD(0);
-	set_RFFC5071_MODE(1); /* mixer 2 used for both RX and TX */
-	rffc5071_regs_commit();
+void rffc5071_tx(rffc5071_driver_t* const drv) {
+	set_RFFC5071_ENBL(drv, 0);
+	set_RFFC5071_FULLD(drv, 0);
+	set_RFFC5071_MODE(drv, 1); /* mixer 2 used for both RX and TX */
+	rffc5071_regs_commit(drv);
 }
 
-void rffc5071_rx(void) {
-	LOG("# rfc5071_rx\n");
-	set_RFFC5071_ENBL(0);
-	set_RFFC5071_FULLD(0);
-	set_RFFC5071_MODE(1); /* mixer 2 used for both RX and TX */
-	rffc5071_regs_commit();
+void rffc5071_rx(rffc5071_driver_t* const drv) {
+	set_RFFC5071_ENBL(drv, 0);
+	set_RFFC5071_FULLD(drv, 0);
+	set_RFFC5071_MODE(drv, 1); /* mixer 2 used for both RX and TX */
+	rffc5071_regs_commit(drv);
 }
 
 /*
  * This function turns on both mixer (full-duplex) on the RFFC5071, but our
  * current hardware designs do not support full-duplex operation.
  */
-void rffc5071_rxtx(void) {
-	LOG("# rfc5071_rxtx\n");
-	set_RFFC5071_ENBL(0);
-	set_RFFC5071_FULLD(1); /* mixer 1 and mixer 2 (RXTX) */
-	rffc5071_regs_commit();
+void rffc5071_rxtx(rffc5071_driver_t* const drv) {
+	set_RFFC5071_ENBL(drv, 0);
+	set_RFFC5071_FULLD(drv, 1); /* mixer 1 and mixer 2 (RXTX) */
+	rffc5071_regs_commit(drv);
 
-	rffc5071_enable();
+	rffc5071_enable(drv);
 }
 
-void rffc5071_disable(void)  {
-	LOG("# rfc5071_disable\n");
-	set_RFFC5071_ENBL(0);
-	rffc5071_regs_commit();
+void rffc5071_disable(rffc5071_driver_t* const drv)  {
+	set_RFFC5071_ENBL(drv, 0);
+	rffc5071_regs_commit(drv);
 }
 
-void rffc5071_enable(void)  {
-	LOG("# rfc5071_enable\n");
-	set_RFFC5071_ENBL(1);
-	rffc5071_regs_commit();
+void rffc5071_enable(rffc5071_driver_t* const drv)  {
+	set_RFFC5071_ENBL(drv, 1);
+	rffc5071_regs_commit(drv);
 }
 
 #define LO_MAX 5400
@@ -409,7 +212,7 @@ void rffc5071_enable(void)  {
 #define FREQ_ONE_MHZ (1000*1000)
 
 /* configure frequency synthesizer in integer mode (lo in MHz) */
-uint64_t rffc5071_config_synth_int(uint16_t lo) {
+uint64_t rffc5071_config_synth_int(rffc5071_driver_t* const drv, uint16_t lo) {
 	uint8_t lodiv;
 	uint16_t fvco;
 	uint8_t fbkdiv;
@@ -418,8 +221,6 @@ uint64_t rffc5071_config_synth_int(uint16_t lo) {
 	uint16_t p1nmsb;
 	uint8_t p1nlsb;
 	
-	LOG("# config_synth_int\n");
-
 	/* Calculate n_lo */
 	uint8_t n_lo = 0;
 	uint16_t x = LO_MAX / lo;
@@ -438,10 +239,10 @@ uint64_t rffc5071_config_synth_int(uint16_t lo) {
 	 * and will be unaffected. */
 	if (fvco > 3200) {
 		fbkdiv = 4;
-		set_RFFC5071_PLLCPL(3);
+		set_RFFC5071_PLLCPL(drv, 3);
 	} else {
 		fbkdiv = 2;
-		set_RFFC5071_PLLCPL(2);
+		set_RFFC5071_PLLCPL(drv, 2);
 	}
 
 	uint64_t tmp_n = ((uint64_t)fvco << 29ULL) / (fbkdiv*REF_FREQ) ;
@@ -452,63 +253,42 @@ uint64_t rffc5071_config_synth_int(uint16_t lo) {
 	
 	tune_freq_hz = (REF_FREQ * (tmp_n >> 5ULL) * fbkdiv * FREQ_ONE_MHZ)
 			/ (lodiv * (1 << 24ULL));
-	LOG("# lo=%d n_lo=%d lodiv=%d fvco=%d fbkdiv=%d n=%d tune_freq_hz=%d\n",
-			lo, n_lo, lodiv, fvco, fbkdiv, n, tune_freq);
 
 	/* Path 1 */
-	set_RFFC5071_P1LODIV(n_lo);
-	set_RFFC5071_P1N(n);
-	set_RFFC5071_P1PRESC(fbkdiv >> 1);
-	set_RFFC5071_P1NMSB(p1nmsb);
-	set_RFFC5071_P1NLSB(p1nlsb);
+	set_RFFC5071_P1LODIV(drv, n_lo);
+	set_RFFC5071_P1N(drv, n);
+	set_RFFC5071_P1PRESC(drv, fbkdiv >> 1);
+	set_RFFC5071_P1NMSB(drv, p1nmsb);
+	set_RFFC5071_P1NLSB(drv, p1nlsb);
 
 	/* Path 2 */
-	set_RFFC5071_P2LODIV(n_lo);
-	set_RFFC5071_P2N(n);
-	set_RFFC5071_P2PRESC(fbkdiv >> 1);
-	set_RFFC5071_P2NMSB(p1nmsb);
-	set_RFFC5071_P2NLSB(p1nlsb);
+	set_RFFC5071_P2LODIV(drv, n_lo);
+	set_RFFC5071_P2N(drv, n);
+	set_RFFC5071_P2PRESC(drv, fbkdiv >> 1);
+	set_RFFC5071_P2NMSB(drv, p1nmsb);
+	set_RFFC5071_P2NLSB(drv, p1nlsb);
 
-	rffc5071_regs_commit();
+	rffc5071_regs_commit(drv);
 
 	return tune_freq_hz;
 }
 
 /* !!!!!!!!!!! hz is currently ignored !!!!!!!!!!! */
-uint64_t rffc5071_set_frequency(uint16_t mhz) {
+uint64_t rffc5071_set_frequency(rffc5071_driver_t* const drv, uint16_t mhz) {
 	uint32_t tune_freq;
 
-	rffc5071_disable();
-	tune_freq = rffc5071_config_synth_int(mhz);
-	rffc5071_enable();
+	rffc5071_disable(drv);
+	tune_freq = rffc5071_config_synth_int(drv, mhz);
+	rffc5071_enable(drv);
 
 	return tune_freq;
 }
 
-void rffc5071_set_gpo(uint8_t gpo)
+void rffc5071_set_gpo(rffc5071_driver_t* const drv, uint8_t gpo)
 {
 	/* We set GPO for both paths just in case. */
-	set_RFFC5071_P1GPO(gpo);
-	set_RFFC5071_P2GPO(gpo);
+	set_RFFC5071_P1GPO(drv, gpo);
+	set_RFFC5071_P2GPO(drv, gpo);
 
-	rffc5071_regs_commit();
+	rffc5071_regs_commit(drv);
 }
-
-#ifdef TEST
-int main(int ac, char **av)
-{
-	rffc5071_setup();
-	rffc5071_tx(0);
-	rffc5071_set_frequency(500, 0);
-	rffc5071_set_frequency(525, 0);
-	rffc5071_set_frequency(550, 0);
-	rffc5071_set_frequency(1500, 0);
-	rffc5071_set_frequency(1525, 0);
-	rffc5071_set_frequency(1550, 0);
-	rffc5071_disable();
-	rffc5071_rx(0);
-	rffc5071_disable();
-	rffc5071_rxtx();
-	rffc5071_disable();
-}
-#endif //TEST

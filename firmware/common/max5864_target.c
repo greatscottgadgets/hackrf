@@ -1,6 +1,5 @@
 /*
- * Copyright 2012 Jared Boone
- * Copyright 2013 Benjamin Vernoux
+ * Copyright (C) 2014 Jared Boone, ShareBrained Technology, Inc.
  *
  * This file is part of HackRF.
  *
@@ -20,21 +19,22 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include <streaming.h>
+#include "max5864_target.h"
 
-#include <libopencm3/lpc43xx/m4/nvic.h>
-#include <libopencm3/lpc43xx/sgpio.h>
+#include <libopencm3/lpc43xx/scu.h>
+#include "hackrf_core.h"
 
-void baseband_streaming_enable(sgpio_config_t* const sgpio_config) {
-	nvic_set_priority(NVIC_SGPIO_IRQ, 0);
-	nvic_enable_irq(NVIC_SGPIO_IRQ);
-	SGPIO_SET_EN_1 = (1 << SGPIO_SLICE_A);
+void max5864_target_init(max5864_driver_t* const drv) {
+	(void)drv;
+	
+	/* Configure SSP1 Peripheral (to be moved later in SSP driver) */
+	scu_pinmux(SCU_SSP1_MISO, (SCU_SSP_IO | SCU_CONF_FUNCTION5));
+	scu_pinmux(SCU_SSP1_MOSI, (SCU_SSP_IO | SCU_CONF_FUNCTION5));
+	scu_pinmux(SCU_SSP1_SCK,  (SCU_SSP_IO | SCU_CONF_FUNCTION1));
 
-	sgpio_cpld_stream_enable(sgpio_config);
-}
-
-void baseband_streaming_disable(sgpio_config_t* const sgpio_config) {
-	sgpio_cpld_stream_disable(sgpio_config);
-
-	nvic_disable_irq(NVIC_SGPIO_IRQ);
+	/*
+	 * Configure CS_AD pin to keep the MAX5864 SPI disabled while we use the
+	 * SPI bus for the MAX2837. FIXME: this should probably be somewhere else.
+	 */
+	scu_pinmux(SCU_AD_CS, SCU_GPIO_FAST);
 }

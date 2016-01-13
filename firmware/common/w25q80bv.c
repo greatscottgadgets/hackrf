@@ -1,6 +1,7 @@
 /*
  * Copyright 2013 Michael Ossmann
  * Copyright 2013 Benjamin Vernoux
+ * Copyright 2014 Jared Boone, ShareBrained Technology
  *
  * This file is part of HackRF.
  *
@@ -27,183 +28,139 @@
  */
 
 #include <stdint.h>
+#include <stddef.h>
+
 #include "w25q80bv.h"
-#include "hackrf_core.h"
-#include <libopencm3/lpc43xx/ssp.h>
-#include <libopencm3/lpc43xx/scu.h>
-#include <libopencm3/lpc43xx/gpio.h>
-#include <libopencm3/lpc43xx/rgu.h>
+
+#define ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]))
+
+#define W25Q80BV_READ_DATA    0x03
+#define W25Q80BV_FAST_READ    0x0b
+#define W25Q80BV_WRITE_ENABLE 0x06
+#define W25Q80BV_CHIP_ERASE   0xC7
+#define W25Q80BV_READ_STATUS1 0x05
+#define W25Q80BV_PAGE_PROGRAM 0x02
+#define W25Q80BV_DEVICE_ID    0xAB
+#define W25Q80BV_UNIQUE_ID    0x4B
+
+#define W25Q80BV_STATUS_BUSY  0x01
+
+#define W25Q80BV_DEVICE_ID_RES  0x13 /* Expected device_id for W25Q80BV */
 
 /*
  * Set up pins for GPIO and SPI control, configure SSP0 peripheral for SPI.
  * SSP0_SSEL is controlled by GPIO in order to handle various transfer lengths.
  */
-
-void w25q80bv_setup(void)
+void w25q80bv_setup(w25q80bv_driver_t* const drv)
 {
 	uint8_t device_id;
-	const uint8_t serial_clock_rate = 2;
-	const uint8_t clock_prescale_rate = 2;
 
-	/* Reset SPIFI peripheral before to Erase/Write SPIFI memory through SPI */
-	RESET_CTRL1 = RESET_CTRL1_SPIFI_RST;
-	
-	/* Init SPIFI GPIO to Normal GPIO */
-	scu_pinmux(P3_3, (SCU_SSP_IO | SCU_CONF_FUNCTION2));    // P3_3 SPIFI_SCK => SSP0_SCK
-	scu_pinmux(P3_4, (SCU_GPIO_FAST | SCU_CONF_FUNCTION0)); // P3_4 SPIFI SPIFI_SIO3 IO3 => GPIO1[14]
-	scu_pinmux(P3_5, (SCU_GPIO_FAST | SCU_CONF_FUNCTION0)); // P3_5 SPIFI SPIFI_SIO2 IO2 => GPIO1[15]
-	scu_pinmux(P3_6, (SCU_GPIO_FAST | SCU_CONF_FUNCTION0)); // P3_6 SPIFI SPIFI_MISO IO1 => GPIO0[6]
-	scu_pinmux(P3_7, (SCU_GPIO_FAST | SCU_CONF_FUNCTION4)); // P3_7 SPIFI SPIFI_MOSI IO0 => GPIO5[10]
-	scu_pinmux(P3_8, (SCU_GPIO_FAST | SCU_CONF_FUNCTION4)); // P3_8 SPIFI SPIFI_CS => GPIO5[11]
-	
-	/* configure SSP pins */
-	scu_pinmux(SCU_SSP0_MISO, (SCU_SSP_IO | SCU_CONF_FUNCTION5));
-	scu_pinmux(SCU_SSP0_MOSI, (SCU_SSP_IO | SCU_CONF_FUNCTION5));
-	scu_pinmux(SCU_SSP0_SCK,  (SCU_SSP_IO | SCU_CONF_FUNCTION2));
+	drv->page_len = 256U;
+	drv->num_pages = 4096U;
+	drv->num_bytes = 1048576U;
 
-	/* configure GPIO pins */
-	scu_pinmux(SCU_FLASH_HOLD, SCU_GPIO_FAST);
-	scu_pinmux(SCU_FLASH_WP, SCU_GPIO_FAST);
-	scu_pinmux(SCU_SSP0_SSEL, (SCU_GPIO_FAST | SCU_CONF_FUNCTION4));
-
-	/* drive SSEL, HOLD, and WP pins high */
-	gpio_set(PORT_FLASH, (PIN_FLASH_HOLD | PIN_FLASH_WP));
-	gpio_set(PORT_SSP0_SSEL, PIN_SSP0_SSEL);
-
-	/* Set GPIO pins as outputs. */
-	GPIO1_DIR |= (PIN_FLASH_HOLD | PIN_FLASH_WP);
-	GPIO5_DIR |= PIN_SSP0_SSEL;
-	
-	/* initialize SSP0 */
-	ssp_init(SSP0_NUM,
-			SSP_DATA_8BITS,
-			SSP_FRAME_SPI,
-			SSP_CPOL_0_CPHA_0,
-			serial_clock_rate,
-			clock_prescale_rate,
-			SSP_MODE_NORMAL,
-			SSP_MASTER,
-			SSP_SLAVE_OUT_ENABLE);
+	drv->target_init(drv);
 
 	device_id = 0;
 	while(device_id != W25Q80BV_DEVICE_ID_RES)
 	{
-		device_id = w25q80bv_get_device_id();
+		device_id = w25q80bv_get_device_id(drv);
 	}
 }
 
-uint8_t w25q80bv_get_status(void)
+uint8_t w25q80bv_get_status(w25q80bv_driver_t* const drv)
 {
-	uint8_t value;
-
-	gpio_clear(PORT_SSP0_SSEL, PIN_SSP0_SSEL);
-	ssp_transfer(SSP0_NUM, W25Q80BV_READ_STATUS1);
-	value = ssp_transfer(SSP0_NUM, 0xFF);
-	gpio_set(PORT_SSP0_SSEL, PIN_SSP0_SSEL);
-
-	return value;
+	uint8_t data[] = { W25Q80BV_READ_STATUS1, 0xFF };
+	spi_bus_transfer(drv->bus, data, ARRAY_SIZE(data));
+	return data[1];
 }
 
 /* Release power down / Device ID */  
-uint8_t w25q80bv_get_device_id(void)
+uint8_t w25q80bv_get_device_id(w25q80bv_driver_t* const drv)
 {
-	uint8_t value;
-
-	gpio_clear(PORT_SSP0_SSEL, PIN_SSP0_SSEL);
-	ssp_transfer(SSP0_NUM, W25Q80BV_DEVICE_ID);
-
-	/* Read 3 dummy bytes */
-	value = ssp_transfer(SSP0_NUM, 0xFF);
-	value = ssp_transfer(SSP0_NUM, 0xFF);
-	value = ssp_transfer(SSP0_NUM, 0xFF);
-	/* Read Device ID shall return 0x13 for W25Q80BV */
-	value = ssp_transfer(SSP0_NUM, 0xFF);
-	
-	gpio_set(PORT_SSP0_SSEL, PIN_SSP0_SSEL);
-
-	return value;
+	uint8_t data[] = {
+		W25Q80BV_DEVICE_ID,
+		0xFF, 0xFF, 0xFF, 0xFF
+	};
+	spi_bus_transfer(drv->bus, data, ARRAY_SIZE(data));
+	return data[4];
 }
 
-void w25q80bv_get_unique_id(w25q80bv_unique_id_t* unique_id)
+void w25q80bv_get_unique_id(w25q80bv_driver_t* const drv, w25q80bv_unique_id_t* unique_id)
 {
-	int i;
-	uint8_t value;
+	uint8_t data[] = {
+		W25Q80BV_UNIQUE_ID,
+		0xFF, 0xFF, 0xFF, 0xFF,
+		0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF
+	};
+	spi_bus_transfer(drv->bus, data, ARRAY_SIZE(data));
 
-	gpio_clear(PORT_SSP0_SSEL, PIN_SSP0_SSEL);
-	ssp_transfer(SSP0_NUM, W25Q80BV_UNIQUE_ID);
-
-	/* Read 4 dummy bytes */
-	for(i=0; i<4; i++)
-		value = ssp_transfer(SSP0_NUM, 0xFF);
-
-	/* Read Unique ID 64bits (8*8) */
-	for(i=0; i<8; i++)
-	{
-		value = ssp_transfer(SSP0_NUM, 0xFF);
-		unique_id->id_8b[i]  = value;
+	for(size_t i=0; i<8; i++) {
+		unique_id->id_8b[i]  = data[5+i];
 	}
-
-	gpio_set(PORT_SSP0_SSEL, PIN_SSP0_SSEL);
 }
 
-void w25q80bv_wait_while_busy(void)
+void w25q80bv_wait_while_busy(w25q80bv_driver_t* const drv)
 {
-	while (w25q80bv_get_status() & W25Q80BV_STATUS_BUSY);
+	while (w25q80bv_get_status(drv) & W25Q80BV_STATUS_BUSY);
 }
 
-void w25q80bv_write_enable(void)
+void w25q80bv_write_enable(w25q80bv_driver_t* const drv)
 {
-	w25q80bv_wait_while_busy();
-	gpio_clear(PORT_SSP0_SSEL, PIN_SSP0_SSEL);
-	ssp_transfer(SSP0_NUM, W25Q80BV_WRITE_ENABLE);
-	gpio_set(PORT_SSP0_SSEL, PIN_SSP0_SSEL);
+	w25q80bv_wait_while_busy(drv);
+
+	uint8_t data[] = { W25Q80BV_WRITE_ENABLE };
+	spi_bus_transfer(drv->bus, data, ARRAY_SIZE(data));
 }
 
-void w25q80bv_chip_erase(void)
+void w25q80bv_chip_erase(w25q80bv_driver_t* const drv)
 {
 	uint8_t device_id;
 
 	device_id = 0;
 	while(device_id != W25Q80BV_DEVICE_ID_RES)
 	{
-		device_id = w25q80bv_get_device_id();
+		device_id = w25q80bv_get_device_id(drv);
 	}
 
-	w25q80bv_write_enable();
-	w25q80bv_wait_while_busy();
-	gpio_clear(PORT_SSP0_SSEL, PIN_SSP0_SSEL);
-	ssp_transfer(SSP0_NUM, W25Q80BV_CHIP_ERASE);
-	gpio_set(PORT_SSP0_SSEL, PIN_SSP0_SSEL);
+	w25q80bv_write_enable(drv);
+	w25q80bv_wait_while_busy(drv);
+
+	uint8_t data[] = { W25Q80BV_CHIP_ERASE };
+	spi_bus_transfer(drv->bus, data, ARRAY_SIZE(data));
 }
 
 /* write up a 256 byte page or partial page */
-void w25q80bv_page_program(const uint32_t addr, const uint16_t len, const uint8_t* data)
+static void w25q80bv_page_program(w25q80bv_driver_t* const drv, const uint32_t addr, const uint16_t len, uint8_t* data)
 {
-	int i;
-
 	/* do nothing if asked to write beyond a page boundary */
-	if (((addr & 0xFF) + len) > W25Q80BV_PAGE_LEN)
+	if (((addr & 0xFF) + len) > drv->page_len)
 		return;
 
 	/* do nothing if we would overflow the flash */
-	if (addr > (W25Q80BV_NUM_BYTES - len))
+	if (addr > (drv->num_bytes - len))
 		return;
 
-	w25q80bv_write_enable();
-	w25q80bv_wait_while_busy();
+	w25q80bv_write_enable(drv);
+	w25q80bv_wait_while_busy(drv);
 
-	gpio_clear(PORT_SSP0_SSEL, PIN_SSP0_SSEL);
-	ssp_transfer(SSP0_NUM, W25Q80BV_PAGE_PROGRAM);
-	ssp_transfer(SSP0_NUM, (addr & 0xFF0000) >> 16);
-	ssp_transfer(SSP0_NUM, (addr & 0xFF00) >> 8);
-	ssp_transfer(SSP0_NUM, addr & 0xFF);
-	for (i = 0; i < len; i++)
-		ssp_transfer(SSP0_NUM, data[i]);
-	gpio_set(PORT_SSP0_SSEL, PIN_SSP0_SSEL);
+	uint8_t header[] = {
+		W25Q80BV_PAGE_PROGRAM,
+		(addr & 0xFF0000) >> 16,
+		(addr & 0xFF00) >> 8,
+		addr & 0xFF
+	};
+
+	const spi_transfer_t transfers[] = {
+		{ header, ARRAY_SIZE(header) },
+		{ data, len }
+	};
+
+	spi_bus_transfer_gather(drv->bus, transfers, ARRAY_SIZE(transfers));
 }
 
 /* write an arbitrary number of bytes */
-void w25q80bv_program(uint32_t addr, uint32_t len, const uint8_t* data)
+void w25q80bv_program(w25q80bv_driver_t* const drv, uint32_t addr, uint32_t len, uint8_t* data)
 {
 	uint16_t first_block_len;
 	uint8_t device_id;
@@ -211,57 +168,60 @@ void w25q80bv_program(uint32_t addr, uint32_t len, const uint8_t* data)
 	device_id = 0;
 	while(device_id != W25Q80BV_DEVICE_ID_RES)
 	{
-		device_id = w25q80bv_get_device_id();
+		device_id = w25q80bv_get_device_id(drv);
 	}	
 	
 	/* do nothing if we would overflow the flash */
-	if ((len > W25Q80BV_NUM_BYTES) || (addr > W25Q80BV_NUM_BYTES)
-			|| ((addr + len) > W25Q80BV_NUM_BYTES))
+	if ((len > drv->num_bytes) || (addr > drv->num_bytes)
+			|| ((addr + len) > drv->num_bytes))
 		return;
 
 	/* handle start not at page boundary */
-	first_block_len = W25Q80BV_PAGE_LEN - (addr % W25Q80BV_PAGE_LEN);
+	first_block_len = drv->page_len - (addr % drv->page_len);
 	if (len < first_block_len)
 		first_block_len = len;
 	if (first_block_len) {
-		w25q80bv_page_program(addr, first_block_len, data);
+		w25q80bv_page_program(drv, addr, first_block_len, data);
 		addr += first_block_len;
 		data += first_block_len;
 		len -= first_block_len;
 	}
 
 	/* one page at a time on boundaries */
-	while (len >= W25Q80BV_PAGE_LEN) {
-		w25q80bv_page_program(addr, W25Q80BV_PAGE_LEN, data);
-		addr += W25Q80BV_PAGE_LEN;
-		data += W25Q80BV_PAGE_LEN;
-		len -= W25Q80BV_PAGE_LEN;
+	while (len >= drv->page_len) {
+		w25q80bv_page_program(drv, addr, drv->page_len, data);
+		addr += drv->page_len;
+		data += drv->page_len;
+		len -= drv->page_len;
 	}
 
 	/* handle end not at page boundary */
 	if (len) {
-		w25q80bv_page_program(addr, len, data);
+		w25q80bv_page_program(drv, addr, len, data);
 	}
 }
 
-void w25q80bv_read(uint32_t addr, uint32_t len, uint8_t* const data)
+/* write an arbitrary number of bytes */
+void w25q80bv_read(w25q80bv_driver_t* const drv, uint32_t addr, uint32_t len, uint8_t* const data)
 {
-	uint32_t i;
-
 	/* do nothing if we would overflow the flash */
-	if ((len > W25Q80BV_NUM_BYTES) || (addr > W25Q80BV_NUM_BYTES)
-			|| ((addr + len) > W25Q80BV_NUM_BYTES))
+	if ((len > drv->num_bytes) || (addr > drv->num_bytes)
+			|| ((addr + len) > drv->num_bytes))
 		return;
 
-	w25q80bv_wait_while_busy();
+	w25q80bv_wait_while_busy(drv);
 
-	gpio_clear(PORT_SSP0_SSEL, PIN_SSP0_SSEL);
-	ssp_transfer(SSP0_NUM, W25Q80BV_FAST_READ);
-	ssp_transfer(SSP0_NUM, (addr >> 16) & 0xFF);
-	ssp_transfer(SSP0_NUM, (addr >>  8) & 0xFF);
-	ssp_transfer(SSP0_NUM, (addr >>  0) & 0xFF);
-	ssp_transfer(SSP0_NUM, 0xFF);
-	for (i = 0; i < len; i++)
-		data[i] = ssp_transfer(SSP0_NUM, 0xFF);
-	gpio_set(PORT_SSP0_SSEL, PIN_SSP0_SSEL);
+	uint8_t header[] = {
+		W25Q80BV_FAST_READ,
+		(addr & 0xFF0000) >> 16,
+		(addr & 0xFF00) >> 8,
+		addr & 0xFF
+	};
+
+	const spi_transfer_t transfers[] = {
+		{ header, ARRAY_SIZE(header) },
+		{ data, len }
+	};
+
+	spi_bus_transfer_gather(drv->bus, transfers, ARRAY_SIZE(transfers));
 }

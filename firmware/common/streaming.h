@@ -23,7 +23,9 @@
 #ifndef __STREAMING_H__
 #define __STREAMING_H__
 
-void baseband_streaming_enable();
-void baseband_streaming_disable();
+#include <sgpio.h>
+
+void baseband_streaming_enable(sgpio_config_t* const sgpio_config);
+void baseband_streaming_disable(sgpio_config_t* const sgpio_config);
 
 #endif/*__STREAMING_H__*/

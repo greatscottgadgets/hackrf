@@ -1,6 +1,5 @@
 /*
- * Copyright 2012 Jared Boone
- * Copyright 2013 Benjamin Vernoux
+ * Copyright (C) 2014 Jared Boone, ShareBrained Technology, Inc.
  *
  * This file is part of HackRF.
  *
@@ -20,21 +19,20 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include <streaming.h>
+#include "spi_bus.h"
 
-#include <libopencm3/lpc43xx/m4/nvic.h>
-#include <libopencm3/lpc43xx/sgpio.h>
-
-void baseband_streaming_enable(sgpio_config_t* const sgpio_config) {
-	nvic_set_priority(NVIC_SGPIO_IRQ, 0);
-	nvic_enable_irq(NVIC_SGPIO_IRQ);
-	SGPIO_SET_EN_1 = (1 << SGPIO_SLICE_A);
-
-	sgpio_cpld_stream_enable(sgpio_config);
+void spi_bus_start(spi_bus_t* const bus, const void* const config) {
+	bus->start(bus, config);
 }
 
-void baseband_streaming_disable(sgpio_config_t* const sgpio_config) {
-	sgpio_cpld_stream_disable(sgpio_config);
+void spi_bus_stop(spi_bus_t* const bus) {
+	bus->stop(bus);
+}
 
-	nvic_disable_irq(NVIC_SGPIO_IRQ);
+void spi_bus_transfer(spi_bus_t* const bus, void* const data, const size_t count) {
+	bus->transfer(bus, data, count);
+}
+
+void spi_bus_transfer_gather(spi_bus_t* const bus, const spi_transfer_t* const transfers, const size_t count) {
+	bus->transfer_gather(bus, transfers, count);
 }

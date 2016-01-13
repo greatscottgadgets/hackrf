@@ -1,6 +1,5 @@
 /*
- * Copyright 2012 Jared Boone
- * Copyright 2013 Benjamin Vernoux
+ * Copyright (C) 2014 Jared Boone, ShareBrained Technology, Inc.
  *
  * This file is part of HackRF.
  *
@@ -20,21 +19,40 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include <streaming.h>
+#include "gpio_lpc.h"
 
-#include <libopencm3/lpc43xx/m4/nvic.h>
-#include <libopencm3/lpc43xx/sgpio.h>
+#include <stddef.h>
 
-void baseband_streaming_enable(sgpio_config_t* const sgpio_config) {
-	nvic_set_priority(NVIC_SGPIO_IRQ, 0);
-	nvic_enable_irq(NVIC_SGPIO_IRQ);
-	SGPIO_SET_EN_1 = (1 << SGPIO_SLICE_A);
-
-	sgpio_cpld_stream_enable(sgpio_config);
+void gpio_init() {
+	for(size_t i=0; i<8; i++) {
+		GPIO_LPC_PORT(i)->dir = 0;
+	}
 }
 
-void baseband_streaming_disable(sgpio_config_t* const sgpio_config) {
-	sgpio_cpld_stream_disable(sgpio_config);
+void gpio_set(gpio_t gpio) {
+	gpio->port->set = gpio->mask;
+}
 
-	nvic_disable_irq(NVIC_SGPIO_IRQ);
+void gpio_clear(gpio_t gpio) {
+	gpio->port->clr = gpio->mask;
+}
+
+void gpio_toggle(gpio_t gpio) {
+	gpio->port->not = gpio->mask;
+}
+
+void gpio_output(gpio_t gpio) {
+	gpio->port->dir |= gpio->mask;
+}
+
+void gpio_input(gpio_t gpio) {
+	gpio->port->dir &= ~gpio->mask;
+}
+
+void gpio_write(gpio_t gpio, const bool value) {
+	*gpio->gpio_w = value;
+}
+
+bool gpio_read(gpio_t gpio) {
+	return *gpio->gpio_w;
 }
