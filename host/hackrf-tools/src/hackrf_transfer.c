@@ -19,9 +19,7 @@
  * the Free Software Foundation, Inc., 51 Franklin Street,
  * Boston, MA 02110-1301, USA.
  */
-/* Modified by Peter Zhang<tpzwhu@gmail.com>, 2016/01/13.
- * Added the Crystal error correction function.(ppm correction)
-*/
+
 
 #include <hackrf.h>
 
