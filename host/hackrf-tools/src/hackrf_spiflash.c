@@ -87,7 +87,7 @@ static void usage()
 {
 	printf("Usage:\n");
 	printf("\t-a, --address <n>: starting address (default: 0)\n");
-	printf("\t-l, --length <n>: number of bytes to read (default: 0)\n");
+	printf("\t-l, --length <n>: number of bytes to read (default: %d)\n", MAX_LENGTH);
 	printf("\t-r <filename>: Read data into file.\n");
 	printf("\t-w <filename>: Write data from file.\n");
 	printf("\t-d <serialnumber>: Serial number of device, if multiple devices\n");
@@ -98,7 +98,7 @@ int main(int argc, char** argv)
 {
 	int opt;
 	uint32_t address = 0;
-	uint32_t length = 0;
+	uint32_t length = MAX_LENGTH;
 	uint32_t tmp_length;
 	uint16_t xfer_len = 0;
 	const char* path = NULL;
