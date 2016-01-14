@@ -483,6 +483,8 @@ int main(int argc, char** argv) {
 	char date_time[DATE_TIME_MAX_LEN];
 	const char* path = NULL;
 	const char* serial_number = NULL;
+	char* endptr;
+	double f_hz;
 	int result;
 	time_t rawtime;
 	struct tm * timeinfo;
@@ -516,33 +518,33 @@ int main(int argc, char** argv) {
 			break;
 
 		case 'f':
-			{
-			double f = atof(optarg);
-			if (f < 0)
+			f_hz = strtod(optarg, &endptr);
+			if (optarg == endptr) {
+				result = HACKRF_ERROR_INVALID_PARAM;
 				break;
-			freq_hz = f;
-			automatic_tuning = true;
 			}
+			freq_hz = f_hz;
+			automatic_tuning = true;
 			break;
 
 		case 'i':
-			{
-			double f = atof(optarg);
-			if (f < 0)
+			f_hz = strtod(optarg, &endptr);
+			if (optarg == endptr) {
+				result = HACKRF_ERROR_INVALID_PARAM;
 				break;
-			if_freq_hz = f;
-			if_freq = true;
 			}
+			if_freq_hz = f_hz;
+			if_freq = true;
 			break;
 
 		case 'o':
-			{
-			double f = atof(optarg);
-			if (f < 0)
+			f_hz = strtod(optarg, &endptr);
+			if (optarg == endptr) {
+				result = HACKRF_ERROR_INVALID_PARAM;
 				break;
-			lo_freq_hz = f;
-			lo_freq = true;
 			}
+			lo_freq_hz = f_hz;
+			lo_freq = true;
 			break;
 
 		case 'm':
@@ -573,13 +575,13 @@ int main(int argc, char** argv) {
 			break;
 
 		case 's':
-			{
-			double f = atof(optarg);
-			if (f < 0)
+			f_hz = strtod(optarg, &endptr);
+			if (optarg == endptr) {
+				result = HACKRF_ERROR_INVALID_PARAM;
 				break;
-			sample_rate_hz = f;
-			sample_rate = true;
 			}
+			sample_rate_hz = f_hz;
+			sample_rate = true;
 			break;
 
 		case 'n':
@@ -589,14 +591,13 @@ int main(int argc, char** argv) {
 			break;
 
 		case 'b':
-			{
-			double f = atof(optarg);
-			if (f < 0)
+			f_hz = strtod(optarg, &endptr);
+			if (optarg == endptr) {
+				result = HACKRF_ERROR_INVALID_PARAM;
 				break;
-
-			baseband_filter_bw_hz = f;
-			baseband_filter_bw = true;
 			}
+			baseband_filter_bw_hz = f_hz;
+			baseband_filter_bw = true;
 			break;
 
 		case 'c':
