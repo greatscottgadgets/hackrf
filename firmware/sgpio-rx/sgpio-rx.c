@@ -35,7 +35,7 @@ void tx_test() {
 	};
 	uint32_t i = 0;
 
-    rf_path_set_direction(RF_PATH_DIRECTION_TX);
+    rf_path_set_direction(&rf_path, RF_PATH_DIRECTION_TX);
 	sgpio_cpld_stream_enable(&sgpio_config);
 	
 	while(true) {
@@ -51,7 +51,7 @@ void rx_test() {
 	uint32_t magsq;
 	int8_t sigi, sigq;
 
-    rf_path_set_direction(RF_PATH_DIRECTION_RX);
+    rf_path_set_direction(&rf_path, RF_PATH_DIRECTION_RX);
     sgpio_cpld_stream_enable(&sgpio_config);
 
 	led_on(LED2);
@@ -79,7 +79,7 @@ int main(void) {
 
 	const uint64_t freq = 2441000000U;
 
-	sgpio_set_slice_mode(false);
+	sgpio_set_slice_mode(&sgpio_config, false);
 	pin_setup();
 	enable_1v8_power();
 #ifdef HACKRF_ONE
