@@ -26,9 +26,6 @@
 #include <tuning.h>
 
 void tx_test() {
-	sgpio_set_slice_mode(&sgpio_config, false);
-	sgpio_configure(&sgpio_config, TRANSCEIVER_MODE_TX);
-	
 	// LSB goes out first, samples are 0x<Q1><I1><Q0><I0>
 	volatile uint32_t buffer[] = {
 		0xda808080,
@@ -38,6 +35,7 @@ void tx_test() {
 	};
 	uint32_t i = 0;
 
+    rf_path_set_direction(RF_PATH_DIRECTION_TX);
 	sgpio_cpld_stream_enable(&sgpio_config);
 	
 	while(true) {
@@ -48,14 +46,12 @@ void tx_test() {
 }
 
 void rx_test() {
-	sgpio_set_slice_mode(&sgpio_config, false);
-	sgpio_configure(&sgpio_config, TRANSCEIVER_MODE_RX);
-
     volatile uint32_t buffer[4096];
     uint32_t i = 0;
-	int16_t magsq;
+	uint32_t magsq;
 	int8_t sigi, sigq;
 
+    rf_path_set_direction(RF_PATH_DIRECTION_RX);
     sgpio_cpld_stream_enable(&sgpio_config);
 
 	led_on(LED2);
@@ -66,16 +62,12 @@ void rx_test() {
         buffer[i & 4095] = SGPIO_REG_SS(SGPIO_SLICE_A);
 
 		/* find the magnitude squared */
-		sigi = (buffer[i & 4095] & 0xff) - 0x80;
-		sigq = ((buffer[i & 4095] >> 8) & 0xff) - 0x80;
-		magsq = sigi * sigq;
-		if ((uint16_t)magsq & 0x8000) {
-			magsq ^= 0xffff;
-			magsq++;
-		}
+		sigi = buffer[i & 4095] & 0xff;
+		sigq = (buffer[i & 4095] >> 8) & 0xff;
+		magsq = sigi * sigi + sigq * sigq;
 		
 		/* illuminate LED3 only when magsq exceeds threshold */
-		if (magsq > 0x3c00)
+		if (magsq > 0x1000)
 			led_on(LED3);
 		else
 			led_off(LED3);
@@ -85,8 +77,9 @@ void rx_test() {
 
 int main(void) {
 
-	const uint64_t freq = 2700000000U;
+	const uint64_t freq = 2441000000U;
 
+	sgpio_set_slice_mode(false);
 	pin_setup();
 	enable_1v8_power();
 #ifdef HACKRF_ONE
@@ -94,7 +87,6 @@ int main(void) {
 #endif
 	cpu_clock_init();
     rf_path_init(&rf_path);
-    rf_path_set_direction(&rf_path, RF_PATH_DIRECTION_RX);
 
 	set_freq(freq);
 
