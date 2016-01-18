@@ -215,7 +215,8 @@ void w25q80bv_read(w25q80bv_driver_t* const drv, uint32_t addr, uint32_t len, ui
 		W25Q80BV_FAST_READ,
 		(addr & 0xFF0000) >> 16,
 		(addr & 0xFF00) >> 8,
-		addr & 0xFF
+		addr & 0xFF,
+		0x00
 	};
 
 	const spi_transfer_t transfers[] = {
