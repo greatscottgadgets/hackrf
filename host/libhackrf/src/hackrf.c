@@ -312,11 +312,12 @@ extern "C"
 
 int ADDCALL hackrf_init(void)
 {
+	int libusb_error;
 	if (g_libusb_context != NULL) {
 		return HACKRF_SUCCESS;
 	}
 	
-	const int libusb_error = libusb_init(&g_libusb_context);
+	libusb_error = libusb_init(&g_libusb_context);
 	if( libusb_error != 0 )
 	{
 		return HACKRF_ERROR_LIBUSB;
@@ -343,6 +344,10 @@ hackrf_device_list_t* ADDCALL hackrf_device_list()
 {
 	ssize_t i;
 	libusb_device_handle* usb_device = NULL;
+	uint_fast8_t serial_descriptor_index;
+	char serial_number[64];
+	int serial_number_length;
+
 	hackrf_device_list_t* list = calloc(1, sizeof(*list));
 	if ( list == NULL )
 		return NULL;
@@ -370,14 +375,13 @@ hackrf_device_list_t* ADDCALL hackrf_device_list()
 				list->usb_board_ids[idx] = device_descriptor.idProduct;
 				list->usb_device_index[idx] = i;
 				
-				const uint_fast8_t serial_descriptor_index = device_descriptor.iSerialNumber;
+				serial_descriptor_index = device_descriptor.iSerialNumber;
 				if( serial_descriptor_index > 0 ) {
 					if( libusb_open(list->usb_devices[i], &usb_device) != 0 ) {
 						usb_device = NULL;
 						continue;
 					}
-					char serial_number[64];
-					const int serial_number_length = libusb_get_string_descriptor_ascii(usb_device, serial_descriptor_index, (unsigned char*)serial_number, sizeof(serial_number));
+					serial_number_length = libusb_get_string_descriptor_ascii(usb_device, serial_descriptor_index, (unsigned char*)serial_number, sizeof(serial_number));
 					if( serial_number_length == 32 ) {
 						serial_number[32] = 0;
 						list->serial_numbers[idx] = strdup(serial_number);
@@ -417,6 +421,8 @@ libusb_device_handle* hackrf_open_usb(const char* const desired_serial_number)
 	const ssize_t list_length = libusb_get_device_list(g_libusb_context, &devices);
 	int match_len = 0;
 	ssize_t i;
+	char serial_number[64];
+	int serial_number_length;
 	
 	printf("Number of USB devices: %ld\n", list_length);
 	
@@ -446,8 +452,7 @@ libusb_device_handle* hackrf_open_usb(const char* const desired_serial_number)
 							usb_device = NULL;
 							continue;
 						}
-						char serial_number[64];
-						const int serial_number_length = libusb_get_string_descriptor_ascii(usb_device, serial_descriptor_index, (unsigned char*)serial_number, sizeof(serial_number));
+						serial_number_length = libusb_get_string_descriptor_ascii(usb_device, serial_descriptor_index, (unsigned char*)serial_number, sizeof(serial_number));
 						if( serial_number_length == 32 ) {
 							serial_number[32] = 0;
 							printf(" %s", serial_number);
@@ -593,13 +598,14 @@ int ADDCALL hackrf_open_by_serial(const char* const desired_serial_number, hackr
 int ADDCALL hackrf_device_list_open(hackrf_device_list_t *list, int idx, hackrf_device** device)
 {
 	libusb_device_handle* usb_device;
+	int i;
 	
 	if( device == NULL || list == NULL || idx < 0 || idx >= list->devicecount )
 	{
 		return HACKRF_ERROR_INVALID_PARAM;
 	}
 	
-	int i = list->usb_device_index[idx];
+	i = list->usb_device_index[idx];
 
 	if( libusb_open(list->usb_devices[i], &usb_device) != 0 ) {
 		usb_device = NULL;
