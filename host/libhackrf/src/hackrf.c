@@ -1415,6 +1415,7 @@ static int create_transfer_thread(hackrf_device* device,
 	if( device->transfer_thread_started == false )
 	{
 		device->streaming = false;
+		do_exit = false;
 
 		result = prepare_transfers(
 			device, endpoint_address,
