@@ -6,7 +6,7 @@ projects.  The cpld directory contains HDL source for the CPLD.
 
 The firmware is set up for compilation with the GCC toolchain available here:
 
-https://code.launchpad.net/gcc-arm-embedded
+https://launchpad.net/gcc-arm-embedded
 
 Required dependency:
 
