@@ -29,7 +29,7 @@ order of copper layers:
     Copper 1:  C1F (front)
     Copper 2:  C2
     Copper 3:  C3
-    Copper 4:  C1B (back)
+    Copper 4:  C4B (back)
 
 PCB description: 4 layer PCB 0.062 in
     Copper        1   0.5 oz foil plated to approximately 0.0017 in
