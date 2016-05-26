@@ -1,0 +1,31 @@
+language: c
+
+cache: apt
+
+compiler:
+  - gcc
+#  - clang
+
+before_script:
+#  - wget https://launchpad.net/gcc-arm-embedded/5.0/5-2016-q1-update/+download/gcc-arm-none-eabi-5_3-2016q1-20160330-linux.tar.bz2 -O /tmp/gcc-arm.tar.bz2
+#  - tar -xvf /tmp/gcc-arm.tar.bz2
+#  - export PATH=$PWD/gcc-arm-none-eabi-5_3-2016q1/bin:$PATH
+  - export CFLAGS="-Wall -Wextra -Werror"
+
+script:
+  - mkdir host/build
+  - cd host/build
+  - cmake ..
+  - make
+#  - cd ../../firmware/hackrf_usb
+#  - mkdir build
+#  - cd build
+#  - export CC="arm-none-eabi-gcc"
+#  - export CXX="arm-none-eabi-g++"
+#  - cmake ..
+#  - make
+
+addons:
+  apt:
+    packages:
+      - libusb-1.0-0-dev
