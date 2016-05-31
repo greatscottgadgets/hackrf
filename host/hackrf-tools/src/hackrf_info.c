@@ -26,7 +26,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-int main(int argc, char** argv)
+int main(void)
 {
 	int result = HACKRF_SUCCESS;
 	uint8_t board_id = BOARD_ID_INVALID;

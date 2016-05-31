@@ -325,7 +325,7 @@ uint32_t sample_rate_hz;
 
 bool limit_num_samples = false;
 uint64_t samples_to_xfer = 0;
-size_t bytes_to_xfer = 0;
+ssize_t bytes_to_xfer = 0;
 
 bool baseband_filter_bw = false;
 uint32_t baseband_filter_bw_hz = 0;
@@ -333,12 +333,12 @@ uint32_t baseband_filter_bw_hz = 0;
 bool repeat = false;
 
 int rx_callback(hackrf_transfer* transfer) {
-	size_t bytes_to_write;
+	ssize_t bytes_to_write;
+	ssize_t bytes_written;
 	int i;
 
 	if( fd != NULL ) 
 	{
-		ssize_t bytes_written;
 		byte_count += transfer->valid_length;
 		bytes_to_write = transfer->valid_length;
 		if (limit_num_samples) {
@@ -366,12 +366,12 @@ int rx_callback(hackrf_transfer* transfer) {
 }
 
 int tx_callback(hackrf_transfer* transfer) {
-	size_t bytes_to_read;
+	ssize_t bytes_to_read;
+	ssize_t bytes_read;
 	int i;
 
 	if( fd != NULL )
 	{
-		ssize_t bytes_read;
 		byte_count += transfer->valid_length;
 		bytes_to_read = transfer->valid_length;
 		if (limit_num_samples) {
@@ -695,7 +695,7 @@ int main(int argc, char** argv) {
 			u64toa(freq_hz,&ascii_u64_data1));
 
 	} else if (automatic_tuning) {
-		if( (freq_hz > FREQ_MAX_HZ) || (freq_hz < FREQ_MIN_HZ) )
+		if(freq_hz > FREQ_MAX_HZ)
 		{
 			printf("argument error: freq_hz shall be between %s and %s.\n",
 				u64toa(FREQ_MIN_HZ,&ascii_u64_data1),
