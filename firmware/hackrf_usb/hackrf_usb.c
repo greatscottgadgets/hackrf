@@ -28,6 +28,8 @@
 
 #include <streaming.h>
 
+#include "tuning.h"
+
 #include "usb.h"
 #include "usb_standard_request.h"
 
@@ -239,6 +241,13 @@ int main(void) {
 	rf_path_init(&rf_path);
 
 	unsigned int phase = 0;
+
+	unsigned int blocks_queued = 0;
+	const uint64_t scan_freq_min = 100000000;
+	const uint64_t scan_freq_max = 6000000000;
+	const uint64_t scan_freq_step = 20000000;
+	uint64_t scan_freq = scan_freq_min;
+	set_freq(scan_freq);
 	while(true) {
 		// Check whether we need to initiate a CPLD update
 		if (start_cpld_update)
@@ -248,28 +257,41 @@ int main(void) {
 		if ( usb_bulk_buffer_offset >= 16384
 		     && phase == 1
 		     && transceiver_mode() != TRANSCEIVER_MODE_OFF) {
-			usb_transfer_schedule_block(
-				(transceiver_mode() == TRANSCEIVER_MODE_RX)
-				? &usb_endpoint_bulk_in : &usb_endpoint_bulk_out,
-				&usb_bulk_buffer[0x0000],
-				0x4000,
-				NULL, NULL
-				);
+			if (blocks_queued == 2)
+				usb_transfer_schedule_block(
+					(transceiver_mode() == TRANSCEIVER_MODE_RX)
+					? &usb_endpoint_bulk_in : &usb_endpoint_bulk_out,
+					&usb_bulk_buffer[0x0000],
+					0x4000,
+					NULL, NULL
+					);
 			phase = 0;
+			blocks_queued++;
 		}
 	
 		// Set up IN transfer of buffer 1.
 		if ( usb_bulk_buffer_offset < 16384
 		     && phase == 0
 		     && transceiver_mode() != TRANSCEIVER_MODE_OFF) {
-			usb_transfer_schedule_block(
-				(transceiver_mode() == TRANSCEIVER_MODE_RX)
-				? &usb_endpoint_bulk_in : &usb_endpoint_bulk_out,
-				&usb_bulk_buffer[0x4000],
-				0x4000,
-				NULL, NULL
-			);
+			if (blocks_queued == 2)
+				usb_transfer_schedule_block(
+					(transceiver_mode() == TRANSCEIVER_MODE_RX)
+					? &usb_endpoint_bulk_in : &usb_endpoint_bulk_out,
+					&usb_bulk_buffer[0x4000],
+					0x4000,
+					NULL, NULL
+				);
 			phase = 1;
+			blocks_queued++;
+		}
+
+		if (blocks_queued > 2) {
+			scan_freq += scan_freq_step;
+			if (scan_freq > scan_freq_max) {
+				scan_freq = scan_freq_min;
+			}
+			set_freq(scan_freq);
+			blocks_queued = 0;
 		}
 	}
 	
