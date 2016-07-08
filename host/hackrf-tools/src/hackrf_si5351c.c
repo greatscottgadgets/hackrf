@@ -25,12 +25,20 @@
 #include <stdlib.h>
 #include <getopt.h>
 
+#ifndef bool
+typedef int bool;
+#define true 1
+#define false 0
+#endif
+
 static void usage() {
 	printf("\nUsage:\n");
 	printf("\t-c, --config: print textual configuration information\n");
 	printf("\t-n, --register <n>: set register number for subsequent read/write operations\n");
 	printf("\t-r, --read: read register specified by last -n argument, or all registers\n");
 	printf("\t-w, --write <v>: write register specified by last -n argument with value <v>\n");
+	printf("\t-s, --device <s>: specify a particular device by serial number\n");
+	printf("\t-d, --device <n>: specify a particular device by number\n");
 	printf("\nExamples:\n");
 	printf("\t<command> -n 12 -r    # reads from register 12\n");
 	printf("\t<command> -r          # reads all registers\n");
@@ -42,6 +50,8 @@ static struct option long_options[] = {
 	{ "register", required_argument, 0, 'n' },
 	{ "write", required_argument, 0, 'w' },
 	{ "read", no_argument, 0, 'r' },
+	{ "device", no_argument, 0, 'd' },
+	{ "serial", no_argument, 0, 's' },
 	{ 0, 0, 0, 0 },
 };
 
@@ -184,8 +194,15 @@ int dump_configuration(hackrf_device* device) {
 
 int main(int argc, char** argv) {
 	int opt;
+
 	uint16_t register_number = REGISTER_INVALID;
 	uint16_t register_value;
+	bool read = false;
+	bool write = false;
+	bool dump_config = false;
+	const char* serial_number = NULL;
+        int device_index = 0;
+	
 	hackrf_device* device = NULL;
 	int option_index = 0;
 
@@ -194,36 +211,31 @@ int main(int argc, char** argv) {
 		printf("hackrf_init() failed: %s (%d)\n", hackrf_error_name(result), result);
 		return -1;
 	}
-	
-	result = hackrf_open(&device);
-	if( result ) {
-		printf("hackrf_open() failed: %s (%d)\n", hackrf_error_name(result), result);
-		return -1;
-	}
 
-	while( (opt = getopt_long(argc, argv, "cn:rw:", long_options, &option_index)) != EOF ) {
+	while( (opt = getopt_long(argc, argv, "d:s:cn:rw:", long_options, &option_index)) != EOF ) {
 		switch( opt ) {
 		case 'n':
 			result = parse_int(optarg, &register_number);
 			break;
 		
 		case 'w':
-			result = parse_int(optarg, &register_value);
-			if( result == HACKRF_SUCCESS ) {
-				result = write_register(device, register_number, register_value);
-			}
+			write = true;
 			break;
 		
 		case 'r':
-			if( register_number == REGISTER_INVALID ) {
-				result = dump_registers(device);
-			} else {
-				result = dump_register(device, register_number);
-			}
+			read = true;
 			break;
 		
 		case 'c':
-			dump_configuration(device);
+			dump_config = true;
+			break;
+
+		case 'd':
+			device_index = atoi(optarg);
+			break;
+
+		case 's':
+			serial_number = optarg;
 			break;
 
 		default:
@@ -234,6 +246,37 @@ int main(int argc, char** argv) {
 			printf("argument error: %s (%d)\n", hackrf_error_name(result), result);
 			break;
 		}
+	}
+
+	if(serial_number != NULL) {
+		result = hackrf_open_by_serial(serial_number, &device);
+	} else {
+		hackrf_device_list_t* device_list = hackrf_device_list();
+		if(device_list->devicecount <= 0) {
+			result = HACKRF_ERROR_NOT_FOUND;
+		} else {
+			result = hackrf_device_list_open(device_list, device_index, &device);
+		}	
+	}
+
+	if( result ) {
+		printf("hackrf_open() failed: %s (%d)\n", hackrf_error_name(result), result);
+		return -1;
+	}
+
+	if(write) {
+		result = parse_int(optarg, &register_value);
+		if( result == HACKRF_SUCCESS ) {
+			result = write_register(device, register_number, register_value);
+		}
+	} else if(read) {
+		if( register_number == REGISTER_INVALID ) {
+			result = dump_registers(device);
+		} else {
+			result = dump_register(device, register_number);
+		}
+	} else if(dump_config) {
+		dump_configuration(device);
 	}
 	
 	result = hackrf_close(device);
