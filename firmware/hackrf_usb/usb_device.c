@@ -38,23 +38,10 @@ usb_configuration_t usb_configuration_full_speed = {
 	.descriptor = usb_descriptor_configuration_full_speed,
 };
 
-usb_configuration_t usb_configuration_cpld_update_full_speed = {
-	.number = 2,
-	.speed = USB_SPEED_FULL,
-	.descriptor = usb_descriptor_configuration_cpld_update_full_speed,
-};
-
-usb_configuration_t usb_configuration_cpld_update_high_speed = {
-	.number = 2,
-	.speed = USB_SPEED_HIGH,
-	.descriptor = usb_descriptor_configuration_cpld_update_high_speed,
-};
 
 usb_configuration_t* usb_configurations[] = {
 	&usb_configuration_high_speed,
 	&usb_configuration_full_speed,
-	&usb_configuration_cpld_update_full_speed,
-	&usb_configuration_cpld_update_high_speed,
 	0,
 };
 
