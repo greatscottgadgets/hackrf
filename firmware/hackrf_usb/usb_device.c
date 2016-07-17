@@ -51,4 +51,6 @@ usb_device_t usb_device = {
 	.qualifier_descriptor = usb_descriptor_device_qualifier,
 	.configurations = &usb_configurations,
 	.configuration = 0,
+	.wcid_string_descriptor = wcid_string_descriptor,
+	.wcid_feature_descriptor = wcid_feature_descriptor,
 };

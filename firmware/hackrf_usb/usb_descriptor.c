@@ -55,7 +55,7 @@ uint8_t usb_descriptor_device[] = {
 	USB_MAX_PACKET0,		   // bMaxPacketSize0
 	USB_WORD(USB_VENDOR_ID),	   // idVendor
 	USB_WORD(USB_PRODUCT_ID),	   // idProduct
-	USB_WORD(0x0100),		   // bcdDevice
+	USB_WORD(0x0101),		   // bcdDevice
 	0x01,				   // iManufacturer
 	0x02,				   // iProduct
 	0x04,				   // iSerialNumber
@@ -251,4 +251,31 @@ uint8_t* usb_descriptor_strings[] = {
 	usb_descriptor_string_config_description,
 	usb_descriptor_string_serial_number,
 	0,		// TERMINATOR
+};
+
+uint8_t wcid_string_descriptor[] = {
+	18,                          // bLength
+	USB_DESCRIPTOR_TYPE_STRING,  // bDescriptorType
+	'M', 0x00,
+	'S', 0x00,
+	'F', 0x00,
+	'T', 0x00,
+	'1', 0x00,
+	'0', 0x00,
+	'0', 0x00,
+	USB_WCID_VENDOR_REQ, // vendor request code for further descriptor
+	0x00
+};
+
+uint8_t wcid_feature_descriptor[] = {
+	0x28, 0x00, 0x00, 0x00,  // bLength
+	USB_WORD(0x0100),        // WCID version
+	USB_WORD(0x0004),        // WICD descriptor index
+	0x01,                    //bNumSections
+	0x00,0x00,0x00,0x00,0x00,0x00,0x00, //Reserved
+	0x00,        //bInterfaceNumber
+	0x01,        //Reserved
+	'W', 'I', 'N', 'U', 'S', 'B', 0x00,0x00, //Compatible ID, padded with zeros
+	0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00, //Sub-compatible ID
+	0x00,0x00,0x00,0x00,0x00,0x00            //Reserved
 };

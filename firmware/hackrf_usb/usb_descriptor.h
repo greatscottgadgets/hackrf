@@ -34,3 +34,7 @@ extern uint8_t usb_descriptor_string_product[];
 extern uint8_t usb_descriptor_string_serial_number[];
 
 extern uint8_t* usb_descriptor_strings[];
+
+#define USB_WCID_VENDOR_REQ 0x19
+extern uint8_t wcid_string_descriptor[];
+extern uint8_t wcid_feature_descriptor[];
