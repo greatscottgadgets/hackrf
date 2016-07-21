@@ -42,6 +42,7 @@ set(SRC_M4
 	usb_api_register.c
 	usb_api_spiflash.c
 	usb_api_transceiver.c
+	usb_api_scan.c
 	"${PATH_HACKRF_FIRMWARE_COMMON}/usb_queue.c"
 	"${PATH_HACKRF_FIRMWARE_COMMON}/fault_handler.c"
 	"${PATH_HACKRF_FIRMWARE_COMMON}/cpld_jtag.c"

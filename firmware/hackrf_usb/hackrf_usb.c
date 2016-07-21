@@ -42,6 +42,7 @@
 #include "usb_api_cpld.h"
 #include "usb_api_register.h"
 #include "usb_api_spiflash.h"
+#include "usb_api_scan.h"
 
 #include "usb_api_transceiver.h"
 #include "sgpio_isr.h"
@@ -142,6 +143,7 @@ static const usb_request_handler_fn vendor_request_handler[] = {
 #endif
 	usb_vendor_request_set_freq_explicit,
 	usb_vendor_request_read_wcid,  // USB_WCID_VENDOR_REQ
+	usb_vendor_request_init_scan,
 };
 
 static const uint32_t vendor_request_handler_count =
@@ -241,13 +243,8 @@ int main(void) {
 	rf_path_init(&rf_path);
 
 	unsigned int phase = 0;
-
 	unsigned int blocks_queued = 0;
-	const uint64_t scan_freq_min = 100000000;
-	const uint64_t scan_freq_max = 6000000000;
-	const uint64_t scan_freq_step = 20000000;
-	uint64_t scan_freq = scan_freq_min;
-	set_freq(scan_freq);
+
 	while(true) {
 		// Check whether we need to initiate a CPLD update
 		if (start_cpld_update)
@@ -286,11 +283,7 @@ int main(void) {
 		}
 
 		if (blocks_queued > 2) {
-			scan_freq += scan_freq_step;
-			if (scan_freq > scan_freq_max) {
-				scan_freq = scan_freq_min;
-			}
-			set_freq(scan_freq);
+			scan_callback();
 			blocks_queued = 0;
 		}
 	}
