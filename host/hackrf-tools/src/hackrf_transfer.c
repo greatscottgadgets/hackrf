@@ -829,7 +829,7 @@ int main(int argc, char** argv) {
 	// Change the freq and sample rate to correct the crystal clock error.
 	if( crystal_correct ) {
 
-		sample_rate_hz = (uint)((double)sample_rate_hz * (1000000 - crystal_correct_ppm)/1000000+0.5);
+		sample_rate_hz = (uint32_t)((double)sample_rate_hz * (1000000 - crystal_correct_ppm)/1000000+0.5);
 		freq_hz = freq_hz * (1000000 - crystal_correct_ppm)/1000000;
 		
 	}
