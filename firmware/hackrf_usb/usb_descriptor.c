@@ -59,7 +59,7 @@ uint8_t usb_descriptor_device[] = {
 	0x01,				   // iManufacturer
 	0x02,				   // iProduct
 	0x04,				   // iSerialNumber
-	0x02				   // bNumConfigurations
+	0x01				   // bNumConfigurations
 };
 
 uint8_t usb_descriptor_device_qualifier[] = {
