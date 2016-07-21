@@ -177,11 +177,6 @@ void usb_configuration_changed(
 		// transceiver configuration
 		cpu_clock_pll1_max_speed();
 		led_on(LED1);
-	} else if( device->configuration->number == 2 ) {
-		// CPLD update configuration
-		cpu_clock_pll1_max_speed();
-		usb_endpoint_init(&usb_endpoint_bulk_out);
-		start_cpld_update = true;
 	} else {
 		/* Configuration number equal 0 means usb bus reset. */
 		cpu_clock_pll1_low_speed();
