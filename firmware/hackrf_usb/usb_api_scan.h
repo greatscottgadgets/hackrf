@@ -26,11 +26,11 @@
 #include <usb_type.h>
 #include <usb_request.h>
 
-extern volatile bool scan_mode;
+extern volatile bool start_scan_mode;
 
 usb_request_status_t usb_vendor_request_init_scan(
 	usb_endpoint_t* const endpoint, const usb_transfer_stage_t stage);
 
-void scan_callback(void);
+void scan_mode(void);
 
 #endif /* __USB_API_SPCAN_H__ */

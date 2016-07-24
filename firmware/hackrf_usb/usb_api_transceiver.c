@@ -22,9 +22,16 @@
 
 #include "usb_api_transceiver.h"
 
+#include <libopencm3/cm3/vector.h>
+#include <libopencm3/lpc43xx/m4/nvic.h>
+#include "sgpio_isr.h"
+
+#include "usb_api_cpld.h" // Remove when CPLD update is handled elsewhere
+
 #include <max2837.h>
 #include <rf_path.h>
 #include <tuning.h>
+#include <streaming.h>
 #include <usb.h>
 #include <usb_queue.h>
 
@@ -217,6 +224,71 @@ usb_request_status_t usb_vendor_request_set_freq_explicit(
 			return USB_REQUEST_STATUS_OK;
 		}
 		return USB_REQUEST_STATUS_STALL;
+	} else {
+		return USB_REQUEST_STATUS_OK;
+	}
+}
+
+static volatile transceiver_mode_t _transceiver_mode = TRANSCEIVER_MODE_OFF;
+
+
+transceiver_mode_t transceiver_mode(void) {
+	return _transceiver_mode;
+}
+
+void set_transceiver_mode(const transceiver_mode_t new_transceiver_mode) {
+	baseband_streaming_disable(&sgpio_config);
+	
+	usb_endpoint_disable(&usb_endpoint_bulk_in);
+	usb_endpoint_disable(&usb_endpoint_bulk_out);
+	
+	_transceiver_mode = new_transceiver_mode;
+	
+	if( _transceiver_mode == TRANSCEIVER_MODE_RX ) {
+		led_off(LED3);
+		led_on(LED2);
+		usb_endpoint_init(&usb_endpoint_bulk_in);
+		rf_path_set_direction(&rf_path, RF_PATH_DIRECTION_RX);
+		vector_table.irq[NVIC_SGPIO_IRQ] = sgpio_isr_rx;
+	} else if (_transceiver_mode == TRANSCEIVER_MODE_TX) {
+		led_off(LED2);
+		led_on(LED3);
+		usb_endpoint_init(&usb_endpoint_bulk_out);
+		rf_path_set_direction(&rf_path, RF_PATH_DIRECTION_TX);
+		vector_table.irq[NVIC_SGPIO_IRQ] = sgpio_isr_tx;
+	} else {
+		led_off(LED2);
+		led_off(LED3);
+		rf_path_set_direction(&rf_path, RF_PATH_DIRECTION_OFF);
+		vector_table.irq[NVIC_SGPIO_IRQ] = sgpio_isr_rx;
+	}
+
+	if( _transceiver_mode != TRANSCEIVER_MODE_OFF ) {
+		si5351c_activate_best_clock_source(&clock_gen);
+		baseband_streaming_enable(&sgpio_config);
+	}
+}
+
+usb_request_status_t usb_vendor_request_set_transceiver_mode(
+	usb_endpoint_t* const endpoint,
+	const usb_transfer_stage_t stage
+) {
+	if( stage == USB_TRANSFER_STAGE_SETUP ) {
+		switch( endpoint->setup.value ) {
+		case TRANSCEIVER_MODE_OFF:
+		case TRANSCEIVER_MODE_RX:
+		case TRANSCEIVER_MODE_TX:
+			set_transceiver_mode(endpoint->setup.value);
+			usb_transfer_schedule_ack(endpoint->in);
+			return USB_REQUEST_STATUS_OK;
+		case TRANSCEIVER_MODE_CPLD_UPDATE:
+			usb_endpoint_init(&usb_endpoint_bulk_out);
+			start_cpld_update = true;
+			usb_transfer_schedule_ack(endpoint->in);
+			return USB_REQUEST_STATUS_OK;
+		default:
+			return USB_REQUEST_STATUS_STALL;
+		}
 	} else {
 		return USB_REQUEST_STATUS_OK;
 	}
