@@ -196,6 +196,10 @@ extern ADDAPI const char* ADDCALL hackrf_filter_path_name(const enum rf_path_fil
 extern ADDAPI uint32_t ADDCALL hackrf_compute_baseband_filter_bw_round_down_lt(const uint32_t bandwidth_hz);
 /* Compute best default value depending on sample rate (auto filter) */
 extern ADDAPI uint32_t ADDCALL hackrf_compute_baseband_filter_bw(const uint32_t bandwidth_hz);
+/* Start scan mode */
+extern ADDAPI int ADDCALL hackrf_init_scan(hackrf_device* device,
+		const uint64_t min_freq_hz, const uint64_t max_freq_hz,
+		const uint64_t step_freq_hz);
 
 #ifdef __cplusplus
 } // __cplusplus defined.

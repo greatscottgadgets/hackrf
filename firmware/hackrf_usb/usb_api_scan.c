@@ -39,27 +39,26 @@ static uint64_t scan_freq_min;
 static uint64_t scan_freq_max;
 static uint64_t scan_freq_step;
 
-static inline uint64_t bytes_to_uint64(uint8_t* buf) {
-	uint64_t tmp = buf[0] << 24 | buf[1] << 16 | buf[2] << 8 | buf[3];
-	tmp <<= 32;
-	tmp |= buf[4] << 24 | buf[5] << 16 | buf[6] << 8 | buf[7];
-	return tmp;
-}
+struct init_scan_params {
+	uint64_t min_freq_hz;
+	uint64_t max_freq_hz;
+	uint64_t step_freq_hz;
+};
+struct init_scan_params scan_params;
 
 usb_request_status_t usb_vendor_request_init_scan(
 		usb_endpoint_t* const endpoint, const usb_transfer_stage_t stage)
 {
-	uint64_t freqs[3];
 	if ((stage == USB_TRANSFER_STAGE_SETUP) &&
 		(endpoint->setup.length == 24)) {
 		// DGS set scan frequencies here
 		//freq_min  = bytes_to_uint64();
-		usb_transfer_schedule_block(endpoint->out, &freqs, 3*sizeof(uint64_t),
+		usb_transfer_schedule_block(endpoint->out, &scan_params, sizeof(struct init_scan_params),
 									NULL, NULL);
 		
-		scan_freq_min = MAX(MIN_FREQ, freqs[0]);
-		scan_freq_max = MIN(MAX_FREQ, freqs[1]);
-		scan_freq_step = freqs[2];
+		scan_freq_min = MAX(MIN_FREQ, scan_params.min_freq_hz);
+		scan_freq_max = MIN(MAX_FREQ, scan_params.max_freq_hz);
+		scan_freq_step = scan_params.step_freq_hz;
 		
 		scan_freq = scan_freq_min;
 		set_freq(scan_freq);
