@@ -75,14 +75,13 @@ void scan_mode(void) {
 		if ( usb_bulk_buffer_offset >= 16384
 		     && phase == 1
 		     && transceiver_mode() != TRANSCEIVER_MODE_OFF) {
-			if (blocks_queued == 2)
-				usb_transfer_schedule_block(
-					(transceiver_mode() == TRANSCEIVER_MODE_RX)
-					? &usb_endpoint_bulk_in : &usb_endpoint_bulk_out,
-					&usb_bulk_buffer[0x0000],
-					0x4000,
-					NULL, NULL
-					);
+			usb_transfer_schedule_block(
+				(transceiver_mode() == TRANSCEIVER_MODE_RX)
+				? &usb_endpoint_bulk_in : &usb_endpoint_bulk_out,
+				&usb_bulk_buffer[0x0000],
+				0x4000,
+				NULL, NULL
+				);
 			phase = 0;
 			blocks_queued++;
 		}
@@ -91,14 +90,13 @@ void scan_mode(void) {
 		if ( usb_bulk_buffer_offset < 16384
 		     && phase == 0
 		     && transceiver_mode() != TRANSCEIVER_MODE_OFF) {
-			if (blocks_queued == 2)
-				usb_transfer_schedule_block(
-					(transceiver_mode() == TRANSCEIVER_MODE_RX)
-					? &usb_endpoint_bulk_in : &usb_endpoint_bulk_out,
-					&usb_bulk_buffer[0x4000],
-					0x4000,
-					NULL, NULL
-				);
+			usb_transfer_schedule_block(
+				(transceiver_mode() == TRANSCEIVER_MODE_RX)
+				? &usb_endpoint_bulk_in : &usb_endpoint_bulk_out,
+				&usb_bulk_buffer[0x4000],
+				0x4000,
+				NULL, NULL
+			);
 			phase = 1;
 			blocks_queued++;
 		}
