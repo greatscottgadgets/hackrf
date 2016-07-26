@@ -252,13 +252,13 @@ int rx_callback(hackrf_transfer* transfer) {
 }
 
 static void usage() {
-	printf("Usage:\n");
-	printf("\t[-d serial_number] # Serial number of desired HackRF.\n");
-	printf("\t[-a amp_enable] # RX/TX RF amplifier 1=Enable, 0=Disable.\n");
-	printf("\t[-p antenna_enable] # Antenna port power, 1=Enable, 0=Disable.\n");
-	printf("\t[-l gain_db] # RX LNA (IF) gain, 0-40dB, 8dB steps\n");
-	printf("\t[-g gain_db] # RX VGA (baseband) gain, 0-62dB, 2dB steps\n");
-	printf("\t[-x gain_db] # TX VGA (IF) gain, 0-47dB, 1dB steps\n");
+	fprintf(stderr, "Usage:\n");
+	fprintf(stderr, "\t[-d serial_number] # Serial number of desired HackRF.\n");
+	fprintf(stderr, "\t[-a amp_enable] # RX/TX RF amplifier 1=Enable, 0=Disable.\n");
+	fprintf(stderr, "\t[-p antenna_enable] # Antenna port power, 1=Enable, 0=Disable.\n");
+	fprintf(stderr, "\t[-l gain_db] # RX LNA (IF) gain, 0-40dB, 8dB steps\n");
+	fprintf(stderr, "\t[-g gain_db] # RX VGA (baseband) gain, 0-62dB, 2dB steps\n");
+	fprintf(stderr, "\t[-x gain_db] # TX VGA (IF) gain, 0-47dB, 1dB steps\n");
 }
 
 static hackrf_device* device = NULL;
@@ -267,7 +267,7 @@ static hackrf_device* device = NULL;
 BOOL WINAPI
 sighandler(int signum) {
 	if (CTRL_C_EVENT == signum) {
-		fprintf(stdout, "Caught signal %d\n", signum);
+		fprintf(stderr, "Caught signal %d\n", signum);
 		do_exit = true;
 		return TRUE;
 	}
@@ -275,7 +275,7 @@ sighandler(int signum) {
 }
 #else
 void sigint_callback_handler(int signum)  {
-	fprintf(stdout, "Caught signal %d\n", signum);
+	fprintf(stderr, "Caught signal %d\n", signum);
 	do_exit = true;
 }
 #endif
@@ -325,27 +325,27 @@ int main(int argc, char** argv) {
 			break;
 
 		default:
-			printf("unknown argument '-%c %s'\n", opt, optarg);
+			fprintf(stderr, "unknown argument '-%c %s'\n", opt, optarg);
 			usage();
 			return EXIT_FAILURE;
 		}
 		
 		if( result != HACKRF_SUCCESS ) {
-			printf("argument error: '-%c %s' %s (%d)\n", opt, optarg, hackrf_error_name(result), result);
+			fprintf(stderr, "argument error: '-%c %s' %s (%d)\n", opt, optarg, hackrf_error_name(result), result);
 			usage();
 			return EXIT_FAILURE;
 		}		
 	}
 
 	if (lna_gain % 8)
-		printf("warning: lna_gain (-l) must be a multiple of 8\n");
+		fprintf(stderr, "warning: lna_gain (-l) must be a multiple of 8\n");
 
 	if (vga_gain % 2)
-		printf("warning: vga_gain (-g) must be a multiple of 2\n");
+		fprintf(stderr, "warning: vga_gain (-g) must be a multiple of 2\n");
 
 	if( amp ) {
 		if( amp_enable > 1 ) {
-			printf("argument error: amp_enable shall be 0 or 1.\n");
+			fprintf(stderr, "argument error: amp_enable shall be 0 or 1.\n");
 			usage();
 			return EXIT_FAILURE;
 		}
@@ -353,7 +353,7 @@ int main(int argc, char** argv) {
 
 	if (antenna) {
 		if (antenna_enable > 1) {
-			printf("argument error: antenna_enable shall be 0 or 1.\n");
+			fprintf(stderr, "argument error: antenna_enable shall be 0 or 1.\n");
 			usage();
 			return EXIT_FAILURE;
 		}
@@ -361,27 +361,27 @@ int main(int argc, char** argv) {
 
 	result = hackrf_init();
 	if( result != HACKRF_SUCCESS ) {
-		printf("hackrf_init() failed: %s (%d)\n", hackrf_error_name(result), result);
+		fprintf(stderr, "hackrf_init() failed: %s (%d)\n", hackrf_error_name(result), result);
 		usage();
 		return EXIT_FAILURE;
 	}
 	
 	result = hackrf_open_by_serial(serial_number, &device);
 	if( result != HACKRF_SUCCESS ) {
-		printf("hackrf_open() failed: %s (%d)\n", hackrf_error_name(result), result);
+		fprintf(stderr, "hackrf_open() failed: %s (%d)\n", hackrf_error_name(result), result);
 		usage();
 		return EXIT_FAILURE;
 	}
 	
 	fd = fopen(path, "wb");
 	if( fd == NULL ) {
-		printf("Failed to open file: %s\n", path);
+		fprintf(stderr, "Failed to open file: %s\n", path);
 		return EXIT_FAILURE;
 	}
 	/* Change fd buffer to have bigger one to store or read data on/to HDD */
 	result = setvbuf(fd , NULL , _IOFBF , FD_BUFFER_SIZE);
 	if( result != 0 ) {
-		printf("setvbuf() failed: %d\n", result);
+		fprintf(stderr, "setvbuf() failed: %d\n", result);
 		usage();
 		return EXIT_FAILURE;
 	}
@@ -396,21 +396,21 @@ int main(int argc, char** argv) {
 	signal(SIGTERM, &sigint_callback_handler);
 	signal(SIGABRT, &sigint_callback_handler);
 #endif
-	printf("call hackrf_sample_rate_set(%.03f MHz)\n",
+	fprintf(stderr, "call hackrf_sample_rate_set(%.03f MHz)\n",
 		   ((float)DEFAULT_SAMPLE_RATE_HZ/(float)FREQ_ONE_MHZ));
 	result = hackrf_set_sample_rate_manual(device, DEFAULT_SAMPLE_RATE_HZ, 1);
 	if( result != HACKRF_SUCCESS ) {
-		printf("hackrf_sample_rate_set() failed: %s (%d)\n",
+		fprintf(stderr, "hackrf_sample_rate_set() failed: %s (%d)\n",
 			   hackrf_error_name(result), result);
 		usage();
 		return EXIT_FAILURE;
 	}
 
-	printf("call hackrf_baseband_filter_bandwidth_set(%.03f MHz)\n",
+	fprintf(stderr, "call hackrf_baseband_filter_bandwidth_set(%.03f MHz)\n",
 			((float)DEFAULT_BASEBAND_FILTER_BANDWIDTH/(float)FREQ_ONE_MHZ));
 	result = hackrf_set_baseband_filter_bandwidth(device, DEFAULT_BASEBAND_FILTER_BANDWIDTH);
 	if( result != HACKRF_SUCCESS ) {
-		printf("hackrf_baseband_filter_bandwidth_set() failed: %s (%d)\n",
+		fprintf(stderr, "hackrf_baseband_filter_bandwidth_set() failed: %s (%d)\n",
 			   hackrf_error_name(result), result);
 		usage();
 		return EXIT_FAILURE;
@@ -420,7 +420,7 @@ int main(int argc, char** argv) {
 	result |= hackrf_set_lna_gain(device, lna_gain);
 	result |= hackrf_start_rx(device, rx_callback, NULL);
 	if (result != HACKRF_SUCCESS) {
-		printf("hackrf_start_?x() failed: %s (%d)\n", hackrf_error_name(result), result);
+		fprintf(stderr, "hackrf_start_?x() failed: %s (%d)\n", hackrf_error_name(result), result);
 		usage();
 		return EXIT_FAILURE;
 	}
@@ -428,17 +428,17 @@ int main(int argc, char** argv) {
 	/* DGS FIXME: allow upper and lower frequencies to be set */
 	result = hackrf_init_scan(device, 50, 6000, 10);
 	if( result != HACKRF_SUCCESS ) {
-		printf("hackrf_init_scan() failed: %s (%d)\n",
+		fprintf(stderr, "hackrf_init_scan() failed: %s (%d)\n",
 			   hackrf_error_name(result), result);
 		usage();
 		return EXIT_FAILURE;
 	}
 
 	if (amp) {
-		printf("call hackrf_set_amp_enable(%u)\n", amp_enable);
+		fprintf(stderr, "call hackrf_set_amp_enable(%u)\n", amp_enable);
 		result = hackrf_set_amp_enable(device, (uint8_t)amp_enable);
 		if (result != HACKRF_SUCCESS) {
-			printf("hackrf_set_amp_enable() failed: %s (%d)\n",
+			fprintf(stderr, "hackrf_set_amp_enable() failed: %s (%d)\n",
 				   hackrf_error_name(result), result);
 			usage();
 			return EXIT_FAILURE;
@@ -446,10 +446,10 @@ int main(int argc, char** argv) {
 	}
 
 	if (antenna) {
-		printf("call hackrf_set_antenna_enable(%u)\n", antenna_enable);
+		fprintf(stderr, "call hackrf_set_antenna_enable(%u)\n", antenna_enable);
 		result = hackrf_set_antenna_enable(device, (uint8_t)antenna_enable);
 		if (result != HACKRF_SUCCESS) {
-			printf("hackrf_set_antenna_enable() failed: %s (%d)\n",
+			fprintf(stderr, "hackrf_set_antenna_enable() failed: %s (%d)\n",
 				   hackrf_error_name(result), result);
 			usage();
 			return EXIT_FAILURE;
@@ -459,7 +459,7 @@ int main(int argc, char** argv) {
 	gettimeofday(&t_start, NULL);
 	gettimeofday(&time_start, NULL);
 
-	printf("Stop with Ctrl-C\n");
+	fprintf(stderr, "Stop with Ctrl-C\n");
 	while((hackrf_is_streaming(device) == HACKRF_TRUE) && (do_exit == false)) {
 		uint32_t byte_count_now;
 		struct timeval time_now;
@@ -473,56 +473,56 @@ int main(int argc, char** argv) {
 		
 		time_difference = TimevalDiff(&time_now, &time_start);
 		rate = (float)byte_count_now / time_difference;
-		printf("%4.1f MiB / %5.3f sec = %4.1f MiB/second\n",
+		fprintf(stderr, "%4.1f MiB / %5.3f sec = %4.1f MiB/second\n",
 				(byte_count_now / 1e6f), time_difference, (rate / 1e6f) );
 
 		time_start = time_now;
 
 		if (byte_count_now == 0) {
 			exit_code = EXIT_FAILURE;
-			printf("\nCouldn't transfer any bytes for one second.\n");
+			fprintf(stderr, "\nCouldn't transfer any bytes for one second.\n");
 			break;
 		}
 	}
 
 	result = hackrf_is_streaming(device);	
 	if (do_exit) {
-		printf("\nUser cancel, exiting...\n");
+		fprintf(stderr, "\nUser cancel, exiting...\n");
 	} else {
-		printf("\nExiting... hackrf_is_streaming() result: %s (%d)\n",
+		fprintf(stderr, "\nExiting... hackrf_is_streaming() result: %s (%d)\n",
 			   hackrf_error_name(result), result);
 	}
 
 	gettimeofday(&t_end, NULL);
 	time_diff = TimevalDiff(&t_end, &t_start);
-	printf("Total time: %5.5f s\n", time_diff);
+	fprintf(stderr, "Total time: %5.5f s\n", time_diff);
 
 	if(device != NULL) {
 		result = hackrf_stop_rx(device);
 		if(result != HACKRF_SUCCESS) {
-			printf("hackrf_stop_rx() failed: %s (%d)\n",
+			fprintf(stderr, "hackrf_stop_rx() failed: %s (%d)\n",
 				   hackrf_error_name(result), result);
 		} else {
-			printf("hackrf_stop_rx() done\n");
+			fprintf(stderr, "hackrf_stop_rx() done\n");
 		}
 
 		result = hackrf_close(device);
 		if(result != HACKRF_SUCCESS) {
-			printf("hackrf_close() failed: %s (%d)\n",
+			fprintf(stderr, "hackrf_close() failed: %s (%d)\n",
 				   hackrf_error_name(result), result);
 		} else {
-			printf("hackrf_close() done\n");
+			fprintf(stderr, "hackrf_close() done\n");
 		}
 
 		hackrf_exit();
-		printf("hackrf_exit() done\n");
+		fprintf(stderr, "hackrf_exit() done\n");
 	}
 
 	if(fd != NULL) {
 		fclose(fd);
 		fd = NULL;
-		printf("fclose(fd) done\n");
+		fprintf(stderr, "fclose(fd) done\n");
 	}
-	printf("exit\n");
+	fprintf(stderr, "exit\n");
 	return exit_code;
 }
