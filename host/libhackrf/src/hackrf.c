@@ -1698,22 +1698,22 @@ uint32_t ADDCALL hackrf_compute_baseband_filter_bw(const uint32_t bandwidth_hz)
 }
 
 struct init_scan_params {
-	uint64_t min_freq_hz;
-	uint64_t max_freq_hz;
-	uint64_t step_freq_hz;
+	uint16_t min_freq_mhz;
+	uint16_t max_freq_mhz;
+	uint16_t step_freq_mhz;
 };
 
 int ADDCALL hackrf_init_scan(hackrf_device* device,
-		const uint64_t min_freq_hz, const uint64_t max_freq_hz,
-		const uint64_t step_freq_hz)
+		const uint16_t min_freq_mhz, const uint16_t max_freq_mhz,
+		const uint16_t step_freq_mhz)
 {
 	struct init_scan_params params;
 	uint8_t length;
 	int result;
 
-	params.min_freq_hz  = TO_LE(min_freq_hz);
-	params.max_freq_hz  = TO_LE(max_freq_hz);
-	params.step_freq_hz = TO_LE(step_freq_hz);
+	params.min_freq_mhz  = TO_LE(min_freq_mhz);
+	params.max_freq_mhz  = TO_LE(max_freq_mhz);
+	params.step_freq_mhz = TO_LE(step_freq_mhz);
 	length = sizeof(struct init_scan_params);
 
 	result = libusb_control_transfer(

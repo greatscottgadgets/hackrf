@@ -30,19 +30,17 @@
 
 #define MIN(x,y)       ((x)<(y)?(x):(y))
 #define MAX(x,y)       ((x)>(y)?(x):(y))
-#define MIN_FREQ 1000000
-#define MAX_FREQ 6000000000
+#define FREQ_GRANULARITY 1000000
+#define MIN_FREQ 1
+#define MAX_FREQ 6000
 
 volatile bool start_scan_mode = false;
 static uint64_t scan_freq;
-static uint64_t scan_freq_min;
-static uint64_t scan_freq_max;
-static uint64_t scan_freq_step;
 
 struct init_scan_params {
-	uint64_t min_freq_hz;
-	uint64_t max_freq_hz;
-	uint64_t step_freq_hz;
+	uint16_t min_freq_mhz;
+	uint16_t max_freq_mhz;
+	uint16_t step_freq_mhz;
 };
 struct init_scan_params scan_params;
 
@@ -51,17 +49,17 @@ usb_request_status_t usb_vendor_request_init_scan(
 {
 	if ((stage == USB_TRANSFER_STAGE_SETUP) &&
 		(endpoint->setup.length == 24)) {
-		// DGS set scan frequencies here
-		//freq_min  = bytes_to_uint64();
-		usb_transfer_schedule_block(endpoint->out, &scan_params, sizeof(struct init_scan_params),
+
+		usb_transfer_schedule_block(endpoint->out, &scan_params,
+									sizeof(struct init_scan_params),
 									NULL, NULL);
-		
-		scan_freq_min = MAX(MIN_FREQ, scan_params.min_freq_hz);
-		scan_freq_max = MIN(MAX_FREQ, scan_params.max_freq_hz);
-		scan_freq_step = scan_params.step_freq_hz;
-		
-		scan_freq = scan_freq_min;
-		set_freq(scan_freq);
+
+		/* Limit to min/max frequency without warning (possible FIXME) */
+		scan_params.min_freq_mhz = MAX(MIN_FREQ, scan_params.min_freq_mhz);
+		scan_params.max_freq_mhz = MIN(MAX_FREQ, scan_params.max_freq_mhz);
+
+		scan_freq = scan_params.min_freq_mhz;
+		set_freq(scan_freq*FREQ_GRANULARITY);
 		start_scan_mode = true;
 		usb_transfer_schedule_ack(endpoint->in);
 	}
@@ -106,11 +104,11 @@ void scan_mode(void) {
 		}
 
 		if (blocks_queued > 2) {
-			scan_freq += scan_freq_step;
-			if (scan_freq > scan_freq_max) {
-				scan_freq = scan_freq_min;
+			scan_freq += scan_params.step_freq_mhz;
+			if (scan_freq > scan_params.max_freq_mhz) {
+				scan_freq = scan_params.min_freq_mhz;
 				}
-				set_freq(scan_freq);
+				set_freq(scan_freq*FREQ_GRANULARITY);
 			blocks_queued = 0;
 		}
 	}
