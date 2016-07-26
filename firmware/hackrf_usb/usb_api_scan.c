@@ -48,7 +48,7 @@ usb_request_status_t usb_vendor_request_init_scan(
 		usb_endpoint_t* const endpoint, const usb_transfer_stage_t stage)
 {
 	if ((stage == USB_TRANSFER_STAGE_SETUP) &&
-		(endpoint->setup.length == 24)) {
+		(endpoint->setup.length == 6)) {
 
 		usb_transfer_schedule_block(endpoint->out, &scan_params,
 									sizeof(struct init_scan_params),
