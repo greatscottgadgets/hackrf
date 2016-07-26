@@ -70,43 +70,42 @@ void scan_mode(void) {
 	unsigned int blocks_queued = 0;
 	unsigned int phase = 0;
 
+	uint8_t *buffer;
+	bool transfer = false;
+
 	while(transceiver_mode() != TRANSCEIVER_MODE_OFF) {
 		// Set up IN transfer of buffer 0.
-		if ( usb_bulk_buffer_offset >= 16384
-		     && phase == 1
-		     && transceiver_mode() != TRANSCEIVER_MODE_OFF) {
-			usb_transfer_schedule_block(
-				(transceiver_mode() == TRANSCEIVER_MODE_RX)
-				? &usb_endpoint_bulk_in : &usb_endpoint_bulk_out,
-				&usb_bulk_buffer[0x0000],
-				0x4000,
-				NULL, NULL
-				);
+		if ( usb_bulk_buffer_offset >= 16384 && phase == 1) {
+			transfer = true;
+			buffer = &usb_bulk_buffer[0x0000];
 			phase = 0;
 			blocks_queued++;
 		}
 
 		// Set up IN transfer of buffer 1.
-		if ( usb_bulk_buffer_offset < 16384
-		     && phase == 0
-		     && transceiver_mode() != TRANSCEIVER_MODE_OFF) {
+		if ( usb_bulk_buffer_offset < 16384 && phase == 0) {
+			transfer = true;
+			buffer = &usb_bulk_buffer[0x4000];
+			phase = 1;
+			blocks_queued++;
+		}
+
+		if (transfer) {
 			usb_transfer_schedule_block(
-				(transceiver_mode() == TRANSCEIVER_MODE_RX)
-				? &usb_endpoint_bulk_in : &usb_endpoint_bulk_out,
-				&usb_bulk_buffer[0x4000],
+				&usb_endpoint_bulk_in,
+				buffer,
 				0x4000,
 				NULL, NULL
 			);
-			phase = 1;
-			blocks_queued++;
+			transfer = false;
 		}
 
 		if (blocks_queued > 2) {
 			scan_freq += scan_params.step_freq_mhz;
 			if (scan_freq > scan_params.max_freq_mhz) {
 				scan_freq = scan_params.min_freq_mhz;
-				}
-				set_freq(scan_freq*FREQ_GRANULARITY);
+			}
+			set_freq(scan_freq*FREQ_GRANULARITY);
 			blocks_queued = 0;
 		}
 	}
