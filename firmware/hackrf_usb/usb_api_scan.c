@@ -53,7 +53,7 @@ usb_request_status_t usb_vendor_request_init_scan(
 		usb_transfer_schedule_block(endpoint->out, &scan_params,
 									sizeof(struct init_scan_params),
 									NULL, NULL);
-
+	} else if (stage == USB_TRANSFER_STAGE_DATA) {
 		/* Limit to min/max frequency without warning (possible FIXME) */
 		scan_params.min_freq_mhz = MAX(MIN_FREQ, scan_params.min_freq_mhz);
 		scan_params.max_freq_mhz = MIN(MAX_FREQ, scan_params.max_freq_mhz);
