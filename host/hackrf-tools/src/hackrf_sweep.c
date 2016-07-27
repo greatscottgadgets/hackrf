@@ -92,46 +92,8 @@ int gettimeofday(struct timeval *tv, void* ignored) {
 	#define sleep(a) Sleep( (a*1000) )
 #endif
 
-#define U64TOA_MAX_DIGIT (31)
-typedef struct 
-{
-		char data[U64TOA_MAX_DIGIT+1];
-} t_u64toa;
-
-t_u64toa ascii_u64_data1;
-t_u64toa ascii_u64_data2;
-
-static float
-TimevalDiff(const struct timeval *a, const struct timeval *b)
-{
+static float TimevalDiff(const struct timeval *a, const struct timeval *b) {
    return (a->tv_sec - b->tv_sec) + 1e-6f * (a->tv_usec - b->tv_usec);
-}
-
-int parse_u64(char* s, uint64_t* const value) {
-	uint_fast8_t base = 10;
-	char* s_end;
-	uint64_t u64_value;
-
-	if( strlen(s) > 2 ) {
-		if( s[0] == '0' ) {
-			if( (s[1] == 'x') || (s[1] == 'X') ) {
-				base = 16;
-				s += 2;
-			} else if( (s[1] == 'b') || (s[1] == 'B') ) {
-				base = 2;
-				s += 2;
-			}
-		}
-	}
-
-	s_end = s;
-	u64_value = strtoull(s, &s_end, base);
-	if( (s != s_end) && (*s_end == 0) ) {
-		*value = u64_value;
-		return HACKRF_SUCCESS;
-	} else {
-		return HACKRF_ERROR_INVALID_PARAM;
-	}
 }
 
 int parse_u32(char* s, uint32_t* const value) {
@@ -159,54 +121,6 @@ int parse_u32(char* s, uint32_t* const value) {
 	} else {
 		return HACKRF_ERROR_INVALID_PARAM;
 	}
-}
-
-
-static char *stringrev(char *str)
-{
-	char *p1, *p2;
-
-	if(! str || ! *str)
-		return str;
-
-	for(p1 = str, p2 = str + strlen(str) - 1; p2 > p1; ++p1, --p2)
-	{
-		*p1 ^= *p2;
-		*p2 ^= *p1;
-		*p1 ^= *p2;
-	}
-	return str;
-}
-
-char* u64toa(uint64_t val, t_u64toa* str)
-{
-	#define BASE (10ull) /* Base10 by default */
-	uint64_t sum;
-	int pos;
-	int digit;
-	int max_len;
-	char* res;
-
-	sum = val;
-	max_len = U64TOA_MAX_DIGIT;
-	pos = 0;
-
-	do
-	{
-		digit = (sum % BASE);
-		str->data[pos] = digit + '0';
-		pos++;
-
-		sum /= BASE;
-	}while( (sum>0) && (pos < max_len) );
-
-	if( (pos == max_len) && (sum>0) )
-		return NULL;
-
-	str->data[pos] = '\0';
-	res = stringrev(str->data);
-
-	return res;
 }
 
 volatile bool do_exit = false;
@@ -279,9 +193,6 @@ void sigint_callback_handler(int signum)  {
 	do_exit = true;
 }
 #endif
-
-#define PATH_FILE_MAX_LEN (FILENAME_MAX)
-#define DATE_TIME_MAX_LEN (32)
 
 int main(int argc, char** argv) {
 	int opt;
