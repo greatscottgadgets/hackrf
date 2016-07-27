@@ -68,7 +68,7 @@ typedef enum {
 	HACKRF_VENDOR_REQUEST_ANTENNA_ENABLE = 23,
 	HACKRF_VENDOR_REQUEST_SET_FREQ_EXPLICIT = 24,
 	// USB_WCID_VENDOR_REQ = 25
-	HACKRF_VENDOR_REQUEST_INIT_SCAN = 26,
+	HACKRF_VENDOR_REQUEST_INIT_SWEEP = 26,
 } hackrf_vendor_request;
 
 typedef enum {
@@ -1697,29 +1697,29 @@ uint32_t ADDCALL hackrf_compute_baseband_filter_bw(const uint32_t bandwidth_hz)
 	return p->bandwidth_hz;
 }
 
-struct init_scan_params {
+struct init_sweep_params {
 	uint16_t min_freq_mhz;
 	uint16_t max_freq_mhz;
 	uint16_t step_freq_mhz;
 };
 
-int ADDCALL hackrf_init_scan(hackrf_device* device,
+int ADDCALL hackrf_init_sweep(hackrf_device* device,
 		const uint16_t min_freq_mhz, const uint16_t max_freq_mhz,
 		const uint16_t step_freq_mhz)
 {
-	struct init_scan_params params;
+	struct init_sweep_params params;
 	uint8_t length;
 	int result;
 
 	params.min_freq_mhz  = TO_LE(min_freq_mhz);
 	params.max_freq_mhz  = TO_LE(max_freq_mhz);
 	params.step_freq_mhz = TO_LE(step_freq_mhz);
-	length = sizeof(struct init_scan_params);
+	length = sizeof(struct init_sweep_params);
 
 	result = libusb_control_transfer(
 		device->usb_device,
 		LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
-		HACKRF_VENDOR_REQUEST_INIT_SCAN,
+		HACKRF_VENDOR_REQUEST_INIT_SWEEP,
 		0,
 		0,
 		(unsigned char*)&params,

@@ -337,7 +337,7 @@ int main(int argc, char** argv) {
 	}
 
 	/* DGS FIXME: allow upper and lower frequencies to be set */
-	result = hackrf_init_scan(device, 50, 6000, 10);
+	result = hackrf_init_sweep(device, 50, 6000, 10);
 	if( result != HACKRF_SUCCESS ) {
 		fprintf(stderr, "hackrf_init_scan() failed: %s (%d)\n",
 			   hackrf_error_name(result), result);

@@ -197,7 +197,7 @@ extern ADDAPI uint32_t ADDCALL hackrf_compute_baseband_filter_bw_round_down_lt(c
 /* Compute best default value depending on sample rate (auto filter) */
 extern ADDAPI uint32_t ADDCALL hackrf_compute_baseband_filter_bw(const uint32_t bandwidth_hz);
 /* Start scan mode */
-extern ADDAPI int ADDCALL hackrf_init_scan(hackrf_device* device,
+extern ADDAPI int ADDCALL hackrf_init_sweep(hackrf_device* device,
 		const uint16_t min_freq_mhz, const uint16_t max_freq_mhz,
 		const uint16_t step_freq_mhz);
 
