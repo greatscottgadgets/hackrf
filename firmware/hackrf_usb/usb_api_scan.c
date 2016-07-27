@@ -91,6 +91,8 @@ void scan_mode(void) {
 		}
 
 		if (transfer) {
+			*(uint16_t*)buffer = 0x7F7F;
+			*(uint16_t*)(buffer+2) = scan_freq;
 			usb_transfer_schedule_block(
 				&usb_endpoint_bulk_in,
 				buffer,
