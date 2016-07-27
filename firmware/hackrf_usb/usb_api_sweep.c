@@ -19,7 +19,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include "usb_api_scan.h"
+#include "usb_api_sweep.h"
 #include "usb_queue.h"
 #include <stddef.h>
 #include <hackrf_core.h>
@@ -34,39 +34,39 @@
 #define MIN_FREQ 1
 #define MAX_FREQ 6000
 
-volatile bool start_scan_mode = false;
-static uint64_t scan_freq;
+volatile bool start_sweep_mode = false;
+static uint64_t sweep_freq;
 
-struct init_scan_params {
+struct init_sweep_params {
 	uint16_t min_freq_mhz;
 	uint16_t max_freq_mhz;
 	uint16_t step_freq_mhz;
 };
-struct init_scan_params scan_params;
+struct init_sweep_params sweep_params;
 
-usb_request_status_t usb_vendor_request_init_scan(
+usb_request_status_t usb_vendor_request_init_sweep(
 		usb_endpoint_t* const endpoint, const usb_transfer_stage_t stage)
 {
 	if ((stage == USB_TRANSFER_STAGE_SETUP) &&
 		(endpoint->setup.length == 6)) {
 
-		usb_transfer_schedule_block(endpoint->out, &scan_params,
-									sizeof(struct init_scan_params),
+		usb_transfer_schedule_block(endpoint->out, &sweep_params,
+									sizeof(struct init_sweep_params),
 									NULL, NULL);
 	} else if (stage == USB_TRANSFER_STAGE_DATA) {
 		/* Limit to min/max frequency without warning (possible FIXME) */
-		scan_params.min_freq_mhz = MAX(MIN_FREQ, scan_params.min_freq_mhz);
-		scan_params.max_freq_mhz = MIN(MAX_FREQ, scan_params.max_freq_mhz);
+		sweep_params.min_freq_mhz = MAX(MIN_FREQ, sweep_params.min_freq_mhz);
+		sweep_params.max_freq_mhz = MIN(MAX_FREQ, sweep_params.max_freq_mhz);
 
-		scan_freq = scan_params.min_freq_mhz;
-		set_freq(scan_freq*FREQ_GRANULARITY);
-		start_scan_mode = true;
+		sweep_freq = sweep_params.min_freq_mhz;
+		set_freq(sweep_freq*FREQ_GRANULARITY);
+		start_sweep_mode = true;
 		usb_transfer_schedule_ack(endpoint->in);
 	}
 	return USB_REQUEST_STATUS_OK;
 }
 
-void scan_mode(void) {
+void sweep_mode(void) {
 	unsigned int blocks_queued = 0;
 	unsigned int phase = 0;
 
@@ -92,7 +92,7 @@ void scan_mode(void) {
 
 		if (transfer) {
 			*(uint16_t*)buffer = 0x7F7F;
-			*(uint16_t*)(buffer+2) = scan_freq;
+			*(uint16_t*)(buffer+2) = sweep_freq;
 			usb_transfer_schedule_block(
 				&usb_endpoint_bulk_in,
 				buffer,
@@ -103,11 +103,11 @@ void scan_mode(void) {
 		}
 
 		if (blocks_queued > 2) {
-			scan_freq += scan_params.step_freq_mhz;
-			if (scan_freq > scan_params.max_freq_mhz) {
-				scan_freq = scan_params.min_freq_mhz;
+			sweep_freq += sweep_params.step_freq_mhz;
+			if (sweep_freq > sweep_params.max_freq_mhz) {
+				sweep_freq = sweep_params.min_freq_mhz;
 			}
-			set_freq(scan_freq*FREQ_GRANULARITY);
+			set_freq(sweep_freq*FREQ_GRANULARITY);
 			blocks_queued = 0;
 		}
 	}

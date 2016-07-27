@@ -40,7 +40,7 @@
 #include "usb_api_cpld.h"
 #include "usb_api_register.h"
 #include "usb_api_spiflash.h"
-#include "usb_api_scan.h"
+#include "usb_api_sweep.h"
 
 #include "usb_api_transceiver.h"
 #include "usb_bulk_buffer.h"
@@ -76,7 +76,7 @@ static const usb_request_handler_fn vendor_request_handler[] = {
 #endif
 	usb_vendor_request_set_freq_explicit,
 	usb_vendor_request_read_wcid,  // USB_WCID_VENDOR_REQ
-	usb_vendor_request_init_scan,
+	usb_vendor_request_init_sweep,
 };
 
 static const uint32_t vendor_request_handler_count =
@@ -182,9 +182,9 @@ int main(void) {
 		if (start_cpld_update)
 			cpld_update();
 
-		// Check whether we need to initiate scan mode
-		if (start_scan_mode)
-			scan_mode();
+		// Check whether we need to initiate sweep mode
+		if (start_sweep_mode)
+			sweep_mode();
 
 		// Set up IN transfer of buffer 0.
 		if ( usb_bulk_buffer_offset >= 16384
