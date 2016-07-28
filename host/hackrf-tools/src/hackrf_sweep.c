@@ -31,6 +31,8 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <errno.h>
+#include <fftw3.h>
+#include <math.h>
 
 #ifndef bool
 typedef int bool;
@@ -137,8 +139,11 @@ uint32_t amp_enable;
 bool antenna = false;
 uint32_t antenna_enable;
 
-bool sample_rate = false;
-uint32_t sample_rate_hz;
+int fftSize;
+fftwf_complex *fftwIn = NULL;
+fftwf_complex *fftwOut = NULL;
+fftwf_plan fftwPlan = NULL;
+double* pwr;
 
 int rx_callback(hackrf_transfer* transfer) {
 	/* This is where we need to do interesting things with the samples
@@ -148,11 +153,33 @@ int rx_callback(hackrf_transfer* transfer) {
 	 */
 	ssize_t bytes_to_write;
 	ssize_t bytes_written;
+	uint16_t* buf_short, frequency;
+	int i, j;
 
 	if( fd != NULL ) 
 	{
 		byte_count += transfer->valid_length;
 		bytes_to_write = transfer->valid_length;
+		buf_short = (uint16_t*) transfer->buffer;
+		for(j=0; j<16; j++) {
+			if(buf_short[0] == 0x7F7F) {
+				frequency = buf_short[1];
+				fprintf(stderr, "Received sweep buffer(%dMHz)\n", frequency);
+			}
+			/* copy to fftwIn as floats */
+			buf_short = buf_short + 2;
+			for(i=0; i<2046; i+=2) {
+				fftwIn[i][0] = (float) buf_short[i];
+				fftwIn[i][1] = (float) buf_short[i+1];
+			}
+			buf_short = buf_short + 8190;
+			fftwf_execute(fftwPlan);
+			for (i=0; i < fftSize; i++) {
+			  pwr[i] += pow(fftwOut[i][0], 2) + pow(fftwOut[i][1], 2);
+			  fprintf(stderr, "%f\n", pwr[i]);
+			}
+			fprintf(stderr, "\n");
+		}
 
 		bytes_written = fwrite(transfer->buffer, 1, bytes_to_write, fd);
 		if (bytes_written != bytes_to_write) {
@@ -269,6 +296,12 @@ int main(int argc, char** argv) {
 			return EXIT_FAILURE;
 		}
 	}
+	
+	fftSize = 2048;
+    fftwIn = (fftwf_complex*)fftwf_malloc(sizeof(fftwf_complex) * fftSize);
+    fftwOut = (fftwf_complex*)fftwf_malloc(sizeof(fftwf_complex) * fftSize);
+    fftwPlan = fftwf_plan_dft_1d(fftSize, fftwIn, fftwOut, FFTW_FORWARD, FFTW_MEASURE);
+	pwr = (double*)fftwf_malloc(sizeof(double) * fftSize);
 
 	result = hackrf_init();
 	if( result != HACKRF_SUCCESS ) {

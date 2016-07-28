@@ -64,6 +64,7 @@ if(MSVC)
 LIST(APPEND TOOLS_LINK_LIBS libgetopt_static)
 endif()
 
+LIST(APPEND TOOLS_LINK_LIBS m fftw3f)
 
 target_link_libraries(hackrf_max2837 ${TOOLS_LINK_LIBS})
 target_link_libraries(hackrf_si5351c ${TOOLS_LINK_LIBS})
