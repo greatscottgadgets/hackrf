@@ -162,26 +162,27 @@ int rx_callback(hackrf_transfer* transfer) {
 	 */
 	ssize_t bytes_to_write;
 	ssize_t bytes_written;
-	uint16_t* buf_short, frequency;
+	int8_t* buf;
+	uint16_t frequency;
 	int i, j;
 
 	if( fd != NULL ) 
 	{
 		byte_count += transfer->valid_length;
 		bytes_to_write = transfer->valid_length;
-		buf_short = (uint16_t*) transfer->buffer;
+		buf = (int8_t*) transfer->buffer;
 		for(j=0; j<16; j++) {
-			if(buf_short[0] == 0x7F7F) {
-				frequency = buf_short[1];
-				fprintf(stderr, "Received sweep buffer(%dMHz)\n", frequency);
+			if(buf[0] == 0x7F && buf[1] == 0x7F) {
+				frequency = *(uint16_t*)&buf[2];
+				fprintf(stderr, "Received sweep buffer(%uMHz)\n", frequency);
 			}
 			/* copy to fftwIn as floats */
-			buf_short = buf_short + 2;
+			buf += 4;
 			for(i=0; i < fftSize; i++) {
-				fftwIn[i][0] = buf_short[i] / 128.0f;
-				fftwIn[i][1] = buf_short[i+1] / 128.0f;
+				fftwIn[i][0] = buf[i*2] / 128.0f;
+				fftwIn[i][1] = buf[i*2+1] / 128.0f;
 			}
-			buf_short = buf_short + 8190;
+			buf = buf + 8190;
 			fftwf_execute(fftwPlan);
 			for (i=0; i < fftSize; i++) {
 				// Start from the middle of the FFTW array and wrap
