@@ -384,7 +384,7 @@ hackrf_device_list_t* ADDCALL hackrf_device_list()
 					serial_number_length = libusb_get_string_descriptor_ascii(usb_device, serial_descriptor_index, (unsigned char*)serial_number, sizeof(serial_number));
 					if( serial_number_length == 32 ) {
 						serial_number[32] = 0;
-						list->serial_numbers[idx] = strdup(serial_number);
+						list->serial_numbers[idx] = strndup(serial_number, serial_number_length);
 					}
 					
 					libusb_close(usb_device);
