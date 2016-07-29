@@ -177,7 +177,7 @@ int rx_callback(hackrf_transfer* transfer) {
 			}
 			/* copy to fftwIn as floats */
 			buf_short = buf_short + 2;
-			for(i=0; i < fftSize; i+=2) {
+			for(i=0; i < fftSize; i++) {
 				fftwIn[i][0] = buf_short[i] / 128.0f;
 				fftwIn[i][1] = buf_short[i+1] / 128.0f;
 			}
