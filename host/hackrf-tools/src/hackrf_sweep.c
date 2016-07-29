@@ -184,7 +184,7 @@ int rx_callback(hackrf_transfer* transfer) {
 			buf_short = buf_short + 8190;
 			fftwf_execute(fftwPlan);
 			for (i=0; i < fftSize; i++) {
-			  pwr[i] += logPower(fftwOut[i], 1.0f / fftSize);
+			  pwr[i] = logPower(fftwOut[i], 1.0f / fftSize);
 			  fprintf(stderr, "%f\n", pwr[i]);
 			}
 			fprintf(stderr, "\n");
