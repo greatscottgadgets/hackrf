@@ -1,5 +1,6 @@
 /*
  * Copyright 2016 Dominic Spill <dominicgs@gmail.com>
+ * Copyright 2016 Mike Walters <mike@flomp.net>
  *
  * This file is part of HackRF.
  *
@@ -143,7 +144,15 @@ int fftSize;
 fftwf_complex *fftwIn = NULL;
 fftwf_complex *fftwOut = NULL;
 fftwf_plan fftwPlan = NULL;
-double* pwr;
+float* pwr;
+
+float logPower(fftwf_complex in, float scale)
+{
+	float re = in[0] * scale;
+	float im = in[1] * scale;
+	float magsq = re * re + im * im;
+	return log2f(magsq) * 10.0f / log2(10.0f);
+}
 
 int rx_callback(hackrf_transfer* transfer) {
 	/* This is where we need to do interesting things with the samples
@@ -175,7 +184,7 @@ int rx_callback(hackrf_transfer* transfer) {
 			buf_short = buf_short + 8190;
 			fftwf_execute(fftwPlan);
 			for (i=0; i < fftSize; i++) {
-			  pwr[i] += pow(fftwOut[i][0], 2) + pow(fftwOut[i][1], 2);
+			  pwr[i] += logPower(fftwOut[i], 1.0f / fftSize);
 			  fprintf(stderr, "%f\n", pwr[i]);
 			}
 			fprintf(stderr, "\n");
@@ -301,7 +310,7 @@ int main(int argc, char** argv) {
     fftwIn = (fftwf_complex*)fftwf_malloc(sizeof(fftwf_complex) * fftSize);
     fftwOut = (fftwf_complex*)fftwf_malloc(sizeof(fftwf_complex) * fftSize);
     fftwPlan = fftwf_plan_dft_1d(fftSize, fftwIn, fftwOut, FFTW_FORWARD, FFTW_MEASURE);
-	pwr = (double*)fftwf_malloc(sizeof(double) * fftSize);
+	pwr = (float*)fftwf_malloc(sizeof(float) * fftSize);
 
 	result = hackrf_init();
 	if( result != HACKRF_SUCCESS ) {
