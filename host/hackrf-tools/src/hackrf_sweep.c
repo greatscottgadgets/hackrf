@@ -126,6 +126,25 @@ int parse_u32(char* s, uint32_t* const value) {
 	}
 }
 
+int parse_u32_range(char* s, uint32_t* const value_min, uint32_t* const value_max) {
+	int result;
+
+	char *sep = strchr(s, ':');
+	if (!sep)
+		return HACKRF_ERROR_INVALID_PARAM;
+
+	*sep = 0;
+
+	result = parse_u32(s, value_min);
+	if (result != HACKRF_SUCCESS)
+		return result;
+	result = parse_u32(sep + 1, value_max);
+	if (result != HACKRF_SUCCESS);
+		return result;
+
+	return HACKRF_SUCCESS;
+}
+
 volatile bool do_exit = false;
 
 FILE* fd = NULL;
@@ -139,6 +158,10 @@ uint32_t amp_enable;
 
 bool antenna = false;
 uint32_t antenna_enable;
+
+bool freq_range = false;
+uint32_t freq_min;
+uint32_t freq_max;
 
 int fftSize;
 fftwf_complex *fftwIn = NULL;
@@ -208,6 +231,7 @@ static void usage() {
 	fprintf(stderr, "Usage:\n");
 	fprintf(stderr, "\t[-d serial_number] # Serial number of desired HackRF.\n");
 	fprintf(stderr, "\t[-a amp_enable] # RX/TX RF amplifier 1=Enable, 0=Disable.\n");
+	fprintf(stderr, "\t[-f freq_min:freq_max # Specify minimum & maximum sweep frequencies (MHz).\n");
 	fprintf(stderr, "\t[-p antenna_enable] # Antenna port power, 1=Enable, 0=Disable.\n");
 	fprintf(stderr, "\t[-l gain_db] # RX LNA (IF) gain, 0-40dB, 8dB steps\n");
 	fprintf(stderr, "\t[-g gain_db] # RX VGA (baseband) gain, 0-62dB, 2dB steps\n");
@@ -243,7 +267,7 @@ int main(int argc, char** argv) {
 	float time_diff;
 	unsigned int lna_gain=8, vga_gain=20, txvga_gain=0;
   
-	while( (opt = getopt(argc, argv, "a:p:l:g:x:d:")) != EOF )
+	while( (opt = getopt(argc, argv, "a:f:p:l:g:x:d:")) != EOF )
 	{
 		result = HACKRF_SUCCESS;
 		switch( opt ) 
@@ -255,6 +279,12 @@ int main(int argc, char** argv) {
 		case 'a':
 			amp = true;
 			result = parse_u32(optarg, &amp_enable);
+			break;
+
+		case 'f':
+			freq_range = true;
+			result = parse_u32_range(optarg, &freq_min, &freq_max);
+			fprintf(stderr, "Scanning %uMHz to %uMHz\n", freq_min, freq_max);
 			break;
 
 		case 'p':
@@ -307,6 +337,12 @@ int main(int argc, char** argv) {
 			usage();
 			return EXIT_FAILURE;
 		}
+	}
+
+	if (!freq_range) {
+		fprintf(stderr, "argument error: must specify sweep frequency range (-f).\n");
+		usage();
+		return EXIT_FAILURE;
 	}
 	
 	fftSize = 64;
@@ -382,7 +418,7 @@ int main(int argc, char** argv) {
 	}
 
 	/* DGS FIXME: allow upper and lower frequencies to be set */
-	result = hackrf_init_sweep(device, 50, 6000, 10);
+	result = hackrf_init_sweep(device, freq_min, freq_max, 20);
 	if( result != HACKRF_SUCCESS ) {
 		fprintf(stderr, "hackrf_init_scan() failed: %s (%d)\n",
 			   hackrf_error_name(result), result);
