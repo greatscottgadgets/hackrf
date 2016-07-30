@@ -181,7 +181,7 @@ int rx_callback(hackrf_transfer* transfer) {
 				fftwIn[i][0] = buf[i*2] / 128.0f;
 				fftwIn[i][1] = buf[i*2+1] / 128.0f;
 			}
-			buf = buf + 8190;
+			buf = buf + 16380;
 			fftwf_execute(fftwPlan);
 			for (i=0; i < fftSize; i++) {
 				// Start from the middle of the FFTW array and wrap
