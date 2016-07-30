@@ -36,6 +36,7 @@
 
 volatile bool start_sweep_mode = false;
 static uint64_t sweep_freq;
+bool odd = true;
 
 struct init_sweep_params {
 	uint16_t min_freq_mhz;
@@ -104,8 +105,14 @@ void sweep_mode(void) {
 		}
 
 		if (blocks_queued > 2) {
-			sweep_freq += sweep_params.step_freq_mhz;
+			if (odd)
+				sweep_freq += sweep_params.step_freq_mhz / 4;
+			else
+				sweep_freq += 3 * (sweep_params.step_freq_mhz / 4);
+			odd = !odd;
+
 			if (sweep_freq > sweep_params.max_freq_mhz) {
+				odd = true;
 				sweep_freq = sweep_params.min_freq_mhz;
 			}
 			set_freq(sweep_freq*FREQ_GRANULARITY);
