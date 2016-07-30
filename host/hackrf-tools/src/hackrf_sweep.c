@@ -168,6 +168,7 @@ fftwf_complex *fftwIn = NULL;
 fftwf_complex *fftwOut = NULL;
 fftwf_plan fftwPlan = NULL;
 float* pwr;
+float* window;
 
 float logPower(fftwf_complex in, float scale)
 {
@@ -201,8 +202,8 @@ int rx_callback(hackrf_transfer* transfer) {
 			/* copy to fftwIn as floats */
 			buf += 4;
 			for(i=0; i < fftSize; i++) {
-				fftwIn[i][0] = buf[i*2] / 128.0f;
-				fftwIn[i][1] = buf[i*2+1] / 128.0f;
+				fftwIn[i][0] = buf[i*2] * window[i] * 1.0f / 128.0f;
+				fftwIn[i][1] = buf[i*2+1] * window[i] * 1.0f / 128.0f;
 			}
 			buf = buf + 16380;
 			fftwf_execute(fftwPlan);
@@ -350,6 +351,11 @@ int main(int argc, char** argv) {
     fftwOut = (fftwf_complex*)fftwf_malloc(sizeof(fftwf_complex) * fftSize);
     fftwPlan = fftwf_plan_dft_1d(fftSize, fftwIn, fftwOut, FFTW_FORWARD, FFTW_MEASURE);
 	pwr = (float*)fftwf_malloc(sizeof(float) * fftSize);
+	window = (float*)fftwf_malloc(sizeof(float) * fftSize);
+	int i;
+	for (i = 0; i < fftSize; i++) {
+		window[i] = 0.5f * (1.0f - cos(2 * M_PI * i / (fftSize - 1)));
+	}
 
 	result = hackrf_init();
 	if( result != HACKRF_SUCCESS ) {
