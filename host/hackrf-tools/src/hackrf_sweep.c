@@ -200,12 +200,12 @@ int rx_callback(hackrf_transfer* transfer) {
 				frequency = *(uint16_t*)&buf[2];
 			}
 			/* copy to fftwIn as floats */
-			buf += 4;
+			buf += 16384 - (fftSize * 2);
 			for(i=0; i < fftSize; i++) {
 				fftwIn[i][0] = buf[i*2] * window[i] * 1.0f / 128.0f;
 				fftwIn[i][1] = buf[i*2+1] * window[i] * 1.0f / 128.0f;
 			}
-			buf = buf + 16380;
+			buf += fftSize * 2;
 			fftwf_execute(fftwPlan);
 			for (i=0; i < fftSize; i++) {
 				// Start from the middle of the FFTW array and wrap
