@@ -93,12 +93,13 @@ void sweep_mode(void) {
 		if (transfer) {
 			*(uint16_t*)buffer = 0x7F7F;
 			*(uint16_t*)(buffer+2) = sweep_freq;
-			usb_transfer_schedule_block(
-				&usb_endpoint_bulk_in,
-				buffer,
-				0x4000,
-				NULL, NULL
-			);
+			if (blocks_queued > 1)
+				usb_transfer_schedule_block(
+					&usb_endpoint_bulk_in,
+					buffer,
+					0x4000,
+					NULL, NULL
+				);
 			transfer = false;
 		}
 
