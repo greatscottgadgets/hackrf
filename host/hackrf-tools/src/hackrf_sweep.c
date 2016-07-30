@@ -309,7 +309,7 @@ int main(int argc, char** argv) {
 		}
 	}
 	
-	fftSize = 32;
+	fftSize = 64;
     fftwIn = (fftwf_complex*)fftwf_malloc(sizeof(fftwf_complex) * fftSize);
     fftwOut = (fftwf_complex*)fftwf_malloc(sizeof(fftwf_complex) * fftSize);
     fftwPlan = fftwf_plan_dft_1d(fftSize, fftwIn, fftwOut, FFTW_FORWARD, FFTW_MEASURE);
