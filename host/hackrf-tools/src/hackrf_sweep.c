@@ -266,7 +266,7 @@ int main(int argc, char** argv) {
 	int exit_code = EXIT_SUCCESS;
 	struct timeval t_end;
 	float time_diff;
-	unsigned int lna_gain=8, vga_gain=20, txvga_gain=0;
+	unsigned int lna_gain=20, vga_gain=20, txvga_gain=0;
   
 	while( (opt = getopt(argc, argv, "a:f:p:l:g:x:d:")) != EOF )
 	{
