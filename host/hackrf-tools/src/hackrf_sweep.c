@@ -163,7 +163,7 @@ int rx_callback(hackrf_transfer* transfer) {
 	ssize_t bytes_to_write;
 	ssize_t bytes_written;
 	int8_t* buf;
-	uint16_t frequency;
+	float frequency;
 	int i, j;
 
 	if( fd != NULL ) 
@@ -174,7 +174,6 @@ int rx_callback(hackrf_transfer* transfer) {
 		for(j=0; j<16; j++) {
 			if(buf[0] == 0x7F && buf[1] == 0x7F) {
 				frequency = *(uint16_t*)&buf[2];
-				fprintf(stderr, "Received sweep buffer(%uMHz)\n", frequency);
 			}
 			/* copy to fftwIn as floats */
 			buf += 4;
@@ -189,9 +188,9 @@ int rx_callback(hackrf_transfer* transfer) {
 				// to rearrange the data
 				int k = i ^ (fftSize >> 1);
 				pwr[i] = logPower(fftwOut[k], 1.0f / fftSize);
-				fprintf(stderr, "%f\n", pwr[i]);
 			}
-			fprintf(stderr, "\n");
+			fwrite(&frequency, sizeof(float), 1, stdout);
+			fwrite(pwr, sizeof(float), fftSize, stdout);
 		}
 
 		bytes_written = fwrite(transfer->buffer, 1, bytes_to_write, fd);
