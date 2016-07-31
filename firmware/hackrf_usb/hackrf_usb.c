@@ -183,8 +183,10 @@ int main(void) {
 			cpld_update();
 
 		// Check whether we need to initiate sweep mode
-		if (start_sweep_mode)
+		if (start_sweep_mode) {
+			start_sweep_mode = false;
 			sweep_mode();
+		}
 
 		// Set up IN transfer of buffer 0.
 		if ( usb_bulk_buffer_offset >= 16384
