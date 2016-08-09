@@ -288,7 +288,7 @@ char* u64toa(uint64_t val, t_u64toa* str)
 	return res;
 }
 
-volatile bool do_exit = false;
+static volatile bool do_exit = false;
 
 FILE* fd = NULL;
 volatile uint32_t byte_count = 0;
