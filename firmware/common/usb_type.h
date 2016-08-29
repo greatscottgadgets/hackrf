@@ -127,6 +127,9 @@ typedef struct {
 	const uint8_t* const qualifier_descriptor;
 	usb_configuration_t* (*configurations)[];
 	const usb_configuration_t* configuration;
+	uint8_t* wcid_string_descriptor;
+	uint8_t* wcid_feature_descriptor;
+	uint8_t* wcid_extended_properties_descriptor;
 } usb_device_t;
 
 typedef struct usb_endpoint_t usb_endpoint_t;

@@ -117,7 +117,7 @@ static const max2837_ft_t max2837_ft[] = {
 	{ 0        }
 };
 
-volatile bool do_exit = false;
+static volatile bool do_exit = false;
 
 static const uint16_t hackrf_usb_vid = 0x1d50;
 static const uint16_t hackrf_jawbreaker_usb_pid = 0x604b;

@@ -29,6 +29,11 @@ void usb_set_configuration_changed_cb(
         void (*callback)(usb_device_t* const)
 );
 
+usb_request_status_t usb_vendor_request_read_wcid(
+	usb_endpoint_t* const endpoint,
+    const usb_transfer_stage_t stage
+);
+
 usb_request_status_t usb_standard_request(
 	usb_endpoint_t* const endpoint,
 	const usb_transfer_stage_t stage
