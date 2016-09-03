@@ -29,6 +29,7 @@ LIBS:atmel
 LIBS:contrib
 LIBS:valves
 LIBS:hackrf
+LIBS:gsg-symbols
 LIBS:neapolitan-cache
 EELAYER 25 0
 EELAYER END

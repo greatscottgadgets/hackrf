@@ -29,6 +29,7 @@ LIBS:atmel
 LIBS:contrib
 LIBS:valves
 LIBS:hackrf
+LIBS:gsg-symbols
 LIBS:neapolitan-cache
 EELAYER 25 0
 EELAYER END
@@ -128,34 +129,6 @@ F 2 "hackrf:GSG-TESTPOINT-50MIL" H 1000 5300 60  0001 C CNN
 F 3 "" H 1000 5300 60  0001 C CNN
 F 4 "DNP" H 1000 5300 60  0001 C CNN "Note"
 	1    1000 5300
-	0    -1   -1   0   
-$EndComp
-$Comp
-L CONN_1 P38
-U 1 1 5052A32D
-P 850 5300
-F 0 "P38" H 930 5300 40  0000 L CNN
-F 1 "SDA" H 850 5355 30  0001 C CNN
-F 2 "hackrf:GSG-TESTPOINT-50MIL" H 850 5300 60  0001 C CNN
-F 3 "" H 850 5300 60  0001 C CNN
-F 4 "DNP" H 850 5300 60  0001 C CNN "Note"
-	1    850  5300
-	0    -1   -1   0   
-$EndComp
-Text GLabel 850  5550 3    40   Input ~ 0
-SDA
-Text GLabel 700  5550 3    40   Input ~ 0
-SCL
-$Comp
-L CONN_1 P37
-U 1 1 5052A309
-P 700 5300
-F 0 "P37" H 780 5300 40  0000 L CNN
-F 1 "SCL" H 700 5355 30  0001 C CNN
-F 2 "hackrf:GSG-TESTPOINT-50MIL" H 700 5300 60  0001 C CNN
-F 3 "" H 700 5300 60  0001 C CNN
-F 4 "DNP" H 700 5300 60  0001 C CNN "Note"
-	1    700  5300
 	0    -1   -1   0   
 $EndComp
 $Comp
@@ -1854,10 +1827,6 @@ Wire Wire Line
 	1300 5450 1300 5550
 Wire Wire Line
 	1000 5450 1000 5550
-Wire Wire Line
-	850  5450 850  5550
-Wire Wire Line
-	700  5450 700  5550
 Wire Wire Line
 	2400 3900 2400 4000
 Wire Wire Line

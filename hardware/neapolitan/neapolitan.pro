@@ -1,4 +1,4 @@
-update=Wed 13 Jul 2016 05:14:22 PM MDT
+update=Fri 02 Sep 2016 06:05:25 PM MDT
 version=1
 last_client=kicad
 [cvpcb]
@@ -45,7 +45,7 @@ LibName10=dip_sockets
 LibName11=hackrf
 [eeschema]
 version=1
-LibDir=../kicad
+LibDir=../kicad;../gsg-kicad-lib
 [eeschema/libraries]
 LibName1=power
 LibName2=device
@@ -77,3 +77,4 @@ LibName27=atmel
 LibName28=contrib
 LibName29=valves
 LibName30=hackrf
+LibName31=gsg-symbols
