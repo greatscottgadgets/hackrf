@@ -33,33 +33,23 @@
 #define FREQ_GRANULARITY 1000000
 #define MIN_FREQ 1
 #define MAX_FREQ 6000
+#define MAX_FREQ_COUNT 500
 
 volatile bool start_sweep_mode = false;
 static uint64_t sweep_freq;
 bool odd = true;
-
-struct init_sweep_params {
-	uint16_t min_freq_mhz;
-	uint16_t max_freq_mhz;
-	uint16_t step_freq_mhz;
-};
-struct init_sweep_params sweep_params;
+static uint16_t frequencies[MAX_FREQ_COUNT];
+static uint16_t frequency_count = 0;
 
 usb_request_status_t usb_vendor_request_init_sweep(
 		usb_endpoint_t* const endpoint, const usb_transfer_stage_t stage)
 {
-	if ((stage == USB_TRANSFER_STAGE_SETUP) &&
-		(endpoint->setup.length == 6)) {
-
-		usb_transfer_schedule_block(endpoint->out, &sweep_params,
-									sizeof(struct init_sweep_params),
-									NULL, NULL);
+	if (stage == USB_TRANSFER_STAGE_SETUP) {
+		frequency_count = endpoint->setup.length;
+		usb_transfer_schedule_block(endpoint->out, &frequencies,
+									endpoint->setup.length, NULL, NULL);
 	} else if (stage == USB_TRANSFER_STAGE_DATA) {
-		/* Limit to min/max frequency without warning (possible FIXME) */
-		sweep_params.min_freq_mhz = MAX(MIN_FREQ, sweep_params.min_freq_mhz);
-		sweep_params.max_freq_mhz = MIN(MAX_FREQ, sweep_params.max_freq_mhz);
-
-		sweep_freq = sweep_params.min_freq_mhz;
+		sweep_freq = frequencies[0];
 		set_freq(sweep_freq*FREQ_GRANULARITY);
 		start_sweep_mode = true;
 		usb_transfer_schedule_ack(endpoint->in);
@@ -70,6 +60,7 @@ usb_request_status_t usb_vendor_request_init_sweep(
 void sweep_mode(void) {
 	unsigned int blocks_queued = 0;
 	unsigned int phase = 0;
+	unsigned int ifreq = 0;
 
 	uint8_t *buffer;
 	bool transfer = false;
@@ -105,16 +96,9 @@ void sweep_mode(void) {
 		}
 
 		if (blocks_queued > 2) {
-			if (odd)
-				sweep_freq += sweep_params.step_freq_mhz / 4;
-			else
-				sweep_freq += 3 * (sweep_params.step_freq_mhz / 4);
-			odd = !odd;
-
-			if (sweep_freq > sweep_params.max_freq_mhz) {
-				odd = true;
-				sweep_freq = sweep_params.min_freq_mhz;
-			}
+			if(++ifreq >= frequency_count)
+				ifreq = 0;
+			sweep_freq = frequencies[ifreq];
 			set_freq(sweep_freq*FREQ_GRANULARITY);
 			blocks_queued = 0;
 		}

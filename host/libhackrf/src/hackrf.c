@@ -1697,24 +1697,14 @@ uint32_t ADDCALL hackrf_compute_baseband_filter_bw(const uint32_t bandwidth_hz)
 	return p->bandwidth_hz;
 }
 
-struct init_sweep_params {
-	uint16_t min_freq_mhz;
-	uint16_t max_freq_mhz;
-	uint16_t step_freq_mhz;
-};
-
 int ADDCALL hackrf_init_sweep(hackrf_device* device,
-		const uint16_t min_freq_mhz, const uint16_t max_freq_mhz,
-		const uint16_t step_freq_mhz)
+							  uint16_t* frequency_list,
+							  int length)
 {
-	struct init_sweep_params params;
-	uint8_t length;
-	int result;
+	int result, i;
 
-	params.min_freq_mhz  = TO_LE(min_freq_mhz);
-	params.max_freq_mhz  = TO_LE(max_freq_mhz);
-	params.step_freq_mhz = TO_LE(step_freq_mhz);
-	length = sizeof(struct init_sweep_params);
+	for(i=0; i<length; i++)
+		frequency_list[i] = TO_LE(frequency_list[i]);
 
 	result = libusb_control_transfer(
 		device->usb_device,
@@ -1722,13 +1712,12 @@ int ADDCALL hackrf_init_sweep(hackrf_device* device,
 		HACKRF_VENDOR_REQUEST_INIT_SWEEP,
 		0,
 		0,
-		(unsigned char*)&params,
+		(unsigned char*)frequency_list,
 		length,
 		0
 	);
 
-	if (result < length)
-	{
+	if (result < length) {
 		return HACKRF_ERROR_LIBUSB;
 	} else {
 		return HACKRF_SUCCESS;

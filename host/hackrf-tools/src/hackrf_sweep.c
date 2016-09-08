@@ -91,6 +91,9 @@ int gettimeofday(struct timeval *tv, void* ignored) {
 #define DEFAULT_SAMPLE_RATE_HZ (20000000) /* 20MHz default sample rate */
 #define DEFAULT_BASEBAND_FILTER_BANDWIDTH (15000000) /* 5MHz default */
 
+#define FREQ_STEP (DEFAULT_SAMPLE_RATE_HZ / FREQ_ONE_MHZ)
+#define MAX_FREQ_COUNT 500
+
 #if defined _WIN32
 	#define sleep(a) Sleep( (a*1000) )
 #endif
@@ -139,7 +142,7 @@ int parse_u32_range(char* s, uint32_t* const value_min, uint32_t* const value_ma
 	if (result != HACKRF_SUCCESS)
 		return result;
 	result = parse_u32(sep + 1, value_max);
-	if (result != HACKRF_SUCCESS);
+	if (result != HACKRF_SUCCESS)
 		return result;
 
 	return HACKRF_SUCCESS;
@@ -159,7 +162,6 @@ uint32_t amp_enable;
 bool antenna = false;
 uint32_t antenna_enable;
 
-bool freq_range = false;
 uint32_t freq_min;
 uint32_t freq_max;
 
@@ -259,17 +261,17 @@ void sigint_callback_handler(int signum)  {
 #endif
 
 int main(int argc, char** argv) {
-	int opt;
+	int opt, i, result, ifreq = 0;
+	bool odd;
 	const char* path = "/dev/null";
 	const char* serial_number = NULL;
-	int result;
 	int exit_code = EXIT_SUCCESS;
 	struct timeval t_end;
 	float time_diff;
-	unsigned int lna_gain=20, vga_gain=20, txvga_gain=0;
-  
-	while( (opt = getopt(argc, argv, "a:f:p:l:g:x:d:")) != EOF )
-	{
+	unsigned int lna_gain=16, vga_gain=20, txvga_gain=0;
+	uint16_t frequencies[MAX_FREQ_COUNT];
+
+	while( (opt = getopt(argc, argv, "a:f:p:l:g:x:d:")) != EOF ) {
 		result = HACKRF_SUCCESS;
 		switch( opt ) 
 		{
@@ -283,9 +285,18 @@ int main(int argc, char** argv) {
 			break;
 
 		case 'f':
-			freq_range = true;
 			result = parse_u32_range(optarg, &freq_min, &freq_max);
 			fprintf(stderr, "Scanning %uMHz to %uMHz\n", freq_min, freq_max);
+			frequencies[ifreq++] = freq_min;
+			odd = true;
+			while(frequencies[ifreq-1] <= freq_max) {
+				if (odd)
+					frequencies[ifreq] = frequencies[ifreq-1] + FREQ_STEP / 4;
+				else
+					frequencies[ifreq] = frequencies[ifreq-1] + 3*(FREQ_STEP/4);
+				ifreq++;
+				odd = !odd;
+			}
 			break;
 
 		case 'p':
@@ -340,7 +351,7 @@ int main(int argc, char** argv) {
 		}
 	}
 
-	if (!freq_range) {
+	if (ifreq == 0) {
 		fprintf(stderr, "argument error: must specify sweep frequency range (-f).\n");
 		usage();
 		return EXIT_FAILURE;
@@ -352,7 +363,6 @@ int main(int argc, char** argv) {
     fftwPlan = fftwf_plan_dft_1d(fftSize, fftwIn, fftwOut, FFTW_FORWARD, FFTW_MEASURE);
 	pwr = (float*)fftwf_malloc(sizeof(float) * fftSize);
 	window = (float*)fftwf_malloc(sizeof(float) * fftSize);
-	int i;
 	for (i = 0; i < fftSize; i++) {
 		window[i] = 0.5f * (1.0f - cos(2 * M_PI * i / (fftSize - 1)));
 	}
@@ -424,9 +434,9 @@ int main(int argc, char** argv) {
 	}
 
 	/* DGS FIXME: allow upper and lower frequencies to be set */
-	result = hackrf_init_sweep(device, freq_min, freq_max, 20);
+	result = hackrf_init_sweep(device, frequencies, ifreq);
 	if( result != HACKRF_SUCCESS ) {
-		fprintf(stderr, "hackrf_init_scan() failed: %s (%d)\n",
+		fprintf(stderr, "hackrf_init_sweep() failed: %s (%d)\n",
 			   hackrf_error_name(result), result);
 		usage();
 		return EXIT_FAILURE;
