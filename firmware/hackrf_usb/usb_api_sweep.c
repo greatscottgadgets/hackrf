@@ -45,7 +45,7 @@ usb_request_status_t usb_vendor_request_init_sweep(
 		usb_endpoint_t* const endpoint, const usb_transfer_stage_t stage)
 {
 	if (stage == USB_TRANSFER_STAGE_SETUP) {
-		frequency_count = endpoint->setup.length;
+		frequency_count = endpoint->setup.length / sizeof(uint16_t);
 		usb_transfer_schedule_block(endpoint->out, &frequencies,
 									endpoint->setup.length, NULL, NULL);
 	} else if (stage == USB_TRANSFER_STAGE_DATA) {
