@@ -92,7 +92,7 @@ int gettimeofday(struct timeval *tv, void* ignored) {
 #define DEFAULT_BASEBAND_FILTER_BANDWIDTH (15000000) /* 5MHz default */
 
 #define FREQ_STEP (DEFAULT_SAMPLE_RATE_HZ / FREQ_ONE_MHZ)
-#define MAX_FREQ_COUNT 500
+#define MAX_FREQ_COUNT 1000
 
 #if defined _WIN32
 	#define sleep(a) Sleep( (a*1000) )

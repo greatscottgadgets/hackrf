@@ -33,7 +33,7 @@
 #define FREQ_GRANULARITY 1000000
 #define MIN_FREQ 1
 #define MAX_FREQ 6000
-#define MAX_FREQ_COUNT 500
+#define MAX_FREQ_COUNT 1000
 
 volatile bool start_sweep_mode = false;
 static uint64_t sweep_freq;
