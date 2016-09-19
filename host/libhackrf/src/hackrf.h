@@ -199,7 +199,7 @@ extern ADDAPI uint32_t ADDCALL hackrf_compute_baseband_filter_bw(const uint32_t 
 /* Start scan mode */
 extern ADDAPI int ADDCALL hackrf_init_sweep(hackrf_device* device,
 											uint16_t* frequency_list,
-											int length);
+											int length, uint32_t dwell_time);
 
 #ifdef __cplusplus
 } // __cplusplus defined.

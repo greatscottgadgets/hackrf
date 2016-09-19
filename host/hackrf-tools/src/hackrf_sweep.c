@@ -94,6 +94,8 @@ int gettimeofday(struct timeval *tv, void* ignored) {
 #define FREQ_STEP (DEFAULT_SAMPLE_RATE_HZ / FREQ_ONE_MHZ)
 #define MAX_FREQ_COUNT 1000
 
+#define DEFAULT_DWELL_TIME 0x4000
+
 #if defined _WIN32
 	#define sleep(a) Sleep( (a*1000) )
 #endif
@@ -239,6 +241,7 @@ static void usage() {
 	fprintf(stderr, "\t[-l gain_db] # RX LNA (IF) gain, 0-40dB, 8dB steps\n");
 	fprintf(stderr, "\t[-g gain_db] # RX VGA (baseband) gain, 0-62dB, 2dB steps\n");
 	fprintf(stderr, "\t[-x gain_db] # TX VGA (IF) gain, 0-47dB, 1dB steps\n");
+	fprintf(stderr, "\t[-s dwell_time] # Dwell time in samples, 0-%lu\n", (uint64_t)1<<32);
 }
 
 static hackrf_device* device = NULL;
@@ -270,8 +273,9 @@ int main(int argc, char** argv) {
 	float time_diff;
 	unsigned int lna_gain=16, vga_gain=20, txvga_gain=0;
 	uint16_t frequencies[MAX_FREQ_COUNT];
+	uint32_t dwell_time = DEFAULT_DWELL_TIME;
 
-	while( (opt = getopt(argc, argv, "a:f:p:l:g:x:d:")) != EOF ) {
+	while( (opt = getopt(argc, argv, "a:f:p:l:g:x:d:s:")) != EOF ) {
 		result = HACKRF_SUCCESS;
 		switch( opt ) 
 		{
@@ -316,6 +320,10 @@ int main(int argc, char** argv) {
 			result = parse_u32(optarg, &txvga_gain);
 			break;
 
+		case 's':
+			result = parse_u32(optarg, &dwell_time);
+			break;
+
 		default:
 			fprintf(stderr, "unknown argument '-%c %s'\n", opt, optarg);
 			usage();
@@ -334,6 +342,11 @@ int main(int argc, char** argv) {
 
 	if (vga_gain % 2)
 		fprintf(stderr, "warning: vga_gain (-g) must be a multiple of 2\n");
+
+	if (dwell_time % 0x4000) {
+		fprintf(stderr, "warning: dwell_time (-s) must be a multiple of 16384\n");
+		return EXIT_FAILURE;
+	}
 
 	if( amp ) {
 		if( amp_enable > 1 ) {
@@ -433,8 +446,7 @@ int main(int argc, char** argv) {
 		return EXIT_FAILURE;
 	}
 
-	/* DGS FIXME: allow upper and lower frequencies to be set */
-	result = hackrf_init_sweep(device, frequencies, ifreq);
+	result = hackrf_init_sweep(device, frequencies, ifreq, dwell_time);
 	if( result != HACKRF_SUCCESS ) {
 		fprintf(stderr, "hackrf_init_sweep() failed: %s (%d)\n",
 			   hackrf_error_name(result), result);

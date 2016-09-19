@@ -40,11 +40,15 @@ static uint64_t sweep_freq;
 bool odd = true;
 static uint16_t frequencies[MAX_FREQ_COUNT];
 static uint16_t frequency_count = 0;
+static uint32_t dwell_blocks = 0;
 
 usb_request_status_t usb_vendor_request_init_sweep(
 		usb_endpoint_t* const endpoint, const usb_transfer_stage_t stage)
 {
+	uint32_t dwell_time;
 	if (stage == USB_TRANSFER_STAGE_SETUP) {
+		dwell_time = (endpoint->setup.index << 16) | endpoint->setup.value;
+		dwell_blocks = dwell_time / 0x4000;
 		frequency_count = endpoint->setup.length / sizeof(uint16_t);
 		usb_transfer_schedule_block(endpoint->out, &frequencies,
 									endpoint->setup.length, NULL, NULL);
@@ -95,7 +99,7 @@ void sweep_mode(void) {
 			transfer = false;
 		}
 
-		if (blocks_queued > 2) {
+		if (blocks_queued >= dwell_blocks) {
 			if(++ifreq >= frequency_count)
 				ifreq = 0;
 			sweep_freq = frequencies[ifreq];
