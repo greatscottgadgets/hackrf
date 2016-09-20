@@ -760,21 +760,21 @@ Text Label 8150 6500 1    40   ~ 0
 CPOUT+
 Text Label 1900 7950 0    40   ~ 0
 INTR
-Text Label 9050 4400 0    40   ~ 0
+Text Label 9300 4400 2    40   ~ 0
 RXBBQ+
-Text Label 9050 4500 0    40   ~ 0
+Text Label 9300 4500 2    40   ~ 0
 RXBBQ-
-Text Label 8400 3550 0    40   ~ 0
+Text Label 8250 3350 3    40   ~ 0
 RXBBI-
-Text Label 8400 3450 0    40   ~ 0
+Text Label 8150 3350 3    40   ~ 0
 RXBBI+
-Text Label 8400 3050 0    40   ~ 0
+Text Label 7650 3350 3    40   ~ 0
 TXBBI-
-Text Label 8400 2750 0    40   ~ 0
+Text Label 7750 3350 3    40   ~ 0
 TXBBI+
-Text Label 8400 2450 0    40   ~ 0
+Text Label 7550 3350 3    40   ~ 0
 TXBBQ+
-Text Label 8400 2150 0    40   ~ 0
+Text Label 7450 3350 3    40   ~ 0
 TXBBQ-
 $Comp
 L MAX2837 U17
@@ -1719,7 +1719,7 @@ F 3 "" H 11300 8400 60  0000 C CNN
 	1    0    0    -1  
 $EndComp
 Text GLabel 9800 7450 1    40   Input ~ 0
-SSP1_MISO
+SSP0_MISO
 $Comp
 L C C168
 U 1 1 52963CCA
@@ -1862,18 +1862,6 @@ Wire Wire Line
 Wire Wire Line
 	9000 5500 9200 5500
 Wire Wire Line
-	8150 3450 10100 3450
-Wire Wire Line
-	9000 4400 9900 4400
-Wire Wire Line
-	7750 3050 12700 3050
-Wire Wire Line
-	7450 2150 7450 3650
-Wire Wire Line
-	7450 2150 12700 2150
-Wire Wire Line
-	7650 2750 12700 2750
-Wire Wire Line
 	7550 6250 7550 7300
 Wire Wire Line
 	9100 6000 9100 5900
@@ -1941,8 +1929,6 @@ Wire Wire Line
 Wire Wire Line
 	6250 4500 6400 4500
 Wire Wire Line
-	8150 3450 8150 3650
-Wire Wire Line
 	9000 4900 9100 4900
 Wire Wire Line
 	9000 5100 9100 5100
@@ -1992,10 +1978,6 @@ Wire Wire Line
 	9000 5000 9100 5000
 Wire Wire Line
 	9000 4800 9100 4800
-Wire Wire Line
-	8250 3550 8250 3650
-Wire Wire Line
-	7650 3650 7650 2750
 Wire Wire Line
 	6250 5000 6400 5000
 Wire Wire Line
@@ -2066,16 +2048,6 @@ Wire Wire Line
 	4500 6900 4500 7150
 Wire Wire Line
 	4300 6550 4300 7150
-Wire Wire Line
-	7750 3650 7750 3050
-Wire Wire Line
-	7550 2450 12700 2450
-Wire Wire Line
-	7550 3650 7550 2450
-Wire Wire Line
-	9000 4500 9800 4500
-Wire Wire Line
-	8250 3550 10000 3550
 Connection ~ 2500 7950
 Wire Wire Line
 	1900 8150 3700 8150
@@ -2218,4 +2190,20 @@ NoConn ~ 5300 7950
 NoConn ~ 5300 8050
 NoConn ~ 4500 8750
 NoConn ~ 4600 8750
+Wire Wire Line
+	7450 3350 7450 3650
+Wire Wire Line
+	7550 3650 7550 3350
+Wire Wire Line
+	7650 3350 7650 3650
+Wire Wire Line
+	7750 3350 7750 3650
+Wire Wire Line
+	8250 3350 8250 3650
+Wire Wire Line
+	8150 3650 8150 3350
+Wire Wire Line
+	9300 4400 9000 4400
+Wire Wire Line
+	9000 4500 9300 4500
 $EndSCHEMATC
