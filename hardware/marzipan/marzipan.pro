@@ -29,7 +29,7 @@ DrawLar=150
 EdgeLar=150
 TxtLar=120
 MSegLar=150
-LastNetListRead=hackrf-one.net
+LastNetListRead=marzipan.net
 [pcbnew/libraries]
 LibDir=../kicad
 LibName1=sockets
