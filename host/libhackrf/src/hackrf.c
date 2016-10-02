@@ -1697,9 +1697,7 @@ uint32_t ADDCALL hackrf_compute_baseband_filter_bw(const uint32_t bandwidth_hz)
 	return p->bandwidth_hz;
 }
 
-int ADDCALL hackrf_init_sweep(hackrf_device* device,
-							  uint16_t* frequency_list,
-							  int length, uint32_t dwell_time)
+int ADDCALL hackrf_init_sweep(hackrf_device* device, uint16_t* frequency_list, int length, uint32_t dwell_time)
 {
 	int result, i;
 	int size = length * sizeof(frequency_list[0]);
@@ -1711,8 +1709,8 @@ int ADDCALL hackrf_init_sweep(hackrf_device* device,
 		device->usb_device,
 		LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
 		HACKRF_VENDOR_REQUEST_INIT_SWEEP,
-		dwell_time & 0xff,
-		(dwell_time >> 16) & 0xff,
+		dwell_time & 0xffff,
+		(dwell_time >> 16) & 0xffff,
 		(unsigned char*)frequency_list,
 		size,
 		0

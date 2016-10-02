@@ -94,7 +94,7 @@ int gettimeofday(struct timeval *tv, void* ignored) {
 #define FREQ_STEP (DEFAULT_SAMPLE_RATE_HZ / FREQ_ONE_MHZ)
 #define MAX_FREQ_COUNT 1000
 
-#define DEFAULT_DWELL_TIME 0x4000
+#define DEFAULT_SAMPLE_COUNT 0x4000
 
 #if defined _WIN32
 	#define sleep(a) Sleep( (a*1000) )
@@ -241,7 +241,7 @@ static void usage() {
 	fprintf(stderr, "\t[-l gain_db] # RX LNA (IF) gain, 0-40dB, 8dB steps\n");
 	fprintf(stderr, "\t[-g gain_db] # RX VGA (baseband) gain, 0-62dB, 2dB steps\n");
 	fprintf(stderr, "\t[-x gain_db] # TX VGA (IF) gain, 0-47dB, 1dB steps\n");
-	fprintf(stderr, "\t[-s dwell_time] # Dwell time in samples, 0-%lu\n", (uint64_t)1<<32);
+	fprintf(stderr, "\t[-n num_samples] # Number of samples per frequency, 0-%lu\n", (uint64_t)1<<32);
 }
 
 static hackrf_device* device = NULL;
@@ -273,7 +273,7 @@ int main(int argc, char** argv) {
 	float time_diff;
 	unsigned int lna_gain=16, vga_gain=20, txvga_gain=0;
 	uint16_t frequencies[MAX_FREQ_COUNT];
-	uint32_t dwell_time = DEFAULT_DWELL_TIME;
+	uint32_t num_samples = DEFAULT_SAMPLE_COUNT;
 
 	while( (opt = getopt(argc, argv, "a:f:p:l:g:x:d:s:")) != EOF ) {
 		result = HACKRF_SUCCESS;
@@ -320,8 +320,8 @@ int main(int argc, char** argv) {
 			result = parse_u32(optarg, &txvga_gain);
 			break;
 
-		case 's':
-			result = parse_u32(optarg, &dwell_time);
+		case 'n':
+			result = parse_u32(optarg, &num_samples);
 			break;
 
 		default:
@@ -343,8 +343,8 @@ int main(int argc, char** argv) {
 	if (vga_gain % 2)
 		fprintf(stderr, "warning: vga_gain (-g) must be a multiple of 2\n");
 
-	if (dwell_time % 0x4000) {
-		fprintf(stderr, "warning: dwell_time (-s) must be a multiple of 16384\n");
+	if (num_samples % 0x4000) {
+		fprintf(stderr, "warning: num_samples (-s) must be a multiple of 16384\n");
 		return EXIT_FAILURE;
 	}
 
@@ -446,7 +446,7 @@ int main(int argc, char** argv) {
 		return EXIT_FAILURE;
 	}
 
-	result = hackrf_init_sweep(device, frequencies, ifreq, dwell_time);
+	result = hackrf_init_sweep(device, frequencies, ifreq, num_samples);
 	if( result != HACKRF_SUCCESS ) {
 		fprintf(stderr, "hackrf_init_sweep() failed: %s (%d)\n",
 			   hackrf_error_name(result), result);
