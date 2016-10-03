@@ -194,8 +194,7 @@ int rx_callback(hackrf_transfer* transfer) {
 	float frequency;
 	int i, j;
 
-	if( fd != NULL ) 
-	{
+	if( fd != NULL ) {
 		byte_count += transfer->valid_length;
 		bytes_to_write = transfer->valid_length;
 		buf = (int8_t*) transfer->buffer;
@@ -275,7 +274,7 @@ int main(int argc, char** argv) {
 	uint16_t frequencies[MAX_FREQ_COUNT];
 	uint32_t num_samples = DEFAULT_SAMPLE_COUNT;
 
-	while( (opt = getopt(argc, argv, "a:f:p:l:g:x:d:s:")) != EOF ) {
+	while( (opt = getopt(argc, argv, "a:f:p:l:g:x:d:n:")) != EOF ) {
 		result = HACKRF_SUCCESS;
 		switch( opt ) 
 		{
