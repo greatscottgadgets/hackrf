@@ -1606,6 +1606,9 @@ const char* ADDCALL hackrf_board_id_name(enum hackrf_board_id board_id)
 	case BOARD_ID_HACKRF_ONE:
 		return "HackRF One";
 
+	case BOARD_ID_RAD1O:
+		return "rad1o";
+
 	case BOARD_ID_INVALID:
 		return "Invalid Board ID";
 
@@ -1623,6 +1626,9 @@ extern ADDAPI const char* ADDCALL hackrf_usb_board_id_name(enum hackrf_usb_board
 
 	case USB_BOARD_ID_HACKRF_ONE:
 		return "HackRF One";
+
+	case USB_BOARD_ID_RAD1O:
+		return "rad1o";
 
 	case USB_BOARD_ID_INVALID:
 		return "Invalid Board ID";
