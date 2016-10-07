@@ -66,6 +66,7 @@ enum hackrf_board_id {
 	BOARD_ID_JELLYBEAN  = 0,
 	BOARD_ID_JAWBREAKER = 1,
 	BOARD_ID_HACKRF_ONE = 2,
+	BOARD_ID_RAD1O = 3,
 	BOARD_ID_INVALID = 0xFF,
 };
 
