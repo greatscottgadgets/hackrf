@@ -2763,7 +2763,7 @@ F 4 "DNP" H 3000 6100 60  0001 C CNN "Note"
 	0    -1   -1   0   
 $EndComp
 Text Notes 7200 7900 0    40   ~ 0
-Default I2C address is 0x20/0x21.\nUse jumpers to change address\nup to 0x2E/0x2F.
+Default I2C address is 0x30/0x31.\nUse jumpers to change address\nup to 0x3E/0x3F.
 Text Label 9350 7550 0    40   ~ 0
 LED_EN2
 $Comp
