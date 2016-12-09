@@ -42,15 +42,7 @@ To start up HackRF One in DFU mode, hold down the DFU button while powering it
 on or while pressing and releasing the RESET button.  Release the DFU button
 after the 3V3 LED illuminates.
 
-With dfu-util and dfu-suffix (from the dfu-util package) installed and with the
-HackRF operating in DFU mode, you can build firmware for RAM and load it with:
-
-$ cd hackrf_usb
-$ mkdir build
-$ cd build
-$ cmake .. -DRUN_FROM=RAM
-$ make hackrf_usb-program
-
-Alternatively you can load a .dfu file from a release package with:
+A .dfu file is built by default when building firmware.  Alternatively you can
+load a known good .dfu file from a release package with:
 
 $ dfu-util --device 1fc9:000c --alt 0 --download hackrf_usb_ram.dfu

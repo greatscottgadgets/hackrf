@@ -29,16 +29,17 @@ LIBS:atmel
 LIBS:contrib
 LIBS:valves
 LIBS:hackrf
-LIBS:hackrf-one-cache
+LIBS:gsg-symbols
+LIBS:neapolitan-cache
 EELAYER 25 0
 EELAYER END
 $Descr User 17000 11000
 encoding utf-8
 Sheet 1 4
-Title "HackRF One"
+Title "Neapolitan"
 Date "13 feb 2014"
 Rev ""
-Comp "Copyright 2012 Michael Ossmann"
+Comp "Copyright 2012 - 2016 Great Scott Gadgets"
 Comment1 "License: GPL v2"
 Comment2 ""
 Comment3 ""

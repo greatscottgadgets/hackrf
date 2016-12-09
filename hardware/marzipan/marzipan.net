@@ -1,23 +1,23 @@
 (export (version D)
   (design
-    (source /home/mossmann/src/hackrf/hardware/hackrf-one/hackrf-one.sch)
+    (source /home/mossmann/src/hackrf/hardware/marzipan/marzipan.sch)
     (date "Thu 14 Jul 2016 11:40:32 AM MDT")
     (tool "Eeschema (2015-08-18 BZR 6102)-product")
     (sheet (number 1) (name /) (tstamps /)
       (title_block
-        (title "HackRF One")
-        (company "Copyright 2012 Michael Ossmann")
+        (title "Marzipan")
+        (company "Copyright 2012 - 2016 Great Scott Gadgets")
         (rev)
         (date "13 feb 2014")
-        (source hackrf-one.sch)
+        (source marzipan.sch)
         (comment (number 1) (value "License: GPL v2"))
         (comment (number 2) (value ""))
         (comment (number 3) (value ""))
         (comment (number 4) (value ""))))
     (sheet (number 2) (name /frontend/) (tstamps /503BB638/)
       (title_block
-        (title "HackRF One frontend")
-        (company "Copyright 2012 Michael Ossmann")
+        (title "Marzipan frontend")
+        (company "Copyright 2012 - 2016 Great Scott Gadgets")
         (rev)
         (date "13 feb 2014")
         (source frontend.sch)
@@ -27,8 +27,8 @@
         (comment (number 4) (value ""))))
     (sheet (number 3) (name /baseband/) (tstamps /50370666/)
       (title_block
-        (title "HackRF One baseband")
-        (company "Copyright 2012 Michael Ossmann")
+        (title "Marzipan baseband")
+        (company "Copyright 2012 - 2016 Great Scott Gadgets")
         (rev)
         (date "13 feb 2014")
         (source baseband.sch)
@@ -38,8 +38,8 @@
         (comment (number 4) (value ""))))
     (sheet (number 4) (name /mcu/usb/power/) (tstamps /5037043E/)
       (title_block
-        (title "HackRF One mcu/usb/power")
-        (company "Copyright 2012 Michael Ossmann")
+        (title "Marzipan mcu/usb/power")
+        (company "Copyright 2012 - 2016 Great Scott Gadgets")
         (rev)
         (date "13 feb 2014")
         (source mcu.sch)
@@ -125,7 +125,7 @@
         (field (name Manufacturer) Fairchild)
         (field (name "Part Number") BSS84)
         (field (name Description) "MOSFET P-CH 50V 130MA SOT-23"))
-      (libsource (lib hackrf-one-cache) (part MOSFET_P))
+      (libsource (lib marzipan-cache) (part MOSFET_P))
       (sheetpath (names /frontend/) (tstamps /503BB638/))
       (tstamp 503BF2D7))
     (comp (ref C162)
@@ -345,7 +345,7 @@
         (field (name Manufacturer) Fairchild)
         (field (name "Part Number") BSS84)
         (field (name Description) "MOSFET P-CH 50V 130MA SOT-23"))
-      (libsource (lib hackrf-one-cache) (part MOSFET_P))
+      (libsource (lib marzipan-cache) (part MOSFET_P))
       (sheetpath (names /frontend/) (tstamps /503BB638/))
       (tstamp 502E69D1))
     (comp (ref C61)
@@ -1059,7 +1059,7 @@
       (footprint hackrf:GSG-TESTPOINT-50MIL)
       (fields
         (field (name Note) DNP))
-      (libsource (lib hackrf-one-cache) (part CONN_1))
+      (libsource (lib marzipan-cache) (part CONN_1))
       (sheetpath (names /frontend/) (tstamps /503BB638/))
       (tstamp 526B7056))
     (comp (ref J2)
@@ -1089,7 +1089,7 @@
       (footprint hackrf:GSG-TESTPOINT-50MIL)
       (fields
         (field (name Note) DNP))
-      (libsource (lib hackrf-one-cache) (part CONN_1))
+      (libsource (lib marzipan-cache) (part CONN_1))
       (sheetpath (names /frontend/) (tstamps /503BB638/))
       (tstamp 5280432B))
     (comp (ref P7)
@@ -1097,7 +1097,7 @@
       (footprint hackrf:GSG-TESTPOINT-50MIL)
       (fields
         (field (name Note) DNP))
-      (libsource (lib hackrf-one-cache) (part CONN_1))
+      (libsource (lib marzipan-cache) (part CONN_1))
       (sheetpath (names /frontend/) (tstamps /503BB638/))
       (tstamp 528044D2))
     (comp (ref P13)
@@ -1105,7 +1105,7 @@
       (footprint hackrf:GSG-TESTPOINT-50MIL)
       (fields
         (field (name Note) DNP))
-      (libsource (lib hackrf-one-cache) (part CONN_1))
+      (libsource (lib marzipan-cache) (part CONN_1))
       (sheetpath (names /frontend/) (tstamps /503BB638/))
       (tstamp 528044D9))
     (comp (ref P21)
@@ -1113,7 +1113,7 @@
       (footprint hackrf:GSG-TESTPOINT-50MIL)
       (fields
         (field (name Note) DNP))
-      (libsource (lib hackrf-one-cache) (part CONN_1))
+      (libsource (lib marzipan-cache) (part CONN_1))
       (sheetpath (names /frontend/) (tstamps /503BB638/))
       (tstamp 528044E0))
     (comp (ref P17)
@@ -1121,7 +1121,7 @@
       (footprint hackrf:GSG-TESTPOINT-50MIL)
       (fields
         (field (name Note) DNP))
-      (libsource (lib hackrf-one-cache) (part CONN_1))
+      (libsource (lib marzipan-cache) (part CONN_1))
       (sheetpath (names /frontend/) (tstamps /503BB638/))
       (tstamp 52805038))
     (comp (ref P27)
@@ -1129,7 +1129,7 @@
       (footprint hackrf:GSG-TESTPOINT-50MIL)
       (fields
         (field (name Note) DNP))
-      (libsource (lib hackrf-one-cache) (part CONN_1))
+      (libsource (lib marzipan-cache) (part CONN_1))
       (sheetpath (names /frontend/) (tstamps /503BB638/))
       (tstamp 528054F2))
     (comp (ref P31)
@@ -1137,7 +1137,7 @@
       (footprint hackrf:GSG-TESTPOINT-50MIL)
       (fields
         (field (name Note) DNP))
-      (libsource (lib hackrf-one-cache) (part CONN_1))
+      (libsource (lib marzipan-cache) (part CONN_1))
       (sheetpath (names /frontend/) (tstamps /503BB638/))
       (tstamp 528054F9))
     (comp (ref P32)
@@ -1145,7 +1145,7 @@
       (footprint hackrf:GSG-TESTPOINT-50MIL)
       (fields
         (field (name Note) DNP))
-      (libsource (lib hackrf-one-cache) (part CONN_1))
+      (libsource (lib marzipan-cache) (part CONN_1))
       (sheetpath (names /frontend/) (tstamps /503BB638/))
       (tstamp 52805500))
     (comp (ref P33)
@@ -1153,7 +1153,7 @@
       (footprint hackrf:GSG-TESTPOINT-50MIL)
       (fields
         (field (name Note) DNP))
-      (libsource (lib hackrf-one-cache) (part CONN_1))
+      (libsource (lib marzipan-cache) (part CONN_1))
       (sheetpath (names /frontend/) (tstamps /503BB638/))
       (tstamp 52805507))
     (comp (ref P34)
@@ -1161,7 +1161,7 @@
       (footprint hackrf:GSG-TESTPOINT-50MIL)
       (fields
         (field (name Note) DNP))
-      (libsource (lib hackrf-one-cache) (part CONN_1))
+      (libsource (lib marzipan-cache) (part CONN_1))
       (sheetpath (names /frontend/) (tstamps /503BB638/))
       (tstamp 52805C27))
     (comp (ref P35)
@@ -1169,7 +1169,7 @@
       (footprint hackrf:GSG-TESTPOINT-50MIL)
       (fields
         (field (name Note) DNP))
-      (libsource (lib hackrf-one-cache) (part CONN_1))
+      (libsource (lib marzipan-cache) (part CONN_1))
       (sheetpath (names /frontend/) (tstamps /503BB638/))
       (tstamp 52805C2E))
     (comp (ref P42)
@@ -1177,7 +1177,7 @@
       (footprint hackrf:GSG-TESTPOINT-50MIL)
       (fields
         (field (name Note) DNP))
-      (libsource (lib hackrf-one-cache) (part CONN_1))
+      (libsource (lib marzipan-cache) (part CONN_1))
       (sheetpath (names /frontend/) (tstamps /503BB638/))
       (tstamp 52805C35))
     (comp (ref P43)
@@ -1185,7 +1185,7 @@
       (footprint hackrf:GSG-TESTPOINT-50MIL)
       (fields
         (field (name Note) DNP))
-      (libsource (lib hackrf-one-cache) (part CONN_1))
+      (libsource (lib marzipan-cache) (part CONN_1))
       (sheetpath (names /frontend/) (tstamps /503BB638/))
       (tstamp 52805C3C))
     (comp (ref P44)
@@ -1193,7 +1193,7 @@
       (footprint hackrf:GSG-TESTPOINT-50MIL)
       (fields
         (field (name Note) DNP))
-      (libsource (lib hackrf-one-cache) (part CONN_1))
+      (libsource (lib marzipan-cache) (part CONN_1))
       (sheetpath (names /frontend/) (tstamps /503BB638/))
       (tstamp 52805C47))
     (comp (ref P45)
@@ -1201,7 +1201,7 @@
       (footprint hackrf:GSG-TESTPOINT-50MIL)
       (fields
         (field (name Note) DNP))
-      (libsource (lib hackrf-one-cache) (part CONN_1))
+      (libsource (lib marzipan-cache) (part CONN_1))
       (sheetpath (names /frontend/) (tstamps /503BB638/))
       (tstamp 52805C4E))
     (comp (ref P46)
@@ -1209,7 +1209,7 @@
       (footprint hackrf:GSG-TESTPOINT-50MIL)
       (fields
         (field (name Note) DNP))
-      (libsource (lib hackrf-one-cache) (part CONN_1))
+      (libsource (lib marzipan-cache) (part CONN_1))
       (sheetpath (names /frontend/) (tstamps /503BB638/))
       (tstamp 52805C55))
     (comp (ref P47)
@@ -1217,7 +1217,7 @@
       (footprint hackrf:GSG-TESTPOINT-50MIL)
       (fields
         (field (name Note) DNP))
-      (libsource (lib hackrf-one-cache) (part CONN_1))
+      (libsource (lib marzipan-cache) (part CONN_1))
       (sheetpath (names /frontend/) (tstamps /503BB638/))
       (tstamp 52805C5C))
     (comp (ref P48)
@@ -1225,7 +1225,7 @@
       (footprint hackrf:GSG-TESTPOINT-50MIL)
       (fields
         (field (name Note) DNP))
-      (libsource (lib hackrf-one-cache) (part CONN_1))
+      (libsource (lib marzipan-cache) (part CONN_1))
       (sheetpath (names /frontend/) (tstamps /503BB638/))
       (tstamp 52805C67))
     (comp (ref P49)
@@ -1233,7 +1233,7 @@
       (footprint hackrf:GSG-TESTPOINT-50MIL)
       (fields
         (field (name Note) DNP))
-      (libsource (lib hackrf-one-cache) (part CONN_1))
+      (libsource (lib marzipan-cache) (part CONN_1))
       (sheetpath (names /frontend/) (tstamps /503BB638/))
       (tstamp 52805C6E))
     (comp (ref P50)
@@ -1241,7 +1241,7 @@
       (footprint hackrf:GSG-TESTPOINT-50MIL)
       (fields
         (field (name Note) DNP))
-      (libsource (lib hackrf-one-cache) (part CONN_1))
+      (libsource (lib marzipan-cache) (part CONN_1))
       (sheetpath (names /frontend/) (tstamps /503BB638/))
       (tstamp 52805C75))
     (comp (ref P51)
@@ -1249,7 +1249,7 @@
       (footprint hackrf:GSG-TESTPOINT-50MIL)
       (fields
         (field (name Note) DNP))
-      (libsource (lib hackrf-one-cache) (part CONN_1))
+      (libsource (lib marzipan-cache) (part CONN_1))
       (sheetpath (names /frontend/) (tstamps /503BB638/))
       (tstamp 52805C7C))
     (comp (ref P52)
@@ -1257,7 +1257,7 @@
       (footprint hackrf:GSG-TESTPOINT-50MIL)
       (fields
         (field (name Note) DNP))
-      (libsource (lib hackrf-one-cache) (part CONN_1))
+      (libsource (lib marzipan-cache) (part CONN_1))
       (sheetpath (names /frontend/) (tstamps /503BB638/))
       (tstamp 52805C87))
     (comp (ref C166)
@@ -1315,7 +1315,7 @@
       (footprint hackrf:GSG-HOLE126MIL-COPPER)
       (fields
         (field (name Note) DNP))
-      (libsource (lib hackrf-one-cache) (part CONN_1))
+      (libsource (lib marzipan-cache) (part CONN_1))
       (sheetpath (names /frontend/) (tstamps /503BB638/))
       (tstamp 528FA040))
     (comp (ref J5)
@@ -1323,7 +1323,7 @@
       (footprint hackrf:GSG-HOLE126MIL-COPPER)
       (fields
         (field (name Note) DNP))
-      (libsource (lib hackrf-one-cache) (part CONN_1))
+      (libsource (lib marzipan-cache) (part CONN_1))
       (sheetpath (names /frontend/) (tstamps /503BB638/))
       (tstamp 528FA22A))
     (comp (ref J6)
@@ -1331,7 +1331,7 @@
       (footprint hackrf:GSG-HOLE126MIL-COPPER)
       (fields
         (field (name Note) DNP))
-      (libsource (lib hackrf-one-cache) (part CONN_1))
+      (libsource (lib marzipan-cache) (part CONN_1))
       (sheetpath (names /frontend/) (tstamps /503BB638/))
       (tstamp 528FA29A))
     (comp (ref J7)
@@ -1339,7 +1339,7 @@
       (footprint hackrf:GSG-HOLE126MIL-COPPER)
       (fields
         (field (name Note) DNP))
-      (libsource (lib hackrf-one-cache) (part CONN_1))
+      (libsource (lib marzipan-cache) (part CONN_1))
       (sheetpath (names /frontend/) (tstamps /503BB638/))
       (tstamp 528FA2A8))
     (comp (ref J8)
@@ -1347,7 +1347,7 @@
       (footprint hackrf:GSG-HOLE126MIL-COPPER)
       (fields
         (field (name Note) DNP))
-      (libsource (lib hackrf-one-cache) (part CONN_1))
+      (libsource (lib marzipan-cache) (part CONN_1))
       (sheetpath (names /frontend/) (tstamps /503BB638/))
       (tstamp 528FA2B6))
     (comp (ref J9)
@@ -1355,7 +1355,7 @@
       (footprint hackrf:GSG-HOLE126MIL-COPPER)
       (fields
         (field (name Note) DNP))
-      (libsource (lib hackrf-one-cache) (part CONN_1))
+      (libsource (lib marzipan-cache) (part CONN_1))
       (sheetpath (names /frontend/) (tstamps /503BB638/))
       (tstamp 528FA2C4))
     (comp (ref C67)
@@ -1386,7 +1386,7 @@
         (field (name "Part Number") S1751-46R)
         (field (name Description) "PC TEST POINT TIN SMD")
         (field (name Note) DNP))
-      (libsource (lib hackrf-one-cache) (part CONN_1))
+      (libsource (lib marzipan-cache) (part CONN_1))
       (sheetpath (names /frontend/) (tstamps /503BB638/))
       (tstamp 5293FD15))
     (comp (ref R36)
@@ -1426,7 +1426,7 @@
         (field (name Manufacturer) Fairchild)
         (field (name "Part Number") BSS84)
         (field (name Description) "MOSFET P-CH 50V 130MA SOT-23"))
-      (libsource (lib hackrf-one-cache) (part MOSFET_P))
+      (libsource (lib marzipan-cache) (part MOSFET_P))
       (sheetpath (names /frontend/) (tstamps /503BB638/))
       (tstamp 52EA11B0))
     (comp (ref R28)
@@ -1454,7 +1454,7 @@
       (footprint hackrf:GSG-TESTPOINT-50MIL)
       (fields
         (field (name Note) DNP))
-      (libsource (lib hackrf-one-cache) (part CONN_1))
+      (libsource (lib marzipan-cache) (part CONN_1))
       (sheetpath (names /baseband/) (tstamps /50370666/))
       (tstamp 5052A336))
     (comp (ref P41)
@@ -1462,7 +1462,7 @@
       (footprint hackrf:GSG-TESTPOINT-50MIL)
       (fields
         (field (name Note) DNP))
-      (libsource (lib hackrf-one-cache) (part CONN_1))
+      (libsource (lib marzipan-cache) (part CONN_1))
       (sheetpath (names /baseband/) (tstamps /50370666/))
       (tstamp 5052A335))
     (comp (ref P39)
@@ -1470,7 +1470,7 @@
       (footprint hackrf:GSG-TESTPOINT-50MIL)
       (fields
         (field (name Note) DNP))
-      (libsource (lib hackrf-one-cache) (part CONN_1))
+      (libsource (lib marzipan-cache) (part CONN_1))
       (sheetpath (names /baseband/) (tstamps /50370666/))
       (tstamp 5052A332))
     (comp (ref P38)
@@ -1478,7 +1478,7 @@
       (footprint hackrf:GSG-TESTPOINT-50MIL)
       (fields
         (field (name Note) DNP))
-      (libsource (lib hackrf-one-cache) (part CONN_1))
+      (libsource (lib marzipan-cache) (part CONN_1))
       (sheetpath (names /baseband/) (tstamps /50370666/))
       (tstamp 5052A32D))
     (comp (ref P37)
@@ -1486,7 +1486,7 @@
       (footprint hackrf:GSG-TESTPOINT-50MIL)
       (fields
         (field (name Note) DNP))
-      (libsource (lib hackrf-one-cache) (part CONN_1))
+      (libsource (lib marzipan-cache) (part CONN_1))
       (sheetpath (names /baseband/) (tstamps /50370666/))
       (tstamp 5052A309))
     (comp (ref P36)
@@ -1494,7 +1494,7 @@
       (footprint hackrf:GSG-HEADER-1x2)
       (fields
         (field (name Note) DNP))
-      (libsource (lib hackrf-one-cache) (part CONN_2))
+      (libsource (lib marzipan-cache) (part CONN_2))
       (sheetpath (names /baseband/) (tstamps /50370666/))
       (tstamp 5048D547))
     (comp (ref C72)
@@ -2080,7 +2080,7 @@
       (footprint hackrf:GSG-TESTPOINT-50MIL)
       (fields
         (field (name Note) DNP))
-      (libsource (lib hackrf-one-cache) (part CONN_1))
+      (libsource (lib marzipan-cache) (part CONN_1))
       (sheetpath (names /baseband/) (tstamps /50370666/))
       (tstamp 5037A16F))
     (comp (ref P18)
@@ -2088,7 +2088,7 @@
       (footprint hackrf:GSG-TESTPOINT-50MIL)
       (fields
         (field (name Note) DNP))
-      (libsource (lib hackrf-one-cache) (part CONN_1))
+      (libsource (lib marzipan-cache) (part CONN_1))
       (sheetpath (names /baseband/) (tstamps /50370666/))
       (tstamp 5037A131))
     (comp (ref P14)
@@ -2096,7 +2096,7 @@
       (footprint hackrf:GSG-TESTPOINT-50MIL)
       (fields
         (field (name Note) DNP))
-      (libsource (lib hackrf-one-cache) (part CONN_1))
+      (libsource (lib marzipan-cache) (part CONN_1))
       (sheetpath (names /baseband/) (tstamps /50370666/))
       (tstamp 50371714))
     (comp (ref U17)
@@ -2350,7 +2350,7 @@
         (field (name Manufacturer) "Diodes Inc.")
         (field (name "Part Number") DMP2305U-7)
         (field (name Description) "MOSFET P-CH 20V 4.2A SOT-23"))
-      (libsource (lib hackrf-one-cache) (part MOSFET_P))
+      (libsource (lib marzipan-cache) (part MOSFET_P))
       (sheetpath (names /baseband/) (tstamps /50370666/))
       (tstamp 526AF6D0))
     (comp (ref R11)
@@ -2422,7 +2422,7 @@
       (footprint hackrf:GSG-TESTPOINT-50MIL)
       (fields
         (field (name Note) DNP))
-      (libsource (lib hackrf-one-cache) (part CONN_1))
+      (libsource (lib marzipan-cache) (part CONN_1))
       (sheetpath (names /baseband/) (tstamps /50370666/))
       (tstamp 52806F80))
     (comp (ref P56)
@@ -2430,7 +2430,7 @@
       (footprint hackrf:GSG-TESTPOINT-50MIL)
       (fields
         (field (name Note) DNP))
-      (libsource (lib hackrf-one-cache) (part CONN_1))
+      (libsource (lib marzipan-cache) (part CONN_1))
       (sheetpath (names /baseband/) (tstamps /50370666/))
       (tstamp 52806F87))
     (comp (ref P53)
@@ -2438,7 +2438,7 @@
       (footprint hackrf:GSG-TESTPOINT-50MIL)
       (fields
         (field (name Note) DNP))
-      (libsource (lib hackrf-one-cache) (part CONN_1))
+      (libsource (lib marzipan-cache) (part CONN_1))
       (sheetpath (names /baseband/) (tstamps /50370666/))
       (tstamp 52806F99))
     (comp (ref P57)
@@ -2446,7 +2446,7 @@
       (footprint hackrf:GSG-TESTPOINT-50MIL)
       (fields
         (field (name Note) DNP))
-      (libsource (lib hackrf-one-cache) (part CONN_1))
+      (libsource (lib marzipan-cache) (part CONN_1))
       (sheetpath (names /baseband/) (tstamps /50370666/))
       (tstamp 52807566))
     (comp (ref P54)
@@ -2454,7 +2454,7 @@
       (footprint hackrf:GSG-TESTPOINT-50MIL)
       (fields
         (field (name Note) DNP))
-      (libsource (lib hackrf-one-cache) (part CONN_1))
+      (libsource (lib marzipan-cache) (part CONN_1))
       (sheetpath (names /baseband/) (tstamps /50370666/))
       (tstamp 528076FC))
     (comp (ref P59)
@@ -2462,7 +2462,7 @@
       (footprint hackrf:GSG-TESTPOINT-50MIL)
       (fields
         (field (name Note) DNP))
-      (libsource (lib hackrf-one-cache) (part CONN_1))
+      (libsource (lib marzipan-cache) (part CONN_1))
       (sheetpath (names /baseband/) (tstamps /50370666/))
       (tstamp 52807889))
     (comp (ref P60)
@@ -2470,7 +2470,7 @@
       (footprint hackrf:GSG-TESTPOINT-50MIL)
       (fields
         (field (name Note) DNP))
-      (libsource (lib hackrf-one-cache) (part CONN_1))
+      (libsource (lib marzipan-cache) (part CONN_1))
       (sheetpath (names /baseband/) (tstamps /50370666/))
       (tstamp 52807890))
     (comp (ref P58)
@@ -2478,7 +2478,7 @@
       (footprint hackrf:GSG-TESTPOINT-50MIL)
       (fields
         (field (name Note) DNP))
-      (libsource (lib hackrf-one-cache) (part CONN_1))
+      (libsource (lib marzipan-cache) (part CONN_1))
       (sheetpath (names /baseband/) (tstamps /50370666/))
       (tstamp 52807897))
     (comp (ref P63)
@@ -2486,7 +2486,7 @@
       (footprint hackrf:GSG-TESTPOINT-50MIL)
       (fields
         (field (name Note) DNP))
-      (libsource (lib hackrf-one-cache) (part CONN_1))
+      (libsource (lib marzipan-cache) (part CONN_1))
       (sheetpath (names /baseband/) (tstamps /50370666/))
       (tstamp 528078A7))
     (comp (ref P64)
@@ -2494,7 +2494,7 @@
       (footprint hackrf:GSG-TESTPOINT-50MIL)
       (fields
         (field (name Note) DNP))
-      (libsource (lib hackrf-one-cache) (part CONN_1))
+      (libsource (lib marzipan-cache) (part CONN_1))
       (sheetpath (names /baseband/) (tstamps /50370666/))
       (tstamp 528078AE))
     (comp (ref P61)
@@ -2502,7 +2502,7 @@
       (footprint hackrf:GSG-TESTPOINT-50MIL)
       (fields
         (field (name Note) DNP))
-      (libsource (lib hackrf-one-cache) (part CONN_1))
+      (libsource (lib marzipan-cache) (part CONN_1))
       (sheetpath (names /baseband/) (tstamps /50370666/))
       (tstamp 528078B5))
     (comp (ref P62)
@@ -2510,7 +2510,7 @@
       (footprint hackrf:GSG-TESTPOINT-50MIL)
       (fields
         (field (name Note) DNP))
-      (libsource (lib hackrf-one-cache) (part CONN_1))
+      (libsource (lib marzipan-cache) (part CONN_1))
       (sheetpath (names /baseband/) (tstamps /50370666/))
       (tstamp 528078BD))
     (comp (ref P66)
@@ -2518,7 +2518,7 @@
       (footprint hackrf:GSG-TESTPOINT-50MIL)
       (fields
         (field (name Note) DNP))
-      (libsource (lib hackrf-one-cache) (part CONN_1))
+      (libsource (lib marzipan-cache) (part CONN_1))
       (sheetpath (names /baseband/) (tstamps /50370666/))
       (tstamp 52807A95))
     (comp (ref P65)
@@ -2526,7 +2526,7 @@
       (footprint hackrf:GSG-TESTPOINT-50MIL)
       (fields
         (field (name Note) DNP))
-      (libsource (lib hackrf-one-cache) (part CONN_1))
+      (libsource (lib marzipan-cache) (part CONN_1))
       (sheetpath (names /baseband/) (tstamps /50370666/))
       (tstamp 52807C28))
     (comp (ref P67)
@@ -2534,7 +2534,7 @@
       (footprint hackrf:GSG-TESTPOINT-50MIL)
       (fields
         (field (name Note) DNP))
-      (libsource (lib hackrf-one-cache) (part CONN_1))
+      (libsource (lib marzipan-cache) (part CONN_1))
       (sheetpath (names /baseband/) (tstamps /50370666/))
       (tstamp 5280A12A))
     (comp (ref D9)
@@ -2572,7 +2572,7 @@
       (footprint hackrf:GSG-TESTPOINT-50MIL)
       (fields
         (field (name Note) DNP))
-      (libsource (lib hackrf-one-cache) (part CONN_1))
+      (libsource (lib marzipan-cache) (part CONN_1))
       (sheetpath (names /baseband/) (tstamps /50370666/))
       (tstamp 5281C7E9))
     (comp (ref P84)
@@ -2580,7 +2580,7 @@
       (footprint hackrf:GSG-TESTPOINT-50MIL)
       (fields
         (field (name Note) DNP))
-      (libsource (lib hackrf-one-cache) (part CONN_1))
+      (libsource (lib marzipan-cache) (part CONN_1))
       (sheetpath (names /baseband/) (tstamps /50370666/))
       (tstamp 5281C9AD))
     (comp (ref P85)
@@ -2588,7 +2588,7 @@
       (footprint hackrf:GSG-TESTPOINT-50MIL)
       (fields
         (field (name Note) DNP))
-      (libsource (lib hackrf-one-cache) (part CONN_1))
+      (libsource (lib marzipan-cache) (part CONN_1))
       (sheetpath (names /baseband/) (tstamps /50370666/))
       (tstamp 5281C9BB))
     (comp (ref P86)
@@ -2596,7 +2596,7 @@
       (footprint hackrf:GSG-TESTPOINT-50MIL)
       (fields
         (field (name Note) DNP))
-      (libsource (lib hackrf-one-cache) (part CONN_1))
+      (libsource (lib marzipan-cache) (part CONN_1))
       (sheetpath (names /baseband/) (tstamps /50370666/))
       (tstamp 5281C9C9))
     (comp (ref P87)
@@ -2604,7 +2604,7 @@
       (footprint hackrf:GSG-TESTPOINT-50MIL)
       (fields
         (field (name Note) DNP))
-      (libsource (lib hackrf-one-cache) (part CONN_1))
+      (libsource (lib marzipan-cache) (part CONN_1))
       (sheetpath (names /baseband/) (tstamps /50370666/))
       (tstamp 5281C9D7))
     (comp (ref P88)
@@ -2612,7 +2612,7 @@
       (footprint hackrf:GSG-TESTPOINT-50MIL)
       (fields
         (field (name Note) DNP))
-      (libsource (lib hackrf-one-cache) (part CONN_1))
+      (libsource (lib marzipan-cache) (part CONN_1))
       (sheetpath (names /baseband/) (tstamps /50370666/))
       (tstamp 5281C9E5))
     (comp (ref P89)
@@ -2620,7 +2620,7 @@
       (footprint hackrf:GSG-TESTPOINT-50MIL)
       (fields
         (field (name Note) DNP))
-      (libsource (lib hackrf-one-cache) (part CONN_1))
+      (libsource (lib marzipan-cache) (part CONN_1))
       (sheetpath (names /baseband/) (tstamps /50370666/))
       (tstamp 5281C9F3))
     (comp (ref P90)
@@ -2628,7 +2628,7 @@
       (footprint hackrf:GSG-TESTPOINT-50MIL)
       (fields
         (field (name Note) DNP))
-      (libsource (lib hackrf-one-cache) (part CONN_1))
+      (libsource (lib marzipan-cache) (part CONN_1))
       (sheetpath (names /baseband/) (tstamps /50370666/))
       (tstamp 5281CA01))
     (comp (ref P91)
@@ -2636,7 +2636,7 @@
       (footprint hackrf:GSG-TESTPOINT-50MIL)
       (fields
         (field (name Note) DNP))
-      (libsource (lib hackrf-one-cache) (part CONN_1))
+      (libsource (lib marzipan-cache) (part CONN_1))
       (sheetpath (names /baseband/) (tstamps /50370666/))
       (tstamp 5281CEEC))
     (comp (ref P92)
@@ -2644,7 +2644,7 @@
       (footprint hackrf:GSG-TESTPOINT-50MIL)
       (fields
         (field (name Note) DNP))
-      (libsource (lib hackrf-one-cache) (part CONN_1))
+      (libsource (lib marzipan-cache) (part CONN_1))
       (sheetpath (names /baseband/) (tstamps /50370666/))
       (tstamp 5281CEFA))
     (comp (ref R32)
@@ -2694,7 +2694,7 @@
         (field (name Manufacturer) Sullins)
         (field (name "Part Number") PPPC082LFBN-RC)
         (field (name Description) "CONN HEADER FMAL 16PS.1\" DL GOLD"))
-      (libsource (lib hackrf-one-cache) (part CONN_8X2))
+      (libsource (lib marzipan-cache) (part CONN_8X2))
       (sheetpath (names /baseband/) (tstamps /50370666/))
       (tstamp 5294060F))
     (comp (ref C168)
@@ -2749,7 +2749,7 @@
       (footprint hackrf:GSG-HEADER-1x2)
       (fields
         (field (name Note) DNP))
-      (libsource (lib hackrf-one-cache) (part CONN_2))
+      (libsource (lib marzipan-cache) (part CONN_2))
       (sheetpath (names /mcu/usb/power/) (tstamps /5037043E/))
       (tstamp 5048CFC5))
     (comp (ref P1)
@@ -2757,7 +2757,7 @@
       (footprint hackrf:GSG-HEADER-1x2)
       (fields
         (field (name Note) DNP))
-      (libsource (lib hackrf-one-cache) (part CONN_2))
+      (libsource (lib marzipan-cache) (part CONN_2))
       (sheetpath (names /mcu/usb/power/) (tstamps /5037043E/))
       (tstamp 5048CF4D))
     (comp (ref R7)
@@ -2775,7 +2775,7 @@
       (footprint hackrf:GSG-TESTPOINT-50MIL)
       (fields
         (field (name Note) DNP))
-      (libsource (lib hackrf-one-cache) (part CONN_1))
+      (libsource (lib marzipan-cache) (part CONN_1))
       (sheetpath (names /mcu/usb/power/) (tstamps /5037043E/))
       (tstamp 5045736F))
     (comp (ref P23)
@@ -2783,7 +2783,7 @@
       (footprint hackrf:GSG-TESTPOINT-50MIL)
       (fields
         (field (name Note) DNP))
-      (libsource (lib hackrf-one-cache) (part CONN_1))
+      (libsource (lib marzipan-cache) (part CONN_1))
       (sheetpath (names /mcu/usb/power/) (tstamps /5037043E/))
       (tstamp 5045734C))
     (comp (ref P30)
@@ -2791,7 +2791,7 @@
       (footprint hackrf:GSG-HEADER-2x10)
       (fields
         (field (name Note) DNP))
-      (libsource (lib hackrf-one-cache) (part CONN_10X2))
+      (libsource (lib marzipan-cache) (part CONN_10X2))
       (sheetpath (names /mcu/usb/power/) (tstamps /5037043E/))
       (tstamp 504571A2))
     (comp (ref P3)
@@ -2799,7 +2799,7 @@
       (footprint hackrf:GSG-HEADER-NOMARK-1x2)
       (fields
         (field (name Note) DNP))
-      (libsource (lib hackrf-one-cache) (part CONN_2))
+      (libsource (lib marzipan-cache) (part CONN_2))
       (sheetpath (names /mcu/usb/power/) (tstamps /5037043E/))
       (tstamp 5043D24D))
     (comp (ref R59)
@@ -3448,7 +3448,7 @@
       (footprint hackrf:GSG-HEADER-1x2)
       (fields
         (field (name Note) DNP))
-      (libsource (lib hackrf-one-cache) (part CONN_2))
+      (libsource (lib marzipan-cache) (part CONN_2))
       (sheetpath (names /mcu/usb/power/) (tstamps /5037043E/))
       (tstamp 4F82F4C0))
     (comp (ref U20)
@@ -3609,7 +3609,7 @@
         (field (name "Part Number") GRPB052VWVN-RC)
         (field (name Description) "CONN HEADER .050\" 10PS DL PCB AU")
         (field (name Note) DNP))
-      (libsource (lib hackrf-one-cache) (part CONN_5X2))
+      (libsource (lib marzipan-cache) (part CONN_5X2))
       (sheetpath (names /mcu/usb/power/) (tstamps /5037043E/))
       (tstamp 4F63572B))
     (comp (ref P25)
@@ -3617,7 +3617,7 @@
       (footprint hackrf:GSG-HEADER-1x6)
       (fields
         (field (name Note) DNP))
-      (libsource (lib hackrf-one-cache) (part CONN_6))
+      (libsource (lib marzipan-cache) (part CONN_6))
       (sheetpath (names /mcu/usb/power/) (tstamps /5037043E/))
       (tstamp 4F62D2D3))
     (comp (ref R69)
@@ -3657,7 +3657,7 @@
         (field (name Manufacturer) Abracon)
         (field (name "Part Number") AB26TRQ-32.768KHZ-T)
         (field (name Description) "CRYSTAL 32.768KHZ 12.5PF SMD"))
-      (libsource (lib hackrf-one-cache) (part CRYSTAL))
+      (libsource (lib marzipan-cache) (part CRYSTAL))
       (sheetpath (names /mcu/usb/power/) (tstamps /5037043E/))
       (tstamp 52490BB4))
     (comp (ref P22)
@@ -3667,7 +3667,7 @@
         (field (name Manufacturer) Sullins)
         (field (name "Part Number") PPPC132LFBN-RC)
         (field (name Description) "CONN HEADER FMAL 26PS.1\" DL GOLD"))
-      (libsource (lib hackrf-one-cache) (part CONN_13X2))
+      (libsource (lib marzipan-cache) (part CONN_13X2))
       (sheetpath (names /mcu/usb/power/) (tstamps /5037043E/))
       (tstamp 526B4073))
     (comp (ref U23)
@@ -3755,7 +3755,7 @@
       (footprint hackrf:GSG-HEADER-2x3)
       (fields
         (field (name Note) DNP))
-      (libsource (lib hackrf-one-cache) (part CONN_3X2))
+      (libsource (lib marzipan-cache) (part CONN_3X2))
       (sheetpath (names /mcu/usb/power/) (tstamps /5037043E/))
       (tstamp 528023DB))
     (comp (ref P72)
@@ -3763,7 +3763,7 @@
       (footprint hackrf:GSG-TESTPOINT-50MIL)
       (fields
         (field (name Note) DNP))
-      (libsource (lib hackrf-one-cache) (part CONN_1))
+      (libsource (lib marzipan-cache) (part CONN_1))
       (sheetpath (names /mcu/usb/power/) (tstamps /5037043E/))
       (tstamp 52808CBF))
     (comp (ref P71)
@@ -3771,7 +3771,7 @@
       (footprint hackrf:GSG-TESTPOINT-50MIL)
       (fields
         (field (name Note) DNP))
-      (libsource (lib hackrf-one-cache) (part CONN_1))
+      (libsource (lib marzipan-cache) (part CONN_1))
       (sheetpath (names /mcu/usb/power/) (tstamps /5037043E/))
       (tstamp 52808FE9))
     (comp (ref P68)
@@ -3779,7 +3779,7 @@
       (footprint hackrf:GSG-TESTPOINT-50MIL)
       (fields
         (field (name Note) DNP))
-      (libsource (lib hackrf-one-cache) (part CONN_1))
+      (libsource (lib marzipan-cache) (part CONN_1))
       (sheetpath (names /mcu/usb/power/) (tstamps /5037043E/))
       (tstamp 52809276))
     (comp (ref P69)
@@ -3787,7 +3787,7 @@
       (footprint hackrf:GSG-TESTPOINT-50MIL)
       (fields
         (field (name Note) DNP))
-      (libsource (lib hackrf-one-cache) (part CONN_1))
+      (libsource (lib marzipan-cache) (part CONN_1))
       (sheetpath (names /mcu/usb/power/) (tstamps /5037043E/))
       (tstamp 52809504))
     (comp (ref P70)
@@ -3795,7 +3795,7 @@
       (footprint hackrf:GSG-TESTPOINT-50MIL)
       (fields
         (field (name Note) DNP))
-      (libsource (lib hackrf-one-cache) (part CONN_1))
+      (libsource (lib marzipan-cache) (part CONN_1))
       (sheetpath (names /mcu/usb/power/) (tstamps /5037043E/))
       (tstamp 52809857))
     (comp (ref P73)
@@ -3803,7 +3803,7 @@
       (footprint hackrf:GSG-TESTPOINT-50MIL)
       (fields
         (field (name Note) DNP))
-      (libsource (lib hackrf-one-cache) (part CONN_1))
+      (libsource (lib marzipan-cache) (part CONN_1))
       (sheetpath (names /mcu/usb/power/) (tstamps /5037043E/))
       (tstamp 52809B46))
     (comp (ref P74)
@@ -3811,7 +3811,7 @@
       (footprint hackrf:GSG-TESTPOINT-50MIL)
       (fields
         (field (name Note) DNP))
-      (libsource (lib hackrf-one-cache) (part CONN_1))
+      (libsource (lib marzipan-cache) (part CONN_1))
       (sheetpath (names /mcu/usb/power/) (tstamps /5037043E/))
       (tstamp 52809BA9))
     (comp (ref P75)
@@ -3819,7 +3819,7 @@
       (footprint hackrf:GSG-TESTPOINT-50MIL)
       (fields
         (field (name Note) DNP))
-      (libsource (lib hackrf-one-cache) (part CONN_1))
+      (libsource (lib marzipan-cache) (part CONN_1))
       (sheetpath (names /mcu/usb/power/) (tstamps /5037043E/))
       (tstamp 5280A7B0))
     (comp (ref P76)
@@ -3827,7 +3827,7 @@
       (footprint hackrf:GSG-TESTPOINT-50MIL)
       (fields
         (field (name Note) DNP))
-      (libsource (lib hackrf-one-cache) (part CONN_1))
+      (libsource (lib marzipan-cache) (part CONN_1))
       (sheetpath (names /mcu/usb/power/) (tstamps /5037043E/))
       (tstamp 5280ACAD))
     (comp (ref P77)
@@ -3835,7 +3835,7 @@
       (footprint hackrf:GSG-TESTPOINT-50MIL)
       (fields
         (field (name Note) DNP))
-      (libsource (lib hackrf-one-cache) (part CONN_1))
+      (libsource (lib marzipan-cache) (part CONN_1))
       (sheetpath (names /mcu/usb/power/) (tstamps /5037043E/))
       (tstamp 5280ACB7))
     (comp (ref P78)
@@ -3843,7 +3843,7 @@
       (footprint hackrf:GSG-TESTPOINT-50MIL)
       (fields
         (field (name Note) DNP))
-      (libsource (lib hackrf-one-cache) (part CONN_1))
+      (libsource (lib marzipan-cache) (part CONN_1))
       (sheetpath (names /mcu/usb/power/) (tstamps /5037043E/))
       (tstamp 5280ACC0))
     (comp (ref P79)
@@ -3851,7 +3851,7 @@
       (footprint hackrf:GSG-TESTPOINT-50MIL)
       (fields
         (field (name Note) DNP))
-      (libsource (lib hackrf-one-cache) (part CONN_1))
+      (libsource (lib marzipan-cache) (part CONN_1))
       (sheetpath (names /mcu/usb/power/) (tstamps /5037043E/))
       (tstamp 5280ACCC))
     (comp (ref P80)
@@ -3859,7 +3859,7 @@
       (footprint hackrf:GSG-HEADER-NOMARK-1x2)
       (fields
         (field (name Note) DNP))
-      (libsource (lib hackrf-one-cache) (part CONN_2))
+      (libsource (lib marzipan-cache) (part CONN_2))
       (sheetpath (names /mcu/usb/power/) (tstamps /5037043E/))
       (tstamp 528064FC))
     (comp (ref P81)
@@ -3867,7 +3867,7 @@
       (footprint hackrf:GSG-TESTPOINT-50MIL)
       (fields
         (field (name Note) DNP))
-      (libsource (lib hackrf-one-cache) (part CONN_1))
+      (libsource (lib marzipan-cache) (part CONN_1))
       (sheetpath (names /mcu/usb/power/) (tstamps /5037043E/))
       (tstamp 52808621))
     (comp (ref P82)
@@ -3875,7 +3875,7 @@
       (footprint hackrf:GSG-TESTPOINT-50MIL)
       (fields
         (field (name Note) DNP))
-      (libsource (lib hackrf-one-cache) (part CONN_1))
+      (libsource (lib marzipan-cache) (part CONN_1))
       (sheetpath (names /mcu/usb/power/) (tstamps /5037043E/))
       (tstamp 52808DC0))
     (comp (ref R34)
@@ -3981,7 +3981,7 @@
         (field (name Manufacturer) "Alpha and Omega")
         (field (name "Part Number") AO3407A)
         (field (name Description) "MOSFET P-CH -30V -4.3A SOT23"))
-      (libsource (lib hackrf-one-cache) (part MOSFET_P))
+      (libsource (lib marzipan-cache) (part MOSFET_P))
       (sheetpath (names /mcu/usb/power/) (tstamps /5037043E/))
       (tstamp 52F14FDB))
     (comp (ref R37)
@@ -4694,13 +4694,13 @@
         (pin (num 6) (name CLK) (type input))
         (pin (num 7) (name HOLD) (type BiDi))
         (pin (num 8) (name VCC) (type power_in))))
-    (libpart (lib hackrf-one-cache) (part CONN_1)
+    (libpart (lib marzipan-cache) (part CONN_1)
       (fields
         (field (name Reference) P)
         (field (name Value) CONN_1))
       (pins
         (pin (num 1) (name 1) (type passive))))
-    (libpart (lib hackrf-one-cache) (part CONN_10X2)
+    (libpart (lib marzipan-cache) (part CONN_10X2)
       (fields
         (field (name Reference) P)
         (field (name Value) CONN_10X2))
@@ -4725,7 +4725,7 @@
         (pin (num 18) (name P18) (type passive))
         (pin (num 19) (name P19) (type passive))
         (pin (num 20) (name P20) (type passive))))
-    (libpart (lib hackrf-one-cache) (part CONN_13X2)
+    (libpart (lib marzipan-cache) (part CONN_13X2)
       (fields
         (field (name Reference) P)
         (field (name Value) CONN_13X2))
@@ -4756,14 +4756,14 @@
         (pin (num 24) (name P20) (type passive))
         (pin (num 25) (name P24) (type passive))
         (pin (num 26) (name P22) (type passive))))
-    (libpart (lib hackrf-one-cache) (part CONN_2)
+    (libpart (lib marzipan-cache) (part CONN_2)
       (fields
         (field (name Reference) P)
         (field (name Value) CONN_2))
       (pins
         (pin (num 1) (name P1) (type passive))
         (pin (num 2) (name PM) (type passive))))
-    (libpart (lib hackrf-one-cache) (part CONN_3X2)
+    (libpart (lib marzipan-cache) (part CONN_3X2)
       (fields
         (field (name Reference) P)
         (field (name Value) CONN_3X2))
@@ -4774,7 +4774,7 @@
         (pin (num 4) (name 4) (type passive))
         (pin (num 5) (name 5) (type passive))
         (pin (num 6) (name 6) (type passive))))
-    (libpart (lib hackrf-one-cache) (part CONN_5X2)
+    (libpart (lib marzipan-cache) (part CONN_5X2)
       (fields
         (field (name Reference) P)
         (field (name Value) CONN_5X2))
@@ -4789,7 +4789,7 @@
         (pin (num 8) (name ~) (type passive))
         (pin (num 9) (name ~) (type passive))
         (pin (num 10) (name ~) (type passive))))
-    (libpart (lib hackrf-one-cache) (part CONN_6)
+    (libpart (lib marzipan-cache) (part CONN_6)
       (fields
         (field (name Reference) P)
         (field (name Value) CONN_6))
@@ -4800,7 +4800,7 @@
         (pin (num 4) (name 4) (type passive))
         (pin (num 5) (name 5) (type passive))
         (pin (num 6) (name 6) (type passive))))
-    (libpart (lib hackrf-one-cache) (part CONN_8X2)
+    (libpart (lib marzipan-cache) (part CONN_8X2)
       (fields
         (field (name Reference) P)
         (field (name Value) CONN_8X2))
@@ -4821,14 +4821,14 @@
         (pin (num 14) (name ~) (type passive))
         (pin (num 15) (name ~) (type passive))
         (pin (num 16) (name ~) (type passive))))
-    (libpart (lib hackrf-one-cache) (part CRYSTAL)
+    (libpart (lib marzipan-cache) (part CRYSTAL)
       (fields
         (field (name Reference) X)
         (field (name Value) CRYSTAL))
       (pins
         (pin (num 1) (name 1) (type passive))
         (pin (num 2) (name 2) (type passive))))
-    (libpart (lib hackrf-one-cache) (part MOS_P)
+    (libpart (lib marzipan-cache) (part MOS_P)
       (aliases
         (alias MOSFET_P))
       (fields
@@ -4843,8 +4843,8 @@
       (uri /usr/local/share/kicad/library/device.lib))
     (library (logical hackrf)
       (uri /home/mossmann/src/hackrf/hardware/kicad/hackrf.lib))
-    (library (logical hackrf-one-cache)
-      (uri /home/mossmann/src/hackrf/hardware/hackrf-one/hackrf-one-cache.lib)))
+    (library (logical marzipan-cache)
+      (uri /home/mossmann/src/hackrf/hardware/marzipan/marzipan-cache.lib)))
   (nets
     (net (code 1) (name "Net-(U24-Pad15)")
       (node (ref U24) (pin 15)))
