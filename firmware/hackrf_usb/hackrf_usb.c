@@ -210,6 +210,20 @@ void usb_set_descriptor_by_serial_number(void)
 }
 
 int main(void) {
+	struct gpio_t gpio_sync_in		= GPIO(3,  11);
+	struct gpio_t gpio_sync_out_a		= GPIO(3,  8);
+	struct gpio_t gpio_sync_out_b		= GPIO(3,  9);
+
+	uint8_t usb_dummy_buffer[32768];
+	for(int i = 0; i < 0x4000; i += 2) {
+		usb_dummy_buffer[i] = 0xff;
+		usb_dummy_buffer[i + 1] = 0x0;
+	}
+	for(int i = 0x4000; i < 0x8000; i += 2) {
+		usb_dummy_buffer[i] = 0xff;
+		usb_dummy_buffer[i + 1] = 0x0;
+	}
+
 	pin_setup();
 	enable_1v8_power();
 #ifdef HACKRF_ONE
@@ -238,11 +252,16 @@ int main(void) {
 	
 	rf_path_init(&rf_path);
 
+	int wait_for_sync_count = 100000000;
+
 	unsigned int phase = 0;
 	while(true) {
 		// Check whether we need to initiate a CPLD update
 		if (start_cpld_update)
 			cpld_update();
+
+
+		int gpio_sync_in_flag = gpio_get(gpio_sync_in);
 
 		// Set up IN transfer of buffer 0.
 		if ( usb_bulk_buffer_offset >= 16384
