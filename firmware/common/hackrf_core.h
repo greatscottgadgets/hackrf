@@ -271,6 +271,9 @@ void led_on(const led_t led);
 void led_off(const led_t led);
 void led_toggle(const led_t led);
 
+void hw_sync_start();
+bool hw_sync_ready();
+
 #ifdef __cplusplus
 }
 #endif

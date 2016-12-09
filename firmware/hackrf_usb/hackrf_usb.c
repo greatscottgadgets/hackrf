@@ -44,7 +44,7 @@
 #include "usb_api_transceiver.h"
 #include "sgpio_isr.h"
 #include "usb_bulk_buffer.h"
- 
+
 static volatile transceiver_mode_t _transceiver_mode = TRANSCEIVER_MODE_OFF;
 
 void set_transceiver_mode(const transceiver_mode_t new_transceiver_mode) {
@@ -203,17 +203,13 @@ void usb_set_descriptor_by_serial_number(void)
 			usb_descriptor_string_serial_number[2 + i * 2] = c;
 			usb_descriptor_string_serial_number[3 + i * 2] = 0x00;
 		}
-	} else {
-		usb_descriptor_string_serial_number[0] = 2;
+} else {
+	usb_descriptor_string_serial_number[0] = 2;
 		usb_descriptor_string_serial_number[1] = USB_DESCRIPTOR_TYPE_STRING;
 	}
 }
 
 int main(void) {
-	struct gpio_t gpio_sync_in		= GPIO(3,  11);
-	struct gpio_t gpio_sync_out_a		= GPIO(3,  8);
-	struct gpio_t gpio_sync_out_b		= GPIO(3,  9);
-
 	uint8_t usb_dummy_buffer[32768];
 	for(int i = 0; i < 0x4000; i += 2) {
 		usb_dummy_buffer[i] = 0xff;
@@ -252,7 +248,8 @@ int main(void) {
 	
 	rf_path_init(&rf_path);
 
-	int wait_for_sync_count = 100000000;
+        bool synced = false;
+	int hw_sync_count = 0;
 
 	unsigned int phase = 0;
 	while(true) {
@@ -261,7 +258,16 @@ int main(void) {
 			cpld_update();
 
 
-		int gpio_sync_in_flag = gpio_get(gpio_sync_in);
+		// check for hardware sync
+		if(hw_sync_ready()) {
+			synced = true;
+			hw_sync_start();
+		} /*else if(hw_sync_count++ > 1000) {
+			led_toggle(LED3);
+			hw_sync_count = 0;
+		}*/
+
+		//int gpio_sync_in_flag = gpio_get(gpio_sync_in);
 
 		// Set up IN transfer of buffer 0.
 		if ( usb_bulk_buffer_offset >= 16384
@@ -270,7 +276,7 @@ int main(void) {
 			usb_transfer_schedule_block(
 				(transceiver_mode() == TRANSCEIVER_MODE_RX)
 				? &usb_endpoint_bulk_in : &usb_endpoint_bulk_out,
-				&usb_bulk_buffer[0x0000],
+				synced ? &usb_bulk_buffer[0x0000] : &usb_dummy_buffer[0x0000],
 				0x4000,
 				NULL, NULL
 				);
@@ -284,7 +290,7 @@ int main(void) {
 			usb_transfer_schedule_block(
 				(transceiver_mode() == TRANSCEIVER_MODE_RX)
 				? &usb_endpoint_bulk_in : &usb_endpoint_bulk_out,
-				&usb_bulk_buffer[0x4000],
+				synced ? &usb_bulk_buffer[0x4000] : &usb_dummy_buffer[0x4000],
 				0x4000,
 				NULL, NULL
 			);

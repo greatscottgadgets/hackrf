@@ -85,6 +85,11 @@ static struct gpio_t gpio_rffc5072_select	= GPIO(2, 13);
 static struct gpio_t gpio_rffc5072_clock	= GPIO(5,  6);
 static struct gpio_t gpio_rffc5072_data		= GPIO(3,  3);
 static struct gpio_t gpio_rffc5072_reset	= GPIO(2, 14);
+
+static struct gpio_t gpio_sync_in_a		= GPIO(3,  8);
+static struct gpio_t gpio_sync_in_b		= GPIO(3,  9);
+static struct gpio_t gpio_sync_out_a		= GPIO(3, 10);
+static struct gpio_t gpio_sync_out_b		= GPIO(3, 11);
 #endif
 
 /* RF LDO control */
@@ -886,3 +891,13 @@ void led_off(const led_t led) {
 void led_toggle(const led_t led) {
 	gpio_toggle(&gpio_led[led]);
 }
+
+void hw_sync_start() {
+	gpio_set(&gpio_sync_out_a);
+	gpio_set(&gpio_sync_out_b);
+}
+
+bool hw_sync_ready() {
+	return (gpio_read(&gpio_sync_in_a) && gpio_read(&gpio_sync_in_b));
+}
+
