@@ -78,6 +78,8 @@ typedef enum {
 	HACKRF_TRANSCEIVER_MODE_OFF = 0,
 	HACKRF_TRANSCEIVER_MODE_RECEIVE = 1,
 	HACKRF_TRANSCEIVER_MODE_TRANSMIT = 2,
+	HACKRF_TRANSCEIVER_MODE_SS = 3,
+	TRANSCEIVER_MODE_CPLD_UPDATE = 4,
 } hackrf_transceiver_mode;
 
 struct hackrf_device {
@@ -1604,6 +1606,9 @@ const char* ADDCALL hackrf_board_id_name(enum hackrf_board_id board_id)
 	case BOARD_ID_HACKRF_ONE:
 		return "HackRF One";
 
+	case BOARD_ID_RAD1O:
+		return "rad1o";
+
 	case BOARD_ID_INVALID:
 		return "Invalid Board ID";
 
@@ -1621,6 +1626,9 @@ extern ADDAPI const char* ADDCALL hackrf_usb_board_id_name(enum hackrf_usb_board
 
 	case USB_BOARD_ID_HACKRF_ONE:
 		return "HackRF One";
+
+	case USB_BOARD_ID_RAD1O:
+		return "rad1o";
 
 	case USB_BOARD_ID_INVALID:
 		return "Invalid Board ID";
