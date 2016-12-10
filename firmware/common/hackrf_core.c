@@ -853,6 +853,9 @@ void pin_setup(void) {
 	/* Safe state: start with VAA turned off: */
 	disable_rf_power();
 
+	scu_pinmux(SCU_PINMUX_GPIO3_10, SCU_GPIO_PDN | SCU_CONF_FUNCTION0);
+	scu_pinmux(SCU_PINMUX_GPIO3_11, SCU_GPIO_PDN | SCU_CONF_FUNCTION0);
+
 	gpio_input(&gpio_sync_in_a);
 	gpio_input(&gpio_sync_in_b);
 
@@ -904,14 +907,17 @@ void led_toggle(const led_t led) {
 	gpio_toggle(&gpio_led[led]);
 }
 
-void hw_sync_start() {
+void hw_sync_syn() {
 	gpio_set(&gpio_sync_out_a);
-	gpio_set(&gpio_sync_out_b);
 }
 
 void hw_sync_stop() {
 	gpio_clear(&gpio_sync_out_a);
 	gpio_clear(&gpio_sync_out_b);
+}
+
+void hw_sync_ack() {
+	gpio_set(&gpio_sync_out_b);
 }
 
 void hw_sync_copy_state() {

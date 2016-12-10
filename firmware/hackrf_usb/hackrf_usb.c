@@ -253,26 +253,19 @@ int main(void) {
 
 	unsigned int phase = 0;
 
-	hw_sync_start();
+	led_off(LED3);
+	hw_sync_syn();
 	while(true) {
 		// Check whether we need to initiate a CPLD update
 		if (start_cpld_update)
 			cpld_update();
 
 
-		hw_sync_copy_state();
-
-		// check for hardware sync
 		if(hw_sync_ready()) {
 			synced = true;
-			//hw_sync_start();
-		} else if(hw_sync_count++ > 1000000) {
-			//hw_sync_stop();
-			led_toggle(LED3);
-			hw_sync_count = 0;
-		} else if(hw_sync_count == 500000) {
-			//hw_sync_start();
-		}
+			hw_sync_ack();
+			led_on(LED3);
+		} 
 
 		//int gpio_sync_in_flag = gpio_get(gpio_sync_in);
 
