@@ -86,10 +86,16 @@ static struct gpio_t gpio_rffc5072_clock	= GPIO(5,  6);
 static struct gpio_t gpio_rffc5072_data		= GPIO(3,  3);
 static struct gpio_t gpio_rffc5072_reset	= GPIO(2, 14);
 
+/*
 static struct gpio_t gpio_sync_in_a		= GPIO(3,  8);
 static struct gpio_t gpio_sync_in_b		= GPIO(3,  9);
 static struct gpio_t gpio_sync_out_a		= GPIO(3, 10);
 static struct gpio_t gpio_sync_out_b		= GPIO(3, 11);
+*/
+static struct gpio_t gpio_sync_in_a		= GPIO(3,  10);
+static struct gpio_t gpio_sync_in_b		= GPIO(3,  11);
+static struct gpio_t gpio_sync_out_a		= GPIO(3, 8);
+static struct gpio_t gpio_sync_out_b		= GPIO(3, 9);
 #endif
 
 /* RF LDO control */
@@ -846,6 +852,12 @@ void pin_setup(void) {
 
 	/* Safe state: start with VAA turned off: */
 	disable_rf_power();
+
+	gpio_input(&gpio_sync_in_a);
+	gpio_input(&gpio_sync_in_b);
+
+	gpio_output(&gpio_sync_out_a);
+	gpio_output(&gpio_sync_out_b);
 #endif
 
 	/* enable input on SCL and SDA pins */
@@ -895,6 +907,24 @@ void led_toggle(const led_t led) {
 void hw_sync_start() {
 	gpio_set(&gpio_sync_out_a);
 	gpio_set(&gpio_sync_out_b);
+}
+
+void hw_sync_stop() {
+	gpio_clear(&gpio_sync_out_a);
+	gpio_clear(&gpio_sync_out_b);
+}
+
+void hw_sync_copy_state() {
+	if(gpio_read(&gpio_sync_in_a)) {
+		gpio_set(&gpio_sync_out_a);
+	} else {
+		gpio_clear(&gpio_sync_out_a);
+	}
+	if(gpio_read(&gpio_sync_in_b)) {
+		gpio_set(&gpio_sync_out_b);
+	} else {
+		gpio_clear(&gpio_sync_out_b);
+	}
 }
 
 bool hw_sync_ready() {
