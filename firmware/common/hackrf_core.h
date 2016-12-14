@@ -240,6 +240,7 @@ extern w25q80bv_driver_t spi_flash;
 extern sgpio_config_t sgpio_config;
 extern rf_path_t rf_path;
 extern jtag_t jtag_cpld;
+extern i2c_bus_t i2c0;
 
 void cpu_clock_init(void);
 void cpu_clock_pll1_low_speed(void);

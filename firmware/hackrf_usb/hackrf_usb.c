@@ -40,6 +40,8 @@
 #include "usb_api_cpld.h"
 #include "usb_api_register.h"
 #include "usb_api_spiflash.h"
+#include "usb_api_operacake.h"
+#include "operacake.h"
 
 #include "usb_api_transceiver.h"
 #include "sgpio_isr.h"
@@ -140,6 +142,7 @@ static const usb_request_handler_fn vendor_request_handler[] = {
 #endif
 	usb_vendor_request_set_freq_explicit,
 	usb_vendor_request_read_wcid,  // USB_WCID_VENDOR_REQ
+	usb_vendor_request_operacake_set_ports
 };
 
 static const uint32_t vendor_request_handler_count =
@@ -237,6 +240,7 @@ int main(void) {
 	usb_run(&usb_device);
 	
 	rf_path_init(&rf_path);
+	operacake_init();
 
 	unsigned int phase = 0;
 	while(true) {
