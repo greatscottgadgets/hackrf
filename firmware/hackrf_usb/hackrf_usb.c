@@ -49,6 +49,8 @@ static volatile transceiver_mode_t _transceiver_mode = TRANSCEIVER_MODE_OFF;
 
 void set_transceiver_mode(const transceiver_mode_t new_transceiver_mode) {
 	baseband_streaming_disable(&sgpio_config);
+
+	disable_sync
 	
 	usb_endpoint_disable(&usb_endpoint_bulk_in);
 	usb_endpoint_disable(&usb_endpoint_bulk_out);
@@ -76,6 +78,9 @@ void set_transceiver_mode(const transceiver_mode_t new_transceiver_mode) {
 
 	if( _transceiver_mode != TRANSCEIVER_MODE_OFF ) {
 		si5351c_activate_best_clock_source(&clock_gen);
+
+		wait_for_sync
+
 		baseband_streaming_enable(&sgpio_config);
 	}
 }
@@ -261,11 +266,13 @@ int main(void) {
 			cpld_update();
 
 
-		if(hw_sync_ready()) {
-			synced = true;
-			hw_sync_ack();
-			led_on(LED3);
-		} 
+//		if(!synced) {
+			if(hw_sync_ready()) {
+				synced = true;
+				hw_sync_ack();
+				led_on(LED3);
+			} 
+//		}
 
 		//int gpio_sync_in_flag = gpio_get(gpio_sync_in);
 
