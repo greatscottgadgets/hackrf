@@ -30,6 +30,16 @@ extern "C"
 #include <stdint.h>
 #include "i2c_bus.h"
 
+#define OPERACAKE_PA1 0
+#define OPERACAKE_PA2 1
+#define OPERACAKE_PA3 2
+#define OPERACAKE_PA4 3
+
+#define OPERACAKE_PB1 4
+#define OPERACAKE_PB2 5
+#define OPERACAKE_PB3 6
+#define OPERACAKE_PB4 7
+
 uint8_t operacake_init(void);
 uint8_t operacake_set_ports(uint8_t PA, uint8_t PB);
 

@@ -22,15 +22,13 @@
 #include "usb_api_operacake.h"
 #include "usb_queue.h"
 
-#include <stddef.h>
-#include <hackrf_core.h>
 #include <operacake.h>
 
 usb_request_status_t usb_vendor_request_operacake_set_ports(
 		usb_endpoint_t* const endpoint, const usb_transfer_stage_t stage)
 {
 	if (stage == USB_TRANSFER_STAGE_SETUP) {
-		/* TODO: implement something */
+		operacake_set_ports(endpoint->setup.index, endpoint->setup.value);
 		usb_transfer_schedule_ack(endpoint->in);
 	}
 	return USB_REQUEST_STATUS_OK;
