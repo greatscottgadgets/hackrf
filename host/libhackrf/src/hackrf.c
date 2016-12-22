@@ -67,6 +67,9 @@ typedef enum {
 	HACKRF_VENDOR_REQUEST_SET_TXVGA_GAIN = 21,
 	HACKRF_VENDOR_REQUEST_ANTENNA_ENABLE = 23,
 	HACKRF_VENDOR_REQUEST_SET_FREQ_EXPLICIT = 24,
+	HACKRF_VENDOR_REQUEST_READ_WCID = 25,
+	HACKRF_VENDOR_REQUEST_OPERACAKE_SET_PORTS = 26,
+	HACKRF_VENDOR_REQUEST_GET_OPERACAKES = 27,
 } hackrf_vendor_request;
 
 typedef enum {
@@ -1693,6 +1696,40 @@ uint32_t ADDCALL hackrf_compute_baseband_filter_bw(const uint32_t bandwidth_hz)
 	}
 
 	return p->bandwidth_hz;
+}
+
+/* Set Operacake ports */
+int ADDCALL hackrf_set_operacake_ports(hackrf_device* device,
+                                       const uint8_t port_a,
+                                       const uint8_t port_b)
+{
+	int result;
+	/* Error checking */
+	if((port_a > OPERACAKE_PB4) || (port_b > OPERACAKE_PB4)) {
+		return HACKRF_ERROR_INVALID_PARAM;
+	}
+	/* Check which side PA and PB are on */
+	if(((port_a <= OPERACAKE_PA4) && (port_b <= OPERACAKE_PA4))
+	    || ((port_a > OPERACAKE_PA4) && (port_b > OPERACAKE_PA4))) {
+		return HACKRF_ERROR_INVALID_PARAM;
+	}
+	result = libusb_control_transfer(
+		device->usb_device,
+		LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_OPERACAKE_SET_PORTS,
+		port_a,
+		port_b,
+		NULL,
+		0,
+		0
+	);
+
+	if (result != 0)
+	{
+		return HACKRF_ERROR_LIBUSB;
+	} else {
+		return HACKRF_SUCCESS;
+	}
 }
 
 #ifdef __cplusplus
