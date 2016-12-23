@@ -57,30 +57,49 @@
 								  | OPERACAKE_EN_LEDS)
 #define OPERACAKE_CONFIG_ALL_OUTPUT (0x00)
 
-typedef struct {
-	i2c_bus_t* const bus;
-	uint8_t i2c_address;
-} operacake_driver_t;
+#define OPERACAKE_DEFAULT_ADDRESS 0x18
 
-operacake_driver_t operacake_driver = {
-	.bus = &i2c0,
-	.i2c_address = 0x18,
-};
+i2c_bus_t* const oc_bus = &i2c0;
+uint8_t operacake_boards[8] = {0,0,0,0,0,0,0,0};
 
-uint8_t operacake_read_single(operacake_driver_t* drv, uint8_t reg);
-void operacake_write(operacake_driver_t* drv, const uint8_t* const data, const size_t data_count);
+/* read single register */
+uint8_t operacake_read_reg(i2c_bus_t* const bus, uint8_t address, uint8_t reg) {
+	const uint8_t data_tx[] = { reg };
+	uint8_t data_rx[] = { 0x00 };
+	i2c_bus_transfer(bus, address, data_tx, 1, data_rx, 1);
+	return data_rx[0];
+}
 
+/* Write to one of the PCA9557 registers */
+void operacake_write_reg(i2c_bus_t* const bus, uint8_t address, uint8_t reg, uint8_t value) {
+	const uint8_t data[] = {reg, value};
+	i2c_bus_transfer(bus, address, data, 2, NULL, 0);
+}
 
 uint8_t operacake_init(void) {
-	/* TODO: detect Operacake */
-	uint8_t output_data[] = {OPERACAKE_REG_OUTPUT,
-							 OPERACAKE_DEFAULT_OUTPUT};
-	operacake_write(&operacake_driver, output_data, 2);
-	const uint8_t config_data[] = {OPERACAKE_REG_CONFIG,
-								   OPERACAKE_CONFIG_ALL_OUTPUT};
-	operacake_write(&operacake_driver, config_data, 2);
+	int reg, addr, i, j = 0;
+	/* Find connected operacakes */
+	for(i=0; i<8; i++) {
+		addr = OPERACAKE_DEFAULT_ADDRESS | i;
+		operacake_write_reg(oc_bus, addr, OPERACAKE_REG_OUTPUT,
+		                    OPERACAKE_DEFAULT_OUTPUT);
+		operacake_write_reg(oc_bus, addr, OPERACAKE_REG_CONFIG,
+		                    OPERACAKE_CONFIG_ALL_OUTPUT);
+		reg = operacake_read_reg(oc_bus, addr, OPERACAKE_REG_CONFIG);
+		if(reg==OPERACAKE_CONFIG_ALL_OUTPUT)
+			operacake_boards[j++] = addr;
+	}
 	return 0;
 }
+
+// uint8_t operacake_get_boards(uint8_t *boards) {
+// 	int i, j = 0;
+// 	for(i=0; i<8; i++) {
+// 		if(operacake_boards & (1<<i)) {
+// 			;
+// 		}
+// 	}
+// }
 
 uint8_t port_to_pins(uint8_t port) {
 	switch(port) {
@@ -106,8 +125,7 @@ uint8_t port_to_pins(uint8_t port) {
 }
 
 uint8_t operacake_set_ports(uint8_t PA, uint8_t PB) {
-	uint8_t side, pa, pb;
-	uint8_t output_data[2];
+	uint8_t side, pa, pb, reg;
 	/* Start with some error checking,
 	 * which should have been done either
 	 * on the host or elsewhere in firmware
@@ -129,14 +147,9 @@ uint8_t operacake_set_ports(uint8_t PA, uint8_t PB) {
 		pa = port_to_pins(PA);
 		pb = port_to_pins(PB);
 		
-	output_data[0] = OPERACAKE_REG_OUTPUT;
-	output_data[1] = (OPERACAKE_GPIO_DISABLE | side
+	reg = (OPERACAKE_GPIO_DISABLE | side
 					| pa | pb | OPERACAKE_EN_LEDS);
-	operacake_write(&operacake_driver, output_data, 2);
+	operacake_write_reg(oc_bus, 0x00, OPERACAKE_REG_OUTPUT, reg);
 	return 0;
 }
 
-/* Write to one of the PCA9557 registers */
-void operacake_write(operacake_driver_t* drv, const uint8_t* const data, const size_t data_count) {
-	i2c_bus_transfer(drv->bus, drv->i2c_address, data, data_count, NULL, 0);
-}

@@ -142,6 +142,7 @@ static const usb_request_handler_fn vendor_request_handler[] = {
 #endif
 	usb_vendor_request_set_freq_explicit,
 	usb_vendor_request_read_wcid,  // USB_WCID_VENDOR_REQ
+	usb_vendor_request_operacake_get_boards,
 	usb_vendor_request_operacake_set_ports
 };
 

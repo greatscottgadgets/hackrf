@@ -24,8 +24,18 @@
 
 #include <operacake.h>
 
+usb_request_status_t usb_vendor_request_operacake_get_boards(
+	usb_endpoint_t* const endpoint, const usb_transfer_stage_t stage)
+{
+	if (stage == USB_TRANSFER_STAGE_SETUP) {
+		usb_transfer_schedule_block(endpoint->in, operacake_boards, 8, NULL, NULL);
+		usb_transfer_schedule_ack(endpoint->out);
+	}
+	return USB_REQUEST_STATUS_OK;
+}
+
 usb_request_status_t usb_vendor_request_operacake_set_ports(
-		usb_endpoint_t* const endpoint, const usb_transfer_stage_t stage)
+	usb_endpoint_t* const endpoint, const usb_transfer_stage_t stage)
 {
 	if (stage == USB_TRANSFER_STAGE_SETUP) {
 		operacake_set_ports(endpoint->setup.index, endpoint->setup.value);

@@ -68,8 +68,8 @@ typedef enum {
 	HACKRF_VENDOR_REQUEST_ANTENNA_ENABLE = 23,
 	HACKRF_VENDOR_REQUEST_SET_FREQ_EXPLICIT = 24,
 	HACKRF_VENDOR_REQUEST_READ_WCID = 25,
-	HACKRF_VENDOR_REQUEST_OPERACAKE_SET_PORTS = 26,
-	HACKRF_VENDOR_REQUEST_GET_OPERACAKES = 27,
+	HACKRF_VENDOR_REQUEST_OPERACAKE_GET_BOARDS = 26,
+	HACKRF_VENDOR_REQUEST_OPERACAKE_SET_PORTS = 27,
 } hackrf_vendor_request;
 
 typedef enum {
@@ -1696,6 +1696,31 @@ uint32_t ADDCALL hackrf_compute_baseband_filter_bw(const uint32_t bandwidth_hz)
 	}
 
 	return p->bandwidth_hz;
+}
+
+/* Retrieve list of Operacake board addresses 
+ * boards must be *uint8_t[8]
+ */
+int ADDCALL hackrf_get_operacake_boards(hackrf_device* device, uint8_t* boards)
+{
+	int result;
+	result = libusb_control_transfer(
+		device->usb_device,
+		LIBUSB_ENDPOINT_IN | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_OPERACAKE_GET_BOARDS,
+		0,
+		0,
+		boards,
+		8,
+		0
+	);
+
+	if (result < 8)
+	{
+		return HACKRF_ERROR_LIBUSB;
+	} else {
+		return HACKRF_SUCCESS;
+	}
 }
 
 /* Set Operacake ports */

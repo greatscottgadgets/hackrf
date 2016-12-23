@@ -32,9 +32,10 @@ int main(void)
 	uint8_t board_id = BOARD_ID_INVALID;
 	char version[255 + 1];
 	read_partid_serialno_t read_partid_serialno;
+	uint8_t operacakes[8];
 	hackrf_device_list_t *list;
 	hackrf_device* device;
-	int i;
+	int i, j;
 
 	result = hackrf_init();
 	if (result != HACKRF_SUCCESS) {
@@ -98,7 +99,20 @@ int main(void)
 					read_partid_serialno.serial_no[1],
 					read_partid_serialno.serial_no[2],
 					read_partid_serialno.serial_no[3]);
-		
+
+		result = hackrf_get_operacake_boards(device, &operacakes[0]);
+		if (result != HACKRF_SUCCESS) {
+			fprintf(stderr, "hackrf_get_operacake_boards() failed: %s (%d)\n",
+					hackrf_error_name(result), result);
+			return EXIT_FAILURE;
+		}
+		for(j=0; j<8; j++) {
+			if(operacakes[j] == 0)
+				break;
+			printf("Operacake found, address: 0x%02x\n", operacakes[j]);
+
+		}
+
 		result = hackrf_close(device);
 		if (result != HACKRF_SUCCESS) {
 			fprintf(stderr, "hackrf_close() failed: %s (%d)\n",

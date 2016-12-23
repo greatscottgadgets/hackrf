@@ -40,6 +40,9 @@ extern "C"
 #define OPERACAKE_PB3 6
 #define OPERACAKE_PB4 7
 
+/* Up to 8 Operacake boards can be used with one HackRF */
+extern uint8_t operacake_boards[8];
+
 uint8_t operacake_init(void);
 uint8_t operacake_set_ports(uint8_t PA, uint8_t PB);
 

@@ -208,6 +208,12 @@ extern ADDAPI uint32_t ADDCALL hackrf_compute_baseband_filter_bw_round_down_lt(c
 /* Compute best default value depending on sample rate (auto filter) */
 extern ADDAPI uint32_t ADDCALL hackrf_compute_baseband_filter_bw(const uint32_t bandwidth_hz);
 
+/* Operacake functions */
+int ADDCALL hackrf_get_operacake_boards(hackrf_device* device, uint8_t* boards);
+int ADDCALL hackrf_set_operacake_ports(hackrf_device* device,
+                                       const uint8_t port_a,
+                                       const uint8_t port_b);
+
 #ifdef __cplusplus
 } // __cplusplus defined.
 #endif
