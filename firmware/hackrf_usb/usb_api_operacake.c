@@ -37,8 +37,12 @@ usb_request_status_t usb_vendor_request_operacake_get_boards(
 usb_request_status_t usb_vendor_request_operacake_set_ports(
 	usb_endpoint_t* const endpoint, const usb_transfer_stage_t stage)
 {
+	uint8_t address, port_a, port_b;
+	address = endpoint->setup.index & 0xFF;
+	port_a = endpoint->setup.value & 0xFF;
+	port_b = (endpoint->setup.value >> 8) & 0xFF;
 	if (stage == USB_TRANSFER_STAGE_SETUP) {
-		operacake_set_ports(endpoint->setup.index, endpoint->setup.value);
+		operacake_set_ports(address, port_a, port_b);
 		usb_transfer_schedule_ack(endpoint->in);
 	}
 	return USB_REQUEST_STATUS_OK;

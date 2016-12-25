@@ -211,8 +211,9 @@ extern ADDAPI uint32_t ADDCALL hackrf_compute_baseband_filter_bw(const uint32_t 
 /* Operacake functions */
 int ADDCALL hackrf_get_operacake_boards(hackrf_device* device, uint8_t* boards);
 int ADDCALL hackrf_set_operacake_ports(hackrf_device* device,
-                                       const uint8_t port_a,
-                                       const uint8_t port_b);
+                                       uint8_t address,
+                                       uint8_t port_a,
+                                       uint8_t port_b);
 
 #ifdef __cplusplus
 } // __cplusplus defined.

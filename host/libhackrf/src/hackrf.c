@@ -1725,8 +1725,9 @@ int ADDCALL hackrf_get_operacake_boards(hackrf_device* device, uint8_t* boards)
 
 /* Set Operacake ports */
 int ADDCALL hackrf_set_operacake_ports(hackrf_device* device,
-                                       const uint8_t port_a,
-                                       const uint8_t port_b)
+                                       uint8_t address,
+                                       uint8_t port_a,
+                                       uint8_t port_b)
 {
 	int result;
 	/* Error checking */
@@ -1742,8 +1743,8 @@ int ADDCALL hackrf_set_operacake_ports(hackrf_device* device,
 		device->usb_device,
 		LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
 		HACKRF_VENDOR_REQUEST_OPERACAKE_SET_PORTS,
-		port_a,
-		port_b,
+		address,
+		port_a | (port_b<<8),
 		NULL,
 		0,
 		0

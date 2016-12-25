@@ -77,7 +77,7 @@ void operacake_write_reg(i2c_bus_t* const bus, uint8_t address, uint8_t reg, uin
 }
 
 uint8_t operacake_init(void) {
-	int reg, addr, i, j = 0;
+	uint8_t reg, addr, i, j = 0;
 	/* Find connected operacakes */
 	for(i=0; i<8; i++) {
 		addr = OPERACAKE_DEFAULT_ADDRESS | i;
@@ -91,15 +91,6 @@ uint8_t operacake_init(void) {
 	}
 	return 0;
 }
-
-// uint8_t operacake_get_boards(uint8_t *boards) {
-// 	int i, j = 0;
-// 	for(i=0; i<8; i++) {
-// 		if(operacake_boards & (1<<i)) {
-// 			;
-// 		}
-// 	}
-// }
 
 uint8_t port_to_pins(uint8_t port) {
 	switch(port) {
@@ -124,7 +115,7 @@ uint8_t port_to_pins(uint8_t port) {
 	return 0xFF;
 }
 
-uint8_t operacake_set_ports(uint8_t PA, uint8_t PB) {
+uint8_t operacake_set_ports(uint8_t address, uint8_t PA, uint8_t PB) {
 	uint8_t side, pa, pb, reg;
 	/* Start with some error checking,
 	 * which should have been done either
@@ -149,7 +140,7 @@ uint8_t operacake_set_ports(uint8_t PA, uint8_t PB) {
 		
 	reg = (OPERACAKE_GPIO_DISABLE | side
 					| pa | pb | OPERACAKE_EN_LEDS);
-	operacake_write_reg(oc_bus, 0x00, OPERACAKE_REG_OUTPUT, reg);
+	operacake_write_reg(oc_bus, address, OPERACAKE_REG_OUTPUT, reg);
 	return 0;
 }
 
