@@ -25,6 +25,8 @@
 #include <libopencm3/lpc43xx/m4/nvic.h>
 #include <libopencm3/lpc43xx/sgpio.h>
 
+#include "hackrf_core.h"
+
 void baseband_streaming_enable(sgpio_config_t* const sgpio_config) {
 	nvic_set_priority(NVIC_SGPIO_IRQ, 0);
 	nvic_enable_irq(NVIC_SGPIO_IRQ);

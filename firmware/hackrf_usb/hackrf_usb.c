@@ -50,8 +50,6 @@ static volatile transceiver_mode_t _transceiver_mode = TRANSCEIVER_MODE_OFF;
 void set_transceiver_mode(const transceiver_mode_t new_transceiver_mode) {
 	baseband_streaming_disable(&sgpio_config);
 
-	disable_sync
-	
 	usb_endpoint_disable(&usb_endpoint_bulk_in);
 	usb_endpoint_disable(&usb_endpoint_bulk_out);
 	
@@ -74,14 +72,15 @@ void set_transceiver_mode(const transceiver_mode_t new_transceiver_mode) {
 		led_off(LED3);
 		rf_path_set_direction(&rf_path, RF_PATH_DIRECTION_OFF);
 		vector_table.irq[NVIC_SGPIO_IRQ] = sgpio_isr_rx;
+
+		hw_sync_stop();
 	}
 
 	if( _transceiver_mode != TRANSCEIVER_MODE_OFF ) {
 		si5351c_activate_best_clock_source(&clock_gen);
 
-		wait_for_sync
-
-		baseband_streaming_enable(&sgpio_config);
+		hw_sync_stop();
+		hw_sync_syn();
 	}
 }
 
@@ -253,28 +252,23 @@ int main(void) {
 	
 	rf_path_init(&rf_path);
 
-        bool synced = false;
-	int hw_sync_count = 0;
-
 	unsigned int phase = 0;
 
-	led_off(LED3);
-	hw_sync_syn();
 	while(true) {
 		// Check whether we need to initiate a CPLD update
 		if (start_cpld_update)
 			cpld_update();
 
 
-//		if(!synced) {
-			if(hw_sync_ready()) {
-				synced = true;
-				hw_sync_ack();
-				led_on(LED3);
-			} 
-//		}
+                while(true) {
+                        if(hw_sync_ready()) {
+                                hw_sync_ack();
+                                led_on(LED3);
 
-		//int gpio_sync_in_flag = gpio_get(gpio_sync_in);
+				baseband_streaming_enable(&sgpio_config);
+				break;
+                        }
+                }
 
 		// Set up IN transfer of buffer 0.
 		if ( usb_bulk_buffer_offset >= 16384
@@ -283,7 +277,6 @@ int main(void) {
 			usb_transfer_schedule_block(
 				(transceiver_mode() == TRANSCEIVER_MODE_RX)
 				? &usb_endpoint_bulk_in : &usb_endpoint_bulk_out,
-				//synced ? &usb_bulk_buffer[0x0000] : &usb_dummy_buffer[0x0000],
 				&usb_bulk_buffer[0x0000],
 				0x4000,
 				NULL, NULL
@@ -298,7 +291,6 @@ int main(void) {
 			usb_transfer_schedule_block(
 				(transceiver_mode() == TRANSCEIVER_MODE_RX)
 				? &usb_endpoint_bulk_in : &usb_endpoint_bulk_out,
-				//synced ? &usb_bulk_buffer[0x4000] : &usb_dummy_buffer[0x4000],
 				&usb_bulk_buffer[0x4000],
 				0x4000,
 				NULL, NULL
