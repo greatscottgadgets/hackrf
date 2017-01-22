@@ -225,6 +225,11 @@ typedef enum {
 	TRANSCEIVER_MODE_CPLD_UPDATE = 4
 } transceiver_mode_t;
 
+typedef enum {
+	HW_SYNC_MODE_OFF = 0,
+	HW_SYNC_MODE_ON = 1,
+} hw_sync_mode_t;
+
 void delay(uint32_t duration);
 
 /* TODO: Hide these configurations */

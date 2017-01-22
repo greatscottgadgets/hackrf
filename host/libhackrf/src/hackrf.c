@@ -67,6 +67,7 @@ typedef enum {
 	HACKRF_VENDOR_REQUEST_SET_TXVGA_GAIN = 21,
 	HACKRF_VENDOR_REQUEST_ANTENNA_ENABLE = 23,
 	HACKRF_VENDOR_REQUEST_SET_FREQ_EXPLICIT = 24,
+	HACKRF_VENDOR_REQUEST_SET_HW_SYNC_MODE = 26,
 } hackrf_vendor_request;
 
 typedef enum {
@@ -81,6 +82,11 @@ typedef enum {
 	HACKRF_TRANSCEIVER_MODE_SS = 3,
 	TRANSCEIVER_MODE_CPLD_UPDATE = 4,
 } hackrf_transceiver_mode;
+
+typedef enum {
+	HACKRF_HW_SYNC_MODE_OFF = 0,
+	HACKRF_HW_SYNC_MODE_ON = 1,
+} hackrf_hw_sync_mode;
 
 struct hackrf_device {
 	libusb_device_handle* usb_device;
@@ -1546,6 +1552,26 @@ int ADDCALL hackrf_close(hackrf_device* device)
 		return result2;
 	}
 	return result1;
+}
+
+int ADDCALL hackrf_set_hw_sync_mode(hackrf_device* device, const uint8_t value) {
+	int result = libusb_control_transfer(
+		device->usb_device,
+ 		LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_SET_HW_SYNC_MODE,
+		value,
+		0,
+		NULL,
+		0,
+		0
+	);
+
+	if( result != 0 )
+	{
+		return HACKRF_ERROR_LIBUSB;
+	} else {
+		return HACKRF_SUCCESS;
+	}
 }
 
 const char* ADDCALL hackrf_error_name(enum hackrf_error errcode)

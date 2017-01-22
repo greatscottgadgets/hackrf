@@ -46,6 +46,11 @@
 #include "usb_bulk_buffer.h"
 
 static volatile transceiver_mode_t _transceiver_mode = TRANSCEIVER_MODE_OFF;
+static volatile hw_sync_mode_t _hw_sync_mode = HW_SYNC_MODE_OFF;
+
+void set_hw_sync_mode(const hw_sync_mode_t new_hw_sync_mode) {
+	_hw_sync_mode = new_hw_sync_mode;
+}
 
 void set_transceiver_mode(const transceiver_mode_t new_transceiver_mode) {
 	baseband_streaming_disable(&sgpio_config);
@@ -76,16 +81,34 @@ void set_transceiver_mode(const transceiver_mode_t new_transceiver_mode) {
 		hw_sync_stop();
 	}
 
+	hw_sync_stop();
+
 	if( _transceiver_mode != TRANSCEIVER_MODE_OFF ) {
 		si5351c_activate_best_clock_source(&clock_gen);
 
-		hw_sync_stop();
-		hw_sync_syn();
+		if( _hw_sync_mode != HW_SYNC_MODE_OFF) {
+			hw_sync_syn();
+		} else {
+			baseband_streaming_enable(&sgpio_config);
+		}
 	}
 }
 
 transceiver_mode_t transceiver_mode(void) {
 	return _transceiver_mode;
+}
+
+usb_request_status_t usb_vendor_request_set_hw_sync_mode(
+	usb_endpoint_t* const endpoint,
+	const usb_transfer_stage_t stage
+) {
+	if( stage == USB_TRANSFER_STAGE_SETUP ) {
+		set_hw_sync_mode(endpoint->setup.value);
+		usb_transfer_schedule_ack(endpoint->in);
+		return USB_REQUEST_STATUS_OK;
+	} else {
+		return USB_REQUEST_STATUS_OK;
+	}
 }
 
 usb_request_status_t usb_vendor_request_set_transceiver_mode(
@@ -144,6 +167,7 @@ static const usb_request_handler_fn vendor_request_handler[] = {
 #endif
 	usb_vendor_request_set_freq_explicit,
 	usb_vendor_request_read_wcid,  // USB_WCID_VENDOR_REQ
+        usb_vendor_request_set_hw_sync_mode,
 };
 
 static const uint32_t vendor_request_handler_count =
@@ -260,15 +284,14 @@ int main(void) {
 			cpld_update();
 
 
-                while(true) {
-                        if(hw_sync_ready()) {
-                                hw_sync_ack();
-                                led_on(LED3);
+		if( _hw_sync_mode != HW_SYNC_MODE_OFF) {
+			while(!hw_sync_ready()) { }
+			hw_sync_ack();
+			led_on(LED3);
 
-				baseband_streaming_enable(&sgpio_config);
-				break;
-                        }
-                }
+			baseband_streaming_enable(&sgpio_config);
+		}
+
 
 		// Set up IN transfer of buffer 0.
 		if ( usb_bulk_buffer_offset >= 16384

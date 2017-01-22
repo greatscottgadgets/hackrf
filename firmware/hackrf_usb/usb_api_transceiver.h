@@ -52,5 +52,7 @@ usb_request_status_t usb_vendor_request_set_antenna_enable(
 	usb_endpoint_t* const endpoint, const usb_transfer_stage_t stage);
 usb_request_status_t usb_vendor_request_set_freq_explicit(
 	usb_endpoint_t* const endpoint, const usb_transfer_stage_t stage);
+usb_request_status_t usb_vendor_request_set_hw_sync_mode(
+	usb_endpoint_t* const endpoint,	const usb_transfer_stage_t stage);
 
 #endif/*__USB_API_TRANSCEIVER_H__*/
