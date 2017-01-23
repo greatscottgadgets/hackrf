@@ -37,11 +37,8 @@ SET(TOOLS
 	hackrf_spiflash
 	hackrf_cpldjtag
 	hackrf_info
-  hackrf_operacake
+	hackrf_operacake
 )
-
-add_executable(hackrf_operacake hackrf_operacake.c)
-install(TARGETS hackrf_operacake RUNTIME DESTINATION ${INSTALL_DEFAULT_BINDIR})
 
 if(NOT libhackrf_SOURCE_DIR)
 	include_directories(${LIBHACKRF_INCLUDE_DIR})
