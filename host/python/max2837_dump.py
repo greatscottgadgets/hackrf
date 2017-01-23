@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#
+"""
 # Copyright 2012 Jared Boone
 #
 # This file is part of HackRF.
@@ -18,36 +18,47 @@
 # along with this program; see the file COPYING.  If not, write to
 # the Free Software Foundation, Inc., 51 Franklin Street,
 # Boston, MA 02110-1301, USA.
-#
+"""
 
-import usb
 import struct
 import sys
+import usb
 
-device = usb.core.find(idVendor=0x1d50, idProduct=0x604b)
-if device:
-    print 'Find: HackRF Jawbreaker'
-else:
-    device = usb.core.find(idVendor=0x1d50, idProduct=0x6089)
+
+def main():
+    """A function to find and read/write with the max2837 register."""
+    device = usb.core.find(idVendor=0x1d50, idProduct=0x604b)
     if device:
-        print 'Find: HackRF One'
+        print 'Found: HackRF Jawbreaker'
     else:
-        device = usb.core.find(idVendor=0x1d50, idProduct=0xcc15)
+        device = usb.core.find(idVendor=0x1d50, idProduct=0x6089)
         if device:
-            print 'Find: rad1o'
+            print 'Found: HackRF One'
         else:
-        print 'Not find any HackRF device.'
-        sys.exit()
-device.set_configuration()
+            device = usb.core.find(idVendor=0x1d50, idProduct=0xcc15)
+            if device:
+                print 'Found: rad1o'
+            else:
+                print 'Did not find any HackRF device.'
+            sys.exit()
 
-def read_max2837_register(register_number):
-    return struct.unpack('<H', device.ctrl_transfer(0xC0, 3, 0, register_number, 2))[0]
+    device.set_configuration()
 
-def write_max2837_register(register_number, value):
-    device.ctrl_transfer(0x40, 2, value, register_number)
+    def read_max2837_register(register_number):
+        """A function to read the ctrl_transfer method from the register."""
+        return struct.unpack('<H', device.ctrl_transfer(0xC0, 3, 0,
+                                                        register_number, 2))[0]
 
-def dump_max2837():
-    for i in range(32):
-        print('%2d: %03x' % (i, read_max2837_register(i)))
+    def write_max2837_register(register_number, value):
+        """A function to write the ctrl_transfer method to the register."""
+        device.ctrl_transfer(0x40, 2, value, register_number)
 
-dump_max2837()
+    def dump_max2837():
+        """A function to dump the ctrl_transfer method from the register."""
+        for i in range(32):
+            print('%2d: %03x' % i, read_max2837_register(i))
+
+    dump_max2837()
+
+if __name__ == '__main__':
+    main()

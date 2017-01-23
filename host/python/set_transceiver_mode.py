@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#
+"""
 # Copyright 2012 Jared Boone
 #
 # This file is part of HackRF.
@@ -18,37 +18,46 @@
 # along with this program; see the file COPYING.  If not, write to
 # the Free Software Foundation, Inc., 51 Franklin Street,
 # Boston, MA 02110-1301, USA.
-#
+"""
 
 import sys
 import usb
 
-device = usb.core.find(idVendor=0x1d50, idProduct=0x604b)
-if device:
-    print 'Find: HackRF Jawbreaker'
-else:
-    device = usb.core.find(idVendor=0x1d50, idProduct=0x6089)
+
+def main():
+    """A function to find and setup a device transceiver."""
+    device = usb.core.find(idVendor=0x1d50, idProduct=0x604b)
     if device:
-        print 'Find: HackRF One'
+        print 'Found: HackRF Jawbreaker'
     else:
-        device = usb.core.find(idVendor=0x1d50, idProduct=0xcc15)
+        device = usb.core.find(idVendor=0x1d50, idProduct=0x6089)
         if device:
-            print 'Find: rad1o'
+            print 'Found: HackRF One'
         else:
-            print 'Not find any HackRF device.'
-            sys.exit()
-device.set_configuration()
+            device = usb.core.find(idVendor=0x1d50, idProduct=0xcc15)
+            if device:
+                print 'Found: rad1o'
+            else:
+                print 'Did not find any HackRF device.'
+                sys.exit()
 
-def set_rx():
-    device.ctrl_transfer(0x40, 1, 1, 0)
+    device.set_configuration()
 
-def set_tx():
-    device.ctrl_transfer(0x40, 1, 2, 0)
+    def set_rx():
+        """A function to receive with the ctrl_transfer method."""
+        device.ctrl_transfer(0x40, 1, 1, 0)
 
-if len(sys.argv) == 2:
-    if sys.argv[1] == 'tx':
-        set_tx()
-    elif sys.argv[1] == 'rx':
-        set_rx()
-else:
-    print 'Usage: %s [rx|tx]' % sys.argv[0]
+    def set_tx():
+        """A function to transmit with the ctrl_transfer method."""
+        device.ctrl_transfer(0x40, 1, 2, 0)
+
+    if len(sys.argv) == 2:
+        if sys.argv[1] == 'tx':
+            set_tx()
+        elif sys.argv[1] == 'rx':
+            set_rx()
+    else:
+        print 'Usage: %s [rx|tx]' % sys.argv[0]
+
+if __name__ == '__main__':
+    main()
