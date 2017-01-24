@@ -114,6 +114,11 @@ typedef enum {
         TRANSCEIVER_MODE_SS = 3,
 } transceiver_mode_t;
 
+typedef enum {
+	HW_SYNC_MODE_OFF = 0,
+	HW_SYNC_MODE_ON = 1,
+} hw_sync_mode_t;
+
 /* WAVE or RIFF WAVE file format containing IQ 2x8bits data for HackRF compatible with SDR# Wav IQ file */
 typedef struct 
 {
@@ -303,6 +308,8 @@ volatile uint32_t byte_count = 0;
 bool signalsource = false;
 uint32_t amplitude = 0;
 
+bool hw_sync = false;
+
 bool receive = false;
 bool receive_wav = false;
 
@@ -463,6 +470,7 @@ static void usage() {
         printf("\t[-R] # Repeat TX mode (default is off) \n");
 	printf("\t[-b baseband_filter_bw_hz] # Set baseband filter bandwidth in Hz.\n\tPossible values: 1.75/2.5/3.5/5/5.5/6/7/8/9/10/12/14/15/20/24/28MHz, default < sample_rate_hz.\n" );
 	printf("\t[-C ppm] # Set Internal crystal clock error in ppm.\n");
+	printf("\t[-H] # Synchronise USB transfer using GPIO pins.\n");
 }
 
 static hackrf_device* device = NULL;
@@ -506,11 +514,14 @@ int main(int argc, char** argv) {
 	float time_diff;
 	unsigned int lna_gain=8, vga_gain=20, txvga_gain=0;
   
-	while( (opt = getopt(argc, argv, "wr:t:f:i:o:m:a:p:s:n:b:l:g:x:c:d:C:R")) != EOF )
+	while( (opt = getopt(argc, argv, "Hwr:t:f:i:o:m:a:p:s:n:b:l:g:x:c:d:C:R")) != EOF )
 	{
 		result = HACKRF_SUCCESS;
 		switch( opt ) 
 		{
+		case 'H':
+			hw_sync = true;
+			break;
 		case 'w':
 			receive_wav = true;
 			break;
@@ -913,6 +924,15 @@ int main(int argc, char** argv) {
 	result = hackrf_set_baseband_filter_bandwidth(device, baseband_filter_bw_hz);
 	if( result != HACKRF_SUCCESS ) {
 		fprintf(stderr, "hackrf_baseband_filter_bandwidth_set() failed: %s (%d)\n", hackrf_error_name(result), result);
+		usage();
+		return EXIT_FAILURE;
+	}
+
+	fprintf(stderr, "call hackrf_set_hw_sync_mode(%d)\n",
+			hw_sync);
+	result = hackrf_set_hw_sync_mode(device, hw_sync ? HW_SYNC_MODE_ON : HW_SYNC_MODE_OFF);
+	if( result != HACKRF_SUCCESS ) {
+		fprintf(stderr, "hackrf_set_hw_sync_mode() failed: %s (%d)\n", hackrf_error_name(result), result);
 		usage();
 		return EXIT_FAILURE;
 	}
