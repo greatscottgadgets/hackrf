@@ -20,7 +20,7 @@ before_script:
 
 before_install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install libusb; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install libusb fftw; fi
 
 script:
   - mkdir host/build
