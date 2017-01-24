@@ -238,16 +238,6 @@ void usb_set_descriptor_by_serial_number(void)
 }
 
 int main(void) {
-	uint8_t usb_dummy_buffer[32768];
-	for(int i = 0; i < 0x4000; i += 2) {
-		usb_dummy_buffer[i] = 0xff;
-		usb_dummy_buffer[i + 1] = 0x0;
-	}
-	for(int i = 0x4000; i < 0x8000; i += 2) {
-		usb_dummy_buffer[i] = 0xff;
-		usb_dummy_buffer[i + 1] = 0x0;
-	}
-
 	pin_setup();
 	enable_1v8_power();
 #ifdef HACKRF_ONE
