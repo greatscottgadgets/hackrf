@@ -43,7 +43,6 @@
 #include "usb_api_operacake.h"
 #include "operacake.h"
 #include "usb_api_sweep.h"
-
 #include "usb_api_transceiver.h"
 #include "usb_bulk_buffer.h"
  
@@ -80,7 +79,8 @@ static const usb_request_handler_fn vendor_request_handler[] = {
 	usb_vendor_request_read_wcid,  // USB_WCID_VENDOR_REQ
 	usb_vendor_request_init_sweep,
 	usb_vendor_request_operacake_get_boards,
-	usb_vendor_request_operacake_set_ports
+	usb_vendor_request_operacake_set_ports,
+	usb_vendor_request_set_hw_sync_mode
 };
 
 static const uint32_t vendor_request_handler_count =
@@ -192,6 +192,8 @@ int main(void) {
 			start_sweep_mode = false;
 			sweep_mode();
 		}
+
+		start_streaming_on_hw_sync();
 
 		// Set up IN transfer of buffer 0.
 		if ( usb_bulk_buffer_offset >= 16384

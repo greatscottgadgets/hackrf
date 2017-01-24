@@ -71,6 +71,7 @@ typedef enum {
 	HACKRF_VENDOR_REQUEST_INIT_SWEEP = 26,
 	HACKRF_VENDOR_REQUEST_OPERACAKE_GET_BOARDS = 27,
 	HACKRF_VENDOR_REQUEST_OPERACAKE_SET_PORTS = 28,
+	HACKRF_VENDOR_REQUEST_SET_HW_SYNC_MODE = 29,
 } hackrf_vendor_request;
 
 typedef enum {
@@ -85,6 +86,11 @@ typedef enum {
 	HACKRF_TRANSCEIVER_MODE_SS = 3,
 	TRANSCEIVER_MODE_CPLD_UPDATE = 4,
 } hackrf_transceiver_mode;
+
+typedef enum {
+	HACKRF_HW_SYNC_MODE_OFF = 0,
+	HACKRF_HW_SYNC_MODE_ON = 1,
+} hackrf_hw_sync_mode;
 
 struct hackrf_device {
 	libusb_device_handle* usb_device;
@@ -390,7 +396,7 @@ hackrf_device_list_t* ADDCALL hackrf_device_list()
 					serial_number_length = libusb_get_string_descriptor_ascii(usb_device, serial_descriptor_index, (unsigned char*)serial_number, sizeof(serial_number));
 					if( serial_number_length == 32 ) {
 						serial_number[32] = 0;
-						list->serial_numbers[idx] = strdup(serial_number);
+						list->serial_numbers[idx] = strndup(serial_number, serial_number_length);
 					}
 					
 					libusb_close(usb_device);
@@ -1551,6 +1557,26 @@ int ADDCALL hackrf_close(hackrf_device* device)
 		return result2;
 	}
 	return result1;
+}
+
+int ADDCALL hackrf_set_hw_sync_mode(hackrf_device* device, const uint8_t value) {
+	int result = libusb_control_transfer(
+		device->usb_device,
+ 		LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_SET_HW_SYNC_MODE,
+		value,
+		0,
+		NULL,
+		0,
+		0
+	);
+
+	if( result != 0 )
+	{
+		return HACKRF_ERROR_LIBUSB;
+	} else {
+		return HACKRF_SUCCESS;
+	}
 }
 
 const char* ADDCALL hackrf_error_name(enum hackrf_error errcode)
