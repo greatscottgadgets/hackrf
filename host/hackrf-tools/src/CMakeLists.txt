@@ -41,9 +41,6 @@ SET(TOOLS
 	hackrf_sweep
 )
 
-add_executable(hackrf_sweep hackrf_sweep.c)
-install(TARGETS hackrf_sweep RUNTIME DESTINATION ${INSTALL_DEFAULT_BINDIR})
-
 if(NOT libhackrf_SOURCE_DIR)
 	include_directories(${LIBHACKRF_INCLUDE_DIR})
 	LIST(APPEND TOOLS_LINK_LIBS ${LIBHACKRF_LIBRARIES})
