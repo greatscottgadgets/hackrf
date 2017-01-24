@@ -83,6 +83,17 @@ enum rf_path_filter {
 	RF_PATH_FILTER_HIGH_PASS = 2,
 };
 
+enum operacake_ports {
+	OPERACAKE_PA1 = 0,
+	OPERACAKE_PA2 = 1,
+	OPERACAKE_PA3 = 2,
+	OPERACAKE_PA4 = 3,
+	OPERACAKE_PB1 = 4,
+	OPERACAKE_PB2 = 5,
+	OPERACAKE_PB3 = 6,
+	OPERACAKE_PB4 = 7,
+};
+
 typedef struct hackrf_device hackrf_device;
 
 typedef struct {
@@ -200,6 +211,13 @@ extern ADDAPI uint32_t ADDCALL hackrf_compute_baseband_filter_bw(const uint32_t 
 extern ADDAPI int ADDCALL hackrf_init_sweep(hackrf_device* device,
 											uint16_t* frequency_list,
 											int length, uint32_t dwell_time);
+
+/* Operacake functions */
+int ADDCALL hackrf_get_operacake_boards(hackrf_device* device, uint8_t* boards);
+int ADDCALL hackrf_set_operacake_ports(hackrf_device* device,
+                                       uint8_t address,
+                                       uint8_t port_a,
+                                       uint8_t port_b);
 
 #ifdef __cplusplus
 } // __cplusplus defined.

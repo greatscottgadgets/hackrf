@@ -69,6 +69,8 @@ typedef enum {
 	HACKRF_VENDOR_REQUEST_SET_FREQ_EXPLICIT = 24,
 	// USB_WCID_VENDOR_REQ = 25
 	HACKRF_VENDOR_REQUEST_INIT_SWEEP = 26,
+	HACKRF_VENDOR_REQUEST_OPERACAKE_GET_BOARDS = 27,
+	HACKRF_VENDOR_REQUEST_OPERACAKE_SET_PORTS = 28,
 } hackrf_vendor_request;
 
 typedef enum {
@@ -1698,6 +1700,7 @@ uint32_t ADDCALL hackrf_compute_baseband_filter_bw(const uint32_t bandwidth_hz)
 	return p->bandwidth_hz;
 }
 
+/* Initialise sweep mode with alist of frequencies and dwell time in samples */
 int ADDCALL hackrf_init_sweep(hackrf_device* device, uint16_t* frequency_list, int length, uint32_t dwell_time)
 {
 	int result, i;
@@ -1718,6 +1721,65 @@ int ADDCALL hackrf_init_sweep(hackrf_device* device, uint16_t* frequency_list, i
 	);
 
 	if (result < size) {
+		return HACKRF_ERROR_LIBUSB;
+	} else {
+		return HACKRF_SUCCESS;
+	}
+}
+
+/* Retrieve list of Operacake board addresses 
+ * boards must be *uint8_t[8]
+ */
+int ADDCALL hackrf_get_operacake_boards(hackrf_device* device, uint8_t* boards)
+{
+	int result;
+	result = libusb_control_transfer(
+		device->usb_device,
+		LIBUSB_ENDPOINT_IN | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_OPERACAKE_GET_BOARDS,
+		0,
+		0,
+		boards,
+		8,
+		0
+	);
+
+	if (result < 8)
+	{
+		return HACKRF_ERROR_LIBUSB;
+	} else {
+		return HACKRF_SUCCESS;
+	}
+}
+
+/* Set Operacake ports */
+int ADDCALL hackrf_set_operacake_ports(hackrf_device* device,
+                                       uint8_t address,
+                                       uint8_t port_a,
+                                       uint8_t port_b)
+{
+	int result;
+	/* Error checking */
+	if((port_a > OPERACAKE_PB4) || (port_b > OPERACAKE_PB4)) {
+		return HACKRF_ERROR_INVALID_PARAM;
+	}
+	/* Check which side PA and PB are on */
+	if(((port_a <= OPERACAKE_PA4) && (port_b <= OPERACAKE_PA4))
+	    || ((port_a > OPERACAKE_PA4) && (port_b > OPERACAKE_PA4))) {
+		return HACKRF_ERROR_INVALID_PARAM;
+	}
+	result = libusb_control_transfer(
+		device->usb_device,
+		LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_OPERACAKE_SET_PORTS,
+		address,
+		port_a | (port_b<<8),
+		NULL,
+		0,
+		0
+	);
+
+	if (result != 0) {
 		return HACKRF_ERROR_LIBUSB;
 	} else {
 		return HACKRF_SUCCESS;
