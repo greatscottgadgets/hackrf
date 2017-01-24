@@ -53,4 +53,9 @@ usb_request_status_t usb_vendor_request_set_antenna_enable(
 usb_request_status_t usb_vendor_request_set_freq_explicit(
 	usb_endpoint_t* const endpoint, const usb_transfer_stage_t stage);
 
+transceiver_mode_t transceiver_mode(void);
+void set_transceiver_mode(const transceiver_mode_t new_transceiver_mode);
+usb_request_status_t usb_vendor_request_set_transceiver_mode(
+	usb_endpoint_t* const endpoint,	const usb_transfer_stage_t stage);
+
 #endif/*__USB_API_TRANSCEIVER_H__*/

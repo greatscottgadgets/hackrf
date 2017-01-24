@@ -94,10 +94,7 @@ void rffc5071_spi_stop(spi_bus_t* const bus) {
 
 static void rffc5071_spi_serial_delay(spi_bus_t* const bus) {
 	(void)bus;
-	volatile uint32_t i;
-
-	for (i = 0; i < 2; i++)
-		__asm__("nop");
+	__asm__("nop");
 }
 
 static void rffc5071_spi_sck(spi_bus_t* const bus) {

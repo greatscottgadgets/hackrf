@@ -117,6 +117,10 @@ void rffc5071_setup(rffc5071_driver_t* const drv)
 	/* GPOs are active at all times */
 	set_RFFC5071_GATE(drv, 1);
 
+	/* Output LOCK status on GPO4 and enable lock detect */
+	set_RFFC5071_LOCK(drv, 1);
+	set_RFFC5071_LDEN(drv, 1);
+
 	rffc5071_regs_commit(drv);
 }
 
@@ -253,13 +257,6 @@ uint64_t rffc5071_config_synth_int(rffc5071_driver_t* const drv, uint16_t lo) {
 	
 	tune_freq_hz = (REF_FREQ * (tmp_n >> 5ULL) * fbkdiv * FREQ_ONE_MHZ)
 			/ (lodiv * (1 << 24ULL));
-
-	/* Path 1 */
-	set_RFFC5071_P1LODIV(drv, n_lo);
-	set_RFFC5071_P1N(drv, n);
-	set_RFFC5071_P1PRESC(drv, fbkdiv >> 1);
-	set_RFFC5071_P1NMSB(drv, p1nmsb);
-	set_RFFC5071_P1NLSB(drv, p1nlsb);
 
 	/* Path 2 */
 	set_RFFC5071_P2LODIV(drv, n_lo);

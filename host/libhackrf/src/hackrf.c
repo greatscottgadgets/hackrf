@@ -67,6 +67,8 @@ typedef enum {
 	HACKRF_VENDOR_REQUEST_SET_TXVGA_GAIN = 21,
 	HACKRF_VENDOR_REQUEST_ANTENNA_ENABLE = 23,
 	HACKRF_VENDOR_REQUEST_SET_FREQ_EXPLICIT = 24,
+	// USB_WCID_VENDOR_REQ = 25
+	HACKRF_VENDOR_REQUEST_INIT_SWEEP = 26,
 } hackrf_vendor_request;
 
 typedef enum {
@@ -1694,6 +1696,32 @@ uint32_t ADDCALL hackrf_compute_baseband_filter_bw(const uint32_t bandwidth_hz)
 	}
 
 	return p->bandwidth_hz;
+}
+
+int ADDCALL hackrf_init_sweep(hackrf_device* device, uint16_t* frequency_list, int length, uint32_t dwell_time)
+{
+	int result, i;
+	int size = length * sizeof(frequency_list[0]);
+
+	for(i=0; i<length; i++)
+		frequency_list[i] = TO_LE(frequency_list[i]);
+
+	result = libusb_control_transfer(
+		device->usb_device,
+		LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_INIT_SWEEP,
+		dwell_time & 0xffff,
+		(dwell_time >> 16) & 0xffff,
+		(unsigned char*)frequency_list,
+		size,
+		0
+	);
+
+	if (result < size) {
+		return HACKRF_ERROR_LIBUSB;
+	} else {
+		return HACKRF_SUCCESS;
+	}
 }
 
 #ifdef __cplusplus
