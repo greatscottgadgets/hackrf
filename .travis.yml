@@ -39,3 +39,4 @@ addons:
   apt:
     packages:
       - libusb-1.0-0-dev
+      - libfftw3-dev
