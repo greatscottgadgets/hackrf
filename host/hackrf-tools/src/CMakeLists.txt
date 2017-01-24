@@ -38,7 +38,11 @@ SET(TOOLS
 	hackrf_cpldjtag
 	hackrf_info
 	hackrf_operacake
+	hackrf_sweep
 )
+
+add_executable(hackrf_sweep hackrf_sweep.c)
+install(TARGETS hackrf_sweep RUNTIME DESTINATION ${INSTALL_DEFAULT_BINDIR})
 
 if(NOT libhackrf_SOURCE_DIR)
 	include_directories(${LIBHACKRF_INCLUDE_DIR})
@@ -50,6 +54,8 @@ endif()
 if(MSVC)
 	LIST(APPEND TOOLS_LINK_LIBS libgetopt_static)
 endif()
+
+LIST(APPEND TOOLS_LINK_LIBS m fftw3f)
 
 foreach(tool ${TOOLS})
 	add_executable(${tool} ${tool}.c)

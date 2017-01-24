@@ -67,9 +67,10 @@ typedef enum {
 	HACKRF_VENDOR_REQUEST_SET_TXVGA_GAIN = 21,
 	HACKRF_VENDOR_REQUEST_ANTENNA_ENABLE = 23,
 	HACKRF_VENDOR_REQUEST_SET_FREQ_EXPLICIT = 24,
-	HACKRF_VENDOR_REQUEST_READ_WCID = 25,
-	HACKRF_VENDOR_REQUEST_OPERACAKE_GET_BOARDS = 26,
-	HACKRF_VENDOR_REQUEST_OPERACAKE_SET_PORTS = 27,
+	// USB_WCID_VENDOR_REQ = 25
+	HACKRF_VENDOR_REQUEST_INIT_SWEEP = 26,
+	HACKRF_VENDOR_REQUEST_OPERACAKE_GET_BOARDS = 27,
+	HACKRF_VENDOR_REQUEST_OPERACAKE_SET_PORTS = 28,
 } hackrf_vendor_request;
 
 typedef enum {
@@ -1420,6 +1421,7 @@ static int create_transfer_thread(hackrf_device* device,
 	if( device->transfer_thread_started == false )
 	{
 		device->streaming = false;
+		do_exit = false;
 
 		result = prepare_transfers(
 			device, endpoint_address,
@@ -1698,6 +1700,33 @@ uint32_t ADDCALL hackrf_compute_baseband_filter_bw(const uint32_t bandwidth_hz)
 	return p->bandwidth_hz;
 }
 
+/* Initialise sweep mode with alist of frequencies and dwell time in samples */
+int ADDCALL hackrf_init_sweep(hackrf_device* device, uint16_t* frequency_list, int length, uint32_t dwell_time)
+{
+	int result, i;
+	int size = length * sizeof(frequency_list[0]);
+
+	for(i=0; i<length; i++)
+		frequency_list[i] = TO_LE(frequency_list[i]);
+
+	result = libusb_control_transfer(
+		device->usb_device,
+		LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_INIT_SWEEP,
+		dwell_time & 0xffff,
+		(dwell_time >> 16) & 0xffff,
+		(unsigned char*)frequency_list,
+		size,
+		0
+	);
+
+	if (result < size) {
+		return HACKRF_ERROR_LIBUSB;
+	} else {
+		return HACKRF_SUCCESS;
+	}
+}
+
 /* Retrieve list of Operacake board addresses 
  * boards must be *uint8_t[8]
  */
@@ -1750,8 +1779,7 @@ int ADDCALL hackrf_set_operacake_ports(hackrf_device* device,
 		0
 	);
 
-	if (result != 0)
-	{
+	if (result != 0) {
 		return HACKRF_ERROR_LIBUSB;
 	} else {
 		return HACKRF_SUCCESS;
