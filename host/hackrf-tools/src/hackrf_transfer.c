@@ -34,6 +34,8 @@
 #include <fcntl.h>
 #include <errno.h>
 
+#define _FILE_OFFSET_BITS 64
+
 #ifndef bool
 typedef int bool;
 #define true 1

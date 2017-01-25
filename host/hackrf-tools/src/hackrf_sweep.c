@@ -35,6 +35,8 @@
 #include <fftw3.h>
 #include <math.h>
 
+#define _FILE_OFFSET_BITS 64
+
 #ifndef bool
 typedef int bool;
 #define true 1
