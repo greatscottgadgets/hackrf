@@ -423,15 +423,17 @@ int tx_callback(hackrf_transfer* transfer) {
 			bytes_to_xfer -= bytes_to_read;
 		}
 		bytes_read = fread(transfer->buffer, 1, bytes_to_read, fd);
-		if ((bytes_read != bytes_to_read)
-				|| (limit_num_samples && (bytes_to_xfer == 0))) {
+		if (limit_num_samples && (bytes_to_xfer == 0)) {
+                               return -1;
+		}
+		if (bytes_read != bytes_to_read) {
                        if (repeat) {
                                printf("Input file end reached. Rewind to beginning.\n");
                                rewind(fd);
                                fread(transfer->buffer + bytes_read, 1, bytes_to_read - bytes_read, fd);
 			       return 0;
                        } else {
-                               return -1; // not loopback mode, EOF
+                               return -1; /* not repeat mode, end of file */
                        }
 
 		} else {
