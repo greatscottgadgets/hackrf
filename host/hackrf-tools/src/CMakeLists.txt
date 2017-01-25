@@ -29,43 +29,30 @@ add_library(libgetopt_static STATIC
 )
 endif()
 
-add_executable(hackrf_max2837 hackrf_max2837.c)
-install(TARGETS hackrf_max2837 RUNTIME DESTINATION ${INSTALL_DEFAULT_BINDIR})
-
-add_executable(hackrf_si5351c hackrf_si5351c.c)
-install(TARGETS hackrf_si5351c RUNTIME DESTINATION ${INSTALL_DEFAULT_BINDIR})
-
-add_executable(hackrf_transfer hackrf_transfer.c)
-install(TARGETS hackrf_transfer RUNTIME DESTINATION ${INSTALL_DEFAULT_BINDIR})
-
-add_executable(hackrf_rffc5071 hackrf_rffc5071.c)
-install(TARGETS hackrf_rffc5071 RUNTIME DESTINATION ${INSTALL_DEFAULT_BINDIR})
-
-add_executable(hackrf_spiflash hackrf_spiflash.c)
-install(TARGETS hackrf_spiflash RUNTIME DESTINATION ${INSTALL_DEFAULT_BINDIR})
-
-add_executable(hackrf_cpldjtag hackrf_cpldjtag.c)
-install(TARGETS hackrf_cpldjtag RUNTIME DESTINATION ${INSTALL_DEFAULT_BINDIR})
-
-add_executable(hackrf_info hackrf_info.c)
-install(TARGETS hackrf_info RUNTIME DESTINATION ${INSTALL_DEFAULT_BINDIR})
+SET(TOOLS
+	hackrf_max2837
+	hackrf_si5351c
+	hackrf_transfer
+	hackrf_rffc5071
+	hackrf_spiflash
+	hackrf_cpldjtag
+	hackrf_info
+)
 
 if(NOT libhackrf_SOURCE_DIR)
-include_directories(${LIBHACKRF_INCLUDE_DIR})
-LIST(APPEND TOOLS_LINK_LIBS ${LIBHACKRF_LIBRARIES})
+	include_directories(${LIBHACKRF_INCLUDE_DIR})
+	LIST(APPEND TOOLS_LINK_LIBS ${LIBHACKRF_LIBRARIES})
 else()
-LIST(APPEND TOOLS_LINK_LIBS hackrf)
+	LIST(APPEND TOOLS_LINK_LIBS hackrf)
 endif()
 
 if(MSVC)
-LIST(APPEND TOOLS_LINK_LIBS libgetopt_static)
+	LIST(APPEND TOOLS_LINK_LIBS libgetopt_static)
 endif()
 
+foreach(tool ${TOOLS})
+	add_executable(${tool} ${tool}.c)
+	target_link_libraries(${tool} ${TOOLS_LINK_LIBS})
+	install(TARGETS ${tool} RUNTIME DESTINATION ${INSTALL_DEFAULT_BINDIR})
+endforeach(tool)
 
-target_link_libraries(hackrf_max2837 ${TOOLS_LINK_LIBS})
-target_link_libraries(hackrf_si5351c ${TOOLS_LINK_LIBS})
-target_link_libraries(hackrf_transfer ${TOOLS_LINK_LIBS})
-target_link_libraries(hackrf_rffc5071 ${TOOLS_LINK_LIBS})
-target_link_libraries(hackrf_spiflash ${TOOLS_LINK_LIBS})
-target_link_libraries(hackrf_cpldjtag ${TOOLS_LINK_LIBS})
-target_link_libraries(hackrf_info ${TOOLS_LINK_LIBS})

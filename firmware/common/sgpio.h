@@ -22,26 +22,39 @@
 #ifndef __SGPIO_H__
 #define __SGPIO_H__
 
-#include <hackrf_core.h>
+#include <stdint.h>
+#include <stdbool.h>
+
+#include <libopencm3/lpc43xx/sgpio.h>
+
+#include "gpio.h"
 
 typedef enum {
 	SGPIO_DIRECTION_RX,
 	SGPIO_DIRECTION_TX,
 } sgpio_direction_t;
-	
-void sgpio_configure_pin_functions();
-void sgpio_test_interface();
+
+typedef struct sgpio_config_t {
+	gpio_t gpio_rx_q_invert;
+	gpio_t gpio_rx_decimation[3];
+	bool slice_mode_multislice;
+} sgpio_config_t;
+
+void sgpio_configure_pin_functions(sgpio_config_t* const config);
+void sgpio_test_interface(sgpio_config_t* const config);
 void sgpio_set_slice_mode(
+	sgpio_config_t* const config,
 	const bool multi_slice
 );
 void sgpio_configure(
+	sgpio_config_t* const config,
 	const sgpio_direction_t direction
 );
-void sgpio_cpld_stream_enable();
-void sgpio_cpld_stream_disable();
-bool sgpio_cpld_stream_is_enabled();
+void sgpio_cpld_stream_enable(sgpio_config_t* const config);
+void sgpio_cpld_stream_disable(sgpio_config_t* const config);
+bool sgpio_cpld_stream_is_enabled(sgpio_config_t* const config);
 
-bool sgpio_cpld_stream_rx_set_decimation(const uint_fast8_t n);
-void sgpio_cpld_stream_rx_set_q_invert(const uint_fast8_t invert);
+bool sgpio_cpld_stream_rx_set_decimation(sgpio_config_t* const config, const uint_fast8_t n);
+void sgpio_cpld_stream_rx_set_q_invert(sgpio_config_t* const config, const uint_fast8_t invert);
 
 #endif//__SGPIO_H__

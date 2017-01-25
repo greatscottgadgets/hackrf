@@ -21,11 +21,8 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include <libopencm3/lpc43xx/gpio.h>
 #include <libopencm3/lpc43xx/scu.h>
 #include <libopencm3/lpc43xx/sgpio.h>
-#include <libopencm3/lpc43xx/cgu.h>
-#include <libopencm3/cm3/scs.h>
 
 #include <hackrf_core.h>
 
@@ -353,8 +350,7 @@ int main(void)
 	pin_setup();
 	enable_1v8_power();
 	cpu_clock_init();
-	ssp1_init();
-	gpio_set(PORT_LED1_3, PIN_LED1);
+	led_on(LED1);
 
 	//test_sgpio_sliceA_D();
 	test_sgpio_interface();

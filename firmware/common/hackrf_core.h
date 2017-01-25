@@ -32,6 +32,17 @@ extern "C"
 #include <stdint.h>
 #include <stdbool.h>
 
+#include "si5351c.h"
+#include "spi_ssp.h"
+
+#include "max2837.h"
+#include "max5864.h"
+#include "rffc5071.h"
+#include "w25q80bv.h"
+#include "sgpio.h"
+#include "rf_path.h"
+#include "cpld_jtag.h"
+
 /* hardware identification number */
 #define BOARD_ID_JELLYBEAN  0
 #define BOARD_ID_JAWBREAKER 1
@@ -248,41 +259,9 @@ extern "C"
 
 #define SCU_PINMUX_GP_CLKIN	(P4_7)
 
-/*
- * GPIO Pins
- */
-
-/* GPIO Output */
-#define PIN_LED1    (BIT1) /* GPIO2[1] on P4_1 */
-#define PIN_LED2    (BIT2) /* GPIO2[2] on P4_2 */
-#define PIN_LED3    (BIT8) /* GPIO2[8] on P6_12 */
-#define PORT_LED1_3 (GPIO2) /* PORT for LED1, 2 & 3 */
-
 #ifdef RAD1O
 #define PIN_LED4    (BIT26) /* GPIO5[26] on PB_6 */
 #define PORT_LED4   (GPIO5) /* PORT for LED4 */
-#endif
-
-#define PIN_EN1V8   (BIT6) /* GPIO3[6] on P6_10 */
-#define PORT_EN1V8  (GPIO3)
-
-#define PIN_XCVR_CS       (BIT15) /* GPIO0[15] on P1_20 */
-#define PORT_XCVR_CS      (GPIO0) /* PORT for CS */
-#define PIN_XCVR_ENABLE   (BIT6)  /* GPIO2[6] on P4_6 */
-#define PIN_XCVR_RXENABLE (BIT5)  /* GPIO2[5] on P4_5 */
-#define PIN_XCVR_TXENABLE (BIT4)  /* GPIO2[4] on P4_4 */
-#define PORT_XCVR_ENABLE  (GPIO2) /* PORT for ENABLE, TXENABLE, RXENABLE */
-#ifdef JELLYBEAN
-#define PIN_XCVR_RXHP     (BIT0)  /* GPIO2[0] on P4_0 */
-#define PORT_XCVR_RXHP	  (GPIO2)
-#define PIN_XCVR_B1		  (BIT9)  /* GPIO2[9] on P5_0 */
-#define PIN_XCVR_B2		  (BIT10) /* GPIO2[10] on P5_1 */
-#define PIN_XCVR_B3		  (BIT11) /* GPIO2[11] on P5_2 */
-#define PIN_XCVR_B4		  (BIT12) /* GPIO2[12] on P5_3 */
-#define PIN_XCVR_B5		  (BIT13) /* GPIO2[13] on P5_4 */
-#define PIN_XCVR_B6		  (BIT14) /* GPIO2[14] on P5_5 */
-#define PIN_XCVR_B7		  (BIT15) /* GPIO2[15] on P5_6 */
-#define PORT_XCVR_B	  	  (GPIO2)
 #endif
 
 #ifdef RAD1O
@@ -293,29 +272,6 @@ extern "C"
 #define PORT_XCVR_B	  	  (GPIO4)
 #endif
 
-#define PIN_AD_CS  (BIT7)  /* GPIO2[7] on P5_7 */
-#define PORT_AD_CS (GPIO2) /* PORT for AD_CS */
-
-#ifdef JELLYBEAN
-#define PIN_MIXER_ENX     (BIT8)  /* GPIO3[8] on P7_0 */
-#define PORT_MIXER_ENX    (GPIO3)
-#define PIN_MIXER_SCLK    (BIT9)  /* GPIO3[9] on P7_1 */
-#define PORT_MIXER_SCLK   (GPIO3)
-#define PIN_MIXER_SDATA   (BIT10) /* GPIO3[10] on P7_2 */
-#define PORT_MIXER_SDATA  (GPIO3)
-#define PIN_MIXER_RESETX  (BIT11) /* GPIO3[11] on P7_3 */
-#define PORT_MIXER_RESETX (GPIO3)
-#endif
-#if (defined JAWBREAKER || defined HACKRF_ONE)
-#define PIN_MIXER_ENX     (BIT13) /* GPIO2[13] on P5_4 */
-#define PORT_MIXER_ENX    (GPIO2)
-#define PIN_MIXER_SCLK    (BIT6)  /* GPIO5[6] on P2_6 */
-#define PORT_MIXER_SCLK   (GPIO5)
-#define PIN_MIXER_SDATA   (BIT3)  /* GPIO3[3] on P6_4 */
-#define PORT_MIXER_SDATA  (GPIO3)
-#define PIN_MIXER_RESETX  (BIT14) /* GPIO2[14] on P5_5 */
-#define PORT_MIXER_RESETX (GPIO2)
-#endif
 #ifdef RAD1O
 #define PIN_VCO_CE        (BIT13) /* GPIO2[13] on P5_4 */
 #define PORT_VCO_CE       (GPIO2)
@@ -333,55 +289,9 @@ extern "C"
 #define PORT_SYNT_RFOUT_EN (GPIO3)
 #endif
 
-#ifdef JAWBREAKER
-#define PIN_RF_LDO_ENABLE  (BIT9)  /* GPIO2[9] on P5_0 */
-#define PORT_RF_LDO_ENABLE (GPIO2) /* PORT for RF_LDO_ENABLE */
-#endif
-
-#ifdef HACKRF_ONE
-#define PIN_NO_VAA_ENABLE  (BIT9)  /* GPIO2[9] on P5_0 */
-#define PORT_NO_VAA_ENABLE (GPIO2) /* PORT for NO_VAA_ENABLE */
-#endif
-
 #ifdef RAD1O
 #define PIN_VAA_ENABLE  (BIT9)  /* GPIO2[9] on P5_0 */
 #define PORT_VAA_ENABLE (GPIO2) /* PORT for VAA_ENABLE */
-#endif
-
-#define PIN_FLASH_HOLD (BIT14) /* GPIO1[14] on P3_4 */
-#define PIN_FLASH_WP   (BIT15) /* GPIO1[15] on P3_5 */
-#define PORT_FLASH     (GPIO1)
-#define PIN_SSP0_SSEL  (BIT11) /* GPIO5[11] on P3_8 */
-#define PORT_SSP0_SSEL (GPIO5)
-
-/* RF switch control */
-#ifdef HACKRF_ONE
-#define PIN_HP              (GPIOPIN0)  /* GPIO2[0] on P4_0 */
-#define PORT_HP             (GPIO2)
-#define PIN_LP              (GPIOPIN10) /* GPIO2[10] on P5_1 */
-#define PORT_LP             (GPIO2)
-#define PIN_TX_MIX_BP       (GPIOPIN11) /* GPIO2[11] on P5_2 */
-#define PORT_TX_MIX_BP      (GPIO2)
-#define PIN_NO_MIX_BYPASS   (GPIOPIN0)  /* GPIO1[0] on P1_7 */
-#define PORT_NO_MIX_BYPASS  (GPIO1)
-#define PIN_RX_MIX_BP       (GPIOPIN12) /* GPIO2[12] on P5_3 */
-#define PORT_RX_MIX_BP      (GPIO2)
-#define PIN_TX_AMP          (GPIOPIN15) /* GPIO2[15] on P5_6 */
-#define PORT_TX_AMP         (GPIO2)
-#define PIN_TX              (GPIOPIN15) /* GPIO5[15] on P6_7 */
-#define PORT_TX             (GPIO5)
-#define PIN_MIX_BYPASS      (GPIOPIN16) /* GPIO5[16] on P6_8 */
-#define PORT_MIX_BYPASS     (GPIO5)
-#define PIN_RX              (GPIOPIN5)  /* GPIO5[5] on P2_5 */
-#define PORT_RX             (GPIO5)
-#define PIN_NO_TX_AMP_PWR   (GPIOPIN5)  /* GPIO3[5] on P6_9 */
-#define PORT_NO_TX_AMP_PWR  (GPIO3)
-#define PIN_AMP_BYPASS      (GPIOPIN14) /* GPIO0[14] on P2_10 */
-#define PORT_AMP_BYPASS     (GPIO0)
-#define PIN_RX_AMP          (GPIOPIN11) /* GPIO1[11] on P2_11 */
-#define PORT_RX_AMP         (GPIO1)
-#define PIN_NO_RX_AMP_PWR   (GPIOPIN12) /* GPIO1[12] on P2_12 */
-#define PORT_NO_RX_AMP_PWR  (GPIO1)
 #endif
 
 #ifdef RAD1O
@@ -407,40 +317,13 @@ extern "C"
 #define PORT_RX_LNA         (GPIO5)
 #endif
 
-/* GPIO Input */
-#define PIN_BOOT0   (BIT8)  /* GPIO0[8] on P1_1 */
-#define PIN_BOOT1   (BIT9)  /* GPIO0[9] on P1_2 */
-#define PIN_BOOT2   (BIT7)  /* GPIO5[7] on P2_8 */
-#define PIN_BOOT3   (BIT10) /* GPIO1[10] on P2_9 */
-
-/* CPLD JTAG interface GPIO pins */
-#define PIN_CPLD_TDO    (GPIOPIN18)
-#define PORT_CPLD_TDO   (GPIO5)
-#define PIN_CPLD_TCK    (GPIOPIN0)
-#define PORT_CPLD_TCK   (GPIO3)
 #if (defined HACKRF_ONE || defined RAD1O)
 #define PIN_CPLD_TMS    (GPIOPIN4)
 #define PORT_CPLD_TMS   (GPIO3)
 #define PIN_CPLD_TDI    (GPIOPIN1)
 #define PORT_CPLD_TDI   (GPIO3)
-#else
-#define PIN_CPLD_TMS    (GPIOPIN1)
-#define PORT_CPLD_TMS   (GPIO3)
-#define PIN_CPLD_TDI    (GPIOPIN4)
-#define PORT_CPLD_TDI   (GPIO3)
 #endif
  
-/* Read GPIO Pin */
-#define GPIO_STATE(port, pin) ((GPIO_PIN(port) & (pin)) == (pin))
-#define BOOT0_STATE       GPIO_STATE(GPIO0, PIN_BOOT0)
-#define BOOT1_STATE       GPIO_STATE(GPIO0, PIN_BOOT1)
-#define BOOT2_STATE       GPIO_STATE(GPIO5, PIN_BOOT2)
-#define BOOT3_STATE       GPIO_STATE(GPIO1, PIN_BOOT3)
-#define MIXER_SDATA_STATE GPIO_STATE(PORT_MIXER_SDATA, PIN_MIXER_SDATA)
-#define CPLD_TDO_STATE    GPIO_STATE(PORT_CPLD_TDO, PIN_CPLD_TDO)
-
-/* TODO add other Pins */
-
 typedef enum {
 	TRANSCEIVER_MODE_OFF = 0,
 	TRANSCEIVER_MODE_RX = 1,
@@ -451,10 +334,24 @@ typedef enum {
 
 void delay(uint32_t duration);
 
+/* TODO: Hide these configurations */
+extern si5351c_driver_t clock_gen;
+extern const ssp_config_t ssp_config_w25q80bv;
+extern const ssp_config_t ssp_config_max2837;
+extern const ssp_config_t ssp_config_max5864;
+
+extern max2837_driver_t max2837;
+extern max5864_driver_t max5864;
+// XXX
+extern rffc5071_driver_t mixer;
+extern w25q80bv_driver_t spi_flash;
+extern sgpio_config_t sgpio_config;
+extern rf_path_t rf_path;
+extern jtag_t jtag_cpld;
+
 void cpu_clock_init(void);
 void cpu_clock_pll1_low_speed(void);
 void cpu_clock_pll1_max_speed(void);
-void ssp1_init(void);
 void ssp1_set_mode_max2837(void);
 void ssp1_set_mode_max5864(void);
 
@@ -471,6 +368,16 @@ bool baseband_filter_bandwidth_set(const uint32_t bandwidth_hz);
 void enable_rf_power(void);
 void disable_rf_power(void);
 #endif
+
+typedef enum {
+	LED1 = 0,
+	LED2 = 1,
+	LED3 = 2,
+} led_t;
+
+void led_on(const led_t led);
+void led_off(const led_t led);
+void led_toggle(const led_t led);
 
 #ifdef __cplusplus
 }

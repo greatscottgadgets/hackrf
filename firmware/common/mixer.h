@@ -24,22 +24,22 @@
 #define __MIXER_H
 
 #include <stdint.h>
-
+// XXX
 /* Initialize chip. Call _setup() externally, as it calls _init(). */
-extern void mixer_init(void);
-extern void mixer_setup(void);
+//extern void mixer_init(void);
+//extern void mixer_setup(void);
 
 /* Set frequency (MHz). */
-extern uint64_t mixer_set_frequency(uint16_t mhz);
+//extern uint64_t mixer_set_frequency(uint16_t mhz);
 
 /* Set up rx only, tx only, or full duplex. Chip should be disabled
  * before _tx, _rx, or _rxtx are called. */
-extern void mixer_tx(void);
-extern void mixer_rx(void);
-extern void mixer_rxtx(void);
-extern void mixer_enable(void);
-extern void mixer_disable(void);
+//extern void mixer_tx(void);
+//extern void mixer_rx(void);
+//extern void mixer_rxtx(void);
+//extern void mixer_enable(void);
+//extern void mixer_disable(void);
 
-extern void mixer_set_gpo(uint8_t);
+//extern void mixer_set_gpo(uint8_t);
 
 #endif // __MIXER_H

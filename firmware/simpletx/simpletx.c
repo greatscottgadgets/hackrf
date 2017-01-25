@@ -19,13 +19,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include <libopencm3/lpc43xx/gpio.h>
-#include <libopencm3/lpc43xx/scu.h>
-#include <libopencm3/lpc43xx/i2c.h>
-#include <libopencm3/lpc43xx/ssp.h>
-
 #include "hackrf_core.h"
-#include "max2837.h"
 
 int main(void)
 {
@@ -37,19 +31,18 @@ int main(void)
 	enable_rf_power();
 #endif
 	cpu_clock_init();
-    ssp1_init();
     
-	gpio_set(PORT_LED1_3, (PIN_LED1)); /* LED1 on */
+	led_on(LED1);
 
 	ssp1_set_mode_max2837();
-	max2837_setup();
-	gpio_set(PORT_LED1_3, (PIN_LED2)); /* LED2 on */
-	max2837_set_frequency(freq);
-	max2837_start();
-	max2837_tx();
-	gpio_set(PORT_LED1_3, (PIN_LED3)); /* LED3 on */
+	max2837_setup(&max2837);
+	led_on(LED2);
+	max2837_set_frequency(&max2837, freq);
+	max2837_start(&max2837);
+	max2837_tx(&max2837);
+	led_on(LED3);
 	while (1);
-	max2837_stop();
+	max2837_stop(&max2837);
 
 	return 0;
 }

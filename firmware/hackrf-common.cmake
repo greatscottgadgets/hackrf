@@ -3,6 +3,7 @@
 # Copyright 2012 Michael Ossmann <mike@ossmann.com>
 # Copyright 2012 Benjamin Vernoux <titanmkd@gmail.com>
 # Copyright 2012 Jared Boone <jared@sharebrained.com>
+# Copyright 2016 Dominic Spill <dominicgs@gmail.com>
 #
 # This file is part of HackRF.
 #
@@ -25,6 +26,8 @@
 # derived primarily from Makefiles in libopencm3
 
 enable_language(C CXX ASM)
+
+include(../dfu-util.cmake)
 
 SET(PATH_HACKRF ../..)
 SET(PATH_HACKRF_FIRMWARE ${PATH_HACKRF}/firmware)
@@ -49,10 +52,6 @@ if(NOT DEFINED BOARD)
 	set(BOARD HACKRF_ONE)
 endif()
 
-if(NOT DEFINED RUN_FROM)
-	set(RUN_FROM SPIFI)
-endif()
-
 if(BOARD STREQUAL "HACKRF_ONE")
 	set(MCU_PARTNO LPC4320)
 else()
@@ -69,15 +68,11 @@ if(NOT DEFINED SRC_M0)
 	set(SRC_M0 "${PATH_HACKRF_FIRMWARE_COMMON}/m0_sleep.c")
 endif()
 
-SET(HACKRF_OPTS "-D${BOARD} -DLPC43XX -D${MCU_PARTNO} -DTX_ENABLE -D'VERSION_STRING=\"git-${VERSION}\"' -DRUN_FROM=${RUN_FROM}")
+SET(HACKRF_OPTS "-D${BOARD} -DLPC43XX -D${MCU_PARTNO} -DTX_ENABLE -D'VERSION_STRING=\"git-${VERSION}\"'")
 
-SET(LDSCRIPT_M4 "-T${PATH_HACKRF_FIRMWARE_COMMON}/${MCU_PARTNO}_M4_memory.ld")
-if( RUN_FROM STREQUAL "RAM")
-	SET(LDSCRIPT_M4 "${LDSCRIPT_M4} -Tlibopencm3_lpc43xx.ld")
-else()
-	SET(LDSCRIPT_M4 "${LDSCRIPT_M4} -Tlibopencm3_lpc43xx_rom_to_ram.ld")
-endif()
-SET(LDSCRIPT_M4 "${LDSCRIPT_M4} -T${PATH_HACKRF_FIRMWARE_COMMON}/LPC43xx_M4_M0_image_from_text.ld")
+SET(LDSCRIPT_M4 "-T${PATH_HACKRF_FIRMWARE_COMMON}/${MCU_PARTNO}_M4_memory.ld -Tlibopencm3_lpc43xx_rom_to_ram.ld -T${PATH_HACKRF_FIRMWARE_COMMON}/LPC43xx_M4_M0_image_from_text.ld")
+
+SET(LDSCRIPT_M4_DFU "-T${PATH_HACKRF_FIRMWARE_COMMON}/${MCU_PARTNO}_M4_memory.ld -Tlibopencm3_lpc43xx.ld -T${PATH_HACKRF_FIRMWARE_COMMON}/LPC43xx_M4_M0_image_from_text.ld")
 
 SET(LDSCRIPT_M0 "-T${PATH_HACKRF_FIRMWARE_COMMON}/LPC43xx_M0_memory.ld -Tlibopencm3_lpc43xx_m0.ld")
 
@@ -97,6 +92,7 @@ SET(CPUFLAGS_M4 "-mthumb -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16")
 SET(CFLAGS_M4 "-std=gnu99 ${CFLAGS_COMMON} ${CPUFLAGS_M4} -DLPC43XX_M4")
 SET(CXXFLAGS_M4 "-std=gnu++0x ${CFLAGS_COMMON} ${CPUFLAGS_M4} -DLPC43XX_M4")
 SET(LDFLAGS_M4 "${LDFLAGS_COMMON} ${CPUFLAGS_M4} ${LDSCRIPT_M4} -Xlinker -Map=m4.map")
+SET(LDFLAGS_M4_DFU "${LDFLAGS_COMMON} ${CPUFLAGS_M4} ${LDSCRIPT_M4_DFU} -Xlinker -Map=m4.map")
 
 set(BUILD_SHARED_LIBS OFF)
 
@@ -104,6 +100,27 @@ include_directories("${LIBOPENCM3}/include/")
 include_directories("${PATH_HACKRF_FIRMWARE_COMMON}")
 
 macro(DeclareTargets)
+	SET(SRC_M4
+		${SRC_M4}
+		${PATH_HACKRF_FIRMWARE_COMMON}/hackrf_core.c
+		${PATH_HACKRF_FIRMWARE_COMMON}/sgpio.c
+		${PATH_HACKRF_FIRMWARE_COMMON}/rf_path.c
+		${PATH_HACKRF_FIRMWARE_COMMON}/si5351c.c
+		${PATH_HACKRF_FIRMWARE_COMMON}/max2837.c
+		${PATH_HACKRF_FIRMWARE_COMMON}/max2837_target.c
+		${PATH_HACKRF_FIRMWARE_COMMON}/max5864.c
+		${PATH_HACKRF_FIRMWARE_COMMON}/max5864_target.c
+		${PATH_HACKRF_FIRMWARE_COMMON}/${MIXER}.c
+		${PATH_HACKRF_FIRMWARE_COMMON}/i2c_bus.c
+		${PATH_HACKRF_FIRMWARE_COMMON}/i2c_lpc.c
+		${PATH_HACKRF_FIRMWARE_COMMON}/${MIXER}_spi.c
+		${PATH_HACKRF_FIRMWARE_COMMON}/w25q80bv.c
+		${PATH_HACKRF_FIRMWARE_COMMON}/w25q80bv_target.c
+		${PATH_HACKRF_FIRMWARE_COMMON}/spi_bus.c
+		${PATH_HACKRF_FIRMWARE_COMMON}/spi_ssp.c
+		${PATH_HACKRF_FIRMWARE_COMMON}/gpio_lpc.c
+	)
+
 	configure_file(
 		${PATH_HACKRF_FIRMWARE_COMMON}/m0_bin.s.cmake
 		m0_bin.s
@@ -134,19 +151,13 @@ macro(DeclareTargets)
 		COMMAND ${CMAKE_OBJCOPY} -Obinary ${PROJECT_NAME}_m0.elf ${PROJECT_NAME}_m0.bin
 	)
 
-	add_executable(${PROJECT_NAME}.elf
-		${SRC_M4}
-		${PATH_HACKRF_FIRMWARE_COMMON}/hackrf_core.c
-		${PATH_HACKRF_FIRMWARE_COMMON}/sgpio.c
-		${PATH_HACKRF_FIRMWARE_COMMON}/rf_path.c
-		${PATH_HACKRF_FIRMWARE_COMMON}/si5351c.c
-		${PATH_HACKRF_FIRMWARE_COMMON}/max2837.c
-		${PATH_HACKRF_FIRMWARE_COMMON}/max5864.c
-		${PATH_HACKRF_FIRMWARE_COMMON}/${MIXER}.c
-		m0_bin.s
-	)
+	# Object files to be linked for both DFU and SPI flash versions
+	add_library(${PROJECT_NAME}_objects OBJECT ${SRC_M4} m0_bin.s)
+	set_target_properties(${PROJECT_NAME}_objects PROPERTIES COMPILE_FLAGS "${CFLAGS_M4}")
+	add_dependencies(${PROJECT_NAME}_objects ${PROJECT_NAME}_m0.bin)
 
-	add_dependencies(${PROJECT_NAME}.elf ${PROJECT_NAME}_m0.bin)
+	# SPI flash version
+	add_executable(${PROJECT_NAME}.elf $<TARGET_OBJECTS:${PROJECT_NAME}_objects>)
 
 	target_link_libraries(
 		${PROJECT_NAME}.elf
@@ -156,13 +167,31 @@ macro(DeclareTargets)
 		m
 	)
 
-	set_target_properties(${PROJECT_NAME}.elf PROPERTIES COMPILE_FLAGS "${CFLAGS_M4}")
 	set_target_properties(${PROJECT_NAME}.elf PROPERTIES LINK_FLAGS "${LDFLAGS_M4}")
 
 	add_custom_target(
-		${PROJECT_NAME}.bin
+		${PROJECT_NAME}.bin ALL
 		DEPENDS ${PROJECT_NAME}.elf
 		COMMAND ${CMAKE_OBJCOPY} -Obinary ${PROJECT_NAME}.elf ${PROJECT_NAME}.bin
+	)
+
+	# DFU - using a differnet LD script to run directly from RAM
+	add_executable(${PROJECT_NAME}_dfu.elf $<TARGET_OBJECTS:${PROJECT_NAME}_objects>)
+
+	target_link_libraries(
+		${PROJECT_NAME}_dfu.elf
+		c
+		nosys
+		opencm3_lpc43xx
+		m
+	)
+
+	set_target_properties(${PROJECT_NAME}_dfu.elf PROPERTIES LINK_FLAGS "${LDFLAGS_M4_DFU}")
+
+	add_custom_target(
+		${PROJECT_NAME}_dfu.bin
+		DEPENDS ${PROJECT_NAME}_dfu.elf
+		COMMAND ${CMAKE_OBJCOPY} -Obinary ${PROJECT_NAME}_dfu.elf ${PROJECT_NAME}_dfu.bin
 	)
 
 	add_custom_target(

@@ -9,19 +9,22 @@
  * (structs). This may be used in firmware, or on host predefined
  * register loads. */
 
+#define MAX2837_REG_SET_CLEAN(_d, _r) (_d->regs_dirty &= ~(1UL<<_r))
+#define MAX2837_REG_SET_DIRTY(_d, _r) (_d->regs_dirty |= (1UL<<_r))
+
 /* On set_, register is always set dirty, even if nothing
  * changed. This makes sure that write that have side effects,
  * e.g. frequency setting, are not skipped. */
 
 /* n=name, r=regnum, o=offset (bits from LSB), l=length (bits) */
 #define __MREG__(n,r,o,l) \
-static inline uint16_t get_##n(void) { \
-	return (max2837_regs[r] >> (o-l+1)) & ((1<<l)-1);	\
+static inline uint16_t get_##n(max2837_driver_t* const _d) { \
+	return (_d->regs[r] >> (o-l+1)) & ((1<<l)-1);	\
 } \
-static inline void set_##n(uint16_t v) {      \
-	max2837_regs[r] &= ~(((1<<l)-1)<<(o-l+1));  \
-	max2837_regs[r] |= ((v&((1<<l)-1))<<(o-l+1)); \
-	MAX2837_REG_SET_DIRTY(r); \
+static inline void set_##n(max2837_driver_t* const _d, uint16_t v) {      \
+	_d->regs[r] &= ~(((1<<l)-1)<<(o-l+1));  \
+	_d->regs[r] |= ((v&((1<<l)-1))<<(o-l+1)); \
+	MAX2837_REG_SET_DIRTY(_d, r); \
 }
 
 /* REG 0 */

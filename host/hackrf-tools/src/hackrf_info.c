@@ -26,13 +26,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-int main(int argc, char** argv)
+int main(void)
 {
 	int result = HACKRF_SUCCESS;
 	uint8_t board_id = BOARD_ID_INVALID;
 	char version[255 + 1];
 	read_partid_serialno_t read_partid_serialno;
 	hackrf_device_list_t *list;
+	hackrf_device* device;
 	int i;
 
 	result = hackrf_init();
@@ -58,7 +59,7 @@ int main(int argc, char** argv)
 		if (list->serial_numbers[i])
 			printf("USB descriptor string: %s\n", list->serial_numbers[i]);
 
-		hackrf_device* device = NULL;
+		device = NULL;
 		result = hackrf_device_list_open(list, i, &device);
 		if (result != HACKRF_SUCCESS) {
 			fprintf(stderr, "hackrf_open() failed: %s (%d)\n",

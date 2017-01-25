@@ -197,7 +197,7 @@ typedef struct tagSXsvfInfo
 } SXsvfInfo;
 
 /* Declare pointer to functions that perform XSVF commands */
-typedef int (*TXsvfDoCmdFuncPtr)( SXsvfInfo* );
+typedef int (*TXsvfDoCmdFuncPtr)( jtag_gpio_t* const gpio, SXsvfInfo* );
 
 
 /*============================================================================
@@ -267,24 +267,24 @@ typedef int (*TXsvfDoCmdFuncPtr)( SXsvfInfo* );
 * XSVF Function Prototypes
 ============================================================================*/
 
-int xsvfDoIllegalCmd( SXsvfInfo* pXsvfInfo );   /* Illegal command function */
-int xsvfDoXCOMPLETE( SXsvfInfo* pXsvfInfo );
-int xsvfDoXTDOMASK( SXsvfInfo* pXsvfInfo );
-int xsvfDoXSIR( SXsvfInfo* pXsvfInfo );
-int xsvfDoXSIR2( SXsvfInfo* pXsvfInfo );
-int xsvfDoXSDR( SXsvfInfo* pXsvfInfo );
-int xsvfDoXRUNTEST( SXsvfInfo* pXsvfInfo );
-int xsvfDoXREPEAT( SXsvfInfo* pXsvfInfo );
-int xsvfDoXSDRSIZE( SXsvfInfo* pXsvfInfo );
-int xsvfDoXSDRTDO( SXsvfInfo* pXsvfInfo );
-int xsvfDoXSETSDRMASKS( SXsvfInfo* pXsvfInfo );
-int xsvfDoXSDRINC( SXsvfInfo* pXsvfInfo );
-int xsvfDoXSDRBCE( SXsvfInfo* pXsvfInfo );
-int xsvfDoXSDRTDOBCE( SXsvfInfo* pXsvfInfo );
-int xsvfDoXSTATE( SXsvfInfo* pXsvfInfo );
-int xsvfDoXENDXR( SXsvfInfo* pXsvfInfo );
-int xsvfDoXCOMMENT( SXsvfInfo* pXsvfInfo );
-int xsvfDoXWAIT( SXsvfInfo* pXsvfInfo );
+int xsvfDoIllegalCmd( jtag_gpio_t* const gpio, SXsvfInfo* pXsvfInfo );   /* Illegal command function */
+int xsvfDoXCOMPLETE( jtag_gpio_t* const gpio, SXsvfInfo* pXsvfInfo );
+int xsvfDoXTDOMASK( jtag_gpio_t* const gpio, SXsvfInfo* pXsvfInfo );
+int xsvfDoXSIR( jtag_gpio_t* const gpio, SXsvfInfo* pXsvfInfo );
+int xsvfDoXSIR2( jtag_gpio_t* const gpio, SXsvfInfo* pXsvfInfo );
+int xsvfDoXSDR( jtag_gpio_t* const gpio, SXsvfInfo* pXsvfInfo );
+int xsvfDoXRUNTEST( jtag_gpio_t* const gpio, SXsvfInfo* pXsvfInfo );
+int xsvfDoXREPEAT( jtag_gpio_t* const gpio, SXsvfInfo* pXsvfInfo );
+int xsvfDoXSDRSIZE( jtag_gpio_t* const gpio, SXsvfInfo* pXsvfInfo );
+int xsvfDoXSDRTDO( jtag_gpio_t* const gpio, SXsvfInfo* pXsvfInfo );
+int xsvfDoXSETSDRMASKS( jtag_gpio_t* const gpio, SXsvfInfo* pXsvfInfo );
+int xsvfDoXSDRINC( jtag_gpio_t* const gpio, SXsvfInfo* pXsvfInfo );
+int xsvfDoXSDRBCE( jtag_gpio_t* const gpio, SXsvfInfo* pXsvfInfo );
+int xsvfDoXSDRTDOBCE( jtag_gpio_t* const gpio, SXsvfInfo* pXsvfInfo );
+int xsvfDoXSTATE( jtag_gpio_t* const gpio, SXsvfInfo* pXsvfInfo );
+int xsvfDoXENDXR( jtag_gpio_t* const gpio, SXsvfInfo* pXsvfInfo );
+int xsvfDoXCOMMENT( jtag_gpio_t* const gpio, SXsvfInfo* pXsvfInfo );
+int xsvfDoXWAIT( jtag_gpio_t* const gpio, SXsvfInfo* pXsvfInfo );
 /* Insert new command functions here */
 
 /*============================================================================
@@ -476,11 +476,11 @@ short xsvfGetAsNumBytes( long lNumBits )
 * Parameters:   sTms    - new TMS value.
 * Returns:      void.
 *****************************************************************************/
-void xsvfTmsTransition( short sTms )
+void xsvfTmsTransition(jtag_gpio_t* const gpio, short sTms )
 {
-    setPort( TMS, sTms );
-    setPort( TCK, 0 );
-    setPort( TCK, 1 );
+    setPort(gpio, TMS, sTms );
+    setPort(gpio, TCK, 0 );
+    setPort(gpio, TCK, 1 );
 }
 
 /*****************************************************************************
@@ -496,7 +496,8 @@ void xsvfTmsTransition( short sTms )
 *               ucTargetState   - New target TAP state.
 * Returns:      int             - 0 = success; otherwise error.
 *****************************************************************************/
-int xsvfGotoTapState( unsigned char*   pucTapState,
+int xsvfGotoTapState( jtag_gpio_t* const gpio,
+                      unsigned char*   pucTapState,
                       unsigned char    ucTargetState )
 {
     int i;
@@ -506,11 +507,11 @@ int xsvfGotoTapState( unsigned char*   pucTapState,
     if ( ucTargetState == XTAPSTATE_RESET )
     {
         /* If RESET, always perform TMS reset sequence to reset/sync TAPs */
-        xsvfTmsTransition( 1 );
+        xsvfTmsTransition( gpio, 1 );
         for ( i = 0; i < 5; ++i )
         {
-            setPort( TCK, 0 );
-            setPort( TCK, 1 );
+            setPort(gpio, TCK, 0 );
+            setPort(gpio, TCK, 1 );
         }
         *pucTapState    = XTAPSTATE_RESET;
         XSVFDBG_PRINTF( 3, "   TMS Reset Sequence -> Test-Logic-Reset\n" );
@@ -532,14 +533,14 @@ int xsvfGotoTapState( unsigned char*   pucTapState,
                or in IRPAUSE to comply with SVF standard */
             if ( ucTargetState == XTAPSTATE_PAUSEDR )
             {
-                xsvfTmsTransition( 1 );
+                xsvfTmsTransition( gpio, 1 );
                 *pucTapState    = XTAPSTATE_EXIT2DR;
                 XSVFDBG_PRINTF1( 3, "   TAP State = %s\n",
                                  xsvf_pzTapState[ *pucTapState ] );
             }
             else if ( ucTargetState == XTAPSTATE_PAUSEIR )
             {
-                xsvfTmsTransition( 1 );
+                xsvfTmsTransition( gpio, 1 );
                 *pucTapState    = XTAPSTATE_EXIT2IR;
                 XSVFDBG_PRINTF1( 3, "   TAP State = %s\n",
                                  xsvf_pzTapState[ *pucTapState ] );
@@ -552,138 +553,138 @@ int xsvfGotoTapState( unsigned char*   pucTapState,
             switch ( *pucTapState )
             {
             case XTAPSTATE_RESET:
-                xsvfTmsTransition( 0 );
+                xsvfTmsTransition( gpio, 0 );
                 *pucTapState    = XTAPSTATE_RUNTEST;
                 break;
             case XTAPSTATE_RUNTEST:
-                xsvfTmsTransition( 1 );
+                xsvfTmsTransition( gpio, 1 );
                 *pucTapState    = XTAPSTATE_SELECTDR;
                 break;
             case XTAPSTATE_SELECTDR:
                 if ( ucTargetState >= XTAPSTATE_IRSTATES )
                 {
-                    xsvfTmsTransition( 1 );
+                    xsvfTmsTransition( gpio, 1 );
                     *pucTapState    = XTAPSTATE_SELECTIR;
                 }
                 else
                 {
-                    xsvfTmsTransition( 0 );
+                    xsvfTmsTransition( gpio, 0 );
                     *pucTapState    = XTAPSTATE_CAPTUREDR;
                 }
                 break;
             case XTAPSTATE_CAPTUREDR:
                 if ( ucTargetState == XTAPSTATE_SHIFTDR )
                 {
-                    xsvfTmsTransition( 0 );
+                    xsvfTmsTransition( gpio, 0 );
                     *pucTapState    = XTAPSTATE_SHIFTDR;
                 }
                 else
                 {
-                    xsvfTmsTransition( 1 );
+                    xsvfTmsTransition( gpio, 1 );
                     *pucTapState    = XTAPSTATE_EXIT1DR;
                 }
                 break;
             case XTAPSTATE_SHIFTDR:
-                xsvfTmsTransition( 1 );
+                xsvfTmsTransition( gpio, 1 );
                 *pucTapState    = XTAPSTATE_EXIT1DR;
                 break;
             case XTAPSTATE_EXIT1DR:
                 if ( ucTargetState == XTAPSTATE_PAUSEDR )
                 {
-                    xsvfTmsTransition( 0 );
+                    xsvfTmsTransition( gpio, 0 );
                     *pucTapState    = XTAPSTATE_PAUSEDR;
                 }
                 else
                 {
-                    xsvfTmsTransition( 1 );
+                    xsvfTmsTransition( gpio, 1 );
                     *pucTapState    = XTAPSTATE_UPDATEDR;
                 }
                 break;
             case XTAPSTATE_PAUSEDR:
-                xsvfTmsTransition( 1 );
+                xsvfTmsTransition( gpio, 1 );
                 *pucTapState    = XTAPSTATE_EXIT2DR;
                 break;
             case XTAPSTATE_EXIT2DR:
                 if ( ucTargetState == XTAPSTATE_SHIFTDR )
                 {
-                    xsvfTmsTransition( 0 );
+                    xsvfTmsTransition( gpio, 0 );
                     *pucTapState    = XTAPSTATE_SHIFTDR;
                 }
                 else
                 {
-                    xsvfTmsTransition( 1 );
+                    xsvfTmsTransition( gpio, 1 );
                     *pucTapState    = XTAPSTATE_UPDATEDR;
                 }
                 break;
             case XTAPSTATE_UPDATEDR:
                 if ( ucTargetState == XTAPSTATE_RUNTEST )
                 {
-                    xsvfTmsTransition( 0 );
+                    xsvfTmsTransition( gpio, 0 );
                     *pucTapState    = XTAPSTATE_RUNTEST;
                 }
                 else
                 {
-                    xsvfTmsTransition( 1 );
+                    xsvfTmsTransition( gpio, 1 );
                     *pucTapState    = XTAPSTATE_SELECTDR;
                 }
                 break;
             case XTAPSTATE_SELECTIR:
-                xsvfTmsTransition( 0 );
+                xsvfTmsTransition( gpio, 0 );
                 *pucTapState    = XTAPSTATE_CAPTUREIR;
                 break;
             case XTAPSTATE_CAPTUREIR:
                 if ( ucTargetState == XTAPSTATE_SHIFTIR )
                 {
-                    xsvfTmsTransition( 0 );
+                    xsvfTmsTransition( gpio, 0 );
                     *pucTapState    = XTAPSTATE_SHIFTIR;
                 }
                 else
                 {
-                    xsvfTmsTransition( 1 );
+                    xsvfTmsTransition( gpio, 1 );
                     *pucTapState    = XTAPSTATE_EXIT1IR;
                 }
                 break;
             case XTAPSTATE_SHIFTIR:
-                xsvfTmsTransition( 1 );
+                xsvfTmsTransition( gpio, 1 );
                 *pucTapState    = XTAPSTATE_EXIT1IR;
                 break;
             case XTAPSTATE_EXIT1IR:
                 if ( ucTargetState == XTAPSTATE_PAUSEIR )
                 {
-                    xsvfTmsTransition( 0 );
+                    xsvfTmsTransition( gpio, 0 );
                     *pucTapState    = XTAPSTATE_PAUSEIR;
                 }
                 else
                 {
-                    xsvfTmsTransition( 1 );
+                    xsvfTmsTransition( gpio, 1 );
                     *pucTapState    = XTAPSTATE_UPDATEIR;
                 }
                 break;
             case XTAPSTATE_PAUSEIR:
-                xsvfTmsTransition( 1 );
+                xsvfTmsTransition( gpio, 1 );
                 *pucTapState    = XTAPSTATE_EXIT2IR;
                 break;
             case XTAPSTATE_EXIT2IR:
                 if ( ucTargetState == XTAPSTATE_SHIFTIR )
                 {
-                    xsvfTmsTransition( 0 );
+                    xsvfTmsTransition( gpio, 0 );
                     *pucTapState    = XTAPSTATE_SHIFTIR;
                 }
                 else
                 {
-                    xsvfTmsTransition( 1 );
+                    xsvfTmsTransition( gpio, 1 );
                     *pucTapState    = XTAPSTATE_UPDATEIR;
                 }
                 break;
             case XTAPSTATE_UPDATEIR:
                 if ( ucTargetState == XTAPSTATE_RUNTEST )
                 {
-                    xsvfTmsTransition( 0 );
+                    xsvfTmsTransition( gpio, 0 );
                     *pucTapState    = XTAPSTATE_RUNTEST;
                 }
                 else
                 {
-                    xsvfTmsTransition( 1 );
+                    xsvfTmsTransition( gpio, 1 );
                     *pucTapState    = XTAPSTATE_SELECTDR;
                 }
                 break;
@@ -714,7 +715,8 @@ int xsvfGotoTapState( unsigned char*   pucTapState,
 *               iExitShift      - 1=exit at end of shift; 0=stay in Shift-DR.
 * Returns:      void.
 *****************************************************************************/
-void xsvfShiftOnly( long    lNumBits,
+void xsvfShiftOnly( jtag_gpio_t* const gpio,
+                    long    lNumBits,
                     lenVal* plvTdi,
                     lenVal* plvTdoCaptured,
                     int     iExitShift )
@@ -749,25 +751,25 @@ void xsvfShiftOnly( long    lNumBits,
             if ( iExitShift && !lNumBits )
             {
                 /* Exit Shift-DR state */
-                setPort( TMS, 1 );
+                setPort(gpio, TMS, 1 );
             }
 
             /* Set the new TDI value */
-            setPort( TDI, (short)(ucTdiByte & 1) );
+            setPort(gpio, TDI, (short)(ucTdiByte & 1) );
             ucTdiByte   >>= 1;
 
             /* Set TCK low */
-            setPort( TCK, 0 );
+            setPort(gpio, TCK, 0 );
 
             if ( pucTdo )
             {
                 /* Save the TDO value */
-                ucTdoBit    = readTDOBit();
+                ucTdoBit    = readTDOBit(gpio);
                 ucTdoByte   |= ( ucTdoBit << i );
             }
 
             /* Set TCK high */
-            setPort( TCK, 1 );
+            setPort(gpio, TCK, 1 );
         }
 
         /* Save the TDO byte value */
@@ -802,7 +804,8 @@ void xsvfShiftOnly( long    lNumBits,
 *               Skip the waitTime() if plvTdoMask->val[0:plvTdoMask->len-1]
 *               is NOT all zeros and sMatch==1.
 *****************************************************************************/
-int xsvfShift( unsigned char*   pucTapState,
+int xsvfShift( jtag_gpio_t* const gpio,
+               unsigned char*   pucTapState,
                unsigned char    ucStartState,
                long             lNumBits,
                lenVal*          plvTdi,
@@ -837,9 +840,9 @@ int xsvfShift( unsigned char*   pucTapState,
         if ( lRunTestTime )
         {
             /* Wait for prespecified XRUNTEST time */
-            xsvfGotoTapState( pucTapState, XTAPSTATE_RUNTEST );
+            xsvfGotoTapState( gpio, pucTapState, XTAPSTATE_RUNTEST );
             XSVFDBG_PRINTF1( 3, "   Wait = %ld usec\n", lRunTestTime );
-            waitTime( lRunTestTime );
+            waitTime( gpio, lRunTestTime );
         }
     }
     else
@@ -847,10 +850,10 @@ int xsvfShift( unsigned char*   pucTapState,
         do
         {
             /* Goto Shift-DR or Shift-IR */
-            xsvfGotoTapState( pucTapState, ucStartState );
+            xsvfGotoTapState( gpio, pucTapState, ucStartState );
 
             /* Shift TDI and capture TDO */
-            xsvfShiftOnly( lNumBits, plvTdi, plvTdoCaptured, iExitShift );
+            xsvfShiftOnly( gpio, lNumBits, plvTdi, plvTdoCaptured, iExitShift );
 
             if ( plvTdoExpected )
             {
@@ -880,24 +883,24 @@ int xsvfShift( unsigned char*   pucTapState,
                     XSVFDBG_PRINTF( 4, "\n");
                     XSVFDBG_PRINTF1( 3, "   Retry #%d\n", ( ucRepeat + 1 ) );
                     /* Do exception handling retry - ShiftDR only */
-                    xsvfGotoTapState( pucTapState, XTAPSTATE_PAUSEDR );
+                    xsvfGotoTapState( gpio, pucTapState, XTAPSTATE_PAUSEDR );
                     /* Shift 1 extra bit */
-                    xsvfGotoTapState( pucTapState, XTAPSTATE_SHIFTDR );
+                    xsvfGotoTapState( gpio, pucTapState, XTAPSTATE_SHIFTDR );
                     /* Increment RUNTEST time by an additional 25% */
                     lRunTestTime    += ( lRunTestTime >> 2 );
                 }
                 else
                 {
                     /* Do normal exit from Shift-XR */
-                    xsvfGotoTapState( pucTapState, ucEndState );
+                    xsvfGotoTapState( gpio, pucTapState, ucEndState );
                 }
 
                 if ( lRunTestTime )
                 {
                     /* Wait for prespecified XRUNTEST time */
-                    xsvfGotoTapState( pucTapState, XTAPSTATE_RUNTEST );
+                    xsvfGotoTapState( gpio, pucTapState, XTAPSTATE_RUNTEST );
                     XSVFDBG_PRINTF1( 3, "   Wait = %ld usec\n", lRunTestTime );
-                    waitTime( lRunTestTime );
+                    waitTime( gpio, lRunTestTime );
                 }
             }
         } while ( iMismatch && ( ucRepeat++ < ucMaxRepeat ) );
@@ -941,7 +944,8 @@ int xsvfShift( unsigned char*   pucTapState,
 *               ucMaxRepeat         - maximum xc9500/xl retries.
 * Returns:      int                 - 0 = success; otherwise TDO mismatch.
 *****************************************************************************/
-int xsvfBasicXSDRTDO( unsigned char*    pucTapState,
+int xsvfBasicXSDRTDO( jtag_gpio_t* const gpio,
+                      unsigned char*    pucTapState,
                       long              lShiftLengthBits,
                       short             sShiftLengthBytes,
                       lenVal*           plvTdi,
@@ -957,7 +961,7 @@ int xsvfBasicXSDRTDO( unsigned char*    pucTapState,
     {
         readVal( plvTdoExpected, sShiftLengthBytes );
     }
-    return( xsvfShift( pucTapState, XTAPSTATE_SHIFTDR, lShiftLengthBits,
+    return( xsvfShift( gpio, pucTapState, XTAPSTATE_SHIFTDR, lShiftLengthBits,
                        plvTdi, plvTdoCaptured, plvTdoExpected, plvTdoMask,
                        ucEndState, lRunTestTime, ucMaxRepeat ) );
 }
@@ -1052,8 +1056,9 @@ void xsvfDoSDRMasking( lenVal*  plvTdi,
 * Parameters:   pXsvfInfo   - XSVF information pointer.
 * Returns:      int         - 0 = success;  non-zero = error.
 *****************************************************************************/
-int xsvfDoIllegalCmd( SXsvfInfo* pXsvfInfo )
+int xsvfDoIllegalCmd( jtag_gpio_t* const gpio, SXsvfInfo* pXsvfInfo )
 {
+    (void)gpio;
     XSVFDBG_PRINTF2( 0, "ERROR:  Encountered unsupported command #%d (%s)\n",
                      ((unsigned int)(pXsvfInfo->ucCommand)),
                      ((pXsvfInfo->ucCommand < XLASTCMD)
@@ -1070,8 +1075,9 @@ int xsvfDoIllegalCmd( SXsvfInfo* pXsvfInfo )
 * Parameters:   pXsvfInfo   - XSVF information pointer.
 * Returns:      int         - 0 = success;  non-zero = error.
 *****************************************************************************/
-int xsvfDoXCOMPLETE( SXsvfInfo* pXsvfInfo )
+int xsvfDoXCOMPLETE( jtag_gpio_t* const gpio, SXsvfInfo* pXsvfInfo )
 {
+    (void)gpio;
     pXsvfInfo->ucComplete   = 1;
     return( XSVF_ERROR_NONE );
 }
@@ -1083,8 +1089,9 @@ int xsvfDoXCOMPLETE( SXsvfInfo* pXsvfInfo )
 * Parameters:   pXsvfInfo   - XSVF information pointer.
 * Returns:      int         - 0 = success;  non-zero = error.
 *****************************************************************************/
-int xsvfDoXTDOMASK( SXsvfInfo* pXsvfInfo )
+int xsvfDoXTDOMASK( jtag_gpio_t* const gpio, SXsvfInfo* pXsvfInfo )
 {
+    (void)gpio;
     readVal( &(pXsvfInfo->lvTdoMask), pXsvfInfo->sShiftLengthBytes );
     XSVFDBG_PRINTF( 4, "    TDO Mask     = ");
     XSVFDBG_PRINTLENVAL( 4, &(pXsvfInfo->lvTdoMask) );
@@ -1101,7 +1108,7 @@ int xsvfDoXTDOMASK( SXsvfInfo* pXsvfInfo )
 * Parameters:   pXsvfInfo   - XSVF information pointer.
 * Returns:      int         - 0 = success;  non-zero = error.
 *****************************************************************************/
-int xsvfDoXSIR( SXsvfInfo* pXsvfInfo )
+int xsvfDoXSIR( jtag_gpio_t* const gpio, SXsvfInfo* pXsvfInfo )
 {
     unsigned char   ucShiftIrBits;
     short           sShiftIrBytes;
@@ -1123,7 +1130,7 @@ int xsvfDoXSIR( SXsvfInfo* pXsvfInfo )
         readVal( &(pXsvfInfo->lvTdi), xsvfGetAsNumBytes( ucShiftIrBits ) );
 
         /* Shift the data */
-        iErrorCode  = xsvfShift( &(pXsvfInfo->ucTapState), XTAPSTATE_SHIFTIR,
+        iErrorCode  = xsvfShift( gpio, &(pXsvfInfo->ucTapState), XTAPSTATE_SHIFTIR,
                                  ucShiftIrBits, &(pXsvfInfo->lvTdi),
                                  /*plvTdoCaptured*/0, /*plvTdoExpected*/0,
                                  /*plvTdoMask*/0, pXsvfInfo->ucEndIR,
@@ -1146,7 +1153,7 @@ int xsvfDoXSIR( SXsvfInfo* pXsvfInfo )
 * Parameters:   pXsvfInfo   - XSVF information pointer.
 * Returns:      int         - 0 = success;  non-zero = error.
 *****************************************************************************/
-int xsvfDoXSIR2( SXsvfInfo* pXsvfInfo )
+int xsvfDoXSIR2( jtag_gpio_t* const gpio, SXsvfInfo* pXsvfInfo )
 {
     long            lShiftIrBits;
     short           sShiftIrBytes;
@@ -1168,7 +1175,7 @@ int xsvfDoXSIR2( SXsvfInfo* pXsvfInfo )
         readVal( &(pXsvfInfo->lvTdi), xsvfGetAsNumBytes( lShiftIrBits ) );
 
         /* Shift the data */
-        iErrorCode  = xsvfShift( &(pXsvfInfo->ucTapState), XTAPSTATE_SHIFTIR,
+        iErrorCode  = xsvfShift( gpio, &(pXsvfInfo->ucTapState), XTAPSTATE_SHIFTIR,
                                  lShiftIrBits, &(pXsvfInfo->lvTdi),
                                  /*plvTdoCaptured*/0, /*plvTdoExpected*/0,
                                  /*plvTdoMask*/0, pXsvfInfo->ucEndIR,
@@ -1192,12 +1199,12 @@ int xsvfDoXSIR2( SXsvfInfo* pXsvfInfo )
 * Parameters:   pXsvfInfo   - XSVF information pointer.
 * Returns:      int         - 0 = success;  non-zero = error.
 *****************************************************************************/
-int xsvfDoXSDR( SXsvfInfo* pXsvfInfo )
+int xsvfDoXSDR( jtag_gpio_t* const gpio, SXsvfInfo* pXsvfInfo )
 {
     int iErrorCode;
     readVal( &(pXsvfInfo->lvTdi), pXsvfInfo->sShiftLengthBytes );
     /* use TDOExpected from last XSDRTDO instruction */
-    iErrorCode  = xsvfShift( &(pXsvfInfo->ucTapState), XTAPSTATE_SHIFTDR,
+    iErrorCode  = xsvfShift( gpio, &(pXsvfInfo->ucTapState), XTAPSTATE_SHIFTDR,
                              pXsvfInfo->lShiftLengthBits, &(pXsvfInfo->lvTdi),
                              &(pXsvfInfo->lvTdoCaptured),
                              &(pXsvfInfo->lvTdoExpected),
@@ -1217,8 +1224,9 @@ int xsvfDoXSDR( SXsvfInfo* pXsvfInfo )
 * Parameters:   pXsvfInfo   - XSVF information pointer.
 * Returns:      int         - 0 = success;  non-zero = error.
 *****************************************************************************/
-int xsvfDoXRUNTEST( SXsvfInfo* pXsvfInfo )
+int xsvfDoXRUNTEST( jtag_gpio_t* const gpio, SXsvfInfo* pXsvfInfo )
 {
+    (void)gpio;
     readVal( &(pXsvfInfo->lvTdi), 4 );
     pXsvfInfo->lRunTestTime = value( &(pXsvfInfo->lvTdi) );
     XSVFDBG_PRINTF1( 3, "   XRUNTEST = %ld\n", pXsvfInfo->lRunTestTime );
@@ -1232,8 +1240,9 @@ int xsvfDoXRUNTEST( SXsvfInfo* pXsvfInfo )
 * Parameters:   pXsvfInfo   - XSVF information pointer.
 * Returns:      int         - 0 = success;  non-zero = error.
 *****************************************************************************/
-int xsvfDoXREPEAT( SXsvfInfo* pXsvfInfo )
+int xsvfDoXREPEAT( jtag_gpio_t* const gpio, SXsvfInfo* pXsvfInfo )
 {
+    (void)gpio;
     readByte( &(pXsvfInfo->ucMaxRepeat) );
     XSVFDBG_PRINTF1( 3, "   XREPEAT = %d\n",
                      ((unsigned int)(pXsvfInfo->ucMaxRepeat)) );
@@ -1247,8 +1256,9 @@ int xsvfDoXREPEAT( SXsvfInfo* pXsvfInfo )
 * Parameters:   pXsvfInfo   - XSVF information pointer.
 * Returns:      int         - 0 = success;  non-zero = error.
 *****************************************************************************/
-int xsvfDoXSDRSIZE( SXsvfInfo* pXsvfInfo )
+int xsvfDoXSDRSIZE( jtag_gpio_t* const gpio, SXsvfInfo* pXsvfInfo )
 {
+    (void)gpio;
     int iErrorCode;
     iErrorCode  = XSVF_ERROR_NONE;
     readVal( &(pXsvfInfo->lvTdi), 4 );
@@ -1272,10 +1282,10 @@ int xsvfDoXSDRSIZE( SXsvfInfo* pXsvfInfo )
 * Parameters:   pXsvfInfo   - XSVF information pointer.
 * Returns:      int         - 0 = success;  non-zero = error.
 *****************************************************************************/
-int xsvfDoXSDRTDO( SXsvfInfo* pXsvfInfo )
+int xsvfDoXSDRTDO( jtag_gpio_t* const gpio, SXsvfInfo* pXsvfInfo )
 {
     int iErrorCode;
-    iErrorCode  = xsvfBasicXSDRTDO( &(pXsvfInfo->ucTapState),
+    iErrorCode  = xsvfBasicXSDRTDO( gpio, &(pXsvfInfo->ucTapState),
                                     pXsvfInfo->lShiftLengthBits,
                                     pXsvfInfo->sShiftLengthBytes,
                                     &(pXsvfInfo->lvTdi),
@@ -1303,8 +1313,9 @@ int xsvfDoXSDRTDO( SXsvfInfo* pXsvfInfo )
 * Returns:      int         - 0 = success;  non-zero = error.
 *****************************************************************************/
 #ifdef  XSVF_SUPPORT_COMPRESSION
-int xsvfDoXSETSDRMASKS( SXsvfInfo* pXsvfInfo )
+int xsvfDoXSETSDRMASKS( jtag_gpio_t* const gpio, SXsvfInfo* pXsvfInfo )
 {
+    (void)gpio;
     /* read the addressMask */
     readVal( &(pXsvfInfo->lvAddressMask), pXsvfInfo->sShiftLengthBytes );
     /* read the dataMask    */
@@ -1338,7 +1349,7 @@ int xsvfDoXSETSDRMASKS( SXsvfInfo* pXsvfInfo )
 * Returns:      int         - 0 = success;  non-zero = error.
 *****************************************************************************/
 #ifdef  XSVF_SUPPORT_COMPRESSION
-int xsvfDoXSDRINC( SXsvfInfo* pXsvfInfo )
+int xsvfDoXSDRINC( jtag_gpio_t* const gpio, SXsvfInfo* pXsvfInfo )
 {
     int             iErrorCode;
     int             iDataMaskLen;
@@ -1347,7 +1358,7 @@ int xsvfDoXSDRINC( SXsvfInfo* pXsvfInfo )
     unsigned char   i;
 
     readVal( &(pXsvfInfo->lvTdi), pXsvfInfo->sShiftLengthBytes );
-    iErrorCode  = xsvfShift( &(pXsvfInfo->ucTapState), XTAPSTATE_SHIFTDR,
+    iErrorCode  = xsvfShift( gpio, &(pXsvfInfo->ucTapState), XTAPSTATE_SHIFTDR,
                              pXsvfInfo->lShiftLengthBits,
                              &(pXsvfInfo->lvTdi), &(pXsvfInfo->lvTdoCaptured),
                              &(pXsvfInfo->lvTdoExpected),
@@ -1379,7 +1390,7 @@ int xsvfDoXSDRINC( SXsvfInfo* pXsvfInfo )
                               &(pXsvfInfo->lvNextData),
                               &(pXsvfInfo->lvAddressMask),
                               &(pXsvfInfo->lvDataMask) );
-            iErrorCode  = xsvfShift( &(pXsvfInfo->ucTapState),
+            iErrorCode  = xsvfShift( gpio, &(pXsvfInfo->ucTapState),
                                      XTAPSTATE_SHIFTDR,
                                      pXsvfInfo->lShiftLengthBits,
                                      &(pXsvfInfo->lvTdi),
@@ -1410,13 +1421,13 @@ int xsvfDoXSDRINC( SXsvfInfo* pXsvfInfo )
 * Parameters:   pXsvfInfo   - XSVF information pointer.
 * Returns:      int         - 0 = success;  non-zero = error.
 *****************************************************************************/
-int xsvfDoXSDRBCE( SXsvfInfo* pXsvfInfo )
+int xsvfDoXSDRBCE( jtag_gpio_t* const gpio, SXsvfInfo* pXsvfInfo )
 {
     unsigned char   ucEndDR;
     int             iErrorCode;
     ucEndDR = (unsigned char)(( pXsvfInfo->ucCommand == XSDRE ) ?
                                 pXsvfInfo->ucEndDR : XTAPSTATE_SHIFTDR);
-    iErrorCode  = xsvfBasicXSDRTDO( &(pXsvfInfo->ucTapState),
+    iErrorCode  = xsvfBasicXSDRTDO( gpio, &(pXsvfInfo->ucTapState),
                                     pXsvfInfo->lShiftLengthBits,
                                     pXsvfInfo->sShiftLengthBytes,
                                     &(pXsvfInfo->lvTdi),
@@ -1441,13 +1452,13 @@ int xsvfDoXSDRBCE( SXsvfInfo* pXsvfInfo )
 * Parameters:   pXsvfInfo   - XSVF information pointer.
 * Returns:      int         - 0 = success;  non-zero = error.
 *****************************************************************************/
-int xsvfDoXSDRTDOBCE( SXsvfInfo* pXsvfInfo )
+int xsvfDoXSDRTDOBCE( jtag_gpio_t* const gpio, SXsvfInfo* pXsvfInfo )
 {
     unsigned char   ucEndDR;
     int             iErrorCode;
     ucEndDR = (unsigned char)(( pXsvfInfo->ucCommand == XSDRTDOE ) ?
                                 pXsvfInfo->ucEndDR : XTAPSTATE_SHIFTDR);
-    iErrorCode  = xsvfBasicXSDRTDO( &(pXsvfInfo->ucTapState),
+    iErrorCode  = xsvfBasicXSDRTDO( gpio, &(pXsvfInfo->ucTapState),
                                     pXsvfInfo->lShiftLengthBits,
                                     pXsvfInfo->sShiftLengthBytes,
                                     &(pXsvfInfo->lvTdi),
@@ -1470,12 +1481,12 @@ int xsvfDoXSDRTDOBCE( SXsvfInfo* pXsvfInfo )
 * Parameters:   pXsvfInfo   - XSVF information pointer.
 * Returns:      int         - 0 = success;  non-zero = error.
 *****************************************************************************/
-int xsvfDoXSTATE( SXsvfInfo* pXsvfInfo )
+int xsvfDoXSTATE( jtag_gpio_t* const gpio, SXsvfInfo* pXsvfInfo )
 {
     unsigned char   ucNextState;
     int             iErrorCode;
     readByte( &ucNextState );
-    iErrorCode  = xsvfGotoTapState( &(pXsvfInfo->ucTapState), ucNextState );
+    iErrorCode  = xsvfGotoTapState( gpio, &(pXsvfInfo->ucTapState), ucNextState );
     if ( iErrorCode != XSVF_ERROR_NONE )
     {
         pXsvfInfo->iErrorCode   = iErrorCode;
@@ -1492,8 +1503,9 @@ int xsvfDoXSTATE( SXsvfInfo* pXsvfInfo )
 * Parameters:   pXsvfInfo   - XSVF information pointer.
 * Returns:      int         - 0 = success;  non-zero = error.
 *****************************************************************************/
-int xsvfDoXENDXR( SXsvfInfo* pXsvfInfo )
+int xsvfDoXENDXR( jtag_gpio_t* const gpio, SXsvfInfo* pXsvfInfo )
 {
+    (void)gpio;
     int             iErrorCode;
     unsigned char   ucEndState;
 
@@ -1549,8 +1561,10 @@ int xsvfDoXENDXR( SXsvfInfo* pXsvfInfo )
 * Parameters:   pXsvfInfo   - XSVF information pointer.
 * Returns:      int         - 0 = success;  non-zero = error.
 *****************************************************************************/
-int xsvfDoXCOMMENT( SXsvfInfo* pXsvfInfo )
+int xsvfDoXCOMMENT( jtag_gpio_t* const gpio, SXsvfInfo* pXsvfInfo )
 {
+    (void)gpio;
+    
     /* Use the comment for debugging */
     /* Otherwise, read through the comment to the end '\0' and ignore */
     unsigned char   ucText;
@@ -1587,7 +1601,7 @@ int xsvfDoXCOMMENT( SXsvfInfo* pXsvfInfo )
 * Parameters:   pXsvfInfo   - XSVF information pointer.
 * Returns:      int         - 0 = success;  non-zero = error.
 *****************************************************************************/
-int xsvfDoXWAIT( SXsvfInfo* pXsvfInfo )
+int xsvfDoXWAIT( jtag_gpio_t* const gpio, SXsvfInfo* pXsvfInfo )
 {
     unsigned char   ucWaitState;
     unsigned char   ucEndState;
@@ -1611,16 +1625,16 @@ int xsvfDoXWAIT( SXsvfInfo* pXsvfInfo )
     /* If not already in <wait_state>, go to <wait_state> */
     if ( pXsvfInfo->ucTapState != ucWaitState )
     {
-        xsvfGotoTapState( &(pXsvfInfo->ucTapState), ucWaitState );
+        xsvfGotoTapState( gpio, &(pXsvfInfo->ucTapState), ucWaitState );
     }
 
     /* Wait for <wait_time> microseconds */
-    waitTime( lWaitTime );
+    waitTime( gpio, lWaitTime );
 
     /* If not already in <end_state>, go to <end_state> */
     if ( pXsvfInfo->ucTapState != ucEndState )
     {
-        xsvfGotoTapState( &(pXsvfInfo->ucTapState), ucEndState );
+        xsvfGotoTapState( gpio, &(pXsvfInfo->ucTapState), ucEndState );
     }
 
     return( XSVF_ERROR_NONE );
@@ -1641,7 +1655,7 @@ int xsvfDoXWAIT( SXsvfInfo* pXsvfInfo )
 * Parameters:   pXsvfInfo   - ptr to the XSVF information.
 * Returns:      int - 0 = success; otherwise error.
 *****************************************************************************/
-int xsvfInitialize( SXsvfInfo* pXsvfInfo )
+int xsvfInitialize( jtag_gpio_t* const gpio, SXsvfInfo* pXsvfInfo )
 {
     /* Initialize values */
     pXsvfInfo->iErrorCode   = xsvfInfoInit( pXsvfInfo );
@@ -1649,7 +1663,7 @@ int xsvfInitialize( SXsvfInfo* pXsvfInfo )
     if ( !pXsvfInfo->iErrorCode )
     {
         /* Initialize the TAPs */
-        pXsvfInfo->iErrorCode   = xsvfGotoTapState( &(pXsvfInfo->ucTapState),
+        pXsvfInfo->iErrorCode   = xsvfGotoTapState( gpio, &(pXsvfInfo->ucTapState),
                                                     XTAPSTATE_RESET );
     }
 
@@ -1666,7 +1680,7 @@ int xsvfInitialize( SXsvfInfo* pXsvfInfo )
 * Parameters:   pXsvfInfo   - ptr to the XSVF information.
 * Returns:      int         - 0 = success; otherwise error.
 *****************************************************************************/
-int xsvfRun( SXsvfInfo* pXsvfInfo )
+int xsvfRun( jtag_gpio_t* const gpio, SXsvfInfo* pXsvfInfo )
 {
     /* Process the XSVF commands */
     if ( (!pXsvfInfo->iErrorCode) && (!pXsvfInfo->ucComplete) )
@@ -1682,12 +1696,12 @@ int xsvfRun( SXsvfInfo* pXsvfInfo )
                              xsvf_pzCommandName[pXsvfInfo->ucCommand] );
             /* If your compiler cannot take this form,
                then convert to a switch statement */
-            xsvf_pfDoCmd[ pXsvfInfo->ucCommand ]( pXsvfInfo );
+            xsvf_pfDoCmd[ pXsvfInfo->ucCommand ]( gpio, pXsvfInfo );
         }
         else
         {
             /* Illegal command value.  Func sets error code. */
-            xsvfDoIllegalCmd( pXsvfInfo );
+            xsvfDoIllegalCmd( gpio, pXsvfInfo );
         }
     }
 
@@ -1717,15 +1731,15 @@ void xsvfCleanup( SXsvfInfo* pXsvfInfo )
 * Parameters:   none.
 * Returns:      int - Legacy result values:  1 == success;  0 == failed.
 *****************************************************************************/
-int xsvfExecute()
+int xsvfExecute(jtag_gpio_t* const gpio)
 {
     SXsvfInfo   xsvfInfo;
 
-    xsvfInitialize( &xsvfInfo );
+    xsvfInitialize( gpio, &xsvfInfo );
 
     while ( !xsvfInfo.iErrorCode && (!xsvfInfo.ucComplete) )
     {
-        xsvfRun( &xsvfInfo );
+        xsvfRun( gpio, &xsvfInfo );
     }
 
     if ( xsvfInfo.iErrorCode )

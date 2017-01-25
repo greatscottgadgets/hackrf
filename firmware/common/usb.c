@@ -72,7 +72,7 @@ void usb_peripheral_reset() {
 	while( (RESET_ACTIVE_STATUS0 & RESET_CTRL0_USB0_RST) == 0 );
 }
 
-void usb_phy_enable() {
+static void usb_phy_enable() {
 	CREG_CREG0 &= ~CREG_CREG0_USB0PHY;
 }
 

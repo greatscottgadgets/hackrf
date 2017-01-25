@@ -10,19 +10,22 @@
 #define LOG(x,...)
 #include <libopencm3/lpc43xx/ssp.h>
 #include <libopencm3/lpc43xx/scu.h>
-#include <libopencm3/lpc43xx/gpio.h>
+//#include <libopencm3/lpc43xx/gpio.h>
 #include "hackrf_core.h"
 #endif
 
 #include <stdint.h>
 #include <string.h>
 
+rffc5071_driver_t mixer;
+
 static void max2871_spi_write(uint8_t r, uint32_t v);
 static void max2871_write_registers(void);
 static void delay_ms(int ms);
 
-void mixer_setup(void)
+void mixer_setup(rffc5071_driver_t* const drv)
 {
+#if 0 //XXX
 	/* Configure GPIO pins. */
 	scu_pinmux(SCU_VCO_CE, SCU_GPIO_FAST);
 	scu_pinmux(SCU_VCO_SCLK, SCU_GPIO_FAST | SCU_CONF_FUNCTION4);
@@ -106,6 +109,7 @@ void mixer_setup(void)
     max2871_write_registers();
 
     mixer_set_frequency(3500);
+#endif
 }
 
 static void delay_ms(int ms)
@@ -136,6 +140,7 @@ static void serial_delay(void)
  */
 static void max2871_spi_write(uint8_t r, uint32_t v) {
 
+#if 0 //XXX
 #if DEBUG
 	LOG("0x%04x -> reg%d\n", v, r);
 #else
@@ -168,10 +173,12 @@ static void max2871_spi_write(uint8_t r, uint32_t v) {
 
 	gpio_set(PORT_VCO_LE, PIN_VCO_LE);
 #endif
+#endif
 }
 
 static uint32_t max2871_spi_read(void)
 {
+#if 0 //XXX
 	uint32_t bits = 32;
 	uint32_t data = 0;
 
@@ -194,6 +201,7 @@ static uint32_t max2871_spi_read(void)
         data |= GPIO_STATE(PORT_VCO_MUX, PIN_VCO_MUX) ? 1 : 0;
 	}
     return data;
+#endif
 }
 
 static void max2871_write_registers(void)
@@ -205,7 +213,7 @@ static void max2871_write_registers(void)
 }
 
 /* Set frequency (MHz). */
-uint64_t mixer_set_frequency(uint16_t mhz)
+uint64_t mixer_set_frequency(rffc5071_driver_t* const drv, uint16_t mhz)
 {
     int n = mhz / 40;
     int diva = 0;
@@ -230,21 +238,25 @@ uint64_t mixer_set_frequency(uint16_t mhz)
     return (mhz/40)*40 * 1000000;
 }
 
-void mixer_tx(void)
+void mixer_tx(rffc5071_driver_t* const drv)
 {}
-void mixer_rx(void)
+void mixer_rx(rffc5071_driver_t* const drv)
 {}
-void mixer_rxtx(void)
+void mixer_rxtx(rffc5071_driver_t* const drv)
 {}
-void mixer_enable(void)
+void mixer_enable(rffc5071_driver_t* const drv)
 {
+#if 0 //XXX
 	gpio_set(PORT_VCO_CE, PIN_VCO_CE); /* active high */
+#endif
 }
-void mixer_disable(void)
+void mixer_disable(rffc5071_driver_t* const drv)
 {
+#if 0 //XXX
 	gpio_clear(PORT_VCO_CE, PIN_VCO_CE); /* active high */
+#endif
 }
-void mixer_set_gpo(uint8_t gpo)
+void mixer_set_gpo(rffc5071_driver_t* const drv, uint8_t gpo)
 {
     (void) gpo;
 }
