@@ -29,8 +29,6 @@
 #include "max2837_target.h"
 #include "max5864.h"
 #include "max5864_target.h"
-#include "rffc5071.h"
-#include "rffc5071_spi.h"
 #include "w25q80bv.h"
 #include "w25q80bv_target.h"
 #include "i2c_bus.h"
@@ -76,20 +74,6 @@ static struct gpio_t gpio_max2837_b7		= GPIO(2, 15);
 
 /* MAX5864 SPI chip select (AD_CS) GPIO PinMux */
 static struct gpio_t gpio_max5864_select	= GPIO(2,  7);
-
-/* RFFC5071 GPIO serial interface PinMux */
-#ifdef JELLYBEAN
-static struct gpio_t gpio_rffc5072_select	= GPIO(3,  8);
-static struct gpio_t gpio_rffc5072_clock	= GPIO(3,  9);
-static struct gpio_t gpio_rffc5072_data		= GPIO(3, 10);
-static struct gpio_t gpio_rffc5072_reset	= GPIO(3, 11);
-#endif
-#if (defined JAWBREAKER || defined HACKRF_ONE)
-static struct gpio_t gpio_rffc5072_select	= GPIO(2, 13);
-static struct gpio_t gpio_rffc5072_clock	= GPIO(5,  6);
-static struct gpio_t gpio_rffc5072_data		= GPIO(3,  3);
-static struct gpio_t gpio_rffc5072_reset	= GPIO(2, 14);
-#endif
 
 /* RF LDO control */
 #ifdef JAWBREAKER
@@ -240,27 +224,6 @@ max5864_driver_t max5864 = {
 	.bus = &spi_bus_ssp1,
 	.target_init = max5864_target_init,
 };
-
-#if 0 //XXX
-const rffc5071_spi_config_t rffc5071_spi_config = {
-	.gpio_select = &gpio_rffc5072_select,
-	.gpio_clock = &gpio_rffc5072_clock,
-	.gpio_data = &gpio_rffc5072_data,
-};
-
-spi_bus_t spi_bus_rffc5071 = {
-	.config = &rffc5071_spi_config,
-	.start = rffc5071_spi_start,
-	.stop = rffc5071_spi_stop,
-	.transfer = rffc5071_spi_transfer,
-	.transfer_gather = rffc5071_spi_transfer_gather,
-};
-
-rffc5071_driver_t rffc5072 = {
-	.bus = &spi_bus_rffc5071,
-	.gpio_reset = &gpio_rffc5072_reset,
-};
-#endif
 
 const ssp_config_t ssp_config_w25q80bv = {
 	.data_bits = SSP_DATA_8BITS,
@@ -907,12 +870,9 @@ void pin_setup(void) {
 	SCU_SFSI2C0 = SCU_I2C0_NOMINAL;
 
 	spi_bus_start(&spi_bus_ssp1, &ssp_config_max2837);
-#if (defined JELLYBEAN || defined JAWBREAKER || defined HACKRF_ONE)
-	spi_bus_start(&spi_bus_rffc5071, &rffc5071_spi_config);
-#endif
-	// XXX
-#ifdef RAD1O
-#endif
+
+	mixer_pin_setup(&mixer);
+
 	rf_path_pin_setup(&rf_path);
 	
 	/* Configure external clock in */

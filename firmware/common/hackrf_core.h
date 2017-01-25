@@ -37,7 +37,7 @@ extern "C"
 
 #include "max2837.h"
 #include "max5864.h"
-#include "rffc5071.h"
+#include "mixer.h"
 #include "w25q80bv.h"
 #include "sgpio.h"
 #include "rf_path.h"
@@ -342,8 +342,7 @@ extern const ssp_config_t ssp_config_max5864;
 
 extern max2837_driver_t max2837;
 extern max5864_driver_t max5864;
-// XXX
-extern rffc5071_driver_t mixer;
+extern mixer_driver_t mixer;
 extern w25q80bv_driver_t spi_flash;
 extern sgpio_config_t sgpio_config;
 extern rf_path_t rf_path;

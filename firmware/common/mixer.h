@@ -23,23 +23,30 @@
 #ifndef __MIXER_H
 #define __MIXER_H
 
+#if (defined JAWBREAKER || defined HACKRF_ONE)
+#include "rffc5071.h"
+typedef rffc5071_driver_t mixer_driver_t;
+#endif
+
+#ifdef RAD1O
+#include "max2871.h"
+typedef max2871_driver_t mixer_driver_t;
+#endif
+
 #include <stdint.h>
-// XXX
-/* Initialize chip. Call _setup() externally, as it calls _init(). */
-//extern void mixer_init(void);
-//extern void mixer_setup(void);
+extern void mixer_pin_setup(mixer_driver_t* const mixer);
+extern void mixer_setup(mixer_driver_t* const mixer);
 
 /* Set frequency (MHz). */
-//extern uint64_t mixer_set_frequency(uint16_t mhz);
+extern uint64_t mixer_set_frequency(mixer_driver_t* const mixer, uint16_t mhz);
 
 /* Set up rx only, tx only, or full duplex. Chip should be disabled
  * before _tx, _rx, or _rxtx are called. */
-//extern void mixer_tx(void);
-//extern void mixer_rx(void);
-//extern void mixer_rxtx(void);
-//extern void mixer_enable(void);
-//extern void mixer_disable(void);
-
-//extern void mixer_set_gpo(uint8_t);
+extern void mixer_tx(mixer_driver_t* const mixer);
+extern void mixer_rx(mixer_driver_t* const mixer);
+extern void mixer_rxtx(mixer_driver_t* const mixer);
+extern void mixer_enable(mixer_driver_t* const mixer);
+extern void mixer_disable(mixer_driver_t* const mixer);
+extern void mixer_set_gpo(mixer_driver_t* const drv, uint8_t gpo);
 
 #endif // __MIXER_H

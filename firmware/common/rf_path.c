@@ -29,9 +29,6 @@
 #include "hackrf-ui.h"
 
 #include <mixer.h>
-#if (defined JAWBREAKER || defined HACKRF_ONE)
-#include <rffc5071.h>
-#endif
 #include <max2837.h>
 #include <max5864.h>
 #include <sgpio.h>
@@ -149,13 +146,13 @@ static void switchctrl_set_rad1o(rf_path_t* const rf_path, uint8_t ctrl) {
 	 */
 	if (ctrl & SWITCHCTRL_NO_TX_AMP_PWR) {
 		gpio_clear(PORT_TX_AMP, PIN_TX_AMP);
-    }
+	}
 	if (ctrl & SWITCHCTRL_NO_RX_AMP_PWR) {
 		gpio_clear(PORT_RX_LNA, PIN_RX_LNA);
-    }
+	}
 
 	if (ctrl & SWITCHCTRL_ANT_PWR) {
-        // TODO
+		// TODO
 	}
 #endif
 }
@@ -228,16 +225,16 @@ static void switchctrl_set_hackrf_one(rf_path_t* const rf_path, uint8_t ctrl) {
 		gpio_set(rf_path->gpio_no_rx_amp_pwr);
 
 	if (ctrl & SWITCHCTRL_ANT_PWR) {
-		rffc5071_set_gpo(&rffc5072, 0x00); /* turn on antenna power by clearing GPO1 */
+		mixer_set_gpo(&mixer, 0x00); /* turn on antenna power by clearing GPO1 */
 	} else {
-		rffc5071_set_gpo(&rffc5072, 0x01); /* turn off antenna power by setting GPO1 */
+		mixer_set_gpo(&mixer, 0x01); /* turn off antenna power by setting GPO1 */
 	}
 }
 #endif
 
 static void switchctrl_set(rf_path_t* const rf_path, const uint8_t gpo) {
 #ifdef JAWBREAKER
-	rffc5071_set_gpo(&rffc5072, gpo);
+	mixer_set_gpo(&mixer, gpo);
 #elif HACKRF_ONE
 	switchctrl_set_hackrf_one(rf_path, gpo);
 #elif RAD1O

@@ -1,5 +1,4 @@
-#include "mixer.h"
-//#include "max2871.h"
+#include "max2871.h"
 // TODO: put max2871_regs.c into the build system
 #include "max2871_regs.c"
 
@@ -17,13 +16,11 @@
 #include <stdint.h>
 #include <string.h>
 
-rffc5071_driver_t mixer;
-
 static void max2871_spi_write(uint8_t r, uint32_t v);
 static void max2871_write_registers(void);
 static void delay_ms(int ms);
 
-void mixer_setup(rffc5071_driver_t* const drv)
+void max2871_setup(max2871_driver_t* const drv)
 {
 #if 0 //XXX
 	/* Configure GPIO pins. */
@@ -108,7 +105,7 @@ void mixer_setup(rffc5071_driver_t* const drv)
 
     max2871_write_registers();
 
-    mixer_set_frequency(3500);
+    max2871_set_frequency(3500);
 #endif
 }
 
@@ -213,7 +210,7 @@ static void max2871_write_registers(void)
 }
 
 /* Set frequency (MHz). */
-uint64_t mixer_set_frequency(rffc5071_driver_t* const drv, uint16_t mhz)
+uint64_t max2871_set_frequency(max2871_driver_t* const drv, uint16_t mhz)
 {
     int n = mhz / 40;
     int diva = 0;
@@ -238,25 +235,25 @@ uint64_t mixer_set_frequency(rffc5071_driver_t* const drv, uint16_t mhz)
     return (mhz/40)*40 * 1000000;
 }
 
-void mixer_tx(rffc5071_driver_t* const drv)
+void max2871_tx(max2871_driver_t* const drv)
 {}
-void mixer_rx(rffc5071_driver_t* const drv)
+void max2871_rx(max2871_driver_t* const drv)
 {}
-void mixer_rxtx(rffc5071_driver_t* const drv)
+void max2871_rxtx(max2871_driver_t* const drv)
 {}
-void mixer_enable(rffc5071_driver_t* const drv)
+void max2871_enable(max2871_driver_t* const drv)
 {
 #if 0 //XXX
 	gpio_set(PORT_VCO_CE, PIN_VCO_CE); /* active high */
 #endif
 }
-void mixer_disable(rffc5071_driver_t* const drv)
+void max2871_disable(max2871_driver_t* const drv)
 {
 #if 0 //XXX
 	gpio_clear(PORT_VCO_CE, PIN_VCO_CE); /* active high */
 #endif
 }
-void mixer_set_gpo(rffc5071_driver_t* const drv, uint8_t gpo)
+void max2871_set_gpo(max2871_driver_t* const drv, uint8_t gpo)
 {
     (void) gpo;
 }

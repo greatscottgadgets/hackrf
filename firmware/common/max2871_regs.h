@@ -1,5 +1,5 @@
-#ifndef MAX2871_H
-#define MAX2871_H
+#ifndef MAX2871_REGS_H
+#define MAX2871_REGS_H
 #include <stdint.h>
 
 #define MAX2871_VASA    (1 << 9)
