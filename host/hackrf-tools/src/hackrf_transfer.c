@@ -312,6 +312,11 @@ bool hw_sync = false;
 
 bool receive = false;
 bool receive_wav = false;
+uint64_t stream_size = 0;
+uint32_t stream_head = 0;
+uint32_t stream_tail = 0;
+uint32_t stream_drop = 0;
+uint8_t *stream_buf = NULL;
 
 bool transmit = false;
 struct timeval time_start;
@@ -340,7 +345,7 @@ uint32_t sample_rate_hz;
 
 bool limit_num_samples = false;
 uint64_t samples_to_xfer = 0;
-ssize_t bytes_to_xfer = 0;
+size_t bytes_to_xfer = 0;
 
 bool baseband_filter_bw = false;
 uint32_t baseband_filter_bw_hz = 0;
@@ -351,9 +356,9 @@ bool crystal_correct = false;
 uint32_t crystal_correct_ppm ;
 
 int rx_callback(hackrf_transfer* transfer) {
-	ssize_t bytes_to_write;
-	ssize_t bytes_written;
-	int i;
+	size_t bytes_to_write;
+	size_t bytes_written;
+	unsigned int i;
 
 	if( fd != NULL ) 
 	{
@@ -371,6 +376,20 @@ int rx_callback(hackrf_transfer* transfer) {
 				transfer->buffer[i] ^= (uint8_t)0x80;
 			}
 		}
+		if (stream_size>0){
+		    if ((stream_size-1+stream_head-stream_tail)%stream_size <bytes_to_write){
+			stream_drop++;
+		    }else{
+			if(stream_tail+bytes_to_write <= stream_size){
+			    memcpy(stream_buf+stream_tail,transfer->buffer,bytes_to_write);
+			}else{
+			    memcpy(stream_buf+stream_tail,transfer->buffer,(stream_size-stream_tail));
+			    memcpy(stream_buf,transfer->buffer+(stream_size-stream_tail),bytes_to_write-(stream_size-stream_tail));
+			};
+			__atomic_store_n(&stream_tail,(stream_tail+bytes_to_write)%stream_size,__ATOMIC_RELEASE);
+		    }
+		    return 0;
+		}else{
 		bytes_written = fwrite(transfer->buffer, 1, bytes_to_write, fd);
 		if ((bytes_written != bytes_to_write)
 				|| (limit_num_samples && (bytes_to_xfer == 0))) {
@@ -378,15 +397,16 @@ int rx_callback(hackrf_transfer* transfer) {
 		} else {
 			return 0;
 		}
+		}
 	} else {
 		return -1;
 	}
 }
 
 int tx_callback(hackrf_transfer* transfer) {
-	ssize_t bytes_to_read;
-	ssize_t bytes_read;
-	int i;
+	size_t bytes_to_read;
+	size_t bytes_read;
+	unsigned int i;
 
 	if( fd != NULL )
 	{
@@ -466,6 +486,7 @@ static void usage() {
 	printf("\t[-s sample_rate_hz] # Sample rate in Hz (4/8/10/12.5/16/20MHz, default %sMHz).\n",
 		u64toa((DEFAULT_SAMPLE_RATE_HZ/FREQ_ONE_MHZ),&ascii_u64_data1));
 	printf("\t[-n num_samples] # Number of samples to transfer (default is unlimited).\n");
+	printf("\t[-S buf_size] # Enable receive streaming with buffer size buf_size.\n");
 	printf("\t[-c amplitude] # CW signal source mode, amplitude 0-127 (DC value to DAC).\n");
         printf("\t[-R] # Repeat TX mode (default is off) \n");
 	printf("\t[-b baseband_filter_bw_hz] # Set baseband filter bandwidth in Hz.\n\tPossible values: 1.75/2.5/3.5/5/5.5/6/7/8/9/10/12/14/15/20/24/28MHz, default < sample_rate_hz.\n" );
@@ -514,7 +535,7 @@ int main(int argc, char** argv) {
 	float time_diff;
 	unsigned int lna_gain=8, vga_gain=20, txvga_gain=0;
   
-	while( (opt = getopt(argc, argv, "Hwr:t:f:i:o:m:a:p:s:n:b:l:g:x:c:d:C:R")) != EOF )
+	while( (opt = getopt(argc, argv, "Hwr:t:f:i:o:m:a:p:s:n:b:l:g:x:c:d:C:RS:")) != EOF )
 	{
 		result = HACKRF_SUCCESS;
 		switch( opt ) 
@@ -538,6 +559,11 @@ int main(int argc, char** argv) {
 
 		case 'd':
 			serial_number = optarg;
+			break;
+
+		case 'S':
+			result = parse_u64(optarg, &stream_size);
+			stream_buf = calloc(1,stream_size);
 			break;
 
 		case 'f':
@@ -1011,6 +1037,29 @@ int main(int argc, char** argv) {
 		uint32_t byte_count_now;
 		struct timeval time_now;
 		float time_difference, rate;
+		if (stream_size>0){
+		    if(stream_head==stream_tail){
+			usleep(10000); // queue empty
+		    }else{
+			ssize_t len;
+			ssize_t bytes_written;
+			uint32_t _st= __atomic_load_n(&stream_tail,__ATOMIC_ACQUIRE);
+			if(stream_head<_st)
+			    len=_st-stream_head;
+			else
+			    len=stream_size-stream_head;
+			bytes_written = fwrite(stream_buf+stream_head, 1, len, fd);
+			if (len != bytes_written){
+			    printf("write failed");
+			    do_exit=true;
+			};
+			stream_head=(stream_head+len)%stream_size;
+		    }
+		    if(stream_drop>0){
+			uint32_t drops= __atomic_exchange_n (&stream_drop,0,__ATOMIC_SEQ_CST);
+			printf("dropped frames: [%d]\n",drops);
+		    }
+		}else{
 		sleep(1);
 		
 		gettimeofday(&time_now, NULL);
@@ -1029,6 +1078,7 @@ int main(int argc, char** argv) {
 			exit_code = EXIT_FAILURE;
 			fprintf(stderr, "\nCouldn't transfer any bytes for one second.\n");
 			break;
+		}
 		}
 	}
 	
