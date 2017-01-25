@@ -10,7 +10,6 @@ LIBS:cmos4000
 LIBS:adc-dac
 LIBS:memory
 LIBS:xilinx
-LIBS:special
 LIBS:microcontrollers
 LIBS:dsp
 LIBS:microchip
@@ -31,7 +30,7 @@ LIBS:contrib
 LIBS:valves
 LIBS:hackrf
 LIBS:hackrf-one-cache
-EELAYER 27 0
+EELAYER 25 0
 EELAYER END
 $Descr User 17000 11000
 encoding utf-8

@@ -66,6 +66,7 @@ enum hackrf_board_id {
 	BOARD_ID_JELLYBEAN  = 0,
 	BOARD_ID_JAWBREAKER = 1,
 	BOARD_ID_HACKRF_ONE = 2,
+	BOARD_ID_RAD1O = 3,
 	BOARD_ID_INVALID = 0xFF,
 };
 
@@ -82,13 +83,16 @@ enum rf_path_filter {
 	RF_PATH_FILTER_HIGH_PASS = 2,
 };
 
-typedef enum {
-	TRANSCEIVER_MODE_OFF = 0,
-	TRANSCEIVER_MODE_RX = 1,
-	TRANSCEIVER_MODE_TX = 2,
-	TRANSCEIVER_MODE_SS = 3,
-	TRANSCEIVER_MODE_CPLD_UPDATE = 4
-} transceiver_mode_t;
+enum operacake_ports {
+	OPERACAKE_PA1 = 0,
+	OPERACAKE_PA2 = 1,
+	OPERACAKE_PA3 = 2,
+	OPERACAKE_PA4 = 3,
+	OPERACAKE_PB1 = 4,
+	OPERACAKE_PB2 = 5,
+	OPERACAKE_PB3 = 6,
+	OPERACAKE_PB4 = 7,
+};
 
 typedef struct hackrf_device hackrf_device;
 
@@ -194,6 +198,9 @@ extern ADDAPI int ADDCALL hackrf_set_txvga_gain(hackrf_device* device, uint32_t 
 /* antenna port power control */
 extern ADDAPI int ADDCALL hackrf_set_antenna_enable(hackrf_device* device, const uint8_t value);
 
+/* set hardware sync mode  */
+extern ADDAPI int ADDCALL hackrf_set_hw_sync_mode(hackrf_device* device, const uint8_t value);
+
 extern ADDAPI const char* ADDCALL hackrf_error_name(enum hackrf_error errcode);
 extern ADDAPI const char* ADDCALL hackrf_board_id_name(enum hackrf_board_id board_id);
 extern ADDAPI const char* ADDCALL hackrf_usb_board_id_name(enum hackrf_usb_board_id usb_board_id);
@@ -203,6 +210,17 @@ extern ADDAPI const char* ADDCALL hackrf_filter_path_name(const enum rf_path_fil
 extern ADDAPI uint32_t ADDCALL hackrf_compute_baseband_filter_bw_round_down_lt(const uint32_t bandwidth_hz);
 /* Compute best default value depending on sample rate (auto filter) */
 extern ADDAPI uint32_t ADDCALL hackrf_compute_baseband_filter_bw(const uint32_t bandwidth_hz);
+/* Start scan mode */
+extern ADDAPI int ADDCALL hackrf_init_sweep(hackrf_device* device,
+											uint16_t* frequency_list,
+											int length, uint32_t dwell_time);
+
+/* Operacake functions */
+int ADDCALL hackrf_get_operacake_boards(hackrf_device* device, uint8_t* boards);
+int ADDCALL hackrf_set_operacake_ports(hackrf_device* device,
+                                       uint8_t address,
+                                       uint8_t port_a,
+                                       uint8_t port_b);
 
 #ifdef __cplusplus
 } // __cplusplus defined.

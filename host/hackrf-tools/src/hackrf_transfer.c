@@ -83,16 +83,16 @@ int gettimeofday(struct timeval *tv, void* ignored)
 
 #define FD_BUFFER_SIZE (8*1024)
 
-#define FREQ_ONE_MHZ (1000000ull)
+#define FREQ_ONE_MHZ (1000000ll)
 
-#define DEFAULT_FREQ_HZ (900000000ull) /* 900MHz */
+#define DEFAULT_FREQ_HZ (900000000ll) /* 900MHz */
 #define FREQ_MIN_HZ	(0ull) /* 0 Hz */
-#define FREQ_MAX_HZ	(7250000000ull) /* 7250MHz */
-#define IF_MIN_HZ (2150000000ull)
-#define IF_MAX_HZ (2750000000ull)
-#define LO_MIN_HZ (84375000ull)
-#define LO_MAX_HZ (5400000000ull)
-#define DEFAULT_LO_HZ (1000000000ull)
+#define FREQ_MAX_HZ	(7250000000ll) /* 7250MHz */
+#define IF_MIN_HZ (2150000000ll)
+#define IF_MAX_HZ (2750000000ll)
+#define LO_MIN_HZ (84375000ll)
+#define LO_MAX_HZ (5400000000ll)
+#define DEFAULT_LO_HZ (1000000000ll)
 
 #define DEFAULT_SAMPLE_RATE_HZ (10000000) /* 10MHz default sample rate */
 
@@ -106,6 +106,18 @@ int gettimeofday(struct timeval *tv, void* ignored)
 #if defined _WIN32
 	#define sleep(a) Sleep( (a*1000) )
 #endif
+
+typedef enum {
+        TRANSCEIVER_MODE_OFF = 0,
+        TRANSCEIVER_MODE_RX = 1,
+        TRANSCEIVER_MODE_TX = 2,
+        TRANSCEIVER_MODE_SS = 3,
+} transceiver_mode_t;
+
+typedef enum {
+	HW_SYNC_MODE_OFF = 0,
+	HW_SYNC_MODE_ON = 1,
+} hw_sync_mode_t;
 
 /* WAVE or RIFF WAVE file format containing IQ 2x8bits data for HackRF compatible with SDR# Wav IQ file */
 typedef struct 
@@ -296,6 +308,8 @@ volatile uint32_t byte_count = 0;
 bool signalsource = false;
 uint32_t amplitude = 0;
 
+bool hw_sync = false;
+
 bool receive = false;
 bool receive_wav = false;
 uint64_t stream_size = 0;
@@ -309,13 +323,13 @@ struct timeval time_start;
 struct timeval t_start;
 
 bool automatic_tuning = false;
-uint64_t freq_hz;
+int64_t freq_hz;
 
 bool if_freq = false;
-uint64_t if_freq_hz;
+int64_t if_freq_hz;
 
 bool lo_freq = false;
-uint64_t lo_freq_hz = DEFAULT_LO_HZ;
+int64_t lo_freq_hz = DEFAULT_LO_HZ;
 
 bool image_reject = false;
 uint32_t image_reject_selection;
@@ -477,6 +491,7 @@ static void usage() {
         printf("\t[-R] # Repeat TX mode (default is off) \n");
 	printf("\t[-b baseband_filter_bw_hz] # Set baseband filter bandwidth in Hz.\n\tPossible values: 1.75/2.5/3.5/5/5.5/6/7/8/9/10/12/14/15/20/24/28MHz, default < sample_rate_hz.\n" );
 	printf("\t[-C ppm] # Set Internal crystal clock error in ppm.\n");
+	printf("\t[-H] # Synchronise USB transfer using GPIO pins.\n");
 }
 
 static hackrf_device* device = NULL;
@@ -520,11 +535,14 @@ int main(int argc, char** argv) {
 	float time_diff;
 	unsigned int lna_gain=8, vga_gain=20, txvga_gain=0;
   
-	while( (opt = getopt(argc, argv, "wr:t:f:i:o:m:a:p:s:n:b:l:g:x:c:d:C:RS:")) != EOF )
+	while( (opt = getopt(argc, argv, "Hwr:t:f:i:o:m:a:p:s:n:b:l:g:x:c:d:C:RS:")) != EOF )
 	{
 		result = HACKRF_SUCCESS;
 		switch( opt ) 
 		{
+		case 'H':
+			hw_sync = true;
+			break;
 		case 'w':
 			receive_wav = true;
 			break;
@@ -718,7 +736,7 @@ int main(int argc, char** argv) {
 			freq_hz = if_freq_hz;
 			break;
 		case RF_PATH_FILTER_LOW_PASS:
-			freq_hz = abs(if_freq_hz - lo_freq_hz);
+			freq_hz = labs(if_freq_hz - lo_freq_hz);
 			break;
 		case RF_PATH_FILTER_HIGH_PASS:
 			freq_hz = if_freq_hz + lo_freq_hz;
@@ -932,6 +950,15 @@ int main(int argc, char** argv) {
 	result = hackrf_set_baseband_filter_bandwidth(device, baseband_filter_bw_hz);
 	if( result != HACKRF_SUCCESS ) {
 		fprintf(stderr, "hackrf_baseband_filter_bandwidth_set() failed: %s (%d)\n", hackrf_error_name(result), result);
+		usage();
+		return EXIT_FAILURE;
+	}
+
+	fprintf(stderr, "call hackrf_set_hw_sync_mode(%d)\n",
+			hw_sync);
+	result = hackrf_set_hw_sync_mode(device, hw_sync ? HW_SYNC_MODE_ON : HW_SYNC_MODE_OFF);
+	if( result != HACKRF_SUCCESS ) {
+		fprintf(stderr, "hackrf_set_hw_sync_mode() failed: %s (%d)\n", hackrf_error_name(result), result);
 		usage();
 		return EXIT_FAILURE;
 	}
