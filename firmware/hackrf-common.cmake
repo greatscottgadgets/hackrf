@@ -196,7 +196,7 @@ macro(DeclareTargets)
 		COMMAND ${DFU_COMMAND}
 		COMMAND python ../../dfu.py
 		COMMAND cat _header.bin _tmp.dfu >${PROJECT_NAME}.dfu
-		#COMMAND rm -f _tmp.dfu _header.bin
+		COMMAND rm -f _tmp.dfu _header.bin
 	)
 
 	add_custom_target(
