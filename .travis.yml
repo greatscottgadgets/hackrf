@@ -3,6 +3,7 @@ language: c
 cache: apt
 
 sudo: false
+dist: trusty
 
 os:
   - linux
@@ -10,33 +11,44 @@ os:
 
 compiler:
   - gcc
-#  - clang
+  - clang
+
+matrix:
+  exclude:
+    - os: osx
+      compiler: gcc
+    - os: linux
+      compiler: clang
 
 before_script:
-#  - wget https://launchpad.net/gcc-arm-embedded/5.0/5-2016-q1-update/+download/gcc-arm-none-eabi-5_3-2016q1-20160330-linux.tar.bz2 -O /tmp/gcc-arm.tar.bz2
-#  - tar -xvf /tmp/gcc-arm.tar.bz2
-#  - export PATH=$PWD/gcc-arm-none-eabi-5_3-2016q1/bin:$PATH
   - export CFLAGS="-Wall -Wextra -Werror"
 
 before_install:
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install libusb fftw; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew tap PX4/homebrew-px4; brew update; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install libusb fftw gcc-arm-none-eabi dfu-util; fi
+  # For virtualenv(?) reasons we can't apt-get install python-yaml
+  - pip install PyYAML
 
 script:
   - mkdir host/build
   - cd host/build
   - cmake ..
   - make
-#  - cd ../../firmware/hackrf_usb
-#  - mkdir build
-#  - cd build
-#  - export CC="arm-none-eabi-gcc"
-#  - export CXX="arm-none-eabi-g++"
-#  - cmake ..
-#  - make
+  - cd ../../firmware/libopencm3
+  - make
+  - cd ../hackrf_usb
+  - mkdir build
+  - cd build
+  - cmake ..
+  - make
 
 addons:
   apt:
+    sources:
+      - debian-sid
     packages:
       - libusb-1.0-0-dev
       - libfftw3-dev
+      - gcc-arm-none-eabi
+      - libnewlib-arm-none-eabi
+      - dfu-util
