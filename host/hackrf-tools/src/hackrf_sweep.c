@@ -240,7 +240,7 @@ static void usage() {
 	fprintf(stderr, "\t[-l gain_db] # RX LNA (IF) gain, 0-40dB, 8dB steps\n");
 	fprintf(stderr, "\t[-g gain_db] # RX VGA (baseband) gain, 0-62dB, 2dB steps\n");
 	fprintf(stderr, "\t[-x gain_db] # TX VGA (IF) gain, 0-47dB, 1dB steps\n");
-	fprintf(stderr, "\t[-n num_samples] # Number of samples per frequency, 0-%lu\n", (uint64_t)1<<32);
+	fprintf(stderr, "\t[-n num_samples] # Number of samples per frequency, 0-4294967296\n");
 }
 
 static hackrf_device* device = NULL;
@@ -343,7 +343,7 @@ int main(int argc, char** argv) {
 		fprintf(stderr, "warning: vga_gain (-g) must be a multiple of 2\n");
 
 	if (num_samples % 0x4000) {
-		fprintf(stderr, "warning: num_samples (-s) must be a multiple of 16384\n");
+		fprintf(stderr, "warning: num_samples (-n) must be a multiple of 16384\n");
 		return EXIT_FAILURE;
 	}
 
