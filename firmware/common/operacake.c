@@ -130,13 +130,14 @@ uint8_t operacake_set_ports(uint8_t address, uint8_t PA, uint8_t PB) {
 		return 1;
 	}
 	
-	if(PA > OPERACAKE_PA4)
+	if(PA > OPERACAKE_PA4) {
 		side = OPERACAKE_CROSSOVER;
-	else
+	} else {
 		side = OPERACAKE_SAMESIDE;
+	}
 
-		pa = port_to_pins(PA);
-		pb = port_to_pins(PB);
+	pa = port_to_pins(PA);
+	pb = port_to_pins(PB);
 		
 	reg = (OPERACAKE_GPIO_DISABLE | side
 					| pa | pb | OPERACAKE_EN_LEDS);
