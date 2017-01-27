@@ -268,21 +268,6 @@ extern "C"
 #define PORT_XCVR_B	  	  (GPIO4)
 #endif
 
-#ifdef RAD1O
-#define PIN_VCO_CE        (BIT13) /* GPIO2[13] on P5_4 */
-#define PORT_VCO_CE       (GPIO2)
-#define PIN_VCO_SCLK      (BIT6)  /* GPIO5[6] on P2_6 */
-#define PORT_VCO_SCLK     (GPIO5)
-#define PIN_VCO_SDATA     (BIT3)  /* GPIO3[3] on P6_4 */
-#define PORT_VCO_SDATA    (GPIO3)
-#define PIN_VCO_LE        (BIT14) /* GPIO2[14] on P5_5 */
-#define PORT_VCO_LE       (GPIO2)
-#define PIN_VCO_MUX       (BIT25) /* GPIO5[25] on PB_5 */
-#define PORT_VCO_MUX      (GPIO5)
-#define PIN_SYNT_RFOUT_EN (BIT5)  /* GPIO3[5] on P6_9 */
-#define PORT_SYNT_RFOUT_EN (GPIO3)
-#endif
-
 #if (defined HACKRF_ONE || defined RAD1O)
 #define PIN_CPLD_TMS    (GPIOPIN4)
 #define PORT_CPLD_TMS   (GPIO3)

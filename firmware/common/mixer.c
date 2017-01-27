@@ -5,17 +5,19 @@
 #include "gpio_lpc.h"
 
 /* RFFC5071 GPIO serial interface PinMux */
-#ifdef JELLYBEAN
-static struct gpio_t gpio_rffc5072_select	= GPIO(3,  8);
-static struct gpio_t gpio_rffc5072_clock	= GPIO(3,  9);
-static struct gpio_t gpio_rffc5072_data		= GPIO(3, 10);
-static struct gpio_t gpio_rffc5072_reset	= GPIO(3, 11);
-#endif
 #if (defined JAWBREAKER || defined HACKRF_ONE)
 static struct gpio_t gpio_rffc5072_select	= GPIO(2, 13);
 static struct gpio_t gpio_rffc5072_clock	= GPIO(5,  6);
 static struct gpio_t gpio_rffc5072_data		= GPIO(3,  3);
 static struct gpio_t gpio_rffc5072_reset	= GPIO(2, 14);
+#endif
+#ifdef RAD1O
+static struct gpio_t gpio_vco_ce			= GPIO(2, 13);
+static struct gpio_t gpio_vco_sclk			= GPIO(5,  6);
+static struct gpio_t gpio_vco_sdata			= GPIO(3,  3);
+static struct gpio_t gpio_vco_le			= GPIO(2, 14);
+static struct gpio_t gpio_synt_rfout_en		= GPIO(5, 25);
+static struct gpio_t gpio_vco_mux			= GPIO(3,  5);
 #endif
 
 #if (defined JAWBREAKER || defined HACKRF_ONE)
@@ -39,90 +41,104 @@ mixer_driver_t mixer = {
 };
 #endif
 #ifdef RAD1O
-mixer_driver_t mixer;
+mixer_driver_t mixer = {
+	.gpio_vco_ce = &gpio_vco_ce,
+	.gpio_vco_sclk = &gpio_vco_sclk,
+	.gpio_vco_sdata = &gpio_vco_sdata,
+	.gpio_vco_le = &gpio_vco_le,
+	.gpio_synt_rfout_en = &gpio_synt_rfout_en,
+	.gpio_vco_mux = &gpio_vco_mux,
+};
 #endif
 
-void mixer_pin_setup(mixer_driver_t* const mixer)
+void mixer_bus_setup(mixer_driver_t* const mixer)
 {
-#if (defined JELLYBEAN || defined JAWBREAKER || defined HACKRF_ONE)
-    (void) mixer;
+#if (defined JAWBREAKER || defined HACKRF_ONE)
+	(void) mixer;
 	spi_bus_start(&spi_bus_rffc5071, &rffc5071_spi_config);
 #endif
 #ifdef RAD1O
+	(void) mixer;
 #endif
 }
 
 void mixer_setup(mixer_driver_t* const mixer)
 {
-#if (defined JELLYBEAN || defined JAWBREAKER || defined HACKRF_ONE)
-    rffc5071_setup(mixer);
+#if (defined JAWBREAKER || defined HACKRF_ONE)
+	rffc5071_setup(mixer);
 #endif
 #ifdef RAD1O
+	max2871_setup(mixer);
 #endif
-
 }
 
 uint64_t mixer_set_frequency(mixer_driver_t* const mixer, uint16_t mhz)
 {
-#if (defined JELLYBEAN || defined JAWBREAKER || defined HACKRF_ONE)
-    return rffc5071_set_frequency(mixer, mhz);
+#if (defined JAWBREAKER || defined HACKRF_ONE)
+	return rffc5071_set_frequency(mixer, mhz);
 #endif
 #ifdef RAD1O
+	return max2871_set_frequency(mixer, mhz);
 #endif
-
 }
 
 void mixer_tx(mixer_driver_t* const mixer)
 {
-#if (defined JELLYBEAN || defined JAWBREAKER || defined HACKRF_ONE)
-    rffc5071_tx(mixer);
+#if (defined JAWBREAKER || defined HACKRF_ONE)
+	rffc5071_tx(mixer);
 #endif
 #ifdef RAD1O
+	(void) mixer;
 #endif
-
 }
+
 void mixer_rx(mixer_driver_t* const mixer)
 {
-#if (defined JELLYBEAN || defined JAWBREAKER || defined HACKRF_ONE)
-    rffc5071_rx(mixer);
+#if (defined JAWBREAKER || defined HACKRF_ONE)
+	rffc5071_rx(mixer);
 #endif
 #ifdef RAD1O
+	(void) mixer;
 #endif
-
 }
+
 void mixer_rxtx(mixer_driver_t* const mixer)
 {
-#if (defined JELLYBEAN || defined JAWBREAKER || defined HACKRF_ONE)
-    rffc5071_rxtx(mixer);
+#if (defined JAWBREAKER || defined HACKRF_ONE)
+	rffc5071_rxtx(mixer);
 #endif
 #ifdef RAD1O
+	(void) mixer;
 #endif
-
 }
+
 void mixer_enable(mixer_driver_t* const mixer)
 {
-#if (defined JELLYBEAN || defined JAWBREAKER || defined HACKRF_ONE)
-    rffc5071_enable(mixer);
+#if (defined JAWBREAKER || defined HACKRF_ONE)
+	rffc5071_enable(mixer);
 #endif
 #ifdef RAD1O
+	(void) mixer;
 #endif
-
 }
+
 void mixer_disable(mixer_driver_t* const mixer)
 {
-#if (defined JELLYBEAN || defined JAWBREAKER || defined HACKRF_ONE)
-    rffc5071_disable(mixer);
+#if (defined JAWBREAKER || defined HACKRF_ONE)
+	rffc5071_disable(mixer);
 #endif
 #ifdef RAD1O
+	(void) mixer;
 #endif
 }
-
 
 void mixer_set_gpo(mixer_driver_t* const mixer, uint8_t gpo)
 {
-#if (defined JELLYBEAN || defined JAWBREAKER || defined HACKRF_ONE)
-    rffc5071_set_gpo(mixer, gpo);
+#if (defined JAWBREAKER || defined HACKRF_ONE)
+	rffc5071_set_gpo(mixer, gpo);
 #endif
 #ifdef RAD1O
+	(void) mixer;
+	(void) gpo;
 #endif
 }

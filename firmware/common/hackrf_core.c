@@ -901,7 +901,7 @@ void pin_setup(void) {
 
 	spi_bus_start(&spi_bus_ssp1, &ssp_config_max2837);
 
-	mixer_pin_setup(&mixer);
+	mixer_bus_setup(&mixer);
 
 	rf_path_pin_setup(&rf_path);
 	
