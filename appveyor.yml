@@ -19,7 +19,7 @@ build_script:
   - cd c:\projects\hackrf\host\build
   - cmake -G "Visual Studio 14 2015" \
     -DLIBUSB_LIBRARIES="C:\\libusb\\MS64\\dll\\libusb-1.0.lib" \
-    -DLIBUSB_INCLUDE_DIRS="C:\\libusb\\include\\libusb-1.0" \
+    -DLIBUSB_INCLUDE_DIR="C:\\libusb\\include\\libusb-1.0" \
     -DTHREADS_PTHREADS_INCLUDE_DIR=c:\pthreads\Pre-built.2\include \
     -DTHREADS_PTHREADS_WIN32_LIBRARY=c:\pthreads\Pre-built.2\lib\x64\pthreadVC2.lib \
     -DPKG_CONFIG_EXECUTABLE="C:\\pkg-config\\bin\\pkg-config.exe" \
