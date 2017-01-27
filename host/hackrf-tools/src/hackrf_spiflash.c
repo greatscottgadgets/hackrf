@@ -313,15 +313,15 @@ int main(int argc, char** argv)
 			fd = NULL;
 			return EXIT_FAILURE;
 		}
-	} else {
-		result = hackrf_close(device);
-		if (result != HACKRF_SUCCESS) {
-			fprintf(stderr, "hackrf_close() failed: %s (%d)\n",
-					hackrf_error_name(result), result);
-			fclose(fd);
-			fd = NULL;
-			return EXIT_FAILURE;
-		}
+	}
+
+	result = hackrf_close(device);
+	if (result != HACKRF_SUCCESS) {
+		fprintf(stderr, "hackrf_close() failed: %s (%d)\n",
+				hackrf_error_name(result), result);
+		fclose(fd);
+		fd = NULL;
+		return EXIT_FAILURE;
 	}
 
 	hackrf_exit();
