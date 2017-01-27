@@ -34,12 +34,16 @@ script:
   - cd host/build
   - cmake ..
   - make
-  - cd ../../firmware/libopencm3
+  - cd ../..
+  - mkdir firmware/build-hackrf-one
+  - mkdir firmware/build-jawbreaker
+  - cd firmware/libopencm3
   - make
-  - cd ..
-  - mkdir build
-  - cd build
+  - cd ../build-hackrf-one
   - cmake ..
+  - make
+  - cd ../build-jawbreaker
+  - cmake -DBOARD=JAWBREAKER ..
   - make
 
 addons:
