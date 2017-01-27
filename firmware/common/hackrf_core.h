@@ -142,7 +142,6 @@ extern "C"
 #define SCU_XCVR_B6			(P5_5)	/* GPIO2[14] on P5_5 */
 #define SCU_XCVR_B7			(P5_6)	/* GPIO2[15] on P5_6 */
 #endif
-
 #ifdef RAD1O
 #define SCU_XCVR_RXHP		(P8_1)	/* GPIO[] on P8_1 */
 #define SCU_XCVR_B6			(P8_2)	/* GPIO[] on P8_2 */
@@ -189,7 +188,6 @@ extern "C"
 #ifdef HACKRF_ONE
 #define SCU_NO_VAA_ENABLE   (P5_0)  /* GPIO2[9] on P5_0 */
 #endif
-
 #ifdef RAD1O
 #define SCU_VAA_ENABLE      (P5_0)  /* GPIO2[9] on P5_0 */
 #endif
@@ -219,7 +217,6 @@ extern "C"
 #define SCU_RX_AMP          (P2_11) /* GPIO1[11] on P2_11 */
 #define SCU_NO_RX_AMP_PWR   (P2_12) /* GPIO1[12] on P2_12 */
 #endif
-
 #ifdef RAD1O
 #define SCU_BY_AMP          (P1_7)  /* GPIO1[0] on P1_7 */
 #define SCU_BY_AMP_N        (P2_5)  /* GPIO5[5] on P2_5 */
@@ -259,23 +256,6 @@ extern "C"
 
 #define SCU_PINMUX_GP_CLKIN	(P4_7)
 
-#if 0 //XXX
-#ifdef RAD1O
-#define PIN_XCVR_RXHP     (BIT1)  /* GPIO4[1] on P8_1 */
-#define PORT_XCVR_RXHP	  (GPIO4)
-#define PIN_XCVR_B6		  (BIT2) /* GPIO4[2] on P8_2 */
-#define PIN_XCVR_B7		  (BIT3) /* GPIO4[3] on P8_3 */
-#define PORT_XCVR_B	  	  (GPIO4)
-#endif
-
-#if (defined HACKRF_ONE || defined RAD1O)
-#define PIN_CPLD_TMS    (GPIOPIN4)
-#define PORT_CPLD_TMS   (GPIO3)
-#define PIN_CPLD_TDI    (GPIOPIN1)
-#define PORT_CPLD_TDI   (GPIO3)
-#endif
-#endif
- 
 typedef enum {
 	TRANSCEIVER_MODE_OFF = 0,
 	TRANSCEIVER_MODE_RX = 1,
@@ -324,6 +304,7 @@ typedef enum {
 	LED1 = 0,
 	LED2 = 1,
 	LED3 = 2,
+	LED4 = 3,
 } led_t;
 
 void led_on(const led_t led);

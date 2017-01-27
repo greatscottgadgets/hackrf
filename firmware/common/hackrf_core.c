@@ -134,7 +134,7 @@ static struct gpio_t gpio_boot[] = {
 /* CPLD JTAG interface GPIO pins */
 static struct gpio_t gpio_cpld_tdo			= GPIO(5, 18);
 static struct gpio_t gpio_cpld_tck			= GPIO(3,  0);
-#ifdef HACKRF_ONE
+#if defined HACKRF_ONE || defined RAD1O
 static struct gpio_t gpio_cpld_tms			= GPIO(3,  4);
 static struct gpio_t gpio_cpld_tdi			= GPIO(3,  1);
 #else

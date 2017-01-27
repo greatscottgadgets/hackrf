@@ -246,6 +246,7 @@ void si5351c_configure_clock_control(si5351c_driver_t* const drv, const enum pll
 #ifdef RAD1O
 void si5351c_configure_clock_control(si5351c_driver_t* const drv, const enum pll_sources source)
 {
+	(void) source;
 	uint8_t pll;
 
 	/* PLLA on XTAL */
