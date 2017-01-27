@@ -17,7 +17,7 @@ install:
 build_script:
   - mkdir c:\projects\hackrf\host\build
   - cd c:\projects\hackrf\host\build
-  - cmake -G "Visual Studio 14 2015" \
+  - cmake -G "Visual Studio 14 2015 Win64" \
     -DLIBUSB_LIBRARIES="C:\libusb\MS64\dll\libusb-1.0.lib" \
     -DLIBUSB_INCLUDE_DIR="C:\libusb\include\libusb-1.0" \
     -DTHREADS_PTHREADS_INCLUDE_DIR=c:\pthreads\Pre-built.2\include \
