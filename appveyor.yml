@@ -8,7 +8,7 @@ configuration:
 install:
   - appveyor DownloadFile "https://downloads.sourceforge.net/project/libusb/libusb-1.0/libusb-1.0.21/libusb-1.0.21.7z?r=https%3A%2F%2Fsourceforge.net%2Fprojects%2Flibusb%2Ffiles%2Flibusb-1.0%2Flibusb-1.0.21%2F&ts=1485478643&use_mirror=cytranet" -FileName "C:\libusb.7z"
   - 7z x -y "C:\libusb.7z" -o"C:\libusb"
-  - appveyor DownloadFile "ftp://sourceware.org/pub/pthreads-win32/pthreads-w32-2-9-1-release.zip" -FileName "C:\pthreads-w32-release.zip"
+  - appveyor DownloadFile "http://mirrors.kernel.org/sourceware/pthreads-win32/pthreads-w32-2-9-1-release.zip" -FileName "C:\pthreads-w32-release.zip"
   - 7z x -y "C:\pthreads-w32-release.zip" -o"C:\pthreads"
   - appveyor DownloadFile "http://ftp.gnome.org/pub/gnome/binaries/win32/dependencies/pkg-config_0.26-1_win32.zip" -FileName "C:\pkg-config_win32.zip"
   - 7z x -y "C:\pkg-config_win32.zip" -o"C:\pkg-config"
