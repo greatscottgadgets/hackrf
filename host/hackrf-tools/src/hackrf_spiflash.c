@@ -91,6 +91,7 @@ static void usage()
 	printf("\t-r <filename>: Read data into file.\n");
 	printf("\t-w <filename>: Write data from file.\n");
 	printf("\t-d <serialnumber>: Serial number of device, if multiple devices\n");
+	printf("\t-R: Reset HackRF after other operations.\n");
 	printf("\t-v: Verbose output.\n");
 }
 
@@ -112,8 +113,9 @@ int main(int argc, char** argv)
 	bool read = false;
 	bool write = false;
 	bool verbose = false;
+	bool reset = false;
 
-	while ((opt = getopt_long(argc, argv, "a:l:r:w:d:v", long_options,
+	while ((opt = getopt_long(argc, argv, "a:l:r:w:d:vR", long_options,
 			&option_index)) != EOF) {
 		switch (opt) {
 		case 'a':
@@ -142,6 +144,10 @@ int main(int argc, char** argv)
 			verbose = true;
 			break;
 
+		case 'R':
+			reset = true;
+			break;
+
 		default:
 			fprintf(stderr, "opt error: %d\n", opt);
 			usage();
@@ -156,17 +162,17 @@ int main(int argc, char** argv)
 		}
 	}
 
-	if (write == read) {
-		if (write == true) {
+	if((write == read) && (write == reset)) {
+		if(write && read) {
 			fprintf(stderr, "Read and write options are mutually exclusive.\n");
 		} else {
-			fprintf(stderr, "Specify either read or write option.\n");
+			fprintf(stderr, "Specify either read, write, or reset option.\n");
 		}
 		usage();
 		return EXIT_FAILURE;
 	}
 	
-	if (path == NULL) {
+	if((read || write) && (path == NULL)) {
 		fprintf(stderr, "Specify a path to a file.\n");
 		usage();
 		return EXIT_FAILURE;
@@ -214,7 +220,7 @@ int main(int argc, char** argv)
 		}
 	}
 
-	if (fd == NULL) {
+	if((read || write) && (fd == NULL)) {
 		fprintf(stderr, "Failed to open file: %s\n", path);
 		return EXIT_FAILURE;
 	}
@@ -233,8 +239,7 @@ int main(int argc, char** argv)
 		return EXIT_FAILURE;
 	}
 
-	if (read) 
-	{
+	if(read) {
 		ssize_t bytes_written;
 		tmp_length = length;
 		while (tmp_length) 
@@ -261,7 +266,9 @@ int main(int argc, char** argv)
 			fd = NULL;
 			return EXIT_FAILURE;
 		}
-	} else {
+	}
+
+	if(write) {
 		ssize_t bytes_read = fread(data, 1, length, fd);
 		if (bytes_read != length) {
 			fprintf(stderr, "Failed read file (read %d bytes).\n",
@@ -297,13 +304,24 @@ int main(int argc, char** argv)
 		}
 	}
 
-	result = hackrf_close(device);
-	if (result != HACKRF_SUCCESS) {
-		fprintf(stderr, "hackrf_close() failed: %s (%d)\n",
-				hackrf_error_name(result), result);
-		fclose(fd);
-		fd = NULL;
-		return EXIT_FAILURE;
+	if(reset) {
+		result = hackrf_reset(device);
+		if (result != HACKRF_SUCCESS) {
+			fprintf(stderr, "hackrf_reset() failed: %s (%d)\n",
+					hackrf_error_name(result), result);
+			fclose(fd);
+			fd = NULL;
+			return EXIT_FAILURE;
+		}
+	} else {
+		result = hackrf_close(device);
+		if (result != HACKRF_SUCCESS) {
+			fprintf(stderr, "hackrf_close() failed: %s (%d)\n",
+					hackrf_error_name(result), result);
+			fclose(fd);
+			fd = NULL;
+			return EXIT_FAILURE;
+		}
 	}
 
 	hackrf_exit();

@@ -39,5 +39,7 @@ usb_request_status_t usb_vendor_request_read_version_string(
 	usb_endpoint_t* const endpoint, const usb_transfer_stage_t stage);
 usb_request_status_t usb_vendor_request_read_partid_serialno(
 	usb_endpoint_t* const endpoint, const usb_transfer_stage_t stage);
+usb_request_status_t usb_vendor_request_reset(
+	usb_endpoint_t* const endpoint, const usb_transfer_stage_t stage);
 
 #endif /* end of include guard: __USB_API_BOARD_INFO_H__ */
