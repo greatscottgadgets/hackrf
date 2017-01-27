@@ -136,6 +136,9 @@ int main(int argc, char** argv)
 		
 		case 'd':
 			serial_number = optarg;
+
+		case 'v':
+			verbose = true;
 			break;
 
 		case 'v':
