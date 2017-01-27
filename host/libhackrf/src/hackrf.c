@@ -77,6 +77,7 @@ typedef enum {
 	HACKRF_VENDOR_REQUEST_OPERACAKE_GET_BOARDS = 27,
 	HACKRF_VENDOR_REQUEST_OPERACAKE_SET_PORTS = 28,
 	HACKRF_VENDOR_REQUEST_SET_HW_SYNC_MODE = 29,
+	HACKRF_VENDOR_REQUEST_RESET = 30,
 } hackrf_vendor_request;
 
 typedef enum {
@@ -1823,6 +1824,25 @@ int ADDCALL hackrf_set_operacake_ports(hackrf_device* device,
 	);
 
 	if (result != 0) {
+		return HACKRF_ERROR_LIBUSB;
+	} else {
+		return HACKRF_SUCCESS;
+	}
+}
+
+int ADDCALL hackrf_reset(hackrf_device* device) {
+	int result = libusb_control_transfer(
+		device->usb_device,
+ 		LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_RESET,
+		0,
+		0,
+		NULL,
+		0,
+		0
+	);
+
+	if( result != 0 ) {
 		return HACKRF_ERROR_LIBUSB;
 	} else {
 		return HACKRF_SUCCESS;

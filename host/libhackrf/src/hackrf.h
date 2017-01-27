@@ -222,6 +222,8 @@ extern ADDAPI int ADDCALL hackrf_set_operacake_ports(hackrf_device* device,
                                        uint8_t port_a,
                                        uint8_t port_b);
 
+extern ADDAPI int ADDCALL hackrf_reset(hackrf_device* device);
+
 #ifdef __cplusplus
 } // __cplusplus defined.
 #endif

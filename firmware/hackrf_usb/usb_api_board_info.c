@@ -25,6 +25,7 @@
 #include <hackrf_core.h>
 #include <rom_iap.h>
 #include <usb_queue.h>
+#include <libopencm3/lpc43xx/wwdt.h>
 
 #include <stddef.h>
 #include <string.h>
@@ -88,6 +89,16 @@ usb_request_status_t usb_vendor_request_read_partid_serialno(
 		usb_transfer_schedule_block(endpoint->in, &read_partid_serialno, length,
 					    NULL, NULL);
 		usb_transfer_schedule_ack(endpoint->out);
+	}
+	return USB_REQUEST_STATUS_OK;
+}
+
+usb_request_status_t usb_vendor_request_reset(
+	usb_endpoint_t* const endpoint, const usb_transfer_stage_t stage)
+{
+	if (stage == USB_TRANSFER_STAGE_SETUP) {
+		wwdt_reset(100000);
+		usb_transfer_schedule_ack(endpoint->in);
 	}
 	return USB_REQUEST_STATUS_OK;
 }

@@ -673,6 +673,10 @@ int main(int argc, char** argv) {
 			result = parse_u32(optarg, &crystal_correct_ppm);
 			break;
 
+		case '?':
+			usage();
+			return EXIT_FAILURE;
+
 		default:
 			fprintf(stderr, "unknown argument '-%c %s'\n", opt, optarg);
 			usage();
