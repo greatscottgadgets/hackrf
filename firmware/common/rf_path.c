@@ -157,6 +157,7 @@ static void switchctrl_set_hackrf_one(rf_path_t* const rf_path, uint8_t ctrl) {
 
 static void switchctrl_set(rf_path_t* const rf_path, const uint8_t gpo) {
 #ifdef JAWBREAKER
+	(void) rf_path; /* silence unused param warning */
 	rffc5071_set_gpo(&rffc5072, gpo);
 #elif HACKRF_ONE
 	switchctrl_set_hackrf_one(rf_path, gpo);
@@ -205,6 +206,8 @@ void rf_path_pin_setup(rf_path_t* const rf_path) {
 	 * power and enable both amp bypass and mixer bypass.
 	 */
 	switchctrl_set(rf_path, SWITCHCTRL_AMP_BYPASS | SWITCHCTRL_MIX_BYPASS);
+#else
+	(void) rf_path; /* silence unused param warning */
 #endif
 }
 

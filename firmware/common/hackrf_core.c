@@ -99,9 +99,9 @@ static struct gpio_t gpio_sync_out_b		= GPIO(3, 9);
 #endif
 
 /* RF LDO control */
-#ifdef JAWBREAKER
-static struct gpio_t gpio_rf_ldo_enable		= GPIO(2, 9);
-#endif
+// #ifdef JAWBREAKER
+// static struct gpio_t gpio_rf_ldo_enable		= GPIO(2, 9);
+// #endif
 
 /* RF supply (VAA) control */
 #ifdef HACKRF_ONE
@@ -297,6 +297,7 @@ sgpio_config_t sgpio_config = {
 
 rf_path_t rf_path = {
 	.switchctrl = 0,
+#ifdef HACKRF_ONE
 	.gpio_hp = &gpio_hp,
 	.gpio_lp = &gpio_lp,
 	.gpio_tx_mix_bp = &gpio_tx_mix_bp,
@@ -310,6 +311,7 @@ rf_path_t rf_path = {
 	.gpio_amp_bypass = &gpio_amp_bypass,
 	.gpio_rx_amp = &gpio_rx_amp,
 	.gpio_no_rx_amp_pwr = &gpio_no_rx_amp_pwr,
+#endif
 };
 
 jtag_gpio_t jtag_gpio_cpld = {
