@@ -1109,6 +1109,11 @@ typedef struct {
 } set_fracrate_params_t;
 
 
+/*
+ * You should probably use hackrf_set_sample_rate() below instead of this
+ * function.  They both result in automatic baseband filter selection as
+ * described below.
+ */
 int ADDCALL hackrf_set_sample_rate_manual(hackrf_device* device,
                                        const uint32_t freq_hz, uint32_t divider)
 {
@@ -1135,10 +1140,17 @@ int ADDCALL hackrf_set_sample_rate_manual(hackrf_device* device,
 	{
 		return HACKRF_ERROR_LIBUSB;
 	} else {
-		return HACKRF_SUCCESS;
+		return hackrf_set_baseband_filter_bandwidth(device,
+				hackrf_compute_baseband_filter_bw((uint32_t)(0.75*freq_hz/divider)));
 	}
 }
 
+/*
+ * For anti-aliasing, the baseband filter bandwidth is automatically set to the
+ * widest available setting that is no more than 75% of the sample rate.  This
+ * happens every time the sample rate is set.  If you want to override the
+ * baseband filter selection, you must do so after setting the sample rate.
+ */
 int ADDCALL hackrf_set_sample_rate(hackrf_device* device, const double freq)
 {
 	const int MAX_N = 32;
