@@ -24,12 +24,15 @@
 set(INSTALL_DEFAULT_BINDIR "bin" CACHE STRING "Appended to CMAKE_INSTALL_PREFIX")
 
 INCLUDE(FindPkgConfig)
-pkg_check_modules(FFTW REQUIRED fftw3f)
 
 if(MSVC)
 	add_library(libgetopt_static STATIC
 	    ../getopt/getopt.c
 	)
+else()
+    pkg_check_modules(FFTW REQUIRED fftw3f)
+    LIST(APPEND TOOLS hackrf_sweep)
+    LIST(APPEND TOOLS_LINK_LIBS m fftw3f)
 endif()
 
 SET(TOOLS
@@ -41,7 +44,6 @@ SET(TOOLS
 	hackrf_cpldjtag
 	hackrf_info
 	hackrf_operacake
-	hackrf_sweep
 )
 
 if(NOT libhackrf_SOURCE_DIR)
@@ -54,8 +56,6 @@ endif()
 if(MSVC)
 	LIST(APPEND TOOLS_LINK_LIBS libgetopt_static)
 endif()
-
-LIST(APPEND TOOLS_LINK_LIBS m fftw3f)
 
 foreach(tool ${TOOLS})
 	add_executable(${tool} ${tool}.c)

@@ -26,6 +26,11 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 #include <stdlib.h>
 
 #include <libusb.h>
+
+#ifdef _WIN32
+/* Avoid redefinition of timespec from time.h (included by libusb.h) */
+#define HAVE_STRUCT_TIMESPEC 1
+#endif
 #include <pthread.h>
 
 #ifndef bool
@@ -396,7 +401,7 @@ hackrf_device_list_t* ADDCALL hackrf_device_list()
 					serial_number_length = libusb_get_string_descriptor_ascii(usb_device, serial_descriptor_index, (unsigned char*)serial_number, sizeof(serial_number));
 					if( serial_number_length == 32 ) {
 						serial_number[32] = 0;
-						list->serial_numbers[idx] = strndup(serial_number, serial_number_length);
+						list->serial_numbers[idx] = strdup(serial_number);
 					}
 					
 					libusb_close(usb_device);
