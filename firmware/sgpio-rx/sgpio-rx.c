@@ -46,20 +46,20 @@ void tx_test() {
 }
 
 void rx_test() {
-    volatile uint32_t buffer[4096];
-    uint32_t i = 0;
+	volatile uint32_t buffer[4096];
+	uint32_t i = 0;
 	uint32_t magsq;
 	int8_t sigi, sigq;
 
-    rf_path_set_direction(&rf_path, RF_PATH_DIRECTION_RX);
-    sgpio_cpld_stream_enable(&sgpio_config);
+	rf_path_set_direction(&rf_path, RF_PATH_DIRECTION_RX);
+	sgpio_cpld_stream_enable(&sgpio_config);
 
 	led_on(LED2);
-    while(true) {
-        while(SGPIO_STATUS_1 == 0);
+	while(true) {
+		while(SGPIO_STATUS_1 == 0);
 		led_on(LED1);
-        SGPIO_CLR_STATUS_1 = 1;
-        buffer[i & 4095] = SGPIO_REG_SS(SGPIO_SLICE_A);
+		SGPIO_CLR_STATUS_1 = 1;
+		buffer[i & 4095] = SGPIO_REG_SS(SGPIO_SLICE_A);
 
 		/* find the magnitude squared */
 		sigi = buffer[i & 4095] & 0xff;
@@ -72,7 +72,7 @@ void rx_test() {
 		else
 			led_off(LED3);
 		i++;
-    }
+	}
 }
 
 int main(void) {
@@ -86,7 +86,7 @@ int main(void) {
 	enable_rf_power();
 #endif
 	cpu_clock_init();
-    rf_path_init(&rf_path);
+	rf_path_init(&rf_path);
 
 	set_freq(freq);
 
