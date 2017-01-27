@@ -1,0 +1,27 @@
+os: Visual Studio 2015
+clone_depth: 1
+
+configuration:
+  - Release
+  - Debug
+
+install:
+  - appveyor DownloadFile "https://downloads.sourceforge.net/project/libusb/libusb-1.0/libusb-1.0.21/libusb-1.0.21.7z?r=https%3A%2F%2Fsourceforge.net%2Fprojects%2Flibusb%2Ffiles%2Flibusb-1.0%2Flibusb-1.0.21%2F&ts=1485478643&use_mirror=cytranet" -FileName "C:\libusb.7z"
+  - 7z x -y "C:\libusb.7z" -o "C:\libusb"
+  - appveyor DownloadFile "ftp://sourceware.org/pub/pthreads-win32/pthreads-w32-2-9-1-release.zip" -FileName "C:\pthreads-w32-release.zip"
+  - 7z x -y "C:\pthreads-w32-release.zip" -o "C:\pthreads"
+  - appveyor DownloadFile "http://ftp.gnome.org/pub/gnome/binaries/win32/dependencies/pkg-config_0.26-1_win32.zip" -FileName "C:\pkg-config_win32.zip"
+  - 7z x -y "C:\pkg-config_win32.zip" -o "C:\pkg-config"
+
+
+build_script:
+  - mkdir c:\projects\hackrf\host\build
+  - cd c:\projects\hackrf\host\build
+  - cmake -G "Visual Studio 14 2015" \
+    -DLIBUSB_LIBRARIES="C:\\libusb\\MS64\\dll\\libusb-1.0.lib" \
+    -DLIBUSB_INCLUDE_DIRS="C:\\libusb\\include\\libusb-1.0" \
+    -DTHREADS_PTHREADS_INCLUDE_DIR=c:\pthreads\Pre-built.2\include \
+    -DTHREADS_PTHREADS_WIN32_LIBRARY=c:\pthreads\Pre-built.2\lib\x64\pthreadVC2.lib \
+    -DPKG_CONFIG_EXECUTABLE="C:\\pkg-config\\bin\\pkg-config.exe" \
+    ..
+  - msbuild .\ALL_BUILD.vcxproj /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
