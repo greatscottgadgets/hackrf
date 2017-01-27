@@ -148,8 +148,12 @@ int main(int argc, char** argv)
 			reset = true;
 			break;
 
+		case '?':
+			usage();
+			return EXIT_FAILURE;
+
 		default:
-			fprintf(stderr, "opt error: %d\n", opt);
+			fprintf(stderr, "unknown argument '-%c %s'\n", opt, optarg);
 			usage();
 			return EXIT_FAILURE;
 		}
@@ -162,28 +166,24 @@ int main(int argc, char** argv)
 		}
 	}
 
-	if((write == read) && (write == reset)) {
-		if(write && read) {
-			fprintf(stderr, "Read and write options are mutually exclusive.\n");
-		} else {
-			fprintf(stderr, "Specify either read, write, or reset option.\n");
-		}
+	if(write && read) {
+		fprintf(stderr, "Read and write options are mutually exclusive.\n");
 		usage();
 		return EXIT_FAILURE;
 	}
-	
-	if((read || write) && (path == NULL)) {
-		fprintf(stderr, "Specify a path to a file.\n");
+
+	if(!(write || read || reset)) {
+		fprintf(stderr, "Specify either read, write, or reset option.\n");
 		usage();
 		return EXIT_FAILURE;
-	}	
+	}
 	
 	if( write )
 	{
 		fd = fopen(path, "rb");
 		if(fd == NULL)
 		{
-			printf("Error to open file %s\n", path);
+			printf("Error opening file %s\n", path);
 			return EXIT_FAILURE;
 		}
 		/* Get size of the file  */
