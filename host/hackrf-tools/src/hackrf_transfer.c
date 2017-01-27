@@ -498,7 +498,7 @@ static void usage() {
 #endif
 	printf("\t[-c amplitude] # CW signal source mode, amplitude 0-127 (DC value to DAC).\n");
         printf("\t[-R] # Repeat TX mode (default is off) \n");
-	printf("\t[-b baseband_filter_bw_hz] # Set baseband filter bandwidth in Hz.\n\tPossible values: 1.75/2.5/3.5/5/5.5/6/7/8/9/10/12/14/15/20/24/28MHz, default < sample_rate_hz.\n" );
+	printf("\t[-b baseband_filter_bw_hz] # Set baseband filter bandwidth in Hz.\n\tPossible values: 1.75/2.5/3.5/5/5.5/6/7/8/9/10/12/14/15/20/24/28MHz, default <= 0.75 * sample_rate_hz.\n" );
 	printf("\t[-C ppm] # Set Internal crystal clock error in ppm.\n");
 	printf("\t[-H] # Synchronise USB transfer using GPIO pins.\n");
 }
@@ -798,24 +798,20 @@ int main(int argc, char** argv) {
 	{
 		/* Compute nearest freq for bw filter */
 		baseband_filter_bw_hz = hackrf_compute_baseband_filter_bw(baseband_filter_bw_hz);
-	}else
-	{
-		/* Compute default value depending on sample rate */
-		baseband_filter_bw_hz = hackrf_compute_baseband_filter_bw_round_down_lt(sample_rate_hz);
-	}
 
-	if (baseband_filter_bw_hz > BASEBAND_FILTER_BW_MAX) {
-		fprintf(stderr, "argument error: baseband_filter_bw_hz must be less or equal to %u Hz/%.03f MHz\n",
-				BASEBAND_FILTER_BW_MAX, (float)(BASEBAND_FILTER_BW_MAX/FREQ_ONE_MHZ));
-		usage();
-		return EXIT_FAILURE;
-	}
+		if (baseband_filter_bw_hz > BASEBAND_FILTER_BW_MAX) {
+			fprintf(stderr, "argument error: baseband_filter_bw_hz must be less or equal to %u Hz/%.03f MHz\n",
+					BASEBAND_FILTER_BW_MAX, (float)(BASEBAND_FILTER_BW_MAX/FREQ_ONE_MHZ));
+			usage();
+			return EXIT_FAILURE;
+		}
 
-	if (baseband_filter_bw_hz < BASEBAND_FILTER_BW_MIN) {
-		fprintf(stderr, "argument error: baseband_filter_bw_hz must be greater or equal to %u Hz/%.03f MHz\n",
-				BASEBAND_FILTER_BW_MIN, (float)(BASEBAND_FILTER_BW_MIN/FREQ_ONE_MHZ));
-		usage();
-		return EXIT_FAILURE;
+		if (baseband_filter_bw_hz < BASEBAND_FILTER_BW_MIN) {
+			fprintf(stderr, "argument error: baseband_filter_bw_hz must be greater or equal to %u Hz/%.03f MHz\n",
+					BASEBAND_FILTER_BW_MIN, (float)(BASEBAND_FILTER_BW_MIN/FREQ_ONE_MHZ));
+			usage();
+			return EXIT_FAILURE;
+		}
 	}
 
 	if( (transmit == false) && (receive == receive_wav) )
@@ -954,13 +950,15 @@ int main(int argc, char** argv) {
 		return EXIT_FAILURE;
 	}
 
-	fprintf(stderr, "call hackrf_baseband_filter_bandwidth_set(%d Hz/%.03f MHz)\n",
-			baseband_filter_bw_hz, ((float)baseband_filter_bw_hz/(float)FREQ_ONE_MHZ));
-	result = hackrf_set_baseband_filter_bandwidth(device, baseband_filter_bw_hz);
-	if( result != HACKRF_SUCCESS ) {
-		fprintf(stderr, "hackrf_baseband_filter_bandwidth_set() failed: %s (%d)\n", hackrf_error_name(result), result);
-		usage();
-		return EXIT_FAILURE;
+	if( baseband_filter_bw ) {
+		fprintf(stderr, "call hackrf_baseband_filter_bandwidth_set(%d Hz/%.03f MHz)\n",
+				baseband_filter_bw_hz, ((float)baseband_filter_bw_hz/(float)FREQ_ONE_MHZ));
+		result = hackrf_set_baseband_filter_bandwidth(device, baseband_filter_bw_hz);
+		if( result != HACKRF_SUCCESS ) {
+			fprintf(stderr, "hackrf_baseband_filter_bandwidth_set() failed: %s (%d)\n", hackrf_error_name(result), result);
+			usage();
+			return EXIT_FAILURE;
+		}
 	}
 
 	fprintf(stderr, "call hackrf_set_hw_sync_mode(%d)\n",
