@@ -28,7 +28,7 @@
 #include <sgpio.h>
 
 #ifdef RAD1O
-static void update_q_invert(void);
+static void update_q_invert(sgpio_config_t* const config);
 #endif
 
 void sgpio_configure_pin_functions(sgpio_config_t* const config) {
@@ -95,7 +95,7 @@ void sgpio_configure(
 #ifdef RAD1O
 	// The data direction might have changed. Check if we need to
 	// adjust the q inversion.
-	update_q_invert();
+	update_q_invert(config);
 #endif
 
 	// Enable SGPIO pin outputs.
@@ -291,22 +291,20 @@ static bool sgpio_invert = false;
  * Called when TX/RX changes od sgpio_cpld_stream_rx_set_q_invert
  * gets called.
  */
-static void update_q_invert(void) {
-#if 0 //XXX
+static void update_q_invert(sgpio_config_t* const config) {
 	/* 1=Output SGPIO11 High(TX mode), 0=Output SGPIO11 Low(RX mode)*/
 	bool tx_mode = (SGPIO_GPIO_OUTREG & (1 << 11)) > 0;
 
 	// 0.13: P1_18
 	if( !sgpio_invert & !tx_mode) {
-		GPIO_SET(GPIO0) = GPIOPIN13;
+		gpio_write(config->gpio_rx_q_invert, 1);
 	} else if( !sgpio_invert & tx_mode) {
-		GPIO_CLR(GPIO0) = GPIOPIN13;
+		gpio_write(config->gpio_rx_q_invert, 0);
 	} else if( sgpio_invert & !tx_mode) {
-		GPIO_CLR(GPIO0) = GPIOPIN13;
+		gpio_write(config->gpio_rx_q_invert, 0);
 	} else if( sgpio_invert & tx_mode) {
-		GPIO_SET(GPIO0) = GPIOPIN13;
+		gpio_write(config->gpio_rx_q_invert, 1);
 	}
-#endif
 }
 
 void sgpio_cpld_stream_rx_set_q_invert(sgpio_config_t* const config, const uint_fast8_t invert) {
@@ -316,7 +314,7 @@ void sgpio_cpld_stream_rx_set_q_invert(sgpio_config_t* const config, const uint_
 		sgpio_invert = false;
 	}
 
-	update_q_invert();
+	update_q_invert(config);
 }
 
 #else
