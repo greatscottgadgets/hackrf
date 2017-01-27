@@ -23,7 +23,6 @@
 
 int main(void)
 {
-	int i;
 	pin_setup();
 
 	/* enable all power supplies */
