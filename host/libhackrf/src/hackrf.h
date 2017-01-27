@@ -216,8 +216,8 @@ extern ADDAPI int ADDCALL hackrf_init_sweep(hackrf_device* device,
 											int length, uint32_t dwell_time);
 
 /* Operacake functions */
-int ADDCALL hackrf_get_operacake_boards(hackrf_device* device, uint8_t* boards);
-int ADDCALL hackrf_set_operacake_ports(hackrf_device* device,
+extern ADDAPI int ADDCALL hackrf_get_operacake_boards(hackrf_device* device, uint8_t* boards);
+extern ADDAPI int ADDCALL hackrf_set_operacake_ports(hackrf_device* device,
                                        uint8_t address,
                                        uint8_t port_a,
                                        uint8_t port_b);
