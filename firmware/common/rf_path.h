@@ -56,8 +56,18 @@ typedef struct rf_path_t {
 	gpio_t gpio_rx_amp;
 	gpio_t gpio_no_rx_amp_pwr;
 #endif
-/// XXX
 #ifdef RAD1O
+	gpio_t gpio_tx_rx_n;
+	gpio_t gpio_tx_rx;
+	gpio_t gpio_by_mix;
+	gpio_t gpio_by_mix_n;
+	gpio_t gpio_by_amp;
+	gpio_t gpio_by_amp_n;
+	gpio_t gpio_mixer_en;
+	gpio_t gpio_low_high_filt;
+	gpio_t gpio_low_high_filt_n;
+	gpio_t gpio_tx_amp;
+	gpio_t gpio_rx_lna;
 #endif
 } rf_path_t;
 

@@ -81,8 +81,11 @@ static struct gpio_t gpio_rf_ldo_enable		= GPIO(2, 9);
 #endif
 
 /* RF supply (VAA) control */
-#if (defined HACKRF_ONE || defined RAD1O)
+#ifdef HACKRF_ONE
 static struct gpio_t gpio_vaa_disable		= GPIO(2, 9);
+#endif
+#ifdef RAD1O
+static struct gpio_t gpio_vaa_enable		= GPIO(2, 9);
 #endif
 
 static struct gpio_t gpio_w25q80bv_hold		= GPIO(1, 14);
@@ -105,9 +108,18 @@ static struct gpio_t gpio_amp_bypass		= GPIO(0, 14);
 static struct gpio_t gpio_rx_amp			= GPIO(1, 11);
 static struct gpio_t gpio_no_rx_amp_pwr		= GPIO(1, 12);
 #endif
-
-// XXX
 #ifdef RAD1O
+static struct gpio_t gpio_tx_rx_n			= GPIO(0,  11);
+static struct gpio_t gpio_tx_rx				= GPIO(0,  14);
+static struct gpio_t gpio_by_mix			= GPIO(1,  12);
+static struct gpio_t gpio_by_mix_n			= GPIO(2,  10);
+static struct gpio_t gpio_by_amp			= GPIO(1,  0);
+static struct gpio_t gpio_by_amp_n			= GPIO(5,  5);
+static struct gpio_t gpio_mixer_en			= GPIO(5,  16);
+static struct gpio_t gpio_low_high_filt		= GPIO(2,  11);
+static struct gpio_t gpio_low_high_filt_n	= GPIO(2,  12);
+static struct gpio_t gpio_tx_amp			= GPIO(2,  15);
+static struct gpio_t gpio_rx_lna			= GPIO(5,  15);
 #endif
 
 #if 0
@@ -276,6 +288,17 @@ rf_path_t rf_path = {
 	.gpio_no_rx_amp_pwr = &gpio_no_rx_amp_pwr,
 #endif
 #ifdef RAD1O
+	.gpio_tx_rx_n = &gpio_tx_rx_n,
+	.gpio_tx_rx = &gpio_tx_rx,
+	.gpio_by_mix = &gpio_by_mix,
+	.gpio_by_mix_n = &gpio_by_mix_n,
+	.gpio_by_amp = &gpio_by_amp,
+	.gpio_by_amp_n = &gpio_by_amp_n,
+	.gpio_mixer_en = &gpio_mixer_en,
+	.gpio_low_high_filt = &gpio_low_high_filt,
+	.gpio_low_high_filt_n = &gpio_low_high_filt_n,
+	.gpio_tx_amp = &gpio_tx_amp,
+	.gpio_rx_lna = &gpio_rx_lna,
 #endif
 };
 
@@ -851,10 +874,13 @@ void pin_setup(void) {
 	gpio_output(&gpio_led[0]);
 	gpio_output(&gpio_led[1]);
 	gpio_output(&gpio_led[2]);
+#ifdef RAD1O
+	gpio_output(&gpio_led[3]);
+#endif
 
 	gpio_output(&gpio_1v8_enable);
 
-#if (defined HACKRF_ONE || defined RAD1O)
+#ifdef HACKRF_ONE
 	/* Configure RF power supply (VAA) switch control signal as output */
 	gpio_output(&gpio_vaa_disable);
 
@@ -863,7 +889,11 @@ void pin_setup(void) {
 #endif
 
 #ifdef RAD1O
-	gpio_output(&gpio_led[4]);
+	/* Configure RF power supply (VAA) switch control signal as output */
+	gpio_output(&gpio_vaa_enable);
+
+	/* Safe state: start with VAA turned off: */
+	disable_rf_power();
 #endif
 
 	/* enable input on SCL and SDA pins */
@@ -901,11 +931,11 @@ void disable_rf_power(void) {
 
 #ifdef RAD1O
 void enable_rf_power(void) {
-	gpio_set(&gpio_vaa_disable);
+	gpio_set(&gpio_vaa_enable);
 }
 
 void disable_rf_power(void) {
-	gpio_clear(&gpio_vaa_disable);
+	gpio_clear(&gpio_vaa_enable);
 }
 #endif
 

@@ -259,11 +259,7 @@ extern "C"
 
 #define SCU_PINMUX_GP_CLKIN	(P4_7)
 
-#ifdef RAD1O
-#define PIN_LED4    (BIT26) /* GPIO5[26] on PB_6 */
-#define PORT_LED4   (GPIO5) /* PORT for LED4 */
-#endif
-
+#if 0 //XXX
 #ifdef RAD1O
 #define PIN_XCVR_RXHP     (BIT1)  /* GPIO4[1] on P8_1 */
 #define PORT_XCVR_RXHP	  (GPIO4)
@@ -283,38 +279,8 @@ extern "C"
 #define PORT_VCO_LE       (GPIO2)
 #define PIN_VCO_MUX       (BIT25) /* GPIO5[25] on PB_5 */
 #define PORT_VCO_MUX      (GPIO5)
-#define PIN_MIXER_EN      (BIT16) /* GPIO5[16] on P6_8 */
-#define PORT_MIXER_EN     (GPIO5)
 #define PIN_SYNT_RFOUT_EN (BIT5)  /* GPIO3[5] on P6_9 */
 #define PORT_SYNT_RFOUT_EN (GPIO3)
-#endif
-
-#ifdef RAD1O
-#define PIN_VAA_ENABLE  (BIT9)  /* GPIO2[9] on P5_0 */
-#define PORT_VAA_ENABLE (GPIO2) /* PORT for VAA_ENABLE */
-#endif
-
-#ifdef RAD1O
-#define PIN_BY_AMP          (GPIOPIN0)  /* GPIO1[0] on P1_7 */
-#define PORT_BY_AMP         (GPIO1)
-#define PIN_BY_AMP_N        (GPIOPIN5)  /* GPIO5[5] on P2_5 */
-#define PORT_BY_AMP_N       (GPIO5)
-#define PIN_TX_RX           (GPIOPIN14) /* GPIO0[14] on P2_10 */
-#define PORT_TX_RX          (GPIO0)
-#define PIN_TX_RX_N         (GPIOPIN11) /* GPIO1[11] on P2_11 */
-#define PORT_TX_RX_N        (GPIO1)
-#define PIN_BY_MIX          (GPIOPIN12) /* GPIO1[12] on P2_12 */
-#define PORT_BY_MIX         (GPIO1)
-#define PIN_BY_MIX_N        (GPIOPIN10) /* GPIO2[10] on P5_1 */
-#define PORT_BY_MIX_N       (GPIO2)
-#define PIN_LOW_HIGH_FILT   (GPIOPIN11) /* GPIO2[11] on P5_2 */
-#define PORT_LOW_HIGH_FILT  (GPIO2)
-#define PIN_LOW_HIGH_FILT_N (GPIOPIN12) /* GPIO2[12] on P5_3 */
-#define PORT_LOW_HIGH_FILT_N    (GPIO2)
-#define PIN_TX_AMP          (GPIOPIN15) /* GPIO2[15] on P5_6 */
-#define PORT_TX_AMP         (GPIO2)
-#define PIN_RX_LNA          (GPIOPIN15) /* GPIO5[15] on P6_7 */
-#define PORT_RX_LNA         (GPIO5)
 #endif
 
 #if (defined HACKRF_ONE || defined RAD1O)
@@ -322,6 +288,7 @@ extern "C"
 #define PORT_CPLD_TMS   (GPIO3)
 #define PIN_CPLD_TDI    (GPIOPIN1)
 #define PORT_CPLD_TDI   (GPIO3)
+#endif
 #endif
  
 typedef enum {
