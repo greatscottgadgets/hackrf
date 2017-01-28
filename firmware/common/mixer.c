@@ -16,8 +16,8 @@ static struct gpio_t gpio_vco_ce			= GPIO(2, 13);
 static struct gpio_t gpio_vco_sclk			= GPIO(5,  6);
 static struct gpio_t gpio_vco_sdata			= GPIO(3,  3);
 static struct gpio_t gpio_vco_le			= GPIO(2, 14);
-static struct gpio_t gpio_synt_rfout_en		= GPIO(5, 25);
-static struct gpio_t gpio_vco_mux			= GPIO(3,  5);
+static struct gpio_t gpio_vco_mux			= GPIO(5, 25);
+static struct gpio_t gpio_synt_rfout_en		= GPIO(3,  5);
 #endif
 
 #if (defined JAWBREAKER || defined HACKRF_ONE)
