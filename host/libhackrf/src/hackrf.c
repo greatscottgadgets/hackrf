@@ -26,6 +26,11 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 #include <stdlib.h>
 
 #include <libusb.h>
+
+#ifdef _WIN32
+/* Avoid redefinition of timespec from time.h (included by libusb.h) */
+#define HAVE_STRUCT_TIMESPEC 1
+#endif
 #include <pthread.h>
 
 #ifndef bool
@@ -67,6 +72,12 @@ typedef enum {
 	HACKRF_VENDOR_REQUEST_SET_TXVGA_GAIN = 21,
 	HACKRF_VENDOR_REQUEST_ANTENNA_ENABLE = 23,
 	HACKRF_VENDOR_REQUEST_SET_FREQ_EXPLICIT = 24,
+	// USB_WCID_VENDOR_REQ = 25
+	HACKRF_VENDOR_REQUEST_INIT_SWEEP = 26,
+	HACKRF_VENDOR_REQUEST_OPERACAKE_GET_BOARDS = 27,
+	HACKRF_VENDOR_REQUEST_OPERACAKE_SET_PORTS = 28,
+	HACKRF_VENDOR_REQUEST_SET_HW_SYNC_MODE = 29,
+	HACKRF_VENDOR_REQUEST_RESET = 30,
 } hackrf_vendor_request;
 
 typedef enum {
@@ -81,6 +92,11 @@ typedef enum {
 	HACKRF_TRANSCEIVER_MODE_SS = 3,
 	TRANSCEIVER_MODE_CPLD_UPDATE = 4,
 } hackrf_transceiver_mode;
+
+typedef enum {
+	HACKRF_HW_SYNC_MODE_OFF = 0,
+	HACKRF_HW_SYNC_MODE_ON = 1,
+} hackrf_hw_sync_mode;
 
 struct hackrf_device {
 	libusb_device_handle* usb_device;
@@ -1094,6 +1110,11 @@ typedef struct {
 } set_fracrate_params_t;
 
 
+/*
+ * You should probably use hackrf_set_sample_rate() below instead of this
+ * function.  They both result in automatic baseband filter selection as
+ * described below.
+ */
 int ADDCALL hackrf_set_sample_rate_manual(hackrf_device* device,
                                        const uint32_t freq_hz, uint32_t divider)
 {
@@ -1120,10 +1141,17 @@ int ADDCALL hackrf_set_sample_rate_manual(hackrf_device* device,
 	{
 		return HACKRF_ERROR_LIBUSB;
 	} else {
-		return HACKRF_SUCCESS;
+		return hackrf_set_baseband_filter_bandwidth(device,
+				hackrf_compute_baseband_filter_bw((uint32_t)(0.75*freq_hz/divider)));
 	}
 }
 
+/*
+ * For anti-aliasing, the baseband filter bandwidth is automatically set to the
+ * widest available setting that is no more than 75% of the sample rate.  This
+ * happens every time the sample rate is set.  If you want to override the
+ * baseband filter selection, you must do so after setting the sample rate.
+ */
 int ADDCALL hackrf_set_sample_rate(hackrf_device* device, const double freq)
 {
 	const int MAX_N = 32;
@@ -1417,6 +1445,7 @@ static int create_transfer_thread(hackrf_device* device,
 	if( device->transfer_thread_started == false )
 	{
 		device->streaming = false;
+		do_exit = false;
 
 		result = prepare_transfers(
 			device, endpoint_address,
@@ -1546,6 +1575,26 @@ int ADDCALL hackrf_close(hackrf_device* device)
 		return result2;
 	}
 	return result1;
+}
+
+int ADDCALL hackrf_set_hw_sync_mode(hackrf_device* device, const uint8_t value) {
+	int result = libusb_control_transfer(
+		device->usb_device,
+ 		LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_SET_HW_SYNC_MODE,
+		value,
+		0,
+		NULL,
+		0,
+		0
+	);
+
+	if( result != 0 )
+	{
+		return HACKRF_ERROR_LIBUSB;
+	} else {
+		return HACKRF_SUCCESS;
+	}
 }
 
 const char* ADDCALL hackrf_error_name(enum hackrf_error errcode)
@@ -1693,6 +1742,111 @@ uint32_t ADDCALL hackrf_compute_baseband_filter_bw(const uint32_t bandwidth_hz)
 	}
 
 	return p->bandwidth_hz;
+}
+
+/* Initialise sweep mode with alist of frequencies and dwell time in samples */
+int ADDCALL hackrf_init_sweep(hackrf_device* device, uint16_t* frequency_list, int length, uint32_t dwell_time)
+{
+	int result, i;
+	int size = length * sizeof(frequency_list[0]);
+
+	for(i=0; i<length; i++)
+		frequency_list[i] = TO_LE(frequency_list[i]);
+
+	result = libusb_control_transfer(
+		device->usb_device,
+		LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_INIT_SWEEP,
+		dwell_time & 0xffff,
+		(dwell_time >> 16) & 0xffff,
+		(unsigned char*)frequency_list,
+		size,
+		0
+	);
+
+	if (result < size) {
+		return HACKRF_ERROR_LIBUSB;
+	} else {
+		return HACKRF_SUCCESS;
+	}
+}
+
+/* Retrieve list of Operacake board addresses 
+ * boards must be *uint8_t[8]
+ */
+int ADDCALL hackrf_get_operacake_boards(hackrf_device* device, uint8_t* boards)
+{
+	int result;
+	result = libusb_control_transfer(
+		device->usb_device,
+		LIBUSB_ENDPOINT_IN | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_OPERACAKE_GET_BOARDS,
+		0,
+		0,
+		boards,
+		8,
+		0
+	);
+
+	if (result < 8)
+	{
+		return HACKRF_ERROR_LIBUSB;
+	} else {
+		return HACKRF_SUCCESS;
+	}
+}
+
+/* Set Operacake ports */
+int ADDCALL hackrf_set_operacake_ports(hackrf_device* device,
+                                       uint8_t address,
+                                       uint8_t port_a,
+                                       uint8_t port_b)
+{
+	int result;
+	/* Error checking */
+	if((port_a > OPERACAKE_PB4) || (port_b > OPERACAKE_PB4)) {
+		return HACKRF_ERROR_INVALID_PARAM;
+	}
+	/* Check which side PA and PB are on */
+	if(((port_a <= OPERACAKE_PA4) && (port_b <= OPERACAKE_PA4))
+	    || ((port_a > OPERACAKE_PA4) && (port_b > OPERACAKE_PA4))) {
+		return HACKRF_ERROR_INVALID_PARAM;
+	}
+	result = libusb_control_transfer(
+		device->usb_device,
+		LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_OPERACAKE_SET_PORTS,
+		address,
+		port_a | (port_b<<8),
+		NULL,
+		0,
+		0
+	);
+
+	if (result != 0) {
+		return HACKRF_ERROR_LIBUSB;
+	} else {
+		return HACKRF_SUCCESS;
+	}
+}
+
+int ADDCALL hackrf_reset(hackrf_device* device) {
+	int result = libusb_control_transfer(
+		device->usb_device,
+ 		LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_RESET,
+		0,
+		0,
+		NULL,
+		0,
+		0
+	);
+
+	if( result != 0 ) {
+		return HACKRF_ERROR_LIBUSB;
+	} else {
+		return HACKRF_SUCCESS;
+	}
 }
 
 #ifdef __cplusplus

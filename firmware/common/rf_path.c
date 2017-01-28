@@ -230,6 +230,7 @@ static void switchctrl_set_rad1o(rf_path_t* const rf_path, uint8_t ctrl) {
 
 static void switchctrl_set(rf_path_t* const rf_path, const uint8_t gpo) {
 #ifdef JAWBREAKER
+	(void) rf_path; /* silence unused param warning */
 	mixer_set_gpo(&mixer, gpo);
 #elif HACKRF_ONE
 	switchctrl_set_hackrf_one(rf_path, gpo);
@@ -274,9 +275,13 @@ void rf_path_pin_setup(rf_path_t* const rf_path) {
 	gpio_output(rf_path->gpio_tx);
 	gpio_output(rf_path->gpio_mix_bypass);
 	gpio_output(rf_path->gpio_rx);
-#endif
 
-#ifdef RAD1O
+	/*
+	 * Safe (initial) switch settings turn off both amplifiers and antenna port
+	 * power and enable both amp bypass and mixer bypass.
+	 */
+	switchctrl_set(rf_path, SWITCHCTRL_AMP_BYPASS | SWITCHCTRL_MIX_BYPASS);
+#elif RAD1O
 	/* Configure RF switch control signals */
 	scu_pinmux(SCU_BY_AMP,         SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
 	scu_pinmux(SCU_BY_AMP_N,       SCU_GPIO_FAST | SCU_CONF_FUNCTION4);
@@ -305,13 +310,15 @@ void rf_path_pin_setup(rf_path_t* const rf_path) {
 	gpio_output(rf_path->gpio_low_high_filt_n);
 	gpio_output(rf_path->gpio_tx_amp);
 	gpio_output(rf_path->gpio_rx_lna);
-#endif
 
 	/*
 	 * Safe (initial) switch settings turn off both amplifiers and antenna port
 	 * power and enable both amp bypass and mixer bypass.
 	 */
 	switchctrl_set(rf_path, SWITCHCTRL_AMP_BYPASS | SWITCHCTRL_MIX_BYPASS);
+#else
+	(void) rf_path; /* silence unused param warning */
+#endif
 }
 
 void rf_path_init(rf_path_t* const rf_path) {

@@ -1,6 +1,5 @@
 /*
- * Copyright 2012 Jared Boone
- * Copyright 2013 Benjamin Vernoux
+ * Copyright 2016 Dominic Spill <dominicgs@gmail.com>
  *
  * This file is part of HackRF.
  *
@@ -20,26 +19,16 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __USB_API_BOARD_INFO_H__
-#define __USB_API_BOARD_INFO_H__
-
-#include <stdint.h>
+#ifndef __USB_API_OPERACAKE_H__
+#define __USB_API_OPERACAKE_H__
 
 #include <usb_type.h>
 #include <usb_request.h>
 
-typedef struct {
-	uint32_t part_id[2];
-	uint32_t serial_no[4];
-} read_partid_serialno_t;
-
-usb_request_status_t usb_vendor_request_read_board_id(
-	usb_endpoint_t* const endpoint, const usb_transfer_stage_t stage);
-usb_request_status_t usb_vendor_request_read_version_string(
-	usb_endpoint_t* const endpoint, const usb_transfer_stage_t stage);
-usb_request_status_t usb_vendor_request_read_partid_serialno(
-	usb_endpoint_t* const endpoint, const usb_transfer_stage_t stage);
-usb_request_status_t usb_vendor_request_reset(
+usb_request_status_t  usb_vendor_request_operacake_get_boards(
 	usb_endpoint_t* const endpoint, const usb_transfer_stage_t stage);
 
-#endif /* end of include guard: __USB_API_BOARD_INFO_H__ */
+usb_request_status_t usb_vendor_request_operacake_set_ports(
+	usb_endpoint_t* const endpoint, const usb_transfer_stage_t stage);
+
+#endif /* end of include guard: __USB_API_OPERACAKE_H__ */

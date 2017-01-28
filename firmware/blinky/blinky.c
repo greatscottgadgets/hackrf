@@ -23,7 +23,6 @@
 
 int main(void)
 {
-	int i;
 	pin_setup();
 
 	/* enable all power supplies */
@@ -36,15 +35,13 @@ int main(void)
 		led_on(LED2);
 		led_on(LED3);
 
-		for (i = 0; i < 2000000; i++)	/* Wait a bit. */
-			__asm__("nop");
+		delay(2000000);
 		
 		led_off(LED1);
 		led_off(LED2);
 		led_off(LED3);
 		
-		for (i = 0; i < 2000000; i++)	/* Wait a bit. */
-			__asm__("nop");
+		delay(2000000);
 	}
 
 	return 0;

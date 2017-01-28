@@ -264,6 +264,11 @@ typedef enum {
 	TRANSCEIVER_MODE_CPLD_UPDATE = 4
 } transceiver_mode_t;
 
+typedef enum {
+	HW_SYNC_MODE_OFF = 0,
+	HW_SYNC_MODE_ON = 1,
+} hw_sync_mode_t;
+
 void delay(uint32_t duration);
 
 /* TODO: Hide these configurations */
@@ -279,6 +284,7 @@ extern w25q80bv_driver_t spi_flash;
 extern sgpio_config_t sgpio_config;
 extern rf_path_t rf_path;
 extern jtag_t jtag_cpld;
+extern i2c_bus_t i2c0;
 
 void cpu_clock_init(void);
 void cpu_clock_pll1_low_speed(void);
@@ -310,6 +316,13 @@ typedef enum {
 void led_on(const led_t led);
 void led_off(const led_t led);
 void led_toggle(const led_t led);
+
+void hw_sync_syn();
+void hw_sync_stop();
+void hw_sync_ack();
+bool hw_sync_ready();
+void hw_sync_copy_state();
+
 
 #ifdef __cplusplus
 }

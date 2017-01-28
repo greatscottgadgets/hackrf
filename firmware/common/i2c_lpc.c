@@ -44,17 +44,23 @@ void i2c_lpc_transfer(i2c_bus_t* const bus,
 	uint8_t* const data_rx, const size_t count_rx
 ) {
 	const uint32_t port = (uint32_t)bus->obj;
-	i2c_tx_start(port);
-	i2c_tx_byte(port, (slave_address << 1) | I2C_WRITE);
-	for(size_t i=0; i<count_tx; i++) {
-		i2c_tx_byte(port, data_tx[i]);
+	size_t i;
+	bool ack = false;
+	if (data_tx && (count_tx > 0)) {
+		i2c_tx_start(port);
+		i2c_tx_byte(port, (slave_address << 1) | I2C_WRITE);
+		for(i=0; i<count_tx; i++) {
+			i2c_tx_byte(port, data_tx[i]);
+		}
 	}
 
-	if( data_rx ) {
+	if (data_rx && (count_rx > 0)) {
 		i2c_tx_start(port);
 		i2c_tx_byte(port, (slave_address << 1) | I2C_READ);
-		for(size_t i=0; i<count_rx; i++) {
-			data_rx[i] = i2c_rx_byte(port);
+		for(i=0; i<count_rx; i++) {
+			/* ACK each byte except the last */
+			ack = (i!=count_rx-1);
+			data_rx[i] = i2c_rx_byte(port, ack);
 		}
 	}
 

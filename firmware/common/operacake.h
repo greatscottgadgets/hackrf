@@ -1,6 +1,5 @@
 /*
- * Copyright 2012 Jared Boone
- * Copyright 2013 Benjamin Vernoux
+ * Copyright 2016 Dominic Spill <dominicgs@gmail.com>
  *
  * This file is part of HackRF.
  *
@@ -20,21 +19,35 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include <streaming.h>
+#ifndef __OPERACAKE_H
+#define __OPERACAKE_H
 
-#include <libopencm3/lpc43xx/m4/nvic.h>
-#include <libopencm3/lpc43xx/sgpio.h>
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 
-void baseband_streaming_enable(sgpio_config_t* const sgpio_config) {
-	nvic_set_priority(NVIC_SGPIO_IRQ, 0);
-	nvic_enable_irq(NVIC_SGPIO_IRQ);
-	SGPIO_SET_EN_1 = (1 << SGPIO_SLICE_A);
+#include <stdint.h>
+#include "i2c_bus.h"
 
-	sgpio_cpld_stream_enable(sgpio_config);
+#define OPERACAKE_PA1 0
+#define OPERACAKE_PA2 1
+#define OPERACAKE_PA3 2
+#define OPERACAKE_PA4 3
+
+#define OPERACAKE_PB1 4
+#define OPERACAKE_PB2 5
+#define OPERACAKE_PB3 6
+#define OPERACAKE_PB4 7
+
+/* Up to 8 Operacake boards can be used with one HackRF */
+extern uint8_t operacake_boards[8];
+
+uint8_t operacake_init(void);
+uint8_t operacake_set_ports(uint8_t address, uint8_t PA, uint8_t PB);
+
+#ifdef __cplusplus
 }
+#endif
 
-void baseband_streaming_disable(sgpio_config_t* const sgpio_config) {
-	sgpio_cpld_stream_disable(sgpio_config);
-
-	nvic_disable_irq(NVIC_SGPIO_IRQ);
-}
+#endif /* __OPERACAKE_H */
