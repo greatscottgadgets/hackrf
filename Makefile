@@ -20,13 +20,13 @@ lib: firmware/libopencm3/README firmware/libopencm3/lib/libopencm3_lpc43xx.a
 
 FDIR=firmware/hackrf_usb/build
 
-hackrf-usb: $(FDIR)/hackrf_usb.bin
+hackrf-usb: $(FDIR)/hackrf_usb.dfu
 
-$(FDIR)/hackrf_usb.bin: $(FDIR) $(FDIR)/Makefile $(FORCE)
+$(FDIR)/hackrf_usb.dfu: $(FDIR) $(FDIR)/Makefile $(FORCE)
 	$(MAKE) -C $(FDIR)
 
 $(FDIR)/Makefile:
-	cd $(FDIR) && cmake -DBOARD=RAD1O -DRUN_FROM=RAM ..
+	cd $(FDIR) && cmake -DBOARD=RAD1O ..
 	
 $(FDIR):
 	mkdir $(FDIR)
