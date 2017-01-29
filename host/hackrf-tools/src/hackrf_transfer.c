@@ -402,7 +402,6 @@ int rx_callback(hackrf_transfer* transfer) {
 				return 0;
 			}
 		}
-		}
 	} else {
 		return -1;
 	}
@@ -1092,7 +1091,6 @@ int main(int argc, char** argv) {
 				fprintf(stderr, "\nCouldn't transfer any bytes for one second.\n");
 				break;
 			}
-		}
 		}
 	}
 	
