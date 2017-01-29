@@ -196,9 +196,14 @@ macro(DeclareTargets)
 	)
 
 	add_custom_target(
-		${PROJECT_NAME}.dfu ALL
-		DEPENDS ${PROJECT_NAME}.bin
-		COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/../tools/make-dfu.py ${PROJECT_NAME}.bin ${PROJECT_NAME}.dfu
+		${PROJECT_NAME}.dfu ${DFU_ALL}
+		DEPENDS ${PROJECT_NAME}_dfu.bin
+		COMMAND rm -f _tmp.dfu _header.bin
+		COMMAND cp ${PROJECT_NAME}_dfu.bin _tmp.dfu
+		COMMAND ${DFU_COMMAND}
+		COMMAND python ../../dfu.py ${PROJECT_NAME}
+		COMMAND cat _header.bin _tmp.dfu >${PROJECT_NAME}.dfu
+		COMMAND rm -f _tmp.dfu _header.bin
 	)
 
 	add_custom_target(
