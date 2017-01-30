@@ -357,6 +357,8 @@ bool repeat = false;
 bool crystal_correct = false;
 uint32_t crystal_correct_ppm ;
 
+int requested_mode_count = 0;
+
 int rx_callback(hackrf_transfer* transfer) {
 	size_t bytes_to_write;
 	size_t bytes_written;
@@ -555,15 +557,18 @@ int main(int argc, char** argv) {
 			break;
 		case 'w':
 			receive_wav = true;
+			requested_mode_count++;
 			break;
 		
 		case 'r':
 			receive = true;
+			requested_mode_count++;
 			path = optarg;
 			break;
 		
 		case 't':
 			transmit = true;
+			requested_mode_count++;
 			path = optarg;
 			break;
 
@@ -660,8 +665,8 @@ int main(int argc, char** argv) {
 			break;
 
 		case 'c':
-			transmit = true;
 			signalsource = true;
+			requested_mode_count++;
 			result = parse_u32(optarg, &amplitude);
 			break;
 
@@ -820,33 +825,22 @@ int main(int argc, char** argv) {
 		}
 	}
 
-	if( (transmit == false) && (receive == receive_wav) )
-	{
-		fprintf(stderr, "receive -r and receive_wav -w options are mutually exclusive\n");
+	if(requested_mode_count > 1) {
+		fprintf(stderr, "specify only one of: -t, -c, -r, -w\n");
 		usage();
 		return EXIT_FAILURE;
 	}
-	
-	if( receive_wav == false )
-	{
-		if( transmit == receive ) 
-		{
-			if( transmit == true ) 
-			{
-				fprintf(stderr, "receive -r and transmit -t options are mutually exclusive\n");
-			} else
-			{
-				fprintf(stderr, "specify either transmit -t or receive -r or receive_wav -w option\n");
-			}
-			usage();
-			return EXIT_FAILURE;
-		}
+
+	if(requested_mode_count < 1) {
+		fprintf(stderr, "specify one of: -t, -c, -r, -w\n");
+		usage();
+		return EXIT_FAILURE;
 	}
-	
+
 	if( receive ) {
 		transceiver_mode = TRANSCEIVER_MODE_RX;
 	}
-	
+
 	if( transmit ) {
 		transceiver_mode = TRANSCEIVER_MODE_TX;
 	}
@@ -854,7 +848,7 @@ int main(int argc, char** argv) {
 	if (signalsource) {
 		transceiver_mode = TRANSCEIVER_MODE_SS;
 		if (amplitude >127) {
-			fprintf(stderr, "argument error: amplitude shall be in between 0 and 128.\n");
+			fprintf(stderr, "argument error: amplitude shall be in between 0 and 127.\n");
 			usage();
 			return EXIT_FAILURE;
 		}
@@ -1095,7 +1089,7 @@ int main(int argc, char** argv) {
 			}
 		}
 	}
-	
+
 	result = hackrf_is_streaming(device);	
 	if (do_exit)
 	{
@@ -1103,25 +1097,22 @@ int main(int argc, char** argv) {
 	} else {
 		fprintf(stderr, "\nExiting... hackrf_is_streaming() result: %s (%d)\n", hackrf_error_name(result), result);
 	}
-	
+
 	gettimeofday(&t_end, NULL);
 	time_diff = TimevalDiff(&t_end, &t_start);
 	fprintf(stderr, "Total time: %5.5f s\n", time_diff);
-	
-	if(device != NULL)
-	{
-		if( receive ) 
-		{
+
+	if(device != NULL) {
+		if(receive || receive_wav) {
 			result = hackrf_stop_rx(device);
 			if( result != HACKRF_SUCCESS ) {
 				fprintf(stderr, "hackrf_stop_rx() failed: %s (%d)\n", hackrf_error_name(result), result);
-			}else {
+			} else {
 				fprintf(stderr, "hackrf_stop_rx() done\n");
 			}
 		}
-	
-		if( transmit ) 
-		{
+
+		if(transmit || signalsource) {
 			result = hackrf_stop_tx(device);
 			if( result != HACKRF_SUCCESS ) {
 				fprintf(stderr, "hackrf_stop_tx() failed: %s (%d)\n", hackrf_error_name(result), result);
@@ -1129,19 +1120,18 @@ int main(int argc, char** argv) {
 				fprintf(stderr, "hackrf_stop_tx() done\n");
 			}
 		}
-		
+
 		result = hackrf_close(device);
-		if( result != HACKRF_SUCCESS ) 
-		{
+		if(result != HACKRF_SUCCESS) {
 			fprintf(stderr, "hackrf_close() failed: %s (%d)\n", hackrf_error_name(result), result);
-		}else {
+		} else {
 			fprintf(stderr, "hackrf_close() done\n");
 		}
-		
+
 		hackrf_exit();
 		fprintf(stderr, "hackrf_exit() done\n");
 	}
-		
+
 	if(fd != NULL)
 	{
 		if( receive_wav ) 
