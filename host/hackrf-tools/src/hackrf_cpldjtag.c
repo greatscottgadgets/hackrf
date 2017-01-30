@@ -45,6 +45,7 @@ uint8_t data[MAX_XSVF_LENGTH];
 
 static struct option long_options[] = {
 	{ "xsvf", required_argument, 0, 'x' },
+	{ "device", required_argument, 0, 'd' },
 	{ "help", no_argument, 0, 'h' },
 	{ 0, 0, 0, 0 },
 };
@@ -82,7 +83,7 @@ static void usage()
 	printf("Usage:\n");
 	printf("\t-h, --help: this help\n");
 	printf("\t-x, --xsvf <filename>: XSVF file to be written to CPLD.\n");
-	printf("\t-d <serialnumber>: Serial number of device, if multiple devices\n");
+	printf("\t-d, --device <serialnumber>: Serial number of device, if multiple devices\n");
 }
 
 int main(int argc, char** argv)

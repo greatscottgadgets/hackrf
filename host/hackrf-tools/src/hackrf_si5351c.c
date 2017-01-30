@@ -38,7 +38,7 @@ static void usage() {
 	printf("\t-n, --register <n>: set register number for subsequent read/write operations\n");
 	printf("\t-r, --read: read register specified by last -n argument, or all registers\n");
 	printf("\t-w, --write <v>: write register specified by last -n argument with value <v>\n");
-	printf("\t-s, --device <s>: specify a particular device by serial number\n");
+	printf("\t-s, --serial <s>: specify a particular device by serial number\n");
 	printf("\t-d, --device <n>: specify a particular device by number\n");
 	printf("\nExamples:\n");
 	printf("\t<command> -n 12 -r    # reads from register 12\n");

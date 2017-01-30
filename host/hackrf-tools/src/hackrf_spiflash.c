@@ -51,6 +51,8 @@ static struct option long_options[] = {
 	{ "length", required_argument, 0, 'l' },
 	{ "read", required_argument, 0, 'r' },
 	{ "write", required_argument, 0, 'w' },
+	{ "device", required_argument, 0, 'd' },
+	{ "reset", no_argument, 0, 'R' },
 	{ "verbose", no_argument, 0, 'v' },
 	{ "help", no_argument, 0, 'h' },
 	{ 0, 0, 0, 0 },
@@ -90,11 +92,11 @@ static void usage()
 	printf("\t-h, --help: this help\n");
 	printf("\t-a, --address <n>: starting address (default: 0)\n");
 	printf("\t-l, --length <n>: number of bytes to read (default: %d)\n", MAX_LENGTH);
-	printf("\t-r <filename>: Read data into file.\n");
-	printf("\t-w <filename>: Write data from file.\n");
-	printf("\t-d <serialnumber>: Serial number of device, if multiple devices\n");
-	printf("\t-R: Reset HackRF after other operations.\n");
-	printf("\t-v: Verbose output.\n");
+	printf("\t-r, --read <filename>: Read data into file.\n");
+	printf("\t-w, --write <filename>: Write data from file.\n");
+	printf("\t-d, --device <serialnumber>: Serial number of device, if multiple devices\n");
+	printf("\t-R, --reset: Reset HackRF after other operations.\n");
+	printf("\t-v, --verbose: Verbose output.\n");
 }
 
 int main(int argc, char** argv)

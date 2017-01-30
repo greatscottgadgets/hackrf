@@ -39,13 +39,14 @@ static void usage() {
 	printf("\t-o, --address <n>: specify a particular operacake by address [default: 0x00]\n");
 	printf("\t-a <n>: set port A connection\n");
 	printf("\t-b <n>: set port B connection\n");
-	printf("\t-v: verbose, list available operacake boards\n");
+	printf("\t-v, --verbose: verbose, list available operacake boards\n");
 }
 
 static struct option long_options[] = {
 	{ "device", no_argument, 0, 'd' },
 	{ "serial", no_argument, 0, 's' },
 	{ "address", no_argument, 0, 'o' },
+	{ "verbose", no_argument, 0, 'v' },
 	{ "help", no_argument, 0, 'h' },
 	{ 0, 0, 0, 0 },
 };
