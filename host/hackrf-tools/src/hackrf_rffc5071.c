@@ -27,6 +27,12 @@
 #include <stdlib.h>
 #include <getopt.h>
 
+#ifndef bool
+typedef int bool;
+#define true 1
+#define false 0
+#endif
+
 static void usage() {
 	printf("\nUsage:\n");
 	printf("\t-h, --help: this help\n");
@@ -126,16 +132,12 @@ int main(int argc, char** argv) {
 	uint16_t register_value;
 	hackrf_device* device = NULL;
 	int option_index = 0;
+	bool read = false;
+	bool write = false;
 
 	int result = hackrf_init();
 	if( result ) {
 		printf("hackrf_init() failed: %s (%d)\n", hackrf_error_name(result), result);
-		return EXIT_FAILURE;
-	}
-	
-	result = hackrf_open(&device);
-	if( result ) {
-		printf("hackrf_open() failed: %s (%d)\n", hackrf_error_name(result), result);
 		return EXIT_FAILURE;
 	}
 
@@ -144,46 +146,67 @@ int main(int argc, char** argv) {
 		case 'n':
 			result = parse_int(optarg, &register_number);
 			break;
-		
 		case 'w':
+			write = true;
 			result = parse_int(optarg, &register_value);
-			if( result == HACKRF_SUCCESS ) {
-				result = write_register(device, register_number, register_value);
-			}
 			break;
-		
 		case 'r':
-			if( register_number == REGISTER_INVALID ) {
-				result = dump_registers(device);
-			} else {
-				result = dump_register(device, register_number);
-			}
+			read = true;
 			break;
 		case 'h':
 		case '?':
 			usage();
 			return EXIT_SUCCESS;
-		
 		default:
 			fprintf(stderr, "unknown argument '-%c %s'\n", opt, optarg);
 			usage();
 			return EXIT_FAILURE;
 		}
-		
+
 		if( result != HACKRF_SUCCESS ) {
 			printf("argument error: %s (%d)\n", hackrf_error_name(result), result);
 			usage();
-			break;
+			return EXIT_FAILURE;
 		}
 	}
-	
+
+	if(write && read) {
+		fprintf(stderr, "Read and write options are mutually exclusive.\n");
+		usage();
+		return EXIT_FAILURE;
+	}
+
+	if(!(write || read)) {
+		fprintf(stderr, "Specify either read or write option.\n");
+		usage();
+		return EXIT_FAILURE;
+	}
+
+	result = hackrf_open(&device);
+	if(result) {
+		printf("hackrf_open() failed: %s (%d)\n", hackrf_error_name(result), result);
+		return EXIT_FAILURE;
+	}
+
+	if(write) {
+		result = write_register(device, register_number, register_value);
+	}
+
+	if(read) {
+		if(register_number == REGISTER_INVALID) {
+			result = dump_registers(device);
+		} else {
+			result = dump_register(device, register_number);
+		}
+	}
+
 	result = hackrf_close(device);
 	if( result ) {
 		printf("hackrf_close() failed: %s (%d)\n", hackrf_error_name(result), result);
 		return EXIT_FAILURE;
 	}
-	
+
 	hackrf_exit();
-    
-    return EXIT_SUCCESS;
+
+	return EXIT_SUCCESS;
 }
