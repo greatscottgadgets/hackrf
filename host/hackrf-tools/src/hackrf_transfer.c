@@ -469,6 +469,7 @@ int tx_callback(hackrf_transfer* transfer) {
 
 static void usage() {
 	printf("Usage:\n");
+	printf("\t-h # this help\n");
 	printf("\t[-d serial_number] # Serial number of desired HackRF.\n");
 	printf("\t-r <filename> # Receive data into file (use '-' for stdout).\n");
 	printf("\t-t <filename> # Transmit data from file (use '-' for stdin).\n");
@@ -544,7 +545,7 @@ int main(int argc, char** argv) {
 	float time_diff;
 	unsigned int lna_gain=8, vga_gain=20, txvga_gain=0;
   
-	while( (opt = getopt(argc, argv, "Hwr:t:f:i:o:m:a:p:s:n:b:l:g:x:c:d:C:RS:")) != EOF )
+	while( (opt = getopt(argc, argv, "Hwr:t:f:i:o:m:a:p:s:n:b:l:g:x:c:d:C:RS:h?")) != EOF )
 	{
 		result = HACKRF_SUCCESS;
 		switch( opt ) 
@@ -673,9 +674,10 @@ int main(int argc, char** argv) {
 			result = parse_u32(optarg, &crystal_correct_ppm);
 			break;
 
+		case 'h':
 		case '?':
 			usage();
-			return EXIT_FAILURE;
+			return EXIT_SUCCESS;
 
 		default:
 			fprintf(stderr, "unknown argument '-%c %s'\n", opt, optarg);

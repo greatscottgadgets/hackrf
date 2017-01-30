@@ -52,6 +52,7 @@ static struct option long_options[] = {
 	{ "read", required_argument, 0, 'r' },
 	{ "write", required_argument, 0, 'w' },
 	{ "verbose", no_argument, 0, 'v' },
+	{ "help", no_argument, 0, 'h' },
 	{ 0, 0, 0, 0 },
 };
 
@@ -86,6 +87,7 @@ int parse_u32(char* s, uint32_t* const value)
 static void usage()
 {
 	printf("Usage:\n");
+	printf("\t-h, --help: this help\n");
 	printf("\t-a, --address <n>: starting address (default: 0)\n");
 	printf("\t-l, --length <n>: number of bytes to read (default: %d)\n", MAX_LENGTH);
 	printf("\t-r <filename>: Read data into file.\n");
@@ -115,7 +117,7 @@ int main(int argc, char** argv)
 	bool verbose = false;
 	bool reset = false;
 
-	while ((opt = getopt_long(argc, argv, "a:l:r:w:d:vR", long_options,
+	while ((opt = getopt_long(argc, argv, "a:l:r:w:d:vRh?", long_options,
 			&option_index)) != EOF) {
 		switch (opt) {
 		case 'a':
@@ -148,9 +150,10 @@ int main(int argc, char** argv)
 			reset = true;
 			break;
 
+		case 'h':
 		case '?':
 			usage();
-			return EXIT_FAILURE;
+			return EXIT_SUCCESS;
 
 		default:
 			fprintf(stderr, "unknown argument '-%c %s'\n", opt, optarg);

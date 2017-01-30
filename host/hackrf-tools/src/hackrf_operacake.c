@@ -33,6 +33,7 @@ typedef int bool;
 
 static void usage() {
 	printf("\nUsage:\n");
+	printf("\t-h, --help: this help\n");
 	printf("\t-s, --serial <s>: specify a particular device by serial number\n");
 	printf("\t-d, --device <n>: specify a particular device by number\n");
 	printf("\t-o, --address <n>: specify a particular operacake by address [default: 0x00]\n");
@@ -45,6 +46,7 @@ static struct option long_options[] = {
 	{ "device", no_argument, 0, 'd' },
 	{ "serial", no_argument, 0, 's' },
 	{ "address", no_argument, 0, 'o' },
+	{ "help", no_argument, 0, 'h' },
 	{ 0, 0, 0, 0 },
 };
 
@@ -78,7 +80,7 @@ int main(int argc, char** argv) {
 		return -1;
 	}
 
-	while( (opt = getopt_long(argc, argv, "d:s:o:a:b:v", long_options, &option_index)) != EOF ) {
+	while( (opt = getopt_long(argc, argv, "d:s:o:a:b:vh?", long_options, &option_index)) != EOF ) {
 		switch( opt ) {
 		case 'd':
 			device_index = atoi(optarg);
@@ -103,9 +105,15 @@ int main(int argc, char** argv) {
 		case 'v':
 			verbose = 1;
 			break;
+		case 'h':
+		case '?':
+			usage();
+			return EXIT_SUCCESS;
 
 		default:
+			fprintf(stderr, "unknown argument '-%c %s'\n", opt, optarg);
 			usage();
+			return EXIT_FAILURE;
 		}
 		
 		if( result != HACKRF_SUCCESS ) {

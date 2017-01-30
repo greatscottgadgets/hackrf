@@ -28,6 +28,7 @@
 
 static void usage() {
 	printf("\nUsage:\n");
+	printf("\t-h, --help: this help\n");
 	printf("\t-n, --register <n>: set register number for subsequent read/write operations\n");
 	printf("\t-r, --read: read register specified by last -n argument, or all registers\n");
 	printf("\t-w, --write <v>: write register specified by last -n argument with value <v>\n");
@@ -41,6 +42,7 @@ static struct option long_options[] = {
 	{ "register", required_argument, 0, 'n' },
 	{ "write", required_argument, 0, 'w' },
 	{ "read", no_argument, 0, 'r' },
+	{ "help", no_argument, 0, 'h' },
 	{ 0, 0, 0, 0 },
 };
 
@@ -127,16 +129,16 @@ int main(int argc, char** argv) {
 	int result = hackrf_init();
 	if( result ) {
 		printf("hackrf_init() failed: %s (%d)\n", hackrf_error_name(result), result);
-		return -1;
+		return EXIT_FAILURE;
 	}
 	
 	result = hackrf_open(&device);
 	if( result ) {
 		printf("hackrf_open() failed: %s (%d)\n", hackrf_error_name(result), result);
-		return -1;
+		return EXIT_FAILURE;
 	}
 
-	while( (opt = getopt_long(argc, argv, "n:rw:", long_options, &option_index)) != EOF ) {
+	while( (opt = getopt_long(argc, argv, "n:rw:h?", long_options, &option_index)) != EOF ) {
 		switch( opt ) {
 		case 'n':
 			result = parse_int(optarg, &register_number);
@@ -157,8 +159,14 @@ int main(int argc, char** argv) {
 			}
 			break;
 		
-		default:
+		case 'h':
+		case '?':
 			usage();
+			return EXIT_SUCCESS;
+		default:
+			fprintf(stderr, "unknown argument '-%c %s'\n", opt, optarg);
+			usage();
+			return EXIT_FAILURE;
 		}
 		
 		if( result != HACKRF_SUCCESS ) {
@@ -170,10 +178,10 @@ int main(int argc, char** argv) {
 	result = hackrf_close(device);
 	if( result ) {
 		printf("hackrf_close() failed: %s (%d)\n", hackrf_error_name(result), result);
-		return -1;
+		return EXIT_FAILURE;
 	}
 	
 	hackrf_exit();
     
-    return 0;
+    return EXIT_SUCCESS;
 }

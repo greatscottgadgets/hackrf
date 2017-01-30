@@ -235,6 +235,7 @@ int rx_callback(hackrf_transfer* transfer) {
 
 static void usage() {
 	fprintf(stderr, "Usage:\n");
+	fprintf(stderr, "\t[-h] # this help\n");
 	fprintf(stderr, "\t[-d serial_number] # Serial number of desired HackRF.\n");
 	fprintf(stderr, "\t[-a amp_enable] # RX/TX RF amplifier 1=Enable, 0=Disable.\n");
 	fprintf(stderr, "\t[-f freq_min:freq_max # Specify minimum & maximum sweep frequencies (MHz).\n");
@@ -276,7 +277,7 @@ int main(int argc, char** argv) {
 	uint16_t frequencies[MAX_FREQ_COUNT];
 	uint32_t num_samples = DEFAULT_SAMPLE_COUNT;
 
-	while( (opt = getopt(argc, argv, "a:f:p:l:g:x:d:n:")) != EOF ) {
+	while( (opt = getopt(argc, argv, "a:f:p:l:g:x:d:n:h?")) != EOF ) {
 		result = HACKRF_SUCCESS;
 		switch( opt ) 
 		{
@@ -324,6 +325,11 @@ int main(int argc, char** argv) {
 		case 'n':
 			result = parse_u32(optarg, &num_samples);
 			break;
+
+		case 'h':
+		case '?':
+			usage();
+			return EXIT_SUCCESS;
 
 		default:
 			fprintf(stderr, "unknown argument '-%c %s'\n", opt, optarg);
