@@ -36,7 +36,7 @@ typedef int bool;
 static void usage() {
 	printf("\nUsage:\n");
 	printf("\t-h, --help: this help\n");
-	printf("\t-n, --register <n>: set register number for subsequent read/write operations\n");
+	printf("\t-n, --register <n>: set register number for read/write operations\n");
 	printf("\t-r, --read: read register specified by last -n argument, or all registers\n");
 	printf("\t-w, --write <v>: write register specified by last -n argument with value <v>\n");
 	printf("\nExamples:\n");
