@@ -222,6 +222,7 @@ int main(int argc, char** argv) {
 		
 		case 'w':
 			write = true;
+			result = parse_int(optarg, &register_value);
 			break;
 		
 		case 'r':
@@ -273,7 +274,6 @@ int main(int argc, char** argv) {
 	}
 
 	if(write) {
-		result = parse_int(optarg, &register_value);
 		if( result == HACKRF_SUCCESS ) {
 			result = write_register(device, register_number, register_value);
 		}
