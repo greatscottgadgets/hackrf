@@ -257,6 +257,24 @@ int main(int argc, char** argv) {
 		}
 	}
 
+	if(write && read) {
+		fprintf(stderr, "Read and write options are mutually exclusive.\n");
+		usage();
+		return EXIT_FAILURE;
+	}
+
+	if(write && dump_config) {
+		fprintf(stderr, "Config and write options are mutually exclusive.\n");
+		usage();
+		return EXIT_FAILURE;
+	}
+
+	if(!(write || read || dump_config)) {
+		fprintf(stderr, "Specify read, write, or config option.\n");
+		usage();
+		return EXIT_FAILURE;
+	}
+
 	if(serial_number != NULL) {
 		result = hackrf_open_by_serial(serial_number, &device);
 	} else {
@@ -268,7 +286,7 @@ int main(int argc, char** argv) {
 		}	
 	}
 
-	if( result ) {
+	if(result) {
 		printf("hackrf_open() failed: %s (%d)\n", hackrf_error_name(result), result);
 		return EXIT_FAILURE;
 	}
@@ -277,23 +295,27 @@ int main(int argc, char** argv) {
 		if( result == HACKRF_SUCCESS ) {
 			result = write_register(device, register_number, register_value);
 		}
-	} else if(read) {
+	}
+
+	if(read) {
 		if( register_number == REGISTER_INVALID ) {
 			result = dump_registers(device);
 		} else {
 			result = dump_register(device, register_number);
 		}
-	} else if(dump_config) {
+	}
+
+	if(dump_config) {
 		dump_configuration(device);
 	}
-	
+
 	result = hackrf_close(device);
-	if( result ) {
+	if(result) {
 		printf("hackrf_close() failed: %s (%d)\n", hackrf_error_name(result), result);
 		return EXIT_FAILURE;
 	}
-	
+
 	hackrf_exit();
-	
+
 	return EXIT_SUCCESS;
 }
