@@ -59,6 +59,7 @@ enum hackrf_error {
 	HACKRF_ERROR_STREAMING_THREAD_ERR = -1002,
 	HACKRF_ERROR_STREAMING_STOPPED = -1003,
 	HACKRF_ERROR_STREAMING_EXIT_CALLED = -1004,
+	HACKRF_ERROR_USB_API_VERSION = -1005,
 	HACKRF_ERROR_OTHER = -9999,
 };
 
@@ -170,6 +171,7 @@ extern ADDAPI int ADDCALL hackrf_cpld_write(hackrf_device* device,
 		
 extern ADDAPI int ADDCALL hackrf_board_id_read(hackrf_device* device, uint8_t* value);
 extern ADDAPI int ADDCALL hackrf_version_string_read(hackrf_device* device, char* version, uint8_t length);
+extern ADDAPI int ADDCALL hackrf_usb_api_version_read(hackrf_device* device, uint16_t* version);
 
 extern ADDAPI int ADDCALL hackrf_set_freq(hackrf_device* device, const uint64_t freq_hz);
 extern ADDAPI int ADDCALL hackrf_set_freq_explicit(hackrf_device* device,
@@ -198,9 +200,6 @@ extern ADDAPI int ADDCALL hackrf_set_txvga_gain(hackrf_device* device, uint32_t 
 /* antenna port power control */
 extern ADDAPI int ADDCALL hackrf_set_antenna_enable(hackrf_device* device, const uint8_t value);
 
-/* set hardware sync mode  */
-extern ADDAPI int ADDCALL hackrf_set_hw_sync_mode(hackrf_device* device, const uint8_t value);
-
 extern ADDAPI const char* ADDCALL hackrf_error_name(enum hackrf_error errcode);
 extern ADDAPI const char* ADDCALL hackrf_board_id_name(enum hackrf_board_id board_id);
 extern ADDAPI const char* ADDCALL hackrf_usb_board_id_name(enum hackrf_usb_board_id usb_board_id);
@@ -210,6 +209,12 @@ extern ADDAPI const char* ADDCALL hackrf_filter_path_name(const enum rf_path_fil
 extern ADDAPI uint32_t ADDCALL hackrf_compute_baseband_filter_bw_round_down_lt(const uint32_t bandwidth_hz);
 /* Compute best default value depending on sample rate (auto filter) */
 extern ADDAPI uint32_t ADDCALL hackrf_compute_baseband_filter_bw(const uint32_t bandwidth_hz);
+
+/* All features below require USB API version 0x1002 or higher) */
+
+/* set hardware sync mode  */
+extern ADDAPI int ADDCALL hackrf_set_hw_sync_mode(hackrf_device* device, const uint8_t value);
+
 /* Start scan mode */
 extern ADDAPI int ADDCALL hackrf_init_sweep(hackrf_device* device,
 											uint16_t* frequency_list,

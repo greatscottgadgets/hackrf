@@ -118,6 +118,7 @@ int main(int argc, char** argv)
 	bool write = false;
 	bool verbose = false;
 	bool reset = false;
+	uint16_t usb_api;
 
 	while ((opt = getopt_long(argc, argv, "a:l:r:w:d:vRh?", long_options,
 			&option_index)) != EOF) {
@@ -309,13 +310,22 @@ int main(int argc, char** argv)
 		}
 	}
 
+	if (fd != NULL) {
+		fclose(fd);
+		fd = NULL;
+	}
+
 	if(reset) {
 		result = hackrf_reset(device);
 		if (result != HACKRF_SUCCESS) {
-			fprintf(stderr, "hackrf_reset() failed: %s (%d)\n",
-					hackrf_error_name(result), result);
-			fclose(fd);
-			fd = NULL;
+			if (result == HACKRF_ERROR_USB_API_VERSION) {
+				hackrf_usb_api_version_read(device, &usb_api);
+				fprintf(stderr, "Reset is not supported by firmware API %x.%02x\n",
+						(usb_api>>8)&0xFF, usb_api&0xFF);
+			} else {
+				fprintf(stderr, "hackrf_reset() failed: %s (%d)\n",
+						hackrf_error_name(result), result);
+			}
 			return EXIT_FAILURE;
 		}
 	}
@@ -324,16 +334,9 @@ int main(int argc, char** argv)
 	if (result != HACKRF_SUCCESS) {
 		fprintf(stderr, "hackrf_close() failed: %s (%d)\n",
 				hackrf_error_name(result), result);
-		fclose(fd);
-		fd = NULL;
 		return EXIT_FAILURE;
 	}
 
 	hackrf_exit();
-
-	if (fd != NULL) {
-		fclose(fd);
-	}
-
 	return EXIT_SUCCESS;
 }

@@ -39,14 +39,14 @@ static void usage() {
 	printf("\t-o, --address <n>: specify a particular operacake by address [default: 0x00]\n");
 	printf("\t-a <n>: set port A connection\n");
 	printf("\t-b <n>: set port B connection\n");
-	printf("\t-v, --verbose: verbose, list available operacake boards\n");
+	printf("\t-l, --list: list available operacake boards\n");
 }
 
 static struct option long_options[] = {
 	{ "device", no_argument, 0, 'd' },
 	{ "serial", no_argument, 0, 's' },
 	{ "address", no_argument, 0, 'o' },
-	{ "verbose", no_argument, 0, 'v' },
+	{ "list", no_argument, 0, 'v' },
 	{ "help", no_argument, 0, 'h' },
 	{ 0, 0, 0, 0 },
 };
@@ -69,8 +69,10 @@ int main(int argc, char** argv) {
 	int operacake_address = 0;
 	int port_a = 0;
 	int port_b = 0;
-	int verbose = 0;
+	bool set_ports = false;
+	bool list = false;
 	uint8_t operacakes[8];
+	uint8_t operacake_count = 0;
 	int i = 0;
 	hackrf_device* device = NULL;
 	int option_index = 0;
@@ -81,7 +83,7 @@ int main(int argc, char** argv) {
 		return -1;
 	}
 
-	while( (opt = getopt_long(argc, argv, "d:s:o:a:b:vh?", long_options, &option_index)) != EOF ) {
+	while( (opt = getopt_long(argc, argv, "d:s:o:a:b:lh?", long_options, &option_index)) != EOF ) {
 		switch( opt ) {
 		case 'd':
 			device_index = atoi(optarg);
@@ -93,6 +95,7 @@ int main(int argc, char** argv) {
 
 		case 'o':
 			operacake_address = atoi(optarg);
+			set_ports = true;
 			break;
 
 		case 'a':
@@ -103,8 +106,8 @@ int main(int argc, char** argv) {
 			port_b = atoi(optarg);
 			break;
 
-		case 'v':
-			verbose = 1;
+		case 'l':
+			list = true;
 			break;
 		case 'h':
 		case '?':
@@ -123,6 +126,12 @@ int main(int argc, char** argv) {
 		}
 	}
 
+	if(!(list || set_ports)) {
+		fprintf(stderr, "Specify either list or address option.\n");
+		usage();
+		return EXIT_FAILURE;
+	}
+
 	if(serial_number != NULL) {
 		result = hackrf_open_by_serial(serial_number, &device);
 	} else {
@@ -139,20 +148,31 @@ int main(int argc, char** argv) {
 		return -1;
 	}
 
-	if(verbose) {
-		hackrf_get_operacake_boards(device, operacakes);
-		printf("Operacakes found:\n");
-		for(i=0; i<8; i++) {
-			if(operacakes[i] !=0)
-				printf("%d\n", operacakes[i]);
+	if(list) {
+		result = hackrf_get_operacake_boards(device, operacakes);
+		if (result != HACKRF_SUCCESS) {
+			fprintf(stderr, "hackrf_get_operacake_boards() failed: %s (%d)\n",
+					hackrf_error_name(result), result);
+			return EXIT_FAILURE;
 		}
+		printf("Operacakes found: ");
+		for(i=0; i<8; i++) {
+			if(operacakes[i] !=0) {
+				printf("\n%d", operacakes[i]);
+				operacake_count++;
+			}
+		}
+		if(!operacake_count)
+			printf("None");
 		printf("\n");
 	}
 
-	result = hackrf_set_operacake_ports(device, operacake_address, port_a, port_b);
-	if( result ) {
-		printf("hackrf_set_operacake_ports() failed: %s (%d)\n", hackrf_error_name(result), result);
-		return -1;
+	if(set_ports) {
+		result = hackrf_set_operacake_ports(device, operacake_address, port_a, port_b);
+		if( result ) {
+			printf("hackrf_set_operacake_ports() failed: %s (%d)\n", hackrf_error_name(result), result);
+			return -1;
+		}
 	}
 
 	result = hackrf_close(device);
@@ -160,8 +180,6 @@ int main(int argc, char** argv) {
 		printf("hackrf_close() failed: %s (%d)\n", hackrf_error_name(result), result);
 		return -1;
 	}
-	
 	hackrf_exit();
-	
 	return 0;
 }
