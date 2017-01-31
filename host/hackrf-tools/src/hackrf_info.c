@@ -104,11 +104,6 @@ int main(void)
 		printf("Part ID Number: 0x%08x 0x%08x\n", 
 					read_partid_serialno.part_id[0],
 					read_partid_serialno.part_id[1]);
-		printf("Serial Number: 0x%08x 0x%08x 0x%08x 0x%08x\n", 
-					read_partid_serialno.serial_no[0],
-					read_partid_serialno.serial_no[1],
-					read_partid_serialno.serial_no[2],
-					read_partid_serialno.serial_no[3]);
 
 		result = hackrf_get_operacake_boards(device, &operacakes[0]);
 		if ((result != HACKRF_SUCCESS) && (result != HACKRF_ERROR_USB_API_VERSION)) {
