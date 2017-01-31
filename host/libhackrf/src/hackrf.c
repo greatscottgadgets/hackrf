@@ -1012,6 +1012,27 @@ int ADDCALL hackrf_version_string_read(hackrf_device* device, char* version,
 	}
 }
 
+extern ADDAPI int ADDCALL hackrf_usb_api_version_read(hackrf_device* device,
+		uint16_t* version)
+{
+	int result;
+	libusb_device* dev;
+	struct libusb_device_descriptor desc;
+	dev = libusb_get_device(device->usb_device);
+	result = libusb_get_device_descriptor(dev, &desc);
+	if (result < 0)
+		return HACKRF_ERROR_LIBUSB;
+
+	*version = desc.bcdDevice;
+	return HACKRF_SUCCESS;
+}
+
+#define USB_API_REQUIRED(device, version)          \
+uint16_t usb_version = 0;                          \
+hackrf_usb_api_version_read(device, &usb_version); \
+if(usb_version < version)                          \
+	return HACKRF_ERROR_USB_API_VERSION;
+
 typedef struct {
 	uint32_t freq_mhz; /* From 0 to 6000+MHz */
 	uint32_t freq_hz; /* From 0 to 999999Hz */
@@ -1577,26 +1598,6 @@ int ADDCALL hackrf_close(hackrf_device* device)
 	return result1;
 }
 
-int ADDCALL hackrf_set_hw_sync_mode(hackrf_device* device, const uint8_t value) {
-	int result = libusb_control_transfer(
-		device->usb_device,
- 		LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
-		HACKRF_VENDOR_REQUEST_SET_HW_SYNC_MODE,
-		value,
-		0,
-		NULL,
-		0,
-		0
-	);
-
-	if( result != 0 )
-	{
-		return HACKRF_ERROR_LIBUSB;
-	} else {
-		return HACKRF_SUCCESS;
-	}
-}
-
 const char* ADDCALL hackrf_error_name(enum hackrf_error errcode)
 {
 	switch(errcode)
@@ -1633,6 +1634,9 @@ const char* ADDCALL hackrf_error_name(enum hackrf_error errcode)
 
 	case HACKRF_ERROR_STREAMING_EXIT_CALLED:
 		return "HACKRF_ERROR_STREAMING_EXIT_CALLED";
+
+	case HACKRF_ERROR_USB_API_VERSION:
+		return "feature not supported by installed firmware";
 
 	case HACKRF_ERROR_OTHER:
 		return "HACKRF_ERROR_OTHER";
@@ -1744,9 +1748,33 @@ uint32_t ADDCALL hackrf_compute_baseband_filter_bw(const uint32_t bandwidth_hz)
 	return p->bandwidth_hz;
 }
 
+/* All features below require USB API version 0x1002 or higher) */
+
+int ADDCALL hackrf_set_hw_sync_mode(hackrf_device* device, const uint8_t value) {
+	USB_API_REQUIRED(device, 0x0102)
+	int result = libusb_control_transfer(
+		device->usb_device,
+ 		LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_SET_HW_SYNC_MODE,
+		value,
+		0,
+		NULL,
+		0,
+		0
+	);
+
+	if( result != 0 )
+	{
+		return HACKRF_ERROR_LIBUSB;
+	} else {
+		return HACKRF_SUCCESS;
+	}
+}
+
 /* Initialise sweep mode with alist of frequencies and dwell time in samples */
 int ADDCALL hackrf_init_sweep(hackrf_device* device, uint16_t* frequency_list, int length, uint32_t dwell_time)
 {
+	USB_API_REQUIRED(device, 0x0102)
 	int result, i;
 	int size = length * sizeof(frequency_list[0]);
 
@@ -1776,6 +1804,7 @@ int ADDCALL hackrf_init_sweep(hackrf_device* device, uint16_t* frequency_list, i
  */
 int ADDCALL hackrf_get_operacake_boards(hackrf_device* device, uint8_t* boards)
 {
+	USB_API_REQUIRED(device, 0x0102)
 	int result;
 	result = libusb_control_transfer(
 		device->usb_device,
@@ -1802,6 +1831,7 @@ int ADDCALL hackrf_set_operacake_ports(hackrf_device* device,
                                        uint8_t port_a,
                                        uint8_t port_b)
 {
+	USB_API_REQUIRED(device, 0x0102)
 	int result;
 	/* Error checking */
 	if((port_a > OPERACAKE_PB4) || (port_b > OPERACAKE_PB4)) {
@@ -1831,6 +1861,7 @@ int ADDCALL hackrf_set_operacake_ports(hackrf_device* device,
 }
 
 int ADDCALL hackrf_reset(hackrf_device* device) {
+	USB_API_REQUIRED(device, 0x0102)
 	int result = libusb_control_transfer(
 		device->usb_device,
  		LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
