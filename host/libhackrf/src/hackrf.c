@@ -98,17 +98,19 @@ typedef enum {
 	HACKRF_HW_SYNC_MODE_ON = 1,
 } hackrf_hw_sync_mode;
 
+#define TRANSFER_COUNT 4
+#define TRANSFER_BUFFER_SIZE 262144
+
 struct hackrf_device {
 	libusb_device_handle* usb_device;
 	struct libusb_transfer** transfers;
 	hackrf_sample_block_cb_fn callback;
 	volatile bool transfer_thread_started; /* volatile shared between threads (read only) */
 	pthread_t transfer_thread;
-	uint32_t transfer_count;
-	uint32_t buffer_size;
 	volatile bool streaming; /* volatile shared between threads (read only) */
 	void* rx_ctx;
 	void* tx_ctx;
+	unsigned char buffer[TRANSFER_COUNT * TRANSFER_BUFFER_SIZE];
 };
 
 typedef struct {
@@ -155,7 +157,7 @@ static int cancel_transfers(hackrf_device* device)
 
 	if( device->transfers != NULL )
 	{
-		for(transfer_index=0; transfer_index<device->transfer_count; transfer_index++)
+		for(transfer_index=0; transfer_index<TRANSFER_COUNT; transfer_index++)
 		{
 			if( device->transfers[transfer_index] != NULL )
 			{
@@ -175,7 +177,7 @@ static int free_transfers(hackrf_device* device)
 	if( device->transfers != NULL )
 	{
 		// libusb_close() should free all transfers referenced from this array.
-		for(transfer_index=0; transfer_index<device->transfer_count; transfer_index++)
+		for(transfer_index=0; transfer_index<TRANSFER_COUNT; transfer_index++)
 		{
 			if( device->transfers[transfer_index] != NULL )
 			{
@@ -194,13 +196,13 @@ static int allocate_transfers(hackrf_device* const device)
 	if( device->transfers == NULL )
 	{
 		uint32_t transfer_index;
-		device->transfers = (struct libusb_transfer**) calloc(device->transfer_count, sizeof(struct libusb_transfer));
+		device->transfers = (struct libusb_transfer**) calloc(TRANSFER_COUNT, sizeof(struct libusb_transfer));
 		if( device->transfers == NULL )
 		{
 			return HACKRF_ERROR_NO_MEM;
 		}
 
-		for(transfer_index=0; transfer_index<device->transfer_count; transfer_index++)
+		for(transfer_index=0; transfer_index<TRANSFER_COUNT; transfer_index++)
 		{
 			device->transfers[transfer_index] = libusb_alloc_transfer(0);
 			if( device->transfers[transfer_index] == NULL )
@@ -212,8 +214,8 @@ static int allocate_transfers(hackrf_device* const device)
 				device->transfers[transfer_index],
 				device->usb_device,
 				0,
-				(unsigned char*)malloc(device->buffer_size),
-				device->buffer_size,
+				&device->buffer[transfer_index * TRANSFER_BUFFER_SIZE],
+				TRANSFER_BUFFER_SIZE,
 				NULL,
 				device,
 				0
@@ -239,7 +241,7 @@ static int prepare_transfers(
 	uint32_t transfer_index;
 	if( device->transfers != NULL )
 	{
-		for(transfer_index=0; transfer_index<device->transfer_count; transfer_index++)
+		for(transfer_index=0; transfer_index<TRANSFER_COUNT; transfer_index++)
 		{
 			device->transfers[transfer_index]->endpoint = endpoint_address;
 			device->transfers[transfer_index]->callback = callback;
@@ -526,12 +528,6 @@ static int hackrf_open_setup(libusb_device_handle* usb_device, hackrf_device** d
 	lib_device->transfers = NULL;
 	lib_device->callback = NULL;
 	lib_device->transfer_thread_started = false;
-	/*
-	lib_device->transfer_count = 1024;
-	lib_device->buffer_size = 16384;
-	*/
-	lib_device->transfer_count = 4;
-	lib_device->buffer_size = 262144; /* 1048576; */
 	lib_device->streaming = false;
 	do_exit = false;
 
