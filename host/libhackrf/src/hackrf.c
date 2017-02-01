@@ -24,7 +24,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 #include "hackrf.h"
 
 #include <stdlib.h>
-
+#include <string.h>
 #include <libusb.h>
 
 #ifdef _WIN32
@@ -98,17 +98,19 @@ typedef enum {
 	HACKRF_HW_SYNC_MODE_ON = 1,
 } hackrf_hw_sync_mode;
 
+#define TRANSFER_COUNT 4
+#define TRANSFER_BUFFER_SIZE 262144
+
 struct hackrf_device {
 	libusb_device_handle* usb_device;
 	struct libusb_transfer** transfers;
 	hackrf_sample_block_cb_fn callback;
 	volatile bool transfer_thread_started; /* volatile shared between threads (read only) */
 	pthread_t transfer_thread;
-	uint32_t transfer_count;
-	uint32_t buffer_size;
 	volatile bool streaming; /* volatile shared between threads (read only) */
 	void* rx_ctx;
 	void* tx_ctx;
+	unsigned char buffer[TRANSFER_COUNT * TRANSFER_BUFFER_SIZE];
 };
 
 typedef struct {
@@ -155,7 +157,7 @@ static int cancel_transfers(hackrf_device* device)
 
 	if( device->transfers != NULL )
 	{
-		for(transfer_index=0; transfer_index<device->transfer_count; transfer_index++)
+		for(transfer_index=0; transfer_index<TRANSFER_COUNT; transfer_index++)
 		{
 			if( device->transfers[transfer_index] != NULL )
 			{
@@ -175,7 +177,7 @@ static int free_transfers(hackrf_device* device)
 	if( device->transfers != NULL )
 	{
 		// libusb_close() should free all transfers referenced from this array.
-		for(transfer_index=0; transfer_index<device->transfer_count; transfer_index++)
+		for(transfer_index=0; transfer_index<TRANSFER_COUNT; transfer_index++)
 		{
 			if( device->transfers[transfer_index] != NULL )
 			{
@@ -194,13 +196,13 @@ static int allocate_transfers(hackrf_device* const device)
 	if( device->transfers == NULL )
 	{
 		uint32_t transfer_index;
-		device->transfers = (struct libusb_transfer**) calloc(device->transfer_count, sizeof(struct libusb_transfer));
+		device->transfers = (struct libusb_transfer**) calloc(TRANSFER_COUNT, sizeof(struct libusb_transfer));
 		if( device->transfers == NULL )
 		{
 			return HACKRF_ERROR_NO_MEM;
 		}
 
-		for(transfer_index=0; transfer_index<device->transfer_count; transfer_index++)
+		for(transfer_index=0; transfer_index<TRANSFER_COUNT; transfer_index++)
 		{
 			device->transfers[transfer_index] = libusb_alloc_transfer(0);
 			if( device->transfers[transfer_index] == NULL )
@@ -212,8 +214,8 @@ static int allocate_transfers(hackrf_device* const device)
 				device->transfers[transfer_index],
 				device->usb_device,
 				0,
-				(unsigned char*)malloc(device->buffer_size),
-				device->buffer_size,
+				&device->buffer[transfer_index * TRANSFER_BUFFER_SIZE],
+				TRANSFER_BUFFER_SIZE,
 				NULL,
 				device,
 				0
@@ -239,7 +241,7 @@ static int prepare_transfers(
 	uint32_t transfer_index;
 	if( device->transfers != NULL )
 	{
-		for(transfer_index=0; transfer_index<device->transfer_count; transfer_index++)
+		for(transfer_index=0; transfer_index<TRANSFER_COUNT; transfer_index++)
 		{
 			device->transfers[transfer_index]->endpoint = endpoint_address;
 			device->transfers[transfer_index]->callback = callback;
@@ -355,9 +357,6 @@ int ADDCALL hackrf_exit(void)
 	return HACKRF_SUCCESS;
 }
 
-#include <stdio.h>
-#include <string.h>
-
 hackrf_device_list_t* ADDCALL hackrf_device_list()
 {
 	ssize_t i;
@@ -442,8 +441,6 @@ libusb_device_handle* hackrf_open_usb(const char* const desired_serial_number)
 	char serial_number[64];
 	int serial_number_length;
 	
-	printf("Number of USB devices: %ld\n", list_length);
-	
 	if( desired_serial_number ) {
 		/* If a shorter serial number is specified, only match against the suffix.
 		 * Should probably complain if the match is not unique, currently doesn't.
@@ -461,7 +458,6 @@ libusb_device_handle* hackrf_open_usb(const char* const desired_serial_number)
 			if((device_descriptor.idProduct == hackrf_one_usb_pid) ||
 			   (device_descriptor.idProduct == hackrf_jawbreaker_usb_pid) ||
 			   (device_descriptor.idProduct == rad1o_usb_pid)) {
-				printf("USB device %4x:%4x:", device_descriptor.idVendor, device_descriptor.idProduct);
 				
 				if( desired_serial_number != NULL ) {
 					const uint_fast8_t serial_descriptor_index = device_descriptor.iSerialNumber;
@@ -473,23 +469,18 @@ libusb_device_handle* hackrf_open_usb(const char* const desired_serial_number)
 						serial_number_length = libusb_get_string_descriptor_ascii(usb_device, serial_descriptor_index, (unsigned char*)serial_number, sizeof(serial_number));
 						if( serial_number_length == 32 ) {
 							serial_number[32] = 0;
-							printf(" %s", serial_number);
 							if( strncmp(serial_number + 32-match_len, desired_serial_number, match_len) == 0 ) {
-								printf(" match\n");
 								break;
 							} else {
-								printf(" skip\n");
 								libusb_close(usb_device);
 								usb_device = NULL;
 							}
 						} else {
-							printf(" wrong length of serial number: %d\n", serial_number_length);
 							libusb_close(usb_device);
 							usb_device = NULL;
 						}
 					}
 				} else {
-					printf(" default\n");
 					libusb_open(devices[i], &usb_device);
 					break;
 				}
@@ -537,12 +528,6 @@ static int hackrf_open_setup(libusb_device_handle* usb_device, hackrf_device** d
 	lib_device->transfers = NULL;
 	lib_device->callback = NULL;
 	lib_device->transfer_thread_started = false;
-	/*
-	lib_device->transfer_count = 1024;
-	lib_device->buffer_size = 16384;
-	*/
-	lib_device->transfer_count = 4;
-	lib_device->buffer_size = 262144; /* 1048576; */
 	lib_device->streaming = false;
 	do_exit = false;
 
