@@ -24,7 +24,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 #include "hackrf.h"
 
 #include <stdlib.h>
-
+#include <string.h>
 #include <libusb.h>
 
 #ifdef _WIN32
@@ -355,9 +355,6 @@ int ADDCALL hackrf_exit(void)
 	return HACKRF_SUCCESS;
 }
 
-#include <stdio.h>
-#include <string.h>
-
 hackrf_device_list_t* ADDCALL hackrf_device_list()
 {
 	ssize_t i;
@@ -442,8 +439,6 @@ libusb_device_handle* hackrf_open_usb(const char* const desired_serial_number)
 	char serial_number[64];
 	int serial_number_length;
 	
-	printf("Number of USB devices: %ld\n", list_length);
-	
 	if( desired_serial_number ) {
 		/* If a shorter serial number is specified, only match against the suffix.
 		 * Should probably complain if the match is not unique, currently doesn't.
@@ -461,7 +456,6 @@ libusb_device_handle* hackrf_open_usb(const char* const desired_serial_number)
 			if((device_descriptor.idProduct == hackrf_one_usb_pid) ||
 			   (device_descriptor.idProduct == hackrf_jawbreaker_usb_pid) ||
 			   (device_descriptor.idProduct == rad1o_usb_pid)) {
-				printf("USB device %4x:%4x:", device_descriptor.idVendor, device_descriptor.idProduct);
 				
 				if( desired_serial_number != NULL ) {
 					const uint_fast8_t serial_descriptor_index = device_descriptor.iSerialNumber;
@@ -473,23 +467,18 @@ libusb_device_handle* hackrf_open_usb(const char* const desired_serial_number)
 						serial_number_length = libusb_get_string_descriptor_ascii(usb_device, serial_descriptor_index, (unsigned char*)serial_number, sizeof(serial_number));
 						if( serial_number_length == 32 ) {
 							serial_number[32] = 0;
-							printf(" %s", serial_number);
 							if( strncmp(serial_number + 32-match_len, desired_serial_number, match_len) == 0 ) {
-								printf(" match\n");
 								break;
 							} else {
-								printf(" skip\n");
 								libusb_close(usb_device);
 								usb_device = NULL;
 							}
 						} else {
-							printf(" wrong length of serial number: %d\n", serial_number_length);
 							libusb_close(usb_device);
 							usb_device = NULL;
 						}
 					}
 				} else {
-					printf(" default\n");
 					libusb_open(devices[i], &usb_device);
 					break;
 				}
