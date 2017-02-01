@@ -34,6 +34,7 @@
 #define MIN_FREQ 1
 #define MAX_FREQ 6000
 #define MAX_FREQ_COUNT 1000
+#define THROWAWAY_BUFFERS 2
 
 volatile bool start_sweep_mode = false;
 static uint64_t sweep_freq;
@@ -89,16 +90,18 @@ void sweep_mode(void) {
 		if (transfer) {
 			*(uint16_t*)buffer = 0x7F7F;
 			*(uint16_t*)(buffer+2) = sweep_freq;
-			usb_transfer_schedule_block(
-				&usb_endpoint_bulk_in,
-				buffer,
-				0x4000,
-				NULL, NULL
-			);
+			if (blocks_queued > THROWAWAY_BUFFERS) {
+				usb_transfer_schedule_block(
+					&usb_endpoint_bulk_in,
+					buffer,
+					0x4000,
+					NULL, NULL
+				);
+			}
 			transfer = false;
 		}
 
-		if (blocks_queued >= dwell_blocks) {
+		if ((dwell_blocks + THROWAWAY_BUFFERS) <= blocks_queued) {
 			if(++ifreq >= frequency_count)
 				ifreq = 0;
 			sweep_freq = frequencies[ifreq];
