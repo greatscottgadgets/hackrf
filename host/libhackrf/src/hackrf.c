@@ -1609,40 +1609,40 @@ const char* ADDCALL hackrf_error_name(enum hackrf_error errcode)
 		return "HACKRF_TRUE";
 
 	case HACKRF_ERROR_INVALID_PARAM:
-		return "HACKRF_ERROR_INVALID_PARAM";
+		return "invalid parameter(s)";
 
 	case HACKRF_ERROR_NOT_FOUND:
-		return "HACKRF_ERROR_NOT_FOUND";
+		return "HackRF not found";
 
 	case HACKRF_ERROR_BUSY:
-		return "HACKRF_ERROR_BUSY";
+		return "HackRF busy";
 
 	case HACKRF_ERROR_NO_MEM:
-		return "HACKRF_ERROR_NO_MEM";
+		return "insufficient memory";
 
 	case HACKRF_ERROR_LIBUSB:
-		return "HACKRF_ERROR_LIBUSB";
+		return "USB error";
 
 	case HACKRF_ERROR_THREAD:
-		return "HACKRF_ERROR_THREAD";
+		return "transfer thread error";
 
 	case HACKRF_ERROR_STREAMING_THREAD_ERR:
-		return "HACKRF_ERROR_STREAMING_THREAD_ERR";
+		return "streaming thread encountered an error";
 
 	case HACKRF_ERROR_STREAMING_STOPPED:
-		return "HACKRF_ERROR_STREAMING_STOPPED";
+		return "streaming stopped";
 
 	case HACKRF_ERROR_STREAMING_EXIT_CALLED:
-		return "HACKRF_ERROR_STREAMING_EXIT_CALLED";
+		return "streaming terminated";
 
 	case HACKRF_ERROR_USB_API_VERSION:
 		return "feature not supported by installed firmware";
 
 	case HACKRF_ERROR_OTHER:
-		return "HACKRF_ERROR_OTHER";
+		return "unspecified error";
 
 	default:
-		return "HACKRF unknown error";
+		return "unknown error code";
 	}
 }
 
