@@ -1091,7 +1091,7 @@ int main(int argc, char** argv) {
 	result = hackrf_is_streaming(device);	
 	if (do_exit)
 	{
-		fprintf(stderr, "\nUser cancel, exiting...\n");
+		fprintf(stderr, "\nExiting...\n");
 	} else {
 		fprintf(stderr, "\nExiting... hackrf_is_streaming() result: %s (%d)\n", hackrf_error_name(result), result);
 	}
