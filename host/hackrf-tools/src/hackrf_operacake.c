@@ -132,11 +132,6 @@ int main(int argc, char** argv) {
 		return EXIT_FAILURE;
 	}
 
-	if( result ) {
-		printf("hackrf_open() failed: %s (%d)\n", hackrf_error_name(result), result);
-		return -1;
-	}
-
 	if(list) {
 		result = hackrf_get_operacake_boards(device, operacakes);
 		if (result != HACKRF_SUCCESS) {

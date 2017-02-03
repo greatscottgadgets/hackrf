@@ -38,6 +38,7 @@ static void usage() {
 	printf("\t-n, --register <n>: set register number for read/write operations\n");
 	printf("\t-r, --read: read register specified by last -n argument, or all registers\n");
 	printf("\t-w, --write <v>: write register specified by last -n argument with value <v>\n");
+	printf("\t-d, --device <s>: specify a particular device by serial number\n");
 	printf("\nExamples:\n");
 	printf("\t<command> -n 12 -r    # reads from register 12\n");
 	printf("\t<command> -r          # reads all registers\n");
@@ -48,6 +49,7 @@ static struct option long_options[] = {
 	{ "register", required_argument, 0, 'n' },
 	{ "write", required_argument, 0, 'w' },
 	{ "read", no_argument, 0, 'r' },
+	{ "device", no_argument, 0, 'd' },
 	{ "help", no_argument, 0, 'h' },
 	{ 0, 0, 0, 0 },
 };
@@ -133,6 +135,7 @@ int main(int argc, char** argv) {
 	int option_index = 0;
 	bool read = false;
 	bool write = false;
+	const char* serial_number = NULL;
 
 	int result = hackrf_init();
 	if( result ) {
@@ -140,7 +143,7 @@ int main(int argc, char** argv) {
 		return EXIT_FAILURE;
 	}
 
-	while( (opt = getopt_long(argc, argv, "n:rw:h?", long_options, &option_index)) != EOF ) {
+	while( (opt = getopt_long(argc, argv, "n:rw:d:h?", long_options, &option_index)) != EOF ) {
 		switch( opt ) {
 		case 'n':
 			result = parse_int(optarg, &register_number);
@@ -153,6 +156,10 @@ int main(int argc, char** argv) {
 
 		case 'r':
 			read = true;
+			break;
+
+		case 'd':
+			serial_number = optarg;
 			break;
 
 		case 'h':
@@ -184,7 +191,7 @@ int main(int argc, char** argv) {
 		return EXIT_FAILURE;
 	}
 
-	result = hackrf_open(&device);
+	result = hackrf_open_by_serial(serial_number, &device);
 	if(result) {
 		printf("hackrf_open() failed: %s (%d)\n", hackrf_error_name(result), result);
 		return EXIT_FAILURE;
