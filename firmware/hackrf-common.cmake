@@ -58,12 +58,6 @@ else()
 	set(MCU_PARTNO LPC4330)
 endif()
 
-if(BOARD STREQUAL "RAD1O")
-	set(MIXER max2871)
-else()
-	set(MIXER rffc5071)
-endif()
-
 if(NOT DEFINED SRC_M0)
 	set(SRC_M0 "${PATH_HACKRF_FIRMWARE_COMMON}/m0_sleep.c")
 endif()
@@ -111,8 +105,6 @@ macro(DeclareTargets)
 		${PATH_HACKRF_FIRMWARE_COMMON}/max5864.c
 		${PATH_HACKRF_FIRMWARE_COMMON}/max5864_target.c
 		${PATH_HACKRF_FIRMWARE_COMMON}/mixer.c
-		${PATH_HACKRF_FIRMWARE_COMMON}/${MIXER}.c
-		${PATH_HACKRF_FIRMWARE_COMMON}/${MIXER}_spi.c
 		${PATH_HACKRF_FIRMWARE_COMMON}/i2c_bus.c
 		${PATH_HACKRF_FIRMWARE_COMMON}/i2c_lpc.c
 		${PATH_HACKRF_FIRMWARE_COMMON}/w25q80bv.c
@@ -121,6 +113,20 @@ macro(DeclareTargets)
 		${PATH_HACKRF_FIRMWARE_COMMON}/spi_ssp.c
 		${PATH_HACKRF_FIRMWARE_COMMON}/gpio_lpc.c
 	)
+
+	if(BOARD STREQUAL "RAD1O")
+		SET(SRC_M4
+			${SRC_M4}
+			${PATH_HACKRF_FIRMWARE_COMMON}/max2871.c
+			${PATH_HACKRF_FIRMWARE_COMMON}/max2871_regs.c
+		)
+	else()
+		SET(SRC_M4
+			${SRC_M4}
+			${PATH_HACKRF_FIRMWARE_COMMON}/rffc5071.c
+			${PATH_HACKRF_FIRMWARE_COMMON}/rffc5071_spi.c
+		)
+	endif()
 
 	configure_file(
 		${PATH_HACKRF_FIRMWARE_COMMON}/m0_bin.s.cmake

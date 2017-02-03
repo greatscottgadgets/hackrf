@@ -1,6 +1,5 @@
 #include "max2871.h"
-// TODO: put max2871_regs.c into the build system
-#include "max2871_regs.c"
+#include "max2871_regs.h"
 
 #if (defined DEBUG)
 #include <stdio.h>
