@@ -45,4 +45,4 @@ after the 3V3 LED illuminates.
 A .dfu file is built by default when building firmware.  Alternatively you can
 load a known good .dfu file from a release package with:
 
-$ dfu-util --device 1fc9:000c --alt 0 --download hackrf_usb_ram.dfu
+$ dfu-util --device 1fc9:000c --alt 0 --download hackrf_usb.dfu
