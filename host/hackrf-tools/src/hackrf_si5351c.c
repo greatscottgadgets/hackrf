@@ -33,11 +33,12 @@ typedef int bool;
 
 static void usage() {
 	printf("\nUsage:\n");
+	printf("\t-h, --help: this help\n");
 	printf("\t-c, --config: print textual configuration information\n");
-	printf("\t-n, --register <n>: set register number for subsequent read/write operations\n");
+	printf("\t-n, --register <n>: set register number for read/write operations\n");
 	printf("\t-r, --read: read register specified by last -n argument, or all registers\n");
 	printf("\t-w, --write <v>: write register specified by last -n argument with value <v>\n");
-	printf("\t-s, --device <s>: specify a particular device by serial number\n");
+	printf("\t-s, --serial <s>: specify a particular device by serial number\n");
 	printf("\t-d, --device <n>: specify a particular device by number\n");
 	printf("\nExamples:\n");
 	printf("\t<command> -n 12 -r    # reads from register 12\n");
@@ -52,6 +53,7 @@ static struct option long_options[] = {
 	{ "read", no_argument, 0, 'r' },
 	{ "device", no_argument, 0, 'd' },
 	{ "serial", no_argument, 0, 's' },
+	{ "help", no_argument, 0, 'h' },
 	{ 0, 0, 0, 0 },
 };
 
@@ -209,10 +211,10 @@ int main(int argc, char** argv) {
 	int result = hackrf_init();
 	if( result ) {
 		printf("hackrf_init() failed: %s (%d)\n", hackrf_error_name(result), result);
-		return -1;
+		return EXIT_FAILURE;
 	}
 
-	while( (opt = getopt_long(argc, argv, "d:s:cn:rw:", long_options, &option_index)) != EOF ) {
+	while( (opt = getopt_long(argc, argv, "d:s:cn:rw:h?", long_options, &option_index)) != EOF ) {
 		switch( opt ) {
 		case 'n':
 			result = parse_int(optarg, &register_number);
@@ -220,6 +222,7 @@ int main(int argc, char** argv) {
 		
 		case 'w':
 			write = true;
+			result = parse_int(optarg, &register_value);
 			break;
 		
 		case 'r':
@@ -237,15 +240,39 @@ int main(int argc, char** argv) {
 		case 's':
 			serial_number = optarg;
 			break;
+		case 'h':
+		case '?':
+			usage();
+			return EXIT_SUCCESS;
 
 		default:
+			fprintf(stderr, "unknown argument '-%c %s'\n", opt, optarg);
 			usage();
+			return EXIT_FAILURE;
 		}
 		
 		if( result != HACKRF_SUCCESS ) {
 			printf("argument error: %s (%d)\n", hackrf_error_name(result), result);
 			break;
 		}
+	}
+
+	if(write && read) {
+		fprintf(stderr, "Read and write options are mutually exclusive.\n");
+		usage();
+		return EXIT_FAILURE;
+	}
+
+	if(write && dump_config) {
+		fprintf(stderr, "Config and write options are mutually exclusive.\n");
+		usage();
+		return EXIT_FAILURE;
+	}
+
+	if(!(write || read || dump_config)) {
+		fprintf(stderr, "Specify read, write, or config option.\n");
+		usage();
+		return EXIT_FAILURE;
 	}
 
 	if(serial_number != NULL) {
@@ -259,33 +286,36 @@ int main(int argc, char** argv) {
 		}	
 	}
 
-	if( result ) {
+	if(result) {
 		printf("hackrf_open() failed: %s (%d)\n", hackrf_error_name(result), result);
-		return -1;
+		return EXIT_FAILURE;
 	}
 
 	if(write) {
-		result = parse_int(optarg, &register_value);
 		if( result == HACKRF_SUCCESS ) {
 			result = write_register(device, register_number, register_value);
 		}
-	} else if(read) {
+	}
+
+	if(read) {
 		if( register_number == REGISTER_INVALID ) {
 			result = dump_registers(device);
 		} else {
 			result = dump_register(device, register_number);
 		}
-	} else if(dump_config) {
+	}
+
+	if(dump_config) {
 		dump_configuration(device);
 	}
-	
+
 	result = hackrf_close(device);
-	if( result ) {
+	if(result) {
 		printf("hackrf_close() failed: %s (%d)\n", hackrf_error_name(result), result);
-		return -1;
+		return EXIT_FAILURE;
 	}
-	
+
 	hackrf_exit();
-	
-	return 0;
+
+	return EXIT_SUCCESS;
 }

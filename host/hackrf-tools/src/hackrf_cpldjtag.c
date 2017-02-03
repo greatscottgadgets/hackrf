@@ -45,6 +45,8 @@ uint8_t data[MAX_XSVF_LENGTH];
 
 static struct option long_options[] = {
 	{ "xsvf", required_argument, 0, 'x' },
+	{ "device", required_argument, 0, 'd' },
+	{ "help", no_argument, 0, 'h' },
 	{ 0, 0, 0, 0 },
 };
 
@@ -79,8 +81,9 @@ int parse_int(char* s, uint32_t* const value)
 static void usage()
 {
 	printf("Usage:\n");
-	printf("\t-x <filename>: XSVF file to be written to CPLD.\n");
-	printf("\t-d <serialnumber>: Serial number of device, if multiple devices\n");
+	printf("\t-h, --help: this help\n");
+	printf("\t-x, --xsvf <filename>: XSVF file to be written to CPLD.\n");
+	printf("\t-d, --device <serialnumber>: Serial number of device, if multiple devices\n");
 }
 
 int main(int argc, char** argv)
@@ -97,7 +100,7 @@ int main(int argc, char** argv)
 	ssize_t bytes_read;
 	uint8_t* pdata = &data[0];
 
-	while ((opt = getopt_long(argc, argv, "x:d:", long_options,
+	while ((opt = getopt_long(argc, argv, "x:d:h?", long_options,
 			&option_index)) != EOF) {
 		switch (opt) {
 		case 'x':
@@ -107,8 +110,13 @@ int main(int argc, char** argv)
 		case 'd':
 			serial_number = optarg;
 			break;
+		case 'h':
+		case '?':
+			usage();
+			return EXIT_SUCCESS;
 
 		default:
+			fprintf(stderr, "unknown argument '-%c %s'\n", opt, optarg);
 			usage();
 			return EXIT_FAILURE;
 		}

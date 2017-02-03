@@ -51,7 +51,10 @@ static struct option long_options[] = {
 	{ "length", required_argument, 0, 'l' },
 	{ "read", required_argument, 0, 'r' },
 	{ "write", required_argument, 0, 'w' },
+	{ "device", required_argument, 0, 'd' },
+	{ "reset", no_argument, 0, 'R' },
 	{ "verbose", no_argument, 0, 'v' },
+	{ "help", no_argument, 0, 'h' },
 	{ 0, 0, 0, 0 },
 };
 
@@ -86,13 +89,14 @@ int parse_u32(char* s, uint32_t* const value)
 static void usage()
 {
 	printf("Usage:\n");
+	printf("\t-h, --help: this help\n");
 	printf("\t-a, --address <n>: starting address (default: 0)\n");
 	printf("\t-l, --length <n>: number of bytes to read (default: %d)\n", MAX_LENGTH);
-	printf("\t-r <filename>: Read data into file.\n");
-	printf("\t-w <filename>: Write data from file.\n");
-	printf("\t-d <serialnumber>: Serial number of device, if multiple devices\n");
-	printf("\t-R: Reset HackRF after other operations.\n");
-	printf("\t-v: Verbose output.\n");
+	printf("\t-r, --read <filename>: Read data into file.\n");
+	printf("\t-w, --write <filename>: Write data from file.\n");
+	printf("\t-d, --device <serialnumber>: Serial number of device, if multiple devices\n");
+	printf("\t-R, --reset: Reset HackRF after other operations.\n");
+	printf("\t-v, --verbose: Verbose output.\n");
 }
 
 int main(int argc, char** argv)
@@ -114,8 +118,9 @@ int main(int argc, char** argv)
 	bool write = false;
 	bool verbose = false;
 	bool reset = false;
+	uint16_t usb_api;
 
-	while ((opt = getopt_long(argc, argv, "a:l:r:w:d:vR", long_options,
+	while ((opt = getopt_long(argc, argv, "a:l:r:w:d:vRh?", long_options,
 			&option_index)) != EOF) {
 		switch (opt) {
 		case 'a':
@@ -148,9 +153,10 @@ int main(int argc, char** argv)
 			reset = true;
 			break;
 
+		case 'h':
 		case '?':
 			usage();
-			return EXIT_FAILURE;
+			return EXIT_SUCCESS;
 
 		default:
 			fprintf(stderr, "unknown argument '-%c %s'\n", opt, optarg);
@@ -304,13 +310,22 @@ int main(int argc, char** argv)
 		}
 	}
 
+	if (fd != NULL) {
+		fclose(fd);
+		fd = NULL;
+	}
+
 	if(reset) {
 		result = hackrf_reset(device);
 		if (result != HACKRF_SUCCESS) {
-			fprintf(stderr, "hackrf_reset() failed: %s (%d)\n",
-					hackrf_error_name(result), result);
-			fclose(fd);
-			fd = NULL;
+			if (result == HACKRF_ERROR_USB_API_VERSION) {
+				hackrf_usb_api_version_read(device, &usb_api);
+				fprintf(stderr, "Reset is not supported by firmware API %x.%02x\n",
+						(usb_api>>8)&0xFF, usb_api&0xFF);
+			} else {
+				fprintf(stderr, "hackrf_reset() failed: %s (%d)\n",
+						hackrf_error_name(result), result);
+			}
 			return EXIT_FAILURE;
 		}
 	}
@@ -319,16 +334,9 @@ int main(int argc, char** argv)
 	if (result != HACKRF_SUCCESS) {
 		fprintf(stderr, "hackrf_close() failed: %s (%d)\n",
 				hackrf_error_name(result), result);
-		fclose(fd);
-		fd = NULL;
 		return EXIT_FAILURE;
 	}
 
 	hackrf_exit();
-
-	if (fd != NULL) {
-		fclose(fd);
-	}
-
 	return EXIT_SUCCESS;
 }

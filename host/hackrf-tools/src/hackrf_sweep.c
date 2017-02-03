@@ -235,6 +235,7 @@ int rx_callback(hackrf_transfer* transfer) {
 
 static void usage() {
 	fprintf(stderr, "Usage:\n");
+	fprintf(stderr, "\t[-h] # this help\n");
 	fprintf(stderr, "\t[-d serial_number] # Serial number of desired HackRF.\n");
 	fprintf(stderr, "\t[-a amp_enable] # RX/TX RF amplifier 1=Enable, 0=Disable.\n");
 	fprintf(stderr, "\t[-f freq_min:freq_max # Specify minimum & maximum sweep frequencies (MHz).\n");
@@ -242,7 +243,7 @@ static void usage() {
 	fprintf(stderr, "\t[-l gain_db] # RX LNA (IF) gain, 0-40dB, 8dB steps\n");
 	fprintf(stderr, "\t[-g gain_db] # RX VGA (baseband) gain, 0-62dB, 2dB steps\n");
 	fprintf(stderr, "\t[-x gain_db] # TX VGA (IF) gain, 0-47dB, 1dB steps\n");
-	fprintf(stderr, "\t[-n num_samples] # Number of samples per frequency, 0-4294967296\n");
+	fprintf(stderr, "\t[-n num_samples] # Number of samples per frequency, 16384-4294967296\n");
 }
 
 static hackrf_device* device = NULL;
@@ -276,7 +277,7 @@ int main(int argc, char** argv) {
 	uint16_t frequencies[MAX_FREQ_COUNT];
 	uint32_t num_samples = DEFAULT_SAMPLE_COUNT;
 
-	while( (opt = getopt(argc, argv, "a:f:p:l:g:x:d:n:")) != EOF ) {
+	while( (opt = getopt(argc, argv, "a:f:p:l:g:x:d:n:h?")) != EOF ) {
 		result = HACKRF_SUCCESS;
 		switch( opt ) 
 		{
@@ -325,6 +326,11 @@ int main(int argc, char** argv) {
 			result = parse_u32(optarg, &num_samples);
 			break;
 
+		case 'h':
+		case '?':
+			usage();
+			return EXIT_SUCCESS;
+
 		default:
 			fprintf(stderr, "unknown argument '-%c %s'\n", opt, optarg);
 			usage();
@@ -346,6 +352,11 @@ int main(int argc, char** argv) {
 
 	if (num_samples % 0x4000) {
 		fprintf(stderr, "warning: num_samples (-n) must be a multiple of 16384\n");
+		return EXIT_FAILURE;
+	}
+
+	if (num_samples < 0x4000) {
+		fprintf(stderr, "warning: num_samples (-n) must be at least 16384\n");
 		return EXIT_FAILURE;
 	}
 
@@ -442,7 +453,7 @@ int main(int argc, char** argv) {
 	result |= hackrf_set_lna_gain(device, lna_gain);
 	result |= hackrf_start_rx(device, rx_callback, NULL);
 	if (result != HACKRF_SUCCESS) {
-		fprintf(stderr, "hackrf_start_?x() failed: %s (%d)\n", hackrf_error_name(result), result);
+		fprintf(stderr, "hackrf_start_rx() failed: %s (%d)\n", hackrf_error_name(result), result);
 		usage();
 		return EXIT_FAILURE;
 	}
@@ -451,7 +462,6 @@ int main(int argc, char** argv) {
 	if( result != HACKRF_SUCCESS ) {
 		fprintf(stderr, "hackrf_init_sweep() failed: %s (%d)\n",
 			   hackrf_error_name(result), result);
-		usage();
 		return EXIT_FAILURE;
 	}
 
@@ -508,7 +518,7 @@ int main(int argc, char** argv) {
 
 	result = hackrf_is_streaming(device);	
 	if (do_exit) {
-		fprintf(stderr, "\nUser cancel, exiting...\n");
+		fprintf(stderr, "\nExiting...\n");
 	} else {
 		fprintf(stderr, "\nExiting... hackrf_is_streaming() result: %s (%d)\n",
 			   hackrf_error_name(result), result);

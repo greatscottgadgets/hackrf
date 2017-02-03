@@ -320,8 +320,7 @@ static void usb_controller_set_device_mode() {
 	
 	// Set device-related OTG flags
 	// OTG termination: controls pull-down on USB_DM
-	// VBUS_Discharge: VBUS discharges through resistor
-	USB0_OTGSC = USB0_OTGSC_OT | USB0_OTGSC_VD;
+	USB0_OTGSC = USB0_OTGSC_OT;
 }
 
 usb_speed_t usb_speed(

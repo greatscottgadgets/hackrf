@@ -57,7 +57,7 @@ uint8_t usb_descriptor_device[] = {
 	USB_MAX_PACKET0,		   // bMaxPacketSize0
 	USB_WORD(USB_VENDOR_ID),	   // idVendor
 	USB_WORD(USB_PRODUCT_ID),	   // idProduct
-	USB_WORD(0x0101),		   // bcdDevice
+	USB_WORD(0x0102),		   // bcdDevice
 	0x01,				   // iManufacturer
 	0x02,				   // iProduct
 	0x04,				   // iSerialNumber

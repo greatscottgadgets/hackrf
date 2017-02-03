@@ -26,9 +26,16 @@
 #include <stdlib.h>
 #include <getopt.h>
 
+#ifndef bool
+typedef int bool;
+#define true 1
+#define false 0
+#endif
+
 static void usage() {
 	printf("\nUsage:\n");
-	printf("\t-n, --register <n>: set register number for subsequent read/write operations\n");
+	printf("\t-h, --help: this help\n");
+	printf("\t-n, --register <n>: set register number for read/write operations\n");
 	printf("\t-r, --read: read register specified by last -n argument, or all registers\n");
 	printf("\t-w, --write <v>: write register specified by last -n argument with value <v>\n");
 	printf("\nExamples:\n");
@@ -41,6 +48,7 @@ static struct option long_options[] = {
 	{ "register", required_argument, 0, 'n' },
 	{ "write", required_argument, 0, 'w' },
 	{ "read", no_argument, 0, 'r' },
+	{ "help", no_argument, 0, 'h' },
 	{ 0, 0, 0, 0 },
 };
 
@@ -94,7 +102,7 @@ int dump_registers(hackrf_device* device) {
 			break;
 		}
 	}
-	
+
 	return result;
 }
 
@@ -123,57 +131,84 @@ int main(int argc, char** argv) {
 	uint16_t register_value;
 	hackrf_device* device = NULL;
 	int option_index = 0;
+	bool read = false;
+	bool write = false;
 
 	int result = hackrf_init();
 	if( result ) {
 		printf("hackrf_init() failed: %s (%d)\n", hackrf_error_name(result), result);
-		return -1;
-	}
-	
-	result = hackrf_open(&device);
-	if( result ) {
-		printf("hackrf_open() failed: %s (%d)\n", hackrf_error_name(result), result);
-		return -1;
+		return EXIT_FAILURE;
 	}
 
-	while( (opt = getopt_long(argc, argv, "n:rw:", long_options, &option_index)) != EOF ) {
+	while( (opt = getopt_long(argc, argv, "n:rw:h?", long_options, &option_index)) != EOF ) {
 		switch( opt ) {
 		case 'n':
 			result = parse_int(optarg, &register_number);
 			break;
 		
 		case 'w':
+			write = true;
 			result = parse_int(optarg, &register_value);
-			if( result == HACKRF_SUCCESS ) {
-				result = write_register(device, register_number, register_value);
-			}
 			break;
-		
+
 		case 'r':
-			if( register_number == REGISTER_INVALID ) {
-				result = dump_registers(device);
-			} else {
-				result = dump_register(device, register_number);
-			}
+			read = true;
 			break;
-		
-		default:
+
+		case 'h':
+		case '?':
 			usage();
+			return EXIT_SUCCESS;
+		default:
+			fprintf(stderr, "unknown argument '-%c %s'\n", opt, optarg);
+			usage();
+			return EXIT_FAILURE;
 		}
-		
+
 		if( result != HACKRF_SUCCESS ) {
 			printf("argument error: %s (%d)\n", hackrf_error_name(result), result);
-			break;
+			usage();
+			return EXIT_FAILURE;
 		}
 	}
-	
+
+	if(write && read) {
+		fprintf(stderr, "Read and write options are mutually exclusive.\n");
+		usage();
+		return EXIT_FAILURE;
+	}
+
+	if(!(write || read)) {
+		fprintf(stderr, "Specify either read or write option.\n");
+		usage();
+		return EXIT_FAILURE;
+	}
+
+	result = hackrf_open(&device);
+	if(result) {
+		printf("hackrf_open() failed: %s (%d)\n", hackrf_error_name(result), result);
+		return EXIT_FAILURE;
+	}
+
+	if(write) {
+		result = write_register(device, register_number, register_value);
+	}
+
+	if(read) {
+		if(register_number == REGISTER_INVALID) {
+			result = dump_registers(device);
+		} else {
+			result = dump_register(device, register_number);
+		}
+	}
+
 	result = hackrf_close(device);
 	if( result ) {
 		printf("hackrf_close() failed: %s (%d)\n", hackrf_error_name(result), result);
-		return -1;
+		return EXIT_FAILURE;
 	}
-	
+
 	hackrf_exit();
     
-    return 0;
+    return EXIT_SUCCESS;
 }
