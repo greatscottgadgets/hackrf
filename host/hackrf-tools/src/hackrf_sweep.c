@@ -237,12 +237,11 @@ static void usage() {
 	fprintf(stderr, "Usage:\n");
 	fprintf(stderr, "\t[-h] # this help\n");
 	fprintf(stderr, "\t[-d serial_number] # Serial number of desired HackRF.\n");
-	fprintf(stderr, "\t[-a amp_enable] # RX/TX RF amplifier 1=Enable, 0=Disable.\n");
+	fprintf(stderr, "\t[-a amp_enable] # RX RF amplifier 1=Enable, 0=Disable.\n");
 	fprintf(stderr, "\t[-f freq_min:freq_max # Specify minimum & maximum sweep frequencies (MHz).\n");
 	fprintf(stderr, "\t[-p antenna_enable] # Antenna port power, 1=Enable, 0=Disable.\n");
 	fprintf(stderr, "\t[-l gain_db] # RX LNA (IF) gain, 0-40dB, 8dB steps\n");
 	fprintf(stderr, "\t[-g gain_db] # RX VGA (baseband) gain, 0-62dB, 2dB steps\n");
-	fprintf(stderr, "\t[-x gain_db] # TX VGA (IF) gain, 0-47dB, 1dB steps\n");
 	fprintf(stderr, "\t[-n num_samples] # Number of samples per frequency, 16384-4294967296\n");
 }
 
@@ -273,11 +272,11 @@ int main(int argc, char** argv) {
 	int exit_code = EXIT_SUCCESS;
 	struct timeval t_end;
 	float time_diff;
-	unsigned int lna_gain=16, vga_gain=20, txvga_gain=0;
+	unsigned int lna_gain=16, vga_gain=20;
 	uint16_t frequencies[MAX_FREQ_COUNT];
 	uint32_t num_samples = DEFAULT_SAMPLE_COUNT;
 
-	while( (opt = getopt(argc, argv, "a:f:p:l:g:x:d:n:h?")) != EOF ) {
+	while( (opt = getopt(argc, argv, "a:f:p:l:g:d:n:h?")) != EOF ) {
 		result = HACKRF_SUCCESS;
 		switch( opt ) 
 		{
@@ -316,10 +315,6 @@ int main(int argc, char** argv) {
 
 		case 'g':
 			result = parse_u32(optarg, &vga_gain);
-			break;
-
-		case 'x':
-			result = parse_u32(optarg, &txvga_gain);
 			break;
 
 		case 'n':
