@@ -34,7 +34,7 @@ typedef int bool;
 static void usage() {
 	printf("\nUsage:\n");
 	printf("\t-h, --help: this help\n");
-	printf("\t-d, --device <n>: specify a particular device by number\n");
+	printf("\t-d, --device <n>: specify a particular device by serial number\n");
 	printf("\t-o, --address <n>: specify a particular operacake by address [default: 0x00]\n");
 	printf("\t-a <n>: set port A connection\n");
 	printf("\t-b <n>: set port B connection\n");
