@@ -221,10 +221,6 @@ static void switchctrl_set_rad1o(rf_path_t* const rf_path, uint8_t ctrl) {
 	if (ctrl & SWITCHCTRL_NO_RX_AMP_PWR) {
 		gpio_clear(rf_path->gpio_rx_lna);
 	}
-
-	if (ctrl & SWITCHCTRL_ANT_PWR) {
-		// TODO
-	}
 }
 #endif
 

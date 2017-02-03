@@ -143,9 +143,9 @@ extern "C"
 #define SCU_XCVR_B7			(P5_6)	/* GPIO2[15] on P5_6 */
 #endif
 #ifdef RAD1O
-#define SCU_XCVR_RXHP		(P8_1)	/* GPIO[] on P8_1 */
-#define SCU_XCVR_B6			(P8_2)	/* GPIO[] on P8_2 */
-#define SCU_XCVR_B7			(P9_3)	/* GPIO[] on P8_3 */
+#define SCU_XCVR_RXHP       (P8_1)  /* GPIO[] on P8_1 */
+#define SCU_XCVR_B6         (P8_2)  /* GPIO[] on P8_2 */
+#define SCU_XCVR_B7         (P9_3)  /* GPIO[] on P8_3 */
 #endif
 
 #define SCU_XCVR_ENABLE     (P4_6)  /* GPIO2[6] on P4_6 */

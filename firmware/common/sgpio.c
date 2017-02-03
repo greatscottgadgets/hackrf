@@ -93,8 +93,8 @@ void sgpio_configure(
 		;
 
 #ifdef RAD1O
-	// The data direction might have changed. Check if we need to
-	// adjust the q inversion.
+	/* The data direction might have changed. Check if we need to
+	 * adjust the q inversion. */
 	update_q_invert(config);
 #endif
 
@@ -283,19 +283,16 @@ bool sgpio_cpld_stream_rx_set_decimation(sgpio_config_t* const config, const uin
  * have to go.
  *
  * As TX/RX can change without sgpio_cpld_stream_rx_set_q_invert
- * being called, we store a local copy of its parameter.
- */
+ * being called, we store a local copy of its parameter. */
 static bool sgpio_invert = false;
 
-/*
- * Called when TX/RX changes od sgpio_cpld_stream_rx_set_q_invert
- * gets called.
- */
+/* Called when TX/RX changes od sgpio_cpld_stream_rx_set_q_invert
+ * gets called. */
 static void update_q_invert(sgpio_config_t* const config) {
-	/* 1=Output SGPIO11 High(TX mode), 0=Output SGPIO11 Low(RX mode)*/
+	/* 1=Output SGPIO11 High(TX mode), 0=Output SGPIO11 Low(RX mode) */
 	bool tx_mode = (SGPIO_GPIO_OUTREG & (1 << 11)) > 0;
 
-	// 0.13: P1_18
+	/* 0.13: P1_18 */
 	if( !sgpio_invert & !tx_mode) {
 		gpio_write(config->gpio_rx_q_invert, 1);
 	} else if( !sgpio_invert & tx_mode) {

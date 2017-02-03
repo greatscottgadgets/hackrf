@@ -58,8 +58,8 @@ static const usb_request_handler_fn vendor_request_handler[] = {
 	usb_vendor_request_set_sample_rate_frac,
 	usb_vendor_request_set_baseband_filter_bandwidth,
 #ifdef RAD1O
-    NULL,
-    NULL,
+	NULL, // write_rffc5071 not used
+	NULL, // read_rffc5071 not used
 #else
 	usb_vendor_request_write_rffc5071,
 	usb_vendor_request_read_rffc5071,
@@ -163,6 +163,8 @@ int main(void) {
 	enable_1v8_power();
 #if (defined HACKRF_ONE || defined RAD1O)
 	enable_rf_power();
+
+	/* Let the voltage stabilize */
 	delay(1000000);
 #endif
 	cpu_clock_init();

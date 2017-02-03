@@ -625,8 +625,7 @@ void cpu_clock_init(void)
 #endif
 
 #ifdef RAD1O
-	/*
-	 * rad1o clocks:
+	/* rad1o clocks:
 	 *   CLK0 -> MAX5864/CPLD
 	 *   CLK1 -> CPLD
 	 *   CLK2 -> SGPIO
@@ -634,8 +633,7 @@ void cpu_clock_init(void)
 	 *   CLK4 -> MAX2837
 	 *   CLK5 -> MAX2871
 	 *   CLK6 -> none
-	 *   CLK7 -> LPC4330 (but LPC4330 starts up on its own crystal)
-	 */
+	 *   CLK7 -> LPC4330 (but LPC4330 starts up on its own crystal) */
 
 	/* MS3/CLK3 is the source for the external clock output. */
 	si5351c_configure_multisynth(&clock_gen, 3, 80*128-512, 0, 1, 0); /* 800/80 = 10MHz */
@@ -655,7 +653,6 @@ void cpu_clock_init(void)
 
 	/* Set to 10 MHz, the common rate between Jellybean and Jawbreaker. */
 	sample_rate_set(10000000);
-	//sample_rate_set(8000000);
 
 	si5351c_set_clock_source(&clock_gen, PLL_SOURCE_XTAL);
 	// soft reset

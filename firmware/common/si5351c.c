@@ -271,12 +271,12 @@ void si5351c_configure_clock_control(si5351c_driver_t* const drv, const enum pll
  void si5351c_enable_clock_outputs(si5351c_driver_t* const drv)
  {
 #ifdef RAD1O
-    /* Enable CLK outputs 0, 1, 2, 4, 5 only. */
+	/* Enable CLK outputs 0, 1, 2, 4, 5 only. */
 	/* 7: Clock to CPU is deactivated as it is not used and creates noise */
 	/* 3: External clock output is deactivated as it is not used and creates noise */
-    uint8_t data[] = { 3, ~((1 << 0) | (1 << 1) | (1 << 2) | (1 << 4) | (1 << 5))};
+	uint8_t data[] = { 3, ~((1 << 0) | (1 << 1) | (1 << 2) | (1 << 4) | (1 << 5))};
 #else
-    /* Enable CLK outputs 0, 1, 2, 3, 4, 5, 7 only. */
+	/* Enable CLK outputs 0, 1, 2, 3, 4, 5, 7 only. */
 	uint8_t data[] = { 3, 0x40 };
 #endif
  	si5351c_write(drv, data, sizeof(data));

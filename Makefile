@@ -27,7 +27,7 @@ $(FDIR)/hackrf_usb.dfu: $(FDIR) $(FDIR)/Makefile $(FORCE)
 
 $(FDIR)/Makefile:
 	cd $(FDIR) && cmake -DBOARD=RAD1O ..
-	
+
 $(FDIR):
 	mkdir $(FDIR)
 
