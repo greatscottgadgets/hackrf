@@ -36,6 +36,10 @@
 #include <math.h>
 
 #define _FILE_OFFSET_BITS 64
+#define BLOCKS_PER_TRANSFER 16
+#define SAMPLES_PER_BLOCK 16384
+#define STEP_SIZE_IN_HZ 312500
+#define FFT_SIZE 64
 
 #ifndef bool
 typedef int bool;
@@ -169,12 +173,17 @@ uint32_t antenna_enable;
 uint32_t freq_min;
 uint32_t freq_max;
 
+bool binary_output = false;
+
 int fftSize;
 fftwf_complex *fftwIn = NULL;
 fftwf_complex *fftwOut = NULL;
 fftwf_plan fftwPlan = NULL;
 float* pwr;
 float* window;
+time_t time_now;
+struct tm *fft_time;
+char time_str[50];
 
 float logPower(fftwf_complex in, float scale)
 {
@@ -190,22 +199,19 @@ int rx_callback(hackrf_transfer* transfer) {
 	 * Throw away unused bins
 	 * write output to pipe
 	 */
-	ssize_t bytes_to_write;
-	ssize_t bytes_written;
 	int8_t* buf;
 	float frequency;
 	int i, j;
 
 	if( fd != NULL ) {
 		byte_count += transfer->valid_length;
-		bytes_to_write = transfer->valid_length;
 		buf = (int8_t*) transfer->buffer;
-		for(j=0; j<16; j++) {
+		for(j=0; j<BLOCKS_PER_TRANSFER; j++) {
 			if(buf[0] == 0x7F && buf[1] == 0x7F) {
 				frequency = *(uint16_t*)&buf[2];
 			}
 			/* copy to fftwIn as floats */
-			buf += 16384 - (fftSize * 2);
+			buf += SAMPLES_PER_BLOCK - (fftSize * 2);
 			for(i=0; i < fftSize; i++) {
 				fftwIn[i][0] = buf[i*2] * window[i] * 1.0f / 128.0f;
 				fftwIn[i][1] = buf[i*2+1] * window[i] * 1.0f / 128.0f;
@@ -215,19 +221,25 @@ int rx_callback(hackrf_transfer* transfer) {
 			for (i=0; i < fftSize; i++) {
 				// Start from the middle of the FFTW array and wrap
 				// to rearrange the data
+				//FIXME only works when fftSize = 2**n
 				int k = i ^ (fftSize >> 1);
 				pwr[i] = logPower(fftwOut[k], 1.0f / fftSize);
 			}
-			fwrite(&frequency, sizeof(float), 1, stdout);
-			fwrite(pwr, sizeof(float), fftSize, stdout);
+			if(binary_output) {
+				fwrite(&frequency, sizeof(float), 1, stdout);
+				fwrite(pwr, sizeof(float), fftSize, stdout);
+			} else {
+				time_now = time(NULL);
+				fft_time = localtime(&time_now);
+				strftime(time_str, 50, "%Y-%m-%d, %H:%M:%S", fft_time);
+				printf("%s, hz_low, hz_high, hz_step, num_samples, ", time_str);
+				for(i=0; i < (fftSize - 1); i++) {
+					printf("%.2f, ", pwr[i]);
+				}
+				printf("%.2f\n", pwr[fftSize - 1]);
+			}
 		}
-
-		bytes_written = fwrite(transfer->buffer, 1, bytes_to_write, fd);
-		if (bytes_written != bytes_to_write) {
-			return -1;
-		} else {
-			return 0;
-		}
+		return 0;
 	} else {
 		return -1;
 	}
@@ -243,6 +255,7 @@ static void usage() {
 	fprintf(stderr, "\t[-l gain_db] # RX LNA (IF) gain, 0-40dB, 8dB steps\n");
 	fprintf(stderr, "\t[-g gain_db] # RX VGA (baseband) gain, 0-62dB, 2dB steps\n");
 	fprintf(stderr, "\t[-n num_samples] # Number of samples per frequency, 16384-4294967296\n");
+	fprintf(stderr, "\t[-B] # binary output\n");
 }
 
 static hackrf_device* device = NULL;
@@ -276,7 +289,7 @@ int main(int argc, char** argv) {
 	uint16_t frequencies[MAX_FREQ_COUNT];
 	uint32_t num_samples = DEFAULT_SAMPLE_COUNT;
 
-	while( (opt = getopt(argc, argv, "a:f:p:l:g:d:n:h?")) != EOF ) {
+	while( (opt = getopt(argc, argv, "a:f:p:l:g:d:n:Bh?")) != EOF ) {
 		result = HACKRF_SUCCESS;
 		switch( opt ) 
 		{
@@ -321,6 +334,10 @@ int main(int argc, char** argv) {
 			result = parse_u32(optarg, &num_samples);
 			break;
 
+		case 'B':
+			binary_output = true;
+			break;
+
 		case 'h':
 		case '?':
 			usage();
@@ -345,12 +362,12 @@ int main(int argc, char** argv) {
 	if (vga_gain % 2)
 		fprintf(stderr, "warning: vga_gain (-g) must be a multiple of 2\n");
 
-	if (num_samples % 0x4000) {
+	if (num_samples % SAMPLES_PER_BLOCK) {
 		fprintf(stderr, "warning: num_samples (-n) must be a multiple of 16384\n");
 		return EXIT_FAILURE;
 	}
 
-	if (num_samples < 0x4000) {
+	if (num_samples < SAMPLES_PER_BLOCK) {
 		fprintf(stderr, "warning: num_samples (-n) must be at least 16384\n");
 		return EXIT_FAILURE;
 	}
@@ -377,7 +394,7 @@ int main(int argc, char** argv) {
 		return EXIT_FAILURE;
 	}
 	
-	fftSize = 64;
+	fftSize = FFT_SIZE;
     fftwIn = (fftwf_complex*)fftwf_malloc(sizeof(fftwf_complex) * fftSize);
     fftwOut = (fftwf_complex*)fftwf_malloc(sizeof(fftwf_complex) * fftSize);
     fftwPlan = fftwf_plan_dft_1d(fftSize, fftwIn, fftwOut, FFTW_FORWARD, FFTW_MEASURE);
