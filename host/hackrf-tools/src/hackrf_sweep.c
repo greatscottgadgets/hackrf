@@ -201,7 +201,8 @@ int rx_callback(hackrf_transfer* transfer) {
 	 * write output to pipe
 	 */
 	int8_t* buf;
-	float frequency;
+	uint16_t frequency;
+	float float_freq;
 	int i, j;
 
 	if( fd != NULL ) {
@@ -210,6 +211,13 @@ int rx_callback(hackrf_transfer* transfer) {
 		for(j=0; j<BLOCKS_PER_TRANSFER; j++) {
 			if(buf[0] == 0x7F && buf[1] == 0x7F) {
 				frequency = *(uint16_t*)&buf[2];
+			} else {
+				buf += SAMPLES_PER_BLOCK;
+				break;
+			}
+			if((FREQ_MAX_HZ*FREQ_ONE_MHZ < frequency)) {
+				buf += SAMPLES_PER_BLOCK;
+				break;
 			}
 			/* copy to fftwIn as floats */
 			buf += SAMPLES_PER_BLOCK - (fftSize * 2);
@@ -227,16 +235,17 @@ int rx_callback(hackrf_transfer* transfer) {
 				pwr[i] = logPower(fftwOut[k], 1.0f / fftSize);
 			}
 			if(binary_output) {
-				fwrite(&frequency, sizeof(float), 1, stdout);
+				float_freq = frequency;
+				fwrite(&float_freq, sizeof(float), 1, stdout);
 				fwrite(pwr, sizeof(float), fftSize, stdout);
 			} else {
 				time_now = time(NULL);
 				fft_time = localtime(&time_now);
 				strftime(time_str, 50, "%Y-%m-%d, %H:%M:%S", fft_time);
-				printf("%s, %" PRIu64 ", %" PRIu64 ", %f, %d, ",
+				printf("%s, %" PRIu64 ", %" PRIu64 ", %.2f, %d, ",
 						time_str,
-						(uint64_t)((FREQ_ONE_MHZ*frequency)-STEP_SIZE_IN_HZ*((FFT_SIZE/2)-1)),
-						(uint64_t)((FREQ_ONE_MHZ*frequency)+STEP_SIZE_IN_HZ*(FFT_SIZE/2)),
+						(uint64_t)((FREQ_ONE_MHZ*frequency)-(DEFAULT_SAMPLE_RATE_HZ/2)),
+						(uint64_t)((FREQ_ONE_MHZ*frequency)+(DEFAULT_SAMPLE_RATE_HZ/2)),
 						(float)STEP_SIZE_IN_HZ,
 						FFT_SIZE);
 				for(i=0; i < (fftSize - 1); i++) {
@@ -401,9 +410,9 @@ int main(int argc, char** argv) {
 	}
 	
 	fftSize = FFT_SIZE;
-    fftwIn = (fftwf_complex*)fftwf_malloc(sizeof(fftwf_complex) * fftSize);
-    fftwOut = (fftwf_complex*)fftwf_malloc(sizeof(fftwf_complex) * fftSize);
-    fftwPlan = fftwf_plan_dft_1d(fftSize, fftwIn, fftwOut, FFTW_FORWARD, FFTW_MEASURE);
+	fftwIn = (fftwf_complex*)fftwf_malloc(sizeof(fftwf_complex) * fftSize);
+	fftwOut = (fftwf_complex*)fftwf_malloc(sizeof(fftwf_complex) * fftSize);
+	fftwPlan = fftwf_plan_dft_1d(fftSize, fftwIn, fftwOut, FFTW_FORWARD, FFTW_MEASURE);
 	pwr = (float*)fftwf_malloc(sizeof(float) * fftSize);
 	window = (float*)fftwf_malloc(sizeof(float) * fftSize);
 	for (i = 0; i < fftSize; i++) {
