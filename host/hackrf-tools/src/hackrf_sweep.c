@@ -235,7 +235,7 @@ int rx_callback(hackrf_transfer* transfer) {
 				strftime(time_str, 50, "%Y-%m-%d, %H:%M:%S", fft_time);
 				printf("%s, %" PRIu64 ", %" PRIu64 ", %f, %d, ",
 						time_str,
-						(uint64_t)((FREQ_ONE_MHZ*frequency)+1-STEP_SIZE_IN_HZ*(FFT_SIZE/2)),
+						(uint64_t)((FREQ_ONE_MHZ*frequency)-STEP_SIZE_IN_HZ*((FFT_SIZE/2)-1)),
 						(uint64_t)((FREQ_ONE_MHZ*frequency)+STEP_SIZE_IN_HZ*(FFT_SIZE/2)),
 						(float)STEP_SIZE_IN_HZ,
 						FFT_SIZE);
