@@ -34,6 +34,7 @@
 #include <errno.h>
 #include <fftw3.h>
 #include <math.h>
+#include <inttypes.h>
 
 #define _FILE_OFFSET_BITS 64
 #define BLOCKS_PER_TRANSFER 16
@@ -232,7 +233,12 @@ int rx_callback(hackrf_transfer* transfer) {
 				time_now = time(NULL);
 				fft_time = localtime(&time_now);
 				strftime(time_str, 50, "%Y-%m-%d, %H:%M:%S", fft_time);
-				printf("%s, hz_low, hz_high, hz_step, num_samples, ", time_str);
+				printf("%s, %" PRIu64 ", %" PRIu64 ", %f, %d, ",
+						time_str,
+						(uint64_t)((FREQ_ONE_MHZ*frequency)-STEP_SIZE_IN_HZ*(FFT_SIZE/2)),
+						(uint64_t)((FREQ_ONE_MHZ*frequency)+STEP_SIZE_IN_HZ*(FFT_SIZE/2)),
+						(float)STEP_SIZE_IN_HZ,
+						FFT_SIZE);
 				for(i=0; i < (fftSize - 1); i++) {
 					printf("%.2f, ", pwr[i]);
 				}
