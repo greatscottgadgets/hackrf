@@ -215,7 +215,7 @@ int rx_callback(hackrf_transfer* transfer) {
 				buf += SAMPLES_PER_BLOCK;
 				break;
 			}
-			if((FREQ_MAX_HZ*FREQ_ONE_MHZ < frequency)) {
+			if((FREQ_MAX_HZ < frequency)) {
 				buf += SAMPLES_PER_BLOCK;
 				break;
 			}
