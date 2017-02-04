@@ -201,7 +201,7 @@ int rx_callback(hackrf_transfer* transfer) {
 	 * write output to pipe
 	 */
 	int8_t* buf;
-	uint16_t frequency;
+	uint16_t frequency; /* in MHz */
 	float float_freq;
 	int i, j;
 
@@ -215,7 +215,7 @@ int rx_callback(hackrf_transfer* transfer) {
 				buf += SAMPLES_PER_BLOCK;
 				break;
 			}
-			if((FREQ_MAX_HZ < frequency)) {
+			if(FREQ_MAX_HZ < (FREQ_ONE_MHZ*frequency)) {
 				buf += SAMPLES_PER_BLOCK;
 				break;
 			}
