@@ -244,11 +244,21 @@ int rx_callback(hackrf_transfer* transfer) {
 				strftime(time_str, 50, "%Y-%m-%d, %H:%M:%S", fft_time);
 				printf("%s, %" PRIu64 ", %" PRIu64 ", %.2f, %d",
 						time_str,
-						(uint64_t)((FREQ_ONE_MHZ*frequency)-(DEFAULT_SAMPLE_RATE_HZ/2)),
-						(uint64_t)((FREQ_ONE_MHZ*frequency)+(DEFAULT_SAMPLE_RATE_HZ/2)),
+						(uint64_t)((FREQ_ONE_MHZ*frequency)-((DEFAULT_SAMPLE_RATE_HZ*3)/8)),
+						(uint64_t)((FREQ_ONE_MHZ*frequency)-(DEFAULT_SAMPLE_RATE_HZ/8)),
 						(float)STEP_SIZE_IN_HZ,
 						FFT_SIZE);
-				for(i=0; i < fftSize; i++) {
+				for(i=fftSize/8; (fftSize*3)/8 > i; i++) {
+					printf(", %.2f", pwr[i]);
+				}
+				printf("\n");
+				printf("%s, %" PRIu64 ", %" PRIu64 ", %.2f, %d",
+						time_str,
+						(uint64_t)((FREQ_ONE_MHZ*frequency)+(DEFAULT_SAMPLE_RATE_HZ/8)),
+						(uint64_t)((FREQ_ONE_MHZ*frequency)+((DEFAULT_SAMPLE_RATE_HZ*3)/8)),
+						(float)STEP_SIZE_IN_HZ,
+						FFT_SIZE);
+				for(i=(fftSize*5)/8; (fftSize*7)/8 > i; i++) {
 					printf(", %.2f", pwr[i]);
 				}
 				printf("\n");
