@@ -242,16 +242,16 @@ int rx_callback(hackrf_transfer* transfer) {
 				time_now = time(NULL);
 				fft_time = localtime(&time_now);
 				strftime(time_str, 50, "%Y-%m-%d, %H:%M:%S", fft_time);
-				printf("%s, %" PRIu64 ", %" PRIu64 ", %.2f, %d, ",
+				printf("%s, %" PRIu64 ", %" PRIu64 ", %.2f, %d",
 						time_str,
 						(uint64_t)((FREQ_ONE_MHZ*frequency)-(DEFAULT_SAMPLE_RATE_HZ/2)),
 						(uint64_t)((FREQ_ONE_MHZ*frequency)+(DEFAULT_SAMPLE_RATE_HZ/2)),
 						(float)STEP_SIZE_IN_HZ,
 						FFT_SIZE);
-				for(i=0; i < (fftSize - 1); i++) {
-					printf("%.2f, ", pwr[i]);
+				for(i=0; i < fftSize; i++) {
+					printf(", %.2f", pwr[i]);
 				}
-				printf("%.2f\n", pwr[fftSize - 1]);
+				printf("\n");
 			}
 		}
 		return 0;
