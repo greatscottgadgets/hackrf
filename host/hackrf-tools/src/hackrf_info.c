@@ -44,6 +44,10 @@ int main(void)
 				hackrf_error_name(result), result);
 		return EXIT_FAILURE;
 	}
+
+	printf("hackrf_info version: %s\n", TOOL_RELEASE);
+	printf("libhackrf version: %s (%s)\n", hackrf_library_release(),
+			hackrf_library_version());
 	
 	list = hackrf_device_list();
 	
