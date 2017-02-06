@@ -365,6 +365,22 @@ int ADDCALL hackrf_exit(void)
 	return HACKRF_SUCCESS;
 }
 
+#ifndef LIBRARY_VERSION
+#define LIBRARY_VERSION "unknown"
+#endif
+const char* ADDCALL hackrf_library_version()
+{
+	return LIBRARY_VERSION;
+}
+
+#ifndef LIBRARY_RELEASE
+#define LIBRARY_RELEASE "unknown"
+#endif
+const char* ADDCALL hackrf_library_release()
+{
+	return LIBRARY_RELEASE;
+}
+
 hackrf_device_list_t* ADDCALL hackrf_device_list()
 {
 	ssize_t i;
