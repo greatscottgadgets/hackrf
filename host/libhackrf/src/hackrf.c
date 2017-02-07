@@ -1810,23 +1810,70 @@ int ADDCALL hackrf_set_hw_sync_mode(hackrf_device* device, const uint8_t value) 
 	}
 }
 
-/* Initialise sweep mode with alist of frequencies and dwell time in samples */
-int ADDCALL hackrf_init_sweep(hackrf_device* device, uint16_t* frequency_list, int length, uint32_t dwell_time)
-{
+/*
+ * Initialize sweep mode:
+ * frequency_list is a list of start/stop pairs of frequencies in MHz.
+ * num_ranges is the number of pairs in frequency_list (1 to 10)
+ * num_samples is the number of samples to capture after each tuning.
+ * step_width is the width in Hz of the tuning step.
+ * offset is a number of Hz added to every tuning frequency.
+ *     Use to select center frequency based on the expected usable bandwidth.
+ * sweep_mode
+ *     LINEAR means step_width is added to the current frequency at each step.
+ *     INTERLEAVED invokes a scheme in which each step is divided into two
+ *         interleaved sub-steps, allowing the host to select the best portions
+ *         of the FFT of each sub-step and discard the rest.
+ */
+int ADDCALL hackrf_init_sweep(hackrf_device* device,
+		const uint16_t* frequency_list, const int num_ranges,
+		const uint32_t num_samples, const uint32_t step_width,
+		const uint32_t offset, const enum sweep_style style) {
 	USB_API_REQUIRED(device, 0x0102)
 	int result, i;
-	int size = length * sizeof(frequency_list[0]);
+	unsigned char data[9 + MAX_SWEEP_RANGES * 2 * sizeof(frequency_list[0])];
+	int size = 9 + num_ranges * 2 * sizeof(frequency_list[0]);
 
-	for(i=0; i<length; i++)
-		frequency_list[i] = TO_LE(frequency_list[i]);
+	if((num_ranges < 1) || (num_ranges > MAX_SWEEP_RANGES)){
+		return HACKRF_ERROR_INVALID_PARAM;
+	}
+
+	if(num_samples % SAMPLES_PER_BLOCK) {
+		return HACKRF_ERROR_INVALID_PARAM;
+	}
+
+	if(SAMPLES_PER_BLOCK < num_samples) {
+		return HACKRF_ERROR_INVALID_PARAM;
+	}
+
+	if(1 > step_width) {
+		return HACKRF_ERROR_INVALID_PARAM;
+	}
+
+	if(INTERLEAVED < style) {
+		return HACKRF_ERROR_INVALID_PARAM;
+	}
+
+	data[0] = step_width & 0xff;
+	data[1] = (step_width >> 8) & 0xff;
+	data[2] = (step_width >> 16) & 0xff;
+	data[3] = (step_width >> 24) & 0xff;
+	data[4] = offset & 0xff;
+	data[5] = (offset >> 8) & 0xff;
+	data[6] = (offset >> 16) & 0xff;
+	data[7] = (offset >> 24) & 0xff;
+	data[8] = style;
+	for(i=0; i<(num_ranges*2); i++) {
+		data[9+i*2] = frequency_list[i] & 0xff;
+		data[10+i*2] = (frequency_list[i] >> 8) & 0xff;
+	}
 
 	result = libusb_control_transfer(
 		device->usb_device,
 		LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
 		HACKRF_VENDOR_REQUEST_INIT_SWEEP,
-		dwell_time & 0xffff,
-		(dwell_time >> 16) & 0xffff,
-		(unsigned char*)frequency_list,
+		num_samples & 0xffff,
+		(num_samples >> 16) & 0xffff,
+		data,
 		size,
 		0
 	);

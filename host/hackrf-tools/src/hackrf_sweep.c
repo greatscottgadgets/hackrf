@@ -37,10 +37,6 @@
 #include <inttypes.h>
 
 #define _FILE_OFFSET_BITS 64
-#define BLOCKS_PER_TRANSFER 16
-#define SAMPLES_PER_BLOCK 16384
-#define STEP_SIZE_IN_HZ 312500
-#define FFT_SIZE 64
 
 #ifndef bool
 typedef int bool;
@@ -99,9 +95,12 @@ int gettimeofday(struct timeval *tv, void* ignored) {
 #define DEFAULT_BASEBAND_FILTER_BANDWIDTH (15000000) /* 5MHz default */
 
 #define TUNE_STEP (DEFAULT_SAMPLE_RATE_HZ / FREQ_ONE_MHZ)
-#define MAX_FREQ_COUNT 1000
+#define OFFSET 7500000
 
 #define DEFAULT_SAMPLE_COUNT 0x4000
+#define BLOCKS_PER_TRANSFER 16
+#define FFT_BIN_WIDTH_HZ 312500
+#define FFT_SIZE 64
 
 #if defined _WIN32
 	#define sleep(a) Sleep( (a*1000) )
@@ -201,7 +200,8 @@ int rx_callback(hackrf_transfer* transfer) {
 	 * write output to pipe
 	 */
 	int8_t* buf;
-	uint16_t frequency; /* in MHz */
+	uint8_t* ubuf;
+	uint64_t frequency; /* in Hz */
 	float float_freq;
 	int i, j;
 
@@ -209,13 +209,16 @@ int rx_callback(hackrf_transfer* transfer) {
 		byte_count += transfer->valid_length;
 		buf = (int8_t*) transfer->buffer;
 		for(j=0; j<BLOCKS_PER_TRANSFER; j++) {
-			if(buf[0] == 0x7F && buf[1] == 0x7F) {
-				frequency = *(uint16_t*)&buf[2];
+			ubuf = (uint8_t*) buf;
+			if(ubuf[0] == 0x7F && ubuf[1] == 0x7F) {
+				frequency = ((uint64_t)(ubuf[9]) << 56) | ((uint64_t)(ubuf[8]) << 48) | ((uint64_t)(ubuf[7]) << 40)
+						| ((uint64_t)(ubuf[6]) << 32) | ((uint64_t)(ubuf[5]) << 24) | ((uint64_t)(ubuf[4]) << 16)
+						| ((uint64_t)(ubuf[3]) << 8) | ubuf[2];
 			} else {
 				buf += SAMPLES_PER_BLOCK;
 				break;
 			}
-			if(FREQ_MAX_MHZ < frequency) {
+			if((FREQ_MAX_MHZ * FREQ_ONE_MHZ) < frequency) {
 				buf += SAMPLES_PER_BLOCK;
 				break;
 			}
@@ -236,6 +239,7 @@ int rx_callback(hackrf_transfer* transfer) {
 			}
 			if(binary_output) {
 				float_freq = frequency;
+				float_freq /= FREQ_ONE_MHZ;
 				fwrite(&float_freq, sizeof(float), 1, stdout);
 				fwrite(pwr, sizeof(float), fftSize, stdout);
 			} else {
@@ -244,9 +248,9 @@ int rx_callback(hackrf_transfer* transfer) {
 				strftime(time_str, 50, "%Y-%m-%d, %H:%M:%S", fft_time);
 				printf("%s, %" PRIu64 ", %" PRIu64 ", %.2f, %u",
 						time_str,
-						(uint64_t)((FREQ_ONE_MHZ*frequency)-((DEFAULT_SAMPLE_RATE_HZ*3)/8)),
-						(uint64_t)((FREQ_ONE_MHZ*frequency)-(DEFAULT_SAMPLE_RATE_HZ/8)),
-						(float)STEP_SIZE_IN_HZ,
+						(uint64_t)(frequency),
+						(uint64_t)(frequency+DEFAULT_SAMPLE_RATE_HZ/4),
+						(float)FFT_BIN_WIDTH_HZ,
 						FFT_SIZE);
 				for(i=fftSize/8; (fftSize*3)/8 > i; i++) {
 					printf(", %.2f", pwr[i]);
@@ -254,9 +258,9 @@ int rx_callback(hackrf_transfer* transfer) {
 				printf("\n");
 				printf("%s, %" PRIu64 ", %" PRIu64 ", %.2f, %u",
 						time_str,
-						(uint64_t)((FREQ_ONE_MHZ*frequency)+(DEFAULT_SAMPLE_RATE_HZ/8)),
-						(uint64_t)((FREQ_ONE_MHZ*frequency)+((DEFAULT_SAMPLE_RATE_HZ*3)/8)),
-						(float)STEP_SIZE_IN_HZ,
+						(uint64_t)(frequency+(DEFAULT_SAMPLE_RATE_HZ/2)),
+						(uint64_t)(frequency+((DEFAULT_SAMPLE_RATE_HZ*3)/4)),
+						(float)FFT_BIN_WIDTH_HZ,
 						FFT_SIZE);
 				for(i=(fftSize*5)/8; (fftSize*7)/8 > i; i++) {
 					printf(", %.2f", pwr[i]);
@@ -303,15 +307,14 @@ void sigint_callback_handler(int signum)  {
 #endif
 
 int main(int argc, char** argv) {
-	int opt, i, result, ifreq = 0;
-	bool odd;
+	int opt, i, result = 0;
 	const char* path = "/dev/null";
 	const char* serial_number = NULL;
 	int exit_code = EXIT_SUCCESS;
 	struct timeval t_end;
 	float time_diff;
 	unsigned int lna_gain=16, vga_gain=20;
-	uint16_t frequencies[MAX_FREQ_COUNT];
+	uint16_t frequencies[MAX_SWEEP_RANGES*2];
 	uint32_t num_samples = DEFAULT_SAMPLE_COUNT;
 	int step_count;
 
@@ -409,27 +412,11 @@ int main(int argc, char** argv) {
 		return EXIT_FAILURE;
 	}
 
-	/* Plan a whole number of steps with bandwidth equal to the sample rate. */
-	step_count = 1 + (freq_max - freq_min - 1) / TUNE_STEP;
-	freq_max = freq_min + step_count * TUNE_STEP;
-
 	if (FREQ_MAX_MHZ <freq_max) {
 		fprintf(stderr, "argument error: freq_max may not be higher than %u.\n",
 				FREQ_MAX_MHZ);
 		usage();
 		return EXIT_FAILURE;
-	}
-
-	fprintf(stderr, "Sweeping from %u MHz to %u MHz\n", freq_min, freq_max);
-	frequencies[0] = freq_min;
-	odd = true;
-	for(ifreq = 1; ifreq < step_count*2; ifreq++) {
-		if (odd) {
-			frequencies[ifreq] = frequencies[ifreq-1] + TUNE_STEP / 4;
-		} else {
-			frequencies[ifreq] = frequencies[ifreq-1] + 3*(TUNE_STEP/4);
-		}
-		odd = !odd;
 	}
 
 	fftSize = FFT_SIZE;
@@ -508,7 +495,20 @@ int main(int argc, char** argv) {
 		return EXIT_FAILURE;
 	}
 
-	result = hackrf_init_sweep(device, frequencies, ifreq, num_samples);
+	/*
+	 * Plan a whole number of tuning steps of a certain bandwidth.
+	 * Increase freq_max if necessary to accomodate a whole number of steps,
+	 * minimum 1.
+	 */
+	step_count = 1 + (freq_max - freq_min - 1) / TUNE_STEP;
+	freq_max = freq_min + step_count * TUNE_STEP;
+
+	fprintf(stderr, "Sweeping from %u MHz to %u MHz\n", freq_min, freq_max);
+	frequencies[0] = freq_min;
+	frequencies[1] = freq_max;
+
+	result = hackrf_init_sweep(device, frequencies, 1, num_samples,
+			TUNE_STEP * FREQ_ONE_MHZ, OFFSET, INTERLEAVED);
 	if( result != HACKRF_SUCCESS ) {
 		fprintf(stderr, "hackrf_init_sweep() failed: %s (%d)\n",
 			   hackrf_error_name(result), result);
