@@ -23,11 +23,8 @@
 
 cmake_minimum_required(VERSION 2.8)
 project(hackrf-tools C)
-set(MAJOR_VERSION 0)
-set(MINOR_VERSION 5)
 set(PACKAGE hackrf-tools)
-set(VERSION_STRING ${MAJOR_VERSION}.${MINOR_VERSION})
-set(VERSION ${VERSION_STRING})
+add_definitions(-DTOOL_RELEASE="${RELEASE}")
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/../cmake/modules)
 
 if(MSVC)
