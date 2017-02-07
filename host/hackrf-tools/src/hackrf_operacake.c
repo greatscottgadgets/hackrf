@@ -112,11 +112,6 @@ int main(int argc, char** argv) {
 			usage();
 			return EXIT_FAILURE;
 		}
-		
-		if( result != HACKRF_SUCCESS ) {
-			printf("argument error: %s (%d)\n", hackrf_error_name(result), result);
-			break;
-		}
 	}
 
 	if(!(list || set_ports)) {

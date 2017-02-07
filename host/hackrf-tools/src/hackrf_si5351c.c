@@ -292,16 +292,29 @@ int main(int argc, char** argv) {
 	}
 
 	if(write) {
-		if( result == HACKRF_SUCCESS ) {
-			result = write_register(device, register_number, register_value);
+		result = write_register(device, register_number, register_value);
+		if(result) {
+			printf("dump_registers() failed: %s (%d)\n",
+					hackrf_error_name(result), result);
+			return EXIT_FAILURE;
 		}
 	}
 
 	if(read) {
 		if( register_number == REGISTER_INVALID ) {
 			result = dump_registers(device);
+			if(result) {
+				printf("dump_registers() failed: %s (%d)\n",
+						hackrf_error_name(result), result);
+				return EXIT_FAILURE;
+			}
 		} else {
 			result = dump_register(device, register_number);
+			if(result) {
+				printf("dump_registers() failed: %s (%d)\n",
+						hackrf_error_name(result), result);
+				return EXIT_FAILURE;
+			}
 		}
 	}
 
