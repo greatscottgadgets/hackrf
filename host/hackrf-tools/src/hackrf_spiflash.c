@@ -226,11 +226,6 @@ int main(int argc, char** argv)
 		}
 	}
 
-	if((read || write) && (fd == NULL)) {
-		fprintf(stderr, "Failed to open file: %s\n", path);
-		return EXIT_FAILURE;
-	}
-
 	result = hackrf_init();
 	if (result != HACKRF_SUCCESS) {
 		fprintf(stderr, "hackrf_init() failed: %s (%d)\n",

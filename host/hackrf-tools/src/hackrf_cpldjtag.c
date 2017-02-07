@@ -120,13 +120,6 @@ int main(int argc, char** argv)
 			usage();
 			return EXIT_FAILURE;
 		}
-
-		if (result != HACKRF_SUCCESS) {
-			fprintf(stderr, "argument error: %s (%d)\n",
-					hackrf_error_name(result), result);
-			usage();
-			return EXIT_FAILURE;
-		}
 	}
 
 	if (path == NULL) {

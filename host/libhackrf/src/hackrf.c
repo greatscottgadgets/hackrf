@@ -1438,12 +1438,12 @@ static void hackrf_libusb_transfer_callback(struct libusb_transfer* usb_transfer
 	if(usb_transfer->status == LIBUSB_TRANSFER_COMPLETED)
 	{
 		hackrf_transfer transfer = {
-			transfer.device = device,
-			transfer.buffer = usb_transfer->buffer,
-			transfer.buffer_length = usb_transfer->length,
-			transfer.valid_length = usb_transfer->actual_length,
-			transfer.rx_ctx = device->rx_ctx,
-			transfer.tx_ctx = device->tx_ctx
+			.device = device,
+			.buffer = usb_transfer->buffer,
+			.buffer_length = usb_transfer->length,
+			.valid_length = usb_transfer->actual_length,
+			.rx_ctx = device->rx_ctx,
+			.tx_ctx = device->tx_ctx
 		};
 
 		if( device->callback(&transfer) == 0 )
