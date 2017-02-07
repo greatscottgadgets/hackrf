@@ -92,13 +92,13 @@ int gettimeofday(struct timeval *tv, void* ignored) {
 
 #define FREQ_ONE_MHZ (1000000ull)
 
-#define FREQ_MIN_HZ	(0ull) /* 0 Hz */
-#define FREQ_MAX_HZ	(7250000000ull) /* 7250MHz */
+#define FREQ_MIN_MHZ (0)    /*    0 MHz */
+#define FREQ_MAX_MHZ (7250) /* 7250 MHz */
 
 #define DEFAULT_SAMPLE_RATE_HZ (20000000) /* 20MHz default sample rate */
 #define DEFAULT_BASEBAND_FILTER_BANDWIDTH (15000000) /* 5MHz default */
 
-#define FREQ_STEP (DEFAULT_SAMPLE_RATE_HZ / FREQ_ONE_MHZ)
+#define TUNE_STEP (DEFAULT_SAMPLE_RATE_HZ / FREQ_ONE_MHZ)
 #define MAX_FREQ_COUNT 1000
 
 #define DEFAULT_SAMPLE_COUNT 0x4000
@@ -171,8 +171,8 @@ uint32_t amp_enable;
 bool antenna = false;
 uint32_t antenna_enable;
 
-uint32_t freq_min;
-uint32_t freq_max;
+uint32_t freq_min = 10;
+uint32_t freq_max = 6000;
 
 bool binary_output = false;
 
@@ -215,7 +215,7 @@ int rx_callback(hackrf_transfer* transfer) {
 				buf += SAMPLES_PER_BLOCK;
 				break;
 			}
-			if(FREQ_MAX_HZ < (FREQ_ONE_MHZ*frequency)) {
+			if(FREQ_MAX_MHZ < frequency) {
 				buf += SAMPLES_PER_BLOCK;
 				break;
 			}
@@ -242,7 +242,7 @@ int rx_callback(hackrf_transfer* transfer) {
 				time_now = time(NULL);
 				fft_time = localtime(&time_now);
 				strftime(time_str, 50, "%Y-%m-%d, %H:%M:%S", fft_time);
-				printf("%s, %" PRIu64 ", %" PRIu64 ", %.2f, %d",
+				printf("%s, %" PRIu64 ", %" PRIu64 ", %.2f, %u",
 						time_str,
 						(uint64_t)((FREQ_ONE_MHZ*frequency)-((DEFAULT_SAMPLE_RATE_HZ*3)/8)),
 						(uint64_t)((FREQ_ONE_MHZ*frequency)-(DEFAULT_SAMPLE_RATE_HZ/8)),
@@ -252,7 +252,7 @@ int rx_callback(hackrf_transfer* transfer) {
 					printf(", %.2f", pwr[i]);
 				}
 				printf("\n");
-				printf("%s, %" PRIu64 ", %" PRIu64 ", %.2f, %d",
+				printf("%s, %" PRIu64 ", %" PRIu64 ", %.2f, %u",
 						time_str,
 						(uint64_t)((FREQ_ONE_MHZ*frequency)+(DEFAULT_SAMPLE_RATE_HZ/8)),
 						(uint64_t)((FREQ_ONE_MHZ*frequency)+((DEFAULT_SAMPLE_RATE_HZ*3)/8)),
@@ -275,7 +275,7 @@ static void usage() {
 	fprintf(stderr, "\t[-h] # this help\n");
 	fprintf(stderr, "\t[-d serial_number] # Serial number of desired HackRF.\n");
 	fprintf(stderr, "\t[-a amp_enable] # RX RF amplifier 1=Enable, 0=Disable.\n");
-	fprintf(stderr, "\t[-f freq_min:freq_max # Specify minimum & maximum sweep frequencies (MHz).\n");
+	fprintf(stderr, "\t[-f freq_min:freq_max] # Specify minimum & maximum sweep frequencies (MHz).\n");
 	fprintf(stderr, "\t[-p antenna_enable] # Antenna port power, 1=Enable, 0=Disable.\n");
 	fprintf(stderr, "\t[-l gain_db] # RX LNA (IF) gain, 0-40dB, 8dB steps\n");
 	fprintf(stderr, "\t[-g gain_db] # RX VGA (baseband) gain, 0-62dB, 2dB steps\n");
@@ -313,6 +313,7 @@ int main(int argc, char** argv) {
 	unsigned int lna_gain=16, vga_gain=20;
 	uint16_t frequencies[MAX_FREQ_COUNT];
 	uint32_t num_samples = DEFAULT_SAMPLE_COUNT;
+	int step_count;
 
 	while( (opt = getopt(argc, argv, "a:f:p:l:g:d:n:Bh?")) != EOF ) {
 		result = HACKRF_SUCCESS;
@@ -329,17 +330,6 @@ int main(int argc, char** argv) {
 
 		case 'f':
 			result = parse_u32_range(optarg, &freq_min, &freq_max);
-			fprintf(stderr, "Scanning %uMHz to %uMHz\n", freq_min, freq_max);
-			frequencies[ifreq++] = freq_min;
-			odd = true;
-			while(frequencies[ifreq-1] <= freq_max) {
-				if (odd)
-					frequencies[ifreq] = frequencies[ifreq-1] + FREQ_STEP / 4;
-				else
-					frequencies[ifreq] = frequencies[ifreq-1] + 3*(FREQ_STEP/4);
-				ifreq++;
-				odd = !odd;
-			}
 			break;
 
 		case 'p':
@@ -413,12 +403,35 @@ int main(int argc, char** argv) {
 		}
 	}
 
-	if (ifreq == 0) {
-		fprintf(stderr, "argument error: must specify sweep frequency range (-f).\n");
+	if (freq_min >= freq_max) {
+		fprintf(stderr, "argument error: freq_max must be greater than freq_min.\n");
 		usage();
 		return EXIT_FAILURE;
 	}
-	
+
+	/* Plan a whole number of steps with bandwidth equal to the sample rate. */
+	step_count = 1 + (freq_max - freq_min - 1) / TUNE_STEP;
+	freq_max = freq_min + step_count * TUNE_STEP;
+
+	if (FREQ_MAX_MHZ <freq_max) {
+		fprintf(stderr, "argument error: freq_max may not be higher than %u.\n",
+				FREQ_MAX_MHZ);
+		usage();
+		return EXIT_FAILURE;
+	}
+
+	fprintf(stderr, "Sweeping from %u MHz to %u MHz\n", freq_min, freq_max);
+	frequencies[0] = freq_min;
+	odd = true;
+	for(ifreq = 1; ifreq < step_count*2; ifreq++) {
+		if (odd) {
+			frequencies[ifreq] = frequencies[ifreq-1] + TUNE_STEP / 4;
+		} else {
+			frequencies[ifreq] = frequencies[ifreq-1] + 3*(TUNE_STEP/4);
+		}
+		odd = !odd;
+	}
+
 	fftSize = FFT_SIZE;
 	fftwIn = (fftwf_complex*)fftwf_malloc(sizeof(fftwf_complex) * fftSize);
 	fftwOut = (fftwf_complex*)fftwf_malloc(sizeof(fftwf_complex) * fftSize);
