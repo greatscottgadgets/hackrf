@@ -78,7 +78,7 @@ usb_request_status_t usb_vendor_request_init_sweep(
 		for(i=0; i<(num_ranges*2); i++) {
 			frequencies[i] = ((uint16_t)(data[10+i*2]) << 8) + data[9+i*2];
 		}
-		sweep_freq = frequencies[0] * FREQ_GRANULARITY;
+		sweep_freq = (uint64_t)frequencies[0] * FREQ_GRANULARITY;
 		set_freq(sweep_freq + offset);
 		start_sweep_mode = true;
 		usb_transfer_schedule_ack(endpoint->in);
@@ -136,7 +136,7 @@ void sweep_mode(void) {
 			if(INTERLEAVED == style) {
 				if(!odd && ((sweep_freq + step_width) >= ((uint64_t)frequencies[1+range*2] * FREQ_GRANULARITY))) {
 					range = (range + 1) % num_ranges;
-					sweep_freq = frequencies[range*2] * FREQ_GRANULARITY;
+					sweep_freq = (uint64_t)frequencies[range*2] * FREQ_GRANULARITY;
 				} else {
 					if(odd) {
 						sweep_freq += step_width/4;
@@ -148,7 +148,7 @@ void sweep_mode(void) {
 			} else {
 				if((sweep_freq + step_width) >= ((uint64_t)frequencies[1+range*2] * FREQ_GRANULARITY)) {
 					range = (range + 1) % num_ranges;
-					sweep_freq = frequencies[range*2] * FREQ_GRANULARITY;
+					sweep_freq = (uint64_t)frequencies[range*2] * FREQ_GRANULARITY;
 				} else {
 					sweep_freq += step_width;
 				}
