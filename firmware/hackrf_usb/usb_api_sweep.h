@@ -38,4 +38,4 @@ usb_request_status_t usb_vendor_request_init_sweep(
 
 void sweep_mode(void);
 
-#endif /* __USB_API_SPCAN_H__ */
+#endif /* __USB_API_SWEEP_H__ */

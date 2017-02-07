@@ -106,6 +106,9 @@ int gettimeofday(struct timeval *tv, void* ignored) {
 	#define sleep(a) Sleep( (a*1000) )
 #endif
 
+int num_ranges = 0;
+uint16_t frequencies[MAX_SWEEP_RANGES*2];
+
 static float TimevalDiff(const struct timeval *a, const struct timeval *b) {
    return (a->tv_sec - b->tv_sec) + 1e-6f * (a->tv_usec - b->tv_usec);
 }
@@ -169,9 +172,6 @@ uint32_t amp_enable;
 
 bool antenna = false;
 uint32_t antenna_enable;
-
-uint32_t freq_min = 10;
-uint32_t freq_max = 6000;
 
 bool binary_output = false;
 
@@ -314,9 +314,11 @@ int main(int argc, char** argv) {
 	struct timeval t_end;
 	float time_diff;
 	unsigned int lna_gain=16, vga_gain=20;
-	uint16_t frequencies[MAX_SWEEP_RANGES*2];
 	uint32_t num_samples = DEFAULT_SAMPLE_COUNT;
 	int step_count;
+	uint32_t freq_min = 0;
+	uint32_t freq_max = 6000;
+
 
 	while( (opt = getopt(argc, argv, "a:f:p:l:g:d:n:Bh?")) != EOF ) {
 		result = HACKRF_SUCCESS;
@@ -333,6 +335,29 @@ int main(int argc, char** argv) {
 
 		case 'f':
 			result = parse_u32_range(optarg, &freq_min, &freq_max);
+			if(freq_min >= freq_max) {
+				fprintf(stderr,
+						"argument error: freq_max must be greater than freq_min.\n");
+				usage();
+				return EXIT_FAILURE;
+			}
+			if(FREQ_MAX_MHZ <freq_max) {
+				fprintf(stderr,
+						"argument error: freq_max may not be higher than %u.\n",
+						FREQ_MAX_MHZ);
+				usage();
+				return EXIT_FAILURE;
+			}
+			if(MAX_SWEEP_RANGES <= num_ranges) {
+				fprintf(stderr,
+						"argument error: specify a maximum of %u frequency ranges.\n",
+						MAX_SWEEP_RANGES);
+				usage();
+				return EXIT_FAILURE;
+			}
+			frequencies[2*num_ranges] = (uint16_t)freq_min;
+			frequencies[2*num_ranges+1] = (uint16_t)freq_max;
+			num_ranges++;
 			break;
 
 		case 'p':
@@ -406,17 +431,10 @@ int main(int argc, char** argv) {
 		}
 	}
 
-	if (freq_min >= freq_max) {
-		fprintf(stderr, "argument error: freq_max must be greater than freq_min.\n");
-		usage();
-		return EXIT_FAILURE;
-	}
-
-	if (FREQ_MAX_MHZ <freq_max) {
-		fprintf(stderr, "argument error: freq_max may not be higher than %u.\n",
-				FREQ_MAX_MHZ);
-		usage();
-		return EXIT_FAILURE;
+	if (0 == num_ranges) {
+		frequencies[0] = (uint16_t)freq_min;
+		frequencies[1] = (uint16_t)freq_max;
+		num_ranges++;
 	}
 
 	fftSize = FFT_SIZE;
@@ -496,18 +514,19 @@ int main(int argc, char** argv) {
 	}
 
 	/*
-	 * Plan a whole number of tuning steps of a certain bandwidth.
-	 * Increase freq_max if necessary to accomodate a whole number of steps,
-	 * minimum 1.
+	 * For each range, plan a whole number of tuning steps of a certain
+	 * bandwidth. Increase high end of range if necessary to accommodate a
+	 * whole number of steps, minimum 1.
 	 */
-	step_count = 1 + (freq_max - freq_min - 1) / TUNE_STEP;
-	freq_max = freq_min + step_count * TUNE_STEP;
+	for(i = 0; i < num_ranges; i++) {
+		step_count = 1 + (frequencies[2*i+1] - frequencies[2*i] - 1)
+				/ TUNE_STEP;
+		frequencies[2*i+1] = frequencies[2*i] + step_count * TUNE_STEP;
+		fprintf(stderr, "Sweeping from %u MHz to %u MHz\n",
+				frequencies[2*i], frequencies[2*i+1]);
+	}
 
-	fprintf(stderr, "Sweeping from %u MHz to %u MHz\n", freq_min, freq_max);
-	frequencies[0] = freq_min;
-	frequencies[1] = freq_max;
-
-	result = hackrf_init_sweep(device, frequencies, 1, num_samples,
+	result = hackrf_init_sweep(device, frequencies, num_ranges, num_samples,
 			TUNE_STEP * FREQ_ONE_MHZ, OFFSET, INTERLEAVED);
 	if( result != HACKRF_SUCCESS ) {
 		fprintf(stderr, "hackrf_init_sweep() failed: %s (%d)\n",
