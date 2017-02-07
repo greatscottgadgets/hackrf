@@ -807,9 +807,6 @@ int main(int argc, char** argv) {
 
 	if( baseband_filter_bw )
 	{
-		/* Compute nearest freq for bw filter */
-		baseband_filter_bw_hz = hackrf_compute_baseband_filter_bw(baseband_filter_bw_hz);
-
 		if (baseband_filter_bw_hz > BASEBAND_FILTER_BW_MAX) {
 			fprintf(stderr, "argument error: baseband_filter_bw_hz must be less or equal to %u Hz/%.03f MHz\n",
 					BASEBAND_FILTER_BW_MAX, (float)(BASEBAND_FILTER_BW_MAX/FREQ_ONE_MHZ));
@@ -823,6 +820,9 @@ int main(int argc, char** argv) {
 			usage();
 			return EXIT_FAILURE;
 		}
+
+		/* Compute nearest freq for bw filter */
+		baseband_filter_bw_hz = hackrf_compute_baseband_filter_bw(baseband_filter_bw_hz);
 	}
 
 	if(requested_mode_count > 1) {
