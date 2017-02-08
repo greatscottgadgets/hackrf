@@ -36,7 +36,6 @@
 
 volatile bool start_sweep_mode = false;
 static uint64_t sweep_freq;
-static bool odd = true;
 static uint16_t frequencies[MAX_RANGES * 2];
 static unsigned char data[9 + MAX_RANGES * 2 * sizeof(frequencies[0])];
 static uint16_t num_ranges = 0;
@@ -44,7 +43,6 @@ static uint32_t dwell_blocks = 0;
 static uint32_t step_width = 0;
 static uint32_t offset = 0;
 static enum sweep_style style = LINEAR;
-static uint16_t range = 0;
 
 usb_request_status_t usb_vendor_request_init_sweep(
 		usb_endpoint_t* const endpoint, const usb_transfer_stage_t stage)
@@ -89,6 +87,8 @@ usb_request_status_t usb_vendor_request_init_sweep(
 void sweep_mode(void) {
 	unsigned int blocks_queued = 0;
 	unsigned int phase = 1;
+	bool odd = true;
+	uint16_t range = 0;
 
 	uint8_t *buffer;
 	bool transfer = false;
