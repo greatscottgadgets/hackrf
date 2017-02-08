@@ -26,14 +26,12 @@ set(INSTALL_DEFAULT_BINDIR "bin" CACHE STRING "Appended to CMAKE_INSTALL_PREFIX"
 INCLUDE(FindPkgConfig)
 
 SET(TOOLS
-	hackrf_max2837
-	hackrf_si5351c
 	hackrf_transfer
-	hackrf_rffc5071
 	hackrf_spiflash
 	hackrf_cpldjtag
 	hackrf_info
 	hackrf_operacake
+	hackrf_debug
 )
 
 if(MSVC)
