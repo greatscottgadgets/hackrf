@@ -173,6 +173,7 @@ bool antenna = false;
 uint32_t antenna_enable;
 
 bool binary_output = false;
+bool one_shot = false;
 volatile bool sweep_started = false;
 
 int fftSize = 20;
@@ -208,6 +209,9 @@ int rx_callback(hackrf_transfer* transfer) {
 	byte_count += transfer->valid_length;
 	buf = (int8_t*) transfer->buffer;
 	for(j=0; j<BLOCKS_PER_TRANSFER; j++) {
+		if(do_exit) {
+			return 0;
+		}
 		ubuf = (uint8_t*) buf;
 		if(ubuf[0] == 0x7F && ubuf[1] == 0x7F) {
 			frequency = ((uint64_t)(ubuf[9]) << 56) | ((uint64_t)(ubuf[8]) << 48) | ((uint64_t)(ubuf[7]) << 40)
@@ -274,6 +278,10 @@ int rx_callback(hackrf_transfer* transfer) {
 			}
 			printf("\n");
 		}
+		if(one_shot && ((uint64_t)(frequency+((DEFAULT_SAMPLE_RATE_HZ*3)/4))
+				>= (uint64_t)(FREQ_ONE_MHZ*frequencies[num_ranges*2-1]))) {
+			do_exit = true;
+		}
 	}
 	return 0;
 }
@@ -289,6 +297,7 @@ static void usage() {
 	fprintf(stderr, "\t[-g gain_db] # RX VGA (baseband) gain, 0-62dB, 2dB steps\n");
 	fprintf(stderr, "\t[-n num_samples] # Number of samples per frequency, 16384-4294967296\n");
 	fprintf(stderr, "\t[-w bin_width] # FFT bin width (frequency resolution) in Hz\n");
+	fprintf(stderr, "\t[-1] # one shot mode\n");
 	fprintf(stderr, "\t[-B] # binary output\n");
 	fprintf(stderr, "\n");
 	fprintf(stderr, "Output fields:\n");
@@ -328,7 +337,7 @@ int main(int argc, char** argv) {
 	uint32_t freq_max = 6000;
 
 
-	while( (opt = getopt(argc, argv, "a:f:p:l:g:d:n:w:Bh?")) != EOF ) {
+	while( (opt = getopt(argc, argv, "a:f:p:l:g:d:n:w:1Bh?")) != EOF ) {
 		result = HACKRF_SUCCESS;
 		switch( opt ) 
 		{
@@ -388,6 +397,10 @@ int main(int argc, char** argv) {
 		case 'w':
 			result = parse_u32(optarg, &fft_bin_width);
 			fftSize = DEFAULT_SAMPLE_RATE_HZ / fft_bin_width;
+			break;
+
+		case '1':
+			one_shot = true;
 			break;
 
 		case 'B':
@@ -456,9 +469,9 @@ int main(int argc, char** argv) {
 		return EXIT_FAILURE;
 	}
 
-	if(65536 < fftSize) {
+	if(16368 < fftSize) {
 		fprintf(stderr,
-				"argument error: FFT bin width (-w) resulted in more than 65536 FFT bins\n");
+				"argument error: FFT bin width (-w) too small, resulted in more than 16368 FFT bins\n");
 		return EXIT_FAILURE;
 	}
 
