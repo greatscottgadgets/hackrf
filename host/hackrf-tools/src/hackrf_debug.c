@@ -88,7 +88,7 @@ int max2837_read_registers(hackrf_device* device) {
 	return result;
 }
 
-int write_max2837_register(
+int max2837_write_register(
 	hackrf_device* device,
 	const uint16_t register_number,
 	const uint16_t register_value
@@ -261,18 +261,67 @@ int rffc5071_write_register(
 	return result;
 }
 
+enum parts {
+	PART_NONE = 0,
+	PART_MAX2837 = 1,
+	PART_SI5351C = 2,
+	PART_RFFC5071 = 3,
+};
+
+int read_register(hackrf_device* device, uint8_t part,
+                   const uint16_t register_number) {
+	switch (part) {
+		case PART_MAX2837:
+			return max2837_read_register(device, register_number);
+		case PART_SI5351C:
+			return si5351c_read_register(device, register_number);
+		case PART_RFFC5071:
+			return rffc5071_read_register(device, register_number);
+	}
+	return HACKRF_ERROR_INVALID_PARAM;
+}
+
+int read_registers(hackrf_device* device, uint8_t part) {
+	switch (part) {
+		case PART_MAX2837:
+			return max2837_read_registers(device);
+		case PART_SI5351C:
+			return si5351c_read_registers(device);
+		case PART_RFFC5071:
+			return rffc5071_read_registers(device);
+	}
+	return HACKRF_ERROR_INVALID_PARAM;
+}
+
+int write_register(hackrf_device* device, uint8_t part,
+                   const uint16_t register_number,
+	               const uint16_t register_value) {
+	switch (part) {
+		case PART_MAX2837:
+			return max2837_write_register(device, register_number, register_value);
+		case PART_SI5351C:
+			return si5351c_write_register(device, register_number, register_value);
+		case PART_RFFC5071:
+			return rffc5071_write_register(device, register_number, register_value);
+	}
+	return HACKRF_ERROR_INVALID_PARAM;
+}
+
 static void usage() {
 	printf("\nUsage:\n");
-	printf("\t-h, --help: this help\n");	printf("\t-c, --config: print textual configuration information\n");
-
+	printf("\t-h, --help: this help\n");
 	printf("\t-n, --register <n>: set register number for read/write operations\n");
 	printf("\t-r, --read: read register specified by last -n argument, or all registers\n");
 	printf("\t-w, --write <v>: write register specified by last -n argument with value <v>\n");
+	printf("\t-c, --config: print SI5351C configuration information\n");
 	printf("\t-d, --device <s>: specify a particular device by serial number\n");
+	printf("\t-m, --max2837: target MAX2837\n");
+	printf("\t-s, --si5351: target SI5351C\n");
+	printf("\t-f, --rffc5071: target RFFC5071\n");
 	printf("\nExamples:\n");
-	printf("\t<command> -n 12 -r    # reads from register 12\n");
-	printf("\t<command> -r          # reads all registers\n");
-	printf("\t<command> -n 10 -w 22 # writes register 10 with 22 decimal\n");
+	printf("\thackrf_debug -si5351 -n 12 -r     # reads from si5351 register 12\n");
+	printf("\thackrf_debug -rffc5071 -r         # reads all rffc5071 registers\n");
+	printf("\thackrf_debug -max2837 -n 10 -w 22 # writes max2837 register 10 with 22 decimal\n");
 }
 
 static struct option long_options[] = {
@@ -282,6 +331,9 @@ static struct option long_options[] = {
 	{ "read", no_argument, 0, 'r' },
 	{ "device", no_argument, 0, 'd' },
 	{ "help", no_argument, 0, 'h' },
+	{ "max2837", no_argument, 0, 'm' },
+	{ "si5351c", no_argument, 0, 's' },
+	{ "rffc5071", no_argument, 0, 'f' },
 	{ 0, 0, 0, 0 },
 };
 
@@ -293,6 +345,8 @@ int main(int argc, char** argv) {
 	int option_index = 0;
 	bool read = false;
 	bool write = false;
+	bool dump_config = false;
+	uint8_t part = PART_NONE;
 	const char* serial_number = NULL;
 
 	int result = hackrf_init();
@@ -301,7 +355,7 @@ int main(int argc, char** argv) {
 		return EXIT_FAILURE;
 	}
 
-	while( (opt = getopt_long(argc, argv, "n:rw:d:h?", long_options, &option_index)) != EOF ) {
+	while( (opt = getopt_long(argc, argv, "n:rw:d:cmsfh?", long_options, &option_index)) != EOF ) {
 		switch( opt ) {
 		case 'n':
 			result = parse_int(optarg, &register_number);
@@ -322,6 +376,30 @@ int main(int argc, char** argv) {
 
 		case 'd':
 			serial_number = optarg;
+			break;
+		
+		case 'm':
+			if(part != PART_NONE) {
+				fprintf(stderr, "Only one part can be specified.'\n");
+				return EXIT_FAILURE;
+			}
+			part = PART_MAX2837;
+			break;
+		
+		case 's':
+			if(part != PART_NONE) {
+				fprintf(stderr, "Only one part can be specified.'\n");
+				return EXIT_FAILURE;
+			}
+			part = PART_SI5351C;
+			break;
+		
+		case 'f':
+			if(part != PART_NONE) {
+				fprintf(stderr, "Only one part can be specified.'\n");
+				return EXIT_FAILURE;
+			}
+			part = PART_RFFC5071;
 			break;
 
 		case 'h':
@@ -347,8 +425,26 @@ int main(int argc, char** argv) {
 		return EXIT_FAILURE;
 	}
 
-	if(!(write || read)) {
-		fprintf(stderr, "Specify either read or write option.\n");
+	if(write && dump_config) {
+		fprintf(stderr, "Config and write options are mutually exclusive.\n");
+		usage();
+		return EXIT_FAILURE;
+	}
+
+	if(dump_config && part != PART_SI5351C) {
+		fprintf(stderr, "Config option is only valid for SI5351C.\n");
+		usage();
+		return EXIT_FAILURE;
+	}
+
+	if(!(write || read || dump_config)) {
+		fprintf(stderr, "Specify read, write, or config option.\n");
+		usage();
+		return EXIT_FAILURE;
+	}
+
+	if(part == PART_NONE) {
+		fprintf(stderr, "Specify a part to read, write, or print config from.\n");
 		usage();
 		return EXIT_FAILURE;
 	}
@@ -360,15 +456,19 @@ int main(int argc, char** argv) {
 	}
 
 	if(write) {
-		result = write_register(device, register_number, register_value);
+		result = write_register(device, part, register_number, register_value);
 	}
 
 	if(read) {
 		if(register_number == REGISTER_INVALID) {
-			result = dump_registers(device);
+			result = read_registers(device, part);
 		} else {
-			result = dump_register(device, register_number);
+			result = read_register(device, part, register_number);
 		}
+	}
+
+	if(dump_config) {
+		si5351c_read_configuration(device);
 	}
 
 	result = hackrf_close(device);
