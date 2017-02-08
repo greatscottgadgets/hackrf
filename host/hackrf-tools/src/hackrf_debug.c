@@ -320,13 +320,14 @@ static void usage() {
 	printf("\t-n, --register <n>: set register number for read/write operations\n");
 	printf("\t-r, --read: read register specified by last -n argument, or all registers\n");
 	printf("\t-w, --write <v>: write register specified by last -n argument with value <v>\n");
-	printf("\t-c, --config: print SI5351C configuration information\n");
+	printf("\t-c, --config: print SI5351C multisynth configuration information\n");
 	printf("\t-d, --device <s>: specify a particular device by serial number\n");
 	printf("\t-m, --max2837: target MAX2837\n");
 	printf("\t-s, --si5351c: target SI5351C\n");
 	printf("\t-f, --rffc5072: target RFFC5072\n");
 	printf("\nExamples:\n");
 	printf("\thackrf_debug --si5351c -n 0 -r     # reads from si5351c register 0\n");
+	printf("\thackrf_debug --si5351c -c          # displays si5351c multisynth configuration\n");
 	printf("\thackrf_debug --rffc5072 -r         # reads all rffc5072 registers\n");
 	printf("\thackrf_debug --max2837 -n 10 -w 22 # writes max2837 register 10 with 22 decimal\n");
 }
