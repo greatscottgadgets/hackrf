@@ -99,8 +99,6 @@ int gettimeofday(struct timeval *tv, void* ignored) {
 
 #define DEFAULT_SAMPLE_COUNT 0x4000
 #define BLOCKS_PER_TRANSFER 16
-#define FFT_BIN_WIDTH_HZ 312500
-#define FFT_SIZE 64
 
 #if defined _WIN32
 	#define sleep(a) Sleep( (a*1000) )
@@ -175,7 +173,8 @@ uint32_t antenna_enable;
 
 bool binary_output = false;
 
-int fftSize;
+int fftSize = 20;
+uint32_t fft_bin_width;
 fftwf_complex *fftwIn = NULL;
 fftwf_complex *fftwOut = NULL;
 fftwf_plan fftwPlan = NULL;
@@ -250,9 +249,9 @@ int rx_callback(hackrf_transfer* transfer) {
 						time_str,
 						(uint64_t)(frequency),
 						(uint64_t)(frequency+DEFAULT_SAMPLE_RATE_HZ/4),
-						(float)FFT_BIN_WIDTH_HZ,
-						FFT_SIZE);
-				for(i=fftSize/8; (fftSize*3)/8 > i; i++) {
+						(float)fft_bin_width,
+						fftSize);
+				for(i=1+fftSize/8; (1+(fftSize*3)/8) > i; i++) {
 					printf(", %.2f", pwr[i]);
 				}
 				printf("\n");
@@ -260,9 +259,9 @@ int rx_callback(hackrf_transfer* transfer) {
 						time_str,
 						(uint64_t)(frequency+(DEFAULT_SAMPLE_RATE_HZ/2)),
 						(uint64_t)(frequency+((DEFAULT_SAMPLE_RATE_HZ*3)/4)),
-						(float)FFT_BIN_WIDTH_HZ,
-						FFT_SIZE);
-				for(i=(fftSize*5)/8; (fftSize*7)/8 > i; i++) {
+						(float)fft_bin_width,
+						fftSize);
+				for(i=1+(fftSize*5)/8; (1+(fftSize*7)/8) > i; i++) {
 					printf(", %.2f", pwr[i]);
 				}
 				printf("\n");
@@ -284,6 +283,7 @@ static void usage() {
 	fprintf(stderr, "\t[-l gain_db] # RX LNA (IF) gain, 0-40dB, 8dB steps\n");
 	fprintf(stderr, "\t[-g gain_db] # RX VGA (baseband) gain, 0-62dB, 2dB steps\n");
 	fprintf(stderr, "\t[-n num_samples] # Number of samples per frequency, 16384-4294967296\n");
+	fprintf(stderr, "\t[-w bin_width] # FFT bin width (frequency resolution) in Hz\n");
 	fprintf(stderr, "\t[-B] # binary output\n");
 }
 
@@ -320,7 +320,7 @@ int main(int argc, char** argv) {
 	uint32_t freq_max = 6000;
 
 
-	while( (opt = getopt(argc, argv, "a:f:p:l:g:d:n:Bh?")) != EOF ) {
+	while( (opt = getopt(argc, argv, "a:f:p:l:g:d:n:w:Bh?")) != EOF ) {
 		result = HACKRF_SUCCESS;
 		switch( opt ) 
 		{
@@ -375,6 +375,11 @@ int main(int argc, char** argv) {
 
 		case 'n':
 			result = parse_u32(optarg, &num_samples);
+			break;
+
+		case 'w':
+			result = parse_u32(optarg, &fft_bin_width);
+			fftSize = DEFAULT_SAMPLE_RATE_HZ / fft_bin_width;
 			break;
 
 		case 'B':
@@ -437,7 +442,27 @@ int main(int argc, char** argv) {
 		num_ranges++;
 	}
 
-	fftSize = FFT_SIZE;
+	if(4 > fftSize) {
+		fprintf(stderr,
+				"argument error: FFT bin width (-w) must be no more than one quarter the sample rate\n");
+		return EXIT_FAILURE;
+	}
+
+	if(65536 < fftSize) {
+		fprintf(stderr,
+				"argument error: FFT bin width (-w) resulted in more than 65536 FFT bins\n");
+		return EXIT_FAILURE;
+	}
+
+	/* In interleaved mode, the FFT bin selection works best if the total
+	 * number of FFT bins is equal to an odd multiple of four.
+	 * (e.g. 4, 12, 20, 28, 36, . . .)
+	 */
+	while((fftSize + 4) % 8) {
+		fftSize++;
+	}
+
+	fft_bin_width = DEFAULT_SAMPLE_RATE_HZ / fftSize;
 	fftwIn = (fftwf_complex*)fftwf_malloc(sizeof(fftwf_complex) * fftSize);
 	fftwOut = (fftwf_complex*)fftwf_malloc(sizeof(fftwf_complex) * fftSize);
 	fftwPlan = fftwf_plan_dft_1d(fftSize, fftwIn, fftwOut, FFTW_FORWARD, FFTW_MEASURE);
