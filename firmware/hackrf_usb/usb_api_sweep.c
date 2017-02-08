@@ -88,7 +88,7 @@ usb_request_status_t usb_vendor_request_init_sweep(
 
 void sweep_mode(void) {
 	unsigned int blocks_queued = 0;
-	unsigned int phase = 0;
+	unsigned int phase = 1;
 
 	uint8_t *buffer;
 	bool transfer = false;
