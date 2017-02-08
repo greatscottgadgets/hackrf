@@ -1,6 +1,7 @@
 /*
  * Copyright 2016 Dominic Spill <dominicgs@gmail.com>
  * Copyright 2016 Mike Walters <mike@flomp.net>
+ * Copyright 2017 Michael Ossmann <mike@ossmann.com>
  *
  * This file is part of HackRF.
  *
@@ -34,6 +35,7 @@
 #include <errno.h>
 #include <fftw3.h>
 #include <math.h>
+#include <inttypes.h>
 
 #define _FILE_OFFSET_BITS 64
 
@@ -87,20 +89,24 @@ int gettimeofday(struct timeval *tv, void* ignored) {
 
 #define FREQ_ONE_MHZ (1000000ull)
 
-#define FREQ_MIN_HZ	(0ull) /* 0 Hz */
-#define FREQ_MAX_HZ	(7250000000ull) /* 7250MHz */
+#define FREQ_MIN_MHZ (0)    /*    0 MHz */
+#define FREQ_MAX_MHZ (7250) /* 7250 MHz */
 
 #define DEFAULT_SAMPLE_RATE_HZ (20000000) /* 20MHz default sample rate */
 #define DEFAULT_BASEBAND_FILTER_BANDWIDTH (15000000) /* 5MHz default */
 
-#define FREQ_STEP (DEFAULT_SAMPLE_RATE_HZ / FREQ_ONE_MHZ)
-#define MAX_FREQ_COUNT 1000
+#define TUNE_STEP (DEFAULT_SAMPLE_RATE_HZ / FREQ_ONE_MHZ)
+#define OFFSET 7500000
 
 #define DEFAULT_SAMPLE_COUNT 0x4000
+#define BLOCKS_PER_TRANSFER 16
 
 #if defined _WIN32
 	#define sleep(a) Sleep( (a*1000) )
 #endif
+
+int num_ranges = 0;
+uint16_t frequencies[MAX_SWEEP_RANGES*2];
 
 static float TimevalDiff(const struct timeval *a, const struct timeval *b) {
    return (a->tv_sec - b->tv_sec) + 1e-6f * (a->tv_usec - b->tv_usec);
@@ -166,15 +172,20 @@ uint32_t amp_enable;
 bool antenna = false;
 uint32_t antenna_enable;
 
-uint32_t freq_min;
-uint32_t freq_max;
+bool binary_output = false;
+bool one_shot = false;
+volatile bool sweep_started = false;
 
-int fftSize;
+int fftSize = 20;
+uint32_t fft_bin_width;
 fftwf_complex *fftwIn = NULL;
 fftwf_complex *fftwOut = NULL;
 fftwf_plan fftwPlan = NULL;
 float* pwr;
 float* window;
+time_t time_now;
+struct tm *fft_time;
+char time_str[50];
 
 float logPower(fftwf_complex in, float scale)
 {
@@ -185,64 +196,112 @@ float logPower(fftwf_complex in, float scale)
 }
 
 int rx_callback(hackrf_transfer* transfer) {
-	/* This is where we need to do interesting things with the samples
-	 * FFT
-	 * Throw away unused bins
-	 * write output to pipe
-	 */
-	ssize_t bytes_to_write;
-	ssize_t bytes_written;
 	int8_t* buf;
-	float frequency;
+	uint8_t* ubuf;
+	uint64_t frequency; /* in Hz */
+	float float_freq;
 	int i, j;
 
-	if( fd != NULL ) {
-		byte_count += transfer->valid_length;
-		bytes_to_write = transfer->valid_length;
-		buf = (int8_t*) transfer->buffer;
-		for(j=0; j<16; j++) {
-			if(buf[0] == 0x7F && buf[1] == 0x7F) {
-				frequency = *(uint16_t*)&buf[2];
-			}
-			/* copy to fftwIn as floats */
-			buf += 16384 - (fftSize * 2);
-			for(i=0; i < fftSize; i++) {
-				fftwIn[i][0] = buf[i*2] * window[i] * 1.0f / 128.0f;
-				fftwIn[i][1] = buf[i*2+1] * window[i] * 1.0f / 128.0f;
-			}
-			buf += fftSize * 2;
-			fftwf_execute(fftwPlan);
-			for (i=0; i < fftSize; i++) {
-				// Start from the middle of the FFTW array and wrap
-				// to rearrange the data
-				int k = i ^ (fftSize >> 1);
-				pwr[i] = logPower(fftwOut[k], 1.0f / fftSize);
-			}
-			fwrite(&frequency, sizeof(float), 1, stdout);
-			fwrite(pwr, sizeof(float), fftSize, stdout);
-		}
-
-		bytes_written = fwrite(transfer->buffer, 1, bytes_to_write, fd);
-		if (bytes_written != bytes_to_write) {
-			return -1;
-		} else {
-			return 0;
-		}
-	} else {
+	if(NULL == fd) {
 		return -1;
 	}
+
+	byte_count += transfer->valid_length;
+	buf = (int8_t*) transfer->buffer;
+	for(j=0; j<BLOCKS_PER_TRANSFER; j++) {
+		if(do_exit) {
+			return 0;
+		}
+		ubuf = (uint8_t*) buf;
+		if(ubuf[0] == 0x7F && ubuf[1] == 0x7F) {
+			frequency = ((uint64_t)(ubuf[9]) << 56) | ((uint64_t)(ubuf[8]) << 48) | ((uint64_t)(ubuf[7]) << 40)
+					| ((uint64_t)(ubuf[6]) << 32) | ((uint64_t)(ubuf[5]) << 24) | ((uint64_t)(ubuf[4]) << 16)
+					| ((uint64_t)(ubuf[3]) << 8) | ubuf[2];
+		} else {
+			buf += SAMPLES_PER_BLOCK;
+			continue;
+		}
+		if(!sweep_started) {
+			if (frequency == (uint64_t)(FREQ_ONE_MHZ*frequencies[0])) {
+				sweep_started = true;
+			} else {
+				buf += SAMPLES_PER_BLOCK;
+				continue;
+			}
+		}
+		if((FREQ_MAX_MHZ * FREQ_ONE_MHZ) < frequency) {
+			buf += SAMPLES_PER_BLOCK;
+			continue;
+		}
+		/* copy to fftwIn as floats */
+		buf += SAMPLES_PER_BLOCK - (fftSize * 2);
+		for(i=0; i < fftSize; i++) {
+			fftwIn[i][0] = buf[i*2] * window[i] * 1.0f / 128.0f;
+			fftwIn[i][1] = buf[i*2+1] * window[i] * 1.0f / 128.0f;
+		}
+		buf += fftSize * 2;
+		fftwf_execute(fftwPlan);
+		for (i=0; i < fftSize; i++) {
+			pwr[i] = logPower(fftwOut[i], 1.0f / fftSize);
+		}
+		if(binary_output) {
+			float_freq = frequency + DEFAULT_SAMPLE_RATE_HZ / 4;
+			float_freq /= FREQ_ONE_MHZ;
+			fwrite(&float_freq, sizeof(float), 1, stdout);
+			fwrite(&pwr[1+(fftSize*5)/8], sizeof(float), fftSize/4, stdout);
+			float_freq = frequency + DEFAULT_SAMPLE_RATE_HZ / 2;
+			float_freq /= FREQ_ONE_MHZ;
+			fwrite(&float_freq, sizeof(float), 1, stdout);
+			fwrite(&pwr[1+fftSize/8], sizeof(float), fftSize/4, stdout);
+		} else {
+			time_now = time(NULL);
+			fft_time = localtime(&time_now);
+			strftime(time_str, 50, "%Y-%m-%d, %H:%M:%S", fft_time);
+			printf("%s, %" PRIu64 ", %" PRIu64 ", %.2f, %u",
+					time_str,
+					(uint64_t)(frequency),
+					(uint64_t)(frequency+DEFAULT_SAMPLE_RATE_HZ/4),
+					(float)fft_bin_width,
+					fftSize);
+			for(i=1+(fftSize*5)/8; (1+(fftSize*7)/8) > i; i++) {
+				printf(", %.2f", pwr[i]);
+			}
+			printf("\n");
+			printf("%s, %" PRIu64 ", %" PRIu64 ", %.2f, %u",
+					time_str,
+					(uint64_t)(frequency+(DEFAULT_SAMPLE_RATE_HZ/2)),
+					(uint64_t)(frequency+((DEFAULT_SAMPLE_RATE_HZ*3)/4)),
+					(float)fft_bin_width,
+					fftSize);
+			for(i=1+fftSize/8; (1+(fftSize*3)/8) > i; i++) {
+				printf(", %.2f", pwr[i]);
+			}
+			printf("\n");
+		}
+		if(one_shot && ((uint64_t)(frequency+((DEFAULT_SAMPLE_RATE_HZ*3)/4))
+				>= (uint64_t)(FREQ_ONE_MHZ*frequencies[num_ranges*2-1]))) {
+			do_exit = true;
+		}
+	}
+	return 0;
 }
 
 static void usage() {
 	fprintf(stderr, "Usage:\n");
 	fprintf(stderr, "\t[-h] # this help\n");
-	fprintf(stderr, "\t[-d serial_number] # Serial number of desired HackRF.\n");
-	fprintf(stderr, "\t[-a amp_enable] # RX RF amplifier 1=Enable, 0=Disable.\n");
-	fprintf(stderr, "\t[-f freq_min:freq_max # Specify minimum & maximum sweep frequencies (MHz).\n");
-	fprintf(stderr, "\t[-p antenna_enable] # Antenna port power, 1=Enable, 0=Disable.\n");
+	fprintf(stderr, "\t[-d serial_number] # Serial number of desired HackRF\n");
+	fprintf(stderr, "\t[-a amp_enable] # RX RF amplifier 1=Enable, 0=Disable\n");
+	fprintf(stderr, "\t[-f freq_min:freq_max] # minimum and maximum frequencies in MHz\n");
+	fprintf(stderr, "\t[-p antenna_enable] # Antenna port power, 1=Enable, 0=Disable\n");
 	fprintf(stderr, "\t[-l gain_db] # RX LNA (IF) gain, 0-40dB, 8dB steps\n");
 	fprintf(stderr, "\t[-g gain_db] # RX VGA (baseband) gain, 0-62dB, 2dB steps\n");
 	fprintf(stderr, "\t[-n num_samples] # Number of samples per frequency, 16384-4294967296\n");
+	fprintf(stderr, "\t[-w bin_width] # FFT bin width (frequency resolution) in Hz\n");
+	fprintf(stderr, "\t[-1] # one shot mode\n");
+	fprintf(stderr, "\t[-B] # binary output\n");
+	fprintf(stderr, "\n");
+	fprintf(stderr, "Output fields:\n");
+	fprintf(stderr, "\tdate, time, hz_low, hz_high, hz_bin_width, num_samples, dB, dB, . . .\n");
 }
 
 static hackrf_device* device = NULL;
@@ -265,18 +324,20 @@ void sigint_callback_handler(int signum)  {
 #endif
 
 int main(int argc, char** argv) {
-	int opt, i, result, ifreq = 0;
-	bool odd;
+	int opt, i, result = 0;
 	const char* path = "/dev/null";
 	const char* serial_number = NULL;
 	int exit_code = EXIT_SUCCESS;
 	struct timeval t_end;
 	float time_diff;
 	unsigned int lna_gain=16, vga_gain=20;
-	uint16_t frequencies[MAX_FREQ_COUNT];
 	uint32_t num_samples = DEFAULT_SAMPLE_COUNT;
+	int step_count;
+	uint32_t freq_min = 0;
+	uint32_t freq_max = 6000;
 
-	while( (opt = getopt(argc, argv, "a:f:p:l:g:d:n:h?")) != EOF ) {
+
+	while( (opt = getopt(argc, argv, "a:f:p:l:g:d:n:w:1Bh?")) != EOF ) {
 		result = HACKRF_SUCCESS;
 		switch( opt ) 
 		{
@@ -291,17 +352,29 @@ int main(int argc, char** argv) {
 
 		case 'f':
 			result = parse_u32_range(optarg, &freq_min, &freq_max);
-			fprintf(stderr, "Scanning %uMHz to %uMHz\n", freq_min, freq_max);
-			frequencies[ifreq++] = freq_min;
-			odd = true;
-			while(frequencies[ifreq-1] <= freq_max) {
-				if (odd)
-					frequencies[ifreq] = frequencies[ifreq-1] + FREQ_STEP / 4;
-				else
-					frequencies[ifreq] = frequencies[ifreq-1] + 3*(FREQ_STEP/4);
-				ifreq++;
-				odd = !odd;
+			if(freq_min >= freq_max) {
+				fprintf(stderr,
+						"argument error: freq_max must be greater than freq_min.\n");
+				usage();
+				return EXIT_FAILURE;
 			}
+			if(FREQ_MAX_MHZ <freq_max) {
+				fprintf(stderr,
+						"argument error: freq_max may not be higher than %u.\n",
+						FREQ_MAX_MHZ);
+				usage();
+				return EXIT_FAILURE;
+			}
+			if(MAX_SWEEP_RANGES <= num_ranges) {
+				fprintf(stderr,
+						"argument error: specify a maximum of %u frequency ranges.\n",
+						MAX_SWEEP_RANGES);
+				usage();
+				return EXIT_FAILURE;
+			}
+			frequencies[2*num_ranges] = (uint16_t)freq_min;
+			frequencies[2*num_ranges+1] = (uint16_t)freq_max;
+			num_ranges++;
 			break;
 
 		case 'p':
@@ -319,6 +392,19 @@ int main(int argc, char** argv) {
 
 		case 'n':
 			result = parse_u32(optarg, &num_samples);
+			break;
+
+		case 'w':
+			result = parse_u32(optarg, &fft_bin_width);
+			fftSize = DEFAULT_SAMPLE_RATE_HZ / fft_bin_width;
+			break;
+
+		case '1':
+			one_shot = true;
+			break;
+
+		case 'B':
+			binary_output = true;
 			break;
 
 		case 'h':
@@ -345,12 +431,12 @@ int main(int argc, char** argv) {
 	if (vga_gain % 2)
 		fprintf(stderr, "warning: vga_gain (-g) must be a multiple of 2\n");
 
-	if (num_samples % 0x4000) {
+	if (num_samples % SAMPLES_PER_BLOCK) {
 		fprintf(stderr, "warning: num_samples (-n) must be a multiple of 16384\n");
 		return EXIT_FAILURE;
 	}
 
-	if (num_samples < 0x4000) {
+	if (num_samples < SAMPLES_PER_BLOCK) {
 		fprintf(stderr, "warning: num_samples (-n) must be at least 16384\n");
 		return EXIT_FAILURE;
 	}
@@ -371,16 +457,36 @@ int main(int argc, char** argv) {
 		}
 	}
 
-	if (ifreq == 0) {
-		fprintf(stderr, "argument error: must specify sweep frequency range (-f).\n");
-		usage();
+	if (0 == num_ranges) {
+		frequencies[0] = (uint16_t)freq_min;
+		frequencies[1] = (uint16_t)freq_max;
+		num_ranges++;
+	}
+
+	if(4 > fftSize) {
+		fprintf(stderr,
+				"argument error: FFT bin width (-w) must be no more than one quarter the sample rate\n");
 		return EXIT_FAILURE;
 	}
-	
-	fftSize = 64;
-    fftwIn = (fftwf_complex*)fftwf_malloc(sizeof(fftwf_complex) * fftSize);
-    fftwOut = (fftwf_complex*)fftwf_malloc(sizeof(fftwf_complex) * fftSize);
-    fftwPlan = fftwf_plan_dft_1d(fftSize, fftwIn, fftwOut, FFTW_FORWARD, FFTW_MEASURE);
+
+	if(16368 < fftSize) {
+		fprintf(stderr,
+				"argument error: FFT bin width (-w) too small, resulted in more than 16368 FFT bins\n");
+		return EXIT_FAILURE;
+	}
+
+	/* In interleaved mode, the FFT bin selection works best if the total
+	 * number of FFT bins is equal to an odd multiple of four.
+	 * (e.g. 4, 12, 20, 28, 36, . . .)
+	 */
+	while((fftSize + 4) % 8) {
+		fftSize++;
+	}
+
+	fft_bin_width = DEFAULT_SAMPLE_RATE_HZ / fftSize;
+	fftwIn = (fftwf_complex*)fftwf_malloc(sizeof(fftwf_complex) * fftSize);
+	fftwOut = (fftwf_complex*)fftwf_malloc(sizeof(fftwf_complex) * fftSize);
+	fftwPlan = fftwf_plan_dft_1d(fftSize, fftwIn, fftwOut, FFTW_FORWARD, FFTW_MEASURE);
 	pwr = (float*)fftwf_malloc(sizeof(float) * fftSize);
 	window = (float*)fftwf_malloc(sizeof(float) * fftSize);
 	for (i = 0; i < fftSize; i++) {
@@ -453,7 +559,21 @@ int main(int argc, char** argv) {
 		return EXIT_FAILURE;
 	}
 
-	result = hackrf_init_sweep(device, frequencies, ifreq, num_samples);
+	/*
+	 * For each range, plan a whole number of tuning steps of a certain
+	 * bandwidth. Increase high end of range if necessary to accommodate a
+	 * whole number of steps, minimum 1.
+	 */
+	for(i = 0; i < num_ranges; i++) {
+		step_count = 1 + (frequencies[2*i+1] - frequencies[2*i] - 1)
+				/ TUNE_STEP;
+		frequencies[2*i+1] = frequencies[2*i] + step_count * TUNE_STEP;
+		fprintf(stderr, "Sweeping from %u MHz to %u MHz\n",
+				frequencies[2*i], frequencies[2*i+1]);
+	}
+
+	result = hackrf_init_sweep(device, frequencies, num_ranges, num_samples,
+			TUNE_STEP * FREQ_ONE_MHZ, OFFSET, INTERLEAVED);
 	if( result != HACKRF_SUCCESS ) {
 		fprintf(stderr, "hackrf_init_sweep() failed: %s (%d)\n",
 			   hackrf_error_name(result), result);

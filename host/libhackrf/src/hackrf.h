@@ -47,6 +47,9 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 
 #endif
 
+#define SAMPLES_PER_BLOCK 16384
+#define MAX_SWEEP_RANGES 10
+
 enum hackrf_error {
 	HACKRF_SUCCESS = 0,
 	HACKRF_TRUE = 1,
@@ -93,6 +96,11 @@ enum operacake_ports {
 	OPERACAKE_PB2 = 5,
 	OPERACAKE_PB3 = 6,
 	OPERACAKE_PB4 = 7,
+};
+
+enum sweep_style {
+	LINEAR = 0,
+	INTERLEAVED = 1,
 };
 
 typedef struct hackrf_device hackrf_device;
@@ -218,10 +226,11 @@ extern ADDAPI uint32_t ADDCALL hackrf_compute_baseband_filter_bw(const uint32_t 
 /* set hardware sync mode  */
 extern ADDAPI int ADDCALL hackrf_set_hw_sync_mode(hackrf_device* device, const uint8_t value);
 
-/* Start scan mode */
+/* Start sweep mode */
 extern ADDAPI int ADDCALL hackrf_init_sweep(hackrf_device* device,
-											uint16_t* frequency_list,
-											int length, uint32_t dwell_time);
+		const uint16_t* frequency_list, const int num_ranges,
+		const uint32_t num_samples, const uint32_t step_width,
+		const uint32_t offset, const enum sweep_style style);
 
 /* Operacake functions */
 extern ADDAPI int ADDCALL hackrf_get_operacake_boards(hackrf_device* device, uint8_t* boards);
