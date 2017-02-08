@@ -217,7 +217,14 @@ int si5351c_read_configuration(hackrf_device* device) {
 	return HACKRF_SUCCESS;
 }
 
-int rffc5071_read_register(hackrf_device* device, const uint16_t register_number) {
+/*
+ * RFFC5071 and RFFC5072 are similar components with a compatible control
+ * interface.  RFFC5071 was used on some early prototypes, so the libhackrf API
+ * calls are named that way.  Because we use RFFC5072 on production hardware,
+ * we use that name here and present it to the user.
+ */
+
+int rffc5072_read_register(hackrf_device* device, const uint16_t register_number) {
 	uint16_t register_value;
 	int result = hackrf_rffc5071_read(device, (uint8_t)register_number, &register_value);
 	
@@ -230,12 +237,12 @@ int rffc5071_read_register(hackrf_device* device, const uint16_t register_number
 	return result;
 }
 
-int rffc5071_read_registers(hackrf_device* device) {
+int rffc5072_read_registers(hackrf_device* device) {
 	uint16_t register_number;
 	int result = HACKRF_SUCCESS;
 	
 	for(register_number=0; register_number<31; register_number++) {
-		result = rffc5071_read_register(device, register_number);
+		result = rffc5072_read_register(device, register_number);
 		if( result != HACKRF_SUCCESS ) {
 			break;
 		}
@@ -244,7 +251,7 @@ int rffc5071_read_registers(hackrf_device* device) {
 	return result;
 }
 
-int rffc5071_write_register(
+int rffc5072_write_register(
 	hackrf_device* device,
 	const uint16_t register_number,
 	const uint16_t register_value
@@ -265,7 +272,7 @@ enum parts {
 	PART_NONE = 0,
 	PART_MAX2837 = 1,
 	PART_SI5351C = 2,
-	PART_RFFC5071 = 3,
+	PART_RFFC5072 = 3,
 };
 
 int read_register(hackrf_device* device, uint8_t part,
@@ -275,8 +282,8 @@ int read_register(hackrf_device* device, uint8_t part,
 			return max2837_read_register(device, register_number);
 		case PART_SI5351C:
 			return si5351c_read_register(device, register_number);
-		case PART_RFFC5071:
-			return rffc5071_read_register(device, register_number);
+		case PART_RFFC5072:
+			return rffc5072_read_register(device, register_number);
 	}
 	return HACKRF_ERROR_INVALID_PARAM;
 }
@@ -287,8 +294,8 @@ int read_registers(hackrf_device* device, uint8_t part) {
 			return max2837_read_registers(device);
 		case PART_SI5351C:
 			return si5351c_read_registers(device);
-		case PART_RFFC5071:
-			return rffc5071_read_registers(device);
+		case PART_RFFC5072:
+			return rffc5072_read_registers(device);
 	}
 	return HACKRF_ERROR_INVALID_PARAM;
 }
@@ -301,8 +308,8 @@ int write_register(hackrf_device* device, uint8_t part,
 			return max2837_write_register(device, register_number, register_value);
 		case PART_SI5351C:
 			return si5351c_write_register(device, register_number, register_value);
-		case PART_RFFC5071:
-			return rffc5071_write_register(device, register_number, register_value);
+		case PART_RFFC5072:
+			return rffc5072_write_register(device, register_number, register_value);
 	}
 	return HACKRF_ERROR_INVALID_PARAM;
 }
@@ -316,11 +323,11 @@ static void usage() {
 	printf("\t-c, --config: print SI5351C configuration information\n");
 	printf("\t-d, --device <s>: specify a particular device by serial number\n");
 	printf("\t-m, --max2837: target MAX2837\n");
-	printf("\t-s, --si5351: target SI5351C\n");
-	printf("\t-f, --rffc5071: target RFFC5071\n");
+	printf("\t-s, --si5351c: target SI5351C\n");
+	printf("\t-f, --rffc5072: target RFFC5072\n");
 	printf("\nExamples:\n");
-	printf("\thackrf_debug -si5351 -n 12 -r     # reads from si5351 register 12\n");
-	printf("\thackrf_debug -rffc5071 -r         # reads all rffc5071 registers\n");
+	printf("\thackrf_debug -si5351c -n 12 -r     # reads from si5351c register 12\n");
+	printf("\thackrf_debug -rffc5072 -r         # reads all rffc5072 registers\n");
 	printf("\thackrf_debug -max2837 -n 10 -w 22 # writes max2837 register 10 with 22 decimal\n");
 }
 
@@ -333,7 +340,7 @@ static struct option long_options[] = {
 	{ "help", no_argument, 0, 'h' },
 	{ "max2837", no_argument, 0, 'm' },
 	{ "si5351c", no_argument, 0, 's' },
-	{ "rffc5071", no_argument, 0, 'f' },
+	{ "rffc5072", no_argument, 0, 'f' },
 	{ 0, 0, 0, 0 },
 };
 
@@ -399,7 +406,7 @@ int main(int argc, char** argv) {
 				fprintf(stderr, "Only one part can be specified.'\n");
 				return EXIT_FAILURE;
 			}
-			part = PART_RFFC5071;
+			part = PART_RFFC5072;
 			break;
 
 		case 'h':
