@@ -233,10 +233,14 @@ int rx_callback(hackrf_transfer* transfer) {
 				pwr[i] = logPower(fftwOut[i], 1.0f / fftSize);
 			}
 			if(binary_output) {
-				float_freq = frequency;
+				float_freq = frequency + DEFAULT_SAMPLE_RATE_HZ / 4;
 				float_freq /= FREQ_ONE_MHZ;
 				fwrite(&float_freq, sizeof(float), 1, stdout);
-				fwrite(pwr, sizeof(float), fftSize, stdout);
+				fwrite(&pwr[1+(fftSize*5)/8], sizeof(float), fftSize/4, stdout);
+				float_freq = frequency + DEFAULT_SAMPLE_RATE_HZ / 2;
+				float_freq /= FREQ_ONE_MHZ;
+				fwrite(&float_freq, sizeof(float), 1, stdout);
+				fwrite(&pwr[1+fftSize/8], sizeof(float), fftSize/4, stdout);
 			} else {
 				time_now = time(NULL);
 				fft_time = localtime(&time_now);
