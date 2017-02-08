@@ -173,6 +173,7 @@ bool antenna = false;
 uint32_t antenna_enable;
 
 bool binary_output = false;
+volatile bool sweep_started = false;
 
 int fftSize = 20;
 uint32_t fft_bin_width;
@@ -215,6 +216,14 @@ int rx_callback(hackrf_transfer* transfer) {
 		} else {
 			buf += SAMPLES_PER_BLOCK;
 			break;
+		}
+		if(!sweep_started) {
+			if (frequency == (uint64_t)(FREQ_ONE_MHZ*frequencies[0])) {
+				sweep_started = true;
+			} else {
+				buf += SAMPLES_PER_BLOCK;
+				continue;
+			}
 		}
 		if((FREQ_MAX_MHZ * FREQ_ONE_MHZ) < frequency) {
 			buf += SAMPLES_PER_BLOCK;
