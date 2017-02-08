@@ -24,6 +24,7 @@
 cmake_minimum_required(VERSION 2.8)
 project(hackrf-tools C)
 set(PACKAGE hackrf-tools)
+include(${PROJECT_SOURCE_DIR}/../cmake/set_release.cmake)
 add_definitions(-DTOOL_RELEASE="${RELEASE}")
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/../cmake/modules)
 

@@ -29,6 +29,7 @@ set(PACKAGE libhackrf)
 set(VERSION_STRING ${MAJOR_VERSION}.${MINOR_VERSION})
 set(VERSION ${VERSION_STRING})
 add_definitions(-DLIBRARY_VERSION="${VERSION_STRING}")
+include(${PROJECT_SOURCE_DIR}/../cmake/set_release.cmake)
 add_definitions(-DLIBRARY_RELEASE="${RELEASE}")
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/../cmake/modules)
 
