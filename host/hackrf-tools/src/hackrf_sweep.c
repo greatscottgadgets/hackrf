@@ -230,11 +230,7 @@ int rx_callback(hackrf_transfer* transfer) {
 			buf += fftSize * 2;
 			fftwf_execute(fftwPlan);
 			for (i=0; i < fftSize; i++) {
-				// Start from the middle of the FFTW array and wrap
-				// to rearrange the data
-				//FIXME only works when fftSize = 2**n
-				int k = i ^ (fftSize >> 1);
-				pwr[i] = logPower(fftwOut[k], 1.0f / fftSize);
+				pwr[i] = logPower(fftwOut[i], 1.0f / fftSize);
 			}
 			if(binary_output) {
 				float_freq = frequency;
@@ -251,7 +247,7 @@ int rx_callback(hackrf_transfer* transfer) {
 						(uint64_t)(frequency+DEFAULT_SAMPLE_RATE_HZ/4),
 						(float)fft_bin_width,
 						fftSize);
-				for(i=1+fftSize/8; (1+(fftSize*3)/8) > i; i++) {
+				for(i=1+(fftSize*5)/8; (1+(fftSize*7)/8) > i; i++) {
 					printf(", %.2f", pwr[i]);
 				}
 				printf("\n");
@@ -261,7 +257,7 @@ int rx_callback(hackrf_transfer* transfer) {
 						(uint64_t)(frequency+((DEFAULT_SAMPLE_RATE_HZ*3)/4)),
 						(float)fft_bin_width,
 						fftSize);
-				for(i=1+(fftSize*5)/8; (1+(fftSize*7)/8) > i; i++) {
+				for(i=1+fftSize/8; (1+(fftSize*3)/8) > i; i++) {
 					printf(", %.2f", pwr[i]);
 				}
 				printf("\n");
