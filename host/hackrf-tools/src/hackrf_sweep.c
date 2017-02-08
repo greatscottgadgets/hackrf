@@ -1,6 +1,7 @@
 /*
  * Copyright 2016 Dominic Spill <dominicgs@gmail.com>
  * Copyright 2016 Mike Walters <mike@flomp.net>
+ * Copyright 2017 Michael Ossmann <mike@ossmann.com>
  *
  * This file is part of HackRF.
  *
@@ -193,84 +194,79 @@ float logPower(fftwf_complex in, float scale)
 }
 
 int rx_callback(hackrf_transfer* transfer) {
-	/* This is where we need to do interesting things with the samples
-	 * FFT
-	 * Throw away unused bins
-	 * write output to pipe
-	 */
 	int8_t* buf;
 	uint8_t* ubuf;
 	uint64_t frequency; /* in Hz */
 	float float_freq;
 	int i, j;
 
-	if( fd != NULL ) {
-		byte_count += transfer->valid_length;
-		buf = (int8_t*) transfer->buffer;
-		for(j=0; j<BLOCKS_PER_TRANSFER; j++) {
-			ubuf = (uint8_t*) buf;
-			if(ubuf[0] == 0x7F && ubuf[1] == 0x7F) {
-				frequency = ((uint64_t)(ubuf[9]) << 56) | ((uint64_t)(ubuf[8]) << 48) | ((uint64_t)(ubuf[7]) << 40)
-						| ((uint64_t)(ubuf[6]) << 32) | ((uint64_t)(ubuf[5]) << 24) | ((uint64_t)(ubuf[4]) << 16)
-						| ((uint64_t)(ubuf[3]) << 8) | ubuf[2];
-			} else {
-				buf += SAMPLES_PER_BLOCK;
-				break;
-			}
-			if((FREQ_MAX_MHZ * FREQ_ONE_MHZ) < frequency) {
-				buf += SAMPLES_PER_BLOCK;
-				break;
-			}
-			/* copy to fftwIn as floats */
-			buf += SAMPLES_PER_BLOCK - (fftSize * 2);
-			for(i=0; i < fftSize; i++) {
-				fftwIn[i][0] = buf[i*2] * window[i] * 1.0f / 128.0f;
-				fftwIn[i][1] = buf[i*2+1] * window[i] * 1.0f / 128.0f;
-			}
-			buf += fftSize * 2;
-			fftwf_execute(fftwPlan);
-			for (i=0; i < fftSize; i++) {
-				pwr[i] = logPower(fftwOut[i], 1.0f / fftSize);
-			}
-			if(binary_output) {
-				float_freq = frequency + DEFAULT_SAMPLE_RATE_HZ / 4;
-				float_freq /= FREQ_ONE_MHZ;
-				fwrite(&float_freq, sizeof(float), 1, stdout);
-				fwrite(&pwr[1+(fftSize*5)/8], sizeof(float), fftSize/4, stdout);
-				float_freq = frequency + DEFAULT_SAMPLE_RATE_HZ / 2;
-				float_freq /= FREQ_ONE_MHZ;
-				fwrite(&float_freq, sizeof(float), 1, stdout);
-				fwrite(&pwr[1+fftSize/8], sizeof(float), fftSize/4, stdout);
-			} else {
-				time_now = time(NULL);
-				fft_time = localtime(&time_now);
-				strftime(time_str, 50, "%Y-%m-%d, %H:%M:%S", fft_time);
-				printf("%s, %" PRIu64 ", %" PRIu64 ", %.2f, %u",
-						time_str,
-						(uint64_t)(frequency),
-						(uint64_t)(frequency+DEFAULT_SAMPLE_RATE_HZ/4),
-						(float)fft_bin_width,
-						fftSize);
-				for(i=1+(fftSize*5)/8; (1+(fftSize*7)/8) > i; i++) {
-					printf(", %.2f", pwr[i]);
-				}
-				printf("\n");
-				printf("%s, %" PRIu64 ", %" PRIu64 ", %.2f, %u",
-						time_str,
-						(uint64_t)(frequency+(DEFAULT_SAMPLE_RATE_HZ/2)),
-						(uint64_t)(frequency+((DEFAULT_SAMPLE_RATE_HZ*3)/4)),
-						(float)fft_bin_width,
-						fftSize);
-				for(i=1+fftSize/8; (1+(fftSize*3)/8) > i; i++) {
-					printf(", %.2f", pwr[i]);
-				}
-				printf("\n");
-			}
-		}
-		return 0;
-	} else {
+	if(NULL == fd) {
 		return -1;
 	}
+
+	byte_count += transfer->valid_length;
+	buf = (int8_t*) transfer->buffer;
+	for(j=0; j<BLOCKS_PER_TRANSFER; j++) {
+		ubuf = (uint8_t*) buf;
+		if(ubuf[0] == 0x7F && ubuf[1] == 0x7F) {
+			frequency = ((uint64_t)(ubuf[9]) << 56) | ((uint64_t)(ubuf[8]) << 48) | ((uint64_t)(ubuf[7]) << 40)
+					| ((uint64_t)(ubuf[6]) << 32) | ((uint64_t)(ubuf[5]) << 24) | ((uint64_t)(ubuf[4]) << 16)
+					| ((uint64_t)(ubuf[3]) << 8) | ubuf[2];
+		} else {
+			buf += SAMPLES_PER_BLOCK;
+			break;
+		}
+		if((FREQ_MAX_MHZ * FREQ_ONE_MHZ) < frequency) {
+			buf += SAMPLES_PER_BLOCK;
+			break;
+		}
+		/* copy to fftwIn as floats */
+		buf += SAMPLES_PER_BLOCK - (fftSize * 2);
+		for(i=0; i < fftSize; i++) {
+			fftwIn[i][0] = buf[i*2] * window[i] * 1.0f / 128.0f;
+			fftwIn[i][1] = buf[i*2+1] * window[i] * 1.0f / 128.0f;
+		}
+		buf += fftSize * 2;
+		fftwf_execute(fftwPlan);
+		for (i=0; i < fftSize; i++) {
+			pwr[i] = logPower(fftwOut[i], 1.0f / fftSize);
+		}
+		if(binary_output) {
+			float_freq = frequency + DEFAULT_SAMPLE_RATE_HZ / 4;
+			float_freq /= FREQ_ONE_MHZ;
+			fwrite(&float_freq, sizeof(float), 1, stdout);
+			fwrite(&pwr[1+(fftSize*5)/8], sizeof(float), fftSize/4, stdout);
+			float_freq = frequency + DEFAULT_SAMPLE_RATE_HZ / 2;
+			float_freq /= FREQ_ONE_MHZ;
+			fwrite(&float_freq, sizeof(float), 1, stdout);
+			fwrite(&pwr[1+fftSize/8], sizeof(float), fftSize/4, stdout);
+		} else {
+			time_now = time(NULL);
+			fft_time = localtime(&time_now);
+			strftime(time_str, 50, "%Y-%m-%d, %H:%M:%S", fft_time);
+			printf("%s, %" PRIu64 ", %" PRIu64 ", %.2f, %u",
+					time_str,
+					(uint64_t)(frequency),
+					(uint64_t)(frequency+DEFAULT_SAMPLE_RATE_HZ/4),
+					(float)fft_bin_width,
+					fftSize);
+			for(i=1+(fftSize*5)/8; (1+(fftSize*7)/8) > i; i++) {
+				printf(", %.2f", pwr[i]);
+			}
+			printf("\n");
+			printf("%s, %" PRIu64 ", %" PRIu64 ", %.2f, %u",
+					time_str,
+					(uint64_t)(frequency+(DEFAULT_SAMPLE_RATE_HZ/2)),
+					(uint64_t)(frequency+((DEFAULT_SAMPLE_RATE_HZ*3)/4)),
+					(float)fft_bin_width,
+					fftSize);
+			for(i=1+fftSize/8; (1+(fftSize*3)/8) > i; i++) {
+				printf(", %.2f", pwr[i]);
+			}
+			printf("\n");
+		}
+	}
+	return 0;
 }
 
 static void usage() {
