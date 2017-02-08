@@ -326,7 +326,7 @@ static void usage() {
 	printf("\t-s, --si5351c: target SI5351C\n");
 	printf("\t-f, --rffc5072: target RFFC5072\n");
 	printf("\nExamples:\n");
-	printf("\thackrf_debug --si5351c -n 12 -r     # reads from si5351c register 12\n");
+	printf("\thackrf_debug --si5351c -n 0 -r     # reads from si5351c register 0\n");
 	printf("\thackrf_debug --rffc5072 -r         # reads all rffc5072 registers\n");
 	printf("\thackrf_debug --max2837 -n 10 -w 22 # writes max2837 register 10 with 22 decimal\n");
 }
