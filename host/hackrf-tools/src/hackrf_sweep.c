@@ -215,7 +215,7 @@ int rx_callback(hackrf_transfer* transfer) {
 					| ((uint64_t)(ubuf[3]) << 8) | ubuf[2];
 		} else {
 			buf += SAMPLES_PER_BLOCK;
-			break;
+			continue;
 		}
 		if(!sweep_started) {
 			if (frequency == (uint64_t)(FREQ_ONE_MHZ*frequencies[0])) {
@@ -227,7 +227,7 @@ int rx_callback(hackrf_transfer* transfer) {
 		}
 		if((FREQ_MAX_MHZ * FREQ_ONE_MHZ) < frequency) {
 			buf += SAMPLES_PER_BLOCK;
-			break;
+			continue;
 		}
 		/* copy to fftwIn as floats */
 		buf += SAMPLES_PER_BLOCK - (fftSize * 2);
