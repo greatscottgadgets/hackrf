@@ -434,7 +434,7 @@ int tx_callback(hackrf_transfer* transfer) {
 		}
 		if (bytes_read != bytes_to_read) {
                        if (repeat) {
-                               printf("Input file end reached. Rewind to beginning.\n");
+                               fprintf(stderr, "Input file end reached. Rewind to beginning.\n");
                                rewind(fd);
                                fread(transfer->buffer + bytes_read, 1, bytes_to_read - bytes_read, fd);
 			       return 0;
@@ -1056,14 +1056,14 @@ int main(int argc, char** argv) {
 			    	len=stream_size-stream_head;
 				bytes_written = fwrite(stream_buf+stream_head, 1, len, fd);
 				if (len != bytes_written) {
-					printf("write failed");
+					fprintf(stderr, "write failed");
 					do_exit=true;
 				};
 				stream_head=(stream_head+len)%stream_size;
 		    }
 		    if(stream_drop>0) {
 				uint32_t drops= __atomic_exchange_n (&stream_drop,0,__ATOMIC_SEQ_CST);
-				printf("dropped frames: [%d]\n",drops);
+				fprintf(stderr, "dropped frames: [%d]\n", drops);
 		    }
 #endif
 		} else {
