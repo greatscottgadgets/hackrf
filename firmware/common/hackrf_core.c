@@ -35,6 +35,7 @@
 #include "i2c_bus.h"
 #include "i2c_lpc.h"
 #include <libopencm3/lpc43xx/cgu.h>
+#include <libopencm3/lpc43xx/ccu.h>
 #include <libopencm3/lpc43xx/scu.h>
 #include <libopencm3/lpc43xx/ssp.h>
 
@@ -554,6 +555,10 @@ void cpu_clock_init(void)
 	/* use IRC as clock source for APB3 */
 	CGU_BASE_APB3_CLK = CGU_BASE_APB3_CLK_CLK_SEL(CGU_SRC_IRC);
 
+	/* Disable unused peripheral clocks */
+	CCU1_CLK_M4_EMC_CFG = 0;
+	CCU1_CLK_M4_EMCDIV_CFG = 0;
+
 	i2c_bus_start(clock_gen.bus, &i2c_config_si5351c_slow_clock);
 
 	si5351c_disable_all_outputs(&clock_gen);
@@ -828,10 +833,6 @@ void pin_setup(void) {
 	scu_pinmux(SCU_PINMUX_LED3, SCU_GPIO_NOPULL);
 	
 	scu_pinmux(SCU_PINMUX_EN1V8, SCU_GPIO_NOPULL);
-
-	/* Disable unused clock outputs. They generate noise. */
-	scu_pinmux(CLK0, SCU_CLK_IN | SCU_CONF_FUNCTION7);
-	scu_pinmux(CLK2, SCU_CLK_IN | SCU_CONF_FUNCTION7);
 
 	/* Configure USB indicators */
 #if (defined JELLYBEAN || defined JAWBREAKER)
