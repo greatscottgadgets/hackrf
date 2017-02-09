@@ -311,6 +311,7 @@ bool signalsource = false;
 uint32_t amplitude = 0;
 
 bool hw_sync = false;
+uint32_t hw_sync_enable;
 
 bool receive = false;
 bool receive_wav = false;
@@ -503,7 +504,7 @@ static void usage() {
         printf("\t[-R] # Repeat TX mode (default is off) \n");
 	printf("\t[-b baseband_filter_bw_hz] # Set baseband filter bandwidth in Hz.\n\tPossible values: 1.75/2.5/3.5/5/5.5/6/7/8/9/10/12/14/15/20/24/28MHz, default <= 0.75 * sample_rate_hz.\n" );
 	printf("\t[-C ppm] # Set Internal crystal clock error in ppm.\n");
-	printf("\t[-H] # Synchronise USB transfer using GPIO pins.\n");
+	printf("\t[-H hw_sync_enable] # Synchronise USB transfer using GPIO pins.\n");
 }
 
 static hackrf_device* device = NULL;
@@ -547,13 +548,14 @@ int main(int argc, char** argv) {
 	float time_diff;
 	unsigned int lna_gain=8, vga_gain=20, txvga_gain=0;
   
-	while( (opt = getopt(argc, argv, "Hwr:t:f:i:o:m:a:p:s:n:b:l:g:x:c:d:C:RS:h?")) != EOF )
+	while( (opt = getopt(argc, argv, "H:wr:t:f:i:o:m:a:p:s:n:b:l:g:x:c:d:C:RS:h?")) != EOF )
 	{
 		result = HACKRF_SUCCESS;
 		switch( opt ) 
 		{
 		case 'H':
 			hw_sync = true;
+			result = parse_u32(optarg, &hw_sync_enable);
 			break;
 		case 'w':
 			receive_wav = true;
@@ -961,11 +963,13 @@ int main(int argc, char** argv) {
 		}
 	}
 
-	fprintf(stderr, "call hackrf_set_hw_sync_mode(%d)\n", hw_sync);
-	result = hackrf_set_hw_sync_mode(device, hw_sync ? HW_SYNC_MODE_ON : HW_SYNC_MODE_OFF);
-	if( result != HACKRF_SUCCESS ) {
-		fprintf(stderr, "hackrf_set_hw_sync_mode() failed: %s (%d)\n", hackrf_error_name(result), result);
-		return EXIT_FAILURE;
+	if(hw_sync) {
+		fprintf(stderr, "call hackrf_set_hw_sync_mode(%d)\n", hw_sync);
+		result = hackrf_set_hw_sync_mode(device, hw_sync_enable ? HW_SYNC_MODE_ON : HW_SYNC_MODE_OFF);
+		if( result != HACKRF_SUCCESS ) {
+			fprintf(stderr, "hackrf_set_hw_sync_mode() failed: %s (%d)\n", hackrf_error_name(result), result);
+			return EXIT_FAILURE;
+		}
 	}
 
 	if( transceiver_mode == TRANSCEIVER_MODE_RX ) {
