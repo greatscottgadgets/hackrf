@@ -680,6 +680,10 @@ int main(int argc, char** argv) {
 		fd = NULL;
 		fprintf(stderr, "fclose(fd) done\n");
 	}
+	fftwf_free(fftwIn);
+	fftwf_free(fftwOut);
+	fftwf_free(pwr);
+	fftwf_free(window);
 	fprintf(stderr, "exit\n");
 	return exit_code;
 }
