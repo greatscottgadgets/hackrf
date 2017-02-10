@@ -246,7 +246,7 @@ int rx_callback(hackrf_transfer* transfer) {
 			pwr[i] = logPower(fftwOut[i], 1.0f / fftSize);
 		}
 		if(binary_output) {
-			record_length = 2 * sizeof(band_edge) + sizeof(fft_bin_width)
+			record_length = 2 * sizeof(band_edge)
 					+ (fftSize/4) * sizeof(float);
 
 			fwrite(&record_length, sizeof(record_length), 1, stdout);
@@ -254,7 +254,6 @@ int rx_callback(hackrf_transfer* transfer) {
 			fwrite(&band_edge, sizeof(band_edge), 1, stdout);
 			band_edge = frequency + DEFAULT_SAMPLE_RATE_HZ / 4;
 			fwrite(&band_edge, sizeof(band_edge), 1, stdout);
-			fwrite(&fft_bin_width, sizeof(fft_bin_width), 1, stdout);
 			fwrite(&pwr[1+(fftSize*5)/8], sizeof(float), fftSize/4, stdout);
 
 			fwrite(&record_length, sizeof(record_length), 1, stdout);
@@ -262,7 +261,6 @@ int rx_callback(hackrf_transfer* transfer) {
 			fwrite(&band_edge, sizeof(band_edge), 1, stdout);
 			band_edge = frequency + (DEFAULT_SAMPLE_RATE_HZ * 3) / 4;
 			fwrite(&band_edge, sizeof(band_edge), 1, stdout);
-			fwrite(&fft_bin_width, sizeof(fft_bin_width), 1, stdout);
 			fwrite(&pwr[1+fftSize/8], sizeof(float), fftSize/4, stdout);
 		} else {
 			time_now = time(NULL);
