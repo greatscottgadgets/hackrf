@@ -1,5 +1,5 @@
-This repository contains hardware designs and software for HackRF, a project to
-produce a low cost, open source software radio platform.
+This repository contains hardware designs and software for HackRF,
+a low cost, open source Software Defined Radio platform.
 
 ![HackRF One](https://raw.github.com/mossmann/hackrf/master/doc/HackRF-One-fd0-0009.jpeg)
 
