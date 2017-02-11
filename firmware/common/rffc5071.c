@@ -117,10 +117,6 @@ void rffc5071_setup(rffc5071_driver_t* const drv)
 	/* GPOs are active at all times */
 	set_RFFC5071_GATE(drv, 1);
 
-	/* Output LOCK status on GPO4 and enable lock detect */
-	set_RFFC5071_LOCK(drv, 1);
-	set_RFFC5071_LDEN(drv, 1);
-
 	rffc5071_regs_commit(drv);
 }
 
