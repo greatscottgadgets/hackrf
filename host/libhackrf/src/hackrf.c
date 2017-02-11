@@ -1841,7 +1841,7 @@ int ADDCALL hackrf_init_sweep(hackrf_device* device,
 		return HACKRF_ERROR_INVALID_PARAM;
 	}
 
-	if(SAMPLES_PER_BLOCK < num_samples) {
+	if(SAMPLES_PER_BLOCK > num_samples) {
 		return HACKRF_ERROR_INVALID_PARAM;
 	}
 
