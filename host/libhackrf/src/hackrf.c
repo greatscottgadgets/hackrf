@@ -145,6 +145,7 @@ static const uint16_t hackrf_one_usb_pid = 0x6089;
 static const uint16_t rad1o_usb_pid = 0xcc15;
 
 static libusb_context* g_libusb_context = NULL;
+int last_libusb_error = LIBUSB_SUCCESS;
 
 static void request_exit(void)
 {
@@ -249,6 +250,7 @@ static int prepare_transfers(
 			error = libusb_submit_transfer(device->transfers[transfer_index]);
 			if( error != 0 )
 			{
+				last_libusb_error = error;
 				return HACKRF_ERROR_LIBUSB;
 			}
 		}
@@ -269,6 +271,7 @@ static int detach_kernel_drivers(libusb_device_handle* usb_device_handle)
 	result = libusb_get_active_config_descriptor(dev, &config);
 	if( result < 0 )
 	{
+		last_libusb_error = result;
 		return HACKRF_ERROR_LIBUSB;
 	}
 
@@ -282,11 +285,13 @@ static int detach_kernel_drivers(libusb_device_handle* usb_device_handle)
 			if( result == LIBUSB_ERROR_NOT_SUPPORTED ) {
 				return 0;
 			}
+			last_libusb_error = result;
 			return HACKRF_ERROR_LIBUSB;
 		} else if( result == 1 ) {
 			result = libusb_detach_kernel_driver(usb_device_handle, i);
 			if( result != 0 )
 			{
+				last_libusb_error = result;
 				return HACKRF_ERROR_LIBUSB;
 			}
 		}
@@ -300,6 +305,7 @@ static int set_hackrf_configuration(libusb_device_handle* usb_device, int config
 	result = libusb_get_configuration(usb_device, &curr_config);
 	if( result != 0 )
 	{
+		last_libusb_error = result;
 		return HACKRF_ERROR_LIBUSB;
 	}
 
@@ -313,6 +319,7 @@ static int set_hackrf_configuration(libusb_device_handle* usb_device, int config
 		result = libusb_set_configuration(usb_device, config);
 		if( result != 0 )
 		{
+			last_libusb_error = result;
 			return HACKRF_ERROR_LIBUSB;
 		}
 	}
@@ -340,6 +347,7 @@ int ADDCALL hackrf_init(void)
 	libusb_error = libusb_init(&g_libusb_context);
 	if( libusb_error != 0 )
 	{
+		last_libusb_error = libusb_error;
 		return HACKRF_ERROR_LIBUSB;
 	} else {
 		return HACKRF_SUCCESS;
@@ -355,6 +363,22 @@ int ADDCALL hackrf_exit(void)
 	}
 
 	return HACKRF_SUCCESS;
+}
+
+#ifndef LIBRARY_VERSION
+#define LIBRARY_VERSION "unknown"
+#endif
+const char* ADDCALL hackrf_library_version()
+{
+	return LIBRARY_VERSION;
+}
+
+#ifndef LIBRARY_RELEASE
+#define LIBRARY_RELEASE "unknown"
+#endif
+const char* ADDCALL hackrf_library_release()
+{
+	return LIBRARY_RELEASE;
 }
 
 hackrf_device_list_t* ADDCALL hackrf_device_list()
@@ -511,6 +535,7 @@ static int hackrf_open_setup(libusb_device_handle* usb_device, hackrf_device** d
 	result = libusb_claim_interface(usb_device, 0);
 	if( result != LIBUSB_SUCCESS )
 	{
+		last_libusb_error = result;
 		libusb_close(usb_device);
 		return HACKRF_ERROR_LIBUSB;
 	}
@@ -601,7 +626,7 @@ int ADDCALL hackrf_open_by_serial(const char* const desired_serial_number, hackr
 int ADDCALL hackrf_device_list_open(hackrf_device_list_t *list, int idx, hackrf_device** device)
 {
 	libusb_device_handle* usb_device;
-	int i;
+	int i, result;
 	
 	if( device == NULL || list == NULL || idx < 0 || idx >= list->devicecount )
 	{
@@ -610,8 +635,10 @@ int ADDCALL hackrf_device_list_open(hackrf_device_list_t *list, int idx, hackrf_
 	
 	i = list->usb_device_index[idx];
 
-	if( libusb_open(list->usb_devices[i], &usb_device) != 0 ) {
+	result = libusb_open(list->usb_devices[i], &usb_device);
+	if(result != 0) {
 		usb_device = NULL;
+		last_libusb_error = result;
 		return HACKRF_ERROR_LIBUSB;
 	}
 	
@@ -634,6 +661,7 @@ int ADDCALL hackrf_set_transceiver_mode(hackrf_device* device, hackrf_transceive
 
 	if( result != 0 )
 	{
+		last_libusb_error = result;
 		return HACKRF_ERROR_LIBUSB;
 	} else {
 		return HACKRF_SUCCESS;
@@ -662,6 +690,7 @@ int ADDCALL hackrf_max2837_read(hackrf_device* device, uint8_t register_number, 
 
 	if( result < 2 )
 	{
+		last_libusb_error = result;
 		return HACKRF_ERROR_LIBUSB;
 	} else {
 		return HACKRF_SUCCESS;
@@ -694,6 +723,7 @@ int ADDCALL hackrf_max2837_write(hackrf_device* device, uint8_t register_number,
 
 	if( result != 0 )
 	{
+		last_libusb_error = result;
 		return HACKRF_ERROR_LIBUSB;
 	} else {
 		return HACKRF_SUCCESS;
@@ -724,6 +754,7 @@ int ADDCALL hackrf_si5351c_read(hackrf_device* device, uint16_t register_number,
 
 	if( result < 1 )
 	{
+		last_libusb_error = result;
 		return HACKRF_ERROR_LIBUSB;
 	} else {
 		*value = temp_value;
@@ -756,6 +787,7 @@ int ADDCALL hackrf_si5351c_write(hackrf_device* device, uint16_t register_number
 
 	if( result != 0 )
 	{
+		last_libusb_error = result;
 		return HACKRF_ERROR_LIBUSB;
 	} else {
 		return HACKRF_SUCCESS;
@@ -778,6 +810,7 @@ int ADDCALL hackrf_set_baseband_filter_bandwidth(hackrf_device* device, const ui
 
 	if( result != 0 )
 	{
+		last_libusb_error = result;
 		return HACKRF_ERROR_LIBUSB;
 	} else {
 		return HACKRF_SUCCESS;
@@ -807,6 +840,7 @@ int ADDCALL hackrf_rffc5071_read(hackrf_device* device, uint8_t register_number,
 
 	if( result < 2 )
 	{
+		last_libusb_error = result;
 		return HACKRF_ERROR_LIBUSB;
 	} else {
 		return HACKRF_SUCCESS;
@@ -835,6 +869,7 @@ int ADDCALL hackrf_rffc5071_write(hackrf_device* device, uint8_t register_number
 
 	if( result != 0 )
 	{
+		last_libusb_error = result;
 		return HACKRF_ERROR_LIBUSB;
 	} else {
 		return HACKRF_SUCCESS;
@@ -857,6 +892,7 @@ int ADDCALL hackrf_spiflash_erase(hackrf_device* device)
 
 	if (result != 0)
 	{
+		last_libusb_error = result;
 		return HACKRF_ERROR_LIBUSB;
 	} else {
 		return HACKRF_SUCCESS;
@@ -886,6 +922,7 @@ int ADDCALL hackrf_spiflash_write(hackrf_device* device, const uint32_t address,
 
 	if (result < length)
 	{
+		last_libusb_error = result;
 		return HACKRF_ERROR_LIBUSB;
 	} else {
 		return HACKRF_SUCCESS;
@@ -915,6 +952,7 @@ int ADDCALL hackrf_spiflash_read(hackrf_device* device, const uint32_t address,
 
 	if (result < length)
 	{
+		last_libusb_error = result;
 		return HACKRF_ERROR_LIBUSB;
 	} else {
 		return HACKRF_SUCCESS;
@@ -944,6 +982,7 @@ int ADDCALL hackrf_cpld_write(hackrf_device* device,
 		);
 
 		if (result != LIBUSB_SUCCESS) {
+			last_libusb_error = result;
 			return HACKRF_ERROR_LIBUSB;
 		}
 	}
@@ -967,6 +1006,7 @@ int ADDCALL hackrf_board_id_read(hackrf_device* device, uint8_t* value)
 
 	if (result < 1)
 	{
+		last_libusb_error = result;
 		return HACKRF_ERROR_LIBUSB;
 	} else {
 		return HACKRF_SUCCESS;
@@ -990,6 +1030,7 @@ int ADDCALL hackrf_version_string_read(hackrf_device* device, char* version,
 
 	if (result < 0)
 	{
+		last_libusb_error = result;
 		return HACKRF_ERROR_LIBUSB;
 	} else {
 		version[result] = '\0';
@@ -1005,8 +1046,10 @@ extern ADDAPI int ADDCALL hackrf_usb_api_version_read(hackrf_device* device,
 	struct libusb_device_descriptor desc;
 	dev = libusb_get_device(device->usb_device);
 	result = libusb_get_device_descriptor(dev, &desc);
-	if (result < 0)
+	if (result < 0) {
+		last_libusb_error = result;
 		return HACKRF_ERROR_LIBUSB;
+	}
 
 	*version = desc.bcdDevice;
 	return HACKRF_SUCCESS;
@@ -1053,6 +1096,7 @@ int ADDCALL hackrf_set_freq(hackrf_device* device, const uint64_t freq_hz)
 
 	if (result < length)
 	{
+		last_libusb_error = result;
 		return HACKRF_ERROR_LIBUSB;
 	} else {
 		return HACKRF_SUCCESS;
@@ -1104,6 +1148,7 @@ int ADDCALL hackrf_set_freq_explicit(hackrf_device* device,
 
 	if (result < length)
 	{
+		last_libusb_error = result;
 		return HACKRF_ERROR_LIBUSB;
 	} else {
 		return HACKRF_SUCCESS;
@@ -1145,6 +1190,7 @@ int ADDCALL hackrf_set_sample_rate_manual(hackrf_device* device,
 
 	if (result < length)
 	{
+		last_libusb_error = result;
 		return HACKRF_ERROR_LIBUSB;
 	} else {
 		return hackrf_set_baseband_filter_bandwidth(device,
@@ -1214,6 +1260,7 @@ int ADDCALL hackrf_set_amp_enable(hackrf_device* device, const uint8_t value)
 
 	if (result != 0)
 	{
+		last_libusb_error = result;
 		return HACKRF_ERROR_LIBUSB;
 	} else {
 		return HACKRF_SUCCESS;
@@ -1239,6 +1286,7 @@ int ADDCALL hackrf_board_partid_serialno_read(hackrf_device* device, read_partid
 
 	if (result < length)
 	{
+		last_libusb_error = result;
 		return HACKRF_ERROR_LIBUSB;
 	} else {
 
@@ -1358,6 +1406,7 @@ int ADDCALL hackrf_set_antenna_enable(hackrf_device* device, const uint8_t value
 
 	if (result != 0)
 	{
+		last_libusb_error = result;
 		return HACKRF_ERROR_LIBUSB;
 	} else {
 		return HACKRF_SUCCESS;
@@ -1389,12 +1438,12 @@ static void hackrf_libusb_transfer_callback(struct libusb_transfer* usb_transfer
 	if(usb_transfer->status == LIBUSB_TRANSFER_COMPLETED)
 	{
 		hackrf_transfer transfer = {
-			transfer.device = device,
-			transfer.buffer = usb_transfer->buffer,
-			transfer.buffer_length = usb_transfer->length,
-			transfer.valid_length = usb_transfer->actual_length,
-			transfer.rx_ctx = device->rx_ctx,
-			transfer.tx_ctx = device->tx_ctx
+			.device = device,
+			.buffer = usb_transfer->buffer,
+			.buffer_length = usb_transfer->length,
+			.valid_length = usb_transfer->actual_length,
+			.rx_ctx = device->rx_ctx,
+			.tx_ctx = device->tx_ctx
 		};
 
 		if( device->callback(&transfer) == 0 )
@@ -1606,6 +1655,10 @@ const char* ADDCALL hackrf_error_name(enum hackrf_error errcode)
 		return "insufficient memory";
 
 	case HACKRF_ERROR_LIBUSB:
+#if defined(LIBUSB_API_VERSION) && (LIBUSB_API_VERSION >= 0x01000103)
+		if(last_libusb_error != LIBUSB_SUCCESS)
+			return libusb_strerror(last_libusb_error);
+#endif
 		return "USB error";
 
 	case HACKRF_ERROR_THREAD:
@@ -1750,34 +1803,83 @@ int ADDCALL hackrf_set_hw_sync_mode(hackrf_device* device, const uint8_t value) 
 
 	if( result != 0 )
 	{
+		last_libusb_error = result;
 		return HACKRF_ERROR_LIBUSB;
 	} else {
 		return HACKRF_SUCCESS;
 	}
 }
 
-/* Initialise sweep mode with alist of frequencies and dwell time in samples */
-int ADDCALL hackrf_init_sweep(hackrf_device* device, uint16_t* frequency_list, int length, uint32_t dwell_time)
-{
+/*
+ * Initialize sweep mode:
+ * frequency_list is a list of start/stop pairs of frequencies in MHz.
+ * num_ranges is the number of pairs in frequency_list (1 to 10)
+ * num_samples is the number of samples to capture after each tuning.
+ * step_width is the width in Hz of the tuning step.
+ * offset is a number of Hz added to every tuning frequency.
+ *     Use to select center frequency based on the expected usable bandwidth.
+ * sweep_mode
+ *     LINEAR means step_width is added to the current frequency at each step.
+ *     INTERLEAVED invokes a scheme in which each step is divided into two
+ *         interleaved sub-steps, allowing the host to select the best portions
+ *         of the FFT of each sub-step and discard the rest.
+ */
+int ADDCALL hackrf_init_sweep(hackrf_device* device,
+		const uint16_t* frequency_list, const int num_ranges,
+		const uint32_t num_samples, const uint32_t step_width,
+		const uint32_t offset, const enum sweep_style style) {
 	USB_API_REQUIRED(device, 0x0102)
 	int result, i;
-	int size = length * sizeof(frequency_list[0]);
+	unsigned char data[9 + MAX_SWEEP_RANGES * 2 * sizeof(frequency_list[0])];
+	int size = 9 + num_ranges * 2 * sizeof(frequency_list[0]);
 
-	for(i=0; i<length; i++)
-		frequency_list[i] = TO_LE(frequency_list[i]);
+	if((num_ranges < 1) || (num_ranges > MAX_SWEEP_RANGES)){
+		return HACKRF_ERROR_INVALID_PARAM;
+	}
+
+	if(num_samples % SAMPLES_PER_BLOCK) {
+		return HACKRF_ERROR_INVALID_PARAM;
+	}
+
+	if(SAMPLES_PER_BLOCK > num_samples) {
+		return HACKRF_ERROR_INVALID_PARAM;
+	}
+
+	if(1 > step_width) {
+		return HACKRF_ERROR_INVALID_PARAM;
+	}
+
+	if(INTERLEAVED < style) {
+		return HACKRF_ERROR_INVALID_PARAM;
+	}
+
+	data[0] = step_width & 0xff;
+	data[1] = (step_width >> 8) & 0xff;
+	data[2] = (step_width >> 16) & 0xff;
+	data[3] = (step_width >> 24) & 0xff;
+	data[4] = offset & 0xff;
+	data[5] = (offset >> 8) & 0xff;
+	data[6] = (offset >> 16) & 0xff;
+	data[7] = (offset >> 24) & 0xff;
+	data[8] = style;
+	for(i=0; i<(num_ranges*2); i++) {
+		data[9+i*2] = frequency_list[i] & 0xff;
+		data[10+i*2] = (frequency_list[i] >> 8) & 0xff;
+	}
 
 	result = libusb_control_transfer(
 		device->usb_device,
 		LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
 		HACKRF_VENDOR_REQUEST_INIT_SWEEP,
-		dwell_time & 0xffff,
-		(dwell_time >> 16) & 0xffff,
-		(unsigned char*)frequency_list,
+		num_samples & 0xffff,
+		(num_samples >> 16) & 0xffff,
+		data,
 		size,
 		0
 	);
 
 	if (result < size) {
+		last_libusb_error = result;
 		return HACKRF_ERROR_LIBUSB;
 	} else {
 		return HACKRF_SUCCESS;
@@ -1804,6 +1906,7 @@ int ADDCALL hackrf_get_operacake_boards(hackrf_device* device, uint8_t* boards)
 
 	if (result < 8)
 	{
+		last_libusb_error = result;
 		return HACKRF_ERROR_LIBUSB;
 	} else {
 		return HACKRF_SUCCESS;
@@ -1839,6 +1942,7 @@ int ADDCALL hackrf_set_operacake_ports(hackrf_device* device,
 	);
 
 	if (result != 0) {
+		last_libusb_error = result;
 		return HACKRF_ERROR_LIBUSB;
 	} else {
 		return HACKRF_SUCCESS;
@@ -1859,6 +1963,7 @@ int ADDCALL hackrf_reset(hackrf_device* device) {
 	);
 
 	if( result != 0 ) {
+		last_libusb_error = result;
 		return HACKRF_ERROR_LIBUSB;
 	} else {
 		return HACKRF_SUCCESS;

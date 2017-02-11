@@ -19,8 +19,8 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __USB_API_SCAN_H__
-#define __USB_API_SCAN_H__
+#ifndef __USB_API_SWEEP_H__
+#define __USB_API_SWEEP_H__
 
 #include <stdbool.h>
 #include <usb_type.h>
@@ -28,9 +28,14 @@
 
 extern volatile bool start_sweep_mode;
 
+enum sweep_style {
+	LINEAR = 0,
+	INTERLEAVED = 1,
+};
+
 usb_request_status_t usb_vendor_request_init_sweep(
 	usb_endpoint_t* const endpoint, const usb_transfer_stage_t stage);
 
 void sweep_mode(void);
 
-#endif /* __USB_API_SPCAN_H__ */
+#endif /* __USB_API_SWEEP_H__ */

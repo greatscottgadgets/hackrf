@@ -27,22 +27,28 @@ To build and install a standard firmware image for HackRF One:
 $ cd hackrf_usb
 $ mkdir build
 $ cd build
-$ cmake .. -DBOARD=HACKRF_ONE
+$ cmake ..
 $ make
 $ hackrf_spiflash -w hackrf_usb.bin
 
-If you have a Jawbreaker, use -DBOARD=JAWBREAKER instead.
+If you have a Jawbreaker, add -DBOARD=JAWBREAKER to the cmake command.
 If you have a rad1o, use -DBOARD=RAD1O instead.
 
-For loading firmware into RAM with DFU you will also need:
 
-http://dfu-util.gnumonks.org/
+It is possible to use a USB Device Firmware Upgrade (DFU) method to load
+firmware into RAM.  This is normally only required to recover a device that has
+had faulty firmware loaded, but it can also be useful for firmware developers.
+
+For loading firmware into RAM with DFU you will need:
+
+http://dfu-util.sourceforge.net/
 
 To start up HackRF One in DFU mode, hold down the DFU button while powering it
 on or while pressing and releasing the RESET button.  Release the DFU button
 after the 3V3 LED illuminates.
 
 A .dfu file is built by default when building firmware.  Alternatively you can
-load a known good .dfu file from a release package with:
+use a known good .dfu file from a release package.  Load the firmware into RAM
+with:
 
 $ dfu-util --device 1fc9:000c --alt 0 --download hackrf_usb.dfu

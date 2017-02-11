@@ -34,8 +34,7 @@ typedef int bool;
 static void usage() {
 	printf("\nUsage:\n");
 	printf("\t-h, --help: this help\n");
-	printf("\t-s, --serial <s>: specify a particular device by serial number\n");
-	printf("\t-d, --device <n>: specify a particular device by number\n");
+	printf("\t-d, --device <n>: specify a particular device by serial number\n");
 	printf("\t-o, --address <n>: specify a particular operacake by address [default: 0x00]\n");
 	printf("\t-a <n>: set port A connection\n");
 	printf("\t-b <n>: set port B connection\n");
@@ -44,7 +43,6 @@ static void usage() {
 
 static struct option long_options[] = {
 	{ "device", no_argument, 0, 'd' },
-	{ "serial", no_argument, 0, 's' },
 	{ "address", no_argument, 0, 'o' },
 	{ "list", no_argument, 0, 'v' },
 	{ "help", no_argument, 0, 'h' },
@@ -65,7 +63,6 @@ int parse_int(char* const s, uint16_t* const value) {
 int main(int argc, char** argv) {
 	int opt;
 	const char* serial_number = NULL;
-	int device_index = 0;
 	int operacake_address = 0;
 	int port_a = 0;
 	int port_b = 0;
@@ -83,13 +80,9 @@ int main(int argc, char** argv) {
 		return -1;
 	}
 
-	while( (opt = getopt_long(argc, argv, "d:s:o:a:b:lh?", long_options, &option_index)) != EOF ) {
+	while( (opt = getopt_long(argc, argv, "d:o:a:b:lh?", long_options, &option_index)) != EOF ) {
 		switch( opt ) {
 		case 'd':
-			device_index = atoi(optarg);
-			break;
-
-		case 's':
 			serial_number = optarg;
 			break;
 
@@ -119,11 +112,6 @@ int main(int argc, char** argv) {
 			usage();
 			return EXIT_FAILURE;
 		}
-		
-		if( result != HACKRF_SUCCESS ) {
-			printf("argument error: %s (%d)\n", hackrf_error_name(result), result);
-			break;
-		}
 	}
 
 	if(!(list || set_ports)) {
@@ -132,20 +120,11 @@ int main(int argc, char** argv) {
 		return EXIT_FAILURE;
 	}
 
-	if(serial_number != NULL) {
-		result = hackrf_open_by_serial(serial_number, &device);
-	} else {
-		hackrf_device_list_t* device_list = hackrf_device_list();
-		if(device_list->devicecount <= 0) {
-			result = HACKRF_ERROR_NOT_FOUND;
-		} else {
-			result = hackrf_device_list_open(device_list, device_index, &device);
-		}	
-	}
-
-	if( result ) {
-		printf("hackrf_open() failed: %s (%d)\n", hackrf_error_name(result), result);
-		return -1;
+	result = hackrf_open_by_serial(serial_number, &device);
+	if (result != HACKRF_SUCCESS) {
+		fprintf(stderr, "hackrf_open() failed: %s (%d)\n",
+				hackrf_error_name(result), result);
+		return EXIT_FAILURE;
 	}
 
 	if(list) {
