@@ -47,7 +47,7 @@ typedef int bool;
 
 #ifdef _WIN32
 #include <windows.h>
-
+#define M_PI   3.14159265358979323846264338327950288
 #ifdef _MSC_VER
 
 #ifdef _WIN64
@@ -517,6 +517,9 @@ int main(int argc, char** argv) {
 	}
 	
 	fd = fopen(path, "wb");
+	if (fd == NULL) {
+		fd = fopen("nul", "wb");
+	}
 	if( fd == NULL ) {
 		fprintf(stderr, "Failed to open file: %s\n", path);
 		return EXIT_FAILURE;

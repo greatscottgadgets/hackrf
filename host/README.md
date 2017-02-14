@@ -63,11 +63,16 @@ make install
 ###For Visual Studio 2015 x64
 ```
 c:\hackrf\host\build> cmake ../ -G "Visual Studio 14 2015 Win64" \
--DLIBUSB_INCLUDE_DIR=c:\libusb-1.0.18-win\include\libusb-1.0 \
--DLIBUSB_LIBRARIES=c:\libusb-1.0.18-win\MS64\static\libusb-1.0.lib \
+-DLIBUSB_INCLUDE_DIR=c:\libusb-1.0.21\libusb \
+-DLIBUSB_LIBRARIES=c:\libusb-1.0.21\x64\Release\lib\libusb-1.0.lib \
 -DTHREADS_PTHREADS_INCLUDE_DIR=c:\pthreads-w32-2-9-1-release\Pre-built.2\include \
--DTHREADS_PTHREADS_WIN32_LIBRARY=c:\pthreads-w32-2-9-1-release\Pre-built.2\lib\x64\pthreadVC2.lib
+-DTHREADS_PTHREADS_WIN32_LIBRARY=c:\pthreads-w32-2-9-1-release\Pre-built.2\lib\x64\pthreadVC2.lib \
+-DFFTW_INCLUDES=C:\hackrf-2017.02.1\host\hackrf-tools\fftw-3.3.5-dll64 \
+-DFFTW_LIBRARIES=C:\hackrf-2017.02.1\host\hackrf-tools\fftw-3.3.5-dll64\libfftw3f-3.lib
 ```
+unpack precompiled fftw-3.3.5-dll64.zip from http://www.fftw.org/install/windows.html to C:\hackrf-2017.02.1\host\hackrf-tools\fftw-3.3.5-dll64
+Create library from VS command shell
+C:\hackrf-2017.02.1\host\hackrf-tools\fftw-3.3.5-dll6> lib /machine:x64 /def:libfftw3f-3.def
 
 Cmake will produce a solution file named `hackrf_all.sln` and a series of
 project files which can be used with msbuild as follows:
