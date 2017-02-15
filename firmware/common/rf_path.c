@@ -26,12 +26,14 @@
 
 #include <hackrf_core.h>
 
-#include <rffc5071.h>
+#include "hackrf-ui.h"
+
+#include <mixer.h>
 #include <max2837.h>
 #include <max5864.h>
 #include <sgpio.h>
 
-#if (defined JAWBREAKER || defined HACKRF_ONE)
+#if (defined JAWBREAKER || defined HACKRF_ONE || defined RAD1O)
 /*
  * RF switches on Jawbreaker are controlled by General Purpose Outputs (GPO) on
  * the RFFC5072.
@@ -40,6 +42,9 @@
  * SWITCHCTRL_NO_TX_AMP_PWR and SWITCHCTRL_NO_RX_AMP_PWR are not normally used
  * on HackRF One as the amplifier power is instead controlled only by
  * SWITCHCTRL_AMP_BYPASS.
+ *
+ * The rad1o also uses GPIO pins to control the different switches. The amplifiers
+ * are also connected to the LPC.
  */
 #define SWITCHCTRL_NO_TX_AMP_PWR (1 << 0) /* GPO1 turn off TX amp power */
 #define SWITCHCTRL_AMP_BYPASS    (1 << 1) /* GPO2 bypass amp section */
@@ -148,9 +153,73 @@ static void switchctrl_set_hackrf_one(rf_path_t* const rf_path, uint8_t ctrl) {
 		gpio_set(rf_path->gpio_no_rx_amp_pwr);
 
 	if (ctrl & SWITCHCTRL_ANT_PWR) {
-		rffc5071_set_gpo(&rffc5072, 0x00); /* turn on antenna power by clearing GPO1 */
+		mixer_set_gpo(&mixer, 0x00); /* turn on antenna power by clearing GPO1 */
 	} else {
-		rffc5071_set_gpo(&rffc5072, 0x01); /* turn off antenna power by setting GPO1 */
+		mixer_set_gpo(&mixer, 0x01); /* turn off antenna power by setting GPO1 */
+	}
+}
+#endif
+
+#ifdef RAD1O
+static void switchctrl_set_rad1o(rf_path_t* const rf_path, uint8_t ctrl) {
+	if (ctrl & SWITCHCTRL_TX) {
+		gpio_set(rf_path->gpio_tx_rx_n);
+		gpio_clear(rf_path->gpio_tx_rx);
+	} else {
+		gpio_clear(rf_path->gpio_tx_rx_n);
+		gpio_set(rf_path->gpio_tx_rx);
+	}
+
+	if (ctrl & SWITCHCTRL_MIX_BYPASS) {
+		gpio_clear(rf_path->gpio_by_mix);
+		gpio_set(rf_path->gpio_by_mix_n);
+		gpio_clear(rf_path->gpio_mixer_en);
+	} else {
+		gpio_set(rf_path->gpio_by_mix);
+		gpio_clear(rf_path->gpio_by_mix_n);
+		gpio_set(rf_path->gpio_mixer_en);
+	}
+
+	if (ctrl & SWITCHCTRL_HP) {
+		gpio_set(rf_path->gpio_low_high_filt);
+		gpio_clear(rf_path->gpio_low_high_filt_n);
+	} else {
+		gpio_clear(rf_path->gpio_low_high_filt);
+		gpio_set(rf_path->gpio_low_high_filt_n);
+	}
+
+	if (ctrl & SWITCHCTRL_AMP_BYPASS) {
+		gpio_clear(rf_path->gpio_by_amp);
+		gpio_set(rf_path->gpio_by_amp_n);
+
+		gpio_clear(rf_path->gpio_tx_amp);
+		gpio_clear(rf_path->gpio_rx_lna);
+
+	} else if (ctrl & SWITCHCTRL_TX) {
+		gpio_set(rf_path->gpio_by_amp);
+		gpio_clear(rf_path->gpio_by_amp_n);
+
+		gpio_set(rf_path->gpio_tx_amp);
+		gpio_clear(rf_path->gpio_rx_lna);
+
+	} else {
+		gpio_set(rf_path->gpio_by_amp);
+		gpio_clear(rf_path->gpio_by_amp_n);
+
+		gpio_clear(rf_path->gpio_tx_amp);
+		gpio_set(rf_path->gpio_rx_lna);
+	}
+
+	/*
+	 * These normally shouldn't be set post-Jawbreaker, but they can be
+	 * used to explicitly turn off power to the amplifiers while AMP_BYPASS
+	 * is unset:
+	 */
+	if (ctrl & SWITCHCTRL_NO_TX_AMP_PWR) {
+		gpio_clear(rf_path->gpio_tx_amp);
+	}
+	if (ctrl & SWITCHCTRL_NO_RX_AMP_PWR) {
+		gpio_clear(rf_path->gpio_rx_lna);
 	}
 }
 #endif
@@ -158,9 +227,11 @@ static void switchctrl_set_hackrf_one(rf_path_t* const rf_path, uint8_t ctrl) {
 static void switchctrl_set(rf_path_t* const rf_path, const uint8_t gpo) {
 #ifdef JAWBREAKER
 	(void) rf_path; /* silence unused param warning */
-	rffc5071_set_gpo(&rffc5072, gpo);
+	mixer_set_gpo(&mixer, gpo);
 #elif HACKRF_ONE
 	switchctrl_set_hackrf_one(rf_path, gpo);
+#elif RAD1O
+	switchctrl_set_rad1o(rf_path, gpo);
 #else
 	(void)gpo;
 #endif
@@ -206,6 +277,41 @@ void rf_path_pin_setup(rf_path_t* const rf_path) {
 	 * power and enable both amp bypass and mixer bypass.
 	 */
 	switchctrl_set(rf_path, SWITCHCTRL_AMP_BYPASS | SWITCHCTRL_MIX_BYPASS);
+#elif RAD1O
+	/* Configure RF switch control signals */
+	scu_pinmux(SCU_BY_AMP,         SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+	scu_pinmux(SCU_BY_AMP_N,       SCU_GPIO_FAST | SCU_CONF_FUNCTION4);
+	scu_pinmux(SCU_TX_RX,          SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+	scu_pinmux(SCU_TX_RX_N,        SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+	scu_pinmux(SCU_BY_MIX,         SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+	scu_pinmux(SCU_BY_MIX_N,       SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+	scu_pinmux(SCU_LOW_HIGH_FILT,  SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+	scu_pinmux(SCU_LOW_HIGH_FILT_N,SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+	scu_pinmux(SCU_TX_AMP,         SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+	scu_pinmux(SCU_RX_LNA,         SCU_GPIO_FAST | SCU_CONF_FUNCTION4);
+	scu_pinmux(SCU_MIXER_EN,       SCU_GPIO_FAST | SCU_CONF_FUNCTION4);
+
+	/* Configure RF power supply (VAA) switch */
+	scu_pinmux(SCU_VAA_ENABLE,  SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+
+	/* Configure RF switch control signals as outputs */
+	gpio_output(rf_path->gpio_tx_rx_n);
+	gpio_output(rf_path->gpio_tx_rx);
+	gpio_output(rf_path->gpio_by_mix);
+	gpio_output(rf_path->gpio_by_mix_n);
+	gpio_output(rf_path->gpio_by_amp);
+	gpio_output(rf_path->gpio_by_amp_n);
+	gpio_output(rf_path->gpio_mixer_en);
+	gpio_output(rf_path->gpio_low_high_filt);
+	gpio_output(rf_path->gpio_low_high_filt_n);
+	gpio_output(rf_path->gpio_tx_amp);
+	gpio_output(rf_path->gpio_rx_lna);
+
+	/*
+	 * Safe (initial) switch settings turn off both amplifiers and antenna port
+	 * power and enable both amp bypass and mixer bypass.
+	 */
+	switchctrl_set(rf_path, SWITCHCTRL_AMP_BYPASS | SWITCHCTRL_MIX_BYPASS);
 #else
 	(void) rf_path; /* silence unused param warning */
 #endif
@@ -220,7 +326,7 @@ void rf_path_init(rf_path_t* const rf_path) {
 	max2837_setup(&max2837);
 	max2837_start(&max2837);
 	
-	rffc5071_setup(&rffc5072);
+	mixer_setup(&mixer);
 	switchctrl_set(rf_path, switchctrl);
 }
 
@@ -234,11 +340,11 @@ void rf_path_set_direction(rf_path_t* const rf_path, const rf_path_direction_t d
 			/* TX amplifier is in path, be sure to enable TX amplifier. */
 			rf_path->switchctrl &= ~SWITCHCTRL_NO_TX_AMP_PWR;
 		}
-		rffc5071_tx(&rffc5072);
+		mixer_tx(&mixer);
 		if( rf_path->switchctrl & SWITCHCTRL_MIX_BYPASS ) {
-			rffc5071_disable(&rffc5072);
+			mixer_disable(&mixer);
 		} else {
-			rffc5071_enable(&rffc5072);
+			mixer_enable(&mixer);
 		}
 		ssp1_set_mode_max5864();
 		max5864_tx(&max5864);
@@ -253,11 +359,11 @@ void rf_path_set_direction(rf_path_t* const rf_path, const rf_path_direction_t d
 			/* RX amplifier is in path, be sure to enable RX amplifier. */
 			rf_path->switchctrl &= ~SWITCHCTRL_NO_RX_AMP_PWR;
 		}
-		rffc5071_rx(&rffc5072);
+		mixer_rx(&mixer);
 		if( rf_path->switchctrl & SWITCHCTRL_MIX_BYPASS ) {
-			rffc5071_disable(&rffc5072);
+			mixer_disable(&mixer);
 		} else {
-			rffc5071_enable(&rffc5072);
+			mixer_enable(&mixer);
 		}
 		ssp1_set_mode_max5864();
 		max5864_rx(&max5864);
@@ -274,7 +380,7 @@ void rf_path_set_direction(rf_path_t* const rf_path, const rf_path_direction_t d
 		rf_path_set_lna(rf_path, 0);
 		/* Set RF path to receive direction when "off" */
 		rf_path->switchctrl &= ~SWITCHCTRL_TX;
-		rffc5071_disable(&rffc5072);
+		mixer_disable(&mixer);
 		ssp1_set_mode_max5864();
 		max5864_standby(&max5864);
 		ssp1_set_mode_max2837();
@@ -284,6 +390,8 @@ void rf_path_set_direction(rf_path_t* const rf_path, const rf_path_direction_t d
 	}
 
 	switchctrl_set(rf_path, rf_path->switchctrl);
+
+	hackrf_ui_setDirection(direction);
 }
 
 void rf_path_set_filter(rf_path_t* const rf_path, const rf_path_filter_t filter) {
@@ -291,18 +399,18 @@ void rf_path_set_filter(rf_path_t* const rf_path, const rf_path_filter_t filter)
 	default:
 	case RF_PATH_FILTER_BYPASS:
 		rf_path->switchctrl |= SWITCHCTRL_MIX_BYPASS;
-		rffc5071_disable(&rffc5072);
+		mixer_disable(&mixer);
 		break;
 		
 	case RF_PATH_FILTER_LOW_PASS:
 		rf_path->switchctrl &= ~(SWITCHCTRL_HP | SWITCHCTRL_MIX_BYPASS);
-		rffc5071_enable(&rffc5072);
+		mixer_enable(&mixer);
 		break;
 		
 	case RF_PATH_FILTER_HIGH_PASS:
 		rf_path->switchctrl &= ~SWITCHCTRL_MIX_BYPASS;
 		rf_path->switchctrl |= SWITCHCTRL_HP;
-		rffc5071_enable(&rffc5072);
+		mixer_enable(&mixer);
 		break;
 	}
 
@@ -326,6 +434,8 @@ void rf_path_set_lna(rf_path_t* const rf_path, const uint_fast8_t enable) {
 	}
 	
 	switchctrl_set(rf_path, rf_path->switchctrl);
+
+	hackrf_ui_setLNAPower(enable);
 }
 
 /* antenna port power control */

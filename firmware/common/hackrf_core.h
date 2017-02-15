@@ -37,7 +37,7 @@ extern "C"
 
 #include "max2837.h"
 #include "max5864.h"
-#include "rffc5071.h"
+#include "mixer.h"
 #include "w25q80bv.h"
 #include "sgpio.h"
 #include "rf_path.h"
@@ -47,6 +47,7 @@ extern "C"
 #define BOARD_ID_JELLYBEAN  0
 #define BOARD_ID_JAWBREAKER 1
 #define BOARD_ID_HACKRF_ONE 2
+#define BOARD_ID_RAD1O      3
 
 #ifdef JELLYBEAN
 #define BOARD_ID BOARD_ID_JELLYBEAN
@@ -60,6 +61,10 @@ extern "C"
 #define BOARD_ID BOARD_ID_HACKRF_ONE
 #endif
 
+#ifdef RAD1O
+#define BOARD_ID BOARD_ID_RAD1O
+#endif
+
 /*
  * SCU PinMux
  */
@@ -68,6 +73,9 @@ extern "C"
 #define SCU_PINMUX_LED1     (P4_1)  /* GPIO2[1] on P4_1 */
 #define SCU_PINMUX_LED2     (P4_2)  /* GPIO2[2] on P4_2 */
 #define SCU_PINMUX_LED3     (P6_12) /* GPIO2[8] on P6_12 */
+#ifdef RAD1O
+#define SCU_PINMUX_LED4     (PB_6) /* GPIO5[26] on PB_6 */
+#endif
 
 #define SCU_PINMUX_EN1V8    (P6_10) /* GPIO3[6] on P6_10 */
 
@@ -92,7 +100,7 @@ extern "C"
 /* CPLD JTAG interface */
 #define SCU_PINMUX_CPLD_TDO (P9_5)  /* GPIO5[18] */
 #define SCU_PINMUX_CPLD_TCK (P6_1)  /* GPIO3[ 0] */
-#ifdef HACKRF_ONE
+#if (defined HACKRF_ONE || defined RAD1O)
 #define SCU_PINMUX_CPLD_TMS (P6_5)  /* GPIO3[ 4] */
 #define SCU_PINMUX_CPLD_TDI (P6_2)  /* GPIO3[ 1] */
 #else
@@ -112,7 +120,7 @@ extern "C"
 #ifdef JELLYBEAN
 #define SCU_PINMUX_SGPIO8   (P1_12)
 #endif
-#if (defined JAWBREAKER || defined HACKRF_ONE)
+#if (defined JAWBREAKER || defined HACKRF_ONE || defined RAD1O)
 #define SCU_PINMUX_SGPIO8   (P9_6)
 #endif
 #define SCU_PINMUX_SGPIO9   (P4_3)
@@ -134,6 +142,12 @@ extern "C"
 #define SCU_XCVR_B6			(P5_5)	/* GPIO2[14] on P5_5 */
 #define SCU_XCVR_B7			(P5_6)	/* GPIO2[15] on P5_6 */
 #endif
+#ifdef RAD1O
+#define SCU_XCVR_RXHP       (P8_1)  /* GPIO[] on P8_1 */
+#define SCU_XCVR_B6         (P8_2)  /* GPIO[] on P8_2 */
+#define SCU_XCVR_B7         (P9_3)  /* GPIO[] on P8_3 */
+#endif
+
 #define SCU_XCVR_ENABLE     (P4_6)  /* GPIO2[6] on P4_6 */
 #define SCU_XCVR_RXENABLE   (P4_5)  /* GPIO2[5] on P4_5 */
 #define SCU_XCVR_TXENABLE   (P4_4)  /* GPIO2[4] on P4_4 */
@@ -155,6 +169,15 @@ extern "C"
 #define SCU_MIXER_SDATA     (P6_4)  /* GPIO3[3] on P6_4 */
 #define SCU_MIXER_RESETX    (P5_5)  /* GPIO2[14] on P5_5 */
 #endif
+#ifdef RAD1O
+#define SCU_VCO_CE          (P5_4)  /* GPIO2[13] on P5_4 */
+#define SCU_VCO_SCLK        (P2_6)  /* GPIO5[6] on P2_6 */
+#define SCU_VCO_SDATA       (P6_4)  /* GPIO3[3] on P6_4 */
+#define SCU_VCO_LE          (P5_5)  /* GPIO2[14] on P5_5 */
+#define SCU_VCO_MUX         (PB_5)  /* GPIO5[25] on PB_5 */
+#define SCU_MIXER_EN        (P6_8)  /* GPIO5[16] on P6_8 */
+#define SCU_SYNT_RFOUT_EN   (P6_9)  /* GPIO3[5] on P6_9 */
+#endif
 
 /* RF LDO control */
 #ifdef JAWBREAKER
@@ -165,6 +188,10 @@ extern "C"
 #ifdef HACKRF_ONE
 #define SCU_NO_VAA_ENABLE   (P5_0)  /* GPIO2[9] on P5_0 */
 #endif
+#ifdef RAD1O
+#define SCU_VAA_ENABLE      (P5_0)  /* GPIO2[9] on P5_0 */
+#endif
+
 
 /* SPI flash */
 #define SCU_SSP0_MISO       (P3_6)
@@ -189,6 +216,18 @@ extern "C"
 #define SCU_AMP_BYPASS      (P2_10) /* GPIO0[14] on P2_10 */
 #define SCU_RX_AMP          (P2_11) /* GPIO1[11] on P2_11 */
 #define SCU_NO_RX_AMP_PWR   (P2_12) /* GPIO1[12] on P2_12 */
+#endif
+#ifdef RAD1O
+#define SCU_BY_AMP          (P1_7)  /* GPIO1[0] on P1_7 */
+#define SCU_BY_AMP_N        (P2_5)  /* GPIO5[5] on P2_5 */
+#define SCU_TX_RX           (P2_10) /* GPIO0[14] on P2_10 */
+#define SCU_TX_RX_N         (P2_11) /* GPIO1[11] on P2_11 */
+#define SCU_BY_MIX          (P2_12) /* GPIO1[12] on P2_12 */
+#define SCU_BY_MIX_N        (P5_1) /* GPIO2[10] on P5_1 */
+#define SCU_LOW_HIGH_FILT   (P5_2) /* GPIO2[11] on P5_2 */
+#define SCU_LOW_HIGH_FILT_N (P5_3) /* GPIO2[12] on P5_3 */
+#define SCU_TX_AMP          (P5_6) /* GPIO2[15] on P5_6 */
+#define SCU_RX_LNA          (P6_7) /* GPIO5[15] on P6_7 */
 #endif
 
 /* TODO add other Pins */
@@ -240,7 +279,7 @@ extern const ssp_config_t ssp_config_max5864;
 
 extern max2837_driver_t max2837;
 extern max5864_driver_t max5864;
-extern rffc5071_driver_t rffc5072;
+extern mixer_driver_t mixer;
 extern w25q80bv_driver_t spi_flash;
 extern sgpio_config_t sgpio_config;
 extern rf_path_t rf_path;
@@ -262,7 +301,7 @@ bool sample_rate_frac_set(uint32_t rate_num, uint32_t rate_denom);
 bool sample_rate_set(const uint32_t sampling_rate_hz);
 bool baseband_filter_bandwidth_set(const uint32_t bandwidth_hz);
 
-#ifdef HACKRF_ONE
+#if (defined HACKRF_ONE || defined RAD1O)
 void enable_rf_power(void);
 void disable_rf_power(void);
 #endif
@@ -271,6 +310,7 @@ typedef enum {
 	LED1 = 0,
 	LED2 = 1,
 	LED3 = 2,
+	LED4 = 3,
 } led_t;
 
 void led_on(const led_t led);
