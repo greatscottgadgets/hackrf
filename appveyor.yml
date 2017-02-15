@@ -12,9 +12,12 @@ install:
   - 7z x -y "C:\pthreads-w32-release.zip" -o"C:\pthreads"
   - appveyor DownloadFile "http://ftp.gnome.org/pub/gnome/binaries/win32/dependencies/pkg-config_0.26-1_win32.zip" -FileName "C:\pkg-config_win32.zip"
   - 7z x -y "C:\pkg-config_win32.zip" -o"C:\pkg-config"
-
+  - appveyor DownloadFile "ftp://ftp.fftw.org/pub/fftw/fftw-3.3.5-dll64.zip" -FileName "C:\fftw-3.3.5.zip"
+  - 7z x -y "C:\fftw-3.3.5.zip" -o"C:\fftw"
 
 build_script:
+  - cd c:\fftw
+  - lib /machine:x64 /def:libfftw3f-3.def
   - mkdir c:\projects\hackrf\host\build
   - cd c:\projects\hackrf\host\build
   - cmake -G "Visual Studio 14 2015 Win64" \
@@ -23,5 +26,7 @@ build_script:
     -DTHREADS_PTHREADS_INCLUDE_DIR=c:\pthreads\Pre-built.2\include \
     -DTHREADS_PTHREADS_WIN32_LIBRARY=c:\pthreads\Pre-built.2\lib\x64\pthreadVC2.lib \
     -DPKG_CONFIG_EXECUTABLE="C:\pkg-config\bin\pkg-config.exe" \
+    -DFFTW_INCLUDES=C:\fftw \
+    -DFFTW_LIBRARIES=C:\fftw\libfftw3f-3.lib \
     ..
-  - msbuild .\ALL_BUILD.vcxproj /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
+  - msbuild HackRF.sln /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"

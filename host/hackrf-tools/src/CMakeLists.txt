@@ -23,7 +23,7 @@
 
 set(INSTALL_DEFAULT_BINDIR "bin" CACHE STRING "Appended to CMAKE_INSTALL_PREFIX")
 
-INCLUDE(FindPkgConfig)
+find_package(FFTW REQUIRED)
 
 SET(TOOLS
 	hackrf_transfer
@@ -39,9 +39,7 @@ if(MSVC)
 	    ../getopt/getopt.c
 	)
 	LIST(APPEND TOOLS_LINK_LIBS ${FFTW_LIBRARIES})
-	include_directories(${FFTW_INCLUDES})
 else()
-    pkg_check_modules(FFTW REQUIRED fftw3f)
     LIST(APPEND TOOLS_LINK_LIBS m fftw3f)
 endif()
 
