@@ -42,7 +42,6 @@ if(MSVC)
 	include_directories(${FFTW_INCLUDES})
 else()
     pkg_check_modules(FFTW REQUIRED fftw3f)
-    LIST(APPEND TOOLS hackrf_sweep)
     LIST(APPEND TOOLS_LINK_LIBS m fftw3f)
 endif()
 
