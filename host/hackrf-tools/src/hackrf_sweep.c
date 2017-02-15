@@ -177,7 +177,7 @@ bool one_shot = false;
 volatile bool sweep_started = false;
 
 int fftSize = 20;
-uint32_t fft_bin_width;
+double fft_bin_width;
 fftwf_complex *fftwIn = NULL;
 fftwf_complex *fftwOut = NULL;
 fftwf_plan fftwPlan = NULL;
@@ -270,7 +270,7 @@ int rx_callback(hackrf_transfer* transfer) {
 					time_str,
 					(uint64_t)(frequency),
 					(uint64_t)(frequency+DEFAULT_SAMPLE_RATE_HZ/4),
-					(float)fft_bin_width,
+					fft_bin_width,
 					fftSize);
 			for(i=1+(fftSize*5)/8; (1+(fftSize*7)/8) > i; i++) {
 				fprintf(fd, ", %.2f", pwr[i]);
@@ -280,7 +280,7 @@ int rx_callback(hackrf_transfer* transfer) {
 					time_str,
 					(uint64_t)(frequency+(DEFAULT_SAMPLE_RATE_HZ/2)),
 					(uint64_t)(frequency+((DEFAULT_SAMPLE_RATE_HZ*3)/4)),
-					(float)fft_bin_width,
+					fft_bin_width,
 					fftSize);
 			for(i=1+fftSize/8; (1+(fftSize*3)/8) > i; i++) {
 				fprintf(fd, ", %.2f", pwr[i]);
@@ -345,6 +345,7 @@ int main(int argc, char** argv) {
 	int step_count;
 	uint32_t freq_min = 0;
 	uint32_t freq_max = 6000;
+	uint32_t requested_fft_bin_width;
 
 
 	while( (opt = getopt(argc, argv, "a:f:p:l:g:d:n:w:1Br:h?")) != EOF ) {
@@ -405,8 +406,8 @@ int main(int argc, char** argv) {
 			break;
 
 		case 'w':
-			result = parse_u32(optarg, &fft_bin_width);
-			fftSize = DEFAULT_SAMPLE_RATE_HZ / fft_bin_width;
+			result = parse_u32(optarg, &requested_fft_bin_width);
+			fftSize = DEFAULT_SAMPLE_RATE_HZ / requested_fft_bin_width;
 			break;
 
 		case '1':
@@ -497,7 +498,7 @@ int main(int argc, char** argv) {
 		fftSize++;
 	}
 
-	fft_bin_width = DEFAULT_SAMPLE_RATE_HZ / fftSize;
+	fft_bin_width = (double)DEFAULT_SAMPLE_RATE_HZ / fftSize;
 	fftwIn = (fftwf_complex*)fftwf_malloc(sizeof(fftwf_complex) * fftSize);
 	fftwOut = (fftwf_complex*)fftwf_malloc(sizeof(fftwf_complex) * fftSize);
 	fftwPlan = fftwf_plan_dft_1d(fftSize, fftwIn, fftwOut, FFTW_FORWARD, FFTW_MEASURE);
