@@ -62,37 +62,22 @@ static struct gpio_t gpio_max2837_select	= GPIO(0, 15);
 static struct gpio_t gpio_max2837_enable	= GPIO(2,  6);
 static struct gpio_t gpio_max2837_rx_enable	= GPIO(2,  5);
 static struct gpio_t gpio_max2837_tx_enable	= GPIO(2,  4);
-#ifdef JELLYBEAN
-static struct gpio_t gpio_max2837_rxhp		= GPIO(2,  0);
-static struct gpio_t gpio_max2837_b1		= GPIO(2,  9);
-static struct gpio_t gpio_max2837_b2		= GPIO(2, 10);
-static struct gpio_t gpio_max2837_b3		= GPIO(2, 11);
-static struct gpio_t gpio_max2837_b4		= GPIO(2, 12);
-static struct gpio_t gpio_max2837_b5		= GPIO(2, 13);
-static struct gpio_t gpio_max2837_b6		= GPIO(2, 14);
-static struct gpio_t gpio_max2837_b7		= GPIO(2, 15);
-#endif
 
 /* MAX5864 SPI chip select (AD_CS) GPIO PinMux */
 static struct gpio_t gpio_max5864_select	= GPIO(2,  7);
 
-#if (defined JAWBREAKER || defined HACKRF_ONE || defined RAD1O)
-/*
-static struct gpio_t gpio_sync_in_a		= GPIO(3,  8);
-static struct gpio_t gpio_sync_in_b		= GPIO(3,  9);
-static struct gpio_t gpio_sync_out_a		= GPIO(3, 10);
-static struct gpio_t gpio_sync_out_b		= GPIO(3, 11);
-*/
+/* RFFC5071 GPIO serial interface PinMux */
+// #ifdef RAD1O
+// static struct gpio_t gpio_rffc5072_select	= GPIO(2, 13);
+// static struct gpio_t gpio_rffc5072_clock	= GPIO(5,  6);
+// static struct gpio_t gpio_rffc5072_data		= GPIO(3,  3);
+// static struct gpio_t gpio_rffc5072_reset	= GPIO(2, 14);
+// #endif
+
 static struct gpio_t gpio_sync_in_a		= GPIO(3,  10);
 static struct gpio_t gpio_sync_in_b		= GPIO(3,  11);
 static struct gpio_t gpio_sync_out_a		= GPIO(3, 8);
 static struct gpio_t gpio_sync_out_b		= GPIO(3, 9);
-#endif
-
-/* RF LDO control */
-// #ifdef JAWBREAKER
-// static struct gpio_t gpio_rf_ldo_enable		= GPIO(2, 9);
-// #endif
 
 /* RF supply (VAA) control */
 #ifdef HACKRF_ONE
@@ -136,19 +121,10 @@ static struct gpio_t gpio_tx_amp			= GPIO(2,  15);
 static struct gpio_t gpio_rx_lna			= GPIO(5,  15);
 #endif
 
-#if 0
-/* GPIO Input */
-static struct gpio_t gpio_boot[] = {
-	GPIO(0,  8),
-	GPIO(0,  9),
-	GPIO(5,  7),
-	GPIO(1, 10),
-};
-#endif
 /* CPLD JTAG interface GPIO pins */
 static struct gpio_t gpio_cpld_tdo			= GPIO(5, 18);
 static struct gpio_t gpio_cpld_tck			= GPIO(3,  0);
-#if defined HACKRF_ONE || defined RAD1O
+#if (defined HACKRF_ONE || defined RAD1O)
 static struct gpio_t gpio_cpld_tms			= GPIO(3,  4);
 static struct gpio_t gpio_cpld_tdi			= GPIO(3,  1);
 #else
@@ -232,16 +208,6 @@ max2837_driver_t max2837 = {
 	.gpio_enable = &gpio_max2837_enable,
 	.gpio_rx_enable = &gpio_max2837_rx_enable,
 	.gpio_tx_enable = &gpio_max2837_tx_enable,
-#ifdef JELLYBEAN
-	.gpio_rxhp = &gpio_max2837_rxhp,
-	.gpio_b1 = &gpio_max2837_b1,
-	.gpio_b2 = &gpio_max2837_b2,
-	.gpio_b3 = &gpio_max2837_b3,
-	.gpio_b4 = &gpio_max2837_b4,
-	.gpio_b5 = &gpio_max2837_b5,
-	.gpio_b6 = &gpio_max2837_b6,
-	.gpio_b7 = &gpio_max2837_b7,
-#endif
 	.target_init = max2837_target_init,
 	.set_mode = max2837_target_set_mode,
 };
@@ -434,54 +400,6 @@ bool sample_rate_frac_set(uint32_t rate_num, uint32_t rate_denom)
 }
 
 bool sample_rate_set(const uint32_t sample_rate_hz) {
-#ifdef JELLYBEAN
-	/* Due to design issues, Jellybean/Lemondrop frequency plan is limited.
-	 * Long version of the story: The MAX2837 reference frequency
-	 * originates from the same PLL as the sample clocks, and in order to
-	 * keep the sample clocks in phase and keep jitter noise down, the MAX2837
-	 * and sample clocks must be integer-related.
-	 */
-	uint32_t r_div_sample = 2;
-	uint32_t r_div_sgpio = 1;
-	
-	switch( sample_rate_hz ) {
-	case 5000000:
-		r_div_sample = 3;	/* 800 MHz / 20 / 8 =  5 MHz */
-		r_div_sgpio = 2;	/* 800 MHz / 20 / 4 = 10 MHz */
-		break;
-		
-	case 10000000:
-		r_div_sample = 2;	/* 800 MHz / 20 / 4 = 10 MHz */
-		r_div_sgpio = 1;	/* 800 MHz / 20 / 2 = 20 MHz */
-		break;
-		
-	case 20000000:
-		r_div_sample = 1;	/* 800 MHz / 20 / 2 = 20 MHz */
-		r_div_sgpio = 0;	/* 800 MHz / 20 / 1 = 40 MHz */
-		break;
-		
-	default:
-		return false;
-	}
-
-	hackrf_ui_setSampleRate(sample_rate_hz);
-
-	/* NOTE: Because MS1, 2, 3 outputs are slaved to PLLA, the p1, p2, p3
-	 * values are irrelevant. */
-	
-	/* MS0/CLK1 is the source for the MAX5864 codec. */
-	si5351c_configure_multisynth(&clock_gen, 1, 4608, 0, 1, r_div_sample);
-
-	/* MS0/CLK2 is the source for the CPLD codec clock (same as CLK1). */
-	si5351c_configure_multisynth(&clock_gen, 2, 4608, 0, 1, r_div_sample);
-
-	/* MS0/CLK3 is the source for the SGPIO clock. */
-	si5351c_configure_multisynth(&clock_gen, 3, 4608, 0, 1, r_div_sgpio);
-	
-	return true;
-#endif
-
-#if (defined JAWBREAKER || defined HACKRF_ONE || defined RAD1O)
 	uint32_t p1 = 4608;
 	uint32_t p2 = 0;
 	uint32_t p3 = 0;
@@ -542,7 +460,6 @@ bool sample_rate_set(const uint32_t sample_rate_hz) {
 	si5351c_configure_multisynth(&clock_gen, 2, p1, 0, 1, 0);//p1 doesn't matter
 
 	return true;
-#endif
 }
 
 bool baseband_filter_bandwidth_set(const uint32_t bandwidth_hz) {
@@ -573,29 +490,6 @@ void cpu_clock_init(void)
 	si5351c_enable_xo_and_ms_fanout(&clock_gen);
 	si5351c_configure_pll_sources(&clock_gen);
 	si5351c_configure_pll_multisynth(&clock_gen);
-
-#ifdef JELLYBEAN
-	/*
-	 * Jellybean/Lemondrop clocks:
-	 *   CLK0 -> MAX2837
-	 *   CLK1 -> MAX5864/CPLD.GCLK0
-	 *   CLK2 -> CPLD.GCLK1
-	 *   CLK3 -> CPLD.GCLK2
-	 *   CLK4 -> LPC4330
-	 *   CLK5 -> RFFC5072
-	 *   CLK6 -> extra
-	 *   CLK7 -> extra
-	 */
-
-	/* MS0/CLK0 is the source for the MAX2837 clock input. */
-	si5351c_configure_multisynth(&clock_gen, 0, 2048, 0, 1, 0); /* 40MHz */
-
-	/* MS4/CLK4 is the source for the LPC43xx microcontroller. */
-	si5351c_configure_multisynth(&clock_gen, 4, 8021, 0, 3, 0); /* 12MHz */
-
-	/* MS5/CLK5 is the source for the RFFC5071 mixer. */
-	si5351c_configure_multisynth(&clock_gen, 5, 1536, 0, 1, 0); /* 50MHz */
-#endif
 
 #if (defined JAWBREAKER || defined HACKRF_ONE)
 	/*
@@ -673,11 +567,6 @@ void cpu_clock_init(void)
 	 */
 
 	//FIXME a lot of the details here should be in a CGU driver
-
-#ifdef JELLYBEAN
-	/* configure xtal oscillator for external clock input signal */
-	CGU_XTAL_OSC_CTRL |= CGU_XTAL_OSC_CTRL_BYPASS;
-#endif
 
 	/* set xtal oscillator to low frequency mode */
 	CGU_XTAL_OSC_CTRL &= ~CGU_XTAL_OSC_CTRL_HF_MASK;
@@ -936,7 +825,7 @@ void pin_setup(void) {
 	scu_pinmux(SCU_PINMUX_EN1V8, SCU_GPIO_NOPULL);
 
 	/* Configure USB indicators */
-#if (defined JELLYBEAN || defined JAWBREAKER)
+#ifdef JAWBREAKER
 	scu_pinmux(SCU_PINMUX_USB_LED0, SCU_CONF_FUNCTION3);
 	scu_pinmux(SCU_PINMUX_USB_LED1, SCU_CONF_FUNCTION3);
 #endif

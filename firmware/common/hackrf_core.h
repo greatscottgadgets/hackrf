@@ -44,14 +44,9 @@ extern "C"
 #include "cpld_jtag.h"
 
 /* hardware identification number */
-#define BOARD_ID_JELLYBEAN  0
 #define BOARD_ID_JAWBREAKER 1
 #define BOARD_ID_HACKRF_ONE 2
 #define BOARD_ID_RAD1O      3
-
-#ifdef JELLYBEAN
-#define BOARD_ID BOARD_ID_JELLYBEAN
-#endif
 
 #ifdef JAWBREAKER
 #define BOARD_ID BOARD_ID_JAWBREAKER
@@ -86,7 +81,7 @@ extern "C"
 #define SCU_PINMUX_BOOT3    (P2_9)  /* GPIO1[10] on P2_9 */
 
 /* USB peripheral */
-#if (defined JELLYBEAN || defined JAWBREAKER)
+#ifdef JAWBREAKER
 #define SCU_PINMUX_USB_LED0 (P6_8)
 #define SCU_PINMUX_USB_LED1 (P6_7)
 #endif
@@ -117,9 +112,6 @@ extern "C"
 #define SCU_PINMUX_SGPIO5   (P6_6)
 #define SCU_PINMUX_SGPIO6   (P2_2)
 #define SCU_PINMUX_SGPIO7   (P1_0)
-#ifdef JELLYBEAN
-#define SCU_PINMUX_SGPIO8   (P1_12)
-#endif
 #if (defined JAWBREAKER || defined HACKRF_ONE || defined RAD1O)
 #define SCU_PINMUX_SGPIO8   (P9_6)
 #endif
@@ -132,16 +124,6 @@ extern "C"
 #define SCU_PINMUX_SGPIO15  (P4_10)
 
 /* MAX2837 GPIO (XCVR_CTL) PinMux */
-#ifdef JELLYBEAN
-#define SCU_XCVR_RXHP		(P4_0)	/* GPIO2[0] on P4_0 */
-#define SCU_XCVR_B1			(P5_0)	/* GPIO2[9] on P5_0 */
-#define SCU_XCVR_B2			(P5_1)	/* GPIO2[10] on P5_1 */
-#define SCU_XCVR_B3			(P5_2)	/* GPIO2[11] on P5_2 */
-#define SCU_XCVR_B4			(P5_3)	/* GPIO2[12] on P5_3 */
-#define SCU_XCVR_B5			(P5_4)	/* GPIO2[13] on P5_4 */
-#define SCU_XCVR_B6			(P5_5)	/* GPIO2[14] on P5_5 */
-#define SCU_XCVR_B7			(P5_6)	/* GPIO2[15] on P5_6 */
-#endif
 #ifdef RAD1O
 #define SCU_XCVR_RXHP       (P8_1)  /* GPIO[] on P8_1 */
 #define SCU_XCVR_B6         (P8_2)  /* GPIO[] on P8_2 */
@@ -157,12 +139,6 @@ extern "C"
 #define SCU_AD_CS           (P5_7)  /* GPIO2[7] on P5_7 */
 
 /* RFFC5071 GPIO serial interface PinMux */
-#ifdef JELLYBEAN
-#define SCU_MIXER_ENX       (P7_0)  /* GPIO3[8] on P7_0 */
-#define SCU_MIXER_SCLK      (P7_1)  /* GPIO3[9] on P7_1 */
-#define SCU_MIXER_SDATA     (P7_2)  /* GPIO3[10] on P7_2 */
-#define SCU_MIXER_RESETX    (P7_3)  /* GPIO3[11] on P7_3 */
-#endif
 #if (defined JAWBREAKER || defined HACKRF_ONE)
 #define SCU_MIXER_ENX       (P5_4)  /* GPIO2[13] on P5_4 */
 #define SCU_MIXER_SCLK      (P2_6)  /* GPIO5[6] on P2_6 */
