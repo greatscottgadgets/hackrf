@@ -20,6 +20,7 @@
  * the Free Software Foundation, Inc., 51 Franklin Street,
  * Boston, MA 02110-1301, USA.
  */
+#define _USE_MATH_DEFINES
 
 #include <hackrf.h>
 
@@ -47,7 +48,6 @@ typedef int bool;
 
 #ifdef _WIN32
 #include <windows.h>
-#define M_PI   3.14159265358979323846264338327950288
 #ifdef _MSC_VER
 
 #ifdef _WIN64
@@ -334,7 +334,11 @@ void sigint_callback_handler(int signum)  {
 
 int main(int argc, char** argv) {
 	int opt, i, result = 0;
+#ifdef _WIN32
+	const char* path = "nul";
+#else
 	const char* path = "/dev/null";
+#endif
 	const char* serial_number = NULL;
 	int exit_code = EXIT_SUCCESS;
 	struct timeval t_end;
@@ -517,9 +521,6 @@ int main(int argc, char** argv) {
 	}
 	
 	fd = fopen(path, "wb");
-	if (fd == NULL) {
-		fd = fopen("nul", "wb");
-	}
 	if( fd == NULL ) {
 		fprintf(stderr, "Failed to open file: %s\n", path);
 		return EXIT_FAILURE;
