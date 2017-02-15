@@ -3,8 +3,9 @@ clone_depth: 1
 
 configuration:
   - Release
-  - Debug
 
+init:
+  - C:\"Program Files (x86)"\"Microsoft Visual Studio 14.0"\VC\vcvarsall.bat %PLATFORM%
 install:
   - appveyor DownloadFile "https://downloads.sourceforge.net/project/libusb/libusb-1.0/libusb-1.0.21/libusb-1.0.21.7z?r=https%3A%2F%2Fsourceforge.net%2Fprojects%2Flibusb%2Ffiles%2Flibusb-1.0%2Flibusb-1.0.21%2F&ts=1485478643&use_mirror=cytranet" -FileName "C:\libusb.7z"
   - 7z x -y "C:\libusb.7z" -o"C:\libusb"
