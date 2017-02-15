@@ -266,26 +266,26 @@ int rx_callback(hackrf_transfer* transfer) {
 			time_now = time(NULL);
 			fft_time = localtime(&time_now);
 			strftime(time_str, 50, "%Y-%m-%d, %H:%M:%S", fft_time);
-			printf("%s, %" PRIu64 ", %" PRIu64 ", %.2f, %u",
+			fprintf(fd, "%s, %" PRIu64 ", %" PRIu64 ", %.2f, %u",
 					time_str,
 					(uint64_t)(frequency),
 					(uint64_t)(frequency+DEFAULT_SAMPLE_RATE_HZ/4),
 					(float)fft_bin_width,
 					fftSize);
 			for(i=1+(fftSize*5)/8; (1+(fftSize*7)/8) > i; i++) {
-				printf(", %.2f", pwr[i]);
+				fprintf(fd, ", %.2f", pwr[i]);
 			}
-			printf("\n");
-			printf("%s, %" PRIu64 ", %" PRIu64 ", %.2f, %u",
+			fprintf(fd, "\n");
+			fprintf(fd, "%s, %" PRIu64 ", %" PRIu64 ", %.2f, %u",
 					time_str,
 					(uint64_t)(frequency+(DEFAULT_SAMPLE_RATE_HZ/2)),
 					(uint64_t)(frequency+((DEFAULT_SAMPLE_RATE_HZ*3)/4)),
 					(float)fft_bin_width,
 					fftSize);
 			for(i=1+fftSize/8; (1+(fftSize*3)/8) > i; i++) {
-				printf(", %.2f", pwr[i]);
+				fprintf(fd, ", %.2f", pwr[i]);
 			}
-			printf("\n");
+			fprintf(fd, "\n");
 		}
 		if(one_shot && ((uint64_t)(frequency+((DEFAULT_SAMPLE_RATE_HZ*3)/4))
 				>= (uint64_t)(FREQ_ONE_MHZ*frequencies[num_ranges*2-1]))) {
@@ -308,6 +308,7 @@ static void usage() {
 	fprintf(stderr, "\t[-w bin_width] # FFT bin width (frequency resolution) in Hz\n");
 	fprintf(stderr, "\t[-1] # one shot mode\n");
 	fprintf(stderr, "\t[-B] # binary output\n");
+	fprintf(stderr, "\t-r filename # output file");
 	fprintf(stderr, "\n");
 	fprintf(stderr, "Output fields:\n");
 	fprintf(stderr, "\tdate, time, hz_low, hz_high, hz_bin_width, num_samples, dB, dB, . . .\n");
@@ -334,11 +335,7 @@ void sigint_callback_handler(int signum)  {
 
 int main(int argc, char** argv) {
 	int opt, i, result = 0;
-#ifdef _WIN32
-	const char* path = "nul";
-#else
-	const char* path = "/dev/null";
-#endif
+	const char* path = NULL;
 	const char* serial_number = NULL;
 	int exit_code = EXIT_SUCCESS;
 	struct timeval t_end;
@@ -350,7 +347,7 @@ int main(int argc, char** argv) {
 	uint32_t freq_max = 6000;
 
 
-	while( (opt = getopt(argc, argv, "a:f:p:l:g:d:n:w:1Bh?")) != EOF ) {
+	while( (opt = getopt(argc, argv, "a:f:p:l:g:d:n:w:1Br:h?")) != EOF ) {
 		result = HACKRF_SUCCESS;
 		switch( opt ) 
 		{
@@ -418,6 +415,10 @@ int main(int argc, char** argv) {
 
 		case 'B':
 			binary_output = true;
+			break;
+
+		case 'r':
+			path = optarg;
 			break;
 
 		case 'h':
@@ -519,9 +520,14 @@ int main(int argc, char** argv) {
 		usage();
 		return EXIT_FAILURE;
 	}
-	
-	fd = fopen(path, "wb");
-	if( fd == NULL ) {
+
+	if((NULL == path) || (strcmp(path, "-") == 0)) {
+		fd = stdout;
+	} else {
+		fd = fopen(path, "wb");
+	}
+
+	if(NULL == fd) {
 		fprintf(stderr, "Failed to open file: %s\n", path);
 		return EXIT_FAILURE;
 	}
@@ -532,7 +538,7 @@ int main(int argc, char** argv) {
 		usage();
 		return EXIT_FAILURE;
 	}
-	
+
 #ifdef _MSC_VER
 	SetConsoleCtrlHandler( (PHANDLER_ROUTINE) sighandler, TRUE );
 #else
