@@ -31,15 +31,17 @@ SET(TOOLS
 	hackrf_cpldjtag
 	hackrf_info
 	hackrf_debug
+	hackrf_sweep
 )
 
 if(MSVC)
 	add_library(libgetopt_static STATIC
 	    ../getopt/getopt.c
 	)
+	LIST(APPEND TOOLS_LINK_LIBS ${FFTW_LIBRARIES})
+	include_directories(${FFTW_INCLUDES})
 else()
     pkg_check_modules(FFTW REQUIRED fftw3f)
-    LIST(APPEND TOOLS hackrf_sweep)
     LIST(APPEND TOOLS_LINK_LIBS m fftw3f)
 endif()
 

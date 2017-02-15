@@ -12,7 +12,15 @@ endif (FFTW_INCLUDES)
 
 find_path (FFTW_INCLUDES fftw3.h)
 
+IF (WIN32)
+include_directories(${FFTW_INCLUDES})
+find_library (FFTW_LIBRARIES NAMES ${FFTW_LIBRARIES})
+ELSE(WIN32)
 find_library (FFTW_LIBRARIES NAMES fftw3)
+ENDIF(WIN32)
+
+
+
 
 # handle the QUIETLY and REQUIRED arguments and set FFTW_FOUND to TRUE if
 # all listed variables are TRUE
