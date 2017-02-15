@@ -67,28 +67,17 @@ static struct gpio_t gpio_max2837_tx_enable	= GPIO(2,  4);
 static struct gpio_t gpio_max5864_select	= GPIO(2,  7);
 
 /* RFFC5071 GPIO serial interface PinMux */
-#if (defined JAWBREAKER || defined HACKRF_ONE || defined RAD1O)
-static struct gpio_t gpio_rffc5072_select	= GPIO(2, 13);
-static struct gpio_t gpio_rffc5072_clock	= GPIO(5,  6);
-static struct gpio_t gpio_rffc5072_data		= GPIO(3,  3);
-static struct gpio_t gpio_rffc5072_reset	= GPIO(2, 14);
+// #ifdef RAD1O
+// static struct gpio_t gpio_rffc5072_select	= GPIO(2, 13);
+// static struct gpio_t gpio_rffc5072_clock	= GPIO(5,  6);
+// static struct gpio_t gpio_rffc5072_data		= GPIO(3,  3);
+// static struct gpio_t gpio_rffc5072_reset	= GPIO(2, 14);
+// #endif
 
-/*
-static struct gpio_t gpio_sync_in_a		= GPIO(3,  8);
-static struct gpio_t gpio_sync_in_b		= GPIO(3,  9);
-static struct gpio_t gpio_sync_out_a		= GPIO(3, 10);
-static struct gpio_t gpio_sync_out_b		= GPIO(3, 11);
-*/
 static struct gpio_t gpio_sync_in_a		= GPIO(3,  10);
 static struct gpio_t gpio_sync_in_b		= GPIO(3,  11);
 static struct gpio_t gpio_sync_out_a		= GPIO(3, 8);
 static struct gpio_t gpio_sync_out_b		= GPIO(3, 9);
-#endif
-
-/* RF LDO control */
-// #ifdef JAWBREAKER
-// static struct gpio_t gpio_rf_ldo_enable		= GPIO(2, 9);
-// #endif
 
 /* RF supply (VAA) control */
 #ifdef HACKRF_ONE
@@ -132,19 +121,10 @@ static struct gpio_t gpio_tx_amp			= GPIO(2,  15);
 static struct gpio_t gpio_rx_lna			= GPIO(5,  15);
 #endif
 
-#if 0
-/* GPIO Input */
-static struct gpio_t gpio_boot[] = {
-	GPIO(0,  8),
-	GPIO(0,  9),
-	GPIO(5,  7),
-	GPIO(1, 10),
-};
-#endif
 /* CPLD JTAG interface GPIO pins */
 static struct gpio_t gpio_cpld_tdo			= GPIO(5, 18);
 static struct gpio_t gpio_cpld_tck			= GPIO(3,  0);
-#if defined HACKRF_ONE || defined RAD1O
+#if (defined HACKRF_ONE || defined RAD1O)
 static struct gpio_t gpio_cpld_tms			= GPIO(3,  4);
 static struct gpio_t gpio_cpld_tdi			= GPIO(3,  1);
 #else
@@ -420,7 +400,6 @@ bool sample_rate_frac_set(uint32_t rate_num, uint32_t rate_denom)
 }
 
 bool sample_rate_set(const uint32_t sample_rate_hz) {
-#if (defined JAWBREAKER || defined HACKRF_ONE || defined RAD1O)
 	uint32_t p1 = 4608;
 	uint32_t p2 = 0;
 	uint32_t p3 = 0;
@@ -481,7 +460,6 @@ bool sample_rate_set(const uint32_t sample_rate_hz) {
 	si5351c_configure_multisynth(&clock_gen, 2, p1, 0, 1, 0);//p1 doesn't matter
 
 	return true;
-#endif
 }
 
 bool baseband_filter_bandwidth_set(const uint32_t bandwidth_hz) {
