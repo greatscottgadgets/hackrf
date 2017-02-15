@@ -34,16 +34,6 @@ void max2837_target_init(max2837_driver_t* const drv) {
 	scu_pinmux(SCU_XCVR_CS, SCU_GPIO_FAST);
 
 	/* Configure XCVR_CTL GPIO pins. */
-#ifdef JELLYBEAN
-	scu_pinmux(SCU_XCVR_RXHP, SCU_GPIO_FAST);
-	scu_pinmux(SCU_XCVR_B1, SCU_GPIO_FAST);
-	scu_pinmux(SCU_XCVR_B2, SCU_GPIO_FAST);
-	scu_pinmux(SCU_XCVR_B3, SCU_GPIO_FAST);
-	scu_pinmux(SCU_XCVR_B4, SCU_GPIO_FAST);
-	scu_pinmux(SCU_XCVR_B5, SCU_GPIO_FAST);
-	scu_pinmux(SCU_XCVR_B6, SCU_GPIO_FAST);
-	scu_pinmux(SCU_XCVR_B7, SCU_GPIO_FAST);
-#endif
 	scu_pinmux(SCU_XCVR_ENABLE, SCU_GPIO_FAST);
 	scu_pinmux(SCU_XCVR_RXENABLE, SCU_GPIO_FAST);
 	scu_pinmux(SCU_XCVR_TXENABLE, SCU_GPIO_FAST);
@@ -52,27 +42,6 @@ void max2837_target_init(max2837_driver_t* const drv) {
 	gpio_output(drv->gpio_enable);
 	gpio_output(drv->gpio_rx_enable);
 	gpio_output(drv->gpio_tx_enable);
-#ifdef JELLYBEAN
-	gpio_output(drv->gpio_rxhp);
-	gpio_output(drv->gpio_b1);
-	gpio_output(drv->gpio_b2);
-	gpio_output(drv->gpio_b3);
-	gpio_output(drv->gpio_b4);
-	gpio_output(drv->gpio_b5);
-	gpio_output(drv->gpio_b6);
-	gpio_output(drv->gpio_b7);
-#endif
-
-#ifdef JELLYBEAN
-	gpio_set(drv->gpio_rxhp);
-	gpio_set(drv->gpio_b1);
-	gpio_set(drv->gpio_b2);
-	gpio_set(drv->gpio_b3);
-	gpio_set(drv->gpio_b4);
-	gpio_set(drv->gpio_b5);
-	gpio_set(drv->gpio_b6);
-	gpio_set(drv->gpio_b7);
-#endif
 }
 
 void max2837_target_set_mode(max2837_driver_t* const drv, const max2837_mode_t new_mode) {

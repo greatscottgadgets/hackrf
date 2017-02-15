@@ -80,10 +80,7 @@ typedef enum {
 	HACKRF_VENDOR_REQUEST_RESET = 30,
 } hackrf_vendor_request;
 
-typedef enum {
-	USB_CONFIG_STANDARD = 0x1,
-	USB_CONFIG_CPLD_UPDATE  = 0x2,
-} hackrf_usb_configurations;
+#define USB_CONFIG_STANDARD 0x1
 
 typedef enum {
 	HACKRF_TRANSCEIVER_MODE_OFF = 0,
@@ -385,9 +382,9 @@ hackrf_device_list_t* ADDCALL hackrf_device_list()
 {
 	ssize_t i;
 	libusb_device_handle* usb_device = NULL;
-	uint_fast8_t serial_descriptor_index;
+	uint8_t serial_descriptor_index;
 	char serial_number[64];
-	int serial_number_length;
+	uint8_t idx, serial_number_length;
 
 	hackrf_device_list_t* list = calloc(1, sizeof(*list));
 	if ( list == NULL )
@@ -412,7 +409,7 @@ hackrf_device_list_t* ADDCALL hackrf_device_list()
 			if((device_descriptor.idProduct == hackrf_one_usb_pid) ||
 			   (device_descriptor.idProduct == hackrf_jawbreaker_usb_pid) ||
 			   (device_descriptor.idProduct == rad1o_usb_pid)) {
-				int idx = list->devicecount++;
+				idx = list->devicecount++;
 				list->usb_board_ids[idx] = device_descriptor.idProduct;
 				list->usb_device_index[idx] = i;
 				
