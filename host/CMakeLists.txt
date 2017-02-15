@@ -1,7 +1,7 @@
 #top dir cmake project for libhackrf + tools
 
 cmake_minimum_required(VERSION 2.8)
-project (hackrf_all)
+project (HackRF)
 
 add_subdirectory(libhackrf)
 add_subdirectory(hackrf-tools)

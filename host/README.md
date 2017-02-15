@@ -33,8 +33,9 @@ rm -rf *
 ##How to build host software on Windows:
 ###Prerequisites for cygwin, mingw, or Visual Studio:
 
-* cmake-2.8.12.1 or more see http://www.cmake.org/cmake/resources/software.html
-* libusbx-1.0.18 or more see http://sourceforge.net/projects/libusbx/files/latest/download?source=files
+* cmake-2.8.12.1 or later from http://www.cmake.org/cmake/resources/software.html
+* libusbx-1.0.18 or later from http://sourceforge.net/projects/libusbx/files/latest/download?source=files
+* fftw-3.3.5 or later from http://www.fftw.org/install/windows.html
 * Install Windows driver for HackRF hardware or use Zadig see http://sourceforge.net/projects/libwdi/files/zadig
   - If you want to use Zadig  select HackRF USB device and just install/replace it with WinUSB driver.
 
@@ -61,22 +62,22 @@ make install
 ```
 
 ###For Visual Studio 2015 x64
+Create library definition for MSVC to link to
+`C:\fftw-3.3.5-dll64> lib /machine:x64 /def:libfftw3f-3.def`
+
 ```
 c:\hackrf\host\build> cmake ../ -G "Visual Studio 14 2015 Win64" \
 -DLIBUSB_INCLUDE_DIR=c:\libusb-1.0.21\libusb \
--DLIBUSB_LIBRARIES=c:\libusb-1.0.21\x64\Release\lib\libusb-1.0.lib \
+-DLIBUSB_LIBRARIES=c:\libusb-1.0.21\MS64\dll\lib\libusb-1.0.lib \
 -DTHREADS_PTHREADS_INCLUDE_DIR=c:\pthreads-w32-2-9-1-release\Pre-built.2\include \
 -DTHREADS_PTHREADS_WIN32_LIBRARY=c:\pthreads-w32-2-9-1-release\Pre-built.2\lib\x64\pthreadVC2.lib \
--DFFTW_INCLUDES=C:\hackrf-2017.02.1\host\hackrf-tools\fftw-3.3.5-dll64 \
--DFFTW_LIBRARIES=C:\hackrf-2017.02.1\host\hackrf-tools\fftw-3.3.5-dll64\libfftw3f-3.lib
+-DFFTW_INCLUDES=C:\fftw-3.3.5-dll64 \
+-DFFTW_LIBRARIES=C:\fftw-3.3.5-dll64\libfftw3f-3.lib
 ```
-unpack precompiled fftw-3.3.5-dll64.zip from http://www.fftw.org/install/windows.html to C:\hackrf-2017.02.1\host\hackrf-tools\fftw-3.3.5-dll64
-Create library from VS command shell
-C:\hackrf-2017.02.1\host\hackrf-tools\fftw-3.3.5-dll6> lib /machine:x64 /def:libfftw3f-3.def
 
-Cmake will produce a solution file named `hackrf_all.sln` and a series of
-project files which can be used with msbuild as follows:
-`c:\hackrf\host\build> msbuild ALL_BUILD.vcxproj`
+Cmake will produce a solution file named `HackRF.sln` and a series of
+project files which can be built with msbuild as follows:
+`c:\hackrf\host\build> msbuild HackRF.sln`
 
 ##How to build host the software on FreeBSD
 You can use the binary package:

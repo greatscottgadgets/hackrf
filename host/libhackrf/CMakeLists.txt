@@ -156,7 +156,7 @@ endif(SYSTEM_IS_LINUX)
 ########################################################################
 # Create uninstall target
 ########################################################################
-if(NOT hackrf_all_SOURCE_DIR)
+if(NOT HackRF_SOURCE_DIR)
 configure_file(
     ${PROJECT_SOURCE_DIR}/../cmake/cmake_uninstall.cmake.in
     ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake
