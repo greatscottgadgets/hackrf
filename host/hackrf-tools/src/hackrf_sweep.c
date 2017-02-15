@@ -20,7 +20,6 @@
  * the Free Software Foundation, Inc., 51 Franklin Street,
  * Boston, MA 02110-1301, USA.
  */
-#define _USE_MATH_DEFINES
 
 #include <hackrf.h>
 
@@ -35,7 +34,6 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <fftw3.h>
-#include <math.h>
 #include <inttypes.h>
 
 #define _FILE_OFFSET_BITS 64
@@ -47,6 +45,7 @@ typedef int bool;
 #endif
 
 #ifdef _WIN32
+#define _USE_MATH_DEFINES
 #include <windows.h>
 #ifdef _MSC_VER
 
@@ -84,6 +83,7 @@ int gettimeofday(struct timeval *tv, void* ignored) {
 #endif
 
 #include <signal.h>
+#include <math.h>
 
 #define FD_BUFFER_SIZE (8*1024)
 
