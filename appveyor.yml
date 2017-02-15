@@ -12,7 +12,7 @@ install:
   - 7z x -y "C:\pthreads-w32-release.zip" -o"C:\pthreads"
   - appveyor DownloadFile "http://ftp.gnome.org/pub/gnome/binaries/win32/dependencies/pkg-config_0.26-1_win32.zip" -FileName "C:\pkg-config_win32.zip"
   - 7z x -y "C:\pkg-config_win32.zip" -o"C:\pkg-config"
-  - appveyor DownloadFile "ftp://ftp.fftw.org/pub/fftw/fftw-3.3.5-dll64.zip" -FileName "C:\fftw-3.3.5.zip"
+  - Invoke-WebRequest "ftp://ftp.fftw.org/pub/fftw/fftw-3.3.5-dll64.zip" -OutFile "C:\fftw-3.3.5.zip"
   - 7z x -y "C:\fftw-3.3.5.zip" -o"C:\fftw"
 
 build_script:
