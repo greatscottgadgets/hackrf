@@ -14,10 +14,10 @@ install:
   - 7z x -y "C:\pkg-config_win32.zip" -o"C:\pkg-config"
   - curl -fsS -o "C:\fftw-3.3.5.zip" "ftp://ftp.fftw.org/pub/fftw/fftw-3.3.5-dll64.zip"
   - 7z x -y "C:\fftw-3.3.5.zip" -o"C:\fftw"
-
-build_script:
   - cd c:\fftw
   - ps: lib /machine:x64 /def:libfftw3f-3.def
+
+build_script:
   - mkdir c:\projects\hackrf\host\build
   - cd c:\projects\hackrf\host\build
   - cmake -G "Visual Studio 14 2015 Win64" \
