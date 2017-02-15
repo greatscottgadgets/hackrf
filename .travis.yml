@@ -37,6 +37,7 @@ script:
   - cd ../..
   - mkdir firmware/build-hackrf-one
   - mkdir firmware/build-jawbreaker
+  - mkdir firmware/build-rad1o
   - cd firmware/libopencm3
   - make
   - cd ../build-hackrf-one
@@ -44,6 +45,9 @@ script:
   - make
   - cd ../build-jawbreaker
   - cmake -DBOARD=JAWBREAKER ..
+  - make
+  - cd ../build-rad1o
+  - cmake -DBOARD=RAD1O ..
   - make
 
 addons:

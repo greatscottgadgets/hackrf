@@ -91,7 +91,7 @@ extern void max2837_stop(max2837_driver_t* const drv);
 /* Set frequency in Hz. Frequency setting is a multi-step function
  * where order of register writes matters. */
 extern void max2837_set_frequency(max2837_driver_t* const drv, uint32_t freq);
-bool max2837_set_lpf_bandwidth(max2837_driver_t* const drv, const uint32_t bandwidth_hz);
+uint32_t max2837_set_lpf_bandwidth(max2837_driver_t* const drv, const uint32_t bandwidth_hz);
 bool max2837_set_lna_gain(max2837_driver_t* const drv, const uint32_t gain_db);
 bool max2837_set_vga_gain(max2837_driver_t* const drv, const uint32_t gain_db);
 bool max2837_set_txvga_gain(max2837_driver_t* const drv, const uint32_t gain_db);

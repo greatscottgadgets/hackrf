@@ -279,7 +279,7 @@ static const max2837_ft_t max2837_ft[] = {
 	{        0, 0 },
 };
 
-bool max2837_set_lpf_bandwidth(max2837_driver_t* const drv, const uint32_t bandwidth_hz) {
+uint32_t max2837_set_lpf_bandwidth(max2837_driver_t* const drv, const uint32_t bandwidth_hz) {
 	const max2837_ft_t* p = max2837_ft;
 	while( p->bandwidth_hz != 0 ) {
 		if( p->bandwidth_hz >= bandwidth_hz ) {
@@ -291,10 +291,9 @@ bool max2837_set_lpf_bandwidth(max2837_driver_t* const drv, const uint32_t bandw
 	if( p->bandwidth_hz != 0 ) {
 		set_MAX2837_FT(drv, p->ft);
 		max2837_regs_commit(drv);
-		return true;
-	} else {
-		return false;
 	}
+
+	return p->bandwidth_hz;
 }
 
 bool max2837_set_lna_gain(max2837_driver_t* const drv, const uint32_t gain_db) {

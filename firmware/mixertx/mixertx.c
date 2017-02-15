@@ -36,7 +36,7 @@ int main(void)
 
 	ssp1_set_mode_max2837();
 	max2837_setup(&max2837);
-	rffc5071_setup(&rffc5072);
+	mixer_setup(&mixer);
 	led_on(LED2);
 
 	max2837_set_frequency(&max2837, freq);

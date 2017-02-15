@@ -30,6 +30,8 @@
 #define USB_PRODUCT_ID			(0x6089)
 #elif JAWBREAKER
 #define USB_PRODUCT_ID			(0x604B)
+#elif RAD1O
+#define USB_PRODUCT_ID			(0xCC15)
 #else
 #define USB_PRODUCT_ID			(0xFFFF)
 #endif

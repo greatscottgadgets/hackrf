@@ -107,6 +107,7 @@ usb_request_status_t usb_vendor_request_read_si5351c(
 	}
 }
 
+#ifndef RAD1O
 usb_request_status_t usb_vendor_request_write_rffc5071(
 	usb_endpoint_t* const endpoint,
 	const usb_transfer_stage_t stage
@@ -115,7 +116,7 @@ usb_request_status_t usb_vendor_request_write_rffc5071(
 	{
 		if( endpoint->setup.index < RFFC5071_NUM_REGS ) 
 		{
-			rffc5071_reg_write(&rffc5072, endpoint->setup.index, endpoint->setup.value);
+			rffc5071_reg_write(&mixer, endpoint->setup.index, endpoint->setup.value);
 			usb_transfer_schedule_ack(endpoint->in);
 			return USB_REQUEST_STATUS_OK;
 		}
@@ -134,7 +135,7 @@ usb_request_status_t usb_vendor_request_read_rffc5071(
 	{
 		if( endpoint->setup.index < RFFC5071_NUM_REGS ) 
 		{
-			value = rffc5071_reg_read(&rffc5072, endpoint->setup.index);
+			value = rffc5071_reg_read(&mixer, endpoint->setup.index);
 			endpoint->buffer[0] = value & 0xff;
 			endpoint->buffer[1] = value >> 8;
 			usb_transfer_schedule_block(endpoint->in, &endpoint->buffer, 2,
@@ -147,3 +148,4 @@ usb_request_status_t usb_vendor_request_read_rffc5071(
 		return USB_REQUEST_STATUS_OK;
 	}
 }
+#endif
