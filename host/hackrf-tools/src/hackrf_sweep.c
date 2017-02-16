@@ -484,9 +484,9 @@ int main(int argc, char** argv) {
 		return EXIT_FAILURE;
 	}
 
-	if(16368 < fftSize) {
+	if(8184 < fftSize) {
 		fprintf(stderr,
-				"argument error: FFT bin width (-w) too small, resulted in more than 16368 FFT bins\n");
+				"argument error: FFT bin width (-w) too small, resulted in more than 8184 FFT bins\n");
 		return EXIT_FAILURE;
 	}
 
