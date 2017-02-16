@@ -47,11 +47,11 @@ static enum sweep_style style = LINEAR;
 usb_request_status_t usb_vendor_request_init_sweep(
 		usb_endpoint_t* const endpoint, const usb_transfer_stage_t stage)
 {
-	uint32_t num_samples;
+	uint32_t num_bytes;
 	int i;
 	if (stage == USB_TRANSFER_STAGE_SETUP) {
-		num_samples = (endpoint->setup.index << 16) | endpoint->setup.value;
-		dwell_blocks = num_samples / 0x4000;
+		num_bytes = (endpoint->setup.index << 16) | endpoint->setup.value;
+		dwell_blocks = num_bytes / 0x4000;
 		if(1 > dwell_blocks) {
 			return USB_REQUEST_STATUS_STALL;
 		}

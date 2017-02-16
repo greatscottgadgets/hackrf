@@ -1811,7 +1811,7 @@ int ADDCALL hackrf_set_hw_sync_mode(hackrf_device* device, const uint8_t value) 
  * Initialize sweep mode:
  * frequency_list is a list of start/stop pairs of frequencies in MHz.
  * num_ranges is the number of pairs in frequency_list (1 to 10)
- * num_samples is the number of samples to capture after each tuning.
+ * num_bytes is the number of sample bytes to capture after each tuning.
  * step_width is the width in Hz of the tuning step.
  * offset is a number of Hz added to every tuning frequency.
  *     Use to select center frequency based on the expected usable bandwidth.
@@ -1823,7 +1823,7 @@ int ADDCALL hackrf_set_hw_sync_mode(hackrf_device* device, const uint8_t value) 
  */
 int ADDCALL hackrf_init_sweep(hackrf_device* device,
 		const uint16_t* frequency_list, const int num_ranges,
-		const uint32_t num_samples, const uint32_t step_width,
+		const uint32_t num_bytes, const uint32_t step_width,
 		const uint32_t offset, const enum sweep_style style) {
 	USB_API_REQUIRED(device, 0x0102)
 	int result, i;
@@ -1834,11 +1834,11 @@ int ADDCALL hackrf_init_sweep(hackrf_device* device,
 		return HACKRF_ERROR_INVALID_PARAM;
 	}
 
-	if(num_samples % SAMPLES_PER_BLOCK) {
+	if(num_bytes % BYTES_PER_BLOCK) {
 		return HACKRF_ERROR_INVALID_PARAM;
 	}
 
-	if(SAMPLES_PER_BLOCK > num_samples) {
+	if(BYTES_PER_BLOCK > num_bytes) {
 		return HACKRF_ERROR_INVALID_PARAM;
 	}
 
@@ -1868,8 +1868,8 @@ int ADDCALL hackrf_init_sweep(hackrf_device* device,
 		device->usb_device,
 		LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
 		HACKRF_VENDOR_REQUEST_INIT_SWEEP,
-		num_samples & 0xffff,
-		(num_samples >> 16) & 0xffff,
+		num_bytes & 0xffff,
+		(num_bytes >> 16) & 0xffff,
 		data,
 		size,
 		0

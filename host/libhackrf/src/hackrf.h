@@ -47,7 +47,8 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 
 #endif
 
-#define SAMPLES_PER_BLOCK 16384
+#define SAMPLES_PER_BLOCK 8192
+#define BYTES_PER_BLOCK 16384
 #define MAX_SWEEP_RANGES 10
 
 enum hackrf_error {
@@ -229,7 +230,7 @@ extern ADDAPI int ADDCALL hackrf_set_hw_sync_mode(hackrf_device* device, const u
 /* Start sweep mode */
 extern ADDAPI int ADDCALL hackrf_init_sweep(hackrf_device* device,
 		const uint16_t* frequency_list, const int num_ranges,
-		const uint32_t num_samples, const uint32_t step_width,
+		const uint32_t num_bytes, const uint32_t step_width,
 		const uint32_t offset, const enum sweep_style style);
 
 /* Operacake functions */

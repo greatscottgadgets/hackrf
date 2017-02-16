@@ -98,7 +98,7 @@ int gettimeofday(struct timeval *tv, void* ignored) {
 #define TUNE_STEP (DEFAULT_SAMPLE_RATE_HZ / FREQ_ONE_MHZ)
 #define OFFSET 7500000
 
-#define DEFAULT_SAMPLE_COUNT 0x4000
+#define DEFAULT_SAMPLE_COUNT 0x2000
 #define BLOCKS_PER_TRANSFER 16
 
 #if defined _WIN32
@@ -219,23 +219,23 @@ int rx_callback(hackrf_transfer* transfer) {
 					| ((uint64_t)(ubuf[6]) << 32) | ((uint64_t)(ubuf[5]) << 24) | ((uint64_t)(ubuf[4]) << 16)
 					| ((uint64_t)(ubuf[3]) << 8) | ubuf[2];
 		} else {
-			buf += SAMPLES_PER_BLOCK;
+			buf += BYTES_PER_BLOCK;
 			continue;
 		}
 		if(!sweep_started) {
 			if (frequency == (uint64_t)(FREQ_ONE_MHZ*frequencies[0])) {
 				sweep_started = true;
 			} else {
-				buf += SAMPLES_PER_BLOCK;
+				buf += BYTES_PER_BLOCK;
 				continue;
 			}
 		}
 		if((FREQ_MAX_MHZ * FREQ_ONE_MHZ) < frequency) {
-			buf += SAMPLES_PER_BLOCK;
+			buf += BYTES_PER_BLOCK;
 			continue;
 		}
 		/* copy to fftwIn as floats */
-		buf += SAMPLES_PER_BLOCK - (fftSize * 2);
+		buf += BYTES_PER_BLOCK - (fftSize * 2);
 		for(i=0; i < fftSize; i++) {
 			fftwIn[i][0] = buf[i*2] * window[i] * 1.0f / 128.0f;
 			fftwIn[i][1] = buf[i*2+1] * window[i] * 1.0f / 128.0f;
@@ -304,7 +304,7 @@ static void usage() {
 	fprintf(stderr, "\t[-p antenna_enable] # Antenna port power, 1=Enable, 0=Disable\n");
 	fprintf(stderr, "\t[-l gain_db] # RX LNA (IF) gain, 0-40dB, 8dB steps\n");
 	fprintf(stderr, "\t[-g gain_db] # RX VGA (baseband) gain, 0-62dB, 2dB steps\n");
-	fprintf(stderr, "\t[-n num_samples] # Number of samples per frequency, 16384-4294967296\n");
+	fprintf(stderr, "\t[-n num_samples] # Number of samples per frequency, 8192-4294967296\n");
 	fprintf(stderr, "\t[-w bin_width] # FFT bin width (frequency resolution) in Hz\n");
 	fprintf(stderr, "\t[-1] # one shot mode\n");
 	fprintf(stderr, "\t[-B] # binary output\n");
@@ -447,12 +447,12 @@ int main(int argc, char** argv) {
 		fprintf(stderr, "warning: vga_gain (-g) must be a multiple of 2\n");
 
 	if (num_samples % SAMPLES_PER_BLOCK) {
-		fprintf(stderr, "warning: num_samples (-n) must be a multiple of 16384\n");
+		fprintf(stderr, "warning: num_samples (-n) must be a multiple of 8192\n");
 		return EXIT_FAILURE;
 	}
 
 	if (num_samples < SAMPLES_PER_BLOCK) {
-		fprintf(stderr, "warning: num_samples (-n) must be at least 16384\n");
+		fprintf(stderr, "warning: num_samples (-n) must be at least 8192\n");
 		return EXIT_FAILURE;
 	}
 
@@ -592,7 +592,7 @@ int main(int argc, char** argv) {
 				frequencies[2*i], frequencies[2*i+1]);
 	}
 
-	result = hackrf_init_sweep(device, frequencies, num_ranges, num_samples,
+	result = hackrf_init_sweep(device, frequencies, num_ranges, num_samples * 2,
 			TUNE_STEP * FREQ_ONE_MHZ, OFFSET, INTERLEAVED);
 	if( result != HACKRF_SUCCESS ) {
 		fprintf(stderr, "hackrf_init_sweep() failed: %s (%d)\n",
