@@ -183,9 +183,6 @@ fftwf_complex *fftwOut = NULL;
 fftwf_plan fftwPlan = NULL;
 float* pwr;
 float* window;
-time_t time_now;
-struct tm *fft_time;
-char time_str[50];
 
 float logPower(fftwf_complex in, float scale)
 {
@@ -202,11 +199,15 @@ int rx_callback(hackrf_transfer* transfer) {
 	uint64_t band_edge;
 	uint32_t record_length;
 	int i, j;
+	struct timeval time_stamp;
+	struct tm *fft_time;
+	char time_str[50];
 
 	if(NULL == fd) {
 		return -1;
 	}
 
+	gettimeofday(&time_stamp, NULL);
 	byte_count += transfer->valid_length;
 	buf = (int8_t*) transfer->buffer;
 	for(j=0; j<BLOCKS_PER_TRANSFER; j++) {
@@ -263,11 +264,11 @@ int rx_callback(hackrf_transfer* transfer) {
 			fwrite(&band_edge, sizeof(band_edge), 1, stdout);
 			fwrite(&pwr[1+fftSize/8], sizeof(float), fftSize/4, stdout);
 		} else {
-			time_now = time(NULL);
-			fft_time = localtime(&time_now);
+			fft_time = localtime(&time_stamp.tv_sec);
 			strftime(time_str, 50, "%Y-%m-%d, %H:%M:%S", fft_time);
-			fprintf(fd, "%s, %" PRIu64 ", %" PRIu64 ", %.2f, %u",
+			fprintf(fd, "%s.%06ld, %" PRIu64 ", %" PRIu64 ", %.2f, %u",
 					time_str,
+					time_stamp.tv_usec,
 					(uint64_t)(frequency),
 					(uint64_t)(frequency+DEFAULT_SAMPLE_RATE_HZ/4),
 					fft_bin_width,
@@ -276,8 +277,9 @@ int rx_callback(hackrf_transfer* transfer) {
 				fprintf(fd, ", %.2f", pwr[i]);
 			}
 			fprintf(fd, "\n");
-			fprintf(fd, "%s, %" PRIu64 ", %" PRIu64 ", %.2f, %u",
+			fprintf(fd, "%s.%06ld, %" PRIu64 ", %" PRIu64 ", %.2f, %u",
 					time_str,
+					time_stamp.tv_usec,
 					(uint64_t)(frequency+(DEFAULT_SAMPLE_RATE_HZ/2)),
 					(uint64_t)(frequency+((DEFAULT_SAMPLE_RATE_HZ*3)/4)),
 					fft_bin_width,
