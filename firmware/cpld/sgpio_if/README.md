@@ -10,7 +10,7 @@ Code related to the paper:
 
 Please read the paper for hardware correction and additional details.
 
-* If you don't want to build use `code]default_sync.xsvf` to flash the CPLD
+* If you don't want to build use `default_sync.xsvf` to flash the CPLD
 * This is still a very rough implementation. Synchronization can't be disabled!
 
 Requirements
