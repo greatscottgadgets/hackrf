@@ -165,6 +165,7 @@ volatile uint32_t byte_count = 0;
 
 struct timeval time_start;
 struct timeval t_start;
+struct timeval time_stamp;
 
 bool amp = false;
 uint32_t amp_enable;
@@ -199,7 +200,6 @@ int rx_callback(hackrf_transfer* transfer) {
 	uint64_t band_edge;
 	uint32_t record_length;
 	int i, j;
-	struct timeval time_stamp;
 	struct tm *fft_time;
 	char time_str[50];
 
@@ -207,13 +207,9 @@ int rx_callback(hackrf_transfer* transfer) {
 		return -1;
 	}
 
-	gettimeofday(&time_stamp, NULL);
 	byte_count += transfer->valid_length;
 	buf = (int8_t*) transfer->buffer;
 	for(j=0; j<BLOCKS_PER_TRANSFER; j++) {
-		if(do_exit) {
-			return 0;
-		}
 		ubuf = (uint8_t*) buf;
 		if(ubuf[0] == 0x7F && ubuf[1] == 0x7F) {
 			frequency = ((uint64_t)(ubuf[9]) << 56) | ((uint64_t)(ubuf[8]) << 48) | ((uint64_t)(ubuf[7]) << 40)
@@ -223,13 +219,19 @@ int rx_callback(hackrf_transfer* transfer) {
 			buf += BYTES_PER_BLOCK;
 			continue;
 		}
-		if(!sweep_started) {
-			if (frequency == (uint64_t)(FREQ_ONE_MHZ*frequencies[0])) {
-				sweep_started = true;
-			} else {
-				buf += BYTES_PER_BLOCK;
-				continue;
+		if (frequency == (uint64_t)(FREQ_ONE_MHZ*frequencies[0])) {
+			if(one_shot && sweep_started) {
+				do_exit = true;
 			}
+			sweep_started = true;
+			gettimeofday(&time_stamp, NULL);
+		}
+		if(do_exit) {
+			return 0;
+		}
+		if(!sweep_started) {
+			buf += BYTES_PER_BLOCK;
+			continue;
 		}
 		if((FREQ_MAX_MHZ * FREQ_ONE_MHZ) < frequency) {
 			buf += BYTES_PER_BLOCK;
@@ -288,10 +290,6 @@ int rx_callback(hackrf_transfer* transfer) {
 				fprintf(fd, ", %.2f", pwr[i]);
 			}
 			fprintf(fd, "\n");
-		}
-		if(one_shot && ((uint64_t)(frequency+((DEFAULT_SAMPLE_RATE_HZ*3)/4))
-				>= (uint64_t)(FREQ_ONE_MHZ*frequencies[num_ranges*2-1]))) {
-			do_exit = true;
 		}
 	}
 	return 0;
