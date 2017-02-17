@@ -280,7 +280,7 @@ int rx_callback(hackrf_transfer* transfer) {
 			strftime(time_str, 50, "%Y-%m-%d, %H:%M:%S", fft_time);
 			fprintf(fd, "%s.%06ld, %" PRIu64 ", %" PRIu64 ", %.2f, %u",
 					time_str,
-					time_stamp.tv_usec,
+					(long int)time_stamp.tv_usec,
 					(uint64_t)(frequency),
 					(uint64_t)(frequency+DEFAULT_SAMPLE_RATE_HZ/4),
 					fft_bin_width,
@@ -291,7 +291,7 @@ int rx_callback(hackrf_transfer* transfer) {
 			fprintf(fd, "\n");
 			fprintf(fd, "%s.%06ld, %" PRIu64 ", %" PRIu64 ", %.2f, %u",
 					time_str,
-					time_stamp.tv_usec,
+					(long int)time_stamp.tv_usec,
 					(uint64_t)(frequency+(DEFAULT_SAMPLE_RATE_HZ/2)),
 					(uint64_t)(frequency+((DEFAULT_SAMPLE_RATE_HZ*3)/4)),
 					fft_bin_width,
