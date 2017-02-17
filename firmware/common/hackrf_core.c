@@ -470,8 +470,7 @@ bool baseband_filter_bandwidth_set(const uint32_t bandwidth_hz) {
 	return bandwidth_hz_real != 0;
 }
 
-/* clock startup for Jellybean with Lemondrop attached
-Configure PLL1 to max speed (204MHz).
+/* clock startup for LPC4320 configure PLL1 to max speed (204MHz).
 Note: PLL1 clock is used by M4/M0 core, Peripheral, APB1. */ 
 void cpu_clock_init(void)
 {
@@ -546,7 +545,7 @@ void cpu_clock_init(void)
 	si5351c_write(&clock_gen, ms7data, sizeof(ms7data));
 #endif
 
-	/* Set to 10 MHz, the common rate between Jellybean and Jawbreaker. */
+	/* Set to 10 MHz, the common rate between Jawbreaker and HackRF One. */
 	sample_rate_set(10000000);
 
 	si5351c_set_clock_source(&clock_gen, PLL_SOURCE_XTAL);
@@ -560,9 +559,8 @@ void cpu_clock_init(void)
 	i2c_bus_start(clock_gen.bus, &i2c_config_si5351c_fast_clock);
 
 	/*
-	 * 12MHz clock is entering LPC XTAL1/OSC input now.  On
-	 * Jellybean/Lemondrop, this is a signal from the clock generator.  On
-	 * Jawbreaker, there is a 12 MHz crystal at the LPC.
+	 * 12MHz clock is entering LPC XTAL1/OSC input now.
+	 * On HackRF One and Jawbreaker, there is a 12 MHz crystal at the LPC.
 	 * Set up PLL1 to run from XTAL1 input.
 	 */
 
