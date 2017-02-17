@@ -98,13 +98,14 @@ int gettimeofday(struct timeval *tv, void* ignored) {
 #define TUNE_STEP (DEFAULT_SAMPLE_RATE_HZ / FREQ_ONE_MHZ)
 #define OFFSET 7500000
 
-#define DEFAULT_SAMPLE_COUNT 0x2000
 #define BLOCKS_PER_TRANSFER 16
+#define THROWAWAY_BLOCKS 2
 
 #if defined _WIN32
 	#define sleep(a) Sleep( (a*1000) )
 #endif
 
+uint32_t num_samples = SAMPLES_PER_BLOCK;
 int num_ranges = 0;
 uint16_t frequencies[MAX_SWEEP_RANGES*2];
 
@@ -202,11 +203,13 @@ int rx_callback(hackrf_transfer* transfer) {
 	int i, j;
 	struct tm *fft_time;
 	char time_str[50];
+	struct timeval usb_transfer_time;
 
 	if(NULL == fd) {
 		return -1;
 	}
 
+	gettimeofday(&usb_transfer_time, NULL);
 	byte_count += transfer->valid_length;
 	buf = (int8_t*) transfer->buffer;
 	for(j=0; j<BLOCKS_PER_TRANSFER; j++) {
@@ -224,7 +227,14 @@ int rx_callback(hackrf_transfer* transfer) {
 				do_exit = true;
 			}
 			sweep_started = true;
-			gettimeofday(&time_stamp, NULL);
+			time_stamp = usb_transfer_time;
+			time_stamp.tv_usec +=
+					(uint64_t)(num_samples + THROWAWAY_BLOCKS * SAMPLES_PER_BLOCK)
+					* j * FREQ_ONE_MHZ / DEFAULT_SAMPLE_RATE_HZ;
+			if(999999 < time_stamp.tv_usec) {
+				time_stamp.tv_usec = time_stamp.tv_usec % 1000000;
+				time_stamp.tv_sec += time_stamp.tv_usec / 1000000;
+			}
 		}
 		if(do_exit) {
 			return 0;
@@ -341,7 +351,6 @@ int main(int argc, char** argv) {
 	struct timeval t_end;
 	float time_diff;
 	unsigned int lna_gain=16, vga_gain=20;
-	uint32_t num_samples = DEFAULT_SAMPLE_COUNT;
 	int step_count;
 	uint32_t freq_min = 0;
 	uint32_t freq_max = 6000;
