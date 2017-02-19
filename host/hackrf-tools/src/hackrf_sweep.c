@@ -581,12 +581,6 @@ int main(int argc, char** argv) {
 
 	result = hackrf_set_vga_gain(device, vga_gain);
 	result |= hackrf_set_lna_gain(device, lna_gain);
-	result |= hackrf_start_rx(device, rx_callback, NULL);
-	if (result != HACKRF_SUCCESS) {
-		fprintf(stderr, "hackrf_start_rx() failed: %s (%d)\n", hackrf_error_name(result), result);
-		usage();
-		return EXIT_FAILURE;
-	}
 
 	/*
 	 * For each range, plan a whole number of tuning steps of a certain
@@ -599,6 +593,13 @@ int main(int argc, char** argv) {
 		frequencies[2*i+1] = frequencies[2*i] + step_count * TUNE_STEP;
 		fprintf(stderr, "Sweeping from %u MHz to %u MHz\n",
 				frequencies[2*i], frequencies[2*i+1]);
+	}
+
+	result |= hackrf_start_rx(device, rx_callback, NULL);
+	if (result != HACKRF_SUCCESS) {
+		fprintf(stderr, "hackrf_start_rx() failed: %s (%d)\n", hackrf_error_name(result), result);
+		usage();
+		return EXIT_FAILURE;
 	}
 
 	result = hackrf_init_sweep(device, frequencies, num_ranges, num_samples * 2,
