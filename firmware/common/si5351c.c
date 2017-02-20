@@ -184,7 +184,7 @@ void si5351c_configure_clock_control(si5351c_driver_t* const drv, const enum pll
 	,SI5351C_CLK_INT_MODE | SI5351C_CLK_PLL_SRC(pll) | SI5351C_CLK_SRC(SI5351C_CLK_SRC_MULTISYNTH_SELF) | SI5351C_CLK_IDRV(SI5351C_CLK_IDRV_6MA)
 	,SI5351C_CLK_INT_MODE | SI5351C_CLK_PLL_SRC(pll) | SI5351C_CLK_SRC(SI5351C_CLK_SRC_MULTISYNTH_SELF) | SI5351C_CLK_IDRV(SI5351C_CLK_IDRV_4MA)
 	,SI5351C_CLK_POWERDOWN | SI5351C_CLK_INT_MODE /*not connected, but: plla int mode*/
-	,SI5351C_CLK_INT_MODE | SI5351C_CLK_PLL_SRC(pll) | SI5351C_CLK_SRC(SI5351C_CLK_SRC_MULTISYNTH_SELF) | SI5351C_CLK_IDRV(SI5351C_CLK_IDRV_8MA)
+	,SI5351C_CLK_POWERDOWN | SI5351C_CLK_INT_MODE /*not connected, but: plla int mode*/
 	 };
 	si5351c_write(drv, data, sizeof(data));
 }
@@ -223,8 +223,9 @@ void si5351c_configure_clock_control(si5351c_driver_t* const drv, const enum pll
 	/* 3: External clock output is deactivated as it is not used and creates noise */
 	uint8_t data[] = { 3, ~((1 << 0) | (1 << 1) | (1 << 2) | (1 << 4) | (1 << 5))};
 #else
-	/* Enable CLK outputs 0, 1, 2, 3, 4, 5, 7 only. */
-	uint8_t data[] = { 3, 0x40 };
+	/* Enable CLK outputs 0, 1, 2, 3, 4, 5. */
+	/* 7: Clock to CPU is deactivated as it is not used and creates noise */
+	uint8_t data[] = { 3, ~((1 << 0) | (1 << 1) | (1 << 2) | (1 << 3) | (1 << 4) | (1 << 5))};
 #endif
  	si5351c_write(drv, data, sizeof(data));
  }
