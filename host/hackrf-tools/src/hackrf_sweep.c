@@ -164,6 +164,7 @@ volatile bool do_exit = false;
 
 FILE* fd = NULL;
 volatile uint32_t byte_count = 0;
+volatile uint64_t sweep_count = 0;
 
 struct timeval time_start;
 struct timeval t_start;
@@ -240,6 +241,7 @@ int rx_callback(hackrf_transfer* transfer) {
 						fwrite(&ifftwOut[i][1], sizeof(float), 1, fd);
 					}
 				}
+				sweep_count++;
 				if(one_shot) {
 					do_exit = true;
 				}
@@ -381,8 +383,9 @@ int main(int argc, char** argv) {
 	const char* path = NULL;
 	const char* serial_number = NULL;
 	int exit_code = EXIT_SUCCESS;
-	struct timeval t_end;
+	struct timeval time_now;
 	float time_diff;
+	float sweep_rate;
 	unsigned int lna_gain=16, vga_gain=20;
 	uint32_t freq_min = 0;
 	uint32_t freq_max = 6000;
@@ -685,32 +688,25 @@ int main(int argc, char** argv) {
 	}
 
 	gettimeofday(&t_start, NULL);
-	gettimeofday(&time_start, NULL);
 
 	fprintf(stderr, "Stop with Ctrl-C\n");
 	while((hackrf_is_streaming(device) == HACKRF_TRUE) && (do_exit == false)) {
-		uint32_t byte_count_now;
-		struct timeval time_now;
-		float time_difference, rate;
+		float time_difference;
 		sleep(1);
 		
 		gettimeofday(&time_now, NULL);
 		
-		byte_count_now = byte_count;
-		byte_count = 0;
-		
-		time_difference = TimevalDiff(&time_now, &time_start);
-		rate = (float)byte_count_now / time_difference;
-		fprintf(stderr, "%4.1f MiB / %5.3f sec = %4.1f MiB/second\n",
-				(byte_count_now / 1e6f), time_difference, (rate / 1e6f) );
+		time_difference = TimevalDiff(&time_now, &t_start);
+		sweep_rate = (float)sweep_count / time_difference;
+		fprintf(stderr, "%" PRIu64 " total sweeps completed, %.2f sweeps/second\n",
+				sweep_count, sweep_rate);
 
-		time_start = time_now;
-
-		if (byte_count_now == 0) {
+		if (byte_count == 0) {
 			exit_code = EXIT_FAILURE;
-			fprintf(stderr, "\nCouldn't transfer any bytes for one second.\n");
+			fprintf(stderr, "\nCouldn't transfer any data for one second.\n");
 			break;
 		}
+		byte_count = 0;
 	}
 
 	result = hackrf_is_streaming(device);	
@@ -721,9 +717,10 @@ int main(int argc, char** argv) {
 			   hackrf_error_name(result), result);
 	}
 
-	gettimeofday(&t_end, NULL);
-	time_diff = TimevalDiff(&t_end, &t_start);
-	fprintf(stderr, "Total time: %5.5f s\n", time_diff);
+	gettimeofday(&time_now, NULL);
+	time_diff = TimevalDiff(&time_now, &t_start);
+	fprintf(stderr, "Total sweeps: %" PRIu64 " in %.5f seconds (%.2f sweeps/second)\n",
+			sweep_count, time_diff, sweep_rate);
 
 	if(device != NULL) {
 		result = hackrf_stop_rx(device);
