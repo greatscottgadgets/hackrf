@@ -108,6 +108,7 @@ int gettimeofday(struct timeval *tv, void* ignored) {
 uint32_t num_samples = SAMPLES_PER_BLOCK;
 int num_ranges = 0;
 uint16_t frequencies[MAX_SWEEP_RANGES*2];
+int step_count;
 
 static float TimevalDiff(const struct timeval *a, const struct timeval *b) {
    return (a->tv_sec - b->tv_sec) + 1e-6f * (a->tv_usec - b->tv_usec);
@@ -175,6 +176,7 @@ bool antenna = false;
 uint32_t antenna_enable;
 
 bool binary_output = false;
+bool ifft_output = false;
 bool one_shot = false;
 volatile bool sweep_started = false;
 
@@ -183,6 +185,10 @@ double fft_bin_width;
 fftwf_complex *fftwIn = NULL;
 fftwf_complex *fftwOut = NULL;
 fftwf_plan fftwPlan = NULL;
+fftwf_complex *ifftwIn = NULL;
+fftwf_complex *ifftwOut = NULL;
+fftwf_plan ifftwPlan = NULL;
+uint32_t ifft_idx = 0;
 float* pwr;
 float* window;
 
@@ -200,7 +206,7 @@ int rx_callback(hackrf_transfer* transfer) {
 	uint64_t frequency; /* in Hz */
 	uint64_t band_edge;
 	uint32_t record_length;
-	int i, j;
+	int i, j, ifft_bins;
 	struct tm *fft_time;
 	char time_str[50];
 	struct timeval usb_transfer_time;
@@ -212,6 +218,7 @@ int rx_callback(hackrf_transfer* transfer) {
 	gettimeofday(&usb_transfer_time, NULL);
 	byte_count += transfer->valid_length;
 	buf = (int8_t*) transfer->buffer;
+	ifft_bins = fftSize * step_count;
 	for(j=0; j<BLOCKS_PER_TRANSFER; j++) {
 		ubuf = (uint8_t*) buf;
 		if(ubuf[0] == 0x7F && ubuf[1] == 0x7F) {
@@ -223,8 +230,17 @@ int rx_callback(hackrf_transfer* transfer) {
 			continue;
 		}
 		if (frequency == (uint64_t)(FREQ_ONE_MHZ*frequencies[0])) {
-			if(one_shot && sweep_started) {
-				do_exit = true;
+			if(sweep_started) {
+				fftwf_execute(ifftwPlan);
+				for(i=0; i < ifft_bins; i++) {
+					ifftwOut[i][0] *= 1.0f / ifft_bins;
+					ifftwOut[i][1] *= 1.0f / ifft_bins;
+					fwrite(&ifftwOut[i][0], sizeof(float), 1, stdout);
+					fwrite(&ifftwOut[i][1], sizeof(float), 1, stdout);
+				}
+				if(one_shot) {
+					do_exit = true;
+				}
 			}
 			sweep_started = true;
 			time_stamp = usb_transfer_time;
@@ -258,6 +274,9 @@ int rx_callback(hackrf_transfer* transfer) {
 		for (i=0; i < fftSize; i++) {
 			pwr[i] = logPower(fftwOut[i], 1.0f / fftSize);
 		}
+		ifft_idx = round((frequency - (uint64_t)(FREQ_ONE_MHZ*frequencies[0]))
+				/ fft_bin_width);
+		ifft_idx = (ifft_idx + ifft_bins/2) % ifft_bins;
 		if(binary_output) {
 			record_length = 2 * sizeof(band_edge)
 					+ (fftSize/4) * sizeof(float);
@@ -275,6 +294,17 @@ int rx_callback(hackrf_transfer* transfer) {
 			band_edge = frequency + (DEFAULT_SAMPLE_RATE_HZ * 3) / 4;
 			fwrite(&band_edge, sizeof(band_edge), 1, stdout);
 			fwrite(&pwr[1+fftSize/8], sizeof(float), fftSize/4, stdout);
+		} else if(ifft_output) {
+			for(i = 0; (fftSize / 4) > i; i++) {
+				ifftwIn[ifft_idx + i][0] = fftwOut[i + 1 + (fftSize*5)/8][0];
+				ifftwIn[ifft_idx + i][1] = fftwOut[i + 1 + (fftSize*5)/8][1];
+			}
+			ifft_idx += fftSize / 2;
+			ifft_idx %= ifft_bins;
+			for(i = 0; (fftSize / 4) > i; i++) {
+				ifftwIn[ifft_idx + i][0] = fftwOut[i + 1 + (fftSize/8)][0];
+				ifftwIn[ifft_idx + i][1] = fftwOut[i + 1 + (fftSize/8)][1];
+			}
 		} else {
 			fft_time = localtime(&time_stamp.tv_sec);
 			strftime(time_str, 50, "%Y-%m-%d, %H:%M:%S", fft_time);
@@ -285,8 +315,8 @@ int rx_callback(hackrf_transfer* transfer) {
 					(uint64_t)(frequency+DEFAULT_SAMPLE_RATE_HZ/4),
 					fft_bin_width,
 					fftSize);
-			for(i=1+(fftSize*5)/8; (1+(fftSize*7)/8) > i; i++) {
-				fprintf(fd, ", %.2f", pwr[i]);
+			for(i = 0; (fftSize / 4) > i; i++) {
+				fprintf(fd, ", %.2f", pwr[i + 1 + (fftSize*5)/8]);
 			}
 			fprintf(fd, "\n");
 			fprintf(fd, "%s.%06ld, %" PRIu64 ", %" PRIu64 ", %.2f, %u",
@@ -296,8 +326,8 @@ int rx_callback(hackrf_transfer* transfer) {
 					(uint64_t)(frequency+((DEFAULT_SAMPLE_RATE_HZ*3)/4)),
 					fft_bin_width,
 					fftSize);
-			for(i=1+fftSize/8; (1+(fftSize*3)/8) > i; i++) {
-				fprintf(fd, ", %.2f", pwr[i]);
+			for(i = 0; (fftSize / 4) > i; i++) {
+				fprintf(fd, ", %.2f", pwr[i + 1 + (fftSize/8)]);
 			}
 			fprintf(fd, "\n");
 		}
@@ -318,6 +348,7 @@ static void usage() {
 	fprintf(stderr, "\t[-w bin_width] # FFT bin width (frequency resolution) in Hz\n");
 	fprintf(stderr, "\t[-1] # one shot mode\n");
 	fprintf(stderr, "\t[-B] # binary output\n");
+	fprintf(stderr, "\t[-I] # binary inverse FFT output\n");
 	fprintf(stderr, "\t-r filename # output file");
 	fprintf(stderr, "\n");
 	fprintf(stderr, "Output fields:\n");
@@ -351,13 +382,12 @@ int main(int argc, char** argv) {
 	struct timeval t_end;
 	float time_diff;
 	unsigned int lna_gain=16, vga_gain=20;
-	int step_count;
 	uint32_t freq_min = 0;
 	uint32_t freq_max = 6000;
 	uint32_t requested_fft_bin_width;
 
 
-	while( (opt = getopt(argc, argv, "a:f:p:l:g:d:n:w:1Br:h?")) != EOF ) {
+	while( (opt = getopt(argc, argv, "a:f:p:l:g:d:n:w:1BIr:h?")) != EOF ) {
 		result = HACKRF_SUCCESS;
 		switch( opt ) 
 		{
@@ -427,6 +457,10 @@ int main(int argc, char** argv) {
 			binary_output = true;
 			break;
 
+		case 'I':
+			ifft_output = true;
+			break;
+
 		case 'r':
 			path = optarg;
 			break;
@@ -485,6 +519,16 @@ int main(int argc, char** argv) {
 		frequencies[0] = (uint16_t)freq_min;
 		frequencies[1] = (uint16_t)freq_max;
 		num_ranges++;
+	}
+
+	if(binary_output && ifft_output) {
+		fprintf(stderr, "argument error: binary output (-B) and IFFT output (-I) are mutually exclusive.\n");
+		return EXIT_FAILURE;
+	}
+
+	if(ifft_output && (1 < num_ranges)) {
+		fprintf(stderr, "argument error: only one frequency range is supported in IFFT output (-I) mode.\n");
+		return EXIT_FAILURE;
 	}
 
 	if(4 > fftSize) {
@@ -595,6 +639,10 @@ int main(int argc, char** argv) {
 				frequencies[2*i], frequencies[2*i+1]);
 	}
 
+	ifftwIn = (fftwf_complex*)fftwf_malloc(sizeof(fftwf_complex) * fftSize * step_count);
+	ifftwOut = (fftwf_complex*)fftwf_malloc(sizeof(fftwf_complex) * fftSize * step_count);
+	ifftwPlan = fftwf_plan_dft_1d(fftSize * step_count, ifftwIn, ifftwOut, FFTW_BACKWARD, FFTW_MEASURE);
+
 	result |= hackrf_start_rx(device, rx_callback, NULL);
 	if (result != HACKRF_SUCCESS) {
 		fprintf(stderr, "hackrf_start_rx() failed: %s (%d)\n", hackrf_error_name(result), result);
@@ -703,6 +751,8 @@ int main(int argc, char** argv) {
 	fftwf_free(fftwOut);
 	fftwf_free(pwr);
 	fftwf_free(window);
+	fftwf_free(ifftwIn);
+	fftwf_free(ifftwOut);
 	fprintf(stderr, "exit\n");
 	return exit_code;
 }
