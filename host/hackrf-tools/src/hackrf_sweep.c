@@ -235,8 +235,8 @@ int rx_callback(hackrf_transfer* transfer) {
 				for(i=0; i < ifft_bins; i++) {
 					ifftwOut[i][0] *= 1.0f / ifft_bins;
 					ifftwOut[i][1] *= 1.0f / ifft_bins;
-					fwrite(&ifftwOut[i][0], sizeof(float), 1, stdout);
-					fwrite(&ifftwOut[i][1], sizeof(float), 1, stdout);
+					fwrite(&ifftwOut[i][0], sizeof(float), 1, fd);
+					fwrite(&ifftwOut[i][1], sizeof(float), 1, fd);
 				}
 				if(one_shot) {
 					do_exit = true;
@@ -281,19 +281,19 @@ int rx_callback(hackrf_transfer* transfer) {
 			record_length = 2 * sizeof(band_edge)
 					+ (fftSize/4) * sizeof(float);
 
-			fwrite(&record_length, sizeof(record_length), 1, stdout);
+			fwrite(&record_length, sizeof(record_length), 1, fd);
 			band_edge = frequency;
-			fwrite(&band_edge, sizeof(band_edge), 1, stdout);
+			fwrite(&band_edge, sizeof(band_edge), 1, fd);
 			band_edge = frequency + DEFAULT_SAMPLE_RATE_HZ / 4;
-			fwrite(&band_edge, sizeof(band_edge), 1, stdout);
-			fwrite(&pwr[1+(fftSize*5)/8], sizeof(float), fftSize/4, stdout);
+			fwrite(&band_edge, sizeof(band_edge), 1, fd);
+			fwrite(&pwr[1+(fftSize*5)/8], sizeof(float), fftSize/4, fd);
 
-			fwrite(&record_length, sizeof(record_length), 1, stdout);
+			fwrite(&record_length, sizeof(record_length), 1, fd);
 			band_edge = frequency + DEFAULT_SAMPLE_RATE_HZ / 2;
-			fwrite(&band_edge, sizeof(band_edge), 1, stdout);
+			fwrite(&band_edge, sizeof(band_edge), 1, fd);
 			band_edge = frequency + (DEFAULT_SAMPLE_RATE_HZ * 3) / 4;
-			fwrite(&band_edge, sizeof(band_edge), 1, stdout);
-			fwrite(&pwr[1+fftSize/8], sizeof(float), fftSize/4, stdout);
+			fwrite(&band_edge, sizeof(band_edge), 1, fd);
+			fwrite(&pwr[1+fftSize/8], sizeof(float), fftSize/4, fd);
 		} else if(ifft_output) {
 			for(i = 0; (fftSize / 4) > i; i++) {
 				ifftwIn[ifft_idx + i][0] = fftwOut[i + 1 + (fftSize*5)/8][0];
