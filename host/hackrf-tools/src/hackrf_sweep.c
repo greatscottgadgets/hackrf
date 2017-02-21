@@ -231,12 +231,14 @@ int rx_callback(hackrf_transfer* transfer) {
 		}
 		if (frequency == (uint64_t)(FREQ_ONE_MHZ*frequencies[0])) {
 			if(sweep_started) {
-				fftwf_execute(ifftwPlan);
-				for(i=0; i < ifft_bins; i++) {
-					ifftwOut[i][0] *= 1.0f / ifft_bins;
-					ifftwOut[i][1] *= 1.0f / ifft_bins;
-					fwrite(&ifftwOut[i][0], sizeof(float), 1, fd);
-					fwrite(&ifftwOut[i][1], sizeof(float), 1, fd);
+				if(ifft_output) {
+					fftwf_execute(ifftwPlan);
+					for(i=0; i < ifft_bins; i++) {
+						ifftwOut[i][0] *= 1.0f / ifft_bins;
+						ifftwOut[i][1] *= 1.0f / ifft_bins;
+						fwrite(&ifftwOut[i][0], sizeof(float), 1, fd);
+						fwrite(&ifftwOut[i][1], sizeof(float), 1, fd);
+					}
 				}
 				if(one_shot) {
 					do_exit = true;
@@ -274,9 +276,6 @@ int rx_callback(hackrf_transfer* transfer) {
 		for (i=0; i < fftSize; i++) {
 			pwr[i] = logPower(fftwOut[i], 1.0f / fftSize);
 		}
-		ifft_idx = round((frequency - (uint64_t)(FREQ_ONE_MHZ*frequencies[0]))
-				/ fft_bin_width);
-		ifft_idx = (ifft_idx + ifft_bins/2) % ifft_bins;
 		if(binary_output) {
 			record_length = 2 * sizeof(band_edge)
 					+ (fftSize/4) * sizeof(float);
@@ -295,6 +294,9 @@ int rx_callback(hackrf_transfer* transfer) {
 			fwrite(&band_edge, sizeof(band_edge), 1, fd);
 			fwrite(&pwr[1+fftSize/8], sizeof(float), fftSize/4, fd);
 		} else if(ifft_output) {
+			ifft_idx = round((frequency - (uint64_t)(FREQ_ONE_MHZ*frequencies[0]))
+					/ fft_bin_width);
+			ifft_idx = (ifft_idx + ifft_bins/2) % ifft_bins;
 			for(i = 0; (fftSize / 4) > i; i++) {
 				ifftwIn[ifft_idx + i][0] = fftwOut[i + 1 + (fftSize*5)/8][0];
 				ifftwIn[ifft_idx + i][1] = fftwOut[i + 1 + (fftSize*5)/8][1];
@@ -349,7 +351,7 @@ static void usage() {
 	fprintf(stderr, "\t[-1] # one shot mode\n");
 	fprintf(stderr, "\t[-B] # binary output\n");
 	fprintf(stderr, "\t[-I] # binary inverse FFT output\n");
-	fprintf(stderr, "\t-r filename # output file");
+	fprintf(stderr, "\t-r filename # output file\n");
 	fprintf(stderr, "\n");
 	fprintf(stderr, "Output fields:\n");
 	fprintf(stderr, "\tdate, time, hz_low, hz_high, hz_bin_width, num_samples, dB, dB, . . .\n");
@@ -639,9 +641,11 @@ int main(int argc, char** argv) {
 				frequencies[2*i], frequencies[2*i+1]);
 	}
 
-	ifftwIn = (fftwf_complex*)fftwf_malloc(sizeof(fftwf_complex) * fftSize * step_count);
-	ifftwOut = (fftwf_complex*)fftwf_malloc(sizeof(fftwf_complex) * fftSize * step_count);
-	ifftwPlan = fftwf_plan_dft_1d(fftSize * step_count, ifftwIn, ifftwOut, FFTW_BACKWARD, FFTW_MEASURE);
+	if(ifft_output) {
+		ifftwIn = (fftwf_complex*)fftwf_malloc(sizeof(fftwf_complex) * fftSize * step_count);
+		ifftwOut = (fftwf_complex*)fftwf_malloc(sizeof(fftwf_complex) * fftSize * step_count);
+		ifftwPlan = fftwf_plan_dft_1d(fftSize * step_count, ifftwIn, ifftwOut, FFTW_BACKWARD, FFTW_MEASURE);
+	}
 
 	result |= hackrf_start_rx(device, rx_callback, NULL);
 	if (result != HACKRF_SUCCESS) {
