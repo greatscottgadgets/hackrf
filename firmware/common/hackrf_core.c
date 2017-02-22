@@ -600,6 +600,7 @@ void cpu_clock_init(void)
 	CGU_BASE_SSP1_CLK = CGU_BASE_SSP1_CLK_AUTOBLOCK(1)
 			| CGU_BASE_SSP1_CLK_CLK_SEL(CGU_SRC_PLL1);
 
+#if (defined JAWBREAKER || defined HACKRF_ONE)
 	/* Disable unused clocks */
 	/* Start with PLLs */
 	CGU_PLL0AUDIO_CTRL = CGU_PLL0AUDIO_CTRL_PD(1);
@@ -665,6 +666,13 @@ void cpu_clock_init(void)
 	// CCU2_CLK_APB2_USART3_CFG = 0;
 	// CCU2_CLK_APLL_CFG = 0;
 	// CCU2_CLK_SDIO_CFG = 0;
+#endif
+
+#ifdef RAD1O
+	/* Disable unused clock outputs. They generate noise. */
+	scu_pinmux(CLK0, SCU_CLK_IN | SCU_CONF_FUNCTION7);
+	scu_pinmux(CLK2, SCU_CLK_IN | SCU_CONF_FUNCTION7);
+#endif
 }
 
 
