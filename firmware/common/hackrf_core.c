@@ -503,20 +503,12 @@ void cpu_clock_init(void)
 	 */
 
 	/* MS3/CLK3 is the source for the external clock output. */
-	si5351c_configure_multisynth(&clock_gen, 3, 80*128-512, 0, 1, 0); /* 800/80 = 10MHz */
+	// si5351c_configure_multisynth(&clock_gen, 3, 80*128-512, 0, 1, 0); /* 800/80 = 10MHz */
 
-#if (defined JAWBREAKER || defined HACKRF_ONE)
-	/* MS4/CLK4 is the source for the RFFC5071 mixer. */
-	si5351c_configure_multisynth(&clock_gen, 4, 16*128-512, 0, 1, 0); /* 800/16 = 50MHz */
- 	/* MS5/CLK5 is the source for the MAX2837 clock input. */
-	si5351c_configure_multisynth(&clock_gen, 5, 20*128-512, 0, 1, 0); /* 800/20 = 40MHz */
-#endif
-#ifdef RAD1O
-	/* MS4/CLK4 is the source for the MAX2837 clock input. */
+	/* MS4/CLK4 is the source for the RFFC5071 mixer (MAX2837 on rad1o). */
 	si5351c_configure_multisynth(&clock_gen, 4, 20*128-512, 0, 1, 0); /* 800/20 = 40MHz */
-	/* MS5/CLK5 is the source for the RFFC5071 mixer. */
+ 	/* MS5/CLK5 is the source for the MAX2837 clock input (MAX2871 on rad1o). */
 	si5351c_configure_multisynth(&clock_gen, 5, 20*128-512, 0, 1, 0); /* 800/20 = 40MHz */
-#endif
 
 	/* MS6/CLK6 is unused. */
 	/* MS7/CLK7 is unused. */
