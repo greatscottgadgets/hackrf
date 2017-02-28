@@ -470,8 +470,7 @@ bool baseband_filter_bandwidth_set(const uint32_t bandwidth_hz) {
 	return bandwidth_hz_real != 0;
 }
 
-/* clock startup for Jellybean with Lemondrop attached
-Configure PLL1 to max speed (204MHz).
+/* clock startup for LPC4320 configure PLL1 to max speed (204MHz).
 Note: PLL1 clock is used by M4/M0 core, Peripheral, APB1. */ 
 void cpu_clock_init(void)
 {
@@ -491,68 +490,34 @@ void cpu_clock_init(void)
 	si5351c_configure_pll_sources(&clock_gen);
 	si5351c_configure_pll_multisynth(&clock_gen);
 
-#if (defined JAWBREAKER || defined HACKRF_ONE)
 	/*
-	 * Jawbreaker clocks:
+	 * Clocks:
 	 *   CLK0 -> MAX5864/CPLD
 	 *   CLK1 -> CPLD
 	 *   CLK2 -> SGPIO
-	 *   CLK3 -> external clock output
-	 *   CLK4 -> RFFC5072
-	 *   CLK5 -> MAX2837
+	 *   CLK3 -> External Clock Output (power down at boot)
+	 *   CLK4 -> RFFC5072 (MAX2837 on rad1o)
+	 *   CLK5 -> MAX2837 (MAX2871 on rad1o)
 	 *   CLK6 -> none
-	 *   CLK7 -> LPC4330 (but LPC4330 starts up on its own crystal)
+	 *   CLK7 -> LPC43xx (uses a 12MHz crystal by default)
 	 */
 
-	/* MS3/CLK3 is the source for the external clock output. */
-	si5351c_configure_multisynth(&clock_gen, 3, 80*128-512, 0, 1, 0); /* 800/80 = 10MHz */
-
-	/* MS4/CLK4 is the source for the RFFC5071 mixer. */
-	si5351c_configure_multisynth(&clock_gen, 4, 16*128-512, 0, 1, 0); /* 800/16 = 50MHz */
- 
- 	/* MS5/CLK5 is the source for the MAX2837 clock input. */
-	si5351c_configure_multisynth(&clock_gen, 5, 20*128-512, 0, 1, 0); /* 800/20 = 40MHz */
-
-	/* MS6/CLK6 is unused. */
-	/* MS7/CLK7 is the source for the LPC43xx microcontroller. */
-	uint8_t ms7data[] = { 90, 255, 20, 0 };
-	si5351c_write(&clock_gen, ms7data, sizeof(ms7data));
-#endif
-
-#ifdef RAD1O
-	/* rad1o clocks:
-	 *   CLK0 -> MAX5864/CPLD
-	 *   CLK1 -> CPLD
-	 *   CLK2 -> SGPIO
-	 *   CLK3 -> External Clock Output
-	 *   CLK4 -> MAX2837
-	 *   CLK5 -> MAX2871
-	 *   CLK6 -> none
-	 *   CLK7 -> LPC4330 (but LPC4330 starts up on its own crystal) */
-
-	/* MS3/CLK3 is the source for the external clock output. */
-	si5351c_configure_multisynth(&clock_gen, 3, 80*128-512, 0, 1, 0); /* 800/80 = 10MHz */
-
-	/* MS4/CLK4 is the source for the MAX2837 clock input. */
+	/* MS4/CLK4 is the source for the RFFC5071 mixer (MAX2837 on rad1o). */
 	si5351c_configure_multisynth(&clock_gen, 4, 20*128-512, 0, 1, 0); /* 800/20 = 40MHz */
-
-	/* MS5/CLK5 is the source for the RFFC5071 mixer. */
+ 	/* MS5/CLK5 is the source for the MAX2837 clock input (MAX2871 on rad1o). */
 	si5351c_configure_multisynth(&clock_gen, 5, 20*128-512, 0, 1, 0); /* 800/20 = 40MHz */
 
 	/* MS6/CLK6 is unused. */
+	/* MS7/CLK7 is unused. */
 
-	/* MS7/CLK7 is the source for the LPC43xx microcontroller. */
-	uint8_t ms7data[] = { 90, 255, 20, 0 };
-	si5351c_write(&clock_gen, ms7data, sizeof(ms7data));
-#endif
-
-	/* Set to 10 MHz, the common rate between Jellybean and Jawbreaker. */
+	/* Set to 10 MHz, the common rate between Jawbreaker and HackRF One. */
 	sample_rate_set(10000000);
 
 	si5351c_set_clock_source(&clock_gen, PLL_SOURCE_XTAL);
 	// soft reset
-	uint8_t resetdata[] = { 177, 0xac };
-	si5351c_write(&clock_gen, resetdata, sizeof(resetdata));
+	// uint8_t resetdata[] = { 177, 0xac };
+	// si5351c_write(&clock_gen, resetdata, sizeof(resetdata));
+	si5351c_reset_pll(&clock_gen);
 	si5351c_enable_clock_outputs(&clock_gen);
 
 	//FIXME disable I2C
@@ -560,9 +525,8 @@ void cpu_clock_init(void)
 	i2c_bus_start(clock_gen.bus, &i2c_config_si5351c_fast_clock);
 
 	/*
-	 * 12MHz clock is entering LPC XTAL1/OSC input now.  On
-	 * Jellybean/Lemondrop, this is a signal from the clock generator.  On
-	 * Jawbreaker, there is a 12 MHz crystal at the LPC.
+	 * 12MHz clock is entering LPC XTAL1/OSC input now.
+	 * On HackRF One and Jawbreaker, there is a 12 MHz crystal at the LPC.
 	 * Set up PLL1 to run from XTAL1 input.
 	 */
 

@@ -148,19 +148,82 @@ int si5351c_write_register(
 	return result;
 }
 
+#define SI5351C_CLK_POWERDOWN (1<<7)
+#define SI5351C_CLK_INT_MODE  (1<<6)
+#define SI5351C_CLK_PLL_SRC   (1<<5)
+#define SI5351C_CLK_INV       (1<<4)
+#define SI5351C_CLK_SRC_XTAL            0
+#define SI5351C_CLK_SRC_CLKIN           1
+#define SI5351C_CLK_SRC_MULTISYNTH_0_4  2
+#define SI5351C_CLK_SRC_MULTISYNTH_SELF 3
+
+void print_clk_control(uint8_t clk_ctrl) {
+	uint8_t clk_src, clk_pwr;
+	printf("\tclock control = \n");
+	if(clk_ctrl & SI5351C_CLK_POWERDOWN)
+		printf("\t\tPower Down\n");
+	else
+		printf("\t\tPower Up\n");
+	if(clk_ctrl & SI5351C_CLK_INT_MODE)
+		printf("\t\tInt Mode\n");
+	else
+		printf("\t\tFrac Mode\n");
+	if(clk_ctrl & SI5351C_CLK_PLL_SRC)
+		printf("\t\tPLL src B\n");
+	else
+		printf("\t\tPLL src A\n");
+	if(clk_ctrl & SI5351C_CLK_INV)
+		printf("\t\tInverted\n");
+	clk_src = (clk_ctrl >> 2) & 0x3;
+	switch (clk_src) {
+		case 0:
+			printf("\t\tXTAL\n");
+			break;
+		case 1:
+			printf("\t\tCLKIN\n");
+			break;
+		case 2:
+			printf("\t\tMULTISYNTH 0 4\n");
+			break;
+		case 3:
+			printf("\t\tMULTISYNTH SELF\n");
+			break;
+	}
+	clk_pwr = clk_ctrl & 0x3;
+	switch (clk_pwr) {
+		case 0:
+			printf("\t\t2 mA\n");
+			break;
+		case 1:
+			printf("\t\t4 mA\n");
+			break;
+		case 2:
+			printf("\t\t6 mA\n");
+			break;
+		case 3:
+			printf("\t\t8 mA\n");
+			break;
+	}
+}
+
 int si5351c_read_multisynth_config(hackrf_device* device, const uint_fast8_t ms_number) {
-	uint_fast8_t i;
-	uint_fast8_t reg_base;
-	uint16_t parameters[8];
+	uint_fast8_t i, reg_base, reg_number;
+	uint16_t parameters[8], clk_control;
 	uint32_t p1,p2,p3,r_div;
 	uint_fast8_t div_lut[] = {1,2,4,8,16,32,64,128};
+	int result;
 
 	printf("MS%d:", ms_number);
+	result = hackrf_si5351c_read(device, 16+ms_number, &clk_control);
+	if( result != HACKRF_SUCCESS ) {
+		return result;
+	}
+	print_clk_control(clk_control);
 	if(ms_number <6){
 		reg_base = 42 + (ms_number * 8);
 		for(i=0; i<8; i++) {
-			uint_fast8_t reg_number = reg_base + i;
-			int result = hackrf_si5351c_read(device, reg_number, &parameters[i]);
+			reg_number = reg_base + i;
+			result = hackrf_si5351c_read(device, reg_number, &parameters[i]);
 			if( result != HACKRF_SUCCESS ) {
 				return result;
 			}
