@@ -116,11 +116,11 @@ void si5351c_configure_pll_sources(si5351c_driver_t* const drv)
 /* MultiSynth NA (PLLA) and NB (PLLB) */
 void si5351c_configure_pll_multisynth(si5351c_driver_t* const drv)
 {
-	//init plla to (0x0e00+512)/128*25mhz xtal = 800mhz -> int mode
+	/*PLLA: 25MHz XTAL * (0x0e00+512)/128 = 800mhz -> int mode */
 	uint8_t data[] = { 26, 0x00, 0x01, 0x00, 0x0E, 0x00, 0x00, 0x00, 0x00 };
 	si5351c_write(drv, data, sizeof(data));
 
-	/* 10 MHz input on CLKIN for PLLB */
+	/*PLLB: 10MHz CLKIN * (0x2600+512)/128 = 800mhz */
 	data[0] = 34;
 	data[4] = 0x26;
 	si5351c_write(drv, data, sizeof(data));
