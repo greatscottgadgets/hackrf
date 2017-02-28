@@ -495,15 +495,12 @@ void cpu_clock_init(void)
 	 *   CLK0 -> MAX5864/CPLD
 	 *   CLK1 -> CPLD
 	 *   CLK2 -> SGPIO
-	 *   CLK3 -> External Clock Output
+	 *   CLK3 -> External Clock Output (power down at boot)
 	 *   CLK4 -> RFFC5072 (MAX2837 on rad1o)
 	 *   CLK5 -> MAX2837 (MAX2871 on rad1o)
 	 *   CLK6 -> none
 	 *   CLK7 -> LPC43xx (uses a 12MHz crystal by default)
 	 */
-
-	/* MS3/CLK3 is the source for the external clock output. */
-	// si5351c_configure_multisynth(&clock_gen, 3, 80*128-512, 0, 1, 0); /* 800/80 = 10MHz */
 
 	/* MS4/CLK4 is the source for the RFFC5071 mixer (MAX2837 on rad1o). */
 	si5351c_configure_multisynth(&clock_gen, 4, 20*128-512, 0, 1, 0); /* 800/20 = 40MHz */
@@ -518,8 +515,9 @@ void cpu_clock_init(void)
 
 	si5351c_set_clock_source(&clock_gen, PLL_SOURCE_XTAL);
 	// soft reset
-	uint8_t resetdata[] = { 177, 0xac };
-	si5351c_write(&clock_gen, resetdata, sizeof(resetdata));
+	// uint8_t resetdata[] = { 177, 0xac };
+	// si5351c_write(&clock_gen, resetdata, sizeof(resetdata));
+	si5351c_reset_pll(&clock_gen);
 	si5351c_enable_clock_outputs(&clock_gen);
 
 	//FIXME disable I2C
