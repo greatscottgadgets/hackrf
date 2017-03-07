@@ -389,7 +389,10 @@ hackrf_device_list_t* ADDCALL hackrf_device_list()
 	hackrf_device_list_t* list = calloc(1, sizeof(*list));
 	if ( list == NULL )
 		return NULL;
-		
+
+	if (list->devicecount == 0)
+		return list;
+
 	list->usb_devicecount = libusb_get_device_list(g_libusb_context, (libusb_device ***)&list->usb_devices);
 	
 	list->serial_numbers = calloc(list->usb_devicecount, sizeof(void *));
