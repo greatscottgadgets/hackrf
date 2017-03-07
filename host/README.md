@@ -24,6 +24,17 @@ the udev rule to be installed elsewhere you can modify the path with
 Note: The udev rule is not installed for by default for PyBOMBS installs as
 they do not ususally get installed with root privileges.
 
+If after running these commands, then doing ...
+
+`hackrf_info`
+
+results in the following error ...
+
+`Found HackRF board 0:
+hackrf_open() failed: HACKRF_ERROR_LIBUSB (-1000)`
+
+Restart the computer so the UDEV rules can take effect.
+
 ##Clean CMake temporary files/dirs:
 ```
 cd host/build
