@@ -90,7 +90,7 @@ INSTALL(
 )
 
 ########################################################################
-# Create Pkg Config File
+# Configure udev rule for Linux hosts
 ########################################################################
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
