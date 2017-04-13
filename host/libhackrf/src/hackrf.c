@@ -1565,13 +1565,14 @@ int ADDCALL hackrf_start_rx(hackrf_device* device, hackrf_sample_block_cb_fn cal
 
 int ADDCALL hackrf_stop_rx(hackrf_device* device)
 {
-	int result;
-	result = hackrf_set_transceiver_mode(device, HACKRF_TRANSCEIVER_MODE_OFF);
-	if (result != HACKRF_SUCCESS)
+	int result1, result2;
+	result1 = kill_transfer_thread(device);
+	result2 = hackrf_set_transceiver_mode(device, HACKRF_TRANSCEIVER_MODE_OFF);
+	if (result2 != HACKRF_SUCCESS)
 	{
-		return result;
+		return result2;
 	}
-	return kill_transfer_thread(device);
+	return result1;
 }
 
 int ADDCALL hackrf_start_tx(hackrf_device* device, hackrf_sample_block_cb_fn callback, void* tx_ctx)
