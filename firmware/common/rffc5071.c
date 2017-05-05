@@ -208,7 +208,7 @@ void rffc5071_enable(rffc5071_driver_t* const drv)  {
 }
 
 #define LO_MAX 5400
-#define REF_FREQ 50
+#define REF_FREQ 40
 #define FREQ_ONE_MHZ (1000*1000)
 
 /* configure frequency synthesizer in integer mode (lo in MHz) */

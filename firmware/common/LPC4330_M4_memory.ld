@@ -20,7 +20,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
-/* Linker script for HackRF Jellybean/Jawbreaker (LPC4330, 1M SPI flash, 264K SRAM). */
+/* Linker script for Rad1o badge - (LPC4330, 1M SPI flash, 264K SRAM). */
 
 MEMORY
 {
