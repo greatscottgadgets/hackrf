@@ -206,8 +206,6 @@ int main(void) {
 			sweep_mode();
 		}
 
-		start_streaming_on_hw_sync();
-
 		// Set up IN transfer of buffer 0.
 		if ( usb_bulk_buffer_offset >= 16384
 		     && phase == 1
