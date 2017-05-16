@@ -74,11 +74,6 @@ static struct gpio_t gpio_max5864_select	= GPIO(2,  7);
 // static struct gpio_t gpio_rffc5072_reset	= GPIO(2, 14);
 // #endif
 
-//static struct gpio_t gpio_sync_in_a		= GPIO(3,  10);
-//static struct gpio_t gpio_sync_in_b		= GPIO(3,  11);
-//static struct gpio_t gpio_sync_out_a		= GPIO(3, 8);
-//static struct gpio_t gpio_sync_out_b		= GPIO(3, 9);
-
 /* RF supply (VAA) control */
 #ifdef HACKRF_ONE
 static struct gpio_t gpio_vaa_disable		= GPIO(2, 9);
@@ -132,11 +127,6 @@ static struct gpio_t gpio_cpld_tms			= GPIO(3,  1);
 static struct gpio_t gpio_cpld_tdi			= GPIO(3,  4);
 #endif
 
-//static struct gpio_t gpio_rx_decimation[3] = {
-//	GPIO(5, 12),
-//	GPIO(5, 13),
-//	GPIO(5, 14),
-//};
 static struct gpio_t gpio_hw_sync_enable = GPIO(5,12);
 static struct gpio_t gpio_rx_q_invert 		= GPIO(0, 13);
 
