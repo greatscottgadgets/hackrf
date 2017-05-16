@@ -30,6 +30,7 @@ entity top is
     Port(
         HOST_DATA       : inout std_logic_vector(7 downto 0);
         HOST_CAPTURE    : out   std_logic;
+		  HOST_SYNC_EN    : in    std_logic;
         HOST_SYNC_CMD   : out   std_logic;
         HOST_SYNC       : in    std_logic;
         HOST_DISABLE    : in    std_logic;
@@ -57,6 +58,7 @@ architecture Behavioral of top is
 
     signal host_data_enable_i : std_logic;
     signal host_data_capture_o : std_logic;
+	 signal host_sync_enable : std_logic := '0';
     signal host_sync_o : std_logic := '0';
     signal host_sync_i : std_logic := '0';
     signal host_sync_latched : std_logic := '0';
@@ -95,6 +97,7 @@ begin
     data_from_host_i <= HOST_DATA;
 
     HOST_CAPTURE <= host_data_capture_o;
+	 host_sync_enable <= HOST_SYNC_EN;
 	 host_sync_i <= HOST_SYNC;
 	 HOST_SYNC_CMD <= host_sync_o;
 	 
@@ -153,11 +156,11 @@ begin
         if rising_edge(host_clk_i) then
             if transfer_direction_i = to_dac then
                 if codec_clk_i = '1' then
-                    host_data_capture_o <= host_data_enable_i and host_sync_latched;
+                    host_data_capture_o <= host_data_enable_i and (host_sync_latched or not host_sync_enable);
                 end if;
             else
                 if codec_clk_i = '0' then
-                    host_data_capture_o <= host_data_enable_i and host_sync_latched;
+                    host_data_capture_o <= host_data_enable_i and (host_sync_latched or not host_sync_enable);
                 end if; 
             end if;
         end if;

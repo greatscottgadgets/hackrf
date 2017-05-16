@@ -4,18 +4,6 @@ RF codec.
 CPLD-based triggered capture
 ============================
 
-Code related to the paper:
-
-[M. Bartolucci, J. A. del Peral-Rosado, R. Estatuet-Castillo, J. A. Garcia-Molina, M. Crisci, G. E. Corazza, "Synchronisation of low-cost open source SDRs for navigation applications", Proc. 8th ESA Workshop on Satellite Navigation User Equipment Technologies (NAVITEC), Dec 16 2016](http://spcomnav.uab.es/docs/conferences/Bartolucci_NAVITEC_2016.pdf)
-
-Please read the paper for hardware correction and additional details.
-
-* If you don't want to build use `default_sync.xsvf` to flash the CPLD
-* This is still a very rough implementation. Synchronization can't be disabled!
-
-Requirements
-============
-
 To build this VHDL project and produce an SVF file for flashing the CPLD:
 
 * Xilinx WebPACK 13.4 for Windows or Linux.

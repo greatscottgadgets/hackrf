@@ -132,11 +132,12 @@ static struct gpio_t gpio_cpld_tms			= GPIO(3,  1);
 static struct gpio_t gpio_cpld_tdi			= GPIO(3,  4);
 #endif
 
-static struct gpio_t gpio_rx_decimation[3] = {
-	GPIO(5, 12),
-	GPIO(5, 13),
-	GPIO(5, 14),
-};
+//static struct gpio_t gpio_rx_decimation[3] = {
+//	GPIO(5, 12),
+//	GPIO(5, 13),
+//	GPIO(5, 14),
+//};
+static struct gpio_t gpio_hw_sync_enable = GPIO(5,12);
 static struct gpio_t gpio_rx_q_invert 		= GPIO(0, 13);
 
 i2c_bus_t i2c0 = {
@@ -242,11 +243,7 @@ w25q80bv_driver_t spi_flash = {
 
 sgpio_config_t sgpio_config = {
 	.gpio_rx_q_invert = &gpio_rx_q_invert,
-	.gpio_rx_decimation = {
-		&gpio_rx_decimation[0],
-		&gpio_rx_decimation[1],
-		&gpio_rx_decimation[2],
-	},
+	.gpio_hw_sync_enable = &gpio_hw_sync_enable,
 	.slice_mode_multislice = true,
 };
 
@@ -824,11 +821,6 @@ void pin_setup(void) {
 	scu_pinmux(SCU_PINMUX_GPIO3_10, SCU_GPIO_PDN | SCU_CONF_FUNCTION0);
 	scu_pinmux(SCU_PINMUX_GPIO3_11, SCU_GPIO_PDN | SCU_CONF_FUNCTION0);
 
-	//gpio_input(&gpio_sync_in_a);
-	//gpio_input(&gpio_sync_in_b);
-
-	//gpio_output(&gpio_sync_out_a);
-	//gpio_output(&gpio_sync_out_b);
 #endif
 
 #ifdef RAD1O
@@ -841,11 +833,6 @@ void pin_setup(void) {
 	scu_pinmux(SCU_PINMUX_GPIO3_10, SCU_GPIO_PDN | SCU_CONF_FUNCTION0);
 	scu_pinmux(SCU_PINMUX_GPIO3_11, SCU_GPIO_PDN | SCU_CONF_FUNCTION0);
 
-	//gpio_input(&gpio_sync_in_a);
-	//gpio_input(&gpio_sync_in_b);
-
-	//gpio_output(&gpio_sync_out_a);
-	//gpio_output(&gpio_sync_out_b);
 #endif
 
 	/* enable input on SCL and SDA pins */
@@ -901,4 +888,8 @@ void led_off(const led_t led) {
 
 void led_toggle(const led_t led) {
 	gpio_toggle(&gpio_led[led]);
+}
+
+void hw_sync_enable(const hw_sync_mode_t hw_sync_mode){
+    gpio_write(&gpio_hw_sync_enable, hw_sync_mode==1);
 }

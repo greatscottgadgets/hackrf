@@ -964,7 +964,7 @@ int main(int argc, char** argv) {
 	}
 
 	if(hw_sync) {
-		fprintf(stderr, "call hackrf_set_hw_sync_mode(%d)\n", hw_sync);
+		fprintf(stderr, "call hackrf_set_hw_sync_mode(%d)\n", hw_sync_enable);
 		result = hackrf_set_hw_sync_mode(device, hw_sync_enable ? HW_SYNC_MODE_ON : HW_SYNC_MODE_OFF);
 		if( result != HACKRF_SUCCESS ) {
 			fprintf(stderr, "hackrf_set_hw_sync_mode() failed: %s (%d)\n", hackrf_error_name(result), result);
