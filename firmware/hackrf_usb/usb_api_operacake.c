@@ -47,3 +47,30 @@ usb_request_status_t usb_vendor_request_operacake_set_ports(
 	}
 	return USB_REQUEST_STATUS_OK;
 }
+
+static unsigned char data[MAX_OPERACAKE_RANGES * 5];
+usb_request_status_t usb_vendor_request_operacake_set_ranges(
+	usb_endpoint_t* const endpoint, const usb_transfer_stage_t stage)
+{
+	uint16_t i, freq_min, freq_max, num_ranges = 0;
+	uint8_t port;
+	
+	if (stage == USB_TRANSFER_STAGE_SETUP) {
+		num_ranges = endpoint->setup.length  / 5;
+		if((num_ranges == 0) || (num_ranges > MAX_OPERACAKE_RANGES)) {
+			return USB_REQUEST_STATUS_STALL;
+		}
+		usb_transfer_schedule_block(endpoint->out, &data,
+				endpoint->setup.length, NULL, NULL);
+	} else if (stage == USB_TRANSFER_STAGE_DATA) {
+
+		for(i=0; i<endpoint->setup.length; i+=5) {
+			freq_min = data[i] << 8 | data[i+1];
+			freq_max = data[i+2] << 8 | data[i+3];
+			port = data[i+4];
+			operacake_add_range(freq_min, freq_max, port);
+		}
+		usb_transfer_schedule_ack(endpoint->in);
+	}
+	return USB_REQUEST_STATUS_OK;
+}

@@ -145,3 +145,52 @@ uint8_t operacake_set_ports(uint8_t address, uint8_t PA, uint8_t PB) {
 	return 0;
 }
 
+typedef struct {
+	uint16_t freq_min;
+	uint16_t freq_max;
+	uint8_t portA;
+	uint8_t portB;
+} operacake_range;
+
+static operacake_range ranges[MAX_OPERACAKE_RANGES * sizeof(operacake_range)];
+static uint8_t range_idx = 0;
+
+uint8_t operacake_add_range(uint16_t freq_min, uint16_t freq_max, uint8_t port) {
+	if(range_idx >= MAX_OPERACAKE_RANGES) {
+		return 1;
+	}
+	ranges[range_idx].freq_min = freq_min;
+	ranges[range_idx].freq_max = freq_max;
+	ranges[range_idx].portA = port;
+	ranges[range_idx].portB = 7;
+	if(port <= OPERACAKE_PA4) {
+		ranges[range_idx].portB = range_idx+4;
+	} else {
+		ranges[range_idx].portB = OPERACAKE_PA1;
+	}
+	range_idx++;
+	return 0;
+}
+
+#define FREQ_ONE_MHZ (1000000ull)
+static uint8_t current_range = 0xFF;
+
+uint8_t operacake_set_range(uint32_t freq_mhz) {
+	if(range_idx == 0) {
+		return 1;
+	}
+	int i;
+	for(i=0; i<range_idx; i++) {
+		if((freq_mhz >= ranges[i].freq_min) 
+		  && (freq_mhz <= ranges[i].freq_max)) {
+			break;
+		}
+	}
+	if(i == current_range) {
+		return 1;
+	}
+	
+	operacake_set_ports(operacake_boards[0], ranges[i].portA, ranges[i].portB);
+	current_range = i;
+	return 0;
+}

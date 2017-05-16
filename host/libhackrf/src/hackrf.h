@@ -242,6 +242,10 @@ extern ADDAPI int ADDCALL hackrf_set_operacake_ports(hackrf_device* device,
 
 extern ADDAPI int ADDCALL hackrf_reset(hackrf_device* device);
 
+extern ADDAPI int ADDCALL hackrf_set_operacake_ranges(hackrf_device* device,
+                                                      uint8_t* ranges,
+                                                      uint8_t num_ranges);
+
 #ifdef __cplusplus
 } // __cplusplus defined.
 #endif

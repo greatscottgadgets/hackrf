@@ -32,6 +32,7 @@ SET(TOOLS
 	hackrf_info
 	hackrf_debug
 	hackrf_sweep
+	hackrf_operacake
 )
 
 if(MSVC)

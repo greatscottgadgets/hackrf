@@ -24,12 +24,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <getopt.h>
+#include <string.h>
 
 #ifndef bool
 typedef int bool;
 #define true 1
 #define false 0
 #endif
+
+#define FREQ_MIN_MHZ (0)    /*    0 MHz */
+#define FREQ_MAX_MHZ (7250) /* 7250 MHz */
+#define MAX_FREQ_RANGES 8
 
 static void usage() {
 	printf("\nUsage:\n");
@@ -38,6 +43,7 @@ static void usage() {
 	printf("\t-o, --address <n>: specify a particular operacake by address [default: 0x00]\n");
 	printf("\t-a <n>: set port A connection\n");
 	printf("\t-b <n>: set port B connection\n");
+	printf("\t-f <min:max:port>: automatically assign <port> for range <min:max> in MHz\n");
 	printf("\t-l, --list: list available operacake boards\n");
 }
 
@@ -49,7 +55,13 @@ static struct option long_options[] = {
 	{ 0, 0, 0, 0 },
 };
 
-int parse_int(char* const s, uint16_t* const value) {
+typedef struct {
+	uint16_t freq_min;
+	uint16_t freq_max;
+	uint8_t port;
+} hackrf_oc_range;
+
+int parse_uint16(char* const s, uint16_t* const value) {
 	char* s_end = s;
 	const long long_value = strtol(s, &s_end, 10);
 	if( (s != s_end) && (*s_end == 0) ) {
@@ -58,6 +70,34 @@ int parse_int(char* const s, uint16_t* const value) {
 	} else {
 		return HACKRF_ERROR_INVALID_PARAM;
 	}
+}
+
+int parse_u16_range(char* s, hackrf_oc_range* range) {
+	int result;
+	uint16_t port;
+
+	char *sep = strchr(s, ':');
+	if (!sep)
+		return HACKRF_ERROR_INVALID_PARAM;
+	*sep = 0;
+
+	char *sep2 = strchr(sep+1, ':');
+	if (!sep2)
+		return HACKRF_ERROR_INVALID_PARAM;
+	*sep2 = 0;
+
+	result = parse_uint16(s, &range->freq_min);
+	if (result != HACKRF_SUCCESS)
+		return result;
+	result = parse_uint16(sep + 1, &range->freq_max);
+	if (result != HACKRF_SUCCESS)
+		return result;
+	result = parse_uint16(sep2 + 1, &port);
+	if (result != HACKRF_SUCCESS)
+		return result;
+	range->port = port;
+
+	return HACKRF_SUCCESS;
 }
 
 int main(int argc, char** argv) {
@@ -73,6 +113,8 @@ int main(int argc, char** argv) {
 	int i = 0;
 	hackrf_device* device = NULL;
 	int option_index = 0;
+	hackrf_oc_range ranges[MAX_FREQ_RANGES];
+	uint8_t range_idx = 0;
 
 	int result = hackrf_init();
 	if( result ) {
@@ -80,7 +122,7 @@ int main(int argc, char** argv) {
 		return -1;
 	}
 
-	while( (opt = getopt_long(argc, argv, "d:o:a:b:lh?", long_options, &option_index)) != EOF ) {
+	while( (opt = getopt_long(argc, argv, "d:o:a:b:lf:h?", long_options, &option_index)) != EOF ) {
 		switch( opt ) {
 		case 'd':
 			serial_number = optarg;
@@ -89,6 +131,31 @@ int main(int argc, char** argv) {
 		case 'o':
 			operacake_address = atoi(optarg);
 			set_ports = true;
+			break;
+
+		case 'f':
+			result = parse_u16_range(optarg, &ranges[range_idx]);
+			if(ranges[range_idx].freq_min >= ranges[range_idx].freq_max) {
+				fprintf(stderr,
+						"argument error: freq_max must be greater than freq_min.\n");
+				usage();
+				return EXIT_FAILURE;
+			}
+			if(FREQ_MAX_MHZ < ranges[range_idx].freq_max) {
+				fprintf(stderr,
+						"argument error: freq_max may not be higher than %u.\n",
+						FREQ_MAX_MHZ);
+				usage();
+				return EXIT_FAILURE;
+			}
+			range_idx++;
+			if(MAX_FREQ_RANGES <= range_idx) {
+				fprintf(stderr,
+						"argument error: specify a maximum of %u frequency ranges.\n",
+						MAX_FREQ_RANGES);
+				usage();
+				return EXIT_FAILURE;
+			}
 			break;
 
 		case 'a':
@@ -114,7 +181,7 @@ int main(int argc, char** argv) {
 		}
 	}
 
-	if(!(list || set_ports)) {
+	if(!(list || set_ports || range_idx)) {
 		fprintf(stderr, "Specify either list or address option.\n");
 		usage();
 		return EXIT_FAILURE;
@@ -150,6 +217,25 @@ int main(int argc, char** argv) {
 		result = hackrf_set_operacake_ports(device, operacake_address, port_a, port_b);
 		if( result ) {
 			printf("hackrf_set_operacake_ports() failed: %s (%d)\n", hackrf_error_name(result), result);
+			return -1;
+		}
+	}
+
+	if(range_idx) {
+		uint8_t range_bytes[MAX_FREQ_RANGES * 5];
+		uint8_t ptr;
+		for(i=0; i<range_idx; i++) {
+			ptr = 5*i;
+			range_bytes[ptr] = ranges[i].freq_min >> 8;
+			range_bytes[ptr+1] = ranges[i].freq_min;
+			range_bytes[ptr+2] = ranges[i].freq_max >> 8;
+			range_bytes[ptr+3] = ranges[i].freq_max;
+			range_bytes[ptr+4] = ranges[i].port;
+		}
+
+		result = hackrf_set_operacake_ranges(device, range_bytes, range_idx*5);
+		if( result ) {
+			printf("hackrf_set_operacake_ranges() failed: %s (%d)\n", hackrf_error_name(result), result);
 			return -1;
 		}
 	}
