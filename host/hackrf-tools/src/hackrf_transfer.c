@@ -1084,7 +1084,7 @@ int main(int argc, char** argv) {
 
 			time_start = time_now;
 
-			if (byte_count_now == 0) {
+			if (byte_count_now == 0 && (hw_sync == false || hw_sync_enable == 0)) {
 				exit_code = EXIT_FAILURE;
 				fprintf(stderr, "\nCouldn't transfer any bytes for one second.\n");
 				break;
