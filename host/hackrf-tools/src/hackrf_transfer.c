@@ -1077,10 +1077,15 @@ int main(int argc, char** argv) {
 			byte_count_now = byte_count;
 			byte_count = 0;
 			
+			
 			time_difference = TimevalDiff(&time_now, &time_start);
 			rate = (float)byte_count_now / time_difference;
-			fprintf(stderr, "%4.1f MiB / %5.3f sec = %4.1f MiB/second\n",
-					(byte_count_now / 1e6f), time_difference, (rate / 1e6f) );
+			if (byte_count_now == 0 && hw_sync == true && hw_sync_enable != 0) {
+			    fprintf(stderr, "Waiting for sync...\n");
+			} else {
+			    fprintf(stderr, "%4.1f MiB / %5.3f sec = %4.1f MiB/second\n",
+					    (byte_count_now / 1e6f), time_difference, (rate / 1e6f) );
+			}
 
 			time_start = time_now;
 
