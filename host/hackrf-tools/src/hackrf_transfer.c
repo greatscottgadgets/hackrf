@@ -311,7 +311,7 @@ bool signalsource = false;
 uint32_t amplitude = 0;
 
 bool hw_sync = false;
-uint32_t hw_sync_enable;
+uint32_t hw_sync_enable = 0;
 
 bool receive = false;
 bool receive_wav = false;
@@ -963,13 +963,11 @@ int main(int argc, char** argv) {
 		}
 	}
 
-	if(hw_sync) {
-		fprintf(stderr, "call hackrf_set_hw_sync_mode(%d)\n", hw_sync_enable);
-		result = hackrf_set_hw_sync_mode(device, hw_sync_enable ? HW_SYNC_MODE_ON : HW_SYNC_MODE_OFF);
-		if( result != HACKRF_SUCCESS ) {
-			fprintf(stderr, "hackrf_set_hw_sync_mode() failed: %s (%d)\n", hackrf_error_name(result), result);
-			return EXIT_FAILURE;
-		}
+	fprintf(stderr, "call hackrf_set_hw_sync_mode(%d)\n", hw_sync_enable);
+	result = hackrf_set_hw_sync_mode(device, hw_sync_enable ? HW_SYNC_MODE_ON : HW_SYNC_MODE_OFF);
+	if( result != HACKRF_SUCCESS ) {
+		fprintf(stderr, "hackrf_set_hw_sync_mode() failed: %s (%d)\n", hackrf_error_name(result), result);
+		return EXIT_FAILURE;
 	}
 
 	if( transceiver_mode == TRANSCEIVER_MODE_RX ) {
