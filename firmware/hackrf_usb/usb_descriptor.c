@@ -36,6 +36,8 @@
 #define USB_PRODUCT_ID			(0xFFFF)
 #endif
 
+#define USB_API_VERSION			(0x0103)
+
 #define USB_WORD(x)	(x & 0xFF), ((x >> 8) & 0xFF)
 
 #define USB_MAX_PACKET0     	(64)
@@ -57,7 +59,7 @@ uint8_t usb_descriptor_device[] = {
 	USB_MAX_PACKET0,		   // bMaxPacketSize0
 	USB_WORD(USB_VENDOR_ID),	   // idVendor
 	USB_WORD(USB_PRODUCT_ID),	   // idProduct
-	USB_WORD(0x0102),		   // bcdDevice
+	USB_WORD(USB_API_VERSION),	// bcdDevice
 	0x01,				   // iManufacturer
 	0x02,				   // iProduct
 	0x04,				   // iSerialNumber

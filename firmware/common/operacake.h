@@ -40,11 +40,15 @@ extern "C"
 #define OPERACAKE_PB3 6
 #define OPERACAKE_PB4 7
 
+#define MAX_OPERACAKE_RANGES 8
+
 /* Up to 8 Operacake boards can be used with one HackRF */
 extern uint8_t operacake_boards[8];
 
 uint8_t operacake_init(void);
 uint8_t operacake_set_ports(uint8_t address, uint8_t PA, uint8_t PB);
+uint8_t operacake_add_range(uint16_t freq_min, uint16_t freq_max, uint8_t port);
+uint8_t operacake_set_range(uint32_t freq_mhz);
 
 #ifdef __cplusplus
 }

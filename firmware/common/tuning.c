@@ -28,6 +28,7 @@
 #include <mixer.h>
 #include <max2837.h>
 #include <sgpio.h>
+#include <operacake.h>
 
 #define FREQ_ONE_MHZ     (1000*1000)
 
@@ -115,6 +116,7 @@ bool set_freq(const uint64_t freq)
 	if( success ) {
 		freq_cache = freq;
 		hackrf_ui_setFrequency(freq);
+		operacake_set_range(freq_mhz);
 	}
 	return success;
 }
