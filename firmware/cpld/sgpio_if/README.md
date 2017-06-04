@@ -1,8 +1,8 @@
 CPLD interface between LPC43xx microcontroller SGPIO peripheral and MAX5864
 RF codec.
 
-Requirements
-============
+CPLD-based triggered capture
+============================
 
 To build this VHDL project and produce an SVF file for flashing the CPLD:
 

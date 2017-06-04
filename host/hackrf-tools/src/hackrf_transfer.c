@@ -311,7 +311,7 @@ bool signalsource = false;
 uint32_t amplitude = 0;
 
 bool hw_sync = false;
-uint32_t hw_sync_enable;
+uint32_t hw_sync_enable = 0;
 
 bool receive = false;
 bool receive_wav = false;
@@ -963,13 +963,11 @@ int main(int argc, char** argv) {
 		}
 	}
 
-	if(hw_sync) {
-		fprintf(stderr, "call hackrf_set_hw_sync_mode(%d)\n", hw_sync);
-		result = hackrf_set_hw_sync_mode(device, hw_sync_enable ? HW_SYNC_MODE_ON : HW_SYNC_MODE_OFF);
-		if( result != HACKRF_SUCCESS ) {
-			fprintf(stderr, "hackrf_set_hw_sync_mode() failed: %s (%d)\n", hackrf_error_name(result), result);
-			return EXIT_FAILURE;
-		}
+	fprintf(stderr, "call hackrf_set_hw_sync_mode(%d)\n", hw_sync_enable);
+	result = hackrf_set_hw_sync_mode(device, hw_sync_enable ? HW_SYNC_MODE_ON : HW_SYNC_MODE_OFF);
+	if( result != HACKRF_SUCCESS ) {
+		fprintf(stderr, "hackrf_set_hw_sync_mode() failed: %s (%d)\n", hackrf_error_name(result), result);
+		return EXIT_FAILURE;
 	}
 
 	if( transceiver_mode == TRANSCEIVER_MODE_RX ) {
@@ -1077,14 +1075,19 @@ int main(int argc, char** argv) {
 			byte_count_now = byte_count;
 			byte_count = 0;
 			
+			
 			time_difference = TimevalDiff(&time_now, &time_start);
 			rate = (float)byte_count_now / time_difference;
-			fprintf(stderr, "%4.1f MiB / %5.3f sec = %4.1f MiB/second\n",
-					(byte_count_now / 1e6f), time_difference, (rate / 1e6f) );
+			if (byte_count_now == 0 && hw_sync == true && hw_sync_enable != 0) {
+			    fprintf(stderr, "Waiting for sync...\n");
+			} else {
+			    fprintf(stderr, "%4.1f MiB / %5.3f sec = %4.1f MiB/second\n",
+					    (byte_count_now / 1e6f), time_difference, (rate / 1e6f) );
+			}
 
 			time_start = time_now;
 
-			if (byte_count_now == 0) {
+			if (byte_count_now == 0 && (hw_sync == false || hw_sync_enable == 0)) {
 				exit_code = EXIT_FAILURE;
 				fprintf(stderr, "\nCouldn't transfer any bytes for one second.\n");
 				break;

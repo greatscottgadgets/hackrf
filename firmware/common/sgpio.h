@@ -36,7 +36,7 @@ typedef enum {
 
 typedef struct sgpio_config_t {
 	gpio_t gpio_rx_q_invert;
-	gpio_t gpio_rx_decimation[3];
+	gpio_t gpio_hw_sync_enable;
 	bool slice_mode_multislice;
 } sgpio_config_t;
 

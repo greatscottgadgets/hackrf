@@ -269,20 +269,15 @@ void set_transceiver_mode(const transceiver_mode_t new_transceiver_mode) {
 		led_off(LED3);
 		rf_path_set_direction(&rf_path, RF_PATH_DIRECTION_OFF);
 		vector_table.irq[NVIC_SGPIO_IRQ] = sgpio_isr_rx;
-
-		hw_sync_stop();
 	}
 
-	hw_sync_stop();
 
 	if( _transceiver_mode != TRANSCEIVER_MODE_OFF ) {
 		si5351c_activate_best_clock_source(&clock_gen);
 
-		if( _hw_sync_mode != HW_SYNC_MODE_OFF) {
-			hw_sync_syn();
-		} else {
-			baseband_streaming_enable(&sgpio_config);
-		}
+        hw_sync_enable(_hw_sync_mode);
+
+		baseband_streaming_enable(&sgpio_config);
 	}
 }
 
@@ -321,16 +316,5 @@ usb_request_status_t usb_vendor_request_set_hw_sync_mode(
 		return USB_REQUEST_STATUS_OK;
 	} else {
 		return USB_REQUEST_STATUS_OK;
-	}
-}
-
-void start_streaming_on_hw_sync()
-{
-	if( _hw_sync_mode != HW_SYNC_MODE_OFF) {
-		while(!hw_sync_ready()) { }
-		hw_sync_ack();
-		led_on(LED3);
-
-		baseband_streaming_enable(&sgpio_config);
 	}
 }

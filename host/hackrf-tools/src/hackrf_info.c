@@ -71,6 +71,9 @@ int main(void)
 		if (result != HACKRF_SUCCESS) {
 			fprintf(stderr, "hackrf_open() failed: %s (%d)\n",
 					hackrf_error_name(result), result);
+			if(result == HACKRF_ERROR_LIBUSB) {
+				continue;
+			}
 			return EXIT_FAILURE;
 		}
 
