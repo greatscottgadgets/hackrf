@@ -233,6 +233,13 @@ extern "C"
 #define SCU_PINMUX_GP_CLKIN	(P4_7)
 
 typedef enum {
+	USB_BULK_DIRECTION_OFF = 0,
+	USB_BULK_DIRECTION_OUT = 1,
+	USB_BULK_DIRECTION_IN = 2,
+	USB_BULK_DIRECTION_BOTH = 3
+} usb_bulk_direction_t;
+
+typedef enum {
 	TRANSCEIVER_MODE_OFF = 0,
 	TRANSCEIVER_MODE_RX = 1,
 	TRANSCEIVER_MODE_TX = 2,

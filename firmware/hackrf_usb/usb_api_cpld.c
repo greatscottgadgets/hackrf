@@ -25,8 +25,9 @@
 #include <hackrf_core.h>
 #include <cpld_jtag.h>
 #include <usb_queue.h>
-
+#include "usb_api_transceiver.h"
 #include "usb_endpoint.h"
+#include <usb.h>
 
 #include <stddef.h>
 #include <stdint.h>
@@ -56,6 +57,20 @@ static void refill_cpld_buffer(void)
 
 	// Wait until transfer finishes
 	while (cpld_wait);
+}
+
+usb_request_status_t usb_vendor_request_cpld_update(
+	usb_endpoint_t* const endpoint,
+	const usb_transfer_stage_t stage)
+{
+	if( stage == USB_TRANSFER_STAGE_SETUP ) {
+		usb_endpoint_init(&usb_endpoint_bulk_out);
+		start_cpld_update = true;
+		usb_transfer_schedule_ack(endpoint->in);
+		return USB_REQUEST_STATUS_OK;
+	} else {
+		return USB_REQUEST_STATUS_OK;
+	}
 }
 
 void cpld_update(void)

@@ -67,7 +67,7 @@ static const usb_request_handler_fn vendor_request_handler[] = {
 	usb_vendor_request_erase_spiflash,
 	usb_vendor_request_write_spiflash,
 	usb_vendor_request_read_spiflash,
-	NULL, // used to be write_cpld
+	usb_vendor_request_cpld_update,
 	usb_vendor_request_read_board_id,
 	usb_vendor_request_read_version_string,
 	usb_vendor_request_set_freq,
@@ -159,7 +159,7 @@ void usb_set_descriptor_by_serial_number(void)
 	}
 }
 
-int main(void) {
+void configure_peripherals(void) {
 	pin_setup();
 	enable_1v8_power();
 #if (defined HACKRF_ONE || defined RAD1O)
@@ -193,7 +193,9 @@ int main(void) {
 	
 	rf_path_init(&rf_path);
 	operacake_init();
+}
 
+void transceiver_loop(void) {
 	unsigned int phase = 0;
 
 	while(true) {
@@ -235,6 +237,10 @@ int main(void) {
 			phase = 1;
 		}
 	}
+}
 
+int main(void) {
+	configure_peripherals();
+	transceiver_loop();
 	return 0;
 }

@@ -62,6 +62,7 @@ typedef enum {
 	HACKRF_VENDOR_REQUEST_SPIFLASH_ERASE = 10,
 	HACKRF_VENDOR_REQUEST_SPIFLASH_WRITE = 11,
 	HACKRF_VENDOR_REQUEST_SPIFLASH_READ = 12,
+	HACKRF_VENDOR_REQUEST_CPLD_UPDATE = 13,
 	HACKRF_VENDOR_REQUEST_BOARD_ID_READ = 14,
 	HACKRF_VENDOR_REQUEST_VERSION_STRING_READ = 15,
 	HACKRF_VENDOR_REQUEST_SET_FREQ = 16,
@@ -963,8 +964,17 @@ int ADDCALL hackrf_cpld_write(hackrf_device* device,
 	const unsigned int chunk_size = 512;
 	unsigned int i;
 	int result, transferred = 0;
-	
-	result = hackrf_set_transceiver_mode(device, TRANSCEIVER_MODE_CPLD_UPDATE);
+	result = libusb_control_transfer(
+		device->usb_device,
+		LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_CPLD_UPDATE,
+		0,
+		0,
+		NULL,
+		0,
+		0
+	);
+
 	if (result != 0)
 		return result;
 	
