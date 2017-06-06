@@ -38,10 +38,10 @@ set(SRC_M4
 	usb_device.c
 	usb_endpoint.c
 	usb_api_board_info.c
-	usb_api_cpld.c
 	usb_api_register.c
-	usb_api_spiflash.c
+	usb_api_firmware.c
 	usb_api_transceiver.c
+	usb_api_mode.c
 	"${PATH_HACKRF_FIRMWARE_COMMON}/operacake.c"
 	usb_api_operacake.c
 	usb_api_sweep.c

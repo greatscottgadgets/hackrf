@@ -1,6 +1,5 @@
 /*
- * Copyright 2012 Jared Boone
- * Copyright 2013 Benjamin Vernoux
+ * Copyright 2017 Dominic Spill <dominicgs@gmail.com>
  *
  * This file is part of HackRF.
  *
@@ -20,18 +19,19 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __USB_API_CPLD_H__
-#define __USB_API_CPLD_H__
-
-#include <stdbool.h>
+// #include <hackrf_core.h>
 #include <usb_type.h>
 #include <usb_request.h>
 
-extern volatile bool start_cpld_update;
+typedef enum {
+	HACKRF_MODE_IDLE = 0,
+	HACKRF_MODE_RX = 1,
+	HACKRF_MODE_TX = 2,
+	HACKRF_MODE_SWEEP = 3,
+	HACKRF_MODE_CPLD = 4
+} hackrf_mode_t;
 
-usb_request_status_t usb_vendor_request_cpld_update(
+
+usb_request_status_t usb_vendor_request_set_mode(
 	usb_endpoint_t* const endpoint,
 	const usb_transfer_stage_t stage);
-void cpld_update(void);
-
-#endif /* end of include guard: __USB_API_CPLD_H__ */

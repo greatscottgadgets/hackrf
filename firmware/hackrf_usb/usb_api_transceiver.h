@@ -28,9 +28,6 @@
 #include <usb_request.h>
 
 void set_hw_sync_mode(const hw_sync_mode_t new_hw_sync_mode);
-usb_request_status_t usb_vendor_request_set_transceiver_mode(
-	usb_endpoint_t* const endpoint,
-	const usb_transfer_stage_t stage);
 usb_request_status_t usb_vendor_request_set_baseband_filter_bandwidth(
 	usb_endpoint_t* const endpoint,
 	const usb_transfer_stage_t stage);

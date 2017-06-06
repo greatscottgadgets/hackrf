@@ -50,7 +50,7 @@ typedef int bool;
 // TODO: Factor this into a shared #include so that firmware can use
 // the same values.
 typedef enum {
-	HACKRF_VENDOR_REQUEST_SET_TRANSCEIVER_MODE = 1,
+	HACKRF_VENDOR_REQUEST_SET_MODE = 1,
 	HACKRF_VENDOR_REQUEST_MAX2837_WRITE = 2,
 	HACKRF_VENDOR_REQUEST_MAX2837_READ = 3,
 	HACKRF_VENDOR_REQUEST_SI5351C_WRITE = 4,
@@ -85,12 +85,12 @@ typedef enum {
 #define USB_CONFIG_STANDARD 0x1
 
 typedef enum {
-	HACKRF_TRANSCEIVER_MODE_OFF = 0,
-	HACKRF_TRANSCEIVER_MODE_RECEIVE = 1,
-	HACKRF_TRANSCEIVER_MODE_TRANSMIT = 2,
-	HACKRF_TRANSCEIVER_MODE_SS = 3,
-	TRANSCEIVER_MODE_CPLD_UPDATE = 4,
-} hackrf_transceiver_mode;
+	HACKRF_MODE_IDLE = 0,
+	HACKRF_MODE_RX = 1,
+	HACKRF_MODE_TX = 2,
+	HACKRF_MODE_SWEEP = 3,
+	HACKRF_MODE_CPLD = 4
+} hackrf_mode_t;
 
 typedef enum {
 	HACKRF_HW_SYNC_MODE_OFF = 0,
@@ -644,13 +644,13 @@ int ADDCALL hackrf_device_list_open(hackrf_device_list_t *list, int idx, hackrf_
 	return hackrf_open_setup(usb_device, device);
 }
 
-int ADDCALL hackrf_set_transceiver_mode(hackrf_device* device, hackrf_transceiver_mode value)
+int ADDCALL hackrf_set_mode(hackrf_device* device, hackrf_mode_t value)
 {
 	int result;
 	result = libusb_control_transfer(
 		device->usb_device,
 		LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
-		HACKRF_VENDOR_REQUEST_SET_TRANSCEIVER_MODE,
+		HACKRF_VENDOR_REQUEST_SET_MODE,
 		value,
 		0,
 		NULL,
@@ -1565,7 +1565,7 @@ int ADDCALL hackrf_start_rx(hackrf_device* device, hackrf_sample_block_cb_fn cal
 {
 	int result;
 	const uint8_t endpoint_address = LIBUSB_ENDPOINT_IN | 1;
-	result = hackrf_set_transceiver_mode(device, HACKRF_TRANSCEIVER_MODE_RECEIVE);
+	result = hackrf_set_mode(device, HACKRF_MODE_RX);
 	if( result == HACKRF_SUCCESS )
 	{
 		device->rx_ctx = rx_ctx;
@@ -1577,7 +1577,7 @@ int ADDCALL hackrf_start_rx(hackrf_device* device, hackrf_sample_block_cb_fn cal
 int ADDCALL hackrf_stop_rx(hackrf_device* device)
 {
 	int result;
-	result = hackrf_set_transceiver_mode(device, HACKRF_TRANSCEIVER_MODE_OFF);
+	result = hackrf_set_mode(device, HACKRF_MODE_IDLE);
 	if (result != HACKRF_SUCCESS)
 	{
 		return result;
@@ -1589,7 +1589,7 @@ int ADDCALL hackrf_start_tx(hackrf_device* device, hackrf_sample_block_cb_fn cal
 {
 	int result;
 	const uint8_t endpoint_address = LIBUSB_ENDPOINT_OUT | 2;
-	result = hackrf_set_transceiver_mode(device, HACKRF_TRANSCEIVER_MODE_TRANSMIT);
+	result = hackrf_set_mode(device, HACKRF_MODE_TX);
 	if( result == HACKRF_SUCCESS )
 	{
 		device->tx_ctx = tx_ctx;
@@ -1602,7 +1602,7 @@ int ADDCALL hackrf_stop_tx(hackrf_device* device)
 {
 	int result1, result2;
 	result1 = kill_transfer_thread(device);
-	result2 = hackrf_set_transceiver_mode(device, HACKRF_TRANSCEIVER_MODE_OFF);
+	result2 = hackrf_set_mode(device, HACKRF_MODE_IDLE);
 	if (result2 != HACKRF_SUCCESS)
 	{
 		return result2;

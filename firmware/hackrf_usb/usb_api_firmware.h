@@ -1,6 +1,7 @@
 /*
  * Copyright 2012 Jared Boone
  * Copyright 2013 Benjamin Vernoux
+ * Copyright 2017 Dominic Spill
  *
  * This file is part of HackRF.
  *
@@ -20,11 +21,14 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __USB_API_SPIFLASH_H__
-#define __USB_API_SPIFLASH_H__
+#ifndef __USB_API_FIRMWARE_H__
+#define __USB_API_FIRMWARE_H__
 
+#include <stdbool.h>
 #include <usb_type.h>
 #include <usb_request.h>
+
+extern volatile bool start_cpld_update;
 
 usb_request_status_t usb_vendor_request_erase_spiflash(
 	usb_endpoint_t* const endpoint, const usb_transfer_stage_t stage);
@@ -32,5 +36,9 @@ usb_request_status_t usb_vendor_request_write_spiflash(
 	usb_endpoint_t* const endpoint, const usb_transfer_stage_t stage);
 usb_request_status_t usb_vendor_request_read_spiflash(
 	usb_endpoint_t* const endpoint, const usb_transfer_stage_t stage);
+usb_request_status_t usb_vendor_request_cpld_update(
+	usb_endpoint_t* const endpoint, const usb_transfer_stage_t stage);
 
-#endif /* end of include guard: __USB_API_SPIFLASH_H__ */
+void cpld_update(void);
+
+#endif /* end of include guard: __USB_API_FIRMWARE_H__ */

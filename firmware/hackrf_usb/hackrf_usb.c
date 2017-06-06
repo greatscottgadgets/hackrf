@@ -37,10 +37,10 @@
 #include "usb_device.h"
 #include "usb_endpoint.h"
 #include "usb_api_board_info.h"
-#include "usb_api_cpld.h"
 #include "usb_api_register.h"
-#include "usb_api_spiflash.h"
+#include "usb_api_firmware.h"
 #include "usb_api_operacake.h"
+#include "usb_api_mode.h"
 #include "operacake.h"
 #include "usb_api_sweep.h"
 #include "usb_api_transceiver.h"
@@ -50,7 +50,7 @@
 
 static const usb_request_handler_fn vendor_request_handler[] = {
 	NULL,
-	usb_vendor_request_set_transceiver_mode,
+	usb_vendor_request_set_mode,
 	usb_vendor_request_write_max2837,
 	usb_vendor_request_read_max2837,
 	usb_vendor_request_write_si5351c,
@@ -197,7 +197,7 @@ void configure_peripherals(void) {
 
 void transceiver_loop(void) {
 	unsigned int phase = 0;
-
+	// __asm__("wfi");
 	while(true) {
 		// Check whether we need to initiate a CPLD update
 		if (start_cpld_update)
