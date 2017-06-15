@@ -246,22 +246,25 @@ void set_transceiver_mode(const transceiver_mode_t new_transceiver_mode) {
 	baseband_streaming_disable(&sgpio_config);
 	
 	_transceiver_mode = new_transceiver_mode;
-	
-	if( _transceiver_mode == TRANSCEIVER_MODE_RX ) {
-		led_off(LED3);
-		led_on(LED2);
-		rf_path_set_direction(&rf_path, RF_PATH_DIRECTION_RX);
-		vector_table.irq[NVIC_SGPIO_IRQ] = sgpio_isr_rx;
-	} else if (_transceiver_mode == TRANSCEIVER_MODE_TX) {
-		led_off(LED2);
-		led_on(LED3);
-		rf_path_set_direction(&rf_path, RF_PATH_DIRECTION_TX);
-		vector_table.irq[NVIC_SGPIO_IRQ] = sgpio_isr_tx;
-	} else {
-		led_off(LED2);
-		led_off(LED3);
-		rf_path_set_direction(&rf_path, RF_PATH_DIRECTION_OFF);
-		vector_table.irq[NVIC_SGPIO_IRQ] = sgpio_isr_rx;
+	switch(_transceiver_mode) {
+		case TRANSCEIVER_MODE_RX:
+			led_off(LED3);
+			led_on(LED2);
+			rf_path_set_direction(&rf_path, RF_PATH_DIRECTION_RX);
+			vector_table.irq[NVIC_SGPIO_IRQ] = sgpio_isr_rx;
+			break;
+		case TRANSCEIVER_MODE_TX:
+			led_off(LED2);
+			led_on(LED3);
+			rf_path_set_direction(&rf_path, RF_PATH_DIRECTION_TX);
+			vector_table.irq[NVIC_SGPIO_IRQ] = sgpio_isr_tx;
+			break;
+		default:
+			led_off(LED2);
+			led_off(LED3);
+			rf_path_set_direction(&rf_path, RF_PATH_DIRECTION_OFF);
+			vector_table.irq[NVIC_SGPIO_IRQ] = sgpio_isr_rx;
+			break;
 	}
 
 	if( _transceiver_mode != TRANSCEIVER_MODE_OFF ) {

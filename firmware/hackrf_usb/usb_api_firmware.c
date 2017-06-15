@@ -21,6 +21,7 @@
  */
 
 #include "usb_api_firmware.h"
+#include "usb_api_mode.h"
 #include <stddef.h>
 #include <hackrf_core.h>
 #include "usb_queue.h"
@@ -120,7 +121,6 @@ usb_request_status_t usb_vendor_request_read_spiflash(
 	}
 }
 
-volatile bool start_cpld_update = false;
 uint8_t cpld_xsvf_buffer[512];
 volatile bool cpld_wait = false;
 
@@ -152,7 +152,7 @@ usb_request_status_t usb_vendor_request_cpld_update(
 {
 	if( stage == USB_TRANSFER_STAGE_SETUP ) {
 		usb_endpoint_init(&usb_endpoint_bulk_out);
-		start_cpld_update = true;
+		set_hackrf_mode(HACKRF_MODE_CPLD);
 		usb_transfer_schedule_ack(endpoint->in);
 		return USB_REQUEST_STATUS_OK;
 	} else {

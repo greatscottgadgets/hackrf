@@ -195,52 +195,56 @@ void configure_peripherals(void) {
 	operacake_init();
 }
 
+static unsigned int phase = 0;
+
 void transceiver_loop(void) {
-	unsigned int phase = 0;
-	// __asm__("wfi");
-	while(true) {
-		// Check whether we need to initiate a CPLD update
-		if (start_cpld_update)
-			cpld_update();
-
-		// Check whether we need to initiate sweep mode
-		if (start_sweep_mode) {
-			start_sweep_mode = false;
-			sweep_mode();
-		}
-
-		// Set up IN transfer of buffer 0.
-		if ( usb_bulk_buffer_offset >= 16384
-		     && phase == 1
-		     && transceiver_mode() != TRANSCEIVER_MODE_OFF) {
-			usb_transfer_schedule_block(
-				(transceiver_mode() == TRANSCEIVER_MODE_RX)
-				? &usb_endpoint_bulk_in : &usb_endpoint_bulk_out,
-				&usb_bulk_buffer[0x0000],
-				0x4000,
-				NULL, NULL
-				);
-			phase = 0;
-		}
-
-		// Set up IN transfer of buffer 1.
-		if ( usb_bulk_buffer_offset < 16384
-		     && phase == 0
-		     && transceiver_mode() != TRANSCEIVER_MODE_OFF) {
-			usb_transfer_schedule_block(
-				(transceiver_mode() == TRANSCEIVER_MODE_RX)
-				? &usb_endpoint_bulk_in : &usb_endpoint_bulk_out,
-				&usb_bulk_buffer[0x4000],
-				0x4000,
-				NULL, NULL
+	// Set up IN transfer of buffer 0.
+	if ( usb_bulk_buffer_offset >= 16384
+			&& phase == 1
+			&& transceiver_mode() != TRANSCEIVER_MODE_OFF) {
+		usb_transfer_schedule_block(
+			(transceiver_mode() == TRANSCEIVER_MODE_RX)
+			? &usb_endpoint_bulk_in : &usb_endpoint_bulk_out,
+			&usb_bulk_buffer[0x0000],
+			0x4000,
+			NULL, NULL
 			);
-			phase = 1;
-		}
+		phase = 0;
+	}
+
+	// Set up IN transfer of buffer 1.
+	if ( usb_bulk_buffer_offset < 16384
+			&& phase == 0
+			&& transceiver_mode() != TRANSCEIVER_MODE_OFF) {
+		usb_transfer_schedule_block(
+			(transceiver_mode() == TRANSCEIVER_MODE_RX)
+			? &usb_endpoint_bulk_in : &usb_endpoint_bulk_out,
+			&usb_bulk_buffer[0x4000],
+			0x4000,
+			NULL, NULL
+		);
+		phase = 1;
 	}
 }
 
 int main(void) {
 	configure_peripherals();
-	transceiver_loop();
+	while(true) {
+		switch(hackrf_mode) {
+			case HACKRF_MODE_IDLE:
+				__asm__("wfi");
+				break;
+			case HACKRF_MODE_CPLD:
+				cpld_update();
+				break;
+			case HACKRF_MODE_SWEEP:
+				sweep_mode();
+				break;
+			case HACKRF_MODE_TX:
+			case HACKRF_MODE_RX:
+				transceiver_loop();
+				break;
+		}
+	}
 	return 0;
 }

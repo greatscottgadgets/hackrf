@@ -19,7 +19,9 @@
  * Boston, MA 02110-1301, USA.
  */
 
-// #include <hackrf_core.h>
+#ifndef __USB_API_MODE_H__
+#define __USB_API_MODE_H__
+
 #include <usb_type.h>
 #include <usb_request.h>
 
@@ -31,7 +33,12 @@ typedef enum {
 	HACKRF_MODE_CPLD = 4
 } hackrf_mode_t;
 
+extern volatile hackrf_mode_t hackrf_mode;
+
+int set_hackrf_mode(hackrf_mode_t _hackrf_mode);
 
 usb_request_status_t usb_vendor_request_set_mode(
 	usb_endpoint_t* const endpoint,
 	const usb_transfer_stage_t stage);
+
+#endif /* __USB_API_MODE_H__ */

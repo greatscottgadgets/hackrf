@@ -51,30 +51,46 @@ void set_usb_mode(const usb_mode_t new_usb_mode) {
     }
 }
 
- usb_request_status_t usb_vendor_request_set_mode(
+volatile hackrf_mode_t hackrf_mode;
 
-	usb_endpoint_t* const endpoint, const usb_transfer_stage_t stage) {
-	if(stage == USB_TRANSFER_STAGE_SETUP) {
-		switch(endpoint->setup.value) {
-		case HACKRF_MODE_IDLE:
-			set_transceiver_mode(TRANSCEIVER_MODE_OFF);
-            set_usb_mode(USB_MODE_NONE);
-            break;
+int set_hackrf_mode(hackrf_mode_t _hackrf_mode) {
+	hackrf_mode = _hackrf_mode;
+	switch(hackrf_mode) {
 		case HACKRF_MODE_RX:
 		case HACKRF_MODE_SWEEP:
 			set_transceiver_mode(TRANSCEIVER_MODE_RX);
-            set_usb_mode(USB_MODE_IN);
-            break;
+			set_usb_mode(USB_MODE_IN);
+			break;
 		case HACKRF_MODE_TX:
 			set_transceiver_mode(TRANSCEIVER_MODE_TX);
-            set_usb_mode(USB_MODE_OUT);
-            break;
+			set_usb_mode(USB_MODE_OUT);
+			break;
+		case HACKRF_MODE_CPLD:
+			set_transceiver_mode(TRANSCEIVER_MODE_OFF);
+			set_usb_mode(USB_MODE_OUT);
+			break;
+		case HACKRF_MODE_IDLE:
+			set_transceiver_mode(TRANSCEIVER_MODE_OFF);
+			set_usb_mode(USB_MODE_NONE);
+			break;
 		default:
-			return USB_REQUEST_STATUS_STALL;
-		}
-		usb_transfer_schedule_ack(endpoint->in);
-		return USB_REQUEST_STATUS_OK;
-	} else {
-		return USB_REQUEST_STATUS_OK;
+			hackrf_mode = HACKRF_MODE_IDLE;
+			set_transceiver_mode(TRANSCEIVER_MODE_OFF);
+			set_usb_mode(USB_MODE_NONE);
+			return 1;
 	}
+	return 0;
+}
+
+ usb_request_status_t usb_vendor_request_set_mode(
+        usb_endpoint_t* const endpoint,const usb_transfer_stage_t stage) {
+	int result;
+	if(stage == USB_TRANSFER_STAGE_SETUP) {
+		result = set_hackrf_mode(endpoint->setup.value);
+		if(result == 0) {
+			usb_transfer_schedule_ack(endpoint->in);
+			return USB_REQUEST_STATUS_OK;
+		}
+	}
+	return USB_REQUEST_STATUS_STALL;
 }
