@@ -1429,7 +1429,7 @@ static void* transfer_threadproc(void* arg)
 	return NULL;
 }
 
-static void hackrf_libusb_transfer_callback(struct libusb_transfer* usb_transfer)
+static void LIBUSB_CALL hackrf_libusb_transfer_callback(struct libusb_transfer* usb_transfer)
 {
 	hackrf_device* device = (hackrf_device*)usb_transfer->user_data;
 
@@ -1502,7 +1502,7 @@ static int create_transfer_thread(hackrf_device* device,
 
 		result = prepare_transfers(
 			device, endpoint_address,
-			(libusb_transfer_cb_fn)hackrf_libusb_transfer_callback
+			hackrf_libusb_transfer_callback
 		);
 
 		if( result != HACKRF_SUCCESS )
