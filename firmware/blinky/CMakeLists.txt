@@ -20,11 +20,11 @@
 #
 
 cmake_minimum_required(VERSION 2.8.9)
-set(CMAKE_TOOLCHAIN_FILE ../toolchain-arm-cortex-m.cmake)
+set(CMAKE_TOOLCHAIN_FILE ../cmake/toolchain-arm-cortex-m.cmake)
 
 project(blinky)
 
-include(../hackrf-common.cmake)
+include(../cmake/hackrf-common.cmake)
 
 set(SRC_M4
 	blinky.c

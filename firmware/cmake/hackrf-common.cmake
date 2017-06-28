@@ -27,7 +27,7 @@
 
 enable_language(C CXX ASM)
 
-include(../dfu-util.cmake)
+include(../cmake/dfu-util.cmake)
 
 SET(PATH_HACKRF ../..)
 SET(PATH_HACKRF_FIRMWARE ${PATH_HACKRF}/firmware)
@@ -207,7 +207,7 @@ macro(DeclareTargets)
 		COMMAND rm -f _tmp.dfu _header.bin
 		COMMAND cp ${PROJECT_NAME}_dfu.bin _tmp.dfu
 		COMMAND ${DFU_COMMAND}
-		COMMAND python ../../dfu.py ${PROJECT_NAME}
+		COMMAND python ../../tools/dfu.py ${PROJECT_NAME}
 		COMMAND cat _header.bin _tmp.dfu >${PROJECT_NAME}.dfu
 		COMMAND rm -f _tmp.dfu _header.bin
 	)
