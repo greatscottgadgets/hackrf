@@ -198,32 +198,38 @@ void configure_peripherals(void) {
 static unsigned int phase = 0;
 
 void transceiver_loop(void) {
-	// Set up IN transfer of buffer 0.
-	if ( usb_bulk_buffer_offset >= 16384
-			&& phase == 1
-			&& transceiver_mode() != TRANSCEIVER_MODE_OFF) {
-		usb_transfer_schedule_block(
-			(transceiver_mode() == TRANSCEIVER_MODE_RX)
-			? &usb_endpoint_bulk_in : &usb_endpoint_bulk_out,
-			&usb_bulk_buffer[0x0000],
-			0x4000,
-			NULL, NULL
-			);
-		phase = 0;
-	}
+	while(true) {
+		// Set up IN transfer of buffer 0.
+		if ( usb_bulk_buffer_offset >= 16384
+				&& phase == 1
+				&& transceiver_mode() != TRANSCEIVER_MODE_OFF) {
+			usb_transfer_schedule_block(
+				(transceiver_mode() == TRANSCEIVER_MODE_RX)
+				? &usb_endpoint_bulk_in : &usb_endpoint_bulk_out,
+				&usb_bulk_buffer[0x0000],
+				0x4000,
+				NULL, NULL
+				);
+			phase = 0;
+		}
 
-	// Set up IN transfer of buffer 1.
-	if ( usb_bulk_buffer_offset < 16384
-			&& phase == 0
-			&& transceiver_mode() != TRANSCEIVER_MODE_OFF) {
-		usb_transfer_schedule_block(
-			(transceiver_mode() == TRANSCEIVER_MODE_RX)
-			? &usb_endpoint_bulk_in : &usb_endpoint_bulk_out,
-			&usb_bulk_buffer[0x4000],
-			0x4000,
-			NULL, NULL
-		);
-		phase = 1;
+		// Set up IN transfer of buffer 1.
+		if ( usb_bulk_buffer_offset < 16384
+				&& phase == 0
+				&& transceiver_mode() != TRANSCEIVER_MODE_OFF) {
+			usb_transfer_schedule_block(
+				(transceiver_mode() == TRANSCEIVER_MODE_RX)
+				? &usb_endpoint_bulk_in : &usb_endpoint_bulk_out,
+				&usb_bulk_buffer[0x4000],
+				0x4000,
+				NULL, NULL
+			);
+			phase = 1;
+		}
+		__asm__("wfi");
+		if(transceiver_mode() == TRANSCEIVER_MODE_OFF) {
+			break;
+		}
 	}
 }
 
