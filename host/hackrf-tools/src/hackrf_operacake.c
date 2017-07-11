@@ -73,8 +73,8 @@ int parse_uint16(char* const s, uint16_t* const value) {
 }
 
 int parse_u16_range(char* s, hackrf_oc_range* range) {
-	int result;
-	uint16_t port;
+	int result = 0;
+	uint16_t port = 0;
 
 	char *sep = strchr(s, ':');
 	if (!sep)
