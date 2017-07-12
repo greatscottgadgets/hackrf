@@ -73,8 +73,8 @@ int parse_uint16(char* const s, uint16_t* const value) {
 }
 
 int parse_u16_range(char* s, hackrf_oc_range* range) {
-	int result;
-	uint16_t port;
+	int result = 0;
+	uint16_t port = 0;
 
 	char *sep = strchr(s, ':');
 	if (!sep)
@@ -92,9 +92,31 @@ int parse_u16_range(char* s, hackrf_oc_range* range) {
 	result = parse_uint16(sep + 1, &range->freq_max);
 	if (result != HACKRF_SUCCESS)
 		return result;
-	result = parse_uint16(sep2 + 1, &port);
-	if (result != HACKRF_SUCCESS)
-		return result;
+
+	sep2++; // Skip past the ':'
+	if(sep2[0] == 'A' || sep2[0] == 'B') {
+		// The port was specified as a side and number eg. A1 or B3
+		if(sep2[1] > 0x30 && sep2[1] < 0x35) {
+			uint16_t tmp_port = sep2[1] - 0x30;
+			if(tmp_port >= 5 || tmp_port <= 0)
+				return HACKRF_ERROR_INVALID_PARAM;
+
+			// Value was a valid port between 0-4
+			if(sep2[0] == 'A') {
+				// A1=0, A2=1, A3=2, A4=3
+				port = (uint16_t) tmp_port-1;
+			} else {
+				// If B was specfied just add 4-1 ports
+				// B1=4, B2=5, B3=6, B4=7
+				port =  (uint16_t) tmp_port+3;
+			}
+			//printf("Setting port %c%c to port %d\n", sep2[0], sep2[1], (uint16_t)port);
+		}
+	} else {
+		result = parse_uint16(sep2, &port);
+		if (result != HACKRF_SUCCESS)
+			return result;
+	}
 	range->port = port;
 
 	return HACKRF_SUCCESS;
@@ -148,8 +170,7 @@ int main(int argc, char** argv) {
 				usage();
 				return EXIT_FAILURE;
 			}
-			range_idx++;
-			if(MAX_FREQ_RANGES <= range_idx) {
+			if(MAX_FREQ_RANGES <= range_idx++) {
 				fprintf(stderr,
 						"argument error: specify a maximum of %u frequency ranges.\n",
 						MAX_FREQ_RANGES);
