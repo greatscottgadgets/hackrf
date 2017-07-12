@@ -40,11 +40,7 @@
 
 #include "gpio_lpc.h"
 
-/* TODO: Consolidate ARRAY_SIZE declarations */
-#define ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]))
-
 #define WAIT_CPU_CLOCK_INIT_DELAY   (10000)
-
 /* GPIO Output PinMux */
 static struct gpio_t gpio_led[] = {
 	GPIO(2,  1),
