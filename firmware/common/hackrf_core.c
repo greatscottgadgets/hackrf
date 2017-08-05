@@ -99,7 +99,7 @@ static struct gpio_t gpio_rx_amp			= GPIO(1, 11);
 static struct gpio_t gpio_no_rx_amp_pwr		= GPIO(1, 12);
 #endif
 #ifdef RAD1O
-static struct gpio_t gpio_tx_rx_n			= GPIO(0,  11);
+static struct gpio_t gpio_tx_rx_n			= GPIO(1,  11);
 static struct gpio_t gpio_tx_rx				= GPIO(0,  14);
 static struct gpio_t gpio_by_mix			= GPIO(1,  12);
 static struct gpio_t gpio_by_mix_n			= GPIO(2,  10);
@@ -648,12 +648,6 @@ void cpu_clock_init(void)
 	// CCU2_CLK_APLL_CFG = 0;
 	// CCU2_CLK_SDIO_CFG = 0;
 #endif
-
-#ifdef RAD1O
-	/* Disable unused clock outputs. They generate noise. */
-	scu_pinmux(CLK0, SCU_CLK_IN | SCU_CONF_FUNCTION7);
-	scu_pinmux(CLK2, SCU_CLK_IN | SCU_CONF_FUNCTION7);
-#endif
 }
 
 
@@ -815,6 +809,10 @@ void pin_setup(void) {
 
 	/* Safe state: start with VAA turned off: */
 	disable_rf_power();
+
+	/* Disable unused clock outputs. They generate noise. */
+	scu_pinmux(CLK0, SCU_CLK_IN | SCU_CONF_FUNCTION7);
+	scu_pinmux(CLK2, SCU_CLK_IN | SCU_CONF_FUNCTION7);
 
 	scu_pinmux(SCU_PINMUX_GPIO3_10, SCU_GPIO_PDN | SCU_CONF_FUNCTION0);
 	scu_pinmux(SCU_PINMUX_GPIO3_11, SCU_GPIO_PDN | SCU_CONF_FUNCTION0);
