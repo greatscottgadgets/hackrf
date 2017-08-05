@@ -118,7 +118,7 @@ void mixer_enable(mixer_driver_t* const mixer)
 	rffc5071_enable(mixer);
 #endif
 #ifdef RAD1O
-	(void) mixer;
+	max2871_enable(mixer);
 #endif
 }
 
@@ -128,7 +128,7 @@ void mixer_disable(mixer_driver_t* const mixer)
 	rffc5071_disable(mixer);
 #endif
 #ifdef RAD1O
-	(void) mixer;
+	max2871_disable(mixer);
 #endif
 }
 
