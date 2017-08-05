@@ -99,7 +99,7 @@ static struct gpio_t gpio_rx_amp			= GPIO(1, 11);
 static struct gpio_t gpio_no_rx_amp_pwr		= GPIO(1, 12);
 #endif
 #ifdef RAD1O
-static struct gpio_t gpio_tx_rx_n			= GPIO(0,  11);
+static struct gpio_t gpio_tx_rx_n			= GPIO(1,  11);
 static struct gpio_t gpio_tx_rx				= GPIO(0,  14);
 static struct gpio_t gpio_by_mix			= GPIO(1,  12);
 static struct gpio_t gpio_by_mix_n			= GPIO(2,  10);
