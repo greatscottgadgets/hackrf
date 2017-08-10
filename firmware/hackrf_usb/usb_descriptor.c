@@ -217,6 +217,14 @@ uint8_t usb_descriptor_string_product[] = {
 	'k', 0x00,
 	'e', 0x00,
 	'r', 0x00,
+#elif RAD1O
+	12,						// bLength
+	USB_DESCRIPTOR_TYPE_STRING,		// bDescriptorType
+	'r', 0x00,
+	'a', 0x00,
+	'd', 0x00,
+	'1', 0x00,
+	'o', 0x00,
 #else
 	14,						// bLength
 	USB_DESCRIPTOR_TYPE_STRING,		// bDescriptorType
