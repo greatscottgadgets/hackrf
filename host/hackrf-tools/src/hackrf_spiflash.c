@@ -59,6 +59,11 @@ static struct option long_options[] = {
 	{ 0, 0, 0, 0 },
 };
 
+/* Check for USB product string descriptor text in firmware file
+ * It should match the appropriate one for the BOARD_ID
+ * If you're already running firmware that reports the wrong ID
+ * I can't help you, but you can use the -i optionto ignore (or DFU)
+ */
 int compatibility_check(uint8_t* data, int length, hackrf_device* device)
 {
 	int str_len, i,j;
@@ -77,18 +82,16 @@ int compatibility_check(uint8_t* data, int length, hackrf_device* device)
 		str_len = 10;
 		break;
 	case BOARD_ID_RAD1O:
-		//This is somewhat problematic,
-		// it's a substring of the others
-		dev_str =  "HackRF";
-		str_len = 6;
+		dev_str =  "rad1o";
+		str_len = 5;
 		break;
 	default:
 		printf("Unknown Board ID");
 		return 1;
 	}
+	// Search for dev_str in uint8_t array of bytes that we're flashing
 	for(i=0; i<length-str_len; i++){
 		if(data[i] == dev_str[0]) {
-			// Test rest of string
 			match = true;
 			for(j=1; j<str_len; j++) {
 				if((data[i+j*2] != dev_str[j]) ||
