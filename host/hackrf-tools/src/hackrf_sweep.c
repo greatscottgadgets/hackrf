@@ -93,7 +93,7 @@ int gettimeofday(struct timeval *tv, void* ignored) {
 #define FREQ_MAX_MHZ (7250) /* 7250 MHz */
 
 #define DEFAULT_SAMPLE_RATE_HZ (20000000) /* 20MHz default sample rate */
-#define DEFAULT_BASEBAND_FILTER_BANDWIDTH (15000000) /* 5MHz default */
+#define DEFAULT_BASEBAND_FILTER_BANDWIDTH (15000000) /* 15MHz default */
 
 #define TUNE_STEP (DEFAULT_SAMPLE_RATE_HZ / FREQ_ONE_MHZ)
 #define OFFSET 7500000
