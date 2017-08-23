@@ -252,8 +252,8 @@ int rx_callback(hackrf_transfer* transfer) {
 					(uint64_t)(num_samples + THROWAWAY_BLOCKS * SAMPLES_PER_BLOCK)
 					* j * FREQ_ONE_MHZ / DEFAULT_SAMPLE_RATE_HZ;
 			if(999999 < time_stamp.tv_usec) {
-				time_stamp.tv_usec = time_stamp.tv_usec % 1000000;
 				time_stamp.tv_sec += time_stamp.tv_usec / 1000000;
+				time_stamp.tv_usec = time_stamp.tv_usec % 1000000;
 			}
 		}
 		if(do_exit) {
