@@ -39,11 +39,13 @@
 #define W25Q80BV_WRITE_ENABLE 0x06
 #define W25Q80BV_CHIP_ERASE   0xC7
 #define W25Q80BV_READ_STATUS1 0x05
+#define W25Q80BV_READ_STATUS2 0x35
 #define W25Q80BV_PAGE_PROGRAM 0x02
 #define W25Q80BV_DEVICE_ID    0xAB
 #define W25Q80BV_UNIQUE_ID    0x4B
 
 #define W25Q80BV_STATUS_BUSY  0x01
+#define W25Q80BV_STATUS_WEL   0x02
 
 #define W25Q80BV_DEVICE_ID_RES  0x13 /* Expected device_id for W25Q80BV */
 
@@ -72,6 +74,17 @@ uint8_t w25q80bv_get_status(w25q80bv_driver_t* const drv)
 	uint8_t data[] = { W25Q80BV_READ_STATUS1, 0xFF };
 	spi_bus_transfer(drv->bus, data, ARRAY_SIZE(data));
 	return data[1];
+}
+
+void w25q80bv_get_full_status(w25q80bv_driver_t* const drv, uint8_t* data)
+{
+	uint8_t cmd[] = { W25Q80BV_READ_STATUS1, 0xFF };
+	spi_bus_transfer(drv->bus, cmd, ARRAY_SIZE(cmd));
+	data[0] = cmd[1];
+	cmd[0] =W25Q80BV_READ_STATUS2;
+	cmd[1] = 0xFF;
+	spi_bus_transfer(drv->bus, cmd, ARRAY_SIZE(cmd));
+	data[1] = cmd[1];
 }
 
 /* Release power down / Device ID */  
@@ -110,6 +123,7 @@ void w25q80bv_write_enable(w25q80bv_driver_t* const drv)
 
 	uint8_t data[] = { W25Q80BV_WRITE_ENABLE };
 	spi_bus_transfer(drv->bus, data, ARRAY_SIZE(data));
+	while (w25q80bv_get_status(drv) ^ W25Q80BV_STATUS_WEL);
 }
 
 void w25q80bv_chip_erase(w25q80bv_driver_t* const drv)

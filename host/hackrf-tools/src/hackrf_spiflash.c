@@ -102,6 +102,7 @@ static void usage()
 int main(int argc, char** argv)
 {
 	int opt;
+	uint8_t status[2];
 	uint32_t address = 0;
 	uint32_t length = MAX_LENGTH;
 	uint32_t tmp_length;
@@ -278,6 +279,8 @@ int main(int argc, char** argv)
 			fd = NULL;
 			return EXIT_FAILURE;
 		}
+		hackrf_spiflash_status(device, status);
+		printf("Status: 0x%02x %02x\n", status[0], status[1]);
 		printf("Erasing SPI flash.\n");
 		result = hackrf_spiflash_erase(device);
 		if (result != HACKRF_SUCCESS) {
@@ -289,6 +292,8 @@ int main(int argc, char** argv)
 		}
 		if( !verbose ) printf("Writing %d bytes at 0x%06x.\n", length, address);
 		while (length) {
+			hackrf_spiflash_status(device, status);
+			printf("Status: 0x%02x %02x\n", status[0], status[1]);
 			xfer_len = (length > 256) ? 256 : length;
 			if( verbose ) printf("Writing %d bytes at 0x%06x.\n", xfer_len, address);
 			result = hackrf_spiflash_write(device, address, xfer_len, pdata);

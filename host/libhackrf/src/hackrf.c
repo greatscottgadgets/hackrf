@@ -79,6 +79,7 @@ typedef enum {
 	HACKRF_VENDOR_REQUEST_SET_HW_SYNC_MODE = 29,
 	HACKRF_VENDOR_REQUEST_RESET = 30,
 	HACKRF_VENDOR_REQUEST_OPERACAKE_SET_RANGES = 31,
+	HACKRF_VENDOR_REQUEST_SPIFLASH_STATUS = 32,
 } hackrf_vendor_request;
 
 #define USB_CONFIG_STANDARD 0x1
@@ -949,6 +950,30 @@ int ADDCALL hackrf_spiflash_read(hackrf_device* device, const uint32_t address,
 	);
 
 	if (result < length)
+	{
+		last_libusb_error = result;
+		return HACKRF_ERROR_LIBUSB;
+	} else {
+		return HACKRF_SUCCESS;
+	}
+}
+
+int ADDCALL hackrf_spiflash_status(hackrf_device* device, uint8_t* data)
+{
+	int result;
+
+	result = libusb_control_transfer(
+		device->usb_device,
+		LIBUSB_ENDPOINT_IN | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_SPIFLASH_STATUS,
+		0,
+		0,
+		data,
+		2,
+		0
+	);
+
+	if (result < 1)
 	{
 		last_libusb_error = result;
 		return HACKRF_ERROR_LIBUSB;
