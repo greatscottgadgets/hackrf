@@ -1,6 +1,7 @@
 /*
  * Copyright 2012 Jared Boone <jared@sharebrained.com>
  * Copyright 2013 Benjamin Vernoux <titanmkd@gmail.com>
+ * Copyright 2017 Schuyler St. Leger <schuyler.st.leger@gmail.com>
  *
  * This file is part of HackRF.
  *
@@ -159,7 +160,9 @@ void sgpio_configure(
 	const uint_fast8_t slice_count = config->slice_mode_multislice ? 8 : 1;
 	const uint_fast8_t clk_capture_mode = (direction == SGPIO_DIRECTION_TX) ? 0 : 0;
 	
-	uint32_t slice_enable_mask = 0;
+	// Also enable slice D for clkout to the SCTimer
+	uint32_t slice_enable_mask = BIT3;
+
 	/* Configure Slice A, I, E, J, C, K, F, L (sgpio_slice_mode_multislice mode) */
 	for(uint_fast8_t i=0; i<slice_count; i++)
 	{

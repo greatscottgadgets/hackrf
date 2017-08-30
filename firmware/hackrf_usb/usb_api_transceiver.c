@@ -23,6 +23,8 @@
 #include "usb_api_transceiver.h"
 
 #include "hackrf_ui.h"
+#include "operacake_sctimer.h"
+
 #include <libopencm3/cm3/vector.h>
 #include "usb_bulk_buffer.h"
 
@@ -247,6 +249,7 @@ transceiver_mode_t transceiver_mode(void) {
 
 void set_transceiver_mode(const transceiver_mode_t new_transceiver_mode) {
 	baseband_streaming_disable(&sgpio_config);
+	operacake_sctimer_reset_state();
 
 	usb_endpoint_flush(&usb_endpoint_bulk_in);
 	usb_endpoint_flush(&usb_endpoint_bulk_out);
