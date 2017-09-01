@@ -1,12 +1,12 @@
 This repository contains host software (Linux/Windows) for HackRF, a project to
 produce a low cost, open source software radio platform.
 
-##How to build the host software on Linux:
+## How to build the host software on Linux:
 
-###Prerequisites for Linux (Debian/Ubuntu):
+### Prerequisites for Linux (Debian/Ubuntu):
 `sudo apt-get install build-essential cmake libusb-1.0-0-dev pkg-config libfftw3-dev`
 
-###Build host software on Linux:
+### Build host software on Linux:
 ```
 mkdir host/build
 cd host/build
@@ -16,7 +16,7 @@ sudo make install
 sudo ldconfig
 ```
 
-By defualt this will attempt to install a udev rule to '/etc/udev/rules.d` to
+By defualt this will attempt to install a udev rule to `/etc/udev/rules.d` to
 provide the `usb` or `plugdev` group access to HackRF. If your setup requires
 the udev rule to be installed elsewhere you can modify the path with
 `-DUDEV_RULES_PATH=/path/to/udev`.
@@ -24,14 +24,14 @@ the udev rule to be installed elsewhere you can modify the path with
 Note: The udev rule is not installed for by default for PyBOMBS installs as
 they do not ususally get installed with root privileges.
 
-##Clean CMake temporary files/dirs:
+## Clean CMake temporary files/dirs:
 ```
 cd host/build
 rm -rf *
 ```
 
-##How to build host software on Windows:
-###Prerequisites for cygwin, mingw, or Visual Studio:
+## How to build host software on Windows:
+### Prerequisites for cygwin, mingw, or Visual Studio:
 
 * cmake-2.8.12.1 or later from http://www.cmake.org/cmake/resources/software.html
 * libusbx-1.0.18 or later from http://sourceforge.net/projects/libusbx/files/latest/download?source=files
@@ -43,7 +43,7 @@ rm -rf *
  You shall always execute hackrf-tools from Windows command shell and not from Cygwin or Mingw shell because on Cygwin/Mingw
  Ctrl C is not managed correctly and especially for hackrf_transfer the Ctrl C(abort) will not stop correctly and will corrupt the file.
 
-###For Cygwin:
+### For Cygwin:
 ```
 mkdir host/build
 cd host/build
@@ -52,7 +52,7 @@ make
 make install
 ```
 
-###For MinGW:
+### For MinGW:
 ```
 mkdir host/build
 cd host/build
@@ -61,7 +61,7 @@ make
 make install
 ```
 
-###For Visual Studio 2015 x64
+### For Visual Studio 2015 x64
 Create library definition for MSVC to link to
 `C:\fftw-3.3.5-dll64> lib /machine:x64 /def:libfftw3f-3.def`
 
@@ -79,7 +79,7 @@ Cmake will produce a solution file named `HackRF.sln` and a series of
 project files which can be built with msbuild as follows:
 `c:\hackrf\host\build> msbuild HackRF.sln`
 
-##How to build host the software on FreeBSD
+## How to build host the software on FreeBSD
 You can use the binary package:
 `# pkg install hackrf`
 
