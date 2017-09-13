@@ -136,6 +136,12 @@ static const max2837_ft_t max2837_ft[] = {
 	{ 0        }
 };
 
+#define USB_API_REQUIRED(device, version)          \
+uint16_t usb_version = 0;                          \
+hackrf_usb_api_version_read(device, &usb_version); \
+if(usb_version < version)                          \
+	return HACKRF_ERROR_USB_API_VERSION;
+
 static volatile bool do_exit = false;
 
 static const uint16_t hackrf_usb_vid = 0x1d50;
@@ -960,6 +966,7 @@ int ADDCALL hackrf_spiflash_read(hackrf_device* device, const uint32_t address,
 
 int ADDCALL hackrf_spiflash_status(hackrf_device* device, uint8_t* data)
 {
+	USB_API_REQUIRED(device, 0x0103)
 	int result;
 
 	result = libusb_control_transfer(
@@ -1077,12 +1084,6 @@ extern ADDAPI int ADDCALL hackrf_usb_api_version_read(hackrf_device* device,
 	*version = desc.bcdDevice;
 	return HACKRF_SUCCESS;
 }
-
-#define USB_API_REQUIRED(device, version)          \
-uint16_t usb_version = 0;                          \
-hackrf_usb_api_version_read(device, &usb_version); \
-if(usb_version < version)                          \
-	return HACKRF_ERROR_USB_API_VERSION;
 
 typedef struct {
 	uint32_t freq_mhz; /* From 0 to 6000+MHz */

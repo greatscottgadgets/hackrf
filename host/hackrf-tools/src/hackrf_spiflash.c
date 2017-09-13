@@ -53,6 +53,7 @@ static struct option long_options[] = {
 	{ "write", required_argument, 0, 'w' },
 	{ "device", required_argument, 0, 'd' },
 	{ "reset", no_argument, 0, 'R' },
+	{ "status", no_argument, 0, 's' },
 	{ "verbose", no_argument, 0, 'v' },
 	{ "help", no_argument, 0, 'h' },
 	{ 0, 0, 0, 0 },
@@ -95,6 +96,7 @@ static void usage()
 	printf("\t-r, --read <filename>: Read data into file.\n");
 	printf("\t-w, --write <filename>: Write data from file.\n");
 	printf("\t-d, --device <serialnumber>: Serial number of device, if multiple devices\n");
+	printf("\t-s, --status: Read SPI flash status registers before other operations.\n");
 	printf("\t-R, --reset: Reset HackRF after other operations.\n");
 	printf("\t-v, --verbose: Verbose output.\n");
 }
@@ -119,9 +121,10 @@ int main(int argc, char** argv)
 	bool write = false;
 	bool verbose = false;
 	bool reset = false;
+	bool read_status = false;
 	uint16_t usb_api;
 
-	while ((opt = getopt_long(argc, argv, "a:l:r:w:d:vRh?", long_options,
+	while ((opt = getopt_long(argc, argv, "a:l:r:w:d:svRh?", long_options,
 			&option_index)) != EOF) {
 		switch (opt) {
 		case 'a':
@@ -144,6 +147,10 @@ int main(int argc, char** argv)
 		
 		case 'd':
 			serial_number = optarg;
+			break;
+
+		case 's':
+			read_status = true;
 			break;
 
 		case 'v':
@@ -179,7 +186,7 @@ int main(int argc, char** argv)
 		return EXIT_FAILURE;
 	}
 
-	if(!(write || read || reset)) {
+	if(!(write || read || reset || read_status)) {
 		fprintf(stderr, "Specify either read, write, or reset option.\n");
 		usage();
 		return EXIT_FAILURE;
@@ -241,6 +248,11 @@ int main(int argc, char** argv)
 		return EXIT_FAILURE;
 	}
 
+	if(read_status) {
+		hackrf_spiflash_status(device, status);
+		printf("Status: 0x%02x %02x\n", status[0], status[1]);
+	}
+
 	if(read) {
 		ssize_t bytes_written;
 		tmp_length = length;
@@ -279,8 +291,6 @@ int main(int argc, char** argv)
 			fd = NULL;
 			return EXIT_FAILURE;
 		}
-		hackrf_spiflash_status(device, status);
-		printf("Status: 0x%02x %02x\n", status[0], status[1]);
 		printf("Erasing SPI flash.\n");
 		result = hackrf_spiflash_erase(device);
 		if (result != HACKRF_SUCCESS) {
@@ -292,8 +302,6 @@ int main(int argc, char** argv)
 		}
 		if( !verbose ) printf("Writing %d bytes at 0x%06x.\n", length, address);
 		while (length) {
-			hackrf_spiflash_status(device, status);
-			printf("Status: 0x%02x %02x\n", status[0], status[1]);
 			xfer_len = (length > 256) ? 256 : length;
 			if( verbose ) printf("Writing %d bytes at 0x%06x.\n", xfer_len, address);
 			result = hackrf_spiflash_write(device, address, xfer_len, pdata);
