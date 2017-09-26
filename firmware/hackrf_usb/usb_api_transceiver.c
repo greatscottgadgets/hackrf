@@ -37,6 +37,7 @@
 #include <stddef.h>
 
 #include "usb_endpoint.h"
+#include "usb_bulk_buffer.h"
 
 typedef struct {
 	uint32_t freq_mhz;
@@ -266,6 +267,8 @@ void set_transceiver_mode(const transceiver_mode_t new_transceiver_mode) {
 			vector_table.irq[NVIC_SGPIO_IRQ] = sgpio_isr_rx;
 			break;
 	}
+	/* reset TX/RX/USB buffers to start */
+	usb_bulk_buffer_offset = 0;
 
 	if( _transceiver_mode != TRANSCEIVER_MODE_OFF ) {
 		si5351c_activate_best_clock_source(&clock_gen);
