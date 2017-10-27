@@ -149,3 +149,14 @@ usb_request_status_t usb_vendor_request_read_rffc5071(
 	}
 }
 #endif
+
+usb_request_status_t usb_vendor_request_set_clkout_enable(
+	usb_endpoint_t* const endpoint,
+	const usb_transfer_stage_t stage
+) {
+	if (stage == USB_TRANSFER_STAGE_SETUP) {
+		si5351c_clkout_enable(&clock_gen, endpoint->setup.value);
+		usb_transfer_schedule_ack(endpoint->in);
+	}
+	return USB_REQUEST_STATUS_OK;
+}

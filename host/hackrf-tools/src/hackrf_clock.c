@@ -32,7 +32,6 @@ typedef int bool;
 #define false 0
 #endif
 
-#define CLOCK_INPUT 0xFE
 #define CLOCK_UNDEFINED 0xFF
 #define REGISTER_INVALID 32767
 
@@ -226,38 +225,33 @@ int si5351c_read_configuration(hackrf_device* device) {
 }
 
 static void usage() {
-	printf("\nhackrf_clock - HackRF clock configuration utility\n");
+	printf("hackrf_clock - HackRF clock configuration utility\n");
 	printf("Usage:\n");
 	printf("\t-h, --help: this help\n");
-	printf("\t-r, --read: read clock settings\n");
-	printf("\t-w, --write <f>: set clock frequnecy to <f>\n");
-	printf("\t-c, --clock <n>: select multisynth output clock to configure\n");
-	printf("\t-i, --clkin: configure clock in\n");
-	printf("\t-o, --clkout: configure clock out\n");
-	printf("\t-d, --device <s>: specify a particular device by serial number\n");
+	printf("\t-r, --read <clock_num>: read settings for clock_num\n");
+	printf("\t-a, --all: read settings for all clocks\n");
+	printf("\t-o, --clkout <clkout_enable>: enable/disable CLKOUT\n");
+	printf("\t-d, --device <serial_number>: Serial number of desired HackRF.\n");
 	printf("\nExamples:\n");
-	printf("\thackrf_clock -c 3 -r : prints settings for CLKOUT\n");
-	printf("\thackrf_clock -c # \n");
+	printf("\thackrf_clock -r 3 : prints settings for CLKOUT\n");
 }
 
 static struct option long_options[] = {
 	{ "help", no_argument, 0, 'h' },
-	{ "read", no_argument, 0, 'r' },
-	{ "write", required_argument, 0, 'w' },
-	{ "clock", required_argument, 0, 'c' },
-	{ "clkin", no_argument, 0, 'i' },
-	{ "clkout", no_argument, 0, 'o' },
+	{ "read", required_argument, 0, 'r' },
+	{ "all", no_argument, 0, 'a' },
+	{ "clkout", required_argument, 0, 'o' },
 	{ "device", required_argument, 0, 'd' },
 	{ 0, 0, 0, 0 },
 };
 
 int main(int argc, char** argv) {
-	int opt;
 	hackrf_device* device = NULL;
-	int option_index = 0;
+	int opt, option_index = 0;
 	bool read = false;
-	bool write = false;
 	uint16_t clock = CLOCK_UNDEFINED;
+	bool clkout = false;
+	uint16_t clkout_enable;
 	const char* serial_number = NULL;
 
 	int result = hackrf_init();
@@ -266,27 +260,20 @@ int main(int argc, char** argv) {
 		return EXIT_FAILURE;
 	}
 
-	while( (opt = getopt_long(argc, argv, "riod:w:c:h?", long_options, &option_index)) != EOF ) {
+	while( (opt = getopt_long(argc, argv, "r:ao:d:h?", long_options, &option_index)) != EOF ) {
 		switch( opt ) {
 		case 'r':
 			read = true;
-			break;
-		
-		case 'w':
-			write = true;
 			result = parse_int(optarg, &clock);
 			break;
 
-		case 'c':
-			result = parse_int(optarg, &clock);
-			break;
-
-		case 'i':
-			clock = CLOCK_INPUT;
+		case 'a':
+			read = true;
 			break;
 
 		case 'o':
-			clock = 3;
+			clkout = true;
+			result = parse_int(optarg, &clkout_enable);
 			break;
 
 		case 'd':
@@ -310,20 +297,8 @@ int main(int argc, char** argv) {
 		}
 	}
 
-	if(write && read) {
-		fprintf(stderr, "Read and write options are mutually exclusive.\n");
-		usage();
-		return EXIT_FAILURE;
-	}
-
-	if(!write && !read) {
-		fprintf(stderr, "Either read or write option must be specified.\n");
-		usage();
-		return EXIT_FAILURE;
-	}
-
-	if(write && clock==CLOCK_UNDEFINED) {
-		fprintf(stderr, "A clock must be specified whe using the write option.\n");
+	if(!clkout && !read) {
+		fprintf(stderr, "Either read or enable CLKOUT option must be specified.\n");
 		usage();
 		return EXIT_FAILURE;
 	}
@@ -334,6 +309,14 @@ int main(int argc, char** argv) {
 		return EXIT_FAILURE;
 	}
 
+	if(clkout) {
+		result = hackrf_set_clkout_enable(device, clkout_enable);
+		if(result) {
+			printf("hackrf_set_clkout_enable() failed: %s (%d)\n", hackrf_error_name(result), result);
+			return EXIT_FAILURE;
+		}
+	}
+
 	if(read) {
 		if(clock == CLOCK_UNDEFINED)
 			si5351c_read_configuration(device);
@@ -342,15 +325,6 @@ int main(int argc, char** argv) {
 			si5351c_read_multisynth_config(device, clock);
 		}
 	}
-
-	if(write) {
-		// result = si5351c_write_register(device, register_number, register_value);
-		if(result) {
-			printf("si5351c_write_register() failed: %s (%d)\n", hackrf_error_name(result), result);
-			return EXIT_FAILURE;
-		}
-	}
-
 
 	result = hackrf_close(device);
 	if(result) {
