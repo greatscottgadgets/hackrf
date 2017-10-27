@@ -3,6 +3,8 @@
 cmake_minimum_required(VERSION 2.8)
 project (HackRF)
 
+set(CMAKE_C_FLAGS "$ENV{CFLAGS}" CACHE STRING "C Flags")
+
 add_subdirectory(libhackrf)
 add_subdirectory(hackrf-tools)
 
