@@ -24,8 +24,12 @@ before_script:
   - export CFLAGS="-Wall -Wextra -Werror"
 
 before_install:
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew tap PX4/homebrew-px4; brew update; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew tap PX4/homebrew-px4; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install libusb fftw gcc-arm-none-eabi dfu-util; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then wget -O gcc-arm-none-eabi.tar.bz2 https://developer.arm.com/-/media/Files/downloads/gnu-rm/6-2017q2/gcc-arm-none-eabi-6-2017-q2-update-linux.tar.bz2; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then tar xf gcc-arm-none-eabi.tar.bz2; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then export PATH=$PATH:$PWD/gcc-arm-none-eabi-6-2017-q2-update/bin; fi
   # For virtualenv(?) reasons we can't apt-get install python-yaml
   - pip install PyYAML
 
@@ -48,11 +52,7 @@ script:
 
 addons:
   apt:
-    sources:
-      - debian-sid
     packages:
       - libusb-1.0-0-dev
       - libfftw3-dev
-      - gcc-arm-none-eabi
-      - libnewlib-arm-none-eabi
       - dfu-util
