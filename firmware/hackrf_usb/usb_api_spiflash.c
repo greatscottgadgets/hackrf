@@ -136,3 +136,13 @@ usb_request_status_t usb_vendor_request_spiflash_status(
 		return USB_REQUEST_STATUS_OK;
 	}
 }
+
+usb_request_status_t usb_vendor_request_spiflash_clear_status(
+	usb_endpoint_t* const endpoint, const usb_transfer_stage_t stage)
+{
+	if (stage == USB_TRANSFER_STAGE_SETUP) {
+		w25q80bv_clear_status(&spi_flash);
+		usb_transfer_schedule_ack(endpoint->in);
+	}
+return USB_REQUEST_STATUS_OK;
+}
