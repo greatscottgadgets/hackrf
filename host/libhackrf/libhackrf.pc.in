@@ -6,6 +6,6 @@ includedir=@includedir@
 Name: HackRF Library
 Description: C Utility Library
 Version: @VERSION@
-Cflags: -I${includedir}/ @HACKRF_PC_CFLAGS@
+Cflags: -I${includedir} -I${includedir}/libhackrf @HACKRF_PC_CFLAGS@
 Libs: -L${libdir} -lhackrf
 Libs.private: @HACKRF_PC_LIBS@
