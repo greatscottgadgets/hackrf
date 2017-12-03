@@ -310,7 +310,8 @@ int rx_callback(hackrf_transfer* transfer) {
 				ifftwIn[ifft_idx + i][1] = fftwOut[i + 1 + (fftSize/8)][1];
 			}
 		} else {
-			fft_time = localtime(&time_stamp.tv_sec);
+			time_t time_stamp_seconds = time_stamp.tv_sec;
+			fft_time = localtime(&time_stamp_seconds);
 			strftime(time_str, 50, "%Y-%m-%d, %H:%M:%S", fft_time);
 			fprintf(fd, "%s.%06ld, %" PRIu64 ", %" PRIu64 ", %.2f, %u",
 					time_str,
