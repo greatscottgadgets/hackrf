@@ -31,7 +31,7 @@ before_install:
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then tar xf gcc-arm-none-eabi.tar.bz2; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then export PATH=$PATH:$PWD/gcc-arm-none-eabi-6-2017-q2-update/bin; fi
   # For virtualenv(?) reasons we can't apt-get install python-yaml
-  - pip install PyYAML
+  - pip2 install PyYAML
 
 script:
   - mkdir host/build
