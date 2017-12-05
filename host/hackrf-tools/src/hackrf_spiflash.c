@@ -51,6 +51,7 @@ static struct option long_options[] = {
 	{ "length", required_argument, 0, 'l' },
 	{ "read", required_argument, 0, 'r' },
 	{ "write", required_argument, 0, 'w' },
+	{ "compatibility", no_argument, 0, 'c' },
 	{ "device", required_argument, 0, 'd' },
 	{ "reset", no_argument, 0, 'R' },
 	{ "status", no_argument, 0, 's' },
@@ -59,6 +60,54 @@ static struct option long_options[] = {
 	{ "help", no_argument, 0, 'h' },
 	{ 0, 0, 0, 0 },
 };
+
+/* Check for USB product string descriptor text in firmware file
+ * It should match the appropriate one for the BOARD_ID
+ * If you're already running firmware that reports the wrong ID
+ * I can't help you, but you can use the -i optionto ignore (or DFU)
+ */
+int compatibility_check(uint8_t* data, int length, hackrf_device* device)
+{
+	int str_len, i,j;
+	bool match = false;
+	uint8_t board_id;
+	char* dev_str;
+	hackrf_board_id_read(device, &board_id);
+	switch(board_id)
+	{
+	case BOARD_ID_JAWBREAKER:
+		dev_str = "HackRF Jawbreaker";
+		str_len = 17;
+		break;
+	case BOARD_ID_HACKRF_ONE:
+		dev_str =  "HackRF One";
+		str_len = 10;
+		break;
+	case BOARD_ID_RAD1O:
+		dev_str =  "rad1o";
+		str_len = 5;
+		break;
+	default:
+		printf("Unknown Board ID");
+		return 1;
+	}
+	// Search for dev_str in uint8_t array of bytes that we're flashing
+	for(i=0; i<length-str_len; i++){
+		if(data[i] == dev_str[0]) {
+			match = true;
+			for(j=1; j<str_len; j++) {
+				if((data[i+j*2] != dev_str[j]) ||
+				   (data[1+i+j*2] != 0x00)) {
+					match = false;
+					break;
+				}
+			}
+			if(match)
+				return 0;
+		}
+	}
+	return 1;
+}
 
 int parse_u32(char* s, uint32_t* const value)
 {
@@ -96,6 +145,7 @@ static void usage()
 	printf("\t-l, --length <n>: number of bytes to read (default: %d)\n", MAX_LENGTH);
 	printf("\t-r, --read <filename>: Read data into file.\n");
 	printf("\t-w, --write <filename>: Write data from file.\n");
+	printf("\t-i, --no-check: Skip check for firmware compatibility with target device.\n");
 	printf("\t-d, --device <serialnumber>: Serial number of device, if multiple devices\n");
 	printf("\t-s, --status: Read SPI flash status registers before other operations.\n");
 	printf("\t-c, --clear: Clear SPI flash status registers before other operations.\n");
@@ -121,13 +171,14 @@ int main(int argc, char** argv)
 	FILE* fd = NULL;
 	bool read = false;
 	bool write = false;
+	bool ignore_compat_check = false;
 	bool verbose = false;
 	bool reset = false;
 	bool read_status = false;
 	bool clear_status = false;
 	uint16_t usb_api;
 
-	while ((opt = getopt_long(argc, argv, "a:l:r:w:d:scvRh?", long_options,
+	while ((opt = getopt_long(argc, argv, "a:l:r:w:id:scvRh?", long_options,
 			&option_index)) != EOF) {
 		switch (opt) {
 		case 'a':
@@ -146,6 +197,10 @@ int main(int argc, char** argv)
 		case 'w':
 			write = true;
 			path = optarg;
+			break;
+
+		case 'i':
+			ignore_compat_check = true;
 			break;
 		
 		case 'd':
@@ -328,6 +383,16 @@ int main(int argc, char** argv)
 			fclose(fd);
 			fd = NULL;
 			return EXIT_FAILURE;
+		}
+		if(!ignore_compat_check) {
+			printf("Checking target device compatibility\n");
+			result = compatibility_check(data, length, device);
+			if(result) {
+				printf("Compatibility test failed.\n");
+				fclose(fd);
+				fd = NULL;
+				return EXIT_FAILURE;
+			}
 		}
 		printf("Erasing SPI flash.\n");
 		result = hackrf_spiflash_erase(device);

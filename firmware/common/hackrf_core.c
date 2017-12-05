@@ -498,8 +498,6 @@ void cpu_clock_init(void)
 
 	si5351c_set_clock_source(&clock_gen, PLL_SOURCE_XTAL);
 	// soft reset
-	// uint8_t resetdata[] = { 177, 0xac };
-	// si5351c_write(&clock_gen, resetdata, sizeof(resetdata));
 	si5351c_reset_pll(&clock_gen);
 	si5351c_enable_clock_outputs(&clock_gen);
 
