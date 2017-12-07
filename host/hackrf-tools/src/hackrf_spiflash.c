@@ -54,6 +54,8 @@ static struct option long_options[] = {
 	{ "compatibility", no_argument, 0, 'c' },
 	{ "device", required_argument, 0, 'd' },
 	{ "reset", no_argument, 0, 'R' },
+	{ "status", no_argument, 0, 's' },
+	{ "clear", no_argument, 0, 'c' },
 	{ "verbose", no_argument, 0, 'v' },
 	{ "help", no_argument, 0, 'h' },
 	{ 0, 0, 0, 0 },
@@ -145,6 +147,8 @@ static void usage()
 	printf("\t-w, --write <filename>: Write data from file.\n");
 	printf("\t-i, --no-check: Skip check for firmware compatibility with target device.\n");
 	printf("\t-d, --device <serialnumber>: Serial number of device, if multiple devices\n");
+	printf("\t-s, --status: Read SPI flash status registers before other operations.\n");
+	printf("\t-c, --clear: Clear SPI flash status registers before other operations.\n");
 	printf("\t-R, --reset: Reset HackRF after other operations.\n");
 	printf("\t-v, --verbose: Verbose output.\n");
 }
@@ -152,6 +156,7 @@ static void usage()
 int main(int argc, char** argv)
 {
 	int opt;
+	uint8_t status[2];
 	uint32_t address = 0;
 	uint32_t length = MAX_LENGTH;
 	uint32_t tmp_length;
@@ -169,9 +174,11 @@ int main(int argc, char** argv)
 	bool ignore_compat_check = false;
 	bool verbose = false;
 	bool reset = false;
+	bool read_status = false;
+	bool clear_status = false;
 	uint16_t usb_api;
 
-	while ((opt = getopt_long(argc, argv, "a:l:r:w:id:vRh?", long_options,
+	while ((opt = getopt_long(argc, argv, "a:l:r:w:id:scvRh?", long_options,
 			&option_index)) != EOF) {
 		switch (opt) {
 		case 'a':
@@ -198,6 +205,14 @@ int main(int argc, char** argv)
 		
 		case 'd':
 			serial_number = optarg;
+			break;
+
+		case 's':
+			read_status = true;
+			break;
+
+		case 'c':
+			clear_status = true;
 			break;
 
 		case 'v':
@@ -233,7 +248,7 @@ int main(int argc, char** argv)
 		return EXIT_FAILURE;
 	}
 
-	if(!(write || read || reset)) {
+	if(!(write || read || reset || read_status || clear_status)) {
 		fprintf(stderr, "Specify either read, write, or reset option.\n");
 		usage();
 		return EXIT_FAILURE;
@@ -293,6 +308,42 @@ int main(int argc, char** argv)
 		fprintf(stderr, "hackrf_open() failed: %s (%d)\n",
 				hackrf_error_name(result), result);
 		return EXIT_FAILURE;
+	}
+
+	if(read_status) {
+		result = hackrf_spiflash_status(device, status);
+		if (result != HACKRF_SUCCESS) {
+			fprintf(stderr, "hackrf_spiflash_status() failed: %s (%d)\n",
+					hackrf_error_name(result), result);
+			return EXIT_FAILURE;
+		}
+		if(!verbose) {
+			printf("Status: 0x%02x %02x\n", status[0], status[1]);
+		} else {
+			printf("SRP0\t%x\nSEC\t%x\nTB\t%x\nBP\t%x\nWEL\t%x\nBusy\t%x\n", 
+			       (status[0] & 0x80) >> 7,
+			       (status[0] & 0x40) >> 6,
+			       (status[0] & 0x20) >> 5,
+			       (status[0] & 0x1C) >> 2,
+			       (status[0] & 0x02) >> 1,
+			       status[0] & 0x01);
+			printf("SUS\t%x\nCMP\t%x\nLB\t%x\nRes\t%x\nQE\t%x\nSRP1\t%x\n", 
+			       (status[1] & 0x80) >> 7,
+			       (status[1] & 0x40) >> 6,
+			       (status[1] & 0x38) >> 3,
+			       (status[1] & 0x04) >> 2,
+			       (status[1] & 0x02) >> 1,
+			       status[1] & 0x01);
+		}
+	}
+
+	if(clear_status) {
+		result = hackrf_spiflash_clear_status(device);
+		if (result != HACKRF_SUCCESS) {
+			fprintf(stderr, "hackrf_spiflash_clear_status() failed: %s (%d)\n",
+					hackrf_error_name(result), result);
+			return EXIT_FAILURE;
+		}
 	}
 
 	if(read) {

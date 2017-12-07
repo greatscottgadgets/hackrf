@@ -80,6 +80,8 @@ typedef enum {
 	HACKRF_VENDOR_REQUEST_RESET = 30,
 	HACKRF_VENDOR_REQUEST_OPERACAKE_SET_RANGES = 31,
 	HACKRF_VENDOR_REQUEST_CLKOUT_ENABLE = 32,
+	HACKRF_VENDOR_REQUEST_SPIFLASH_STATUS = 33,
+	HACKRF_VENDOR_REQUEST_SPIFLASH_CLEAR_STATUS = 34,
 } hackrf_vendor_request;
 
 #define USB_CONFIG_STANDARD 0x1
@@ -135,6 +137,12 @@ static const max2837_ft_t max2837_ft[] = {
 	{ 28000000 },
 	{ 0        }
 };
+
+#define USB_API_REQUIRED(device, version)          \
+uint16_t usb_version = 0;                          \
+hackrf_usb_api_version_read(device, &usb_version); \
+if(usb_version < version)                          \
+	return HACKRF_ERROR_USB_API_VERSION;
 
 static volatile bool do_exit = false;
 
@@ -958,6 +966,55 @@ int ADDCALL hackrf_spiflash_read(hackrf_device* device, const uint32_t address,
 	}
 }
 
+int ADDCALL hackrf_spiflash_status(hackrf_device* device, uint8_t* data)
+{
+	USB_API_REQUIRED(device, 0x0103)
+	int result;
+
+	result = libusb_control_transfer(
+		device->usb_device,
+		LIBUSB_ENDPOINT_IN | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_SPIFLASH_STATUS,
+		0,
+		0,
+		data,
+		2,
+		0
+	);
+
+	if (result < 1)
+	{
+		last_libusb_error = result;
+		return HACKRF_ERROR_LIBUSB;
+	} else {
+		return HACKRF_SUCCESS;
+	}
+}
+
+int ADDCALL hackrf_spiflash_clear_status(hackrf_device* device)
+{
+	USB_API_REQUIRED(device, 0x0103)
+	int result;
+	result = libusb_control_transfer(
+		device->usb_device,
+		LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_SPIFLASH_CLEAR_STATUS,
+		0,
+		0,
+		NULL,
+		0,
+		0
+	);
+
+	if( result != 0 )
+	{
+		last_libusb_error = result;
+		return HACKRF_ERROR_LIBUSB;
+	} else {
+		return HACKRF_SUCCESS;
+	}
+}
+
 int ADDCALL hackrf_cpld_write(hackrf_device* device,
 		unsigned char* const data, const unsigned int total_length)
 {
@@ -1053,12 +1110,6 @@ extern ADDAPI int ADDCALL hackrf_usb_api_version_read(hackrf_device* device,
 	*version = desc.bcdDevice;
 	return HACKRF_SUCCESS;
 }
-
-#define USB_API_REQUIRED(device, version)          \
-uint16_t usb_version = 0;                          \
-hackrf_usb_api_version_read(device, &usb_version); \
-if(usb_version < version)                          \
-	return HACKRF_ERROR_USB_API_VERSION;
 
 typedef struct {
 	uint32_t freq_mhz; /* From 0 to 6000+MHz */

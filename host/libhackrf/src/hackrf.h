@@ -176,6 +176,8 @@ extern ADDAPI int ADDCALL hackrf_rffc5071_write(hackrf_device* device, uint8_t r
 extern ADDAPI int ADDCALL hackrf_spiflash_erase(hackrf_device* device);
 extern ADDAPI int ADDCALL hackrf_spiflash_write(hackrf_device* device, const uint32_t address, const uint16_t length, unsigned char* const data);
 extern ADDAPI int ADDCALL hackrf_spiflash_read(hackrf_device* device, const uint32_t address, const uint16_t length, unsigned char* data);
+extern ADDAPI int ADDCALL hackrf_spiflash_status(hackrf_device* device, uint8_t* data);
+extern ADDAPI int ADDCALL hackrf_spiflash_clear_status(hackrf_device* device);
 
 /* device will need to be reset after hackrf_cpld_write */
 extern ADDAPI int ADDCALL hackrf_cpld_write(hackrf_device* device,
