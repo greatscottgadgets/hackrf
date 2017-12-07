@@ -15,13 +15,14 @@ compiler:
 
 matrix:
   exclude:
-    - os: osx
-      compiler: gcc
     - os: linux
-      compiler: clang
+    - os: osx
   include:
+    - os: linux
+      compiler: gcc
     - os: osx
       osx_image: xcode7.3
+      compiler: clang
 
 before_script:
   - export CFLAGS="-Wall -Wextra -Werror"
