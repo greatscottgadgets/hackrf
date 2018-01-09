@@ -8,12 +8,12 @@ All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
 
     Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
-    Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the 
+    Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the
 	documentation and/or other materials provided with the distribution.
     Neither the name of Great Scott Gadgets nor the names of its contributors may be used to endorse or promote products derived from this software
 	without specific prior written permission.
 
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, 
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
 THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
 IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
 (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
@@ -350,7 +350,7 @@ int ADDCALL hackrf_init(void)
 	if (g_libusb_context != NULL) {
 		return HACKRF_SUCCESS;
 	}
-	
+
 	libusb_error = libusb_init(&g_libusb_context);
 	if( libusb_error != 0 )
 	{
@@ -399,22 +399,22 @@ hackrf_device_list_t* ADDCALL hackrf_device_list()
 	hackrf_device_list_t* list = calloc(1, sizeof(*list));
 	if ( list == NULL )
 		return NULL;
-		
+
 	list->usb_devicecount = libusb_get_device_list(g_libusb_context, (libusb_device ***)&list->usb_devices);
-	
+
 	list->serial_numbers = calloc(list->usb_devicecount, sizeof(void *));
 	list->usb_board_ids = calloc(list->usb_devicecount, sizeof(enum hackrf_usb_board_id));
 	list->usb_device_index = calloc(list->usb_devicecount, sizeof(int));
-	
+
 	if ( list->serial_numbers == NULL || list->usb_board_ids == NULL || list->usb_device_index == NULL) {
 		hackrf_device_list_free(list);
 		return NULL;
 	}
-	
+
 	for (i=0; i<list->usb_devicecount; i++) {
 		struct libusb_device_descriptor device_descriptor;
 		libusb_get_device_descriptor(list->usb_devices[i], &device_descriptor);
-		
+
 		if( device_descriptor.idVendor == hackrf_usb_vid ) {
 			if((device_descriptor.idProduct == hackrf_one_usb_pid) ||
 			   (device_descriptor.idProduct == hackrf_jawbreaker_usb_pid) ||
@@ -422,7 +422,7 @@ hackrf_device_list_t* ADDCALL hackrf_device_list()
 				idx = list->devicecount++;
 				list->usb_board_ids[idx] = device_descriptor.idProduct;
 				list->usb_device_index[idx] = i;
-				
+
 				serial_descriptor_index = device_descriptor.iSerialNumber;
 				if( serial_descriptor_index > 0 ) {
 					if( libusb_open(list->usb_devices[i], &usb_device) != 0 ) {
@@ -434,28 +434,28 @@ hackrf_device_list_t* ADDCALL hackrf_device_list()
 						serial_number[32] = 0;
 						list->serial_numbers[idx] = strdup(serial_number);
 					}
-					
+
 					libusb_close(usb_device);
 					usb_device = NULL;
 				}
 			}
 		}
 	}
-	
+
 	return list;
 }
 
 void ADDCALL hackrf_device_list_free(hackrf_device_list_t *list)
 {
 	int i;
-	
+
 	libusb_free_device_list((libusb_device **)list->usb_devices, 1);
-	
+
 	for (i = 0; i < list->devicecount; i++) {
 		if (list->serial_numbers[i])
 			free(list->serial_numbers[i]);
 	}
-	
+
 	free(list->serial_numbers);
 	free(list->usb_board_ids);
 	free(list->usb_device_index);
@@ -471,7 +471,7 @@ libusb_device_handle* hackrf_open_usb(const char* const desired_serial_number)
 	ssize_t i;
 	char serial_number[64];
 	int serial_number_length;
-	
+
 	if( desired_serial_number ) {
 		/* If a shorter serial number is specified, only match against the suffix.
 		 * Should probably complain if the match is not unique, currently doesn't.
@@ -480,16 +480,16 @@ libusb_device_handle* hackrf_open_usb(const char* const desired_serial_number)
 		if ( match_len > 32 )
 			return NULL;
 	}
-	
+
 	for (i=0; i<list_length; i++) {
 		struct libusb_device_descriptor device_descriptor;
 		libusb_get_device_descriptor(devices[i], &device_descriptor);
-		
+
 		if( device_descriptor.idVendor == hackrf_usb_vid ) {
 			if((device_descriptor.idProduct == hackrf_one_usb_pid) ||
 			   (device_descriptor.idProduct == hackrf_jawbreaker_usb_pid) ||
 			   (device_descriptor.idProduct == rad1o_usb_pid)) {
-				
+
 				if( desired_serial_number != NULL ) {
 					const uint_fast8_t serial_descriptor_index = device_descriptor.iSerialNumber;
 					if( serial_descriptor_index > 0 ) {
@@ -518,9 +518,9 @@ libusb_device_handle* hackrf_open_usb(const char* const desired_serial_number)
 			}
 		}
 	}
-	
+
 	libusb_free_device_list(devices, 1);
-	
+
 	return usb_device;
 }
 
@@ -531,7 +531,7 @@ static int hackrf_open_setup(libusb_device_handle* usb_device, hackrf_device** d
 
 	//int speed = libusb_get_device_speed(usb_device);
 	// TODO: Error or warning if not high speed USB?
-	
+
 	result = set_hackrf_configuration(usb_device, USB_CONFIG_STANDARD);
 	if( result != LIBUSB_SUCCESS )
 	{
@@ -580,53 +580,53 @@ static int hackrf_open_setup(libusb_device_handle* usb_device, hackrf_device** d
 int ADDCALL hackrf_open(hackrf_device** device)
 {
 	libusb_device_handle* usb_device;
-	
+
 	if( device == NULL )
 	{
 		return HACKRF_ERROR_INVALID_PARAM;
 	}
-	
+
 	usb_device = libusb_open_device_with_vid_pid(g_libusb_context, hackrf_usb_vid, hackrf_one_usb_pid);
-	
+
 	if( usb_device == NULL )
 	{
 		usb_device = libusb_open_device_with_vid_pid(g_libusb_context, hackrf_usb_vid, hackrf_jawbreaker_usb_pid);
 	}
-	
+
 	if( usb_device == NULL )
 	{
 		usb_device = libusb_open_device_with_vid_pid(g_libusb_context, hackrf_usb_vid, rad1o_usb_pid);
 	}
-	
+
 	if( usb_device == NULL )
 	{
 		return HACKRF_ERROR_NOT_FOUND;
 	}
-	
+
 	return hackrf_open_setup(usb_device, device);
 }
 
 int ADDCALL hackrf_open_by_serial(const char* const desired_serial_number, hackrf_device** device)
 {
 	libusb_device_handle* usb_device;
-	
+
 	if( desired_serial_number == NULL )
 	{
 		return hackrf_open(device);
 	}
-	
+
 	if( device == NULL )
 	{
 		return HACKRF_ERROR_INVALID_PARAM;
 	}
-	
+
 	usb_device = hackrf_open_usb(desired_serial_number);
-	
+
 	if( usb_device == NULL )
 	{
 		return HACKRF_ERROR_NOT_FOUND;
 	}
-	
+
 	return hackrf_open_setup(usb_device, device);
 }
 
@@ -634,12 +634,12 @@ int ADDCALL hackrf_device_list_open(hackrf_device_list_t *list, int idx, hackrf_
 {
 	libusb_device_handle* usb_device;
 	int i, result;
-	
+
 	if( device == NULL || list == NULL || idx < 0 || idx >= list->devicecount )
 	{
 		return HACKRF_ERROR_INVALID_PARAM;
 	}
-	
+
 	i = list->usb_device_index[idx];
 
 	result = libusb_open(list->usb_devices[i], &usb_device);
@@ -648,7 +648,7 @@ int ADDCALL hackrf_device_list_open(hackrf_device_list_t *list, int idx, hackrf_
 		last_libusb_error = result;
 		return HACKRF_ERROR_LIBUSB;
 	}
-	
+
 	return hackrf_open_setup(usb_device, device);
 }
 
@@ -707,7 +707,7 @@ int ADDCALL hackrf_max2837_read(hackrf_device* device, uint8_t register_number, 
 int ADDCALL hackrf_max2837_write(hackrf_device* device, uint8_t register_number, uint16_t value)
 {
 	int result;
-	
+
 	if( register_number >= 32 )
 	{
 		return HACKRF_ERROR_INVALID_PARAM;
@@ -741,7 +741,7 @@ int ADDCALL hackrf_si5351c_read(hackrf_device* device, uint16_t register_number,
 {
 	uint8_t temp_value;
 	int result;
-	
+
 	if( register_number >= 256 )
 	{
 		return HACKRF_ERROR_INVALID_PARAM;
@@ -772,7 +772,7 @@ int ADDCALL hackrf_si5351c_read(hackrf_device* device, uint16_t register_number,
 int ADDCALL hackrf_si5351c_write(hackrf_device* device, uint16_t register_number, uint16_t value)
 {
 	int result;
-	
+
 	if( register_number >= 256 )
 	{
 		return HACKRF_ERROR_INVALID_PARAM;
@@ -828,7 +828,7 @@ int ADDCALL hackrf_set_baseband_filter_bandwidth(hackrf_device* device, const ui
 int ADDCALL hackrf_rffc5071_read(hackrf_device* device, uint8_t register_number, uint16_t* value)
 {
 	int result;
-	
+
 	if( register_number >= 31 )
 	{
 		return HACKRF_ERROR_INVALID_PARAM;
@@ -857,7 +857,7 @@ int ADDCALL hackrf_rffc5071_read(hackrf_device* device, uint8_t register_number,
 int ADDCALL hackrf_rffc5071_write(hackrf_device* device, uint8_t register_number, uint16_t value)
 {
 	int result;
-	
+
 	if( register_number >= 31 )
 	{
 		return HACKRF_ERROR_INVALID_PARAM;
@@ -910,7 +910,7 @@ int ADDCALL hackrf_spiflash_write(hackrf_device* device, const uint32_t address,
 		const uint16_t length, unsigned char* const data)
 {
 	int result;
-	
+
 	if (address > 0x0FFFFF)
 	{
 		return HACKRF_ERROR_INVALID_PARAM;
@@ -940,7 +940,7 @@ int ADDCALL hackrf_spiflash_read(hackrf_device* device, const uint32_t address,
 		const uint16_t length, unsigned char* data)
 {
 	int result;
-	
+
 	if (address > 0x0FFFFF)
 	{
 		return HACKRF_ERROR_INVALID_PARAM;
@@ -1021,11 +1021,11 @@ int ADDCALL hackrf_cpld_write(hackrf_device* device,
 	const unsigned int chunk_size = 512;
 	unsigned int i;
 	int result, transferred = 0;
-	
+
 	result = hackrf_set_transceiver_mode(device, TRANSCEIVER_MODE_CPLD_UPDATE);
 	if (result != 0)
 		return result;
-	
+
 	for (i = 0; i < total_length; i += chunk_size)
 	{
 		result = libusb_bulk_transfer(
@@ -1125,7 +1125,7 @@ int ADDCALL hackrf_set_freq(hackrf_device* device, const uint64_t freq_hz)
 	set_freq_params_t set_freq_params;
 	uint8_t length;
 	int result;
-	
+
 	/* Convert Freq Hz 64bits to Freq MHz (32bits) & Freq Hz (32bits) */
 	l_freq_mhz = (uint32_t)(freq_hz / FREQ_ONE_MHZ);
 	l_freq_hz = (uint32_t)(freq_hz - (((uint64_t)l_freq_mhz) * FREQ_ONE_MHZ));
@@ -1321,7 +1321,7 @@ int ADDCALL hackrf_board_partid_serialno_read(hackrf_device* device, read_partid
 {
 	uint8_t length;
 	int result;
-	
+
 	length = sizeof(read_partid_serialno_t);
 	result = libusb_control_transfer(
 		device->usb_device,
@@ -1355,7 +1355,7 @@ int ADDCALL hackrf_set_lna_gain(hackrf_device* device, uint32_t value)
 {
 	int result;
 	uint8_t retval;
-	
+
 	if( value > 40 )
 	{
 		return HACKRF_ERROR_INVALID_PARAM;
@@ -1385,7 +1385,7 @@ int ADDCALL hackrf_set_vga_gain(hackrf_device* device, uint32_t value)
 {
 	int result;
 	uint8_t retval;
-	
+
 	if( value > 62 )
 	{
 		return HACKRF_ERROR_INVALID_PARAM;
@@ -1415,7 +1415,7 @@ int ADDCALL hackrf_set_txvga_gain(hackrf_device* device, uint32_t value)
 {
 	int result;
 	uint8_t retval;
-	
+
 	if( value > 47 )
 	{
 		return HACKRF_ERROR_INVALID_PARAM;
@@ -1521,7 +1521,7 @@ static int kill_transfer_thread(hackrf_device* device)
 {
 	void* value;
 	int result;
-	
+
 	request_exit();
 
 	if( device->transfer_thread_started != false )
@@ -1546,7 +1546,7 @@ static int create_transfer_thread(hackrf_device* device,
 									hackrf_sample_block_cb_fn callback)
 {
 	int result;
-	
+
 	if( device->transfer_thread_started == false )
 	{
 		device->streaming = false;
@@ -1581,14 +1581,14 @@ static int create_transfer_thread(hackrf_device* device,
 int ADDCALL hackrf_is_streaming(hackrf_device* device)
 {
 	/* return hackrf is streaming only when streaming, transfer_thread_started are true and do_exit equal false */
-	
+
 	if( (device->transfer_thread_started == true) &&
-		(device->streaming == true) && 
+		(device->streaming == true) &&
 		(do_exit == false) )
 	{
 		return HACKRF_TRUE;
 	} else {
-	
+
 		if(device->transfer_thread_started == false)
 		{
 			return HACKRF_ERROR_STREAMING_THREAD_ERR;
@@ -1658,7 +1658,7 @@ int ADDCALL hackrf_close(hackrf_device* device)
 
 	result1 = HACKRF_SUCCESS;
 	result2 = HACKRF_SUCCESS;
-	
+
 	if( device != NULL )
 	{
 		result1 = hackrf_stop_rx(device);
@@ -1936,7 +1936,7 @@ int ADDCALL hackrf_init_sweep(hackrf_device* device,
 	}
 }
 
-/* Retrieve list of Operacake board addresses 
+/* Retrieve list of Operacake board addresses
  * boards must be *uint8_t[8]
  */
 int ADDCALL hackrf_get_operacake_boards(hackrf_device* device, uint8_t* boards)
@@ -2071,4 +2071,3 @@ int ADDCALL hackrf_set_clkout_enable(hackrf_device* device, const uint8_t value)
 #ifdef __cplusplus
 } // __cplusplus defined.
 #endif
-
