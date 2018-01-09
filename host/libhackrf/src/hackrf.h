@@ -132,6 +132,8 @@ struct hackrf_device_list {
 };
 typedef struct hackrf_device_list hackrf_device_list_t;
 
+// If the return value of a callback of this type is anything other than 0,
+// the transfer will be stopped (and that returned value is thrown away).
 typedef int (*hackrf_sample_block_cb_fn)(hackrf_transfer* transfer);
 
 #ifdef __cplusplus
