@@ -141,13 +141,13 @@ extern "C"
 {
 #endif
 
-extern ADDAPI enum hackrf_error ADDCALL hackrf_init();
-extern ADDAPI enum hackrf_error ADDCALL hackrf_exit();
+extern ADDAPI enum hackrf_error ADDCALL hackrf_init(void);
+extern ADDAPI enum hackrf_error ADDCALL hackrf_exit(void);
 
-extern ADDAPI const char* ADDCALL hackrf_library_version();
-extern ADDAPI const char* ADDCALL hackrf_library_release();
+extern ADDAPI const char* ADDCALL hackrf_library_version(void);
+extern ADDAPI const char* ADDCALL hackrf_library_release(void);
 
-extern ADDAPI hackrf_device_list_t* ADDCALL hackrf_device_list();
+extern ADDAPI hackrf_device_list_t* ADDCALL hackrf_device_list(void);
 extern ADDAPI enum hackrf_error ADDCALL hackrf_device_list_open(hackrf_device_list_t *list, int idx, hackrf_device** device);
 extern ADDAPI void ADDCALL hackrf_device_list_free(hackrf_device_list_t *list);
 
