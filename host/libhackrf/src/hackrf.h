@@ -59,83 +59,83 @@
 #define MAX_SWEEP_RANGES 10
 
 enum hackrf_error {
-	HACKRF_SUCCESS = 0,
-	HACKRF_TRUE = 1,
-	HACKRF_ERROR_INVALID_PARAM = -2,
-	HACKRF_ERROR_NOT_FOUND = -5,
-	HACKRF_ERROR_BUSY = -6,
-	HACKRF_ERROR_NO_MEM = -11,
-	HACKRF_ERROR_LIBUSB = -1000,
-	HACKRF_ERROR_THREAD = -1001,
-	HACKRF_ERROR_STREAMING_THREAD_ERR = -1002,
-	HACKRF_ERROR_STREAMING_STOPPED = -1003,
-	HACKRF_ERROR_STREAMING_EXIT_CALLED = -1004,
-	HACKRF_ERROR_USB_API_VERSION = -1005,
-	HACKRF_ERROR_OTHER = -9999,
+    HACKRF_SUCCESS = 0,
+    HACKRF_TRUE = 1,
+    HACKRF_ERROR_INVALID_PARAM = -2,
+    HACKRF_ERROR_NOT_FOUND = -5,
+    HACKRF_ERROR_BUSY = -6,
+    HACKRF_ERROR_NO_MEM = -11,
+    HACKRF_ERROR_LIBUSB = -1000,
+    HACKRF_ERROR_THREAD = -1001,
+    HACKRF_ERROR_STREAMING_THREAD_ERR = -1002,
+    HACKRF_ERROR_STREAMING_STOPPED = -1003,
+    HACKRF_ERROR_STREAMING_EXIT_CALLED = -1004,
+    HACKRF_ERROR_USB_API_VERSION = -1005,
+    HACKRF_ERROR_OTHER = -9999,
 };
 
 enum hackrf_board_id {
-	BOARD_ID_JELLYBEAN  = 0,
-	BOARD_ID_JAWBREAKER = 1,
-	BOARD_ID_HACKRF_ONE = 2,
-	BOARD_ID_RAD1O = 3,
-	BOARD_ID_INVALID = 0xFF,
+    BOARD_ID_JELLYBEAN  = 0,
+    BOARD_ID_JAWBREAKER = 1,
+    BOARD_ID_HACKRF_ONE = 2,
+    BOARD_ID_RAD1O = 3,
+    BOARD_ID_INVALID = 0xFF,
 };
 
 enum hackrf_usb_board_id {
-	USB_BOARD_ID_JAWBREAKER = 0x604B,
-	USB_BOARD_ID_HACKRF_ONE = 0x6089,
-	USB_BOARD_ID_RAD1O = 0xCC15,
-	USB_BOARD_ID_INVALID = 0xFFFF,
+    USB_BOARD_ID_JAWBREAKER = 0x604B,
+    USB_BOARD_ID_HACKRF_ONE = 0x6089,
+    USB_BOARD_ID_RAD1O = 0xCC15,
+    USB_BOARD_ID_INVALID = 0xFFFF,
 };
 
 enum rf_path_filter {
-	RF_PATH_FILTER_BYPASS = 0,
-	RF_PATH_FILTER_LOW_PASS = 1,
-	RF_PATH_FILTER_HIGH_PASS = 2,
+    RF_PATH_FILTER_BYPASS = 0,
+    RF_PATH_FILTER_LOW_PASS = 1,
+    RF_PATH_FILTER_HIGH_PASS = 2,
 };
 
 enum operacake_ports {
-	OPERACAKE_PA1 = 0,
-	OPERACAKE_PA2 = 1,
-	OPERACAKE_PA3 = 2,
-	OPERACAKE_PA4 = 3,
-	OPERACAKE_PB1 = 4,
-	OPERACAKE_PB2 = 5,
-	OPERACAKE_PB3 = 6,
-	OPERACAKE_PB4 = 7,
+    OPERACAKE_PA1 = 0,
+    OPERACAKE_PA2 = 1,
+    OPERACAKE_PA3 = 2,
+    OPERACAKE_PA4 = 3,
+    OPERACAKE_PB1 = 4,
+    OPERACAKE_PB2 = 5,
+    OPERACAKE_PB3 = 6,
+    OPERACAKE_PB4 = 7,
 };
 
 enum sweep_style {
-	LINEAR = 0,
-	INTERLEAVED = 1,
+    LINEAR = 0,
+    INTERLEAVED = 1,
 };
 
 typedef struct hackrf_device hackrf_device;
 
 typedef struct {
-	hackrf_device* device;
-	uint8_t* buffer;
-	int buffer_length;
-	int valid_length;
-	void* rx_ctx;
-	void* tx_ctx;
+    hackrf_device* device;
+    uint8_t* buffer;
+    int buffer_length;
+    int valid_length;
+    void* rx_ctx;
+    void* tx_ctx;
 } hackrf_transfer;
 
 typedef struct {
-	uint32_t part_id[2];
-	uint32_t serial_no[4];
+    uint32_t part_id[2];
+    uint32_t serial_no[4];
 } read_partid_serialno_t;
 
 
 struct hackrf_device_list {
-	char **serial_numbers;
-	enum hackrf_usb_board_id *usb_board_ids;
-	int *usb_device_index;
-	int devicecount;
+    char **serial_numbers;
+    enum hackrf_usb_board_id *usb_board_ids;
+    int *usb_device_index;
+    int devicecount;
 
-	void **usb_devices;
-	int usb_devicecount;
+    void **usb_devices;
+    int usb_devicecount;
 };
 typedef struct hackrf_device_list hackrf_device_list_t;
 
@@ -190,7 +190,7 @@ extern ADDAPI enum hackrf_error ADDCALL hackrf_spiflash_clear_status(hackrf_devi
 
 // device will need to be reset after hackrf_cpld_write
 extern ADDAPI enum hackrf_error ADDCALL hackrf_cpld_write(hackrf_device* device,
-		unsigned char* const data, const unsigned int total_length);
+        unsigned char* const data, const unsigned int total_length);
 
 extern ADDAPI enum hackrf_error ADDCALL hackrf_board_id_read(hackrf_device* device, uint8_t* value);
 extern ADDAPI enum hackrf_error ADDCALL hackrf_version_string_read(hackrf_device* device, char* version, uint8_t length);
@@ -198,8 +198,8 @@ extern ADDAPI enum hackrf_error ADDCALL hackrf_usb_api_version_read(hackrf_devic
 
 extern ADDAPI enum hackrf_error ADDCALL hackrf_set_freq(hackrf_device* device, const uint64_t freq_hz);
 extern ADDAPI enum hackrf_error ADDCALL hackrf_set_freq_explicit(hackrf_device* device,
-		const uint64_t if_freq_hz, const uint64_t lo_freq_hz,
-		const enum rf_path_filter path);
+        const uint64_t if_freq_hz, const uint64_t lo_freq_hz,
+        const enum rf_path_filter path);
 
 // currently 8-20Mhz - either as a fraction, i.e. freq 20000000hz divider 2 -> 10Mhz or as plain old 10000000hz (double)
 // preferred rates are 8, 10, 12.5, 16, 20Mhz due to less jitter
@@ -240,9 +240,9 @@ extern ADDAPI enum hackrf_error ADDCALL hackrf_set_hw_sync_mode(hackrf_device* d
 
 // Start sweep mode
 extern ADDAPI enum hackrf_error ADDCALL hackrf_init_sweep(hackrf_device* device,
-		const uint16_t* frequency_list, const int num_ranges,
-		const uint32_t num_bytes, const uint32_t step_width,
-		const uint32_t offset, const enum sweep_style style);
+        const uint16_t* frequency_list, const int num_ranges,
+        const uint32_t num_bytes, const uint32_t step_width,
+        const uint32_t offset, const enum sweep_style style);
 
 // Operacake functions
 extern ADDAPI enum hackrf_error ADDCALL hackrf_get_operacake_boards(hackrf_device* device, uint8_t* boards);
