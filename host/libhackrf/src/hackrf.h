@@ -1,25 +1,32 @@
-/*
-Copyright (c) 2012, Jared Boone <jared@sharebrained.com>
-Copyright (c) 2013, Benjamin Vernoux <titanmkd@gmail.com>
-Copyright (c) 2013, Michael Ossmann <mike@ossmann.com>
-
-All rights reserved.
-
-Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
-
-    Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
-    Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the
-	documentation and/or other materials provided with the distribution.
-    Neither the name of Great Scott Gadgets nor the names of its contributors may be used to endorse or promote products derived from this software
-	without specific prior written permission.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
-THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
-HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
-ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+// Copyright (c) 2012, Jared Boone <jared@sharebrained.com>
+// Copyright (c) 2013, Benjamin Vernoux <titanmkd@gmail.com>
+// Copyright (c) 2013, Michael Ossmann <mike@ossmann.com>
+//
+// All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are met:
+//
+// 1. Redistributions of source code must retain the above copyright notice,
+//    this list of conditions and the following disclaimer.
+// 2. Redistributions in binary form must reproduce the above copyright notice,
+//    this list of conditions and the following disclaimer in the documentation
+//    and/or other materials provided with the distribution.
+// 3. Neither the name of Great Scott Gadgets nor the names of its contributors
+//    may be used to endorse or promote products derived from this software
+//    without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+// AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+// ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+// LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+// CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+// SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+// INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+// CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+// ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+// POSSIBILITY OF SUCH DAMAGE.
 
 #ifndef __HACKRF_H__
 #define __HACKRF_H__
@@ -161,7 +168,7 @@ extern ADDAPI enum hackrf_error ADDCALL hackrf_stop_rx(hackrf_device* device);
 extern ADDAPI enum hackrf_error ADDCALL hackrf_start_tx(hackrf_device* device, hackrf_sample_block_cb_fn callback, void* tx_ctx);
 extern ADDAPI enum hackrf_error ADDCALL hackrf_stop_tx(hackrf_device* device);
 
-/* return HACKRF_TRUE if success */
+// return HACKRF_TRUE if success
 extern ADDAPI enum hackrf_error ADDCALL hackrf_is_streaming(hackrf_device* device);
 
 extern ADDAPI enum hackrf_error ADDCALL hackrf_max2837_read(hackrf_device* device, uint8_t register_number, uint16_t* value);
@@ -181,7 +188,7 @@ extern ADDAPI enum hackrf_error ADDCALL hackrf_spiflash_read(hackrf_device* devi
 extern ADDAPI enum hackrf_error ADDCALL hackrf_spiflash_status(hackrf_device* device, uint8_t* data);
 extern ADDAPI enum hackrf_error ADDCALL hackrf_spiflash_clear_status(hackrf_device* device);
 
-/* device will need to be reset after hackrf_cpld_write */
+// device will need to be reset after hackrf_cpld_write
 extern ADDAPI enum hackrf_error ADDCALL hackrf_cpld_write(hackrf_device* device,
 		unsigned char* const data, const unsigned int total_length);
 
@@ -194,26 +201,26 @@ extern ADDAPI enum hackrf_error ADDCALL hackrf_set_freq_explicit(hackrf_device* 
 		const uint64_t if_freq_hz, const uint64_t lo_freq_hz,
 		const enum rf_path_filter path);
 
-/* currently 8-20Mhz - either as a fraction, i.e. freq 20000000hz divider 2 -> 10Mhz or as plain old 10000000hz (double)
-	preferred rates are 8, 10, 12.5, 16, 20Mhz due to less jitter */
+// currently 8-20Mhz - either as a fraction, i.e. freq 20000000hz divider 2 -> 10Mhz or as plain old 10000000hz (double)
+// preferred rates are 8, 10, 12.5, 16, 20Mhz due to less jitter
 extern ADDAPI enum hackrf_error ADDCALL hackrf_set_sample_rate_manual(hackrf_device* device, const uint32_t freq_hz, const uint32_t divider);
 extern ADDAPI enum hackrf_error ADDCALL hackrf_set_sample_rate(hackrf_device* device, const double freq_hz);
 
-/* external amp, bool on/off */
+// external amp, bool on/off
 extern ADDAPI enum hackrf_error ADDCALL hackrf_set_amp_enable(hackrf_device* device, const uint8_t value);
 
 extern ADDAPI enum hackrf_error ADDCALL hackrf_board_partid_serialno_read(hackrf_device* device, read_partid_serialno_t* read_partid_serialno);
 
-/* range 0-40 step 8d, IF gain in osmosdr  */
+// range 0-40 step 8d, IF gain in osmosdr
 extern ADDAPI enum hackrf_error ADDCALL hackrf_set_lna_gain(hackrf_device* device, uint32_t value);
 
-/* range 0-62 step 2db, BB gain in osmosdr */
+// range 0-62 step 2db, BB gain in osmosdr
 extern ADDAPI enum hackrf_error ADDCALL hackrf_set_vga_gain(hackrf_device* device, uint32_t value);
 
-/* range 0-47 step 1db */
+// range 0-47 step 1db
 extern ADDAPI enum hackrf_error ADDCALL hackrf_set_txvga_gain(hackrf_device* device, uint32_t value);
 
-/* antenna port power control */
+// antenna port power control
 extern ADDAPI enum hackrf_error ADDCALL hackrf_set_antenna_enable(hackrf_device* device, const uint8_t value);
 
 extern ADDAPI const char* ADDCALL hackrf_error_name(enum hackrf_error errcode);
@@ -221,23 +228,23 @@ extern ADDAPI const char* ADDCALL hackrf_board_id_name(enum hackrf_board_id boar
 extern ADDAPI const char* ADDCALL hackrf_usb_board_id_name(enum hackrf_usb_board_id usb_board_id);
 extern ADDAPI const char* ADDCALL hackrf_filter_path_name(const enum rf_path_filter path);
 
-/* Compute nearest freq for bw filter (manual filter) */
+// Compute nearest freq for bw filter (manual filter)
 extern ADDAPI uint32_t ADDCALL hackrf_compute_baseband_filter_bw_round_down_lt(const uint32_t bandwidth_hz);
-/* Compute best default value depending on sample rate (auto filter) */
+// Compute best default value depending on sample rate (auto filter)
 extern ADDAPI uint32_t ADDCALL hackrf_compute_baseband_filter_bw(const uint32_t bandwidth_hz);
 
-/* All features below require USB API version 0x1002 or higher) */
+// All features below require USB API version 0x1002 or higher)
 
-/* set hardware sync mode  */
+// set hardware sync mode
 extern ADDAPI enum hackrf_error ADDCALL hackrf_set_hw_sync_mode(hackrf_device* device, const uint8_t value);
 
-/* Start sweep mode */
+// Start sweep mode
 extern ADDAPI enum hackrf_error ADDCALL hackrf_init_sweep(hackrf_device* device,
 		const uint16_t* frequency_list, const int num_ranges,
 		const uint32_t num_bytes, const uint32_t step_width,
 		const uint32_t offset, const enum sweep_style style);
 
-/* Operacake functions */
+// Operacake functions
 extern ADDAPI enum hackrf_error ADDCALL hackrf_get_operacake_boards(hackrf_device* device, uint8_t* boards);
 extern ADDAPI enum hackrf_error ADDCALL hackrf_set_operacake_ports(hackrf_device* device,
                                        uint8_t address,
