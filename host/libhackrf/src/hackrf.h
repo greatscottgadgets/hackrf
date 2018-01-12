@@ -201,6 +201,7 @@ struct hackrf_device_list {
 typedef struct hackrf_device_list hackrf_device_list_t;
 
 /// FIXME: doc
+///
 /// If the return value of a callback of this type is anything other than 0,
 /// the transfer will be stopped (and that returned value is thrown away).
 typedef int (*hackrf_sample_block_cb_fn)(hackrf_transfer* transfer);
@@ -219,10 +220,15 @@ extern "C"
 // -----------------------------------------------------------------------------
 
 /// FIXME: doc
+///
+/// \returns \link HACKRF_ERROR_LIBUSB \endlink if `libusb` had a problem.
+/// \returns \link HACKRF_SUCCESS \endlink otherwise.
 extern ADDAPI enum hackrf_error ADDCALL
 hackrf_init(void);
 
 /// FIXME: doc
+///
+/// \returns \link HACKRF_SUCCESS \endlink unconditionally.
 extern ADDAPI enum hackrf_error ADDCALL
 hackrf_exit(void);
 
@@ -243,6 +249,16 @@ extern ADDAPI hackrf_device_list_t* ADDCALL
 hackrf_device_list(void);
 
 /// FIXME: doc
+///
+/// \returns \link HACKRF_ERROR_INVALID_PARAM \endlink when `device == NULL`.
+/// \returns \link HACKRF_ERROR_INVALID_PARAM \endlink when `list == NULL`.
+/// \returns \link HACKRF_ERROR_INVALID_PARAM \endlink when `idx < 0`.
+/// \returns \link HACKRF_ERROR_INVALID_PARAM \endlink
+///          when `idx >= list->devicecount`.
+/// \returns \link HACKRF_ERROR_LIBUSB \endlink if `libusb` had a problem.
+/// \returns \link HACKRF_ERROR_NO_MEM \endlink
+///          if `malloc` failed to allocate enough memory.
+/// \returns \link HACKRF_SUCCESS \endlink otherwise.
 extern ADDAPI enum hackrf_error ADDCALL
 hackrf_device_list_open(hackrf_device_list_t* list,
                         int                   idx,
@@ -257,15 +273,38 @@ hackrf_device_list_free(hackrf_device_list_t* list);
 // -----------------------------------------------------------------------------
 
 /// FIXME: doc
+///
+/// \returns \link HACKRF_ERROR_INVALID_PARAM \endlink when `device == NULL`.
+/// \returns \link HACKRF_ERROR_NOT_FOUND \endlink
+///          if neither a HackRF One, a HackRF Jawbreaker, nor a DEFCON rad1o
+///          were found with the USB controller.
+/// \returns \link HACKRF_ERROR_LIBUSB \endlink if `libusb` had a problem.
+/// \returns \link HACKRF_ERROR_NO_MEM \endlink
+///          if `malloc` failed to allocate enough memory.
+/// \returns \link HACKRF_SUCCESS \endlink otherwise.
 extern ADDAPI enum hackrf_error ADDCALL
 hackrf_open(hackrf_device** device);
 
 /// FIXME: doc
+///
+/// \returns \link HACKRF_ERROR_INVALID_PARAM \endlink when `device == NULL`.
+/// \returns \link HACKRF_ERROR_NOT_FOUND \endlink
+///          if neither a HackRF One, a HackRF Jawbreaker, nor a DEFCON rad1o
+///          were found with the USB controller.
+/// \returns \link HACKRF_ERROR_LIBUSB \endlink if `libusb` had a problem.
+/// \returns \link HACKRF_ERROR_NO_MEM \endlink
+///          if `malloc` failed to allocate enough memory.
+/// \returns \link HACKRF_SUCCESS \endlink otherwise.
 extern ADDAPI enum hackrf_error ADDCALL
 hackrf_open_by_serial(const char*     desired_serial_number,
                       hackrf_device** device);
 
 /// FIXME: doc
+///
+/// \returns \link HACKRF_ERROR_THREAD \endlink
+///          if `pthread_join`ing the transfer thread failed.
+/// \returns \link HACKRF_ERROR_LIBUSB \endlink if `libusb` had a problem.
+/// \returns \link HACKRF_SUCCESS \endlink otherwise.
 extern ADDAPI enum hackrf_error ADDCALL
 hackrf_close(hackrf_device* device);
 
@@ -274,28 +313,66 @@ hackrf_close(hackrf_device* device);
 // -----------------------------------------------------------------------------
 
 /// FIXME: doc
+///
+/// \returns \link HACKRF_ERROR_THREAD \endlink
+///          if `pthread_create`ing the transfer thread failed.
+/// \returns \link HACKRF_ERROR_BUSY \endlink
+///          if the transfer thread was already started.
+/// \returns \link HACKRF_ERROR_LIBUSB \endlink if `libusb` had a problem.
+/// \returns \link HACKRF_ERROR_OTHER \endlink
+///          if something that should never happen happens.
+/// \returns \link HACKRF_SUCCESS \endlink otherwise.
 extern ADDAPI enum hackrf_error ADDCALL
 hackrf_start_rx(hackrf_device*            device,
                 hackrf_sample_block_cb_fn callback,
                 void*                     rx_ctx);
 
 /// FIXME: doc
+///
+/// \returns \link HACKRF_ERROR_THREAD \endlink
+///          if `pthread_join`ing the transfer thread failed.
+/// \returns \link HACKRF_ERROR_LIBUSB \endlink if `libusb` had a problem.
+/// \returns \link HACKRF_SUCCESS \endlink otherwise.
 extern ADDAPI enum hackrf_error ADDCALL
 hackrf_stop_rx(hackrf_device* device);
 
 /// FIXME: doc
+///
+/// \returns \link HACKRF_ERROR_THREAD \endlink
+///          if `pthread_create`ing the transfer thread failed.
+/// \returns \link HACKRF_ERROR_BUSY \endlink
+///          if the transfer thread was already started.
+/// \returns \link HACKRF_ERROR_LIBUSB \endlink if `libusb` had a problem.
+/// \returns \link HACKRF_ERROR_OTHER \endlink
+///          if something that should never happen happens.
+/// \returns \link HACKRF_SUCCESS \endlink otherwise.
 extern ADDAPI enum hackrf_error ADDCALL
 hackrf_start_tx(hackrf_device*            device,
                 hackrf_sample_block_cb_fn callback,
                 void*                     tx_ctx);
 
 /// FIXME: doc
+///
+/// \returns \link HACKRF_ERROR_THREAD \endlink
+///          if `pthread_join`ing the transfer thread failed.
+/// \returns \link HACKRF_ERROR_LIBUSB \endlink if `libusb` had a problem.
+/// \returns \link HACKRF_SUCCESS \endlink otherwise.
 extern ADDAPI enum hackrf_error ADDCALL
 hackrf_stop_tx(hackrf_device* device);
 
 /// FIXME: doc
+///
 /// FIXME: maybe this should return a different enum
-/// return HACKRF_TRUE if success
+///
+/// \returns \link HACKRF_TRUE \endlink
+///          if the transfer thread is running and the device is streaming
+///          and the transfer thread has not requested that it be killed.
+/// \returns \link HACKRF_ERROR_STREAMING_THREAD_ERR \endlink
+///          if the transfer thread is not running.
+/// \returns \link HACKRF_ERROR_STREAMING_STOPPED \endlink
+///          if the device is not streaming.
+/// \returns \link HACKRF_ERROR_STREAMING_EXIT_CALLED \endlink
+///          if the transfer thread has requested that it be killed.
 extern ADDAPI enum hackrf_error ADDCALL
 hackrf_is_streaming(hackrf_device* device);
 
@@ -304,12 +381,26 @@ hackrf_is_streaming(hackrf_device* device);
 // -----------------------------------------------------------------------------
 
 /// FIXME: doc
+///
+/// \returns \link HACKRF_ERROR_INVALID_PARAM \endlink
+///          if `register_number >= 32`.
+/// \returns \link HACKRF_ERROR_LIBUSB \endlink
+///          if `libusb` had a problem.
+/// \returns \link HACKRF_SUCCESS \endlink otherwise.
 extern ADDAPI enum hackrf_error ADDCALL
 hackrf_max2837_read(hackrf_device* device,
                     uint8_t        register_number,
                     uint16_t*      value);
 
 /// FIXME: doc
+///
+/// \returns \link HACKRF_ERROR_INVALID_PARAM \endlink
+///          if `register_number >= 32`.
+/// \returns \link HACKRF_ERROR_INVALID_PARAM \endlink
+///          if `value >= 1024`.
+/// \returns \link HACKRF_ERROR_LIBUSB \endlink
+///          if `libusb` had a problem.
+/// \returns \link HACKRF_SUCCESS \endlink otherwise.
 extern ADDAPI enum hackrf_error ADDCALL
 hackrf_max2837_write(hackrf_device* device,
                      uint8_t        register_number,
@@ -320,12 +411,26 @@ hackrf_max2837_write(hackrf_device* device,
 // -----------------------------------------------------------------------------
 
 /// FIXME: doc
+///
+/// \returns \link HACKRF_ERROR_INVALID_PARAM \endlink
+///          if `register_number >= 256`.
+/// \returns \link HACKRF_ERROR_LIBUSB \endlink
+///          if `libusb` had a problem.
+/// \returns \link HACKRF_SUCCESS \endlink otherwise.
 extern ADDAPI enum hackrf_error ADDCALL
 hackrf_si5351c_read(hackrf_device* device,
                     uint16_t       register_number,
                     uint16_t*      value);
 
 /// FIXME: doc
+///
+/// \returns \link HACKRF_ERROR_INVALID_PARAM \endlink
+///          if `register_number >= 256`.
+/// \returns \link HACKRF_ERROR_INVALID_PARAM \endlink
+///          if `value >= 256`.
+/// \returns \link HACKRF_ERROR_LIBUSB \endlink
+///          if `libusb` had a problem.
+/// \returns \link HACKRF_SUCCESS \endlink otherwise.
 extern ADDAPI enum hackrf_error ADDCALL
 hackrf_si5351c_write(hackrf_device* device,
                      uint16_t       register_number,
@@ -336,6 +441,10 @@ hackrf_si5351c_write(hackrf_device* device,
 // -----------------------------------------------------------------------------
 
 /// FIXME: doc
+///
+/// \returns \link HACKRF_ERROR_LIBUSB \endlink
+///          if `libusb` had a problem.
+/// \returns \link HACKRF_SUCCESS \endlink otherwise.
 extern ADDAPI enum hackrf_error ADDCALL
 hackrf_set_baseband_filter_bandwidth(hackrf_device* device,
                                      uint32_t       bandwidth_hz);
@@ -345,12 +454,24 @@ hackrf_set_baseband_filter_bandwidth(hackrf_device* device,
 // -----------------------------------------------------------------------------
 
 /// FIXME: doc
+///
+/// \returns \link HACKRF_ERROR_INVALID_PARAM \endlink
+///          if `register_number >= 31`.
+/// \returns \link HACKRF_ERROR_LIBUSB \endlink
+///          if `libusb` had a problem.
+/// \returns \link HACKRF_SUCCESS \endlink otherwise.
 extern ADDAPI enum hackrf_error ADDCALL
 hackrf_rffc5071_read(hackrf_device* device,
                      uint8_t        register_number,
                      uint16_t*      value);
 
 /// FIXME: doc
+///
+/// \returns \link HACKRF_ERROR_INVALID_PARAM \endlink
+///          if `register_number >= 31`.
+/// \returns \link HACKRF_ERROR_LIBUSB \endlink
+///          if `libusb` had a problem.
+/// \returns \link HACKRF_SUCCESS \endlink otherwise.
 extern ADDAPI enum hackrf_error ADDCALL
 hackrf_rffc5071_write(hackrf_device* device,
                       uint8_t        register_number,
@@ -361,17 +482,20 @@ hackrf_rffc5071_write(hackrf_device* device,
 // -----------------------------------------------------------------------------
 
 /// FIXME: doc
+///
+/// \returns \link HACKRF_ERROR_LIBUSB \endlink
+///          if `libusb` had a problem.
+/// \returns \link HACKRF_SUCCESS \endlink otherwise.
 extern ADDAPI enum hackrf_error ADDCALL
 hackrf_spiflash_erase(hackrf_device* device);
 
 /// FIXME: doc
-extern ADDAPI enum hackrf_error ADDCALL
-hackrf_spiflash_write(hackrf_device* device,
-                      uint32_t       address,
-                      uint16_t       length,
-                      unsigned char* data);
-
-/// FIXME: doc
+///
+/// \returns \link HACKRF_ERROR_INVALID_PARAM \endlink
+///          if `register_number >= 1048575`.
+/// \returns \link HACKRF_ERROR_LIBUSB \endlink
+///          if `libusb` had a problem.
+/// \returns \link HACKRF_SUCCESS \endlink otherwise.
 extern ADDAPI enum hackrf_error ADDCALL
 hackrf_spiflash_read(hackrf_device* device,
                      uint32_t       address,
@@ -379,11 +503,38 @@ hackrf_spiflash_read(hackrf_device* device,
                      unsigned char* data);
 
 /// FIXME: doc
+///
+/// \returns \link HACKRF_ERROR_INVALID_PARAM \endlink
+///          if `register_number >= 1048575`.
+/// \returns \link HACKRF_ERROR_LIBUSB \endlink
+///          if `libusb` had a problem.
+/// \returns \link HACKRF_SUCCESS \endlink otherwise.
+extern ADDAPI enum hackrf_error ADDCALL
+hackrf_spiflash_write(hackrf_device* device,
+                      uint32_t       address,
+                      uint16_t       length,
+                      unsigned char* data);
+
+/// FIXME: doc
+///
+/// This function requires USB API version 0x1003 or higher
+///
+/// \returns \link HACKRF_ERROR_USB_API_VERSION \endlink
+///          if the USB API version is lower than `0x1003`.
+/// \returns \link HACKRF_ERROR_LIBUSB \endlink
+///          if `libusb` had a problem.
+/// \returns \link HACKRF_SUCCESS \endlink otherwise.
 extern ADDAPI enum hackrf_error ADDCALL
 hackrf_spiflash_status(hackrf_device* device,
                        uint8_t*       data);
 
 /// FIXME: doc
+///
+/// \returns \link HACKRF_ERROR_USB_API_VERSION \endlink
+///          if the USB API version is lower than `0x1003`.
+/// \returns \link HACKRF_ERROR_LIBUSB \endlink
+///          if `libusb` had a problem.
+/// \returns \link HACKRF_SUCCESS \endlink otherwise.
 extern ADDAPI enum hackrf_error ADDCALL
 hackrf_spiflash_clear_status(hackrf_device* device);
 
@@ -392,7 +543,12 @@ hackrf_spiflash_clear_status(hackrf_device* device);
 // -----------------------------------------------------------------------------
 
 /// FIXME: doc
+///
 /// device will need to be reset after hackrf_cpld_write
+///
+/// \returns \link HACKRF_ERROR_LIBUSB \endlink
+///          if `libusb` had a problem.
+/// \returns \link HACKRF_SUCCESS \endlink otherwise.
 extern ADDAPI enum hackrf_error ADDCALL
 hackrf_cpld_write(hackrf_device* device,
                   unsigned char* data,
@@ -408,17 +564,29 @@ hackrf_board_id_read(hackrf_device* device,
                      uint8_t* value);
 
 /// FIXME: doc
+///
+/// \returns \link HACKRF_ERROR_LIBUSB \endlink
+///          if `libusb` had a problem.
+/// \returns \link HACKRF_SUCCESS \endlink otherwise.
 extern ADDAPI enum hackrf_error ADDCALL
 hackrf_version_string_read(hackrf_device* device,
                            char*          version,
                            uint8_t        length);
 
 /// FIXME: doc
+///
+/// \returns \link HACKRF_ERROR_LIBUSB \endlink
+///          if `libusb` had a problem.
+/// \returns \link HACKRF_SUCCESS \endlink otherwise.
 extern ADDAPI enum hackrf_error ADDCALL
 hackrf_usb_api_version_read(hackrf_device* device,
                             uint16_t*      version);
 
 /// FIXME: doc
+///
+/// \returns \link HACKRF_ERROR_LIBUSB \endlink
+///          if `libusb` had a problem.
+/// \returns \link HACKRF_SUCCESS \endlink otherwise.
 extern ADDAPI enum hackrf_error ADDCALL
 hackrf_board_partid_serialno_read(hackrf_device*          device,
                                   read_partid_serialno_t* read_partid_serialno);
@@ -428,11 +596,31 @@ hackrf_board_partid_serialno_read(hackrf_device*          device,
 // -----------------------------------------------------------------------------
 
 /// FIXME: doc
+///
+/// \returns \link HACKRF_ERROR_LIBUSB \endlink
+///          if `libusb` had a problem.
+/// \returns \link HACKRF_SUCCESS \endlink otherwise.
 extern ADDAPI enum hackrf_error ADDCALL
 hackrf_set_freq(hackrf_device* device,
                 uint64_t       freq_hz);
 
 /// FIXME: doc
+///
+/// \returns \link HACKRF_ERROR_INVALID_PARAM \endlink
+///          when `if_freq_hz < 2150000000`.
+/// \returns \link HACKRF_ERROR_INVALID_PARAM \endlink
+///          when `if_freq_hz > 2750000000`.
+/// \returns \link HACKRF_ERROR_INVALID_PARAM \endlink
+///          when `path` is not \link RF_PATH_FILTER_BYPASS \endlink
+///          and  `lo_freq_hz < 84375000`.
+/// \returns \link HACKRF_ERROR_INVALID_PARAM \endlink
+///          when `path` is not \link RF_PATH_FILTER_BYPASS \endlink
+///          and  `lo_freq_hz > 5400000000`.
+/// \returns \link HACKRF_ERROR_INVALID_PARAM \endlink
+///          when `path` is not a valid \link rf_path_filter \endlink.
+/// \returns \link HACKRF_ERROR_LIBUSB \endlink
+///          if `libusb` had a problem.
+/// \returns \link HACKRF_SUCCESS \endlink otherwise.
 extern ADDAPI enum hackrf_error ADDCALL
 hackrf_set_freq_explicit(hackrf_device*      device,
                          uint64_t            if_freq_hz,
@@ -440,68 +628,135 @@ hackrf_set_freq_explicit(hackrf_device*      device,
                          enum rf_path_filter path);
 
 /// FIXME: doc
+///
 /// currently 8-20Mhz - either as a fraction, i.e. freq 20000000hz divider 2 -> 10Mhz or as plain old 10000000hz (double)
 /// preferred rates are 8, 10, 12.5, 16, 20Mhz due to less jitter
+///
+/// \returns \link HACKRF_ERROR_LIBUSB \endlink
+///          if `libusb` had a problem.
+/// \returns \link HACKRF_SUCCESS \endlink otherwise.
 extern ADDAPI enum hackrf_error ADDCALL
 hackrf_set_sample_rate_manual(hackrf_device* device,
                               uint32_t       freq_hz,
                               uint32_t       divider);
 
 /// FIXME: doc
+///
+/// \returns \link HACKRF_ERROR_LIBUSB \endlink
+///          if `libusb` had a problem.
+/// \returns \link HACKRF_SUCCESS \endlink otherwise.
 extern ADDAPI enum hackrf_error ADDCALL
 hackrf_set_sample_rate(hackrf_device* device,
                        double         freq_hz);
 
 /// FIXME: doc
+///
 /// external amp, bool on/off
+///
+/// \returns \link HACKRF_ERROR_LIBUSB \endlink
+///          if `libusb` had a problem.
+/// \returns \link HACKRF_SUCCESS \endlink otherwise.
 extern ADDAPI enum hackrf_error ADDCALL
 hackrf_set_amp_enable(hackrf_device* device,
                       uint8_t        value);
 
 /// FIXME: doc
+///
 /// range 0-40 step 8d, IF gain in osmosdr
+///
+/// \returns \link HACKRF_ERROR_INVALID_PARAM \endlink
+///          when `value > 40`.
+/// \returns \link HACKRF_ERROR_INVALID_PARAM \endlink
+///          if `libusb` had a problem.
+/// \returns \link HACKRF_SUCCESS \endlink otherwise.
 extern ADDAPI enum hackrf_error ADDCALL
 hackrf_set_lna_gain(hackrf_device* device,
                     uint32_t       value);
 
 /// FIXME: doc
+///
 /// range 0-62 step 2db, BB gain in osmosdr
+///
+/// \returns \link HACKRF_ERROR_INVALID_PARAM \endlink
+///          when `value > 62`.
+/// \returns \link HACKRF_ERROR_INVALID_PARAM \endlink
+///          if `libusb` had a problem.
+/// \returns \link HACKRF_SUCCESS \endlink otherwise.
 extern ADDAPI enum hackrf_error ADDCALL
 hackrf_set_vga_gain(hackrf_device* device,
                     uint32_t       value);
 
 /// FIXME: doc
+///
 /// range 0-47 step 1db
+///
+/// \returns \link HACKRF_ERROR_INVALID_PARAM \endlink
+///          when `value > 47`.
+/// \returns \link HACKRF_ERROR_INVALID_PARAM \endlink
+///          if `libusb` had a problem.
+/// \returns \link HACKRF_SUCCESS \endlink otherwise.
 extern ADDAPI enum hackrf_error ADDCALL
 hackrf_set_txvga_gain(hackrf_device* device,
                       uint32_t       value);
 
 /// FIXME: doc
+///
 /// antenna port power control
+///
+/// \returns \link HACKRF_ERROR_LIBUSB \endlink if `libusb` had a problem.
+/// \returns \link HACKRF_SUCCESS \endlink otherwise.
 extern ADDAPI enum hackrf_error ADDCALL
 hackrf_set_antenna_enable(hackrf_device* device,
                           uint8_t        value);
 
 /// FIXME: doc
+///
 /// Compute nearest freq for bw filter (manual filter)
 extern ADDAPI uint32_t ADDCALL
 hackrf_compute_baseband_filter_bw_round_down_lt(uint32_t bandwidth_hz);
 
 /// FIXME: doc
+///
 /// Compute best default value depending on sample rate (auto filter)
 extern ADDAPI uint32_t ADDCALL
 hackrf_compute_baseband_filter_bw(uint32_t bandwidth_hz);
 
 /// FIXME: doc
+///
 /// This function requires USB API version 0x1002 or higher
+///
 /// set hardware sync mode
+///
+/// \returns \link HACKRF_ERROR_USB_API_VERSION \endlink
+///          if the USB API version is lower than `0x1002`.
+/// \returns \link HACKRF_ERROR_LIBUSB \endlink if `libusb` had a problem.
+/// \returns \link HACKRF_SUCCESS \endlink otherwise.
 extern ADDAPI enum hackrf_error ADDCALL
 hackrf_set_hw_sync_mode(hackrf_device* device,
                         uint8_t        value);
 
 /// FIXME: doc
+///
 /// This function requires USB API version 0x1002 or higher
+///
 /// Start sweep mode
+///
+/// \returns \link HACKRF_ERROR_INVALID_PARAM \endlink
+///          when `num_ranges < 1`.
+/// \returns \link HACKRF_ERROR_INVALID_PARAM \endlink
+///          when `num_ranges > MAX_SWEEP_RANGES`.
+/// \returns \link HACKRF_ERROR_INVALID_PARAM \endlink
+///          when `(num_samples % SAMPLES_PER_BLOCK) != 0`.
+/// \returns \link HACKRF_ERROR_INVALID_PARAM \endlink
+///          when `num_samples < SAMPLES_PER_BLOCK`.
+/// \returns \link HACKRF_ERROR_INVALID_PARAM \endlink
+///          when `step_width < 1`.
+/// \returns \link HACKRF_ERROR_INVALID_PARAM \endlink
+///          when `style` is not a valid \link sweep_style \endlink.
+/// \returns \link HACKRF_ERROR_USB_API_VERSION \endlink
+///          if the USB API version is lower than `0x1002`.
+/// \returns \link HACKRF_ERROR_LIBUSB \endlink if `libusb` had a problem.
+/// \returns \link HACKRF_SUCCESS \endlink otherwise.
 extern ADDAPI enum hackrf_error ADDCALL
 hackrf_init_sweep(hackrf_device*   device,
                   const uint16_t*  frequency_list,
@@ -536,14 +791,36 @@ hackrf_filter_path_name(enum rf_path_filter path);
 // -----------------------------------------------------------------------------
 
 /// FIXME: doc
+///
 /// This function requires USB API version 0x1002 or higher
+///
+/// \returns \link HACKRF_ERROR_USB_API_VERSION \endlink
+///          if the USB API version is lower than `0x1002`.
+/// \returns \link HACKRF_ERROR_LIBUSB \endlink
+///          if `libusb` had a problem.
+/// \returns \link HACKRF_SUCCESS \endlink otherwise.
 extern ADDAPI enum hackrf_error ADDCALL
 hackrf_get_operacake_boards(hackrf_device* device,
                             uint8_t*       boards);
 
 
 /// FIXME: doc
+///
 /// This function requires USB API version 0x1002 or higher
+///
+/// \returns \link HACKRF_ERROR_INVALID_PARAM \endlink
+///          when `port_a` is not a valid \link operacake_ports \endlink.
+/// \returns \link HACKRF_ERROR_INVALID_PARAM \endlink
+///          when `port_b` is not a valid \link operacake_ports \endlink.
+/// \returns \link HACKRF_ERROR_INVALID_PARAM \endlink
+///          when `port_a <= OPERACAKE_PA4` and `port_b <= OPERACAKE_PA4`.
+/// \returns \link HACKRF_ERROR_INVALID_PARAM \endlink
+///          when `port_a >= OPERACAKE_PB1` and `port_b >= OPERACAKE_PB1`.
+/// \returns \link HACKRF_ERROR_USB_API_VERSION \endlink
+///          if the USB API version is lower than `0x1002`.
+/// \returns \link HACKRF_ERROR_LIBUSB \endlink
+///          if `libusb` had a problem.
+/// \returns \link HACKRF_SUCCESS \endlink otherwise.
 extern ADDAPI enum hackrf_error ADDCALL
 hackrf_set_operacake_ports(hackrf_device*       device,
                            uint8_t              address,
@@ -552,21 +829,44 @@ hackrf_set_operacake_ports(hackrf_device*       device,
 
 
 /// FIXME: doc
-/// This function requires USB API version 0x1002 or higher
+///
+/// This function requires USB API version 0x1003 or higher
+///
+/// \returns \link HACKRF_ERROR_USB_API_VERSION \endlink
+///          if the USB API version is lower than `0x1003`.
+/// \returns \link HACKRF_ERROR_LIBUSB \endlink
+///          if `libusb` had a problem.
+/// \returns \link HACKRF_SUCCESS \endlink otherwise.
 extern ADDAPI enum hackrf_error ADDCALL
 hackrf_set_operacake_ranges(hackrf_device* device,
                             uint8_t*       ranges,
                             uint8_t        num_ranges);
 
 /// FIXME: doc
+///
 /// FIXME: is this also an Operacake function?
+///
 /// This function requires USB API version 0x1002 or higher
+///
+/// \returns \link HACKRF_ERROR_USB_API_VERSION \endlink
+///          if the USB API version is lower than `0x1002`.
+/// \returns \link HACKRF_ERROR_LIBUSB \endlink
+///          if `libusb` had a problem.
+/// \returns \link HACKRF_SUCCESS \endlink otherwise.
 extern ADDAPI enum hackrf_error ADDCALL
 hackrf_reset(hackrf_device* device);
 
 /// FIXME: doc
+///
 /// FIXME: is this also an Operacake function?
-/// This function requires USB API version 0x1002 or higher
+///
+/// This function requires USB API version 0x1003 or higher
+///
+/// \returns \link HACKRF_ERROR_USB_API_VERSION \endlink
+///          if the USB API version is lower than `0x1003`.
+/// \returns \link HACKRF_ERROR_LIBUSB \endlink
+///          if `libusb` had a problem.
+/// \returns \link HACKRF_SUCCESS \endlink otherwise.
 extern ADDAPI enum hackrf_error ADDCALL
 hackrf_set_clkout_enable(hackrf_device* device,
                          uint8_t        value);
@@ -578,6 +878,9 @@ hackrf_set_clkout_enable(hackrf_device* device,
 #ifdef __cplusplus
 } // __cplusplus defined.
 #endif
+
+#undef ADDAPI
+#undef ADDCALL
 
 #endif /*HACKRF_H*/
 
