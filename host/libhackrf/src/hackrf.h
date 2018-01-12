@@ -1078,9 +1078,6 @@ hackrf_set_clkout_enable(hackrf_device* device,
 } // __cplusplus defined.
 #endif
 
-#undef ADDAPI
-#undef ADDCALL
-
 #endif /*HACKRF_H*/
 
 // -----------------------------------------------------------------------------
