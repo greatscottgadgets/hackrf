@@ -1,0 +1,12 @@
+RECURSIVE = YES
+INPUT = @CMAKE_CURRENT_SOURCE_DIR@/../src/
+PROJECT_NAME = libhackrf
+EXTRACT_ALL = YES
+MACRO_EXPANSION = YES
+
+HTML_HEADER = include/header.html
+HTML_FOOTER = include/footer.html
+HTML_EXTRA_STYLESHEET = include/extra.css
+HTML_EXTRA_FILES = include/extra.js
+
+WARN_FORMAT = "\n[\e[31mwarning\e[0m] $file:$line :: \n    $text"

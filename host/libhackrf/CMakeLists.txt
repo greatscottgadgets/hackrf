@@ -51,6 +51,7 @@ find_package(Threads REQUIRED)
 include_directories(${LIBUSB_INCLUDE_DIR} ${THREADS_PTHREADS_INCLUDE_DIR})
 
 add_subdirectory(src)
+add_subdirectory(doc)
 
 ########################################################################
 # Create Pkg Config File
