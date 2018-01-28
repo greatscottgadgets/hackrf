@@ -952,6 +952,13 @@ void disable_1v8_power(void) {
 
 #ifdef HACKRF_ONE
 void enable_rf_power(void) {
+	uint32_t i;
+
+	/* many short pulses to avoid one big voltage glitch */
+	for (i = 0; i < 1000; i++) {
+		gpio_clear(&gpio_vaa_disable);
+		gpio_set(&gpio_vaa_disable);
+	}
 	gpio_clear(&gpio_vaa_disable);
 }
 
