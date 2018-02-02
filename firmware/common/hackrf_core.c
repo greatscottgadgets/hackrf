@@ -790,11 +790,11 @@ void pin_setup(void) {
 	gpio_output(&gpio_1v8_enable);
 
 #ifdef HACKRF_ONE
-	/* Configure RF power supply (VAA) switch control signal as output */
-	gpio_output(&gpio_vaa_disable);
-
 	/* Safe state: start with VAA turned off: */
 	disable_rf_power();
+
+	/* Configure RF power supply (VAA) switch control signal as output */
+	gpio_output(&gpio_vaa_disable);
 
 	scu_pinmux(SCU_PINMUX_GPIO3_10, SCU_GPIO_PDN | SCU_CONF_FUNCTION0);
 	scu_pinmux(SCU_PINMUX_GPIO3_11, SCU_GPIO_PDN | SCU_CONF_FUNCTION0);
@@ -842,6 +842,13 @@ void disable_1v8_power(void) {
 
 #ifdef HACKRF_ONE
 void enable_rf_power(void) {
+	uint32_t i;
+
+	/* many short pulses to avoid one big voltage glitch */
+	for (i = 0; i < 1000; i++) {
+		gpio_clear(&gpio_vaa_disable);
+		gpio_set(&gpio_vaa_disable);
+	}
 	gpio_clear(&gpio_vaa_disable);
 }
 
