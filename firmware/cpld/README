@@ -7,3 +7,7 @@ To update the CPLD, first update the firmware, libhackrf, and hackrf-tools.
 Then:
 
 $ hackrf_cpldjtag -x sgpio_if/default.xsvf
+
+After a few seconds, three LEDs should start blinking.  This indicates that the
+CPLD has been programmed successfully.  Reset the HackRF device by pressing the
+RESET button or by unplugging it and plugging it back in.

@@ -52,3 +52,7 @@ use a known good .dfu file from a release package.  Load the firmware into RAM
 with:
 
 $ dfu-util --device 1fc9:000c --alt 0 --download hackrf_usb.dfu
+
+
+It is important to update the CPLD whenever you are updating firmware and a new
+CPLD image is available.  See cpld/README for instructions.
