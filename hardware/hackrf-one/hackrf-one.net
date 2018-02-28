@@ -3456,7 +3456,7 @@
       (footprint hackrf:GSG-SOIC8-208)
       (fields
         (field (name Manufacturer) Winbond)
-        (field (name "Part Number") W25Q80BVSSIG)
+        (field (name "Part Number") W25Q80JVSSIQ)
         (field (name Description) "IC FLASH 8MBIT 8SOIC"))
       (libsource (lib hackrf) (part W25Q80BV))
       (sheetpath (names /mcu/usb/power/) (tstamps /5037043E/))
