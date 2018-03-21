@@ -1,0 +1,3 @@
+site: https://greatscottgadgets.com/hackrf/
+gerbers: doc/hardware/hackrf-one-gerbers
+bom: doc/hardware/hackrf-one-bom.tsv
