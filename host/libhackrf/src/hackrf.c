@@ -347,7 +347,6 @@ extern "C"
 int ADDCALL hackrf_init(void)
 {
 	int libusb_error;
-	open_devices++;
 	if (g_libusb_context != NULL) {
 		return HACKRF_SUCCESS;
 	}
@@ -356,7 +355,6 @@ int ADDCALL hackrf_init(void)
 	if( libusb_error != 0 )
 	{
 		last_libusb_error = libusb_error;
-		open_devices--;
 		return HACKRF_ERROR_LIBUSB;
 	} else {
 		return HACKRF_SUCCESS;
@@ -581,6 +579,7 @@ static int hackrf_open_setup(libusb_device_handle* usb_device, hackrf_device** d
 	}
 
 	*device = lib_device;
+	open_devices++;
 
 	return HACKRF_SUCCESS;
 }
