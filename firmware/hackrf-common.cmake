@@ -27,12 +27,12 @@
 
 enable_language(C CXX ASM)
 
-include(../dfu-util.cmake)
-
 SET(PATH_HACKRF ../..)
 SET(PATH_HACKRF_FIRMWARE ${PATH_HACKRF}/firmware)
 SET(PATH_HACKRF_FIRMWARE_COMMON ${PATH_HACKRF_FIRMWARE}/common)
 SET(LIBOPENCM3 ${PATH_HACKRF_FIRMWARE}/libopencm3)
+
+include(${PATH_HACKRF_FIRMWARE}/dfu-util.cmake)
 
 execute_process(
 	COMMAND git log -n 1 --format=%h
@@ -206,7 +206,7 @@ macro(DeclareTargets)
 		DEPENDS ${PROJECT_NAME}_dfu.bin
 		COMMAND rm -f _tmp.dfu _header.bin
 		COMMAND cp ${PROJECT_NAME}_dfu.bin _tmp.dfu
-		COMMAND ${DFU_COMMAND}
+		COMMAND dfu-suffix --vid=0x1fc9 --pid=0x000c --did=0x0 -a _tmp.dfu
 		COMMAND python ../../dfu.py ${PROJECT_NAME}
 		COMMAND cat _header.bin _tmp.dfu >${PROJECT_NAME}.dfu
 		COMMAND rm -f _tmp.dfu _header.bin
