@@ -30,6 +30,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 #ifdef _WIN32
 /* Avoid redefinition of timespec from time.h (included by libusb.h) */
 #define HAVE_STRUCT_TIMESPEC 1
+#define strdup _strdup
 #endif
 #include <pthread.h>
 
