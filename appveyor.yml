@@ -29,6 +29,6 @@ build_script:
     -DPKG_CONFIG_EXECUTABLE="C:\pkg-config\bin\pkg-config.exe" \
     -DFFTW_INCLUDES=C:\fftw \
     -DFFTW_LIBRARIES=C:\fftw\libfftw3f-3.lib \
-    -D_CRT_NONSTDC_NO_DEPRECATE \
+    -D_CRT_NONSTDC_NO_DEPRECATE=1 \
     ..
   - msbuild HackRF.sln /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
