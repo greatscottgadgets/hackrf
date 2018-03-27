@@ -564,7 +564,7 @@ int main(int argc, char** argv) {
 	pwr = (float*)fftwf_malloc(sizeof(float) * fftSize);
 	window = (float*)fftwf_malloc(sizeof(float) * fftSize);
 	for (i = 0; i < fftSize; i++) {
-		window[i] = 0.5f * (1.0f - cos(2 * M_PI * i / (fftSize - 1)));
+		window[i] = (float) (0.5f * (1.0f - cos(2 * M_PI * i / (fftSize - 1))));
 	}
 
 	result = hackrf_init();
@@ -640,7 +640,7 @@ int main(int argc, char** argv) {
 	for(i = 0; i < num_ranges; i++) {
 		step_count = 1 + (frequencies[2*i+1] - frequencies[2*i] - 1)
 				/ TUNE_STEP;
-		frequencies[2*i+1] = frequencies[2*i] + step_count * TUNE_STEP;
+		frequencies[2*i+1] = (uint16_t) (frequencies[2*i] + step_count * TUNE_STEP);
 		fprintf(stderr, "Sweeping from %u MHz to %u MHz\n",
 				frequencies[2*i], frequencies[2*i+1]);
 	}
