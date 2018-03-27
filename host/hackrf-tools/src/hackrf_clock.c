@@ -35,7 +35,7 @@ typedef int bool;
 #define CLOCK_UNDEFINED 0xFF
 #define REGISTER_INVALID 32767
 
-int parse_int(char* s, uint16_t* const value) {
+int parse_int(char* s, uint8_t* const value) {
 	uint_fast8_t base = 10;
 	char* s_end;
 	long long_value;
@@ -55,7 +55,7 @@ int parse_int(char* s, uint16_t* const value) {
 	s_end = s;
 	long_value = strtol(s, &s_end, base);
 	if( (s != s_end) && (*s_end == 0) ) {
-		*value = (uint16_t)long_value;
+		*value = (uint8_t)long_value;
 		return HACKRF_SUCCESS;
 	} else {
 		return HACKRF_ERROR_INVALID_PARAM;
@@ -101,7 +101,7 @@ int si5351c_write_register(
 #define SI5351C_CLK_SRC_MULTISYNTH_0_4  2
 #define SI5351C_CLK_SRC_MULTISYNTH_SELF 3
 
-void print_clk_control(uint8_t clk_ctrl) {
+void print_clk_control(uint16_t clk_ctrl) {
 	uint8_t clk_src, clk_pwr;
 	printf("\tclock control = ");
 	if(clk_ctrl & SI5351C_CLK_POWERDOWN)
@@ -249,9 +249,9 @@ int main(int argc, char** argv) {
 	hackrf_device* device = NULL;
 	int opt, option_index = 0;
 	bool read = false;
-	uint16_t clock = CLOCK_UNDEFINED;
+	uint8_t clock = CLOCK_UNDEFINED;
 	bool clkout = false;
-	uint16_t clkout_enable;
+	uint8_t clkout_enable;
 	const char* serial_number = NULL;
 
 	int result = hackrf_init();
