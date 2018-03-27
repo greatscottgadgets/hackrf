@@ -30,11 +30,6 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 #ifdef _WIN32
 /* Avoid redefinition of timespec from time.h (included by libusb.h) */
 #define HAVE_STRUCT_TIMESPEC 1
-
-/* Stop MSVC complaining about strdup()
- * Sure, we could fix this another way if strdup() is ever deprecated
- */
-#define _CRT_NONSTDC_NO_DEPRECATE
 #endif
 #include <pthread.h>
 
