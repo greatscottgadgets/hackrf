@@ -397,7 +397,7 @@ const char* ADDCALL hackrf_library_release()
 
 hackrf_device_list_t* ADDCALL hackrf_device_list()
 {
-	ssize_t i;
+	int i;
 	libusb_device_handle* usb_device = NULL;
 	uint8_t serial_descriptor_index;
 	char serial_number[64];
@@ -407,7 +407,7 @@ hackrf_device_list_t* ADDCALL hackrf_device_list()
 	if ( list == NULL )
 		return NULL;
 		
-	list->usb_devicecount = libusb_get_device_list(g_libusb_context, (libusb_device ***)&list->usb_devices);
+	list->usb_devicecount = (int) libusb_get_device_list(g_libusb_context, (libusb_device ***)&list->usb_devices);
 	
 	list->serial_numbers = calloc(list->usb_devicecount, sizeof(void *));
 	list->usb_board_ids = calloc(list->usb_devicecount, sizeof(enum hackrf_usb_board_id));
@@ -474,7 +474,7 @@ libusb_device_handle* hackrf_open_usb(const char* const desired_serial_number)
 	libusb_device_handle* usb_device = NULL;
 	libusb_device** devices = NULL;
 	const ssize_t list_length = libusb_get_device_list(g_libusb_context, &devices);
-	int match_len = 0;
+	ssize_t match_len = 0;
 	ssize_t i;
 	char serial_number[64];
 	int serial_number_length;
@@ -1225,7 +1225,8 @@ typedef struct {
  * described below.
  */
 int ADDCALL hackrf_set_sample_rate_manual(hackrf_device* device,
-                                       const uint32_t freq_hz, uint32_t divider)
+                                          const uint32_t freq_hz,
+                                          const uint32_t divider)
 {
 	set_fracrate_params_t set_fracrate_params;
 	uint8_t length;
