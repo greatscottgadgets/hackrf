@@ -641,7 +641,12 @@ int main(int argc, char** argv) {
 			break;
 
 		case 's':
-			result = parse_u32(optarg, &sample_rate_hz);
+			f_hz = strtod(optarg, &endptr);
+			if (optarg == endptr) {
+				result = HACKRF_ERROR_INVALID_PARAM;
+				break;
+			}
+			sample_rate_hz = f_hz;
 			sample_rate = true;
 			break;
 
@@ -652,7 +657,12 @@ int main(int argc, char** argv) {
 			break;
 
 		case 'b':
-			result = parse_u32(optarg, &baseband_filter_bw_hz);
+			f_hz = strtod(optarg, &endptr);
+			if (optarg == endptr) {
+				result = HACKRF_ERROR_INVALID_PARAM;
+				break;
+			}
+			baseband_filter_bw_hz = f_hz;
 			baseband_filter_bw = true;
 			break;
 
