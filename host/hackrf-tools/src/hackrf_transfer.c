@@ -748,7 +748,7 @@ int main(int argc, char** argv) {
 			freq_hz = if_freq_hz;
 			break;
 		case RF_PATH_FILTER_LOW_PASS:
-			freq_hz = (int64_t) labs(if_freq_hz - lo_freq_hz);
+			freq_hz = (int64_t) labs((long int) (if_freq_hz - lo_freq_hz));
 			break;
 		case RF_PATH_FILTER_HIGH_PASS:
 			freq_hz = if_freq_hz + lo_freq_hz;
