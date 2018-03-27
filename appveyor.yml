@@ -7,7 +7,7 @@ configuration:
 init:
   - C:\"Program Files (x86)"\"Microsoft Visual Studio 14.0"\VC\vcvarsall.bat %PLATFORM%
 install:
-        - appveyor DownloadFile "https://github.com/libusb/libusb/releases/download/v1.0.22/libusb-1.0.22.7z" -FileName "C:\libusb.7z"
+  - appveyor DownloadFile "https://github.com/libusb/libusb/releases/download/v1.0.22/libusb-1.0.22.7z" -FileName "C:\libusb.7z"
   - 7z x -y "C:\libusb.7z" -o"C:\libusb"
   - appveyor DownloadFile "http://mirrors.kernel.org/sourceware/pthreads-win32/pthreads-w32-2-9-1-release.zip" -FileName "C:\pthreads-w32-release.zip"
   - 7z x -y "C:\pthreads-w32-release.zip" -o"C:\pthreads"
