@@ -198,7 +198,7 @@ float logPower(fftwf_complex in, float scale)
 	float re = in[0] * scale;
 	float im = in[1] * scale;
 	float magsq = re * re + im * im;
-	return log2f(magsq) * 10.0f / log2(10.0f);
+	return (float) (log2(magsq) * 10.0f / log2(10.0f));
 }
 
 int rx_callback(hackrf_transfer* transfer) {
@@ -296,7 +296,7 @@ int rx_callback(hackrf_transfer* transfer) {
 			fwrite(&band_edge, sizeof(band_edge), 1, fd);
 			fwrite(&pwr[1+fftSize/8], sizeof(float), fftSize/4, fd);
 		} else if(ifft_output) {
-			ifft_idx = round((frequency - (uint64_t)(FREQ_ONE_MHZ*frequencies[0]))
+			ifft_idx = (uint32_t) round((frequency - (uint64_t)(FREQ_ONE_MHZ*frequencies[0]))
 					/ fft_bin_width);
 			ifft_idx = (ifft_idx + ifft_bins/2) % ifft_bins;
 			for(i = 0; (fftSize / 4) > i; i++) {
