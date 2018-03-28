@@ -36,5 +36,5 @@ after_build:
   - 7z a %APPVEYOR_BUILD_FOLDER%\HackRF-Windows-experimental.zip %APPVEYOR_BUILD_FOLDER%\host\build\libhackrf\src\Release\* %APPVEYOR_BUILD_FOLDER%\host\build\hackrf-tools\src\Release\* 
 
 artifacts:
-  - path: '%APPVEYOR_BUILD_FOLDER%\HackRF-Windows-experimental.zip'
+  - path: HackRF-Windows-experimental.zip
     name: HackRF-Windows-experimental
