@@ -74,7 +74,7 @@ int parse_uint16(char* const s, uint16_t* const value) {
 
 int parse_u16_range(char* s, hackrf_oc_range* range) {
 	int result = 0;
-	uint16_t port = 0;
+	uint16_t tmp_port, port = 0;
 
 	char *sep = strchr(s, ':');
 	if (!sep)
@@ -97,7 +97,7 @@ int parse_u16_range(char* s, hackrf_oc_range* range) {
 	if(sep2[0] == 'A' || sep2[0] == 'B') {
 		// The port was specified as a side and number eg. A1 or B3
 		if(sep2[1] > 0x30 && sep2[1] < 0x35) {
-			uint16_t tmp_port = sep2[1] - 0x30;
+			tmp_port = sep2[1] - 0x30;
 			if(tmp_port >= 5 || tmp_port <= 0)
 				return HACKRF_ERROR_INVALID_PARAM;
 
@@ -108,7 +108,7 @@ int parse_u16_range(char* s, hackrf_oc_range* range) {
 			} else {
 				// If B was specfied just add 4-1 ports
 				// B1=4, B2=5, B3=6, B4=7
-				port =  (uint16_t) tmp_port+3;
+				port = (uint16_t) tmp_port+3;
 			}
 			//printf("Setting port %c%c to port %d\n", sep2[0], sep2[1], (uint16_t)port);
 		}
@@ -117,7 +117,7 @@ int parse_u16_range(char* s, hackrf_oc_range* range) {
 		if (result != HACKRF_SUCCESS)
 			return result;
 	}
-	range->port = port;
+	range->port = port & 0xFF;
 
 	return HACKRF_SUCCESS;
 }
@@ -248,9 +248,9 @@ int main(int argc, char** argv) {
 		for(i=0; i<range_idx; i++) {
 			ptr = 5*i;
 			range_bytes[ptr] = ranges[i].freq_min >> 8;
-			range_bytes[ptr+1] = ranges[i].freq_min;
+			range_bytes[ptr+1] = ranges[i].freq_min & 0xFF;
 			range_bytes[ptr+2] = ranges[i].freq_max >> 8;
-			range_bytes[ptr+3] = ranges[i].freq_max;
+			range_bytes[ptr+3] = ranges[i].freq_max & 0xFF;
 			range_bytes[ptr+4] = ranges[i].port;
 		}
 

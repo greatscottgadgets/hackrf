@@ -254,6 +254,22 @@ int parse_u32(char* s, uint32_t* const value) {
 	}
 }
 
+/* Parse frequencies as doubles to take advantage of notation parsing */
+int parse_frequency_i64(char* optarg, char* endptr, int64_t* value) {
+	*value = (int64_t) strtod(optarg, &endptr);
+	if (optarg == endptr) {
+		return HACKRF_ERROR_INVALID_PARAM;
+	}
+	return HACKRF_SUCCESS;
+}
+
+int parse_frequency_u32(char* optarg, char* endptr, uint32_t* value) {
+	*value = (uint32_t) strtod(optarg, &endptr);
+	if (optarg == endptr) {
+		return HACKRF_ERROR_INVALID_PARAM;
+	}
+	return HACKRF_SUCCESS;
+}
 
 static char *stringrev(char *str)
 {
@@ -537,8 +553,7 @@ int main(int argc, char** argv) {
 	char date_time[DATE_TIME_MAX_LEN];
 	const char* path = NULL;
 	const char* serial_number = NULL;
-	char* endptr;
-	double f_hz;
+	char* endptr = NULL;
 	int result;
 	time_t rawtime;
 	struct tm * timeinfo;
@@ -584,32 +599,17 @@ int main(int argc, char** argv) {
 			break;
 
 		case 'f':
-			f_hz = strtod(optarg, &endptr);
-			if (optarg == endptr) {
-				result = HACKRF_ERROR_INVALID_PARAM;
-				break;
-			}
-			freq_hz = f_hz;
+			result = parse_frequency_i64(optarg, endptr, &freq_hz);
 			automatic_tuning = true;
 			break;
 
 		case 'i':
-			f_hz = strtod(optarg, &endptr);
-			if (optarg == endptr) {
-				result = HACKRF_ERROR_INVALID_PARAM;
-				break;
-			}
-			if_freq_hz = f_hz;
+			result = parse_frequency_i64(optarg, endptr, &if_freq_hz);
 			if_freq = true;
 			break;
 
 		case 'o':
-			f_hz = strtod(optarg, &endptr);
-			if (optarg == endptr) {
-				result = HACKRF_ERROR_INVALID_PARAM;
-				break;
-			}
-			lo_freq_hz = f_hz;
+			result = parse_frequency_i64(optarg, endptr, &lo_freq_hz);
 			lo_freq = true;
 			break;
 
@@ -641,12 +641,7 @@ int main(int argc, char** argv) {
 			break;
 
 		case 's':
-			f_hz = strtod(optarg, &endptr);
-			if (optarg == endptr) {
-				result = HACKRF_ERROR_INVALID_PARAM;
-				break;
-			}
-			sample_rate_hz = f_hz;
+			result = parse_frequency_u32(optarg, endptr, &sample_rate_hz);
 			sample_rate = true;
 			break;
 
@@ -657,12 +652,7 @@ int main(int argc, char** argv) {
 			break;
 
 		case 'b':
-			f_hz = strtod(optarg, &endptr);
-			if (optarg == endptr) {
-				result = HACKRF_ERROR_INVALID_PARAM;
-				break;
-			}
-			baseband_filter_bw_hz = f_hz;
+			result = parse_frequency_u32(optarg, endptr, &baseband_filter_bw_hz);
 			baseband_filter_bw = true;
 			break;
 
@@ -758,7 +748,7 @@ int main(int argc, char** argv) {
 			freq_hz = if_freq_hz;
 			break;
 		case RF_PATH_FILTER_LOW_PASS:
-			freq_hz = labs(if_freq_hz - lo_freq_hz);
+			freq_hz = (int64_t) labs((long int) (if_freq_hz - lo_freq_hz));
 			break;
 		case RF_PATH_FILTER_HIGH_PASS:
 			freq_hz = if_freq_hz + lo_freq_hz;
