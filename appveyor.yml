@@ -1,4 +1,4 @@
-os: Visual Studio 2015
+os: Visual Studio 2017
 clone_depth: 1
 
 configuration:
@@ -31,3 +31,10 @@ build_script:
     -DFFTW_LIBRARIES=C:\fftw\libfftw3f-3.lib \
     ..
   - msbuild HackRF.sln /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
+
+after_build:
+  - 7z a HackRF-Windows-experimental.zip %APPVEYOR_BUILD_FOLDER%\host\build\libhackrf\src\Release\* %APPVEYOR_BUILD_FOLDER%\host\build\hackrf-tools\src\Release\* 
+
+artifacts:
+  - path: HackRF-Windows-experimental.zip
+    name: HackRF-Windows-experimental
