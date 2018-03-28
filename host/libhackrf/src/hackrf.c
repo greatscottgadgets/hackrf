@@ -101,6 +101,7 @@ typedef enum {
 
 #define TRANSFER_COUNT 4
 #define TRANSFER_BUFFER_SIZE 262144
+#define USB_MAX_SERIAL_LENGTH 32
 
 struct hackrf_device {
 	libusb_device_handle* usb_device;
@@ -437,10 +438,11 @@ hackrf_device_list_t* ADDCALL hackrf_device_list()
 						continue;
 					}
 					serial_number_length = libusb_get_string_descriptor_ascii(usb_device, serial_descriptor_index, (unsigned char*)serial_number, sizeof(serial_number));
-					if( serial_number_length == 32 ) {
-						serial_number[32] = 0;
-						list->serial_numbers[idx] = strdup(serial_number);
-					}
+					if( serial_number_length >= USB_MAX_SERIAL_LENGTH )
+						serial_number_length = USB_MAX_SERIAL_LENGTH;
+
+					serial_number[serial_number_length] = 0;
+					list->serial_numbers[idx] = strdup(serial_number);
 					
 					libusb_close(usb_device);
 					usb_device = NULL;
@@ -505,14 +507,11 @@ libusb_device_handle* hackrf_open_usb(const char* const desired_serial_number)
 							continue;
 						}
 						serial_number_length = libusb_get_string_descriptor_ascii(usb_device, serial_descriptor_index, (unsigned char*)serial_number, sizeof(serial_number));
-						if( serial_number_length == 32 ) {
-							serial_number[32] = 0;
-							if( strncmp(serial_number + 32-match_len, desired_serial_number, match_len) == 0 ) {
-								break;
-							} else {
-								libusb_close(usb_device);
-								usb_device = NULL;
-							}
+						if( serial_number_length >= USB_MAX_SERIAL_LENGTH )
+							serial_number_length = USB_MAX_SERIAL_LENGTH;
+						serial_number[serial_number_length] = 0;
+						if( strncmp(serial_number + serial_number_length-match_len, desired_serial_number, match_len) == 0 ) {
+							break;
 						} else {
 							libusb_close(usb_device);
 							usb_device = NULL;

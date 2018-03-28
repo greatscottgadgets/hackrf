@@ -173,7 +173,9 @@ int main(void) {
 #endif
 	cpu_clock_init();
 
+#ifndef DFU_MODE
 	usb_set_descriptor_by_serial_number();
+#endif
 
 	usb_set_configuration_changed_cb(usb_configuration_changed);
 	usb_peripheral_reset();
