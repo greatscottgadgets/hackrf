@@ -23,7 +23,7 @@
 cmake_minimum_required(VERSION 2.8.9)
 set(CMAKE_TOOLCHAIN_FILE toolchain-arm-cortex-m.cmake)
 
-project (hackrf_firmware_all)
+project (hackrf_firmware_all C)
 
 add_subdirectory(blinky)
 add_subdirectory(hackrf_usb)
