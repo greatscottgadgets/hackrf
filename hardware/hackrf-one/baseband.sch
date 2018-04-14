@@ -1785,6 +1785,7 @@ F 3 "" H 4750 5600 60  0001 C CNN
 F 4 "Johanson Technology" H 4750 5600 60  0001 C CNN "Manufacturer"
 F 5 "2500BL14M100T" H 4750 5600 60  0001 C CNN "Part Number"
 F 6 "BALUN CERAMIC CHIP WIMAX 2.5GHZ" H 4750 5600 60  0001 C CNN "Description"
+F 7 "Alternative part: Murata LDB182G4510G-120" H 4750 5600 60  0001 C CNN "Note"
 	1    4750 5600
 	-1   0    0    1   
 $EndComp
@@ -1821,6 +1822,7 @@ F 3 "" H 4750 4500 60  0001 C CNN
 F 4 "Johanson Technology" H 4750 4500 60  0001 C CNN "Manufacturer"
 F 5 "2500BL14M100T" H 4750 4500 60  0001 C CNN "Part Number"
 F 6 "BALUN CERAMIC CHIP WIMAX 2.5GHZ" H 4750 4500 60  0001 C CNN "Description"
+F 7 "Alternative part: Murata LDB182G4510G-120" H 4750 4500 60  0001 C CNN "Note:"
 	1    4750 4500
 	-1   0    0    1   
 $EndComp
