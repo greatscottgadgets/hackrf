@@ -36,9 +36,9 @@ $Descr User 17000 11000
 encoding utf-8
 Sheet 4 4
 Title "HackRF One mcu/usb/power"
-Date "13 feb 2014"
+Date "2018-04-17"
 Rev ""
-Comp "Copyright 2012 Michael Ossmann"
+Comp "Copyright 2012-2018 Michael Ossmann"
 Comment1 "License: GPL v2"
 Comment2 ""
 Comment3 ""
@@ -2088,11 +2088,11 @@ L W25Q80BV U20
 U 1 1 4F825D1B
 P 9800 1450
 F 0 "U20" H 9800 1200 60  0000 C CNN
-F 1 "W25Q80JV" H 9800 1700 60  0000 C CNN
+F 1 "W25Q80" H 9800 1700 60  0000 C CNN
 F 2 "hackrf:GSG-SOIC8-208" H 9800 1450 60  0001 C CNN
 F 3 "" H 9800 1450 60  0001 C CNN
 F 4 "Winbond" H 9800 1450 60  0001 C CNN "Manufacturer"
-F 5 "W25Q80JVSSIQ" H 9800 1450 60  0001 C CNN "Part Number"
+F 5 "W25Q80DVSSIG" H 9800 1450 60  0001 C CNN "Part Number"
 F 6 "IC FLASH 8MBIT 8SOIC" H 9800 1450 60  0001 C CNN "Description"
 	1    9800 1450
 	1    0    0    -1  

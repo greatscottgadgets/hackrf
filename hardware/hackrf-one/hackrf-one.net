@@ -3452,11 +3452,11 @@
       (sheetpath (names /mcu/usb/power/) (tstamps /5037043E/))
       (tstamp 4F82F4C0))
     (comp (ref U20)
-      (value W25Q80BV)
+      (value W25Q80)
       (footprint hackrf:GSG-SOIC8-208)
       (fields
         (field (name Manufacturer) Winbond)
-        (field (name "Part Number") W25Q80JVSSIQ)
+        (field (name "Part Number") W25Q80DVSSIG)
         (field (name Description) "IC FLASH 8MBIT 8SOIC"))
       (libsource (lib hackrf) (part W25Q80BV))
       (sheetpath (names /mcu/usb/power/) (tstamps /5037043E/))
