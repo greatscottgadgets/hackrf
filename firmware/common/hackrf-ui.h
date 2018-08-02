@@ -14,4 +14,8 @@ void hackrf_ui_setBBLNAGain(const uint32_t gain_db) __attribute__((weak));
 void hackrf_ui_setBBVGAGain(const uint32_t gain_db) __attribute__((weak));
 void hackrf_ui_setBBTXVGAGain(const uint32_t gain_db) __attribute__((weak));
 
+void hackrf_ui_setFirstIFFrequency(const uint64_t freq) __attribute__((weak));
+void hackrf_ui_setFilter(const rf_path_filter_t filter) __attribute__((weak));
+void hackrf_ui_setAntennaBias(bool antenna_bias) __attribute__((weak));
+
 #endif
