@@ -34,7 +34,6 @@ SET(TOOLS
 	hackrf_clock
 	hackrf_sweep
 	hackrf_operacake
-  ../scripts/hackrf_easy_flash
 )
 
 if(MSVC)
@@ -62,3 +61,5 @@ foreach(tool ${TOOLS})
 	target_link_libraries(${tool} ${TOOLS_LINK_LIBS})
 	install(TARGETS ${tool} RUNTIME DESTINATION ${INSTALL_DEFAULT_BINDIR})
 endforeach(tool)
+
+install(TARGETS ../scripts/hackrf_easy_flash RUNTIME DESTINATION ${INSTALL_DEFAULT_BINDIR})
