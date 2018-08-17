@@ -34,6 +34,7 @@ SET(TOOLS
 	hackrf_clock
 	hackrf_sweep
 	hackrf_operacake
+  ../scripts/hackrf_easy_flash
 )
 
 if(MSVC)
