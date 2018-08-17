@@ -1,8 +1,6 @@
 #!/bin/sh
 
-if [ -r "../../../firmware/hackrf_one_usb.dfu" ]; then
-  ram_firmware="../../../firmware/hackrf_one_usb.dfu"
-elif [ -r "../../../firmware-bin/hackrf_one_usb.dfu" ]; then
+if [ -r "../../../firmware-bin/hackrf_one_usb.dfu" ]; then
   ram_firmware="../../../firmware-bin/hackrf_one_usb.dfu"
 elif [ -r "/usr/share/hackrf/hackrf_one_usb.dfu" ]; then
   ram_firmware="/usr/share/hackrf/hackrf_one_usb.dfu"
@@ -23,7 +21,7 @@ fi
 list_firmware() {
   printf "Best DFU found: ${ram_firmware}\n"
   printf "Available firmware options:\n"
-  if [ -r "/usr/share/hackrf/hackrf_one_usb_rom_to_ram.bin" ]; then
+  if [ -r "../../../firmware-bin/hackrf_one_usb.bin" ] || [ -r "/usr/share/hackrf/hackrf_one_usb.bin" ]; then
     printf "hackrf (default)\n"
   fi
   if [ -r "/usr/share/hackrf/portapack-h1-firmware.bin" ]; then
@@ -46,9 +44,7 @@ while true; do
       exit 0
       ;;
     update|--update|upgrade|--upgrade|hackrf|--hackrf)
-      if [ -r "../../../firmware/hackrf_one_usb.bin" ]; then
-        firmware="../../../firmware/hackrf_one_usb.bin"
-      elif [ -r "../../../firmware-bin/hackrf_one_usb.bin" ]; then
+      if [ -r "../../../firmware-bin/hackrf_one_usb.bin" ]; then
         firmware="../../../firmware-bin/hackrf_one_usb.bin"
       elif [ -r "/usr/share/hackrf/hackrf_one_usb.bin" ]; then
         firmware="/usr/share/hackrf/hackrf_one_usb.bin"
