@@ -44,6 +44,7 @@ include_directories(${libhackrf_SOURCE_DIR}/src)
 endif()
 
 add_subdirectory(src)
+add_subdirectory(scripts)
 
 ########################################################################
 # Create uninstall target
