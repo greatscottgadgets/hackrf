@@ -32,7 +32,7 @@ before_install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew upgrade libusb openssl; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew cask uninstall oclint; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew uninstall python; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew uninstall --ignore-dependencies python; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew link openssl --force; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install libusb fftw gcc-arm-none-eabi dfu-util python@2; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then export PATH=/usr/local/bin:$PATH; fi
