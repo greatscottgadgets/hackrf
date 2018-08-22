@@ -10,7 +10,8 @@ else
 fi
 
 usage() {
-  printf "${0} upgrade\n"
+  printf "hackrf_easy_flash list\n"
+  printf "hackrf_easy_flash upgrade\n"
 }
 
 if [ -z "${1}" ]; then
