@@ -50,7 +50,7 @@ static void usage() {
 static struct option long_options[] = {
 	{ "device", no_argument, 0, 'd' },
 	{ "address", no_argument, 0, 'o' },
-	{ "list", no_argument, 0, 'v' },
+	{ "list", no_argument, 0, 'l' },
 	{ "help", no_argument, 0, 'h' },
 	{ 0, 0, 0, 0 },
 };
