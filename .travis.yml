@@ -21,19 +21,15 @@ matrix:
     - os: linux
       compiler: gcc
     - os: osx
-      osx_image: xcode9.2
       compiler: clang
 
 before_script:
   - export CFLAGS="-Wall -Wextra -Werror"
 
 before_install:
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew tap PX4/homebrew-px4; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew upgrade libusb openssl; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew cask uninstall oclint; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew uninstall --ignore-dependencies python; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew link openssl --force; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew tap PX4/homebrew-px4; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew upgrade libusb; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install libusb fftw gcc-arm-none-eabi dfu-util python@2; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then export PATH=/usr/local/bin:$PATH; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then wget -O gcc-arm-none-eabi.tar.bz2 https://developer.arm.com/-/media/Files/downloads/gnu-rm/6-2017q2/gcc-arm-none-eabi-6-2017-q2-update-linux.tar.bz2; fi
