@@ -135,9 +135,9 @@ int parse_range(char* s, hackrf_oc_range* range) {
 int main(int argc, char** argv) {
 	int opt;
 	const char* serial_number = NULL;
-	int operacake_address = 0;
-	int port_a = 0;
-	int port_b = 0;
+	uint8_t operacake_address = 0;
+	uint8_t port_a = 0;
+	uint8_t port_b = 0;
 	bool set_ports = false;
 	bool list = false;
 	uint8_t operacakes[8];
@@ -195,11 +195,19 @@ int main(int argc, char** argv) {
 			break;
 
 		case 'a':
-			port_a = atoi(optarg);
+			result = parse_port(optarg, &port_a);
+			if (result != HACKRF_SUCCESS) {
+				fprintf(stderr, "failed to parse port\n");
+				return EXIT_FAILURE;
+			}
 			break;
 
 		case 'b':
-			port_b = atoi(optarg);
+			result = parse_port(optarg, &port_b);
+			if (result != HACKRF_SUCCESS) {
+				fprintf(stderr, "failed to parse port\n");
+				return EXIT_FAILURE;
+			}
 			break;
 
 		case 'l':
@@ -250,10 +258,14 @@ int main(int argc, char** argv) {
 	}
 
 	if(set_ports) {
+		if(((port_a<=3) && (port_b<=3)) || ((port_a>=4) && (port_b>=4))) {
+			fprintf(stderr, "Port A and B cannot be connected to the same side\n");
+				return EXIT_FAILURE;
+		}
 		result = hackrf_set_operacake_ports(device, operacake_address, port_a, port_b);
 		if( result ) {
 			printf("hackrf_set_operacake_ports() failed: %s (%d)\n", hackrf_error_name(result), result);
-			return -1;
+			return EXIT_FAILURE;
 		}
 	}
 
