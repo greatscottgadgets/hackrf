@@ -72,62 +72,72 @@ int parse_uint16(char* const s, uint16_t* const value) {
 	}
 }
 
-int parse_u16_range(char* s, hackrf_oc_range* range) {
-	int result = 0;
-	uint16_t tmp_port, port = 0;
+int parse_port(char* str, uint8_t* port) {
+	uint16_t tmp_port;
+	int result;
 
+	if(str[0] == 'A' || str[0] == 'B') {
+		// The port was specified as a side and number eg. A1 or B3
+		result = parse_uint16(str+1, &tmp_port);
+		if (result != HACKRF_SUCCESS)
+			return result;
+
+		if(tmp_port >= 5 || tmp_port <= 0) {
+			fprintf(stderr, "invalid port: %s\n", str);
+			return HACKRF_ERROR_INVALID_PARAM;
+		}
+
+		// Value was a valid port between 0-4
+		if(str[0] == 'A') {
+			// A1=0, A2=1, A3=2, A4=3
+			tmp_port -= 1;
+		} else {
+			// If B was specfied just add 4-1 ports
+			// B1=4, B2=5, B3=6, B4=7
+			tmp_port += 3;
+		}
+	} else {
+		result = parse_uint16(str, &tmp_port);
+		if (result != HACKRF_SUCCESS)
+			return result;
+	}
+	*port = tmp_port & 0xFF;
+	// printf("Port: %d\n", *port);
+	return HACKRF_SUCCESS;
+}
+
+int parse_range(char* s, hackrf_oc_range* range) {
+	int result;
 	char *sep = strchr(s, ':');
 	if (!sep)
 		return HACKRF_ERROR_INVALID_PARAM;
+	// Replace : separator to null terminate string for strtol()
 	*sep = 0;
+	sep++; // Skip past the separator
 
-	char *sep2 = strchr(sep+1, ':');
+	char *sep2 = strchr(sep, ':');
 	if (!sep2)
 		return HACKRF_ERROR_INVALID_PARAM;
+	// Replace : separator to null terminate string for strtol()
 	*sep2 = 0;
+	sep2++; // Skip past the separator
 
 	result = parse_uint16(s, &range->freq_min);
 	if (result != HACKRF_SUCCESS)
 		return result;
-	result = parse_uint16(sep + 1, &range->freq_max);
+	result = parse_uint16(sep, &range->freq_max);
 	if (result != HACKRF_SUCCESS)
 		return result;
-
-	sep2++; // Skip past the ':'
-	if(sep2[0] == 'A' || sep2[0] == 'B') {
-		// The port was specified as a side and number eg. A1 or B3
-		if(sep2[1] > 0x30 && sep2[1] < 0x35) {
-			tmp_port = sep2[1] - 0x30;
-			if(tmp_port >= 5 || tmp_port <= 0)
-				return HACKRF_ERROR_INVALID_PARAM;
-
-			// Value was a valid port between 0-4
-			if(sep2[0] == 'A') {
-				// A1=0, A2=1, A3=2, A4=3
-				port = (uint16_t) tmp_port-1;
-			} else {
-				// If B was specfied just add 4-1 ports
-				// B1=4, B2=5, B3=6, B4=7
-				port = (uint16_t) tmp_port+3;
-			}
-			//printf("Setting port %c%c to port %d\n", sep2[0], sep2[1], (uint16_t)port);
-		}
-	} else {
-		result = parse_uint16(sep2, &port);
-		if (result != HACKRF_SUCCESS)
-			return result;
-	}
-	range->port = port & 0xFF;
-
-	return HACKRF_SUCCESS;
+	result = parse_port(sep2, &(range->port));
+	return result;
 }
 
 int main(int argc, char** argv) {
 	int opt;
 	const char* serial_number = NULL;
-	int operacake_address = 0;
-	int port_a = 0;
-	int port_b = 0;
+	uint8_t operacake_address = 0;
+	uint8_t port_a = 0;
+	uint8_t port_b = 0;
 	bool set_ports = false;
 	bool list = false;
 	uint8_t operacakes[8];
@@ -156,7 +166,18 @@ int main(int argc, char** argv) {
 			break;
 
 		case 'f':
-			result = parse_u16_range(optarg, &ranges[range_idx]);
+			if(MAX_FREQ_RANGES == range_idx) {
+				fprintf(stderr,
+						"argument error: specify a maximum of %u frequency ranges.\n",
+						MAX_FREQ_RANGES);
+				usage();
+				return EXIT_FAILURE;
+			}
+			result = parse_range(optarg, &ranges[range_idx]);
+			if (result != HACKRF_SUCCESS) {
+				fprintf(stderr, "failed to parse range\n");
+				return EXIT_FAILURE;
+			}
 			if(ranges[range_idx].freq_min >= ranges[range_idx].freq_max) {
 				fprintf(stderr,
 						"argument error: freq_max must be greater than freq_min.\n");
@@ -170,21 +191,23 @@ int main(int argc, char** argv) {
 				usage();
 				return EXIT_FAILURE;
 			}
-			if(MAX_FREQ_RANGES <= range_idx++) {
-				fprintf(stderr,
-						"argument error: specify a maximum of %u frequency ranges.\n",
-						MAX_FREQ_RANGES);
-				usage();
+			range_idx++;
+			break;
+
+		case 'a':
+			result = parse_port(optarg, &port_a);
+			if (result != HACKRF_SUCCESS) {
+				fprintf(stderr, "failed to parse port\n");
 				return EXIT_FAILURE;
 			}
 			break;
 
-		case 'a':
-			port_a = atoi(optarg);
-			break;
-
 		case 'b':
-			port_b = atoi(optarg);
+			result = parse_port(optarg, &port_b);
+			if (result != HACKRF_SUCCESS) {
+				fprintf(stderr, "failed to parse port\n");
+				return EXIT_FAILURE;
+			}
 			break;
 
 		case 'l':
@@ -235,15 +258,19 @@ int main(int argc, char** argv) {
 	}
 
 	if(set_ports) {
+		if(((port_a<=3) && (port_b<=3)) || ((port_a>=4) && (port_b>=4))) {
+			fprintf(stderr, "Port A and B cannot be connected to the same side\n");
+				return EXIT_FAILURE;
+		}
 		result = hackrf_set_operacake_ports(device, operacake_address, port_a, port_b);
 		if( result ) {
 			printf("hackrf_set_operacake_ports() failed: %s (%d)\n", hackrf_error_name(result), result);
-			return -1;
+			return EXIT_FAILURE;
 		}
 	}
 
 	if(range_idx) {
-		uint8_t range_bytes[MAX_FREQ_RANGES * 5];
+		uint8_t range_bytes[MAX_FREQ_RANGES * sizeof(hackrf_oc_range)];
 		uint8_t ptr;
 		for(i=0; i<range_idx; i++) {
 			ptr = 5*i;
