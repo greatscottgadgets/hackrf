@@ -102,7 +102,9 @@ int gettimeofday(struct timeval *tv, void* ignored) {
 #define THROWAWAY_BLOCKS 2
 
 #if defined _WIN32
-	#define sleep(a) Sleep( (a*1000) )
+	#define m_sleep(a) Sleep( (a) )
+#else
+	#define m_sleep(a) usleep((a*1000))
 #endif
 
 uint32_t num_samples = SAMPLES_PER_BLOCK;
@@ -704,7 +706,7 @@ int main(int argc, char** argv) {
 	fprintf(stderr, "Stop with Ctrl-C\n");
 	while((hackrf_is_streaming(device) == HACKRF_TRUE) && (do_exit == false)) {
 		float time_difference;
-		sleep(1);
+		m_sleep(50);
 
 		gettimeofday(&time_now, NULL);
 		
