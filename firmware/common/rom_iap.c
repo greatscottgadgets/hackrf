@@ -30,6 +30,7 @@
 
 #define ROM_OTP_PART_ID_ADDR (0x40045000)
 
+
 typedef void (* IAP_t)(uint32_t [],uint32_t[]);
 
 typedef	struct {
@@ -73,15 +74,9 @@ isp_iap_ret_code_t iap_cmd_call(iap_cmd_res_t* iap_cmd_res)
 		pROM_API->IAP( (uint32_t*)&iap_cmd_res->cmd_param, (uint32_t*)&iap_cmd_res->status_res);
 	}else
 	{
-		/* 
-		  Alternative way to retrieve Part Id on MCU with no IAP 
-		  Read Serial No => Read Unique ID in SPIFI (only compatible with W25Q80BV
-		*/
-		spi_bus_start(spi_flash.bus, &ssp_config_w25q80bv);
-		w25q80bv_setup(&spi_flash);
-
 		switch(iap_cmd_res->cmd_param.command_code)
 		{
+			/* Alternative way to retrieve Part Id on MCU with no IAP */
 			case IAP_CMD_READ_PART_ID_NO:
 				p_u32_data = (uint32_t*)ROM_OTP_PART_ID_ADDR;
 				iap_cmd_res->status_res.iap_result[0] = p_u32_data[0];
@@ -89,8 +84,11 @@ isp_iap_ret_code_t iap_cmd_call(iap_cmd_res_t* iap_cmd_res)
 				iap_cmd_res->status_res.status_ret = CMD_SUCCESS;
 			break;
 			
+			/* Read Serial No => Read Unique ID in SPIFI (only compatible with W25Q80BV */
 			case IAP_CMD_READ_SERIAL_NO:
 			/* Only 64bits used */
+			spi_bus_start(spi_flash.bus, &ssp_config_w25q80bv);
+			w25q80bv_setup(&spi_flash);
 			iap_cmd_res->status_res.iap_result[0] = 0;
 			iap_cmd_res->status_res.iap_result[1] = 0;
 			w25q80bv_get_unique_id(&spi_flash, (w25q80bv_unique_id_t*)&iap_cmd_res->status_res.iap_result[2] );
@@ -103,4 +101,24 @@ isp_iap_ret_code_t iap_cmd_call(iap_cmd_res_t* iap_cmd_res)
 		}
 	}
 	return iap_cmd_res->status_res.status_ret;
+}
+
+#define HACKRF_VID (0x1d50)
+#define HACKRF_PID (0x6089)
+
+#define OTP_API_TABLE_OFFSET    0x1
+
+void write_USB_vid_pid(void)
+{
+	unsigned long *OTP_API_TABLE;
+	uint32_t (*otp_init)(void);
+	uint32_t (*otp_set_usb)(uint32_t ProductID, uint32_t VendorID);
+
+	OTP_API_TABLE = *((unsigned long * *) ROM_IAP_ADDR + OTP_API_TABLE_OFFSET);
+
+	otp_init = (uint32_t (*)(void))OTP_API_TABLE[0];
+	otp_init();
+
+	otp_set_usb = (uint32_t (*)(uint32_t pid, uint32_t vid))OTP_API_TABLE[3];
+	otp_set_usb(HACKRF_PID, HACKRF_VID);
 }

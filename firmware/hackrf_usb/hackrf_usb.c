@@ -179,6 +179,7 @@ int main(void) {
 
 	usb_set_configuration_changed_cb(usb_configuration_changed);
 	usb_peripheral_reset();
+	write_USB_vid_pid();
 	
 	usb_device_init(0, &usb_device);
 	
