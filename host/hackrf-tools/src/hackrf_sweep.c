@@ -106,6 +106,7 @@ int gettimeofday(struct timeval *tv, void* ignored) {
 #endif
 
 uint32_t num_samples = SAMPLES_PER_BLOCK;
+uint32_t num_sweeps = 0;
 int num_ranges = 0;
 uint16_t frequencies[MAX_SWEEP_RANGES*2];
 int step_count;
@@ -179,6 +180,7 @@ uint32_t antenna_enable;
 bool binary_output = false;
 bool ifft_output = false;
 bool one_shot = false;
+bool finite_mode = false;
 volatile bool sweep_started = false;
 
 int fftSize = 20;
@@ -243,6 +245,9 @@ int rx_callback(hackrf_transfer* transfer) {
 				}
 				sweep_count++;
 				if(one_shot) {
+					do_exit = true;
+				}
+				else if(finite_mode && sweep_count == num_sweeps) {
 					do_exit = true;
 				}
 			}
@@ -352,6 +357,7 @@ static void usage() {
 	fprintf(stderr, "\t[-n num_samples] # Number of samples per frequency, 8192-4294967296\n");
 	fprintf(stderr, "\t[-w bin_width] # FFT bin width (frequency resolution) in Hz\n");
 	fprintf(stderr, "\t[-1] # one shot mode\n");
+	fprintf(stderr, "\t[-N num_sweeps] # Number of sweeps to perform\n");
 	fprintf(stderr, "\t[-B] # binary output\n");
 	fprintf(stderr, "\t[-I] # binary inverse FFT output\n");
 	fprintf(stderr, "\t-r filename # output file\n");
@@ -393,7 +399,7 @@ int main(int argc, char** argv) {
 	uint32_t requested_fft_bin_width;
 
 
-	while( (opt = getopt(argc, argv, "a:f:p:l:g:d:n:w:1BIr:h?")) != EOF ) {
+	while( (opt = getopt(argc, argv, "a:f:p:l:g:d:n:N:w:1BIr:h?")) != EOF ) {
 		result = HACKRF_SUCCESS;
 		switch( opt ) 
 		{
@@ -448,6 +454,11 @@ int main(int argc, char** argv) {
 
 		case 'n':
 			result = parse_u32(optarg, &num_samples);
+			break;
+
+		case 'N':
+			finite_mode = true;
+			result = parse_u32(optarg, &num_sweeps);
 			break;
 
 		case 'w':
@@ -693,8 +704,9 @@ int main(int argc, char** argv) {
 	fprintf(stderr, "Stop with Ctrl-C\n");
 	while((hackrf_is_streaming(device) == HACKRF_TRUE) && (do_exit == false)) {
 		float time_difference;
-		sleep(1);
-		
+		// sleep(1);
+		usleep(50000);
+
 		gettimeofday(&time_now, NULL);
 		
 		time_difference = TimevalDiff(&time_now, &t_start);
