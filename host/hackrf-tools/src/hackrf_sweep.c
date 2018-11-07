@@ -704,8 +704,7 @@ int main(int argc, char** argv) {
 	fprintf(stderr, "Stop with Ctrl-C\n");
 	while((hackrf_is_streaming(device) == HACKRF_TRUE) && (do_exit == false)) {
 		float time_difference;
-		// sleep(1);
-		usleep(50000);
+		sleep(1);
 
 		gettimeofday(&time_now, NULL);
 		
