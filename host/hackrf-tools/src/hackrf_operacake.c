@@ -36,6 +36,9 @@ typedef int bool;
 #define FREQ_MAX_MHZ (7250) /* 7250 MHz */
 #define MAX_FREQ_RANGES 8
 
+#define INVALID_ADDRESS 0xFF
+#define INVALID_PORT 0xFF
+
 static void usage() {
 	printf("\nUsage:\n");
 	printf("\t-h, --help: this help\n");
@@ -45,12 +48,14 @@ static void usage() {
 	printf("\t-b <n>: set port B connection\n");
 	printf("\t-f <min:max:port>: automatically assign <port> for range <min:max> in MHz\n");
 	printf("\t-l, --list: list available operacake boards\n");
+	printf("\t-g, --gpio_test: test GPIO functionality of an opera cake\n");
 }
 
 static struct option long_options[] = {
 	{ "device", no_argument, 0, 'd' },
 	{ "address", no_argument, 0, 'o' },
 	{ "list", no_argument, 0, 'l' },
+	{ "gpio_test", no_argument, 0, 'g' },
 	{ "help", no_argument, 0, 'h' },
 	{ 0, 0, 0, 0 },
 };
@@ -135,11 +140,12 @@ int parse_range(char* s, hackrf_oc_range* range) {
 int main(int argc, char** argv) {
 	int opt;
 	const char* serial_number = NULL;
-	uint8_t operacake_address = 0;
-	uint8_t port_a = 0;
-	uint8_t port_b = 0;
+	uint8_t operacake_address = INVALID_ADDRESS;
+	uint8_t port_a = INVALID_PORT;
+	uint8_t port_b = INVALID_PORT;
 	bool set_ports = false;
 	bool list = false;
+	bool gpio_test = false;
 	uint8_t operacakes[8];
 	uint8_t operacake_count = 0;
 	int i = 0;
@@ -154,7 +160,7 @@ int main(int argc, char** argv) {
 		return -1;
 	}
 
-	while( (opt = getopt_long(argc, argv, "d:o:a:b:lf:h?", long_options, &option_index)) != EOF ) {
+	while( (opt = getopt_long(argc, argv, "d:o:a:b:lf:hg?", long_options, &option_index)) != EOF ) {
 		switch( opt ) {
 		case 'd':
 			serial_number = optarg;
@@ -162,7 +168,6 @@ int main(int argc, char** argv) {
 
 		case 'o':
 			operacake_address = atoi(optarg);
-			set_ports = true;
 			break;
 
 		case 'f':
@@ -200,6 +205,7 @@ int main(int argc, char** argv) {
 				fprintf(stderr, "failed to parse port\n");
 				return EXIT_FAILURE;
 			}
+			set_ports = true;
 			break;
 
 		case 'b':
@@ -208,11 +214,17 @@ int main(int argc, char** argv) {
 				fprintf(stderr, "failed to parse port\n");
 				return EXIT_FAILURE;
 			}
+			set_ports = true;
 			break;
 
 		case 'l':
 			list = true;
 			break;
+
+		case 'g':
+			gpio_test = true;
+			break;
+
 		case 'h':
 		case '?':
 			usage();
@@ -225,8 +237,14 @@ int main(int argc, char** argv) {
 		}
 	}
 
-	if(!(list || set_ports || range_idx)) {
-		fprintf(stderr, "Specify either list or address option.\n");
+	if(!(list || set_ports || range_idx || gpio_test)) {
+		fprintf(stderr, "Specify either list, address, or GPIO test option.\n");
+		usage();
+		return EXIT_FAILURE;
+	}
+
+	if((set_ports || gpio_test) && (operacake_address == INVALID_ADDRESS)) {
+		fprintf(stderr, "An address is required.\n");
 		usage();
 		return EXIT_FAILURE;
 	}
@@ -257,7 +275,69 @@ int main(int argc, char** argv) {
 		printf("\n");
 	}
 
+	if(gpio_test) {
+		uint16_t test_result;
+		uint8_t reg, mask = 0x7;
+		result = hackrf_operacake_gpio_test(device, operacake_address, &test_result);
+		if (result != HACKRF_SUCCESS) {
+			fprintf(stderr, "hackrf_operacake_gpio_test() failed: %s (%d)\n",
+					hackrf_error_name(result), result);
+			return EXIT_FAILURE;
+		}
+		
+		if(test_result) {
+			fprintf(stderr, "GPIO test failed\n");
+			fprintf(stderr, "Pin\tHigh\tShorts\tLow\n");
+			reg = test_result & mask;
+			fprintf(stderr, "u2ctrl1\t%d\t%d\t%d\n",
+			        (reg>>2) & 1,
+					(reg>>1) & 1,
+					reg & 1);
+			test_result >>= 3;
+			reg = test_result & mask;
+			fprintf(stderr, "u2ctrl0\t%d\t%d\t%d\n",
+			        (reg>>2) & 1,
+					(reg>>1) & 1,
+					reg & 1);
+			test_result >>= 3;
+			reg = test_result & mask;
+			fprintf(stderr, "u3ctrl1\t%d\t%d\t%d\n",
+			        (reg>>2) & 1,
+					(reg>>1) & 1,
+					reg & 1);
+			test_result >>= 3;
+			reg = test_result & mask;
+			fprintf(stderr, "u3ctrl0\t%d\t%d\t%d\n",
+			        (reg>>2) & 1,
+					(reg>>1) & 1,
+					reg & 1);
+			test_result >>= 3;
+			reg = test_result & mask;
+			fprintf(stderr, "u1ctrl \t%d\t%d\t%d\n",
+			        (reg>>2) & 1,
+					(reg>>1) & 1,
+					reg & 1);
+		} else {
+			fprintf(stderr, "GPIO test passed\n");
+		}
+	}
+
 	if(set_ports) {
+		// Set other port to "don't care" if not set
+		if(port_a == INVALID_PORT) {
+			if(port_b >= 4) {
+				port_a = 0;
+			} else {
+				port_a = 4;
+			}
+		}
+		if(port_b == INVALID_PORT) {
+			if(port_a >= 4) {
+				port_b = 0;
+			} else {
+				port_b = 4;
+			}
+		}
 		if(((port_a<=3) && (port_b<=3)) || ((port_a>=4) && (port_b>=4))) {
 			fprintf(stderr, "Port A and B cannot be connected to the same side\n");
 				return EXIT_FAILURE;

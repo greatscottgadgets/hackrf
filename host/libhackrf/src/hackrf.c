@@ -83,6 +83,7 @@ typedef enum {
 	HACKRF_VENDOR_REQUEST_CLKOUT_ENABLE = 32,
 	HACKRF_VENDOR_REQUEST_SPIFLASH_STATUS = 33,
 	HACKRF_VENDOR_REQUEST_SPIFLASH_CLEAR_STATUS = 34,
+	HACKRF_VENDOR_REQUEST_OPERACAKE_GPIO_TEST = 35,
 } hackrf_vendor_request;
 
 #define USB_CONFIG_STANDARD 0x1
@@ -2073,6 +2074,30 @@ int ADDCALL hackrf_set_clkout_enable(hackrf_device* device, const uint8_t value)
 
 	if (result != 0)
 	{
+		last_libusb_error = result;
+		return HACKRF_ERROR_LIBUSB;
+	} else {
+		return HACKRF_SUCCESS;
+	}
+}
+
+int ADDCALL hackrf_operacake_gpio_test(hackrf_device* device, const uint8_t address,
+                                       uint16_t* test_result)
+{
+	USB_API_REQUIRED(device, 0x0103)
+	int result;
+	result = libusb_control_transfer(
+		device->usb_device,
+		LIBUSB_ENDPOINT_IN | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_OPERACAKE_GPIO_TEST,
+		address,
+		0,
+		(unsigned char*)test_result,
+		2,
+		0
+	);
+
+	if (result < 1) {
 		last_libusb_error = result;
 		return HACKRF_ERROR_LIBUSB;
 	} else {

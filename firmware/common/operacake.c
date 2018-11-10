@@ -21,7 +21,13 @@
 
 #include "operacake.h"
 #include "hackrf_core.h"
+#include "gpio.h"
+#include "gpio_lpc.h"
+#include <libopencm3/lpc43xx/scu.h>
 
+/*
+ * I2C Mode
+ */
 #define OPERACAKE_PIN_OE(x)      (x<<7)
 #define OPERACAKE_PIN_U2CTRL1(x) (x<<6)
 #define OPERACAKE_PIN_U2CTRL0(x) (x<<5)
@@ -44,7 +50,7 @@
 #define OPERACAKE_SAMESIDE  OPERACAKE_PIN_U1CTRL(1)
 #define OPERACAKE_CROSSOVER OPERACAKE_PIN_U1CTRL(0)
 #define OPERACAKE_EN_LEDS (OPERACAKE_PIN_LEDEN2(1) | OPERACAKE_PIN_LEDEN2(0))
-#define OPERACAKE_GPIO_EN OPERACAKE_PIN_OE(0)
+#define OPERACAKE_GPIO_ENABLE OPERACAKE_PIN_OE(0)
 #define OPERACAKE_GPIO_DISABLE OPERACAKE_PIN_OE(1)
 
 #define OPERACAKE_REG_INPUT    0x00
@@ -56,6 +62,10 @@
 								  | OPERACAKE_PORT_A1 | OPERACAKE_PORT_B1 \
 								  | OPERACAKE_EN_LEDS)
 #define OPERACAKE_CONFIG_ALL_OUTPUT (0x00)
+// Leave LED bits as outputs
+#define OPERACAKE_CONFIG_GPIO_INPUTS (0x7C)
+
+#define OPERACAKE_POLARITY_NORMAL (0x00)
 
 #define OPERACAKE_DEFAULT_ADDRESS 0x18
 
@@ -145,6 +155,9 @@ uint8_t operacake_set_ports(uint8_t address, uint8_t PA, uint8_t PB) {
 	return 0;
 }
 
+/*
+ * Opera Glasses
+ */
 typedef struct {
 	uint16_t freq_min;
 	uint16_t freq_max;
@@ -193,4 +206,83 @@ uint8_t operacake_set_range(uint32_t freq_mhz) {
 	operacake_set_ports(operacake_boards[0], ranges[i].portA, ranges[i].portB);
 	current_range = i;
 	return 0;
+}
+
+/*
+ * GPIO
+ */
+uint16_t gpio_test(uint8_t address)
+{
+	uint8_t i, reg, bit_mask, gpio_mask = 0x1F;
+	uint16_t result = 0;
+	operacake_init();
+	scu_pinmux(SCU_PINMUX_GPIO3_8, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+	scu_pinmux(SCU_PINMUX_GPIO3_12, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+	scu_pinmux(SCU_PINMUX_GPIO3_13, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+	scu_pinmux(SCU_PINMUX_GPIO3_14, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+	scu_pinmux(SCU_PINMUX_GPIO3_15, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+
+	static struct gpio_t gpio_pins[] = {
+		GPIO(3, 8),  // u1ctrl   IO2
+		GPIO(3, 14), // u3ctrl0  IO3
+		GPIO(3, 15), // u3ctrl1  IO4
+		GPIO(3, 12), // u2ctrl0  IO5
+		GPIO(3, 13)  // u2ctrl1  IO6
+	};
+	// Setup I2C to put it in GPIO mode
+	reg = (OPERACAKE_GPIO_ENABLE | OPERACAKE_EN_LEDS);
+	operacake_write_reg(oc_bus, address, OPERACAKE_REG_OUTPUT, reg);
+	operacake_write_reg(oc_bus, address, OPERACAKE_REG_CONFIG,
+		                OPERACAKE_CONFIG_GPIO_INPUTS);
+	operacake_write_reg(oc_bus, address, OPERACAKE_REG_POLARITY,
+		                OPERACAKE_POLARITY_NORMAL);
+	// clear state
+	for(i=0; i<5; i++) {
+		gpio_output(&gpio_pins[i]);
+		gpio_write(&gpio_pins[i], 0);
+	}
+	// Test each pin separately
+	for(i=0; i<5; i++) {
+		// Set pin high
+		gpio_write(&gpio_pins[i], 1);
+		// check input
+		reg = operacake_read_reg(oc_bus, address, OPERACAKE_REG_INPUT);
+		reg >>= 2;
+		reg &= gpio_mask;
+		bit_mask = 1 << i;
+		result <<= 1;
+		if(!(reg & bit_mask)) {
+			// Is the correct bit set?
+			result |= 1;
+		}
+		result <<= 1;
+		if(reg & ~bit_mask) {
+			// Are any other bits set?
+			result |= 1;
+		}
+		result <<= 1;
+		// set pin low
+		gpio_write(&gpio_pins[i], 0);
+		// check input
+		reg = operacake_read_reg(oc_bus, address, OPERACAKE_REG_INPUT);
+		reg >>= 2;
+		reg &= gpio_mask;
+		bit_mask = 1 << i;
+		if(reg & bit_mask) {
+			// Is the correct bit clear?
+			result |= 1;
+		}
+	}
+
+	// clean up
+	for(i=0; i<5; i++) {
+		gpio_input(&gpio_pins[i]);
+	}
+
+	// Put it back in to I2C mode and set default pins
+	operacake_write_reg(oc_bus, address, OPERACAKE_REG_CONFIG,
+		                    OPERACAKE_CONFIG_ALL_OUTPUT);
+	operacake_write_reg(oc_bus, address, OPERACAKE_REG_OUTPUT,
+		                OPERACAKE_DEFAULT_OUTPUT);
+	return result;
 }
