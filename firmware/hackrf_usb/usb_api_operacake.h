@@ -34,4 +34,7 @@ usb_request_status_t usb_vendor_request_operacake_set_ports(
 usb_request_status_t usb_vendor_request_operacake_set_ranges(
 	usb_endpoint_t* const endpoint, const usb_transfer_stage_t stage);
 
+usb_request_status_t usb_vendor_request_operacake_gpio_test(
+	usb_endpoint_t* const endpoint, const usb_transfer_stage_t stage);
+
 #endif /* end of include guard: __USB_API_OPERACAKE_H__ */

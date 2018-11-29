@@ -74,3 +74,18 @@ usb_request_status_t usb_vendor_request_operacake_set_ranges(
 	}
 	return USB_REQUEST_STATUS_OK;
 }
+
+usb_request_status_t usb_vendor_request_operacake_gpio_test(
+	usb_endpoint_t* const endpoint, const usb_transfer_stage_t stage)
+{
+	uint16_t test_result;
+	uint8_t address = endpoint->setup.value & 0xFF;
+	if (stage == USB_TRANSFER_STAGE_SETUP) {
+		test_result = gpio_test(address);
+		endpoint->buffer[0] = test_result & 0xff;
+		endpoint->buffer[1] = test_result >> 8;
+		usb_transfer_schedule_block(endpoint->in, &endpoint->buffer, 2, NULL, NULL);
+		usb_transfer_schedule_ack(endpoint->out);
+	}
+	return USB_REQUEST_STATUS_OK;
+}
