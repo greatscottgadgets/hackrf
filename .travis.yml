@@ -28,8 +28,6 @@ before_script:
 
 before_install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew tap PX4/homebrew-px4; fi
-    # Remove oclint because it conflicts with gcc, which fftw requires
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew cask uninstall oclint; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install fftw gcc-arm-none-eabi dfu-util; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then export PATH=/usr/local/bin:$PATH; fi
     # Linux containers don't have access to the latest gcc-arm-none-eabi package
