@@ -4,13 +4,6 @@ clone_depth: 1
 configuration:
   - Release
 
-environment:
-  global:
-    CYG_ROOT: C:\cygwin
-    CYG_MIRROR: http://cygwin.mirror.constant.com
-    CYG_CACHE: C:\cygwin\var\cache\setup
-    CYG_BASH: C:\cygwin\bin\bash
-
 init:
   - C:\"Program Files (x86)"\"Microsoft Visual Studio 14.0"\VC\vcvarsall.bat %PLATFORM%
 install:
@@ -30,9 +23,9 @@ install:
   - appveyor DownloadFile "https://developer.arm.com/-/media/Files/downloads/gnu-rm/7-2018q2/gcc-arm-none-eabi-7-2018-q2-update-win32.zip" -FileName "C:\gcc-arm-none-eabi-7-2018-q2-update-win32.zip"
   - 7z x -y "C:\gcc-arm-none-eabi-7-2018-q2-update-win32.zip" -o"C:\gcc-arm-none-eabi"
   # make for Win32
-  - appveyor DownloadFile "http://gnuwin32.sourceforge.net/downlinks/make-bin-zip.php" -FileName "C:\make.zip"
+  - appveyor DownloadFile "https://downloads.sourceforge.net/project/gnuwin32/make/3.81/make-3.81-bin.zip" -FileName "C:\make.zip"
   - 7z x -y "C:\make.zip" -o"C:\gnuwin"
-  - appveyor DownloadFile "http://gnuwin32.sourceforge.net/downlinks/make-dep-zip.php" -FileName "C:\make-dep.zip"
+  - appveyor DownloadFile "https://downloads.sourceforge.net/project/gnuwin32/make/3.81/make-3.81-dep.zip" -FileName "C:\make-dep.zip"
   - 7z x -y "C:\make-dep.zip" -o"C:\gnuwin"
   - set PATH=%PATH%;c:\gnuwin32\bin;c:\gcc-arm-none-eabi\bin
 
@@ -52,7 +45,7 @@ build_script:
   - msbuild HackRF.sln /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
   # Firmware
   - cd c:\projects\hackrf\firmware\libopencm3
-  - make
+  - c:\gnuwin\bin\make
   - mkdir c:\projects\hackrf\firmware\build-hackrf-one
   - cd c:\projects\hackrf\firmware\build-hackrf-one
   - cmake ..
