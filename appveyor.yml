@@ -17,6 +17,8 @@ install:
   - 7z x -y "C:\fftw-3.3.5.zip" -o"C:\fftw"
   - cd c:\fftw
   - ps: lib /machine:x64 /def:libfftw3f-3.def
+  - appveyor DownloadFile "https://developer.arm.com/-/media/Files/downloads/gnu-rm/7-2018q2/gcc-arm-none-eabi-7-2018-q2-update-win32.exe" -FileName "C:\gcc-arm-none-eabi-7-2018-q2-update-win32.exe"
+  - C:\gcc-arm-none-eabi-7-2018-q2-update-win32.exe
 
 build_script:
   - mkdir c:\projects\hackrf\host\build
@@ -38,3 +40,5 @@ after_build:
 artifacts:
   - path: HackRF-Windows-experimental.zip
     name: HackRF-Windows-experimental
+
+
