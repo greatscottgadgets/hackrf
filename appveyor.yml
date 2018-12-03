@@ -48,7 +48,7 @@ build_script:
   - git submodule init
   - git submodule update
   - cd c:\projects\hackrf\firmware\libopencm3
-  - c:\gnuwin\bin\make
+  - sh: c:\gnuwin\bin\make
   - mkdir c:\projects\hackrf\firmware\build-hackrf-one
   - cd c:\projects\hackrf\firmware\build-hackrf-one
   - cmake ..
