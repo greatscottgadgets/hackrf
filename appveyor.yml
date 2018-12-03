@@ -1,5 +1,5 @@
 os: Visual Studio 2017
-clone_depth: 2
+clone_depth: 1
 
 configuration:
   - Release
@@ -44,6 +44,9 @@ build_script:
     ..
   - msbuild HackRF.sln /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
   # Firmware
+  - cd c:\projects\hackrf\
+  - git submodule init
+  - git submodule update
   - cd c:\projects\hackrf\firmware\libopencm3
   - c:\gnuwin\bin\make
   - mkdir c:\projects\hackrf\firmware\build-hackrf-one
