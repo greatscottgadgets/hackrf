@@ -27,7 +27,7 @@ install:
   - 7z x -y "C:\make.zip" -o"C:\gnuwin"
   - appveyor DownloadFile "https://downloads.sourceforge.net/project/gnuwin32/make/3.81/make-3.81-dep.zip" -FileName "C:\make-dep.zip"
   - 7z x -y "C:\make-dep.zip" -o"C:\gnuwin"
-  - set PATH=%PATH%;c:\gnuwin32\bin;c:\gcc-arm-none-eabi\bin
+  - set PATH=%PATH%;c:\gnuwin32\bin;c:\gcc-arm-none-eabi\bin;C:\MinGW\bin
 
 build_script:
   # Host library and tools
