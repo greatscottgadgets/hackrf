@@ -27,7 +27,7 @@ install:
   - 7z x -y "C:\make.zip" -o"C:\gnuwin"
   - appveyor DownloadFile "https://downloads.sourceforge.net/project/gnuwin32/make/3.81/make-3.81-dep.zip" -FileName "C:\make-dep.zip"
   - 7z x -y "C:\make-dep.zip" -o"C:\gnuwin"
-  - set PATH=%PATH%;c:\gcc-arm-none-eabi\bin
+  - set PATH=%PATH%;c:\gnuwin32\bin;c:\gcc-arm-none-eabi\bin
 
 build_script:
   # Host library and tools
@@ -48,11 +48,11 @@ build_script:
   - git submodule init
   - git submodule update
   - cd c:\projects\hackrf\firmware\libopencm3
-  - sh: make
+  - mingw32-make.exe
   - mkdir c:\projects\hackrf\firmware\build-hackrf-one
   - cd c:\projects\hackrf\firmware\build-hackrf-one
-  - cmake -G "UNIX Makefiles" ..
-  - c:\
+  - cmake -G "MinGW Makefiles" ..
+  - mingw32-make.exe
 
 after_build:
   - 7z a %APPVEYOR_BUILD_FOLDER%\HackRF-Windows-experimental.zip %APPVEYOR_BUILD_FOLDER%\host\build\libhackrf\src\Release\* %APPVEYOR_BUILD_FOLDER%\host\build\hackrf-tools\src\Release\* 
