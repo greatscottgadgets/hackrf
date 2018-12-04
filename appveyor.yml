@@ -49,10 +49,10 @@ build_script:
     ..
   - msbuild HackRF.sln /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
   # Firmware
+  - cd c:\projects\hackrf\
+  - git submodule init
+  - git submodule update
   - '%CYG_BASH% -lc "cd $APPVEYOR_BUILD_FOLDER && firmware/appveyor.sh"'
-  # - cd c:\projects\hackrf\
-  # - git submodule init
-  # - git submodule update
   # - cd c:\projects\hackrf\firmware\libopencm3
   # - ps: mingw32-make.exe lib/lpc43xx/m0
   # - ps: mingw32-make.exe lib/lpc43xx/m4
