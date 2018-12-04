@@ -47,7 +47,8 @@ build_script:
   - mkdir c:\projects\hackrf\firmware\build-hackrf-one
   - cd c:\projects\hackrf\firmware\build-hackrf-one
   - cmake ..
-  - ps: mingw32-make.exe
+  - ps: mingw32-make.exe lib/lpc43xx/m0
+  - ps: mingw32-make.exe lib/lpc43xx/m4
 
 after_build:
   - 7z a %APPVEYOR_BUILD_FOLDER%\HackRF-Windows-experimental.zip %APPVEYOR_BUILD_FOLDER%\host\build\libhackrf\src\Release\* %APPVEYOR_BUILD_FOLDER%\host\build\hackrf-tools\src\Release\* 
