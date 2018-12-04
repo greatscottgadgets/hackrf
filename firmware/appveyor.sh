@@ -1,5 +1,6 @@
 #!/bin/sh
 
+pwd
 cd firmware/libopencm3
 make
 cd ..
