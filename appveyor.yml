@@ -44,12 +44,12 @@ build_script:
     ..
   - msbuild HackRF.sln /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
   # Firmware
-  - ls /
+  - ls /mingw64
   - cd c:\projects\hackrf\
   - git submodule init
   - git submodule update
   - cd c:\projects\hackrf\firmware\libopencm3
-  - mingw32-make.exe
+  - C:\mingw64\bin\mingw32-make.exe
   - mkdir c:\projects\hackrf\firmware\build-hackrf-one
   - cd c:\projects\hackrf\firmware\build-hackrf-one
   - cmake -G "MinGW Makefiles" ..
