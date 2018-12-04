@@ -4,6 +4,16 @@ clone_depth: 1
 configuration:
   - Release
 
+environment:
+    global:
+        CYG_ROOT: C:\cygwin64
+        CYG_MIRROR: http://cygwin.mirror.constant.com
+        CYG_CACHE: C:\cygwin64\var\cache\setup
+        CYG_BASH: C:\cygwin64\bin\bash
+
+cache:
+- '%CYG_CACHE%'
+
 init:
   - C:\"Program Files (x86)"\"Microsoft Visual Studio 14.0"\VC\vcvarsall.bat %PLATFORM%
 install:
@@ -39,16 +49,17 @@ build_script:
     ..
   - msbuild HackRF.sln /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
   # Firmware
-  - cd c:\projects\hackrf\
-  - git submodule init
-  - git submodule update
-  - cd c:\projects\hackrf\firmware\libopencm3
-  - ps: mingw32-make.exe lib/lpc43xx/m0
-  - ps: mingw32-make.exe lib/lpc43xx/m4
-  - mkdir c:\projects\hackrf\firmware\build-hackrf-one
-  - cd c:\projects\hackrf\firmware\build-hackrf-one
-  - cmake ..
-  - ps: mingw32-make.exe
+  - '%CYG_BASH% -lc "cd $APPVEYOR_BUILD_FOLDER && firmware/appveyor.sh"'
+  # - cd c:\projects\hackrf\
+  # - git submodule init
+  # - git submodule update
+  # - cd c:\projects\hackrf\firmware\libopencm3
+  # - ps: mingw32-make.exe lib/lpc43xx/m0
+  # - ps: mingw32-make.exe lib/lpc43xx/m4
+  # - mkdir c:\projects\hackrf\firmware\build-hackrf-one
+  # - cd c:\projects\hackrf\firmware\build-hackrf-one
+  # - cmake ..
+  # - ps: mingw32-make.exe
 
 after_build:
   - 7z a %APPVEYOR_BUILD_FOLDER%\HackRF-Windows-experimental.zip %APPVEYOR_BUILD_FOLDER%\host\build\libhackrf\src\Release\* %APPVEYOR_BUILD_FOLDER%\host\build\hackrf-tools\src\Release\* 
