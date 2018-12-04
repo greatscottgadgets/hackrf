@@ -1,6 +1,7 @@
 #!/bin/sh
 
-which python
+/usr/bin/env python -V
+/usr/bin/env python -c "import sys; print sys.path"
 pip install pyyaml
 cd firmware/libopencm3
 make
