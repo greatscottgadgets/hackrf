@@ -1,5 +1,6 @@
 #!/bin/sh
 
+pip install pyyaml
 cd firmware/libopencm3
 make
 cd ..
