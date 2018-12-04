@@ -8,25 +8,30 @@ init:
   - C:\"Program Files (x86)"\"Microsoft Visual Studio 14.0"\VC\vcvarsall.bat %PLATFORM%
 install:
   # Dependencies for libHackRF
-  # - appveyor DownloadFile "https://github.com/libusb/libusb/releases/download/v1.0.22/libusb-1.0.22.7z" -FileName "C:\libusb.7z"
-  # - 7z x -y "C:\libusb.7z" -o"C:\libusb"
-  # - appveyor DownloadFile "http://mirrors.kernel.org/sourceware/pthreads-win32/pthreads-w32-2-9-1-release.zip" -FileName "C:\pthreads-w32-release.zip"
-  # - 7z x -y "C:\pthreads-w32-release.zip" -o"C:\pthreads"
-  # - appveyor DownloadFile "http://ftp.gnome.org/pub/gnome/binaries/win32/dependencies/pkg-config_0.26-1_win32.zip" -FileName "C:\pkg-config_win32.zip"
-  # - 7z x -y "C:\pkg-config_win32.zip" -o"C:\pkg-config"
-  # # FFTW for hackrf_sweep
-  # - curl -fsS -o "C:\fftw-3.3.5.zip" "ftp://ftp.fftw.org/pub/fftw/fftw-3.3.5-dll64.zip"
-  # - 7z x -y "C:\fftw-3.3.5.zip" -o"C:\fftw"
-  # - cd c:\fftw
-  # - ps: lib /machine:x64 /def:libfftw3f-3.def
-  # # ARM GCC for firmware builds
-  # - appveyor DownloadFile "https://developer.arm.com/-/media/Files/downloads/gnu-rm/7-2018q2/gcc-arm-none-eabi-7-2018-q2-update-win32.zip" -FileName "C:\gcc-arm-none-eabi-7-2018-q2-update-win32.zip"
-  # - 7z x -y "C:\gcc-arm-none-eabi-7-2018-q2-update-win32.zip" -o"C:\gcc-arm-none-eabi"
-  # - set PATH=%PATH%;c:\gcc-arm-none-eabi\bin;C:\mingw64\bin
+  - appveyor DownloadFile "https://github.com/libusb/libusb/releases/download/v1.0.22/libusb-1.0.22.7z" -FileName "C:\libusb.7z"
+  - 7z x -y "C:\libusb.7z" -o"C:\libusb"
+  - appveyor DownloadFile "http://mirrors.kernel.org/sourceware/pthreads-win32/pthreads-w32-2-9-1-release.zip" -FileName "C:\pthreads-w32-release.zip"
+  - 7z x -y "C:\pthreads-w32-release.zip" -o"C:\pthreads"
+  - appveyor DownloadFile "http://ftp.gnome.org/pub/gnome/binaries/win32/dependencies/pkg-config_0.26-1_win32.zip" -FileName "C:\pkg-config_win32.zip"
+  - 7z x -y "C:\pkg-config_win32.zip" -o"C:\pkg-config"
+  # FFTW for hackrf_sweep
+  - curl -fsS -o "C:\fftw-3.3.5.zip" "ftp://ftp.fftw.org/pub/fftw/fftw-3.3.5-dll64.zip"
+  - 7z x -y "C:\fftw-3.3.5.zip" -o"C:\fftw"
+  - cd c:\fftw
+  - ps: lib /machine:x64 /def:libfftw3f-3.def
+  # ARM GCC for firmware builds
+  - appveyor DownloadFile "https://developer.arm.com/-/media/Files/downloads/gnu-rm/7-2018q2/gcc-arm-none-eabi-7-2018-q2-update-win32.zip" -FileName "C:\gcc-arm-none-eabi-7-2018-q2-update-win32.zip"
+  - 7z x -y "C:\gcc-arm-none-eabi-7-2018-q2-update-win32.zip" -o"C:\gcc-arm-none-eabi"
+  # make for Win32
+  - appveyor DownloadFile "https://downloads.sourceforge.net/project/gnuwin32/make/3.81/make-3.81-bin.zip" -FileName "C:\make.zip"
+  - 7z x -y "C:\make.zip" -o"C:\gnuwin"
+  - appveyor DownloadFile "https://downloads.sourceforge.net/project/gnuwin32/make/3.81/make-3.81-dep.zip" -FileName "C:\make-dep.zip"
+  - 7z x -y "C:\make-dep.zip" -o"C:\gnuwin"
+  - set PATH=%PATH%;c:\gcc-arm-none-eabi\bin;C:\gnuwin\bin
 
 build_script:
   # Host library and tools
-  - ls /mingw64/bin
+  - ls /gnuwin/bin
   # - mkdir c:\projects\hackrf\host\build
   # - cd c:\projects\hackrf\host\build
   # - cmake -G "Visual Studio 14 2015 Win64" \
@@ -39,17 +44,17 @@ build_script:
   #   -DFFTW_LIBRARIES=C:\fftw\libfftw3f-3.lib \
   #   ..
   # - msbuild HackRF.sln /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
-  # Firmware
-  - ls /mingw64/bin
-  - cd c:\projects\hackrf\
-  - git submodule init
-  - git submodule update
-  - cd c:\projects\hackrf\firmware\libopencm3
-  - C:\mingw64\bin\mingw32-make.exe
-  - mkdir c:\projects\hackrf\firmware\build-hackrf-one
-  - cd c:\projects\hackrf\firmware\build-hackrf-one
-  - cmake -G "MinGW Makefiles" ..
-  - mingw32-make.exe
+  # # Firmware
+  # - ls /
+  # - cd c:\projects\hackrf\
+  # - git submodule init
+  # - git submodule update
+  # - cd c:\projects\hackrf\firmware\libopencm3
+  # - mingw32-make.exe
+  # - mkdir c:\projects\hackrf\firmware\build-hackrf-one
+  # - cd c:\projects\hackrf\firmware\build-hackrf-one
+  # - cmake -G "MinGW Makefiles" ..
+  # - mingw32-make.exe
 
 after_build:
   - 7z a %APPVEYOR_BUILD_FOLDER%\HackRF-Windows-experimental.zip %APPVEYOR_BUILD_FOLDER%\host\build\libhackrf\src\Release\* %APPVEYOR_BUILD_FOLDER%\host\build\hackrf-tools\src\Release\* 
