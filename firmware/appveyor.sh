@@ -1,5 +1,7 @@
 #!/bin/sh
 
+pwd
+echo $PYTHONPATH
 /usr/bin/env python -V
 /usr/bin/env python -c "import sys; print sys.path"
 pip install pyyaml
