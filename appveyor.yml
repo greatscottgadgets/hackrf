@@ -31,31 +31,30 @@ install:
 
 build_script:
   # Host library and tools
-  - ps: dir C:\
-  - ps: dir C:\gnuwin\bin
-  # - mkdir c:\projects\hackrf\host\build
-  # - cd c:\projects\hackrf\host\build
-  # - cmake -G "Visual Studio 14 2015 Win64" \
-  #   -DLIBUSB_LIBRARIES="C:\libusb\MS64\dll\libusb-1.0.lib" \
-  #   -DLIBUSB_INCLUDE_DIR="C:\libusb\include\libusb-1.0" \
-  #   -DTHREADS_PTHREADS_INCLUDE_DIR=c:\pthreads\Pre-built.2\include \
-  #   -DTHREADS_PTHREADS_WIN32_LIBRARY=c:\pthreads\Pre-built.2\lib\x64\pthreadVC2.lib \
-  #   -DPKG_CONFIG_EXECUTABLE="C:\pkg-config\bin\pkg-config.exe" \
-  #   -DFFTW_INCLUDES=C:\fftw \
-  #   -DFFTW_LIBRARIES=C:\fftw\libfftw3f-3.lib \
-  #   ..
-  # - msbuild HackRF.sln /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
-  # # Firmware
-  # - ls /
-  # - cd c:\projects\hackrf\
-  # - git submodule init
-  # - git submodule update
-  # - cd c:\projects\hackrf\firmware\libopencm3
-  # - mingw32-make.exe
-  # - mkdir c:\projects\hackrf\firmware\build-hackrf-one
-  # - cd c:\projects\hackrf\firmware\build-hackrf-one
-  # - cmake -G "MinGW Makefiles" ..
-  # - mingw32-make.exe
+  - ps: dir c:\cygwin\bin
+  - mkdir c:\projects\hackrf\host\build
+  - cd c:\projects\hackrf\host\build
+  - cmake -G "Visual Studio 14 2015 Win64" \
+    -DLIBUSB_LIBRARIES="C:\libusb\MS64\dll\libusb-1.0.lib" \
+    -DLIBUSB_INCLUDE_DIR="C:\libusb\include\libusb-1.0" \
+    -DTHREADS_PTHREADS_INCLUDE_DIR=c:\pthreads\Pre-built.2\include \
+    -DTHREADS_PTHREADS_WIN32_LIBRARY=c:\pthreads\Pre-built.2\lib\x64\pthreadVC2.lib \
+    -DPKG_CONFIG_EXECUTABLE="C:\pkg-config\bin\pkg-config.exe" \
+    -DFFTW_INCLUDES=C:\fftw \
+    -DFFTW_LIBRARIES=C:\fftw\libfftw3f-3.lib \
+    ..
+  - msbuild HackRF.sln /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
+  # Firmware
+  - ls /
+  - cd c:\projects\hackrf\
+  - git submodule init
+  - git submodule update
+  - cd c:\projects\hackrf\firmware\libopencm3
+  - mingw32-make.exe
+  - mkdir c:\projects\hackrf\firmware\build-hackrf-one
+  - cd c:\projects\hackrf\firmware\build-hackrf-one
+  - cmake -G "MinGW Makefiles" ..
+  - mingw32-make.exe
 
 after_build:
   - 7z a %APPVEYOR_BUILD_FOLDER%\HackRF-Windows-experimental.zip %APPVEYOR_BUILD_FOLDER%\host\build\libhackrf\src\Release\* %APPVEYOR_BUILD_FOLDER%\host\build\hackrf-tools\src\Release\* 
