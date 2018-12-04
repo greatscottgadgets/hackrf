@@ -1,6 +1,7 @@
 #!/bin/sh
 
 pip install pyyaml
+pip2 install pyyaml
 cd firmware/libopencm3
 make
 cd ..
