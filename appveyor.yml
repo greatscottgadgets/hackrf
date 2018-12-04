@@ -31,7 +31,8 @@ install:
 
 build_script:
   # Host library and tools
-  - ls /gnuwin/bin
+  - ps: dir C:\
+  - ps: dir C:\gnuwin\bin
   # - mkdir c:\projects\hackrf\host\build
   # - cd c:\projects\hackrf\host\build
   # - cmake -G "Visual Studio 14 2015 Win64" \
