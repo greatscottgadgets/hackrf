@@ -2,7 +2,6 @@
 
 which python
 pip install pyyaml
-pip2 install pyyaml
 cd firmware/libopencm3
 make
 cd ..
