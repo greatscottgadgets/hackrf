@@ -23,11 +23,11 @@ install:
   - appveyor DownloadFile "https://developer.arm.com/-/media/Files/downloads/gnu-rm/7-2018q2/gcc-arm-none-eabi-7-2018-q2-update-win32.zip" -FileName "C:\gcc-arm-none-eabi-7-2018-q2-update-win32.zip"
   - 7z x -y "C:\gcc-arm-none-eabi-7-2018-q2-update-win32.zip" -o"C:\gcc-arm-none-eabi"
   # make for Win32
-  - appveyor DownloadFile "https://downloads.sourceforge.net/project/gnuwin32/make/3.81/make-3.81-bin.zip" -FileName "C:\make.zip"
-  - 7z x -y "C:\make.zip" -o"C:\gnuwin"
-  - appveyor DownloadFile "https://downloads.sourceforge.net/project/gnuwin32/make/3.81/make-3.81-dep.zip" -FileName "C:\make-dep.zip"
-  - 7z x -y "C:\make-dep.zip" -o"C:\gnuwin"
-  - set PATH=%PATH%;c:\gnuwin32\bin;c:\gcc-arm-none-eabi\bin;C:\mingw-w64\x86_64-7.2.0-posix-seh-rt_v5-rev1\bin
+  # - appveyor DownloadFile "https://downloads.sourceforge.net/project/gnuwin32/make/3.81/make-3.81-bin.zip" -FileName "C:\make.zip"
+  # - 7z x -y "C:\make.zip" -o"C:\gnuwin"
+  # - appveyor DownloadFile "https://downloads.sourceforge.net/project/gnuwin32/make/3.81/make-3.81-dep.zip" -FileName "C:\make-dep.zip"
+  # - 7z x -y "C:\make-dep.zip" -o"C:\gnuwin"
+  - set PATH=%PATH%;c:\gcc-arm-none-eabi\bin;C:\mingw64\bin
 
 build_script:
   # Host library and tools
