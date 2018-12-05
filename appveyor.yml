@@ -4,16 +4,6 @@ clone_depth: 1
 configuration:
   - Release
 
-environment:
-    global:
-        CYG_ROOT: C:\cygwin64
-        CYG_MIRROR: http://cygwin.mirror.constant.com
-        CYG_CACHE: C:\cygwin64\var\cache\setup
-        CYG_BASH: C:\cygwin64\bin\bash
-
-cache:
-- '%CYG_CACHE%'
-
 init:
   - C:\"Program Files (x86)"\"Microsoft Visual Studio 14.0"\VC\vcvarsall.bat %PLATFORM%
 install:
