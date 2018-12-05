@@ -36,36 +36,27 @@ install:
 
 build_script:
   # Host library and tools
-  # - mkdir c:\projects\hackrf\host\build
-  # - cd c:\projects\hackrf\host\build
-  # - cmake -G "Visual Studio 14 2015 Win64" \
-  #   -DLIBUSB_LIBRARIES="C:\libusb\MS64\dll\libusb-1.0.lib" \
-  #   -DLIBUSB_INCLUDE_DIR="C:\libusb\include\libusb-1.0" \
-  #   -DTHREADS_PTHREADS_INCLUDE_DIR=c:\pthreads\Pre-built.2\include \
-  #   -DTHREADS_PTHREADS_WIN32_LIBRARY=c:\pthreads\Pre-built.2\lib\x64\pthreadVC2.lib \
-  #   -DPKG_CONFIG_EXECUTABLE="C:\pkg-config\bin\pkg-config.exe" \
-  #   -DFFTW_INCLUDES=C:\fftw \
-  #   -DFFTW_LIBRARIES=C:\fftw\libfftw3f-3.lib \
-  #   ..
-  # - msbuild HackRF.sln /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
+  - mkdir c:\projects\hackrf\host\build
+  - cd c:\projects\hackrf\host\build
+  - cmake -G "Visual Studio 14 2015 Win64" \
+    -DLIBUSB_LIBRARIES="C:\libusb\MS64\dll\libusb-1.0.lib" \
+    -DLIBUSB_INCLUDE_DIR="C:\libusb\include\libusb-1.0" \
+    -DTHREADS_PTHREADS_INCLUDE_DIR=c:\pthreads\Pre-built.2\include \
+    -DTHREADS_PTHREADS_WIN32_LIBRARY=c:\pthreads\Pre-built.2\lib\x64\pthreadVC2.lib \
+    -DPKG_CONFIG_EXECUTABLE="C:\pkg-config\bin\pkg-config.exe" \
+    -DFFTW_INCLUDES=C:\fftw \
+    -DFFTW_LIBRARIES=C:\fftw\libfftw3f-3.lib \
+    ..
+  - msbuild HackRF.sln /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
   # Firmware
-  - ps: dir C:\msys64
-  - ps: dir C:\msys64\bin
-  - cd c:\projects\hackrf\
-  - git submodule init
-  - git submodule update
-  - '%CYG_BASH% -lc "cd $APPVEYOR_BUILD_FOLDER && firmware/appveyor.sh"'
-  # - cd c:\projects\hackrf\firmware\libopencm3
-  # - ps: mingw32-make.exe lib/lpc43xx/m0
-  # - ps: mingw32-make.exe lib/lpc43xx/m4
-  # - mkdir c:\projects\hackrf\firmware\build-hackrf-one
-  # - cd c:\projects\hackrf\firmware\build-hackrf-one
-  # - cmake ..
-  # - ps: mingw32-make.exe
+  # - cd c:\projects\hackrf\
+  # - git submodule init
+  # - git submodule update
+  # - '%CYG_BASH% -lc "cd $APPVEYOR_BUILD_FOLDER && firmware/appveyor.sh"'
 
 after_build:
-  - 7z a %APPVEYOR_BUILD_FOLDER%\HackRF-Windows-experimental.zip %APPVEYOR_BUILD_FOLDER%\host\build\libhackrf\src\Release\* %APPVEYOR_BUILD_FOLDER%\host\build\hackrf-tools\src\Release\* 
+  - 7z a %APPVEYOR_BUILD_FOLDER%\HackRF-Windows-%APPVEYOR_REPO_COMMIT%.zip %APPVEYOR_BUILD_FOLDER%\host\build\libhackrf\src\Release\* %APPVEYOR_BUILD_FOLDER%\host\build\hackrf-tools\src\Release\* 
 
 artifacts:
-  - path: HackRF-Windows-experimental.zip
-    name: HackRF-Windows-experimental
+  - path: HackRF-Windows-%APPVEYOR_REPO_COMMIT%.zip
+    name: HackRF-Windows-%APPVEYOR_REPO_COMMIT%
