@@ -2,9 +2,10 @@
 
 pwd
 echo $PYTHONPATH
+which pip
 /usr/bin/env python -V
 /usr/bin/env python -c "import sys; print sys.path"
-/usr/bin/env python -m pip install --install-option="--prefix=/usr/lib/python2.7/site-packages" pyyaml
+pip -v install pyyaml
 # pip2 install pyyaml
 ls /usr/lib/python2.7/site-packages
 cd firmware/libopencm3
