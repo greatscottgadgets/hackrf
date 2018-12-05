@@ -5,11 +5,10 @@
 
 cd firmware/libopencm3
 export SRCLIBDIR='c:\projects\hackrf\firmware\libopencm3\lib\'
-make V=1 lib/lpc43xx/m0
-ls -l /cygdrive/c/projects/hackrf/firmware/libopencm3/lib/
-make V=1 lib/lpc43xx/m4
+make lib/lpc43xx/m0
+make lib/lpc43xx/m4
 cd ..
 mkdir build-hackrf-one
 cd build-hackrf-one
-cmake -G "Unix Makefiles" ..
+cmake -G "MinGW Makefiles" ..
 make
