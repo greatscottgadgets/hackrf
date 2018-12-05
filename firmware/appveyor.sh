@@ -10,5 +10,5 @@ make lib/lpc43xx/m4
 cd ..
 mkdir build-hackrf-one
 cd build-hackrf-one
-cmake ..
+cmake -G "Unix Makefiles" ..
 make
