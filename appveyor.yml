@@ -25,7 +25,7 @@ install:
   # - set PATH=%PATH%;c:\gcc-arm-none-eabi\bin
 
 build_script:
-  Host library and tools
+  # Host library and tools
   - mkdir c:\projects\hackrf\host\build
   - cd c:\projects\hackrf\host\build
   - cmake -G "Visual Studio 14 2015 Win64" \
