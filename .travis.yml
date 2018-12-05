@@ -2,8 +2,7 @@ language: c
 
 cache: apt
 
-sudo: false
-dist: trusty
+dist: xenial
 
 os:
   - linux
