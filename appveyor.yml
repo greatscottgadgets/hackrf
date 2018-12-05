@@ -32,7 +32,7 @@ install:
   # ARM GCC for firmware builds
   - appveyor DownloadFile "https://developer.arm.com/-/media/Files/downloads/gnu-rm/7-2018q2/gcc-arm-none-eabi-7-2018-q2-update-win32.zip" -FileName "C:\gcc-arm-none-eabi-7-2018-q2-update-win32.zip"
   - 7z x -y "C:\gcc-arm-none-eabi-7-2018-q2-update-win32.zip" -o"C:\gcc-arm-none-eabi"
-  - set PATH=%PATH%;c:\gcc-arm-none-eabi\bin;C:\mingw-w64\x86_64-7.2.0-posix-seh-rt_v5-rev1\mingw64\bin
+  - set PATH=%PATH%;c:\gcc-arm-none-eabi\bin
 
 build_script:
   # Host library and tools
