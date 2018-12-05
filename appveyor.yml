@@ -49,6 +49,8 @@ build_script:
   #   ..
   # - msbuild HackRF.sln /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
   # Firmware
+  - ps: dir C:\msys64
+  - ps: dir C:\msys64\bin
   - cd c:\projects\hackrf\
   - git submodule init
   - git submodule update
