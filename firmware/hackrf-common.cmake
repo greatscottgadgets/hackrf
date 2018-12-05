@@ -30,7 +30,7 @@ enable_language(C CXX ASM)
 SET(PATH_HACKRF ../..)
 SET(PATH_HACKRF_FIRMWARE ${PATH_HACKRF}/firmware)
 SET(PATH_HACKRF_FIRMWARE_COMMON ${PATH_HACKRF_FIRMWARE}/common)
-SET(LIBOPENCM3 ${PATH_HACKRF_FIRMWARE}/libopencm3)
+SET(LIBOPENCM3 'c:\projects\hackrf\firmware\libopencm3\')
 
 include(${PATH_HACKRF_FIRMWARE}/dfu-util.cmake)
 
