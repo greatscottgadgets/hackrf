@@ -30,8 +30,8 @@ install:
   - cd c:\fftw
   - ps: lib /machine:x64 /def:libfftw3f-3.def
   # ARM GCC for firmware builds
-  - appveyor DownloadFile "https://developer.arm.com/-/media/Files/downloads/gnu-rm/7-2018q2/gcc-arm-none-eabi-7-2018-q2-update-win32.zip" -FileName "C:\gcc-arm-none-eabi-7-2018-q2-update-win32.zip"
-  - 7z x -y "C:\gcc-arm-none-eabi-7-2018-q2-update-win32.zip" -o"C:\gcc-arm-none-eabi"
+  - appveyor DownloadFile "https://developer.arm.com/-/media/Files/downloads/gnu-rm/6-2017q2/gcc-arm-none-eabi-6-2017-q2-update-win32.zip" -FileName "C:\gcc-arm-none-eabi-win32.zip"
+  - 7z x -y "C:\gcc-arm-none-eabi-win32.zip" -o"C:\gcc-arm-none-eabi"
   - set PATH=%PATH%;c:\gcc-arm-none-eabi\bin
 
 build_script:
