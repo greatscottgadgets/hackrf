@@ -49,10 +49,10 @@ build_script:
     ..
   - msbuild HackRF.sln /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
   # Firmware
-  # - cd c:\projects\hackrf\
-  # - git submodule init
-  # - git submodule update
-  # - '%CYG_BASH% -lc "cd $APPVEYOR_BUILD_FOLDER && firmware/appveyor.sh"'
+  - cd c:\projects\hackrf\
+  - git submodule init
+  - git submodule update
+  - '%CYG_BASH% -lc "cd $APPVEYOR_BUILD_FOLDER && firmware/appveyor.sh"'
 
 after_build:
   - 7z a %APPVEYOR_BUILD_FOLDER%\HackRF-Windows-%APPVEYOR_REPO_COMMIT%.zip %APPVEYOR_BUILD_FOLDER%\host\build\libhackrf\src\Release\* %APPVEYOR_BUILD_FOLDER%\host\build\hackrf-tools\src\Release\* 
