@@ -10,6 +10,10 @@ matrix:
     - os: osx
       compiler: clang
 
+env:
+  - BUILD_NAME="HackRF-$TRAVIS_OS_NAME-`date --iso-8601`-$TRAVIS_COMMIT"
+  - ARTEFACT_PATH=/home/travis/build/$BUILD_NAME
+
 addons:
   apt:
     packages:
@@ -55,9 +59,8 @@ script:
   - cmake -DBOARD=RAD1O ..
   - make
   - cd ../..
-  - export BUILDNAME="HackRF-$TRAVIS_OS_NAME-`date --iso-8601`-$TRAVIS_COMMIT"
-  - echo $BUILDNAME
-  - mkdir $BUILDNAME
+  - echo $ARTEFACT_PATH
+  - mkdir $ARTEFACT_PATH
   - pwd
   - ls
 
@@ -69,6 +72,6 @@ deploy:
   keep-history: true
   # repo: github.com/dominicgs/Nightly-builds
   # target-branch: master
-  local-dir: /home/travis/build/dominicgs/hackrf/HackRF-$TRAVIS_OS_NAME-`date --iso-8601`-$TRAVIS_COMMIT
+  local-dir: $ARTEFACT_PATH
   on:
     branch: travis_artefacts
