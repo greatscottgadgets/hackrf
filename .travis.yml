@@ -63,6 +63,7 @@ script:
 
 deploy:
   provider: pages
+  verbose: true
   skip-cleanup: true
   github-token: $GITHUB_TOKEN
   keep-history: true
