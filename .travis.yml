@@ -13,7 +13,7 @@ matrix:
 env:
   global:
     - BUILD_NAME="HackRF-$TRAVIS_OS_NAME-`date --iso-8601`-$TRAVIS_COMMIT"
-    - ARTEFACT_PATH=/home/travis/build/artefacts/$BUILD_NAME
+    - ARTEFACT_PATH=$TRAVIS_BUILD_DIR/artefacts/$BUILD_NAME
 
 addons:
   apt:
@@ -79,6 +79,6 @@ deploy:
   keep-history: true
   repo: dominicgs/Nightly-builds
   # target-branch: master
-  local-dir: /home/travis/build/artefacts/
+  local-dir: $TRAVIS_BUILD_DIR/artefacts/
   on:
     branch: travis_artefacts
