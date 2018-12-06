@@ -54,3 +54,11 @@ script:
   - cd ../build-rad1o
   - cmake -DBOARD=RAD1O ..
   - make
+
+deploy:
+  provider: pages
+  skip-cleanup: true
+  github-token: $GITHUB_TOKEN
+  keep-history: true
+  # on:
+  #   branch: master
