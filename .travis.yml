@@ -13,7 +13,7 @@ matrix:
 env:
   global:
     - BUILD_NAME="HackRF-$TRAVIS_OS_NAME-`date --iso-8601`-$TRAVIS_COMMIT"
-    - ARTEFACT_PATH=/home/travis/build/$BUILD_NAME
+    - ARTEFACT_PATH=/home/travis/build/artefacts/$BUILD_NAME
 
 addons:
   apt:
@@ -40,13 +40,16 @@ before_script:
   - export CFLAGS="-Wall -Wextra -Werror"
 
 script:
-  - mkdir $ARTEFACT_PATH
-  - mkdir $ARTEFACT_PATH/firmware-bin
+  # Host code
   - mkdir host/build
   - cd host/build
   - cmake ..
   - make
+  # Firmware
   - cd ../..
+  - mkdir $ARTEFACT_PATH
+  - mkdir $ARTEFACT_PATH/firmware-bin
+  - cp firmware/cpld/sgpio_if/default.xsvf $ARTEFACT_PATH/firmware-binhackrf_cpld_default.xsvf
   - mkdir firmware/build-hackrf-one
   - mkdir firmware/build-jawbreaker
   - mkdir firmware/build-rad1o
@@ -76,6 +79,6 @@ deploy:
   keep-history: true
   repo: dominicgs/Nightly-builds
   # target-branch: master
-  local-dir: $ARTEFACT_PATH
+  local-dir: /home/travis/build/artefacts/
   on:
     branch: travis_artefacts
