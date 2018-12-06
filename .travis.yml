@@ -18,6 +18,7 @@ addons:
       - dfu-util
       - gcc-arm-none-eabi
       - libnewlib-arm-none-eabi
+      - python-yaml
 
   homebrew:
     taps: PX4/homebrew-px4
@@ -27,11 +28,9 @@ addons:
        - dfu-util
 
 before_install:
-  # - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew tap PX4/homebrew-px4; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then ip install PyYAML; fi
   # - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install fftw gcc-arm-none-eabi dfu-util; fi
   # - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then export PATH=/usr/local/bin:$PATH; fi
-  # For virtualenv(?) reasons we can't apt-get install python-yaml
-  - pip install PyYAML
 
 before_script:
   - export CFLAGS="-Wall -Wextra -Werror"
