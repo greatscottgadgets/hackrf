@@ -54,11 +54,14 @@ script:
   - cd ../build-rad1o
   - cmake -DBOARD=RAD1O ..
   - make
+  - cd ../..
+  - mkdir 
 
 deploy:
   provider: pages
   skip-cleanup: true
   github-token: $GITHUB_TOKEN
   keep-history: true
+  repo: github.com/dominicgs/Nightly-builds
   on:
     branch: travis_artefacts
