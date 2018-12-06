@@ -55,7 +55,11 @@ script:
   - cmake -DBOARD=RAD1O ..
   - make
   - cd ../..
-  - mkdir 
+  - export BUILDNAME="HackRF-$TRAVIS_OS_NAME-`date --iso-8601`-$TRAVIS_COMMIT"
+  - echo $BUILDNAME
+  - mkdir $BUILDNAME
+  - pwd
+  - ls
 
 deploy:
   provider: pages
@@ -63,5 +67,6 @@ deploy:
   github-token: $GITHUB_TOKEN
   keep-history: true
   repo: github.com/dominicgs/Nightly-builds
+  local-dir: 
   on:
     branch: travis_artefacts
