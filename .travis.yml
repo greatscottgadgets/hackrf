@@ -67,6 +67,7 @@ deploy:
   github-token: $GITHUB_TOKEN
   keep-history: true
   repo: github.com/dominicgs/Nightly-builds
-  local-dir: 
+  target-branch: master
+  local-dir: HackRF-$TRAVIS_OS_NAME-`date --iso-8601`-$TRAVIS_COMMIT
   on:
     branch: travis_artefacts
