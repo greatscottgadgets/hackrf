@@ -18,6 +18,7 @@ addons:
       - dfu-util
       - gcc-arm-none-eabi
       - libnewlib-arm-none-eabi
+      - libstdc++-arm-none-eabi-newlib
       - python-yaml
 
   homebrew:
