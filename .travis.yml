@@ -10,8 +10,6 @@ matrix:
     - os: osx
       compiler: clang
 
-    - os: windows
-
 addons:
   apt:
     packages:
@@ -31,7 +29,6 @@ addons:
 
 before_install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then pip install PyYAML; fi
-  - if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then choco install gcc-arm-embedded; fi
 
 before_script:
   - export CFLAGS="-Wall -Wextra -Werror"
@@ -50,9 +47,9 @@ script:
   - cd ../build-hackrf-one
   - cmake ..
   - make
-  # - cd ../build-jawbreaker
-  # - cmake -DBOARD=JAWBREAKER ..
-  # - make
-  # - cd ../build-rad1o
-  # - cmake -DBOARD=RAD1O ..
-  # - make
+  - cd ../build-jawbreaker
+  - cmake -DBOARD=JAWBREAKER ..
+  - make
+  - cd ../build-rad1o
+  - cmake -DBOARD=RAD1O ..
+  - make
