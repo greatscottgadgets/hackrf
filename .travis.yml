@@ -21,6 +21,7 @@ addons:
 
   homebrew:
     taps: PX4/homebrew-px4
+    update: true
     casks:
        - fftw
        - gcc-arm-none-eabi
