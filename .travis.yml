@@ -10,6 +10,11 @@ matrix:
     - os: osx
       compiler: clang
 
+env:
+  global:
+    - BUILD_NAME="HackRF-$TRAVIS_OS_NAME-`date --iso-8601`-$TRAVIS_COMMIT"
+    - ARTEFACT_PATH=/home/travis/build/$BUILD_NAME
+
 addons:
   apt:
     packages:
@@ -33,12 +38,10 @@ before_install:
 
 before_script:
   - export CFLAGS="-Wall -Wextra -Werror"
-  - export BUILD_NAME="HackRF-$TRAVIS_OS_NAME-`date --iso-8601`-$TRAVIS_COMMIT"
-  - export ARTEFACT_PATH=/home/travis/build/$BUILD_NAME
 
 script:
   - mkdir $ARTEFACT_PATH
-  - mkdir $ARTEFACT_PATH/firmware
+  - mkdir $ARTEFACT_PATH/firmware-bin
   - mkdir host/build
   - cd host/build
   - cmake ..
@@ -52,12 +55,18 @@ script:
   - cd ../build-hackrf-one
   - cmake ..
   - make
+  - cp hackrf_usb/hackrf_usb.bin $ARTEFACT_PATH/firmware-bin/hackrf_one_usb.bin
+  - cp hackrf_usb/hackrf_usb.dfu $ARTEFACT_PATH/firmware-bin/hackrf_one_usb.dfu
   - cd ../build-jawbreaker
   - cmake -DBOARD=JAWBREAKER ..
   - make
+  - cp hackrf_usb/hackrf_usb.bin $ARTEFACT_PATH/firmware-bin/hackrf_jawbreaker_usb.bin
+  - cp hackrf_usb/hackrf_usb.dfu $ARTEFACT_PATH/firmware-bin/hackrf_jawbreaker_usb.dfu
   - cd ../build-rad1o
   - cmake -DBOARD=RAD1O ..
   - make
+  - cp hackrf_usb/hackrf_usb.bin $ARTEFACT_PATH/firmware-bin/rad1o_usb.bin
+  - cp hackrf_usb/hackrf_usb.dfu $ARTEFACT_PATH/firmware-bin/rad1o_usb.dfu
 
 deploy:
   provider: pages
