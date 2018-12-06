@@ -57,10 +57,10 @@ script:
   - cmake -DBOARD=RAD1O ..
   - make
   - cd ../..
-  - echo $ARTEFACT_PATH
   - mkdir $ARTEFACT_PATH
+  - cd $ARTEFACT_PATH
   - pwd
-  - ls
+  - cp 
 
 deploy:
   provider: pages
@@ -68,7 +68,7 @@ deploy:
   skip-cleanup: true
   github-token: $GITHUB_TOKEN
   keep-history: true
-  # repo: github.com/dominicgs/Nightly-builds
+  repo: dominicgs/Nightly-builds
   # target-branch: master
   local-dir: $ARTEFACT_PATH
   on:
