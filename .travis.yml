@@ -17,9 +17,14 @@ addons:
       - libfftw3-dev
       - dfu-util
       - gcc-arm-none-eabi
+      - libnewlib-arm-none-eabi
+
   homebrew:
     taps: PX4/homebrew-px4
-    casks: fftw gcc-arm-none-eabi dfu-util
+    casks:
+       - fftw
+       - gcc-arm-none-eabi
+       - dfu-util
 
 before_install:
   # - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew tap PX4/homebrew-px4; fi
