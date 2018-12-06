@@ -37,6 +37,8 @@ before_script:
   - export ARTEFACT_PATH=/home/travis/build/$BUILD_NAME
 
 script:
+  - mkdir $ARTEFACT_PATH
+  - mkdir $ARTEFACT_PATH/firmware
   - mkdir host/build
   - cd host/build
   - cmake ..
@@ -56,11 +58,6 @@ script:
   - cd ../build-rad1o
   - cmake -DBOARD=RAD1O ..
   - make
-  - cd ../..
-  - mkdir $ARTEFACT_PATH
-  - cd $ARTEFACT_PATH
-  - pwd
-  - cp 
 
 deploy:
   provider: pages
