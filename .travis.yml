@@ -7,8 +7,8 @@ matrix:
       cache: apt
       dist: xenial
 
-    # - os: osx
-    #   compiler: clang
+    - os: osx
+      compiler: clang
 
 addons:
   apt:
@@ -17,15 +17,14 @@ addons:
       - libfftw3-dev
       - dfu-util
       - gcc-arm-none-eabi
+  homebrew:
+    taps: PX4/homebrew-px4
+    casks: fftw gcc-arm-none-eabi dfu-util
 
 before_install:
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew tap PX4/homebrew-px4; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install fftw gcc-arm-none-eabi dfu-util; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then export PATH=/usr/local/bin:$PATH; fi
-    # Linux containers don't have access to the latest gcc-arm-none-eabi package
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then wget -O gcc-arm-none-eabi.tar.bz2 https://developer.arm.com/-/media/Files/downloads/gnu-rm/6-2017q2/gcc-arm-none-eabi-6-2017-q2-update-linux.tar.bz2; fi
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then tar xf gcc-arm-none-eabi.tar.bz2; fi
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then export PATH=$PATH:$PWD/gcc-arm-none-eabi-6-2017-q2-update/bin; fi
+  # - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew tap PX4/homebrew-px4; fi
+  # - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install fftw gcc-arm-none-eabi dfu-util; fi
+  # - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then export PATH=/usr/local/bin:$PATH; fi
   # For virtualenv(?) reasons we can't apt-get install python-yaml
   - pip install PyYAML
 
