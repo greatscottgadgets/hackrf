@@ -7,8 +7,8 @@ matrix:
       cache: apt
       dist: xenial
 
-    - os: osx
-      compiler: clang
+    # - os: osx
+    #   compiler: clang
 
 addons:
   apt:
@@ -16,6 +16,7 @@ addons:
       - libusb-1.0-0-dev
       - libfftw3-dev
       - dfu-util
+      - gcc-arm-none-eabi
 
 before_install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew tap PX4/homebrew-px4; fi
