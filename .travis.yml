@@ -1,33 +1,42 @@
 language: c
 
-cache: apt
-
-dist: xenial
-
 matrix:
   include:
     - os: linux
       compiler: gcc
+      dist: xenial
+      cache: apt
     - os: osx
       compiler: clang
 
-before_script:
-  - export CFLAGS="-Wall -Wextra -Werror"
+addons:
+  apt:
+    packages:
+      - libusb-1.0-0-dev
+      - libfftw3-dev
+      - dfu-util
 
 before_install:
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then 
-      brew tap PX4/homebrew-px4
-      brew install fftw gcc-arm-none-eabi dfu-util
-      export PATH=/usr/local/bin:$PATH
-    fi
+  - | (
+      if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then 
+        brew tap PX4/homebrew-px4
+        brew install fftw gcc-arm-none-eabi dfu-util
+        export PATH=/usr/local/bin:$PATH
+      fi
+    )
     # Linux containers don't have access to the latest gcc-arm-none-eabi package
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
-      wget -O gcc-arm-none-eabi.tar.bz2 https://developer.arm.com/-/media/Files/downloads/gnu-rm/6-2017q2/gcc-arm-none-eabi-6-2017-q2-update-linux.tar.bz2
-      tar xf gcc-arm-none-eabi.tar.bz2
-      export PATH=$PATH:$PWD/gcc-arm-none-eabi-6-2017-q2-update/bin
-    fi
+  - | (
+      if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
+        wget -O gcc-arm-none-eabi.tar.bz2 https://developer.arm.com/-/media/Files/downloads/gnu-rm/6-2017q2/gcc-arm-none-eabi-6-2017-q2-update-linux.tar.bz2
+        tar xf gcc-arm-none-eabi.tar.bz2
+        export PATH=$PATH:$PWD/gcc-arm-none-eabi-6-2017-q2-update/bin
+      fi
+    )
   # For virtualenv(?) reasons we can't apt-get install python-yaml
   - pip install PyYAML
+
+before_script:
+  - export CFLAGS="-Wall -Wextra -Werror"
 
 script:
   - mkdir host/build
@@ -49,10 +58,3 @@ script:
   - cd ../build-rad1o
   - cmake -DBOARD=RAD1O ..
   - make
-
-addons:
-  apt:
-    packages:
-      - libusb-1.0-0-dev
-      - libfftw3-dev
-      - dfu-util
