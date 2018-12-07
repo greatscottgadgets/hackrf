@@ -77,7 +77,7 @@ deploy:
   skip-cleanup: true
   github-token: $GITHUB_TOKEN
   keep-history: true
-  repo: dominicgs/Nightly-builds
+  repo: greatscottgadgets/nightly-builds
   local-dir: $ARTEFACT_BASE
   on:
     branch: travis_artefacts
