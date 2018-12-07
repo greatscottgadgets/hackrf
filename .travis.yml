@@ -49,7 +49,7 @@ script:
   # Firmware
   - cd ../..
   - mkdir -p $ARTEFACT_PATH/firmware-bin
-  - cp firmware/cpld/sgpio_if/default.xsvf $ARTEFACT_PATH/firmware-binhackrf_cpld_default.xsvf
+  - cp firmware/cpld/sgpio_if/default.xsvf $ARTEFACT_PATH/firmware-bin/hackrf_cpld_default.xsvf
   - mkdir firmware/build-hackrf-one
   - mkdir firmware/build-jawbreaker
   - mkdir firmware/build-rad1o
@@ -78,7 +78,6 @@ deploy:
   github-token: $GITHUB_TOKEN
   keep-history: true
   repo: dominicgs/Nightly-builds
-  # target-branch: master
   local-dir: $ARTEFACT_BASE
   on:
     branch: travis_artefacts
