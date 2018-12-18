@@ -1736,7 +1736,7 @@ const char* ADDCALL hackrf_error_name(enum hackrf_error errcode)
 		return "feature not supported by installed firmware";
 
 	case HACKRF_ERROR_NOT_LAST_DEVICE:
-		return "some hackrf is sill in use";
+		return "one or more HackRFs still in use";
 
 	case HACKRF_ERROR_OTHER:
 		return "unspecified error";
