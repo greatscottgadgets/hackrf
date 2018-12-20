@@ -12,7 +12,9 @@ matrix:
 
 env:
   global:
-    - BUILD_NAME="HackRF-$TRAVIS_OS_NAME-`date --iso-8601`-$TRAVIS_COMMIT"
+    - SHORT_COMMIT_HASH=`git rev-parse --short HEAD`
+    - VERSION_STRING=nightly-$SHORT_COMMIT_HASH
+    - BUILD_NAME="HackRF-`date +%Y-%m-%d`-$SHORT_COMMIT_HASH"
     - ARTEFACT_BASE=$TRAVIS_BUILD_DIR/artefacts/
     - ARTEFACT_PATH=$ARTEFACT_BASE/$BUILD_NAME
 
@@ -47,37 +49,49 @@ script:
   - cmake ..
   - make
   # Firmware
-  - cd ../..
-  - mkdir -p $ARTEFACT_PATH/firmware-bin
-  - cp firmware/cpld/sgpio_if/default.xsvf $ARTEFACT_PATH/firmware-bin/hackrf_cpld_default.xsvf
-  - mkdir firmware/build-hackrf-one
-  - mkdir firmware/build-jawbreaker
-  - mkdir firmware/build-rad1o
-  - cd firmware/libopencm3
+  # Set version string
+  - cd ../../firmware
+  - sed -e "s/set(VERSION \"unknown\")/set(VERSION \"$VERSION_STRING\")/" -i".bak" hackrf-common.cmake
+  - mkdir build-hackrf-one
+  - mkdir build-jawbreaker
+  - mkdir build-rad1o
+  - cd libopencm3
   - make
   - cd ../build-hackrf-one
   - cmake ..
   - make
-  - cp hackrf_usb/hackrf_usb.bin $ARTEFACT_PATH/firmware-bin/hackrf_one_usb.bin
-  - cp hackrf_usb/hackrf_usb.dfu $ARTEFACT_PATH/firmware-bin/hackrf_one_usb.dfu
   - cd ../build-jawbreaker
   - cmake -DBOARD=JAWBREAKER ..
   - make
-  - cp hackrf_usb/hackrf_usb.bin $ARTEFACT_PATH/firmware-bin/hackrf_jawbreaker_usb.bin
-  - cp hackrf_usb/hackrf_usb.dfu $ARTEFACT_PATH/firmware-bin/hackrf_jawbreaker_usb.dfu
   - cd ../build-rad1o
   - cmake -DBOARD=RAD1O ..
   - make
-  - cp hackrf_usb/hackrf_usb.bin $ARTEFACT_PATH/firmware-bin/rad1o_usb.bin
-  - cp hackrf_usb/hackrf_usb.dfu $ARTEFACT_PATH/firmware-bin/rad1o_usb.dfu
+
+after_success:
+  # Construct archive for deploying to ubertooth-nightlies
+  - mkdir -p $ARTEFACT_PATH/firmware-bin/
+  # Export HackRF git repo
+  - cd $TRAVIS_BUILD_DIR/
+  - git archive --format=tar HEAD | (cd $ARTEFACT_PATH && tar xf -)
+  # Set version string
+  - sed -e "s/#set(RELEASE.*/set(RELEASE \"$VERSION_STRING\")/" -i".bak" $ARTEFACT_PATH/host/cmake/set_release,cmake
+  # Copy firmware to firmware-bin directory
+  - cd $TRAVIS_BUILD_DIR/firmware/
+  - cp cpld/sgpio_if/default.xsvf $ARTEFACT_PATH/firmware-bin/hackrf_cpld_default.xsvf
+  - cp build-hackrf-one/hackrf_usb/hackrf_usb.bin $ARTEFACT_PATH/firmware-bin/hackrf_one_usb.bin
+  - cp build-hackrf-one/hackrf_usb/hackrf_usb.dfu $ARTEFACT_PATH/firmware-bin/hackrf_one_usb.dfu
+  - cp build-jawbreaker/hackrf_usb/hackrf_usb.bin $ARTEFACT_PATH/firmware-bin/hackrf_jawbreaker_usb.bin
+  - cp build-jawbreaker/hackrf_usb/hackrf_usb.dfu $ARTEFACT_PATH/firmware-bin/hackrf_jawbreaker_usb.dfu
+  - cp build-rad1o/hackrf_usb/hackrf_usb.bin $ARTEFACT_PATH/firmware-bin/rad1o_usb.bin
+  - cp build-rad1o/hackrf_usb/hackrf_usb.dfu $ARTEFACT_PATH/firmware-bin/rad1o_usb.dfu
+  # Build the archive
+  - cd $ARTEFACT_BASE
+  - tar -cJvf $ARTEFACT_BASE/$BUILD_NAME.tar.xz $BUILD_NAME
 
 deploy:
-  provider: pages
-  verbose: true
+  provider: script
   skip-cleanup: true
-  github-token: $GITHUB_TOKEN
-  keep-history: true
-  repo: greatscottgadgets/nightly-builds
-  local-dir: $ARTEFACT_BASE
+  script: bash $TRAVIS_BUILD_DIR/tools/deploy-nightly.sh
   on:
-    branch: master
+    branch: travis_artefacts
+
