@@ -51,7 +51,7 @@ script:
   # Firmware
   # Set version string
   - cd ../../firmware
-  - sed -e "s/set(VERSION \"unknown\")/set(VERSION \"$VERSION_STRING\")/" -i".bak" hackrf-common.cmake
+  - sed -e "s/\#set(VERSION.*/set(VERSION \"$VERSION_STRING\")/" -i".bak" hackrf-common.cmake
   - mkdir build-hackrf-one
   - mkdir build-jawbreaker
   - mkdir build-rad1o
@@ -74,7 +74,7 @@ after_success:
   - cd $TRAVIS_BUILD_DIR/
   - git archive --format=tar HEAD | (cd $ARTEFACT_PATH && tar xf -)
   # Set version string
-  - sed -e "s/\#set(RELEASE.*/set(RELEASE \"$VERSION_STRING\")/" -i".bak" $ARTEFACT_PATH/host/cmake/set_release,cmake
+  - sed -e "s/\#set(RELEASE.*/set(RELEASE \"$VERSION_STRING\")/" -i".bak" $ARTEFACT_PATH/host/cmake/set_release.cmake
   # Copy firmware to firmware-bin directory
   - cd $TRAVIS_BUILD_DIR/firmware/
   - cp cpld/sgpio_if/default.xsvf $ARTEFACT_PATH/firmware-bin/hackrf_cpld_default.xsvf
