@@ -93,5 +93,4 @@ deploy:
   skip-cleanup: true
   script: bash $TRAVIS_BUILD_DIR/tools/deploy-nightly.sh
   on:
-    branch: travis_artefacts
-
+    branch: master
