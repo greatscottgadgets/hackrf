@@ -10,6 +10,14 @@ matrix:
     - os: osx
       compiler: clang
 
+env:
+  global:
+    - SHORT_COMMIT_HASH=`git rev-parse --short HEAD`
+    - VERSION_STRING=nightly-$SHORT_COMMIT_HASH
+    - BUILD_NAME="HackRF-`date +%Y-%m-%d`-$SHORT_COMMIT_HASH"
+    - ARTEFACT_BASE=$TRAVIS_BUILD_DIR/artefacts/
+    - ARTEFACT_PATH=$ARTEFACT_BASE/$BUILD_NAME
+
 addons:
   apt:
     packages:
@@ -35,15 +43,19 @@ before_script:
   - export CFLAGS="-Wall -Wextra -Werror"
 
 script:
+  # Host code
   - mkdir host/build
   - cd host/build
   - cmake ..
   - make
-  - cd ../..
-  - mkdir firmware/build-hackrf-one
-  - mkdir firmware/build-jawbreaker
-  - mkdir firmware/build-rad1o
-  - cd firmware/libopencm3
+  # Firmware
+  # Set version string
+  - cd ../../firmware
+  - sed -e "s/\#set(VERSION.*/set(VERSION \"$VERSION_STRING\")/" -i".bak" hackrf-common.cmake
+  - mkdir build-hackrf-one
+  - mkdir build-jawbreaker
+  - mkdir build-rad1o
+  - cd libopencm3
   - make
   - cd ../build-hackrf-one
   - cmake ..
@@ -54,3 +66,31 @@ script:
   - cd ../build-rad1o
   - cmake -DBOARD=RAD1O ..
   - make
+
+after_success:
+  # Construct archive for deploying to ubertooth-nightlies
+  - mkdir -p $ARTEFACT_PATH/firmware-bin/
+  # Export HackRF git repo
+  - cd $TRAVIS_BUILD_DIR/
+  - git archive --format=tar HEAD | (cd $ARTEFACT_PATH && tar xf -)
+  # Set version string
+  - sed -e "s/\#set(RELEASE.*/set(RELEASE \"$VERSION_STRING\")/" -i".bak" $ARTEFACT_PATH/host/cmake/set_release.cmake
+  # Copy firmware to firmware-bin directory
+  - cd $TRAVIS_BUILD_DIR/firmware/
+  - cp cpld/sgpio_if/default.xsvf $ARTEFACT_PATH/firmware-bin/hackrf_cpld_default.xsvf
+  - cp build-hackrf-one/hackrf_usb/hackrf_usb.bin $ARTEFACT_PATH/firmware-bin/hackrf_one_usb.bin
+  - cp build-hackrf-one/hackrf_usb/hackrf_usb.dfu $ARTEFACT_PATH/firmware-bin/hackrf_one_usb.dfu
+  - cp build-jawbreaker/hackrf_usb/hackrf_usb.bin $ARTEFACT_PATH/firmware-bin/hackrf_jawbreaker_usb.bin
+  - cp build-jawbreaker/hackrf_usb/hackrf_usb.dfu $ARTEFACT_PATH/firmware-bin/hackrf_jawbreaker_usb.dfu
+  - cp build-rad1o/hackrf_usb/hackrf_usb.bin $ARTEFACT_PATH/firmware-bin/rad1o_usb.bin
+  - cp build-rad1o/hackrf_usb/hackrf_usb.dfu $ARTEFACT_PATH/firmware-bin/rad1o_usb.dfu
+  # Build the archive
+  - cd $ARTEFACT_BASE
+  - tar -cJvf $ARTEFACT_BASE/$BUILD_NAME.tar.xz $BUILD_NAME
+
+deploy:
+  provider: script
+  skip-cleanup: true
+  script: bash $TRAVIS_BUILD_DIR/tools/deploy-nightly.sh
+  on:
+    branch: master
