@@ -235,9 +235,17 @@ extern "C"
 #define SCU_PINMUX_GPIO3_15 (P7_7)  /* GPIO3[15] */
 #endif
 
+#ifdef USER_INTERFACE_PORTAPACK
+#define SCU_PINMUX_PP_TDO   (P1_5)  /* GPIO1[8] */
+#else
 #define SCU_PINMUX_SD_POW   (P1_5)  /* GPIO1[8] */
+#endif
 #define SCU_PINMUX_SD_CMD   (P1_6)  /* GPIO1[9] */
+#ifdef USER_INTERFACE_PORTAPACK
+#define SCU_PINMUX_PP_TMS   (P1_8)  /* GPIO1[1] */
+#else
 #define SCU_PINMUX_SD_VOLT0 (P1_8)  /* GPIO1[1] */
+#endif
 #define SCU_PINMUX_SD_DAT0  (P1_9)  /* GPIO1[2] */
 #define SCU_PINMUX_SD_DAT1  (P1_10) /* GPIO1[3] */
 #define SCU_PINMUX_SD_DAT2  (P1_11) /* GPIO1[4] */
