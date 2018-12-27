@@ -42,7 +42,6 @@ set(SRC_M4
 	usb_api_register.c
 	usb_api_spiflash.c
 	usb_api_transceiver.c
-	"${PATH_HACKRF_FIRMWARE_COMMON}/operacake.c"
 	usb_api_operacake.c
 	usb_api_sweep.c
 	"${PATH_HACKRF_FIRMWARE_COMMON}/usb_queue.c"
@@ -53,5 +52,12 @@ set(SRC_M4
 	"${PATH_HACKRF_FIRMWARE_COMMON}/xapp058/ports.c"
 	"${PATH_HACKRF_FIRMWARE_COMMON}/rom_iap.c"
 )
+
+if(NOT USER_INTERFACE STREQUAL "PORTAPACK")
+	SET(SRC_M4
+		${SRC_M4}
+		"${PATH_HACKRF_FIRMWARE_COMMON}/operacake.c"
+	)
+endif()
 
 DeclareTargets()
