@@ -36,9 +36,9 @@ $Descr User 17000 11000
 encoding utf-8
 Sheet 2 4
 Title "HackRF One frontend"
-Date "13 feb 2014"
+Date "2018-04-17"
 Rev ""
-Comp "Copyright 2012 Michael Ossmann"
+Comp "Copyright 2012-2018 Michael Ossmann"
 Comment1 "License: GPL v2"
 Comment2 ""
 Comment3 ""
@@ -1539,7 +1539,7 @@ Text Label 14350 7350 1    40   ~ 0
 TX_AMP_OUT
 Text Label 8500 8550 1    40   ~ 0
 RX_AMP_OUT
-Text Label 12300 9350 0    40   ~ 0
+Text Label 11850 9100 0    40   ~ 0
 RX_AMP_IN
 $Comp
 L GND #PWR036

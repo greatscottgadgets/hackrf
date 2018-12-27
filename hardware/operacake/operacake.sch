@@ -215,7 +215,9 @@ F 0 "P28" H 5550 10100 60  0000 C CNN
 F 1 "SD" V 5550 9500 60  0000 C CNN
 F 2 "gsg-modules:HEADER-2x11" H 5550 9500 60  0001 C CNN
 F 3 "" H 5550 9500 60  0001 C CNN
-F 4 "DNP" H 5550 8850 60  0000 C CNN "Note"
+F 4 "Samtec" H 5550 9500 60  0001 C CNN "Manufacturer"
+F 5 "SSQ-111-03-G-D" H 5550 9500 60  0001 C CNN "Part Number"
+F 6 "CONN RCPT .100\" 22POS DUAL GOLD" H 5550 9500 60  0001 C CNN "Description"
 	1    5550 9500
 	1    0    0    -1  
 $EndComp
@@ -238,6 +240,9 @@ F 0 "P22" H 6700 10300 50  0000 C CNN
 F 1 "I2S" V 6700 9600 40  0000 C CNN
 F 2 "gsg-modules:HEADER-2x13" H 6700 9600 60  0001 C CNN
 F 3 "" H 6700 9600 60  0001 C CNN
+F 4 "Samtec" H 6700 9600 60  0001 C CNN "Manufacturer"
+F 5 "SSQ-113-03-G-D" H 6700 9600 60  0001 C CNN "Part Number"
+F 6 "CONN RCPT .100\" 26POS DUAL GOLD" H 6700 9600 60  0001 C CNN "Description"
 	1    6700 9600
 	1    0    0    -1  
 $EndComp
@@ -2102,6 +2107,9 @@ F 0 "P20" H 8300 10100 60  0000 C CNN
 F 1 "GPIO" V 8300 9500 50  0000 C CNN
 F 2 "gsg-modules:HEADER-2x11" H 8300 9500 60  0001 C CNN
 F 3 "" H 8300 9500 60  0001 C CNN
+F 4 "Samtec" H 8300 9500 60  0001 C CNN "Manufacturer"
+F 5 "SSQ-111-03-G-D" H 8300 9500 60  0001 C CNN "Part Number"
+F 6 "CONN RCPT .100\" 22POS DUAL GOLD" H 8300 9500 60  0001 C CNN "Desciption"
 	1    8300 9500
 	1    0    0    -1  
 $EndComp
@@ -2113,6 +2121,9 @@ F 0 "P1" H 7850 7450 50  0000 C CNN
 F 1 "ADDRESS" H 7850 7050 50  0000 C CNN
 F 2 "gsg-modules:HEADER-2x3" H 7850 6050 60  0001 C CNN
 F 3 "" H 7850 6050 60  0000 C CNN
+F 4 "Omron" H 7850 7250 60  0001 C CNN "Manufacturer"
+F 5 "XG8T-0631" H 7850 7250 60  0001 C CNN "Part Number"
+F 6 "JUMPER PLUG 6POS DOUBLE ROW" H 7850 7250 60  0001 C CNN "Description"
 	1    7850 7250
 	1    0    0    -1  
 $EndComp
@@ -2176,7 +2187,10 @@ F 0 "P9" H 4450 9750 50  0000 C CNN
 F 1 "BASEBAND" V 4450 9300 50  0000 C CNN
 F 2 "gsg-modules:HEADER-2x8" H 4450 8100 60  0001 C CNN
 F 3 "" H 4450 8100 60  0000 C CNN
-F 4 "DNP" H 4450 8800 60  0000 C CNN "Note"
+F 4 "Samtec" H 4450 9300 60  0001 C CNN "Manufacturer"
+F 5 "SSQ-108-03-G-D" H 4450 9300 60  0001 C CNN "Part Number"
+F 6 "CONN RCPT .100\" 16POS DUAL GOLD" H 4450 9300 60  0001 C CNN "Description"
+F 7 "DNP" H 4450 8800 60  0000 C CNN "Note"
 	1    4450 9300
 	1    0    0    -1  
 $EndComp
@@ -2293,7 +2307,7 @@ SCL
 Text Notes 1750 6650 0    40   ~ 0
 test points
 Text Notes 9500 9900 0    40   ~ 0
-Quick mode: When enabled by !OE (U4 IO7), RF switches are\ncontrolled by GPIO instead of I2C.  U4 IO2 through IO6 must\nbe configured as inputs.
+Quick mode: When enabled by !OE (U4 IO7), RF switches are\ncontrolled by GPIO or SCT instead of I2C.  U4 IO2 through IO6\nmust be configured as inputs.
 Text Notes 12900 8050 0    40   ~ 0
 Control logic guarantees valid RF switch\nconfiguration and reduces the number\nof external control signals required.
 Text Notes 12700 2900 0    40   ~ 0

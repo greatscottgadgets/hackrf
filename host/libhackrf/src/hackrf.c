@@ -83,6 +83,7 @@ typedef enum {
 	HACKRF_VENDOR_REQUEST_CLKOUT_ENABLE = 32,
 	HACKRF_VENDOR_REQUEST_SPIFLASH_STATUS = 33,
 	HACKRF_VENDOR_REQUEST_SPIFLASH_CLEAR_STATUS = 34,
+	HACKRF_VENDOR_REQUEST_OPERACAKE_GPIO_TEST = 35,
 } hackrf_vendor_request;
 
 #define USB_CONFIG_STANDARD 0x1
@@ -113,6 +114,7 @@ struct hackrf_device {
 	volatile bool streaming; /* volatile shared between threads (read only) */
 	void* rx_ctx;
 	void* tx_ctx;
+	volatile bool do_exit;
 	unsigned char buffer[TRANSFER_COUNT * TRANSFER_BUFFER_SIZE];
 };
 
@@ -146,8 +148,6 @@ hackrf_usb_api_version_read(device, &usb_version); \
 if(usb_version < version)                          \
 	return HACKRF_ERROR_USB_API_VERSION;
 
-static volatile bool do_exit = false;
-
 static const uint16_t hackrf_usb_vid = 0x1d50;
 static const uint16_t hackrf_jawbreaker_usb_pid = 0x604b;
 static const uint16_t hackrf_one_usb_pid = 0x6089;
@@ -157,9 +157,9 @@ static uint16_t open_devices = 0;
 static libusb_context* g_libusb_context = NULL;
 int last_libusb_error = LIBUSB_SUCCESS;
 
-static void request_exit(void)
+static void request_exit(hackrf_device* device)
 {
-	do_exit = true;
+	device->do_exit = true;
 }
 
 static int cancel_transfers(hackrf_device* device)
@@ -568,7 +568,7 @@ static int hackrf_open_setup(libusb_device_handle* usb_device, hackrf_device** d
 	lib_device->callback = NULL;
 	lib_device->transfer_thread_started = false;
 	lib_device->streaming = false;
-	do_exit = false;
+	lib_device->do_exit = false;
 
 	result = allocate_transfers(lib_device);
 	if( result != 0 )
@@ -1478,7 +1478,7 @@ static void* transfer_threadproc(void* arg)
 	int error;
 	struct timeval timeout = { 0, 500000 };
 
-	while( (device->streaming) && (do_exit == false) )
+	while( (device->streaming) && (device->do_exit == false) )
 	{
 		error = libusb_handle_events_timeout(g_libusb_context, &timeout);
 		if( (error != 0) && (error != LIBUSB_ERROR_INTERRUPTED) )
@@ -1509,12 +1509,12 @@ static void LIBUSB_CALL hackrf_libusb_transfer_callback(struct libusb_transfer* 
 		{
 			if( libusb_submit_transfer(usb_transfer) < 0)
 			{
-				request_exit();
+				request_exit(device);
 			}else {
 				return;
 			}
 		}else {
-			request_exit();
+			request_exit(device);
 		}
 	} else {
 		/* Other cases LIBUSB_TRANSFER_NO_DEVICE
@@ -1522,7 +1522,7 @@ static void LIBUSB_CALL hackrf_libusb_transfer_callback(struct libusb_transfer* 
 		LIBUSB_TRANSFER_STALL,	LIBUSB_TRANSFER_OVERFLOW
 		LIBUSB_TRANSFER_CANCELLED ...
 		*/
-		request_exit(); /* Fatal error stop transfer */
+		request_exit(device); /* Fatal error stop transfer */
 	}
 }
 
@@ -1531,7 +1531,7 @@ static int kill_transfer_thread(hackrf_device* device)
 	void* value;
 	int result;
 	
-	request_exit();
+	request_exit(device);
 
 	if( device->transfer_thread_started != false )
 	{
@@ -1551,15 +1551,15 @@ static int kill_transfer_thread(hackrf_device* device)
 }
 
 static int create_transfer_thread(hackrf_device* device,
-									const uint8_t endpoint_address,
-									hackrf_sample_block_cb_fn callback)
+	const uint8_t endpoint_address,
+		hackrf_sample_block_cb_fn callback)
 {
 	int result;
 	
 	if( device->transfer_thread_started == false )
 	{
 		device->streaming = false;
-		do_exit = false;
+		device->do_exit = false;
 
 		result = prepare_transfers(
 			device, endpoint_address,
@@ -1593,7 +1593,7 @@ int ADDCALL hackrf_is_streaming(hackrf_device* device)
 	
 	if( (device->transfer_thread_started == true) &&
 		(device->streaming == true) && 
-		(do_exit == false) )
+		(device->do_exit == false) )
 	{
 		return HACKRF_TRUE;
 	} else {
@@ -1736,7 +1736,7 @@ const char* ADDCALL hackrf_error_name(enum hackrf_error errcode)
 		return "feature not supported by installed firmware";
 
 	case HACKRF_ERROR_NOT_LAST_DEVICE:
-		return "some hackrf is sill in use";
+		return "one or more HackRFs still in use";
 
 	case HACKRF_ERROR_OTHER:
 		return "unspecified error";
@@ -2073,6 +2073,30 @@ int ADDCALL hackrf_set_clkout_enable(hackrf_device* device, const uint8_t value)
 
 	if (result != 0)
 	{
+		last_libusb_error = result;
+		return HACKRF_ERROR_LIBUSB;
+	} else {
+		return HACKRF_SUCCESS;
+	}
+}
+
+int ADDCALL hackrf_operacake_gpio_test(hackrf_device* device, const uint8_t address,
+                                       uint16_t* test_result)
+{
+	USB_API_REQUIRED(device, 0x0103)
+	int result;
+	result = libusb_control_transfer(
+		device->usb_device,
+		LIBUSB_ENDPOINT_IN | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_OPERACAKE_GPIO_TEST,
+		address,
+		0,
+		(unsigned char*)test_result,
+		2,
+		0
+	);
+
+	if (result < 1) {
 		last_libusb_error = result;
 		return HACKRF_ERROR_LIBUSB;
 	} else {

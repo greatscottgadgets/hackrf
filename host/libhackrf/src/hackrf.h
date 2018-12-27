@@ -251,6 +251,10 @@ extern ADDAPI int ADDCALL hackrf_set_operacake_ranges(hackrf_device* device,
 
 extern ADDAPI int ADDCALL hackrf_set_clkout_enable(hackrf_device* device, const uint8_t value);
 
+extern ADDAPI int ADDCALL hackrf_operacake_gpio_test(hackrf_device* device,
+                                                     uint8_t address,
+													 uint16_t* test_result);
+
 #ifdef __cplusplus
 } // __cplusplus defined.
 #endif

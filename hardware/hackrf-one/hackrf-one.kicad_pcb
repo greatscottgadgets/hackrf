@@ -9630,7 +9630,7 @@
     (fp_text reference U20 (at 0 0 180) (layer F.SilkS)
       (effects (font (thickness 0.3048)))
     )
-    (fp_text value W25Q80BV (at 0 0 180) (layer F.SilkS) hide
+    (fp_text value W25Q80 (at 0 0 180) (layer F.SilkS) hide
       (effects (font (thickness 0.3048)))
     )
     (fp_circle (center -1.651 -1.651) (end -1.143 -1.651) (layer F.SilkS) (width 0.2032))

@@ -2845,7 +2845,7 @@ EndCmp
 BeginCmp
 TimeStamp = /5037043E/4F825D1B;
 Reference = U20;
-ValeurCmp = W25Q80BV;
+ValeurCmp = W25Q80;
 IdModule  = hackrf:GSG-SOIC8-208;
 EndCmp
 

@@ -36,9 +36,9 @@ $Descr User 17000 11000
 encoding utf-8
 Sheet 3 4
 Title "HackRF One baseband"
-Date "13 feb 2014"
+Date "2018-04-17"
 Rev ""
-Comp "Copyright 2012 Michael Ossmann"
+Comp "Copyright 2012-2018 Michael Ossmann"
 Comment1 "License: GPL v2"
 Comment2 ""
 Comment3 ""
