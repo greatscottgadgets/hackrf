@@ -759,6 +759,9 @@ void ssp1_set_mode_max5864(void)
 }
 
 void pin_setup(void) {
+	/* Configure all GPIO as Input (safe state) */
+	gpio_init();
+
 	/* Release CPLD JTAG pins */
 	scu_pinmux(SCU_PINMUX_CPLD_TDO, SCU_GPIO_NOPULL | SCU_CONF_FUNCTION4);
 	scu_pinmux(SCU_PINMUX_CPLD_TCK, SCU_GPIO_NOPULL | SCU_CONF_FUNCTION0);
@@ -785,9 +788,6 @@ void pin_setup(void) {
 	scu_pinmux(SCU_PINMUX_USB_LED0, SCU_CONF_FUNCTION3);
 	scu_pinmux(SCU_PINMUX_USB_LED1, SCU_CONF_FUNCTION3);
 #endif
-
-	/* Configure all GPIO as Input (safe state) */
-	gpio_init();
 
 	gpio_output(&gpio_led[0]);
 	gpio_output(&gpio_led[1]);
