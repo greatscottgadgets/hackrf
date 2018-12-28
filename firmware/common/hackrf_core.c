@@ -781,8 +781,6 @@ void pin_setup(void) {
 	scu_pinmux(SCU_PINMUX_LED4, SCU_GPIO_NOPULL | SCU_CONF_FUNCTION4);
 #endif
 
-	scu_pinmux(SCU_PINMUX_EN1V8, SCU_GPIO_NOPULL);
-
 	/* Configure USB indicators */
 #ifdef JAWBREAKER
 	scu_pinmux(SCU_PINMUX_USB_LED0, SCU_CONF_FUNCTION3);
@@ -796,7 +794,9 @@ void pin_setup(void) {
 	gpio_output(&gpio_led[3]);
 #endif
 
+	disable_1v8_power();
 	gpio_output(&gpio_1v8_enable);
+	scu_pinmux(SCU_PINMUX_EN1V8, SCU_GPIO_NOPULL | SCU_CONF_FUNCTION0);
 
 #ifdef HACKRF_ONE
 	/* Safe state: start with VAA turned off: */
