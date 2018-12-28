@@ -758,21 +758,50 @@ void ssp1_set_mode_max5864(void)
 	spi_bus_start(max5864.bus, &ssp_config_max5864);
 }
 
+static void jtag_setup(void) {
+	/* TDI and TMS pull-ups are required in all JTAG-compliant devices.
+	 * Therefore, do not pull up TDI and TMS on HackRF CPLD, which is always present.
+	 * HackRF TMS and TDI are dedicated, just drive instead of pulling up/down.
+	 * TCK is recommended to be held low.
+	 * TDO is undriven except when in Shift-IR or Shift-DR phases, so pull down to keep from floating.
+	 * Nail down other signals before causing any transitions on TCK, to prevent undesired
+	 * state changes.
+	 */
+	/* LPC43xx pull-up and pull-down resistors are approximately 53K. */
+#ifdef USER_INTERFACE_PORTAPACK
+	gpio_set(jtag_gpio_cpld.gpio_pp_tms);
+#endif
+	gpio_set(jtag_gpio_cpld.gpio_tms);
+	gpio_set(jtag_gpio_cpld.gpio_tdi);
+	gpio_clear(jtag_gpio_cpld.gpio_tck);
+
+#ifdef USER_INTERFACE_PORTAPACK
+	/* Do not drive PortaPack-specific pins, initially, just to be cautious. */
+	gpio_input(jtag_gpio_cpld.gpio_pp_tms);
+	gpio_input(jtag_gpio_cpld.gpio_pp_tdo);
+#endif
+	gpio_output(jtag_gpio_cpld.gpio_tms);
+	gpio_output(jtag_gpio_cpld.gpio_tdi);
+	gpio_output(jtag_gpio_cpld.gpio_tck);
+	gpio_input(jtag_gpio_cpld.gpio_tdo);
+
+	/* Configure CPLD JTAG pins */
+#ifdef USER_INTERFACE_PORTAPACK
+	scu_pinmux(SCU_PINMUX_PP_TMS,   SCU_GPIO_PUP    | SCU_CONF_FUNCTION0);
+	scu_pinmux(SCU_PINMUX_PP_TDO,   SCU_GPIO_PDN    | SCU_CONF_FUNCTION0);
+#endif
+	scu_pinmux(SCU_PINMUX_CPLD_TMS, SCU_GPIO_NOPULL | SCU_CONF_FUNCTION0);
+	scu_pinmux(SCU_PINMUX_CPLD_TDI, SCU_GPIO_NOPULL | SCU_CONF_FUNCTION0);
+	scu_pinmux(SCU_PINMUX_CPLD_TDO, SCU_GPIO_PDN    | SCU_CONF_FUNCTION4);
+	scu_pinmux(SCU_PINMUX_CPLD_TCK, SCU_GPIO_NOPULL | SCU_CONF_FUNCTION0);
+}
+
 void pin_setup(void) {
 	/* Configure all GPIO as Input (safe state) */
 	gpio_init();
 
-	/* Release CPLD JTAG pins */
-	scu_pinmux(SCU_PINMUX_CPLD_TDO, SCU_GPIO_NOPULL | SCU_CONF_FUNCTION4);
-	scu_pinmux(SCU_PINMUX_CPLD_TCK, SCU_GPIO_NOPULL | SCU_CONF_FUNCTION0);
-	scu_pinmux(SCU_PINMUX_CPLD_TMS, SCU_GPIO_NOPULL | SCU_CONF_FUNCTION0);
-	scu_pinmux(SCU_PINMUX_CPLD_TDI, SCU_GPIO_NOPULL | SCU_CONF_FUNCTION0);
-	
-	gpio_input(&gpio_cpld_tdo);
-	gpio_input(&gpio_cpld_tck);
-	gpio_input(&gpio_cpld_tms);
-	gpio_input(&gpio_cpld_tdi);
-	
+	jtag_setup();
+
 	/* Configure SCU Pin Mux as GPIO */
 	scu_pinmux(SCU_PINMUX_LED1, SCU_GPIO_NOPULL);
 	scu_pinmux(SCU_PINMUX_LED2, SCU_GPIO_NOPULL);

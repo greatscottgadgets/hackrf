@@ -29,47 +29,6 @@ static refill_buffer_cb refill_buffer;
 static uint32_t xsvf_buffer_len, xsvf_pos;
 static unsigned char* xsvf_buffer;
 
-void cpld_jtag_setup(jtag_t* const jtag) {
-	scu_pinmux(SCU_PINMUX_CPLD_TDO, SCU_GPIO_NOPULL | SCU_CONF_FUNCTION4);
-	scu_pinmux(SCU_PINMUX_CPLD_TCK, SCU_GPIO_NOPULL | SCU_CONF_FUNCTION0);
-	scu_pinmux(SCU_PINMUX_CPLD_TMS, SCU_GPIO_NOPULL | SCU_CONF_FUNCTION0);
-	scu_pinmux(SCU_PINMUX_CPLD_TDI, SCU_GPIO_NOPULL | SCU_CONF_FUNCTION0);
-#ifdef USER_INTERFACE_PORTAPACK
-	scu_pinmux(SCU_PINMUX_PP_TMS,   SCU_GPIO_NOPULL | SCU_CONF_FUNCTION0);
-	scu_pinmux(SCU_PINMUX_PP_TDO,   SCU_GPIO_NOPULL | SCU_CONF_FUNCTION0);
-#endif
-	
-	gpio_input(jtag->gpio->gpio_tdo);
-	gpio_output(jtag->gpio->gpio_tck);
-	gpio_output(jtag->gpio->gpio_tms);
-	gpio_output(jtag->gpio->gpio_tdi);
-#ifdef USER_INTERFACE_PORTAPACK
-	gpio_output(jtag->gpio->gpio_pp_tms);
-	gpio_input(jtag->gpio->gpio_pp_tdo);
-#endif
-}
-
-/* set pins as inputs so we don't interfere with an external JTAG device */
-void cpld_jtag_release(jtag_t* const jtag) {
-	scu_pinmux(SCU_PINMUX_CPLD_TDO, SCU_GPIO_NOPULL | SCU_CONF_FUNCTION4);
-	scu_pinmux(SCU_PINMUX_CPLD_TCK, SCU_GPIO_NOPULL | SCU_CONF_FUNCTION0);
-	scu_pinmux(SCU_PINMUX_CPLD_TMS, SCU_GPIO_NOPULL | SCU_CONF_FUNCTION0);
-	scu_pinmux(SCU_PINMUX_CPLD_TDI, SCU_GPIO_NOPULL | SCU_CONF_FUNCTION0);
-#ifdef USER_INTERFACE_PORTAPACK
-	scu_pinmux(SCU_PINMUX_PP_TMS,   SCU_GPIO_NOPULL | SCU_CONF_FUNCTION0);
-	scu_pinmux(SCU_PINMUX_PP_TDO,   SCU_GPIO_NOPULL | SCU_CONF_FUNCTION0);
-#endif
-	
-	gpio_input(jtag->gpio->gpio_tdo);
-	gpio_input(jtag->gpio->gpio_tck);
-	gpio_input(jtag->gpio->gpio_tms);
-	gpio_input(jtag->gpio->gpio_tdi);
-#ifdef USER_INTERFACE_PORTAPACK
-	gpio_input(jtag->gpio->gpio_pp_tms);
-	gpio_input(jtag->gpio->gpio_pp_tdo);
-#endif
-}
-
 /* return 0 if success else return error code see xsvfExecute() */
 int cpld_jtag_program(
 		jtag_t* const jtag,
@@ -78,12 +37,10 @@ int cpld_jtag_program(
         refill_buffer_cb refill
 ) {
 	int error;
-	cpld_jtag_setup(jtag);
 	xsvf_buffer = buffer;
 	xsvf_buffer_len = buffer_length;
         refill_buffer = refill;
 	error = xsvfExecute(jtag->gpio);
-	cpld_jtag_release(jtag);
 	
 	return error;
 }
