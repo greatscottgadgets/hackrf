@@ -813,11 +813,11 @@ void pin_setup(void) {
 #endif
 
 #ifdef RAD1O
-	/* Configure RF power supply (VAA) switch control signal as output */
-	gpio_output(&gpio_vaa_enable);
-
 	/* Safe state: start with VAA turned off: */
 	disable_rf_power();
+
+	/* Configure RF power supply (VAA) switch control signal as output */
+	gpio_output(&gpio_vaa_enable);
 
 	/* Disable unused clock outputs. They generate noise. */
 	scu_pinmux(CLK0, SCU_CLK_IN | SCU_CONF_FUNCTION7);
