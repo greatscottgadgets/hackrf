@@ -31,6 +31,7 @@ SET(PATH_HACKRF ../..)
 SET(PATH_HACKRF_FIRMWARE ${PATH_HACKRF}/firmware)
 SET(PATH_HACKRF_FIRMWARE_COMMON ${PATH_HACKRF_FIRMWARE}/common)
 SET(LIBOPENCM3 ${PATH_HACKRF_FIRMWARE}/libopencm3)
+SET(PATH_DFU_PY ${PATH_HACKRF_FIRMWARE}/dfu.py)
 
 include(${PATH_HACKRF_FIRMWARE}/dfu-util.cmake)
 
@@ -228,7 +229,7 @@ macro(DeclareTargets)
 		COMMAND rm -f _tmp.dfu _header.bin
 		COMMAND cp ${PROJECT_NAME}_dfu.bin _tmp.dfu
 		COMMAND dfu-suffix --vid=0x1fc9 --pid=0x000c --did=0x0 -a _tmp.dfu
-		COMMAND python ../../dfu.py ${PROJECT_NAME}
+		COMMAND python ${PATH_DFU_PY} ${PROJECT_NAME}
 		COMMAND cat _header.bin _tmp.dfu >${PROJECT_NAME}.dfu
 		COMMAND rm -f _tmp.dfu _header.bin
 	)
