@@ -106,6 +106,15 @@ set(BUILD_SHARED_LIBS OFF)
 include_directories("${LIBOPENCM3}/include/")
 include_directories("${PATH_HACKRF_FIRMWARE_COMMON}")
 
+include(ExternalProject)
+ExternalProject_Add(libopencm3
+	SOURCE_DIR "${LIBOPENCM3}"
+	BUILD_IN_SOURCE true
+	DOWNLOAD_COMMAND ""
+	CONFIGURE_COMMAND ""
+	INSTALL_COMMAND ""
+)
+
 macro(DeclareTargets)
 	SET(SRC_M4
 		${SRC_M4}
@@ -181,7 +190,7 @@ macro(DeclareTargets)
 	# Object files to be linked for SPI flash versions
 	add_library(${PROJECT_NAME}_objects OBJECT ${SRC_M4} m0_bin.s)
 	set_target_properties(${PROJECT_NAME}_objects PROPERTIES COMPILE_FLAGS "${CFLAGS_M4}")
-	add_dependencies(${PROJECT_NAME}_objects ${PROJECT_NAME}_m0.bin)
+	add_dependencies(${PROJECT_NAME}_objects ${PROJECT_NAME}_m0.bin libopencm3)
 	add_executable(${PROJECT_NAME}.elf $<TARGET_OBJECTS:${PROJECT_NAME}_objects>)
 
 	target_link_libraries(
@@ -204,7 +213,7 @@ macro(DeclareTargets)
 	# Object files to be linked for DFU flash versions
 	add_library(${PROJECT_NAME}_dfu_objects OBJECT ${SRC_M4} m0_bin.s)
 	set_target_properties(${PROJECT_NAME}_dfu_objects PROPERTIES COMPILE_FLAGS "${CFLAGS_M4_DFU}")
-	add_dependencies(${PROJECT_NAME}_dfu_objects ${PROJECT_NAME}_m0.bin)
+	add_dependencies(${PROJECT_NAME}_dfu_objects ${PROJECT_NAME}_m0.bin libopencm3)
 	add_executable(${PROJECT_NAME}_dfu.elf $<TARGET_OBJECTS:${PROJECT_NAME}_dfu_objects>)
 
 	target_link_libraries(
