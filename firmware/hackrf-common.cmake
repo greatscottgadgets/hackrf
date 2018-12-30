@@ -170,6 +170,7 @@ macro(DeclareTargets)
 	)
 
 	add_executable(${PROJECT_NAME}_m0.elf ${SRC_M0})
+	add_dependencies(${PROJECT_NAME}_m0.elf libopencm3)
 
 	target_link_libraries(
 		${PROJECT_NAME}_m0.elf
@@ -190,8 +191,9 @@ macro(DeclareTargets)
 	# Object files to be linked for SPI flash versions
 	add_library(${PROJECT_NAME}_objects OBJECT ${SRC_M4} m0_bin.s)
 	set_target_properties(${PROJECT_NAME}_objects PROPERTIES COMPILE_FLAGS "${CFLAGS_M4}")
-	add_dependencies(${PROJECT_NAME}_objects ${PROJECT_NAME}_m0.bin libopencm3)
+	add_dependencies(${PROJECT_NAME}_objects ${PROJECT_NAME}_m0.bin)
 	add_executable(${PROJECT_NAME}.elf $<TARGET_OBJECTS:${PROJECT_NAME}_objects>)
+	add_dependencies(${PROJECT_NAME}.elf libopencm3)
 
 	target_link_libraries(
 		${PROJECT_NAME}.elf
@@ -213,8 +215,9 @@ macro(DeclareTargets)
 	# Object files to be linked for DFU flash versions
 	add_library(${PROJECT_NAME}_dfu_objects OBJECT ${SRC_M4} m0_bin.s)
 	set_target_properties(${PROJECT_NAME}_dfu_objects PROPERTIES COMPILE_FLAGS "${CFLAGS_M4_DFU}")
-	add_dependencies(${PROJECT_NAME}_dfu_objects ${PROJECT_NAME}_m0.bin libopencm3)
+	add_dependencies(${PROJECT_NAME}_dfu_objects ${PROJECT_NAME}_m0.bin)
 	add_executable(${PROJECT_NAME}_dfu.elf $<TARGET_OBJECTS:${PROJECT_NAME}_dfu_objects>)
+	add_dependencies(${PROJECT_NAME}_dfu.elf libopencm3)
 
 	target_link_libraries(
 		${PROJECT_NAME}_dfu.elf
