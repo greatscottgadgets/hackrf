@@ -982,23 +982,22 @@ static void portapack_ui_set_first_if_frequency(const uint64_t frequency) {
 }
 
 static void portapack_ui_set_filter(const rf_path_filter_t filter) {
-	const ui_bitmap_t* bitmap = &bitmap_wire_24;
+	radio_draw_list[RADIO_DRAW_LIST_ITEM_RF_MIXER].bitmap = (filter == RF_PATH_FILTER_BYPASS) ? &bitmap_wire_24 : &bitmap_mixer;
 
 	switch(filter) {
-	case RF_PATH_FILTER_BYPASS:
-		bitmap = &bitmap_wire_24;
+	default:
+		radio_draw_list[RADIO_DRAW_LIST_ITEM_IMAGE_FILTER].bitmap = &bitmap_wire_24;
 		break;
 		
 	case RF_PATH_FILTER_LOW_PASS:
-		bitmap = &bitmap_filter_lp;
+		radio_draw_list[RADIO_DRAW_LIST_ITEM_IMAGE_FILTER].bitmap = &bitmap_filter_lp;
 		break;
 		
 	case RF_PATH_FILTER_HIGH_PASS:
-		bitmap = &bitmap_filter_hp;
+		radio_draw_list[RADIO_DRAW_LIST_ITEM_IMAGE_FILTER].bitmap = &bitmap_filter_hp;
 		break;
 	}
 
-	radio_draw_list[RADIO_DRAW_LIST_ITEM_IMAGE_FILTER].bitmap = bitmap;
 	portapack_radio_path_redraw();
 }
 
