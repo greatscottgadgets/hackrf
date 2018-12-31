@@ -906,8 +906,10 @@ static void portapack_ui_set_frequency(uint64_t frequency) {
 }
 
 static void portapack_ui_set_sample_rate(uint32_t sample_rate) {
+#if 0
 	ui_point_t point = { VALUES_X, 320 - 1 * 16 };
 	portapack_lcd_draw_int(point, sample_rate, 8);
+#endif
 }
 
 static void portapack_ui_set_direction(const rf_path_direction_t direction) {
