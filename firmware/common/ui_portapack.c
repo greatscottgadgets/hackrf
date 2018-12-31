@@ -780,11 +780,12 @@ static ui_bitmap_t portapack_font_glyph(
 	return bitmap;
 }
 
-static void portapack_lcd_draw_int(const ui_point_t point, uint64_t value, size_t field_width) {
-	ui_point_t point_next = {
+static ui_point_t portapack_lcd_draw_int(const ui_point_t point, uint64_t value, size_t field_width) {
+	const ui_point_t point_done = {
 		.x = point.x + font_fixed_8x16.glyph_size.width * field_width,
 		.y = point.y
 	};
+	ui_point_t point_next = point_done;
 
 	const ui_color_t color_background = portapack_color_rgb(0x00, 0x00, 0xff);
 	const ui_color_t color_foreground = portapack_color_rgb(0xff, 0xff, 0xff);
@@ -804,6 +805,22 @@ static void portapack_lcd_draw_int(const ui_point_t point, uint64_t value, size_
 		point_next.x -= glyph.size.width;
 		portapack_draw_bitmap(point_next, glyph, color_foreground, color_background);
 	}
+
+	return point_done;
+}
+
+static ui_point_t portapack_lcd_draw_string(ui_point_t point, const char* s) {
+	const ui_color_t color_background = portapack_color_rgb(0x00, 0x00, 0xff);
+	const ui_color_t color_foreground = portapack_color_rgb(0xff, 0xff, 0xff);
+
+	while(*s) {
+		const char c = *(s++);
+		const ui_bitmap_t glyph = portapack_font_glyph(&font_fixed_8x16, c);
+		portapack_draw_bitmap(point, glyph, color_foreground, color_background);
+		point.x += glyph.size.width;
+	}
+
+	return point;
 }
 
 static void portapack_lcd_clear() {
@@ -887,6 +904,7 @@ static void portapack_ui_set_frequency(uint64_t frequency) {
 
 		const ui_font_t* const font = (i > 5) ? &font_fixed_24x19 : &font_fixed_16x14;
 		const ui_bitmap_t glyph = portapack_font_glyph(font, c);
+
 		point.x -= glyph.size.width;
 		if( (i==3) || (i==6) || (i==9) ) {
 			point.x -= 4;
@@ -945,14 +963,20 @@ static void portapack_ui_set_lna_power(bool lna_on) {
 	portapack_radio_path_redraw();
 }
 
+static ui_point_t portapack_ui_draw_db(ui_point_t point, const uint32_t db) {
+	point = portapack_lcd_draw_string(point, "+");
+	point = portapack_lcd_draw_int(point, db, 2);
+	return portapack_lcd_draw_string(point, "dB");
+}
+
 static void portapack_ui_set_bb_lna_gain(const uint32_t gain_db) {
 	ui_point_t point = { VALUES_X, radio_draw_list[RADIO_DRAW_LIST_ITEM_BB_LNA_AMP].point.y + 4 };
-	portapack_lcd_draw_int(point, gain_db, 2);
+	portapack_ui_draw_db(point, gain_db);
 }
 
 static void portapack_ui_set_bb_vga_gain(const uint32_t gain_db) {
 	ui_point_t point = { VALUES_X, radio_draw_list[RADIO_DRAW_LIST_ITEM_BB_VGA_AMP].point.y + 4 };
-	portapack_lcd_draw_int(point, gain_db, 2);
+	portapack_ui_draw_db(point, gain_db);
 }
 
 static void portapack_ui_set_bb_tx_vga_gain(const uint32_t gain_db) {
