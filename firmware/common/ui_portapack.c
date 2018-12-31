@@ -871,6 +871,7 @@ static void portapack_draw_radio_path(
 }
 
 static rf_path_direction_t portapack_direction = RF_PATH_DIRECTION_OFF;
+static bool portapack_lna_on = false;
 
 static void portapack_radio_path_redraw() {
 	portapack_draw_radio_path(radio_draw_list, ARRAY_SIZEOF(radio_draw_list));
@@ -921,13 +922,13 @@ static void portapack_ui_set_sample_rate(uint32_t sample_rate) {
 static void portapack_ui_set_direction(const rf_path_direction_t direction) {
 	switch(direction) {
 	case RF_PATH_DIRECTION_TX:
-		radio_draw_list[RADIO_DRAW_LIST_ITEM_RF_AMP].bitmap = &bitmap_amp_tx;
+		radio_draw_list[RADIO_DRAW_LIST_ITEM_RF_AMP].bitmap = portapack_lna_on ? &bitmap_amp_tx : &bitmap_wire_24;
 		radio_draw_list[RADIO_DRAW_LIST_ITEM_BB_LNA_AMP].bitmap = &bitmap_amp_tx;
 		radio_draw_list[RADIO_DRAW_LIST_ITEM_BB_VGA_AMP].bitmap = &bitmap_wire_24;
 		break;
 
 	case RF_PATH_DIRECTION_RX:
-		radio_draw_list[RADIO_DRAW_LIST_ITEM_RF_AMP].bitmap = &bitmap_amp_rx;
+		radio_draw_list[RADIO_DRAW_LIST_ITEM_RF_AMP].bitmap = portapack_lna_on ? &bitmap_amp_rx : &bitmap_wire_24;
 		radio_draw_list[RADIO_DRAW_LIST_ITEM_BB_LNA_AMP].bitmap = &bitmap_amp_rx;
 		radio_draw_list[RADIO_DRAW_LIST_ITEM_BB_VGA_AMP].bitmap = &bitmap_amp_rx;
 		break;
@@ -948,6 +949,7 @@ static void portapack_ui_set_filter_bw(uint32_t bandwidth) {
 }
 
 static void portapack_ui_set_lna_power(bool lna_on) {
+	portapack_lna_on = lna_on;
 	radio_draw_list[RADIO_DRAW_LIST_ITEM_RF_AMP].bitmap = lna_on
 		? ((portapack_direction == RF_PATH_DIRECTION_TX) ? &bitmap_amp_tx : &bitmap_amp_rx)
 		: &bitmap_wire_24;
