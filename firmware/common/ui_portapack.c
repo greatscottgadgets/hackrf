@@ -876,35 +876,31 @@ static void portapack_ui_init() {
 }
 
 static void portapack_ui_set_frequency(uint64_t frequency) {
-	ui_point_t point = { 240 - 24, 16 };
+	ui_point_t point = { 240 - 20, 16 };
 
 	const ui_color_t color_background = portapack_color_rgb(0x00, 0x00, 0xff);
 	const ui_color_t color_foreground = portapack_color_rgb(0xff, 0xff, 0xff);
 
 	uint64_t value = frequency;
-	for(int i=0; i<6; i++) {
+	for(int i=0; i<10; i++) {
 		const char c = '0' + value % 10;
-		value /= 10;
 
-		const ui_bitmap_t glyph = portapack_font_glyph(&font_fixed_16x14, c);
+		const ui_font_t* const font = (i > 5) ? &font_fixed_24x19 : &font_fixed_16x14;
+		const ui_bitmap_t glyph = portapack_font_glyph(font, c);
 		point.x -= glyph.size.width;
-		portapack_draw_bitmap(point, glyph, color_foreground, color_background);
-	}
+		if( (i==3) || (i==6) || (i==9) ) {
+			point.x -= 4;
+		}
 
-	for(int i=0; i<4; i++) {
-		if( (i>0) && (value == 0) ) {
-			const ui_bitmap_t glyph = portapack_font_glyph(&font_fixed_24x19, '0');
-			point.x -= glyph.size.width;
+		if( (i>=6) && (value == 0) ) {
+			/* Blank out leading zeros. */
 			const ui_rect_t rect = { point, glyph.size };
 			portapack_lcd_fill_rectangle(rect, color_background);
 		} else {
-			const char c = '0' + value % 10;
-			value /= 10;
-
-			const ui_bitmap_t glyph = portapack_font_glyph(&font_fixed_24x19, c);
-			point.x -= glyph.size.width;
 			portapack_draw_bitmap(point, glyph, color_foreground, color_background);
 		}
+
+		value /= 10;
 	}
 }
 
