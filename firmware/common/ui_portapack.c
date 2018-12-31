@@ -970,6 +970,12 @@ static void portapack_ui_set_bb_vga_gain(const uint32_t gain_db) {
 }
 
 static void portapack_ui_set_bb_tx_vga_gain(const uint32_t gain_db) {
+	/* TODO: This function (and code throughout the HackRF project) is mis-labeled?
+	 * According to the MAX2837 datasheet diagram, there is no baseband gain in the TX path.
+	 * This gets called when the TX IF gain is changed.
+	 */
+	ui_point_t point = { VALUES_X, radio_draw_list[RADIO_DRAW_LIST_ITEM_BB_LNA_AMP].point.y + 4 };
+	portapack_ui_draw_db(point, gain_db);
 }
 
 static void portapack_ui_set_first_if_frequency(const uint64_t frequency) {
