@@ -262,6 +262,9 @@ static ui_color_t portapack_color_rgb(
 	return result;
 }
 
+static const ui_color_t color_background = { 0x001f };
+static const ui_color_t color_foreground = { 0xffff };
+
 #define ARRAY_SIZEOF(x) (sizeof(x) / sizeof(x[0]))
 
 static void portapack_sleep_milliseconds(const uint32_t milliseconds) {
@@ -787,9 +790,6 @@ static ui_point_t portapack_lcd_draw_int(const ui_point_t point, uint64_t value,
 	};
 	ui_point_t point_next = point_done;
 
-	const ui_color_t color_background = portapack_color_rgb(0x00, 0x00, 0xff);
-	const ui_color_t color_foreground = portapack_color_rgb(0xff, 0xff, 0xff);
-
 	for(size_t i=0; i<field_width; i++) {
 		const char c = ((i == 0) || (value != 0)) ? ('0' + value % 10) : ' ';
 		value /= 10;
@@ -803,9 +803,6 @@ static ui_point_t portapack_lcd_draw_int(const ui_point_t point, uint64_t value,
 }
 
 static ui_point_t portapack_lcd_draw_string(ui_point_t point, const char* s) {
-	const ui_color_t color_background = portapack_color_rgb(0x00, 0x00, 0xff);
-	const ui_color_t color_foreground = portapack_color_rgb(0xff, 0xff, 0xff);
-
 	while(*s) {
 		const char c = *(s++);
 		const ui_bitmap_t glyph = portapack_font_glyph(&font_fixed_8x16, c);
@@ -818,7 +815,6 @@ static ui_point_t portapack_lcd_draw_string(ui_point_t point, const char* s) {
 
 static void portapack_lcd_clear() {
 	const ui_rect_t rect_screen = { { 0, 0 }, { 240, 320 } };
-	const ui_color_t color_background = portapack_color_rgb(0x00, 0x00, 0xff);
 	portapack_lcd_fill_rectangle(rect_screen, color_background);
 }
 
@@ -863,9 +859,6 @@ static void portapack_draw_radio_path(
 	const draw_list_t* const draw_list,
 	const size_t count
 ) {
-	const ui_color_t color_background = portapack_color_rgb(0x00, 0x00, 0xff);
-	const ui_color_t color_foreground = portapack_color_rgb(0xff, 0xff, 0xff);
-
 	for( size_t i=0; i<count; i++ ) {
 		portapack_draw_bitmap(draw_list[i].point, *draw_list[i].bitmap, color_foreground, color_background);
 	}
@@ -887,9 +880,6 @@ static void portapack_ui_init() {
 
 static void portapack_ui_set_frequency(uint64_t frequency) {
 	ui_point_t point = { 240 - 20, 16 };
-
-	const ui_color_t color_background = portapack_color_rgb(0x00, 0x00, 0xff);
-	const ui_color_t color_foreground = portapack_color_rgb(0xff, 0xff, 0xff);
 
 	uint64_t value = frequency;
 	for(int i=0; i<10; i++) {
