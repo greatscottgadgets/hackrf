@@ -790,17 +790,10 @@ static ui_point_t portapack_lcd_draw_int(const ui_point_t point, uint64_t value,
 	const ui_color_t color_background = portapack_color_rgb(0x00, 0x00, 0xff);
 	const ui_color_t color_foreground = portapack_color_rgb(0xff, 0xff, 0xff);
 
-	while(value) {
-		const char c = '0' + value % 10;
+	for(size_t i=0; i<field_width; i++) {
+		const char c = ((i == 0) || (value != 0)) ? ('0' + value % 10) : ' ';
 		value /= 10;
 
-		const ui_bitmap_t glyph = portapack_font_glyph(&font_fixed_8x16, c);
-		point_next.x -= glyph.size.width;
-		portapack_draw_bitmap(point_next, glyph, color_foreground, color_background);
-	}
-
-	while(point_next.x > point.x) {
-		const char c = ' ';
 		const ui_bitmap_t glyph = portapack_font_glyph(&font_fixed_8x16, c);
 		point_next.x -= glyph.size.width;
 		portapack_draw_bitmap(point_next, glyph, color_foreground, color_background);
