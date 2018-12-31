@@ -951,6 +951,9 @@ static void portapack_ui_set_lna_power(bool lna_on) {
 	radio_draw_list[RADIO_DRAW_LIST_ITEM_RF_AMP].bitmap = lna_on
 		? ((portapack_direction == RF_PATH_DIRECTION_TX) ? &bitmap_amp_tx : &bitmap_amp_rx)
 		: &bitmap_wire_24;
+	const char* const label = lna_on ? "+14dB" : "     ";
+	ui_point_t point = { VALUES_X, radio_draw_list[RADIO_DRAW_LIST_ITEM_RF_AMP].point.y + 4 };
+	portapack_lcd_draw_string(point, label);
 	portapack_radio_path_redraw();
 }
 
