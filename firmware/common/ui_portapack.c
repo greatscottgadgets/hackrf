@@ -503,6 +503,11 @@ static uint32_t jtag_pp_shift(const uint32_t tms_bits, const size_t count) {
 }
 
 static uint32_t jtag_pp_idcode() {
+	cpld_jtag_take(&jtag_cpld);
+
+	/* TODO: Check if PortaPack TMS is floating or driven by an external device. */
+	gpio_output(jtag_cpld.gpio->gpio_pp_tms);
+
 	/* Test-Logic/Reset -> Run-Test/Idle -> Select-DR/Scan -> Capture-DR */
 	jtag_pp_shift(0b11111010, 8);
 
@@ -511,6 +516,8 @@ static uint32_t jtag_pp_idcode() {
 
 	/* Exit1-DR -> Update-DR -> Run-Test/Idle -> ... -> Test-Logic/Reset */
 	jtag_pp_shift(0b11011111, 8);
+
+	cpld_jtag_release(&jtag_cpld);
 
 	return idcode;
 }
@@ -998,9 +1005,6 @@ static const hackrf_ui_t portapack_ui = {
 };
 
 const hackrf_ui_t* portapack_detect(void) {
-	/* TODO: Check if PortaPack TMS is floating or driven by an external device. */
-	gpio_output(jtag_cpld.gpio->gpio_pp_tms);
-
 	if( jtag_pp_idcode() == 0x020A50DD ) {
 		return &portapack_ui;
 	} else {
