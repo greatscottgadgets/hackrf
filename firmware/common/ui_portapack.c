@@ -855,6 +855,12 @@ typedef enum {
 
 static const uint8_t VALUES_X = 72;
 
+static ui_point_t portapack_ui_draw_db(ui_point_t point, const uint32_t db) {
+	point = portapack_lcd_draw_string(point, "+");
+	point = portapack_lcd_draw_int(point, db, 2);
+	return portapack_lcd_draw_string(point, "dB");
+}
+
 static void portapack_draw_radio_path(
 	const draw_list_t* const draw_list,
 	const size_t count
@@ -946,12 +952,6 @@ static void portapack_ui_set_lna_power(bool lna_on) {
 		? ((portapack_direction == RF_PATH_DIRECTION_TX) ? &bitmap_amp_tx : &bitmap_amp_rx)
 		: &bitmap_wire_24;
 	portapack_radio_path_redraw();
-}
-
-static ui_point_t portapack_ui_draw_db(ui_point_t point, const uint32_t db) {
-	point = portapack_lcd_draw_string(point, "+");
-	point = portapack_lcd_draw_int(point, db, 2);
-	return portapack_lcd_draw_string(point, "dB");
 }
 
 static void portapack_ui_set_bb_lna_gain(const uint32_t gain_db) {
