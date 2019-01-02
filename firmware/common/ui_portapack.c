@@ -861,6 +861,22 @@ static ui_point_t portapack_ui_draw_db(ui_point_t point, const uint32_t db) {
 	return portapack_lcd_draw_string(point, "dB");
 }
 
+static ui_point_t portapack_ui_draw_bw_mhz(ui_point_t point, const uint64_t hz) {
+	const uint32_t frac_digits = 2;
+	const uint32_t lsd = 1000000 / 100;
+	const uint32_t round_offset = lsd / 2;
+
+	const uint64_t hz_offset = hz + round_offset;
+	const uint32_t mhz = hz_offset / 1000000;
+	const uint32_t hz_remainder = hz_offset - (mhz * 1000000);
+	const uint32_t frac = hz_offset / lsd;
+
+	point = portapack_lcd_draw_int(point, mhz, 2);
+	point = portapack_lcd_draw_string(point, ".");
+	point = portapack_lcd_draw_int(point, frac, 2);
+	return portapack_lcd_draw_string(point, " MHz");
+}
+
 static void portapack_draw_radio_path(
 	const draw_list_t* const draw_list,
 	const size_t count
@@ -945,7 +961,7 @@ static void portapack_ui_set_direction(const rf_path_direction_t direction) {
 
 static void portapack_ui_set_filter_bw(uint32_t bandwidth) {
 	ui_point_t point = { VALUES_X, radio_draw_list[RADIO_DRAW_LIST_ITEM_BB_FILTER].point.y + 4 };
-	portapack_lcd_draw_int(point, bandwidth, 8);
+	portapack_ui_draw_bw_mhz(point, bandwidth);
 }
 
 static void portapack_ui_set_lna_power(bool lna_on) {
