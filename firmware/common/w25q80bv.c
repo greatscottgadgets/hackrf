@@ -113,7 +113,7 @@ void w25q80bv_write_enable(w25q80bv_driver_t* const drv)
 
 	uint8_t data[] = { W25Q80BV_WRITE_ENABLE };
 	spi_bus_transfer(drv->bus, data, ARRAY_SIZE(data));
-	while (w25q80bv_get_status(drv) ^ W25Q80BV_STATUS_WEL);
+	while (!(w25q80bv_get_status(drv) & W25Q80BV_STATUS_WEL));
 }
 
 void w25q80bv_chip_erase(w25q80bv_driver_t* const drv)
