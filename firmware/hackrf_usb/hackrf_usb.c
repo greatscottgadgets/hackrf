@@ -129,32 +129,26 @@ static usb_request_handler_fn vendor_request_handler[] = {
 	usb_vendor_request_set_freq_explicit,
 	usb_vendor_request_read_wcid,  // USB_WCID_VENDOR_REQ
 	usb_vendor_request_init_sweep,
-#ifdef USER_INTERFACE_PORTAPACK
 	NULL,
 	NULL,
-#else
-	usb_vendor_request_operacake_get_boards,
-	usb_vendor_request_operacake_set_ports,
-#endif
 	usb_vendor_request_set_hw_sync_mode,
 	usb_vendor_request_reset,
-#ifdef USER_INTERFACE_PORTAPACK
 	NULL,
-#else
-	usb_vendor_request_operacake_set_ranges,
-#endif
 	usb_vendor_request_set_clkout_enable,
 	usb_vendor_request_spiflash_status,
 	usb_vendor_request_spiflash_clear_status,
-#ifdef USER_INTERFACE_PORTAPACK
 	NULL
-#else
-	usb_vendor_request_operacake_gpio_test
-#endif
 };
 
 static const uint32_t vendor_request_handler_count =
 	sizeof(vendor_request_handler) / sizeof(vendor_request_handler[0]);
+
+static void operacake_usb_handlers_init(void) {
+	vendor_request_handler[HACKRF_VENDOR_REQUEST_OPERACAKE_GET_BOARDS] = usb_vendor_request_operacake_get_boards;
+	vendor_request_handler[HACKRF_VENDOR_REQUEST_OPERACAKE_SET_PORTS ] = usb_vendor_request_operacake_set_ports;
+	vendor_request_handler[HACKRF_VENDOR_REQUEST_OPERACAKE_SET_RANGES] = usb_vendor_request_operacake_set_ranges;
+	vendor_request_handler[HACKRF_VENDOR_REQUEST_OPERACAKE_GPIO_TEST ] = usb_vendor_request_operacake_gpio_test;
+}
 
 usb_request_status_t usb_vendor_request(
 	usb_endpoint_t* const endpoint,
@@ -257,6 +251,7 @@ int main(void) {
 	rf_path_init(&rf_path);
 
 #ifndef USER_INTERFACE_PORTAPACK
+	operacake_usb_handlers_init();
 	operacake_init();
 #endif
 
