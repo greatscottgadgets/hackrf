@@ -214,7 +214,6 @@ extern "C"
 #define SCU_RX_LNA          (P6_7) /* GPIO5[15] on P6_7 */
 #endif
 
-#ifdef USER_INTERFACE_PORTAPACK
 #define SCU_PINMUX_PP_D0    (P7_0)  /* GPIO3[8] */
 #define SCU_PINMUX_PP_D1    (P7_1)  /* GPIO3[9] */
 #define SCU_PINMUX_PP_D2    (P7_2)  /* GPIO3[10] */
@@ -223,7 +222,6 @@ extern "C"
 #define SCU_PINMUX_PP_D5    (P7_5)  /* GPIO3[13] */
 #define SCU_PINMUX_PP_D6    (P7_6)  /* GPIO3[14] */
 #define SCU_PINMUX_PP_D7    (P7_7)  /* GPIO3[15] */
-#else
 /* TODO add other Pins */
 #define SCU_PINMUX_GPIO3_8  (P7_0)  /* GPIO3[8] */
 #define SCU_PINMUX_GPIO3_9  (P7_1)  /* GPIO3[9] */
@@ -233,32 +231,22 @@ extern "C"
 #define SCU_PINMUX_GPIO3_13 (P7_5)  /* GPIO3[13] */
 #define SCU_PINMUX_GPIO3_14 (P7_6)  /* GPIO3[14] */
 #define SCU_PINMUX_GPIO3_15 (P7_7)  /* GPIO3[15] */
-#endif
 
-#ifdef USER_INTERFACE_PORTAPACK
 #define SCU_PINMUX_PP_TDO   (P1_5)  /* GPIO1[8] */
-#else
 #define SCU_PINMUX_SD_POW   (P1_5)  /* GPIO1[8] */
-#endif
 #define SCU_PINMUX_SD_CMD   (P1_6)  /* GPIO1[9] */
-#ifdef USER_INTERFACE_PORTAPACK
 #define SCU_PINMUX_PP_TMS   (P1_8)  /* GPIO1[1] */
-#else
 #define SCU_PINMUX_SD_VOLT0 (P1_8)  /* GPIO1[1] */
-#endif
 #define SCU_PINMUX_SD_DAT0  (P1_9)  /* GPIO1[2] */
 #define SCU_PINMUX_SD_DAT1  (P1_10) /* GPIO1[3] */
 #define SCU_PINMUX_SD_DAT2  (P1_11) /* GPIO1[4] */
 #define SCU_PINMUX_SD_DAT3  (P1_12) /* GPIO1[5] */
 #define SCU_PINMUX_SD_CD    (P1_13) /* GPIO1[6] */
 
-#ifdef USER_INTERFACE_PORTAPACK
 #define SCU_PINMUX_PP_IO_STBX (P2_0)  /* GPIO5[0] */
 #define SCU_PINMUX_PP_ADDR    (P2_1)  /* GPIO5[1] */
-#else
 #define SCU_PINMUX_U0_TXD   (P2_0)  /* GPIO5[0] */
 #define SCU_PINMUX_U0_RXD   (P2_1)  /* GPIO5[1] */
-#endif
 
 #define SCU_PINMUX_ISP      (P2_7)  /* GPIO0[7] */
 

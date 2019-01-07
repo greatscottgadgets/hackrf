@@ -51,13 +51,7 @@ set(SRC_M4
 	"${PATH_HACKRF_FIRMWARE_COMMON}/xapp058/micro.c"
 	"${PATH_HACKRF_FIRMWARE_COMMON}/xapp058/ports.c"
 	"${PATH_HACKRF_FIRMWARE_COMMON}/rom_iap.c"
+	"${PATH_HACKRF_FIRMWARE_COMMON}/operacake.c"
 )
-
-if(NOT USER_INTERFACE STREQUAL "PORTAPACK")
-	SET(SRC_M4
-		${SRC_M4}
-		"${PATH_HACKRF_FIRMWARE_COMMON}/operacake.c"
-	)
-endif()
 
 DeclareTargets()
