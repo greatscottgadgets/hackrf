@@ -48,7 +48,7 @@
  
 #include "hackrf-ui.h"
 
-static const usb_request_handler_fn vendor_request_handler[] = {
+static usb_request_handler_fn vendor_request_handler[] = {
 	NULL,
 	usb_vendor_request_set_transceiver_mode,
 	usb_vendor_request_write_max2837,
