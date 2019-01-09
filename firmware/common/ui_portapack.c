@@ -861,13 +861,11 @@ static ui_point_t portapack_ui_draw_db(ui_point_t point, const uint32_t db) {
 }
 
 static ui_point_t portapack_ui_draw_bw_mhz(ui_point_t point, const uint64_t hz) {
-	const uint32_t frac_digits = 2;
 	const uint32_t lsd = 1000000 / 100;
 	const uint32_t round_offset = lsd / 2;
 
 	const uint64_t hz_offset = hz + round_offset;
 	const uint32_t mhz = hz_offset / 1000000;
-	const uint32_t hz_remainder = hz_offset - (mhz * 1000000);
 	const uint32_t frac = hz_offset / lsd;
 
 	point = portapack_lcd_draw_int(point, mhz, 2);
@@ -931,6 +929,8 @@ static void portapack_ui_set_sample_rate(uint32_t sample_rate) {
 #if 0
 	ui_point_t point = { VALUES_X, 320 - 1 * 16 };
 	portapack_lcd_draw_int(point, sample_rate, 8);
+#else
+	(void)sample_rate;
 #endif
 }
 
@@ -994,6 +994,7 @@ static void portapack_ui_set_bb_tx_vga_gain(const uint32_t gain_db) {
 }
 
 static void portapack_ui_set_first_if_frequency(const uint64_t frequency) {
+	(void)frequency;
 }
 
 static void portapack_ui_set_filter(const rf_path_filter_t filter) {
@@ -1017,6 +1018,7 @@ static void portapack_ui_set_filter(const rf_path_filter_t filter) {
 }
 
 static void portapack_ui_set_antenna_bias(bool antenna_bias) {
+	(void)antenna_bias;
 }
 
 static const hackrf_ui_t portapack_ui = {

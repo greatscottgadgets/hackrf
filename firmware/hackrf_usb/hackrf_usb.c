@@ -143,12 +143,14 @@ static usb_request_handler_fn vendor_request_handler[] = {
 static const uint32_t vendor_request_handler_count =
 	sizeof(vendor_request_handler) / sizeof(vendor_request_handler[0]);
 
+#ifndef USER_INTERFACE_PORTAPACK
 static void operacake_usb_handlers_init(void) {
 	vendor_request_handler[HACKRF_VENDOR_REQUEST_OPERACAKE_GET_BOARDS] = usb_vendor_request_operacake_get_boards;
 	vendor_request_handler[HACKRF_VENDOR_REQUEST_OPERACAKE_SET_PORTS ] = usb_vendor_request_operacake_set_ports;
 	vendor_request_handler[HACKRF_VENDOR_REQUEST_OPERACAKE_SET_RANGES] = usb_vendor_request_operacake_set_ranges;
 	vendor_request_handler[HACKRF_VENDOR_REQUEST_OPERACAKE_GPIO_TEST ] = usb_vendor_request_operacake_gpio_test;
 }
+#endif
 
 usb_request_status_t usb_vendor_request(
 	usb_endpoint_t* const endpoint,
