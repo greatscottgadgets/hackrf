@@ -29,7 +29,7 @@ $(DESIGN).ngd: $(DESIGN).ngc $(DESIGN).ucf
 	ngdbuild -intstyle ise -dd _ngo -uc $(DESIGN).ucf -p $(DEVICE)-$(DEVICE_PACKAGE)-$(DEVICE_SPEED) $(DESIGN).ngc $(DESIGN).ngd
 
 $(DESIGN).vm6: $(DESIGN).ngd
-	cpldfit -intstyle ise -p $(DEVICE)-$(DEVICE_SPEED)-$(DEVICE_PACKAGE) -ofmt vhdl -optimize density -loc on -slew slow -init low -inputs 32 -pterms 28 -unused pullup -terminate float -iostd LVCMOS33 $(DESIGN).ngd
+	cpldfit -intstyle ise -p $(DEVICE)-$(DEVICE_SPEED)-$(DEVICE_PACKAGE) -ofmt vhdl -optimize speed -loc on -slew slow -init low -inputs 32 -pterms 36 -unused pullup -terminate float -iostd LVCMOS33 $(DESIGN).ngd
 
 $(DESIGN).jed: $(DESIGN).vm6
 	hprep6 -s IEEE1149 -i $(DESIGN).vm6
