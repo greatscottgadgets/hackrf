@@ -75,13 +75,10 @@ begin
     ------------------------------------------------
     -- Codec interface
     
-    adc_data_i <= DA(7 downto 0);    
     DD(9 downto 0) <= dac_data_o;
     
     ------------------------------------------------
     -- Clocks
-    
-    codec_clk_i <= CODEC_CLK;
     
     BUFG_host : BUFG
     port map (
@@ -110,7 +107,17 @@ begin
     q_invert <= HOST_Q_INVERT;
     rx_q_invert_mask <= X"80" when q_invert = '1' else X"7f";
     tx_q_invert_mask <= X"7F" when q_invert = '1' else X"80";
-     
+    
+    process(host_clk_i)
+    begin
+        if rising_edge(host_clk_i) then
+            codec_clk_i <= CODEC_CLK;
+            if (transfer_direction_i = from_adc) then
+                adc_data_i <= DA(7 downto 0);
+            end if;
+        end if;
+    end process;
+
     process(host_clk_i)
     begin
         if rising_edge(host_clk_i) then
@@ -159,7 +166,7 @@ begin
                     host_data_capture_o <= host_data_enable_i and (host_sync_latched or not host_sync_enable);
                 end if;
             else
-                if codec_clk_i = '0' then
+                if codec_clk_i = '1' then
                     host_data_capture_o <= host_data_enable_i and (host_sync_latched or not host_sync_enable);
                 end if; 
             end if;
