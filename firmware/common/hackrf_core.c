@@ -33,6 +33,7 @@
 #include "w25q80bv_target.h"
 #include "i2c_bus.h"
 #include "i2c_lpc.h"
+#include "cpld_jtag.h"
 #include <libopencm3/lpc43xx/cgu.h>
 #include <libopencm3/lpc43xx/ccu.h>
 #include <libopencm3/lpc43xx/scu.h>
@@ -121,6 +122,11 @@ static struct gpio_t gpio_cpld_tdi			= GPIO(3,  1);
 #else
 static struct gpio_t gpio_cpld_tms			= GPIO(3,  1);
 static struct gpio_t gpio_cpld_tdi			= GPIO(3,  4);
+#endif
+
+#ifdef USER_INTERFACE_PORTAPACK
+static struct gpio_t gpio_cpld_pp_tms		= GPIO(1,  1);
+static struct gpio_t gpio_cpld_pp_tdo		= GPIO(1,  8);
 #endif
 
 static struct gpio_t gpio_hw_sync_enable = GPIO(5,12);
@@ -270,6 +276,10 @@ jtag_gpio_t jtag_gpio_cpld = {
 	.gpio_tck = &gpio_cpld_tck,
 	.gpio_tdi = &gpio_cpld_tdi,
 	.gpio_tdo = &gpio_cpld_tdo,
+#ifdef USER_INTERFACE_PORTAPACK
+	.gpio_pp_tms = &gpio_cpld_pp_tms,
+	.gpio_pp_tdo = &gpio_cpld_pp_tdo,
+#endif
 };
 
 jtag_t jtag_cpld = {
@@ -750,17 +760,11 @@ void ssp1_set_mode_max5864(void)
 }
 
 void pin_setup(void) {
-	/* Release CPLD JTAG pins */
-	scu_pinmux(SCU_PINMUX_CPLD_TDO, SCU_GPIO_NOPULL | SCU_CONF_FUNCTION4);
-	scu_pinmux(SCU_PINMUX_CPLD_TCK, SCU_GPIO_NOPULL | SCU_CONF_FUNCTION0);
-	scu_pinmux(SCU_PINMUX_CPLD_TMS, SCU_GPIO_NOPULL | SCU_CONF_FUNCTION0);
-	scu_pinmux(SCU_PINMUX_CPLD_TDI, SCU_GPIO_NOPULL | SCU_CONF_FUNCTION0);
-	
-	gpio_input(&gpio_cpld_tdo);
-	gpio_input(&gpio_cpld_tck);
-	gpio_input(&gpio_cpld_tms);
-	gpio_input(&gpio_cpld_tdi);
-	
+	/* Configure all GPIO as Input (safe state) */
+	gpio_init();
+
+	cpld_jtag_init(&jtag_cpld);
+
 	/* Configure SCU Pin Mux as GPIO */
 	scu_pinmux(SCU_PINMUX_LED1, SCU_GPIO_NOPULL);
 	scu_pinmux(SCU_PINMUX_LED2, SCU_GPIO_NOPULL);
@@ -769,16 +773,11 @@ void pin_setup(void) {
 	scu_pinmux(SCU_PINMUX_LED4, SCU_GPIO_NOPULL | SCU_CONF_FUNCTION4);
 #endif
 
-	scu_pinmux(SCU_PINMUX_EN1V8, SCU_GPIO_NOPULL);
-
 	/* Configure USB indicators */
 #ifdef JAWBREAKER
 	scu_pinmux(SCU_PINMUX_USB_LED0, SCU_CONF_FUNCTION3);
 	scu_pinmux(SCU_PINMUX_USB_LED1, SCU_CONF_FUNCTION3);
 #endif
-
-	/* Configure all GPIO as Input (safe state) */
-	gpio_init();
 
 	gpio_output(&gpio_led[0]);
 	gpio_output(&gpio_led[1]);
@@ -787,7 +786,9 @@ void pin_setup(void) {
 	gpio_output(&gpio_led[3]);
 #endif
 
+	disable_1v8_power();
 	gpio_output(&gpio_1v8_enable);
+	scu_pinmux(SCU_PINMUX_EN1V8, SCU_GPIO_NOPULL | SCU_CONF_FUNCTION0);
 
 #ifdef HACKRF_ONE
 	/* Safe state: start with VAA turned off: */
@@ -796,17 +797,19 @@ void pin_setup(void) {
 	/* Configure RF power supply (VAA) switch control signal as output */
 	gpio_output(&gpio_vaa_disable);
 
+#ifndef USER_INTERFACE_PORTAPACK
+	/* Not sure why this is necessary for stock HackRF. Just "rhyming" with the RAD1O code? */
 	scu_pinmux(SCU_PINMUX_GPIO3_10, SCU_GPIO_PDN | SCU_CONF_FUNCTION0);
 	scu_pinmux(SCU_PINMUX_GPIO3_11, SCU_GPIO_PDN | SCU_CONF_FUNCTION0);
-
+#endif
 #endif
 
 #ifdef RAD1O
-	/* Configure RF power supply (VAA) switch control signal as output */
-	gpio_output(&gpio_vaa_enable);
-
 	/* Safe state: start with VAA turned off: */
 	disable_rf_power();
+
+	/* Configure RF power supply (VAA) switch control signal as output */
+	gpio_output(&gpio_vaa_enable);
 
 	/* Disable unused clock outputs. They generate noise. */
 	scu_pinmux(CLK0, SCU_CLK_IN | SCU_CONF_FUNCTION7);

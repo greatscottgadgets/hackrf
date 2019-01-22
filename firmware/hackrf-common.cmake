@@ -27,10 +27,11 @@
 
 enable_language(C CXX ASM)
 
-SET(PATH_HACKRF ../..)
-SET(PATH_HACKRF_FIRMWARE ${PATH_HACKRF}/firmware)
+SET(PATH_HACKRF_FIRMWARE ${CMAKE_CURRENT_LIST_DIR})
+SET(PATH_HACKRF ${PATH_HACKRF_FIRMWARE}/..)
 SET(PATH_HACKRF_FIRMWARE_COMMON ${PATH_HACKRF_FIRMWARE}/common)
 SET(LIBOPENCM3 ${PATH_HACKRF_FIRMWARE}/libopencm3)
+SET(PATH_DFU_PY ${PATH_HACKRF_FIRMWARE}/dfu.py)
 
 include(${PATH_HACKRF_FIRMWARE}/dfu-util.cmake)
 
@@ -61,11 +62,19 @@ else()
 	set(MCU_PARTNO LPC4330)
 endif()
 
+if(BOARD STREQUAL "RAD1O")
+	set(USER_INTERFACE RAD1O)
+endif()
+
+if(NOT DEFINED USER_INTERFACE)
+	set(USER_INTERFACE NONE)
+endif()
+
 if(NOT DEFINED SRC_M0)
 	set(SRC_M0 "${PATH_HACKRF_FIRMWARE_COMMON}/m0_sleep.c")
 endif()
 
-SET(HACKRF_OPTS "-D${BOARD} -DLPC43XX -D${MCU_PARTNO} -DTX_ENABLE -D'VERSION_STRING=\"${VERSION}\"'")
+SET(HACKRF_OPTS "-D${BOARD} -DUSER_INTERFACE_${USER_INTERFACE} -DLPC43XX -D${MCU_PARTNO} -DTX_ENABLE -D'VERSION_STRING=\"${VERSION}\"'")
 
 SET(LDSCRIPT_M4 "-T${PATH_HACKRF_FIRMWARE_COMMON}/${MCU_PARTNO}_M4_memory.ld -Tlibopencm3_lpc43xx_rom_to_ram.ld -T${PATH_HACKRF_FIRMWARE_COMMON}/LPC43xx_M4_M0_image_from_text.ld")
 
@@ -89,13 +98,26 @@ SET(CPUFLAGS_M4 "-mthumb -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16")
 SET(CFLAGS_M4 "-std=gnu99 ${CFLAGS_COMMON} ${CPUFLAGS_M4} -DLPC43XX_M4")
 SET(CXXFLAGS_M4 "-std=gnu++0x ${CFLAGS_COMMON} ${CPUFLAGS_M4} -DLPC43XX_M4")
 SET(LDFLAGS_M4 "${LDFLAGS_COMMON} ${CPUFLAGS_M4} ${LDSCRIPT_M4} -Xlinker -Map=m4.map")
-SET(CFLAGS_M4_DFU "-std=gnu99 ${CFLAGS_COMMON} ${CPUFLAGS_M4} -DLPC43XX_M4 -DDFU_MODE")
+
+SET(CFLAGS_M4_DFU "-std=gnu99 ${CFLAGS_COMMON} ${CPUFLAGS_M4} -DLPC43XX_M4")
+if(NOT USER_INTERFACE STREQUAL "PORTAPACK")
+	SET(CFLAGS_M4_DFU "${CFLAGS_M4_DFU} -DDFU_MODE")
+endif()
 SET(LDFLAGS_M4_DFU "${LDFLAGS_COMMON} ${CPUFLAGS_M4} ${LDSCRIPT_M4_DFU} -Xlinker -Map=m4.map")
 
 set(BUILD_SHARED_LIBS OFF)
 
 include_directories("${LIBOPENCM3}/include/")
 include_directories("${PATH_HACKRF_FIRMWARE_COMMON}")
+
+include(ExternalProject)
+ExternalProject_Add(libopencm3
+	SOURCE_DIR "${LIBOPENCM3}"
+	BUILD_IN_SOURCE true
+	DOWNLOAD_COMMAND ""
+	CONFIGURE_COMMAND ""
+	INSTALL_COMMAND ""
+)
 
 macro(DeclareTargets)
 	SET(SRC_M4
@@ -132,6 +154,13 @@ macro(DeclareTargets)
 		)
 	endif()
 
+	if(USER_INTERFACE STREQUAL "PORTAPACK")
+		SET(SRC_M4
+			${SRC_M4}
+			${PATH_HACKRF_FIRMWARE_COMMON}/ui_portapack.c
+		)
+	endif()
+
 	configure_file(
 		${PATH_HACKRF_FIRMWARE_COMMON}/m0_bin.s.cmake
 		m0_bin.s
@@ -145,6 +174,7 @@ macro(DeclareTargets)
 	)
 
 	add_executable(${PROJECT_NAME}_m0.elf ${SRC_M0})
+	add_dependencies(${PROJECT_NAME}_m0.elf libopencm3)
 
 	target_link_libraries(
 		${PROJECT_NAME}_m0.elf
@@ -167,6 +197,7 @@ macro(DeclareTargets)
 	set_target_properties(${PROJECT_NAME}_objects PROPERTIES COMPILE_FLAGS "${CFLAGS_M4}")
 	add_dependencies(${PROJECT_NAME}_objects ${PROJECT_NAME}_m0.bin)
 	add_executable(${PROJECT_NAME}.elf $<TARGET_OBJECTS:${PROJECT_NAME}_objects>)
+	add_dependencies(${PROJECT_NAME}.elf libopencm3)
 
 	target_link_libraries(
 		${PROJECT_NAME}.elf
@@ -190,6 +221,7 @@ macro(DeclareTargets)
 	set_target_properties(${PROJECT_NAME}_dfu_objects PROPERTIES COMPILE_FLAGS "${CFLAGS_M4_DFU}")
 	add_dependencies(${PROJECT_NAME}_dfu_objects ${PROJECT_NAME}_m0.bin)
 	add_executable(${PROJECT_NAME}_dfu.elf $<TARGET_OBJECTS:${PROJECT_NAME}_dfu_objects>)
+	add_dependencies(${PROJECT_NAME}_dfu.elf libopencm3)
 
 	target_link_libraries(
 		${PROJECT_NAME}_dfu.elf
@@ -213,7 +245,7 @@ macro(DeclareTargets)
 		COMMAND rm -f _tmp.dfu _header.bin
 		COMMAND cp ${PROJECT_NAME}_dfu.bin _tmp.dfu
 		COMMAND dfu-suffix --vid=0x1fc9 --pid=0x000c --did=0x0 -a _tmp.dfu
-		COMMAND python ../../dfu.py ${PROJECT_NAME}
+		COMMAND python ${PATH_DFU_PY} ${PROJECT_NAME}
 		COMMAND cat _header.bin _tmp.dfu >${PROJECT_NAME}.dfu
 		COMMAND rm -f _tmp.dfu _header.bin
 	)

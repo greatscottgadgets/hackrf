@@ -116,7 +116,9 @@ bool set_freq(const uint64_t freq)
 	if( success ) {
 		freq_cache = freq;
 		hackrf_ui_setFrequency(freq);
+#ifndef USER_INTERFACE_PORTAPACK
 		operacake_set_range(freq_mhz);
+#endif
 	}
 	return success;
 }
