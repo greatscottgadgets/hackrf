@@ -763,7 +763,28 @@ void pin_setup(void) {
 	/* Configure all GPIO as Input (safe state) */
 	gpio_init();
 
-	cpld_jtag_init(&jtag_cpld);
+	/* TDI and TMS pull-ups are required in all JTAG-compliant devices.
+	 *
+	 * The HackRF CPLD is always present, so let the CPLD pull up its TDI and TMS.
+	 *
+	 * The PortaPack may not be present, so pull up the PortaPack TMS pin from the
+	 * microcontroller.
+	 *
+	 * TCK is recommended to be held low, so use microcontroller pull-down.
+	 *
+	 * TDO is undriven except when in Shift-IR or Shift-DR phases.
+	 * Use the microcontroller to pull down to keep from floating.
+	 *
+	 * LPC43xx pull-up and pull-down resistors are approximately 53K.
+	 */
+#ifdef USER_INTERFACE_PORTAPACK
+	scu_pinmux(SCU_PINMUX_PP_TMS,   SCU_GPIO_PUP    | SCU_CONF_FUNCTION0);
+	scu_pinmux(SCU_PINMUX_PP_TDO,   SCU_GPIO_PDN    | SCU_CONF_FUNCTION0);
+#endif
+	scu_pinmux(SCU_PINMUX_CPLD_TMS, SCU_GPIO_NOPULL | SCU_CONF_FUNCTION0);
+	scu_pinmux(SCU_PINMUX_CPLD_TDI, SCU_GPIO_NOPULL | SCU_CONF_FUNCTION0);
+	scu_pinmux(SCU_PINMUX_CPLD_TDO, SCU_GPIO_PDN    | SCU_CONF_FUNCTION4);
+	scu_pinmux(SCU_PINMUX_CPLD_TCK, SCU_GPIO_PDN    | SCU_CONF_FUNCTION0);
 
 	/* Configure SCU Pin Mux as GPIO */
 	scu_pinmux(SCU_PINMUX_LED1, SCU_GPIO_NOPULL);
