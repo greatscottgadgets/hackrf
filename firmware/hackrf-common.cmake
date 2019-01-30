@@ -27,7 +27,22 @@
 
 enable_language(C CXX ASM)
 
+SET(PATH_HACKRF_FIRMWARE ${CMAKE_CURRENT_LIST_DIR})
+SET(PATH_HACKRF ${PATH_HACKRF_FIRMWARE}/..)
+SET(PATH_HACKRF_FIRMWARE_COMMON ${PATH_HACKRF_FIRMWARE}/common)
+SET(LIBOPENCM3 ${PATH_HACKRF_FIRMWARE}/libopencm3)
+SET(PATH_DFU_PY ${PATH_HACKRF_FIRMWARE}/dfu.py)
+
 include(${PATH_HACKRF_FIRMWARE}/dfu-util.cmake)
+
+include(ExternalProject)
+ExternalProject_Add(libopencm3_${PROJECT_NAME}
+	SOURCE_DIR "${LIBOPENCM3}"
+	BUILD_IN_SOURCE true
+	DOWNLOAD_COMMAND ""
+	CONFIGURE_COMMAND ""
+	INSTALL_COMMAND ""
+)
 
 #set(VERSION "")
 if (NOT DEFINED VERSION)
@@ -159,7 +174,7 @@ macro(DeclareTargets)
 	)
 
 	add_executable(${PROJECT_NAME}_m0.elf ${SRC_M0})
-	add_dependencies(${PROJECT_NAME}_m0.elf libopencm3)
+	add_dependencies(${PROJECT_NAME}_m0.elf libopencm3_${PROJECT_NAME})
 
 	target_link_libraries(
 		${PROJECT_NAME}_m0.elf
@@ -182,7 +197,7 @@ macro(DeclareTargets)
 	set_target_properties(${PROJECT_NAME}_objects PROPERTIES COMPILE_FLAGS "${CFLAGS_M4}")
 	add_dependencies(${PROJECT_NAME}_objects ${PROJECT_NAME}_m0.bin)
 	add_executable(${PROJECT_NAME}.elf $<TARGET_OBJECTS:${PROJECT_NAME}_objects>)
-	add_dependencies(${PROJECT_NAME}.elf libopencm3)
+	add_dependencies(${PROJECT_NAME}.elf libopencm3_${PROJECT_NAME})
 
 	target_link_libraries(
 		${PROJECT_NAME}.elf
@@ -206,7 +221,7 @@ macro(DeclareTargets)
 	set_target_properties(${PROJECT_NAME}_dfu_objects PROPERTIES COMPILE_FLAGS "${CFLAGS_M4_DFU}")
 	add_dependencies(${PROJECT_NAME}_dfu_objects ${PROJECT_NAME}_m0.bin)
 	add_executable(${PROJECT_NAME}_dfu.elf $<TARGET_OBJECTS:${PROJECT_NAME}_dfu_objects>)
-	add_dependencies(${PROJECT_NAME}_dfu.elf libopencm3)
+	add_dependencies(${PROJECT_NAME}_dfu.elf libopencm3_${PROJECT_NAME})
 
 	target_link_libraries(
 		${PROJECT_NAME}_dfu.elf
