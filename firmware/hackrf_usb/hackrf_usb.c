@@ -243,9 +243,9 @@ int main(void) {
 	
 	rf_path_init(&rf_path);
 
-#ifndef USER_INTERFACE_PORTAPACK
-	operacake_init();
-#endif
+	if( hackrf_ui() == NULL ) {
+		operacake_init();
+	}
 
 	unsigned int phase = 0;
 

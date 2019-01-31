@@ -1046,6 +1046,10 @@ const hackrf_ui_t* portapack_detect(void) {
 
 static const hackrf_ui_t* ui = NULL;
 
+const hackrf_ui_t* hackrf_ui(void) {
+	return ui;
+}
+
 void hackrf_ui_init(void) {
 	ui = portapack_detect();
 	if( ui != NULL ) {
