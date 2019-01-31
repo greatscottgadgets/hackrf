@@ -54,4 +54,11 @@ set(SRC_M4
 	"${PATH_HACKRF_FIRMWARE_COMMON}/operacake.c"
 )
 
+if(USER_INTERFACE STREQUAL "PORTAPACK")
+	SET(SRC_M4
+		${SRC_M4}
+		ui_portapack.c
+	)
+endif()
+
 DeclareTargets()

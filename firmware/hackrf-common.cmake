@@ -139,13 +139,6 @@ macro(DeclareTargets)
 		)
 	endif()
 
-	if(USER_INTERFACE STREQUAL "PORTAPACK")
-		SET(SRC_M4
-			${SRC_M4}
-			${PATH_HACKRF_FIRMWARE_COMMON}/ui_portapack.c
-		)
-	endif()
-
 	configure_file(
 		${PATH_HACKRF_FIRMWARE_COMMON}/m0_bin.s.cmake
 		m0_bin.s
