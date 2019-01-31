@@ -1,6 +1,5 @@
 /*
- * Copyright 2012 Jared Boone
- * Copyright 2013 Benjamin Vernoux
+ * Copyright 2019 Jared Boone <jared@sharebrained.com>
  *
  * This file is part of HackRF.
  *
@@ -20,19 +19,14 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __USB_API_CPLD_H__
-#define __USB_API_CPLD_H__
+#ifndef __CPLD_XC2C_H__
+#define __CPLD_XC2C_H__
 
+#include <stdint.h>
 #include <stdbool.h>
 
-#include <usb_type.h>
-#include <usb_request.h>
+#include "cpld_jtag.h"
 
-extern volatile bool start_cpld_update;
+bool cpld_xc2c64a_jtag_checksum(const jtag_t* const jtag, uint32_t* const crc_value);
 
-void cpld_update(void);
-
-usb_request_status_t usb_vendor_request_cpld_checksum(
-	usb_endpoint_t* const endpoint, const usb_transfer_stage_t stage);
-
-#endif /* end of include guard: __USB_API_CPLD_H__ */
+#endif/*__CPLD_XC2C_H__*/

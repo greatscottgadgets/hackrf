@@ -126,6 +126,17 @@ int main(void)
 			}
 		}
 
+		uint32_t cpld_crc = 0;
+		result = hackrf_cpld_checksum(device, &cpld_crc);
+		if ((result != HACKRF_SUCCESS) && (result != HACKRF_ERROR_USB_API_VERSION)) {
+			fprintf(stderr, "hackrf_cpld_checksum() failed: %s (%d)\n",
+					hackrf_error_name(result), result);
+				return EXIT_FAILURE;
+		}
+		if(result == HACKRF_SUCCESS) {
+			printf("CPLD checksum: 0x%08x\n", cpld_crc);
+		}
+
 		result = hackrf_close(device);
 		if (result != HACKRF_SUCCESS) {
 			fprintf(stderr, "hackrf_close() failed: %s (%d)\n",

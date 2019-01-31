@@ -1,6 +1,5 @@
 /*
- * Copyright 2012 Jared Boone
- * Copyright 2013 Benjamin Vernoux
+ * Copyright 2019 Jared Boone <jared@sharebrained.com>
  *
  * This file is part of HackRF.
  *
@@ -20,19 +19,20 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __USB_API_CPLD_H__
-#define __USB_API_CPLD_H__
+#ifndef __CRC_H__
+#define __CRC_H__
 
-#include <stdbool.h>
+#include <stdint.h>
+#include <stddef.h>
 
-#include <usb_type.h>
-#include <usb_request.h>
+typedef struct {
+	uint32_t remainder;
+	uint32_t reversed_polynomial;
+	uint32_t final_xor;
+} crc32_t;
 
-extern volatile bool start_cpld_update;
+void crc32_init(crc32_t* const crc);
+void crc32_update(crc32_t* const crc, const uint8_t* const data, const size_t byte_count);
+uint32_t crc32_digest(const crc32_t* const crc);
 
-void cpld_update(void);
-
-usb_request_status_t usb_vendor_request_cpld_checksum(
-	usb_endpoint_t* const endpoint, const usb_transfer_stage_t stage);
-
-#endif /* end of include guard: __USB_API_CPLD_H__ */
+#endif//__CRC_H__

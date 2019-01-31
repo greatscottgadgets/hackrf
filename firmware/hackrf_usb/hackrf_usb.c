@@ -87,6 +87,7 @@ typedef enum {
 	HACKRF_VENDOR_REQUEST_SPIFLASH_STATUS = 33,
 	HACKRF_VENDOR_REQUEST_SPIFLASH_CLEAR_STATUS = 34,
 	HACKRF_VENDOR_REQUEST_OPERACAKE_GPIO_TEST = 35,
+	HACKRF_VENDOR_REQUEST_CPLD_CHECKSUM = 36,
 
 	/* Update to be the next integer after the highest-numbered request. */
 	_HACKRF_VENDOR_REQUEST_ARRAY_SIZE	
@@ -137,7 +138,8 @@ static usb_request_handler_fn vendor_request_handler[] = {
 	usb_vendor_request_set_clkout_enable,
 	usb_vendor_request_spiflash_status,
 	usb_vendor_request_spiflash_clear_status,
-	usb_vendor_request_operacake_gpio_test
+	usb_vendor_request_operacake_gpio_test,
+	usb_vendor_request_cpld_checksum,
 };
 
 static const uint32_t vendor_request_handler_count =
@@ -243,9 +245,9 @@ int main(void) {
 	
 	rf_path_init(&rf_path);
 
-#ifndef USER_INTERFACE_PORTAPACK
-	operacake_init();
-#endif
+	if( hackrf_ui() == NULL ) {
+		operacake_init();
+	}
 
 	unsigned int phase = 0;
 
