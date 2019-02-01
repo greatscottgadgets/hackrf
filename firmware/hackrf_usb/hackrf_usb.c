@@ -239,7 +239,7 @@ int main(void) {
 	
 	nvic_set_priority(NVIC_USB0_IRQ, 255);
 
-	hackrf_ui_init();
+	hackrf_ui()->init();
 
 	usb_run(&usb_device);
 	

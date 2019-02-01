@@ -337,7 +337,7 @@ bool sample_rate_frac_set(uint32_t rate_num, uint32_t rate_denom)
 	uint32_t a, b, c;
 	uint32_t rem;
 
-	hackrf_ui_setSampleRate(rate_num/2);
+	hackrf_ui()->set_sample_rate(rate_num/2);
 
 	/* Find best config */
 	a = (VCO_FREQ * rate_denom) / rate_num;
@@ -458,7 +458,7 @@ bool sample_rate_set(const uint32_t sample_rate_hz) {
 bool baseband_filter_bandwidth_set(const uint32_t bandwidth_hz) {
 	uint32_t bandwidth_hz_real = max2837_set_lpf_bandwidth(&max2837, bandwidth_hz);
 
-	if(bandwidth_hz_real) hackrf_ui_setFilterBW(bandwidth_hz_real);
+	if(bandwidth_hz_real) hackrf_ui()->set_filter_bw(bandwidth_hz_real);
 
 	return bandwidth_hz_real != 0;
 }
