@@ -30,8 +30,6 @@
 
 #include <stddef.h>
 
-#ifdef USER_INTERFACE_PORTAPACK
-
 /* Pixel data within a font or bitmap byte is "reversed": LSB is left-most pixel. */
 
 static const uint8_t font_fixed_8x16_glyph_data[] = {
@@ -1043,5 +1041,3 @@ const hackrf_ui_t* portapack_detect(void) {
 		return NULL;
 	}
 }
-
-#endif
