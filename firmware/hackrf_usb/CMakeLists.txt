@@ -59,7 +59,7 @@ set(SRC_M4
 if(USER_INTERFACE STREQUAL "PORTAPACK")
 	SET(SRC_M4
 		${SRC_M4}
-		ui_portapack.c
+		"${PATH_HACKRF_FIRMWARE_COMMON}/ui_portapack.c"
 	)
 endif()
 
