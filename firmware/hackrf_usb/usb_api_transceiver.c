@@ -153,7 +153,7 @@ usb_request_status_t usb_vendor_request_set_lna_gain(
 	if( stage == USB_TRANSFER_STAGE_SETUP ) {
 			const uint8_t value = max2837_set_lna_gain(&max2837, endpoint->setup.index);
 			endpoint->buffer[0] = value;
-			if(value) hackrf_ui_setBBLNAGain(endpoint->setup.index);
+			if(value) hackrf_ui()->set_bb_lna_gain(endpoint->setup.index);
 			usb_transfer_schedule_block(endpoint->in, &endpoint->buffer, 1,
 						    NULL, NULL);
 			usb_transfer_schedule_ack(endpoint->out);
@@ -168,7 +168,7 @@ usb_request_status_t usb_vendor_request_set_vga_gain(
 	if( stage == USB_TRANSFER_STAGE_SETUP ) {
 			const uint8_t value = max2837_set_vga_gain(&max2837, endpoint->setup.index);
 			endpoint->buffer[0] = value;
-			if(value) hackrf_ui_setBBVGAGain(endpoint->setup.index);
+			if(value) hackrf_ui()->set_bb_vga_gain(endpoint->setup.index);
 			usb_transfer_schedule_block(endpoint->in, &endpoint->buffer, 1,
 						    NULL, NULL);
 			usb_transfer_schedule_ack(endpoint->out);
@@ -183,7 +183,7 @@ usb_request_status_t usb_vendor_request_set_txvga_gain(
 	if( stage == USB_TRANSFER_STAGE_SETUP ) {
 			const uint8_t value = max2837_set_txvga_gain(&max2837, endpoint->setup.index);
 			endpoint->buffer[0] = value;
-			if(value) hackrf_ui_setBBTXVGAGain(endpoint->setup.index);
+			if(value) hackrf_ui()->set_bb_tx_vga_gain(endpoint->setup.index);
 			usb_transfer_schedule_block(endpoint->in, &endpoint->buffer, 1,
 						    NULL, NULL);
 			usb_transfer_schedule_ack(endpoint->out);
