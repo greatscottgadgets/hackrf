@@ -243,6 +243,13 @@ macro(DeclareTargets)
 		COMMAND rm -f _tmp.dfu _header.bin
 	)
 
+	# Program / flash targets
+	add_custom_target(
+		${PROJECT_NAME}-flash
+		DEPENDS ${PROJECT_NAME}.bin
+		COMMAND hackrf_spiflash -Rw ${PROJECT_NAME}.bin
+	)
+
 	add_custom_target(
 		${PROJECT_NAME}-program
 		DEPENDS ${PROJECT_NAME}.dfu
