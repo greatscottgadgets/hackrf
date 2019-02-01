@@ -819,9 +819,6 @@ void pin_setup(void) {
 	gpio_output(&gpio_vaa_disable);
 
 #ifndef USER_INTERFACE_PORTAPACK
-	/* Not sure why this is necessary for stock HackRF. Just "rhyming" with the RAD1O code? */
-	scu_pinmux(SCU_PINMUX_GPIO3_10, SCU_GPIO_PDN | SCU_CONF_FUNCTION0);
-	scu_pinmux(SCU_PINMUX_GPIO3_11, SCU_GPIO_PDN | SCU_CONF_FUNCTION0);
 #endif
 #endif
 
