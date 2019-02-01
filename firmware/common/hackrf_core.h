@@ -77,16 +77,13 @@ extern "C"
 /* GPIO Input PinMux */
 #define SCU_PINMUX_BOOT0    (P1_1)  /* GPIO0[8] on P1_1 */
 #define SCU_PINMUX_BOOT1    (P1_2)  /* GPIO0[9] on P1_2 */
-#ifdef USER_INTERFACE_PORTAPACK
+#define SCU_PINMUX_BOOT2    (P2_8)  /* GPIO5[7] on P2_8 */
+#define SCU_PINMUX_BOOT3    (P2_9)  /* GPIO1[10] on P2_9 */
 #define SCU_PINMUX_PP_LCD_TE  (P2_3)  /* GPIO5[3] on P2_3 */
 #define SCU_PINMUX_PP_LCD_RDX (P2_4)  /* GPIO5[4] on P2_4 */
 #define SCU_PINMUX_PP_UNUSED  (P2_8)  /* GPIO5[7] on P2_8 */
 #define SCU_PINMUX_PP_LCD_WRX (P2_9)  /* GPIO1[10] on P2_9 */
 #define SCU_PINMUX_PP_DIR     (P2_13) /* GPIO1[13] on P2_13 */
-#else
-#define SCU_PINMUX_BOOT2    (P2_8)  /* GPIO5[7] on P2_8 */
-#define SCU_PINMUX_BOOT3    (P2_9)  /* GPIO1[10] on P2_9 */
-#endif
 
 /* USB peripheral */
 #ifdef JAWBREAKER
