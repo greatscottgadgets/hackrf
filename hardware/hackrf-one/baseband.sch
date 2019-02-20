@@ -36,9 +36,9 @@ $Descr User 17000 11000
 encoding utf-8
 Sheet 3 4
 Title "HackRF One baseband"
-Date "13 feb 2014"
+Date "2018-04-17"
 Rev ""
-Comp "Copyright 2012 Michael Ossmann"
+Comp "Copyright 2012-2018 Michael Ossmann"
 Comment1 "License: GPL v2"
 Comment2 ""
 Comment3 ""
@@ -1638,9 +1638,9 @@ F 0 "X1" H 3050 7450 60  0000 C CNN
 F 1 "GSG-XTAL4PIN" H 3050 7150 60  0000 C CNN
 F 2 "hackrf:GSG-XTAL3.2x2.5mm" H 3050 7300 60  0001 C CNN
 F 3 "" H 3050 7300 60  0001 C CNN
-F 4 "AVX" H 3050 7300 60  0001 C CNN "Manufacturer"
-F 5 "CX3225GB25000D0HEQZ1" H 3050 7300 60  0001 C CNN "Part Number"
-F 6 "CRYSTAL 25.000MHZ 8PF SMD" H 3050 7300 60  0001 C CNN "Description"
+F 4 "Abracon" H 3050 7300 60  0001 C CNN "Manufacturer"
+F 5 "ABM8-25.000MHZ-10-D1G-T" H 3050 7300 60  0001 C CNN "Part Number"
+F 6 "CRYSTAL 25.0000MHZ 10PF SMD" H 3050 7300 60  0001 C CNN "Description"
 	1    3050 7300
 	1    0    0    -1  
 $EndComp
@@ -1785,6 +1785,7 @@ F 3 "" H 4750 5600 60  0001 C CNN
 F 4 "Johanson Technology" H 4750 5600 60  0001 C CNN "Manufacturer"
 F 5 "2500BL14M100T" H 4750 5600 60  0001 C CNN "Part Number"
 F 6 "BALUN CERAMIC CHIP WIMAX 2.5GHZ" H 4750 5600 60  0001 C CNN "Description"
+F 7 "Alternative part: Murata LDB182G4510G-120" H 4750 5600 60  0001 C CNN "Note"
 	1    4750 5600
 	-1   0    0    1   
 $EndComp
@@ -1821,6 +1822,7 @@ F 3 "" H 4750 4500 60  0001 C CNN
 F 4 "Johanson Technology" H 4750 4500 60  0001 C CNN "Manufacturer"
 F 5 "2500BL14M100T" H 4750 4500 60  0001 C CNN "Part Number"
 F 6 "BALUN CERAMIC CHIP WIMAX 2.5GHZ" H 4750 4500 60  0001 C CNN "Description"
+F 7 "Alternative part: Murata LDB182G4510G-120" H 4750 4500 60  0001 C CNN "Note:"
 	1    4750 4500
 	-1   0    0    1   
 $EndComp
@@ -3892,22 +3894,26 @@ L C C169
 U 1 1 52AA5602
 P 2750 7050
 F 0 "C169" H 2800 7150 50  0000 L CNN
-F 1 "DNP" H 2800 6950 50  0000 L CNN
+F 1 "1.8pF" H 2800 6950 50  0000 L CNN
 F 2 "hackrf:GSG-0402" H 2750 7050 60  0001 C CNN
 F 3 "" H 2750 7050 60  0000 C CNN
-F 4 "DNP" V 2600 7050 60  0000 C CNN "Note"
+F 4 "Murata" H 2750 7050 60  0001 C CNN "Manufacturer"
+F 5 "GRM1555C1E1R8BA01D" H 2750 7050 60  0001 C CNN "Part Number"
+F 6 "CAP CER 1.8PF 25V C0G/NP0 0402" H 2750 7050 60  0001 C CNN "Description"
 	1    2750 7050
-	1    0    0    -1  
+	-1   0    0    -1  
 $EndComp
 $Comp
 L C C170
 U 1 1 52AA5635
 P 3350 7050
 F 0 "C170" H 3400 7150 50  0000 L CNN
-F 1 "DNP" H 3400 6950 50  0000 L CNN
+F 1 "1.8pF" H 3400 6950 50  0000 L CNN
 F 2 "hackrf:GSG-0402" H 3350 7050 60  0001 C CNN
 F 3 "" H 3350 7050 60  0000 C CNN
-F 4 "DNP" V 3200 7050 60  0000 C CNN "Note"
+F 4 "Murata" H 3350 7050 60  0001 C CNN "Manufacturer"
+F 5 "GRM1555C1E1R8BA01D" H 3350 7050 60  0001 C CNN "Part Number"
+F 6 "CAP CER 1.8PF 25V C0G/NP0 0402" H 3350 7050 60  0001 C CNN "Description"
 	1    3350 7050
 	1    0    0    -1  
 $EndComp

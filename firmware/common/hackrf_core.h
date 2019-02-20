@@ -77,8 +77,16 @@ extern "C"
 /* GPIO Input PinMux */
 #define SCU_PINMUX_BOOT0    (P1_1)  /* GPIO0[8] on P1_1 */
 #define SCU_PINMUX_BOOT1    (P1_2)  /* GPIO0[9] on P1_2 */
+#ifdef USER_INTERFACE_PORTAPACK
+#define SCU_PINMUX_PP_LCD_TE  (P2_3)  /* GPIO5[3] on P2_3 */
+#define SCU_PINMUX_PP_LCD_RDX (P2_4)  /* GPIO5[4] on P2_4 */
+#define SCU_PINMUX_PP_UNUSED  (P2_8)  /* GPIO5[7] on P2_8 */
+#define SCU_PINMUX_PP_LCD_WRX (P2_9)  /* GPIO1[10] on P2_9 */
+#define SCU_PINMUX_PP_DIR     (P2_13) /* GPIO1[13] on P2_13 */
+#else
 #define SCU_PINMUX_BOOT2    (P2_8)  /* GPIO5[7] on P2_8 */
 #define SCU_PINMUX_BOOT3    (P2_9)  /* GPIO1[10] on P2_9 */
+#endif
 
 /* USB peripheral */
 #ifdef JAWBREAKER
@@ -206,6 +214,14 @@ extern "C"
 #define SCU_RX_LNA          (P6_7) /* GPIO5[15] on P6_7 */
 #endif
 
+#define SCU_PINMUX_PP_D0    (P7_0)  /* GPIO3[8] */
+#define SCU_PINMUX_PP_D1    (P7_1)  /* GPIO3[9] */
+#define SCU_PINMUX_PP_D2    (P7_2)  /* GPIO3[10] */
+#define SCU_PINMUX_PP_D3    (P7_3)  /* GPIO3[11] */
+#define SCU_PINMUX_PP_D4    (P7_4)  /* GPIO3[12] */
+#define SCU_PINMUX_PP_D5    (P7_5)  /* GPIO3[13] */
+#define SCU_PINMUX_PP_D6    (P7_6)  /* GPIO3[14] */
+#define SCU_PINMUX_PP_D7    (P7_7)  /* GPIO3[15] */
 /* TODO add other Pins */
 #define SCU_PINMUX_GPIO3_8  (P7_0)  /* GPIO3[8] */
 #define SCU_PINMUX_GPIO3_9  (P7_1)  /* GPIO3[9] */
@@ -216,8 +232,10 @@ extern "C"
 #define SCU_PINMUX_GPIO3_14 (P7_6)  /* GPIO3[14] */
 #define SCU_PINMUX_GPIO3_15 (P7_7)  /* GPIO3[15] */
 
+#define SCU_PINMUX_PP_TDO   (P1_5)  /* GPIO1[8] */
 #define SCU_PINMUX_SD_POW   (P1_5)  /* GPIO1[8] */
 #define SCU_PINMUX_SD_CMD   (P1_6)  /* GPIO1[9] */
+#define SCU_PINMUX_PP_TMS   (P1_8)  /* GPIO1[1] */
 #define SCU_PINMUX_SD_VOLT0 (P1_8)  /* GPIO1[1] */
 #define SCU_PINMUX_SD_DAT0  (P1_9)  /* GPIO1[2] */
 #define SCU_PINMUX_SD_DAT1  (P1_10) /* GPIO1[3] */
@@ -225,6 +243,8 @@ extern "C"
 #define SCU_PINMUX_SD_DAT3  (P1_12) /* GPIO1[5] */
 #define SCU_PINMUX_SD_CD    (P1_13) /* GPIO1[6] */
 
+#define SCU_PINMUX_PP_IO_STBX (P2_0)  /* GPIO5[0] */
+#define SCU_PINMUX_PP_ADDR    (P2_1)  /* GPIO5[1] */
 #define SCU_PINMUX_U0_TXD   (P2_0)  /* GPIO5[0] */
 #define SCU_PINMUX_U0_RXD   (P2_1)  /* GPIO5[1] */
 

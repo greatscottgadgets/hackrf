@@ -102,10 +102,13 @@ int gettimeofday(struct timeval *tv, void* ignored) {
 #define THROWAWAY_BLOCKS 2
 
 #if defined _WIN32
-	#define sleep(a) Sleep( (a*1000) )
+	#define m_sleep(a) Sleep( (a) )
+#else
+	#define m_sleep(a) usleep((a*1000))
 #endif
 
 uint32_t num_samples = SAMPLES_PER_BLOCK;
+uint32_t num_sweeps = 0;
 int num_ranges = 0;
 uint16_t frequencies[MAX_SWEEP_RANGES*2];
 int step_count;
@@ -179,6 +182,7 @@ uint32_t antenna_enable;
 bool binary_output = false;
 bool ifft_output = false;
 bool one_shot = false;
+bool finite_mode = false;
 volatile bool sweep_started = false;
 
 int fftSize = 20;
@@ -198,7 +202,7 @@ float logPower(fftwf_complex in, float scale)
 	float re = in[0] * scale;
 	float im = in[1] * scale;
 	float magsq = re * re + im * im;
-	return log2f(magsq) * 10.0f / log2(10.0f);
+	return (float) (log2(magsq) * 10.0f / log2(10.0f));
 }
 
 int rx_callback(hackrf_transfer* transfer) {
@@ -243,6 +247,9 @@ int rx_callback(hackrf_transfer* transfer) {
 				}
 				sweep_count++;
 				if(one_shot) {
+					do_exit = true;
+				}
+				else if(finite_mode && sweep_count == num_sweeps) {
 					do_exit = true;
 				}
 			}
@@ -296,7 +303,7 @@ int rx_callback(hackrf_transfer* transfer) {
 			fwrite(&band_edge, sizeof(band_edge), 1, fd);
 			fwrite(&pwr[1+fftSize/8], sizeof(float), fftSize/4, fd);
 		} else if(ifft_output) {
-			ifft_idx = round((frequency - (uint64_t)(FREQ_ONE_MHZ*frequencies[0]))
+			ifft_idx = (uint32_t) round((frequency - (uint64_t)(FREQ_ONE_MHZ*frequencies[0]))
 					/ fft_bin_width);
 			ifft_idx = (ifft_idx + ifft_bins/2) % ifft_bins;
 			for(i = 0; (fftSize / 4) > i; i++) {
@@ -310,7 +317,8 @@ int rx_callback(hackrf_transfer* transfer) {
 				ifftwIn[ifft_idx + i][1] = fftwOut[i + 1 + (fftSize/8)][1];
 			}
 		} else {
-			fft_time = localtime(&time_stamp.tv_sec);
+			time_t time_stamp_seconds = time_stamp.tv_sec;
+			fft_time = localtime(&time_stamp_seconds);
 			strftime(time_str, 50, "%Y-%m-%d, %H:%M:%S", fft_time);
 			fprintf(fd, "%s.%06ld, %" PRIu64 ", %" PRIu64 ", %.2f, %u",
 					time_str,
@@ -351,6 +359,7 @@ static void usage() {
 	fprintf(stderr, "\t[-n num_samples] # Number of samples per frequency, 8192-4294967296\n");
 	fprintf(stderr, "\t[-w bin_width] # FFT bin width (frequency resolution) in Hz\n");
 	fprintf(stderr, "\t[-1] # one shot mode\n");
+	fprintf(stderr, "\t[-N num_sweeps] # Number of sweeps to perform\n");
 	fprintf(stderr, "\t[-B] # binary output\n");
 	fprintf(stderr, "\t[-I] # binary inverse FFT output\n");
 	fprintf(stderr, "\t-r filename # output file\n");
@@ -392,7 +401,7 @@ int main(int argc, char** argv) {
 	uint32_t requested_fft_bin_width;
 
 
-	while( (opt = getopt(argc, argv, "a:f:p:l:g:d:n:w:1BIr:h?")) != EOF ) {
+	while( (opt = getopt(argc, argv, "a:f:p:l:g:d:n:N:w:1BIr:h?")) != EOF ) {
 		result = HACKRF_SUCCESS;
 		switch( opt ) 
 		{
@@ -447,6 +456,11 @@ int main(int argc, char** argv) {
 
 		case 'n':
 			result = parse_u32(optarg, &num_samples);
+			break;
+
+		case 'N':
+			finite_mode = true;
+			result = parse_u32(optarg, &num_sweeps);
 			break;
 
 		case 'w':
@@ -563,7 +577,7 @@ int main(int argc, char** argv) {
 	pwr = (float*)fftwf_malloc(sizeof(float) * fftSize);
 	window = (float*)fftwf_malloc(sizeof(float) * fftSize);
 	for (i = 0; i < fftSize; i++) {
-		window[i] = 0.5f * (1.0f - cos(2 * M_PI * i / (fftSize - 1)));
+		window[i] = (float) (0.5f * (1.0f - cos(2 * M_PI * i / (fftSize - 1))));
 	}
 
 	result = hackrf_init();
@@ -639,7 +653,7 @@ int main(int argc, char** argv) {
 	for(i = 0; i < num_ranges; i++) {
 		step_count = 1 + (frequencies[2*i+1] - frequencies[2*i] - 1)
 				/ TUNE_STEP;
-		frequencies[2*i+1] = frequencies[2*i] + step_count * TUNE_STEP;
+		frequencies[2*i+1] = (uint16_t) (frequencies[2*i] + step_count * TUNE_STEP);
 		fprintf(stderr, "Sweeping from %u MHz to %u MHz\n",
 				frequencies[2*i], frequencies[2*i+1]);
 	}
@@ -692,8 +706,8 @@ int main(int argc, char** argv) {
 	fprintf(stderr, "Stop with Ctrl-C\n");
 	while((hackrf_is_streaming(device) == HACKRF_TRUE) && (do_exit == false)) {
 		float time_difference;
-		sleep(1);
-		
+		m_sleep(50);
+
 		gettimeofday(&time_now, NULL);
 		
 		time_difference = TimevalDiff(&time_now, &t_start);

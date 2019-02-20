@@ -18,10 +18,10 @@
 # Boston, MA 02110-1301, USA.
 #
 
-cmake_minimum_required(VERSION 2.8.9)
+cmake_minimum_required(VERSION 3.1.3)
 set(CMAKE_TOOLCHAIN_FILE ../toolchain-arm-cortex-m.cmake)
 
-project(hackrf_usb)
+project(hackrf_usb C)
 
 include(../hackrf-common.cmake)
 
@@ -42,16 +42,25 @@ set(SRC_M4
 	usb_api_register.c
 	usb_api_spiflash.c
 	usb_api_transceiver.c
-	"${PATH_HACKRF_FIRMWARE_COMMON}/operacake.c"
 	usb_api_operacake.c
 	usb_api_sweep.c
 	"${PATH_HACKRF_FIRMWARE_COMMON}/usb_queue.c"
 	"${PATH_HACKRF_FIRMWARE_COMMON}/fault_handler.c"
 	"${PATH_HACKRF_FIRMWARE_COMMON}/cpld_jtag.c"
+	"${PATH_HACKRF_FIRMWARE_COMMON}/cpld_xc2c.c"
+	"${PATH_HACKRF_FIRMWARE_COMMON}/crc.c"
 	"${PATH_HACKRF_FIRMWARE_COMMON}/xapp058/lenval.c"
 	"${PATH_HACKRF_FIRMWARE_COMMON}/xapp058/micro.c"
 	"${PATH_HACKRF_FIRMWARE_COMMON}/xapp058/ports.c"
 	"${PATH_HACKRF_FIRMWARE_COMMON}/rom_iap.c"
+	"${PATH_HACKRF_FIRMWARE_COMMON}/operacake.c"
 )
+
+if(USER_INTERFACE STREQUAL "PORTAPACK")
+	SET(SRC_M4
+		${SRC_M4}
+		ui_portapack.c
+	)
+endif()
 
 DeclareTargets()

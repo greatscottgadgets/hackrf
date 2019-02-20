@@ -27,26 +27,39 @@
 
 enable_language(C CXX ASM)
 
-include(../dfu-util.cmake)
-
-SET(PATH_HACKRF ../..)
-SET(PATH_HACKRF_FIRMWARE ${PATH_HACKRF}/firmware)
+SET(PATH_HACKRF_FIRMWARE ${CMAKE_CURRENT_LIST_DIR})
+SET(PATH_HACKRF ${PATH_HACKRF_FIRMWARE}/..)
 SET(PATH_HACKRF_FIRMWARE_COMMON ${PATH_HACKRF_FIRMWARE}/common)
 SET(LIBOPENCM3 ${PATH_HACKRF_FIRMWARE}/libopencm3)
+SET(PATH_DFU_PY ${PATH_HACKRF_FIRMWARE}/dfu.py)
 
-execute_process(
-	COMMAND git log -n 1 --format=%h
-	WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-	RESULT_VARIABLE GIT_VERSION_FOUND
-	ERROR_QUIET
-	OUTPUT_VARIABLE GIT_VERSION
-	OUTPUT_STRIP_TRAILING_WHITESPACE
+include(${PATH_HACKRF_FIRMWARE}/dfu-util.cmake)
+
+include(ExternalProject)
+ExternalProject_Add(libopencm3_${PROJECT_NAME}
+	SOURCE_DIR "${LIBOPENCM3}"
+	BUILD_IN_SOURCE true
+	DOWNLOAD_COMMAND ""
+	CONFIGURE_COMMAND ""
+	INSTALL_COMMAND ""
 )
-if (GIT_VERSION_FOUND)
-	set(VERSION "unknown")
-else (GIT_VERSION_FOUND)
-	set(VERSION ${GIT_VERSION})
-endif (GIT_VERSION_FOUND)
+
+#set(VERSION "")
+if (NOT DEFINED VERSION)
+	execute_process(
+		COMMAND git log -n 1 --format=%h
+		WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+		RESULT_VARIABLE GIT_VERSION_FOUND
+		ERROR_QUIET
+		OUTPUT_VARIABLE GIT_VERSION
+		OUTPUT_STRIP_TRAILING_WHITESPACE
+	)
+	if (GIT_VERSION_FOUND)
+		set(VERSION "unknown")
+	else (GIT_VERSION_FOUND)
+		set(VERSION "git-${GIT_VERSION}")
+	endif (GIT_VERSION_FOUND)
+endif()
 
 if(NOT DEFINED BOARD)
 	set(BOARD HACKRF_ONE)
@@ -58,11 +71,19 @@ else()
 	set(MCU_PARTNO LPC4330)
 endif()
 
+if(BOARD STREQUAL "RAD1O")
+	set(USER_INTERFACE RAD1O)
+endif()
+
+if(NOT DEFINED USER_INTERFACE)
+	set(USER_INTERFACE NONE)
+endif()
+
 if(NOT DEFINED SRC_M0)
 	set(SRC_M0 "${PATH_HACKRF_FIRMWARE_COMMON}/m0_sleep.c")
 endif()
 
-SET(HACKRF_OPTS "-D${BOARD} -DLPC43XX -D${MCU_PARTNO} -DTX_ENABLE -D'VERSION_STRING=\"git-${VERSION}\"'")
+SET(HACKRF_OPTS "-D${BOARD} -DUSER_INTERFACE_${USER_INTERFACE} -DLPC43XX -D${MCU_PARTNO} -DTX_ENABLE -D'VERSION_STRING=\"${VERSION}\"'")
 
 SET(LDSCRIPT_M4 "-T${PATH_HACKRF_FIRMWARE_COMMON}/${MCU_PARTNO}_M4_memory.ld -Tlibopencm3_lpc43xx_rom_to_ram.ld -T${PATH_HACKRF_FIRMWARE_COMMON}/LPC43xx_M4_M0_image_from_text.ld")
 
@@ -70,7 +91,7 @@ SET(LDSCRIPT_M4_DFU "-T${PATH_HACKRF_FIRMWARE_COMMON}/${MCU_PARTNO}_M4_memory.ld
 
 SET(LDSCRIPT_M0 "-T${PATH_HACKRF_FIRMWARE_COMMON}/LPC43xx_M0_memory.ld -Tlibopencm3_lpc43xx_m0.ld")
 
-SET(CFLAGS_COMMON "-Os -g3 -Wall -Wextra ${HACKRF_OPTS} ${COMMON_FLAGS} -fno-common -MD")
+SET(CFLAGS_COMMON "-Os -g3 -Wall -Wextra ${HACKRF_OPTS} -fno-common -MD")
 SET(LDFLAGS_COMMON "-nostartfiles -Wl,--gc-sections")
 
 if(V STREQUAL "1")
@@ -80,12 +101,17 @@ endif()
 SET(CPUFLAGS_M0 "-mthumb -mcpu=cortex-m0 -mfloat-abi=soft")
 SET(CFLAGS_M0 "-std=gnu99 ${CFLAGS_COMMON} ${CPUFLAGS_M0} -DLPC43XX_M0")
 SET(CXXFLAGS_M0 "-std=gnu++0x ${CFLAGS_COMMON} ${CPUFLAGS_M0} -DLPC43XX_M0")
-SET(LDFLAGS_M0 "${LDFLAGS_COMMON} ${CPUFLAGS_M0} ${LDSCRIPT_M0} -Xlinker -Map=m0.map --specs=nano.specs")
+SET(LDFLAGS_M0 "${LDFLAGS_COMMON} ${CPUFLAGS_M0} ${LDSCRIPT_M0} -Xlinker -Map=m0.map")
 
 SET(CPUFLAGS_M4 "-mthumb -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16")
 SET(CFLAGS_M4 "-std=gnu99 ${CFLAGS_COMMON} ${CPUFLAGS_M4} -DLPC43XX_M4")
 SET(CXXFLAGS_M4 "-std=gnu++0x ${CFLAGS_COMMON} ${CPUFLAGS_M4} -DLPC43XX_M4")
 SET(LDFLAGS_M4 "${LDFLAGS_COMMON} ${CPUFLAGS_M4} ${LDSCRIPT_M4} -Xlinker -Map=m4.map")
+
+SET(CFLAGS_M4_DFU "-std=gnu99 ${CFLAGS_COMMON} ${CPUFLAGS_M4} -DLPC43XX_M4")
+if(NOT USER_INTERFACE STREQUAL "PORTAPACK")
+	SET(CFLAGS_M4_DFU "${CFLAGS_M4_DFU} -DDFU_MODE")
+endif()
 SET(LDFLAGS_M4_DFU "${LDFLAGS_COMMON} ${CPUFLAGS_M4} ${LDSCRIPT_M4_DFU} -Xlinker -Map=m4.map")
 
 set(BUILD_SHARED_LIBS OFF)
@@ -141,6 +167,7 @@ macro(DeclareTargets)
 	)
 
 	add_executable(${PROJECT_NAME}_m0.elf ${SRC_M0})
+	add_dependencies(${PROJECT_NAME}_m0.elf libopencm3_${PROJECT_NAME})
 
 	target_link_libraries(
 		${PROJECT_NAME}_m0.elf
@@ -158,13 +185,12 @@ macro(DeclareTargets)
 		COMMAND ${CMAKE_OBJCOPY} -Obinary ${PROJECT_NAME}_m0.elf ${PROJECT_NAME}_m0.bin
 	)
 
-	# Object files to be linked for both DFU and SPI flash versions
+	# Object files to be linked for SPI flash versions
 	add_library(${PROJECT_NAME}_objects OBJECT ${SRC_M4} m0_bin.s)
 	set_target_properties(${PROJECT_NAME}_objects PROPERTIES COMPILE_FLAGS "${CFLAGS_M4}")
 	add_dependencies(${PROJECT_NAME}_objects ${PROJECT_NAME}_m0.bin)
-
-	# SPI flash version
 	add_executable(${PROJECT_NAME}.elf $<TARGET_OBJECTS:${PROJECT_NAME}_objects>)
+	add_dependencies(${PROJECT_NAME}.elf libopencm3_${PROJECT_NAME})
 
 	target_link_libraries(
 		${PROJECT_NAME}.elf
@@ -183,7 +209,12 @@ macro(DeclareTargets)
 	)
 
 	# DFU - using a differnet LD script to run directly from RAM
-	add_executable(${PROJECT_NAME}_dfu.elf $<TARGET_OBJECTS:${PROJECT_NAME}_objects>)
+	# Object files to be linked for DFU flash versions
+	add_library(${PROJECT_NAME}_dfu_objects OBJECT ${SRC_M4} m0_bin.s)
+	set_target_properties(${PROJECT_NAME}_dfu_objects PROPERTIES COMPILE_FLAGS "${CFLAGS_M4_DFU}")
+	add_dependencies(${PROJECT_NAME}_dfu_objects ${PROJECT_NAME}_m0.bin)
+	add_executable(${PROJECT_NAME}_dfu.elf $<TARGET_OBJECTS:${PROJECT_NAME}_dfu_objects>)
+	add_dependencies(${PROJECT_NAME}_dfu.elf libopencm3_${PROJECT_NAME})
 
 	target_link_libraries(
 		${PROJECT_NAME}_dfu.elf
@@ -206,8 +237,8 @@ macro(DeclareTargets)
 		DEPENDS ${PROJECT_NAME}_dfu.bin
 		COMMAND rm -f _tmp.dfu _header.bin
 		COMMAND cp ${PROJECT_NAME}_dfu.bin _tmp.dfu
-		COMMAND ${DFU_COMMAND}
-		COMMAND python ../../dfu.py ${PROJECT_NAME}
+		COMMAND dfu-suffix --vid=0x1fc9 --pid=0x000c --did=0x0 -a _tmp.dfu
+		COMMAND python ${PATH_DFU_PY} ${PROJECT_NAME}
 		COMMAND cat _header.bin _tmp.dfu >${PROJECT_NAME}.dfu
 		COMMAND rm -f _tmp.dfu _header.bin
 	)

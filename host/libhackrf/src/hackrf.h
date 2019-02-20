@@ -64,6 +64,7 @@ enum hackrf_error {
 	HACKRF_ERROR_STREAMING_STOPPED = -1003,
 	HACKRF_ERROR_STREAMING_EXIT_CALLED = -1004,
 	HACKRF_ERROR_USB_API_VERSION = -1005,
+	HACKRF_ERROR_NOT_LAST_DEVICE = -2000,
 	HACKRF_ERROR_OTHER = -9999,
 };
 
@@ -176,6 +177,8 @@ extern ADDAPI int ADDCALL hackrf_rffc5071_write(hackrf_device* device, uint8_t r
 extern ADDAPI int ADDCALL hackrf_spiflash_erase(hackrf_device* device);
 extern ADDAPI int ADDCALL hackrf_spiflash_write(hackrf_device* device, const uint32_t address, const uint16_t length, unsigned char* const data);
 extern ADDAPI int ADDCALL hackrf_spiflash_read(hackrf_device* device, const uint32_t address, const uint16_t length, unsigned char* data);
+extern ADDAPI int ADDCALL hackrf_spiflash_status(hackrf_device* device, uint8_t* data);
+extern ADDAPI int ADDCALL hackrf_spiflash_clear_status(hackrf_device* device);
 
 /* device will need to be reset after hackrf_cpld_write */
 extern ADDAPI int ADDCALL hackrf_cpld_write(hackrf_device* device,
@@ -245,6 +248,15 @@ extern ADDAPI int ADDCALL hackrf_reset(hackrf_device* device);
 extern ADDAPI int ADDCALL hackrf_set_operacake_ranges(hackrf_device* device,
                                                       uint8_t* ranges,
                                                       uint8_t num_ranges);
+
+extern ADDAPI int ADDCALL hackrf_set_clkout_enable(hackrf_device* device, const uint8_t value);
+
+extern ADDAPI int ADDCALL hackrf_operacake_gpio_test(hackrf_device* device,
+                                                     uint8_t address,
+													 uint16_t* test_result);
+
+extern ADDAPI int ADDCALL hackrf_cpld_checksum(hackrf_device* device,
+											   uint32_t* crc);
 
 #ifdef __cplusplus
 } // __cplusplus defined.

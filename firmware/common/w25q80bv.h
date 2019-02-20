@@ -53,10 +53,12 @@ struct w25q80bv_driver_t {
 };
 
 void w25q80bv_setup(w25q80bv_driver_t* const drv);
+void w25q80bv_get_full_status(w25q80bv_driver_t* const drv, uint8_t* data);
 void w25q80bv_chip_erase(w25q80bv_driver_t* const drv);
 void w25q80bv_program(w25q80bv_driver_t* const drv, uint32_t addr, uint32_t len, uint8_t* data);
 uint8_t w25q80bv_get_device_id(w25q80bv_driver_t* const drv);
 void w25q80bv_get_unique_id(w25q80bv_driver_t* const drv, w25q80bv_unique_id_t* unique_id);
 void w25q80bv_read(w25q80bv_driver_t* const drv, uint32_t addr, uint32_t len, uint8_t* const data);
+void w25q80bv_clear_status(w25q80bv_driver_t* const drv);
 
 #endif//__W25Q80BV_H__

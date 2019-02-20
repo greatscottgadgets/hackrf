@@ -337,6 +337,40 @@ static usb_request_status_t usb_standard_request_get_configuration(
 	}
 }
 
+
+static usb_request_status_t usb_standard_request_get_status_setup(
+	usb_endpoint_t* const endpoint
+) {
+	if( endpoint->setup.length == 2 ) {
+		endpoint->buffer[0] = 0;
+		endpoint->buffer[1] = 0;
+
+		usb_transfer_schedule_block(endpoint->in, &endpoint->buffer, 2, NULL, NULL);
+		usb_transfer_schedule_ack(endpoint->out);
+		return USB_REQUEST_STATUS_OK;
+	} else {
+		return USB_REQUEST_STATUS_STALL;
+	}
+}
+
+
+static usb_request_status_t usb_standard_request_get_status(
+	usb_endpoint_t* const endpoint,
+	const usb_transfer_stage_t stage
+) {
+	switch( stage ) {
+	case USB_TRANSFER_STAGE_SETUP:
+		return usb_standard_request_get_status_setup(endpoint);
+
+	case USB_TRANSFER_STAGE_DATA:
+	case USB_TRANSFER_STAGE_STATUS:
+		return USB_REQUEST_STATUS_OK;
+
+	default:
+		return USB_REQUEST_STATUS_STALL;
+	}
+}
+
 /*********************************************************************/
 
 usb_request_status_t usb_standard_request(
@@ -344,6 +378,9 @@ usb_request_status_t usb_standard_request(
 	const usb_transfer_stage_t stage
 ) {
 	switch( endpoint->setup.request ) {
+	case USB_STANDARD_REQUEST_GET_STATUS:
+		return usb_standard_request_get_status(endpoint, stage);
+
 	case USB_STANDARD_REQUEST_GET_DESCRIPTOR:
 		return usb_standard_request_get_descriptor(endpoint, stage);
 	

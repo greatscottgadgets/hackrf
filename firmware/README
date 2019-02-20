@@ -18,9 +18,6 @@ submodule:
 $ cd ..
 $ git submodule init
 $ git submodule update
-$ cd firmware/libopencm3
-$ make
-
 
 To build and install a standard firmware image for HackRF One:
 
@@ -34,6 +31,10 @@ $ hackrf_spiflash -w hackrf_usb.bin
 If you have a Jawbreaker, add -DBOARD=JAWBREAKER to the cmake command.
 If you have a rad1o, use -DBOARD=RAD1O instead.
 
+If you have a HackRF One and want to build optional PortaPack display support,
+also specify -DUSER_INTERFACE=PORTAPACK. If PortaPack hardware is not detected
+by hardware probing at start-up, the HackRF firmware will run without UI
+support.
 
 It is possible to use a USB Device Firmware Upgrade (DFU) method to load
 firmware into RAM.  This is normally only required to recover a device that has
@@ -52,3 +53,7 @@ use a known good .dfu file from a release package.  Load the firmware into RAM
 with:
 
 $ dfu-util --device 1fc9:000c --alt 0 --download hackrf_usb.dfu
+
+
+It is important to update the CPLD whenever you are updating firmware and a new
+CPLD image is available.  See cpld/README for instructions.

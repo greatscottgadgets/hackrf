@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Jared Boone, ShareBrained Technology, Inc.
+ * Copyright 2019 Jared Boone <jared@sharebrained.com>
  *
  * This file is part of HackRF.
  *
@@ -19,26 +19,20 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __I2C_LPC_H__
-#define __I2C_LPC_H__
+#ifndef __CRC_H__
+#define __CRC_H__
 
 #include <stdint.h>
 #include <stddef.h>
-#include <stdbool.h>
 
-#include "i2c_bus.h"
+typedef struct {
+	uint32_t remainder;
+	uint32_t reversed_polynomial;
+	uint32_t final_xor;
+} crc32_t;
 
-typedef struct i2c_lpc_config_t {
-	const uint16_t duty_cycle_count;
-} i2c_lpc_config_t;
+void crc32_init(crc32_t* const crc);
+void crc32_update(crc32_t* const crc, const uint8_t* const data, const size_t byte_count);
+uint32_t crc32_digest(const crc32_t* const crc);
 
-void i2c_lpc_start(i2c_bus_t* const bus, const void* const config);
-void i2c_lpc_stop(i2c_bus_t* const bus);
-void i2c_lpc_transfer(i2c_bus_t* const bus,
-	const uint_fast8_t slave_address,
-	const uint8_t* const data_tx, const size_t count_tx,
-	uint8_t* const data_rx, const size_t count_rx
-);
-bool i2c_probe(i2c_bus_t* const bus, const uint_fast8_t device_address);
-
-#endif/*__I2C_LPC_H__*/
+#endif//__CRC_H__

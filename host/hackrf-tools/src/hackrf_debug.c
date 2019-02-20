@@ -157,7 +157,7 @@ int si5351c_write_register(
 #define SI5351C_CLK_SRC_MULTISYNTH_0_4  2
 #define SI5351C_CLK_SRC_MULTISYNTH_SELF 3
 
-void print_clk_control(uint8_t clk_ctrl) {
+void print_clk_control(uint16_t clk_ctrl) {
 	uint8_t clk_src, clk_pwr;
 	printf("\tclock control = \n");
 	if(clk_ctrl & SI5351C_CLK_POWERDOWN)
