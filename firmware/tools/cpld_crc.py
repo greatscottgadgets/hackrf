@@ -7,13 +7,12 @@ from xsvf import XSVFParser
 # Command line argument parsing.
 #######################################################################
 
-import sys
+import argparse
 
-if len(sys.argv) != 2:
-	print("Usage: cpld_crc.py <HackRF CPLD XSVF file)")
-	sys.exit(-1)
-
-path_xsvf = sys.argv[1]
+parser = argparse.ArgumentParser()
+parser.add_argument('--debug', action='store_true')
+parser.add_argument('hackrf_xc2c_cpld_xsvf', type=str)
+args = parser.parse_args()
 
 #######################################################################
 # Generic XSVF parsing phase, produces a tree of commands performed
@@ -21,8 +20,8 @@ path_xsvf = sys.argv[1]
 #######################################################################
 
 parser = XSVFParser()
-with open(path_xsvf, "rb") as f:
-	commands = parser.parse(f) #, debug=True)
+with open(args.hackrf_xc2c_cpld_xsvf, "rb") as f:
+	commands = parser.parse(f, debug=args.debug)
 
 #######################################################################
 # Extraction of verify row addresses and data/masks.
