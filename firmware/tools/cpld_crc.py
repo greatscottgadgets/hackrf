@@ -7,9 +7,9 @@
 import argparse
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--crcmod', action='store_true')
-parser.add_argument('--debug', action='store_true')
-parser.add_argument('hackrf_xc2c_cpld_xsvf', type=str)
+parser.add_argument('--crcmod', action='store_true', help='Use Python crcmod library instead of built-in CRC32 code')
+parser.add_argument('--debug', action='store_true', help='Enable debug output')
+parser.add_argument('hackrf_xc2c_cpld_xsvf', type=str, help='HackRF Xilinx XC2C64A CPLD XSVF file containing erase/program/verify phases')
 args = parser.parse_args()
 
 #######################################################################
