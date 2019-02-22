@@ -1,8 +1,5 @@
 #!/usr/bin/env python3
 
-from dumb_crc32 import DumbCRC32
-from xsvf import XSVFParser
-
 #######################################################################
 # Command line argument parsing.
 #######################################################################
@@ -19,9 +16,9 @@ args = parser.parse_args()
 # against the CPLD.
 #######################################################################
 
-parser = XSVFParser()
 with open(args.hackrf_xc2c_cpld_xsvf, "rb") as f:
-	commands = parser.parse(f, debug=args.debug)
+	from xsvf import XSVFParser
+	commands = XSVFParser().parse(f, debug=args.debug)
 
 #######################################################################
 # Extraction of verify row addresses and data/masks.
@@ -86,6 +83,7 @@ if False:
 else:
 	# Use my home-grown, simple, slow CRC32 object to avoid additional
 	# Python dependencies.
+	from dumb_crc32 import DumbCRC32
 	crc = DumbCRC32()
 
 for address, data, mask in data:
