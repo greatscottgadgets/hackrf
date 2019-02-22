@@ -7,6 +7,9 @@
 import argparse
 
 parser = argparse.ArgumentParser()
+action_group = parser.add_mutually_exclusive_group(required=True)
+action_group.add_argument('--checksum', action='store_true', help='Calculate bitstream read-back CRC32 value')
+action_group.add_argument('--code', action='store_true', help='Generate C code for bitstream loading/programming/verification')
 parser.add_argument('--crcmod', action='store_true', help='Use Python crcmod library instead of built-in CRC32 code')
 parser.add_argument('--debug', action='store_true', help='Enable debug output')
 parser.add_argument('hackrf_xc2c_cpld_xsvf', type=str, help='HackRF Xilinx XC2C64A CPLD XSVF file containing erase/program/verify phases')
@@ -75,19 +78,20 @@ assert(address_sequence == expected_address_sequence)
 data = data[1]
 byte_count = (274 + 7) // 8
 
-if args.crcmod:
-	# Use a proper CRC library
-	import crcmod
-	crc = crcmod.predefined.Crc('crc-32')
-else:
-	# Use my home-grown, simple, slow CRC32 object to avoid additional
-	# Python dependencies.
-	from dumb_crc32 import DumbCRC32
-	crc = DumbCRC32()
+if args.checksum:
+	if args.crcmod:
+		# Use a proper CRC library
+		import crcmod
+		crc = crcmod.predefined.Crc('crc-32')
+	else:
+		# Use my home-grown, simple, slow CRC32 object to avoid additional
+		# Python dependencies.
+		from dumb_crc32 import DumbCRC32
+		crc = DumbCRC32()
 
-for address, data, mask in data:
-	valid_data = data & mask
-	bytes = valid_data.to_bytes(byte_count, byteorder='little')
-	crc.update(bytes)
+	for address, data, mask in data:
+		valid_data = data & mask
+		bytes = valid_data.to_bytes(byte_count, byteorder='little')
+		crc.update(bytes)
 
-print('0x%s' % crc.hexdigest().lower())
+	print('0x%s' % crc.hexdigest().lower())
