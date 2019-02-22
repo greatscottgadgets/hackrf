@@ -49,12 +49,10 @@ for command in commands:
 		if tdi_length == 7 and end_state == 1:
 			address = int(command['tdi']['data'].hex(), 16)
 			data[-1].append([address])
-			# print('address: %02x' % address)
 		elif tdi_length == 274 and end_state == 0:
 			mask = int(command['tdo_mask']['data'].hex(), 16)
 			expected = int(command['tdo_expected']['data'].hex(), 16)
 			data[-1][-1].extend([expected, mask])
-			# print('mask:%x tdo:%x' % (mask, expected))
 
 #######################################################################
 # Check that extracted data conforms to expectations.
