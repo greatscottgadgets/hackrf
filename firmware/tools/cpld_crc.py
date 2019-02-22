@@ -7,6 +7,7 @@
 import argparse
 
 parser = argparse.ArgumentParser()
+parser.add_argument('--crcmod', action='store_true')
 parser.add_argument('--debug', action='store_true')
 parser.add_argument('hackrf_xc2c_cpld_xsvf', type=str)
 args = parser.parse_args()
@@ -76,7 +77,7 @@ assert(address_sequence == expected_address_sequence)
 data = data[1]
 byte_count = (274 + 7) // 8
 
-if False:
+if args.crcmod:
 	# Use a proper CRC library
 	import crcmod
 	crc = crcmod.predefined.Crc('crc-32')
