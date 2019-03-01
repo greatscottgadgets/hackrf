@@ -230,7 +230,7 @@ int main(void) {
 	cpu_clock_init();
 
 	if( !cpld_jtag_sram_load(&jtag_cpld) ) {
-		// TODO: Fail, do not continue booting.
+		halt_and_flash(6000000);
 	}
 
 #ifndef DFU_MODE

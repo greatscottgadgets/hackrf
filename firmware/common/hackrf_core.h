@@ -315,6 +315,7 @@ void led_toggle(const led_t led);
 
 void hw_sync_enable(const hw_sync_mode_t hw_sync_mode);
 
+void halt_and_flash(const uint32_t duration);
 
 #ifdef __cplusplus
 }

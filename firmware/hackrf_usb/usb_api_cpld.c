@@ -61,8 +61,6 @@ static void refill_cpld_buffer(void)
 
 void cpld_update(void)
 {
-	#define WAIT_LOOP_DELAY (6000000)
-	int i;
 	int error;
 
 	usb_queue_flush_endpoint(&usb_endpoint_bulk_in);
@@ -75,20 +73,7 @@ void cpld_update(void)
 				  refill_cpld_buffer);
 	if(error == 0)
 	{
-		/* blink LED1, LED2, and LED3 on success */
-		while (1)
-		{
-			led_on(LED1);
-			led_on(LED2);
-			led_on(LED3);
-			for (i = 0; i < WAIT_LOOP_DELAY; i++)  /* Wait a bit. */
-				__asm__("nop");
-			led_off(LED1);
-			led_off(LED2);
-			led_off(LED3);
-			for (i = 0; i < WAIT_LOOP_DELAY; i++)  /* Wait a bit. */
-				__asm__("nop");
-		}
+		halt_and_flash(6000000);
 	}else
 	{
 		/* LED3 (Red) steady on error */
