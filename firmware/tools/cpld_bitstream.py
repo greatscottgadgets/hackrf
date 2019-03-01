@@ -196,8 +196,8 @@ if args.checksum:
 		crc = DumbCRC32()
 
 	verify_block = verify_blocks[1]
-	for row in verify_block:
-		valid_data = row['data'] & row['mask']
+	for address, data, mask in verify_block:
+		valid_data = data & mask
 		bytes = valid_data.to_bytes(bytes_of_data, byteorder='little')
 		crc.update(bytes)
 
