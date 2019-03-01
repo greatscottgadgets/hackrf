@@ -28,6 +28,9 @@ class XSVFParser(object):
 			0x17: self.XWAIT       ,
 		}
 
+	def tdomask(self):
+		return self._xtdomask
+		
 	def read_byte(self):
 		return self.read_bytes(1)[0]
 
