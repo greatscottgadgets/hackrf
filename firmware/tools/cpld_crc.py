@@ -214,36 +214,27 @@ if args.code:
 	result.extend((
 		'/* WARNING: Auto-generated file. Do not edit. */',
 		'',
-		'#include <stdint.h>',
+		'#include <cpld_xc2c.h>',
 		'',
-		'#define CPLD_XC2C64A_ROWS (%d)' % len(program_sram),
-		'#define CPLD_XC2C64A_BITS_IN_ROW (%d)' % bits_of_data,
-		'#define CPLD_XC2C64A_BYTES_IN_ROW ((CPLD_XC2C64A_BITS_IN_ROW + 7) / 8)',
-		'',
-		'const uint8_t cpld_xc2c64a_row_address[CPLD_XC2C64A_ROWS] = {',
-	))
-	result.extend(['\t%s' % line for line in hex_lines(extract_addresses(program_sram))])
-	result.extend((
-		'};',
-		'',
-		'const uint8_t cpld_xc2c64a_row_data_sram[CPLD_XC2C64A_ROWS][CPLD_XC2C64A_BYTES_IN_ROW] = {',
+		'const cpld_xc2c64a_program_t cpld_hackrf_program_sram = { {',
 	))
 	data_lines = [', '.join(['0x%02x' % n for n in row['data'].to_bytes(bytes_of_data, byteorder='little')]) for row in program_sram]
-	result.extend(['\t{ %s },' % line for line in data_lines])
+	result.extend(['\t{ { %s } },' % line for line in data_lines])
 	result.extend((
-		'};',
+		'} };',
 		'',
-		'const uint8_t cpld_xc2c64a_mask[%d][CPLD_XC2C64A_BYTES_IN_ROW] = {' % len(verify_masks),
+		'const cpld_xc2c64a_verify_t cpld_hackrf_verify = {',
+		'\t.mask = {',
 	))
 	verify_mask_lines = [', '.join(['0x%02x' % n for n in mask.to_bytes(bytes_of_data, byteorder='little')]) for mask in verify_masks]
-	result.extend(['\t{ %s },' % line for line in verify_mask_lines])
+	result.extend(['\t\t{ { %s } },' % line for line in verify_mask_lines])
 	result.extend((
-		'};',
-		'',
-		'const uint8_t cpld_xc2c64a_row_mask_index[CPLD_XC2C64A_ROWS] = {',
+		'\t},'
+		'\t.mask_index = {',
 	))
-	result.extend(['\t%s' % line for line in dec_lines(verify_mask_row_index)])
+	result.extend(['\t\t%s' % line for line in dec_lines(verify_mask_row_index)])
 	result.extend((
+		'\t}',
 		'};',
 		'',
 	))
