@@ -45,6 +45,7 @@
 #include "usb_api_sweep.h"
 #include "usb_api_transceiver.h"
 #include "usb_bulk_buffer.h"
+#include "cpld_xc2c.h"
  
 #include "hackrf-ui.h"
 
@@ -209,6 +210,14 @@ void usb_set_descriptor_by_serial_number(void)
 	}
 }
 
+static bool cpld_jtag_sram_load(jtag_t* const jtag) {
+	cpld_jtag_take(jtag);
+	cpld_xc2c64a_jtag_sram_write(jtag, &cpld_hackrf_program_sram);
+	const bool success = cpld_xc2c64a_jtag_sram_verify(jtag, &cpld_hackrf_program_sram, &cpld_hackrf_verify);
+	cpld_jtag_release(jtag);
+	return success;
+}
+
 int main(void) {
 	pin_setup();
 	enable_1v8_power();
@@ -219,6 +228,10 @@ int main(void) {
 	delay(1000000);
 #endif
 	cpu_clock_init();
+
+	if( !cpld_jtag_sram_load(&jtag_cpld) ) {
+		// TODO: Fail, do not continue booting.
+	}
 
 #ifndef DFU_MODE
 	usb_set_descriptor_by_serial_number();

@@ -26,10 +26,6 @@
 #include <stddef.h>
 #include <string.h>
 
-#define CPLD_XC2C64A_ROWS (98)
-#define CPLD_XC2C64A_BITS_IN_ROW (274)
-#define CPLD_XC2C64A_BYTES_IN_ROW ((CPLD_XC2C64A_BITS_IN_ROW + 7) / 8)
-
 static const uint8_t cpld_xc2c64a_row_address[CPLD_XC2C64A_ROWS] = {
 	0x00, 0x40, 0x60, 0x20, 0x30, 0x70, 0x50, 0x10, 0x18, 0x58, 0x78, 0x38, 0x28, 0x68, 0x48, 0x08,
 	0x0c, 0x4c, 0x6c, 0x2c, 0x3c, 0x7c, 0x5c, 0x1c, 0x14, 0x54, 0x74, 0x34, 0x24, 0x64, 0x44, 0x04,
@@ -38,25 +34,6 @@ static const uint8_t cpld_xc2c64a_row_address[CPLD_XC2C64A_ROWS] = {
 	0x03, 0x43, 0x63, 0x23, 0x33, 0x73, 0x53, 0x13, 0x1b, 0x5b, 0x7b, 0x3b, 0x2b, 0x6b, 0x4b, 0x0b,
 	0x0f, 0x4f, 0x6f, 0x2f, 0x3f, 0x7f, 0x5f, 0x1f, 0x17, 0x57, 0x77, 0x37, 0x27, 0x67, 0x47, 0x07,
 	0x05, 0x45,
-};
-
-static const uint8_t cpld_xc2c64a_mask[6][CPLD_XC2C64A_BYTES_IN_ROW] = {
-	{ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, },
-	{ 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x03, },
-	{ 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x01, 0x00, 0x00, 0x00, 0xfe, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x03, },
-	{ 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x01, 0xf8, 0x1f, 0x00, 0xfe, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x03, },
-	{ 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x01, 0x80, 0x1f, 0x00, 0xfe, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x03, },
-	{ 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x01, 0x80, 0x07, 0x00, 0xfe, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x03, },
-};
-
-static const uint8_t cpld_xc2c64a_row_mask_index[CPLD_XC2C64A_ROWS] = {
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-	1, 1, 1, 1, 2, 2, 2, 3, 4, 2, 2, 2, 1, 1, 1, 1,
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-	1, 1, 1, 1, 2, 2, 2, 2, 2, 5, 2, 2, 1, 1, 1, 1,
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-	0, 0,
 };
 
 typedef enum {
@@ -121,17 +98,23 @@ static bool cpld_xc2c_jtag_clock(const jtag_t* const jtag, const uint32_t tms, c
 	return gpio_read(jtag->gpio->gpio_tdo);
 }
 
-static void cpld_xc2c_jtag_shift_ptr(const jtag_t* const jtag, uint8_t* const tdi_tdo, const size_t count) {
-	for(size_t i=0; i<count; i++) {
+static void cpld_xc2c_jtag_shift_ptr_tms(const jtag_t* const jtag, uint8_t* const tdi_tdo, const size_t start, const size_t end, const bool tms) {
+	for(size_t i=start; i<end; i++) {
 		const size_t byte_n = i >> 3;
 		const size_t bit_n = i & 7;
 		const uint32_t mask = (1U << bit_n);
-		const bool tms = (i == (count - 1));
 
 		const uint32_t tdo = cpld_xc2c_jtag_clock(jtag, tms, tdi_tdo[byte_n] & mask) ? 1 : 0;
 
 		tdi_tdo[byte_n] &= ~mask;
 		tdi_tdo[byte_n] |= (tdo << bit_n);
+	}
+}
+
+static void cpld_xc2c_jtag_shift_ptr(const jtag_t* const jtag, uint8_t* const tdi_tdo, const size_t count) {
+	if( count > 0 ) {
+		cpld_xc2c_jtag_shift_ptr_tms(jtag, tdi_tdo, 0, count - 1, false);
+		cpld_xc2c_jtag_shift_ptr_tms(jtag, tdi_tdo, count - 1, count, true);
 	}
 }
 
@@ -189,11 +172,18 @@ static uint8_t cpld_xc2c_jtag_shift_ir(const jtag_t* const jtag, const cpld_xc2c
 	return cpld_xc2c_jtag_shift_ir_pause(jtag, ir, 0);
 }
 
+static void cpld_xc2c_jtag_reset(const jtag_t* const jtag) {
+	/* Five TMS=1 to reach Test-Logic-Reset from any point in the TAP state diagram.
+	 */
+	cpld_xc2c_jtag_shift_u32(jtag, 0b11111, 0, 5);
+}
+
 static void cpld_xc2c_jtag_reset_and_idle(const jtag_t* const jtag) {
 	/* Five TMS=1 to reach Test-Logic-Reset from any point in the TAP state diagram.
 	 * One TMS=0 to move from Test-Logic-Reset to Run-Test-Idle.
 	 */
-	cpld_xc2c_jtag_shift_u32(jtag, 0b011111, 0, 6);
+	cpld_xc2c_jtag_reset(jtag);
+	cpld_xc2c_jtag_shift_u32(jtag, 0, 0, 1);
 }
 
 static uint32_t cpld_xc2c_jtag_idcode(const jtag_t* const jtag) {
@@ -215,6 +205,20 @@ static void cpld_xc2c_jtag_conld(const jtag_t* const jtag) {
 
 static void cpld_xc2c_jtag_enable(const jtag_t* const jtag) {
 	cpld_xc2c_jtag_shift_ir(jtag, CPLD_XC2C_IR_ISC_ENABLE);
+	cpld_xc2c_jtag_clocks(jtag, 800);
+}
+
+static void cpld_xc2c_jtag_disable(const jtag_t* const jtag) {
+	cpld_xc2c_jtag_shift_ir(jtag, CPLD_XC2C_IR_ISC_DISABLE);
+	cpld_xc2c_jtag_clocks(jtag, 100);
+}
+
+static void cpld_xc2c_jtag_sram_write(const jtag_t* const jtag) {
+	cpld_xc2c_jtag_shift_ir(jtag, CPLD_XC2C_IR_ISC_WRITE);
+}
+
+static void cpld_xc2c_jtag_sram_read(const jtag_t* const jtag) {
+	cpld_xc2c_jtag_shift_ir(jtag, CPLD_XC2C_IR_ISC_SRAM_READ);
 }
 
 static uint32_t cpld_xc2c_jtag_bypass(const jtag_t* const jtag, const bool shift_dr) {
@@ -265,7 +269,11 @@ static void cpld_xc2c64a_jtag_read_row(const jtag_t* const jtag, uint8_t address
 	cpld_xc2c_jtag_clocks(jtag, 100);
 }
 
-bool cpld_xc2c64a_jtag_checksum(const jtag_t* const jtag, uint32_t* const crc_value) {
+bool cpld_xc2c64a_jtag_checksum(
+	const jtag_t* const jtag,
+	const cpld_xc2c64a_verify_t* const verify,
+	uint32_t* const crc_value
+) {
 	cpld_xc2c_jtag_reset_and_idle(jtag);
 
 	if( cpld_xc2c64a_jtag_idcode_ok(jtag) && cpld_xc2c_jtag_read_write_protect(jtag) &&
@@ -287,9 +295,9 @@ bool cpld_xc2c64a_jtag_checksum(const jtag_t* const jtag, uint32_t* const crc_va
 			const size_t address = cpld_xc2c64a_row_address[row];
 			cpld_xc2c64a_jtag_read_row(jtag, address, dr);
 
-			const size_t mask_index = cpld_xc2c64a_row_mask_index[row];
+			const size_t mask_index = verify->mask_index[row];
 			for(size_t i=0; i<CPLD_XC2C64A_BYTES_IN_ROW; i++) {
-				dr[i] &= cpld_xc2c64a_mask[mask_index][i];
+				dr[i] &= verify->mask[mask_index].value[i];
 			}
 
 			/* Important checksum calculation NOTE:
@@ -317,4 +325,104 @@ bool cpld_xc2c64a_jtag_checksum(const jtag_t* const jtag, uint32_t* const crc_va
 	cpld_xc2c_jtag_reset_and_idle(jtag);
 
 	return false;
+}
+
+static void cpld_xc2c64a_jtag_sram_write_row(const jtag_t* const jtag, uint8_t address, const uint8_t* const data) {
+	uint8_t write[CPLD_XC2C64A_BYTES_IN_ROW];
+	memcpy(&write[0], data, sizeof(write));
+
+	/* Update-IR or Run-Test/Idle -> Shift-DR */
+	cpld_xc2c_jtag_shift_u32(jtag, 0b001, 0b000, 3);
+
+	/* Shift-DR -> Shift-DR */
+	cpld_xc2c_jtag_shift_ptr_tms(jtag, &write[0], 0, CPLD_XC2C64A_BITS_IN_ROW, false);
+
+	/* Shift-DR -> Exit1-DR */
+	cpld_xc2c_jtag_shift_u32(jtag, 0b1000000, address, 7);
+
+	/* Exit1-DR -> Update-DR -> Run-Test/Idle */
+	cpld_xc2c_jtag_shift_u32(jtag, 0b01, 0b00, 2);
+}
+
+static void cpld_xc2c64a_jtag_sram_read_row(const jtag_t* const jtag, uint8_t* const data, const uint8_t next_address) {
+	/* Run-Test/Idle -> Shift-DR */
+	cpld_xc2c_jtag_shift_u32(jtag, 0b001, 0b000, 3);
+
+	/* Shift-DR */
+	cpld_xc2c_jtag_shift_ptr_tms(jtag, data, 0, CPLD_XC2C64A_BITS_IN_ROW, false);
+
+	/* Shift-DR -> Exit1-DR */
+	cpld_xc2c_jtag_shift_u32(jtag, 0b1000000, next_address, 7);
+
+	/* Weird, non-IEEE1532 compliant path through TAP machine, described in Xilinx
+	 * Programmer Qualification Specification, applicable only to XC2C64/A.
+	 * Exit1-DR -> Pause-DR -> Exit2-DR -> Update-DR -> Run-Test/Idle
+	 */
+	cpld_xc2c_jtag_shift_u32(jtag, 0b0110, 0b0000, 4);
+}
+
+static bool cpld_xc2c64a_jtag_sram_compare_row(const jtag_t* const jtag, const uint8_t* const expected, const uint8_t* const mask, const uint8_t next_address) {
+	/* Run-Test/Idle -> Shift-DR */
+	uint8_t read[CPLD_XC2C64A_BYTES_IN_ROW];
+	memset(read, 0xff, sizeof(read));
+	cpld_xc2c64a_jtag_sram_read_row(jtag, &read[0], next_address);
+
+	bool matched = true;
+	if( (expected != NULL) && (mask != NULL) ) {
+		for(size_t i=0; i<CPLD_XC2C64A_BYTES_IN_ROW; i++) {
+			const uint8_t significant_differences = (read[i] ^ expected[i]) & mask[i];
+			matched &= (significant_differences == 0);
+		}
+	}
+
+	return matched;
+}
+
+void cpld_xc2c64a_jtag_sram_write(
+	const jtag_t* const jtag,
+	const cpld_xc2c64a_program_t* const program
+) {
+	cpld_xc2c_jtag_reset_and_idle(jtag);
+	cpld_xc2c_jtag_enable(jtag);
+
+	cpld_xc2c_jtag_sram_write(jtag);
+
+	for(size_t row=0; row<CPLD_XC2C64A_ROWS; row++) {
+		const uint8_t address = cpld_xc2c64a_row_address[row];
+		cpld_xc2c64a_jtag_sram_write_row(jtag, address, &program->row[row].data[0]);
+	}
+
+	cpld_xc2c_jtag_disable(jtag);
+	cpld_xc2c_jtag_bypass(jtag, false);
+	cpld_xc2c_jtag_reset(jtag);
+}
+
+bool cpld_xc2c64a_jtag_sram_verify(
+	const jtag_t* const jtag,
+	const cpld_xc2c64a_program_t* const program,
+	const cpld_xc2c64a_verify_t* const verify
+) {
+	cpld_xc2c_jtag_reset_and_idle(jtag);
+	cpld_xc2c_jtag_enable(jtag);
+
+	cpld_xc2c_jtag_sram_read(jtag);
+
+	/* Tricky loop to read dummy row first, then first address, then loop back to get
+	 * the first row's data.
+	 */
+	bool matched = true;
+	for(size_t address_row=0; address_row<=CPLD_XC2C64A_ROWS; address_row++) {
+		const int data_row = (int)address_row - 1;
+		const size_t mask_index = (data_row >= 0) ? verify->mask_index[data_row] : 0;
+		const uint8_t* const expected = (data_row >= 0) ? &program->row[data_row].data[0] : NULL;
+		const uint8_t* const mask = (data_row >= 0) ? &verify->mask[mask_index].value[0] : NULL;
+		const uint8_t next_address = (address_row < CPLD_XC2C64A_ROWS) ? cpld_xc2c64a_row_address[address_row] : 0;
+		matched &= cpld_xc2c64a_jtag_sram_compare_row(jtag, expected, mask, next_address);
+	}
+
+	cpld_xc2c_jtag_disable(jtag);
+	cpld_xc2c_jtag_bypass(jtag, false);
+	cpld_xc2c_jtag_reset(jtag);
+
+	return matched;
 }

@@ -106,7 +106,7 @@ usb_request_status_t usb_vendor_request_cpld_checksum(
 	if (stage == USB_TRANSFER_STAGE_SETUP) 
 	{
 		cpld_jtag_take(&jtag_cpld);
-		const bool checksum_success = cpld_xc2c64a_jtag_checksum(&jtag_cpld, &cpld_crc);
+		const bool checksum_success = cpld_xc2c64a_jtag_checksum(&jtag_cpld, &cpld_hackrf_verify, &cpld_crc);
 		cpld_jtag_release(&jtag_cpld);
 
 		if(!checksum_success) {
