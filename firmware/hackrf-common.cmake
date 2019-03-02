@@ -127,6 +127,7 @@ macro(DeclareTargets)
 		${PATH_HACKRF_FIRMWARE_COMMON}/spi_bus.c
 		${PATH_HACKRF_FIRMWARE_COMMON}/spi_ssp.c
 		${PATH_HACKRF_FIRMWARE_COMMON}/gpio_lpc.c
+		${PATH_HACKRF_FIRMWARE_COMMON}/hackrf-ui.c
 	)
 
 	if(BOARD STREQUAL "RAD1O")
@@ -140,12 +141,6 @@ macro(DeclareTargets)
 			${SRC_M4}
 			${PATH_HACKRF_FIRMWARE_COMMON}/rffc5071.c
 			${PATH_HACKRF_FIRMWARE_COMMON}/rffc5071_spi.c
-			${PATH_HACKRF_FIRMWARE_COMMON}/cpld_jtag.c
-			${PATH_HACKRF_FIRMWARE_COMMON}/xapp058/lenval.c
-			${PATH_HACKRF_FIRMWARE_COMMON}/xapp058/micro.c
-			${PATH_HACKRF_FIRMWARE_COMMON}/xapp058/ports.c
-			${PATH_HACKRF_FIRMWARE_COMMON}/hackrf-ui.c
-			${PATH_HACKRF_FIRMWARE_COMMON}/ui_portapack.c
 		)
 	endif()
 

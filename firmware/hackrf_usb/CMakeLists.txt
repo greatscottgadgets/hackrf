@@ -46,10 +46,21 @@ set(SRC_M4
 	usb_api_sweep.c
 	"${PATH_HACKRF_FIRMWARE_COMMON}/usb_queue.c"
 	"${PATH_HACKRF_FIRMWARE_COMMON}/fault_handler.c"
+	"${PATH_HACKRF_FIRMWARE_COMMON}/cpld_jtag.c"
 	"${PATH_HACKRF_FIRMWARE_COMMON}/cpld_xc2c.c"
+	"${PATH_HACKRF_FIRMWARE_COMMON}/xapp058/lenval.c"
+	"${PATH_HACKRF_FIRMWARE_COMMON}/xapp058/micro.c"
+	"${PATH_HACKRF_FIRMWARE_COMMON}/xapp058/ports.c"
 	"${PATH_HACKRF_FIRMWARE_COMMON}/crc.c"
 	"${PATH_HACKRF_FIRMWARE_COMMON}/rom_iap.c"
 	"${PATH_HACKRF_FIRMWARE_COMMON}/operacake.c"
 )
+
+if(NOT BOARD STREQUAL "RAD1O")
+	SET(SRC_M4
+		${SRC_M4}
+		"${PATH_HACKRF_FIRMWARE_COMMON}/ui_portapack.c"
+	)
+endif()
 
 DeclareTargets()
