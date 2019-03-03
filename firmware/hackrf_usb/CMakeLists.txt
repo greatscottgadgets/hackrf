@@ -56,10 +56,17 @@ set(SRC_M4
 	"${PATH_HACKRF_FIRMWARE_COMMON}/operacake.c"
 )
 
-if(NOT BOARD STREQUAL "RAD1O")
+if(BOARD STREQUAL "HACKRF_ONE")
 	SET(SRC_M4
 		${SRC_M4}
 		"${PATH_HACKRF_FIRMWARE_COMMON}/ui_portapack.c"
+	)
+endif()
+
+if(BOARD STREQUAL "RAD1O")
+	SET(SRC_M4
+		${SRC_M4}
+		"${PATH_HACKRF_FIRMWARE_COMMON}/ui_rad1o.c"
 	)
 endif()
 
