@@ -56,4 +56,6 @@ typedef struct ui_font_t {
 	size_t data_stride;
 } ui_font_t;
 
+const hackrf_ui_t* portapack_detect(void);
+
 #endif/*__UI_PORTAPACK_H__*/

@@ -1,10 +1,9 @@
 #!/bin/bash
-REPO=greatscottgadgets/hackrf-nightly
 PUBLICATION_BRANCH=master
 # set -x
 cd $HOME
 # Checkout the branch
-git clone --branch=$PUBLICATION_BRANCH https://${GITHUB_TOKEN}@github.com/$REPO.git publish
+git clone --branch=$PUBLICATION_BRANCH https://${GITHUB_TOKEN}@github.com/${ARTEFACT_REPO}.git publish
 cd publish
 # Update pages
 cp $ARTEFACT_BASE/$BUILD_NAME.tar.xz .
@@ -22,13 +21,11 @@ echo "
 <h2>HackRF Nightly Builds</h2>
 " > index.html
 
-URL=https://greatscottgadgets.github.io/hackrf-nightly
-
 for commit in $COMMITS; do
     FILENAME=`find . -maxdepth 1  -name "*-$commit.tar.xz"`
     if [ "$FILENAME" != "" ]; then
         FN=${FILENAME:2}
-        echo "<a href=\"$URL/$FN\">$FN</a><br />" >> index.html
+        echo "<a href=\"${ARTEFACT_URL}/$FN\">$FN</a><br />" >> index.html
     fi
     
 done

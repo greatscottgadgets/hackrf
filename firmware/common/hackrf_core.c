@@ -124,7 +124,7 @@ static struct gpio_t gpio_cpld_tms			= GPIO(3,  1);
 static struct gpio_t gpio_cpld_tdi			= GPIO(3,  4);
 #endif
 
-#ifdef USER_INTERFACE_PORTAPACK
+#ifdef HACKRF_ONE
 static struct gpio_t gpio_cpld_pp_tms		= GPIO(1,  1);
 static struct gpio_t gpio_cpld_pp_tdo		= GPIO(1,  8);
 #endif
@@ -146,9 +146,9 @@ i2c_bus_t i2c1 = {
 	.transfer = i2c_lpc_transfer,
 };
 
-const i2c_lpc_config_t i2c_config_si5351c_slow_clock = {
-	.duty_cycle_count = 15,
-};
+// const i2c_lpc_config_t i2c_config_si5351c_slow_clock = {
+// 	.duty_cycle_count = 15,
+// };
 
 const i2c_lpc_config_t i2c_config_si5351c_fast_clock = {
 	.duty_cycle_count = 255,
@@ -276,7 +276,7 @@ jtag_gpio_t jtag_gpio_cpld = {
 	.gpio_tck = &gpio_cpld_tck,
 	.gpio_tdi = &gpio_cpld_tdi,
 	.gpio_tdo = &gpio_cpld_tdo,
-#ifdef USER_INTERFACE_PORTAPACK
+#ifdef HACKRF_ONE
 	.gpio_pp_tms = &gpio_cpld_pp_tms,
 	.gpio_pp_tdo = &gpio_cpld_pp_tdo,
 #endif
@@ -337,7 +337,7 @@ bool sample_rate_frac_set(uint32_t rate_num, uint32_t rate_denom)
 	uint32_t a, b, c;
 	uint32_t rem;
 
-	hackrf_ui_setSampleRate(rate_num/2);
+	hackrf_ui()->set_sample_rate(rate_num/2);
 
 	/* Find best config */
 	a = (VCO_FREQ * rate_denom) / rate_num;
@@ -458,9 +458,66 @@ bool sample_rate_set(const uint32_t sample_rate_hz) {
 bool baseband_filter_bandwidth_set(const uint32_t bandwidth_hz) {
 	uint32_t bandwidth_hz_real = max2837_set_lpf_bandwidth(&max2837, bandwidth_hz);
 
-	if(bandwidth_hz_real) hackrf_ui_setFilterBW(bandwidth_hz_real);
+	if(bandwidth_hz_real) hackrf_ui()->set_filter_bw(bandwidth_hz_real);
 
 	return bandwidth_hz_real != 0;
+}
+
+/* 
+Configure PLL1 (Main MCU Clock) to max speed (204MHz).
+Note: PLL1 clock is used by M4/M0 core, Peripheral, APB1.
+This function shall be called after cpu_clock_init().
+*/
+static void cpu_clock_pll1_max_speed(void)
+{
+	uint32_t pll_reg;
+
+	/* Configure PLL1 to Intermediate Clock (between 90 MHz and 110 MHz) */
+	/* Integer mode:
+		FCLKOUT = M*(FCLKIN/N) 
+		FCCO = 2*P*FCLKOUT = 2*P*M*(FCLKIN/N) 
+	*/
+	pll_reg = CGU_PLL1_CTRL;
+	/* Clear PLL1 bits */
+	pll_reg &= ~( CGU_PLL1_CTRL_CLK_SEL_MASK | CGU_PLL1_CTRL_PD_MASK | CGU_PLL1_CTRL_FBSEL_MASK |  /* CLK SEL, PowerDown , FBSEL */
+				  CGU_PLL1_CTRL_BYPASS_MASK | /* BYPASS */
+				  CGU_PLL1_CTRL_DIRECT_MASK | /* DIRECT */
+				  CGU_PLL1_CTRL_PSEL_MASK | CGU_PLL1_CTRL_MSEL_MASK | CGU_PLL1_CTRL_NSEL_MASK ); /* PSEL, MSEL, NSEL- divider ratios */
+	/* Set PLL1 up to 12MHz * 8 = 96MHz. */
+	pll_reg |= CGU_PLL1_CTRL_CLK_SEL(CGU_SRC_XTAL)
+				| CGU_PLL1_CTRL_PSEL(0)
+				| CGU_PLL1_CTRL_NSEL(0)
+				| CGU_PLL1_CTRL_MSEL(7)
+				| CGU_PLL1_CTRL_FBSEL(1);
+	CGU_PLL1_CTRL = pll_reg;
+	/* wait until stable */
+	while (!(CGU_PLL1_STAT & CGU_PLL1_STAT_LOCK_MASK));
+
+	/* use PLL1 as clock source for BASE_M4_CLK (CPU) */
+	CGU_BASE_M4_CLK = (CGU_BASE_M4_CLK_CLK_SEL(CGU_SRC_PLL1) | CGU_BASE_M4_CLK_AUTOBLOCK(1));
+
+	/* Wait before to switch to max speed */
+	delay(WAIT_CPU_CLOCK_INIT_DELAY);
+
+	/* Configure PLL1 Max Speed */
+	/* Direct mode: FCLKOUT = FCCO = M*(FCLKIN/N) */
+	pll_reg = CGU_PLL1_CTRL;
+	/* Clear PLL1 bits */
+	pll_reg &= ~( CGU_PLL1_CTRL_CLK_SEL_MASK | CGU_PLL1_CTRL_PD_MASK | CGU_PLL1_CTRL_FBSEL_MASK |  /* CLK SEL, PowerDown , FBSEL */
+				  CGU_PLL1_CTRL_BYPASS_MASK | /* BYPASS */
+				  CGU_PLL1_CTRL_DIRECT_MASK | /* DIRECT */
+				  CGU_PLL1_CTRL_PSEL_MASK | CGU_PLL1_CTRL_MSEL_MASK | CGU_PLL1_CTRL_NSEL_MASK ); /* PSEL, MSEL, NSEL- divider ratios */
+	/* Set PLL1 up to 12MHz * 17 = 204MHz. */
+	pll_reg |= CGU_PLL1_CTRL_CLK_SEL(CGU_SRC_XTAL)
+			| CGU_PLL1_CTRL_PSEL(0)
+			| CGU_PLL1_CTRL_NSEL(0)
+			| CGU_PLL1_CTRL_MSEL(16)
+			| CGU_PLL1_CTRL_FBSEL(1)
+			| CGU_PLL1_CTRL_DIRECT(1);
+	CGU_PLL1_CTRL = pll_reg;
+	/* wait until stable */
+	while (!(CGU_PLL1_STAT & CGU_PLL1_STAT_LOCK_MASK));
+
 }
 
 /* clock startup for LPC4320 configure PLL1 to max speed (204MHz).
@@ -473,7 +530,7 @@ void cpu_clock_init(void)
 	/* use IRC as clock source for APB3 */
 	CGU_BASE_APB3_CLK = CGU_BASE_APB3_CLK_CLK_SEL(CGU_SRC_IRC);
 
-	i2c_bus_start(clock_gen.bus, &i2c_config_si5351c_slow_clock);
+	i2c_bus_start(clock_gen.bus, &i2c_config_si5351c_fast_clock);
 
 	si5351c_disable_all_outputs(&clock_gen);
 	si5351c_disable_oeb_pin_control(&clock_gen);
@@ -543,10 +600,7 @@ void cpu_clock_init(void)
 	CGU_BASE_APB3_CLK = CGU_BASE_APB3_CLK_AUTOBLOCK(1)
 			| CGU_BASE_APB3_CLK_CLK_SEL(CGU_SRC_XTAL);
 
-	cpu_clock_pll1_low_speed();
-
-	/* use PLL1 as clock source for BASE_M4_CLK (CPU) */
-	CGU_BASE_M4_CLK = (CGU_BASE_M4_CLK_CLK_SEL(CGU_SRC_PLL1) | CGU_BASE_M4_CLK_AUTOBLOCK(1));
+	cpu_clock_pll1_max_speed();
 
 	/* use XTAL_OSC as clock source for PLL0USB */
 	CGU_PLL0USB_CTRL = CGU_PLL0USB_CTRL_PD(1)
@@ -658,97 +712,6 @@ void cpu_clock_init(void)
 #endif
 }
 
-
-/* 
-Configure PLL1 to low speed (48MHz).
-Note: PLL1 clock is used by M4/M0 core, Peripheral, APB1.
-This function shall be called after cpu_clock_init().
-This function is mainly used to lower power consumption.
-*/
-void cpu_clock_pll1_low_speed(void)
-{
-	uint32_t pll_reg;
-
-	/* Configure PLL1 Clock (48MHz) */
-	/* Integer mode:
-		FCLKOUT = M*(FCLKIN/N) 
-		FCCO = 2*P*FCLKOUT = 2*P*M*(FCLKIN/N) 
-	*/
-	pll_reg = CGU_PLL1_CTRL;
-	/* Clear PLL1 bits */
-	pll_reg &= ~( CGU_PLL1_CTRL_CLK_SEL_MASK | CGU_PLL1_CTRL_PD_MASK | CGU_PLL1_CTRL_FBSEL_MASK |  /* CLK SEL, PowerDown , FBSEL */
-				  CGU_PLL1_CTRL_BYPASS_MASK | /* BYPASS */
-				  CGU_PLL1_CTRL_DIRECT_MASK | /* DIRECT */
-				  CGU_PLL1_CTRL_PSEL_MASK | CGU_PLL1_CTRL_MSEL_MASK | CGU_PLL1_CTRL_NSEL_MASK ); /* PSEL, MSEL, NSEL- divider ratios */
-	/* Set PLL1 up to 12MHz * 4 = 48MHz. */
-	pll_reg |= CGU_PLL1_CTRL_CLK_SEL(CGU_SRC_XTAL)
-				| CGU_PLL1_CTRL_PSEL(0)
-				| CGU_PLL1_CTRL_NSEL(0)
-				| CGU_PLL1_CTRL_MSEL(3)
-				| CGU_PLL1_CTRL_FBSEL(1)
-				| CGU_PLL1_CTRL_DIRECT(1);
-	CGU_PLL1_CTRL = pll_reg;
-	/* wait until stable */
-	while (!(CGU_PLL1_STAT & CGU_PLL1_STAT_LOCK_MASK));
-
-	/* Wait a delay after switch to new frequency with Direct mode */
-	delay(WAIT_CPU_CLOCK_INIT_DELAY);
-}
-
-/* 
-Configure PLL1 (Main MCU Clock) to max speed (204MHz).
-Note: PLL1 clock is used by M4/M0 core, Peripheral, APB1.
-This function shall be called after cpu_clock_init().
-*/
-void cpu_clock_pll1_max_speed(void)
-{
-	uint32_t pll_reg;
-
-	/* Configure PLL1 to Intermediate Clock (between 90 MHz and 110 MHz) */
-	/* Integer mode:
-		FCLKOUT = M*(FCLKIN/N) 
-		FCCO = 2*P*FCLKOUT = 2*P*M*(FCLKIN/N) 
-	*/
-	pll_reg = CGU_PLL1_CTRL;
-	/* Clear PLL1 bits */
-	pll_reg &= ~( CGU_PLL1_CTRL_CLK_SEL_MASK | CGU_PLL1_CTRL_PD_MASK | CGU_PLL1_CTRL_FBSEL_MASK |  /* CLK SEL, PowerDown , FBSEL */
-				  CGU_PLL1_CTRL_BYPASS_MASK | /* BYPASS */
-				  CGU_PLL1_CTRL_DIRECT_MASK | /* DIRECT */
-				  CGU_PLL1_CTRL_PSEL_MASK | CGU_PLL1_CTRL_MSEL_MASK | CGU_PLL1_CTRL_NSEL_MASK ); /* PSEL, MSEL, NSEL- divider ratios */
-	/* Set PLL1 up to 12MHz * 8 = 96MHz. */
-	pll_reg |= CGU_PLL1_CTRL_CLK_SEL(CGU_SRC_XTAL)
-				| CGU_PLL1_CTRL_PSEL(0)
-				| CGU_PLL1_CTRL_NSEL(0)
-				| CGU_PLL1_CTRL_MSEL(7)
-				| CGU_PLL1_CTRL_FBSEL(1);
-	CGU_PLL1_CTRL = pll_reg;
-	/* wait until stable */
-	while (!(CGU_PLL1_STAT & CGU_PLL1_STAT_LOCK_MASK));
-
-	/* Wait before to switch to max speed */
-	delay(WAIT_CPU_CLOCK_INIT_DELAY);
-
-	/* Configure PLL1 Max Speed */
-	/* Direct mode: FCLKOUT = FCCO = M*(FCLKIN/N) */
-	pll_reg = CGU_PLL1_CTRL;
-	/* Clear PLL1 bits */
-	pll_reg &= ~( CGU_PLL1_CTRL_CLK_SEL_MASK | CGU_PLL1_CTRL_PD_MASK | CGU_PLL1_CTRL_FBSEL_MASK |  /* CLK SEL, PowerDown , FBSEL */
-				  CGU_PLL1_CTRL_BYPASS_MASK | /* BYPASS */
-				  CGU_PLL1_CTRL_DIRECT_MASK | /* DIRECT */
-				  CGU_PLL1_CTRL_PSEL_MASK | CGU_PLL1_CTRL_MSEL_MASK | CGU_PLL1_CTRL_NSEL_MASK ); /* PSEL, MSEL, NSEL- divider ratios */
-	/* Set PLL1 up to 12MHz * 17 = 204MHz. */
-	pll_reg |= CGU_PLL1_CTRL_CLK_SEL(CGU_SRC_XTAL)
-			| CGU_PLL1_CTRL_PSEL(0)
-			| CGU_PLL1_CTRL_NSEL(0)
-			| CGU_PLL1_CTRL_MSEL(16)
-			| CGU_PLL1_CTRL_FBSEL(1)
-			| CGU_PLL1_CTRL_DIRECT(1);
-	CGU_PLL1_CTRL = pll_reg;
-	/* wait until stable */
-	while (!(CGU_PLL1_STAT & CGU_PLL1_STAT_LOCK_MASK));
-
-}
-
 void ssp1_set_mode_max2837(void)
 {
 	spi_bus_start(max2837.bus, &ssp_config_max2837);
@@ -777,7 +740,7 @@ void pin_setup(void) {
 	 *
 	 * LPC43xx pull-up and pull-down resistors are approximately 53K.
 	 */
-#ifdef USER_INTERFACE_PORTAPACK
+#ifdef HACKRF_ONE
 	scu_pinmux(SCU_PINMUX_PP_TMS,   SCU_GPIO_PUP    | SCU_CONF_FUNCTION0);
 	scu_pinmux(SCU_PINMUX_PP_TDO,   SCU_GPIO_PDN    | SCU_CONF_FUNCTION0);
 #endif
@@ -817,10 +780,6 @@ void pin_setup(void) {
 
 	/* Configure RF power supply (VAA) switch control signal as output */
 	gpio_output(&gpio_vaa_disable);
-
-#ifndef USER_INTERFACE_PORTAPACK
-#endif
-#endif
 
 #ifdef RAD1O
 	/* Safe state: start with VAA turned off: */

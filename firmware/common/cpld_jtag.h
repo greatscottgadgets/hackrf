@@ -31,10 +31,10 @@ typedef struct jtag_gpio_t {
 	gpio_t gpio_tck;
 	gpio_t gpio_tdi;
 	gpio_t gpio_tdo;
-#ifdef USER_INTERFACE_PORTAPACK
+#ifdef HACKRF_ONE
 	gpio_t gpio_pp_tms;
 	gpio_t gpio_pp_tdo;
-#endif	
+#endif
 } jtag_gpio_t;
 
 typedef struct jtag_t {
