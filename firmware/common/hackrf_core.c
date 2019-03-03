@@ -124,8 +124,10 @@ static struct gpio_t gpio_cpld_tms			= GPIO(3,  1);
 static struct gpio_t gpio_cpld_tdi			= GPIO(3,  4);
 #endif
 
+#ifdef HACKRF_ONE
 static struct gpio_t gpio_cpld_pp_tms		= GPIO(1,  1);
 static struct gpio_t gpio_cpld_pp_tdo		= GPIO(1,  8);
+#endif
 
 static struct gpio_t gpio_hw_sync_enable = GPIO(5,12);
 static struct gpio_t gpio_rx_q_invert 		= GPIO(0, 13);
@@ -274,8 +276,10 @@ jtag_gpio_t jtag_gpio_cpld = {
 	.gpio_tck = &gpio_cpld_tck,
 	.gpio_tdi = &gpio_cpld_tdi,
 	.gpio_tdo = &gpio_cpld_tdo,
+#ifdef HACKRF_ONE
 	.gpio_pp_tms = &gpio_cpld_pp_tms,
 	.gpio_pp_tdo = &gpio_cpld_pp_tdo,
+#endif
 };
 
 jtag_t jtag_cpld = {
@@ -773,8 +777,10 @@ void pin_setup(void) {
 	 *
 	 * LPC43xx pull-up and pull-down resistors are approximately 53K.
 	 */
+#ifdef HACKRF_ONE
 	scu_pinmux(SCU_PINMUX_PP_TMS,   SCU_GPIO_PUP    | SCU_CONF_FUNCTION0);
 	scu_pinmux(SCU_PINMUX_PP_TDO,   SCU_GPIO_PDN    | SCU_CONF_FUNCTION0);
+#endif
 	scu_pinmux(SCU_PINMUX_CPLD_TMS, SCU_GPIO_NOPULL | SCU_CONF_FUNCTION0);
 	scu_pinmux(SCU_PINMUX_CPLD_TDI, SCU_GPIO_NOPULL | SCU_CONF_FUNCTION0);
 	scu_pinmux(SCU_PINMUX_CPLD_TDO, SCU_GPIO_PDN    | SCU_CONF_FUNCTION4);
