@@ -175,11 +175,9 @@ void usb_configuration_changed(
 	set_transceiver_mode(TRANSCEIVER_MODE_OFF);
 	if( device->configuration->number == 1 ) {
 		// transceiver configuration
-		cpu_clock_pll1_max_speed();
 		led_on(LED1);
 	} else {
 		/* Configuration number equal 0 means usb bus reset. */
-		cpu_clock_pll1_low_speed();
 		led_off(LED1);
 	}
 }
