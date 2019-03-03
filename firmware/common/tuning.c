@@ -115,8 +115,8 @@ bool set_freq(const uint64_t freq)
 	max2837_set_mode(&max2837, prior_max2837_mode);
 	if( success ) {
 		freq_cache = freq;
-		hackrf_ui_setFrequency(freq);
-#ifndef USER_INTERFACE_PORTAPACK
+		hackrf_ui()->set_frequency(freq);
+#ifdef HACKRF_ONE
 		operacake_set_range(freq_mhz);
 #endif
 	}

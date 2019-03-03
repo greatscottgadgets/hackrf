@@ -139,7 +139,11 @@ static usb_request_handler_fn vendor_request_handler[] = {
 	usb_vendor_request_spiflash_status,
 	usb_vendor_request_spiflash_clear_status,
 	usb_vendor_request_operacake_gpio_test,
+#ifdef HACKRF_ONE
 	usb_vendor_request_cpld_checksum,
+#else
+	NULL,
+#endif
 };
 
 static const uint32_t vendor_request_handler_count =
@@ -237,7 +241,7 @@ int main(void) {
 	
 	nvic_set_priority(NVIC_USB0_IRQ, 255);
 
-	hackrf_ui_init();
+	hackrf_ui()->init();
 
 	usb_run(&usb_device);
 	

@@ -35,14 +35,14 @@ void cpld_jtag_take(jtag_t* const jtag) {
 	/* Set initial GPIO state to the voltages of the internal or external pull-ups/downs,
 	 * to avoid any glitches.
 	 */
-#ifdef USER_INTERFACE_PORTAPACK
+#ifdef HACKRF_ONE
 	gpio_set(gpio->gpio_pp_tms);
 #endif
 	gpio_set(gpio->gpio_tms);
 	gpio_set(gpio->gpio_tdi);
 	gpio_clear(gpio->gpio_tck);
 
-#ifdef USER_INTERFACE_PORTAPACK
+#ifdef HACKRF_ONE
 	/* Do not drive PortaPack-specific TMS pin initially, just to be cautious. */
 	gpio_input(gpio->gpio_pp_tms);
 	gpio_input(gpio->gpio_pp_tdo);
@@ -59,7 +59,7 @@ void cpld_jtag_release(jtag_t* const jtag) {
 	/* Make all pins inputs when JTAG interface not active.
 	 * Let the pull-ups/downs do the work.
 	 */
-#ifdef USER_INTERFACE_PORTAPACK
+#ifdef HACKRF_ONE
 	/* Do not drive PortaPack-specific pins, initially, just to be cautious. */
 	gpio_input(gpio->gpio_pp_tms);
 	gpio_input(gpio->gpio_pp_tdo);

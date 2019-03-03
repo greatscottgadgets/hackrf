@@ -1,3 +1,24 @@
+/*
+ * Copyright (C) 2018 Jared Boone, ShareBrained Technology, Inc.
+ *
+ * This file is part of HackRF.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; see the file COPYING.  If not, write to
+ * the Free Software Foundation, Inc., 51 Franklin Street,
+ * Boston, MA 02110-1301, USA.
+ */
+
 #ifndef HACKRF_UI_H
 #define HACKRF_UI_H
 
@@ -36,20 +57,6 @@ typedef struct {
  * In the future, whatever UI was detected will be returned here,
  * or NULL if no UI was detected.
  */
-const hackrf_ui_t* hackrf_ui(void) __attribute__((weak));
-
-void hackrf_ui_init(void) __attribute__((weak));
-void hackrf_ui_setFrequency(uint64_t _freq) __attribute__((weak));
-void hackrf_ui_setSampleRate(uint32_t _sample_rate) __attribute__((weak));
-void hackrf_ui_setDirection(const rf_path_direction_t _direction) __attribute__((weak));
-void hackrf_ui_setFilterBW(uint32_t bw) __attribute__((weak));
-void hackrf_ui_setLNAPower(bool _lna_on) __attribute__((weak));
-void hackrf_ui_setBBLNAGain(const uint32_t gain_db) __attribute__((weak));
-void hackrf_ui_setBBVGAGain(const uint32_t gain_db) __attribute__((weak));
-void hackrf_ui_setBBTXVGAGain(const uint32_t gain_db) __attribute__((weak));
-
-void hackrf_ui_setFirstIFFrequency(const uint64_t freq) __attribute__((weak));
-void hackrf_ui_setFilter(const rf_path_filter_t filter) __attribute__((weak));
-void hackrf_ui_setAntennaBias(bool antenna_bias) __attribute__((weak));
+const hackrf_ui_t* hackrf_ui(void);
 
 #endif

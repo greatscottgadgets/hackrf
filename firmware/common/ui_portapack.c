@@ -30,8 +30,6 @@
 
 #include <stddef.h>
 
-#ifdef USER_INTERFACE_PORTAPACK
-
 /* Pixel data within a font or bitmap byte is "reversed": LSB is left-most pixel. */
 
 static const uint8_t font_fixed_8x16_glyph_data[] = {
@@ -1043,62 +1041,3 @@ const hackrf_ui_t* portapack_detect(void) {
 		return NULL;
 	}
 }
-
-static const hackrf_ui_t* ui = NULL;
-
-const hackrf_ui_t* hackrf_ui(void) {
-	return ui;
-}
-
-void hackrf_ui_init(void) {
-	ui = portapack_detect();
-	if( ui != NULL ) {
-		ui->init();
-	}
-}
-
-void hackrf_ui_setFrequency(uint64_t frequency) {
-	if( ui != NULL ) ui->set_frequency(frequency);
-}
-
-void hackrf_ui_setSampleRate(uint32_t sample_rate) {
-	if( ui != NULL ) ui->set_sample_rate(sample_rate);
-}
-
-void hackrf_ui_setDirection(const rf_path_direction_t direction) {
-	if( ui != NULL ) ui->set_direction(direction);
-}
-
-void hackrf_ui_setFilterBW(uint32_t bw) {
-	if( ui != NULL ) ui->set_filter_bw(bw);
-}
-
-void hackrf_ui_setLNAPower(bool lna_on) {
-	if( ui != NULL ) ui->set_lna_power(lna_on);
-}
-
-void hackrf_ui_setBBLNAGain(const uint32_t gain_db) {
-	if( ui != NULL ) ui->set_bb_lna_gain(gain_db);
-}
-
-void hackrf_ui_setBBVGAGain(const uint32_t gain_db) {
-	if( ui != NULL ) ui->set_bb_vga_gain(gain_db);
-}
-
-void hackrf_ui_setBBTXVGAGain(const uint32_t gain_db) {
-	if( ui != NULL ) ui->set_bb_tx_vga_gain(gain_db);
-}
-
-void hackrf_ui_setFirstIFFrequency(const uint64_t frequency) {
-	if( ui != NULL ) ui->set_first_if_frequency(frequency);
-}
-
-void hackrf_ui_setFilter(const rf_path_filter_t filter) {
-	if( ui != NULL ) ui->set_filter(filter);
-}
-
-void hackrf_ui_setAntennaBias(bool antenna_bias) {
-	if( ui != NULL ) ui->set_antenna_bias(antenna_bias);
-}
-
-#endif
