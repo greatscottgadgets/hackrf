@@ -31,11 +31,6 @@ $ hackrf_spiflash -w hackrf_usb.bin
 If you have a Jawbreaker, add -DBOARD=JAWBREAKER to the cmake command.
 If you have a rad1o, use -DBOARD=RAD1O instead.
 
-If you have a HackRF One and want to build optional PortaPack display support,
-also specify -DUSER_INTERFACE=PORTAPACK. If PortaPack hardware is not detected
-by hardware probing at start-up, the HackRF firmware will run without UI
-support.
-
 It is possible to use a USB Device Firmware Upgrade (DFU) method to load
 firmware into RAM.  This is normally only required to recover a device that has
 had faulty firmware loaded, but it can also be useful for firmware developers.
