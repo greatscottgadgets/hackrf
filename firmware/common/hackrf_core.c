@@ -867,3 +867,18 @@ void led_toggle(const led_t led) {
 void hw_sync_enable(const hw_sync_mode_t hw_sync_mode){
     gpio_write(&gpio_hw_sync_enable, hw_sync_mode==1);
 }
+
+void halt_and_flash(const uint32_t duration) {
+	/* blink LED1, LED2, and LED3 */
+	while (1)
+	{
+		led_on(LED1);
+		led_on(LED2);
+		led_on(LED3);
+		delay(duration);
+		led_off(LED1);
+		led_off(LED2);
+		led_off(LED3);
+		delay(duration);
+	}
+}

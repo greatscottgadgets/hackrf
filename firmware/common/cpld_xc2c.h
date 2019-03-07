@@ -27,6 +27,44 @@
 
 #include "cpld_jtag.h"
 
-bool cpld_xc2c64a_jtag_checksum(const jtag_t* const jtag, uint32_t* const crc_value);
+/* Xilinx CoolRunner II XC2C64A bitstream attributes */
+#define CPLD_XC2C64A_ROWS (98)
+#define CPLD_XC2C64A_BITS_IN_ROW (274)
+#define CPLD_XC2C64A_BYTES_IN_ROW ((CPLD_XC2C64A_BITS_IN_ROW + 7) / 8)
+
+typedef struct {
+	uint8_t data[CPLD_XC2C64A_BYTES_IN_ROW];
+} cpld_xc2c64a_row_data_t;
+
+typedef struct {
+	cpld_xc2c64a_row_data_t row[CPLD_XC2C64A_ROWS];
+} cpld_xc2c64a_program_t;
+
+typedef struct {
+	uint8_t value[CPLD_XC2C64A_BYTES_IN_ROW];
+} cpld_xc2c64a_row_mask_t;
+
+typedef struct {
+	cpld_xc2c64a_row_mask_t mask[6];
+	uint8_t mask_index[CPLD_XC2C64A_ROWS];
+} cpld_xc2c64a_verify_t;
+
+bool cpld_xc2c64a_jtag_checksum(
+	const jtag_t* const jtag,
+	const cpld_xc2c64a_verify_t* const verify,
+	uint32_t* const crc_value
+);
+void cpld_xc2c64a_jtag_sram_write(
+	const jtag_t* const jtag,
+	const cpld_xc2c64a_program_t* const program
+);
+bool cpld_xc2c64a_jtag_sram_verify(
+	const jtag_t* const jtag,
+	const cpld_xc2c64a_program_t* const program,
+	const cpld_xc2c64a_verify_t* const verify
+);
+
+extern const cpld_xc2c64a_program_t cpld_hackrf_program_sram;
+extern const cpld_xc2c64a_verify_t cpld_hackrf_verify;
 
 #endif/*__CPLD_XC2C_H__*/

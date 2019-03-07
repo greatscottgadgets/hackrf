@@ -68,3 +68,5 @@ firmware/cpld/**/*.xst
 firmware/cpld/**/*.xwbt
 
 firmware/**/build
+
+*.pyc
