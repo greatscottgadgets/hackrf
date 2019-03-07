@@ -780,6 +780,7 @@ void pin_setup(void) {
 
 	/* Configure RF power supply (VAA) switch control signal as output */
 	gpio_output(&gpio_vaa_disable);
+#endif
 
 #ifdef RAD1O
 	/* Safe state: start with VAA turned off: */
