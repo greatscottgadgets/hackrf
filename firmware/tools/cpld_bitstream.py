@@ -151,10 +151,10 @@ import argparse
 parser = argparse.ArgumentParser()
 action_group = parser.add_mutually_exclusive_group(required=True)
 action_group.add_argument('--checksum', action='store_true', help='Calculate bitstream read-back CRC32 value')
-action_group.add_argument('--code', action='store_true', help='Generate C code for bitstream loading/programming/verification')
+action_group.add_argument('--hackrf-data', type=str, help='C data file for HackRF bitstream loading/programming/verification')
 parser.add_argument('--crcmod', action='store_true', help='Use Python crcmod library instead of built-in CRC32 code')
 parser.add_argument('--debug', action='store_true', help='Enable debug output')
-parser.add_argument('hackrf_xc2c_cpld_xsvf', type=str, help='HackRF Xilinx XC2C64A CPLD XSVF file containing erase/program/verify phases')
+parser.add_argument('--xsvf', required=True, type=str, help='HackRF Xilinx XC2C64A CPLD XSVF file containing erase/program/verify phases')
 args = parser.parse_args()
 
 #######################################################################
@@ -162,7 +162,7 @@ args = parser.parse_args()
 # against the CPLD.
 #######################################################################
 
-with open(args.hackrf_xc2c_cpld_xsvf, "rb") as f:
+with open(args.xsvf, "rb") as f:
 	from xsvf import XSVFParser
 	commands = XSVFParser().parse(f, debug=args.debug)
 
@@ -202,7 +202,7 @@ if args.checksum:
 
 	print('0x%s' % crc.hexdigest().lower())
 
-if args.code:
+if args.hackrf_data:
 	program_sram = make_sram_program(program_blocks)
 	verify_block = verify_blocks[1]
 	verify_masks = tuple(frozenset(extract_mask(verify_block)))
@@ -243,4 +243,5 @@ if args.code:
 		'} };',
 		'',
 	))
-	print('\n'.join(result))
+	with open(args.hackrf_data, 'w') as f:
+		f.write('\n'.join(result))
