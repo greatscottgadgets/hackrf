@@ -26,16 +26,6 @@
 #include <stddef.h>
 #include <string.h>
 
-static const uint8_t cpld_xc2c64a_row_address[CPLD_XC2C64A_ROWS] = {
-	0x00, 0x40, 0x60, 0x20, 0x30, 0x70, 0x50, 0x10, 0x18, 0x58, 0x78, 0x38, 0x28, 0x68, 0x48, 0x08,
-	0x0c, 0x4c, 0x6c, 0x2c, 0x3c, 0x7c, 0x5c, 0x1c, 0x14, 0x54, 0x74, 0x34, 0x24, 0x64, 0x44, 0x04,
-	0x06, 0x46, 0x66, 0x26, 0x36, 0x76, 0x56, 0x16, 0x1e, 0x5e, 0x7e, 0x3e, 0x2e, 0x6e, 0x4e, 0x0e,
-	0x0a, 0x4a, 0x6a, 0x2a, 0x3a, 0x7a, 0x5a, 0x1a, 0x12, 0x52, 0x72, 0x32, 0x22, 0x62, 0x42, 0x02,
-	0x03, 0x43, 0x63, 0x23, 0x33, 0x73, 0x53, 0x13, 0x1b, 0x5b, 0x7b, 0x3b, 0x2b, 0x6b, 0x4b, 0x0b,
-	0x0f, 0x4f, 0x6f, 0x2f, 0x3f, 0x7f, 0x5f, 0x1f, 0x17, 0x57, 0x77, 0x37, 0x27, 0x67, 0x47, 0x07,
-	0x05, 0x45,
-};
-
 typedef enum {
 	CPLD_XC2C_IR_INTEST           = 0b00000010,
 	CPLD_XC2C_IR_BYPASS           = 0b11111111,
@@ -292,7 +282,7 @@ bool cpld_xc2c64a_jtag_checksum(
 
 		uint8_t dr[CPLD_XC2C64A_BYTES_IN_ROW];
 		for(size_t row=0; row<CPLD_XC2C64A_ROWS; row++) {
-			const size_t address = cpld_xc2c64a_row_address[row];
+			const size_t address = cpld_hackrf_row_addresses.address[row];
 			cpld_xc2c64a_jtag_read_row(jtag, address, dr);
 
 			const size_t mask_index = verify->mask_index[row];
@@ -388,7 +378,7 @@ void cpld_xc2c64a_jtag_sram_write(
 	cpld_xc2c_jtag_sram_write(jtag);
 
 	for(size_t row=0; row<CPLD_XC2C64A_ROWS; row++) {
-		const uint8_t address = cpld_xc2c64a_row_address[row];
+		const uint8_t address = cpld_hackrf_row_addresses.address[row];
 		cpld_xc2c64a_jtag_sram_write_row(jtag, address, &program->row[row].data[0]);
 	}
 
@@ -416,7 +406,7 @@ bool cpld_xc2c64a_jtag_sram_verify(
 		const size_t mask_index = (data_row >= 0) ? verify->mask_index[data_row] : 0;
 		const uint8_t* const expected = (data_row >= 0) ? &program->row[data_row].data[0] : NULL;
 		const uint8_t* const mask = (data_row >= 0) ? &verify->mask[mask_index].value[0] : NULL;
-		const uint8_t next_address = (address_row < CPLD_XC2C64A_ROWS) ? cpld_xc2c64a_row_address[address_row] : 0;
+		const uint8_t next_address = (address_row < CPLD_XC2C64A_ROWS) ? cpld_hackrf_row_addresses.address[address_row] : 0;
 		matched &= cpld_xc2c64a_jtag_sram_compare_row(jtag, expected, mask, next_address);
 	}
 
