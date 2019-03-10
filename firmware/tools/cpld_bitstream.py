@@ -240,6 +240,7 @@ if args.code:
 	))
 	result.extend(['\t%s' % line for line in hex_lines(address_sequence)])
 	result.extend((
-		'} };'
+		'} };',
+		'',
 	))
 	print('\n'.join(result))
