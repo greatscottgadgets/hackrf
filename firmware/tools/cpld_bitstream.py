@@ -149,12 +149,13 @@ def make_sram_program(program_blocks):
 import argparse
 
 parser = argparse.ArgumentParser()
-action_group = parser.add_mutually_exclusive_group(required=True)
-action_group.add_argument('--checksum', action='store_true', help='Calculate bitstream read-back CRC32 value')
-action_group.add_argument('--code', action='store_true', help='Generate C code for bitstream loading/programming/verification')
+action_group = parser.add_argument_group(title='outputs')
+action_group.add_argument('--checksum', action='store_true', help='Print bitstream verification CRC32 value')
+action_group.add_argument('--hackrf-data', type=str, help='C data file for HackRF bitstream loading/programming/verification')
+action_group.add_argument('--portapack-data', type=str, help='C++ data file for PortaPack bitstream loading/programming/verification')
 parser.add_argument('--crcmod', action='store_true', help='Use Python crcmod library instead of built-in CRC32 code')
 parser.add_argument('--debug', action='store_true', help='Enable debug output')
-parser.add_argument('hackrf_xc2c_cpld_xsvf', type=str, help='HackRF Xilinx XC2C64A CPLD XSVF file containing erase/program/verify phases')
+parser.add_argument('--xsvf', required=True, type=str, help='HackRF Xilinx XC2C64A CPLD XSVF file containing erase/program/verify phases')
 args = parser.parse_args()
 
 #######################################################################
@@ -162,7 +163,7 @@ args = parser.parse_args()
 # against the CPLD.
 #######################################################################
 
-with open(args.hackrf_xc2c_cpld_xsvf, "rb") as f:
+with open(args.xsvf, "rb") as f:
 	from xsvf import XSVFParser
 	commands = XSVFParser().parse(f, debug=args.debug)
 
@@ -202,7 +203,7 @@ if args.checksum:
 
 	print('0x%s' % crc.hexdigest().lower())
 
-if args.code:
+if args.hackrf_data:
 	program_sram = make_sram_program(program_blocks)
 	verify_block = verify_blocks[1]
 	verify_masks = tuple(frozenset(extract_mask(verify_block)))
@@ -240,6 +241,38 @@ if args.code:
 	))
 	result.extend(['\t%s' % line for line in hex_lines(address_sequence)])
 	result.extend((
-		'} };'
+		'} };',
+		'',
 	))
-	print('\n'.join(result))
+	with open(args.hackrf_data, 'w') as f:
+		f.write('\n'.join(result))
+
+if args.portapack_data:
+	program_sram = make_sram_program(program_blocks)
+	verify_block = verify_blocks[1]
+	verify_masks = extract_mask(verify_block)
+
+	result = []
+	result.extend((
+		'/*',
+		' * WARNING: Auto-generated file. Do not edit.',
+		'*/',
+		'#include "hackrf_cpld_data.hpp"',
+		'namespace hackrf {',
+		'namespace one {',
+		'namespace cpld {',
+		'const ::cpld::xilinx::XC2C64A::verify_blocks_t verify_blocks { {',
+	))
+	data_lines = [', '.join(['0x%02x' % n for n in row['data'].to_bytes(bytes_of_data, byteorder='big')]) for row in program_sram]
+	mask_lines = [', '.join(['0x%02x' % n for n in mask.to_bytes(bytes_of_data, byteorder='big')]) for mask in verify_masks]
+	lines = ['{ 0x%02x, { { %s } }, { { %s } } }' % data for data in zip(address_sequence, data_lines, mask_lines)]
+	result.extend('\t%s,' % line for line in lines)
+	result.extend((
+		'} };',
+		'} /* namespace hackrf */',
+		'} /* namespace one */',
+		'} /* namespace cpld */',
+		'',
+	))
+	with open(args.portapack_data, 'w') as f:
+		f.write('\n'.join(result))
