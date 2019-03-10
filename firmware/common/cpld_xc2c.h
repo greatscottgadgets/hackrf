@@ -49,6 +49,10 @@ typedef struct {
 	uint8_t mask_index[CPLD_XC2C64A_ROWS];
 } cpld_xc2c64a_verify_t;
 
+typedef struct {
+	uint8_t address[CPLD_XC2C64A_ROWS];
+} cpld_xc2c64a_row_addresses_t;
+
 bool cpld_xc2c64a_jtag_checksum(
 	const jtag_t* const jtag,
 	const cpld_xc2c64a_verify_t* const verify,
@@ -66,5 +70,6 @@ bool cpld_xc2c64a_jtag_sram_verify(
 
 extern const cpld_xc2c64a_program_t cpld_hackrf_program_sram;
 extern const cpld_xc2c64a_verify_t cpld_hackrf_verify;
+extern const cpld_xc2c64a_row_addresses_t cpld_hackrf_row_addresses;
 
 #endif/*__CPLD_XC2C_H__*/

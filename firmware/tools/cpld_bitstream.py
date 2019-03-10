@@ -236,5 +236,10 @@ if args.code:
 		'\t}',
 		'};',
 		'',
+		'const cpld_xc2c64a_row_addresses_t cpld_hackrf_row_addresses = { {',
+	))
+	result.extend(['\t%s' % line for line in hex_lines(address_sequence)])
+	result.extend((
+		'} };'
 	))
 	print('\n'.join(result))
