@@ -22,38 +22,4 @@
 #ifndef __UI_PORTAPACK_H__
 #define __UI_PORTAPACK_H__
 
-#include <stddef.h>
-
-typedef struct ui_color_t {
-	uint16_t v;
-} ui_color_t;
-
-typedef struct ui_point_t {
-	int16_t x;
-	int16_t y;
-} ui_point_t;
-
-typedef struct ui_size_t {
-	int16_t width;
-	int16_t height;
-} ui_size_t;
-
-typedef struct ui_rect_t {
-	ui_point_t point;
-	ui_size_t size;
-} ui_rect_t;
-
-typedef struct ui_bitmap_t {
-	ui_size_t size;
-	const uint8_t* const data;
-} ui_bitmap_t;
-
-typedef struct ui_font_t {
-	const ui_size_t glyph_size;
-	const uint8_t* const data;
-	char c_start;
-	size_t c_count;
-	size_t data_stride;
-} ui_font_t;
-
 #endif/*__UI_PORTAPACK_H__*/
