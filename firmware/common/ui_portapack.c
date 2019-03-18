@@ -455,74 +455,6 @@ static void portapack_lcd_wake() {
 	portapack_lcd_display_on();
 }
 
-static bool jtag_pp_tck(const bool tms_value) {
-	gpio_write(jtag_cpld.gpio->gpio_pp_tms, tms_value);
-
-	// 8 ns TMS/TDI to TCK setup
-	__asm__("nop");
-	__asm__("nop");
-	__asm__("nop");
-
-	gpio_set(jtag_cpld.gpio->gpio_tck);
-
-	// 15 ns TCK to TMS/TDI hold time
-	// 20 ns TCK high time
-	__asm__("nop");
-	__asm__("nop");
-	__asm__("nop");
-	__asm__("nop");
-	__asm__("nop");
-
-	gpio_clear(jtag_cpld.gpio->gpio_tck);
-
-	// 20 ns TCK low time
-	// 25 ns TCK falling edge to TDO valid
-	__asm__("nop");
-	__asm__("nop");
-	__asm__("nop");
-	__asm__("nop");
-	__asm__("nop");
-	__asm__("nop");
-	__asm__("nop");
-
-	return gpio_read(jtag_cpld.gpio->gpio_pp_tdo);
-}
-
-static uint32_t jtag_pp_shift(const uint32_t tms_bits, const size_t count) {
-	uint32_t result = 0;
-	size_t bit_in_index = count - 1;
-	size_t bit_out_index = 0;
-	while(bit_out_index < count) {
-		const uint32_t tdo = jtag_pp_tck((tms_bits >> bit_in_index) & 1) & 1;
-		result |= (tdo << bit_out_index);
-
-		bit_in_index--;
-		bit_out_index++;
-	}
-
-	return result;
-}
-
-static uint32_t jtag_pp_idcode() {
-	cpld_jtag_take(&jtag_cpld);
-
-	/* TODO: Check if PortaPack TMS is floating or driven by an external device. */
-	gpio_output(jtag_cpld.gpio->gpio_pp_tms);
-
-	/* Test-Logic/Reset -> Run-Test/Idle -> Select-DR/Scan -> Capture-DR */
-	jtag_pp_shift(0b11111010, 8);
-
-	/* Shift-DR */
-	const uint32_t idcode = jtag_pp_shift(0, 32);
-
-	/* Exit1-DR -> Update-DR -> Run-Test/Idle -> ... -> Test-Logic/Reset */
-	jtag_pp_shift(0b11011111, 8);
-
-	cpld_jtag_release(&jtag_cpld);
-
-	return idcode;
-}
-
 static void portapack_if_init() {
 	portapack_data_mask_set();
 	portapack_data_write_high(0);
@@ -1019,7 +951,7 @@ static void portapack_ui_set_antenna_bias(bool antenna_bias) {
 	(void)antenna_bias;
 }
 
-static const hackrf_ui_t portapack_ui = {
+const hackrf_ui_t portapack_hackrf_ui = {
 	&portapack_ui_init,
 	&portapack_ui_set_frequency,
 	&portapack_ui_set_sample_rate,
@@ -1033,11 +965,3 @@ static const hackrf_ui_t portapack_ui = {
 	&portapack_ui_set_filter,
 	&portapack_ui_set_antenna_bias,
 };
-
-const hackrf_ui_t* portapack_detect(void) {
-	if( jtag_pp_idcode() == 0x020A50DD ) {
-		return &portapack_ui;
-	} else {
-		return NULL;
-	}
-}
