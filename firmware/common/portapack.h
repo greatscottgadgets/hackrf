@@ -68,6 +68,8 @@ const portapack_t* portapack_init(void);
 
 void portapack_backlight(const bool on);
 
+void portapack_reference_oscillator(const bool on);
+
 void portapack_fill_rectangle(
 	const ui_rect_t rect,
 	const ui_color_t color

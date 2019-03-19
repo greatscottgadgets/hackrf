@@ -423,6 +423,12 @@ void portapack_backlight(const bool on) {
 	portapack_io_write(1, portapack_if.io_reg);
 }
 
+void portapack_reference_oscillator(const bool on) {
+	const uint8_t mask = 1 << 6;
+	portapack_if.io_reg = (portapack_if.io_reg & ~mask) | (on ? mask : 0);
+	portapack_io_write(1, portapack_if.io_reg);
+}
+
 void portapack_fill_rectangle(
 	const ui_rect_t rect,
 	const ui_color_t color
