@@ -342,12 +342,14 @@ static ui_point_t portapack_ui_draw_bw_mhz(ui_point_t point, const uint64_t hz) 
 	return portapack_lcd_draw_string(point, " MHz");
 }
 
-static void portapack_draw_radio_path(
-	const draw_list_t* const draw_list,
-	const size_t count
-) {
-	for( size_t i=0; i<count; i++ ) {
-		portapack_draw_bitmap(draw_list[i].point, *draw_list[i].bitmap, color_foreground, color_background);
+static void portapack_draw_radio_path_item(const radio_draw_list_item_t item) {
+	portapack_draw_bitmap(radio_draw_list[item].point, *radio_draw_list[item].bitmap, color_foreground, color_background);
+}
+
+static void portapack_radio_path_item_update(const radio_draw_list_item_t item, const ui_bitmap_t* const bitmap) {
+	if( bitmap != radio_draw_list[item].bitmap ) {
+		radio_draw_list[item].bitmap = bitmap;
+		portapack_draw_radio_path_item(item);
 	}
 }
 
@@ -355,12 +357,15 @@ static rf_path_direction_t portapack_direction = RF_PATH_DIRECTION_OFF;
 static bool portapack_lna_on = false;
 
 static void portapack_radio_path_redraw() {
-	portapack_draw_radio_path(radio_draw_list, ARRAY_SIZEOF(radio_draw_list));
+	for( size_t i=0; i<ARRAY_SIZEOF(radio_draw_list); i++ ) {
+		portapack_draw_radio_path_item(i);
+	}
 }
 
 static void portapack_ui_init(void) {
 	portapack_clear_display(color_background);
 	portapack_backlight(true);
+	portapack_radio_path_redraw();
 }
 
 static void portapack_ui_set_frequency(uint64_t frequency) {
@@ -402,23 +407,21 @@ static void portapack_ui_set_sample_rate(uint32_t sample_rate) {
 static void portapack_ui_set_direction(const rf_path_direction_t direction) {
 	switch(direction) {
 	case RF_PATH_DIRECTION_TX:
-		radio_draw_list[RADIO_DRAW_LIST_ITEM_RF_AMP].bitmap = portapack_lna_on ? &bitmap_amp_tx : &bitmap_wire_24;
-		radio_draw_list[RADIO_DRAW_LIST_ITEM_BB_LNA_AMP].bitmap = &bitmap_amp_tx;
-		radio_draw_list[RADIO_DRAW_LIST_ITEM_BB_VGA_AMP].bitmap = &bitmap_wire_24;
+		portapack_radio_path_item_update(RADIO_DRAW_LIST_ITEM_RF_AMP, portapack_lna_on ? &bitmap_amp_tx : &bitmap_wire_24);
+		portapack_radio_path_item_update(RADIO_DRAW_LIST_ITEM_BB_LNA_AMP, &bitmap_amp_tx);
+		portapack_radio_path_item_update(RADIO_DRAW_LIST_ITEM_BB_VGA_AMP, &bitmap_wire_24);
 		break;
 
 	case RF_PATH_DIRECTION_RX:
-		radio_draw_list[RADIO_DRAW_LIST_ITEM_RF_AMP].bitmap = portapack_lna_on ? &bitmap_amp_rx : &bitmap_wire_24;
-		radio_draw_list[RADIO_DRAW_LIST_ITEM_BB_LNA_AMP].bitmap = &bitmap_amp_rx;
-		radio_draw_list[RADIO_DRAW_LIST_ITEM_BB_VGA_AMP].bitmap = &bitmap_amp_rx;
+		portapack_radio_path_item_update(RADIO_DRAW_LIST_ITEM_RF_AMP, portapack_lna_on ? &bitmap_amp_rx : &bitmap_wire_24);
+		portapack_radio_path_item_update(RADIO_DRAW_LIST_ITEM_BB_LNA_AMP, &bitmap_amp_rx);
+		portapack_radio_path_item_update(RADIO_DRAW_LIST_ITEM_BB_VGA_AMP, &bitmap_amp_rx);
 		break;
 
 	case RF_PATH_DIRECTION_OFF:
 	default:
 		break;
 	}
-
-	portapack_radio_path_redraw();
 
 	portapack_direction = direction;
 }
@@ -430,13 +433,12 @@ static void portapack_ui_set_filter_bw(uint32_t bandwidth) {
 
 static void portapack_ui_set_lna_power(bool lna_on) {
 	portapack_lna_on = lna_on;
-	radio_draw_list[RADIO_DRAW_LIST_ITEM_RF_AMP].bitmap = lna_on
+	portapack_radio_path_item_update(RADIO_DRAW_LIST_ITEM_RF_AMP, lna_on
 		? ((portapack_direction == RF_PATH_DIRECTION_TX) ? &bitmap_amp_tx : &bitmap_amp_rx)
-		: &bitmap_wire_24;
+		: &bitmap_wire_24);
 	const char* const label = lna_on ? "14 dB" : "     ";
 	ui_point_t point = { VALUES_X, radio_draw_list[RADIO_DRAW_LIST_ITEM_RF_AMP].point.y + 4 };
 	portapack_lcd_draw_string(point, label);
-	portapack_radio_path_redraw();
 }
 
 static void portapack_ui_set_bb_lna_gain(const uint32_t gain_db) {
@@ -463,23 +465,21 @@ static void portapack_ui_set_first_if_frequency(const uint64_t frequency) {
 }
 
 static void portapack_ui_set_filter(const rf_path_filter_t filter) {
-	radio_draw_list[RADIO_DRAW_LIST_ITEM_RF_MIXER].bitmap = (filter == RF_PATH_FILTER_BYPASS) ? &bitmap_wire_24 : &bitmap_mixer;
+	portapack_radio_path_item_update(RADIO_DRAW_LIST_ITEM_RF_MIXER, (filter == RF_PATH_FILTER_BYPASS) ? &bitmap_wire_24 : &bitmap_mixer);
 
 	switch(filter) {
 	default:
-		radio_draw_list[RADIO_DRAW_LIST_ITEM_IMAGE_FILTER].bitmap = &bitmap_wire_24;
+		portapack_radio_path_item_update(RADIO_DRAW_LIST_ITEM_IMAGE_FILTER, &bitmap_wire_24);
 		break;
 		
 	case RF_PATH_FILTER_LOW_PASS:
-		radio_draw_list[RADIO_DRAW_LIST_ITEM_IMAGE_FILTER].bitmap = &bitmap_filter_lp;
+		portapack_radio_path_item_update(RADIO_DRAW_LIST_ITEM_IMAGE_FILTER, &bitmap_filter_lp);
 		break;
 		
 	case RF_PATH_FILTER_HIGH_PASS:
-		radio_draw_list[RADIO_DRAW_LIST_ITEM_IMAGE_FILTER].bitmap = &bitmap_filter_hp;
+		portapack_radio_path_item_update(RADIO_DRAW_LIST_ITEM_IMAGE_FILTER, &bitmap_filter_hp);
 		break;
 	}
-
-	portapack_radio_path_redraw();
 }
 
 static void portapack_ui_set_antenna_bias(bool antenna_bias) {
