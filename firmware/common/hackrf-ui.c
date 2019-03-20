@@ -21,7 +21,7 @@
 
 #include "hackrf-ui.h"
 
-#include "portapack.h"
+#include "ui_portapack.h"
 #include "ui_rad1o.h"
 
 #include <stddef.h>
@@ -60,20 +60,14 @@ static const hackrf_ui_t hackrf_ui_null = {
 	&hackrf_ui_set_antenna_bias_null,
 };
 
-const portapack_t* portapack_init(void) __attribute__((weak));
-const hackrf_ui_t* rad1o_ui_setup(void) __attribute__((weak));
-
 static const hackrf_ui_t* ui = NULL;
 
 const hackrf_ui_t* hackrf_ui(void) {
 	/* Detect on first use. If no UI hardware is detected, use a stub function table. */
 	if( ui == NULL ) {
 #ifdef HACKRF_ONE
-		if( portapack_init ) {
-			const portapack_t* const portapack = portapack_init();
-			if( portapack != NULL ) {
-				ui = portapack->hackrf_ui;
-			}
+		if( portapack_hackrf_ui_init ) {
+			ui = portapack_hackrf_ui_init();
 		}
 #endif
 #ifdef RAD1O

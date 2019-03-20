@@ -22,9 +22,9 @@
 #ifndef __PORTAPACK_H__
 #define __PORTAPACK_H__
 
+#include <stdint.h>
 #include <stddef.h>
-
-#include "hackrf-ui.h"
+#include <stdbool.h>
 
 #define ARRAY_SIZEOF(x) (sizeof(x) / sizeof(x[0]))
 
@@ -60,11 +60,14 @@ typedef struct ui_font_t {
 	size_t data_stride;
 } ui_font_t;
 
-typedef struct {
-	const hackrf_ui_t* const hackrf_ui;
+typedef struct portapack_t {
 } portapack_t;
 
-const portapack_t* portapack_init(void);
+void portapack_init(void);
+
+/* If the "portapack" symbol is defined, PortaPack support is compiled in */
+/* If the portapack() call returns non-NULL, a PortaPack was detected and is initialized. */
+const portapack_t* portapack(void);
 
 void portapack_backlight(const bool on);
 

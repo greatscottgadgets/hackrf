@@ -500,3 +500,11 @@ const hackrf_ui_t portapack_hackrf_ui = {
 	&portapack_ui_set_filter,
 	&portapack_ui_set_antenna_bias,
 };
+
+const hackrf_ui_t* portapack_hackrf_ui_init() {
+	if( portapack() ) {
+		return &portapack_hackrf_ui;
+	} else {
+		return NULL;
+	}
+}

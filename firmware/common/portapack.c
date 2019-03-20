@@ -556,19 +556,22 @@ static bool portapack_detect(void) {
 	return jtag_pp_idcode() == 0x020A50DD;
 }
 
-extern const hackrf_ui_t portapack_hackrf_ui;
-
-const portapack_t portapack = {
-	&portapack_hackrf_ui,
+static const portapack_t portapack_instance = {
 };
 
-const portapack_t* portapack_init(void) {
+static const portapack_t* portapack_pointer = NULL;
+
+const portapack_t* portapack(void) {
+	return portapack_pointer;
+}
+
+void portapack_init(void) {
 	if( portapack_detect() ) {
 		portapack_if_init();
 		portapack_lcd_reset();
 		portapack_lcd_init();
-		return &portapack;
+		portapack_pointer = &portapack_instance;
 	} else {
-		return NULL;
+		portapack_pointer = NULL;
 	}
 }
