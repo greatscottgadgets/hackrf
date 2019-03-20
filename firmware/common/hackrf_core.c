@@ -712,6 +712,15 @@ void cpu_clock_init(void)
 #endif
 }
 
+void activate_best_clock_source(void)
+{
+	if (si5351c_clkin_signal_valid(&clock_gen)) {
+		si5351c_set_clock_source(&clock_gen, PLL_SOURCE_CLKIN);
+	} else {
+		si5351c_set_clock_source(&clock_gen, PLL_SOURCE_XTAL);
+	}
+}
+
 void ssp1_set_mode_max2837(void)
 {
 	spi_bus_start(max2837.bus, &ssp_config_max2837);

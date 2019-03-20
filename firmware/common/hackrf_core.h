@@ -294,6 +294,8 @@ bool sample_rate_frac_set(uint32_t rate_num, uint32_t rate_denom);
 bool sample_rate_set(const uint32_t sampling_rate_hz);
 bool baseband_filter_bandwidth_set(const uint32_t bandwidth_hz);
 
+void activate_best_clock_source(void);
+
 #if (defined HACKRF_ONE || defined RAD1O)
 void enable_rf_power(void);
 void disable_rf_power(void);
