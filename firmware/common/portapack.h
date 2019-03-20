@@ -67,11 +67,11 @@ void portapack_init(void);
 
 /* If the "portapack" symbol is defined, PortaPack support is compiled in */
 /* If the portapack() call returns non-NULL, a PortaPack was detected and is initialized. */
-const portapack_t* portapack(void);
+const portapack_t* portapack(void) __attribute__((weak));
 
 void portapack_backlight(const bool on);
 
-void portapack_reference_oscillator(const bool on);
+void portapack_reference_oscillator(const bool on) __attribute__((weak));
 
 void portapack_fill_rectangle(
 	const ui_rect_t rect,

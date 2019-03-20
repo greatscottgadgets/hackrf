@@ -39,6 +39,10 @@
 #include <libopencm3/lpc43xx/scu.h>
 #include <libopencm3/lpc43xx/ssp.h>
 
+#ifdef HACKRF_ONE
+#include "portapack.h"
+#endif
+
 #include "gpio_lpc.h"
 
 #define WAIT_CPU_CLOCK_INIT_DELAY   (10000)
@@ -714,9 +718,31 @@ void cpu_clock_init(void)
 
 void activate_best_clock_source(void)
 {
+#ifdef HACKRF_ONE
+	/* Ensure PortaPack reference oscillator is off while checking for external clock input. */
+	if( portapack_reference_oscillator && portapack()) {
+		portapack_reference_oscillator(false);
+	}
+#endif
+
+	/* Check for external clock input. */
 	if (si5351c_clkin_signal_valid(&clock_gen)) {
 		si5351c_set_clock_source(&clock_gen, PLL_SOURCE_CLKIN);
 	} else {
+#ifdef HACKRF_ONE
+		/* Enable PortaPack reference oscillator (if present), and check for valid clock. */
+		if( portapack_reference_oscillator && portapack() ) {
+			portapack_reference_oscillator(true);
+			delay(510000);	/* loop iterations @ 204MHz for >10ms for oscillator to enable. */
+			if (si5351c_clkin_signal_valid(&clock_gen)) {
+				si5351c_set_clock_source(&clock_gen, PLL_SOURCE_CLKIN);
+				return;
+			} else {
+				portapack_reference_oscillator(false);
+			}
+		}
+#endif
+		/* No external or PortaPack clock was found. Use HackRF Si5351C crystal. */
 		si5351c_set_clock_source(&clock_gen, PLL_SOURCE_XTAL);
 	}
 }
