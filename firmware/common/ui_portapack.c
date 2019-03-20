@@ -369,29 +369,39 @@ static void portapack_ui_init(void) {
 }
 
 static void portapack_ui_set_frequency(uint64_t frequency) {
+	static char last[10] = "          ";
+
 	ui_point_t point = { 240 - 20, 16 };
 
 	uint64_t value = frequency;
+	char s[10];
 	for(int i=0; i<10; i++) {
 		const char c = '0' + value % 10;
+		s[i] = ((i>=6) && (value == 0)) ? ' ' : c;
+		value /= 10;
+	}
+
+	for(int i=0; i<10; i++) {
+		const char c = s[i];
 
 		const ui_font_t* const font = (i > 5) ? &font_fixed_24x19 : &font_fixed_16x14;
-		const ui_bitmap_t glyph = portapack_font_glyph(font, c);
-
-		point.x -= glyph.size.width;
+		point.x -= font->glyph_size.width;
 		if( (i==3) || (i==6) || (i==9) ) {
 			point.x -= 4;
 		}
 
-		if( (i>=6) && (value == 0) ) {
-			/* Blank out leading zeros. */
-			const ui_rect_t rect = { point, glyph.size };
-			portapack_fill_rectangle(rect, color_background);
-		} else {
-			portapack_draw_bitmap(point, glyph, color_foreground, color_background);
-		}
+		if( c != last[i] ) {
+			const ui_bitmap_t glyph = portapack_font_glyph(font, c);
 
-		value /= 10;
+			if( c == ' ' ) {
+				/* Blank out leading zeros. */
+				const ui_rect_t rect = { point, glyph.size };
+				portapack_fill_rectangle(rect, color_background);
+			} else {
+				portapack_draw_bitmap(point, glyph, color_foreground, color_background);
+			}
+			last[i] = c;
+		}
 	}
 }
 
