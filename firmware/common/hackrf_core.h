@@ -264,6 +264,12 @@ typedef enum {
 	HW_SYNC_MODE_ON = 1,
 } hw_sync_mode_t;
 
+typedef enum {
+	CLOCK_SOURCE_HACKRF = 0,
+	CLOCK_SOURCE_EXTERNAL = 1,
+	CLOCK_SOURCE_PORTAPACK = 2,
+} clock_source_t;
+
 void delay(uint32_t duration);
 
 /* TODO: Hide these configurations */
@@ -294,7 +300,7 @@ bool sample_rate_frac_set(uint32_t rate_num, uint32_t rate_denom);
 bool sample_rate_set(const uint32_t sampling_rate_hz);
 bool baseband_filter_bandwidth_set(const uint32_t bandwidth_hz);
 
-void activate_best_clock_source(void);
+clock_source_t activate_best_clock_source(void);
 
 #if (defined HACKRF_ONE || defined RAD1O)
 void enable_rf_power(void);

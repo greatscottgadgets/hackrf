@@ -716,7 +716,7 @@ void cpu_clock_init(void)
 #endif
 }
 
-void activate_best_clock_source(void)
+clock_source_t activate_best_clock_source(void)
 {
 #ifdef HACKRF_ONE
 	/* Ensure PortaPack reference oscillator is off while checking for external clock input. */
@@ -728,6 +728,7 @@ void activate_best_clock_source(void)
 	/* Check for external clock input. */
 	if (si5351c_clkin_signal_valid(&clock_gen)) {
 		si5351c_set_clock_source(&clock_gen, PLL_SOURCE_CLKIN);
+		return CLOCK_SOURCE_EXTERNAL;
 	} else {
 #ifdef HACKRF_ONE
 		/* Enable PortaPack reference oscillator (if present), and check for valid clock. */
@@ -736,7 +737,7 @@ void activate_best_clock_source(void)
 			delay(510000);	/* loop iterations @ 204MHz for >10ms for oscillator to enable. */
 			if (si5351c_clkin_signal_valid(&clock_gen)) {
 				si5351c_set_clock_source(&clock_gen, PLL_SOURCE_CLKIN);
-				return;
+				return CLOCK_SOURCE_PORTAPACK;
 			} else {
 				portapack_reference_oscillator(false);
 			}
@@ -744,6 +745,7 @@ void activate_best_clock_source(void)
 #endif
 		/* No external or PortaPack clock was found. Use HackRF Si5351C crystal. */
 		si5351c_set_clock_source(&clock_gen, PLL_SOURCE_XTAL);
+		return CLOCK_SOURCE_HACKRF;
 	}
 }
 
