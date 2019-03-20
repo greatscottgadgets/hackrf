@@ -46,6 +46,7 @@
 #include "usb_api_transceiver.h"
 #include "usb_bulk_buffer.h"
 #include "cpld_xc2c.h"
+#include "portapack.h"
  
 #include "hackrf-ui.h"
 
@@ -234,6 +235,10 @@ int main(void) {
 	if( !cpld_jtag_sram_load(&jtag_cpld) ) {
 		halt_and_flash(6000000);
 	}
+
+#ifdef HACKRF_ONE
+	portapack_init();
+#endif
 
 #ifndef DFU_MODE
 	usb_set_descriptor_by_serial_number();

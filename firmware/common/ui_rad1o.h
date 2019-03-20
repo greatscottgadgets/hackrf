@@ -22,6 +22,8 @@
 #ifndef __UI_RAD1O_H__
 #define __UI_RAD1O_H__
 
-const hackrf_ui_t* rad1o_ui_setup(void);
+#include "hackrf-ui.h"
+
+const hackrf_ui_t* rad1o_ui_setup(void) __attribute__((weak));
 
 #endif/*__UI_RAD1O_H__*/

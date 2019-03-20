@@ -19,7 +19,6 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include "hackrf-ui.h"
 #include "ui_rad1o.h"
 
 /* Weak functions from rad1o app */
