@@ -321,14 +321,23 @@ typedef enum {
 	RADIO_DRAW_LIST_ITEM_BB_VGA_AMP = 14
 } radio_draw_list_item_t;
 
-static const uint8_t VALUES_X = 72;
+static ui_point_t portapack_ui_label_point(const radio_draw_list_item_t item) {
+	const uint8_t VALUES_X = 72;
+	ui_point_t point = { VALUES_X, radio_draw_list[item].point.y + 4 };
+	return point;
+}
 
-static ui_point_t portapack_ui_draw_db(ui_point_t point, const uint32_t db) {
+static ui_point_t portapack_ui_draw_string(const radio_draw_list_item_t item, const char* s) {
+	return portapack_lcd_draw_string(portapack_ui_label_point(item), s);
+}
+
+static ui_point_t portapack_ui_draw_db(const radio_draw_list_item_t item, const uint32_t db) {
+	ui_point_t point = portapack_ui_label_point(item);
 	point = portapack_lcd_draw_int(point, db, 2);
 	return portapack_lcd_draw_string(point, " dB");
 }
 
-static ui_point_t portapack_ui_draw_bw_mhz(ui_point_t point, const uint64_t hz) {
+static ui_point_t portapack_ui_draw_bw_mhz(const radio_draw_list_item_t item, const uint64_t hz) {
 	const uint32_t lsd = 1000000 / 100;
 	const uint32_t round_offset = lsd / 2;
 
@@ -336,6 +345,7 @@ static ui_point_t portapack_ui_draw_bw_mhz(ui_point_t point, const uint64_t hz) 
 	const uint32_t mhz = hz_offset / 1000000;
 	const uint32_t frac = hz_offset / lsd;
 
+	ui_point_t point = portapack_ui_label_point(item);
 	point = portapack_lcd_draw_int(point, mhz, 2);
 	point = portapack_lcd_draw_string(point, ".");
 	point = portapack_lcd_draw_int(point, frac, 2);
@@ -437,8 +447,7 @@ static void portapack_ui_set_direction(const rf_path_direction_t direction) {
 }
 
 static void portapack_ui_set_filter_bw(uint32_t bandwidth) {
-	ui_point_t point = { VALUES_X, radio_draw_list[RADIO_DRAW_LIST_ITEM_BB_FILTER].point.y + 4 };
-	portapack_ui_draw_bw_mhz(point, bandwidth);
+	portapack_ui_draw_bw_mhz(RADIO_DRAW_LIST_ITEM_BB_FILTER, bandwidth);
 }
 
 static void portapack_ui_set_lna_power(bool lna_on) {
@@ -447,18 +456,15 @@ static void portapack_ui_set_lna_power(bool lna_on) {
 		? ((portapack_direction == RF_PATH_DIRECTION_TX) ? &bitmap_amp_tx : &bitmap_amp_rx)
 		: &bitmap_wire_24);
 	const char* const label = lna_on ? "14 dB" : "     ";
-	ui_point_t point = { VALUES_X, radio_draw_list[RADIO_DRAW_LIST_ITEM_RF_AMP].point.y + 4 };
-	portapack_lcd_draw_string(point, label);
+	portapack_ui_draw_string(RADIO_DRAW_LIST_ITEM_RF_AMP, label);
 }
 
 static void portapack_ui_set_bb_lna_gain(const uint32_t gain_db) {
-	ui_point_t point = { VALUES_X, radio_draw_list[RADIO_DRAW_LIST_ITEM_BB_LNA_AMP].point.y + 4 };
-	portapack_ui_draw_db(point, gain_db);
+	portapack_ui_draw_db(RADIO_DRAW_LIST_ITEM_BB_LNA_AMP, gain_db);
 }
 
 static void portapack_ui_set_bb_vga_gain(const uint32_t gain_db) {
-	ui_point_t point = { VALUES_X, radio_draw_list[RADIO_DRAW_LIST_ITEM_BB_VGA_AMP].point.y + 4 };
-	portapack_ui_draw_db(point, gain_db);
+	portapack_ui_draw_db(RADIO_DRAW_LIST_ITEM_BB_VGA_AMP, gain_db);
 }
 
 static void portapack_ui_set_bb_tx_vga_gain(const uint32_t gain_db) {
@@ -466,8 +472,7 @@ static void portapack_ui_set_bb_tx_vga_gain(const uint32_t gain_db) {
 	 * According to the MAX2837 datasheet diagram, there is no baseband gain in the TX path.
 	 * This gets called when the TX IF gain is changed.
 	 */
-	ui_point_t point = { VALUES_X, radio_draw_list[RADIO_DRAW_LIST_ITEM_BB_LNA_AMP].point.y + 4 };
-	portapack_ui_draw_db(point, gain_db);
+	portapack_ui_draw_db(RADIO_DRAW_LIST_ITEM_BB_LNA_AMP, gain_db);
 }
 
 static void portapack_ui_set_first_if_frequency(const uint64_t frequency) {
