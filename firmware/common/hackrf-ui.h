@@ -22,7 +22,7 @@
 #ifndef HACKRF_UI_H
 #define HACKRF_UI_H
 
-#include <rf_path.h>
+#include <hackrf_core.h>
 #include <stdint.h>
 
 typedef void (*hackrf_ui_init_fn)(void);
