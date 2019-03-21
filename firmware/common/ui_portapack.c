@@ -430,6 +430,7 @@ static void portapack_ui_set_direction(const rf_path_direction_t direction) {
 		portapack_radio_path_item_update(RADIO_DRAW_LIST_ITEM_RF_AMP, portapack_lna_on ? &bitmap_amp_tx : &bitmap_wire_24);
 		portapack_radio_path_item_update(RADIO_DRAW_LIST_ITEM_BB_LNA_AMP, &bitmap_amp_tx);
 		portapack_radio_path_item_update(RADIO_DRAW_LIST_ITEM_BB_VGA_AMP, &bitmap_wire_24);
+		portapack_ui_draw_string(RADIO_DRAW_LIST_ITEM_BB_VGA_AMP, "     ");
 		break;
 
 	case RF_PATH_DIRECTION_RX:
