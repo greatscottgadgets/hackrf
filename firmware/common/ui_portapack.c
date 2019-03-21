@@ -502,6 +502,9 @@ static void portapack_ui_set_antenna_bias(bool antenna_bias) {
 	(void)antenna_bias;
 }
 
+static void portapack_ui_set_clock_source(clock_source_t source) {
+}
+
 const hackrf_ui_t portapack_hackrf_ui = {
 	&portapack_ui_init,
 	&portapack_ui_set_frequency,
@@ -515,6 +518,7 @@ const hackrf_ui_t portapack_hackrf_ui = {
 	&portapack_ui_set_first_if_frequency,
 	&portapack_ui_set_filter,
 	&portapack_ui_set_antenna_bias,
+	&portapack_ui_set_clock_source,
 };
 
 const hackrf_ui_t* portapack_hackrf_ui_init() {

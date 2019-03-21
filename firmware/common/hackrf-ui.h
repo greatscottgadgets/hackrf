@@ -37,6 +37,7 @@ typedef void (*hackrf_ui_set_bb_tx_vga_gain_fn)(const uint32_t gain_db);
 typedef void (*hackrf_ui_set_first_if_frequency_fn)(const uint64_t frequency);
 typedef void (*hackrf_ui_set_filter_fn)(const rf_path_filter_t filter);
 typedef void (*hackrf_ui_set_antenna_bias_fn)(bool antenna_bias);
+typedef void (*hackrf_ui_set_clock_source_fn)(clock_source_t source);
 
 typedef struct {
 	hackrf_ui_init_fn init;
@@ -51,6 +52,7 @@ typedef struct {
 	hackrf_ui_set_first_if_frequency_fn set_first_if_frequency;
 	hackrf_ui_set_filter_fn set_filter;
 	hackrf_ui_set_antenna_bias_fn set_antenna_bias;
+	hackrf_ui_set_clock_source_fn set_clock_source;
 } hackrf_ui_t;
 
 /* TODO: Lame hack to know that PortaPack was detected.
