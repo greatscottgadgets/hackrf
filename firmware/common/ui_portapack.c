@@ -218,6 +218,14 @@ static const ui_bitmap_t bitmap_mixer = {
 	{ 24, 24 }, bitmap_mixer_data
 };
 
+static const uint8_t bitmap_oscillator_data[] = {
+	0x00, 0x7e, 0x00, 0xc0, 0xff, 0x03, 0xe0, 0x81, 0x07, 0x70, 0x00, 0x0e, 0x38, 0x00, 0x1c, 0x1c, 0x00, 0x38, 0x0e, 0x03, 0x70, 0x86, 0x07, 0x60, 0xc6, 0x0f, 0x60, 0xc3, 0x0c, 0xc0, 0xe3, 0x1c, 0xc0, 0x63, 0x18, 0xc6, 0x63, 0x18, 0xc6, 0x03, 0x38, 0xc7, 0x03, 0x30, 0xc3, 0x06, 0xf0, 0x63, 0x06, 0xe0, 0x61, 0x0e, 0xc0, 0x70, 0x1c, 0x00, 0x38, 0x38, 0x00, 0x1c, 0x70, 0x00, 0x0e, 0xe0, 0x81, 0x07, 0xc0, 0xff, 0x03, 0x00, 0x7e, 0x00
+};
+
+static const ui_bitmap_t bitmap_oscillator = {
+	{ 24, 24 }, bitmap_oscillator_data
+};
+
 static const uint8_t bitmap_wire_8_data[] = {
 	0xff, 0xff
 };
@@ -292,22 +300,23 @@ typedef struct draw_list_t {
 } draw_list_t;
 
 static draw_list_t radio_draw_list[] = {
-	{ &bitmap_antenna,   { 32,  64 } },
-	{ &bitmap_wire_8,    { 43,  88 } },
-	{ &bitmap_amp_rx,    { 32,  96 } },
-	{ &bitmap_wire_8,    { 43, 120 } },
-	{ &bitmap_filter_hp, { 32, 128 } },
-	{ &bitmap_wire_8,    { 43, 152 } },
-	{ &bitmap_mixer,     { 32, 160 } },
-	{ &bitmap_wire_8,    { 43, 184 } },
-	{ &bitmap_amp_rx,    { 32, 192 } },
-	{ &bitmap_wire_8,    { 43, 216 } },
-	{ &bitmap_mixer,     { 32, 224 } },
-	{ &bitmap_wire_8,    { 43, 248 } },
-	{ &bitmap_filter_lp, { 32, 256 } },
-	{ &bitmap_wire_8,    { 43, 280 } },
-	{ &bitmap_amp_rx,    { 32, 288 } },
-	{ &bitmap_wire_8,    { 43, 312 } },
+	{ &bitmap_antenna,    {  32,  64 } },
+	{ &bitmap_wire_8,     {  43,  88 } },
+	{ &bitmap_amp_rx,     {  32,  96 } },
+	{ &bitmap_wire_8,     {  43, 120 } },
+	{ &bitmap_filter_hp,  {  32, 128 } },
+	{ &bitmap_wire_8,     {  43, 152 } },
+	{ &bitmap_mixer,      {  32, 160 } },
+	{ &bitmap_wire_8,     {  43, 184 } },
+	{ &bitmap_amp_rx,     {  32, 192 } },
+	{ &bitmap_wire_8,     {  43, 216 } },
+	{ &bitmap_mixer,      {  32, 224 } },
+	{ &bitmap_wire_8,     {  43, 248 } },
+	{ &bitmap_filter_lp,  {  32, 256 } },
+	{ &bitmap_wire_8,     {  43, 280 } },
+	{ &bitmap_amp_rx,     {  32, 288 } },
+	{ &bitmap_wire_8,     {  43, 312 } },
+	{ &bitmap_oscillator, { 208, 288 } },
 };
 
 typedef enum {
@@ -318,7 +327,8 @@ typedef enum {
 	RADIO_DRAW_LIST_ITEM_BB_LNA_AMP = 8,
 	RADIO_DRAW_LIST_ITEM_BB_MIXER = 10,
 	RADIO_DRAW_LIST_ITEM_BB_FILTER = 12,
-	RADIO_DRAW_LIST_ITEM_BB_VGA_AMP = 14
+	RADIO_DRAW_LIST_ITEM_BB_VGA_AMP = 14,
+	RADIO_DRAW_LIST_ITEM_CLOCK = 16,
 } radio_draw_list_item_t;
 
 static ui_point_t portapack_ui_label_point(const radio_draw_list_item_t item) {
@@ -503,6 +513,19 @@ static void portapack_ui_set_antenna_bias(bool antenna_bias) {
 }
 
 static void portapack_ui_set_clock_source(clock_source_t source) {
+	ui_point_t label_point = radio_draw_list[RADIO_DRAW_LIST_ITEM_CLOCK].point;
+	label_point.x -= 0;
+	label_point.y -= 16;
+	
+	const char* s = "HRF";
+	switch(source) {
+	case CLOCK_SOURCE_EXTERNAL:  { s = "EXT"; break; }
+	case CLOCK_SOURCE_PORTAPACK: { s = "PPK"; break; }
+	default:
+	case CLOCK_SOURCE_HACKRF:    { s = "HRF"; break; }
+	}
+
+	portapack_lcd_draw_string(label_point, s);
 }
 
 const hackrf_ui_t portapack_hackrf_ui = {
