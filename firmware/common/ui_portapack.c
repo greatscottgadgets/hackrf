@@ -302,7 +302,7 @@ typedef struct draw_list_t {
 static draw_list_t radio_draw_list[] = {
 	{ &bitmap_antenna,    {  32,  64 } },
 	{ &bitmap_wire_8,     {  43,  88 } },
-	{ &bitmap_amp_rx,     {  32,  96 } },
+	{ &bitmap_wire_24,    {  32,  96 } },
 	{ &bitmap_wire_8,     {  43, 120 } },
 	{ &bitmap_filter_hp,  {  32, 128 } },
 	{ &bitmap_wire_8,     {  43, 152 } },
