@@ -111,6 +111,30 @@ set(BUILD_SHARED_LIBS OFF)
 include_directories("${LIBOPENCM3}/include/")
 include_directories("${PATH_HACKRF_FIRMWARE_COMMON}")
 
+macro(DeclareTarget project_name variant_suffix cflags ldflags)
+	add_library(${project_name}${variant_suffix}_objects OBJECT ${SRC_M4} m0_bin.s)
+	set_target_properties(${project_name}${variant_suffix}_objects PROPERTIES COMPILE_FLAGS "${cflags}")
+	add_dependencies(${project_name}${variant_suffix}_objects ${project_name}_m0.bin)
+	add_executable(${project_name}${variant_suffix}.elf $<TARGET_OBJECTS:${project_name}${variant_suffix}_objects>)
+	add_dependencies(${project_name}${variant_suffix}.elf libopencm3_${project_name})
+
+	target_link_libraries(
+		${project_name}${variant_suffix}.elf
+		c
+		nosys
+		opencm3_lpc43xx
+		m
+	)
+
+	set_target_properties(${project_name}${variant_suffix}.elf PROPERTIES LINK_FLAGS "${ldflags}")
+
+	add_custom_target(
+		${project_name}${variant_suffix}.bin ALL
+		DEPENDS ${project_name}${variant_suffix}.elf
+		COMMAND ${CMAKE_OBJCOPY} -Obinary ${project_name}${variant_suffix}.elf ${project_name}${variant_suffix}.bin
+	)
+endmacro()
+
 macro(DeclareTargets)
 	SET(SRC_M4
 		${SRC_M4}
@@ -178,76 +202,9 @@ macro(DeclareTargets)
 		COMMAND ${CMAKE_OBJCOPY} -Obinary ${PROJECT_NAME}_m0.elf ${PROJECT_NAME}_m0.bin
 	)
 
-	# Object files to be linked for SPI flash versions
-	add_library(${PROJECT_NAME}_objects OBJECT ${SRC_M4} m0_bin.s)
-	set_target_properties(${PROJECT_NAME}_objects PROPERTIES COMPILE_FLAGS "${CFLAGS_M4}")
-	add_dependencies(${PROJECT_NAME}_objects ${PROJECT_NAME}_m0.bin)
-	add_executable(${PROJECT_NAME}.elf $<TARGET_OBJECTS:${PROJECT_NAME}_objects>)
-	add_dependencies(${PROJECT_NAME}.elf libopencm3_${PROJECT_NAME})
-
-	target_link_libraries(
-		${PROJECT_NAME}.elf
-		c
-		nosys
-		opencm3_lpc43xx
-		m
-	)
-
-	set_target_properties(${PROJECT_NAME}.elf PROPERTIES LINK_FLAGS "${LDFLAGS_M4}")
-
-	add_custom_target(
-		${PROJECT_NAME}.bin ALL
-		DEPENDS ${PROJECT_NAME}.elf
-		COMMAND ${CMAKE_OBJCOPY} -Obinary ${PROJECT_NAME}.elf ${PROJECT_NAME}.bin
-	)
-
-	# RAM - using a differnet LD script to run directly from RAM
-	# TODO: Duplicated from DFU code, below, except without -DDFU_MODE. Extract to shared code somehow.
-	add_library(${PROJECT_NAME}_ram_objects OBJECT ${SRC_M4} m0_bin.s)
-	set_target_properties(${PROJECT_NAME}_ram_objects PROPERTIES COMPILE_FLAGS "${CFLAGS_M4_RAM}")
-	add_dependencies(${PROJECT_NAME}_ram_objects ${PROJECT_NAME}_m0.bin)
-	add_executable(${PROJECT_NAME}_ram.elf $<TARGET_OBJECTS:${PROJECT_NAME}_ram_objects>)
-	add_dependencies(${PROJECT_NAME}_ram.elf libopencm3_${PROJECT_NAME})
-
-	target_link_libraries(
-		${PROJECT_NAME}_ram.elf
-		c
-		nosys
-		opencm3_lpc43xx
-		m
-	)
-
-	set_target_properties(${PROJECT_NAME}_ram.elf PROPERTIES LINK_FLAGS "${LDFLAGS_M4_RAM}")
-
-	add_custom_target(
-		${PROJECT_NAME}_ram.bin
-		DEPENDS ${PROJECT_NAME}_ram.elf
-		COMMAND ${CMAKE_OBJCOPY} -Obinary ${PROJECT_NAME}_ram.elf ${PROJECT_NAME}_ram.bin
-	)
-
-	# DFU - using a differnet LD script to run directly from RAM
-	# Object files to be linked for DFU flash versions
-	add_library(${PROJECT_NAME}_dfu_objects OBJECT ${SRC_M4} m0_bin.s)
-	set_target_properties(${PROJECT_NAME}_dfu_objects PROPERTIES COMPILE_FLAGS "${CFLAGS_M4_RAM} -DDFU_MODE")
-	add_dependencies(${PROJECT_NAME}_dfu_objects ${PROJECT_NAME}_m0.bin)
-	add_executable(${PROJECT_NAME}_dfu.elf $<TARGET_OBJECTS:${PROJECT_NAME}_dfu_objects>)
-	add_dependencies(${PROJECT_NAME}_dfu.elf libopencm3_${PROJECT_NAME})
-
-	target_link_libraries(
-		${PROJECT_NAME}_dfu.elf
-		c
-		nosys
-		opencm3_lpc43xx
-		m
-	)
-
-	set_target_properties(${PROJECT_NAME}_dfu.elf PROPERTIES LINK_FLAGS "${LDFLAGS_M4_RAM}")
-
-	add_custom_target(
-		${PROJECT_NAME}_dfu.bin
-		DEPENDS ${PROJECT_NAME}_dfu.elf
-		COMMAND ${CMAKE_OBJCOPY} -Obinary ${PROJECT_NAME}_dfu.elf ${PROJECT_NAME}_dfu.bin
-	)
+	DeclareTarget("${PROJECT_NAME}" "" "${CFLAGS_M4}" "${LDFLAGS_M4}")	
+	DeclareTarget("${PROJECT_NAME}" "_ram" "${CFLAGS_M4_RAM}" "${LDFLAGS_M4_RAM}")	
+	DeclareTarget("${PROJECT_NAME}" "_dfu" "${CFLAGS_M4_RAM} -DDFU_MODE" "${LDFLAGS_M4_RAM}")	
 
 	add_custom_target(
 		${PROJECT_NAME}.dfu ${DFU_ALL}
