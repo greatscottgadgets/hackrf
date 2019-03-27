@@ -125,7 +125,8 @@ int main(void)
 				printf("Operacake found, address: 0x%02x\n", operacakes[j]);
 			}
 		}
-
+		
+#ifdef HACKRF_ISSUE_609_IS_FIXED
 		uint32_t cpld_crc = 0;
 		result = hackrf_cpld_checksum(device, &cpld_crc);
 		if ((result != HACKRF_SUCCESS) && (result != HACKRF_ERROR_USB_API_VERSION)) {
@@ -136,6 +137,7 @@ int main(void)
 		if(result == HACKRF_SUCCESS) {
 			printf("CPLD checksum: 0x%08x\n", cpld_crc);
 		}
+#endif /* HACKRF_ISSUE_609_IS_FIXED */
 
 		result = hackrf_close(device);
 		if (result != HACKRF_SUCCESS) {
