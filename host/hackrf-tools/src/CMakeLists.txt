@@ -24,7 +24,7 @@
 set(INSTALL_DEFAULT_BINDIR "bin" CACHE STRING "Appended to CMAKE_INSTALL_PREFIX")
 
 find_package(FFTW REQUIRED)
-include_directories(${FFTW_INCLUDE_DIRS})
+include_directories(${FFTW_INCLUDES})
 link_directories(${FFTW_LIBRARY_DIRS})
 
 SET(TOOLS
