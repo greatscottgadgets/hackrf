@@ -530,7 +530,7 @@ BOOL WINAPI
 sighandler(int signum)
 {
 	if (CTRL_C_EVENT == signum) {
-		fprintf(stdout, "Caught signal %d\n", signum);
+		fprintf(stderr, "Caught signal %d\n", signum);
 		do_exit = true;
 		return TRUE;
 	}
@@ -539,7 +539,7 @@ sighandler(int signum)
 #else
 void sigint_callback_handler(int signum) 
 {
-	fprintf(stdout, "Caught signal %d\n", signum);
+	fprintf(stderr, "Caught signal %d\n", signum);
 	do_exit = true;
 }
 #endif
