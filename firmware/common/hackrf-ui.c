@@ -41,6 +41,7 @@ void hackrf_ui_set_bb_tx_vga_gain_null(const uint32_t gain_db) { UNUSED(gain_db)
 void hackrf_ui_set_first_if_frequency_null(const uint64_t frequency) { UNUSED(frequency); }
 void hackrf_ui_set_filter_null(const rf_path_filter_t filter) { UNUSED(filter); }
 void hackrf_ui_set_antenna_bias_null(bool antenna_bias) { UNUSED(antenna_bias); }
+void hackrf_ui_set_clock_source_null(clock_source_t source) { UNUSED(source); }
 
 /* Null UI function table, used if there's no hardware UI detected. Eliminates the
  * need to check for null UI before calling a function in the table.
@@ -58,10 +59,8 @@ static const hackrf_ui_t hackrf_ui_null = {
 	&hackrf_ui_set_first_if_frequency_null,
 	&hackrf_ui_set_filter_null,
 	&hackrf_ui_set_antenna_bias_null,
+	&hackrf_ui_set_clock_source_null,
 };
-
-const hackrf_ui_t* portapack_detect(void) __attribute__((weak));
-const hackrf_ui_t* rad1o_ui_setup(void) __attribute__((weak));
 
 static const hackrf_ui_t* ui = NULL;
 
@@ -69,8 +68,8 @@ const hackrf_ui_t* hackrf_ui(void) {
 	/* Detect on first use. If no UI hardware is detected, use a stub function table. */
 	if( ui == NULL ) {
 #ifdef HACKRF_ONE
-		if( portapack_detect ) {
-			ui = portapack_detect();
+		if( portapack_hackrf_ui_init ) {
+			ui = portapack_hackrf_ui_init();
 		}
 #endif
 #ifdef RAD1O

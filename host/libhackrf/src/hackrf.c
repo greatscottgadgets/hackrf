@@ -2105,6 +2105,7 @@ int ADDCALL hackrf_operacake_gpio_test(hackrf_device* device, const uint8_t addr
 	}
 }
 
+#ifdef HACKRF_ISSUE_609_IS_FIXED
 int ADDCALL hackrf_cpld_checksum(hackrf_device* device,
 								 uint32_t* crc)
 {
@@ -2133,6 +2134,7 @@ int ADDCALL hackrf_cpld_checksum(hackrf_device* device,
 		return HACKRF_SUCCESS;
 	}
 }
+#endif /* HACKRF_ISSUE_609_IS_FIXED */
 
 #ifdef __cplusplus
 } // __cplusplus defined.

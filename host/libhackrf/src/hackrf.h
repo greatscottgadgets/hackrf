@@ -254,9 +254,10 @@ extern ADDAPI int ADDCALL hackrf_set_clkout_enable(hackrf_device* device, const 
 extern ADDAPI int ADDCALL hackrf_operacake_gpio_test(hackrf_device* device,
                                                      uint8_t address,
 													 uint16_t* test_result);
-
+#ifdef HACKRF_ISSUE_609_IS_FIXED
 extern ADDAPI int ADDCALL hackrf_cpld_checksum(hackrf_device* device,
 											   uint32_t* crc);
+#endif /* HACKRF_ISSUE_609_IS_FIXED */
 
 #ifdef __cplusplus
 } // __cplusplus defined.
