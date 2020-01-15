@@ -249,6 +249,7 @@ int main(void) {
 	operacake_init(operacake_allow_gpio);
 
 	unsigned int phase = 0;
+	usb_bulk_buffer_offset = 0;
 
 	while(true) {
 		// Check whether we need to initiate a CPLD update
