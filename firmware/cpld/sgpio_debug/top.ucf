@@ -65,6 +65,8 @@ NET "HOST_SYNC_EN" LOC = "P90" ;
 NET "HOST_SYNC"  LOC = "P55" | PULLUP ; 
 NET "HOST_SYNC_CMD"  LOC = "P56" ; 
 
+NET "B2AUX1"  LOC = "13" ;
+
 #PACE: Start of PACE Area Constraints
 
 #PACE: Start of PACE Prohibit Constraints

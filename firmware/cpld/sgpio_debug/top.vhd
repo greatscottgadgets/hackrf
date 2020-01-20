@@ -41,7 +41,9 @@ entity top is
         DD              : out   std_logic_vector(9 downto 0);
 
         CODEC_CLK       : in    std_logic;
-        CODEC_X2_CLK    : in    std_logic
+        CODEC_X2_CLK    : in    std_logic;
+
+        B2AUX1          : out   std_logic
     );
 
 end top;
@@ -66,6 +68,9 @@ architecture Behavioral of top is
 
     signal data_from_host_i : std_logic_vector(7 downto 0);
     signal data_to_host_o : std_logic_vector(7 downto 0);
+
+    signal compare_counter : std_logic_vector(7 downto 0);
+    signal glitch_detected_o : std_logic;
 
     signal q_invert : std_logic;
     signal rx_q_invert_mask : std_logic_vector(7 downto 0);
@@ -97,7 +102,9 @@ begin
      host_sync_enable <= HOST_SYNC_EN;
      host_sync_i <= HOST_SYNC;
      HOST_SYNC_CMD <= host_sync_o;
-     
+
+     B2AUX1 <= glitch_detected_o;
+
     host_data_enable_i <= not HOST_DISABLE;
     transfer_direction_i <= to_dac when HOST_DIRECTION = '1'
                                    else from_adc;
@@ -114,13 +121,7 @@ begin
             codec_clk_rx_i <= CODEC_CLK;
             adc_data_i <= DA(7 downto 0);
             if (transfer_direction_i = from_adc) then
-                if codec_clk_rx_i = '1' then
-                    -- I: non-inverted between MAX2837 and MAX5864
-                    data_to_host_o <= adc_data_i xor X"80";
-                else
-                    -- Q: inverted between MAX2837 and MAX5864
-                    data_to_host_o <= adc_data_i xor rx_q_invert_mask;
-                end if;
+                data_to_host_o <= data_to_host_o + 1;
             end if;
         end if;
     end process;
@@ -136,6 +137,13 @@ begin
                 else
                     dac_data_o <= (data_from_host_i xor X"80") & "00";
                 end if;
+
+                if data_from_host_i /= compare_counter then
+                    glitch_detected_o <= '1';
+                else
+                    glitch_detected_o <= '0';
+                end if;
+                compare_counter <= data_from_host_i + 1;
             else
                 dac_data_o <= (dac_data_o'high => '0', others => '1');
             end if;
