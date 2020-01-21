@@ -22,7 +22,9 @@
 
 #include <stddef.h>
 
+#include <libopencm3/lpc43xx/ipc.h>
 #include <libopencm3/lpc43xx/m4/nvic.h>
+#include <libopencm3/lpc43xx/rgu.h>
 
 #include <streaming.h>
 
@@ -49,6 +51,10 @@
 #include "portapack.h"
  
 #include "hackrf-ui.h"
+
+extern uint32_t __m0_start__;
+extern uint32_t __m0_end__;
+extern uint32_t __ram_m0_start__;
 
 static usb_request_handler_fn vendor_request_handler[] = {
 	NULL,
@@ -176,6 +182,16 @@ static bool cpld_jtag_sram_load(jtag_t* const jtag) {
 	return success;
 }
 
+static void m0_rom_to_ram() {
+	uint32_t *dest = &__ram_m0_start__;
+	uint32_t *src = &__m0_start__;
+	while (src < &__m0_end__) {
+		*dest = *src;
+		dest++;
+		src++;
+	}
+}
+
 int main(void) {
 	bool operacake_allow_gpio;
 	pin_setup();
@@ -187,6 +203,10 @@ int main(void) {
 	delay(1000000);
 #endif
 	cpu_clock_init();
+
+	/* Wake the M0 */
+	m0_rom_to_ram();
+	ipc_start_m0((uint32_t)&__ram_m0_start__);
 
 	if( !cpld_jtag_sram_load(&jtag_cpld) ) {
 		halt_and_flash(6000000);
@@ -229,6 +249,7 @@ int main(void) {
 	operacake_init(operacake_allow_gpio);
 
 	unsigned int phase = 0;
+	usb_bulk_buffer_offset = 0;
 
 	while(true) {
 		// Check whether we need to initiate a CPLD update

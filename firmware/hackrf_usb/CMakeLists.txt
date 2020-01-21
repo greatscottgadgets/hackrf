@@ -35,7 +35,6 @@ set(SRC_M4
 	hackrf_usb.c
 	"${PATH_HACKRF_FIRMWARE_COMMON}/tuning.c"
 	"${PATH_HACKRF_FIRMWARE_COMMON}/streaming.c"
-	sgpio_isr.c
 	usb_bulk_buffer.c
 	"${PATH_HACKRF_FIRMWARE_COMMON}/usb.c"
 	"${PATH_HACKRF_FIRMWARE_COMMON}/usb_request.c"
@@ -62,6 +61,8 @@ set(SRC_M4
 	"${PATH_HACKRF_FIRMWARE_COMMON}/rom_iap.c"
 	"${PATH_HACKRF_FIRMWARE_COMMON}/operacake.c"
 )
+
+set(SRC_M0 sgpio_m0.s)
 
 if(BOARD STREQUAL "HACKRF_ONE")
 	SET(SRC_M4

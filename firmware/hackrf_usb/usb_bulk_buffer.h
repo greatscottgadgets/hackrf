@@ -23,6 +23,7 @@
 #ifndef __USB_BULK_BUFFER_H__
 #define __USB_BULK_BUFFER_H__
 
+#include <stdbool.h>
 #include <stdint.h>
 
 /* Address of usb_bulk_buffer is set in ldscripts. If you change the name of this
@@ -31,8 +32,8 @@
  */
 extern uint8_t usb_bulk_buffer[32768];
 
-extern const uint32_t usb_bulk_buffer_mask;
-
 extern volatile uint32_t usb_bulk_buffer_offset;
+
+extern bool usb_bulk_buffer_tx;
 
 #endif/*__USB_BULK_BUFFER_H__*/
