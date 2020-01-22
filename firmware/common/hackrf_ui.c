@@ -42,6 +42,7 @@ void hackrf_ui_set_first_if_frequency_null(const uint64_t frequency) { UNUSED(fr
 void hackrf_ui_set_filter_null(const rf_path_filter_t filter) { UNUSED(filter); }
 void hackrf_ui_set_antenna_bias_null(bool antenna_bias) { UNUSED(antenna_bias); }
 void hackrf_ui_set_clock_source_null(clock_source_t source) { UNUSED(source); }
+bool hackrf_ui_operacake_gpio_compatible_null(void) { return true; }
 
 /* Null UI function table, used if there's no hardware UI detected. Eliminates the
  * need to check for null UI before calling a function in the table.
@@ -60,6 +61,7 @@ static const hackrf_ui_t hackrf_ui_null = {
 	&hackrf_ui_set_filter_null,
 	&hackrf_ui_set_antenna_bias_null,
 	&hackrf_ui_set_clock_source_null,
+	&hackrf_ui_operacake_gpio_compatible_null
 };
 
 static const hackrf_ui_t* ui = NULL;
