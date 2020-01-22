@@ -50,7 +50,7 @@
 #include "cpld_xc2c.h"
 #include "portapack.h"
  
-#include "hackrf-ui.h"
+#include "hackrf_ui.h"
 
 extern uint32_t __m0_start__;
 extern uint32_t __m0_end__;
@@ -241,7 +241,7 @@ int main(void) {
 	
 	rf_path_init(&rf_path);
 
-	if( hackrf_ui() == NULL ) {
+	if( hackrf_ui()->operacake_gpio_compatible() ) {
 		operacake_allow_gpio = true;
 	} else {
 		operacake_allow_gpio = false;

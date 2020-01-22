@@ -22,7 +22,7 @@
  */
 
 #include "hackrf_core.h"
-#include "hackrf-ui.h"
+#include "hackrf_ui.h"
 #include "si5351c.h"
 #include "spi_ssp.h"
 #include "max2837.h"

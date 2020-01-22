@@ -26,7 +26,7 @@
 
 #include <hackrf_core.h>
 
-#include "hackrf-ui.h"
+#include "hackrf_ui.h"
 
 #include <mixer.h>
 #include <max2837.h>

@@ -22,7 +22,7 @@
 
 #include "tuning.h"
 
-#include "hackrf-ui.h"
+#include "hackrf_ui.h"
 
 #include <hackrf_core.h>
 #include <mixer.h>

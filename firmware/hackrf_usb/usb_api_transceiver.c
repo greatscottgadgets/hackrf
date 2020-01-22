@@ -22,7 +22,7 @@
 
 #include "usb_api_transceiver.h"
 
-#include "hackrf-ui.h"
+#include "hackrf_ui.h"
 #include <libopencm3/cm3/vector.h>
 #include "usb_bulk_buffer.h"
 
