@@ -85,6 +85,7 @@ typedef enum {
 	HACKRF_VENDOR_REQUEST_SPIFLASH_CLEAR_STATUS = 34,
 	HACKRF_VENDOR_REQUEST_OPERACAKE_GPIO_TEST = 35,
 	HACKRF_VENDOR_REQUEST_CPLD_CHECKSUM = 36,
+	HACKRF_VENDOR_REQUEST_UI_ENABLE = 37,
 } hackrf_vendor_request;
 
 #define USB_CONFIG_STANDARD 0x1
@@ -1850,7 +1851,7 @@ uint32_t ADDCALL hackrf_compute_baseband_filter_bw(const uint32_t bandwidth_hz)
 	return p->bandwidth_hz;
 }
 
-/* All features below require USB API version 0x1002 or higher) */
+/* All features below require USB API version 0x0102 or higher) */
 
 int ADDCALL hackrf_set_hw_sync_mode(hackrf_device* device, const uint8_t value) {
 	USB_API_REQUIRED(device, 0x0102)
@@ -2136,6 +2137,30 @@ int ADDCALL hackrf_cpld_checksum(hackrf_device* device,
 	}
 }
 #endif /* HACKRF_ISSUE_609_IS_FIXED */
+
+int ADDCALL hackrf_set_ui_enable(hackrf_device* device, const uint8_t value)
+{
+	USB_API_REQUIRED(device, 0x0104)
+	int result;
+	result = libusb_control_transfer(
+		device->usb_device,
+		LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_UI_ENABLE,
+		value,
+		0,
+		NULL,
+		0,
+		0
+	);
+
+	if (result != 0)
+	{
+		last_libusb_error = result;
+		return HACKRF_ERROR_LIBUSB;
+	} else {
+		return HACKRF_SUCCESS;
+	}
+}
 
 #ifdef __cplusplus
 } // __cplusplus defined.

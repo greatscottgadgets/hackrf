@@ -406,6 +406,11 @@ static void portapack_ui_init(void) {
 	portapack_radio_path_redraw();
 }
 
+static void portapack_ui_deinit(void) {
+	portapack_clear_display(color_background);
+	portapack_backlight(false);
+}
+
 static void portapack_ui_set_frequency(uint64_t frequency) {
 	static char last[10] = "          ";
 
@@ -555,6 +560,7 @@ static bool portapack_ui_operacake_gpio_compatible(void) {
 
 const hackrf_ui_t portapack_hackrf_ui = {
 	&portapack_ui_init,
+	&portapack_ui_deinit,
 	&portapack_ui_set_frequency,
 	&portapack_ui_set_sample_rate,
 	&portapack_ui_set_direction,

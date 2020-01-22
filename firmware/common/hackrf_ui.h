@@ -26,6 +26,7 @@
 #include <stdint.h>
 
 typedef void (*hackrf_ui_init_fn)(void);
+typedef void (*hackrf_ui_deinit_fn)(void);
 typedef void (*hackrf_ui_set_frequency_fn)(uint64_t frequency);
 typedef void (*hackrf_ui_set_sample_rate_fn)(uint32_t sample_rate);
 typedef void (*hackrf_ui_set_direction_fn)(const rf_path_direction_t direction);
@@ -42,6 +43,7 @@ typedef bool (*hackrf_ui_operacake_gpio_compatible_fn)(void);
 
 typedef struct {
 	hackrf_ui_init_fn init;
+	hackrf_ui_deinit_fn deinit;
 	hackrf_ui_set_frequency_fn set_frequency;
 	hackrf_ui_set_sample_rate_fn set_sample_rate;
 	hackrf_ui_set_direction_fn set_direction;
@@ -62,5 +64,6 @@ typedef struct {
  * or NULL if no UI was detected.
  */
 const hackrf_ui_t* hackrf_ui(void);
+void hackrf_ui_set_enable(bool);
 
 #endif
