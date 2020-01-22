@@ -22,7 +22,7 @@
 #ifndef __UI_RAD1O_H__
 #define __UI_RAD1O_H__
 
-#include "hackrf-ui.h"
+#include "hackrf_ui.h"
 
 const hackrf_ui_t* rad1o_ui_setup(void) __attribute__((weak));
 

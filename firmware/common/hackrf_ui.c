@@ -19,7 +19,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include "hackrf-ui.h"
+#include "hackrf_ui.h"
 
 #include "ui_portapack.h"
 #include "ui_rad1o.h"

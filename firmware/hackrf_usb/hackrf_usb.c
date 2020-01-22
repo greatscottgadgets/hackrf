@@ -50,7 +50,7 @@
 #include "cpld_xc2c.h"
 #include "portapack.h"
  
-#include "hackrf-ui.h"
+#include "hackrf_ui.h"
 
 extern uint32_t __m0_start__;
 extern uint32_t __m0_end__;
