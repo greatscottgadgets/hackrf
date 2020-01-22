@@ -30,6 +30,7 @@
 
 /* Stub functions for null UI function table */
 void hackrf_ui_init_null(void) { }
+void hackrf_ui_deinit_null(void) { }
 void hackrf_ui_set_frequency_null(uint64_t frequency) { UNUSED(frequency); }
 void hackrf_ui_set_sample_rate_null(uint32_t sample_rate) { UNUSED(sample_rate); }
 void hackrf_ui_set_direction_null(const rf_path_direction_t direction) { UNUSED(direction); }
@@ -49,6 +50,7 @@ bool hackrf_ui_operacake_gpio_compatible_null(void) { return true; }
  */
 static const hackrf_ui_t hackrf_ui_null = {
 	&hackrf_ui_init_null,
+	&hackrf_ui_deinit_null,
 	&hackrf_ui_set_frequency_null,
 	&hackrf_ui_set_sample_rate_null,
 	&hackrf_ui_set_direction_null,
@@ -65,10 +67,11 @@ static const hackrf_ui_t hackrf_ui_null = {
 };
 
 static const hackrf_ui_t* ui = NULL;
+static bool ui_enabled = true;
 
 const hackrf_ui_t* hackrf_ui(void) {
 	/* Detect on first use. If no UI hardware is detected, use a stub function table. */
-	if( ui == NULL ) {
+	if( ui == NULL && ui_enabled ) {
 #ifdef HACKRF_ONE
 		if( portapack_hackrf_ui_init ) {
 			ui = portapack_hackrf_ui_init();
@@ -85,4 +88,15 @@ const hackrf_ui_t* hackrf_ui(void) {
 		ui = &hackrf_ui_null;
 	}
 	return ui;
+}
+
+void hackrf_ui_set_enable(bool enabled) {
+	if (ui_enabled != enabled) {
+		ui_enabled = enabled;
+		hackrf_ui()->deinit();
+		ui = NULL;
+		if (enabled) {
+			hackrf_ui()->init();
+		}
+	}
 }

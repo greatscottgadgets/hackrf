@@ -258,6 +258,8 @@ extern ADDAPI int ADDCALL hackrf_cpld_checksum(hackrf_device* device,
 											   uint32_t* crc);
 #endif /* HACKRF_ISSUE_609_IS_FIXED */
 
+extern ADDAPI int ADDCALL hackrf_set_ui_enable(hackrf_device* device, const uint8_t value);
+
 #ifdef __cplusplus
 } // __cplusplus defined.
 #endif
