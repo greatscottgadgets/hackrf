@@ -509,7 +509,7 @@ static void usage() {
 	printf("\t[-l gain_db] # RX LNA (IF) gain, 0-40dB, 8dB steps\n");
 	printf("\t[-g gain_db] # RX VGA (baseband) gain, 0-62dB, 2dB steps\n");
 	printf("\t[-x gain_db] # TX VGA (IF) gain, 0-47dB, 1dB steps\n");
-	printf("\t[-s sample_rate_hz] # Sample rate in Hz (4/8/10/12.5/16/20MHz, default %sMHz).\n",
+	printf("\t[-s sample_rate_hz] # Sample rate in Hz (2-20MHz, default %sMHz).\n",
 		u64toa((DEFAULT_SAMPLE_RATE_HZ/FREQ_ONE_MHZ),&ascii_u64_data1));
 	printf("\t[-n num_samples] # Number of samples to transfer (default is unlimited).\n");
 #ifndef _WIN32
