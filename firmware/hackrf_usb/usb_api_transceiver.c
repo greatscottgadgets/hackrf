@@ -245,22 +245,20 @@ transceiver_mode_t transceiver_mode(void) {
 
 void set_transceiver_mode(const transceiver_mode_t new_transceiver_mode) {
 	baseband_streaming_disable(&sgpio_config);
-	
-	usb_endpoint_disable(&usb_endpoint_bulk_in);
-	usb_endpoint_disable(&usb_endpoint_bulk_out);
-	
+
+	usb_endpoint_flush(&usb_endpoint_bulk_in);
+	usb_endpoint_flush(&usb_endpoint_bulk_out);
+
 	_transceiver_mode = new_transceiver_mode;
 	
 	if( _transceiver_mode == TRANSCEIVER_MODE_RX ) {
 		led_off(LED3);
 		led_on(LED2);
-		usb_endpoint_init(&usb_endpoint_bulk_in);
 		rf_path_set_direction(&rf_path, RF_PATH_DIRECTION_RX);
 		usb_bulk_buffer_tx = false;
 	} else if (_transceiver_mode == TRANSCEIVER_MODE_TX) {
 		led_off(LED2);
 		led_on(LED3);
-		usb_endpoint_init(&usb_endpoint_bulk_out);
 		rf_path_set_direction(&rf_path, RF_PATH_DIRECTION_TX);
 		usb_bulk_buffer_tx = true;
 	} else {
@@ -293,7 +291,6 @@ usb_request_status_t usb_vendor_request_set_transceiver_mode(
 			usb_transfer_schedule_ack(endpoint->in);
 			return USB_REQUEST_STATUS_OK;
 		case TRANSCEIVER_MODE_CPLD_UPDATE:
-			usb_endpoint_init(&usb_endpoint_bulk_out);
 			start_cpld_update = true;
 			usb_transfer_schedule_ack(endpoint->in);
 			return USB_REQUEST_STATUS_OK;
