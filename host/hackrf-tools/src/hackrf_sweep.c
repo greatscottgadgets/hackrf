@@ -664,18 +664,18 @@ int main(int argc, char** argv) {
 		ifftwPlan = fftwf_plan_dft_1d(fftSize * step_count, ifftwIn, ifftwOut, FFTW_BACKWARD, FFTW_MEASURE);
 	}
 
-	result |= hackrf_start_rx(device, rx_callback, NULL);
-	if (result != HACKRF_SUCCESS) {
-		fprintf(stderr, "hackrf_start_rx() failed: %s (%d)\n", hackrf_error_name(result), result);
-		usage();
-		return EXIT_FAILURE;
-	}
-
 	result = hackrf_init_sweep(device, frequencies, num_ranges, num_samples * 2,
 			TUNE_STEP * FREQ_ONE_MHZ, OFFSET, INTERLEAVED);
 	if( result != HACKRF_SUCCESS ) {
 		fprintf(stderr, "hackrf_init_sweep() failed: %s (%d)\n",
 			   hackrf_error_name(result), result);
+		return EXIT_FAILURE;
+	}
+
+	result |= hackrf_start_rx_sweep(device, rx_callback, NULL);
+	if (result != HACKRF_SUCCESS) {
+		fprintf(stderr, "hackrf_start_rx_sweep() failed: %s (%d)\n", hackrf_error_name(result), result);
+		usage();
 		return EXIT_FAILURE;
 	}
 

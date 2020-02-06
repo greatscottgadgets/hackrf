@@ -28,8 +28,6 @@
 #include <usb_type.h>
 #include <usb_request.h>
 
-extern volatile bool start_cpld_update;
-
 void cpld_update(void);
 
 usb_request_status_t usb_vendor_request_cpld_checksum(

@@ -96,6 +96,7 @@ typedef enum {
 	HACKRF_TRANSCEIVER_MODE_TRANSMIT = 2,
 	HACKRF_TRANSCEIVER_MODE_SS = 3,
 	TRANSCEIVER_MODE_CPLD_UPDATE = 4,
+	TRANSCEIVER_MODE_RX_SWEEP = 5,
 } hackrf_transceiver_mode;
 
 typedef enum {
@@ -2160,6 +2161,20 @@ int ADDCALL hackrf_set_ui_enable(hackrf_device* device, const uint8_t value)
 	} else {
 		return HACKRF_SUCCESS;
 	}
+}
+
+int ADDCALL hackrf_start_rx_sweep(hackrf_device* device, hackrf_sample_block_cb_fn callback, void* rx_ctx)
+{
+	USB_API_REQUIRED(device, 0x0104)
+	int result;
+	const uint8_t endpoint_address = LIBUSB_ENDPOINT_IN | 1;
+	result = hackrf_set_transceiver_mode(device, TRANSCEIVER_MODE_RX_SWEEP);
+	if (HACKRF_SUCCESS == result)
+	{
+		device->rx_ctx = rx_ctx;
+		result = create_transfer_thread(device, endpoint_address, callback);
+	}
+	return result;
 }
 
 #ifdef __cplusplus

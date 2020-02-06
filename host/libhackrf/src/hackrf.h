@@ -259,6 +259,7 @@ extern ADDAPI int ADDCALL hackrf_cpld_checksum(hackrf_device* device,
 #endif /* HACKRF_ISSUE_609_IS_FIXED */
 
 extern ADDAPI int ADDCALL hackrf_set_ui_enable(hackrf_device* device, const uint8_t value);
+extern ADDAPI int ADDCALL hackrf_start_rx_sweep(hackrf_device* device, hackrf_sample_block_cb_fn callback, void* rx_ctx);
 
 #ifdef __cplusplus
 } // __cplusplus defined.
