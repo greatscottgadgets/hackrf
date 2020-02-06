@@ -38,6 +38,7 @@
 #include <stddef.h>
 
 #include "usb_endpoint.h"
+#include "usb_api_sweep.h"
 
 typedef struct {
 	uint32_t freq_mhz;
@@ -251,17 +252,22 @@ void set_transceiver_mode(const transceiver_mode_t new_transceiver_mode) {
 
 	_transceiver_mode = new_transceiver_mode;
 	
-	if( _transceiver_mode == TRANSCEIVER_MODE_RX ) {
+	switch (_transceiver_mode) {
+	case TRANSCEIVER_MODE_RX_SWEEP:
+	case TRANSCEIVER_MODE_RX:
 		led_off(LED3);
 		led_on(LED2);
 		rf_path_set_direction(&rf_path, RF_PATH_DIRECTION_RX);
 		usb_bulk_buffer_tx = false;
-	} else if (_transceiver_mode == TRANSCEIVER_MODE_TX) {
+		break;
+	case TRANSCEIVER_MODE_TX:
 		led_off(LED2);
 		led_on(LED3);
 		rf_path_set_direction(&rf_path, RF_PATH_DIRECTION_TX);
 		usb_bulk_buffer_tx = true;
-	} else {
+		break;
+	case TRANSCEIVER_MODE_OFF:
+	default:
 		led_off(LED2);
 		led_off(LED3);
 		rf_path_set_direction(&rf_path, RF_PATH_DIRECTION_OFF);
@@ -274,7 +280,7 @@ void set_transceiver_mode(const transceiver_mode_t new_transceiver_mode) {
 
         hw_sync_enable(_hw_sync_mode);
 
-		baseband_streaming_enable(&sgpio_config);
+		usb_bulk_buffer_offset = 0;
 	}
 }
 
@@ -287,11 +293,11 @@ usb_request_status_t usb_vendor_request_set_transceiver_mode(
 		case TRANSCEIVER_MODE_OFF:
 		case TRANSCEIVER_MODE_RX:
 		case TRANSCEIVER_MODE_TX:
+		case TRANSCEIVER_MODE_RX_SWEEP:
 			set_transceiver_mode(endpoint->setup.value);
 			usb_transfer_schedule_ack(endpoint->in);
 			return USB_REQUEST_STATUS_OK;
 		case TRANSCEIVER_MODE_CPLD_UPDATE:
-			start_cpld_update = true;
 			usb_transfer_schedule_ack(endpoint->in);
 			return USB_REQUEST_STATUS_OK;
 		default:
@@ -312,5 +318,72 @@ usb_request_status_t usb_vendor_request_set_hw_sync_mode(
 		return USB_REQUEST_STATUS_OK;
 	} else {
 		return USB_REQUEST_STATUS_OK;
+	}
+}
+
+void rx_mode(void) {
+	unsigned int phase = 1;
+
+	baseband_streaming_enable(&sgpio_config);
+
+	while (TRANSCEIVER_MODE_RX == _transceiver_mode) {
+		// Set up IN transfer of buffer 0.
+		if (16384 <= usb_bulk_buffer_offset && 1 == phase) {
+			usb_transfer_schedule_block(
+				&usb_endpoint_bulk_in,
+				&usb_bulk_buffer[0x0000],
+				0x4000,
+				NULL, NULL
+				);
+			phase = 0;
+		}
+		// Set up IN transfer of buffer 1.
+		if (16384 > usb_bulk_buffer_offset && 0 == phase) {
+			usb_transfer_schedule_block(
+				&usb_endpoint_bulk_in,
+				&usb_bulk_buffer[0x4000],
+				0x4000,
+				NULL, NULL
+				);
+			phase = 1;
+		}
+	}
+}
+
+void tx_mode(void) {
+	unsigned int phase = 1;
+
+	memset(&usb_bulk_buffer[0x0000], 0, 0x8000);
+	// Set up OUT transfer of buffer 1.
+	usb_transfer_schedule_block(
+		&usb_endpoint_bulk_out,
+		&usb_bulk_buffer[0x4000],
+		0x4000,
+		NULL, NULL
+		);
+	// Start transmitting zeros while the host fills buffer 1.
+	baseband_streaming_enable(&sgpio_config);
+
+	while (TRANSCEIVER_MODE_TX == _transceiver_mode) {
+		// Set up OUT transfer of buffer 0.
+		if (16384 <= usb_bulk_buffer_offset && 1 == phase) {
+			usb_transfer_schedule_block(
+				&usb_endpoint_bulk_out,
+				&usb_bulk_buffer[0x0000],
+				0x4000,
+				NULL, NULL
+				);
+			phase = 0;
+		}
+		// Set up OUT transfer of buffer 1.
+		if (16384 > usb_bulk_buffer_offset && 0 == phase) {
+			usb_transfer_schedule_block(
+				&usb_endpoint_bulk_out,
+				&usb_bulk_buffer[0x4000],
+				0x4000,
+				NULL, NULL
+				);
+			phase = 1;
+		}
 	}
 }

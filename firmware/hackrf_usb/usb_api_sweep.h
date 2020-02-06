@@ -26,8 +26,6 @@
 #include <usb_type.h>
 #include <usb_request.h>
 
-extern volatile bool start_sweep_mode;
-
 enum sweep_style {
 	LINEAR = 0,
 	INTERLEAVED = 1,
