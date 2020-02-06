@@ -36,6 +36,7 @@
 #include <usb_queue.h>
 
 #include <stddef.h>
+#include <string.h>
 
 #include "usb_endpoint.h"
 #include "usb_api_sweep.h"

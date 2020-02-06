@@ -266,6 +266,8 @@ int main(void) {
 		case TRANSCEIVER_MODE_CPLD_UPDATE:
 			cpld_update();
 			break;
+		default:
+			break;
 		}
 	}
 
