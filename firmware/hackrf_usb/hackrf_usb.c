@@ -149,6 +149,8 @@ void usb_configuration_changed(
 		/* Configuration number equal 0 means usb bus reset. */
 		led_off(LED1);
 	}
+	usb_endpoint_init(&usb_endpoint_bulk_in);
+	usb_endpoint_init(&usb_endpoint_bulk_out);
 }
 
 void usb_set_descriptor_by_serial_number(void)
