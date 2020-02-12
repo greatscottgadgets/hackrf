@@ -216,6 +216,8 @@ static int allocate_transfers(hackrf_device* const device)
 			return HACKRF_ERROR_NO_MEM;
 		}
 
+		memset(device->buffer, 0, TRANSFER_COUNT * TRANSFER_BUFFER_SIZE);
+
 		for(transfer_index=0; transfer_index<TRANSFER_COUNT; transfer_index++)
 		{
 			device->transfers[transfer_index] = libusb_alloc_transfer(0);
