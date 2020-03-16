@@ -20,6 +20,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
+#define _FILE_OFFSET_BITS 64
 
 #include <hackrf.h>
 
@@ -33,8 +34,6 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <errno.h>
-
-#define _FILE_OFFSET_BITS 64
 
 #ifndef bool
 typedef int bool;
