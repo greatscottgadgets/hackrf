@@ -423,6 +423,30 @@ X P9 9 -400 100 300 R 60 30 1 1 P I
 ENDDRAW
 ENDDEF
 #
+# hackrf_D_Limiter
+#
+DEF hackrf_D_Limiter D 0 40 N N 1 F N
+F0 "D" 0 100 50 H V C CNN
+F1 "hackrf_D_Limiter" 0 -100 50 H V C CNN
+F2 "" 0 0 50 H I C CNN
+F3 "" 0 0 50 H I C CNN
+$FPLIST
+ TO-???*
+ *_Diode_*
+ *SingleDiode*
+ D_*
+$ENDFPLIST
+DRAW
+P 2 0 1 10 -90 50 -90 -50 N
+P 2 0 1 0 -50 0 -110 0 N
+P 2 0 1 0 50 0 -50 0 N
+P 4 0 1 8 -60 0 -40 20 -50 30 -80 0 N
+P 4 0 1 10 50 50 50 -50 -50 0 50 50 N
+X K 1 -200 0 100 R 50 50 1 1 P
+X A 2 150 0 100 L 50 50 1 1 P
+ENDDRAW
+ENDDEF
+#
 # hackrf_FIL-DEA
 #
 DEF hackrf_FIL-DEA U 0 40 Y Y 1 F N

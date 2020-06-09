@@ -1,13 +1,23 @@
-EESchema-DOCLIB  Version 2.0  Date: Sat Feb  8 13:06:30 2014
+EESchema-DOCLIB  Version 2.0
 #
 $CMP CONN_2_SHORTED
 D Symbole general de connecteur
 K CONN
 $ENDCMP
 #
+$CMP D_Limiter
+D PIN Limiter diode
+K diode PIN limiter
+F ~
+$ENDCMP
+#
 $CMP GSG-DIODE-TVS-BI
 D Diode zener
 K DEV DIODE
+$ENDCMP
+#
+$CMP MGA-81563
+F https://docs.broadcom.com/docs/AV02-0966EN
 $ENDCMP
 #
 $CMP R-SHORTED

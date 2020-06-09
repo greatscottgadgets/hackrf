@@ -1,4 +1,4 @@
-update=Friday, 05 June 2020 at 01:15:44 pm
+update=Friday, 05 June 2020 at 10:02:22 pm
 version=1
 last_client=kicad
 [cvpcb]
@@ -13,16 +13,6 @@ NetType=0
 EquName1=devcms
 [general]
 version=1
-[schematic_editor]
-version=1
-PageLayoutDescrFile=
-PlotDirectoryName=
-SubpartIdSeparator=0
-SubpartFirstId=65
-NetFmtName=
-SpiceForceRefPrefix=0
-SpiceUseNetNumbers=0
-LabSize=60
 [eeschema]
 version=1
 LibDir=
@@ -265,3 +255,13 @@ uViaDrill=0.127
 dPairWidth=0.2
 dPairGap=0.25
 dPairViaGap=0.25
+[schematic_editor]
+version=1
+PageLayoutDescrFile=
+PlotDirectoryName=
+SubpartIdSeparator=0
+SubpartFirstId=65
+NetFmtName=Pcbnew
+SpiceAjustPassiveValues=0
+LabSize=60
+ERC_TestSimilarLabels=1
