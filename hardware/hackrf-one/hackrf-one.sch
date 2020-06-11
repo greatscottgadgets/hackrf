@@ -31,4 +31,6 @@ U 5037043E
 F0 "mcu/usb/power" 60
 F1 "mcu.sch" 60
 $EndSheet
+Wire Wire Line
+	3000 3400 3000 3500
 $EndSCHEMATC

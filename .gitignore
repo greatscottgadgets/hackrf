@@ -7,6 +7,14 @@
 host/build/
 host/**/build
 
+fp-info-cache
+sym-lib-table
+hackrf-one-rescue.dcm
+hackrf-one-rescue.lib
+hackrf-one.xml
+rescue-backup/
+*-bak
+
 # Operating system spew
 .DS_Store
 .Spotlight-V100
