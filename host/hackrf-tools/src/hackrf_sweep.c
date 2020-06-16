@@ -757,7 +757,7 @@ int main(int argc, char** argv) {
 		fprintf(stderr, "hackrf_exit() done\n");
 	}
 
-	if(fd != NULL) {
+	if ( ( fd != NULL ) && ( fd != stdout ) ) {
 		fclose(fd);
 		fd = NULL;
 		fprintf(stderr, "fclose(fd) done\n");
