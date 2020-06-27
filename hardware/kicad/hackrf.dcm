@@ -30,4 +30,10 @@ D Push Button with Shield
 K Switch
 $ENDCMP
 #
+$CMP TRF37B73
+D 6GHz, 12dB RF Gain Block, WSON-8
+K gain block RF
+F http://www.ti.com/lit/ds/symlink/trf37a73.pdf
+$ENDCMP
+#
 #End Doc Library
