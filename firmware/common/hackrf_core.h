@@ -94,10 +94,10 @@ extern "C"
 #endif
 
 /* SSP1 Peripheral PinMux */
-#define SCU_SSP1_MISO       (P1_3)  /* P1_3 */
-#define SCU_SSP1_MOSI       (P1_4)  /* P1_4 */
+#define SCU_SSP1_CIPO       (P1_3)  /* P1_3 */
+#define SCU_SSP1_COPI       (P1_4)  /* P1_4 */
 #define SCU_SSP1_SCK        (P1_19) /* P1_19 */
-#define SCU_SSP1_SSEL       (P1_20) /* P1_20 */
+#define SCU_SSP1_CS       (P1_20) /* P1_20 */
 
 /* CPLD JTAG interface */
 #define SCU_PINMUX_CPLD_TDO (P9_5)  /* GPIO5[18] */
@@ -177,10 +177,10 @@ extern "C"
 
 
 /* SPI flash */
-#define SCU_SSP0_MISO       (P3_6)
-#define SCU_SSP0_MOSI       (P3_7)
+#define SCU_SSP0_CIPO       (P3_6)
+#define SCU_SSP0_COPI       (P3_7)
 #define SCU_SSP0_SCK        (P3_3)
-#define SCU_SSP0_SSEL       (P3_8) /* GPIO5[11] on P3_8 */
+#define SCU_SSP0_CS       (P3_8) /* GPIO5[11] on P3_8 */
 #define SCU_FLASH_HOLD      (P3_4) /* GPIO1[14] on P3_4 */
 #define SCU_FLASH_WP        (P3_5) /* GPIO1[15] on P3_5 */
 

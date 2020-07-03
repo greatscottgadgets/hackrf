@@ -1690,14 +1690,14 @@ EndCmp
 BeginCmp
 TimeStamp = /50370666/5052A336;
 Reference = P40;
-ValeurCmp = SSP1_MOSI;
+ValeurCmp = SSP1_COPI;
 IdModule  = hackrf:GSG-TESTPOINT-50MIL;
 EndCmp
 
 BeginCmp
 TimeStamp = /50370666/5052A335;
 Reference = P41;
-ValeurCmp = SSP1_MISO;
+ValeurCmp = SSP1_CIPO;
 IdModule  = hackrf:GSG-TESTPOINT-50MIL;
 EndCmp
 
