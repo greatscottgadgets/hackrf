@@ -25,6 +25,10 @@ D Resistor with PCB trace short
 K R DEV
 $ENDCMP
 #
+$CMP SKY13453
+F https://www.skyworksinc.com/-/media/SkyWorks/Documents/Products/1901-2000/SKY13453-385LF_202830G.pdf
+$ENDCMP
+#
 $CMP SW_PUSH_SHIELDED
 D Push Button with Shield
 K Switch
