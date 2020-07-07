@@ -11,6 +11,12 @@ K diode PIN limiter
 F ~
 $ENDCMP
 #
+$CMP D_Limiter_DualAn
+D PIN Limiter diode
+K diode PIN limiter
+F ~
+$ENDCMP
+#
 $CMP GSG-DIODE-TVS-BI
 D Diode zener
 K DEV DIODE
