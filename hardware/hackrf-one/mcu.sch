@@ -5533,7 +5533,49 @@ F 3 "" H 15300 3850 50  0001 C CNN
 $EndComp
 Text Label 800  2600 3    40   ~ 0
 USB_SHIELD
-NoConn ~ 6050 2050
-NoConn ~ 5850 2050
-NoConn ~ 5750 2050
+Wire Wire Line
+	5750 1750 5750 2050
+Wire Wire Line
+	5850 1750 5850 2050
+Wire Wire Line
+	6050 1750 6050 2050
+Text Label 5750 1750 3    40   ~ 0
+ADC0_3
+Text Label 5850 1750 3    40   ~ 0
+ADC0_4
+Text Label 6050 1750 3    40   ~ 0
+ADC0_7
+Text Label 5250 900  0    40   ~ 0
+ADC0_3
+Text Label 5250 1000 0    40   ~ 0
+ADC0_4
+Text Label 5250 1100 0    40   ~ 0
+ADC0_7
+$Comp
+L power:VCC #PWR0329
+U 1 1 603D5946
+P 5600 800
+F 0 "#PWR0329" H 5600 650 50  0001 C CNN
+F 1 "VCC" H 5617 973 50  0000 C CNN
+F 2 "" H 5600 800 50  0001 C CNN
+F 3 "" H 5600 800 50  0001 C CNN
+	1    5600 800 
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	5250 900  5600 900 
+Wire Wire Line
+	5600 900  5600 800 
+Wire Wire Line
+	5250 1000 5600 1000
+Wire Wire Line
+	5600 1000 5600 900 
+Connection ~ 5600 900 
+Wire Wire Line
+	5250 1100 5600 1100
+Wire Wire Line
+	5600 1100 5600 1000
+Connection ~ 5600 1000
+Text Notes 5050 1300 0    40   ~ 0
+pin straps for hardware\nversion detection
 $EndSCHEMATC
