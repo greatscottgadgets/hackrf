@@ -65,7 +65,7 @@ SSP1_MOSI
 Text GLabel 1000 5550 3    40   Input ~ 0
 SSP1_SCK
 $Comp
-L hackrf-one-rescue:CONN_1 P40
+L hackrf:CONN_1 P40
 U 1 1 5052A336
 P 1150 5300
 AR Path="/5052A336" Ref="P40"  Part="1" 
@@ -79,7 +79,7 @@ F 4 "DNP" H 1150 5300 60  0001 C CNN "Note"
 	0    -1   -1   0   
 $EndComp
 $Comp
-L hackrf-one-rescue:CONN_1 P41
+L hackrf:CONN_1 P41
 U 1 1 5052A335
 P 1300 5300
 AR Path="/5052A335" Ref="P41"  Part="1" 
@@ -93,7 +93,7 @@ F 4 "DNP" H 1300 5300 60  0001 C CNN "Note"
 	0    -1   -1   0   
 $EndComp
 $Comp
-L hackrf-one-rescue:CONN_1 P39
+L hackrf:CONN_1 P39
 U 1 1 5052A332
 P 1000 5300
 AR Path="/5052A332" Ref="P39"  Part="1" 
@@ -107,7 +107,7 @@ F 4 "DNP" H 1000 5300 60  0001 C CNN "Note"
 	0    -1   -1   0   
 $EndComp
 $Comp
-L hackrf-one-rescue:CONN_1 P38
+L hackrf:CONN_1 P38
 U 1 1 5052A32D
 P 850 5300
 AR Path="/5052A32D" Ref="P38"  Part="1" 
@@ -125,7 +125,7 @@ SDA
 Text GLabel 700  5550 3    40   Input ~ 0
 SCL
 $Comp
-L hackrf-one-rescue:CONN_1 P37
+L hackrf:CONN_1 P37
 U 1 1 5052A309
 P 700 5300
 AR Path="/5052A309" Ref="P37"  Part="1" 
@@ -139,7 +139,7 @@ F 4 "DNP" H 700 5300 60  0001 C CNN "Note"
 	0    -1   -1   0   
 $EndComp
 $Comp
-L hackrf-one-rescue:CONN_2 P36
+L hackrf:CONN_2 P36
 U 1 1 5048D547
 P 2500 4350
 AR Path="/5048D547" Ref="P36"  Part="1" 
@@ -865,7 +865,7 @@ F 6 "CAP CER 10UF 10V 10% X5R 0805" H 2000 4150 60  0001 C CNN "Description"
 	1    0    0    -1  
 $EndComp
 $Comp
-L hackrf-one-rescue:FILTER FB2
+L hackrf:FILTER FB2
 U 1 1 503F885C
 P 2000 3350
 AR Path="/503F885C" Ref="FB2"  Part="1" 
@@ -1308,7 +1308,7 @@ F 3 "" H 2400 10250 60  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L hackrf-one-rescue:CONN_1 P15
+L hackrf:CONN_1 P15
 U 1 1 5037A16F
 P 1650 7950
 AR Path="/5037A16F" Ref="P15"  Part="1" 
@@ -1322,7 +1322,7 @@ F 4 "DNP" H 1650 7950 60  0001 C CNN "Note"
 	-1   0    0    1   
 $EndComp
 $Comp
-L hackrf-one-rescue:CONN_1 P18
+L hackrf:CONN_1 P18
 U 1 1 5037A131
 P 4400 10150
 AR Path="/5037A131" Ref="P18"  Part="1" 
@@ -1380,7 +1380,7 @@ DD8
 Text GLabel 15650 4800 2    40   Input ~ 0
 DD9
 $Comp
-L hackrf-one-rescue:CONN_1 P14
+L hackrf:CONN_1 P14
 U 1 1 50371714
 P 7450 6950
 AR Path="/50371714" Ref="P14"  Part="1" 
@@ -1494,7 +1494,7 @@ F 3 "" H 9100 6000 60  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L hackrf-one-rescue:INDUCTOR L8
+L hackrf:INDUCTOR L8
 U 1 1 4F5D6AFA
 P 5400 5600
 AR Path="/4F5D6AFA" Ref="L8"  Part="1" 
@@ -1508,7 +1508,7 @@ F 4 "DNP" H 5400 5600 60  0001 C CNN "Note"
 	1    0    0    -1  
 $EndComp
 $Comp
-L hackrf-one-rescue:INDUCTOR L9
+L hackrf:INDUCTOR L9
 U 1 1 4F5D6AD6
 P 5900 5600
 AR Path="/4F5D6AD6" Ref="L9"  Part="1" 
@@ -1522,7 +1522,7 @@ F 4 "DNP" H 5900 5600 60  0001 C CNN "Note"
 	1    0    0    -1  
 $EndComp
 $Comp
-L hackrf-one-rescue:INDUCTOR L6
+L hackrf:INDUCTOR L6
 U 1 1 4F5D6AAA
 P 5400 4500
 AR Path="/4F5D6AAA" Ref="L6"  Part="1" 
@@ -2198,7 +2198,7 @@ F 3 "" H 4250 4800 60  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L hackrf-one-rescue:INDUCTOR L7
+L hackrf:INDUCTOR L7
 U 1 1 4F5BBD57
 P 5900 4500
 AR Path="/4F5BBD57" Ref="L7"  Part="1" 
@@ -2329,7 +2329,7 @@ F 3 "" H 5550 8150 60  0001 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L hackrf-one-rescue:MOSFET_P Q3
+L hackrf:MOSFET_P Q3
 U 1 1 526AF6D0
 P 2100 2700
 AR Path="/526AF6D0" Ref="Q3"  Part="1" 
@@ -2491,7 +2491,7 @@ TXENABLE
 Text GLabel 1900 5550 3    40   Input ~ 0
 RXENABLE
 $Comp
-L hackrf-one-rescue:CONN_1 P55
+L hackrf:CONN_1 P55
 U 1 1 52806F80
 P 1750 5300
 AR Path="/52806F80" Ref="P55"  Part="1" 
@@ -2505,7 +2505,7 @@ F 4 "DNP" H 1750 5300 60  0001 C CNN "Note"
 	0    -1   -1   0   
 $EndComp
 $Comp
-L hackrf-one-rescue:CONN_1 P56
+L hackrf:CONN_1 P56
 U 1 1 52806F87
 P 1900 5300
 AR Path="/52806F87" Ref="P56"  Part="1" 
@@ -2521,7 +2521,7 @@ $EndComp
 Text GLabel 1450 5550 3    40   Input ~ 0
 CS_XCVR
 $Comp
-L hackrf-one-rescue:CONN_1 P53
+L hackrf:CONN_1 P53
 U 1 1 52806F99
 P 1450 5300
 AR Path="/52806F99" Ref="P53"  Part="1" 
@@ -2535,7 +2535,7 @@ F 4 "DNP" H 1450 5300 60  0001 C CNN "Note"
 	0    -1   -1   0   
 $EndComp
 $Comp
-L hackrf-one-rescue:CONN_1 P57
+L hackrf:CONN_1 P57
 U 1 1 52807566
 P 2050 5300
 AR Path="/52807566" Ref="P57"  Part="1" 
@@ -2559,7 +2559,7 @@ SGPIO_CLK
 Text GLabel 1600 5550 3    40   Input ~ 0
 CS_AD
 $Comp
-L hackrf-one-rescue:CONN_1 P54
+L hackrf:CONN_1 P54
 U 1 1 528076FC
 P 1600 5300
 AR Path="/528076FC" Ref="P54"  Part="1" 
@@ -2573,7 +2573,7 @@ F 4 "DNP" H 1600 5300 60  0001 C CNN "Note"
 	0    -1   -1   0   
 $EndComp
 $Comp
-L hackrf-one-rescue:CONN_1 P59
+L hackrf:CONN_1 P59
 U 1 1 52807889
 P 2350 5300
 AR Path="/52807889" Ref="P59"  Part="1" 
@@ -2587,7 +2587,7 @@ F 4 "DNP" H 2350 5300 60  0001 C CNN "Note"
 	0    -1   -1   0   
 $EndComp
 $Comp
-L hackrf-one-rescue:CONN_1 P60
+L hackrf:CONN_1 P60
 U 1 1 52807890
 P 2500 5300
 AR Path="/52807890" Ref="P60"  Part="1" 
@@ -2601,7 +2601,7 @@ F 4 "DNP" H 2500 5300 60  0001 C CNN "Note"
 	0    -1   -1   0   
 $EndComp
 $Comp
-L hackrf-one-rescue:CONN_1 P58
+L hackrf:CONN_1 P58
 U 1 1 52807897
 P 2200 5300
 AR Path="/52807897" Ref="P58"  Part="1" 
@@ -2623,7 +2623,7 @@ DD0
 Text GLabel 3400 5550 3    40   Input ~ 0
 DD9
 $Comp
-L hackrf-one-rescue:CONN_1 P63
+L hackrf:CONN_1 P63
 U 1 1 528078A7
 P 3100 5300
 AR Path="/528078A7" Ref="P63"  Part="1" 
@@ -2637,7 +2637,7 @@ F 4 "DNP" H 3100 5300 60  0001 C CNN "Note"
 	0    -1   -1   0   
 $EndComp
 $Comp
-L hackrf-one-rescue:CONN_1 P64
+L hackrf:CONN_1 P64
 U 1 1 528078AE
 P 3400 5300
 AR Path="/528078AE" Ref="P64"  Part="1" 
@@ -2651,7 +2651,7 @@ F 4 "DNP" H 3400 5300 60  0001 C CNN "Note"
 	0    -1   -1   0   
 $EndComp
 $Comp
-L hackrf-one-rescue:CONN_1 P61
+L hackrf:CONN_1 P61
 U 1 1 528078B5
 P 2650 5300
 AR Path="/528078B5" Ref="P61"  Part="1" 
@@ -2665,7 +2665,7 @@ F 4 "DNP" H 2650 5300 60  0001 C CNN "Note"
 	0    -1   -1   0   
 $EndComp
 $Comp
-L hackrf-one-rescue:CONN_1 P62
+L hackrf:CONN_1 P62
 U 1 1 528078BD
 P 2950 5300
 AR Path="/528078BD" Ref="P62"  Part="1" 
@@ -2683,7 +2683,7 @@ DD5
 Text GLabel 2800 5550 3    40   Input ~ 0
 DA4
 $Comp
-L hackrf-one-rescue:CONN_1 P66
+L hackrf:CONN_1 P66
 U 1 1 52807A95
 P 3250 5300
 AR Path="/52807A95" Ref="P66"  Part="1" 
@@ -2697,7 +2697,7 @@ F 4 "DNP" H 3250 5300 60  0001 C CNN "Note"
 	0    -1   -1   0   
 $EndComp
 $Comp
-L hackrf-one-rescue:CONN_1 P65
+L hackrf:CONN_1 P65
 U 1 1 52807C28
 P 2800 5300
 AR Path="/52807C28" Ref="P65"  Part="1" 
@@ -2713,7 +2713,7 @@ $EndComp
 Text GLabel 3550 5550 3    40   Input ~ 0
 RSSI
 $Comp
-L hackrf-one-rescue:CONN_1 P67
+L hackrf:CONN_1 P67
 U 1 1 5280A12A
 P 3550 5300
 AR Path="/5280A12A" Ref="P67"  Part="1" 
@@ -2763,7 +2763,7 @@ F 3 "" H 1600 2800 60  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L hackrf-one-rescue:CONN_1 P83
+L hackrf:CONN_1 P83
 U 1 1 5281C7E9
 P 700 6250
 AR Path="/5281C7E9" Ref="P83"  Part="1" 
@@ -2788,7 +2788,7 @@ F 3 "" H 700 6500 60  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L hackrf-one-rescue:CONN_1 P84
+L hackrf:CONN_1 P84
 U 1 1 5281C9AD
 P 850 6250
 AR Path="/5281C9AD" Ref="P84"  Part="1" 
@@ -2813,7 +2813,7 @@ F 3 "" H 850 6500 60  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L hackrf-one-rescue:CONN_1 P85
+L hackrf:CONN_1 P85
 U 1 1 5281C9BB
 P 1000 6250
 AR Path="/5281C9BB" Ref="P85"  Part="1" 
@@ -2838,7 +2838,7 @@ F 3 "" H 1000 6500 60  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L hackrf-one-rescue:CONN_1 P86
+L hackrf:CONN_1 P86
 U 1 1 5281C9C9
 P 1150 6250
 AR Path="/5281C9C9" Ref="P86"  Part="1" 
@@ -2863,7 +2863,7 @@ F 3 "" H 1150 6500 60  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L hackrf-one-rescue:CONN_1 P87
+L hackrf:CONN_1 P87
 U 1 1 5281C9D7
 P 1300 6250
 AR Path="/5281C9D7" Ref="P87"  Part="1" 
@@ -2888,7 +2888,7 @@ F 3 "" H 1300 6500 60  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L hackrf-one-rescue:CONN_1 P88
+L hackrf:CONN_1 P88
 U 1 1 5281C9E5
 P 1450 6250
 AR Path="/5281C9E5" Ref="P88"  Part="1" 
@@ -2913,7 +2913,7 @@ F 3 "" H 1450 6500 60  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L hackrf-one-rescue:CONN_1 P89
+L hackrf:CONN_1 P89
 U 1 1 5281C9F3
 P 1600 6250
 AR Path="/5281C9F3" Ref="P89"  Part="1" 
@@ -2938,7 +2938,7 @@ F 3 "" H 1600 6500 60  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L hackrf-one-rescue:CONN_1 P90
+L hackrf:CONN_1 P90
 U 1 1 5281CA01
 P 1750 6250
 AR Path="/5281CA01" Ref="P90"  Part="1" 
@@ -2963,7 +2963,7 @@ F 3 "" H 1750 6500 60  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L hackrf-one-rescue:CONN_1 P91
+L hackrf:CONN_1 P91
 U 1 1 5281CEEC
 P 1900 6250
 AR Path="/5281CEEC" Ref="P91"  Part="1" 
@@ -2988,7 +2988,7 @@ F 3 "" H 1900 6500 60  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L hackrf-one-rescue:CONN_1 P92
+L hackrf:CONN_1 P92
 U 1 1 5281CEFA
 P 2050 6250
 AR Path="/5281CEFA" Ref="P92"  Part="1" 
@@ -3069,7 +3069,7 @@ F 6 "CAP CER 47PF 50V 5% NP0 0402" H 6700 9250 60  0001 C CNN "Description"
 	1    0    0    -1  
 $EndComp
 $Comp
-L hackrf-one-rescue:CONN_8X2 P9
+L hackrf:CONN_8X2 P9
 U 1 1 5294060F
 P 11800 7950
 AR Path="/5294060F" Ref="P9"  Part="1" 

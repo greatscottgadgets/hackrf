@@ -734,7 +734,7 @@ F 6 "RES 10K OHM 1/16W 5% 0402 SMD" H 10350 8100 60  0001 C CNN "Description"
 	0    -1   -1   0   
 $EndComp
 $Comp
-L hackrf-one-rescue:INDUCTOR L12
+L hackrf:INDUCTOR L12
 U 1 1 503BF2DC
 P 14350 5950
 AR Path="/503BF2DC" Ref="L12"  Part="1" 
@@ -800,7 +800,7 @@ F 3 "" H 12500 7000 60  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L hackrf-one-rescue:MOSFET_P Q2
+L hackrf:MOSFET_P Q2
 U 1 1 503BF2D7
 P 12400 5850
 AR Path="/503BF2D7" Ref="Q2"  Part="1" 
@@ -844,7 +844,7 @@ F 6 "CAP CER 10000PF 16V 10% X7R 0402" H 16500 7800 60  0001 C CNN "Description"
 	1    0    0    1   
 $EndComp
 $Comp
-L hackrf-one-rescue:INDUCTOR L3
+L hackrf:INDUCTOR L3
 U 1 1 503BF2B7
 P 4800 5050
 AR Path="/503BF2B7" Ref="L3"  Part="1" 
@@ -860,7 +860,7 @@ F 6 "INDUCTR 10UH 220MA 20% 0603 SMD" H 15550 8050 60  0001 C CNN "Description"
 	0    1    1    0   
 $EndComp
 $Comp
-L hackrf-one-rescue:INDUCTOR L2
+L hackrf:INDUCTOR L2
 U 1 1 503BF2A7
 P 4800 4750
 AR Path="/503BF2A7" Ref="L2"  Part="1" 
@@ -1216,7 +1216,7 @@ F 6 "CAP CER 33PF 50V 5% NP0 0402" H 9650 6700 60  0001 C CNN "Description"
 	0    1    1    0   
 $EndComp
 $Comp
-L hackrf-one-rescue:MOSFET_P Q1
+L hackrf:MOSFET_P Q1
 U 1 1 502E69D1
 P 10200 8500
 AR Path="/502E69D1" Ref="Q1"  Part="1" 
@@ -1335,7 +1335,7 @@ F 6 "CAP CER 100PF 50V 5% NP0 0402" H 11700 10600 60  0001 C CNN "Description"
 	1    0    0    -1  
 $EndComp
 $Comp
-L hackrf-one-rescue:INDUCTOR L5
+L hackrf:INDUCTOR L5
 U 1 1 502C6D12
 P 8950 9300
 AR Path="/502C6D12" Ref="L5"  Part="1" 
@@ -1538,7 +1538,7 @@ F 6 "CAP CER 0.1UF 10V 10% X5R 0402" H 7350 10000 60  0001 C CNN "Description"
 	0    1    1    0   
 $EndComp
 $Comp
-L hackrf-one-rescue:INDUCTOR L4
+L hackrf:INDUCTOR L4
 U 1 1 4FB55E30
 P 5300 5550
 AR Path="/4FB55E30" Ref="L4"  Part="1" 
@@ -1627,7 +1627,7 @@ F 3 "" H 3000 3050 60  0001 C CNN
 	0    -1   -1   0   
 $EndComp
 $Comp
-L hackrf-one-rescue:INDUCTOR L1
+L hackrf:INDUCTOR L1
 U 1 1 502AFA8C
 P 3900 3750
 AR Path="/502AFA8C" Ref="L1"  Part="1" 
@@ -2571,7 +2571,7 @@ Text GLabel 1700 900  1    40   Input ~ 0
 Wire Wire Line
 	1600 2150 1600 2250
 $Comp
-L hackrf-one-rescue:CONN_1 P6
+L hackrf:CONN_1 P6
 U 1 1 526B7056
 P 5100 4500
 AR Path="/526B7056" Ref="P6"  Part="1" 
@@ -2685,7 +2685,7 @@ F 7 "DNP" H 2450 8350 60  0000 C CNN "Note"
 	1    0    0    -1  
 $EndComp
 $Comp
-L hackrf-one-rescue:CONN_1 P19
+L hackrf:CONN_1 P19
 U 1 1 5280432B
 P 5000 4500
 AR Path="/5280432B" Ref="P19"  Part="1" 
@@ -2701,7 +2701,7 @@ $EndComp
 Wire Wire Line
 	5000 4250 5000 4350
 $Comp
-L hackrf-one-rescue:CONN_1 P7
+L hackrf:CONN_1 P7
 U 1 1 528044D2
 P 4750 1850
 AR Path="/528044D2" Ref="P7"  Part="1" 
@@ -2715,7 +2715,7 @@ F 4 "DNP" H 4750 1850 60  0001 C CNN "Note"
 	-1   0    0    1   
 $EndComp
 $Comp
-L hackrf-one-rescue:CONN_1 P13
+L hackrf:CONN_1 P13
 U 1 1 528044D9
 P 4750 1750
 AR Path="/528044D9" Ref="P13"  Part="1" 
@@ -2729,7 +2729,7 @@ F 4 "DNP" H 4750 1750 60  0001 C CNN "Note"
 	-1   0    0    1   
 $EndComp
 $Comp
-L hackrf-one-rescue:CONN_1 P21
+L hackrf:CONN_1 P21
 U 1 1 528044E0
 P 6700 9550
 AR Path="/528044E0" Ref="P21"  Part="1" 
@@ -2747,7 +2747,7 @@ Wire Wire Line
 Wire Wire Line
 	5700 1950 5700 1850
 $Comp
-L hackrf-one-rescue:CONN_1 P17
+L hackrf:CONN_1 P17
 U 1 1 52805038
 P 5700 1700
 AR Path="/52805038" Ref="P17"  Part="1" 
@@ -2769,7 +2769,7 @@ MIXER_SCLK
 Text GLabel 3700 8600 2    40   Input ~ 0
 MIXER_SDATA
 $Comp
-L hackrf-one-rescue:CONN_1 P27
+L hackrf:CONN_1 P27
 U 1 1 528054F2
 P 3450 8600
 AR Path="/528054F2" Ref="P27"  Part="1" 
@@ -2783,7 +2783,7 @@ F 4 "DNP" H 3450 8600 60  0001 C CNN "Note"
 	-1   0    0    1   
 $EndComp
 $Comp
-L hackrf-one-rescue:CONN_1 P31
+L hackrf:CONN_1 P31
 U 1 1 528054F9
 P 3450 8700
 AR Path="/528054F9" Ref="P31"  Part="1" 
@@ -2797,7 +2797,7 @@ F 4 "DNP" H 3450 8700 60  0001 C CNN "Note"
 	-1   0    0    1   
 $EndComp
 $Comp
-L hackrf-one-rescue:CONN_1 P32
+L hackrf:CONN_1 P32
 U 1 1 52805500
 P 3450 8800
 AR Path="/52805500" Ref="P32"  Part="1" 
@@ -2811,7 +2811,7 @@ F 4 "DNP" H 3450 8800 60  0001 C CNN "Note"
 	-1   0    0    1   
 $EndComp
 $Comp
-L hackrf-one-rescue:CONN_1 P33
+L hackrf:CONN_1 P33
 U 1 1 52805507
 P 3450 8900
 AR Path="/52805507" Ref="P33"  Part="1" 
@@ -2857,7 +2857,7 @@ Text GLabel 3700 10200 2    40   Input ~ 0
 Text GLabel 3700 10100 2    40   Input ~ 0
 !TX_AMP_PWR
 $Comp
-L hackrf-one-rescue:CONN_1 P34
+L hackrf:CONN_1 P34
 U 1 1 52805C27
 P 3450 9000
 AR Path="/52805C27" Ref="P34"  Part="1" 
@@ -2871,7 +2871,7 @@ F 4 "DNP" H 3450 9000 60  0001 C CNN "Note"
 	-1   0    0    1   
 $EndComp
 $Comp
-L hackrf-one-rescue:CONN_1 P35
+L hackrf:CONN_1 P35
 U 1 1 52805C2E
 P 3450 9100
 AR Path="/52805C2E" Ref="P35"  Part="1" 
@@ -2885,7 +2885,7 @@ F 4 "DNP" H 3450 9100 60  0001 C CNN "Note"
 	-1   0    0    1   
 $EndComp
 $Comp
-L hackrf-one-rescue:CONN_1 P43
+L hackrf:CONN_1 P43
 U 1 1 52805C3C
 P 3450 9300
 AR Path="/52805C3C" Ref="P43"  Part="1" 
@@ -2905,7 +2905,7 @@ Wire Wire Line
 Wire Wire Line
 	3600 9000 3700 9000
 $Comp
-L hackrf-one-rescue:CONN_1 P44
+L hackrf:CONN_1 P44
 U 1 1 52805C47
 P 3450 9400
 AR Path="/52805C47" Ref="P44"  Part="1" 
@@ -2919,7 +2919,7 @@ F 4 "DNP" H 3450 9400 60  0001 C CNN "Note"
 	-1   0    0    1   
 $EndComp
 $Comp
-L hackrf-one-rescue:CONN_1 P45
+L hackrf:CONN_1 P45
 U 1 1 52805C4E
 P 3450 9500
 AR Path="/52805C4E" Ref="P45"  Part="1" 
@@ -2933,7 +2933,7 @@ F 4 "DNP" H 3450 9500 60  0001 C CNN "Note"
 	-1   0    0    1   
 $EndComp
 $Comp
-L hackrf-one-rescue:CONN_1 P46
+L hackrf:CONN_1 P46
 U 1 1 52805C55
 P 3450 9600
 AR Path="/52805C55" Ref="P46"  Part="1" 
@@ -2947,7 +2947,7 @@ F 4 "DNP" H 3450 9600 60  0001 C CNN "Note"
 	-1   0    0    1   
 $EndComp
 $Comp
-L hackrf-one-rescue:CONN_1 P47
+L hackrf:CONN_1 P47
 U 1 1 52805C5C
 P 3450 9700
 AR Path="/52805C5C" Ref="P47"  Part="1" 
@@ -2969,7 +2969,7 @@ Wire Wire Line
 Wire Wire Line
 	3600 9400 3700 9400
 $Comp
-L hackrf-one-rescue:CONN_1 P48
+L hackrf:CONN_1 P48
 U 1 1 52805C67
 P 3450 9800
 AR Path="/52805C67" Ref="P48"  Part="1" 
@@ -2983,7 +2983,7 @@ F 4 "DNP" H 3450 9800 60  0001 C CNN "Note"
 	-1   0    0    1   
 $EndComp
 $Comp
-L hackrf-one-rescue:CONN_1 P49
+L hackrf:CONN_1 P49
 U 1 1 52805C6E
 P 3450 9900
 AR Path="/52805C6E" Ref="P49"  Part="1" 
@@ -2997,7 +2997,7 @@ F 4 "DNP" H 3450 9900 60  0001 C CNN "Note"
 	-1   0    0    1   
 $EndComp
 $Comp
-L hackrf-one-rescue:CONN_1 P50
+L hackrf:CONN_1 P50
 U 1 1 52805C75
 P 3450 10000
 AR Path="/52805C75" Ref="P50"  Part="1" 
@@ -3011,7 +3011,7 @@ F 4 "DNP" H 3450 10000 60  0001 C CNN "Note"
 	-1   0    0    1   
 $EndComp
 $Comp
-L hackrf-one-rescue:CONN_1 P51
+L hackrf:CONN_1 P51
 U 1 1 52805C7C
 P 3450 10100
 AR Path="/52805C7C" Ref="P51"  Part="1" 
@@ -3033,7 +3033,7 @@ Wire Wire Line
 Wire Wire Line
 	3600 9800 3700 9800
 $Comp
-L hackrf-one-rescue:CONN_1 P52
+L hackrf:CONN_1 P52
 U 1 1 52805C87
 P 3450 10200
 AR Path="/52805C87" Ref="P52"  Part="1" 
@@ -3134,7 +3134,7 @@ F 6 "CAP CER 0.1UF 10V 10% X5R 0402" H 7350 10900 60  0001 C CNN "Description"
 	0    -1   1    0   
 $EndComp
 $Comp
-L hackrf-one-rescue:CONN_1 J4
+L hackrf:CONN_1 J4
 U 1 1 528FA040
 P 850 9850
 AR Path="/528FA040" Ref="J4"  Part="1" 
@@ -3161,7 +3161,7 @@ $EndComp
 Wire Wire Line
 	850  10000 850  10100
 $Comp
-L hackrf-one-rescue:CONN_1 J5
+L hackrf:CONN_1 J5
 U 1 1 528FA22A
 P 1050 9850
 AR Path="/528FA22A" Ref="J5"  Part="1" 
@@ -3188,7 +3188,7 @@ $EndComp
 Wire Wire Line
 	1050 10000 1050 10100
 $Comp
-L hackrf-one-rescue:CONN_1 J6
+L hackrf:CONN_1 J6
 U 1 1 528FA29A
 P 1250 9850
 AR Path="/528FA29A" Ref="J6"  Part="1" 
@@ -3215,7 +3215,7 @@ $EndComp
 Wire Wire Line
 	1250 10000 1250 10100
 $Comp
-L hackrf-one-rescue:CONN_1 J7
+L hackrf:CONN_1 J7
 U 1 1 528FA2A8
 P 1450 9850
 AR Path="/528FA2A8" Ref="J7"  Part="1" 
@@ -3242,7 +3242,7 @@ $EndComp
 Wire Wire Line
 	1450 10000 1450 10100
 $Comp
-L hackrf-one-rescue:CONN_1 J8
+L hackrf:CONN_1 J8
 U 1 1 528FA2B6
 P 1650 9850
 AR Path="/528FA2B6" Ref="J8"  Part="1" 
@@ -3269,7 +3269,7 @@ $EndComp
 Wire Wire Line
 	1650 10000 1650 10100
 $Comp
-L hackrf-one-rescue:CONN_1 J9
+L hackrf:CONN_1 J9
 U 1 1 528FA2C4
 P 1850 9850
 AR Path="/528FA2C4" Ref="J9"  Part="1" 
@@ -3326,7 +3326,7 @@ F 6 "CAP CER 100PF 50V 5% NP0 0402" H 9300 11600 60  0001 C CNN "Description"
 	1    0    0    -1  
 $EndComp
 $Comp
-L hackrf-one-rescue:CONN_1 J10
+L hackrf:CONN_1 J10
 U 1 1 5293FD15
 P 2600 9850
 AR Path="/5293FD15" Ref="J10"  Part="1" 
@@ -3412,7 +3412,7 @@ F 6 "RES 10K OHM 1/16W 5% 0402 SMD" H 15300 5950 60  0001 C CNN "Description"
 	0    -1   -1   0   
 $EndComp
 $Comp
-L hackrf-one-rescue:INDUCTOR L13
+L hackrf:INDUCTOR L13
 U 1 1 52EA1189
 P 15550 7650
 AR Path="/52EA1189" Ref="L13"  Part="1" 
@@ -3442,7 +3442,7 @@ F 6 "CAP CER 1UF 10V 10% X5R 0402" H 15850 6100 60  0001 C CNN "Description"
 	1    0    0    -1  
 $EndComp
 $Comp
-L hackrf-one-rescue:MOSFET_P Q4
+L hackrf:MOSFET_P Q4
 U 1 1 52EA11B0
 P 15450 6300
 AR Path="/52EA11B0" Ref="Q4"  Part="1" 
@@ -3850,7 +3850,7 @@ Wire Wire Line
 Wire Wire Line
 	16200 7700 16200 7750
 $Comp
-L hackrf-one-rescue:INDUCTOR L?
+L hackrf:INDUCTOR L?
 U 1 1 5F078049
 P 15550 6950
 AR Path="/5F078049" Ref="L?"  Part="1" 

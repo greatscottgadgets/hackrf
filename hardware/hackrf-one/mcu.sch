@@ -118,7 +118,7 @@ F 6 "CAP CER 18PF 50V 5% NP0 0402" H 5000 9900 60  0001 C CNN "Description"
 	1    0    0    -1  
 $EndComp
 $Comp
-L hackrf-one-rescue:CONN_2 P8
+L hackrf:CONN_2 P8
 U 1 1 5048CFC5
 P 16050 3150
 AR Path="/5048CFC5" Ref="P8"  Part="1" 
@@ -136,7 +136,7 @@ REG_OUT1
 Text Label 14700 700  0    40   ~ 0
 REG_OUT2
 $Comp
-L hackrf-one-rescue:CONN_2 P1
+L hackrf:CONN_2 P1
 U 1 1 5048CF4D
 P 16050 1150
 AR Path="/5048CF4D" Ref="P1"  Part="1" 
@@ -170,7 +170,7 @@ Default boot configuration is SPIFI.\nPress SW1 during reset to switch to\nUSB0 
 Text GLabel 8750 7750 3    40   Input ~ 0
 SGPIO_CLK
 $Comp
-L hackrf-one-rescue:CONN_1 P24
+L hackrf:CONN_1 P24
 U 1 1 5045736F
 P 4050 5800
 AR Path="/5045736F" Ref="P24"  Part="1" 
@@ -184,7 +184,7 @@ F 4 "DNP" H 4050 5800 60  0001 C CNN "Note"
 	-1   0    0    1   
 $EndComp
 $Comp
-L hackrf-one-rescue:CONN_1 P23
+L hackrf:CONN_1 P23
 U 1 1 5045734C
 P 1850 5700
 AR Path="/5045734C" Ref="P23"  Part="1" 
@@ -198,7 +198,7 @@ F 4 "DNP" H 1850 5700 60  0001 C CNN "Note"
 	-1   0    0    1   
 $EndComp
 $Comp
-L hackrf-one-rescue:CONN_10X2 P30
+L hackrf:CONN_10X2 P30
 U 1 1 504571A2
 P 10400 7900
 AR Path="/504571A2" Ref="P30"  Part="1" 
@@ -336,7 +336,7 @@ F 3 "" H 15050 3450 60  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L hackrf-one-rescue:CONN_2 P3
+L hackrf:CONN_2 P3
 U 1 1 5043D24D
 P 15150 3000
 AR Path="/5043D24D" Ref="P3"  Part="1" 
@@ -1907,7 +1907,7 @@ CPLD_TDO
 Text Label 15600 8850 0    40   ~ 0
 CPLD_TMS
 $Comp
-L hackrf-one-rescue:CONN_2 P29
+L hackrf:CONN_2 P29
 U 1 1 4F82F4C0
 P 16300 8950
 AR Path="/4F82F4C0" Ref="P29"  Part="1" 
@@ -2181,7 +2181,7 @@ F 3 "" H 15900 2100 60  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L hackrf-one-rescue:INDUCTOR L11
+L hackrf:INDUCTOR L11
 U 1 1 4F8249E7
 P 15050 2300
 AR Path="/4F8249E7" Ref="L11"  Part="1" 
@@ -2197,7 +2197,7 @@ F 6 "INDUCTOR 4.7UH 1.6A 20% SMD" V 15050 2300 60  0001 C CNN "Description"
 	-1   0    0    1   
 $EndComp
 $Comp
-L hackrf-one-rescue:1V8 #PWR0227
+L hackrf:1V8 #PWR0227
 U 1 1 4F82054D
 P 16250 700
 AR Path="/4F82054D" Ref="#PWR0227"  Part="1" 
@@ -2321,7 +2321,7 @@ F 6 "RES TF 1/16W 715K OHM 1% 0402" H 14300 2700 60  0001 C CNN "Description"
 	0    1    1    0   
 $EndComp
 $Comp
-L hackrf-one-rescue:INDUCTOR L10
+L hackrf:INDUCTOR L10
 U 1 1 4F820301
 P 15050 1100
 AR Path="/4F820301" Ref="L10"  Part="1" 
@@ -2443,7 +2443,7 @@ F 3 "" H 15300 4300 60  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L hackrf-one-rescue:1V8 #PWR0239
+L hackrf:1V8 #PWR0239
 U 1 1 4F81F7CF
 P 15300 3850
 AR Path="/4F81F7CF" Ref="#PWR0239"  Part="1" 
@@ -2467,7 +2467,7 @@ F 3 "" H 11500 6150 60  0001 C CNN
 	0    -1   -1   0   
 $EndComp
 $Comp
-L hackrf-one-rescue:1V8 #PWR0241
+L hackrf:1V8 #PWR0241
 U 1 1 4F81F5B6
 P 12400 9050
 AR Path="/4F81F5B6" Ref="#PWR0241"  Part="1" 
@@ -2480,7 +2480,7 @@ F 3 "" H 12400 9050 60  0001 C CNN
 	-1   0    0    1   
 $EndComp
 $Comp
-L hackrf-one-rescue:1V8 #PWR0242
+L hackrf:1V8 #PWR0242
 U 1 1 4F81F58C
 P 15700 7550
 AR Path="/4F81F58C" Ref="#PWR0242"  Part="1" 
@@ -2562,7 +2562,7 @@ NoConn ~ 1200 4600
 Text Label 1100 5700 1    40   ~ 0
 RESET
 $Comp
-L hackrf-one-rescue:CONN_5X2 P26
+L hackrf:CONN_5X2 P26
 U 1 1 4F63572B
 P 1300 5000
 AR Path="/4F63572B" Ref="P26"  Part="1" 
@@ -2612,7 +2612,7 @@ F 3 "" H 2250 2150 60  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L hackrf-one-rescue:CONN_6 P25
+L hackrf:CONN_6 P25
 U 1 1 4F62D2D3
 P 1800 1800
 AR Path="/4F62D2D3" Ref="P25"  Part="1" 
@@ -3137,7 +3137,7 @@ $EndComp
 Text Label 13350 1800 0    40   ~ 0
 REG_OUT1
 $Comp
-L hackrf-one-rescue:CRYSTAL X3
+L hackrf:CRYSTAL X3
 U 1 1 52490BB4
 P 3650 1550
 AR Path="/52490BB4" Ref="X3"  Part="1" 
@@ -3231,7 +3231,7 @@ I2C1_SDA
 Text Label 11100 3300 0    40   ~ 0
 I2C1_SCL
 $Comp
-L hackrf-one-rescue:CONN_13X2 P22
+L hackrf:CONN_13X2 P22
 U 1 1 526B4073
 P 11950 3700
 AR Path="/526B4073" Ref="P22"  Part="1" 
@@ -3578,7 +3578,7 @@ P2_8
 Text Label 11100 4100 0    40   ~ 0
 P2_9
 $Comp
-L hackrf-one-rescue:CONN_3X2 P5
+L hackrf:CONN_3X2 P5
 U 1 1 528023DB
 P 7800 10200
 AR Path="/528023DB" Ref="P5"  Part="1" 
@@ -3617,7 +3617,7 @@ GCK0
 Text Label 11100 7450 2    40   ~ 0
 GCK0
 $Comp
-L hackrf-one-rescue:CONN_1 P72
+L hackrf:CONN_1 P72
 U 1 1 52808CBF
 P 6000 9400
 AR Path="/52808CBF" Ref="P72"  Part="1" 
@@ -3631,7 +3631,7 @@ F 4 "DNP" H 6000 9400 60  0001 C CNN "Note"
 	0    -1   -1   0   
 $EndComp
 $Comp
-L hackrf-one-rescue:CONN_1 P71
+L hackrf:CONN_1 P71
 U 1 1 52808FE9
 P 3500 2850
 AR Path="/52808FE9" Ref="P71"  Part="1" 
@@ -3645,7 +3645,7 @@ F 4 "DNP" H 3500 2850 60  0001 C CNN "Note"
 	1    0    0    -1  
 $EndComp
 $Comp
-L hackrf-one-rescue:CONN_1 P68
+L hackrf:CONN_1 P68
 U 1 1 52809276
 P 3800 6650
 AR Path="/52809276" Ref="P68"  Part="1" 
@@ -3659,7 +3659,7 @@ F 4 "DNP" H 3800 6650 60  0001 C CNN "Note"
 	0    -1   -1   0   
 $EndComp
 $Comp
-L hackrf-one-rescue:CONN_1 P69
+L hackrf:CONN_1 P69
 U 1 1 52809504
 P 13050 1350
 AR Path="/52809504" Ref="P69"  Part="1" 
@@ -3673,7 +3673,7 @@ F 4 "DNP" H 13050 1350 60  0001 C CNN "Note"
 	0    -1   -1   0   
 $EndComp
 $Comp
-L hackrf-one-rescue:CONN_1 P70
+L hackrf:CONN_1 P70
 U 1 1 52809857
 P 16150 1850
 AR Path="/52809857" Ref="P70"  Part="1" 
@@ -3687,7 +3687,7 @@ F 4 "DNP" H 16150 1850 60  0001 C CNN "Note"
 	0    1    1    0   
 $EndComp
 $Comp
-L hackrf-one-rescue:CONN_1 P73
+L hackrf:CONN_1 P73
 U 1 1 52809B46
 P 900 9850
 AR Path="/52809B46" Ref="P73"  Part="1" 
@@ -3701,7 +3701,7 @@ F 4 "DNP" H 900 9850 60  0001 C CNN "Note"
 	0    -1   -1   0   
 $EndComp
 $Comp
-L hackrf-one-rescue:CONN_1 P74
+L hackrf:CONN_1 P74
 U 1 1 52809BA9
 P 2050 10150
 AR Path="/52809BA9" Ref="P74"  Part="1" 
@@ -3715,7 +3715,7 @@ F 4 "DNP" H 2050 10150 60  0001 C CNN "Note"
 	0    -1   -1   0   
 $EndComp
 $Comp
-L hackrf-one-rescue:CONN_1 P75
+L hackrf:CONN_1 P75
 U 1 1 5280A7B0
 P 2750 6650
 AR Path="/5280A7B0" Ref="P75"  Part="1" 
@@ -3731,7 +3731,7 @@ $EndComp
 Text Label 2750 7150 1    40   ~ 0
 SGPIO0
 $Comp
-L hackrf-one-rescue:CONN_1 P76
+L hackrf:CONN_1 P76
 U 1 1 5280ACAD
 P 2900 6650
 AR Path="/5280ACAD" Ref="P76"  Part="1" 
@@ -3747,7 +3747,7 @@ $EndComp
 Text Label 2900 7150 1    40   ~ 0
 SGPIO7
 $Comp
-L hackrf-one-rescue:CONN_1 P77
+L hackrf:CONN_1 P77
 U 1 1 5280ACB7
 P 3050 6650
 AR Path="/5280ACB7" Ref="P77"  Part="1" 
@@ -3763,7 +3763,7 @@ $EndComp
 Text Label 3050 7150 1    40   ~ 0
 SGPIO9
 $Comp
-L hackrf-one-rescue:CONN_1 P78
+L hackrf:CONN_1 P78
 U 1 1 5280ACC0
 P 3200 6650
 AR Path="/5280ACC0" Ref="P78"  Part="1" 
@@ -3779,7 +3779,7 @@ $EndComp
 Text Label 3200 7150 1    40   ~ 0
 SGPIO10
 $Comp
-L hackrf-one-rescue:CONN_1 P79
+L hackrf:CONN_1 P79
 U 1 1 5280ACCC
 P 3350 6650
 AR Path="/5280ACCC" Ref="P79"  Part="1" 
@@ -3795,7 +3795,7 @@ $EndComp
 Text Label 3350 7150 1    40   ~ 0
 SGPIO11
 $Comp
-L hackrf-one-rescue:CONN_2 P80
+L hackrf:CONN_2 P80
 U 1 1 528064FC
 P 1250 2700
 AR Path="/528064FC" Ref="P80"  Part="1" 
@@ -3811,7 +3811,7 @@ $EndComp
 Text Label 800  2600 3    40   ~ 0
 USB_SHIELD
 $Comp
-L hackrf-one-rescue:CONN_1 P81
+L hackrf:CONN_1 P81
 U 1 1 52808621
 P 3500 6650
 AR Path="/52808621" Ref="P81"  Part="1" 
@@ -3831,7 +3831,7 @@ SPIFI_SIO3
 Text Label 3800 7150 1    40   ~ 0
 SPIFI_CS
 $Comp
-L hackrf-one-rescue:CONN_1 P82
+L hackrf:CONN_1 P82
 U 1 1 52808DC0
 P 3650 6650
 AR Path="/52808DC0" Ref="P82"  Part="1" 
@@ -4070,7 +4070,7 @@ F 6 "RES TF 1.8K OHM 5% 1/16W 0402" H 2200 6600 60  0001 C CNN "Description"
 	-1   0    0    1   
 $EndComp
 $Comp
-L hackrf-one-rescue:FILTER FB3
+L hackrf:FILTER FB3
 U 1 1 52EA190B
 P 1950 3050
 AR Path="/52EA190B" Ref="FB3"  Part="1" 
@@ -4086,7 +4086,7 @@ F 6 "FERRITE CHIP 220 OHM 2000MA 0805" H 1950 3050 60  0001 C CNN "Description"
 	1    0    0    -1  
 $EndComp
 $Comp
-L hackrf-one-rescue:MOSFET_P Q5
+L hackrf:MOSFET_P Q5
 U 1 1 52F14FDB
 P 12150 1100
 AR Path="/52F14FDB" Ref="Q5"  Part="1" 
@@ -5607,7 +5607,7 @@ Connection ~ 1500 2850
 Wire Wire Line
 	2100 2550 2100 2650
 $Comp
-L hackrf-one-rescue:FILTER FB1
+L hackrf:FILTER FB1
 U 1 1 4F766F5E
 P 1950 4050
 AR Path="/4F766F5E" Ref="FB1"  Part="1" 
