@@ -3965,44 +3965,16 @@ F 6 "CAP CER 18PF 50V 5% NP0 0402" H 3250 1800 60  0001 C CNN "Description"
 	-1   0    0    -1  
 $EndComp
 $Comp
-L Device:R R35
-U 1 1 5294026C
-P 1050 1900
-AR Path="/5294026C" Ref="R35"  Part="1" 
-AR Path="/5037043E/5294026C" Ref="R35"  Part="1" 
-F 0 "R35" V 1130 1900 50  0000 C CNN
-F 1 "DNP" V 1050 1900 50  0000 C CNN
-F 2 "hackrf:GSG-0805" H 1050 1900 60  0001 C CNN
-F 3 "" H 1050 1900 60  0000 C CNN
-F 4 "DNP" V 950 1900 60  0000 C CNN "Note"
-	1    1050 1900
-	0    -1   -1   0   
-$EndComp
-$Comp
-L Device:C C155
-U 1 1 5294027B
-P 1050 2250
-AR Path="/5294027B" Ref="C155"  Part="1" 
-AR Path="/5037043E/5294027B" Ref="C155"  Part="1" 
-F 0 "C155" H 1100 2350 50  0000 L CNN
-F 1 "DNP" H 1100 2150 50  0000 L CNN
-F 2 "hackrf:GSG-0805" H 1050 2250 60  0001 C CNN
-F 3 "" H 1050 2250 60  0000 C CNN
-F 4 "DNP" V 900 2200 60  0000 C CNN "Note"
-	1    1050 2250
-	0    -1   -1   0   
-$EndComp
-$Comp
 L power:GND #PWR0302
 U 1 1 529402E0
-P 1300 1800
+P 800 2300
 AR Path="/529402E0" Ref="#PWR0302"  Part="1" 
 AR Path="/5037043E/529402E0" Ref="#PWR0302"  Part="1" 
-F 0 "#PWR0302" H 1300 1800 30  0001 C CNN
-F 1 "GND" H 1300 1730 30  0001 C CNN
-F 2 "" H 1300 1800 60  0000 C CNN
-F 3 "" H 1300 1800 60  0000 C CNN
-	1    1300 1800
+F 0 "#PWR0302" H 800 2300 30  0001 C CNN
+F 1 "GND" H 800 2230 30  0001 C CNN
+F 2 "" H 800 2300 60  0000 C CNN
+F 3 "" H 800 2300 60  0000 C CNN
+	1    800  2300
 	-1   0    0    1   
 $EndComp
 $Comp
@@ -5252,8 +5224,6 @@ Wire Wire Line
 Wire Wire Line
 	3350 7150 3350 6800
 Wire Wire Line
-	800  1900 800  2250
-Wire Wire Line
 	800  2800 900  2800
 Wire Wire Line
 	800  2600 900  2600
@@ -5276,17 +5246,7 @@ Wire Wire Line
 	1750 9300 1750 9200
 Wire Wire Line
 	2100 8650 2100 8750
-Wire Wire Line
-	1300 1800 1300 1900
-Wire Wire Line
-	1200 1900 1300 1900
-Connection ~ 1300 1900
-Wire Wire Line
-	900  1900 800  1900
 Connection ~ 800  2600
-Wire Wire Line
-	800  2250 900  2250
-Connection ~ 800  2250
 Wire Wire Line
 	2300 3050 2400 3050
 Wire Wire Line
@@ -5350,8 +5310,6 @@ Wire Wire Line
 	3400 4900 4300 4900
 Text Label 2750 8450 0    40   ~ 0
 VBUSCTRL
-Wire Wire Line
-	1300 2250 1200 2250
 Wire Wire Line
 	1700 7900 1700 8000
 Wire Wire Line
@@ -5495,11 +5453,7 @@ Wire Wire Line
 Wire Wire Line
 	800  2800 800  3000
 Wire Wire Line
-	1300 1900 1300 2250
-Wire Wire Line
 	800  2600 800  2800
-Wire Wire Line
-	800  2250 800  2600
 Wire Wire Line
 	12250 1700 12500 1700
 Wire Wire Line
@@ -5646,4 +5600,6 @@ Wire Wire Line
 	2800 3450 3600 3450
 Wire Wire Line
 	3600 3450 3600 4250
+Wire Wire Line
+	800  2300 800  2600
 $EndSCHEMATC

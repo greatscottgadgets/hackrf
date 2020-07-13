@@ -4172,7 +4172,7 @@ Wire Wire Line
 Wire Wire Line
 	4500 8750 4500 9200
 Wire Wire Line
-	4500 9600 5250 9600
+	4500 9600 4850 9600
 Connection ~ 5250 9600
 Wire Wire Line
 	3650 9800 3650 9850
@@ -4189,32 +4189,10 @@ F 3 "" H 3650 9200 60  0001 C CNN
 $EndComp
 Wire Wire Line
 	5350 9600 5800 9600
-$Comp
-L Diode:BAV99 D1
-U 1 1 637D86FD
-P 3650 9500
-F 0 "D1" V 3696 9579 50  0000 L CNN
-F 1 "BAV99" V 3605 9579 50  0000 L CNN
-F 2 "Package_TO_SOT_SMD:SOT-23" H 3650 9000 50  0001 C CNN
-F 3 "https://assets.nexperia.com/documents/data-sheet/BAV99_SER.pdf" H 3650 9500 50  0001 C CNN
-	1    3650 9500
-	0    1    -1   0   
-$EndComp
 Wire Wire Line
 	3400 8850 3400 9500
 Wire Wire Line
 	3450 9500 3400 9500
-$Comp
-L Diode:BAV99 D3
-U 1 1 63A5CFB5
-P 5050 9600
-F 0 "D3" V 5096 9679 50  0000 L CNN
-F 1 "BAV99" V 5005 9679 50  0000 L CNN
-F 2 "Package_TO_SOT_SMD:SOT-23" H 5050 9100 50  0001 C CNN
-F 3 "https://assets.nexperia.com/documents/data-sheet/BAV99_SER.pdf" H 5050 9600 50  0001 C CNN
-	1    5050 9600
-	0    -1   -1   0   
-$EndComp
 $Comp
 L power:VCC #PWR0243
 U 1 1 63A5DCF4
@@ -4237,4 +4215,29 @@ F 3 "" H 5050 9900 60  0001 C CNN
 	1    5050 9900
 	1    0    0    -1  
 $EndComp
+$Comp
+L hackrf:BAS70-04 D1
+U 1 1 5F92CA23
+P 3650 9500
+F 0 "D1" V 3696 9579 50  0000 L CNN
+F 1 "BAS70-04" V 3605 9579 50  0000 L CNN
+F 2 "Package_TO_SOT_SMD:SOT-23" H 3650 9000 50  0001 C CNN
+F 3 "https://www.diodes.com/assets/Datasheets/ds11007.pdf" H 3650 9500 50  0001 C CNN
+	1    3650 9500
+	0    1    -1   0   
+$EndComp
+$Comp
+L hackrf:BAS70-04 D3
+U 1 1 5FA047A0
+P 5050 9600
+F 0 "D3" V 5096 9679 50  0000 L CNN
+F 1 "BAS70-04" V 5005 9679 50  0000 L CNN
+F 2 "Package_TO_SOT_SMD:SOT-23" H 5050 9100 50  0001 C CNN
+F 3 "https://www.diodes.com/assets/Datasheets/ds11007.pdf" H 5050 9600 50  0001 C CNN
+	1    5050 9600
+	0    -1   -1   0   
+$EndComp
+Connection ~ 4850 9600
+Wire Wire Line
+	4850 9600 5250 9600
 $EndSCHEMATC

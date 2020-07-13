@@ -1,5 +1,11 @@
 EESchema-DOCLIB  Version 2.0
 #
+$CMP BAS70-04
+D BAS70 High-speed Schottky switching diodes, SOT-23
+K diode
+F https://www.diodes.com/assets/Datasheets/ds11007.pdf
+$ENDCMP
+#
 $CMP CONN_2_SHORTED
 D Symbole general de connecteur
 K CONN
