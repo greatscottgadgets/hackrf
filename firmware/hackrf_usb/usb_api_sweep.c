@@ -27,6 +27,7 @@
 #include "usb_bulk_buffer.h"
 #include "tuning.h"
 #include "usb_endpoint.h"
+#include "streaming.h"
 
 #define MIN(x,y)       ((x)<(y)?(x):(y))
 #define MAX(x,y)       ((x)>(y)?(x):(y))
@@ -34,7 +35,6 @@
 #define MAX_RANGES 10
 #define THROWAWAY_BUFFERS 2
 
-volatile bool start_sweep_mode = false;
 static uint64_t sweep_freq;
 static uint16_t frequencies[MAX_RANGES * 2];
 static unsigned char data[9 + MAX_RANGES * 2 * sizeof(frequencies[0])];
@@ -44,6 +44,7 @@ static uint32_t step_width = 0;
 static uint32_t offset = 0;
 static enum sweep_style style = LINEAR;
 
+/* Do this before starting sweep mode with set_transceiver_mode(). */
 usb_request_status_t usb_vendor_request_init_sweep(
 		usb_endpoint_t* const endpoint, const usb_transfer_stage_t stage)
 {
@@ -78,7 +79,6 @@ usb_request_status_t usb_vendor_request_init_sweep(
 		}
 		sweep_freq = (uint64_t)frequencies[0] * FREQ_GRANULARITY;
 		set_freq(sweep_freq + offset);
-		start_sweep_mode = true;
 		usb_transfer_schedule_ack(endpoint->in);
 	}
 	return USB_REQUEST_STATUS_OK;
@@ -93,7 +93,9 @@ void sweep_mode(void) {
 	uint8_t *buffer;
 	bool transfer = false;
 
-	while(transceiver_mode() != TRANSCEIVER_MODE_OFF) {
+	baseband_streaming_enable(&sgpio_config);
+
+	while (TRANSCEIVER_MODE_RX_SWEEP == transceiver_mode()) {
 		// Set up IN transfer of buffer 0.
 		if ( usb_bulk_buffer_offset >= 16384 && phase == 1) {
 			transfer = true;

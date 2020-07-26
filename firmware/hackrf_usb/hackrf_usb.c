@@ -252,46 +252,22 @@ int main(void) {
 	}
 	operacake_init(operacake_allow_gpio);
 
-	unsigned int phase = 0;
-	usb_bulk_buffer_offset = 0;
-
 	while(true) {
-		// Check whether we need to initiate a CPLD update
-		if (start_cpld_update)
-			cpld_update();
-
-		// Check whether we need to initiate sweep mode
-		if (start_sweep_mode) {
-			start_sweep_mode = false;
+		switch (transceiver_mode()) {
+		case TRANSCEIVER_MODE_RX:
+			rx_mode();
+			break;
+		case TRANSCEIVER_MODE_TX:
+			tx_mode();
+			break;
+		case TRANSCEIVER_MODE_RX_SWEEP:
 			sweep_mode();
-		}
-
-		// Set up IN transfer of buffer 0.
-		if ( usb_bulk_buffer_offset >= 16384
-		     && phase == 1
-		     && transceiver_mode() != TRANSCEIVER_MODE_OFF) {
-			usb_transfer_schedule_block(
-				(transceiver_mode() == TRANSCEIVER_MODE_RX)
-				? &usb_endpoint_bulk_in : &usb_endpoint_bulk_out,
-				&usb_bulk_buffer[0x0000],
-				0x4000,
-				NULL, NULL
-				);
-			phase = 0;
-		}
-
-		// Set up IN transfer of buffer 1.
-		if ( usb_bulk_buffer_offset < 16384
-		     && phase == 0
-		     && transceiver_mode() != TRANSCEIVER_MODE_OFF) {
-			usb_transfer_schedule_block(
-				(transceiver_mode() == TRANSCEIVER_MODE_RX)
-				? &usb_endpoint_bulk_in : &usb_endpoint_bulk_out,
-				&usb_bulk_buffer[0x4000],
-				0x4000,
-				NULL, NULL
-			);
-			phase = 1;
+			break;
+		case TRANSCEIVER_MODE_CPLD_UPDATE:
+			cpld_update();
+			break;
+		default:
+			break;
 		}
 	}
 

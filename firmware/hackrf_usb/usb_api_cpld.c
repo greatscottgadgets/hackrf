@@ -33,7 +33,6 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-volatile bool start_cpld_update = false;
 uint8_t cpld_xsvf_buffer[512];
 volatile bool cpld_wait = false;
 
