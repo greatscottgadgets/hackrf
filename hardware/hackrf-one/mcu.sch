@@ -1312,9 +1312,9 @@ CS_AD
 Text GLabel 8350 7750 3    40   Input ~ 0
 SSP1_SCK
 Text GLabel 6250 7750 3    40   Input ~ 0
-SSP1_MOSI
+SSP1_COPI
 Text GLabel 5950 7750 3    40   Input ~ 0
-SSP1_MISO
+SSP1_CIPO
 Text GLabel 12500 9050 3    40   Input ~ 0
 GCK2
 Text GLabel 11500 7950 0    40   Input ~ 0
@@ -2726,9 +2726,9 @@ SGPIO0
 Text Label 7550 1400 1    40   ~ 0
 SPIFI_SIO2
 Text Label 7350 1400 1    40   ~ 0
-SPIFI_MOSI
+SPIFI_COPI
 Text Label 7450 1400 1    40   ~ 0
-SPIFI_MISO
+SPIFI_CIPO
 Text Label 4000 5300 0    40   ~ 0
 RREF
 Text Label 4000 6000 0    40   ~ 0
@@ -3256,11 +3256,11 @@ F 3 "" H 12800 3500 60  0001 C CNN
 	0    -1   -1   0   
 $EndComp
 Text Label 11100 3400 0    40   ~ 0
-SPIFI_MISO
+SPIFI_CIPO
 Text Label 12800 3400 2    40   ~ 0
 SPIFI_SCK
 Text Label 11100 3500 0    40   ~ 0
-SPIFI_MOSI
+SPIFI_COPI
 Text Label 10000 5100 2    40   ~ 0
 I2C1_SDA
 Text Label 10000 5000 2    40   ~ 0

@@ -39,7 +39,7 @@ void i2c_lpc_stop(i2c_bus_t* const bus) {
 }
 
 void i2c_lpc_transfer(i2c_bus_t* const bus,
-	const uint_fast8_t slave_address,
+	const uint_fast8_t peripheral_address,
 	const uint8_t* const data_tx, const size_t count_tx,
 	uint8_t* const data_rx, const size_t count_rx
 ) {
@@ -48,7 +48,7 @@ void i2c_lpc_transfer(i2c_bus_t* const bus,
 	bool ack = false;
 	if (data_tx && (count_tx > 0)) {
 		i2c_tx_start(port);
-		i2c_tx_byte(port, (slave_address << 1) | I2C_WRITE);
+		i2c_tx_byte(port, (peripheral_address << 1) | I2C_WRITE);
 		for(i=0; i<count_tx; i++) {
 			i2c_tx_byte(port, data_tx[i]);
 		}
@@ -56,7 +56,7 @@ void i2c_lpc_transfer(i2c_bus_t* const bus,
 
 	if (data_rx && (count_rx > 0)) {
 		i2c_tx_start(port);
-		i2c_tx_byte(port, (slave_address << 1) | I2C_READ);
+		i2c_tx_byte(port, (peripheral_address << 1) | I2C_READ);
 		for(i=0; i<count_rx; i++) {
 			/* ACK each byte except the last */
 			ack = (i!=count_rx-1);

@@ -52,7 +52,7 @@
 
 /*
  * Set up pins for GPIO and SPI control, configure SSP0 peripheral for SPI.
- * SSP0_SSEL is controlled by GPIO in order to handle various transfer lengths.
+ * SSP0_CS is controlled by GPIO in order to handle various transfer lengths.
  */
 void w25q80bv_setup(w25q80bv_driver_t* const drv)
 {
