@@ -9,7 +9,7 @@ matrix:
 
     - os: osx
       compiler: clang
-      osx_image: xcode10.3
+      osx_image: xcode11.5
 
 env:
   global:
