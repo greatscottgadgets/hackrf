@@ -165,7 +165,7 @@
       (net 1 GND))
   )
 
-  (module LNA915:SMA-KIT-1.5MF (layer F.Cu) (tedit 5F26EE20) (tstamp 5F278E99)
+  (module gsg-modules:SMA-KIT-1.5MF (layer F.Cu) (tedit 5F26EE20) (tstamp 5F278E99)
     (at 136.863 100 180)
     (path /5EF2AE41)
     (attr virtual)
@@ -224,7 +224,7 @@
       (net 1 GND))
   )
 
-  (module LNA915:GRF6011 (layer F.Cu) (tedit 5F279363) (tstamp 5F278692)
+  (module gsg-modules:GRF6011 (layer F.Cu) (tedit 5F279363) (tstamp 5F278692)
     (at 133.76 99.93 180)
     (path /5EF6E285)
     (attr smd)
@@ -276,7 +276,7 @@
       (net 2 VCC))
   )
 
-  (module LNA915:TSLP-7-1 (layer F.Cu) (tedit 5F26DB3A) (tstamp 5F2788A4)
+  (module gsg-modules:TSLP-7-1 (layer F.Cu) (tedit 5F26DB3A) (tstamp 5F2788A4)
     (at 131.47 99.61)
     (path /52F68792)
     (attr smd)
@@ -344,7 +344,7 @@
       (net 1 GND))
   )
 
-  (module LNA915:F5Q (layer F.Cu) (tedit 5F26F223) (tstamp 5F278651)
+  (module gsg-modules:F5Q (layer F.Cu) (tedit 5F26F223) (tstamp 5F278651)
     (at 127.2 102.2 270)
     (path /52F44412)
     (fp_text reference U4 (at 0 0 90) (layer F.SilkS)
@@ -380,7 +380,7 @@
       (net 1 GND))
   )
 
-  (module LNA915:GRF6011 (layer F.Cu) (tedit 5F279363) (tstamp 5F277FC8)
+  (module gsg-modules:GRF6011 (layer F.Cu) (tedit 5F279363) (tstamp 5F277FC8)
     (at 130.4 103.03)
     (path /5EF1EE32)
     (attr smd)
