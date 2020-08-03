@@ -1,4 +1,4 @@
-update=Mon 22 Jun 2020 12:25:41 AM MDT
+update=Mon 03 Aug 2020 07:51:01 AM MDT
 version=1
 last_client=kicad
 [cvpcb]
@@ -25,7 +25,7 @@ ERC_TestSimilarLabels=1
 version=1
 PageLayoutDescrFile=
 LastNetListRead=
-CopperLayerCount=2
+CopperLayerCount=4
 BoardThickness=0.8
 AllowMicroVias=0
 AllowBlindVias=0
@@ -37,16 +37,14 @@ MinViaDrill=0.254
 MinMicroViaDiameter=0.4572
 MinMicroViaDrill=0.127
 MinHoleToHole=0.127
-TrackWidth1=0.1524
-TrackWidth2=0.2032
-TrackWidth3=0.24
-TrackWidth4=0.3048
+TrackWidth1=0.29337
+TrackWidth2=0.2
 ViaDiameter1=0.635
 ViaDrill1=0.3048
 ViaDiameter2=0.508
 ViaDrill2=0.254
-dPairWidth1=0.2
-dPairGap1=0.25
+dPairWidth1=0.2032
+dPairGap1=0.2032
 dPairViaGap1=0.25
 SilkLineWidth=0.15
 SilkTextSizeV=1
@@ -71,7 +69,7 @@ OthersTextUpright=1
 SolderMaskClearance=0.0508
 SolderMaskMinWidth=0
 SolderPasteClearance=0
-SolderPasteRatio=-0.05
+SolderPasteRatio=-0.02
 [pcbnew/Layer.F.Cu]
 Name=F.Cu
 Type=0
@@ -79,11 +77,11 @@ Enabled=1
 [pcbnew/Layer.In1.Cu]
 Name=In1.Cu
 Type=0
-Enabled=0
+Enabled=1
 [pcbnew/Layer.In2.Cu]
 Name=In2.Cu
 Type=0
-Enabled=0
+Enabled=1
 [pcbnew/Layer.In3.Cu]
 Name=In3.Cu
 Type=0
@@ -242,11 +240,11 @@ Enabled=0
 [pcbnew/Netclasses/Default]
 Name=Default
 Clearance=0.127
-TrackWidth=0.1524
+TrackWidth=0.29337
 ViaDiameter=0.635
 ViaDrill=0.3048
 uViaDiameter=0.508
 uViaDrill=0.127
-dPairWidth=0.2
-dPairGap=0.25
+dPairWidth=0.2032
+dPairGap=0.2032
 dPairViaGap=0.25
