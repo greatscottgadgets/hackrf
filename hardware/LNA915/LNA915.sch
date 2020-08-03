@@ -105,7 +105,7 @@ Wire Wire Line
 Connection ~ 9650 3250
 Connection ~ 2200 3900
 $Comp
-L hackrf:FAR-F5QA U4
+L gsg-symbols:FAR-F5QA U4
 U 1 1 52F44412
 P 2900 3900
 F 0 "U4" V 2900 3900 60  0000 C CNN
@@ -173,7 +173,7 @@ F 7 "DNP" H 9300 5750 50  0000 C CNN "Note"
 	0    -1   -1   0   
 $EndComp
 $Comp
-L hackrf:BGB741L7ESD U3
+L gsg-symbols:BGB741L7ESD U3
 U 1 1 52F68792
 P 6250 3150
 F 0 "U3" V 6250 3050 60  0000 C CNN
