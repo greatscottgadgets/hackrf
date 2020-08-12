@@ -898,7 +898,7 @@
     (tags SOT-23)
     (path /50370666/5FA047A0)
     (attr smd)
-    (fp_text reference D3 (at 0 -2.5) (layer F.SilkS) hide
+    (fp_text reference D3 (at 0 -2.5) (layer F.SilkS)
       (effects (font (size 1 1) (thickness 0.15)))
     )
     (fp_text value BAS70-04 (at 0 2.5) (layer F.Fab)
@@ -939,7 +939,7 @@
     (tags SOT-23)
     (path /50370666/5F92CA23)
     (attr smd)
-    (fp_text reference D1 (at 0 -2.5) (layer F.SilkS) hide
+    (fp_text reference D1 (at 0 -2.5) (layer F.SilkS)
       (effects (font (size 1 1) (thickness 0.15)))
     )
     (fp_text value BAS70-04 (at 0 2.5) (layer F.Fab)
@@ -11352,8 +11352,8 @@
     (path /503BB638/5F7F1A2A)
     (solder_paste_ratio -0.02)
     (attr smd)
-    (fp_text reference D10 (at 0 1.4605 90) (layer F.SilkS) hide
-      (effects (font (size 0.50038 0.29972) (thickness 0.0762)))
+    (fp_text reference D10 (at -0.20066 -1.43002 90) (layer F.SilkS)
+      (effects (font (size 0.50038 0.29972) (thickness 0.07493)))
     )
     (fp_text value SMP1330 (at 0 -0.889 90) (layer F.Fab)
       (effects (font (size 0.50038 0.29972) (thickness 0.0762)))
@@ -11382,8 +11382,8 @@
     (path /503BB638/5F68BBCB)
     (solder_paste_ratio -0.02)
     (attr smd)
-    (fp_text reference D11 (at 0 1.4605 90) (layer F.SilkS) hide
-      (effects (font (size 0.50038 0.29972) (thickness 0.0762)))
+    (fp_text reference D11 (at 0 1.4605 90) (layer F.SilkS)
+      (effects (font (size 0.50038 0.29972) (thickness 0.07493)))
     )
     (fp_text value SMP1330 (at 0 -0.889 90) (layer F.Fab)
       (effects (font (size 0.50038 0.29972) (thickness 0.0762)))
@@ -11412,8 +11412,8 @@
     (path /503BB638/5F7B89FE)
     (solder_paste_ratio -0.02)
     (attr smd)
-    (fp_text reference D12 (at 0 1.4605 90) (layer F.SilkS) hide
-      (effects (font (size 0.50038 0.29972) (thickness 0.0762)))
+    (fp_text reference D12 (at 0 1.4605 90) (layer F.SilkS)
+      (effects (font (size 0.50038 0.29972) (thickness 0.07493)))
     )
     (fp_text value SMP1330 (at 0 -0.889 90) (layer F.Fab)
       (effects (font (size 0.50038 0.29972) (thickness 0.0762)))
