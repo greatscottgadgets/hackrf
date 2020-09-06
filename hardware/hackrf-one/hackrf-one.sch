@@ -5,7 +5,7 @@ $Descr User 17000 11000
 encoding utf-8
 Sheet 1 4
 Title "HackRF One"
-Date "2018-04-17"
+Date "2020-09-06"
 Rev ""
 Comp "Copyright 2012-2018 Michael Ossmann"
 Comment1 "License: GPL v2"

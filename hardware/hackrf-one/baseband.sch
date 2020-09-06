@@ -5,7 +5,7 @@ $Descr User 17000 11000
 encoding utf-8
 Sheet 3 4
 Title "HackRF One baseband"
-Date "2018-04-17"
+Date "2020-09-06"
 Rev ""
 Comp "Copyright 2012-2018 Michael Ossmann"
 Comment1 "License: GPL v2"
@@ -4171,8 +4171,6 @@ Wire Wire Line
 	2650 3900 2700 3900
 Wire Wire Line
 	4500 8750 4500 9200
-Wire Wire Line
-	4500 9600 4850 9600
 Connection ~ 5250 9600
 Wire Wire Line
 	3650 9800 3650 9850
@@ -4237,7 +4235,6 @@ F 3 "https://www.diodes.com/assets/Datasheets/ds11007.pdf" H 5050 9600 50  0001 
 	1    5050 9600
 	0    -1   -1   0   
 $EndComp
-Connection ~ 4850 9600
 Wire Wire Line
-	4850 9600 5250 9600
+	4500 9600 5250 9600
 $EndSCHEMATC
