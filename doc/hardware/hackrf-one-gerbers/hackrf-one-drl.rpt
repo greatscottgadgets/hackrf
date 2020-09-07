@@ -1,0 +1,29 @@
+Drill report for /Users/cjh/work/electronics/SDR/hackrf/hardware/hackrf-one/hackrf-one.kicad_pcb
+Created on Monday, 07 September 2020 at 10:59:40 am
+
+Copper Layer Stackup:
+    =============================================================
+    L1 :  C1F                       front
+    L2 :  C2                        in1
+    L3 :  C3                        in2
+    L4 :  C4B                       back
+
+
+Drill file 'hackrf-one.drl' contains
+    plated through holes:
+    =============================================================
+    T1  0.33mm  0.013"  (520 holes)
+    T2  0.38mm  0.015"  (111 holes)
+    T3  0.71mm  0.028"  (12 holes)
+    T4  1.02mm  0.040"  (136 holes)
+    T5  1.30mm  0.051"  (4 holes)
+    T6  3.20mm  0.126"  (6 holes)
+
+    Total plated holes count 789
+
+
+Not plated through holes are merged with plated holes
+    unplated through holes:
+    =============================================================
+
+    Total unplated holes count 0

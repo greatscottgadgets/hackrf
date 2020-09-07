@@ -1,15 +1,15 @@
 Title,HackRF One
 Revision,
-Date,2018-04-17
-Generated,Monday, 13 July 2020 at 05:33:08 pm
+Date,2020-09-06
+Generated,Monday, 07 September 2020 at 11:33:54 am
 Company,Copyright 2012-2018 Michael Ossmann
 Comment 1,License: GPL v2
 Comment 2,
 Comment 3,
 Comment 4,
-Total Parts,421
+Total Parts,417
 Total Unique Parts,167
-Generated Monday, 13 July 2020 at 05:33:08 pm
+Generated Monday, 07 September 2020 at 11:33:54 am
 
 
 Ref,Value,Footprint,Qty,Description,Manufacturer,Note,Note:,Part Number,
@@ -136,13 +136,13 @@ P80 ,SHIELD,hackrf:GSG-HEADER-NOMARK-1x2,1,, , ,DNP, ,
 P81 ,SPIFI_SIO2,hackrf:GSG-TESTPOINT-50MIL,1,, , ,DNP, , 
 P82 ,SPIFI_SIO3,hackrf:GSG-TESTPOINT-50MIL,1,, , ,DNP, , 
 P83 P84 P85 P86 P87 P88 P89 P90 P91 P92 ,GND,hackrf:GSG-TESTPOINT-50MIL,10,, , ,DNP, , 
-Q1 Q2 Q4 ,MOSFET_P,gsg-modules:SOT23GDS,3,,MOSFET P-CH 50V 130MA SOT-23,Fairchild, , ,BSS84
 Q3 ,MOSFET_P,gsg-modules:SOT23GDS,1,,MOSFET P-CH 20V 4.2A SOT-23,Diodes Inc., , ,DMP2305U-7
+Q4 ,MOSFET_P,gsg-modules:SOT23GDS,1,,MOSFET P-CH 50V 130MA SOT-23,Fairchild, , ,BSS84
 Q5 ,MOSFET_P,gsg-modules:SOT23GDS,1,,MOSFET P-CH -30V -4.3A SOT23,Alpha and Omega, , ,AO3407A
 R1 R2 ,470,hackrf:GSG-0402,2,,RES TF 1/16W 470 OHM 5% 0402,Stackpole, , ,RMCF0402JT470R
 R3 ,22k,hackrf:GSG-0402,1,,RES 22K OHM 1/10W 5% 0402 SMD,Panasonic, , ,ERJ-2GEJ223X
 R4 ,51k,hackrf:GSG-0402,1,,RES TF 51K OHM 1% 0.0625W 0402,Stackpole, , ,RMCF0402FT51K0
-R5 R6 R24 R29 R36 R39 R40 ,10k,hackrf:GSG-0402,7,,RES 10K OHM 1/16W 5% 0402 SMD,Stackpole, , ,RMCF0402JT10K0
+R5 R6 R36 R39 R40 ,10k,hackrf:GSG-0402,5,,RES 10K OHM 1/16W 5% 0402 SMD,Stackpole, , ,RMCF0402JT10K0
 R7 R11 R12 R37 R41 R48 R49 R51 R52 R54 R59 R63 R64 R65 R66 R67 R68 R85 R93 R104 R105 ,10k,hackrf:GSG-0402,21,,RES 10K OHM 1/16W 5% 0402 SMD,Stackpole, , ,RMCF0402JT10K0
 R8 R9 R10 R13 R73 R76 ,1k,hackrf:GSG-0402,6,,RES 1K OHM 1/16W 1% 0402,Stackpole, , ,RMCF0402FT1K00
 R14 R15 R16 R17 ,4k7,hackrf:GSG-0402,4,,RES 4.7K OHM 1/16W 1% 0402,Stackpole, , ,RMCF0402FT4K70

@@ -340,7 +340,7 @@ L power:VCC #PWR0106
 U 1 1 5043CC6F
 P 7850 6400
 F 0 "#PWR0106" H 7850 6500 30  0001 C CNN
-F 1 "VCC" H 7850 6500 30  0000 C CNN
+F 1 "VCC" H 7850 6510 30  0000 C CNN
 F 2 "" H 7850 6400 60  0001 C CNN
 F 3 "" H 7850 6400 60  0001 C CNN
 	1    7850 6400
@@ -3355,8 +3355,6 @@ Wire Wire Line
 Wire Wire Line
 	7150 6400 7150 6250
 Wire Wire Line
-	7850 6250 7850 6400
-Wire Wire Line
 	6250 4050 6400 4050
 Wire Wire Line
 	6250 4500 6400 4500
@@ -3439,8 +3437,6 @@ Wire Wire Line
 	6250 4400 6400 4400
 Wire Wire Line
 	7750 6250 7750 6400
-Wire Wire Line
-	7950 6250 7950 6400
 Wire Wire Line
 	9150 5200 9000 5200
 Wire Wire Line
@@ -3561,8 +3557,6 @@ Wire Wire Line
 Connection ~ 15550 1050
 Wire Wire Line
 	4300 8850 4300 8750
-Wire Wire Line
-	4500 6900 4500 7150
 Wire Wire Line
 	4300 6550 4300 6600
 Wire Wire Line
@@ -4237,4 +4231,10 @@ F 3 "https://www.diodes.com/assets/Datasheets/ds11007.pdf" H 5050 9600 50  0001 
 $EndComp
 Wire Wire Line
 	4500 9600 5250 9600
+Wire Wire Line
+	7850 6250 7850 6400
+Wire Wire Line
+	7950 6250 7950 6400
+Wire Wire Line
+	4500 7150 4500 6900
 $EndSCHEMATC
