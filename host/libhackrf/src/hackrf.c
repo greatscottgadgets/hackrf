@@ -25,6 +25,9 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 
 #include <stdlib.h>
 #include <string.h>
+#ifndef _WIN32
+#include <unistd.h>
+#endif
 #include <libusb.h>
 
 #ifdef _WIN32
@@ -1688,6 +1691,11 @@ int ADDCALL hackrf_stop_rx(hackrf_device* device)
 		return result;
 	}
 	result = hackrf_set_transceiver_mode(device, HACKRF_TRANSCEIVER_MODE_OFF);
+#ifdef _WIN32
+	Sleep(10);
+#else
+	usleep(10 * 1000);
+#endif
 	return result;
 }
 
@@ -1717,6 +1725,11 @@ int ADDCALL hackrf_stop_tx(hackrf_device* device)
 		return result;
 	}
 	result = hackrf_set_transceiver_mode(device, HACKRF_TRANSCEIVER_MODE_OFF);
+#ifdef _WIN32
+	Sleep(10);
+#else
+	usleep(10 * 1000);
+#endif
 	return result;
 }
 
