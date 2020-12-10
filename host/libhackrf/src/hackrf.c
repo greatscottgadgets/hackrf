@@ -171,11 +171,38 @@ static void request_exit(hackrf_device* device)
 	device->do_exit = true;
 }
 
+/*
+ * Check if the transfers are setup and owned by libusb.
+ *
+ * Returns true if the device transfers are currently setup
+ * in libusb, false otherwise.
+ */
+static int transfers_check_setup(hackrf_device* device)
+{
+	if( (device->transfers != NULL) && (device->transfers_setup == true) )
+		return true;
+	return false;
+}
+
+/*
+ * Cancel any transfers that are in-flight.
+ *
+ * This cancels any transfers that hvae been given to libusb for
+ * either transmit or receive.
+ *
+ * This must be done whilst the libusb thread is running, as
+ * on some platforms cancelling transfers requires some work
+ * to be done inside the libusb thread to completely cancel
+ * pending transfers.
+ *
+ * Returns HACKRF_SUCCESS if OK, HACKRF_ERROR_OTHER if the
+ * transfers aren't currently setup.
+ */
 static int cancel_transfers(hackrf_device* device)
 {
 	uint32_t transfer_index;
 
-	if( (device->transfers != NULL) && (device->transfers_setup == true) )
+	if(transfers_check_setup(device) == true)
 	{
 		for(transfer_index=0; transfer_index<TRANSFER_COUNT; transfer_index++)
 		{
@@ -1680,6 +1707,27 @@ int ADDCALL hackrf_start_rx(hackrf_device* device, hackrf_sample_block_cb_fn cal
 	return result;
 }
 
+static int hackrf_stop_rx_cmd(hackrf_device* device)
+{
+	int result;
+
+	result = hackrf_set_transceiver_mode(device, HACKRF_TRANSCEIVER_MODE_OFF);
+#ifdef _WIN32
+	Sleep(10);
+#else
+	usleep(10 * 1000);
+#endif
+	return result;
+}
+
+/*
+ * Stop any pending receive.
+ *
+ * This call stops transfers and halts recieve if it is enabled.
+ *
+ * It returns HACKRF_SUCCESS if receive was started and it was
+ * properly stopped, an error otherwise.
+ */
 int ADDCALL hackrf_stop_rx(hackrf_device* device)
 {
 	int result;
@@ -1690,13 +1738,8 @@ int ADDCALL hackrf_stop_rx(hackrf_device* device)
 	{
 		return result;
 	}
-	result = hackrf_set_transceiver_mode(device, HACKRF_TRANSCEIVER_MODE_OFF);
-#ifdef _WIN32
-	Sleep(10);
-#else
-	usleep(10 * 1000);
-#endif
-	return result;
+
+	return hackrf_stop_rx_cmd(device);
 }
 
 int ADDCALL hackrf_start_tx(hackrf_device* device, hackrf_sample_block_cb_fn callback, void* tx_ctx)
@@ -1715,6 +1758,26 @@ int ADDCALL hackrf_start_tx(hackrf_device* device, hackrf_sample_block_cb_fn cal
 	return result;
 }
 
+static int hackrf_stop_tx_cmd(hackrf_device* device)
+{
+	int result;
+	result = hackrf_set_transceiver_mode(device, HACKRF_TRANSCEIVER_MODE_OFF);
+#ifdef _WIN32
+	Sleep(10);
+#else
+	usleep(10 * 1000);
+#endif
+	return result;
+}
+
+/*
+ * Stop any pending transmit.
+ *
+ * This call stops transfers and halts transmit if it is enabled.
+ *
+ * It returns HACKRF_SUCCESS if receive was started and it was
+ * properly stopped, an error otherwise.
+ */
 int ADDCALL hackrf_stop_tx(hackrf_device* device)
 {
 	int result;
@@ -1724,13 +1787,8 @@ int ADDCALL hackrf_stop_tx(hackrf_device* device)
 	{
 		return result;
 	}
-	result = hackrf_set_transceiver_mode(device, HACKRF_TRANSCEIVER_MODE_OFF);
-#ifdef _WIN32
-	Sleep(10);
-#else
-	usleep(10 * 1000);
-#endif
-	return result;
+
+	return hackrf_stop_tx_cmd(device);
 }
 
 int ADDCALL hackrf_close(hackrf_device* device)
@@ -1743,9 +1801,14 @@ int ADDCALL hackrf_close(hackrf_device* device)
 
 	if( device != NULL )
 	{
+		result1 = hackrf_stop_rx_cmd(device);
+		result2 = hackrf_stop_tx_cmd(device);
+
+		/*
+		 * Finally kill the transfer thread, which will
+		 * also cancel any pending transmit/receive transfers.
+		 */
 		result3 = kill_transfer_thread(device);
-		result1 = hackrf_stop_rx(device);
-		result2 = hackrf_stop_tx(device);
 		if( device->usb_device != NULL )
 		{
 			libusb_release_interface(device->usb_device, 0);
