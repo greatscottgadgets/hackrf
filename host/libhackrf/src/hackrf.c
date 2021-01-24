@@ -25,6 +25,9 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 
 #include <stdlib.h>
 #include <string.h>
+#ifndef _WIN32
+#include <unistd.h>
+#endif
 #include <libusb.h>
 
 #ifdef _WIN32
@@ -119,6 +122,7 @@ struct hackrf_device {
 	void* tx_ctx;
 	volatile bool do_exit;
 	unsigned char buffer[TRANSFER_COUNT * TRANSFER_BUFFER_SIZE];
+	bool transfers_setup; /* true if the USB transfers have been setup */
 };
 
 typedef struct {
@@ -157,6 +161,8 @@ static const uint16_t hackrf_one_usb_pid = 0x6089;
 static const uint16_t rad1o_usb_pid = 0xcc15;
 static uint16_t open_devices = 0;
 
+static int create_transfer_thread(hackrf_device* device);
+
 static libusb_context* g_libusb_context = NULL;
 int last_libusb_error = LIBUSB_SUCCESS;
 
@@ -165,11 +171,38 @@ static void request_exit(hackrf_device* device)
 	device->do_exit = true;
 }
 
+/*
+ * Check if the transfers are setup and owned by libusb.
+ *
+ * Returns true if the device transfers are currently setup
+ * in libusb, false otherwise.
+ */
+static int transfers_check_setup(hackrf_device* device)
+{
+	if( (device->transfers != NULL) && (device->transfers_setup == true) )
+		return true;
+	return false;
+}
+
+/*
+ * Cancel any transfers that are in-flight.
+ *
+ * This cancels any transfers that hvae been given to libusb for
+ * either transmit or receive.
+ *
+ * This must be done whilst the libusb thread is running, as
+ * on some platforms cancelling transfers requires some work
+ * to be done inside the libusb thread to completely cancel
+ * pending transfers.
+ *
+ * Returns HACKRF_SUCCESS if OK, HACKRF_ERROR_OTHER if the
+ * transfers aren't currently setup.
+ */
 static int cancel_transfers(hackrf_device* device)
 {
 	uint32_t transfer_index;
 
-	if( device->transfers != NULL )
+	if(transfers_check_setup(device) == true)
 	{
 		for(transfer_index=0; transfer_index<TRANSFER_COUNT; transfer_index++)
 		{
@@ -178,6 +211,7 @@ static int cancel_transfers(hackrf_device* device)
 				libusb_cancel_transfer(device->transfers[transfer_index]);
 			}
 		}
+		device->transfers_setup = false;
 		return HACKRF_SUCCESS;
 	} else {
 		return HACKRF_ERROR_OTHER;
@@ -269,6 +303,7 @@ static int prepare_transfers(
 				return HACKRF_ERROR_LIBUSB;
 			}
 		}
+		device->transfers_setup = true;
 		return HACKRF_SUCCESS;
 	} else {
 		// This shouldn't happen.
@@ -317,6 +352,7 @@ static int detach_kernel_drivers(libusb_device_handle* usb_device_handle)
 static int set_hackrf_configuration(libusb_device_handle* usb_device, int config)
 {
 	int result, curr_config;
+
 	result = libusb_get_configuration(usb_device, &curr_config);
 	if( result != 0 )
 	{
@@ -560,7 +596,7 @@ static int hackrf_open_setup(libusb_device_handle* usb_device, hackrf_device** d
 	}
 
 	lib_device = NULL;
-	lib_device = (hackrf_device*)malloc(sizeof(*lib_device));
+	lib_device = (hackrf_device*)calloc(1, sizeof(*lib_device));
 	if( lib_device == NULL )
 	{
 		libusb_release_interface(usb_device, 0);
@@ -582,6 +618,14 @@ static int hackrf_open_setup(libusb_device_handle* usb_device, hackrf_device** d
 		libusb_release_interface(usb_device, 0);
 		libusb_close(usb_device);
 		return HACKRF_ERROR_NO_MEM;
+	}
+
+	result = create_transfer_thread(lib_device);
+	if (result != 0) {
+		free(lib_device);
+		libusb_release_interface(usb_device, 0);
+		libusb_close(usb_device);
+		return result;
 	}
 
 	*device = lib_device;
@@ -1483,7 +1527,7 @@ static void* transfer_threadproc(void* arg)
 	int error;
 	struct timeval timeout = { 0, 500000 };
 
-	while( (device->streaming) && (device->do_exit == false) )
+	while(device->do_exit == false )
 	{
 		error = libusb_handle_events_timeout(g_libusb_context, &timeout);
 		if( (error != 0) && (error != LIBUSB_ERROR_INTERRUPTED) )
@@ -1521,13 +1565,15 @@ static void LIBUSB_CALL hackrf_libusb_transfer_callback(struct libusb_transfer* 
 		}else {
 			request_exit(device);
 		}
+	} else if(usb_transfer->status == LIBUSB_TRANSFER_CANCELLED) {
+		/* Nothing; this will happen during shutdown */
 	} else {
 		/* Other cases LIBUSB_TRANSFER_NO_DEVICE
 		LIBUSB_TRANSFER_ERROR, LIBUSB_TRANSFER_TIMED_OUT
-		LIBUSB_TRANSFER_STALL,	LIBUSB_TRANSFER_OVERFLOW
-		LIBUSB_TRANSFER_CANCELLED ...
+		LIBUSB_TRANSFER_STALL,	LIBUSB_TRANSFER_OVERFLOW ....
 		*/
 		request_exit(device); /* Fatal error stop transfer */
+		device->streaming = false;
 	}
 }
 
@@ -1535,11 +1581,25 @@ static int kill_transfer_thread(hackrf_device* device)
 {
 	void* value;
 	int result;
-	
-	request_exit(device);
 
 	if( device->transfer_thread_started != false )
 	{
+		/*
+		 * Schedule cancelling transfers before halting the
+		 * libusb thread.  This should result in the transfers
+		 * being properly marked as cancelled.
+		 *
+		 * Ideally this would wait for the cancellations to
+		 * complete with the callback but for now that
+		 * isn't super easy to do.
+		 */
+		cancel_transfers(device);
+
+		/*
+		 * Now call request_exit() to halt the main loop.
+		 */
+		request_exit(device);
+
 		value = NULL;
 		result = pthread_join(device->transfer_thread, &value);
 		if( result != 0 )
@@ -1548,36 +1608,50 @@ static int kill_transfer_thread(hackrf_device* device)
 		}
 		device->transfer_thread_started = false;
 
-		/* Cancel all transfers */
-		cancel_transfers(device);
+	}
+
+	/*
+	 * Reset do_exit; we're now done here and the thread was
+	 * already dead or is now dead.
+	 */
+	device->do_exit = false;
+
+	return HACKRF_SUCCESS;
+}
+
+static int prepare_setup_transfers(hackrf_device* device,
+	const uint8_t endpoint_address,
+		hackrf_sample_block_cb_fn callback)
+{
+	int result;
+
+	if( device->transfers_setup == true )
+	{
+		return HACKRF_ERROR_BUSY;
+	}
+
+	device->callback = callback;
+	result = prepare_transfers(
+		device, endpoint_address,
+		hackrf_libusb_transfer_callback
+	);
+
+	if( result != HACKRF_SUCCESS )
+	{
+		return result;
 	}
 
 	return HACKRF_SUCCESS;
 }
 
-static int create_transfer_thread(hackrf_device* device,
-	const uint8_t endpoint_address,
-		hackrf_sample_block_cb_fn callback)
+static int create_transfer_thread(hackrf_device* device)
 {
 	int result;
-	
+
 	if( device->transfer_thread_started == false )
 	{
 		device->streaming = false;
 		device->do_exit = false;
-
-		result = prepare_transfers(
-			device, endpoint_address,
-			hackrf_libusb_transfer_callback
-		);
-
-		if( result != HACKRF_SUCCESS )
-		{
-			return result;
-		}
-
-		device->streaming = true;
-		device->callback = callback;
 		result = pthread_create(&device->transfer_thread, 0, transfer_threadproc, device);
 		if( result == 0 )
 		{
@@ -1595,7 +1669,7 @@ static int create_transfer_thread(hackrf_device* device,
 int ADDCALL hackrf_is_streaming(hackrf_device* device)
 {
 	/* return hackrf is streaming only when streaming, transfer_thread_started are true and do_exit equal false */
-	
+
 	if( (device->transfer_thread_started == true) &&
 		(device->streaming == true) && 
 		(device->do_exit == false) )
@@ -1621,24 +1695,51 @@ int ADDCALL hackrf_start_rx(hackrf_device* device, hackrf_sample_block_cb_fn cal
 {
 	int result;
 	const uint8_t endpoint_address = LIBUSB_ENDPOINT_IN | 1;
+	device->rx_ctx = rx_ctx;
 	result = hackrf_set_transceiver_mode(device, HACKRF_TRANSCEIVER_MODE_RECEIVE);
 	if( result == HACKRF_SUCCESS )
 	{
-		device->rx_ctx = rx_ctx;
-		result = create_transfer_thread(device, endpoint_address, callback);
+		result = prepare_setup_transfers(device, endpoint_address, callback);
+	}
+	if (result == HACKRF_SUCCESS) {
+		device->streaming = true;
 	}
 	return result;
 }
 
+static int hackrf_stop_rx_cmd(hackrf_device* device)
+{
+	int result;
+
+	result = hackrf_set_transceiver_mode(device, HACKRF_TRANSCEIVER_MODE_OFF);
+#ifdef _WIN32
+	Sleep(10);
+#else
+	usleep(10 * 1000);
+#endif
+	return result;
+}
+
+/*
+ * Stop any pending receive.
+ *
+ * This call stops transfers and halts recieve if it is enabled.
+ *
+ * It returns HACKRF_SUCCESS if receive was started and it was
+ * properly stopped, an error otherwise.
+ */
 int ADDCALL hackrf_stop_rx(hackrf_device* device)
 {
 	int result;
-	result = kill_transfer_thread(device);
+
+	device->streaming = false;
+	result = cancel_transfers(device);
 	if (result != HACKRF_SUCCESS)
 	{
 		return result;
 	}
-	return hackrf_set_transceiver_mode(device, HACKRF_TRANSCEIVER_MODE_OFF);
+
+	return hackrf_stop_rx_cmd(device);
 }
 
 int ADDCALL hackrf_start_tx(hackrf_device* device, hackrf_sample_block_cb_fn callback, void* tx_ctx)
@@ -1649,34 +1750,65 @@ int ADDCALL hackrf_start_tx(hackrf_device* device, hackrf_sample_block_cb_fn cal
 	if( result == HACKRF_SUCCESS )
 	{
 		device->tx_ctx = tx_ctx;
-		result = create_transfer_thread(device, endpoint_address, callback);
+		result = prepare_setup_transfers(device, endpoint_address, callback);
+	}
+	if (result == HACKRF_SUCCESS) {
+		device->streaming = true;
 	}
 	return result;
 }
 
+static int hackrf_stop_tx_cmd(hackrf_device* device)
+{
+	int result;
+	result = hackrf_set_transceiver_mode(device, HACKRF_TRANSCEIVER_MODE_OFF);
+#ifdef _WIN32
+	Sleep(10);
+#else
+	usleep(10 * 1000);
+#endif
+	return result;
+}
+
+/*
+ * Stop any pending transmit.
+ *
+ * This call stops transfers and halts transmit if it is enabled.
+ *
+ * It returns HACKRF_SUCCESS if receive was started and it was
+ * properly stopped, an error otherwise.
+ */
 int ADDCALL hackrf_stop_tx(hackrf_device* device)
 {
 	int result;
-	result = kill_transfer_thread(device);
+	device->streaming = false;
+	result = cancel_transfers(device);
 	if (result != HACKRF_SUCCESS)
 	{
 		return result;
 	}
 
-	return hackrf_set_transceiver_mode(device, HACKRF_TRANSCEIVER_MODE_OFF);
+	return hackrf_stop_tx_cmd(device);
 }
 
 int ADDCALL hackrf_close(hackrf_device* device)
 {
-	int result1, result2;
+	int result1, result2, result3;
 
 	result1 = HACKRF_SUCCESS;
 	result2 = HACKRF_SUCCESS;
-	
+	result3 = HACKRF_SUCCESS;
+
 	if( device != NULL )
 	{
-		result1 = hackrf_stop_rx(device);
-		result2 = hackrf_stop_tx(device);
+		result1 = hackrf_stop_rx_cmd(device);
+		result2 = hackrf_stop_tx_cmd(device);
+
+		/*
+		 * Finally kill the transfer thread, which will
+		 * also cancel any pending transmit/receive transfers.
+		 */
+		result3 = kill_transfer_thread(device);
 		if( device->usb_device != NULL )
 		{
 			libusb_release_interface(device->usb_device, 0);
@@ -1690,6 +1822,10 @@ int ADDCALL hackrf_close(hackrf_device* device)
 	}
 	open_devices--;
 
+	if (result3 != HACKRF_SUCCESS)
+	{
+		return result3;
+	}
 	if (result2 != HACKRF_SUCCESS)
 	{
 		return result2;
@@ -2174,7 +2310,10 @@ int ADDCALL hackrf_start_rx_sweep(hackrf_device* device, hackrf_sample_block_cb_
 	if (HACKRF_SUCCESS == result)
 	{
 		device->rx_ctx = rx_ctx;
-		result = create_transfer_thread(device, endpoint_address, callback);
+		result = prepare_setup_transfers(device, endpoint_address, callback);
+	}
+	if (result == HACKRF_SUCCESS) {
+		device->streaming = true;
 	}
 	return result;
 }
