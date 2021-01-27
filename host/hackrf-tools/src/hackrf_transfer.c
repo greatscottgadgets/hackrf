@@ -1141,9 +1141,14 @@ int main(int argc, char** argv) {
 			rewind(file);
 			fwrite(&wave_file_hdr, 1, sizeof(t_wav_file_hdr), file);
 		}	
-		fclose(file);
-		file = NULL;
-		fprintf(stderr, "fclose(file) done\n");
+		if (file != stdin) {
+			fflush(file);
+		}
+		if ((file != stdout) && (file != stdin)) {
+			fclose(file);
+			file = NULL;
+			fprintf(stderr, "fclose() done\n");
+		}
 	}
 	fprintf(stderr, "exit\n");
 	return exit_code;

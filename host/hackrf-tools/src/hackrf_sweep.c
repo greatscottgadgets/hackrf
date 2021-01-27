@@ -757,6 +757,7 @@ int main(int argc, char** argv) {
 		fprintf(stderr, "hackrf_exit() done\n");
 	}
 
+	fflush(outfile);
 	if ( ( outfile != NULL ) && ( outfile != stdout ) ) {
 		fclose(outfile);
 		outfile = NULL;
