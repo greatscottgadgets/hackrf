@@ -96,7 +96,7 @@ int main(int argc, char** argv)
 	hackrf_device* device = NULL;
 	int result = HACKRF_SUCCESS;
 	int option_index = 0;
-	FILE* fd = NULL;
+	FILE* infile = NULL;
 	ssize_t bytes_read;
 	uint8_t* pdata = &data[0];
 
@@ -128,17 +128,17 @@ int main(int argc, char** argv)
 		return EXIT_FAILURE;
 	}
 
-	fd = fopen(path, "rb");
-	if (fd == NULL)
+	infile = fopen(path, "rb");
+	if (infile == NULL)
 	{
 		fprintf(stderr, "Failed to open file: %s\n", path);
 		return EXIT_FAILURE;
 	}
 	/* Get size of the file  */
-	fseek(fd, 0, SEEK_END); /* Not really portable but work on major OS Linux/Win32 */
-	length = ftell(fd);
+	fseek(infile, 0, SEEK_END); /* Not really portable but work on major OS Linux/Win32 */
+	length = ftell(infile);
 	/* Move to start */
-	rewind(fd);
+	rewind(infile);
 	printf("File size %d bytes.\n", length);
 
 	if (length > MAX_XSVF_LENGTH) {
@@ -148,13 +148,13 @@ int main(int argc, char** argv)
 	}
 
 	total_length = length;
-	bytes_read = fread(data, 1, total_length, fd);
+	bytes_read = fread(data, 1, total_length, infile);
 	if (bytes_read != total_length)
 	{
 		fprintf(stderr, "Failed to read all bytes (read %d bytes instead of %d bytes).\n",
 				(int)bytes_read, total_length);
-		fclose(fd);
-		fd = NULL;
+		fclose(infile);
+		infile = NULL;
 		return EXIT_FAILURE;
 	}
 
@@ -179,8 +179,8 @@ int main(int argc, char** argv)
 	{
 		fprintf(stderr, "hackrf_cpld_write() failed: %s (%d)\n",
 				hackrf_error_name(result), result);
-		fclose(fd);
-		fd = NULL;
+		fclose(infile);
+		infile = NULL;
 		return EXIT_FAILURE;
 	}
 
@@ -193,15 +193,15 @@ int main(int argc, char** argv)
 	{
 		fprintf(stderr, "hackrf_close() failed: %s (%d)\n",
 				hackrf_error_name(result), result);
-		fclose(fd);
-		fd = NULL;
+		fclose(infile);
+		infile = NULL;
 		return EXIT_FAILURE;
 	}
 
 	hackrf_exit();
 
-	if (fd != NULL) {
-		fclose(fd);
+	if (infile != NULL) {
+		fclose(infile);
 	}
 
 	return EXIT_SUCCESS;
