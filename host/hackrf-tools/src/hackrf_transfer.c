@@ -319,7 +319,7 @@ char* u64toa(uint64_t val, t_u64toa* str)
 
 static volatile bool do_exit = false;
 
-FILE* fd = NULL;
+FILE* file = NULL;
 volatile uint32_t byte_count = 0;
 
 bool signalsource = false;
@@ -380,7 +380,7 @@ int rx_callback(hackrf_transfer* transfer) {
 	size_t bytes_written;
 	unsigned int i;
 
-	if( fd != NULL ) 
+	if( file != NULL )
 	{
 		byte_count += transfer->valid_length;
 		bytes_to_write = transfer->valid_length;
@@ -412,7 +412,7 @@ int rx_callback(hackrf_transfer* transfer) {
 #endif
 		    return 0;
 		} else {
-			bytes_written = fwrite(transfer->buffer, 1, bytes_to_write, fd);
+			bytes_written = fwrite(transfer->buffer, 1, bytes_to_write, file);
 			if ((bytes_written != bytes_to_write)
 				|| (limit_num_samples && (bytes_to_xfer == 0))) {
 				return -1;
@@ -430,7 +430,7 @@ int tx_callback(hackrf_transfer* transfer) {
 	size_t bytes_read;
 	unsigned int i;
 
-	if( fd != NULL )
+	if( file != NULL )
 	{
 		byte_count += transfer->valid_length;
 		bytes_to_read = transfer->valid_length;
@@ -444,15 +444,15 @@ int tx_callback(hackrf_transfer* transfer) {
 			}
 			bytes_to_xfer -= bytes_to_read;
 		}
-		bytes_read = fread(transfer->buffer, 1, bytes_to_read, fd);
+		bytes_read = fread(transfer->buffer, 1, bytes_to_read, file);
 		if (limit_num_samples && (bytes_to_xfer == 0)) {
                                return -1;
 		}
 		if (bytes_read != bytes_to_read) {
                        if (repeat) {
                                fprintf(stderr, "Input file end reached. Rewind to beginning.\n");
-                               rewind(fd);
-                               fread(transfer->buffer + bytes_read, 1, bytes_to_read - bytes_read, fd);
+                               rewind(file);
+                               fread(transfer->buffer + bytes_read, 1, bytes_to_read - bytes_read, file);
 			       return 0;
                        } else {
                                return -1; /* not repeat mode, end of file */
@@ -892,24 +892,24 @@ int main(int argc, char** argv) {
 		if( transceiver_mode == TRANSCEIVER_MODE_RX )
 		{
 			if (strcmp(path, "-") == 0) {
-				fd = stdout;
+				file = stdout;
 			} else {
-				fd = fopen(path, "wb");
+				file = fopen(path, "wb");
 			}
 		} else {
 			if (strcmp(path, "-") == 0) {
-				fd = stdin;
+				file = stdin;
 			} else {
-				fd = fopen(path, "rb");
+				file = fopen(path, "rb");
 			}
 		}
 	
-		if( fd == NULL ) {
+		if( file == NULL ) {
 			fprintf(stderr, "Failed to open file: %s\n", path);
 			return EXIT_FAILURE;
 		}
-		/* Change fd buffer to have bigger one to store or read data on/to HDD */
-		result = setvbuf(fd , NULL , _IOFBF , FD_BUFFER_SIZE);
+		/* Change file buffer to have bigger one to store or read data on/to HDD */
+		result = setvbuf(file , NULL , _IOFBF , FD_BUFFER_SIZE);
 		if( result != 0 ) {
 			fprintf(stderr, "setvbuf() failed: %d\n", result);
 			usage();
@@ -920,7 +920,7 @@ int main(int argc, char** argv) {
 	/* Write Wav header */
 	if( receive_wav ) 
 	{
-		fwrite(&wave_file_hdr, 1, sizeof(t_wav_file_hdr), fd);
+		fwrite(&wave_file_hdr, 1, sizeof(t_wav_file_hdr), file);
 	}
 	
 #ifdef _MSC_VER
@@ -1045,7 +1045,7 @@ int main(int argc, char** argv) {
 			    	len=_st-stream_head;
 				else
 			    	len=stream_size-stream_head;
-				bytes_written = fwrite(stream_buf+stream_head, 1, len, fd);
+				bytes_written = fwrite(stream_buf+stream_head, 1, len, file);
 				if (len != bytes_written) {
 					fprintf(stderr, "write failed");
 					do_exit=true;
@@ -1126,24 +1126,29 @@ int main(int argc, char** argv) {
 		fprintf(stderr, "hackrf_exit() done\n");
 	}
 
-	if(fd != NULL)
+	if(file != NULL)
 	{
 		if( receive_wav ) 
 		{
 			/* Get size of file */
-			file_pos = ftell(fd);
+			file_pos = ftell(file);
 			/* Update Wav Header */
 			wave_file_hdr.hdr.size = file_pos-8;
 			wave_file_hdr.fmt_chunk.dwSamplesPerSec = sample_rate_hz;
 			wave_file_hdr.fmt_chunk.dwAvgBytesPerSec = wave_file_hdr.fmt_chunk.dwSamplesPerSec*2;
 			wave_file_hdr.data_chunk.chunkSize = file_pos - sizeof(t_wav_file_hdr);
 			/* Overwrite header with updated data */
-			rewind(fd);
-			fwrite(&wave_file_hdr, 1, sizeof(t_wav_file_hdr), fd);
+			rewind(file);
+			fwrite(&wave_file_hdr, 1, sizeof(t_wav_file_hdr), file);
 		}	
-		fclose(fd);
-		fd = NULL;
-		fprintf(stderr, "fclose(fd) done\n");
+		if (file != stdin) {
+			fflush(file);
+		}
+		if ((file != stdout) && (file != stdin)) {
+			fclose(file);
+			file = NULL;
+			fprintf(stderr, "fclose() done\n");
+		}
 	}
 	fprintf(stderr, "exit\n");
 	return exit_code;

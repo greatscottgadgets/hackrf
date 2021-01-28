@@ -168,7 +168,7 @@ int main(int argc, char** argv)
 	int option_index = 0;
 	static uint8_t data[MAX_LENGTH];
 	uint8_t* pdata = &data[0];
-	FILE* fd = NULL;
+	FILE* infile = NULL;
 	bool read = false;
 	bool write = false;
 	bool ignore_compat_check = false;
@@ -256,24 +256,24 @@ int main(int argc, char** argv)
 	
 	if( write )
 	{
-		fd = fopen(path, "rb");
-		if(fd == NULL)
+		infile = fopen(path, "rb");
+		if(infile == NULL)
 		{
 			printf("Error opening file %s\n", path);
 			return EXIT_FAILURE;
 		}
 		/* Get size of the file  */
-		fseek(fd, 0, SEEK_END); /* Not really portable but work on major OS Linux/Win32 */
-		length = ftell(fd);
+		fseek(infile, 0, SEEK_END); /* Not really portable but work on major OS Linux/Win32 */
+		length = ftell(infile);
 		/* Move to start */
-		rewind(fd);
+		rewind(infile);
 		printf("File size %d bytes.\n", length);
 	}
 
 	if (length == 0) {
 		fprintf(stderr, "Requested transfer of zero bytes.\n");
-		if(fd != NULL)
-			fclose(fd);
+		if(infile != NULL)
+			fclose(infile);
 		usage();
 		return EXIT_FAILURE;
 	}
@@ -281,15 +281,15 @@ int main(int argc, char** argv)
 	if ((length > MAX_LENGTH) || (address > MAX_LENGTH)
 			|| ((address + length) > MAX_LENGTH)) {
 		fprintf(stderr, "Request exceeds size of flash memory.\n");
-		if(fd != NULL)
-			fclose(fd);
+		if(infile != NULL)
+			fclose(infile);
 		usage();
 		return EXIT_FAILURE;
 	}
 
 	if (read) {
-		fd = fopen(path, "wb");
-		if(fd == NULL)
+		infile = fopen(path, "wb");
+		if(infile == NULL)
 		{
 			printf("Error to open file %s\n", path);
 			return EXIT_FAILURE;
@@ -357,31 +357,31 @@ int main(int argc, char** argv)
 			if (result != HACKRF_SUCCESS) {
 				fprintf(stderr, "hackrf_spiflash_read() failed: %s (%d)\n",
 						hackrf_error_name(result), result);
-				fclose(fd);
-				fd = NULL;
+				fclose(infile);
+				infile = NULL;
 				return EXIT_FAILURE;
 			}			
 			address += xfer_len;
 			pdata += xfer_len;
 			tmp_length -= xfer_len;
 		}
-		bytes_written = fwrite(data, 1, length, fd);
+		bytes_written = fwrite(data, 1, length, infile);
 		if (bytes_written != length) {
 			fprintf(stderr, "Failed write to file (wrote %d bytes).\n",
 					(int)bytes_written);
-			fclose(fd);
-			fd = NULL;
+			fclose(infile);
+			infile = NULL;
 			return EXIT_FAILURE;
 		}
 	}
 
 	if(write) {
-		ssize_t bytes_read = fread(data, 1, length, fd);
+		ssize_t bytes_read = fread(data, 1, length, infile);
 		if (bytes_read != length) {
 			fprintf(stderr, "Failed read file (read %d bytes).\n",
 					(int)bytes_read);
-			fclose(fd);
-			fd = NULL;
+			fclose(infile);
+			infile = NULL;
 			return EXIT_FAILURE;
 		}
 		if(!ignore_compat_check) {
@@ -389,8 +389,8 @@ int main(int argc, char** argv)
 			result = compatibility_check(data, length, device);
 			if(result) {
 				printf("Compatibility test failed.\n");
-				fclose(fd);
-				fd = NULL;
+				fclose(infile);
+				infile = NULL;
 				return EXIT_FAILURE;
 			}
 		}
@@ -399,8 +399,8 @@ int main(int argc, char** argv)
 		if (result != HACKRF_SUCCESS) {
 			fprintf(stderr, "hackrf_spiflash_erase() failed: %s (%d)\n",
 					hackrf_error_name(result), result);
-			fclose(fd);
-			fd = NULL;
+			fclose(infile);
+			infile = NULL;
 			return EXIT_FAILURE;
 		}
 		if( !verbose ) printf("Writing %d bytes at 0x%06x.\n", length, address);
@@ -411,8 +411,8 @@ int main(int argc, char** argv)
 			if (result != HACKRF_SUCCESS) {
 				fprintf(stderr, "hackrf_spiflash_write() failed: %s (%d)\n",
 						hackrf_error_name(result), result);
-				fclose(fd);
-				fd = NULL;
+				fclose(infile);
+				infile = NULL;
 				return EXIT_FAILURE;
 			}
 			address += xfer_len;
@@ -421,9 +421,9 @@ int main(int argc, char** argv)
 		}
 	}
 
-	if (fd != NULL) {
-		fclose(fd);
-		fd = NULL;
+	if (infile != NULL) {
+		fclose(infile);
+		infile = NULL;
 	}
 
 	if(reset) {
