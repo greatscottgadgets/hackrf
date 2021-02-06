@@ -1,0 +1,94 @@
+name: Build
+
+on:
+  push:
+  pull_request:
+
+  # Run automatically every monday
+  schedule:
+    - cron: 1 12 * * 1
+
+env:
+  BUILD_TYPE: Release
+
+jobs:
+  host:
+    strategy:
+      matrix:
+        os: ['macos-latest', 'ubuntu-latest']
+
+      # Don't cancel all builds when one fails
+      fail-fast: false
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Install dependencies (macOS)
+      run: brew install fftw
+      if: matrix.os == 'macos-latest'
+
+    - name: Install dependencies (Ubuntu)
+      run: |
+        sudo apt update
+        sudo apt install libfftw3-dev libusb-1.0-0-dev
+      if: matrix.os == 'ubuntu-latest'
+
+    - name: Create Build Environment
+      run: cmake -E make_directory ${{runner.workspace}}/host/build
+
+    - name: Configure CMake
+      shell: bash
+      working-directory: ${{runner.workspace}}/host/build
+      run: cmake $GITHUB_WORKSPACE/host/ -DCMAKE_BUILD_TYPE=$BUILD_TYPE
+
+    - name: Build
+      working-directory: ${{runner.workspace}}/host/build
+      shell: bash
+      run: cmake --build . --config $BUILD_TYPE
+
+  firmware:
+    strategy:
+      matrix:
+        os: ['macos-latest', 'ubuntu-latest']
+        board: ['HACKRF_ONE', 'JAWBREAKER', 'RAD1O']
+
+      # Don't cancel all builds when one fails
+      fail-fast: false
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: true
+
+    - name: Install dependencies (macOS)
+      run: |
+        brew tap armmbed/formulae
+        brew install arm-none-eabi-gcc dfu-util
+        pip install PyYAML
+      if: matrix.os == 'macos-latest'
+
+    - name: Install dependencies (Ubuntu)
+      run: |
+        sudo apt install dfu-util gcc-arm-none-eabi
+      if: matrix.os == 'ubuntu-latest'
+
+    - name: Build libopencm3
+      shell: bash
+      working-directory: ${{github.workspace}}/firmware/libopencm3/
+      run: make
+
+    - name: Create Build Environment
+      run: cmake -E make_directory ${{runner.workspace}}/firmware/build
+
+    - name: Configure CMake
+      shell: bash
+      working-directory: ${{runner.workspace}}/firmware/build
+      run: cmake $GITHUB_WORKSPACE/firmware/ -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DBOARD=${{ matrix.board }}
+
+    - name: Build
+      working-directory: ${{runner.workspace}}/firmware/build
+      shell: bash
+      run: cmake --build . --config $BUILD_TYPE
+
