@@ -29,6 +29,8 @@
 #include "usb_endpoint.h"
 #include "streaming.h"
 
+#include <libopencm3/lpc43xx/m4/nvic.h>
+
 #define MIN(x,y)       ((x)<(y)?(x):(y))
 #define MAX(x,y)       ((x)>(y)?(x):(y))
 #define FREQ_GRANULARITY 1000000
@@ -155,7 +157,10 @@ void sweep_mode(void) {
 					sweep_freq += step_width;
 				}
 			}
+
+			nvic_disable_irq(NVIC_USB0_IRQ);
 			set_freq(sweep_freq + offset);
+			nvic_enable_irq(NVIC_USB0_IRQ);
 			blocks_queued = 0;
 		}
 	}
