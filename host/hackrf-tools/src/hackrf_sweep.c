@@ -170,7 +170,8 @@ volatile uint32_t byte_count = 0;
 volatile uint64_t sweep_count = 0;
 
 struct timeval time_start;
-struct timeval t_start;
+struct timeval time_bytes;
+struct timeval time_stats;
 struct timeval time_stamp;
 
 bool amp = false;
@@ -701,7 +702,9 @@ int main(int argc, char** argv) {
 		}
 	}
 
-	gettimeofday(&t_start, NULL);
+	gettimeofday(&time_start, NULL);
+	gettimeofday(&time_bytes, NULL);
+	gettimeofday(&time_stats, NULL);
 
 	fprintf(stderr, "Stop with Ctrl-C\n");
 	while((hackrf_is_streaming(device) == HACKRF_TRUE) && (do_exit == false)) {
@@ -709,18 +712,25 @@ int main(int argc, char** argv) {
 		m_sleep(50);
 
 		gettimeofday(&time_now, NULL);
-		
-		time_difference = TimevalDiff(&time_now, &t_start);
-		sweep_rate = (float)sweep_count / time_difference;
-		fprintf(stderr, "%" PRIu64 " total sweeps completed, %.2f sweeps/second\n",
-				sweep_count, sweep_rate);
+
+		if (1.0 < TimevalDiff(&time_now, &time_stats)) {
+			time_difference = TimevalDiff(&time_now, &time_start);
+			sweep_rate = (float)sweep_count / time_difference;
+			fprintf(stderr, "%" PRIu64 " total sweeps completed, %.2f sweeps/second\n",
+					sweep_count, sweep_rate);
+			gettimeofday(&time_stats, NULL);
+		}
 
 		if (byte_count == 0) {
-			exit_code = EXIT_FAILURE;
-			fprintf(stderr, "\nCouldn't transfer any data for one second.\n");
-			break;
+			if (1.0 < TimevalDiff(&time_now, &time_bytes)) {
+				exit_code = EXIT_FAILURE;
+				fprintf(stderr, "\nCouldn't transfer any data for one second.\n");
+				break;
+			}
+		} else {
+			byte_count = 0;
+			gettimeofday(&time_bytes, NULL);
 		}
-		byte_count = 0;
 	}
 
 	result = hackrf_is_streaming(device);	
@@ -732,7 +742,7 @@ int main(int argc, char** argv) {
 	}
 
 	gettimeofday(&time_now, NULL);
-	time_diff = TimevalDiff(&time_now, &t_start);
+	time_diff = TimevalDiff(&time_now, &time_start);
 	fprintf(stderr, "Total sweeps: %" PRIu64 " in %.5f seconds (%.2f sweeps/second)\n",
 			sweep_count, time_diff, sweep_rate);
 
