@@ -393,6 +393,7 @@ int main(int argc, char** argv) {
 	const char* serial_number = NULL;
 	int exit_code = EXIT_SUCCESS;
 	struct timeval time_now;
+	struct timeval time_prev;
 	float time_diff;
 	float sweep_rate;
 	unsigned int lna_gain=16, vga_gain=20;
@@ -702,6 +703,7 @@ int main(int argc, char** argv) {
 	}
 
 	gettimeofday(&t_start, NULL);
+	time_prev = t_start;
 
 	fprintf(stderr, "Stop with Ctrl-C\n");
 	while((hackrf_is_streaming(device) == HACKRF_TRUE) && (do_exit == false)) {
@@ -709,18 +711,20 @@ int main(int argc, char** argv) {
 		m_sleep(50);
 
 		gettimeofday(&time_now, NULL);
-		
-		time_difference = TimevalDiff(&time_now, &t_start);
-		sweep_rate = (float)sweep_count / time_difference;
-		fprintf(stderr, "%" PRIu64 " total sweeps completed, %.2f sweeps/second\n",
-				sweep_count, sweep_rate);
+		if (TimevalDiff(&time_now, &time_prev) >= 1.0f) {
+			time_difference = TimevalDiff(&time_now, &t_start);
+			sweep_rate = (float)sweep_count / time_difference;
+			fprintf(stderr, "%" PRIu64 " total sweeps completed, %.2f sweeps/second\n",
+					sweep_count, sweep_rate);
 
-		if (byte_count == 0) {
-			exit_code = EXIT_FAILURE;
-			fprintf(stderr, "\nCouldn't transfer any data for one second.\n");
-			break;
+			if (byte_count == 0) {
+				exit_code = EXIT_FAILURE;
+				fprintf(stderr, "\nCouldn't transfer any data for one second.\n");
+				break;
+			}
+			byte_count = 0;
+			time_prev = time_now;
 		}
-		byte_count = 0;
 	}
 
 	result = hackrf_is_streaming(device);	
