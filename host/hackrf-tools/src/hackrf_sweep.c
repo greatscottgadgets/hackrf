@@ -727,6 +727,7 @@ int main(int argc, char** argv) {
 		}
 	}
 
+	fflush(outfile);
 	result = hackrf_is_streaming(device);	
 	if (do_exit) {
 		fprintf(stderr, "\nExiting...\n");
