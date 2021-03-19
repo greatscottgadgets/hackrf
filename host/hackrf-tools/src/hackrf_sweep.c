@@ -742,14 +742,6 @@ int main(int argc, char** argv) {
 			sweep_count, time_diff, sweep_rate);
 
 	if(device != NULL) {
-		result = hackrf_stop_rx(device);
-		if(result != HACKRF_SUCCESS) {
-			fprintf(stderr, "hackrf_stop_rx() failed: %s (%d)\n",
-				   hackrf_error_name(result), result);
-		} else {
-			fprintf(stderr, "hackrf_stop_rx() done\n");
-		}
-
 		result = hackrf_close(device);
 		if(result != HACKRF_SUCCESS) {
 			fprintf(stderr, "hackrf_close() failed: %s (%d)\n",
