@@ -220,6 +220,9 @@ int rx_callback(hackrf_transfer* transfer) {
 		return -1;
 	}
 
+	if(do_exit) {
+		return 0;
+	}
 	gettimeofday(&usb_transfer_time, NULL);
 	byte_count += transfer->valid_length;
 	buf = (int8_t*) transfer->buffer;
