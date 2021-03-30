@@ -220,6 +220,9 @@ int rx_callback(hackrf_transfer* transfer) {
 		return -1;
 	}
 
+	if(do_exit) {
+		return 0;
+	}
 	gettimeofday(&usb_transfer_time, NULL);
 	byte_count += transfer->valid_length;
 	buf = (int8_t*) transfer->buffer;
@@ -727,6 +730,7 @@ int main(int argc, char** argv) {
 		}
 	}
 
+	fflush(outfile);
 	result = hackrf_is_streaming(device);	
 	if (do_exit) {
 		fprintf(stderr, "\nExiting...\n");
@@ -741,14 +745,6 @@ int main(int argc, char** argv) {
 			sweep_count, time_diff, sweep_rate);
 
 	if(device != NULL) {
-		result = hackrf_stop_rx(device);
-		if(result != HACKRF_SUCCESS) {
-			fprintf(stderr, "hackrf_stop_rx() failed: %s (%d)\n",
-				   hackrf_error_name(result), result);
-		} else {
-			fprintf(stderr, "hackrf_stop_rx() done\n");
-		}
-
 		result = hackrf_close(device);
 		if(result != HACKRF_SUCCESS) {
 			fprintf(stderr, "hackrf_close() failed: %s (%d)\n",
