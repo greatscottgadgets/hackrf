@@ -398,7 +398,7 @@ int main(int argc, char** argv) {
 	struct timeval time_now;
 	struct timeval time_prev;
 	float time_diff;
-	float sweep_rate;
+	float sweep_rate = 0;
 	unsigned int lna_gain=16, vga_gain=20;
 	uint32_t freq_min = 0;
 	uint32_t freq_max = 6000;
