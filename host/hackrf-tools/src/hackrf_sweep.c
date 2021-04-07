@@ -584,6 +584,12 @@ int main(int argc, char** argv) {
 		window[i] = (float) (0.5f * (1.0f - cos(2 * M_PI * i / (fftSize - 1))));
 	}
 
+#ifdef _MSC_VER
+	if(binary_output) {
+		_setmode(_fileno(stdout), _O_BINARY);
+	}
+#endif
+
 	result = hackrf_init();
 	if( result != HACKRF_SUCCESS ) {
 		fprintf(stderr, "hackrf_init() failed: %s (%d)\n", hackrf_error_name(result), result);
