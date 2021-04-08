@@ -741,6 +741,8 @@ int main(int argc, char** argv) {
 
 	gettimeofday(&time_now, NULL);
 	time_diff = TimevalDiff(&time_now, &t_start);
+	if((sweep_rate == 0) && (time_diff > 0))
+		sweep_rate = sweep_count / time_diff;
 	fprintf(stderr, "Total sweeps: %" PRIu64 " in %.5f seconds (%.2f sweeps/second)\n",
 			sweep_count, time_diff, sweep_rate);
 
