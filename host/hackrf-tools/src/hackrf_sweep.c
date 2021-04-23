@@ -398,7 +398,7 @@ int main(int argc, char** argv) {
 	struct timeval time_now;
 	struct timeval time_prev;
 	float time_diff;
-	float sweep_rate;
+	float sweep_rate = 0;
 	unsigned int lna_gain=16, vga_gain=20;
 	uint32_t freq_min = 0;
 	uint32_t freq_max = 6000;
@@ -747,6 +747,8 @@ int main(int argc, char** argv) {
 
 	gettimeofday(&time_now, NULL);
 	time_diff = TimevalDiff(&time_now, &t_start);
+	if((sweep_rate == 0) && (time_diff > 0))
+		sweep_rate = sweep_count / time_diff;
 	fprintf(stderr, "Total sweeps: %" PRIu64 " in %.5f seconds (%.2f sweeps/second)\n",
 			sweep_count, time_diff, sweep_rate);
 
