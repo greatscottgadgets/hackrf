@@ -42,6 +42,10 @@ typedef int bool;
 #define false 0
 #endif
 
+#ifndef M_LN10
+#define	M_LN10	2.30258509299404568402	/* log_e 10 */
+#endif
+
 #ifdef _WIN32
 #include <windows.h>
 
@@ -1085,7 +1089,7 @@ int main(int argc, char** argv) {
 			byte_count = 0;
 		        stream_amplitude_now = stream_amplitude;
 		        stream_amplitude = 0;
-			if (byte_count_now < sample_rate/20)	// Don't report on very short frames
+			if (byte_count_now < sample_rate_hz/20)	// Don't report on very short frames
 				stream_amplitude_now = 0;
 
 			time_difference = TimevalDiff(&time_now, &time_start);
