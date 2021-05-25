@@ -12,10 +12,13 @@ Simpler RX chain
 
 
 To do:
-up/6?
+What is up/6 bus interface?
 
 
 Decisions so far:
+
+Obstacles to overcome:
+MCU with USB 3.0, up/6 and Parallel bus support?
 
 
 ![HackRF One](https://raw.github.com/mossmann/hackrf/master/doc/HackRF-One-fd0-0009.jpeg)
