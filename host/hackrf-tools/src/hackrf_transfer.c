@@ -42,10 +42,6 @@ typedef int bool;
 #define false 0
 #endif
 
-#ifndef M_LN10
-#define	M_LN10	2.30258509299404568402	/* log_e 10 */
-#endif
-
 #ifdef _WIN32
 #include <windows.h>
 
@@ -409,8 +405,7 @@ int rx_callback(hackrf_transfer* transfer) {
 
 		// accumulate stream_amplitude:
 		for (i = 0; i < bytes_to_write; i++) {
-			int val = (signed char)transfer->buffer[i];
-			stream_amplitude += (val < 0 ? -val : val);
+			stream_amplitude += abs((signed char)transfer->buffer[i]);
 		}
 
 		if (receive_wav) {
@@ -1099,9 +1094,9 @@ int main(int argc, char** argv) {
 			} else {
 			    // This is only an approximate measure, to assist getting receive levels right:
 			    double	full_scale_ratio = ((double)stream_amplitude_now / (byte_count_now ? byte_count_now : 1))/128;
-			    double	dB_full_scale_ratio = 10*log(full_scale_ratio)/M_LN10;
+			    double	dB_full_scale_ratio = 10*log10(full_scale_ratio);
 			    if (dB_full_scale_ratio > 1)
-			    	dB_full_scale_ratio = nan(0);	// Guard against ridiculous reports
+			    	dB_full_scale_ratio = NAN;	// Guard against ridiculous reports
 			    fprintf(stderr, "%4.1f MiB / %5.3f sec = %4.1f MiB/second, amplitude %3.1f dBfs\n",
 				    (byte_count_now / 1e6f),
 				    time_difference,
