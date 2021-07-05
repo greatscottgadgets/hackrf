@@ -115,7 +115,7 @@ Once you have the source downloaded, the host tools can be built as follows:
 	sudo make install
 	sudo ldconfig
 
-If you have HackRF hardware, you may need to `update the firmware <https://github.com/mossmann/hackrf/wiki/Updating-Firmware>`__ to match the host tools versions.
+If you have HackRF hardware, you may need to `update the firmware <https://hackrf.readthedocs.io/en/latest/updating_firmware.html>`__ to match the host tools versions.
 
 
 
