@@ -63,9 +63,9 @@ The first two tools (``hackrf_info`` and ``hackrf_transfer``) should cover most 
 
     * **hackrf_si5351c** Read and write registers in the Silicon Labs Si5351C clock generator chip. This should also be unnecessary for most operation.
 
-    * **hackrf_spiflash** A tool to write new firmware to HackRF. This is mostly used for `Updating Firmware <https://hackrf.readthedocs.io/en/latest/updating_firmware.html>`__.
+    * **hackrf_spiflash** A tool to write new firmware to HackRF. This is mostly used for :ref:`Updating Firmware <updating_firmware>`.
 
-    * **hackrf_cpldjtag** A tool to update the CPLD on HackRF. This is needed only when `Updating Firmware <https://hackrf.readthedocs.io/en/latest/updating_firmware.html>`__ to a version prior to 2021.03.1.
+    * **hackrf_cpldjtag** A tool to update the CPLD on HackRF. This is needed only when :ref:`Updating Firmware <updating_firmware>` to a version prior to 2021.03.1.
 
 
 

@@ -9,6 +9,8 @@ FAQ
 I can't seem to access my HackRF under Linux
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+.. _faq_hackrf_under_linux:
+
 **Question:** When running ``hackrf_info`` or any other command which tries to communicate with the HackRF, I get the following error message, although the board seems to be enumerated properly by the Linux kernel:
 
 .. code-block :: sh

@@ -1,3 +1,5 @@
+.. _updating_firmware:
+
 ================================================
 Updating Firmware
 ================================================
@@ -6,7 +8,7 @@ HackRF devices ship with firmware on the SPI flash memory. The firmware can be u
 
 These instructions allow you to upgrade the firmware in order to take advantage of new features or bug fixes.
 
-If you have any difficulty making this process work from your native operating system, you can `use Pentoo or the GNU Radio Live DVD <https://hackrf.readthedocs.io/en/latest/getting_started_hackrf_gnuradio.html#try-your-hackrf-with-pentoo-linux>`__ to perform the updates.
+If you have any difficulty making this process work from your native operating system, you can  :ref:`use Pentoo or the GNU Radio Live DVD <try_pentoo>` to perform the updates.
 
 
 
@@ -27,7 +29,7 @@ When writing a firmware image to SPI flash, be sure to select firmware with a fi
 
 After writing the firmware to SPI flash, you may need to reset the HackRF device by pressing the RESET button or by unplugging it and plugging it back in.
 
-If you get an error that mentions HACKRF_ERROR_NOT_FOUND, check out the `FAQ <https://hackrf.readthedocs.io/en/latest/faq.html#i-can-t-seem-to-access-my-hackrf-under-linux>`__. It's often a permissions problem that can be quickly solved.
+If you get an error that mentions HACKRF_ERROR_NOT_FOUND, check out the :ref:`FAQ <faq_hackrf_under_linux>`. It's often a permissions problem that can be quickly solved.
 
 
 

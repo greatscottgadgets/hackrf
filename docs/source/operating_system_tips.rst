@@ -1,3 +1,5 @@
+.. _operating_system_tips:
+
 ================================================
 Operating System Tips
 ================================================
@@ -115,7 +117,7 @@ Once you have the source downloaded, the host tools can be built as follows:
 	sudo make install
 	sudo ldconfig
 
-If you have HackRF hardware, you may need to `update the firmware <https://hackrf.readthedocs.io/en/latest/updating_firmware.html>`__ to match the host tools versions.
+If you have HackRF hardware, you may need to :ref:`update the firmware <updating_firmware>` to match the host tools versions.
 
 
 
