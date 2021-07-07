@@ -108,7 +108,7 @@ Next we connect the *primary:P20-PIN7 ready* GPIO pin input to the *secondary:P2
 Upgrade
 ~~~~~~~
 
-Now that the hardware is setup, you need to upgrade your HackRFs' firmware, and your *libhackrf* to at least `v2017.02.1 <https://github.com/mossmann/hackrf/releases/tag/v2017.02.1>`__ as per `this wiki page <https://github.com/mossmann/hackrf/wiki/Updating-Firmware>`__.
+Now that the hardware is setup, you need to upgrade your HackRFs' firmware, and your *libhackrf* to at least `v2017.02.1 <https://github.com/mossmann/hackrf/releases/tag/v2017.02.1>`__ as per :ref:`this documentation page <updating_firmware>`.
 
 
 

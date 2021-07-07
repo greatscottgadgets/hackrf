@@ -4,12 +4,14 @@ Getting Started with HackRF and GNU Radio
 
 We recommend getting started by watching the `Software Defined Radio with HackRF <https://greatscottgadgets.com/sdr/>`__ video series. This series will introduce you to HackRF One, software including GNU Radio, and teach you the fundamentals of Digital Signal Processing (DSP) needed to take full advantage of the power of Software Defined Radio (SDR). Additional helpful information follows.
 
+.. _try_pentoo:
+
 Try Your HackRF with Pentoo Linux
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The easiest way to get started with your HackRF and ensure that it works is to use Pentoo, a Linux distribution with full support for HackRF and GNU Radio. Download the latest Pentoo .iso image from one of the mirrors listed at `http://pentoo.ch/downloads/ <https://pentoo.ch/downloads>`__. Then burn the .iso to a DVD or use `UNetbootin <http://unetbootin.sourceforge.net/>`__ to install the .iso on a USB flash drive. Boot your computer using the DVD or USB flash drive to run Pentoo. Do this natively, not in a virtual machine. (Unfortunately high speed USB operation invariably fails when people try to run HackRF from a virtual machine.)
 
-Once Pentoo is running, you can immediately use it to `update firmware <https://github.com/mossmann/hackrf/wiki/Updating-Firmware>`__ on your HackRF or use other HackRF command line tools. For a walkthrough, watch `SDR with HackRF, Lesson 5: HackRF One <http://greatscottgadgets.com/sdr/5/>`__.
+Once Pentoo is running, you can immediately use it to :ref:`update firmware <updating_firmware>` on your HackRF or use other HackRF command line tools. For a walkthrough, watch `SDR with HackRF, Lesson 5: HackRF One <http://greatscottgadgets.com/sdr/5/>`__.
 
 To verify that your HackRF is detected, type ``hackrf_info`` at the command line. It should produce a few lines of output including "Found HackRF board." The 3V3, 1V8, RF, and USB LEDs should all be illuminated and are various colors.
 
@@ -28,7 +30,7 @@ As mentioned above, the best way to get started with HackRF is to use Pentoo Lin
 
 If your package manager includes the most recent release of libhackrf and gr-osmosdr, then use it to install those packages in addition to GNU Radio. Otherwise, the recommended way to install these tools is by using `PyBOMBS <https://github.com/gnuradio/pybombs>`__.
 
-See the `Operating System Tips <https://github.com/mossmann/hackrf/wiki/Operating-System-Tips>`__ page for information on setting up HackRF software on particular Operating Systems and Linux distributions.
+See the :ref:`Operating System Tips <operating_system_tips>` page for information on setting up HackRF software on particular Operating Systems and Linux distributions.
 
 If you have any trouble, make sure that things work when booted to Pentoo. This will allow you to easily determine if your problem is being caused by hardware or software, and it will give you a way to see how the software is supposed to function.
 

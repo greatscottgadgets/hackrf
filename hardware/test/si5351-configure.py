@@ -33,12 +33,12 @@
 #   http://code.google.com/p/the-bus-pirate/
 #
 # This Si5351C configuration is a work in progress, it does not yet
-# implement the clock plan described in the HackRF wiki:
-# https://github.com/mossmann/hackrf/wiki/Clocking
+# implement the clock plan described in the HackRF docs:
+# https://hackrf.readthedocs.io/en/latest/clocking.html
 #
 # To follow progress in configuring the Si5351C, please refer to the
-# HackRF wiki:
-# https://github.com/mossmann/hackrf/wiki/Lemondrop-Bring-Up
+# HackRF docs:
+# https://hackrf.readthedocs.io/en/latest/lemondrop_bringup.html
 
 import sys
 

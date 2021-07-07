@@ -6,6 +6,8 @@ FAQ
 
 ----
 
+.. _faq_hackrf_under_linux:
+
 I can't seem to access my HackRF under Linux
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
