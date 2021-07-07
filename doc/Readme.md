@@ -1,4 +1,4 @@
-The primary source of documentation is on Read the Docs (https://hackrf.readthedocs.io/) or in the ``docs`` folder in the HackRF repository on GitHub (https://github.com/mossmann/hackrf/tree/master/docs). 
+The primary source of documentation is on Read the Docs (https://hackrf.readthedocs.io/) or in the docs folder in the HackRF repository on GitHub (https://github.com/mossmann/hackrf/tree/master/docs). 
 
 This directory contains supplemental documentation.
 
