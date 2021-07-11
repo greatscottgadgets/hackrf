@@ -24,7 +24,6 @@ GitHub issues.
 
 # Response Times
 
-GitHub issues on this repository that are labelled "technical support" can expect a response time of two weeks. 
-If an issue has not been responded to within two weeks, please tag or message @straithe. We currently do not 
+GitHub issues on this repository that are labelled "technical support" by Great Scott Gadgets employees can expect a response time of two weeks. If an issue has not been responded to within two weeks, please tag or message @straithe. We currently do not 
 have expected response times for other GitHub issues or pull requests for this repository. 
 
