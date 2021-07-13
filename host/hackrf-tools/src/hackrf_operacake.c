@@ -267,7 +267,7 @@ int main(int argc, char** argv) {
 		}
 		printf("Operacakes found: ");
 		for(i=0; i<8; i++) {
-			if(operacakes[i] !=0) {
+			if(operacakes[i] != HACKRF_OPERACAKE_ADDRESS_INVALID) {
 				printf("\n%d", operacakes[i]);
 				operacake_count++;
 			}

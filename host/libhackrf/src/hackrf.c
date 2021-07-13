@@ -2090,12 +2090,16 @@ int ADDCALL hackrf_init_sweep(hackrf_device* device,
 	}
 }
 
-/* Retrieve list of Operacake board addresses 
- * boards must be *uint8_t[8]
+/**
+ * Retrieve list of Opera Cake board addresses
+ * @param[in]  device
+ * @param[out] boards List of board addresses. Must point to a `uint8_t[8]`. If the number of boards is less than 8, extra entries are filled with @ref HACKRF_OPERACAKE_ADDRESS_INVALID.
+ * @return @ref HACKRF_SUCCESS
+ * @return @ref HACKRF_ERROR_LIBUSB
  */
 int ADDCALL hackrf_get_operacake_boards(hackrf_device* device, uint8_t* boards)
 {
-	USB_API_REQUIRED(device, 0x0102)
+	USB_API_REQUIRED(device, 0x0105)
 	int result;
 	result = libusb_control_transfer(
 		device->usb_device,

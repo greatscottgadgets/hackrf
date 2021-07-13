@@ -68,14 +68,27 @@
 
 #define OPERACAKE_POLARITY_NORMAL (0x00)
 
-#define OPERACAKE_DEFAULT_ADDRESS 0x18
+#define OPERACAKE_ADDRESS_DEFAULT 0x18
+#define OPERACAKE_ADDRESS_INVALID 0xFF
 
 i2c_bus_t* const oc_bus = &i2c0;
-uint8_t operacake_boards[8] = {0,0,0,0,0,0,0,0};
+uint8_t operacake_boards[8] = {
+	OPERACAKE_ADDRESS_INVALID,
+	OPERACAKE_ADDRESS_INVALID,
+	OPERACAKE_ADDRESS_INVALID,
+	OPERACAKE_ADDRESS_INVALID,
+	OPERACAKE_ADDRESS_INVALID,
+	OPERACAKE_ADDRESS_INVALID,
+	OPERACAKE_ADDRESS_INVALID,
+	OPERACAKE_ADDRESS_INVALID,
+};
 bool allow_gpio_mode = true;
 
 /* read single register */
 uint8_t operacake_read_reg(i2c_bus_t* const bus, uint8_t address, uint8_t reg) {
+	// Convert from Opera Cake address (0-7) to I2C address
+	address += OPERACAKE_ADDRESS_DEFAULT;
+
 	const uint8_t data_tx[] = { reg };
 	uint8_t data_rx[] = { 0x00 };
 	i2c_bus_transfer(bus, address, data_tx, 1, data_rx, 1);
@@ -84,15 +97,17 @@ uint8_t operacake_read_reg(i2c_bus_t* const bus, uint8_t address, uint8_t reg) {
 
 /* Write to one of the PCA9557 registers */
 void operacake_write_reg(i2c_bus_t* const bus, uint8_t address, uint8_t reg, uint8_t value) {
+	// Convert from Opera Cake address (0-7) to I2C address
+	address += OPERACAKE_ADDRESS_DEFAULT;
+
 	const uint8_t data[] = {reg, value};
 	i2c_bus_transfer(bus, address, data, 2, NULL, 0);
 }
 
 uint8_t operacake_init(bool allow_gpio) {
-	uint8_t reg, addr, i, j = 0;
+	uint8_t reg, addr, j = 0;
 	/* Find connected operacakes */
-	for(i=0; i<8; i++) {
-		addr = OPERACAKE_DEFAULT_ADDRESS | i;
+	for(addr=0; addr<8; addr++) {
 		operacake_write_reg(oc_bus, addr, OPERACAKE_REG_OUTPUT,
 		                    OPERACAKE_DEFAULT_OUTPUT);
 		operacake_write_reg(oc_bus, addr, OPERACAKE_REG_CONFIG,

@@ -120,7 +120,7 @@ int main(void)
 		}
 		if(result == HACKRF_SUCCESS) {
 			for(j=0; j<8; j++) {
-				if(operacakes[j] == 0)
+				if(operacakes[j] == HACKRF_OPERACAKE_ADDRESS_INVALID)
 					break;
 				printf("Operacake found, address: 0x%02x\n", operacakes[j]);
 			}
