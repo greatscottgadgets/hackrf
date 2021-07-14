@@ -265,10 +265,10 @@ int main(int argc, char** argv) {
 					hackrf_error_name(result), result);
 			return EXIT_FAILURE;
 		}
-		printf("Operacakes found: ");
+		printf("Opera Cakes found: ");
 		for(i=0; i<8; i++) {
 			if(operacakes[i] != HACKRF_OPERACAKE_ADDRESS_INVALID) {
-				printf("\n%d", operacakes[i]);
+				printf("\n\tAddress: %d", operacakes[i]);
 				operacake_count++;
 			}
 		}
