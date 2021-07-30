@@ -71,17 +71,15 @@
 #define OPERACAKE_ADDRESS_DEFAULT 0x18
 #define OPERACAKE_ADDRESS_INVALID 0xFF
 
+#define OPERACAKE_MAX_BOARDS 8
+
 i2c_bus_t* const oc_bus = &i2c0;
-uint8_t operacake_boards[8] = {
-	OPERACAKE_ADDRESS_INVALID,
-	OPERACAKE_ADDRESS_INVALID,
-	OPERACAKE_ADDRESS_INVALID,
-	OPERACAKE_ADDRESS_INVALID,
-	OPERACAKE_ADDRESS_INVALID,
-	OPERACAKE_ADDRESS_INVALID,
-	OPERACAKE_ADDRESS_INVALID,
-	OPERACAKE_ADDRESS_INVALID,
+
+struct operacake_state {
+	bool present;
 };
+
+struct operacake_state operacake_boards[OPERACAKE_MAX_BOARDS];
 bool allow_gpio_mode = true;
 
 /* read single register */
@@ -105,19 +103,36 @@ void operacake_write_reg(i2c_bus_t* const bus, uint8_t address, uint8_t reg, uin
 }
 
 uint8_t operacake_init(bool allow_gpio) {
-	uint8_t reg, addr, j = 0;
 	/* Find connected operacakes */
-	for(addr=0; addr<8; addr++) {
+	for (int addr = 0; addr < 8; addr++) {
 		operacake_write_reg(oc_bus, addr, OPERACAKE_REG_OUTPUT,
 		                    OPERACAKE_DEFAULT_OUTPUT);
 		operacake_write_reg(oc_bus, addr, OPERACAKE_REG_CONFIG,
 		                    OPERACAKE_CONFIG_ALL_OUTPUT);
-		reg = operacake_read_reg(oc_bus, addr, OPERACAKE_REG_CONFIG);
-		if(reg==OPERACAKE_CONFIG_ALL_OUTPUT)
-			operacake_boards[j++] = addr;
+		uint8_t reg = operacake_read_reg(oc_bus, addr, OPERACAKE_REG_CONFIG);
+
+		operacake_boards[addr].present = (reg == OPERACAKE_CONFIG_ALL_OUTPUT);
 	}
 	allow_gpio_mode = allow_gpio;
 	return 0;
+}
+
+bool operacake_is_board_present(uint8_t address) {
+	if (address >= OPERACAKE_MAX_BOARDS)
+		return false;
+
+	return operacake_boards[address].present;
+}
+
+void operacake_get_boards(uint8_t *addresses) {
+	int count = 0;
+	for (int i = 0; i < OPERACAKE_MAX_BOARDS; i++) {
+		addresses[i] = OPERACAKE_ADDRESS_INVALID;
+	}
+	for (int i = 0; i < OPERACAKE_MAX_BOARDS; i++) {
+		if (operacake_is_board_present(i))
+			addresses[count++] = i;
+	}
 }
 
 uint8_t port_to_pins(uint8_t port) {
@@ -220,8 +235,14 @@ uint8_t operacake_set_range(uint32_t freq_mhz) {
 	if(i == current_range) {
 		return 1;
 	}
-	
-	operacake_set_ports(operacake_boards[0], ranges[i].portA, ranges[i].portB);
+
+	for (i = 0; i < OPERACAKE_MAX_BOARDS; i++) {
+		if (operacake_is_board_present(i)) {
+			operacake_set_ports(i, ranges[i].portA, ranges[i].portB);
+			break;
+		}
+	}
+
 	current_range = i;
 	return 0;
 }
