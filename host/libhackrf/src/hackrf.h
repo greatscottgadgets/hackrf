@@ -51,6 +51,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 #define BYTES_PER_BLOCK 16384
 #define MAX_SWEEP_RANGES 10
 #define HACKRF_OPERACAKE_ADDRESS_INVALID 0xFF
+#define HACKRF_OPERACAKE_MAX_BOARDS 8
 
 enum hackrf_error {
 	HACKRF_SUCCESS = 0,
@@ -99,6 +100,17 @@ enum operacake_ports {
 	OPERACAKE_PB2 = 5,
 	OPERACAKE_PB3 = 6,
 	OPERACAKE_PB4 = 7,
+};
+
+enum operacake_switching_mode {
+	/**
+	 * Port connections are set manually using @ref hackrf_set_operacake_ports.
+	 */
+	OPERACAKE_MODE_MANUAL,
+	/**
+	 * Port connections are switched automatically when the frequency is changed. Frequency ranges can be set using @ref hackrf_set_operacake_ranges.
+	 */
+	OPERACAKE_MODE_FREQUENCY,
 };
 
 enum sweep_style {
@@ -238,6 +250,8 @@ extern ADDAPI int ADDCALL hackrf_init_sweep(hackrf_device* device,
 
 /* Operacake functions */
 extern ADDAPI int ADDCALL hackrf_get_operacake_boards(hackrf_device* device, uint8_t* boards);
+extern ADDAPI int ADDCALL hackrf_set_operacake_mode(hackrf_device* device, uint8_t address, enum operacake_switching_mode mode);
+extern ADDAPI int ADDCALL hackrf_get_operacake_mode(hackrf_device* device, uint8_t address, enum operacake_switching_mode *mode);
 extern ADDAPI int ADDCALL hackrf_set_operacake_ports(hackrf_device* device,
                                        uint8_t address,
                                        uint8_t port_a,

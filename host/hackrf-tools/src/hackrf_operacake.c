@@ -37,6 +37,7 @@ typedef int bool;
 #define MAX_FREQ_RANGES 8
 
 #define INVALID_ADDRESS 0xFF
+#define INVALID_MODE 0xFF
 #define INVALID_PORT 0xFF
 
 #define GPIO_TEST_DISABLED 0xFFFF
@@ -46,6 +47,7 @@ static void usage() {
 	printf("\t-h, --help: this help\n");
 	printf("\t-d, --device <n>: specify a particular device by serial number\n");
 	printf("\t-o, --address <n>: specify a particular operacake by address [default: 0x00]\n");
+	printf("\t-m, --mode <mode>: specify switching mode [options: manual, frequency]\n");
 	printf("\t-a <n>: set port A connection\n");
 	printf("\t-b <n>: set port B connection\n");
 	printf("\t-f <min:max:port>: automatically assign <port> for range <min:max> in MHz\n");
@@ -56,6 +58,7 @@ static void usage() {
 static struct option long_options[] = {
 	{ "device", no_argument, 0, 'd' },
 	{ "address", no_argument, 0, 'o' },
+	{ "mode", no_argument, 0, 'm' },
 	{ "list", no_argument, 0, 'l' },
 	{ "gpio_test", no_argument, 0, 'g' },
 	{ "help", no_argument, 0, 'h' },
@@ -143,6 +146,8 @@ int main(int argc, char** argv) {
 	int opt;
 	const char* serial_number = NULL;
 	uint8_t operacake_address = INVALID_ADDRESS;
+	bool set_mode = false;
+	uint8_t mode;
 	uint8_t port_a = INVALID_PORT;
 	uint8_t port_b = INVALID_PORT;
 	bool set_ports = false;
@@ -162,7 +167,7 @@ int main(int argc, char** argv) {
 		return -1;
 	}
 
-	while( (opt = getopt_long(argc, argv, "d:o:a:b:lf:hg?", long_options, &option_index)) != EOF ) {
+	while( (opt = getopt_long(argc, argv, "d:o:a:m:b:lf:hg?", long_options, &option_index)) != EOF ) {
 		switch( opt ) {
 		case 'd':
 			serial_number = optarg;
@@ -170,6 +175,21 @@ int main(int argc, char** argv) {
 
 		case 'o':
 			operacake_address = atoi(optarg);
+			break;
+
+		case 'm':
+			if (strcmp(optarg, "manual") == 0) {
+				mode = OPERACAKE_MODE_MANUAL;
+				set_mode = true;
+			} else if (strcmp(optarg, "frequency") == 0) {
+				mode = OPERACAKE_MODE_FREQUENCY;
+				set_mode = true;
+			} else {
+				fprintf(stderr,
+						"argument error: mode must be one of [manual, frequency].\n");
+				usage();
+				return EXIT_FAILURE;
+			}
 			break;
 
 		case 'f':
@@ -239,13 +259,13 @@ int main(int argc, char** argv) {
 		}
 	}
 
-	if(!(list || set_ports || range_idx || gpio_test)) {
-		fprintf(stderr, "Specify either list, address, or GPIO test option.\n");
+	if(!(list || set_mode || set_ports || range_idx || gpio_test)) {
+		fprintf(stderr, "Specify either list, mode, address, or GPIO test option.\n");
 		usage();
 		return EXIT_FAILURE;
 	}
 
-	if((set_ports || gpio_test) && (operacake_address == INVALID_ADDRESS)) {
+	if((set_mode || set_ports || gpio_test) && (operacake_address == INVALID_ADDRESS)) {
 		fprintf(stderr, "An address is required.\n");
 		usage();
 		return EXIT_FAILURE;
@@ -256,6 +276,15 @@ int main(int argc, char** argv) {
 		fprintf(stderr, "hackrf_open() failed: %s (%d)\n",
 				hackrf_error_name(result), result);
 		return EXIT_FAILURE;
+	}
+
+	if (set_mode) {
+		result = hackrf_set_operacake_mode(device, operacake_address, mode);
+		if (result != HACKRF_SUCCESS) {
+			fprintf(stderr, "hackrf_set_operacake_mode() failed: %s (%d)\n",
+					hackrf_error_name(result), result);
+			return EXIT_FAILURE;
+		}
 	}
 
 	if(list) {
@@ -269,6 +298,16 @@ int main(int argc, char** argv) {
 		for(i=0; i<8; i++) {
 			if(operacakes[i] != HACKRF_OPERACAKE_ADDRESS_INVALID) {
 				printf("\n\tAddress: %d", operacakes[i]);
+				enum operacake_switching_mode mode;
+				hackrf_get_operacake_mode(device, i, &mode);
+				printf("\tSwitching mode: ");
+				if (mode == OPERACAKE_MODE_MANUAL) {
+					printf("manual\n");
+				} else if (mode == OPERACAKE_MODE_FREQUENCY) {
+					printf("frequency\n");
+				} else {
+					printf("unknown\n");
+				}
 				operacake_count++;
 			}
 		}

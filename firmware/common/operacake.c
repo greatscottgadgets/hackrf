@@ -75,8 +75,14 @@
 
 i2c_bus_t* const oc_bus = &i2c0;
 
+enum operacake_switching_mode {
+	MODE_MANUAL    = 0,
+	MODE_FREQUENCY = 1,
+};
+
 struct operacake_state {
 	bool present;
+	enum operacake_switching_mode mode;
 };
 
 struct operacake_state operacake_boards[OPERACAKE_MAX_BOARDS];
@@ -112,6 +118,7 @@ uint8_t operacake_init(bool allow_gpio) {
 		uint8_t reg = operacake_read_reg(oc_bus, addr, OPERACAKE_REG_CONFIG);
 
 		operacake_boards[addr].present = (reg == OPERACAKE_CONFIG_ALL_OUTPUT);
+		operacake_boards[addr].mode    = MODE_MANUAL;
 	}
 	allow_gpio_mode = allow_gpio;
 	return 0;
@@ -133,6 +140,20 @@ void operacake_get_boards(uint8_t *addresses) {
 		if (operacake_is_board_present(i))
 			addresses[count++] = i;
 	}
+}
+
+void operacake_set_mode(uint8_t address, uint8_t mode) {
+	if (address >= OPERACAKE_MAX_BOARDS)
+		return;
+
+	operacake_boards[address].mode = mode;
+}
+
+uint8_t operacake_get_mode(uint8_t address) {
+	if (address >= OPERACAKE_MAX_BOARDS)
+		return 0;
+
+	return operacake_boards[address].mode;
 }
 
 uint8_t port_to_pins(uint8_t port) {
@@ -225,25 +246,26 @@ uint8_t operacake_set_range(uint32_t freq_mhz) {
 	if(range_idx == 0) {
 		return 1;
 	}
-	int i;
-	for(i=0; i<range_idx; i++) {
-		if((freq_mhz >= ranges[i].freq_min) 
-		  && (freq_mhz <= ranges[i].freq_max)) {
+
+	int range;
+	for(range=0; range<range_idx; range++) {
+		if((freq_mhz >= ranges[range].freq_min)
+		  && (freq_mhz <= ranges[range].freq_max)) {
 			break;
 		}
 	}
-	if(i == current_range) {
+	if(range == current_range) {
 		return 1;
 	}
 
-	for (i = 0; i < OPERACAKE_MAX_BOARDS; i++) {
-		if (operacake_is_board_present(i)) {
-			operacake_set_ports(i, ranges[i].portA, ranges[i].portB);
+	for (int i = 0; i < OPERACAKE_MAX_BOARDS; i++) {
+		if (operacake_is_board_present(i) && operacake_get_mode(i) == MODE_FREQUENCY) {
+			operacake_set_ports(i, ranges[range].portA, ranges[range].portB);
 			break;
 		}
 	}
 
-	current_range = i;
+	current_range = range;
 	return 0;
 }
 
