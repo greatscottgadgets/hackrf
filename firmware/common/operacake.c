@@ -20,6 +20,7 @@
  */
 
 #include "operacake.h"
+#include "operacake_sctimer.h"
 #include "hackrf_core.h"
 #include "gpio.h"
 #include "gpio_lpc.h"
@@ -78,11 +79,14 @@ i2c_bus_t* const oc_bus = &i2c0;
 enum operacake_switching_mode {
 	MODE_MANUAL    = 0,
 	MODE_FREQUENCY = 1,
+	MODE_TIME      = 2,
 };
 
 struct operacake_state {
 	bool present;
 	enum operacake_switching_mode mode;
+	uint8_t PA;
+	uint8_t PB;
 };
 
 struct operacake_state operacake_boards[OPERACAKE_MAX_BOARDS];
@@ -119,8 +123,13 @@ uint8_t operacake_init(bool allow_gpio) {
 
 		operacake_boards[addr].present = (reg == OPERACAKE_CONFIG_ALL_OUTPUT);
 		operacake_boards[addr].mode    = MODE_MANUAL;
+		operacake_boards[addr].PA      = OPERACAKE_PORT_A1;
+		operacake_boards[addr].PB      = OPERACAKE_PORT_B1;
 	}
 	allow_gpio_mode = allow_gpio;
+	if (allow_gpio) {
+		operacake_sctimer_init();
+	}
 	return 0;
 }
 
@@ -147,6 +156,24 @@ void operacake_set_mode(uint8_t address, uint8_t mode) {
 		return;
 
 	operacake_boards[address].mode = mode;
+
+	if (mode == MODE_TIME) {
+		// Switch Opera Cake to pin-control mode
+		uint8_t config_pins = (uint8_t)~(OPERACAKE_PIN_OE(1) | OPERACAKE_PIN_LEDEN(1) | OPERACAKE_PIN_LEDEN2(1));
+		operacake_write_reg(oc_bus, address, OPERACAKE_REG_CONFIG, config_pins);
+		operacake_write_reg(oc_bus, address, OPERACAKE_REG_OUTPUT, OPERACAKE_GPIO_ENABLE | OPERACAKE_EN_LEDS);
+	} else {
+		operacake_write_reg(oc_bus, address, OPERACAKE_REG_CONFIG, OPERACAKE_CONFIG_ALL_OUTPUT);
+		operacake_set_ports(address, operacake_boards[address].PA, operacake_boards[address].PB);
+	}
+
+	// If any boards are in MODE_TIME, enable the sctimer events.
+	bool enable_sctimer = false;
+	for (int i = 0; i < OPERACAKE_MAX_BOARDS; i++) {
+		if (operacake_boards[i].mode == MODE_TIME)
+			enable_sctimer = true;
+	}
+	operacake_sctimer_enable(enable_sctimer);
 }
 
 uint8_t operacake_get_mode(uint8_t address) {
@@ -193,16 +220,24 @@ uint8_t operacake_set_ports(uint8_t address, uint8_t PA, uint8_t PB) {
 	    || ((PA > OPERACAKE_PA4) && (PB > OPERACAKE_PA4))) {
 		return 1;
 	}
-	
+
 	if(PA > OPERACAKE_PA4) {
 		side = OPERACAKE_CROSSOVER;
 	} else {
 		side = OPERACAKE_SAMESIDE;
 	}
 
+	// Keep track of manual settings for when we switch in/out of time/frequency modes.
+	operacake_boards[address].PA = PA;
+	operacake_boards[address].PB = PB;
+
+	// Only apply register settings if the board is in manual mode.
+	if (operacake_boards[address].mode != MODE_MANUAL)
+		return 0;
+
 	pa = port_to_pins(PA);
 	pb = port_to_pins(PB);
-		
+
 	reg = (OPERACAKE_GPIO_DISABLE | side
 					| pa | pb | OPERACAKE_EN_LEDS);
 	operacake_write_reg(oc_bus, address, OPERACAKE_REG_OUTPUT, reg);

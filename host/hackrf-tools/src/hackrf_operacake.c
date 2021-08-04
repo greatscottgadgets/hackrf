@@ -47,7 +47,7 @@ static void usage() {
 	printf("\t-h, --help: this help\n");
 	printf("\t-d, --device <n>: specify a particular device by serial number\n");
 	printf("\t-o, --address <n>: specify a particular operacake by address [default: 0x00]\n");
-	printf("\t-m, --mode <mode>: specify switching mode [options: manual, frequency]\n");
+	printf("\t-m, --mode <mode>: specify switching mode [options: manual, frequency, time]\n");
 	printf("\t-a <n>: set port A connection\n");
 	printf("\t-b <n>: set port B connection\n");
 	printf("\t-f <min:max:port>: automatically assign <port> for range <min:max> in MHz\n");
@@ -184,9 +184,12 @@ int main(int argc, char** argv) {
 			} else if (strcmp(optarg, "frequency") == 0) {
 				mode = OPERACAKE_MODE_FREQUENCY;
 				set_mode = true;
+			} else if (strcmp(optarg, "time") == 0) {
+				mode = OPERACAKE_MODE_TIME;
+				set_mode = true;
 			} else {
 				fprintf(stderr,
-						"argument error: mode must be one of [manual, frequency].\n");
+						"argument error: mode must be one of [manual, frequency, time].\n");
 				usage();
 				return EXIT_FAILURE;
 			}
@@ -305,6 +308,8 @@ int main(int argc, char** argv) {
 					printf("manual\n");
 				} else if (mode == OPERACAKE_MODE_FREQUENCY) {
 					printf("frequency\n");
+				} else if (mode == OPERACAKE_MODE_TIME) {
+					printf("time\n");
 				} else {
 					printf("unknown\n");
 				}
