@@ -51,6 +51,7 @@ static void usage() {
 	printf("\t-a <n>: set port A connection\n");
 	printf("\t-b <n>: set port B connection\n");
 	printf("\t-f <min:max:port>: automatically assign <port> for range <min:max> in MHz\n");
+	printf("\t-t <port:dwell>: in time-switching mode, dwell on <port> for <dwell> samples. This argument can be repeated to specify a list of ports.\n");
 	printf("\t-l, --list: list available operacake boards\n");
 	printf("\t-g, --gpio_test: test GPIO functionality of an opera cake\n");
 }
@@ -76,6 +77,17 @@ int parse_uint16(char* const s, uint16_t* const value) {
 	const long long_value = strtol(s, &s_end, 10);
 	if( (s != s_end) && (*s_end == 0) ) {
 		*value = (uint16_t)long_value;
+		return HACKRF_SUCCESS;
+	} else {
+		return HACKRF_ERROR_INVALID_PARAM;
+	}
+}
+
+int parse_uint32(char* const s, uint32_t* const value) {
+	char* s_end = s;
+	const long long_value = strtol(s, &s_end, 10);
+	if( (s != s_end) && (*s_end == 0) ) {
+		*value = (uint32_t)long_value;
 		return HACKRF_SUCCESS;
 	} else {
 		return HACKRF_ERROR_INVALID_PARAM;
@@ -142,6 +154,23 @@ int parse_range(char* s, hackrf_oc_range* range) {
 	return result;
 }
 
+int parse_dwell(char* s, hackrf_operacake_dwell_time* dwell_time) {
+	int result;
+	char port[16];
+	float dwell;
+
+	// Read dwell as a float here to support scientific notation (e.g: 1e6)
+	if (sscanf(s, "%15[^:]:%f", port, &dwell) == 2) {
+		result = parse_port(port, &dwell_time->port);
+		if (result != HACKRF_SUCCESS)
+			return result;
+
+		dwell_time->dwell = (uint32_t)dwell;
+		return HACKRF_SUCCESS;
+	}
+	return HACKRF_ERROR_INVALID_PARAM;
+}
+
 int main(int argc, char** argv) {
 	int opt;
 	const char* serial_number = NULL;
@@ -159,7 +188,9 @@ int main(int argc, char** argv) {
 	hackrf_device* device = NULL;
 	int option_index = 0;
 	hackrf_oc_range ranges[MAX_FREQ_RANGES];
+	hackrf_operacake_dwell_time dwell_times[HACKRF_OPERACAKE_MAX_DWELL_TIMES];
 	uint8_t range_idx = 0;
+	uint8_t dwell_idx = 0;
 
 	int result = hackrf_init();
 	if( result ) {
@@ -167,7 +198,7 @@ int main(int argc, char** argv) {
 		return -1;
 	}
 
-	while( (opt = getopt_long(argc, argv, "d:o:a:m:b:lf:hg?", long_options, &option_index)) != EOF ) {
+	while( (opt = getopt_long(argc, argv, "d:o:a:m:b:lf:t:hg?", long_options, &option_index)) != EOF ) {
 		switch( opt ) {
 		case 'd':
 			serial_number = optarg;
@@ -222,6 +253,22 @@ int main(int argc, char** argv) {
 				return EXIT_FAILURE;
 			}
 			range_idx++;
+			break;
+
+		case 't':
+			if(HACKRF_OPERACAKE_MAX_DWELL_TIMES == dwell_idx) {
+				fprintf(stderr,
+						"argument error: specify a maximum of %u dwell times.\n",
+						HACKRF_OPERACAKE_MAX_DWELL_TIMES);
+				usage();
+				return EXIT_FAILURE;
+			}
+			result = parse_dwell(optarg, &dwell_times[dwell_idx]);
+			if (result != HACKRF_SUCCESS) {
+				fprintf(stderr, "failed to parse dwell time\n");
+				return EXIT_FAILURE;
+			}
+			dwell_idx++;
 			break;
 
 		case 'a':
@@ -413,6 +460,14 @@ int main(int argc, char** argv) {
 		result = hackrf_set_operacake_ranges(device, range_bytes, range_idx*5);
 		if( result ) {
 			printf("hackrf_set_operacake_ranges() failed: %s (%d)\n", hackrf_error_name(result), result);
+			return -1;
+		}
+	}
+
+	if(dwell_idx) {
+		result = hackrf_set_operacake_dwell_times(device, dwell_times, dwell_idx);
+		if( result ) {
+			printf("hackrf_set_operacake_dwell_times() failed: %s (%d)\n", hackrf_error_name(result), result);
 			return -1;
 		}
 	}

@@ -91,6 +91,7 @@ typedef enum {
 	HACKRF_VENDOR_REQUEST_UI_ENABLE = 37,
 	HACKRF_VENDOR_REQUEST_OPERACAKE_SET_MODE = 38,
 	HACKRF_VENDOR_REQUEST_OPERACAKE_GET_MODE = 39,
+	HACKRF_VENDOR_REQUEST_OPERACAKE_SET_DWELL_TIMES = 40,
 } hackrf_vendor_request;
 
 #define USB_CONFIG_STANDARD 0x1
@@ -2282,6 +2283,43 @@ int ADDCALL hackrf_set_operacake_ranges(hackrf_device* device, uint8_t* ranges, 
 	);
 
 	if (result < len_ranges) {
+		last_libusb_error = result;
+		return HACKRF_ERROR_LIBUSB;
+	} else {
+		return HACKRF_SUCCESS;
+	}
+}
+
+#define DWELL_TIME_SIZE 5
+static uint8_t dwell_data[DWELL_TIME_SIZE*HACKRF_OPERACAKE_MAX_DWELL_TIMES];
+int ADDCALL hackrf_set_operacake_dwell_times(hackrf_device* device, hackrf_operacake_dwell_time *dwell_times, uint8_t count)
+{
+	USB_API_REQUIRED(device, 0x0105)
+
+	if (count > HACKRF_OPERACAKE_MAX_DWELL_TIMES) {
+		return HACKRF_ERROR_INVALID_PARAM;
+	}
+
+	int i;
+	for (i = 0; i < count; i++) {
+		*(uint32_t*)&dwell_data[i*DWELL_TIME_SIZE] = TO_LE(dwell_times[i].dwell);
+		dwell_data[(i*DWELL_TIME_SIZE)+4] = dwell_times[i].port;
+	}
+
+	int data_len = count * DWELL_TIME_SIZE;
+	int result;
+	result = libusb_control_transfer(
+		device->usb_device,
+		LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_OPERACAKE_SET_DWELL_TIMES,
+		0,
+		0,
+		dwell_data,
+		data_len,
+		0
+	);
+
+	if (result < data_len) {
 		last_libusb_error = result;
 		return HACKRF_ERROR_LIBUSB;
 	} else {

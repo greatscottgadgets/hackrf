@@ -52,6 +52,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 #define MAX_SWEEP_RANGES 10
 #define HACKRF_OPERACAKE_ADDRESS_INVALID 0xFF
 #define HACKRF_OPERACAKE_MAX_BOARDS 8
+#define HACKRF_OPERACAKE_MAX_DWELL_TIMES 16
 
 enum hackrf_error {
 	HACKRF_SUCCESS = 0,
@@ -137,6 +138,11 @@ typedef struct {
 	uint32_t part_id[2];
 	uint32_t serial_no[4];
 } read_partid_serialno_t;
+
+typedef struct {
+	uint32_t dwell;
+	uint8_t port;
+} hackrf_operacake_dwell_time;
 
 
 struct hackrf_device_list {
@@ -260,6 +266,7 @@ extern ADDAPI int ADDCALL hackrf_set_operacake_ports(hackrf_device* device,
                                        uint8_t address,
                                        uint8_t port_a,
                                        uint8_t port_b);
+extern ADDAPI int ADDCALL hackrf_set_operacake_dwell_times(hackrf_device* device, hackrf_operacake_dwell_time *dwell_times, uint8_t count);
 
 extern ADDAPI int ADDCALL hackrf_reset(hackrf_device* device);
 
