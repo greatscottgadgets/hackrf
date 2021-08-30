@@ -3,7 +3,7 @@
 This repository contains hardware designs and software for HackRF,
 a low cost, open source Software Defined Radio platform.
 
-![HackRF One](https://raw.github.com/mossmann/hackrf/master/doc/HackRF-One-fd0-0009.jpeg)
+![HackRF One](https://raw.github.com/mossmann/hackrf/master/docs/images/HackRF-One-fd0-0009.jpeg)
 
 (photo by fd0 from https://github.com/fd0/hackrf-one-pictures)
 
