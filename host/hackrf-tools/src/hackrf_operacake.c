@@ -46,7 +46,7 @@ static void usage() {
 	printf("\nUsage:\n");
 	printf("\t-h, --help: this help\n");
 	printf("\t-d, --device <n>: specify a particular device by serial number\n");
-	printf("\t-o, --address <n>: specify a particular operacake by address [default: 0x00]\n");
+	printf("\t-o, --address <n>: specify a particular operacake by address [default: 0]\n");
 	printf("\t-m, --mode <mode>: specify switching mode [options: manual, frequency, time]\n");
 	printf("\t-a <n>: set port A connection\n");
 	printf("\t-b <n>: set port B connection\n");
@@ -174,7 +174,7 @@ int parse_dwell(char* s, hackrf_operacake_dwell_time* dwell_time) {
 int main(int argc, char** argv) {
 	int opt;
 	const char* serial_number = NULL;
-	uint8_t operacake_address = INVALID_ADDRESS;
+	uint8_t operacake_address = 0;
 	bool set_mode = false;
 	uint8_t mode;
 	uint8_t port_a = INVALID_PORT;
@@ -310,13 +310,7 @@ int main(int argc, char** argv) {
 	}
 
 	if(!(list || set_mode || set_ports || range_idx || gpio_test)) {
-		fprintf(stderr, "Specify either list, mode, address, or GPIO test option.\n");
-		usage();
-		return EXIT_FAILURE;
-	}
-
-	if((set_mode || set_ports || gpio_test) && (operacake_address == INVALID_ADDRESS)) {
-		fprintf(stderr, "An address is required.\n");
+		fprintf(stderr, "Specify either list, mode, or GPIO test option.\n");
 		usage();
 		return EXIT_FAILURE;
 	}
