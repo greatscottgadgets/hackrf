@@ -50,7 +50,7 @@ static void usage() {
 	printf("\t-m, --mode <mode>: specify switching mode [options: manual, frequency, time]\n");
 	printf("\t-a <n>: set port A connection\n");
 	printf("\t-b <n>: set port B connection\n");
-	printf("\t-f <min:max:port>: automatically assign <port> for range <min:max> in MHz\n");
+	printf("\t-f <port:min:max>: automatically assign <port> for range <min:max> in MHz\n");
 	printf("\t-t <port:dwell>: in time-switching mode, dwell on <port> for <dwell> samples. This argument can be repeated to specify a list of ports.\n");
 	printf("\t-l, --list: list available operacake boards\n");
 	printf("\t-g, --gpio_test: test GPIO functionality of an opera cake\n");
@@ -144,13 +144,13 @@ int parse_range(char* s, hackrf_oc_range* range) {
 	*sep2 = 0;
 	sep2++; // Skip past the separator
 
-	result = parse_uint16(s, &range->freq_min);
+	result = parse_port(s, &(range->port));
 	if (result != HACKRF_SUCCESS)
 		return result;
-	result = parse_uint16(sep, &range->freq_max);
+	result = parse_uint16(sep, &range->freq_min);
 	if (result != HACKRF_SUCCESS)
 		return result;
-	result = parse_port(sep2, &(range->port));
+	result = parse_uint16(sep2, &range->freq_max);
 	return result;
 }
 
