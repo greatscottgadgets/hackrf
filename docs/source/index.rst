@@ -6,45 +6,45 @@ Welcome to HackRF's documentation!
    :maxdepth: 2
    :caption: User Documentation
 
-   getting_started_hackrf_gnuradio
-   hackrf_sweep   
-   operating_system_tips   
    hackrf_one
    opera_cake
-   updating_firmware   
-   faq   
-   hackrf_hacks
+   faq
    getting_help
    tips_tricks
+   hackrf_hacks   
 
 .. toctree::
    :maxdepth: 2
-   :caption: Firmware Developer Notes
+   :caption: Software
 
+   operating_system_tips
+   getting_started_hackrf_gnuradio
+   software_support
+   libhackrf_api
+   hackrf_sweep
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Firmware
+
+   updating_firmware
    firmware_development_setup
    LPC43XX_Debugging
    LPC43XX_SGPIO_Configuration
    LPC43xx_USB_DFU_Notes
-   LPC43xx_USB_Implementation   
+   LPC43xx_USB_Implementation
 
 .. toctree::
    :maxdepth: 2
-   :caption: Hardware Developer Notes
+   :caption: Hardware
 
-   hardware_components   
+   hardware_components
    clocking
    multiple_device_hardware_synch
 
 .. toctree::
    :maxdepth: 2
-   :caption: Software Developer Notes
-
-   software_support
-   libhackrf_api   
-
-.. toctree::
-   :maxdepth: 2
-   :caption: Old Content
+   :caption: Retired Content
 
    jawbreaker
    design_goals
