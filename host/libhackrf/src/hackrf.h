@@ -53,6 +53,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 #define HACKRF_OPERACAKE_ADDRESS_INVALID 0xFF
 #define HACKRF_OPERACAKE_MAX_BOARDS 8
 #define HACKRF_OPERACAKE_MAX_DWELL_TIMES 16
+#define HACKRF_OPERACAKE_MAX_FREQ_RANGES 8
 
 enum hackrf_error {
 	HACKRF_SUCCESS = 0,
@@ -144,6 +145,11 @@ typedef struct {
 	uint8_t port;
 } hackrf_operacake_dwell_time;
 
+typedef struct {
+	uint16_t freq_min;
+	uint16_t freq_max;
+	uint8_t port;
+} hackrf_operacake_freq_range;
 
 struct hackrf_device_list {
 	char **serial_numbers;
@@ -267,6 +273,7 @@ extern ADDAPI int ADDCALL hackrf_set_operacake_ports(hackrf_device* device,
                                        uint8_t port_a,
                                        uint8_t port_b);
 extern ADDAPI int ADDCALL hackrf_set_operacake_dwell_times(hackrf_device* device, hackrf_operacake_dwell_time *dwell_times, uint8_t count);
+extern ADDAPI int ADDCALL hackrf_set_operacake_freq_ranges(hackrf_device* device, hackrf_operacake_freq_range *freq_ranges, uint8_t count);
 
 extern ADDAPI int ADDCALL hackrf_reset(hackrf_device* device);
 

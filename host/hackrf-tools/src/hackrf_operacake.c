@@ -34,7 +34,6 @@ typedef int bool;
 
 #define FREQ_MIN_MHZ (0)    /*    0 MHz */
 #define FREQ_MAX_MHZ (7250) /* 7250 MHz */
-#define MAX_FREQ_RANGES 8
 
 #define INVALID_ADDRESS 0xFF
 #define INVALID_MODE 0xFF
@@ -65,12 +64,6 @@ static struct option long_options[] = {
 	{ "help", no_argument, 0, 'h' },
 	{ 0, 0, 0, 0 },
 };
-
-typedef struct {
-	uint16_t freq_min;
-	uint16_t freq_max;
-	uint8_t port;
-} hackrf_oc_range;
 
 int parse_uint16(char* const s, uint16_t* const value) {
 	char* s_end = s;
@@ -128,7 +121,7 @@ int parse_port(char* str, uint8_t* port) {
 	return HACKRF_SUCCESS;
 }
 
-int parse_range(char* s, hackrf_oc_range* range) {
+int parse_range(char* s, hackrf_operacake_freq_range* range) {
 	char port[16];
 	float min;
 	float max;
@@ -180,7 +173,7 @@ int main(int argc, char** argv) {
 	int i = 0;
 	hackrf_device* device = NULL;
 	int option_index = 0;
-	hackrf_oc_range ranges[MAX_FREQ_RANGES];
+	hackrf_operacake_freq_range ranges[HACKRF_OPERACAKE_MAX_FREQ_RANGES];
 	hackrf_operacake_dwell_time dwell_times[HACKRF_OPERACAKE_MAX_DWELL_TIMES];
 	uint8_t range_idx = 0;
 	uint8_t dwell_idx = 0;
@@ -220,10 +213,10 @@ int main(int argc, char** argv) {
 			break;
 
 		case 'f':
-			if(MAX_FREQ_RANGES == range_idx) {
+			if (HACKRF_OPERACAKE_MAX_FREQ_RANGES == range_idx) {
 				fprintf(stderr,
 						"argument error: specify a maximum of %u frequency ranges.\n",
-						MAX_FREQ_RANGES);
+						HACKRF_OPERACAKE_MAX_FREQ_RANGES);
 				usage();
 				return EXIT_FAILURE;
 			}
@@ -432,21 +425,10 @@ int main(int argc, char** argv) {
 		}
 	}
 
-	if(range_idx) {
-		uint8_t range_bytes[MAX_FREQ_RANGES * sizeof(hackrf_oc_range)];
-		uint8_t ptr;
-		for(i=0; i<range_idx; i++) {
-			ptr = 5*i;
-			range_bytes[ptr] = ranges[i].freq_min >> 8;
-			range_bytes[ptr+1] = ranges[i].freq_min & 0xFF;
-			range_bytes[ptr+2] = ranges[i].freq_max >> 8;
-			range_bytes[ptr+3] = ranges[i].freq_max & 0xFF;
-			range_bytes[ptr+4] = ranges[i].port;
-		}
-
-		result = hackrf_set_operacake_ranges(device, range_bytes, range_idx*5);
-		if( result ) {
-			printf("hackrf_set_operacake_ranges() failed: %s (%d)\n", hackrf_error_name(result), result);
+	if (range_idx) {
+		result = hackrf_set_operacake_freq_ranges(device, ranges, range_idx);
+		if (result) {
+			printf("hackrf_set_operacake_freq_ranges() failed: %s (%d)\n", hackrf_error_name(result), result);
 			return -1;
 		}
 	}

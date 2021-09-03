@@ -2266,6 +2266,9 @@ int ADDCALL hackrf_reset(hackrf_device* device) {
 	}
 }
 
+/**
+ * @deprecated This has been replaced by @ref hackrf_set_operacake_freq_ranges
+ */
 int ADDCALL hackrf_set_operacake_ranges(hackrf_device* device, uint8_t* ranges, uint8_t len_ranges)
 {
 	USB_API_REQUIRED(device, 0x0103)
@@ -2278,6 +2281,43 @@ int ADDCALL hackrf_set_operacake_ranges(hackrf_device* device, uint8_t* ranges, 
 		0,
 		0,
 		ranges,
+		len_ranges,
+		0
+	);
+
+	if (result < len_ranges) {
+		last_libusb_error = result;
+		return HACKRF_ERROR_LIBUSB;
+	} else {
+		return HACKRF_SUCCESS;
+	}
+}
+
+int ADDCALL hackrf_set_operacake_freq_ranges(hackrf_device* device, hackrf_operacake_freq_range* freq_ranges, uint8_t count)
+{
+	USB_API_REQUIRED(device, 0x0103)
+
+	uint8_t range_bytes[HACKRF_OPERACAKE_MAX_FREQ_RANGES * sizeof(hackrf_operacake_freq_range)];
+	uint8_t ptr;
+	int i;
+	for (i = 0; i < count; i++) {
+		ptr = 5*i;
+		range_bytes[ptr]   = freq_ranges[i].freq_min >> 8;
+		range_bytes[ptr+1] = freq_ranges[i].freq_min & 0xFF;
+		range_bytes[ptr+2] = freq_ranges[i].freq_max >> 8;
+		range_bytes[ptr+3] = freq_ranges[i].freq_max & 0xFF;
+		range_bytes[ptr+4] = freq_ranges[i].port;
+	}
+
+	int result;
+	int len_ranges = count*5;
+	result = libusb_control_transfer(
+		device->usb_device,
+		LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_OPERACAKE_SET_RANGES,
+		0,
+		0,
+		range_bytes,
 		len_ranges,
 		0
 	);
