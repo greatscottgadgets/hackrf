@@ -129,29 +129,22 @@ int parse_port(char* str, uint8_t* port) {
 }
 
 int parse_range(char* s, hackrf_oc_range* range) {
+	char port[16];
+	float min;
+	float max;
 	int result;
-	char *sep = strchr(s, ':');
-	if (!sep)
-		return HACKRF_ERROR_INVALID_PARAM;
-	// Replace : separator to null terminate string for strtol()
-	*sep = 0;
-	sep++; // Skip past the separator
 
-	char *sep2 = strchr(sep, ':');
-	if (!sep2)
-		return HACKRF_ERROR_INVALID_PARAM;
-	// Replace : separator to null terminate string for strtol()
-	*sep2 = 0;
-	sep2++; // Skip past the separator
+	// Read frequency as a float here to support scientific notation (e.g: 1e6)
+	if (sscanf(s, "%15[^:]:%f:%f", port, &min, &max) == 3) {
+		result = parse_port(port, &(range->port));
+		if (result != HACKRF_SUCCESS)
+			return result;
 
-	result = parse_port(s, &(range->port));
-	if (result != HACKRF_SUCCESS)
-		return result;
-	result = parse_uint16(sep, &range->freq_min);
-	if (result != HACKRF_SUCCESS)
-		return result;
-	result = parse_uint16(sep2, &range->freq_max);
-	return result;
+		range->freq_min = min;
+		range->freq_max = max;
+		return HACKRF_SUCCESS;
+	}
+	return HACKRF_ERROR_INVALID_PARAM;
 }
 
 int parse_dwell(char* s, hackrf_operacake_dwell_time* dwell_time) {
