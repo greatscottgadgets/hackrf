@@ -50,7 +50,8 @@ static void usage() {
 	printf("\t-a <n>: set port A connection\n");
 	printf("\t-b <n>: set port B connection\n");
 	printf("\t-f <port:min:max>: automatically assign <port> for range <min:max> in MHz\n");
-	printf("\t-t <port:dwell>: in time-switching mode, dwell on <port> for <dwell> samples. This argument can be repeated to specify a list of ports.\n");
+	printf("\t-t <port:dwell>: in time-switching mode, dwell on <port> for <dwell> samples. Specify only <port> to use the default dwell time (with -w). This argument can be repeated to specify a list of ports.\n");
+	printf("\t-w <n>: set default dwell time for time-switching mode");
 	printf("\t-l, --list: list available operacake boards\n");
 	printf("\t-g, --gpio_test: test GPIO functionality of an opera cake\n");
 }
@@ -151,7 +152,19 @@ int parse_dwell(char* s, hackrf_operacake_dwell_time* dwell_time) {
 		if (result != HACKRF_SUCCESS)
 			return result;
 
+		if (dwell == 0) {
+			fprintf(stderr, "dwell time cannot be 0\n");
+			return HACKRF_ERROR_INVALID_PARAM;
+		}
 		dwell_time->dwell = (uint32_t)dwell;
+		return HACKRF_SUCCESS;
+	} else if (sscanf(s, "%15[^:]", port) == 1) {
+		result = parse_port(port, &dwell_time->port);
+		if (result != HACKRF_SUCCESS)
+			return result;
+
+		// This will be replaced with the default dwell time later.
+		dwell_time->dwell = 0;
 		return HACKRF_SUCCESS;
 	}
 	return HACKRF_ERROR_INVALID_PARAM;
@@ -177,6 +190,7 @@ int main(int argc, char** argv) {
 	hackrf_operacake_dwell_time dwell_times[HACKRF_OPERACAKE_MAX_DWELL_TIMES];
 	uint8_t range_idx = 0;
 	uint8_t dwell_idx = 0;
+	uint32_t default_dwell = 0;
 
 	int result = hackrf_init();
 	if( result ) {
@@ -184,7 +198,7 @@ int main(int argc, char** argv) {
 		return -1;
 	}
 
-	while( (opt = getopt_long(argc, argv, "d:o:a:m:b:lf:t:hg?", long_options, &option_index)) != EOF ) {
+	while( (opt = getopt_long(argc, argv, "d:o:a:m:b:lf:t:w:hg?", long_options, &option_index)) != EOF ) {
 		switch( opt ) {
 		case 'd':
 			serial_number = optarg;
@@ -255,6 +269,10 @@ int main(int argc, char** argv) {
 				return EXIT_FAILURE;
 			}
 			dwell_idx++;
+			break;
+
+		case 'w':
+			default_dwell = atof(optarg);
 			break;
 
 		case 'a':
@@ -434,6 +452,16 @@ int main(int argc, char** argv) {
 	}
 
 	if(dwell_idx) {
+		for (i = 0; i < dwell_idx; i++) {
+			if (dwell_times[i].dwell == 0) {
+				if (default_dwell == 0) {
+					fprintf(stderr, "port '%u' set to use default dwell time, but default dwell time is not set. Use -w argument to set default dwell time.\n",
+						dwell_times[i].port);
+					return EXIT_FAILURE;
+				}
+				dwell_times[i].dwell = default_dwell;
+			}
+		}
 		result = hackrf_set_operacake_dwell_times(device, dwell_times, dwell_idx);
 		if( result ) {
 			printf("hackrf_set_operacake_dwell_times() failed: %s (%d)\n", hackrf_error_name(result), result);
