@@ -313,7 +313,11 @@ int main(int argc, char** argv) {
 		}
 	}
 
-	if(!(list || set_mode || set_ports || range_idx || gpio_test)) {
+	// Any operations that set a parameter on an Opera Cake board.
+	bool set_params = set_mode || set_ports || range_idx || dwell_idx;
+
+	// Error out unless exactly one option is selected.
+	if (list + set_params + gpio_test != 1) {
 		fprintf(stderr, "Specify either list, mode, or GPIO test option.\n");
 		usage();
 		return EXIT_FAILURE;
