@@ -1,5 +1,5 @@
 ================================================
-Multiple device hardware level synchronization
+Multiple Device Hardware Level Synchronization
 ================================================
 
 Purpose
