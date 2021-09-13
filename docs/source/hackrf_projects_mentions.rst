@@ -1,8 +1,8 @@
 ================================================
-HackRF Hacks
+HackRF Community Projects and Mentions
 ================================================
 
-Have you done something cool with HackRF? Let us know and we will post a link here!
+Have you done something cool with HackRF or mentioned HackRF in one of your presentations? Let us know and we might post a link here!
 
     * `Jawbreaker/VFD spectrum analyzer <http://www.sharebrained.com/2013/05/21/maker-faire-radio-spectrum-analyzer/>`__ (Jared Boone), see also the `extended demo on Hak5 <http://hak5.org/episodes/hak5-1417>`__
     * `wireless microphones <http://www.sharebrained.com/2013/06/15/wireless-microphones-and-hackrf/>`__ (Jared Boone)
