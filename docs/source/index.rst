@@ -11,7 +11,7 @@ Welcome to HackRF's documentation!
    faq
    getting_help
    tips_tricks
-   hackrf_hacks   
+   hackrf_projects_mentions
 
 .. toctree::
    :maxdepth: 2
