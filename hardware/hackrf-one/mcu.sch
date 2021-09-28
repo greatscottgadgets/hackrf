@@ -5,7 +5,7 @@ $Descr User 17000 11000
 encoding utf-8
 Sheet 4 4
 Title "HackRF One"
-Date "2020-07-21"
+Date "2021-09-28"
 Rev "r8"
 Comp "Copyright 2012-2020 Great Scott Gadgets"
 Comment1 "Michael Ossmann"
@@ -5578,4 +5578,6 @@ Wire Wire Line
 Connection ~ 5600 1000
 Text Notes 5050 1300 0    40   ~ 0
 pin straps for hardware\nversion detection
+Text Notes 11050 750  0    40   ~ 0
+Do not raise VBUSCTRL\nunless VIN is supplied.
 $EndSCHEMATC
