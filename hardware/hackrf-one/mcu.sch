@@ -5566,18 +5566,26 @@ Wire Wire Line
 	5250 900  5600 900 
 Wire Wire Line
 	5600 900  5600 800 
-Wire Wire Line
-	5250 1000 5600 1000
-Wire Wire Line
-	5600 1000 5600 900 
 Connection ~ 5600 900 
 Wire Wire Line
 	5250 1100 5600 1100
-Wire Wire Line
-	5600 1100 5600 1000
-Connection ~ 5600 1000
 Text Notes 5050 1300 0    40   ~ 0
 pin straps for hardware\nversion detection
 Text Notes 11050 750  0    40   ~ 0
 Do not raise VBUSCTRL\nunless VIN is supplied.
+Wire Wire Line
+	5600 900  5600 1100
+Wire Wire Line
+	5250 1000 5750 1000
+$Comp
+L power:GND #PWR?
+U 1 1 616412A9
+P 5750 1000
+F 0 "#PWR?" H 5750 750 50  0001 C CNN
+F 1 "GND" V 5755 872 50  0000 R CNN
+F 2 "" H 5750 1000 50  0001 C CNN
+F 3 "" H 5750 1000 50  0001 C CNN
+	1    5750 1000
+	0    -1   -1   0   
+$EndComp
 $EndSCHEMATC
