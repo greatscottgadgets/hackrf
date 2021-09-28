@@ -5,8 +5,8 @@ $Descr User 17000 11000
 encoding utf-8
 Sheet 4 4
 Title "HackRF One"
-Date "2020-07-21"
-Rev "r6"
+Date "2021-09-28"
+Rev "r8"
 Comp "Copyright 2012-2020 Great Scott Gadgets"
 Comment1 "Michael Ossmann"
 Comment2 "Licensed under the CERN-OHL-P v2"
@@ -2974,12 +2974,12 @@ P 3100 4000
 AR Path="/527F56E9" Ref="R62"  Part="1" 
 AR Path="/5037043E/527F56E9" Ref="R62"  Part="1" 
 F 0 "R62" V 3180 4000 50  0000 C CNN
-F 1 "0" V 3100 4000 50  0000 C CNN
+F 1 "10k" V 3100 4000 50  0000 C CNN
 F 2 "hackrf:GSG-0402" H 3100 4000 60  0001 C CNN
 F 3 "" H 3100 4000 60  0001 C CNN
 F 4 "Stackpole" H 3100 4000 60  0001 C CNN "Manufacturer"
-F 5 "RMCF0402ZT0R00" H 3100 4000 60  0001 C CNN "Part Number"
-F 6 "RES 0.0 OHM 1/16W 0402 SMD" H 3100 4000 60  0001 C CNN "Description"
+F 5 "RMCF0402JT10K0" H 3100 4000 60  0001 C CNN "Part Number"
+F 6 "RES 10K OHM 1/16W 5% 0402 SMD" H 3100 4000 60  0001 C CNN "Description"
 	1    3100 4000
 	-1   0    0    1   
 $EndComp
@@ -2990,12 +2990,12 @@ P 2900 4700
 AR Path="/527F56F2" Ref="R65"  Part="1" 
 AR Path="/5037043E/527F56F2" Ref="R65"  Part="1" 
 F 0 "R65" V 2980 4700 50  0000 C CNN
-F 1 "10k" V 2900 4700 50  0000 C CNN
+F 1 "18k" V 2900 4700 50  0000 C CNN
 F 2 "hackrf:GSG-0402" H 2900 4700 60  0001 C CNN
 F 3 "" H 2900 4700 60  0001 C CNN
-F 4 "Stackpole" H 2900 4700 60  0001 C CNN "Manufacturer"
-F 5 "RMCF0402JT10K0" H 2900 4700 60  0001 C CNN "Part Number"
-F 6 "RES 10K OHM 1/16W 5% 0402 SMD" H 2900 4700 60  0001 C CNN "Description"
+F 4 "Yageo" H 2900 4700 60  0001 C CNN "Manufacturer"
+F 5 "RC0402JR-0718KL" H 2900 4700 60  0001 C CNN "Part Number"
+F 6 "RES SMD 18K OHM 5% 1/16W 0402" H 2900 4700 60  0001 C CNN "Description"
 	1    2900 4700
 	-1   0    0    1   
 $EndComp
@@ -5578,4 +5578,6 @@ Wire Wire Line
 Connection ~ 5600 1000
 Text Notes 5050 1300 0    40   ~ 0
 pin straps for hardware\nversion detection
+Text Notes 11050 750  0    40   ~ 0
+Do not raise VBUSCTRL\nunless VIN is supplied.
 $EndSCHEMATC
