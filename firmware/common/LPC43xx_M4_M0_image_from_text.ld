@@ -22,7 +22,7 @@
 
 SECTIONS
 {
-	.text : {
+	.m0_text : {
 		PROVIDE(__m0_start__ = .);
 		KEEP(*(.m0_bin*));
 		. = ALIGN(4);

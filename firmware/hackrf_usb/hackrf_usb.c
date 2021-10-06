@@ -21,6 +21,7 @@
  */
 
 #include <stddef.h>
+#include <string.h>
 
 #include <libopencm3/lpc43xx/ipc.h>
 #include <libopencm3/lpc43xx/m4/nvic.h>
@@ -56,6 +57,7 @@
 extern uint32_t __m0_start__;
 extern uint32_t __m0_end__;
 extern uint32_t __ram_m0_start__;
+extern uint32_t _etext_ram, _text_ram, _etext_rom;
 
 static usb_request_handler_fn vendor_request_handler[] = {
 	NULL,
@@ -188,16 +190,21 @@ static bool cpld_jtag_sram_load(jtag_t* const jtag) {
 
 static void m0_rom_to_ram() {
 	uint32_t *dest = &__ram_m0_start__;
-	uint32_t *src = &__m0_start__;
-	while (src < &__m0_end__) {
-		*dest = *src;
-		dest++;
-		src++;
-	}
+
+	// Calculate the base address of ROM
+	uint32_t base = (uint32_t)(&_etext_rom - (&_etext_ram - &_text_ram));
+
+	// M0 image location, relative to the start of ROM
+	uint32_t src = (uint32_t)&__m0_start__;
+
+	uint32_t len = (uint32_t)&__m0_end__ - (uint32_t)src;
+	memcpy(dest, (uint32_t*)(base + src), len);
 }
 
 int main(void) {
-	bool operacake_allow_gpio;
+	// Copy M0 image from ROM before SPIFI is disabled
+	m0_rom_to_ram();
+
 	pin_setup();
 	enable_1v8_power();
 #if (defined HACKRF_ONE || defined RAD1O)
@@ -209,7 +216,6 @@ int main(void) {
 	cpu_clock_init();
 
 	/* Wake the M0 */
-	m0_rom_to_ram();
 	ipc_start_m0((uint32_t)&__ram_m0_start__);
 
 	if( !cpld_jtag_sram_load(&jtag_cpld) ) {
@@ -245,6 +251,7 @@ int main(void) {
 	
 	rf_path_init(&rf_path);
 
+	bool operacake_allow_gpio;
 	if( hackrf_ui()->operacake_gpio_compatible() ) {
 		operacake_allow_gpio = true;
 	} else {
