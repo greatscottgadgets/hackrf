@@ -37,6 +37,7 @@ typedef int bool;
 #define MAX_FREQ_RANGES 8
 
 #define INVALID_ADDRESS 0xFF
+#define INVALID_MODE 0xFF
 #define INVALID_PORT 0xFF
 
 #define GPIO_TEST_DISABLED 0xFFFF
@@ -46,9 +47,11 @@ static void usage() {
 	printf("\t-h, --help: this help\n");
 	printf("\t-d, --device <n>: specify a particular device by serial number\n");
 	printf("\t-o, --address <n>: specify a particular operacake by address [default: 0x00]\n");
+	printf("\t-m, --mode <mode>: specify switching mode [options: manual, frequency, time]\n");
 	printf("\t-a <n>: set port A connection\n");
 	printf("\t-b <n>: set port B connection\n");
 	printf("\t-f <min:max:port>: automatically assign <port> for range <min:max> in MHz\n");
+	printf("\t-t <port:dwell>: in time-switching mode, dwell on <port> for <dwell> samples. This argument can be repeated to specify a list of ports.\n");
 	printf("\t-l, --list: list available operacake boards\n");
 	printf("\t-g, --gpio_test: test GPIO functionality of an opera cake\n");
 }
@@ -56,6 +59,7 @@ static void usage() {
 static struct option long_options[] = {
 	{ "device", no_argument, 0, 'd' },
 	{ "address", no_argument, 0, 'o' },
+	{ "mode", no_argument, 0, 'm' },
 	{ "list", no_argument, 0, 'l' },
 	{ "gpio_test", no_argument, 0, 'g' },
 	{ "help", no_argument, 0, 'h' },
@@ -73,6 +77,17 @@ int parse_uint16(char* const s, uint16_t* const value) {
 	const long long_value = strtol(s, &s_end, 10);
 	if( (s != s_end) && (*s_end == 0) ) {
 		*value = (uint16_t)long_value;
+		return HACKRF_SUCCESS;
+	} else {
+		return HACKRF_ERROR_INVALID_PARAM;
+	}
+}
+
+int parse_uint32(char* const s, uint32_t* const value) {
+	char* s_end = s;
+	const long long_value = strtol(s, &s_end, 10);
+	if( (s != s_end) && (*s_end == 0) ) {
+		*value = (uint32_t)long_value;
 		return HACKRF_SUCCESS;
 	} else {
 		return HACKRF_ERROR_INVALID_PARAM;
@@ -139,10 +154,29 @@ int parse_range(char* s, hackrf_oc_range* range) {
 	return result;
 }
 
+int parse_dwell(char* s, hackrf_operacake_dwell_time* dwell_time) {
+	int result;
+	char port[16];
+	float dwell;
+
+	// Read dwell as a float here to support scientific notation (e.g: 1e6)
+	if (sscanf(s, "%15[^:]:%f", port, &dwell) == 2) {
+		result = parse_port(port, &dwell_time->port);
+		if (result != HACKRF_SUCCESS)
+			return result;
+
+		dwell_time->dwell = (uint32_t)dwell;
+		return HACKRF_SUCCESS;
+	}
+	return HACKRF_ERROR_INVALID_PARAM;
+}
+
 int main(int argc, char** argv) {
 	int opt;
 	const char* serial_number = NULL;
 	uint8_t operacake_address = INVALID_ADDRESS;
+	bool set_mode = false;
+	uint8_t mode;
 	uint8_t port_a = INVALID_PORT;
 	uint8_t port_b = INVALID_PORT;
 	bool set_ports = false;
@@ -154,7 +188,9 @@ int main(int argc, char** argv) {
 	hackrf_device* device = NULL;
 	int option_index = 0;
 	hackrf_oc_range ranges[MAX_FREQ_RANGES];
+	hackrf_operacake_dwell_time dwell_times[HACKRF_OPERACAKE_MAX_DWELL_TIMES];
 	uint8_t range_idx = 0;
+	uint8_t dwell_idx = 0;
 
 	int result = hackrf_init();
 	if( result ) {
@@ -162,7 +198,7 @@ int main(int argc, char** argv) {
 		return -1;
 	}
 
-	while( (opt = getopt_long(argc, argv, "d:o:a:b:lf:hg?", long_options, &option_index)) != EOF ) {
+	while( (opt = getopt_long(argc, argv, "d:o:a:m:b:lf:t:hg?", long_options, &option_index)) != EOF ) {
 		switch( opt ) {
 		case 'd':
 			serial_number = optarg;
@@ -170,6 +206,24 @@ int main(int argc, char** argv) {
 
 		case 'o':
 			operacake_address = atoi(optarg);
+			break;
+
+		case 'm':
+			if (strcmp(optarg, "manual") == 0) {
+				mode = OPERACAKE_MODE_MANUAL;
+				set_mode = true;
+			} else if (strcmp(optarg, "frequency") == 0) {
+				mode = OPERACAKE_MODE_FREQUENCY;
+				set_mode = true;
+			} else if (strcmp(optarg, "time") == 0) {
+				mode = OPERACAKE_MODE_TIME;
+				set_mode = true;
+			} else {
+				fprintf(stderr,
+						"argument error: mode must be one of [manual, frequency, time].\n");
+				usage();
+				return EXIT_FAILURE;
+			}
 			break;
 
 		case 'f':
@@ -199,6 +253,22 @@ int main(int argc, char** argv) {
 				return EXIT_FAILURE;
 			}
 			range_idx++;
+			break;
+
+		case 't':
+			if(HACKRF_OPERACAKE_MAX_DWELL_TIMES == dwell_idx) {
+				fprintf(stderr,
+						"argument error: specify a maximum of %u dwell times.\n",
+						HACKRF_OPERACAKE_MAX_DWELL_TIMES);
+				usage();
+				return EXIT_FAILURE;
+			}
+			result = parse_dwell(optarg, &dwell_times[dwell_idx]);
+			if (result != HACKRF_SUCCESS) {
+				fprintf(stderr, "failed to parse dwell time\n");
+				return EXIT_FAILURE;
+			}
+			dwell_idx++;
 			break;
 
 		case 'a':
@@ -239,13 +309,13 @@ int main(int argc, char** argv) {
 		}
 	}
 
-	if(!(list || set_ports || range_idx || gpio_test)) {
-		fprintf(stderr, "Specify either list, address, or GPIO test option.\n");
+	if(!(list || set_mode || set_ports || range_idx || gpio_test)) {
+		fprintf(stderr, "Specify either list, mode, address, or GPIO test option.\n");
 		usage();
 		return EXIT_FAILURE;
 	}
 
-	if((set_ports || gpio_test) && (operacake_address == INVALID_ADDRESS)) {
+	if((set_mode || set_ports || gpio_test) && (operacake_address == INVALID_ADDRESS)) {
 		fprintf(stderr, "An address is required.\n");
 		usage();
 		return EXIT_FAILURE;
@@ -256,6 +326,15 @@ int main(int argc, char** argv) {
 		fprintf(stderr, "hackrf_open() failed: %s (%d)\n",
 				hackrf_error_name(result), result);
 		return EXIT_FAILURE;
+	}
+
+	if (set_mode) {
+		result = hackrf_set_operacake_mode(device, operacake_address, mode);
+		if (result != HACKRF_SUCCESS) {
+			fprintf(stderr, "hackrf_set_operacake_mode() failed: %s (%d)\n",
+					hackrf_error_name(result), result);
+			return EXIT_FAILURE;
+		}
 	}
 
 	if(list) {
@@ -269,6 +348,18 @@ int main(int argc, char** argv) {
 		for(i=0; i<8; i++) {
 			if(operacakes[i] != HACKRF_OPERACAKE_ADDRESS_INVALID) {
 				printf("\n\tAddress: %d", operacakes[i]);
+				enum operacake_switching_mode mode;
+				hackrf_get_operacake_mode(device, i, &mode);
+				printf("\tSwitching mode: ");
+				if (mode == OPERACAKE_MODE_MANUAL) {
+					printf("manual\n");
+				} else if (mode == OPERACAKE_MODE_FREQUENCY) {
+					printf("frequency\n");
+				} else if (mode == OPERACAKE_MODE_TIME) {
+					printf("time\n");
+				} else {
+					printf("unknown\n");
+				}
 				operacake_count++;
 			}
 		}
@@ -369,6 +460,14 @@ int main(int argc, char** argv) {
 		result = hackrf_set_operacake_ranges(device, range_bytes, range_idx*5);
 		if( result ) {
 			printf("hackrf_set_operacake_ranges() failed: %s (%d)\n", hackrf_error_name(result), result);
+			return -1;
+		}
+	}
+
+	if(dwell_idx) {
+		result = hackrf_set_operacake_dwell_times(device, dwell_times, dwell_idx);
+		if( result ) {
+			printf("hackrf_set_operacake_dwell_times() failed: %s (%d)\n", hackrf_error_name(result), result);
 			return -1;
 		}
 	}

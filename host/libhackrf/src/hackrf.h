@@ -51,6 +51,8 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 #define BYTES_PER_BLOCK 16384
 #define MAX_SWEEP_RANGES 10
 #define HACKRF_OPERACAKE_ADDRESS_INVALID 0xFF
+#define HACKRF_OPERACAKE_MAX_BOARDS 8
+#define HACKRF_OPERACAKE_MAX_DWELL_TIMES 16
 
 enum hackrf_error {
 	HACKRF_SUCCESS = 0,
@@ -101,6 +103,21 @@ enum operacake_ports {
 	OPERACAKE_PB4 = 7,
 };
 
+enum operacake_switching_mode {
+	/**
+	 * Port connections are set manually using @ref hackrf_set_operacake_ports.
+	 */
+	OPERACAKE_MODE_MANUAL,
+	/**
+	 * Port connections are switched automatically when the frequency is changed. Frequency ranges can be set using @ref hackrf_set_operacake_ranges.
+	 */
+	OPERACAKE_MODE_FREQUENCY,
+	/**
+	 * Port connections are switched automatically over time.
+	 */
+	OPERACAKE_MODE_TIME,
+};
+
 enum sweep_style {
 	LINEAR = 0,
 	INTERLEAVED = 1,
@@ -121,6 +138,11 @@ typedef struct {
 	uint32_t part_id[2];
 	uint32_t serial_no[4];
 } read_partid_serialno_t;
+
+typedef struct {
+	uint32_t dwell;
+	uint8_t port;
+} hackrf_operacake_dwell_time;
 
 
 struct hackrf_device_list {
@@ -238,10 +260,13 @@ extern ADDAPI int ADDCALL hackrf_init_sweep(hackrf_device* device,
 
 /* Operacake functions */
 extern ADDAPI int ADDCALL hackrf_get_operacake_boards(hackrf_device* device, uint8_t* boards);
+extern ADDAPI int ADDCALL hackrf_set_operacake_mode(hackrf_device* device, uint8_t address, enum operacake_switching_mode mode);
+extern ADDAPI int ADDCALL hackrf_get_operacake_mode(hackrf_device* device, uint8_t address, enum operacake_switching_mode *mode);
 extern ADDAPI int ADDCALL hackrf_set_operacake_ports(hackrf_device* device,
                                        uint8_t address,
                                        uint8_t port_a,
                                        uint8_t port_b);
+extern ADDAPI int ADDCALL hackrf_set_operacake_dwell_times(hackrf_device* device, hackrf_operacake_dwell_time *dwell_times, uint8_t count);
 
 extern ADDAPI int ADDCALL hackrf_reset(hackrf_device* device);
 

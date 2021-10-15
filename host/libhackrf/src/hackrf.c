@@ -89,6 +89,9 @@ typedef enum {
 	HACKRF_VENDOR_REQUEST_OPERACAKE_GPIO_TEST = 35,
 	HACKRF_VENDOR_REQUEST_CPLD_CHECKSUM = 36,
 	HACKRF_VENDOR_REQUEST_UI_ENABLE = 37,
+	HACKRF_VENDOR_REQUEST_OPERACAKE_SET_MODE = 38,
+	HACKRF_VENDOR_REQUEST_OPERACAKE_GET_MODE = 39,
+	HACKRF_VENDOR_REQUEST_OPERACAKE_SET_DWELL_TIMES = 40,
 } hackrf_vendor_request;
 
 #define USB_CONFIG_STANDARD 0x1
@@ -2090,6 +2093,10 @@ int ADDCALL hackrf_init_sweep(hackrf_device* device,
 	}
 }
 
+bool hackrf_operacake_valid_address(uint8_t address) {
+	return address < HACKRF_OPERACAKE_MAX_BOARDS;
+}
+
 /**
  * Retrieve list of Opera Cake board addresses
  * @param[in]  device
@@ -2121,6 +2128,82 @@ int ADDCALL hackrf_get_operacake_boards(hackrf_device* device, uint8_t* boards)
 	}
 }
 
+/**
+ * Set Opera Cake switching mode.
+ * @param[in] device
+ * @param[in] address Opera Cake address.
+ * @param[in] mode    Switching mode.
+ * @return @ref HACKRF_SUCCESS
+ * @return @ref HACKRF_ERROR_LIBUSB
+ */
+int ADDCALL hackrf_set_operacake_mode(hackrf_device* device, uint8_t address, enum operacake_switching_mode mode)
+{
+	USB_API_REQUIRED(device, 0x0105)
+
+	if (!hackrf_operacake_valid_address(address)) {
+		return HACKRF_ERROR_INVALID_PARAM;
+	}
+
+	int result;
+	result = libusb_control_transfer(
+		device->usb_device,
+		LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_OPERACAKE_SET_MODE,
+		address,
+		(uint8_t)mode,
+		NULL,
+		0,
+		0
+	);
+
+	if (result != 0)
+	{
+		last_libusb_error = result;
+		return HACKRF_ERROR_LIBUSB;
+	} else {
+		return HACKRF_SUCCESS;
+	}
+}
+
+/**
+ * Get Opera Cake switching mode.
+ * @param[in]  device
+ * @param[in]  address Opera Cake address.
+ * @param[out] mode    Switching mode.
+ * @return @ref HACKRF_SUCCESS
+ * @return @ref HACKRF_ERROR_LIBUSB
+ */
+int ADDCALL hackrf_get_operacake_mode(hackrf_device* device, uint8_t address, enum operacake_switching_mode *mode)
+{
+	USB_API_REQUIRED(device, 0x0105)
+
+	if (!hackrf_operacake_valid_address(address)) {
+		return HACKRF_ERROR_INVALID_PARAM;
+	}
+
+	int result;
+	uint8_t buf;
+	result = libusb_control_transfer(
+		device->usb_device,
+		LIBUSB_ENDPOINT_IN | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_OPERACAKE_GET_MODE,
+		address,
+		0,
+		&buf,
+		1,
+		0
+	);
+
+	if (result < 1)
+	{
+		last_libusb_error = result;
+		return HACKRF_ERROR_LIBUSB;
+	} else {
+		*mode = buf;
+		return HACKRF_SUCCESS;
+	}
+}
+
 /* Set Operacake ports */
 int ADDCALL hackrf_set_operacake_ports(hackrf_device* device,
                                        uint8_t address,
@@ -2128,6 +2211,11 @@ int ADDCALL hackrf_set_operacake_ports(hackrf_device* device,
                                        uint8_t port_b)
 {
 	USB_API_REQUIRED(device, 0x0102)
+
+	if (!hackrf_operacake_valid_address(address)) {
+		return HACKRF_ERROR_INVALID_PARAM;
+	}
+
 	int result;
 	/* Error checking */
 	if((port_a > OPERACAKE_PB4) || (port_b > OPERACAKE_PB4)) {
@@ -2181,8 +2269,8 @@ int ADDCALL hackrf_reset(hackrf_device* device) {
 int ADDCALL hackrf_set_operacake_ranges(hackrf_device* device, uint8_t* ranges, uint8_t len_ranges)
 {
 	USB_API_REQUIRED(device, 0x0103)
-	int result;
 
+	int result;
 	result = libusb_control_transfer(
 		device->usb_device,
 		LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
@@ -2195,6 +2283,43 @@ int ADDCALL hackrf_set_operacake_ranges(hackrf_device* device, uint8_t* ranges, 
 	);
 
 	if (result < len_ranges) {
+		last_libusb_error = result;
+		return HACKRF_ERROR_LIBUSB;
+	} else {
+		return HACKRF_SUCCESS;
+	}
+}
+
+#define DWELL_TIME_SIZE 5
+static uint8_t dwell_data[DWELL_TIME_SIZE*HACKRF_OPERACAKE_MAX_DWELL_TIMES];
+int ADDCALL hackrf_set_operacake_dwell_times(hackrf_device* device, hackrf_operacake_dwell_time *dwell_times, uint8_t count)
+{
+	USB_API_REQUIRED(device, 0x0105)
+
+	if (count > HACKRF_OPERACAKE_MAX_DWELL_TIMES) {
+		return HACKRF_ERROR_INVALID_PARAM;
+	}
+
+	int i;
+	for (i = 0; i < count; i++) {
+		*(uint32_t*)&dwell_data[i*DWELL_TIME_SIZE] = TO_LE(dwell_times[i].dwell);
+		dwell_data[(i*DWELL_TIME_SIZE)+4] = dwell_times[i].port;
+	}
+
+	int data_len = count * DWELL_TIME_SIZE;
+	int result;
+	result = libusb_control_transfer(
+		device->usb_device,
+		LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_OPERACAKE_SET_DWELL_TIMES,
+		0,
+		0,
+		dwell_data,
+		data_len,
+		0
+	);
+
+	if (result < data_len) {
 		last_libusb_error = result;
 		return HACKRF_ERROR_LIBUSB;
 	} else {
@@ -2230,6 +2355,11 @@ int ADDCALL hackrf_operacake_gpio_test(hackrf_device* device, const uint8_t addr
                                        uint16_t* test_result)
 {
 	USB_API_REQUIRED(device, 0x0103)
+
+	if (!hackrf_operacake_valid_address(address)) {
+		return HACKRF_ERROR_INVALID_PARAM;
+	}
+
 	int result;
 	result = libusb_control_transfer(
 		device->usb_device,

@@ -20,6 +20,7 @@
  */
 
 #include "operacake.h"
+#include "operacake_sctimer.h"
 #include "hackrf_core.h"
 #include "gpio.h"
 #include "gpio_lpc.h"
@@ -71,17 +72,24 @@
 #define OPERACAKE_ADDRESS_DEFAULT 0x18
 #define OPERACAKE_ADDRESS_INVALID 0xFF
 
+#define OPERACAKE_MAX_BOARDS 8
+
 i2c_bus_t* const oc_bus = &i2c0;
-uint8_t operacake_boards[8] = {
-	OPERACAKE_ADDRESS_INVALID,
-	OPERACAKE_ADDRESS_INVALID,
-	OPERACAKE_ADDRESS_INVALID,
-	OPERACAKE_ADDRESS_INVALID,
-	OPERACAKE_ADDRESS_INVALID,
-	OPERACAKE_ADDRESS_INVALID,
-	OPERACAKE_ADDRESS_INVALID,
-	OPERACAKE_ADDRESS_INVALID,
+
+enum operacake_switching_mode {
+	MODE_MANUAL    = 0,
+	MODE_FREQUENCY = 1,
+	MODE_TIME      = 2,
 };
+
+struct operacake_state {
+	bool present;
+	enum operacake_switching_mode mode;
+	uint8_t PA;
+	uint8_t PB;
+};
+
+struct operacake_state operacake_boards[OPERACAKE_MAX_BOARDS];
 bool allow_gpio_mode = true;
 
 /* read single register */
@@ -105,19 +113,74 @@ void operacake_write_reg(i2c_bus_t* const bus, uint8_t address, uint8_t reg, uin
 }
 
 uint8_t operacake_init(bool allow_gpio) {
-	uint8_t reg, addr, j = 0;
 	/* Find connected operacakes */
-	for(addr=0; addr<8; addr++) {
+	for (int addr = 0; addr < 8; addr++) {
 		operacake_write_reg(oc_bus, addr, OPERACAKE_REG_OUTPUT,
 		                    OPERACAKE_DEFAULT_OUTPUT);
 		operacake_write_reg(oc_bus, addr, OPERACAKE_REG_CONFIG,
 		                    OPERACAKE_CONFIG_ALL_OUTPUT);
-		reg = operacake_read_reg(oc_bus, addr, OPERACAKE_REG_CONFIG);
-		if(reg==OPERACAKE_CONFIG_ALL_OUTPUT)
-			operacake_boards[j++] = addr;
+		uint8_t reg = operacake_read_reg(oc_bus, addr, OPERACAKE_REG_CONFIG);
+
+		operacake_boards[addr].present = (reg == OPERACAKE_CONFIG_ALL_OUTPUT);
+		operacake_boards[addr].mode    = MODE_MANUAL;
+		operacake_boards[addr].PA      = OPERACAKE_PORT_A1;
+		operacake_boards[addr].PB      = OPERACAKE_PORT_B1;
 	}
 	allow_gpio_mode = allow_gpio;
+	if (allow_gpio) {
+		operacake_sctimer_init();
+	}
 	return 0;
+}
+
+bool operacake_is_board_present(uint8_t address) {
+	if (address >= OPERACAKE_MAX_BOARDS)
+		return false;
+
+	return operacake_boards[address].present;
+}
+
+void operacake_get_boards(uint8_t *addresses) {
+	int count = 0;
+	for (int i = 0; i < OPERACAKE_MAX_BOARDS; i++) {
+		addresses[i] = OPERACAKE_ADDRESS_INVALID;
+	}
+	for (int i = 0; i < OPERACAKE_MAX_BOARDS; i++) {
+		if (operacake_is_board_present(i))
+			addresses[count++] = i;
+	}
+}
+
+void operacake_set_mode(uint8_t address, uint8_t mode) {
+	if (address >= OPERACAKE_MAX_BOARDS)
+		return;
+
+	operacake_boards[address].mode = mode;
+
+	if (mode == MODE_TIME) {
+		// Switch Opera Cake to pin-control mode
+		uint8_t config_pins = (uint8_t)~(OPERACAKE_PIN_OE(1) | OPERACAKE_PIN_LEDEN(1) | OPERACAKE_PIN_LEDEN2(1));
+		operacake_write_reg(oc_bus, address, OPERACAKE_REG_CONFIG, config_pins);
+		operacake_write_reg(oc_bus, address, OPERACAKE_REG_OUTPUT, OPERACAKE_GPIO_ENABLE | OPERACAKE_EN_LEDS);
+	} else {
+		operacake_write_reg(oc_bus, address, OPERACAKE_REG_CONFIG, OPERACAKE_CONFIG_ALL_OUTPUT);
+		operacake_set_ports(address, operacake_boards[address].PA, operacake_boards[address].PB);
+	}
+
+	// If any boards are in MODE_TIME, enable the sctimer events.
+	bool enable_sctimer = false;
+	for (int i = 0; i < OPERACAKE_MAX_BOARDS; i++) {
+		if (operacake_boards[i].mode == MODE_TIME)
+			enable_sctimer = true;
+	}
+	operacake_sctimer_enable(enable_sctimer);
+}
+
+uint8_t operacake_get_mode(uint8_t address) {
+	if (address >= OPERACAKE_MAX_BOARDS)
+		return 0;
+
+	return operacake_boards[address].mode;
 }
 
 uint8_t port_to_pins(uint8_t port) {
@@ -157,16 +220,24 @@ uint8_t operacake_set_ports(uint8_t address, uint8_t PA, uint8_t PB) {
 	    || ((PA > OPERACAKE_PA4) && (PB > OPERACAKE_PA4))) {
 		return 1;
 	}
-	
+
 	if(PA > OPERACAKE_PA4) {
 		side = OPERACAKE_CROSSOVER;
 	} else {
 		side = OPERACAKE_SAMESIDE;
 	}
 
+	// Keep track of manual settings for when we switch in/out of time/frequency modes.
+	operacake_boards[address].PA = PA;
+	operacake_boards[address].PB = PB;
+
+	// Only apply register settings if the board is in manual mode.
+	if (operacake_boards[address].mode != MODE_MANUAL)
+		return 0;
+
 	pa = port_to_pins(PA);
 	pb = port_to_pins(PB);
-		
+
 	reg = (OPERACAKE_GPIO_DISABLE | side
 					| pa | pb | OPERACAKE_EN_LEDS);
 	operacake_write_reg(oc_bus, address, OPERACAKE_REG_OUTPUT, reg);
@@ -210,19 +281,26 @@ uint8_t operacake_set_range(uint32_t freq_mhz) {
 	if(range_idx == 0) {
 		return 1;
 	}
-	int i;
-	for(i=0; i<range_idx; i++) {
-		if((freq_mhz >= ranges[i].freq_min) 
-		  && (freq_mhz <= ranges[i].freq_max)) {
+
+	int range;
+	for(range=0; range<range_idx; range++) {
+		if((freq_mhz >= ranges[range].freq_min)
+		  && (freq_mhz <= ranges[range].freq_max)) {
 			break;
 		}
 	}
-	if(i == current_range) {
+	if(range == current_range) {
 		return 1;
 	}
-	
-	operacake_set_ports(operacake_boards[0], ranges[i].portA, ranges[i].portB);
-	current_range = i;
+
+	for (int i = 0; i < OPERACAKE_MAX_BOARDS; i++) {
+		if (operacake_is_board_present(i) && operacake_get_mode(i) == MODE_FREQUENCY) {
+			operacake_set_ports(i, ranges[range].portA, ranges[range].portB);
+			break;
+		}
+	}
+
+	current_range = range;
 	return 0;
 }
 

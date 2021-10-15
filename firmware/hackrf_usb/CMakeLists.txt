@@ -61,6 +61,7 @@ set(SRC_M4
 	"${PATH_HACKRF_FIRMWARE_COMMON}/crc.c"
 	"${PATH_HACKRF_FIRMWARE_COMMON}/rom_iap.c"
 	"${PATH_HACKRF_FIRMWARE_COMMON}/operacake.c"
+	"${PATH_HACKRF_FIRMWARE_COMMON}/operacake_sctimer.c"
 )
 
 set(SRC_M0 sgpio_m0.s)
