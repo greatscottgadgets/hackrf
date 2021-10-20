@@ -16,7 +16,7 @@ IF (WIN32)
 include_directories(${FFTW_INCLUDES})
 find_library (FFTW_LIBRARIES NAMES ${FFTW_LIBRARIES})
 ELSE(WIN32)
-find_library (FFTW_LIBRARIES NAMES fftw3)
+find_library (FFTW_LIBRARIES NAMES fftw3f)
 ENDIF(WIN32)
 
 
