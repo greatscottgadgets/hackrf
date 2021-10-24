@@ -165,7 +165,7 @@ int parse_u32_range(char* s, uint32_t* const value_min, uint32_t* const value_ma
 
 volatile bool do_exit = false;
 
-FILE* fd = NULL;
+FILE* outfile = NULL;
 volatile uint32_t byte_count = 0;
 volatile uint64_t sweep_count = 0;
 
@@ -216,10 +216,13 @@ int rx_callback(hackrf_transfer* transfer) {
 	char time_str[50];
 	struct timeval usb_transfer_time;
 
-	if(NULL == fd) {
+	if(NULL == outfile) {
 		return -1;
 	}
 
+	if(do_exit) {
+		return 0;
+	}
 	gettimeofday(&usb_transfer_time, NULL);
 	byte_count += transfer->valid_length;
 	buf = (int8_t*) transfer->buffer;
@@ -241,8 +244,8 @@ int rx_callback(hackrf_transfer* transfer) {
 					for(i=0; i < ifft_bins; i++) {
 						ifftwOut[i][0] *= 1.0f / ifft_bins;
 						ifftwOut[i][1] *= 1.0f / ifft_bins;
-						fwrite(&ifftwOut[i][0], sizeof(float), 1, fd);
-						fwrite(&ifftwOut[i][1], sizeof(float), 1, fd);
+						fwrite(&ifftwOut[i][0], sizeof(float), 1, outfile);
+						fwrite(&ifftwOut[i][1], sizeof(float), 1, outfile);
 					}
 				}
 				sweep_count++;
@@ -289,19 +292,19 @@ int rx_callback(hackrf_transfer* transfer) {
 			record_length = 2 * sizeof(band_edge)
 					+ (fftSize/4) * sizeof(float);
 
-			fwrite(&record_length, sizeof(record_length), 1, fd);
+			fwrite(&record_length, sizeof(record_length), 1, outfile);
 			band_edge = frequency;
-			fwrite(&band_edge, sizeof(band_edge), 1, fd);
+			fwrite(&band_edge, sizeof(band_edge), 1, outfile);
 			band_edge = frequency + DEFAULT_SAMPLE_RATE_HZ / 4;
-			fwrite(&band_edge, sizeof(band_edge), 1, fd);
-			fwrite(&pwr[1+(fftSize*5)/8], sizeof(float), fftSize/4, fd);
+			fwrite(&band_edge, sizeof(band_edge), 1, outfile);
+			fwrite(&pwr[1+(fftSize*5)/8], sizeof(float), fftSize/4, outfile);
 
-			fwrite(&record_length, sizeof(record_length), 1, fd);
+			fwrite(&record_length, sizeof(record_length), 1, outfile);
 			band_edge = frequency + DEFAULT_SAMPLE_RATE_HZ / 2;
-			fwrite(&band_edge, sizeof(band_edge), 1, fd);
+			fwrite(&band_edge, sizeof(band_edge), 1, outfile);
 			band_edge = frequency + (DEFAULT_SAMPLE_RATE_HZ * 3) / 4;
-			fwrite(&band_edge, sizeof(band_edge), 1, fd);
-			fwrite(&pwr[1+fftSize/8], sizeof(float), fftSize/4, fd);
+			fwrite(&band_edge, sizeof(band_edge), 1, outfile);
+			fwrite(&pwr[1+fftSize/8], sizeof(float), fftSize/4, outfile);
 		} else if(ifft_output) {
 			ifft_idx = (uint32_t) round((frequency - (uint64_t)(FREQ_ONE_MHZ*frequencies[0]))
 					/ fft_bin_width);
@@ -320,7 +323,7 @@ int rx_callback(hackrf_transfer* transfer) {
 			time_t time_stamp_seconds = time_stamp.tv_sec;
 			fft_time = localtime(&time_stamp_seconds);
 			strftime(time_str, 50, "%Y-%m-%d, %H:%M:%S", fft_time);
-			fprintf(fd, "%s.%06ld, %" PRIu64 ", %" PRIu64 ", %.2f, %u",
+			fprintf(outfile, "%s.%06ld, %" PRIu64 ", %" PRIu64 ", %.2f, %u",
 					time_str,
 					(long int)time_stamp.tv_usec,
 					(uint64_t)(frequency),
@@ -328,10 +331,10 @@ int rx_callback(hackrf_transfer* transfer) {
 					fft_bin_width,
 					fftSize);
 			for(i = 0; (fftSize / 4) > i; i++) {
-				fprintf(fd, ", %.2f", pwr[i + 1 + (fftSize*5)/8]);
+				fprintf(outfile, ", %.2f", pwr[i + 1 + (fftSize*5)/8]);
 			}
-			fprintf(fd, "\n");
-			fprintf(fd, "%s.%06ld, %" PRIu64 ", %" PRIu64 ", %.2f, %u",
+			fprintf(outfile, "\n");
+			fprintf(outfile, "%s.%06ld, %" PRIu64 ", %" PRIu64 ", %.2f, %u",
 					time_str,
 					(long int)time_stamp.tv_usec,
 					(uint64_t)(frequency+(DEFAULT_SAMPLE_RATE_HZ/2)),
@@ -339,9 +342,9 @@ int rx_callback(hackrf_transfer* transfer) {
 					fft_bin_width,
 					fftSize);
 			for(i = 0; (fftSize / 4) > i; i++) {
-				fprintf(fd, ", %.2f", pwr[i + 1 + (fftSize/8)]);
+				fprintf(outfile, ", %.2f", pwr[i + 1 + (fftSize/8)]);
 			}
-			fprintf(fd, "\n");
+			fprintf(outfile, "\n");
 		}
 	}
 	return 0;
@@ -393,8 +396,9 @@ int main(int argc, char** argv) {
 	const char* serial_number = NULL;
 	int exit_code = EXIT_SUCCESS;
 	struct timeval time_now;
+	struct timeval time_prev;
 	float time_diff;
-	float sweep_rate;
+	float sweep_rate = 0;
 	unsigned int lna_gain=16, vga_gain=20;
 	uint32_t freq_min = 0;
 	uint32_t freq_max = 6000;
@@ -580,6 +584,12 @@ int main(int argc, char** argv) {
 		window[i] = (float) (0.5f * (1.0f - cos(2 * M_PI * i / (fftSize - 1))));
 	}
 
+#ifdef _MSC_VER
+	if(binary_output) {
+		_setmode(_fileno(stdout), _O_BINARY);
+	}
+#endif
+
 	result = hackrf_init();
 	if( result != HACKRF_SUCCESS ) {
 		fprintf(stderr, "hackrf_init() failed: %s (%d)\n", hackrf_error_name(result), result);
@@ -595,17 +605,17 @@ int main(int argc, char** argv) {
 	}
 
 	if((NULL == path) || (strcmp(path, "-") == 0)) {
-		fd = stdout;
+		outfile = stdout;
 	} else {
-		fd = fopen(path, "wb");
+		outfile = fopen(path, "wb");
 	}
 
-	if(NULL == fd) {
+	if(NULL == outfile) {
 		fprintf(stderr, "Failed to open file: %s\n", path);
 		return EXIT_FAILURE;
 	}
-	/* Change fd buffer to have bigger one to store or read data on/to HDD */
-	result = setvbuf(fd , NULL , _IOFBF , FD_BUFFER_SIZE);
+	/* Change outfile buffer to have bigger one to store or read data on/to HDD */
+	result = setvbuf(outfile , NULL , _IOFBF , FD_BUFFER_SIZE);
 	if( result != 0 ) {
 		fprintf(stderr, "setvbuf() failed: %d\n", result);
 		usage();
@@ -702,6 +712,7 @@ int main(int argc, char** argv) {
 	}
 
 	gettimeofday(&t_start, NULL);
+	time_prev = t_start;
 
 	fprintf(stderr, "Stop with Ctrl-C\n");
 	while((hackrf_is_streaming(device) == HACKRF_TRUE) && (do_exit == false)) {
@@ -709,20 +720,23 @@ int main(int argc, char** argv) {
 		m_sleep(50);
 
 		gettimeofday(&time_now, NULL);
-		
-		time_difference = TimevalDiff(&time_now, &t_start);
-		sweep_rate = (float)sweep_count / time_difference;
-		fprintf(stderr, "%" PRIu64 " total sweeps completed, %.2f sweeps/second\n",
-				sweep_count, sweep_rate);
+		if (TimevalDiff(&time_now, &time_prev) >= 1.0f) {
+			time_difference = TimevalDiff(&time_now, &t_start);
+			sweep_rate = (float)sweep_count / time_difference;
+			fprintf(stderr, "%" PRIu64 " total sweeps completed, %.2f sweeps/second\n",
+					sweep_count, sweep_rate);
 
-		if (byte_count == 0) {
-			exit_code = EXIT_FAILURE;
-			fprintf(stderr, "\nCouldn't transfer any data for one second.\n");
-			break;
+			if (byte_count == 0) {
+				exit_code = EXIT_FAILURE;
+				fprintf(stderr, "\nCouldn't transfer any data for one second.\n");
+				break;
+			}
+			byte_count = 0;
+			time_prev = time_now;
 		}
-		byte_count = 0;
 	}
 
+	fflush(outfile);
 	result = hackrf_is_streaming(device);	
 	if (do_exit) {
 		fprintf(stderr, "\nExiting...\n");
@@ -733,18 +747,12 @@ int main(int argc, char** argv) {
 
 	gettimeofday(&time_now, NULL);
 	time_diff = TimevalDiff(&time_now, &t_start);
+	if((sweep_rate == 0) && (time_diff > 0))
+		sweep_rate = sweep_count / time_diff;
 	fprintf(stderr, "Total sweeps: %" PRIu64 " in %.5f seconds (%.2f sweeps/second)\n",
 			sweep_count, time_diff, sweep_rate);
 
 	if(device != NULL) {
-		result = hackrf_stop_rx(device);
-		if(result != HACKRF_SUCCESS) {
-			fprintf(stderr, "hackrf_stop_rx() failed: %s (%d)\n",
-				   hackrf_error_name(result), result);
-		} else {
-			fprintf(stderr, "hackrf_stop_rx() done\n");
-		}
-
 		result = hackrf_close(device);
 		if(result != HACKRF_SUCCESS) {
 			fprintf(stderr, "hackrf_close() failed: %s (%d)\n",
@@ -757,10 +765,11 @@ int main(int argc, char** argv) {
 		fprintf(stderr, "hackrf_exit() done\n");
 	}
 
-	if(fd != NULL) {
-		fclose(fd);
-		fd = NULL;
-		fprintf(stderr, "fclose(fd) done\n");
+	fflush(outfile);
+	if ( ( outfile != NULL ) && ( outfile != stdout ) ) {
+		fclose(outfile);
+		outfile = NULL;
+		fprintf(stderr, "fclose() done\n");
 	}
 	fftwf_free(fftwIn);
 	fftwf_free(fftwOut);

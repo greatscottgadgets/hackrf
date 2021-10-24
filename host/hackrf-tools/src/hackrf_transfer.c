@@ -20,6 +20,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
+#define _FILE_OFFSET_BITS 64
 
 #include <hackrf.h>
 
@@ -28,13 +29,12 @@
 #include <string.h>
 #include <getopt.h>
 #include <time.h>
+#include <math.h>
 
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <errno.h>
-
-#define _FILE_OFFSET_BITS 64
 
 #ifndef bool
 typedef int bool;
@@ -320,7 +320,7 @@ char* u64toa(uint64_t val, t_u64toa* str)
 
 static volatile bool do_exit = false;
 
-FILE* fd = NULL;
+FILE* file = NULL;
 volatile uint32_t byte_count = 0;
 
 bool signalsource = false;
@@ -336,6 +336,17 @@ uint32_t stream_head = 0;
 uint32_t stream_tail = 0;
 uint32_t stream_drop = 0;
 uint8_t *stream_buf = NULL;
+
+/*
+ * To report amplitude, best would be dB(fullscale) and the variance,
+ * but that would require more math per sample (dB(amplitude) = log(sqrt(i^2 + q^2) and sum of squares).
+ * For now, just sum iabs(i)+iabs(q) and divide by the number of samples*2.
+ * That allows us to give a measure of dB(fullscale).
+ * I don't know whether overload causes wrapping or clamping the 8-bit values.
+ * Clamping would produce a sigmoid curve, so with a signal of variable intensity you're
+ * probably getting substantial overload anytime this reports more than about -6dBfs.
+ */
+uint64_t stream_amplitude = 0;	/* sum of magnitudes of all I&Q samples, reset on the periodic report */
 
 bool transmit = false;
 struct timeval time_start;
@@ -381,7 +392,7 @@ int rx_callback(hackrf_transfer* transfer) {
 	size_t bytes_written;
 	unsigned int i;
 
-	if( fd != NULL ) 
+	if( file != NULL )
 	{
 		byte_count += transfer->valid_length;
 		bytes_to_write = transfer->valid_length;
@@ -391,6 +402,12 @@ int rx_callback(hackrf_transfer* transfer) {
 			}
 			bytes_to_xfer -= bytes_to_write;
 		}
+
+		// accumulate stream_amplitude:
+		for (i = 0; i < bytes_to_write; i++) {
+			stream_amplitude += abs((signed char)transfer->buffer[i]);
+		}
+
 		if (receive_wav) {
 			/* convert .wav contents from signed to unsigned */
 			for (i = 0; i < bytes_to_write; i++) {
@@ -413,7 +430,7 @@ int rx_callback(hackrf_transfer* transfer) {
 #endif
 		    return 0;
 		} else {
-			bytes_written = fwrite(transfer->buffer, 1, bytes_to_write, fd);
+			bytes_written = fwrite(transfer->buffer, 1, bytes_to_write, file);
 			if ((bytes_written != bytes_to_write)
 				|| (limit_num_samples && (bytes_to_xfer == 0))) {
 				return -1;
@@ -431,7 +448,7 @@ int tx_callback(hackrf_transfer* transfer) {
 	size_t bytes_read;
 	unsigned int i;
 
-	if( fd != NULL )
+	if( file != NULL )
 	{
 		byte_count += transfer->valid_length;
 		bytes_to_read = transfer->valid_length;
@@ -445,15 +462,15 @@ int tx_callback(hackrf_transfer* transfer) {
 			}
 			bytes_to_xfer -= bytes_to_read;
 		}
-		bytes_read = fread(transfer->buffer, 1, bytes_to_read, fd);
+		bytes_read = fread(transfer->buffer, 1, bytes_to_read, file);
 		if (limit_num_samples && (bytes_to_xfer == 0)) {
                                return -1;
 		}
 		if (bytes_read != bytes_to_read) {
                        if (repeat) {
                                fprintf(stderr, "Input file end reached. Rewind to beginning.\n");
-                               rewind(fd);
-                               fread(transfer->buffer + bytes_read, 1, bytes_to_read - bytes_read, fd);
+                               rewind(file);
+                               fread(transfer->buffer + bytes_read, 1, bytes_to_read - bytes_read, file);
 			       return 0;
                        } else {
                                return -1; /* not repeat mode, end of file */
@@ -893,24 +910,24 @@ int main(int argc, char** argv) {
 		if( transceiver_mode == TRANSCEIVER_MODE_RX )
 		{
 			if (strcmp(path, "-") == 0) {
-				fd = stdout;
+				file = stdout;
 			} else {
-				fd = fopen(path, "wb");
+				file = fopen(path, "wb");
 			}
 		} else {
 			if (strcmp(path, "-") == 0) {
-				fd = stdin;
+				file = stdin;
 			} else {
-				fd = fopen(path, "rb");
+				file = fopen(path, "rb");
 			}
 		}
 	
-		if( fd == NULL ) {
+		if( file == NULL ) {
 			fprintf(stderr, "Failed to open file: %s\n", path);
 			return EXIT_FAILURE;
 		}
-		/* Change fd buffer to have bigger one to store or read data on/to HDD */
-		result = setvbuf(fd , NULL , _IOFBF , FD_BUFFER_SIZE);
+		/* Change file buffer to have bigger one to store or read data on/to HDD */
+		result = setvbuf(file , NULL , _IOFBF , FD_BUFFER_SIZE);
 		if( result != 0 ) {
 			fprintf(stderr, "setvbuf() failed: %d\n", result);
 			usage();
@@ -921,7 +938,7 @@ int main(int argc, char** argv) {
 	/* Write Wav header */
 	if( receive_wav ) 
 	{
-		fwrite(&wave_file_hdr, 1, sizeof(t_wav_file_hdr), fd);
+		fwrite(&wave_file_hdr, 1, sizeof(t_wav_file_hdr), file);
 	}
 	
 #ifdef _MSC_VER
@@ -1046,7 +1063,7 @@ int main(int argc, char** argv) {
 			    	len=_st-stream_head;
 				else
 			    	len=stream_size-stream_head;
-				bytes_written = fwrite(stream_buf+stream_head, 1, len, fd);
+				bytes_written = fwrite(stream_buf+stream_head, 1, len, file);
 				if (len != bytes_written) {
 					fprintf(stderr, "write failed");
 					do_exit=true;
@@ -1059,20 +1076,33 @@ int main(int argc, char** argv) {
 		    }
 #endif
 		} else {
+		        uint64_t	stream_amplitude_now;
 			sleep(1);
 			gettimeofday(&time_now, NULL);
 			
 			byte_count_now = byte_count;
 			byte_count = 0;
-			
-			
+		        stream_amplitude_now = stream_amplitude;
+		        stream_amplitude = 0;
+			if (byte_count_now < sample_rate_hz/20)	// Don't report on very short frames
+				stream_amplitude_now = 0;
+
 			time_difference = TimevalDiff(&time_now, &time_start);
 			rate = (float)byte_count_now / time_difference;
 			if (byte_count_now == 0 && hw_sync == true && hw_sync_enable != 0) {
 			    fprintf(stderr, "Waiting for sync...\n");
 			} else {
-			    fprintf(stderr, "%4.1f MiB / %5.3f sec = %4.1f MiB/second\n",
-					    (byte_count_now / 1e6f), time_difference, (rate / 1e6f) );
+			    // This is only an approximate measure, to assist getting receive levels right:
+			    double	full_scale_ratio = ((double)stream_amplitude_now / (byte_count_now ? byte_count_now : 1))/128;
+			    double	dB_full_scale_ratio = 10*log10(full_scale_ratio);
+			    if (dB_full_scale_ratio > 1)
+			    	dB_full_scale_ratio = NAN;	// Guard against ridiculous reports
+			    fprintf(stderr, "%4.1f MiB / %5.3f sec = %4.1f MiB/second, amplitude %3.1f dBfs\n",
+				    (byte_count_now / 1e6f),
+				    time_difference,
+				    (rate / 1e6f),
+				    dB_full_scale_ratio
+			    );
 			}
 
 			time_start = time_now;
@@ -1127,24 +1157,29 @@ int main(int argc, char** argv) {
 		fprintf(stderr, "hackrf_exit() done\n");
 	}
 
-	if(fd != NULL)
+	if(file != NULL)
 	{
 		if( receive_wav ) 
 		{
 			/* Get size of file */
-			file_pos = ftell(fd);
+			file_pos = ftell(file);
 			/* Update Wav Header */
 			wave_file_hdr.hdr.size = file_pos-8;
 			wave_file_hdr.fmt_chunk.dwSamplesPerSec = sample_rate_hz;
 			wave_file_hdr.fmt_chunk.dwAvgBytesPerSec = wave_file_hdr.fmt_chunk.dwSamplesPerSec*2;
 			wave_file_hdr.data_chunk.chunkSize = file_pos - sizeof(t_wav_file_hdr);
 			/* Overwrite header with updated data */
-			rewind(fd);
-			fwrite(&wave_file_hdr, 1, sizeof(t_wav_file_hdr), fd);
+			rewind(file);
+			fwrite(&wave_file_hdr, 1, sizeof(t_wav_file_hdr), file);
 		}	
-		fclose(fd);
-		fd = NULL;
-		fprintf(stderr, "fclose(fd) done\n");
+		if (file != stdin) {
+			fflush(file);
+		}
+		if ((file != stdout) && (file != stdin)) {
+			fclose(file);
+			file = NULL;
+			fprintf(stderr, "fclose() done\n");
+		}
 	}
 	fprintf(stderr, "exit\n");
 	return exit_code;
