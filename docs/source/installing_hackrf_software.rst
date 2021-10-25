@@ -26,13 +26,12 @@ Linux: Arch
 
 .. code-block :: sh
 
-	pacman -S gnuradio gnuradio-osmosdr
-	pacman -S gnuradio-companion
+	pacman -S hackrf
 
 Linux: Fedora / Red Hat
 +++++++++++++++++++++++
 
-``sudo dnf install gnuradio gr-osmosdr hackrf gqrx -y``
+``sudo dnf install hackrf -y``
 
 Linux: Gentoo
 +++++++++++++
@@ -40,7 +39,6 @@ Linux: Gentoo
 .. code-block :: sh
 
 	emerge -a net-wireless/hackrf-tools
-	USE="hackrf" emerge -a net-wireless/gr-osmosdr
 
 Linux: Ubuntu / Debian
 ++++++++++++++++++++++
@@ -50,12 +48,12 @@ Linux: Ubuntu / Debian
 OS X (10.5+): Homebrew
 ++++++++++++++++++++++
 
-``brew install gr-osmosdr``
+``brew install hackrf``
 
 OS X (10.5+): MacPorts
 ++++++++++++++++++++++
 
-``sudo port install gr-osmosdr``
+``sudo port install hackrf``
 
 Windows: Binaries
 +++++++++++++++++

@@ -17,7 +17,7 @@ Welcome to HackRF's documentation!
    :maxdepth: 2
    :caption: Software
 
-   operating_system_tips
+   installing_hackrf_software
    getting_started_hackrf_gnuradio
    software_support
    libhackrf_api
