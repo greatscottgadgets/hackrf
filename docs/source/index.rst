@@ -40,6 +40,8 @@ Welcome to HackRF's documentation!
 
    hardware_components
    clocking
+   enclosure_options
+   expansion_interface
    multiple_device_hardware_synch
 
 .. toctree::
