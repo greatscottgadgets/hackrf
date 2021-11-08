@@ -38,6 +38,7 @@ Welcome to HackRF's documentation!
    :maxdepth: 2
    :caption: Hardware
 
+   list_of_hardware_revisions
    hardware_components
    clocking
    enclosure_options
