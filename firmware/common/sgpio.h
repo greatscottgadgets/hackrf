@@ -54,7 +54,6 @@ void sgpio_cpld_stream_enable(sgpio_config_t* const config);
 void sgpio_cpld_stream_disable(sgpio_config_t* const config);
 bool sgpio_cpld_stream_is_enabled(sgpio_config_t* const config);
 
-bool sgpio_cpld_stream_rx_set_decimation(sgpio_config_t* const config, const uint_fast8_t n);
 void sgpio_cpld_stream_rx_set_q_invert(sgpio_config_t* const config, const uint_fast8_t invert);
 
 #endif//__SGPIO_H__
