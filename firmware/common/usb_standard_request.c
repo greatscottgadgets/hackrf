@@ -274,10 +274,6 @@ static usb_request_status_t usb_standard_request_set_configuration_setup(
 ) {
 	const uint8_t usb_configuration = endpoint->setup.value_l;
 	if( usb_set_configuration(endpoint->device, usb_configuration) ) {
-		if( usb_configuration == 0 ) {
-			// TODO: Should this be done immediately?
-			usb_set_address_immediate(endpoint->device, 0);
-		}
 		usb_transfer_schedule_ack(endpoint->in);
 		return USB_REQUEST_STATUS_OK;
 	} else {
