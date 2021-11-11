@@ -38,7 +38,8 @@ function(get_lib_type LIBRARY OUTPUT_VARIABLE)
 		else() # MSVC, Intel, or some other Windows compiler
 			
 			# we have to work a little harder, and use Dumpbin to check the library type, since import and static libraries have the same extensions
-			find_program(DUMPBIN dumpbin)
+			get_filename_component(CL_INSTALL_DIR ${CMAKE_C_COMPILER} DIRECTORY)
+			find_program(DUMPBIN dumpbin HINTS ${CL_INSTALL_DIR})
 			
 			if(NOT DUMPBIN)
 				message(FATAL_ERROR "The Microsoft Dumpbin tool was not found.  It is needed to analyze libraries, so please set the DUMPBIN variable to point to it.")

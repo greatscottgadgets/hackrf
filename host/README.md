@@ -33,12 +33,15 @@ rm -rf *
 ## How to build host software on Windows:
 ### Prerequisites for Cygwin, MinGW, or Visual Studio:
 
-* cmake-3.1 or later from http://www.cmake.org/cmake/resources/software.html
-* libusb-1.0.18 or later from https://libusb.info/
-  * The Visual Studio binaries available on their site are only for Visual Studio 2015.  If you are using a different version of VS you will need to build libusb from source.
-* fftw-3.3.5 or later from http://www.fftw.org/install/windows.html
+You will need to install these tools:
+* cmake-3.8 or later from http://www.cmake.org/cmake/resources/software.html
 * Install Windows driver for HackRF hardware or use Zadig see http://sourceforge.net/projects/libwdi/files/zadig
   - If you want to use Zadig select HackRF USB device and just install/replace it with WinUSB driver.
+  
+You will also need these dependency libraries:
+* libusb-1.0.18 or later from https://libusb.info/
+  * Make sure to grab the binaries corresponding to your VS version from the zip file
+* fftw-3.3.5 or later from http://www.fftw.org/install/windows.html
 
 If your environment has a package manager, such as Cygwin or MSYS2, you should be able to install these from there.  Otherwise, you can download binaries directly from these sites and copy them to a build dependencies prefix. DLLs go in the bin folder, headers in include, .dll.a and .lib files in the lib folder, like normal.
 
@@ -76,12 +79,14 @@ mingw32-make install
 
 ### For Visual Studio 2015 x64
 
-Similarly to the MinGW instructions, create fftw3 library definitions for MSVC to link to.  You may have to run these from a Visual Studio command prompt:
+Similarly to the MinGW instructions, create fftw3 import libraries for MSVC to link to.  You may have to run these from a Visual Studio command prompt in the folder where you extracted the fftw3 .dll and .def files:
 ```
 C:\your\build\prefix\bin> lib /machine:x64 /def:libfftw3f-3.def
 C:\your\build\prefix\bin> lib /machine:x64 /def:libfftw3-3.def
 ```
 Then move the generated .lib files to your prefix lib folder.  Also rename them to get rid of the "lib" prefix, e.g. `fftw3-3.lib`.
+
+For libusb, libusb-1.0.dll needs to be extracted to your bin folder, libusb-1.0.lib needs to be extracted to your lib folder and renamed usb-1.0.lib, and the libusb-1.0/ folder needs to be extracted to your include folder.
 
 For MSVC you will also need one additional dependency, [pthreads-win32](http://mirrors.kernel.org/sourceware/pthreads-win32/pthreads-w32-2-9-1-release.zip).  Download that and extract the headers and `pthreadVC2.lib` from the prebuilts folder inside the zip.
 

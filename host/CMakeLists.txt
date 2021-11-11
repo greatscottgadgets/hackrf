@@ -1,16 +1,17 @@
 #top dir cmake project for libhackrf + tools
 
-cmake_minimum_required(VERSION 3.1)
+cmake_minimum_required(VERSION 3.8)
 project(HackRF LANGUAGES C)
 
-# standard policies for CMake 3.1
-cmake_policy(VERSION 3.1)
+# standard policies for CMake 3.8
+cmake_policy(VERSION 3.8)
 
 list(APPEND CMAKE_MODULE_PATH 
 	${CMAKE_CURRENT_SOURCE_DIR}/cmake
 	${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules
 	${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules/amber-cmake)
 
+include(TryLinkLibrary)
 include(LibraryUtils)
 
 # Compilation flags
@@ -70,10 +71,6 @@ message(STATUS "Checking dependencies...")
 # fftw3
 find_package(FFTW COMPONENTS SinglePrecision REQUIRED)
 
-import_libraries(fftw3 LIBRARIES ${FFTW_LIBRARIES} INCLUDES ${FFTW_INCLUDES})
-set_property(TARGET fftw3 PROPERTY INTERFACE_COMPILE_OPTIONS ${FFTW_COMPILE_OPTIONS})
-
-
 # libusb1.0
 find_package(USB1 REQUIRED)
 import_library(libusb ${LIBUSB_LIBRARIES} ${LIBUSB_INCLUDE_DIR})
@@ -93,7 +90,7 @@ else()
 endif()
 
 # libm
-find_package(Math REQUIRED)
+find_package(CMath REQUIRED)
 
 # Options
 # -----------------------------------------------------

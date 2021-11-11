@@ -9,7 +9,7 @@
 #  FFTW_IS_SHARED         - True if FFTW is being linked as a shared library
 #  FFTW_<Component>_FOUND - Whether the given component was found.
 #
-# Note that on some systems, FFTW splits itself into multiple libraries,
+# Note that FFTW splits itself into multiple libraries,
 # single precision (fftwf), double precision (fftw), and quad precision (fftwl).
 # By default FindFFTW will find only the standard double precision variant.
 # To guarantee that you get the other variants, request the relevant components.
@@ -22,6 +22,14 @@
 #	FFTW_INCLUDES_MPI      - include path for FFTW MPI
 #	FFTW_LIBRARIES_MPI 	   - extra FFTW library to use MPI
 #
+# This module also creates the following imported targets, if the relevant components are enabled:
+#   fftw::fftwl             - Main (double precision) library
+#   fftw::fftwf             - Single precision library
+#   fftw::fftwq             - Quad precision library
+#   fftw::mpi_f             - MPI single precision library
+#   fftw::mpi_l             - MPI double precision library
+#   fftw::mpi_q             - MPI quad precision library
+#   fftw::fftw              - All enabled libraries
 
 if (FFTW_FOUND)
   # Already in cache, be silent
@@ -52,17 +60,20 @@ macro(fftw_find_precision COMPONENT PREC LIBNAMES CHECK_FUNCTION TYPE)
 		endif()
 
 		# now check if it works
-		set(CMAKE_REQUIRED_LIBRARIES ${FFTW${PREC}_LIBRARY_${TYPE}})
+		set(LIBS_TO_CHECK ${FFTW${PREC}_LIBRARY_${TYPE}})
 
 		if("${TYPE}" STREQUAL "SERIAL")
 			# only link serial FFTW
-			list(APPEND CMAKE_REQUIRED_LIBRARIES ${FFTW_LIBRARY_SERIAL})
+			list(APPEND LIBS_TO_CHECK ${FFTW_LIBRARY_SERIAL})
 		else()
 			# link serial and parallel
-			list(APPEND CMAKE_REQUIRED_LIBRARIES ${FFTW_LIBRARY_MPI} ${FFTW_LIBRARY_SERIAL})
+			list(APPEND LIBS_TO_CHECK ${FFTW_LIBRARY_MPI} ${FFTW_LIBRARY_SERIAL})
 		endif()
 
-		fftw_check_library(${CHECK_FUNCTION} FFTW${PREC}_${TYPE}_WORKS)
+		fftw_check_c_function(${CHECK_FUNCTION} FFTW${PREC}_${TYPE}_WORKS ${LIBS_TO_CHECK})
+
+		unset(LIBS_TO_CHECK)
+
 	else()
 		if(FIND_FFTW_DEBUG)
 			message("Could not find ${COMPONENT} ${TYPE} FFTW library: ${FFTW${PREC}_LIBRARY_${TYPE}}")
@@ -89,12 +100,7 @@ endmacro(fftw_find_precision)
 
 # Check if a given function can be found in a given library.
 # Similar to CheckFunctionExists, but can handle DLL imports on Windows.
-# Reads CMAKE_REQUIRED_LIBRARIES for link libraries.
-function(fftw_check_library FUNCTION RESULT_VARIABLE)
-
-	if(FIND_FFTW_DEBUG)
-		message("Looking for ${FUNCTION} in ${CMAKE_REQUIRED_LIBRARIES}")
-	endif()
+function(fftw_check_c_function FUNCTION RESULT_VARIABLE) # ARGN: LIBRARIES...
 
 	# mirror the logic in fftw3.h
 	if(FFTW_DLL_IMPORT)
@@ -105,18 +111,13 @@ function(fftw_check_library FUNCTION RESULT_VARIABLE)
 		set(FUNCTION_PREFIX "")
 	endif()
 
-	set(CHECK_FUNCTION_C_SOURCE "
+	try_link_library(${RESULT_VARIABLE}
+		LANGUAGE C
+		FUNCTION ${FUNCTION}
+		FUNC_PREFIX ${FUNCTION_PREFIX}
+		LIBRARIES ${ARGN})
 	
-	${FUNCTION_PREFIX} void ${FUNCTION}();
-
-	int main(int argc, char** args)
-	{
-		${FUNCTION}();
-		return 0;
-	}")
-	
-	check_c_source_compiles("${CHECK_FUNCTION_C_SOURCE}" ${RESULT_VARIABLE})
-endfunction(fftw_check_library)
+endfunction(fftw_check_c_function)
 
 # headers
 # --------------------------------------------------------------------
@@ -159,67 +160,73 @@ if(EXISTS "${FFTW_LIBRARY_SERIAL}")
 endif()
 
 
-set(CMAKE_REQUIRED_LIBRARIES ${FFTW_LIBRARY_SERIAL})
 if(EXISTS "${FFTW_LIBRARY_SERIAL}")
-	fftw_check_library(fftw_execute FFTW_WORKS)
+	fftw_check_c_function(fftw_execute FFTW_WORKS ${FFTW_LIBRARY_SERIAL})
 else()
 	set(FFTW_WORKS FALSE)
 endif()
 
 set(FFTW_REQUIRED_VARIABLES FFTW_LIBRARY_SERIAL FFTW_WORKS ${FFTW_REQUIRED_VARIABLES})
 
-
-# now check if it is split-precision
-set(FFTW_SPLIT FALSE)
-if(FFTW_WORKS)
-	fftw_check_library(fftwf_execute FFTW_SINGLE_LIB)
-
-	if(NOT FFTW_SINGLE_LIB)
-		if(FIND_FFTW_DEBUG)
-			message("Split FFTW library detected")
-		endif()
-
-		set(FFTW_SPLIT TRUE)
-	endif()
+# search for precision libraries
+if("${FFTW_FIND_COMPONENTS}" MATCHES "SinglePrecision")
+	fftw_find_precision(SinglePrecision F "fftw3f-3;fftw3f;fftwf" fftwf_execute SERIAL)
 endif()
 
-if(FFTW_SPLIT)
-
-	# search for precision libraries
-	if("${FFTW_FIND_COMPONENTS}" MATCHES "SinglePrecision")
-		fftw_find_precision(SinglePrecision F "fftw3f-3;fftw3f;fftwf" fftwf_execute SERIAL)
-	endif()
-
-	if("${FFTW_FIND_COMPONENTS}" MATCHES "QuadPrecision")
-		fftw_find_precision(QuadPrecision L "fftw3l-3;fftw3l;fftwl" fftwl_execute SERIAL)
-	endif()
-
-else()
-	# Precision components already found
-	set(FFTW_SinglePrecision_FOUND TRUE)
-	set(FFTW_QuadPrecision_FOUND TRUE)
+if("${FFTW_FIND_COMPONENTS}" MATCHES "QuadPrecision")
+	fftw_find_precision(QuadPrecision L "fftw3l-3;fftw3l;fftwl" fftwl_execute SERIAL)
 endif()
 
 # Fortran component
 # --------------------------------------------------------------------
 
 if("${FFTW_FIND_COMPONENTS}" MATCHES "Fortran")
-
+		
 	# should exist if Fortran support is present
-	set(FFTW_FORTRAN_HEADER "${FFTW_INCLUDES}/fftw3.f03")
+	set(FFTW_FORTRAN_HEADER "${FFTW_INCLUDES_SERIAL}/fftw3.f03")
 	
 	if(NOT EXISTS "${FFTW_INCLUDES_SERIAL}")
 		message(STATUS "Cannot search for FFTW Fortran headers because the serial headers were not found")
 		set(FFTW_Fortran_FOUND FALSE)
 	elseif(EXISTS "${FFTW_FORTRAN_HEADER}")
-		set(FFTW_Fortran_FOUND TRUE)
+		
+		# check that the Fortran compiler can link fftw and that the manglings match
+
+		# Deal with annoying issue: sometimes /usr/include is removed from Fortran 
+		# include directories since CMake incorrectly thinks it's part of the implcit
+		# include directories.
+		# We could try clearing "CMAKE_Fortran_IMPLICIT_INCLUDE_DIRECTORIES" but that won't
+		# work in try_link_library().
+		set(FFTW_INCLUDES_FORTRAN ${FFTW_INCLUDES_SERIAL})
+		if("${FFTW_INCLUDES_FORTRAN}" IN_LIST CMAKE_Fortran_IMPLICIT_INCLUDE_DIRECTORIES)
+			get_filename_component(FFTW_FORTRAN_INCLUDE_FOLDER ${FFTW_INCLUDES_FORTRAN} NAME      )
+			set(FFTW_INCLUDES_FORTRAN ${FFTW_INCLUDES_FORTRAN}/../${FFTW_FORTRAN_INCLUDE_FOLDER})
+		endif()
+
+		try_link_library(FFTW_FORTRAN_WORKS
+			LANGUAGE Fortran
+			FUNCTION fftw_cleanup
+			LIBRARIES ${FFTW_LIBRARY_SERIAL}
+			INCLUDES ${FFTW_INCLUDES_FORTRAN}
+			FUNC_CALL "
+  use, intrinsic :: iso_c_binding
+  implicit none
+  include 'fftw3.f03'
+  call fftw_cleanup()")
+
+		if(FFTW_FORTRAN_WORKS)
+			set(FFTW_Fortran_FOUND TRUE)
+			list(APPEND FFTW_INCLUDES ${FFTW_INCLUDES_FORTRAN})
+		else()
+			set(FFTW_Fortran_FOUND FALSE)
+		endif()
 	else()
 		set(FFTW_Fortran_FOUND FALSE)
 		message(STATUS "Cannot find FFTW Fortran headers - ${FFTW_FORTRAN_HEADER} is missing.")
 	endif()
 
 	if(FFTW_FIND_REQUIRED_Fortran)
-		list(APPEND FFTW_REQUIRED_VARIABLES FFTW_Fortran_FOUND)
+		list(APPEND FFTW_REQUIRED_VARIABLES FFTW_FORTRAN_HEADER FFTW_FORTRAN_WORKS)
 	endif()
 
 endif()
@@ -228,14 +235,14 @@ endif()
 # --------------------------------------------------------------------
 if("${FFTW_FIND_COMPONENTS}" MATCHES "MPI")
 	find_library(FFTW_LIBRARY_MPI NAMES fftw3_mpi fftw_mpi)
-	set(FFTW_LIBRARIES ${FFTW_LIBRARIES_MPI} ${FFTW_LIBRARIES})
-	
+	set(FFTW_LIBRARIES_MPI ${FFTW_LIBRARY_MPI})
+
 	find_path(FFTW_INCLUDES_MPI fftw3-mpi.h)
 	list(APPEND FFTW_INCLUDES ${FFTW_INCLUDES_MPI})
 
 	set(CMAKE_REQUIRED_LIBRARIES ${FFTW_LIBRARY_MPI})
 	if(EXISTS "${FFTW_LIBRARY_MPI}")
-		fftw_check_library(fftw_mpi_init FFTW_MPI_WORKS)
+		fftw_check_c_function(fftw_mpi_init FFTW_MPI_WORKS)
 	else()
 		set(FFTW_MPI_WORKS FALSE)
 	endif()
@@ -269,6 +276,8 @@ if("${FFTW_FIND_COMPONENTS}" MATCHES "MPI")
 			message(STATUS "Cannot find FFTW Fortran headers - ${FFTW_FORTRAN_MPI_HEADER} is missing")
 		endif()
 	endif()
+
+	set(FFTW_LIBRARIES ${FFTW_LIBRARIES_MPI} ${FFTW_LIBRARIES})
 	
 	mark_as_advanced (FFTW_LIBRARIES_MPI FFTW_INCLUDES_MPI)
 	
@@ -288,6 +297,71 @@ if(FIND_FFTW_DEBUG)
 	message("FFTW_LIBRARIES: ${FFTW_LIBRARIES}")
 	message("FFTW_FOUND: ${FFTW_FOUND}")
 	message("FFTW_IS_SHARED: ${FFTW_IS_SHARED}")
+endif()
+
+# import targets
+if(FFTW_FOUND)
+
+
+	# main lib (double precision)
+	add_library(fftw::fftwl UNKNOWN IMPORTED)
+    set_property(TARGET fftw::fftwl PROPERTY IMPORTED_LOCATION ${FFTW_LIBRARY_SERIAL})
+    set_property(TARGET fftw::fftwl PROPERTY INTERFACE_INCLUDE_DIRECTORIES ${FFTW_INCLUDES_SERIAL})
+    set_property(TARGET fftw::fftwl PROPERTY INTERFACE_COMPILE_OPTIONS ${FFTW_COMPILE_OPTIONS})
+
+    set(FFTW_ALL_IMPORTED_LIBRARIES fftw::fftwl)
+
+	if(FFTW_SinglePrecision_FOUND)
+	    add_library(fftw::fftwf UNKNOWN IMPORTED)
+	    set_property(TARGET fftw::fftwf PROPERTY IMPORTED_LOCATION ${FFTWF_LIBRARY_SERIAL})
+	    set_property(TARGET fftw::fftwf PROPERTY INTERFACE_INCLUDE_DIRECTORIES ${FFTW_INCLUDES_SERIAL})
+	    set_property(TARGET fftw::fftwf PROPERTY INTERFACE_COMPILE_OPTIONS ${FFTW_COMPILE_OPTIONS})
+
+	    list(APPEND FFTW_ALL_IMPORTED_LIBRARIES fftw::fftwf)
+	endif()
+
+	if(FFTW_QuadPrecision_FOUND)
+	    add_library(fftw::fftwq UNKNOWN IMPORTED)
+	    set_property(TARGET fftw::fftwq PROPERTY IMPORTED_LOCATION ${FFTWQ_LIBRARY_SERIAL})
+	    set_property(TARGET fftw::fftwq PROPERTY INTERFACE_INCLUDE_DIRECTORIES ${FFTW_INCLUDES_SERIAL})
+	    set_property(TARGET fftw::fftwq PROPERTY INTERFACE_COMPILE_OPTIONS ${FFTW_COMPILE_OPTIONS})
+
+	    list(APPEND FFTW_ALL_IMPORTED_LIBRARIES fftw::fftwq)
+	endif()
+
+	if(FFTW_MPI_FOUND)
+	    add_library(fftw::mpi_l UNKNOWN IMPORTED)
+	    set_property(TARGET fftw::mpi_l PROPERTY IMPORTED_LOCATION ${FFTW_LIBRARY_MPI})
+	    set_property(TARGET fftw::mpi_l PROPERTY INTERFACE_INCLUDE_DIRECTORIES ${FFTW_INCLUDES_MPI})
+	    set_property(TARGET fftw::mpi_l PROPERTY INTERFACE_LINK_LIBRARIES fftw::fftwl)
+
+	    list(APPEND FFTW_ALL_IMPORTED_LIBRARIES fftw::mpi_l)
+
+	    if(FFTW_SinglePrecision_FOUND)
+		    add_library(fftw::mpi_f UNKNOWN IMPORTED)
+		    set_property(TARGET fftw::mpi_f PROPERTY IMPORTED_LOCATION ${FFTWF_LIBRARY_MPI})
+		    set_property(TARGET fftw::mpi_f PROPERTY INTERFACE_INCLUDE_DIRECTORIES ${FFTW_INCLUDES_MPI})
+		    set_property(TARGET fftw::mpi_f PROPERTY INTERFACE_LINK_LIBRARIES fftw::fftwf)
+
+		    list(APPEND FFTW_ALL_IMPORTED_LIBRARIES fftw::mpi_f)
+		endif()
+
+		if(FFTW_QuadPrecision_FOUND)
+		    add_library(fftw::mpi_q UNKNOWN IMPORTED)
+		    set_property(TARGET fftw::mpi_q PROPERTY IMPORTED_LOCATION ${FFTWQ_LIBRARY_MPI})
+		    set_property(TARGET fftw::mpi_q PROPERTY INTERFACE_INCLUDE_DIRECTORIES ${FFTW_INCLUDES_MPI})
+		    set_property(TARGET fftw::mpi_q PROPERTY INTERFACE_LINK_LIBRARIES fftw::fftwq)
+
+		    list(APPEND FFTW_ALL_IMPORTED_LIBRARIES fftw::mpi_q)
+		endif()
+
+	endif()
+
+	# add combined target
+	add_library(fftw::fftw INTERFACE IMPORTED)
+	set_property(TARGET fftw::fftw PROPERTY INTERFACE_LINK_LIBRARIES ${FFTW_ALL_IMPORTED_LIBRARIES})
+	set_property(TARGET fftw::fftw PROPERTY INTERFACE_INCLUDE_DIRECTORIES ${FFTW_INCLUDES})
+
 endif()
 
 # don't leak required libraries
