@@ -349,7 +349,7 @@ static void usage() {
 	fprintf(stderr, "\t[-p antenna_enable] # Antenna port power, 1=Enable, 0=Disable\n");
 	fprintf(stderr, "\t[-l gain_db] # RX LNA (IF) gain, 0-40dB, 8dB steps\n");
 	fprintf(stderr, "\t[-g gain_db] # RX VGA (baseband) gain, 0-62dB, 2dB steps\n");
-	fprintf(stderr, "\t[-w bin_width] # FFT bin width (frequency resolution) in Hz, 2444-5000000\n");
+	fprintf(stderr, "\t[-w bin_width] # FFT bin width (frequency resolution) in Hz, 2445-5000000\n");
 	fprintf(stderr, "\t[-1] # one shot mode\n");
 	fprintf(stderr, "\t[-N num_sweeps] # Number of sweeps to perform\n");
 	fprintf(stderr, "\t[-B] # binary output\n");
@@ -542,12 +542,15 @@ int main(int argc, char** argv) {
 
 	/*
 	 * The maximum number of FFT bins we support is equal to the number of
-	 * samples in a block. With our fixed sample rate of 20 Msps, that
-	 * results in a minimum bin width of 2444 Hz.
+	 * samples in a block. Each block consists of 16384 bytes minus 10
+	 * bytes for the frequency header, leaving room for 8187 two-byte
+	 * samples. As we pad fftSize up to the next odd multiple of four, this
+	 * makes our maximum supported fftSize 8180.  With our fixed sample
+	 * rate of 20 Msps, that results in a minimum bin width of 2445 Hz.
 	 */
-	if(8184 < fftSize) {
+	if(8180 < fftSize) {
 		fprintf(stderr,
-				"argument error: FFT bin width (-w) must be no less than 2444\n");
+				"argument error: FFT bin width (-w) must be no less than 2445\n");
 		return EXIT_FAILURE;
 	}
 
