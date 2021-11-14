@@ -171,7 +171,6 @@ volatile uint64_t sweep_count = 0;
 
 struct timeval time_start;
 struct timeval t_start;
-struct timeval time_stamp;
 
 bool amp = false;
 uint32_t amp_enable;
@@ -257,14 +256,6 @@ int rx_callback(hackrf_transfer* transfer) {
 				}
 			}
 			sweep_started = true;
-			time_stamp = usb_transfer_time;
-			time_stamp.tv_usec +=
-					(uint64_t)(num_samples + THROWAWAY_BLOCKS * SAMPLES_PER_BLOCK)
-					* j * FREQ_ONE_MHZ / DEFAULT_SAMPLE_RATE_HZ;
-			if(999999 < time_stamp.tv_usec) {
-				time_stamp.tv_sec += time_stamp.tv_usec / 1000000;
-				time_stamp.tv_usec = time_stamp.tv_usec % 1000000;
-			}
 		}
 		if(do_exit) {
 			return 0;
@@ -320,12 +311,12 @@ int rx_callback(hackrf_transfer* transfer) {
 				ifftwIn[ifft_idx + i][1] = fftwOut[i + 1 + (fftSize/8)][1];
 			}
 		} else {
-			time_t time_stamp_seconds = time_stamp.tv_sec;
+			time_t time_stamp_seconds = usb_transfer_time.tv_sec;
 			fft_time = localtime(&time_stamp_seconds);
 			strftime(time_str, 50, "%Y-%m-%d, %H:%M:%S", fft_time);
 			fprintf(outfile, "%s.%06ld, %" PRIu64 ", %" PRIu64 ", %.2f, %u",
 					time_str,
-					(long int)time_stamp.tv_usec,
+					(long int)usb_transfer_time.tv_usec,
 					(uint64_t)(frequency),
 					(uint64_t)(frequency+DEFAULT_SAMPLE_RATE_HZ/4),
 					fft_bin_width,
@@ -336,7 +327,7 @@ int rx_callback(hackrf_transfer* transfer) {
 			fprintf(outfile, "\n");
 			fprintf(outfile, "%s.%06ld, %" PRIu64 ", %" PRIu64 ", %.2f, %u",
 					time_str,
-					(long int)time_stamp.tv_usec,
+					(long int)usb_transfer_time.tv_usec,
 					(uint64_t)(frequency+(DEFAULT_SAMPLE_RATE_HZ/2)),
 					(uint64_t)(frequency+((DEFAULT_SAMPLE_RATE_HZ*3)/4)),
 					fft_bin_width,
