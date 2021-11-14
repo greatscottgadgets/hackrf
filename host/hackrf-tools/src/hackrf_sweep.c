@@ -107,7 +107,6 @@ int gettimeofday(struct timeval *tv, void* ignored) {
 	#define m_sleep(a) usleep((a*1000))
 #endif
 
-uint32_t num_samples = SAMPLES_PER_BLOCK;
 uint32_t num_sweeps = 0;
 int num_ranges = 0;
 uint16_t frequencies[MAX_SWEEP_RANGES*2];
@@ -350,7 +349,6 @@ static void usage() {
 	fprintf(stderr, "\t[-p antenna_enable] # Antenna port power, 1=Enable, 0=Disable\n");
 	fprintf(stderr, "\t[-l gain_db] # RX LNA (IF) gain, 0-40dB, 8dB steps\n");
 	fprintf(stderr, "\t[-g gain_db] # RX VGA (baseband) gain, 0-62dB, 2dB steps\n");
-	fprintf(stderr, "\t[-n num_samples] # Number of samples per frequency, 8192-4294967296\n");
 	fprintf(stderr, "\t[-w bin_width] # FFT bin width (frequency resolution) in Hz\n");
 	fprintf(stderr, "\t[-1] # one shot mode\n");
 	fprintf(stderr, "\t[-N num_sweeps] # Number of sweeps to perform\n");
@@ -449,10 +447,6 @@ int main(int argc, char** argv) {
 			result = parse_u32(optarg, &vga_gain);
 			break;
 
-		case 'n':
-			result = parse_u32(optarg, &num_samples);
-			break;
-
 		case 'N':
 			finite_mode = true;
 			result = parse_u32(optarg, &num_sweeps);
@@ -502,16 +496,6 @@ int main(int argc, char** argv) {
 
 	if (vga_gain % 2)
 		fprintf(stderr, "warning: vga_gain (-g) must be a multiple of 2\n");
-
-	if (num_samples % SAMPLES_PER_BLOCK) {
-		fprintf(stderr, "warning: num_samples (-n) must be a multiple of 8192\n");
-		return EXIT_FAILURE;
-	}
-
-	if (num_samples < SAMPLES_PER_BLOCK) {
-		fprintf(stderr, "warning: num_samples (-n) must be at least 8192\n");
-		return EXIT_FAILURE;
-	}
 
 	if( amp ) {
 		if( amp_enable > 1 ) {
@@ -665,7 +649,7 @@ int main(int argc, char** argv) {
 		ifftwPlan = fftwf_plan_dft_1d(fftSize * step_count, ifftwIn, ifftwOut, FFTW_BACKWARD, FFTW_MEASURE);
 	}
 
-	result = hackrf_init_sweep(device, frequencies, num_ranges, num_samples * 2,
+	result = hackrf_init_sweep(device, frequencies, num_ranges, BYTES_PER_BLOCK,
 			TUNE_STEP * FREQ_ONE_MHZ, OFFSET, INTERLEAVED);
 	if( result != HACKRF_SUCCESS ) {
 		fprintf(stderr, "hackrf_init_sweep() failed: %s (%d)\n",
