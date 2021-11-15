@@ -25,6 +25,7 @@ This will define the following variables:
 
 #]=======================================================================]
 
+include(CMakePushCheckState)
 include(CheckCSourceCompiles)
 
 set(CHECK_SINE_C_SOURCE "#include <math.h>
