@@ -107,7 +107,6 @@ int gettimeofday(struct timeval *tv, void* ignored) {
 	#define m_sleep(a) usleep((a*1000))
 #endif
 
-uint32_t num_samples = SAMPLES_PER_BLOCK;
 uint32_t num_sweeps = 0;
 int num_ranges = 0;
 uint16_t frequencies[MAX_SWEEP_RANGES*2];
@@ -171,7 +170,6 @@ volatile uint64_t sweep_count = 0;
 
 struct timeval time_start;
 struct timeval t_start;
-struct timeval time_stamp;
 
 bool amp = false;
 uint32_t amp_enable;
@@ -257,14 +255,6 @@ int rx_callback(hackrf_transfer* transfer) {
 				}
 			}
 			sweep_started = true;
-			time_stamp = usb_transfer_time;
-			time_stamp.tv_usec +=
-					(uint64_t)(num_samples + THROWAWAY_BLOCKS * SAMPLES_PER_BLOCK)
-					* j * FREQ_ONE_MHZ / DEFAULT_SAMPLE_RATE_HZ;
-			if(999999 < time_stamp.tv_usec) {
-				time_stamp.tv_sec += time_stamp.tv_usec / 1000000;
-				time_stamp.tv_usec = time_stamp.tv_usec % 1000000;
-			}
 		}
 		if(do_exit) {
 			return 0;
@@ -320,12 +310,12 @@ int rx_callback(hackrf_transfer* transfer) {
 				ifftwIn[ifft_idx + i][1] = fftwOut[i + 1 + (fftSize/8)][1];
 			}
 		} else {
-			time_t time_stamp_seconds = time_stamp.tv_sec;
+			time_t time_stamp_seconds = usb_transfer_time.tv_sec;
 			fft_time = localtime(&time_stamp_seconds);
 			strftime(time_str, 50, "%Y-%m-%d, %H:%M:%S", fft_time);
 			fprintf(outfile, "%s.%06ld, %" PRIu64 ", %" PRIu64 ", %.2f, %u",
 					time_str,
-					(long int)time_stamp.tv_usec,
+					(long int)usb_transfer_time.tv_usec,
 					(uint64_t)(frequency),
 					(uint64_t)(frequency+DEFAULT_SAMPLE_RATE_HZ/4),
 					fft_bin_width,
@@ -336,7 +326,7 @@ int rx_callback(hackrf_transfer* transfer) {
 			fprintf(outfile, "\n");
 			fprintf(outfile, "%s.%06ld, %" PRIu64 ", %" PRIu64 ", %.2f, %u",
 					time_str,
-					(long int)time_stamp.tv_usec,
+					(long int)usb_transfer_time.tv_usec,
 					(uint64_t)(frequency+(DEFAULT_SAMPLE_RATE_HZ/2)),
 					(uint64_t)(frequency+((DEFAULT_SAMPLE_RATE_HZ*3)/4)),
 					fft_bin_width,
@@ -359,8 +349,7 @@ static void usage() {
 	fprintf(stderr, "\t[-p antenna_enable] # Antenna port power, 1=Enable, 0=Disable\n");
 	fprintf(stderr, "\t[-l gain_db] # RX LNA (IF) gain, 0-40dB, 8dB steps\n");
 	fprintf(stderr, "\t[-g gain_db] # RX VGA (baseband) gain, 0-62dB, 2dB steps\n");
-	fprintf(stderr, "\t[-n num_samples] # Number of samples per frequency, 8192-4294967296\n");
-	fprintf(stderr, "\t[-w bin_width] # FFT bin width (frequency resolution) in Hz\n");
+	fprintf(stderr, "\t[-w bin_width] # FFT bin width (frequency resolution) in Hz, 2445-5000000\n");
 	fprintf(stderr, "\t[-1] # one shot mode\n");
 	fprintf(stderr, "\t[-N num_sweeps] # Number of sweeps to perform\n");
 	fprintf(stderr, "\t[-B] # binary output\n");
@@ -458,10 +447,6 @@ int main(int argc, char** argv) {
 			result = parse_u32(optarg, &vga_gain);
 			break;
 
-		case 'n':
-			result = parse_u32(optarg, &num_samples);
-			break;
-
 		case 'N':
 			finite_mode = true;
 			result = parse_u32(optarg, &num_sweeps);
@@ -512,16 +497,6 @@ int main(int argc, char** argv) {
 	if (vga_gain % 2)
 		fprintf(stderr, "warning: vga_gain (-g) must be a multiple of 2\n");
 
-	if (num_samples % SAMPLES_PER_BLOCK) {
-		fprintf(stderr, "warning: num_samples (-n) must be a multiple of 8192\n");
-		return EXIT_FAILURE;
-	}
-
-	if (num_samples < SAMPLES_PER_BLOCK) {
-		fprintf(stderr, "warning: num_samples (-n) must be at least 8192\n");
-		return EXIT_FAILURE;
-	}
-
 	if( amp ) {
 		if( amp_enable > 1 ) {
 			fprintf(stderr, "argument error: amp_enable shall be 0 or 1.\n");
@@ -554,15 +529,28 @@ int main(int argc, char** argv) {
 		return EXIT_FAILURE;
 	}
 
+	/*
+	 * The FFT bin width must be no more than a quarter of the sample rate
+	 * for interleaved mode. With our fixed sample rate of 20 Msps, that
+	 * results in a maximum bin width of 5000000 Hz.
+	 */
 	if(4 > fftSize) {
 		fprintf(stderr,
-				"argument error: FFT bin width (-w) must be no more than one quarter the sample rate\n");
+				"argument error: FFT bin width (-w) must be no more than 5000000\n");
 		return EXIT_FAILURE;
 	}
 
-	if(8184 < fftSize) {
+	/*
+	 * The maximum number of FFT bins we support is equal to the number of
+	 * samples in a block. Each block consists of 16384 bytes minus 10
+	 * bytes for the frequency header, leaving room for 8187 two-byte
+	 * samples. As we pad fftSize up to the next odd multiple of four, this
+	 * makes our maximum supported fftSize 8180.  With our fixed sample
+	 * rate of 20 Msps, that results in a minimum bin width of 2445 Hz.
+	 */
+	if(8180 < fftSize) {
 		fprintf(stderr,
-				"argument error: FFT bin width (-w) too small, resulted in more than 8184 FFT bins\n");
+				"argument error: FFT bin width (-w) must be no less than 2445\n");
 		return EXIT_FAILURE;
 	}
 
@@ -674,7 +662,7 @@ int main(int argc, char** argv) {
 		ifftwPlan = fftwf_plan_dft_1d(fftSize * step_count, ifftwIn, ifftwOut, FFTW_BACKWARD, FFTW_MEASURE);
 	}
 
-	result = hackrf_init_sweep(device, frequencies, num_ranges, num_samples * 2,
+	result = hackrf_init_sweep(device, frequencies, num_ranges, BYTES_PER_BLOCK,
 			TUNE_STEP * FREQ_ONE_MHZ, OFFSET, INTERLEAVED);
 	if( result != HACKRF_SUCCESS ) {
 		fprintf(stderr, "hackrf_init_sweep() failed: %s (%d)\n",
