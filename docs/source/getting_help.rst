@@ -6,6 +6,4 @@ Before asking for help with HackRF, check to see if your question is listed in t
 
 For assistance with HackRF use or development, please look at the `issues on the GitHub project <https://github.com/mossmann/hackrf/issues>`__. This is the preferred place to ask questions so that others may locate the answer to your question in the future.
 
-If you prefer email then you may use the `HackRF-dev mailing list <https://pairlist9.pair.net/mailman/listinfo/hackrf-dev>`__ instead. You can view the `list archives <https://pairlist9.pair.net/pipermail/hackrf-dev/>`__ for past discussions.
-
-Many users spend time in the `#hackrf channel on Discord <https://discord.gg/rsfMw3rsU8>`__. This channel is bridged to `#hackrf on Libera Chat <https://web.libera.chat/#hackrf>`__ for folks who are more comfortable with IRC.
+Many users spend time in the `#hackrf channel on Discord <https://discord.gg/rsfMw3rsU8>`__. 
