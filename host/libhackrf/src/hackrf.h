@@ -126,13 +126,17 @@ enum sweep_style {
 
 typedef struct hackrf_device hackrf_device;
 
+/**
+ * USB transfer information passed to RX or TX callback.
+ * A callback should treat all these fields as read-only except that a TX callback should write to the data buffer.
+ */
 typedef struct {
-	hackrf_device* device;
-	uint8_t* buffer;
-	int buffer_length;
-	int valid_length;
-	void* rx_ctx;
-	void* tx_ctx;
+	hackrf_device* device; /**< HackRF USB device for this transfer */
+	uint8_t* buffer;       /**< transfer data buffer */
+	int buffer_length;     /**< length of data buffer in bytes */
+	int valid_length;      /**< number of buffer bytes that were transferred */
+	void* rx_ctx;          /**< RX libusb context */
+	void* tx_ctx;          /**< TX libusb context */
 } hackrf_transfer;
 
 typedef struct {
