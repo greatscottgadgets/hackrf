@@ -1,4 +1,5 @@
 #!/bin/bash 
+source testing-venv/bin/activate
 usbhub power state --port 1 --reset
 sleep 1s
 hackrf_info
@@ -19,3 +20,4 @@ else
     echo "god have mercy on your soul"
     exit $EXIT_CODE
 fi
+deactivate

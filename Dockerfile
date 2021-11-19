@@ -24,7 +24,8 @@ RUN apt-get update && apt-get install -y \
     dfu-util \
     gcc-arm-none-eabi \
     python3 \
-    python3-pip
+    python3-pip \
+    python3-venv
 RUN pip3 install --upgrade capablerobot_usbhub
 
 RUN ln -s /usr/bin/python3 /usr/bin/python
