@@ -11,6 +11,9 @@ WORKDIR /home/jenkins
 
 CMD ["/bin/bash"]
 
+# override interactive installations
+ENV DEBIAN_FRONTEND=noninteractive 
+
 # Install prerequisites
 RUN apt-get update && apt-get install -y \
     build-essential \
