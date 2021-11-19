@@ -13,15 +13,15 @@ CMD ["/bin/bash"]
 
 # Install prerequisites
 RUN apt-get update && apt-get install -y \
-    install build-essential \
-    install pkg-config \
-    install libfftw3-dev \
-    install cmake \
-    install libusb-1.0-0-dev \
-    install dfu-util \
-    install gcc-arm-none-eabi \
-    install python3 \
-    install python3-pip
+    build-essential \
+    pkg-config \
+    libfftw3-dev \
+    cmake \
+    libusb-1.0-0-dev \
+    dfu-util \
+    gcc-arm-none-eabi \
+    python3 \
+    python3-pip
 RUN pip3 install --upgrade capablerobot_usbhub
 
 RUN ln -s /usr/bin/python3 /usr/bin/python
