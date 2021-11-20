@@ -9,6 +9,7 @@ Welcome to HackRF's documentation!
    hackrf_one
    opera_cake
    faq
+   troubleshooting
    getting_help
    tips_tricks
    hackrf_projects_mentions
@@ -31,8 +32,6 @@ Welcome to HackRF's documentation!
    firmware_development_setup
    LPC43XX_Debugging
    LPC43XX_SGPIO_Configuration
-   LPC43xx_USB_DFU_Notes
-   LPC43xx_USB_Implementation
 
 .. toctree::
    :maxdepth: 2

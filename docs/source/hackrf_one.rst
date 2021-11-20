@@ -83,10 +83,3 @@ The CLKIN port on HackRF One is a high impedance input that expects a 0 V to 3 V
 HackRF One uses CLKIN instead of the internal crystal when a clock signal is detected on CLKIN. The switch to or from CLKIN only happens when a transmit or receive operation begins.
 
 To verify that a signal has been detected on CLKIN, use `hackrf_debug --si5351c -n 0 -r`. The expected output with a clock detected is `[ 0] -> 0x01`. The expected output with no clock detected is `[ 0] -> 0x51`.
-
-
-
-Hardware Documentation
-~~~~~~~~~~~~~~~~~~~~~~
-
-Schematic diagram, assembly diagram,and bill of materials can be found at `https://github.com/mossmann/hackrf/tree/master/doc/hardware <https://github.com/mossmann/hackrf/tree/master/doc/hardware>`__
