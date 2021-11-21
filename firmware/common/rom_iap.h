@@ -45,7 +45,7 @@ typedef enum
 	Result 	Result0:Part Identification Number.
 			Result1:Part Identification Number.
 	Description This command is used to read the part identification number. See Table 1082 
-	“LPC43xx part identification numbers”.
+	ï¿½LPC43xx part identification numbersï¿½.
 	The command returns two words: word0 followed by word1. Word 0 corresponds 
 	to the part id and word1 indicates the flash configuration or contains 0x0 for 
 	flashless parts. 
@@ -117,5 +117,7 @@ typedef struct
 bool iap_is_implemented(void);
 
 isp_iap_ret_code_t iap_cmd_call(iap_cmd_res_t* iap_cmd_res);
+
+void write_USB_vid_pid(void);
 
 #endif//__ROM_IAP__
