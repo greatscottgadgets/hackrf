@@ -23,6 +23,7 @@
 
 #include "hackrf_core.h"
 #include "hackrf_ui.h"
+#include "sgpio.h"
 #include "si5351c.h"
 #include "spi_ssp.h"
 #include "max2837.h"
@@ -373,6 +374,12 @@ bool sample_rate_frac_set(uint32_t rate_num, uint32_t rate_denom)
 		}
 	}
 
+	bool streaming = sgpio_cpld_stream_is_enabled(&sgpio_config);
+	
+	if (streaming) {
+		sgpio_cpld_stream_disable(&sgpio_config);	
+	}
+	
 	/* Can we enable integer mode ? */
 	if (a & 0x1 || b)
 		si5351c_set_int_mode(&clock_gen, 0, 0);
@@ -392,6 +399,10 @@ bool sample_rate_frac_set(uint32_t rate_num, uint32_t rate_denom)
 
 	/* MS0/CLK2 is the source for SGPIO (CODEC_X2_CLK) */
 	si5351c_configure_multisynth(&clock_gen, 2, 0, 0, 0, 0);//p1 doesn't matter
+
+	if (streaming) {
+		sgpio_cpld_stream_enable(&sgpio_config);
+	}
 
 	return true;
 }
