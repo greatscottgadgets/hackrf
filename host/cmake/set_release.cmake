@@ -1,7 +1,7 @@
 if(NOT DEFINED RELEASE)
 	execute_process(
 	        COMMAND git log -n 1 --format=%h
-	        WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+	        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 	        RESULT_VARIABLE GIT_EXIT_VALUE
 	        ERROR_QUIET
 	        OUTPUT_VARIABLE GIT_VERSION
@@ -12,6 +12,7 @@ if(NOT DEFINED RELEASE)
 	else (GIT_EXIT_VALUE)
 		execute_process(
 			COMMAND git status -s --untracked-files=no
+			WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 			OUTPUT_VARIABLE DIRTY
 		)
 		if ( NOT "${DIRTY}" STREQUAL "" )
