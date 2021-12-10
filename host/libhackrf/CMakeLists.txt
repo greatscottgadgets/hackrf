@@ -19,8 +19,18 @@
 # Boston, MA 02110-1301, USA.
 #
 
+cmake_minimum_required(VERSION 3.8)
+# standard policies for CMake 3.8
+cmake_policy(VERSION 3.8)
+
 # Based heavily upon the libftdi cmake setup.
-project(libhackrf LANGUAGES C VERSION 0.6)
+project(libhackrf LANGUAGES C VERSION 0.6.0)
+
+# Run common init code
+# -----------------------------------------------------
+if(NOT HACKRF_HOST_INCLUDED)
+    include(../cmake/hackrf-host.cmake)
+endif()
 
 # configure definitions for library version and release
 set(PACKAGE libhackrf)

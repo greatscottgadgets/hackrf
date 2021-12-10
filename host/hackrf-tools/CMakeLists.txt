@@ -19,9 +19,18 @@
 # Boston, MA 02110-1301, USA.
 #
 
-# Based heavily upon the libftdi cmake setup.
+cmake_minimum_required(VERSION 3.8)
+# standard policies for CMake 3.8
+cmake_policy(VERSION 3.8)
 
+# Based heavily upon the libftdi cmake setup.
 project(hackrf-tools LANGUAGES C)
+
+# Run common init code
+# -----------------------------------------------------
+if(NOT HACKRF_HOST_INCLUDED)
+	include(../cmake/hackrf-host.cmake)
+endif()
 
 # configure release definition
 set(PACKAGE hackrf-tools)
@@ -33,4 +42,16 @@ if(MSVC)
 	include_directories(getopt)
 endif()
 
+# Find tools dependencies
+# -----------------------------------------------------
+
+# fftw3
+find_package(FFTW COMPONENTS SinglePrecision REQUIRED)
+
+# libm
+find_package(CMath REQUIRED)
+
+
+# Build the code
+# -----------------------------------------------------
 add_subdirectory(src)
