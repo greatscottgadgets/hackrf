@@ -124,7 +124,7 @@ if(SYSTEM_IS_LINUX)
                         ${CMAKE_CURRENT_BINARY_DIR}/53-hackrf.rules
                         @ONLY
                         )
-            message(STATUS  "HackRF udev rules will be installed to '${UDEV_RULES_PATH}' upon running 'make install'")
+            message(STATUS  "HackRF udev rules will be installed to '${UDEV_RULES_PATH}' upon running 'make install'.  To suppress this, pass -DINSTALL_UDEV_RULES=FALSE to cmake.")
             install(FILES ${CMAKE_CURRENT_BINARY_DIR}/53-hackrf.rules
                     DESTINATION ${UDEV_RULES_PATH}
                     COMPONENT "udev_rules")
