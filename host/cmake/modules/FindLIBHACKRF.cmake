@@ -32,7 +32,7 @@ FIND_PATH(LIBHACKRF_INCLUDE_DIR
   PATH_SUFFIXES libhackrf
 )
 
-set(libhackrf_library_names hackrf)
+set(libhackrf_library_names hackrf hackrf_static)
 
 FIND_LIBRARY(LIBHACKRF_LIBRARY
   NAMES ${libhackrf_library_names}

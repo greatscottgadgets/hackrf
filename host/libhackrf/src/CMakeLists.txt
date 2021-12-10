@@ -62,7 +62,7 @@ install(TARGETS hackrf
          COMPONENT sharedlibs
          )
 install(TARGETS hackrf-static
-       DESTINATION bin
+       DESTINATION lib
        COMPONENT staticlibs
        )
 install(FILES ${LIBHACKRF_HEADERS}
