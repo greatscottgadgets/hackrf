@@ -51,6 +51,15 @@ find_package(FFTW COMPONENTS SinglePrecision REQUIRED)
 # libm
 find_package(CMath REQUIRED)
 
+# if we are not building libhackrf, we need to find a preexisting one in the system.
+if(TARGET hackrf)
+	# building libhackrf at the same time, use it.
+	set(HACKRF_LIBRARY_TARGET hackrf)
+else()
+	# standalone tools build
+	find_package(LIBHACKRF REQUIRED)
+	set(HACKRF_LIBRARY_TARGET libhackrf::libhackrf)
+endif()
 
 # Build the code
 # -----------------------------------------------------

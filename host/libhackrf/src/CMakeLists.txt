@@ -58,6 +58,7 @@ target_include_directories(hackrf-static PUBLIC .)
 install(TARGETS hackrf
          RUNTIME DESTINATION bin
          LIBRARY DESTINATION lib
+         ARCHIVE DESTINATION lib
          COMPONENT sharedlibs
          )
 install(TARGETS hackrf-static
