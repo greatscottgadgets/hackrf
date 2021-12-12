@@ -294,6 +294,11 @@ uint8_t operacake_add_range(uint16_t freq_min, uint16_t freq_max, uint8_t port) 
 	return 0;
 }
 
+void operacake_clear_ranges(void)
+{
+        range_idx = 0;
+}
+
 #define FREQ_ONE_MHZ (1000000ull)
 
 uint8_t operacake_set_range(uint32_t freq_mhz) {
