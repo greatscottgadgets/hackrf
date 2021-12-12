@@ -2204,7 +2204,7 @@ int ADDCALL hackrf_get_operacake_mode(hackrf_device* device, uint8_t address, en
 	}
 }
 
-/* Set Operacake ports */
+/* Set Operacake manual mode ports. */
 int ADDCALL hackrf_set_operacake_ports(hackrf_device* device,
                                        uint8_t address,
                                        uint8_t port_a,
