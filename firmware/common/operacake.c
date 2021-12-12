@@ -264,12 +264,8 @@ uint8_t operacake_add_range(uint16_t freq_min, uint16_t freq_max, uint8_t port) 
 	ranges[range_idx].freq_min = freq_min;
 	ranges[range_idx].freq_max = freq_max;
 	ranges[range_idx].portA = port;
-	ranges[range_idx].portB = 7;
-	if(port <= OPERACAKE_PA4) {
-		ranges[range_idx].portB = range_idx+4;
-	} else {
-		ranges[range_idx].portB = OPERACAKE_PA1;
-	}
+	/* Make the B port mirror the A port. */
+	ranges[range_idx].portB = (port + 4) % 8;
 	range_idx++;
 	return 0;
 }
