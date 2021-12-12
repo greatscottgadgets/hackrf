@@ -313,6 +313,10 @@ uint8_t operacake_set_range(uint32_t freq_mhz) {
 			break;
 		}
 	}
+	/* Use the last range if there was no match. */
+	if (range == range_idx) {
+		range--;
+	}
 	if(range == current_range) {
 		return 1;
 	}
