@@ -57,9 +57,9 @@ static void usage() {
 }
 
 static struct option long_options[] = {
-	{ "device", no_argument, 0, 'd' },
-	{ "address", no_argument, 0, 'o' },
-	{ "mode", no_argument, 0, 'm' },
+	{ "device", required_argument, 0, 'd' },
+	{ "address", required_argument, 0, 'o' },
+	{ "mode", required_argument, 0, 'm' },
 	{ "list", no_argument, 0, 'l' },
 	{ "gpio_test", no_argument, 0, 'g' },
 	{ "help", no_argument, 0, 'h' },
