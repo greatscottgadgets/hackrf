@@ -74,6 +74,9 @@
 
 #define OPERACAKE_MAX_BOARDS 8
 
+#define INVALID_RANGE 0xFF;
+static uint8_t current_range = INVALID_RANGE;
+
 i2c_bus_t* const oc_bus = &i2c0;
 
 enum operacake_switching_mode {
@@ -209,6 +212,7 @@ void operacake_set_mode(uint8_t address, uint8_t mode) {
 		return;
 
 	operacake_boards[address].mode = mode;
+	current_range = INVALID_RANGE;
 
 	if (mode == MODE_TIME) {
 		// Switch Opera Cake to pin-control mode
@@ -286,11 +290,11 @@ uint8_t operacake_add_range(uint16_t freq_min, uint16_t freq_max, uint8_t port) 
 	/* Make the B port mirror the A port. */
 	ranges[range_idx].portB = (port + 4) % 8;
 	range_idx++;
+	current_range = INVALID_RANGE;
 	return 0;
 }
 
 #define FREQ_ONE_MHZ (1000000ull)
-static uint8_t current_range = 0xFF;
 
 uint8_t operacake_set_range(uint32_t freq_mhz) {
 	if(range_idx == 0) {
