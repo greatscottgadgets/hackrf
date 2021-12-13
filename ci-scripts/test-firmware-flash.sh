@@ -1,5 +1,4 @@
 #!/bin/bash
-source testing-venv/bin/activate
 hackrf_spiflash -w hackrf_usb.bin
 EXIT_CODE="$?"
 if [ "$EXIT_CODE" == "1" ]
@@ -17,4 +16,3 @@ else
     echo "god have mercy on your soul"
     exit $EXIT_CODE
 fi
-deactivate

@@ -1,5 +1,4 @@
 #!/bin/bash
-source testing-venv/bin/activate
 usbhub power state --port 2 --reset
 sleep 1s
 dfu-util --device 1fc9:000c --alt 0 --download firmware/hackrf_usb/build/hackrf_usb.dfu
@@ -20,4 +19,3 @@ else
     echo "god have mercy on your soul"
     exit $EXIT_CODE
 fi
-deactivate
