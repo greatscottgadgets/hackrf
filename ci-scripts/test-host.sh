@@ -1,7 +1,7 @@
 #!/bin/bash 
-usbhub power state --port 1 --reset
+usbhub power state --port 2 --reset
 sleep 1s
-hackrf_info
+host/build/hackrf-tools/src/hackrf_info
 EXIT_CODE="$?"
 if [ "$EXIT_CODE" == "1" ]
 then

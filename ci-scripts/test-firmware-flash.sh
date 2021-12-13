@@ -1,5 +1,5 @@
 #!/bin/bash
-hackrf_spiflash -w hackrf_usb.bin
+host/build/hackrf-tools/src/hackrf_spiflash -w firmware/hackrf_usb/build/hackrf_usb.bin
 EXIT_CODE="$?"
 if [ "$EXIT_CODE" == "1" ]
 then
