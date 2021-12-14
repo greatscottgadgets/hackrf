@@ -24,13 +24,13 @@ Port connections may be configured manually. For example, to connect A0 to A2 an
 
 .. code-block :: sh
 
-	hackrf_operacake -a A2 -b B3
+    hackrf_operacake -a A2 -b B3
 
 To connect A0 to B2 and B0 to A4:
 
 .. code-block :: sh
 
-	hackrf_operacake -a B2 -b A4
+    hackrf_operacake -a B2 -b A4
 
 If only one primary port is configured, the other primary port will be connected to the first secondary port on the opposite side. For example, after the next two commands B0 will be connected to A1:
 
@@ -147,13 +147,13 @@ In time mode, the A0 port connection switches automatically over time, counted i
 
 To cycle through four ports, one port every 1000 samples:
 
-.. code-block ::
+.. code-block :: sh
 
 	hackrf_operacake -m time -t A1:1000 -t A2:1000 -t A3:1000 -t A4:1000
 
 When the duration on multiple ports is the same, the ``-w`` option can be used to set the default dwell time:
 
-.. code-block ::
+.. code-block :: sh
 
 	hackrf_operacake --mode time -w 1000 -t A1 -t A2 -t A3 -t A4
 

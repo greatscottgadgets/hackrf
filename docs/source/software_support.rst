@@ -1,11 +1,11 @@
 ================================================
-Software Support
+HackRF Compatible Software
 ================================================
 
 Software with HackRF Support
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-This is intended to be a list of software known to work with the HackRF. There are three sections, GNU Radio Based software, those that have support directly, and those that can work with data from the HackRF.
+This is intended to be a list of software known to work with the HackRF. There are three sections, GNU Radio Based software, those that have direct support, and those that can work with data from the HackRF.
 
 
 

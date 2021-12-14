@@ -20,6 +20,9 @@ Thumbs.db
 *.sublime-workspace
 .vscode*
 
+# Documentation Stuff
+docs/build/
+
 # Xilinx tools create an enormous amount of poop:
 firmware/cpld/**/isim/
 firmware/cpld/**/_ngo/

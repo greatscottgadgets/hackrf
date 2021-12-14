@@ -5,6 +5,38 @@ FAQ
 ================================================
 
 
+What is the Transmit Power of HackRF?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+HackRF One's absolute maximum TX power varies by operating frequency:
+
+    * 1 MHz to 10 MHz: 5 dBm to 15 dBm, generally increasing as frequency increases (see this `blog post <https://greatscottgadgets.com/2015/05-15-hackrf-one-at-1-mhz/>`__)
+    * 10 MHz to 2150 MHz: 5 dBm to 15 dBm, generally decreasing as frequency increases
+    * 2150 MHz to 2750 MHz: 13 dBm to 15 dBm
+    * 2750 MHz to 4000 MHz: 0 dBm to 5 dBm, decreasing as frequency increases
+    * 4000 MHz to 6000 MHz: -10 dBm to 0 dBm, generally decreasing as frequency increases
+
+Through most of the frequency range up to 4 GHz, the maximum TX power is between 0 and 10 dBm. The frequency range with best performance is 2150 MHz to 2750 MHz.
+
+Overall, the output power is enough to perform over-the-air experiments at close range or to drive an external amplifier. If you connect an external amplifier, you should also use an external bandpass filter for your operating frequency.
+
+Before you transmit, know your laws. HackRF One has not been tested for compliance with regulations governing transmission of radio signals. You are responsible for using your HackRF One legally.
+
+
+----
+
+
+What is the Receive Power of HackRF?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The maximum RX power of HackRF One is -5 dBm. Exceeding -5 dBm can result in permanent damage!
+
+In theory, HackRF One can safely accept up to 10 dBm with the front-end RX amplifier disabled. However, a simple software or user error could enable the amplifier, resulting in permanent damage. It is better to use an external attenuator than to risk damage.
+
+
+----
+
+
 What is the minimum signal power level that can be detected by HackRF?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -40,6 +72,15 @@ How could the HackRF One design be changed to make it full-duplex?
 The HackRF One hardware design is actually full-duplex (at lower sample rates) from the USB connection through the ADC/DAC. The RF section is the only part of the design that cannot support full-duplex operation. The easiest way to make HackRF One full-duplex would be to create an add-on board that duplicates the RF section and also provides an external power input (from a wall wart, for example) for the additional power required. This would also require software effort; the firmware, CPLD, libhackrf, and other host software would all need work to support full-duplex operation.
 
 If you were to try to redesign the RF section on HackRF One to support full-duplex, the main thing to focus on would be the MAX2837 (intermediate frequency transceiver). This part is half-duplex, so you would either need two of them or you would have to redesign the RF section to use something other than the MAX2837, likely resulting in a radically different design. If you used two MAX2837s you might be able to use one RFFC5071 instead of two RFFC5072s.
+
+
+----
+
+
+Are those connectors SMA or RP-SMA?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Some connectors that appear to be SMA are actually RP-SMA. If you connect an RP-SMA antenna to HackRF One, it will seem to connect snugly but won't function at all because neither the male nor female side has a center pin. RP-SMA connectors are most common on 2.4 GHz antennas and are popular on Wi-Fi equipment. Adapters are available.
 
 
 ----
