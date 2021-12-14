@@ -1,7 +1,7 @@
 #!/bin/bash
 usbhub power state --port 2 --reset
 sleep 1s
-dfu-util --device 1fc9:000c --alt 0 --download firmware/hackrf_usb/build/hackrf_usb.dfu
+dfu-util --path 1-3.2 --alt 0 --download firmware/hackrf_usb/build/hackrf_usb.dfu
 EXIT_CODE="$?"
 if [ "$EXIT_CODE" == "0" ]
 then
