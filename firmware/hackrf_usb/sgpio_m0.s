@@ -179,17 +179,17 @@ loop:
 
 direction_tx:
 
-	ldm buf_ptr!, {r0-r5}                                                                   // 7
+	ldm buf_ptr!, {r0-r3}                                                                   // 5
 	str r0, [sgpio_data, #SLICE0]                                                           // 8
 	str r1, [sgpio_data, #SLICE1]                                                           // 8
 	str r2, [sgpio_data, #SLICE2]                                                           // 8
 	str r3, [sgpio_data, #SLICE3]                                                           // 8
-	str r4, [sgpio_data, #SLICE4]                                                           // 8
-	str r5, [sgpio_data, #SLICE5]                                                           // 8
 
-	ldm buf_ptr!, {r0-r1}                                                                   // 3
-	str r0, [sgpio_data, #SLICE6]                                                           // 8
-	str r1, [sgpio_data, #SLICE7]                                                           // 8
+	ldm buf_ptr!, {r0-r3}                                                                   // 5
+	str r0, [sgpio_data, #SLICE4]                                                           // 8
+	str r1, [sgpio_data, #SLICE5]                                                           // 8
+	str r2, [sgpio_data, #SLICE6]                                                           // 8
+	str r3, [sgpio_data, #SLICE7]                                                           // 8
 
 	b done                                                                                  // 3
 
@@ -199,13 +199,13 @@ direction_rx:
 	ldr r1, [sgpio_data, #SLICE1]                                                           // 10
 	ldr r2, [sgpio_data, #SLICE2]                                                           // 10
 	ldr r3, [sgpio_data, #SLICE3]                                                           // 10
-	ldr r4, [sgpio_data, #SLICE4]                                                           // 10
-	ldr r5, [sgpio_data, #SLICE5]                                                           // 10
-	stm buf_ptr!, {r0-r5}                                                                   // 7
+	stm buf_ptr!, {r0-r3}                                                                   // 5
 
-	ldr r0, [sgpio_data, #SLICE6]                                                           // 10
-	ldr r1, [sgpio_data, #SLICE7]                                                           // 10
-	stm buf_ptr!, {r0-r1}                                                                   // 3
+	ldr r0, [sgpio_data, #SLICE4]                                                           // 10
+	ldr r1, [sgpio_data, #SLICE5]                                                           // 10
+	ldr r2, [sgpio_data, #SLICE6]                                                           // 10
+	ldr r3, [sgpio_data, #SLICE7]                                                           // 10
+	stm buf_ptr!, {r0-r3}                                                                   // 5
 
 done:
 
