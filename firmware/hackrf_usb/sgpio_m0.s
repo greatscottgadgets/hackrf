@@ -66,8 +66,8 @@ shadow registers.
 
 There are two key code paths, with the following worst-case timings:
 
-RX:             151 cycles
-TX:             136 cycles
+RX:             149 cycles
+TX:             134 cycles
 
 Design
 ======
@@ -120,6 +120,8 @@ registers and fixed memory addresses.
 
 /* Allocations of single-use registers */
 
+buf_base          .req r12
+buf_mask          .req r11
 sgpio_data        .req r7
 sgpio_int         .req r6
 buf_ptr           .req r5
@@ -134,6 +136,10 @@ main:                                                                           
 	// Initialise registers used for constant values.
 	ldr sgpio_int, =SGPIO_EXCHANGE_INTERRUPT_BASE                                           // 2
 	ldr sgpio_data, =SGPIO_SHADOW_REGISTERS_BASE                                            // 2
+	ldr r0, =TARGET_DATA_BUFFER                                                             // 2
+	mov buf_base, r0                                                                        // 1
+	ldr r0, =TARGET_BUFFER_MASK                                                             // 2
+	mov buf_mask, r0                                                                        // 1
 loop:
 	// The worst case timing is assumed to occur when reading the interrupt
 	// status register *just* misses the flag being set - so we include the
@@ -164,7 +170,7 @@ loop:
 	str r1, [sgpio_int, #INT_CLEAR]                                                         // 8
 
 	// ... and grab the address of the buffer segment we want to write to / read from.
-	ldr r0, =TARGET_DATA_BUFFER       // r0 = &buffer                                       // 2
+	mov r0, buf_base                  // r0 = &buffer                                       // 1
 	ldr r3, =TARGET_BUFFER_POSITION   // r3 = &position_in_buffer                           // 2
 	ldr r2, [r3]                      // r2 = position_in_buffer                            // 2
 	add buf_ptr, r0, r2               // buf_ptr = &buffer + position_in_buffer             // 1
@@ -212,7 +218,7 @@ direction_rx:
 done:
 
 	// Finally, update the buffer location...
-	ldr r0, =TARGET_BUFFER_MASK                                                             // 2
+	mov r0, buf_mask                                                                        // 1
 	and r0, buf_ptr, r0    // r0 = (pos_in_buffer + size_copied) % buffer_size              // 1
 
 	// ... restore &position_in_buffer, and store the new position there...
