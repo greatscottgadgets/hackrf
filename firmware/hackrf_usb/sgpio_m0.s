@@ -150,6 +150,12 @@ main:                                                                           
 	ldr value, =STATE_BASE                                                                  // 2
 	mov state, value                                                                        // 1
 
+	// Initialise state.
+	zero .req r0
+	mov zero, #0                                                                            // 1
+	str zero, [state, #OFFSET]                                                              // 2
+	str zero, [state, #TX]                                                                  // 2
+
 loop:
 	// The worst case timing is assumed to occur when reading the interrupt
 	// status register *just* misses the flag being set - so we include the
