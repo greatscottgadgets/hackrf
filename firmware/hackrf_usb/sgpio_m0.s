@@ -66,8 +66,8 @@ shadow registers.
 
 There are two key code paths, with the following worst-case timings:
 
-RX:             143 cycles
-TX:             128 cycles
+RX:             141 cycles
+TX:             126 cycles
 
 Design
 ======
@@ -169,14 +169,13 @@ loop:
 	ldr r0, [sgpio_int, #INT_STATUS]                                                        // 10, twice
 
 	// ... check to see if bit #0 (slice A) was set, by shifting it into the carry bit...
-	lsr r0, #1                                                                              // 1, twice
+	lsr r1, r0, #1                                                                          // 1, twice
 
 	// ... and if not, jump back to the beginning.
 	bcc loop                                                                                // 3, then 1
 
-	// Clear the interrupt pending bits for the SGPIO slices we're working with.
-	ldr r1, =0xffff                                                                         // 2
-	str r1, [sgpio_int, #INT_CLEAR]                                                         // 8
+	// Clear the interrupt pending bits that were set.
+	str r0, [sgpio_int, #INT_CLEAR]                                                         // 8
 
 	// ... and grab the address of the buffer segment we want to write to / read from.
 	mov r0, buf_base                  // r0 = &buffer                                       // 1
