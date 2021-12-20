@@ -90,10 +90,8 @@ registers and fixed memory addresses.
 */
 
 // Constants that point to registers we'll need to modify in the SGPIO block.
-.equ SGPIO_REGISTER_BLOCK_BASE,            0x40101000
 .equ SGPIO_SHADOW_REGISTERS_BASE,          0x40101100
 .equ SGPIO_EXCHANGE_INTERRUPT_BASE,        0x40101F00
-.equ SGPIO_GPIO_INPUT,                     0x40101210
 
 // Offsets into the interrupt control registers.
 .equ INT_CLEAR,                            0x30
