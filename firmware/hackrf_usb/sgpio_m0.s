@@ -66,8 +66,8 @@ shadow registers.
 
 There are two key code paths, with the following worst-case timings:
 
-RX:             141 cycles
-TX:             126 cycles
+RX:             140 cycles
+TX:             125 cycles
 
 Design
 ======
@@ -178,9 +178,8 @@ loop:
 	str r0, [sgpio_int, #INT_CLEAR]                                                         // 8
 
 	// ... and grab the address of the buffer segment we want to write to / read from.
-	mov r0, buf_base                  // r0 = &buffer                                       // 1
-	ldr r2, [state, #OFFSET]          // r2 = position_in_buffer                            // 2
-	add buf_ptr, r0, r2               // buf_ptr = &buffer + position_in_buffer             // 1
+	ldr buf_ptr, [state, #OFFSET]     // buf_ptr = position_in_buffer                       // 2
+	add buf_ptr, buf_base             // buf_ptr = &buffer + position_in_buffer             // 1
 
 	// Load direction (TX or RX)
 	ldr r0, [state, #TX]                                                                    // 2
