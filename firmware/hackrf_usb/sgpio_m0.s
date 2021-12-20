@@ -140,14 +140,15 @@ buf_ptr           .req r5
 .thumb_func
 main:                                                                                           // Cycle counts:
 	// Initialise registers used for constant values.
+	value .req r0
 	ldr sgpio_int, =SGPIO_EXCHANGE_INTERRUPT_BASE                                           // 2
 	ldr sgpio_data, =SGPIO_SHADOW_REGISTERS_BASE                                            // 2
-	ldr r0, =TARGET_DATA_BUFFER                                                             // 2
-	mov buf_base, r0                                                                        // 1
-	ldr r0, =TARGET_BUFFER_MASK                                                             // 2
-	mov buf_mask, r0                                                                        // 1
-	ldr r0, =STATE_BASE                                                                     // 2
-	mov state, r0                                                                           // 1
+	ldr value, =TARGET_DATA_BUFFER                                                          // 2
+	mov buf_base, value                                                                     // 1
+	ldr value, =TARGET_BUFFER_MASK                                                          // 2
+	mov buf_mask, value                                                                     // 1
+	ldr value, =STATE_BASE                                                                  // 2
+	mov state, value                                                                        // 1
 
 loop:
 	// The worst case timing is assumed to occur when reading the interrupt
@@ -164,28 +165,33 @@ loop:
 	// relying on any assumptions about the timing details of a read over
 	// the SGPIO to AHB bridge.
 
+	int_status .req r0
+	scratch .req r1
+
 	// Spin until we're ready to handle an SGPIO packet:
 	// Grab the exchange interrupt staus...
-	ldr r0, [sgpio_int, #INT_STATUS]                                                        // 10, twice
+	ldr int_status, [sgpio_int, #INT_STATUS]                                                // 10, twice
 
 	// ... check to see if bit #0 (slice A) was set, by shifting it into the carry bit...
-	lsr r1, r0, #1                                                                          // 1, twice
+	lsr scratch, int_status, #1                                                             // 1, twice
 
 	// ... and if not, jump back to the beginning.
 	bcc loop                                                                                // 3, then 1
 
 	// Clear the interrupt pending bits that were set.
-	str r0, [sgpio_int, #INT_CLEAR]                                                         // 8
+	str int_status, [sgpio_int, #INT_CLEAR]                                                 // 8
 
 	// ... and grab the address of the buffer segment we want to write to / read from.
 	ldr buf_ptr, [state, #OFFSET]     // buf_ptr = position_in_buffer                       // 2
 	add buf_ptr, buf_base             // buf_ptr = &buffer + position_in_buffer             // 1
 
+	tx .req r0
+
 	// Load direction (TX or RX)
-	ldr r0, [state, #TX]                                                                    // 2
+	ldr tx, [state, #TX]                                                                    // 2
 
 	// TX?
-	lsr r0, #1                                                                              // 1
+	lsr tx, #1                                                                              // 1
 	bcc direction_rx                                                                        // 1 thru, 3 taken
 
 direction_tx:
@@ -219,12 +225,13 @@ direction_rx:
 	stm buf_ptr!, {r0-r3}                                                                   // 5
 
 done:
+	offset .req r0
 
 	// Finally, update the buffer location...
-	mov r0, buf_mask                                                                        // 1
-	and r0, buf_ptr, r0    // r0 = (pos_in_buffer + size_copied) % buffer_size              // 1
+	mov offset, buf_mask                                                                    // 1
+	and offset, buf_ptr          // offset = (pos_in_buffer + size_copied) % buffer_size    // 1
 
 	// ... and store the new position.
-	str r0, [state, #OFFSET] // pos_in_buffer = (pos_in_buffer + size_copied) % buffer_size // 2
+	str offset, [state, #OFFSET]                                                            // 2
 
 	b loop                                                                                  // 3
