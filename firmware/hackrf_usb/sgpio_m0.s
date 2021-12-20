@@ -66,8 +66,8 @@ shadow registers.
 
 There are two key code paths, with the following worst-case timings:
 
-RX:             159 cycles
-TX:             144 cycles
+RX:             157 cycles
+TX:             142 cycles
 
 Design
 ======
@@ -128,6 +128,9 @@ buf_ptr           .req r6
 .global main
 .thumb_func
 main:                                                                                           // Cycle counts:
+	// Grab the base address of the SGPIO shadow registers...
+	ldr sgpio_data, =SGPIO_SHADOW_REGISTERS_BASE                                            // 2
+loop:
 	// The worst case timing is assumed to occur when reading the interrupt
 	// status register *just* misses the flag being set - so we include the
 	// cycles required to check it a second time.
@@ -151,15 +154,12 @@ main:                                                                           
 	lsr r0, #1                                                                              // 1, twice
 
 	// ... and if not, jump back to the beginning.
-	bcc main                                                                                // 3, then 1
+	bcc loop                                                                                // 3, then 1
 
 	// Clear the interrupt pending bits for the SGPIO slices we're working with.
 	ldr r0, =SGPIO_EXCHANGE_INTERRUPT_CLEAR_REG                                             // 2
 	ldr r1, =0xffff                                                                         // 2
 	str r1, [r0]                                                                            // 8
-
-	// Grab the base address of the SGPIO shadow registers...
-	ldr sgpio_data, =SGPIO_SHADOW_REGISTERS_BASE                                            // 2
 
 	// ... and grab the address of the buffer segment we want to write to / read from.
 	ldr r0, =TARGET_DATA_BUFFER       // r0 = &buffer                                       // 2
@@ -217,4 +217,4 @@ done:
 	mov r1, r8                                                                              // 1
 	str r0, [r1]           // pos_in_buffer = (pos_in_buffer + size_copied) % buffer_size   // 2
 
-	b main                                                                                  // 3
+	b loop                                                                                  // 3
