@@ -103,6 +103,19 @@ registers and fixed memory addresses.
 .equ TARGET_BUFFER_TX,                     0x20007004
 .equ TARGET_BUFFER_MASK,                   0x7fff
 
+// Our slice chain is set up as follows (ascending data age; arrows are reversed for flow):
+//     L  -> F  -> K  -> C -> J  -> E  -> I  -> A
+// Which has equivalent shadow register offsets:
+//     44 -> 20 -> 40 -> 8 -> 36 -> 16 -> 32 -> 0
+.equ SLICE0,                               44
+.equ SLICE1,                               20
+.equ SLICE2,                               40
+.equ SLICE3,                               8
+.equ SLICE4,                               36
+.equ SLICE5,                               16
+.equ SLICE6,                               32
+.equ SLICE7,                               0
+
 // Entry point. At this point, the libopencm3 startup code has set things up as
 // normal; .data and .bss are initialised, the stack is set up, etc.  However,
 // we don't actually use any of that.  All the code in this file would work
@@ -151,11 +164,6 @@ main:                                                                           
 
 	mov r8, r3                        // Store &position_in_buffer.                         // 1
 
-	// Our slice chain is set up as follows (ascending data age; arrows are reversed for flow):
-	//     L  -> F  -> K  -> C -> J  -> E  -> I  -> A
-	// Which has equivalent shadow register offsets:
-	//     44 -> 20 -> 40 -> 8 -> 36 -> 16 -> 32 -> 0
-
 	// Load direction (TX or RX)
 	ldr r0, =TARGET_BUFFER_TX                                                               // 2
 	ldr r0, [r0]                                                                            // 2
@@ -167,31 +175,31 @@ main:                                                                           
 direction_tx:
 
 	ldm r6!, {r0-r5}                                                                        // 7
-	str r0,  [r7, #44]                                                                      // 8
-	str r1,  [r7, #20]                                                                      // 8
-	str r2,  [r7, #40]                                                                      // 8
-	str r3,  [r7, #8 ]                                                                      // 8
-	str r4,  [r7, #36]                                                                      // 8
-	str r5,  [r7, #16]                                                                      // 8
+	str r0, [r7, #SLICE0]                                                                   // 8
+	str r1, [r7, #SLICE1]                                                                   // 8
+	str r2, [r7, #SLICE2]                                                                   // 8
+	str r3, [r7, #SLICE3]                                                                   // 8
+	str r4, [r7, #SLICE4]                                                                   // 8
+	str r5, [r7, #SLICE5]                                                                   // 8
 
 	ldm r6!, {r0-r1}                                                                        // 3
-	str r0,  [r7, #32]                                                                      // 8
-	str r1,  [r7, #0]                                                                       // 8
+	str r0, [r7, #SLICE6]                                                                   // 8
+	str r1, [r7, #SLICE7]                                                                   // 8
 
 	b done                                                                                  // 3
 
 direction_rx:
 
-	ldr r0,  [r7, #44]                                                                      // 10
-	ldr r1,  [r7, #20]                                                                      // 10
-	ldr r2,  [r7, #40]                                                                      // 10
-	ldr r3,  [r7, #8 ]                                                                      // 10
-	ldr r4,  [r7, #36]                                                                      // 10
-	ldr r5,  [r7, #16]                                                                      // 10
+	ldr r0, [r7, #SLICE0]                                                                   // 10
+	ldr r1, [r7, #SLICE1]                                                                   // 10
+	ldr r2, [r7, #SLICE2]                                                                   // 10
+	ldr r3, [r7, #SLICE3]                                                                   // 10
+	ldr r4, [r7, #SLICE4]                                                                   // 10
+	ldr r5, [r7, #SLICE5]                                                                   // 10
 	stm r6!, {r0-r5}                                                                        // 7
 
-	ldr r0,  [r7, #32]                                                                      // 10
-	ldr r1,  [r7, #0]                                                                       // 10
+	ldr r0, [r7, #SLICE6]                                                                   // 10
+	ldr r1, [r7, #SLICE7]                                                                   // 10
 	stm r6!, {r0-r1}                                                                        // 3
 
 done:
