@@ -66,8 +66,8 @@ shadow registers.
 
 There are two key code paths, with the following worst-case timings:
 
-RX:             149 cycles
-TX:             134 cycles
+RX:             143 cycles
+TX:             128 cycles
 
 Design
 ======
@@ -101,9 +101,14 @@ registers and fixed memory addresses.
 
 // Buffer that we're funneling data to/from.
 .equ TARGET_DATA_BUFFER,                   0x20008000
-.equ TARGET_BUFFER_POSITION,               0x20007000
-.equ TARGET_BUFFER_TX,                     0x20007004
 .equ TARGET_BUFFER_MASK,                   0x7fff
+
+// Base address of the state structure.
+.equ STATE_BASE,                           0x20007000
+
+// Offsets into the state structure.
+.equ OFFSET,                               0x00
+.equ TX,                                   0x04
 
 // Our slice chain is set up as follows (ascending data age; arrows are reversed for flow):
 //     L  -> F  -> K  -> C -> J  -> E  -> I  -> A
@@ -120,6 +125,7 @@ registers and fixed memory addresses.
 
 /* Allocations of single-use registers */
 
+state             .req r13
 buf_base          .req r12
 buf_mask          .req r11
 sgpio_data        .req r7
@@ -140,6 +146,9 @@ main:                                                                           
 	mov buf_base, r0                                                                        // 1
 	ldr r0, =TARGET_BUFFER_MASK                                                             // 2
 	mov buf_mask, r0                                                                        // 1
+	ldr r0, =STATE_BASE                                                                     // 2
+	mov state, r0                                                                           // 1
+
 loop:
 	// The worst case timing is assumed to occur when reading the interrupt
 	// status register *just* misses the flag being set - so we include the
@@ -171,15 +180,11 @@ loop:
 
 	// ... and grab the address of the buffer segment we want to write to / read from.
 	mov r0, buf_base                  // r0 = &buffer                                       // 1
-	ldr r3, =TARGET_BUFFER_POSITION   // r3 = &position_in_buffer                           // 2
-	ldr r2, [r3]                      // r2 = position_in_buffer                            // 2
+	ldr r2, [state, #OFFSET]          // r2 = position_in_buffer                            // 2
 	add buf_ptr, r0, r2               // buf_ptr = &buffer + position_in_buffer             // 1
 
-	mov r8, r3                        // Store &position_in_buffer.                         // 1
-
 	// Load direction (TX or RX)
-	ldr r0, =TARGET_BUFFER_TX                                                               // 2
-	ldr r0, [r0]                                                                            // 2
+	ldr r0, [state, #TX]                                                                    // 2
 
 	// TX?
 	lsr r0, #1                                                                              // 1
@@ -221,8 +226,7 @@ done:
 	mov r0, buf_mask                                                                        // 1
 	and r0, buf_ptr, r0    // r0 = (pos_in_buffer + size_copied) % buffer_size              // 1
 
-	// ... restore &position_in_buffer, and store the new position there...
-	mov r1, r8                                                                              // 1
-	str r0, [r1]           // pos_in_buffer = (pos_in_buffer + size_copied) % buffer_size   // 2
+	// ... and store the new position.
+	str r0, [state, #OFFSET] // pos_in_buffer = (pos_in_buffer + size_copied) % buffer_size // 2
 
 	b loop                                                                                  // 3
