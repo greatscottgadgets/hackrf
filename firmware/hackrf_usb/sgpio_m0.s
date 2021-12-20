@@ -66,8 +66,8 @@ shadow registers.
 
 There are two key code paths, with the following worst-case timings:
 
-RX:             157 cycles
-TX:             142 cycles
+RX:             151 cycles
+TX:             136 cycles
 
 Design
 ======
@@ -92,10 +92,12 @@ registers and fixed memory addresses.
 // Constants that point to registers we'll need to modify in the SGPIO block.
 .equ SGPIO_REGISTER_BLOCK_BASE,            0x40101000
 .equ SGPIO_SHADOW_REGISTERS_BASE,          0x40101100
-.equ SGPIO_EXCHANGE_INTERRUPT_CLEAR_REG,   0x40101F30
-.equ SGPIO_EXCHANGE_INTERRUPT_STATUS_REG,  0x40101F2C
+.equ SGPIO_EXCHANGE_INTERRUPT_BASE,        0x40101F00
 .equ SGPIO_GPIO_INPUT,                     0x40101210
 
+// Offsets into the interrupt control registers.
+.equ INT_CLEAR,                            0x30
+.equ INT_STATUS,                           0x2C
 
 // Buffer that we're funneling data to/from.
 .equ TARGET_DATA_BUFFER,                   0x20008000
@@ -119,7 +121,8 @@ registers and fixed memory addresses.
 /* Allocations of single-use registers */
 
 sgpio_data        .req r7
-buf_ptr           .req r6
+sgpio_int         .req r6
+buf_ptr           .req r5
 
 // Entry point. At this point, the libopencm3 startup code has set things up as
 // normal; .data and .bss are initialised, the stack is set up, etc.  However,
@@ -128,7 +131,8 @@ buf_ptr           .req r6
 .global main
 .thumb_func
 main:                                                                                           // Cycle counts:
-	// Grab the base address of the SGPIO shadow registers...
+	// Initialise registers used for constant values.
+	ldr sgpio_int, =SGPIO_EXCHANGE_INTERRUPT_BASE                                           // 2
 	ldr sgpio_data, =SGPIO_SHADOW_REGISTERS_BASE                                            // 2
 loop:
 	// The worst case timing is assumed to occur when reading the interrupt
@@ -147,8 +151,7 @@ loop:
 
 	// Spin until we're ready to handle an SGPIO packet:
 	// Grab the exchange interrupt staus...
-	ldr r0, =SGPIO_EXCHANGE_INTERRUPT_STATUS_REG                                            // 2, twice
-	ldr r0, [r0]                                                                            // 10, twice
+	ldr r0, [sgpio_int, #INT_STATUS]                                                        // 10, twice
 
 	// ... check to see if it has any interrupt bits set...
 	lsr r0, #1                                                                              // 1, twice
@@ -157,9 +160,8 @@ loop:
 	bcc loop                                                                                // 3, then 1
 
 	// Clear the interrupt pending bits for the SGPIO slices we're working with.
-	ldr r0, =SGPIO_EXCHANGE_INTERRUPT_CLEAR_REG                                             // 2
 	ldr r1, =0xffff                                                                         // 2
-	str r1, [r0]                                                                            // 8
+	str r1, [sgpio_int, #INT_CLEAR]                                                         // 8
 
 	// ... and grab the address of the buffer segment we want to write to / read from.
 	ldr r0, =TARGET_DATA_BUFFER       // r0 = &buffer                                       // 2
