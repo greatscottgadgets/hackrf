@@ -1,6 +1,5 @@
 /*
- * Copyright 2012 Jared Boone
- * Copyright 2013 Benjamin Vernoux
+ * Copyright 2022 Great Scott Gadgets
  *
  * This file is part of HackRF.
  *
@@ -20,16 +19,18 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __USB_BULK_BUFFER_H__
-#define __USB_BULK_BUFFER_H__
+#ifndef __M0_STATE_H__
+#define __M0_STATE_H__
 
-#include <stdbool.h>
-#include <stdint.h>
+struct m0_state {
+	uint32_t offset;
+	uint32_t tx;
+};
 
-/* Address of usb_bulk_buffer is set in ldscripts. If you change the name of this
+/* Address of m0_state is set in ldscripts. If you change the name of this
  * variable, it won't be where it needs to be in the processor's address space,
  * unless you also adjust the ldscripts.
  */
-extern uint8_t usb_bulk_buffer[32768];
+extern volatile struct m0_state m0_state;
 
-#endif/*__USB_BULK_BUFFER_H__*/
+#endif/*__M0_STATE_H__*/
