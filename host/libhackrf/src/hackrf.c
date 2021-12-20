@@ -92,6 +92,7 @@ typedef enum {
 	HACKRF_VENDOR_REQUEST_OPERACAKE_SET_MODE = 38,
 	HACKRF_VENDOR_REQUEST_OPERACAKE_GET_MODE = 39,
 	HACKRF_VENDOR_REQUEST_OPERACAKE_SET_DWELL_TIMES = 40,
+	HACKRF_VENDOR_REQUEST_GET_M0_STATE = 41,
 } hackrf_vendor_request;
 
 #define USB_CONFIG_STANDARD 0x1
@@ -999,6 +1000,31 @@ int ADDCALL hackrf_rffc5071_write(hackrf_device* device, uint8_t register_number
 	);
 
 	if( result != 0 )
+	{
+		last_libusb_error = result;
+		return HACKRF_ERROR_LIBUSB;
+	} else {
+		return HACKRF_SUCCESS;
+	}
+}
+
+int ADDCALL hackrf_get_m0_state(hackrf_device* device, hackrf_m0_state* state)
+{
+	USB_API_REQUIRED(device, 0x0106)
+	int result;
+
+	result = libusb_control_transfer(
+		device->usb_device,
+		LIBUSB_ENDPOINT_IN | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_GET_M0_STATE,
+		0,
+		0,
+		(unsigned char*)state,
+		sizeof(hackrf_m0_state),
+		0
+	);
+
+	if( result < sizeof(hackrf_m0_state) )
 	{
 		last_libusb_error = result;
 		return HACKRF_ERROR_LIBUSB;

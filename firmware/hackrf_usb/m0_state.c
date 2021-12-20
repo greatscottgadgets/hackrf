@@ -19,24 +19,26 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __M0_STATE_H__
-#define __M0_STATE_H__
+#include "m0_state.h"
 
-#include <stdint.h>
+#include <stddef.h>
 #include <usb_request.h>
-
-struct m0_state {
-	uint32_t offset;
-	uint32_t tx;
-};
-
-/* Address of m0_state is set in ldscripts. If you change the name of this
- * variable, it won't be where it needs to be in the processor's address space,
- * unless you also adjust the ldscripts.
- */
-extern volatile struct m0_state m0_state;
+#include <usb_queue.h>
 
 usb_request_status_t usb_vendor_request_get_m0_state(
-	usb_endpoint_t* const endpoint,	const usb_transfer_stage_t stage);
-
-#endif/*__M0_STATE_H__*/
+	usb_endpoint_t* const endpoint,
+	const usb_transfer_stage_t stage
+) {
+	if( stage == USB_TRANSFER_STAGE_SETUP )
+	{
+		usb_transfer_schedule_block(
+			endpoint->in,
+			(void*) &m0_state,
+			sizeof(m0_state),
+			NULL, NULL);
+		usb_transfer_schedule_ack(endpoint->out);
+		return USB_REQUEST_STATUS_OK;
+	} else {
+		return USB_REQUEST_STATUS_OK;
+	}
+}

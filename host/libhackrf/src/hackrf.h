@@ -155,6 +155,14 @@ typedef struct {
 	uint8_t port;
 } hackrf_operacake_freq_range;
 
+/** State of the SGPIO loop running on the M0 core. */
+typedef struct {
+	/** Current offset in the buffer. */
+	uint32_t offset;
+	/** TX flag. */
+	uint32_t tx;
+} hackrf_m0_state;
+
 struct hackrf_device_list {
 	char **serial_numbers;
 	enum hackrf_usb_board_id *usb_board_ids;
@@ -192,6 +200,8 @@ extern ADDAPI int ADDCALL hackrf_stop_rx(hackrf_device* device);
  
 extern ADDAPI int ADDCALL hackrf_start_tx(hackrf_device* device, hackrf_sample_block_cb_fn callback, void* tx_ctx);
 extern ADDAPI int ADDCALL hackrf_stop_tx(hackrf_device* device);
+
+extern ADDAPI int ADDCALL hackrf_get_m0_state(hackrf_device* device, hackrf_m0_state* value);
 
 /* return HACKRF_TRUE if success */
 extern ADDAPI int ADDCALL hackrf_is_streaming(hackrf_device* device);
