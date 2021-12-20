@@ -116,6 +116,11 @@ registers and fixed memory addresses.
 .equ SLICE6,                               32
 .equ SLICE7,                               0
 
+/* Allocations of single-use registers */
+
+sgpio_data        .req r7
+buf_ptr           .req r6
+
 // Entry point. At this point, the libopencm3 startup code has set things up as
 // normal; .data and .bss are initialised, the stack is set up, etc.  However,
 // we don't actually use any of that.  All the code in this file would work
@@ -154,13 +159,13 @@ main:                                                                           
 	str r1, [r0]                                                                            // 8
 
 	// Grab the base address of the SGPIO shadow registers...
-	ldr r7, =SGPIO_SHADOW_REGISTERS_BASE                                                    // 2
+	ldr sgpio_data, =SGPIO_SHADOW_REGISTERS_BASE                                            // 2
 
 	// ... and grab the address of the buffer segment we want to write to / read from.
 	ldr r0, =TARGET_DATA_BUFFER       // r0 = &buffer                                       // 2
 	ldr r3, =TARGET_BUFFER_POSITION   // r3 = &position_in_buffer                           // 2
 	ldr r2, [r3]                      // r2 = position_in_buffer                            // 2
-	add r6, r0, r2                    // r6 = buffer_target = &buffer + position_in_buffer  // 1
+	add buf_ptr, r0, r2               // buf_ptr = &buffer + position_in_buffer             // 1
 
 	mov r8, r3                        // Store &position_in_buffer.                         // 1
 
@@ -174,39 +179,39 @@ main:                                                                           
 
 direction_tx:
 
-	ldm r6!, {r0-r5}                                                                        // 7
-	str r0, [r7, #SLICE0]                                                                   // 8
-	str r1, [r7, #SLICE1]                                                                   // 8
-	str r2, [r7, #SLICE2]                                                                   // 8
-	str r3, [r7, #SLICE3]                                                                   // 8
-	str r4, [r7, #SLICE4]                                                                   // 8
-	str r5, [r7, #SLICE5]                                                                   // 8
+	ldm buf_ptr!, {r0-r5}                                                                   // 7
+	str r0, [sgpio_data, #SLICE0]                                                           // 8
+	str r1, [sgpio_data, #SLICE1]                                                           // 8
+	str r2, [sgpio_data, #SLICE2]                                                           // 8
+	str r3, [sgpio_data, #SLICE3]                                                           // 8
+	str r4, [sgpio_data, #SLICE4]                                                           // 8
+	str r5, [sgpio_data, #SLICE5]                                                           // 8
 
-	ldm r6!, {r0-r1}                                                                        // 3
-	str r0, [r7, #SLICE6]                                                                   // 8
-	str r1, [r7, #SLICE7]                                                                   // 8
+	ldm buf_ptr!, {r0-r1}                                                                   // 3
+	str r0, [sgpio_data, #SLICE6]                                                           // 8
+	str r1, [sgpio_data, #SLICE7]                                                           // 8
 
 	b done                                                                                  // 3
 
 direction_rx:
 
-	ldr r0, [r7, #SLICE0]                                                                   // 10
-	ldr r1, [r7, #SLICE1]                                                                   // 10
-	ldr r2, [r7, #SLICE2]                                                                   // 10
-	ldr r3, [r7, #SLICE3]                                                                   // 10
-	ldr r4, [r7, #SLICE4]                                                                   // 10
-	ldr r5, [r7, #SLICE5]                                                                   // 10
-	stm r6!, {r0-r5}                                                                        // 7
+	ldr r0, [sgpio_data, #SLICE0]                                                           // 10
+	ldr r1, [sgpio_data, #SLICE1]                                                           // 10
+	ldr r2, [sgpio_data, #SLICE2]                                                           // 10
+	ldr r3, [sgpio_data, #SLICE3]                                                           // 10
+	ldr r4, [sgpio_data, #SLICE4]                                                           // 10
+	ldr r5, [sgpio_data, #SLICE5]                                                           // 10
+	stm buf_ptr!, {r0-r5}                                                                   // 7
 
-	ldr r0, [r7, #SLICE6]                                                                   // 10
-	ldr r1, [r7, #SLICE7]                                                                   // 10
-	stm r6!, {r0-r1}                                                                        // 3
+	ldr r0, [sgpio_data, #SLICE6]                                                           // 10
+	ldr r1, [sgpio_data, #SLICE7]                                                           // 10
+	stm buf_ptr!, {r0-r1}                                                                   // 3
 
 done:
 
 	// Finally, update the buffer location...
 	ldr r0, =TARGET_BUFFER_MASK                                                             // 2
-	and r0, r6, r0         // r0 = (pos_in_buffer + size_copied) % buffer_size              // 1
+	and r0, buf_ptr, r0    // r0 = (pos_in_buffer + size_copied) % buffer_size              // 1
 
 	// ... restore &position_in_buffer, and store the new position there...
 	mov r1, r8                                                                              // 1
