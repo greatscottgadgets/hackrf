@@ -239,3 +239,6 @@ done:
 	str offset, [state, #OFFSET]                    // state.offset = offset                // 2
 
 	b loop                                          // goto loop                            // 3
+
+// The linker will put a literal pool here, so add a label for clearer objdump output:
+constants:
