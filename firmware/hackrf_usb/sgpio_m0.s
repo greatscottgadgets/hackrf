@@ -139,20 +139,20 @@ buf_ptr           .req r5
 main:                                                                                           // Cycle counts:
 	// Initialise registers used for constant values.
 	value .req r0
-	ldr sgpio_int, =SGPIO_EXCHANGE_INTERRUPT_BASE                                           // 2
-	ldr sgpio_data, =SGPIO_SHADOW_REGISTERS_BASE                                            // 2
-	ldr value, =TARGET_DATA_BUFFER                                                          // 2
-	mov buf_base, value                                                                     // 1
-	ldr value, =TARGET_BUFFER_MASK                                                          // 2
-	mov buf_mask, value                                                                     // 1
-	ldr value, =STATE_BASE                                                                  // 2
-	mov state, value                                                                        // 1
+	ldr sgpio_int, =SGPIO_EXCHANGE_INTERRUPT_BASE   // sgpio_int = SGPIO_INT_BASE           // 2
+	ldr sgpio_data, =SGPIO_SHADOW_REGISTERS_BASE    // sgpio_data = SGPIO_REG_SS            // 2
+	ldr value, =TARGET_DATA_BUFFER                  // value = TARGET_DATA_BUFFER           // 2
+	mov buf_base, value                             // buf_base = value                     // 1
+	ldr value, =TARGET_BUFFER_MASK                  // value = TARGET_DATA_MASK             // 2
+	mov buf_mask, value                             // buf_mask = value                     // 1
+	ldr value, =STATE_BASE                          // value = STATE_BASE                   // 2
+	mov state, value                                // state = value                        // 1
 
 	// Initialise state.
 	zero .req r0
-	mov zero, #0                                                                            // 1
-	str zero, [state, #OFFSET]                                                              // 2
-	str zero, [state, #TX]                                                                  // 2
+	mov zero, #0                                    // zero = 0                             // 1
+	str zero, [state, #OFFSET]                      // state.offset = zero                  // 2
+	str zero, [state, #TX]                          // state.tx = zero                      // 2
 
 loop:
 	// The worst case timing is assumed to occur when reading the interrupt
@@ -174,68 +174,68 @@ loop:
 
 	// Spin until we're ready to handle an SGPIO packet:
 	// Grab the exchange interrupt staus...
-	ldr int_status, [sgpio_int, #INT_STATUS]                                                // 10, twice
+	ldr int_status, [sgpio_int, #INT_STATUS]        // int_status = SGPIO_STATUS_1          // 10, twice
 
 	// ... check to see if bit #0 (slice A) was set, by shifting it into the carry bit...
-	lsr scratch, int_status, #1                                                             // 1, twice
+	lsr scratch, int_status, #1                     // scratch = int_status >> 1            // 1, twice
 
 	// ... and if not, jump back to the beginning.
-	bcc loop                                                                                // 3, then 1
+	bcc loop                                        // if !carry: goto loop                 // 3, then 1
 
 	// Clear the interrupt pending bits that were set.
-	str int_status, [sgpio_int, #INT_CLEAR]                                                 // 8
+	str int_status, [sgpio_int, #INT_CLEAR]         // SGPIO_CLR_STATUS_1 = int_status      // 8
 
 	// ... and grab the address of the buffer segment we want to write to / read from.
-	ldr buf_ptr, [state, #OFFSET]     // buf_ptr = position_in_buffer                       // 2
-	add buf_ptr, buf_base             // buf_ptr = &buffer + position_in_buffer             // 1
+	ldr buf_ptr, [state, #OFFSET]                   // buf_ptr = state.offset               // 2
+	add buf_ptr, buf_base                           // buf_ptr += buf_base                  // 1
 
 	tx .req r0
 
 	// Load direction (TX or RX)
-	ldr tx, [state, #TX]                                                                    // 2
+	ldr tx, [state, #TX]                            // tx = state.tx                        // 2
 
 	// TX?
-	lsr tx, #1                                                                              // 1
-	bcc direction_rx                                                                        // 1 thru, 3 taken
+	lsr tx, #1                                      // tx >>= 1                             // 1
+	bcc direction_rx                                // if !carry: goto direction_rx         // 1 thru, 3 taken
 
 direction_tx:
 
-	ldm buf_ptr!, {r0-r3}                                                                   // 5
-	str r0, [sgpio_data, #SLICE0]                                                           // 8
-	str r1, [sgpio_data, #SLICE1]                                                           // 8
-	str r2, [sgpio_data, #SLICE2]                                                           // 8
-	str r3, [sgpio_data, #SLICE3]                                                           // 8
+	ldm buf_ptr!, {r0-r3}                           // r0-r3 = buf_ptr[0:16]; buf_ptr += 16 // 5
+	str r0, [sgpio_data, #SLICE0]                   // SGPIO_REG_SS[SLICE0] = r0            // 8
+	str r1, [sgpio_data, #SLICE1]                   // SGPIO_REG_SS[SLICE1] = r1            // 8
+	str r2, [sgpio_data, #SLICE2]                   // SGPIO_REG_SS[SLICE2] = r2            // 8
+	str r3, [sgpio_data, #SLICE3]                   // SGPIO_REG_SS[SLICE3] = r3            // 8
 
-	ldm buf_ptr!, {r0-r3}                                                                   // 5
-	str r0, [sgpio_data, #SLICE4]                                                           // 8
-	str r1, [sgpio_data, #SLICE5]                                                           // 8
-	str r2, [sgpio_data, #SLICE6]                                                           // 8
-	str r3, [sgpio_data, #SLICE7]                                                           // 8
+	ldm buf_ptr!, {r0-r3}                           // r0-r3 = buf_ptr[0:16]; buf_ptr += 16 // 5
+	str r0, [sgpio_data, #SLICE4]                   // SGPIO_REG_SS[SLICE4] = r0            // 8
+	str r1, [sgpio_data, #SLICE5]                   // SGPIO_REG_SS[SLICE5] = r1            // 8
+	str r2, [sgpio_data, #SLICE6]                   // SGPIO_REG_SS[SLICE6] = r2            // 8
+	str r3, [sgpio_data, #SLICE7]                   // SGPIO_REG_SS[SLICE7] = r3            // 8
 
-	b done                                                                                  // 3
+	b done                                          // goto done                            // 3
 
 direction_rx:
 
-	ldr r0, [sgpio_data, #SLICE0]                                                           // 10
-	ldr r1, [sgpio_data, #SLICE1]                                                           // 10
-	ldr r2, [sgpio_data, #SLICE2]                                                           // 10
-	ldr r3, [sgpio_data, #SLICE3]                                                           // 10
-	stm buf_ptr!, {r0-r3}                                                                   // 5
+	ldr r0, [sgpio_data, #SLICE0]                   // r0 = SGPIO_REG_SS[SLICE0]            // 10
+	ldr r1, [sgpio_data, #SLICE1]                   // r1 = SGPIO_REG_SS[SLICE1]            // 10
+	ldr r2, [sgpio_data, #SLICE2]                   // r2 = SGPIO_REG_SS[SLICE2]            // 10
+	ldr r3, [sgpio_data, #SLICE3]                   // r3 = SGPIO_REG_SS[SLICE3]            // 10
+	stm buf_ptr!, {r0-r3}                           // buf_ptr[0:16] = r0-r3; buf_ptr += 16 // 5
 
-	ldr r0, [sgpio_data, #SLICE4]                                                           // 10
-	ldr r1, [sgpio_data, #SLICE5]                                                           // 10
-	ldr r2, [sgpio_data, #SLICE6]                                                           // 10
-	ldr r3, [sgpio_data, #SLICE7]                                                           // 10
-	stm buf_ptr!, {r0-r3}                                                                   // 5
+	ldr r0, [sgpio_data, #SLICE4]                   // r0 = SGPIO_REG_SS[SLICE4]            // 10
+	ldr r1, [sgpio_data, #SLICE5]                   // r1 = SGPIO_REG_SS[SLICE5]            // 10
+	ldr r2, [sgpio_data, #SLICE6]                   // r2 = SGPIO_REG_SS[SLICE6]            // 10
+	ldr r3, [sgpio_data, #SLICE7]                   // r3 = SGPIO_REG_SS[SLICE7]            // 10
+	stm buf_ptr!, {r0-r3}                           // buf_ptr[0:16] = r0-r3; buf_ptr += 16 // 5
 
 done:
 	offset .req r0
 
 	// Finally, update the buffer location...
-	mov offset, buf_mask                                                                    // 1
-	and offset, buf_ptr          // offset = (pos_in_buffer + size_copied) % buffer_size    // 1
+	mov offset, buf_mask                            // offset = buf_mask                    // 1
+	and offset, buf_ptr                             // offset &= buf_ptr                    // 1
 
 	// ... and store the new position.
-	str offset, [state, #OFFSET]                                                            // 2
+	str offset, [state, #OFFSET]                    // state.offset = offset                // 2
 
-	b loop                                                                                  // 3
+	b loop                                          // goto loop                            // 3
