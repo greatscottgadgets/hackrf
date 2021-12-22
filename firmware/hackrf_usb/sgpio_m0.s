@@ -64,10 +64,12 @@ These latencies are assumed to apply to all accesses to the SGPIO peripheral's
 address space, which includes its interrupt control registers as well as the
 shadow registers.
 
-There are two key code paths, with the following worst-case timings:
+There are four key code paths, with the following worst-case timings:
 
-RX:             141 cycles
-TX:             126 cycles
+RX, normal:     146 cycles
+RX, overrun:    52 cycles
+TX, normal:     131 cycles
+TX, underrun:   118 cycles
 
 Design
 ======
@@ -99,6 +101,7 @@ registers and fixed memory addresses.
 
 // Buffer that we're funneling data to/from.
 .equ TARGET_DATA_BUFFER,                   0x20008000
+.equ TARGET_BUFFER_SIZE,                   0x8000
 .equ TARGET_BUFFER_MASK,                   0x7fff
 
 // Base address of the state structure.
@@ -124,6 +127,7 @@ registers and fixed memory addresses.
 
 /* Allocations of single-use registers */
 
+buf_size_minus_32 .req r14
 state             .req r13
 buf_base          .req r12
 buf_mask          .req r11
@@ -143,6 +147,8 @@ main:                                                                           
 	value .req r0
 	ldr sgpio_int, =SGPIO_EXCHANGE_INTERRUPT_BASE   // sgpio_int = SGPIO_INT_BASE           // 2
 	ldr sgpio_data, =SGPIO_SHADOW_REGISTERS_BASE    // sgpio_data = SGPIO_REG_SS            // 2
+	ldr value, =(TARGET_BUFFER_SIZE - 32)           // value = TARGET_BUFFER_SIZE - 32      // 2
+	mov buf_size_minus_32, value                    // buf_size_minus_32 = value            // 1
 	ldr value, =TARGET_DATA_BUFFER                  // value = TARGET_DATA_BUFFER           // 2
 	mov buf_base, value                             // buf_base = value                     // 1
 	ldr value, =TARGET_BUFFER_MASK                  // value = TARGET_DATA_MASK             // 2
@@ -205,12 +211,27 @@ loop:
 
 direction_tx:
 
+	// Check if there is enough data in the buffer.
+	//
+	// The number of bytes in the buffer is given by (m4_count - m0_count).
+	// We need 32 bytes available to proceed. So our margin, which we want
+	// to be positive or zero, is:
+	//
+	// buf_margin = m4_count - m0_count - 32
+	//
+	// If there is insufficient data, transmit zeros instead.
+	buf_margin .req r0
+	ldr buf_margin, [state, #M4_COUNT]              // buf_margin = m4_count                // 2
+	sub buf_margin, count                           // buf_margin -= count                  // 1
+	sub buf_margin, #32                             // buf_margin -= 32                     // 1
+	bmi tx_zeros                                    // if buf_margin < 0: goto tx_zeros     // 1 thru, 3 taken
+
+	// Write data to SGPIO.
 	ldm buf_ptr!, {r0-r3}                           // r0-r3 = buf_ptr[0:16]; buf_ptr += 16 // 5
 	str r0, [sgpio_data, #SLICE0]                   // SGPIO_REG_SS[SLICE0] = r0            // 8
 	str r1, [sgpio_data, #SLICE1]                   // SGPIO_REG_SS[SLICE1] = r1            // 8
 	str r2, [sgpio_data, #SLICE2]                   // SGPIO_REG_SS[SLICE2] = r2            // 8
 	str r3, [sgpio_data, #SLICE3]                   // SGPIO_REG_SS[SLICE3] = r3            // 8
-
 	ldm buf_ptr!, {r0-r3}                           // r0-r3 = buf_ptr[0:16]; buf_ptr += 16 // 5
 	str r0, [sgpio_data, #SLICE4]                   // SGPIO_REG_SS[SLICE4] = r0            // 8
 	str r1, [sgpio_data, #SLICE5]                   // SGPIO_REG_SS[SLICE5] = r1            // 8
@@ -219,14 +240,48 @@ direction_tx:
 
 	b done                                          // goto done                            // 3
 
+tx_zeros:
+
+	// Write zeros to SGPIO.
+	mov zero, #0                                    // zero = 0                             // 1
+	str zero, [sgpio_data, #SLICE0]                 // SGPIO_REG_SS[SLICE0] = zero          // 8
+	str zero, [sgpio_data, #SLICE1]                 // SGPIO_REG_SS[SLICE1] = zero          // 8
+	str zero, [sgpio_data, #SLICE2]                 // SGPIO_REG_SS[SLICE2] = zero          // 8
+	str zero, [sgpio_data, #SLICE3]                 // SGPIO_REG_SS[SLICE3] = zero          // 8
+	str zero, [sgpio_data, #SLICE4]                 // SGPIO_REG_SS[SLICE4] = zero          // 8
+	str zero, [sgpio_data, #SLICE5]                 // SGPIO_REG_SS[SLICE5] = zero          // 8
+	str zero, [sgpio_data, #SLICE6]                 // SGPIO_REG_SS[SLICE6] = zero          // 8
+	str zero, [sgpio_data, #SLICE7]                 // SGPIO_REG_SS[SLICE7] = zero          // 8
+
+	b loop                                          // goto loop                            // 3
+
 direction_rx:
 
+	// Check if there is enough space in the buffer.
+	//
+	// The number of bytes in the buffer is given by (m0_count - m4_count).
+	// We need space for another 32 bytes to proceed. So our margin, which
+	// we want to be positive or zero, is:
+	//
+	// buf_margin = buf_size - (m0_count - state.m4_count) - 32
+	//
+	// which can be rearranged for efficiency as:
+	//
+	// buf_margin = m4_count + (buf_size - 32) - m0_count
+	//
+	// If there is insufficient space, jump back to the start of the loop.
+	buf_margin .req r0
+	ldr buf_margin, [state, #M4_COUNT]              // buf_margin = state.m4_count          // 2
+	add buf_margin, buf_size_minus_32               // buf_margin += buf_size_minus_32      // 1
+	sub buf_margin, count                           // buf_margin -= count                  // 1
+	bmi loop                                        // if buf_margin < 0: goto loop         // 1 thru, 3 taken
+
+	// Read data from SGPIO.
 	ldr r0, [sgpio_data, #SLICE0]                   // r0 = SGPIO_REG_SS[SLICE0]            // 10
 	ldr r1, [sgpio_data, #SLICE1]                   // r1 = SGPIO_REG_SS[SLICE1]            // 10
 	ldr r2, [sgpio_data, #SLICE2]                   // r2 = SGPIO_REG_SS[SLICE2]            // 10
 	ldr r3, [sgpio_data, #SLICE3]                   // r3 = SGPIO_REG_SS[SLICE3]            // 10
 	stm buf_ptr!, {r0-r3}                           // buf_ptr[0:16] = r0-r3; buf_ptr += 16 // 5
-
 	ldr r0, [sgpio_data, #SLICE4]                   // r0 = SGPIO_REG_SS[SLICE4]            // 10
 	ldr r1, [sgpio_data, #SLICE5]                   // r1 = SGPIO_REG_SS[SLICE5]            // 10
 	ldr r2, [sgpio_data, #SLICE6]                   // r2 = SGPIO_REG_SS[SLICE6]            // 10
