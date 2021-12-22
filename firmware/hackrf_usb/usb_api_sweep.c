@@ -101,8 +101,9 @@ void sweep_mode(uint32_t seq) {
 	baseband_streaming_enable(&sgpio_config);
 
 	while (transceiver_request.seq == seq) {
+		uint32_t m0_offset = m0_state.m0_count & USB_BULK_BUFFER_MASK;
 		// Set up IN transfer of buffer 0.
-		if ( m0_state.offset >= 16384 && phase == 1) {
+		if ( m0_offset >= 16384 && phase == 1) {
 			transfer = true;
 			buffer = &usb_bulk_buffer[0x0000];
 			phase = 0;
@@ -110,7 +111,7 @@ void sweep_mode(uint32_t seq) {
 		}
 
 		// Set up IN transfer of buffer 1.
-		if ( m0_state.offset < 16384 && phase == 0) {
+		if ( m0_offset < 16384 && phase == 0) {
 			transfer = true;
 			buffer = &usb_bulk_buffer[0x4000];
 			phase = 1;

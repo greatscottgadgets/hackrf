@@ -296,7 +296,7 @@ void transceiver_startup(const transceiver_mode_t mode) {
 
 	activate_best_clock_source();
 	hw_sync_enable(_hw_sync_mode);
-	m0_state.offset = 0;
+	m0_state.m0_count = 0;
 }
 
 usb_request_status_t usb_vendor_request_set_transceiver_mode(
@@ -342,8 +342,9 @@ void rx_mode(uint32_t seq) {
 	baseband_streaming_enable(&sgpio_config);
 
 	while (transceiver_request.seq == seq) {
+		uint32_t m0_offset = m0_state.m0_count & USB_BULK_BUFFER_MASK;
 		// Set up IN transfer of buffer 0.
-		if (16384 <= m0_state.offset && 1 == phase) {
+		if (16384 <= m0_offset && 1 == phase) {
 			usb_transfer_schedule_block(
 				&usb_endpoint_bulk_in,
 				&usb_bulk_buffer[0x0000],
@@ -353,7 +354,7 @@ void rx_mode(uint32_t seq) {
 			phase = 0;
 		}
 		// Set up IN transfer of buffer 1.
-		if (16384 > m0_state.offset && 0 == phase) {
+		if (16384 > m0_offset && 0 == phase) {
 			usb_transfer_schedule_block(
 				&usb_endpoint_bulk_in,
 				&usb_bulk_buffer[0x4000],
@@ -384,8 +385,9 @@ void tx_mode(uint32_t seq) {
 	baseband_streaming_enable(&sgpio_config);
 
 	while (transceiver_request.seq == seq) {
+		uint32_t m0_offset = m0_state.m0_count & USB_BULK_BUFFER_MASK;
 		// Set up OUT transfer of buffer 0.
-		if (16384 <= m0_state.offset && 1 == phase) {
+		if (16384 <= m0_offset && 1 == phase) {
 			usb_transfer_schedule_block(
 				&usb_endpoint_bulk_out,
 				&usb_bulk_buffer[0x0000],
@@ -395,7 +397,7 @@ void tx_mode(uint32_t seq) {
 			phase = 0;
 		}
 		// Set up OUT transfer of buffer 1.
-		if (16384 > m0_state.offset && 0 == phase) {
+		if (16384 > m0_offset && 0 == phase) {
 			usb_transfer_schedule_block(
 				&usb_endpoint_bulk_out,
 				&usb_bulk_buffer[0x4000],

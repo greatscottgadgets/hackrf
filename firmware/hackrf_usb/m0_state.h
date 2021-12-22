@@ -26,7 +26,7 @@
 #include <usb_request.h>
 
 struct m0_state {
-	uint32_t offset;
+	uint32_t m0_count;
 	uint32_t tx;
 };
 

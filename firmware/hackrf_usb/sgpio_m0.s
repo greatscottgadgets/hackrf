@@ -66,8 +66,8 @@ shadow registers.
 
 There are two key code paths, with the following worst-case timings:
 
-RX:             140 cycles
-TX:             125 cycles
+RX:             141 cycles
+TX:             126 cycles
 
 Design
 ======
@@ -105,7 +105,7 @@ registers and fixed memory addresses.
 .equ STATE_BASE,                           0x20007000
 
 // Offsets into the state structure.
-.equ OFFSET,                               0x00
+.equ M0_COUNT,                             0x00
 .equ TX,                                   0x04
 
 // Our slice chain is set up as follows (ascending data age; arrows are reversed for flow):
@@ -128,7 +128,8 @@ buf_base          .req r12
 buf_mask          .req r11
 sgpio_data        .req r7
 sgpio_int         .req r6
-buf_ptr           .req r5
+count             .req r5
+buf_ptr           .req r4
 
 // Entry point. At this point, the libopencm3 startup code has set things up as
 // normal; .data and .bss are initialised, the stack is set up, etc.  However,
@@ -151,7 +152,7 @@ main:                                                                           
 	// Initialise state.
 	zero .req r0
 	mov zero, #0                                    // zero = 0                             // 1
-	str zero, [state, #OFFSET]                      // state.offset = zero                  // 2
+	str zero, [state, #M0_COUNT]                    // state.m0_count = zero                // 2
 	str zero, [state, #TX]                          // state.tx = zero                      // 2
 
 loop:
@@ -186,7 +187,9 @@ loop:
 	str int_status, [sgpio_int, #INT_CLEAR]         // SGPIO_CLR_STATUS_1 = int_status      // 8
 
 	// ... and grab the address of the buffer segment we want to write to / read from.
-	ldr buf_ptr, [state, #OFFSET]                   // buf_ptr = state.offset               // 2
+	ldr count, [state, #M0_COUNT]                   // count = state.m0_count               // 2
+	mov buf_ptr, buf_mask                           // buf_ptr = buf_mask                   // 1
+	and buf_ptr, count                              // buf_ptr &= count                     // 1
 	add buf_ptr, buf_base                           // buf_ptr += buf_base                  // 1
 
 	tx .req r0
@@ -229,14 +232,11 @@ direction_rx:
 	stm buf_ptr!, {r0-r3}                           // buf_ptr[0:16] = r0-r3; buf_ptr += 16 // 5
 
 done:
-	offset .req r0
+	// Finally, update the count...
+	add count, #32                                  // count += 32                          // 1
 
-	// Finally, update the buffer location...
-	mov offset, buf_mask                            // offset = buf_mask                    // 1
-	and offset, buf_ptr                             // offset &= buf_ptr                    // 1
-
-	// ... and store the new position.
-	str offset, [state, #OFFSET]                    // state.offset = offset                // 2
+	// ... and store the new count.
+	str count, [state, #M0_COUNT]                   // state.m0_count = count               // 2
 
 	b loop                                          // goto loop                            // 3
 

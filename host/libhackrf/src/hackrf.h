@@ -157,8 +157,8 @@ typedef struct {
 
 /** State of the SGPIO loop running on the M0 core. */
 typedef struct {
-	/** Current offset in the buffer. */
-	uint32_t offset;
+	/** Number of bytes transferred by the M0. */
+	uint32_t m0_count;
 	/** TX flag. */
 	uint32_t tx;
 } hackrf_m0_state;
