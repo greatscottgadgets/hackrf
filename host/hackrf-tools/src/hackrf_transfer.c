@@ -121,6 +121,11 @@ typedef enum {
 	HW_SYNC_MODE_ON = 1,
 } hw_sync_mode_t;
 
+typedef struct {
+	uint64_t m0_total;
+	uint64_t m4_total;
+} stats_t;
+
 /* WAVE or RIFF WAVE file format containing IQ 2x8bits data for HackRF compatible with SDR# Wav IQ file */
 typedef struct 
 {
@@ -505,6 +510,42 @@ int tx_callback(hackrf_transfer* transfer) {
     }
 }
 
+static int update_stats(hackrf_device *device, hackrf_m0_state *state, stats_t *stats)
+{
+	int result = hackrf_get_m0_state(device, state);
+
+	if (result == HACKRF_SUCCESS) {
+		/*
+		 * Update 64-bit running totals, to handle wrapping of the 32-bit fields
+		 * for M0 and M4 byte counts.
+		 *
+		 * The logic for handling wrapping works as follows:
+		 *
+		 * If a 32-bit count read from the HackRF is less than the lower 32 bits of
+		 * the previous 64-bit running total, this indicates the 32-bit counter has
+		 * wrapped since it was last read. Add 2^32 to the 64-bit total to account
+		 * for this.
+		 *
+		 * Then, having accounted for the possible wrap, mask off the bottom 32
+		 * bits of the 64-bit total, and replace them with the new 32-bit count.
+		 *
+		 * This should result in correct results as long as the 32-bit counter
+		 * cannot wrap more than once between reads.
+		 *
+		 * We read the M0 state every second, and the counters will wrap every 107
+		 * seconds at 20Msps, so this should be a safe assumption.
+		 */
+		if (state->m0_count < (stats->m0_total & 0xFFFFFFFF))
+			stats->m0_total += 0x100000000;
+		if (state->m4_count < (stats->m4_total & 0xFFFFFFFF))
+			stats->m4_total += 0x100000000;
+		stats->m0_total = (stats->m0_total & 0xFFFFFFFF00000000) | state->m0_count;
+		stats->m4_total = (stats->m4_total & 0xFFFFFFFF00000000) | state->m4_count;
+	}
+
+	return result;
+}
+
 static void usage() {
 	printf("Usage:\n");
 	printf("\t-h # this help\n");
@@ -582,6 +623,8 @@ int main(int argc, char** argv) {
 	struct timeval t_end;
 	float time_diff;
 	unsigned int lna_gain=8, vga_gain=20, txvga_gain=0;
+	hackrf_m0_state state;
+	stats_t stats = {0, 0};
   
 	while( (opt = getopt(argc, argv, "H:wr:t:f:i:o:m:a:p:s:n:b:l:g:x:c:d:C:RS:Bh?")) != EOF )
 	{
@@ -1112,8 +1155,7 @@ int main(int argc, char** argv) {
 			    );
 			    if (display_stats) {
 				    bool tx = transmit || signalsource;
-				    hackrf_m0_state state;
-				    result = hackrf_get_m0_state(device, &state);
+				    result = update_stats(device, &state, &stats);
 				    if (result != HACKRF_SUCCESS)
 					    fprintf(stderr, "\nhackrf_get_m0_state() failed: %s (%d)\n", hackrf_error_name(result), result);
 				    else
@@ -1163,6 +1205,20 @@ int main(int argc, char** argv) {
 				fprintf(stderr, "hackrf_stop_tx() failed: %s (%d)\n", hackrf_error_name(result), result);
 			}else {
 				fprintf(stderr, "hackrf_stop_tx() done\n");
+			}
+		}
+
+		if (display_stats) {
+			result = update_stats(device, &state, &stats);
+			if (result != HACKRF_SUCCESS) {
+				fprintf(stderr, "hackrf_get_m0_state() failed: %s (%d)\n", hackrf_error_name(result), result);
+			} else {
+				fprintf(stderr,
+					"Transfer statistics:\n"
+					"%lu bytes transferred by M0\n"
+					"%lu bytes transferred by M4\n",
+					stats.m0_total,
+					stats.m4_total);
 			}
 		}
 
