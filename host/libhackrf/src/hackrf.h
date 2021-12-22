@@ -159,6 +159,8 @@ typedef struct {
 typedef struct {
 	/** Number of bytes transferred by the M0. */
 	uint32_t m0_count;
+	/** Number of bytes transferred by the M4. */
+	uint32_t m4_count;
 	/** TX flag. */
 	uint32_t tx;
 } hackrf_m0_state;

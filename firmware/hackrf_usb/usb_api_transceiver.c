@@ -297,6 +297,7 @@ void transceiver_startup(const transceiver_mode_t mode) {
 	activate_best_clock_source();
 	hw_sync_enable(_hw_sync_mode);
 	m0_state.m0_count = 0;
+	m0_state.m4_count = 0;
 }
 
 usb_request_status_t usb_vendor_request_set_transceiver_mode(
@@ -334,6 +335,12 @@ usb_request_status_t usb_vendor_request_set_hw_sync_mode(
 	}
 }
 
+void transceiver_bulk_transfer_complete(void *user_data, unsigned int bytes_transferred)
+{
+	(void) user_data;
+	m0_state.m4_count += bytes_transferred;
+}
+
 void rx_mode(uint32_t seq) {
 	unsigned int phase = 1;
 
@@ -349,7 +356,8 @@ void rx_mode(uint32_t seq) {
 				&usb_endpoint_bulk_in,
 				&usb_bulk_buffer[0x0000],
 				0x4000,
-				NULL, NULL
+				transceiver_bulk_transfer_complete,
+				NULL
 				);
 			phase = 0;
 		}
@@ -359,7 +367,8 @@ void rx_mode(uint32_t seq) {
 				&usb_endpoint_bulk_in,
 				&usb_bulk_buffer[0x4000],
 				0x4000,
-				NULL, NULL
+				transceiver_bulk_transfer_complete,
+				NULL
 				);
 			phase = 1;
 		}
@@ -374,12 +383,15 @@ void tx_mode(uint32_t seq) {
 	transceiver_startup(TRANSCEIVER_MODE_TX);
 
 	memset(&usb_bulk_buffer[0x0000], 0, 0x8000);
+	// Account for having filled buffer 0.
+	m0_state.m4_count += 0x4000;
 	// Set up OUT transfer of buffer 1.
 	usb_transfer_schedule_block(
 		&usb_endpoint_bulk_out,
 		&usb_bulk_buffer[0x4000],
 		0x4000,
-		NULL, NULL
+		transceiver_bulk_transfer_complete,
+		NULL
 		);
 	// Start transmitting zeros while the host fills buffer 1.
 	baseband_streaming_enable(&sgpio_config);
@@ -392,7 +404,8 @@ void tx_mode(uint32_t seq) {
 				&usb_endpoint_bulk_out,
 				&usb_bulk_buffer[0x0000],
 				0x4000,
-				NULL, NULL
+				transceiver_bulk_transfer_complete,
+				NULL
 				);
 			phase = 0;
 		}
@@ -402,7 +415,8 @@ void tx_mode(uint32_t seq) {
 				&usb_endpoint_bulk_out,
 				&usb_bulk_buffer[0x4000],
 				0x4000,
-				NULL, NULL
+				transceiver_bulk_transfer_complete,
+				NULL
 				);
 			phase = 1;
 		}

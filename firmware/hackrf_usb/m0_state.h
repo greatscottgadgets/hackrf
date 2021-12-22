@@ -27,6 +27,7 @@
 
 struct m0_state {
 	uint32_t m0_count;
+	uint32_t m4_count;
 	uint32_t tx;
 };
 

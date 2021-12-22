@@ -380,6 +380,7 @@ int write_register(hackrf_device* device, uint8_t part,
 static void print_state(hackrf_m0_state *state) {
 	printf("M0 state:\n");
 	printf("M0 count: %u bytes\n", state->m0_count);
+	printf("M4 count: %u bytes\n", state->m4_count);
 	printf("TX: %u\n", state->tx);
 }
 

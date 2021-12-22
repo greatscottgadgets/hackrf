@@ -106,7 +106,8 @@ registers and fixed memory addresses.
 
 // Offsets into the state structure.
 .equ M0_COUNT,                             0x00
-.equ TX,                                   0x04
+.equ M4_COUNT,                             0x04
+.equ TX,                                   0x08
 
 // Our slice chain is set up as follows (ascending data age; arrows are reversed for flow):
 //     L  -> F  -> K  -> C -> J  -> E  -> I  -> A
@@ -153,6 +154,7 @@ main:                                                                           
 	zero .req r0
 	mov zero, #0                                    // zero = 0                             // 1
 	str zero, [state, #M0_COUNT]                    // state.m0_count = zero                // 2
+	str zero, [state, #M4_COUNT]                    // state.m4_count = zero                // 2
 	str zero, [state, #TX]                          // state.tx = zero                      // 2
 
 loop:

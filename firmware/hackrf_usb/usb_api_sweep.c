@@ -87,6 +87,12 @@ usb_request_status_t usb_vendor_request_init_sweep(
 	return USB_REQUEST_STATUS_OK;
 }
 
+void sweep_bulk_transfer_complete(void *user_data, unsigned int bytes_transferred)
+{
+	(void) user_data;
+	m0_state.m4_count += bytes_transferred;
+}
+
 void sweep_mode(uint32_t seq) {
 	unsigned int blocks_queued = 0;
 	unsigned int phase = 1;
@@ -134,10 +140,21 @@ void sweep_mode(uint32_t seq) {
 					&usb_endpoint_bulk_in,
 					buffer,
 					0x4000,
-					NULL, NULL
+					sweep_bulk_transfer_complete,
+					NULL
 				);
 			}
 			transfer = false;
+		} else {
+			// Account for having discarded a buffer.
+
+			// Disable USB IRQ whilst doing so, since this requires
+			// a read-modify-write, and sweep_bulk_transfer_complete()
+			// might be called from the USB ISR while we are changing
+			// this count.
+			nvic_disable_irq(NVIC_USB0_IRQ);
+			m0_state.m4_count += 0x4000;
+			nvic_enable_irq(NVIC_USB0_IRQ);
 		}
 
 		if ((dwell_blocks + THROWAWAY_BUFFERS) <= blocks_queued) {
