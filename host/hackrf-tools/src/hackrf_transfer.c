@@ -377,6 +377,8 @@ bool limit_num_samples = false;
 uint64_t samples_to_xfer = 0;
 size_t bytes_to_xfer = 0;
 
+bool display_stats = false;
+
 bool baseband_filter_bw = false;
 uint32_t baseband_filter_bw_hz = 0;
 
@@ -533,6 +535,7 @@ static void usage() {
 /* The required atomic load/store functions aren't available when using C with MSVC */
 	printf("\t[-S buf_size] # Enable receive streaming with buffer size buf_size.\n");
 #endif
+	printf("\t[-B] # Print buffer statistics during transfer\n");
 	printf("\t[-c amplitude] # CW signal source mode, amplitude 0-127 (DC value to DAC).\n");
         printf("\t[-R] # Repeat TX mode (default is off) \n");
 	printf("\t[-b baseband_filter_bw_hz] # Set baseband filter bandwidth in Hz.\n\tPossible values: 1.75/2.5/3.5/5/5.5/6/7/8/9/10/12/14/15/20/24/28MHz, default <= 0.75 * sample_rate_hz.\n" );
@@ -580,7 +583,7 @@ int main(int argc, char** argv) {
 	float time_diff;
 	unsigned int lna_gain=8, vga_gain=20, txvga_gain=0;
   
-	while( (opt = getopt(argc, argv, "H:wr:t:f:i:o:m:a:p:s:n:b:l:g:x:c:d:C:RS:h?")) != EOF )
+	while( (opt = getopt(argc, argv, "H:wr:t:f:i:o:m:a:p:s:n:b:l:g:x:c:d:C:RS:Bh?")) != EOF )
 	{
 		result = HACKRF_SUCCESS;
 		switch( opt ) 
@@ -666,6 +669,10 @@ int main(int argc, char** argv) {
 			limit_num_samples = true;
 			result = parse_u64(optarg, &samples_to_xfer);
 			bytes_to_xfer = samples_to_xfer * 2ull;
+			break;
+
+		case 'B':
+			display_stats = true;
 			break;
 
 		case 'b':
@@ -1097,12 +1104,25 @@ int main(int argc, char** argv) {
 			    double	dB_full_scale_ratio = 10*log10(full_scale_ratio);
 			    if (dB_full_scale_ratio > 1)
 			    	dB_full_scale_ratio = NAN;	// Guard against ridiculous reports
-			    fprintf(stderr, "%4.1f MiB / %5.3f sec = %4.1f MiB/second, amplitude %3.1f dBfs\n",
+			    fprintf(stderr, "%4.1f MiB / %5.3f sec = %4.1f MiB/second, amplitude %3.1f dBfs",
 				    (byte_count_now / 1e6f),
 				    time_difference,
 				    (rate / 1e6f),
 				    dB_full_scale_ratio
 			    );
+			    if (display_stats) {
+				    bool tx = transmit || signalsource;
+				    hackrf_m0_state state;
+				    result = hackrf_get_m0_state(device, &state);
+				    if (result != HACKRF_SUCCESS)
+					    fprintf(stderr, "\nhackrf_get_m0_state() failed: %s (%d)\n", hackrf_error_name(result), result);
+				    else
+					    fprintf(stderr, ", %d bytes %s in buffer\n",
+						    tx ? state.m4_count - state.m0_count : state.m0_count - state.m4_count,
+						    tx ? "filled" : "free");
+			    } else {
+				    fprintf(stderr, "\n");
+			    }
 			}
 
 			time_start = time_now;
