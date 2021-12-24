@@ -388,6 +388,7 @@ static void print_state(hackrf_m0_state *state) {
 		    "UNKNOWN");
 	printf("M0 count: %u bytes\n", state->m0_count);
 	printf("M4 count: %u bytes\n", state->m4_count);
+	printf("Number of shortfalls: %u\n", state->num_shortfalls);
 }
 
 static void usage() {

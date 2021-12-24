@@ -66,10 +66,10 @@ shadow registers.
 
 There are four key code paths, with the following worst-case timings:
 
-RX, normal:     146 cycles
-RX, overrun:    52 cycles
-TX, normal:     132 cycles
-TX, underrun:   119 cycles
+RX, normal:     147 cycles
+RX, overrun:    65 cycles
+TX, normal:     133 cycles
+TX, underrun:   129 cycles
 
 Design
 ======
@@ -111,6 +111,7 @@ registers and fixed memory addresses.
 .equ MODE,                                 0x00
 .equ M0_COUNT,                             0x04
 .equ M4_COUNT,                             0x08
+.equ NUM_SHORTFALLS,                       0x0C
 
 // Operating modes.
 .equ MODE_IDLE,                            0
@@ -136,6 +137,8 @@ buf_size_minus_32 .req r14
 state             .req r13
 buf_base          .req r12
 buf_mask          .req r11
+shortfall_length  .req r10
+hi_zero           .req r9
 sgpio_data        .req r7
 sgpio_int         .req r6
 count             .req r5
@@ -160,13 +163,15 @@ main:                                                                           
 	mov buf_mask, value                             // buf_mask = value                     // 1
 	ldr value, =STATE_BASE                          // value = STATE_BASE                   // 2
 	mov state, value                                // state = value                        // 1
-
-	// Initialise state.
 	zero .req r0
 	mov zero, #0                                    // zero = 0                             // 1
+	mov hi_zero, zero                               // hi_zero = zero                       // 1
+
+	// Initialise state.
 	str zero, [state, #MODE]                        // state.mode = zero                    // 2
 	str zero, [state, #M0_COUNT]                    // state.m0_count = zero                // 2
 	str zero, [state, #M4_COUNT]                    // state.m4_count = zero                // 2
+	str zero, [state, #NUM_SHORTFALLS]              // state.num_shortfalls = zero          // 2
 
 idle:
 	// Wait for RX or TX mode to be set.
@@ -179,6 +184,8 @@ idle:
 	mov zero, #0                                    // zero = 0                             // 1
 	str zero, [state, #M0_COUNT]                    // state.m0_count = zero                // 2
 	str zero, [state, #M4_COUNT]                    // state.m4_count = zero                // 2
+	str zero, [state, #NUM_SHORTFALLS]              // state.num_shortfalls = zero          // 2
+	mov shortfall_length, zero                      // shortfall_length = zero              // 1
 
 loop:
 	// The worst case timing is assumed to occur when reading the interrupt
@@ -270,6 +277,29 @@ tx_zeros:
 	str zero, [sgpio_data, #SLICE6]                 // SGPIO_REG_SS[SLICE6] = zero          // 8
 	str zero, [sgpio_data, #SLICE7]                 // SGPIO_REG_SS[SLICE7] = zero          // 8
 
+shortfall:
+
+	// Get current shortfall length from high register.
+	length .req r0
+	mov length, shortfall_length                    // length = shortfall_length            // 1
+
+	// Is this a new shortfall?
+	cmp length, #0                                  // if length > 0:                       // 1
+	bgt extend_shortfall                            //      goto extend_shortfall           // 1 thru, 3 taken
+
+	// If so, increase the shortfall count.
+	num .req r1
+	ldr num, [state, #NUM_SHORTFALLS]               // num = state.num_shortfalls           // 2
+	add num, #1                                     // num += 1                             // 1
+	str num, [state, #NUM_SHORTFALLS]               // state.num_shortfalls = num           // 2
+
+extend_shortfall:
+
+	// Extend the length of the current shortfall, and store back in high register.
+	add length, #32                                 // length += 32                         // 1
+	mov shortfall_length, length                    // shortfall_length = length            // 1
+
+	// Return to main loop.
 	b loop                                          // goto loop                            // 3
 
 direction_rx:
@@ -286,12 +316,12 @@ direction_rx:
 	//
 	// buf_margin = m4_count + (buf_size - 32) - m0_count
 	//
-	// If there is insufficient space, jump back to the start of the loop.
+	// If there is insufficient space, jump to shortfall handling.
 	buf_margin .req r0
 	ldr buf_margin, [state, #M4_COUNT]              // buf_margin = state.m4_count          // 2
 	add buf_margin, buf_size_minus_32               // buf_margin += buf_size_minus_32      // 1
 	sub buf_margin, count                           // buf_margin -= count                  // 1
-	bmi loop                                        // if buf_margin < 0: goto loop         // 1 thru, 3 taken
+	bmi shortfall                                   // if buf_margin < 0: goto shortfall    // 1 thru, 3 taken
 
 	// Read data from SGPIO.
 	ldr r0, [sgpio_data, #SLICE0]                   // r0 = SGPIO_REG_SS[SLICE0]            // 10
@@ -311,6 +341,9 @@ done:
 
 	// ... and store the new count.
 	str count, [state, #M0_COUNT]                   // state.m0_count = count               // 2
+
+	// We didn't have a shortfall, so the current shortfall length is zero.
+	mov shortfall_length, hi_zero                   // shortfall_length = hi_zero           // 1
 
 	b loop                                          // goto loop                            // 3
 

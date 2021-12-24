@@ -1159,9 +1159,11 @@ int main(int argc, char** argv) {
 				    if (result != HACKRF_SUCCESS)
 					    fprintf(stderr, "\nhackrf_get_m0_state() failed: %s (%d)\n", hackrf_error_name(result), result);
 				    else
-					    fprintf(stderr, ", %d bytes %s in buffer\n",
+					    fprintf(stderr, ", %d bytes %s in buffer, %u %s\n",
 						    tx ? state.m4_count - state.m0_count : state.m0_count - state.m4_count,
-						    tx ? "filled" : "free");
+						    tx ? "filled" : "free",
+						    state.num_shortfalls,
+						    tx ? "underruns" : "overruns");
 			    } else {
 				    fprintf(stderr, "\n");
 			    }
@@ -1216,9 +1218,12 @@ int main(int argc, char** argv) {
 				fprintf(stderr,
 					"Transfer statistics:\n"
 					"%lu bytes transferred by M0\n"
-					"%lu bytes transferred by M4\n",
+					"%lu bytes transferred by M4\n"
+					"%u %s\n",
 					stats.m0_total,
-					stats.m4_total);
+					stats.m4_total,
+					state.num_shortfalls,
+					(transmit || signalsource) ? "underruns" : "overruns");
 			}
 		}
 

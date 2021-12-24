@@ -163,6 +163,8 @@ typedef struct {
 	uint32_t m0_count;
 	/** Number of bytes transferred by the M4. */
 	uint32_t m4_count;
+	/** Number of shortfalls. */
+	uint32_t num_shortfalls;
 } hackrf_m0_state;
 
 struct hackrf_device_list {
