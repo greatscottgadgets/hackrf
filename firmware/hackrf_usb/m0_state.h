@@ -31,6 +31,7 @@ struct m0_state {
 	uint32_t m4_count;
 	uint32_t num_shortfalls;
 	uint32_t longest_shortfall;
+	uint32_t shortfall_limit;
 };
 
 enum m0_mode {

@@ -167,6 +167,8 @@ typedef struct {
 	uint32_t num_shortfalls;
 	/** Longest shortfall. */
 	uint32_t longest_shortfall;
+	/** Shortfall limit in bytes. */
+	uint32_t shortfall_limit;
 } hackrf_m0_state;
 
 struct hackrf_device_list {

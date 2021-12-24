@@ -67,9 +67,9 @@ shadow registers.
 There are four key code paths, with the following worst-case timings:
 
 RX, normal:     147 cycles
-RX, overrun:    71 cycles
+RX, overrun:    76 cycles
 TX, normal:     133 cycles
-TX, underrun:   135 cycles
+TX, underrun:   140 cycles
 
 Design
 ======
@@ -113,6 +113,7 @@ registers and fixed memory addresses.
 .equ M4_COUNT,                             0x08
 .equ NUM_SHORTFALLS,                       0x0C
 .equ LONGEST_SHORTFALL,                    0x10
+.equ SHORTFALL_LIMIT,                      0x14
 
 // Operating modes.
 .equ MODE_IDLE,                            0
@@ -174,6 +175,7 @@ main:                                                                           
 	str zero, [state, #M4_COUNT]                    // state.m4_count = zero                // 2
 	str zero, [state, #NUM_SHORTFALLS]              // state.num_shortfalls = zero          // 2
 	str zero, [state, #LONGEST_SHORTFALL]           // state.longest_shortfall = zero       // 2
+	str zero, [state, #SHORTFALL_LIMIT]             // state.shortfall_limit = zero         // 2
 
 idle:
 	// Wait for RX or TX mode to be set.
@@ -309,8 +311,19 @@ extend_shortfall:
 	blt loop                                        //      goto loop                       // 1 thru, 3 taken
 	str length, [state, #LONGEST_SHORTFALL]         // state.longest_shortfall = length     // 2
 
-	// Return to main loop.
-	b loop                                          // goto loop                            // 3
+	// Is this shortfall long enough to trigger a timeout?
+	limit .req r1
+	ldr limit, [state, #SHORTFALL_LIMIT]            // limit = state.shortfall_limit        // 2
+	cmp limit, #0                                   // if limit == 0:                       // 1
+	beq loop                                        //      goto loop                       // 1 thru, 3 taken
+	cmp length, limit                               // if length < limit:                   // 1
+	blt loop                                        //      goto loop                       // 1 thru, 3 taken
+
+	// If so, reset mode to idle and return to idle loop.
+	mode .req r3
+	mov mode, #MODE_IDLE                            // mode = MODE_IDLE                     // 1
+	str mode, [state, #MODE]                        // state.mode = mode                    // 2
+	b idle                                          // goto idle                            // 3
 
 direction_rx:
 

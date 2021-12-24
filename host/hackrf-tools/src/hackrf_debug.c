@@ -390,6 +390,7 @@ static void print_state(hackrf_m0_state *state) {
 	printf("M4 count: %u bytes\n", state->m4_count);
 	printf("Number of shortfalls: %u\n", state->num_shortfalls);
 	printf("Longest shortfall: %u bytes\n", state->longest_shortfall);
+	printf("Shortfall limit: %u bytes\n", state->shortfall_limit);
 }
 
 static void usage() {
