@@ -378,10 +378,16 @@ int write_register(hackrf_device* device, uint8_t part,
 }
 
 static void print_state(hackrf_m0_state *state) {
+	const char *mode_names[] = {"RX", "TX"};
+	const uint32_t num_modes = sizeof(mode_names) / sizeof(mode_names[0]);
 	printf("M0 state:\n");
+	printf("Mode: %u (%s)\n",
+		state->mode,
+		state->mode < num_modes ?
+		    mode_names[state->mode] :
+		    "UNKNOWN");
 	printf("M0 count: %u bytes\n", state->m0_count);
 	printf("M4 count: %u bytes\n", state->m4_count);
-	printf("TX: %u\n", state->tx);
 }
 
 static void usage() {

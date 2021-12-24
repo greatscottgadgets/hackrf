@@ -108,9 +108,13 @@ registers and fixed memory addresses.
 .equ STATE_BASE,                           0x20007000
 
 // Offsets into the state structure.
-.equ M0_COUNT,                             0x00
-.equ M4_COUNT,                             0x04
-.equ TX,                                   0x08
+.equ MODE,                                 0x00
+.equ M0_COUNT,                             0x04
+.equ M4_COUNT,                             0x08
+
+// Operating modes.
+.equ MODE_RX,                              0
+.equ MODE_TX,                              1
 
 // Our slice chain is set up as follows (ascending data age; arrows are reversed for flow):
 //     L  -> F  -> K  -> C -> J  -> E  -> I  -> A
@@ -159,9 +163,9 @@ main:                                                                           
 	// Initialise state.
 	zero .req r0
 	mov zero, #0                                    // zero = 0                             // 1
+	str zero, [state, #MODE]                        // state.mode = zero                    // 2
 	str zero, [state, #M0_COUNT]                    // state.m0_count = zero                // 2
 	str zero, [state, #M4_COUNT]                    // state.m4_count = zero                // 2
-	str zero, [state, #TX]                          // state.tx = zero                      // 2
 
 loop:
 	// The worst case timing is assumed to occur when reading the interrupt
@@ -200,14 +204,13 @@ loop:
 	and buf_ptr, count                              // buf_ptr &= count                     // 1
 	add buf_ptr, buf_base                           // buf_ptr += buf_base                  // 1
 
-	tx .req r0
-
-	// Load direction (TX or RX)
-	ldr tx, [state, #TX]                            // tx = state.tx                        // 2
+	// Load mode.
+	mode .req r0
+	ldr mode, [state, #MODE]                        // mode = state.mode                    // 2
 
 	// TX?
-	lsr tx, #1                                      // tx >>= 1                             // 1
-	bcc direction_rx                                // if !carry: goto direction_rx         // 1 thru, 3 taken
+	cmp mode, #MODE_RX                              // if mode == RX:                       // 1
+	beq direction_rx                                //      goto direction_rx               // 1 thru, 3 taken
 
 direction_tx:
 

@@ -26,9 +26,14 @@
 #include <usb_request.h>
 
 struct m0_state {
+	uint32_t mode;
 	uint32_t m0_count;
 	uint32_t m4_count;
-	uint32_t tx;
+};
+
+enum m0_mode {
+	M0_MODE_RX = 0,
+	M0_MODE_TX = 1,
 };
 
 /* Address of m0_state is set in ldscripts. If you change the name of this

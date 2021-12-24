@@ -157,12 +157,12 @@ typedef struct {
 
 /** State of the SGPIO loop running on the M0 core. */
 typedef struct {
+	/** Operating mode. */
+	uint32_t mode;
 	/** Number of bytes transferred by the M0. */
 	uint32_t m0_count;
 	/** Number of bytes transferred by the M4. */
 	uint32_t m4_count;
-	/** TX flag. */
-	uint32_t tx;
 } hackrf_m0_state;
 
 struct hackrf_device_list {
