@@ -68,8 +68,8 @@ There are four key code paths, with the following worst-case timings:
 
 RX, normal:     146 cycles
 RX, overrun:    52 cycles
-TX, normal:     131 cycles
-TX, underrun:   118 cycles
+TX, normal:     132 cycles
+TX, underrun:   119 cycles
 
 Design
 ======
@@ -113,8 +113,9 @@ registers and fixed memory addresses.
 .equ M4_COUNT,                             0x08
 
 // Operating modes.
-.equ MODE_RX,                              0
-.equ MODE_TX,                              1
+.equ MODE_IDLE,                            0
+.equ MODE_RX,                              1
+.equ MODE_TX,                              2
 
 // Our slice chain is set up as follows (ascending data age; arrows are reversed for flow):
 //     L  -> F  -> K  -> C -> J  -> E  -> I  -> A
@@ -167,6 +168,13 @@ main:                                                                           
 	str zero, [state, #M0_COUNT]                    // state.m0_count = zero                // 2
 	str zero, [state, #M4_COUNT]                    // state.m4_count = zero                // 2
 
+idle:
+	// Wait for RX or TX mode to be set.
+	mode .req r0
+	ldr mode, [state, #MODE]                        // mode = state.mode                    // 2
+	cmp mode, #MODE_IDLE                            // if mode == IDLE:                     // 1
+	beq idle                                        //      goto idle                       // 1 thru, 3 taken
+
 loop:
 	// The worst case timing is assumed to occur when reading the interrupt
 	// status register *just* misses the flag being set - so we include the
@@ -208,9 +216,10 @@ loop:
 	mode .req r0
 	ldr mode, [state, #MODE]                        // mode = state.mode                    // 2
 
-	// TX?
+	// Branch according to mode setting.
 	cmp mode, #MODE_RX                              // if mode == RX:                       // 1
 	beq direction_rx                                //      goto direction_rx               // 1 thru, 3 taken
+	blt idle                                        // elif mode < RX: goto idle            // 1 thru, 3 taken
 
 direction_tx:
 

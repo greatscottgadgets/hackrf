@@ -32,8 +32,9 @@ struct m0_state {
 };
 
 enum m0_mode {
-	M0_MODE_RX = 0,
-	M0_MODE_TX = 1,
+	M0_MODE_IDLE = 0,
+	M0_MODE_RX = 1,
+	M0_MODE_TX = 2,
 };
 
 /* Address of m0_state is set in ldscripts. If you change the name of this
