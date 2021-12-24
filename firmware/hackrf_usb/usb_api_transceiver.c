@@ -260,6 +260,15 @@ void request_transceiver_mode(transceiver_mode_t mode)
 	transceiver_request.seq++;
 }
 
+static void set_m0_mode(enum m0_mode mode) {
+	// All values of the threshold setting are valid. So setting a mode,
+	// it's necessary to set up a transition back to the same mode, for
+	// when the M0 counter wraps.
+	m0_state.mode = mode;
+	m0_state.next_mode = mode;
+	m0_state.threshold = 0;
+}
+
 void transceiver_shutdown(void)
 {
 	baseband_streaming_disable(&sgpio_config);
@@ -271,7 +280,7 @@ void transceiver_shutdown(void)
 	led_off(LED2);
 	led_off(LED3);
 	rf_path_set_direction(&rf_path, RF_PATH_DIRECTION_OFF);
-	m0_state.mode = M0_MODE_IDLE;
+	set_m0_mode(M0_MODE_IDLE);
 	// The M0 may already be waiting for the next SGPIO
 	// exchange interrupt. In order to ensure that the M0
 	// switches over to its idle loop, we need to set the
@@ -289,14 +298,14 @@ void transceiver_startup(const transceiver_mode_t mode) {
 		led_off(LED3);
 		led_on(LED2);
 		rf_path_set_direction(&rf_path, RF_PATH_DIRECTION_RX);
-		m0_state.mode = M0_MODE_RX;
+		set_m0_mode(M0_MODE_RX);
 		m0_state.shortfall_limit = _rx_overrun_limit;
 		break;
 	case TRANSCEIVER_MODE_TX:
 		led_off(LED2);
 		led_on(LED3);
 		rf_path_set_direction(&rf_path, RF_PATH_DIRECTION_TX);
-		m0_state.mode = M0_MODE_TX_START;
+		set_m0_mode(M0_MODE_TX_START);
 		m0_state.shortfall_limit = _tx_underrun_limit;
 		break;
 	default:

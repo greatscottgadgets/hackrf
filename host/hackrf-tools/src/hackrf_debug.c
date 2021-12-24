@@ -377,20 +377,25 @@ int write_register(hackrf_device* device, uint8_t part,
 	return HACKRF_ERROR_INVALID_PARAM;
 }
 
-static void print_state(hackrf_m0_state *state) {
+static const char * mode_name(uint32_t mode) {
 	const char *mode_names[] = {"IDLE", "RX", "TX_START", "TX_RUN"};
 	const uint32_t num_modes = sizeof(mode_names) / sizeof(mode_names[0]);
+	if (mode < num_modes)
+	    return mode_names[mode];
+	else
+	    return "UNKNOWN";
+}
+
+static void print_state(hackrf_m0_state *state) {
 	printf("M0 state:\n");
-	printf("Mode: %u (%s)\n",
-		state->mode,
-		state->mode < num_modes ?
-		    mode_names[state->mode] :
-		    "UNKNOWN");
+	printf("Mode: %u (%s)\n", state->mode, mode_name(state->mode));
 	printf("M0 count: %u bytes\n", state->m0_count);
 	printf("M4 count: %u bytes\n", state->m4_count);
 	printf("Number of shortfalls: %u\n", state->num_shortfalls);
 	printf("Longest shortfall: %u bytes\n", state->longest_shortfall);
 	printf("Shortfall limit: %u bytes\n", state->shortfall_limit);
+	printf("Mode change threshold: %u bytes\n", state->threshold);
+	printf("Next mode: %u (%s)\n", state->mode, mode_name(state->mode));
 }
 
 static void usage() {

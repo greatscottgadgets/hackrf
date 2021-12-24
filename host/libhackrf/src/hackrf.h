@@ -169,6 +169,10 @@ typedef struct {
 	uint32_t longest_shortfall;
 	/** Shortfall limit in bytes. */
 	uint32_t shortfall_limit;
+	/** Threshold m0_count value for next mode change. */
+	uint32_t threshold;
+	/** Mode which will be switched to when threshold is reached. */
+	uint32_t next_mode;
 } hackrf_m0_state;
 
 struct hackrf_device_list {

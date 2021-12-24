@@ -32,6 +32,8 @@ struct m0_state {
 	uint32_t num_shortfalls;
 	uint32_t longest_shortfall;
 	uint32_t shortfall_limit;
+	uint32_t threshold;
+	uint32_t next_mode;
 };
 
 enum m0_mode {

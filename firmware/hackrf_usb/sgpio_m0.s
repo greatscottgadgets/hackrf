@@ -66,9 +66,9 @@ shadow registers.
 
 There are four key code paths, with the following worst-case timings:
 
-RX, normal:     143 cycles
+RX, normal:     152 cycles
 RX, overrun:    73 cycles
-TX, normal:     132 cycles
+TX, normal:     142 cycles
 TX, underrun:   140 cycles
 
 Design
@@ -114,6 +114,8 @@ registers and fixed memory addresses.
 .equ NUM_SHORTFALLS,                       0x0C
 .equ LONGEST_SHORTFALL,                    0x10
 .equ SHORTFALL_LIMIT,                      0x14
+.equ THRESHOLD,                            0x18
+.equ NEXT_MODE,                            0x1C
 
 // Private variables stored after state.
 .equ PREV_LONGEST_SHORTFALL,               0x20
@@ -217,6 +219,29 @@ buf_ptr           .req r4
 	mov shortfall_length, hi_zero                   // shortfall_length = hi_zero           // 1
 .endm
 
+.macro jump_next_mode name
+	// Jump to next mode if the byte count threshold has been reached.
+	//
+	// Clobbers:
+	threshold .req r0
+	new_mode .req r1
+
+	// Check count against threshold. If not a match, return to start of current loop.
+	ldr threshold, [state, #THRESHOLD]              // threshold = state.threshold          // 2
+	cmp count, threshold                            // if count != threshold:               // 1
+	bne \name\()_loop                               //      goto loop                       // 1 thru, 3 taken
+
+	// Otherwise, load and set new mode.
+	ldr new_mode, [state, #NEXT_MODE]               // new_mode = state.next_mode           // 2
+	str new_mode, [state, #MODE]                    // state.mode = new_mode                // 2
+
+	// Branch according to new mode.
+	cmp new_mode, #MODE_RX                          // if new_mode == RX:                   // 1
+	beq rx_loop                                     //      goto rx_loop                    // 1 thru, 3 taken
+	bgt tx_loop                                     // elif new_mode > RX: goto tx_loop     // 1 thru, 3 taken
+	b idle                                          // goto idle                            // 3
+.endm
+
 .macro handle_shortfall name
 	// Handle a shortfall.
 	//
@@ -299,15 +324,37 @@ main:                                                                           
 	str zero, [state, #NUM_SHORTFALLS]              // state.num_shortfalls = zero          // 2
 	str zero, [state, #LONGEST_SHORTFALL]           // state.longest_shortfall = zero       // 2
 	str zero, [state, #SHORTFALL_LIMIT]             // state.shortfall_limit = zero         // 2
+	str zero, [state, #THRESHOLD]                   // state.threshold = zero               // 2
+	str zero, [state, #NEXT_MODE]                   // state.next_mode = zero               // 2
 
 idle:
 	// Wait for RX or TX mode to be set.
 	mode .req r3
 	ldr mode, [state, #MODE]                        // mode = state.mode                    // 2
 	cmp mode, #MODE_RX                              // if mode == RX:                       // 1
-	beq rx_start                                    //      goto rx_start                   // 1 thru, 3 taken
-	bgt tx_start                                    // elif mode > RX: goto tx_start        // 1 thru, 3 taken
-	b idle                                          // goto idle                            // 3
+	bgt tx_start                                    // if mode > RX: goto tx_start          // 1 thru, 3 taken
+	blt idle                                        // elif mode < RX: goto idle            // 1 thru, 3 taken
+	b rx_start                                      //      goto rx_start                   // 3
+
+tx_zeros:
+
+	// Write zeros to SGPIO.
+	mov zero, #0                                    // zero = 0                             // 1
+	str zero, [sgpio_data, #SLICE0]                 // SGPIO_REG_SS[SLICE0] = zero          // 8
+	str zero, [sgpio_data, #SLICE1]                 // SGPIO_REG_SS[SLICE1] = zero          // 8
+	str zero, [sgpio_data, #SLICE2]                 // SGPIO_REG_SS[SLICE2] = zero          // 8
+	str zero, [sgpio_data, #SLICE3]                 // SGPIO_REG_SS[SLICE3] = zero          // 8
+	str zero, [sgpio_data, #SLICE4]                 // SGPIO_REG_SS[SLICE4] = zero          // 8
+	str zero, [sgpio_data, #SLICE5]                 // SGPIO_REG_SS[SLICE5] = zero          // 8
+	str zero, [sgpio_data, #SLICE6]                 // SGPIO_REG_SS[SLICE6] = zero          // 8
+	str zero, [sgpio_data, #SLICE7]                 // SGPIO_REG_SS[SLICE7] = zero          // 8
+
+	// If in TX start mode, don't count this as a shortfall.
+	cmp mode, #MODE_TX_START                        // if mode == TX_START:                 // 1
+	beq tx_loop                                     //      goto tx_loop                    // 1 thru, 3 taken
+
+	// Run common shortfall handling and jump back to TX loop start.
+	handle_shortfall tx                             // handle_shortfall()                   // 24
 
 checked_rollback:
 	// Checked rollback handler. This code is run when the M0 is in a TX or RX mode, and is
@@ -389,28 +436,8 @@ tx_write:
 	// Update counts.
 	update_counts                                   // update_counts()                      // 4
 
-	// Jump back to TX loop start.
-	b tx_loop                                       // goto tx_loop                         // 3
-
-tx_zeros:
-
-	// Write zeros to SGPIO.
-	mov zero, #0                                    // zero = 0                             // 1
-	str zero, [sgpio_data, #SLICE0]                 // SGPIO_REG_SS[SLICE0] = zero          // 8
-	str zero, [sgpio_data, #SLICE1]                 // SGPIO_REG_SS[SLICE1] = zero          // 8
-	str zero, [sgpio_data, #SLICE2]                 // SGPIO_REG_SS[SLICE2] = zero          // 8
-	str zero, [sgpio_data, #SLICE3]                 // SGPIO_REG_SS[SLICE3] = zero          // 8
-	str zero, [sgpio_data, #SLICE4]                 // SGPIO_REG_SS[SLICE4] = zero          // 8
-	str zero, [sgpio_data, #SLICE5]                 // SGPIO_REG_SS[SLICE5] = zero          // 8
-	str zero, [sgpio_data, #SLICE6]                 // SGPIO_REG_SS[SLICE6] = zero          // 8
-	str zero, [sgpio_data, #SLICE7]                 // SGPIO_REG_SS[SLICE7] = zero          // 8
-
-	// If in TX start mode, don't count this as a shortfall.
-	cmp mode, #MODE_TX_START                        // if mode == TX_START:                 // 1
-	beq tx_loop                                     //      goto tx_loop                    // 1 thru, 3 taken
-
-	// Run common shortfall handling and jump back to TX loop start.
-	handle_shortfall tx                             // handle_shortfall()                   // 24
+	// Jump to next mode if threshold reached, or back to TX loop start.
+	jump_next_mode tx                               // jump_next_mode()                     // 13
 
 rx_start:
 
@@ -466,8 +493,8 @@ rx_loop:
 	// Update counts.
 	update_counts                                   // update_counts()                      // 4
 
-	// Jump back to RX loop start.
-	b rx_loop                                       // goto rx_loop                         // 3
+	// Jump to next mode if threshold reached, or back to RX loop start.
+	jump_next_mode rx                               // jump_next_mode()                     // 12
 
 rx_shortfall:
 
