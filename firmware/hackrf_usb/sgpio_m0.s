@@ -66,10 +66,10 @@ shadow registers.
 
 There are four key code paths, with the following worst-case timings:
 
-RX, normal:     147 cycles
-RX, overrun:    76 cycles
-TX, normal:     138 cycles
-TX, underrun:   142 cycles
+RX, normal:     145 cycles
+RX, overrun:    74 cycles
+TX, normal:     134 cycles
+TX, underrun:   141 cycles
 
 Design
 ======
@@ -163,7 +163,7 @@ buf_ptr           .req r4
 	mov shortfall_length, zero                      // shortfall_length = zero              // 1
 .endm
 
-.macro await_sgpio
+.macro await_sgpio name
 	// Wait for, then clear, SGPIO exchange interrupt flag.
 	//
 	// Clobbers:
@@ -184,11 +184,11 @@ buf_ptr           .req r4
 	// relying on any assumptions about the timing details of a read over
 	// the SGPIO to AHB bridge.
 
-int_wait:
+\name\()_int_wait:
 	// Spin on the exchange interrupt status, shifting the slice A flag to the carry flag.
 	ldr int_status, [sgpio_int, #INT_STATUS]        // int_status = SGPIO_STATUS_1          // 10, twice
 	lsr scratch, int_status, #1                     // scratch = int_status >> 1            // 1, twice
-	bcc int_wait                                    // if !carry: goto int_wait             // 3, then 1
+	bcc \name\()_int_wait                           // if !carry: goto int_wait             // 3, then 1
 
 	// Clear the interrupt pending bits that were set.
 	str int_status, [sgpio_int, #INT_CLEAR]         // SGPIO_CLR_STATUS_1 = int_status      // 8
@@ -213,7 +213,7 @@ int_wait:
 	mov shortfall_length, hi_zero                   // shortfall_length = hi_zero           // 1
 .endm
 
-.macro handle_shortfall
+.macro handle_shortfall name
 	// Handle a shortfall.
 	//
 	// Clobbers:
@@ -227,14 +227,14 @@ int_wait:
 
 	// Is this a new shortfall?
 	cmp length, #0                                  // if length > 0:                       // 1
-	bgt extend_shortfall                            //      goto extend_shortfall           // 1 thru, 3 taken
+	bgt \name\()_extend_shortfall                   //      goto extend_shortfall           // 1 thru, 3 taken
 
 	// If so, increase the shortfall count.
 	ldr num, [state, #NUM_SHORTFALLS]               // num = state.num_shortfalls           // 2
 	add num, #1                                     // num += 1                             // 1
 	str num, [state, #NUM_SHORTFALLS]               // state.num_shortfalls = num           // 2
 
-extend_shortfall:
+\name\()_extend_shortfall:
 
 	// Extend the length of the current shortfall, and store back in high register.
 	add length, #32                                 // length += 32                         // 1
@@ -243,15 +243,15 @@ extend_shortfall:
 	// Is this now the longest shortfall?
 	ldr longest, [state, #LONGEST_SHORTFALL]        // longest = state.longest_shortfall    // 2
 	cmp length, longest                             // if length <= longest:                // 1
-	blt loop                                        //      goto loop                       // 1 thru, 3 taken
+	blt \name\()_loop                               //      goto loop                       // 1 thru, 3 taken
 	str length, [state, #LONGEST_SHORTFALL]         // state.longest_shortfall = length     // 2
 
 	// Is this shortfall long enough to trigger a timeout?
 	ldr limit, [state, #SHORTFALL_LIMIT]            // limit = state.shortfall_limit        // 2
 	cmp limit, #0                                   // if limit == 0:                       // 1
-	beq loop                                        //      goto loop                       // 1 thru, 3 taken
+	beq \name\()_loop                               //      goto loop                       // 1 thru, 3 taken
 	cmp length, limit                               // if length < limit:                   // 1
-	blt loop                                        //      goto loop                       // 1 thru, 3 taken
+	blt \name\()_loop                               //      goto loop                       // 1 thru, 3 taken
 
 	// If so, reset mode to idle and return to idle loop.
 	mode .req r3
@@ -295,29 +295,29 @@ idle:
 	// Wait for RX or TX mode to be set.
 	mode .req r3
 	ldr mode, [state, #MODE]                        // mode = state.mode                    // 2
-	cmp mode, #MODE_IDLE                            // if mode == IDLE:                     // 1
-	beq idle                                        //      goto idle                       // 1 thru, 3 taken
+	cmp mode, #MODE_RX                              // if mode == RX:                       // 1
+	beq rx_start                                    //      goto rx_start                   // 1 thru, 3 taken
+	bgt tx_start                                    // elif mode > RX: goto tx_start        // 1 thru, 3 taken
+	b idle                                          // goto idle                            // 3
+
+tx_start:
 
 	// Reset counts.
 	reset_counts                                    // reset_counts()                       // 10
 
-loop:
+tx_loop:
+
 	// Wait for and clear SGPIO interrupt.
-	await_sgpio                                     // await_sgpio()                        // 34
+	await_sgpio tx                                  // await_sgpio()                        // 34
 
 	// Update buffer pointer.
 	update_buf_ptr                                  // update_buf_ptr()                     // 5
 
-	// Load mode.
+	// Load mode, and return to idle if requested.
 	mode .req r3
 	ldr mode, [state, #MODE]                        // mode = state.mode                    // 2
-
-	// Branch according to mode setting.
-	cmp mode, #MODE_RX                              // if mode == RX:                       // 1
-	beq direction_rx                                //      goto direction_rx               // 1 thru, 3 taken
-	blt idle                                        // elif mode < RX: goto idle            // 1 thru, 3 taken
-
-direction_tx:
+	cmp mode, #MODE_IDLE                            // if mode == IDLE:                     // 1
+	beq idle                                        //      goto idle                       // 1 thru, 3 taken
 
 	// Check if there is enough data in the buffer.
 	//
@@ -355,7 +355,11 @@ tx_write:
 	str r2, [sgpio_data, #SLICE6]                   // SGPIO_REG_SS[SLICE6] = r2            // 8
 	str r3, [sgpio_data, #SLICE7]                   // SGPIO_REG_SS[SLICE7] = r3            // 8
 
-	b done                                          // goto done                            // 3
+	// Update counts.
+	update_counts                                   // update_counts()                      // 4
+
+	// Jump back to TX loop start.
+	b tx_loop                                       // goto tx_loop                         // 3
 
 tx_zeros:
 
@@ -372,13 +376,29 @@ tx_zeros:
 
 	// If in TX start mode, don't count this as a shortfall.
 	cmp mode, #MODE_TX_START                        // if mode == TX_START:                 // 1
-	beq loop                                        //      goto loop                       // 1 thru, 3 taken
+	beq tx_loop                                     //      goto tx_loop                    // 1 thru, 3 taken
 
-shortfall:
+	// Run common shortfall handling and jump back to TX loop start.
+	handle_shortfall tx                             // handle_shortfall()                   // 24
 
-	handle_shortfall                                // handle_shortfall()                   // 24
+rx_start:
 
-direction_rx:
+	// Reset counts.
+	reset_counts                                    // reset_counts()                       // 10
+
+rx_loop:
+
+	// Wait for and clear SGPIO interrupt.
+	await_sgpio rx                                  // await_sgpio()                        // 34
+
+	// Update buffer pointer.
+	update_buf_ptr                                  // update_buf_ptr()                     // 5
+
+	// Load mode, and return to idle if requested.
+	mode .req r3
+	ldr mode, [state, #MODE]                        // mode = state.mode                    // 2
+	cmp mode, #MODE_IDLE                            // if mode == IDLE:                     // 1
+	beq idle                                        //      goto idle                       // 1 thru, 3 taken
 
 	// Check if there is enough space in the buffer.
 	//
@@ -397,7 +417,7 @@ direction_rx:
 	ldr buf_margin, [state, #M4_COUNT]              // buf_margin = state.m4_count          // 2
 	add buf_margin, buf_size_minus_32               // buf_margin += buf_size_minus_32      // 1
 	sub buf_margin, count                           // buf_margin -= count                  // 1
-	bmi shortfall                                   // if buf_margin < 0: goto shortfall    // 1 thru, 3 taken
+	bmi rx_shortfall                                // if buf_margin < 0: goto rx_shortfall // 1 thru, 3 taken
 
 	// Read data from SGPIO.
 	ldr r0, [sgpio_data, #SLICE0]                   // r0 = SGPIO_REG_SS[SLICE0]            // 10
@@ -411,10 +431,16 @@ direction_rx:
 	ldr r3, [sgpio_data, #SLICE7]                   // r3 = SGPIO_REG_SS[SLICE7]            // 10
 	stm buf_ptr!, {r0-r3}                           // buf_ptr[0:16] = r0-r3; buf_ptr += 16 // 5
 
-done:
+	// Update counts.
 	update_counts                                   // update_counts()                      // 4
 
-	b loop                                          // goto loop                            // 3
+	// Jump back to RX loop start.
+	b rx_loop                                       // goto rx_loop                         // 3
+
+rx_shortfall:
+
+	// Run common shortfall handling and jump back to RX loop.
+	handle_shortfall rx                             // handle_shortfall()                   // 24
 
 // The linker will put a literal pool here, so add a label for clearer objdump output:
 constants:
