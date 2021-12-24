@@ -296,7 +296,7 @@ void transceiver_startup(const transceiver_mode_t mode) {
 		led_off(LED2);
 		led_on(LED3);
 		rf_path_set_direction(&rf_path, RF_PATH_DIRECTION_TX);
-		m0_state.mode = M0_MODE_TX;
+		m0_state.mode = M0_MODE_TX_START;
 		m0_state.shortfall_limit = _tx_underrun_limit;
 		break;
 	default:

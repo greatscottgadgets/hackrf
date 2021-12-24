@@ -68,8 +68,8 @@ There are four key code paths, with the following worst-case timings:
 
 RX, normal:     147 cycles
 RX, overrun:    76 cycles
-TX, normal:     133 cycles
-TX, underrun:   140 cycles
+TX, normal:     138 cycles
+TX, underrun:   142 cycles
 
 Design
 ======
@@ -118,7 +118,8 @@ registers and fixed memory addresses.
 // Operating modes.
 .equ MODE_IDLE,                            0
 .equ MODE_RX,                              1
-.equ MODE_TX,                              2
+.equ MODE_TX_START,                        2
+.equ MODE_TX_RUN,                          3
 
 // Our slice chain is set up as follows (ascending data age; arrows are reversed for flow):
 //     L  -> F  -> K  -> C -> J  -> E  -> I  -> A
@@ -179,7 +180,7 @@ main:                                                                           
 
 idle:
 	// Wait for RX or TX mode to be set.
-	mode .req r0
+	mode .req r3
 	ldr mode, [state, #MODE]                        // mode = state.mode                    // 2
 	cmp mode, #MODE_IDLE                            // if mode == IDLE:                     // 1
 	beq idle                                        //      goto idle                       // 1 thru, 3 taken
@@ -230,7 +231,7 @@ loop:
 	add buf_ptr, buf_base                           // buf_ptr += buf_base                  // 1
 
 	// Load mode.
-	mode .req r0
+	mode .req r3
 	ldr mode, [state, #MODE]                        // mode = state.mode                    // 2
 
 	// Branch according to mode setting.
@@ -254,6 +255,15 @@ direction_tx:
 	sub buf_margin, count                           // buf_margin -= count                  // 1
 	sub buf_margin, #32                             // buf_margin -= 32                     // 1
 	bmi tx_zeros                                    // if buf_margin < 0: goto tx_zeros     // 1 thru, 3 taken
+
+	// At this point we know there is TX data available.
+	// If still in TX start mode, switch to TX run.
+	cmp mode, #MODE_TX_START                        // if mode != TX_START:                 // 1
+	bne tx_write                                    //      goto tx_write                   // 1 thru, 3 taken
+	mov mode, #MODE_TX_RUN                          // mode = TX_RUN                        // 1
+	str mode, [state, #MODE]                        // state.mode = mode                    // 2
+
+tx_write:
 
 	// Write data to SGPIO.
 	ldm buf_ptr!, {r0-r3}                           // r0-r3 = buf_ptr[0:16]; buf_ptr += 16 // 5
@@ -281,6 +291,10 @@ tx_zeros:
 	str zero, [sgpio_data, #SLICE5]                 // SGPIO_REG_SS[SLICE5] = zero          // 8
 	str zero, [sgpio_data, #SLICE6]                 // SGPIO_REG_SS[SLICE6] = zero          // 8
 	str zero, [sgpio_data, #SLICE7]                 // SGPIO_REG_SS[SLICE7] = zero          // 8
+
+	// If in TX start mode, don't count this as a shortfall.
+	cmp mode, #MODE_TX_START                        // if mode == TX_START:                 // 1
+	beq loop                                        //      goto loop                       // 1 thru, 3 taken
 
 shortfall:
 
