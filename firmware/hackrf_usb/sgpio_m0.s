@@ -122,9 +122,10 @@ registers and fixed memory addresses.
 
 // Operating modes.
 .equ MODE_IDLE,                            0
-.equ MODE_RX,                              1
-.equ MODE_TX_START,                        2
-.equ MODE_TX_RUN,                          3
+.equ MODE_WAIT,                            1
+.equ MODE_RX,                              2
+.equ MODE_TX_START,                        3
+.equ MODE_TX_RUN,                          4
 
 // Our slice chain is set up as follows (ascending data age; arrows are reversed for flow):
 //     L  -> F  -> K  -> C -> J  -> E  -> I  -> A
@@ -239,6 +240,8 @@ buf_ptr           .req r4
 	cmp new_mode, #MODE_RX                          // if new_mode == RX:                   // 1
 	beq rx_loop                                     //      goto rx_loop                    // 1 thru, 3 taken
 	bgt tx_loop                                     // elif new_mode > RX: goto tx_loop     // 1 thru, 3 taken
+	cmp new_mode, #MODE_WAIT                        // if new_mode == WAIT:                 // 1
+	beq wait_loop                                   //      goto wait_loop                  // 1 thru, 3 taken
 	b idle                                          // goto idle                            // 3
 .endm
 
@@ -331,10 +334,12 @@ idle:
 	// Wait for RX or TX mode to be set.
 	mode .req r3
 	ldr mode, [state, #MODE]                        // mode = state.mode                    // 2
-	cmp mode, #MODE_RX                              // if mode == RX:                       // 1
-	bgt tx_start                                    // if mode > RX: goto tx_start          // 1 thru, 3 taken
-	blt idle                                        // elif mode < RX: goto idle            // 1 thru, 3 taken
-	b rx_start                                      //      goto rx_start                   // 3
+	cmp mode, #MODE_WAIT                            // if mode < WAIT:                      // 1
+	blt idle                                        //      goto idle                       // 1 thru, 3 taken
+	beq wait_start                                  // elif mode == WAIT: goto wait_start   // 1 thru, 3 taken
+	cmp mode, #MODE_RX                              // if mode > RX:                        // 1
+	bgt tx_start                                    //      goto tx_start                   // 1 thru, 3 taken
+	b rx_start                                      // goto rx_start                        // 3
 
 tx_zeros:
 
@@ -438,6 +443,28 @@ tx_write:
 
 	// Jump to next mode if threshold reached, or back to TX loop start.
 	jump_next_mode tx                               // jump_next_mode()                     // 13
+
+wait_start:
+
+	// Reset counts.
+	reset_counts                                    // reset_counts()                       // 10
+
+wait_loop:
+
+	// Wait for and clear SGPIO interrupt.
+	await_sgpio wait                                // await_sgpio()                        // 34
+
+	// Load mode, and return to idle if requested.
+	mode .req r3
+	ldr mode, [state, #MODE]                        // mode = state.mode                    // 2
+	cmp mode, #MODE_IDLE                            // if mode == IDLE:                     // 1
+	beq idle                                        //      goto idle                       // 1 thru, 3 taken
+
+	// Update counts.
+	update_counts                                   // update_counts()                      // 4
+
+	// Jump to next mode if threshold reached, or back to wait loop start.
+	jump_next_mode wait                             // jump_next_mode()                     // 15
 
 rx_start:
 

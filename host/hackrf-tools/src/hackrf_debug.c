@@ -378,7 +378,7 @@ int write_register(hackrf_device* device, uint8_t part,
 }
 
 static const char * mode_name(uint32_t mode) {
-	const char *mode_names[] = {"IDLE", "RX", "TX_START", "TX_RUN"};
+	const char *mode_names[] = {"IDLE", "WAIT", "RX", "TX_START", "TX_RUN"};
 	const uint32_t num_modes = sizeof(mode_names) / sizeof(mode_names[0]);
 	if (mode < num_modes)
 	    return mode_names[mode];
