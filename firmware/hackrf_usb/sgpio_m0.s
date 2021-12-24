@@ -66,10 +66,10 @@ shadow registers.
 
 There are four key code paths, with the following worst-case timings:
 
-RX, normal:     145 cycles
-RX, overrun:    74 cycles
-TX, normal:     134 cycles
-TX, underrun:   141 cycles
+RX, normal:     143 cycles
+RX, overrun:    72 cycles
+TX, normal:     132 cycles
+TX, underrun:   139 cycles
 
 Design
 ======
@@ -161,6 +161,7 @@ buf_ptr           .req r4
 	str zero, [state, #NUM_SHORTFALLS]              // state.num_shortfalls = zero          // 2
 	str zero, [state, #LONGEST_SHORTFALL]           // state.longest_shortfall = zero       // 2
 	mov shortfall_length, zero                      // shortfall_length = zero              // 1
+	mov count, zero                                 // count = zero                         // 1
 .endm
 
 .macro await_sgpio name
@@ -196,7 +197,6 @@ buf_ptr           .req r4
 
 .macro update_buf_ptr
 	// Update the address of the buffer segment we want to write to / read from.
-	ldr count, [state, #M0_COUNT]                   // count = state.m0_count               // 2
 	mov buf_ptr, buf_mask                           // buf_ptr = buf_mask                   // 1
 	and buf_ptr, count                              // buf_ptr &= count                     // 1
 	add buf_ptr, buf_base                           // buf_ptr += buf_base                  // 1
@@ -311,7 +311,7 @@ tx_loop:
 	await_sgpio tx                                  // await_sgpio()                        // 34
 
 	// Update buffer pointer.
-	update_buf_ptr                                  // update_buf_ptr()                     // 5
+	update_buf_ptr                                  // update_buf_ptr()                     // 3
 
 	// Load mode, and return to idle if requested.
 	mode .req r3
@@ -392,7 +392,7 @@ rx_loop:
 	await_sgpio rx                                  // await_sgpio()                        // 34
 
 	// Update buffer pointer.
-	update_buf_ptr                                  // update_buf_ptr()                     // 5
+	update_buf_ptr                                  // update_buf_ptr()                     // 3
 
 	// Load mode, and return to idle if requested.
 	mode .req r3
