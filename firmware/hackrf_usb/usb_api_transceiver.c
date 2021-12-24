@@ -409,22 +409,23 @@ void rx_mode(uint32_t seq) {
 }
 
 void tx_mode(uint32_t seq) {
-	unsigned int phase = 1;
+	unsigned int phase = 0;
 
 	transceiver_startup(TRANSCEIVER_MODE_TX);
 
-	memset(&usb_bulk_buffer[0x0000], 0, 0x8000);
-	// Account for having filled buffer 0.
-	m0_state.m4_count += 0x4000;
-	// Set up OUT transfer of buffer 1.
+	// Set up OUT transfer of buffer 0.
 	usb_transfer_schedule_block(
 		&usb_endpoint_bulk_out,
-		&usb_bulk_buffer[0x4000],
+		&usb_bulk_buffer[0x0000],
 		0x4000,
 		transceiver_bulk_transfer_complete,
 		NULL
 		);
-	// Start transmitting zeros while the host fills buffer 1.
+
+	// Enable streaming. The M0 is in TX_START mode, and will automatically
+	// send zeroes until the host fills buffer 0. Once that buffer is filled,
+	// the bulk transfer completion handler will increase the M4 count, and
+	// the M0 will switch to TX_RUN mode and transmit the first data.
 	baseband_streaming_enable(&sgpio_config);
 
 	while (transceiver_request.seq == seq) {
