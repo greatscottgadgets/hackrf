@@ -67,9 +67,9 @@ shadow registers.
 There are four key code paths, with the following worst-case timings:
 
 RX, normal:     147 cycles
-RX, overrun:    65 cycles
+RX, overrun:    71 cycles
 TX, normal:     133 cycles
-TX, underrun:   129 cycles
+TX, underrun:   135 cycles
 
 Design
 ======
@@ -112,6 +112,7 @@ registers and fixed memory addresses.
 .equ M0_COUNT,                             0x04
 .equ M4_COUNT,                             0x08
 .equ NUM_SHORTFALLS,                       0x0C
+.equ LONGEST_SHORTFALL,                    0x10
 
 // Operating modes.
 .equ MODE_IDLE,                            0
@@ -172,6 +173,7 @@ main:                                                                           
 	str zero, [state, #M0_COUNT]                    // state.m0_count = zero                // 2
 	str zero, [state, #M4_COUNT]                    // state.m4_count = zero                // 2
 	str zero, [state, #NUM_SHORTFALLS]              // state.num_shortfalls = zero          // 2
+	str zero, [state, #LONGEST_SHORTFALL]           // state.longest_shortfall = zero       // 2
 
 idle:
 	// Wait for RX or TX mode to be set.
@@ -185,6 +187,7 @@ idle:
 	str zero, [state, #M0_COUNT]                    // state.m0_count = zero                // 2
 	str zero, [state, #M4_COUNT]                    // state.m4_count = zero                // 2
 	str zero, [state, #NUM_SHORTFALLS]              // state.num_shortfalls = zero          // 2
+	str zero, [state, #LONGEST_SHORTFALL]           // state.longest_shortfall = zero       // 2
 	mov shortfall_length, zero                      // shortfall_length = zero              // 1
 
 loop:
@@ -298,6 +301,13 @@ extend_shortfall:
 	// Extend the length of the current shortfall, and store back in high register.
 	add length, #32                                 // length += 32                         // 1
 	mov shortfall_length, length                    // shortfall_length = length            // 1
+
+	// Is this now the longest shortfall?
+	longest .req r1
+	ldr longest, [state, #LONGEST_SHORTFALL]        // longest = state.longest_shortfall    // 2
+	cmp length, longest                             // if length <= longest:                // 1
+	blt loop                                        //      goto loop                       // 1 thru, 3 taken
+	str length, [state, #LONGEST_SHORTFALL]         // state.longest_shortfall = length     // 2
 
 	// Return to main loop.
 	b loop                                          // goto loop                            // 3

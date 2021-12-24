@@ -165,6 +165,8 @@ typedef struct {
 	uint32_t m4_count;
 	/** Number of shortfalls. */
 	uint32_t num_shortfalls;
+	/** Longest shortfall. */
+	uint32_t longest_shortfall;
 } hackrf_m0_state;
 
 struct hackrf_device_list {
