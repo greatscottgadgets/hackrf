@@ -301,8 +301,6 @@ void transceiver_startup(const transceiver_mode_t mode) {
 
 	activate_best_clock_source();
 	hw_sync_enable(_hw_sync_mode);
-	m0_state.m0_count = 0;
-	m0_state.m4_count = 0;
 }
 
 usb_request_status_t usb_vendor_request_set_transceiver_mode(

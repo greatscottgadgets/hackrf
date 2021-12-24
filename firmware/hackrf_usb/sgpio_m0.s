@@ -175,6 +175,11 @@ idle:
 	cmp mode, #MODE_IDLE                            // if mode == IDLE:                     // 1
 	beq idle                                        //      goto idle                       // 1 thru, 3 taken
 
+	// Reset counts.
+	mov zero, #0                                    // zero = 0                             // 1
+	str zero, [state, #M0_COUNT]                    // state.m0_count = zero                // 2
+	str zero, [state, #M4_COUNT]                    // state.m4_count = zero                // 2
+
 loop:
 	// The worst case timing is assumed to occur when reading the interrupt
 	// status register *just* misses the flag being set - so we include the
