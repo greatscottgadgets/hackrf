@@ -210,6 +210,8 @@ extern ADDAPI int ADDCALL hackrf_start_tx(hackrf_device* device, hackrf_sample_b
 extern ADDAPI int ADDCALL hackrf_stop_tx(hackrf_device* device);
 
 extern ADDAPI int ADDCALL hackrf_get_m0_state(hackrf_device* device, hackrf_m0_state* value);
+extern ADDAPI int ADDCALL hackrf_set_tx_underrun_limit(hackrf_device* device, uint32_t value);
+extern ADDAPI int ADDCALL hackrf_set_rx_overrun_limit(hackrf_device* device, uint32_t value);
 
 /* return HACKRF_TRUE if success */
 extern ADDAPI int ADDCALL hackrf_is_streaming(hackrf_device* device);
