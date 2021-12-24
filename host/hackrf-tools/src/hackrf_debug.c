@@ -36,7 +36,7 @@ typedef int bool;
 
 #define REGISTER_INVALID 32767
 
-int parse_int(char* s, uint16_t* const value) {
+int parse_int(char* s, uint32_t* const value) {
 	uint_fast8_t base = 10;
 	char* s_end;
 	long long_value;
@@ -56,7 +56,7 @@ int parse_int(char* s, uint16_t* const value) {
 	s_end = s;
 	long_value = strtol(s, &s_end, base);
 	if( (s != s_end) && (*s_end == 0) ) {
-		*value = (uint16_t)long_value;
+		*value = (uint32_t)long_value;
 		return HACKRF_SUCCESS;
 	} else {
 		return HACKRF_ERROR_INVALID_PARAM;
@@ -431,8 +431,8 @@ static struct option long_options[] = {
 
 int main(int argc, char** argv) {
 	int opt;
-	uint16_t register_number = REGISTER_INVALID;
-	uint16_t register_value;
+	uint32_t register_number = REGISTER_INVALID;
+	uint32_t register_value;
 	hackrf_device* device = NULL;
 	int option_index = 0;
 	bool read = false;
@@ -442,7 +442,7 @@ int main(int argc, char** argv) {
 	uint8_t part = PART_NONE;
 	const char* serial_number = NULL;
 	bool set_ui = false;
-	uint16_t ui_enable;
+	uint32_t ui_enable;
 
 	int result = hackrf_init();
 	if(result) {
