@@ -299,49 +299,14 @@ idle:
 	beq idle                                        //      goto idle                       // 1 thru, 3 taken
 
 	// Reset counts.
-	mov zero, #0                                    // zero = 0                             // 1
-	str zero, [state, #M0_COUNT]                    // state.m0_count = zero                // 2
-	str zero, [state, #M4_COUNT]                    // state.m4_count = zero                // 2
-	str zero, [state, #NUM_SHORTFALLS]              // state.num_shortfalls = zero          // 2
-	str zero, [state, #LONGEST_SHORTFALL]           // state.longest_shortfall = zero       // 2
-	mov shortfall_length, zero                      // shortfall_length = zero              // 1
+	reset_counts                                    // reset_counts()                       // 10
 
 loop:
-	// The worst case timing is assumed to occur when reading the interrupt
-	// status register *just* misses the flag being set - so we include the
-	// cycles required to check it a second time.
-	//
-	// We also assume that we can spend a full 10 cycles doing an ldr from
-	// SGPIO the first time (2 for ldr, plus 8 for SGPIO-AHB bus latency),
-	// and still miss a flag that was set at the start of those 10 cycles.
-	//
-	// This latter asssumption is probably slightly pessimistic, since the
-	// sampling of the flag on the SGPIO side must occur some time after
-	// the ldr instruction begins executing on the M0. However, we avoid
-	// relying on any assumptions about the timing details of a read over
-	// the SGPIO to AHB bridge.
+	// Wait for and clear SGPIO interrupt.
+	await_sgpio                                     // await_sgpio()                        // 34
 
-	int_status .req r0
-	scratch .req r1
-
-	// Spin until we're ready to handle an SGPIO packet:
-	// Grab the exchange interrupt status...
-	ldr int_status, [sgpio_int, #INT_STATUS]        // int_status = SGPIO_STATUS_1          // 10, twice
-
-	// ... check to see if bit #0 (slice A) was set, by shifting it into the carry bit...
-	lsr scratch, int_status, #1                     // scratch = int_status >> 1            // 1, twice
-
-	// ... and if not, jump back to the beginning.
-	bcc loop                                        // if !carry: goto loop                 // 3, then 1
-
-	// Clear the interrupt pending bits that were set.
-	str int_status, [sgpio_int, #INT_CLEAR]         // SGPIO_CLR_STATUS_1 = int_status      // 8
-
-	// ... and grab the address of the buffer segment we want to write to / read from.
-	ldr count, [state, #M0_COUNT]                   // count = state.m0_count               // 2
-	mov buf_ptr, buf_mask                           // buf_ptr = buf_mask                   // 1
-	and buf_ptr, count                              // buf_ptr &= count                     // 1
-	add buf_ptr, buf_base                           // buf_ptr += buf_base                  // 1
+	// Update buffer pointer.
+	update_buf_ptr                                  // update_buf_ptr()                     // 5
 
 	// Load mode.
 	mode .req r3
@@ -411,46 +376,7 @@ tx_zeros:
 
 shortfall:
 
-	// Get current shortfall length from high register.
-	length .req r0
-	mov length, shortfall_length                    // length = shortfall_length            // 1
-
-	// Is this a new shortfall?
-	cmp length, #0                                  // if length > 0:                       // 1
-	bgt extend_shortfall                            //      goto extend_shortfall           // 1 thru, 3 taken
-
-	// If so, increase the shortfall count.
-	num .req r1
-	ldr num, [state, #NUM_SHORTFALLS]               // num = state.num_shortfalls           // 2
-	add num, #1                                     // num += 1                             // 1
-	str num, [state, #NUM_SHORTFALLS]               // state.num_shortfalls = num           // 2
-
-extend_shortfall:
-
-	// Extend the length of the current shortfall, and store back in high register.
-	add length, #32                                 // length += 32                         // 1
-	mov shortfall_length, length                    // shortfall_length = length            // 1
-
-	// Is this now the longest shortfall?
-	longest .req r1
-	ldr longest, [state, #LONGEST_SHORTFALL]        // longest = state.longest_shortfall    // 2
-	cmp length, longest                             // if length <= longest:                // 1
-	blt loop                                        //      goto loop                       // 1 thru, 3 taken
-	str length, [state, #LONGEST_SHORTFALL]         // state.longest_shortfall = length     // 2
-
-	// Is this shortfall long enough to trigger a timeout?
-	limit .req r1
-	ldr limit, [state, #SHORTFALL_LIMIT]            // limit = state.shortfall_limit        // 2
-	cmp limit, #0                                   // if limit == 0:                       // 1
-	beq loop                                        //      goto loop                       // 1 thru, 3 taken
-	cmp length, limit                               // if length < limit:                   // 1
-	blt loop                                        //      goto loop                       // 1 thru, 3 taken
-
-	// If so, reset mode to idle and return to idle loop.
-	mode .req r3
-	mov mode, #MODE_IDLE                            // mode = MODE_IDLE                     // 1
-	str mode, [state, #MODE]                        // state.mode = mode                    // 2
-	b idle                                          // goto idle                            // 3
+	handle_shortfall                                // handle_shortfall()                   // 24
 
 direction_rx:
 
@@ -486,14 +412,7 @@ direction_rx:
 	stm buf_ptr!, {r0-r3}                           // buf_ptr[0:16] = r0-r3; buf_ptr += 16 // 5
 
 done:
-	// Finally, update the count...
-	add count, #32                                  // count += 32                          // 1
-
-	// ... and store the new count.
-	str count, [state, #M0_COUNT]                   // state.m0_count = count               // 2
-
-	// We didn't have a shortfall, so the current shortfall length is zero.
-	mov shortfall_length, hi_zero                   // shortfall_length = hi_zero           // 1
+	update_counts                                   // update_counts()                      // 4
 
 	b loop                                          // goto loop                            // 3
 
