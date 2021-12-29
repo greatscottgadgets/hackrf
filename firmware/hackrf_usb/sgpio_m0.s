@@ -67,9 +67,9 @@ shadow registers.
 There are four key code paths, with the following worst-case timings:
 
 RX, normal:     143 cycles
-RX, overrun:    69 cycles
+RX, overrun:    73 cycles
 TX, normal:     132 cycles
-TX, underrun:   136 cycles
+TX, underrun:   140 cycles
 
 Design
 ======
@@ -114,6 +114,9 @@ registers and fixed memory addresses.
 .equ NUM_SHORTFALLS,                       0x0C
 .equ LONGEST_SHORTFALL,                    0x10
 .equ SHORTFALL_LIMIT,                      0x14
+
+// Private variables stored after state.
+.equ PREV_LONGEST_SHORTFALL,               0x20
 
 // Operating modes.
 .equ MODE_IDLE,                            0
@@ -160,6 +163,7 @@ buf_ptr           .req r4
 	str zero, [state, #M4_COUNT]                    // state.m4_count = zero                // 2
 	str zero, [state, #NUM_SHORTFALLS]              // state.num_shortfalls = zero          // 2
 	str zero, [state, #LONGEST_SHORTFALL]           // state.longest_shortfall = zero       // 2
+	str zero, [state, #PREV_LONGEST_SHORTFALL]      // prev_longest_shortfall = zero        // 2
 	mov shortfall_length, zero                      // shortfall_length = zero              // 1
 	mov count, zero                                 // count = zero                         // 1
 .endm
@@ -234,6 +238,11 @@ buf_ptr           .req r4
 	add num, #1                                     // num += 1                             // 1
 	str num, [state, #NUM_SHORTFALLS]               // state.num_shortfalls = num           // 2
 
+	// Back up previous longest shortfall.
+	prev .req r0
+	ldr prev, [state, #LONGEST_SHORTFALL]           // prev = state.longest_shortfall       // 2
+	str prev, [state, #PREV_LONGEST_SHORTFALL]      // prev_longest_shortfall = prev        // 2
+
 \name\()_extend_shortfall:
 
 	// Extend the length of the current shortfall, and store back in high register.
@@ -300,6 +309,27 @@ idle:
 	bgt tx_start                                    // elif mode > RX: goto tx_start        // 1 thru, 3 taken
 	b idle                                          // goto idle                            // 3
 
+checked_rollback:
+	// Checked rollback handler. This code is run when the M0 is in a TX or RX mode, and is
+	// placed back into IDLE mode by the M4. If there is an ongoing shortfall at this point,
+	// it is assumed to be a shutdown artifact and rolled back.
+
+	// If there is no ongoing shortfall, there's nothing to do - jump back to idle loop.
+	length .req r0
+	mov length, shortfall_length                    // length = shortfall_length            // 1
+	cmp length, #0                                  // if length == 0:                      // 1
+	beq idle                                        //      goto idle                       // 3
+
+	// Otherwise, roll back the state to ignore the current shortfall, then jump to idle.
+	prev .req r0
+	ldr prev, [state, #PREV_LONGEST_SHORTFALL]      // prev = prev_longest_shortfall        // 2
+	str prev, [state, #LONGEST_SHORTFALL]           // state.longest_shortfall = prev       // 2
+	ldr prev, [state, #NUM_SHORTFALLS]              // prev = num_shortfalls                // 2
+	sub prev, #1                                    // prev -= 1                            // 1
+	str prev, [state, #NUM_SHORTFALLS]              // state.num_shortfalls = prev          // 2
+
+	b idle                                          // goto idle                            // 3
+
 tx_start:
 
 	// Reset counts.
@@ -310,11 +340,12 @@ tx_loop:
 	// Wait for and clear SGPIO interrupt.
 	await_sgpio tx                                  // await_sgpio()                        // 34
 
-	// Load mode, and return to idle if requested.
+	// Check if a return to idle mode was requested.
+	// If so, we may need to roll back shortfall stats.
 	mode .req r3
 	ldr mode, [state, #MODE]                        // mode = state.mode                    // 2
 	cmp mode, #MODE_IDLE                            // if mode == IDLE:                     // 1
-	beq idle                                        //      goto idle                       // 1 thru, 3 taken
+	beq checked_rollback                            //      goto checked_rollback           // 1 thru, 3 taken
 
 	// Check if there is enough data in the buffer.
 	//
@@ -391,11 +422,12 @@ rx_loop:
 	// Wait for and clear SGPIO interrupt.
 	await_sgpio rx                                  // await_sgpio()                        // 34
 
-	// Load mode, and return to idle if requested.
+	// Check if a return to idle mode was requested.
+	// If so, we may need to roll back shortfall stats.
 	mode .req r3
 	ldr mode, [state, #MODE]                        // mode = state.mode                    // 2
 	cmp mode, #MODE_IDLE                            // if mode == IDLE:                     // 1
-	beq idle                                        //      goto idle                       // 1 thru, 3 taken
+	beq checked_rollback                            //      goto checked_rollback           // 1 thru, 3 taken
 
 	// Check if there is enough space in the buffer.
 	//
