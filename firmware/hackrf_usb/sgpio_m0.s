@@ -37,6 +37,40 @@ The SGPIO peripheral is set up and enabled by the M4 core. All the M0 needs to
 do is handle the SGPIO exchange interrupt, which indicates that new data can
 now be read from or written to the SGPIO shadow registers.
 
+To implement the different functions of HackRF, the M0 operates in one of
+five modes, configured by the M4:
+
+IDLE:           Do nothing.
+WAIT:           Do nothing, but increment byte counter for timing purposes.
+RX:             Read data from SGPIO and write it to the buffer.
+TX_START:       Write zeroes to SGPIO until there is data in the buffer.
+TX_RUN:         Read data from the buffer and write it to SGPIO.
+
+In all modes except IDLE, the M0 advances a byte counter, which increases by
+32 each time that many bytes are exchanged with the buffer (or skipped over,
+in WAIT mode).
+
+As the M4 core produces or consumes these bytes, it advances its own counter.
+The difference between the two counter values therefore indicates the number
+of bytes available.
+
+If the M4 does not advance its count in time, a TX underrun or RX overrun
+occurs.  Collectively, these events are referred to as shortfalls, and the
+handling is similar for both.
+
+In an RX shortfall, data is discarded. In TX mode, zeroes are written to
+SGPIO. When in a shortfall, the byte counter does not advance.
+
+The M0 maintains statistics on the the number of shortfalls, and the length of
+the longest shortfall.
+
+The M0 can be configured to abort TX or RX and return to IDLE mode, if the
+length of a shortfall exceeds a configured limit.
+
+The M0 can also be configured to switch modes automatically when its byte
+counter matches a threshold value. This feature can be used to implement
+timed operations.
+
 Timing
 ======
 
@@ -88,6 +122,78 @@ used to store values needed in the code, to minimise memory loads and stores.
 
 There are no function calls. There is no stack usage. All values are in
 registers and fixed memory addresses.
+
+Structure
+=========
+
+Each mode has its own loop routine. TX_START and TX_RUN use a single TX loop.
+
+Code shared between different modes is implemented in macros and duplicated
+within each mode's own loop.
+
+At startup, the main routine sets up registers and memory, then falls through
+to the idle loop.
+
+The idle loop waits for a mode to be set, then jumps to that mode's start
+label.
+
+Code following the start label is executed only on a transition from IDLE. It
+is at this point that the buffer statistics are reset.
+
+Each mode's start code then falls through to its loop label.
+
+The first step in each loop is to wait for an SGPIO interrupt and clear it,
+which is implemented by the await_sgpio macro.
+
+Then, the mode setting is loaded from memory. If the M4 has reset the mode to
+idle, control jumps back to the idle loop after handling any cleanup needed.
+
+Next, any SGPIO operations are carried out. For RX and TX, this begins with
+calculating the buffer margin, and branching if there is a shortfall. Then
+the pointer within the buffer is updated.
+
+SGPIO reads and writes are implemented in 16-byte chunks. The four lowest
+registers, r0-r3, are used to temporarily hold the data for each chunk. Data
+is stored in-order in the buffer, but out-of-order in the SGPIO shadow
+registers, due to the SGPIO architecture. A combination of single and
+multiple load/stores is used to reorder the data in each chunk.
+
+After completing SGPIO operations, counters are updated and the threshold
+setting is checked. If the byte count has reached the threshold, the next
+mode is set and a jump is made directly to the corresponding loop label.
+Code at the start label of the new mode is not executed, so stats and
+counters are maintained across a sequence of TX/RX/WAIT operations.
+
+When a shortfall occurs, a branch is taken to a separate handler routine,
+which branches back to the mode's normal loop when complete.
+
+Most of the code for shortfall handling is common to RX and TX, and is
+implemented in the handle_shortfall macro. This is primarily concerned with
+updating statistics, but also handles switching back to IDLE mode if a
+shortfall exceeds the configured limit.
+
+There is a rollback mechanism implemented in the shortfall handling. This is
+necessary because it is common for a harmless shortfall to occur during
+shutdown, which produces misleading statistics. The code detects this case
+when the mode is changed to IDLE whilst a shortfall is ongoing. If this
+happens, statistics are rolled back to their values at the beginning of the
+shortfall.
+
+The backup of previous values is implemented in handle_shortfall when a new
+shortfall is detected, and the rollback is implemented by the
+checked_rollback routine. This routine is executed by the TX and RX loops
+before returning to the idle loop.
+
+Organisation
+============
+
+The rest of this file is organised as follows:
+
+- Constant definitions
+- Fixed register allocations
+- Macros
+- Ordering constraints
+- Finally, the actual code!
 
 */
 
@@ -297,6 +403,37 @@ buf_ptr           .req r4
 	b idle                                          // goto idle                            // 3
 .endm
 
+/*
+
+Ordering constraints
+====================
+
+The following routines are in an unusual order, to preserve the ability to
+use PC-relative conditional branches between them ("b<cond> label"). The
+ordering has been chosen to ensure that all routines are close enough to each
+other for the limited range of these instructions (−256 bytes to +254 bytes).
+
+The ordering of routines, and which others each needs to be able to reach, is
+as follows:
+
+Routine:                Uses conditional branches to:
+
+idle                    tx_start, wait_start
+tx_zeros                tx_loop
+checked_rollback        idle
+tx_start
+tx_loop                 tx_zeros, checked_rollback, rx_loop, wait_loop
+wait_start
+wait_loop               rx_loop, tx_loop
+rx_start
+rx_loop                 rx_shortfall, checked_rollback, tx_loop, wait_loop
+rx_shortfall            rx_loop
+
+If any of these routines are reordered, or made longer, you may get an error
+from the assembler saying that a branch is out of range.
+
+*/
+
 // Entry point. At this point, the libopencm3 startup code has set things up as
 // normal; .data and .bss are initialised, the stack is set up, etc.  However,
 // we don't actually use any of that.  All the code in this file would work
@@ -331,7 +468,11 @@ main:                                                                           
 	str zero, [state, #NEXT_MODE]                   // state.next_mode = zero               // 2
 
 idle:
-	// Wait for RX or TX mode to be set.
+	// Wait for a mode to be set, then jump to the appropriate loop.
+	//
+	// This code is arranged such that the branch to rx_start is the
+	// unconditional one - which is necessary since it's too far away to
+	// use a conditional branch instruction.
 	mode .req r3
 	ldr mode, [state, #MODE]                        // mode = state.mode                    // 2
 	cmp mode, #MODE_WAIT                            // if mode < WAIT:                      // 1
