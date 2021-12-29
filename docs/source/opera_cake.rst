@@ -22,19 +22,19 @@ Opera Cake has two primary ports, A0 and B0, each of which can be switched to an
 
 Port connections may be configured manually. For example, to connect A0 to A2 and B0 to B3:
 
-.. code-block :: sh
+.. code-block:: sh
 
     hackrf_operacake -a A2 -b B3
 
 To connect A0 to B2 and B0 to A4:
 
-.. code-block :: sh
+.. code-block:: sh
 
     hackrf_operacake -a B2 -b A4
 
 If only one primary port is configured, the other primary port will be connected to the first secondary port on the opposite side. For example, after the next two commands B0 will be connected to A1:
 
-.. code-block :: sh
+.. code-block:: sh
 
 	hackrf_operacake -a A2 -b B3
 	hackrf_operacake -a B2
@@ -49,13 +49,13 @@ Board Address
 
 Each Opera Cake has a numeric address set by optional jumpers installed on header P1. The default address (without jumpers) is 0. The ``--list`` or ``-l`` option can be used to list the address(es) of one or more Opera Cakes installed on a HackRF One:
 
-.. code-block :: sh
+.. code-block:: sh
 
 	hackrf_operacake -l
 
 The address may be set to any number from 0 to 7 by installing jumpers across the A0, A1, and/or A2 pins of header P1.
 
-.. list-table ::
+.. list-table::
   :header-rows: 1
   :widths: 1 1 1 1
 
@@ -98,7 +98,7 @@ The address may be set to any number from 0 to 7 by installing jumpers across th
 
 When configuring an Opera Cake, the address may be specified with the ``--address`` or ``-o`` option:
 
-.. code-block :: sh
+.. code-block:: sh
 
 	hackrf_operacake -o 1 -a A1 -b B2
 
@@ -115,7 +115,7 @@ Manual Mode
 
 The default mode of operation is ``manual``. In manual mode, fixed port connections are configured with the ``-a`` and ``-b`` options as in the port configuration examples above. If the operating mode has been changed, it can be changed back to manual mode with:
 
-.. code-block :: sh
+.. code-block:: sh
 
 	hackrf_operacake -m manual
 
@@ -128,7 +128,7 @@ The bands are specified in priority order. The final band specified will be used
 
 To assign frequency bands to ports you must use the ``-f <port:min:max>`` option for each band, with the minimum and maximum frequencies specified in MHz. For example, to use port A1 for 100 MHz to 600 MHz, A3 for 600 MHz to 1200 MHz, and B2 for 0 MHz to 4 GHz:
 
-.. code-block :: sh
+.. code-block:: sh
 
 	hackrf_operacake -m frequency -f A1:100:600 -f A3:600:1200 -f B2:0:4000
 
@@ -147,13 +147,13 @@ In time mode, the A0 port connection switches automatically over time, counted i
 
 To cycle through four ports, one port every 1000 samples:
 
-.. code-block :: sh
+.. code-block:: none
 
 	hackrf_operacake -m time -t A1:1000 -t A2:1000 -t A3:1000 -t A4:1000
 
 When the duration on multiple ports is the same, the ``-w`` option can be used to set the default dwell time:
 
-.. code-block :: sh
+.. code-block:: none
 
 	hackrf_operacake --mode time -w 1000 -t A1 -t A2 -t A3 -t A4
 
