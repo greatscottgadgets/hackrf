@@ -67,9 +67,9 @@ shadow registers.
 There are four key code paths, with the following worst-case timings:
 
 RX, normal:     143 cycles
-RX, overrun:    72 cycles
+RX, overrun:    69 cycles
 TX, normal:     132 cycles
-TX, underrun:   139 cycles
+TX, underrun:   136 cycles
 
 Design
 ======
@@ -310,9 +310,6 @@ tx_loop:
 	// Wait for and clear SGPIO interrupt.
 	await_sgpio tx                                  // await_sgpio()                        // 34
 
-	// Update buffer pointer.
-	update_buf_ptr                                  // update_buf_ptr()                     // 3
-
 	// Load mode, and return to idle if requested.
 	mode .req r3
 	ldr mode, [state, #MODE]                        // mode = state.mode                    // 2
@@ -333,6 +330,9 @@ tx_loop:
 	sub buf_margin, count                           // buf_margin -= count                  // 1
 	sub buf_margin, #32                             // buf_margin -= 32                     // 1
 	bmi tx_zeros                                    // if buf_margin < 0: goto tx_zeros     // 1 thru, 3 taken
+
+	// Update buffer pointer.
+	update_buf_ptr                                  // update_buf_ptr()                     // 3
 
 	// At this point we know there is TX data available.
 	// If still in TX start mode, switch to TX run.
@@ -391,9 +391,6 @@ rx_loop:
 	// Wait for and clear SGPIO interrupt.
 	await_sgpio rx                                  // await_sgpio()                        // 34
 
-	// Update buffer pointer.
-	update_buf_ptr                                  // update_buf_ptr()                     // 3
-
 	// Load mode, and return to idle if requested.
 	mode .req r3
 	ldr mode, [state, #MODE]                        // mode = state.mode                    // 2
@@ -418,6 +415,9 @@ rx_loop:
 	add buf_margin, buf_size_minus_32               // buf_margin += buf_size_minus_32      // 1
 	sub buf_margin, count                           // buf_margin -= count                  // 1
 	bmi rx_shortfall                                // if buf_margin < 0: goto rx_shortfall // 1 thru, 3 taken
+
+	// Update buffer pointer.
+	update_buf_ptr                                  // update_buf_ptr()                     // 3
 
 	// Read data from SGPIO.
 	ldr r0, [sgpio_data, #SLICE0]                   // r0 = SGPIO_REG_SS[SLICE0]            // 10
