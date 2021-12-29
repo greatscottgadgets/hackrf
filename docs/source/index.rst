@@ -39,8 +39,10 @@ Welcome to HackRF's documentation!
 
    list_of_hardware_revisions
    hardware_components
+   enclosure_options   
+   hackrfs_buttons
+   external_clock_interface
    clocking
-   enclosure_options
    expansion_interface
    multiple_device_hardware_synch
 
