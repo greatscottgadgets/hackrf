@@ -35,21 +35,17 @@
     SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 /**************************************************************************/
-#ifndef __SMALLFONTS_H_
-#define __SMALLFONTS_H_
+#ifndef __RAD1O_SMALLFONTS_H__
+#define __RAD1O_SMALLFONTS_H__
 
-#include "rad1o_fonts.h"
+#include "fonts.h"
 
-#include <stdint.h>
 #include <stddef.h>
+#include <stdint.h>
 
 /* Partially based on original code for the KS0108 by Stephane Rey */
 /* Current version by Kevin Townsend */
 
-extern const struct FONT_DEF Font_3x6;
-extern const struct FONT_DEF Font_5x8;
 extern const struct FONT_DEF Font_7x8;
-extern const struct FONT_DEF Font_8x8;
-extern const struct FONT_DEF Font_8x8Thin;
 
 #endif
