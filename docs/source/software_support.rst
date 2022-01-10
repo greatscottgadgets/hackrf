@@ -33,6 +33,7 @@ QSpectrumAnalyzer - `https://github.com/xmikos/qspectrumanalyzer <https://github
 
 Spectrum Analyzer GUI for hackrf_sweep for Windows - `https://github.com/pavsa/hackrf-spectrum-analyzer <https://github.com/pavsa/hackrf-spectrum-analyzer>`__
 
+Web-based APRS tracker `https://xakcop.com/aprs-sdr <https://xakcop.com/aprs-sdr/>`__
 
 
 Can use HackRF data
