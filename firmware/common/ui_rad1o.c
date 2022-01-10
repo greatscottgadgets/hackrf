@@ -38,6 +38,7 @@ static uint32_t bblna_gain = 0;
 static uint32_t bbvga_gain = 0;
 static uint32_t bbtxvga_gain = 0;
 static bool lna_on = false;
+static transceiver_mode_t trx_mode;
 static bool enabled = false;
 
 #define BLACK 0b00000000
@@ -129,7 +130,12 @@ static void ui_update(void)
     rad1o_drawHLine(11, 0, RESX - 1, WHITE);
 
     rad1o_lcdSetCrsr(2, 12);
-    draw_frequency();
+    if(trx_mode == TRANSCEIVER_MODE_RX_SWEEP) {
+        rad1o_setIntFont(&Font_Ubuntu18pt);
+        rad1o_lcdPrint("SWEEP");
+    } else {
+        draw_frequency();
+    }
 
     rad1o_drawHLine(40, 0, RESX - 1, WHITE);
 
@@ -216,7 +222,11 @@ static void rad1o_ui_deinit(void)
 static void rad1o_ui_set_frequency(uint64_t frequency)
 {
     freq = frequency;
-    ui_update();
+
+    if(TRANSCEIVER_MODE_RX_SWEEP == trx_mode) {
+    } else {
+        ui_update();
+    }
 }
 
 static void rad1o_ui_set_sample_rate(uint32_t _sample_rate)
@@ -281,6 +291,12 @@ static void rad1o_ui_set_clock_source(clock_source_t source __attribute__((unuse
     // Not implemented
 }
 
+static void rad1o_ui_set_transceiver_mode(transceiver_mode_t mode)
+{
+    trx_mode = mode;
+    ui_update();
+}
+
 static bool rad1o_ui_operacake_gpio_compatible(void)
 {
     return true;
@@ -301,6 +317,7 @@ static const hackrf_ui_t rad1o_ui = {
     &rad1o_ui_set_filter,
     &rad1o_ui_set_antenna_bias,
     &rad1o_ui_set_clock_source,
+    &rad1o_ui_set_transceiver_mode,
     &rad1o_ui_operacake_gpio_compatible,
 };
 
