@@ -32,8 +32,4 @@
  */
 extern uint8_t usb_bulk_buffer[32768];
 
-extern volatile uint32_t usb_bulk_buffer_offset;
-
-extern bool usb_bulk_buffer_tx;
-
 #endif/*__USB_BULK_BUFFER_H__*/

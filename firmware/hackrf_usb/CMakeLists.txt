@@ -35,7 +35,6 @@ set(SRC_M4
 	hackrf_usb.c
 	"${PATH_HACKRF_FIRMWARE_COMMON}/tuning.c"
 	"${PATH_HACKRF_FIRMWARE_COMMON}/streaming.c"
-	usb_bulk_buffer.c
 	"${PATH_HACKRF_FIRMWARE_COMMON}/usb.c"
 	"${PATH_HACKRF_FIRMWARE_COMMON}/usb_request.c"
 	"${PATH_HACKRF_FIRMWARE_COMMON}/usb_standard_request.c"
