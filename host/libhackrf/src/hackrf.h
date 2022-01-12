@@ -110,7 +110,7 @@ enum operacake_switching_mode {
 	 */
 	OPERACAKE_MODE_MANUAL,
 	/**
-	 * Port connections are switched automatically when the frequency is changed. Frequency ranges can be set using @ref hackrf_set_operacake_ranges.
+	 * Port connections are switched automatically when the frequency is changed. Frequency ranges can be set using @ref hackrf_set_operacake_freq_ranges.
 	 */
 	OPERACAKE_MODE_FREQUENCY,
 	/**
