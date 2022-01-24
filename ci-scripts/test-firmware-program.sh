@@ -1,5 +1,5 @@
 #!/bin/bash
-usbhub power state --port 2 --reset
+usbhub --hub D9D1 power state --port 2 --reset
 sleep 1s
 dfu-util --path 1-3.2 --alt 0 --download firmware/hackrf_usb/build/hackrf_usb.dfu
 EXIT_CODE="$?"

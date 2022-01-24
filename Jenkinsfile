@@ -41,9 +41,8 @@ pipeline {
     }
     post {
         always {
-            echo 'One way or another, I have finished'
+            sh 'usbhub --hub D9D1 power state --port 2 --reset'
             sh 'rm -rf testing-venv/'
-            // Clean after build
             cleanWs(cleanWhenNotBuilt: false,
                     deleteDirs: true,
                     disableDeferredWipeout: true,
