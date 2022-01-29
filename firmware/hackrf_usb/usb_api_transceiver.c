@@ -238,6 +238,7 @@ usb_request_status_t usb_vendor_request_set_freq_explicit(
 }
 
 static volatile transceiver_mode_t _transceiver_mode = TRANSCEIVER_MODE_OFF;
+static volatile uint32_t _transceiver_mode_seq = 0;
 static volatile hw_sync_mode_t _hw_sync_mode = HW_SYNC_MODE_OFF;
 
 void set_hw_sync_mode(const hw_sync_mode_t new_hw_sync_mode) {
@@ -246,6 +247,10 @@ void set_hw_sync_mode(const hw_sync_mode_t new_hw_sync_mode) {
 
 transceiver_mode_t transceiver_mode(void) {
 	return _transceiver_mode;
+}
+
+uint32_t transceiver_mode_seq(void) {
+	return _transceiver_mode_seq;
 }
 
 void set_transceiver_mode(const transceiver_mode_t new_transceiver_mode) {
@@ -287,6 +292,8 @@ void set_transceiver_mode(const transceiver_mode_t new_transceiver_mode) {
 
 		m0_state.offset = 0;
 	}
+
+	_transceiver_mode_seq++;
 }
 
 usb_request_status_t usb_vendor_request_set_transceiver_mode(
@@ -324,12 +331,12 @@ usb_request_status_t usb_vendor_request_set_hw_sync_mode(
 	}
 }
 
-void rx_mode(void) {
+void rx_mode(uint32_t seq) {
 	unsigned int phase = 1;
 
 	baseband_streaming_enable(&sgpio_config);
 
-	while (TRANSCEIVER_MODE_RX == _transceiver_mode) {
+	while (_transceiver_mode_seq == seq) {
 		// Set up IN transfer of buffer 0.
 		if (16384 <= m0_state.offset && 1 == phase) {
 			usb_transfer_schedule_block(
@@ -353,7 +360,7 @@ void rx_mode(void) {
 	}
 }
 
-void tx_mode(void) {
+void tx_mode(uint32_t seq) {
 	unsigned int phase = 1;
 
 	memset(&usb_bulk_buffer[0x0000], 0, 0x8000);
@@ -367,7 +374,7 @@ void tx_mode(void) {
 	// Start transmitting zeros while the host fills buffer 1.
 	baseband_streaming_enable(&sgpio_config);
 
-	while (TRANSCEIVER_MODE_TX == _transceiver_mode) {
+	while (_transceiver_mode_seq == seq) {
 		// Set up OUT transfer of buffer 0.
 		if (16384 <= m0_state.offset && 1 == phase) {
 			usb_transfer_schedule_block(
