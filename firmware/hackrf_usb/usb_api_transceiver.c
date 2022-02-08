@@ -237,34 +237,43 @@ usb_request_status_t usb_vendor_request_set_freq_explicit(
 	}
 }
 
-static volatile transceiver_mode_t _transceiver_mode = TRANSCEIVER_MODE_OFF;
-static volatile uint32_t _transceiver_mode_seq = 0;
 static volatile hw_sync_mode_t _hw_sync_mode = HW_SYNC_MODE_OFF;
 
 void set_hw_sync_mode(const hw_sync_mode_t new_hw_sync_mode) {
 	_hw_sync_mode = new_hw_sync_mode;
 }
 
-transceiver_mode_t transceiver_mode(void) {
-	return _transceiver_mode;
+volatile transceiver_request_t transceiver_request = {
+	.mode = TRANSCEIVER_MODE_OFF,
+	.seq = 0,
+};
+
+// Must be called from an atomic context (normally USB ISR)
+void request_transceiver_mode(transceiver_mode_t mode)
+{
+	transceiver_request.mode = mode;
+	transceiver_request.seq++;
 }
 
-uint32_t transceiver_mode_seq(void) {
-	return _transceiver_mode_seq;
-}
-
-void set_transceiver_mode(const transceiver_mode_t new_transceiver_mode) {
+void transceiver_shutdown(void)
+{
 	baseband_streaming_disable(&sgpio_config);
 	operacake_sctimer_reset_state();
 
 	usb_endpoint_flush(&usb_endpoint_bulk_in);
 	usb_endpoint_flush(&usb_endpoint_bulk_out);
 
-	_transceiver_mode = new_transceiver_mode;
+	led_off(LED2);
+	led_off(LED3);
+	rf_path_set_direction(&rf_path, RF_PATH_DIRECTION_OFF);
+	m0_state.tx = false;
+}
 
-	hackrf_ui()->set_transceiver_mode(_transceiver_mode);
+void transceiver_startup(const transceiver_mode_t mode) {
 
-	switch (_transceiver_mode) {
+	hackrf_ui()->set_transceiver_mode(mode);
+
+	switch (mode) {
 	case TRANSCEIVER_MODE_RX_SWEEP:
 	case TRANSCEIVER_MODE_RX:
 		led_off(LED3);
@@ -278,24 +287,13 @@ void set_transceiver_mode(const transceiver_mode_t new_transceiver_mode) {
 		rf_path_set_direction(&rf_path, RF_PATH_DIRECTION_TX);
 		m0_state.tx = true;
 		break;
-	case TRANSCEIVER_MODE_OFF:
 	default:
-		led_off(LED2);
-		led_off(LED3);
-		rf_path_set_direction(&rf_path, RF_PATH_DIRECTION_OFF);
-		m0_state.tx = false;
+		break;
 	}
 
-
-	if( _transceiver_mode != TRANSCEIVER_MODE_OFF ) {
-		activate_best_clock_source();
-
-        hw_sync_enable(_hw_sync_mode);
-
-		m0_state.offset = 0;
-	}
-
-	_transceiver_mode_seq++;
+	activate_best_clock_source();
+	hw_sync_enable(_hw_sync_mode);
+	m0_state.offset = 0;
 }
 
 usb_request_status_t usb_vendor_request_set_transceiver_mode(
@@ -309,7 +307,7 @@ usb_request_status_t usb_vendor_request_set_transceiver_mode(
 		case TRANSCEIVER_MODE_TX:
 		case TRANSCEIVER_MODE_RX_SWEEP:
 		case TRANSCEIVER_MODE_CPLD_UPDATE:
-			set_transceiver_mode(endpoint->setup.value);
+			request_transceiver_mode(endpoint->setup.value);
 			usb_transfer_schedule_ack(endpoint->in);
 			return USB_REQUEST_STATUS_OK;
 		default:
@@ -336,9 +334,11 @@ usb_request_status_t usb_vendor_request_set_hw_sync_mode(
 void rx_mode(uint32_t seq) {
 	unsigned int phase = 1;
 
+	transceiver_startup(TRANSCEIVER_MODE_RX);
+
 	baseband_streaming_enable(&sgpio_config);
 
-	while (_transceiver_mode_seq == seq) {
+	while (transceiver_request.seq == seq) {
 		// Set up IN transfer of buffer 0.
 		if (16384 <= m0_state.offset && 1 == phase) {
 			usb_transfer_schedule_block(
@@ -360,10 +360,14 @@ void rx_mode(uint32_t seq) {
 			phase = 1;
 		}
 	}
+
+	transceiver_shutdown();
 }
 
 void tx_mode(uint32_t seq) {
 	unsigned int phase = 1;
+
+	transceiver_startup(TRANSCEIVER_MODE_TX);
 
 	memset(&usb_bulk_buffer[0x0000], 0, 0x8000);
 	// Set up OUT transfer of buffer 1.
@@ -376,7 +380,7 @@ void tx_mode(uint32_t seq) {
 	// Start transmitting zeros while the host fills buffer 1.
 	baseband_streaming_enable(&sgpio_config);
 
-	while (_transceiver_mode_seq == seq) {
+	while (transceiver_request.seq == seq) {
 		// Set up OUT transfer of buffer 0.
 		if (16384 <= m0_state.offset && 1 == phase) {
 			usb_transfer_schedule_block(
@@ -398,4 +402,13 @@ void tx_mode(uint32_t seq) {
 			phase = 1;
 		}
 	}
+
+	transceiver_shutdown();
+}
+
+void off_mode(uint32_t seq)
+{
+	hackrf_ui()->set_transceiver_mode(TRANSCEIVER_MODE_OFF);
+
+	while (transceiver_request.seq == seq);
 }
