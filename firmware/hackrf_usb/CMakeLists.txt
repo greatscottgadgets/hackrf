@@ -76,6 +76,13 @@ endif()
 if(BOARD STREQUAL "RAD1O")
 	SET(SRC_M4
 		${SRC_M4}
+		"${PATH_HACKRF_FIRMWARE_COMMON}/rad1o/display.c"
+		"${PATH_HACKRF_FIRMWARE_COMMON}/rad1o/print.c"
+		"${PATH_HACKRF_FIRMWARE_COMMON}/rad1o/render.c"
+		"${PATH_HACKRF_FIRMWARE_COMMON}/rad1o/decoder.c"
+		"${PATH_HACKRF_FIRMWARE_COMMON}/rad1o/smallfonts.c"
+		"${PATH_HACKRF_FIRMWARE_COMMON}/rad1o/draw.c"
+		"${PATH_HACKRF_FIRMWARE_COMMON}/rad1o/ubuntu18.c"
 		"${PATH_HACKRF_FIRMWARE_COMMON}/ui_rad1o.c"
 	)
 endif()

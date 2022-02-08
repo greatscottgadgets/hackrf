@@ -554,6 +554,10 @@ static void portapack_ui_set_clock_source(clock_source_t source) {
 	portapack_lcd_draw_string(label_point, s);
 }
 
+static void portapack_ui_set_transceiver_mode(transceiver_mode_t mode) {
+	(void)mode;
+}
+
 static bool portapack_ui_operacake_gpio_compatible(void) {
 	return false;
 }
@@ -573,6 +577,7 @@ const hackrf_ui_t portapack_hackrf_ui = {
 	&portapack_ui_set_filter,
 	&portapack_ui_set_antenna_bias,
 	&portapack_ui_set_clock_source,
+	&portapack_ui_set_transceiver_mode,
 	&portapack_ui_operacake_gpio_compatible,
 };
 

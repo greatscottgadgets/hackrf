@@ -21,78 +21,287 @@
 
 #include "ui_rad1o.h"
 
-/* Weak functions from rad1o app */
-void hackrf_ui_init(void) __attribute__((weak));
-void hackrf_ui_setFrequency(uint64_t _freq) __attribute__((weak));
-void hackrf_ui_setSampleRate(uint32_t _sample_rate) __attribute__((weak));
-void hackrf_ui_setDirection(const rf_path_direction_t _direction) __attribute__((weak));
-void hackrf_ui_setFilterBW(uint32_t bw) __attribute__((weak));
-void hackrf_ui_setLNAPower(bool _lna_on) __attribute__((weak));
-void hackrf_ui_setBBLNAGain(const uint32_t gain_db) __attribute__((weak));
-void hackrf_ui_setBBVGAGain(const uint32_t gain_db) __attribute__((weak));
-void hackrf_ui_setBBTXVGAGain(const uint32_t gain_db) __attribute__((weak));
-void hackrf_ui_setFirstIFFrequency(const uint64_t freq) __attribute__((weak));
-void hackrf_ui_setFilter(const rf_path_filter_t filter) __attribute__((weak));
-void hackrf_ui_setAntennaBias(bool antenna_bias) __attribute__((weak));
-void hackrf_ui_setClockSource(clock_source_t source) __attribute__((weak));
+#include "rad1o/display.h"
+#include "rad1o/draw.h"
+#include "rad1o/print.h"
+#include "rad1o/render.h"
+#include "rad1o/smallfonts.h"
+#include "rad1o/ubuntu18.h"
 
-static void rad1o_ui_init(void) {
-    hackrf_ui_init();
+#include <stdio.h>
+
+static uint64_t freq = 0;
+static uint32_t sample_rate = 0;
+static uint32_t filter_bw = 0;
+static rf_path_direction_t direction;
+static uint32_t bblna_gain = 0;
+static uint32_t bbvga_gain = 0;
+static uint32_t bbtxvga_gain = 0;
+static bool lna_on = false;
+static transceiver_mode_t trx_mode;
+static bool enabled = false;
+
+#define BLACK 0b00000000
+#define RED 0b11100000
+#define RED_DARK 0b01100000
+#define GREEN 0b00011100
+#define GREEN_DARK 0b00001100
+#define BLUE 0b00000011
+#define WHITE 0b11111111
+#define GREY 0b01001101
+
+static void draw_frequency(void)
+{
+	char tmp[100];
+	uint32_t mhz;
+	uint32_t khz;
+
+	mhz = freq / 1000000;
+	khz = (freq - mhz * 1000000) / 1000;
+
+	rad1o_setTextColor(BLACK, GREEN);
+	rad1o_setIntFont(&Font_Ubuntu18pt);
+	sprintf(tmp, "%4u.%03u", (unsigned int)mhz, (unsigned int)khz);
+	rad1o_lcdPrint(tmp);
+
+	rad1o_setIntFont(&Font_7x8);
+	rad1o_lcdMoveCrsr(1, 18 - 7);
+	rad1o_lcdPrint("MHz");
 }
 
-static void rad1o_ui_deinit(void) {
+static void draw_tx_rx(void)
+{
+	uint8_t bg, fg;
 
+	rad1o_setIntFont(&Font_Ubuntu18pt);
+
+	bg = BLACK;
+
+	fg = GREY;
+	if (direction == RF_PATH_DIRECTION_OFF) {
+		fg = WHITE;
+	}
+	rad1o_setTextColor(bg, fg);
+	rad1o_lcdPrint("OFF ");
+
+	fg = GREY;
+	if (direction == RF_PATH_DIRECTION_RX) {
+		fg = GREEN;
+	}
+	rad1o_setTextColor(bg, fg);
+	rad1o_lcdPrint("RX ");
+
+	fg = GREY;
+	if (direction == RF_PATH_DIRECTION_TX) {
+		fg = RED;
+	}
+	rad1o_setTextColor(bg, fg);
+	rad1o_lcdPrint("TX");
+
+	rad1o_setIntFont(&Font_7x8);
 }
 
-static void rad1o_ui_set_frequency(uint64_t frequency) {
-    hackrf_ui_setFrequency(frequency);
+static void ui_update(void)
+{
+	char tmp[100];
+	uint32_t mhz;
+	uint32_t khz;
+
+	if (!enabled) {
+		return;
+	}
+
+	rad1o_lcdClear();
+	rad1o_lcdFill(0x00);
+
+	rad1o_drawHLine(0, 0, RESX - 1, WHITE);
+	rad1o_drawVLine(0, 0, RESY - 1, WHITE);
+
+	rad1o_drawHLine(RESY - 1, 0, RESX - 1, WHITE);
+	rad1o_drawVLine(RESX - 1, 0, RESY - 1, WHITE);
+
+	rad1o_lcdSetCrsr(25, 2);
+
+	rad1o_setTextColor(BLACK, GREEN);
+
+	rad1o_lcdPrint("HackRF Mode");
+	rad1o_lcdNl();
+
+	rad1o_drawHLine(11, 0, RESX - 1, WHITE);
+
+	rad1o_lcdSetCrsr(2, 12);
+	if (trx_mode == TRANSCEIVER_MODE_RX_SWEEP) {
+		rad1o_setIntFont(&Font_Ubuntu18pt);
+		rad1o_lcdPrint("SWEEP");
+	} else {
+		draw_frequency();
+	}
+
+	rad1o_drawHLine(40, 0, RESX - 1, WHITE);
+
+	rad1o_lcdSetCrsr(6, 41);
+	draw_tx_rx();
+	rad1o_drawHLine(69, 0, RESX - 1, WHITE);
+
+	rad1o_setTextColor(BLACK, WHITE);
+	rad1o_lcdSetCrsr(2, 71);
+	rad1o_lcdPrint("Rate:   ");
+	mhz = sample_rate / 1000000;
+	khz = (sample_rate - mhz * 1000000) / 1000;
+	sprintf(tmp, "%2u.%03u MHz", (unsigned int)mhz, (unsigned int)khz);
+	rad1o_lcdPrint(tmp);
+	rad1o_lcdNl();
+
+	rad1o_lcdMoveCrsr(2, 0);
+	rad1o_lcdPrint("Filter: ");
+	mhz = filter_bw / 1000000;
+	khz = (filter_bw - mhz * 1000000) / 1000;
+	sprintf(tmp, "%2u.%03u MHz", (unsigned int)mhz, (unsigned int)khz);
+	rad1o_lcdPrint(tmp);
+	rad1o_lcdNl();
+
+	rad1o_drawHLine(88, 0, RESX - 1, WHITE);
+
+	rad1o_setTextColor(BLACK, WHITE);
+	rad1o_lcdSetCrsr(2, 90);
+	rad1o_lcdPrint("      Gains");
+	rad1o_lcdNl();
+
+	rad1o_setTextColor(BLACK, GREEN);
+	rad1o_lcdMoveCrsr(2, 2);
+	rad1o_lcdPrint("AMP: ");
+	if (lna_on) {
+		rad1o_setTextColor(BLACK, RED);
+		rad1o_lcdPrint("ON ");
+	} else {
+		rad1o_lcdPrint("OFF");
+	}
+
+	rad1o_setTextColor(BLACK, RED_DARK);
+	if (direction == RF_PATH_DIRECTION_TX) {
+		rad1o_setTextColor(BLACK, RED);
+	}
+	sprintf(tmp, " TX: %u dB", (unsigned int)bbtxvga_gain);
+	rad1o_lcdPrint(tmp);
+	rad1o_lcdNl();
+
+	rad1o_lcdMoveCrsr(2, 0);
+	rad1o_setTextColor(BLACK, GREEN_DARK);
+	if (direction == RF_PATH_DIRECTION_RX) {
+		rad1o_setTextColor(BLACK, GREEN);
+	}
+	sprintf(tmp, "LNA: %2u dB", (unsigned int)bblna_gain);
+	rad1o_lcdPrint(tmp);
+	rad1o_lcdNl();
+	rad1o_lcdMoveCrsr(2, 0);
+	sprintf(tmp, "VGA: %2u dB", (unsigned int)bbvga_gain);
+	rad1o_lcdPrint(tmp);
+	rad1o_lcdNl();
+
+	rad1o_lcdDisplay();
+
+	// Don't ask...
+	ssp1_set_mode_max2837();
 }
 
-static void rad1o_ui_set_sample_rate(uint32_t sample_rate) {
-    hackrf_ui_setSampleRate(sample_rate);
+static void rad1o_ui_init(void)
+{
+	rad1o_lcdInit();
+	enabled = true;
+	ui_update();
 }
 
-static void rad1o_ui_set_direction(const rf_path_direction_t direction) {
-    hackrf_ui_setDirection(direction);
+static void rad1o_ui_deinit(void)
+{
+	rad1o_lcdDeInit();
+	enabled = false;
+	// Don't ask...
+	ssp1_set_mode_max2837();
 }
 
-static void rad1o_ui_set_filter_bw(uint32_t bandwidth) {
-    hackrf_ui_setFilterBW(bandwidth);
+static void rad1o_ui_set_frequency(uint64_t frequency)
+{
+	freq = frequency;
+
+	if (TRANSCEIVER_MODE_RX_SWEEP == trx_mode) {
+	} else {
+		ui_update();
+	}
 }
 
-static void rad1o_ui_set_lna_power(bool lna_on) {
-    hackrf_ui_setLNAPower(lna_on);
+static void rad1o_ui_set_sample_rate(uint32_t _sample_rate)
+{
+	sample_rate = _sample_rate;
+	ui_update();
 }
 
-static void rad1o_ui_set_bb_lna_gain(const uint32_t gain_db) {
-	hackrf_ui_setBBLNAGain(gain_db);
+static void rad1o_ui_set_direction(const rf_path_direction_t _direction)
+{
+	direction = _direction;
+	ui_update();
 }
 
-static void rad1o_ui_set_bb_vga_gain(const uint32_t gain_db) {
-	hackrf_ui_setBBVGAGain(gain_db);
+static void rad1o_ui_set_filter_bw(uint32_t bandwidth)
+{
+	filter_bw = bandwidth;
+	ui_update();
 }
 
-static void rad1o_ui_set_bb_tx_vga_gain(const uint32_t gain_db) {
-	hackrf_ui_setBBTXVGAGain(gain_db);
+static void rad1o_ui_set_lna_power(bool _lna_on)
+{
+	lna_on = _lna_on;
+	ui_update();
 }
 
-static void rad1o_ui_set_first_if_frequency(const uint64_t frequency) {
-	hackrf_ui_setFirstIFFrequency(frequency);
+static void rad1o_ui_set_bb_lna_gain(const uint32_t gain_db)
+{
+	bblna_gain = gain_db;
+	ui_update();
 }
 
-static void rad1o_ui_set_filter(const rf_path_filter_t filter) {
-    hackrf_ui_setFilter(filter);
+static void rad1o_ui_set_bb_vga_gain(const uint32_t gain_db)
+{
+	bbvga_gain = gain_db;
+	ui_update();
 }
 
-static void rad1o_ui_set_antenna_bias(bool antenna_bias) {
-    hackrf_ui_setAntennaBias(antenna_bias);
+static void rad1o_ui_set_bb_tx_vga_gain(const uint32_t gain_db)
+{
+	bbtxvga_gain = gain_db;
+	ui_update();
 }
 
-static void rad1o_ui_set_clock_source(clock_source_t source) {
-	hackrf_ui_setClockSource(source);
+static void rad1o_ui_set_first_if_frequency(const uint64_t frequency
+					    __attribute__((unused)))
+{
+	// Not implemented
 }
 
-static bool rad1o_ui_operacake_gpio_compatible(void) {
+static void rad1o_ui_set_filter(const rf_path_filter_t filter
+				__attribute__((unused)))
+{
+	// Not implemented
+}
+
+static void rad1o_ui_set_antenna_bias(bool antenna_bias __attribute__((unused)))
+{
+	// Not implemented
+}
+
+static void rad1o_ui_set_clock_source(clock_source_t source
+				      __attribute__((unused)))
+{
+	// Not implemented
+}
+
+static void rad1o_ui_set_transceiver_mode(transceiver_mode_t mode)
+{
+	trx_mode = mode;
+	ui_update();
+}
+
+static bool rad1o_ui_operacake_gpio_compatible(void)
+{
 	return true;
 }
 
@@ -111,9 +320,11 @@ static const hackrf_ui_t rad1o_ui = {
 	&rad1o_ui_set_filter,
 	&rad1o_ui_set_antenna_bias,
 	&rad1o_ui_set_clock_source,
+	&rad1o_ui_set_transceiver_mode,
 	&rad1o_ui_operacake_gpio_compatible,
 };
 
-const hackrf_ui_t* rad1o_ui_setup(void) {
+const hackrf_ui_t *rad1o_ui_setup(void)
+{
 	return &rad1o_ui;
 }

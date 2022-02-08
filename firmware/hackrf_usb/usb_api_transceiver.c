@@ -261,7 +261,9 @@ void set_transceiver_mode(const transceiver_mode_t new_transceiver_mode) {
 	usb_endpoint_flush(&usb_endpoint_bulk_out);
 
 	_transceiver_mode = new_transceiver_mode;
-	
+
+	hackrf_ui()->set_transceiver_mode(_transceiver_mode);
+
 	switch (_transceiver_mode) {
 	case TRANSCEIVER_MODE_RX_SWEEP:
 	case TRANSCEIVER_MODE_RX:
