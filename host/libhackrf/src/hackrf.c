@@ -126,6 +126,11 @@ struct hackrf_device {
 	volatile bool do_exit;
 	unsigned char buffer[TRANSFER_COUNT * TRANSFER_BUFFER_SIZE];
 	bool transfers_setup; /* true if the USB transfers have been setup */
+	pthread_mutex_t transfer_lock; /* must be held to cancel or restart transfers */
+	bool transfer_finished[TRANSFER_COUNT]; /* which transfers have finished */
+	volatile bool all_finished; /* whether all transfers have finished */
+	pthread_cond_t all_finished_cv; /* signalled when all transfers have finished */
+	pthread_mutex_t all_finished_lock; /* used to protect all_finished */
 };
 
 typedef struct {
@@ -204,9 +209,15 @@ static int transfers_check_setup(hackrf_device* device)
 static int cancel_transfers(hackrf_device* device)
 {
 	uint32_t transfer_index;
+	int i;
 
 	if(transfers_check_setup(device) == true)
 	{
+		// Take lock while cancelling transfers. This blocks the
+		// transfer completion callback from restarting a transfer
+		// while we're in the middle of trying to cancel them all.
+		pthread_mutex_lock(&device->transfer_lock);
+
 		for(transfer_index=0; transfer_index<TRANSFER_COUNT; transfer_index++)
 		{
 			if( device->transfers[transfer_index] != NULL )
@@ -214,7 +225,30 @@ static int cancel_transfers(hackrf_device* device)
 				libusb_cancel_transfer(device->transfers[transfer_index]);
 			}
 		}
+
 		device->transfers_setup = false;
+
+		// Now release the lock. It's possible that some transfers were
+		// already complete when we called libusb_cancel_transfer() on
+		// them, and they may still get a callback. But the callback
+		// won't restart a transfer now that the transfers_setup flag
+		// is set to false.
+		pthread_mutex_unlock(&device->transfer_lock);
+
+		// Now wait for the transfer thread to signal that all transfers
+		// have finished, either by completing or being fully cancelled.
+		pthread_mutex_lock(&device->all_finished_lock);
+		while (!device->all_finished) {
+			pthread_cond_wait(&device->all_finished_cv, &device->all_finished_lock);
+		}
+		pthread_mutex_unlock(&device->all_finished_lock);
+
+		// Now that all waiting and handling is completed, it's safe to
+		// reset these flags ready for the next time.
+		for (i = 0; i < TRANSFER_COUNT; i++)
+			device->transfer_finished[i] = false;
+		device->all_finished = false;
+
 		return HACKRF_SUCCESS;
 	} else {
 		return HACKRF_ERROR_OTHER;
@@ -577,7 +611,7 @@ libusb_device_handle* hackrf_open_usb(const char* const desired_serial_number)
 
 static int hackrf_open_setup(libusb_device_handle* usb_device, hackrf_device** device)
 {
-	int result;
+	int result, i;
 	hackrf_device* lib_device;
 
 	//int speed = libusb_get_device_speed(usb_device);
@@ -613,6 +647,36 @@ static int hackrf_open_setup(libusb_device_handle* usb_device, hackrf_device** d
 	lib_device->transfer_thread_started = false;
 	lib_device->streaming = false;
 	lib_device->do_exit = false;
+	for (i = 0; i < TRANSFER_COUNT; i++)
+		lib_device->transfer_finished[i] = false;
+	lib_device->all_finished = false;
+
+	result = pthread_mutex_init(&lib_device->transfer_lock, NULL);
+	if( result != 0 )
+	{
+		free(lib_device);
+		libusb_release_interface(usb_device, 0);
+		libusb_close(usb_device);
+		return HACKRF_ERROR_THREAD;
+	}
+
+	result = pthread_mutex_init(&lib_device->all_finished_lock, NULL);
+	if( result != 0 )
+	{
+		free(lib_device);
+		libusb_release_interface(usb_device, 0);
+		libusb_close(usb_device);
+		return HACKRF_ERROR_THREAD;
+	}
+
+	result = pthread_cond_init(&lib_device->all_finished_cv, NULL);
+	if( result != 0 )
+	{
+		free(lib_device);
+		libusb_release_interface(usb_device, 0);
+		libusb_close(usb_device);
+		return HACKRF_ERROR_THREAD;
+	}
 
 	result = allocate_transfers(lib_device);
 	if( result != 0 )
@@ -1542,9 +1606,32 @@ static void* transfer_threadproc(void* arg)
 	return NULL;
 }
 
+static void transfer_finished(struct hackrf_device* device, struct libusb_transfer* finished_transfer)
+{
+	int i;
+	bool all_finished = true;
+
+	for (i = 0; i < TRANSFER_COUNT; i++) {
+		if (device->transfers[i] == finished_transfer) {
+			device->transfer_finished[i] = true;
+		} else {
+			all_finished &= device->transfer_finished[i];
+		}
+	}
+
+	if (all_finished) {
+		pthread_mutex_lock(&device->all_finished_lock);
+		device->all_finished = true;
+		pthread_cond_signal(&device->all_finished_cv);
+		pthread_mutex_unlock(&device->all_finished_lock);
+	}
+}
+
 static void LIBUSB_CALL hackrf_libusb_transfer_callback(struct libusb_transfer* usb_transfer)
 {
 	hackrf_device* device = (hackrf_device*)usb_transfer->user_data;
+	bool resubmit;
+	int result;
 
 	if(usb_transfer->status == LIBUSB_TRANSFER_COMPLETED)
 	{
@@ -1559,17 +1646,27 @@ static void LIBUSB_CALL hackrf_libusb_transfer_callback(struct libusb_transfer* 
 
 		if( device->callback(&transfer) == 0 )
 		{
-			if( libusb_submit_transfer(usb_transfer) < 0)
-			{
-				request_exit(device);
-			}else {
-				return;
+			// Take lock to make sure that we don't restart a
+			// transfer whilst cancel_transfers() is in the middle
+			// of stopping them.
+			pthread_mutex_lock(&device->transfer_lock);
+
+			if ((resubmit = device->transfers_setup)) {
+				result = libusb_submit_transfer(usb_transfer);
 			}
-		}else {
-			request_exit(device);
+
+			// Now we can release the lock. Our transfer was either
+			// cancelled or restarted, not both.
+			pthread_mutex_unlock(&device->transfer_lock);
+
+			if (!resubmit || result < 0) {
+				transfer_finished(device, usb_transfer);
+			}
+		} else {
+			transfer_finished(device, usb_transfer);
 		}
 	} else if(usb_transfer->status == LIBUSB_TRANSFER_CANCELLED) {
-		/* Nothing; this will happen during shutdown */
+		transfer_finished(device, usb_transfer);
 	} else {
 		/* Other cases LIBUSB_TRANSFER_NO_DEVICE
 		LIBUSB_TRANSFER_ERROR, LIBUSB_TRANSFER_TIMED_OUT
@@ -1588,21 +1685,14 @@ static int kill_transfer_thread(hackrf_device* device)
 	if( device->transfer_thread_started != false )
 	{
 		/*
-		 * Schedule cancelling transfers before halting the
-		 * libusb thread.  This should result in the transfers
-		 * being properly marked as cancelled.
-		 *
-		 * Ideally this would wait for the cancellations to
-		 * complete with the callback but for now that
-		 * isn't super easy to do.
+		 * Cancel transfers. This call will block until the transfer
+		 * thread has handled all completion callbacks.
 		 */
 		cancel_transfers(device);
-
 		/*
 		 * Now call request_exit() to halt the main loop.
 		 */
 		request_exit(device);
-
 		value = NULL;
 		result = pthread_join(device->transfer_thread, &value);
 		if( result != 0 )
@@ -1649,12 +1739,15 @@ static int prepare_setup_transfers(hackrf_device* device,
 
 static int create_transfer_thread(hackrf_device* device)
 {
-	int result;
+	int result, i;
 
 	if( device->transfer_thread_started == false )
 	{
 		device->streaming = false;
 		device->do_exit = false;
+		for (i = 0; i < TRANSFER_COUNT; i++)
+			device->transfer_finished[i] = false;
+		device->all_finished = false;
 		result = pthread_create(&device->transfer_thread, 0, transfer_threadproc, device);
 		if( result == 0 )
 		{
@@ -1820,6 +1913,10 @@ int ADDCALL hackrf_close(hackrf_device* device)
 		}
 
 		free_transfers(device);
+
+		pthread_mutex_destroy(&device->transfer_lock);
+		pthread_cond_destroy(&device->all_finished_cv);
+		pthread_mutex_destroy(&device->all_finished_lock);
 
 		free(device);
 	}

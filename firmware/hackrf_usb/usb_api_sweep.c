@@ -87,7 +87,7 @@ usb_request_status_t usb_vendor_request_init_sweep(
 	return USB_REQUEST_STATUS_OK;
 }
 
-void sweep_mode(void) {
+void sweep_mode(uint32_t seq) {
 	unsigned int blocks_queued = 0;
 	unsigned int phase = 1;
 	bool odd = true;
@@ -98,7 +98,7 @@ void sweep_mode(void) {
 
 	baseband_streaming_enable(&sgpio_config);
 
-	while (TRANSCEIVER_MODE_RX_SWEEP == transceiver_mode()) {
+	while (transceiver_mode_seq() == seq) {
 		// Set up IN transfer of buffer 0.
 		if ( m0_state.offset >= 16384 && phase == 1) {
 			transfer = true;

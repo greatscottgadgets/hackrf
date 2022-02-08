@@ -57,9 +57,10 @@ usb_request_status_t usb_vendor_request_set_hw_sync_mode(
 	usb_endpoint_t* const endpoint,	const usb_transfer_stage_t stage);
 
 transceiver_mode_t transceiver_mode(void);
+uint32_t transceiver_mode_seq(void);
 void set_transceiver_mode(const transceiver_mode_t new_transceiver_mode);
 void start_streaming_on_hw_sync();
-void rx_mode(void);
-void tx_mode(void);
+void rx_mode(uint32_t seq);
+void tx_mode(uint32_t seq);
 
 #endif/*__USB_API_TRANSCEIVER_H__*/

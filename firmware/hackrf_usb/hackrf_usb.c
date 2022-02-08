@@ -263,15 +263,29 @@ int main(void) {
 	operacake_init(operacake_allow_gpio);
 
 	while(true) {
-		switch (transceiver_mode()) {
+
+		// Briefly disable USB interrupt so that we can
+		// atomically retrieve both the transceiver mode
+		// and the mode change sequence number. They are
+		// changed together by the set_transceiver_mode
+		// vendor request handler.
+
+		nvic_disable_irq(NVIC_USB0_IRQ);
+
+		transceiver_mode_t mode = transceiver_mode();
+		uint32_t seq = transceiver_mode_seq();
+
+		nvic_enable_irq(NVIC_USB0_IRQ);
+
+		switch (mode) {
 		case TRANSCEIVER_MODE_RX:
-			rx_mode();
+			rx_mode(seq);
 			break;
 		case TRANSCEIVER_MODE_TX:
-			tx_mode();
+			tx_mode(seq);
 			break;
 		case TRANSCEIVER_MODE_RX_SWEEP:
-			sweep_mode();
+			sweep_mode(seq);
 			break;
 		case TRANSCEIVER_MODE_CPLD_UPDATE:
 			cpld_update();
