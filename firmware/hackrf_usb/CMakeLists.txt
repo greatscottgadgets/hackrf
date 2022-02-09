@@ -35,7 +35,6 @@ set(SRC_M4
 	hackrf_usb.c
 	"${PATH_HACKRF_FIRMWARE_COMMON}/tuning.c"
 	"${PATH_HACKRF_FIRMWARE_COMMON}/streaming.c"
-	m0_state.c
 	"${PATH_HACKRF_FIRMWARE_COMMON}/usb.c"
 	"${PATH_HACKRF_FIRMWARE_COMMON}/usb_request.c"
 	"${PATH_HACKRF_FIRMWARE_COMMON}/usb_standard_request.c"
@@ -44,6 +43,7 @@ set(SRC_M4
 	usb_endpoint.c
 	usb_api_board_info.c
 	usb_api_cpld.c
+	usb_api_m0_state.c
 	usb_api_register.c
 	usb_api_spiflash.c
 	usb_api_transceiver.c

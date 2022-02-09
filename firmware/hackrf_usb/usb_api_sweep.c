@@ -25,7 +25,7 @@
 #include <hackrf_core.h>
 #include "usb_api_transceiver.h"
 #include "usb_bulk_buffer.h"
-#include "m0_state.h"
+#include "usb_api_m0_state.h"
 #include "tuning.h"
 #include "usb_endpoint.h"
 #include "streaming.h"

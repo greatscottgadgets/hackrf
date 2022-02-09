@@ -49,7 +49,7 @@
 #include "usb_api_transceiver.h"
 #include "usb_api_ui.h"
 #include "usb_bulk_buffer.h"
-#include "m0_state.h"
+#include "usb_api_m0_state.h"
 #include "cpld_xc2c.h"
 #include "portapack.h"
  

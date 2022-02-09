@@ -27,7 +27,7 @@
 
 #include <libopencm3/cm3/vector.h>
 #include "usb_bulk_buffer.h"
-#include "m0_state.h"
+#include "usb_api_m0_state.h"
 
 #include "usb_api_cpld.h" // Remove when CPLD update is handled elsewhere
 
