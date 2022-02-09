@@ -46,9 +46,13 @@ typedef int bool;
 #ifdef HACKRF_BIG_ENDIAN
 #define TO_LE(x) __builtin_bswap32(x)
 #define TO_LE64(x) __builtin_bswap64(x)
+#define FROM_LE16(x) __builtin_bswap16(x)
+#define FROM_LE32(x) __builtin_bswap32(x)
 #else
 #define TO_LE(x) x
 #define TO_LE64(x) x
+#define FROM_LE16(x) x
+#define FROM_LE32(x) x
 #endif
 
 // TODO: Factor this into a shared #include so that firmware can use
@@ -1031,6 +1035,17 @@ int ADDCALL hackrf_get_m0_state(hackrf_device* device, hackrf_m0_state* state)
 		last_libusb_error = result;
 		return HACKRF_ERROR_LIBUSB;
 	} else {
+		state->request_flag = FROM_LE16(state->request_flag);
+		state->requested_mode = FROM_LE16(state->requested_mode);
+		state->active_mode = FROM_LE32(state->active_mode);
+		state->m0_count = FROM_LE32(state->m0_count);
+		state->m4_count = FROM_LE32(state->m4_count);
+		state->num_shortfalls = FROM_LE32(state->num_shortfalls);
+		state->longest_shortfall = FROM_LE32(state->longest_shortfall);
+		state->shortfall_limit = FROM_LE32(state->shortfall_limit);
+		state->threshold = FROM_LE32(state->threshold);
+		state->next_mode = FROM_LE32(state->next_mode);
+		state->error = FROM_LE32(state->error);
 		return HACKRF_SUCCESS;
 	}
 }
