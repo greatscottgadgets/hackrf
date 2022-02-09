@@ -34,6 +34,7 @@ struct m0_state {
 	uint32_t shortfall_limit;
 	uint32_t threshold;
 	uint32_t next_mode;
+	uint32_t error;
 };
 
 enum m0_mode {
@@ -42,6 +43,12 @@ enum m0_mode {
 	M0_MODE_RX = 2,
 	M0_MODE_TX_START = 3,
 	M0_MODE_TX_RUN = 4,
+};
+
+enum m0_error {
+	M0_ERROR_NONE = 0,
+	M0_ERROR_RX_TIMEOUT = 1,
+	M0_ERROR_TX_TIMEOUT = 2,
 };
 
 /* Address of m0_state is set in ldscripts. If you change the name of this

@@ -173,6 +173,8 @@ typedef struct {
 	uint32_t threshold;
 	/** Mode which will be switched to when threshold is reached. */
 	uint32_t next_mode;
+	/** Error, if any, that caused the M0 to revert to IDLE mode. */
+	uint32_t error;
 } hackrf_m0_state;
 
 struct hackrf_device_list {

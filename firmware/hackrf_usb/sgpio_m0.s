@@ -101,9 +101,9 @@ shadow registers.
 There are four key code paths, with the following worst-case timings:
 
 RX, normal:     152 cycles
-RX, overrun:    73 cycles
+RX, overrun:    76 cycles
 TX, normal:     142 cycles
-TX, underrun:   140 cycles
+TX, underrun:   143 cycles
 
 Design
 ======
@@ -222,9 +222,10 @@ The rest of this file is organised as follows:
 .equ SHORTFALL_LIMIT,                      0x14
 .equ THRESHOLD,                            0x18
 .equ NEXT_MODE,                            0x1C
+.equ ERROR,                                0x20
 
 // Private variables stored after state.
-.equ PREV_LONGEST_SHORTFALL,               0x20
+.equ PREV_LONGEST_SHORTFALL,               0x24
 
 // Operating modes.
 .equ MODE_IDLE,                            0
@@ -232,6 +233,11 @@ The rest of this file is organised as follows:
 .equ MODE_RX,                              2
 .equ MODE_TX_START,                        3
 .equ MODE_TX_RUN,                          4
+
+// Error codes.
+.equ ERROR_NONE,                           0
+.equ ERROR_RX_TIMEOUT,                     1
+.equ ERROR_TX_TIMEOUT,                     2
 
 // Our slice chain is set up as follows (ascending data age; arrows are reversed for flow):
 //     L  -> F  -> K  -> C -> J  -> E  -> I  -> A
@@ -273,6 +279,7 @@ buf_ptr           .req r4
 	str zero, [state, #NUM_SHORTFALLS]              // state.num_shortfalls = zero          // 2
 	str zero, [state, #LONGEST_SHORTFALL]           // state.longest_shortfall = zero       // 2
 	str zero, [state, #PREV_LONGEST_SHORTFALL]      // prev_longest_shortfall = zero        // 2
+	str zero, [state, #ERROR]                       // state.error = zero                   // 2
 	mov shortfall_length, zero                      // shortfall_length = zero              // 1
 	mov count, zero                                 // count = zero                         // 1
 .endm
@@ -396,8 +403,19 @@ buf_ptr           .req r4
 	cmp length, limit                               // if length < limit:                   // 1
 	blt \name\()_loop                               //      goto loop                       // 1 thru, 3 taken
 
-	// If so, reset mode to idle and return to idle loop.
+	// If so, reset mode to idle and return to idle loop, logging an error.
+	//
+	// Modes are mapped to errors as follows:
+	//
+	// MODE_RX (2)     -> ERROR_RX_TIMEOUT (1)
+	// MODE_TX_RUN (4) -> ERROR_TX_TIMEOUT (2)
+	//
+	// As such, the error code can be obtained by shifting the mode right by 1 bit.
+
 	mode .req r3
+	error .req r2
+	lsr error, mode, #1                             // error = mode >> 1                    // 1
+	str error, [state, #ERROR]                      // state.error = error                  // 2
 	mov mode, #MODE_IDLE                            // mode = MODE_IDLE                     // 1
 	str mode, [state, #MODE]                        // state.mode = mode                    // 2
 	b idle                                          // goto idle                            // 3
@@ -466,6 +484,7 @@ main:                                                                           
 	str zero, [state, #SHORTFALL_LIMIT]             // state.shortfall_limit = zero         // 2
 	str zero, [state, #THRESHOLD]                   // state.threshold = zero               // 2
 	str zero, [state, #NEXT_MODE]                   // state.next_mode = zero               // 2
+	str zero, [state, #ERROR]                       // state.error = zero                   // 2
 
 idle:
 	// Wait for a mode to be set, then jump to the appropriate loop.
@@ -526,7 +545,7 @@ checked_rollback:
 tx_start:
 
 	// Reset counts.
-	reset_counts                                    // reset_counts()                       // 10
+	reset_counts                                    // reset_counts()                       // 12
 
 tx_loop:
 
@@ -588,7 +607,7 @@ tx_write:
 wait_start:
 
 	// Reset counts.
-	reset_counts                                    // reset_counts()                       // 10
+	reset_counts                                    // reset_counts()                       // 12
 
 wait_loop:
 
@@ -610,7 +629,7 @@ wait_loop:
 rx_start:
 
 	// Reset counts.
-	reset_counts                                    // reset_counts()                       // 10
+	reset_counts                                    // reset_counts()                       // 12
 
 rx_loop:
 

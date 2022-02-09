@@ -386,6 +386,15 @@ static const char * mode_name(uint32_t mode) {
 	    return "UNKNOWN";
 }
 
+static const char * error_name(uint32_t error) {
+	const char *error_names[] = {"NONE", "RX_TIMEOUT", "TX_TIMEOUT"};
+	const uint32_t num_errors = sizeof(error_names) / sizeof(error_names[0]);
+	if (error < num_errors)
+	    return error_names[error];
+	else
+	    return "UNKNOWN";
+}
+
 static void print_state(hackrf_m0_state *state) {
 	printf("M0 state:\n");
 	printf("Mode: %u (%s)\n", state->mode, mode_name(state->mode));
@@ -396,6 +405,7 @@ static void print_state(hackrf_m0_state *state) {
 	printf("Shortfall limit: %u bytes\n", state->shortfall_limit);
 	printf("Mode change threshold: %u bytes\n", state->threshold);
 	printf("Next mode: %u (%s)\n", state->mode, mode_name(state->mode));
+	printf("Error: %u (%s)\n", state->error, error_name(state->error));
 }
 
 static void usage() {
