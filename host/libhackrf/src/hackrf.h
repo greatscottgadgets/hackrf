@@ -157,8 +157,12 @@ typedef struct {
 
 /** State of the SGPIO loop running on the M0 core. */
 typedef struct {
-	/** Operating mode. */
-	uint32_t mode;
+	/** Request flag. */
+	uint16_t request_flag;
+	/** Requested mode. */
+	uint16_t requested_mode;
+	/** Active mode. */
+	uint32_t active_mode;
 	/** Number of bytes transferred by the M0. */
 	uint32_t m0_count;
 	/** Number of bytes transferred by the M4. */

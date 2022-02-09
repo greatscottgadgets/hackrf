@@ -25,8 +25,11 @@
 #include <stdint.h>
 #include <usb_request.h>
 
+#define M0_REQUEST_FLAG (1 << 16)
+
 struct m0_state {
-	uint32_t mode;
+	uint32_t requested_mode;
+	uint32_t active_mode;
 	uint32_t m0_count;
 	uint32_t m4_count;
 	uint32_t num_shortfalls;
@@ -56,6 +59,8 @@ enum m0_error {
  * unless you also adjust the ldscripts.
  */
 extern volatile struct m0_state m0_state;
+
+void m0_set_mode(enum m0_mode mode);
 
 usb_request_status_t usb_vendor_request_get_m0_state(
 	usb_endpoint_t* const endpoint,	const usb_transfer_stage_t stage);

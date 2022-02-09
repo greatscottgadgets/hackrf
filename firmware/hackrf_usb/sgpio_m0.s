@@ -102,8 +102,8 @@ There are four key code paths, with the following worst-case timings:
 
 RX, normal:     152 cycles
 RX, overrun:    76 cycles
-TX, normal:     142 cycles
-TX, underrun:   143 cycles
+TX, normal:     140 cycles
+TX, underrun:   145 cycles
 
 Design
 ======
@@ -214,18 +214,19 @@ The rest of this file is organised as follows:
 .equ STATE_BASE,                           0x20007000
 
 // Offsets into the state structure.
-.equ MODE,                                 0x00
-.equ M0_COUNT,                             0x04
-.equ M4_COUNT,                             0x08
-.equ NUM_SHORTFALLS,                       0x0C
-.equ LONGEST_SHORTFALL,                    0x10
-.equ SHORTFALL_LIMIT,                      0x14
-.equ THRESHOLD,                            0x18
-.equ NEXT_MODE,                            0x1C
-.equ ERROR,                                0x20
+.equ REQUESTED_MODE,                       0x00
+.equ ACTIVE_MODE,                          0x04
+.equ M0_COUNT,                             0x08
+.equ M4_COUNT,                             0x0C
+.equ NUM_SHORTFALLS,                       0x10
+.equ LONGEST_SHORTFALL,                    0x14
+.equ SHORTFALL_LIMIT,                      0x18
+.equ THRESHOLD,                            0x1C
+.equ NEXT_MODE,                            0x20
+.equ ERROR,                                0x24
 
 // Private variables stored after state.
-.equ PREV_LONGEST_SHORTFALL,               0x24
+.equ PREV_LONGEST_SHORTFALL,               0x28
 
 // Operating modes.
 .equ MODE_IDLE,                            0
@@ -267,23 +268,6 @@ buf_ptr           .req r4
 
 /* Macros */
 
-.macro reset_counts
-	// Reset counts.
-	//
-	// Clobbers:
-	zero .req r0
-
-	mov zero, #0                                    // zero = 0                             // 1
-	str zero, [state, #M0_COUNT]                    // state.m0_count = zero                // 2
-	str zero, [state, #M4_COUNT]                    // state.m4_count = zero                // 2
-	str zero, [state, #NUM_SHORTFALLS]              // state.num_shortfalls = zero          // 2
-	str zero, [state, #LONGEST_SHORTFALL]           // state.longest_shortfall = zero       // 2
-	str zero, [state, #PREV_LONGEST_SHORTFALL]      // prev_longest_shortfall = zero        // 2
-	str zero, [state, #ERROR]                       // state.error = zero                   // 2
-	mov shortfall_length, zero                      // shortfall_length = zero              // 1
-	mov count, zero                                 // count = zero                         // 1
-.endm
-
 .macro await_sgpio name
 	// Wait for, then clear, SGPIO exchange interrupt flag.
 	//
@@ -313,6 +297,15 @@ buf_ptr           .req r4
 
 	// Clear the interrupt pending bits that were set.
 	str int_status, [sgpio_int, #INT_CLEAR]         // SGPIO_CLR_STATUS_1 = int_status      // 8
+.endm
+
+.macro on_request label
+	// Check if a new mode change request was made, and if so jump to the given label.
+	mode .req r3
+	flag .req r2
+	ldr mode, [state, #REQUESTED_MODE]              // mode = state.requested_mode          // 2
+	lsr flag, mode, #16                             // flag = mode >> 16                    // 1
+	bne \label                                      // if flag != 0: goto label             // 1 thru, 3 taken
 .endm
 
 .macro update_buf_ptr
@@ -347,7 +340,7 @@ buf_ptr           .req r4
 
 	// Otherwise, load and set new mode.
 	ldr new_mode, [state, #NEXT_MODE]               // new_mode = state.next_mode           // 2
-	str new_mode, [state, #MODE]                    // state.mode = new_mode                // 2
+	str new_mode, [state, #ACTIVE_MODE]             // state.active_mode = new_mode         // 2
 
 	// Branch according to new mode.
 	cmp new_mode, #MODE_RX                          // if new_mode == RX:                   // 1
@@ -414,10 +407,11 @@ buf_ptr           .req r4
 
 	mode .req r3
 	error .req r2
+	ldr mode, [state, #ACTIVE_MODE]                 // mode = state.active_mode             // 2
 	lsr error, mode, #1                             // error = mode >> 1                    // 1
 	str error, [state, #ERROR]                      // state.error = error                  // 2
 	mov mode, #MODE_IDLE                            // mode = MODE_IDLE                     // 1
-	str mode, [state, #MODE]                        // state.mode = mode                    // 2
+	str mode, [state, #ACTIVE_MODE]                 // state.active_mode = mode             // 2
 	b idle                                          // goto idle                            // 3
 .endm
 
@@ -436,14 +430,11 @@ as follows:
 
 Routine:                Uses conditional branches to:
 
-idle                    tx_start, wait_start
+idle                    tx_loop, wait_loop
 tx_zeros                tx_loop
 checked_rollback        idle
-tx_start
 tx_loop                 tx_zeros, checked_rollback, rx_loop, wait_loop
-wait_start
 wait_loop               rx_loop, tx_loop
-rx_start
 rx_loop                 rx_shortfall, checked_rollback, tx_loop, wait_loop
 rx_shortfall            rx_loop
 
@@ -476,7 +467,8 @@ main:                                                                           
 	mov hi_zero, zero                               // hi_zero = zero                       // 1
 
 	// Initialise state.
-	str zero, [state, #MODE]                        // state.mode = zero                    // 2
+	str zero, [state, #REQUESTED_MODE]              // state.requested_mode = zero          // 2
+	str zero, [state, #ACTIVE_MODE]                 // state.active_mode = zero             // 2
 	str zero, [state, #M0_COUNT]                    // state.m0_count = zero                // 2
 	str zero, [state, #M4_COUNT]                    // state.m4_count = zero                // 2
 	str zero, [state, #NUM_SHORTFALLS]              // state.num_shortfalls = zero          // 2
@@ -487,19 +479,59 @@ main:                                                                           
 	str zero, [state, #ERROR]                       // state.error = zero                   // 2
 
 idle:
-	// Wait for a mode to be set, then jump to the appropriate loop.
+	// Wait for a mode to be requested, then set up the new mode and acknowledge the request.
+	mode .req r3
+	flag .req r2
+	zero .req r0
+
+	// Read the requested mode and check flag to see if this is a new request. If not, ignore.
+	ldr mode, [state, #REQUESTED_MODE]              // mode = state.requested_mode          // 2
+	lsr flag, mode, #16                             // flag = mode >> 16                    // 1
+	beq idle                                        // if flag == 0: goto idle              // 1 thru, 3 taken
+
+	// Otherwise, this is a new request. The M4 is blocked at this point,
+	// waiting for us to clear the request flag. So we can safely write to
+	// all parts of the state.
+
+	// Set the new mode as both active & next.
+	uxth mode, mode                                 // mode = mode & 0xFFFF                 // 1
+	str mode, [state, #ACTIVE_MODE]                 // state.active_mode = mode             // 2
+	str mode, [state, #NEXT_MODE]                   // state.next_mode = mode               // 2
+
+	// Don't reset counts on a transition to IDLE.
+	cmp mode, #MODE_IDLE                            // if mode == IDLE:                     // 1
+	beq ack_request                                 //     goto ack_request                 // 1 thru, 3 taken
+
+	// For all other transitions, reset counts.
+	mov zero, #0                                    // zero = 0                             // 1
+	str zero, [state, #M0_COUNT]                    // state.m0_count = zero                // 2
+	str zero, [state, #M4_COUNT]                    // state.m4_count = zero                // 2
+	str zero, [state, #NUM_SHORTFALLS]              // state.num_shortfalls = zero          // 2
+	str zero, [state, #LONGEST_SHORTFALL]           // state.longest_shortfall = zero       // 2
+	str zero, [state, #THRESHOLD]                   // state.threshold = zero               // 2
+	str zero, [state, #PREV_LONGEST_SHORTFALL]      // prev_longest_shortfall = zero        // 2
+	str zero, [state, #ERROR]                       // state.error = zero                   // 2
+	mov shortfall_length, zero                      // shortfall_length = zero              // 1
+	mov count, zero                                 // count = zero                         // 1
+
+ack_request:
+	// Clear SGPIO interrupt flag, which the M4 set to get our attention.
+	str flag, [sgpio_int, #INT_CLEAR]               // SGPIO_CLR_STATUS_1 = flag            // 8
+
+	// Write back requested mode with the flag cleared to acknowledge the request.
+	str mode, [state, #REQUESTED_MODE]              // state.requested_mode = mode          // 2
+
+	// Dispatch to appropriate loop.
 	//
-	// This code is arranged such that the branch to rx_start is the
+	// This code is arranged such that the branch to rx_loop is the
 	// unconditional one - which is necessary since it's too far away to
 	// use a conditional branch instruction.
-	mode .req r3
-	ldr mode, [state, #MODE]                        // mode = state.mode                    // 2
 	cmp mode, #MODE_WAIT                            // if mode < WAIT:                      // 1
 	blt idle                                        //      goto idle                       // 1 thru, 3 taken
-	beq wait_start                                  // elif mode == WAIT: goto wait_start   // 1 thru, 3 taken
+	beq wait_loop                                   // elif mode == WAIT: goto wait_loop    // 1 thru, 3 taken
 	cmp mode, #MODE_RX                              // if mode > RX:                        // 1
-	bgt tx_start                                    //      goto tx_start                   // 1 thru, 3 taken
-	b rx_start                                      // goto rx_start                        // 3
+	bgt tx_loop                                     //      goto tx_loop                    // 1 thru, 3 taken
+	b rx_loop                                       // goto rx_loop                         // 3
 
 tx_zeros:
 
@@ -515,6 +547,7 @@ tx_zeros:
 	str zero, [sgpio_data, #SLICE7]                 // SGPIO_REG_SS[SLICE7] = zero          // 8
 
 	// If in TX start mode, don't count this as a shortfall.
+	ldr mode, [state, #ACTIVE_MODE]                 // mode = state.active_mode             // 2
 	cmp mode, #MODE_TX_START                        // if mode == TX_START:                 // 1
 	beq tx_loop                                     //      goto tx_loop                    // 1 thru, 3 taken
 
@@ -542,22 +575,14 @@ checked_rollback:
 
 	b idle                                          // goto idle                            // 3
 
-tx_start:
-
-	// Reset counts.
-	reset_counts                                    // reset_counts()                       // 12
-
 tx_loop:
 
 	// Wait for and clear SGPIO interrupt.
 	await_sgpio tx                                  // await_sgpio()                        // 34
 
-	// Check if a return to idle mode was requested.
+	// Check if there is a mode change request.
 	// If so, we may need to roll back shortfall stats.
-	mode .req r3
-	ldr mode, [state, #MODE]                        // mode = state.mode                    // 2
-	cmp mode, #MODE_IDLE                            // if mode == IDLE:                     // 1
-	beq checked_rollback                            //      goto checked_rollback           // 1 thru, 3 taken
+	on_request checked_rollback                                                             // 4
 
 	// Check if there is enough data in the buffer.
 	//
@@ -578,13 +603,9 @@ tx_loop:
 	update_buf_ptr                                  // update_buf_ptr()                     // 3
 
 	// At this point we know there is TX data available.
-	// If still in TX start mode, switch to TX run.
-	cmp mode, #MODE_TX_START                        // if mode != TX_START:                 // 1
-	bne tx_write                                    //      goto tx_write                   // 1 thru, 3 taken
+	// Set active mode to TX_RUN (it might still be TX_START).
 	mov mode, #MODE_TX_RUN                          // mode = TX_RUN                        // 1
-	str mode, [state, #MODE]                        // state.mode = mode                    // 2
-
-tx_write:
+	str mode, [state, #ACTIVE_MODE]                 // state.active_mode = mode             // 2
 
 	// Write data to SGPIO.
 	ldm buf_ptr!, {r0-r3}                           // r0-r3 = buf_ptr[0:16]; buf_ptr += 16 // 5
@@ -604,21 +625,14 @@ tx_write:
 	// Jump to next mode if threshold reached, or back to TX loop start.
 	jump_next_mode tx                               // jump_next_mode()                     // 13
 
-wait_start:
-
-	// Reset counts.
-	reset_counts                                    // reset_counts()                       // 12
-
 wait_loop:
 
 	// Wait for and clear SGPIO interrupt.
 	await_sgpio wait                                // await_sgpio()                        // 34
 
-	// Load mode, and return to idle if requested.
-	mode .req r3
-	ldr mode, [state, #MODE]                        // mode = state.mode                    // 2
-	cmp mode, #MODE_IDLE                            // if mode == IDLE:                     // 1
-	beq idle                                        //      goto idle                       // 1 thru, 3 taken
+	// Check if there is a mode change request.
+	// If so, return to idle.
+	on_request idle                                                                         // 4
 
 	// Update counts.
 	update_counts                                   // update_counts()                      // 4
@@ -626,22 +640,14 @@ wait_loop:
 	// Jump to next mode if threshold reached, or back to wait loop start.
 	jump_next_mode wait                             // jump_next_mode()                     // 15
 
-rx_start:
-
-	// Reset counts.
-	reset_counts                                    // reset_counts()                       // 12
-
 rx_loop:
 
 	// Wait for and clear SGPIO interrupt.
 	await_sgpio rx                                  // await_sgpio()                        // 34
 
-	// Check if a return to idle mode was requested.
+	// Check if there is a mode change request.
 	// If so, we may need to roll back shortfall stats.
-	mode .req r3
-	ldr mode, [state, #MODE]                        // mode = state.mode                    // 2
-	cmp mode, #MODE_IDLE                            // if mode == IDLE:                     // 1
-	beq checked_rollback                            //      goto checked_rollback           // 1 thru, 3 taken
+	on_request checked_rollback                                                             // 4
 
 	// Check if there is enough space in the buffer.
 	//

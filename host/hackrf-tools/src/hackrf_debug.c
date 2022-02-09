@@ -397,14 +397,17 @@ static const char * error_name(uint32_t error) {
 
 static void print_state(hackrf_m0_state *state) {
 	printf("M0 state:\n");
-	printf("Mode: %u (%s)\n", state->mode, mode_name(state->mode));
+	printf("Requested mode: %u (%s) [%s]\n",
+		state->requested_mode, mode_name(state->requested_mode),
+		state->request_flag ? "pending" : "complete");
+	printf("Active mode: %u (%s)\n", state->active_mode, mode_name(state->active_mode));
 	printf("M0 count: %u bytes\n", state->m0_count);
 	printf("M4 count: %u bytes\n", state->m4_count);
 	printf("Number of shortfalls: %u\n", state->num_shortfalls);
 	printf("Longest shortfall: %u bytes\n", state->longest_shortfall);
 	printf("Shortfall limit: %u bytes\n", state->shortfall_limit);
 	printf("Mode change threshold: %u bytes\n", state->threshold);
-	printf("Next mode: %u (%s)\n", state->mode, mode_name(state->mode));
+	printf("Next mode: %u (%s)\n", state->next_mode, mode_name(state->next_mode));
 	printf("Error: %u (%s)\n", state->error, error_name(state->error));
 }
 

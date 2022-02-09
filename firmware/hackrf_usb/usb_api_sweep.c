@@ -132,14 +132,13 @@ void sweep_mode(uint32_t seq) {
 	// Set M0 to RX first buffer, then wait.
 	m0_state.threshold = 0x4000;
 	m0_state.next_mode = M0_MODE_WAIT;
-	m0_state.mode = M0_MODE_RX;
 
 	baseband_streaming_enable(&sgpio_config);
 
 	while (transceiver_request.seq == seq) {
 
 		// Wait for M0 to finish receiving a buffer.
-		while (m0_state.mode != M0_MODE_WAIT)
+		while (m0_state.active_mode != M0_MODE_WAIT)
 			if (transceiver_request.seq != seq)
 				goto end;
 
@@ -198,7 +197,7 @@ void sweep_mode(uint32_t seq) {
 		nvic_enable_irq(NVIC_USB0_IRQ);
 
 		// Wait for M0 to resume RX.
-		while (m0_state.mode != M0_MODE_RX)
+		while (m0_state.active_mode != M0_MODE_RX)
 			if (transceiver_request.seq != seq)
 				goto end;
 
