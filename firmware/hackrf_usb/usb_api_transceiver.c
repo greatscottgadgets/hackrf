@@ -251,6 +251,9 @@ volatile transceiver_request_t transceiver_request = {
 // Must be called from an atomic context (normally USB ISR)
 void request_transceiver_mode(transceiver_mode_t mode)
 {
+	usb_endpoint_flush(&usb_endpoint_bulk_in);
+	usb_endpoint_flush(&usb_endpoint_bulk_out);
+
 	transceiver_request.mode = mode;
 	transceiver_request.seq++;
 }
