@@ -47,7 +47,7 @@ static uint32_t step_width = 0;
 static uint32_t offset = 0;
 static enum sweep_style style = LINEAR;
 
-/* Do this before starting sweep mode with set_transceiver_mode(). */
+/* Do this before starting sweep mode with request_transceiver_mode(). */
 usb_request_status_t usb_vendor_request_init_sweep(
 		usb_endpoint_t* const endpoint, const usb_transfer_stage_t stage)
 {
@@ -96,9 +96,11 @@ void sweep_mode(uint32_t seq) {
 	uint8_t *buffer;
 	bool transfer = false;
 
+	transceiver_startup(TRANSCEIVER_MODE_RX_SWEEP);
+
 	baseband_streaming_enable(&sgpio_config);
 
-	while (transceiver_mode_seq() == seq) {
+	while (transceiver_request.seq == seq) {
 		// Set up IN transfer of buffer 0.
 		if ( m0_state.offset >= 16384 && phase == 1) {
 			transfer = true;
@@ -165,4 +167,6 @@ void sweep_mode(uint32_t seq) {
 			blocks_queued = 0;
 		}
 	}
+
+	transceiver_shutdown();
 }
