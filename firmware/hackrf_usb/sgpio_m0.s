@@ -357,6 +357,7 @@ buf_ptr           .req r4
 	// Clobbers:
 	length .req r0
 	num .req r1
+	prev .req r1
 	longest .req r1
 	limit .req r1
 
@@ -373,7 +374,6 @@ buf_ptr           .req r4
 	str num, [state, #NUM_SHORTFALLS]               // state.num_shortfalls = num           // 2
 
 	// Back up previous longest shortfall.
-	prev .req r0
 	ldr prev, [state, #LONGEST_SHORTFALL]           // prev = state.longest_shortfall       // 2
 	str prev, [state, #PREV_LONGEST_SHORTFALL]      // prev_longest_shortfall = prev        // 2
 
