@@ -49,6 +49,7 @@
 #include "usb_api_transceiver.h"
 #include "usb_api_ui.h"
 #include "usb_bulk_buffer.h"
+#include "usb_api_m0_state.h"
 #include "cpld_xc2c.h"
 #include "portapack.h"
  
@@ -114,6 +115,9 @@ static usb_request_handler_fn vendor_request_handler[] = {
 	usb_vendor_request_operacake_set_mode,
 	usb_vendor_request_operacake_get_mode,
 	usb_vendor_request_operacake_set_dwell_times,
+	usb_vendor_request_get_m0_state,
+	usb_vendor_request_set_tx_underrun_limit,
+	usb_vendor_request_set_rx_overrun_limit,
 };
 
 static const uint32_t vendor_request_handler_count =

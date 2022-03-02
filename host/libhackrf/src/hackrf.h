@@ -155,6 +155,32 @@ typedef struct {
 	uint8_t port;
 } hackrf_operacake_freq_range;
 
+/** State of the SGPIO loop running on the M0 core. */
+typedef struct {
+	/** Requested mode. */
+	uint16_t requested_mode;
+	/** Request flag. */
+	uint16_t request_flag;
+	/** Active mode. */
+	uint32_t active_mode;
+	/** Number of bytes transferred by the M0. */
+	uint32_t m0_count;
+	/** Number of bytes transferred by the M4. */
+	uint32_t m4_count;
+	/** Number of shortfalls. */
+	uint32_t num_shortfalls;
+	/** Longest shortfall. */
+	uint32_t longest_shortfall;
+	/** Shortfall limit in bytes. */
+	uint32_t shortfall_limit;
+	/** Threshold m0_count value for next mode change. */
+	uint32_t threshold;
+	/** Mode which will be switched to when threshold is reached. */
+	uint32_t next_mode;
+	/** Error, if any, that caused the M0 to revert to IDLE mode. */
+	uint32_t error;
+} hackrf_m0_state;
+
 struct hackrf_device_list {
 	char **serial_numbers;
 	enum hackrf_usb_board_id *usb_board_ids;
@@ -192,6 +218,10 @@ extern ADDAPI int ADDCALL hackrf_stop_rx(hackrf_device* device);
  
 extern ADDAPI int ADDCALL hackrf_start_tx(hackrf_device* device, hackrf_sample_block_cb_fn callback, void* tx_ctx);
 extern ADDAPI int ADDCALL hackrf_stop_tx(hackrf_device* device);
+
+extern ADDAPI int ADDCALL hackrf_get_m0_state(hackrf_device* device, hackrf_m0_state* value);
+extern ADDAPI int ADDCALL hackrf_set_tx_underrun_limit(hackrf_device* device, uint32_t value);
+extern ADDAPI int ADDCALL hackrf_set_rx_overrun_limit(hackrf_device* device, uint32_t value);
 
 /* return HACKRF_TRUE if success */
 extern ADDAPI int ADDCALL hackrf_is_streaming(hackrf_device* device);

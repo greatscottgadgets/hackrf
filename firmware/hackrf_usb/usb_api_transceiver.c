@@ -27,7 +27,7 @@
 
 #include <libopencm3/cm3/vector.h>
 #include "usb_bulk_buffer.h"
-#include "m0_state.h"
+#include "usb_api_m0_state.h"
 
 #include "usb_api_cpld.h" // Remove when CPLD update is handled elsewhere
 
@@ -238,6 +238,8 @@ usb_request_status_t usb_vendor_request_set_freq_explicit(
 }
 
 static volatile hw_sync_mode_t _hw_sync_mode = HW_SYNC_MODE_OFF;
+static volatile uint32_t _tx_underrun_limit;
+static volatile uint32_t _rx_overrun_limit;
 
 void set_hw_sync_mode(const hw_sync_mode_t new_hw_sync_mode) {
 	_hw_sync_mode = new_hw_sync_mode;
@@ -269,7 +271,7 @@ void transceiver_shutdown(void)
 	led_off(LED2);
 	led_off(LED3);
 	rf_path_set_direction(&rf_path, RF_PATH_DIRECTION_OFF);
-	m0_state.tx = false;
+	m0_set_mode(M0_MODE_IDLE);
 }
 
 void transceiver_startup(const transceiver_mode_t mode) {
@@ -282,13 +284,15 @@ void transceiver_startup(const transceiver_mode_t mode) {
 		led_off(LED3);
 		led_on(LED2);
 		rf_path_set_direction(&rf_path, RF_PATH_DIRECTION_RX);
-		m0_state.tx = false;
+		m0_set_mode(M0_MODE_RX);
+		m0_state.shortfall_limit = _rx_overrun_limit;
 		break;
 	case TRANSCEIVER_MODE_TX:
 		led_off(LED2);
 		led_on(LED3);
 		rf_path_set_direction(&rf_path, RF_PATH_DIRECTION_TX);
-		m0_state.tx = true;
+		m0_set_mode(M0_MODE_TX_START);
+		m0_state.shortfall_limit = _tx_underrun_limit;
 		break;
 	default:
 		break;
@@ -296,7 +300,6 @@ void transceiver_startup(const transceiver_mode_t mode) {
 
 	activate_best_clock_source();
 	hw_sync_enable(_hw_sync_mode);
-	m0_state.offset = 0;
 }
 
 usb_request_status_t usb_vendor_request_set_transceiver_mode(
@@ -334,6 +337,36 @@ usb_request_status_t usb_vendor_request_set_hw_sync_mode(
 	}
 }
 
+usb_request_status_t usb_vendor_request_set_tx_underrun_limit(
+	usb_endpoint_t* const endpoint,
+	const usb_transfer_stage_t stage
+) {
+	if( stage == USB_TRANSFER_STAGE_SETUP ) {
+		uint32_t value = (endpoint->setup.index << 16) + endpoint->setup.value;
+		_tx_underrun_limit = value;
+		usb_transfer_schedule_ack(endpoint->in);
+	}
+	return USB_REQUEST_STATUS_OK;
+}
+
+usb_request_status_t usb_vendor_request_set_rx_overrun_limit(
+	usb_endpoint_t* const endpoint,
+	const usb_transfer_stage_t stage
+) {
+	if( stage == USB_TRANSFER_STAGE_SETUP ) {
+		uint32_t value = (endpoint->setup.index << 16) + endpoint->setup.value;
+		_rx_overrun_limit = value;
+		usb_transfer_schedule_ack(endpoint->in);
+	}
+	return USB_REQUEST_STATUS_OK;
+}
+
+void transceiver_bulk_transfer_complete(void *user_data, unsigned int bytes_transferred)
+{
+	(void) user_data;
+	m0_state.m4_count += bytes_transferred;
+}
+
 void rx_mode(uint32_t seq) {
 	unsigned int phase = 1;
 
@@ -342,23 +375,26 @@ void rx_mode(uint32_t seq) {
 	baseband_streaming_enable(&sgpio_config);
 
 	while (transceiver_request.seq == seq) {
+		uint32_t m0_offset = m0_state.m0_count & USB_BULK_BUFFER_MASK;
 		// Set up IN transfer of buffer 0.
-		if (16384 <= m0_state.offset && 1 == phase) {
+		if (16384 <= m0_offset && 1 == phase) {
 			usb_transfer_schedule_block(
 				&usb_endpoint_bulk_in,
 				&usb_bulk_buffer[0x0000],
 				0x4000,
-				NULL, NULL
+				transceiver_bulk_transfer_complete,
+				NULL
 				);
 			phase = 0;
 		}
 		// Set up IN transfer of buffer 1.
-		if (16384 > m0_state.offset && 0 == phase) {
+		if (16384 > m0_offset && 0 == phase) {
 			usb_transfer_schedule_block(
 				&usb_endpoint_bulk_in,
 				&usb_bulk_buffer[0x4000],
 				0x4000,
-				NULL, NULL
+				transceiver_bulk_transfer_complete,
+				NULL
 				);
 			phase = 1;
 		}
@@ -368,39 +404,46 @@ void rx_mode(uint32_t seq) {
 }
 
 void tx_mode(uint32_t seq) {
-	unsigned int phase = 1;
+	unsigned int phase = 0;
 
 	transceiver_startup(TRANSCEIVER_MODE_TX);
 
-	memset(&usb_bulk_buffer[0x0000], 0, 0x8000);
-	// Set up OUT transfer of buffer 1.
+	// Set up OUT transfer of buffer 0.
 	usb_transfer_schedule_block(
 		&usb_endpoint_bulk_out,
-		&usb_bulk_buffer[0x4000],
+		&usb_bulk_buffer[0x0000],
 		0x4000,
-		NULL, NULL
+		transceiver_bulk_transfer_complete,
+		NULL
 		);
-	// Start transmitting zeros while the host fills buffer 1.
+
+	// Enable streaming. The M0 is in TX_START mode, and will automatically
+	// send zeroes until the host fills buffer 0. Once that buffer is filled,
+	// the bulk transfer completion handler will increase the M4 count, and
+	// the M0 will switch to TX_RUN mode and transmit the first data.
 	baseband_streaming_enable(&sgpio_config);
 
 	while (transceiver_request.seq == seq) {
+		uint32_t m0_offset = m0_state.m0_count & USB_BULK_BUFFER_MASK;
 		// Set up OUT transfer of buffer 0.
-		if (16384 <= m0_state.offset && 1 == phase) {
+		if (16384 <= m0_offset && 1 == phase) {
 			usb_transfer_schedule_block(
 				&usb_endpoint_bulk_out,
 				&usb_bulk_buffer[0x0000],
 				0x4000,
-				NULL, NULL
+				transceiver_bulk_transfer_complete,
+				NULL
 				);
 			phase = 0;
 		}
 		// Set up OUT transfer of buffer 1.
-		if (16384 > m0_state.offset && 0 == phase) {
+		if (16384 > m0_offset && 0 == phase) {
 			usb_transfer_schedule_block(
 				&usb_endpoint_bulk_out,
 				&usb_bulk_buffer[0x4000],
 				0x4000,
-				NULL, NULL
+				transceiver_bulk_transfer_complete,
+				NULL
 				);
 			phase = 1;
 		}

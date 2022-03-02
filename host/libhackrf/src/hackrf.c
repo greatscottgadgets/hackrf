@@ -46,9 +46,13 @@ typedef int bool;
 #ifdef HACKRF_BIG_ENDIAN
 #define TO_LE(x) __builtin_bswap32(x)
 #define TO_LE64(x) __builtin_bswap64(x)
+#define FROM_LE16(x) __builtin_bswap16(x)
+#define FROM_LE32(x) __builtin_bswap32(x)
 #else
 #define TO_LE(x) x
 #define TO_LE64(x) x
+#define FROM_LE16(x) x
+#define FROM_LE32(x) x
 #endif
 
 // TODO: Factor this into a shared #include so that firmware can use
@@ -92,6 +96,9 @@ typedef enum {
 	HACKRF_VENDOR_REQUEST_OPERACAKE_SET_MODE = 38,
 	HACKRF_VENDOR_REQUEST_OPERACAKE_GET_MODE = 39,
 	HACKRF_VENDOR_REQUEST_OPERACAKE_SET_DWELL_TIMES = 40,
+	HACKRF_VENDOR_REQUEST_GET_M0_STATE = 41,
+	HACKRF_VENDOR_REQUEST_SET_TX_UNDERRUN_LIMIT = 42,
+	HACKRF_VENDOR_REQUEST_SET_RX_OVERRUN_LIMIT = 43,
 } hackrf_vendor_request;
 
 #define USB_CONFIG_STANDARD 0x1
@@ -993,6 +1000,92 @@ int ADDCALL hackrf_rffc5071_write(hackrf_device* device, uint8_t register_number
 		HACKRF_VENDOR_REQUEST_RFFC5071_WRITE,
 		value,
 		register_number,
+		NULL,
+		0,
+		0
+	);
+
+	if( result != 0 )
+	{
+		last_libusb_error = result;
+		return HACKRF_ERROR_LIBUSB;
+	} else {
+		return HACKRF_SUCCESS;
+	}
+}
+
+int ADDCALL hackrf_get_m0_state(hackrf_device* device, hackrf_m0_state* state)
+{
+	USB_API_REQUIRED(device, 0x0106)
+	int result;
+
+	result = libusb_control_transfer(
+		device->usb_device,
+		LIBUSB_ENDPOINT_IN | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_GET_M0_STATE,
+		0,
+		0,
+		(unsigned char*)state,
+		sizeof(hackrf_m0_state),
+		0
+	);
+
+	if( result < sizeof(hackrf_m0_state) )
+	{
+		last_libusb_error = result;
+		return HACKRF_ERROR_LIBUSB;
+	} else {
+		state->request_flag = FROM_LE16(state->request_flag);
+		state->requested_mode = FROM_LE16(state->requested_mode);
+		state->active_mode = FROM_LE32(state->active_mode);
+		state->m0_count = FROM_LE32(state->m0_count);
+		state->m4_count = FROM_LE32(state->m4_count);
+		state->num_shortfalls = FROM_LE32(state->num_shortfalls);
+		state->longest_shortfall = FROM_LE32(state->longest_shortfall);
+		state->shortfall_limit = FROM_LE32(state->shortfall_limit);
+		state->threshold = FROM_LE32(state->threshold);
+		state->next_mode = FROM_LE32(state->next_mode);
+		state->error = FROM_LE32(state->error);
+		return HACKRF_SUCCESS;
+	}
+}
+
+int ADDCALL hackrf_set_tx_underrun_limit(hackrf_device* device, uint32_t value)
+{
+	USB_API_REQUIRED(device, 0x0106)
+	int result;
+
+	result = libusb_control_transfer(
+		device->usb_device,
+		LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_SET_TX_UNDERRUN_LIMIT,
+		value & 0xffff,
+		value >> 16,
+		NULL,
+		0,
+		0
+	);
+
+	if( result != 0 )
+	{
+		last_libusb_error = result;
+		return HACKRF_ERROR_LIBUSB;
+	} else {
+		return HACKRF_SUCCESS;
+	}
+}
+
+int ADDCALL hackrf_set_rx_overrun_limit(hackrf_device* device, uint32_t value)
+{
+	USB_API_REQUIRED(device, 0x0106)
+	int result;
+
+	result = libusb_control_transfer(
+		device->usb_device,
+		LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_SET_RX_OVERRUN_LIMIT,
+		value & 0xffff,
+		value >> 16,
 		NULL,
 		0,
 		0
