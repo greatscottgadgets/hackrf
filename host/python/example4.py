@@ -53,7 +53,7 @@ result = theTestHackRF.open()
 if (result != LibHackRfReturnCode.HACKRF_SUCCESS):
     print("Erreur :",result, ",", HackRF.getHackRfErrorCodeName(result))
 
-theTestHackRF.getCrystalPPM(3.5)
+theTestHackRF.setCrystalPPM(3.5)
 
 result = theTestHackRF.setSampleRate(1000000)
 if (result != LibHackRfReturnCode.HACKRF_SUCCESS):
