@@ -4,13 +4,6 @@ pipeline {
             args '--group-add=46 --privileged -v /dev/bus/usb:/dev/bus/usb'
         }
     }
-    options {
-        throttleJobProperty(
-            categories: ['single-build-throttle'],
-            throttleEnabled: true,
-            throttleOption: 'category'
-        )
-    }
     environment {
         GIT_COMMITER_NAME = 'CI Person'
         GIT_COMMITER_EMAIL = 'ci@greatscottgadgets.com'
