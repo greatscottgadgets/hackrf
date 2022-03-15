@@ -1786,6 +1786,13 @@ static int kill_transfer_thread(hackrf_device* device)
 		 * Now call request_exit() to halt the main loop.
 		 */
 		request_exit(device);
+		/*
+		 * Make a final request, so that threadproc can exit immediately,
+		 * without waiting for timeout. Don't care about result.
+		 */
+		uint8_t board_id;
+		result = hackrf_board_id_read(device, &board_id);
+
 		value = NULL;
 		result = pthread_join(device->transfer_thread, &value);
 		if( result != 0 )
