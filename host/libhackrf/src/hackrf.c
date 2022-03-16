@@ -1787,11 +1787,10 @@ static int kill_transfer_thread(hackrf_device* device)
 		 */
 		request_exit(device);
 		/*
-		 * Make a final request, so that threadproc can exit immediately,
-		 * without waiting for timeout. Don't care about result.
+		 * Interrupt the event handling thread instead of
+		 * waiting for timeout.
 		 */
-		uint8_t board_id;
-		result = hackrf_board_id_read(device, &board_id);
+		libusb_interrupt_event_handler(g_libusb_context);
 
 		value = NULL;
 		result = pthread_join(device->transfer_thread, &value);
