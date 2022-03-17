@@ -1786,6 +1786,12 @@ static int kill_transfer_thread(hackrf_device* device)
 		 * Now call request_exit() to halt the main loop.
 		 */
 		request_exit(device);
+		/*
+		 * Interrupt the event handling thread instead of
+		 * waiting for timeout.
+		 */
+		libusb_interrupt_event_handler(g_libusb_context);
+
 		value = NULL;
 		result = pthread_join(device->transfer_thread, &value);
 		if( result != 0 )
