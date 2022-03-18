@@ -1947,22 +1947,20 @@ int ADDCALL hackrf_stop_tx(hackrf_device* device)
 
 int ADDCALL hackrf_close(hackrf_device* device)
 {
-	int result1, result2, result3;
+	int result1, result2;
 
 	result1 = HACKRF_SUCCESS;
 	result2 = HACKRF_SUCCESS;
-	result3 = HACKRF_SUCCESS;
 
 	if( device != NULL )
 	{
 		result1 = hackrf_stop_cmd(device);
-		result2 = hackrf_stop_cmd(device);
 
 		/*
 		 * Finally kill the transfer thread, which will
 		 * also cancel any pending transmit/receive transfers.
 		 */
-		result3 = kill_transfer_thread(device);
+		result2 = kill_transfer_thread(device);
 		if( device->usb_device != NULL )
 		{
 			libusb_release_interface(device->usb_device, 0);
@@ -1980,10 +1978,6 @@ int ADDCALL hackrf_close(hackrf_device* device)
 	}
 	open_devices--;
 
-	if (result3 != HACKRF_SUCCESS)
-	{
-		return result3;
-	}
 	if (result2 != HACKRF_SUCCESS)
 	{
 		return result2;
