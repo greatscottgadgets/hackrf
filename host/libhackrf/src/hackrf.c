@@ -1831,6 +1831,8 @@ static int prepare_setup_transfers(hackrf_device* device,
 		return result;
 	}
 
+	device->streaming = true;
+
 	return HACKRF_SUCCESS;
 }
 
@@ -1894,9 +1896,6 @@ int ADDCALL hackrf_start_rx(hackrf_device* device, hackrf_sample_block_cb_fn cal
 	{
 		result = prepare_setup_transfers(device, endpoint_address, callback);
 	}
-	if (result == HACKRF_SUCCESS) {
-		device->streaming = true;
-	}
 	return result;
 }
 
@@ -1943,9 +1942,6 @@ int ADDCALL hackrf_start_tx(hackrf_device* device, hackrf_sample_block_cb_fn cal
 	{
 		device->tx_ctx = tx_ctx;
 		result = prepare_setup_transfers(device, endpoint_address, callback);
-	}
-	if (result == HACKRF_SUCCESS) {
-		device->streaming = true;
 	}
 	return result;
 }
@@ -2677,9 +2673,6 @@ int ADDCALL hackrf_start_rx_sweep(hackrf_device* device, hackrf_sample_block_cb_
 	{
 		device->rx_ctx = rx_ctx;
 		result = prepare_setup_transfers(device, endpoint_address, callback);
-	}
-	if (result == HACKRF_SUCCESS) {
-		device->streaming = true;
 	}
 	return result;
 }
