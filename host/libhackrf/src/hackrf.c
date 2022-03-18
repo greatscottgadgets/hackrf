@@ -1737,7 +1737,7 @@ static void LIBUSB_CALL hackrf_libusb_transfer_callback(struct libusb_transfer* 
 			.tx_ctx = device->tx_ctx
 		};
 
-		if( device->callback(&transfer) == 0 )
+		if (device->streaming && device->callback(&transfer) == 0)
 		{
 			// Take lock to make sure that we don't restart a
 			// transfer whilst cancel_transfers() is in the middle
