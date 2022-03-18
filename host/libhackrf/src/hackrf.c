@@ -1884,7 +1884,7 @@ int ADDCALL hackrf_start_rx(hackrf_device* device, hackrf_sample_block_cb_fn cal
 	return result;
 }
 
-static int hackrf_stop_rx_cmd(hackrf_device* device)
+static int hackrf_stop_cmd(hackrf_device* device)
 {
 	int result;
 	result = hackrf_set_transceiver_mode(device, HACKRF_TRANSCEIVER_MODE_OFF);
@@ -1909,7 +1909,7 @@ int ADDCALL hackrf_stop_rx(hackrf_device* device)
 		return result;
 	}
 
-	return hackrf_stop_rx_cmd(device);
+	return hackrf_stop_cmd(device);
 }
 
 int ADDCALL hackrf_start_tx(hackrf_device* device, hackrf_sample_block_cb_fn callback, void* tx_ctx)
@@ -1922,13 +1922,6 @@ int ADDCALL hackrf_start_tx(hackrf_device* device, hackrf_sample_block_cb_fn cal
 		device->tx_ctx = tx_ctx;
 		result = prepare_setup_transfers(device, endpoint_address, callback);
 	}
-	return result;
-}
-
-static int hackrf_stop_tx_cmd(hackrf_device* device)
-{
-	int result;
-	result = hackrf_set_transceiver_mode(device, HACKRF_TRANSCEIVER_MODE_OFF);
 	return result;
 }
 
@@ -1949,7 +1942,7 @@ int ADDCALL hackrf_stop_tx(hackrf_device* device)
 		return result;
 	}
 
-	return hackrf_stop_tx_cmd(device);
+	return hackrf_stop_cmd(device);
 }
 
 int ADDCALL hackrf_close(hackrf_device* device)
@@ -1962,8 +1955,8 @@ int ADDCALL hackrf_close(hackrf_device* device)
 
 	if( device != NULL )
 	{
-		result1 = hackrf_stop_rx_cmd(device);
-		result2 = hackrf_stop_tx_cmd(device);
+		result1 = hackrf_stop_cmd(device);
+		result2 = hackrf_stop_cmd(device);
 
 		/*
 		 * Finally kill the transfer thread, which will
