@@ -1887,13 +1887,7 @@ int ADDCALL hackrf_start_rx(hackrf_device* device, hackrf_sample_block_cb_fn cal
 static int hackrf_stop_rx_cmd(hackrf_device* device)
 {
 	int result;
-
 	result = hackrf_set_transceiver_mode(device, HACKRF_TRANSCEIVER_MODE_OFF);
-#ifdef _WIN32
-	Sleep(10);
-#else
-	usleep(10 * 1000);
-#endif
 	return result;
 }
 
@@ -1935,11 +1929,6 @@ static int hackrf_stop_tx_cmd(hackrf_device* device)
 {
 	int result;
 	result = hackrf_set_transceiver_mode(device, HACKRF_TRANSCEIVER_MODE_OFF);
-#ifdef _WIN32
-	Sleep(10);
-#else
-	usleep(10 * 1000);
-#endif
 	return result;
 }
 
