@@ -1766,7 +1766,7 @@ static void LIBUSB_CALL hackrf_libusb_transfer_callback(struct libusb_transfer* 
 		LIBUSB_TRANSFER_ERROR, LIBUSB_TRANSFER_TIMED_OUT
 		LIBUSB_TRANSFER_STALL,	LIBUSB_TRANSFER_OVERFLOW ....
 		*/
-		request_exit(device); /* Fatal error stop transfer */
+		transfer_finished(device, usb_transfer);
 		device->streaming = false;
 	}
 }
