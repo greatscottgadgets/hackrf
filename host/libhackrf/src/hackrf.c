@@ -351,6 +351,7 @@ static int prepare_transfers(
 			}
 		}
 		device->transfers_setup = true;
+		device->streaming = true;
 		return HACKRF_SUCCESS;
 	} else {
 		// This shouldn't happen.
@@ -1813,27 +1814,16 @@ static int prepare_setup_transfers(hackrf_device* device,
 	const uint8_t endpoint_address,
 		hackrf_sample_block_cb_fn callback)
 {
-	int result;
-
 	if( device->transfers_setup == true )
 	{
 		return HACKRF_ERROR_BUSY;
 	}
 
 	device->callback = callback;
-	result = prepare_transfers(
+	return prepare_transfers(
 		device, endpoint_address,
 		hackrf_libusb_transfer_callback
 	);
-
-	if( result != HACKRF_SUCCESS )
-	{
-		return result;
-	}
-
-	device->streaming = true;
-
-	return HACKRF_SUCCESS;
 }
 
 static int create_transfer_thread(hackrf_device* device)
