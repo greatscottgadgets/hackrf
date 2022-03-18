@@ -1755,21 +1755,14 @@ static void LIBUSB_CALL hackrf_libusb_transfer_callback(struct libusb_transfer* 
 			// cancelled or restarted, not both.
 			pthread_mutex_unlock(&device->transfer_lock);
 
-			if (!resubmit || result < 0) {
-				transfer_finished(device, usb_transfer);
-			}
-		} else {
-			transfer_finished(device, usb_transfer);
+			if (resubmit && result == LIBUSB_SUCCESS)
+				return;
 		}
-	} else if(usb_transfer->status == LIBUSB_TRANSFER_CANCELLED) {
-		transfer_finished(device, usb_transfer);
-	} else {
-		/* Other cases LIBUSB_TRANSFER_NO_DEVICE
-		LIBUSB_TRANSFER_ERROR, LIBUSB_TRANSFER_TIMED_OUT
-		LIBUSB_TRANSFER_STALL,	LIBUSB_TRANSFER_OVERFLOW ....
-		*/
-		transfer_finished(device, usb_transfer);
 	}
+
+	// Unless we resubmitted this transfer and returned above,
+	// it's now finished.
+	transfer_finished(device, usb_transfer);
 }
 
 static int kill_transfer_thread(hackrf_device* device)
