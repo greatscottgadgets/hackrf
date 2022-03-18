@@ -181,11 +181,6 @@ static int create_transfer_thread(hackrf_device* device);
 static libusb_context* g_libusb_context = NULL;
 int last_libusb_error = LIBUSB_SUCCESS;
 
-static void request_exit(hackrf_device* device)
-{
-	device->do_exit = true;
-}
-
 /*
  * Check if the transfers are setup and owned by libusb.
  *
@@ -1781,10 +1776,10 @@ static int kill_transfer_thread(hackrf_device* device)
 		 * thread has handled all completion callbacks.
 		 */
 		cancel_transfers(device);
-		/*
-		 * Now call request_exit() to halt the main loop.
-		 */
-		request_exit(device);
+
+		// Set flag to tell the thread to exit.
+		device->do_exit = true;
+
 		/*
 		 * Interrupt the event handling thread instead of
 		 * waiting for timeout.
