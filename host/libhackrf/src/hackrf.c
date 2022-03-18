@@ -134,8 +134,7 @@ struct hackrf_device {
 	unsigned char buffer[TRANSFER_COUNT * TRANSFER_BUFFER_SIZE];
 	bool transfers_setup; /* true if the USB transfers have been setup */
 	pthread_mutex_t transfer_lock; /* must be held to cancel or restart transfers */
-	bool transfer_finished[TRANSFER_COUNT]; /* which transfers have finished */
-	volatile bool all_finished; /* whether all transfers have finished */
+	volatile int active_transfers; /* number of active transfers */
 	pthread_cond_t all_finished_cv; /* signalled when all transfers have finished */
 	pthread_mutex_t all_finished_lock; /* used to protect all_finished */
 };
@@ -211,7 +210,6 @@ static int transfers_check_setup(hackrf_device* device)
 static int cancel_transfers(hackrf_device* device)
 {
 	uint32_t transfer_index;
-	int i;
 
 	// If we're cancelling transfers for any reason, we're shutting down.
 	device->streaming = false;
@@ -243,16 +241,10 @@ static int cancel_transfers(hackrf_device* device)
 		// Now wait for the transfer thread to signal that all transfers
 		// have finished, either by completing or being fully cancelled.
 		pthread_mutex_lock(&device->all_finished_lock);
-		while (!device->all_finished) {
+		while (device->active_transfers > 0) {
 			pthread_cond_wait(&device->all_finished_cv, &device->all_finished_lock);
 		}
 		pthread_mutex_unlock(&device->all_finished_lock);
-
-		// Now that all waiting and handling is completed, it's safe to
-		// reset these flags ready for the next time.
-		for (i = 0; i < TRANSFER_COUNT; i++)
-			device->transfer_finished[i] = false;
-		device->all_finished = false;
 
 		return HACKRF_SUCCESS;
 	} else {
@@ -344,6 +336,7 @@ static int prepare_transfers(
 				last_libusb_error = error;
 				return HACKRF_ERROR_LIBUSB;
 			}
+			device->active_transfers++;
 		}
 		device->transfers_setup = true;
 		device->streaming = true;
@@ -617,7 +610,7 @@ libusb_device_handle* hackrf_open_usb(const char* const desired_serial_number)
 
 static int hackrf_open_setup(libusb_device_handle* usb_device, hackrf_device** device)
 {
-	int result, i;
+	int result;
 	hackrf_device* lib_device;
 
 	//int speed = libusb_get_device_speed(usb_device);
@@ -653,9 +646,7 @@ static int hackrf_open_setup(libusb_device_handle* usb_device, hackrf_device** d
 	lib_device->transfer_thread_started = false;
 	lib_device->streaming = false;
 	lib_device->do_exit = false;
-	for (i = 0; i < TRANSFER_COUNT; i++)
-		lib_device->transfer_finished[i] = false;
-	lib_device->all_finished = false;
+	lib_device->active_transfers = 0;
 
 	result = pthread_mutex_init(&lib_device->transfer_lock, NULL);
 	if( result != 0 )
@@ -1700,25 +1691,17 @@ static void* transfer_threadproc(void* arg)
 
 static void transfer_finished(struct hackrf_device* device, struct libusb_transfer* finished_transfer)
 {
-	int i;
-	bool all_finished = true;
-
 	// If a transfer finished for any reason, we're shutting down.
 	device->streaming = false;
 
-	for (i = 0; i < TRANSFER_COUNT; i++) {
-		if (device->transfers[i] == finished_transfer) {
-			device->transfer_finished[i] = true;
-		} else {
-			all_finished &= device->transfer_finished[i];
-		}
-	}
-
-	if (all_finished) {
+	// If this is the last transfer, signal that all are now finished.
+	if (device->active_transfers == 1) {
 		pthread_mutex_lock(&device->all_finished_lock);
-		device->all_finished = true;
+		device->active_transfers = 0;
 		pthread_cond_signal(&device->all_finished_cv);
 		pthread_mutex_unlock(&device->all_finished_lock);
+	} else {
+		device->active_transfers--;
 	}
 }
 
@@ -1823,15 +1806,12 @@ static int prepare_setup_transfers(hackrf_device* device,
 
 static int create_transfer_thread(hackrf_device* device)
 {
-	int result, i;
+	int result;
 
 	if( device->transfer_thread_started == false )
 	{
 		device->streaming = false;
 		device->do_exit = false;
-		for (i = 0; i < TRANSFER_COUNT; i++)
-			device->transfer_finished[i] = false;
-		device->all_finished = false;
 		result = pthread_create(&device->transfer_thread, 0, transfer_threadproc, device);
 		if( result == 0 )
 		{
