@@ -218,6 +218,9 @@ static int cancel_transfers(hackrf_device* device)
 	uint32_t transfer_index;
 	int i;
 
+	// If we're cancelling transfers for any reason, we're shutting down.
+	device->streaming = false;
+
 	if(transfers_check_setup(device) == true)
 	{
 		// Take lock while cancelling transfers. This blocks the
@@ -1922,7 +1925,6 @@ int ADDCALL hackrf_stop_rx(hackrf_device* device)
 {
 	int result;
 
-	device->streaming = false;
 	result = cancel_transfers(device);
 	if (result != HACKRF_SUCCESS)
 	{
@@ -1971,7 +1973,6 @@ static int hackrf_stop_tx_cmd(hackrf_device* device)
 int ADDCALL hackrf_stop_tx(hackrf_device* device)
 {
 	int result;
-	device->streaming = false;
 	result = cancel_transfers(device);
 	if (result != HACKRF_SUCCESS)
 	{
