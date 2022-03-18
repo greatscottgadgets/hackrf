@@ -1762,6 +1762,7 @@ static void LIBUSB_CALL hackrf_libusb_transfer_callback(struct libusb_transfer* 
 		}
 	} else if(usb_transfer->status == LIBUSB_TRANSFER_CANCELLED) {
 		transfer_finished(device, usb_transfer);
+		device->streaming = false;
 	} else {
 		/* Other cases LIBUSB_TRANSFER_NO_DEVICE
 		LIBUSB_TRANSFER_ERROR, LIBUSB_TRANSFER_TIMED_OUT
