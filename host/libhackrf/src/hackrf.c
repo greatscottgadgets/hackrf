@@ -1704,6 +1704,9 @@ static void transfer_finished(struct hackrf_device* device, struct libusb_transf
 	int i;
 	bool all_finished = true;
 
+	// If a transfer finished for any reason, we're shutting down.
+	device->streaming = false;
+
 	for (i = 0; i < TRANSFER_COUNT; i++) {
 		if (device->transfers[i] == finished_transfer) {
 			device->transfer_finished[i] = true;
@@ -1754,22 +1757,18 @@ static void LIBUSB_CALL hackrf_libusb_transfer_callback(struct libusb_transfer* 
 
 			if (!resubmit || result < 0) {
 				transfer_finished(device, usb_transfer);
-				device->streaming = false;
 			}
 		} else {
 			transfer_finished(device, usb_transfer);
-			device->streaming = false;
 		}
 	} else if(usb_transfer->status == LIBUSB_TRANSFER_CANCELLED) {
 		transfer_finished(device, usb_transfer);
-		device->streaming = false;
 	} else {
 		/* Other cases LIBUSB_TRANSFER_NO_DEVICE
 		LIBUSB_TRANSFER_ERROR, LIBUSB_TRANSFER_TIMED_OUT
 		LIBUSB_TRANSFER_STALL,	LIBUSB_TRANSFER_OVERFLOW ....
 		*/
 		transfer_finished(device, usb_transfer);
-		device->streaming = false;
 	}
 }
 
