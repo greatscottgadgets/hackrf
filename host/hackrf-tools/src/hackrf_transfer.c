@@ -35,6 +35,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <errno.h>
+#include <inttypes.h>
 
 #ifndef bool
 typedef int bool;
@@ -1218,8 +1219,8 @@ int main(int argc, char** argv) {
 			} else {
 				fprintf(stderr,
 					"Transfer statistics:\n"
-					"%lu bytes transferred by M0\n"
-					"%lu bytes transferred by M4\n"
+					"%" PRIu64 " bytes transferred by M0\n"
+					"%" PRIu64 " bytes transferred by M4\n"
 					"%u %s, longest %u bytes\n",
 					stats.m0_total,
 					stats.m4_total,
