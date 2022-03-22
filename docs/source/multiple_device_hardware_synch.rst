@@ -13,6 +13,8 @@ This page describes the modifications required to get multiple HackRF hardware-l
 
 The HackRFs will start transmitting USB packets at the same time, which results in an inter-device offset of ~50 samples at a sample rate of 20MSps. Without this synchronisation, the offset is in the range of thousands to tens of thousands of samples. This is due to the USB start command being called sequentially for each device, along with USB buffering, OS-level timing etc.
 
+.. _opening_your_hackrf:
+
 **BE WARNED** you will have to open your HackRFs, which is most likely going to destroy the plastic case it comes in. You will also be electrically connecting them together. If you do this incorrectly, there is a good chance one or all of the devices will be permanently destroyed.
 
 
@@ -33,7 +35,6 @@ For this to work you will need:
     * a clock sync cable
     * some connecting cables (pin header-type)
     * a breadboard
-
 
 
 Opening your HackRF
