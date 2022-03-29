@@ -44,7 +44,7 @@ usb_queue_head_t* usb_queue_head(
 	return &usb_qh[USB_QH_INDEX(endpoint_address)];
 }
 
-static usb_endpoint_t* usb_endpoint_from_address(
+usb_endpoint_t* usb_endpoint_from_address(
 	const uint_fast8_t endpoint_address
 ) {
 	return (usb_endpoint_t*)usb_queue_head(endpoint_address)->_reserved_0;

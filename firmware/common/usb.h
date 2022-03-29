@@ -58,6 +58,10 @@ void usb_set_address_deferred(
 	const uint_fast8_t address
 );
 
+usb_endpoint_t* usb_endpoint_from_address(
+	const uint_fast8_t endpoint_address
+);
+
 void usb_endpoint_init(
 	const usb_endpoint_t* const endpoint
 );

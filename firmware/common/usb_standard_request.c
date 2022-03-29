@@ -369,9 +369,12 @@ static usb_request_status_t usb_standard_request_get_status(
 static usb_request_status_t usb_standard_request_clear_feature_setup(
 	usb_endpoint_t* const endpoint)
 {
+
 	switch (endpoint->setup.value) {
 		case USB_FEATURE_SELECTOR_ENDPOINT_HALT:
-			usb_endpoint_reset_data_toggle(endpoint);
+			usb_endpoint_reset_data_toggle(
+				usb_endpoint_from_address(endpoint->setup.index)
+			);
 			return USB_REQUEST_STATUS_OK;
 		default:
 			return USB_REQUEST_STATUS_STALL;
