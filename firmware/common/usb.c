@@ -302,6 +302,17 @@ void usb_endpoint_stall(
 	// TODO: Also need to reset data toggle in both directions?
 }
 
+void usb_endpoint_reset_data_toggle(
+	const usb_endpoint_t* const endpoint
+) {
+	const uint_fast8_t endpoint_number = usb_endpoint_number(endpoint->address);
+	if( usb_endpoint_is_in(endpoint->address) ) {
+		USB0_ENDPTCTRL(endpoint_number) |= USB0_ENDPTCTRL_TXR;
+	} else {
+		USB0_ENDPTCTRL(endpoint_number) |= USB0_ENDPTCTRL_RXR;
+	}
+}
+
 static void usb_controller_run() {
 	USB0_USBCMD_D |= USB0_USBCMD_D_RS;
 }

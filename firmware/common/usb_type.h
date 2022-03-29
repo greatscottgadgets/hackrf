@@ -71,6 +71,10 @@ typedef enum {
 } usb_standard_request_t;
 
 typedef enum {
+	USB_FEATURE_SELECTOR_ENDPOINT_HALT = 0,
+} usb_feature_selector_t;
+
+typedef enum {
 	USB_SETUP_REQUEST_TYPE_shift = 5,
 	USB_SETUP_REQUEST_TYPE_mask = 3 << USB_SETUP_REQUEST_TYPE_shift,
 	

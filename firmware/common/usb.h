@@ -70,6 +70,10 @@ void usb_endpoint_disable(
 	const usb_endpoint_t* const endpoint
 );
 
+void usb_endpoint_reset_data_toggle(
+	const usb_endpoint_t* const endpoint
+);
+
 void usb_endpoint_flush(
 	const usb_endpoint_t* const endpoint
 );
