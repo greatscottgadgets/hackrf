@@ -375,6 +375,7 @@ static usb_request_status_t usb_standard_request_clear_feature_setup(
 			usb_endpoint_reset_data_toggle(
 				usb_endpoint_from_address(endpoint->setup.index)
 			);
+			usb_transfer_schedule_ack(endpoint->in);
 			return USB_REQUEST_STATUS_OK;
 		default:
 			return USB_REQUEST_STATUS_STALL;
