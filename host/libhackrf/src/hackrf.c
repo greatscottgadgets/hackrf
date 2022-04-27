@@ -46,9 +46,13 @@ typedef int bool;
 #ifdef HACKRF_BIG_ENDIAN
 #define TO_LE(x) __builtin_bswap32(x)
 #define TO_LE64(x) __builtin_bswap64(x)
+#define FROM_LE16(x) __builtin_bswap16(x)
+#define FROM_LE32(x) __builtin_bswap32(x)
 #else
 #define TO_LE(x) x
 #define TO_LE64(x) x
+#define FROM_LE16(x) x
+#define FROM_LE32(x) x
 #endif
 
 // TODO: Factor this into a shared #include so that firmware can use
@@ -92,6 +96,9 @@ typedef enum {
 	HACKRF_VENDOR_REQUEST_OPERACAKE_SET_MODE = 38,
 	HACKRF_VENDOR_REQUEST_OPERACAKE_GET_MODE = 39,
 	HACKRF_VENDOR_REQUEST_OPERACAKE_SET_DWELL_TIMES = 40,
+	HACKRF_VENDOR_REQUEST_GET_M0_STATE = 41,
+	HACKRF_VENDOR_REQUEST_SET_TX_UNDERRUN_LIMIT = 42,
+	HACKRF_VENDOR_REQUEST_SET_RX_OVERRUN_LIMIT = 43,
 } hackrf_vendor_request;
 
 #define USB_CONFIG_STANDARD 0x1
@@ -126,6 +133,11 @@ struct hackrf_device {
 	volatile bool do_exit;
 	unsigned char buffer[TRANSFER_COUNT * TRANSFER_BUFFER_SIZE];
 	bool transfers_setup; /* true if the USB transfers have been setup */
+	pthread_mutex_t transfer_lock; /* must be held to cancel or restart transfers */
+	bool transfer_finished[TRANSFER_COUNT]; /* which transfers have finished */
+	volatile bool all_finished; /* whether all transfers have finished */
+	pthread_cond_t all_finished_cv; /* signalled when all transfers have finished */
+	pthread_mutex_t all_finished_lock; /* used to protect all_finished */
 };
 
 typedef struct {
@@ -204,9 +216,15 @@ static int transfers_check_setup(hackrf_device* device)
 static int cancel_transfers(hackrf_device* device)
 {
 	uint32_t transfer_index;
+	int i;
 
 	if(transfers_check_setup(device) == true)
 	{
+		// Take lock while cancelling transfers. This blocks the
+		// transfer completion callback from restarting a transfer
+		// while we're in the middle of trying to cancel them all.
+		pthread_mutex_lock(&device->transfer_lock);
+
 		for(transfer_index=0; transfer_index<TRANSFER_COUNT; transfer_index++)
 		{
 			if( device->transfers[transfer_index] != NULL )
@@ -214,7 +232,30 @@ static int cancel_transfers(hackrf_device* device)
 				libusb_cancel_transfer(device->transfers[transfer_index]);
 			}
 		}
+
 		device->transfers_setup = false;
+
+		// Now release the lock. It's possible that some transfers were
+		// already complete when we called libusb_cancel_transfer() on
+		// them, and they may still get a callback. But the callback
+		// won't restart a transfer now that the transfers_setup flag
+		// is set to false.
+		pthread_mutex_unlock(&device->transfer_lock);
+
+		// Now wait for the transfer thread to signal that all transfers
+		// have finished, either by completing or being fully cancelled.
+		pthread_mutex_lock(&device->all_finished_lock);
+		while (!device->all_finished) {
+			pthread_cond_wait(&device->all_finished_cv, &device->all_finished_lock);
+		}
+		pthread_mutex_unlock(&device->all_finished_lock);
+
+		// Now that all waiting and handling is completed, it's safe to
+		// reset these flags ready for the next time.
+		for (i = 0; i < TRANSFER_COUNT; i++)
+			device->transfer_finished[i] = false;
+		device->all_finished = false;
+
 		return HACKRF_SUCCESS;
 	} else {
 		return HACKRF_ERROR_OTHER;
@@ -577,7 +618,7 @@ libusb_device_handle* hackrf_open_usb(const char* const desired_serial_number)
 
 static int hackrf_open_setup(libusb_device_handle* usb_device, hackrf_device** device)
 {
-	int result;
+	int result, i;
 	hackrf_device* lib_device;
 
 	//int speed = libusb_get_device_speed(usb_device);
@@ -613,6 +654,36 @@ static int hackrf_open_setup(libusb_device_handle* usb_device, hackrf_device** d
 	lib_device->transfer_thread_started = false;
 	lib_device->streaming = false;
 	lib_device->do_exit = false;
+	for (i = 0; i < TRANSFER_COUNT; i++)
+		lib_device->transfer_finished[i] = false;
+	lib_device->all_finished = false;
+
+	result = pthread_mutex_init(&lib_device->transfer_lock, NULL);
+	if( result != 0 )
+	{
+		free(lib_device);
+		libusb_release_interface(usb_device, 0);
+		libusb_close(usb_device);
+		return HACKRF_ERROR_THREAD;
+	}
+
+	result = pthread_mutex_init(&lib_device->all_finished_lock, NULL);
+	if( result != 0 )
+	{
+		free(lib_device);
+		libusb_release_interface(usb_device, 0);
+		libusb_close(usb_device);
+		return HACKRF_ERROR_THREAD;
+	}
+
+	result = pthread_cond_init(&lib_device->all_finished_cv, NULL);
+	if( result != 0 )
+	{
+		free(lib_device);
+		libusb_release_interface(usb_device, 0);
+		libusb_close(usb_device);
+		return HACKRF_ERROR_THREAD;
+	}
 
 	result = allocate_transfers(lib_device);
 	if( result != 0 )
@@ -929,6 +1000,92 @@ int ADDCALL hackrf_rffc5071_write(hackrf_device* device, uint8_t register_number
 		HACKRF_VENDOR_REQUEST_RFFC5071_WRITE,
 		value,
 		register_number,
+		NULL,
+		0,
+		0
+	);
+
+	if( result != 0 )
+	{
+		last_libusb_error = result;
+		return HACKRF_ERROR_LIBUSB;
+	} else {
+		return HACKRF_SUCCESS;
+	}
+}
+
+int ADDCALL hackrf_get_m0_state(hackrf_device* device, hackrf_m0_state* state)
+{
+	USB_API_REQUIRED(device, 0x0106)
+	int result;
+
+	result = libusb_control_transfer(
+		device->usb_device,
+		LIBUSB_ENDPOINT_IN | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_GET_M0_STATE,
+		0,
+		0,
+		(unsigned char*)state,
+		sizeof(hackrf_m0_state),
+		0
+	);
+
+	if( result < sizeof(hackrf_m0_state) )
+	{
+		last_libusb_error = result;
+		return HACKRF_ERROR_LIBUSB;
+	} else {
+		state->request_flag = FROM_LE16(state->request_flag);
+		state->requested_mode = FROM_LE16(state->requested_mode);
+		state->active_mode = FROM_LE32(state->active_mode);
+		state->m0_count = FROM_LE32(state->m0_count);
+		state->m4_count = FROM_LE32(state->m4_count);
+		state->num_shortfalls = FROM_LE32(state->num_shortfalls);
+		state->longest_shortfall = FROM_LE32(state->longest_shortfall);
+		state->shortfall_limit = FROM_LE32(state->shortfall_limit);
+		state->threshold = FROM_LE32(state->threshold);
+		state->next_mode = FROM_LE32(state->next_mode);
+		state->error = FROM_LE32(state->error);
+		return HACKRF_SUCCESS;
+	}
+}
+
+int ADDCALL hackrf_set_tx_underrun_limit(hackrf_device* device, uint32_t value)
+{
+	USB_API_REQUIRED(device, 0x0106)
+	int result;
+
+	result = libusb_control_transfer(
+		device->usb_device,
+		LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_SET_TX_UNDERRUN_LIMIT,
+		value & 0xffff,
+		value >> 16,
+		NULL,
+		0,
+		0
+	);
+
+	if( result != 0 )
+	{
+		last_libusb_error = result;
+		return HACKRF_ERROR_LIBUSB;
+	} else {
+		return HACKRF_SUCCESS;
+	}
+}
+
+int ADDCALL hackrf_set_rx_overrun_limit(hackrf_device* device, uint32_t value)
+{
+	USB_API_REQUIRED(device, 0x0106)
+	int result;
+
+	result = libusb_control_transfer(
+		device->usb_device,
+		LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_SET_RX_OVERRUN_LIMIT,
+		value & 0xffff,
+		value >> 16,
 		NULL,
 		0,
 		0
@@ -1542,9 +1699,32 @@ static void* transfer_threadproc(void* arg)
 	return NULL;
 }
 
+static void transfer_finished(struct hackrf_device* device, struct libusb_transfer* finished_transfer)
+{
+	int i;
+	bool all_finished = true;
+
+	for (i = 0; i < TRANSFER_COUNT; i++) {
+		if (device->transfers[i] == finished_transfer) {
+			device->transfer_finished[i] = true;
+		} else {
+			all_finished &= device->transfer_finished[i];
+		}
+	}
+
+	if (all_finished) {
+		pthread_mutex_lock(&device->all_finished_lock);
+		device->all_finished = true;
+		pthread_cond_signal(&device->all_finished_cv);
+		pthread_mutex_unlock(&device->all_finished_lock);
+	}
+}
+
 static void LIBUSB_CALL hackrf_libusb_transfer_callback(struct libusb_transfer* usb_transfer)
 {
 	hackrf_device* device = (hackrf_device*)usb_transfer->user_data;
+	bool resubmit;
+	int result;
 
 	if(usb_transfer->status == LIBUSB_TRANSFER_COMPLETED)
 	{
@@ -1559,17 +1739,28 @@ static void LIBUSB_CALL hackrf_libusb_transfer_callback(struct libusb_transfer* 
 
 		if( device->callback(&transfer) == 0 )
 		{
-			if( libusb_submit_transfer(usb_transfer) < 0)
-			{
-				request_exit(device);
-			}else {
-				return;
+			// Take lock to make sure that we don't restart a
+			// transfer whilst cancel_transfers() is in the middle
+			// of stopping them.
+			pthread_mutex_lock(&device->transfer_lock);
+
+			if ((resubmit = device->transfers_setup)) {
+				result = libusb_submit_transfer(usb_transfer);
 			}
-		}else {
-			request_exit(device);
+
+			// Now we can release the lock. Our transfer was either
+			// cancelled or restarted, not both.
+			pthread_mutex_unlock(&device->transfer_lock);
+
+			if (!resubmit || result < 0) {
+				transfer_finished(device, usb_transfer);
+			}
+		} else {
+			transfer_finished(device, usb_transfer);
+			device->streaming = false;
 		}
 	} else if(usb_transfer->status == LIBUSB_TRANSFER_CANCELLED) {
-		/* Nothing; this will happen during shutdown */
+		transfer_finished(device, usb_transfer);
 	} else {
 		/* Other cases LIBUSB_TRANSFER_NO_DEVICE
 		LIBUSB_TRANSFER_ERROR, LIBUSB_TRANSFER_TIMED_OUT
@@ -1588,20 +1779,19 @@ static int kill_transfer_thread(hackrf_device* device)
 	if( device->transfer_thread_started != false )
 	{
 		/*
-		 * Schedule cancelling transfers before halting the
-		 * libusb thread.  This should result in the transfers
-		 * being properly marked as cancelled.
-		 *
-		 * Ideally this would wait for the cancellations to
-		 * complete with the callback but for now that
-		 * isn't super easy to do.
+		 * Cancel transfers. This call will block until the transfer
+		 * thread has handled all completion callbacks.
 		 */
 		cancel_transfers(device);
-
 		/*
 		 * Now call request_exit() to halt the main loop.
 		 */
 		request_exit(device);
+		/*
+		 * Interrupt the event handling thread instead of
+		 * waiting for timeout.
+		 */
+		libusb_interrupt_event_handler(g_libusb_context);
 
 		value = NULL;
 		result = pthread_join(device->transfer_thread, &value);
@@ -1649,12 +1839,15 @@ static int prepare_setup_transfers(hackrf_device* device,
 
 static int create_transfer_thread(hackrf_device* device)
 {
-	int result;
+	int result, i;
 
 	if( device->transfer_thread_started == false )
 	{
 		device->streaming = false;
 		device->do_exit = false;
+		for (i = 0; i < TRANSFER_COUNT; i++)
+			device->transfer_finished[i] = false;
+		device->all_finished = false;
 		result = pthread_create(&device->transfer_thread, 0, transfer_threadproc, device);
 		if( result == 0 )
 		{
@@ -1820,6 +2013,10 @@ int ADDCALL hackrf_close(hackrf_device* device)
 		}
 
 		free_transfers(device);
+
+		pthread_mutex_destroy(&device->transfer_lock);
+		pthread_cond_destroy(&device->all_finished_cv);
+		pthread_mutex_destroy(&device->all_finished_lock);
 
 		free(device);
 	}
@@ -2204,7 +2401,7 @@ int ADDCALL hackrf_get_operacake_mode(hackrf_device* device, uint8_t address, en
 	}
 }
 
-/* Set Operacake ports */
+/* Set Operacake manual mode ports. */
 int ADDCALL hackrf_set_operacake_ports(hackrf_device* device,
                                        uint8_t address,
                                        uint8_t port_a,

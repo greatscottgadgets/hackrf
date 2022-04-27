@@ -65,6 +65,7 @@ usb_request_status_t usb_vendor_request_operacake_set_ranges(
 		if((num_ranges == 0) || (num_ranges > MAX_OPERACAKE_RANGES)) {
 			return USB_REQUEST_STATUS_STALL;
 		}
+		operacake_clear_ranges();
 		usb_transfer_schedule_block(endpoint->out, &data,
 				endpoint->setup.length, NULL, NULL);
 	} else if (stage == USB_TRANSFER_STAGE_DATA) {

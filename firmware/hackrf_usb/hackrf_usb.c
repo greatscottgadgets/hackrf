@@ -49,6 +49,7 @@
 #include "usb_api_transceiver.h"
 #include "usb_api_ui.h"
 #include "usb_bulk_buffer.h"
+#include "usb_api_m0_state.h"
 #include "cpld_xc2c.h"
 #include "portapack.h"
  
@@ -114,6 +115,9 @@ static usb_request_handler_fn vendor_request_handler[] = {
 	usb_vendor_request_operacake_set_mode,
 	usb_vendor_request_operacake_get_mode,
 	usb_vendor_request_operacake_set_dwell_times,
+	usb_vendor_request_get_m0_state,
+	usb_vendor_request_set_tx_underrun_limit,
+	usb_vendor_request_set_rx_overrun_limit,
 };
 
 static const uint32_t vendor_request_handler_count =
@@ -146,7 +150,7 @@ void usb_configuration_changed(
 	usb_device_t* const device
 ) {
 	/* Reset transceiver to idle state until other commands are received */
-	set_transceiver_mode(TRANSCEIVER_MODE_OFF);
+	request_transceiver_mode(TRANSCEIVER_MODE_OFF);
 	if( device->configuration->number == 1 ) {
 		// transceiver configuration
 		led_on(LED1);
@@ -263,15 +267,30 @@ int main(void) {
 	operacake_init(operacake_allow_gpio);
 
 	while(true) {
-		switch (transceiver_mode()) {
+		transceiver_request_t request;
+
+		// Briefly disable USB interrupt so that we can
+		// atomically retrieve both the transceiver mode
+		// and the mode change sequence number. They are
+		// changed together by request_transceiver_mode()
+		// called from the USB ISR.
+
+		nvic_disable_irq(NVIC_USB0_IRQ);
+		request = transceiver_request;
+		nvic_enable_irq(NVIC_USB0_IRQ);
+
+		switch (request.mode) {
+		case TRANSCEIVER_MODE_OFF:
+			off_mode(request.seq);
+			break;
 		case TRANSCEIVER_MODE_RX:
-			rx_mode();
+			rx_mode(request.seq);
 			break;
 		case TRANSCEIVER_MODE_TX:
-			tx_mode();
+			tx_mode(request.seq);
 			break;
 		case TRANSCEIVER_MODE_RX_SWEEP:
-			sweep_mode();
+			sweep_mode(request.seq);
 			break;
 		case TRANSCEIVER_MODE_CPLD_UPDATE:
 			cpld_update();

@@ -39,6 +39,7 @@ typedef void (*hackrf_ui_set_first_if_frequency_fn)(const uint64_t frequency);
 typedef void (*hackrf_ui_set_filter_fn)(const rf_path_filter_t filter);
 typedef void (*hackrf_ui_set_antenna_bias_fn)(bool antenna_bias);
 typedef void (*hackrf_ui_set_clock_source_fn)(clock_source_t source);
+typedef void (*hackrf_ui_set_transceiver_mode_fn)(transceiver_mode_t mode);
 typedef bool (*hackrf_ui_operacake_gpio_compatible_fn)(void);
 
 typedef struct {
@@ -56,6 +57,7 @@ typedef struct {
 	hackrf_ui_set_filter_fn set_filter;
 	hackrf_ui_set_antenna_bias_fn set_antenna_bias;
 	hackrf_ui_set_clock_source_fn set_clock_source;
+	hackrf_ui_set_transceiver_mode_fn set_transceiver_mode;
 	hackrf_ui_operacake_gpio_compatible_fn operacake_gpio_compatible;
 } hackrf_ui_t;
 

@@ -36,7 +36,7 @@ typedef int bool;
 
 #define REGISTER_INVALID 32767
 
-int parse_int(char* s, uint16_t* const value) {
+int parse_int(char* s, uint32_t* const value) {
 	uint_fast8_t base = 10;
 	char* s_end;
 	long long_value;
@@ -56,7 +56,7 @@ int parse_int(char* s, uint16_t* const value) {
 	s_end = s;
 	long_value = strtol(s, &s_end, base);
 	if( (s != s_end) && (*s_end == 0) ) {
-		*value = (uint16_t)long_value;
+		*value = (uint32_t)long_value;
 		return HACKRF_SUCCESS;
 	} else {
 		return HACKRF_ERROR_INVALID_PARAM;
@@ -377,6 +377,40 @@ int write_register(hackrf_device* device, uint8_t part,
 	return HACKRF_ERROR_INVALID_PARAM;
 }
 
+static const char * mode_name(uint32_t mode) {
+	const char *mode_names[] = {"IDLE", "WAIT", "RX", "TX_START", "TX_RUN"};
+	const uint32_t num_modes = sizeof(mode_names) / sizeof(mode_names[0]);
+	if (mode < num_modes)
+	    return mode_names[mode];
+	else
+	    return "UNKNOWN";
+}
+
+static const char * error_name(uint32_t error) {
+	const char *error_names[] = {"NONE", "RX_TIMEOUT", "TX_TIMEOUT"};
+	const uint32_t num_errors = sizeof(error_names) / sizeof(error_names[0]);
+	if (error < num_errors)
+	    return error_names[error];
+	else
+	    return "UNKNOWN";
+}
+
+static void print_state(hackrf_m0_state *state) {
+	printf("M0 state:\n");
+	printf("Requested mode: %u (%s) [%s]\n",
+		state->requested_mode, mode_name(state->requested_mode),
+		state->request_flag ? "pending" : "complete");
+	printf("Active mode: %u (%s)\n", state->active_mode, mode_name(state->active_mode));
+	printf("M0 count: %u bytes\n", state->m0_count);
+	printf("M4 count: %u bytes\n", state->m4_count);
+	printf("Number of shortfalls: %u\n", state->num_shortfalls);
+	printf("Longest shortfall: %u bytes\n", state->longest_shortfall);
+	printf("Shortfall limit: %u bytes\n", state->shortfall_limit);
+	printf("Mode change threshold: %u bytes\n", state->threshold);
+	printf("Next mode: %u (%s)\n", state->next_mode, mode_name(state->next_mode));
+	printf("Error: %u (%s)\n", state->error, error_name(state->error));
+}
+
 static void usage() {
 	printf("\nUsage:\n");
 	printf("\t-h, --help: this help\n");
@@ -388,12 +422,16 @@ static void usage() {
 	printf("\t-m, --max2837: target MAX2837\n");
 	printf("\t-s, --si5351c: target SI5351C\n");
 	printf("\t-f, --rffc5072: target RFFC5072\n");
+	printf("\t-S, --state: display M0 state\n");
+	printf("\t-T, --tx-underrun-limit <n>: set TX underrun limit in bytes (0 for no limit)\n");
+	printf("\t-R, --rx-overrun-limit <n>: set RX overrun limit in bytes (0 for no limit)\n");
 	printf("\t-u, --ui <1/0>: enable/disable UI\n");
 	printf("\nExamples:\n");
 	printf("\thackrf_debug --si5351c -n 0 -r     # reads from si5351c register 0\n");
 	printf("\thackrf_debug --si5351c -c          # displays si5351c multisynth configuration\n");
 	printf("\thackrf_debug --rffc5072 -r         # reads all rffc5072 registers\n");
 	printf("\thackrf_debug --max2837 -n 10 -w 22 # writes max2837 register 10 with 22 decimal\n");
+	printf("\thackrf_debug --state               # displays M0 state\n");
 }
 
 static struct option long_options[] = {
@@ -406,23 +444,31 @@ static struct option long_options[] = {
 	{ "max2837", no_argument, 0, 'm' },
 	{ "si5351c", no_argument, 0, 's' },
 	{ "rffc5072", no_argument, 0, 'f' },
+	{ "state", no_argument, 0, 'S' },
+	{ "tx-underrun-limit", required_argument, 0, 'T' },
+	{ "rx-overrun-limit", required_argument, 0, 'R' },
 	{ "ui", required_argument, 0, 'u' },
 	{ 0, 0, 0, 0 },
 };
 
 int main(int argc, char** argv) {
 	int opt;
-	uint16_t register_number = REGISTER_INVALID;
-	uint16_t register_value;
+	uint32_t register_number = REGISTER_INVALID;
+	uint32_t register_value;
 	hackrf_device* device = NULL;
 	int option_index = 0;
 	bool read = false;
 	bool write = false;
 	bool dump_config = false;
+	bool dump_state = false;
 	uint8_t part = PART_NONE;
 	const char* serial_number = NULL;
 	bool set_ui = false;
-	uint16_t ui_enable;
+	uint32_t ui_enable;
+	uint32_t tx_limit;
+	uint32_t rx_limit;
+	bool set_tx_limit = false;
+	bool set_rx_limit = false;
 
 	int result = hackrf_init();
 	if(result) {
@@ -430,7 +476,7 @@ int main(int argc, char** argv) {
 		return EXIT_FAILURE;
 	}
 
-	while( (opt = getopt_long(argc, argv, "n:rw:d:cmsfh?u:", long_options, &option_index)) != EOF ) {
+	while( (opt = getopt_long(argc, argv, "n:rw:d:cmsfST:R:h?u:", long_options, &option_index)) != EOF ) {
 		switch( opt ) {
 		case 'n':
 			result = parse_int(optarg, &register_number);
@@ -447,6 +493,19 @@ int main(int argc, char** argv) {
 		
 		case 'c':
 			dump_config = true;
+			break;
+
+		case 'S':
+			dump_state = true;
+			break;
+
+		case 'T':
+			set_tx_limit = true;
+			result = parse_int(optarg, &tx_limit);
+			break;
+		case 'R':
+			set_rx_limit = true;
+			result = parse_int(optarg, &rx_limit);
 			break;
 
 		case 'd':
@@ -517,13 +576,13 @@ int main(int argc, char** argv) {
 		return EXIT_FAILURE;
 	}
 
-	if(!(write || read || dump_config || set_ui)) {
+	if(!(write || read || dump_config || dump_state || set_tx_limit || set_rx_limit || set_ui)) {
 		fprintf(stderr, "Specify read, write, or config option.\n");
 		usage();
 		return EXIT_FAILURE;
 	}
 
-	if(part == PART_NONE && !set_ui) {
+	if(part == PART_NONE && !set_ui && !dump_state && !set_tx_limit && !set_rx_limit) {
 		fprintf(stderr, "Specify a part to read, write, or print config from.\n");
 		usage();
 		return EXIT_FAILURE;
@@ -549,6 +608,32 @@ int main(int argc, char** argv) {
 
 	if(dump_config) {
 		si5351c_read_configuration(device);
+	}
+
+	if (set_tx_limit) {
+		result = hackrf_set_tx_underrun_limit(device, tx_limit);
+		if(result != HACKRF_SUCCESS) {
+			printf("hackrf_set_tx_underrun_limit() failed: %s (%d)\n", hackrf_error_name(result), result);
+			return EXIT_FAILURE;
+		}
+	}
+
+	if (set_rx_limit) {
+		result = hackrf_set_rx_overrun_limit(device, rx_limit);
+		if(result != HACKRF_SUCCESS) {
+			printf("hackrf_set_rx_overrun_limit() failed: %s (%d)\n", hackrf_error_name(result), result);
+			return EXIT_FAILURE;
+		}
+	}
+
+	if(dump_state) {
+		hackrf_m0_state state;
+		result = hackrf_get_m0_state(device, &state);
+		if(result != HACKRF_SUCCESS) {
+			printf("hackrf_get_m0_state() failed: %s (%d)\n", hackrf_error_name(result), result);
+			return EXIT_FAILURE;
+		}
+		print_state(&state);
 	}
 
 	if(set_ui) {

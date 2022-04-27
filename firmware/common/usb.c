@@ -44,7 +44,7 @@ usb_queue_head_t* usb_queue_head(
 	return &usb_qh[USB_QH_INDEX(endpoint_address)];
 }
 
-static usb_endpoint_t* usb_endpoint_from_address(
+usb_endpoint_t* usb_endpoint_from_address(
 	const uint_fast8_t endpoint_address
 ) {
 	return (usb_endpoint_t*)usb_queue_head(endpoint_address)->_reserved_0;
@@ -300,6 +300,17 @@ void usb_endpoint_stall(
 	USB0_ENDPTCTRL(endpoint_number) |= (USB0_ENDPTCTRL_RXS | USB0_ENDPTCTRL_TXS);
 	
 	// TODO: Also need to reset data toggle in both directions?
+}
+
+void usb_endpoint_reset_data_toggle(
+	const usb_endpoint_t* const endpoint
+) {
+	const uint_fast8_t endpoint_number = usb_endpoint_number(endpoint->address);
+	if( usb_endpoint_is_in(endpoint->address) ) {
+		USB0_ENDPTCTRL(endpoint_number) |= USB0_ENDPTCTRL_TXR;
+	} else {
+		USB0_ENDPTCTRL(endpoint_number) |= USB0_ENDPTCTRL_RXR;
+	}
 }
 
 static void usb_controller_run() {

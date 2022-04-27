@@ -28,11 +28,8 @@ Major parts used in HackRF One:
 
 
 
-Block Diagrams
-~~~~~~~~~~~~~~
+Block Diagram
+~~~~~~~~~~~~~
 
-.. image:: ../images/blockdiagram_1.png
-	:align: center
-
-.. image:: ../images/blockdiagram_2.png
+.. image:: ../images/block-diagram.png
 	:align: center

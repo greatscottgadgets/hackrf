@@ -1,11 +1,11 @@
 ================================================
-Software Support
+HackRF Compatible Software
 ================================================
 
 Software with HackRF Support
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-This is intended to be a list of software known to work with the HackRF. There are three sections, GNU Radio Based software, those that have support directly, and those that can work with data from the HackRF.
+This is intended to be a list of software known to work with the HackRF. There are three sections, GNU Radio Based software, those that have direct support, and those that can work with data from the HackRF.
 
 
 
@@ -33,6 +33,7 @@ QSpectrumAnalyzer - `https://github.com/xmikos/qspectrumanalyzer <https://github
 
 Spectrum Analyzer GUI for hackrf_sweep for Windows - `https://github.com/pavsa/hackrf-spectrum-analyzer <https://github.com/pavsa/hackrf-spectrum-analyzer>`__
 
+Web-based APRS tracker `https://xakcop.com/aprs-sdr <https://xakcop.com/aprs-sdr/>`__
 
 
 Can use HackRF data

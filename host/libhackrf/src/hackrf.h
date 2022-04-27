@@ -110,7 +110,7 @@ enum operacake_switching_mode {
 	 */
 	OPERACAKE_MODE_MANUAL,
 	/**
-	 * Port connections are switched automatically when the frequency is changed. Frequency ranges can be set using @ref hackrf_set_operacake_ranges.
+	 * Port connections are switched automatically when the frequency is changed. Frequency ranges can be set using @ref hackrf_set_operacake_freq_ranges.
 	 */
 	OPERACAKE_MODE_FREQUENCY,
 	/**
@@ -126,13 +126,17 @@ enum sweep_style {
 
 typedef struct hackrf_device hackrf_device;
 
+/**
+ * USB transfer information passed to RX or TX callback.
+ * A callback should treat all these fields as read-only except that a TX callback should write to the data buffer.
+ */
 typedef struct {
-	hackrf_device* device;
-	uint8_t* buffer;
-	int buffer_length;
-	int valid_length;
-	void* rx_ctx;
-	void* tx_ctx;
+	hackrf_device* device; /**< HackRF USB device for this transfer */
+	uint8_t* buffer;       /**< transfer data buffer */
+	int buffer_length;     /**< length of data buffer in bytes */
+	int valid_length;      /**< number of buffer bytes that were transferred */
+	void* rx_ctx;          /**< RX libusb context */
+	void* tx_ctx;          /**< TX libusb context */
 } hackrf_transfer;
 
 typedef struct {
@@ -150,6 +154,32 @@ typedef struct {
 	uint16_t freq_max;
 	uint8_t port;
 } hackrf_operacake_freq_range;
+
+/** State of the SGPIO loop running on the M0 core. */
+typedef struct {
+	/** Requested mode. */
+	uint16_t requested_mode;
+	/** Request flag. */
+	uint16_t request_flag;
+	/** Active mode. */
+	uint32_t active_mode;
+	/** Number of bytes transferred by the M0. */
+	uint32_t m0_count;
+	/** Number of bytes transferred by the M4. */
+	uint32_t m4_count;
+	/** Number of shortfalls. */
+	uint32_t num_shortfalls;
+	/** Longest shortfall. */
+	uint32_t longest_shortfall;
+	/** Shortfall limit in bytes. */
+	uint32_t shortfall_limit;
+	/** Threshold m0_count value for next mode change. */
+	uint32_t threshold;
+	/** Mode which will be switched to when threshold is reached. */
+	uint32_t next_mode;
+	/** Error, if any, that caused the M0 to revert to IDLE mode. */
+	uint32_t error;
+} hackrf_m0_state;
 
 struct hackrf_device_list {
 	char **serial_numbers;
@@ -188,6 +218,10 @@ extern ADDAPI int ADDCALL hackrf_stop_rx(hackrf_device* device);
  
 extern ADDAPI int ADDCALL hackrf_start_tx(hackrf_device* device, hackrf_sample_block_cb_fn callback, void* tx_ctx);
 extern ADDAPI int ADDCALL hackrf_stop_tx(hackrf_device* device);
+
+extern ADDAPI int ADDCALL hackrf_get_m0_state(hackrf_device* device, hackrf_m0_state* value);
+extern ADDAPI int ADDCALL hackrf_set_tx_underrun_limit(hackrf_device* device, uint32_t value);
+extern ADDAPI int ADDCALL hackrf_set_rx_overrun_limit(hackrf_device* device, uint32_t value);
 
 /* return HACKRF_TRUE if success */
 extern ADDAPI int ADDCALL hackrf_is_streaming(hackrf_device* device);

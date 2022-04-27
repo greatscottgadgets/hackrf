@@ -51,15 +51,15 @@ static void usage() {
 	printf("\t-b <n>: set port B connection\n");
 	printf("\t-f <port:min:max>: automatically assign <port> for range <min:max> in MHz\n");
 	printf("\t-t <port:dwell>: in time-switching mode, dwell on <port> for <dwell> samples. Specify only <port> to use the default dwell time (with -w). This argument can be repeated to specify a list of ports.\n");
-	printf("\t-w <n>: set default dwell time for time-switching mode");
+	printf("\t-w <n>: set default dwell time for time-switching mode\n");
 	printf("\t-l, --list: list available operacake boards\n");
 	printf("\t-g, --gpio_test: test GPIO functionality of an opera cake\n");
 }
 
 static struct option long_options[] = {
-	{ "device", no_argument, 0, 'd' },
-	{ "address", no_argument, 0, 'o' },
-	{ "mode", no_argument, 0, 'm' },
+	{ "device", required_argument, 0, 'd' },
+	{ "address", required_argument, 0, 'o' },
+	{ "mode", required_argument, 0, 'm' },
 	{ "list", no_argument, 0, 'l' },
 	{ "gpio_test", no_argument, 0, 'g' },
 	{ "help", no_argument, 0, 'h' },

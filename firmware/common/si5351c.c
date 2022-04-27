@@ -23,6 +23,8 @@
 #include "si5351c.h"
 
 enum pll_sources active_clock_source = PLL_SOURCE_UNINITIALIZED;
+/* External clock output default is deactivated as it creates noise */
+uint8_t clk3_ctrl = SI5351C_CLK_POWERDOWN | SI5351C_CLK_INT_MODE;
 
 /* write to single register */
 void si5351c_write_single(si5351c_driver_t* const drv, uint8_t reg, uint8_t val)
@@ -183,12 +185,12 @@ void si5351c_configure_clock_control(si5351c_driver_t* const drv, const enum pll
 	}
 #endif
 	/* Clock to CPU is deactivated as it is not used and creates noise */
-	/* External clock output is deactivated as it is not used and creates noise */
+	/* External clock output is kept in current state */
 	uint8_t data[] = {16
 	,SI5351C_CLK_FRAC_MODE | SI5351C_CLK_PLL_SRC(pll) | SI5351C_CLK_SRC(SI5351C_CLK_SRC_MULTISYNTH_SELF) | SI5351C_CLK_IDRV(SI5351C_CLK_IDRV_8MA)
 	,SI5351C_CLK_INT_MODE | SI5351C_CLK_PLL_SRC(pll) | SI5351C_CLK_SRC(SI5351C_CLK_SRC_MULTISYNTH_0_4) | SI5351C_CLK_IDRV(SI5351C_CLK_IDRV_2MA) | SI5351C_CLK_INV
 	,SI5351C_CLK_INT_MODE | SI5351C_CLK_PLL_SRC(pll) | SI5351C_CLK_SRC(SI5351C_CLK_SRC_MULTISYNTH_0_4) | SI5351C_CLK_IDRV(SI5351C_CLK_IDRV_2MA)
-	,SI5351C_CLK_POWERDOWN | SI5351C_CLK_INT_MODE /*not connected, but: plla int mode*/
+	,clk3_ctrl
 	,SI5351C_CLK_INT_MODE | SI5351C_CLK_PLL_SRC(pll) | SI5351C_CLK_SRC(SI5351C_CLK_SRC_MULTISYNTH_SELF) | SI5351C_CLK_IDRV(SI5351C_CLK_IDRV_6MA) | SI5351C_CLK_INV
 	,SI5351C_CLK_INT_MODE | SI5351C_CLK_PLL_SRC(pll) | SI5351C_CLK_SRC(SI5351C_CLK_SRC_MULTISYNTH_SELF) | SI5351C_CLK_IDRV(SI5351C_CLK_IDRV_4MA)
 	,SI5351C_CLK_POWERDOWN | SI5351C_CLK_INT_MODE /*not connected, but: plla int mode*/
@@ -280,7 +282,6 @@ void si5351c_clkout_enable(si5351c_driver_t* const drv, uint8_t enable)
 			pll = SI5351C_CLK_PLL_SRC_A;
 		}
 	#endif
-	uint8_t clk3_ctrl;
 	if(enable)
 		clk3_ctrl = SI5351C_CLK_INT_MODE | SI5351C_CLK_PLL_SRC(pll) | SI5351C_CLK_SRC(SI5351C_CLK_SRC_MULTISYNTH_SELF) | SI5351C_CLK_IDRV(SI5351C_CLK_IDRV_8MA);
 	else
