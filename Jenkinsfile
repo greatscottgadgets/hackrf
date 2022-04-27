@@ -1,7 +1,7 @@
 pipeline {
     agent { 
         dockerfile {
-            args '--group-add=46 --privileged -v /dev/bus/usb:/dev/bus/usb'
+            args '--group-add=46 --device-cgroup-rule="c 189:* rmw" -v /dev/bus/usb:/dev/bus/usb'
         }
     }
     environment {
@@ -22,7 +22,6 @@ pipeline {
         stage('Test') {
             steps {
                 sh './ci-scripts/configure-hubs.sh --off'
-                sh './ci-scripts/test-hub.sh'
                 retry(3) {
                     sh './ci-scripts/test-host.sh'
                 }
