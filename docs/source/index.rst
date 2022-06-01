@@ -45,6 +45,7 @@ Welcome to HackRF's documentation!
    clocking
    expansion_interface
    multiple_device_hardware_synch
+   rf_shield_installation
 
 .. toctree::
    :maxdepth: 2

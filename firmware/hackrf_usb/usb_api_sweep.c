@@ -121,6 +121,7 @@ void sweep_mode(uint32_t seq) {
 	//
 	// 7. Process repeats from step 1.
 
+	unsigned int blocks_queued = 0;
 	unsigned int phase = 0;
 	bool odd = true;
 	uint16_t range = 0;
@@ -170,31 +171,34 @@ void sweep_mode(uint32_t seq) {
 		// Use other buffer next time.
 		phase = (phase + 1) % 2;
 
-		// Calculate next sweep frequency.
-		if(INTERLEAVED == style) {
-			if(!odd && ((sweep_freq + step_width) >= ((uint64_t)frequencies[1+range*2] * FREQ_GRANULARITY))) {
-				range = (range + 1) % num_ranges;
-				sweep_freq = (uint64_t)frequencies[range*2] * FREQ_GRANULARITY;
-			} else {
-				if(odd) {
-					sweep_freq += step_width/4;
+		if ( ++blocks_queued == dwell_blocks ) {
+			// Calculate next sweep frequency.
+			if(INTERLEAVED == style) {
+				if(!odd && ((sweep_freq + step_width) >= ((uint64_t)frequencies[1+range*2] * FREQ_GRANULARITY))) {
+					range = (range + 1) % num_ranges;
+					sweep_freq = (uint64_t)frequencies[range*2] * FREQ_GRANULARITY;
 				} else {
-					sweep_freq += 3*step_width/4;
+					if(odd) {
+						sweep_freq += step_width/4;
+					} else {
+						sweep_freq += 3*step_width/4;
+					}
+				}
+				odd = !odd;
+			} else {
+				if((sweep_freq + step_width) >= ((uint64_t)frequencies[1+range*2] * FREQ_GRANULARITY)) {
+					range = (range + 1) % num_ranges;
+					sweep_freq = (uint64_t)frequencies[range*2] * FREQ_GRANULARITY;
+				} else {
+					sweep_freq += step_width;
 				}
 			}
-			odd = !odd;
-		} else {
-			if((sweep_freq + step_width) >= ((uint64_t)frequencies[1+range*2] * FREQ_GRANULARITY)) {
-				range = (range + 1) % num_ranges;
-				sweep_freq = (uint64_t)frequencies[range*2] * FREQ_GRANULARITY;
-			} else {
-				sweep_freq += step_width;
-			}
+			// Retune to new frequency.
+			nvic_disable_irq(NVIC_USB0_IRQ);
+			set_freq(sweep_freq + offset);
+			nvic_enable_irq(NVIC_USB0_IRQ);
+			blocks_queued = 0;
 		}
-		// Retune to new frequency.
-		nvic_disable_irq(NVIC_USB0_IRQ);
-		set_freq(sweep_freq + offset);
-		nvic_enable_irq(NVIC_USB0_IRQ);
 
 		// Wait for M0 to resume RX.
 		while (m0_state.active_mode != M0_MODE_RX)
