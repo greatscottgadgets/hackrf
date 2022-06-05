@@ -31,6 +31,12 @@ $ hackrf_spiflash -w hackrf_usb.bin
 If you have a Jawbreaker, add -DBOARD=JAWBREAKER to the cmake command.
 If you have a rad1o, use -DBOARD=RAD1O instead.
 
+If you get the "`arm-none-eabi-gcc` is not a full path and was not found in the PATH"
+error during `cmake ..`, install the package with `sudo apt-get install gcc-arm-none-eabi`.
+
+If you get the "ModuleNotFoundError: No module named 'yaml'" error during `make`,
+run `pip install pyyaml` to install the Python yaml pip package.
+
 It is possible to use a USB Device Firmware Upgrade (DFU) method to load
 firmware into RAM.  This is normally only required to recover a device that has
 had faulty firmware loaded, but it can also be useful for firmware developers.
