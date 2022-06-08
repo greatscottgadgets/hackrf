@@ -4,10 +4,6 @@ pipeline {
             args '--group-add=46 --device-cgroup-rule="c 189:* rmw" -v /dev/bus/usb:/dev/bus/usb'
         }
     }
-    environment {
-        GIT_COMMITER_NAME = 'CI Person'
-        GIT_COMMITER_EMAIL = 'ci@greatscottgadgets.com'
-    }
     stages {
         stage('Build (Host)') {
             steps {
