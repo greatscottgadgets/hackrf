@@ -299,6 +299,19 @@ void delay(uint32_t duration)
 		__asm__("nop");
 }
 
+void delay_us_at_mhz(uint32_t us, uint32_t mhz)
+{
+	// The loop below takes 4 cycles per iteration.
+	uint32_t loop_iterations = (us * mhz) / 4;
+	asm volatile (
+		"start%=:\n"
+		"    subs %[ITERATIONS], #1\n" // 1 cycle
+		"    bpl start%=\n"            // 3 cycles
+		:
+		: [ITERATIONS] "r" (loop_iterations)
+	);
+}
+
 /* GCD algo from wikipedia */
 /* http://en.wikipedia.org/wiki/Greatest_common_divisor */
 static uint32_t
