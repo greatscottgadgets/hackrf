@@ -46,7 +46,6 @@
 
 #include "gpio_lpc.h"
 
-#define WAIT_CPU_CLOCK_INIT_DELAY   (10000)
 /* GPIO Output PinMux */
 static struct gpio_t gpio_led[] = {
 	GPIO(2,  1),
@@ -498,54 +497,65 @@ This function shall be called after cpu_clock_init().
 */
 static void cpu_clock_pll1_max_speed(void)
 {
-	uint32_t pll_reg;
+	uint32_t reg_val;
 
-	/* Configure PLL1 to Intermediate Clock (between 90 MHz and 110 MHz) */
-	/* Integer mode:
-		FCLKOUT = M*(FCLKIN/N) 
-		FCCO = 2*P*FCLKOUT = 2*P*M*(FCLKIN/N) 
-	*/
-	pll_reg = CGU_PLL1_CTRL;
-	/* Clear PLL1 bits */
-	pll_reg &= ~( CGU_PLL1_CTRL_CLK_SEL_MASK | CGU_PLL1_CTRL_PD_MASK | CGU_PLL1_CTRL_FBSEL_MASK |  /* CLK SEL, PowerDown , FBSEL */
-				  CGU_PLL1_CTRL_BYPASS_MASK | /* BYPASS */
-				  CGU_PLL1_CTRL_DIRECT_MASK | /* DIRECT */
-				  CGU_PLL1_CTRL_PSEL_MASK | CGU_PLL1_CTRL_MSEL_MASK | CGU_PLL1_CTRL_NSEL_MASK ); /* PSEL, MSEL, NSEL- divider ratios */
-	/* Set PLL1 up to 12MHz * 8 = 96MHz. */
-	pll_reg |= CGU_PLL1_CTRL_CLK_SEL(CGU_SRC_XTAL)
-				| CGU_PLL1_CTRL_PSEL(0)
-				| CGU_PLL1_CTRL_NSEL(0)
-				| CGU_PLL1_CTRL_MSEL(7)
-				| CGU_PLL1_CTRL_FBSEL(1);
-	CGU_PLL1_CTRL = pll_reg;
-	/* wait until stable */
+	/* This function implements the sequence recommended in:
+	 * UM10503 Rev 2.4 (Aug 2018), section 13.2.1.1, page 167. */
+
+	/* 1. Select the IRC as BASE_M4_CLK source. */
+	reg_val = CGU_BASE_M4_CLK;
+	reg_val &= ~CGU_BASE_M4_CLK_CLK_SEL_MASK;
+	reg_val |= CGU_BASE_M4_CLK_CLK_SEL(CGU_SRC_IRC) |
+	           CGU_BASE_M4_CLK_AUTOBLOCK(1);
+	CGU_BASE_M4_CLK = reg_val;
+
+	/* 2. Enable the crystal oscillator. */
+	CGU_XTAL_OSC_CTRL &= ~CGU_XTAL_OSC_CTRL_ENABLE_MASK;
+
+	/* 3. Wait 250us. */
+	delay_us_at_mhz(250, 12);
+
+	/* 4. Set the AUTOBLOCK bit. */
+	CGU_PLL1_CTRL |= CGU_PLL1_CTRL_AUTOBLOCK(1);
+
+	/* 5. Reconfigure PLL1 to produce the final output frequency, with the
+	 *    crystal oscillator as clock source. */
+	reg_val = CGU_PLL1_CTRL;
+	reg_val &= ~( CGU_PLL1_CTRL_CLK_SEL_MASK |
+	              CGU_PLL1_CTRL_PD_MASK |
+	              CGU_PLL1_CTRL_FBSEL_MASK |
+	              CGU_PLL1_CTRL_BYPASS_MASK |
+	              CGU_PLL1_CTRL_DIRECT_MASK |
+	              CGU_PLL1_CTRL_PSEL_MASK |
+	              CGU_PLL1_CTRL_MSEL_MASK |
+	              CGU_PLL1_CTRL_NSEL_MASK );
+	/* Set PLL1 up to 12MHz * 17 = 204MHz.
+	 * Direct mode: FCLKOUT = FCCO = M*(FCLKIN/N) */
+	reg_val |= CGU_PLL1_CTRL_CLK_SEL(CGU_SRC_XTAL) |
+	           CGU_PLL1_CTRL_PSEL(0) |
+	           CGU_PLL1_CTRL_NSEL(0) |
+	           CGU_PLL1_CTRL_MSEL(16) |
+	           CGU_PLL1_CTRL_FBSEL(0) |
+	           CGU_PLL1_CTRL_DIRECT(1);
+	CGU_PLL1_CTRL = reg_val;
+
+	/* 6. Wait for PLL1 to lock. */
 	while (!(CGU_PLL1_STAT & CGU_PLL1_STAT_LOCK_MASK));
 
-	/* use PLL1 as clock source for BASE_M4_CLK (CPU) */
-	CGU_BASE_M4_CLK = (CGU_BASE_M4_CLK_CLK_SEL(CGU_SRC_PLL1) | CGU_BASE_M4_CLK_AUTOBLOCK(1));
+	/* 7. Set the PLL1 P-divider to divide by 2 (DIRECT=0, PSEL=0). */
+	CGU_PLL1_CTRL &= ~CGU_PLL1_CTRL_DIRECT_MASK;
 
-	/* Wait before to switch to max speed */
-	delay(WAIT_CPU_CLOCK_INIT_DELAY);
+	/* 8. Select PLL1 as BASE_M4_CLK source. */
+	reg_val = CGU_BASE_M4_CLK;
+	reg_val &= ~CGU_BASE_M4_CLK_CLK_SEL_MASK;
+	reg_val |= CGU_BASE_M4_CLK_CLK_SEL(CGU_SRC_PLL1);
+	CGU_BASE_M4_CLK = reg_val;
 
-	/* Configure PLL1 Max Speed */
-	/* Direct mode: FCLKOUT = FCCO = M*(FCLKIN/N) */
-	pll_reg = CGU_PLL1_CTRL;
-	/* Clear PLL1 bits */
-	pll_reg &= ~( CGU_PLL1_CTRL_CLK_SEL_MASK | CGU_PLL1_CTRL_PD_MASK | CGU_PLL1_CTRL_FBSEL_MASK |  /* CLK SEL, PowerDown , FBSEL */
-				  CGU_PLL1_CTRL_BYPASS_MASK | /* BYPASS */
-				  CGU_PLL1_CTRL_DIRECT_MASK | /* DIRECT */
-				  CGU_PLL1_CTRL_PSEL_MASK | CGU_PLL1_CTRL_MSEL_MASK | CGU_PLL1_CTRL_NSEL_MASK ); /* PSEL, MSEL, NSEL- divider ratios */
-	/* Set PLL1 up to 12MHz * 17 = 204MHz. */
-	pll_reg |= CGU_PLL1_CTRL_CLK_SEL(CGU_SRC_XTAL)
-			| CGU_PLL1_CTRL_PSEL(0)
-			| CGU_PLL1_CTRL_NSEL(0)
-			| CGU_PLL1_CTRL_MSEL(16)
-			| CGU_PLL1_CTRL_FBSEL(1)
-			| CGU_PLL1_CTRL_DIRECT(1);
-	CGU_PLL1_CTRL = pll_reg;
-	/* wait until stable */
-	while (!(CGU_PLL1_STAT & CGU_PLL1_STAT_LOCK_MASK));
+	/* 9. Wait 50us. */
+	delay_us_at_mhz(50, 104);
 
+	/* 10. Set the PLL1 P-divider to direct output mode (DIRECT=1). */
+	CGU_PLL1_CTRL |= CGU_PLL1_CTRL_DIRECT_MASK;
 }
 
 /* clock startup for LPC4320 configure PLL1 to max speed (204MHz).
@@ -611,14 +621,7 @@ void cpu_clock_init(void)
 	/* set xtal oscillator to low frequency mode */
 	CGU_XTAL_OSC_CTRL &= ~CGU_XTAL_OSC_CTRL_HF_MASK;
 
-	/* power on the oscillator and wait until stable */
-	CGU_XTAL_OSC_CTRL &= ~CGU_XTAL_OSC_CTRL_ENABLE_MASK;
-
-	/* Wait about 100us after Crystal Power ON */
-	delay(WAIT_CPU_CLOCK_INIT_DELAY);
-
-	/* use XTAL_OSC as clock source for BASE_M4_CLK (CPU) */
-	CGU_BASE_M4_CLK = (CGU_BASE_M4_CLK_CLK_SEL(CGU_SRC_XTAL) | CGU_BASE_M4_CLK_AUTOBLOCK(1));
+	cpu_clock_pll1_max_speed();
 
 	/* use XTAL_OSC as clock source for APB1 */
 	CGU_BASE_APB1_CLK = CGU_BASE_APB1_CLK_AUTOBLOCK(1)
@@ -627,8 +630,6 @@ void cpu_clock_init(void)
 	/* use XTAL_OSC as clock source for APB3 */
 	CGU_BASE_APB3_CLK = CGU_BASE_APB3_CLK_AUTOBLOCK(1)
 			| CGU_BASE_APB3_CLK_CLK_SEL(CGU_SRC_XTAL);
-
-	cpu_clock_pll1_max_speed();
 
 	/* use XTAL_OSC as clock source for PLL0USB */
 	CGU_PLL0USB_CTRL = CGU_PLL0USB_CTRL_PD(1)
