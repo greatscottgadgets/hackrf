@@ -124,10 +124,9 @@ usb_request_status_t usb_vendor_request_read_spiflash(
 usb_request_status_t usb_vendor_request_spiflash_status(
 	usb_endpoint_t* const endpoint, const usb_transfer_stage_t stage)
 {
-	uint8_t data[2];
 	if (stage == USB_TRANSFER_STAGE_SETUP) {
-		w25q80bv_get_full_status(&spi_flash, data);
-		usb_transfer_schedule_block(endpoint->in, &data, 2, NULL, NULL);
+		w25q80bv_get_full_status(&spi_flash, endpoint->buffer);
+		usb_transfer_schedule_block(endpoint->in, &endpoint->buffer, 2, NULL, NULL);
 		return USB_REQUEST_STATUS_OK;
 	} else if (stage == USB_TRANSFER_STAGE_DATA) {
 		usb_transfer_schedule_ack(endpoint->out);

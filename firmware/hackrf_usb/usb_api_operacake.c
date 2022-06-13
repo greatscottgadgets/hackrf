@@ -31,9 +31,8 @@ usb_request_status_t usb_vendor_request_operacake_get_boards(
 	usb_endpoint_t* const endpoint, const usb_transfer_stage_t stage)
 {
 	if (stage == USB_TRANSFER_STAGE_SETUP) {
-		uint8_t addresses[8];
-		operacake_get_boards(addresses);
-		usb_transfer_schedule_block(endpoint->in, addresses, 8, NULL, NULL);
+		operacake_get_boards(endpoint->buffer);
+		usb_transfer_schedule_block(endpoint->in, endpoint->buffer, 8, NULL, NULL);
 		usb_transfer_schedule_ack(endpoint->out);
 	}
 	return USB_REQUEST_STATUS_OK;

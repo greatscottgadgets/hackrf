@@ -56,11 +56,11 @@ usb_request_status_t usb_vendor_request_read_version_string(
 	return USB_REQUEST_STATUS_OK;
 }
 
+static read_partid_serialno_t read_partid_serialno;
 usb_request_status_t usb_vendor_request_read_partid_serialno(
 	usb_endpoint_t* const endpoint, const usb_transfer_stage_t stage)
 {
 	uint8_t length;
-	read_partid_serialno_t read_partid_serialno;
 	iap_cmd_res_t iap_cmd_res;
 
 	if (stage == USB_TRANSFER_STAGE_SETUP) 
