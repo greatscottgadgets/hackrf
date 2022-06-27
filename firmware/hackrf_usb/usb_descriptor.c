@@ -160,8 +160,8 @@ uint8_t usb_descriptor_string_languages[] = {
 };
 
 uint8_t usb_descriptor_string_manufacturer[] = {
-	40,					// bLength
-	USB_DESCRIPTOR_TYPE_STRING,	    // bDescriptorType
+	40,                         // bLength
+	USB_DESCRIPTOR_TYPE_STRING, // bDescriptorType
 	'G', 0x00,
 	'r', 0x00,
 	'e', 0x00,
@@ -185,8 +185,8 @@ uint8_t usb_descriptor_string_manufacturer[] = {
 
 uint8_t usb_descriptor_string_product[] = {
 #ifdef HACKRF_ONE
-	22,						// bLength
-	USB_DESCRIPTOR_TYPE_STRING,		// bDescriptorType
+	22,                         // bLength
+	USB_DESCRIPTOR_TYPE_STRING, // bDescriptorType
 	'H', 0x00,
 	'a', 0x00,
 	'c', 0x00,
@@ -198,8 +198,8 @@ uint8_t usb_descriptor_string_product[] = {
 	'n', 0x00,
 	'e', 0x00,
 #elif JAWBREAKER
-	36,						// bLength
-	USB_DESCRIPTOR_TYPE_STRING,		// bDescriptorType
+	36,                         // bLength
+	USB_DESCRIPTOR_TYPE_STRING, // bDescriptorType
 	'H', 0x00,
 	'a', 0x00,
 	'c', 0x00,
@@ -218,16 +218,16 @@ uint8_t usb_descriptor_string_product[] = {
 	'e', 0x00,
 	'r', 0x00,
 #elif RAD1O
-	12,						// bLength
-	USB_DESCRIPTOR_TYPE_STRING,		// bDescriptorType
+	12,                         // bLength
+	USB_DESCRIPTOR_TYPE_STRING, // bDescriptorType
 	'r', 0x00,
 	'a', 0x00,
 	'd', 0x00,
 	'1', 0x00,
 	'o', 0x00,
 #else
-	14,						// bLength
-	USB_DESCRIPTOR_TYPE_STRING,		// bDescriptorType
+	14,                         // bLength
+	USB_DESCRIPTOR_TYPE_STRING, // bDescriptorType
 	'H', 0x00,
 	'a', 0x00,
 	'c', 0x00,
@@ -238,8 +238,8 @@ uint8_t usb_descriptor_string_product[] = {
 };
 
 uint8_t usb_descriptor_string_config_description[] = {
-	24,						// bLength
-	USB_DESCRIPTOR_TYPE_STRING,		// bDescriptorType
+	24,                         // bLength
+	USB_DESCRIPTOR_TYPE_STRING, // bDescriptorType
 	'T', 0x00,
 	'r', 0x00,
 	'a', 0x00,
@@ -255,8 +255,8 @@ uint8_t usb_descriptor_string_config_description[] = {
 
 #ifdef DFU_MODE
 uint8_t usb_descriptor_string_serial_number[] = {
-	30,						// bLength
-	USB_DESCRIPTOR_TYPE_STRING,		// bDescriptorType
+	30,                         // bLength
+	USB_DESCRIPTOR_TYPE_STRING, // bDescriptorType
 	'R', 0x00,
 	'u', 0x00,
 	'n', 0x00,
@@ -282,7 +282,7 @@ uint8_t* usb_descriptor_strings[] = {
 	usb_descriptor_string_product,
 	usb_descriptor_string_config_description,
 	usb_descriptor_string_serial_number,
-	0,		// TERMINATOR
+	0, // TERMINATOR
 };
 
 uint8_t wcid_string_descriptor[] = {
@@ -300,14 +300,14 @@ uint8_t wcid_string_descriptor[] = {
 };
 
 uint8_t wcid_feature_descriptor[] = {
-	0x28, 0x00, 0x00, 0x00,  // bLength
-	USB_WORD(0x0100),        // WCID version
-	USB_WORD(0x0004),        // WICD descriptor index
-	0x01,                    //bNumSections
-	0x00,0x00,0x00,0x00,0x00,0x00,0x00, //Reserved
-	0x00,        //bInterfaceNumber
-	0x01,        //Reserved
-	'W', 'I', 'N', 'U', 'S', 'B', 0x00,0x00, //Compatible ID, padded with zeros
-	0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00, //Sub-compatible ID
-	0x00,0x00,0x00,0x00,0x00,0x00            //Reserved
+	0x28, 0x00, 0x00, 0x00,                  // bLength
+	USB_WORD(0x0100),                        // WCID version
+	USB_WORD(0x0004),                        // WICD descriptor index
+	0x01,                                    // bNumSections
+	0x00,0x00,0x00,0x00,0x00,0x00,0x00,      // Reserved
+	0x00,                                    // bInterfaceNumber
+	0x01,                                    // Reserved
+	'W', 'I', 'N', 'U', 'S', 'B', 0x00,0x00, // Compatible ID, padded with zeros
+	0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00, // Sub-compatible ID
+	0x00,0x00,0x00,0x00,0x00,0x00            // Reserved
 };
