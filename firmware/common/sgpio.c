@@ -158,7 +158,6 @@ void sgpio_configure(
 	const uint_fast8_t pos = config->slice_mode_multislice ? 0x1f : 0x03;
 	const bool single_slice = !config->slice_mode_multislice;
 	const uint_fast8_t slice_count = config->slice_mode_multislice ? 8 : 1;
-	const uint_fast8_t clk_capture_mode = (direction == SGPIO_DIRECTION_TX) ? 0 : 0;
 	
 	// Also enable slice D for clkout to the SCTimer
 	uint32_t slice_enable_mask = BIT3;
@@ -188,7 +187,7 @@ void sgpio_configure(
 		    | SGPIO_SLICE_MUX_CFG_DATA_CAPTURE_MODE(0) /* 0x0=Detect rising edge. (Condition for input bit match interrupt) */
 		    | SGPIO_SLICE_MUX_CFG_INV_OUT_CLK(0) /* 0x0=Normal clock. */
 		    | SGPIO_SLICE_MUX_CFG_CLKGEN_MODE(1) /* 0x1=Use external clock from a pin or other slice */
-		    | SGPIO_SLICE_MUX_CFG_CLK_CAPTURE_MODE(clk_capture_mode) /* 0x0=Use rising clock edge, 0x1=Use falling clock edge */
+		    | SGPIO_SLICE_MUX_CFG_CLK_CAPTURE_MODE(0) /* 0x0=Use rising clock edge */
 		    | SGPIO_SLICE_MUX_CFG_MATCH_MODE(0) /* 0x0=Do not match data */
 			;
 
@@ -222,7 +221,7 @@ void sgpio_configure(
 			| SGPIO_SLICE_MUX_CFG_DATA_CAPTURE_MODE(0) /* 0x0=Detect rising edge. (Condition for input bit match interrupt) */
 			| SGPIO_SLICE_MUX_CFG_INV_OUT_CLK(0) /* 0x0=Normal clock. */
 			| SGPIO_SLICE_MUX_CFG_CLKGEN_MODE(1) /* 0x1=Use external clock from a pin or other slice */
-			| SGPIO_SLICE_MUX_CFG_CLK_CAPTURE_MODE(clk_capture_mode) /* 0x0=Use rising clock edge, 0x1=Use falling clock edge */
+			| SGPIO_SLICE_MUX_CFG_CLK_CAPTURE_MODE(0) /* 0x0=Use rising clock edge */
 			| SGPIO_SLICE_MUX_CFG_MATCH_MODE(0) /* 0x0=Do not match data */
 			;
 
