@@ -63,6 +63,7 @@ typedef enum {
 } iap_cmd_code_t;
 
 /* ISP/IAP Return Code */
+// clang-format off
 typedef enum 
 {
 	CMD_SUCCESS                    = 0x00000000, /* CMD_SUCCESS Command is executed successfully.
@@ -94,6 +95,7 @@ typedef enum
 	/* Special Error */
 	ERROR_IAP_NOT_IMPLEMENTED      = 0x00000100 /* IAP is not implemented in this part */
 } isp_iap_ret_code_t;
+// clang-format on
 
 typedef struct
 {

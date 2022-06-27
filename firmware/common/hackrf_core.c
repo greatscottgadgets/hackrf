@@ -56,6 +56,7 @@ static struct gpio_t gpio_led[] = {
 #endif
 };
 
+// clang-format off
 static struct gpio_t gpio_1v8_enable        = GPIO(3,  6);
 
 /* MAX2837 GPIO (XCVR_CTL) PinMux */
@@ -135,6 +136,7 @@ static struct gpio_t gpio_cpld_pp_tdo       = GPIO(1,  8);
 
 static struct gpio_t gpio_hw_sync_enable    = GPIO(5,12);
 static struct gpio_t gpio_rx_q_invert       = GPIO(0, 13);
+// clang-format on
 
 i2c_bus_t i2c0 = {
 	.obj = (void*)I2C0_BASE,
@@ -521,6 +523,7 @@ static void cpu_clock_pll1_max_speed(void)
 	/* 5. Reconfigure PLL1 to produce the final output frequency, with the
 	 *    crystal oscillator as clock source. */
 	reg_val = CGU_PLL1_CTRL;
+	// clang-format off
 	reg_val &= ~( CGU_PLL1_CTRL_CLK_SEL_MASK |
 	              CGU_PLL1_CTRL_PD_MASK |
 	              CGU_PLL1_CTRL_FBSEL_MASK |
@@ -537,6 +540,7 @@ static void cpu_clock_pll1_max_speed(void)
 	           CGU_PLL1_CTRL_MSEL(16) |
 	           CGU_PLL1_CTRL_FBSEL(0) |
 	           CGU_PLL1_CTRL_DIRECT(1);
+	// clang-format on
 	CGU_PLL1_CTRL = reg_val;
 
 	/* 6. Wait for PLL1 to lock. */

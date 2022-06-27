@@ -31,6 +31,7 @@ static void portapack_sleep_milliseconds(const uint32_t milliseconds) {
 	delay(milliseconds * 40800);	
 }
 
+// clang-format off
 static struct gpio_t gpio_io_stbx = GPIO(5,  0); /* P2_0 */
 static struct gpio_t gpio_addr    = GPIO(5,  1); /* P2_1 */
 __attribute__((unused))
@@ -40,6 +41,7 @@ static struct gpio_t gpio_unused  = GPIO(5,  7); /* P2_8 */
 static struct gpio_t gpio_lcd_rdx = GPIO(5,  4); /* P2_4 */
 static struct gpio_t gpio_lcd_wrx = GPIO(1, 10); /* P2_9 */
 static struct gpio_t gpio_dir     = GPIO(1, 13); /* P2_13 */
+// clang-format on
 
 typedef struct portapack_if_t {
 	gpio_t gpio_dir;

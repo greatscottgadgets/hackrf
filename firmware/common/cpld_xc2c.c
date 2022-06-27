@@ -26,6 +26,7 @@
 #include <stddef.h>
 #include <string.h>
 
+// clang-format off
 typedef enum {
 	CPLD_XC2C_IR_INTEST           = 0b00000010,
 	CPLD_XC2C_IR_BYPASS           = 0b11111111,
@@ -52,6 +53,7 @@ typedef enum {
 	CPLD_XC2C_IR_STCTEST          = 0b00010110,
 	CPLD_XC2C_IR_ISC_NOOP         = 0b11100000,
 } cpld_xc2c_ir_t;
+// clang-format on
 
 static bool cpld_xc2c_jtag_clock(const jtag_t* const jtag, const uint32_t tms, const uint32_t tdi) {
 	// 8 ns TMS/TDI to TCK setup

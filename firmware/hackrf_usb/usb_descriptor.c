@@ -159,6 +159,7 @@ uint8_t usb_descriptor_string_languages[] = {
 	USB_WORD(USB_STRING_LANGID),	// wLANGID
 };
 
+// clang-format off
 uint8_t usb_descriptor_string_manufacturer[] = {
 	40,                         // bLength
 	USB_DESCRIPTOR_TYPE_STRING, // bDescriptorType

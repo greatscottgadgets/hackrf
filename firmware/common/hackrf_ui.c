@@ -29,6 +29,7 @@
 #define UNUSED(x) (void)(x)
 
 /* Stub functions for null UI function table */
+// clang-format off
 void hackrf_ui_init_null(void) { }
 void hackrf_ui_deinit_null(void) { }
 void hackrf_ui_set_frequency_null(uint64_t frequency) { UNUSED(frequency); }
@@ -45,6 +46,7 @@ void hackrf_ui_set_antenna_bias_null(bool antenna_bias) { UNUSED(antenna_bias); 
 void hackrf_ui_set_clock_source_null(clock_source_t source) { UNUSED(source); }
 void hackrf_ui_set_transceiver_mode_null(transceiver_mode_t mode) { UNUSED(mode); }
 bool hackrf_ui_operacake_gpio_compatible_null(void) { return true; }
+// clang-format on
 
 /* Null UI function table, used if there's no hardware UI detected. Eliminates the
  * need to check for null UI before calling a function in the table.
