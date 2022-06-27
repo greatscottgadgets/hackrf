@@ -130,62 +130,62 @@ typedef struct {
 /* WAVE or RIFF WAVE file format containing IQ 2x8bits data for HackRF compatible with SDR# Wav IQ file */
 typedef struct 
 {
-    char groupID[4]; /* 'RIFF' */
-    uint32_t size; /* File size + 8bytes */
+    char groupID[4];  /* 'RIFF' */
+    uint32_t size;    /* File size + 8bytes */
     char riffType[4]; /* 'WAVE'*/
 } t_WAVRIFF_hdr;
 
 #define FormatID "fmt "   /* chunkID for Format Chunk. NOTE: There is a space at the end of this ID. */
 
 typedef struct {
-  char		chunkID[4]; /* 'fmt ' */
-  uint32_t	chunkSize; /* 16 fixed */
-
-  uint16_t	wFormatTag; /* 1 fixed */
-  uint16_t	wChannels;  /* 2 fixed */
-  uint32_t	dwSamplesPerSec; /* Freq Hz sampling */
-  uint32_t	dwAvgBytesPerSec; /* Freq Hz sampling x 2 */
-  uint16_t	wBlockAlign; /* 2 fixed */
-  uint16_t	wBitsPerSample; /* 8 fixed */
+  char chunkID[4];           /* 'fmt ' */
+  uint32_t chunkSize;        /* 16 fixed */
+  uint16_t wFormatTag;       /* 1 fixed */
+  uint16_t wChannels;        /* 2 fixed */
+  uint32_t dwSamplesPerSec;  /* Freq Hz sampling */
+  uint32_t dwAvgBytesPerSec; /* Freq Hz sampling x 2 */
+  uint16_t wBlockAlign;      /* 2 fixed */
+  uint16_t wBitsPerSample;   /* 8 fixed */
 } t_FormatChunk;
 
-typedef struct 
-{
-    char		chunkID[4]; /* 'data' */
-    uint32_t	chunkSize; /* Size of data in bytes */
+typedef struct  {
+	char chunkID[4];    /* 'data' */
+	uint32_t chunkSize; /* Size of data in bytes */
+
 	/* Samples I(8bits) then Q(8bits), I, Q ... */
 } t_DataChunk;
 
-typedef struct
-{
+typedef struct {
 	t_WAVRIFF_hdr hdr;
 	t_FormatChunk fmt_chunk;
 	t_DataChunk data_chunk;
 } t_wav_file_hdr;
 
-t_wav_file_hdr wave_file_hdr = 
-{
+t_wav_file_hdr wave_file_hdr = {
 	/* t_WAVRIFF_hdr */
 	{
-		{ 'R', 'I', 'F', 'F' }, /* groupID */
+		/* groupID */
+		{ 'R', 'I', 'F', 'F' },
 		0, /* size to update later */
 		{ 'W', 'A', 'V', 'E' }
 	},
 	/* t_FormatChunk */
 	{
-		{ 'f', 'm', 't', ' ' }, /* char		chunkID[4];  */
-		16, /* uint32_t	chunkSize; */
-		1, /* uint16_t	wFormatTag; 1 fixed */
-		2, /* uint16_t	wChannels; 2 fixed */
-		0, /* uint32_t	dwSamplesPerSec; Freq Hz sampling to update later */
-		0, /* uint32_t	dwAvgBytesPerSec; Freq Hz sampling x 2 to update later */
-		2, /* uint16_t	wBlockAlign; 2 fixed */
-		8, /* uint16_t	wBitsPerSample; 8 fixed */
+		/* char chunkID[4]; */
+		{ 'f', 'm', 't', ' ' },
+		16, /* uint32_t chunkSize; */
+		1,  /* uint16_t wFormatTag; 1 fixed */
+		2,  /* uint16_t wChannels; 2 fixed */
+		0,  /* uint32_t dwSamplesPerSec; Freq Hz sampling to update later */
+		0,  /* uint32_t dwAvgBytesPerSec; Freq Hz sampling x 2 to update later */
+		2,  /* uint16_t wBlockAlign; 2 fixed */
+		8,  /* uint16_t wBitsPerSample; 8 fixed */
 	},
 	/* t_DataChunk */
 	{
-	    { 'd', 'a', 't', 'a' }, /* char chunkID[4]; */
-		0, /* uint32_t	chunkSize; to update later */
+	    /* char chunkID[4]; */
+	    { 'd', 'a', 't', 'a' },
+	    0, /* uint32_t chunkSize; to update later */
 	}
 };
 
