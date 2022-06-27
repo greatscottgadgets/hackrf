@@ -583,7 +583,8 @@ static void usage() {
 	printf("\t[-B] # Print buffer statistics during transfer\n");
 	printf("\t[-c amplitude] # CW signal source mode, amplitude 0-127 (DC value to DAC).\n");
         printf("\t[-R] # Repeat TX mode (default is off) \n");
-	printf("\t[-b baseband_filter_bw_hz] # Set baseband filter bandwidth in Hz.\n\tPossible values: 1.75/2.5/3.5/5/5.5/6/7/8/9/10/12/14/15/20/24/28MHz, default <= 0.75 * sample_rate_hz.\n" );
+	printf("\t[-b baseband_filter_bw_hz] # Set baseband filter bandwidth in Hz.\n");
+	printf("\tPossible values: 1.75/2.5/3.5/5/5.5/6/7/8/9/10/12/14/15/20/24/28MHz, default <= 0.75 * sample_rate_hz.\n" );
 	printf("\t[-C ppm] # Set Internal crystal clock error in ppm.\n");
 	printf("\t[-H hw_sync_enable] # Synchronise USB transfer using GPIO pins.\n");
 }
