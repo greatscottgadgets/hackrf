@@ -540,7 +540,7 @@ static void cpu_clock_pll1_max_speed(void)
 	CGU_PLL1_CTRL = reg_val;
 
 	/* 6. Wait for PLL1 to lock. */
-	while (!(CGU_PLL1_STAT & CGU_PLL1_STAT_LOCK_MASK));
+	while (!(CGU_PLL1_STAT & CGU_PLL1_STAT_LOCK_MASK)) {}
 
 	/* 7. Set the PLL1 P-divider to divide by 2 (DIRECT=0, PSEL=0). */
 	CGU_PLL1_CTRL &= ~CGU_PLL1_CTRL_DIRECT_MASK;
@@ -635,7 +635,7 @@ void cpu_clock_init(void)
 	CGU_PLL0USB_CTRL = CGU_PLL0USB_CTRL_PD(1)
 			| CGU_PLL0USB_CTRL_AUTOBLOCK(1)
 			| CGU_PLL0USB_CTRL_CLK_SEL(CGU_SRC_XTAL);
-	while (CGU_PLL0USB_STAT & CGU_PLL0USB_STAT_LOCK_MASK);
+	while (CGU_PLL0USB_STAT & CGU_PLL0USB_STAT_LOCK_MASK) {}
 
 	/* configure PLL0USB to produce 480 MHz clock from 12 MHz XTAL_OSC */
 	/* Values from User Manual v1.4 Table 94, for 12MHz oscillator. */
@@ -648,7 +648,7 @@ void cpu_clock_init(void)
 
 	/* power on PLL0USB and wait until stable */
 	CGU_PLL0USB_CTRL &= ~CGU_PLL0USB_CTRL_PD_MASK;
-	while (!(CGU_PLL0USB_STAT & CGU_PLL0USB_STAT_LOCK_MASK));
+	while (!(CGU_PLL0USB_STAT & CGU_PLL0USB_STAT_LOCK_MASK)) {}
 
 	/* use PLL0USB as clock source for USB0 */
 	CGU_BASE_USB0_CLK = CGU_BASE_USB0_CLK_AUTOBLOCK(1)

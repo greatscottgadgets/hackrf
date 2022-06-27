@@ -39,7 +39,8 @@ static usb_queue_t* endpoint_queue(
         const usb_endpoint_t* const endpoint
 ) {
         uint32_t index = USB_ENDPOINT_INDEX(endpoint->address);
-        if (endpoint_queues[index] == NULL) while (1);
+        if (endpoint_queues[index] == NULL)
+                while (1) {}
         return endpoint_queues[index];
 }
 
@@ -47,7 +48,8 @@ void usb_queue_init(
         usb_queue_t* const queue
 ) {
         uint32_t index = USB_ENDPOINT_INDEX(queue->endpoint->address);
-        if (endpoint_queues[index] != NULL) while (1);
+        if (endpoint_queues[index] != NULL)
+                while (1) {}
         endpoint_queues[index] = queue;
 
         usb_transfer_t* t = queue->free_transfers;
@@ -191,7 +193,8 @@ int usb_transfer_schedule_ack(
 void usb_queue_transfer_complete(usb_endpoint_t* const endpoint)
 {
         usb_queue_t* const queue = endpoint_queue(endpoint);
-        if (queue == NULL) while(1); // Uh oh
+        if (queue == NULL)
+                while(1) {} // Uh oh
         usb_transfer_t* transfer = queue->active;
 
         while (transfer != NULL) {
@@ -202,7 +205,7 @@ void usb_queue_transfer_complete(usb_endpoint_t* const endpoint)
                     || status & USB_TD_DTD_TOKEN_STATUS_BUFFER_ERROR
                     || status & USB_TD_DTD_TOKEN_STATUS_TRANSACTION_ERROR) {
                         // TODO: Uh oh, do something useful here
-                        while (1);
+                        while (1) {}
                 }
 
                 // Still not finished

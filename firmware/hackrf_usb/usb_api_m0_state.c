@@ -38,7 +38,7 @@ void m0_set_mode(enum m0_mode mode)
 	SGPIO_SET_STATUS_1 = (1 << SGPIO_SLICE_A);
 
 	// Wait for M0 to acknowledge by clearing the flag.
-	while (m0_state.requested_mode & M0_REQUEST_FLAG);
+	while (m0_state.requested_mode & M0_REQUEST_FLAG) {}
 }
 
 usb_request_status_t usb_vendor_request_get_m0_state(

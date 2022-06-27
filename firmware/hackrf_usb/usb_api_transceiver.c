@@ -433,5 +433,5 @@ void off_mode(uint32_t seq)
 {
 	hackrf_ui()->set_transceiver_mode(TRANSCEIVER_MODE_OFF);
 
-	while (transceiver_request.seq == seq);
+	while (transceiver_request.seq == seq) {}
 }

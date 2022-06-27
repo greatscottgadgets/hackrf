@@ -56,7 +56,7 @@ static void refill_cpld_buffer(void)
 		);
 
 	// Wait until transfer finishes
-	while (cpld_wait);
+	while (cpld_wait) {}
 }
 
 void cpld_update(void)
@@ -78,7 +78,7 @@ void cpld_update(void)
 	{
 		/* LED3 (Red) steady on error */
 		led_on(LED3);
-		while (1);
+		while (1) {}
 	}
 }
 

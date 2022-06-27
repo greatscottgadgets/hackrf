@@ -217,7 +217,7 @@ uint64_t max2871_set_frequency(max2871_driver_t* const drv, uint16_t mhz)
 	max2871_set_DIVA(diva);
 	max2871_write_registers(drv);
 
-	while(max2871_spi_read(drv) & MAX2871_VASA);
+	while(max2871_spi_read(drv) & MAX2871_VASA) {}
 
 	max2871_set_RFA_EN(1);
 	max2871_write_registers(drv);

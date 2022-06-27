@@ -69,7 +69,7 @@ void usb_peripheral_reset() {
 	RESET_CTRL0 = RESET_CTRL0_USB0_RST;
 	RESET_CTRL0 = 0;
 	
-	while( (RESET_ACTIVE_STATUS0 & RESET_CTRL0_USB0_RST) == 0 );
+	while( (RESET_ACTIVE_STATUS0 & RESET_CTRL0_USB0_RST) == 0 ) {}
 }
 
 void usb_phy_enable() {
@@ -91,7 +91,7 @@ static void usb_clear_all_pending_interrupts() {
 static void usb_wait_for_endpoint_priming_to_finish(const uint32_t mask) {
 	// Wait until controller has parsed new transfer descriptors and prepared
 	// receive buffers.
-	while( USB0_ENDPTPRIME & mask );
+	while( USB0_ENDPTPRIME & mask ) {}
 }
 
 static void usb_flush_endpoints(const uint32_t mask) {
@@ -103,7 +103,7 @@ static void usb_flush_endpoints(const uint32_t mask) {
 static void usb_wait_for_endpoint_flushing_to_finish(const uint32_t mask) {
 	// Wait until controller has flushed all endpoints / cleared any primed
 	// buffers.
-	while( USB0_ENDPTFLUSH & mask );
+	while( USB0_ENDPTFLUSH & mask ) {}
 }
 
 static void usb_flush_primed_endpoints(const uint32_t mask) {
@@ -210,7 +210,7 @@ void usb_endpoint_schedule_wait(
 	// Ensure that endpoint is ready to be primed.
 	// It may have been flushed due to an aborted transaction.
 	// TODO: This should be preceded by a flush?
-	while( usb_endpoint_is_ready(endpoint) );
+	while( usb_endpoint_is_ready(endpoint) ) {}
 
 	td->next_dtd_pointer = USB_TD_NEXT_DTD_POINTER_TERMINATE;
 
@@ -437,7 +437,7 @@ static void usb_controller_reset() {
 	// all primed endpoints and stopping controller.
 	USB0_USBCMD_D = USB0_USBCMD_D_RST;
 
-	while( usb_controller_is_resetting() );
+	while( usb_controller_is_resetting() ) {}
 }
 
 static void usb_bus_reset(usb_device_t* const device) {

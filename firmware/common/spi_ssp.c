@@ -58,15 +58,15 @@ void spi_ssp_stop(spi_bus_t* const bus) {
 }
 
 static void spi_ssp_wait_for_tx_fifo_not_full(spi_bus_t* const bus) {
-	while( (SSP_SR(bus->obj) & SSP_SR_TNF) == 0 );
+	while( (SSP_SR(bus->obj) & SSP_SR_TNF) == 0 ) {}
 }
 
 static void spi_ssp_wait_for_rx_fifo_not_empty(spi_bus_t* const bus) {
-	while( (SSP_SR(bus->obj) & SSP_SR_RNE) == 0 );
+	while( (SSP_SR(bus->obj) & SSP_SR_RNE) == 0 ) {}
 }
 
 static void spi_ssp_wait_for_not_busy(spi_bus_t* const bus) {
-	while( SSP_SR(bus->obj) & SSP_SR_BSY );
+	while( SSP_SR(bus->obj) & SSP_SR_BSY ) {}
 }
 
 static uint32_t spi_ssp_transfer_word(spi_bus_t* const bus, const uint32_t data) {

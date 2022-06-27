@@ -25,7 +25,7 @@
 
 void gpdma_controller_enable() {
 	GPDMA_CONFIG |= GPDMA_CONFIG_E(1);
-	while( (GPDMA_CONFIG & GPDMA_CONFIG_E_MASK) == 0 );
+	while ((GPDMA_CONFIG & GPDMA_CONFIG_E_MASK) == 0) {}
 }
 
 void gpdma_channel_enable(const uint_fast8_t channel) {
@@ -34,7 +34,7 @@ void gpdma_channel_enable(const uint_fast8_t channel) {
 
 void gpdma_channel_disable(const uint_fast8_t channel) {
 	GPDMA_CCONFIG(channel) &= ~GPDMA_CCONFIG_E_MASK;
-	while( (GPDMA_ENBLDCHNS & GPDMA_ENBLDCHNS_ENABLEDCHANNELS(1 << channel)) );
+	while (GPDMA_ENBLDCHNS & GPDMA_ENBLDCHNS_ENABLEDCHANNELS(1 << channel)) {}
 }
 
 void gpdma_channel_interrupt_tc_clear(const uint_fast8_t channel) {
