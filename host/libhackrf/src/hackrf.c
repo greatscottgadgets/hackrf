@@ -1695,14 +1695,14 @@ static void transfer_finished(struct hackrf_device* device, struct libusb_transf
 	device->streaming = false;
 
 	// If this is the last transfer, signal that all are now finished.
+	pthread_mutex_lock(&device->all_finished_lock);
 	if (device->active_transfers == 1) {
-		pthread_mutex_lock(&device->all_finished_lock);
 		device->active_transfers = 0;
 		pthread_cond_signal(&device->all_finished_cv);
-		pthread_mutex_unlock(&device->all_finished_lock);
 	} else {
 		device->active_transfers--;
 	}
+	pthread_mutex_unlock(&device->all_finished_lock);
 }
 
 static void LIBUSB_CALL hackrf_libusb_transfer_callback(struct libusb_transfer* usb_transfer)
