@@ -2,13 +2,13 @@
 #include "max2871_regs.h"
 
 #if (defined DEBUG)
-#include <stdio.h>
-#define LOG printf
+	#include <stdio.h>
+	#define LOG printf
 #else
-#define LOG(x,...)
-#include <libopencm3/lpc43xx/ssp.h>
-#include <libopencm3/lpc43xx/scu.h>
-#include "hackrf_core.h"
+	#define LOG(x, ...)
+	#include <libopencm3/lpc43xx/ssp.h>
+	#include <libopencm3/lpc43xx/scu.h>
+	#include "hackrf_core.h"
 #endif
 
 #include <stdint.h>
@@ -43,12 +43,12 @@ void max2871_setup(max2871_driver_t* const drv)
 	gpio_set(drv->gpio_vco_ce); /* active high */
 	gpio_clear(drv->gpio_vco_sclk);
 	gpio_clear(drv->gpio_vco_sdata);
-	gpio_set(drv->gpio_vco_le); /* active low */
+	gpio_set(drv->gpio_vco_le);        /* active low */
 	gpio_set(drv->gpio_synt_rfout_en); /* active high */
 
 	max2871_regs_init();
 	int i;
-	for(i = 5; i >= 0; i--) {
+	for (i = 5; i >= 0; i--) {
 		max2871_spi_write(drv, i, max2871_get_register(i));
 		delay_ms(20);
 	}
@@ -62,7 +62,7 @@ void max2871_setup(max2871_driver_t* const drv)
 	max2871_set_M(0);
 	max2871_set_LDS(0);
 	max2871_set_SDN(0);
-	max2871_set_MUX(0x0C);  /* Register 6 readback */
+	max2871_set_MUX(0x0C); /* Register 6 readback */
 	max2871_set_DBR(0);
 	max2871_set_RDIV2(0);
 	max2871_set_R(1); /* 40 MHz f_PFD */
@@ -84,8 +84,8 @@ void max2871_setup(max2871_driver_t* const drv)
 	max2871_set_SDLDO(0);
 	max2871_set_SDDIV(0);
 	max2871_set_SDREF(0);
-	max2871_set_BS(20*40); /* For 40 MHz f_PFD */
-	max2871_set_FB(1); /* Do not put DIVA into the feedback loop */
+	max2871_set_BS(20 * 40); /* For 40 MHz f_PFD */
+	max2871_set_FB(1);       /* Do not put DIVA into the feedback loop */
 	max2871_set_DIVA(0);
 	max2871_set_SDVCO(0);
 	max2871_set_MTLD(1);
@@ -108,13 +108,12 @@ void max2871_setup(max2871_driver_t* const drv)
 static void delay_ms(int ms)
 {
 	uint32_t i;
-	while(ms--) {
+	while (ms--) {
 		for (i = 0; i < 20000; i++) {
 			__asm__("nop");
 		}
 	}
 }
-
 
 static void serial_delay(void)
 {
@@ -124,19 +123,19 @@ static void serial_delay(void)
 		__asm__("nop");
 }
 
-
 /* SPI register write
  *
  * Send 32 bits:
  *  First 29 bits are data
  *  Last 3 bits are register number */
-static void max2871_spi_write(max2871_driver_t* const drv, uint8_t r, uint32_t v) {
+static void max2871_spi_write(max2871_driver_t* const drv, uint8_t r, uint32_t v)
+{
 #if DEBUG
 	LOG("0x%04x -> reg%d\n", v, r);
 #else
 
 	uint32_t bits = 32;
-	uint32_t msb = 1 << (bits -1);
+	uint32_t msb = 1 << (bits - 1);
 	uint32_t data = v | r;
 
 	/* make sure everything is starting in the correct state */
@@ -194,7 +193,7 @@ static uint32_t max2871_spi_read(max2871_driver_t* const drv)
 static void max2871_write_registers(max2871_driver_t* const drv)
 {
 	int i;
-	for(i = 5; i >= 0; i--) {
+	for (i = 5; i >= 0; i--) {
 		max2871_spi_write(drv, i, max2871_get_register(i));
 	}
 }
@@ -205,7 +204,7 @@ uint64_t max2871_set_frequency(max2871_driver_t* const drv, uint16_t mhz)
 	int n = mhz / 40;
 	int diva = 0;
 
-	while(n * 40 < 3000) {
+	while (n * 40 < 3000) {
 		n *= 2;
 		diva += 1;
 	}
@@ -217,20 +216,20 @@ uint64_t max2871_set_frequency(max2871_driver_t* const drv, uint16_t mhz)
 	max2871_set_DIVA(diva);
 	max2871_write_registers(drv);
 
-	while(max2871_spi_read(drv) & MAX2871_VASA) {}
+	while (max2871_spi_read(drv) & MAX2871_VASA) {}
 
 	max2871_set_RFA_EN(1);
 	max2871_write_registers(drv);
 
-	return (mhz/40)*40 * 1000000;
+	return (mhz / 40) * 40 * 1000000;
 }
 
 void max2871_enable(max2871_driver_t* const drv)
 {
 	gpio_set(drv->gpio_vco_ce);
 }
+
 void max2871_disable(max2871_driver_t* const drv)
 {
 	gpio_clear(drv->gpio_vco_ce);
 }
-

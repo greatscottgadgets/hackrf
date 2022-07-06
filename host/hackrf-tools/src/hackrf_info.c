@@ -34,44 +34,49 @@ int main(void)
 	uint16_t usb_version;
 	read_partid_serialno_t read_partid_serialno;
 	uint8_t operacakes[8];
-	hackrf_device_list_t *list;
+	hackrf_device_list_t* list;
 	hackrf_device* device;
 	int i, j;
 
 	result = hackrf_init();
 	if (result != HACKRF_SUCCESS) {
-		fprintf(stderr, "hackrf_init() failed: %s (%d)\n",
-				hackrf_error_name(result), result);
+		fprintf(stderr,
+			"hackrf_init() failed: %s (%d)\n",
+			hackrf_error_name(result),
+			result);
 		return EXIT_FAILURE;
 	}
 
 	printf("hackrf_info version: %s\n", TOOL_RELEASE);
-	printf("libhackrf version: %s (%s)\n", hackrf_library_release(),
-			hackrf_library_version());
-	
+	printf("libhackrf version: %s (%s)\n",
+	       hackrf_library_release(),
+	       hackrf_library_version());
+
 	list = hackrf_device_list();
-	
-	if (list->devicecount < 1 ) {
+
+	if (list->devicecount < 1) {
 		printf("No HackRF boards found.\n");
 		return EXIT_FAILURE;
 	}
-	
+
 	for (i = 0; i < list->devicecount; i++) {
 		if (i > 0)
 			printf("\n");
-			
+
 		printf("Found HackRF\n");
 		printf("Index: %d\n", i);
-		
+
 		if (list->serial_numbers[i])
 			printf("Serial number: %s\n", list->serial_numbers[i]);
 
 		device = NULL;
 		result = hackrf_device_list_open(list, i, &device);
 		if (result != HACKRF_SUCCESS) {
-			fprintf(stderr, "hackrf_open() failed: %s (%d)\n",
-					hackrf_error_name(result), result);
-			if(result == HACKRF_ERROR_LIBUSB) {
+			fprintf(stderr,
+				"hackrf_open() failed: %s (%d)\n",
+				hackrf_error_name(result),
+				result);
+			if (result == HACKRF_ERROR_LIBUSB) {
 				continue;
 			}
 			return EXIT_FAILURE;
@@ -79,73 +84,92 @@ int main(void)
 
 		result = hackrf_board_id_read(device, &board_id);
 		if (result != HACKRF_SUCCESS) {
-			fprintf(stderr, "hackrf_board_id_read() failed: %s (%d)\n",
-					hackrf_error_name(result), result);
+			fprintf(stderr,
+				"hackrf_board_id_read() failed: %s (%d)\n",
+				hackrf_error_name(result),
+				result);
 			return EXIT_FAILURE;
 		}
-		printf("Board ID Number: %d (%s)\n", board_id,
-				hackrf_board_id_name(board_id));
+		printf("Board ID Number: %d (%s)\n",
+		       board_id,
+		       hackrf_board_id_name(board_id));
 
 		result = hackrf_version_string_read(device, &version[0], 255);
 		if (result != HACKRF_SUCCESS) {
-			fprintf(stderr, "hackrf_version_string_read() failed: %s (%d)\n",
-					hackrf_error_name(result), result);
+			fprintf(stderr,
+				"hackrf_version_string_read() failed: %s (%d)\n",
+				hackrf_error_name(result),
+				result);
 			return EXIT_FAILURE;
 		}
 
 		result = hackrf_usb_api_version_read(device, &usb_version);
 		if (result != HACKRF_SUCCESS) {
-			fprintf(stderr, "hackrf_usb_api_version_read() failed: %s (%d)\n",
-					hackrf_error_name(result), result);
+			fprintf(stderr,
+				"hackrf_usb_api_version_read() failed: %s (%d)\n",
+				hackrf_error_name(result),
+				result);
 			return EXIT_FAILURE;
 		}
-		printf("Firmware Version: %s (API:%x.%02x)\n", version,
-				(usb_version>>8)&0xFF, usb_version&0xFF);
+		printf("Firmware Version: %s (API:%x.%02x)\n",
+		       version,
+		       (usb_version >> 8) & 0xFF,
+		       usb_version & 0xFF);
 
-		result = hackrf_board_partid_serialno_read(device, &read_partid_serialno);	
+		result = hackrf_board_partid_serialno_read(device, &read_partid_serialno);
 		if (result != HACKRF_SUCCESS) {
-			fprintf(stderr, "hackrf_board_partid_serialno_read() failed: %s (%d)\n",
-					hackrf_error_name(result), result);
+			fprintf(stderr,
+				"hackrf_board_partid_serialno_read() failed: %s (%d)\n",
+				hackrf_error_name(result),
+				result);
 			return EXIT_FAILURE;
 		}
-		printf("Part ID Number: 0x%08x 0x%08x\n", 
-					read_partid_serialno.part_id[0],
-					read_partid_serialno.part_id[1]);
+		printf("Part ID Number: 0x%08x 0x%08x\n",
+		       read_partid_serialno.part_id[0],
+		       read_partid_serialno.part_id[1]);
 
 		result = hackrf_get_operacake_boards(device, &operacakes[0]);
-		if ((result != HACKRF_SUCCESS) && (result != HACKRF_ERROR_USB_API_VERSION)) {
-			fprintf(stderr, "hackrf_get_operacake_boards() failed: %s (%d)\n",
-					hackrf_error_name(result), result);
-				return EXIT_FAILURE;
+		if ((result != HACKRF_SUCCESS) &&
+		    (result != HACKRF_ERROR_USB_API_VERSION)) {
+			fprintf(stderr,
+				"hackrf_get_operacake_boards() failed: %s (%d)\n",
+				hackrf_error_name(result),
+				result);
+			return EXIT_FAILURE;
 		}
-		if(result == HACKRF_SUCCESS) {
-			for(j=0; j<8; j++) {
-				if(operacakes[j] == HACKRF_OPERACAKE_ADDRESS_INVALID)
+		if (result == HACKRF_SUCCESS) {
+			for (j = 0; j < 8; j++) {
+				if (operacakes[j] == HACKRF_OPERACAKE_ADDRESS_INVALID)
 					break;
 				printf("Opera Cake found, address: %d\n", operacakes[j]);
 			}
 		}
-		
+
 #ifdef HACKRF_ISSUE_609_IS_FIXED
 		uint32_t cpld_crc = 0;
 		result = hackrf_cpld_checksum(device, &cpld_crc);
-		if ((result != HACKRF_SUCCESS) && (result != HACKRF_ERROR_USB_API_VERSION)) {
-			fprintf(stderr, "hackrf_cpld_checksum() failed: %s (%d)\n",
-					hackrf_error_name(result), result);
-				return EXIT_FAILURE;
+		if ((result != HACKRF_SUCCESS) &&
+		    (result != HACKRF_ERROR_USB_API_VERSION)) {
+			fprintf(stderr,
+				"hackrf_cpld_checksum() failed: %s (%d)\n",
+				hackrf_error_name(result),
+				result);
+			return EXIT_FAILURE;
 		}
-		if(result == HACKRF_SUCCESS) {
+		if (result == HACKRF_SUCCESS) {
 			printf("CPLD checksum: 0x%08x\n", cpld_crc);
 		}
 #endif /* HACKRF_ISSUE_609_IS_FIXED */
 
 		result = hackrf_close(device);
 		if (result != HACKRF_SUCCESS) {
-			fprintf(stderr, "hackrf_close() failed: %s (%d)\n",
-					hackrf_error_name(result), result);
+			fprintf(stderr,
+				"hackrf_close() failed: %s (%d)\n",
+				hackrf_error_name(result),
+				result);
 		}
 	}
-	
+
 	hackrf_device_list_free(list);
 	hackrf_exit();
 

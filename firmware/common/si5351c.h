@@ -24,8 +24,7 @@
 #define __SI5351C_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 #include <stdint.h>
@@ -33,31 +32,31 @@ extern "C"
 
 #include "i2c_bus.h"
 
-#define SI_INTDIV(x)  (x*128-512)
+#define SI_INTDIV(x) (x * 128 - 512)
 
-#define SI5351C_CLK_POWERDOWN	(1<<7)
-#define SI5351C_CLK_INT_MODE	(1<<6)
-#define SI5351C_CLK_FRAC_MODE	(0<<6)
+#define SI5351C_CLK_POWERDOWN (1 << 7)
+#define SI5351C_CLK_INT_MODE  (1 << 6)
+#define SI5351C_CLK_FRAC_MODE (0 << 6)
 
-#define SI5351C_CLK_PLL_SRC(x)	(x<<5)
-#define SI5351C_CLK_PLL_SRC_A	0
-#define SI5351C_CLK_PLL_SRC_B	1
+#define SI5351C_CLK_PLL_SRC(x) (x << 5)
+#define SI5351C_CLK_PLL_SRC_A  0
+#define SI5351C_CLK_PLL_SRC_B  1
 
-#define SI5351C_CLK_INV			(1<<4)
+#define SI5351C_CLK_INV (1 << 4)
 
-#define SI5351C_CLK_SRC(x)		(x<<2)
-#define SI5351C_CLK_SRC_XTAL			0
-#define SI5351C_CLK_SRC_CLKIN			1
-#define SI5351C_CLK_SRC_MULTISYNTH_0_4	2
-#define SI5351C_CLK_SRC_MULTISYNTH_SELF	3
+#define SI5351C_CLK_SRC(x)              (x << 2)
+#define SI5351C_CLK_SRC_XTAL            0
+#define SI5351C_CLK_SRC_CLKIN           1
+#define SI5351C_CLK_SRC_MULTISYNTH_0_4  2
+#define SI5351C_CLK_SRC_MULTISYNTH_SELF 3
 
-#define SI5351C_CLK_IDRV(x) (x<<0)
+#define SI5351C_CLK_IDRV(x)  (x << 0)
 #define SI5351C_CLK_IDRV_2MA 0
 #define SI5351C_CLK_IDRV_4MA 1
 #define SI5351C_CLK_IDRV_6MA 2
 #define SI5351C_CLK_IDRV_8MA 3
 
-#define SI5351C_LOS (1<<4)
+#define SI5351C_LOS (1 << 4)
 
 enum pll_sources {
 	PLL_SOURCE_UNINITIALIZED = -1,
@@ -78,19 +77,30 @@ void si5351c_enable_xo_and_ms_fanout(si5351c_driver_t* const drv);
 void si5351c_configure_pll_sources(si5351c_driver_t* const drv);
 void si5351c_configure_pll_multisynth(si5351c_driver_t* const drv);
 void si5351c_reset_pll(si5351c_driver_t* const drv);
-void si5351c_configure_multisynth(si5351c_driver_t* const drv,
-		const uint_fast8_t ms_number,
-    	const uint32_t p1, const uint32_t p2, const uint32_t p3,
-    	const uint_fast8_t r_div);
-void si5351c_configure_clock_control(si5351c_driver_t* const drv, const enum pll_sources source);
+void si5351c_configure_multisynth(
+	si5351c_driver_t* const drv,
+	const uint_fast8_t ms_number,
+	const uint32_t p1,
+	const uint32_t p2,
+	const uint32_t p3,
+	const uint_fast8_t r_div);
+void si5351c_configure_clock_control(
+	si5351c_driver_t* const drv,
+	const enum pll_sources source);
 void si5351c_enable_clock_outputs(si5351c_driver_t* const drv);
-void si5351c_set_int_mode(si5351c_driver_t* const drv, const uint_fast8_t ms_number, const uint_fast8_t on);
+void si5351c_set_int_mode(
+	si5351c_driver_t* const drv,
+	const uint_fast8_t ms_number,
+	const uint_fast8_t on);
 void si5351c_set_clock_source(si5351c_driver_t* const drv, const enum pll_sources source);
 bool si5351c_clkin_signal_valid(si5351c_driver_t* const drv);
 
 void si5351c_write_single(si5351c_driver_t* const drv, uint8_t reg, uint8_t val);
 uint8_t si5351c_read_single(si5351c_driver_t* const drv, uint8_t reg);
-void si5351c_write(si5351c_driver_t* const drv, const uint8_t* const data, const size_t data_count);
+void si5351c_write(
+	si5351c_driver_t* const drv,
+	const uint8_t* const data,
+	const size_t data_count);
 void si5351c_clkout_enable(si5351c_driver_t* const drv, uint8_t enable);
 
 #ifdef __cplusplus

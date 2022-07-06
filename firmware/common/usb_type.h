@@ -26,32 +26,38 @@
 #include <stdbool.h>
 
 // TODO: Move this to some common compiler-tricks location.
-#define ATTR_PACKED __attribute__((packed))
-#define ATTR_ALIGNED(x)	__attribute__ ((aligned(x)))
-#define ATTR_SECTION(x) __attribute__ ((section(x)))
+#define ATTR_PACKED     __attribute__((packed))
+#define ATTR_ALIGNED(x) __attribute__((aligned(x)))
+#define ATTR_SECTION(x) __attribute__((section(x)))
 
 typedef struct ATTR_PACKED {
 	uint8_t request_type;
 	uint8_t request;
+
 	union {
 		struct {
 			uint8_t value_l;
 			uint8_t value_h;
 		};
+
 		uint16_t value;
 	};
+
 	union {
 		struct {
 			uint8_t index_l;
 			uint8_t index_h;
 		};
+
 		uint16_t index;
 	};
+
 	union {
 		struct {
 			uint8_t length_l;
 			uint8_t length_h;
 		};
+
 		uint16_t length;
 	};
 } usb_setup_t;
@@ -77,23 +83,26 @@ typedef enum {
 typedef enum {
 	USB_SETUP_REQUEST_TYPE_shift = 5,
 	USB_SETUP_REQUEST_TYPE_mask = 3 << USB_SETUP_REQUEST_TYPE_shift,
-	
+
 	USB_SETUP_REQUEST_TYPE_STANDARD = 0 << USB_SETUP_REQUEST_TYPE_shift,
 	USB_SETUP_REQUEST_TYPE_CLASS = 1 << USB_SETUP_REQUEST_TYPE_shift,
 	USB_SETUP_REQUEST_TYPE_VENDOR = 2 << USB_SETUP_REQUEST_TYPE_shift,
 	USB_SETUP_REQUEST_TYPE_RESERVED = 3 << USB_SETUP_REQUEST_TYPE_shift,
-	
+
 	USB_SETUP_REQUEST_TYPE_DATA_TRANSFER_DIRECTION_shift = 7,
-	USB_SETUP_REQUEST_TYPE_DATA_TRANSFER_DIRECTION_mask = 1 << USB_SETUP_REQUEST_TYPE_DATA_TRANSFER_DIRECTION_shift,
-	USB_SETUP_REQUEST_TYPE_DATA_TRANSFER_DIRECTION_HOST_TO_DEVICE = 0 << USB_SETUP_REQUEST_TYPE_DATA_TRANSFER_DIRECTION_shift,
-	USB_SETUP_REQUEST_TYPE_DATA_TRANSFER_DIRECTION_DEVICE_TO_HOST = 1 << USB_SETUP_REQUEST_TYPE_DATA_TRANSFER_DIRECTION_shift,
+	USB_SETUP_REQUEST_TYPE_DATA_TRANSFER_DIRECTION_mask =
+		1 << USB_SETUP_REQUEST_TYPE_DATA_TRANSFER_DIRECTION_shift,
+	USB_SETUP_REQUEST_TYPE_DATA_TRANSFER_DIRECTION_HOST_TO_DEVICE =
+		0 << USB_SETUP_REQUEST_TYPE_DATA_TRANSFER_DIRECTION_shift,
+	USB_SETUP_REQUEST_TYPE_DATA_TRANSFER_DIRECTION_DEVICE_TO_HOST =
+		1 << USB_SETUP_REQUEST_TYPE_DATA_TRANSFER_DIRECTION_shift,
 } usb_setup_request_type_t;
 
 typedef enum {
 	USB_TRANSFER_DIRECTION_OUT = 0,
 	USB_TRANSFER_DIRECTION_IN = 1,
 } usb_transfer_direction_t;
-	
+
 typedef enum {
 	USB_DESCRIPTOR_TYPE_DEVICE = 1,
 	USB_DESCRIPTOR_TYPE_CONFIGURATION = 2,
@@ -137,9 +146,10 @@ typedef struct {
 } usb_device_t;
 
 typedef struct usb_endpoint_t usb_endpoint_t;
+
 struct usb_endpoint_t {
 	usb_setup_t setup;
-	uint8_t buffer[8];	// Buffer for use during IN stage.
+	uint8_t buffer[8]; // Buffer for use during IN stage.
 	const uint_fast8_t address;
 	usb_device_t* const device;
 	usb_endpoint_t* const in;
@@ -148,4 +158,4 @@ struct usb_endpoint_t {
 	void (*transfer_complete)(usb_endpoint_t* const endpoint);
 };
 
-#endif//__USB_TYPE_H__
+#endif //__USB_TYPE_H__

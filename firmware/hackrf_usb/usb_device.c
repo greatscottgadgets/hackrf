@@ -38,7 +38,6 @@ usb_configuration_t usb_configuration_full_speed = {
 	.descriptor = usb_descriptor_configuration_full_speed,
 };
 
-
 usb_configuration_t* usb_configurations[] = {
 	&usb_configuration_high_speed,
 	&usb_configuration_full_speed,

@@ -43,15 +43,15 @@ void m0_set_mode(enum m0_mode mode)
 
 usb_request_status_t usb_vendor_request_get_m0_state(
 	usb_endpoint_t* const endpoint,
-	const usb_transfer_stage_t stage
-) {
-	if( stage == USB_TRANSFER_STAGE_SETUP )
-	{
+	const usb_transfer_stage_t stage)
+{
+	if (stage == USB_TRANSFER_STAGE_SETUP) {
 		usb_transfer_schedule_block(
 			endpoint->in,
 			(void*) &m0_state,
 			sizeof(m0_state),
-			NULL, NULL);
+			NULL,
+			NULL);
 		usb_transfer_schedule_ack(endpoint->out);
 		return USB_REQUEST_STATUS_OK;
 	} else {

@@ -73,10 +73,7 @@ void portapack_backlight(const bool on);
 
 void portapack_reference_oscillator(const bool on) __attribute__((weak));
 
-void portapack_fill_rectangle(
-	const ui_rect_t rect,
-	const ui_color_t color
-);
+void portapack_fill_rectangle(const ui_rect_t rect, const ui_color_t color);
 
 void portapack_clear_display(const ui_color_t color);
 
@@ -84,12 +81,8 @@ void portapack_draw_bitmap(
 	const ui_point_t point,
 	const ui_bitmap_t bitmap,
 	const ui_color_t foreground,
-	const ui_color_t background
-);
+	const ui_color_t background);
 
-ui_bitmap_t portapack_font_glyph(
-	const ui_font_t* const font,
-	const char c
-);
+ui_bitmap_t portapack_font_glyph(const ui_font_t* const font, const char c);
 
-#endif/*__PORTAPACK_H__*/
+#endif /*__PORTAPACK_H__*/

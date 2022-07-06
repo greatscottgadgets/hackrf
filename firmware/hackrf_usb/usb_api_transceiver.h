@@ -48,24 +48,32 @@ usb_request_status_t usb_vendor_request_set_sample_rate_frac(
 	usb_endpoint_t* const endpoint,
 	const usb_transfer_stage_t stage);
 usb_request_status_t usb_vendor_request_set_amp_enable(
-	usb_endpoint_t* const endpoint, const usb_transfer_stage_t stage);
+	usb_endpoint_t* const endpoint,
+	const usb_transfer_stage_t stage);
 usb_request_status_t usb_vendor_request_set_lna_gain(
 	usb_endpoint_t* const endpoint,
 	const usb_transfer_stage_t stage);
 usb_request_status_t usb_vendor_request_set_vga_gain(
-	usb_endpoint_t* const endpoint,	const usb_transfer_stage_t stage);
+	usb_endpoint_t* const endpoint,
+	const usb_transfer_stage_t stage);
 usb_request_status_t usb_vendor_request_set_txvga_gain(
-	usb_endpoint_t* const endpoint,	const usb_transfer_stage_t stage);
+	usb_endpoint_t* const endpoint,
+	const usb_transfer_stage_t stage);
 usb_request_status_t usb_vendor_request_set_antenna_enable(
-	usb_endpoint_t* const endpoint, const usb_transfer_stage_t stage);
+	usb_endpoint_t* const endpoint,
+	const usb_transfer_stage_t stage);
 usb_request_status_t usb_vendor_request_set_freq_explicit(
-	usb_endpoint_t* const endpoint, const usb_transfer_stage_t stage);
+	usb_endpoint_t* const endpoint,
+	const usb_transfer_stage_t stage);
 usb_request_status_t usb_vendor_request_set_hw_sync_mode(
-	usb_endpoint_t* const endpoint,	const usb_transfer_stage_t stage);
+	usb_endpoint_t* const endpoint,
+	const usb_transfer_stage_t stage);
 usb_request_status_t usb_vendor_request_set_tx_underrun_limit(
-	usb_endpoint_t* const endpoint, const usb_transfer_stage_t stage);
+	usb_endpoint_t* const endpoint,
+	const usb_transfer_stage_t stage);
 usb_request_status_t usb_vendor_request_set_rx_overrun_limit(
-	usb_endpoint_t* const endpoint, const usb_transfer_stage_t stage);
+	usb_endpoint_t* const endpoint,
+	const usb_transfer_stage_t stage);
 
 void request_transceiver_mode(transceiver_mode_t mode);
 void transceiver_startup(transceiver_mode_t mode);
@@ -75,4 +83,4 @@ void rx_mode(uint32_t seq);
 void tx_mode(uint32_t seq);
 void off_mode(uint32_t seq);
 
-#endif/*__USB_API_TRANSCEIVER_H__*/
+#endif /*__USB_API_TRANSCEIVER_H__*/

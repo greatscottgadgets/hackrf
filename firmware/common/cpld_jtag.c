@@ -29,7 +29,8 @@ static refill_buffer_cb refill_buffer;
 static uint32_t xsvf_buffer_len, xsvf_pos;
 static unsigned char* xsvf_buffer;
 
-void cpld_jtag_take(jtag_t* const jtag) {
+void cpld_jtag_take(jtag_t* const jtag)
+{
 	const jtag_gpio_t* const gpio = jtag->gpio;
 
 	/* Set initial GPIO state to the voltages of the internal or external pull-ups/downs,
@@ -53,7 +54,8 @@ void cpld_jtag_take(jtag_t* const jtag) {
 	gpio_input(gpio->gpio_tdo);
 }
 
-void cpld_jtag_release(jtag_t* const jtag) {
+void cpld_jtag_release(jtag_t* const jtag)
+{
 	const jtag_gpio_t* const gpio = jtag->gpio;
 
 	/* Make all pins inputs when JTAG interface not active.
@@ -72,30 +74,31 @@ void cpld_jtag_release(jtag_t* const jtag) {
 
 /* return 0 if success else return error code see xsvfExecute() */
 int cpld_jtag_program(
-		jtag_t* const jtag,
-        const uint32_t buffer_length,
-        unsigned char* const buffer,
-        refill_buffer_cb refill
-) {
+	jtag_t* const jtag,
+	const uint32_t buffer_length,
+	unsigned char* const buffer,
+	refill_buffer_cb refill)
+{
 	int error;
 	cpld_jtag_take(jtag);
 	xsvf_buffer = buffer;
 	xsvf_buffer_len = buffer_length;
-        refill_buffer = refill;
+	refill_buffer = refill;
 	error = xsvfExecute(jtag->gpio);
 	cpld_jtag_release(jtag);
-	
+
 	return error;
 }
 
 /* this gets called by the XAPP058 code */
-unsigned char cpld_jtag_get_next_byte(void) {
-        if (xsvf_pos == xsvf_buffer_len) {
-                refill_buffer();
-                xsvf_pos = 0;
-        }
+unsigned char cpld_jtag_get_next_byte(void)
+{
+	if (xsvf_pos == xsvf_buffer_len) {
+		refill_buffer();
+		xsvf_pos = 0;
+	}
 
 	unsigned char byte = xsvf_buffer[xsvf_pos];
-        xsvf_pos++;
+	xsvf_pos++;
 	return byte;
 }

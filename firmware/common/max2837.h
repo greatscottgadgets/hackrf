@@ -30,7 +30,7 @@
 #include "spi_bus.h"
 
 /* 32 registers, each containing 10 bits of data. */
-#define MAX2837_NUM_REGS 32
+#define MAX2837_NUM_REGS            32
 #define MAX2837_DATA_REGS_MAX_VALUE 1024
 
 typedef enum {
@@ -81,11 +81,13 @@ extern void max2837_stop(max2837_driver_t* const drv);
 /* Set frequency in Hz. Frequency setting is a multi-step function
  * where order of register writes matters. */
 extern void max2837_set_frequency(max2837_driver_t* const drv, uint32_t freq);
-uint32_t max2837_set_lpf_bandwidth(max2837_driver_t* const drv, const uint32_t bandwidth_hz);
+uint32_t max2837_set_lpf_bandwidth(
+	max2837_driver_t* const drv,
+	const uint32_t bandwidth_hz);
 bool max2837_set_lna_gain(max2837_driver_t* const drv, const uint32_t gain_db);
 bool max2837_set_vga_gain(max2837_driver_t* const drv, const uint32_t gain_db);
 bool max2837_set_txvga_gain(max2837_driver_t* const drv, const uint32_t gain_db);
-	
+
 extern void max2837_tx(max2837_driver_t* const drv);
 extern void max2837_rx(max2837_driver_t* const drv);
 

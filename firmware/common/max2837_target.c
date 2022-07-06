@@ -25,11 +25,12 @@
 #include <libopencm3/lpc43xx/scu.h>
 #include "hackrf_core.h"
 
-void max2837_target_init(max2837_driver_t* const drv) {
+void max2837_target_init(max2837_driver_t* const drv)
+{
 	/* Configure SSP1 Peripheral (to be moved later in SSP driver) */
 	scu_pinmux(SCU_SSP1_CIPO, (SCU_SSP_IO | SCU_CONF_FUNCTION5));
 	scu_pinmux(SCU_SSP1_COPI, (SCU_SSP_IO | SCU_CONF_FUNCTION5));
-	scu_pinmux(SCU_SSP1_SCK,  (SCU_SSP_IO | SCU_CONF_FUNCTION1));
+	scu_pinmux(SCU_SSP1_SCK, (SCU_SSP_IO | SCU_CONF_FUNCTION1));
 
 	scu_pinmux(SCU_XCVR_CS, SCU_GPIO_FAST);
 
@@ -44,7 +45,8 @@ void max2837_target_init(max2837_driver_t* const drv) {
 	gpio_output(drv->gpio_tx_enable);
 }
 
-void max2837_target_set_mode(max2837_driver_t* const drv, const max2837_mode_t new_mode) {
+void max2837_target_set_mode(max2837_driver_t* const drv, const max2837_mode_t new_mode)
+{
 	/* MAX2837_MODE_SHUTDOWN:
 	 * All circuit blocks are powered down, except the 4-wire serial bus
 	 * and its internal programmable registers.

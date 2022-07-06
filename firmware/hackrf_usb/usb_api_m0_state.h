@@ -63,6 +63,7 @@ extern volatile struct m0_state m0_state;
 void m0_set_mode(enum m0_mode mode);
 
 usb_request_status_t usb_vendor_request_get_m0_state(
-	usb_endpoint_t* const endpoint,	const usb_transfer_stage_t stage);
+	usb_endpoint_t* const endpoint,
+	const usb_transfer_stage_t stage);
 
-#endif/*__M0_STATE_H__*/
+#endif /*__M0_STATE_H__*/

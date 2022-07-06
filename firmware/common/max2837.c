@@ -34,44 +34,44 @@
 #include "max2837_regs.def" // private register def macros
 
 /* Default register values. */
-static const uint16_t max2837_regs_default[MAX2837_NUM_REGS] = { 
-	0x150,   /* 0 */
-	0x002,   /* 1 */
-	0x1f4,   /* 2 */
-	0x1b9,   /* 3 */
-	0x00a,   /* 4 */
-	0x080,   /* 5 */
-	0x006,   /* 6 */
-	0x000,   /* 7 */
-	0x080,   /* 8 */
-	0x018,   /* 9 */
-	0x058,   /* 10 */
-	0x016,   /* 11 */
-	0x24f,   /* 12 */
-	0x150,   /* 13 */
-	0x1c5,   /* 14 */
-	0x081,   /* 15 */
-	0x01c,   /* 16 */
-	0x155,   /* 17 */
-	0x155,   /* 18 */
-	0x153,   /* 19 */
-	0x241,   /* 20 */
+static const uint16_t max2837_regs_default[MAX2837_NUM_REGS] = {
+	0x150, /* 0 */
+	0x002, /* 1 */
+	0x1f4, /* 2 */
+	0x1b9, /* 3 */
+	0x00a, /* 4 */
+	0x080, /* 5 */
+	0x006, /* 6 */
+	0x000, /* 7 */
+	0x080, /* 8 */
+	0x018, /* 9 */
+	0x058, /* 10 */
+	0x016, /* 11 */
+	0x24f, /* 12 */
+	0x150, /* 13 */
+	0x1c5, /* 14 */
+	0x081, /* 15 */
+	0x01c, /* 16 */
+	0x155, /* 17 */
+	0x155, /* 18 */
+	0x153, /* 19 */
+	0x241, /* 20 */
 	/*
 	 * Charge Pump Common Mode Enable bit (0) of register 21 must be set or TX
 	 * does not work.  Page 1 of the SPI doc says not to set it (0x02c), but
 	 * page 21 says it should be set by default (0x02d).
 	 */
-	0x02d,   /* 21 */
-	0x1a9,   /* 22 */
-	0x24f,   /* 23 */
-	0x180,   /* 24 */
-	0x100,   /* 25 */
-	0x3ca,   /* 26 */
-	0x3e3,   /* 27 */
-	0x0c0,   /* 28 */
-	0x3f0,   /* 29 */
-	0x080,   /* 30 */
-	0x000 }; /* 31 */
+	0x02d,  /* 21 */
+	0x1a9,  /* 22 */
+	0x24f,  /* 23 */
+	0x180,  /* 24 */
+	0x100,  /* 25 */
+	0x3ca,  /* 26 */
+	0x3e3,  /* 27 */
+	0x0c0,  /* 28 */
+	0x3f0,  /* 29 */
+	0x080,  /* 30 */
+	0x000}; /* 31 */
 
 /* Set up all registers according to defaults specified in docs. */
 static void max2837_init(max2837_driver_t* const drv)
@@ -93,7 +93,7 @@ static void max2837_init(max2837_driver_t* const drv)
 void max2837_setup(max2837_driver_t* const drv)
 {
 	max2837_init(drv);
-	
+
 	/* Use SPI control instead of B1-B7 pins for gain settings. */
 	set_MAX2837_TXVGA_GAIN_SPI_EN(drv, 1);
 	set_MAX2837_TXVGA_GAIN_MSB_SPI_EN(drv, 1);
@@ -119,13 +119,15 @@ void max2837_setup(max2837_driver_t* const drv)
 	max2837_regs_commit(drv);
 }
 
-static uint16_t max2837_read(max2837_driver_t* const drv, uint8_t r) {
+static uint16_t max2837_read(max2837_driver_t* const drv, uint8_t r)
+{
 	uint16_t value = (1 << 15) | (r << 10);
 	spi_bus_transfer(drv->bus, &value, 1);
 	return value & 0x3ff;
 }
 
-static void max2837_write(max2837_driver_t* const drv, uint8_t r, uint16_t v) {
+static void max2837_write(max2837_driver_t* const drv, uint8_t r, uint16_t v)
+{
 	uint16_t value = (r << 10) | (v & 0x3ff);
 	spi_bus_transfer(drv->bus, &value, 1);
 }
@@ -153,18 +155,20 @@ static inline void max2837_reg_commit(max2837_driver_t* const drv, uint8_t r)
 void max2837_regs_commit(max2837_driver_t* const drv)
 {
 	int r;
-	for(r = 0; r < MAX2837_NUM_REGS; r++) {
+	for (r = 0; r < MAX2837_NUM_REGS; r++) {
 		if ((drv->regs_dirty >> r) & 0x1) {
 			max2837_reg_commit(drv, r);
 		}
 	}
 }
 
-void max2837_set_mode(max2837_driver_t* const drv, const max2837_mode_t new_mode) {
+void max2837_set_mode(max2837_driver_t* const drv, const max2837_mode_t new_mode)
+{
 	drv->set_mode(drv, new_mode);
 }
 
-max2837_mode_t max2837_mode(max2837_driver_t* const drv) {
+max2837_mode_t max2837_mode(max2837_driver_t* const drv)
+{
 	return drv->mode;
 }
 
@@ -210,16 +214,13 @@ void max2837_set_frequency(max2837_driver_t* const drv, uint32_t freq)
 	if (freq < 2400000000U) {
 		band = MAX2837_LOGEN_BSW_2_3;
 		lna_band = MAX2837_LNAband_2_4;
-	}
-	else if (freq < 2500000000U) {
+	} else if (freq < 2500000000U) {
 		band = MAX2837_LOGEN_BSW_2_4;
 		lna_band = MAX2837_LNAband_2_4;
-	}
-	else if (freq < 2600000000U) {
+	} else if (freq < 2600000000U) {
 		band = MAX2837_LOGEN_BSW_2_5;
 		lna_band = MAX2837_LNAband_2_6;
-	}
-	else {
+	} else {
 		band = MAX2837_LOGEN_BSW_2_6;
 		lna_band = MAX2837_LNAband_2_6;
 	}
@@ -229,7 +230,7 @@ void max2837_set_frequency(max2837_driver_t* const drv, uint32_t freq)
 	div_rem = freq % 30000000;
 	div_frac = 0;
 	div_cmp = 30000000;
-	for( i = 0; i < 20; i++) {
+	for (i = 0; i < 20; i++) {
 		div_frac <<= 1;
 		div_cmp >>= 1;
 		if (div_rem > div_cmp) {

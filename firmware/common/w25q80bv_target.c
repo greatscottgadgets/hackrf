@@ -28,8 +28,9 @@
  * automatically?
  */
 
-void w25q80bv_target_init(w25q80bv_driver_t* const drv) {
-	(void)drv;
+void w25q80bv_target_init(w25q80bv_driver_t* const drv)
+{
+	(void) drv;
 
 	/* Init SPIFI GPIO to Normal GPIO */
 
@@ -45,11 +46,11 @@ void w25q80bv_target_init(w25q80bv_driver_t* const drv) {
 	scu_pinmux(P3_7, (SCU_GPIO_FAST | SCU_CONF_FUNCTION4));
 	// P3_8 SPIFI SPIFI_CS => GPIO5[11]
 	scu_pinmux(P3_8, (SCU_GPIO_FAST | SCU_CONF_FUNCTION4));
-	
+
 	/* configure SSP pins */
 	scu_pinmux(SCU_SSP0_CIPO, (SCU_SSP_IO | SCU_CONF_FUNCTION5));
 	scu_pinmux(SCU_SSP0_COPI, (SCU_SSP_IO | SCU_CONF_FUNCTION5));
-	scu_pinmux(SCU_SSP0_SCK,  (SCU_SSP_IO | SCU_CONF_FUNCTION2));
+	scu_pinmux(SCU_SSP0_SCK, (SCU_SSP_IO | SCU_CONF_FUNCTION2));
 
 	/* configure GPIO pins */
 	scu_pinmux(SCU_FLASH_HOLD, SCU_GPIO_FAST);

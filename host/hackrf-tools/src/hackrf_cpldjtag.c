@@ -31,23 +31,23 @@
 #include <stdint.h>
 
 #ifdef _MSC_VER
-#ifdef _WIN64
+	#ifdef _WIN64
 typedef int64_t ssize_t;
-#else
+	#else
 typedef int32_t ssize_t;
-#endif
+	#endif
 #endif
 /* input file shouldn't be any longer than this */
 #define MAX_XSVF_LENGTH 0x10000
-#define PACKET_LEN	4096
+#define PACKET_LEN      4096
 
 uint8_t data[MAX_XSVF_LENGTH];
 
 static struct option long_options[] = {
-	{ "xsvf", required_argument, 0, 'x' },
-	{ "device", required_argument, 0, 'd' },
-	{ "help", no_argument, 0, 'h' },
-	{ 0, 0, 0, 0 },
+	{"xsvf", required_argument, 0, 'x'},
+	{"device", required_argument, 0, 'd'},
+	{"help", no_argument, 0, 'h'},
+	{0, 0, 0, 0},
 };
 
 int parse_int(char* s, uint32_t* const value)
@@ -57,7 +57,7 @@ int parse_int(char* s, uint32_t* const value)
 	long long_value;
 
 	if (strlen(s) > 2) {
-		if (s[0] == '0')  {
+		if (s[0] == '0') {
 			if ((s[1] == 'x') || (s[1] == 'X')) {
 				base = 16;
 				s += 2;
@@ -100,8 +100,8 @@ int main(int argc, char** argv)
 	ssize_t bytes_read;
 	uint8_t* pdata = &data[0];
 
-	while ((opt = getopt_long(argc, argv, "x:d:h?", long_options,
-			&option_index)) != EOF) {
+	while ((opt = getopt_long(argc, argv, "x:d:h?", long_options, &option_index)) !=
+	       EOF) {
 		switch (opt) {
 		case 'x':
 			path = optarg;
@@ -129,8 +129,7 @@ int main(int argc, char** argv)
 	}
 
 	infile = fopen(path, "rb");
-	if (infile == NULL)
-	{
+	if (infile == NULL) {
 		fprintf(stderr, "Failed to open file: %s\n", path);
 		return EXIT_FAILURE;
 	}
@@ -150,10 +149,11 @@ int main(int argc, char** argv)
 
 	total_length = length;
 	bytes_read = fread(data, 1, total_length, infile);
-	if (bytes_read != total_length)
-	{
-		fprintf(stderr, "Failed to read all bytes (read %d bytes instead of %d bytes).\n",
-				(int)bytes_read, total_length);
+	if (bytes_read != total_length) {
+		fprintf(stderr,
+			"Failed to read all bytes (read %d bytes instead of %d bytes).\n",
+			(int) bytes_read,
+			total_length);
 		fclose(infile);
 		infile = NULL;
 		return EXIT_FAILURE;
@@ -161,25 +161,30 @@ int main(int argc, char** argv)
 
 	result = hackrf_init();
 	if (result != HACKRF_SUCCESS) {
-		fprintf(stderr, "hackrf_init() failed: %s (%d)\n",
-				hackrf_error_name(result), result);
+		fprintf(stderr,
+			"hackrf_init() failed: %s (%d)\n",
+			hackrf_error_name(result),
+			result);
 		return EXIT_FAILURE;
 	}
 
 	result = hackrf_open_by_serial(serial_number, &device);
 	if (result != HACKRF_SUCCESS) {
-		fprintf(stderr, "hackrf_open() failed: %s (%d)\n",
-				hackrf_error_name(result), result);
+		fprintf(stderr,
+			"hackrf_open() failed: %s (%d)\n",
+			hackrf_error_name(result),
+			result);
 		return EXIT_FAILURE;
 	}
 
 	printf("LED1/2/3 blinking means CPLD program success.\nLED3/RED steady means error.\n");
 	printf("Wait message 'Write finished' or in case of LED3/RED steady, Power OFF/Disconnect the HackRF.\n");
 	result = hackrf_cpld_write(device, pdata, total_length);
-	if (result != HACKRF_SUCCESS)
-	{
-		fprintf(stderr, "hackrf_cpld_write() failed: %s (%d)\n",
-				hackrf_error_name(result), result);
+	if (result != HACKRF_SUCCESS) {
+		fprintf(stderr,
+			"hackrf_cpld_write() failed: %s (%d)\n",
+			hackrf_error_name(result),
+			result);
 		fclose(infile);
 		infile = NULL;
 		return EXIT_FAILURE;
@@ -190,10 +195,11 @@ int main(int argc, char** argv)
 	fflush(stdout);
 
 	result = hackrf_close(device);
-	if( result != HACKRF_SUCCESS )
-	{
-		fprintf(stderr, "hackrf_close() failed: %s (%d)\n",
-				hackrf_error_name(result), result);
+	if (result != HACKRF_SUCCESS) {
+		fprintf(stderr,
+			"hackrf_close() failed: %s (%d)\n",
+			hackrf_error_name(result),
+			result);
 		fclose(infile);
 		infile = NULL;
 		return EXIT_FAILURE;

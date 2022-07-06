@@ -11,13 +11,13 @@ typedef struct {
 } FONT_CHAR_INFO;
 
 struct FONT_DEF {
-	uint8_t u8Width; /* Character width for storage          */
-	uint8_t u8Height; /* Character height for storage         */
-	uint8_t u8FirstChar; /* The first character available        */
-	uint8_t u8LastChar; /* The last character available         */
-	const uint8_t *au8FontTable; /* Font table start address in memory   */
-	const FONT_CHAR_INFO *charInfo; /* Pointer to array of char information */
-	const uint16_t *charExtra; /* Pointer to array of extra char info  */
+	uint8_t u8Width;                /* Character width for storage          */
+	uint8_t u8Height;               /* Character height for storage         */
+	uint8_t u8FirstChar;            /* The first character available        */
+	uint8_t u8LastChar;             /* The last character available         */
+	const uint8_t* au8FontTable;    /* Font table start address in memory   */
+	const FONT_CHAR_INFO* charInfo; /* Pointer to array of char information */
+	const uint16_t* charExtra;      /* Pointer to array of extra char info  */
 };
 
 struct EXTFONT {
@@ -26,9 +26,9 @@ struct EXTFONT {
 	struct FONT_DEF def;
 };
 
-typedef const struct FONT_DEF *FONT;
+typedef const struct FONT_DEF* FONT;
 
-#define FONT_DEFAULT 0
+#define FONT_DEFAULT  0
 #define FONT_INTERNAL 1
 #define FONT_EXTERNAL 2
 

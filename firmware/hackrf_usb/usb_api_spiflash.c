@@ -34,7 +34,8 @@
 uint8_t spiflash_buffer[256U];
 
 usb_request_status_t usb_vendor_request_erase_spiflash(
-		usb_endpoint_t* const endpoint, const usb_transfer_stage_t stage)
+	usb_endpoint_t* const endpoint,
+	const usb_transfer_stage_t stage)
 {
 	if (stage == USB_TRANSFER_STAGE_SETUP) {
 		spi_bus_start(spi_flash.bus, &ssp_config_w25q80bv);
@@ -47,7 +48,8 @@ usb_request_status_t usb_vendor_request_erase_spiflash(
 }
 
 usb_request_status_t usb_vendor_request_write_spiflash(
-	usb_endpoint_t* const endpoint, const usb_transfer_stage_t stage)
+	usb_endpoint_t* const endpoint,
+	const usb_transfer_stage_t stage)
 {
 	uint32_t addr = 0;
 	uint16_t len = 0;
@@ -55,12 +57,16 @@ usb_request_status_t usb_vendor_request_write_spiflash(
 	if (stage == USB_TRANSFER_STAGE_SETUP) {
 		addr = (endpoint->setup.value << 16) | endpoint->setup.index;
 		len = endpoint->setup.length;
-		if ((len > spi_flash.page_len) || (addr > spi_flash.num_bytes)
-				|| ((addr + len) > spi_flash.num_bytes)) {
+		if ((len > spi_flash.page_len) || (addr > spi_flash.num_bytes) ||
+		    ((addr + len) > spi_flash.num_bytes)) {
 			return USB_REQUEST_STATUS_STALL;
 		} else {
-			usb_transfer_schedule_block(endpoint->out, &spiflash_buffer[0], len,
-						    NULL, NULL);
+			usb_transfer_schedule_block(
+				endpoint->out,
+				&spiflash_buffer[0],
+				len,
+				NULL,
+				NULL);
 			spi_bus_start(spi_flash.bus, &ssp_config_w25q80bv);
 			w25q80bv_setup(&spi_flash);
 			return USB_REQUEST_STATUS_OK;
@@ -69,8 +75,8 @@ usb_request_status_t usb_vendor_request_write_spiflash(
 		addr = (endpoint->setup.value << 16) | endpoint->setup.index;
 		len = endpoint->setup.length;
 		/* This check is redundant but makes me feel better. */
-		if ((len > spi_flash.page_len) || (addr > spi_flash.num_bytes)
-				|| ((addr + len) > spi_flash.num_bytes)) {
+		if ((len > spi_flash.page_len) || (addr > spi_flash.num_bytes) ||
+		    ((addr + len) > spi_flash.num_bytes)) {
 			return USB_REQUEST_STATUS_STALL;
 		} else {
 			w25q80bv_program(&spi_flash, addr, len, &spiflash_buffer[0]);
@@ -83,50 +89,56 @@ usb_request_status_t usb_vendor_request_write_spiflash(
 }
 
 usb_request_status_t usb_vendor_request_read_spiflash(
-	usb_endpoint_t* const endpoint, const usb_transfer_stage_t stage)
+	usb_endpoint_t* const endpoint,
+	const usb_transfer_stage_t stage)
 {
 	uint32_t addr;
 	uint16_t len;
 
-	if (stage == USB_TRANSFER_STAGE_SETUP) 
-	{
+	if (stage == USB_TRANSFER_STAGE_SETUP) {
 		addr = (endpoint->setup.value << 16) | endpoint->setup.index;
 		len = endpoint->setup.length;
-		if ((len > spi_flash.page_len) || (addr > spi_flash.num_bytes)
-			    || ((addr + len) > spi_flash.num_bytes)) {
+		if ((len > spi_flash.page_len) || (addr > spi_flash.num_bytes) ||
+		    ((addr + len) > spi_flash.num_bytes)) {
 			return USB_REQUEST_STATUS_STALL;
 		} else {
 			w25q80bv_read(&spi_flash, addr, len, &spiflash_buffer[0]);
-			usb_transfer_schedule_block(endpoint->in, &spiflash_buffer[0], len,
-						    NULL, NULL);
+			usb_transfer_schedule_block(
+				endpoint->in,
+				&spiflash_buffer[0],
+				len,
+				NULL,
+				NULL);
 			return USB_REQUEST_STATUS_OK;
 		}
-	} else if (stage == USB_TRANSFER_STAGE_DATA) 
-	{
-			addr = (endpoint->setup.value << 16) | endpoint->setup.index;
-			len = endpoint->setup.length;
-			/* This check is redundant but makes me feel better. */
-			if ((len > spi_flash.page_len) || (addr > spi_flash.num_bytes)
-					|| ((addr + len) > spi_flash.num_bytes)) 
-			{
-				return USB_REQUEST_STATUS_STALL;
-			} else
-			{
-				usb_transfer_schedule_ack(endpoint->out);
-				return USB_REQUEST_STATUS_OK;
-			}
-	} else 
-	{
+	} else if (stage == USB_TRANSFER_STAGE_DATA) {
+		addr = (endpoint->setup.value << 16) | endpoint->setup.index;
+		len = endpoint->setup.length;
+		/* This check is redundant but makes me feel better. */
+		if ((len > spi_flash.page_len) || (addr > spi_flash.num_bytes) ||
+		    ((addr + len) > spi_flash.num_bytes)) {
+			return USB_REQUEST_STATUS_STALL;
+		} else {
+			usb_transfer_schedule_ack(endpoint->out);
+			return USB_REQUEST_STATUS_OK;
+		}
+	} else {
 		return USB_REQUEST_STATUS_OK;
 	}
 }
 
 usb_request_status_t usb_vendor_request_spiflash_status(
-	usb_endpoint_t* const endpoint, const usb_transfer_stage_t stage)
+	usb_endpoint_t* const endpoint,
+	const usb_transfer_stage_t stage)
 {
 	if (stage == USB_TRANSFER_STAGE_SETUP) {
 		w25q80bv_get_full_status(&spi_flash, endpoint->buffer);
-		usb_transfer_schedule_block(endpoint->in, &endpoint->buffer, 2, NULL, NULL);
+		usb_transfer_schedule_block(
+			endpoint->in,
+			&endpoint->buffer,
+			2,
+			NULL,
+			NULL);
 		return USB_REQUEST_STATUS_OK;
 	} else if (stage == USB_TRANSFER_STAGE_DATA) {
 		usb_transfer_schedule_ack(endpoint->out);
@@ -137,11 +149,12 @@ usb_request_status_t usb_vendor_request_spiflash_status(
 }
 
 usb_request_status_t usb_vendor_request_spiflash_clear_status(
-	usb_endpoint_t* const endpoint, const usb_transfer_stage_t stage)
+	usb_endpoint_t* const endpoint,
+	const usb_transfer_stage_t stage)
 {
 	if (stage == USB_TRANSFER_STAGE_SETUP) {
 		w25q80bv_clear_status(&spi_flash);
 		usb_transfer_schedule_ack(endpoint->in);
 	}
-return USB_REQUEST_STATUS_OK;
+	return USB_REQUEST_STATUS_OK;
 }

@@ -95,21 +95,19 @@ typedef enum
 	/* Special Error */
 	ERROR_IAP_NOT_IMPLEMENTED      = 0x00000100 /* IAP is not implemented in this part */
 } isp_iap_ret_code_t;
+
 // clang-format on
 
-typedef struct
-{
+typedef struct {
 	/* Input Command/Param */
-	struct
-	{
+	struct {
 		iap_cmd_code_t command_code;
 		uint32_t iap_param[5];
 	} cmd_param;
-	
+
 	/* Output Status/Result */
-	struct
-	{
-		isp_iap_ret_code_t status_ret; 
+	struct {
+		isp_iap_ret_code_t status_ret;
 		uint32_t iap_result[4];
 	} status_res;
 } iap_cmd_res_t;
@@ -119,4 +117,4 @@ bool iap_is_implemented(void);
 
 isp_iap_ret_code_t iap_cmd_call(iap_cmd_res_t* iap_cmd_res);
 
-#endif//__ROM_IAP__
+#endif //__ROM_IAP__

@@ -41,6 +41,9 @@ typedef struct ssp_config_t {
 void spi_ssp_start(spi_bus_t* const bus, const void* const config);
 void spi_ssp_stop(spi_bus_t* const bus);
 void spi_ssp_transfer(spi_bus_t* const bus, void* const data, const size_t count);
-void spi_ssp_transfer_gather(spi_bus_t* const bus, const spi_transfer_t* const transfers, const size_t count);
+void spi_ssp_transfer_gather(
+	spi_bus_t* const bus,
+	const spi_transfer_t* const transfers,
+	const size_t count);
 
-#endif/*__SPI_SSP_H__*/
+#endif /*__SPI_SSP_H__*/

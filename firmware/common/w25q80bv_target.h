@@ -26,4 +26,4 @@
 
 void w25q80bv_target_init(w25q80bv_driver_t* const drv);
 
-#endif/*__W25Q80BV_TARGET_H__*/
+#endif /*__W25Q80BV_TARGET_H__*/

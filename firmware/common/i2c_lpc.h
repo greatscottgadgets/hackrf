@@ -34,11 +34,13 @@ typedef struct i2c_lpc_config_t {
 
 void i2c_lpc_start(i2c_bus_t* const bus, const void* const config);
 void i2c_lpc_stop(i2c_bus_t* const bus);
-void i2c_lpc_transfer(i2c_bus_t* const bus,
+void i2c_lpc_transfer(
+	i2c_bus_t* const bus,
 	const uint_fast8_t peripheral_address,
-	const uint8_t* const data_tx, const size_t count_tx,
-	uint8_t* const data_rx, const size_t count_rx
-);
+	const uint8_t* const data_tx,
+	const size_t count_tx,
+	uint8_t* const data_rx,
+	const size_t count_rx);
 bool i2c_probe(i2c_bus_t* const bus, const uint_fast8_t device_address);
 
-#endif/*__I2C_LPC_H__*/
+#endif /*__I2C_LPC_H__*/

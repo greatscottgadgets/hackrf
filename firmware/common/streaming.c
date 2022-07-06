@@ -25,12 +25,14 @@
 #include <libopencm3/lpc43xx/m4/nvic.h>
 #include <libopencm3/lpc43xx/sgpio.h>
 
-void baseband_streaming_enable(sgpio_config_t* const sgpio_config) {
+void baseband_streaming_enable(sgpio_config_t* const sgpio_config)
+{
 	SGPIO_SET_EN_1 = (1 << SGPIO_SLICE_A);
 
 	sgpio_cpld_stream_enable(sgpio_config);
 }
 
-void baseband_streaming_disable(sgpio_config_t* const sgpio_config) {
+void baseband_streaming_disable(sgpio_config_t* const sgpio_config)
+{
 	sgpio_cpld_stream_disable(sgpio_config);
 }

@@ -40,4 +40,4 @@ void gpdma_lli_enable_interrupt(gpdma_lli_t* const lli);
 void gpdma_lli_create_loop(gpdma_lli_t* const lli, const size_t lli_count);
 void gpdma_lli_create_oneshot(gpdma_lli_t* const lli, const size_t lli_count);
 
-#endif/*__GPDMA_H__*/
+#endif /*__GPDMA_H__*/

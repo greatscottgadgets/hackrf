@@ -32,10 +32,10 @@
 
 #include <libopencm3/lpc43xx/m4/nvic.h>
 
-#define MIN(x,y)       ((x)<(y)?(x):(y))
-#define MAX(x,y)       ((x)>(y)?(x):(y))
-#define FREQ_GRANULARITY 1000000
-#define MAX_RANGES 10
+#define MIN(x, y)         ((x) < (y) ? (x) : (y))
+#define MAX(x, y)         ((x) > (y) ? (x) : (y))
+#define FREQ_GRANULARITY  1000000
+#define MAX_RANGES        10
 #define THROWAWAY_BUFFERS 2
 
 static uint64_t sweep_freq;
@@ -49,45 +49,51 @@ static enum sweep_style style = LINEAR;
 
 /* Do this before starting sweep mode with request_transceiver_mode(). */
 usb_request_status_t usb_vendor_request_init_sweep(
-		usb_endpoint_t* const endpoint, const usb_transfer_stage_t stage)
+	usb_endpoint_t* const endpoint,
+	const usb_transfer_stage_t stage)
 {
 	uint32_t num_bytes;
 	int i;
 	if (stage == USB_TRANSFER_STAGE_SETUP) {
 		num_bytes = (endpoint->setup.index << 16) | endpoint->setup.value;
 		dwell_blocks = num_bytes / 0x4000;
-		if(1 > dwell_blocks) {
+		if (1 > dwell_blocks) {
 			return USB_REQUEST_STATUS_STALL;
 		}
 		num_ranges = (endpoint->setup.length - 9) / (2 * sizeof(frequencies[0]));
-		if((1 > num_ranges) || (MAX_RANGES < num_ranges)) {
+		if ((1 > num_ranges) || (MAX_RANGES < num_ranges)) {
 			return USB_REQUEST_STATUS_STALL;
 		}
-		usb_transfer_schedule_block(endpoint->out, &data,
-				endpoint->setup.length, NULL, NULL);
+		usb_transfer_schedule_block(
+			endpoint->out,
+			&data,
+			endpoint->setup.length,
+			NULL,
+			NULL);
 	} else if (stage == USB_TRANSFER_STAGE_DATA) {
-		step_width = ((uint32_t)(data[3]) << 24) | ((uint32_t)(data[2]) << 16)
-				| ((uint32_t)(data[1]) << 8) | data[0];
-		if(1 > step_width) {
+		step_width = ((uint32_t) (data[3]) << 24) | ((uint32_t) (data[2]) << 16) |
+			((uint32_t) (data[1]) << 8) | data[0];
+		if (1 > step_width) {
 			return USB_REQUEST_STATUS_STALL;
 		}
-		offset = ((uint32_t)(data[7]) << 24) | ((uint32_t)(data[6]) << 16)
-				| ((uint32_t)(data[5]) << 8) | data[4];
+		offset = ((uint32_t) (data[7]) << 24) | ((uint32_t) (data[6]) << 16) |
+			((uint32_t) (data[5]) << 8) | data[4];
 		style = data[8];
-		if(INTERLEAVED < style) {
+		if (INTERLEAVED < style) {
 			return USB_REQUEST_STATUS_STALL;
 		}
-		for(i=0; i<(num_ranges*2); i++) {
-			frequencies[i] = ((uint16_t)(data[10+i*2]) << 8) + data[9+i*2];
+		for (i = 0; i < (num_ranges * 2); i++) {
+			frequencies[i] =
+				((uint16_t) (data[10 + i * 2]) << 8) + data[9 + i * 2];
 		}
-		sweep_freq = (uint64_t)frequencies[0] * FREQ_GRANULARITY;
+		sweep_freq = (uint64_t) frequencies[0] * FREQ_GRANULARITY;
 		set_freq(sweep_freq + offset);
 		usb_transfer_schedule_ack(endpoint->in);
 	}
 	return USB_REQUEST_STATUS_OK;
 }
 
-void sweep_bulk_transfer_complete(void *user_data, unsigned int bytes_transferred)
+void sweep_bulk_transfer_complete(void* user_data, unsigned int bytes_transferred)
 {
 	(void) user_data;
 	(void) bytes_transferred;
@@ -97,7 +103,8 @@ void sweep_bulk_transfer_complete(void *user_data, unsigned int bytes_transferre
 	m0_state.m4_count += 3 * 0x4000;
 }
 
-void sweep_mode(uint32_t seq) {
+void sweep_mode(uint32_t seq)
+{
 	// Sweep mode is implemented using timed M0 operations, as follows:
 	//
 	// 0. M4 initially puts the M0 into RX mode, with an m0_count threshold
@@ -126,7 +133,7 @@ void sweep_mode(uint32_t seq) {
 	bool odd = true;
 	uint16_t range = 0;
 
-	uint8_t *buffer;
+	uint8_t* buffer;
 
 	transceiver_startup(TRANSCEIVER_MODE_RX_SWEEP);
 
@@ -137,7 +144,6 @@ void sweep_mode(uint32_t seq) {
 	baseband_streaming_enable(&sgpio_config);
 
 	while (transceiver_request.seq == seq) {
-
 		// Wait for M0 to finish receiving a buffer.
 		while (m0_state.active_mode != M0_MODE_WAIT)
 			if (transceiver_request.seq != seq)
@@ -150,45 +156,52 @@ void sweep_mode(uint32_t seq) {
 		// Write metadata to buffer.
 		buffer = &usb_bulk_buffer[phase * 0x4000];
 		*buffer = 0x7f;
-		*(buffer+1) = 0x7f;
-		*(buffer+2) = sweep_freq & 0xff;
-		*(buffer+3) = (sweep_freq >> 8) & 0xff;
-		*(buffer+4) = (sweep_freq >> 16) & 0xff;
-		*(buffer+5) = (sweep_freq >> 24) & 0xff;
-		*(buffer+6) = (sweep_freq >> 32) & 0xff;
-		*(buffer+7) = (sweep_freq >> 40) & 0xff;
-		*(buffer+8) = (sweep_freq >> 48) & 0xff;
-		*(buffer+9) = (sweep_freq >> 56) & 0xff;
+		*(buffer + 1) = 0x7f;
+		*(buffer + 2) = sweep_freq & 0xff;
+		*(buffer + 3) = (sweep_freq >> 8) & 0xff;
+		*(buffer + 4) = (sweep_freq >> 16) & 0xff;
+		*(buffer + 5) = (sweep_freq >> 24) & 0xff;
+		*(buffer + 6) = (sweep_freq >> 32) & 0xff;
+		*(buffer + 7) = (sweep_freq >> 40) & 0xff;
+		*(buffer + 8) = (sweep_freq >> 48) & 0xff;
+		*(buffer + 9) = (sweep_freq >> 56) & 0xff;
 
 		// Set up IN transfer of buffer.
 		usb_transfer_schedule_block(
 			&usb_endpoint_bulk_in,
 			buffer,
 			0x4000,
-			sweep_bulk_transfer_complete, NULL
-		);
+			sweep_bulk_transfer_complete,
+			NULL);
 
 		// Use other buffer next time.
 		phase = (phase + 1) % 2;
 
-		if ( ++blocks_queued == dwell_blocks ) {
+		if (++blocks_queued == dwell_blocks) {
 			// Calculate next sweep frequency.
-			if(INTERLEAVED == style) {
-				if(!odd && ((sweep_freq + step_width) >= ((uint64_t)frequencies[1+range*2] * FREQ_GRANULARITY))) {
+			if (INTERLEAVED == style) {
+				if (!odd &&
+				    ((sweep_freq + step_width) >=
+				     ((uint64_t) frequencies[1 + range * 2] *
+				      FREQ_GRANULARITY))) {
 					range = (range + 1) % num_ranges;
-					sweep_freq = (uint64_t)frequencies[range*2] * FREQ_GRANULARITY;
+					sweep_freq = (uint64_t) frequencies[range * 2] *
+						FREQ_GRANULARITY;
 				} else {
-					if(odd) {
-						sweep_freq += step_width/4;
+					if (odd) {
+						sweep_freq += step_width / 4;
 					} else {
-						sweep_freq += 3*step_width/4;
+						sweep_freq += 3 * step_width / 4;
 					}
 				}
 				odd = !odd;
 			} else {
-				if((sweep_freq + step_width) >= ((uint64_t)frequencies[1+range*2] * FREQ_GRANULARITY)) {
+				if ((sweep_freq + step_width) >=
+				    ((uint64_t) frequencies[1 + range * 2] *
+				     FREQ_GRANULARITY)) {
 					range = (range + 1) % num_ranges;
-					sweep_freq = (uint64_t)frequencies[range*2] * FREQ_GRANULARITY;
+					sweep_freq = (uint64_t) frequencies[range * 2] *
+						FREQ_GRANULARITY;
 				} else {
 					sweep_freq += step_width;
 				}

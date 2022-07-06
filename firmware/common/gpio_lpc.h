@@ -32,19 +32,19 @@
  */
 
 typedef struct gpio_port_t {
-	volatile uint32_t dir;		/* +0x000 */
+	volatile uint32_t dir; /* +0x000 */
 	uint32_t _reserved0[31];
-	volatile uint32_t mask;		/* +0x080 */
+	volatile uint32_t mask; /* +0x080 */
 	uint32_t _reserved1[31];
-	volatile uint32_t pin;		/* +0x100 */
+	volatile uint32_t pin; /* +0x100 */
 	uint32_t _reserved2[31];
-	volatile uint32_t mpin;		/* +0x180 */
+	volatile uint32_t mpin; /* +0x180 */
 	uint32_t _reserved3[31];
-	volatile uint32_t set;		/* +0x200 */
+	volatile uint32_t set; /* +0x200 */
 	uint32_t _reserved4[31];
-	volatile uint32_t clr;		/* +0x280 */
+	volatile uint32_t clr; /* +0x280 */
 	uint32_t _reserved5[31];
-	volatile uint32_t not;		/* +0x300 */
+	volatile uint32_t not ; /* +0x300 */
 } gpio_port_t;
 
 struct gpio_t {
@@ -53,13 +53,15 @@ struct gpio_t {
 	volatile uint32_t* const gpio_w;
 };
 
-#define GPIO_LPC_BASE (0x400f4000)
-#define GPIO_LPC_B_OFFSET (0x0)
-#define GPIO_LPC_W_OFFSET (0x1000)
+#define GPIO_LPC_BASE        (0x400f4000)
+#define GPIO_LPC_B_OFFSET    (0x0)
+#define GPIO_LPC_W_OFFSET    (0x1000)
 #define GPIO_LPC_PORT_OFFSET (0x2000)
 
-#define GPIO_LPC_PORT(_n) ((gpio_port_t*)((GPIO_LPC_BASE + GPIO_LPC_PORT_OFFSET) + (_n) * 4))
-#define GPIO_LPC_W(_port_num, _pin_num) (volatile uint32_t*)((GPIO_LPC_BASE + GPIO_LPC_W_OFFSET) + ((_port_num) * 0x80) + ((_pin_num) * 4))
+#define GPIO_LPC_PORT(_n) \
+	((gpio_port_t*) ((GPIO_LPC_BASE + GPIO_LPC_PORT_OFFSET) + (_n) *4))
+#define GPIO_LPC_W(_port_num, _pin_num) \
+	(volatile uint32_t*) ((GPIO_LPC_BASE + GPIO_LPC_W_OFFSET) + ((_port_num) *0x80) + ((_pin_num) *4))
 
 // clang-format off
 #define GPIO(_port_num, _pin_num) { \
@@ -69,4 +71,4 @@ struct gpio_t {
 }
 // clang-format on
 
-#endif/*__GPIO_LPC_H__*/
+#endif /*__GPIO_LPC_H__*/

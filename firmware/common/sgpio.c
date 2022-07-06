@@ -32,7 +32,8 @@
 static void update_q_invert(sgpio_config_t* const config);
 #endif
 
-void sgpio_configure_pin_functions(sgpio_config_t* const config) {
+void sgpio_configure_pin_functions(sgpio_config_t* const config)
+{
 	scu_pinmux(SCU_PINMUX_SGPIO0, SCU_GPIO_FAST | SCU_CONF_FUNCTION3);
 	scu_pinmux(SCU_PINMUX_SGPIO1, SCU_GPIO_FAST | SCU_CONF_FUNCTION3);
 	scu_pinmux(SCU_PINMUX_SGPIO2, SCU_GPIO_FAST | SCU_CONF_FUNCTION2);
@@ -46,21 +47,19 @@ void sgpio_configure_pin_functions(sgpio_config_t* const config) {
 	scu_pinmux(SCU_PINMUX_SGPIO10, SCU_GPIO_FAST | SCU_CONF_FUNCTION6);
 	scu_pinmux(SCU_PINMUX_SGPIO11, SCU_GPIO_FAST | SCU_CONF_FUNCTION6);
 	scu_pinmux(SCU_PINMUX_SGPIO12, SCU_GPIO_FAST | SCU_CONF_FUNCTION0); /* GPIO0[13] */
-	scu_pinmux(SCU_PINMUX_SGPIO13, SCU_GPIO_FAST | SCU_CONF_FUNCTION4);	/* GPIO5[12] */
-	scu_pinmux(SCU_PINMUX_SGPIO14, SCU_GPIO_FAST | SCU_CONF_FUNCTION4);	/* GPIO5[13] */
-	scu_pinmux(SCU_PINMUX_SGPIO15, SCU_GPIO_FAST | SCU_CONF_FUNCTION4);	/* GPIO5[14] */
+	scu_pinmux(SCU_PINMUX_SGPIO13, SCU_GPIO_FAST | SCU_CONF_FUNCTION4); /* GPIO5[12] */
+	scu_pinmux(SCU_PINMUX_SGPIO14, SCU_GPIO_FAST | SCU_CONF_FUNCTION4); /* GPIO5[13] */
+	scu_pinmux(SCU_PINMUX_SGPIO15, SCU_GPIO_FAST | SCU_CONF_FUNCTION4); /* GPIO5[14] */
 
 	sgpio_cpld_stream_rx_set_q_invert(config, 0);
-    hw_sync_enable(0);
+	hw_sync_enable(0);
 
 	gpio_output(config->gpio_rx_q_invert);
 	gpio_output(config->gpio_hw_sync_enable);
 }
 
-void sgpio_set_slice_mode(
-	sgpio_config_t* const config,
-	const bool multi_slice
-) {
+void sgpio_set_slice_mode(sgpio_config_t* const config, const bool multi_slice)
+{
 	config->slice_mode_multislice = multi_slice;
 }
 
@@ -95,16 +94,13 @@ void sgpio_set_slice_mode(
  SGPIO10 Disable Output (1/High=Disable codec data stream, 0/Low=Enable codec data stream)
  SGPIO11 Direction Output (1/High=TX mode LPC43xx=>CPLD=>DAC, 0/Low=RX mode LPC43xx<=CPLD<=ADC)
 */
-void sgpio_configure(
-	sgpio_config_t* const config,
-	const sgpio_direction_t direction
-) {
+void sgpio_configure(sgpio_config_t* const config, const sgpio_direction_t direction)
+{
 	// Disable all counters during configuration
 	SGPIO_CTRL_ENABLE = 0;
 
-    // Set SGPIO output values.
-	const uint_fast8_t cpld_direction =
-		(direction == SGPIO_DIRECTION_TX) ? 1 : 0;
+	// Set SGPIO output values.
+	const uint_fast8_t cpld_direction = (direction == SGPIO_DIRECTION_TX) ? 1 : 0;
 
 	// clang-format off
 	SGPIO_GPIO_OUTREG =
@@ -123,9 +119,7 @@ void sgpio_configure(
 
 	// Enable SGPIO pin outputs.
 	const uint_fast16_t sgpio_gpio_data_direction =
-		(direction == SGPIO_DIRECTION_TX)
-		? (0xFF << 0)
-		: (0x00 << 0);
+		(direction == SGPIO_DIRECTION_TX) ? (0xFF << 0) : (0x00 << 0);
 
 	// clang-format off
 	SGPIO_GPIO_OENREG =
@@ -162,7 +156,7 @@ void sgpio_configure(
 	const uint_fast8_t output_multiplexing_mode =
 		config->slice_mode_multislice ? 11 : 9;
 	/* SGPIO0 to SGPIO7 */
-	for(uint_fast8_t i=0; i<8; i++) {
+	for (uint_fast8_t i = 0; i < 8; i++) {
 		// SGPIO pin 0 outputs slice A bit "i".
 		SGPIO_OUT_MUX_CFG(i) = SGPIO_OUT_MUX_CFG_P_OE_CFG(0)
 			// 11 = dout_doutm8c (8-bit mode 8c) (multislice L0/7, N0/7)
@@ -181,17 +175,16 @@ void sgpio_configure(
 		SGPIO_SLICE_L,
 	};
 	const uint_fast8_t slice_gpdma = SGPIO_SLICE_H;
-	
+
 	const uint_fast8_t pos = config->slice_mode_multislice ? 0x1f : 0x03;
 	const bool single_slice = !config->slice_mode_multislice;
 	const uint_fast8_t slice_count = config->slice_mode_multislice ? 8 : 1;
-	
+
 	// Also enable slice D for clkout to the SCTimer
 	uint32_t slice_enable_mask = BIT3;
 
 	/* Configure Slice A, I, E, J, C, K, F, L (sgpio_slice_mode_multislice mode) */
-	for(uint_fast8_t i=0; i<slice_count; i++)
-	{
+	for (uint_fast8_t i = 0; i < slice_count; i++) {
 		const uint_fast8_t slice_index = slice_indices[i];
 		/* Only for slice0/A and RX mode set input_slice to 1 */
 		const bool input_slice = (i == 0) && (direction != SGPIO_DIRECTION_TX);
@@ -199,7 +192,7 @@ void sgpio_configure(
 		const uint_fast8_t concat_order = (input_slice || single_slice) ? 0 : 3;
 		/* 0 = External data pin (slice0/A RX mode), 1 = Concatenate data */
 		const uint_fast8_t concat_enable = (input_slice || single_slice) ? 0 : 1;
-		
+
 		// clang-format off
 		SGPIO_MUX_CFG(slice_index) =
 			  SGPIO_MUX_CFG_CONCAT_ORDER(concat_order)
@@ -222,20 +215,17 @@ void sgpio_configure(
 			;
 		// clang-format on
 
-		SGPIO_PRESET(slice_index) = 0;			// External clock, don't care
-		SGPIO_COUNT(slice_index) = 0;				// External clock, don't care
-		SGPIO_POS(slice_index) =
-			  SGPIO_POS_POS_RESET(pos)
-			| SGPIO_POS_POS(pos)
-			;
-		SGPIO_REG(slice_index) = 0x00000000;     // Primary output data register
-		SGPIO_REG_SS(slice_index) = 0x00000000;  // Shadow output data register
+		SGPIO_PRESET(slice_index) = 0; // External clock, don't care
+		SGPIO_COUNT(slice_index) = 0;  // External clock, don't care
+		SGPIO_POS(slice_index) = SGPIO_POS_POS_RESET(pos) | SGPIO_POS_POS(pos);
+		SGPIO_REG(slice_index) = 0x00000000;    // Primary output data register
+		SGPIO_REG_SS(slice_index) = 0x00000000; // Shadow output data register
 		// clang-format on
-		
+
 		slice_enable_mask |= (1 << slice_index);
 	}
 
-	if( config->slice_mode_multislice == false ) {
+	if (config->slice_mode_multislice == false) {
 		// clang-format off
 		SGPIO_MUX_CFG(slice_gpdma) =
 			  SGPIO_MUX_CFG_CONCAT_ORDER(0)          // Self-loop
@@ -258,15 +248,14 @@ void sgpio_configure(
 			;
 		// clang-format on
 
-		SGPIO_PRESET(slice_gpdma) = 0;			// External clock, don't care
-		SGPIO_COUNT(slice_gpdma) = 0;			// External clock, don't care
-		SGPIO_POS(slice_gpdma) =
-			  SGPIO_POS_POS_RESET(0x1f)
-			| SGPIO_POS_POS(0x1f)
-			;
-		SGPIO_REG(slice_gpdma) = 0x11111111;     // Primary output data register, LSB -> out
-		SGPIO_REG_SS(slice_gpdma) = 0x11111111;  // Shadow output data register, LSB -> out1
-		
+		SGPIO_PRESET(slice_gpdma) = 0; // External clock, don't care
+		SGPIO_COUNT(slice_gpdma) = 0;  // External clock, don't care
+		SGPIO_POS(slice_gpdma) = SGPIO_POS_POS_RESET(0x1f) | SGPIO_POS_POS(0x1f);
+		SGPIO_REG(slice_gpdma) =
+			0x11111111; // Primary output data register, LSB -> out
+		SGPIO_REG_SS(slice_gpdma) =
+			0x11111111; // Shadow output data register, LSB -> out1
+
 		slice_enable_mask |= (1 << slice_gpdma);
 	}
 
@@ -274,23 +263,25 @@ void sgpio_configure(
 	SGPIO_CTRL_ENABLE = slice_enable_mask;
 }
 
-void sgpio_cpld_stream_enable(sgpio_config_t* const config) {
-	(void)config;
+void sgpio_cpld_stream_enable(sgpio_config_t* const config)
+{
+	(void) config;
 	// Enable codec data stream.
 	SGPIO_GPIO_OUTREG &= ~(1L << 10); /* SGPIO10 */
 }
 
-void sgpio_cpld_stream_disable(sgpio_config_t* const config) {
-	(void)config;
+void sgpio_cpld_stream_disable(sgpio_config_t* const config)
+{
+	(void) config;
 	// Disable codec data stream.
 	SGPIO_GPIO_OUTREG |= (1L << 10); /* SGPIO10 */
 }
 
-bool sgpio_cpld_stream_is_enabled(sgpio_config_t* const config) {
-	(void)config;
+bool sgpio_cpld_stream_is_enabled(sgpio_config_t* const config)
+{
+	(void) config;
 	return (SGPIO_GPIO_OUTREG & (1L << 10)) == 0; /* SGPIO10 */
 }
-
 
 #ifdef RAD1O
 /* The rad1o hardware has a bug which makes it
@@ -306,24 +297,28 @@ static bool sgpio_invert = false;
 
 /* Called when TX/RX changes od sgpio_cpld_stream_rx_set_q_invert
  * gets called. */
-static void update_q_invert(sgpio_config_t* const config) {
+static void update_q_invert(sgpio_config_t* const config)
+{
 	/* 1=Output SGPIO11 High(TX mode), 0=Output SGPIO11 Low(RX mode) */
 	bool tx_mode = (SGPIO_GPIO_OUTREG & (1 << 11)) > 0;
 
 	/* 0.13: P1_18 */
-	if( !sgpio_invert & !tx_mode) {
+	if (!sgpio_invert & !tx_mode) {
 		gpio_write(config->gpio_rx_q_invert, 1);
-	} else if( !sgpio_invert & tx_mode) {
+	} else if (!sgpio_invert & tx_mode) {
 		gpio_write(config->gpio_rx_q_invert, 0);
-	} else if( sgpio_invert & !tx_mode) {
+	} else if (sgpio_invert & !tx_mode) {
 		gpio_write(config->gpio_rx_q_invert, 0);
-	} else if( sgpio_invert & tx_mode) {
+	} else if (sgpio_invert & tx_mode) {
 		gpio_write(config->gpio_rx_q_invert, 1);
 	}
 }
 
-void sgpio_cpld_stream_rx_set_q_invert(sgpio_config_t* const config, const uint_fast8_t invert) {
-	if( invert ) {
+void sgpio_cpld_stream_rx_set_q_invert(
+	sgpio_config_t* const config,
+	const uint_fast8_t invert)
+{
+	if (invert) {
 		sgpio_invert = true;
 	} else {
 		sgpio_invert = false;
@@ -333,7 +328,10 @@ void sgpio_cpld_stream_rx_set_q_invert(sgpio_config_t* const config, const uint_
 }
 
 #else
-void sgpio_cpld_stream_rx_set_q_invert(sgpio_config_t* const config, const uint_fast8_t invert) {
+void sgpio_cpld_stream_rx_set_q_invert(
+	sgpio_config_t* const config,
+	const uint_fast8_t invert)
+{
 	gpio_write(config->gpio_rx_q_invert, invert);
 }
 #endif

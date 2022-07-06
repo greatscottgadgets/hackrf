@@ -26,4 +26,4 @@
 
 void max5864_target_init(max5864_driver_t* const drv);
 
-#endif/*__MAX5864_TARGET_H__*/
+#endif /*__MAX5864_TARGET_H__*/

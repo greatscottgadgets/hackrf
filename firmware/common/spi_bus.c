@@ -21,18 +21,25 @@
 
 #include "spi_bus.h"
 
-void spi_bus_start(spi_bus_t* const bus, const void* const config) {
+void spi_bus_start(spi_bus_t* const bus, const void* const config)
+{
 	bus->start(bus, config);
 }
 
-void spi_bus_stop(spi_bus_t* const bus) {
+void spi_bus_stop(spi_bus_t* const bus)
+{
 	bus->stop(bus);
 }
 
-void spi_bus_transfer(spi_bus_t* const bus, void* const data, const size_t count) {
+void spi_bus_transfer(spi_bus_t* const bus, void* const data, const size_t count)
+{
 	bus->transfer(bus, data, count);
 }
 
-void spi_bus_transfer_gather(spi_bus_t* const bus, const spi_transfer_t* const transfers, const size_t count) {
+void spi_bus_transfer_gather(
+	spi_bus_t* const bus,
+	const spi_transfer_t* const transfers,
+	const size_t count)
+{
 	bus->transfer_gather(bus, transfers, count);
 }

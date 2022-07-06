@@ -30,6 +30,7 @@
 // structures are supposedly the same between processors (to an
 // undetermined extent).
 typedef struct armv7m_scb_t armv7m_scb_t;
+
 struct armv7m_scb_t {
 	volatile const uint32_t CPUID;
 	volatile uint32_t ICSR;
@@ -64,10 +65,10 @@ struct armv7m_scb_t {
 	volatile uint32_t CPACR;
 } __attribute__((packed));
 
-static armv7m_scb_t* const SCB = (armv7m_scb_t*)SCB_BASE;
+static armv7m_scb_t* const SCB = (armv7m_scb_t*) SCB_BASE;
 
 #define SCB_HFSR_DEBUGEVT (1 << 31)
-#define SCB_HFSR_FORCED (1 << 30)
-#define SCB_HFSR_VECTTBL (1 << 1)
+#define SCB_HFSR_FORCED   (1 << 30)
+#define SCB_HFSR_VECTTBL  (1 << 1)
 
-#endif//__FAULT_HANDLER__
+#endif //__FAULT_HANDLER__

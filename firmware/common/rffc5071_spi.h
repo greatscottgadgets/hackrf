@@ -36,6 +36,9 @@ typedef struct rffc5071_spi_config_t {
 void rffc5071_spi_start(spi_bus_t* const bus, const void* const config);
 void rffc5071_spi_stop(spi_bus_t* const bus);
 void rffc5071_spi_transfer(spi_bus_t* const bus, void* const data, const size_t count);
-void rffc5071_spi_transfer_gather(spi_bus_t* const bus, const spi_transfer_t* const transfer, const size_t count);
+void rffc5071_spi_transfer_gather(
+	spi_bus_t* const bus,
+	const spi_transfer_t* const transfer,
+	const size_t count);
 
 #endif // __RFFC5071_SPI_H

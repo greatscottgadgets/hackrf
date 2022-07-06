@@ -26,9 +26,10 @@
 
 #include <libopencm3/lpc43xx/scu.h>
 
-static void portapack_sleep_milliseconds(const uint32_t milliseconds) {
+static void portapack_sleep_milliseconds(const uint32_t milliseconds)
+{
 	/* NOTE: Naively assumes 204 MHz instruction cycle clock and five instructions per count */
-	delay(milliseconds * 40800);	
+	delay(milliseconds * 40800);
 }
 
 // clang-format off
@@ -41,6 +42,7 @@ static struct gpio_t gpio_unused  = GPIO(5,  7); /* P2_8 */
 static struct gpio_t gpio_lcd_rdx = GPIO(5,  4); /* P2_4 */
 static struct gpio_t gpio_lcd_wrx = GPIO(1, 10); /* P2_9 */
 static struct gpio_t gpio_dir     = GPIO(1, 13); /* P2_13 */
+
 // clang-format on
 
 typedef struct portapack_if_t {
@@ -54,39 +56,44 @@ typedef struct portapack_if_t {
 } portapack_if_t;
 
 static portapack_if_t portapack_if = {
-	.gpio_dir        = &gpio_dir,
-	.gpio_lcd_rdx    = &gpio_lcd_rdx,
-	.gpio_lcd_wrx    = &gpio_lcd_wrx,
-	.gpio_io_stbx    = &gpio_io_stbx,
-	.gpio_addr       = &gpio_addr,
-	.gpio_port_data  = GPIO_LPC_PORT(3),
-	.io_reg          = 0x03,
+	.gpio_dir = &gpio_dir,
+	.gpio_lcd_rdx = &gpio_lcd_rdx,
+	.gpio_lcd_wrx = &gpio_lcd_wrx,
+	.gpio_io_stbx = &gpio_io_stbx,
+	.gpio_addr = &gpio_addr,
+	.gpio_port_data = GPIO_LPC_PORT(3),
+	.io_reg = 0x03,
 };
 
 /* NOTE: Code below assumes the shift value is "8". */
 #define GPIO_DATA_SHIFT (8)
 static const uint32_t gpio_data_mask = 0xFFU << GPIO_DATA_SHIFT;
 
-static void portapack_data_mask_set() {
+static void portapack_data_mask_set()
+{
 	portapack_if.gpio_port_data->mask = ~gpio_data_mask;
 }
 
-static void portapack_data_write_low(const uint32_t value) {
+static void portapack_data_write_low(const uint32_t value)
+{
 	portapack_if.gpio_port_data->mpin = (value << GPIO_DATA_SHIFT);
 }
 
-static void portapack_data_write_high(const uint32_t value) {
+static void portapack_data_write_high(const uint32_t value)
+{
 	/* NOTE: Assumes no other bits in the port are masked. */
 	/* NOTE: Assumes that bits 15 through 8 are masked. */
 	portapack_if.gpio_port_data->mpin = value;
 }
 
-static void portapack_dir_read() {
+static void portapack_dir_read()
+{
 	portapack_if.gpio_port_data->dir &= ~gpio_data_mask;
 	gpio_set(portapack_if.gpio_dir);
 }
 
-static void portapack_dir_write() {
+static void portapack_dir_write()
+{
 	gpio_clear(portapack_if.gpio_dir);
 	portapack_if.gpio_port_data->dir |= gpio_data_mask;
 	/* TODO: Manipulating DIR[3] makes me queasy. The RFFC5072 DATA pin
@@ -97,66 +104,76 @@ static void portapack_dir_write() {
 	 */
 }
 
-__attribute__((unused)) static void portapack_lcd_rd_assert() {
+__attribute__((unused)) static void portapack_lcd_rd_assert()
+{
 	gpio_clear(portapack_if.gpio_lcd_rdx);
 }
 
-static void portapack_lcd_rd_deassert() {
+static void portapack_lcd_rd_deassert()
+{
 	gpio_set(portapack_if.gpio_lcd_rdx);
 }
 
-static void portapack_lcd_wr_assert() {
+static void portapack_lcd_wr_assert()
+{
 	gpio_clear(portapack_if.gpio_lcd_wrx);
 }
 
-static void portapack_lcd_wr_deassert() {
+static void portapack_lcd_wr_deassert()
+{
 	gpio_set(portapack_if.gpio_lcd_wrx);
 }
 
-static void portapack_io_stb_assert() {
+static void portapack_io_stb_assert()
+{
 	gpio_clear(portapack_if.gpio_io_stbx);
 }
 
-static void portapack_io_stb_deassert() {
+static void portapack_io_stb_deassert()
+{
 	gpio_set(portapack_if.gpio_io_stbx);
 }
 
-static void portapack_addr(const bool value) {
+static void portapack_addr(const bool value)
+{
 	gpio_write(portapack_if.gpio_addr, value);
 }
 
-static void portapack_lcd_command(const uint32_t value) {
-	portapack_data_write_high(0);		/* Drive high byte (with zero -- don't care) */
-	portapack_dir_write();			/* Turn around data bus, MCU->CPLD */
-	portapack_addr(0);				/* Indicate command */
+static void portapack_lcd_command(const uint32_t value)
+{
+	portapack_data_write_high(0); /* Drive high byte (with zero -- don't care) */
+	portapack_dir_write();        /* Turn around data bus, MCU->CPLD */
+	portapack_addr(0);            /* Indicate command */
 	__asm__("nop");
 	__asm__("nop");
 	__asm__("nop");
-	portapack_lcd_wr_assert();		/* Latch high byte */
+	portapack_lcd_wr_assert(); /* Latch high byte */
 
-	portapack_data_write_low(value);	/* Drive low byte (pass-through) */
+	portapack_data_write_low(value); /* Drive low byte (pass-through) */
 	__asm__("nop");
 	__asm__("nop");
 	__asm__("nop");
-	portapack_lcd_wr_deassert();		/* Complete write operation */
+	portapack_lcd_wr_deassert(); /* Complete write operation */
 
-	portapack_addr(1);				/* Set up for data phase (most likely after a command) */
+	portapack_addr(1); /* Set up for data phase (most likely after a command) */
 }
 
-static void portapack_lcd_write_data(const uint32_t value) {
+static void portapack_lcd_write_data(const uint32_t value)
+{
 	// NOTE: Assumes and DIR=0 and ADDR=1 from command phase.
-	portapack_data_write_high(value);	/* Drive high byte */
+	portapack_data_write_high(value); /* Drive high byte */
 	__asm__("nop");
-	portapack_lcd_wr_assert();		/* Latch high byte */
+	portapack_lcd_wr_assert(); /* Latch high byte */
 
-	portapack_data_write_low(value);	/* Drive low byte (pass-through) */
+	portapack_data_write_low(value); /* Drive low byte (pass-through) */
 	__asm__("nop");
 	__asm__("nop");
 	__asm__("nop");
-	portapack_lcd_wr_deassert();		/* Complete write operation */
+	portapack_lcd_wr_deassert(); /* Complete write operation */
 }
 
-static void portapack_io_write(const bool address, const uint_fast16_t value) {
+static void portapack_io_write(const bool address, const uint_fast16_t value)
+{
 	portapack_data_write_low(value);
 	portapack_dir_write();
 	portapack_addr(address);
@@ -170,7 +187,8 @@ static void portapack_io_write(const bool address, const uint_fast16_t value) {
 	portapack_io_stb_deassert();
 }
 
-static void portapack_if_init() {
+static void portapack_if_init()
+{
 	portapack_data_mask_set();
 	portapack_data_write_high(0);
 
@@ -197,16 +215,17 @@ static void portapack_if_init() {
 	scu_pinmux(SCU_PINMUX_PP_D6, SCU_CONF_FUNCTION0 | SCU_GPIO_PDN);
 	scu_pinmux(SCU_PINMUX_PP_D7, SCU_CONF_FUNCTION0 | SCU_GPIO_PDN);
 
-	scu_pinmux(SCU_PINMUX_PP_DIR,     SCU_CONF_FUNCTION0 | SCU_GPIO_NOPULL);
+	scu_pinmux(SCU_PINMUX_PP_DIR, SCU_CONF_FUNCTION0 | SCU_GPIO_NOPULL);
 	scu_pinmux(SCU_PINMUX_PP_LCD_RDX, SCU_CONF_FUNCTION4 | SCU_GPIO_NOPULL);
 	scu_pinmux(SCU_PINMUX_PP_LCD_WRX, SCU_CONF_FUNCTION0 | SCU_GPIO_NOPULL);
 	scu_pinmux(SCU_PINMUX_PP_IO_STBX, SCU_CONF_FUNCTION4 | SCU_GPIO_NOPULL);
-	scu_pinmux(SCU_PINMUX_PP_ADDR,    SCU_CONF_FUNCTION4 | SCU_GPIO_NOPULL);
+	scu_pinmux(SCU_PINMUX_PP_ADDR, SCU_CONF_FUNCTION4 | SCU_GPIO_NOPULL);
 	/* scu_pinmux(SCU_PINMUX_PP_LCD_TE,   SCU_CONF_FUNCTION4 | SCU_GPIO_NOPULL); */
 	/* scu_pinmux(SCU_PINMUX_PP_UNUSED,   SCU_CONF_FUNCTION4 | SCU_GPIO_NOPULL); */
 }
 
-static void portapack_lcd_reset_state(const bool active) {
+static void portapack_lcd_reset_state(const bool active)
+{
 	portapack_if.io_reg = (portapack_if.io_reg & 0xfe) | (active ? (1 << 0) : 0);
 	portapack_io_write(1, portapack_if.io_reg);
 }
@@ -214,15 +233,16 @@ static void portapack_lcd_reset_state(const bool active) {
 static void portapack_lcd_data_write_command_and_data(
 	const uint_fast8_t command,
 	const uint8_t* data,
-	const size_t data_count
-) {
+	const size_t data_count)
+{
 	portapack_lcd_command(command);
-	for(size_t i=0; i<data_count; i++) {
+	for (size_t i = 0; i < data_count; i++) {
 		portapack_lcd_write_data(data[i]);
 	}
 }
 
-static void portapack_lcd_sleep_out() {
+static void portapack_lcd_sleep_out()
+{
 	const uint8_t cmd_11[] = {};
 	portapack_lcd_data_write_command_and_data(0x11, cmd_11, ARRAY_SIZEOF(cmd_11));
 	// "It will be necessary to wait 120msec after sending Sleep Out
@@ -231,56 +251,68 @@ static void portapack_lcd_sleep_out() {
 	portapack_sleep_milliseconds(120);
 }
 
-static void portapack_lcd_display_on() {
+static void portapack_lcd_display_on()
+{
 	const uint8_t cmd_29[] = {};
 	portapack_lcd_data_write_command_and_data(0x29, cmd_29, ARRAY_SIZEOF(cmd_29));
 }
 
-static void portapack_lcd_ramwr_start() {
+static void portapack_lcd_ramwr_start()
+{
 	const uint8_t cmd_2c[] = {};
 	portapack_lcd_data_write_command_and_data(0x2c, cmd_2c, ARRAY_SIZEOF(cmd_2c));
 }
 
-static void portapack_lcd_set(const uint_fast8_t command, const uint_fast16_t start, const uint_fast16_t end) {
-	const uint8_t data[] = {
-		(start >> 8), (start & 0xff),
-		(end   >> 8), (end   & 0xff)
-	};
+static void portapack_lcd_set(
+	const uint_fast8_t command,
+	const uint_fast16_t start,
+	const uint_fast16_t end)
+{
+	const uint8_t data[] = {(start >> 8), (start & 0xff), (end >> 8), (end & 0xff)};
 	portapack_lcd_data_write_command_and_data(command, data, ARRAY_SIZEOF(data));
 }
 
-static void portapack_lcd_caset(const uint_fast16_t start_column, const uint_fast16_t end_column) {
+static void portapack_lcd_caset(
+	const uint_fast16_t start_column,
+	const uint_fast16_t end_column)
+{
 	portapack_lcd_set(0x2a, start_column, end_column);
 }
 
-static void portapack_lcd_paset(const uint_fast16_t start_page, const uint_fast16_t end_page) {
+static void portapack_lcd_paset(
+	const uint_fast16_t start_page,
+	const uint_fast16_t end_page)
+{
 	portapack_lcd_set(0x2b, start_page, end_page);
 }
 
-static void portapack_lcd_start_ram_write(
-	const ui_rect_t rect
-) {
-	portapack_lcd_caset(rect.point.x, rect.point.x + rect.size.width  - 1);
+static void portapack_lcd_start_ram_write(const ui_rect_t rect)
+{
+	portapack_lcd_caset(rect.point.x, rect.point.x + rect.size.width - 1);
 	portapack_lcd_paset(rect.point.y, rect.point.y + rect.size.height - 1);
 	portapack_lcd_ramwr_start();
 }
 
-static void portapack_lcd_write_pixel(const ui_color_t pixel) {
+static void portapack_lcd_write_pixel(const ui_color_t pixel)
+{
 	portapack_lcd_write_data(pixel.v);
 }
 
-static void portapack_lcd_write_pixels_color(const ui_color_t c, size_t n) {
-	while(n--) {
+static void portapack_lcd_write_pixels_color(const ui_color_t c, size_t n)
+{
+	while (n--) {
 		portapack_lcd_write_data(c.v);
 	}
 }
 
-static void portapack_lcd_wake() {
+static void portapack_lcd_wake()
+{
 	portapack_lcd_sleep_out();
 	portapack_lcd_display_on();
 }
 
-static void portapack_lcd_reset() {
+static void portapack_lcd_reset()
+{
 	portapack_lcd_reset_state(false);
 	portapack_sleep_milliseconds(1);
 	portapack_lcd_reset_state(true);
@@ -289,7 +321,8 @@ static void portapack_lcd_reset() {
 	portapack_sleep_milliseconds(120);
 }
 
-static void portapack_lcd_init() {
+static void portapack_lcd_init()
+{
 	// LCDs are configured for IM[2:0] = 001
 	// 8080-I system, 16-bit parallel bus
 
@@ -300,30 +333,30 @@ static void portapack_lcd_init() {
 	// Power control B
 	// 0
 	// PCEQ=1, DRV_ena=0, Power control=3
-	const uint8_t cmd_cf[] = { 0x00, 0xD9, 0x30 };
+	const uint8_t cmd_cf[] = {0x00, 0xD9, 0x30};
 	portapack_lcd_data_write_command_and_data(0xCF, cmd_cf, ARRAY_SIZEOF(cmd_cf));
 
 	// Power on sequence control
-	const uint8_t cmd_ed[] = { 0x64, 0x03, 0x12, 0x81 };
+	const uint8_t cmd_ed[] = {0x64, 0x03, 0x12, 0x81};
 	portapack_lcd_data_write_command_and_data(0xED, cmd_ed, ARRAY_SIZEOF(cmd_ed));
 
 	// Driver timing control A
-	const uint8_t cmd_e8[] = { 0x85, 0x10, 0x78 };
+	const uint8_t cmd_e8[] = {0x85, 0x10, 0x78};
 	portapack_lcd_data_write_command_and_data(0xE8, cmd_e8, ARRAY_SIZEOF(cmd_e8));
 
 	// Power control A
-	const uint8_t cmd_cb[] = { 0x39, 0x2C, 0x00, 0x34, 0x02 };
+	const uint8_t cmd_cb[] = {0x39, 0x2C, 0x00, 0x34, 0x02};
 	portapack_lcd_data_write_command_and_data(0xCB, cmd_cb, ARRAY_SIZEOF(cmd_cb));
 
 	// Pump ratio control
-	const uint8_t cmd_f7[] = { 0x20 };
+	const uint8_t cmd_f7[] = {0x20};
 	portapack_lcd_data_write_command_and_data(0xF7, cmd_f7, ARRAY_SIZEOF(cmd_f7));
 
 	// Driver timing control B
-	const uint8_t cmd_ea[] = { 0x00, 0x00 };
+	const uint8_t cmd_ea[] = {0x00, 0x00};
 	portapack_lcd_data_write_command_and_data(0xEA, cmd_ea, ARRAY_SIZEOF(cmd_ea));
 
-	const uint8_t cmd_b1[] = { 0x00, 0x1B };
+	const uint8_t cmd_b1[] = {0x00, 0x1B};
 	portapack_lcd_data_write_command_and_data(0xB1, cmd_b1, ARRAY_SIZEOF(cmd_b1));
 
 	// Blanking Porch Control
@@ -331,7 +364,7 @@ static void portapack_lcd_init() {
 	// VBP = 0b0000010 = 2 (number of HSYNC of vertical back porch)
 	// HFP = 0b0001010 = 10 (number of DOTCLOCK of horizontal front porch)
 	// HBP = 0b0010100 = 20 (number of DOTCLOCK of horizontal back porch)
-	const uint8_t cmd_b5[] = { 0x02, 0x02, 0x0a, 0x14 };
+	const uint8_t cmd_b5[] = {0x02, 0x02, 0x0a, 0x14};
 	portapack_lcd_data_write_command_and_data(0xB5, cmd_b5, ARRAY_SIZEOF(cmd_b5));
 
 	// Display Function Control
@@ -344,42 +377,42 @@ static void portapack_lcd_init() {
 	// REV = 1 (normally white)
 	// NL = 0b100111 (default)
 	// PCDIV = 0b000000 (default?)
-	const uint8_t cmd_b6[] = { 0x0A, 0xA2, 0x27, 0x00 };
+	const uint8_t cmd_b6[] = {0x0A, 0xA2, 0x27, 0x00};
 	portapack_lcd_data_write_command_and_data(0xB6, cmd_b6, ARRAY_SIZEOF(cmd_b6));
 
 	// Power Control 1
 	//VRH[5:0]
-	const uint8_t cmd_c0[] = { 0x1B };
+	const uint8_t cmd_c0[] = {0x1B};
 	portapack_lcd_data_write_command_and_data(0xC0, cmd_c0, ARRAY_SIZEOF(cmd_c0));
 
 	// Power Control 2
 	//SAP[2:0];BT[3:0]
-	const uint8_t cmd_c1[] = { 0x12 };
+	const uint8_t cmd_c1[] = {0x12};
 	portapack_lcd_data_write_command_and_data(0xC1, cmd_c1, ARRAY_SIZEOF(cmd_c1));
 
 	// VCOM Control 1
-	const uint8_t cmd_c5[] = { 0x32, 0x3C };
+	const uint8_t cmd_c5[] = {0x32, 0x3C};
 	portapack_lcd_data_write_command_and_data(0xC5, cmd_c5, ARRAY_SIZEOF(cmd_c5));
 
 	// VCOM Control 2
-	const uint8_t cmd_c7[] = { 0x9B };
+	const uint8_t cmd_c7[] = {0x9B};
 	portapack_lcd_data_write_command_and_data(0xC7, cmd_c7, ARRAY_SIZEOF(cmd_c7));
 
 	// Memory Access Control
 	// Invert X and Y memory access order, so upper-left of
 	// screen is (0,0) when writing to display.
 	const uint8_t cmd_36[] = {
-		(1 << 7) |	// MY=1
-		(1 << 6) |	// MX=1
-		(0 << 5) |	// MV=0
-		(1 << 4) |	// ML=1: reverse vertical refresh to simplify scrolling logic
-		(1 << 3)	// BGR=1: For Kingtech LCD, BGR filter.
+		(1 << 7) | // MY=1
+		(1 << 6) | // MX=1
+		(0 << 5) | // MV=0
+		(1 << 4) | // ML=1: reverse vertical refresh to simplify scrolling logic
+		(1 << 3)   // BGR=1: For Kingtech LCD, BGR filter.
 	};
 	portapack_lcd_data_write_command_and_data(0x36, cmd_36, ARRAY_SIZEOF(cmd_36));
 
 	// COLMOD: Pixel Format Set
 	// DPI=101 (16 bits/pixel), DBI=101 (16 bits/pixel)
-	const uint8_t cmd_3a[] = { 0x55 };
+	const uint8_t cmd_3a[] = {0x55};
 	portapack_lcd_data_write_command_and_data(0x3A, cmd_3a, ARRAY_SIZEOF(cmd_3a));
 
 	//portapack_lcd_data_write_command_and_data(0xF6, { 0x01, 0x30 });
@@ -390,59 +423,84 @@ static void portapack_lcd_init() {
 	// RM=0 (system interface/VSYNC interface)
 	// DM[1:0]=00 (internal clock operation)
 	// ENDIAN=0 (doesn't matter with 16-bit interface)
-	const uint8_t cmd_f6[] = { 0x01, 0x30, 0x00 };
+	const uint8_t cmd_f6[] = {0x01, 0x30, 0x00};
 	portapack_lcd_data_write_command_and_data(0xF6, cmd_f6, ARRAY_SIZEOF(cmd_f6));
 
 	// 3Gamma Function Disable
-	const uint8_t cmd_f2[] = { 0x00 };
+	const uint8_t cmd_f2[] = {0x00};
 	portapack_lcd_data_write_command_and_data(0xF2, cmd_f2, ARRAY_SIZEOF(cmd_f2));
 
 	// Gamma curve selected
-	const uint8_t cmd_26[] = { 0x01 };
+	const uint8_t cmd_26[] = {0x01};
 	portapack_lcd_data_write_command_and_data(0x26, cmd_26, ARRAY_SIZEOF(cmd_26));
 
 	// Set Gamma
 	const uint8_t cmd_e0[] = {
-		0x0F, 0x1D, 0x19, 0x0E, 0x10, 0x07, 0x4C, 0x63,
-		0x3F, 0x03, 0x0D, 0x00, 0x26, 0x24, 0x04
-	};
+		0x0F,
+		0x1D,
+		0x19,
+		0x0E,
+		0x10,
+		0x07,
+		0x4C,
+		0x63,
+		0x3F,
+		0x03,
+		0x0D,
+		0x00,
+		0x26,
+		0x24,
+		0x04};
 	portapack_lcd_data_write_command_and_data(0xE0, cmd_e0, ARRAY_SIZEOF(cmd_e0));
 
 	// Set Gamma
 	const uint8_t cmd_e1[] = {
-		0x00, 0x1C, 0x1F, 0x02, 0x0F, 0x03, 0x35, 0x25,
-		0x47, 0x04, 0x0C, 0x0B, 0x29, 0x2F, 0x05
-	};
+		0x00,
+		0x1C,
+		0x1F,
+		0x02,
+		0x0F,
+		0x03,
+		0x35,
+		0x25,
+		0x47,
+		0x04,
+		0x0C,
+		0x0B,
+		0x29,
+		0x2F,
+		0x05};
 	portapack_lcd_data_write_command_and_data(0xE1, cmd_e1, ARRAY_SIZEOF(cmd_e1));
 
 	portapack_lcd_wake();
 
 	// Turn on Tearing Effect Line (TE) output signal.
-	const uint8_t cmd_35[] = { 0b00000000 };
+	const uint8_t cmd_35[] = {0b00000000};
 	portapack_lcd_data_write_command_and_data(0x35, cmd_35, ARRAY_SIZEOF(cmd_35));
 }
 
-void portapack_backlight(const bool on) {
+void portapack_backlight(const bool on)
+{
 	portapack_if.io_reg = (portapack_if.io_reg & 0x7f) | (on ? (1 << 7) : 0);
 	portapack_io_write(1, portapack_if.io_reg);
 }
 
-void portapack_reference_oscillator(const bool on) {
+void portapack_reference_oscillator(const bool on)
+{
 	const uint8_t mask = 1 << 6;
 	portapack_if.io_reg = (portapack_if.io_reg & ~mask) | (on ? mask : 0);
 	portapack_io_write(1, portapack_if.io_reg);
 }
 
-void portapack_fill_rectangle(
-	const ui_rect_t rect,
-	const ui_color_t color
-) {
+void portapack_fill_rectangle(const ui_rect_t rect, const ui_color_t color)
+{
 	portapack_lcd_start_ram_write(rect);
 	portapack_lcd_write_pixels_color(color, rect.size.width * rect.size.height);
 }
 
-void portapack_clear_display(const ui_color_t color) {
-	const ui_rect_t rect_screen = { { 0, 0 }, { 240, 320 } };
+void portapack_clear_display(const ui_color_t color)
+{
+	const ui_rect_t rect_screen = {{0, 0}, {240, 320}};
 	portapack_fill_rectangle(rect_screen, color);
 }
 
@@ -450,33 +508,27 @@ void portapack_draw_bitmap(
 	const ui_point_t point,
 	const ui_bitmap_t bitmap,
 	const ui_color_t foreground,
-	const ui_color_t background
-) {
-	const ui_rect_t rect = {
-		.point = point,
-		.size = bitmap.size
-	};
+	const ui_color_t background)
+{
+	const ui_rect_t rect = {.point = point, .size = bitmap.size};
 
 	portapack_lcd_start_ram_write(rect);
 
 	const size_t count = bitmap.size.width * bitmap.size.height;
-	for(size_t i=0; i<count; i++) {
+	for (size_t i = 0; i < count; i++) {
 		const uint8_t pixel = bitmap.data[i >> 3] & (1U << (i & 0x7));
 		portapack_lcd_write_pixel(pixel ? foreground : background);
 	}
 }
 
-ui_bitmap_t portapack_font_glyph(
-	const ui_font_t* const font,
-	const char c
-) {
-	if( c >= font->c_start ) {
+ui_bitmap_t portapack_font_glyph(const ui_font_t* const font, const char c)
+{
+	if (c >= font->c_start) {
 		const uint_fast8_t index = c - font->c_start;
-		if( index < font->c_count ) {
+		if (index < font->c_count) {
 			const ui_bitmap_t bitmap = {
 				.size = font->glyph_size,
-				.data = &font->data[index * font->data_stride]
-			};
+				.data = &font->data[index * font->data_stride]};
 			return bitmap;
 		}
 	}
@@ -488,7 +540,8 @@ ui_bitmap_t portapack_font_glyph(
 	return bitmap;
 }
 
-static bool jtag_pp_tck(const bool tms_value) {
+static bool jtag_pp_tck(const bool tms_value)
+{
 	gpio_write(jtag_cpld.gpio->gpio_pp_tms, tms_value);
 
 	// 8 ns TMS/TDI to TCK setup
@@ -521,11 +574,12 @@ static bool jtag_pp_tck(const bool tms_value) {
 	return gpio_read(jtag_cpld.gpio->gpio_pp_tdo);
 }
 
-static uint32_t jtag_pp_shift(const uint32_t tms_bits, const size_t count) {
+static uint32_t jtag_pp_shift(const uint32_t tms_bits, const size_t count)
+{
 	uint32_t result = 0;
 	size_t bit_in_index = count - 1;
 	size_t bit_out_index = 0;
-	while(bit_out_index < count) {
+	while (bit_out_index < count) {
 		const uint32_t tdo = jtag_pp_tck((tms_bits >> bit_in_index) & 1) & 1;
 		result |= (tdo << bit_out_index);
 
@@ -536,7 +590,8 @@ static uint32_t jtag_pp_shift(const uint32_t tms_bits, const size_t count) {
 	return result;
 }
 
-static uint32_t jtag_pp_idcode(void) {
+static uint32_t jtag_pp_idcode(void)
+{
 	cpld_jtag_take(&jtag_cpld);
 
 	/* TODO: Check if PortaPack TMS is floating or driven by an external device. */
@@ -556,21 +611,23 @@ static uint32_t jtag_pp_idcode(void) {
 	return idcode;
 }
 
-static bool portapack_detect(void) {
+static bool portapack_detect(void)
+{
 	return jtag_pp_idcode() == 0x020A50DD;
 }
 
-static const portapack_t portapack_instance = {
-};
+static const portapack_t portapack_instance = {};
 
 static const portapack_t* portapack_pointer = NULL;
 
-const portapack_t* portapack(void) {
+const portapack_t* portapack(void)
+{
 	return portapack_pointer;
 }
 
-void portapack_init(void) {
-	if( portapack_detect() ) {
+void portapack_init(void)
+{
+	if (portapack_detect()) {
 		portapack_if_init();
 		portapack_lcd_reset();
 		portapack_lcd_init();
