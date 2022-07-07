@@ -371,26 +371,23 @@ int rx_callback(hackrf_transfer* transfer)
 
 static void usage()
 {
-	fprintf(stderr, "Usage:\n");
-	fprintf(stderr, "\t[-h] # this help\n");
-	fprintf(stderr, "\t[-d serial_number] # Serial number of desired HackRF\n");
-	fprintf(stderr, "\t[-a amp_enable] # RX RF amplifier 1=Enable, 0=Disable\n");
 	fprintf(stderr,
-		"\t[-f freq_min:freq_max] # minimum and maximum frequencies in MHz\n");
-	fprintf(stderr,
-		"\t[-p antenna_enable] # Antenna port power, 1=Enable, 0=Disable\n");
-	fprintf(stderr, "\t[-l gain_db] # RX LNA (IF) gain, 0-40dB, 8dB steps\n");
-	fprintf(stderr, "\t[-g gain_db] # RX VGA (baseband) gain, 0-62dB, 2dB steps\n");
-	fprintf(stderr,
-		"\t[-w bin_width] # FFT bin width (frequency resolution) in Hz, 2445-5000000\n");
-	fprintf(stderr, "\t[-1] # one shot mode\n");
-	fprintf(stderr, "\t[-N num_sweeps] # Number of sweeps to perform\n");
-	fprintf(stderr, "\t[-B] # binary output\n");
-	fprintf(stderr, "\t[-I] # binary inverse FFT output\n");
-	fprintf(stderr, "\t-r filename # output file\n");
-	fprintf(stderr, "\n");
-	fprintf(stderr, "Output fields:\n");
-	fprintf(stderr,
+		"Usage:\n"
+		"\t[-h] # this help\n"
+		"\t[-d serial_number] # Serial number of desired HackRF\n"
+		"\t[-a amp_enable] # RX RF amplifier 1=Enable, 0=Disable\n"
+		"\t[-f freq_min:freq_max] # minimum and maximum frequencies in MHz\n"
+		"\t[-p antenna_enable] # Antenna port power, 1=Enable, 0=Disable\n"
+		"\t[-l gain_db] # RX LNA (IF) gain, 0-40dB, 8dB steps\n"
+		"\t[-g gain_db] # RX VGA (baseband) gain, 0-62dB, 2dB steps\n"
+		"\t[-w bin_width] # FFT bin width (frequency resolution) in Hz, 2445-5000000\n"
+		"\t[-1] # one shot mode\n"
+		"\t[-N num_sweeps] # Number of sweeps to perform\n"
+		"\t[-B] # binary output\n"
+		"\t[-I] # binary inverse FFT output\n"
+		"\t-r filename # output file\n"
+		"\n"
+		"Output fields:\n"
 		"\tdate, time, hz_low, hz_high, hz_bin_width, num_samples, dB, dB, . . .\n");
 }
 
