@@ -191,6 +191,7 @@ struct hackrf_device_list {
 	void** usb_devices;
 	int usb_devicecount;
 };
+
 typedef struct hackrf_device_list hackrf_device_list_t;
 
 typedef int (*hackrf_sample_block_cb_fn)(hackrf_transfer* transfer);
@@ -200,42 +201,52 @@ extern "C" {
 #endif
 
 extern ADDAPI int ADDCALL hackrf_init();
+
 extern ADDAPI int ADDCALL hackrf_exit();
 
 extern ADDAPI const char* ADDCALL hackrf_library_version();
+
 extern ADDAPI const char* ADDCALL hackrf_library_release();
 
 extern ADDAPI hackrf_device_list_t* ADDCALL hackrf_device_list();
+
 extern ADDAPI int ADDCALL hackrf_device_list_open(
 	hackrf_device_list_t* list,
 	int idx,
 	hackrf_device** device);
+
 extern ADDAPI void ADDCALL hackrf_device_list_free(hackrf_device_list_t* list);
 
 extern ADDAPI int ADDCALL hackrf_open(hackrf_device** device);
+
 extern ADDAPI int ADDCALL hackrf_open_by_serial(
 	const char* const desired_serial_number,
 	hackrf_device** device);
+
 extern ADDAPI int ADDCALL hackrf_close(hackrf_device* device);
 
 extern ADDAPI int ADDCALL hackrf_start_rx(
 	hackrf_device* device,
 	hackrf_sample_block_cb_fn callback,
 	void* rx_ctx);
+
 extern ADDAPI int ADDCALL hackrf_stop_rx(hackrf_device* device);
 
 extern ADDAPI int ADDCALL hackrf_start_tx(
 	hackrf_device* device,
 	hackrf_sample_block_cb_fn callback,
 	void* tx_ctx);
+
 extern ADDAPI int ADDCALL hackrf_stop_tx(hackrf_device* device);
 
 extern ADDAPI int ADDCALL hackrf_get_m0_state(
 	hackrf_device* device,
 	hackrf_m0_state* value);
+
 extern ADDAPI int ADDCALL hackrf_set_tx_underrun_limit(
 	hackrf_device* device,
 	uint32_t value);
+
 extern ADDAPI int ADDCALL hackrf_set_rx_overrun_limit(
 	hackrf_device* device,
 	uint32_t value);
@@ -247,6 +258,7 @@ extern ADDAPI int ADDCALL hackrf_max2837_read(
 	hackrf_device* device,
 	uint8_t register_number,
 	uint16_t* value);
+
 extern ADDAPI int ADDCALL hackrf_max2837_write(
 	hackrf_device* device,
 	uint8_t register_number,
@@ -256,6 +268,7 @@ extern ADDAPI int ADDCALL hackrf_si5351c_read(
 	hackrf_device* device,
 	uint16_t register_number,
 	uint16_t* value);
+
 extern ADDAPI int ADDCALL hackrf_si5351c_write(
 	hackrf_device* device,
 	uint16_t register_number,
@@ -269,23 +282,28 @@ extern ADDAPI int ADDCALL hackrf_rffc5071_read(
 	hackrf_device* device,
 	uint8_t register_number,
 	uint16_t* value);
+
 extern ADDAPI int ADDCALL hackrf_rffc5071_write(
 	hackrf_device* device,
 	uint8_t register_number,
 	uint16_t value);
 
 extern ADDAPI int ADDCALL hackrf_spiflash_erase(hackrf_device* device);
+
 extern ADDAPI int ADDCALL hackrf_spiflash_write(
 	hackrf_device* device,
 	const uint32_t address,
 	const uint16_t length,
 	unsigned char* const data);
+
 extern ADDAPI int ADDCALL hackrf_spiflash_read(
 	hackrf_device* device,
 	const uint32_t address,
 	const uint16_t length,
 	unsigned char* data);
+
 extern ADDAPI int ADDCALL hackrf_spiflash_status(hackrf_device* device, uint8_t* data);
+
 extern ADDAPI int ADDCALL hackrf_spiflash_clear_status(hackrf_device* device);
 
 /* device will need to be reset after hackrf_cpld_write */
@@ -295,15 +313,18 @@ extern ADDAPI int ADDCALL hackrf_cpld_write(
 	const unsigned int total_length);
 
 extern ADDAPI int ADDCALL hackrf_board_id_read(hackrf_device* device, uint8_t* value);
+
 extern ADDAPI int ADDCALL hackrf_version_string_read(
 	hackrf_device* device,
 	char* version,
 	uint8_t length);
+
 extern ADDAPI int ADDCALL hackrf_usb_api_version_read(
 	hackrf_device* device,
 	uint16_t* version);
 
 extern ADDAPI int ADDCALL hackrf_set_freq(hackrf_device* device, const uint64_t freq_hz);
+
 extern ADDAPI int ADDCALL hackrf_set_freq_explicit(
 	hackrf_device* device,
 	const uint64_t if_freq_hz,
@@ -315,6 +336,7 @@ extern ADDAPI int ADDCALL hackrf_set_sample_rate_manual(
 	hackrf_device* device,
 	const uint32_t freq_hz,
 	const uint32_t divider);
+
 extern ADDAPI int ADDCALL hackrf_set_sample_rate(
 	hackrf_device* device,
 	const double freq_hz);
@@ -343,14 +365,18 @@ extern ADDAPI int ADDCALL hackrf_set_antenna_enable(
 	const uint8_t value);
 
 extern ADDAPI const char* ADDCALL hackrf_error_name(enum hackrf_error errcode);
+
 extern ADDAPI const char* ADDCALL hackrf_board_id_name(enum hackrf_board_id board_id);
+
 extern ADDAPI const char* ADDCALL hackrf_usb_board_id_name(
 	enum hackrf_usb_board_id usb_board_id);
+
 extern ADDAPI const char* ADDCALL hackrf_filter_path_name(const enum rf_path_filter path);
 
 /* Compute nearest freq for bw filter (manual filter) */
 extern ADDAPI uint32_t ADDCALL hackrf_compute_baseband_filter_bw_round_down_lt(
 	const uint32_t bandwidth_hz);
+
 /* Compute best default value depending on sample rate (auto filter) */
 extern ADDAPI uint32_t ADDCALL hackrf_compute_baseband_filter_bw(
 	const uint32_t bandwidth_hz);
@@ -376,23 +402,28 @@ extern ADDAPI int ADDCALL hackrf_init_sweep(
 extern ADDAPI int ADDCALL hackrf_get_operacake_boards(
 	hackrf_device* device,
 	uint8_t* boards);
+
 extern ADDAPI int ADDCALL hackrf_set_operacake_mode(
 	hackrf_device* device,
 	uint8_t address,
 	enum operacake_switching_mode mode);
+
 extern ADDAPI int ADDCALL hackrf_get_operacake_mode(
 	hackrf_device* device,
 	uint8_t address,
 	enum operacake_switching_mode* mode);
+
 extern ADDAPI int ADDCALL hackrf_set_operacake_ports(
 	hackrf_device* device,
 	uint8_t address,
 	uint8_t port_a,
 	uint8_t port_b);
+
 extern ADDAPI int ADDCALL hackrf_set_operacake_dwell_times(
 	hackrf_device* device,
 	hackrf_operacake_dwell_time* dwell_times,
 	uint8_t count);
+
 extern ADDAPI int ADDCALL hackrf_set_operacake_freq_ranges(
 	hackrf_device* device,
 	hackrf_operacake_freq_range* freq_ranges,
@@ -413,11 +444,13 @@ extern ADDAPI int ADDCALL hackrf_operacake_gpio_test(
 	hackrf_device* device,
 	uint8_t address,
 	uint16_t* test_result);
+
 #ifdef HACKRF_ISSUE_609_IS_FIXED
 extern ADDAPI int ADDCALL hackrf_cpld_checksum(hackrf_device* device, uint32_t* crc);
 #endif /* HACKRF_ISSUE_609_IS_FIXED */
 
 extern ADDAPI int ADDCALL hackrf_set_ui_enable(hackrf_device* device, const uint8_t value);
+
 extern ADDAPI int ADDCALL hackrf_start_rx_sweep(
 	hackrf_device* device,
 	hackrf_sample_block_cb_fn callback,
