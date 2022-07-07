@@ -147,8 +147,9 @@ uint8_t operacake_init(bool allow_gpio)
 
 bool operacake_is_board_present(uint8_t address)
 {
-	if (address >= OPERACAKE_MAX_BOARDS)
+	if (address >= OPERACAKE_MAX_BOARDS) {
 		return false;
+	}
 
 	return operacake_boards[address].present;
 }
@@ -160,8 +161,9 @@ void operacake_get_boards(uint8_t* addresses)
 		addresses[i] = OPERACAKE_ADDRESS_INVALID;
 	}
 	for (int i = 0; i < OPERACAKE_MAX_BOARDS; i++) {
-		if (operacake_is_board_present(i))
+		if (operacake_is_board_present(i)) {
 			addresses[count++] = i;
+		}
 	}
 }
 
@@ -221,8 +223,9 @@ uint8_t operacake_activate_ports(uint8_t address, uint8_t PA, uint8_t PB)
 
 void operacake_set_mode(uint8_t address, uint8_t mode)
 {
-	if (address >= OPERACAKE_MAX_BOARDS)
+	if (address >= OPERACAKE_MAX_BOARDS) {
 		return;
+	}
 
 	operacake_boards[address].mode = mode;
 	current_range = INVALID_RANGE;
@@ -253,16 +256,18 @@ void operacake_set_mode(uint8_t address, uint8_t mode)
 	// If any boards are in MODE_TIME, enable the sctimer events.
 	bool enable_sctimer = false;
 	for (int i = 0; i < OPERACAKE_MAX_BOARDS; i++) {
-		if (operacake_boards[i].mode == MODE_TIME)
+		if (operacake_boards[i].mode == MODE_TIME) {
 			enable_sctimer = true;
+		}
 	}
 	operacake_sctimer_enable(enable_sctimer);
 }
 
 uint8_t operacake_get_mode(uint8_t address)
 {
-	if (address >= OPERACAKE_MAX_BOARDS)
+	if (address >= OPERACAKE_MAX_BOARDS) {
 		return 0;
+	}
 
 	return operacake_boards[address].mode;
 }
@@ -372,8 +377,9 @@ uint16_t gpio_test(uint8_t address)
 {
 	uint8_t i, reg, bit_mask, gpio_mask = 0x1F;
 	uint16_t result = 0;
-	if (!allow_gpio_mode)
+	if (!allow_gpio_mode) {
 		return 0xFFFF;
+	}
 
 	scu_pinmux(SCU_PINMUX_GPIO3_8, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
 	scu_pinmux(SCU_PINMUX_GPIO3_12, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);

@@ -145,9 +145,11 @@ void sweep_mode(uint32_t seq)
 
 	while (transceiver_request.seq == seq) {
 		// Wait for M0 to finish receiving a buffer.
-		while (m0_state.active_mode != M0_MODE_WAIT)
-			if (transceiver_request.seq != seq)
+		while (m0_state.active_mode != M0_MODE_WAIT) {
+			if (transceiver_request.seq != seq) {
 				goto end;
+			}
+		}
 
 		// Set M0 to switch back to RX after two more buffers.
 		m0_state.threshold += 0x8000;
@@ -214,9 +216,11 @@ void sweep_mode(uint32_t seq)
 		}
 
 		// Wait for M0 to resume RX.
-		while (m0_state.active_mode != M0_MODE_RX)
-			if (transceiver_request.seq != seq)
+		while (m0_state.active_mode != M0_MODE_RX) {
+			if (transceiver_request.seq != seq) {
 				goto end;
+			}
+		}
 
 		// Set M0 to switch back to WAIT after filling next buffer.
 		m0_state.threshold += 0x4000;

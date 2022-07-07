@@ -60,14 +60,16 @@ int main(void)
 	}
 
 	for (i = 0; i < list->devicecount; i++) {
-		if (i > 0)
+		if (i > 0) {
 			printf("\n");
+		}
 
 		printf("Found HackRF\n");
 		printf("Index: %d\n", i);
 
-		if (list->serial_numbers[i])
+		if (list->serial_numbers[i]) {
 			printf("Serial number: %s\n", list->serial_numbers[i]);
+		}
 
 		device = NULL;
 		result = hackrf_device_list_open(list, i, &device);
@@ -139,8 +141,9 @@ int main(void)
 		}
 		if (result == HACKRF_SUCCESS) {
 			for (j = 0; j < 8; j++) {
-				if (operacakes[j] == HACKRF_OPERACAKE_ADDRESS_INVALID)
+				if (operacakes[j] == HACKRF_OPERACAKE_ADDRESS_INVALID) {
 					break;
+				}
 				printf("Opera Cake found, address: %d\n", operacakes[j]);
 			}
 		}

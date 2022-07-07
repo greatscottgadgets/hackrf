@@ -81,8 +81,9 @@ usb_request_status_t usb_vendor_request_read_partid_serialno(
 		/* Read IAP Part Number Identification */
 		iap_cmd_res.cmd_param.command_code = IAP_CMD_READ_PART_ID_NO;
 		iap_cmd_call(&iap_cmd_res);
-		if (iap_cmd_res.status_res.status_ret != CMD_SUCCESS)
+		if (iap_cmd_res.status_res.status_ret != CMD_SUCCESS) {
 			return USB_REQUEST_STATUS_STALL;
+		}
 
 		read_partid_serialno.part_id[0] = iap_cmd_res.status_res.iap_result[0];
 		read_partid_serialno.part_id[1] = iap_cmd_res.status_res.iap_result[1];
@@ -90,8 +91,9 @@ usb_request_status_t usb_vendor_request_read_partid_serialno(
 		/* Read IAP Serial Number Identification */
 		iap_cmd_res.cmd_param.command_code = IAP_CMD_READ_SERIAL_NO;
 		iap_cmd_call(&iap_cmd_res);
-		if (iap_cmd_res.status_res.status_ret != CMD_SUCCESS)
+		if (iap_cmd_res.status_res.status_ret != CMD_SUCCESS) {
 			return USB_REQUEST_STATUS_STALL;
+		}
 
 		read_partid_serialno.serial_no[0] = iap_cmd_res.status_res.iap_result[0];
 		read_partid_serialno.serial_no[1] = iap_cmd_res.status_res.iap_result[1];

@@ -99,8 +99,9 @@ int parse_port(char* str, uint8_t* port)
 	if (str[0] == 'A' || str[0] == 'B') {
 		// The port was specified as a side and number eg. A1 or B3
 		result = parse_uint16(str + 1, &tmp_port);
-		if (result != HACKRF_SUCCESS)
+		if (result != HACKRF_SUCCESS) {
 			return result;
+		}
 
 		if (tmp_port >= 5 || tmp_port <= 0) {
 			fprintf(stderr, "invalid port: %s\n", str);
@@ -118,8 +119,9 @@ int parse_port(char* str, uint8_t* port)
 		}
 	} else {
 		result = parse_uint16(str, &tmp_port);
-		if (result != HACKRF_SUCCESS)
+		if (result != HACKRF_SUCCESS) {
 			return result;
+		}
 	}
 	*port = tmp_port & 0xFF;
 	// printf("Port: %d\n", *port);
@@ -136,8 +138,9 @@ int parse_range(char* s, hackrf_operacake_freq_range* range)
 	// Read frequency as a float here to support scientific notation (e.g: 1e6)
 	if (sscanf(s, "%15[^:]:%f:%f", port, &min, &max) == 3) {
 		result = parse_port(port, &(range->port));
-		if (result != HACKRF_SUCCESS)
+		if (result != HACKRF_SUCCESS) {
 			return result;
+		}
 
 		range->freq_min = min;
 		range->freq_max = max;
@@ -155,8 +158,9 @@ int parse_dwell(char* s, hackrf_operacake_dwell_time* dwell_time)
 	// Read dwell as a float here to support scientific notation (e.g: 1e6)
 	if (sscanf(s, "%15[^:]:%f", port, &dwell) == 2) {
 		result = parse_port(port, &dwell_time->port);
-		if (result != HACKRF_SUCCESS)
+		if (result != HACKRF_SUCCESS) {
 			return result;
+		}
 
 		if (dwell == 0) {
 			fprintf(stderr, "dwell time cannot be 0\n");
@@ -166,8 +170,9 @@ int parse_dwell(char* s, hackrf_operacake_dwell_time* dwell_time)
 		return HACKRF_SUCCESS;
 	} else if (sscanf(s, "%15[^:]", port) == 1) {
 		result = parse_port(port, &dwell_time->port);
-		if (result != HACKRF_SUCCESS)
+		if (result != HACKRF_SUCCESS) {
 			return result;
+		}
 
 		// This will be replaced with the default dwell time later.
 		dwell_time->dwell = 0;
@@ -385,8 +390,9 @@ int main(int argc, char** argv)
 				operacake_count++;
 			}
 		}
-		if (!operacake_count)
+		if (!operacake_count) {
 			printf("None");
+		}
 		printf("\n");
 	}
 

@@ -39,16 +39,18 @@ usb_queue_t* endpoint_queues[12] = {};
 static usb_queue_t* endpoint_queue(const usb_endpoint_t* const endpoint)
 {
 	uint32_t index = USB_ENDPOINT_INDEX(endpoint->address);
-	if (endpoint_queues[index] == NULL)
+	if (endpoint_queues[index] == NULL) {
 		while (1) {}
+	}
 	return endpoint_queues[index];
 }
 
 void usb_queue_init(usb_queue_t* const queue)
 {
 	uint32_t index = USB_ENDPOINT_INDEX(queue->endpoint->address);
-	if (endpoint_queues[index] != NULL)
+	if (endpoint_queues[index] != NULL) {
 		while (1) {}
+	}
 	endpoint_queues[index] = queue;
 
 	usb_transfer_t* t = queue->free_transfers;
@@ -65,8 +67,9 @@ static usb_transfer_t* allocate_transfer(usb_queue_t* const queue)
 {
 	bool aborted;
 	usb_transfer_t* transfer;
-	if (queue->free_transfers == NULL)
+	if (queue->free_transfers == NULL) {
 		return NULL;
+	}
 
 	do {
 		transfer = (void*) __ldrex((uint32_t*) &queue->free_transfers);
@@ -99,8 +102,9 @@ static usb_transfer_t* endpoint_queue_transfer(usb_transfer_t* const transfer)
 	transfer->next = NULL;
 	if (queue->active != NULL) {
 		usb_transfer_t* t = queue->active;
-		while (t->next != NULL)
+		while (t->next != NULL) {
 			t = t->next;
+		}
 		t->next = transfer;
 		return t;
 	} else {
@@ -134,8 +138,9 @@ int usb_transfer_schedule(
 {
 	usb_queue_t* const queue = endpoint_queue(endpoint);
 	usb_transfer_t* const transfer = allocate_transfer(queue);
-	if (transfer == NULL)
+	if (transfer == NULL) {
 		return -1;
+	}
 	usb_transfer_descriptor_t* const td = &transfer->td;
 
 	// Configure the transfer descriptor
@@ -195,8 +200,9 @@ int usb_transfer_schedule_ack(const usb_endpoint_t* const endpoint)
 void usb_queue_transfer_complete(usb_endpoint_t* const endpoint)
 {
 	usb_queue_t* const queue = endpoint_queue(endpoint);
-	if (queue == NULL)
+	if (queue == NULL) {
 		while (1) {} // Uh oh
+	}
 	usb_transfer_t* transfer = queue->active;
 
 	while (transfer != NULL) {
@@ -211,8 +217,9 @@ void usb_queue_transfer_complete(usb_endpoint_t* const endpoint)
 		}
 
 		// Still not finished
-		if (status & USB_TD_DTD_TOKEN_STATUS_ACTIVE)
+		if (status & USB_TD_DTD_TOKEN_STATUS_ACTIVE) {
 			break;
+		}
 
 		// Advance the head. We need to do this before invoking the completion
 		// callback as it might attempt to schedule a new transfer
@@ -224,8 +231,9 @@ void usb_queue_transfer_complete(usb_endpoint_t* const endpoint)
 			(transfer->td.total_bytes & USB_TD_DTD_TOKEN_TOTAL_BYTES_MASK) >>
 			USB_TD_DTD_TOKEN_TOTAL_BYTES_SHIFT;
 		unsigned int transferred = transfer->maximum_length - total_bytes;
-		if (transfer->completion_cb)
+		if (transfer->completion_cb) {
 			transfer->completion_cb(transfer->user_data, transferred);
+		}
 
 		// Advance head and free transfer
 		free_transfer(transfer);

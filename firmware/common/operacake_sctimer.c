@@ -148,8 +148,9 @@ void operacake_sctimer_set_dwell_times(struct operacake_dwell_times* times, int 
 
 		// Wrapping from SCT_LIMIT seems to add an extra cycle,
 		// so we reduce the counter value for the first event.
-		if (i == 0)
+		if (i == 0) {
 			counter -= 1;
+		}
 
 		SCT_MATCHn(i) = counter;
 		SCT_MATCHRELn(i) = counter;

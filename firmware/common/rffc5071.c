@@ -141,8 +141,9 @@ static void rffc5071_spi_write(rffc5071_driver_t* const drv, uint8_t r, uint16_t
 uint16_t rffc5071_reg_read(rffc5071_driver_t* const drv, uint8_t r)
 {
 	/* Readback register is not cached. */
-	if (r == RFFC5071_READBACK_REG)
+	if (r == RFFC5071_READBACK_REG) {
 		return rffc5071_spi_read(drv, r);
+	}
 
 	/* Discard uncommited write when reading. This shouldn't
 	 * happen, and probably has not been tested. */

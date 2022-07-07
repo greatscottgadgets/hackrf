@@ -111,20 +111,24 @@ void print_clk_control(uint16_t clk_ctrl)
 {
 	uint8_t clk_src, clk_pwr;
 	printf("\tclock control = ");
-	if (clk_ctrl & SI5351C_CLK_POWERDOWN)
+	if (clk_ctrl & SI5351C_CLK_POWERDOWN) {
 		printf("Down, ");
-	else
+	} else {
 		printf("Up, ");
-	if (clk_ctrl & SI5351C_CLK_INT_MODE)
+	}
+	if (clk_ctrl & SI5351C_CLK_INT_MODE) {
 		printf("Int Mode, ");
-	else
+	} else {
 		printf("Frac Mode, ");
-	if (clk_ctrl & SI5351C_CLK_PLL_SRC)
+	}
+	if (clk_ctrl & SI5351C_CLK_PLL_SRC) {
 		printf("PLL src B, ");
-	else
+	} else {
 		printf("PLL src A, ");
-	if (clk_ctrl & SI5351C_CLK_INV)
+	}
+	if (clk_ctrl & SI5351C_CLK_INV) {
 		printf("Inverted, ");
+	}
 	clk_src = (clk_ctrl >> 2) & 0x3;
 	switch (clk_src) {
 	case 0:
@@ -192,11 +196,12 @@ int si5351c_read_multisynth_config(hackrf_device* device, const uint_fast8_t ms_
 		printf("\tp1 = %u\n", p1);
 		printf("\tp2 = %u\n", p2);
 		printf("\tp3 = %u\n", p3);
-		if (p3)
+		if (p3) {
 			printf("\tOutput (800Mhz PLL): %#.10f Mhz\n",
 			       ((double) 800 /
 				(double) (((double) p1 * p3 + p2 + 512 * p3) / (double) (128 * p3))) /
 				       div_lut[r_div]);
+		}
 	} else {
 		// MS6 and 7 are integer only
 		unsigned int parms;
@@ -214,9 +219,10 @@ int si5351c_read_multisynth_config(hackrf_device* device, const uint_fast8_t ms_
 					   (parameters[2] & 0x70) >> 4;
 		parms = (ms_number == 6) ? parameters[0] : parameters[1];
 		printf("\tp1_int = %u\n", parms);
-		if (parms)
+		if (parms) {
 			printf("\tOutput (800Mhz PLL): %#.10f Mhz\n",
 			       (800.0f / parms) / div_lut[r_div]);
+		}
 	}
 	printf("\toutput divider = %u\n", div_lut[r_div]);
 	return HACKRF_SUCCESS;
@@ -342,9 +348,9 @@ int main(int argc, char** argv)
 	}
 
 	if (read) {
-		if (clock == CLOCK_UNDEFINED)
+		if (clock == CLOCK_UNDEFINED) {
 			si5351c_read_configuration(device);
-		else {
+		} else {
 			printf("%d\n", clock);
 			si5351c_read_multisynth_config(device, clock);
 		}

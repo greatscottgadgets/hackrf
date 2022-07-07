@@ -296,8 +296,9 @@ void delay(uint32_t duration)
 {
 	uint32_t i;
 
-	for (i = 0; i < duration; i++)
+	for (i = 0; i < duration; i++) {
 		__asm__("nop");
+	}
 }
 
 void delay_us_at_mhz(uint32_t us, uint32_t mhz)
@@ -317,20 +318,23 @@ static uint32_t gcd(uint32_t u, uint32_t v)
 {
 	int s;
 
-	if (!u || !v)
+	if (!u || !v) {
 		return u | v;
+	}
 
 	for (s = 0; !((u | v) & 1); s++) {
 		u >>= 1;
 		v >>= 1;
 	}
 
-	while (!(u & 1))
+	while (!(u & 1)) {
 		u >>= 1;
+	}
 
 	do {
-		while (!(v & 1))
+		while (!(v & 1)) {
 			v >>= 1;
+		}
 
 		if (u > v) {
 			uint32_t t;
@@ -391,10 +395,11 @@ bool sample_rate_frac_set(uint32_t rate_num, uint32_t rate_denom)
 	}
 
 	/* Can we enable integer mode ? */
-	if (a & 0x1 || b)
+	if (a & 0x1 || b) {
 		si5351c_set_int_mode(&clock_gen, 0, 0);
-	else
+	} else {
 		si5351c_set_int_mode(&clock_gen, 0, 1);
+	}
 
 	/* Final MS values */
 	MSx_P1 = 128 * a + (128 * b / c) - 512;
@@ -485,8 +490,9 @@ bool baseband_filter_bandwidth_set(const uint32_t bandwidth_hz)
 {
 	uint32_t bandwidth_hz_real = max2837_set_lpf_bandwidth(&max2837, bandwidth_hz);
 
-	if (bandwidth_hz_real)
+	if (bandwidth_hz_real) {
 		hackrf_ui()->set_filter_bw(bandwidth_hz_real);
+	}
 
 	return bandwidth_hz_real != 0;
 }

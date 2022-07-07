@@ -150,10 +150,12 @@ static void switchctrl_set_hackrf_one(rf_path_t* const rf_path, uint8_t ctrl)
 	 * used to explicitly turn off power to the amplifiers while AMP_BYPASS
 	 * is unset:
 	 */
-	if (ctrl & SWITCHCTRL_NO_TX_AMP_PWR)
+	if (ctrl & SWITCHCTRL_NO_TX_AMP_PWR) {
 		gpio_set(rf_path->gpio_no_tx_amp_pwr);
-	if (ctrl & SWITCHCTRL_NO_RX_AMP_PWR)
+	}
+	if (ctrl & SWITCHCTRL_NO_RX_AMP_PWR) {
 		gpio_set(rf_path->gpio_no_rx_amp_pwr);
+	}
 
 	if (ctrl & SWITCHCTRL_ANT_PWR) {
 		mixer_set_gpo(&mixer, 0x00); /* turn on antenna power by clearing GPO1 */

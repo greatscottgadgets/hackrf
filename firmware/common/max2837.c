@@ -329,8 +329,9 @@ bool max2837_set_lna_gain(max2837_driver_t* const drv, const uint32_t gain_db) {
 }
 
 bool max2837_set_vga_gain(max2837_driver_t* const drv, const uint32_t gain_db) {
-	if( (gain_db & 0x1) || gain_db > 62)/* 0b11111*2 */
+	if( (gain_db & 0x1) || gain_db > 62) {/* 0b11111*2 */
 		return false;
+}
 		
 	set_MAX2837_VGA(drv, 31-(gain_db >> 1) );
 	max2837_reg_commit(drv, 5);

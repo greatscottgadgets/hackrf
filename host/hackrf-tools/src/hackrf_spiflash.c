@@ -101,8 +101,9 @@ int compatibility_check(uint8_t* data, int length, hackrf_device* device)
 					break;
 				}
 			}
-			if (match)
+			if (match) {
 				return 0;
+			}
 		}
 	}
 	return 1;
@@ -277,8 +278,9 @@ int main(int argc, char** argv)
 
 	if (length == 0) {
 		fprintf(stderr, "Requested transfer of zero bytes.\n");
-		if (infile != NULL)
+		if (infile != NULL) {
 			fclose(infile);
+		}
 		usage();
 		return EXIT_FAILURE;
 	}
@@ -286,8 +288,9 @@ int main(int argc, char** argv)
 	if ((length > MAX_LENGTH) || (address > MAX_LENGTH) ||
 	    ((address + length) > MAX_LENGTH)) {
 		fprintf(stderr, "Request exceeds size of flash memory.\n");
-		if (infile != NULL)
+		if (infile != NULL) {
 			fclose(infile);
+		}
 		usage();
 		return EXIT_FAILURE;
 	}
@@ -363,10 +366,11 @@ int main(int argc, char** argv)
 		tmp_length = length;
 		while (tmp_length) {
 			xfer_len = (tmp_length > 256) ? 256 : tmp_length;
-			if (verbose)
+			if (verbose) {
 				printf("Reading %d bytes from 0x%06x.\n",
 				       xfer_len,
 				       address);
+			}
 			result = hackrf_spiflash_read(device, address, xfer_len, pdata);
 			if (result != HACKRF_SUCCESS) {
 				fprintf(stderr,
@@ -423,14 +427,16 @@ int main(int argc, char** argv)
 			infile = NULL;
 			return EXIT_FAILURE;
 		}
-		if (!verbose)
+		if (!verbose) {
 			printf("Writing %d bytes at 0x%06x.\n", length, address);
+		}
 		while (length) {
 			xfer_len = (length > 256) ? 256 : length;
-			if (verbose)
+			if (verbose) {
 				printf("Writing %d bytes at 0x%06x.\n",
 				       xfer_len,
 				       address);
+			}
 			result = hackrf_spiflash_write(device, address, xfer_len, pdata);
 			if (result != HACKRF_SUCCESS) {
 				fprintf(stderr,

@@ -146,12 +146,14 @@ static void w25q80bv_page_program(
 	uint8_t* data)
 {
 	/* do nothing if asked to write beyond a page boundary */
-	if (((addr & 0xFF) + len) > drv->page_len)
+	if (((addr & 0xFF) + len) > drv->page_len) {
 		return;
+	}
 
 	/* do nothing if we would overflow the flash */
-	if (addr > (drv->num_bytes - len))
+	if (addr > (drv->num_bytes - len)) {
 		return;
+	}
 
 	w25q80bv_wait_while_busy(drv);
 	w25q80bv_write_enable(drv);
@@ -184,13 +186,15 @@ void w25q80bv_program(
 
 	/* do nothing if we would overflow the flash */
 	if ((len > drv->num_bytes) || (addr > drv->num_bytes) ||
-	    ((addr + len) > drv->num_bytes))
+	    ((addr + len) > drv->num_bytes)) {
 		return;
+	}
 
 	/* handle start not at page boundary */
 	first_block_len = drv->page_len - (addr % drv->page_len);
-	if (len < first_block_len)
+	if (len < first_block_len) {
 		first_block_len = len;
+	}
 	if (first_block_len) {
 		w25q80bv_page_program(drv, addr, first_block_len, data);
 		addr += first_block_len;
@@ -221,8 +225,9 @@ void w25q80bv_read(
 {
 	/* do nothing if we would overflow the flash */
 	if ((len > drv->num_bytes) || (addr > drv->num_bytes) ||
-	    ((addr + len) > drv->num_bytes))
+	    ((addr + len) > drv->num_bytes)) {
 		return;
+	}
 
 	w25q80bv_wait_while_busy(drv);
 

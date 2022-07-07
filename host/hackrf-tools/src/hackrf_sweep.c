@@ -151,17 +151,20 @@ int parse_u32_range(char* s, uint32_t* const value_min, uint32_t* const value_ma
 	int result;
 
 	char* sep = strchr(s, ':');
-	if (!sep)
+	if (!sep) {
 		return HACKRF_ERROR_INVALID_PARAM;
+	}
 
 	*sep = 0;
 
 	result = parse_u32(s, value_min);
-	if (result != HACKRF_SUCCESS)
+	if (result != HACKRF_SUCCESS) {
 		return result;
+	}
 	result = parse_u32(sep + 1, value_max);
-	if (result != HACKRF_SUCCESS)
+	if (result != HACKRF_SUCCESS) {
 		return result;
+	}
 
 	return HACKRF_SUCCESS;
 }
@@ -527,11 +530,13 @@ int main(int argc, char** argv)
 		}
 	}
 
-	if (lna_gain % 8)
+	if (lna_gain % 8) {
 		fprintf(stderr, "warning: lna_gain (-l) must be a multiple of 8\n");
+	}
 
-	if (vga_gain % 2)
+	if (vga_gain % 2) {
 		fprintf(stderr, "warning: vga_gain (-g) must be a multiple of 2\n");
+	}
 
 	if (amp) {
 		if (amp_enable > 1) {
@@ -820,8 +825,9 @@ int main(int argc, char** argv)
 
 	gettimeofday(&time_now, NULL);
 	time_diff = TimevalDiff(&time_now, &t_start);
-	if ((sweep_rate == 0) && (time_diff > 0))
+	if ((sweep_rate == 0) && (time_diff > 0)) {
 		sweep_rate = sweep_count / time_diff;
+	}
 	fprintf(stderr,
 		"Total sweeps: %" PRIu64 " in %.5f seconds (%.2f sweeps/second)\n",
 		sweep_count,

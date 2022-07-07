@@ -252,10 +252,11 @@ void si5351c_set_int_mode(
 		data[0] = 16 + ms_number;
 		data[1] = si5351c_read_single(drv, data[0]);
 
-		if (on)
+		if (on) {
 			data[1] |= SI5351C_CLK_INT_MODE;
-		else
+		} else {
 			data[1] &= ~(SI5351C_CLK_INT_MODE);
+		}
 
 		si5351c_write(drv, data, 2);
 	}
@@ -279,10 +280,11 @@ void si5351c_clkout_enable(si5351c_driver_t* const drv, uint8_t enable)
 	/* Set optput in output enable register */
 	uint8_t output_enable = si5351c_read_single(drv, 3);
 	output_enable = output_enable & !SI5351C_CLK_DISABLE(3);
-	if (enable)
+	if (enable) {
 		output_enable = output_enable | SI5351C_CLK_ENABLE(3);
-	else
+	} else {
 		output_enable = output_enable | SI5351C_CLK_DISABLE(3);
+	}
 	uint8_t oe_data[] = {SI5351C_REG_OUTPUT_EN, output_enable};
 	si5351c_write(drv, oe_data, 2);
 
@@ -305,12 +307,13 @@ void si5351c_clkout_enable(si5351c_driver_t* const drv, uint8_t enable)
 		pll = SI5351C_CLK_PLL_SRC_A;
 	}
 #endif
-	if (enable)
+	if (enable) {
 		clk3_ctrl = SI5351C_CLK_INT_MODE | SI5351C_CLK_PLL_SRC(pll) |
 			SI5351C_CLK_SRC(SI5351C_CLK_SRC_MULTISYNTH_SELF) |
 			SI5351C_CLK_IDRV(SI5351C_CLK_IDRV_8MA);
-	else
+	} else {
 		clk3_ctrl = SI5351C_CLK_POWERDOWN | SI5351C_CLK_INT_MODE;
+	}
 	uint8_t clk3_data[] = {SI5351C_REG_CLK3_CTRL, clk3_ctrl};
 	si5351c_write(drv, clk3_data, 2);
 }
