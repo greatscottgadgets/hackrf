@@ -32,6 +32,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <string.h>
 
 uint8_t cpld_xsvf_buffer[512];
 volatile bool cpld_wait = false;
@@ -98,7 +99,8 @@ usb_request_status_t usb_vendor_request_cpld_checksum(
 		}
 		
 		length = (uint8_t)sizeof(cpld_crc);
-		usb_transfer_schedule_block(endpoint->in, &cpld_crc, length,
+		memcpy(endpoint->buffer, &cpld_crc, length);
+		usb_transfer_schedule_block(endpoint->in, endpoint->buffer, length,
 					    NULL, NULL);
 		usb_transfer_schedule_ack(endpoint->out);
 	}
