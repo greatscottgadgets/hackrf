@@ -112,7 +112,18 @@ A high DC offset is also one of a few symptoms that can be caused by a software 
 What gain controls are provided by HackRF?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-HackRF (both Jawbreaker and One) provides three different analog gain controls on RX and two on TX. The three RX gain controls are at the RF ("amp", 0 or 14 dB), IF ("lna", 0 to 40 dB in 8 dB steps), and baseband ("vga", 0 to 62 dB in 2 dB steps) stages. The two TX gain controls are at the RF (0 or 14 dB) and IF (0 to 47 dB in 1 dB steps) stages.
+HackRF (both Jawbreaker and One) provides three different analog gain controls on RX and two on TX.
+
+The three RX gain controls are at these stages:
+
+- RF ("amp", 0 or 14 dB)
+- IF ("lna", 0 to 40 dB in 8 dB steps)
+- baseband ("vga", 0 to 62 dB in 2 dB steps)
+ 
+The two TX gain controls are at these stages:
+
+- RF (0 or 14 dB)
+- IF (0 to 47 dB in 1 dB steps)
 
 
 ----
