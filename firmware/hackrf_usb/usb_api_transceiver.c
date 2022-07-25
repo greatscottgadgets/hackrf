@@ -391,7 +391,7 @@ void rx_mode(uint32_t seq) {
 }
 
 void tx_mode(uint32_t seq) {
-	unsigned int phase = 0;
+	unsigned int usb_count = 0;
 
 	transceiver_startup(TRANSCEIVER_MODE_TX);
 
@@ -403,6 +403,7 @@ void tx_mode(uint32_t seq) {
 		transceiver_bulk_transfer_complete,
 		NULL
 		);
+	usb_count += 0x4000;
 
 	// Enable streaming. The M0 is in TX_START mode, and will automatically
 	// send zeroes until the host fills buffer 0. Once that buffer is filled,
@@ -411,28 +412,15 @@ void tx_mode(uint32_t seq) {
 	baseband_streaming_enable(&sgpio_config);
 
 	while (transceiver_request.seq == seq) {
-		uint32_t m0_offset = m0_state.m0_count & USB_BULK_BUFFER_MASK;
-		// Set up OUT transfer of buffer 0.
-		if (16384 <= m0_offset && 1 == phase) {
+		if ((usb_count - m0_state.m0_count) <= 0x4000) {
 			usb_transfer_schedule_block(
 				&usb_endpoint_bulk_out,
-				&usb_bulk_buffer[0x0000],
+				&usb_bulk_buffer[usb_count & USB_BULK_BUFFER_MASK],
 				0x4000,
 				transceiver_bulk_transfer_complete,
 				NULL
 				);
-			phase = 0;
-		}
-		// Set up OUT transfer of buffer 1.
-		if (16384 > m0_offset && 0 == phase) {
-			usb_transfer_schedule_block(
-				&usb_endpoint_bulk_out,
-				&usb_bulk_buffer[0x4000],
-				0x4000,
-				transceiver_bulk_transfer_complete,
-				NULL
-				);
-			phase = 1;
+			usb_count += 0x4000;
 		}
 	}
 
