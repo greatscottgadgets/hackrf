@@ -8,7 +8,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        Thank you for taking the time to fill out this technical support request! 
+        Thank you for taking the time to fill out this technical support request form! Please note that technical support requests can expect a response time of two weeks.  
   - type: dropdown
     id: troubleshooting documentation
     attributes: 
@@ -22,16 +22,14 @@ body:
     id: expected outcome
     attributes:
       label: What outcome were you hoping for?
-      description: Be detailed in what you expected to happen. 
-      placeholder: I wanted to ____.
+      placeholder: Please be detailed in what you expected to happen
     validations:
       required: true
   - type: textarea
     id: actual outcome
     attributes:
-      label: What outcome actually happened?
-      description: Be detailed in what actually happened. 
-      placeholder: I saw/experienced ____. 
+      label: What outcome actually happened? 
+      placeholder: Please be detailed in what did happen
     validations:
       required: true
   - type: checkboxes
@@ -77,11 +75,3 @@ body:
       placeholder: portapack, specialized antenna, etc. 
     validations:
       required: true
-  - type: checkboxes
-    id: terms
-    attributes:
-      label: Code of Conduct
-      description: By submitting this issue, you agree to follow our [Code of Conduct](https://github.com/greatscottgadgets/hackrf/blob/master/CODE_OF_CONDUCT.md)
-      options:
-        - label: I agree to follow this project's Code of Conduct
-          required: true

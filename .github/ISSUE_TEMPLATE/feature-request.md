@@ -3,6 +3,10 @@ description: File a feature request
 title: "[Feature Request]: "
 labels: ["enhancement"]
 body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for taking the time to fill out this feature request form! 
   - type: textarea
     id: feature request
     attributes:
@@ -38,3 +42,7 @@ body:
       description: Specify the uniqueness of the feature being requested. 
     validations:
       required: true
+  - type: textarea
+    id: extra detail
+    attributes:
+      label: Are there any other details you would like to share? 
