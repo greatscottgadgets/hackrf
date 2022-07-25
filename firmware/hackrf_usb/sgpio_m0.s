@@ -100,9 +100,9 @@ shadow registers.
 
 There are four key code paths, with the following worst-case timings:
 
-RX, normal:     152 cycles
+RX, normal:     158 cycles
 RX, overrun:    76 cycles
-TX, normal:     140 cycles
+TX, normal:     146 cycles
 TX, underrun:   145 cycles
 
 Design
@@ -224,9 +224,10 @@ The rest of this file is organised as follows:
 .equ THRESHOLD,                            0x1C
 .equ NEXT_MODE,                            0x20
 .equ ERROR,                                0x24
+.equ TRANSFER_SIZE,                        0x28
 
 // Private variables stored after state.
-.equ PREV_LONGEST_SHORTFALL,               0x28
+.equ PREV_LONGEST_SHORTFALL,               0x2C
 
 // Operating modes.
 .equ MODE_IDLE,                            0
@@ -261,6 +262,7 @@ buf_base          .req r12
 buf_mask          .req r11
 shortfall_length  .req r10
 hi_zero           .req r9
+next_transfer     .req r8
 sgpio_data        .req r7
 sgpio_int         .req r6
 count             .req r5
@@ -315,12 +317,24 @@ buf_ptr           .req r4
 	add buf_ptr, buf_base                           // buf_ptr += buf_base                  // 1
 .endm
 
-.macro update_counts
+.macro update_counts name
 	// Update counts after successful SGPIO operation.
+	//
+	// Clobbers:
+	transfer_size .req r0
 
 	// Update the byte count and store the new value.
 	add count, #32                                  // count += 32                          // 1
 	str count, [state, #M0_COUNT]                   // state.m0_count = count               // 2
+
+	// Check if now at a transfer boundary.
+	cmp count, next_transfer                        // if count != next_transfer:           // 1
+	bne \name\()_update_done                        //     goto update_done                 // 1 thru, 3 taken
+	ldr transfer_size, [state, #TRANSFER_SIZE]      // transfer_size = state.transfer_size  // 2
+	add next_transfer, transfer_size                // next_transfer += transfer_size       // 1
+	sev                                             // set event                            // 1
+
+\name\()_update_done:
 
 	// We didn't have a shortfall, so the current shortfall length is zero.
 	mov shortfall_length, hi_zero                   // shortfall_length = hi_zero           // 1
@@ -482,6 +496,7 @@ idle:
 	// Wait for a mode to be requested, then set up the new mode and acknowledge the request.
 	mode .req r3
 	flag .req r2
+	size .req r1
 	zero .req r0
 
 	// Read the requested mode and check flag to see if this is a new request. If not, ignore.
@@ -513,6 +528,8 @@ idle:
 	str zero, [state, #ERROR]                       // state.error = zero                   // 2
 	mov shortfall_length, zero                      // shortfall_length = zero              // 1
 	mov count, zero                                 // count = zero                         // 1
+	ldr size, [state, #TRANSFER_SIZE]               // size = state.transfer_size           // 2
+	mov next_transfer, size                         // next_transfer = size                 // 1
 
 ack_request:
 	// Clear SGPIO interrupt flag, which the M4 set to get our attention.
@@ -620,7 +637,7 @@ tx_loop:
 	str r3, [sgpio_data, #SLICE7]                   // SGPIO_REG_SS[SLICE7] = r3            // 8
 
 	// Update counts.
-	update_counts                                   // update_counts()                      // 4
+	update_counts tx                                // update_counts()                      // 10
 
 	// Jump to next mode if threshold reached, or back to TX loop start.
 	jump_next_mode tx                               // jump_next_mode()                     // 13
@@ -635,7 +652,7 @@ wait_loop:
 	on_request idle                                                                         // 4
 
 	// Update counts.
-	update_counts                                   // update_counts()                      // 4
+	update_counts wait                              // update_counts()                      // 10
 
 	// Jump to next mode if threshold reached, or back to wait loop start.
 	jump_next_mode wait                             // jump_next_mode()                     // 15
@@ -684,7 +701,7 @@ rx_loop:
 	stm buf_ptr!, {r0-r3}                           // buf_ptr[0:16] = r0-r3; buf_ptr += 16 // 5
 
 	// Update counts.
-	update_counts                                   // update_counts()                      // 4
+	update_counts rx                                // update_counts()                      // 10
 
 	// Jump to next mode if threshold reached, or back to RX loop start.
 	jump_next_mode rx                               // jump_next_mode()                     // 12

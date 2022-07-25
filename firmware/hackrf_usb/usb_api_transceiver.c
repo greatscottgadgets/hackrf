@@ -46,6 +46,8 @@
 
 #define USB_TRANSFER_SIZE 0x4000
 
+uint32_t usb_count;
+
 typedef struct {
 	uint32_t freq_mhz;
 	uint32_t freq_hz;
@@ -258,6 +260,8 @@ void request_transceiver_mode(transceiver_mode_t mode)
 	usb_endpoint_flush(&usb_endpoint_bulk_in);
 	usb_endpoint_flush(&usb_endpoint_bulk_out);
 
+	nvic_disable_irq(NVIC_M0CORE_IRQ);
+
 	transceiver_request.mode = mode;
 	transceiver_request.seq++;
 }
@@ -286,6 +290,7 @@ void transceiver_startup(const transceiver_mode_t mode) {
 		led_off(LED3);
 		led_on(LED2);
 		rf_path_set_direction(&rf_path, RF_PATH_DIRECTION_RX);
+		m0_state.transfer_size = USB_TRANSFER_SIZE;
 		m0_set_mode(M0_MODE_RX);
 		m0_state.shortfall_limit = _rx_overrun_limit;
 		break;
@@ -293,12 +298,17 @@ void transceiver_startup(const transceiver_mode_t mode) {
 		led_off(LED2);
 		led_on(LED3);
 		rf_path_set_direction(&rf_path, RF_PATH_DIRECTION_TX);
+		m0_state.transfer_size = USB_TRANSFER_SIZE;
 		m0_set_mode(M0_MODE_TX_START);
 		m0_state.shortfall_limit = _tx_underrun_limit;
 		break;
 	default:
 		break;
 	}
+
+	usb_count = 0;
+	nvic_set_priority(NVIC_M0CORE_IRQ, 192);
+	nvic_enable_irq(NVIC_M0CORE_IRQ);
 
 	activate_best_clock_source();
 	hw_sync_enable(_hw_sync_mode);
@@ -370,31 +380,16 @@ void transceiver_bulk_transfer_complete(void *user_data, unsigned int bytes_tran
 }
 
 void rx_mode(uint32_t seq) {
-	uint32_t usb_count = 0;
-
 	transceiver_startup(TRANSCEIVER_MODE_RX);
 
 	baseband_streaming_enable(&sgpio_config);
 
-	while (transceiver_request.seq == seq) {
-		if ((m0_state.m0_count - usb_count) >= USB_TRANSFER_SIZE) {
-			usb_transfer_schedule_block(
-				&usb_endpoint_bulk_in,
-				&usb_bulk_buffer[usb_count & USB_BULK_BUFFER_MASK],
-				USB_TRANSFER_SIZE,
-				transceiver_bulk_transfer_complete,
-				NULL
-				);
-			usb_count += USB_TRANSFER_SIZE;
-		}
-	}
+	while (transceiver_request.seq == seq);
 
 	transceiver_shutdown();
 }
 
 void tx_mode(uint32_t seq) {
-	unsigned int usb_count = 0;
-
 	transceiver_startup(TRANSCEIVER_MODE_TX);
 
 	// Set up OUT transfer of buffer 0.
@@ -413,7 +408,34 @@ void tx_mode(uint32_t seq) {
 	// the M0 will switch to TX_RUN mode and transmit the first data.
 	baseband_streaming_enable(&sgpio_config);
 
-	while (transceiver_request.seq == seq) {
+	while (transceiver_request.seq == seq);
+
+	transceiver_shutdown();
+}
+
+void off_mode(uint32_t seq)
+{
+	hackrf_ui()->set_transceiver_mode(TRANSCEIVER_MODE_OFF);
+
+	while (transceiver_request.seq == seq);
+}
+
+void m0core_isr(void)
+{
+	switch (transceiver_request.mode) {
+	case TRANSCEIVER_MODE_RX:
+		if ((m0_state.m0_count - usb_count) >= USB_TRANSFER_SIZE) {
+			usb_transfer_schedule_block(
+				&usb_endpoint_bulk_in,
+				&usb_bulk_buffer[usb_count & USB_BULK_BUFFER_MASK],
+				USB_TRANSFER_SIZE,
+				transceiver_bulk_transfer_complete,
+				NULL
+				);
+			usb_count += USB_TRANSFER_SIZE;
+		}
+		break;
+	case TRANSCEIVER_MODE_TX:
 		if ((usb_count - m0_state.m0_count) <= USB_TRANSFER_SIZE) {
 			usb_transfer_schedule_block(
 				&usb_endpoint_bulk_out,
@@ -424,14 +446,8 @@ void tx_mode(uint32_t seq) {
 				);
 			usb_count += USB_TRANSFER_SIZE;
 		}
+		break;
+	default:
+		break;
 	}
-
-	transceiver_shutdown();
-}
-
-void off_mode(uint32_t seq)
-{
-	hackrf_ui()->set_transceiver_mode(TRANSCEIVER_MODE_OFF);
-
-	while (transceiver_request.seq == seq);
 }

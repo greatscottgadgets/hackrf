@@ -38,6 +38,7 @@ struct m0_state {
 	uint32_t threshold;
 	uint32_t next_mode;
 	uint32_t error;
+	uint32_t transfer_size;
 };
 
 enum m0_mode {
