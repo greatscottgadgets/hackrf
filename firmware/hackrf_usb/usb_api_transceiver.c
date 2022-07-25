@@ -368,35 +368,22 @@ void transceiver_bulk_transfer_complete(void *user_data, unsigned int bytes_tran
 }
 
 void rx_mode(uint32_t seq) {
-	unsigned int phase = 1;
+	uint32_t usb_count = 0;
 
 	transceiver_startup(TRANSCEIVER_MODE_RX);
 
 	baseband_streaming_enable(&sgpio_config);
 
 	while (transceiver_request.seq == seq) {
-		uint32_t m0_offset = m0_state.m0_count & USB_BULK_BUFFER_MASK;
-		// Set up IN transfer of buffer 0.
-		if (16384 <= m0_offset && 1 == phase) {
+		if ((m0_state.m0_count - usb_count) >= 0x4000) {
 			usb_transfer_schedule_block(
 				&usb_endpoint_bulk_in,
-				&usb_bulk_buffer[0x0000],
+				&usb_bulk_buffer[usb_count & USB_BULK_BUFFER_MASK],
 				0x4000,
 				transceiver_bulk_transfer_complete,
 				NULL
 				);
-			phase = 0;
-		}
-		// Set up IN transfer of buffer 1.
-		if (16384 > m0_offset && 0 == phase) {
-			usb_transfer_schedule_block(
-				&usb_endpoint_bulk_in,
-				&usb_bulk_buffer[0x4000],
-				0x4000,
-				transceiver_bulk_transfer_complete,
-				NULL
-				);
-			phase = 1;
+			usb_count += 0x4000;
 		}
 	}
 
