@@ -44,6 +44,8 @@
 #include "usb_endpoint.h"
 #include "usb_api_sweep.h"
 
+#define USB_TRANSFER_SIZE 0x4000
+
 typedef struct {
 	uint32_t freq_mhz;
 	uint32_t freq_hz;
@@ -375,15 +377,15 @@ void rx_mode(uint32_t seq) {
 	baseband_streaming_enable(&sgpio_config);
 
 	while (transceiver_request.seq == seq) {
-		if ((m0_state.m0_count - usb_count) >= 0x4000) {
+		if ((m0_state.m0_count - usb_count) >= USB_TRANSFER_SIZE) {
 			usb_transfer_schedule_block(
 				&usb_endpoint_bulk_in,
 				&usb_bulk_buffer[usb_count & USB_BULK_BUFFER_MASK],
-				0x4000,
+				USB_TRANSFER_SIZE,
 				transceiver_bulk_transfer_complete,
 				NULL
 				);
-			usb_count += 0x4000;
+			usb_count += USB_TRANSFER_SIZE;
 		}
 	}
 
@@ -399,11 +401,11 @@ void tx_mode(uint32_t seq) {
 	usb_transfer_schedule_block(
 		&usb_endpoint_bulk_out,
 		&usb_bulk_buffer[0x0000],
-		0x4000,
+		USB_TRANSFER_SIZE,
 		transceiver_bulk_transfer_complete,
 		NULL
 		);
-	usb_count += 0x4000;
+	usb_count += USB_TRANSFER_SIZE;
 
 	// Enable streaming. The M0 is in TX_START mode, and will automatically
 	// send zeroes until the host fills buffer 0. Once that buffer is filled,
@@ -412,15 +414,15 @@ void tx_mode(uint32_t seq) {
 	baseband_streaming_enable(&sgpio_config);
 
 	while (transceiver_request.seq == seq) {
-		if ((usb_count - m0_state.m0_count) <= 0x4000) {
+		if ((usb_count - m0_state.m0_count) <= USB_TRANSFER_SIZE) {
 			usb_transfer_schedule_block(
 				&usb_endpoint_bulk_out,
 				&usb_bulk_buffer[usb_count & USB_BULK_BUFFER_MASK],
-				0x4000,
+				USB_TRANSFER_SIZE,
 				transceiver_bulk_transfer_complete,
 				NULL
 				);
-			usb_count += 0x4000;
+			usb_count += USB_TRANSFER_SIZE;
 		}
 	}
 
