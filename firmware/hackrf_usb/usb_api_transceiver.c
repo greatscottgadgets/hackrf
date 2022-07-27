@@ -307,7 +307,7 @@ void transceiver_startup(const transceiver_mode_t mode) {
 	}
 
 	usb_count = 0;
-	nvic_set_priority(NVIC_M0CORE_IRQ, 192);
+	nvic_set_priority(NVIC_M0CORE_IRQ, 224);
 	nvic_enable_irq(NVIC_M0CORE_IRQ);
 
 	activate_best_clock_source();

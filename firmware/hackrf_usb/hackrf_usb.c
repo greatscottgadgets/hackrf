@@ -250,7 +250,7 @@ int main(void) {
 	usb_endpoint_init(&usb_endpoint_control_out);
 	usb_endpoint_init(&usb_endpoint_control_in);
 	
-	nvic_set_priority(NVIC_USB0_IRQ, 255);
+	nvic_set_priority(NVIC_USB0_IRQ, 192);
 
 	hackrf_ui()->init();
 
