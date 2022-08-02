@@ -1149,7 +1149,7 @@ int main(int argc, char** argv) {
 			    // This is only an approximate measure, to assist getting receive levels right:
 			    double	full_scale_ratio = ((double)stream_amplitude_now / (byte_count_now ? byte_count_now : 1))/128;
 			    double	dB_full_scale_ratio = 10*log10(full_scale_ratio);
-					if (dB_full_scale_ratio > 1 || dB_full_scale_ratio == -INFINITY) // Guard against ridiculous reports
+					if (dB_full_scale_ratio > 1) // Guard against ridiculous reports
 						dB_full_scale_ratio = -0.0;
 			    fprintf(stderr, "%4.1f MiB / %5.3f sec = %4.1f MiB/second, amplitude %3.1f dBfs",
 				    (byte_count_now / 1e6f),
