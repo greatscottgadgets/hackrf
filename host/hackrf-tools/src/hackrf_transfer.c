@@ -456,10 +456,17 @@ int tx_callback(hackrf_transfer* transfer) {
 	size_t bytes_read;
 	unsigned int i;
 
+	if (file == NULL && transceiver_mode != TRANSCEIVER_MODE_SS) {
+		return -1;
+	}
+	byte_count += transfer->valid_length;
+	bytes_to_read = transfer->valid_length;
+	for (i = 0; i < bytes_to_read; i++) {
+		stream_amplitude += abs((signed char)transfer->buffer[i]);
+	}
+
 	if( file != NULL )
 	{
-		byte_count += transfer->valid_length;
-		bytes_to_read = transfer->valid_length;
 		if (limit_num_samples) {
 			if (bytes_to_read >= bytes_to_xfer) {
 				/*
@@ -487,10 +494,8 @@ int tx_callback(hackrf_transfer* transfer) {
 		} else {
 			return 0;
 		}
-	} else if (transceiver_mode == TRANSCEIVER_MODE_SS) {
+	} else {  // transceiver_mode == TRANSCEIVER_MODE_SS
 		/* Transmit continuous wave with specific amplitude */
-		byte_count += transfer->valid_length;
-		bytes_to_read = transfer->valid_length;
 		if (limit_num_samples) {
 			if (bytes_to_read >= bytes_to_xfer) {
 				bytes_to_read = bytes_to_xfer;
@@ -506,9 +511,7 @@ int tx_callback(hackrf_transfer* transfer) {
 		} else {
 			return 0;
 		}
-	} else {
-        return -1;
-    }
+	}
 }
 
 static int update_stats(hackrf_device *device, hackrf_m0_state *state, stats_t *stats)
@@ -1146,8 +1149,8 @@ int main(int argc, char** argv) {
 			    // This is only an approximate measure, to assist getting receive levels right:
 			    double	full_scale_ratio = ((double)stream_amplitude_now / (byte_count_now ? byte_count_now : 1))/128;
 			    double	dB_full_scale_ratio = 10*log10(full_scale_ratio);
-			    if (dB_full_scale_ratio > 1)
-			    	dB_full_scale_ratio = NAN;	// Guard against ridiculous reports
+					if (dB_full_scale_ratio > 1) // Guard against ridiculous reports
+						dB_full_scale_ratio = -0.0;
 			    fprintf(stderr, "%4.1f MiB / %5.3f sec = %4.1f MiB/second, amplitude %3.1f dBfs",
 				    (byte_count_now / 1e6f),
 				    time_difference,
