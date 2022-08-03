@@ -135,7 +135,8 @@ int main(int argc, char** argv)
 		return EXIT_FAILURE;
 	}
 	/* Get size of the file  */
-	fseek(infile, 0, SEEK_END); /* Not really portable but work on major OS Linux/Win32 */
+	/* Not really portable but work on major OS Linux/Win32 */
+	fseek(infile, 0, SEEK_END);
 	length = ftell(infile);
 	/* Move to start */
 	rewind(infile);
