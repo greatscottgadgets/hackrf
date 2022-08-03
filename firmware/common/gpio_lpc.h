@@ -61,10 +61,12 @@ struct gpio_t {
 #define GPIO_LPC_PORT(_n) ((gpio_port_t*)((GPIO_LPC_BASE + GPIO_LPC_PORT_OFFSET) + (_n) * 4))
 #define GPIO_LPC_W(_port_num, _pin_num) (volatile uint32_t*)((GPIO_LPC_BASE + GPIO_LPC_W_OFFSET) + ((_port_num) * 0x80) + ((_pin_num) * 4))
 
+// clang-format off
 #define GPIO(_port_num, _pin_num) { \
 	.mask = (1UL << (_pin_num)), \
 	.port = GPIO_LPC_PORT(_port_num), \
 	.gpio_w = GPIO_LPC_W(_port_num, _pin_num), \
 }
+// clang-format on
 
 #endif/*__GPIO_LPC_H__*/
