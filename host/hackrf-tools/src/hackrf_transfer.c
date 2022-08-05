@@ -97,6 +97,8 @@ int gettimeofday(struct timeval* tv, void* ignored)
 #define LO_MAX_HZ       (5400000000ll)
 #define DEFAULT_LO_HZ   (1000000000ll)
 
+#define SAMPLE_RATE_MIN_HZ     (2000000)  /* 2MHz min sample rate */
+#define SAMPLE_RATE_MAX_HZ     (20000000) /* 20MHz max sample rate */
 #define DEFAULT_SAMPLE_RATE_HZ (10000000) /* 10MHz default sample rate */
 
 #define DEFAULT_BASEBAND_FILTER_BANDWIDTH (5000000) /* 5MHz default */
@@ -590,8 +592,10 @@ static void usage()
 	printf("\t[-l gain_db] # RX LNA (IF) gain, 0-40dB, 8dB steps\n");
 	printf("\t[-g gain_db] # RX VGA (baseband) gain, 0-62dB, 2dB steps\n");
 	printf("\t[-x gain_db] # TX VGA (IF) gain, 0-47dB, 1dB steps\n");
-	printf("\t[-s sample_rate_hz] # Sample rate in Hz (2-20MHz, default %sMHz).\n",
-	       u64toa((DEFAULT_SAMPLE_RATE_HZ / FREQ_ONE_MHZ), &ascii_u64_data[0]));
+	printf("\t[-s sample_rate_hz] # Sample rate in Hz (%s-%sMHz, default %sMHz).\n",
+	       u64toa((SAMPLE_RATE_MIN_HZ / FREQ_ONE_MHZ), &ascii_u64_data[0]),
+	       u64toa((SAMPLE_RATE_MAX_HZ / FREQ_ONE_MHZ), &ascii_u64_data[1]),
+	       u64toa((DEFAULT_SAMPLE_RATE_HZ / FREQ_ONE_MHZ), &ascii_u64_data[2]));
 	printf("\t[-n num_samples] # Number of samples to transfer (default is unlimited).\n");
 #ifndef _WIN32
 	/* The required atomic load/store functions aren't available when using C with MSVC */
@@ -897,7 +901,24 @@ int main(int argc, char** argv)
 		}
 	}
 
-	if (sample_rate == false) {
+	if (sample_rate) {
+		if (sample_rate_hz > SAMPLE_RATE_MAX_HZ) {
+			fprintf(stderr,
+				"argument error: sample_rate_hz must be less than or equal to %u Hz/%.03f MHz\n",
+				SAMPLE_RATE_MAX_HZ,
+				(float) (SAMPLE_RATE_MAX_HZ / FREQ_ONE_MHZ));
+			usage();
+			return EXIT_FAILURE;
+		}
+		if (sample_rate_hz < SAMPLE_RATE_MIN_HZ) {
+			fprintf(stderr,
+				"argument error: sample_rate_hz must be greater than or equal to %u Hz/%.03f MHz\n",
+				SAMPLE_RATE_MIN_HZ,
+				(float) (SAMPLE_RATE_MIN_HZ / FREQ_ONE_MHZ));
+			usage();
+			return EXIT_FAILURE;
+		}
+	} else {
 		sample_rate_hz = DEFAULT_SAMPLE_RATE_HZ;
 	}
 
