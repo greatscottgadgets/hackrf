@@ -379,6 +379,8 @@ uint32_t antenna_enable;
 bool sample_rate = false;
 uint32_t sample_rate_hz;
 
+bool force_sample_rate = false;
+
 bool limit_num_samples = false;
 uint64_t samples_to_xfer = 0;
 size_t bytes_to_xfer = 0;
@@ -596,6 +598,7 @@ static void usage()
 	       u64toa((SAMPLE_RATE_MIN_HZ / FREQ_ONE_MHZ), &ascii_u64_data[0]),
 	       u64toa((SAMPLE_RATE_MAX_HZ / FREQ_ONE_MHZ), &ascii_u64_data[1]),
 	       u64toa((DEFAULT_SAMPLE_RATE_HZ / FREQ_ONE_MHZ), &ascii_u64_data[2]));
+	printf("\t[-F force] # Force use of a sample rate outside the supported range.\n");
 	printf("\t[-n num_samples] # Number of samples to transfer (default is unlimited).\n");
 #ifndef _WIN32
 	/* The required atomic load/store functions aren't available when using C with MSVC */
@@ -652,8 +655,10 @@ int main(int argc, char** argv)
 	hackrf_m0_state state;
 	stats_t stats = {0, 0};
 
-	while ((opt = getopt(argc, argv, "H:wr:t:f:i:o:m:a:p:s:n:b:l:g:x:c:d:C:RS:Bh?")) !=
-	       EOF) {
+	while ((opt =
+			getopt(argc,
+			       argv,
+			       "H:wr:t:f:i:o:m:a:p:s:Fn:b:l:g:x:c:d:C:RS:Bh?")) != EOF) {
 		result = HACKRF_SUCCESS;
 		switch (opt) {
 		case 'H':
@@ -731,6 +736,10 @@ int main(int argc, char** argv)
 		case 's':
 			result = parse_frequency_u32(optarg, endptr, &sample_rate_hz);
 			sample_rate = true;
+			break;
+
+		case 'F':
+			force_sample_rate = true;
 			break;
 
 		case 'n':
@@ -902,7 +911,7 @@ int main(int argc, char** argv)
 	}
 
 	if (sample_rate) {
-		if (sample_rate_hz > SAMPLE_RATE_MAX_HZ) {
+		if (sample_rate_hz > SAMPLE_RATE_MAX_HZ && !force_sample_rate) {
 			fprintf(stderr,
 				"argument error: sample_rate_hz must be less than or equal to %u Hz/%.03f MHz\n",
 				SAMPLE_RATE_MAX_HZ,
@@ -910,7 +919,7 @@ int main(int argc, char** argv)
 			usage();
 			return EXIT_FAILURE;
 		}
-		if (sample_rate_hz < SAMPLE_RATE_MIN_HZ) {
+		if (sample_rate_hz < SAMPLE_RATE_MIN_HZ && !force_sample_rate) {
 			fprintf(stderr,
 				"argument error: sample_rate_hz must be greater than or equal to %u Hz/%.03f MHz\n",
 				SAMPLE_RATE_MIN_HZ,
