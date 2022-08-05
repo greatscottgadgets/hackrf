@@ -89,8 +89,10 @@ int gettimeofday(struct timeval* tv, void* ignored)
 #define FREQ_ONE_MHZ (1000000ll)
 
 #define DEFAULT_FREQ_HZ (900000000ll)  /* 900MHz */
-#define FREQ_MIN_HZ     (0ull)         /* 0 Hz */
-#define FREQ_MAX_HZ     (7250000000ll) /* 7250MHz */
+#define FREQ_ABS_MIN_HZ (0ull)         /* 0 Hz */
+#define FREQ_MIN_HZ     (1000000ll)    /* 1MHz */
+#define FREQ_MAX_HZ     (6000000000ll) /* 6000MHz */
+#define FREQ_ABS_MAX_HZ (7250000000ll) /* 7250MHz */
 #define IF_MIN_HZ       (2150000000ll)
 #define IF_MAX_HZ       (2750000000ll)
 #define LO_MIN_HZ       (84375000ll)
@@ -379,7 +381,7 @@ uint32_t antenna_enable;
 bool sample_rate = false;
 uint32_t sample_rate_hz;
 
-bool force_sample_rate = false;
+bool force_ranges = false;
 
 bool limit_num_samples = false;
 uint64_t samples_to_xfer = 0;
@@ -579,9 +581,11 @@ static void usage()
 	printf("\t-t <filename> # Transmit data from file (use '-' for stdin).\n");
 	printf("\t-w # Receive data into file with WAV header and automatic name.\n");
 	printf("\t   # This is for SDR# compatibility and may not work with other software.\n");
-	printf("\t[-f freq_hz] # Frequency in Hz [%sMHz to %sMHz].\n",
+	printf("\t[-f freq_hz] # Frequency in Hz [%sMHz to %sMHz supported, %sMHz to %sMHz forceable].\n",
 	       u64toa((FREQ_MIN_HZ / FREQ_ONE_MHZ), &ascii_u64_data[0]),
-	       u64toa((FREQ_MAX_HZ / FREQ_ONE_MHZ), &ascii_u64_data[1]));
+	       u64toa((FREQ_MAX_HZ / FREQ_ONE_MHZ), &ascii_u64_data[1]),
+	       u64toa((FREQ_ABS_MIN_HZ / FREQ_ONE_MHZ), &ascii_u64_data[2]),
+	       u64toa((FREQ_ABS_MAX_HZ / FREQ_ONE_MHZ), &ascii_u64_data[3]));
 	printf("\t[-i if_freq_hz] # Intermediate Frequency (IF) in Hz [%sMHz to %sMHz].\n",
 	       u64toa((IF_MIN_HZ / FREQ_ONE_MHZ), &ascii_u64_data[0]),
 	       u64toa((IF_MAX_HZ / FREQ_ONE_MHZ), &ascii_u64_data[1]));
@@ -594,11 +598,11 @@ static void usage()
 	printf("\t[-l gain_db] # RX LNA (IF) gain, 0-40dB, 8dB steps\n");
 	printf("\t[-g gain_db] # RX VGA (baseband) gain, 0-62dB, 2dB steps\n");
 	printf("\t[-x gain_db] # TX VGA (IF) gain, 0-47dB, 1dB steps\n");
-	printf("\t[-s sample_rate_hz] # Sample rate in Hz (%s-%sMHz, default %sMHz).\n",
+	printf("\t[-s sample_rate_hz] # Sample rate in Hz (%s-%sMHz supported, default %sMHz).\n",
 	       u64toa((SAMPLE_RATE_MIN_HZ / FREQ_ONE_MHZ), &ascii_u64_data[0]),
 	       u64toa((SAMPLE_RATE_MAX_HZ / FREQ_ONE_MHZ), &ascii_u64_data[1]),
 	       u64toa((DEFAULT_SAMPLE_RATE_HZ / FREQ_ONE_MHZ), &ascii_u64_data[2]));
-	printf("\t[-F force] # Force use of a sample rate outside the supported range.\n");
+	printf("\t[-F force] # Force use of parameters outside supported ranges.\n");
 	printf("\t[-n num_samples] # Number of samples to transfer (default is unlimited).\n");
 #ifndef _WIN32
 	/* The required atomic load/store functions aren't available when using C with MSVC */
@@ -739,7 +743,7 @@ int main(int argc, char** argv)
 			break;
 
 		case 'F':
-			force_sample_rate = true;
+			force_ranges = true;
 			break;
 
 		case 'n':
@@ -879,11 +883,19 @@ int main(int argc, char** argv)
 			u64toa(freq_hz, &ascii_u64_data[0]));
 
 	} else if (automatic_tuning) {
-		if (freq_hz > FREQ_MAX_HZ) {
+		if ((freq_hz > FREQ_MAX_HZ | freq_hz < FREQ_MIN_HZ) && !force_ranges) {
 			fprintf(stderr,
-				"argument error: freq_hz shall be between %s and %s.\n",
+				"argument error: freq_hz should be between %s and %s.\n",
 				u64toa(FREQ_MIN_HZ, &ascii_u64_data[0]),
 				u64toa(FREQ_MAX_HZ, &ascii_u64_data[1]));
+			usage();
+			return EXIT_FAILURE;
+		}
+		if (freq_hz > FREQ_ABS_MAX_HZ) {
+			fprintf(stderr,
+				"argument error: freq_hz must be between %s and %s.\n",
+				u64toa(FREQ_ABS_MIN_HZ, &ascii_u64_data[0]),
+				u64toa(FREQ_ABS_MAX_HZ, &ascii_u64_data[1]));
 			usage();
 			return EXIT_FAILURE;
 		}
@@ -911,17 +923,17 @@ int main(int argc, char** argv)
 	}
 
 	if (sample_rate) {
-		if (sample_rate_hz > SAMPLE_RATE_MAX_HZ && !force_sample_rate) {
+		if (sample_rate_hz > SAMPLE_RATE_MAX_HZ && !force_ranges) {
 			fprintf(stderr,
-				"argument error: sample_rate_hz must be less than or equal to %u Hz/%.03f MHz\n",
+				"argument error: sample_rate_hz should be less than or equal to %u Hz/%.03f MHz\n",
 				SAMPLE_RATE_MAX_HZ,
 				(float) (SAMPLE_RATE_MAX_HZ / FREQ_ONE_MHZ));
 			usage();
 			return EXIT_FAILURE;
 		}
-		if (sample_rate_hz < SAMPLE_RATE_MIN_HZ && !force_sample_rate) {
+		if (sample_rate_hz < SAMPLE_RATE_MIN_HZ && !force_ranges) {
 			fprintf(stderr,
-				"argument error: sample_rate_hz must be greater than or equal to %u Hz/%.03f MHz\n",
+				"argument error: sample_rate_hz should be greater than or equal to %u Hz/%.03f MHz\n",
 				SAMPLE_RATE_MIN_HZ,
 				(float) (SAMPLE_RATE_MIN_HZ / FREQ_ONE_MHZ));
 			usage();
