@@ -249,6 +249,7 @@ static void usage()
 	printf("\t-h, --help: this help\n");
 	printf("\t-r, --read <clock_num>: read settings for clock_num\n");
 	printf("\t-a, --all: read settings for all clocks\n");
+	printf("\t-i, --clkin: get CLKIN status\n");
 	printf("\t-o, --clkout <clkout_enable>: enable/disable CLKOUT\n");
 	printf("\t-d, --device <serial_number>: Serial number of desired HackRF.\n");
 	printf("\nExamples:\n");
@@ -259,6 +260,7 @@ static struct option long_options[] = {
 	{"help", no_argument, 0, 'h'},
 	{"read", required_argument, 0, 'r'},
 	{"all", no_argument, 0, 'a'},
+	{"clkin", required_argument, 0, 'i'},
 	{"clkout", required_argument, 0, 'o'},
 	{"device", required_argument, 0, 'd'},
 	{0, 0, 0, 0},
@@ -271,7 +273,9 @@ int main(int argc, char** argv)
 	bool read = false;
 	uint8_t clock = CLOCK_UNDEFINED;
 	bool clkout = false;
+	bool clkin = false;
 	uint8_t clkout_enable;
+	uint8_t clkin_status;
 	const char* serial_number = NULL;
 
 	int result = hackrf_init();
@@ -282,7 +286,7 @@ int main(int argc, char** argv)
 		return EXIT_FAILURE;
 	}
 
-	while ((opt = getopt_long(argc, argv, "r:ao:d:h?", long_options, &option_index)) !=
+	while ((opt = getopt_long(argc, argv, "r:aio:d:h?", long_options, &option_index)) !=
 	       EOF) {
 		switch (opt) {
 		case 'r':
@@ -292,6 +296,10 @@ int main(int argc, char** argv)
 
 		case 'a':
 			read = true;
+			break;
+
+		case 'i':
+			clkin = true;
 			break;
 
 		case 'o':
@@ -322,9 +330,8 @@ int main(int argc, char** argv)
 		}
 	}
 
-	if (!clkout && !read) {
-		fprintf(stderr,
-			"Either read or enable CLKOUT option must be specified.\n");
+	if (!clkin && !clkout && !read) {
+		fprintf(stderr, "An operation must be specified.\n");
 		usage();
 		return EXIT_FAILURE;
 	}
@@ -345,6 +352,19 @@ int main(int argc, char** argv)
 			       result);
 			return EXIT_FAILURE;
 		}
+	}
+
+	if (clkin) {
+		result = hackrf_get_clkin_status(device, &clkin_status);
+		if (result) {
+			printf("hackrf_get_clkin_status() failed: %s (%d)\n",
+			       hackrf_error_name(result),
+			       result);
+			return EXIT_FAILURE;
+		}
+		printf("CLKIN status: %s\n",
+		       clkin_status ? "clock signal detected" :
+				      "no clock signal detected");
 	}
 
 	if (read) {
