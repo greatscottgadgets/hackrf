@@ -106,10 +106,6 @@ int gettimeofday(struct timeval* tv, void* ignored)
 #define BASEBAND_FILTER_BW_MIN (1750000)  /* 1.75 MHz min value */
 #define BASEBAND_FILTER_BW_MAX (28000000) /* 28 MHz max value */
 
-#if defined _WIN32
-	#define sleep(a) Sleep((a * 1000))
-#endif
-
 typedef enum {
 	TRANSCEIVER_MODE_OFF = 0,
 	TRANSCEIVER_MODE_RX = 1,
@@ -323,6 +319,9 @@ char* u64toa(uint64_t val, t_u64toa* str)
 }
 
 static volatile bool do_exit = false;
+#ifdef _WIN32
+static HANDLE interrupt_handle;
+#endif
 
 FILE* file = NULL;
 volatile uint32_t byte_count = 0;
@@ -394,6 +393,16 @@ uint32_t crystal_correct_ppm;
 
 int requested_mode_count = 0;
 
+void stop_main_loop(void)
+{
+	do_exit = true;
+#ifdef _WIN32
+	SetEvent(interrupt_handle);
+#else
+	kill(0, SIGALRM);
+#endif
+}
+
 int rx_callback(hackrf_transfer* transfer)
 {
 	size_t bytes_to_write;
@@ -452,12 +461,14 @@ int rx_callback(hackrf_transfer* transfer)
 			bytes_written = fwrite(transfer->buffer, 1, bytes_to_write, file);
 			if ((bytes_written != bytes_to_write) ||
 			    (limit_num_samples && (bytes_to_xfer == 0))) {
+				stop_main_loop();
 				return -1;
 			} else {
 				return 0;
 			}
 		}
 	} else {
+		stop_main_loop();
 		return -1;
 	}
 }
@@ -469,6 +480,7 @@ int tx_callback(hackrf_transfer* transfer)
 	unsigned int i;
 
 	if (file == NULL && transceiver_mode != TRANSCEIVER_MODE_SS) {
+		stop_main_loop();
 		return -1;
 	}
 	byte_count += transfer->valid_length;
@@ -490,6 +502,7 @@ int tx_callback(hackrf_transfer* transfer)
 		}
 		bytes_read = fread(transfer->buffer, 1, bytes_to_read, file);
 		if (limit_num_samples && (bytes_to_xfer == 0)) {
+			stop_main_loop();
 			return -1;
 		}
 		if (bytes_read != bytes_to_read) {
@@ -503,6 +516,7 @@ int tx_callback(hackrf_transfer* transfer)
 				      file);
 				return 0;
 			} else {
+				stop_main_loop();
 				return -1; /* not repeat mode, end of file */
 			}
 
@@ -522,6 +536,7 @@ int tx_callback(hackrf_transfer* transfer)
 			transfer->buffer[i] = amplitude;
 
 		if (limit_num_samples && (bytes_to_xfer == 0)) {
+			stop_main_loop();
 			return -1;
 		} else {
 			return 0;
@@ -614,7 +629,7 @@ BOOL WINAPI sighandler(int signum)
 {
 	if (CTRL_C_EVENT == signum) {
 		fprintf(stderr, "Caught signal %d\n", signum);
-		do_exit = true;
+		stop_main_loop();
 		return TRUE;
 	}
 	return FALSE;
@@ -624,6 +639,12 @@ void sigint_callback_handler(int signum)
 {
 	fprintf(stderr, "Caught signal %d\n", signum);
 	do_exit = true;
+}
+#endif
+
+#ifndef _WIN32
+void sigalrm_callback_handler(int signum)
+{
 }
 #endif
 
@@ -1051,6 +1072,13 @@ int main(int argc, char** argv)
 	signal(SIGTERM, &sigint_callback_handler);
 	signal(SIGABRT, &sigint_callback_handler);
 #endif
+
+#ifdef _WIN32
+	interrupt_handle = CreateEvent(NULL, TRUE, FALSE, NULL);
+#else
+	signal(SIGALRM, &sigalrm_callback_handler);
+#endif
+
 	fprintf(stderr,
 		"call hackrf_set_sample_rate(%u Hz/%.03f MHz)\n",
 		sample_rate_hz,
@@ -1184,6 +1212,21 @@ int main(int argc, char** argv)
 	gettimeofday(&time_start, NULL);
 
 	fprintf(stderr, "Stop with Ctrl-C\n");
+
+	// Set up an interval timer which will fire once per second.
+#ifdef _WIN32
+	HANDLE timer_handle = CreateWaitableTimer(NULL, FALSE, NULL);
+	LARGE_INTEGER due_time;
+	due_time.QuadPart = -10000000LL;
+	LONG period = 1000;
+	SetWaitableTimer(timer_handle, &due_time, period, NULL, NULL, 0);
+#else
+	struct itimerval interval_timer = {
+		.it_interval = {.tv_sec = 1, .tv_usec = 0},
+		.it_value = {.tv_sec = 1, .tv_usec = 0}};
+	setitimer(ITIMER_REAL, &interval_timer, NULL);
+#endif
+
 	while ((hackrf_is_streaming(device) == HACKRF_TRUE) && (do_exit == false)) {
 		uint32_t byte_count_now;
 		struct timeval time_now;
@@ -1219,7 +1262,14 @@ int main(int argc, char** argv)
 #endif
 		} else {
 			uint64_t stream_amplitude_now;
-			sleep(1);
+#ifdef _WIN32
+			// Wait for interval timer event, or interrupt event.
+			HANDLE handles[] = {timer_handle, interrupt_handle};
+			WaitForMultipleObjects(2, handles, FALSE, INFINITE);
+#else
+			// Wait for SIGALRM from interval timer, or another signal.
+			pause();
+#endif
 			gettimeofday(&time_now, NULL);
 
 			byte_count_now = byte_count;
@@ -1286,6 +1336,15 @@ int main(int argc, char** argv)
 			}
 		}
 	}
+
+	// Stop interval timer.
+#ifdef _WIN32
+	CancelWaitableTimer(timer_handle);
+	CloseHandle(timer_handle);
+#else
+	interval_timer.it_value.tv_sec = 0;
+	setitimer(ITIMER_REAL, &interval_timer, NULL);
+#endif
 
 	result = hackrf_is_streaming(device);
 	if (do_exit) {
