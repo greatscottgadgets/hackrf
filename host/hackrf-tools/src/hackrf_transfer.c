@@ -538,9 +538,16 @@ int tx_callback(hackrf_transfer* transfer)
 		return -1; /* not repeat mode, end of file */
 	}
 
-	fprintf(stderr, "Input file end reached. Rewind to beginning.\n");
-	rewind(file);
-	fread(transfer->buffer + bytes_read, 1, bytes_to_read - bytes_read, file);
+	while (bytes_read < bytes_to_read) {
+		fprintf(stderr, "Input file end reached. Rewind to beginning.\n");
+		rewind(file);
+		bytes_read +=
+			fread(transfer->buffer + bytes_read,
+			      1,
+			      bytes_to_read - bytes_read,
+			      file);
+	}
+
 	return 0;
 }
 
