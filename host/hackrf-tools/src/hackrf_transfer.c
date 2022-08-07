@@ -439,32 +439,8 @@ int rx_callback(hackrf_transfer* transfer)
 			transfer->buffer[i] ^= (uint8_t) 0x80;
 		}
 	}
-	if (stream_size > 0) {
-#ifndef _WIN32
-		if ((stream_size - 1 + stream_head - stream_tail) % stream_size <
-		    bytes_to_write) {
-			stream_drop++;
-		} else {
-			if (stream_tail + bytes_to_write <= stream_size) {
-				memcpy(stream_buf + stream_tail,
-				       transfer->buffer,
-				       bytes_to_write);
-			} else {
-				memcpy(stream_buf + stream_tail,
-				       transfer->buffer,
-				       (stream_size - stream_tail));
-				memcpy(stream_buf,
-				       transfer->buffer + (stream_size - stream_tail),
-				       bytes_to_write - (stream_size - stream_tail));
-			};
-			__atomic_store_n(
-				&stream_tail,
-				(stream_tail + bytes_to_write) % stream_size,
-				__ATOMIC_RELEASE);
-		}
-#endif
-		return 0;
-	} else {
+
+	if (stream_size == 0) {
 		bytes_written = fwrite(transfer->buffer, 1, bytes_to_write, file);
 		if ((bytes_written != bytes_to_write) ||
 		    (limit_num_samples && (bytes_to_xfer == 0))) {
@@ -474,6 +450,31 @@ int rx_callback(hackrf_transfer* transfer)
 			return 0;
 		}
 	}
+
+#ifndef _WIN32
+	if ((stream_size - 1 + stream_head - stream_tail) % stream_size <
+	    bytes_to_write) {
+		stream_drop++;
+	} else {
+		if (stream_tail + bytes_to_write <= stream_size) {
+			memcpy(stream_buf + stream_tail,
+			       transfer->buffer,
+			       bytes_to_write);
+		} else {
+			memcpy(stream_buf + stream_tail,
+			       transfer->buffer,
+			       (stream_size - stream_tail));
+			memcpy(stream_buf,
+			       transfer->buffer + (stream_size - stream_tail),
+			       bytes_to_write - (stream_size - stream_tail));
+		};
+		__atomic_store_n(
+			&stream_tail,
+			(stream_tail + bytes_to_write) % stream_size,
+			__ATOMIC_RELEASE);
+	}
+#endif
+	return 0;
 }
 
 int tx_callback(hackrf_transfer* transfer)
@@ -527,22 +528,19 @@ int tx_callback(hackrf_transfer* transfer)
 		stop_main_loop();
 		return -1;
 	}
-	if (bytes_read != bytes_to_read) {
-		if (repeat) {
-			fprintf(stderr, "Input file end reached. Rewind to beginning.\n");
-			rewind(file);
-			fread(transfer->buffer + bytes_read,
-			      1,
-			      bytes_to_read - bytes_read,
-			      file);
-			return 0;
-		} else {
-			stop_main_loop();
-			return -1; /* not repeat mode, end of file */
-		}
 
-	} else {
+	if (bytes_read == bytes_to_read) {
 		return 0;
+	}
+
+	if (repeat) {
+		fprintf(stderr, "Input file end reached. Rewind to beginning.\n");
+		rewind(file);
+		fread(transfer->buffer + bytes_read, 1, bytes_to_read - bytes_read, file);
+		return 0;
+	} else {
+		stop_main_loop();
+		return -1; /* not repeat mode, end of file */
 	}
 }
 
