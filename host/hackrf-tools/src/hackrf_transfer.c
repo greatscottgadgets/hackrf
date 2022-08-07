@@ -533,15 +533,15 @@ int tx_callback(hackrf_transfer* transfer)
 		return 0;
 	}
 
-	if (repeat) {
-		fprintf(stderr, "Input file end reached. Rewind to beginning.\n");
-		rewind(file);
-		fread(transfer->buffer + bytes_read, 1, bytes_to_read - bytes_read, file);
-		return 0;
-	} else {
+	if (!repeat) {
 		stop_main_loop();
 		return -1; /* not repeat mode, end of file */
 	}
+
+	fprintf(stderr, "Input file end reached. Rewind to beginning.\n");
+	rewind(file);
+	fread(transfer->buffer + bytes_read, 1, bytes_to_read - bytes_read, file);
+	return 0;
 }
 
 static int update_stats(hackrf_device* device, hackrf_m0_state* state, stats_t* stats)
