@@ -414,67 +414,65 @@ int rx_callback(hackrf_transfer* transfer)
 	size_t bytes_written;
 	unsigned int i;
 
-	if (file != NULL) {
-		byte_count += transfer->valid_length;
-		bytes_to_write = transfer->valid_length;
-		if (limit_num_samples) {
-			if (bytes_to_write >= bytes_to_xfer) {
-				bytes_to_write = bytes_to_xfer;
-			}
-			bytes_to_xfer -= bytes_to_write;
-		}
-
-		// accumulate stream_amplitude:
-		for (i = 0; i < bytes_to_write; i++) {
-			stream_amplitude += abs((signed char) transfer->buffer[i]);
-		}
-
-		if (receive_wav) {
-			/* convert .wav contents from signed to unsigned */
-			for (i = 0; i < bytes_to_write; i++) {
-				transfer->buffer[i] ^= (uint8_t) 0x80;
-			}
-		}
-		if (stream_size > 0) {
-#ifndef _WIN32
-			if ((stream_size - 1 + stream_head - stream_tail) % stream_size <
-			    bytes_to_write) {
-				stream_drop++;
-			} else {
-				if (stream_tail + bytes_to_write <= stream_size) {
-					memcpy(stream_buf + stream_tail,
-					       transfer->buffer,
-					       bytes_to_write);
-				} else {
-					memcpy(stream_buf + stream_tail,
-					       transfer->buffer,
-					       (stream_size - stream_tail));
-					memcpy(stream_buf,
-					       transfer->buffer +
-						       (stream_size - stream_tail),
-					       bytes_to_write -
-						       (stream_size - stream_tail));
-				};
-				__atomic_store_n(
-					&stream_tail,
-					(stream_tail + bytes_to_write) % stream_size,
-					__ATOMIC_RELEASE);
-			}
-#endif
-			return 0;
-		} else {
-			bytes_written = fwrite(transfer->buffer, 1, bytes_to_write, file);
-			if ((bytes_written != bytes_to_write) ||
-			    (limit_num_samples && (bytes_to_xfer == 0))) {
-				stop_main_loop();
-				return -1;
-			} else {
-				return 0;
-			}
-		}
-	} else {
+	if (file == NULL) {
 		stop_main_loop();
 		return -1;
+	}
+
+	byte_count += transfer->valid_length;
+	bytes_to_write = transfer->valid_length;
+	if (limit_num_samples) {
+		if (bytes_to_write >= bytes_to_xfer) {
+			bytes_to_write = bytes_to_xfer;
+		}
+		bytes_to_xfer -= bytes_to_write;
+	}
+
+	// accumulate stream_amplitude:
+	for (i = 0; i < bytes_to_write; i++) {
+		stream_amplitude += abs((signed char) transfer->buffer[i]);
+	}
+
+	if (receive_wav) {
+		/* convert .wav contents from signed to unsigned */
+		for (i = 0; i < bytes_to_write; i++) {
+			transfer->buffer[i] ^= (uint8_t) 0x80;
+		}
+	}
+	if (stream_size > 0) {
+#ifndef _WIN32
+		if ((stream_size - 1 + stream_head - stream_tail) % stream_size <
+		    bytes_to_write) {
+			stream_drop++;
+		} else {
+			if (stream_tail + bytes_to_write <= stream_size) {
+				memcpy(stream_buf + stream_tail,
+				       transfer->buffer,
+				       bytes_to_write);
+			} else {
+				memcpy(stream_buf + stream_tail,
+				       transfer->buffer,
+				       (stream_size - stream_tail));
+				memcpy(stream_buf,
+				       transfer->buffer + (stream_size - stream_tail),
+				       bytes_to_write - (stream_size - stream_tail));
+			};
+			__atomic_store_n(
+				&stream_tail,
+				(stream_tail + bytes_to_write) % stream_size,
+				__ATOMIC_RELEASE);
+		}
+#endif
+		return 0;
+	} else {
+		bytes_written = fwrite(transfer->buffer, 1, bytes_to_write, file);
+		if ((bytes_written != bytes_to_write) ||
+		    (limit_num_samples && (bytes_to_xfer == 0))) {
+			stop_main_loop();
+			return -1;
+		} else {
+			return 0;
+		}
 	}
 }
 
@@ -494,41 +492,7 @@ int tx_callback(hackrf_transfer* transfer)
 		stream_amplitude += abs((signed char) transfer->buffer[i]);
 	}
 
-	if (file != NULL) {
-		if (limit_num_samples) {
-			if (bytes_to_read >= bytes_to_xfer) {
-				/*
-				 * In this condition, we probably tx some of the previous
-				 * buffer contents at the end.  :-(
-				 */
-				bytes_to_read = bytes_to_xfer;
-			}
-			bytes_to_xfer -= bytes_to_read;
-		}
-		bytes_read = fread(transfer->buffer, 1, bytes_to_read, file);
-		if (limit_num_samples && (bytes_to_xfer == 0)) {
-			stop_main_loop();
-			return -1;
-		}
-		if (bytes_read != bytes_to_read) {
-			if (repeat) {
-				fprintf(stderr,
-					"Input file end reached. Rewind to beginning.\n");
-				rewind(file);
-				fread(transfer->buffer + bytes_read,
-				      1,
-				      bytes_to_read - bytes_read,
-				      file);
-				return 0;
-			} else {
-				stop_main_loop();
-				return -1; /* not repeat mode, end of file */
-			}
-
-		} else {
-			return 0;
-		}
-	} else { // transceiver_mode == TRANSCEIVER_MODE_SS
+	if (file == NULL) { // transceiver_mode == TRANSCEIVER_MODE_SS
 		/* Transmit continuous wave with specific amplitude */
 		if (limit_num_samples) {
 			if (bytes_to_read >= bytes_to_xfer) {
@@ -546,6 +510,39 @@ int tx_callback(hackrf_transfer* transfer)
 		} else {
 			return 0;
 		}
+	}
+
+	if (limit_num_samples) {
+		if (bytes_to_read >= bytes_to_xfer) {
+			/*
+			 * In this condition, we probably tx some of the previous
+			 * buffer contents at the end.  :-(
+			 */
+			bytes_to_read = bytes_to_xfer;
+		}
+		bytes_to_xfer -= bytes_to_read;
+	}
+	bytes_read = fread(transfer->buffer, 1, bytes_to_read, file);
+	if (limit_num_samples && (bytes_to_xfer == 0)) {
+		stop_main_loop();
+		return -1;
+	}
+	if (bytes_read != bytes_to_read) {
+		if (repeat) {
+			fprintf(stderr, "Input file end reached. Rewind to beginning.\n");
+			rewind(file);
+			fread(transfer->buffer + bytes_read,
+			      1,
+			      bytes_to_read - bytes_read,
+			      file);
+			return 0;
+		} else {
+			stop_main_loop();
+			return -1; /* not repeat mode, end of file */
+		}
+
+	} else {
+		return 0;
 	}
 }
 
