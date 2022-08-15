@@ -19,24 +19,25 @@
  * Boston, MA 02110-1301, USA.
  */
 
- #include "hackrf_core.h"
+#include "hackrf_core.h"
 #include <stdint.h>
 
 #include "rom_iap.h"
 #include "w25q80bv.h"
 
-#define ROM_IAP_ADDR (0x10400100)
+#define ROM_IAP_ADDR       (0x10400100)
 #define ROM_IAP_UNDEF_ADDR (0x12345678)
 
 #define ROM_OTP_PART_ID_ADDR (0x40045000)
 
-typedef void (* IAP_t)(uint32_t [],uint32_t[]);
+typedef void (*IAP_t)(uint32_t[], uint32_t[]);
 
-typedef	struct {
-   const IAP_t IAP;	/* If equal to 0x12345678 IAP not implemented */
-   /* Other TBD */
-} *pENTRY_ROM_API_t; 
-#define pROM_API ((pENTRY_ROM_API_t)ROM_IAP_ADDR)
+typedef struct {
+	const IAP_t IAP; /* If equal to 0x12345678 IAP not implemented */
+			 /* Other TBD */
+} * pENTRY_ROM_API_t;
+
+#define pROM_API ((pENTRY_ROM_API_t) ROM_IAP_ADDR)
 
 /* 
  See Errata sheet ES_LPC43X0_A.pdf (LPC4350/30/20/10 Rev A)
@@ -54,25 +55,23 @@ typedef	struct {
 bool iap_is_implemented(void)
 {
 	bool res;
-	if( *((uint32_t*)ROM_IAP_ADDR) != ROM_IAP_UNDEF_ADDR )
-	{
+	if (*((uint32_t*) ROM_IAP_ADDR) != ROM_IAP_UNDEF_ADDR) {
 		res = true;
-	}else
-	{
+	} else {
 		res = false;
 	}
 	return res;
 }
 
-isp_iap_ret_code_t iap_cmd_call(iap_cmd_res_t* iap_cmd_res) 
+isp_iap_ret_code_t iap_cmd_call(iap_cmd_res_t* iap_cmd_res)
 {
 	uint32_t* p_u32_data;
-	
-	if( iap_is_implemented() )
-	{
-		pROM_API->IAP( (uint32_t*)&iap_cmd_res->cmd_param, (uint32_t*)&iap_cmd_res->status_res);
-	}else
-	{
+
+	if (iap_is_implemented()) {
+		pROM_API->IAP(
+			(uint32_t*) &iap_cmd_res->cmd_param,
+			(uint32_t*) &iap_cmd_res->status_res);
+	} else {
 		/* 
 		  Alternative way to retrieve Part Id on MCU with no IAP 
 		  Read Serial No => Read Unique ID in SPIFI (only compatible with W25Q80BV
@@ -80,25 +79,27 @@ isp_iap_ret_code_t iap_cmd_call(iap_cmd_res_t* iap_cmd_res)
 		spi_bus_start(spi_flash.bus, &ssp_config_w25q80bv);
 		w25q80bv_setup(&spi_flash);
 
-		switch(iap_cmd_res->cmd_param.command_code)
-		{
-			case IAP_CMD_READ_PART_ID_NO:
-				p_u32_data = (uint32_t*)ROM_OTP_PART_ID_ADDR;
-				iap_cmd_res->status_res.iap_result[0] = p_u32_data[0];
-				iap_cmd_res->status_res.iap_result[1] = p_u32_data[1];
-				iap_cmd_res->status_res.status_ret = CMD_SUCCESS;
+		switch (iap_cmd_res->cmd_param.command_code) {
+		case IAP_CMD_READ_PART_ID_NO:
+			p_u32_data = (uint32_t*) ROM_OTP_PART_ID_ADDR;
+			iap_cmd_res->status_res.iap_result[0] = p_u32_data[0];
+			iap_cmd_res->status_res.iap_result[1] = p_u32_data[1];
+			iap_cmd_res->status_res.status_ret = CMD_SUCCESS;
 			break;
-			
-			case IAP_CMD_READ_SERIAL_NO:
+
+		case IAP_CMD_READ_SERIAL_NO:
 			/* Only 64bits used */
 			iap_cmd_res->status_res.iap_result[0] = 0;
 			iap_cmd_res->status_res.iap_result[1] = 0;
-			w25q80bv_get_unique_id(&spi_flash, (w25q80bv_unique_id_t*)&iap_cmd_res->status_res.iap_result[2] );
-				iap_cmd_res->status_res.status_ret = CMD_SUCCESS;
+			w25q80bv_get_unique_id(
+				&spi_flash,
+				(w25q80bv_unique_id_t*) &iap_cmd_res->status_res
+					.iap_result[2]);
+			iap_cmd_res->status_res.status_ret = CMD_SUCCESS;
 			break;
-			
-			default:
-				iap_cmd_res->status_res.status_ret = ERROR_IAP_NOT_IMPLEMENTED;
+
+		default:
+			iap_cmd_res->status_res.status_ret = ERROR_IAP_NOT_IMPLEMENTED;
 			break;
 		}
 	}

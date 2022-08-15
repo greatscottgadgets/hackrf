@@ -4,9 +4,9 @@
 #include <stdint.h>
 
 // Local function: Get next nibble.
-static int ctr = 0; // offset for next nibble
+static int ctr = 0;  // offset for next nibble
 static int hilo = 0; // 0= high nibble next, 1=low nibble next
-static const uint8_t *data;
+static const uint8_t* data;
 
 #define MAXCHR (30 * 20)
 static uint8_t charBuf[MAXCHR];
@@ -43,24 +43,24 @@ static int upl(int off)
 	return retval;
 }
 
-uint8_t *rad1o_pk_decode(const uint8_t *ldata, int *len)
+uint8_t* rad1o_pk_decode(const uint8_t* ldata, int* len)
 {
 	ctr = 0;
 	hilo = 0;
 	data = ldata;
-	int length = *len; // Length of character bytestream
-	int height; // Height of character in bytes
-	int hoff; // bit position for non-integer heights
-	uint8_t *bufptr = charBuf; // Output buffer for decoded character
+	int length = *len;         // Length of character bytestream
+	int height;                // Height of character in bytes
+	int hoff;                  // bit position for non-integer heights
+	uint8_t* bufptr = charBuf; // Output buffer for decoded character
 
 	height = (rad1o_getFontHeight() - 1) / 8 + 1;
 	hoff = rad1o_getFontHeight() % 8;
 
-#define DYN (12) // Decoder parameter: Fixed value for now.
+#define DYN (12)        // Decoder parameter: Fixed value for now.
 	int repeat = 0; // Decoder internal: repeat colum?
 	int curbit = 0; // Decoder internal: current bit (1 or 0)
-	int pos = 0; // Decoder internal: current bit position (0..7)
-	int nyb; // Decoder internal: current nibble / value
+	int pos = 0;    // Decoder internal: current bit position (0..7)
+	int nyb;        // Decoder internal: current nibble / value
 
 	if (data[ctr] >> 4 == 14) { // Char starts with 1-bits.
 		gnn();
@@ -104,13 +104,10 @@ uint8_t *rad1o_pk_decode(const uint8_t *ldata, int *len)
 
 			if (pos == 8) {
 				bufptr++;
-				if ((bufptr - charBuf) % height ==
-				    0) { // End of column?
+				if ((bufptr - charBuf) % height == 0) { // End of column?
 					while (repeat > 0) {
-						for (int y = 0; y < height;
-						     y++) {
-							bufptr[0] =
-								bufptr[-height];
+						for (int y = 0; y < height; y++) {
+							bufptr[0] = bufptr[-height];
 							bufptr++;
 						};
 						repeat--;

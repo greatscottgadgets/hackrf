@@ -7,7 +7,7 @@
 static int32_t x = 0;
 static int32_t y = 0;
 
-void rad1o_lcdPrint(const char *string)
+void rad1o_lcdPrint(const char* string)
 {
 	x = rad1o_DoString(x, y, string);
 }

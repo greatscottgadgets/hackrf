@@ -39,8 +39,8 @@ volatile bool cpld_wait = false;
 
 static void cpld_buffer_refilled(void* user_data, unsigned int length)
 {
-	(void)user_data;
-	(void)length;
+	(void) user_data;
+	(void) length;
 	cpld_wait = false;
 }
 
@@ -52,11 +52,10 @@ static void refill_cpld_buffer(void)
 		cpld_xsvf_buffer,
 		sizeof(cpld_xsvf_buffer),
 		cpld_buffer_refilled,
-		NULL
-		);
+		NULL);
 
 	// Wait until transfer finishes
-	while (cpld_wait);
+	while (cpld_wait) {}
 }
 
 void cpld_update(void)
@@ -68,40 +67,47 @@ void cpld_update(void)
 
 	refill_cpld_buffer();
 
-	error = cpld_jtag_program(&jtag_cpld, sizeof(cpld_xsvf_buffer),
-				  cpld_xsvf_buffer,
-				  refill_cpld_buffer);
-	if(error == 0)
-	{
+	error = cpld_jtag_program(
+		&jtag_cpld,
+		sizeof(cpld_xsvf_buffer),
+		cpld_xsvf_buffer,
+		refill_cpld_buffer);
+	if (error == 0) {
 		halt_and_flash(6000000);
-	}else
-	{
+	} else {
 		/* LED3 (Red) steady on error */
 		led_on(LED3);
-		while (1);
+		while (1) {}
 	}
 }
 
 usb_request_status_t usb_vendor_request_cpld_checksum(
-	usb_endpoint_t* const endpoint, const usb_transfer_stage_t stage)
+	usb_endpoint_t* const endpoint,
+	const usb_transfer_stage_t stage)
 {
 	static uint32_t cpld_crc;
 	uint8_t length;
 
-	if (stage == USB_TRANSFER_STAGE_SETUP) 
-	{
+	if (stage == USB_TRANSFER_STAGE_SETUP) {
 		cpld_jtag_take(&jtag_cpld);
-		const bool checksum_success = cpld_xc2c64a_jtag_checksum(&jtag_cpld, &cpld_hackrf_verify, &cpld_crc);
+		const bool checksum_success = cpld_xc2c64a_jtag_checksum(
+			&jtag_cpld,
+			&cpld_hackrf_verify,
+			&cpld_crc);
 		cpld_jtag_release(&jtag_cpld);
 
-		if(!checksum_success) {
+		if (!checksum_success) {
 			return USB_REQUEST_STATUS_STALL;
 		}
-		
-		length = (uint8_t)sizeof(cpld_crc);
+
+		length = (uint8_t) sizeof(cpld_crc);
 		memcpy(endpoint->buffer, &cpld_crc, length);
-		usb_transfer_schedule_block(endpoint->in, endpoint->buffer, length,
-					    NULL, NULL);
+		usb_transfer_schedule_block(
+			endpoint->in,
+			endpoint->buffer,
+			length,
+			NULL,
+			NULL);
 		usb_transfer_schedule_ack(endpoint->out);
 	}
 	return USB_REQUEST_STATUS_OK;

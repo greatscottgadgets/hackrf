@@ -26,4 +26,4 @@
 
 const hackrf_ui_t* portapack_hackrf_ui_init() __attribute__((weak));
 
-#endif/*__UI_PORTAPACK_H__*/
+#endif /*__UI_PORTAPACK_H__*/

@@ -7,7 +7,7 @@
 #include <string.h>
 
 /* Global Variables */
-static const struct FONT_DEF *font = NULL;
+static const struct FONT_DEF* font = NULL;
 
 static struct EXTFONT efont;
 
@@ -21,7 +21,7 @@ void rad1o_setTextColor(uint8_t bg, uint8_t fg)
 	color_fg = fg;
 }
 
-void rad1o_setIntFont(const struct FONT_DEF *newfont)
+void rad1o_setIntFont(const struct FONT_DEF* newfont)
 {
 	memcpy(&efont.def, newfont, sizeof(struct FONT_DEF));
 	efont.type = FONT_INTERNAL;
@@ -69,7 +69,7 @@ int rad1o_DoChar(int sx, int sy, int c)
 	char height = (font->u8Height - 1) / 8 + 1;
 	char hoff = (8 - (font->u8Height % 8)) % 8;
 
-	const uint8_t *data;
+	const uint8_t* data;
 	int width, preblank = 0, postblank = 0;
 	do { /* Get Character data */
 		/* Get intex into character list */
@@ -98,19 +98,17 @@ int rad1o_DoChar(int sx, int sy, int c)
 				data = &font->au8FontTable[toff + 3];
 				width = (width - 3 / height);
 			} else {
-				data = rad1o_pk_decode(
-					&font->au8FontTable[toff], &width);
+				data = rad1o_pk_decode(&font->au8FontTable[toff], &width);
 			}
 		} else {
-			toff = (c)*font->u8Width * 1;
+			toff = (c) *font->u8Width * 1;
 			width = font->u8Width;
 			data = &font->au8FontTable[toff];
 		};
 
 	} while (0);
 
-#define xy_(x, y)                                                              \
-	((x < 0 || y < 0 || x >= RESX || y >= RESY) ? 0 : (y)*RESX + (x))
+#define xy_(x, y) ((x < 0 || y < 0 || x >= RESX || y >= RESY) ? 0 : (y) *RESX + (x))
 #define gPx(x, y) (data[x * height + (height - y / 8 - 1)] & (1 << (y % 8)))
 
 	int x = 0;
@@ -120,7 +118,7 @@ int rad1o_DoChar(int sx, int sy, int c)
 
 	sx += preblank;
 
-	uint8_t *lcdBuffer = rad1o_lcdGetBuffer();
+	uint8_t* lcdBuffer = rad1o_lcdGetBuffer();
 	/* per line */
 	for (int y = hoff; y < height * 8; y++) {
 		if (sy + y >= RESY)
@@ -152,9 +150,9 @@ int rad1o_DoChar(int sx, int sy, int c)
 	return sx + (width + postblank);
 }
 
-int rad1o_DoString(int sx, int sy, const char *s)
+int rad1o_DoString(int sx, int sy, const char* s)
 {
-	const char *c;
+	const char* c;
 	for (c = s; *c != 0; c++) {
 		sx = rad1o_DoChar(sx, sy, *c);
 	};

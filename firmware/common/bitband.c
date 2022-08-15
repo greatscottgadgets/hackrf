@@ -21,25 +21,40 @@
 
 #include "bitband.h"
 
-volatile uint32_t* peripheral_bitband_address(volatile void* const address, const uint_fast8_t bit_number) {
-    const uint32_t bit_band_base = 0x42000000;
-    const uint32_t byte_offset = (uint32_t)address - 0x40000000;
-    const uint32_t bit_word_offset = (byte_offset * 32) + (bit_number * 4);
-    const uint32_t bit_word_address = bit_band_base + bit_word_offset;
-    return (volatile uint32_t*)bit_word_address;
+volatile uint32_t* peripheral_bitband_address(
+	volatile void* const address,
+	const uint_fast8_t bit_number)
+{
+	const uint32_t bit_band_base = 0x42000000;
+	const uint32_t byte_offset = (uint32_t) address - 0x40000000;
+	const uint32_t bit_word_offset = (byte_offset * 32) + (bit_number * 4);
+	const uint32_t bit_word_address = bit_band_base + bit_word_offset;
+	return (volatile uint32_t*) bit_word_address;
 }
 
-void peripheral_bitband_set(volatile void* const peripheral_address, const uint_fast8_t bit_number) {
-    volatile uint32_t* const bitband_address = peripheral_bitband_address(peripheral_address, bit_number);
-    *bitband_address = 1;
+void peripheral_bitband_set(
+	volatile void* const peripheral_address,
+	const uint_fast8_t bit_number)
+{
+	volatile uint32_t* const bitband_address =
+		peripheral_bitband_address(peripheral_address, bit_number);
+	*bitband_address = 1;
 }
 
-void peripheral_bitband_clear(volatile void* const peripheral_address, const uint_fast8_t bit_number) {
-    volatile uint32_t* const bitband_address = peripheral_bitband_address(peripheral_address, bit_number);
-    *bitband_address = 0;
+void peripheral_bitband_clear(
+	volatile void* const peripheral_address,
+	const uint_fast8_t bit_number)
+{
+	volatile uint32_t* const bitband_address =
+		peripheral_bitband_address(peripheral_address, bit_number);
+	*bitband_address = 0;
 }
 
-uint32_t peripheral_bitband_get(volatile void* const peripheral_address, const uint_fast8_t bit_number) {
-    volatile uint32_t* const bitband_address = peripheral_bitband_address(peripheral_address, bit_number);
-    return *bitband_address;
+uint32_t peripheral_bitband_get(
+	volatile void* const peripheral_address,
+	const uint_fast8_t bit_number)
+{
+	volatile uint32_t* const bitband_address =
+		peripheral_bitband_address(peripheral_address, bit_number);
+	return *bitband_address;
 }

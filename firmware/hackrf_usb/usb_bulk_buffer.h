@@ -35,4 +35,4 @@
  */
 extern uint8_t usb_bulk_buffer[USB_BULK_BUFFER_SIZE];
 
-#endif/*__USB_BULK_BUFFER_H__*/
+#endif /*__USB_BULK_BUFFER_H__*/

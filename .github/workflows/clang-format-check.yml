@@ -1,0 +1,25 @@
+name: Check code style
+on: [push, pull_request]
+jobs:
+  formatting-check:
+    name: clang-format
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        path:
+          - check: 'host/libhackrf/src'
+            exclude: ''
+          - check: 'host/hackrf-tools/src'
+            exclude: ''
+          - check: 'firmware/common'
+            exclude: 'firmware/common/xapp058'
+          - check: 'firmware/hackrf_usb'
+            exclude: ''
+    steps:
+    - uses: actions/checkout@v2
+    - name: Run clang-format-action
+      uses: jidicula/clang-format-action@v4.6.2
+      with:
+        clang-format-version: '14'
+        check-path: ${{ matrix.path['check'] }}
+        exclude-regex: ${{ matrix.path['exclude'] }}

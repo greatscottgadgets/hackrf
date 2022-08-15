@@ -16,8 +16,8 @@ static void delayms(const uint32_t milliseconds)
 	delay(milliseconds * 40800);
 }
 
-static struct gpio_t gpio_lcd_cs = GPIO(4, 12); /* P9_0 */
-static struct gpio_t gpio_lcd_bl_en = GPIO(0, 8); /* P1_1 */
+static struct gpio_t gpio_lcd_cs = GPIO(4, 12);    /* P9_0 */
+static struct gpio_t gpio_lcd_bl_en = GPIO(0, 8);  /* P1_1 */
 static struct gpio_t gpio_lcd_reset = GPIO(5, 17); /* P9_4 */
 
 /**************************************************************************/
@@ -44,9 +44,16 @@ static void select()
 	uint8_t serial_clock_rate = 1;
 	uint8_t clock_prescale_rate = 12;
 
-	ssp_init(LCD_SSP, SSP_DATA_9BITS, SSP_FRAME_SPI, SSP_CPOL_0_CPHA_0,
-		 serial_clock_rate, clock_prescale_rate, SSP_MODE_NORMAL,
-		 SSP_MASTER, SSP_SLAVE_OUT_ENABLE);
+	ssp_init(
+		LCD_SSP,
+		SSP_DATA_9BITS,
+		SSP_FRAME_SPI,
+		SSP_CPOL_0_CPHA_0,
+		serial_clock_rate,
+		clock_prescale_rate,
+		SSP_MODE_NORMAL,
+		SSP_MASTER,
+		SSP_SLAVE_OUT_ENABLE);
 
 	gpio_clear(&gpio_lcd_cs);
 }
@@ -87,18 +94,25 @@ void rad1o_lcdInit(void)
 	/* The controller is a PCF8833 - documentation can be found online. */
 	static uint8_t initseq_d[] = {
 		0x11, // SLEEP_OUT  (wake up)
-		0x3A, 2, // mode 8bpp  (2= 8bpp, 3= 12bpp, 5= 16bpp)
-		0x36, 0b11000000, // my,mx,v,lao,rgb,x,x,x
-		0x25, 0x3a, // set contrast
+		0x3A,
+		2, // mode 8bpp  (2= 8bpp, 3= 12bpp, 5= 16bpp)
+		0x36,
+		0b11000000, // my,mx,v,lao,rgb,x,x,x
+		0x25,
+		0x3a, // set contrast
 		0x29, // display on
 		0x03, // BSTRON (booster voltage)
-		0x2A, 1,	  RESX, 0x2B, 1, RESY
-	};
-	uint16_t initseq_c = ~(/* commands: 1, data: 0 */
-			       (1 << 0) | (1 << 1) | (0 << 2) | (1 << 3) |
-			       (0 << 4) | (1 << 5) | (0 << 6) | (1 << 7) |
-			       (1 << 8) | (1 << 9) | (0 << 10) | (0 << 11) |
-			       (1 << 12) | (0 << 13) | (0 << 14) | 0);
+		0x2A,
+		1,
+		RESX,
+		0x2B,
+		1,
+		RESY};
+	uint16_t initseq_c =
+		~(/* commands: 1, data: 0 */
+		  (1 << 0) | (1 << 1) | (0 << 2) | (1 << 3) | (0 << 4) | (1 << 5) |
+		  (0 << 6) | (1 << 7) | (1 << 8) | (1 << 9) | (0 << 10) | (0 << 11) |
+		  (1 << 12) | (0 << 13) | (0 << 14) | 0);
 
 	write(0, 0x01); /* most color displays need the pause */
 	delayms(10);
@@ -139,7 +153,7 @@ static uint8_t getPixel(uint8_t x, uint8_t y)
 	return lcdBuffer[y * RESX + x];
 }
 
-uint8_t *rad1o_lcdGetBuffer(void)
+uint8_t* rad1o_lcdGetBuffer(void)
 {
 	return lcdBuffer;
 }

@@ -56,8 +56,7 @@ usb_endpoint_t usb_endpoint_bulk_in = {
 	.in = &usb_endpoint_bulk_in,
 	.out = 0,
 	.setup_complete = 0,
-	.transfer_complete = usb_queue_transfer_complete
-};
+	.transfer_complete = usb_queue_transfer_complete};
 static USB_DEFINE_QUEUE(usb_endpoint_bulk_in, 1);
 
 usb_endpoint_t usb_endpoint_bulk_out = {
@@ -66,8 +65,5 @@ usb_endpoint_t usb_endpoint_bulk_out = {
 	.in = 0,
 	.out = &usb_endpoint_bulk_out,
 	.setup_complete = 0,
-	.transfer_complete = usb_queue_transfer_complete
-};
+	.transfer_complete = usb_queue_transfer_complete};
 static USB_DEFINE_QUEUE(usb_endpoint_bulk_out, 1);
-
-

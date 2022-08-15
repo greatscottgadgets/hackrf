@@ -24,13 +24,14 @@
 #include <libopencm3/lpc43xx/scu.h>
 #include "hackrf_core.h"
 
-void max5864_target_init(max5864_driver_t* const drv) {
-	(void)drv;
-	
+void max5864_target_init(max5864_driver_t* const drv)
+{
+	(void) drv;
+
 	/* Configure SSP1 Peripheral (to be moved later in SSP driver) */
 	scu_pinmux(SCU_SSP1_CIPO, (SCU_SSP_IO | SCU_CONF_FUNCTION5));
 	scu_pinmux(SCU_SSP1_COPI, (SCU_SSP_IO | SCU_CONF_FUNCTION5));
-	scu_pinmux(SCU_SSP1_SCK,  (SCU_SSP_IO | SCU_CONF_FUNCTION1));
+	scu_pinmux(SCU_SSP1_SCK, (SCU_SSP_IO | SCU_CONF_FUNCTION1));
 
 	/*
 	 * Configure CS_AD pin to keep the MAX5864 SPI disabled while we use the

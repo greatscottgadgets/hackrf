@@ -52,11 +52,10 @@ void cpld_jtag_release(jtag_t* const jtag);
  * contents of the buffer has been streamed to the CPLD the given
  * refill_buffer callback will be called. */
 int cpld_jtag_program(
-		jtag_t* const jtag,
-        const uint32_t buffer_length,
-        unsigned char* const buffer,
-        refill_buffer_cb refill
-);
+	jtag_t* const jtag,
+	const uint32_t buffer_length,
+	unsigned char* const buffer,
+	refill_buffer_cb refill);
 unsigned char cpld_jtag_get_next_byte(void);
 
-#endif//__CPLD_JTAG_H__
+#endif //__CPLD_JTAG_H__

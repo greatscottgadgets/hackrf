@@ -52,7 +52,7 @@
 #include "usb_api_m0_state.h"
 #include "cpld_xc2c.h"
 #include "portapack.h"
- 
+
 #include "hackrf_ui.h"
 
 extern uint32_t __m0_start__;
@@ -95,7 +95,7 @@ static usb_request_handler_fn vendor_request_handler[] = {
 	NULL,
 #endif
 	usb_vendor_request_set_freq_explicit,
-	usb_vendor_request_read_wcid,  // USB_WCID_VENDOR_REQ
+	usb_vendor_request_read_wcid, // USB_WCID_VENDOR_REQ
 	usb_vendor_request_init_sweep,
 	usb_vendor_request_operacake_get_boards,
 	usb_vendor_request_operacake_set_ports,
@@ -125,17 +125,18 @@ static const uint32_t vendor_request_handler_count =
 
 usb_request_status_t usb_vendor_request(
 	usb_endpoint_t* const endpoint,
-	const usb_transfer_stage_t stage
-) {
+	const usb_transfer_stage_t stage)
+{
 	usb_request_status_t status = USB_REQUEST_STATUS_STALL;
-	
-	if( endpoint->setup.request < vendor_request_handler_count ) {
-		usb_request_handler_fn handler = vendor_request_handler[endpoint->setup.request];
-		if( handler ) {
+
+	if (endpoint->setup.request < vendor_request_handler_count) {
+		usb_request_handler_fn handler =
+			vendor_request_handler[endpoint->setup.request];
+		if (handler) {
 			status = handler(endpoint, stage);
 		}
 	}
-	
+
 	return status;
 }
 
@@ -146,12 +147,11 @@ const usb_request_handlers_t usb_request_handlers = {
 	.reserved = 0,
 };
 
-void usb_configuration_changed(
-	usb_device_t* const device
-) {
+void usb_configuration_changed(usb_device_t* const device)
+{
 	/* Reset transceiver to idle state until other commands are received */
 	request_transceiver_mode(TRANSCEIVER_MODE_OFF);
-	if( device->configuration->number == 1 ) {
+	if (device->configuration->number == 1) {
 		// transceiver configuration
 		led_on(LED1);
 	} else {
@@ -165,19 +165,24 @@ void usb_configuration_changed(
 void usb_set_descriptor_by_serial_number(void)
 {
 	iap_cmd_res_t iap_cmd_res;
-	
+
 	/* Read IAP Serial Number Identification */
 	iap_cmd_res.cmd_param.command_code = IAP_CMD_READ_SERIAL_NO;
 	iap_cmd_call(&iap_cmd_res);
-	
+
 	if (iap_cmd_res.status_res.status_ret == CMD_SUCCESS) {
-		usb_descriptor_string_serial_number[0] = USB_DESCRIPTOR_STRING_SERIAL_BUF_LEN;
+		usb_descriptor_string_serial_number[0] =
+			USB_DESCRIPTOR_STRING_SERIAL_BUF_LEN;
 		usb_descriptor_string_serial_number[1] = USB_DESCRIPTOR_TYPE_STRING;
-		
+
 		/* 32 characters of serial number, convert to UTF-16LE */
-		for (size_t i=0; i<USB_DESCRIPTOR_STRING_SERIAL_LEN; i++) {
-			const uint_fast8_t nibble = (iap_cmd_res.status_res.iap_result[i >> 3] >> (28 - (i & 7) * 4)) & 0xf;
-			const char c = (nibble > 9) ? ('a' + nibble - 10) : ('0' + nibble);
+		for (size_t i = 0; i < USB_DESCRIPTOR_STRING_SERIAL_LEN; i++) {
+			const uint_fast8_t nibble =
+				(iap_cmd_res.status_res.iap_result[i >> 3] >>
+				 (28 - (i & 7) * 4)) &
+				0xf;
+			const char c =
+				(nibble > 9) ? ('a' + nibble - 10) : ('0' + nibble);
 			usb_descriptor_string_serial_number[2 + i * 2] = c;
 			usb_descriptor_string_serial_number[3 + i * 2] = 0x00;
 		}
@@ -187,28 +192,34 @@ void usb_set_descriptor_by_serial_number(void)
 	}
 }
 
-static bool cpld_jtag_sram_load(jtag_t* const jtag) {
+static bool cpld_jtag_sram_load(jtag_t* const jtag)
+{
 	cpld_jtag_take(jtag);
 	cpld_xc2c64a_jtag_sram_write(jtag, &cpld_hackrf_program_sram);
-	const bool success = cpld_xc2c64a_jtag_sram_verify(jtag, &cpld_hackrf_program_sram, &cpld_hackrf_verify);
+	const bool success = cpld_xc2c64a_jtag_sram_verify(
+		jtag,
+		&cpld_hackrf_program_sram,
+		&cpld_hackrf_verify);
 	cpld_jtag_release(jtag);
 	return success;
 }
 
-static void m0_rom_to_ram() {
-	uint32_t *dest = &__ram_m0_start__;
+static void m0_rom_to_ram()
+{
+	uint32_t* dest = &__ram_m0_start__;
 
 	// Calculate the base address of ROM
-	uint32_t base = (uint32_t)(&_etext_rom - (&_etext_ram - &_text_ram));
+	uint32_t base = (uint32_t) (&_etext_rom - (&_etext_ram - &_text_ram));
 
 	// M0 image location, relative to the start of ROM
-	uint32_t src = (uint32_t)&__m0_start__;
+	uint32_t src = (uint32_t) &__m0_start__;
 
-	uint32_t len = (uint32_t)&__m0_end__ - (uint32_t)src;
-	memcpy(dest, (uint32_t*)(base + src), len);
+	uint32_t len = (uint32_t) &__m0_end__ - (uint32_t) src;
+	memcpy(dest, (uint32_t*) (base + src), len);
 }
 
-int main(void) {
+int main(void)
+{
 	// Copy M0 image from ROM before SPIFI is disabled
 	m0_rom_to_ram();
 
@@ -223,9 +234,9 @@ int main(void) {
 	cpu_clock_init();
 
 	/* Wake the M0 */
-	ipc_start_m0((uint32_t)&__ram_m0_start__);
+	ipc_start_m0((uint32_t) &__ram_m0_start__);
 
-	if( !cpld_jtag_sram_load(&jtag_cpld) ) {
+	if (!cpld_jtag_sram_load(&jtag_cpld)) {
 		halt_and_flash(6000000);
 	}
 
@@ -239,9 +250,9 @@ int main(void) {
 
 	usb_set_configuration_changed_cb(usb_configuration_changed);
 	usb_peripheral_reset();
-	
+
 	usb_device_init(0, &usb_device);
-	
+
 	usb_queue_init(&usb_endpoint_control_out_queue);
 	usb_queue_init(&usb_endpoint_control_in_queue);
 	usb_queue_init(&usb_endpoint_bulk_out_queue);
@@ -249,24 +260,24 @@ int main(void) {
 
 	usb_endpoint_init(&usb_endpoint_control_out);
 	usb_endpoint_init(&usb_endpoint_control_in);
-	
+
 	nvic_set_priority(NVIC_USB0_IRQ, 255);
 
 	hackrf_ui()->init();
 
 	usb_run(&usb_device);
-	
+
 	rf_path_init(&rf_path);
 
 	bool operacake_allow_gpio;
-	if( hackrf_ui()->operacake_gpio_compatible() ) {
+	if (hackrf_ui()->operacake_gpio_compatible()) {
 		operacake_allow_gpio = true;
 	} else {
 		operacake_allow_gpio = false;
 	}
 	operacake_init(operacake_allow_gpio);
 
-	while(true) {
+	while (true) {
 		transceiver_request_t request;
 
 		// Briefly disable USB interrupt so that we can

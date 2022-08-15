@@ -5,20 +5,22 @@
 #include "gpio_lpc.h"
 
 /* RFFC5071 GPIO serial interface PinMux */
+// clang-format off
 #if (defined JAWBREAKER || defined HACKRF_ONE)
-static struct gpio_t gpio_rffc5072_select	= GPIO(2, 13);
-static struct gpio_t gpio_rffc5072_clock	= GPIO(5,  6);
-static struct gpio_t gpio_rffc5072_data		= GPIO(3,  3);
-static struct gpio_t gpio_rffc5072_reset	= GPIO(2, 14);
+static struct gpio_t gpio_rffc5072_select = GPIO(2, 13);
+static struct gpio_t gpio_rffc5072_clock  = GPIO(5,  6);
+static struct gpio_t gpio_rffc5072_data   = GPIO(3,  3);
+static struct gpio_t gpio_rffc5072_reset  = GPIO(2, 14);
 #endif
 #ifdef RAD1O
-static struct gpio_t gpio_vco_ce			= GPIO(2, 13);
-static struct gpio_t gpio_vco_sclk			= GPIO(5,  6);
-static struct gpio_t gpio_vco_sdata			= GPIO(3,  3);
-static struct gpio_t gpio_vco_le			= GPIO(2, 14);
-static struct gpio_t gpio_vco_mux			= GPIO(5, 25);
-static struct gpio_t gpio_synt_rfout_en		= GPIO(3,  5);
+static struct gpio_t gpio_vco_ce        = GPIO(2, 13);
+static struct gpio_t gpio_vco_sclk      = GPIO(5,  6);
+static struct gpio_t gpio_vco_sdata     = GPIO(3,  3);
+static struct gpio_t gpio_vco_le        = GPIO(2, 14);
+static struct gpio_t gpio_vco_mux       = GPIO(5, 25);
+static struct gpio_t gpio_synt_rfout_en = GPIO(3,  5);
 #endif
+// clang-format on
 
 #if (defined JAWBREAKER || defined HACKRF_ONE)
 const rffc5071_spi_config_t rffc5071_spi_config = {

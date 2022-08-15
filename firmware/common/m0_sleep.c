@@ -19,8 +19,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
-int main() {
-	while(1) {
-		
-	}
+int main()
+{
+	while (1) {}
 }

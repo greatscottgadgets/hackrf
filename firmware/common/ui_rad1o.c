@@ -41,14 +41,14 @@ static bool lna_on = false;
 static transceiver_mode_t trx_mode;
 static bool enabled = false;
 
-#define BLACK 0b00000000
-#define RED 0b11100000
-#define RED_DARK 0b01100000
-#define GREEN 0b00011100
+#define BLACK      0b00000000
+#define RED        0b11100000
+#define RED_DARK   0b01100000
+#define GREEN      0b00011100
 #define GREEN_DARK 0b00001100
-#define BLUE 0b00000011
-#define WHITE 0b11111111
-#define GREY 0b01001101
+#define BLUE       0b00000011
+#define WHITE      0b11111111
+#define GREY       0b01001101
 
 static void draw_frequency(void)
 {
@@ -61,7 +61,7 @@ static void draw_frequency(void)
 
 	rad1o_setTextColor(BLACK, GREEN);
 	rad1o_setIntFont(&Font_Ubuntu18pt);
-	sprintf(tmp, "%4u.%03u", (unsigned int)mhz, (unsigned int)khz);
+	sprintf(tmp, "%4u.%03u", (unsigned int) mhz, (unsigned int) khz);
 	rad1o_lcdPrint(tmp);
 
 	rad1o_setIntFont(&Font_7x8);
@@ -148,7 +148,7 @@ static void ui_update(void)
 	rad1o_lcdPrint("Rate:   ");
 	mhz = sample_rate / 1000000;
 	khz = (sample_rate - mhz * 1000000) / 1000;
-	sprintf(tmp, "%2u.%03u MHz", (unsigned int)mhz, (unsigned int)khz);
+	sprintf(tmp, "%2u.%03u MHz", (unsigned int) mhz, (unsigned int) khz);
 	rad1o_lcdPrint(tmp);
 	rad1o_lcdNl();
 
@@ -156,7 +156,7 @@ static void ui_update(void)
 	rad1o_lcdPrint("Filter: ");
 	mhz = filter_bw / 1000000;
 	khz = (filter_bw - mhz * 1000000) / 1000;
-	sprintf(tmp, "%2u.%03u MHz", (unsigned int)mhz, (unsigned int)khz);
+	sprintf(tmp, "%2u.%03u MHz", (unsigned int) mhz, (unsigned int) khz);
 	rad1o_lcdPrint(tmp);
 	rad1o_lcdNl();
 
@@ -181,7 +181,7 @@ static void ui_update(void)
 	if (direction == RF_PATH_DIRECTION_TX) {
 		rad1o_setTextColor(BLACK, RED);
 	}
-	sprintf(tmp, " TX: %u dB", (unsigned int)bbtxvga_gain);
+	sprintf(tmp, " TX: %u dB", (unsigned int) bbtxvga_gain);
 	rad1o_lcdPrint(tmp);
 	rad1o_lcdNl();
 
@@ -190,11 +190,11 @@ static void ui_update(void)
 	if (direction == RF_PATH_DIRECTION_RX) {
 		rad1o_setTextColor(BLACK, GREEN);
 	}
-	sprintf(tmp, "LNA: %2u dB", (unsigned int)bblna_gain);
+	sprintf(tmp, "LNA: %2u dB", (unsigned int) bblna_gain);
 	rad1o_lcdPrint(tmp);
 	rad1o_lcdNl();
 	rad1o_lcdMoveCrsr(2, 0);
-	sprintf(tmp, "VGA: %2u dB", (unsigned int)bbvga_gain);
+	sprintf(tmp, "VGA: %2u dB", (unsigned int) bbvga_gain);
 	rad1o_lcdPrint(tmp);
 	rad1o_lcdNl();
 
@@ -277,8 +277,7 @@ static void rad1o_ui_set_first_if_frequency(const uint64_t frequency
 	// Not implemented
 }
 
-static void rad1o_ui_set_filter(const rf_path_filter_t filter
-				__attribute__((unused)))
+static void rad1o_ui_set_filter(const rf_path_filter_t filter __attribute__((unused)))
 {
 	// Not implemented
 }
@@ -288,8 +287,7 @@ static void rad1o_ui_set_antenna_bias(bool antenna_bias __attribute__((unused)))
 	// Not implemented
 }
 
-static void rad1o_ui_set_clock_source(clock_source_t source
-				      __attribute__((unused)))
+static void rad1o_ui_set_clock_source(clock_source_t source __attribute__((unused)))
 {
 	// Not implemented
 }
@@ -324,7 +322,7 @@ static const hackrf_ui_t rad1o_ui = {
 	&rad1o_ui_operacake_gpio_compatible,
 };
 
-const hackrf_ui_t *rad1o_ui_setup(void)
+const hackrf_ui_t* rad1o_ui_setup(void)
 {
 	return &rad1o_ui;
 }
