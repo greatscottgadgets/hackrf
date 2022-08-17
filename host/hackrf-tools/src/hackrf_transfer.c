@@ -609,7 +609,7 @@ static void usage()
 
 static hackrf_device* device = NULL;
 
-#ifdef _MSC_VER
+#ifdef _WIN32
 BOOL WINAPI sighandler(int signum)
 {
 	if (CTRL_C_EVENT == signum) {
@@ -1041,7 +1041,7 @@ int main(int argc, char** argv)
 		fwrite(&wave_file_hdr, 1, sizeof(t_wav_file_hdr), file);
 	}
 
-#ifdef _MSC_VER
+#ifdef _WIN32
 	SetConsoleCtrlHandler((PHANDLER_ROUTINE) sighandler, TRUE);
 #else
 	signal(SIGINT, &sigint_callback_handler);
