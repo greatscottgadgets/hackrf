@@ -179,3 +179,20 @@ usb_request_status_t usb_vendor_request_set_clkout_enable(
 	}
 	return USB_REQUEST_STATUS_OK;
 }
+
+usb_request_status_t usb_vendor_request_get_clkin_status(
+	usb_endpoint_t* const endpoint,
+	const usb_transfer_stage_t stage)
+{
+	if (stage == USB_TRANSFER_STAGE_SETUP) {
+		endpoint->buffer[0] = si5351c_clkin_signal_valid(&clock_gen);
+		usb_transfer_schedule_block(
+			endpoint->in,
+			&endpoint->buffer,
+			1,
+			NULL,
+			NULL);
+		usb_transfer_schedule_ack(endpoint->out);
+	}
+	return USB_REQUEST_STATUS_OK;
+}

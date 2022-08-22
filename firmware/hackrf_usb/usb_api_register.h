@@ -47,5 +47,8 @@ usb_request_status_t usb_vendor_request_read_rffc5071(
 usb_request_status_t usb_vendor_request_set_clkout_enable(
 	usb_endpoint_t* const endpoint,
 	const usb_transfer_stage_t stage);
+usb_request_status_t usb_vendor_request_get_clkin_status(
+	usb_endpoint_t* const endpoint,
+	const usb_transfer_stage_t stage);
 
 #endif /* end of include guard: __USB_API_REGISTER_H__ */

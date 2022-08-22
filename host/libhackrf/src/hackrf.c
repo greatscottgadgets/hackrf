@@ -99,6 +99,7 @@ typedef enum {
 	HACKRF_VENDOR_REQUEST_GET_M0_STATE = 41,
 	HACKRF_VENDOR_REQUEST_SET_TX_UNDERRUN_LIMIT = 42,
 	HACKRF_VENDOR_REQUEST_SET_RX_OVERRUN_LIMIT = 43,
+	HACKRF_VENDOR_REQUEST_GET_CLKIN_STATUS = 44,
 } hackrf_vendor_request;
 
 #define USB_CONFIG_STANDARD 0x1
@@ -2514,6 +2515,27 @@ int ADDCALL hackrf_set_clkout_enable(hackrf_device* device, const uint8_t value)
 		0);
 
 	if (result != 0) {
+		last_libusb_error = result;
+		return HACKRF_ERROR_LIBUSB;
+	} else {
+		return HACKRF_SUCCESS;
+	}
+}
+
+int ADDCALL hackrf_get_clkin_status(hackrf_device* device, uint8_t* status)
+{
+	USB_API_REQUIRED(device, 0x0106)
+	int result;
+	result = libusb_control_transfer(
+		device->usb_device,
+		LIBUSB_ENDPOINT_IN | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_GET_CLKIN_STATUS,
+		0,
+		0,
+		status,
+		1,
+		0);
+	if (result < 1) {
 		last_libusb_error = result;
 		return HACKRF_ERROR_LIBUSB;
 	} else {

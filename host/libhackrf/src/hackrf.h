@@ -440,6 +440,8 @@ extern ADDAPI int ADDCALL hackrf_set_clkout_enable(
 	hackrf_device* device,
 	const uint8_t value);
 
+extern ADDAPI int ADDCALL hackrf_get_clkin_status(hackrf_device* device, uint8_t* status);
+
 extern ADDAPI int ADDCALL hackrf_operacake_gpio_test(
 	hackrf_device* device,
 	uint8_t address,
