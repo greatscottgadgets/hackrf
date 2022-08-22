@@ -883,7 +883,8 @@ int main(int argc, char** argv)
 			u64toa(freq_hz, &ascii_u64_data[0]));
 
 	} else if (automatic_tuning) {
-		if ((freq_hz > FREQ_MAX_HZ | freq_hz < FREQ_MIN_HZ) && !force_ranges) {
+		if (((freq_hz > FREQ_MAX_HZ) | (freq_hz < FREQ_MIN_HZ)) &&
+		    !force_ranges) {
 			fprintf(stderr,
 				"argument error: freq_hz should be between %s and %s.\n",
 				u64toa(FREQ_MIN_HZ, &ascii_u64_data[0]),
