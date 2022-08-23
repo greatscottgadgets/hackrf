@@ -89,14 +89,18 @@ int gettimeofday(struct timeval* tv, void* ignored)
 #define FREQ_ONE_MHZ (1000000ll)
 
 #define DEFAULT_FREQ_HZ (900000000ll)  /* 900MHz */
-#define FREQ_MIN_HZ     (0ull)         /* 0 Hz */
-#define FREQ_MAX_HZ     (7250000000ll) /* 7250MHz */
+#define FREQ_ABS_MIN_HZ (0ull)         /* 0 Hz */
+#define FREQ_MIN_HZ     (1000000ll)    /* 1MHz */
+#define FREQ_MAX_HZ     (6000000000ll) /* 6000MHz */
+#define FREQ_ABS_MAX_HZ (7250000000ll) /* 7250MHz */
 #define IF_MIN_HZ       (2150000000ll)
 #define IF_MAX_HZ       (2750000000ll)
 #define LO_MIN_HZ       (84375000ll)
 #define LO_MAX_HZ       (5400000000ll)
 #define DEFAULT_LO_HZ   (1000000000ll)
 
+#define SAMPLE_RATE_MIN_HZ     (2000000)  /* 2MHz min sample rate */
+#define SAMPLE_RATE_MAX_HZ     (20000000) /* 20MHz max sample rate */
 #define DEFAULT_SAMPLE_RATE_HZ (10000000) /* 10MHz default sample rate */
 
 #define DEFAULT_BASEBAND_FILTER_BANDWIDTH (5000000) /* 5MHz default */
@@ -190,8 +194,7 @@ typedef struct {
 	char data[U64TOA_MAX_DIGIT + 1];
 } t_u64toa;
 
-t_u64toa ascii_u64_data1;
-t_u64toa ascii_u64_data2;
+t_u64toa ascii_u64_data[4];
 
 static float TimevalDiff(const struct timeval* a, const struct timeval* b)
 {
@@ -376,6 +379,8 @@ uint32_t antenna_enable;
 
 bool sample_rate = false;
 uint32_t sample_rate_hz;
+
+bool force_ranges = false;
 
 bool limit_num_samples = false;
 uint64_t samples_to_xfer = 0;
@@ -591,23 +596,28 @@ static void usage()
 	printf("\t-t <filename> # Transmit data from file (use '-' for stdin).\n");
 	printf("\t-w # Receive data into file with WAV header and automatic name.\n");
 	printf("\t   # This is for SDR# compatibility and may not work with other software.\n");
-	printf("\t[-f freq_hz] # Frequency in Hz [%sMHz to %sMHz].\n",
-	       u64toa((FREQ_MIN_HZ / FREQ_ONE_MHZ), &ascii_u64_data1),
-	       u64toa((FREQ_MAX_HZ / FREQ_ONE_MHZ), &ascii_u64_data2));
+	printf("\t[-f freq_hz] # Frequency in Hz [%sMHz to %sMHz supported, %sMHz to %sMHz forceable].\n",
+	       u64toa((FREQ_MIN_HZ / FREQ_ONE_MHZ), &ascii_u64_data[0]),
+	       u64toa((FREQ_MAX_HZ / FREQ_ONE_MHZ), &ascii_u64_data[1]),
+	       u64toa((FREQ_ABS_MIN_HZ / FREQ_ONE_MHZ), &ascii_u64_data[2]),
+	       u64toa((FREQ_ABS_MAX_HZ / FREQ_ONE_MHZ), &ascii_u64_data[3]));
 	printf("\t[-i if_freq_hz] # Intermediate Frequency (IF) in Hz [%sMHz to %sMHz].\n",
-	       u64toa((IF_MIN_HZ / FREQ_ONE_MHZ), &ascii_u64_data1),
-	       u64toa((IF_MAX_HZ / FREQ_ONE_MHZ), &ascii_u64_data2));
+	       u64toa((IF_MIN_HZ / FREQ_ONE_MHZ), &ascii_u64_data[0]),
+	       u64toa((IF_MAX_HZ / FREQ_ONE_MHZ), &ascii_u64_data[1]));
 	printf("\t[-o lo_freq_hz] # Front-end Local Oscillator (LO) frequency in Hz [%sMHz to %sMHz].\n",
-	       u64toa((LO_MIN_HZ / FREQ_ONE_MHZ), &ascii_u64_data1),
-	       u64toa((LO_MAX_HZ / FREQ_ONE_MHZ), &ascii_u64_data2));
+	       u64toa((LO_MIN_HZ / FREQ_ONE_MHZ), &ascii_u64_data[0]),
+	       u64toa((LO_MAX_HZ / FREQ_ONE_MHZ), &ascii_u64_data[1]));
 	printf("\t[-m image_reject] # Image rejection filter selection, 0=bypass, 1=low pass, 2=high pass.\n");
 	printf("\t[-a amp_enable] # RX/TX RF amplifier 1=Enable, 0=Disable.\n");
 	printf("\t[-p antenna_enable] # Antenna port power, 1=Enable, 0=Disable.\n");
 	printf("\t[-l gain_db] # RX LNA (IF) gain, 0-40dB, 8dB steps\n");
 	printf("\t[-g gain_db] # RX VGA (baseband) gain, 0-62dB, 2dB steps\n");
 	printf("\t[-x gain_db] # TX VGA (IF) gain, 0-47dB, 1dB steps\n");
-	printf("\t[-s sample_rate_hz] # Sample rate in Hz (2-20MHz, default %sMHz).\n",
-	       u64toa((DEFAULT_SAMPLE_RATE_HZ / FREQ_ONE_MHZ), &ascii_u64_data1));
+	printf("\t[-s sample_rate_hz] # Sample rate in Hz (%s-%sMHz supported, default %sMHz).\n",
+	       u64toa((SAMPLE_RATE_MIN_HZ / FREQ_ONE_MHZ), &ascii_u64_data[0]),
+	       u64toa((SAMPLE_RATE_MAX_HZ / FREQ_ONE_MHZ), &ascii_u64_data[1]),
+	       u64toa((DEFAULT_SAMPLE_RATE_HZ / FREQ_ONE_MHZ), &ascii_u64_data[2]));
+	printf("\t[-F force] # Force use of parameters outside supported ranges.\n");
 	printf("\t[-n num_samples] # Number of samples to transfer (default is unlimited).\n");
 #ifndef _WIN32
 	/* The required atomic load/store functions aren't available when using C with MSVC */
@@ -670,8 +680,10 @@ int main(int argc, char** argv)
 	hackrf_m0_state state;
 	stats_t stats = {0, 0};
 
-	while ((opt = getopt(argc, argv, "H:wr:t:f:i:o:m:a:p:s:n:b:l:g:x:c:d:C:RS:Bh?")) !=
-	       EOF) {
+	while ((opt =
+			getopt(argc,
+			       argv,
+			       "H:wr:t:f:i:o:m:a:p:s:Fn:b:l:g:x:c:d:C:RS:Bh?")) != EOF) {
 		result = HACKRF_SUCCESS;
 		switch (opt) {
 		case 'H':
@@ -751,6 +763,10 @@ int main(int argc, char** argv)
 			sample_rate = true;
 			break;
 
+		case 'F':
+			force_ranges = true;
+			break;
+
 		case 'n':
 			limit_num_samples = true;
 			result = parse_u64(optarg, &samples_to_xfer);
@@ -816,8 +832,8 @@ int main(int argc, char** argv)
 	if (samples_to_xfer >= SAMPLES_TO_XFER_MAX) {
 		fprintf(stderr,
 			"argument error: num_samples must be less than %s/%sMio\n",
-			u64toa(SAMPLES_TO_XFER_MAX, &ascii_u64_data1),
-			u64toa((SAMPLES_TO_XFER_MAX / FREQ_ONE_MHZ), &ascii_u64_data2));
+			u64toa(SAMPLES_TO_XFER_MAX, &ascii_u64_data[0]),
+			u64toa((SAMPLES_TO_XFER_MAX / FREQ_ONE_MHZ), &ascii_u64_data[1]));
 		usage();
 		return EXIT_FAILURE;
 	}
@@ -845,16 +861,16 @@ int main(int argc, char** argv)
 		if ((if_freq_hz > IF_MAX_HZ) || (if_freq_hz < IF_MIN_HZ)) {
 			fprintf(stderr,
 				"argument error: if_freq_hz shall be between %s and %s.\n",
-				u64toa(IF_MIN_HZ, &ascii_u64_data1),
-				u64toa(IF_MAX_HZ, &ascii_u64_data2));
+				u64toa(IF_MIN_HZ, &ascii_u64_data[0]),
+				u64toa(IF_MAX_HZ, &ascii_u64_data[1]));
 			usage();
 			return EXIT_FAILURE;
 		}
 		if ((lo_freq_hz > LO_MAX_HZ) || (lo_freq_hz < LO_MIN_HZ)) {
 			fprintf(stderr,
 				"argument error: lo_freq_hz shall be between %s and %s.\n",
-				u64toa(LO_MIN_HZ, &ascii_u64_data1),
-				u64toa(LO_MAX_HZ, &ascii_u64_data2));
+				u64toa(LO_MIN_HZ, &ascii_u64_data[0]),
+				u64toa(LO_MAX_HZ, &ascii_u64_data[1]));
 			usage();
 			return EXIT_FAILURE;
 		}
@@ -885,14 +901,23 @@ int main(int argc, char** argv)
 		}
 		fprintf(stderr,
 			"explicit tuning specified for %s Hz.\n",
-			u64toa(freq_hz, &ascii_u64_data1));
+			u64toa(freq_hz, &ascii_u64_data[0]));
 
 	} else if (automatic_tuning) {
-		if (freq_hz > FREQ_MAX_HZ) {
+		if (((freq_hz > FREQ_MAX_HZ) | (freq_hz < FREQ_MIN_HZ)) &&
+		    !force_ranges) {
 			fprintf(stderr,
-				"argument error: freq_hz shall be between %s and %s.\n",
-				u64toa(FREQ_MIN_HZ, &ascii_u64_data1),
-				u64toa(FREQ_MAX_HZ, &ascii_u64_data2));
+				"argument error: freq_hz should be between %s and %s.\n",
+				u64toa(FREQ_MIN_HZ, &ascii_u64_data[0]),
+				u64toa(FREQ_MAX_HZ, &ascii_u64_data[1]));
+			usage();
+			return EXIT_FAILURE;
+		}
+		if (freq_hz > FREQ_ABS_MAX_HZ) {
+			fprintf(stderr,
+				"argument error: freq_hz must be between %s and %s.\n",
+				u64toa(FREQ_ABS_MIN_HZ, &ascii_u64_data[0]),
+				u64toa(FREQ_ABS_MAX_HZ, &ascii_u64_data[1]));
 			usage();
 			return EXIT_FAILURE;
 		}
@@ -919,7 +944,24 @@ int main(int argc, char** argv)
 		}
 	}
 
-	if (sample_rate == false) {
+	if (sample_rate) {
+		if (sample_rate_hz > SAMPLE_RATE_MAX_HZ && !force_ranges) {
+			fprintf(stderr,
+				"argument error: sample_rate_hz should be less than or equal to %u Hz/%.03f MHz\n",
+				SAMPLE_RATE_MAX_HZ,
+				(float) (SAMPLE_RATE_MAX_HZ / FREQ_ONE_MHZ));
+			usage();
+			return EXIT_FAILURE;
+		}
+		if (sample_rate_hz < SAMPLE_RATE_MIN_HZ && !force_ranges) {
+			fprintf(stderr,
+				"argument error: sample_rate_hz should be greater than or equal to %u Hz/%.03f MHz\n",
+				SAMPLE_RATE_MIN_HZ,
+				(float) (SAMPLE_RATE_MIN_HZ / FREQ_ONE_MHZ));
+			usage();
+			return EXIT_FAILURE;
+		}
+	} else {
 		sample_rate_hz = DEFAULT_SAMPLE_RATE_HZ;
 	}
 
@@ -1143,7 +1185,7 @@ int main(int argc, char** argv)
 	if (automatic_tuning) {
 		fprintf(stderr,
 			"call hackrf_set_freq(%s Hz/%.03f MHz)\n",
-			u64toa(freq_hz, &ascii_u64_data1),
+			u64toa(freq_hz, &ascii_u64_data[0]),
 			((double) freq_hz / (double) FREQ_ONE_MHZ));
 		result = hackrf_set_freq(device, freq_hz);
 		if (result != HACKRF_SUCCESS) {
@@ -1157,8 +1199,8 @@ int main(int argc, char** argv)
 	} else {
 		fprintf(stderr,
 			"call hackrf_set_freq_explicit() with %s Hz IF, %s Hz LO, %s\n",
-			u64toa(if_freq_hz, &ascii_u64_data1),
-			u64toa(lo_freq_hz, &ascii_u64_data2),
+			u64toa(if_freq_hz, &ascii_u64_data[0]),
+			u64toa(lo_freq_hz, &ascii_u64_data[1]),
 			hackrf_filter_path_name(image_reject_selection));
 		result = hackrf_set_freq_explicit(
 			device,
@@ -1204,8 +1246,8 @@ int main(int argc, char** argv)
 	if (limit_num_samples) {
 		fprintf(stderr,
 			"samples_to_xfer %s/%sMio\n",
-			u64toa(samples_to_xfer, &ascii_u64_data1),
-			u64toa((samples_to_xfer / FREQ_ONE_MHZ), &ascii_u64_data2));
+			u64toa(samples_to_xfer, &ascii_u64_data[0]),
+			u64toa((samples_to_xfer / FREQ_ONE_MHZ), &ascii_u64_data[1]));
 	}
 
 	gettimeofday(&t_start, NULL);
