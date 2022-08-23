@@ -104,6 +104,9 @@ typedef enum {
 
 #define USB_CONFIG_STANDARD 0x1
 
+#define RX_ENDPOINT_ADDRESS (LIBUSB_ENDPOINT_IN | 1)
+#define TX_ENDPOINT_ADDRESS (LIBUSB_ENDPOINT_OUT | 2)
+
 typedef enum {
 	HACKRF_TRANSCEIVER_MODE_OFF = 0,
 	HACKRF_TRANSCEIVER_MODE_RECEIVE = 1,
@@ -1239,7 +1242,7 @@ int ADDCALL hackrf_cpld_write(
 	for (i = 0; i < total_length; i += chunk_size) {
 		result = libusb_bulk_transfer(
 			device->usb_device,
-			LIBUSB_ENDPOINT_OUT | 2,
+			TX_ENDPOINT_ADDRESS,
 			&data[i],
 			chunk_size,
 			&transferred,
@@ -1847,7 +1850,7 @@ int ADDCALL hackrf_start_rx(
 	void* rx_ctx)
 {
 	int result;
-	const uint8_t endpoint_address = LIBUSB_ENDPOINT_IN | 1;
+	const uint8_t endpoint_address = RX_ENDPOINT_ADDRESS;
 	device->rx_ctx = rx_ctx;
 	result = hackrf_set_transceiver_mode(device, HACKRF_TRANSCEIVER_MODE_RECEIVE);
 	if (result == HACKRF_SUCCESS) {
@@ -1889,7 +1892,7 @@ int ADDCALL hackrf_start_tx(
 	void* tx_ctx)
 {
 	int result;
-	const uint8_t endpoint_address = LIBUSB_ENDPOINT_OUT | 2;
+	const uint8_t endpoint_address = TX_ENDPOINT_ADDRESS;
 	result = hackrf_set_transceiver_mode(device, HACKRF_TRANSCEIVER_MODE_TRANSMIT);
 	if (result == HACKRF_SUCCESS) {
 		device->tx_ctx = tx_ctx;
@@ -2631,7 +2634,7 @@ int ADDCALL hackrf_start_rx_sweep(
 {
 	USB_API_REQUIRED(device, 0x0104)
 	int result;
-	const uint8_t endpoint_address = LIBUSB_ENDPOINT_IN | 1;
+	const uint8_t endpoint_address = RX_ENDPOINT_ADDRESS;
 	result = hackrf_set_transceiver_mode(device, TRANSCEIVER_MODE_RX_SWEEP);
 	if (HACKRF_SUCCESS == result) {
 		device->rx_ctx = rx_ctx;
