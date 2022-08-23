@@ -322,26 +322,26 @@ static int prepare_transfers(
 {
 	int error;
 	uint32_t transfer_index;
-	if (device->transfers != NULL) {
-		for (transfer_index = 0; transfer_index < TRANSFER_COUNT;
-		     transfer_index++) {
-			device->transfers[transfer_index]->endpoint = endpoint_address;
-			device->transfers[transfer_index]->callback = callback;
 
-			error = libusb_submit_transfer(device->transfers[transfer_index]);
-			if (error != 0) {
-				last_libusb_error = error;
-				return HACKRF_ERROR_LIBUSB;
-			}
-			device->active_transfers++;
-		}
-		device->transfers_setup = true;
-		device->streaming = true;
-		return HACKRF_SUCCESS;
-	} else {
+	if (device->transfers == NULL) {
 		// This shouldn't happen.
 		return HACKRF_ERROR_OTHER;
 	}
+
+	for (transfer_index = 0; transfer_index < TRANSFER_COUNT; transfer_index++) {
+		device->transfers[transfer_index]->endpoint = endpoint_address;
+		device->transfers[transfer_index]->callback = callback;
+
+		error = libusb_submit_transfer(device->transfers[transfer_index]);
+		if (error != 0) {
+			last_libusb_error = error;
+			return HACKRF_ERROR_LIBUSB;
+		}
+		device->active_transfers++;
+	}
+	device->transfers_setup = true;
+	device->streaming = true;
+	return HACKRF_SUCCESS;
 }
 
 static int detach_kernel_drivers(libusb_device_handle* usb_device_handle)
