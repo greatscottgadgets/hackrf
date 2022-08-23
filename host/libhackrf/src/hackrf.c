@@ -322,13 +322,50 @@ static int prepare_transfers(
 {
 	int error;
 	uint32_t transfer_index;
+	uint32_t ready_transfers = 0;
 
 	if (device->transfers == NULL) {
 		// This shouldn't happen.
 		return HACKRF_ERROR_OTHER;
 	}
 
-	for (transfer_index = 0; transfer_index < TRANSFER_COUNT; transfer_index++) {
+	// If setting up for TX, call the TX callback to fill each
+	// transfer buffer.
+
+	// All transfers must be filled before any are submitted.
+	// Otherwise a transfer might complete whilst the others are
+	// still being filled, causing the transfer thread to make a
+	// concurrent call to the TX callback.
+
+	// We also need to handle the case where the callback returns
+	// nonzero to indicate completion, so keep count of how many
+	// transfers were made ready to submit at this stage.
+
+	if (endpoint_address == TX_ENDPOINT_ADDRESS) {
+		for (transfer_index = 0; transfer_index < TRANSFER_COUNT;
+		     transfer_index++) {
+			hackrf_transfer transfer = {
+				.device = device,
+				.buffer = device->transfers[transfer_index]->buffer,
+				.buffer_length = TRANSFER_BUFFER_SIZE,
+				.valid_length = TRANSFER_BUFFER_SIZE,
+				.rx_ctx = device->rx_ctx,
+				.tx_ctx = device->tx_ctx,
+			};
+			if (device->callback(&transfer) == 0) {
+				ready_transfers++;
+			} else {
+				break;
+			}
+		}
+
+	} else {
+		// For RX, all transfers are already ready for use.
+		ready_transfers = TRANSFER_COUNT;
+	}
+
+	// Now everything is ready, go ahead and submit the ready transfers.
+	for (transfer_index = 0; transfer_index < ready_transfers; transfer_index++) {
 		device->transfers[transfer_index]->endpoint = endpoint_address;
 		device->transfers[transfer_index]->callback = callback;
 
@@ -339,8 +376,13 @@ static int prepare_transfers(
 		}
 		device->active_transfers++;
 	}
+
+	// We should only continue streaming if all transfers were made ready
+	// and submitted above. Otherwise, set streaming to false so that the
+	// libusb completion callback won't submit further transfers.
+	device->streaming = (ready_transfers == TRANSFER_COUNT);
 	device->transfers_setup = true;
-	device->streaming = true;
+
 	return HACKRF_SUCCESS;
 }
 
