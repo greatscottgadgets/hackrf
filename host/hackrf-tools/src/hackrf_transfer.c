@@ -1171,6 +1171,7 @@ int main(int argc, char** argv)
 		result |= hackrf_start_rx(device, rx_callback, NULL);
 	} else {
 		result = hackrf_set_txvga_gain(device, txvga_gain);
+		result |= hackrf_enable_tx_flush(device, 1);
 		result |= hackrf_start_tx(device, tx_callback, NULL);
 	}
 	if (result != HACKRF_SUCCESS) {
@@ -1387,6 +1388,10 @@ int main(int argc, char** argv)
 	interval_timer.it_value.tv_sec = 0;
 	setitimer(ITIMER_REAL, &interval_timer, NULL);
 #endif
+	if (transmit) {
+		// Wait for TX to finish.
+		hackrf_await_tx_flush(device);
+	}
 
 	result = hackrf_is_streaming(device);
 	if (do_exit) {
