@@ -237,6 +237,9 @@ extern ADDAPI int ADDCALL hackrf_start_tx(
 	hackrf_sample_block_cb_fn callback,
 	void* tx_ctx);
 
+extern ADDAPI int ADDCALL hackrf_enable_tx_flush(hackrf_device* device, int enable);
+extern ADDAPI int ADDCALL hackrf_await_tx_flush(hackrf_device* device);
+
 extern ADDAPI int ADDCALL hackrf_stop_tx(hackrf_device* device);
 
 extern ADDAPI int ADDCALL hackrf_get_m0_state(
