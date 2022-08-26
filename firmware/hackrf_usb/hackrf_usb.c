@@ -27,6 +27,7 @@
 #include <libopencm3/lpc43xx/ipc.h>
 #include <libopencm3/lpc43xx/m4/nvic.h>
 #include <libopencm3/lpc43xx/rgu.h>
+#include <libopencm3/lpc43xx/timer.h>
 
 #include <streaming.h>
 
@@ -55,6 +56,7 @@
 #include "portapack.h"
 #include "hackrf_ui.h"
 #include "platform_detect.h"
+#include "clkin.h"
 
 extern uint32_t __m0_start__;
 extern uint32_t __m0_end__;
@@ -285,6 +287,8 @@ int main(void)
 		operacake_allow_gpio = false;
 	}
 	operacake_init(operacake_allow_gpio);
+
+	clkin_detect_init();
 
 	while (true) {
 		transceiver_request_t request;
