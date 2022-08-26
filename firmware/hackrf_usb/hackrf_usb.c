@@ -26,6 +26,7 @@
 #include <libopencm3/lpc43xx/ipc.h>
 #include <libopencm3/lpc43xx/m4/nvic.h>
 #include <libopencm3/lpc43xx/rgu.h>
+#include <libopencm3/lpc43xx/timer.h>
 
 #include <streaming.h>
 
@@ -52,8 +53,8 @@
 #include "usb_api_m0_state.h"
 #include "cpld_xc2c.h"
 #include "portapack.h"
-
 #include "hackrf_ui.h"
+#include "clkin.h"
 
 extern uint32_t __m0_start__;
 extern uint32_t __m0_end__;
@@ -277,6 +278,25 @@ int main(void)
 		operacake_allow_gpio = false;
 	}
 	operacake_init(operacake_allow_gpio);
+
+	clkin_detect_init();
+	while (true) {
+		if ((clkin_frequency() > 9000000) && (clkin_frequency() < 11000000)) {
+			led_on(LED1);
+		} else {
+			led_off(LED1);
+		}
+		if (TIMER3_TC < (204000 * 500)) {
+			led_on(LED3);
+		} else {
+			led_off(LED3);
+		}
+		if (TIMER0_TC > 10) {
+			led_on(LED2);
+		} else {
+			led_off(LED2);
+		}
+	}
 
 	while (true) {
 		transceiver_request_t request;
