@@ -13,7 +13,7 @@
   (title_block
     (title "HackRF One")
     (date 2021-09-28)
-    (rev r8)
+    (rev r9)
     (company "Copyright 2012-2020 Great Scott Gadgets")
     (comment 1 "Michael Ossmann")
     (comment 2 "Licensed under the CERN-OHL-P v2")
@@ -10779,7 +10779,7 @@
       (net 192 GND))
   )
 
-  (gr_text r8 (at 97.8 103.7) (layer F.SilkS) (tstamp 5F0633C1)
+  (gr_text r9 (at 97.8 103.7) (layer F.SilkS) (tstamp 5F0633C1)
     (effects (font (size 1.778 1.27) (thickness 0.3048)))
   )
   (gr_line (start 180 126.825) (end 180 138.74) (angle 90) (layer Edge.Cuts) (width 0.381))

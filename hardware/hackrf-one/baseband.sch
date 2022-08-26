@@ -6,7 +6,7 @@ encoding utf-8
 Sheet 3 4
 Title "HackRF One"
 Date "2021-09-28"
-Rev "r8"
+Rev "r9"
 Comp "Copyright 2012-2020 Great Scott Gadgets"
 Comment1 "Michael Ossmann"
 Comment2 "Licensed under the CERN-OHL-P v2"
