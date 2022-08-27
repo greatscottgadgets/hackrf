@@ -1,7 +1,7 @@
 (kicad_pcb (version 20211014) (generator pcbnew)
 
   (general
-    (thickness 1.6002)
+    (thickness 1.6116)
   )
 
   (paper "USLegal")
@@ -29,10 +29,30 @@
     (39 "F.Mask" user)
     (41 "Cmts.User" user "User.Comments")
     (44 "Edge.Cuts" user)
+    (45 "Margin" user)
+    (46 "B.CrtYd" user "B.Courtyard")
+    (47 "F.CrtYd" user "F.Courtyard")
   )
 
   (setup
-    (pad_to_mask_clearance 0.0762)
+    (stackup
+      (layer "F.SilkS" (type "Top Silk Screen") (color "White"))
+      (layer "F.Paste" (type "Top Solder Paste"))
+      (layer "F.Mask" (type "Top Solder Mask") (color "Green") (thickness 0.0127) (material "LPI") (epsilon_r 3.8) (loss_tangent 0))
+      (layer "F.Cu" (type "copper") (thickness 0.035))
+      (layer "dielectric 1" (type "prepreg") (thickness 0.2104) (material "7628") (epsilon_r 4.6) (loss_tangent 0))
+      (layer "In1.Cu" (type "copper") (thickness 0.0152))
+      (layer "dielectric 2" (type "core") (thickness 1.065) (material "7628") (epsilon_r 4.6) (loss_tangent 0))
+      (layer "In2.Cu" (type "copper") (thickness 0.0152))
+      (layer "dielectric 3" (type "prepreg") (thickness 0.2104) (material "7628") (epsilon_r 4.6) (loss_tangent 0))
+      (layer "B.Cu" (type "copper") (thickness 0.035))
+      (layer "B.Mask" (type "Bottom Solder Mask") (color "Green") (thickness 0.0127) (material "LPI") (epsilon_r 3.8) (loss_tangent 0))
+      (layer "B.Paste" (type "Bottom Solder Paste"))
+      (layer "B.SilkS" (type "Bottom Silk Screen") (color "White"))
+      (copper_finish "ENIG")
+      (dielectric_constraints yes)
+    )
+    (pad_to_mask_clearance 0.05)
     (pad_to_paste_clearance_ratio -0.12)
     (pcbplotparams
       (layerselection 0x00010e8_ffffffff)
