@@ -1567,6 +1567,9 @@
     (path "/00000000-0000-0000-0000-000050370666/00000000-0000-0000-0000-000052807806"
       (reference "D9") (unit 1) (value "GSG-DIODE-TVS-BI") (footprint "hackrf:GSG-0402")
     )
+    (path "/00000000-0000-0000-0000-0000503bb638/c62c921b-cf7e-4f02-9ff2-1e3f2c3200b3"
+      (reference "D10") (unit 1) (value "D_Schottky") (footprint "gsg-modules:DSN1006-2")
+    )
     (path "/00000000-0000-0000-0000-00005037043e/00000000-0000-0000-0000-00004f766f5e"
       (reference "FB1") (unit 1) (value "FILTER") (footprint "hackrf:GSG-0805")
     )
