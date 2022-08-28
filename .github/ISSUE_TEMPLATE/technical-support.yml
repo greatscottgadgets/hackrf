@@ -14,8 +14,8 @@ body:
     attributes: 
       label: Have you read the HackRF [troubleshooting documentation](https://hackrf.readthedocs.io/en/latest/troubleshooting.html)?
       options:
-        - 'yes'
-        - 'no'
+        - "yes"
+        - "no"
     validations:
       required: true
   - type: textarea
@@ -32,15 +32,10 @@ body:
       placeholder: Please be detailed in what did happen
     validations:
       required: true
-  - type: checkboxes
+  - type: textarea
     id: operating-systems
     attributes:
       label: What operating systems are you seeing the problem on?
-      options: 
-        - Linux
-        - Windows
-        - MacOS
-        - other
     validations:
       required: true
   - type: textarea
