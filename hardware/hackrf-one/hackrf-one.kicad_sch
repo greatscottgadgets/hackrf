@@ -61,6 +61,9 @@
   )
 
   (symbol_instances
+    (path "/00000000-0000-0000-0000-00005037043e/00000000-0000-0000-0000-0000616412a9"
+      (reference "#PWR01") (unit 1) (value "GND") (footprint "")
+    )
     (path "/00000000-0000-0000-0000-0000503bb638/00000000-0000-0000-0000-000050457e6b"
       (reference "#PWR02") (unit 1) (value "GND") (footprint "")
     )
@@ -993,9 +996,6 @@
     )
     (path "/00000000-0000-0000-0000-00005037043e/00000000-0000-0000-0000-0000603d5946"
       (reference "#PWR0329") (unit 1) (value "VCC") (footprint "")
-    )
-    (path "/00000000-0000-0000-0000-00005037043e/00000000-0000-0000-0000-0000616412a9"
-      (reference "#PWR?") (unit 1) (value "GND") (footprint "")
     )
     (path "/00000000-0000-0000-0000-0000503bb638/00000000-0000-0000-0000-00004faecb99"
       (reference "C1") (unit 1) (value "33pF") (footprint "hackrf:GSG-0402")
