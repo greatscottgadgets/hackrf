@@ -8,7 +8,7 @@ body:
       value: |
         Thank you for taking the time to fill out this bug report!
   - type: dropdown
-    id: issue type
+    id: issue-type
     attributes: 
       label: What type of issue is this? 
       options:
@@ -25,7 +25,7 @@ body:
     validations:
       required: true
   - type: textarea
-    id: reproduce issue
+    id: reproduce-issue
     attributes:
       label: What are the steps to reproduce this? 
       placeholder: Please provide the steps to reproduce this issue
