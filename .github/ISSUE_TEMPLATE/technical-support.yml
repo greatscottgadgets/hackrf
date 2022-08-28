@@ -49,14 +49,6 @@ body:
     attributes:
       label: What is the output of ```hackrf_info```?
       description: Please put the output of the command in the box below or indicate N/A. 
-      placeholder: ```hackrf_info version: unknown
-        libhackrf version: unknown (0.5)
-        Found HackRF
-        Index: 0
-        Serial number: 0000000000000000325866e6211d5123
-        Board ID Number: 2 (HackRF One)
-        Firmware Version: git-9a1c0e4e (API:1.06)
-        Part ID Number: 0xa000cb3c 0x004c4752```
     validations:
       required: true
   - type: textarea
