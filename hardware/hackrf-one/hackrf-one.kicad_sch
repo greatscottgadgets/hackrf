@@ -61,6 +61,27 @@
   )
 
   (symbol_instances
+    (path "/00000000-0000-0000-0000-00005037043e/7f2af6f5-f8f8-44e4-9fd1-7de41d7be1e7"
+      (reference "#FLG01") (unit 1) (value "PWR_FLAG") (footprint "")
+    )
+    (path "/00000000-0000-0000-0000-00005037043e/72fef865-5e85-4976-a16c-7846e29352aa"
+      (reference "#FLG0101") (unit 1) (value "PWR_FLAG") (footprint "")
+    )
+    (path "/00000000-0000-0000-0000-00005037043e/879c5289-7d6f-4197-9280-9c6f12590e89"
+      (reference "#FLG0102") (unit 1) (value "PWR_FLAG") (footprint "")
+    )
+    (path "/00000000-0000-0000-0000-00005037043e/c949a014-5cc4-4fff-9b82-431be2e52c17"
+      (reference "#FLG0103") (unit 1) (value "PWR_FLAG") (footprint "")
+    )
+    (path "/00000000-0000-0000-0000-00005037043e/8c2124cb-02e6-4598-a567-ba62ecb138cc"
+      (reference "#FLG0104") (unit 1) (value "PWR_FLAG") (footprint "")
+    )
+    (path "/00000000-0000-0000-0000-00005037043e/dc26470f-6b60-4548-8be1-3855bc888a99"
+      (reference "#FLG0105") (unit 1) (value "PWR_FLAG") (footprint "")
+    )
+    (path "/00000000-0000-0000-0000-00005037043e/095eb182-6d23-4adb-93c6-94497da1c5e8"
+      (reference "#FLG0106") (unit 1) (value "PWR_FLAG") (footprint "")
+    )
     (path "/00000000-0000-0000-0000-00005037043e/00000000-0000-0000-0000-0000616412a9"
       (reference "#PWR01") (unit 1) (value "GND") (footprint "")
     )
@@ -996,6 +1017,18 @@
     )
     (path "/00000000-0000-0000-0000-00005037043e/00000000-0000-0000-0000-0000603d5946"
       (reference "#PWR0329") (unit 1) (value "VCC") (footprint "")
+    )
+    (path "/00000000-0000-0000-0000-00005037043e/cd407314-1747-44b7-b7f4-cea27f15f9df"
+      (reference "#PWR0330") (unit 1) (value "GND") (footprint "")
+    )
+    (path "/00000000-0000-0000-0000-00005037043e/dfe66709-2ac5-4f7a-aad7-60309480500e"
+      (reference "#PWR0331") (unit 1) (value "VCC") (footprint "")
+    )
+    (path "/00000000-0000-0000-0000-00005037043e/ccb0ef7c-df56-430d-8009-beab74cfefee"
+      (reference "#PWR0332") (unit 1) (value "+1V8") (footprint "")
+    )
+    (path "/00000000-0000-0000-0000-00005037043e/9419e46f-cef4-46ec-b0f3-09fd6d5ab26c"
+      (reference "#PWR0333") (unit 1) (value "VAA") (footprint "")
     )
     (path "/00000000-0000-0000-0000-0000503bb638/00000000-0000-0000-0000-00004faecb99"
       (reference "C1") (unit 1) (value "33pF") (footprint "hackrf:GSG-0402")
