@@ -10,49 +10,48 @@ body:
       value: |
         Thank you for taking the time to fill out this technical support request form! Please note that technical support requests can expect a response time of two weeks.  
   - type: dropdown
-    id: troubleshooting documentation
+    id: troubleshooting-documentation
     attributes: 
       label: Have you read the HackRF [troubleshooting documentation](https://hackrf.readthedocs.io/en/latest/troubleshooting.html)?
       options:
-        - yes
-        - no
+        - 'yes'
+        - 'no'
     validations:
       required: true
   - type: textarea
-    id: expected outcome
+    id: expected-outcome
     attributes:
       label: What outcome were you hoping for?
       placeholder: Please be detailed in what you expected to happen
     validations:
       required: true
   - type: textarea
-    id: actual outcome
+    id: actual-outcome
     attributes:
       label: What outcome actually happened? 
       placeholder: Please be detailed in what did happen
     validations:
       required: true
   - type: checkboxes
-    id: operating systems
+    id: operating-systems
     attributes:
       label: What operating systems are you seeing the problem on?
-      multiple: true
       options: 
-        - Linux
-        - Windows
-        - MacOS
-        - other
+        - 'Linux'
+        - 'Windows'
+        - 'MacOS'
+        - 'other'
     validations:
       required: true
   - type: textarea
-    id: hackrf_info output
+    id: hackrf_info-output
     attributes:
       label: What is the output of ```hackrf_info```?
       description: Please put the output of the command in the box below or indicate N/A. 
     validations:
       required: true
   - type: textarea
-    id: third-party software
+    id: third-party-software
     attributes:
       label: Are you using any third-party software?
       description: Please list the software you are using with your HackRF or indicate N/A. Please list version numbers where possible. 
@@ -60,7 +59,7 @@ body:
     validations:
       required: true
   - type: textarea
-    id: third-party software
+    id: third-party-hardware
     attributes:
       label: Are you using any third-party hardware? 
       description: Please list any hardware you are using with your HackRF or indicate N/A. 
