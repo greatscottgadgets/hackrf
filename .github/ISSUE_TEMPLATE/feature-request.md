@@ -1,0 +1,17 @@
+name: Feature Request 
+description: File a feature request
+title: "[Feature Request]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for taking the time to fill out this feature request form! 
+  - type: textarea
+    id: feature request
+    attributes:
+      label: What feature would you like to see and why?
+      description: Please be as detailed as possible with your feature request.
+    validations:
+      required: true
+  
