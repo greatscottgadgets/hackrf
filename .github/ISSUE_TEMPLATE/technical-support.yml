@@ -37,10 +37,10 @@ body:
     attributes:
       label: What operating systems are you seeing the problem on?
       options: 
-        - 'Linux'
-        - 'Windows'
-        - 'MacOS'
-        - 'other'
+        - Linux
+        - Windows
+        - MacOS
+        - other
     validations:
       required: true
   - type: textarea
