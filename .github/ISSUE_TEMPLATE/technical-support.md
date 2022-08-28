@@ -38,7 +38,7 @@ body:
       label: What operating systems are you seeing the problem on?
       multiple: true
       options: 
-        - Ubuntu
+        - Linux
         - Windows
         - MacOS
         - other

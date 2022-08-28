@@ -14,7 +14,7 @@ body:
       options:
         - transient - occurring only once
         - intermittent - occurring irregularly
-        - permanent - occurring repepatedly
+        - permanent - occurring repeatedly
     validations:
       required: true
   - type: textarea
