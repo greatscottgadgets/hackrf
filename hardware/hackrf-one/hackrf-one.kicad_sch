@@ -1609,6 +1609,9 @@
     (path "/00000000-0000-0000-0000-0000503bb638/00000000-0000-0000-0000-00005293fd15"
       (reference "J10") (unit 1) (value "GND_CLIP") (footprint "hackrf:GSG-TEST-POINT-S1751-46R")
     )
+    (path "/00000000-0000-0000-0000-0000503bb638/caab2717-5792-4f1b-b8d8-8641e9d53859"
+      (reference "JP1") (unit 1) (value "Jumper") (footprint "gsg-modules:0603-JUMPER")
+    )
     (path "/00000000-0000-0000-0000-0000503bb638/00000000-0000-0000-0000-0000502afa8c"
       (reference "L1") (unit 1) (value "DNP") (footprint "hackrf:GSG-0402")
     )
