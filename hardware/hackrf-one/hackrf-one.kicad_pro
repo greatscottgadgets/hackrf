@@ -34,8 +34,8 @@
         "other_text_upright": false,
         "pads": {
           "drill": 0.0,
-          "height": 0.24,
-          "width": 0.8
+          "height": 0.29464,
+          "width": 1.50114
         },
         "silk_line_width": 0.2032,
         "silk_text_italic": false,
@@ -119,6 +119,7 @@
       },
       "track_widths": [
         0.0,
+        0.127,
         0.1524,
         0.2032,
         0.2413,
@@ -135,6 +136,10 @@
         {
           "diameter": 0.0,
           "drill": 0.0
+        },
+        {
+          "diameter": 0.4572,
+          "drill": 0.254
         },
         {
           "diameter": 0.7874,
@@ -452,15 +457,19 @@
     ],
     [
       "00000000-0000-0000-0000-00005037043e",
-      "mcu/usb/power"
+      "Microcontroller, CPLD, USB, Power"
     ],
     [
       "00000000-0000-0000-0000-000050370666",
-      "baseband"
+      "Baseband"
     ],
     [
       "00000000-0000-0000-0000-0000503bb638",
-      "frontend"
+      "Front End"
+    ],
+    [
+      "0622cab3-1212-4871-9ead-cb3c63b585f3",
+      "Clock"
     ]
   ],
   "text_variables": {}

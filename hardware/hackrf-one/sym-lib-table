@@ -1,4 +1,5 @@
 (sym_lib_table
   (lib (name hackrf)(type Legacy)(uri ${KIPRJMOD}/../kicad/hackrf.lib)(options "")(descr ""))
   (lib (name gsg-symbols)(type Legacy)(uri ${KIPRJMOD}/../gsg-kicad-lib/gsg-symbols.lib)(options "")(descr ""))
+  (lib (name "74AUP2G58GU")(type "KiCad")(uri "${KIPRJMOD}/74AUP2G58GU.kicad_sym")(options "")(descr ""))
 )
