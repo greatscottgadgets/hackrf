@@ -116,7 +116,11 @@ usb_request_status_t usb_vendor_request_operacake_set_mode(
 	address = endpoint->setup.value & 0xFF;
 	mode = endpoint->setup.index & 0xFF;
 	if (stage == USB_TRANSFER_STAGE_SETUP) {
-		operacake_set_mode(address, mode);
+		bool result;
+		result = operacake_set_mode(address, mode);
+		if (!result) {
+			return USB_REQUEST_STATUS_STALL;
+		}
 		usb_transfer_schedule_ack(endpoint->in);
 	}
 	return USB_REQUEST_STATUS_OK;
