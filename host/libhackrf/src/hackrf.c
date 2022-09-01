@@ -754,6 +754,28 @@ int ADDCALL hackrf_open_by_serial(
 	return hackrf_open_setup(usb_device, device);
 }
 
+int ADDCALL hackrf_open_by_fd(
+	int fd,
+	hackrf_device** device)
+{
+	libusb_device_handle* usb_device;
+
+	if (fd < 0) {
+		return HACKRF_ERROR_INVALID_PARAM;
+	}
+
+	int err = libusb_wrap_sys_device(g_libusb_context, (intptr_t)fd, &usb_device);
+	if (err) {
+		return HACKRF_ERROR_NOT_FOUND;
+	}
+
+	if (usb_device == NULL) {
+		return HACKRF_ERROR_NOT_FOUND;
+	}
+
+	return hackrf_open_setup(usb_device, device);
+}
+
 int ADDCALL hackrf_device_list_open(
 	hackrf_device_list_t* list,
 	int idx,
