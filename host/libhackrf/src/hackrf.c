@@ -415,6 +415,11 @@ int ADDCALL hackrf_init(void)
 		return HACKRF_SUCCESS;
 	}
 
+#ifdef __ANDROID__
+	// LibUSB does not support device discovery on android
+	libusb_set_option(NULL, LIBUSB_OPTION_NO_DEVICE_DISCOVERY, NULL);
+#endif
+
 	libusb_error = libusb_init(&g_libusb_context);
 	if (libusb_error != 0) {
 		last_libusb_error = libusb_error;
