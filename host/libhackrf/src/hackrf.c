@@ -769,6 +769,10 @@ int ADDCALL hackrf_open_by_fd(
 		return HACKRF_ERROR_INVALID_PARAM;
 	}
 
+	if (device == NULL) {
+		return HACKRF_ERROR_INVALID_PARAM;
+	}
+
 	int err = libusb_wrap_sys_device(g_libusb_context, (intptr_t)fd, &usb_device);
 	if (err) {
 		return HACKRF_ERROR_NOT_FOUND;
