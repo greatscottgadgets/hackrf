@@ -415,7 +415,7 @@ int ADDCALL hackrf_init(void)
 		return HACKRF_SUCCESS;
 	}
 
-#ifdef __ANDROID__
+#ifdef DISABLE_USB_ENUMERATION
 	// LibUSB does not support device discovery on android
 	libusb_set_option(NULL, LIBUSB_OPTION_NO_DEVICE_DISCOVERY, NULL);
 #endif
@@ -763,6 +763,7 @@ int ADDCALL hackrf_open_by_fd(
 	int fd,
 	hackrf_device** device)
 {
+#ifndef _WIN32
 	libusb_device_handle* usb_device;
 
 	if (fd < 0) {
@@ -783,6 +784,9 @@ int ADDCALL hackrf_open_by_fd(
 	}
 
 	return hackrf_open_setup(usb_device, device);
+#else
+	return HACKRF_ERROR_UNSUPPORTED;
+#endif
 }
 
 int ADDCALL hackrf_device_list_open(
