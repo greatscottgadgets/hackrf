@@ -104,6 +104,9 @@ typedef enum {
 
 #define USB_CONFIG_STANDARD 0x1
 
+#define RX_ENDPOINT_ADDRESS (LIBUSB_ENDPOINT_IN | 1)
+#define TX_ENDPOINT_ADDRESS (LIBUSB_ENDPOINT_OUT | 2)
+
 typedef enum {
 	HACKRF_TRANSCEIVER_MODE_OFF = 0,
 	HACKRF_TRANSCEIVER_MODE_RECEIVE = 1,
@@ -319,26 +322,68 @@ static int prepare_transfers(
 {
 	int error;
 	uint32_t transfer_index;
-	if (device->transfers != NULL) {
-		for (transfer_index = 0; transfer_index < TRANSFER_COUNT;
-		     transfer_index++) {
-			device->transfers[transfer_index]->endpoint = endpoint_address;
-			device->transfers[transfer_index]->callback = callback;
+	uint32_t ready_transfers = 0;
 
-			error = libusb_submit_transfer(device->transfers[transfer_index]);
-			if (error != 0) {
-				last_libusb_error = error;
-				return HACKRF_ERROR_LIBUSB;
-			}
-			device->active_transfers++;
-		}
-		device->transfers_setup = true;
-		device->streaming = true;
-		return HACKRF_SUCCESS;
-	} else {
+	if (device->transfers == NULL) {
 		// This shouldn't happen.
 		return HACKRF_ERROR_OTHER;
 	}
+
+	// If setting up for TX, call the TX callback to fill each
+	// transfer buffer.
+
+	// All transfers must be filled before any are submitted.
+	// Otherwise a transfer might complete whilst the others are
+	// still being filled, causing the transfer thread to make a
+	// concurrent call to the TX callback.
+
+	// We also need to handle the case where the callback returns
+	// nonzero to indicate completion, so keep count of how many
+	// transfers were made ready to submit at this stage.
+
+	if (endpoint_address == TX_ENDPOINT_ADDRESS) {
+		for (transfer_index = 0; transfer_index < TRANSFER_COUNT;
+		     transfer_index++) {
+			hackrf_transfer transfer = {
+				.device = device,
+				.buffer = device->transfers[transfer_index]->buffer,
+				.buffer_length = TRANSFER_BUFFER_SIZE,
+				.valid_length = TRANSFER_BUFFER_SIZE,
+				.rx_ctx = device->rx_ctx,
+				.tx_ctx = device->tx_ctx,
+			};
+			if (device->callback(&transfer) == 0) {
+				ready_transfers++;
+			} else {
+				break;
+			}
+		}
+
+	} else {
+		// For RX, all transfers are already ready for use.
+		ready_transfers = TRANSFER_COUNT;
+	}
+
+	// Now everything is ready, go ahead and submit the ready transfers.
+	for (transfer_index = 0; transfer_index < ready_transfers; transfer_index++) {
+		device->transfers[transfer_index]->endpoint = endpoint_address;
+		device->transfers[transfer_index]->callback = callback;
+
+		error = libusb_submit_transfer(device->transfers[transfer_index]);
+		if (error != 0) {
+			last_libusb_error = error;
+			return HACKRF_ERROR_LIBUSB;
+		}
+		device->active_transfers++;
+	}
+
+	// We should only continue streaming if all transfers were made ready
+	// and submitted above. Otherwise, set streaming to false so that the
+	// libusb completion callback won't submit further transfers.
+	device->streaming = (ready_transfers == TRANSFER_COUNT);
+	device->transfers_setup = true;
+
+	return HACKRF_SUCCESS;
 }
 
 static int detach_kernel_drivers(libusb_device_handle* usb_device_handle)
@@ -1239,7 +1284,7 @@ int ADDCALL hackrf_cpld_write(
 	for (i = 0; i < total_length; i += chunk_size) {
 		result = libusb_bulk_transfer(
 			device->usb_device,
-			LIBUSB_ENDPOINT_OUT | 2,
+			TX_ENDPOINT_ADDRESS,
 			&data[i],
 			chunk_size,
 			&transferred,
@@ -1847,7 +1892,7 @@ int ADDCALL hackrf_start_rx(
 	void* rx_ctx)
 {
 	int result;
-	const uint8_t endpoint_address = LIBUSB_ENDPOINT_IN | 1;
+	const uint8_t endpoint_address = RX_ENDPOINT_ADDRESS;
 	device->rx_ctx = rx_ctx;
 	result = hackrf_set_transceiver_mode(device, HACKRF_TRANSCEIVER_MODE_RECEIVE);
 	if (result == HACKRF_SUCCESS) {
@@ -1889,7 +1934,7 @@ int ADDCALL hackrf_start_tx(
 	void* tx_ctx)
 {
 	int result;
-	const uint8_t endpoint_address = LIBUSB_ENDPOINT_OUT | 2;
+	const uint8_t endpoint_address = TX_ENDPOINT_ADDRESS;
 	result = hackrf_set_transceiver_mode(device, HACKRF_TRANSCEIVER_MODE_TRANSMIT);
 	if (result == HACKRF_SUCCESS) {
 		device->tx_ctx = tx_ctx;
@@ -2631,7 +2676,7 @@ int ADDCALL hackrf_start_rx_sweep(
 {
 	USB_API_REQUIRED(device, 0x0104)
 	int result;
-	const uint8_t endpoint_address = LIBUSB_ENDPOINT_IN | 1;
+	const uint8_t endpoint_address = RX_ENDPOINT_ADDRESS;
 	result = hackrf_set_transceiver_mode(device, TRANSCEIVER_MODE_RX_SWEEP);
 	if (HACKRF_SUCCESS == result) {
 		device->rx_ctx = rx_ctx;
