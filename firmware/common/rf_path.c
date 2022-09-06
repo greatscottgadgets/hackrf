@@ -28,6 +28,8 @@
 #include <hackrf_core.h>
 
 #include "hackrf_ui.h"
+#include "gpio_lpc.h"
+#include "platform_detect.h"
 
 #include <mixer.h>
 #include <max2837.h>
@@ -81,21 +83,33 @@
 #endif
 
 /*
- * Antenna port power on HackRF One is controlled by GPO1 on the RFFC5072.
- * This is the only thing we use RFFC5072 GPO for on HackRF One.  The value of
- * SWITCHCTRL_NO_ANT_PWR does not correspond to the GPO1 bit in the gpo
- * register.
+ * Antenna port power on HackRF One (prior to r9) is controlled by GPO1 on the
+ * RFFC5072.  This is the only thing we use RFFC5072 GPO for on HackRF One.
+ * The value of SWITCHCTRL_NO_ANT_PWR does not correspond to the GPO1 bit in
+ * the gpo register.
  */
+
 #define SWITCHCTRL_ANT_PWR (1 << 6) /* turn on antenna port power */
+
+/*
+ * Starting with HackRF One r9 this control signal has been moved to the
+ * microcontroller.
+ */
+
+static struct gpio_t gpio_h1r9_no_ant_pwr = GPIO(2, 4); //FIXME max2837_tx_enable conflict
 
 #ifdef HACKRF_ONE
 static void switchctrl_set_hackrf_one(rf_path_t* const rf_path, uint8_t ctrl)
 {
 	if (ctrl & SWITCHCTRL_TX) {
-		gpio_set(rf_path->gpio_tx);
+		if (detected_platform() != BOARD_ID_HACKRF1_R9) {
+			gpio_set(rf_path->gpio_tx);
+		}
 		gpio_clear(rf_path->gpio_rx);
 	} else {
-		gpio_clear(rf_path->gpio_tx);
+		if (detected_platform() != BOARD_ID_HACKRF1_R9) {
+			gpio_clear(rf_path->gpio_tx);
+		}
 		gpio_set(rf_path->gpio_rx);
 	}
 
@@ -156,10 +170,22 @@ static void switchctrl_set_hackrf_one(rf_path_t* const rf_path, uint8_t ctrl)
 		gpio_set(rf_path->gpio_no_rx_amp_pwr);
 	}
 
-	if (ctrl & SWITCHCTRL_ANT_PWR) {
-		mixer_set_gpo(&mixer, 0x00); /* turn on antenna power by clearing GPO1 */
+	if (detected_platform() == BOARD_ID_HACKRF1_R9) {
+		if (ctrl & SWITCHCTRL_ANT_PWR) {
+			gpio_clear(&gpio_h1r9_no_ant_pwr);
+		} else {
+			gpio_set(&gpio_h1r9_no_ant_pwr);
+		}
 	} else {
-		mixer_set_gpo(&mixer, 0x01); /* turn off antenna power by setting GPO1 */
+		if (ctrl & SWITCHCTRL_ANT_PWR) {
+			mixer_set_gpo(
+				&mixer,
+				0x00); /* turn on antenna power by clearing GPO1 */
+		} else {
+			mixer_set_gpo(
+				&mixer,
+				0x01); /* turn off antenna power by setting GPO1 */
+		}
 	}
 }
 #endif
@@ -256,12 +282,20 @@ void rf_path_pin_setup(rf_path_t* const rf_path)
 	scu_pinmux(SCU_TX_AMP,        SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
 	scu_pinmux(SCU_TX,            SCU_GPIO_FAST | SCU_CONF_FUNCTION4);
 	scu_pinmux(SCU_MIX_BYPASS,    SCU_GPIO_FAST | SCU_CONF_FUNCTION4);
-	scu_pinmux(SCU_RX,            SCU_GPIO_FAST | SCU_CONF_FUNCTION4);
 	scu_pinmux(SCU_NO_TX_AMP_PWR, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
 	scu_pinmux(SCU_AMP_BYPASS,    SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
 	scu_pinmux(SCU_RX_AMP,        SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
-	scu_pinmux(SCU_NO_RX_AMP_PWR, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
 	// clang-format on
+	if (detected_platform() == BOARD_ID_HACKRF1_R9) {
+		scu_pinmux(SCU_H1R9_RX, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+		scu_pinmux(SCU_H1R9_NO_RX_AMP_PWR, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+		scu_pinmux(SCU_H1R9_NO_ANT_PWR, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+		gpio_clear(&gpio_h1r9_no_ant_pwr);
+		gpio_output(&gpio_h1r9_no_ant_pwr);
+	} else {
+		scu_pinmux(SCU_RX, SCU_GPIO_FAST | SCU_CONF_FUNCTION4);
+		scu_pinmux(SCU_NO_RX_AMP_PWR, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+	}
 
 	/* Configure RF power supply (VAA) switch */
 	scu_pinmux(SCU_NO_VAA_ENABLE, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);

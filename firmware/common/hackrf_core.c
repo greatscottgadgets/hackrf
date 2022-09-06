@@ -35,6 +35,7 @@
 #include "i2c_bus.h"
 #include "i2c_lpc.h"
 #include "cpld_jtag.h"
+#include "platform_detect.h"
 #include <libopencm3/lpc43xx/cgu.h>
 #include <libopencm3/lpc43xx/ccu.h>
 #include <libopencm3/lpc43xx/scu.h>
@@ -134,8 +135,15 @@ static struct gpio_t gpio_cpld_pp_tms       = GPIO(1,  1);
 static struct gpio_t gpio_cpld_pp_tdo       = GPIO(1,  8);
 #endif
 
-static struct gpio_t gpio_hw_sync_enable    = GPIO(5,12);
+/* other CPLD interface GPIO pins */
+static struct gpio_t gpio_hw_sync_enable    = GPIO(5, 12);
 static struct gpio_t gpio_rx_q_invert       = GPIO(0, 13);
+
+/* HackRF One r9 */
+#ifdef HACKRF_ONE
+static struct gpio_t gpio_h1r9_rx = GPIO(0, 7);
+static struct gpio_t gpio_h1r9_no_rx_amp_pwr = GPIO(3, 6);
+#endif
 // clang-format on
 
 i2c_bus_t i2c0 = {
@@ -578,6 +586,7 @@ void cpu_clock_init(void)
 
 	i2c_bus_start(clock_gen.bus, &i2c_config_si5351c_fast_clock);
 
+	si5351c_init(&clock_gen);
 	si5351c_disable_all_outputs(&clock_gen);
 	si5351c_disable_oeb_pin_control(&clock_gen);
 	si5351c_power_down_all_clocks(&clock_gen);
@@ -811,6 +820,13 @@ void pin_setup(void)
 	/* Configure all GPIO as Input (safe state) */
 	gpio_init();
 
+	detect_hardware_platform();
+#ifdef HACKRF_ONE
+	if (detected_platform() < BOARD_ID_HACKRF1_OG) {
+		halt_and_flash(6000000);
+	}
+#endif
+
 	/* TDI and TMS pull-ups are required in all JTAG-compliant devices.
 	 *
 	 * The HackRF CPLD is always present, so let the CPLD pull up its TDI and TMS.
@@ -855,9 +871,16 @@ void pin_setup(void)
 	gpio_output(&gpio_led[3]);
 #endif
 
-	disable_1v8_power();
-	gpio_output(&gpio_1v8_enable);
-	scu_pinmux(SCU_PINMUX_EN1V8, SCU_GPIO_NOPULL | SCU_CONF_FUNCTION0);
+	if (detected_platform() == BOARD_ID_HACKRF1_R9) {
+		//gpio_1v8_enable = GPIO(1, 12);
+		disable_1v8_power();
+		gpio_output(&gpio_1v8_enable);
+		scu_pinmux(P2_12, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+	} else {
+		disable_1v8_power();
+		gpio_output(&gpio_1v8_enable);
+		scu_pinmux(SCU_PINMUX_EN1V8, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+	}
 
 #ifdef HACKRF_ONE
 	/* Safe state: start with VAA turned off: */
@@ -890,6 +913,8 @@ void pin_setup(void)
 
 	mixer_bus_setup(&mixer);
 
+	rf_path.gpio_rx = &gpio_h1r9_rx;
+	rf_path.gpio_no_rx_amp_pwr = &gpio_h1r9_no_rx_amp_pwr;
 	rf_path_pin_setup(&rf_path);
 
 	/* Configure external clock in */

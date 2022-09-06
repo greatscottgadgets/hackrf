@@ -232,6 +232,14 @@ extern "C" {
 
 #define SCU_PINMUX_GP_CLKIN (P4_7)
 
+/* HackRF One r9 */
+#define SCU_H1R9_CLKIN_EN      (P6_7)  /* GPIO5[15] on P6_7 */
+#define SCU_H1R9_CLKOUT_EN     (P1_2)  /* GPIO0[9] on P1_2 (has boot pull-down) */
+#define SCU_H1R9_MCU_CLK_EN    (P1_1)  /* GPIO0[8] on P1_1 (has boot pull-up) */
+#define SCU_H1R9_RX            (P2_7)  /* GPIO0[7] on P4_4 (has boot pull-up) */
+#define SCU_H1R9_NO_RX_AMP_PWR (P6_10) /* GPIO3[6] on P6_10 */
+#define SCU_H1R9_NO_ANT_PWR    (P4_4)  /* GPIO2[4] on P4_4 */
+
 typedef enum {
 	TRANSCEIVER_MODE_OFF = 0,
 	TRANSCEIVER_MODE_RX = 1,
