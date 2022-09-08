@@ -36,6 +36,7 @@
 #include "i2c_lpc.h"
 #include "cpld_jtag.h"
 #include "platform_detect.h"
+#include "clkin.h"
 #include <libopencm3/lpc43xx/cgu.h>
 #include <libopencm3/lpc43xx/ccu.h>
 #include <libopencm3/lpc43xx/scu.h>
@@ -414,14 +415,26 @@ bool sample_rate_frac_set(uint32_t rate_num, uint32_t rate_denom)
 	MSx_P2 = (128 * b) % c;
 	MSx_P3 = c;
 
-	/* MS0/CLK0 is the source for the MAX5864/CPLD (CODEC_CLK). */
-	si5351c_configure_multisynth(&clock_gen, 0, MSx_P1, MSx_P2, MSx_P3, 1);
+	if (detected_platform() == BOARD_ID_HACKRF1_R9) {
+		/*
+		 * On HackRF One r9 all sample clocks are externally derived
+		 * from MS1/CLK1 operating at twice the sample rate.
+		 */
+		si5351c_configure_multisynth(&clock_gen, 1, MSx_P1, MSx_P2, MSx_P3, 0);
+	} else {
+		/*
+		 * On other platforms the clock generator produces three
+		 * different sample clocks, all derived from multisynth 0.
+		 */
+		/* MS0/CLK0 is the source for the MAX5864/CPLD (CODEC_CLK). */
+		si5351c_configure_multisynth(&clock_gen, 0, MSx_P1, MSx_P2, MSx_P3, 1);
 
-	/* MS0/CLK1 is the source for the CPLD (CODEC_X2_CLK). */
-	si5351c_configure_multisynth(&clock_gen, 1, 0, 0, 0, 0); //p1 doesn't matter
+		/* MS0/CLK1 is the source for the CPLD (CODEC_X2_CLK). */
+		si5351c_configure_multisynth(&clock_gen, 1, 0, 0, 0, 0); //p1 doesn't matter
 
-	/* MS0/CLK2 is the source for SGPIO (CODEC_X2_CLK) */
-	si5351c_configure_multisynth(&clock_gen, 2, 0, 0, 0, 0); //p1 doesn't matter
+		/* MS0/CLK2 is the source for SGPIO (CODEC_X2_CLK) */
+		si5351c_configure_multisynth(&clock_gen, 2, 0, 0, 0, 0); //p1 doesn't matter
+	}
 
 	if (streaming) {
 		sgpio_cpld_stream_enable(&sgpio_config);
@@ -482,14 +495,38 @@ bool sample_rate_set(const uint32_t sample_rate_hz)
 		return false;
 	}
 
-	/* MS0/CLK0 is the source for the MAX5864/CPLD (CODEC_CLK). */
-	si5351c_configure_multisynth(&clock_gen, 0, p1, p2, p3, 1);
+	if (detected_platform() == BOARD_ID_HACKRF1_R9) {
+		/*
+		 * On HackRF One r9 all sample clocks are externally derived
+		 * from MS1/CLK1 operating at twice the sample rate.
+		 */
+		si5351c_configure_multisynth(&clock_gen, 0, p1, p2, p3, 0);
+	} else {
+		/*
+		 * On other platforms the clock generator produces three
+		 * different sample clocks, all derived from multisynth 0.
+		 */
+		/* MS0/CLK0 is the source for the MAX5864/CPLD (CODEC_CLK). */
+		si5351c_configure_multisynth(&clock_gen, 0, p1, p2, p3, 1);
 
-	/* MS0/CLK1 is the source for the CPLD (CODEC_X2_CLK). */
-	si5351c_configure_multisynth(&clock_gen, 1, p1, 0, 1, 0); //p1 doesn't matter
+		/* MS0/CLK1 is the source for the CPLD (CODEC_X2_CLK). */
+		si5351c_configure_multisynth(
+			&clock_gen,
+			1,
+			p1,
+			0,
+			1,
+			0); //p1 doesn't matter
 
-	/* MS0/CLK2 is the source for SGPIO (CODEC_X2_CLK) */
-	si5351c_configure_multisynth(&clock_gen, 2, p1, 0, 1, 0); //p1 doesn't matter
+		/* MS0/CLK2 is the source for SGPIO (CODEC_X2_CLK) */
+		si5351c_configure_multisynth(
+			&clock_gen,
+			2,
+			p1,
+			0,
+			1,
+			0); //p1 doesn't matter
+	}
 
 	return true;
 }
@@ -596,7 +633,12 @@ void cpu_clock_init(void)
 	si5351c_configure_pll_multisynth(&clock_gen);
 
 	/*
-	 * Clocks:
+	 * Clocks on HackRF One r9:
+	 *   CLK0 -> MAX5864/CPLD/SGPIO (sample clocks)
+	 *   CLK1 -> RFFC5072/MAX2837
+	 *   CLK2 -> External Clock Output/LPC43xx (power down at boot)
+	 *
+	 * Clocks on other platforms:
 	 *   CLK0 -> MAX5864/CPLD
 	 *   CLK1 -> CPLD
 	 *   CLK2 -> SGPIO
@@ -607,22 +649,33 @@ void cpu_clock_init(void)
 	 *   CLK7 -> LPC43xx (uses a 12MHz crystal by default)
 	 */
 
-	/* MS4/CLK4 is the source for the RFFC5071 mixer (MAX2837 on rad1o). */
-	si5351c_configure_multisynth(
-		&clock_gen,
-		4,
-		20 * 128 - 512,
-		0,
-		1,
-		0); /* 800/20 = 40MHz */
-	/* MS5/CLK5 is the source for the MAX2837 clock input (MAX2871 on rad1o). */
-	si5351c_configure_multisynth(
-		&clock_gen,
-		5,
-		20 * 128 - 512,
-		0,
-		1,
-		0); /* 800/20 = 40MHz */
+	if (detected_platform() == BOARD_ID_HACKRF1_R9) {
+		/* MS0/CLK0 is the reference for both RFFC5071 and MAX2837. */
+		si5351c_configure_multisynth(
+			&clock_gen,
+			0,
+			20 * 128 - 512,
+			0,
+			1,
+			0); /* 800/20 = 40MHz */
+	} else {
+		/* MS4/CLK4 is the source for the RFFC5071 mixer (MAX2837 on rad1o). */
+		si5351c_configure_multisynth(
+			&clock_gen,
+			4,
+			20 * 128 - 512,
+			0,
+			1,
+			0); /* 800/20 = 40MHz */
+		/* MS5/CLK5 is the source for the MAX2837 clock input (MAX2871 on rad1o). */
+		si5351c_configure_multisynth(
+			&clock_gen,
+			5,
+			20 * 128 - 512,
+			0,
+			1,
+			0); /* 800/20 = 40MHz */
+	}
 
 	/* MS6/CLK6 is unused. */
 	/* MS7/CLK7 is unused. */
@@ -766,6 +819,10 @@ void cpu_clock_init(void)
 	// CCU2_CLK_APLL_CFG = 0;
 	// CCU2_CLK_SDIO_CFG = 0;
 #endif
+
+	if (detected_platform() == BOARD_ID_HACKRF1_R9) {
+		clkin_detect_init();
+	}
 }
 
 clock_source_t activate_best_clock_source(void)
