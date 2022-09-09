@@ -343,17 +343,8 @@ uint32_t stream_tail = 0;
 uint32_t stream_drop = 0;
 uint8_t* stream_buf = NULL;
 
-/*
- * To report amplitude, best would be dB(fullscale) and the variance,
- * but that would require more math per sample (dB(amplitude) = log(sqrt(i^2 + q^2) and sum of squares).
- * For now, just sum iabs(i)+iabs(q) and divide by the number of samples*2.
- * That allows us to give a measure of dB(fullscale).
- * I don't know whether overload causes wrapping or clamping the 8-bit values.
- * Clamping would produce a sigmoid curve, so with a signal of variable intensity you're
- * probably getting substantial overload anytime this reports more than about -6dBfs.
- */
-uint64_t stream_amplitude =
-	0; /* sum of magnitudes of all I&Q samples, reset on the periodic report */
+/* sum of power of all samples, reset on the periodic report */
+volatile uint64_t stream_power = 0;
 
 bool transmit = false;
 struct timeval time_start;
@@ -419,18 +410,23 @@ int rx_callback(hackrf_transfer* transfer)
 		return -1;
 	}
 
-	byte_count += transfer->valid_length;
+	/* Accumulate power (magnitude squared). */
 	bytes_to_write = transfer->valid_length;
+	uint64_t sum = 0;
+	for (i = 0; i < bytes_to_write; i++) {
+		int8_t value = transfer->buffer[i];
+		sum += value * value;
+	}
+
+	/* Update both running totals at approximately the same time. */
+	byte_count += transfer->valid_length;
+	stream_power += sum;
+
 	if (limit_num_samples) {
 		if (bytes_to_write >= bytes_to_xfer) {
 			bytes_to_write = bytes_to_xfer;
 		}
 		bytes_to_xfer -= bytes_to_write;
-	}
-
-	// accumulate stream_amplitude:
-	for (i = 0; i < bytes_to_write; i++) {
-		stream_amplitude += abs((signed char) transfer->buffer[i]);
 	}
 
 	if (receive_wav) {
@@ -487,11 +483,18 @@ int tx_callback(hackrf_transfer* transfer)
 		stop_main_loop();
 		return -1;
 	}
-	byte_count += transfer->valid_length;
+
+	/* Accumulate power (magnitude squared). */
 	bytes_to_read = transfer->valid_length;
+	uint64_t sum = 0;
 	for (i = 0; i < bytes_to_read; i++) {
-		stream_amplitude += abs((signed char) transfer->buffer[i]);
+		int8_t value = transfer->buffer[i];
+		sum += value * value;
 	}
+
+	/* Update both running totals at approximately the same time. */
+	byte_count += transfer->valid_length;
+	stream_power += sum;
 
 	if (file == NULL) { // transceiver_mode == TRANSCEIVER_MODE_SS
 		/* Transmit continuous wave with specific amplitude */
@@ -1271,7 +1274,7 @@ int main(int argc, char** argv)
 #endif
 
 	while ((hackrf_is_streaming(device) == HACKRF_TRUE) && (do_exit == false)) {
-		uint32_t byte_count_now;
+		uint64_t byte_count_now;
 		struct timeval time_now;
 		float time_difference, rate;
 		if (stream_size > 0) {
@@ -1304,7 +1307,7 @@ int main(int argc, char** argv)
 			}
 #endif
 		} else {
-			uint64_t stream_amplitude_now;
+			uint64_t stream_power_now;
 #ifdef _WIN32
 			// Wait for interval timer event, or interrupt event.
 			HANDLE handles[] = {timer_handle, interrupt_handle};
@@ -1315,13 +1318,11 @@ int main(int argc, char** argv)
 #endif
 			gettimeofday(&time_now, NULL);
 
+			/* Read and reset both totals at approximately the same time. */
 			byte_count_now = byte_count;
+			stream_power_now = stream_power;
 			byte_count = 0;
-			stream_amplitude_now = stream_amplitude;
-			stream_amplitude = 0;
-			if (byte_count_now <
-			    sample_rate_hz / 20) // Don't report on very short frames
-				stream_amplitude_now = 0;
+			stream_power = 0;
 
 			time_difference = TimevalDiff(&time_now, &time_start);
 			rate = (float) byte_count_now / time_difference;
@@ -1329,21 +1330,15 @@ int main(int argc, char** argv)
 			    hw_sync_enable != 0) {
 				fprintf(stderr, "Waiting for sync...\n");
 			} else {
-				// This is only an approximate measure, to assist getting receive levels right:
-				double full_scale_ratio =
-					((double) stream_amplitude_now /
-					 (byte_count_now ? byte_count_now : 1)) /
-					128;
-				double dB_full_scale_ratio = 10 * log10(full_scale_ratio);
-				// Guard against ridiculous reports
-				if (dB_full_scale_ratio > 1)
-					dB_full_scale_ratio = -0.0;
+				double full_scale_ratio = (double) stream_power_now /
+					(byte_count_now * 128 * 128);
+				double dB_full_scale = 10 * log10(full_scale_ratio);
 				fprintf(stderr,
-					"%4.1f MiB / %5.3f sec = %4.1f MiB/second, amplitude %3.1f dBfs",
+					"%4.1f MiB / %5.3f sec = %4.1f MiB/second, average power %3.1f dBfs",
 					(byte_count_now / 1e6f),
 					time_difference,
 					(rate / 1e6f),
-					dB_full_scale_ratio);
+					dB_full_scale);
 				if (display_stats) {
 					bool tx = transmit || signalsource;
 					result = update_stats(device, &state, &stats);
