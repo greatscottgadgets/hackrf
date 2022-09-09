@@ -683,6 +683,7 @@ int main(int argc, char** argv)
 	unsigned int lna_gain = 8, vga_gain = 20, txvga_gain = 0;
 	hackrf_m0_state state;
 	stats_t stats = {0, 0};
+	static int32_t preload_bytes = 0;
 
 	while ((opt =
 			getopt(argc,
@@ -1272,6 +1273,8 @@ int main(int argc, char** argv)
 		.it_value = {.tv_sec = 1, .tv_usec = 0}};
 	setitimer(ITIMER_REAL, &interval_timer, NULL);
 #endif
+	preload_bytes = hackrf_get_transfer_queue_depth(device) *
+		hackrf_get_transfer_buffer_size(device);
 
 	while ((hackrf_is_streaming(device) == HACKRF_TRUE) && (do_exit == false)) {
 		uint64_t byte_count_now;
@@ -1323,6 +1326,23 @@ int main(int argc, char** argv)
 			stream_power_now = stream_power;
 			byte_count = 0;
 			stream_power = 0;
+
+			/*
+			 * The TX callback is called to preload the USB
+			 * transfer buffers at the start of TX. This results in
+			 * invalid statistics collected about the empty buffers
+			 * before any USB transfer is completed. We skip these
+			 * statistics and do not report them to the user.
+			 */
+			if (preload_bytes > 0) {
+				if (preload_bytes > byte_count_now) {
+					preload_bytes -= byte_count_now;
+					byte_count_now = 0;
+				} else {
+					byte_count_now -= preload_bytes;
+					preload_bytes = 0;
+				}
+			}
 
 			time_difference = TimevalDiff(&time_now, &time_start);
 			rate = (float) byte_count_now / time_difference;
