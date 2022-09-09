@@ -221,16 +221,19 @@ uint8_t operacake_activate_ports(uint8_t address, uint8_t PA, uint8_t PB)
 	return 0;
 }
 
-void operacake_set_mode(uint8_t address, uint8_t mode)
+bool operacake_set_mode(uint8_t address, uint8_t mode)
 {
 	if (address >= OPERACAKE_MAX_BOARDS) {
-		return;
+		return false;
 	}
 
 	operacake_boards[address].mode = mode;
 	current_range = INVALID_RANGE;
 
 	if (mode == MODE_TIME) {
+		if (!allow_gpio_mode) {
+			return false;
+		}
 		// Switch Opera Cake to pin-control mode
 		uint8_t config_pins = (uint8_t) ~(
 			OPERACAKE_PIN_OE(1) | OPERACAKE_PIN_LEDEN(1) |
@@ -261,6 +264,8 @@ void operacake_set_mode(uint8_t address, uint8_t mode)
 		}
 	}
 	operacake_sctimer_enable(enable_sctimer);
+
+	return true;
 }
 
 uint8_t operacake_get_mode(uint8_t address)
