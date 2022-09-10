@@ -25,6 +25,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 #define __HACKRF_H__
 
 #include <stdint.h>
+#include <sys/types.h>
 
 #ifdef _WIN32
 	#define ADD_EXPORTS
@@ -457,6 +458,10 @@ extern ADDAPI int ADDCALL hackrf_start_rx_sweep(
 	hackrf_device* device,
 	hackrf_sample_block_cb_fn callback,
 	void* rx_ctx);
+
+extern ADDAPI size_t ADDCALL hackrf_get_transfer_buffer_size(hackrf_device* device);
+
+extern ADDAPI uint32_t ADDCALL hackrf_get_transfer_queue_depth(hackrf_device* device);
 
 #ifdef __cplusplus
 } // __cplusplus defined.

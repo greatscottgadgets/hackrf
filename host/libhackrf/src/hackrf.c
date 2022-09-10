@@ -2685,6 +2685,26 @@ int ADDCALL hackrf_start_rx_sweep(
 	return result;
 }
 
+/**
+ * Get USB transfer buffer size.
+ * @return size in bytes
+ */
+size_t ADDCALL hackrf_get_transfer_buffer_size(hackrf_device* device)
+{
+	(void) device;
+	return TRANSFER_BUFFER_SIZE;
+}
+
+/**
+ * Get the total number of USB transfer buffers.
+ * @return number of buffers
+ */
+uint32_t ADDCALL hackrf_get_transfer_queue_depth(hackrf_device* device)
+{
+	(void) device;
+	return TRANSFER_COUNT;
+}
+
 #ifdef __cplusplus
 } // __cplusplus defined.
 #endif
