@@ -1391,7 +1391,7 @@ int main(int argc, char** argv)
 	interval_timer.it_value.tv_sec = 0;
 	setitimer(ITIMER_REAL, &interval_timer, NULL);
 #endif
-	if (transmit && !interrupted) {
+	if ((transmit || signalsource) && !interrupted) {
 		// Wait for TX to finish.
 		hackrf_await_tx_flush(device);
 	}
