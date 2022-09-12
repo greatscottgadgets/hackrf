@@ -322,6 +322,7 @@ char* u64toa(uint64_t val, t_u64toa* str)
 }
 
 static volatile bool do_exit = false;
+static volatile bool interrupted = false;
 #ifdef _WIN32
 static HANDLE interrupt_handle;
 #endif
@@ -638,6 +639,7 @@ static hackrf_device* device = NULL;
 BOOL WINAPI sighandler(int signum)
 {
 	if (CTRL_C_EVENT == signum) {
+		interrupted = true;
 		fprintf(stderr, "Caught signal %d\n", signum);
 		stop_main_loop();
 		return TRUE;
@@ -647,6 +649,7 @@ BOOL WINAPI sighandler(int signum)
 #else
 void sigint_callback_handler(int signum)
 {
+	interrupted = true;
 	fprintf(stderr, "Caught signal %d\n", signum);
 	do_exit = true;
 }
@@ -1388,7 +1391,7 @@ int main(int argc, char** argv)
 	interval_timer.it_value.tv_sec = 0;
 	setitimer(ITIMER_REAL, &interval_timer, NULL);
 #endif
-	if (transmit) {
+	if (transmit && !interrupted) {
 		// Wait for TX to finish.
 		hackrf_await_tx_flush(device);
 	}
