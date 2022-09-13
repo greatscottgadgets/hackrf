@@ -1,0 +1,210 @@
+/* -*- mode: c -*- */
+
+#ifndef __MAX2839_REGS_DEF
+#define __MAX2839_REGS_DEF
+
+/* Generate static inline accessors that operate on the global
+ * regs. Done this way to (1) allow defs to be scraped out and used
+ * elsewhere, e.g. in scripts, (2) to avoid dealing with endian
+ * (structs). This may be used in firmware, or on host predefined
+ * register loads. */
+
+#define MAX2839_REG_SET_CLEAN(_d, _r) (_d->regs_dirty &= ~(1UL<<_r))
+#define MAX2839_REG_SET_DIRTY(_d, _r) (_d->regs_dirty |= (1UL<<_r))
+
+/* On set_, register is always set dirty, even if nothing
+ * changed. This makes sure that write that have side effects,
+ * e.g. frequency setting, are not skipped. */
+
+/* n=name, r=regnum, o=offset (bits from LSB), l=length (bits) */
+#define __MREG__(n,r,o,l) \
+static inline uint16_t get_##n(max2839_driver_t* const _d) { \
+	return (_d->regs[r] >> (o-l+1)) & ((1<<l)-1);	\
+} \
+static inline void set_##n(max2839_driver_t* const _d, uint16_t v) {      \
+	_d->regs[r] &= ~(((1<<l)-1)<<(o-l+1));  \
+	_d->regs[r] |= ((v&((1<<l)-1))<<(o-l+1)); \
+	MAX2839_REG_SET_DIRTY(_d, r); \
+}
+
+/* REG 0 */
+__MREG__(MAX2839_RESERVED_1,   0,9,10)
+
+/* REG 1 */
+__MREG__(MAX2839_LNAtune,1,1,2)
+__MREG__(MAX2839_RESERVED_2,1,2,1)
+__MREG__(MAX2839_MIMO_SELECT,1,3,1)
+__MREG__(MAX2839_iqerr_trim,1,9,6)
+// TODO: D9:D4 but shows only 5 bits for values?
+// 0b00000 = +4.0 degree phase error
+// 0b01111 =  0.0
+// 0b11111 = -4.0
+
+/* REG 2 */
+__MREG__(MAX2839_LNAgain_SPI,2,0,1)
+__MREG__(MAX2839_RESERVED_3,2,1,1)
+__MREG__(MAX2839_RX_IQ_SPI,2,2,1)
+__MREG__(MAX2839_RESERVED_4,2,9,7)
+
+/* REG 3 */
+__MREG__(MAX2839_RESERVED_5,3,9,10)
+
+/* REG 4 */
+__MREG__(MAX2839_RESERVED_6,4,1,2)
+__MREG__(MAX2839_LPF_CUTOFF,4,3,2)
+__MREG__(MAX2839_RESERVED_7,4,5,2)
+__MREG__(MAX2839_LPF_RF_BAND,4,9,4)
+
+/* REG 5 */
+__MREG__(MAX2839_LNA1gain_SPI,5,1,2)
+__MREG__(MAX2839_Rx1_VGAgain,5,7,6)
+__MREG__(MAX2839_LPFblock_MODE,5,9,2)
+
+/* REG 6 */
+__MREG__(MAX2839_LNA2gain_SPI,6,1,2)
+__MREG__(MAX2839_Rx2_VGAgain,6,7,6)
+__MREG__(MAX2839_RX_VGAoutput,6,9,2)
+
+/* REG 7 */
+__MREG__(MAX2839_RESERVED_7,7,0,1)
+__MREG__(MAX2839_RSSIselect,7,1,1)
+__MREG__(MAX2839_RSSImode,7,2,1)
+__MREG__(MAX2839_RESERVED_8,7,6,4)
+__MREG__(MAX2839_RXBBI_RXBBQ,7,7,1)
+__MREG__(MAX2839_RESERVED_9,7,8,1)
+__MREG__(MAX2839_RSSIinput,7,9,1)
+
+/* REG 8 */
+__MREG__(MAX2839_RESERVED_8,8,0,1)
+__MREG__(MAX2839_VGAgain_SPI,8,1,1)
+__MREG__(MAX2839_LPFmode,8,2,1)
+__MREG__(MAX2839_RESERVED_9,8,9,7)
+
+/* REG 9 */
+__MREG__(MAX2839_Temperature_ADC,9,0,1)
+__MREG__(MAX2839_Temperature_Clk_En,9,1,1)
+__MREG__(MAX2839_RESERVED_10,9,2,1)
+__MREG__(MAX2839_DOUT_Drive_Sel,9,3,1)
+__MREG__(MAX2839_DOUT_3state_Ctrl,9,4,1)
+__MREG__(MAX2839_DOUT_Pin_Sel,9,7,3)
+__MREG__(MAX2839_RESERVED_11,9,9,2)
+
+/* REG 10 */
+__MREG__(MAX2839_TX_AM_gain,10,1,2)
+__MREG__(MAX2839_TX_AM_bandwidth,10,4,3)
+__MREG__(MAX2839_RESERVED_12,10,9,5)
+
+/* REG 11 */
+__MREG__(MAX2839_RESERVED_13,11,9,10)
+
+/* REG 12 */
+__MREG__(MAX2839_RXVGA_10M_RXEN_duration,12,1,2)
+__MREG__(MAX2839_RXVGA_10M_B6B7_duration,12,3,2)
+__MREG__(MAX2839_RXVGA_600k_RXEN_duration,12,6,3)
+__MREG__(MAX2839_RXVGA_600k_B6B7_duration,12,9,3)
+
+/* REG 13 */
+__MREG__(MAX2839_RXVGA_100k_RXEN_duration,13,1,2)
+__MREG__(MAX2839_RXVGA_100k_B6B7_duration,13,3,2)
+__MREG__(MAX2839_RXVGA_30k_RXEN_duration,13,5,2)
+__MREG__(MAX2839_RXVGA_30k_B6B7_duration,13,7,2)
+__MREG__(MAX2839_RXVGA_1k_RXEN_duration,13,9,2)
+
+/* REG 14 */
+__MREG__(MAX2839_RXVGA_1k_B6B7_duration,14,1,2)
+__MREG__(MAX2839_RXVGA_HPCa_HPCd_delay,14,3,2)
+__MREG__(MAX2839_RXVGA_final_highpass_corner,14,5,2)
+__MREG__(MAX2839_RXVGA_highpass_MODE2,14,7,2)
+__MREG__(MAX2839_RXVGA_HPFSM_B6B7,14,8,1)
+__MREG__(MAX2839_PA_DRV_DAC,14,9,1)
+
+/* REG 15 */
+__MREG__(MAX2839_RXVGA_HPFSM_Clk_Divider,15,0,1)
+__MREG__(MAX2839_RESERVED_14,15,5,5)
+__MREG__(MAX2839_RXHP_sequence_bypass,15,6,1)
+__MREG__(MAX2839_RESERVED_15,15,8,2)
+__MREG__(MAX2839_RXHP_highpass_corner,15,9,1)
+
+/* REG 16 */
+__MREG__(MAX2839_chip_disable,16,0,1)
+__MREG__(MAX2839_RXTX_calibration_enable,16,1,1)
+__MREG__(MAX2839_RESERVED_16,16,5,4)
+__MREG__(MAX2839_PA_bias_DAC_SPI_enable,16,6,1)
+__MREG__(MAX2839_PA_bias_DAC_TX_mode_enable,16,7,1)
+__MREG__(MAX2839_RESERVED_17,16,9,2)
+
+/* REG 17 */
+__MREG__(MAX2839_SYNTH_20bit_FDR_UH,17,9,10)
+
+/* REG 18 */
+__MREG__(MAX2839_SYNTH_20bit_FDR_LH,18,9,10)
+
+/* REG 19 */
+__MREG__(MAX2839_SYNTH_8bit_IDR,19,7,8)
+__MREG__(MAX2839_LO_Gen_Band_Switch,19,9,2)
+
+/* REG 20 */
+__MREG__(MAX2839_RESERVED_18,20,0,1)
+__MREG__(MAX2839_Reference_Divider_Ratio,20,2,2)
+__MREG__(MAX2839_RESERVED_19,20,4,2)
+__MREG__(MAX2839_CLKOUT_Buffer_Drive,20,5,1)
+__MREG__(MAX2839_RESERVED_20,20,9,4)
+
+/* REG 21 */
+__MREG__(MAX2839_RESERVED_21,21,9,10)
+
+/* REG 22 */
+__MREG__(MAX2839_VAS_Operating_Mode_Select,22,0,1)
+__MREG__(MAX2839_VAS_Relock_Mode_Select,22,1,1)
+__MREG__(MAX2839_VAS_Clk_Divide_Ratio,22,4,3)
+__MREG__(MAX2839_VAS_Delay_Counter_Ratio,22,6,2)
+__MREG__(MAX2839_VAS_Addr17_Trigger_Enable,22,7,1)
+__MREG__(MAX2839_RESERVED_22,22,9,2)
+
+/* REG 23 */
+__MREG__(MAX2839_VAS_Subband_SPI_Overwrite,23,4,5)
+__MREG__(MAX2839_Crystal_Oscillator_Bias_Select,23,6,2)
+__MREG__(MAX2839_RESERVED_23,23,9,3)
+
+/* REG 24 */
+__MREG__(MAX2839_Crystal_Oscillator_Freq_Tuning,24,6,7)
+__MREG__(MAX2839_RESERVED_24,24,7,1)
+__MREG__(MAX2839_CLKOUT_Divide_Ratio,24,8,1)
+__MREG__(MAX2839_Crystal_Oscillator_Core_Enable,24,9,1)
+
+/* REG 25 */
+__MREG__(MAX2839_RESERVED_25,25,9,10)
+
+/* REG 26 */
+__MREG__(MAX2839_RESERVED_26,26,2,3)
+__MREG__(MAX2839_LOGEN_RXTX_Gm_Enable,26,3,1)
+__MREG__(MAX2839_RESERVED_27,26,5,2)
+__MREG__(MAX2839_VAS_Test_Signal_Select,26,9,4)
+
+/* REG 27 */
+__MREG__(MAX2839_TX_LO_IQ_Phase_SPI_Adjust_Addr27,27,5,6)
+__MREG__(MAX2839_TX_LO_IQ_Phase_SPI_Adjust_Enable,27,6,1)
+__MREG__(MAX2839_TX_VGA_Gain_SPI_Ctrl_Enable,27,7,1)
+__MREG__(MAX2839_TX_DC_Offset_SPI_Adjust_Enable,27,8,1)
+__MREG__(MAX2839_RESERVED_28,27,9,1)
+
+/* REG 28 */
+__MREG__(MAX2839_PADAC_Output_Current_Ctrl,28,5,6)
+__MREG__(MAX2839_PADAC_TurnOn_Delay_Ctrl,28,9,4)
+
+/* REG 29 */
+__MREG__(MAX2839_TX_VGA_SPI_Gain_Ctrl_Addr27,29,5,6)
+__MREG__(MAX2839_RESERVED_29,29,9,4)
+
+/* REG 30 */
+__MREG__(MAX2839_TX_DC_Offset_Correction_Addr27,30,5,6)
+__MREG__(MAX2839_RESERVED_30,30,7,2)
+__MREG__(MAX2839_PA_DAC_IV_Output_Select,30,8,1)
+__MREG__(MAX2839_PA_DAC_Voltage_Mode_Output_Select,30,9,1)
+
+/* REG 31 */
+__MREG__(MAX2839_TX_DC_Offset_Correction_QChannel,31,5,6)
+__MREG__(MAX2839_RESERVED_31,31,8,3)
+__MREG__(MAX2839_PA_DAC_Clk_Divide_Ratio,31,9,1)
+
+#endif // __MAX2839_REGS_DEF
