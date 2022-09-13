@@ -54,9 +54,29 @@ __MREG__(MAX2839_RESERVED_6,4,1,2)
 __MREG__(MAX2839_LPF_CUTOFF,4,3,2)
 __MREG__(MAX2839_RESERVED_7,4,5,2)
 __MREG__(MAX2839_LPF_RF_BAND,4,9,4)
+#define MAX2839_FT_1_75M 0
+#define MAX2839_FT_2_5M  1
+#define MAX2839_FT_3_5M  2
+#define MAX2839_FT_5M    3
+#define MAX2839_FT_5_5M  4
+#define MAX2839_FT_6M    5
+#define MAX2839_FT_7M    6
+#define MAX2839_FT_8M    7
+#define MAX2839_FT_9M    8
+#define MAX2839_FT_10M   9
+#define MAX2839_FT_12M   10
+#define MAX2839_FT_14M   11
+#define MAX2839_FT_15M   12
+#define MAX2839_FT_20M   13
+#define MAX2839_FT_24M   14
+#define MAX2839_FT_28M   15
 
 /* REG 5 */
 __MREG__(MAX2839_LNA1gain_SPI,5,1,2)
+#define MAX2839_LNAgain_MAX 0b000 // Pad in 8dB steps, bits reversed
+#define MAX2839_LNAgain_M8  0b001
+#define MAX2839_LNAgain_M16 0b010
+#define MAX2839_LNAgain_M32 0b011
 __MREG__(MAX2839_Rx1_VGAgain,5,7,6)
 __MREG__(MAX2839_LPFblock_MODE,5,9,2)
 
