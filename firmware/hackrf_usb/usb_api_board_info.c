@@ -21,6 +21,7 @@
  */
 
 #include "usb_api_board_info.h"
+#include "platform_detect.h"
 
 #include <hackrf_core.h>
 #include <rom_iap.h>
@@ -37,7 +38,7 @@ usb_request_status_t usb_vendor_request_read_board_id(
 	const usb_transfer_stage_t stage)
 {
 	if (stage == USB_TRANSFER_STAGE_SETUP) {
-		endpoint->buffer[0] = BOARD_ID;
+		endpoint->buffer[0] = detected_platform();
 		usb_transfer_schedule_block(
 			endpoint->in,
 			&endpoint->buffer,
@@ -119,6 +120,44 @@ usb_request_status_t usb_vendor_request_reset(
 	if (stage == USB_TRANSFER_STAGE_SETUP) {
 		wwdt_reset(100000);
 		usb_transfer_schedule_ack(endpoint->in);
+	}
+	return USB_REQUEST_STATUS_OK;
+}
+
+usb_request_status_t usb_vendor_request_read_board_rev(
+	usb_endpoint_t* const endpoint,
+	const usb_transfer_stage_t stage)
+{
+	if (stage == USB_TRANSFER_STAGE_SETUP) {
+		endpoint->buffer[0] = detected_revision();
+		usb_transfer_schedule_block(
+			endpoint->in,
+			&endpoint->buffer,
+			1,
+			NULL,
+			NULL);
+		usb_transfer_schedule_ack(endpoint->out);
+	}
+	return USB_REQUEST_STATUS_OK;
+}
+
+usb_request_status_t usb_vendor_request_read_supported_platform(
+	usb_endpoint_t* const endpoint,
+	const usb_transfer_stage_t stage)
+{
+	if (stage == USB_TRANSFER_STAGE_SETUP) {
+		uint32_t platform = supported_platform();
+		endpoint->buffer[0] = (platform >> 24) & 0xff;
+		endpoint->buffer[1] = (platform >> 16) & 0xff;
+		endpoint->buffer[2] = (platform >> 8) & 0xff;
+		endpoint->buffer[3] = platform & 0xff;
+		usb_transfer_schedule_block(
+			endpoint->in,
+			&endpoint->buffer,
+			4,
+			NULL,
+			NULL);
+		usb_transfer_schedule_ack(endpoint->out);
 	}
 	return USB_REQUEST_STATUS_OK;
 }

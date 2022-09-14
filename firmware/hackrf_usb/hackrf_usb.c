@@ -52,8 +52,8 @@
 #include "usb_api_m0_state.h"
 #include "cpld_xc2c.h"
 #include "portapack.h"
-
 #include "hackrf_ui.h"
+#include "platform_detect.h"
 
 extern uint32_t __m0_start__;
 extern uint32_t __m0_end__;
@@ -119,6 +119,8 @@ static usb_request_handler_fn vendor_request_handler[] = {
 	usb_vendor_request_set_tx_underrun_limit,
 	usb_vendor_request_set_rx_overrun_limit,
 	usb_vendor_request_get_clkin_status,
+	usb_vendor_request_read_board_rev,
+	usb_vendor_request_read_supported_platform,
 };
 
 static const uint32_t vendor_request_handler_count =
@@ -224,6 +226,7 @@ int main(void)
 	// Copy M0 image from ROM before SPIFI is disabled
 	m0_rom_to_ram();
 
+	detect_hardware_platform();
 	pin_setup();
 	enable_1v8_power();
 #if (defined HACKRF_ONE || defined RAD1O)

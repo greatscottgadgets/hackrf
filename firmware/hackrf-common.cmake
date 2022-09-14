@@ -184,6 +184,7 @@ macro(DeclareTargets)
 		${PATH_HACKRF_FIRMWARE_COMMON}/spi_ssp.c
 		${PATH_HACKRF_FIRMWARE_COMMON}/gpio_lpc.c
 		${PATH_HACKRF_FIRMWARE_COMMON}/hackrf_ui.c
+		${PATH_HACKRF_FIRMWARE_COMMON}/platform_detect.c
 	)
 
 	if(BOARD STREQUAL "RAD1O")

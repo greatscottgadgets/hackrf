@@ -42,23 +42,6 @@ extern "C" {
 #include "rf_path.h"
 #include "cpld_jtag.h"
 
-/* hardware identification number */
-#define BOARD_ID_JAWBREAKER 1
-#define BOARD_ID_HACKRF_ONE 2
-#define BOARD_ID_RAD1O      3
-
-#ifdef JAWBREAKER
-	#define BOARD_ID BOARD_ID_JAWBREAKER
-#endif
-
-#ifdef HACKRF_ONE
-	#define BOARD_ID BOARD_ID_HACKRF_ONE
-#endif
-
-#ifdef RAD1O
-	#define BOARD_ID BOARD_ID_RAD1O
-#endif
-
 /*
  * SCU PinMux
  */
