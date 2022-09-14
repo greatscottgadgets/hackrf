@@ -123,6 +123,7 @@ typedef enum {
 
 #define TRANSFER_COUNT        4
 #define TRANSFER_BUFFER_SIZE  262144
+#define DEVICE_BUFFER_SIZE    32768
 #define USB_MAX_SERIAL_LENGTH 32
 
 struct hackrf_device {
@@ -142,6 +143,8 @@ struct hackrf_device {
 	volatile int active_transfers;  /* number of active transfers */
 	pthread_cond_t all_finished_cv; /* signalled when all transfers have finished */
 	pthread_mutex_t all_finished_lock; /* used to protect all_finished */
+	bool flush;
+	struct libusb_transfer* flush_transfer;
 };
 
 typedef struct {
@@ -272,6 +275,9 @@ static int free_transfers(hackrf_device* device)
 		free(device->transfers);
 		device->transfers = NULL;
 	}
+
+	libusb_free_transfer(device->flush_transfer);
+
 	return HACKRF_SUCCESS;
 }
 
@@ -695,6 +701,8 @@ static int hackrf_open_setup(libusb_device_handle* usb_device, hackrf_device** d
 	lib_device->streaming = false;
 	lib_device->do_exit = false;
 	lib_device->active_transfers = 0;
+	lib_device->flush = false;
+	lib_device->flush_transfer = NULL;
 
 	result = pthread_mutex_init(&lib_device->transfer_lock, NULL);
 	if (result != 0) {
@@ -1734,17 +1742,41 @@ static void transfer_finished(
 	struct hackrf_device* device,
 	struct libusb_transfer* finished_transfer)
 {
+	int result;
+
 	// If a transfer finished for any reason, we're shutting down.
 	device->streaming = false;
 
 	// If this is the last transfer, signal that all are now finished.
 	pthread_mutex_lock(&device->all_finished_lock);
 	if (device->active_transfers == 1) {
-		device->active_transfers = 0;
-		pthread_cond_signal(&device->all_finished_cv);
+		if (device->flush) {
+			// Don't finish yet - flush the TX buffer first.
+			result = libusb_submit_transfer(device->flush_transfer);
+			// If that fails, just shut down.
+			if (result != LIBUSB_SUCCESS) {
+				device->flush = false;
+				device->active_transfers = 0;
+				pthread_cond_broadcast(&device->all_finished_cv);
+			}
+		} else {
+			device->active_transfers = 0;
+			pthread_cond_broadcast(&device->all_finished_cv);
+		}
 	} else {
 		device->active_transfers--;
 	}
+	pthread_mutex_unlock(&device->all_finished_lock);
+}
+
+static void LIBUSB_CALL hackrf_libusb_flush_callback(struct libusb_transfer* usb_transfer)
+{
+	// TX buffer is now flushed, so proceed with signalling completion.
+	hackrf_device* device = (hackrf_device*) usb_transfer->user_data;
+	pthread_mutex_lock(&device->all_finished_lock);
+	device->flush = false;
+	device->active_transfers = 0;
+	pthread_cond_broadcast(&device->all_finished_cv);
 	pthread_mutex_unlock(&device->all_finished_lock);
 }
 
@@ -1935,12 +1967,58 @@ int ADDCALL hackrf_start_tx(
 {
 	int result;
 	const uint8_t endpoint_address = TX_ENDPOINT_ADDRESS;
+	if (device->flush_transfer != NULL) {
+		device->flush = true;
+	}
 	result = hackrf_set_transceiver_mode(device, HACKRF_TRANSCEIVER_MODE_TRANSMIT);
 	if (result == HACKRF_SUCCESS) {
 		device->tx_ctx = tx_ctx;
 		result = prepare_setup_transfers(device, endpoint_address, callback);
 	}
 	return result;
+}
+
+int ADDCALL hackrf_enable_tx_flush(hackrf_device* device, int enable)
+{
+	if (enable) {
+		if (device->flush_transfer) {
+			return HACKRF_SUCCESS;
+		}
+
+		if ((device->flush_transfer = libusb_alloc_transfer(0)) == NULL) {
+			return HACKRF_ERROR_LIBUSB;
+		}
+
+		libusb_fill_bulk_transfer(
+			device->flush_transfer,
+			device->usb_device,
+			TX_ENDPOINT_ADDRESS,
+			calloc(1, DEVICE_BUFFER_SIZE),
+			DEVICE_BUFFER_SIZE,
+			hackrf_libusb_flush_callback,
+			device,
+			0);
+
+		device->flush_transfer->flags = LIBUSB_TRANSFER_FREE_BUFFER;
+	} else {
+		libusb_free_transfer(device->flush_transfer);
+		device->flush_transfer = NULL;
+	}
+
+	return HACKRF_SUCCESS;
+}
+
+int ADDCALL hackrf_await_tx_flush(hackrf_device* device)
+{
+	// Wait for the transfer thread to signal that all transfers
+	// have finished.
+	pthread_mutex_lock(&device->all_finished_lock);
+	while (device->active_transfers > 0) {
+		pthread_cond_wait(&device->all_finished_cv, &device->all_finished_lock);
+	}
+	pthread_mutex_unlock(&device->all_finished_lock);
+
+	return HACKRF_SUCCESS;
 }
 
 /*
