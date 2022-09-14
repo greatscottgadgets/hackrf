@@ -481,6 +481,7 @@ int tx_callback(hackrf_transfer* transfer)
 	size_t bytes_read;
 	unsigned int i;
 
+	/* Check we have a valid source of samples. */
 	if (file == NULL && transceiver_mode != TRANSCEIVER_MODE_SS) {
 		stop_main_loop();
 		return -1;
@@ -497,11 +498,13 @@ int tx_callback(hackrf_transfer* transfer)
 	byte_count += transfer->valid_length;
 	stream_power += sum;
 
+	/* If the last data was already buffered, stop. */
 	if (tx_complete) {
 		stop_main_loop();
 		return -1;
 	}
 
+	/* Determine how many bytes we need to put in the buffer. */
 	bytes_to_read = transfer->buffer_length;
 	if (limit_num_samples) {
 		if (bytes_to_read >= bytes_to_xfer) {
@@ -509,31 +512,37 @@ int tx_callback(hackrf_transfer* transfer)
 		}
 		bytes_to_xfer -= bytes_to_read;
 	}
-	if (file == NULL) { // transceiver_mode == TRANSCEIVER_MODE_SS
+
+	/* Fill the buffer. */
+	if (file == NULL) {
 		/* Transmit continuous wave with specific amplitude */
 		for (i = 0; i < bytes_to_read; i++)
 			transfer->buffer[i] = -(uint8_t) amplitude;
 		bytes_read = bytes_to_read;
 	} else {
+		/* Read samples from file. */
 		bytes_read = fread(transfer->buffer, 1, bytes_to_read, file);
 	}
-
 	transfer->valid_length = bytes_read;
 
+	/* If the sample limit has been reached, this is the last data. */
 	if (limit_num_samples && (bytes_to_xfer == 0)) {
 		tx_complete = true;
 		return 0;
 	}
 
+	/* If we filled the number of bytes needed, return normally. */
 	if (bytes_read == bytes_to_read) {
 		return 0;
 	}
 
+	/* Otherwise, the file ran short. If not repeating, this is the last data. */
 	if (!repeat) {
 		tx_complete = true;
 		return 0;
 	}
 
+	/* If we get to here, we need to repeat the file until we fill the buffer. */
 	while (bytes_read < bytes_to_read) {
 		rewind(file);
 		bytes_read +=
@@ -544,6 +553,7 @@ int tx_callback(hackrf_transfer* transfer)
 		transfer->valid_length = bytes_read;
 	}
 
+	/* Then return normally. */
 	return 0;
 }
 
