@@ -486,9 +486,8 @@ int tx_callback(hackrf_transfer* transfer)
 	}
 
 	/* Accumulate power (magnitude squared). */
-	bytes_to_read = transfer->valid_length;
 	uint64_t sum = 0;
-	for (i = 0; i < bytes_to_read; i++) {
+	for (i = 0; i < transfer->valid_length; i++) {
 		int8_t value = transfer->buffer[i];
 		sum += value * value;
 	}
@@ -497,6 +496,7 @@ int tx_callback(hackrf_transfer* transfer)
 	byte_count += transfer->valid_length;
 	stream_power += sum;
 
+	bytes_to_read = transfer->buffer_length;
 	if (file == NULL) { // transceiver_mode == TRANSCEIVER_MODE_SS
 		/* Transmit continuous wave with specific amplitude */
 		if (limit_num_samples) {
