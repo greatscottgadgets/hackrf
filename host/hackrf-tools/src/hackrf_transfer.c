@@ -323,6 +323,7 @@ char* u64toa(uint64_t val, t_u64toa* str)
 
 static volatile bool do_exit = false;
 static volatile bool interrupted = false;
+static volatile bool tx_complete = false;
 #ifdef _WIN32
 static HANDLE interrupt_handle;
 #endif
@@ -496,6 +497,11 @@ int tx_callback(hackrf_transfer* transfer)
 	byte_count += transfer->valid_length;
 	stream_power += sum;
 
+	if (tx_complete) {
+		stop_main_loop();
+		return -1;
+	}
+
 	bytes_to_read = transfer->buffer_length;
 	if (limit_num_samples) {
 		if (bytes_to_read >= bytes_to_xfer) {
@@ -515,8 +521,8 @@ int tx_callback(hackrf_transfer* transfer)
 	transfer->valid_length = bytes_read;
 
 	if (limit_num_samples && (bytes_to_xfer == 0)) {
-		stop_main_loop();
-		return -1;
+		tx_complete = true;
+		return 0;
 	}
 
 	if (bytes_read == bytes_to_read) {
@@ -524,8 +530,8 @@ int tx_callback(hackrf_transfer* transfer)
 	}
 
 	if (!repeat) {
-		stop_main_loop();
-		return -1; /* not repeat mode, end of file */
+		tx_complete = true;
+		return 0;
 	}
 
 	while (bytes_read < bytes_to_read) {
