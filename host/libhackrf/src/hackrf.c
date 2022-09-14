@@ -100,6 +100,8 @@ typedef enum {
 	HACKRF_VENDOR_REQUEST_SET_TX_UNDERRUN_LIMIT = 42,
 	HACKRF_VENDOR_REQUEST_SET_RX_OVERRUN_LIMIT = 43,
 	HACKRF_VENDOR_REQUEST_GET_CLKIN_STATUS = 44,
+	HACKRF_VENDOR_REQUEST_BOARD_REV_READ = 45,
+	HACKRF_VENDOR_REQUEST_SUPPORTED_PLATFORM_READ = 46,
 } hackrf_vendor_request;
 
 #define USB_CONFIG_STANDARD 0x1
@@ -2140,17 +2142,23 @@ const char* ADDCALL hackrf_board_id_name(enum hackrf_board_id board_id)
 	case BOARD_ID_JAWBREAKER:
 		return "Jawbreaker";
 
-	case BOARD_ID_HACKRF_ONE:
+	case BOARD_ID_HACKRF1_OG:
 		return "HackRF One";
 
 	case BOARD_ID_RAD1O:
 		return "rad1o";
 
-	case BOARD_ID_INVALID:
-		return "Invalid Board ID";
+	case BOARD_ID_HACKRF1_R9:
+		return "HackRF One";
+
+	case BOARD_ID_UNRECOGNIZED:
+		return "unrecognized";
+
+	case BOARD_ID_UNDETECTED:
+		return "undetected";
 
 	default:
-		return "Unknown Board ID";
+		return "unknown";
 	}
 }
 
@@ -2781,6 +2789,85 @@ uint32_t ADDCALL hackrf_get_transfer_queue_depth(hackrf_device* device)
 {
 	(void) device;
 	return TRANSFER_COUNT;
+}
+
+int ADDCALL hackrf_board_rev_read(hackrf_device* device, uint8_t* value)
+{
+	USB_API_REQUIRED(device, 0x0106)
+	int result;
+	result = libusb_control_transfer(
+		device->usb_device,
+		LIBUSB_ENDPOINT_IN | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_BOARD_REV_READ,
+		0,
+		0,
+		value,
+		1,
+		0);
+
+	if (result < 1) {
+		last_libusb_error = result;
+		return HACKRF_ERROR_LIBUSB;
+	} else {
+		return HACKRF_SUCCESS;
+	}
+}
+
+extern ADDAPI const char* ADDCALL hackrf_board_rev_name(enum hackrf_board_rev board_rev)
+{
+	switch (board_rev) {
+	case BOARD_REV_HACKRF1_OLD:
+		return "older than r6";
+
+	case BOARD_REV_HACKRF1_R6:
+	case BOARD_REV_GSG_HACKRF1_R6:
+		return "r6";
+
+	case BOARD_REV_HACKRF1_R7:
+	case BOARD_REV_GSG_HACKRF1_R7:
+		return "r7";
+
+	case BOARD_REV_HACKRF1_R8:
+	case BOARD_REV_GSG_HACKRF1_R8:
+		return "r8";
+
+	case BOARD_REV_HACKRF1_R9:
+	case BOARD_REV_GSG_HACKRF1_R9:
+		return "r9";
+
+	case BOARD_ID_UNRECOGNIZED:
+		return "unrecognized";
+
+	case BOARD_ID_UNDETECTED:
+		return "undetected";
+
+	default:
+		return "unknown";
+	}
+}
+
+int ADDCALL hackrf_supported_platform_read(hackrf_device* device, uint32_t* value)
+{
+	unsigned char data[4];
+	USB_API_REQUIRED(device, 0x0106)
+	int result;
+	result = libusb_control_transfer(
+		device->usb_device,
+		LIBUSB_ENDPOINT_IN | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_SUPPORTED_PLATFORM_READ,
+		0,
+		0,
+		&data[0],
+		4,
+		0);
+
+	if (result < 1) {
+		last_libusb_error = result;
+		return HACKRF_ERROR_LIBUSB;
+	} else {
+		*value = (data[0] << 24) | (data[1] << 16) | (data[2] << 8) | data[3];
+		return HACKRF_SUCCESS;
+	}
 }
 
 #ifdef __cplusplus

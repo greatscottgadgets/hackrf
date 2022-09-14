@@ -26,10 +26,68 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+void print_board_rev(uint8_t board_rev)
+{
+	switch (board_rev) {
+	case BOARD_REV_UNDETECTED:
+		printf("Error: Hardware revision not yet detected by firmware.\n");
+		return;
+	case BOARD_REV_UNRECOGNIZED:
+		printf("Warning: Hardware revision not recognized by firmware.\n");
+		return;
+	}
+	printf("Hardware Revision: %s\n", hackrf_board_rev_name(board_rev));
+	if (board_rev > BOARD_REV_HACKRF1_OLD) {
+		if (board_rev & HACKRF_BOARD_REV_GSG) {
+			printf("Hardware appears to have been manufactured by Great Scott Gadgets.\n");
+		} else {
+			printf("Hardware does not appear to have been manufactured by Great Scott Gadgets.\n");
+		}
+	}
+}
+
+void print_supported_platform(uint32_t platform, uint8_t board_id)
+{
+	printf("Hardware supported by installed firmware:\n");
+	if (platform & HACKRF_PLATFORM_JAWBREAKER) {
+		printf("    Jawbreaker\n");
+	}
+	if (platform & HACKRF_PLATFORM_RAD1O) {
+		printf("    rad1o\n");
+	}
+	if ((platform & HACKRF_PLATFORM_HACKRF1_OG) ||
+	    (platform & HACKRF_PLATFORM_HACKRF1_R9)) {
+		printf("    HackRF One\n");
+	}
+	switch (board_id) {
+	case BOARD_ID_HACKRF1_OG:
+		if (!(platform & HACKRF_PLATFORM_HACKRF1_OG)) {
+			printf("Error: Firmware does not support HackRF One revisions older than r9.\n");
+		}
+		break;
+	case BOARD_ID_HACKRF1_R9:
+		if (!(platform & HACKRF_PLATFORM_HACKRF1_R9)) {
+			printf("Error: Firmware does not support HackRF One r9.\n");
+		}
+		break;
+	case BOARD_ID_JAWBREAKER:
+		if (platform & HACKRF_PLATFORM_JAWBREAKER) {
+			break;
+		}
+	case BOARD_ID_RAD1O:
+		if (platform & HACKRF_PLATFORM_RAD1O) {
+			break;
+		}
+		printf("Error: Firmware does not support hardware platform.\n");
+	}
+}
+
 int main(void)
 {
 	int result = HACKRF_SUCCESS;
-	uint8_t board_id = BOARD_ID_INVALID;
+	uint8_t board_id = BOARD_ID_UNDETECTED;
+	uint8_t board_rev = BOARD_REV_UNDETECTED;
+	uint32_t supported_platform = 0;
 	char version[255 + 1];
 	uint16_t usb_version;
 	read_partid_serialno_t read_partid_serialno;
@@ -129,6 +187,31 @@ int main(void)
 		printf("Part ID Number: 0x%08x 0x%08x\n",
 		       read_partid_serialno.part_id[0],
 		       read_partid_serialno.part_id[1]);
+
+		if ((usb_version >= 0x0106) && ((board_id == 2) || (board_id == 4))) {
+			result = hackrf_board_rev_read(device, &board_rev);
+			if (result != HACKRF_SUCCESS) {
+				fprintf(stderr,
+					"hackrf_board_rev_read() failed: %s (%d)\n",
+					hackrf_error_name(result),
+					result);
+				return EXIT_FAILURE;
+			}
+			print_board_rev(board_rev);
+		}
+		if (usb_version >= 0x0106) {
+			result = hackrf_supported_platform_read(
+				device,
+				&supported_platform);
+			if (result != HACKRF_SUCCESS) {
+				fprintf(stderr,
+					"hackrf_supported_platform_read() failed: %s (%d)\n",
+					hackrf_error_name(result),
+					result);
+				return EXIT_FAILURE;
+			}
+			print_supported_platform(supported_platform, board_id);
+		}
 
 		result = hackrf_get_operacake_boards(device, &operacakes[0]);
 		if ((result != HACKRF_SUCCESS) &&
