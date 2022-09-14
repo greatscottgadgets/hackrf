@@ -506,8 +506,10 @@ int tx_callback(hackrf_transfer* transfer)
 			bytes_to_xfer -= bytes_to_read;
 		}
 
-		for (i = 0; i < bytes_to_read; i++)
-			transfer->buffer[i] = -(uint8_t) amplitude;
+		for (i = 0; i < bytes_to_read; i += 2) {
+			transfer->buffer[i] = amplitude;
+			transfer->buffer[i + 1] = 0;
+		}
 
 		if (limit_num_samples && (bytes_to_xfer == 0)) {
 			stop_main_loop();
