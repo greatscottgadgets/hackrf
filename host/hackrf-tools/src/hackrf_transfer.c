@@ -1357,8 +1357,8 @@ int main(int argc, char** argv)
 				fprintf(stderr, "Waiting for sync...\n");
 			} else {
 				double full_scale_ratio = (double) stream_power_now /
-					(byte_count_now * 128 * 128);
-				double dB_full_scale = 10 * log10(full_scale_ratio);
+					(byte_count_now * 127 * 127);
+				double dB_full_scale = 10 * log10(full_scale_ratio) + 3.0;
 				fprintf(stderr,
 					"%4.1f MiB / %5.3f sec = %4.1f MiB/second, average power %3.1f dBfs",
 					(byte_count_now / 1e6f),
