@@ -56,11 +56,6 @@ static const uint16_t max2839_regs_default[MAX2839_NUM_REGS] = {
 	0x155, /* 18 */
 	0x153, /* 19 */
 	0x249, /* 20 */
-	/*
-	 * Charge Pump Common Mode Enable bit (0) of register 21 must be set or TX
-	 * does not work.  Page 1 of the SPI doc says not to set it (0x02c), but
-	 * page 21 says it should be set by default (0x02d).
-	 */
 	0x02d,  /* 21 */
 	0x1a9,  /* 22 */
 	0x24f,  /* 23 */
@@ -83,7 +78,7 @@ static void max2839_init(max2839_driver_t* const drv)
 	drv->regs_dirty = 0xffffffff;
 
 	/* Write default register values to chip. */
-	max2837_regs_commit(drv);
+	max2839_regs_commit(drv);
 }
 
 /*
@@ -152,35 +147,85 @@ max2839_mode_t max2839_mode(max2839_driver_t* const drv)
 
 void max2839_start(max2839_driver_t* const drv)
 {
-	set_MAX2839_EN_SPI(drv, 1);
+	set_MAX2839_chip_enable(drv, 1);
 	max2839_regs_commit(drv);
 	max2839_set_mode(drv, MAX2839_MODE_STANDBY);
 }
 
 void max2839_tx(max2839_driver_t* const drv)
 {
-	// TODO
+	set_MAX2839_LPFblock_MODE(drv, MAX2839_ModeCtrl_TxLPF);
 	max2839_regs_commit(drv);
 	max2839_set_mode(drv, MAX2839_MODE_TX);
 }
 
 void max2839_rx(max2839_driver_t* const drv)
 {
-	// TODO
+	set_MAX2839_LPFblock_MODE(drv, MAX2839_ModeCtrl_RxLPF);
 	max2839_regs_commit(drv);
 	max2839_set_mode(drv, MAX2839_MODE_RX);
 }
 
 void max2839_stop(max2839_driver_t* const drv)
 {
-	// TODO
+	set_MAX2839_chip_enable(drv, 0);
 	max2839_regs_commit(drv);
 	max2839_set_mode(drv, MAX2839_MODE_SHUTDOWN);
 }
 
 void max2839_set_frequency(max2839_driver_t* const drv, uint32_t freq)
 {
-	// TODO
+	uint8_t band;
+	uint8_t lna_band;
+	uint32_t div_frac;
+	uint32_t div_int;
+	uint32_t div_rem;
+	uint32_t div_cmp;
+	int i;
+
+	/* Select band. Allow tuning outside specified bands. */
+	if (freq < 2400000000U) {
+		band = MAX2839_LOGEN_BSW_2_3;
+		lna_band = MAX2839_LNAband_2_4;
+	} else if (freq < 2500000000U) {
+		band = MAX2839_LOGEN_BSW_2_4;
+		lna_band = MAX2839_LNAband_2_4;
+	} else if (freq < 2600000000U) {
+		band = MAX2839_LOGEN_BSW_2_5;
+		lna_band = MAX2839_LNAband_2_6;
+	} else {
+		band = MAX2839_LOGEN_BSW_2_6;
+		lna_band = MAX2839_LNAband_2_6;
+	}
+
+	/* ASSUME 40MHz PLL. Ratio = F*(4/3)/40,000,000 = F/30,000,000 */
+	div_int = freq / 30000000;
+	div_rem = freq % 30000000;
+	div_frac = 0;
+	div_cmp = 30000000;
+	for (i = 0; i < 20; i++) {
+		div_frac <<= 1;
+		div_cmp >>= 1;
+		if (div_rem > div_cmp) {
+			div_frac |= 0x1;
+			div_rem -= div_cmp;
+		}
+	}
+
+	/* Band settings */
+	set_MAX2839_LOGEN_BSW(drv, band);
+	set_MAX2839_LNAband(drv, lna_band);
+
+	/* Write order matters here, so commit INT and FRAC_HI before
+	 * committing FRAC_LO, which is the trigger for VCO
+	 * auto-select. TODO - it's cleaner this way, but it would be
+	 * faster to explicitly commit the registers explicitly so the
+	 * dirty bits aren't scanned twice. */
+	set_MAX2839_SYN_INT(drv, div_int);
+	set_MAX2839_SYN_FRAC_HI(drv, (div_frac >> 10) & 0x3ff);
+	max2839_regs_commit(drv);
+	set_MAX2839_SYN_FRAC_LO(drv, div_frac & 0x3ff);
+	max2839_regs_commit(drv);
 }
 
 typedef struct {
@@ -229,25 +274,27 @@ uint32_t max2839_set_lpf_bandwidth(max2839_driver_t* const drv, const uint32_t b
 
 bool max2839_set_lna_gain(max2839_driver_t* const drv, const uint32_t gain_db) {
 	uint16_t val;
-	// TODO: validate steps here
 	switch(gain_db){
 		case 40:
-			val = MAX2839_LNAgain_MAX;
+			val = MAX2839_LNA1gain_MAX;
 			break;
 		case 32:
-			val = MAX2839_LNAgain_M8;
+			val = MAX2839_LNA1gain_M8;
 			break;
 		case 24:
-			val = MAX2839_LNAgain_M16;
+			val = MAX2839_LNA1gain_M16;
 			break;
 		case 8:
-			val = MAX2839_LNAgain_M32;
+			val = MAX2839_LNA1gain_M32;
+			break;
+		case 0:
+			val = MAX2839_LNA1gain_M32;
 			break;
 		default:
 			return false;
 	}
-	set_MAX2839_LNAgain(drv, val);
-	max2839_reg_commit(drv, 1);
+	set_MAX2839_LNA1gain(drv, val);
+	max2839_reg_commit(drv, 5);
 	return true;
 }
 
@@ -256,21 +303,16 @@ bool max2839_set_vga_gain(max2839_driver_t* const drv, const uint32_t gain_db) {
 		return false;
 }
 
-	set_MAX2839_VGA(drv, 31-(gain_db >> 1) );
+	set_MAX2839_Rx1_VGAgain(drv, (63-gain_db));
 	max2839_reg_commit(drv, 5);
 	return true;
 }
 
 bool max2839_set_txvga_gain(max2839_driver_t* const drv, const uint32_t gain_db) {
 	uint16_t val=0;
-	if(gain_db <16){
-		val = 31-gain_db;
-		val |= (1 << 5); // bit6: 16db
-	} else{
-		val = 31-(gain_db-16);
-	}
+	val = 63-gain_db;
 
-	set_MAX2839_TXVGA_GAIN(drv, val);
+	set_MAX2839_TX_VGA_GAIN(drv, val);
 	max2839_reg_commit(drv, 29);
 	return true;
 }
