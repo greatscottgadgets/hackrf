@@ -31,7 +31,9 @@ static inline void set_##n(max2839_driver_t* const _d, uint16_t v) {      \
 __MREG__(MAX2839_RESERVED_1,   0,9,10)
 
 /* REG 1 */
-__MREG__(MAX2839_LNAtune,1,1,2)
+__MREG__(MAX2839_LNAband,1,1,2)
+#define MAX2839_LNAband_2_4 0   // 2.3-2.5 GHz
+#define MAX2839_LNAband_2_6 1   // 2.5-2.7 GHz
 __MREG__(MAX2839_RESERVED_2,1,2,1)
 __MREG__(MAX2839_MIMO_SELECT,1,3,1)
 __MREG__(MAX2839_iqerr_trim,1,9,6)
@@ -53,7 +55,7 @@ __MREG__(MAX2839_RESERVED_5,3,9,10)
 __MREG__(MAX2839_RESERVED_6,4,1,2)
 __MREG__(MAX2839_LPF_CUTOFF,4,3,2)
 __MREG__(MAX2839_RESERVED_7,4,5,2)
-__MREG__(MAX2839_LPF_RF_BAND,4,9,4)
+__MREG__(MAX2839_FT,4,9,4)
 #define MAX2839_FT_1_75M 0
 #define MAX2839_FT_2_5M  1
 #define MAX2839_FT_3_5M  2
@@ -72,13 +74,17 @@ __MREG__(MAX2839_LPF_RF_BAND,4,9,4)
 #define MAX2839_FT_28M   15
 
 /* REG 5 */
-__MREG__(MAX2839_LNA1gain_SPI,5,1,2)
-#define MAX2839_LNAgain_MAX 0b000 // Pad in 8dB steps, bits reversed
-#define MAX2839_LNAgain_M8  0b001
-#define MAX2839_LNAgain_M16 0b010
-#define MAX2839_LNAgain_M32 0b011
+__MREG__(MAX2839_LNA1gain,5,1,2)
+#define MAX2839_LNA1gain_MAX 0b000 // Pad in 8dB steps, bits reversed
+#define MAX2839_LNA1gain_M8  0b001
+#define MAX2839_LNA1gain_M16 0b010
+#define MAX2839_LNA1gain_M32 0b011
 __MREG__(MAX2839_Rx1_VGAgain,5,7,6)
 __MREG__(MAX2839_LPFblock_MODE,5,9,2)
+#define MAX2839_ModeCtrl_RxCalibration 0
+#define MAX2839_ModeCtrl_RxLPF         1
+#define MAX2839_ModeCtrl_TxLPF         2
+#define MAX2839_ModeCtrl_LPFTrim       3
 
 /* REG 6 */
 __MREG__(MAX2839_LNA2gain_SPI,6,1,2)
@@ -146,7 +152,7 @@ __MREG__(MAX2839_RESERVED_15,15,8,2)
 __MREG__(MAX2839_RXHP_highpass_corner,15,9,1)
 
 /* REG 16 */
-__MREG__(MAX2839_chip_disable,16,0,1)
+__MREG__(MAX2839_chip_enable,16,0,1)
 __MREG__(MAX2839_RXTX_calibration_enable,16,1,1)
 __MREG__(MAX2839_RESERVED_16,16,5,4)
 __MREG__(MAX2839_PA_bias_DAC_SPI_enable,16,6,1)
@@ -154,14 +160,18 @@ __MREG__(MAX2839_PA_bias_DAC_TX_mode_enable,16,7,1)
 __MREG__(MAX2839_RESERVED_17,16,9,2)
 
 /* REG 17 */
-__MREG__(MAX2839_SYNTH_20bit_FDR_UH,17,9,10)
+__MREG__(MAX2839_SYN_FRAC_LO,17,9,10)
 
 /* REG 18 */
-__MREG__(MAX2839_SYNTH_20bit_FDR_LH,18,9,10)
+__MREG__(MAX2839_SYN_FRAC_HI,18,9,10)
 
 /* REG 19 */
-__MREG__(MAX2839_SYNTH_8bit_IDR,19,7,8)
-__MREG__(MAX2839_LO_Gen_Band_Switch,19,9,2)
+__MREG__(MAX2839_SYN_INT,19,7,8)
+__MREG__(MAX2839_LOGEN_BSW,19,9,2)
+#define MAX2839_LOGEN_BSW_2_3 0 // 2300 - <2400 MHz
+#define MAX2839_LOGEN_BSW_2_4 1 // 2400 - <2500 MHz
+#define MAX2839_LOGEN_BSW_2_5 2 // 2500 - <2600 MHz
+#define MAX2839_LOGEN_BSW_2_6 3 // 2600 - <2700 MHz
 
 /* REG 20 */
 __MREG__(MAX2839_RESERVED_18,20,0,1)
@@ -213,7 +223,7 @@ __MREG__(MAX2839_PADAC_Output_Current_Ctrl,28,5,6)
 __MREG__(MAX2839_PADAC_TurnOn_Delay_Ctrl,28,9,4)
 
 /* REG 29 */
-__MREG__(MAX2839_TX_VGA_SPI_Gain_Ctrl_Addr27,29,5,6)
+__MREG__(MAX2839_TX_VGA_GAIN,29,5,6)
 __MREG__(MAX2839_RESERVED_29,29,9,4)
 
 /* REG 30 */
