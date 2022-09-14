@@ -512,6 +512,8 @@ int tx_callback(hackrf_transfer* transfer)
 		bytes_read = fread(transfer->buffer, 1, bytes_to_read, file);
 	}
 
+	transfer->valid_length = bytes_read;
+
 	if (limit_num_samples && (bytes_to_xfer == 0)) {
 		stop_main_loop();
 		return -1;
@@ -533,6 +535,7 @@ int tx_callback(hackrf_transfer* transfer)
 			      1,
 			      bytes_to_read - bytes_read,
 			      file);
+		transfer->valid_length = bytes_read;
 	}
 
 	return 0;
