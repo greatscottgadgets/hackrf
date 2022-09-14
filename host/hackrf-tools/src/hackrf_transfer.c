@@ -497,15 +497,14 @@ int tx_callback(hackrf_transfer* transfer)
 	stream_power += sum;
 
 	bytes_to_read = transfer->buffer_length;
+	if (limit_num_samples) {
+		if (bytes_to_read >= bytes_to_xfer) {
+			bytes_to_read = bytes_to_xfer;
+		}
+		bytes_to_xfer -= bytes_to_read;
+	}
 	if (file == NULL) { // transceiver_mode == TRANSCEIVER_MODE_SS
 		/* Transmit continuous wave with specific amplitude */
-		if (limit_num_samples) {
-			if (bytes_to_read >= bytes_to_xfer) {
-				bytes_to_read = bytes_to_xfer;
-			}
-			bytes_to_xfer -= bytes_to_read;
-		}
-
 		for (i = 0; i < bytes_to_read; i++)
 			transfer->buffer[i] = -(uint8_t) amplitude;
 
@@ -517,16 +516,6 @@ int tx_callback(hackrf_transfer* transfer)
 		}
 	}
 
-	if (limit_num_samples) {
-		if (bytes_to_read >= bytes_to_xfer) {
-			/*
-			 * In this condition, we probably tx some of the previous
-			 * buffer contents at the end.  :-(
-			 */
-			bytes_to_read = bytes_to_xfer;
-		}
-		bytes_to_xfer -= bytes_to_read;
-	}
 	bytes_read = fread(transfer->buffer, 1, bytes_to_read, file);
 	if (limit_num_samples && (bytes_to_xfer == 0)) {
 		stop_main_loop();
