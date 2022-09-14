@@ -359,6 +359,8 @@ static int prepare_transfers(
 				.tx_ctx = device->tx_ctx,
 			};
 			if (device->callback(&transfer) == 0) {
+				device->transfers[transfer_index]->length =
+					transfer.valid_length;
 				ready_transfers++;
 			} else {
 				break;
@@ -1791,7 +1793,7 @@ hackrf_libusb_transfer_callback(struct libusb_transfer* usb_transfer)
 		hackrf_transfer transfer = {
 			.device = device,
 			.buffer = usb_transfer->buffer,
-			.buffer_length = usb_transfer->length,
+			.buffer_length = TRANSFER_BUFFER_SIZE,
 			.valid_length = usb_transfer->actual_length,
 			.rx_ctx = device->rx_ctx,
 			.tx_ctx = device->tx_ctx};
@@ -1803,6 +1805,9 @@ hackrf_libusb_transfer_callback(struct libusb_transfer* usb_transfer)
 			pthread_mutex_lock(&device->transfer_lock);
 
 			if ((resubmit = device->transfers_setup)) {
+				if (usb_transfer->endpoint == TX_ENDPOINT_ADDRESS) {
+					usb_transfer->length = transfer.valid_length;
+				}
 				result = libusb_submit_transfer(usb_transfer);
 			}
 
