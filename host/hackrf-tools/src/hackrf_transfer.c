@@ -506,8 +506,10 @@ int tx_callback(hackrf_transfer* transfer)
 			bytes_to_xfer -= bytes_to_read;
 		}
 
-		for (i = 0; i < bytes_to_read; i++)
-			transfer->buffer[i] = -(uint8_t) amplitude;
+		for (i = 0; i < bytes_to_read; i += 2) {
+			transfer->buffer[i] = amplitude;
+			transfer->buffer[i + 1] = 0;
+		}
 
 		if (limit_num_samples && (bytes_to_xfer == 0)) {
 			stop_main_loop();
@@ -629,7 +631,7 @@ static void usage()
 	printf("\t[-S buf_size] # Enable receive streaming with buffer size buf_size.\n");
 #endif
 	printf("\t[-B] # Print buffer statistics during transfer\n");
-	printf("\t[-c amplitude] # CW signal source mode, amplitude 0-128 (DC value to DAC).\n");
+	printf("\t[-c amplitude] # CW signal source mode, amplitude 0-127 (DC value to DAC).\n");
 	printf("\t[-R] # Repeat TX mode (default is off) \n");
 	printf("\t[-b baseband_filter_bw_hz] # Set baseband filter bandwidth in Hz.\n");
 	printf("\tPossible values: 1.75/2.5/3.5/5/5.5/6/7/8/9/10/12/14/15/20/24/28MHz, default <= 0.75 * sample_rate_hz.\n");
@@ -1019,9 +1021,9 @@ int main(int argc, char** argv)
 
 	if (signalsource) {
 		transceiver_mode = TRANSCEIVER_MODE_SS;
-		if (amplitude > 128) {
+		if (amplitude > 127) {
 			fprintf(stderr,
-				"argument error: amplitude must be between 0 and 128.\n");
+				"argument error: amplitude must be between 0 and 127.\n");
 			usage();
 			return EXIT_FAILURE;
 		}
@@ -1355,8 +1357,8 @@ int main(int argc, char** argv)
 				fprintf(stderr, "Waiting for sync...\n");
 			} else {
 				double full_scale_ratio = (double) stream_power_now /
-					(byte_count_now * 128 * 128);
-				double dB_full_scale = 10 * log10(full_scale_ratio);
+					(byte_count_now * 127 * 127);
+				double dB_full_scale = 10 * log10(full_scale_ratio) + 3.0;
 				fprintf(stderr,
 					"%4.1f MiB / %5.3f sec = %4.1f MiB/second, average power %3.1f dBfs",
 					(byte_count_now / 1e6f),
