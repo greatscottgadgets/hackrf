@@ -374,10 +374,17 @@ static int prepare_transfers(
 
 	// Now everything is ready, go ahead and submit the ready transfers.
 	for (transfer_index = 0; transfer_index < ready_transfers; transfer_index++) {
-		device->transfers[transfer_index]->endpoint = endpoint_address;
-		device->transfers[transfer_index]->callback = callback;
+		struct libusb_transfer* transfer = device->transfers[transfer_index];
+		transfer->endpoint = endpoint_address;
+		transfer->callback = callback;
 
-		error = libusb_submit_transfer(device->transfers[transfer_index]);
+		// Pad the size of a short transfer to the next 512-byte boundary.
+		if (endpoint_address == TX_ENDPOINT_ADDRESS) {
+			while (transfer->length % 512 != 0)
+				transfer->buffer[transfer->length++] = 0;
+		}
+
+		error = libusb_submit_transfer(transfer);
 		if (error != 0) {
 			last_libusb_error = error;
 			return HACKRF_ERROR_LIBUSB;
@@ -1805,6 +1812,10 @@ hackrf_libusb_transfer_callback(struct libusb_transfer* usb_transfer)
 			if ((resubmit = device->transfers_setup)) {
 				if (usb_transfer->endpoint == TX_ENDPOINT_ADDRESS) {
 					usb_transfer->length = transfer.valid_length;
+					// Pad to the next 512-byte boundary.
+					uint8_t* buffer = usb_transfer->buffer;
+					while (usb_transfer->length % 512 != 0)
+						buffer[usb_transfer->length++] = 0;
 				}
 				result = libusb_submit_transfer(usb_transfer);
 			}
