@@ -391,6 +391,15 @@ static int prepare_transfers(
 	device->streaming = (ready_transfers == TRANSFER_COUNT);
 	device->transfers_setup = true;
 
+	// If we're not continuing streaming, follow up with a flush if needed.
+	if (!device->streaming && device->flush) {
+		error = libusb_submit_transfer(device->flush_transfer);
+		if (error != 0) {
+			last_libusb_error = error;
+			return HACKRF_ERROR_LIBUSB;
+		}
+	}
+
 	return HACKRF_SUCCESS;
 }
 
@@ -1744,24 +1753,13 @@ static void transfer_finished(
 	struct hackrf_device* device,
 	struct libusb_transfer* finished_transfer)
 {
-	int result;
-
 	// If a transfer finished for any reason, we're shutting down.
 	device->streaming = false;
 
 	// If this is the last transfer, signal that all are now finished.
 	pthread_mutex_lock(&device->all_finished_lock);
 	if (device->active_transfers == 1) {
-		if (device->flush) {
-			// Don't finish yet - flush the TX buffer first.
-			result = libusb_submit_transfer(device->flush_transfer);
-			// If that fails, just shut down.
-			if (result != LIBUSB_SUCCESS) {
-				device->flush = false;
-				device->active_transfers = 0;
-				pthread_cond_broadcast(&device->all_finished_cv);
-			}
-		} else {
+		if (!device->flush) {
 			device->active_transfers = 0;
 			pthread_cond_broadcast(&device->all_finished_cv);
 		}
@@ -1817,6 +1815,8 @@ hackrf_libusb_transfer_callback(struct libusb_transfer* usb_transfer)
 
 			if (resubmit && result == LIBUSB_SUCCESS)
 				return;
+		} else if (device->flush) {
+			libusb_submit_transfer(device->flush_transfer);
 		}
 	}
 
