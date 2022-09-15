@@ -1176,15 +1176,6 @@ int main(int argc, char** argv)
 		return EXIT_FAILURE;
 	}
 
-	if (transceiver_mode == TRANSCEIVER_MODE_RX) {
-		result = hackrf_set_vga_gain(device, vga_gain);
-		result |= hackrf_set_lna_gain(device, lna_gain);
-		result |= hackrf_start_rx(device, rx_callback, NULL);
-	} else {
-		result = hackrf_set_txvga_gain(device, txvga_gain);
-		result |= hackrf_enable_tx_flush(device, 1);
-		result |= hackrf_start_tx(device, tx_callback, NULL);
-	}
 	if (result != HACKRF_SUCCESS) {
 		fprintf(stderr,
 			"hackrf_start_?x() failed: %s (%d)\n",
@@ -1253,6 +1244,16 @@ int main(int argc, char** argv)
 			usage();
 			return EXIT_FAILURE;
 		}
+	}
+
+	if (transceiver_mode == TRANSCEIVER_MODE_RX) {
+		result = hackrf_set_vga_gain(device, vga_gain);
+		result |= hackrf_set_lna_gain(device, lna_gain);
+		result |= hackrf_start_rx(device, rx_callback, NULL);
+	} else {
+		result = hackrf_set_txvga_gain(device, txvga_gain);
+		result |= hackrf_enable_tx_flush(device, 1);
+		result |= hackrf_start_tx(device, tx_callback, NULL);
 	}
 
 	if (limit_num_samples) {
