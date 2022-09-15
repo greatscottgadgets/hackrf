@@ -78,7 +78,7 @@ int compatibility_check(uint8_t* data, int length, hackrf_device* device)
 		dev_str = "HackRF Jawbreaker";
 		str_len = 17;
 		break;
-	case BOARD_ID_HACKRF_ONE:
+	case BOARD_ID_HACKRF1_OG:
 		dev_str = "HackRF One";
 		str_len = 10;
 		break;
@@ -87,7 +87,7 @@ int compatibility_check(uint8_t* data, int length, hackrf_device* device)
 		str_len = 5;
 		break;
 	default:
-		printf("Unknown Board ID");
+		printf("Unsupported Board ID");
 		return 1;
 	}
 	// Search for dev_str in uint8_t array of bytes that we're flashing

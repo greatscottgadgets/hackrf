@@ -22,9 +22,11 @@
 
 #include "si5351c.h"
 
-enum pll_sources active_clock_source = PLL_SOURCE_UNINITIALIZED;
+#include <stdbool.h>
+
+static enum pll_sources active_clock_source = PLL_SOURCE_UNINITIALIZED;
 /* External clock output default is deactivated as it creates noise */
-uint8_t clk3_ctrl = SI5351C_CLK_POWERDOWN | SI5351C_CLK_INT_MODE;
+static bool clkout_enabled = false;
 
 /* write to single register */
 void si5351c_write_single(si5351c_driver_t* const drv, uint8_t reg, uint8_t val)
@@ -177,6 +179,8 @@ void si5351c_configure_clock_control(
 	const enum pll_sources source)
 {
 	uint8_t pll;
+	uint8_t clk3_ctrl;
+
 #ifdef RAD1O
 	(void) source;
 	/* PLLA on XTAL */
@@ -192,6 +196,14 @@ void si5351c_configure_clock_control(
 		pll = SI5351C_CLK_PLL_SRC_A;
 	}
 #endif
+	if (clkout_enabled) {
+		clk3_ctrl = SI5351C_CLK_INT_MODE | SI5351C_CLK_PLL_SRC(pll) |
+			SI5351C_CLK_SRC(SI5351C_CLK_SRC_MULTISYNTH_SELF) |
+			SI5351C_CLK_IDRV(SI5351C_CLK_IDRV_8MA);
+	} else {
+		clk3_ctrl = SI5351C_CLK_POWERDOWN | SI5351C_CLK_INT_MODE;
+	}
+
 	/* Clock to CPU is deactivated as it is not used and creates noise */
 	/* External clock output is kept in current state */
 	uint8_t data[] = {
@@ -231,13 +243,12 @@ void si5351c_enable_clock_outputs(si5351c_driver_t* const drv)
 	/* Enable CLK outputs 0, 1, 2, 4, 5 only. */
 	/* 7: Clock to CPU is deactivated as it is not used and creates noise */
 	/* 3: External clock output is deactivated by default */
-	// uint8_t data[] = { 3, ~((1 << 0) | (1 << 1) | (1 << 2) | (1 << 4) | (1 << 5))};
-	uint8_t data[] = {
-		SI5351C_REG_OUTPUT_EN,
-		SI5351C_CLK_ENABLE(0) | SI5351C_CLK_ENABLE(1) | SI5351C_CLK_ENABLE(2) |
-			SI5351C_CLK_DISABLE(3) | SI5351C_CLK_ENABLE(4) |
-			SI5351C_CLK_ENABLE(5) | SI5351C_CLK_DISABLE(6) |
-			SI5351C_CLK_DISABLE(7)};
+	uint8_t value = SI5351C_CLK_ENABLE(0) | SI5351C_CLK_ENABLE(1) |
+		SI5351C_CLK_ENABLE(2) | SI5351C_CLK_ENABLE(4) | SI5351C_CLK_ENABLE(5) |
+		SI5351C_CLK_DISABLE(6) | SI5351C_CLK_DISABLE(7);
+
+	value |= (clkout_enabled) ? SI5351C_CLK_ENABLE(3) : SI5351C_CLK_DISABLE(3);
+	uint8_t data[] = {SI5351C_REG_OUTPUT_EN, value};
 	si5351c_write(drv, data, sizeof(data));
 }
 
@@ -277,43 +288,11 @@ bool si5351c_clkin_signal_valid(si5351c_driver_t* const drv)
 
 void si5351c_clkout_enable(si5351c_driver_t* const drv, uint8_t enable)
 {
-	/* Set optput in output enable register */
-	uint8_t output_enable = si5351c_read_single(drv, 3);
-	output_enable = output_enable & !SI5351C_CLK_DISABLE(3);
-	if (enable) {
-		output_enable = output_enable | SI5351C_CLK_ENABLE(3);
-	} else {
-		output_enable = output_enable | SI5351C_CLK_DISABLE(3);
-	}
-	uint8_t oe_data[] = {SI5351C_REG_OUTPUT_EN, output_enable};
-	si5351c_write(drv, oe_data, 2);
+	clkout_enabled = (enable > 0);
 
-	/* Configure clock to 10MHz (TODO customisable?) */
+	/* Configure clock to 10MHz */
 	si5351c_configure_multisynth(drv, 3, 80 * 128 - 512, 0, 1, 0);
 
-	/* Set power up/doen in CLK3 control register*/
-	uint8_t pll;
-#ifdef RAD1O
-	/* PLLA on XTAL */
-	pll = SI5351C_CLK_PLL_SRC_A;
-#endif
-
-#if (defined JAWBREAKER || defined HACKRF_ONE)
-	if (active_clock_source == PLL_SOURCE_CLKIN) {
-		/* PLLB on CLKIN */
-		pll = SI5351C_CLK_PLL_SRC_B;
-	} else {
-		/* PLLA on XTAL */
-		pll = SI5351C_CLK_PLL_SRC_A;
-	}
-#endif
-	if (enable) {
-		clk3_ctrl = SI5351C_CLK_INT_MODE | SI5351C_CLK_PLL_SRC(pll) |
-			SI5351C_CLK_SRC(SI5351C_CLK_SRC_MULTISYNTH_SELF) |
-			SI5351C_CLK_IDRV(SI5351C_CLK_IDRV_8MA);
-	} else {
-		clk3_ctrl = SI5351C_CLK_POWERDOWN | SI5351C_CLK_INT_MODE;
-	}
-	uint8_t clk3_data[] = {SI5351C_REG_CLK3_CTRL, clk3_ctrl};
-	si5351c_write(drv, clk3_data, 2);
+	si5351c_configure_clock_control(drv, active_clock_source);
+	si5351c_enable_clock_outputs(drv);
 }

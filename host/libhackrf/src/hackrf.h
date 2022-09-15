@@ -74,12 +74,36 @@ enum hackrf_error {
 	HACKRF_ERROR_OTHER = -9999,
 };
 
+#define HACKRF_BOARD_REV_GSG (0x80)
+
+#define HACKRF_PLATFORM_JAWBREAKER (1 << 0)
+#define HACKRF_PLATFORM_HACKRF1_OG (1 << 1)
+#define HACKRF_PLATFORM_RAD1O      (1 << 2)
+#define HACKRF_PLATFORM_HACKRF1_R9 (1 << 3)
+
 enum hackrf_board_id {
 	BOARD_ID_JELLYBEAN = 0,
 	BOARD_ID_JAWBREAKER = 1,
-	BOARD_ID_HACKRF_ONE = 2,
+	BOARD_ID_HACKRF1_OG = 2, /* HackRF One prior to r9 */
 	BOARD_ID_RAD1O = 3,
-	BOARD_ID_INVALID = 0xFF,
+	BOARD_ID_HACKRF1_R9 = 4,
+	BOARD_ID_UNRECOGNIZED = 0xFE, /* tried detection but did not recognize board */
+	BOARD_ID_UNDETECTED = 0xFF,   /* detection not yet attempted */
+};
+
+enum hackrf_board_rev {
+	BOARD_REV_HACKRF1_OLD = 0,
+	BOARD_REV_HACKRF1_R6 = 1,
+	BOARD_REV_HACKRF1_R7 = 2,
+	BOARD_REV_HACKRF1_R8 = 3,
+	BOARD_REV_HACKRF1_R9 = 4,
+	BOARD_REV_GSG_HACKRF1_R6 = 0x81,
+	BOARD_REV_GSG_HACKRF1_R7 = 0x82,
+	BOARD_REV_GSG_HACKRF1_R8 = 0x83,
+	BOARD_REV_GSG_HACKRF1_R9 = 0x84,
+	BOARD_REV_UNRECOGNIZED =
+		0xFE,                /* tried detection but did not recognize revision */
+	BOARD_REV_UNDETECTED = 0xFF, /* detection not yet attempted */
 };
 
 enum hackrf_usb_board_id {
@@ -465,6 +489,14 @@ extern ADDAPI int ADDCALL hackrf_start_rx_sweep(
 extern ADDAPI size_t ADDCALL hackrf_get_transfer_buffer_size(hackrf_device* device);
 
 extern ADDAPI uint32_t ADDCALL hackrf_get_transfer_queue_depth(hackrf_device* device);
+
+extern ADDAPI int ADDCALL hackrf_board_rev_read(hackrf_device* device, uint8_t* value);
+
+extern ADDAPI const char* ADDCALL hackrf_board_rev_name(enum hackrf_board_rev board_rev);
+
+extern ADDAPI int ADDCALL hackrf_supported_platform_read(
+	hackrf_device* device,
+	uint32_t* value);
 
 #ifdef __cplusplus
 } // __cplusplus defined.
