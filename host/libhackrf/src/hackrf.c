@@ -237,6 +237,7 @@ static int cancel_transfers(hackrf_device* device)
 		}
 
 		device->transfers_setup = false;
+		device->flush = false;
 
 		// Now release the lock. It's possible that some transfers were
 		// already complete when we called libusb_cancel_transfer() on
