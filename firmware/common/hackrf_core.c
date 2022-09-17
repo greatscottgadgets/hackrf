@@ -142,8 +142,9 @@ static struct gpio_t gpio_rx_q_invert       = GPIO(0, 13);
 
 /* HackRF One r9 */
 #ifdef HACKRF_ONE
-static struct gpio_t gpio_h1r9_rx = GPIO(0, 7);
-static struct gpio_t gpio_h1r9_no_rx_amp_pwr = GPIO(3, 6);
+static struct gpio_t gpio_h1r9_rx            = GPIO(0,  7);
+static struct gpio_t gpio_h1r9_no_rx_amp_pwr = GPIO(3,  6);
+static struct gpio_t gpio_h1r9_1v8_enable    = GPIO(1, 12);
 #endif
 // clang-format on
 
@@ -500,7 +501,7 @@ bool sample_rate_set(const uint32_t sample_rate_hz)
 		 * On HackRF One r9 all sample clocks are externally derived
 		 * from MS1/CLK1 operating at twice the sample rate.
 		 */
-		si5351c_configure_multisynth(&clock_gen, 0, p1, p2, p3, 0);
+		si5351c_configure_multisynth(&clock_gen, 1, p1, p2, p3, 0);
 	} else {
 		/*
 		 * On other platforms the clock generator produces three
@@ -877,13 +878,6 @@ void pin_setup(void)
 	/* Configure all GPIO as Input (safe state) */
 	gpio_init();
 
-	detect_hardware_platform();
-#ifdef HACKRF_ONE
-	if (detected_platform() < BOARD_ID_HACKRF1_OG) {
-		halt_and_flash(6000000);
-	}
-#endif
-
 	/* TDI and TMS pull-ups are required in all JTAG-compliant devices.
 	 *
 	 * The HackRF CPLD is always present, so let the CPLD pull up its TDI and TMS.
@@ -928,13 +922,13 @@ void pin_setup(void)
 	gpio_output(&gpio_led[3]);
 #endif
 
+	disable_1v8_power();
 	if (detected_platform() == BOARD_ID_HACKRF1_R9) {
-		//gpio_1v8_enable = GPIO(1, 12);
-		disable_1v8_power();
-		gpio_output(&gpio_1v8_enable);
+#ifdef HACKRF_ONE
+		gpio_output(&gpio_h1r9_1v8_enable);
 		scu_pinmux(P2_12, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+#endif
 	} else {
-		disable_1v8_power();
 		gpio_output(&gpio_1v8_enable);
 		scu_pinmux(SCU_PINMUX_EN1V8, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
 	}
@@ -966,12 +960,17 @@ void pin_setup(void)
 	/* enable input on SCL and SDA pins */
 	SCU_SFSI2C0 = SCU_I2C0_NOMINAL;
 
-	spi_bus_start(&spi_bus_ssp1, &ssp_config_max2837);
+	//FIXME
+	//spi_bus_start(&spi_bus_ssp1, &ssp_config_max2837);
 
 	mixer_bus_setup(&mixer);
 
-	rf_path.gpio_rx = &gpio_h1r9_rx;
-	rf_path.gpio_no_rx_amp_pwr = &gpio_h1r9_no_rx_amp_pwr;
+#ifdef HACKRF_ONE
+	if (detected_platform() == BOARD_ID_HACKRF1_R9) {
+		rf_path.gpio_rx = &gpio_h1r9_rx;
+		rf_path.gpio_no_rx_amp_pwr = &gpio_h1r9_no_rx_amp_pwr;
+	}
+#endif
 	rf_path_pin_setup(&rf_path);
 
 	/* Configure external clock in */
@@ -982,12 +981,24 @@ void pin_setup(void)
 
 void enable_1v8_power(void)
 {
-	gpio_set(&gpio_1v8_enable);
+	if (detected_platform() == BOARD_ID_HACKRF1_R9) {
+#ifdef HACKRF_ONE
+		gpio_set(&gpio_h1r9_1v8_enable);
+#endif
+	} else {
+		gpio_set(&gpio_1v8_enable);
+	}
 }
 
 void disable_1v8_power(void)
 {
-	gpio_clear(&gpio_1v8_enable);
+	if (detected_platform() == BOARD_ID_HACKRF1_R9) {
+#ifdef HACKRF_ONE
+		gpio_clear(&gpio_h1r9_1v8_enable);
+#endif
+	} else {
+		gpio_clear(&gpio_1v8_enable);
+	}
 }
 
 #ifdef HACKRF_ONE

@@ -96,7 +96,9 @@
  * microcontroller.
  */
 
+#ifdef HACKRF_ONE
 static struct gpio_t gpio_h1r9_no_ant_pwr = GPIO(2, 4); //FIXME max2837_tx_enable conflict
+#endif
 
 #ifdef HACKRF_ONE
 static void switchctrl_set_hackrf_one(rf_path_t* const rf_path, uint8_t ctrl)

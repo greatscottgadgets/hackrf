@@ -42,13 +42,13 @@ static struct gpio_t gpio3_6_on_P6_10 = GPIO(3, 6);
  * Jawbreaker has a pull-down on P6_10 and nothing on P5_0.
  * rad1o has a pull-down on P6_10 and a pull-down on P5_0.
  * HackRF One OG has a pull-down on P6_10 and a pull-up on P5_0.
- * HackRF One r9 has a pull-up on P6_10 and a pull-down on P5_0.
+ * HackRF One r9 has a pull-up on P6_10 and a pull-up on P5_0. //FIXME temporary
  */
 
 #define JAWBREAKER_RESISTORS (P6_10_PDN)
 #define RAD1O_RESISTORS      (P6_10_PDN | P5_0_PDN)
 #define HACKRF1_OG_RESISTORS (P6_10_PDN | P5_0_PUP)
-#define HACKRF1_R9_RESISTORS (P6_10_PUP | P5_0_PDN)
+#define HACKRF1_R9_RESISTORS (P6_10_PUP | P5_0_PUP)
 
 /*
  * LEDs are configured so that they flash if the detected hardware platform is
@@ -165,7 +165,7 @@ void detect_hardware_platform(void)
 		platform = BOARD_ID_HACKRF1_OG;
 		break;
 	case HACKRF1_R9_RESISTORS:
-		if (!(supported_platform() & PLATFORM_HACKRF1_R9)) {
+		if (!(supported_platform() & PLATFORM_HACKRF1_OG)) { //FIXME temporary
 			halt_and_flash(3000000);
 		}
 		platform = BOARD_ID_HACKRF1_R9;
