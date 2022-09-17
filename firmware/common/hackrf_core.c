@@ -28,6 +28,8 @@
 #include "spi_ssp.h"
 #include "max2837.h"
 #include "max2837_target.h"
+#include "max2839.h"
+#include "max2839_target.h"
 #include "max5864.h"
 #include "max5864_target.h"
 #include "w25q80bv.h"
@@ -189,6 +191,20 @@ const ssp_config_t ssp_config_max2837 = {
 	.gpio_select = &gpio_max2837_select,
 };
 
+const ssp_config_t ssp_config_max2839 = {
+	/* FIXME speed up once everything is working reliably */
+	/*
+	// Freq About 0.0498MHz / 49.8KHz => Freq = PCLK / (CPSDVSR * [SCR+1]) with PCLK=PLL1=204MHz
+	const uint8_t serial_clock_rate = 32;
+	const uint8_t clock_prescale_rate = 128;
+	*/
+	// Freq About 4.857MHz => Freq = PCLK / (CPSDVSR * [SCR+1]) with PCLK=PLL1=204MHz
+	.data_bits = SSP_DATA_16BITS,
+	.serial_clock_rate = 21,
+	.clock_prescale_rate = 2,
+	.gpio_select = &gpio_max2837_select,
+};
+
 const ssp_config_t ssp_config_max5864 = {
 	/* FIXME speed up once everything is working reliably */
 	/*
@@ -205,7 +221,7 @@ const ssp_config_t ssp_config_max5864 = {
 
 spi_bus_t spi_bus_ssp1 = {
 	.obj = (void*) SSP1_BASE,
-	.config = &ssp_config_max2837,
+	.config = &ssp_config_max5864,
 	.start = spi_ssp_start,
 	.stop = spi_ssp_stop,
 	.transfer = spi_ssp_transfer,
@@ -219,6 +235,14 @@ max2837_driver_t max2837 = {
 	.gpio_tx_enable = &gpio_max2837_tx_enable,
 	.target_init = max2837_target_init,
 	.set_mode = max2837_target_set_mode,
+};
+
+max2839_driver_t max2839 = {
+	.bus = &spi_bus_ssp1,
+	.gpio_enable = &gpio_max2837_enable,
+	.gpio_rxtx = &gpio_max2837_rx_enable,
+	.target_init = max2839_target_init,
+	.set_mode = max2839_target_set_mode,
 };
 
 max5864_driver_t max5864 = {
@@ -534,7 +558,12 @@ bool sample_rate_set(const uint32_t sample_rate_hz)
 
 bool baseband_filter_bandwidth_set(const uint32_t bandwidth_hz)
 {
-	uint32_t bandwidth_hz_real = max2837_set_lpf_bandwidth(&max2837, bandwidth_hz);
+	uint32_t bandwidth_hz_real;
+	if (detected_platform() == BOARD_ID_HACKRF1_R9) {
+		bandwidth_hz_real = max2839_set_lpf_bandwidth(&max2839, bandwidth_hz);
+	} else {
+		bandwidth_hz_real = max2837_set_lpf_bandwidth(&max2837, bandwidth_hz);
+	}
 
 	if (bandwidth_hz_real) {
 		hackrf_ui()->set_filter_bw(bandwidth_hz_real);
@@ -636,7 +665,7 @@ void cpu_clock_init(void)
 	/*
 	 * Clocks on HackRF One r9:
 	 *   CLK0 -> MAX5864/CPLD/SGPIO (sample clocks)
-	 *   CLK1 -> RFFC5072/MAX2837
+	 *   CLK1 -> RFFC5072/MAX2839
 	 *   CLK2 -> External Clock Output/LPC43xx (power down at boot)
 	 *
 	 * Clocks on other platforms:
@@ -651,7 +680,7 @@ void cpu_clock_init(void)
 	 */
 
 	if (detected_platform() == BOARD_ID_HACKRF1_R9) {
-		/* MS0/CLK0 is the reference for both RFFC5071 and MAX2837. */
+		/* MS0/CLK0 is the reference for both RFFC5071 and MAX2839. */
 		si5351c_configure_multisynth(
 			&clock_gen,
 			0,
@@ -868,6 +897,11 @@ void ssp1_set_mode_max2837(void)
 	spi_bus_start(max2837.bus, &ssp_config_max2837);
 }
 
+void ssp1_set_mode_max2839(void)
+{
+	spi_bus_start(max2839.bus, &ssp_config_max2839);
+}
+
 void ssp1_set_mode_max5864(void)
 {
 	spi_bus_start(max5864.bus, &ssp_config_max5864);
@@ -960,8 +994,11 @@ void pin_setup(void)
 	/* enable input on SCL and SDA pins */
 	SCU_SFSI2C0 = SCU_I2C0_NOMINAL;
 
-	//FIXME
-	//spi_bus_start(&spi_bus_ssp1, &ssp_config_max2837);
+	if (detected_platform() == BOARD_ID_HACKRF1_R9) {
+		spi_bus_start(&spi_bus_ssp1, &ssp_config_max2839);
+	} else {
+		spi_bus_start(&spi_bus_ssp1, &ssp_config_max2837);
+	}
 
 	mixer_bus_setup(&mixer);
 

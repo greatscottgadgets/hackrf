@@ -371,8 +371,13 @@ void rf_path_init(rf_path_t* const rf_path)
 	max5864_shutdown(&max5864);
 
 	ssp1_set_mode_max2837();
-	max2837_setup(&max2837);
-	max2837_start(&max2837);
+	if (detected_platform() == BOARD_ID_HACKRF1_R9) {
+		max2839_setup(&max2839);
+		max2839_start(&max2839);
+	} else {
+		max2837_setup(&max2837);
+		max2837_start(&max2837);
+	}
 
 	// On HackRF One, the mixer is now set up earlier in boot.
 #ifndef HACKRF_ONE

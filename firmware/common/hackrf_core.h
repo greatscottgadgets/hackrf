@@ -35,6 +35,7 @@ extern "C" {
 #include "spi_ssp.h"
 
 #include "max2837.h"
+#include "max2839.h"
 #include "max5864.h"
 #include "mixer.h"
 #include "w25q80bv.h"
@@ -267,9 +268,11 @@ void delay_us_at_mhz(uint32_t us, uint32_t mhz);
 extern si5351c_driver_t clock_gen;
 extern const ssp_config_t ssp_config_w25q80bv;
 extern const ssp_config_t ssp_config_max2837;
+extern const ssp_config_t ssp_config_max2839;
 extern const ssp_config_t ssp_config_max5864;
 
 extern max2837_driver_t max2837;
+extern max2839_driver_t max2839; //FIXME xcvr hal
 extern max5864_driver_t max5864;
 extern mixer_driver_t mixer;
 extern w25q80bv_driver_t spi_flash;
@@ -280,6 +283,7 @@ extern i2c_bus_t i2c0;
 
 void cpu_clock_init(void);
 void ssp1_set_mode_max2837(void);
+void ssp1_set_mode_max2839(void);
 void ssp1_set_mode_max5864(void);
 
 void pin_setup(void);
