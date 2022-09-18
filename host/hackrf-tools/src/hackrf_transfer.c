@@ -1249,6 +1249,8 @@ int main(int argc, char** argv)
 		result |= hackrf_set_lna_gain(device, lna_gain);
 		result |= hackrf_start_rx(device, rx_callback, NULL);
 	} else {
+		preload_bytes = hackrf_get_transfer_queue_depth(device) *
+			hackrf_get_transfer_buffer_size(device);
 		result = hackrf_set_txvga_gain(device, txvga_gain);
 		result |= hackrf_enable_tx_flush(device, 1);
 		result |= hackrf_start_tx(device, tx_callback, NULL);
@@ -1279,9 +1281,6 @@ int main(int argc, char** argv)
 		.it_value = {.tv_sec = 1, .tv_usec = 0}};
 	setitimer(ITIMER_REAL, &interval_timer, NULL);
 #endif
-	preload_bytes = hackrf_get_transfer_queue_depth(device) *
-		hackrf_get_transfer_buffer_size(device);
-
 	while ((hackrf_is_streaming(device) == HACKRF_TRUE) && (do_exit == false)) {
 		uint64_t byte_count_now;
 		struct timeval time_now;
