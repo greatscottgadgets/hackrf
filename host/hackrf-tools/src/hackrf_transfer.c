@@ -397,7 +397,7 @@ void stop_main_loop(void)
 #ifdef _WIN32
 	SetEvent(interrupt_handle);
 #else
-	kill(0, SIGALRM);
+	kill(getpid(), SIGALRM);
 #endif
 }
 
