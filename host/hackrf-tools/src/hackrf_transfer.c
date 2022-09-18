@@ -323,6 +323,7 @@ char* u64toa(uint64_t val, t_u64toa* str)
 
 static volatile bool do_exit = false;
 static volatile bool interrupted = false;
+static volatile bool tx_complete = false;
 #ifdef _WIN32
 static HANDLE interrupt_handle;
 #endif
@@ -480,15 +481,15 @@ int tx_callback(hackrf_transfer* transfer)
 	size_t bytes_read;
 	unsigned int i;
 
+	/* Check we have a valid source of samples. */
 	if (file == NULL && transceiver_mode != TRANSCEIVER_MODE_SS) {
 		stop_main_loop();
 		return -1;
 	}
 
 	/* Accumulate power (magnitude squared). */
-	bytes_to_read = transfer->valid_length;
 	uint64_t sum = 0;
-	for (i = 0; i < bytes_to_read; i++) {
+	for (i = 0; i < transfer->valid_length; i++) {
 		int8_t value = transfer->buffer[i];
 		sum += value * value;
 	}
@@ -497,53 +498,53 @@ int tx_callback(hackrf_transfer* transfer)
 	byte_count += transfer->valid_length;
 	stream_power += sum;
 
-	if (file == NULL) { // transceiver_mode == TRANSCEIVER_MODE_SS
-		/* Transmit continuous wave with specific amplitude */
-		if (limit_num_samples) {
-			if (bytes_to_read >= bytes_to_xfer) {
-				bytes_to_read = bytes_to_xfer;
-			}
-			bytes_to_xfer -= bytes_to_read;
-		}
-
-		for (i = 0; i < bytes_to_read; i += 2) {
-			transfer->buffer[i] = amplitude;
-			transfer->buffer[i + 1] = 0;
-		}
-
-		if (limit_num_samples && (bytes_to_xfer == 0)) {
-			stop_main_loop();
-			return -1;
-		} else {
-			return 0;
-		}
-	}
-
-	if (limit_num_samples) {
-		if (bytes_to_read >= bytes_to_xfer) {
-			/*
-			 * In this condition, we probably tx some of the previous
-			 * buffer contents at the end.  :-(
-			 */
-			bytes_to_read = bytes_to_xfer;
-		}
-		bytes_to_xfer -= bytes_to_read;
-	}
-	bytes_read = fread(transfer->buffer, 1, bytes_to_read, file);
-	if (limit_num_samples && (bytes_to_xfer == 0)) {
+	/* If the last data was already buffered, stop. */
+	if (tx_complete) {
 		stop_main_loop();
 		return -1;
 	}
 
+	/* Determine how many bytes we need to put in the buffer. */
+	bytes_to_read = transfer->buffer_length;
+	if (limit_num_samples) {
+		if (bytes_to_read >= bytes_to_xfer) {
+			bytes_to_read = bytes_to_xfer;
+		}
+		bytes_to_xfer -= bytes_to_read;
+	}
+
+	/* Fill the buffer. */
+	if (file == NULL) {
+		/* Transmit continuous wave with specific amplitude */
+		for (i = 0; i < bytes_to_read; i += 2) {
+			transfer->buffer[i] = amplitude;
+			transfer->buffer[i + 1] = 0;
+		}
+		bytes_read = bytes_to_read;
+	} else {
+		/* Read samples from file. */
+		bytes_read = fread(transfer->buffer, 1, bytes_to_read, file);
+	}
+	transfer->valid_length = bytes_read;
+
+	/* If the sample limit has been reached, this is the last data. */
+	if (limit_num_samples && (bytes_to_xfer == 0)) {
+		tx_complete = true;
+		return 0;
+	}
+
+	/* If we filled the number of bytes needed, return normally. */
 	if (bytes_read == bytes_to_read) {
 		return 0;
 	}
 
+	/* Otherwise, the file ran short. If not repeating, this is the last data. */
 	if (!repeat) {
-		stop_main_loop();
-		return -1; /* not repeat mode, end of file */
+		tx_complete = true;
+		return 0;
 	}
 
+	/* If we get to here, we need to repeat the file until we fill the buffer. */
 	while (bytes_read < bytes_to_read) {
 		rewind(file);
 		bytes_read +=
@@ -551,8 +552,10 @@ int tx_callback(hackrf_transfer* transfer)
 			      1,
 			      bytes_to_read - bytes_read,
 			      file);
+		transfer->valid_length = bytes_read;
 	}
 
+	/* Then return normally. */
 	return 0;
 }
 
@@ -1175,15 +1178,6 @@ int main(int argc, char** argv)
 		return EXIT_FAILURE;
 	}
 
-	if (transceiver_mode == TRANSCEIVER_MODE_RX) {
-		result = hackrf_set_vga_gain(device, vga_gain);
-		result |= hackrf_set_lna_gain(device, lna_gain);
-		result |= hackrf_start_rx(device, rx_callback, NULL);
-	} else {
-		result = hackrf_set_txvga_gain(device, txvga_gain);
-		result |= hackrf_enable_tx_flush(device, 1);
-		result |= hackrf_start_tx(device, tx_callback, NULL);
-	}
 	if (result != HACKRF_SUCCESS) {
 		fprintf(stderr,
 			"hackrf_start_?x() failed: %s (%d)\n",
@@ -1252,6 +1246,16 @@ int main(int argc, char** argv)
 			usage();
 			return EXIT_FAILURE;
 		}
+	}
+
+	if (transceiver_mode == TRANSCEIVER_MODE_RX) {
+		result = hackrf_set_vga_gain(device, vga_gain);
+		result |= hackrf_set_lna_gain(device, lna_gain);
+		result |= hackrf_start_rx(device, rx_callback, NULL);
+	} else {
+		result = hackrf_set_txvga_gain(device, txvga_gain);
+		result |= hackrf_enable_tx_flush(device, 1);
+		result |= hackrf_start_tx(device, tx_callback, NULL);
 	}
 
 	if (limit_num_samples) {

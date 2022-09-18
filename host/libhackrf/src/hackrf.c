@@ -237,6 +237,7 @@ static int cancel_transfers(hackrf_device* device)
 		}
 
 		device->transfers_setup = false;
+		device->flush = false;
 
 		// Now release the lock. It's possible that some transfers were
 		// already complete when we called libusb_cancel_transfer() on
@@ -361,6 +362,8 @@ static int prepare_transfers(
 				.tx_ctx = device->tx_ctx,
 			};
 			if (device->callback(&transfer) == 0) {
+				device->transfers[transfer_index]->length =
+					transfer.valid_length;
 				ready_transfers++;
 			} else {
 				break;
@@ -374,10 +377,17 @@ static int prepare_transfers(
 
 	// Now everything is ready, go ahead and submit the ready transfers.
 	for (transfer_index = 0; transfer_index < ready_transfers; transfer_index++) {
-		device->transfers[transfer_index]->endpoint = endpoint_address;
-		device->transfers[transfer_index]->callback = callback;
+		struct libusb_transfer* transfer = device->transfers[transfer_index];
+		transfer->endpoint = endpoint_address;
+		transfer->callback = callback;
 
-		error = libusb_submit_transfer(device->transfers[transfer_index]);
+		// Pad the size of a short transfer to the next 512-byte boundary.
+		if (endpoint_address == TX_ENDPOINT_ADDRESS) {
+			while (transfer->length % 512 != 0)
+				transfer->buffer[transfer->length++] = 0;
+		}
+
+		error = libusb_submit_transfer(transfer);
 		if (error != 0) {
 			last_libusb_error = error;
 			return HACKRF_ERROR_LIBUSB;
@@ -390,6 +400,15 @@ static int prepare_transfers(
 	// libusb completion callback won't submit further transfers.
 	device->streaming = (ready_transfers == TRANSFER_COUNT);
 	device->transfers_setup = true;
+
+	// If we're not continuing streaming, follow up with a flush if needed.
+	if (!device->streaming && device->flush) {
+		error = libusb_submit_transfer(device->flush_transfer);
+		if (error != 0) {
+			last_libusb_error = error;
+			return HACKRF_ERROR_LIBUSB;
+		}
+	}
 
 	return HACKRF_SUCCESS;
 }
@@ -1744,24 +1763,13 @@ static void transfer_finished(
 	struct hackrf_device* device,
 	struct libusb_transfer* finished_transfer)
 {
-	int result;
-
 	// If a transfer finished for any reason, we're shutting down.
 	device->streaming = false;
 
 	// If this is the last transfer, signal that all are now finished.
 	pthread_mutex_lock(&device->all_finished_lock);
 	if (device->active_transfers == 1) {
-		if (device->flush) {
-			// Don't finish yet - flush the TX buffer first.
-			result = libusb_submit_transfer(device->flush_transfer);
-			// If that fails, just shut down.
-			if (result != LIBUSB_SUCCESS) {
-				device->flush = false;
-				device->active_transfers = 0;
-				pthread_cond_broadcast(&device->all_finished_cv);
-			}
-		} else {
+		if (!device->flush) {
 			device->active_transfers = 0;
 			pthread_cond_broadcast(&device->all_finished_cv);
 		}
@@ -1793,7 +1801,7 @@ hackrf_libusb_transfer_callback(struct libusb_transfer* usb_transfer)
 		hackrf_transfer transfer = {
 			.device = device,
 			.buffer = usb_transfer->buffer,
-			.buffer_length = usb_transfer->length,
+			.buffer_length = TRANSFER_BUFFER_SIZE,
 			.valid_length = usb_transfer->actual_length,
 			.rx_ctx = device->rx_ctx,
 			.tx_ctx = device->tx_ctx};
@@ -1805,6 +1813,13 @@ hackrf_libusb_transfer_callback(struct libusb_transfer* usb_transfer)
 			pthread_mutex_lock(&device->transfer_lock);
 
 			if ((resubmit = device->transfers_setup)) {
+				if (usb_transfer->endpoint == TX_ENDPOINT_ADDRESS) {
+					usb_transfer->length = transfer.valid_length;
+					// Pad to the next 512-byte boundary.
+					uint8_t* buffer = usb_transfer->buffer;
+					while (usb_transfer->length % 512 != 0)
+						buffer[usb_transfer->length++] = 0;
+				}
 				result = libusb_submit_transfer(usb_transfer);
 			}
 
@@ -1814,6 +1829,8 @@ hackrf_libusb_transfer_callback(struct libusb_transfer* usb_transfer)
 
 			if (resubmit && result == LIBUSB_SUCCESS)
 				return;
+		} else if (device->flush) {
+			libusb_submit_transfer(device->flush_transfer);
 		}
 	}
 
