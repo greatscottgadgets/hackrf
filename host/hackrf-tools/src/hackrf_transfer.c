@@ -335,7 +335,6 @@ bool signalsource = false;
 uint32_t amplitude = 0;
 
 bool hw_sync = false;
-uint32_t hw_sync_enable = 0;
 
 bool receive = false;
 bool receive_wav = false;
@@ -639,7 +638,7 @@ static void usage()
 	printf("\t[-b baseband_filter_bw_hz] # Set baseband filter bandwidth in Hz.\n");
 	printf("\tPossible values: 1.75/2.5/3.5/5/5.5/6/7/8/9/10/12/14/15/20/24/28MHz, default <= 0.75 * sample_rate_hz.\n");
 	printf("\t[-C ppm] # Set Internal crystal clock error in ppm.\n");
-	printf("\t[-H hw_sync_enable] # Synchronise USB transfer using GPIO pins.\n");
+	printf("\t[-H hw_sync] # Synchronize RX/TX to external input signal.\n");
 }
 
 static hackrf_device* device = NULL;
@@ -693,15 +692,12 @@ int main(int argc, char** argv)
 	stats_t stats = {0, 0};
 	static int32_t preload_bytes = 0;
 
-	while ((opt =
-			getopt(argc,
-			       argv,
-			       "H:wr:t:f:i:o:m:a:p:s:Fn:b:l:g:x:c:d:C:RS:Bh?")) != EOF) {
+	while ((opt = getopt(argc, argv, "Hwr:t:f:i:o:m:a:p:s:Fn:b:l:g:x:c:d:C:RS:Bh?")) !=
+	       EOF) {
 		result = HACKRF_SUCCESS;
 		switch (opt) {
 		case 'H':
 			hw_sync = true;
-			result = parse_u32(optarg, &hw_sync_enable);
 			break;
 		case 'w':
 			receive_wav = true;
@@ -1166,10 +1162,10 @@ int main(int argc, char** argv)
 		}
 	}
 
-	fprintf(stderr, "call hackrf_set_hw_sync_mode(%d)\n", hw_sync_enable);
+	fprintf(stderr, "call hackrf_set_hw_sync_mode(%d)\n", hw_sync ? 1 : 0);
 	result = hackrf_set_hw_sync_mode(
 		device,
-		hw_sync_enable ? HW_SYNC_MODE_ON : HW_SYNC_MODE_OFF);
+		hw_sync ? HW_SYNC_MODE_ON : HW_SYNC_MODE_OFF);
 	if (result != HACKRF_SUCCESS) {
 		fprintf(stderr,
 			"hackrf_set_hw_sync_mode() failed: %s (%d)\n",
@@ -1356,8 +1352,7 @@ int main(int argc, char** argv)
 
 			time_difference = TimevalDiff(&time_now, &time_start);
 			rate = (float) byte_count_now / time_difference;
-			if (byte_count_now == 0 && hw_sync == true &&
-			    hw_sync_enable != 0) {
+			if ((byte_count_now == 0) && (hw_sync)) {
 				fprintf(stderr, "Waiting for sync...\n");
 			} else {
 				double full_scale_ratio = (double) stream_power_now /
@@ -1395,8 +1390,7 @@ int main(int argc, char** argv)
 
 			time_start = time_now;
 
-			if (byte_count_now == 0 &&
-			    (hw_sync == false || hw_sync_enable == 0)) {
+			if ((byte_count_now == 0) && (!hw_sync)) {
 				exit_code = EXIT_FAILURE;
 				fprintf(stderr,
 					"\nCouldn't transfer any bytes for one second.\n");
