@@ -366,9 +366,9 @@ void si5351c_init(si5351c_driver_t* const drv)
 		gpio_output(&gpio_h1r9_clkin_en);
 
 		/* CLKOUT_EN */
-		scu_pinmux(SCU_H1R9_CLKIN_EN, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
-		gpio_clear(&gpio_h1r9_clkin_en);
-		gpio_output(&gpio_h1r9_clkin_en);
+		scu_pinmux(SCU_H1R9_CLKOUT_EN, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+		gpio_clear(&gpio_h1r9_clkout_en);
+		gpio_output(&gpio_h1r9_clkout_en);
 
 		/* MCU_CLK_EN */
 		scu_pinmux(SCU_H1R9_MCU_CLK_EN, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
