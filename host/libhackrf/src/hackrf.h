@@ -91,6 +91,12 @@ enum hackrf_board_id {
 	BOARD_ID_UNDETECTED = 0xFF,   /* detection not yet attempted */
 };
 
+/*
+ * These deprecated board ID names are provided for API compatibility.
+ */
+#define BOARD_ID_HACKRF_ONE (BOARD_ID_HACKRF1_OG)
+#define BOARD_ID_INVALID    (BOARD_ID_UNDETECTED)
+
 enum hackrf_board_rev {
 	BOARD_REV_HACKRF1_OLD = 0,
 	BOARD_REV_HACKRF1_R6 = 1,
