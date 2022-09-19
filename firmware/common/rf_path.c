@@ -339,7 +339,10 @@ void rf_path_init(rf_path_t* const rf_path)
 	max2837_setup(&max2837);
 	max2837_start(&max2837);
 
+	// On HackRF One, the mixer is now set up earlier in boot.
+#ifndef HACKRF_ONE
 	mixer_setup(&mixer);
+#endif
 	switchctrl_set(rf_path, switchctrl);
 }
 

@@ -229,6 +229,11 @@ int main(void)
 	detect_hardware_platform();
 	pin_setup();
 	enable_1v8_power();
+#ifdef HACKRF_ONE
+	// Set up mixer before enabling RF power, because its
+	// GPO is used to control the antenna bias tee.
+	mixer_setup(&mixer);
+#endif
 #if (defined HACKRF_ONE || defined RAD1O)
 	enable_rf_power();
 #endif
