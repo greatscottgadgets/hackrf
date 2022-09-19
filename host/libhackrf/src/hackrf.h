@@ -154,7 +154,9 @@ typedef struct hackrf_device hackrf_device;
 
 /**
  * USB transfer information passed to RX or TX callback.
- * A callback should treat all these fields as read-only except that a TX callback should write to the data buffer.
+ * A callback should treat all these fields as read-only except that a TX
+ * callback should write to the data buffer and may write to valid_length to
+ * indicate that a smaller number of bytes is to be transmitted.
  */
 typedef struct {
 	hackrf_device* device; /**< HackRF USB device for this transfer */
