@@ -32,12 +32,14 @@
 
 #include "usb_api_cpld.h" // Remove when CPLD update is handled elsewhere
 
-#include <max2837.h>
-#include <rf_path.h>
-#include <tuning.h>
-#include <streaming.h>
-#include <usb.h>
-#include <usb_queue.h>
+#include "max2837.h"
+#include "max2839.h"
+#include "rf_path.h"
+#include "tuning.h"
+#include "streaming.h"
+#include "usb.h"
+#include "usb_queue.h"
+#include "platform_detect.h"
 
 #include <stddef.h>
 #include <string.h>
@@ -163,8 +165,12 @@ usb_request_status_t usb_vendor_request_set_lna_gain(
 	const usb_transfer_stage_t stage)
 {
 	if (stage == USB_TRANSFER_STAGE_SETUP) {
-		const uint8_t value =
-			max2837_set_lna_gain(&max2837, endpoint->setup.index);
+		uint8_t value;
+		if (detected_platform() == BOARD_ID_HACKRF1_R9) {
+			value = max2839_set_lna_gain(&max2839, endpoint->setup.index);
+		} else {
+			value = max2837_set_lna_gain(&max2837, endpoint->setup.index);
+		}
 		endpoint->buffer[0] = value;
 		if (value) {
 			hackrf_ui()->set_bb_lna_gain(endpoint->setup.index);
@@ -186,8 +192,12 @@ usb_request_status_t usb_vendor_request_set_vga_gain(
 	const usb_transfer_stage_t stage)
 {
 	if (stage == USB_TRANSFER_STAGE_SETUP) {
-		const uint8_t value =
-			max2837_set_vga_gain(&max2837, endpoint->setup.index);
+		uint8_t value;
+		if (detected_platform() == BOARD_ID_HACKRF1_R9) {
+			value = max2839_set_vga_gain(&max2839, endpoint->setup.index);
+		} else {
+			value = max2837_set_vga_gain(&max2837, endpoint->setup.index);
+		}
 		endpoint->buffer[0] = value;
 		if (value) {
 			hackrf_ui()->set_bb_vga_gain(endpoint->setup.index);
@@ -209,8 +219,12 @@ usb_request_status_t usb_vendor_request_set_txvga_gain(
 	const usb_transfer_stage_t stage)
 {
 	if (stage == USB_TRANSFER_STAGE_SETUP) {
-		const uint8_t value =
-			max2837_set_txvga_gain(&max2837, endpoint->setup.index);
+		uint8_t value;
+		if (detected_platform() == BOARD_ID_HACKRF1_R9) {
+			value = max2839_set_txvga_gain(&max2839, endpoint->setup.index);
+		} else {
+			value = max2837_set_txvga_gain(&max2837, endpoint->setup.index);
+		}
 		endpoint->buffer[0] = value;
 		if (value) {
 			hackrf_ui()->set_bb_tx_vga_gain(endpoint->setup.index);

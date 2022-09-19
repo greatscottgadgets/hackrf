@@ -30,11 +30,11 @@
 #include "hackrf_ui.h"
 #include "gpio_lpc.h"
 #include "platform_detect.h"
-
-#include <mixer.h>
-#include <max2837.h>
-#include <max5864.h>
-#include <sgpio.h>
+#include "mixer.h"
+#include "max2837.h"
+#include "max2839.h"
+#include "max5864.h"
+#include "sgpio.h"
 
 #if (defined JAWBREAKER || defined HACKRF_ONE || defined RAD1O)
 	/*
@@ -370,11 +370,12 @@ void rf_path_init(rf_path_t* const rf_path)
 	max5864_setup(&max5864);
 	max5864_shutdown(&max5864);
 
-	ssp1_set_mode_max2837();
 	if (detected_platform() == BOARD_ID_HACKRF1_R9) {
+		ssp1_set_mode_max2839();
 		max2839_setup(&max2839);
 		max2839_start(&max2839);
 	} else {
+		ssp1_set_mode_max2837();
 		max2837_setup(&max2837);
 		max2837_start(&max2837);
 	}
@@ -405,8 +406,13 @@ void rf_path_set_direction(rf_path_t* const rf_path, const rf_path_direction_t d
 		}
 		ssp1_set_mode_max5864();
 		max5864_tx(&max5864);
-		ssp1_set_mode_max2837();
-		max2837_tx(&max2837);
+		if (detected_platform() == BOARD_ID_HACKRF1_R9) {
+			ssp1_set_mode_max2839();
+			max2839_tx(&max2839);
+		} else {
+			ssp1_set_mode_max2837();
+			max2837_tx(&max2837);
+		}
 		sgpio_configure(&sgpio_config, SGPIO_DIRECTION_TX);
 		break;
 
@@ -424,8 +430,13 @@ void rf_path_set_direction(rf_path_t* const rf_path, const rf_path_direction_t d
 		}
 		ssp1_set_mode_max5864();
 		max5864_rx(&max5864);
-		ssp1_set_mode_max2837();
-		max2837_rx(&max2837);
+		if (detected_platform() == BOARD_ID_HACKRF1_R9) {
+			ssp1_set_mode_max2839();
+			max2839_rx(&max2839);
+		} else {
+			ssp1_set_mode_max2837();
+			max2837_rx(&max2837);
+		}
 		sgpio_configure(&sgpio_config, SGPIO_DIRECTION_RX);
 		break;
 
@@ -440,8 +451,13 @@ void rf_path_set_direction(rf_path_t* const rf_path, const rf_path_direction_t d
 		mixer_disable(&mixer);
 		ssp1_set_mode_max5864();
 		max5864_standby(&max5864);
-		ssp1_set_mode_max2837();
-		max2837_set_mode(&max2837, MAX2837_MODE_STANDBY);
+		if (detected_platform() == BOARD_ID_HACKRF1_R9) {
+			ssp1_set_mode_max2839();
+			max2839_set_mode(&max2839, MAX2839_MODE_STANDBY);
+		} else {
+			ssp1_set_mode_max2837();
+			max2837_set_mode(&max2837, MAX2837_MODE_STANDBY);
+		}
 		sgpio_configure(&sgpio_config, SGPIO_DIRECTION_RX);
 		break;
 	}
