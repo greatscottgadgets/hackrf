@@ -931,6 +931,9 @@ void disable_rf_power(void)
 void enable_rf_power(void)
 {
 	gpio_set(&gpio_vaa_enable);
+
+	/* Let the voltage stabilize */
+	delay(1000000);
 }
 
 void disable_rf_power(void)
