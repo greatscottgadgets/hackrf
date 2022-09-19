@@ -97,7 +97,7 @@
  */
 
 #ifdef HACKRF_ONE
-static struct gpio_t gpio_h1r9_no_ant_pwr = GPIO(2, 4); //FIXME max2837_tx_enable conflict
+static struct gpio_t gpio_h1r9_no_ant_pwr = GPIO(2, 4);
 #endif
 
 #ifdef HACKRF_ONE
@@ -282,7 +282,6 @@ void rf_path_pin_setup(rf_path_t* const rf_path)
 	scu_pinmux(SCU_NO_MIX_BYPASS, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
 	scu_pinmux(SCU_RX_MIX_BP,     SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
 	scu_pinmux(SCU_TX_AMP,        SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
-	scu_pinmux(SCU_TX,            SCU_GPIO_FAST | SCU_CONF_FUNCTION4);
 	scu_pinmux(SCU_MIX_BYPASS,    SCU_GPIO_FAST | SCU_CONF_FUNCTION4);
 	scu_pinmux(SCU_NO_TX_AMP_PWR, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
 	scu_pinmux(SCU_AMP_BYPASS,    SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
@@ -295,8 +294,10 @@ void rf_path_pin_setup(rf_path_t* const rf_path)
 		gpio_clear(&gpio_h1r9_no_ant_pwr);
 		gpio_output(&gpio_h1r9_no_ant_pwr);
 	} else {
+		scu_pinmux(SCU_TX, SCU_GPIO_FAST | SCU_CONF_FUNCTION4);
 		scu_pinmux(SCU_RX, SCU_GPIO_FAST | SCU_CONF_FUNCTION4);
 		scu_pinmux(SCU_NO_RX_AMP_PWR, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+		gpio_output(rf_path->gpio_tx);
 	}
 
 	/* Configure RF power supply (VAA) switch */
@@ -319,7 +320,6 @@ void rf_path_pin_setup(rf_path_t* const rf_path)
 	gpio_output(rf_path->gpio_rx_mix_bp);
 	gpio_output(rf_path->gpio_tx_amp);
 	gpio_output(rf_path->gpio_no_tx_amp_pwr);
-	gpio_output(rf_path->gpio_tx);
 	gpio_output(rf_path->gpio_mix_bypass);
 	gpio_output(rf_path->gpio_rx);
 #elif RAD1O

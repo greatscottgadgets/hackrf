@@ -324,7 +324,7 @@ bool max2839_set_lna_gain(max2839_driver_t* const drv, const uint32_t gain_db) {
 			return false;
 	}
 	set_MAX2839_LNA2gain(drv, val);
-	max2839_reg_commit(drv, 5);
+	max2839_reg_commit(drv, 6);
 	return true;
 }
 
@@ -334,7 +334,7 @@ bool max2839_set_vga_gain(max2839_driver_t* const drv, const uint32_t gain_db) {
 }
 
 	set_MAX2839_Rx2_VGAgain(drv, (63-gain_db));
-	max2839_reg_commit(drv, 5);
+	max2839_reg_commit(drv, 6);
 	return true;
 }
 
