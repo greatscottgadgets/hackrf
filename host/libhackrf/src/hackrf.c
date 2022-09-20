@@ -147,6 +147,8 @@ struct hackrf_device {
 	pthread_mutex_t all_finished_lock; /* used to protect all_finished */
 	bool flush;
 	struct libusb_transfer* flush_transfer;
+	hackrf_flush_cb_fn flush_callback;
+	void* flush_ctx;
 };
 
 typedef struct {
@@ -724,6 +726,8 @@ static int hackrf_open_setup(libusb_device_handle* usb_device, hackrf_device** d
 	lib_device->active_transfers = 0;
 	lib_device->flush = false;
 	lib_device->flush_transfer = NULL;
+	lib_device->flush_callback = NULL;
+	lib_device->flush_ctx = NULL;
 
 	result = pthread_mutex_init(&lib_device->transfer_lock, NULL);
 	if (result != 0) {
@@ -1788,6 +1792,8 @@ static void LIBUSB_CALL hackrf_libusb_flush_callback(struct libusb_transfer* usb
 	device->active_transfers = 0;
 	pthread_cond_broadcast(&device->all_finished_cv);
 	pthread_mutex_unlock(&device->all_finished_lock);
+	if (device->flush_callback)
+		device->flush_callback(device->flush_ctx);
 }
 
 static void LIBUSB_CALL
@@ -2004,45 +2010,43 @@ int ADDCALL hackrf_start_tx(
 	return result;
 }
 
-int ADDCALL hackrf_enable_tx_flush(hackrf_device* device, int enable)
+ADDAPI int ADDCALL hackrf_enable_tx_flush(
+	hackrf_device* device,
+	hackrf_flush_cb_fn callback,
+	void* flush_ctx)
 {
-	if (enable) {
-		if (device->flush_transfer) {
-			return HACKRF_SUCCESS;
-		}
+	device->flush_callback = callback;
+	device->flush_ctx = flush_ctx;
 
-		if ((device->flush_transfer = libusb_alloc_transfer(0)) == NULL) {
-			return HACKRF_ERROR_LIBUSB;
-		}
-
-		libusb_fill_bulk_transfer(
-			device->flush_transfer,
-			device->usb_device,
-			TX_ENDPOINT_ADDRESS,
-			calloc(1, DEVICE_BUFFER_SIZE),
-			DEVICE_BUFFER_SIZE,
-			hackrf_libusb_flush_callback,
-			device,
-			0);
-
-		device->flush_transfer->flags = LIBUSB_TRANSFER_FREE_BUFFER;
-	} else {
-		libusb_free_transfer(device->flush_transfer);
-		device->flush_transfer = NULL;
+	if (device->flush_transfer) {
+		return HACKRF_SUCCESS;
 	}
+
+	if ((device->flush_transfer = libusb_alloc_transfer(0)) == NULL) {
+		return HACKRF_ERROR_LIBUSB;
+	}
+
+	libusb_fill_bulk_transfer(
+		device->flush_transfer,
+		device->usb_device,
+		TX_ENDPOINT_ADDRESS,
+		calloc(1, DEVICE_BUFFER_SIZE),
+		DEVICE_BUFFER_SIZE,
+		hackrf_libusb_flush_callback,
+		device,
+		0);
+
+	device->flush_transfer->flags = LIBUSB_TRANSFER_FREE_BUFFER;
 
 	return HACKRF_SUCCESS;
 }
 
-int ADDCALL hackrf_await_tx_flush(hackrf_device* device)
+ADDAPI int ADDCALL hackrf_disable_tx_flush(hackrf_device* device)
 {
-	// Wait for the transfer thread to signal that all transfers
-	// have finished.
-	pthread_mutex_lock(&device->all_finished_lock);
-	while (device->active_transfers > 0) {
-		pthread_cond_wait(&device->all_finished_cv, &device->all_finished_lock);
-	}
-	pthread_mutex_unlock(&device->all_finished_lock);
+	libusb_free_transfer(device->flush_transfer);
+	device->flush_transfer = NULL;
+	device->flush_callback = NULL;
+	device->flush_ctx = NULL;
 
 	return HACKRF_SUCCESS;
 }

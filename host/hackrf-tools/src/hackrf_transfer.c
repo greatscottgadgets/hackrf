@@ -499,7 +499,6 @@ int tx_callback(hackrf_transfer* transfer)
 
 	/* If the last data was already buffered, stop. */
 	if (tx_complete) {
-		stop_main_loop();
 		return -1;
 	}
 
@@ -556,6 +555,11 @@ int tx_callback(hackrf_transfer* transfer)
 
 	/* Then return normally. */
 	return 0;
+}
+
+static void flush_callback(void* flush_ctx)
+{
+	stop_main_loop();
 }
 
 static int update_stats(hackrf_device* device, hackrf_m0_state* state, stats_t* stats)
@@ -1252,7 +1256,7 @@ int main(int argc, char** argv)
 		preload_bytes = hackrf_get_transfer_queue_depth(device) *
 			hackrf_get_transfer_buffer_size(device);
 		result = hackrf_set_txvga_gain(device, txvga_gain);
-		result |= hackrf_enable_tx_flush(device, 1);
+		result |= hackrf_enable_tx_flush(device, flush_callback, NULL);
 		result |= hackrf_start_tx(device, tx_callback, NULL);
 	}
 
@@ -1281,7 +1285,7 @@ int main(int argc, char** argv)
 		.it_value = {.tv_sec = 1, .tv_usec = 0}};
 	setitimer(ITIMER_REAL, &interval_timer, NULL);
 #endif
-	while ((hackrf_is_streaming(device) == HACKRF_TRUE) && (do_exit == false)) {
+	while (!do_exit) {
 		uint64_t byte_count_now;
 		struct timeval time_now;
 		float time_difference, rate;
@@ -1406,11 +1410,6 @@ int main(int argc, char** argv)
 	interval_timer.it_value.tv_sec = 0;
 	setitimer(ITIMER_REAL, &interval_timer, NULL);
 #endif
-	if ((transmit || signalsource) && !interrupted) {
-		// Wait for TX to finish.
-		hackrf_await_tx_flush(device);
-	}
-
 	result = hackrf_is_streaming(device);
 	if (do_exit) {
 		fprintf(stderr, "\nExiting...\n");
