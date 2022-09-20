@@ -1830,8 +1830,15 @@ hackrf_libusb_transfer_callback(struct libusb_transfer* usb_transfer)
 			if (resubmit && result == LIBUSB_SUCCESS)
 				return;
 		} else if (device->flush) {
-			libusb_submit_transfer(device->flush_transfer);
+			result = libusb_submit_transfer(device->flush_transfer);
+			if (result != LIBUSB_SUCCESS) {
+				device->streaming = false;
+				device->flush = false;
+			}
 		}
+	} else {
+		device->streaming = false;
+		device->flush = false;
 	}
 
 	// Unless we resubmitted this transfer and returned above,
