@@ -523,6 +523,13 @@ int tx_callback(hackrf_transfer* transfer)
 	} else {
 		/* Read samples from file. */
 		bytes_read = fread(transfer->buffer, 1, bytes_to_read, file);
+
+		/* If no more bytes, error or file empty, treat as end. */
+		if (bytes_read == 0) {
+			completed_byte_count += transfer->valid_length;
+			tx_complete = true;
+			return 0;
+		}
 	}
 
 	/* Accumulate power (magnitude squared). */
@@ -568,6 +575,12 @@ int tx_callback(hackrf_transfer* transfer)
 			      1,
 			      bytes_to_read - bytes_read,
 			      file);
+
+		/* If no more bytes, error or file empty, use what we have. */
+		if (extra_bytes_read == 0) {
+			tx_complete = true;
+			return 0;
+		}
 
 		/* Accumulate power for the additional samples. */
 		sum = 0;
