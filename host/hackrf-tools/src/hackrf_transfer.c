@@ -1413,7 +1413,7 @@ int main(int argc, char** argv)
 
 			time_start = time_now;
 
-			if ((completed_count_now == 0) && (!hw_sync)) {
+			if ((completed_count_now == 0) && (!hw_sync) && (!tx_complete)) {
 				exit_code = EXIT_FAILURE;
 				fprintf(stderr,
 					"\nCouldn't transfer any bytes for one second.\n");
