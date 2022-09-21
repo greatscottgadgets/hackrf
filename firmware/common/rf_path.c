@@ -79,8 +79,6 @@
 		 SWITCHCTRL_MIX_BYPASS | SWITCHCTRL_HP | SWITCHCTRL_NO_RX_AMP_PWR)
 #endif
 
-uint8_t switchctrl = SWITCHCTRL_SAFE;
-
 /*
  * Antenna port power on HackRF One is controlled by GPO1 on the RFFC5072.
  * This is the only thing we use RFFC5072 GPO for on HackRF One.  The value of
@@ -343,7 +341,7 @@ void rf_path_init(rf_path_t* const rf_path)
 #ifndef HACKRF_ONE
 	mixer_setup(&mixer);
 #endif
-	switchctrl_set(rf_path, switchctrl);
+	(void) rf_path; /* silence unused param warning */
 }
 
 void rf_path_set_direction(rf_path_t* const rf_path, const rf_path_direction_t direction)
