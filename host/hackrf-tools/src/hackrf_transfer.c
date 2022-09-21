@@ -638,7 +638,7 @@ static void usage()
 	printf("\t[-b baseband_filter_bw_hz] # Set baseband filter bandwidth in Hz.\n");
 	printf("\tPossible values: 1.75/2.5/3.5/5/5.5/6/7/8/9/10/12/14/15/20/24/28MHz, default <= 0.75 * sample_rate_hz.\n");
 	printf("\t[-C ppm] # Set Internal crystal clock error in ppm.\n");
-	printf("\t[-H hw_sync] # Synchronize RX/TX to external input signal.\n");
+	printf("\t[-H] # Synchronize RX/TX to external trigger input.\n");
 }
 
 static hackrf_device* device = NULL;
@@ -1352,7 +1352,7 @@ int main(int argc, char** argv)
 			time_difference = TimevalDiff(&time_now, &time_start);
 			rate = (float) byte_count_now / time_difference;
 			if ((byte_count_now == 0) && (hw_sync)) {
-				fprintf(stderr, "Waiting for sync...\n");
+				fprintf(stderr, "Waiting for trigger...\n");
 			} else {
 				double full_scale_ratio = (double) stream_power_now /
 					(byte_count_now * 127 * 127);
