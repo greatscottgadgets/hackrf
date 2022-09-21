@@ -215,9 +215,9 @@ SDIO, GPIO, clocks, and CPLD.
   * - 14  
     - GCK1
   * - 15  
-    - B1AUX14
+    - B1AUX14 (trigger output)
   * - 16  
-    - B1AUX13
+    - B1AUX13 (trigger input)
   * - 17  
     - CPLD_TCK
   * - 18  

@@ -10,7 +10,7 @@ Official Great Scott Gadgets HackRF Ones do not come from the factory with an RF
 
   **BE WARNED: Opening the plastic case of your HackRF One will most likely destroy the tabs that hold it together.**  
 
-  Instructions for removing a HackRF One from it's case can be found :ref:`here <opening_your_hackrf>`.
+  Instructions for removing a HackRF One from its case can be found :ref:`here <open_your_hackrf_one>`.
 
 
 
