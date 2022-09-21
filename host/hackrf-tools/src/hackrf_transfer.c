@@ -324,12 +324,15 @@ char* u64toa(uint64_t val, t_u64toa* str)
 static volatile bool do_exit = false;
 static volatile bool interrupted = false;
 static volatile bool tx_complete = false;
+static volatile bool flush_complete = false;
 #ifdef _WIN32
 static HANDLE interrupt_handle;
 #endif
 
 FILE* file = NULL;
-volatile uint32_t byte_count = 0;
+volatile uint32_t preload_transfers = 0;
+volatile uint32_t completed_byte_count = 0;
+volatile uint32_t submitted_byte_count = 0;
 
 bool signalsource = false;
 uint32_t amplitude = 0;
@@ -419,8 +422,9 @@ int rx_callback(hackrf_transfer* transfer)
 		sum += value * value;
 	}
 
-	/* Update both running totals at approximately the same time. */
-	byte_count += transfer->valid_length;
+	/* Update all running totals at approximately the same time. */
+	submitted_byte_count += transfer->valid_length;
+	completed_byte_count += transfer->valid_length;
 	stream_power += sum;
 
 	if (limit_num_samples) {
@@ -486,19 +490,16 @@ int tx_callback(hackrf_transfer* transfer)
 		return -1;
 	}
 
-	/* Accumulate power (magnitude squared). */
-	uint64_t sum = 0;
-	for (i = 0; i < transfer->valid_length; i++) {
-		int8_t value = transfer->buffer[i];
-		sum += value * value;
+	/* The first few TX callbacks are filling empty transfer buffers, not
+	 * reusing existing ones that have completed. */
+	if (preload_transfers > 0) {
+		transfer->valid_length = 0;
+		preload_transfers--;
 	}
-
-	/* Update both running totals at approximately the same time. */
-	byte_count += transfer->valid_length;
-	stream_power += sum;
 
 	/* If the last data was already buffered, stop. */
 	if (tx_complete) {
+		completed_byte_count += transfer->valid_length;
 		return -1;
 	}
 
@@ -523,6 +524,20 @@ int tx_callback(hackrf_transfer* transfer)
 		/* Read samples from file. */
 		bytes_read = fread(transfer->buffer, 1, bytes_to_read, file);
 	}
+
+	/* Accumulate power (magnitude squared). */
+	uint64_t sum = 0;
+	for (i = 0; i < bytes_read; i++) {
+		int8_t value = transfer->buffer[i];
+		sum += value * value;
+	}
+
+	/* Update all running totals at approximately the same time. */
+	completed_byte_count += transfer->valid_length;
+	submitted_byte_count += bytes_read;
+	stream_power += sum;
+
+	/* Now set the valid length to the bytes we put in the buffer. */
 	transfer->valid_length = bytes_read;
 
 	/* If the sample limit has been reached, this is the last data. */
@@ -544,13 +559,28 @@ int tx_callback(hackrf_transfer* transfer)
 
 	/* If we get to here, we need to repeat the file until we fill the buffer. */
 	while (bytes_read < bytes_to_read) {
+		size_t extra_bytes_read;
+
+		/* Rewind and read more samples. */
 		rewind(file);
-		bytes_read +=
+		extra_bytes_read =
 			fread(transfer->buffer + bytes_read,
 			      1,
 			      bytes_to_read - bytes_read,
 			      file);
-		transfer->valid_length = bytes_read;
+
+		/* Accumulate power for the additional samples. */
+		sum = 0;
+		for (i = 0; i < extra_bytes_read; i++) {
+			int8_t value = transfer->buffer[bytes_read + i];
+			sum += value * value;
+		}
+		bytes_read += extra_bytes_read;
+		transfer->valid_length += extra_bytes_read;
+
+		/* Update running totals together. */
+		submitted_byte_count += extra_bytes_read;
+		stream_power += sum;
 	}
 
 	/* Then return normally. */
@@ -559,6 +589,7 @@ int tx_callback(hackrf_transfer* transfer)
 
 static void flush_callback(void* flush_ctx)
 {
+	flush_complete = true;
 	stop_main_loop();
 }
 
@@ -694,7 +725,6 @@ int main(int argc, char** argv)
 	unsigned int lna_gain = 8, vga_gain = 20, txvga_gain = 0;
 	hackrf_m0_state state;
 	stats_t stats = {0, 0};
-	static int32_t preload_bytes = 0;
 
 	while ((opt = getopt(argc, argv, "Hwr:t:f:i:o:m:a:p:s:Fn:b:l:g:x:c:d:C:RS:Bh?")) !=
 	       EOF) {
@@ -1253,8 +1283,7 @@ int main(int argc, char** argv)
 		result |= hackrf_set_lna_gain(device, lna_gain);
 		result |= hackrf_start_rx(device, rx_callback, NULL);
 	} else {
-		preload_bytes = hackrf_get_transfer_queue_depth(device) *
-			hackrf_get_transfer_buffer_size(device);
+		preload_transfers = hackrf_get_transfer_queue_depth(device);
 		result = hackrf_set_txvga_gain(device, txvga_gain);
 		result |= hackrf_enable_tx_flush(device, flush_callback, NULL);
 		result |= hackrf_start_tx(device, tx_callback, NULL);
@@ -1286,7 +1315,6 @@ int main(int argc, char** argv)
 	setitimer(ITIMER_REAL, &interval_timer, NULL);
 #endif
 	while (!do_exit) {
-		uint64_t byte_count_now;
 		struct timeval time_now;
 		float time_difference, rate;
 		if (stream_size > 0) {
@@ -1319,6 +1347,8 @@ int main(int argc, char** argv)
 			}
 #endif
 		} else {
+			uint64_t submitted_count_now;
+			uint64_t completed_count_now;
 			uint64_t stream_power_now;
 #ifdef _WIN32
 			// Wait for interval timer event, or interrupt event.
@@ -1330,40 +1360,30 @@ int main(int argc, char** argv)
 #endif
 			gettimeofday(&time_now, NULL);
 
-			/* Read and reset both totals at approximately the same time. */
-			byte_count_now = byte_count;
+			/* Read and reset all totals at approximately the same time. */
+			submitted_count_now = submitted_byte_count;
+			completed_count_now = completed_byte_count;
 			stream_power_now = stream_power;
-			byte_count = 0;
+
+			submitted_byte_count = 0;
+			completed_byte_count = 0;
 			stream_power = 0;
 
-			/*
-			 * The TX callback is called to preload the USB
-			 * transfer buffers at the start of TX. This results in
-			 * invalid statistics collected about the empty buffers
-			 * before any USB transfer is completed. We skip these
-			 * statistics and do not report them to the user.
-			 */
-			if (preload_bytes > 0) {
-				if (preload_bytes > byte_count_now) {
-					preload_bytes -= byte_count_now;
-					byte_count_now = 0;
-				} else {
-					byte_count_now -= preload_bytes;
-					preload_bytes = 0;
-				}
+			if (flush_complete) {
+				completed_count_now = submitted_count_now;
 			}
 
 			time_difference = TimevalDiff(&time_now, &time_start);
-			rate = (float) byte_count_now / time_difference;
-			if ((byte_count_now == 0) && (hw_sync)) {
+			rate = (float) completed_count_now / time_difference;
+			if ((completed_count_now == 0) && (hw_sync)) {
 				fprintf(stderr, "Waiting for trigger...\n");
 			} else {
 				double full_scale_ratio = (double) stream_power_now /
-					(byte_count_now * 127 * 127);
+					(submitted_count_now * 127 * 127);
 				double dB_full_scale = 10 * log10(full_scale_ratio) + 3.0;
 				fprintf(stderr,
 					"%4.1f MiB / %5.3f sec = %4.1f MiB/second, average power %3.1f dBfs",
-					(byte_count_now / 1e6f),
+					(completed_count_now / 1e6f),
 					time_difference,
 					(rate / 1e6f),
 					dB_full_scale);
@@ -1393,7 +1413,7 @@ int main(int argc, char** argv)
 
 			time_start = time_now;
 
-			if ((byte_count_now == 0) && (!hw_sync)) {
+			if ((completed_count_now == 0) && (!hw_sync)) {
 				exit_code = EXIT_FAILURE;
 				fprintf(stderr,
 					"\nCouldn't transfer any bytes for one second.\n");
