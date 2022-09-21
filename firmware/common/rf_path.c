@@ -341,7 +341,7 @@ void rf_path_init(rf_path_t* const rf_path)
 #ifndef HACKRF_ONE
 	mixer_setup(&mixer);
 #endif
-	(void) rf_path; /* silence unused param warning */
+	rf_path->switchctrl = SWITCHCTRL_SAFE;
 }
 
 void rf_path_set_direction(rf_path_t* const rf_path, const rf_path_direction_t direction)
