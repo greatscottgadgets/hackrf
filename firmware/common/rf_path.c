@@ -267,6 +267,12 @@ void rf_path_pin_setup(rf_path_t* const rf_path)
 	/* Configure RF power supply (VAA) switch */
 	scu_pinmux(SCU_NO_VAA_ENABLE, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
 
+	/*
+	 * Safe (initial) switch settings turn off both amplifiers and antenna port
+	 * power and enable both amp bypass and mixer bypass.
+	 */
+	switchctrl_set(rf_path, SWITCHCTRL_SAFE);
+
 	/* Configure RF switch control signals as outputs */
 	gpio_output(rf_path->gpio_amp_bypass);
 	gpio_output(rf_path->gpio_no_mix_bypass);
@@ -281,12 +287,6 @@ void rf_path_pin_setup(rf_path_t* const rf_path)
 	gpio_output(rf_path->gpio_tx);
 	gpio_output(rf_path->gpio_mix_bypass);
 	gpio_output(rf_path->gpio_rx);
-
-	/*
-	 * Safe (initial) switch settings turn off both amplifiers and antenna port
-	 * power and enable both amp bypass and mixer bypass.
-	 */
-	switchctrl_set(rf_path, SWITCHCTRL_AMP_BYPASS | SWITCHCTRL_MIX_BYPASS);
 #elif RAD1O
 	/* Configure RF switch control signals */
 	// clang-format off
@@ -306,6 +306,12 @@ void rf_path_pin_setup(rf_path_t* const rf_path)
 	/* Configure RF power supply (VAA) switch */
 	scu_pinmux(SCU_VAA_ENABLE, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
 
+	/*
+	 * Safe (initial) switch settings turn off both amplifiers and antenna port
+	 * power and enable both amp bypass and mixer bypass.
+	 */
+	switchctrl_set(rf_path, SWITCHCTRL_SAFE);
+
 	/* Configure RF switch control signals as outputs */
 	gpio_output(rf_path->gpio_tx_rx_n);
 	gpio_output(rf_path->gpio_tx_rx);
@@ -318,12 +324,6 @@ void rf_path_pin_setup(rf_path_t* const rf_path)
 	gpio_output(rf_path->gpio_low_high_filt_n);
 	gpio_output(rf_path->gpio_tx_amp);
 	gpio_output(rf_path->gpio_rx_lna);
-
-	/*
-	 * Safe (initial) switch settings turn off both amplifiers and antenna port
-	 * power and enable both amp bypass and mixer bypass.
-	 */
-	switchctrl_set(rf_path, SWITCHCTRL_AMP_BYPASS | SWITCHCTRL_MIX_BYPASS);
 #else
 	(void) rf_path; /* silence unused param warning */
 #endif
