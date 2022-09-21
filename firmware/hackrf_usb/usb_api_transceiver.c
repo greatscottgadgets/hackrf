@@ -431,6 +431,7 @@ void rx_mode(uint32_t seq)
 void tx_mode(uint32_t seq)
 {
 	unsigned int usb_count = 0;
+	bool started = false;
 
 	transceiver_startup(TRANSCEIVER_MODE_TX);
 
@@ -443,13 +444,12 @@ void tx_mode(uint32_t seq)
 		NULL);
 	usb_count += USB_TRANSFER_SIZE;
 
-	// Enable streaming. The M0 is in TX_START mode, and will automatically
-	// send zeroes until the host fills buffer 0. Once that buffer is filled,
-	// the bulk transfer completion handler will increase the M4 count, and
-	// the M0 will switch to TX_RUN mode and transmit the first data.
-	baseband_streaming_enable(&sgpio_config);
-
 	while (transceiver_request.seq == seq) {
+		if (!started && (m0_state.m4_count == USB_BULK_BUFFER_SIZE)) {
+			// Buffer is now full, start streaming.
+			baseband_streaming_enable(&sgpio_config);
+			started = true;
+		}
 		if ((usb_count - m0_state.m0_count) <= USB_TRANSFER_SIZE) {
 			usb_transfer_schedule_block(
 				&usb_endpoint_bulk_out,
