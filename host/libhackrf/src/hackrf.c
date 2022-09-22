@@ -239,6 +239,9 @@ static int cancel_transfers(hackrf_device* device)
 			}
 		}
 
+		if (device->flush_transfer != NULL)
+			libusb_cancel_transfer(device->flush_transfer);
+
 		device->transfers_setup = false;
 		device->flush = false;
 
