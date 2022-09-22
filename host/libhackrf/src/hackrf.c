@@ -1805,7 +1805,7 @@ static void LIBUSB_CALL
 hackrf_libusb_transfer_callback(struct libusb_transfer* usb_transfer)
 {
 	hackrf_device* device = (hackrf_device*) usb_transfer->user_data;
-	bool success, resubmit;
+	bool success, resubmit = false;
 	int result;
 
 	hackrf_transfer transfer = {
@@ -1822,13 +1822,12 @@ hackrf_libusb_transfer_callback(struct libusb_transfer* usb_transfer)
 		device->tx_completion_callback(&transfer, success);
 	}
 
+	// Take lock to make sure that we don't restart a
+	// transfer whilst cancel_transfers() is in the middle
+	// of stopping them.
+	pthread_mutex_lock(&device->transfer_lock);
 	if (success) {
 		if (device->streaming && device->callback(&transfer) == 0) {
-			// Take lock to make sure that we don't restart a
-			// transfer whilst cancel_transfers() is in the middle
-			// of stopping them.
-			pthread_mutex_lock(&device->transfer_lock);
-
 			if ((resubmit = device->transfers_setup)) {
 				if (usb_transfer->endpoint == TX_ENDPOINT_ADDRESS) {
 					usb_transfer->length = transfer.valid_length;
@@ -1839,13 +1838,6 @@ hackrf_libusb_transfer_callback(struct libusb_transfer* usb_transfer)
 				}
 				result = libusb_submit_transfer(usb_transfer);
 			}
-
-			// Now we can release the lock. Our transfer was either
-			// cancelled or restarted, not both.
-			pthread_mutex_unlock(&device->transfer_lock);
-
-			if (resubmit && result == LIBUSB_SUCCESS)
-				return;
 		} else if (device->flush) {
 			result = libusb_submit_transfer(device->flush_transfer);
 			if (result != LIBUSB_SUCCESS) {
@@ -1857,9 +1849,15 @@ hackrf_libusb_transfer_callback(struct libusb_transfer* usb_transfer)
 		device->streaming = false;
 		device->flush = false;
 	}
+	// Now we can release the lock. Our transfer was either
+	// cancelled or restarted, not both.
+	pthread_mutex_unlock(&device->transfer_lock);
 
-	// Unless we resubmitted this transfer and returned above,
-	// it's now finished.
+	// If a data transfer was resubmitted successfully, we're done.
+	if (resubmit && result == LIBUSB_SUCCESS)
+		return;
+
+	// Otherwise, a transfer has now finished.
 	transfer_finished(device, usb_transfer);
 }
 
