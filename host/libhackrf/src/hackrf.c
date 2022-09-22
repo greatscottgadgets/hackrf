@@ -148,6 +148,7 @@ struct hackrf_device {
 	bool flush;
 	struct libusb_transfer* flush_transfer;
 	hackrf_flush_cb_fn flush_callback;
+	hackrf_tx_block_complete_cb_fn tx_completion_callback;
 	void* flush_ctx;
 };
 
@@ -728,6 +729,7 @@ static int hackrf_open_setup(libusb_device_handle* usb_device, hackrf_device** d
 	lib_device->flush_transfer = NULL;
 	lib_device->flush_callback = NULL;
 	lib_device->flush_ctx = NULL;
+	lib_device->tx_completion_callback = NULL;
 
 	result = pthread_mutex_init(&lib_device->transfer_lock, NULL);
 	if (result != 0) {
@@ -1800,18 +1802,24 @@ static void LIBUSB_CALL
 hackrf_libusb_transfer_callback(struct libusb_transfer* usb_transfer)
 {
 	hackrf_device* device = (hackrf_device*) usb_transfer->user_data;
-	bool resubmit;
+	bool success, resubmit;
 	int result;
 
-	if (usb_transfer->status == LIBUSB_TRANSFER_COMPLETED) {
-		hackrf_transfer transfer = {
-			.device = device,
-			.buffer = usb_transfer->buffer,
-			.buffer_length = TRANSFER_BUFFER_SIZE,
-			.valid_length = usb_transfer->actual_length,
-			.rx_ctx = device->rx_ctx,
-			.tx_ctx = device->tx_ctx};
+	hackrf_transfer transfer = {
+		.device = device,
+		.buffer = usb_transfer->buffer,
+		.buffer_length = TRANSFER_BUFFER_SIZE,
+		.valid_length = usb_transfer->actual_length,
+		.rx_ctx = device->rx_ctx,
+		.tx_ctx = device->tx_ctx};
 
+	success = usb_transfer->status == LIBUSB_TRANSFER_COMPLETED;
+
+	if (device->tx_completion_callback != NULL) {
+		device->tx_completion_callback(&transfer, success);
+	}
+
+	if (success) {
 		if (device->streaming && device->callback(&transfer) == 0) {
 			// Take lock to make sure that we don't restart a
 			// transfer whilst cancel_transfers() is in the middle
@@ -2008,6 +2016,14 @@ int ADDCALL hackrf_start_tx(
 		result = prepare_setup_transfers(device, endpoint_address, callback);
 	}
 	return result;
+}
+
+ADDAPI int ADDCALL hackrf_set_tx_block_complete_callback(
+	hackrf_device* device,
+	hackrf_tx_block_complete_cb_fn callback)
+{
+	device->tx_completion_callback = callback;
+	return HACKRF_SUCCESS;
 }
 
 ADDAPI int ADDCALL hackrf_enable_tx_flush(
