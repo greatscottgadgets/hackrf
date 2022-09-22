@@ -324,6 +324,7 @@ char* u64toa(uint64_t val, t_u64toa* str)
 static volatile bool do_exit = false;
 static volatile bool interrupted = false;
 static volatile bool tx_complete = false;
+static volatile bool flush_complete = false;
 #ifdef _WIN32
 static HANDLE interrupt_handle;
 #endif
@@ -588,6 +589,7 @@ static void tx_complete_callback(hackrf_transfer* transfer, int success)
 
 static void flush_callback(void* flush_ctx)
 {
+	flush_complete = true;
 	stop_main_loop();
 }
 
@@ -1369,7 +1371,7 @@ int main(int argc, char** argv)
 			rate = (float) completed_count_now / time_difference;
 			if ((completed_count_now == 0) && (hw_sync)) {
 				fprintf(stderr, "Waiting for trigger...\n");
-			} else {
+			} else if (!((completed_count_now == 0) && (flush_complete))) {
 				double full_scale_ratio = (double) stream_power_now /
 					(completed_count_now * 127 * 127);
 				double dB_full_scale = 10 * log10(full_scale_ratio) + 3.0;
@@ -1405,7 +1407,8 @@ int main(int argc, char** argv)
 
 			time_start = time_now;
 
-			if ((completed_count_now == 0) && (!hw_sync) && (!tx_complete)) {
+			if ((completed_count_now == 0) && (!hw_sync) &&
+			    (!flush_complete)) {
 				exit_code = EXIT_FAILURE;
 				fprintf(stderr,
 					"\nCouldn't transfer any bytes for one second.\n");
