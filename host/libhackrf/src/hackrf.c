@@ -1770,15 +1770,18 @@ static void* transfer_threadproc(void* arg)
 
 static void LIBUSB_CALL hackrf_libusb_flush_callback(struct libusb_transfer* usb_transfer)
 {
-	// TX buffer is now flushed, so proceed with signalling completion.
+	bool success = usb_transfer->status == LIBUSB_TRANSFER_COMPLETED;
+
+	// All transfers have now ended, so proceed with signalling completion.
 	hackrf_device* device = (hackrf_device*) usb_transfer->user_data;
 	pthread_mutex_lock(&device->all_finished_lock);
 	device->flush = false;
 	device->active_transfers = 0;
 	pthread_cond_broadcast(&device->all_finished_cv);
 	pthread_mutex_unlock(&device->all_finished_lock);
+
 	if (device->flush_callback)
-		device->flush_callback(device->flush_ctx);
+		device->flush_callback(device->flush_ctx, success);
 }
 
 static void LIBUSB_CALL

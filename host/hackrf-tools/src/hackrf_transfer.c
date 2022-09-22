@@ -594,9 +594,11 @@ static void tx_complete_callback(hackrf_transfer* transfer, int success)
 	stream_power += sum;
 }
 
-static void flush_callback(void* flush_ctx)
+static void flush_callback(void* flush_ctx, int success)
 {
-	flush_complete = true;
+	if (success) {
+		flush_complete = true;
+	}
 	stop_main_loop();
 }
 

@@ -229,7 +229,7 @@ typedef struct hackrf_device_list hackrf_device_list_t;
 
 typedef int (*hackrf_sample_block_cb_fn)(hackrf_transfer* transfer);
 typedef void (*hackrf_tx_block_complete_cb_fn)(hackrf_transfer* transfer, int);
-typedef void (*hackrf_flush_cb_fn)(void* flush_ctx);
+typedef void (*hackrf_flush_cb_fn)(void* flush_ctx, int);
 
 #ifdef __cplusplus
 extern "C" {
