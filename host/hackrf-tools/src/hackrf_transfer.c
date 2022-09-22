@@ -330,7 +330,7 @@ static HANDLE interrupt_handle;
 #endif
 
 FILE* file = NULL;
-volatile uint32_t completed_byte_count = 0;
+volatile uint32_t byte_count = 0;
 
 bool signalsource = false;
 uint32_t amplitude = 0;
@@ -420,8 +420,8 @@ int rx_callback(hackrf_transfer* transfer)
 		sum += value * value;
 	}
 
-	/* Update all running totals at approximately the same time. */
-	completed_byte_count += transfer->valid_length;
+	/* Update both running totals at approximately the same time. */
+	byte_count += transfer->valid_length;
 	stream_power += sum;
 
 	if (limit_num_samples) {
@@ -589,8 +589,8 @@ static void tx_complete_callback(hackrf_transfer* transfer, int success)
 		sum += value * value;
 	}
 
-	/* Update all running totals at approximately the same time. */
-	completed_byte_count += transfer->valid_length;
+	/* Update both running totals at approximately the same time. */
+	byte_count += transfer->valid_length;
 	stream_power += sum;
 }
 
@@ -1358,7 +1358,7 @@ int main(int argc, char** argv)
 			}
 #endif
 		} else {
-			uint64_t completed_count_now;
+			uint64_t byte_count_now;
 			uint64_t stream_power_now;
 #ifdef _WIN32
 			// Wait for interval timer event, or interrupt event.
@@ -1370,23 +1370,23 @@ int main(int argc, char** argv)
 #endif
 			gettimeofday(&time_now, NULL);
 
-			/* Read and reset all totals at approximately the same time. */
-			completed_count_now = completed_byte_count;
+			/* Read and reset both totals at approximately the same time. */
+			byte_count_now = byte_count;
 			stream_power_now = stream_power;
-			completed_byte_count = 0;
+			byte_count = 0;
 			stream_power = 0;
 
 			time_difference = TimevalDiff(&time_now, &time_start);
-			rate = (float) completed_count_now / time_difference;
-			if ((completed_count_now == 0) && (hw_sync)) {
+			rate = (float) byte_count_now / time_difference;
+			if ((byte_count_now == 0) && (hw_sync)) {
 				fprintf(stderr, "Waiting for trigger...\n");
-			} else if (!((completed_count_now == 0) && (flush_complete))) {
+			} else if (!((byte_count_now == 0) && (flush_complete))) {
 				double full_scale_ratio = (double) stream_power_now /
-					(completed_count_now * 127 * 127);
+					(byte_count_now * 127 * 127);
 				double dB_full_scale = 10 * log10(full_scale_ratio) + 3.0;
 				fprintf(stderr,
 					"%4.1f MiB / %5.3f sec = %4.1f MiB/second, average power %3.1f dBfs",
-					(completed_count_now / 1e6f),
+					(byte_count_now / 1e6f),
 					time_difference,
 					(rate / 1e6f),
 					dB_full_scale);
@@ -1416,8 +1416,7 @@ int main(int argc, char** argv)
 
 			time_start = time_now;
 
-			if ((completed_count_now == 0) && (!hw_sync) &&
-			    (!flush_complete)) {
+			if ((byte_count_now == 0) && (!hw_sync) && (!flush_complete)) {
 				exit_code = EXIT_FAILURE;
 				fprintf(stderr,
 					"\nCouldn't transfer any bytes for one second.\n");
