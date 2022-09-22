@@ -1768,26 +1768,6 @@ static void* transfer_threadproc(void* arg)
 	return NULL;
 }
 
-static void transfer_finished(
-	struct hackrf_device* device,
-	struct libusb_transfer* finished_transfer)
-{
-	// If a transfer finished for any reason, we're shutting down.
-	device->streaming = false;
-
-	// If this is the last transfer, signal that all are now finished.
-	pthread_mutex_lock(&device->all_finished_lock);
-	if (device->active_transfers == 1) {
-		if (!device->flush) {
-			device->active_transfers = 0;
-			pthread_cond_broadcast(&device->all_finished_cv);
-		}
-	} else {
-		device->active_transfers--;
-	}
-	pthread_mutex_unlock(&device->all_finished_lock);
-}
-
 static void LIBUSB_CALL hackrf_libusb_flush_callback(struct libusb_transfer* usb_transfer)
 {
 	// TX buffer is now flushed, so proceed with signalling completion.
@@ -1857,8 +1837,20 @@ hackrf_libusb_transfer_callback(struct libusb_transfer* usb_transfer)
 	if (resubmit && result == LIBUSB_SUCCESS)
 		return;
 
-	// Otherwise, a transfer has now finished.
-	transfer_finished(device, usb_transfer);
+	// Otherwise, no further calls should be made to the TX callback.
+	device->streaming = false;
+
+	// If this is the last transfer, signal that all are now finished.
+	pthread_mutex_lock(&device->all_finished_lock);
+	if (device->active_transfers == 1) {
+		if (!device->flush) {
+			device->active_transfers = 0;
+			pthread_cond_broadcast(&device->all_finished_cv);
+		}
+	} else {
+		device->active_transfers--;
+	}
+	pthread_mutex_unlock(&device->all_finished_lock);
 }
 
 static int kill_transfer_thread(hackrf_device* device)
