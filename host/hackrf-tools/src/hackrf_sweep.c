@@ -1,7 +1,7 @@
 /*
+ * Copyright 2016-2022 Great Scott Gadgets <info@greatscottgadgets.com>
  * Copyright 2016 Dominic Spill <dominicgs@gmail.com>
  * Copyright 2016 Mike Walters <mike@flomp.net>
- * Copyright 2017 Michael Ossmann <mike@ossmann.com>
  *
  * This file is part of HackRF.
  *

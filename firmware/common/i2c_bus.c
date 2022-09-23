@@ -1,4 +1,5 @@
 /*
+ * Copyright 2014-2022 Great Scott Gadgets <info@greatscottgadgets.com>
  * Copyright (C) 2014 Jared Boone, ShareBrained Technology, Inc.
  *
  * This file is part of HackRF.

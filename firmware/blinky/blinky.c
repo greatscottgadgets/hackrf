@@ -1,5 +1,5 @@
 /*
- * Copyright 2010 - 2012 Michael Ossmann
+ * Copyright 2010-2017 Great Scott Gadgets <info@greatscottgadgets.com>
  *
  * This file is part of HackRF.
  *

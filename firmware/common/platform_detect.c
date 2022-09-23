@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Great Scott Gadgets
+ * Copyright 2022 Great Scott Gadgets <info@greatscottgadgets.com>
  *
  * This file is part of HackRF.
  *

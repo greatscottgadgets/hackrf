@@ -1,4 +1,5 @@
 /*
+ * Copyright 2017-2022 Great Scott Gadgets <info@greatscottgadgets.com>
  * Copyright 2017 Dominic Spill <dominicgs@gmail.com>
  *
  * This file is part of HackRF.

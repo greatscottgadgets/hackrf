@@ -1,7 +1,7 @@
 /*
+Copyright (c) 2012-2022 Great Scott Gadgets <info@greatscottgadgets.com>
 Copyright (c) 2012, Jared Boone <jared@sharebrained.com>
 Copyright (c) 2013, Benjamin Vernoux <titanmkd@gmail.com>
-Copyright (c) 2013, Michael Ossmann <mike@ossmann.com>
 
 All rights reserved.
 
