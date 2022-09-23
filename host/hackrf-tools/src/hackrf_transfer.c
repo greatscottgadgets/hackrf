@@ -543,7 +543,7 @@ int tx_callback(hackrf_transfer* transfer)
 	}
 
 	/* Otherwise, the file ran short. If not repeating, this is the last data. */
-	if (!repeat) {
+	if ((!repeat) || (ftell(file) < 1)) {
 		tx_complete = true;
 		return 0;
 	}
