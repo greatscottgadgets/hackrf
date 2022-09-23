@@ -513,17 +513,18 @@ int tx_callback(hackrf_transfer* transfer)
 		/* Read samples from file. */
 		bytes_read = fread(transfer->buffer, 1, bytes_to_read, file);
 
-		/* Terminate immediately on error. */
-		if (ferror(file)) {
-			fprintf(stderr, "Could not read input file.\n");
-			stop_main_loop();
-			return -1;
-		}
-
-		/* Finish TX if no more data can be read. */
-		if ((bytes_read == 0) && (ftell(file) < 1)) {
-			tx_complete = true;
-			return 0;
+		/* If no more bytes, error or file empty, terminate. */
+		if (bytes_read == 0) {
+			/* Report any error. */
+			if (ferror(file)) {
+				fprintf(stderr, "Could not read input file.\n");
+				stop_main_loop();
+				return -1;
+			}
+			if (ftell(file) < 1) {
+				stop_main_loop();
+				return -1;
+			}
 		}
 	}
 
@@ -561,8 +562,16 @@ int tx_callback(hackrf_transfer* transfer)
 
 		/* If no more bytes, error or file empty, use what we have. */
 		if (extra_bytes_read == 0) {
-			tx_complete = true;
-			return 0;
+			/* Report any error. */
+			if (ferror(file)) {
+				fprintf(stderr, "Could not read input file.\n");
+				tx_complete = true;
+				return 0;
+			}
+			if (ftell(file) < 1) {
+				tx_complete = true;
+				return 0;
+			}
 		}
 
 		bytes_read += extra_bytes_read;
