@@ -1,7 +1,7 @@
 #!/bin/bash
 usbhub --disable-i2c --hub D9D1 power state --port 2 --reset
 sleep 1s
-dfu-util --path 1-1.2 --alt 0 --download firmware/hackrf_usb/build/hackrf_usb.dfu
+dfu-util --path 1-2.2 --alt 0 --download firmware/hackrf_usb/build/hackrf_usb.dfu
 EXIT_CODE="$?"
 if [ "$EXIT_CODE" == "0" ]
 then
