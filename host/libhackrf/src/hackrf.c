@@ -367,7 +367,8 @@ static int prepare_transfers(
 				.rx_ctx = device->rx_ctx,
 				.tx_ctx = device->tx_ctx,
 			};
-			if (device->callback(&transfer) == 0) {
+			if ((device->callback(&transfer) == 0) &&
+			    (transfer.valid_length > 0)) {
 				device->transfers[transfer_index]->length =
 					transfer.valid_length;
 				ready_transfers++;
@@ -1810,7 +1811,8 @@ hackrf_libusb_transfer_callback(struct libusb_transfer* usb_transfer)
 	// of stopping them.
 	pthread_mutex_lock(&device->transfer_lock);
 	if (success) {
-		if (device->streaming && device->callback(&transfer) == 0) {
+		if (device->streaming && (device->callback(&transfer) == 0) &&
+		    (transfer.valid_length > 0)) {
 			if ((resubmit = device->transfers_setup)) {
 				if (usb_transfer->endpoint == TX_ENDPOINT_ADDRESS) {
 					usb_transfer->length = transfer.valid_length;
