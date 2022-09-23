@@ -20,12 +20,14 @@
  */
 
 #include "hackrf_core.h"
+#include "platform_detect.h"
 
 int main(void)
 {
+	detect_hardware_platform();
 	pin_setup();
 
-	/* enable all power supplies */
+	/* enable 1V8 power supply so that the 1V8 LED lights up */
 	enable_1v8_power();
 
 	/* Blink LED1/2/3 on the board. */
