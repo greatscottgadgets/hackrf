@@ -1199,7 +1199,7 @@ int main(int argc, char** argv)
 
 	if (baseband_filter_bw) {
 		fprintf(stderr,
-			"call hackrf_baseband_filter_bandwidth_set(%d Hz/%.03f MHz)\n",
+			"call hackrf_set_baseband_filter_bandwidth(%d Hz/%.03f MHz)\n",
 			baseband_filter_bw_hz,
 			((float) baseband_filter_bw_hz / (float) FREQ_ONE_MHZ));
 		result = hackrf_set_baseband_filter_bandwidth(
@@ -1207,7 +1207,7 @@ int main(int argc, char** argv)
 			baseband_filter_bw_hz);
 		if (result != HACKRF_SUCCESS) {
 			fprintf(stderr,
-				"hackrf_baseband_filter_bandwidth_set() failed: %s (%d)\n",
+				"hackrf_set_baseband_filter_bandwidth() failed: %s (%d)\n",
 				hackrf_error_name(result),
 				result);
 			usage();
