@@ -108,13 +108,11 @@ void max2839_setup(max2839_driver_t* const drv)
 	set_MAX2839_LNA1gain(drv, MAX2839_LNA1gain_M32);
 	set_MAX2839_Rx1_VGAgain(drv, 0x3f);
 
-	//set_MAX2839_TX_VGA_GAIN(drv, 0x18);
-
-	/* maximum RX output common-mode voltage */
+	/* set maximum RX output common-mode voltage */
 	set_MAX2839_RX_VCM(drv, MAX2839_RX_VCM_1_35);
 
-	//FIXME do something with HPFSM/HPC?
-	//FIXME do something with LPF?
+	/* set HPF corner frequency to 1 kHz */
+	set_MAX2839_HPC_STOP(drv, MAX2839_STOP_1K);
 
 	max2839_regs_commit(drv);
 }
