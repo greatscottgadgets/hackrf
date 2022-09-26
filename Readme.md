@@ -17,7 +17,7 @@ Information on HackRF and purchasing HackRF: https://greatscottgadgets.com/hackr
 
 Documentation for HackRF can be viewed on [Read the Docs](https://hackrf.readthedocs.io/en/latest/). The raw documenation files for HackRF are in the [docs folder](https://github.com/mossmann/hackrf/tree/master/docs) in this repository and can be built locally by installing [Sphinx Docs](https://www.sphinx-doc.org/en/master/usage/installation.html) and running `make html`. Documentation changes can be submitted through pull request and suggestions can be made as GitHub issues. 
 
-To create a PDF of the HackRF One documentation from the HackRf repository while on Ubuntu:
+To create a PDF of the HackRF documentation from the HackRF repository while on Ubuntu:
 * run `sudo apt install latexmk texlive-latex-extra`
 * navigate to hackrf/docs on command line
 * run the command `make latex`
@@ -26,7 +26,6 @@ To create a PDF of the HackRF One documentation from the HackRf repository while
 --------------------
 
 # Getting Help
-
 
 Before asking for help with HackRF, check to see if your question is listed in the [FAQ](https://hackrf.readthedocs.io/en/latest/faq.html).
 
