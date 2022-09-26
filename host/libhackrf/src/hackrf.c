@@ -382,7 +382,11 @@ static int prepare_transfers(
 		ready_transfers = TRANSFER_COUNT;
 	}
 
-	// Now everything is ready, go ahead and submit the ready transfers.
+	// Now everything is ready, go ahead and submit the ready transfers. We must hold
+	// the transfer lock whilst doing this, so that completion callbacks cannot resubmit
+	// any transfers until all transfers have been initially submitted.
+	pthread_mutex_lock(&device->transfer_lock);
+
 	for (transfer_index = 0; transfer_index < ready_transfers; transfer_index++) {
 		struct libusb_transfer* transfer = device->transfers[transfer_index];
 		transfer->endpoint = endpoint_address;
@@ -397,27 +401,35 @@ static int prepare_transfers(
 		error = libusb_submit_transfer(transfer);
 		if (error != 0) {
 			last_libusb_error = error;
-			return HACKRF_ERROR_LIBUSB;
+			break;
 		}
 		device->active_transfers++;
 	}
 
-	// We should only continue streaming if all transfers were made ready
-	// and submitted above. Otherwise, set streaming to false so that the
-	// libusb completion callback won't submit further transfers.
-	device->streaming = (ready_transfers == TRANSFER_COUNT);
-	device->transfers_setup = true;
+	if (error == 0) {
+		// We should only continue streaming if all transfers were made ready
+		// and submitted above. Otherwise, set streaming to false so that the
+		// libusb completion callback won't submit further transfers.
+		device->streaming = (ready_transfers == TRANSFER_COUNT);
+		device->transfers_setup = true;
 
-	// If we're not continuing streaming, follow up with a flush if needed.
-	if (!device->streaming && device->flush) {
-		error = libusb_submit_transfer(device->flush_transfer);
-		if (error != 0) {
-			last_libusb_error = error;
-			return HACKRF_ERROR_LIBUSB;
+		// If we're not continuing streaming, follow up with a flush if needed.
+		if (!device->streaming && device->flush) {
+			error = libusb_submit_transfer(device->flush_transfer);
+			if (error != 0) {
+				last_libusb_error = error;
+			}
 		}
 	}
 
-	return HACKRF_SUCCESS;
+	// Now we can release the transfer lock.
+	pthread_mutex_unlock(&device->transfer_lock);
+
+	if (error == 0) {
+		return HACKRF_SUCCESS;
+	} else {
+		return HACKRF_ERROR_LIBUSB;
+	}
 }
 
 static int detach_kernel_drivers(libusb_device_handle* usb_device_handle)
