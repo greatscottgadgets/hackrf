@@ -303,11 +303,11 @@ void delay(uint32_t duration)
 
 void delay_us_at_mhz(uint32_t us, uint32_t mhz)
 {
-	// The loop below takes 4 cycles per iteration.
-	uint32_t loop_iterations = (us * mhz) / 4;
+	// The loop below takes 3 cycles per iteration.
+	uint32_t loop_iterations = (us * mhz) / 3;
 	asm volatile("start%=:\n"
 		     "    subs %[ITERATIONS], #1\n" // 1 cycle
-		     "    bpl start%=\n"            // 3 cycles
+		     "    bpl start%=\n"            // 2 cycles
 		     :
 		     : [ITERATIONS] "r"(loop_iterations));
 }
@@ -560,7 +560,7 @@ static void cpu_clock_pll1_max_speed(void)
 	CGU_BASE_M4_CLK = reg_val;
 
 	/* 9. Wait 50us. */
-	delay_us_at_mhz(50, 104);
+	delay_us_at_mhz(50, 102);
 
 	/* 10. Set the PLL1 P-divider to direct output mode (DIRECT=1). */
 	CGU_PLL1_CTRL |= CGU_PLL1_CTRL_DIRECT_MASK;
