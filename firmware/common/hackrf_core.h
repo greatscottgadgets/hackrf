@@ -253,6 +253,7 @@ typedef enum {
 } clock_source_t;
 
 void delay(uint32_t duration);
+void delay_us_at_mhz(uint32_t us, uint32_t mhz);
 
 /* TODO: Hide these configurations */
 extern si5351c_driver_t clock_gen;
