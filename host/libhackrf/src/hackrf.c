@@ -1834,28 +1834,28 @@ hackrf_libusb_transfer_callback(struct libusb_transfer* usb_transfer)
 		device->streaming = false;
 		device->flush = false;
 	}
+
+	// If a data transfer was resubmitted successfully, we're done.
+	if (!resubmit || result != LIBUSB_SUCCESS) {
+		// No further calls should be made to the TX callback.
+		device->streaming = false;
+
+		// If this is the last transfer, signal that all are now finished.
+		pthread_mutex_lock(&device->all_finished_lock);
+		if (device->active_transfers == 1) {
+			if (!device->flush) {
+				device->active_transfers = 0;
+				pthread_cond_broadcast(&device->all_finished_cv);
+			}
+		} else {
+			device->active_transfers--;
+		}
+		pthread_mutex_unlock(&device->all_finished_lock);
+	}
+
 	// Now we can release the lock. Our transfer was either
 	// cancelled or restarted, not both.
 	pthread_mutex_unlock(&device->transfer_lock);
-
-	// If a data transfer was resubmitted successfully, we're done.
-	if (resubmit && result == LIBUSB_SUCCESS)
-		return;
-
-	// Otherwise, no further calls should be made to the TX callback.
-	device->streaming = false;
-
-	// If this is the last transfer, signal that all are now finished.
-	pthread_mutex_lock(&device->all_finished_lock);
-	if (device->active_transfers == 1) {
-		if (!device->flush) {
-			device->active_transfers = 0;
-			pthread_cond_broadcast(&device->all_finished_cv);
-		}
-	} else {
-		device->active_transfers--;
-	}
-	pthread_mutex_unlock(&device->all_finished_lock);
 }
 
 static int kill_transfer_thread(hackrf_device* device)
