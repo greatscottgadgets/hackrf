@@ -144,7 +144,6 @@ struct hackrf_device {
 	pthread_mutex_t transfer_lock;  /* must be held to cancel or restart transfers */
 	volatile int active_transfers;  /* number of active transfers */
 	pthread_cond_t all_finished_cv; /* signalled when all transfers have finished */
-	pthread_mutex_t all_finished_lock; /* used to protect all_finished */
 	bool flush;
 	struct libusb_transfer* flush_transfer;
 	hackrf_flush_cb_fn flush_callback;
@@ -245,22 +244,14 @@ static int cancel_transfers(hackrf_device* device)
 		device->transfers_setup = false;
 		device->flush = false;
 
-		// Now release the lock. It's possible that some transfers were
-		// already complete when we called libusb_cancel_transfer() on
-		// them, and they may still get a callback. But the callback
-		// won't restart a transfer now that the transfers_setup flag
-		// is set to false.
-		pthread_mutex_unlock(&device->transfer_lock);
-
 		// Now wait for the transfer thread to signal that all transfers
 		// have finished, either by completing or being fully cancelled.
-		pthread_mutex_lock(&device->all_finished_lock);
 		while (device->active_transfers > 0) {
 			pthread_cond_wait(
 				&device->all_finished_cv,
-				&device->all_finished_lock);
+				&device->transfer_lock);
 		}
-		pthread_mutex_unlock(&device->all_finished_lock);
+		pthread_mutex_unlock(&device->transfer_lock);
 
 		return HACKRF_SUCCESS;
 	} else {
@@ -748,14 +739,6 @@ static int hackrf_open_setup(libusb_device_handle* usb_device, hackrf_device** d
 	lib_device->tx_completion_callback = NULL;
 
 	result = pthread_mutex_init(&lib_device->transfer_lock, NULL);
-	if (result != 0) {
-		free(lib_device);
-		libusb_release_interface(usb_device, 0);
-		libusb_close(usb_device);
-		return HACKRF_ERROR_THREAD;
-	}
-
-	result = pthread_mutex_init(&lib_device->all_finished_lock, NULL);
 	if (result != 0) {
 		free(lib_device);
 		libusb_release_interface(usb_device, 0);
@@ -1787,11 +1770,11 @@ static void LIBUSB_CALL hackrf_libusb_flush_callback(struct libusb_transfer* usb
 
 	// All transfers have now ended, so proceed with signalling completion.
 	hackrf_device* device = (hackrf_device*) usb_transfer->user_data;
-	pthread_mutex_lock(&device->all_finished_lock);
+	pthread_mutex_lock(&device->transfer_lock);
 	device->flush = false;
 	device->active_transfers = 0;
 	pthread_cond_broadcast(&device->all_finished_cv);
-	pthread_mutex_unlock(&device->all_finished_lock);
+	pthread_mutex_unlock(&device->transfer_lock);
 
 	if (device->flush_callback)
 		device->flush_callback(device->flush_ctx, success);
@@ -1853,7 +1836,6 @@ hackrf_libusb_transfer_callback(struct libusb_transfer* usb_transfer)
 		device->streaming = false;
 
 		// If this is the last transfer, signal that all are now finished.
-		pthread_mutex_lock(&device->all_finished_lock);
 		if (device->active_transfers == 1) {
 			if (!device->flush) {
 				device->active_transfers = 0;
@@ -1862,7 +1844,6 @@ hackrf_libusb_transfer_callback(struct libusb_transfer* usb_transfer)
 		} else {
 			device->active_transfers--;
 		}
-		pthread_mutex_unlock(&device->all_finished_lock);
 	}
 
 	// Now we can release the lock. Our transfer was either
@@ -2121,7 +2102,6 @@ int ADDCALL hackrf_close(hackrf_device* device)
 
 		pthread_mutex_destroy(&device->transfer_lock);
 		pthread_cond_destroy(&device->all_finished_cv);
-		pthread_mutex_destroy(&device->all_finished_lock);
 
 		free(device);
 	}
