@@ -2,6 +2,9 @@
 Opera Cake
 ================================================
 
+.. image:: ../images/operacake.jpeg
+  :alt: Opera Cake 
+
 Opera Cake is an antenna switching add-on board for HackRF One. Consisting of two 1x4 switches, Opera Cake also has a cross-over switch that permits operation as a 1x8 switch. Up to eight Opera Cakes may be stacked onto a single HackRF One provided that each Opera Cake is configured with a different board address.
 
 Opera Cake is configured with the ``hackrf_operacake`` command-line tool.
