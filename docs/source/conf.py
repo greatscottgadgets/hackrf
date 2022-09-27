@@ -1,12 +1,16 @@
+import sphinx_rtd_theme
+
+extensions = [
+    'sphinx_rtd_theme'
+]
+
 # -- Project information -----------------------------------------------------
 
 project = 'HackRF'
 copyright = '2021, Great Scott Gadgets'
 author = 'Great Scott Gadgets'
 
-# The short X.Y version
 version = ''
-# The full version, including alpha/beta/rc tags
 release = ''
 
 
@@ -26,7 +30,7 @@ pygments_style = None
 
 
 # -- Options for HTML output -------------------------------------------------
-
-html_theme = 'sphinx_rtd_theme'
+# run pip install sphinx_rtd_theme if you get sphinx_rtd_theme errors
+html_theme = "sphinx_rtd_theme"
 html_css_files = ['status.css']
 

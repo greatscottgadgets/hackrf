@@ -7,6 +7,7 @@ Welcome to HackRF's documentation!
    :caption: User Documentation
 
    hackrf_one
+   jawbreaker   
    opera_cake
    faq
    troubleshooting
@@ -45,14 +46,3 @@ Welcome to HackRF's documentation!
    expansion_interface
    hardware_triggering
    rf_shield_installation
-
-.. toctree::
-   :maxdepth: 2
-   :caption: Retired Content
-
-   jawbreaker
-   design_goals
-   future_hardware_modifications
-   lemondrop_bringup
-   LPC4350
-
