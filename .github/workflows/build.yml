@@ -98,7 +98,7 @@ jobs:
       run: |
         brew tap armmbed/formulae
         brew install arm-none-eabi-gcc dfu-util
-        pip install PyYAML
+        pip3 install PyYAML
       if: matrix.os == 'macos-latest'
 
     - name: Install dependencies (Ubuntu)

@@ -1,7 +1,7 @@
 /*
+ * Copyright 2016-2022 Great Scott Gadgets <info@greatscottgadgets.com>
  * Copyright 2016 Dominic Spill <dominicgs@gmail.com>
  * Copyright 2018 Schuyler St. Leger
- * Copyright 2021 Great Scott Gadgets
  *
  * This file is part of HackRF.
  *

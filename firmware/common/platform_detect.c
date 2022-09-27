@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Great Scott Gadgets
+ * Copyright 2022 Great Scott Gadgets <info@greatscottgadgets.com>
  *
  * This file is part of HackRF.
  *
@@ -120,24 +120,29 @@ void detect_hardware_platform(void)
 	gpio_input(&gpio2_9_on_P5_0);
 	gpio_input(&gpio3_6_on_P6_10);
 
-	scu_pinmux(P5_0, SCU_GPIO_PUP | SCU_CONF_FUNCTION0);
-	scu_pinmux(P6_10, SCU_GPIO_PUP | SCU_CONF_FUNCTION0);
-	delay(20);
-
+	/* activate internal pull-down */
 	scu_pinmux(P5_0, SCU_GPIO_PDN | SCU_CONF_FUNCTION0);
 	scu_pinmux(P6_10, SCU_GPIO_PDN | SCU_CONF_FUNCTION0);
-	delay(20);
+	delay_us_at_mhz(4, 96);
+	/* tri-state for a moment before testing input */
+	scu_pinmux(P5_0, SCU_GPIO_NOPULL | SCU_CONF_FUNCTION0);
+	scu_pinmux(P6_10, SCU_GPIO_NOPULL | SCU_CONF_FUNCTION0);
+	delay_us_at_mhz(4, 96);
+	/* if input rose quickly, there must be an external pull-up */
 	detected_resistors |= (gpio_read(&gpio2_9_on_P5_0)) ? P5_0_PUP : 0;
 	detected_resistors |= (gpio_read(&gpio3_6_on_P6_10)) ? P6_10_PUP : 0;
 
+	/* activate internal pull-up */
 	scu_pinmux(P5_0, SCU_GPIO_PUP | SCU_CONF_FUNCTION0);
 	scu_pinmux(P6_10, SCU_GPIO_PUP | SCU_CONF_FUNCTION0);
-	delay(20);
-	detected_resistors |= (gpio_read(&gpio2_9_on_P5_0)) ? 0 : P5_0_PDN;
-	detected_resistors |= (gpio_read(&gpio3_6_on_P6_10)) ? 0 : P6_10_PDN;
-
+	delay_us_at_mhz(4, 96);
+	/* tri-state for a moment before testing input */
 	scu_pinmux(P5_0, SCU_GPIO_NOPULL | SCU_CONF_FUNCTION0);
 	scu_pinmux(P6_10, SCU_GPIO_NOPULL | SCU_CONF_FUNCTION0);
+	delay_us_at_mhz(4, 96);
+	/* if input fell quickly, there must be an external pull-down */
+	detected_resistors |= (gpio_read(&gpio2_9_on_P5_0)) ? 0 : P5_0_PDN;
+	detected_resistors |= (gpio_read(&gpio3_6_on_P6_10)) ? 0 : P6_10_PDN;
 
 	switch (detected_resistors) {
 	case JAWBREAKER_RESISTORS:

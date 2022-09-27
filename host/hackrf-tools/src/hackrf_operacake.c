@@ -1,4 +1,5 @@
 /*
+ * Copyright 2016-2022 Great Scott Gadgets <info@greatscottgadgets.com>
  * Copyright 2016 Dominic Spill <dominicgs@gmail.com>
  *
  * This file is part of HackRF.
@@ -46,15 +47,15 @@ static void usage()
 	printf("\nUsage:\n");
 	printf("\t-h, --help: this help\n");
 	printf("\t-d, --device <n>: specify a particular device by serial number\n");
-	printf("\t-o, --address <n>: specify a particular operacake by address [default: 0]\n");
+	printf("\t-o, --address <n>: specify a particular Opera Cake by address [default: 0]\n");
 	printf("\t-m, --mode <mode>: specify switching mode [options: manual, frequency, time]\n");
-	printf("\t-a <n>: set port A connection\n");
-	printf("\t-b <n>: set port B connection\n");
-	printf("\t-f <port:min:max>: automatically assign <port> for range <min:max> in MHz\n");
-	printf("\t-t <port:dwell>: in time-switching mode, dwell on <port> for <dwell> samples. Specify only <port> to use the default dwell time (with -w). This argument can be repeated to specify a list of ports.\n");
-	printf("\t-w <n>: set default dwell time for time-switching mode\n");
-	printf("\t-l, --list: list available operacake boards\n");
-	printf("\t-g, --gpio_test: test GPIO functionality of an opera cake\n");
+	printf("\t-a <port>: set port connected to port A0\n");
+	printf("\t-b <port>: set port connected to port B0\n");
+	printf("\t-f <port:min:max>: automatically assign <port> for range <min:max> in MHz. This argument can be repeated to specify a list of ports.\n");
+	printf("\t-t <port:dwell>: in time mode, dwell on <port> for <dwell> samples. Specify only <port> to use the default dwell time (with -w). This argument can be repeated to specify a list of ports.\n");
+	printf("\t-w <n>: set default dwell time in samples for time mode\n");
+	printf("\t-l, --list: list available Opera Cake boards\n");
+	printf("\t-g, --gpio_test: test GPIO functionality of an Opera Cake\n");
 }
 
 static struct option long_options[] = {
@@ -412,8 +413,8 @@ int main(int argc, char** argv)
 		}
 
 		if (test_result == GPIO_TEST_DISABLED) {
-			fprintf(stderr, "GPIO mode diabled.\n");
-			fprintf(stderr, "Remove additional addon boards and retry.\n");
+			fprintf(stderr, "GPIO mode disabled.\n");
+			fprintf(stderr, "Remove additional add-on boards and retry.\n");
 		} else if (test_result) {
 			fprintf(stderr, "GPIO test failed\n");
 			fprintf(stderr, "Pin\tHigh\tShorts\tLow\n");

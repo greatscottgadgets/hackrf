@@ -1,4 +1,5 @@
 /*
+ * Copyright 2013-2022 Great Scott Gadgets <info@greatscottgadgets.com>
  * Copyright 2013 Benjamin Vernoux <titanmkd@gmail.com>
  *
  * This file is part of HackRF.

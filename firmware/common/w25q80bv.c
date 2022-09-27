@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Michael Ossmann
+ * Copyright 2013-2022 Great Scott Gadgets <info@greatscottgadgets.com>
  * Copyright 2013 Benjamin Vernoux
  * Copyright 2014 Jared Boone, ShareBrained Technology
  *

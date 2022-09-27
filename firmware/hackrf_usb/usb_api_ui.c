@@ -1,4 +1,5 @@
 /*
+ * Copyright 2020-2022 Great Scott Gadgets <info@greatscottgadgets.com>
  * Copyright 2020 Mike Walters
  *
  * This file is part of HackRF.
