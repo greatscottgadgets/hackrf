@@ -198,6 +198,11 @@ void detect_hardware_platform(void)
 		(adc0_3 == PIN_STRAP_LOW) && (adc0_4 == PIN_STRAP_LOW) &&
 		(platform == BOARD_ID_HACKRF1_R9)) {
 		revision = BOARD_REV_HACKRF1_R9;
+	} else if ( //FIXME temporary
+		(adc0_3 == PIN_STRAP_LOW) && (adc0_4 == PIN_STRAP_LOW) &&
+		(platform == BOARD_ID_HACKRF1_OG)) {
+		revision = BOARD_REV_HACKRF1_R9;
+		platform = BOARD_ID_HACKRF1_R9;
 	} else {
 		revision = BOARD_REV_UNRECOGNIZED;
 	}
