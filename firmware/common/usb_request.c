@@ -60,6 +60,11 @@ static void usb_request(usb_endpoint_t* const endpoint, const usb_transfer_stage
 
 void usb_setup_complete(usb_endpoint_t* const endpoint)
 {
+	// If we've received a new SETUP token, then any previously
+	// in-progress request is now aborted.
+	usb_endpoint_flush(endpoint->in);
+	usb_endpoint_flush(endpoint->out);
+
 	usb_request(endpoint, USB_TRANSFER_STAGE_SETUP);
 }
 
