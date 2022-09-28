@@ -197,6 +197,8 @@ Compute nearest freq for bw filter (manual filter)
 Reading and Writing Registers
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+These low level functions are intended for debugging purposes only.
+
 
 HackRF MAX2837 Read
 ^^^^^^^^^^^^^^^^^^^
@@ -282,7 +284,7 @@ Updating Firmware
 HackRF CPLD Write
 ^^^^^^^^^^^^^^^^^
 
-Device will need to be reset after hackrf_cpld_write.
+A bitstream is written to the CPLD by the firmware during normal operation (since release 2021.03.1). This function writes a bitstream to the CPLD's flash which is not necessary for normal use. The device will need to be reset by physically pressing the reset button after hackrf_cpld_write.
 
 **Syntax:** ``int hackrf_cpld_write(hackrf_device* device, unsigned char* const data, const unsigned int total_length)``
 
@@ -462,35 +464,37 @@ These values identify the board type of the connected hardware. This value can b
 
   * - Board 	
     - Frequency range 	
-    - Bandwidth 	
+    - Sample Rate
     - Antenna port power
   * - HackRF One 	
-    - 1MHz - 6Ghz 	
-    - 20MHz 	
+    - 1 MHz–6 GHz
+    - 20 Msps
     - Yes
   * - Jawbreaker 	
-    - 10MHz - 6GHz 	
-    - 20MHz 	
+    - 10 MHz–6 GHz
+    - 20 Msps
     - No
-  * - Rad1o 	
-    - 50MHz - 4GHz 	
-    - 20MHz 	
-    - Unknown
+  * - rad1o 	
+    - 50 MHz–4 GHz
+    - 20 Msps
+    - No
   * - Jellybean 	
     - N/A 	
-    - 20MHz 	
+    - 20 Msps
     - No
 
-Most boards will identify as HackRF One, Jawbreaker or Rad1o. Jellybean was a pre-production revision of HackRF. No hardware device should intentionally report itself with an invalid board ID.
+Most boards will identify as HackRF One, Jawbreaker, or rad1o. Jellybean was a pre-production revision of HackRF that is no longer supported. No hardware device should intentionally report itself with an unrecognized or undetected board ID.
 
 .. code-block :: sh
 
 	enum hackrf_board_id {
 		BOARD_ID_JELLYBEAN  = 0,
 		BOARD_ID_JAWBREAKER = 1,
-		BOARD_ID_HACKRF_ONE = 2,
+		BOARD_ID_HACKRF1_OG = 2,
 		BOARD_ID_RAD1O = 3,
-		BOARD_ID_INVALID = 0xFF,
+		BOARD_ID_HACKRF1_R9 = 4,
+		BOARD_ID_UNRECOGNIZED = 0xFE,
+		BOARD_ID_UNDETECTED = 0xFF,
 	};
 
 
@@ -512,18 +516,19 @@ USB Product IDs
 Transceiver Mode
 ^^^^^^^^^^^^^^^^
 
-HackRF can operate in three main transceiver modes, Receive, Transmit and Signal Source. There is also a CPLD update mode which is used to write firmware images to the CPLD.
+HackRF can operate in four main transceiver modes: Receive, Transmit, Signal Source, and Sweep. There is also a CPLD update mode which is used to write firmware images to the CPLD flash.
 
 The transceiver mode can be changed with ``hackrf_set_transceiver_mode`` with the value parameter set to one of the following:
 
 .. code-block:: sh
 
 	enum transceiver_mode_t {
-		TRANSCEIVER_MODE_OFF = 0,
-		TRANSCEIVER_MODE_RX = 1,
-		TRANSCEIVER_MODE_TX = 2,
-		TRANSCEIVER_MODE_SS = 3,
-		TRANSCEIVER_MODE_CPLD_UPDATE = 4
+		HACKRF_TRANSCEIVER_MODE_OFF = 0,
+		HACKRF_TRANSCEIVER_MODE_RECEIVE = 1,
+		HACKRF_TRANSCEIVER_MODE_TRANSMIT = 2,
+		HACKRF_TRANSCEIVER_MODE_SS = 3,
+		TRANSCEIVER_MODE_CPLD_UPDATE = 4,
+		TRANSCEIVER_MODE_RX_SWEEP = 5,
 	};
 
 Receive mode (TRANSCEIVER_MODE_RX) is used to stream samples from the radio to the host system. Use ``hackrf_set_freq`` to set the center frequency of receiver and ``hackrf_set_sample_rate`` to set the sample rate (effective bandwidth).
@@ -551,6 +556,8 @@ Function return values
 		HACKRF_ERROR_STREAMING_THREAD_ERR = -1002,
 		HACKRF_ERROR_STREAMING_STOPPED = -1003,
 		HACKRF_ERROR_STREAMING_EXIT_CALLED = -1004,
+		HACKRF_ERROR_USB_API_VERSION = -1005,
+		HACKRF_ERROR_NOT_LAST_DEVICE = -2000,
 		HACKRF_ERROR_OTHER = -9999,
 	};
 
