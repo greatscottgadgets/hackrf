@@ -10,6 +10,6 @@ body:
   - type: textarea
     id: documentation-request
     attributes:
-      label: What would like us to add to or change about the HackRF One documentation?
+      label: What would you like us to add to or change about the HackRF One documentation?
     validations:
       required: true
