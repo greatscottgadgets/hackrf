@@ -324,9 +324,20 @@ void si5351c_set_int_mode(
 
 void si5351c_set_clock_source(si5351c_driver_t* const drv, const enum pll_sources source)
 {
-	if (source != active_clock_source) {
-		si5351c_configure_clock_control(drv, source);
-		active_clock_source = source;
+	if (source == active_clock_source) {
+		return;
+	}
+	si5351c_configure_clock_control(drv, source);
+	active_clock_source = source;
+	if (detected_platform() == BOARD_ID_HACKRF1_R9) {
+		/* 25MHz XTAL * (0x0e00+512)/128 = 800mhz -> int mode */
+		uint8_t pll_data[] = {26, 0x00, 0x01, 0x00, 0x0E, 0x00, 0x00, 0x00, 0x00};
+		if (source == PLL_SOURCE_CLKIN) {
+			/* 10MHz CLKIN * (0x2600+512)/128 = 800mhz */
+			pll_data[4] = 0x26;
+		}
+		si5351c_write(drv, pll_data, sizeof(pll_data));
+		si5351c_reset_pll(drv);
 	}
 }
 
