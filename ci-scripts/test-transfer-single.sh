@@ -1,7 +1,8 @@
 #!/bin/bash 
 echo "Single-device hackrf_transfer tests:"
 echo "Testing single sample transmit: -c0"
-timeout -s2 -k1 2 hackrf_transfer -a0 -x0 -c0 -n1 >/tmp/stdout.$$ 2>/tmp/stderr.$$
+COMMAND=host/build/hackrf-tools/src/hackrf_transfer
+timeout -s2 -k1 2 ${COMMAND} -a0 -x0 -c0 -n1 >/tmp/stdout.$$ 2>/tmp/stderr.$$
 EXIT_CODE="$?"
 if [ "$EXIT_CODE" == "124" ]
 then
