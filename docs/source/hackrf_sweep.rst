@@ -14,9 +14,9 @@ Usage
     [-p antenna_enable] # Antenna port power, 1=Enable, 0=Disable
     [-l gain_db] # RX LNA (IF) gain, 0-40dB, 8dB steps
     [-g gain_db] # RX VGA (baseband) gain, 0-62dB, 2dB steps
-    [-n num_samples] # Number of samples per frequency, 8192-4294967296
-    [-w bin_width] # FFT bin width (frequency resolution) in Hz
+    [-w bin_width] # FFT bin width (frequency resolution) in Hz, 2445-5000000
     [-1] # one shot mode
+    [-N num_sweeps] # Number of sweeps to perform
     [-B] # binary output
     [-I] # binary inverse FFT output
     -r filename # output file
@@ -112,7 +112,7 @@ Running ``hackrf_sweep -f 2400:2490`` gives the following example results:
     - -66.02 	
     - -62.12
 
-Two ranges of 5 MHz are analyzed at once from the same set of samples, so a single timestamp applies to the whole range.
+Each sweep across the entire specified frequency range is given a single time stamp.
 
 The fifth column tells you the width in Hz (1 MHz in this case) of each frequency bin, which you can set with ``-w``. The sixth column is the number of samples analyzed to produce that row of data.
 
