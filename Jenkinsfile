@@ -25,6 +25,7 @@ pipeline {
                     sh './ci-scripts/test-firmware-program.sh'
                 }
                 sh './ci-scripts/test-firmware-flash.sh'
+                sh './ci-scripts/test-transfer-single.sh'
             }
         }
     }
