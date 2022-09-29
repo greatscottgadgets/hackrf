@@ -1,5 +1,3 @@
-#set(RELEASE "")
-
 if(NOT DEFINED RELEASE)
 	execute_process(
 	        COMMAND git log -n 1 --format=%h
@@ -10,7 +8,7 @@ if(NOT DEFINED RELEASE)
 	        OUTPUT_STRIP_TRAILING_WHITESPACE
 	)
 	if (GIT_EXIT_VALUE)
-	        set(RELEASE "unknown")
+	        set(RELEASE "2022.09.1")
 	else (GIT_EXIT_VALUE)
 		execute_process(
 			COMMAND git status -s --untracked-files=no

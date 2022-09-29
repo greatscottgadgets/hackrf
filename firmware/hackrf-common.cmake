@@ -52,7 +52,6 @@ ExternalProject_Add(libopencm3_${PROJECT_NAME}
 	INSTALL_COMMAND ""
 )
 
-#set(VERSION "")
 if (NOT DEFINED VERSION)
 	execute_process(
 		COMMAND git log -n 1 --format=%h
@@ -63,7 +62,7 @@ if (NOT DEFINED VERSION)
 		OUTPUT_STRIP_TRAILING_WHITESPACE
 	)
 	if (GIT_VERSION_FOUND)
-		set(VERSION "unknown")
+		set(VERSION "2022.09.1")
 	else (GIT_VERSION_FOUND)
 		set(VERSION "git-${GIT_VERSION}")
 	endif (GIT_VERSION_FOUND)
