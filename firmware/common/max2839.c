@@ -336,9 +336,10 @@ bool max2839_set_vga_gain(max2839_driver_t* const drv, const uint32_t gain_db) {
 	return true;
 }
 
-bool max2839_set_txvga_gain(max2839_driver_t* const drv, const uint32_t gain_db) {
-	uint16_t val=0;
-	val = 63-gain_db;
+bool max2839_set_txvga_gain(max2839_driver_t* const drv, const uint32_t gain_db)
+{
+	uint16_t val = 0;
+	val = 47 - gain_db;
 
 	set_MAX2839_TX_VGA_GAIN(drv, val);
 	max2839_reg_commit(drv, 29);
