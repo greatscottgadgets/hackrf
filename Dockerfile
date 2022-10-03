@@ -2,8 +2,12 @@
 FROM ubuntu:20.04
 CMD ["/bin/bash"]
 
+# Serial numbers for EUT and TESTER devices
+ENV EUT=0000000000000000a06063c823162e5f
+ENV TESTER=0000000000000000325866e629a25623
+
 # Override interactive installations and install prerequisites
-ENV DEBIAN_FRONTEND=noninteractive 
+ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y \
     build-essential \
     cmake \
