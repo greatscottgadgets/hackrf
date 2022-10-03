@@ -33,6 +33,9 @@
 #include "max2839.h"
 #include "max2839_regs.def" // private register def macros
 
+static uint8_t requested_lna_gain = 0;
+static uint8_t requested_vga_gain = 0;
+
 /* Default register values. */
 static const uint16_t max2839_regs_default[MAX2839_NUM_REGS] = {
 	0x000,  /* 0 */
@@ -300,39 +303,104 @@ uint32_t max2839_set_lpf_bandwidth(max2839_driver_t* const drv, const uint32_t b
 	return p->bandwidth_hz;
 }
 
-bool max2839_set_lna_gain(max2839_driver_t* const drv, const uint32_t gain_db) {
+void max2839_configure_rx_gain(max2839_driver_t* const drv)
+{
+	/*
+	 * restrict requested LNA gain to valid MAX2837 settings:
+	 * 0, 8, 16, 24, 32, or 40
+	 */
+	if (requested_lna_gain > 40) {
+		requested_lna_gain = 40;
+	}
+	requested_lna_gain &= 0x38;
+
+	/*
+	 * restrict requested VGA gain to valid MAX2837 settings:
+	 * even number, 0 through 62
+	 */
+	if (requested_vga_gain > 62) {
+		requested_vga_gain = 62;
+	}
+	requested_vga_gain &= 0x3e;
+
+	/*
+	 * MAX2839 has lower full-scale RX output voltage than MAX2837, so we
+	 * adjust the VGA (baseband) gain to compensate.
+	 */
+	uint8_t vga_gain = requested_vga_gain + 3;
+	uint8_t lna_gain = requested_lna_gain;
+
+	/*
+	 * If that adjustment puts VGA gain out of range, use LNA gain to
+	 * compensate.  MAX2839 VGA gain can be any number from 0 through 63.
+	 */
+	if (vga_gain > 63) {
+		if (lna_gain <= 32) {
+			vga_gain -= 8;
+			lna_gain += 8;
+		} else {
+			vga_gain = 63;
+		}
+	}
+
+	/*
+	 * MAX2839 lacks max-24 dB and max-40 dB LNA gain settings, so we use
+	 * VGA gain to compensate.
+	 */
+	if (lna_gain == 0) {
+		lna_gain = 8;
+		vga_gain = (vga_gain >= 8) ? vga_gain - 8 : 0;
+	}
+	if (lna_gain == 16) {
+		if (vga_gain > 32) {
+			vga_gain -= 8;
+			lna_gain += 8;
+		} else {
+			vga_gain += 8;
+			lna_gain -= 8;
+		}
+	}
+
 	uint16_t val;
-	switch(gain_db){
-		case 40:
-			val = MAX2839_LNA2gain_MAX;
-			break;
-		case 32:
-			val = MAX2839_LNA2gain_M8;
-			break;
-		case 24:
-			// FIXME correct missing settings with VGA adjustment?
-		case 16:
-			val = MAX2839_LNA2gain_M16;
-			break;
-		case 8:
-		case 0:
-			val = MAX2839_LNA2gain_M32;
-			break;
-		default:
-			return false;
+	switch (lna_gain) {
+	case 40:
+		val = MAX2839_LNA2gain_MAX;
+		break;
+	case 32:
+		val = MAX2839_LNA2gain_M8;
+		break;
+	case 24:
+	case 16:
+		val = MAX2839_LNA2gain_M16;
+		break;
+	case 8:
+	case 0:
+	default:
+		val = MAX2839_LNA2gain_M32;
+		break;
 	}
 	set_MAX2839_LNA2gain(drv, val);
-	max2839_reg_commit(drv, 6);
+	set_MAX2839_Rx2_VGAgain(drv, (63 - vga_gain));
+	max2839_regs_commit(drv);
+}
+
+bool max2839_set_lna_gain(max2839_driver_t* const drv, const uint32_t gain_db)
+{
+	if ((gain_db & 0x7) || gain_db > 40) {
+		return false;
+	}
+	requested_lna_gain = gain_db;
+	max2839_configure_rx_gain(drv);
 	return true;
 }
 
-bool max2839_set_vga_gain(max2839_driver_t* const drv, const uint32_t gain_db) {
-	if( (gain_db & 0x1) || gain_db > 62) {/* 0b11111*2 */
+bool max2839_set_vga_gain(max2839_driver_t* const drv, const uint32_t gain_db)
+{
+	if ((gain_db & 0x1) || gain_db > 62) {
 		return false;
-}
-
-	set_MAX2839_Rx2_VGAgain(drv, (63-gain_db));
-	max2839_reg_commit(drv, 6);
+	}
+	requested_vga_gain = gain_db;
+	max2839_configure_rx_gain(drv);
 	return true;
 }
 
