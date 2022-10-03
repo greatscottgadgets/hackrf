@@ -25,9 +25,10 @@
 #include <libopencm3/lpc43xx/scu.h>
 #include <libopencm3/lpc43xx/sgpio.h>
 
-#include <hackrf_core.h>
+#include "hackrf_core.h"
+#include "platform_detect.h"
 
-#include <sgpio.h>
+#include "sgpio.h"
 
 #ifdef RAD1O
 static void update_q_invert(sgpio_config_t* const config);
@@ -329,10 +330,15 @@ void sgpio_cpld_stream_rx_set_q_invert(
 }
 
 #else
-void sgpio_cpld_stream_rx_set_q_invert(
-	sgpio_config_t* const config,
-	const uint_fast8_t invert)
+void sgpio_cpld_stream_rx_set_q_invert(sgpio_config_t* const config, uint_fast8_t invert)
 {
+	/*
+	 * The RX IQ channels on HackRF One r9 are not inverted as they are
+	 * on OG or Jawbreaker, so the opposite setting is required.
+	 */
+	if (detected_platform() == BOARD_ID_HACKRF1_R9) {
+		invert = (invert > 0) ? 0 : 1;
+	}
 	gpio_write(config->gpio_rx_q_invert, invert);
 }
 #endif
