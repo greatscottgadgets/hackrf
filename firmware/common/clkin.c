@@ -23,6 +23,7 @@
 #include <libopencm3/lpc43xx/timer.h>
 #include <libopencm3/lpc43xx/scu.h>
 #include <libopencm3/lpc43xx/gima.h>
+#include <libopencm3/lpc43xx/creg.h>
 #include <stdint.h>
 
 #define CLOCK_CYCLES_1_MS     (204000)
@@ -56,6 +57,7 @@ void clkin_detect_init(void)
 		(TIMER_EMR_EMC_TOGGLE << TIMER_EMR_EMC3_SHIFT);
 	TIMER3_MR3 = MEASUREMENT_CYCLES;
 	TIMER3_MR0 = MEASUREMENT_CYCLES;
+	CREG_CREG6 |= CREG_CREG6_CTOUTCTRL;
 
 	/* Timer0 counts CLKIN */
 	timer_set_prescaler(TIMER0, 0);
