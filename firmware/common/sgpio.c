@@ -49,9 +49,18 @@ void sgpio_configure_pin_functions(sgpio_config_t* const config)
 	scu_pinmux(SCU_PINMUX_SGPIO10, SCU_GPIO_FAST | SCU_CONF_FUNCTION6);
 	scu_pinmux(SCU_PINMUX_SGPIO11, SCU_GPIO_FAST | SCU_CONF_FUNCTION6);
 	scu_pinmux(SCU_PINMUX_SGPIO12, SCU_GPIO_FAST | SCU_CONF_FUNCTION0); /* GPIO0[13] */
-	scu_pinmux(SCU_PINMUX_SGPIO13, SCU_GPIO_FAST | SCU_CONF_FUNCTION4); /* GPIO5[12] */
 	scu_pinmux(SCU_PINMUX_SGPIO14, SCU_GPIO_FAST | SCU_CONF_FUNCTION4); /* GPIO5[13] */
 	scu_pinmux(SCU_PINMUX_SGPIO15, SCU_GPIO_FAST | SCU_CONF_FUNCTION4); /* GPIO5[14] */
+
+	if (detected_platform() == BOARD_ID_HACKRF1_R9) {
+		scu_pinmux(
+			SCU_H1R9_HW_SYNC_EN,
+			SCU_GPIO_FAST | SCU_CONF_FUNCTION4); /* GPIO5[5] */
+	} else {
+		scu_pinmux(
+			SCU_HW_SYNC_EN,
+			SCU_GPIO_FAST | SCU_CONF_FUNCTION4); /* GPIO5[12] */
+	}
 
 	sgpio_cpld_stream_rx_set_q_invert(config, 0);
 	hw_sync_enable(0);

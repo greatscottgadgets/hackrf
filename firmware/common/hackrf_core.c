@@ -144,9 +144,10 @@ static struct gpio_t gpio_rx_q_invert       = GPIO(0, 13);
 
 /* HackRF One r9 */
 #ifdef HACKRF_ONE
-static struct gpio_t gpio_h1r9_rx            = GPIO(0,  7);
-static struct gpio_t gpio_h1r9_no_rx_amp_pwr = GPIO(3,  6);
-static struct gpio_t gpio_h1r9_1v8_enable    = GPIO(1, 12);
+static struct gpio_t gpio_h1r9_rx             = GPIO(0, 7);
+static struct gpio_t gpio_h1r9_1v8_enable     = GPIO(2, 9);
+static struct gpio_t gpio_h1r9_vaa_disable    = GPIO(3, 6);
+static struct gpio_t gpio_h1r9_hw_sync_enable = GPIO(5, 5);
 #endif
 // clang-format on
 
@@ -829,10 +830,10 @@ void cpu_clock_init(void)
 	// CCU1_CLK_M4_SCT_CFG = 0;
 	CCU1_CLK_M4_SDIO_CFG = 0;
 	CCU1_CLK_M4_SPIFI_CFG = 0;
-	//CCU1_CLK_M4_TIMER0_CFG = 0;
-	CCU1_CLK_M4_TIMER1_CFG = 0;
-	CCU1_CLK_M4_TIMER2_CFG = 0;
-	//CCU1_CLK_M4_TIMER3_CFG = 0;
+	CCU1_CLK_M4_TIMER0_CFG = 0;
+	//CCU1_CLK_M4_TIMER1_CFG = 0;
+	//CCU1_CLK_M4_TIMER2_CFG = 0;
+	CCU1_CLK_M4_TIMER3_CFG = 0;
 	CCU1_CLK_M4_UART1_CFG = 0;
 	CCU1_CLK_M4_USART0_CFG = 0;
 	CCU1_CLK_M4_USART2_CFG = 0;
@@ -960,7 +961,7 @@ void pin_setup(void)
 	if (detected_platform() == BOARD_ID_HACKRF1_R9) {
 #ifdef HACKRF_ONE
 		gpio_output(&gpio_h1r9_1v8_enable);
-		scu_pinmux(P2_12, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+		scu_pinmux(SCU_H1R9_EN1V8, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
 #endif
 	} else {
 		gpio_output(&gpio_1v8_enable);
@@ -972,7 +973,11 @@ void pin_setup(void)
 	disable_rf_power();
 
 	/* Configure RF power supply (VAA) switch control signal as output */
-	gpio_output(&gpio_vaa_disable);
+	if (detected_platform() == BOARD_ID_HACKRF1_R9) {
+		gpio_output(&gpio_h1r9_vaa_disable);
+	} else {
+		gpio_output(&gpio_vaa_disable);
+	}
 #endif
 
 #ifdef RAD1O
@@ -1005,7 +1010,7 @@ void pin_setup(void)
 #ifdef HACKRF_ONE
 	if (detected_platform() == BOARD_ID_HACKRF1_R9) {
 		rf_path.gpio_rx = &gpio_h1r9_rx;
-		rf_path.gpio_no_rx_amp_pwr = &gpio_h1r9_no_rx_amp_pwr;
+		sgpio_config.gpio_hw_sync_enable = &gpio_h1r9_hw_sync_enable;
 	}
 #endif
 	rf_path_pin_setup(&rf_path);
@@ -1045,15 +1050,23 @@ void enable_rf_power(void)
 
 	/* many short pulses to avoid one big voltage glitch */
 	for (i = 0; i < 1000; i++) {
-		gpio_clear(&gpio_vaa_disable);
-		gpio_set(&gpio_vaa_disable);
+		if (detected_platform() == BOARD_ID_HACKRF1_R9) {
+			gpio_set(&gpio_h1r9_vaa_disable);
+			gpio_clear(&gpio_h1r9_vaa_disable);
+		} else {
+			gpio_set(&gpio_vaa_disable);
+			gpio_clear(&gpio_vaa_disable);
+		}
 	}
-	gpio_clear(&gpio_vaa_disable);
 }
 
 void disable_rf_power(void)
 {
-	gpio_set(&gpio_vaa_disable);
+	if (detected_platform() == BOARD_ID_HACKRF1_R9) {
+		gpio_set(&gpio_h1r9_vaa_disable);
+	} else {
+		gpio_set(&gpio_vaa_disable);
+	}
 }
 #endif
 
@@ -1100,7 +1113,7 @@ void set_leds(const uint8_t state)
 
 void hw_sync_enable(const hw_sync_mode_t hw_sync_mode)
 {
-	gpio_write(&gpio_hw_sync_enable, hw_sync_mode == 1);
+	gpio_write(sgpio_config.gpio_hw_sync_enable, hw_sync_mode == 1);
 }
 
 void halt_and_flash(const uint32_t duration)

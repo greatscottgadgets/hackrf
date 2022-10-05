@@ -49,35 +49,32 @@ tcr_sequence reset;
 
 void clkin_detect_init(void)
 {
-	/* Timer3 triggers periodic measurement */
-	timer_set_prescaler(TIMER3, 0);
-	timer_set_mode(TIMER3, TIMER_CTCR_MODE_TIMER);
-	TIMER3_MCR = TIMER_MCR_MR0R;
-	TIMER3_EMR = (TIMER_EMR_EMC_SET << TIMER_EMR_EMC0_SHIFT) |
+	/* Timer1 triggers periodic measurement */
+	timer_set_prescaler(TIMER1, 0);
+	timer_set_mode(TIMER1, TIMER_CTCR_MODE_TIMER);
+	TIMER1_MCR = TIMER_MCR_MR0R;
+	TIMER1_EMR = (TIMER_EMR_EMC_SET << TIMER_EMR_EMC0_SHIFT) |
 		(TIMER_EMR_EMC_TOGGLE << TIMER_EMR_EMC3_SHIFT);
-	TIMER3_MR3 = MEASUREMENT_CYCLES;
-	TIMER3_MR0 = MEASUREMENT_CYCLES;
+	TIMER1_MR3 = MEASUREMENT_CYCLES;
+	TIMER1_MR0 = MEASUREMENT_CYCLES;
+
+	/* prevent TIMER1_MR3 from interfering with SCT */
 	CREG_CREG6 |= CREG_CREG6_CTOUTCTRL;
 
-	/* Timer0 counts CLKIN */
-	timer_set_prescaler(TIMER0, 0);
-	TIMER0_CCR = TIMER_CCR_CAP3RE;
-	GIMA_CAP0_3_IN = 0x20; // T3_MAT3
+	/* Timer2 counts CLKIN */
+	timer_set_prescaler(TIMER2, 0);
+	TIMER2_CCR = TIMER_CCR_CAP3RE;
+	GIMA_CAP2_3_IN = 0x20; // T1_MAT3
 
-	/* measure CLKIN signal on P2_5, pin 91, CTIN_2 */
-	TIMER0_CTCR = TIMER_CTCR_MODE_COUNTER_RISING | TIMER_CTCR_CINSEL_CAPN_2;
-	scu_pinmux(P2_5, SCU_GPIO_PDN | SCU_CONF_FUNCTION1);
-	GIMA_CAP0_2_IN = 0x00; // CTIN_2
-
-	// temporarily testing with T0_CAP1, P1_12, pin 56, P28 pin 4
-	//TIMER0_CTCR = TIMER_CTCR_MODE_COUNTER_RISING | TIMER_CTCR_CINSEL_CAPN_1;
-	//scu_pinmux(P1_12, SCU_GPIO_PDN | SCU_CONF_FUNCTION4);
-	//GIMA_CAP0_1_IN = 0x20; // T0_CAP1
+	/* measure CLKIN_DETECT signal on P4_8, pin 15, CTIN_5 */
+	TIMER2_CTCR = TIMER_CTCR_MODE_COUNTER_RISING | TIMER_CTCR_CINSEL_CAPN_2;
+	scu_pinmux(P4_8, SCU_GPIO_PDN | SCU_CONF_FUNCTION1); // CTIN_5
+	GIMA_CAP2_2_IN = 0x00;                               // CTIN_5
 
 	reset.first_tcr = TIMER_TCR_CEN | TIMER_TCR_CRST;
 	reset.second_tcr = TIMER_TCR_CEN;
 	timer_dma_lli.src = (uint32_t) & (reset);
-	timer_dma_lli.dest = (uint32_t) & (TIMER0_TCR);
+	timer_dma_lli.dest = (uint32_t) & (TIMER2_TCR);
 	timer_dma_lli.next_lli = (uint32_t) & (timer_dma_lli);
 	timer_dma_lli.control = GPDMA_CCONTROL_TRANSFERSIZE(2) |
 		GPDMA_CCONTROL_SBSIZE(0)   // 1
@@ -97,19 +94,19 @@ void clkin_detect_init(void)
 	GPDMA_C0DESTADDR = timer_dma_lli.dest;
 	GPDMA_C0LLI = timer_dma_lli.next_lli;
 	GPDMA_C0CONTROL = timer_dma_lli.control;
-	GPDMA_C0CONFIG = GPDMA_CCONFIG_DESTPERIPHERAL(0x7) // T3_MAT0
+	GPDMA_C0CONFIG = GPDMA_CCONFIG_DESTPERIPHERAL(0x3) // T1_MAT0
 		| GPDMA_CCONFIG_FLOWCNTRL(1)               // memory-to-peripheral
 		| GPDMA_CCONFIG_H(0);                      // do not halt
 	gpdma_channel_enable(0);
 
 	/* start counting */
-	timer_reset(TIMER0);
-	timer_reset(TIMER3);
-	timer_enable_counter(TIMER0);
-	timer_enable_counter(TIMER3);
+	timer_reset(TIMER2);
+	timer_reset(TIMER1);
+	timer_enable_counter(TIMER2);
+	timer_enable_counter(TIMER1);
 }
 
 uint32_t clkin_frequency(void)
 {
-	return TIMER0_CR3 * (1000 / MEASUREMENT_WINDOW_MS);
+	return TIMER2_CR3 * (1000 / MEASUREMENT_WINDOW_MS);
 };

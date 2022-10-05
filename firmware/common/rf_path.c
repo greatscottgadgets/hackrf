@@ -286,22 +286,20 @@ void rf_path_pin_setup(rf_path_t* const rf_path)
 	scu_pinmux(SCU_NO_TX_AMP_PWR, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
 	scu_pinmux(SCU_AMP_BYPASS,    SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
 	scu_pinmux(SCU_RX_AMP,        SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+	scu_pinmux(SCU_NO_RX_AMP_PWR, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
 	// clang-format on
 	if (detected_platform() == BOARD_ID_HACKRF1_R9) {
 		scu_pinmux(SCU_H1R9_RX, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
-		scu_pinmux(SCU_H1R9_NO_RX_AMP_PWR, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
 		scu_pinmux(SCU_H1R9_NO_ANT_PWR, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
 		gpio_clear(&gpio_h1r9_no_ant_pwr);
 		gpio_output(&gpio_h1r9_no_ant_pwr);
+		scu_pinmux(SCU_H1R9_NO_VAA_EN, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
 	} else {
 		scu_pinmux(SCU_TX, SCU_GPIO_FAST | SCU_CONF_FUNCTION4);
 		scu_pinmux(SCU_RX, SCU_GPIO_FAST | SCU_CONF_FUNCTION4);
-		scu_pinmux(SCU_NO_RX_AMP_PWR, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
 		gpio_output(rf_path->gpio_tx);
+		scu_pinmux(SCU_NO_VAA_ENABLE, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
 	}
-
-	/* Configure RF power supply (VAA) switch */
-	scu_pinmux(SCU_NO_VAA_ENABLE, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
 
 	/*
 	 * Safe (initial) switch settings turn off both amplifiers and antenna port
