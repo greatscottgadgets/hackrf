@@ -479,6 +479,12 @@
     (path "/0622cab3-1212-4871-9ead-cb3c63b585f3/00000000-0000-0000-0000-00004f5d0f39"
       (reference "#PWR0128") (unit 1) (value "GND") (footprint "")
     )
+    (path "/0622cab3-1212-4871-9ead-cb3c63b585f3/4062e499-e2cf-42d9-893f-9f26289b6dbf"
+      (reference "#PWR0129") (unit 1) (value "VCC") (footprint "")
+    )
+    (path "/0622cab3-1212-4871-9ead-cb3c63b585f3/00817b80-f476-4924-940a-c0a1e066f4bb"
+      (reference "#PWR0130") (unit 1) (value "GND") (footprint "")
+    )
     (path "/00000000-0000-0000-0000-000050370666/00000000-0000-0000-0000-00005ff2477e"
       (reference "#PWR0131") (unit 1) (value "VCC") (footprint "")
     )
@@ -1511,6 +1517,9 @@
     (path "/00000000-0000-0000-0000-00005037043e/00000000-0000-0000-0000-00005052a211"
       (reference "C158") (unit 1) (value "18pF") (footprint "hackrf:GSG-0402")
     )
+    (path "/0622cab3-1212-4871-9ead-cb3c63b585f3/4d2968c4-e274-498a-9029-6b0fd47af8ce"
+      (reference "C159") (unit 1) (value "100nF") (footprint "hackrf:GSG-0402")
+    )
     (path "/00000000-0000-0000-0000-0000503bb638/00000000-0000-0000-0000-0000503bf2db"
       (reference "C160") (unit 1) (value "100pF") (footprint "hackrf:GSG-0402")
     )
@@ -1525,6 +1534,9 @@
     )
     (path "/00000000-0000-0000-0000-00005037043e/00000000-0000-0000-0000-0000529065ed"
       (reference "C164") (unit 1) (value "18pF") (footprint "hackrf:GSG-0402")
+    )
+    (path "/0622cab3-1212-4871-9ead-cb3c63b585f3/9acd8031-d618-4289-9031-1e4a0ef5bc2b"
+      (reference "C165") (unit 1) (value "33pF") (footprint "hackrf:GSG-0402")
     )
     (path "/00000000-0000-0000-0000-0000503bb638/00000000-0000-0000-0000-00005281bf94"
       (reference "C166") (unit 1) (value "100nF") (footprint "hackrf:GSG-0402")
@@ -2089,6 +2101,9 @@
     )
     (path "/0622cab3-1212-4871-9ead-cb3c63b585f3/16432384-f81c-45a0-8170-308870d86ff7"
       (reference "R60") (unit 1) (value "39") (footprint "hackrf:GSG-0402")
+    )
+    (path "/0622cab3-1212-4871-9ead-cb3c63b585f3/8005ad7f-c95b-406c-b663-70ef6a83a910"
+      (reference "R61") (unit 1) (value "10k") (footprint "hackrf:GSG-0402")
     )
     (path "/00000000-0000-0000-0000-00005037043e/00000000-0000-0000-0000-0000527f56e9"
       (reference "R62") (unit 1) (value "10k") (footprint "hackrf:GSG-0402")
