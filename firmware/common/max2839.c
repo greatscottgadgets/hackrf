@@ -117,6 +117,13 @@ void max2839_setup(max2839_driver_t* const drv)
 	/* set HPF corner frequency to 1 kHz */
 	set_MAX2839_HPC_STOP(drv, MAX2839_STOP_1K);
 
+	/*
+	 * There are two LNA band settings, but we only use one of them.
+	 * Switching to the other one doesn't make the overall spectrum any
+	 * flatter but adds a surprise step in the middle.
+	 */
+	set_MAX2839_LNAband(drv, MAX2839_LNAband_2_4);
+
 	max2839_regs_commit(drv);
 }
 
@@ -207,7 +214,6 @@ void max2839_stop(max2839_driver_t* const drv)
 void max2839_set_frequency(max2839_driver_t* const drv, uint32_t freq)
 {
 	uint8_t band;
-	uint8_t lna_band;
 	uint32_t div_frac;
 	uint32_t div_int;
 	uint32_t div_rem;
@@ -217,16 +223,12 @@ void max2839_set_frequency(max2839_driver_t* const drv, uint32_t freq)
 	/* Select band. Allow tuning outside specified bands. */
 	if (freq < 2400000000U) {
 		band = MAX2839_LOGEN_BSW_2_3;
-		lna_band = MAX2839_LNAband_2_4;
 	} else if (freq < 2500000000U) {
 		band = MAX2839_LOGEN_BSW_2_4;
-		lna_band = MAX2839_LNAband_2_4;
 	} else if (freq < 2600000000U) {
 		band = MAX2839_LOGEN_BSW_2_5;
-		lna_band = MAX2839_LNAband_2_6;
 	} else {
 		band = MAX2839_LOGEN_BSW_2_6;
-		lna_band = MAX2839_LNAband_2_6;
 	}
 
 	/* ASSUME 40MHz PLL. Ratio = F*(4/3)/40,000,000 = F/30,000,000 */
@@ -245,7 +247,6 @@ void max2839_set_frequency(max2839_driver_t* const drv, uint32_t freq)
 
 	/* Band settings */
 	set_MAX2839_LOGEN_BSW(drv, band);
-	set_MAX2839_LNAband(drv, lna_band);
 
 	/* Write order matters here, so commit INT and FRAC_HI before
 	 * committing FRAC_LO, which is the trigger for VCO
