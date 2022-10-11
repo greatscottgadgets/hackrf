@@ -34,6 +34,7 @@ extern "C" {
 #include "si5351c.h"
 #include "spi_ssp.h"
 
+#include "max283x.h"
 #include "max2837.h"
 #include "max2839.h"
 #include "max5864.h"
@@ -273,6 +274,7 @@ extern const ssp_config_t ssp_config_max2837;
 extern const ssp_config_t ssp_config_max2839;
 extern const ssp_config_t ssp_config_max5864;
 
+extern max283x_driver_t max283x;
 extern max2837_driver_t max2837;
 extern max2839_driver_t max2839; //FIXME xcvr hal
 extern max5864_driver_t max5864;

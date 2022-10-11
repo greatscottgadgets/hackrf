@@ -45,7 +45,7 @@ struct max2837_driver_t;
 typedef struct max2837_driver_t max2837_driver_t;
 
 struct max2837_driver_t {
-	spi_bus_t* const bus;
+	spi_bus_t* bus;
 	gpio_t gpio_enable;
 	gpio_t gpio_rx_enable;
 	gpio_t gpio_tx_enable;

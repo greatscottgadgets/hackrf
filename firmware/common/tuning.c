@@ -70,15 +70,8 @@ bool set_freq(const uint64_t freq)
 
 	success = true;
 
-	max2839_mode_t prior_max2839_mode = MAX2839_MODE_STANDBY;
-	max2837_mode_t prior_max2837_mode = MAX2837_MODE_STANDBY;
-	if (detected_platform() == BOARD_ID_HACKRF1_R9) {
-		prior_max2839_mode = max2839_mode(&max2839);
-		max2839_set_mode(&max2839, MAX2839_MODE_STANDBY);
-	} else {
-		prior_max2837_mode = max2837_mode(&max2837);
-		max2837_set_mode(&max2837, MAX2837_MODE_STANDBY);
-	}
+	max283x_mode_t prior_max283x_mode = max283x_mode(&max283x);
+	max283x_set_mode(&max283x, MAX283x_MODE_STANDBY);
 	if (freq_mhz < MAX_LP_FREQ_MHZ) {
 		rf_path_set_filter(&rf_path, RF_PATH_FILTER_LOW_PASS);
 #ifdef RAD1O
@@ -90,21 +83,13 @@ bool set_freq(const uint64_t freq)
 		mixer_freq_mhz = (max2837_freq_nominal_hz / FREQ_ONE_MHZ) + freq_mhz;
 		/* Set Freq and read real freq */
 		real_mixer_freq_hz = mixer_set_frequency(&mixer, mixer_freq_mhz);
-		if (detected_platform() == BOARD_ID_HACKRF1_R9) {
-			max2839_set_frequency(&max2839, real_mixer_freq_hz - freq);
-		} else {
-			max2837_set_frequency(&max2837, real_mixer_freq_hz - freq);
-		}
+		max283x_set_frequency(&max283x, real_mixer_freq_hz - freq);
 		sgpio_cpld_stream_rx_set_q_invert(&sgpio_config, 1);
 	} else if ((freq_mhz >= MIN_BYPASS_FREQ_MHZ) && (freq_mhz < MAX_BYPASS_FREQ_MHZ)) {
 		rf_path_set_filter(&rf_path, RF_PATH_FILTER_BYPASS);
 		MAX2837_freq_hz = (freq_mhz * FREQ_ONE_MHZ) + freq_hz;
 		/* mixer_freq_mhz <= not used in Bypass mode */
-		if (detected_platform() == BOARD_ID_HACKRF1_R9) {
-			max2839_set_frequency(&max2839, MAX2837_freq_hz);
-		} else {
-			max2837_set_frequency(&max2837, MAX2837_freq_hz);
-		}
+		max283x_set_frequency(&max283x, MAX2837_freq_hz);
 		sgpio_cpld_stream_rx_set_q_invert(&sgpio_config, 0);
 	} else if ((freq_mhz >= MIN_HP_FREQ_MHZ) && (freq_mhz <= MAX_HP_FREQ_MHZ)) {
 		if (freq_mhz < MID1_HP_FREQ_MHZ) {
@@ -125,21 +110,13 @@ bool set_freq(const uint64_t freq)
 		mixer_freq_mhz = freq_mhz - (max2837_freq_nominal_hz / FREQ_ONE_MHZ);
 		/* Set Freq and read real freq */
 		real_mixer_freq_hz = mixer_set_frequency(&mixer, mixer_freq_mhz);
-		if (detected_platform() == BOARD_ID_HACKRF1_R9) {
-			max2839_set_frequency(&max2839, freq - real_mixer_freq_hz);
-		} else {
-			max2837_set_frequency(&max2837, freq - real_mixer_freq_hz);
-		}
+		max283x_set_frequency(&max283x, freq - real_mixer_freq_hz);
 		sgpio_cpld_stream_rx_set_q_invert(&sgpio_config, 0);
 	} else {
 		/* Error freq_mhz too high */
 		success = false;
 	}
-	if (detected_platform() == BOARD_ID_HACKRF1_R9) {
-		max2839_set_mode(&max2839, prior_max2839_mode);
-	} else {
-		max2837_set_mode(&max2837, prior_max2837_mode);
-	}
+	max283x_set_mode(&max283x, prior_max283x_mode);
 	if (success) {
 		freq_cache = freq;
 		hackrf_ui()->set_frequency(freq);
@@ -170,11 +147,7 @@ bool set_freq_explicit(
 	}
 
 	rf_path_set_filter(&rf_path, path);
-	if (detected_platform() == BOARD_ID_HACKRF1_R9) {
-		max2839_set_frequency(&max2839, if_freq_hz);
-	} else {
-		max2837_set_frequency(&max2837, if_freq_hz);
-	}
+	max283x_set_frequency(&max283x, if_freq_hz);
 	if (lo_freq_hz > if_freq_hz) {
 		sgpio_cpld_stream_rx_set_q_invert(&sgpio_config, 1);
 	} else {

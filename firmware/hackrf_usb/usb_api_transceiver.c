@@ -166,11 +166,7 @@ usb_request_status_t usb_vendor_request_set_lna_gain(
 {
 	if (stage == USB_TRANSFER_STAGE_SETUP) {
 		uint8_t value;
-		if (detected_platform() == BOARD_ID_HACKRF1_R9) {
-			value = max2839_set_lna_gain(&max2839, endpoint->setup.index);
-		} else {
-			value = max2837_set_lna_gain(&max2837, endpoint->setup.index);
-		}
+		value = max283x_set_lna_gain(&max283x, endpoint->setup.index);
 		endpoint->buffer[0] = value;
 		if (value) {
 			hackrf_ui()->set_bb_lna_gain(endpoint->setup.index);
@@ -193,11 +189,7 @@ usb_request_status_t usb_vendor_request_set_vga_gain(
 {
 	if (stage == USB_TRANSFER_STAGE_SETUP) {
 		uint8_t value;
-		if (detected_platform() == BOARD_ID_HACKRF1_R9) {
-			value = max2839_set_vga_gain(&max2839, endpoint->setup.index);
-		} else {
-			value = max2837_set_vga_gain(&max2837, endpoint->setup.index);
-		}
+		value = max283x_set_vga_gain(&max283x, endpoint->setup.index);
 		endpoint->buffer[0] = value;
 		if (value) {
 			hackrf_ui()->set_bb_vga_gain(endpoint->setup.index);
@@ -220,11 +212,7 @@ usb_request_status_t usb_vendor_request_set_txvga_gain(
 {
 	if (stage == USB_TRANSFER_STAGE_SETUP) {
 		uint8_t value;
-		if (detected_platform() == BOARD_ID_HACKRF1_R9) {
-			value = max2839_set_txvga_gain(&max2839, endpoint->setup.index);
-		} else {
-			value = max2837_set_txvga_gain(&max2837, endpoint->setup.index);
-		}
+		value = max283x_set_txvga_gain(&max283x, endpoint->setup.index);
 		endpoint->buffer[0] = value;
 		if (value) {
 			hackrf_ui()->set_bb_tx_vga_gain(endpoint->setup.index);

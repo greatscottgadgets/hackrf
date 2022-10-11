@@ -26,10 +26,7 @@
 #include "sgpio.h"
 #include "si5351c.h"
 #include "spi_ssp.h"
-#include "max2837.h"
-#include "max2837_target.h"
-#include "max2839.h"
-#include "max2839_target.h"
+#include "max283x.h"
 #include "max5864.h"
 #include "max5864_target.h"
 #include "w25q80bv.h"
@@ -65,9 +62,6 @@ static struct gpio_t gpio_1v8_enable        = GPIO(3,  6);
 
 /* MAX2837 GPIO (XCVR_CTL) PinMux */
 static struct gpio_t gpio_max2837_select    = GPIO(0, 15);
-static struct gpio_t gpio_max2837_enable    = GPIO(2,  6);
-static struct gpio_t gpio_max2837_rx_enable = GPIO(2,  5);
-static struct gpio_t gpio_max2837_tx_enable = GPIO(2,  4);
 
 /* MAX5864 SPI chip select (AD_CS) GPIO PinMux */
 static struct gpio_t gpio_max5864_select    = GPIO(2,  7);
@@ -229,22 +223,7 @@ spi_bus_t spi_bus_ssp1 = {
 	.transfer_gather = spi_ssp_transfer_gather,
 };
 
-max2837_driver_t max2837 = {
-	.bus = &spi_bus_ssp1,
-	.gpio_enable = &gpio_max2837_enable,
-	.gpio_rx_enable = &gpio_max2837_rx_enable,
-	.gpio_tx_enable = &gpio_max2837_tx_enable,
-	.target_init = max2837_target_init,
-	.set_mode = max2837_target_set_mode,
-};
-
-max2839_driver_t max2839 = {
-	.bus = &spi_bus_ssp1,
-	.gpio_enable = &gpio_max2837_enable,
-	.gpio_rxtx = &gpio_max2837_rx_enable,
-	.target_init = max2839_target_init,
-	.set_mode = max2839_target_set_mode,
-};
+max283x_driver_t max283x = {};
 
 max5864_driver_t max5864 = {
 	.bus = &spi_bus_ssp1,
@@ -560,11 +539,7 @@ bool sample_rate_set(const uint32_t sample_rate_hz)
 bool baseband_filter_bandwidth_set(const uint32_t bandwidth_hz)
 {
 	uint32_t bandwidth_hz_real;
-	if (detected_platform() == BOARD_ID_HACKRF1_R9) {
-		bandwidth_hz_real = max2839_set_lpf_bandwidth(&max2839, bandwidth_hz);
-	} else {
-		bandwidth_hz_real = max2837_set_lpf_bandwidth(&max2837, bandwidth_hz);
-	}
+	bandwidth_hz_real = max283x_set_lpf_bandwidth(&max283x, bandwidth_hz);
 
 	if (bandwidth_hz_real) {
 		hackrf_ui()->set_filter_bw(bandwidth_hz_real);

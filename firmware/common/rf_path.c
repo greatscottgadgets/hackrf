@@ -31,6 +31,7 @@
 #include "gpio_lpc.h"
 #include "platform_detect.h"
 #include "mixer.h"
+#include "max283x.h"
 #include "max2837.h"
 #include "max2839.h"
 #include "max5864.h"
@@ -370,13 +371,12 @@ void rf_path_init(rf_path_t* const rf_path)
 
 	if (detected_platform() == BOARD_ID_HACKRF1_R9) {
 		ssp1_set_mode_max2839();
-		max2839_setup(&max2839);
-		max2839_start(&max2839);
+		max283x_setup(&max283x, MAX2839_VARIANT);
 	} else {
 		ssp1_set_mode_max2837();
-		max2837_setup(&max2837);
-		max2837_start(&max2837);
+		max283x_setup(&max283x, MAX2837_VARIANT);
 	}
+	max283x_start(&max283x);
 
 	// On HackRF One, the mixer is now set up earlier in boot.
 #ifndef HACKRF_ONE
@@ -406,11 +406,10 @@ void rf_path_set_direction(rf_path_t* const rf_path, const rf_path_direction_t d
 		max5864_tx(&max5864);
 		if (detected_platform() == BOARD_ID_HACKRF1_R9) {
 			ssp1_set_mode_max2839();
-			max2839_tx(&max2839);
 		} else {
 			ssp1_set_mode_max2837();
-			max2837_tx(&max2837);
 		}
+		max283x_tx(&max283x);
 		sgpio_configure(&sgpio_config, SGPIO_DIRECTION_TX);
 		break;
 
@@ -430,11 +429,10 @@ void rf_path_set_direction(rf_path_t* const rf_path, const rf_path_direction_t d
 		max5864_rx(&max5864);
 		if (detected_platform() == BOARD_ID_HACKRF1_R9) {
 			ssp1_set_mode_max2839();
-			max2839_rx(&max2839);
 		} else {
 			ssp1_set_mode_max2837();
-			max2837_rx(&max2837);
 		}
+		max283x_rx(&max283x);
 		sgpio_configure(&sgpio_config, SGPIO_DIRECTION_RX);
 		break;
 
@@ -451,11 +449,10 @@ void rf_path_set_direction(rf_path_t* const rf_path, const rf_path_direction_t d
 		max5864_standby(&max5864);
 		if (detected_platform() == BOARD_ID_HACKRF1_R9) {
 			ssp1_set_mode_max2839();
-			max2839_set_mode(&max2839, MAX2839_MODE_STANDBY);
 		} else {
 			ssp1_set_mode_max2837();
-			max2837_set_mode(&max2837, MAX2837_MODE_STANDBY);
 		}
+		max283x_set_mode(&max283x, MAX283x_MODE_STANDBY);
 		sgpio_configure(&sgpio_config, SGPIO_DIRECTION_RX);
 		break;
 	}

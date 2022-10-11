@@ -35,19 +35,19 @@
 
 typedef enum {
 	MAX2839_MODE_SHUTDOWN,
-	MAX2839_MODE_CLKOUT,
 	MAX2839_MODE_STANDBY,
-	MAX2839_MODE_RX,
 	MAX2839_MODE_TX,
+	MAX2839_MODE_RX,
 	MAX2839_MODE_RX_CAL,
 	MAX2839_MODE_TX_CAL,
+	MAX2839_MODE_CLKOUT,
 } max2839_mode_t;
 
 struct max2839_driver_t;
 typedef struct max2839_driver_t max2839_driver_t;
 
 struct max2839_driver_t {
-	spi_bus_t* const bus;
+	spi_bus_t* bus;
 	gpio_t gpio_enable;
 	gpio_t gpio_rxtx;
 	void (*target_init)(max2839_driver_t* const drv);
