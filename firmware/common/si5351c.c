@@ -123,13 +123,14 @@ void si5351c_configure_pll_sources(si5351c_driver_t* const drv)
 /* MultiSynth NA (PLLA) and NB (PLLB) */
 void si5351c_configure_pll_multisynth(si5351c_driver_t* const drv)
 {
-	/*PLLA: 25MHz XTAL * (0x0e00+512)/128 = 800mhz -> int mode */
-	uint8_t data[] = {26, 0x00, 0x01, 0x00, 0x0E, 0x00, 0x00, 0x00, 0x00};
+	/* PLLA: 25 MHz XTAL * (0x0f00+512)/128 = 850 MHz */
+	uint8_t data[] = {26, 0x00, 0x01, 0x00, 0x0f, 0x00, 0x00, 0x00, 0x00};
 	si5351c_write(drv, data, sizeof(data));
 
-	/*PLLB: 10MHz CLKIN * (0x2600+512)/128 = 800mhz */
+	/* PLLB: 10 MHz CLKIN * (0x2880+512)/128 = 850 MHz */
 	data[0] = 34;
-	data[4] = 0x26;
+	data[4] = 0x28;
+	data[5] = 0x80;
 	si5351c_write(drv, data, sizeof(data));
 }
 
@@ -291,7 +292,7 @@ void si5351c_clkout_enable(si5351c_driver_t* const drv, uint8_t enable)
 	clkout_enabled = (enable > 0);
 
 	/* Configure clock to 10MHz */
-	si5351c_configure_multisynth(drv, 3, 80 * 128 - 512, 0, 1, 0);
+	si5351c_configure_multisynth(drv, 3, 85 * 128 - 512, 0, 1, 0);
 
 	si5351c_configure_clock_control(drv, active_clock_source);
 	si5351c_enable_clock_outputs(drv);

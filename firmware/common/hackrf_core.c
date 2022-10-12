@@ -351,7 +351,7 @@ static uint32_t gcd(uint32_t u, uint32_t v)
 
 bool sample_rate_frac_set(uint32_t rate_num, uint32_t rate_denom)
 {
-	const uint64_t VCO_FREQ = 800 * 1000 * 1000; /* 800 MHz */
+	const uint64_t VCO_FREQ = 850 * 1000 * 1000; /* 850 MHz VCO */
 	uint32_t MSx_P1, MSx_P2, MSx_P3;
 	uint32_t a, b, c;
 	uint32_t rem;
@@ -602,24 +602,24 @@ void cpu_clock_init(void)
 	si5351c_configure_multisynth(
 		&clock_gen,
 		4,
-		20 * 128 - 512,
+		22 * 128 - 512, // 850/22 MHz
 		0,
 		1,
-		0); /* 800/20 = 40MHz */
+		0);
 	/* MS5/CLK5 is the source for the MAX2837 clock input (MAX2871 on rad1o). */
 	si5351c_configure_multisynth(
 		&clock_gen,
 		5,
-		20 * 128 - 512,
+		22 * 128 - 512, // 850/22 MHz
 		0,
 		1,
-		0); /* 800/20 = 40MHz */
+		0);
 
 	/* MS6/CLK6 is unused. */
 	/* MS7/CLK7 is unused. */
 
 	/* Set to 10 MHz, the common rate between Jawbreaker and HackRF One. */
-	sample_rate_set(10000000);
+	sample_rate_frac_set(10000000, 0);
 
 	si5351c_set_clock_source(&clock_gen, PLL_SOURCE_XTAL);
 	// soft reset

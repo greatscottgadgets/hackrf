@@ -226,11 +226,11 @@ void max2837_set_frequency(max2837_driver_t* const drv, uint32_t freq)
 		lna_band = MAX2837_LNAband_2_6;
 	}
 
-	/* ASSUME 40MHz PLL. Ratio = F*(4/3)/40,000,000 = F/30,000,000 */
-	div_int = freq / 30000000;
-	div_rem = freq % 30000000;
+	/* ASSUME 850/22 MHz reference. Ratio = F*(4/3)/ref = F/28977273 */
+	div_cmp = 28977273;
+	div_int = freq / div_cmp;
+	div_rem = freq % div_cmp;
 	div_frac = 0;
-	div_cmp = 30000000;
 	for (i = 0; i < 20; i++) {
 		div_frac <<= 1;
 		div_cmp >>= 1;

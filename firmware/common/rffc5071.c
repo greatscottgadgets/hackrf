@@ -216,9 +216,10 @@ void rffc5071_enable(rffc5071_driver_t* const drv)
 	rffc5071_regs_commit(drv);
 }
 
-#define LO_MAX       5400
-#define REF_FREQ     40
-#define FREQ_ONE_MHZ (1000 * 1000)
+#define LO_MAX           5400
+#define REF_FREQ_NUM_MHZ 850
+#define REF_FREQ_DENOM   22
+#define FREQ_ONE_MHZ     (1000 * 1000)
 
 /* configure frequency synthesizer in integer mode (lo in MHz) */
 uint64_t rffc5071_config_synth_int(rffc5071_driver_t* const drv, uint16_t lo)
@@ -255,14 +256,15 @@ uint64_t rffc5071_config_synth_int(rffc5071_driver_t* const drv, uint16_t lo)
 		set_RFFC5071_PLLCPL(drv, 2);
 	}
 
-	uint64_t tmp_n = ((uint64_t) fvco << 29ULL) / (fbkdiv * REF_FREQ);
+	uint64_t tmp_n =
+		((uint64_t) fvco << 29ULL) * REF_FREQ_DENOM / (fbkdiv * REF_FREQ_NUM_MHZ);
 	n = tmp_n >> 29ULL;
 
 	p1nmsb = (tmp_n >> 13ULL) & 0xffff;
 	p1nlsb = (tmp_n >> 5ULL) & 0xff;
 
-	tune_freq_hz = (REF_FREQ * (tmp_n >> 5ULL) * fbkdiv * FREQ_ONE_MHZ) /
-		(lodiv * (1 << 24ULL));
+	tune_freq_hz = (REF_FREQ_NUM_MHZ * (tmp_n >> 5ULL) * fbkdiv * FREQ_ONE_MHZ) /
+		(lodiv * (1 << 24ULL) * REF_FREQ_DENOM);
 
 	/* Path 2 */
 	set_RFFC5071_P2LODIV(drv, n_lo);
