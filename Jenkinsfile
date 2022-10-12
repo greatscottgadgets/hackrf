@@ -25,6 +25,8 @@ pipeline {
                     sh './ci-scripts/test-firmware-program.sh'
                 }
                 sh './ci-scripts/test-firmware-flash.sh'
+                sh './ci-scripts/test-clkin.sh'
+                sh './ci-scripts/test-clkout.sh'
             }
         }
     }
