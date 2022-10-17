@@ -3,7 +3,7 @@ host/build/hackrf-tools/src/hackrf_spiflash -w firmware/hackrf_usb/build/hackrf_
 EXIT_CODE="$?"
 if [ "$EXIT_CODE" == "1" ]
 then
-    echo "No GreatFET found! Disconnected? Exiting.."
+    echo "No HackRF found! Disconnected? Exiting.."
     exit $EXIT_CODE
 elif [ "$EXIT_CODE" == "0" ]
 then
@@ -13,6 +13,6 @@ then
     echo "Host tool installation failed! Exiting.."
     exit $EXIT_CODE
 else
-    echo "god have mercy on your soul"
+    echo "Unknown error"
     exit $EXIT_CODE
 fi
