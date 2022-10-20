@@ -4,11 +4,9 @@ Welcome to HackRF's documentation!
 
 .. toctree::
    :maxdepth: 2
-   :caption: User Documentation
+   :caption: HackRF User Documentation
 
    hackrf_one
-   jawbreaker   
-   opera_cake
    faq
    troubleshooting
    getting_help
@@ -46,3 +44,20 @@ Welcome to HackRF's documentation!
    expansion_interface
    hardware_triggering
    rf_shield_installation
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Opera Cake Documentation
+
+   opera_cake
+   opera_cake_faq
+   opera_cake_hardware
+   opera_cake_board_addressing
+   opera_cake_port_configuration
+   opera_cake_modes_of_operation
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Jawbreaker Documentation
+
+   jawbreaker      
