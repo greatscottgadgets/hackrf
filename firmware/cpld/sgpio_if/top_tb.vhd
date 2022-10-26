@@ -32,7 +32,7 @@ ARCHITECTURE behavior OF top_tb IS
         HOST_CAPTURE : OUT std_logic;
         HOST_DISABLE : IN std_logic;
         HOST_DIRECTION : IN std_logic;
-		  HOST_DECIM_SEL : IN std_logic_vector(2 downto 0);
+        HOST_DECIM_SEL : IN std_logic_vector(2 downto 0);
         DA : IN  std_logic_vector(7 downto 0);
         DD : OUT  std_logic_vector(9 downto 0);
         CODEC_CLK : IN  std_logic;
@@ -46,12 +46,12 @@ ARCHITECTURE behavior OF top_tb IS
     signal CODEC_X2_CLK : std_logic := '0';
     signal HOST_DISABLE : std_logic := '1';
     signal HOST_DIRECTION : std_logic := '0';
-	 signal HOST_DECIM_SEL : std_logic_vector(2 downto 0) := "010";
+    signal HOST_DECIM_SEL : std_logic_vector(2 downto 0) := "010";
     
-	--BiDirs
+    --BiDirs
     signal HOST_DATA : std_logic_vector(7 downto 0);
 
- 	--Outputs
+    --Outputs
     signal DD : std_logic_vector(9 downto 0);
     signal HOST_CAPTURE : std_logic;
     
@@ -62,7 +62,7 @@ begin
         HOST_CAPTURE => HOST_CAPTURE,
         HOST_DISABLE => HOST_DISABLE,
         HOST_DIRECTION => HOST_DIRECTION,
-		  HOST_DECIM_SEL => HOST_DECIM_SEL,
+        HOST_DECIM_SEL => HOST_DECIM_SEL,
         DA => DA,
         DD => DD,
         CODEC_CLK => CODEC_CLK,
@@ -71,15 +71,15 @@ begin
 
     clk_process :process
     begin
-		CODEC_CLK <= '1';
+        CODEC_CLK <= '1';
         CODEC_X2_CLK <= '1';
-		wait for 12.5 ns;
-		CODEC_X2_CLK <= '0';
-		wait for 12.5 ns;
+        wait for 12.5 ns;
+        CODEC_X2_CLK <= '0';
+        wait for 12.5 ns;
         CODEC_CLK <= '0';
         CODEC_X2_CLK <= '1';
-		wait for 12.5 ns;
-		CODEC_X2_CLK <= '0';
+        wait for 12.5 ns;
+        CODEC_X2_CLK <= '0';
         wait for 12.5 ns;
     end process;
  
@@ -129,4 +129,4 @@ begin
         wait;
     end process;
 
-end;
+end;
