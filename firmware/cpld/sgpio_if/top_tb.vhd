@@ -33,7 +33,6 @@ ARCHITECTURE behavior OF top_tb IS
         HOST_CAPTURE : OUT std_logic;
         HOST_DISABLE : IN std_logic;
         HOST_DIRECTION : IN std_logic;
-        HOST_DECIM_SEL : IN std_logic_vector(2 downto 0);
         DA : IN  std_logic_vector(7 downto 0);
         DD : OUT  std_logic_vector(9 downto 0);
         CODEC_CLK : IN  std_logic;
@@ -47,7 +46,6 @@ ARCHITECTURE behavior OF top_tb IS
     signal CODEC_X2_CLK : std_logic := '0';
     signal HOST_DISABLE : std_logic := '1';
     signal HOST_DIRECTION : std_logic := '0';
-    signal HOST_DECIM_SEL : std_logic_vector(2 downto 0) := "010";
     
     --BiDirs
     signal HOST_DATA : std_logic_vector(7 downto 0);
@@ -63,7 +61,6 @@ begin
         HOST_CAPTURE => HOST_CAPTURE,
         HOST_DISABLE => HOST_DISABLE,
         HOST_DIRECTION => HOST_DIRECTION,
-        HOST_DECIM_SEL => HOST_DECIM_SEL,
         DA => DA,
         DD => DD,
         CODEC_CLK => CODEC_CLK,
