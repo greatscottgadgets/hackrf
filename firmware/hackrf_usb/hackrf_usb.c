@@ -241,6 +241,7 @@ int main(void)
 	cpu_clock_init();
 
 	/* Wake the M0 */
+	ipc_halt_m0();
 	ipc_start_m0((uint32_t) &__ram_m0_start__);
 
 	if (!cpld_jtag_sram_load(&jtag_cpld)) {
