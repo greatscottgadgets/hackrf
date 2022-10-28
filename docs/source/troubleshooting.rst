@@ -10,7 +10,7 @@ Why isn't my HackRF One detectable after I plug it into my computer?
 If your HackRF One isn't immediately detectable it is very possible that your Micro USB cable is not meeting HackRF One's requirements. HackRF One requires quite a bit of supply current and solid USB 2.0 high speed communications to operate. It is common for HackRF One to reveal cables with deficiencies such as carrying power but not data, carrying data but not enough power, etc. Please try multiple cables to resolve this issue. More than once people have gotten their HackRF One to work after trying their fifth cable. 
 
 
----
+----
 
 
 How do I deal with the big spike in the middle of my spectrum?
