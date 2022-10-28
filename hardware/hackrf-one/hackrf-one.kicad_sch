@@ -1668,10 +1668,10 @@
       (reference "L5") (unit 1) (value "10uH") (footprint "hackrf:GSG-0603")
     )
     (path "/00000000-0000-0000-0000-000050370666/00000000-0000-0000-0000-00004f5d6aaa"
-      (reference "L6") (unit 1) (value "3.0nH") (footprint "hackrf:GSG-0402")
+      (reference "L6") (unit 1) (value "5.6nH") (footprint "hackrf:GSG-0402")
     )
     (path "/00000000-0000-0000-0000-000050370666/00000000-0000-0000-0000-00004f5d6afa"
-      (reference "L8") (unit 1) (value "DNP") (footprint "hackrf:GSG-0402")
+      (reference "L8") (unit 1) (value "5.6nH") (footprint "hackrf:GSG-0402")
     )
     (path "/00000000-0000-0000-0000-00005037043e/00000000-0000-0000-0000-00004f820301"
       (reference "L10") (unit 1) (value "4u7") (footprint "hackrf:GSG-NRG4026")
