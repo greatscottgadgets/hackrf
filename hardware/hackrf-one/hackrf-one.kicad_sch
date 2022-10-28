@@ -1580,6 +1580,9 @@
     (path "/00000000-0000-0000-0000-0000503bb638/00000000-0000-0000-0000-000052ea119b"
       (reference "C171") (unit 1) (value "1uF") (footprint "hackrf:GSG-0402")
     )
+    (path "/0622cab3-1212-4871-9ead-cb3c63b585f3/771d7458-5f3f-4366-8142-ffdaf2a7d043"
+      (reference "C172") (unit 1) (value "22pF") (footprint "hackrf:GSG-0402")
+    )
     (path "/00000000-0000-0000-0000-0000503bb638/00000000-0000-0000-0000-00004fb3f9b0"
       (reference "D1") (unit 1) (value "GSG-DIODE-TVS-BI") (footprint "hackrf:GSG-0402")
     )
@@ -2082,7 +2085,7 @@
       (reference "R44") (unit 1) (value "39") (footprint "hackrf:GSG-0402")
     )
     (path "/0622cab3-1212-4871-9ead-cb3c63b585f3/0e43c480-5af8-45a5-ae0e-d6bc8bb172a8"
-      (reference "R45") (unit 1) (value "39") (footprint "hackrf:GSG-0402")
+      (reference "R45") (unit 1) (value "0") (footprint "hackrf:GSG-0402")
     )
     (path "/00000000-0000-0000-0000-00005037043e/00000000-0000-0000-0000-0000503f8429"
       (reference "R46") (unit 1) (value "162k") (footprint "hackrf:GSG-0402")
@@ -2157,7 +2160,7 @@
       (reference "R69") (unit 1) (value "12k") (footprint "hackrf:GSG-0402")
     )
     (path "/0622cab3-1212-4871-9ead-cb3c63b585f3/0427fd0e-9352-41c7-9146-41a88df9b4d2"
-      (reference "R70") (unit 1) (value "0") (footprint "hackrf:GSG-0402")
+      (reference "R70") (unit 1) (value "39") (footprint "hackrf:GSG-0402")
     )
     (path "/0622cab3-1212-4871-9ead-cb3c63b585f3/43d0a5ca-db62-4769-84b2-a965f1552c29"
       (reference "R71") (unit 1) (value "DNP") (footprint "hackrf:GSG-0402")
@@ -2191,9 +2194,6 @@
     )
     (path "/00000000-0000-0000-0000-00005037043e/00000000-0000-0000-0000-0000503f985b"
       (reference "R81") (unit 1) (value "39") (footprint "hackrf:GSG-0402")
-    )
-    (path "/0622cab3-1212-4871-9ead-cb3c63b585f3/6f22d845-45e8-4228-8ae3-e0c37237e299"
-      (reference "R82") (unit 1) (value "DNP") (footprint "hackrf:GSG-0402")
     )
     (path "/0622cab3-1212-4871-9ead-cb3c63b585f3/269d7813-95c4-4c54-a924-38ed6ca2c3af"
       (reference "R83") (unit 1) (value "0") (footprint "hackrf:GSG-0402")
