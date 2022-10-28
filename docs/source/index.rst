@@ -4,9 +4,10 @@ Welcome to HackRF's documentation!
 
 .. toctree::
    :maxdepth: 2
-   :caption: HackRF User Documentation
+   :caption: User Documentation
 
    hackrf_one
+   jawbreaker   
    faq
    troubleshooting
    getting_help
@@ -55,9 +56,4 @@ Welcome to HackRF's documentation!
    opera_cake_board_addressing
    opera_cake_port_configuration
    opera_cake_modes_of_operation
-
-.. toctree::
-   :maxdepth: 2
-   :caption: Jawbreaker Documentation
-
-   jawbreaker      
+        

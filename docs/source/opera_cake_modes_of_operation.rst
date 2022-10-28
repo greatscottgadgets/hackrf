@@ -7,7 +7,7 @@ Opera Cake supports three modes of operation: ``manual``, ``frequency``, and ``t
 Manual Mode
 ~~~~~~~~~~~
 
-The default mode of operation is ``manual``. In manual mode, fixed port connections are configured with the ``-a`` and ``-b`` options as in the port configuration examples above. If the operating mode has been changed, it can be changed back to manual mode with:
+The default mode of operation is ``manual``. In manual mode, fixed port connections are configured with the ``-a`` and ``-b`` options as in the :ref:`port configuration examples <portconfiguration>`. If the operating mode has been changed, it can be changed back to manual mode with:
 
 .. code-block:: sh
 
