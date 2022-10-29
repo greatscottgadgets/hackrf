@@ -11,6 +11,7 @@ $savepcb.*
 *.sch-bak
 _autosave*
 *.zip
+\#auto_saved_files\#
 
 # KiCad cache files
 # *-cache.lib not ignored, so schematic can be viewed without libraries
@@ -44,3 +45,7 @@ fp-info-cache
 *.ps
 *.plt
 *.xml
+
+# KiCad Interactive HTML BOM plugin
+*.ini
+*.html
