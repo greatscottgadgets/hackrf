@@ -2043,7 +2043,7 @@
       (reference "R30") (unit 1) (value "39") (footprint "hackrf:GSG-0402")
     )
     (path "/0622cab3-1212-4871-9ead-cb3c63b585f3/00000000-0000-0000-0000-0000528ed054"
-      (reference "R31") (unit 1) (value "39") (footprint "hackrf:GSG-0402")
+      (reference "R31") (unit 1) (value "100") (footprint "hackrf:GSG-0402")
     )
     (path "/0622cab3-1212-4871-9ead-cb3c63b585f3/00000000-0000-0000-0000-0000528ed034"
       (reference "R32") (unit 1) (value "39") (footprint "hackrf:GSG-0402")
@@ -2130,7 +2130,7 @@
       (reference "R59") (unit 1) (value "10k") (footprint "hackrf:GSG-0402")
     )
     (path "/0622cab3-1212-4871-9ead-cb3c63b585f3/16432384-f81c-45a0-8170-308870d86ff7"
-      (reference "R60") (unit 1) (value "39") (footprint "hackrf:GSG-0402")
+      (reference "R60") (unit 1) (value "0") (footprint "hackrf:GSG-0402")
     )
     (path "/0622cab3-1212-4871-9ead-cb3c63b585f3/8005ad7f-c95b-406c-b663-70ef6a83a910"
       (reference "R61") (unit 1) (value "10k") (footprint "hackrf:GSG-0402")

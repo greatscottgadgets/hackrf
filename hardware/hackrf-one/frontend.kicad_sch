@@ -3351,7 +3351,7 @@
     (effects (font (size 1.016 1.016)) (justify left bottom))
     (uuid 02e27798-9851-4efa-9381-bbd3e8e0aed4)
   )
-  (text "Expected MIX_CLK is 1.8 to 3.3 V\npeak-to-peak at 25 to 52 MHz. It is\ndivided down to 0.5 to 1.5 V (REF_IN)."
+  (text "Expected REF_IN is 1.8 to 3.3 V\npeak-to-peak at 25 to 52 MHz. We\nuse 40 MHz at approximately 2.3 V."
     (at 127 243.84 0)
     (effects (font (size 1.016 1.016)) (justify left bottom))
     (uuid 04a10969-b3b5-4b67-bcb8-8880a0fd7a44)
@@ -8723,6 +8723,9 @@
     )
     (property "Description" "CAP CER 100PF 50V 5% C0G/NP0 0402" (id 6) (at 236.22 215.9 0)
       (effects (font (size 1.524 1.524)) hide)
+    )
+    (property "DNP" "DNP" (id 7) (at 154.305 255.27 0)
+      (effects (font (size 1.524 1.524)))
     )
     (pin "1" (uuid f4fd16c2-2ad8-4e7f-a5ae-1d3cc13b4b14))
     (pin "2" (uuid 9f341ef0-b841-48b4-9bd6-d7450d2c28ba))
