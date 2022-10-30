@@ -6,11 +6,10 @@
 
   (title_block
     (title "HackRF One")
-    (date "2022-08-29")
+    (date "2022-10-30")
     (rev "r9")
     (company "Copyright 2012-2022 Great Scott Gadgets")
-    (comment 1 "Michael Ossmann")
-    (comment 2 "Licensed under the CERN-OHL-P v2")
+    (comment 1 "Licensed under the CERN-OHL-P v2")
   )
 
   (lib_symbols
@@ -2295,7 +2294,7 @@
       (reference "U2") (unit 1) (value "SKY13453") (footprint "gsg-modules:SKY13350-385LF")
     )
     (path "/00000000-0000-0000-0000-0000503bb638/00000000-0000-0000-0000-00004f94d561"
-      (reference "U3") (unit 1) (value "RX_LOWPASS_FILTER") (footprint "hackrf:GSG-LP0603")
+      (reference "U3") (unit 1) (value "LOWPASS_FILTER") (footprint "hackrf:GSG-LP0603")
     )
     (path "/00000000-0000-0000-0000-0000503bb638/00000000-0000-0000-0000-0000502be21c"
       (reference "U4") (unit 1) (value "RFFC5072") (footprint "hackrf:GSG-QFN32")
@@ -2310,7 +2309,7 @@
       (reference "U7") (unit 1) (value "SKY13453") (footprint "gsg-modules:SKY13350-385LF")
     )
     (path "/00000000-0000-0000-0000-0000503bb638/00000000-0000-0000-0000-00004f94d4f4"
-      (reference "U8") (unit 1) (value "RX_HIGHPASS_FILTER") (footprint "hackrf:GSG-HP-DEA")
+      (reference "U8") (unit 1) (value "HIGHPASS_FILTER") (footprint "hackrf:GSG-HP-DEA")
     )
     (path "/00000000-0000-0000-0000-0000503bb638/00000000-0000-0000-0000-0000502b5704"
       (reference "U9") (unit 1) (value "SKY13317") (footprint "hackrf:GSG-SKY13317-373LF")
@@ -2376,7 +2375,7 @@
       (reference "U29") (unit 1) (value "74AUP2G58GU") (footprint "gsg-modules:XQFN10")
     )
     (path "/0622cab3-1212-4871-9ead-cb3c63b585f3/00000000-0000-0000-0000-00004f5d0b05"
-      (reference "X1") (unit 1) (value "GSG-XTAL4PIN") (footprint "hackrf:GSG-XTAL3.2x2.5mm")
+      (reference "X1") (unit 1) (value "MAIN_XTAL") (footprint "hackrf:GSG-XTAL3.2x2.5mm")
     )
     (path "/00000000-0000-0000-0000-00005037043e/00000000-0000-0000-0000-000050370e89"
       (reference "X2") (unit 1) (value "MCU_XTAL") (footprint "hackrf:GSG-XTAL3.2x2.5mm")

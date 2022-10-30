@@ -6,11 +6,10 @@
 
   (title_block
     (title "HackRF One")
-    (date "2022-08-29")
+    (date "2022-10-30")
     (rev "r9")
     (company "Copyright 2012-2022 Great Scott Gadgets")
-    (comment 1 "Michael Ossmann")
-    (comment 2 "Licensed under the CERN-OHL-P v2")
+    (comment 1 "Licensed under the CERN-OHL-P v2")
   )
 
   (lib_symbols
@@ -2069,7 +2068,7 @@
     (property "Reference" "X1" (id 0) (at 195.58 100.965 0)
       (effects (font (size 1.524 1.524)))
     )
-    (property "Value" "GSG-XTAL4PIN" (id 1) (at 195.58 103.505 0)
+    (property "Value" "MAIN_XTAL" (id 1) (at 195.58 103.505 0)
       (effects (font (size 1.524 1.524)))
     )
     (property "Footprint" "hackrf:GSG-XTAL3.2x2.5mm" (id 2) (at 195.58 107.315 0)
