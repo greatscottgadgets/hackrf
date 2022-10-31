@@ -1,6 +1,5 @@
 name: Technical Support Request
 description: File a technical support request
-title: "[Tech Support]: "
 labels: ["technical support"]
 assignees:
   - straithe

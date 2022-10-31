@@ -1,6 +1,5 @@
 name: Documentation 
 description: Make a request regarding HackRF documentation 
-title: "[Documentation]: "
 labels: ["documentation"]
 body:
   - type: markdown
