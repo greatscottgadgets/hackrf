@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 import subprocess
 import time
+from sys import exit
 
 
 def write_bytes():
@@ -12,53 +13,91 @@ def write_bytes():
             bin_file.write(tx_bytes)
 
 
-def capture_signal(sweep_range, freq, tx_gain, rx_lna_gain, rx_vga_gain,
+def capture_signal(sweep_range, tx_gain, rx_lna_gain, rx_vga_gain, freq=None,
                    if_freq=None, lo_freq=None, image_reject=0):
     EUT     = "0000000000000000325866e629a25623"
     TESTER  = "0000000000000000325866e629822923"
 
     if if_freq == None:
-        print("calling transmit without if_freq")
         transmit = subprocess.Popen(["hackrf_transfer", "-d", EUT, "-R", "-t", "/tmp/binary100",
                                      "-a", "0", "-x", tx_gain, "-f", freq],
                                     stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     else:
-        print("calling transmit with if_freq")
         transmit = subprocess.Popen(["hackrf_transfer", "-d", EUT, "-R", "-t", "/tmp/binary100",
                                      "-a", "0", "-x", tx_gain, "-i", if_freq,
                                      "-o", lo_freq, "-m", image_reject],
                                      stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
-    time.sleep(1)
-    print("sweeping")
+    time.sleep(0.5)
     sweep = subprocess.Popen(["hackrf_sweep", "-d", TESTER, "-1", "-w", "333333",
                               "-f", sweep_range, "-a", "0", "-l", rx_lna_gain,
                               "-g", rx_vga_gain],
                              stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-
-    data, stderr = sweep.communicate()
-    data = data.decode("utf-8")
-    print("data:\n", data)
-
+    sweep.wait()
     transmit.terminate()
     transmit.wait()
 
+    # parse the hackrf_sweep output
+    data, stderr = sweep.communicate()
+    data = data.decode("utf-8")
+    data = data.split("\n")
+    data = data[0]
+    print(data)
+    data = data.split(", ")
+    data = data[6:21]
+    bins = [float(bin) for bin in data]
+    return bins
 
-# for convenience
-# hackrf_transfer -d EUT -R -t /tmp/binary100 -f 2664250000 -a 0 -x 26
-# hackrf_sweep -d TESTER -1 -w 333333 -f 2665:2685 -a 0 -l 16 -g 16
 
-# hackrf_transfer -d EUT -R -t /tmp/binary100 -i 2540750000 -o 3455000000 -m 1 -a 0 -x 38
-# hackrf_sweep -d TESTER -1 -w 333333 -f 915:935 -a 0 -l 16 -g 16
+def check_signal(freq, bins):
+    signal = bins.pop(1)
+    signal_threshold = -25
+    noise_threshold = signal - 3
+    max_power = -10
+    result = 0
 
-# hackrf_transfer -d EUT -R -t /tmp/binary100 -i 2628250000 -o 2620000000 -m 1 -a 0 -x 38
-# hackrf_sweep -d TESTER -1 -w 333333 -f 9:29 -a 0 -l 16 -g 16
+    for bin in bins:
+        if bin > max_power:
+            print(f"Exceeded maximum power at {freq} MHz")
+            result = 1
+        elif bin > noise_threshold:
+            print(f"Non-target bin power too high at {freq} MHz")
+            result = 1
 
-# hackrf_transfer -d EUT -R -t /tmp/binary100 -i 2540750000 -o 3460000000 -m 2 -a 0 -x 37
-# hackrf_sweep -d TESTER -1 -w 333333 -f 5999:6019 -a 0 -l 32 -g 40
+    if signal < signal_threshold:
+        print(f"Signal not strong enough at {freq} MHz")
+        result = 1
+    elif signal > max_power:
+        print(f"Received signal exceeded maximum power at {freq} MHz")
+        result = 1
+
+    return result
+
+
 def main():
     write_bytes()
-    capture_signal("2665:2685", "2664250000", "26", "16", "16")
+    _2665_5Mhz_data = capture_signal(sweep_range="2665:2685", tx_gain="26", rx_lna_gain="16",
+                                     rx_vga_gain="16", freq="2664250000")
+    _915_5Mhz_data  = capture_signal(sweep_range="915:935", tx_gain="38", rx_lna_gain="16",
+                                     rx_vga_gain="16", if_freq="2540750000",
+                                     lo_freq="3455000000", image_reject="1")
+    _9_5Mhz_data    = capture_signal(sweep_range="9:29", tx_gain="38", rx_lna_gain="16",
+                                     rx_vga_gain="16", if_freq="2628250000",
+                                     lo_freq="2620000000", image_reject="1")
+    _5999_5Mhz_data = capture_signal(sweep_range="5999:6019", tx_gain="37", rx_lna_gain="32",
+                                     rx_vga_gain="40", if_freq="2540750000",
+                                     lo_freq="3460000000", image_reject="2")
+
+    lp1_result  = check_signal(915.5, _915_5Mhz_data)
+    lp2_result  = check_signal(9.5, _9_5Mhz_data)
+    bp_result   = check_signal(2665.5, _2665_5Mhz_data)
+    hp_result   = check_signal(5999.5, _5999_5Mhz_data)
+    results     = [lp1_result, lp2_result, bp_result, hp_result]
+
+    if 1 in results:
+        exit(1)
+    else:
+        exit(0)
 
 
 if __name__ == "__main__":
