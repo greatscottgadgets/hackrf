@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 import subprocess
 import time
-from sys import exit
+import sys
 
 
 def write_bytes():
@@ -17,19 +17,30 @@ def capture_signal(sweep_range, tx_gain, rx_lna_gain, rx_vga_gain, freq=None,
                    if_freq=None, lo_freq=None, image_reject=0):
     EUT     = "0000000000000000325866e629a25623"
     TESTER  = "0000000000000000325866e629822923"
+    test_type = sys.argv[1]
+
+    if test_type == "tx":
+        transmitter = EUT
+        receiver = TESTER
+    elif test_type == "rx":
+        transmitter = TESTER
+        receiver = EUT
+    else:
+        print(f"Invalid command-line argument: {test_type}. Use tx or rx")
+        sys.exit(1)
 
     if if_freq == None:
-        transmit = subprocess.Popen(["hackrf_transfer", "-d", EUT, "-R", "-t", "/tmp/binary100",
+        transmit = subprocess.Popen(["hackrf_transfer", "-d", transmitter, "-R", "-t", "/tmp/binary100",
                                      "-a", "0", "-x", tx_gain, "-f", freq],
                                     stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     else:
-        transmit = subprocess.Popen(["hackrf_transfer", "-d", EUT, "-R", "-t", "/tmp/binary100",
+        transmit = subprocess.Popen(["hackrf_transfer", "-d", transmitter, "-R", "-t", "/tmp/binary100",
                                      "-a", "0", "-x", tx_gain, "-i", if_freq,
                                      "-o", lo_freq, "-m", image_reject],
                                      stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
     time.sleep(0.5)
-    sweep = subprocess.Popen(["hackrf_sweep", "-d", TESTER, "-1", "-w", "333333",
+    sweep = subprocess.Popen(["hackrf_sweep", "-d", receiver, "-1", "-w", "333333",
                               "-f", sweep_range, "-a", "0", "-l", rx_lna_gain,
                               "-g", rx_vga_gain],
                              stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -95,9 +106,9 @@ def main():
     results     = [lp1_result, lp2_result, bp_result, hp_result]
 
     if 1 in results:
-        exit(1)
+        sys.exit(1)
     else:
-        exit(0)
+        sys.exit(0)
 
 
 if __name__ == "__main__":
