@@ -25,8 +25,8 @@ pipeline {
           sh './ci-scripts/test-firmware-program.sh'
         }
         sh './ci-scripts/test-firmware-flash.sh'
-        sh 'python3 /ci-scripts/test-transfer.py tx'
-        sh 'python3 /ci-scripts/test-transfer.py rx'
+        sh 'python3 ci-scripts/test-transfer.py tx'
+        sh 'python3 ci-scripts/test-transfer.py rx'
       }
     }
   }

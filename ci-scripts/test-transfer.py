@@ -30,17 +30,20 @@ def capture_signal(sweep_range, tx_gain, rx_lna_gain, rx_vga_gain, freq=None,
         sys.exit(1)
 
     if if_freq == None:
-        transmit = subprocess.Popen(["hackrf_transfer", "-d", transmitter, "-R", "-t", "/tmp/binary100",
+        transmit = subprocess.Popen(["host/build/hackrf-tools/src/hackrf_transfer",
+                                     "-d", transmitter, "-R", "-t", "/tmp/binary100",
                                      "-a", "0", "-x", tx_gain, "-f", freq],
                                     stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     else:
-        transmit = subprocess.Popen(["hackrf_transfer", "-d", transmitter, "-R", "-t", "/tmp/binary100",
+        transmit = subprocess.Popen(["host/build/hackrf-tools/src/hackrf_transfer",
+                                     "-d", transmitter, "-R", "-t", "/tmp/binary100",
                                      "-a", "0", "-x", tx_gain, "-i", if_freq,
                                      "-o", lo_freq, "-m", image_reject],
                                      stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
     time.sleep(0.5)
-    sweep = subprocess.Popen(["hackrf_sweep", "-d", receiver, "-1", "-w", "333333",
+    sweep = subprocess.Popen(["host/build/hackrf-tools/src/hackrf_sweep",
+                              "-d", receiver, "-1", "-w", "333333",
                               "-f", sweep_range, "-a", "0", "-l", rx_lna_gain,
                               "-g", rx_vga_gain],
                              stdout=subprocess.PIPE, stderr=subprocess.PIPE)
