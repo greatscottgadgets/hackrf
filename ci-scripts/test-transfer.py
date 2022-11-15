@@ -41,7 +41,7 @@ def capture_signal(sweep_range, tx_gain, rx_lna_gain, rx_vga_gain, freq=None,
                                      "-o", lo_freq, "-m", image_reject],
                                      stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
-    time.sleep(0.5)
+    time.sleep(1)
     sweep = subprocess.Popen(["host/build/hackrf-tools/src/hackrf_sweep",
                               "-d", receiver, "-1", "-w", "333333",
                               "-f", sweep_range, "-a", "0", "-l", rx_lna_gain,
@@ -64,6 +64,7 @@ def capture_signal(sweep_range, tx_gain, rx_lna_gain, rx_vga_gain, freq=None,
 
 
 def check_signal(freq, bins):
+    print("bins: ", bins)
     signal = bins.pop(1)
     signal_threshold = -25
     noise_threshold = signal - 3
