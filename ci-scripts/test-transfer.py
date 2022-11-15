@@ -15,8 +15,8 @@ def write_bytes():
 
 def capture_signal(sweep_range, tx_gain, rx_lna_gain, rx_vga_gain, freq=None,
                    if_freq=None, lo_freq=None, image_reject=0):
-    EUT     = "0000000000000000325866e629a25623"
-    TESTER  = "0000000000000000325866e629822923"
+    EUT     = "RunningFromRAM"
+    TESTER  = "0000000000000000325866e629a25623"
     test_type = sys.argv[1]
 
     if test_type == "tx":
