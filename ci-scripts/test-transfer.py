@@ -29,6 +29,7 @@ def capture_signal(sweep_range, tx_gain, rx_lna_gain, rx_vga_gain, freq=None,
         print(f"Invalid command-line argument: {test_type}. Use tx or rx")
         sys.exit(1)
 
+    time.sleep(1)
     if if_freq == None:
         transmit = subprocess.Popen(["host/build/hackrf-tools/src/hackrf_transfer",
                                      "-d", transmitter, "-R", "-t", "/tmp/binary100",
