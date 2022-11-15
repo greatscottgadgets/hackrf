@@ -29,8 +29,8 @@ def capture_signal(sweep_range, tx_gain, rx_lna_gain, rx_vga_gain, freq=None,
         print(f"Invalid command-line argument: {test_type}. Use tx or rx")
         sys.exit(1)
 
-    tester_hub_on = subprocess.Popen(["usbhub" "--disable-i2c" "--hub" "624C"
-                                      "power" "state" "--port" "2" "--reset"])
+    tester_hub_on = subprocess.Popen(["usbhub", "--disable-i2c", "--hub", "624C",
+                                      "power", "state", "--port", "2", "--reset"])
     tester_hub_on.wait()
 
     if if_freq == None:
