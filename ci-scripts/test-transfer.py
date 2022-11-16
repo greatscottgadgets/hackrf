@@ -65,7 +65,6 @@ def capture_signal(sweep_range, tx_gain, rx_lna_gain, rx_vga_gain, freq=None,
 
 
 def check_signal(freq, bins):
-    print("bins: ", bins)
     signal = bins.pop(1)
     signal_threshold = -25
     noise_threshold = signal - 3
@@ -74,17 +73,25 @@ def check_signal(freq, bins):
 
     for bin in bins:
         if bin > max_power:
-            print(f"Exceeded maximum power at {freq} MHz")
+            print(f"Non-target bin power exceeded max power threshold at {freq} MHz")
+            print(f"bin value: {bin}")
+            print(f"max power: {max_power}")
             result = 1
         elif bin > noise_threshold:
-            print(f"Non-target bin power too high at {freq} MHz")
+            print(f"Non-target bin power exceed nouse threshold at {freq} MHz")
+            print(f"bin value: {bin}")
+            print(f"noise threshold: {noise_threshold}")
             result = 1
 
     if signal < signal_threshold:
         print(f"Signal not strong enough at {freq} MHz")
+        print(f"signal: {signal}")
+        print(f"signal threshold: {signal_threshold}")
         result = 1
     elif signal > max_power:
         print(f"Received signal exceeded maximum power at {freq} MHz")
+        print(f"signal: {signal}")
+        print(f"max power: {max_power}")
         result = 1
 
     return result
