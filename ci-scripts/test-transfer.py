@@ -49,6 +49,7 @@ def capture_signal(sweep_range, tx_gain, rx_lna_gain, rx_vga_gain, freq=None,
                               "-g", rx_vga_gain],
                              stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     sweep.wait()
+    time.sleep(1)
     transmit.terminate()
     transmit.wait()
 
@@ -104,7 +105,11 @@ def main():
     tester_hub_on.wait()
     time.sleep(1)
     clock_on = subprocess.Popen(["host/build/hackrf-tools/src/hackrf_clock", "-o", "1", "-d", "RunningFromRAM"])
-    clock_on = subprocess.Popen(["host/build/hackrf-tools/src/hackrf_clock", "-o", "0", "-d", "0000000000000000325866e629a25623"])
+    clock_off = subprocess.Popen(["host/build/hackrf-tools/src/hackrf_clock", "-o", "0", "-d", "0000000000000000325866e629a25623"])
+
+    clock_on.wait()
+    clock_off.wait()
+    time.sleep(1)
 
     _2665_5Mhz_data = capture_signal(sweep_range="2665:2685", tx_gain="26", rx_lna_gain="16",
                                      rx_vga_gain="16", freq="2664250000")
