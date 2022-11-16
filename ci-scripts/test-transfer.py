@@ -102,6 +102,9 @@ def main():
     tester_hub_on = subprocess.Popen(["usbhub", "--disable-i2c", "--hub", "624C",
                                       "power", "state", "--port", "2", "--reset"])
     tester_hub_on.wait()
+    time.sleep(1)
+    clock_on = subprocess.Popen(["hackrf_clock", "-o", "1", "-d", "RunningFromRAM"])
+    clock_on = subprocess.Popen(["hackrf_clock", "-o", "0", "-d", "0000000000000000325866e629a25623"])
 
     _2665_5Mhz_data = capture_signal(sweep_range="2665:2685", tx_gain="26", rx_lna_gain="16",
                                      rx_vga_gain="16", freq="2664250000")
