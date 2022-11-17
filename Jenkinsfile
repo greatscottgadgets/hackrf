@@ -1,5 +1,5 @@
 pipeline {
-    agent { 
+    agent {
         dockerfile {
             args '--group-add=46 --device-cgroup-rule="c 189:* rmw" -v /dev/bus/usb:/dev/bus/usb'
         }
@@ -25,6 +25,8 @@ pipeline {
                     sh './ci-scripts/test-firmware-program.sh'
                 }
                 sh './ci-scripts/test-firmware-flash.sh'
+                sh 'python3 ci-scripts/test-transfer.py tx'
+                sh 'python3 ci-scripts/test-transfer.py rx'
             }
         }
     }
