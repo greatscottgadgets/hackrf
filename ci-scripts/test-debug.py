@@ -7,7 +7,7 @@ EUT         = "RunningFromRAM"
 
 
 def check_debug(target, register, reg_val):
-    hackrf_debug = subprocess.run(["hackrf_debug",
+    hackrf_debug = subprocess.run(["host/build/hackrf-tools/src/hackrf_debug",
                                    f"--{target}", "--register", register,
                                    "--read", "--device", EUT],
                                   capture_output=True, encoding="UTF-8")
