@@ -5,6 +5,7 @@ import sys
 
 EUT     = "RunningFromRAM"
 TESTER  = "0000000000000000325866e629a25623"
+PASS, FAIL = range(2)
 
 
 def write_bytes():
@@ -66,11 +67,11 @@ def check_signal(freq, bins):
     signal = bins.pop(1)
     signal_threshold = -25
     max_power = -10
-    result = 0
+    result = PASS
 
     if signal < signal_threshold:
         print(f"Signal not strong enough at {freq} MHz")
-        result = 1
+        result = FAIL
     elif signal > max_power:
         print(f"Received signal exceeded maximum power at {freq} MHz")
         result = 1
@@ -78,7 +79,7 @@ def check_signal(freq, bins):
     for bin in bins:
         if bin > max_power or bin > signal:
             print(f"Non-target bin power exceeded max power threshold at {freq} MHz")
-            result = 1
+            result = FAIL
             break
 
     return result
@@ -115,10 +116,10 @@ def main():
     hp_result   = check_signal(5999.5, _5999_5Mhz_data)
     results     = [lp1_result, lp2_result, bp_result, hp_result]
 
-    if 1 in results:
-        sys.exit(1)
+    if FAIL in results:
+        sys.exit(FAIL)
     else:
-        sys.exit(0)
+        sys.exit(PASS)
 
 
 if __name__ == "__main__":
