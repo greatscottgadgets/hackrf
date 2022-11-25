@@ -1,24 +1,33 @@
 /*
- * Copyright 2018-2022 Great Scott Gadgets <info@greatscottgadgets.com>
- * Copyright 2018 Jared Boone
- *
- * This file is part of HackRF.
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2, or (at your option)
- * any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; see the file COPYING.  If not, write to
- * the Free Software Foundation, Inc., 51 Franklin Street,
- * Boston, MA 02110-1301, USA.
- */
+	* Copyright 2018-2022 Great Scott Gadgets <info@greatscottgadgets.com>
+	* Copyright 2018 Jared Boone
+	*
+	* This file is part of HackRF.
+	*
+	* This program is free software; you can redistribute it and/or modify
+	* it under the terms of the GNU General Public License as published by
+	* the Free Software Foundation; either version 2, or (at your option)
+	* any later version.
+	*
+	* This program is distributed in the hope that it will be useful,
+	* but WITHOUT ANY WARRANTY; without even the implied warranty of
+	* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	* GNU General Public License for more details.
+	*
+	* You should have received a copy of the GNU General Public License
+	* along with this program; see the file COPYING.  If not, write to
+	* the Free Software Foundation, Inc., 51 Franklin Street,
+	* Boston, MA 02110-1301, USA.
+*/
+
+// AD  03 nov 2022    
+// more Colors    
+// RED if transmission
+// Show BIAS  on and off
+// Show Receive RX (GREEN), Transmit TX ( RED), or OFF, filter
+// Show sampling rate
+// Show AMP ON/OFF LNA/IF, BandWidth, VGA
+// Show release    v 1.1 right now
 
 #include "ui_portapack.h"
 
@@ -145,8 +154,7 @@ static const uint8_t font_fixed_8x16_glyph_data[] = {
 	0x10, 0x20, 0x10, 0x10, 0x10, 0x10, 0x10, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00,
 	0x00, 0x00, 0x00, 0x00, 0x8e, 0x71, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
-static const ui_font_t font_fixed_8x16 =
-	{{8, 16}, font_fixed_8x16_glyph_data, 0x20, 95, (8 * 16 + 7U) >> 3};
+static const ui_font_t font_fixed_8x16 ={{8, 16}, font_fixed_8x16_glyph_data, 0x20, 95, (8 * 16 + 7U) >> 3};
 
 static const uint8_t font_fixed_24x19_glyph_data[] = {
 	0xe0, 0xff, 0x07, 0xf8, 0xff, 0x1f, 0xf8, 0xff, 0x1f, 0x3c, 0x00, 0x3c, 0x1c,
@@ -192,11 +200,9 @@ static const uint8_t font_fixed_24x19_glyph_data[] = {
 	0xff, 0x1f, 0x3c, 0x00, 0x3c, 0x1c, 0x00, 0x38, 0x1c, 0x00, 0x38, 0x1c, 0x00,
 	0x38, 0x1c, 0x00, 0x38, 0x3c, 0x00, 0x3c, 0xf8, 0xff, 0x3f, 0xf8, 0xff, 0x3f,
 	0xe0, 0xff, 0x3b, 0x00, 0x00, 0x38, 0x1c, 0x00, 0x38, 0x1c, 0x00, 0x38, 0x3c,
-	0x00, 0x3c, 0xf8, 0xff, 0x1f, 0xf8, 0xff, 0x1f, 0xe0, 0xff, 0x07,
-};
+	0x00, 0x3c, 0xf8, 0xff, 0x1f, 0xf8, 0xff, 0x1f, 0xe0, 0xff, 0x07};
 
-static const ui_font_t font_fixed_24x19 =
-	{{24, 19}, font_fixed_24x19_glyph_data, 0x30, 10, (24 * 19 + 7U) >> 3};
+static const ui_font_t font_fixed_24x19 ={{24, 19}, font_fixed_24x19_glyph_data, 0x30, 10, (24 * 19 + 7U) >> 3};
 
 static const uint8_t font_fixed_16x14_glyph_data[] = {
 	0xf8, 0x1f, 0xfc, 0x3f, 0x0e, 0x70, 0x06, 0x60, 0x06, 0x60, 0x06, 0x60, 0x06,
@@ -220,11 +226,9 @@ static const uint8_t font_fixed_16x14_glyph_data[] = {
 	0x0e, 0x70, 0xfc, 0x3f, 0xfc, 0x3f, 0x0e, 0x70, 0x06, 0x60, 0x06, 0x60, 0x0e,
 	0x70, 0xfc, 0x3f, 0xf8, 0x1f, 0xf8, 0x1f, 0xfc, 0x3f, 0x0e, 0x70, 0x06, 0x60,
 	0x06, 0x60, 0x06, 0x60, 0x0e, 0x70, 0xfc, 0x7f, 0xf8, 0x6f, 0x00, 0x60, 0x06,
-	0x60, 0x0e, 0x70, 0xfc, 0x3f, 0xf8, 0x1f,
-};
+0x60, 0x0e, 0x70, 0xfc, 0x3f, 0xf8, 0x1f,};
 
-static const ui_font_t font_fixed_16x14 =
-	{{16, 14}, font_fixed_16x14_glyph_data, 0x30, 10, (16 * 14 + 7U) >> 3};
+static const ui_font_t font_fixed_16x14 ={{16, 14}, font_fixed_16x14_glyph_data, 0x30, 10, (16 * 14 + 7U) >> 3};
 
 static const uint8_t bitmap_amp_rx_data[] = {
 	0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x06, 0x00, 0x60, 0x06, 0x00, 0x60,
@@ -286,15 +290,18 @@ static const uint8_t bitmap_mixer_data[] = {
 
 static const ui_bitmap_t bitmap_mixer = {{24, 24}, bitmap_mixer_data};
 
-static const uint8_t bitmap_oscillator_data[] = {
+/*
+	static const uint8_t bitmap_oscillator_data[] = {
 	0x00, 0x7e, 0x00, 0xc0, 0xff, 0x03, 0xe0, 0x81, 0x07, 0x70, 0x00, 0x0e,
 	0x38, 0x00, 0x1c, 0x1c, 0x00, 0x38, 0x0e, 0x03, 0x70, 0x86, 0x07, 0x60,
 	0xc6, 0x0f, 0x60, 0xc3, 0x0c, 0xc0, 0xe3, 0x1c, 0xc0, 0x63, 0x18, 0xc6,
 	0x63, 0x18, 0xc6, 0x03, 0x38, 0xc7, 0x03, 0x30, 0xc3, 0x06, 0xf0, 0x63,
 	0x06, 0xe0, 0x61, 0x0e, 0xc0, 0x70, 0x1c, 0x00, 0x38, 0x38, 0x00, 0x1c,
 	0x70, 0x00, 0x0e, 0xe0, 0x81, 0x07, 0xc0, 0xff, 0x03, 0x00, 0x7e, 0x00};
+	
+	static const ui_bitmap_t bitmap_oscillator = {{24, 24}, bitmap_oscillator_data};
+*/
 
-static const ui_bitmap_t bitmap_oscillator = {{24, 24}, bitmap_oscillator_data};
 
 static const uint8_t bitmap_wire_8_data[] = {0xff, 0xff};
 
@@ -336,42 +343,43 @@ static const uint8_t bitmap_waves_tx_data[] = {
 
 static const ui_bitmap_t bitmap_waves_tx = {{16, 24}, bitmap_waves_tx_data};
 
-__attribute__((unused)) static ui_color_t portapack_color_rgb(
+/*  
+	__attribute__((unused)) static ui_color_t portapack_color_rgb(
 	const uint_fast8_t r,
 	const uint_fast8_t g,
 	const uint_fast8_t b)
-{
+	{
 	const ui_color_t result = {
-		.v = ((r & 0xf8) << 8) | ((g & 0xfc) << 3) | ((b & 0xf8) >> 3)};
+	.v = ((r & 0xf8) << 8) | ((g & 0xfc) << 3) | ((b & 0xf8) >> 3)};
 	return result;
-}
+	}
+*/
+#define BLUE	0x2f
+#define WHITE	0xffff
+#define RED		0xf800
+#define GREEN	0x7e0 				 
+#define offset  60    // for graph  position and comment/values at graph's right
 
-static const ui_color_t color_background = {0x001f};
-static const ui_color_t color_foreground = {0xffff};
+static  ui_color_t color_background = {BLUE};	
+static  ui_color_t color_foreground = {WHITE};   				   
+//static const ui_color_t color_background = {0x001f};
+//static const ui_color_t color_foreground = {0xffff};
 
-static ui_point_t portapack_lcd_draw_int(
-	const ui_point_t point,
-	uint64_t value,
-	size_t field_width)
+static ui_point_t portapack_lcd_draw_int(const ui_point_t point,uint64_t value,	size_t field_width)
 {
 	const ui_point_t point_done = {
 		.x = point.x + font_fixed_8x16.glyph_size.width * field_width,
-		.y = point.y};
+	.y = point.y};
 	ui_point_t point_next = point_done;
-
+	
 	for (size_t i = 0; i < field_width; i++) {
 		const char c = ((i == 0) || (value != 0)) ? ('0' + value % 10) : ' ';
 		value /= 10;
-
+		
 		const ui_bitmap_t glyph = portapack_font_glyph(&font_fixed_8x16, c);
 		point_next.x -= glyph.size.width;
-		portapack_draw_bitmap(
-			point_next,
-			glyph,
-			color_foreground,
-			color_background);
+		portapack_draw_bitmap(point_next,glyph,color_foreground,color_background);
 	}
-
 	return point_done;
 }
 
@@ -383,7 +391,6 @@ static ui_point_t portapack_lcd_draw_string(ui_point_t point, const char* s)
 		portapack_draw_bitmap(point, glyph, color_foreground, color_background);
 		point.x += glyph.size.width;
 	}
-
 	return point;
 }
 
@@ -393,25 +400,40 @@ typedef struct draw_list_t {
 } draw_list_t;
 
 static draw_list_t radio_draw_list[] = {
-	{&bitmap_antenna, {32, 64}},
-	{&bitmap_wire_8, {43, 88}},
-	{&bitmap_wire_24, {32, 96}},
-	{&bitmap_wire_8, {43, 120}},
-	{&bitmap_filter_hp, {32, 128}},
-	{&bitmap_wire_8, {43, 152}},
-	{&bitmap_mixer, {32, 160}},
-	{&bitmap_wire_8, {43, 184}},
-	{&bitmap_amp_rx, {32, 192}},
-	{&bitmap_wire_8, {43, 216}},
-	{&bitmap_mixer, {32, 224}},
-	{&bitmap_wire_8, {43, 248}},
-	{&bitmap_filter_lp, {32, 256}},
-	{&bitmap_wire_8, {43, 280}},
-	{&bitmap_amp_rx, {32, 288}},
-	{&bitmap_wire_8, {43, 312}},
-	{&bitmap_oscillator, {208, 288}},
-	{&bitmap_blank_24, {60, 60}},
+	{ &bitmap_antenna,    {  32+offset,  64 } }, //0
+	{ &bitmap_wire_8,     {  43+offset,  88 } },//1
+	{ &bitmap_wire_24,    {  32+offset,  96 } },//2
+	{ &bitmap_wire_8,     {  43+offset, 120 } },//3
+	{ &bitmap_filter_hp,  {  32+offset, 128 } },//4
+	{ &bitmap_wire_8,     {  43+offset, 152 } },//5
+	{ &bitmap_mixer,      {  32+offset, 160 } },//6
+	{ &bitmap_wire_8,     {  43+offset, 184 } },//7
+	{ &bitmap_amp_rx,     {  32+offset, 192 } },//8
+	{ &bitmap_wire_8,     {  43+offset, 216 } },//9
+	{ &bitmap_mixer,      {  32+offset, 224 } },//10
+	{ &bitmap_wire_8,     {  43+offset, 248 } },//011
+	{ &bitmap_filter_lp,  {  32+offset, 256 } },//012
+	{ &bitmap_wire_8,     {  43+offset, 280 } },//013
+	{ &bitmap_amp_rx,     {  32+offset, 288 } },//014
+	{ &bitmap_wire_8,     {  43+offset, 312 } },//015
+	
+	{ &bitmap_blank_24,   {  60+offset,  60 } },//016
 };
+
+ui_point_t	PRINT_FREQ		=	{ 220  , 4 };
+ui_point_t	PRINT_SAMPLE 	=  	{  0,  36 } ;  
+ui_point_t	PRINT_TXRX 		=  	{  0,  64} ;
+ui_point_t	PRINT_VERSION 	=  	{ 200, 305 };
+ui_point_t	PRINT_LNA 		= 	{ 0, 196};
+ui_point_t	PRINT_BW		= 	{ 0, 260 };
+ui_point_t	PRINT_VGA 		=	{ 0, 292 };
+ui_point_t	PRINT_CLOCK 	= 	{ 105 + offset, 80 };
+ui_point_t	PRINT_BIAS 		=	{ 105 + offset, 64 };
+ui_point_t	PRINT_RF_AMP	=	{ 0,100 };
+ui_point_t	PRINT_FILTER	=	{ 0  , 132 };   
+ui_point_t	PRINT_IF		=	{ 0  , 164 };
+ui_point_t	PRINT_IF_F 		=	{ 105 + offset, 164 };
+
 
 typedef enum {
 	RADIO_DRAW_LIST_ITEM_ANTENNA = 0,
@@ -422,45 +444,39 @@ typedef enum {
 	RADIO_DRAW_LIST_ITEM_BB_MIXER = 10,
 	RADIO_DRAW_LIST_ITEM_BB_FILTER = 12,
 	RADIO_DRAW_LIST_ITEM_BB_VGA_AMP = 14,
-	RADIO_DRAW_LIST_ITEM_CLOCK = 16,
-	RADIO_DRAW_LIST_ITEM_WAVES = 17,
+	RADIO_DRAW_LIST_ITEM_WAVES = 16,
 } radio_draw_list_item_t;
 
 static ui_point_t portapack_ui_label_point(const radio_draw_list_item_t item)
 {
-	const uint8_t VALUES_X = 72;
+	const uint8_t VALUES_X = 72 + offset;
 	ui_point_t point = {VALUES_X, radio_draw_list[item].point.y + 4};
 	return point;
 }
 
-static ui_point_t portapack_ui_draw_string(
-	const radio_draw_list_item_t item,
-	const char* s)
+static ui_point_t portapack_ui_draw_string(	const radio_draw_list_item_t item,	const char* s)
 {
 	return portapack_lcd_draw_string(portapack_ui_label_point(item), s);
 }
 
-static ui_point_t portapack_ui_draw_db(
-	const radio_draw_list_item_t item,
-	const uint32_t db)
+static ui_point_t portapack_ui_draw_db( const radio_draw_list_item_t item, const uint32_t db)
 {
 	ui_point_t point = portapack_ui_label_point(item);
 	point = portapack_lcd_draw_int(point, db, 2);
 	return portapack_lcd_draw_string(point, " dB");
 }
 
-static ui_point_t portapack_ui_draw_bw_mhz(
-	const radio_draw_list_item_t item,
-	const uint64_t hz)
+static ui_point_t portapack_ui_draw_bw_mhz( const radio_draw_list_item_t item, const uint64_t hz)
 {
 	const uint32_t lsd = 1000000 / 100;
 	const uint32_t round_offset = lsd / 2;
-
+	
 	const uint64_t hz_offset = hz + round_offset;
 	const uint32_t mhz = hz_offset / 1000000;
 	const uint32_t frac = hz_offset / lsd;
-
+	
 	ui_point_t point = portapack_ui_label_point(item);
+	
 	point = portapack_lcd_draw_int(point, mhz, 2);
 	point = portapack_lcd_draw_string(point, ".");
 	point = portapack_lcd_draw_int(point, frac, 2);
@@ -469,16 +485,10 @@ static ui_point_t portapack_ui_draw_bw_mhz(
 
 static void portapack_draw_radio_path_item(const radio_draw_list_item_t item)
 {
-	portapack_draw_bitmap(
-		radio_draw_list[item].point,
-		*radio_draw_list[item].bitmap,
-		color_foreground,
-		color_background);
+	portapack_draw_bitmap(radio_draw_list[item].point,*radio_draw_list[item].bitmap,color_foreground,color_background);
 }
 
-static void portapack_radio_path_item_update(
-	const radio_draw_list_item_t item,
-	const ui_bitmap_t* const bitmap)
+static void portapack_radio_path_item_update( const radio_draw_list_item_t item, const ui_bitmap_t* const bitmap)
 {
 	if (bitmap != radio_draw_list[item].bitmap) {
 		radio_draw_list[item].bitmap = bitmap;
@@ -491,9 +501,7 @@ static bool portapack_lna_on = false;
 
 static void portapack_radio_path_redraw()
 {
-	for (size_t i = 0; i < ARRAY_SIZEOF(radio_draw_list); i++) {
-		portapack_draw_radio_path_item(i);
-	}
+	for (size_t i = 0; i < ARRAY_SIZEOF(radio_draw_list); i++) {portapack_draw_radio_path_item(i);	}
 }
 
 static void portapack_ui_init(void)
@@ -501,20 +509,26 @@ static void portapack_ui_init(void)
 	portapack_clear_display(color_background);
 	portapack_backlight(true);
 	portapack_radio_path_redraw();
+	portapack_lcd_draw_string(PRINT_VERSION, "v 1.1");
+	portapack_lcd_draw_string(PRINT_IF, "IF Freq");
+	portapack_lcd_draw_string(PRINT_LNA, "LNA/IF");
+	portapack_lcd_draw_string(PRINT_BW, "BandWidth");
+	portapack_lcd_draw_string(PRINT_VGA, "VGA");
 }
 
-static void portapack_ui_deinit(void)
-{
+/*static void portapack_ui_deinit(void)
+	{
 	portapack_clear_display(color_background);
 	portapack_backlight(false);
-}
-
+	}
+*/
 static void portapack_ui_set_frequency(uint64_t frequency)
 {
 	static char last[10] = "          ";
-
-	ui_point_t point = {240 - 20, 16};
-
+	
+	ui_point_t point = PRINT_FREQ;
+	//ui_point_t point = {240 - 20, 16};
+	
 	uint64_t value = frequency;
 	char s[10];
 	for (int i = 0; i < 10; i++) {
@@ -522,30 +536,23 @@ static void portapack_ui_set_frequency(uint64_t frequency)
 		s[i] = ((i >= 6) && (value == 0)) ? ' ' : c;
 		value /= 10;
 	}
-
+	
 	for (int i = 0; i < 10; i++) {
 		const char c = s[i];
-
-		const ui_font_t* const font =
-			(i > 5) ? &font_fixed_24x19 : &font_fixed_16x14;
+		
+		const ui_font_t* const font = (i > 5) ? &font_fixed_24x19 : &font_fixed_16x14;
 		point.x -= font->glyph_size.width;
-		if ((i == 3) || (i == 6) || (i == 9)) {
-			point.x -= 4;
-		}
-
+		if ((i == 3) || (i == 6) || (i == 9)) {	point.x -= 4;}
+		
 		if (c != last[i]) {
 			const ui_bitmap_t glyph = portapack_font_glyph(font, c);
-
+			
 			if (c == ' ') {
 				/* Blank out leading zeros. */
 				const ui_rect_t rect = {point, glyph.size};
 				portapack_fill_rectangle(rect, color_background);
-			} else {
-				portapack_draw_bitmap(
-					point,
-					glyph,
-					color_foreground,
-					color_background);
+				} else {
+				portapack_draw_bitmap( point,glyph,color_foreground,color_background);
 			}
 			last[i] = c;
 		}
@@ -554,56 +561,64 @@ static void portapack_ui_set_frequency(uint64_t frequency)
 
 static void portapack_ui_set_sample_rate(uint32_t sample_rate)
 {
-#if 0
-	ui_point_t point = { VALUES_X, 320 - 1 * 16 };
-	portapack_lcd_draw_int(point, sample_rate, 8);
-#else
-	(void) sample_rate;
-#endif
+	ui_point_t point ;
+	
+	point = portapack_lcd_draw_string(PRINT_SAMPLE, "Sampling: ");
+	color_foreground.v =  RED;
+	point = portapack_lcd_draw_int(point, sample_rate/1000000, 2);
+	point = portapack_lcd_draw_string(point, ".");
+	point = portapack_lcd_draw_int(point, sample_rate/10000, 2);
+	portapack_lcd_draw_string(point, " M/s");
+	color_foreground.v =  WHITE ;
+	(void)sample_rate;
 }
 
 static void portapack_ui_set_direction(const rf_path_direction_t direction)
 {
 	switch (direction) {
-	case RF_PATH_DIRECTION_TX:
-		portapack_radio_path_item_update(
-			RADIO_DRAW_LIST_ITEM_WAVES,
-			&bitmap_waves_tx);
-		portapack_radio_path_item_update(
-			RADIO_DRAW_LIST_ITEM_RF_AMP,
-			portapack_lna_on ? &bitmap_amp_tx : &bitmap_wire_24);
-		portapack_radio_path_item_update(
-			RADIO_DRAW_LIST_ITEM_BB_LNA_AMP,
-			&bitmap_amp_tx);
-		portapack_radio_path_item_update(
-			RADIO_DRAW_LIST_ITEM_BB_VGA_AMP,
-			&bitmap_wire_24);
-		portapack_ui_draw_string(RADIO_DRAW_LIST_ITEM_BB_VGA_AMP, "     ");
+		case RF_PATH_DIRECTION_TX:
+		color_foreground.v =  RED;
+		portapack_radio_path_item_update(RADIO_DRAW_LIST_ITEM_WAVES, &bitmap_waves_tx);
+		portapack_radio_path_item_update(RADIO_DRAW_LIST_ITEM_RF_AMP, portapack_lna_on ? &bitmap_amp_tx : &bitmap_wire_24);
+		portapack_radio_path_item_update(RADIO_DRAW_LIST_ITEM_BB_LNA_AMP, &bitmap_amp_tx);
+		portapack_lcd_draw_string(PRINT_TXRX, "TX ");
+		color_foreground.v =  GREEN;
+		portapack_radio_path_item_update(RADIO_DRAW_LIST_ITEM_BB_VGA_AMP, &bitmap_wire_24);
+		portapack_ui_draw_string(RADIO_DRAW_LIST_ITEM_BB_VGA_AMP, "     ");	
+		color_foreground.v =  WHITE ;
 		break;
-
-	case RF_PATH_DIRECTION_RX:
-		portapack_radio_path_item_update(
-			RADIO_DRAW_LIST_ITEM_WAVES,
-			&bitmap_waves_rx);
-		portapack_radio_path_item_update(
-			RADIO_DRAW_LIST_ITEM_RF_AMP,
-			portapack_lna_on ? &bitmap_amp_rx : &bitmap_wire_24);
-		portapack_radio_path_item_update(
-			RADIO_DRAW_LIST_ITEM_BB_LNA_AMP,
-			&bitmap_amp_rx);
-		portapack_radio_path_item_update(
-			RADIO_DRAW_LIST_ITEM_BB_VGA_AMP,
-			&bitmap_amp_rx);
+		
+		case RF_PATH_DIRECTION_RX:
+		color_foreground.v =  GREEN ;
+		portapack_radio_path_item_update(RADIO_DRAW_LIST_ITEM_WAVES, &bitmap_waves_rx);
+		portapack_radio_path_item_update(RADIO_DRAW_LIST_ITEM_RF_AMP, portapack_lna_on ? &bitmap_amp_rx : &bitmap_wire_24);
+		portapack_radio_path_item_update(RADIO_DRAW_LIST_ITEM_BB_LNA_AMP, &bitmap_amp_rx);
+		portapack_radio_path_item_update(RADIO_DRAW_LIST_ITEM_BB_VGA_AMP, &bitmap_amp_rx);
+		portapack_lcd_draw_string(PRINT_TXRX, "RX ");
+		color_foreground.v =  WHITE ;
 		break;
-
-	case RF_PATH_DIRECTION_OFF:
-	default:
-		portapack_radio_path_item_update(
-			RADIO_DRAW_LIST_ITEM_WAVES,
-			&bitmap_blank_24);
+		case RF_PATH_DIRECTION_OFF:
+		default:	
+		color_foreground.v =  WHITE ;
+		portapack_radio_path_item_update(RADIO_DRAW_LIST_ITEM_WAVES, &bitmap_blank_24);
+		portapack_radio_path_item_update(RADIO_DRAW_LIST_ITEM_BB_LNA_AMP, &bitmap_amp_rx);
+		portapack_lcd_draw_string(PRINT_TXRX, "OFF");
+		portapack_lcd_draw_string(PRINT_SAMPLE, "                   ");
+		portapack_lcd_draw_string( PRINT_RF_AMP, "AMP OFF");
+		portapack_ui_draw_string(RADIO_DRAW_LIST_ITEM_RF_AMP, "     ");
+		portapack_lcd_draw_string(PRINT_CLOCK, "          ");  
+		portapack_lcd_draw_string(PRINT_FILTER, "           ");
+		
+		ui_point_t point ;
+		point.x = 72 + offset;
+		point.y = radio_draw_list[RADIO_DRAW_LIST_ITEM_BB_LNA_AMP].point.y + 4;
+		portapack_lcd_draw_string(point, "     ");
+		point.y = radio_draw_list[RADIO_DRAW_LIST_ITEM_BB_VGA_AMP].point.y + 4 ;
+		portapack_lcd_draw_string(point, "     ");
+		point.y = radio_draw_list[RADIO_DRAW_LIST_ITEM_BB_FILTER].point.y + 4 ;
+		portapack_lcd_draw_string(point, "         ");												 
 		break;
 	}
-
 	portapack_direction = direction;
 }
 
@@ -615,14 +630,14 @@ static void portapack_ui_set_filter_bw(uint32_t bandwidth)
 static void portapack_ui_set_lna_power(bool lna_on)
 {
 	portapack_lna_on = lna_on;
-	portapack_radio_path_item_update(
-		RADIO_DRAW_LIST_ITEM_RF_AMP,
-		lna_on ?
-			((portapack_direction == RF_PATH_DIRECTION_TX) ? &bitmap_amp_tx :
-									 &bitmap_amp_rx) :
-			&bitmap_wire_24);
+	portapack_radio_path_item_update(RADIO_DRAW_LIST_ITEM_RF_AMP,lna_on ?
+		((portapack_direction == RF_PATH_DIRECTION_TX) ? &bitmap_amp_tx :
+		&bitmap_amp_rx) :
+	&bitmap_wire_24);
 	const char* const label = lna_on ? "14 dB" : "     ";
 	portapack_ui_draw_string(RADIO_DRAW_LIST_ITEM_RF_AMP, label);
+	const char* const  label1 = lna_on ? "AMP ON " : "AMP OFF";  // RX GAIN
+	portapack_lcd_draw_string( PRINT_RF_AMP, label1);																											  
 }
 
 static void portapack_ui_set_bb_lna_gain(const uint32_t gain_db)
@@ -638,88 +653,79 @@ static void portapack_ui_set_bb_vga_gain(const uint32_t gain_db)
 static void portapack_ui_set_bb_tx_vga_gain(const uint32_t gain_db)
 {
 	/* TODO: This function (and code throughout the HackRF project) is mis-labeled?
-	 * According to the MAX2837 datasheet diagram, there is no baseband gain in the TX path.
-	 * This gets called when the TX IF gain is changed.
-	 */
+		* According to the MAX2837 datasheet diagram, there is no baseband gain in the TX path.
+		* This gets called when the TX IF gain is changed.
+	*/
 	portapack_ui_draw_db(RADIO_DRAW_LIST_ITEM_BB_LNA_AMP, gain_db);
 }
 
 static void portapack_ui_set_first_if_frequency(const uint64_t frequency)
 {
+	portapack_lcd_draw_int(PRINT_IF_F, frequency, 10);   // to be tested											
 	(void) frequency;
 }
 
 static void portapack_ui_set_filter(const rf_path_filter_t filter)
 {
-	portapack_radio_path_item_update(
-		RADIO_DRAW_LIST_ITEM_RF_MIXER,
-		(filter == RF_PATH_FILTER_BYPASS) ? &bitmap_wire_24 : &bitmap_mixer);
-
+	portapack_radio_path_item_update( RADIO_DRAW_LIST_ITEM_RF_MIXER, (filter == RF_PATH_FILTER_BYPASS) ? &bitmap_wire_24 : &bitmap_mixer);
+	
 	switch (filter) {
-	default:
-		portapack_radio_path_item_update(
-			RADIO_DRAW_LIST_ITEM_IMAGE_FILTER,
-			&bitmap_wire_24);
+		default:
+		portapack_radio_path_item_update(RADIO_DRAW_LIST_ITEM_IMAGE_FILTER,	&bitmap_wire_24);
+		portapack_lcd_draw_string(PRINT_FILTER, "No Filter  ");
 		break;
-
-	case RF_PATH_FILTER_LOW_PASS:
-		portapack_radio_path_item_update(
-			RADIO_DRAW_LIST_ITEM_IMAGE_FILTER,
-			&bitmap_filter_lp);
+		
+		case RF_PATH_FILTER_LOW_PASS:
+		portapack_radio_path_item_update(RADIO_DRAW_LIST_ITEM_IMAGE_FILTER,&bitmap_filter_lp);
+		portapack_lcd_draw_string(PRINT_FILTER, "Low Filter ");
 		break;
-
-	case RF_PATH_FILTER_HIGH_PASS:
-		portapack_radio_path_item_update(
-			RADIO_DRAW_LIST_ITEM_IMAGE_FILTER,
-			&bitmap_filter_hp);
+		
+		case RF_PATH_FILTER_HIGH_PASS:
+		portapack_radio_path_item_update(RADIO_DRAW_LIST_ITEM_IMAGE_FILTER,&bitmap_filter_hp);
+		portapack_lcd_draw_string(PRINT_FILTER, "High Filter");
 		break;
 	}
 }
 
 static void portapack_ui_set_antenna_bias(bool antenna_bias)
 {
+	const char* const  label = antenna_bias ? "BIAS ON " : "BIAS OFF";
+	
+	if (antenna_bias == 1) {color_foreground.v =  RED;} else  	 {color_foreground.v =  GREEN ;}
+	portapack_lcd_draw_string(PRINT_BIAS, label);
+	color_foreground.v =  WHITE ;																   
 	(void) antenna_bias;
 }
 
 static void portapack_ui_set_clock_source(clock_source_t source)
 {
-	ui_point_t label_point = radio_draw_list[RADIO_DRAW_LIST_ITEM_CLOCK].point;
-	label_point.x -= 0;
-	label_point.y -= 16;
-
-	const char* s = "HRF";
-	switch (source) {
-	case CLOCK_SOURCE_EXTERNAL: {
-		s = "EXT";
-		break;
+	const char* s ;
+	ui_point_t point ;
+	
+	switch(source) {
+		case CLOCK_SOURCE_EXTERNAL:  { s = "EXT"; break; }
+		case CLOCK_SOURCE_PORTAPACK: { s = "PPK"; break; }
+		default:
+		case CLOCK_SOURCE_HACKRF:    { s = "HRF"; break; }
 	}
-	case CLOCK_SOURCE_PORTAPACK: {
-		s = "PPK";
-		break;
-	}
-	default:
-	case CLOCK_SOURCE_HACKRF: {
-		s = "HRF";
-		break;
-	}
-	}
-
-	portapack_lcd_draw_string(label_point, s);
+	point = portapack_lcd_draw_string(PRINT_CLOCK, "CLOCK ");
+	portapack_lcd_draw_string(point, s); 
 }
-
-static void portapack_ui_set_transceiver_mode(transceiver_mode_t mode)
-{
+/*	
+	static void portapack_ui_set_transceiver_mode(transceiver_mode_t mode)
+	{
 	(void) mode;
-}
-
-static bool portapack_ui_operacake_gpio_compatible(void)
-{
+	}
+	
+	static bool portapack_ui_operacake_gpio_compatible(void)
+	{
 	return false;
-}
+	}
+*/
 
 const hackrf_ui_t portapack_hackrf_ui = {
 	&portapack_ui_init,
-	&portapack_ui_deinit,
+	//&portapack_ui_deinit,
 	&portapack_ui_set_frequency,
 	&portapack_ui_set_sample_rate,
 	&portapack_ui_set_direction,
@@ -732,15 +738,15 @@ const hackrf_ui_t portapack_hackrf_ui = {
 	&portapack_ui_set_filter,
 	&portapack_ui_set_antenna_bias,
 	&portapack_ui_set_clock_source,
-	&portapack_ui_set_transceiver_mode,
-	&portapack_ui_operacake_gpio_compatible,
+	//	&portapack_ui_set_transceiver_mode,
+	//	&portapack_ui_operacake_gpio_compatible,
 };
 
 const hackrf_ui_t* portapack_hackrf_ui_init()
 {
 	if (portapack()) {
 		return &portapack_hackrf_ui;
-	} else {
+		} else {
 		return NULL;
 	}
 }
