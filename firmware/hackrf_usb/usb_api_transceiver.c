@@ -45,7 +45,7 @@
 #include "usb_endpoint.h"
 #include "usb_api_sweep.h"
 
-#define USB_TRANSFER_SIZE 0x4000
+#define USB_TRANSFER_SIZE 0x2000
 
 typedef struct {
 	uint32_t freq_mhz;
@@ -451,7 +451,8 @@ void tx_mode(uint32_t seq)
 			baseband_streaming_enable(&sgpio_config);
 			started = true;
 		}
-		if ((usb_count - m0_state.m0_count) <= USB_TRANSFER_SIZE) {
+		if ((usb_count - m0_state.m0_count) <=
+		    (USB_BULK_BUFFER_SIZE - USB_TRANSFER_SIZE)) {
 			usb_transfer_schedule_block(
 				&usb_endpoint_bulk_out,
 				&usb_bulk_buffer[usb_count & USB_BULK_BUFFER_MASK],
