@@ -566,7 +566,7 @@ checked_rollback:
 	beq idle                                        //      goto idle                       // 3
 
 	// Otherwise, roll back the state to ignore the current shortfall, then jump to idle.
-	prev .req r0
+	prev .req r1
 	ldr prev, [state, #PREV_LONGEST_SHORTFALL]      // prev = prev_longest_shortfall        // 2
 	str prev, [state, #LONGEST_SHORTFALL]           // state.longest_shortfall = prev       // 2
 	ldr prev, [state, #NUM_SHORTFALLS]              // prev = num_shortfalls                // 2
