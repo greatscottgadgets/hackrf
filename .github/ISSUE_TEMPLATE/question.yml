@@ -1,6 +1,5 @@
 name: Question  
 description: Ask a question not covered by current hackrf.rtfd.io documentation 
-title: "[Question]: "
 labels: ["question"]
 body:
   - type: markdown
