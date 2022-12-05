@@ -13,8 +13,8 @@ body:
     attributes: 
       label: Have you read the HackRF [troubleshooting documentation](https://hackrf.readthedocs.io/en/latest/troubleshooting.html)?
       options:
-        - "yes"
         - "no"
+        - "yes"        
     validations:
       required: true
   - type: textarea
