@@ -134,7 +134,7 @@ static struct gpio_t gpio_cpld_pp_tdo       = GPIO(1,  8);
 
 /* other CPLD interface GPIO pins */
 static struct gpio_t gpio_hw_sync_enable    = GPIO(5, 12);
-static struct gpio_t gpio_rx_q_invert       = GPIO(0, 13);
+static struct gpio_t gpio_q_invert          = GPIO(0, 13);
 
 /* HackRF One r9 */
 #ifdef HACKRF_ONE
@@ -254,7 +254,7 @@ w25q80bv_driver_t spi_flash = {
 };
 
 sgpio_config_t sgpio_config = {
-	.gpio_rx_q_invert = &gpio_rx_q_invert,
+	.gpio_q_invert = &gpio_q_invert,
 	.gpio_hw_sync_enable = &gpio_hw_sync_enable,
 	.slice_mode_multislice = true,
 };

@@ -30,9 +30,7 @@
 
 #include "sgpio.h"
 
-#ifdef RAD1O
 static void update_q_invert(sgpio_config_t* const config);
-#endif
 
 void sgpio_configure_pin_functions(sgpio_config_t* const config)
 {
@@ -62,10 +60,10 @@ void sgpio_configure_pin_functions(sgpio_config_t* const config)
 			SCU_GPIO_FAST | SCU_CONF_FUNCTION4); /* GPIO5[12] */
 	}
 
-	sgpio_cpld_stream_rx_set_q_invert(config, 0);
+	sgpio_cpld_set_mixer_invert(config, 0);
 	hw_sync_enable(0);
 
-	gpio_output(config->gpio_rx_q_invert);
+	gpio_output(config->gpio_q_invert);
 	gpio_output(config->gpio_hw_sync_enable);
 }
 
@@ -122,11 +120,9 @@ void sgpio_configure(sgpio_config_t* const config, const sgpio_direction_t direc
 		;
 	// clang-format on
 
-#ifdef RAD1O
 	/* The data direction might have changed. Check if we need to
 	 * adjust the q inversion. */
 	update_q_invert(config);
-#endif
 
 	// Enable SGPIO pin outputs.
 	const uint_fast16_t sgpio_gpio_data_direction =
@@ -294,60 +290,52 @@ bool sgpio_cpld_stream_is_enabled(sgpio_config_t* const config)
 	return (SGPIO_GPIO_OUTREG & (1L << 10)) == 0; /* SGPIO10 */
 }
 
-#ifdef RAD1O
-/* The rad1o hardware has a bug which makes it
- * necessary to also switch between the two options based
- * on TX or RX mode.
+/*
+ * The spectrum can be inverted by the analog section of the hardware in two
+ * different ways:
  *
- * We use the state of the pin to determine which way we
- * have to go.
+ * - The front-end mixer can introduce an inversion depending on the frequency
+ *   tuning configuration.
  *
- * As TX/RX can change without sgpio_cpld_stream_rx_set_q_invert
- * being called, we store a local copy of its parameter. */
-static bool sgpio_invert = false;
+ * - Routing of the analog baseband signals can introduce an inversion
+ *   depending on the design of the hardware platform and whether we are in RX
+ *   or TX mode.
+ *
+ * When one but not both of the above effects inverts the spectrum, we instruct
+ * the CPLD to correct the inversion by inverting the Q sample value.
+ */
+static bool mixer_invert = false;
 
-/* Called when TX/RX changes od sgpio_cpld_stream_rx_set_q_invert
- * gets called. */
+/* Called when TX/RX changes or sgpio_cpld_set_mixer_invert() gets called. */
 static void update_q_invert(sgpio_config_t* const config)
 {
 	/* 1=Output SGPIO11 High(TX mode), 0=Output SGPIO11 Low(RX mode) */
 	bool tx_mode = (SGPIO_GPIO_OUTREG & (1 << 11)) > 0;
 
-	/* 0.13: P1_18 */
-	if (!sgpio_invert & !tx_mode) {
-		gpio_write(config->gpio_rx_q_invert, 1);
-	} else if (!sgpio_invert & tx_mode) {
-		gpio_write(config->gpio_rx_q_invert, 0);
-	} else if (sgpio_invert & !tx_mode) {
-		gpio_write(config->gpio_rx_q_invert, 0);
-	} else if (sgpio_invert & tx_mode) {
-		gpio_write(config->gpio_rx_q_invert, 1);
+	/*
+	 * This switch will need to change if we modify the CPLD to handle
+	 * inversion the same way for RX and TX.
+	 */
+	bool baseband_invert = false;
+	switch (detected_platform()) {
+	case BOARD_ID_RAD1O:
+	case BOARD_ID_HACKRF1_R9:
+		baseband_invert = (tx_mode) ? false : true;
+		break;
+	default:
+		baseband_invert = false;
 	}
+
+	gpio_write(config->gpio_q_invert, mixer_invert ^ baseband_invert);
 }
 
-void sgpio_cpld_stream_rx_set_q_invert(
-	sgpio_config_t* const config,
-	const uint_fast8_t invert)
+void sgpio_cpld_set_mixer_invert(sgpio_config_t* const config, const uint_fast8_t invert)
 {
 	if (invert) {
-		sgpio_invert = true;
+		mixer_invert = true;
 	} else {
-		sgpio_invert = false;
+		mixer_invert = false;
 	}
 
 	update_q_invert(config);
 }
-
-#else
-void sgpio_cpld_stream_rx_set_q_invert(sgpio_config_t* const config, uint_fast8_t invert)
-{
-	/*
-	 * The RX IQ channels on HackRF One r9 are not inverted as they are
-	 * on OG or Jawbreaker, so the opposite setting is required.
-	 */
-	if (detected_platform() == BOARD_ID_HACKRF1_R9) {
-		invert = (invert > 0) ? 0 : 1;
-	}
-	gpio_write(config->gpio_rx_q_invert, invert);
-}
-#endif
