@@ -1456,6 +1456,13 @@ int ADDCALL hackrf_set_freq_explicit(
 	uint8_t length;
 	int result;
 
+	/*
+	 * Restriction to the range 2170-2740 MHz is strongly recommended for
+	 * HackRF One and Jawbreaker.  We permit IF as low as 2150 MHz and as
+	 * high as 2750 MHz for backwards compatibility and for
+	 * experimentation, but settings outside the recommended range may not
+	 * work on all devices.
+	 */
 	if (if_freq_hz < 2150000000 || if_freq_hz > 2750000000) {
 		return HACKRF_ERROR_INVALID_PARAM;
 	}
