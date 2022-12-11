@@ -50,6 +50,12 @@
 
 #include <pthread.h>
 
+#ifndef bool
+typedef int bool;
+	#define true  1
+	#define false 0
+#endif
+
 #ifdef _WIN32
 	#pragma comment(lib, "ws2_32.lib")
 typedef int socklen_t;
@@ -60,14 +66,14 @@ typedef int socklen_t;
 	#define SOCKET_ERROR -1
 #endif
 
-#define DEFAULT_FREQUENCY       (100000000)
-#define DEFAULT_SAMPLERATE      (2048000)
+#define DEFAULT_FREQ_HZ         (100000000)
+#define DEFAULT_SAMPLE_RATE_HZ  (2048000)
 #define DEFAULT_MAX_NUM_BUFFERS (500)
 
 #define HACKRF_TCP_VERSION_MAJOR (0)
 #define HACKRF_TCP_VERSION_MINOR (4)
 
-#define HACKRF_AMP_DEFAULT 0
+#define HACKRF_AMP_DEFAULT true
 #define HACKRF_LNA_DEFAULT 2
 #define HACKRF_LNA_STEP    8
 #define HACKRF_VGA_DEFAULT 8
@@ -162,11 +168,12 @@ static char device_serial_number[32 + 1];
 static uint8_t device_board_id = BOARD_ID_INVALID;
 static int global_numq = 0;
 static struct llist* ll_buffers = 0;
-static int llbuf_num = DEFAULT_MAX_NUM_BUFFERS;
+static uint32_t llbuf_num = DEFAULT_MAX_NUM_BUFFERS;
+static sdr_sample_format_t sample_format = SDR_SAMPLE_FORMAT_UINT8;
 
-static volatile int do_exit = 0;
-static int enable_verbose = 0;
-static int enable_extended = 0;
+static volatile bool do_exit = false;
+static bool enable_verbose = false;
+static bool enable_extended = false;
 
 double atofs(const char* s)
 {
@@ -190,6 +197,34 @@ double atofs(const char* s)
 		break;
 	}
 	return lf;
+}
+
+int parse_u32(char* s, uint32_t* const value)
+{
+	uint_fast8_t base = 10;
+	char* s_end;
+	uint64_t ulong_value;
+
+	if (strlen(s) > 2) {
+		if (s[0] == '0') {
+			if ((s[1] == 'x') || (s[1] == 'X')) {
+				base = 16;
+				s += 2;
+			} else if ((s[1] == 'b') || (s[1] == 'B')) {
+				base = 2;
+				s += 2;
+			}
+		}
+	}
+
+	s_end = s;
+	ulong_value = strtoul(s, &s_end, base);
+	if ((s != s_end) && (*s_end == 0)) {
+		*value = (uint32_t) ulong_value;
+		return HACKRF_SUCCESS;
+	} else {
+		return HACKRF_ERROR_INVALID_PARAM;
+	}
 }
 
 #ifdef _WIN32
@@ -225,7 +260,7 @@ BOOL WINAPI sighandler(int signum)
 			return;
 		}
 
-		do_exit = 1;
+		do_exit = true;
 		pthread_cond_signal(&cond);
 		hackrf_stop_rx(device);
 		hackrf_close(device);
@@ -244,7 +279,7 @@ static void sighandler(int signum)
 		return;
 	}
 
-	do_exit = 1;
+	do_exit = true;
 	pthread_cond_signal(&cond);
 	hackrf_stop_rx(device);
 	hackrf_close(device);
@@ -266,7 +301,7 @@ int rx_callback(hackrf_transfer* transfer)
 	rpt->len = transfer->buffer_length;
 	rpt->next = NULL;
 
-	if (!enable_extended) {
+	if (sample_format == SDR_SAMPLE_FORMAT_UINT8) {
 		// HackRF One returns signed IQ values, convert them to unsigned
 		// This workaround greatly increases CPU usage
 		uint32_t i;
@@ -660,22 +695,23 @@ int verbose_device_search(char* id)
 	return result;
 }
 
-void usage(void)
+static void usage(void)
 {
-	printf("hackrf_tcp, an I/Q spectrum server for HackRF receivers\n\n"
-	       "Usage:\t[-a listen address (default: 0.0.0.0)]\n"
-	       "\t[-p listen port (default: 1234)]\n"
-	       "\t[-d device index or serial number (default: first found)]\n"
-	       "\t[-f frequency to tune to (100.5M, 100500000)]\n"
-	       "\t[-s samplerate in Hz (default: 2048000 Hz)]\n"
-	       "\t[-r amp_enable, RF amplifier, 1=Enable, 0=Disable (default: 0)]\n"
-	       "\t[-l lna_gain_db, LNA (IF) gain, 0-40dB, 8dB steps (default: 16)]\n"
-	       "\t[-g vga_gain_db, VGA (BB) gain, 0-62dB, 2dB steps (default: 16)]\n"
-	       "\t[-n max number of linked list buffers to keep (default: 500)]\n"
-	       //"\t[-P ppm_error (default: 0)]\n"
-	       "\t[-T enable bias-T on antenna port (default: disabled)]\n"
-	       "\t[-v enable verbose mode (default: disabled)]\n"
-	       "\t[-E enable extended mode (default: disabled)]\n");
+	fprintf(stderr,
+		"hackrf_tcp, an I/Q spectrum server for HackRF receivers\n\n"
+		"Usage:\t[-a listen address (default: 0.0.0.0)]\n"
+		"\t[-p listen port (default: 1234)]\n"
+		"\t[-d device index or serial number (default: first found)]\n"
+		"\t[-f frequency to tune to (100.5M, 100500000)]\n"
+		"\t[-s samplerate in Hz (default: 2048000 Hz)]\n"
+		"\t[-r amp_enable, RF amplifier, 1=Enable, 0=Disable (default: 0)]\n"
+		"\t[-l lna_gain, LNA (IF) gain, 0-40dB, 8dB steps (default: 16)]\n"
+		"\t[-g vga_gain, VGA (BB) gain, 0-62dB, 2dB steps (default: 16)]\n"
+		"\t[-n max number of linked list buffers to keep (default: 500)]\n"
+		//"\t[-P ppm_error (default: 0)]\n"
+		"\t[-T enable bias-T on antenna port (default: disabled)]\n"
+		"\t[-v enable verbose mode (default: disabled)]\n"
+		"\t[-E enable extended mode (default: disabled)]\n");
 }
 
 int main(int argc, char** argv)
@@ -683,14 +719,15 @@ int main(int argc, char** argv)
 	int result, opt;
 	char* addr = "0.0.0.0";
 	char* dev_id = "";
-	int port = 1234;
-	long frequency = DEFAULT_FREQUENCY;
-	long samplerate = DEFAULT_SAMPLERATE;
-	int amp_enable = HACKRF_AMP_DEFAULT;
-	int lna_gain_db = HACKRF_LNA_DEFAULT * HACKRF_LNA_STEP;
-	int vga_gain_db = HACKRF_VGA_DEFAULT * HACKRF_VGA_STEP;
+	uint32_t port = 1234;
+	uint64_t frequency = DEFAULT_FREQ_HZ;
+	double samplerate = DEFAULT_SAMPLE_RATE_HZ;
+	bool amp = HACKRF_AMP_DEFAULT;
+	uint32_t amp_enable = 0;
+	uint32_t lna_gain = HACKRF_LNA_DEFAULT * HACKRF_LNA_STEP;
+	uint32_t vga_gain = HACKRF_VGA_DEFAULT * HACKRF_VGA_STEP;
 	//int ppm_error = 0;
-	int enable_biastee = 0;
+	bool enable_biastee = false;
 	char version[255 + 1];
 	struct sockaddr_in local, remote;
 	SOCKET listensocket;
@@ -732,45 +769,73 @@ int main(int argc, char** argv)
 			addr = optarg;
 			break;
 		case 'p':
-			port = atoi(optarg);
+			result = parse_u32(optarg, &port);
 			break;
 		case 'd':
 			dev_id = optarg;
 			break;
 		case 'f':
-			frequency = (uint32_t) atofs(optarg);
+			frequency = (uint64_t) atofs(optarg);
 			break;
 		case 's':
-			samplerate = (uint32_t) atofs(optarg);
+			samplerate = atofs(optarg);
 			break;
 		case 'r':
-			amp_enable = atoi(optarg);
+			amp = true;
+			result = parse_u32(optarg, &amp_enable);
 			break;
 		case 'l':
-			lna_gain_db = atoi(optarg);
+			result = parse_u32(optarg, &lna_gain);
 			break;
 		case 'g':
-			vga_gain_db = atoi(optarg);
+			result = parse_u32(optarg, &vga_gain);
 			break;
 		case 'n':
-			llbuf_num = atoi(optarg);
+			result = parse_u32(optarg, &llbuf_num);
 			break;
 		//case 'P':
 		//	ppm_error = atoi(optarg);
 		//	break;
 		case 'T':
-			enable_biastee = 1;
+			enable_biastee = true;
 			break;
 		case 'v':
-			enable_verbose = 1;
+			enable_verbose = true;
 			break;
 		case 'E':
-			enable_extended = 1;
+			enable_extended = true;
+			sample_format = SDR_SAMPLE_FORMAT_INT8;
 			break;
 		default:
 			usage();
 			return EXIT_FAILURE;
 		}
+		if (result != HACKRF_SUCCESS) {
+			fprintf(stderr,
+				"argument error: '-%c %s' %s (%d)\n",
+				opt,
+				optarg,
+				hackrf_error_name(result),
+				result);
+			usage();
+			return EXIT_FAILURE;
+		}
+	}
+
+	if (amp) {
+		if (amp_enable > 1) {
+			fprintf(stderr, "argument error: amp_enable shall be 0 or 1.\n");
+			usage();
+			return EXIT_FAILURE;
+		}
+	}
+
+	if (lna_gain % 8) {
+		fprintf(stderr, "warning: lna_gain (-l) must be a multiple of 8\n");
+	}
+
+	if (vga_gain % 2) {
+		fprintf(stderr, "warning: vga_gain (-g) must be a multiple of 2\n");
 	}
 
 	result = verbose_device_search(dev_id);
@@ -821,69 +886,6 @@ int main(int argc, char** argv)
 	SetConsoleCtrlHandler((PHANDLER_ROUTINE) sighandler, TRUE);
 #endif
 
-	// Set the tuner error
-	//verbose_ppm_set(device, ppm_error);
-
-	// Set the sample rate
-	result = hackrf_set_sample_rate(device, samplerate);
-	if (result != HACKRF_SUCCESS) {
-		fprintf(stderr,
-			"hackrf_set_sample_rate() failed: %s (%d)\n",
-			hackrf_error_name(result),
-			result);
-		return EXIT_FAILURE;
-	}
-
-	// Set the amplifier (RF) enable/disable
-	result = hackrf_set_amp_enable(device, amp_enable);
-	if (result != HACKRF_SUCCESS) {
-		fprintf(stderr,
-			"hackrf_set_amp_enable() failed: %s (%d)\n",
-			hackrf_error_name(result),
-			result);
-	}
-
-	// Set the LNA (IF) gain
-	result = hackrf_set_lna_gain(device, lna_gain_db);
-	if (result != HACKRF_SUCCESS) {
-		fprintf(stderr,
-			"hackrf_set_lna_gain() failed: %s (%d)\n",
-			hackrf_error_name(result),
-			result);
-	}
-
-	// Set the VGA (baseband, BB) gain
-	result = hackrf_set_vga_gain(device, vga_gain_db);
-	if (result != HACKRF_SUCCESS) {
-		fprintf(stderr,
-			"hackrf_set_vga_gain() failed: %s (%d)\n",
-			hackrf_error_name(result),
-			result);
-	}
-
-	// Set the frequency
-	fprintf(stderr, "call hackrf_set_freq(%ld)\n", frequency);
-	result = hackrf_set_freq(device, frequency);
-	if (result != HACKRF_SUCCESS) {
-		fprintf(stderr,
-			"hackrf_set_freq() failed: %s (%d)\n",
-			hackrf_error_name(result),
-			result);
-		return EXIT_FAILURE;
-	}
-
-	// Set the antenna power control
-	if (enable_biastee) {
-		fprintf(stderr, "activated bias-T on antenna port\n");
-		result = hackrf_set_antenna_enable(device, enable_biastee);
-		if (result != HACKRF_SUCCESS) {
-			fprintf(stderr,
-				"hackrf_set_antenna_enable() failed: %s (%d)\n",
-				hackrf_error_name(result),
-				result);
-		}
-	}
-
 	pthread_mutex_init(&ll_mutex, NULL);
 	pthread_cond_init(&cond, NULL);
 
@@ -907,15 +909,92 @@ int main(int argc, char** argv)
 #endif
 
 	for (;;) {
-		// Set the amplifier (RF) enable/disable
-		result = hackrf_set_amp_enable(device, amp_enable);
+		printf("\nlistening...\n");
+		// Set the tuner error
+		//verbose_ppm_set(device, ppm_error);
+
+		// Set the sample rate
+		if (enable_verbose) {
+			fprintf(stderr,
+				"initial call hackrf_sample_rate_set(%.0f)\n",
+				samplerate);
+		}
+		result = hackrf_set_sample_rate(device, samplerate);
 		if (result != HACKRF_SUCCESS) {
 			fprintf(stderr,
-				"hackrf_set_amp_enable() failed: %s (%d)\n",
+				"hackrf_set_sample_rate() failed: %s (%d)\n",
+				hackrf_error_name(result),
+				result);
+			return EXIT_FAILURE;
+		}
+
+		// Set the amplifier (RF) enable/disable
+		if (amp) {
+			if (enable_verbose) {
+				fprintf(stderr,
+					"initial call hackrf_set_amp_enable(%u)\n",
+					amp_enable);
+			}
+			result = hackrf_set_amp_enable(device, (uint8_t) amp_enable);
+			if (result != HACKRF_SUCCESS) {
+				fprintf(stderr,
+					"hackrf_set_amp_enable() failed: %s (%d)\n",
+					hackrf_error_name(result),
+					result);
+			}
+		}
+
+		// Set the LNA (IF) gain
+		if (enable_verbose) {
+			fprintf(stderr,
+				"initial call hackrf_set_lna_gain(%u)\n",
+				lna_gain);
+		}
+		result = hackrf_set_lna_gain(device, lna_gain);
+		if (result != HACKRF_SUCCESS) {
+			fprintf(stderr,
+				"hackrf_set_lna_gain() failed: %s (%d)\n",
 				hackrf_error_name(result),
 				result);
 		}
-		printf("listening...\n");
+
+		// Set the VGA (baseband, BB) gain
+		if (enable_verbose) {
+			fprintf(stderr,
+				"initial call hackrf_set_vga_gain(%u)\n",
+				vga_gain);
+		}
+		result = hackrf_set_vga_gain(device, vga_gain);
+		if (result != HACKRF_SUCCESS) {
+			fprintf(stderr,
+				"hackrf_set_vga_gain() failed: %s (%d)\n",
+				hackrf_error_name(result),
+				result);
+		}
+
+		// Set the frequency
+		fprintf(stderr, "initial call hackrf_set_freq(%ld)\n", frequency);
+		result = hackrf_set_freq(device, frequency);
+		if (result != HACKRF_SUCCESS) {
+			fprintf(stderr,
+				"hackrf_set_freq() failed: %s (%d)\n",
+				hackrf_error_name(result),
+				result);
+			return EXIT_FAILURE;
+		}
+
+		// Set the antenna power control
+		if (enable_biastee) {
+			fprintf(stderr, "initial activating bias-T on antenna port\n");
+			result = hackrf_set_antenna_enable(device, enable_biastee);
+			if (result != HACKRF_SUCCESS) {
+				fprintf(stderr,
+					"hackrf_set_antenna_enable() failed: %s (%d)\n",
+					hackrf_error_name(result),
+					result);
+			}
+		}
+
 		printf("Use the device argument 'rtl_tcp=%s:%d' in OsmoSDR "
 		       "(gr-osmosdr) source\n"
 		       "to receive samples in GRC and control "
@@ -971,7 +1050,7 @@ int main(int argc, char** argv)
 					(SDR_CAPABILITY_REF_IN + SDR_CAPABILITY_REF_OUT);
 			hackrf_ext_info.capabilities =
 				htonl(hackrf_ext_info.capabilities);
-			hackrf_ext_info.sample_format = htonl(SDR_SAMPLE_FORMAT_INT8);
+			hackrf_ext_info.sample_format = htonl(sample_format);
 
 			result =
 				send(s,
@@ -1027,7 +1106,7 @@ int main(int argc, char** argv)
 			free(prev);
 		}
 
-		do_exit = 0;
+		do_exit = false;
 		global_numq = 0;
 	}
 
