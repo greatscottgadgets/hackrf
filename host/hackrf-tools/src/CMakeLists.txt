@@ -24,7 +24,8 @@
 set(INSTALL_DEFAULT_BINDIR "bin" CACHE STRING "Appended to CMAKE_INSTALL_PREFIX")
 
 find_package(FFTW REQUIRED)
-include_directories(${FFTW_INCLUDES})
+find_package(Threads REQUIRED)
+include_directories(${FFTW_INCLUDES} ${THREADS_PTHREADS_INCLUDE_DIR})
 get_filename_component(FFTW_LIBRARY_DIRS ${FFTW_LIBRARIES} DIRECTORY)
 link_directories(${FFTW_LIBRARY_DIRS})
 
@@ -41,6 +42,7 @@ SET(TOOLS
 )
 
 if(MSVC)
+	set(THREADS_USE_PTHREADS_WIN32 true)
 	add_library(libgetopt_static STATIC
 	    ../getopt/getopt.c
 	)

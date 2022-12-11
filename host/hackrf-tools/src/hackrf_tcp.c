@@ -30,6 +30,8 @@
 #include <hackrf.h>
 
 #include <errno.h>
+#include <getopt.h>
+#include <inttypes.h>
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -38,14 +40,11 @@
 #ifndef _WIN32
 	#include <arpa/inet.h>
 	#include <fcntl.h>
-	#include <netinet/in.h>
 	#include <sys/socket.h>
 	#include <sys/time.h>
-	#include <sys/types.h>
 	#include <unistd.h>
 #else
-	#include <winsock2.h>
-	#include "getopt/getopt.h"
+	#define HAVE_STRUCT_TIMESPEC
 #endif
 
 #include <pthread.h>
@@ -57,6 +56,8 @@ typedef int bool;
 #endif
 
 #ifdef _WIN32
+	#include <winsock2.h>
+	#include <ws2tcpip.h>
 	#pragma comment(lib, "ws2_32.lib")
 typedef int socklen_t;
 #else
@@ -159,7 +160,7 @@ static pthread_cond_t cond;
 
 struct llist {
 	char* data;
-	size_t len;
+	int len;
 	struct llist* next;
 };
 
@@ -257,14 +258,14 @@ BOOL WINAPI sighandler(int signum)
 			signum,
 			do_exit);
 		if (do_exit) {
-			return;
+			return TRUE;
 		}
 
 		do_exit = true;
 		pthread_cond_signal(&cond);
 		hackrf_stop_rx(device);
 		hackrf_close(device);
-		sleep(1);
+		//sleep(1);
 		hackrf_init();
 		hackrf_open_by_serial(device_serial_number, &device);
 		return TRUE;
@@ -304,7 +305,7 @@ int rx_callback(hackrf_transfer* transfer)
 	if (sample_format == SDR_SAMPLE_FORMAT_UINT8) {
 		// HackRF One returns signed IQ values, convert them to unsigned
 		// This workaround greatly increases CPU usage
-		uint32_t i;
+		int i;
 		for (i = 0; i < rpt->len; i++) {
 			rpt->data[i] ^= (uint8_t) 0x80;
 		}
@@ -480,7 +481,7 @@ static void* command_worker(void* arg)
 			hackrf_set_freq(device, param);
 			break;
 		case RTL_TCP_COMMAND_SET_FREQ_HIGH32:
-			printf("set freq high32 %ld\n", 0x100000000 + param);
+			printf("set freq high32 %jd\n", 0x100000000 + param);
 			hackrf_set_freq(device, 0x100000000 + param);
 			break;
 		case RTL_TCP_COMMAND_SET_SAMPLE_RATE:
@@ -892,7 +893,8 @@ int main(int argc, char** argv)
 	memset(&local, 0, sizeof(local));
 	local.sin_family = AF_INET;
 	local.sin_port = htons(port);
-	local.sin_addr.s_addr = inet_addr(addr);
+	//local.sin_addr.s_addr = inet_addr(addr);
+	inet_pton(AF_INET, addr, (void*) &local.sin_addr.s_addr);
 
 	listensocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 	result = 1;
@@ -973,7 +975,7 @@ int main(int argc, char** argv)
 		}
 
 		// Set the frequency
-		fprintf(stderr, "initial call hackrf_set_freq(%ld)\n", frequency);
+		fprintf(stderr, "initial call hackrf_set_freq(%" PRIu64 ")\n", frequency);
 		result = hackrf_set_freq(device, frequency);
 		if (result != HACKRF_SUCCESS) {
 			fprintf(stderr,
