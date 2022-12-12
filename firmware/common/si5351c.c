@@ -208,6 +208,7 @@ void si5351c_configure_clock_control(
 			 * HackRF One r9 always uses PLL A on the XTAL input
 			 * but externally switches that input to CLKIN.
 			 */
+			pll = SI5351C_CLK_PLL_SRC_A;
 			gpio_set(&gpio_h1r9_clkin_en);
 		}
 	} else {
