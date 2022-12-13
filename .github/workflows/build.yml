@@ -8,9 +8,6 @@ on:
   schedule:
     - cron: 1 12 * * 1
 
-env:
-  BUILD_TYPE: Release
-
 jobs:
   host:
     strategy:
@@ -40,12 +37,12 @@ jobs:
     - name: Configure CMake
       shell: bash
       working-directory: ${{runner.workspace}}/host/build
-      run: cmake $GITHUB_WORKSPACE/host/ -DCMAKE_BUILD_TYPE=$BUILD_TYPE
+      run: cmake $GITHUB_WORKSPACE/host/ -DCMAKE_BUILD_TYPE=Release
 
     - name: Build
       working-directory: ${{runner.workspace}}/host/build
       shell: bash
-      run: cmake --build . --config $BUILD_TYPE
+      run: cmake --build . --config Release
 
     - name: Create Build Environment (libhackrf)
       run: cmake -E make_directory ${{runner.workspace}}/host/libhackrf/build
@@ -53,18 +50,18 @@ jobs:
     - name: Configure CMake (libhackrf)
       shell: bash
       working-directory: ${{runner.workspace}}/host/libhackrf/build
-      run: cmake $GITHUB_WORKSPACE/host/libhackrf/ -DCMAKE_BUILD_TYPE=$BUILD_TYPE
+      run: cmake $GITHUB_WORKSPACE/host/libhackrf/ -DCMAKE_BUILD_TYPE=Release
 
     - name: Build (libhackrf)
       working-directory: ${{runner.workspace}}/host/libhackrf/build
       shell: bash
-      run: cmake --build . --config $BUILD_TYPE
+      run: cmake --build . --config Release
 
     - name: Install (libhackrf)
       working-directory: ${{runner.workspace}}/host/libhackrf/build
       shell: bash
       run: |
-        sudo cmake --install . --config $BUILD_TYPE
+        sudo cmake --install . --config Release
 
     - name: Create Build Environment (hackrf-tools)
       run: cmake -E make_directory ${{runner.workspace}}/host/hackrf-tools/build
@@ -72,12 +69,12 @@ jobs:
     - name: Configure CMake (hackrf-tools)
       shell: bash
       working-directory: ${{runner.workspace}}/host/hackrf-tools/build
-      run: cmake $GITHUB_WORKSPACE/host/hackrf-tools/ -DCMAKE_BUILD_TYPE=$BUILD_TYPE
+      run: cmake $GITHUB_WORKSPACE/host/hackrf-tools/ -DCMAKE_BUILD_TYPE=Release
 
     - name: Build (hackrf-tools)
       working-directory: ${{runner.workspace}}/host/hackrf-tools/build
       shell: bash
-      run: cmake --build . --config $BUILD_TYPE
+      run: cmake --build . --config Release
 
   firmware:
     strategy:
@@ -117,10 +114,10 @@ jobs:
     - name: Configure CMake
       shell: bash
       working-directory: ${{runner.workspace}}/firmware/build
-      run: cmake $GITHUB_WORKSPACE/firmware/ -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DBOARD=${{ matrix.board }}
+      run: cmake $GITHUB_WORKSPACE/firmware/ -DCMAKE_BUILD_TYPE=Release -DBOARD=${{ matrix.board }}
 
     - name: Build
       working-directory: ${{runner.workspace}}/firmware/build
       shell: bash
-      run: cmake --build . --config $BUILD_TYPE
+      run: cmake --build . --config Release
 
