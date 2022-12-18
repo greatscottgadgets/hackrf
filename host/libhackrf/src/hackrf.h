@@ -95,7 +95,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
  * 
  * The library uses `libusb` (version 0.1) to communicate with HackRF hardware. It uses both the synchronous and asynchronous API for communication (asynchronous for streaming data to/from the device, and synchronous for everything else). The asynchronous API requires to periodically call a variant of `libusb_handle_events`, so the library creates a new "transfer thread" for each device doing that using the `pthread` library. The library uses multiple transfers for each device (@ref hackrf_get_transfer_queue_depth).
  */
- 
+
 /**
  * @defgroup device Device listing, opening, closing and querying
  * 
@@ -178,8 +178,8 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
  * Identifies the platform of the HackRF device. Read via @ref hackrf_supported_platform_read. Returns a bitfield.
  * 
  */
- 
- /**
+
+/**
  * @defgroup configuration Configuration of the RF hardware
  * 
  * @brief configuring gain, sample rate, filter bandwidth, etc.
@@ -226,7 +226,6 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
  * 
  * The HackRF one has a built in bias-tee (also called (antenna) port power in some of the documentation) capable of delivering 50mA@3V3 for powering small powered antennas or amplifiers. It can be enabled via the @ref hackrf_set_antenna_enable function. Please note that when the device is returning to IDLE mode, the firmware automatically disables this feature. This means it can't be enabled permanently like with the RTL-SDR, and all software using the HackRF must enable this separatlely.
  */
-
 
 /**
  * @defgroup streaming Transmit / receive operation
@@ -382,7 +381,6 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
  * 
  * @ref hackrf_set_hw_sync_mode can be used to setup HW sync mode ([see the documentation on this mode](https://hackrf.readthedocs.io/en/latest/hardware_triggering.html)). This mode allows multiple HackRF Ones to synchronize operations, or one HackRF One to synchrnonize on an external trigger source.
  */
- 
 
 /**
  * @defgroup debug Firmware flashing & debugging
@@ -472,7 +470,6 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
  * 
  */
 
-
 /**
  * Number of samples per tuning when sweeping
  * @ingroup streaming
@@ -483,13 +480,13 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
  * Number of bytes per tuning for sweeping
  * @ingroup streaming
  */
-#define BYTES_PER_BLOCK   16384
+#define BYTES_PER_BLOCK 16384
 
 /**
  * Maximum number of sweep ranges to be specified for @ref hackrf_init_sweep
  * @ingroup streaming
  */
-#define MAX_SWEEP_RANGES  10
+#define MAX_SWEEP_RANGES 10
 
 /**
  * Invalid operacake add-on board address, placeholder in @ref hackrf_get_operacake_boards
@@ -501,7 +498,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
  * Maximum number of connected operacake add-on boards
  * @ingroup operacake
  */
-#define HACKRF_OPERACAKE_MAX_BOARDS      8
+#define HACKRF_OPERACAKE_MAX_BOARDS 8
 
 /**
  * Maximum number of specifiable dwell times for operacake add-on boards
@@ -600,13 +597,12 @@ enum hackrf_error {
  * RAD1O platform bit in result of @ref hackrf_supported_platform_read
  * @ingroup device
  */
-#define HACKRF_PLATFORM_RAD1O      (1 << 2)
+#define HACKRF_PLATFORM_RAD1O (1 << 2)
 /**
  * HACKRF ONE (r9 or later) platform bit in result of @ref hackrf_supported_platform_read
  * @ingroup device
  */
 #define HACKRF_PLATFORM_HACKRF1_R9 (1 << 3)
-
 
 /**
  * HACKRF board id enum
@@ -654,7 +650,7 @@ enum hackrf_board_id {
  * These deprecated board ID names are provided for API compatibility.
  * @ingroup device
  */
-#define BOARD_ID_INVALID    (BOARD_ID_UNDETECTED)
+#define BOARD_ID_INVALID (BOARD_ID_UNDETECTED)
 
 /**
  * Board revision enum. 
@@ -683,7 +679,7 @@ enum hackrf_board_rev {
 	 * board revision 9, generic
 	 */
 	BOARD_REV_HACKRF1_R9 = 4,
-	
+
 	/**
 	 * board revision 6, made by GSG
 	 */
@@ -700,7 +696,7 @@ enum hackrf_board_rev {
 	 * board revision 9, made by GSG
 	 */
 	BOARD_REV_GSG_HACKRF1_R9 = 0x84,
-	
+
 	/**
 	 * unknown board revision (detection failed)
 	 */
@@ -793,7 +789,6 @@ enum operacake_switching_mode {
 	OPERACAKE_MODE_TIME,
 };
 
-
 // description from hackrf.c
 // no idea what the difference actually means
 /**
@@ -828,7 +823,7 @@ typedef struct hackrf_device hackrf_device;
  */
 typedef struct {
 	/** HackRF USB device for this transfer */
-	hackrf_device* device; 
+	hackrf_device* device;
 	/** transfer data buffer (interleaved 8 bit I/Q samples) */
 	uint8_t* buffer;
 	/** length of data buffer in bytes */
@@ -849,7 +844,6 @@ typedef struct {
 	uint32_t part_id[2];
 	uint32_t serial_no[4];
 } read_partid_serialno_t;
-
 
 /**
  * Operacake port setting in @ref OPERACAKE_MODE_TIME operation
@@ -933,7 +927,7 @@ struct hackrf_device_list {
 	 * USB device index for a given HW entry. Intended for internal use only.
 	 */
 	int* usb_device_index;
-	
+
 	/**
 	 * Number of connected HackRF devices, the length of arrays @ref serial_numbers, @ref usb_board_ids and @ref usb_device_index.
 	 */
@@ -1011,7 +1005,6 @@ extern ADDAPI int ADDCALL hackrf_exit();
  * @ingroup library
  */
 extern ADDAPI const char* ADDCALL hackrf_library_version();
-
 
 /**
  * Get library release.
@@ -1093,7 +1086,6 @@ extern ADDAPI int ADDCALL hackrf_start_rx(
 	hackrf_sample_block_cb_fn callback,
 	void* rx_ctx);
 
-
 /**
  * Stop receiving
  * 
@@ -1102,7 +1094,6 @@ extern ADDAPI int ADDCALL hackrf_start_rx(
  * @ingroup streaming
  */
 extern ADDAPI int ADDCALL hackrf_stop_rx(hackrf_device* device);
-
 
 /**
  * Start transmitting
@@ -1200,7 +1191,6 @@ extern ADDAPI int ADDCALL hackrf_set_rx_overrun_limit(
 	hackrf_device* device,
 	uint32_t value);
 
-
 /* return HACKRF_TRUE if success */
 /**
  * Query device streaming status
@@ -1226,7 +1216,6 @@ extern ADDAPI int ADDCALL hackrf_max2837_read(
 	hackrf_device* device,
 	uint8_t register_number,
 	uint16_t* value);
-
 
 /**
  * Directly write the registers of the MAX2837 transceiver IC
@@ -1275,7 +1264,6 @@ extern ADDAPI int ADDCALL hackrf_si5351c_write(
 	hackrf_device* device,
 	uint16_t register_number,
 	uint16_t value);
-
 
 /**
  * Set baseband filter bandwidth
@@ -1487,7 +1475,6 @@ extern ADDAPI int ADDCALL hackrf_set_freq_explicit(
 	const uint64_t if_freq_hz,
 	const uint64_t lo_freq_hz,
 	const enum rf_path_filter path);
-	
 
 // TODO: is this info correct?
 /**
@@ -1583,7 +1570,6 @@ extern ADDAPI int ADDCALL hackrf_set_vga_gain(hackrf_device* device, uint32_t va
  * @ingroup configuration
  */
 extern ADDAPI int ADDCALL hackrf_set_txvga_gain(hackrf_device* device, uint32_t value);
-
 
 /**
  * Enable / disable bias-tee (antenna port power)
