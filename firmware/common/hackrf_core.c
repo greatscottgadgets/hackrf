@@ -957,6 +957,17 @@ void led_toggle(const led_t led)
 	gpio_toggle(&gpio_led[led]);
 }
 
+void set_leds(const uint8_t state)
+{
+	int num_leds = 3;
+#ifdef RAD1O
+	num_leds = 4;
+#endif
+	for (int i = 0; i < num_leds; i++) {
+		gpio_write(&gpio_led[i], ((state >> i) & 1) == 1);
+	}
+}
+
 void hw_sync_enable(const hw_sync_mode_t hw_sync_mode)
 {
 	gpio_write(&gpio_hw_sync_enable, hw_sync_mode == 1);

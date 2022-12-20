@@ -300,6 +300,7 @@ typedef enum {
 void led_on(const led_t led);
 void led_off(const led_t led);
 void led_toggle(const led_t led);
+void set_leds(const uint8_t state);
 
 void hw_sync_enable(const hw_sync_mode_t hw_sync_mode);
 

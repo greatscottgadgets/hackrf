@@ -102,6 +102,7 @@ typedef enum {
 	HACKRF_VENDOR_REQUEST_GET_CLKIN_STATUS = 44,
 	HACKRF_VENDOR_REQUEST_BOARD_REV_READ = 45,
 	HACKRF_VENDOR_REQUEST_SUPPORTED_PLATFORM_READ = 46,
+	HACKRF_VENDOR_REQUEST_SET_LEDS = 47,
 } hackrf_vendor_request;
 
 #define USB_CONFIG_STANDARD 0x1
@@ -2900,6 +2901,28 @@ int ADDCALL hackrf_supported_platform_read(hackrf_device* device, uint32_t* valu
 		return HACKRF_ERROR_LIBUSB;
 	} else {
 		*value = (data[0] << 24) | (data[1] << 16) | (data[2] << 8) | data[3];
+		return HACKRF_SUCCESS;
+	}
+}
+
+int ADDCALL hackrf_set_leds(hackrf_device* device, const uint8_t state)
+{
+	USB_API_REQUIRED(device, 0x0107)
+	int result = libusb_control_transfer(
+		device->usb_device,
+		LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR |
+			LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_SET_LEDS,
+		state,
+		0,
+		NULL,
+		0,
+		0);
+
+	if (result != 0) {
+		last_libusb_error = result;
+		return HACKRF_ERROR_LIBUSB;
+	} else {
 		return HACKRF_SUCCESS;
 	}
 }
