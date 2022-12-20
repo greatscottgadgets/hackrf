@@ -9,13 +9,18 @@ on:
     - cron: 1 12 * * 1
 
 env:
-  BUILD_TYPE: Release
+  WIN_LIBUSB_INC: -DLIBUSB_INCLUDE_DIR=C:/vcpkg/installed/x64-windows/include/libusb-1.0
+  WIN_LIBUSB_LIB: -DLIBUSB_LIBRARIES=C:/vcpkg/installed/x64-windows/lib/libusb-1.0.lib
+  WIN_FFTW_INC: -DFFTW_INCLUDES=C:/vcpkg/installed/x64-windows/include
+  WIN_FFTW_LIB: -DFFTW_LIBRARIES=C:/vcpkg/installed/x64-windows/lib/fftw3f.lib
+  WIN_PTHREAD_INC: -DTHREADS_PTHREADS_INCLUDE_DIR=C:/vcpkg/installed/x64-windows/include
+  WIN_PTHREAD_LIB: -DTHREADS_PTHREADS_WIN32_LIBRARY=C:/vcpkg/installed/x64-windows/lib/pthreadvc3.lib
 
 jobs:
   host:
     strategy:
       matrix:
-        os: ['macos-latest', 'ubuntu-latest']
+        os: ['macos-latest', 'ubuntu-latest', 'windows-latest']
 
       # Don't cancel all builds when one fails
       fail-fast: false
@@ -34,50 +39,77 @@ jobs:
         sudo apt install libfftw3-dev libusb-1.0-0-dev
       if: matrix.os == 'ubuntu-latest'
 
+    - name: Install dependencies (Windows)
+      run: vcpkg install --triplet=x64-windows libusb fftw3 pthreads
+      if: matrix.os == 'windows-latest'
+
     - name: Create Build Environment
       run: cmake -E make_directory ${{runner.workspace}}/host/build
 
     - name: Configure CMake
-      shell: bash
       working-directory: ${{runner.workspace}}/host/build
-      run: cmake $GITHUB_WORKSPACE/host/ -DCMAKE_BUILD_TYPE=$BUILD_TYPE
+      run: cmake $GITHUB_WORKSPACE/host/ -DCMAKE_BUILD_TYPE=Release
+      if: matrix.os != 'windows-latest'
+
+    - name: Configure CMake (Windows)
+      working-directory: ${{runner.workspace}}/host/build
+      run: cmake $env:GITHUB_WORKSPACE/host/ $env:WIN_LIBUSB_INC $env:WIN_LIBUSB_LIB $env:WIN_FFTW_INC $env:WIN_FFTW_LIB $env:WIN_PTHREAD_INC $env:WIN_PTHREAD_LIB
+      if: matrix.os == 'windows-latest'
 
     - name: Build
       working-directory: ${{runner.workspace}}/host/build
-      shell: bash
-      run: cmake --build . --config $BUILD_TYPE
+      run: cmake --build . --config Release
 
     - name: Create Build Environment (libhackrf)
       run: cmake -E make_directory ${{runner.workspace}}/host/libhackrf/build
 
     - name: Configure CMake (libhackrf)
-      shell: bash
       working-directory: ${{runner.workspace}}/host/libhackrf/build
-      run: cmake $GITHUB_WORKSPACE/host/libhackrf/ -DCMAKE_BUILD_TYPE=$BUILD_TYPE
+      run: cmake $GITHUB_WORKSPACE/host/libhackrf/ -DCMAKE_BUILD_TYPE=Release
+      if: matrix.os != 'windows-latest'
+
+    - name: Configure CMake (libhackrf, Windows)
+      working-directory: ${{runner.workspace}}/host/libhackrf/build
+      run: cmake $env:GITHUB_WORKSPACE/host/libhackrf/ $env:WIN_LIBUSB_INC $env:WIN_LIBUSB_LIB $env:WIN_PTHREAD_INC $env:WIN_PTHREAD_LIB
+      if: matrix.os == 'windows-latest'
 
     - name: Build (libhackrf)
       working-directory: ${{runner.workspace}}/host/libhackrf/build
-      shell: bash
-      run: cmake --build . --config $BUILD_TYPE
+      run: cmake --build . --config Release
 
     - name: Install (libhackrf)
       working-directory: ${{runner.workspace}}/host/libhackrf/build
-      shell: bash
       run: |
-        sudo cmake --install . --config $BUILD_TYPE
+        sudo cmake --install . --config Release
+      if: matrix.os != 'windows-latest'
+
+    - name: Install (libhackrf, Windows)
+      working-directory: ${{runner.workspace}}/host/libhackrf/build
+      run: |
+        cmake --install . --config Release --prefix=$env:GITHUB_WORKSPACE/install
+      if: matrix.os == 'windows-latest'
 
     - name: Create Build Environment (hackrf-tools)
       run: cmake -E make_directory ${{runner.workspace}}/host/hackrf-tools/build
 
     - name: Configure CMake (hackrf-tools)
-      shell: bash
       working-directory: ${{runner.workspace}}/host/hackrf-tools/build
-      run: cmake $GITHUB_WORKSPACE/host/hackrf-tools/ -DCMAKE_BUILD_TYPE=$BUILD_TYPE
+      run: cmake $GITHUB_WORKSPACE/host/hackrf-tools/ -DCMAKE_BUILD_TYPE=Release
+      if: matrix.os != 'windows-latest'
+
+    - name: Configure CMake (hackrf-tools, Windows)
+      working-directory: ${{runner.workspace}}/host/hackrf-tools/build
+      run: |
+        cmake $env:GITHUB_WORKSPACE/host/hackrf-tools/ $env:WIN_FFTW_INC $env:WIN_FFTW_LIB -DLIBHACKRF_INCLUDE_DIR=$env:GITHUB_WORKSPACE/install/include/libhackrf -DLIBHACKRF_LIBRARIES=$env:GITHUB_WORKSPACE/install/bin/hackrf.lib
+      if: matrix.os == 'windows-latest'
 
     - name: Build (hackrf-tools)
       working-directory: ${{runner.workspace}}/host/hackrf-tools/build
-      shell: bash
-      run: cmake --build . --config $BUILD_TYPE
+      run: cmake --build . --config Release
+      # This step should work on Windows too, but currently MSVC fails to find
+      # hackrf.h, despite us having installed it and specified its location in
+      # the previous steps above.
+      if: matrix.os != 'windows-latest'
 
   firmware:
     strategy:
@@ -117,10 +149,10 @@ jobs:
     - name: Configure CMake
       shell: bash
       working-directory: ${{runner.workspace}}/firmware/build
-      run: cmake $GITHUB_WORKSPACE/firmware/ -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DBOARD=${{ matrix.board }}
+      run: cmake $GITHUB_WORKSPACE/firmware/ -DCMAKE_BUILD_TYPE=Release -DBOARD=${{ matrix.board }}
 
     - name: Build
       working-directory: ${{runner.workspace}}/firmware/build
       shell: bash
-      run: cmake --build . --config $BUILD_TYPE
+      run: cmake --build . --config Release
 
