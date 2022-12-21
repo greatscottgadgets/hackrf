@@ -20,6 +20,7 @@
  */
 
 #include "platform_detect.h"
+#include "firmware_info.h"
 #include "gpio_lpc.h"
 #include "hackrf_core.h"
 
@@ -218,19 +219,5 @@ board_rev_t detected_revision(void)
 
 uint32_t supported_platform(void)
 {
-	uint32_t binary_platform = 0;
-
-#ifdef JAWBREAKER
-	binary_platform = PLATFORM_JAWBREAKER;
-#endif
-
-#ifdef HACKRF_ONE
-	binary_platform = PLATFORM_HACKRF1_OG;
-#endif
-
-#ifdef RAD1O
-	binary_platform = PLATFORM_RAD1O;
-#endif
-
-	return binary_platform;
+	return firmware_info.supported_platform;
 }
