@@ -94,8 +94,10 @@ int gettimeofday(struct timeval* tv, void* ignored)
 #define FREQ_MIN_HZ     (1000000ll)    /* 1MHz */
 #define FREQ_MAX_HZ     (6000000000ll) /* 6000MHz */
 #define FREQ_ABS_MAX_HZ (7250000000ll) /* 7250MHz */
-#define IF_MIN_HZ       (2150000000ll)
-#define IF_MAX_HZ       (2750000000ll)
+#define IF_ABS_MIN_HZ   (2000000000ll)
+#define IF_MIN_HZ       (2170000000ll)
+#define IF_MAX_HZ       (2740000000ll)
+#define IF_ABS_MAX_HZ   (3000000000ll)
 #define LO_MIN_HZ       (84375000ll)
 #define LO_MAX_HZ       (5400000000ll)
 #define DEFAULT_LO_HZ   (1000000000ll)
@@ -664,9 +666,11 @@ static void usage()
 	       u64toa((FREQ_MAX_HZ / FREQ_ONE_MHZ), &ascii_u64_data[1]),
 	       u64toa((FREQ_ABS_MIN_HZ / FREQ_ONE_MHZ), &ascii_u64_data[2]),
 	       u64toa((FREQ_ABS_MAX_HZ / FREQ_ONE_MHZ), &ascii_u64_data[3]));
-	printf("\t[-i if_freq_hz] # Intermediate Frequency (IF) in Hz [%sMHz to %sMHz].\n",
+	printf("\t[-i if_freq_hz] # Intermediate Frequency (IF) in Hz [%sMHz to %sMHz supported, %sMHz to %sMHz forceable].\n",
 	       u64toa((IF_MIN_HZ / FREQ_ONE_MHZ), &ascii_u64_data[0]),
-	       u64toa((IF_MAX_HZ / FREQ_ONE_MHZ), &ascii_u64_data[1]));
+	       u64toa((IF_MAX_HZ / FREQ_ONE_MHZ), &ascii_u64_data[1]),
+	       u64toa((IF_ABS_MIN_HZ / FREQ_ONE_MHZ), &ascii_u64_data[2]),
+	       u64toa((IF_ABS_MAX_HZ / FREQ_ONE_MHZ), &ascii_u64_data[3]));
 	printf("\t[-o lo_freq_hz] # Front-end Local Oscillator (LO) frequency in Hz [%sMHz to %sMHz].\n",
 	       u64toa((LO_MIN_HZ / FREQ_ONE_MHZ), &ascii_u64_data[0]),
 	       u64toa((LO_MAX_HZ / FREQ_ONE_MHZ), &ascii_u64_data[1]));
@@ -920,11 +924,20 @@ int main(int argc, char** argv)
 			usage();
 			return EXIT_FAILURE;
 		}
-		if ((if_freq_hz > IF_MAX_HZ) || (if_freq_hz < IF_MIN_HZ)) {
+		if (((if_freq_hz > IF_MAX_HZ) || (if_freq_hz < IF_MIN_HZ)) &&
+		    !force_ranges) {
 			fprintf(stderr,
-				"argument error: if_freq_hz shall be between %s and %s.\n",
+				"argument error: if_freq_hz should be between %s and %s.\n",
 				u64toa(IF_MIN_HZ, &ascii_u64_data[0]),
 				u64toa(IF_MAX_HZ, &ascii_u64_data[1]));
+			usage();
+			return EXIT_FAILURE;
+		}
+		if ((if_freq_hz > IF_ABS_MAX_HZ) || (if_freq_hz < IF_ABS_MIN_HZ)) {
+			fprintf(stderr,
+				"argument error: if_freq_hz must be between %s and %s.\n",
+				u64toa(IF_ABS_MIN_HZ, &ascii_u64_data[0]),
+				u64toa(IF_ABS_MAX_HZ, &ascii_u64_data[1]));
 			usage();
 			return EXIT_FAILURE;
 		}
@@ -966,7 +979,7 @@ int main(int argc, char** argv)
 			u64toa(freq_hz, &ascii_u64_data[0]));
 
 	} else if (automatic_tuning) {
-		if (((freq_hz > FREQ_MAX_HZ) | (freq_hz < FREQ_MIN_HZ)) &&
+		if (((freq_hz > FREQ_MAX_HZ) || (freq_hz < FREQ_MIN_HZ)) &&
 		    !force_ranges) {
 			fprintf(stderr,
 				"argument error: freq_hz should be between %s and %s.\n",

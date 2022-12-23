@@ -31,20 +31,22 @@
 #include <sgpio.h>
 #include <operacake.h>
 
-#define FREQ_ONE_MHZ (1000 * 1000)
+#define FREQ_ONE_MHZ (1000ULL * 1000)
 
 #define MIN_LP_FREQ_MHZ (0)
-#define MAX_LP_FREQ_MHZ (2150)
+#define MAX_LP_FREQ_MHZ (2170ULL)
 
-#define MIN_BYPASS_FREQ_MHZ (2150)
-#define MAX_BYPASS_FREQ_MHZ (2750)
+#define ABS_MIN_BYPASS_FREQ_MHZ (2000ULL)
+#define MIN_BYPASS_FREQ_MHZ     (MAX_LP_FREQ_MHZ)
+#define MAX_BYPASS_FREQ_MHZ     (2740ULL)
+#define ABS_MAX_BYPASS_FREQ_MHZ (3000ULL)
 
-#define MIN_HP_FREQ_MHZ  (2750)
-#define MID1_HP_FREQ_MHZ (3600)
-#define MID2_HP_FREQ_MHZ (5100)
-#define MAX_HP_FREQ_MHZ  (7250)
+#define MIN_HP_FREQ_MHZ  (MAX_BYPASS_FREQ_MHZ)
+#define MID1_HP_FREQ_MHZ (3600ULL)
+#define MID2_HP_FREQ_MHZ (5100ULL)
+#define MAX_HP_FREQ_MHZ  (7250ULL)
 
-#define MIN_LO_FREQ_HZ (84375000)
+#define MIN_LO_FREQ_HZ (84375000ULL)
 #define MAX_LO_FREQ_HZ (5400000000ULL)
 
 static uint32_t max2837_freq_nominal_hz = 2560000000;
@@ -63,8 +65,8 @@ bool set_freq(const uint64_t freq)
 	uint32_t MAX2837_freq_hz;
 	uint64_t real_mixer_freq_hz;
 
-	const uint32_t freq_mhz = freq / 1000000;
-	const uint32_t freq_hz = freq % 1000000;
+	const uint32_t freq_mhz = freq / FREQ_ONE_MHZ;
+	const uint32_t freq_hz = freq % FREQ_ONE_MHZ;
 
 	success = true;
 
@@ -73,10 +75,10 @@ bool set_freq(const uint64_t freq)
 	if (freq_mhz < MAX_LP_FREQ_MHZ) {
 		rf_path_set_filter(&rf_path, RF_PATH_FILTER_LOW_PASS);
 #ifdef RAD1O
-		max2837_freq_nominal_hz = 2300000000;
+		max2837_freq_nominal_hz = 2300 * FREQ_ONE_MHZ;
 #else
-		/* IF is graduated from 2650 MHz to 2343 MHz */
-		max2837_freq_nominal_hz = 2650000000 - (freq / 7);
+		/* IF is graduated from 2650 MHz to 2340 MHz */
+		max2837_freq_nominal_hz = (2650 * FREQ_ONE_MHZ) - (freq / 7);
 #endif
 		mixer_freq_mhz = (max2837_freq_nominal_hz / FREQ_ONE_MHZ) + freq_mhz;
 		/* Set Freq and read real freq */
@@ -91,15 +93,18 @@ bool set_freq(const uint64_t freq)
 		sgpio_cpld_stream_rx_set_q_invert(&sgpio_config, 0);
 	} else if ((freq_mhz >= MIN_HP_FREQ_MHZ) && (freq_mhz <= MAX_HP_FREQ_MHZ)) {
 		if (freq_mhz < MID1_HP_FREQ_MHZ) {
-			/* IF is graduated from 2150 MHz to 2750 MHz */
-			max2837_freq_nominal_hz =
-				2150000000 + (((freq - 2750000000) * 60) / 85);
+			/* IF is graduated from 2170 MHz to 2740 MHz */
+			max2837_freq_nominal_hz = (MIN_BYPASS_FREQ_MHZ * FREQ_ONE_MHZ) +
+				(((freq - (MAX_BYPASS_FREQ_MHZ * FREQ_ONE_MHZ)) * 57) /
+				 86);
 		} else if (freq_mhz < MID2_HP_FREQ_MHZ) {
 			/* IF is graduated from 2350 MHz to 2650 MHz */
-			max2837_freq_nominal_hz = 2350000000 + ((freq - 3600000000) / 5);
+			max2837_freq_nominal_hz = (2350 * FREQ_ONE_MHZ) +
+				((freq - (MID1_HP_FREQ_MHZ * FREQ_ONE_MHZ)) / 5);
 		} else {
 			/* IF is graduated from 2500 MHz to 2738 MHz */
-			max2837_freq_nominal_hz = 2500000000 + ((freq - 5100000000) / 9);
+			max2837_freq_nominal_hz = (2500 * FREQ_ONE_MHZ) +
+				((freq - (MID2_HP_FREQ_MHZ * FREQ_ONE_MHZ)) / 9);
 		}
 		rf_path_set_filter(&rf_path, RF_PATH_FILTER_HIGH_PASS);
 		mixer_freq_mhz = freq_mhz - (max2837_freq_nominal_hz / FREQ_ONE_MHZ);
@@ -127,8 +132,8 @@ bool set_freq_explicit(
 	const uint64_t lo_freq_hz,
 	const rf_path_filter_t path)
 {
-	if ((if_freq_hz < ((uint64_t) MIN_BYPASS_FREQ_MHZ * FREQ_ONE_MHZ)) ||
-	    (if_freq_hz > ((uint64_t) MAX_BYPASS_FREQ_MHZ * FREQ_ONE_MHZ))) {
+	if ((if_freq_hz < ((uint64_t) ABS_MIN_BYPASS_FREQ_MHZ * FREQ_ONE_MHZ)) ||
+	    (if_freq_hz > ((uint64_t) ABS_MAX_BYPASS_FREQ_MHZ * FREQ_ONE_MHZ))) {
 		return false;
 	}
 
