@@ -94,10 +94,10 @@ int gettimeofday(struct timeval* tv, void* ignored)
 #define FREQ_MIN_HZ     (1000000ll)    /* 1MHz */
 #define FREQ_MAX_HZ     (6000000000ll) /* 6000MHz */
 #define FREQ_ABS_MAX_HZ (7250000000ll) /* 7250MHz */
-#define IF_ABS_MIN_HZ   (2150000000ll)
+#define IF_ABS_MIN_HZ   (2000000000ll)
 #define IF_MIN_HZ       (2170000000ll)
 #define IF_MAX_HZ       (2740000000ll)
-#define IF_ABS_MAX_HZ   (2750000000ll)
+#define IF_ABS_MAX_HZ   (3000000000ll)
 #define LO_MIN_HZ       (84375000ll)
 #define LO_MAX_HZ       (5400000000ll)
 #define DEFAULT_LO_HZ   (1000000000ll)
