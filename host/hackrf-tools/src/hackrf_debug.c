@@ -473,6 +473,7 @@ static void usage()
 	printf("\t-T, --tx-underrun-limit <n>: set TX underrun limit in bytes (0 for no limit)\n");
 	printf("\t-R, --rx-overrun-limit <n>: set RX overrun limit in bytes (0 for no limit)\n");
 	printf("\t-u, --ui <1/0>: enable/disable UI\n");
+	printf("\t-l, --leds <state>: configure LED state (0 for all off, 1 for default)\n");
 	printf("\nExamples:\n");
 	printf("\thackrf_debug --si5351c -n 0 -r     # reads from si5351c register 0\n");
 	printf("\thackrf_debug --si5351c -c          # displays si5351c multisynth configuration\n");
@@ -495,6 +496,7 @@ static struct option long_options[] = {
 	{"tx-underrun-limit", required_argument, 0, 'T'},
 	{"rx-overrun-limit", required_argument, 0, 'R'},
 	{"ui", required_argument, 0, 'u'},
+	{"leds", required_argument, 0, 'l'},
 	{0, 0, 0, 0},
 };
 
@@ -513,6 +515,8 @@ int main(int argc, char** argv)
 	const char* serial_number = NULL;
 	bool set_ui = false;
 	uint32_t ui_enable;
+	bool set_leds = false;
+	uint32_t led_state;
 	uint32_t tx_limit;
 	uint32_t rx_limit;
 	bool set_tx_limit = false;
@@ -529,7 +533,7 @@ int main(int argc, char** argv)
 	while ((opt = getopt_long(
 			argc,
 			argv,
-			"n:rw:d:cmsfST:R:h?u:",
+			"n:rw:d:cmsfST:R:h?u:l:",
 			long_options,
 			&option_index)) != EOF) {
 		switch (opt) {
@@ -596,6 +600,11 @@ int main(int argc, char** argv)
 			result = parse_int(optarg, &ui_enable);
 			break;
 
+		case 'l':
+			set_leds = true;
+			result = parse_int(optarg, &led_state);
+			break;
+
 		case 'h':
 		case '?':
 			usage();
@@ -634,14 +643,14 @@ int main(int argc, char** argv)
 	}
 
 	if (!(write || read || dump_config || dump_state || set_tx_limit ||
-	      set_rx_limit || set_ui)) {
+	      set_rx_limit || set_ui || set_leds)) {
 		fprintf(stderr, "Specify read, write, or config option.\n");
 		usage();
 		return EXIT_FAILURE;
 	}
 
 	if (part == PART_NONE && !set_ui && !dump_state && !set_tx_limit &&
-	    !set_rx_limit) {
+	    !set_rx_limit && !set_leds) {
 		fprintf(stderr, "Specify a part to read, write, or print config from.\n");
 		usage();
 		return EXIT_FAILURE;
@@ -705,6 +714,16 @@ int main(int argc, char** argv)
 
 	if (set_ui) {
 		result = hackrf_set_ui_enable(device, ui_enable);
+	}
+
+	if (set_leds) {
+		if (led_state > 0xf) {
+			fprintf(stderr,
+				"Specify LED state bit field (0 for all off, 1 for default).\n");
+			usage();
+			return EXIT_FAILURE;
+		}
+		result = hackrf_set_leds(device, led_state);
 	}
 
 	result = hackrf_close(device);

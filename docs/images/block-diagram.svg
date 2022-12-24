@@ -14,7 +14,7 @@
    id="svg8"
    inkscape:version="1.0.1 (3bc2e813f5, 2020-09-07)"
    sodipodi:docname="block-diagram.svg"
-   inkscape:export-filename="C:\Users\Martin\Documents\hackrf\docs\images\block-diagram.png"
+   inkscape:export-filename="block-diagram.png"
    inkscape:export-xdpi="96"
    inkscape:export-ydpi="96">
   <defs
@@ -1837,7 +1837,7 @@
          id="tspan3054"
          x="207.43335"
          y="99.483337"
-         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:3.175px;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';stroke-width:0.264583">2150–2750 MHz</tspan></text>
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:3.175px;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';stroke-width:0.264583">2170–2740 MHz</tspan></text>
     <text
        xml:space="preserve"
        style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:3.175px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';text-align:center;text-anchor:middle;stroke-width:0.264583"
@@ -2845,17 +2845,17 @@
          x="16.933332"
          y="177.39795"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:2.64583px;line-height:1.1;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';stroke-width:0.264583"
-         id="tspan810">1–2150 MHz: 5–15 dBm</tspan><tspan
+         id="tspan810">1–2170 MHz: 5–15 dBm</tspan><tspan
          sodipodi:role="line"
          x="16.933332"
          y="180.30836"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:2.64583px;line-height:1.1;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';stroke-width:0.264583"
-         id="tspan812">2150–2750 MHz: 13–15 dBm</tspan><tspan
+         id="tspan812">2170–2740 MHz: 13–15 dBm</tspan><tspan
          sodipodi:role="line"
          x="16.933332"
          y="183.21878"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:2.64583px;line-height:1.1;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';stroke-width:0.264583"
-         id="tspan816">2750–4000 MHz: 0–5 dBm</tspan><tspan
+         id="tspan816">2740–4000 MHz: 0–5 dBm</tspan><tspan
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:2.64583px;line-height:1.1;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';stroke-width:0.264583"
          sodipodi:role="line"
          id="tspan822"
@@ -3603,7 +3603,7 @@
          id="tspan1878"
          x="226.48334"
          y="147.10834"
-         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:3.175px;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';stroke-width:0.264583">&gt; 2750 MHz</tspan></text>
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:3.175px;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';stroke-width:0.264583">&gt; 2740 MHz</tspan></text>
     <text
        xml:space="preserve"
        style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:3.175px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';text-align:center;text-anchor:middle;stroke-width:0.264583"
@@ -3614,7 +3614,7 @@
          id="tspan1882"
          x="226.48334"
          y="164.04167"
-         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:3.175px;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';stroke-width:0.264583">&lt; 2150 MHz</tspan></text>
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:3.175px;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';stroke-width:0.264583">&lt; 2170 MHz</tspan></text>
     <path
        style="opacity:1;vector-effect:none;fill:none;fill-opacity:1;stroke:#000000;stroke-width:0.529167;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;stop-color:#000000;stop-opacity:1"
        d="m 247.65003,118.53335 27.51665,-1e-5"
@@ -4255,7 +4255,7 @@
            x="129.11667"
            y="134.40834"
            style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:4.23333px;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';text-align:start;text-anchor:start;stroke-width:0.264583"
-           id="tspan1553">Diagram Revision: A</tspan><tspan
+           id="tspan1553">Diagram Revision: B</tspan><tspan
            sodipodi:role="line"
            x="129.11667"
            y="138.29544"

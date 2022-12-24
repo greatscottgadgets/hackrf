@@ -514,6 +514,8 @@ extern ADDAPI int ADDCALL hackrf_supported_platform_read(
 	hackrf_device* device,
 	uint32_t* value);
 
+extern ADDAPI int ADDCALL hackrf_set_leds(hackrf_device* device, const uint8_t state);
+
 #ifdef __cplusplus
 } // __cplusplus defined.
 #endif
