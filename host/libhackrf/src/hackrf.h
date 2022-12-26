@@ -117,7 +117,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
  * 
  * ## Open by listing
  * 
- * All connected HackRF devices can be listed via @ref hackrf_device_list. The list must be deleted by @ref hackrf_device_list_free.
+ * All connected HackRF devices can be listed via @ref hackrf_device_list. The list must be freed by @ref hackrf_device_list_free.
  * 
  * This struct lists all devices and their serial numbers. Any one of them can be opened by @ref hackrf_device_list_open. All the fields should be treated read-only!
  * 
@@ -351,7 +351,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
  *     hackrf_set_sample_rate(device, 10000000);
  *     hackrf_set_amp_enable(device, 1);
  *     hackrf_set_txvga_gain(device, 20);
- *     // hackrf_set_tx_underrun_limit(device, 100000); // new-ish library function, not always alaviable
+ *     // hackrf_set_tx_underrun_limit(device, 100000); // new-ish library function, not always available
  *     hackrf_enable_tx_flush(device, flush_callback, NULL);
  *     hackrf_start_tx(device, transfer_callback, NULL);
  * 
@@ -424,7 +424,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
  * ## LPC4320 ARM MCU
  * This is the main processor of the unit. It's a multi-core ARM processor. It's configured to boot from a W25Q80B SPI flash, but can also be booted from DFU in order to unbrick a bricked unit. It communicated with the host PC via USB.
  * 
- * Some operation details are alaviable via the function @ref hackrf_get_m0_state
+ * Some operation details are available via the function @ref hackrf_get_m0_state
  * 
  * ## W25Q80B SPI flash
  * 
@@ -469,6 +469,12 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
  * Opera Cake boards can be listed with @ref hackrf_get_operacake_boards, but if only one board is connected, than using address 0 defaults to it.
  * 
  * Opera Cake mode can be setup via @ref hackrf_set_operacake_mode, then the corresponding configuration function can be called.
+ * 
+ * ## Multiple boards
+ * 
+ * There can be up to @ref HACKRF_OPERACAKE_MAX_BOARDS boards connected to a single HackRF One. They can be assigned individual addresses via onboard jumpers, see the [documentation page](https://hackrf.readthedocs.io/en/latest/opera_cake.html) for details.
+ * **Note**: the operating modes of the boards can be set individually via @ref hackrf_set_operacake_mode, but in frequency or time mode, every board configured to that mode will use the same switching plan!
+ * 
  * 
  */
 
@@ -832,9 +838,9 @@ typedef struct {
 	int buffer_length;
 	/** number of buffer bytes that were transferred */
 	int valid_length;
-	/** User provided RX context. Not used by the library, but alaviable to transfer callbacks for use. Set along with the transfer callback using @ref hackrf_start_rx or @ref hackrf_start_rx_sweep */
+	/** User provided RX context. Not used by the library, but available to transfer callbacks for use. Set along with the transfer callback using @ref hackrf_start_rx or @ref hackrf_start_rx_sweep */
 	void* rx_ctx;
-	/** User provided TX context. Not used by the library, but alaviable to transfer callbacks for use. Set along with the transfer callback using @ref hackrf_start_tx*/
+	/** User provided TX context. Not used by the library, but available to transfer callbacks for use. Set along with the transfer callback using @ref hackrf_start_tx*/
 	void* tx_ctx;
 } hackrf_transfer;
 
@@ -964,7 +970,7 @@ typedef int (*hackrf_sample_block_cb_fn)(hackrf_transfer* transfer);
 /**
  * Block complete callback. 
  * 
- * Set via @ref hackrf_set_tx_block_complete_callback, called when a transfer is finished to the device's buffer, regardless if the transfer was successful or not. It can signal the main thread to stop on failure, can cach USB transfer errors and can also gather statistics about the transfered data.
+ * Set via @ref hackrf_set_tx_block_complete_callback, called when a transfer is finished to the device's buffer, regardless if the transfer was successful or not. It can signal the main thread to stop on failure, can catch USB transfer errors and can also gather statistics about the transfered data.
  * @ingroup streaming
  */
 typedef void (*hackrf_tx_block_complete_cb_fn)(hackrf_transfer* transfer, int);
@@ -1019,7 +1025,7 @@ extern ADDAPI const char* ADDCALL hackrf_library_release();
 
 /**
  * List connected HackRF devices
- * @return list of connected devices. The list should be deleted with @ref hackrf_device_list_free
+ * @return list of connected devices. The list should be freed with @ref hackrf_device_list_free
  * @ingroup device
  */
 extern ADDAPI hackrf_device_list_t* ADDCALL hackrf_device_list();
@@ -1045,7 +1051,7 @@ extern ADDAPI int ADDCALL hackrf_device_list_open(
 extern ADDAPI void ADDCALL hackrf_device_list_free(hackrf_device_list_t* list);
 
 /**
- * Open first alaviable HackRF device
+ * Open first available HackRF device
  * @param[out] device device handle
  * @return @ref HACKRF_SUCCESS on success, @ref HACKRF_ERROR_INVALID_PARAM if @p device is NULL, @ref HACKRF_ERROR_NOT_FOUND if no HackRF devices are found or other @ref hackrf_error variant
  * @ingroup device
@@ -1074,12 +1080,12 @@ extern ADDAPI int ADDCALL hackrf_close(hackrf_device* device);
 /**
  * Start receiving
  * 
- * Shuld be called after setting gains, frequency and sampling rate, as these values won't get reset but instead keep their last value, thus their state is unknown.
+ * Should be called after setting gains, frequency and sampling rate, as these values won't get reset but instead keep their last value, thus their state is unknown.
  * 
  * The callback is called with a @ref hackrf_transfer object whenever the buffer is full. The callback is called in an async context so no libhackrf functions should be called from it. The callback should treat its argument as read-only.
  * @param device device to configure
  * @param callback rx_callback
- * @param rx_ctx User provided RX context. Not used by the library, but alaviable to @p callback as @ref hackrf_transfer.rx_ctx.
+ * @param rx_ctx User provided RX context. Not used by the library, but available to @p callback as @ref hackrf_transfer.rx_ctx.
  * @return @ref HACKRF_SUCCESS on success or @ref hackrf_error variant
  * @ingroup streaming
  */
@@ -1101,13 +1107,13 @@ extern ADDAPI int ADDCALL hackrf_stop_rx(hackrf_device* device);
  * Start transmitting
  * 
  *
- * Shuld be called after setting gains, frequency and sampling rate, as these values won't get reset but instead keep their last value, thus their state is unknown. 
+ * Should be called after setting gains, frequency and sampling rate, as these values won't get reset but instead keep their last value, thus their state is unknown. 
  * Setting flush function (using @ref hackrf_enable_tx_flush) and/or setting block complete callback (using @ref hackrf_set_tx_block_complete_callback) (if these features are used) should also be done before this.
  * 
  * The callback is called with a @ref hackrf_transfer object whenever a transfer buffer is needed to be filled with samples. The callback is called in an async context so no libhackrf functions should be called from it. The callback should treat its argument as read-only, except the @ref hackrf_transfer.buffer and @ref hackrf_transfer.valid_length.
  * @param device device to configure
  * @param callback tx_callback
- * @param tx_ctx User provided TX context. Not used by the library, but alaviable to @p callback as @ref hackrf_transfer.tx_ctx.
+ * @param tx_ctx User provided TX context. Not used by the library, but available to @p callback as @ref hackrf_transfer.tx_ctx.
  * @return @ref HACKRF_SUCCESS on success or @ref hackrf_error variant
  * @ingroup streaming
  */
@@ -1718,7 +1724,6 @@ extern ADDAPI int ADDCALL hackrf_get_operacake_boards(
 	hackrf_device* device,
 	uint8_t* boards);
 
-// TODO: why arent't all functions use adresses?
 /**
  * Setup Opera Cake operation mode
  * 
@@ -1773,6 +1778,8 @@ extern ADDAPI int ADDCALL hackrf_set_operacake_ports(
  * 
  * Should be called after @ref hackrf_set_operacake_mode
  * 
+ * **Note:** this configuration applies to all Opera Cake boards in @ref OPERACAKE_MODE_TIME mode 
+ * 
  * Requires USB API version 0x1002 or higher!
  * @param device device to configure
  * @param dwell_times list of dwell times to setup
@@ -1790,6 +1797,8 @@ extern ADDAPI int ADDCALL hackrf_set_operacake_dwell_times(
  * 
  * Should be called after @ref hackrf_set_operacake_mode
  *
+ * **Note:** this configuration applies to all Opera Cake boards in @ref OPERACAKE_MODE_FREQUENCY mode
+ * 
  * Requires USB API version 0x1002 or higher!
  * @param device device to configure
  * @param freq_ranges list of frequency ranges to setup
@@ -1816,6 +1825,8 @@ extern ADDAPI int ADDCALL hackrf_reset(hackrf_device* device);
  * Setup Opera Cake frequency ranges in @ref OPERACAKE_MODE_FREQUENCY mode operation
  * 
  * Old function to set ranges with. Use @ref hackrf_set_operacake_freq_ranges instead!
+ * 
+ * **Note:** this configuration applies to all Opera Cake boards in @ref OPERACAKE_MODE_FREQUENCY mode
  * 
  * Requires USB API version 0x1002 or higher!
  * @param device device to configure
@@ -1881,7 +1892,7 @@ extern ADDAPI int ADDCALL hackrf_operacake_gpio_test(
 /**
  * Read CPLD checksum
  * 
- * This function is not always alaviable, see [issue 609](https://github.com/greatscottgadgets/hackrf/issues/609)
+ * This function is not always available, see [issue 609](https://github.com/greatscottgadgets/hackrf/issues/609)
  * 
  * Requires USB API version 0x1002 or higher!
  * @param[in] device device to read checksum from
@@ -1912,7 +1923,7 @@ extern ADDAPI int ADDCALL hackrf_set_ui_enable(hackrf_device* device, const uint
  * Requires USB API version 0x1002 or higher!
  * @param device device to start sweeping
  * @param callback rx callback processing the received data
- * @param rx_ctx User provided RX context. Not used by the library, but alaviable to @p callback as @ref hackrf_transfer.rx_ctx.
+ * @param rx_ctx User provided RX context. Not used by the library, but available to @p callback as @ref hackrf_transfer.rx_ctx.
  * @return @ref HACKRF_SUCCESS on success or @ref hackrf_error variant
  * @ingroup streaming
  */
