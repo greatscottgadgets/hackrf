@@ -88,7 +88,7 @@ int compatibility_check(uint8_t* data, int length, hackrf_device* device)
 		break;
 	default:
 		printf("Unsupported Board ID");
-		return 1;
+		return EXIT_FAILURE;
 	}
 	// Search for dev_str in uint8_t array of bytes that we're flashing
 	for (i = 0; i < length - str_len; i++) {
@@ -102,11 +102,11 @@ int compatibility_check(uint8_t* data, int length, hackrf_device* device)
 				}
 			}
 			if (match) {
-				return 0;
+				return EXIT_SUCCESS;
 			}
 		}
 	}
-	return 1;
+	return EXIT_FAILURE;
 }
 
 int parse_u32(char* s, uint32_t* const value)
