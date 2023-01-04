@@ -287,7 +287,7 @@ static int allocate_transfers(hackrf_device* const device)
 		uint32_t transfer_index;
 		device->transfers = (struct libusb_transfer**) calloc(
 			TRANSFER_COUNT,
-			sizeof(struct libusb_transfer));
+			sizeof(struct libusb_transfer*));
 		if (device->transfers == NULL) {
 			return HACKRF_ERROR_NO_MEM;
 		}
