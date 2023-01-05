@@ -66,7 +66,7 @@ static struct option long_options[] = {
  * If you're already running firmware that reports the wrong ID
  * I can't help you, but you can use the -i optionto ignore (or DFU)
  */
-int compatibility_check(uint8_t* data, int length, hackrf_device* device)
+int compatibility_check_og(uint8_t* data, int length, hackrf_device* device)
 {
 	int str_len, i, j;
 	bool match = false;
@@ -88,7 +88,7 @@ int compatibility_check(uint8_t* data, int length, hackrf_device* device)
 		break;
 	default:
 		printf("Unsupported Board ID");
-		return 1;
+		return EXIT_FAILURE;
 	}
 	// Search for dev_str in uint8_t array of bytes that we're flashing
 	for (i = 0; i < length - str_len; i++) {
@@ -102,11 +102,61 @@ int compatibility_check(uint8_t* data, int length, hackrf_device* device)
 				}
 			}
 			if (match) {
-				return 0;
+				return EXIT_SUCCESS;
 			}
 		}
 	}
-	return 1;
+	return EXIT_FAILURE;
+}
+
+#define FW_INFO_LOCATION              0x400
+#define FW_MAGIC_OFFSET               0
+#define FW_STRUCT_VERSION_OFFSET      8
+#define FW_SUPPORTED_PLATFORMS_OFFSET 12
+
+#define FROM_LE32(x) ((x)[0] | ((x)[1] << 8) | ((x)[2] << 16) | ((x)[3] << 24))
+#define FROM_LE16(x) ((x)[0] | ((x)[1] << 8))
+
+int compatibility_check(uint8_t* data, int length, hackrf_device* device)
+{
+	uint8_t board_id;
+	hackrf_board_id_read(device, &board_id);
+
+	uint8_t* fw_info = data + FW_INFO_LOCATION;
+	if (strncmp((char*) fw_info + FW_MAGIC_OFFSET, "HACKRFFW", 8) != 0) {
+		// Couldn't find firmware info structure,
+		// revert to old compatibility check method if possible.
+		if (board_id != BOARD_ID_HACKRF1_R9) {
+			return compatibility_check_og(data, length, device);
+		}
+
+		return EXIT_FAILURE;
+	}
+
+	uint32_t platform_required = hackrf_board_id_platform(board_id);
+	if (platform_required == 0) {
+		fprintf(stderr,
+			"Could not find appropriate platform for board id %u (%s).\n",
+			board_id,
+			hackrf_board_id_name(board_id));
+		return EXIT_FAILURE;
+	}
+
+	uint32_t struct_version = FROM_LE16(fw_info + FW_STRUCT_VERSION_OFFSET);
+	if (struct_version == 1) {
+		uint32_t supported_platforms =
+			FROM_LE32(fw_info + FW_SUPPORTED_PLATFORMS_OFFSET);
+		if (platform_required & supported_platforms) {
+			return EXIT_SUCCESS;
+		} else {
+			return EXIT_FAILURE;
+		}
+	} else {
+		fprintf(stderr,
+			"Unrecognised firmware info structure version %u. This may require a newer hackrf_spiflash version.\n",
+			struct_version);
+		return EXIT_FAILURE;
+	}
 }
 
 int parse_u32(char* s, uint32_t* const value)

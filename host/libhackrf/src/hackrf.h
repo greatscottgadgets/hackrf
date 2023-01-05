@@ -412,6 +412,8 @@ extern ADDAPI const char* ADDCALL hackrf_error_name(enum hackrf_error errcode);
 
 extern ADDAPI const char* ADDCALL hackrf_board_id_name(enum hackrf_board_id board_id);
 
+extern ADDAPI uint32_t ADDCALL hackrf_board_id_platform(enum hackrf_board_id board_id);
+
 extern ADDAPI const char* ADDCALL hackrf_usb_board_id_name(
 	enum hackrf_usb_board_id usb_board_id);
 

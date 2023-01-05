@@ -2204,6 +2204,26 @@ const char* ADDCALL hackrf_board_id_name(enum hackrf_board_id board_id)
 	}
 }
 
+extern ADDAPI uint32_t ADDCALL hackrf_board_id_platform(enum hackrf_board_id board_id)
+{
+	switch (board_id) {
+	case BOARD_ID_JAWBREAKER:
+		return HACKRF_PLATFORM_JAWBREAKER;
+
+	case BOARD_ID_HACKRF1_OG:
+		return HACKRF_PLATFORM_HACKRF1_OG;
+
+	case BOARD_ID_RAD1O:
+		return HACKRF_PLATFORM_RAD1O;
+
+	case BOARD_ID_HACKRF1_R9:
+		return HACKRF_PLATFORM_HACKRF1_R9;
+
+	default:
+		return 0;
+	}
+}
+
 extern ADDAPI const char* ADDCALL hackrf_usb_board_id_name(
 	enum hackrf_usb_board_id usb_board_id)
 {

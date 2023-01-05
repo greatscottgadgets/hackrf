@@ -150,7 +150,7 @@ typedef struct usb_endpoint_t usb_endpoint_t;
 
 struct usb_endpoint_t {
 	usb_setup_t setup;
-	uint8_t buffer[8]; // Buffer for use during IN stage.
+	uint8_t buffer[32]; // Buffer for use during IN stage.
 	const uint_fast8_t address;
 	usb_device_t* const device;
 	usb_endpoint_t* const in;

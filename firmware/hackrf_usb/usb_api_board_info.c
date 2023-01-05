@@ -23,6 +23,7 @@
 
 #include "usb_api_board_info.h"
 #include "platform_detect.h"
+#include "firmware_info.h"
 
 #include <hackrf_core.h>
 #include <rom_iap.h>
@@ -31,8 +32,6 @@
 
 #include <stddef.h>
 #include <string.h>
-
-char version_string[] = VERSION_STRING;
 
 usb_request_status_t usb_vendor_request_read_board_id(
 	usb_endpoint_t* const endpoint,
@@ -58,10 +57,15 @@ usb_request_status_t usb_vendor_request_read_version_string(
 	uint8_t length;
 
 	if (stage == USB_TRANSFER_STAGE_SETUP) {
-		length = (uint8_t) strlen(version_string);
+		length = (uint8_t) strlen(firmware_info.version_string);
+		// The USB peripheral doesn't seem to be able to read directly from flash,
+		// so copy the version string into ram first.
+		memcpy(&endpoint->buffer,
+		       firmware_info.version_string,
+		       sizeof(firmware_info.version_string));
 		usb_transfer_schedule_block(
 			endpoint->in,
-			version_string,
+			&endpoint->buffer,
 			length,
 			NULL,
 			NULL);
