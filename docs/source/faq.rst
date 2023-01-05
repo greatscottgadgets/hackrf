@@ -125,7 +125,7 @@ The two TX gain controls are at these stages:
 - RF (0 or ~11 dB)
 - IF (0 to 47 dB in 1 dB steps)
 
-Note: in some documents, the RF gain was erroneously quoted to be 14dB. The confusion was based on the fact that the MGA-81563 amplifier is advertised as a "14 dBm" amplifier, but that specifies its output power, not its amplification. See `Martin Ling's comment on issue #1059<https://github.com/greatscottgadgets/hackrf/issues/1059#issuecomment-1060038293>`__ for some details!
+Note: in some documents, the RF gain was erroneously quoted to be 14 dB. The confusion was based on the fact that the MGA-81563 amplifier is advertised as a "14 dBm" amplifier, but that specifies its output power, not its amplification. See `Martin Ling's comment on issue #1059<https://github.com/greatscottgadgets/hackrf/issues/1059#issuecomment-1060038293>`__ for some details!
 
 ----
 
