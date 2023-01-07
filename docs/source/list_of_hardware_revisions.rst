@@ -15,19 +15,26 @@ This experimental revision has not been manufactured.
 HackRF One r6
 ~~~~~~~~~~~~~
 
-SKY13350 RF switches were replaced by SKY13453 due to component availability. Although the SKY13453 uses simplified control logic, it did not require a firmware modification. Manufacturing year: 2020
+SKY13350 RF switches were replaced by SKY13453. Although the SKY13453 uses simplified control logic, it did not require a firmware modification. Hardware revision detection pin straps were added. Manufacturing year: 2020
 
 HackRF One r7
 ~~~~~~~~~~~~~
 
-SKY13453 RF switches were reverted to SKY13350 due to component availability. USB VBUS detection resistor values were changed to better protect the LPC4320. Manufacturing year: 2021
+SKY13453 RF switches were reverted to SKY13350. USB VBUS detection resistor values were updated. Manufacturing year: 2021
 
 HackRF One r8
 ~~~~~~~~~~~~~
 
-SKY13350 RF switches were replaced by SKY13453 due to component availability. Manufacturing years: 2021–2022
+SKY13350 RF switches were replaced by SKY13453. Manufacturing years: 2021–2022
+
+HackRF One r9
+~~~~~~~~~~~~~
+
+MAX2837 was replaced by MAX2839. Si5351C was replaced by Si5351A with additional clock distribution. A series diode was added to the antenna port power supply. Manufacturing year: 2023
 
 Hardware Revision Identification
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 HackRF Ones manufactured by Great Scott Gadgets have the revision number printed on the PCB top silkscreen layer near the MAX5864 (U18).
+
+Starting with HackRF One r6, hardware revisions are detected by firmware and reported by ``hackrf_info``.
