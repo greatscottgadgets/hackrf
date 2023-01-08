@@ -60,8 +60,8 @@ static struct gpio_t gpio_led[] = {
 // clang-format off
 static struct gpio_t gpio_1v8_enable        = GPIO(3,  6);
 
-/* MAX2837 GPIO (XCVR_CTL) PinMux */
-static struct gpio_t gpio_max2837_select    = GPIO(0, 15);
+/* MAX283x GPIO (XCVR_CTL) PinMux */
+static struct gpio_t gpio_max283x_select    = GPIO(0, 15);
 
 /* MAX5864 SPI chip select (AD_CS) GPIO PinMux */
 static struct gpio_t gpio_max5864_select    = GPIO(2,  7);
@@ -172,7 +172,7 @@ si5351c_driver_t clock_gen = {
 	.i2c_address = 0x60,
 };
 
-const ssp_config_t ssp_config_max2837 = {
+const ssp_config_t ssp_config_max283x = {
 	/* FIXME speed up once everything is working reliably */
 	/*
 	// Freq About 0.0498MHz / 49.8KHz => Freq = PCLK / (CPSDVSR * [SCR+1]) with PCLK=PLL1=204MHz
@@ -183,21 +183,7 @@ const ssp_config_t ssp_config_max2837 = {
 	.data_bits = SSP_DATA_16BITS,
 	.serial_clock_rate = 21,
 	.clock_prescale_rate = 2,
-	.gpio_select = &gpio_max2837_select,
-};
-
-const ssp_config_t ssp_config_max2839 = {
-	/* FIXME speed up once everything is working reliably */
-	/*
-	// Freq About 0.0498MHz / 49.8KHz => Freq = PCLK / (CPSDVSR * [SCR+1]) with PCLK=PLL1=204MHz
-	const uint8_t serial_clock_rate = 32;
-	const uint8_t clock_prescale_rate = 128;
-	*/
-	// Freq About 4.857MHz => Freq = PCLK / (CPSDVSR * [SCR+1]) with PCLK=PLL1=204MHz
-	.data_bits = SSP_DATA_16BITS,
-	.serial_clock_rate = 21,
-	.clock_prescale_rate = 2,
-	.gpio_select = &gpio_max2837_select,
+	.gpio_select = &gpio_max283x_select,
 };
 
 const ssp_config_t ssp_config_max5864 = {
@@ -868,14 +854,9 @@ clock_source_t activate_best_clock_source(void)
 	return source;
 }
 
-void ssp1_set_mode_max2837(void)
+void ssp1_set_mode_max283x(void)
 {
-	spi_bus_start(max2837.bus, &ssp_config_max2837);
-}
-
-void ssp1_set_mode_max2839(void)
-{
-	spi_bus_start(max2839.bus, &ssp_config_max2839);
+	spi_bus_start(&spi_bus_ssp1, &ssp_config_max283x);
 }
 
 void ssp1_set_mode_max5864(void)
@@ -974,11 +955,7 @@ void pin_setup(void)
 	/* enable input on SCL and SDA pins */
 	SCU_SFSI2C0 = SCU_I2C0_NOMINAL;
 
-	if (detected_platform() == BOARD_ID_HACKRF1_R9) {
-		spi_bus_start(&spi_bus_ssp1, &ssp_config_max2839);
-	} else {
-		spi_bus_start(&spi_bus_ssp1, &ssp_config_max2837);
-	}
+	spi_bus_start(&spi_bus_ssp1, &ssp_config_max283x);
 
 	mixer_bus_setup(&mixer);
 

@@ -76,9 +76,6 @@ void max283x_reg_write(max283x_driver_t* const drv, uint8_t r, uint16_t v);
  * provided routines for those operations. */
 void max283x_regs_commit(max283x_driver_t* const drv);
 
-//max283x_mode_t max283x_mode(max283x_driver_t* const drv);
-//void max283x_set_mode(max283x_driver_t* const drv, const max283x_mode_t new_mode);
-
 max283x_mode_t max283x_mode(max283x_driver_t* const drv);
 void max283x_set_mode(max283x_driver_t* const drv, const max283x_mode_t new_mode);
 
