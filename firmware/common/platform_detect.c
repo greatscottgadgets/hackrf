@@ -165,7 +165,7 @@ void detect_hardware_platform(void)
 		platform = BOARD_ID_HACKRF1_OG;
 		break;
 	case HACKRF1_R9_RESISTORS:
-		if (!(supported_platform() & PLATFORM_HACKRF1_OG)) { //FIXME temporary
+		if (!(supported_platform() & PLATFORM_HACKRF1_R9)) {
 			halt_and_flash(3000000);
 		}
 		platform = BOARD_ID_HACKRF1_R9;
