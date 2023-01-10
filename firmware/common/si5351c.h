@@ -102,6 +102,7 @@ void si5351c_write(
 	const uint8_t* const data,
 	const size_t data_count);
 void si5351c_clkout_enable(si5351c_driver_t* const drv, uint8_t enable);
+void si5351c_init(si5351c_driver_t* const drv);
 
 #ifdef __cplusplus
 }

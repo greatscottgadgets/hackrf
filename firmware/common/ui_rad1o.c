@@ -202,7 +202,7 @@ static void ui_update(void)
 	rad1o_lcdDisplay();
 
 	// Don't ask...
-	ssp1_set_mode_max2837();
+	ssp1_set_mode_max283x();
 }
 
 static void rad1o_ui_init(void)
@@ -217,7 +217,7 @@ static void rad1o_ui_deinit(void)
 	rad1o_lcdDeInit();
 	enabled = false;
 	// Don't ask...
-	ssp1_set_mode_max2837();
+	ssp1_set_mode_max283x();
 }
 
 static void rad1o_ui_set_frequency(uint64_t frequency)

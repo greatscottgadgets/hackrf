@@ -26,8 +26,7 @@
 #include "sgpio.h"
 #include "si5351c.h"
 #include "spi_ssp.h"
-#include "max2837.h"
-#include "max2837_target.h"
+#include "max283x.h"
 #include "max5864.h"
 #include "max5864_target.h"
 #include "w25q80bv.h"
@@ -35,6 +34,8 @@
 #include "i2c_bus.h"
 #include "i2c_lpc.h"
 #include "cpld_jtag.h"
+#include "platform_detect.h"
+#include "clkin.h"
 #include <libopencm3/lpc43xx/cgu.h>
 #include <libopencm3/lpc43xx/ccu.h>
 #include <libopencm3/lpc43xx/scu.h>
@@ -59,11 +60,8 @@ static struct gpio_t gpio_led[] = {
 // clang-format off
 static struct gpio_t gpio_1v8_enable        = GPIO(3,  6);
 
-/* MAX2837 GPIO (XCVR_CTL) PinMux */
-static struct gpio_t gpio_max2837_select    = GPIO(0, 15);
-static struct gpio_t gpio_max2837_enable    = GPIO(2,  6);
-static struct gpio_t gpio_max2837_rx_enable = GPIO(2,  5);
-static struct gpio_t gpio_max2837_tx_enable = GPIO(2,  4);
+/* MAX283x GPIO (XCVR_CTL) PinMux */
+static struct gpio_t gpio_max283x_select    = GPIO(0, 15);
 
 /* MAX5864 SPI chip select (AD_CS) GPIO PinMux */
 static struct gpio_t gpio_max5864_select    = GPIO(2,  7);
@@ -134,8 +132,17 @@ static struct gpio_t gpio_cpld_pp_tms       = GPIO(1,  1);
 static struct gpio_t gpio_cpld_pp_tdo       = GPIO(1,  8);
 #endif
 
-static struct gpio_t gpio_hw_sync_enable    = GPIO(5,12);
-static struct gpio_t gpio_rx_q_invert       = GPIO(0, 13);
+/* other CPLD interface GPIO pins */
+static struct gpio_t gpio_hw_sync_enable    = GPIO(5, 12);
+static struct gpio_t gpio_q_invert          = GPIO(0, 13);
+
+/* HackRF One r9 */
+#ifdef HACKRF_ONE
+static struct gpio_t gpio_h1r9_rx             = GPIO(0, 7);
+static struct gpio_t gpio_h1r9_1v8_enable     = GPIO(2, 9);
+static struct gpio_t gpio_h1r9_vaa_disable    = GPIO(3, 6);
+static struct gpio_t gpio_h1r9_hw_sync_enable = GPIO(5, 5);
+#endif
 // clang-format on
 
 i2c_bus_t i2c0 = {
@@ -165,7 +172,7 @@ si5351c_driver_t clock_gen = {
 	.i2c_address = 0x60,
 };
 
-const ssp_config_t ssp_config_max2837 = {
+const ssp_config_t ssp_config_max283x = {
 	/* FIXME speed up once everything is working reliably */
 	/*
 	// Freq About 0.0498MHz / 49.8KHz => Freq = PCLK / (CPSDVSR * [SCR+1]) with PCLK=PLL1=204MHz
@@ -176,7 +183,7 @@ const ssp_config_t ssp_config_max2837 = {
 	.data_bits = SSP_DATA_16BITS,
 	.serial_clock_rate = 21,
 	.clock_prescale_rate = 2,
-	.gpio_select = &gpio_max2837_select,
+	.gpio_select = &gpio_max283x_select,
 };
 
 const ssp_config_t ssp_config_max5864 = {
@@ -195,21 +202,14 @@ const ssp_config_t ssp_config_max5864 = {
 
 spi_bus_t spi_bus_ssp1 = {
 	.obj = (void*) SSP1_BASE,
-	.config = &ssp_config_max2837,
+	.config = &ssp_config_max5864,
 	.start = spi_ssp_start,
 	.stop = spi_ssp_stop,
 	.transfer = spi_ssp_transfer,
 	.transfer_gather = spi_ssp_transfer_gather,
 };
 
-max2837_driver_t max2837 = {
-	.bus = &spi_bus_ssp1,
-	.gpio_enable = &gpio_max2837_enable,
-	.gpio_rx_enable = &gpio_max2837_rx_enable,
-	.gpio_tx_enable = &gpio_max2837_tx_enable,
-	.target_init = max2837_target_init,
-	.set_mode = max2837_target_set_mode,
-};
+max283x_driver_t max283x = {};
 
 max5864_driver_t max5864 = {
 	.bus = &spi_bus_ssp1,
@@ -240,7 +240,7 @@ w25q80bv_driver_t spi_flash = {
 };
 
 sgpio_config_t sgpio_config = {
-	.gpio_rx_q_invert = &gpio_rx_q_invert,
+	.gpio_q_invert = &gpio_q_invert,
 	.gpio_hw_sync_enable = &gpio_hw_sync_enable,
 	.slice_mode_multislice = true,
 };
@@ -406,14 +406,26 @@ bool sample_rate_frac_set(uint32_t rate_num, uint32_t rate_denom)
 	MSx_P2 = (128 * b) % c;
 	MSx_P3 = c;
 
-	/* MS0/CLK0 is the source for the MAX5864/CPLD (CODEC_CLK). */
-	si5351c_configure_multisynth(&clock_gen, 0, MSx_P1, MSx_P2, MSx_P3, 1);
+	if (detected_platform() == BOARD_ID_HACKRF1_R9) {
+		/*
+		 * On HackRF One r9 all sample clocks are externally derived
+		 * from MS1/CLK1 operating at twice the sample rate.
+		 */
+		si5351c_configure_multisynth(&clock_gen, 1, MSx_P1, MSx_P2, MSx_P3, 0);
+	} else {
+		/*
+		 * On other platforms the clock generator produces three
+		 * different sample clocks, all derived from multisynth 0.
+		 */
+		/* MS0/CLK0 is the source for the MAX5864/CPLD (CODEC_CLK). */
+		si5351c_configure_multisynth(&clock_gen, 0, MSx_P1, MSx_P2, MSx_P3, 1);
 
-	/* MS0/CLK1 is the source for the CPLD (CODEC_X2_CLK). */
-	si5351c_configure_multisynth(&clock_gen, 1, 0, 0, 0, 0); //p1 doesn't matter
+		/* MS0/CLK1 is the source for the CPLD (CODEC_X2_CLK). */
+		si5351c_configure_multisynth(&clock_gen, 1, 0, 0, 0, 0); //p1 doesn't matter
 
-	/* MS0/CLK2 is the source for SGPIO (CODEC_X2_CLK) */
-	si5351c_configure_multisynth(&clock_gen, 2, 0, 0, 0, 0); //p1 doesn't matter
+		/* MS0/CLK2 is the source for SGPIO (CODEC_X2_CLK) */
+		si5351c_configure_multisynth(&clock_gen, 2, 0, 0, 0, 0); //p1 doesn't matter
+	}
 
 	if (streaming) {
 		sgpio_cpld_stream_enable(&sgpio_config);
@@ -474,21 +486,46 @@ bool sample_rate_set(const uint32_t sample_rate_hz)
 		return false;
 	}
 
-	/* MS0/CLK0 is the source for the MAX5864/CPLD (CODEC_CLK). */
-	si5351c_configure_multisynth(&clock_gen, 0, p1, p2, p3, 1);
+	if (detected_platform() == BOARD_ID_HACKRF1_R9) {
+		/*
+		 * On HackRF One r9 all sample clocks are externally derived
+		 * from MS1/CLK1 operating at twice the sample rate.
+		 */
+		si5351c_configure_multisynth(&clock_gen, 1, p1, p2, p3, 0);
+	} else {
+		/*
+		 * On other platforms the clock generator produces three
+		 * different sample clocks, all derived from multisynth 0.
+		 */
+		/* MS0/CLK0 is the source for the MAX5864/CPLD (CODEC_CLK). */
+		si5351c_configure_multisynth(&clock_gen, 0, p1, p2, p3, 1);
 
-	/* MS0/CLK1 is the source for the CPLD (CODEC_X2_CLK). */
-	si5351c_configure_multisynth(&clock_gen, 1, p1, 0, 1, 0); //p1 doesn't matter
+		/* MS0/CLK1 is the source for the CPLD (CODEC_X2_CLK). */
+		si5351c_configure_multisynth(
+			&clock_gen,
+			1,
+			p1,
+			0,
+			1,
+			0); //p1 doesn't matter
 
-	/* MS0/CLK2 is the source for SGPIO (CODEC_X2_CLK) */
-	si5351c_configure_multisynth(&clock_gen, 2, p1, 0, 1, 0); //p1 doesn't matter
+		/* MS0/CLK2 is the source for SGPIO (CODEC_X2_CLK) */
+		si5351c_configure_multisynth(
+			&clock_gen,
+			2,
+			p1,
+			0,
+			1,
+			0); //p1 doesn't matter
+	}
 
 	return true;
 }
 
 bool baseband_filter_bandwidth_set(const uint32_t bandwidth_hz)
 {
-	uint32_t bandwidth_hz_real = max2837_set_lpf_bandwidth(&max2837, bandwidth_hz);
+	uint32_t bandwidth_hz_real;
+	bandwidth_hz_real = max283x_set_lpf_bandwidth(&max283x, bandwidth_hz);
 
 	if (bandwidth_hz_real) {
 		hackrf_ui()->set_filter_bw(bandwidth_hz_real);
@@ -578,6 +615,7 @@ void cpu_clock_init(void)
 
 	i2c_bus_start(clock_gen.bus, &i2c_config_si5351c_fast_clock);
 
+	si5351c_init(&clock_gen);
 	si5351c_disable_all_outputs(&clock_gen);
 	si5351c_disable_oeb_pin_control(&clock_gen);
 	si5351c_power_down_all_clocks(&clock_gen);
@@ -587,7 +625,12 @@ void cpu_clock_init(void)
 	si5351c_configure_pll_multisynth(&clock_gen);
 
 	/*
-	 * Clocks:
+	 * Clocks on HackRF One r9:
+	 *   CLK0 -> MAX5864/CPLD/SGPIO (sample clocks)
+	 *   CLK1 -> RFFC5072/MAX2839
+	 *   CLK2 -> External Clock Output/LPC43xx (power down at boot)
+	 *
+	 * Clocks on other platforms:
 	 *   CLK0 -> MAX5864/CPLD
 	 *   CLK1 -> CPLD
 	 *   CLK2 -> SGPIO
@@ -598,22 +641,33 @@ void cpu_clock_init(void)
 	 *   CLK7 -> LPC43xx (uses a 12MHz crystal by default)
 	 */
 
-	/* MS4/CLK4 is the source for the RFFC5071 mixer (MAX2837 on rad1o). */
-	si5351c_configure_multisynth(
-		&clock_gen,
-		4,
-		20 * 128 - 512,
-		0,
-		1,
-		0); /* 800/20 = 40MHz */
-	/* MS5/CLK5 is the source for the MAX2837 clock input (MAX2871 on rad1o). */
-	si5351c_configure_multisynth(
-		&clock_gen,
-		5,
-		20 * 128 - 512,
-		0,
-		1,
-		0); /* 800/20 = 40MHz */
+	if (detected_platform() == BOARD_ID_HACKRF1_R9) {
+		/* MS0/CLK0 is the reference for both RFFC5071 and MAX2839. */
+		si5351c_configure_multisynth(
+			&clock_gen,
+			0,
+			20 * 128 - 512,
+			0,
+			1,
+			0); /* 800/20 = 40MHz */
+	} else {
+		/* MS4/CLK4 is the source for the RFFC5071 mixer (MAX2837 on rad1o). */
+		si5351c_configure_multisynth(
+			&clock_gen,
+			4,
+			20 * 128 - 512,
+			0,
+			1,
+			0); /* 800/20 = 40MHz */
+		/* MS5/CLK5 is the source for the MAX2837 clock input (MAX2871 on rad1o). */
+		si5351c_configure_multisynth(
+			&clock_gen,
+			5,
+			20 * 128 - 512,
+			0,
+			1,
+			0); /* 800/20 = 40MHz */
+	}
 
 	/* MS6/CLK6 is unused. */
 	/* MS7/CLK7 is unused. */
@@ -727,7 +781,7 @@ void cpu_clock_init(void)
 	CCU1_CLK_APB3_ADC1_CFG = 0;
 	CCU1_CLK_APB3_CAN0_CFG = 0;
 	CCU1_CLK_APB3_DAC_CFG = 0;
-	CCU1_CLK_M4_DMA_CFG = 0;
+	//CCU1_CLK_M4_DMA_CFG = 0;
 	CCU1_CLK_M4_EMC_CFG = 0;
 	CCU1_CLK_M4_EMCDIV_CFG = 0;
 	CCU1_CLK_M4_ETHERNET_CFG = 0;
@@ -738,8 +792,8 @@ void cpu_clock_init(void)
 	CCU1_CLK_M4_SDIO_CFG = 0;
 	CCU1_CLK_M4_SPIFI_CFG = 0;
 	CCU1_CLK_M4_TIMER0_CFG = 0;
-	CCU1_CLK_M4_TIMER1_CFG = 0;
-	CCU1_CLK_M4_TIMER2_CFG = 0;
+	//CCU1_CLK_M4_TIMER1_CFG = 0;
+	//CCU1_CLK_M4_TIMER2_CFG = 0;
 	CCU1_CLK_M4_TIMER3_CFG = 0;
 	CCU1_CLK_M4_UART1_CFG = 0;
 	CCU1_CLK_M4_USART0_CFG = 0;
@@ -757,6 +811,10 @@ void cpu_clock_init(void)
 	// CCU2_CLK_APLL_CFG = 0;
 	// CCU2_CLK_SDIO_CFG = 0;
 #endif
+
+	if (detected_platform() == BOARD_ID_HACKRF1_R9) {
+		clkin_detect_init();
+	}
 }
 
 clock_source_t activate_best_clock_source(void)
@@ -796,9 +854,9 @@ clock_source_t activate_best_clock_source(void)
 	return source;
 }
 
-void ssp1_set_mode_max2837(void)
+void ssp1_set_mode_max283x(void)
 {
-	spi_bus_start(max2837.bus, &ssp_config_max2837);
+	spi_bus_start(&spi_bus_ssp1, &ssp_config_max283x);
 }
 
 void ssp1_set_mode_max5864(void)
@@ -856,15 +914,26 @@ void pin_setup(void)
 #endif
 
 	disable_1v8_power();
-	gpio_output(&gpio_1v8_enable);
-	scu_pinmux(SCU_PINMUX_EN1V8, SCU_GPIO_NOPULL | SCU_CONF_FUNCTION0);
+	if (detected_platform() == BOARD_ID_HACKRF1_R9) {
+#ifdef HACKRF_ONE
+		gpio_output(&gpio_h1r9_1v8_enable);
+		scu_pinmux(SCU_H1R9_EN1V8, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+#endif
+	} else {
+		gpio_output(&gpio_1v8_enable);
+		scu_pinmux(SCU_PINMUX_EN1V8, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+	}
 
 #ifdef HACKRF_ONE
 	/* Safe state: start with VAA turned off: */
 	disable_rf_power();
 
 	/* Configure RF power supply (VAA) switch control signal as output */
-	gpio_output(&gpio_vaa_disable);
+	if (detected_platform() == BOARD_ID_HACKRF1_R9) {
+		gpio_output(&gpio_h1r9_vaa_disable);
+	} else {
+		gpio_output(&gpio_vaa_disable);
+	}
 #endif
 
 #ifdef RAD1O
@@ -886,10 +955,16 @@ void pin_setup(void)
 	/* enable input on SCL and SDA pins */
 	SCU_SFSI2C0 = SCU_I2C0_NOMINAL;
 
-	spi_bus_start(&spi_bus_ssp1, &ssp_config_max2837);
+	spi_bus_start(&spi_bus_ssp1, &ssp_config_max283x);
 
 	mixer_bus_setup(&mixer);
 
+#ifdef HACKRF_ONE
+	if (detected_platform() == BOARD_ID_HACKRF1_R9) {
+		rf_path.gpio_rx = &gpio_h1r9_rx;
+		sgpio_config.gpio_hw_sync_enable = &gpio_h1r9_hw_sync_enable;
+	}
+#endif
 	rf_path_pin_setup(&rf_path);
 
 	/* Configure external clock in */
@@ -900,12 +975,24 @@ void pin_setup(void)
 
 void enable_1v8_power(void)
 {
-	gpio_set(&gpio_1v8_enable);
+	if (detected_platform() == BOARD_ID_HACKRF1_R9) {
+#ifdef HACKRF_ONE
+		gpio_set(&gpio_h1r9_1v8_enable);
+#endif
+	} else {
+		gpio_set(&gpio_1v8_enable);
+	}
 }
 
 void disable_1v8_power(void)
 {
-	gpio_clear(&gpio_1v8_enable);
+	if (detected_platform() == BOARD_ID_HACKRF1_R9) {
+#ifdef HACKRF_ONE
+		gpio_clear(&gpio_h1r9_1v8_enable);
+#endif
+	} else {
+		gpio_clear(&gpio_1v8_enable);
+	}
 }
 
 #ifdef HACKRF_ONE
@@ -915,15 +1002,23 @@ void enable_rf_power(void)
 
 	/* many short pulses to avoid one big voltage glitch */
 	for (i = 0; i < 1000; i++) {
-		gpio_clear(&gpio_vaa_disable);
-		gpio_set(&gpio_vaa_disable);
+		if (detected_platform() == BOARD_ID_HACKRF1_R9) {
+			gpio_set(&gpio_h1r9_vaa_disable);
+			gpio_clear(&gpio_h1r9_vaa_disable);
+		} else {
+			gpio_set(&gpio_vaa_disable);
+			gpio_clear(&gpio_vaa_disable);
+		}
 	}
-	gpio_clear(&gpio_vaa_disable);
 }
 
 void disable_rf_power(void)
 {
-	gpio_set(&gpio_vaa_disable);
+	if (detected_platform() == BOARD_ID_HACKRF1_R9) {
+		gpio_set(&gpio_h1r9_vaa_disable);
+	} else {
+		gpio_set(&gpio_vaa_disable);
+	}
 }
 #endif
 
@@ -970,7 +1065,7 @@ void set_leds(const uint8_t state)
 
 void hw_sync_enable(const hw_sync_mode_t hw_sync_mode)
 {
-	gpio_write(&gpio_hw_sync_enable, hw_sync_mode == 1);
+	gpio_write(sgpio_config.gpio_hw_sync_enable, hw_sync_mode == 1);
 }
 
 void halt_and_flash(const uint32_t duration)

@@ -25,7 +25,7 @@
 
 #include <hackrf_core.h>
 #include <usb_queue.h>
-#include <max2837.h>
+#include <max283x.h>
 #include <rffc5071.h>
 
 #include <stddef.h>
@@ -33,15 +33,15 @@
 
 #include <hackrf_core.h>
 
-usb_request_status_t usb_vendor_request_write_max2837(
+usb_request_status_t usb_vendor_request_write_max283x(
 	usb_endpoint_t* const endpoint,
 	const usb_transfer_stage_t stage)
 {
 	if (stage == USB_TRANSFER_STAGE_SETUP) {
 		if (endpoint->setup.index < MAX2837_NUM_REGS) {
 			if (endpoint->setup.value < MAX2837_DATA_REGS_MAX_VALUE) {
-				max2837_reg_write(
-					&max2837,
+				max283x_reg_write(
+					&max283x,
 					endpoint->setup.index,
 					endpoint->setup.value);
 				usb_transfer_schedule_ack(endpoint->in);
@@ -54,14 +54,14 @@ usb_request_status_t usb_vendor_request_write_max2837(
 	}
 }
 
-usb_request_status_t usb_vendor_request_read_max2837(
+usb_request_status_t usb_vendor_request_read_max283x(
 	usb_endpoint_t* const endpoint,
 	const usb_transfer_stage_t stage)
 {
 	if (stage == USB_TRANSFER_STAGE_SETUP) {
 		if (endpoint->setup.index < MAX2837_NUM_REGS) {
 			const uint16_t value =
-				max2837_reg_read(&max2837, endpoint->setup.index);
+				max283x_reg_read(&max283x, endpoint->setup.index);
 			endpoint->buffer[0] = value & 0xff;
 			endpoint->buffer[1] = value >> 8;
 			usb_transfer_schedule_block(

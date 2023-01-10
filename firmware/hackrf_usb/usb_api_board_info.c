@@ -33,6 +33,13 @@
 #include <stddef.h>
 #include <string.h>
 
+#ifdef HACKRF_ONE
+	#include "gpio_lpc.h"
+static struct gpio_t gpio_h1r9_clkout_en = GPIO(0, 9);
+static struct gpio_t gpio_h1r9_mcu_clk_en = GPIO(0, 8);
+static struct gpio_t gpio_h1r9_rx = GPIO(0, 7);
+#endif
+
 usb_request_status_t usb_vendor_request_read_board_id(
 	usb_endpoint_t* const endpoint,
 	const usb_transfer_stage_t stage)
@@ -123,7 +130,19 @@ usb_request_status_t usb_vendor_request_reset(
 	const usb_transfer_stage_t stage)
 {
 	if (stage == USB_TRANSFER_STAGE_SETUP) {
+#ifdef HACKRF_ONE
+		/*
+		 * Set boot pins as inputs so that the bootloader reads them
+		 * correctly after the reset.
+		 */
+		if (detected_platform() == BOARD_ID_HACKRF1_R9) {
+			gpio_input(&gpio_h1r9_mcu_clk_en);
+			gpio_input(&gpio_h1r9_clkout_en);
+			gpio_input(&gpio_h1r9_rx);
+		}
+#endif
 		wwdt_reset(100000);
+
 		usb_transfer_schedule_ack(endpoint->in);
 	}
 	return USB_REQUEST_STATUS_OK;

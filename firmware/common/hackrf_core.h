@@ -34,7 +34,7 @@ extern "C" {
 #include "si5351c.h"
 #include "spi_ssp.h"
 
-#include "max2837.h"
+#include "max283x.h"
 #include "max5864.h"
 #include "mixer.h"
 #include "w25q80bv.h"
@@ -108,9 +108,9 @@ extern "C" {
 #define SCU_PINMUX_SGPIO10 (P1_14)
 #define SCU_PINMUX_SGPIO11 (P1_17)
 #define SCU_PINMUX_SGPIO12 (P1_18)
-#define SCU_PINMUX_SGPIO13 (P4_8)
 #define SCU_PINMUX_SGPIO14 (P4_9)
 #define SCU_PINMUX_SGPIO15 (P4_10)
+#define SCU_HW_SYNC_EN     (P4_8) /* GPIO5[12] on P4_8 */
 
 /* MAX2837 GPIO (XCVR_CTL) PinMux */
 #ifdef RAD1O
@@ -232,6 +232,16 @@ extern "C" {
 
 #define SCU_PINMUX_GP_CLKIN (P4_7)
 
+/* HackRF One r9 */
+#define SCU_H1R9_CLKIN_EN   (P6_7)  /* GPIO5[15] on P6_7 */
+#define SCU_H1R9_CLKOUT_EN  (P1_2)  /* GPIO0[9] on P1_2 (has boot pull-down) */
+#define SCU_H1R9_MCU_CLK_EN (P1_1)  /* GPIO0[8] on P1_1 (has boot pull-up) */
+#define SCU_H1R9_RX         (P2_7)  /* GPIO0[7] on P4_4 (has boot pull-up) */
+#define SCU_H1R9_NO_ANT_PWR (P4_4)  /* GPIO2[4] on P4_4 */
+#define SCU_H1R9_EN1V8      (P5_0)  /* GPIO2[9] on P5_0 */
+#define SCU_H1R9_NO_VAA_EN  (P6_10) /* GPIO3[6] on P6_10 */
+#define SCU_H1R9_HW_SYNC_EN (P2_5)  /* GPIO5[5] on P2_5 */
+
 typedef enum {
 	TRANSCEIVER_MODE_OFF = 0,
 	TRANSCEIVER_MODE_RX = 1,
@@ -258,10 +268,10 @@ void delay_us_at_mhz(uint32_t us, uint32_t mhz);
 /* TODO: Hide these configurations */
 extern si5351c_driver_t clock_gen;
 extern const ssp_config_t ssp_config_w25q80bv;
-extern const ssp_config_t ssp_config_max2837;
+extern const ssp_config_t ssp_config_max283x;
 extern const ssp_config_t ssp_config_max5864;
 
-extern max2837_driver_t max2837;
+extern max283x_driver_t max283x;
 extern max5864_driver_t max5864;
 extern mixer_driver_t mixer;
 extern w25q80bv_driver_t spi_flash;
@@ -271,7 +281,7 @@ extern jtag_t jtag_cpld;
 extern i2c_bus_t i2c0;
 
 void cpu_clock_init(void);
-void ssp1_set_mode_max2837(void);
+void ssp1_set_mode_max283x(void);
 void ssp1_set_mode_max5864(void);
 
 void pin_setup(void);

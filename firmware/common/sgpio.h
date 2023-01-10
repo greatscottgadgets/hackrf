@@ -36,7 +36,7 @@ typedef enum {
 } sgpio_direction_t;
 
 typedef struct sgpio_config_t {
-	gpio_t gpio_rx_q_invert;
+	gpio_t gpio_q_invert;
 	gpio_t gpio_hw_sync_enable;
 	bool slice_mode_multislice;
 } sgpio_config_t;
@@ -49,8 +49,6 @@ void sgpio_cpld_stream_enable(sgpio_config_t* const config);
 void sgpio_cpld_stream_disable(sgpio_config_t* const config);
 bool sgpio_cpld_stream_is_enabled(sgpio_config_t* const config);
 
-void sgpio_cpld_stream_rx_set_q_invert(
-	sgpio_config_t* const config,
-	const uint_fast8_t invert);
+void sgpio_cpld_set_mixer_invert(sgpio_config_t* const config, uint_fast8_t invert);
 
 #endif //__SGPIO_H__
