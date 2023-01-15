@@ -25,16 +25,22 @@ IF (NOT CMAKE_SYSTEM_NAME STREQUAL "Windows")
   pkg_check_modules(PC_LIBUSB libusb-1.0)
 ENDIF()
 
-set(LIBUSB_LIBRARY_NAME usb-1.0)
+set(LIBUSB_LIBRARY_NAMES usb-1.0)
 IF(${CMAKE_SYSTEM_NAME} MATCHES "FreeBSD")
-  set(LIBUSB_LIBRARY_NAME usb)
-ENDIF()
+  set(LIBUSB_LIBRARY_NAMES usb)
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+
+  # vcpkg's libusb-1.0 has a "lib" prefix, but on Windows MVSC, CMake doesn't search for
+  # static libraries with lib prefixes automatically.
+  list(APPEND LIBUSB_LIBRARY_NAMES libusb-1.0)
+endif()
+
 
 FIND_PATH(LIBUSB_INCLUDE_DIR libusb.h
   PATHS ${PC_LIBUSB_INCLUDEDIR} ${PC_LIBUSB_INCLUDE_DIRS}
   PATH_SUFFIXES libusb-1.0)
 
-FIND_LIBRARY(LIBUSB_LIBRARIES NAMES ${LIBUSB_LIBRARY_NAME}
+FIND_LIBRARY(LIBUSB_LIBRARIES NAMES ${LIBUSB_LIBRARY_NAMES}
   PATHS ${PC_LIBUSB_LIBDIR} ${PC_LIBUSB_LIBRARY_DIRS})
 
 try_link_library(LIBUSB1_WORKS
