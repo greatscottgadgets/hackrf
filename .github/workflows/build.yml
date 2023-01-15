@@ -12,7 +12,8 @@ env:
   WIN_LIBUSB_INC: -DLIBUSB_INCLUDE_DIR=C:/vcpkg/installed/x64-windows/include/libusb-1.0
   WIN_LIBUSB_LIB: -DLIBUSB_LIBRARIES=C:/vcpkg/installed/x64-windows/lib/libusb-1.0.lib
   WIN_FFTW_INC: -DFFTW_INCLUDES=C:/vcpkg/installed/x64-windows/include
-  WIN_FFTW_LIB: -DFFTW_LIBRARIES=C:/vcpkg/installed/x64-windows/lib/fftw3f.lib
+  WIN_FFTW_LIB: -DFFTW_LIBRARY_SERIAL=C:/vcpkg/installed/x64-windows/lib/fftw3.lib
+  WIN_FFTWF_LIB: -DFFTWF_LIBRARY_SERIAL=C:/vcpkg/installed/x64-windows/lib/fftw3f.lib
   WIN_PTHREAD_INC: -DTHREADS_PTHREADS_INCLUDE_DIR=C:/vcpkg/installed/x64-windows/include
   WIN_PTHREAD_LIB: -DTHREADS_PTHREADS_WIN32_LIBRARY=C:/vcpkg/installed/x64-windows/lib/pthreadvc3.lib
 
