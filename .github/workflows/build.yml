@@ -78,7 +78,7 @@ jobs:
     - name: Install (libhackrf, Windows)
       working-directory: ${{runner.workspace}}/host/libhackrf/build
       run: |
-        cmake --install . --config Release --prefix=$env:GITHUB_WORKSPACE/install
+        cmake --install . --config Release
       if: matrix.os == 'windows-latest'
 
     - name: Create Build Environment (hackrf-tools)
