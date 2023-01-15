@@ -62,7 +62,7 @@ jobs:
 
     - name: Configure CMake (libhackrf, Windows)
       working-directory: ${{runner.workspace}}/host/libhackrf/build
-      run: cmake $env:GITHUB_WORKSPACE/host/libhackrf/ $env:WIN_LIBUSB_INC $env:WIN_LIBUSB_LIB $env:WIN_PTHREAD_INC $env:WIN_PTHREAD_LIB
+      run: cmake $env:GITHUB_WORKSPACE/host/libhackrf/ -DCMAKE_PREFIX_PATH=C:/vcpkg/installed/x64-windows/
       if: matrix.os == 'windows-latest'
 
     - name: Build (libhackrf)
@@ -92,7 +92,7 @@ jobs:
     - name: Configure CMake (hackrf-tools, Windows)
       working-directory: ${{runner.workspace}}/host/hackrf-tools/build
       run: |
-        cmake $env:GITHUB_WORKSPACE/host/hackrf-tools/ $env:WIN_FFTW_INC $env:WIN_FFTW_LIB -DLIBHACKRF_INCLUDE_DIR=$env:GITHUB_WORKSPACE/install/include/libhackrf -DLIBHACKRF_LIBRARIES=$env:GITHUB_WORKSPACE/install/bin/hackrf.lib
+        cmake $env:GITHUB_WORKSPACE/host/hackrf-tools/ -DCMAKE_PREFIX_PATH=C:/vcpkg/installed/x64-windows/ -DLIBHACKRF_INCLUDE_DIR=$env:GITHUB_WORKSPACE/install/include/libhackrf -DLIBHACKRF_LIBRARIES=$env:GITHUB_WORKSPACE/install/bin/hackrf.lib
       if: matrix.os == 'windows-latest'
 
     - name: Build (hackrf-tools)
