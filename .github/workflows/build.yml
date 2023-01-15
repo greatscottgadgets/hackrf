@@ -7,16 +7,7 @@ on:
   # Run automatically every monday
   schedule:
     - cron: 1 12 * * 1
-
-env:
-  WIN_LIBUSB_INC: -DLIBUSB_INCLUDE_DIR=C:/vcpkg/installed/x64-windows/include/libusb-1.0
-  WIN_LIBUSB_LIB: -DLIBUSB_LIBRARIES=C:/vcpkg/installed/x64-windows/lib/libusb-1.0.lib
-  WIN_FFTW_INC: -DFFTW_INCLUDES=C:/vcpkg/installed/x64-windows/include
-  WIN_FFTW_LIB: -DFFTW_LIBRARY_SERIAL=C:/vcpkg/installed/x64-windows/lib/fftw3.lib
-  WIN_FFTWF_LIB: -DFFTWF_LIBRARY_SERIAL=C:/vcpkg/installed/x64-windows/lib/fftw3f.lib
-  WIN_PTHREAD_INC: -DTHREADS_PTHREADS_INCLUDE_DIR=C:/vcpkg/installed/x64-windows/include
-  WIN_PTHREAD_LIB: -DTHREADS_PTHREADS_WIN32_LIBRARY=C:/vcpkg/installed/x64-windows/lib/pthreadvc3.lib
-
+    
 jobs:
   host:
     strategy:
@@ -54,7 +45,7 @@ jobs:
 
     - name: Configure CMake (Windows)
       working-directory: ${{runner.workspace}}/host/build
-      run: cmake $env:GITHUB_WORKSPACE/host/ $env:WIN_LIBUSB_INC $env:WIN_LIBUSB_LIB $env:WIN_FFTW_INC $env:WIN_FFTW_LIB $env:WIN_PTHREAD_INC $env:WIN_PTHREAD_LIB
+      run: cmake $env:GITHUB_WORKSPACE/host/ -DCMAKE_PREFIX_PATH=C:/vcpkg/installed/x64-windows/
       if: matrix.os == 'windows-latest'
 
     - name: Build
