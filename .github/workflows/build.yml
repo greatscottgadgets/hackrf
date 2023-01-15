@@ -7,7 +7,7 @@ on:
   # Run automatically every monday
   schedule:
     - cron: 1 12 * * 1
-    
+
 jobs:
   host:
     strategy:
@@ -92,7 +92,7 @@ jobs:
     - name: Configure CMake (hackrf-tools, Windows)
       working-directory: ${{runner.workspace}}/host/hackrf-tools/build
       run: |
-        cmake $env:GITHUB_WORKSPACE/host/hackrf-tools/ -DCMAKE_PREFIX_PATH=C:/vcpkg/installed/x64-windows/ -DLIBHACKRF_INCLUDE_DIR=$env:GITHUB_WORKSPACE/install/include/libhackrf -DLIBHACKRF_LIBRARY=$env:GITHUB_WORKSPACE/install/bin/hackrf.lib
+        cmake $env:GITHUB_WORKSPACE/host/hackrf-tools/ -DCMAKE_PREFIX_PATH=C:/vcpkg/installed/x64-windows/ -DLIBHACKRF_INCLUDE_DIR=$env:GITHUB_WORKSPACE/install/include/libhackrf -DLIBHACKRF_LIBRARY=$env:GITHUB_WORKSPACE/install/lib/hackrf.lib
       if: matrix.os == 'windows-latest'
 
     - name: Build (hackrf-tools)
