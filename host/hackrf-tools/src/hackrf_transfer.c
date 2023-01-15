@@ -40,13 +40,13 @@
 
 #ifndef bool
 typedef int bool;
-	#define true 1
+	#define true  1
 	#define false 0
 #endif
 
 #ifdef _WIN32
 	#include <windows.h>
-#include <winsock.h>
+	#include <winsock.h>
 
 	#ifdef _MSC_VER
 

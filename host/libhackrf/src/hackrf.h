@@ -28,24 +28,17 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 #include <sys/types.h>
 
 #ifdef _WIN32
-	
+
 	/* users of the library should define hackrf_STATIC when linking to it as a static library */
 	#ifdef hackrf_STATIC
 		#define ADDAPI
 	#else
-	/* hackrf_EXPORTS is only defined by CMake when building. */
-	#ifdef hackrf_EXPORTS
-		#define ADDAPI __declspec(dllexport)
-	#else
-		#define ADDAPI __declspec(dllimport)
-	#endif
-#endif
-
-	/* You should define ADD_EXPORTS *only* when building the DLL. */
-	#ifdef ADD_EXPORTS
-		#define ADDAPI __declspec(dllexport)
-	#else
-		#define ADDAPI __declspec(dllimport)
+		/* hackrf_EXPORTS is only defined by CMake when building. */
+		#ifdef hackrf_EXPORTS
+			#define ADDAPI __declspec(dllexport)
+		#else
+			#define ADDAPI __declspec(dllimport)
+		#endif
 	#endif
 
 	/* Define calling convention in one place, for convenience. */
