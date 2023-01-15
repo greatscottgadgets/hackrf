@@ -7,7 +7,7 @@ on:
   # Run automatically every monday
   schedule:
     - cron: 1 12 * * 1
-    
+
 jobs:
   host:
     strategy:
@@ -45,7 +45,7 @@ jobs:
 
     - name: Configure CMake (Windows)
       working-directory: ${{runner.workspace}}/host/build
-      run: cmake ${{runner.workspace}}/host/ -DCMAKE_PREFIX_PATH=C:/vcpkg/installed/x64-windows/
+      run: cmake $env:GITHUB_WORKSPACE/host/ -DCMAKE_PREFIX_PATH=C:/vcpkg/installed/x64-windows/
       if: matrix.os == 'windows-latest'
 
     - name: Build
@@ -62,7 +62,7 @@ jobs:
 
     - name: Configure CMake (libhackrf, Windows)
       working-directory: ${{runner.workspace}}/host/libhackrf/build
-      run: cmake ${{runner.workspace}}/host/libhackrf/ -DCMAKE_PREFIX_PATH=C:/vcpkg/installed/x64-windows/
+      run: cmake $env:GITHUB_WORKSPACE/host/libhackrf/ -DCMAKE_PREFIX_PATH=C:/vcpkg/installed/x64-windows/ -DCMAKE_INSTALL_PREFIX=${{runner.workspace}}/install
       if: matrix.os == 'windows-latest'
 
     - name: Build (libhackrf)
@@ -78,7 +78,7 @@ jobs:
     - name: Install (libhackrf, Windows)
       working-directory: ${{runner.workspace}}/host/libhackrf/build
       run: |
-        cmake --install . --config Release --prefix=${{runner.workspace}}/install
+        cmake --install . --config Release --prefix=$env:GITHUB_WORKSPACE/install
       if: matrix.os == 'windows-latest'
 
     - name: Create Build Environment (hackrf-tools)
@@ -92,7 +92,7 @@ jobs:
     - name: Configure CMake (hackrf-tools, Windows)
       working-directory: ${{runner.workspace}}/host/hackrf-tools/build
       run: |
-        cmake ${{runner.workspace}}/host/hackrf-tools/ -DCMAKE_PREFIX_PATH=C:/vcpkg/installed/x64-windows/ -DLIBHACKRF_INCLUDE_DIR=${{runner.workspace}}/install/include/libhackrf -DLIBHACKRF_LIBRARY=${{runner.workspace}}/install/bin/hackrf.lib
+        cmake $env:GITHUB_WORKSPACE/host/hackrf-tools/ -DCMAKE_PREFIX_PATH=C:/vcpkg/installed/x64-windows/ -DLIBHACKRF_INCLUDE_DIR=${{runner.workspace}}/install/include/libhackrf -DLIBHACKRF_LIBRARY=${{runner.workspace}}/install/lib/hackrf.lib
       if: matrix.os == 'windows-latest'
 
     - name: Build (hackrf-tools)
