@@ -415,7 +415,7 @@ int ADDCALL hackrf_init(void)
 		return HACKRF_SUCCESS;
 	}
 
-#ifdef DISABLE_USB_ENUMERATION
+#ifdef DISABLE_USB_DEVICE_DISCOVERY
 	// LibUSB does not support device discovery on android
 	libusb_set_option(NULL, LIBUSB_OPTION_NO_DEVICE_DISCOVERY, NULL);
 #endif
