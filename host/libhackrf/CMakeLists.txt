@@ -33,9 +33,9 @@ include(${PROJECT_SOURCE_DIR}/../cmake/set_release.cmake)
 add_definitions(-DLIBRARY_RELEASE="${RELEASE}")
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/../cmake/modules)
 
-option(DISABLE_USB_ENUMERATION "Prevent libusb from trying to enumerate devices. Useful on non-root android" OFF)
-if (DISABLE_USB_ENUMERATION)
-    add_definitions(-DDISABLE_USB_ENUMERATION)
+option(DISABLE_USB_DEVICE_DISCOVERY "Prevent libusb from trying to enumerate devices. Useful on non-root android" OFF)
+if (DISABLE_USB_DEVICE_DISCOVERY)
+    add_definitions(-DDISABLE_USB_DEVICE_DISCOVERY)
 endif()
 
 if(MSVC)
