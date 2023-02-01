@@ -556,5 +556,5 @@ Jawbreaker was the beta platform that preceded HackRF One. HackRF One incorporat
     * Real-Time Clock: An RTC is installed on HackRF One.
     * LPC4320 microcontroller: Jawbreaker had an LPC4330.
     * RF shield footprint: An optional shield may be installed over HackRF One's RF section.
-    * Antenna port power: HackRF One can supply up to 50 mA at 3.3 V DC on the antenna port for compatibility with powered antennas and other low power amplifiers.
+    * Antenna port power: HackRF One can supply up to 50 mA at 3.0 to 3.3 V DC on the antenna port for compatibility with powered antennas and other low power amplifiers.
     * Enhanced frequency range: The RF performance of HackRF One is better than Jawbreaker, particularly at the high and low ends of the operating frequency range. HackRF One can operate at 1 MHz or even lower.
