@@ -31,10 +31,16 @@ Major parts used in HackRF One:
 Block Diagrams
 ~~~~~~~~~~~~~~
 
+HackRF One r1-r8 Block Diagram
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 .. image:: ../images/block-diagram.png
         :align: center
 
 |
+
+HackRF One r9 Block Diagram
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. image:: ../images/block-diagram-r9.png
         :align: center
