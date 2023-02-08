@@ -487,7 +487,7 @@ static struct option long_options[] = {
 	{"register", required_argument, 0, 'n'},
 	{"write", required_argument, 0, 'w'},
 	{"read", no_argument, 0, 'r'},
-	{"device", no_argument, 0, 'd'},
+	{"device", required_argument, 0, 'd'},
 	{"help", no_argument, 0, 'h'},
 	{"max2837", no_argument, 0, 'm'},
 	{"si5351c", no_argument, 0, 's'},
