@@ -849,7 +849,13 @@ typedef struct {
  * MCU (LPC43xx) part ID and serial number. See the documentation of the MCU for details! Read via @ref hackrf_board_partid_serialno_read
  */
 typedef struct {
+	/**
+	 * MCU part ID register value
+	*/
 	uint32_t part_id[2];
+	/**
+	 * MCU device unique ID (serial number)
+	*/
 	uint32_t serial_no[4];
 } read_partid_serialno_t;
 
@@ -1460,11 +1466,12 @@ extern ADDAPI int ADDCALL hackrf_usb_api_version_read(
 	hackrf_device* device,
 	uint16_t* version);
 
-// TODO: exact resolution
 /**
  * Set the center frequency
  * 
  * Simple (auto) tuning via specifying a center frequency in Hz
+ * 
+ * This setting is not exact and depends on the PLL settings. Exact resolution is not determined, but the actual tuned frequency will be quariable in the future.
  * 
  * @param device device to tune
  * @param freq_hz center frequency in Hz. Defaults to 900MHz. Should be in range 1-6000MHz, but 0-7250MHz is possible. The resolution is ~50Hz, I could not find the exact number.
@@ -1618,10 +1625,15 @@ extern ADDAPI const char* ADDCALL hackrf_error_name(enum hackrf_error errcode);
  */
 extern ADDAPI const char* ADDCALL hackrf_board_id_name(enum hackrf_board_id board_id);
 
-<<<<<<< HEAD
+/**
+ * Lookup platform ID (HACKRF_PLATFORM_xxx) from board id (@ref hackrf_board_id)
+ * 
+ * @param board_id @ref hackrf_board_id enum variant to convert
+ * @return @ref HACKRF_PLATFORM_JAWBREAKER, @ref HACKRF_PLATFORM_HACKRF1_OG, @ref HACKRF_PLATFORM_RAD1O, @ref HACKRF_PLATFORM_HACKRF1_R9 or 0
+ * @ingroup device
+*/
 extern ADDAPI uint32_t ADDCALL hackrf_board_id_platform(enum hackrf_board_id board_id);
 
-=======
 // part of docstring is from hackrf.h
 /**
  * Convert @ref hackrf_usb_board_id into human-readable string.
@@ -1629,7 +1641,6 @@ extern ADDAPI uint32_t ADDCALL hackrf_board_id_platform(enum hackrf_board_id boa
  * @return human-readable name of board id
  * @ingroup device
  */
->>>>>>> 441709fb (Document & comment code)
 extern ADDAPI const char* ADDCALL hackrf_usb_board_id_name(
 	enum hackrf_usb_board_id usb_board_id);
 
@@ -1903,9 +1914,10 @@ extern ADDAPI int ADDCALL hackrf_operacake_gpio_test(
 extern ADDAPI int ADDCALL hackrf_cpld_checksum(hackrf_device* device, uint32_t* crc);
 #endif /* HACKRF_ISSUE_609_IS_FIXED */
 
-// TODO: confirm this
 /**
- * Enable / disable UI (RAD1O, PortaPack, etc.)
+ * Enable / disable UI display (RAD1O, PortaPack, etc.)
+ * 
+ * Enable or disable the display on display-enabled devices (Rad1o, PortaPack)
  * 
  * Requires USB API version 0x1002 or higher!
  * @param device device to enable/disable UI on
@@ -1983,6 +1995,19 @@ extern ADDAPI int ADDCALL hackrf_supported_platform_read(
 	hackrf_device* device,
 	uint32_t* value);
 
+/**
+ * Turn on or off (override) the LEDs of the HackRF device
+ * 
+ * This function can turn on or off the LEDs of the device. There are 3 controllable LEDs on the HackRF one: USB, RX and TX. On the Rad1o, there are 4 LEDs. Each LED can be set individually, but the setting might get overridden by other functions.
+ * 
+ * The LEDs can be set via specifying them as bits of a 8 bit number @p state, bit 0 representing the first (USB on the HackRF One) and bit 3 or 4 representing the last LED. The upper 4 or 5 bits are unused. For example, binary value 0bxxxxx101 turns on the USB and TX LEDs on the HackRF One. 
+ * 
+ * @param device device to query
+ * @param state LED states as a bitfield
+ * @return @ref HACKRF_SUCCESS on success or @ref hackrf_error variant
+ * @ingroup device
+ * 
+*/
 extern ADDAPI int ADDCALL hackrf_set_leds(hackrf_device* device, const uint8_t state);
 
 #ifdef __cplusplus
