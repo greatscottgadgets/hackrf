@@ -45,7 +45,7 @@
         "silk_text_upright": false,
         "zones": {
           "45_degree_only": false,
-          "min_clearance": 0.30479999999999996
+          "min_clearance": 0.254
         }
       },
       "diff_pair_dimensions": [
@@ -377,7 +377,7 @@
     "pinned_symbol_libs": []
   },
   "meta": {
-    "filename": "hackrf-one.kicad_pro",
+    "filename": "hackrf-one-modified.kicad_pro",
     "version": 1
   },
   "net_settings": {
