@@ -21,7 +21,7 @@ pipeline {
                 retry(3) {
                     sh './ci-scripts/test-host.sh'
                 }
-                sh 'python3 ci-scripts/hackrf_test.py --ci --manufacturer --fwupdate firmware/hackrf_usb/build/ --tester 0000000000000000325866e629822923 --eut RunningFromRAM'
+                sh 'python3 ci-scripts/hackrf_test.py --ci --manufacturer --hostdir host/build/hackrf-tools/src/ --fwupdate firmware/hackrf_usb/build/ --tester 0000000000000000325866e629822923 --eut RunningFromRAM'
             }
         }
     }

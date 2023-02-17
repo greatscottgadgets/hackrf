@@ -1245,6 +1245,11 @@ def main():
     parser.add_argument("-C", "--ci", action="store_true", help="For use with CI setup")
     args = parser.parse_args()
 
+    if args.ci:
+        user = "jenkins"
+    else:
+        user = os.getlogin()
+
     if "any" in args.rev.lower():
         args.rev = None
     elif "r1" in args.rev.lower() or "r4" in args.rev.lower():
@@ -1277,7 +1282,7 @@ def main():
         out("================================")
         out(datetime.now())
         out(sys.argv)
-        out(f"user: {os.getlogin()}")
+        out(f"user: {user}")
         out(f"version: {VERSION}")
         out(f"pid: {os.getpid()}")
         if args.loop:
