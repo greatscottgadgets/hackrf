@@ -13,7 +13,7 @@ import traceback
 import re
 
 VERSION = "2023-02-17-1"
-LOG = os.path.expanduser('~') + "/log"
+LOG = "log"
 DFU_UTIL = "/usr/bin/dfu-util"
 TMP_DIR = "/tmp/"
 WAVEFORM = TMP_DIR + "waveform100"
