@@ -21,13 +21,7 @@ pipeline {
                 retry(3) {
                     sh './ci-scripts/test-host.sh'
                 }
-                retry(3) {
-                    sh './ci-scripts/test-firmware-program.sh'
-                }
-                sh './ci-scripts/test-firmware-flash.sh'
-                sh 'python3 ci-scripts/test-debug.py'
-                sh 'python3 ci-scripts/test-transfer.py tx'
-                sh 'python3 ci-scripts/test-transfer.py rx'
+                sh 'python3 ci-scripts/hackrf_test.py --ci --manufacturer --fwupdate firmware/hackrf_usb/build/ --tester 0000000000000000325866e629822923 --eut RunningFromRAM'
             }
         }
     }
