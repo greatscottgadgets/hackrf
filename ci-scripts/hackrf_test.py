@@ -1123,6 +1123,11 @@ def program(bin_dir, fw_dir, serial, ci=False):
         binary = "hackrf_one_usb.bin"
         dfu_stub = "hackrf_one_usb.dfu"
 
+    if ci:
+        reset_write = "-w"
+    else:
+        reset_write = "-Rw"
+
     if not usb.core.find(idVendor=DFU_VENDOR_ID, idProduct=DFU_PRODUCT_ID):
         print("ACTION REQUIRED: Press and release EUT RESET button while holding DFU button.")
         while not usb.core.find(idVendor=DFU_VENDOR_ID, idProduct=DFU_PRODUCT_ID):
@@ -1139,27 +1144,22 @@ def program(bin_dir, fw_dir, serial, ci=False):
 
     # Wait for device to boot from DFU.
     then = time.time()
-
-    device_found = False
-    while time.time() < (then + 5):
-        info = subprocess.run([bin_dir + "hackrf_info"], capture_output=True,
+    dfu_device_found = False
+    while time.time() < (then + 50):
+        dfu_info = subprocess.run([bin_dir + "hackrf_info"], capture_output=True,
             encoding="utf-8", timeout=TIMEOUT)
 
-        if "RunningFromRAM" in info.stdout:
-            if serial in info.stdout and not ci:
+        if "RunningFromRAM" in dfu_info.stdout:
+            if serial in dfu_info.stdout and serial != "RunningFromRAM":
                 out("wrong device in DFU mode")
                 fail(1)
             else:
-                device_found = True
+                dfu_device_found = True
                 break
         time.sleep(0.1)
-    if not device_found:
+    if not dfu_device_found:
+        out("DFU device not found")
         fail(1)
-
-    if ci:
-        reset_write = "-w"
-    else:
-        reset_write = "-Rw"
 
     out("Programming EUT SPI flash")
     spiflash = subprocess.run([bin_dir + "hackrf_spiflash", "-d",
@@ -1169,21 +1169,17 @@ def program(bin_dir, fw_dir, serial, ci=False):
         log(spiflash.stdout + spiflash.stderr)
         fail(70)
 
-    # Make sure device disappears from bus before waiting for it to reappear.
     then = time.time()
-    while time.time() < (then + 3):
-        if not usb.core.find(idVendor=VENDOR_ID, idProduct=PRODUCT_ID):
-            break
-    # If it hasn't disappeared by now, assume it reappeared before we started
-    # looking for it.
+    device_found = False
+    while time.time() < (then + 5):
+        flash_info = subprocess.run([bin_dir + "hackrf_info"], capture_output=True,
+            encoding="utf-8", timeout=TIMEOUT)
 
-    # Wait for device to boot from SPI flash.
-    then = time.time()
-    while time.time() < (then + 3):
-        if usb.core.find(idVendor=VENDOR_ID, idProduct=PRODUCT_ID):
+        if serial in flash_info.stdout:
+            device_found = True
             break
         time.sleep(0.1)
-    if not usb.core.find(idVendor=VENDOR_ID, idProduct=PRODUCT_ID):
+    if not device_found:
         fail(75)
 
 
