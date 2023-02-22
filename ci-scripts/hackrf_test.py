@@ -12,7 +12,6 @@ import numpy as np
 import traceback
 import re
 
-LOG = "log"
 DFU_UTIL = "/usr/bin/dfu-util"
 TMP_DIR = "/tmp/"
 WAVEFORM = TMP_DIR + "waveform100"
@@ -471,8 +470,9 @@ def fail_rf(errors):
     fail(errors[-1])
 
 def log(message=""):
-    with open(LOG, "a") as log_file:
-        print(message, file=log_file)
+    if args.log:
+        with open(args.log, "a") as log_file:
+            print(message, file=log_file)
     return
 
 def out(message=""):
@@ -1253,6 +1253,9 @@ def main():
     parser.add_argument("-b", "--testerdir", metavar="<separate path to TESTER host tools>", type=str,
             help="necessary only if EUT/TESTER have separate host binaries")
     parser.add_argument("-C", "--ci", action="store_true", help="For use with CI setup")
+    parser.add_argument("-L", "--log", metavar="<log file>", type=str,
+            help="log file location")
+    global args
     args = parser.parse_args()
 
     if args.ci:
