@@ -12,7 +12,6 @@ import numpy as np
 import traceback
 import re
 
-VERSION = "2023-02-17-1"
 LOG = "log"
 DFU_UTIL = "/usr/bin/dfu-util"
 TMP_DIR = "/tmp/"
@@ -1214,6 +1213,21 @@ def find_sn(name, bin_dir, claimed_sns=[]):
     return sn
 
 
+def get_version():
+    version = subprocess.run(["git", "log", "-n" "1", "--format=%h"],
+                capture_output=True, encoding="utf-8", timeout=TIMEOUT)
+    if version.returncode != 0:
+        return "2023.01.1+"
+    elif version.returncode == 0:
+        dirty = subprocess.run(["git", "status", "-s", "--untracked-files=no"],
+                capture_output=True, encoding="utf-8", timeout=TIMEOUT)
+        if dirty.stdout != "":
+            dirty_flag = "*"
+        else:
+            dirty_flag = ""
+        return f"git-{version.stdout.strip()}{dirty_flag}"
+
+
 def main():
 
     write_waveform()
@@ -1279,7 +1293,7 @@ def main():
         out(datetime.now())
         out(sys.argv)
         out(f"user: {user}")
-        out(f"version: {VERSION}")
+        out(f"version: {get_version()}")
         out(f"pid: {os.getpid()}")
         if args.loop:
             out(f"repeat count: {count}")
@@ -1289,7 +1303,10 @@ def main():
         if args.eut:
             eut_sn = args.eut
         else:
-            eut_sn = find_sn("EUT", eut_host_dir)
+            if args.tester:
+                eut_sn = find_sn("EUT", eut_host_dir, [args.tester])
+            else:
+                eut_sn = find_sn("EUT", eut_host_dir)
         if args.tester:
             tester_sn = args.tester
         else:
