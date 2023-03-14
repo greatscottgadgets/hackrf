@@ -27,9 +27,7 @@ To connect two HackRF Ones for triggering you will need:
 Open Your HackRF One
 ~~~~~~~~~~~~~~~~~~~~
 
-The HackRF One case has small plastic clips holding it together. These may be damaged when the case is opened, but typically the case can still be used after such damage. Please follow the instructions in `this video <https://www.youtube.com/watch?v=zuXJtpTSEJM>`__ by `Jared Boone <https://twitter.com/sharebrained>`__.
-
-Open the enclosures of both HackRF Ones to access their pin headers.
+If your HackRF Ones are not bare boards, you will need to open up their cases to access the pin headers on the HackRF Ones. Each HackRF One case has small plastic clips holding it together. These clips may be damaged when the case is opened, but typically the case can still be used after such damage. Please follow the instructions in `this video <https://www.youtube.com/watch?v=zuXJtpTSEJM>`__ by `Jared Boone <https://twitter.com/sharebrained>`__ to open your HackRF One cases.
 
 
 Identify the Trigger Pins

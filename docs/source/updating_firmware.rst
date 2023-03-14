@@ -4,11 +4,9 @@
 Updating Firmware
 ================================================
 
-HackRF devices ship with firmware on the SPI flash memory. The firmware can be updated with nothing more than a USB cable and host computer.
+HackRF devices ship with firmware on the SPI flash memory. The firmware can be updated with a USB cable and host computer.
 
 These instructions allow you to upgrade the firmware in order to take advantage of new features or bug fixes.
-
-If you have any difficulty making this process work from your native operating system, you can  :ref:`use Pentoo or the GNU Radio Live DVD <try_pentoo>` to perform the updates.
 
 
 
@@ -29,22 +27,18 @@ When writing a firmware image to SPI flash, be sure to select firmware with a fi
 
 After writing the firmware to SPI flash, you may need to reset the HackRF device by pressing the RESET button or by unplugging it and plugging it back in.
 
-If you get an error that mentions HACKRF_ERROR_NOT_FOUND, check out the :ref:`FAQ <faq_hackrf_under_linux>`. It's often a permissions problem that can be quickly solved.
+If you get an error that mentions HACKRF_ERROR_NOT_FOUND, it is often a permissions problem on your OS.
 
 
 
-Updating the CPLD
-~~~~~~~~~~~~~~~~~
+Only if Necessary: Recovering the SPI Flash Firmware
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Older versions of HackRF firmware (prior to release 2021.03.1) require an additional step to program a bitstream into the CPLD.
+If the firmware installed in SPI flash has been damaged or if you are programming a home-made HackRF for the first time, you will not be able to immediately use the hackrf_spiflash program as listed in the above procedure. Follow these steps instead:
 
-To update the CPLD image, first update the SPI flash firmware, libhackrf, and hackrf-tools to the version you are installing. Then:
-
-.. code-block :: sh
-
-	hackrf_cpldjtag -x firmware/cpld/sgpio_if/default.xsvf
-
-After a few seconds, three LEDs should start blinking. This indicates that the CPLD has been programmed successfully. Reset the HackRF device by pressing the RESET button or by unplugging it and plugging it back in.
+    #. Follow the DFU Boot instructions to start the HackRF in DFU boot mode.
+    #. Type ``dfu-util --device 1fc9:000c --alt 0 --download hackrf_one_usb.dfu`` to load firmware from a release package into RAM. If you have a Jawbreaker, use hackrf_jawbreaker_usb.dfu instead. Alternatively, use ``make -e BOARD=HACKRF_ONE RUN_FROM=RAM program`` to load the firmware into RAM and start it.
+    #. Follow the SPI flash firmware update procedure above to write the ".bin" firmware image to SPI flash. 
 
 
 
@@ -60,17 +54,6 @@ To start up HackRF One in DFU mode, hold down the DFU button while powering it o
 To start up Jawbreaker in DFU mode, short two pins on one of the "BOOT" headers while power is first supplied. The pins that must be shorted are pins 1 and 2 of header P32 on Jawbreaker. Header P32 is labeled "P2_8" on most Jawbreakers but may be labeled "2" on prototype units. Pin 1 is labeled "VCC". Pin 2 is the center pin. After DFU boot, you should see VCCLED illuminate and note that 1V8LED does not illuminate. At this point Jawbreaker is ready to receive firmware over USB.
 
 You should only use a firmware image with a filename ending in ".dfu" over DFU, not firmware ending in ".bin".
-
-
-
-Only if Necessary: Recovering the SPI Flash Firmware
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-If the firmware installed in SPI flash has been damaged or if you are programming a home-made HackRF for the first time, you will not be able to immediately use the hackrf_spiflash program as listed in the above procedure. Follow these steps instead:
-
-    #. Follow the DFU Boot instructions to start the HackRF in DFU boot mode.
-    #. Type ``dfu-util --device 1fc9:000c --alt 0 --download hackrf_one_usb.dfu`` to load firmware from a release package into RAM. If you have a Jawbreaker, use hackrf_jawbreaker_usb.dfu instead. Alternatively, use ``make -e BOARD=HACKRF_ONE RUN_FROM=RAM program`` to load the firmware into RAM and start it.
-    #. Follow the SPI flash firmware update procedure above to write the ".bin" firmware image to SPI flash.
 
 
 
@@ -98,3 +81,18 @@ If you are using a platform without a dfu-util package, build instruction can be
 	sudo make install
 
 Now you will have the current version of DFU Util installed on your system.
+
+
+
+Updating the CPLD
+~~~~~~~~~~~~~~~~~
+
+Older versions of HackRF firmware (prior to release 2021.03.1) require an additional step to program a bitstream into the CPLD.
+
+To update the CPLD image, first update the SPI flash firmware, libhackrf, and hackrf-tools to the version you are installing. Then:
+
+.. code-block :: sh
+
+	hackrf_cpldjtag -x firmware/cpld/sgpio_if/default.xsvf
+
+After a few seconds, three LEDs should start blinking. This indicates that the CPLD has been programmed successfully. Reset the HackRF device by pressing the RESET button or by unplugging it and plugging it back in.

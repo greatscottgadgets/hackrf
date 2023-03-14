@@ -1,8 +1,12 @@
 .. _operating_system_tips:
 
-================================================
+==========================
 Installing HackRF Software
-================================================
+==========================
+
+HackRF software includes HackRF Tools and libhackrf. HackRF Tools are the commandline utilities that let you interact with your HackRF. libhackrf is a low level library that enables software on your computer to operate with HackRF. 
+
+
 
 Install Using Package Managers
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -60,7 +64,11 @@ Windows: Binaries
 
 Binaries are provided as part of the PothosSDR project, they can be downloaded `here <http://downloads.myriadrf.org/builds/PothosSDR/?C=M;O=D>`__.
 
+
+
 -----------
+
+
 
 Installing From Source
 ~~~~~~~~~~~~~~~~~~~~~~

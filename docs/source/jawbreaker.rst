@@ -1,6 +1,6 @@
-================================================
+==========
 Jawbreaker
-================================================
+==========
 
 HackRF Jawbreaker is the beta test hardware platform for the HackRF project.
 
@@ -20,36 +20,17 @@ Features
 
 
 
-Set your Jawbreaker Free!
-~~~~~~~~~~~~~~~~~~~~~~~~~
+Hardware Documentation
+~~~~~~~~~~~~~~~~~~~~~~
 
-Jawbreaker has an SMA antenna connector but also includes a built-in PCB antenna intended for operation near 900 MHz. It isn't a very good antenna. Seriously. A paperclip stuck into the SMA connector would probably be better. You can free your Jawbreaker to operate with better antennas by cutting the PCB trace to the PCB antenna with a knife. This enables the SMA connector to be used without interference from the PCB antenna.
-
-A video that demonstrates the antenna modification is on YouTube: `HackRF Antenna Modification <http://youtu.be/B2gwgNoqMxI>`__
-
-The trace to be cut is between the two solder pads inside a box labeled R44 in the `assembly diagram <https://github.com/mossmann/hackrf/blob/master/doc/hardware/jawbreaker-assembly.pdf?raw=true>`__. There is an arrow pointing to it printed on the board.
-
-Due to a manufacturing error, there is solder on R44. R44 may appear as a single solder blob. If you have a soldering iron and solder wick/braid, use a soldering iron and fine solder wick to remove as much solder as you can from the two R44 pads. Then, use a pen knife to gently cut away the area between the two R44 pads. Make multiple, gentle cuts, instead of one or two forceful cuts. As you cut, you'll break through the black solder mask, then the copper trace between the pads, and stop when you reach fiberglass. Remove the copper trace completely, so just the two R44 pads remain. Use a multimeter or continuity tester to verify that the two R44 pads are no longer connected.
-
-If you don't have a soldering iron, you can cut through the copper trace and the solder blob all at once, but it requires a bit more effort.
-
-The only reason not to do this is if you want to try Jawbreaker but don't have any antenna with an SMA connector (or adapter).
-
-If you want to restore the PCB antenna for some reason, you can install a 10 nF capacitor or a 0 ohm resistor on the R44 pads or you may be able to simply create a solder bridge.
-
-
-
-SMA, not RP-SMA
-~~~~~~~~~~~~~~~
-
-Some connectors that appear to be SMA are actually RP-SMA. If you connect an RP-SMA antenna to Jawbreaker, it will seem to connect snugly but won't function at all because neither the male nor female side has a center pin. RP-SMA connectors are most common on 2.4 GHz antennas and are popular on Wi-Fi equipment.
+Schematic diagram, assembly diagram, and bill of materials can be found at `https://github.com/greatscottgadgets/hackrf/tree/master/hardware <https://github.com/greatscottgadgets/hackrf/tree/master/hardware>`__
 
 
 
 Transmit Power
 ~~~~~~~~~~~~~~
 
-The maximum TX power varies by operating frequency:
+The maximum TX power for Jawbreaker varies by operating frequency:
 
     * 30 MHz to 100 MHz: 5 dBm to 15 dBm, increasing as frequency decreases
     * 100 MHz to 2300 MHz: 0 dBm to 10 dBm, increasing as frequency decreases
@@ -59,14 +40,28 @@ The maximum TX power varies by operating frequency:
 
 Overall, the output power is enough to perform over-the-air experiments at close range or to drive an external amplifier. If you connect an external amplifier, you should also use an external bandpass filter for your operating frequency.
 
-Before you transmit, know your laws. Jawbreaker has not been tested for compliance with regulations governing transmission of radio signals. You are responsible for using your Jawbreaker legally.
+Before you transmit, know the laws for the region you are transmitting in. Jawbreaker has not been tested for compliance with regulations governing transmission of radio signals. You are responsible for using your Jawbreaker legally.
 
 
 
-Hardware Documentation
-~~~~~~~~~~~~~~~~~~~~~~
+SMA, not RP-SMA
+~~~~~~~~~~~~~~~
 
-Schematic diagram, assembly diagram,and bill of materials can be found at `https://github.com/mossmann/hackrf/tree/master/doc/hardware <https://github.com/mossmann/hackrf/tree/master/doc/hardware>`__
+The connectors on Jawbreaker are SMA, not RP-SMA. SMA connectors and RP-SMA connectors look extremely similar, the difference is that SMA connectors have a center pin. RP-SMA connectors are common on 2.4 GHz antennas and are popular on Wi-Fi equipment. If you connect an RP-SMA antenna to Jawbreaker, it will seem to connect snugly but won't function at all because neither the male nor female side has a center pin. 
+
+
+
+Recommended PCB and Antenna Changes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Jawbreaker has an SMA antenna connector and it also includes a built-in PCB antenna intended for operation near 900 MHz. The built-in PCB antenna isn't a very good antenna. A paperclip stuck into the SMA connector of the Jawbreaker is likely to be better. We recommend that you free your Jawbreaker to operate with better antennas by cutting the PCB trace to the PCB antenna with a knife. This enables the SMA connector to be used without interference from the PCB antenna.
+
+
+The trace to be cut is between the two solder pads inside a box labeled R44. There is an arrow printed on the board that points to the R44 box. A video that demonstrates the antenna modification is on YouTube: `HackRF Antenna Modification <http://youtu.be/B2gwgNoqMxI>`__.
+
+Due to a manufacturing error, there is solder on the pads in box R44 that you should try to remove before you cut the trace. R44 may appear as a single solder blob. If you have a soldering iron and solder wick/braid, use a soldering iron and fine solder wick to remove as much solder as you can from the two R44 pads. Then, use a pen knife to gently cut away the area between the two R44 pads. Make multiple, gentle cuts, instead of one or two forceful cuts. As you cut, you'll break through the black solder mask, then the copper trace between the pads, and stop when you reach fiberglass. Remove the copper trace completely, so just the two R44 pads remain. Use a multimeter or continuity tester to verify that the two R44 pads are no longer connected. If you don't have a soldering iron, you can cut through the copper trace and the solder blob all at once, but it requires a bit more effort. The only reason not to cut the PCB trace is if you want to try Jawbreaker but don't have any antenna with an SMA connector (or adapter).
+
+If you want to restore the PCB antenna for some reason, you can install a 10 nF capacitor or a 0 ohm resistor on the R44 pads or you may be able to simply create a solder bridge.
 
 
 
@@ -536,14 +531,14 @@ Cut P17 short (trace) to enable external clock input. If short is cut, a jumper 
 More
 ^^^^
 
-Additional headers are available. See the `board files <https://github.com/mossmann/hackrf/tree/master/hardware/jawbreaker>`__ for additional details.
+Additional headers are available. See the `board files <https://github.com/greatscottgadgets/hackrf/tree/master/hardware/jawbreaker>`__ for additional details.
 
 
 
 Differences between Jawbreaker and HackRF One
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Jawbreaker was the beta platform that preceded HackRF One. HackRF One incorporates the following changes and enhancements:
+Jawbreaker was the beta platform that preceded HackRF One. HackRF One incorporates the following changes and enhancements (at minimum):
 
     * Antenna port: No modification is necessary to use the SMA antenna port on HackRF One.
     * PCB antenna: Removed.
