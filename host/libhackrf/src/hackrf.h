@@ -42,30 +42,21 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 
 #else /* _WIN32 not defined. */
 
-	/* Define with no value on non-Windows OSes. */
-	/**
-	 * __declspec(dllimport / dllexport) on windows, unused on other platforms
-	 * @ingroup library
-	 */
 	#define ADDAPI
-	/**
-	 * __cdecl calling convention on windows, unused on other platforms
-	 * @ingroup library
-	 */
 	#define ADDCALL
 
 #endif
 
 /**
- * @defgroup library libhackrf-related stuff
+ * @defgroup library Library related functions and enums
  * 
- * @brief Libraray initialization, exit, error handling, etc.
+ * @brief Library initialization, exit, error handling, etc.
  * 
  * # Library initialization & exit
  * 
- * The libhackrf library needs to be initialized in order to use most of its functions. This can be achieed via the function @ref hackrf_init. This initializes internal state and initializes `libusb`. You should only call this function on startup, but it's safe to call it later as well, only it does nothing.
+ * The libhackrf library needs to be initialized in order to use most of its functions. This can be achieved via the function @ref hackrf_init. This initializes internal state and initializes `libusb`. You should only call this function on startup, but it's safe to call it later as well, only it does nothing.
  * 
- * When exiting the program, a call to @ref hackrf_exit should be called. This releases all resources, stopps background thread and exits `libusb`. This function should only be called if all streaming is stopped and all devices are closed via @ref hackrf_close, else the error @ref HACKRF_ERROR_NOT_LAST_DEVICE is returned
+ * When exiting the program, a call to @ref hackrf_exit should be called. This releases all resources, stops background thread and exits `libusb`. This function should only be called if all streaming is stopped and all devices are closed via @ref hackrf_close, else the error @ref HACKRF_ERROR_NOT_LAST_DEVICE is returned.
  * 
  * # Error handling
  * 
@@ -101,7 +92,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 /**
  * @defgroup device Device listing, opening, closing and querying
  * 
- * @brief managing HackRF devices and querying information about them
+ * @brief Managing HackRF devices and querying information about them
  * 
  * The libhackrf library interacts via HackRF hardware through a @ref hackrf_device handle. This handle is opaque, meaning its fields are internal to the library and should not be accessed by user code. To use a device, it first needs to be opened, than it can be interacted with, and finally the device needs to be closed via @ref hackrf_close.
  * 
@@ -127,11 +118,11 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
  * 
  * # Querying device information
  * 
- * ## board ID
+ * ## Board ID
  * 
  * Board ID identifies the type of HackRF board connected. See the enum @ref hackrf_board_id for possible values. The value can be read by @ref hackrf_board_id_read and converted into a human-readable string using @ref hackrf_board_id_name. When reading, the initial value of the enum should be @ref BOARD_ID_UNDETECTED.
  * 
- * ## version string
+ * ## Version string
  * 
  * Version string identifies the firmware version on the board. It can be read with the function @ref hackrf_version_string_read
  * 
@@ -167,15 +158,15 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
  *  ```
  * 
  * 
- * ## Partid serial number
+ * ## Part ID and serial number
  * 
- * "part ID number", part id of the MCU. Read via @ref hackrf_board_partid_serialno_read. See the documentation of the MCU for details!
+ * The part ID and serial number of the MCU. Read via @ref hackrf_board_partid_serialno_read. See the documentation of the MCU for details.
  * 
- * ## board revision
+ * ## Board revision
  * 
  * Board revision identifies revision of the HackRF board inside a device. Read via @ref hackrf_board_rev_read and converted into a human-readable string via @ref hackrf_board_rev_name. See @ref hackrf_board_rev for possible values. When reading, the value should be initialized with @ref BOARD_REV_UNDETECTED
  * 
- * ## supported platform
+ * ## Supported platform
  * 
  * Identifies the platform supported by the firmare of the HackRF device. Read via @ref hackrf_supported_platform_read. Returns a bitfield. Can identify bad firmware version on device.
  * 
@@ -184,13 +175,14 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 /**
  * @defgroup configuration Configuration of the RF hardware
  * 
- * @brief configuring gain, sample rate, filter bandwidth, etc.
+ * @brief Configuring gain, sample rate, filter bandwidth, etc.
  * 
  * # Amplifiers and gains
  * 
  * There are 5 different amplifiers in the HackRF One. Most of them have variable gain, but some of them can be either enabled / disabled. Please note that most of the gain settings are not precise, and they depend on the used frequency as well.
  * 
  * ![hackrf components](https://hackrf.readthedocs.io/en/latest/_images/block-diagram.png)
+ * 
  * (image taken from https://hackrf.readthedocs.io/en/latest/hardware_components.html)
  * 
  * 
@@ -214,7 +206,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
  * 
  * The MAX2837 has an internal selectable baseband filter for both RX and TX. Its width can be set via @ref hackrf_set_baseband_filter_bandwidth, but only some values are valid. Valid values can be acquired via the functions @ref hackrf_compute_baseband_filter_bw_round_down_lt and @ref hackrf_compute_baseband_filter_bw.
  * 
- * **NOTE** in order to avoid aliasing, the bandwidth should not exceed the sample rate. As a sensible default, the firmware auto-sets the baseband filter bandwidth to a value <= 0.75 * sample_rate whenever the sample rate is changed, thus setting a custom value should be done after setting the samplerate.
+ * **NOTE** in order to avoid aliasing, the bandwidth should not exceed the sample rate. As a sensible default, the firmware auto-sets the baseband filter bandwidth to a value \f$ \le 0.75 \cdot F_s \f$ whenever the sample rate is changed, thus setting a custom value should be done after setting the samplerate.
  * 
  * # Sample rate
  * 
@@ -222,7 +214,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
  * 
  * # Clocking
  * 
- * The HackRF one has external clock input and clock output connectors for 10MHz 3.3V clock signals. It automatically switches to the external clock if it's detected, and it's status is readable with @ref hackrf_get_clkin_status. The external clock can be enabled by the @ref hackrf_set_clkout_enable function.
+ * The HackRF one has external clock input and clock output connectors for 10MHz 3.3V clock signals. It automatically switches to the external clock if it's detected, and its status is readable with @ref hackrf_get_clkin_status. The external clock can be enabled by the @ref hackrf_set_clkout_enable function.
  * 
  * # Bias-tee
  * 
@@ -230,7 +222,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
  */
 
 /**
- * @defgroup streaming Transmit / receive operation
+ * @defgroup streaming Transmit & receive operation
  * 
  * @brief RX and TX, callbacks
  * 
@@ -266,7 +258,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
  * 
  * ### Transfer callback
  * 
- * Set when starting an operation with @ref hackrf_start_tx, @ref hackrf_start_rx or @ref hackrf_start_rx_sweep. This callback supplies / receives data. This function takes a @ref hackrf_transfer struct as a parameter, and fill/read data to/from it's buffer. This function runs in an async libusb context, meaning it should not iteract with the libhackrf library in other ways. The callback can return a boolean value, if it's return value is non-zero then it won't be called again, meaning that no future transfers will take place, and (in TX case) the flush callback will be called shortly.
+ * Set when starting an operation with @ref hackrf_start_tx, @ref hackrf_start_rx or @ref hackrf_start_rx_sweep. This callback supplies / receives data. This function takes a @ref hackrf_transfer struct as a parameter, and fill/read data to/from its buffer. This function runs in an async libusb context, meaning it should not iteract with the libhackrf library in other ways. The callback can return a boolean value, if its return value is non-zero then it won't be called again, meaning that no future transfers will take place, and (in TX case) the flush callback will be called shortly.
  * 
  * ### Block complete callback
  * 
@@ -406,20 +398,20 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
  * ## MAX2837 2.3 to 2.7 GHz transceiver
  * This transceiver chip is the RF modulator/demodulator of the HackRF One. This chip sends/receives analoge I/Q samples to/from the MAX5864 ADC/DAC chip. 
  * 
- * It's registers are accessible through the functions @ref hackrf_max2837_read and @ref hackrf_max2837_write
+ * Its registers are accessible through the functions @ref hackrf_max2837_read and @ref hackrf_max2837_write
  * 
  * ## MAX5864 ADC/DAC
  * This chip converts received analgoe I/Q samples to digital and transmitted I/Q samples to analoge. It connects to the main ARM MCU through the CPLD. No configuration is needed for it, only the sample rate can be set via the clock generator IC.
  * 
  * ## Si5351C Clock generator
- * This chip supplies clock signals to all of the other chips. It can synthesize a wide range of frequencies from it's clock inputs (internal or external). It uses a fixed 800-MHz internal clock (synthesized via a PLL).
+ * This chip supplies clock signals to all of the other chips. It can synthesize a wide range of frequencies from its clock inputs (internal or external). It uses a fixed 800-MHz internal clock (synthesized via a PLL).
  * 
- * It's registers are accessible through the functions @ref hackrf_si5351c_read and @ref hackrf_si5351c_write
+ * Its registers are accessible through the functions @ref hackrf_si5351c_read and @ref hackrf_si5351c_write
  * 
  * ## RFFC5072 Synthesizer/mixer
  * This mixer mixes the RF signal with an internally synthesized local oscillator signal and thus results in the sum and difference frequencies. Combined with the LPF or HPF filters and the frequency setting in the MAX2837 IC it can be used to tune to any frequency in the 0-6000MHz range.
  * 
- * It's registers are accessible through the functions @ref hackrf_rffc5071_read and @ref hackrf_rffc5071_write
+ * Its registers are accessible through the functions @ref hackrf_rffc5071_read and @ref hackrf_rffc5071_write
  * 
  * ## LPC4320 ARM MCU
  * This is the main processor of the unit. It's a multi-core ARM processor. It's configured to boot from a W25Q80B SPI flash, but can also be booted from DFU in order to unbrick a bricked unit. It communicated with the host PC via USB.
@@ -435,7 +427,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
  * ## XC2C64A CPLD
  * This CPLD sits between the MAX5864 ADC/DAC and the main MCU, and mainly performs data format conversion and some synchronisation.
  * 
- * It's bitstream is auto-loaded on reset by the ARM MCU (from the firmware image), but in older versions, it was possible to reconfigure it via @ref hackrf_cpld_write, and the (since temporarly removed) `hackrf_cpld_checksum` function could verify the firmware in the configuration flash (again, overwritten on startup, so irrelevant).
+ * Its bitstream is auto-loaded on reset by the ARM MCU (from the firmware image), but in older versions, it was possible to reconfigure it via @ref hackrf_cpld_write, and the (since temporarly removed) `hackrf_cpld_checksum` function could verify the firmware in the configuration flash (again, overwritten on startup, so irrelevant).
  * 
  * See <a href="https://github.com/greatscottgadgets/hackrf/issues/609">issue 608</a>, <a href="https://github.com/greatscottgadgets/hackrf/issues/1140">issue 1140</a> and <a href="https://github.com/greatscottgadgets/hackrf/issues/1141">issue 1141</a> for some more details on this!
  */
@@ -1283,10 +1275,10 @@ extern ADDAPI int ADDCALL hackrf_si5351c_write(
 /**
  * Set baseband filter bandwidth
  * 
- * Possible values: 1.75/2.5/3.5/5/5.5/6/7/8/9/10/12/14/15/20/24/28MHz, default <= 0.75 * sample_rate_hz
+ * Possible values: 1.75, 2.5, 3.5, 5, 5.5, 6, 7, 8, 9, 10, 12, 14, 15, 20, 24, 28MHz, default \f$ \le 0.75 \cdot F_s \f$
  * The functions @ref hackrf_compute_baseband_filter_bw and @ref hackrf_compute_baseband_filter_bw_round_down_lt can be used to get a valid value nearest to a given value.
  * 
- * Setting the sample rate causes the filter bandwidth to be (re)set to its default <= 0.75*samplerate value, so setting sample rate should be done before setting filter bandwidth.
+ * Setting the sample rate causes the filter bandwidth to be (re)set to its default \f$ \le 0.75 \cdot F_s \f$ value, so setting sample rate should be done before setting filter bandwidth.
  * 
  * @param device device to configure
  * @param bandwidth_hz baseband filter bandwidth in Hz
@@ -1504,7 +1496,7 @@ extern ADDAPI int ADDCALL hackrf_set_freq_explicit(
  * Sample rate should be in the range 2-20MHz, with the default being 10MHz. Lower & higher values are technically possible, but the performance is not guaranteed.
  * 
  * This function sets the sample rate by specifying a clock frequency in Hz and a divider, so the resulting sample rate will be @p freq_hz / @p divider.
- * This function also sets the baseband filter bandwidth to a value <= 0.75 * samplerate, so any calls to @ref hackrf_set_baseband_filter_bandwidth should only be made after this.
+ * This function also sets the baseband filter bandwidth to a value \f$ \le 0.75 \cdot F_s \f$, so any calls to @ref hackrf_set_baseband_filter_bandwidth should only be made after this.
  * 
  * @param device device to configure
  * @param freq_hz sample rate base frequency in Hz
@@ -1520,8 +1512,8 @@ extern ADDAPI int ADDCALL hackrf_set_sample_rate_manual(
 /**
  * Set sample rate
  * 
- * Sample rate should be in the range 2-20MHz, with the default being 10MHz. Lower & higher values are technicly possibly, but the performance is not guaranteed.
- * This function also sets the baseband filter bandwidth to a value <= 0.75 * samplerate, so any calls to @ref hackrf_set_baseband_filter_bandwidth should only be made after this.
+ * Sample rate should be in the range 2-20MHz, with the default being 10MHz. Lower & higher values are technically possible, but the performance is not guaranteed.
+ * This function also sets the baseband filter bandwidth to a value \f$ \le 0.75 \cdot F_s \f$, so any calls to @ref hackrf_set_baseband_filter_bandwidth should only be made after this.
  * 
  * @param device device to configure
  * @param freq_hz sample rate frequency in Hz. Should be in the range 2-20MHz
@@ -1547,7 +1539,7 @@ extern ADDAPI int ADDCALL hackrf_set_amp_enable(
 	const uint8_t value);
 
 /**
- * Read board partid serial number
+ * Read board part ID and serial number
  * 
  * Read MCU part id and serial number. See the documentation of the MCU for details!
  * 
@@ -1683,7 +1675,7 @@ extern ADDAPI uint32_t ADDCALL hackrf_compute_baseband_filter_bw(
  * 
  * See the documentation on hardware triggering for details
  * 
- * Requires USB API version 0x1002 or higher!
+ * Requires USB API version 1.02 (0x0102) or higher!
  * 
  * @param device device to configure
  * @param value enable (1) or disable (0) hardware triggering
@@ -1697,7 +1689,7 @@ extern ADDAPI int ADDCALL hackrf_set_hw_sync_mode(
 /**
  * Initialize sweep mode
  * 
- * Requires USB API version 0x1002 or higher!
+ * Requires USB API version 1.02 (0x0102) or higher!
  * 
  * In this mode, in a single data transfer (single call to the RX transfer callback), multiple blocks of size @p num_bytes bytes are received with different center frequencies. At the beginning of each block, a 10-byte frequency header is present in `0x7F - 0x7F - uint64_t frequency (LSBFIRST, in Hz)` format, followed by the actual samples.
  * 
@@ -1725,7 +1717,7 @@ extern ADDAPI int ADDCALL hackrf_init_sweep(
  * 
  * Returns a @ref HACKRF_OPERACAKE_MAX_BOARDS size array of addresses, with @ref HACKRF_OPERACAKE_ADDRESS_INVALID as a placeholder
  * 
- * Requires USB API version 0x1002 or higher!
+ * Requires USB API version 1.02 (0x0102) or higher!
  * @param[in] device device to query
  * @param[out] boards list of boards
  * @return @ref HACKRF_SUCCESS on success or @ref hackrf_error variant
@@ -1738,7 +1730,7 @@ extern ADDAPI int ADDCALL hackrf_get_operacake_boards(
 /**
  * Setup Opera Cake operation mode
  * 
- * Requires USB API version 0x1002 or higher!
+ * Requires USB API version 1.02 (0x0102) or higher!
  * @param device device to configure
  * @param address address of Opera Cake add-on board to configure
  * @param mode mode to use
@@ -1753,7 +1745,7 @@ extern ADDAPI int ADDCALL hackrf_set_operacake_mode(
 /**
  * Query Opera Cake mode
  * 
- * Requires USB API version 0x1002 or higher!
+ * Requires USB API version 1.02 (0x0102) or higher!
  * @param[in] device device to query from
  * @param[in] address address of add-on board to query
  * @param[out] mode operation mode of the selected add-on board
@@ -1770,7 +1762,7 @@ extern ADDAPI int ADDCALL hackrf_get_operacake_mode(
  * 
  * Should be called after @ref hackrf_set_operacake_mode. A0 and B0 must be connected to opposite sides (A->A and B->B or A->B and B->A but not A->A and B->A or A->B and B->B)
  * 
- * Requires USB API version 0x1002 or higher!
+ * Requires USB API version 1.02 (0x0102) or higher!
  * @param device device to configure
  * @param address address of add-on board to configure
  * @param port_a port for A0. Must be one of @ref operacake_ports
@@ -1791,7 +1783,7 @@ extern ADDAPI int ADDCALL hackrf_set_operacake_ports(
  * 
  * **Note:** this configuration applies to all Opera Cake boards in @ref OPERACAKE_MODE_TIME mode 
  * 
- * Requires USB API version 0x1002 or higher!
+ * Requires USB API version 1.02 (0x0102) or higher!
  * @param device device to configure
  * @param dwell_times list of dwell times to setup
  * @param count number of dwell times to setup. Must be at most @ref HACKRF_OPERACAKE_MAX_DWELL_TIMES.
@@ -1810,7 +1802,7 @@ extern ADDAPI int ADDCALL hackrf_set_operacake_dwell_times(
  *
  * **Note:** this configuration applies to all Opera Cake boards in @ref OPERACAKE_MODE_FREQUENCY mode
  * 
- * Requires USB API version 0x1002 or higher!
+ * Requires USB API version 1.02 (0x0102) or higher!
  * @param device device to configure
  * @param freq_ranges list of frequency ranges to setup
  * @param count number of ranges to setup. Must be at most @ref HACKRF_OPERACAKE_MAX_FREQ_RANGES.
@@ -1825,7 +1817,7 @@ extern ADDAPI int ADDCALL hackrf_set_operacake_freq_ranges(
 /**
  * Reset HackRF device
  * 
- * Requires USB API version 0x1002 or higher!
+ * Requires USB API version 1.02 (0x0102) or higher!
  * @param device device to reset
  * @return @ref HACKRF_SUCCESS on success or @ref hackrf_error variant
  * @ingroup device
@@ -1839,7 +1831,7 @@ extern ADDAPI int ADDCALL hackrf_reset(hackrf_device* device);
  * 
  * **Note:** this configuration applies to all Opera Cake boards in @ref OPERACAKE_MODE_FREQUENCY mode
  * 
- * Requires USB API version 0x1002 or higher!
+ * Requires USB API version 1.02 (0x0102) or higher!
  * @param device device to configure
  * @param ranges ranges to setup. Should point to a valid @ref hackrf_operacake_freq_range array.
  * @param num_ranges length of ranges to setup, must be number of ranges * 5. Must be at most 8*5=40. (internally called len_ranges, possible typo)
@@ -1855,7 +1847,7 @@ extern ADDAPI int ADDCALL hackrf_set_operacake_ranges(
 /**
  * Enable / disable CLKOUT
  * 
- * Requires USB API version 0x1002 or higher!
+ * Requires USB API version 1.02 (0x0102) or higher!
  * @param device device to configure
  * @param value clock output enabled (0/1)
  * @return @ref HACKRF_SUCCESS on success or @ref hackrf_error variant
@@ -1870,7 +1862,7 @@ extern ADDAPI int ADDCALL hackrf_set_clkout_enable(
  * 
  * Check if an external clock signal is detected on the CLKIN port.
  * 
- * Requires USB API version 0x1002 or higher!
+ * Requires USB API version 1.02 (0x0102) or higher!
  * @param[in] device device to read status from
  * @param[out] status external clock detected (0/1)
  * @return @ref HACKRF_SUCCESS on success or @ref hackrf_error variant
@@ -1887,7 +1879,7 @@ extern ADDAPI int ADDCALL hackrf_get_clkin_status(hackrf_device* device, uint8_t
  * 0 - u1ctrl - u3ctrl0 - u3ctrl1 - u2ctrl0 - u2ctrl1
  * 
  * 
- * Requires USB API version 0x1002 or higher!
+ * Requires USB API version 1.02 (0x0102) or higher!
  * @param[in] device device to perform test on
  * @param[in] address address of Opera Cake board to test
  * @param[out] test_result result of tests
@@ -1905,7 +1897,7 @@ extern ADDAPI int ADDCALL hackrf_operacake_gpio_test(
  * 
  * This function is not always available, see [issue 609](https://github.com/greatscottgadgets/hackrf/issues/609)
  * 
- * Requires USB API version 0x1002 or higher!
+ * Requires USB API version 1.02 (0x0102) or higher!
  * @param[in] device device to read checksum from
  * @param[out] crc CRC checksum of the CPLD configuration
  * @return @ref HACKRF_SUCCESS on success or @ref hackrf_error variant
@@ -1919,7 +1911,7 @@ extern ADDAPI int ADDCALL hackrf_cpld_checksum(hackrf_device* device, uint32_t* 
  * 
  * Enable or disable the display on display-enabled devices (Rad1o, PortaPack)
  * 
- * Requires USB API version 0x1002 or higher!
+ * Requires USB API version 1.02 (0x0102) or higher!
  * @param device device to enable/disable UI on
  * @param value Enable UI. Must be 1 or 0
  * @return @ref HACKRF_SUCCESS on success or @ref HACKRF_ERROR_LIBUSB on usb error
@@ -1932,7 +1924,7 @@ extern ADDAPI int ADDCALL hackrf_set_ui_enable(hackrf_device* device, const uint
  * 
  * See @ref hackrf_init_sweep for more info
  *
- * Requires USB API version 0x1002 or higher!
+ * Requires USB API version 1.02 (0x0102) or higher!
  * @param device device to start sweeping
  * @param callback rx callback processing the received data
  * @param rx_ctx User provided RX context. Not used by the library, but available to @p callback as @ref hackrf_transfer.rx_ctx.
