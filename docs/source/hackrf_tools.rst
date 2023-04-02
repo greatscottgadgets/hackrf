@@ -2,8 +2,7 @@
 HackRF Tools
 ============
 
-Great Scott Gadgets provides some commandline tools for interacting with HackRF. For information on how to use each tool look at the help information provided via commandline (e.g. ``hackrf_transfer -h``) or the `manual pages <http://manpages.ubuntu.com/manpages/utopic/man1/hackrf_info.1.html>`__.
-
+Great Scott Gadgets provides some commandline tools for interacting with HackRF. 
     * **hackrf_info** Read device information from HackRF such as serial number and firmware version.
 
     * **hackrf_transfer** Send and receive signals using HackRF. Input/output files are 8-bit signed quadrature samples.

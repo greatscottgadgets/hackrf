@@ -34,7 +34,7 @@ The maximum TX power for Jawbreaker varies by operating frequency:
 
     * 30 MHz to 100 MHz: 5 dBm to 15 dBm, increasing as frequency decreases
     * 100 MHz to 2300 MHz: 0 dBm to 10 dBm, increasing as frequency decreases
-    * 2300 MHz to 2700 MHz: 10 dBm to 15 dBm
+    * 2170 MHz to 2740 MHz: 10 dBm to 15 dBm
     * 2700 MHz to 4000 MHz: -5 dBm to 5 dBm, increasing as frequency decreases
     * 4000 MHz to 6000 MHz: -15 dBm to 0 dBm, increasing as frequency decreases
 
