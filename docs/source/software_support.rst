@@ -27,8 +27,6 @@ Software That Has Direct Support For HackRF
     * Windows OS only
     * Only nightly builds currently support HackRF One  
 
-        * (`http://sdrsharp.com/downloads/sdr-nightly.zip <http://sdrsharp.com/downloads/sdr-nightly.zip>`__)
-
 * SDR Console
 
     * https://www.sdr-radio.com/Console
