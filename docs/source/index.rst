@@ -15,6 +15,7 @@ Welcome to HackRF's documentation!
    :caption: HackRF One Hardware
 
    hackrf_one 
+   hackrf_minimum_requirements
    list_of_hardware_revisions
    hardware_components 
    leds 
