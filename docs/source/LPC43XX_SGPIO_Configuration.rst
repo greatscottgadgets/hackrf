@@ -13,11 +13,8 @@ In the current HackRF design, there is a CPLD which manages the interface betwee
 
 
 
-Frequently Asked Questions
-~~~~~~~~~~~~~~~~~~~~~~~~~~
-
 Why not use GPDMA to transfer samples through SGPIO?
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 It would be great if we could, as that would free up lots of processor time. Unfortunately, the GPDMA scheme in the LPC43xx does not seem to support peripheral-to-memory and memory-to-peripheral transfers with the SGPIO peripheral.
 

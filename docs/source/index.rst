@@ -6,23 +6,33 @@ Welcome to HackRF's documentation!
    :maxdepth: 2
    :caption: User Documentation
 
-   hackrf_one
-   jawbreaker   
-   faq
-   troubleshooting
    getting_help
-   tips_tricks
+   faq
    hackrf_projects_mentions
 
 .. toctree::
    :maxdepth: 2
-   :caption: Software
+   :caption: HackRF One Hardware
 
-   installing_hackrf_software
-   getting_started_hackrf_gnuradio
-   software_support
-   libhackrf_api
-   hackrf_sweep
+   hackrf_one 
+   hackrf_minimum_requirements
+   list_of_hardware_revisions
+   hardware_components 
+   leds 
+   hackrfs_buttons
+   external_clock_interface
+   expansion_interface
+   hardware_triggering
+   enclosure_options    
+   usb_cables
+   rf_shield_installation   
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Jawbreaker Hardware
+
+   jawbreaker 
+
 
 .. toctree::
    :maxdepth: 2
@@ -35,16 +45,14 @@ Welcome to HackRF's documentation!
 
 .. toctree::
    :maxdepth: 2
-   :caption: Hardware
+   :caption: Software
 
-   list_of_hardware_revisions
-   hardware_components
-   enclosure_options   
-   hackrfs_buttons
-   external_clock_interface
-   expansion_interface
-   hardware_triggering
-   rf_shield_installation
+   installing_hackrf_software
+   hackrf_tools
+   software_support
+   sampling_rate
+   setting_gain
+   virtual_machines
 
 .. toctree::
    :maxdepth: 2
@@ -56,4 +64,5 @@ Welcome to HackRF's documentation!
    opera_cake_board_addressing
    opera_cake_port_configuration
    opera_cake_modes_of_operation
-        
+
+ 

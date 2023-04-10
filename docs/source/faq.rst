@@ -106,7 +106,26 @@ There was a bug in the HackRF firmware (through release 2013.06.1) that made the
 A high DC offset is also one of a few symptoms that can be caused by a software version mismatch. A common problem is that people run an old version of gr-osmosdr with newer firmware.
 
 
+
 ----
+
+
+
+How do I deal with the big spike in the middle of my spectrum?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Start by reading :ref:`our FAQ Response on the DC Spike <bigspike>`. After that, there are a few options:
+
+    #. Ignore it. For many applications it isn't a problem. You'll learn to ignore it.
+
+    #. Avoid it. The best way to handle DC offset for most applications is to use offset tuning; instead of tuning to your exact frequency of interest, tune to a nearby frequency so that the entire signal you are interested in is shifted away from 0 Hz but still within the received bandwidth. If your algorithm works best with your signal centered at 0 Hz (many do), you can shift the frequency in the digital domain, moving your signal of interest to 0 Hz and your DC offset away from 0 Hz. HackRF's high maximum sampling rate can be a big help as it allows you to use offset tuning even for relatively wideband signals.
+
+    #. Correct it. There are various ways of removing the DC offset in software. However, these techniques may degrade parts of the signal that are close to 0 Hz. It may look better, but that doesn't necessarily mean that it is better from the standpoint of a demodulator algorithm, for example. Still, correcting the DC offset is often a good choice.
+
+
+
+---
+
 
 
 What gain controls are provided by HackRF?
