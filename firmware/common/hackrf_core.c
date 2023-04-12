@@ -534,7 +534,7 @@ bool baseband_filter_bandwidth_set(const uint32_t bandwidth_hz)
 	return bandwidth_hz_real != 0;
 }
 
-/* 
+/*
 Configure PLL1 (Main MCU Clock) to max speed (204MHz).
 Note: PLL1 clock is used by M4/M0 core, Peripheral, APB1.
 This function shall be called after cpu_clock_init().
@@ -812,9 +812,6 @@ void cpu_clock_init(void)
 	// CCU2_CLK_SDIO_CFG = 0;
 #endif
 
-	if (detected_platform() == BOARD_ID_HACKRF1_R9) {
-		clkin_detect_init();
-	}
 }
 
 clock_source_t activate_best_clock_source(void)
