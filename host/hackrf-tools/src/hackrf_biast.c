@@ -31,80 +31,17 @@
 	#include <sys/time.h>
 #endif
 
-void print_board_rev(uint8_t board_rev)
-{
-	switch (board_rev) {
-	case BOARD_REV_UNDETECTED:
-		printf("Error: Hardware revision not yet detected by firmware.\n");
-		return;
-	case BOARD_REV_UNRECOGNIZED:
-		printf("Warning: Hardware revision not recognized by firmware.\n");
-		return;
-	}
-	printf("Hardware Revision: %s\n", hackrf_board_rev_name(board_rev));
-	if (board_rev > BOARD_REV_HACKRF1_OLD) {
-		if (board_rev & HACKRF_BOARD_REV_GSG) {
-			printf("Hardware appears to have been manufactured by Great Scott Gadgets.\n");
-		} else {
-			printf("Hardware does not appear to have been manufactured by Great Scott Gadgets.\n");
-		}
-	}
-}
-
-void print_supported_platform(uint32_t platform, uint8_t board_id)
-{
-	printf("Hardware supported by installed firmware:\n");
-	if (platform & HACKRF_PLATFORM_JAWBREAKER) {
-		printf("    Jawbreaker\n");
-	}
-	if (platform & HACKRF_PLATFORM_RAD1O) {
-		printf("    rad1o\n");
-	}
-	if ((platform & HACKRF_PLATFORM_HACKRF1_OG) ||
-	    (platform & HACKRF_PLATFORM_HACKRF1_R9)) {
-		printf("    HackRF One\n");
-	}
-	switch (board_id) {
-	case BOARD_ID_HACKRF1_OG:
-		if (!(platform & HACKRF_PLATFORM_HACKRF1_OG)) {
-			printf("Error: Firmware does not support HackRF One revisions older than r9.\n");
-		}
-		break;
-	case BOARD_ID_HACKRF1_R9:
-		if (!(platform & HACKRF_PLATFORM_HACKRF1_R9)) {
-			printf("Error: Firmware does not support HackRF One r9.\n");
-		}
-		break;
-	case BOARD_ID_JAWBREAKER:
-		if (platform & HACKRF_PLATFORM_JAWBREAKER) {
-			break;
-		}
-	case BOARD_ID_RAD1O:
-		if (platform & HACKRF_PLATFORM_RAD1O) {
-			break;
-		}
-		printf("Error: Firmware does not support hardware platform.\n");
-	}
-}
-
 void usage() {
-		fprintf(stderr,"Usage: hackrf_biast [0|1]\n");
+		fprintf(stderr,"Usage: hackrf_biast [-b 0|1] [-d serial]\n");
+		fprintf(stderr,"\t-b\t1=Enable antenna power, 0=disable\n");
+		fprintf(stderr,"\t-d\tSpecify serial number of HackRF device\n");		
 }
 
 int main(int argc, char** argv)
 {
 	int opt;
 	int result = HACKRF_SUCCESS;
-	uint8_t board_id = BOARD_ID_UNDETECTED;
-	uint8_t board_rev = BOARD_REV_UNDETECTED;
-	uint32_t supported_platform = 0;
-	char version[255 + 1];
-	uint16_t usb_version;
-	read_partid_serialno_t read_partid_serialno;
-	uint8_t operacakes[8];
-	hackrf_device_list_t* list;
 	hackrf_device* device;
-	int i, j;
 
 	int biast_enable =0;
 	const char* serial_number = NULL;
@@ -125,10 +62,8 @@ int main(int argc, char** argv)
 		case 'h':
 			usage();
 			return EXIT_FAILURE;
-
 		}
 	}
-
 
 	result = hackrf_init();
 	if (result != HACKRF_SUCCESS) {
@@ -149,7 +84,6 @@ int main(int argc, char** argv)
 		return EXIT_FAILURE;
 	}
 
-	fprintf(stderr, "call hackrf_set_antenna_enable(%u)\n", biast_enable);
 	result = hackrf_set_antenna_enable(device, (uint8_t) biast_enable);
 	if (result != HACKRF_SUCCESS) {
 		fprintf(stderr,
