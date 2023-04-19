@@ -64,6 +64,7 @@ enum hackrf_error {
 	HACKRF_ERROR_NOT_FOUND = -5,
 	HACKRF_ERROR_BUSY = -6,
 	HACKRF_ERROR_NO_MEM = -11,
+	HACKRF_ERROR_UNSUPPORTED = -12,
 	HACKRF_ERROR_LIBUSB = -1000,
 	HACKRF_ERROR_THREAD = -1001,
 	HACKRF_ERROR_STREAMING_THREAD_ERR = -1002,
@@ -256,6 +257,10 @@ extern ADDAPI int ADDCALL hackrf_open(hackrf_device** device);
 
 extern ADDAPI int ADDCALL hackrf_open_by_serial(
 	const char* const desired_serial_number,
+	hackrf_device** device);
+
+extern ADDAPI int ADDCALL hackrf_open_by_fd(
+	int fd,
 	hackrf_device** device);
 
 extern ADDAPI int ADDCALL hackrf_close(hackrf_device* device);
