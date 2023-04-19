@@ -288,7 +288,11 @@ int main(void)
 	}
 	operacake_init(operacake_allow_gpio);
 
-	clkin_detect_init();
+	// FIXME: clock detection on r9 only works when calling init twice
+	if (detected_platform() == BOARD_ID_HACKRF1_R9) {
+		clkin_detect_init();
+		clkin_detect_init();
+	}
 
 	while (true) {
 		transceiver_request_t request;
