@@ -32,9 +32,14 @@
 #endif
 
 void usage() {
+		fprintf(stderr,"hackrf_biast - enable/disable antenna power on the HackRF for compatibility\n");
+		fprintf(stderr,"               with software that does not support this function (i.e. SDR#)\n\n");
 		fprintf(stderr,"Usage: hackrf_biast [-b 0|1] [-d serial]\n");
-		fprintf(stderr,"\t-b\t1=Enable antenna power, 0=disable\n");
-		fprintf(stderr,"\t-d\tSpecify serial number of HackRF device\n");		
+		fprintf(stderr,"\t-h\tDisplay this help.\n");
+		fprintf(stderr,"\t-b\t1=Enable antenna power, 0=disable (default=0)\n");
+		fprintf(stderr,"\t-d\tSpecify serial number of HackRF device\n\n");		
+		fprintf(stderr,"Note that antenna power will be automatically disabled by the firmware\n");
+		fprintf(stderr,"when RX is stopped.\n");
 }
 
 int main(int argc, char** argv)
