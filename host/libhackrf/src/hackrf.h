@@ -1984,6 +1984,20 @@ extern ADDAPI int ADDCALL hackrf_supported_platform_read(
 */
 extern ADDAPI int ADDCALL hackrf_set_leds(hackrf_device* device, const uint8_t state);
 
+/**
+ * Override the default bias T behavior of the HackRF device
+ * 
+ * TODO explain it
+ * 
+ * @param device device to query
+ * @param state LED states as a bitfield
+ * @return @ref HACKRF_SUCCESS on success or @ref hackrf_error variant
+ * @ingroup device
+ * 
+*/
+int ADDCALL hackrf_set_user_bias_t_opts(hackrf_device* device, const uint16_t state);
+
+
 #ifdef __cplusplus
 } // __cplusplus defined.
 #endif

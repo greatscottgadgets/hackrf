@@ -208,3 +208,14 @@ usb_request_status_t usb_vendor_request_set_leds(
 	}
 	return USB_REQUEST_STATUS_OK;
 }
+
+usb_request_status_t usb_vendor_request_set_user_modechange_opts(
+	usb_endpoint_t* const endpoint,
+	const usb_transfer_stage_t stage)
+{
+	if (stage == USB_TRANSFER_STAGE_SETUP) {
+		rf_path_set_user_bias_t_opts(endpoint->setup.value);
+		usb_transfer_schedule_ack(endpoint->in);
+	}
+	return USB_REQUEST_STATUS_OK;
+}

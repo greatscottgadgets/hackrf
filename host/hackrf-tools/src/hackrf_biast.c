@@ -90,6 +90,7 @@ int main(int argc, char** argv)
 		return EXIT_FAILURE;
 	}
 
+/*
 	result = hackrf_set_antenna_enable(device, (uint8_t) biast_enable);
 	if (result != HACKRF_SUCCESS) {
 		fprintf(stderr,
@@ -98,7 +99,17 @@ int main(int argc, char** argv)
 			result);
 		return EXIT_FAILURE;
 	}
-	
+*/	
+
+	result = hackrf_set_user_bias_t_opts(device, (uint16_t) 0x1FE);
+	if (result != HACKRF_SUCCESS) {
+		fprintf(stderr,
+			"hackrf_set_user_bias_t_opts() failed: %s (%d)\n",
+			hackrf_error_name(result),
+			result);
+		return EXIT_FAILURE;
+	}
+
 
 	result = hackrf_close(device);
 	if (result != HACKRF_SUCCESS) {
