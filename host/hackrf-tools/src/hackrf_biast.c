@@ -138,6 +138,10 @@ int main(int argc, char** argv)
 		return EXIT_FAILURE;
 	}
 
+	if (!(biast_enable >= 0 || do_user_opts_update)) {
+		usage();
+	}
+
 	if (biast_enable >= 0) {
 		result = hackrf_set_antenna_enable(device, (uint8_t) biast_enable);
 		if (result != HACKRF_SUCCESS) {
@@ -150,7 +154,6 @@ int main(int argc, char** argv)
 	}
 	
 	if (do_user_opts_update) {
-		printf("Send %X",user_biast_modeopts);
 		result = hackrf_set_user_bias_t_opts(device, user_biast_modeopts);
 		if (result != HACKRF_SUCCESS) {
 			fprintf(stderr,
