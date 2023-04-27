@@ -50,7 +50,7 @@ void usage() {
 
 		fprintf(stderr,"  [-d serial_number]  Specify serial number of HackRF device to configure\n\n\n");		
 		fprintf(stderr,"The -r/-t/-o options support the following mode settings:\n\n");
-		fprintf(stderr,"  0=use device default (RX: don't change, TX/OFF: disable bias tee)\n");
+		fprintf(stderr,"  0=use device default (RX/TX: don't change, OFF: disable bias tee)\n");
 		fprintf(stderr,"  1=enable bias tee when entering mode\n");
 		fprintf(stderr,"  2=disable bias tee when entering mode\n\n");
 		exit(USAGE);
