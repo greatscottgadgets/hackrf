@@ -424,14 +424,13 @@ void rf_path_set_direction(rf_path_t* const rf_path, const rf_path_direction_t d
 		ssp1_set_mode_max283x();
 		max283x_rx(&max283x);
 		sgpio_configure(&sgpio_config, SGPIO_DIRECTION_RX);
-
 		break;
 
 	case RF_PATH_DIRECTION_OFF:
 	default:
-		#ifdef HACKRF_ONE
+#ifdef HACKRF_ONE
 		rf_path_set_antenna(rf_path, 0);
-		#endif
+#endif
 		rf_path_set_lna(rf_path, 0);
 		/* Set RF path to receive direction when "off" */
 		rf_path->switchctrl &= ~SWITCHCTRL_TX;
@@ -441,7 +440,6 @@ void rf_path_set_direction(rf_path_t* const rf_path, const rf_path_direction_t d
 		ssp1_set_mode_max283x();
 		max283x_set_mode(&max283x, MAX283x_MODE_STANDBY);
 		sgpio_configure(&sgpio_config, SGPIO_DIRECTION_RX);
-
 		break;
 	}
 
