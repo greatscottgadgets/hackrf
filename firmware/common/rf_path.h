@@ -82,14 +82,6 @@ void rf_path_set_filter(rf_path_t* const rf_path, const rf_path_filter_t filter)
 void rf_path_set_lna(rf_path_t* const rf_path, const uint_fast8_t enable);
 void rf_path_set_antenna(rf_path_t* const rf_path, const uint_fast8_t enable);
 
-typedef enum {
-	RF_DIRECTION_USER_OPT_NOP,	// No OPeration / Ignore the thing
-	RF_DIRECTION_USER_OPT_RESERVED, // Currently a NOP
-	RF_DIRECTION_USER_OPT_CLEAR,	// Clear/Disable the thing
-	RF_DIRECTION_USER_OPT_SET,	// Set/Enable the thing
-} rf_path_user_opt_t;
 
-void rf_path_set_user_bias_t_opt(const rf_path_direction_t direction, const rf_path_user_opt_t action);
-void rf_path_set_user_bias_t_opts(uint16_t value);
 
 #endif /*__RFPATH_H__*/

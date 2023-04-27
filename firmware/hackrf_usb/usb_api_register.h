@@ -55,7 +55,7 @@ usb_request_status_t usb_vendor_request_set_leds(
 	usb_endpoint_t* const endpoint,
 	const usb_transfer_stage_t stage);
 	
-usb_request_status_t usb_vendor_request_set_user_modechange_opts(
+usb_request_status_t usb_vendor_request_user_config_set_bias_t_opts(
 	usb_endpoint_t* const endpoint,
 	const usb_transfer_stage_t stage);
 

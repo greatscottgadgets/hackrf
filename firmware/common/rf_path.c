@@ -34,10 +34,7 @@
 #include "max283x.h"
 #include "max5864.h"
 #include "sgpio.h"
-
-// Private function forward declarations
-static void rf_path_do_user_direction_actions(rf_path_t* const rf_path, const rf_path_direction_t direction);
-// End private function forward declarations
+#include "user_config.h"
 
 #if (defined JAWBREAKER || defined HACKRF_ONE || defined RAD1O)
 	/*
@@ -451,7 +448,7 @@ void rf_path_set_direction(rf_path_t* const rf_path, const rf_path_direction_t d
 	switchctrl_set(rf_path, rf_path->switchctrl);
 
 	// Perform any user-requested actions for mode switch
-	rf_path_do_user_direction_actions(rf_path, direction);
+	user_config_on_rf_path_direction_change(rf_path, direction);
 	
 	hackrf_ui()->set_direction(direction);
 }
@@ -519,82 +516,4 @@ void rf_path_set_antenna(rf_path_t* const rf_path, const uint_fast8_t enable)
 	switchctrl_set(rf_path, rf_path->switchctrl);
 
 	hackrf_ui()->set_antenna_bias(enable);
-}
-
-
-/*
-	Perform user-specified actions when transitioning modes
-*/
-static rf_path_user_opt_t user_direction_rx_bias_t_opts = RF_DIRECTION_USER_OPT_NOP;
-static rf_path_user_opt_t user_direction_tx_bias_t_opts = RF_DIRECTION_USER_OPT_NOP;
-static rf_path_user_opt_t user_direction_off_bias_t_opts = RF_DIRECTION_USER_OPT_NOP;
-
-void _rf_path_handle_user_bias_t_action(rf_path_t* const rf_path, int action) {
-		switch(action) {
-			case RF_DIRECTION_USER_OPT_SET:
-				rf_path_set_antenna(rf_path, 1);
-				break;
-
-			case RF_DIRECTION_USER_OPT_CLEAR:
-				rf_path_set_antenna(rf_path, 0);
-				break;
-
-			case RF_DIRECTION_USER_OPT_NOP:
-			default:
-				break;
-		}
-}
-
-void rf_path_do_user_direction_actions(rf_path_t* const rf_path, const rf_path_direction_t direction) {
-	switch(direction) {
-	case RF_PATH_DIRECTION_RX:
-		_rf_path_handle_user_bias_t_action(rf_path, user_direction_rx_bias_t_opts);
-		break;
-
-	case RF_PATH_DIRECTION_TX:
-		_rf_path_handle_user_bias_t_action(rf_path, user_direction_tx_bias_t_opts);
-		break;
-
-	case RF_PATH_DIRECTION_OFF:
-	default:
-		_rf_path_handle_user_bias_t_action(rf_path, user_direction_off_bias_t_opts);
-		break;
-	}
-}
-
-
-
-void rf_path_set_user_bias_t_opt(const rf_path_direction_t direction, const rf_path_user_opt_t option) {
-	switch(direction) {
-	case RF_PATH_DIRECTION_RX:
-		user_direction_rx_bias_t_opts = option;
-		break;
-
-	case RF_PATH_DIRECTION_TX:
-		user_direction_tx_bias_t_opts = option;
-		break;
-
-	case RF_PATH_DIRECTION_OFF:
-		user_direction_off_bias_t_opts = option;
-		break;
-
-	default:
-		break;
-	}
-}
-
-/*
- Bias T options are set as follows:
-	Bits 0,1:	One of NOP (0), CLEAR (0b10), or SET (0b11)
-	Bit 2:		1=Set RX behavior according to bits 0,1  0=Don't change
-	Bits 3,4:	One of NOP (0), CLEAR (0b10), or SET (0b11)
-	Bit 5:		1=Set RX behavior according to bits 0,1  0=Don't change
-	Bits 6,7:	One of NOP (0), CLEAR (0b10), or SET (0b11)
-	Bit 8:		1=Set RX behavior according to bits 0,1  0=Don't change
-	Bits 9-15:	Ignored; set to 0
-*/
-void rf_path_set_user_bias_t_opts(uint16_t value) {
-	if (value & 0x4) { rf_path_set_user_bias_t_opt(RF_PATH_DIRECTION_OFF,value & 0x3); }
-	if (value & 0x20) { rf_path_set_user_bias_t_opt(RF_PATH_DIRECTION_RX,(value & 0x18) >> 3); }
-	if (value & 0x100) { rf_path_set_user_bias_t_opt(RF_PATH_DIRECTION_TX,(value & 0xC0) >> 6); }
 }
