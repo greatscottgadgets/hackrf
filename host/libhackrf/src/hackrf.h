@@ -2008,7 +2008,7 @@ extern ADDAPI int ADDCALL hackrf_set_leds(hackrf_device* device, const uint8_t s
  * @ingroup device
  * 
 */
-int ADDCALL hackrf_set_user_bias_t_opts(hackrf_device* device, const uint16_t state);
+extern ADDAPI int ADDCALL hackrf_set_user_bias_t_opts(hackrf_device* device, const uint16_t state);
 
 
 #ifdef __cplusplus
