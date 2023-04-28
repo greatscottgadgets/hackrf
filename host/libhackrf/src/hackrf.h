@@ -1985,12 +1985,25 @@ extern ADDAPI int ADDCALL hackrf_supported_platform_read(
 extern ADDAPI int ADDCALL hackrf_set_leds(hackrf_device* device, const uint8_t state);
 
 /**
- * Override the default bias T behavior of the HackRF device
+ * Configure bias tee behavior of the HackRF device when switching to the RX, TX, or OFF state.
  * 
- * TODO explain it
+ * By default, the HackRF switches off the bias tee when the RF path switches to OFF mode.  This causes problems when using software that only has very basic support for the HackRF as the bias tee will automatically be disabled as soon as the HackRF stops receiving, which can happen in many unexpected cases i.e. the user switches sample rates.  This function allows the user to configure bias tee behavior so that it can be turned on or off automatically by the HackRF when entering the RX, TX, or OFF state.
  * 
- * @param device device to query
- * @param state LED states as a bitfield
+ * The bias tee configuration is specified via a bitfield:
+ * 
+ * 0000000TmmRmmOmm
+ * 
+ * Where setting T/R/O bits indicates that the TX/RX/Off behavior should be set to mode 'mm', 0=don't modify
+ * 
+ * mm specifies the bias tee mode:
+ * 
+ * 00 - use device default (do nothing when entering TX/RX, turn bias tee OFF when device enters OFF mode)
+ * 01 - reserved, do not use
+ * 10 - disable bias tee
+ * 11 - enable bias tee
+ * 
+ * @param device device to configure
+ * @param state Bias tee states, as a bitfield
  * @return @ref HACKRF_SUCCESS on success or @ref hackrf_error variant
  * @ingroup device
  * 
