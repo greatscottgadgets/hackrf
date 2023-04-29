@@ -2958,7 +2958,7 @@ int ADDCALL hackrf_set_leds(hackrf_device* device, const uint8_t state)
 int ADDCALL hackrf_set_user_bias_t_opts(hackrf_device* device, const uint16_t state)
 {
 	// TODO need to bump the API version #
-	USB_API_REQUIRED(device, 0x0107)
+	USB_API_REQUIRED(device, 0x0108)
 	int result = libusb_control_transfer(
 		device->usb_device,
 		LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR |

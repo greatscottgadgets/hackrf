@@ -37,7 +37,7 @@
 
 void usage() {
 		fprintf(stderr,"\nhackrf_biast - enable/disable antenna power on the HackRF for compatibility\n");
-		fprintf(stderr,"               with software that does not support this function (i.e. SDR#)\n\n");
+		fprintf(stderr,"               with software that does not support this function\n\n");
 		fprintf(stderr,"Usage: \n");
 		fprintf(stderr,"  -h         Display this help\n");
 		fprintf(stderr,"  -R         Reset all bias tee settings to device default.  When combined\n");
@@ -50,9 +50,9 @@ void usage() {
 
 		fprintf(stderr,"  [-d serial_number]  Specify serial number of HackRF device to configure\n\n\n");		
 		fprintf(stderr,"The -r/-t/-o options support the following mode settings:\n\n");
-		fprintf(stderr,"  0=use device default (RX/TX: don't change, OFF: disable bias tee)\n");
-		fprintf(stderr,"  1=enable bias tee when entering mode\n");
-		fprintf(stderr,"  2=disable bias tee when entering mode\n\n");
+		fprintf(stderr,"  0=do nothing when entering mode\n");
+		fprintf(stderr,"  1=disable bias tee when entering mode\n");
+		fprintf(stderr,"  2=enable bias tee when entering mode\n\n");
 		exit(USAGE);
 }
 
@@ -109,7 +109,7 @@ int main(int argc, char** argv)
 
 		case 'R':
 			do_user_opts_update=1;
-			user_biast_modeopts |= 0b100100100;	// Set all behaviors at once 
+			user_biast_modeopts |= 0b100100110;	// Set all behaviors at once 
 			break;
 
 		case 'h':
