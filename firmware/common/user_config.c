@@ -26,7 +26,7 @@
 
 static user_config_user_opt_t user_direction_rx_bias_t_opts = RF_DIRECTION_USER_OPT_NOP;
 static user_config_user_opt_t user_direction_tx_bias_t_opts = RF_DIRECTION_USER_OPT_NOP;
-static user_config_user_opt_t user_direction_off_bias_t_opts = RF_DIRECTION_USER_OPT_NOP;
+static user_config_user_opt_t user_direction_off_bias_t_opts = RF_DIRECTION_USER_OPT_CLEAR;
 
 //	Perform user-specified actions to Bias T power when transitioning modes
 static void _rf_path_handle_user_bias_t_action(rf_path_t* const rf_path, int action) {

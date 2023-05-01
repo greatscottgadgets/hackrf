@@ -387,6 +387,10 @@ void rf_path_set_direction(rf_path_t* const rf_path, const rf_path_direction_t d
 {
 	/* Turn off TX and RX amplifiers, then enable based on direction and bypass state. */
 	rf_path->switchctrl |= SWITCHCTRL_NO_TX_AMP_PWR | SWITCHCTRL_NO_RX_AMP_PWR;
+
+	// Perform any user-requested actions for mode switch
+	user_config_on_rf_path_direction_change(rf_path, direction);
+
 	switch (direction) {
 	case RF_PATH_DIRECTION_TX:
 		rf_path->switchctrl |= SWITCHCTRL_TX;
@@ -428,9 +432,6 @@ void rf_path_set_direction(rf_path_t* const rf_path, const rf_path_direction_t d
 
 	case RF_PATH_DIRECTION_OFF:
 	default:
-#ifdef HACKRF_ONE
-		rf_path_set_antenna(rf_path, 0);
-#endif
 		rf_path_set_lna(rf_path, 0);
 		/* Set RF path to receive direction when "off" */
 		rf_path->switchctrl &= ~SWITCHCTRL_TX;
@@ -444,9 +445,6 @@ void rf_path_set_direction(rf_path_t* const rf_path, const rf_path_direction_t d
 	}
 
 	switchctrl_set(rf_path, rf_path->switchctrl);
-
-	// Perform any user-requested actions for mode switch
-	user_config_on_rf_path_direction_change(rf_path, direction);
 	
 	hackrf_ui()->set_direction(direction);
 }
