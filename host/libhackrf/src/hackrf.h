@@ -26,7 +26,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 
 #include <stdint.h>
 #include <sys/types.h>
-
+#include <stdbool.h> // for bool
 #ifdef _WIN32
 	#define ADD_EXPORTS
 
@@ -884,6 +884,28 @@ typedef struct {
 	 */
 	uint8_t port;
 } hackrf_operacake_freq_range;
+
+/** 
+ * Helper struct for hackrf_bias_t_user_setting.  If 'do_update' is true, then the values of 'change_on_mode_entry'
+ * and 'enabled' will be used as the new default.  If 'do_update' is false, the current default will not change.
+*/
+typedef struct {
+	bool do_update;
+	bool change_on_mode_entry;
+	bool enabled;
+} hackrf_bool_user_settting;
+
+/** 
+ * User settings for user-supplied bias tee defaults.
+ * 
+ * @ingroup device
+ * 
+*/
+typedef struct {
+	hackrf_bool_user_settting tx;
+	hackrf_bool_user_settting rx;
+	hackrf_bool_user_settting off;
+} hackrf_bias_t_user_settting_req;
 
 /** 
  * State of the SGPIO loop running on the M0 core. 
@@ -2008,8 +2030,9 @@ extern ADDAPI int ADDCALL hackrf_set_leds(hackrf_device* device, const uint8_t s
  * @ingroup device
  * 
 */
-// The name below is too long for clang-format, how to resolve
-extern ADDAPI int ADDCALL hackrf_set_user_bias_t_opts(hackrf_device* device, const uint16_t state);
+extern ADDAPI int ADDCALL hackrf_set_user_bias_t_opts(
+	hackrf_device* device,
+	hackrf_bias_t_user_settting_req* req);
 
 #ifdef __cplusplus
 } // __cplusplus defined.

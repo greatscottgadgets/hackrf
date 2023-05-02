@@ -1,7 +1,5 @@
 /*
- * Copyright 2012-2022 Great Scott Gadgets <info@greatscottgadgets.com>
- * Copyright 2012 Jared Boone <jared@sharebrained.com>
- * Copyright 2013 Benjamin Vernoux <titanmkd@gmail.com>
+ * Copyright 2023 Jonathan Suite (GitHub: @ai6aj)
  *
  * This file is part of HackRF.
  *
@@ -26,45 +24,80 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <getopt.h>
+#include <string.h>
 
 #if defined(__GNUC__)
 	#include <unistd.h>
 	#include <sys/time.h>
 #endif
 
-#define USAGE 1
+#define USAGE              1
 #define INVALID_BIAST_MODE 2
 
-void usage() {
-		fprintf(stderr,"\nhackrf_biast - enable/disable antenna power on the HackRF for compatibility\n");
-		fprintf(stderr,"               with software that does not support this function\n\n");
-		fprintf(stderr,"Usage: \n");
-		fprintf(stderr,"  -h         Display this help\n");
-		fprintf(stderr,"  -R         Reset all bias tee settings to device default.  When combined\n");
-		fprintf(stderr,"             with -r/-t/-o, those settings will take precedence.\n\n");
+void usage()
+{
+	fprintf(stderr,
+		"\nhackrf_biast - enable/disable antenna power on the HackRF for compatibility\n");
+	fprintf(stderr,
+		"               with software that does not support this function\n\n");
+	fprintf(stderr, "Usage: \n");
+	fprintf(stderr, "  -h         Display this help\n");
+	fprintf(stderr,
+		"  -R         Reset all bias tee settings to device default.  When combined\n");
+	fprintf(stderr,
+		"             with -r/-t/-o, those settings will take precedence.\n\n");
 
-		fprintf(stderr,"  [-b mode]  1=Enable bias tee immediately, 0=disable immediately\n");
-		fprintf(stderr,"  [-r mode]  Set default bias tee power when device enters RX mode\n");
-		fprintf(stderr,"  [-t mode]  Set default bias tee power when device enters TX mode\n");
-		fprintf(stderr,"  [-o mode]  Set default bias tee power when device enters OFF mode\n");
+	fprintf(stderr,
+		"  [-b mode]  1=Enable bias tee immediately, 0=disable immediately\n");
+	fprintf(stderr,
+		"  [-r mode]  Set default bias tee power when device enters RX mode\n");
+	fprintf(stderr,
+		"  [-t mode]  Set default bias tee power when device enters TX mode\n");
+	fprintf(stderr,
+		"  [-o mode]  Set default bias tee power when device enters OFF mode\n");
 
-		fprintf(stderr,"  [-d serial_number]  Specify serial number of HackRF device to configure\n\n\n");		
-		fprintf(stderr,"The -r/-t/-o options support the following mode settings:\n\n");
-		fprintf(stderr,"  0=do nothing when entering mode\n");
-		fprintf(stderr,"  1=disable bias tee when entering mode\n");
-		fprintf(stderr,"  2=enable bias tee when entering mode\n\n");
-		exit(USAGE);
+	fprintf(stderr,
+		"  [-d serial_number]  Specify serial number of HackRF device to configure\n\n\n");
+	fprintf(stderr, "The -r/-t/-o options support the following mode settings:\n\n");
+	fprintf(stderr, "  leave		do nothing when entering mode\n");
+	fprintf(stderr, "  on		disable bias tee when entering mode\n");
+	fprintf(stderr, "  off		enable bias tee when entering mode\n\n");
+	exit(USAGE);
 }
 
-void update_user_mode(const char *direction_str,const char* strarg,uint16_t* user_biast_modeopts, uint8_t shift) {
-	int mode = atoi(strarg);
+void update_user_mode(
+	const char* direction_str,
+	const char* strarg,
+	hackrf_bool_user_settting* setting)
+{
+	// try to parse 'mode' as an int first.
+	char* endptr = NULL;
+	int mode = strtol(strarg, &endptr, 10);
+	if (endptr == strarg) {
+		// Didn't parse as an int, try the word equivalents
+		mode = 999; // Assume failure
+		if (strcmp((const char*) "off", strarg) == 0) {
+			mode = 0;
+		} else if (strcmp((const char*) "on", strarg) == 0) {
+			mode = 1;
+		} else if (strcmp((const char*) "leave", strarg) == 0) {
+			mode = 2;
+		}
+	}
+
 	if (mode < 0 || mode > 2) {
-		fprintf(stderr,"Invalid mode '%s' for %s\n",strarg,direction_str);
+		fprintf(stderr, "Invalid mode '%s' for %s\n", strarg, direction_str);
 		exit(INVALID_BIAST_MODE);
 	}
-	if (mode) { mode += 1; }	// Skip over the RESERVED mode
-	mode |= 0x4;
-	*user_biast_modeopts |= (mode << shift);
+
+	setting->do_update = true;
+	if (mode < 2) {
+		setting->change_on_mode_entry = true;
+		setting->enabled = mode;
+	} else {
+		setting->change_on_mode_entry = false;
+		setting->enabled = false;
+	}
 }
 
 int main(int argc, char** argv)
@@ -73,14 +106,23 @@ int main(int argc, char** argv)
 	int result = HACKRF_SUCCESS;
 	hackrf_device* device;
 
-	int biast_enable =-1;
+	int biast_enable = -1;
 	int do_user_opts_update = 0;
-	uint16_t user_biast_modeopts = 0;
+	hackrf_bias_t_user_settting_req req;
+
+	req.off.do_update = false;
+	req.off.change_on_mode_entry = false;
+	req.off.enabled = false;
+	req.rx.do_update = false;
+	req.rx.change_on_mode_entry = false;
+	req.rx.enabled = false;
+	req.tx.do_update = false;
+	req.tx.change_on_mode_entry = false;
+	req.tx.enabled = false;
 
 	const char* serial_number = NULL;
 
-	while ((opt = getopt(argc, argv, "d:b:h?Rr:t:o:")) !=
-	       EOF) {
+	while ((opt = getopt(argc, argv, "d:b:h?Rr:t:o:")) != EOF) {
 		result = HACKRF_SUCCESS;
 
 		switch (opt) {
@@ -93,23 +135,31 @@ int main(int argc, char** argv)
 			break;
 
 		case 'r':
-			do_user_opts_update=1;
-			update_user_mode("RX",optarg,&user_biast_modeopts,3);
+			do_user_opts_update = 1;
+			update_user_mode("RX", optarg, &req.rx);
 			break;
 
 		case 't':
-			do_user_opts_update=1;
-			update_user_mode("TX",optarg,&user_biast_modeopts,6);
+			do_user_opts_update = 1;
+			update_user_mode("TX", optarg, &req.tx);
 			break;
 
 		case 'o':
-			do_user_opts_update=1;
-			update_user_mode("OFF",optarg,&user_biast_modeopts,0);
+			do_user_opts_update = 1;
+			update_user_mode("OFF", optarg, &req.off);
 			break;
 
 		case 'R':
-			do_user_opts_update=1;
-			user_biast_modeopts |= 0b100100110;	// Set all behaviors at once 
+			do_user_opts_update = 1;
+			req.rx.do_update = true;
+			req.rx.change_on_mode_entry = false;
+			req.rx.enabled = false;
+			req.tx.do_update = true;
+			req.tx.change_on_mode_entry = false;
+			req.tx.enabled = false;
+			req.off.do_update = true;
+			req.off.change_on_mode_entry = true;
+			req.off.enabled = false;
 			break;
 
 		case 'h':
@@ -152,9 +202,9 @@ int main(int argc, char** argv)
 			return EXIT_FAILURE;
 		}
 	}
-	
+
 	if (do_user_opts_update) {
-		result = hackrf_set_user_bias_t_opts(device, user_biast_modeopts);
+		result = hackrf_set_user_bias_t_opts(device, &req);
 		if (result != HACKRF_SUCCESS) {
 			fprintf(stderr,
 				"hackrf_set_user_bias_t_opts() failed: %s (%d)\n",
@@ -164,8 +214,6 @@ int main(int argc, char** argv)
 		}
 	}
 
-
-
 	result = hackrf_close(device);
 	if (result != HACKRF_SUCCESS) {
 		fprintf(stderr,
@@ -173,7 +221,7 @@ int main(int argc, char** argv)
 			hackrf_error_name(result),
 			result);
 	}
-	
+
 	hackrf_exit();
 
 	return EXIT_SUCCESS;

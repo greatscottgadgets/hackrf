@@ -1,7 +1,5 @@
 /*
- * Copyright 2012-2022 Great Scott Gadgets <info@greatscottgadgets.com>
- * Copyright 2012 Jared Boone
- * Copyright 2013 Benjamin Vernoux
+ * Copyright 2023 Jonathan Suite (GitHub: @ai6aj)
  *
  * This file is part of HackRF.
  *
@@ -27,15 +25,19 @@
 #include "rf_path.h"
 
 typedef enum {
-	RF_DIRECTION_USER_OPT_NOP,	// No OPeration / Ignore the thing
+	RF_DIRECTION_USER_OPT_NOP,      // No OPeration / Ignore the thing
 	RF_DIRECTION_USER_OPT_RESERVED, // Currently a NOP
-	RF_DIRECTION_USER_OPT_CLEAR,	// Clear/Disable the thing
-	RF_DIRECTION_USER_OPT_SET,	// Set/Enable the thing
+	RF_DIRECTION_USER_OPT_CLEAR,    // Clear/Disable the thing
+	RF_DIRECTION_USER_OPT_SET,      // Set/Enable the thing
 } user_config_user_opt_t;
 
-void user_config_set_bias_t_opt(const rf_path_direction_t direction, const user_config_user_opt_t action);
+void user_config_set_bias_t_opt(
+	const rf_path_direction_t direction,
+	const user_config_user_opt_t action);
 void user_config_set_bias_t_opts(uint16_t value);
 
-void user_config_on_rf_path_direction_change(rf_path_t* const rf_path, const rf_path_direction_t direction);
+void user_config_on_rf_path_direction_change(
+	rf_path_t* const rf_path,
+	const rf_path_direction_t direction);
 
 #endif

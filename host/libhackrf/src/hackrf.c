@@ -39,7 +39,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 
 #ifndef bool
 typedef int bool;
-	#define true 1
+	#define true  1
 	#define false 0
 #endif
 
@@ -137,7 +137,7 @@ struct hackrf_device {
 	volatile bool
 		transfer_thread_started; /* volatile shared between threads (read only) */
 	pthread_t transfer_thread;
-	volatile bool streaming; /* volatile shared between threads (read only) */
+	volatile bool streaming;         /* volatile shared between threads (read only) */
 	void* rx_ctx;
 	void* tx_ctx;
 	volatile bool do_exit;
@@ -2955,10 +2955,33 @@ int ADDCALL hackrf_set_leds(hackrf_device* device, const uint8_t state)
 	}
 }
 
-int ADDCALL hackrf_set_user_bias_t_opts(hackrf_device* device, const uint16_t state)
+int ADDCALL hackrf_set_user_bias_t_opts(
+	hackrf_device* device,
+	hackrf_bias_t_user_settting_req* req)
 {
-	// TODO need to bump the API version #
 	USB_API_REQUIRED(device, 0x0108)
+	uint16_t state = 0; // Assume no modifications
+	if (req->off.do_update) {
+		state |= 0x4;
+		if (req->off.change_on_mode_entry) {
+			state |= 0x2 + req->off.enabled;
+		}
+	}
+
+	if (req->rx.do_update) {
+		state |= 0x20;
+		if (req->rx.change_on_mode_entry) {
+			state |= 0x10 + (req->rx.enabled << 3);
+		}
+	}
+
+	if (req->tx.do_update) {
+		state |= 0x100;
+		if (req->tx.change_on_mode_entry) {
+			state |= 0x80 + (req->tx.enabled << 6);
+		}
+	}
+
 	int result = libusb_control_transfer(
 		device->usb_device,
 		LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR |

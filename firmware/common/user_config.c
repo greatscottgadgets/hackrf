@@ -1,7 +1,5 @@
 /*
- * Copyright 2012-2022 Great Scott Gadgets <info@greatscottgadgets.com>
- * Copyright 2012 Jared Boone
- * Copyright 2013 Benjamin Vernoux
+ * Copyright 2023 Jonathan Suite (GitHub: @ai6aj)
  *
  * This file is part of HackRF.
  *
@@ -23,30 +21,34 @@
 
 #include "user_config.h"
 
-
 static user_config_user_opt_t user_direction_rx_bias_t_opts = RF_DIRECTION_USER_OPT_NOP;
 static user_config_user_opt_t user_direction_tx_bias_t_opts = RF_DIRECTION_USER_OPT_NOP;
-static user_config_user_opt_t user_direction_off_bias_t_opts = RF_DIRECTION_USER_OPT_CLEAR;
+static user_config_user_opt_t user_direction_off_bias_t_opts =
+	RF_DIRECTION_USER_OPT_CLEAR;
 
 //	Perform user-specified actions to Bias T power when transitioning modes
-static void _rf_path_handle_user_bias_t_action(rf_path_t* const rf_path, int action) {
-		switch(action) {
-			case RF_DIRECTION_USER_OPT_SET:
-				rf_path_set_antenna(rf_path, 1);
-				break;
+static void _rf_path_handle_user_bias_t_action(rf_path_t* const rf_path, int action)
+{
+	switch (action) {
+	case RF_DIRECTION_USER_OPT_SET:
+		rf_path_set_antenna(rf_path, 1);
+		break;
 
-			case RF_DIRECTION_USER_OPT_CLEAR:
-				rf_path_set_antenna(rf_path, 0);
-				break;
+	case RF_DIRECTION_USER_OPT_CLEAR:
+		rf_path_set_antenna(rf_path, 0);
+		break;
 
-			case RF_DIRECTION_USER_OPT_NOP:
-			default:
-				break;
-		}
+	case RF_DIRECTION_USER_OPT_NOP:
+	default:
+		break;
+	}
 }
 
-void user_config_on_rf_path_direction_change(rf_path_t* const rf_path, const rf_path_direction_t direction) {
-	switch(direction) {
+void user_config_on_rf_path_direction_change(
+	rf_path_t* const rf_path,
+	const rf_path_direction_t direction)
+{
+	switch (direction) {
 	case RF_PATH_DIRECTION_RX:
 		_rf_path_handle_user_bias_t_action(rf_path, user_direction_rx_bias_t_opts);
 		break;
@@ -57,15 +59,18 @@ void user_config_on_rf_path_direction_change(rf_path_t* const rf_path, const rf_
 
 	case RF_PATH_DIRECTION_OFF:
 	default:
-		_rf_path_handle_user_bias_t_action(rf_path, user_direction_off_bias_t_opts);
+		_rf_path_handle_user_bias_t_action(
+			rf_path,
+			user_direction_off_bias_t_opts);
 		break;
 	}
 }
 
-
-
-void user_config_set_bias_t_opt(const rf_path_direction_t direction, const user_config_user_opt_t option) {
-	switch(direction) {
+void user_config_set_bias_t_opt(
+	const rf_path_direction_t direction,
+	const user_config_user_opt_t option)
+{
+	switch (direction) {
 	case RF_PATH_DIRECTION_RX:
 		user_direction_rx_bias_t_opts = option;
 		break;
@@ -93,8 +98,15 @@ void user_config_set_bias_t_opt(const rf_path_direction_t direction, const user_
 	Bit 8:		1=Set TX behavior according to bits 0,1  0=Don't change
 	Bits 9-15:	Ignored; set to 0
 */
-void user_config_set_bias_t_opts(uint16_t value) {
-	if (value & 0x4) { user_config_set_bias_t_opt(RF_PATH_DIRECTION_OFF,value & 0x3); }
-	if (value & 0x20) { user_config_set_bias_t_opt(RF_PATH_DIRECTION_RX,(value & 0x18) >> 3); }
-	if (value & 0x100) { user_config_set_bias_t_opt(RF_PATH_DIRECTION_TX,(value & 0xC0) >> 6); }
+void user_config_set_bias_t_opts(uint16_t value)
+{
+	if (value & 0x4) {
+		user_config_set_bias_t_opt(RF_PATH_DIRECTION_OFF, value & 0x3);
+	}
+	if (value & 0x20) {
+		user_config_set_bias_t_opt(RF_PATH_DIRECTION_RX, (value & 0x18) >> 3);
+	}
+	if (value & 0x100) {
+		user_config_set_bias_t_opt(RF_PATH_DIRECTION_TX, (value & 0xC0) >> 6);
+	}
 }
