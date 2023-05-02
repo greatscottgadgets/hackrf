@@ -70,19 +70,13 @@ void update_user_mode(
 	const char* strarg,
 	hackrf_bool_user_settting* setting)
 {
-	// try to parse 'mode' as an int first.
-	char* endptr = NULL;
-	int mode = strtol(strarg, &endptr, 10);
-	if (endptr == strarg) {
-		// Didn't parse as an int, try the word equivalents
-		mode = 999; // Assume failure
-		if (strcmp((const char*) "off", strarg) == 0) {
-			mode = 0;
-		} else if (strcmp((const char*) "on", strarg) == 0) {
-			mode = 1;
-		} else if (strcmp((const char*) "leave", strarg) == 0) {
-			mode = 2;
-		}
+	int mode = 999; // Assume failure
+	if (strcmp((const char*) "off", strarg) == 0) {
+		mode = 0;
+	} else if (strcmp((const char*) "on", strarg) == 0) {
+		mode = 1;
+	} else if (strcmp((const char*) "leave", strarg) == 0) {
+		mode = 2;
 	}
 
 	if (mode < 0 || mode > 2) {
