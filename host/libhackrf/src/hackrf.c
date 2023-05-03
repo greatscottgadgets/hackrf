@@ -137,7 +137,7 @@ struct hackrf_device {
 	volatile bool
 		transfer_thread_started; /* volatile shared between threads (read only) */
 	pthread_t transfer_thread;
-	volatile bool streaming;   /* volatile shared between threads (read only) */
+	volatile bool streaming; /* volatile shared between threads (read only) */
 	void* rx_ctx;
 	void* tx_ctx;
 	volatile bool do_exit;

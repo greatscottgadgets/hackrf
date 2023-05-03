@@ -445,7 +445,7 @@ void rf_path_set_direction(rf_path_t* const rf_path, const rf_path_direction_t d
 	}
 
 	switchctrl_set(rf_path, rf_path->switchctrl);
-	
+
 	hackrf_ui()->set_direction(direction);
 }
 
