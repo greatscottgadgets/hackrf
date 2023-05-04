@@ -60,8 +60,8 @@ void usage()
 		"  [-d serial_number]  Specify serial number of HackRF device to configure\n\n\n");
 	fprintf(stderr, "The -r/-t/-o options support the following mode settings:\n\n");
 	fprintf(stderr, "  leave		do nothing when entering mode\n");
-	fprintf(stderr, "  on		disable bias tee when entering mode\n");
-	fprintf(stderr, "  off		enable bias tee when entering mode\n\n");
+	fprintf(stderr, "  on		enable bias tee when entering mode\n");
+	fprintf(stderr, "  off		disable bias tee when entering mode\n\n");
 	exit(USAGE);
 }
 
@@ -71,15 +71,15 @@ void update_user_mode(
 	hackrf_bool_user_settting* setting)
 {
 	if (strcmp("off", strarg) == 0) {
-	        setting->do_update = true;
+		setting->do_update = true;
 		setting->change_on_mode_entry = true;
 		setting->enabled = false;
 	} else if (strcmp("on", strarg) == 0) {
-	        setting->do_update = true;
+		setting->do_update = true;
 		setting->change_on_mode_entry = true;
 		setting->enabled = true;
 	} else if (strcmp("leave", strarg) == 0) {
-	        setting->do_update = true;
+		setting->do_update = true;
 		setting->change_on_mode_entry = false;
 		setting->enabled = false;
 	} else {
