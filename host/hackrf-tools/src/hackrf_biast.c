@@ -70,27 +70,21 @@ void update_user_mode(
 	const char* strarg,
 	hackrf_bool_user_settting* setting)
 {
-	int mode = 999; // Assume failure
-	if (strcmp((const char*) "off", strarg) == 0) {
-		mode = 0;
-	} else if (strcmp((const char*) "on", strarg) == 0) {
-		mode = 1;
-	} else if (strcmp((const char*) "leave", strarg) == 0) {
-		mode = 2;
-	}
-
-	if (mode < 0 || mode > 2) {
-		fprintf(stderr, "Invalid mode '%s' for %s\n", strarg, direction_str);
-		exit(INVALID_BIAST_MODE);
-	}
-
-	setting->do_update = true;
-	if (mode < 2) {
+	if (strcmp("off", strarg) == 0) {
+	        setting->do_update = true;
 		setting->change_on_mode_entry = true;
-		setting->enabled = mode;
-	} else {
+		setting->enabled = false;
+	} else if (strcmp("on", strarg) == 0) {
+	        setting->do_update = true;
+		setting->change_on_mode_entry = true;
+		setting->enabled = true;
+	} else if (strcmp("leave", strarg) == 0) {
+	        setting->do_update = true;
 		setting->change_on_mode_entry = false;
 		setting->enabled = false;
+	} else {
+		fprintf(stderr, "Invalid mode '%s' for %s\n", strarg, direction_str);
+		exit(INVALID_BIAST_MODE);
 	}
 }
 
