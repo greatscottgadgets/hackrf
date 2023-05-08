@@ -20,6 +20,7 @@ Welcome to HackRF's documentation!
    hardware_components 
    leds 
    hackrfs_buttons
+   hackrf_connectors
    external_clock_interface
    expansion_interface
    hardware_triggering

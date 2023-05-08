@@ -77,15 +77,6 @@ If you were to try to redesign the RF section on HackRF One to support full-dupl
 ----
 
 
-Are those connectors SMA or RP-SMA?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Some connectors that appear to be SMA are actually RP-SMA. If you connect an RP-SMA antenna to HackRF One, it will seem to connect snugly but won't function at all because neither the male nor female side has a center pin. RP-SMA connectors are most common on 2.4 GHz antennas and are popular on Wi-Fi equipment. Adapters are available.
-
-
-----
-
-
 .. _bigspike:
 
 What is the big spike in the center of my received spectrum?
