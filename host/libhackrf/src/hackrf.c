@@ -1762,7 +1762,6 @@ static void* transfer_threadproc(void* arg)
 	hackrf_device* device = (hackrf_device*) arg;
 	int error;
 	struct timeval timeout = {0, 500000};
-	sigset_t signal_mask;
 
 	/*
 	 * hackrf_transfer uses pause() and SIGALRM to print statistics and
@@ -1770,11 +1769,13 @@ static void* transfer_threadproc(void* arg)
 	 * signals here, so we don't interrupt their reception by
 	 * hackrf_transfer or any other app which uses the library (#1323)
 	 */
+#ifndef _WIN32
+	sigset_t signal_mask;
 	sigfillset(&signal_mask);
 	if (pthread_sigmask(SIG_BLOCK, &signal_mask, NULL) != 0) {
 		return NULL;
 	}
-
+#endif
 
 	while (device->do_exit == false) {
 		error = libusb_handle_events_timeout(g_libusb_context, &timeout);
