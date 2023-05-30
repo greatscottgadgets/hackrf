@@ -9,6 +9,7 @@ Have you done something cool with HackRF or mentioned HackRF in one of your pres
 * `LEGO car <http://ossmann.blogspot.com/2013/06/hackrf-lego-car.html>`__ (Michael Ossmann)
 * `wireless microphones <http://www.sharebrained.com/2013/06/15/wireless-microphones-and-hackrf/>`__ (Jared Boone)
 * `Tesla Charging Port Opener <https://github.com/rgerganov/tesla-opener>`__ (Radoslav Gerganov)
+* `Hacking my smart tooth brush <https://kuenzi.dev/toothbrush/>`__ (Cyrill Künzi)
 
 
 
