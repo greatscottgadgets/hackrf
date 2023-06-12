@@ -5,6 +5,12 @@ Jawbreaker
 HackRF Jawbreaker is the beta test hardware platform for the HackRF project.
 
 
+.. image:: ../images/jawbreaker.JPG
+  :alt: Jawbreaker
+
+(Jawbreaker picture provided by `fd0 <https://github.com/fd0>`__ with Creative Commons License CC BY 3.0.)
+
+
 
 Features
 ~~~~~~~~
