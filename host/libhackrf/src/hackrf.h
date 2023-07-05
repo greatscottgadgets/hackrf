@@ -1470,7 +1470,9 @@ extern ADDAPI int32_t ADDCALL hackrf_usb_api_version_read(
  * @return @ref HACKRF_SUCCESS on success or @ref hackrf_error variant
  * @ingroup configuration
  */
-extern ADDAPI int32_t ADDCALL hackrf_set_freq(hackrf_device* device, const uint64_t freq_hz);
+extern ADDAPI int32_t ADDCALL hackrf_set_freq(
+	hackrf_device* device,
+	const uint64_t freq_hz);
 
 /**
  * Set the center frequency via explicit tuning
@@ -1854,7 +1856,9 @@ extern ADDAPI int32_t ADDCALL hackrf_set_clkout_enable(
  * @return @ref HACKRF_SUCCESS on success or @ref hackrf_error variant
  * @ingroup configuration
  */
-extern ADDAPI int32_t ADDCALL hackrf_get_clkin_status(hackrf_device* device, uint8_t* status);
+extern ADDAPI int32_t ADDCALL hackrf_get_clkin_status(
+	hackrf_device* device,
+	uint8_t* status);
 
 /**
  * Perform GPIO test on an Opera Cake addon board
@@ -1900,7 +1904,9 @@ extern ADDAPI int32_t ADDCALL hackrf_cpld_checksum(hackrf_device* device, uint32
  * @return @ref HACKRF_SUCCESS on success or @ref HACKRF_ERROR_LIBUSB on usb error
  * @ingroup device
  */
-extern ADDAPI int32_t ADDCALL hackrf_set_ui_enable(hackrf_device* device, const uint8_t value);
+extern ADDAPI int32_t ADDCALL hackrf_set_ui_enable(
+	hackrf_device* device,
+	const uint8_t value);
 
 /**
  * Start RX sweep

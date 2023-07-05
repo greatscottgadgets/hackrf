@@ -141,9 +141,9 @@ struct hackrf_device {
 	void* tx_ctx;
 	volatile bool do_exit;
 	uint8_t buffer[TRANSFER_COUNT * TRANSFER_BUFFER_SIZE];
-	bool transfers_setup;           /* true if the USB transfers have been setup */
-	pthread_mutex_t transfer_lock;  /* must be held to cancel or restart transfers */
-	volatile int32_t active_transfers;  /* number of active transfers */
+	bool transfers_setup;          /* true if the USB transfers have been setup */
+	pthread_mutex_t transfer_lock; /* must be held to cancel or restart transfers */
+	volatile int32_t active_transfers; /* number of active transfers */
 	pthread_cond_t all_finished_cv; /* signalled when all transfers have finished */
 	bool flush;
 	struct libusb_transfer* flush_transfer;
@@ -665,8 +665,7 @@ libusb_device_handle* hackrf_open_usb(const char* const desired_serial_number)
 							libusb_get_string_descriptor_ascii(
 								usb_device,
 								serial_descriptor_index,
-								(uint8_t*)
-									serial_number,
+								(uint8_t*) serial_number,
 								sizeof(serial_number));
 						if (serial_number_length >=
 						    USB_MAX_SERIAL_LENGTH)
