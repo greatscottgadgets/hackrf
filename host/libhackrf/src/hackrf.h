@@ -827,9 +827,9 @@ typedef struct {
 	/** transfer data buffer (interleaved 8 bit I/Q samples) */
 	uint8_t* buffer;
 	/** length of data buffer in bytes */
-	int buffer_length;
+	int32_t buffer_length;
 	/** number of buffer bytes that were transferred */
-	int valid_length;
+	int32_t valid_length;
 	/** User provided RX context. Not used by the library, but available to transfer callbacks for use. Set along with the transfer callback using @ref hackrf_start_rx or @ref hackrf_start_rx_sweep */
 	void* rx_ctx;
 	/** User provided TX context. Not used by the library, but available to transfer callbacks for use. Set along with the transfer callback using @ref hackrf_start_tx*/
@@ -932,12 +932,12 @@ struct hackrf_device_list {
 	/**
 	 * USB device index for a given HW entry. Intended for internal use only.
 	 */
-	int* usb_device_index;
+	int32_t* usb_device_index;
 
 	/**
 	 * Number of connected HackRF devices, the length of arrays @ref serial_numbers, @ref usb_board_ids and @ref usb_device_index.
 	 */
-	int devicecount;
+	int32_t devicecount;
 
 	/**
 	 * All USB devices (as `libusb_device**` array)
@@ -946,7 +946,7 @@ struct hackrf_device_list {
 	/**
 	 * Number of all queried USB devices. Length of array @ref usb_devices.
 	 */
-	int usb_devicecount;
+	int32_t usb_devicecount;
 };
 
 typedef struct hackrf_device_list hackrf_device_list_t;
@@ -963,7 +963,7 @@ typedef struct hackrf_device_list hackrf_device_list_t;
  * The callback should return 0 if it wants to be called again, and any other value otherwise. Stopping the RX/TX/SWEEP is still done with @ref hackrf_stop_rx and @ref hackrf_stop_tx, and those should be called from the main thread, so this callback should signal the main thread that it should stop. Signaling the main thread to stop TX should be done from the flush callback in order to guarantee that no samples are discarded, see @ref hackrf_flush_cb_fn
  * @ingroup streaming
  */
-typedef int (*hackrf_sample_block_cb_fn)(hackrf_transfer* transfer);
+typedef int32_t (*hackrf_sample_block_cb_fn)(hackrf_transfer* transfer);
 
 /**
  * Block complete callback. 
@@ -992,7 +992,7 @@ extern "C" {
  * @return @ref HACKRF_SUCCESS on success or @ref HACKRF_ERROR_LIBUSB
  * @ingroup library
  */
-extern ADDAPI int ADDCALL hackrf_init();
+extern ADDAPI int32_t ADDCALL hackrf_init();
 
 /**
  * Exit libhackrf
@@ -1001,7 +1001,7 @@ extern ADDAPI int ADDCALL hackrf_init();
  * @return @ref HACKRF_SUCCESS on success or @ref HACKRF_ERROR_NOT_LAST_DEVICE if not all devices were closed properly.
  * @ingroup library
  */
-extern ADDAPI int ADDCALL hackrf_exit();
+extern ADDAPI int32_t ADDCALL hackrf_exit();
 
 /**
  * Get library version.
@@ -1036,9 +1036,9 @@ extern ADDAPI hackrf_device_list_t* ADDCALL hackrf_device_list();
  * @return @ref HACKRF_SUCCESS on success, @ref HACKRF_ERROR_INVALID_PARAM on invalid parameters or other @ref hackrf_error variant
  * @ingroup device
  */
-extern ADDAPI int ADDCALL hackrf_device_list_open(
+extern ADDAPI int32_t ADDCALL hackrf_device_list_open(
 	hackrf_device_list_t* list,
-	int idx,
+	int32_t idx,
 	hackrf_device** device);
 
 /**
@@ -1054,7 +1054,7 @@ extern ADDAPI void ADDCALL hackrf_device_list_free(hackrf_device_list_t* list);
  * @return @ref HACKRF_SUCCESS on success, @ref HACKRF_ERROR_INVALID_PARAM if @p device is NULL, @ref HACKRF_ERROR_NOT_FOUND if no HackRF devices are found or other @ref hackrf_error variant
  * @ingroup device
  */
-extern ADDAPI int ADDCALL hackrf_open(hackrf_device** device);
+extern ADDAPI int32_t ADDCALL hackrf_open(hackrf_device** device);
 
 /**
  * Open HackRF device by serial number
@@ -1063,7 +1063,7 @@ extern ADDAPI int ADDCALL hackrf_open(hackrf_device** device);
  * @return @ref HACKRF_SUCCESS on success, @ref HACKRF_ERROR_INVALID_PARAM if @p device is NULL, @ref HACKRF_ERROR_NOT_FOUND if no HackRF devices are found or other @ref hackrf_error variant
  * @ingroup device
  */
-extern ADDAPI int ADDCALL hackrf_open_by_serial(
+extern ADDAPI int32_t ADDCALL hackrf_open_by_serial(
 	const char* const desired_serial_number,
 	hackrf_device** device);
 
@@ -1073,7 +1073,7 @@ extern ADDAPI int ADDCALL hackrf_open_by_serial(
  * @return @ref HACKRF_SUCCESS on success or variant of @ref hackrf_error
  * @ingroup device
  */
-extern ADDAPI int ADDCALL hackrf_close(hackrf_device* device);
+extern ADDAPI int32_t ADDCALL hackrf_close(hackrf_device* device);
 
 /**
  * Start receiving
@@ -1087,7 +1087,7 @@ extern ADDAPI int ADDCALL hackrf_close(hackrf_device* device);
  * @return @ref HACKRF_SUCCESS on success or @ref hackrf_error variant
  * @ingroup streaming
  */
-extern ADDAPI int ADDCALL hackrf_start_rx(
+extern ADDAPI int32_t ADDCALL hackrf_start_rx(
 	hackrf_device* device,
 	hackrf_sample_block_cb_fn callback,
 	void* rx_ctx);
@@ -1099,7 +1099,7 @@ extern ADDAPI int ADDCALL hackrf_start_rx(
  * @return @ref HACKRF_SUCCESS on success or @ref hackrf_error variant
  * @ingroup streaming
  */
-extern ADDAPI int ADDCALL hackrf_stop_rx(hackrf_device* device);
+extern ADDAPI int32_t ADDCALL hackrf_stop_rx(hackrf_device* device);
 
 /**
  * Start transmitting
@@ -1115,7 +1115,7 @@ extern ADDAPI int ADDCALL hackrf_stop_rx(hackrf_device* device);
  * @return @ref HACKRF_SUCCESS on success or @ref hackrf_error variant
  * @ingroup streaming
  */
-extern ADDAPI int ADDCALL hackrf_start_tx(
+extern ADDAPI int32_t ADDCALL hackrf_start_tx(
 	hackrf_device* device,
 	hackrf_sample_block_cb_fn callback,
 	void* tx_ctx);
@@ -1130,7 +1130,7 @@ extern ADDAPI int ADDCALL hackrf_start_tx(
  * @return @ref HACKRF_SUCCESS on success or @ref hackrf_error variant 
  * @ingroup streaming
  */
-extern ADDAPI int ADDCALL hackrf_set_tx_block_complete_callback(
+extern ADDAPI int32_t ADDCALL hackrf_set_tx_block_complete_callback(
 	hackrf_device* device,
 	hackrf_tx_block_complete_cb_fn callback);
 
@@ -1145,7 +1145,7 @@ extern ADDAPI int ADDCALL hackrf_set_tx_block_complete_callback(
  * @return @ref HACKRF_SUCCESS on success or @ref hackrf_error variant 
  * @ingroup streaming
  */
-extern ADDAPI int ADDCALL hackrf_enable_tx_flush(
+extern ADDAPI int32_t ADDCALL hackrf_enable_tx_flush(
 	hackrf_device* device,
 	hackrf_flush_cb_fn callback,
 	void* flush_ctx);
@@ -1157,7 +1157,7 @@ extern ADDAPI int ADDCALL hackrf_enable_tx_flush(
  * @return @ref HACKRF_SUCCESS on success or @ref hackrf_error variant 
  * @ingroup streaming
  */
-extern ADDAPI int ADDCALL hackrf_stop_tx(hackrf_device* device);
+extern ADDAPI int32_t ADDCALL hackrf_stop_tx(hackrf_device* device);
 
 /**
  * Get the state of the M0 code on the LPC43xx MCU
@@ -1167,7 +1167,7 @@ extern ADDAPI int ADDCALL hackrf_stop_tx(hackrf_device* device);
  * @return @ref HACKRF_SUCCESS on success or @ref hackrf_error variant  
  * @ingroup debug
  */
-extern ADDAPI int ADDCALL hackrf_get_m0_state(
+extern ADDAPI int32_t ADDCALL hackrf_get_m0_state(
 	hackrf_device* device,
 	hackrf_m0_state* value);
 
@@ -1181,7 +1181,7 @@ extern ADDAPI int ADDCALL hackrf_get_m0_state(
  * @return @ref HACKRF_SUCCESS on success or @ref hackrf_error variant   
  * @ingroup streaming
  */
-extern ADDAPI int ADDCALL hackrf_set_tx_underrun_limit(
+extern ADDAPI int32_t ADDCALL hackrf_set_tx_underrun_limit(
 	hackrf_device* device,
 	uint32_t value);
 
@@ -1195,7 +1195,7 @@ extern ADDAPI int ADDCALL hackrf_set_tx_underrun_limit(
  * @return @ref HACKRF_SUCCESS on success or @ref hackrf_error variant
  * @ingroup streaming
  */
-extern ADDAPI int ADDCALL hackrf_set_rx_overrun_limit(
+extern ADDAPI int32_t ADDCALL hackrf_set_rx_overrun_limit(
 	hackrf_device* device,
 	uint32_t value);
 
@@ -1206,7 +1206,7 @@ extern ADDAPI int ADDCALL hackrf_set_rx_overrun_limit(
  * @return @ref HACKRF_TRUE if the device is streaming, else one of @ref HACKRF_ERROR_STREAMING_THREAD_ERR, @ref HACKRF_ERROR_STREAMING_STOPPED or @ref HACKRF_ERROR_STREAMING_EXIT_CALLED
  * @ingroup streaming
  */
-extern ADDAPI int ADDCALL hackrf_is_streaming(hackrf_device* device);
+extern ADDAPI int32_t ADDCALL hackrf_is_streaming(hackrf_device* device);
 
 /**
  * Directly read the registers of the MAX2837 transceiver IC
@@ -1219,7 +1219,7 @@ extern ADDAPI int ADDCALL hackrf_is_streaming(hackrf_device* device);
  * @return @ref HACKRF_SUCCESS on success or @ref hackrf_error variant
  * @ingroup debug
  */
-extern ADDAPI int ADDCALL hackrf_max2837_read(
+extern ADDAPI int32_t ADDCALL hackrf_max2837_read(
 	hackrf_device* device,
 	uint8_t register_number,
 	uint16_t* value);
@@ -1235,7 +1235,7 @@ extern ADDAPI int ADDCALL hackrf_max2837_read(
  * @return @ref HACKRF_SUCCESS on success or @ref hackrf_error variant
  * @ingroup debug
  */
-extern ADDAPI int ADDCALL hackrf_max2837_write(
+extern ADDAPI int32_t ADDCALL hackrf_max2837_write(
 	hackrf_device* device,
 	uint8_t register_number,
 	uint16_t value);
@@ -1251,7 +1251,7 @@ extern ADDAPI int ADDCALL hackrf_max2837_write(
  * @return @ref HACKRF_SUCCESS on success or @ref hackrf_error variant
  * @ingroup debug
  */
-extern ADDAPI int ADDCALL hackrf_si5351c_read(
+extern ADDAPI int32_t ADDCALL hackrf_si5351c_read(
 	hackrf_device* device,
 	uint16_t register_number,
 	uint16_t* value);
@@ -1267,7 +1267,7 @@ extern ADDAPI int ADDCALL hackrf_si5351c_read(
  * @return @ref HACKRF_SUCCESS on success or @ref hackrf_error variant
  * @ingroup debug
  */
-extern ADDAPI int ADDCALL hackrf_si5351c_write(
+extern ADDAPI int32_t ADDCALL hackrf_si5351c_write(
 	hackrf_device* device,
 	uint16_t register_number,
 	uint16_t value);
@@ -1285,7 +1285,7 @@ extern ADDAPI int ADDCALL hackrf_si5351c_write(
  * @return @ref HACKRF_SUCCESS on success or @ref hackrf_error variant
  * @ingroup configuration
  */
-extern ADDAPI int ADDCALL hackrf_set_baseband_filter_bandwidth(
+extern ADDAPI int32_t ADDCALL hackrf_set_baseband_filter_bandwidth(
 	hackrf_device* device,
 	const uint32_t bandwidth_hz);
 
@@ -1300,7 +1300,7 @@ extern ADDAPI int ADDCALL hackrf_set_baseband_filter_bandwidth(
  * @return @ref HACKRF_SUCCESS on success or @ref hackrf_error variant
  * @ingroup debug
  */
-extern ADDAPI int ADDCALL hackrf_rffc5071_read(
+extern ADDAPI int32_t ADDCALL hackrf_rffc5071_read(
 	hackrf_device* device,
 	uint8_t register_number,
 	uint16_t* value);
@@ -1316,7 +1316,7 @@ extern ADDAPI int ADDCALL hackrf_rffc5071_read(
  * @return @ref HACKRF_SUCCESS on success or @ref hackrf_error variant
  * @ingroup debug
  */
-extern ADDAPI int ADDCALL hackrf_rffc5071_write(
+extern ADDAPI int32_t ADDCALL hackrf_rffc5071_write(
 	hackrf_device* device,
 	uint8_t register_number,
 	uint16_t value);
@@ -1330,7 +1330,7 @@ extern ADDAPI int ADDCALL hackrf_rffc5071_write(
  * @return @ref HACKRF_SUCCESS on success or @ref hackrf_error variant
  * @ingroup debug
  */
-extern ADDAPI int ADDCALL hackrf_spiflash_erase(hackrf_device* device);
+extern ADDAPI int32_t ADDCALL hackrf_spiflash_erase(hackrf_device* device);
 
 /**
  * Write firmware image on the SPI flash
@@ -1344,11 +1344,11 @@ extern ADDAPI int ADDCALL hackrf_spiflash_erase(hackrf_device* device);
  * @return @ref HACKRF_SUCCESS on success or @ref hackrf_error variant
  * @ingroup debug
  */
-extern ADDAPI int ADDCALL hackrf_spiflash_write(
+extern ADDAPI int32_t ADDCALL hackrf_spiflash_write(
 	hackrf_device* device,
 	const uint32_t address,
 	const uint16_t length,
-	unsigned char* const data);
+	uint8_t* const data);
 
 /**
  * Read firmware image on the SPI flash
@@ -1362,11 +1362,11 @@ extern ADDAPI int ADDCALL hackrf_spiflash_write(
  * @return @ref HACKRF_SUCCESS on success or @ref hackrf_error variant
  * @ingroup debug
  */
-extern ADDAPI int ADDCALL hackrf_spiflash_read(
+extern ADDAPI int32_t ADDCALL hackrf_spiflash_read(
 	hackrf_device* device,
 	const uint32_t address,
 	const uint16_t length,
-	unsigned char* data);
+	uint8_t* data);
 
 /**
  * Read the status registers of the W25Q80BV SPI flash chip
@@ -1378,7 +1378,7 @@ extern ADDAPI int ADDCALL hackrf_spiflash_read(
  * @return @ref HACKRF_SUCCESS on success or @ref hackrf_error variant
  * @ingroup debug
  */
-extern ADDAPI int ADDCALL hackrf_spiflash_status(hackrf_device* device, uint8_t* data);
+extern ADDAPI int32_t ADDCALL hackrf_spiflash_status(hackrf_device* device, uint8_t* data);
 
 /**
  * Clear the status registers of the W25Q80BV SPI flash chip
@@ -1389,7 +1389,7 @@ extern ADDAPI int ADDCALL hackrf_spiflash_status(hackrf_device* device, uint8_t*
  * @return @ref HACKRF_SUCCESS on success or @ref hackrf_error variant
  * @ingroup debug
  */
-extern ADDAPI int ADDCALL hackrf_spiflash_clear_status(hackrf_device* device);
+extern ADDAPI int32_t ADDCALL hackrf_spiflash_clear_status(hackrf_device* device);
 
 /* device will need to be reset after hackrf_cpld_write */
 
@@ -1403,10 +1403,10 @@ extern ADDAPI int ADDCALL hackrf_spiflash_clear_status(hackrf_device* device);
  * @return @ref HACKRF_SUCCESS on success or @ref hackrf_error variant
  * @ingroup debug
  */
-extern ADDAPI int ADDCALL hackrf_cpld_write(
+extern ADDAPI int32_t ADDCALL hackrf_cpld_write(
 	hackrf_device* device,
-	unsigned char* const data,
-	const unsigned int total_length);
+	uint8_t* const data,
+	const uint32_t total_length);
 
 /**
  * Read @ref hackrf_board_id from a device
@@ -1419,7 +1419,7 @@ extern ADDAPI int ADDCALL hackrf_cpld_write(
  * @return @ref HACKRF_SUCCESS on success or @ref hackrf_error variant
  * @ingroup device
  */
-extern ADDAPI int ADDCALL hackrf_board_id_read(hackrf_device* device, uint8_t* value);
+extern ADDAPI int32_t ADDCALL hackrf_board_id_read(hackrf_device* device, uint8_t* value);
 
 /**
  * Read HackRF firmware version as a string
@@ -1431,7 +1431,7 @@ extern ADDAPI int ADDCALL hackrf_board_id_read(hackrf_device* device, uint8_t* v
  * @return @ref HACKRF_SUCCESS on success or @ref hackrf_error variant
  * @ingroup device
  */
-extern ADDAPI int ADDCALL hackrf_version_string_read(
+extern ADDAPI int32_t ADDCALL hackrf_version_string_read(
 	hackrf_device* device,
 	char* version,
 	uint8_t length);
@@ -1454,7 +1454,7 @@ extern ADDAPI int ADDCALL hackrf_version_string_read(
  * @return @ref HACKRF_SUCCESS on success or @ref hackrf_error variant
  * @ingroup device
  */
-extern ADDAPI int ADDCALL hackrf_usb_api_version_read(
+extern ADDAPI int32_t ADDCALL hackrf_usb_api_version_read(
 	hackrf_device* device,
 	uint16_t* version);
 
@@ -1470,7 +1470,7 @@ extern ADDAPI int ADDCALL hackrf_usb_api_version_read(
  * @return @ref HACKRF_SUCCESS on success or @ref hackrf_error variant
  * @ingroup configuration
  */
-extern ADDAPI int ADDCALL hackrf_set_freq(hackrf_device* device, const uint64_t freq_hz);
+extern ADDAPI int32_t ADDCALL hackrf_set_freq(hackrf_device* device, const uint64_t freq_hz);
 
 /**
  * Set the center frequency via explicit tuning
@@ -1484,7 +1484,7 @@ extern ADDAPI int ADDCALL hackrf_set_freq(hackrf_device* device, const uint64_t 
  * @return @ref HACKRF_SUCCESS on success or @ref hackrf_error variant
  * @ingroup configuration
  */
-extern ADDAPI int ADDCALL hackrf_set_freq_explicit(
+extern ADDAPI int32_t ADDCALL hackrf_set_freq_explicit(
 	hackrf_device* device,
 	const uint64_t if_freq_hz,
 	const uint64_t lo_freq_hz,
@@ -1504,7 +1504,7 @@ extern ADDAPI int ADDCALL hackrf_set_freq_explicit(
  * @return @ref HACKRF_SUCCESS on success or @ref hackrf_error variant
  * @ingroup configuration
  */
-extern ADDAPI int ADDCALL hackrf_set_sample_rate_manual(
+extern ADDAPI int32_t ADDCALL hackrf_set_sample_rate_manual(
 	hackrf_device* device,
 	const uint32_t freq_hz,
 	const uint32_t divider);
@@ -1520,7 +1520,7 @@ extern ADDAPI int ADDCALL hackrf_set_sample_rate_manual(
  * @return @ref HACKRF_SUCCESS on success or @ref hackrf_error variant
  * @ingroup configuration
  */
-extern ADDAPI int ADDCALL hackrf_set_sample_rate(
+extern ADDAPI int32_t ADDCALL hackrf_set_sample_rate(
 	hackrf_device* device,
 	const double freq_hz);
 
@@ -1534,7 +1534,7 @@ extern ADDAPI int ADDCALL hackrf_set_sample_rate(
  * @return @ref HACKRF_SUCCESS on success or @ref hackrf_error variant
  * @ingroup configuration
  */
-extern ADDAPI int ADDCALL hackrf_set_amp_enable(
+extern ADDAPI int32_t ADDCALL hackrf_set_amp_enable(
 	hackrf_device* device,
 	const uint8_t value);
 
@@ -1548,7 +1548,7 @@ extern ADDAPI int ADDCALL hackrf_set_amp_enable(
  * @return @ref HACKRF_SUCCESS on success or @ref hackrf_error variant
  * @ingroup device
  */
-extern ADDAPI int ADDCALL hackrf_board_partid_serialno_read(
+extern ADDAPI int32_t ADDCALL hackrf_board_partid_serialno_read(
 	hackrf_device* device,
 	read_partid_serialno_t* read_partid_serialno);
 
@@ -1562,7 +1562,7 @@ extern ADDAPI int ADDCALL hackrf_board_partid_serialno_read(
  * @return @ref HACKRF_SUCCESS on success or @ref hackrf_error variant
  * @ingroup configuration
  */
-extern ADDAPI int ADDCALL hackrf_set_lna_gain(hackrf_device* device, uint32_t value);
+extern ADDAPI int32_t ADDCALL hackrf_set_lna_gain(hackrf_device* device, uint32_t value);
 
 /**
  * Set baseband RX gain of the MAX2837 transceier IC ("BB" or "VGA" gain setting) in decibels. Must be in range 0-62dB with 2dB steps.
@@ -1572,7 +1572,7 @@ extern ADDAPI int ADDCALL hackrf_set_lna_gain(hackrf_device* device, uint32_t va
  * @return @ref HACKRF_SUCCESS on success or @ref hackrf_error variant
  * @ingroup configuration
  */
-extern ADDAPI int ADDCALL hackrf_set_vga_gain(hackrf_device* device, uint32_t value);
+extern ADDAPI int32_t ADDCALL hackrf_set_vga_gain(hackrf_device* device, uint32_t value);
 
 /**
  * Set RF TX gain of the MAX2837 transceiver IC ("IF" or "VGA" gain setting) in decibels. Must be in range 0-47dB in 1dB steps.
@@ -1582,7 +1582,7 @@ extern ADDAPI int ADDCALL hackrf_set_vga_gain(hackrf_device* device, uint32_t va
  * @return @ref HACKRF_SUCCESS on success or @ref hackrf_error variant
  * @ingroup configuration
  */
-extern ADDAPI int ADDCALL hackrf_set_txvga_gain(hackrf_device* device, uint32_t value);
+extern ADDAPI int32_t ADDCALL hackrf_set_txvga_gain(hackrf_device* device, uint32_t value);
 
 /**
  * Enable / disable bias-tee (antenna port power)
@@ -1596,7 +1596,7 @@ extern ADDAPI int ADDCALL hackrf_set_txvga_gain(hackrf_device* device, uint32_t 
  * @return @ref HACKRF_SUCCESS on success or @ref hackrf_error variant
  * @ingroup configuration
  */
-extern ADDAPI int ADDCALL hackrf_set_antenna_enable(
+extern ADDAPI int32_t ADDCALL hackrf_set_antenna_enable(
 	hackrf_device* device,
 	const uint8_t value);
 
@@ -1680,7 +1680,7 @@ extern ADDAPI uint32_t ADDCALL hackrf_compute_baseband_filter_bw(
  * @return @ref HACKRF_SUCCESS on success or @ref hackrf_error variant
  * @ingroup streaming
  */
-extern ADDAPI int ADDCALL hackrf_set_hw_sync_mode(
+extern ADDAPI int32_t ADDCALL hackrf_set_hw_sync_mode(
 	hackrf_device* device,
 	const uint8_t value);
 
@@ -1699,10 +1699,10 @@ extern ADDAPI int ADDCALL hackrf_set_hw_sync_mode(
  * @return @ref HACKRF_SUCCESS on success or @ref hackrf_error variant
  * @ingroup streaming
  */
-extern ADDAPI int ADDCALL hackrf_init_sweep(
+extern ADDAPI int32_t ADDCALL hackrf_init_sweep(
 	hackrf_device* device,
 	const uint16_t* frequency_list,
-	const int num_ranges,
+	const int32_t num_ranges,
 	const uint32_t num_bytes,
 	const uint32_t step_width,
 	const uint32_t offset,
@@ -1718,7 +1718,7 @@ extern ADDAPI int ADDCALL hackrf_init_sweep(
  * @return @ref HACKRF_SUCCESS on success or @ref hackrf_error variant
  * @ingroup operacake
  */
-extern ADDAPI int ADDCALL hackrf_get_operacake_boards(
+extern ADDAPI int32_t ADDCALL hackrf_get_operacake_boards(
 	hackrf_device* device,
 	uint8_t* boards);
 
@@ -1731,7 +1731,7 @@ extern ADDAPI int ADDCALL hackrf_get_operacake_boards(
  * @return @ref HACKRF_SUCCESS on success or @ref hackrf_error variant
  * @ingroup operacake
  */
-extern ADDAPI int ADDCALL hackrf_set_operacake_mode(
+extern ADDAPI int32_t ADDCALL hackrf_set_operacake_mode(
 	hackrf_device* device,
 	uint8_t address,
 	enum operacake_switching_mode mode);
@@ -1745,7 +1745,7 @@ extern ADDAPI int ADDCALL hackrf_set_operacake_mode(
  * @return @ref HACKRF_SUCCESS on success or @ref hackrf_error variant
  * @ingroup operacake
  */
-extern ADDAPI int ADDCALL hackrf_get_operacake_mode(
+extern ADDAPI int32_t ADDCALL hackrf_get_operacake_mode(
 	hackrf_device* device,
 	uint8_t address,
 	enum operacake_switching_mode* mode);
@@ -1762,7 +1762,7 @@ extern ADDAPI int ADDCALL hackrf_get_operacake_mode(
  * @return @ref HACKRF_SUCCESS on success or @ref hackrf_error variant
  * @ingroup operacake
  */
-extern ADDAPI int ADDCALL hackrf_set_operacake_ports(
+extern ADDAPI int32_t ADDCALL hackrf_set_operacake_ports(
 	hackrf_device* device,
 	uint8_t address,
 	uint8_t port_a,
@@ -1781,7 +1781,7 @@ extern ADDAPI int ADDCALL hackrf_set_operacake_ports(
  * @return @ref HACKRF_SUCCESS on success or @ref hackrf_error variant
  * @ingroup operacake
  */
-extern ADDAPI int ADDCALL hackrf_set_operacake_dwell_times(
+extern ADDAPI int32_t ADDCALL hackrf_set_operacake_dwell_times(
 	hackrf_device* device,
 	hackrf_operacake_dwell_time* dwell_times,
 	uint8_t count);
@@ -1799,7 +1799,7 @@ extern ADDAPI int ADDCALL hackrf_set_operacake_dwell_times(
  * @return @ref HACKRF_SUCCESS on success or @ref hackrf_error variant
  * @ingroup operacake
  */
-extern ADDAPI int ADDCALL hackrf_set_operacake_freq_ranges(
+extern ADDAPI int32_t ADDCALL hackrf_set_operacake_freq_ranges(
 	hackrf_device* device,
 	hackrf_operacake_freq_range* freq_ranges,
 	uint8_t count);
@@ -1811,7 +1811,7 @@ extern ADDAPI int ADDCALL hackrf_set_operacake_freq_ranges(
  * @return @ref HACKRF_SUCCESS on success or @ref hackrf_error variant
  * @ingroup device
  */
-extern ADDAPI int ADDCALL hackrf_reset(hackrf_device* device);
+extern ADDAPI int32_t ADDCALL hackrf_reset(hackrf_device* device);
 
 /**
  * Setup Opera Cake frequency ranges in @ref OPERACAKE_MODE_FREQUENCY mode operation
@@ -1827,7 +1827,7 @@ extern ADDAPI int ADDCALL hackrf_reset(hackrf_device* device);
  * @return @ref HACKRF_SUCCESS on success or @ref hackrf_error variant
  * @ingroup operacake
  */
-extern ADDAPI int ADDCALL hackrf_set_operacake_ranges(
+extern ADDAPI int32_t ADDCALL hackrf_set_operacake_ranges(
 	hackrf_device* device,
 	uint8_t* ranges,
 	uint8_t num_ranges);
@@ -1840,7 +1840,7 @@ extern ADDAPI int ADDCALL hackrf_set_operacake_ranges(
  * @return @ref HACKRF_SUCCESS on success or @ref hackrf_error variant
  * @ingroup configuration
  */
-extern ADDAPI int ADDCALL hackrf_set_clkout_enable(
+extern ADDAPI int32_t ADDCALL hackrf_set_clkout_enable(
 	hackrf_device* device,
 	const uint8_t value);
 
@@ -1854,7 +1854,7 @@ extern ADDAPI int ADDCALL hackrf_set_clkout_enable(
  * @return @ref HACKRF_SUCCESS on success or @ref hackrf_error variant
  * @ingroup configuration
  */
-extern ADDAPI int ADDCALL hackrf_get_clkin_status(hackrf_device* device, uint8_t* status);
+extern ADDAPI int32_t ADDCALL hackrf_get_clkin_status(hackrf_device* device, uint8_t* status);
 
 /**
  * Perform GPIO test on an Opera Cake addon board
@@ -1871,7 +1871,7 @@ extern ADDAPI int ADDCALL hackrf_get_clkin_status(hackrf_device* device, uint8_t
  * @return @ref HACKRF_SUCCESS on success or @ref hackrf_error variant
  * @ingroup operacake
  */
-extern ADDAPI int ADDCALL hackrf_operacake_gpio_test(
+extern ADDAPI int32_t ADDCALL hackrf_operacake_gpio_test(
 	hackrf_device* device,
 	uint8_t address,
 	uint16_t* test_result);
@@ -1887,7 +1887,7 @@ extern ADDAPI int ADDCALL hackrf_operacake_gpio_test(
  * @return @ref HACKRF_SUCCESS on success or @ref hackrf_error variant
  * @ingroup debug
  */
-extern ADDAPI int ADDCALL hackrf_cpld_checksum(hackrf_device* device, uint32_t* crc);
+extern ADDAPI int32_t ADDCALL hackrf_cpld_checksum(hackrf_device* device, uint32_t* crc);
 #endif /* HACKRF_ISSUE_609_IS_FIXED */
 
 /**
@@ -1900,7 +1900,7 @@ extern ADDAPI int ADDCALL hackrf_cpld_checksum(hackrf_device* device, uint32_t* 
  * @return @ref HACKRF_SUCCESS on success or @ref HACKRF_ERROR_LIBUSB on usb error
  * @ingroup device
  */
-extern ADDAPI int ADDCALL hackrf_set_ui_enable(hackrf_device* device, const uint8_t value);
+extern ADDAPI int32_t ADDCALL hackrf_set_ui_enable(hackrf_device* device, const uint8_t value);
 
 /**
  * Start RX sweep
@@ -1913,7 +1913,7 @@ extern ADDAPI int ADDCALL hackrf_set_ui_enable(hackrf_device* device, const uint
  * @return @ref HACKRF_SUCCESS on success or @ref hackrf_error variant
  * @ingroup streaming
  */
-extern ADDAPI int ADDCALL hackrf_start_rx_sweep(
+extern ADDAPI int32_t ADDCALL hackrf_start_rx_sweep(
 	hackrf_device* device,
 	hackrf_sample_block_cb_fn callback,
 	void* rx_ctx);
@@ -1944,7 +1944,7 @@ extern ADDAPI uint32_t ADDCALL hackrf_get_transfer_queue_depth(hackrf_device* de
  * @return @ref HACKRF_SUCCESS on success or @ref HACKRF_ERROR_LIBUSB
  * @ingroup device
  */
-extern ADDAPI int ADDCALL hackrf_board_rev_read(hackrf_device* device, uint8_t* value);
+extern ADDAPI int32_t ADDCALL hackrf_board_rev_read(hackrf_device* device, uint8_t* value);
 
 /**
  * Convert board revision name
@@ -1965,7 +1965,7 @@ extern ADDAPI const char* ADDCALL hackrf_board_rev_name(enum hackrf_board_rev bo
  * @return @ref HACKRF_SUCCESS on success or @ref hackrf_error variant
  * @ingroup device
  */
-extern ADDAPI int ADDCALL hackrf_supported_platform_read(
+extern ADDAPI int32_t ADDCALL hackrf_supported_platform_read(
 	hackrf_device* device,
 	uint32_t* value);
 
@@ -1982,7 +1982,7 @@ extern ADDAPI int ADDCALL hackrf_supported_platform_read(
  * @ingroup device
  * 
 */
-extern ADDAPI int ADDCALL hackrf_set_leds(hackrf_device* device, const uint8_t state);
+extern ADDAPI int32_t ADDCALL hackrf_set_leds(hackrf_device* device, const uint8_t state);
 
 #ifdef __cplusplus
 } // __cplusplus defined.
