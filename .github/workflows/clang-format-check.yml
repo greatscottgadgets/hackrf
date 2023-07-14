@@ -16,7 +16,7 @@ jobs:
           - check: 'firmware/hackrf_usb'
             exclude: ''
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: Run clang-format-action
       uses: jidicula/clang-format-action@v4.6.2
       with:
