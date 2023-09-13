@@ -26,7 +26,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 
 #include <stdint.h>
 #include <sys/types.h>
-
+#include <stdbool.h> // for bool
 #ifdef _WIN32
 	#define ADD_EXPORTS
 
@@ -884,6 +884,28 @@ typedef struct {
 	 */
 	uint8_t port;
 } hackrf_operacake_freq_range;
+
+/** 
+ * Helper struct for hackrf_bias_t_user_setting.  If 'do_update' is true, then the values of 'change_on_mode_entry'
+ * and 'enabled' will be used as the new default.  If 'do_update' is false, the current default will not change.
+*/
+typedef struct {
+	bool do_update;
+	bool change_on_mode_entry;
+	bool enabled;
+} hackrf_bool_user_settting;
+
+/** 
+ * User settings for user-supplied bias tee defaults.
+ * 
+ * @ingroup device
+ * 
+*/
+typedef struct {
+	hackrf_bool_user_settting tx;
+	hackrf_bool_user_settting rx;
+	hackrf_bool_user_settting off;
+} hackrf_bias_t_user_settting_req;
 
 /** 
  * State of the SGPIO loop running on the M0 core. 
@@ -1983,6 +2005,34 @@ extern ADDAPI int ADDCALL hackrf_supported_platform_read(
  * 
 */
 extern ADDAPI int ADDCALL hackrf_set_leds(hackrf_device* device, const uint8_t state);
+
+/**
+ * Configure bias tee behavior of the HackRF device when changing RF states
+ * 
+ * This function allows the user to configure bias tee behavior so that it can be turned on or off automatically by the HackRF when entering the RX, TX, or OFF state. By default, the HackRF switches off the bias tee when the RF path switches to OFF mode.
+ * 
+ * The bias tee configuration is specified via a bitfield:
+ * 
+ * 0000000TmmRmmOmm
+ * 
+ * Where setting T/R/O bits indicates that the TX/RX/Off behavior should be set to mode 'mm', 0=don't modify
+ * 
+ * mm specifies the bias tee mode:
+ * 
+ * 00 - do nothing
+ * 01 - reserved, do not use
+ * 10 - disable bias tee
+ * 11 - enable bias tee
+ * 
+ * @param device device to configure
+ * @param state Bias tee states, as a bitfield
+ * @return @ref HACKRF_SUCCESS on success or @ref hackrf_error variant
+ * @ingroup device
+ * 
+*/
+extern ADDAPI int ADDCALL hackrf_set_user_bias_t_opts(
+	hackrf_device* device,
+	hackrf_bias_t_user_settting_req* req);
 
 #ifdef __cplusplus
 } // __cplusplus defined.

@@ -190,7 +190,8 @@ macro(DeclareTargets)
 		${PATH_HACKRF_FIRMWARE_COMMON}/firmware_info.c
 		${PATH_HACKRF_FIRMWARE_COMMON}/clkin.c
 		${PATH_HACKRF_FIRMWARE_COMMON}/gpdma.c
-	)
+		${PATH_HACKRF_FIRMWARE_COMMON}/user_config.c
+		)
 
 	if(BOARD STREQUAL "RAD1O")
 		SET(SRC_M4

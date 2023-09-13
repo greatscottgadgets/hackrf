@@ -103,6 +103,7 @@ typedef enum {
 	HACKRF_VENDOR_REQUEST_BOARD_REV_READ = 45,
 	HACKRF_VENDOR_REQUEST_SUPPORTED_PLATFORM_READ = 46,
 	HACKRF_VENDOR_REQUEST_SET_LEDS = 47,
+	HACKRF_VENDOR_REQUEST_SET_USER_BIAS_T_OPTS = 48,
 } hackrf_vendor_request;
 
 #define USB_CONFIG_STANDARD 0x1
@@ -2940,6 +2941,52 @@ int ADDCALL hackrf_set_leds(hackrf_device* device, const uint8_t state)
 		LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR |
 			LIBUSB_RECIPIENT_DEVICE,
 		HACKRF_VENDOR_REQUEST_SET_LEDS,
+		state,
+		0,
+		NULL,
+		0,
+		0);
+
+	if (result != 0) {
+		last_libusb_error = result;
+		return HACKRF_ERROR_LIBUSB;
+	} else {
+		return HACKRF_SUCCESS;
+	}
+}
+
+int ADDCALL hackrf_set_user_bias_t_opts(
+	hackrf_device* device,
+	hackrf_bias_t_user_settting_req* req)
+{
+	USB_API_REQUIRED(device, 0x0108)
+	uint16_t state = 0; // Assume no modifications
+	if (req->off.do_update) {
+		state |= 0x4;
+		if (req->off.change_on_mode_entry) {
+			state |= 0x2 + req->off.enabled;
+		}
+	}
+
+	if (req->rx.do_update) {
+		state |= 0x20;
+		if (req->rx.change_on_mode_entry) {
+			state |= 0x10 + (req->rx.enabled << 3);
+		}
+	}
+
+	if (req->tx.do_update) {
+		state |= 0x100;
+		if (req->tx.change_on_mode_entry) {
+			state |= 0x80 + (req->tx.enabled << 6);
+		}
+	}
+
+	int result = libusb_control_transfer(
+		device->usb_device,
+		LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR |
+			LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_SET_USER_BIAS_T_OPTS,
 		state,
 		0,
 		NULL,

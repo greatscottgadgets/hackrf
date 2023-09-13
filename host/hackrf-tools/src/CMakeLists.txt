@@ -37,6 +37,7 @@ SET(TOOLS
 	hackrf_clock
 	hackrf_sweep
 	hackrf_operacake
+	hackrf_biast
 )
 
 if(MSVC)

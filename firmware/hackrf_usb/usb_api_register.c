@@ -22,7 +22,7 @@
  */
 
 #include "usb_api_register.h"
-
+#include <user_config.h>
 #include <hackrf_core.h>
 #include <usb_queue.h>
 #include <max283x.h>
@@ -204,6 +204,17 @@ usb_request_status_t usb_vendor_request_set_leds(
 {
 	if (stage == USB_TRANSFER_STAGE_SETUP) {
 		set_leds(endpoint->setup.value);
+		usb_transfer_schedule_ack(endpoint->in);
+	}
+	return USB_REQUEST_STATUS_OK;
+}
+
+usb_request_status_t usb_vendor_request_user_config_set_bias_t_opts(
+	usb_endpoint_t* const endpoint,
+	const usb_transfer_stage_t stage)
+{
+	if (stage == USB_TRANSFER_STAGE_SETUP) {
+		user_config_set_bias_t_opts(endpoint->setup.value);
 		usb_transfer_schedule_ack(endpoint->in);
 	}
 	return USB_REQUEST_STATUS_OK;
