@@ -458,7 +458,6 @@ int main(int argc, char** argv)
 	uint32_t freq_max = 6000;
 	uint32_t requested_fft_bin_width;
 	const char* fftwWisdomPath = NULL;
-	int have_wisdom = 0;
 	int fftw_plan_type = FFTW_MEASURE;
 
 	while ((opt = getopt(argc, argv, "a:f:p:l:g:d:n:N:w:W:P:1BIr:h?")) != EOF) {
