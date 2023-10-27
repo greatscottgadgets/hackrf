@@ -582,9 +582,9 @@ int main(int argc, char** argv)
 	// Try to load a wisdom file if specified, otherwise
 	// try to load the system-wide wisdom file
 	if (fftwWisdomPath) {
-		have_wisdom = import_wisdom(fftwWisdomPath);
+		import_wisdom(fftwWisdomPath);
 	} else {
-		have_wisdom = import_default_wisdom();
+		import_default_wisdom();
 	}
 
 	if (lna_gain % 8) {
