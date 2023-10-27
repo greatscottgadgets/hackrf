@@ -539,6 +539,7 @@ int main(int argc, char** argv)
 				fprintf(stderr, "Unknown FFTW plan type '%s'\n", optarg);
 				return EXIT_FAILURE;
 			}
+			break;
 
 		case '1':
 			one_shot = true;
