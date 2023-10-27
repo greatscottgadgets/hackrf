@@ -413,25 +413,29 @@ void sigint_callback_handler(int signum)
 }
 #endif
 
-int import_wisdom(const char* path) {
+int import_wisdom(const char* path)
+{
 	// Returns nonzero
-	if (! fftwf_import_wisdom_from_filename(path)) {
-		fprintf(stderr,"Wisdom file %s not found; will attempt to create it\n",path);
+	if (!fftwf_import_wisdom_from_filename(path)) {
+		fprintf(stderr,
+			"Wisdom file %s not found; will attempt to create it\n",
+			path);
 		return 0;
 	}
 
 	return 1;
 }
 
-int import_system_wisdom() {
-	// Returns nonzero on success
+int import_default_wisdom()
+{
 	return fftwf_import_system_wisdom();
 }
 
-int export_wisdom(const char* path) {
+int export_wisdom(const char* path)
+{
 	if (path != NULL) {
 		if (!fftwf_export_wisdom_to_filename(path)) {
-			fprintf(stderr,"Could not write FFTW wisdom file to %s",path);
+			fprintf(stderr, "Could not write FFTW wisdom file to %s", path);
 			return 0;
 		}
 	}
@@ -524,20 +528,16 @@ int main(int argc, char** argv)
 			break;
 
 		case 'P':
-			if (strcmp("estimate",optarg) == 0) {
+			if (strcmp("estimate", optarg) == 0) {
 				fftw_plan_type = FFTW_ESTIMATE;
-			}
-			else if (strcmp("measure",optarg) == 0) {
+			} else if (strcmp("measure", optarg) == 0) {
 				fftw_plan_type = FFTW_MEASURE;
-			}
-			else if (strcmp("patient",optarg) == 0) {
+			} else if (strcmp("patient", optarg) == 0) {
 				fftw_plan_type = FFTW_PATIENT;
-			}
-			else if (strcmp("exhaustive",optarg) == 0) {
+			} else if (strcmp("exhaustive", optarg) == 0) {
 				fftw_plan_type = FFTW_EXHAUSTIVE;
-			}
-			else {
-				fprintf(stderr,"Unknown FFTW plan type '%s'\n",optarg);
+			} else {
+				fprintf(stderr, "Unknown FFTW plan type '%s'\n", optarg);
 				return EXIT_FAILURE;
 			}
 
@@ -585,13 +585,8 @@ int main(int argc, char** argv)
 	if (fftwWisdomPath) {
 		have_wisdom = import_wisdom(fftwWisdomPath);
 	} else {
-		if (! (have_wisdom = import_system_wisdom())) {
-			// Could possibly notify the user that there is no accessible
-			// system-wide FFTW wisdom file and to consider using the -W
-			// option to improve performance on subsequent runs
-		}
+		have_wisdom = import_default_wisdom();
 	}
-
 
 	if (lna_gain % 8) {
 		fprintf(stderr, "warning: lna_gain (-l) must be a multiple of 8\n");
@@ -684,7 +679,6 @@ int main(int argc, char** argv)
 	 * data starts to flow.  See issue #1366
 	*/
 	fftwf_execute(fftwPlan);
-
 
 #ifdef _MSC_VER
 	if (binary_output) {
