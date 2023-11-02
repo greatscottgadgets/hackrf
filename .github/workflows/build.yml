@@ -128,8 +128,8 @@ jobs:
 
     - name: Install dependencies (macOS)
       run: |
-        brew tap armmbed/formulae
-        brew install arm-none-eabi-gcc dfu-util
+        brew install --cask gcc-arm-embedded
+        brew install dfu-util
         pip3 install PyYAML
       if: matrix.os == 'macos-latest'
 
