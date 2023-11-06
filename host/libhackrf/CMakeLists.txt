@@ -19,37 +19,27 @@
 # Boston, MA 02110-1301, USA.
 #
 
+cmake_minimum_required(VERSION 3.8)
+# standard policies for CMake 3.8
+cmake_policy(VERSION 3.8)
+
 # Based heavily upon the libftdi cmake setup.
+project(libhackrf LANGUAGES C VERSION 0.6.0)
 
-cmake_minimum_required(VERSION 2.8)
-project(libhackrf C)
-set(MAJOR_VERSION 0)
-set(MINOR_VERSION 8)
-set(PACKAGE libhackrf)
-set(VERSION_STRING ${MAJOR_VERSION}.${MINOR_VERSION})
-set(VERSION ${VERSION_STRING})
-add_definitions(-DLIBRARY_VERSION="${VERSION_STRING}")
-include(${PROJECT_SOURCE_DIR}/../cmake/set_release.cmake)
-add_definitions(-DLIBRARY_RELEASE="${RELEASE}")
-set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/../cmake/modules)
-
-if(MSVC)
-	set(THREADS_USE_PTHREADS_WIN32 true)
-else()
-	add_definitions(-Wall)
-	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu90")
-
-	INCLUDE(TestBigEndian)
-	TEST_BIG_ENDIAN(BIGENDIAN)
-	if(${BIGENDIAN})
-		 add_definitions(-DHACKRF_BIG_ENDIAN)
-	endif(${BIGENDIAN})
+# Run common init code
+# -----------------------------------------------------
+if(NOT HACKRF_HOST_INCLUDED)
+    include(../cmake/hackrf-host.cmake)
 endif()
-find_package(USB1 REQUIRED)
-find_package(Threads REQUIRED)
 
-include_directories(${LIBUSB_INCLUDE_DIR} ${THREADS_PTHREADS_INCLUDE_DIR})
+# configure definitions for library version and release
+set(PACKAGE libhackrf)
+add_definitions(-DLIBRARY_VERSION="${libhackrf_VERSION}")
 
+include(set_release)
+add_definitions(-DLIBRARY_RELEASE="${RELEASE}")
+
+# build library
 add_subdirectory(src)
 
 ########################################################################
@@ -90,7 +80,7 @@ INSTALL(
 )
 
 ########################################################################
-# Create Pkg Config File
+# Create udev rules for hackrf devices
 ########################################################################
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
@@ -134,7 +124,7 @@ if(SYSTEM_IS_LINUX)
                         ${CMAKE_CURRENT_BINARY_DIR}/53-hackrf.rules
                         @ONLY
                         )
-            message(STATUS  "HackRF udev rules will be installed to '${UDEV_RULES_PATH}' upon running 'make install'")
+            message(STATUS  "HackRF udev rules will be installed to '${UDEV_RULES_PATH}' upon running 'make install'.  To suppress this, pass -DINSTALL_UDEV_RULES=FALSE to cmake.")
             install(FILES ${CMAKE_CURRENT_BINARY_DIR}/53-hackrf.rules
                     DESTINATION ${UDEV_RULES_PATH}
                     COMPONENT "udev_rules")
@@ -152,17 +142,3 @@ else(SYSTEM_IS_LINUX)
         message(STATUS "udev rules not supported on this platform. Hide this message via -DINSTALL_UDEV_RULES=Off")
     endif(INSTALL_UDEV_RULES)
 endif(SYSTEM_IS_LINUX)
-
-########################################################################
-# Create uninstall target
-########################################################################
-if(NOT HackRF_SOURCE_DIR)
-configure_file(
-    ${PROJECT_SOURCE_DIR}/../cmake/cmake_uninstall.cmake.in
-    ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake
-@ONLY)
-
-add_custom_target(uninstall
-    ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake
-)
-endif()

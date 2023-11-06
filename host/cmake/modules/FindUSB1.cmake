@@ -1,4 +1,4 @@
-# - Try to find the freetype library
+# - Try to find the libusb library
 # Once done this defines
 #
 #  LIBUSB_FOUND - system has libusb
@@ -14,30 +14,42 @@
 if (LIBUSB_INCLUDE_DIR AND LIBUSB_LIBRARIES)
 
   # in cache already
-  set(LIBUSB_FOUND TRUE)
+  set(USB1_FIND_QUIETLY TRUE)
+endif()
 
-else (LIBUSB_INCLUDE_DIR AND LIBUSB_LIBRARIES)
-  IF (NOT WIN32)
-    # use pkg-config to get the directories and then use these values
-    # in the FIND_PATH() and FIND_LIBRARY() calls
-    find_package(PkgConfig)
-    pkg_check_modules(PC_LIBUSB libusb-1.0)
-  ENDIF(NOT WIN32)
 
-  set(LIBUSB_LIBRARY_NAME usb-1.0)
-  IF(${CMAKE_SYSTEM_NAME} MATCHES "FreeBSD")
-    set(LIBUSB_LIBRARY_NAME usb)
-  ENDIF(${CMAKE_SYSTEM_NAME} MATCHES "FreeBSD")
+IF (NOT CMAKE_SYSTEM_NAME STREQUAL "Windows")
+  # use pkg-config to get the directories and then use these values
+  # in the FIND_PATH() and FIND_LIBRARY() calls
+  find_package(PkgConfig)
+  pkg_check_modules(PC_LIBUSB libusb-1.0)
+ENDIF()
 
-  FIND_PATH(LIBUSB_INCLUDE_DIR libusb.h
-    PATHS ${PC_LIBUSB_INCLUDEDIR} ${PC_LIBUSB_INCLUDE_DIRS})
+set(LIBUSB_LIBRARY_NAMES usb-1.0)
+IF(${CMAKE_SYSTEM_NAME} MATCHES "FreeBSD")
+  set(LIBUSB_LIBRARY_NAMES usb)
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
 
-  FIND_LIBRARY(LIBUSB_LIBRARIES NAMES ${LIBUSB_LIBRARY_NAME}
-    PATHS ${PC_LIBUSB_LIBDIR} ${PC_LIBUSB_LIBRARY_DIRS})
+  # vcpkg's libusb-1.0 has a "lib" prefix, but on Windows MVSC, CMake doesn't search for
+  # static libraries with lib prefixes automatically.
+  list(APPEND LIBUSB_LIBRARY_NAMES libusb-1.0)
+endif()
 
-  include(FindPackageHandleStandardArgs)
-  FIND_PACKAGE_HANDLE_STANDARD_ARGS(LIBUSB DEFAULT_MSG LIBUSB_LIBRARIES LIBUSB_INCLUDE_DIR)
 
-  MARK_AS_ADVANCED(LIBUSB_INCLUDE_DIR LIBUSB_LIBRARIES)
+FIND_PATH(LIBUSB_INCLUDE_DIR libusb.h
+  PATHS ${PC_LIBUSB_INCLUDEDIR} ${PC_LIBUSB_INCLUDE_DIRS}
+  PATH_SUFFIXES libusb-1.0)
 
-endif (LIBUSB_INCLUDE_DIR AND LIBUSB_LIBRARIES)
+FIND_LIBRARY(LIBUSB_LIBRARIES NAMES ${LIBUSB_LIBRARY_NAMES}
+  PATHS ${PC_LIBUSB_LIBDIR} ${PC_LIBUSB_LIBRARY_DIRS})
+
+try_link_library(LIBUSB1_WORKS
+    LANGUAGE C
+    FUNCTION libusb_init
+    LIBRARIES ${LIBUSB_LIBRARIES})
+
+include(FindPackageHandleStandardArgs)
+FIND_PACKAGE_HANDLE_STANDARD_ARGS(USB1 DEFAULT_MSG LIBUSB_LIBRARIES LIBUSB_INCLUDE_DIR LIBUSB1_WORKS)
+
+MARK_AS_ADVANCED(LIBUSB_INCLUDE_DIR LIBUSB_LIBRARIES)
+

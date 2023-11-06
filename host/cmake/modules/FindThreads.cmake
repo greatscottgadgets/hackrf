@@ -84,11 +84,13 @@ ELSEIF(_Threads_ptwin32)
 
   # Determine the library filename
   IF(MSVC)
-    SET(_Threads_pthreads_libname
-        pthreadV${THREADS_PTHREADS_WIN32_EXCEPTION_SCHEME}2)
+    SET(_Threads_pthreads_libnames
+        pthreadV${THREADS_PTHREADS_WIN32_EXCEPTION_SCHEME}2
+        pthreadV${THREADS_PTHREADS_WIN32_EXCEPTION_SCHEME}3)
   ELSEIF(MINGW)
-    SET(_Threads_pthreads_libname
-        pthreadG${THREADS_PTHREADS_WIN32_EXCEPTION_SCHEME}2)
+    SET(_Threads_pthreads_libnames
+        pthreadG${THREADS_PTHREADS_WIN32_EXCEPTION_SCHEME}2
+        pthreadG${THREADS_PTHREADS_WIN32_EXCEPTION_SCHEME}3)
   ELSE()
     MESSAGE(FATAL_ERROR "This should never happen")
   ENDIF()
@@ -101,7 +103,7 @@ ELSEIF(_Threads_ptwin32)
      SET(_Threads_lib_paths ${_Threads_root_dir}/lib)
   ENDIF()
   FIND_LIBRARY(THREADS_PTHREADS_WIN32_LIBRARY
-               NAMES ${_Threads_pthreads_libname}
+               NAMES ${_Threads_pthreads_libnames}
                PATHS ${_Threads_lib_paths}
                DOC "The Portable Threads Library for Win32"
                NO_SYSTEM_PATH

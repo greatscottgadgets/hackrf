@@ -19,43 +19,48 @@
 # Boston, MA 02110-1301, USA.
 #
 
-# Based heavily upon the libftdi cmake setup.
+cmake_minimum_required(VERSION 3.8)
+# standard policies for CMake 3.8
+cmake_policy(VERSION 3.8)
 
-cmake_minimum_required(VERSION 2.8)
-project(hackrf-tools C)
+# Based heavily upon the libftdi cmake setup.
+project(hackrf-tools LANGUAGES C)
+
+# Run common init code
+# -----------------------------------------------------
+if(NOT HACKRF_HOST_INCLUDED)
+	include(../cmake/hackrf-host.cmake)
+endif()
+
+# configure release definition
 set(PACKAGE hackrf-tools)
-include(${PROJECT_SOURCE_DIR}/../cmake/set_release.cmake)
+include(set_release)
 add_definitions(-DTOOL_RELEASE="${RELEASE}")
-set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/../cmake/modules)
+
 
 if(MSVC)
-include_directories(getopt)
-add_definitions(/D _CRT_SECURE_NO_WARNINGS)
-else()
-add_definitions(-Wall)
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu90")
+	include_directories(getopt)
 endif()
 
-if(NOT libhackrf_SOURCE_DIR)
-find_package(LIBHACKRF REQUIRED)
-include_directories(${LIBHACKRF_INCLUDE_DIR})
+# Find tools dependencies
+# -----------------------------------------------------
+
+# fftw3
+find_package(FFTW COMPONENTS SinglePrecision REQUIRED)
+
+# libm
+find_package(CMath REQUIRED)
+
+# if we are not building libhackrf, we need to find a preexisting one in the system.
+if(TARGET hackrf)
+	# building libhackrf at the same time, use it.
+	set(HACKRF_LIBRARY_TARGET hackrf)
 else()
-include_directories(${libhackrf_SOURCE_DIR}/src)
+	# standalone tools build
+	find_package(LIBHACKRF REQUIRED)
+	set(HACKRF_LIBRARY_TARGET libhackrf::libhackrf)
 endif()
 
+# Build the code
+# -----------------------------------------------------
 add_subdirectory(src)
-
-########################################################################
-# Create uninstall target
-########################################################################
-
-if(NOT HackRF_SOURCE_DIR)
-configure_file(
-    ${PROJECT_SOURCE_DIR}/../cmake/cmake_uninstall.cmake.in
-    ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake
-@ONLY)
-
-add_custom_target(uninstall
-    ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake
-)
-endif()
