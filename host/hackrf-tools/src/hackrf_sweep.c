@@ -47,6 +47,7 @@ typedef int bool;
 #ifdef _WIN32
 	#define _USE_MATH_DEFINES
 	#include <windows.h>
+	#include <io.h>
 	#ifdef _MSC_VER
 
 		#ifdef _WIN64
