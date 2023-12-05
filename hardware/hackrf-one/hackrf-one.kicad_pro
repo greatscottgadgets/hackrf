@@ -463,5 +463,11 @@
       "frontend"
     ]
   ],
-  "text_variables": {}
+  "text_variables": {
+    "COPYRIGHT": "Copyright 2012-2023 Great Scott Gadgets",
+    "DATE": "2023-12-04",
+    "LICENSE": "Licensed under the CERN-OHL-P v2",
+    "TITLE": "HackRF One",
+    "VERSION": "8+"
+  }
 }
