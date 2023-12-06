@@ -2043,6 +2043,12 @@
     (path "/00000000-0000-0000-0000-000050370666/00000000-0000-0000-0000-0000503c4abc"
       (reference "R41") (unit 1) (value "10k") (footprint "hackrf:GSG-0402")
     )
+    (path "/00000000-0000-0000-0000-0000503bb638/cfb0d460-f9cc-47c1-8edd-3d7ac95be066"
+      (reference "R42") (unit 1) (value "18") (footprint "hackrf:GSG-0402")
+    )
+    (path "/00000000-0000-0000-0000-0000503bb638/5758ade7-aa6a-437b-84ed-074444da8cbd"
+      (reference "R43") (unit 1) (value "18") (footprint "hackrf:GSG-0402")
+    )
     (path "/00000000-0000-0000-0000-00005037043e/00000000-0000-0000-0000-0000503f8429"
       (reference "R46") (unit 1) (value "162k") (footprint "hackrf:GSG-0402")
     )
