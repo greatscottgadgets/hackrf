@@ -1585,7 +1585,7 @@
       (reference "J2") (unit 1) (value "RF-SHIELD-FRAME") (footprint "hackrf:GSG-SHIELD-BMI-S-230")
     )
     (path "/00000000-0000-0000-0000-0000503bb638/00000000-0000-0000-0000-0000527eaa54"
-      (reference "J3") (unit 1) (value "RF-SHIELD-COVER") (footprint "hackrf:GSG-NULL-MODULE")
+      (reference "J3") (unit 1) (value "RF-SHIELD-COVER") (footprint "")
     )
     (path "/00000000-0000-0000-0000-0000503bb638/00000000-0000-0000-0000-0000528fa040"
       (reference "J4") (unit 1) (value "MOUNTING_HOLE") (footprint "hackrf:GSG-HOLE126MIL-COPPER")
@@ -1861,19 +1861,19 @@
       (reference "P74") (unit 1) (value "P1_1") (footprint "hackrf:GSG-TESTPOINT-50MIL")
     )
     (path "/00000000-0000-0000-0000-00005037043e/00000000-0000-0000-0000-00005280a7b0"
-      (reference "P75") (unit 1) (value "GP_CLKIN") (footprint "hackrf:GSG-TESTPOINT-50MIL")
+      (reference "P75") (unit 1) (value "SGPIO0") (footprint "hackrf:GSG-TESTPOINT-50MIL")
     )
     (path "/00000000-0000-0000-0000-00005037043e/00000000-0000-0000-0000-00005280acad"
-      (reference "P76") (unit 1) (value "GP_CLKIN") (footprint "hackrf:GSG-TESTPOINT-50MIL")
+      (reference "P76") (unit 1) (value "SGPIO7") (footprint "hackrf:GSG-TESTPOINT-50MIL")
     )
     (path "/00000000-0000-0000-0000-00005037043e/00000000-0000-0000-0000-00005280acb7"
-      (reference "P77") (unit 1) (value "GP_CLKIN") (footprint "hackrf:GSG-TESTPOINT-50MIL")
+      (reference "P77") (unit 1) (value "SGPIO9") (footprint "hackrf:GSG-TESTPOINT-50MIL")
     )
     (path "/00000000-0000-0000-0000-00005037043e/00000000-0000-0000-0000-00005280acc0"
-      (reference "P78") (unit 1) (value "GP_CLKIN") (footprint "hackrf:GSG-TESTPOINT-50MIL")
+      (reference "P78") (unit 1) (value "SGPIO10") (footprint "hackrf:GSG-TESTPOINT-50MIL")
     )
     (path "/00000000-0000-0000-0000-00005037043e/00000000-0000-0000-0000-00005280accc"
-      (reference "P79") (unit 1) (value "GP_CLKIN") (footprint "hackrf:GSG-TESTPOINT-50MIL")
+      (reference "P79") (unit 1) (value "SGPIO11") (footprint "hackrf:GSG-TESTPOINT-50MIL")
     )
     (path "/00000000-0000-0000-0000-00005037043e/00000000-0000-0000-0000-0000528064fc"
       (reference "P80") (unit 1) (value "SHIELD") (footprint "hackrf:GSG-HEADER-NOMARK-1x2")
