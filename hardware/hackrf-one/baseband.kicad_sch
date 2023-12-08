@@ -5505,7 +5505,7 @@
     (property "Reference" "X1" (id 0) (at 77.47 181.61 0)
       (effects (font (size 1.524 1.524)))
     )
-    (property "Value" "GSG-XTAL4PIN" (id 1) (at 77.47 189.23 0)
+    (property "Value" "MAIN_XTAL" (id 1) (at 77.47 189.23 0)
       (effects (font (size 1.524 1.524)))
     )
     (property "Footprint" "hackrf:GSG-XTAL3.2x2.5mm" (id 2) (at 77.47 185.42 0)
