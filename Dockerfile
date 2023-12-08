@@ -18,6 +18,7 @@ RUN apt-get update && apt-get install -y \
     python-is-python3 \
     && rm -rf /var/lib/apt/lists/*
 RUN pip3 install git+https://github.com/CapableRobot/CapableRobot_USBHub_Driver --upgrade
+RUN pip3 install numpy
 
 # Serial numbers for EUT and TESTER devices connected to the test server
 ENV EUT=RunningFromRAM

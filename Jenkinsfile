@@ -21,13 +21,8 @@ pipeline {
                 retry(3) {
                     sh './ci-scripts/test-host.sh'
                 }
-                retry(3) {
-                    sh './ci-scripts/test-firmware-program.sh'
-                }
-                sh './ci-scripts/test-firmware-flash.sh'
-                sh 'python3 ci-scripts/test-debug.py'
-                sh 'python3 ci-scripts/test-transfer.py tx'
-                sh 'python3 ci-scripts/test-transfer.py rx'
+                sh 'usbhub --disable-i2c --hub 624C power state --port 2 --reset'
+                sh 'python3 ci-scripts/hackrf_test.py --ci --log log --rev r4 --manufacturer --hostdir host/build/hackrf-tools/src/ --fwupdate firmware/hackrf_usb/build/ --tester 0000000000000000325866e629a25623 --eut RunningFromRAM'
             }
         }
     }
