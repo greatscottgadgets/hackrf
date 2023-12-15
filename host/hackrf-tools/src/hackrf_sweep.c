@@ -40,7 +40,7 @@
 
 #ifndef bool
 typedef int bool;
-	#define true 1
+	#define true  1
 	#define false 0
 #endif
 
@@ -234,7 +234,8 @@ int rx_callback(hackrf_transfer* transfer)
 	}
 
 	// happens only once with timestamp_normalized == true
-	if ((usb_transfer_time.tv_sec == 0 && usb_transfer_time.tv_usec == 0) || timestamp_normalized == false) {
+	if ((usb_transfer_time.tv_sec == 0 && usb_transfer_time.tv_usec == 0) ||
+	    timestamp_normalized == false) {
 		// set the timestamp for the first sweep
 		gettimeofday(&usb_transfer_time, NULL);
 	}
@@ -275,10 +276,11 @@ int rx_callback(hackrf_transfer* transfer)
 				}
 				sweep_count++;
 
-				if (timestamp_normalized == true)
-				{
+				if (timestamp_normalized == true) {
 					// set the timestamp of the next sweep
-					memset(&usb_transfer_time, 0, sizeof (usb_transfer_time));
+					memset(&usb_transfer_time,
+					       0,
+					       sizeof(usb_transfer_time));
 					gettimeofday(&usb_transfer_time, NULL);
 				}
 
@@ -374,7 +376,8 @@ int rx_callback(hackrf_transfer* transfer)
 				time_str,
 				(long int) usb_transfer_time.tv_usec,
 				(uint64_t) (frequency + (DEFAULT_SAMPLE_RATE_HZ / 2)),
-				(uint64_t) (frequency + ((DEFAULT_SAMPLE_RATE_HZ * 3) / 4)),
+				(uint64_t) (frequency +
+					    ((DEFAULT_SAMPLE_RATE_HZ * 3) / 4)),
 				fft_bin_width,
 				fftSize);
 			for (i = 0; (fftSize / 4) > i; i++) {
@@ -703,7 +706,7 @@ int main(int argc, char** argv)
 	fftwf_execute(fftwPlan);
 
 	// reset the timestamp
-	memset(&usb_transfer_time, 0, sizeof (usb_transfer_time));
+	memset(&usb_transfer_time, 0, sizeof(usb_transfer_time));
 
 #ifdef _MSC_VER
 	if (binary_output) {
