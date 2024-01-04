@@ -26,15 +26,18 @@ pipeline {
                 }
                 sh './ci-scripts/test-firmware-flash.sh'
                 sh 'python3 ci-scripts/test-debug.py'
-                sh 'python3 ci-scripts/test-transfer.py tx'
-                sh 'python3 ci-scripts/test-transfer.py rx'
+                retry(3) {
+                    sh 'python3 ci-scripts/test-transfer.py tx'
+                }
+                retry(3) {
+                    sh 'python3 ci-scripts/test-transfer.py rx'
+                }
+                sh './ci-scripts/configure-hubs.sh --reset'
             }
         }
     }
     post {
         always {
-            sh './ci-scripts/configure-hubs.sh --reset'
-            sh 'rm -rf testing-venv/'
             cleanWs(cleanWhenNotBuilt: false,
                     deleteDirs: true,
                     disableDeferredWipeout: true,

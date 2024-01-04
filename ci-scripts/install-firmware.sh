@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 git submodule init
 git submodule update
 mkdir firmware/hackrf_usb/build
