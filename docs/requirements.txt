@@ -1,4 +1,4 @@
 sphinx==1.8.5
 sphinx_rtd_theme==1.0.0
 readthedocs-sphinx-search==0.1.1
-jinja2==3.0.0
+jinja2==3.1.3
