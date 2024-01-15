@@ -4,7 +4,9 @@ USER root
 
 # Override interactive installations and install prerequisites
 ENV DEBIAN_FRONTEND=noninteractive
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install -y apt-transport-https
+
+RUN apt-get install -y \
     build-essential \
     cmake \
     dfu-util \
