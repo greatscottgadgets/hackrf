@@ -97,7 +97,7 @@ Homebrew: `brew install cmake libusb pkg-config`
 
 Install FFTW from [this guide](https://www.fftw.org/install/mac.html)
 
-### Build host software on Linux:
+### Build it
 ```sh
 mkdir host/build
 cd host/build
