@@ -89,6 +89,26 @@ You can build and install from ports:
 # make install
 ```
 
+## How to build the host software on macOS:
+
+### Install dependencies
+
+Homebrew: `brew install cmake libusb pkg-config`
+
+Install FFTW from [this guide](https://www.fftw.org/install/mac.html)
+
+### Build host software on Linux:
+```sh
+mkdir host/build
+cd host/build
+cmake ..
+make
+sudo make install
+sudo update_dyld_shared_cache # equivalent to ldconfig in linux
+```
+
+## Credits
+
 principal author: Michael Ossmann <mike@ossmann.com>
 
 http://greatscottgadgets.com/hackrf/
