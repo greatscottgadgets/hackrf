@@ -25,5 +25,11 @@ set(CMAKE_TOOLCHAIN_FILE toolchain-arm-cortex-m.cmake)
 
 project (hackrf_firmware_all C)
 
+find_program(CCACHE "ccache")
+if(CCACHE)
+    set(CMAKE_C_COMPILER_LAUNCHER ${CCACHE})
+    set(ENV{CCACHE_SLOPPINESS} pch_defines,time_macros)
+endif(CCACHE)
+
 add_subdirectory(blinky)
 add_subdirectory(hackrf_usb)
