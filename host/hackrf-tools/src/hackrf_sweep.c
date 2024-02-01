@@ -278,9 +278,6 @@ int rx_callback(hackrf_transfer* transfer)
 
 				if (timestamp_normalized == true) {
 					// set the timestamp of the next sweep
-					memset(&usb_transfer_time,
-					       0,
-					       sizeof(usb_transfer_time));
 					gettimeofday(&usb_transfer_time, NULL);
 				}
 
