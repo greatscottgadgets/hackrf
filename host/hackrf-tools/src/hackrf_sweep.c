@@ -185,6 +185,7 @@ uint32_t amp_enable;
 bool antenna = false;
 uint32_t antenna_enable;
 
+bool timestamp_normalized = false;
 bool binary_output = false;
 bool ifft_output = false;
 bool one_shot = false;
@@ -202,6 +203,8 @@ fftwf_plan ifftwPlan = NULL;
 uint32_t ifft_idx = 0;
 float* pwr;
 float* window;
+
+struct timeval usb_transfer_time;
 
 float logPower(fftwf_complex in, float scale)
 {
@@ -221,7 +224,6 @@ int rx_callback(hackrf_transfer* transfer)
 	int i, j, ifft_bins;
 	struct tm* fft_time;
 	char time_str[50];
-	struct timeval usb_transfer_time;
 
 	if (NULL == outfile) {
 		return -1;
@@ -230,7 +232,14 @@ int rx_callback(hackrf_transfer* transfer)
 	if (do_exit) {
 		return 0;
 	}
-	gettimeofday(&usb_transfer_time, NULL);
+
+	// happens only once with timestamp_normalized == true
+	if ((usb_transfer_time.tv_sec == 0 && usb_transfer_time.tv_usec == 0) ||
+	    timestamp_normalized == false) {
+		// set the timestamp for the first sweep
+		gettimeofday(&usb_transfer_time, NULL);
+	}
+
 	byte_count += transfer->valid_length;
 	buf = (int8_t*) transfer->buffer;
 	ifft_bins = fftSize * step_count;
@@ -266,6 +275,12 @@ int rx_callback(hackrf_transfer* transfer)
 					}
 				}
 				sweep_count++;
+
+				if (timestamp_normalized == true) {
+					// set the timestamp of the next sweep
+					gettimeofday(&usb_transfer_time, NULL);
+				}
+
 				if (one_shot) {
 					do_exit = true;
 				} else if (finite_mode && sweep_count == num_sweeps) {
@@ -388,6 +403,7 @@ static void usage()
 		"\t[-N num_sweeps] # Number of sweeps to perform\n"
 		"\t[-B] # binary output\n"
 		"\t[-I] # binary inverse FFT output\n"
+		"\t[-n] # keep the same timestamp within a sweep\n"
 		"\t-r filename # output file\n"
 		"\n"
 		"Output fields:\n"
@@ -461,7 +477,7 @@ int main(int argc, char** argv)
 	const char* fftwWisdomPath = NULL;
 	int fftw_plan_type = FFTW_MEASURE;
 
-	while ((opt = getopt(argc, argv, "a:f:p:l:g:d:n:N:w:W:P:1BIr:h?")) != EOF) {
+	while ((opt = getopt(argc, argv, "a:f:p:l:g:d:N:w:W:P:n1BIr:h?")) != EOF) {
 		result = HACKRF_SUCCESS;
 		switch (opt) {
 		case 'd':
@@ -540,6 +556,10 @@ int main(int argc, char** argv)
 				fprintf(stderr, "Unknown FFTW plan type '%s'\n", optarg);
 				return EXIT_FAILURE;
 			}
+			break;
+
+		case 'n':
+			timestamp_normalized = true;
 			break;
 
 		case '1':
@@ -680,6 +700,9 @@ int main(int argc, char** argv)
 	 * data starts to flow.  See issue #1366
 	*/
 	fftwf_execute(fftwPlan);
+
+	// reset the timestamp
+	memset(&usb_transfer_time, 0, sizeof(usb_transfer_time));
 
 #ifdef _MSC_VER
 	if (binary_output) {
