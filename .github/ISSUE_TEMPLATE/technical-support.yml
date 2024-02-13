@@ -11,7 +11,7 @@ body:
   - type: dropdown
     id: troubleshooting-documentation
     attributes: 
-      label: Have you read the HackRF [troubleshooting documentation](https://hackrf.readthedocs.io/en/latest/troubleshooting.html)?
+      label: Have you read the HackRF [documentation](https://hackrf.readthedocs.io/en/latest/)?
       options:
         - "no"
         - "yes"        
