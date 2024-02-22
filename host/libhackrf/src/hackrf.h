@@ -714,6 +714,10 @@ enum hackrf_board_rev {
 	 * board revision 9, generic
 	 */
 	BOARD_REV_HACKRF1_R9 = 4,
+	/**
+	 * board revision 10, generic
+	 */
+	BOARD_REV_HACKRF1_R10 = 5,
 
 	/**
 	 * board revision 6, made by GSG
@@ -731,6 +735,10 @@ enum hackrf_board_rev {
 	 * board revision 9, made by GSG
 	 */
 	BOARD_REV_GSG_HACKRF1_R9 = 0x84,
+	/**
+	 * board revision 10, made by GSG
+	 */
+	BOARD_REV_GSG_HACKRF1_R10 = 0x85,
 
 	/**
 	 * unknown board revision (detection failed)
