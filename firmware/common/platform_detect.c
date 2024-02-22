@@ -60,12 +60,14 @@ static struct gpio_t gpio_led1 = GPIO(2, 1);
 static struct gpio_t gpio_led2 = GPIO(2, 2);
 static struct gpio_t gpio_led3 = GPIO(2, 8);
 
-uint8_t adc_read(uint8_t pin)
+/*
+ * Return 10-bit ADC result.
+ */
+uint16_t adc_read(uint8_t pin)
 {
 	pin &= 0x7;
 	uint8_t pin_mask = (1 << pin);
-	ADC0_CR = ADC_CR_SEL(pin_mask) | ADC_CR_CLKDIV(45) | ADC_CR_CLKS(2) | ADC_CR_PDN |
-		ADC_CR_START(1);
+	ADC0_CR = ADC_CR_SEL(pin_mask) | ADC_CR_CLKDIV(45) | ADC_CR_PDN | ADC_CR_START(1);
 	while (!(ADC0_GDR & ADC_DR_DONE) || (((ADC0_GDR >> 24) & 0x7) != pin)) {}
 	return (ADC0_GDR >> 6) & 0x03FF;
 }
@@ -82,7 +84,7 @@ void adc_off(void)
  */
 #define NUM_SAMPLES    (10)
 #define LOW_THRESHOLD  (2 * NUM_SAMPLES)
-#define HIGH_THRESHOLD (253 * NUM_SAMPLES)
+#define HIGH_THRESHOLD (1022 * NUM_SAMPLES)
 
 typedef enum {
 	PIN_STRAP_HIGH,
