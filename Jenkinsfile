@@ -32,6 +32,8 @@ pipeline {
                 retry(3) {
                     sh 'python3 ci-scripts/test-transfer.py rx'
                 }
+                sh './ci-scripts/configure-hubs.sh --off'
+                sh 'python3 ci-scripts/test-sgpio-debug.py'
                 sh './ci-scripts/configure-hubs.sh --reset'
             }
         }
