@@ -47,10 +47,12 @@ typedef enum {
 	BOARD_REV_HACKRF1_R7 = 2,
 	BOARD_REV_HACKRF1_R8 = 3,
 	BOARD_REV_HACKRF1_R9 = 4,
+	BOARD_REV_HACKRF1_R10 = 5,
 	BOARD_REV_GSG_HACKRF1_R6 = 0x81,
 	BOARD_REV_GSG_HACKRF1_R7 = 0x82,
 	BOARD_REV_GSG_HACKRF1_R8 = 0x83,
 	BOARD_REV_GSG_HACKRF1_R9 = 0x84,
+	BOARD_REV_GSG_HACKRF1_R10 = 0x85,
 	BOARD_REV_UNRECOGNIZED =
 		0xFE,                /* tried detection but did not recognize revision */
 	BOARD_REV_UNDETECTED = 0xFF, /* detection not yet attempted */

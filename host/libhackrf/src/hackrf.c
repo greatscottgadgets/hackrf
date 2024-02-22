@@ -2913,6 +2913,10 @@ extern ADDAPI const char* ADDCALL hackrf_board_rev_name(enum hackrf_board_rev bo
 	case BOARD_REV_GSG_HACKRF1_R9:
 		return "r9";
 
+	case BOARD_REV_HACKRF1_R10:
+	case BOARD_REV_GSG_HACKRF1_R10:
+		return "r10";
+
 	case BOARD_ID_UNRECOGNIZED:
 		return "unrecognized";
 

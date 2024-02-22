@@ -60,12 +60,14 @@ static struct gpio_t gpio_led1 = GPIO(2, 1);
 static struct gpio_t gpio_led2 = GPIO(2, 2);
 static struct gpio_t gpio_led3 = GPIO(2, 8);
 
-uint8_t adc_read(uint8_t pin)
+/*
+ * Return 10-bit ADC result.
+ */
+uint16_t adc_read(uint8_t pin)
 {
 	pin &= 0x7;
 	uint8_t pin_mask = (1 << pin);
-	ADC0_CR = ADC_CR_SEL(pin_mask) | ADC_CR_CLKDIV(45) | ADC_CR_CLKS(2) | ADC_CR_PDN |
-		ADC_CR_START(1);
+	ADC0_CR = ADC_CR_SEL(pin_mask) | ADC_CR_CLKDIV(45) | ADC_CR_PDN | ADC_CR_START(1);
 	while (!(ADC0_GDR & ADC_DR_DONE) || (((ADC0_GDR >> 24) & 0x7) != pin)) {}
 	return (ADC0_GDR >> 6) & 0x03FF;
 }
@@ -81,16 +83,14 @@ void adc_off(void)
  * the unconnected state by averaging several ADC readings.
  */
 #define NUM_SAMPLES    (10)
-#define LOW_THRESHOLD  (2 * NUM_SAMPLES)
-#define HIGH_THRESHOLD (253 * NUM_SAMPLES)
+#define LOW_THRESHOLD  (2)
+#define HIGH_THRESHOLD (1022)
 
-typedef enum {
-	PIN_STRAP_HIGH,
-	PIN_STRAP_LOW,
-	PIN_STRAP_ABSENT,
-} pin_strap_t;
+#define HIGH(x)   ((x) > HIGH_THRESHOLD)
+#define LOW(x)    ((x) < LOW_THRESHOLD)
+#define ABSENT(x) (((x) >= LOW_THRESHOLD) && ((x) <= HIGH_THRESHOLD))
 
-pin_strap_t check_pin_strap(uint8_t pin)
+uint32_t check_pin_strap(uint8_t pin)
 {
 	int i;
 	uint32_t sum = 0;
@@ -99,14 +99,52 @@ pin_strap_t check_pin_strap(uint8_t pin)
 		sum += adc_read(pin);
 	}
 	adc_off();
-	if (sum > HIGH_THRESHOLD) {
-		return PIN_STRAP_HIGH;
-	} else if (sum < LOW_THRESHOLD) {
-		return PIN_STRAP_LOW;
-	} else {
-		return PIN_STRAP_ABSENT;
-	}
+	return (sum / NUM_SAMPLES);
 }
+
+/*
+ * Starting with r10, HackRF One uses a voltage divider on ADC0_3 to set an
+ * analog voltage that indicates the hardware revision. The high five bits of
+ * the ADC result are mapped to 32 revisions. HackRF One r8 also fits into this
+ * scheme with ADC0_3 tied to VCC.
+ */
+// clang-format off
+static const uint8_t revision_from_adc[32] = {
+	BOARD_REV_UNRECOGNIZED,
+	BOARD_REV_UNRECOGNIZED,
+	BOARD_REV_UNRECOGNIZED,
+	BOARD_REV_UNRECOGNIZED,
+	BOARD_REV_UNRECOGNIZED,
+	BOARD_REV_UNRECOGNIZED,
+	BOARD_REV_UNRECOGNIZED,
+	BOARD_REV_UNRECOGNIZED,
+	BOARD_REV_UNRECOGNIZED,
+	BOARD_REV_UNRECOGNIZED,
+	BOARD_REV_UNRECOGNIZED,
+	BOARD_REV_UNRECOGNIZED,
+	BOARD_REV_UNRECOGNIZED,
+	BOARD_REV_UNRECOGNIZED,
+	BOARD_REV_UNRECOGNIZED,
+	BOARD_REV_UNRECOGNIZED,
+	BOARD_REV_UNRECOGNIZED,
+	BOARD_REV_UNRECOGNIZED,
+	BOARD_REV_UNRECOGNIZED,
+	BOARD_REV_UNRECOGNIZED,
+	BOARD_REV_UNRECOGNIZED,
+	BOARD_REV_UNRECOGNIZED,
+	BOARD_REV_UNRECOGNIZED,
+	BOARD_REV_UNRECOGNIZED,
+	BOARD_REV_UNRECOGNIZED,
+	BOARD_REV_UNRECOGNIZED,
+	BOARD_REV_UNRECOGNIZED,
+	BOARD_REV_UNRECOGNIZED,
+	BOARD_REV_UNRECOGNIZED,
+	BOARD_REV_UNRECOGNIZED,
+	BOARD_REV_HACKRF1_R10,
+	BOARD_REV_HACKRF1_R8
+};
+
+// clang-format on
 
 void detect_hardware_platform(void)
 {
@@ -175,34 +213,31 @@ void detect_hardware_platform(void)
 		halt_and_flash(1000000);
 	}
 
-	pin_strap_t adc0_3 = check_pin_strap(3);
-	pin_strap_t adc0_4 = check_pin_strap(4);
-	pin_strap_t adc0_7 = check_pin_strap(7);
+	uint32_t adc0_3 = check_pin_strap(3);
+	uint32_t adc0_4 = check_pin_strap(4);
+	uint32_t adc0_7 = check_pin_strap(7);
 
-	if ((adc0_3 == PIN_STRAP_ABSENT) && (adc0_4 == PIN_STRAP_ABSENT) &&
-	    (adc0_7 == PIN_STRAP_ABSENT) && (platform == BOARD_ID_HACKRF1_OG)) {
-		revision = BOARD_REV_HACKRF1_OLD;
-	} else if (
-		(adc0_3 == PIN_STRAP_HIGH) && (adc0_4 == PIN_STRAP_HIGH) &&
-		(platform == BOARD_ID_HACKRF1_OG)) {
-		revision = BOARD_REV_HACKRF1_R6;
-	} else if (
-		(adc0_3 == PIN_STRAP_LOW) && (adc0_4 == PIN_STRAP_HIGH) &&
-		(platform == BOARD_ID_HACKRF1_OG)) {
-		revision = BOARD_REV_HACKRF1_R7;
-	} else if (
-		(adc0_3 == PIN_STRAP_HIGH) && (adc0_4 == PIN_STRAP_LOW) &&
-		(platform == BOARD_ID_HACKRF1_OG)) {
-		revision = BOARD_REV_HACKRF1_R8;
-	} else if (
-		(adc0_3 == PIN_STRAP_LOW) && (adc0_4 == PIN_STRAP_LOW) &&
-		(platform == BOARD_ID_HACKRF1_R9)) {
-		revision = BOARD_REV_HACKRF1_R9;
-	} else {
-		revision = BOARD_REV_UNRECOGNIZED;
+	if (platform == BOARD_ID_HACKRF1_OG) {
+		if (ABSENT(adc0_3) && ABSENT(adc0_4) && ABSENT(adc0_7)) {
+			revision = BOARD_REV_HACKRF1_OLD;
+		} else if (HIGH(adc0_3) && HIGH(adc0_4)) {
+			revision = BOARD_REV_HACKRF1_R6;
+		} else if (LOW(adc0_3) && HIGH(adc0_4)) {
+			revision = BOARD_REV_HACKRF1_R7;
+		} else if (LOW(adc0_4)) {
+			revision = revision_from_adc[adc0_3 >> 5];
+		} else {
+			revision = BOARD_REV_UNRECOGNIZED;
+		}
+	} else if (platform == BOARD_ID_HACKRF1_R9) {
+		if (LOW(adc0_3) && LOW(adc0_4)) {
+			revision = BOARD_REV_HACKRF1_R9;
+		} else {
+			revision = BOARD_REV_UNRECOGNIZED;
+		}
 	}
 
-	if ((revision > BOARD_REV_HACKRF1_OLD) && (adc0_7 == PIN_STRAP_LOW)) {
+	if ((revision > BOARD_REV_HACKRF1_OLD) && LOW(adc0_7)) {
 		revision |= BOARD_REV_GSG;
 	}
 }
