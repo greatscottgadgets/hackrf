@@ -34,8 +34,8 @@
         "other_text_upright": false,
         "pads": {
           "drill": 0.0,
-          "height": 0.29464,
-          "width": 1.50114
+          "height": 0.24,
+          "width": 0.8
         },
         "silk_line_width": 0.2032,
         "silk_text_italic": false,
@@ -45,7 +45,7 @@
         "silk_text_upright": false,
         "zones": {
           "45_degree_only": false,
-          "min_clearance": 0.30479999999999996
+          "min_clearance": 0.254
         }
       },
       "diff_pair_dimensions": [
@@ -119,7 +119,6 @@
       },
       "track_widths": [
         0.0,
-        0.127,
         0.1524,
         0.2032,
         0.2413,
@@ -136,14 +135,6 @@
         {
           "diameter": 0.0,
           "drill": 0.0
-        },
-        {
-          "diameter": 0.4572,
-          "drill": 0.254
-        },
-        {
-          "diameter": 0.6858,
-          "drill": 0.3302
         },
         {
           "diameter": 0.7874,
@@ -461,20 +452,22 @@
     ],
     [
       "00000000-0000-0000-0000-00005037043e",
-      "Microcontroller, CPLD, USB, Power"
+      "mcu/usb/power"
     ],
     [
       "00000000-0000-0000-0000-000050370666",
-      "Baseband"
+      "baseband"
     ],
     [
       "00000000-0000-0000-0000-0000503bb638",
-      "Front End"
-    ],
-    [
-      "0622cab3-1212-4871-9ead-cb3c63b585f3",
-      "Clock"
+      "frontend"
     ]
   ],
-  "text_variables": {}
+  "text_variables": {
+    "COPYRIGHT": "Copyright 2012-2023 Great Scott Gadgets",
+    "DATE": "2023-12-09",
+    "LICENSE": "Licensed under the CERN-OHL-P v2",
+    "TITLE": "HackRF One",
+    "VERSION": "10"
+  }
 }
