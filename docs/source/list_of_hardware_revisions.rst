@@ -33,7 +33,7 @@ HackRF One r9
 MAX2837 was replaced by MAX2839. Si5351C was replaced by Si5351A with additional clock distribution. A series diode was added to the antenna port power supply. Manufacturing year: 2023
 
 HackRF One r10
-~~~~~~~~~~~~~
+~~~~~~~~~~~~~~
 
 This revision is based on r8, reverting most of the changes made in r9. A series diode was added to the antenna port power supply. Manufacturing year: 2024
 
