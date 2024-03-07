@@ -70,6 +70,12 @@ if( ${WIN32} )
            DESTINATION bin
            COMPONENT sharedlibs
            )
+   install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIGURATION>/"
+           DESTINATION bin
+           FILES_MATCHING
+           PATTERN "libusb*.dll"
+           PATTERN "pthread*.dll"
+           )
    install(TARGETS hackrf-static
            DESTINATION bin
            COMPONENT staticlibs

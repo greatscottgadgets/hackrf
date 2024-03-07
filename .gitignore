@@ -6,6 +6,7 @@
 *.srec
 host/build/
 host/**/build
+install/
 
 # Operating system spew
 .DS_Store
