@@ -144,16 +144,18 @@ jobs:
       with:
         submodules: true
 
+    - name: Install Arm GNU Toolchain
+      uses: carlosperate/arm-none-eabi-gcc-action@v1
+
     - name: Install dependencies (macOS)
       run: |
-        brew install --cask gcc-arm-embedded
         brew install dfu-util
         pip3 install PyYAML
       if: matrix.os == 'macos-latest'
 
     - name: Install dependencies (Ubuntu)
       run: |
-        sudo apt install dfu-util gcc-arm-none-eabi
+        sudo apt install dfu-util
       if: matrix.os == 'ubuntu-latest'
 
     - name: Build libopencm3
