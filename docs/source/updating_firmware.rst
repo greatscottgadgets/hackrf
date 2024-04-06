@@ -19,7 +19,7 @@ To update the firmware on a working HackRF One, use the hackrf_spiflash program:
 
 	hackrf_spiflash -w hackrf_one_usb.bin
 
-You can find the firmware binary (hackrf_one_usb.bin) in the firmware-bin directory of the latest `release package <https://github.com/mossmann/hackrf/releases/latest>`__ or you can compile your own from the `source <https://github.com/mossmann/hackrf/tree/master/firmware>`__. For Jawbreaker, use hackrf_jawbreaker_usb.bin. If you compile from source, the file will be called hackrf_usb.bin.
+You can find the firmware binary (hackrf_one_usb.bin) in the firmware-bin directory of the latest `release package <https://github.com/greatscottgadgets/hackrf/releases/latest>`__ or you can compile your own from the `source <https://github.com/greatscottgadgets/hackrf/tree/master/firmware>`__. For Jawbreaker, use hackrf_jawbreaker_usb.bin. If you compile from source, the file will be called hackrf_usb.bin.
 
 The hackrf_spiflash program is part of hackrf-tools.
 
