@@ -89,7 +89,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
  * The library uses `libusb` (version 1.0) to communicate with HackRF hardware. It uses both the synchronous and asynchronous API for communication (asynchronous for streaming data to/from the device, and synchronous for everything else). The asynchronous API requires to periodically call a variant of `libusb_handle_events`, so the library creates a new "transfer thread" for each device doing that using the `pthread` library. The library uses multiple transfers for each device (@ref hackrf_get_transfer_queue_depth).
  *
  * # USB API versions
- * As all functionality of HackRF devices requires cooperation between the firmware and the host, both devices can have outdated software. If host machine software is outdated, the new functions will be unalaviable in `hackrf.h`, causing linking errors. If the device firmware is outdated, the functions will return @ref HACKRF_ERROR_USB_API_VERSION.
+ * As all functionality of HackRF devices requires cooperation between the firmware and the host, both devices can have outdated software. If host machine software is outdated, the new functions will be unavailable in `hackrf.h`, causing linking errors. If the device firmware is outdated, the functions will return @ref HACKRF_ERROR_USB_API_VERSION.
  * Since device firmware and USB API are separate (but closely related), USB API has its own version numbers.
  * Here is a list of all the functions that require a certain minimum USB API version, up to version 0x0107
  * ## 0x0102
@@ -203,7 +203,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
  * 
  * ## Supported platform
  * 
- * Identifies the platform supported by the firmare of the HackRF device. Read via @ref hackrf_supported_platform_read. Returns a bitfield. Can identify bad firmware version on device.
+ * Identifies the platform supported by the firmware of the HackRF device. Read via @ref hackrf_supported_platform_read. Returns a bitfield. Can identify bad firmware version on device.
  * 
  */
 
@@ -224,7 +224,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
  * ## RX path
  * 
  * - baseband gain in the MAX2837 ("BB" or "VGA") - 0-62dB in 2dB steps, configurable via the @ref hackrf_set_vga_gain function
- * - RX IF gain in the MAX2837 ("IF") - 0-40dB with 8dB steps, configurabe via the @ref hackrf_set_lna_gain function
+ * - RX IF gain in the MAX2837 ("IF") - 0-40dB with 8dB steps, configurable via the @ref hackrf_set_lna_gain function
  * - RX RF amplifier near the antenna port ("RF") - 0 or ~11dB, either enabled or disabled via the @ref hackrf_set_amp_enable (same function is used for enabling/disabling the TX RF amp in TX mode)
  * 
  * ## TX path
@@ -245,7 +245,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
  * 
  * # Sample rate
  * 
- * The sample rate of the ADC/DAC can be set between 2-20MHz via @ref hackrf_set_sample_rate or @ref hackrf_set_sample_rate_manual. This also automatially adjusts the baseband filter bandwidth to a suitable value.
+ * The sample rate of the ADC/DAC can be set between 2-20MHz via @ref hackrf_set_sample_rate or @ref hackrf_set_sample_rate_manual. This also automatically adjusts the baseband filter bandwidth to a suitable value.
  * 
  * # Clocking
  * 
@@ -253,7 +253,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
  * 
  * # Bias-tee
  * 
- * The HackRF one has a built in bias-tee (also called (antenna) port power in some of the documentation) capable of delivering 50mA@3V3 for powering small powered antennas or amplifiers. It can be enabled via the @ref hackrf_set_antenna_enable function. Please note that when the device is returning to IDLE mode, the firmware automatically disables this feature. This means it can't be enabled permanently like with the RTL-SDR, and all software using the HackRF must enable this separatlely.
+ * The HackRF one has a built in bias-tee (also called (antenna) port power in some of the documentation) capable of delivering 50mA@3V3 for powering small powered antennas or amplifiers. It can be enabled via the @ref hackrf_set_antenna_enable function. Please note that when the device is returning to IDLE mode, the firmware automatically disables this feature. This means it can't be enabled permanently like with the RTL-SDR, and all software using the HackRF must enable this separately.
  */
 
 /**
@@ -278,22 +278,22 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
  * Steps for starting an RX or TX operation:
  * - initialize libhackrf
  * - open device
- * - setup device (frequency, samplerate, gain, etc)
+ * - setup device (frequency, samplerate, gain, etc.)
  * - setup callbacks, start operation (`hackrf_start_*`)
  * - the main program should go to sleep
  * - when done, the transfer callback should return non-zero value, and signal the main thread to stop
  * - stop operation via `hackrf_stop_*`
  * - close device, exit library, etc.
  * 
- * Data is transfered through the USB connection via setting up multiple async libusb transfers (@ref hackrf_get_transfer_queue_depth). In TX mode, the transfers needs to be filled before submitting, and in RX mode, they need to be read out when they are done. This is done using the transfer callback - it receives a @ref hackrf_transfer object and needs to transfer the data to/from it. As it's needed for all operations, this gets called whenever we need to move data, so every time a transfer is finished (and before the first transfer in TX mode). There's a "transfer complete callback" that only gets called when a transfer is completed. It does not need to do anything special tho, and is optional.
+ * Data is transferred through the USB connection via setting up multiple async libusb transfers (@ref hackrf_get_transfer_queue_depth). In TX mode, the transfers needs to be filled before submitting, and in RX mode, they need to be read out when they are done. This is done using the transfer callback - it receives a @ref hackrf_transfer object and needs to transfer the data to/from it. As it's needed for all operations, this gets called whenever we need to move data, so every time a transfer is finished (and before the first transfer in TX mode). There's a "transfer complete callback" that only gets called when a transfer is completed. It does not need to do anything special tho, and is optional.
  * 
- * Streaming can be stopped via returning a non-zero value from the transfer callback, but that does NOT reset the device to IDLE mode, it only stops data transfers. In TX mode, when this happens, and the transmitter runs out of data to transmit, it will start transmitting all 0 values (but in older firmware versions, it started repeating the last buffer). To actually stop the operation, a call to `hackrf_stop_*` is needed. Since the callback operate in an async libusb context, such a call can't be made from there, only from the main thread, so it must be signaled through some means (for example, a global variable, or better, a `pthread_cond`) to stop. In RX mode, this signaling can be done from the transfer callback, but in TX mode, we must make sure that we only stop the operation when the last transfer is completed and the device transmitted it, or we might lose it. For this reason, the third **flush callback** exists, that gets called when this happens. It is adivsed to only signal the main thread to stop from this callback.
+ * Streaming can be stopped via returning a non-zero value from the transfer callback, but that does NOT reset the device to IDLE mode, it only stops data transfers. In TX mode, when this happens, and the transmitter runs out of data to transmit, it will start transmitting all 0 values (but in older firmware versions, it started repeating the last buffer). To actually stop the operation, a call to `hackrf_stop_*` is needed. Since the callback operate in an async libusb context, such a call can't be made from there, only from the main thread, so it must be signaled through some means (for example, a global variable, or better, a `pthread_cond`) to stop. In RX mode, this signaling can be done from the transfer callback, but in TX mode, we must make sure that we only stop the operation when the last transfer is completed and the device transmitted it, or we might lose it. For this reason, the third **flush callback** exists, that gets called when this happens. It is advised to only signal the main thread to stop from this callback.
  * 
  * The function @ref hackrf_is_streaming can be used to check if the device is streaming or not.
  * 
  * ### Transfer callback
  * 
- * Set when starting an operation with @ref hackrf_start_tx, @ref hackrf_start_rx or @ref hackrf_start_rx_sweep. This callback supplies / receives data. This function takes a @ref hackrf_transfer struct as a parameter, and fill/read data to/from its buffer. This function runs in an async libusb context, meaning it should not iteract with the libhackrf library in other ways. The callback can return a boolean value, if its return value is non-zero then it won't be called again, meaning that no future transfers will take place, and (in TX case) the flush callback will be called shortly.
+ * Set when starting an operation with @ref hackrf_start_tx, @ref hackrf_start_rx or @ref hackrf_start_rx_sweep. This callback supplies / receives data. This function takes a @ref hackrf_transfer struct as a parameter, and fill/read data to/from its buffer. This function runs in an async libusb context, meaning it should not interact with the libhackrf library in other ways. The callback can return a boolean value, if its return value is non-zero then it won't be called again, meaning that no future transfers will take place, and (in TX case) the flush callback will be called shortly.
  * 
  * ### Block complete callback
  * 
@@ -369,7 +369,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
  *     pthread_mutex_unlock(&mutex);
  * }
  * 
- * int main() {        
+ * int main() {
  *     hackrf_init();
  *     hackrf_device *device = NULL;
  *     hackrf_open(&device);
@@ -383,7 +383,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
  *     hackrf_start_tx(device, transfer_callback, NULL);
  * 
  *     pthread_mutex_lock(&mutex);
- *     pthread_cond_wait(&cond, &mutex); // wait fo transfer to complete
+ *     pthread_cond_wait(&cond, &mutex); // wait for transfer to complete
  *     
  *     hackrf_stop_tx(device);
  *     hackrf_close(device);
@@ -398,22 +398,22 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
  * 
  * ## Underrun and overrun
  * 
- * Underrun/overrun detection can be enabled using @ref hackrf_set_tx_underrun_limit or @ref hackrf_set_rx_overrun_limit limit. This causes the HackRF to stop operation if more than the specified amount of samples get lost, for example in case of your program crashing, USB connection faliure, etc.
+ * Underrun/overrun detection can be enabled using @ref hackrf_set_tx_underrun_limit or @ref hackrf_set_rx_overrun_limit limit. This causes the HackRF to stop operation if more than the specified amount of samples get lost, for example in case of your program crashing, USB connection failure, etc.
  * 
  * ## Sweeping
  * 
- * Sweeping mode is kind of special. In this mode, the device can be programmed to a list of frequencies to tune on, record set amount of samples and then tune to the next frequency and repeat. It can be setup via @ref hackrf_init_sweep and started with @ref hackrf_start_rx_sweep. In this mode, **the callback does not receive raw samples**, but blocks of samples prefixed with a frequency header specifying the tuned frequency. 
+ * Sweeping mode is kind of special. In this mode, the device can be programmed to a list of frequencies to tune on, record set amount of samples and then tune to the next frequency and repeat. It can be setup via @ref hackrf_init_sweep and started with @ref hackrf_start_rx_sweep. In this mode, **the callback does not receive raw samples**, but blocks of samples prefixed with a frequency header specifying the tuned frequency.
  * 
- * See [hackrf_sweep.c](https://github.com/greatscottgadgets/hackrf/blob/master/host/hackrf-tools/src/hackrf_sweep.c#L236-L249) for a full example, and especialy [the start of the RX callback](https://github.com/greatscottgadgets/hackrf/blob/eff4a20022ca5d7f11405c3cdeea6c4195e347d0/host/hackrf-tools/src/hackrf_sweep.c#L236-L249) for parsing the frequency header.
+ * See [hackrf_sweep.c](https://github.com/greatscottgadgets/hackrf/blob/master/host/hackrf-tools/src/hackrf_sweep.c#L236-L249) for a full example, and especially [the start of the RX callback](https://github.com/greatscottgadgets/hackrf/blob/eff4a20022ca5d7f11405c3cdeea6c4195e347d0/host/hackrf-tools/src/hackrf_sweep.c#L236-L249) for parsing the frequency header.
  * 
  * ## HW sync mode
  * 
- * @ref hackrf_set_hw_sync_mode can be used to setup HW sync mode ([see the documentation on this mode](https://hackrf.readthedocs.io/en/latest/hardware_triggering.html)). This mode allows multiple HackRF Ones to synchronize operations, or one HackRF One to synchrnonize on an external trigger source.
+ * @ref hackrf_set_hw_sync_mode can be used to setup HW sync mode ([see the documentation on this mode](https://hackrf.readthedocs.io/en/latest/hardware_triggering.html)). This mode allows multiple HackRF Ones to synchronize operations, or one HackRF One to synchronize on an external trigger source.
  */
 
 /**
  * @defgroup debug Firmware flashing & debugging
- * @brief Firmware flashing and directly accessing hardware components 
+ * @brief Firmware flashing and directly accessing hardware components
  * 
  * 
  * # Firmware flashing
@@ -431,12 +431,12 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
  * Here's a brief introduction on the various chips in the HackRF One unit:
  * 
  * ## MAX2837 2.3 to 2.7 GHz transceiver
- * This transceiver chip is the RF modulator/demodulator of the HackRF One. This chip sends/receives analoge I/Q samples to/from the MAX5864 ADC/DAC chip. 
+ * This transceiver chip is the RF modulator/demodulator of the HackRF One. This chip sends/receives analog I/Q samples to/from the MAX5864 ADC/DAC chip.
  * 
  * Its registers are accessible through the functions @ref hackrf_max2837_read and @ref hackrf_max2837_write
  * 
  * ## MAX5864 ADC/DAC
- * This chip converts received analgoe I/Q samples to digital and transmitted I/Q samples to analoge. It connects to the main ARM MCU through the CPLD. No configuration is needed for it, only the sample rate can be set via the clock generator IC.
+ * This chip converts received analog I/Q samples to digital and transmitted I/Q samples to analog. It connects to the main ARM MCU through the CPLD. No configuration is needed for it, only the sample rate can be set via the clock generator IC.
  * 
  * ## Si5351C Clock generator
  * This chip supplies clock signals to all of the other chips. It can synthesize a wide range of frequencies from its clock inputs (internal or external). It uses a fixed 800-MHz internal clock (synthesized via a PLL).
@@ -462,7 +462,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
  * ## XC2C64A CPLD
  * This CPLD sits between the MAX5864 ADC/DAC and the main MCU, and mainly performs data format conversion and some synchronisation.
  * 
- * Its bitstream is auto-loaded on reset by the ARM MCU (from the firmware image), but in older versions, it was possible to reconfigure it via @ref hackrf_cpld_write, and the (since temporarly removed) `hackrf_cpld_checksum` function could verify the firmware in the configuration flash (again, overwritten on startup, so irrelevant).
+ * Its bitstream is auto-loaded on reset by the ARM MCU (from the firmware image), but in older versions, it was possible to reconfigure it via @ref hackrf_cpld_write, and the (since temporarily removed) `hackrf_cpld_checksum` function could verify the firmware in the configuration flash (again, overwritten on startup, so irrelevant).
  * 
  * See <a href="https://github.com/greatscottgadgets/hackrf/issues/609">issue 608</a>, <a href="https://github.com/greatscottgadgets/hackrf/issues/1140">issue 1140</a> and <a href="https://github.com/greatscottgadgets/hackrf/issues/1141">issue 1141</a> for some more details on this!
  */
@@ -481,7 +481,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
  * 
  * ### Manual setup
  * 
- * This mode allows A0 and B0 to be connected to any of the secondary ports. This mode is configured with @ref hackrf_set_operacake_ports. 
+ * This mode allows A0 and B0 to be connected to any of the secondary ports. This mode is configured with @ref hackrf_set_operacake_ports.
  * 
  * ### Frequency-based setup
  * 
@@ -982,7 +982,7 @@ typedef struct {
 /**
  * List of connected HackRF devices
  * 
- * Acquired via @ref hackrf_device_list and should be freeed via @ref hackrf_device_list_free. Individual devices can be opened via @ref hackrf_device_list_open
+ * Acquired via @ref hackrf_device_list and should be freed via @ref hackrf_device_list_free. Individual devices can be opened via @ref hackrf_device_list_open
  * @ingroup device
  */
 struct hackrf_device_list {
@@ -1033,7 +1033,7 @@ typedef int (*hackrf_sample_block_cb_fn)(hackrf_transfer* transfer);
 /**
  * Block complete callback. 
  * 
- * Set via @ref hackrf_set_tx_block_complete_callback, called when a transfer is finished to the device's buffer, regardless if the transfer was successful or not. It can signal the main thread to stop on failure, can catch USB transfer errors and can also gather statistics about the transfered data.
+ * Set via @ref hackrf_set_tx_block_complete_callback, called when a transfer is finished to the device's buffer, regardless if the transfer was successful or not. It can signal the main thread to stop on failure, can catch USB transfer errors and can also gather statistics about the transferred data.
  * @ingroup streaming
  */
 typedef void (*hackrf_tx_block_complete_cb_fn)(hackrf_transfer* transfer, int);
@@ -1394,7 +1394,7 @@ extern ADDAPI int ADDCALL hackrf_rffc5071_write(
  * 
  * Should be followed by writing a new image, or the HackRF will be soft-bricked (still rescuable in DFU mode)
  * 
- * @param device device to ersase
+ * @param device device to erase
  * @return @ref HACKRF_SUCCESS on success or @ref hackrf_error variant
  * @ingroup debug
  */
@@ -1533,7 +1533,7 @@ extern ADDAPI int ADDCALL hackrf_usb_api_version_read(
  * 
  * Simple (auto) tuning via specifying a center frequency in Hz
  * 
- * This setting is not exact and depends on the PLL settings. Exact resolution is not determined, but the actual tuned frequency will be quariable in the future.
+ * This setting is not exact and depends on the PLL settings. Exact resolution is not determined, but the actual tuned frequency will be queryable in the future.
  * 
  * @param device device to tune
  * @param freq_hz center frequency in Hz. Defaults to 900MHz. Should be in range 1-6000MHz, but 0-7250MHz is possible. The resolution is ~50Hz, I could not find the exact number.
@@ -1635,7 +1635,7 @@ extern ADDAPI int ADDCALL hackrf_board_partid_serialno_read(
 extern ADDAPI int ADDCALL hackrf_set_lna_gain(hackrf_device* device, uint32_t value);
 
 /**
- * Set baseband RX gain of the MAX2837 transceier IC ("BB" or "VGA" gain setting) in decibels. Must be in range 0-62dB with 2dB steps.
+ * Set baseband RX gain of the MAX2837 transceiver IC ("BB" or "VGA" gain setting) in decibels. Must be in range 0-62dB with 2dB steps.
  * 
  * @param device device to configure
  * @param value RX BB gain value in dB
