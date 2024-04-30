@@ -150,18 +150,23 @@ jobs:
     - name: Install dependencies (macOS)
       run: |
         brew install dfu-util
-        pip3 install PyYAML
+        python3 -m venv environment && source environment/bin/activate
+        python3 -m pip install PyYAML
       if: matrix.os == 'macos-latest'
 
     - name: Install dependencies (Ubuntu)
       run: |
+        python3 -m venv environment && source environment/bin/activate
+        python3 -m pip install PyYAML
         sudo apt install dfu-util
       if: matrix.os == 'ubuntu-latest'
 
     - name: Build libopencm3
       shell: bash
       working-directory: ${{github.workspace}}/firmware/libopencm3/
-      run: make
+      run: |
+        source ../../environment/bin/activate
+        make
 
     - name: Create Build Environment
       run: cmake -E make_directory ${{github.workspace}}/firmware/build
@@ -174,5 +179,6 @@ jobs:
     - name: Build
       working-directory: ${{github.workspace}}/firmware/build
       shell: bash
-      run: cmake --build . --config Release
-
+      run: |
+        source ../../environment/bin/activate
+        cmake --build . --config Release
