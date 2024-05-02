@@ -76,7 +76,7 @@ Installing From Source
 Linux / OS X / \*BSD: Building HackRF Software From Source
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-Acquire the source for the HackRF tools from either a `release archive <https://github.com/mossmann/hackrf/releases>`__ or git: ``git clone https://github.com/mossmann/hackrf.git``
+Acquire the source for the HackRF tools from either a `release archive <https://github.com/greatscottgadgets/hackrf/releases>`__ or git: ``git clone https://github.com/greatscottgadgets/hackrf.git``
 
 Once you have the source downloaded, the host tools can be built as follows:
 
