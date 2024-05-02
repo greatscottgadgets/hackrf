@@ -363,7 +363,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
  *     return 0;
  * }
  * 
- * void flush_callback(hackrf_transfer *transfer) {
+ * void flush_callback(void *ctx, int success) {
  *     pthread_mutex_lock(&mutex);
  *     pthread_cond_broadcast(&cond);
  *     pthread_mutex_unlock(&mutex);
