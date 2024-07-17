@@ -3,7 +3,7 @@ pipeline {
     stages {
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -t hackrf $GIT_URL'
+                sh 'docker build -t hackrf https://github.com/greatscottgadgets/hackrf.git'
             }
         }
         stage('Test Suite') {
