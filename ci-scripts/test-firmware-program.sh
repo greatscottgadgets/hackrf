@@ -1,5 +1,5 @@
 #!/bin/bash
-usbhub --disable-i2c --hub D9D1 power state --port 2 --reset
+hubs hackrf_dfu reset
 sleep 1s
 dfu-util --device 1fc9:000c --alt 0 --download firmware/hackrf_usb/build/hackrf_usb.dfu
 sleep 1s

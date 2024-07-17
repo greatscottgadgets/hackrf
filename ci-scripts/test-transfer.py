@@ -2,9 +2,10 @@
 import subprocess
 import time
 import sys
+from os import environ
 
-EUT     = "RunningFromRAM"
-TESTER  = "0000000000000000325866e629a25623"
+EUT     = environ.get('EUT')
+TESTER  = environ.get('TESTER')
 PASS, FAIL = range(2)
 
 
@@ -87,8 +88,7 @@ def check_signal(freq, bins):
 
 def main():
     write_bytes()
-    tester_hub_on = subprocess.Popen(["usbhub", "--disable-i2c", "--hub", "624C",
-                                      "power", "state", "--port", "2", "--reset"])
+    tester_hub_on = subprocess.Popen(["hubs", "hackrf", "reset"])
     tester_hub_on.wait()
     time.sleep(1)
     eut_clkout_on       = subprocess.Popen(["host/build/hackrf-tools/src/hackrf_clock",
