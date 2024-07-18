@@ -9,7 +9,9 @@ RUN ln -s /startup/hubs.py /usr/local/bin/hubs
 
 # Override interactive installations and install software dependencies
 ENV DEBIAN_FRONTEND=noninteractive
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install -y apt-transport-https
+
+RUN apt-get install -y \
     build-essential \
     cmake \
     curl \
