@@ -2,6 +2,13 @@
 Hardware
 ========
 
+Block Diagram
+~~~~~~~~~~~~~
+
+.. image:: ../images/operacake-block-diagram.png
+  :alt: Opera Cake Block Diagram
+
+
 Banks
 ~~~~~
 
