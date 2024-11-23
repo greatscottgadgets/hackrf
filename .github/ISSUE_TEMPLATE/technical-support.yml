@@ -1,22 +1,11 @@
 name: Technical Support Request
 description: File a technical support request
 labels: ["technical support"]
-assignees:
-  - straithe
 body:
   - type: markdown
     attributes:
       value: |
         Thank you for taking the time to fill out this technical support request form! Please note that technical support requests can expect a response time of two weeks.  
-  - type: dropdown
-    id: troubleshooting-documentation
-    attributes: 
-      label: Have you read the HackRF [documentation](https://hackrf.readthedocs.io/en/latest/)?
-      options:
-        - "no"
-        - "yes"        
-    validations:
-      required: true
   - type: textarea
     id: expected-outcome
     attributes:
