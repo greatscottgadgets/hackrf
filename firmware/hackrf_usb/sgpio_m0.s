@@ -430,12 +430,26 @@ as follows:
 
 Routine:                Uses conditional branches to:
 
-idle                    tx_loop, wait_loop
+idle                    tx_loop
+                        wait_loop
+
 tx_zeros                tx_loop
+
 checked_rollback        idle
-tx_loop                 tx_zeros, checked_rollback, rx_loop, wait_loop
-wait_loop               rx_loop, tx_loop
-rx_loop                 rx_shortfall, checked_rollback, tx_loop, wait_loop
+
+tx_loop                 tx_zeros
+                        checked_rollback
+                        wait_loop
+                        rx_loop
+
+wait_loop               tx_loop
+                        rx_loop
+
+rx_loop                 checked_rollback
+                        tx_loop
+                        wait_loop
+                        rx_shortfall
+
 rx_shortfall            rx_loop
 
 If any of these routines are reordered, or made longer, you may get an error
