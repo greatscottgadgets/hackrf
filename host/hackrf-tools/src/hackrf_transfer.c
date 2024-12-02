@@ -704,7 +704,7 @@ static hackrf_device* device = NULL;
 #ifdef _WIN32
 BOOL WINAPI sighandler(int signum)
 {
-	if (CTRL_C_EVENT == signum) {
+	if (CTRL_C_EVENT == signum || CTRL_BREAK_EVENT == signum) {
 		interrupted = true;
 		fprintf(stderr, "Caught signal %d\n", signum);
 		stop_main_loop();
