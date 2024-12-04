@@ -134,19 +134,14 @@ within each mode's own loop.
 At startup, the main routine sets up registers and memory, then falls through
 to the idle loop.
 
-The idle loop waits for a mode to be set, then jumps to that mode's start
-label.
-
-Code following the start label is executed only on a transition from IDLE. It
-is at this point that the buffer statistics are reset.
-
-Each mode's start code then falls through to its loop label.
+The idle loop waits for a mode to be set, then jumps to that mode's loop.
 
 The first step in each loop is to wait for an SGPIO interrupt and clear it,
 which is implemented by the await_sgpio macro.
 
-Then, the mode setting is loaded from memory. If the M4 has reset the mode to
-idle, control jumps back to the idle loop after handling any cleanup needed.
+Then, the requested mode is loaded from memory. If the M4 has requested a
+mode change, control jumps back to the idle loop after handling any cleanup
+needed.
 
 Next, any SGPIO operations are carried out. For RX and TX, this begins with
 calculating the buffer margin, and branching if there is a shortfall. Then
@@ -161,8 +156,7 @@ multiple load/stores is used to reorder the data in each chunk.
 After completing SGPIO operations, counters are updated and the threshold
 setting is checked. If the byte count has reached the threshold, the next
 mode is set and a jump is made directly to the corresponding loop label.
-Code at the start label of the new mode is not executed, so stats and
-counters are maintained across a sequence of TX/RX/WAIT operations.
+Stats and counters are maintained across a sequence of TX/RX/WAIT operations.
 
 When a shortfall occurs, a branch is taken to a separate handler routine,
 which branches back to the mode's normal loop when complete.
