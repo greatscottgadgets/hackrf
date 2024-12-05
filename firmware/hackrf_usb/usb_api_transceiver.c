@@ -2,6 +2,7 @@
  * Copyright 2012-2022 Great Scott Gadgets <info@greatscottgadgets.com>
  * Copyright 2012 Jared Boone
  * Copyright 2013 Benjamin Vernoux
+ * Copyright 2024 Bernd Herzog
  *
  * This file is part of HackRF.
  *
@@ -27,6 +28,8 @@
 #include "operacake_sctimer.h"
 
 #include <libopencm3/cm3/vector.h>
+#include <libopencm3/cm3/systick.h>
+
 #include "usb_bulk_buffer.h"
 #include "usb_api_m0_state.h"
 
@@ -408,6 +411,15 @@ void transceiver_bulk_transfer_complete(void* user_data, unsigned int bytes_tran
 	m0_state.m4_count += bytes_transferred;
 }
 
+int8_t saturation_buffer = 0;
+uint64_t saturation_buffer_time = 0;
+volatile uint64_t systick_counter = 0;
+
+void sys_tick_handler(void)
+{
+	systick_counter++;
+}
+
 void rx_mode(uint32_t seq)
 {
 	uint32_t usb_count = 0;
@@ -424,7 +436,22 @@ void rx_mode(uint32_t seq)
 				USB_TRANSFER_SIZE,
 				transceiver_bulk_transfer_complete,
 				NULL);
+			
 			usb_count += USB_TRANSFER_SIZE;
+
+			int8_t sample_value = *(int8_t *)&usb_bulk_buffer[usb_count & USB_BULK_BUFFER_MASK];
+			
+			if (sample_value > saturation_buffer)
+				saturation_buffer = sample_value;
+			
+			if (-sample_value > saturation_buffer) 
+				saturation_buffer = -sample_value;
+				
+			if (saturation_buffer_time + 4 < systick_counter) {
+				saturation_buffer_time = systick_counter;
+				hackrf_ui()->set_saturation(saturation_buffer);
+				saturation_buffer = 0;
+			}
 		}
 	}
 

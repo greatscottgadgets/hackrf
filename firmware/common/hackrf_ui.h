@@ -1,6 +1,7 @@
 /*
  * Copyright 2018-2022 Great Scott Gadgets <info@greatscottgadgets.com>
  * Copyright (C) 2018 Jared Boone, ShareBrained Technology, Inc.
+ * Copyright 2024 Bernd Herzog
  *
  * This file is part of HackRF.
  *
@@ -42,6 +43,7 @@ typedef void (*hackrf_ui_set_antenna_bias_fn)(bool antenna_bias);
 typedef void (*hackrf_ui_set_clock_source_fn)(clock_source_t source);
 typedef void (*hackrf_ui_set_transceiver_mode_fn)(transceiver_mode_t mode);
 typedef bool (*hackrf_ui_operacake_gpio_compatible_fn)(void);
+typedef void (*hackrf_ui_set_saturation_fn)(const uint8_t saturation);
 
 typedef struct {
 	hackrf_ui_init_fn init;
@@ -60,6 +62,7 @@ typedef struct {
 	hackrf_ui_set_clock_source_fn set_clock_source;
 	hackrf_ui_set_transceiver_mode_fn set_transceiver_mode;
 	hackrf_ui_operacake_gpio_compatible_fn operacake_gpio_compatible;
+	hackrf_ui_set_saturation_fn set_saturation;
 } hackrf_ui_t;
 
 /* TODO: Lame hack to know that PortaPack was detected.
