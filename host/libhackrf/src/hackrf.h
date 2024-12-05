@@ -975,7 +975,7 @@ typedef struct {
 	uint32_t threshold;
 	/** Mode which will be switched to when threshold is reached. Possible values are the same as in @ref hackrf_m0_state.requested_mode */
 	uint32_t next_mode;
-	/** Error, if any, that caused the M0 to revert to IDLE mode. Possible values are 0 (NONE), 1 (RX_TIMEOUT) and 2(TX_TIMEOUT)*/
+	/** Error, if any, that caused the M0 to revert to IDLE mode. Possible values are 0 (NONE), 1 (RX_TIMEOUT) 2 (TX_TIMEOUT) or 3 (MISSED_DEADLINE) */
 	uint32_t error;
 } hackrf_m0_state;
 

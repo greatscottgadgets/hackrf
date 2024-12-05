@@ -428,7 +428,11 @@ static const char* mode_name(uint32_t mode)
 
 static const char* error_name(uint32_t error)
 {
-	const char* error_names[] = {"NONE", "RX_TIMEOUT", "TX_TIMEOUT"};
+	const char* error_names[] = {
+		"NONE",
+		"RX_TIMEOUT",
+		"TX_TIMEOUT",
+		"MISSED_DEADLINE"};
 	const uint32_t num_errors = sizeof(error_names) / sizeof(error_names[0]);
 	if (error < num_errors) {
 		return error_names[error];
