@@ -1,3 +1,5 @@
+.. _hardware_triggering:
+
 ===================
 Hardware Triggering
 ===================
