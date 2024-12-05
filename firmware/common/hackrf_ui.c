@@ -47,6 +47,7 @@ void hackrf_ui_set_antenna_bias_null(bool antenna_bias) { UNUSED(antenna_bias); 
 void hackrf_ui_set_clock_source_null(clock_source_t source) { UNUSED(source); }
 void hackrf_ui_set_transceiver_mode_null(transceiver_mode_t mode) { UNUSED(mode); }
 bool hackrf_ui_operacake_gpio_compatible_null(void) { return true; }
+void hackrf_ui_set_saturation_null(const uint8_t saturation) { UNUSED(saturation); }
 
 // clang-format on
 
@@ -69,7 +70,8 @@ static const hackrf_ui_t hackrf_ui_null = {
 	&hackrf_ui_set_antenna_bias_null,
 	&hackrf_ui_set_clock_source_null,
 	&hackrf_ui_set_transceiver_mode_null,
-	&hackrf_ui_operacake_gpio_compatible_null};
+	&hackrf_ui_operacake_gpio_compatible_null,
+	hackrf_ui_set_saturation_null};
 
 static const hackrf_ui_t* ui = NULL;
 static bool ui_enabled = true;

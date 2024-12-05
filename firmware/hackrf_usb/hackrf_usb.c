@@ -28,6 +28,7 @@
 #include <libopencm3/lpc43xx/m4/nvic.h>
 #include <libopencm3/lpc43xx/rgu.h>
 #include <libopencm3/lpc43xx/timer.h>
+#include <libopencm3/cm3/systick.h>
 
 #include <streaming.h>
 
@@ -243,6 +244,11 @@ int main(void)
 	enable_rf_power();
 #endif
 	cpu_clock_init();
+
+	systick_set_reload(2039999);
+	systick_set_clocksource(true);
+	systick_interrupt_enable();
+	systick_counter_enable();
 
 	/* Wake the M0 */
 	ipc_halt_m0();

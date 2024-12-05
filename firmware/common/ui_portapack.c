@@ -299,6 +299,7 @@ static const ui_bitmap_t bitmap_oscillator = {{24, 24}, bitmap_oscillator_data};
 static const uint8_t bitmap_wire_8_data[] = {0xff, 0xff};
 
 static const ui_bitmap_t bitmap_wire_8 = {{2, 8}, bitmap_wire_8_data};
+static const ui_bitmap_t bitmap_bar_8 = {{8, 2}, bitmap_wire_8_data};
 
 static const uint8_t bitmap_wire_24_data[] = {
 	0x00, 0x18, 0x00, 0x00, 0x18, 0x00, 0x00, 0x18, 0x00, 0x00, 0x18, 0x00,
@@ -346,7 +347,7 @@ __attribute__((unused)) static ui_color_t portapack_color_rgb(
 	return result;
 }
 
-static const ui_color_t color_background = {0x001f};
+static const ui_color_t color_background = {0x0000};
 static const ui_color_t color_foreground = {0xffff};
 
 static ui_point_t portapack_lcd_draw_int(
@@ -717,6 +718,34 @@ static bool portapack_ui_operacake_gpio_compatible(void)
 	return false;
 }
 
+static void portapack_ui_set_saturation(const uint8_t saturation)
+{
+	static const ui_color_t color_red = {0xF800};
+	static const ui_color_t color_orange = {0xfd20};
+	static const ui_color_t color_green = {0x07e0};
+
+	for (size_t i = 0; i < 125; i+=4)
+	{
+		ui_point_t label_point = {208, 128 + 125-i};
+		if (saturation > i)
+		{
+			portapack_draw_bitmap(
+				label_point,
+				bitmap_bar_8,
+				i < 100 ? color_green : (i < 115 ? color_orange : color_red),
+				color_background);
+		}
+		else
+		{
+			portapack_draw_bitmap(
+				label_point,
+				bitmap_bar_8,
+				color_background,
+				color_background);
+		}
+	}
+}
+
 const hackrf_ui_t portapack_hackrf_ui = {
 	&portapack_ui_init,
 	&portapack_ui_deinit,
@@ -734,6 +763,7 @@ const hackrf_ui_t portapack_hackrf_ui = {
 	&portapack_ui_set_clock_source,
 	&portapack_ui_set_transceiver_mode,
 	&portapack_ui_operacake_gpio_compatible,
+	&portapack_ui_set_saturation,
 };
 
 const hackrf_ui_t* portapack_hackrf_ui_init()
