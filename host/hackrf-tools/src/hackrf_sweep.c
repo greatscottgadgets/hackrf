@@ -415,7 +415,7 @@ static hackrf_device* device = NULL;
 #ifdef _MSC_VER
 BOOL WINAPI sighandler(int signum)
 {
-	if (CTRL_C_EVENT == signum) {
+	if (CTRL_C_EVENT == signum || CTRL_BREAK_EVENT == signum) {
 		fprintf(stderr, "Caught signal %d\n", signum);
 		do_exit = true;
 		return TRUE;
