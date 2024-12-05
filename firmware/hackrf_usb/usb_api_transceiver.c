@@ -2,6 +2,7 @@
  * Copyright 2012-2022 Great Scott Gadgets <info@greatscottgadgets.com>
  * Copyright 2012 Jared Boone
  * Copyright 2013 Benjamin Vernoux
+ * Copyright 2024 Bernd Herzog
  *
  * This file is part of HackRF.
  *
