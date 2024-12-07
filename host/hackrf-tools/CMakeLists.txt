@@ -21,7 +21,7 @@
 
 # Based heavily upon the libftdi cmake setup.
 
-cmake_minimum_required(VERSION 2.8.12)
+cmake_minimum_required(VERSION 3.16)
 project(hackrf-tools C)
 set(PACKAGE hackrf-tools)
 include(${PROJECT_SOURCE_DIR}/../cmake/set_release.cmake)
