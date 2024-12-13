@@ -26,6 +26,11 @@
 #include <stddef.h>
 #include <assert.h>
 
+// for __ldrex and __strex declarations
+#ifndef __ARM_ARCH_7M__
+#define __ARM_ARCH_7M__
+#endif
+
 #include <libopencm3/cm3/cortex.h>
 #include <libopencm3/cm3/sync.h>
 
