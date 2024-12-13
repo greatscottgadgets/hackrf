@@ -28,7 +28,7 @@
 
 // for __ldrex and __strex declarations
 #ifndef __ARM_ARCH_7M__
-#define __ARM_ARCH_7M__
+	#define __ARM_ARCH_7M__
 #endif
 
 #include <libopencm3/cm3/cortex.h>
