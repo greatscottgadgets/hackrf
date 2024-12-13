@@ -29,8 +29,8 @@
 
 #include "usb_type.h"
 
-void usb_peripheral_reset();
-void usb_phy_enable();
+void usb_peripheral_reset(void);
+void usb_phy_enable(void);
 
 void usb_device_init(const uint_fast8_t device_ordinal, usb_device_t* const device);
 
