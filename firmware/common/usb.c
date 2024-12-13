@@ -23,7 +23,6 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-
 #include "usb.h"
 #include "usb_type.h"
 #include "usb_queue.h"
@@ -38,7 +37,6 @@
 #include <libopencm3/lpc43xx/m4/nvic.h>
 #include <libopencm3/lpc43xx/rgu.h>
 #include <libopencm3/lpc43xx/usb.h>
-#include <libopencm3/cm3/sync.h>
 
 usb_device_t* usb_device_usb0 = 0;
 
