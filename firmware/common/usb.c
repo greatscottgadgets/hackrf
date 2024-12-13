@@ -23,15 +23,22 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+
 #include "usb.h"
 #include "usb_type.h"
 #include "usb_queue.h"
 #include "usb_standard_request.h"
 
+// avoid multiple #define declarations
+#ifndef LPC43XX_M4 
+#define LPC43XX_M4
+#endif
+
 #include <libopencm3/lpc43xx/creg.h>
 #include <libopencm3/lpc43xx/m4/nvic.h>
 #include <libopencm3/lpc43xx/rgu.h>
 #include <libopencm3/lpc43xx/usb.h>
+#include <libopencm3/cm3/sync.h>
 
 usb_device_t* usb_device_usb0 = 0;
 
@@ -89,7 +96,7 @@ static void usb_clear_pending_interrupts(const uint32_t mask)
 	USB0_ENDPTCOMPLETE = USB0_ENDPTCOMPLETE & mask;
 }
 
-static void usb_clear_all_pending_interrupts()
+static void usb_clear_all_pending_interrupts(void)
 {
 	usb_clear_pending_interrupts(0xFFFFFFFF);
 }
@@ -122,7 +129,7 @@ static void usb_flush_primed_endpoints(const uint32_t mask)
 	usb_wait_for_endpoint_flushing_to_finish(mask);
 }
 
-static void usb_flush_all_primed_endpoints()
+static void usb_flush_all_primed_endpoints(void)
 {
 	usb_flush_primed_endpoints(0xFFFFFFFF);
 }
@@ -315,22 +322,22 @@ void usb_endpoint_reset_data_toggle(const usb_endpoint_t* const endpoint)
 	}
 }
 
-static void usb_controller_run()
+static void usb_controller_run(void)
 {
 	USB0_USBCMD_D |= USB0_USBCMD_D_RS;
 }
 
-static void usb_controller_stop()
+static void usb_controller_stop(void)
 {
 	USB0_USBCMD_D &= ~USB0_USBCMD_D_RS;
 }
 
-static uint_fast8_t usb_controller_is_resetting()
+static uint_fast8_t usb_controller_is_resetting(void)
 {
 	return (USB0_USBCMD_D & USB0_USBCMD_D_RST) != 0;
 }
 
-static void usb_controller_set_device_mode()
+static void usb_controller_set_device_mode(void)
 {
 	// Set USB0 peripheral mode
 	USB0_USBMODE_D = USB0_USBMODE_D_CM1_0(2);
@@ -366,7 +373,7 @@ static void usb_clear_status(const uint32_t status)
 	USB0_USBSTS_D = status;
 }
 
-static uint32_t usb_get_status()
+static uint32_t usb_get_status(void)
 {
 	// Mask status flags with enabled flag interrupts.
 	const uint32_t status = USB0_USBSTS_D & USB0_USBINTR_D;
@@ -384,7 +391,7 @@ static void usb_clear_endpoint_setup_status(const uint32_t endpoint_setup_status
 	USB0_ENDPTSETUPSTAT = endpoint_setup_status;
 }
 
-static uint32_t usb_get_endpoint_setup_status()
+static uint32_t usb_get_endpoint_setup_status(void)
 {
 	return USB0_ENDPTSETUPSTAT;
 }
@@ -394,12 +401,12 @@ static void usb_clear_endpoint_complete(const uint32_t endpoint_complete)
 	USB0_ENDPTCOMPLETE = endpoint_complete;
 }
 
-static uint32_t usb_get_endpoint_complete()
+static uint32_t usb_get_endpoint_complete(void)
 {
 	return USB0_ENDPTCOMPLETE;
 }
 
-static void usb_disable_all_endpoints()
+static void usb_disable_all_endpoints(void)
 {
 	// Endpoint 0 is always enabled. TODO: So why set ENDPTCTRL0?
 	USB0_ENDPTCTRL0 &= ~(USB0_ENDPTCTRL0_RXE | USB0_ENDPTCTRL0_TXE);
@@ -427,14 +434,14 @@ void usb_set_address_deferred(const usb_device_t* const device, const uint_fast8
 	}
 }
 
-static void usb_reset_all_endpoints()
+static void usb_reset_all_endpoints(void)
 {
 	usb_disable_all_endpoints();
 	usb_clear_all_pending_interrupts();
 	usb_flush_all_primed_endpoints();
 }
 
-static void usb_controller_reset()
+static void usb_controller_reset(void)
 {
 	// TODO: Good to disable some USB interrupts to avoid priming new
 	// new endpoints before the controller is reset?
@@ -505,7 +512,7 @@ void usb_device_init(const uint_fast8_t device_ordinal, usb_device_t* const devi
 void usb_run(usb_device_t* const device)
 {
 	usb_interrupt_enable(device);
-	usb_controller_run(device);
+	usb_controller_run();
 }
 
 static void copy_setup(usb_setup_t* const dst, const volatile uint8_t* const src)
@@ -562,7 +569,7 @@ void usb_endpoint_init(const usb_endpoint_t* const endpoint)
 	usb_endpoint_enable(endpoint);
 }
 
-static void usb_check_for_setup_events()
+static void usb_check_for_setup_events(void)
 {
 	const uint32_t endptsetupstat = usb_get_endpoint_setup_status();
 	if (endptsetupstat) {
@@ -595,7 +602,7 @@ static void usb_check_for_setup_events()
 	}
 }
 
-static void usb_check_for_transfer_events()
+static void usb_check_for_transfer_events(void)
 {
 	const uint32_t endptcomplete = usb_get_endpoint_complete();
 	if (endptcomplete) {
