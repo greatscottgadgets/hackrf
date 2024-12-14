@@ -28,11 +28,6 @@
 #include "usb_queue.h"
 #include "usb_standard_request.h"
 
-// avoid multiple #define declarations
-#ifndef LPC43XX_M4 
-#define LPC43XX_M4
-#endif
-
 #include <libopencm3/lpc43xx/creg.h>
 #include <libopencm3/lpc43xx/m4/nvic.h>
 #include <libopencm3/lpc43xx/rgu.h>
