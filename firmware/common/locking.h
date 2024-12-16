@@ -26,6 +26,12 @@
 
 #include <libopencm3/cm3/sync.h>
 
+/* Primitives for implementing locking.
+ *
+ * Must always be used in a pair, with a call to load_exclusive being
+ * followed immediately or near-immediately by a call to store_exclusive().
+ * Failure to observe this rule may lead to undefined results. */
+
 // Use ldrex and strex directly if available.
 // Otherwise, disable interrupts to ensure exclusivity.
 #if defined(__ARM_ARCH_7M__) || defined(__ARM_ARCH_7EM__)
