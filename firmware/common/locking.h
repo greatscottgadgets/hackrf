@@ -40,14 +40,14 @@
 #else
 static inline uint32_t load_exclusive(volatile uint32_t* addr)
 {
-	__asm volatile("cpsid i");
+	__asm volatile("cpsid i" ::: "memory");
 	return *addr;
 }
 
 static inline uint32_t store_exclusive(uint32_t val, volatile uint32_t* addr)
 {
 	*addr = val;
-	__asm volatile("cpsie i");
+	__asm volatile("cpsie i" ::: "memory");
 	return 0;
 }
 #endif
