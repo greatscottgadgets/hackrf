@@ -27,8 +27,8 @@
 #include <assert.h>
 
 #include <libopencm3/cm3/cortex.h>
-#include <libopencm3/cm3/sync.h>
 
+#include "locking.h"
 #include "usb.h"
 #include "usb_queue.h"
 
@@ -73,10 +73,10 @@ static usb_transfer_t* allocate_transfer(usb_queue_t* const queue)
 	}
 
 	do {
-		transfer = (void*) __ldrex((uint32_t*) &queue->free_transfers);
-		aborted =
-			__strex((uint32_t) transfer->next,
-				(uint32_t*) &queue->free_transfers);
+		transfer = (void*) load_exclusive((uint32_t*) &queue->free_transfers);
+		aborted = store_exclusive(
+			(uint32_t) transfer->next,
+			(uint32_t*) &queue->free_transfers);
 	} while (aborted);
 	transfer->next = NULL;
 	return transfer;
@@ -88,9 +88,11 @@ static void free_transfer(usb_transfer_t* const transfer)
 	usb_queue_t* const queue = transfer->queue;
 	bool aborted;
 	do {
-		transfer->next = (void*) __ldrex((uint32_t*) &queue->free_transfers);
-		aborted =
-			__strex((uint32_t) transfer, (uint32_t*) &queue->free_transfers);
+		transfer->next =
+			(void*) load_exclusive((uint32_t*) &queue->free_transfers);
+		aborted = store_exclusive(
+			(uint32_t) transfer,
+			(uint32_t*) &queue->free_transfers);
 	} while (aborted);
 }
 

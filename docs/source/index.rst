@@ -8,6 +8,7 @@ Welcome to HackRF's documentation!
 
    getting_help
    faq
+   synchronization_checklist
    hackrf_projects_mentions
 
 .. toctree::

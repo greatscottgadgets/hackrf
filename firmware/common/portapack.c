@@ -614,7 +614,11 @@ static uint32_t jtag_pp_idcode(void)
 
 static bool portapack_detect(void)
 {
-	return jtag_pp_idcode() == 0x020A50DD;
+	const uint32_t idcode = jtag_pp_idcode();
+
+	/* 0x020A50DD => Altera 5M40ZE64C5N
+	   0x00025610 => AGM Microelectronics AG256SL100 */
+	return idcode == 0x020A50DD || idcode == 0x00025610;
 }
 
 static const portapack_t portapack_instance = {};

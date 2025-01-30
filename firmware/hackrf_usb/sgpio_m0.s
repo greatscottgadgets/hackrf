@@ -100,10 +100,10 @@ shadow registers.
 
 There are four key code paths, with the following worst-case timings:
 
-RX, normal:     152 cycles
-RX, overrun:    76 cycles
-TX, normal:     140 cycles
-TX, underrun:   145 cycles
+RX, normal:     150 cycles
+RX, overrun:    74 cycles
+TX, normal:     138 cycles
+TX, underrun:   143 cycles
 
 Design
 ======
@@ -134,19 +134,14 @@ within each mode's own loop.
 At startup, the main routine sets up registers and memory, then falls through
 to the idle loop.
 
-The idle loop waits for a mode to be set, then jumps to that mode's start
-label.
-
-Code following the start label is executed only on a transition from IDLE. It
-is at this point that the buffer statistics are reset.
-
-Each mode's start code then falls through to its loop label.
+The idle loop waits for a mode to be set, then jumps to that mode's loop.
 
 The first step in each loop is to wait for an SGPIO interrupt and clear it,
 which is implemented by the await_sgpio macro.
 
-Then, the mode setting is loaded from memory. If the M4 has reset the mode to
-idle, control jumps back to the idle loop after handling any cleanup needed.
+Then, the requested mode is loaded from memory. If the M4 has requested a
+mode change, control jumps back to the idle loop after handling any cleanup
+needed.
 
 Next, any SGPIO operations are carried out. For RX and TX, this begins with
 calculating the buffer margin, and branching if there is a shortfall. Then
@@ -161,8 +156,7 @@ multiple load/stores is used to reorder the data in each chunk.
 After completing SGPIO operations, counters are updated and the threshold
 setting is checked. If the byte count has reached the threshold, the next
 mode is set and a jump is made directly to the corresponding loop label.
-Code at the start label of the new mode is not executed, so stats and
-counters are maintained across a sequence of TX/RX/WAIT operations.
+Stats and counters are maintained across a sequence of TX/RX/WAIT operations.
 
 When a shortfall occurs, a branch is taken to a separate handler routine,
 which branches back to the mode's normal loop when complete.
@@ -239,6 +233,7 @@ The rest of this file is organised as follows:
 .equ ERROR_NONE,                           0
 .equ ERROR_RX_TIMEOUT,                     1
 .equ ERROR_TX_TIMEOUT,                     2
+.equ ERROR_MISSED_DEADLINE,                3
 
 // Our slice chain is set up as follows (ascending data age; arrows are reversed for flow):
 //     L  -> F  -> K  -> C -> J  -> E  -> I  -> A
@@ -289,11 +284,17 @@ buf_ptr           .req r4
 	// relying on any assumptions about the timing details of a read over
 	// the SGPIO to AHB bridge.
 
+	// Test the exchange interrupt status, shifting the slice A flag to the carry flag.
+	// If the flag is already set, we missed our deadline.
+	ldr int_status, [sgpio_int, #INT_STATUS]        // int_status = SGPIO_STATUS_1          // 10
+	lsr scratch, int_status, #1                     // scratch = int_status >> 1            // 1
+	bcs missed_deadline                             // if carry: goto missed_deadline       // 1
+
 \name\()_int_wait:
-	// Spin on the exchange interrupt status, shifting the slice A flag to the carry flag.
-	ldr int_status, [sgpio_int, #INT_STATUS]        // int_status = SGPIO_STATUS_1          // 10, twice
-	lsr scratch, int_status, #1                     // scratch = int_status >> 1            // 1, twice
-	bcc \name\()_int_wait                           // if !carry: goto int_wait             // 3, then 1
+	// Test the flag again, and if it's still unset, repeat until it's set.
+	ldr int_status, [sgpio_int, #INT_STATUS]        // int_status = SGPIO_STATUS_1          // 10
+	lsr scratch, int_status, #1                     // scratch = int_status >> 1            // 1
+	bcc \name\()_int_wait                           // if !carry: goto int_wait             // 1
 
 	// Clear the interrupt pending bits that were set.
 	str int_status, [sgpio_int, #INT_CLEAR]         // SGPIO_CLR_STATUS_1 = int_status      // 8
@@ -430,12 +431,31 @@ as follows:
 
 Routine:                Uses conditional branches to:
 
-idle                    tx_loop, wait_loop
+idle                    tx_loop
+                        wait_loop
+
 tx_zeros                tx_loop
+
 checked_rollback        idle
-tx_loop                 tx_zeros, checked_rollback, rx_loop, wait_loop
-wait_loop               rx_loop, tx_loop
-rx_loop                 rx_shortfall, checked_rollback, tx_loop, wait_loop
+
+tx_loop                 tx_zeros
+                        checked_rollback
+                        wait_loop
+                        missed_deadline
+                        rx_loop
+
+wait_loop               tx_loop
+                        missed_deadline
+                        rx_loop
+
+missed_deadline         <none>
+
+rx_loop                 checked_rollback
+                        tx_loop
+                        wait_loop
+                        missed_deadline
+                        rx_shortfall
+
 rx_shortfall            rx_loop
 
 If any of these routines are reordered, or made longer, you may get an error
@@ -578,7 +598,7 @@ checked_rollback:
 tx_loop:
 
 	// Wait for and clear SGPIO interrupt.
-	await_sgpio tx                                  // await_sgpio()                        // 34
+	await_sgpio tx                                  // await_sgpio()                        // 32
 
 	// Check if there is a mode change request.
 	// If so, we may need to roll back shortfall stats.
@@ -628,7 +648,7 @@ tx_loop:
 wait_loop:
 
 	// Wait for and clear SGPIO interrupt.
-	await_sgpio wait                                // await_sgpio()                        // 34
+	await_sgpio wait                                // await_sgpio()                        // 32
 
 	// Check if there is a mode change request.
 	// If so, return to idle.
@@ -640,10 +660,21 @@ wait_loop:
 	// Jump to next mode if threshold reached, or back to wait loop start.
 	jump_next_mode wait                             // jump_next_mode()                     // 15
 
+missed_deadline:
+
+	// The deadline was missed. Record an error and return to idle state.
+	error .req r2
+	mode .req r3
+	mov error, #ERROR_MISSED_DEADLINE               // error = ERROR_MISSED_DEADLINE        // 1
+	mov mode, #MODE_IDLE                            // mode = MODE_IDLE                     // 1
+	str error, [state, #ERROR]                      // state.error = error                  // 2
+	str mode, [state, #ACTIVE_MODE]                 // state.active_mode = mode             // 2
+	b idle                                          // goto idle                            // 3
+
 rx_loop:
 
 	// Wait for and clear SGPIO interrupt.
-	await_sgpio rx                                  // await_sgpio()                        // 34
+	await_sgpio rx                                  // await_sgpio()                        // 32
 
 	// Check if there is a mode change request.
 	// If so, we may need to roll back shortfall stats.
