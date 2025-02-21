@@ -2,6 +2,7 @@
 Copyright (c) 2012-2022 Great Scott Gadgets <info@greatscottgadgets.com>
 Copyright (c) 2012, Jared Boone <jared@sharebrained.com>
 Copyright (c) 2013, Benjamin Vernoux <titanmkd@gmail.com>
+Copyright (c) 2025, Fabrizio Pollastri <mxgbot@gmail.com>
 
 All rights reserved.
 
@@ -100,6 +101,11 @@ typedef enum {
 	HACKRF_VENDOR_REQUEST_SUPPORTED_PLATFORM_READ = 46,
 	HACKRF_VENDOR_REQUEST_SET_LEDS = 47,
 	HACKRF_VENDOR_REQUEST_SET_USER_BIAS_T_OPTS = 48,
+
+	/* HTime extension */
+	HACKRF_VENDOR_REQUEST_TIME_SET_DIVISOR_NEXT_PPS,
+	HACKRF_VENDOR_REQUEST_TIME_SET_DIVISOR_ONE_PPS,
+
 } hackrf_vendor_request;
 
 #define USB_CONFIG_STANDARD 0x1
@@ -3021,6 +3027,67 @@ int ADDCALL hackrf_set_user_bias_t_opts(
 		return HACKRF_SUCCESS;
 	}
 }
+
+/* HTime API FP20230805 */
+
+int ADDCALL hackrf_time_set_divisor_next_pps(
+	hackrf_device* device,
+	const uint32_t divisor)
+{
+	USB_API_REQUIRED(device, 0x0109)
+
+	int result;
+	uint32_t divisor_le;
+	divisor_le = TO_LE(divisor);
+
+	result = libusb_control_transfer(
+		device->usb_device,
+		LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR |
+			LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_TIME_SET_DIVISOR_NEXT_PPS,
+		0,
+		0,
+		(uint8_t*)&divisor_le,
+		4,
+		0);
+
+	if (result < 4) {
+		last_libusb_error = result;
+		return HACKRF_ERROR_LIBUSB;
+	} else {
+		return HACKRF_SUCCESS;
+	}
+}
+
+int ADDCALL hackrf_time_set_divisor_one_pps(
+	hackrf_device* device,
+	const uint32_t divisor)
+{
+	USB_API_REQUIRED(device, 0x0109)
+
+	int result;
+	uint32_t divisor_le;
+	divisor_le = TO_LE(divisor);
+
+	result = libusb_control_transfer(
+		device->usb_device,
+		LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR |
+			LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_TIME_SET_DIVISOR_ONE_PPS,
+		0,
+		0,
+		(uint8_t*)&divisor_le,
+		4,
+		0);
+
+	if (result < 4) {
+		last_libusb_error = result;
+		return HACKRF_ERROR_LIBUSB;
+	} else {
+		return HACKRF_SUCCESS;
+	}
+}
+
 
 #ifdef __cplusplus
 } // __cplusplus defined.
