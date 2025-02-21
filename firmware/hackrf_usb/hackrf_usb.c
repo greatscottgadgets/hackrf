@@ -2,6 +2,7 @@
  * Copyright 2012-2022 Great Scott Gadgets <info@greatscottgadgets.com>
  * Copyright 2012 Jared Boone
  * Copyright 2013 Benjamin Vernoux
+ * Copyright 2025 Fabrizio Pollastri <mxgbot@gmail.com>
  *
  * This file is part of HackRF.
  *
@@ -242,7 +243,7 @@ int main(void)
 #if (defined HACKRF_ONE || defined RAD1O)
 	enable_rf_power();
 #endif
-	cpu_clock_init();
+	cpu_clock_init(CGU_SRC_XTAL,17);
 
 	/* Wake the M0 */
 	ipc_halt_m0();
