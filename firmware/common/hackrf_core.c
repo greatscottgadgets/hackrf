@@ -965,7 +965,11 @@ void pin_setup(void)
 	rf_path_pin_setup(&rf_path);
 
 	/* Configure external clock in */
-	scu_pinmux(SCU_PINMUX_GP_CLKIN, SCU_CLK_IN | SCU_CONF_FUNCTION1);
+	if (detected_platform() == BOARD_ID_HACKRF1_R9)
+		scu_pinmux(SCU_PINMUX_GP_CLKIN_R9, SCU_CLK_IN | SCU_CONF_FUNCTION1);
+	else
+		scu_pinmux(SCU_PINMUX_GP_CLKIN_NOTR9, SCU_CLK_IN | SCU_CONF_FUNCTION1);
+
 
 	sgpio_configure_pin_functions(&sgpio_config);
 }
