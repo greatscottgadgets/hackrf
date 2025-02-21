@@ -69,6 +69,8 @@ extern "C" {
 #define SCU_PINMUX_SAMP_TRIGGER  (P2_3)  /* T3_MAT0 on P2_3, pin 87 */
 
 #define SCU_PINMUX_PP_LCD_RDX (P2_4)  /* GPIO5[4] on P2_4 */
+#define SCU_PINMUX_PPS (P2_4)  /* GPIO5[4] on P2_4 */
+
 #define SCU_PINMUX_PP_UNUSED  (P2_8)  /* GPIO5[7] on P2_8 */
 #define SCU_PINMUX_PP_LCD_WRX (P2_9)  /* GPIO1[10] on P2_9 */
 #define SCU_PINMUX_PP_DIR     (P2_13) /* GPIO1[13] on P2_13 */
