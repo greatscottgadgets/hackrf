@@ -1,6 +1,7 @@
 /*
  * Copyright 2012-2022 Great Scott Gadgets <info@greatscottgadgets.com>
  * Copyright 2012 Jared Boone <jared@sharebrained.com>
+ * Copyright 2025 Fabrizio Pollastri <mxgbot@gmail.com>
  *
  * This file is part of HackRF.
  *
@@ -367,6 +368,18 @@ void si5351c_clkout_enable(si5351c_driver_t* const drv, uint8_t enable)
 
 	si5351c_configure_clock_control(drv, active_clock_source);
 	si5351c_enable_clock_outputs(drv);
+}
+
+void si5351c_mcu_clk_enable(uint8_t enable)
+{
+	/* only for R9 boards */
+	if (detected_platform() != BOARD_ID_HACKRF1_R9)
+		return;
+
+	if (enable)
+		gpio_set(&gpio_h1r9_mcu_clk_en);
+	else
+		gpio_clear(&gpio_h1r9_mcu_clk_en);
 }
 
 void si5351c_init(si5351c_driver_t* const drv)

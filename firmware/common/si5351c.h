@@ -1,6 +1,7 @@
 /*
  * Copyright 2012-2022 Great Scott Gadgets <info@greatscottgadgets.com>
  * Copyright 2012 Jared Boone <jared@sharebrained.com>
+ * Copyright 2025 Fabrizio Pollastri <mxgbot@gmail.com>
  *
  * This file is part of HackRF.
  *
@@ -102,6 +103,7 @@ void si5351c_write(
 	const uint8_t* const data,
 	const size_t data_count);
 void si5351c_clkout_enable(si5351c_driver_t* const drv, uint8_t enable);
+void si5351c_mcu_clk_enable(uint8_t enable);
 void si5351c_init(si5351c_driver_t* const drv);
 
 #ifdef __cplusplus
