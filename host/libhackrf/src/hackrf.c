@@ -45,11 +45,13 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 	#define TO_LE64(x)   __builtin_bswap64(x)
 	#define FROM_LE16(x) __builtin_bswap16(x)
 	#define FROM_LE32(x) __builtin_bswap32(x)
+	#define FROM_LE64(x) __builtin_bswap64(x)
 #else
 	#define TO_LE(x)     x
 	#define TO_LE64(x)   x
 	#define FROM_LE16(x) x
 	#define FROM_LE32(x) x
+	#define FROM_LE64(x) x
 #endif
 
 // TODO: Factor this into a shared #include so that firmware can use
@@ -106,6 +108,9 @@ typedef enum {
 	HACKRF_VENDOR_REQUEST_TIME_SET_DIVISOR_NEXT_PPS,
 	HACKRF_VENDOR_REQUEST_TIME_SET_DIVISOR_ONE_PPS,
 	HACKRF_VENDOR_REQUEST_TIME_SET_TRIG_DELAY_NEXT_PPS,
+	HACKRF_VENDOR_REQUEST_TIME_GET_SECONDS_NOW,
+	HACKRF_VENDOR_REQUEST_TIME_SET_SECONDS_NOW,
+	HACKRF_VENDOR_REQUEST_TIME_SET_SECONDS_NEXT_PPS,
 
 } hackrf_vendor_request;
 
@@ -3117,6 +3122,93 @@ int ADDCALL hackrf_time_set_trig_delay_next_pps(
 		return HACKRF_SUCCESS;
 	}
 }
+
+int ADDCALL hackrf_time_get_seconds_now(hackrf_device* device,
+	int64_t* seconds)
+{
+	USB_API_REQUIRED(device, 0x0109)
+
+	int64_t secs;
+	int result;
+
+	result = libusb_control_transfer(
+		device->usb_device,
+		LIBUSB_ENDPOINT_IN | LIBUSB_REQUEST_TYPE_VENDOR |
+		LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_TIME_GET_SECONDS_NOW,
+		0,
+		0,
+		(uint8_t*)&secs,
+		8,
+		0);
+
+	if (result < 8) {
+		last_libusb_error = result;
+		return HACKRF_ERROR_LIBUSB;
+	} else {
+		*seconds = FROM_LE64(secs);
+		return HACKRF_SUCCESS;
+	}
+}
+
+int ADDCALL hackrf_time_set_seconds_now(
+	hackrf_device* device,
+	const int64_t seconds)
+{
+	USB_API_REQUIRED(device, 0x0109)
+
+	int result;
+	int64_t seconds_le;
+	seconds_le = TO_LE64(seconds);
+
+	result = libusb_control_transfer(
+		device->usb_device,
+		LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR |
+			LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_TIME_SET_SECONDS_NOW,
+		0,
+		0,
+		(uint8_t*)&seconds_le,
+		8,
+		0);
+
+	if (result < 8) {
+		last_libusb_error = result;
+		return HACKRF_ERROR_LIBUSB;
+	} else {
+		return HACKRF_SUCCESS;
+	}
+}
+
+int ADDCALL hackrf_time_set_seconds_next_pps(
+	hackrf_device* device,
+	const int64_t seconds)
+{
+	USB_API_REQUIRED(device, 0x0109)
+
+	int result;
+	int64_t seconds_le;
+	seconds_le = TO_LE64(seconds);
+
+	result = libusb_control_transfer(
+		device->usb_device,
+		LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR |
+			LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_TIME_SET_SECONDS_NEXT_PPS,
+		0,
+		0,
+		(uint8_t*)&seconds_le,
+		8,
+		0);
+
+	if (result < 8) {
+		last_libusb_error = result;
+		return HACKRF_ERROR_LIBUSB;
+	} else {
+		return HACKRF_SUCCESS;
+	}
+}
+
 
 
 

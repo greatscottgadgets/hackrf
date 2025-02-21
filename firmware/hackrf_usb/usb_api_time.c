@@ -224,6 +224,78 @@ usb_request_status_t usb_vendor_request_time_set_trig_delay_next_pps(
 }
 
 
+usb_request_status_t usb_vendor_request_time_get_seconds_now(
+        usb_endpoint_t* const endpoint,
+        const usb_transfer_stage_t stage)
+{
+	int64_t secs;
+        if (stage == USB_TRANSFER_STAGE_SETUP) {
+
+                secs = seconds;
+
+                usb_transfer_schedule_block(
+                        endpoint->in,
+                        (uint8_t*)&secs,
+                        8,
+                        NULL,
+                        NULL);
+                usb_transfer_schedule_ack(endpoint->out);
+        }
+        return USB_REQUEST_STATUS_OK;
+}
+
+
+usb_request_status_t usb_vendor_request_time_set_seconds_now(
+	usb_endpoint_t* const endpoint,
+	const usb_transfer_stage_t stage)
+{
+	static int64_t secs = 0;
+        if (stage == USB_TRANSFER_STAGE_SETUP) {
+                usb_transfer_schedule_block(
+                        endpoint->out,
+                        (uint8_t*)&secs,
+                        8,
+                        NULL,
+                        NULL);
+                return USB_REQUEST_STATUS_OK;
+        } else if (stage == USB_TRANSFER_STAGE_DATA) {
+
+						seconds = secs;
+
+                        usb_transfer_schedule_ack(endpoint->in);
+                        return USB_REQUEST_STATUS_OK;
+        } else {
+                return USB_REQUEST_STATUS_OK;
+        }
+}
+
+
+usb_request_status_t usb_vendor_request_time_set_seconds_next_pps(
+	usb_endpoint_t* const endpoint,
+	const usb_transfer_stage_t stage)
+{
+	static int64_t secs = 0;
+	if (stage == USB_TRANSFER_STAGE_SETUP) {
+                usb_transfer_schedule_block(
+                        endpoint->out,
+                        (uint8_t*)&secs,
+                        8,
+                        NULL,
+                        NULL);
+                return USB_REQUEST_STATUS_OK;
+        } else if (stage == USB_TRANSFER_STAGE_DATA) {
+
+						new_seconds = secs;
+
+                        usb_transfer_schedule_ack(endpoint->in);
+                        return USB_REQUEST_STATUS_OK;
+        } else {
+                return USB_REQUEST_STATUS_OK;
+        }
+}
+
+
+
 
 
 
