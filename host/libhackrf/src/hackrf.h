@@ -2108,6 +2108,8 @@ extern ADDAPI int ADDCALL hackrf_time_set_divisor_next_pps(
 		hackrf_device* device, uint32_t divisor);
 extern ADDAPI int ADDCALL hackrf_time_set_divisor_one_pps(
 		hackrf_device* device, uint32_t divisor);
+extern ADDAPI int ADDCALL hackrf_time_set_trig_delay_next_pps(
+		hackrf_device* device, uint32_t trig_delay);
 
 #ifdef __cplusplus
 } // __cplusplus defined.
