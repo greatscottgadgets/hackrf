@@ -51,6 +51,14 @@ usb_request_status_t usb_vendor_request_time_set_seconds_next_pps(
 	usb_endpoint_t* const endpoint,
 	const usb_transfer_stage_t stage);
 
+usb_request_status_t usb_vendor_request_time_get_ticks_now(
+	usb_endpoint_t* const endpoint,
+	const usb_transfer_stage_t stage);
+
+usb_request_status_t usb_vendor_request_time_set_ticks_now(
+	usb_endpoint_t* const endpoint,
+	const usb_transfer_stage_t stage);
+
 
 
 
@@ -61,5 +69,7 @@ void time_set_trig_delay_next_pps(unsigned long int trig_delay);
 long long int time_get_seconds_now(void);
 void time_set_seconds_now(long long int seconds);
 void time_set_seconds_next_pps(long long int seconds);
+unsigned long int time_get_ticks_now();
+void time_set_ticks_now(uint32_t ticks);
 
 #endif // __USB_API_TIME_H__

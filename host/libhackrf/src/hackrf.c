@@ -111,6 +111,8 @@ typedef enum {
 	HACKRF_VENDOR_REQUEST_TIME_GET_SECONDS_NOW,
 	HACKRF_VENDOR_REQUEST_TIME_SET_SECONDS_NOW,
 	HACKRF_VENDOR_REQUEST_TIME_SET_SECONDS_NEXT_PPS,
+	HACKRF_VENDOR_REQUEST_TIME_GET_TICKS_NOW,
+	HACKRF_VENDOR_REQUEST_TIME_SET_TICKS_NOW,
 
 } hackrf_vendor_request;
 
@@ -3208,6 +3210,63 @@ int ADDCALL hackrf_time_set_seconds_next_pps(
 		return HACKRF_SUCCESS;
 	}
 }
+
+int ADDCALL hackrf_time_get_ticks_now(hackrf_device* device, uint32_t* ticks)
+{
+	USB_API_REQUIRED(device, 0x0109)
+
+	uint32_t tks;
+	int result;
+
+	result = libusb_control_transfer(
+		device->usb_device,
+		LIBUSB_ENDPOINT_IN | LIBUSB_REQUEST_TYPE_VENDOR |
+		LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_TIME_GET_TICKS_NOW,
+		0,
+		0,
+		(uint8_t*)&tks,
+		4,
+		0);
+
+	if (result < 4) {
+		last_libusb_error = result;
+		return HACKRF_ERROR_LIBUSB;
+	} else {
+        *ticks = FROM_LE32(tks);
+		return HACKRF_SUCCESS;
+	}
+}
+
+int ADDCALL hackrf_time_set_ticks_now(
+	hackrf_device* device,
+	const uint32_t ticks)
+{
+	USB_API_REQUIRED(device, 0x0109)
+
+	int result;
+	uint32_t ticks_le;
+	ticks_le = TO_LE(ticks);
+
+	result = libusb_control_transfer(
+		device->usb_device,
+		LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR |
+		LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_TIME_SET_TICKS_NOW,
+		0,
+		0,
+		(uint8_t*)&ticks_le,
+		4,
+		0);
+
+	if (result < 4) {
+		last_libusb_error = result;
+		return HACKRF_ERROR_LIBUSB;
+	} else {
+		return HACKRF_SUCCESS;
+	}
+}
+
 
 
 
