@@ -880,6 +880,10 @@ void pin_setup(void)
 	 *
 	 * LPC43xx pull-up and pull-down resistors are approximately 53K.
 	 */
+
+        /* configure pin as TIMER 3 MATCH 1 output: sampling trigger out */
+        scu_pinmux(SCU_PINMUX_SAMP_TRIGGER, SCU_GPIO_PDN | SCU_CONF_FUNCTION6);
+
 #ifdef HACKRF_ONE
 	scu_pinmux(SCU_PINMUX_PP_TMS, SCU_GPIO_PUP | SCU_CONF_FUNCTION0);
 	scu_pinmux(SCU_PINMUX_PP_TDO, SCU_GPIO_PDN | SCU_CONF_FUNCTION0);
