@@ -2116,6 +2116,10 @@ extern ADDAPI int ADDCALL hackrf_time_set_seconds_now(
 		hackrf_device* device, int64_t seconds);
 extern ADDAPI int ADDCALL hackrf_time_set_seconds_next_pps(
 		hackrf_device* device, int64_t seconds);
+extern ADDAPI int ADDCALL hackrf_time_get_ticks_now(
+		hackrf_device* device, uint32_t *ticks);
+extern ADDAPI int ADDCALL hackrf_time_set_ticks_now(
+		hackrf_device* device, uint32_t ticks);
 
 #ifdef __cplusplus
 } // __cplusplus defined.
