@@ -113,6 +113,8 @@ typedef enum {
 	HACKRF_VENDOR_REQUEST_TIME_SET_SECONDS_NEXT_PPS,
 	HACKRF_VENDOR_REQUEST_TIME_GET_TICKS_NOW,
 	HACKRF_VENDOR_REQUEST_TIME_SET_TICKS_NOW,
+    HACKRF_VENDOR_REQUEST_TIME_SET_CLK_FREQ,
+    HACKRF_VENDOR_REQUEST_TIME_SET_MCU_CLK_SYNC,
 
 } hackrf_vendor_request;
 
@@ -3267,9 +3269,55 @@ int ADDCALL hackrf_time_set_ticks_now(
 	}
 }
 
+int ADDCALL hackrf_time_set_clk_freq(hackrf_device* device,
+     const double clk_freq)
+{
+     int result;
+     double clk_freq_le;
+     clk_freq_le = TO_LE64(clk_freq);
 
+     result = libusb_control_transfer(
+         device->usb_device,
+         LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR |
+             LIBUSB_RECIPIENT_DEVICE,
+         HACKRF_VENDOR_REQUEST_TIME_SET_CLK_FREQ,
+         0,
+         0,
+         (uint8_t*) &clk_freq_le,
+         8,
+         0);
 
+     if (result < 8) {
+         last_libusb_error = result;
+         return HACKRF_ERROR_LIBUSB;
+     } else {
+         return HACKRF_SUCCESS;
+     }
+ }
 
+int ADDCALL hackrf_time_set_mcu_clk_sync(hackrf_device* device,
+         const uint8_t value)
+ {
+     USB_API_REQUIRED(device, 0x0109)
+     int result;
+     result = libusb_control_transfer(
+         device->usb_device,
+         LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR |
+             LIBUSB_RECIPIENT_DEVICE,
+         HACKRF_VENDOR_REQUEST_TIME_SET_MCU_CLK_SYNC,
+         value,
+         0,
+         NULL,
+         0,
+         0);
+
+     if (result != 0) {
+         last_libusb_error = result;
+         return HACKRF_ERROR_LIBUSB;
+     } else {
+         return HACKRF_SUCCESS;
+     }
+ }
 
 #ifdef __cplusplus
 } // __cplusplus defined.

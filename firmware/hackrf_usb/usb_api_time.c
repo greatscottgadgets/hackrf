@@ -147,6 +147,36 @@ void timer3_isr() {
 }
 
 
+/**** API functions ****/
+
+
+void si5351c_set_freq(si5351c_driver_t* const drv,uint8_t msn,double vco,
+         double freq,uint8_t rdiv) {
+
+	double frac, a, b, c;
+	uint32_t p1, p2, p3;
+
+	// fractional and integer part of pll divisor
+	if (freq < vco)
+		frac = modf(vco / freq, &a);
+	else
+		frac = modf(freq / vco, &a);
+
+	// fractional expressed as c parts
+	c = 1024 * 1024 - 1;
+	b = round(frac * c);
+
+	// convert a,b,c parms to p1,p2,p3 si5351c parms.
+	p1 = 128 * a + floor(128. * b / c) - 512;
+	p2 = 128 * b - c * floor(128. * b / c);
+	p3 = c;
+
+	// set multisynth frequency in given section
+	si5351c_configure_multisynth(drv,msn,p1,p2,p3,rdiv);
+
+}
+
+
 /**** USB API ****/
 
 usb_request_status_t usb_vendor_request_time_set_divisor_next_pps(
@@ -162,7 +192,7 @@ usb_request_status_t usb_vendor_request_time_set_divisor_next_pps(
                         NULL,
                         NULL);
                 return USB_REQUEST_STATUS_OK;
-        } else if (stage == USB_TRANSFER_STAGE_DATA) {
+		} else if (stage == USB_TRANSFER_STAGE_DATA) {
 
 						new_divisor = divisor;
 
@@ -342,9 +372,83 @@ usb_request_status_t usb_vendor_request_time_set_ticks_now(
 }
 
 
+usb_request_status_t usb_vendor_request_time_set_clk_freq(
+	usb_endpoint_t* const endpoint,
+	const usb_transfer_stage_t stage)
+{
+	static double freq;
+	static bool alternate = false;
+
+	if (stage == USB_TRANSFER_STAGE_SETUP) {
+		usb_transfer_schedule_block(
+			endpoint->out,
+			(uint8_t*)&freq,
+			8,
+			NULL,
+			NULL);
+	} else {
+		if (stage == USB_TRANSFER_STAGE_DATA) {
+
+			if (detected_platform() == BOARD_ID_HACKRF1_R9) {
+				if (alternate) {
+					si5351c_set_freq(&clock_gen,1,800e6,freq * 2,0);
+					si5351c_set_freq(&clock_gen,2,800e6,freq,0);
+				}
+				else {
+					si5351c_set_freq(&clock_gen,2,800e6,freq,0);
+					si5351c_set_freq(&clock_gen,1,800e6,freq * 2,0);
+				}
+				alternate = !alternate;
+			}
+			else {
+				si5351c_set_freq(&clock_gen,0,800e6,freq * 2,1);
+			}
+			usb_transfer_schedule_ack(endpoint->in);
+		}
+	}
+	return USB_REQUEST_STATUS_OK;
+}
 
 
+usb_request_status_t usb_vendor_request_time_set_mcu_clk_sync(
+        usb_endpoint_t* const endpoint,
+        const usb_transfer_stage_t stage)
+{
+        if (stage == USB_TRANSFER_STAGE_SETUP) {
 
+				// change cgu clkin to 10MHz from clock generator (GP_CLKIN)
+				// WARNING: clock gen out #2 for r9 boards or out #3 for not
+				// r9 must be already set to give 10MHz.
+				if (endpoint->setup.value) {
 
+					// enable mcu clock: output clock to mcu
+					si5351c_mcu_clk_enable(true);
+
+					// configure si5351c synthetizer: force int more, remove
+					// self channel source whenever possible.
+					si5351c_mcu_clk_sync(&clock_gen,true);
+
+					// set mcu clk pll1 to nominal maximum speed 200 MHz
+					cpu_clock_pll1_max_speed(CGU_SRC_GP_CLKIN,20);
+
+				}
+				// return cgu clkin to 12MHz XTAL
+				else {
+
+					// set mcu clk pll1 to nominal maximum speed 204 MHz
+					cpu_clock_pll1_max_speed(CGU_SRC_XTAL,17);
+
+					// restore the configuration of the si5351c synthetizer
+					si5351c_mcu_clk_sync(&clock_gen,false);
+
+					// disable mcu clock: no output clock to mcu
+					si5351c_mcu_clk_enable(false);
+
+				}
+
+                usb_transfer_schedule_ack(endpoint->in);
+        }
+        return USB_REQUEST_STATUS_OK;
+}
 
 /**** end ****/
