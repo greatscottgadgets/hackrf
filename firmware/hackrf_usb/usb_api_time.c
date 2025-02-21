@@ -295,6 +295,54 @@ usb_request_status_t usb_vendor_request_time_set_seconds_next_pps(
 }
 
 
+usb_request_status_t usb_vendor_request_time_get_ticks_now(
+        usb_endpoint_t* const endpoint,
+        const usb_transfer_stage_t stage)
+{
+        if (stage == USB_TRANSFER_STAGE_SETUP) {
+
+                uint32_t ticks = timer_get_counter(TIMER3);
+
+                usb_transfer_schedule_block(
+                        endpoint->in,
+                        (uint8_t*)&ticks,
+                        4,
+                        NULL,
+                        NULL);
+                usb_transfer_schedule_ack(endpoint->out);
+        }
+        return USB_REQUEST_STATUS_OK;
+}
+
+
+usb_request_status_t usb_vendor_request_time_set_ticks_now(
+	usb_endpoint_t* const endpoint,
+	const usb_transfer_stage_t stage)
+{
+	static uint32_t tks = 0;
+        if (stage == USB_TRANSFER_STAGE_SETUP) {
+                usb_transfer_schedule_block(
+                        endpoint->out,
+                        (uint8_t*)&tks,
+                        4,
+                        NULL,
+                        NULL);
+                return USB_REQUEST_STATUS_OK;
+        } else if (stage == USB_TRANSFER_STAGE_DATA) {
+
+						timer_disable_counter(TIMER3);
+						timer_set_counter(TIMER3,tks);
+						timer_enable_counter(TIMER3);
+
+                        usb_transfer_schedule_ack(endpoint->in);
+                        return USB_REQUEST_STATUS_OK;
+        } else {
+                return USB_REQUEST_STATUS_OK;
+        }
+}
+
+
+
 
 
 

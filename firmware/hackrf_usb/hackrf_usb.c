@@ -137,6 +137,8 @@ static usb_request_handler_fn vendor_request_handler[] = {
     usb_vendor_request_time_get_seconds_now,
     usb_vendor_request_time_set_seconds_now,
     usb_vendor_request_time_set_seconds_next_pps,
+    usb_vendor_request_time_get_ticks_now,
+    usb_vendor_request_time_set_ticks_now,
 
 	NULL
 };
