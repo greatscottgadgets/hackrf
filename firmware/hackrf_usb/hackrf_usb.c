@@ -53,6 +53,9 @@
 #include "usb_api_ui.h"
 #include "usb_bulk_buffer.h"
 #include "usb_api_m0_state.h"
+
+#include "usb_api_time.h"
+
 #include "cpld_xc2c.h"
 #include "portapack.h"
 #include "hackrf_ui.h"
@@ -295,6 +298,9 @@ int main(void)
 		clkin_detect_init();
 		clkin_detect_init();
 	}
+
+	/* start time timer */
+    time_timer_init();
 
 	while (true) {
 		transceiver_request_t request;
