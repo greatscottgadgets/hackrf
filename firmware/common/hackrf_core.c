@@ -2,6 +2,7 @@
  * Copyright 2012-2022 Great Scott Gadgets <info@greatscottgadgets.com>
  * Copyright 2012 Jared Boone <jared@sharebrained.com>
  * Copyright 2013 Benjamin Vernoux <titanmkd@gmail.com>
+ * Copyright 2025 Fabrizio Pollastri <mxgbot@gmail.com>
  *
  * This file is part of HackRF.
  *
@@ -539,7 +540,7 @@ Configure PLL1 (Main MCU Clock) to max speed (204MHz).
 Note: PLL1 clock is used by M4/M0 core, Peripheral, APB1.
 This function shall be called after cpu_clock_init().
 */
-static void cpu_clock_pll1_max_speed(void)
+static void cpu_clock_pll1_max_speed(uint8_t clock_source,uint8_t msel)
 {
 	uint32_t reg_val;
 
@@ -552,7 +553,7 @@ static void cpu_clock_pll1_max_speed(void)
 	reg_val |= CGU_BASE_M4_CLK_CLK_SEL(CGU_SRC_IRC) | CGU_BASE_M4_CLK_AUTOBLOCK(1);
 	CGU_BASE_M4_CLK = reg_val;
 
-	/* 2. Enable the crystal oscillator. */
+	/* 2. if required, enable the crystal oscillator. */
 	CGU_XTAL_OSC_CTRL &= ~CGU_XTAL_OSC_CTRL_ENABLE_MASK;
 
 	/* 3. Wait 250us. */
@@ -573,12 +574,12 @@ static void cpu_clock_pll1_max_speed(void)
 	              CGU_PLL1_CTRL_PSEL_MASK |
 	              CGU_PLL1_CTRL_MSEL_MASK |
 	              CGU_PLL1_CTRL_NSEL_MASK );
-	/* Set PLL1 up to 12MHz * 17 = 204MHz.
+	/* Set PLL1 up to 12MHz * 17 = 204MHz or 10Mhz * 20 = 200MHz.
 	 * Direct mode: FCLKOUT = FCCO = M*(FCLKIN/N) */
-	reg_val |= CGU_PLL1_CTRL_CLK_SEL(CGU_SRC_XTAL) |
+	reg_val |= CGU_PLL1_CTRL_CLK_SEL(clock_source) |
 	           CGU_PLL1_CTRL_PSEL(0) |
 	           CGU_PLL1_CTRL_NSEL(0) |
-	           CGU_PLL1_CTRL_MSEL(16) |
+	           CGU_PLL1_CTRL_MSEL(msel-1) |
 	           CGU_PLL1_CTRL_FBSEL(0) |
 	           CGU_PLL1_CTRL_DIRECT(1);
 	// clang-format on
@@ -695,7 +696,7 @@ void cpu_clock_init(void)
 	/* set xtal oscillator to low frequency mode */
 	CGU_XTAL_OSC_CTRL &= ~CGU_XTAL_OSC_CTRL_HF_MASK;
 
-	cpu_clock_pll1_max_speed();
+	cpu_clock_pll1_max_speed(clock_source,msel);
 
 	/* use XTAL_OSC as clock source for APB1 */
 	CGU_BASE_APB1_CLK =
