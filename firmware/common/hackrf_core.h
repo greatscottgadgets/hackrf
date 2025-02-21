@@ -2,6 +2,7 @@
  * Copyright 2012-2022 Great Scott Gadgets <info@greatscottgadgets.com>
  * Copyright 2012 Benjamin Vernoux <titanmkd@gmail.com>
  * Copyright 2012 Jared Boone <jared@sharebrained.com>
+ * Copyright 2025 Fabrizio Pollastri <mxgbot@gmail.com>
  *
  * This file is part of HackRF.
  *
@@ -315,6 +316,8 @@ void set_leds(const uint8_t state);
 void hw_sync_enable(const hw_sync_mode_t hw_sync_mode);
 
 void halt_and_flash(const uint32_t duration);
+
+void cpu_clock_pll1_max_speed(uint8_t clock_source,uint8_t msel);
 
 #ifdef __cplusplus
 }
