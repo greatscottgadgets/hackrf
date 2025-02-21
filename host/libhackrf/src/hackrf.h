@@ -2,6 +2,7 @@
 Copyright (c) 2012-2022 Great Scott Gadgets <info@greatscottgadgets.com>
 Copyright (c) 2012, Jared Boone <jared@sharebrained.com>
 Copyright (c) 2013, Benjamin Vernoux <titanmkd@gmail.com>
+Copyright (c) 2025, Fabrizio Pollastri <mxgbot@gmail.com>
 
 All rights reserved.
 
@@ -2099,6 +2100,14 @@ extern ADDAPI int ADDCALL hackrf_set_leds(hackrf_device* device, const uint8_t s
 extern ADDAPI int ADDCALL hackrf_set_user_bias_t_opts(
 	hackrf_device* device,
 	hackrf_bias_t_user_settting_req* req);
+
+
+/* HTime API FP20230805 */
+
+extern ADDAPI int ADDCALL hackrf_time_set_divisor_next_pps(
+		hackrf_device* device, uint32_t divisor);
+extern ADDAPI int ADDCALL hackrf_time_set_divisor_one_pps(
+		hackrf_device* device, uint32_t divisor);
 
 #ifdef __cplusplus
 } // __cplusplus defined.
