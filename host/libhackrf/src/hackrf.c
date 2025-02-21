@@ -105,6 +105,7 @@ typedef enum {
 	/* HTime extension */
 	HACKRF_VENDOR_REQUEST_TIME_SET_DIVISOR_NEXT_PPS,
 	HACKRF_VENDOR_REQUEST_TIME_SET_DIVISOR_ONE_PPS,
+	HACKRF_VENDOR_REQUEST_TIME_SET_TRIG_DELAY_NEXT_PPS,
 
 } hackrf_vendor_request;
 
@@ -3087,6 +3088,36 @@ int ADDCALL hackrf_time_set_divisor_one_pps(
 		return HACKRF_SUCCESS;
 	}
 }
+
+int ADDCALL hackrf_time_set_trig_delay_next_pps(
+	hackrf_device* device,
+	const uint32_t trig_delay)
+{
+	USB_API_REQUIRED(device, 0x0109)
+
+	int result;
+	uint32_t trig_delay_le;
+	trig_delay_le = TO_LE(trig_delay);
+
+	result = libusb_control_transfer(
+		device->usb_device,
+		LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR |
+			LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_TIME_SET_TRIG_DELAY_NEXT_PPS,
+		0,
+		0,
+		(uint8_t*)&trig_delay_le,
+		4,
+		0);
+
+	if (result < 4) {
+		last_libusb_error = result;
+		return HACKRF_ERROR_LIBUSB;
+	} else {
+		return HACKRF_SUCCESS;
+	}
+}
+
 
 
 #ifdef __cplusplus
