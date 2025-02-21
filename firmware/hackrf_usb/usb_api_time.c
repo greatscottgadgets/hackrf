@@ -147,5 +147,58 @@ void timer3_isr() {
 }
 
 
+/**** USB API ****/
+
+usb_request_status_t usb_vendor_request_time_set_divisor_next_pps(
+	usb_endpoint_t* const endpoint,
+	const usb_transfer_stage_t stage)
+{
+        static uint32_t divisor = 0;
+        if (stage == USB_TRANSFER_STAGE_SETUP) {
+                usb_transfer_schedule_block(
+                        endpoint->out,
+                        (uint8_t*)&divisor,
+                        4,
+                        NULL,
+                        NULL);
+                return USB_REQUEST_STATUS_OK;
+        } else if (stage == USB_TRANSFER_STAGE_DATA) {
+
+						new_divisor = divisor;
+
+                        usb_transfer_schedule_ack(endpoint->in);
+                        return USB_REQUEST_STATUS_OK;
+        } else {
+                return USB_REQUEST_STATUS_OK;
+        }
+}
+
+
+usb_request_status_t usb_vendor_request_time_set_divisor_one_pps(
+	usb_endpoint_t* const endpoint,
+	const usb_transfer_stage_t stage)
+{
+        static uint32_t divisor = 0;
+        if (stage == USB_TRANSFER_STAGE_SETUP) {
+                usb_transfer_schedule_block(
+                        endpoint->out,
+                        (uint8_t*)&divisor,
+                        4,
+                        NULL,
+                        NULL);
+                return USB_REQUEST_STATUS_OK;
+        } else if (stage == USB_TRANSFER_STAGE_DATA) {
+
+						one_pps_divisor = divisor;
+
+                        usb_transfer_schedule_ack(endpoint->in);
+                        return USB_REQUEST_STATUS_OK;
+        } else {
+                return USB_REQUEST_STATUS_OK;
+        }
+}
+
+
+
 
 /**** end ****/
