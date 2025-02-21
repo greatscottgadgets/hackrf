@@ -4,6 +4,7 @@ Copyright (c) 2012, Jared Boone <jared@sharebrained.com>
 Copyright (c) 2013, Benjamin Vernoux <titanmkd@gmail.com>
 Copyright (c) 2025, Fabrizio Pollastri <mxgbot@gmail.com>
 
+
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -2120,6 +2121,10 @@ extern ADDAPI int ADDCALL hackrf_time_get_ticks_now(
 		hackrf_device* device, uint32_t *ticks);
 extern ADDAPI int ADDCALL hackrf_time_set_ticks_now(
 		hackrf_device* device, uint32_t ticks);
+extern ADDAPI int ADDCALL hackrf_time_set_clk_freq(
+        hackrf_device* device,const double clk_freq);
+extern ADDAPI int ADDCALL hackrf_time_set_mcu_clk_sync(
+        hackrf_device* device,const uint8_t value);
 
 #ifdef __cplusplus
 } // __cplusplus defined.

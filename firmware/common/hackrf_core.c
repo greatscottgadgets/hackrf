@@ -540,7 +540,7 @@ Configure PLL1 (Main MCU Clock) to max speed (204MHz).
 Note: PLL1 clock is used by M4/M0 core, Peripheral, APB1.
 This function shall be called after cpu_clock_init().
 */
-static void cpu_clock_pll1_max_speed(uint8_t clock_source,uint8_t msel)
+void cpu_clock_pll1_max_speed(uint8_t clock_source,uint8_t msel)
 {
 	uint32_t reg_val;
 
