@@ -606,7 +606,7 @@ static void cpu_clock_pll1_max_speed(uint8_t clock_source,uint8_t msel)
 
 /* clock startup for LPC4320 configure PLL1 to max speed (204MHz).
 Note: PLL1 clock is used by M4/M0 core, Peripheral, APB1. */
-void cpu_clock_init(void)
+void cpu_clock_init(uint8_t clock_source,uint8_t msel)
 {
 	/* use IRC as clock source for APB1 (including I2C0) */
 	CGU_BASE_APB1_CLK = CGU_BASE_APB1_CLK_CLK_SEL(CGU_SRC_IRC);
@@ -627,17 +627,17 @@ void cpu_clock_init(void)
 
 	/*
 	 * Clocks on HackRF One r9:
-	 *   CLK0 -> MAX5864/CPLD/SGPIO (sample clocks)
-	 *   CLK1 -> RFFC5072/MAX2839
+	 *   CLK0 -> RFFC5072/MAX2839 (40 MHz tuner)
+	 *   CLK1 -> MAX5864/CPLD/SGPIO (sample clock x 2)
 	 *   CLK2 -> External Clock Output/LPC43xx (power down at boot)
 	 *
 	 * Clocks on other platforms:
-	 *   CLK0 -> MAX5864/CPLD
-	 *   CLK1 -> CPLD
-	 *   CLK2 -> SGPIO
+	 *   CLK0 -> MAX5864/CPLD (sample clock)
+	 *   CLK1 -> CPLD (sample clock x 2)
+	 *   CLK2 -> SGPIO (sample clock x 2)
 	 *   CLK3 -> External Clock Output (power down at boot)
-	 *   CLK4 -> RFFC5072 (MAX2837 on rad1o)
-	 *   CLK5 -> MAX2837 (MAX2871 on rad1o)
+	 *   CLK4 -> RFFC5072 (MAX2837 on rad1o) (40 MHz tuner)
+	 *   CLK5 -> MAX2837 (MAX2871 on rad1o) (40 MHz tuner)
 	 *   CLK6 -> none
 	 *   CLK7 -> LPC43xx (uses a 12MHz crystal by default)
 	 */
