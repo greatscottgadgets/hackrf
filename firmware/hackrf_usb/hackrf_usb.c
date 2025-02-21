@@ -133,6 +133,7 @@ static usb_request_handler_fn vendor_request_handler[] = {
 
     usb_vendor_request_time_set_divisor_next_pps,
     usb_vendor_request_time_set_divisor_one_pps,
+    usb_vendor_request_time_set_trig_delay_next_pps,
 
 	NULL
 };
