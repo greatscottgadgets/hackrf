@@ -1,0 +1,9 @@
+ 
+.apientry {
+  background-color: yellow;
+  color: black;
+  font-family: monospace;
+  font-size: 120%;
+  font-weight: bold;
+  margin-bottom: 1%;
+}
