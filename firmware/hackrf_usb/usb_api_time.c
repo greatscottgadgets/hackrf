@@ -424,7 +424,7 @@ usb_request_status_t usb_vendor_request_time_set_mcu_clk_sync(
 					// enable mcu clock: output clock to mcu
 					si5351c_mcu_clk_enable(true);
 
-					// configure si5351c synthetizer: force int more, remove
+					// configure si5351c synthesizer: force int more, remove
 					// self channel source whenever possible.
 					si5351c_mcu_clk_sync(&clock_gen,true);
 
@@ -438,7 +438,7 @@ usb_request_status_t usb_vendor_request_time_set_mcu_clk_sync(
 					// set mcu clk pll1 to nominal maximum speed 204 MHz
 					cpu_clock_pll1_max_speed(CGU_SRC_XTAL,17);
 
-					// restore the configuration of the si5351c synthetizer
+					// restore the configuration of the si5351c synthesizer
 					si5351c_mcu_clk_sync(&clock_gen,false);
 
 					// disable mcu clock: no output clock to mcu
