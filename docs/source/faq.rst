@@ -4,36 +4,6 @@
 FAQ
 ================================================
 
-
-Is HackRF full-duplex?
-~~~~~~~~~~~~~~~~~~~~~~
-
-HackRF One is a half-duplex transceiver. This means that it can transmit or receive but not both at the same time.
-
-
-----
-
-
-Why isn't HackRF One full-duplex?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-HackRF One is designed to support the widest possible range of SDR applications in a single, low cost, portable device. Many applications do not require full-duplex operation. Full-duplex support would have made HackRF larger and more expensive, and it would have required an external power supply. Since full-duplex needs can be met by simply using a second HackRF One, it made sense to keep the device small, portable, and low cost for everyone who does not require full-duplex operation.
-
-
-----
-
-
-How could the HackRF One design be changed to make it full-duplex?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-The HackRF One hardware design is actually full-duplex (at lower sample rates) from the USB connection through the ADC/DAC. The RF section is the only part of the design that cannot support full-duplex operation. The easiest way to make HackRF One full-duplex would be to create an add-on board that duplicates the RF section and also provides an external power input (from a wall wart, for example) for the additional power required. This would also require software effort; the firmware, CPLD, libhackrf, and other host software would all need work to support full-duplex operation.
-
-If you were to try to redesign the RF section on HackRF One to support full-duplex, the main thing to focus on would be the MAX2837 (intermediate frequency transceiver). This part is half-duplex, so you would either need two of them or you would have to redesign the RF section to use something other than the MAX2837, likely resulting in a radically different design. If you used two MAX2837s you might be able to use one RFFC5071 instead of two RFFC5072s.
-
-
-----
-
-
 .. _bigspike:
 
 What is the big spike in the center of my received spectrum?
