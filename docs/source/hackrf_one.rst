@@ -26,29 +26,27 @@ Features
     * portable
     * open source
 
-What is the Receive Power of HackRF?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The maximum RX power of HackRF One is -5 dBm. Exceeding -5 dBm can result in permanent damage!
+Maximum input power
+~~~~~~~~~~~~~~~~~~~
+
+The maximum input power of HackRF One is -5 dBm. Exceeding -5 dBm can result in permanent damage!
 
 In theory, HackRF One can safely accept up to 10 dBm with the front-end RX amplifier disabled. However, a simple software or user error could enable the amplifier, resulting in permanent damage. It is better to use an external attenuator than to risk damage.
 
 
-----
-
-
-What is the minimum signal power level that can be detected by HackRF?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Minimum detectable input power
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 This isn't a question that can be answered for a general purpose SDR platform such as HackRF. Any answer would be very specific to a particular application. For example, an answerable question might be: What is the minimum power level in dBm of modulation M at frequency F that can be detected by HackRF One with software S under configuration C at a bit error rate of no more than E%? Changing any of those variables (M, F, S, C, or E) would change the answer to the question. Even a seemingly minor software update might result in a significantly different answer. To learn the exact answer for a specific application, you would have to measure it yourself.
 
 HackRF's concrete specifications include operating frequency range, maximum sample rate, and dynamic range in bits. These specifications can be used to roughly determine the suitability of HackRF for a given application. Testing is required to finely measure performance in an application. Performance can typically be enhanced significantly by selecting an appropriate antenna, external amplifier, and/or external filter for the application.
 
 
-What is the Transmit Power of HackRF?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Typical maximum transmit power
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-HackRF One's absolute maximum TX power varies by operating frequency:
+HackRF One's maximum TX power varies by operating frequency:
 
     * 1 MHz to 10 MHz: 5 dBm to 15 dBm, generally increasing as frequency increases (see this `blog post <https://greatscottgadgets.com/2015/05-15-hackrf-one-at-1-mhz/>`__)
     * 10 MHz to 2170 MHz: 5 dBm to 15 dBm, generally decreasing as frequency increases
@@ -61,8 +59,3 @@ Through most of the frequency range up to 4 GHz, the maximum TX power is between
 Overall, the output power is enough to perform over-the-air experiments at close range or to drive an external amplifier. If you connect an external amplifier, you should also use an external bandpass filter for your operating frequency.
 
 Before you transmit, know your laws. HackRF One has not been tested for compliance with regulations governing transmission of radio signals. You are responsible for using your HackRF One legally.
-
-
-----
-
-
