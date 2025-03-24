@@ -80,14 +80,3 @@ Why are the LEDs on HackRF different colours?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Each LED is a single color. There are no multi-colored LEDs on HackRF One. Adjacent LEDs are different colors in order to make them easier to distinguish from one another. The colors do not mean anything.
-
-
-----
-
-
-Where can I purchase HackRF?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-HackRF is designed and manufactured by Great Scott Gadgets. We do not sell low volumes of HackRFs to people individually; instead we have agreements with specific resellers. Please see our reseller list on the Great Scott Gadgets website for availability: `http://greatscottgadgets.com/hackrf/ <http://greatscottgadgets.com/hackrf/>`__. 
-
-HackRF is open source hardware, so you can also build your own.
