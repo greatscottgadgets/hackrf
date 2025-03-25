@@ -1,13 +1,13 @@
-.. _faq:
+.. _troubleshooting:
 
 ================================================
-FAQ
+Troubleshooting
 ================================================
 
 .. _bigspike:
 
-What is the big spike in the center of my received spectrum?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+There is a big spike in the center of the received spectrum
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 If you see a large spike in the center of your FFT display regardless of the frequenecy you are tuned to, you are seeing a DC offset (or component or bias). The term "DC" comes from "Direct Current" in electronics. It is the unchanging aspect of a signal as opposed to the "alternating" part of the signal (AC) that changes over time. Take, for example, the signal represented by the digital sequence:
 
@@ -23,16 +23,10 @@ There was a bug in the HackRF firmware (through release 2013.06.1) that made the
 
 A high DC offset is also one of a few symptoms that can be caused by a software version mismatch. A common problem is that people run an old version of gr-osmosdr with newer firmware.
 
+Solution
+--------
 
-
-----
-
-
-
-How do I deal with the big spike in the middle of my spectrum?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Start by reading :ref:`our FAQ Response on the DC Spike <bigspike>`. After that, there are a few options:
+There are a few options:
 
     #. Ignore it. For many applications it isn't a problem. You'll learn to ignore it.
 
