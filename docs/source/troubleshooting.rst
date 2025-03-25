@@ -4,6 +4,26 @@
 Troubleshooting
 ================================================
 
+HackRF not detected / "No HackRF boards found."
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If the software you're using is unable to detect the HackRF hardware and/or `hackrf_info` returns "No HackRF boards found.", this can be caused by a number of different software or hardware issues.
+
+Solution
+--------
+
+    #. If you are using a PortaPack addon, make sure to select "HackRF" mode from the main menu.
+
+    #. If you are using a virtual machine or Windows Subsystem for Linux (WSL), make sure that it is configured to pass through the USB device.
+
+    #. Check whether the device appears in ``lsusb`` (Linux), Device Manager (Windows), or System Report (macOS). If it doesn't not appear, it could either be a firmware issue, an issue with the cable, or another hardware issue.
+
+    #. Try booting the HackRF in DFU mode by holding the "DFU" button when plugging in the device. It should now appear as `NXP Semiconductors LPC4330FET180 [ARM Cortex M4 + M0] (device firmware upgrade mode)` in the locations listed above. If it does appear, then it was likely a firmware issue and you can follow the instructions to :ref:`recover the SPI flash firmware <recovering_firmware>`.
+
+    #. If the device does not appear in DFU mode then it is likely to be an issue with the USB cable. Charge-only cables (which do not include the data lines) have become very common and will cause this symptom. Ideally, test the cable you're using with another device that does some sort of data transfer to be sure that it works, or just try other cables.
+
+    #. If the device still does not appear, it may be a less common issue or possibly a fault with the hardware. See :doc:`Getting Help <getting_help>` for information on where to ask for more support, and please include as much detail as you can about what you've already tried.
+
 .. _bigspike:
 
 There is a big spike in the center of the received spectrum
