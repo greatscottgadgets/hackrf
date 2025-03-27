@@ -7,7 +7,7 @@ Welcome to HackRF's documentation!
    :caption: User Documentation
 
    getting_help
-   faq
+   troubleshooting
    synchronization_checklist
    hackrf_projects_mentions
 

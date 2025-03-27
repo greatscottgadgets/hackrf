@@ -2,7 +2,7 @@
 Getting Help
 ============
 
-Before asking for help with HackRF, check to see if your question is answered in this documentation, listed in the :ref:`FAQ <faq>`, or addressed in the `HackRF GitHub repository issues <https://github.com/greatscottgadgets/hackrf/issues>`__.
+Before asking for help with HackRF, check to see if your question is answered in this documentation, listed in the :ref:`Troubleshooting <troubleshooting>` page, or addressed in the `HackRF GitHub repository issues <https://github.com/greatscottgadgets/hackrf/issues>`__.
 
 For assistance with HackRF general use or development, please look at the `issues on the GitHub project <https://github.com/greatscottgadgets/hackrf/issues>`__. This is the preferred place to ask questions so that others may locate the answer to your question in the future.
 
