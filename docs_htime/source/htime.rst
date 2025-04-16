@@ -189,7 +189,7 @@ application can be seen in the :doc:`source <htime_tool_source>` of the
 
   hackrf_time_set_divisor_next_pps(device, divisor)
 
-Set **divisor** value (uint32_t) into the ticks counter at thenext PPS. With the
+Set **divisor** value (uint32_t) into the ticks counter at the next PPS. With the
 HackRF MCU working @ 200 MHz, the ticks counter must be set to 200000000-1 to obtain a
 counting period of 1 second. **device** is a pointer to the HackRF device.
 
