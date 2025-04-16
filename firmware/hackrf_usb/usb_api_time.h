@@ -26,6 +26,7 @@
 #include <usb_type.h>
 #include <usb_request.h>
 
+#define WWDT_TIMEOUT_PER_SECOND 3000000.
 
 usb_request_status_t usb_vendor_request_time_set_divisor_next_pps(
 	usb_endpoint_t* const endpoint,
