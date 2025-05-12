@@ -27,7 +27,6 @@
 
 #include <libopencm3/lpc43xx/ipc.h>
 #include <libopencm3/lpc43xx/m4/nvic.h>
-#include <libopencm3/lpc43xx/wwdt.h>
 #include <libopencm3/lpc43xx/rgu.h>
 #include <libopencm3/lpc43xx/timer.h>
 
@@ -162,26 +161,6 @@ usb_request_status_t usb_vendor_request(
 			status = handler(endpoint, stage);
 		}
 	}
-
-	/* if the watchdog is enabled: feed it */
-	if (WWDT_MOD & WWDT_MOD_WDEN) {
-
-	   	WWDT_FEED_SEQUENCE;
-	}
-
-   	/* if the watchdog is disabled: enable it */
-	else {
-
-		/* set wwdt modes: enabled, reset on timeout */
-    	WWDT_MOD = WWDT_MOD_WDEN | WWDT_MOD_WDRESET;
-
-    	/* set timeout counter (24 bit) to 10 seconds */
-		float WWDT_TIMEOUT_SECS = 10.;
-    	WWDT_TC = (int)(WWDT_TIMEOUT_SECS*WWDT_TIMEOUT_PER_SECOND) & 0xFFFFFF;
-
-		/* feed watchdog: start it */
-	    WWDT_FEED_SEQUENCE;
-   }
 
 	return status;
 }
