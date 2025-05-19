@@ -62,7 +62,7 @@ OS X (10.5+): MacPorts
 Windows: Binaries
 +++++++++++++++++
 
-Binaries are provided as part of the PothosSDR project, they can be downloaded `here <http://downloads.myriadrf.org/builds/PothosSDR/?C=M;O=D>`__.
+Binaries are available as build artifacts under the 'Actions'-tab on github `here <https://github.com/greatscottgadgets/hackrf/actions>`__.
 
 
 
