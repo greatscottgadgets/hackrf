@@ -192,7 +192,7 @@ bool one_shot = false;
 bool finite_mode = false;
 volatile bool sweep_started = false;
 
-int fftSize = 20;
+int num_fft_bins = 20;
 double fft_bin_width;
 fftwf_complex* fftwIn = NULL;
 fftwf_complex* fftwOut = NULL;
@@ -242,7 +242,7 @@ int rx_callback(hackrf_transfer* transfer)
 
 	byte_count += transfer->valid_length;
 	buf = (int8_t*) transfer->buffer;
-	ifft_bins = fftSize * step_count;
+	ifft_bins = num_fft_bins * step_count;
 	for (j = 0; j < BLOCKS_PER_TRANSFER; j++) {
 		ubuf = (uint8_t*) buf;
 		if (ubuf[0] == 0x7F && ubuf[1] == 0x7F) {
@@ -301,28 +301,28 @@ int rx_callback(hackrf_transfer* transfer)
 			continue;
 		}
 		/* copy to fftwIn as floats */
-		buf += BYTES_PER_BLOCK - (fftSize * 2);
-		for (i = 0; i < fftSize; i++) {
+		buf += BYTES_PER_BLOCK - (num_fft_bins * 2);
+		for (i = 0; i < num_fft_bins; i++) {
 			fftwIn[i][0] = buf[i * 2] * window[i] * 1.0f / 128.0f;
 			fftwIn[i][1] = buf[i * 2 + 1] * window[i] * 1.0f / 128.0f;
 		}
-		buf += fftSize * 2;
+		buf += num_fft_bins * 2;
 		fftwf_execute(fftwPlan);
-		for (i = 0; i < fftSize; i++) {
-			pwr[i] = logPower(fftwOut[i], 1.0f / fftSize);
+		for (i = 0; i < num_fft_bins; i++) {
+			pwr[i] = logPower(fftwOut[i], 1.0f / num_fft_bins);
 		}
 		if (binary_output) {
 			record_length =
-				2 * sizeof(band_edge) + (fftSize / 4) * sizeof(float);
+				2 * sizeof(band_edge) + (num_fft_bins / 4) * sizeof(float);
 
 			fwrite(&record_length, sizeof(record_length), 1, outfile);
 			band_edge = frequency;
 			fwrite(&band_edge, sizeof(band_edge), 1, outfile);
 			band_edge = frequency + DEFAULT_SAMPLE_RATE_HZ / 4;
 			fwrite(&band_edge, sizeof(band_edge), 1, outfile);
-			fwrite(&pwr[1 + (fftSize * 5) / 8],
+			fwrite(&pwr[1 + (num_fft_bins * 5) / 8],
 			       sizeof(float),
-			       fftSize / 4,
+			       num_fft_bins / 4,
 			       outfile);
 
 			fwrite(&record_length, sizeof(record_length), 1, outfile);
@@ -330,25 +330,25 @@ int rx_callback(hackrf_transfer* transfer)
 			fwrite(&band_edge, sizeof(band_edge), 1, outfile);
 			band_edge = frequency + (DEFAULT_SAMPLE_RATE_HZ * 3) / 4;
 			fwrite(&band_edge, sizeof(band_edge), 1, outfile);
-			fwrite(&pwr[1 + fftSize / 8], sizeof(float), fftSize / 4, outfile);
+			fwrite(&pwr[1 + num_fft_bins / 8], sizeof(float), num_fft_bins / 4, outfile);
 		} else if (ifft_output) {
 			ifft_idx = (uint32_t) round(
 				(frequency - (uint64_t) (FREQ_ONE_MHZ * frequencies[0])) /
 				fft_bin_width);
 			ifft_idx = (ifft_idx + ifft_bins / 2) % ifft_bins;
-			for (i = 0; (fftSize / 4) > i; i++) {
+			for (i = 0; (num_fft_bins / 4) > i; i++) {
 				ifftwIn[ifft_idx + i][0] =
-					fftwOut[i + 1 + (fftSize * 5) / 8][0];
+					fftwOut[i + 1 + (num_fft_bins * 5) / 8][0];
 				ifftwIn[ifft_idx + i][1] =
-					fftwOut[i + 1 + (fftSize * 5) / 8][1];
+					fftwOut[i + 1 + (num_fft_bins * 5) / 8][1];
 			}
-			ifft_idx += fftSize / 2;
+			ifft_idx += num_fft_bins / 2;
 			ifft_idx %= ifft_bins;
-			for (i = 0; (fftSize / 4) > i; i++) {
+			for (i = 0; (num_fft_bins / 4) > i; i++) {
 				ifftwIn[ifft_idx + i][0] =
-					fftwOut[i + 1 + (fftSize / 8)][0];
+					fftwOut[i + 1 + (num_fft_bins / 8)][0];
 				ifftwIn[ifft_idx + i][1] =
-					fftwOut[i + 1 + (fftSize / 8)][1];
+					fftwOut[i + 1 + (num_fft_bins / 8)][1];
 			}
 		} else {
 			time_t time_stamp_seconds = usb_transfer_time.tv_sec;
@@ -361,11 +361,11 @@ int rx_callback(hackrf_transfer* transfer)
 				(uint64_t) (frequency),
 				(uint64_t) (frequency + DEFAULT_SAMPLE_RATE_HZ / 4),
 				fft_bin_width,
-				fftSize);
-			for (i = 0; (fftSize / 4) > i; i++) {
+				num_fft_bins);
+			for (i = 0; (num_fft_bins / 4) > i; i++) {
 				fprintf(outfile,
 					", %.2f",
-					pwr[i + 1 + (fftSize * 5) / 8]);
+					pwr[i + 1 + (num_fft_bins * 5) / 8]);
 			}
 			fprintf(outfile, "\n");
 			fprintf(outfile,
@@ -375,9 +375,9 @@ int rx_callback(hackrf_transfer* transfer)
 				(uint64_t) (frequency + (DEFAULT_SAMPLE_RATE_HZ / 2)),
 				(uint64_t) (frequency + ((DEFAULT_SAMPLE_RATE_HZ * 3) / 4)),
 				fft_bin_width,
-				fftSize);
-			for (i = 0; (fftSize / 4) > i; i++) {
-				fprintf(outfile, ", %.2f", pwr[i + 1 + (fftSize / 8)]);
+				num_fft_bins);
+			for (i = 0; (num_fft_bins / 4) > i; i++) {
+				fprintf(outfile, ", %.2f", pwr[i + 1 + (num_fft_bins / 8)]);
 			}
 			fprintf(outfile, "\n");
 		}
@@ -536,7 +536,7 @@ int main(int argc, char** argv)
 
 		case 'w':
 			result = parse_u32(optarg, &requested_fft_bin_width);
-			fftSize = DEFAULT_SAMPLE_RATE_HZ / requested_fft_bin_width;
+			num_fft_bins = DEFAULT_SAMPLE_RATE_HZ / requested_fft_bin_width;
 			break;
 
 		case 'W':
@@ -657,7 +657,7 @@ int main(int argc, char** argv)
 	 * for interleaved mode. With our fixed sample rate of 20 Msps, that
 	 * results in a maximum bin width of 5000000 Hz.
 	 */
-	if (4 > fftSize) {
+	if (4 > num_fft_bins) {
 		fprintf(stderr,
 			"argument error: FFT bin width (-w) must be no more than 5000000\n");
 		return EXIT_FAILURE;
@@ -667,11 +667,11 @@ int main(int argc, char** argv)
 	 * The maximum number of FFT bins we support is equal to the number of
 	 * samples in a block. Each block consists of 16384 bytes minus 10
 	 * bytes for the frequency header, leaving room for 8187 two-byte
-	 * samples. As we pad fftSize up to the next odd multiple of four, this
-	 * makes our maximum supported fftSize 8180.  With our fixed sample
+	 * samples. As we pad num_fft_bins up to the next odd multiple of four, this
+	 * makes our maximum supported num_fft_bins 8180.  With our fixed sample
 	 * rate of 20 Msps, that results in a minimum bin width of 2445 Hz.
 	 */
-	if (8180 < fftSize) {
+	if (8180 < num_fft_bins) {
 		fprintf(stderr,
 			"argument error: FFT bin width (-w) must be no less than 2445\n");
 		return EXIT_FAILURE;
@@ -681,19 +681,19 @@ int main(int argc, char** argv)
 	 * number of FFT bins is equal to an odd multiple of four.
 	 * (e.g. 4, 12, 20, 28, 36, . . .)
 	 */
-	while ((fftSize + 4) % 8) {
-		fftSize++;
+	while ((num_fft_bins + 4) % 8) {
+		num_fft_bins++;
 	}
 
-	fft_bin_width = (double) DEFAULT_SAMPLE_RATE_HZ / fftSize;
-	fftwIn = (fftwf_complex*) fftwf_malloc(sizeof(fftwf_complex) * fftSize);
-	fftwOut = (fftwf_complex*) fftwf_malloc(sizeof(fftwf_complex) * fftSize);
+	fft_bin_width = (double) DEFAULT_SAMPLE_RATE_HZ / num_fft_bins;
+	fftwIn = (fftwf_complex*) fftwf_malloc(sizeof(fftwf_complex) * num_fft_bins);
+	fftwOut = (fftwf_complex*) fftwf_malloc(sizeof(fftwf_complex) * num_fft_bins);
 	fftwPlan =
-		fftwf_plan_dft_1d(fftSize, fftwIn, fftwOut, FFTW_FORWARD, fftw_plan_type);
-	pwr = (float*) fftwf_malloc(sizeof(float) * fftSize);
-	window = (float*) fftwf_malloc(sizeof(float) * fftSize);
-	for (i = 0; i < fftSize; i++) {
-		window[i] = (float) (0.5f * (1.0f - cos(2 * M_PI * i / (fftSize - 1))));
+		fftwf_plan_dft_1d(num_fft_bins, fftwIn, fftwOut, FFTW_FORWARD, fftw_plan_type);
+	pwr = (float*) fftwf_malloc(sizeof(float) * num_fft_bins);
+	window = (float*) fftwf_malloc(sizeof(float) * num_fft_bins);
+	for (i = 0; i < num_fft_bins; i++) {
+		window[i] = (float) (0.5f * (1.0f - cos(2 * M_PI * i / (num_fft_bins - 1))));
 	}
 
 	/* Execute the plan once to make sure it's ready to go when real
@@ -807,11 +807,11 @@ int main(int argc, char** argv)
 
 	if (ifft_output) {
 		ifftwIn = (fftwf_complex*) fftwf_malloc(
-			sizeof(fftwf_complex) * fftSize * step_count);
+			sizeof(fftwf_complex) * num_fft_bins * step_count);
 		ifftwOut = (fftwf_complex*) fftwf_malloc(
-			sizeof(fftwf_complex) * fftSize * step_count);
+			sizeof(fftwf_complex) * num_fft_bins * step_count);
 		ifftwPlan = fftwf_plan_dft_1d(
-			fftSize * step_count,
+			num_fft_bins * step_count,
 			ifftwIn,
 			ifftwOut,
 			FFTW_BACKWARD,
