@@ -45,6 +45,8 @@
 
 
 #define PPS1_CLK_INIT_DIVISOR 204000000 - 1
+#define PPS1_WIDTH 4000		// 20 us 1pps pulse width @200 MHz cpu clock
+#define TRIG_INIT_DELAY 40000000	// 200 ms trigger delay @200 MHz cpu clock 
 
 
 int64_t seconds;
@@ -53,6 +55,7 @@ uint32_t new_divisor;
 uint32_t one_pps_divisor;
 uint32_t current_divisor;
 uint32_t new_trig_delay;
+uint32_t current_trig_delay;
 
 
 /**** time timer functions ****/
@@ -65,19 +68,23 @@ void time_timer_init(void)
 	/* count cpu clock cycles */
 	timer_set_mode(TIMER3, TIMER_CTCR_MODE_TIMER);
 
-	/* reset counter and do pps interrupt when match register 0 */
+	/* reset counter and do pps interrupt when match register 0 (R0) */
 	TIMER3_MCR = TIMER_MCR_MR0R | TIMER_MCR_MR0I;
 
-	/* when match R0, set to 1 the external output: generate pps leading
-	 * edge */
+	/* 1pps leading edge: at next R0 match, set to 1 the external output. */
 	TIMER3_EMR = (TIMER_EMR_EMC_SET << TIMER_EMR_EMC0_SHIFT);
 
-	/* when match R1, set to 1 the sampling trigger */
-	TIMER3_EMR |= (TIMER_EMR_EMC_SET << TIMER_EMR_EMC1_SHIFT);
-
-	/* set proper divisor (1Hz) to match register 3 */
+	/* set proper divisor (1Hz) to match R0 */
 	TIMER3_MR0 = PPS1_CLK_INIT_DIVISOR;
 	current_divisor = PPS1_CLK_INIT_DIVISOR;
+
+	/* sampling trigger leading edge: at next R1 match, set to 1 the
+	 * extenal output */
+	TIMER3_EMR |= (TIMER_EMR_EMC_SET << TIMER_EMR_EMC1_SHIFT);
+
+	/* set init trigger delay to match R1 */
+	TIMER3_MR1 = TRIG_INIT_DELAY;
+	current_trig_delay = TRIG_INIT_DELAY;
 
 	/* prevent TIMER3_MR3 from interfering with SCT */
 	CREG_CREG6 |= CREG_CREG6_CTOUTCTRL;
@@ -102,47 +109,87 @@ void time_timer_init(void)
 
 void timer3_isr() {
 
-	/* clear sampling tigger: P2_4, cpu pin 88, conn P28 pin 5
-	 * trigger trailing edge*/
-	TIMER3_EMR &= ~TIMER_EMR_EM1;
-
 	/* clear pending interrupt */
 	TIMER3_IR |= TIMER_IR_MR3INT;
 
-	/* second counter */
-	seconds++;
+	/* if start of 1pps pulse: 1pps is set (leading edge) and match
+	 * R0 is set to count until to next 1pps trailing edge.  */
+	if (TIMER3_MR0 != PPS1_WIDTH) {
 
-	/* if requested, update seconds in sync with the new second */
-	if (new_seconds) {
-		seconds = new_seconds;
-		new_seconds = 0;
+		/* second counter */
+		seconds++;
+
+		/* if requested, update seconds in sync with the new second. */
+		if (new_seconds) {
+			seconds = new_seconds;
+			new_seconds = 0;
+		}
+
+		/* set R0 match value to keep 1pps high for the given time */
+		TIMER3_MR0 = PPS1_WIDTH;
+
+		/* 1pps trailing edge: at next R0 match, clear the external output. */
+		TIMER3_EMR &= ~(0x3 << TIMER_EMR_EMC0_SHIFT);
+		TIMER3_EMR |= (TIMER_EMR_EMC_CLEAR << TIMER_EMR_EMC0_SHIFT);
+
+		/* set R1 match value to keep trigger high until the end of 1pps
+		 * pulse */
+		TIMER3_MR1 = PPS1_WIDTH;
+
+		/* trigger trailing edge: at next R1 match, clear the external output. */
+		TIMER3_EMR &= ~(0x3 << TIMER_EMR_EMC1_SHIFT);
+		TIMER3_EMR |= (TIMER_EMR_EMC_CLEAR << TIMER_EMR_EMC1_SHIFT);
+
+		/* do not reset counter at next R0 match: count must continue
+		 * for one second period. */
+		TIMER3_MCR &= ~TIMER_MCR_MR0R;
+
 	}
 
-	/* if requested, update new trig delay in sync with the new second */
-	if (new_trig_delay) {
-		TIMER3_MR1 = new_trig_delay;
-		new_trig_delay = 0;
-	}
+	/* else is the end of 1pps pulse: match R0 is set to
+	 * count until the next 1pps leading edge. */
+	else {
 
-	/* if requested, update new timer divisor in sync with the new
-	 * second */
-	if (new_divisor) {
-		TIMER3_MR0 = new_divisor;
-		current_divisor = new_divisor;
-		new_divisor = 0;
-	}
+		/* if requested, set new current divisor. */
+		if (new_divisor) {
+			current_divisor = new_divisor;
+			new_divisor = 0;
+		}
 
-	/* if requested, set one pps divisor for one pps cycle then restore
-	 * current divisor */
-	if (one_pps_divisor) {
-		TIMER3_MR0 = one_pps_divisor;
-		one_pps_divisor = 0;
-		new_divisor = current_divisor;
-	}
+		/* if requested, set one pps divisor for one pps cycle then restore
+	 	* current divisor. */
+		if (one_pps_divisor) {
+			TIMER3_MR0 = one_pps_divisor;
+			one_pps_divisor = 0;
+		}
+		/* otherwise, restore current divisor. */
+		else
+			TIMER3_MR0 = current_divisor;
 
-	/* clear output pps: P2_3, cpu pin 87, conn P28 pin 6, pps trailing
-	 * edge */
-	TIMER3_EMR &= ~TIMER_EMR_EM0;
+		/* 1pps leading edge: at next R0 match (start of second), set to 1
+		 * the external output. */
+		TIMER3_EMR &= ~(0x3 << TIMER_EMR_EMC0_SHIFT);
+		TIMER3_EMR |= (TIMER_EMR_EMC_SET << TIMER_EMR_EMC0_SHIFT);
+
+		/* if requested, update new trig delay. */
+		if (new_trig_delay) {
+			current_trig_delay = new_trig_delay;
+			new_trig_delay = 0;
+		}
+
+		/* restore current trig delay */
+		TIMER3_MR1 = current_trig_delay;
+
+		/* trigger leading edge: at next R1 match, set to 1 the external
+		 * output. */
+		TIMER3_EMR &= ~(0x3 << TIMER_EMR_EMC1_SHIFT);
+		TIMER3_EMR |= (TIMER_EMR_EMC_SET << TIMER_EMR_EMC1_SHIFT);
+
+		/* reset counter at next R0 match: start counting for the
+		 * next second period */
+		TIMER3_MCR |= TIMER_MCR_MR0R;
+
+	}
 
 }
 
