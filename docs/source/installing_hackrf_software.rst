@@ -62,7 +62,9 @@ OS X (10.5+): MacPorts
 Windows: Binaries
 +++++++++++++++++
 
-Binaries are provided as part of the PothosSDR project, they can be downloaded `here <http://downloads.myriadrf.org/builds/PothosSDR/?C=M;O=D>`__.
+Windows users can use `radioconda <https://github.com/ryanvolz/radioconda>`__ to get the required binaries installed.
+
+Alternatively, binaries are available as build artifacts under the 'Actions'-tab on github `here <https://github.com/greatscottgadgets/hackrf/actions>`__ (GitHub Login needed).
 
 
 
