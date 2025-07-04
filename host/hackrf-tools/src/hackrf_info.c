@@ -254,6 +254,23 @@ int main(void)
 				hackrf_error_name(result),
 				result);
 		}
+
+		result = hackrf_device_list_bus_sharing(list, i);
+		if (result < 0) {
+			fprintf(stderr,
+				"hackrf_device_list_bus_sharing() failed: %s (%d)\n",
+				hackrf_error_name(result),
+				result);
+		} else if (result == 0) {
+			printf("This device is on its own USB bus.\n");
+		} else if (result == 1) {
+			printf("There is 1 other device on the same USB bus.\n"
+			       "You may have problems at high sample rates.\n");
+		} else {
+			printf("There are %d other devices on the same USB bus.\n"
+			       "You may have problems at high sample rates.\n",
+			       result);
+		}
 	}
 
 	hackrf_device_list_free(list);

@@ -1107,6 +1107,18 @@ extern ADDAPI int ADDCALL hackrf_device_list_open(
 	hackrf_device** device);
 
 /**
+ * Check if a listed HackRF device is sharing its USB bus with other devices.
+ *
+ * @param[in] list device list to query
+ * @param[in] idx index of the HackRF device in the list
+ * @return The number of devices sharing the USB bus with the specified HackRF, or a negative error code from @ref hackrf_error
+ *
+ */
+extern ADDAPI int ADDCALL hackrf_device_list_bus_sharing(
+	hackrf_device_list_t* list,
+	int idx);
+
+/**
  * Free a previously allocated @ref hackrf_device_list list.
  * @param[in] list list to free
  * @ingroup device
