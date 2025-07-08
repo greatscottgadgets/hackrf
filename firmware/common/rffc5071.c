@@ -231,10 +231,10 @@ uint64_t rffc5071_config_synth_int(rffc5071_driver_t* const drv, uint16_t lo)
 	uint16_t p1nmsb;
 	uint8_t p1nlsb;
 
-	/* Calculate n_lo */
+	/* Calculate n_lo (no division) */
 	uint8_t n_lo = 0;
-	uint16_t x = LO_MAX / lo;
-	while ((x > 1) && (n_lo < 5)) {
+	uint16_t x = LO_MAX >> 1;
+	while ((x >= lo) && (n_lo < 5)) {
 		n_lo++;
 		x >>= 1;
 	}
