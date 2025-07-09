@@ -234,12 +234,11 @@ macro(DeclareTargets)
 	add_custom_target(
 		${PROJECT_NAME}.dfu ${DFU_ALL}
 		DEPENDS ${PROJECT_NAME}_dfu.bin
-		COMMAND rm -f _tmp.dfu _header.bin
-		COMMAND cp ${PROJECT_NAME}_dfu.bin _tmp.dfu
-		COMMAND dfu-suffix --vid=0x1fc9 --pid=0x000c --did=0x0 -a _tmp.dfu
+		COMMAND rm -f _header.bin
 		COMMAND python3 ${PATH_DFU_PY} ${PROJECT_NAME}
-		COMMAND cat _header.bin _tmp.dfu >${PROJECT_NAME}.dfu
-		COMMAND rm -f _tmp.dfu _header.bin
+		COMMAND cat _header.bin ${PROJECT_NAME}_dfu.bin > ${PROJECT_NAME}.dfu
+		COMMAND dfu-suffix --vid=0x1fc9 --pid=0x000c --did=0x0 -a ${PROJECT_NAME}.dfu
+		COMMAND rm -f _header.bin
 	)
 
 	# Program / flash targets

@@ -29,7 +29,7 @@ After writing the firmware to SPI flash, you may need to reset the HackRF device
 
 If you get an error that mentions HACKRF_ERROR_NOT_FOUND, it is often a permissions problem on your OS.
 
-
+.. _recovering_firmware:
 
 Only if Necessary: Recovering the SPI Flash Firmware
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
