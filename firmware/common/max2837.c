@@ -233,8 +233,8 @@ void max2837_set_frequency(max2837_driver_t* const drv, uint32_t freq)
 	div_cmp = 30000000;
 	for (i = 0; i < 20; i++) {
 		div_frac <<= 1;
-		div_cmp >>= 1;
-		if (div_rem > div_cmp) {
+		div_rem <<= 1;
+		if (div_rem >= div_cmp) {
 			div_frac |= 0x1;
 			div_rem -= div_cmp;
 		}
