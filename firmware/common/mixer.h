@@ -37,8 +37,8 @@ typedef max2871_driver_t mixer_driver_t;
 extern void mixer_bus_setup(mixer_driver_t* const mixer);
 extern void mixer_setup(mixer_driver_t* const mixer);
 
-/* Set frequency (MHz). */
-extern uint64_t mixer_set_frequency(mixer_driver_t* const mixer, uint16_t mhz);
+/* Set frequency (Hz). */
+extern uint64_t mixer_set_frequency(mixer_driver_t* const mixer, uint64_t hz);
 
 /* Set up rx only, tx only, or full duplex. Chip should be disabled
  * before _tx, _rx, or _rxtx are called. */

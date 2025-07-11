@@ -55,8 +55,8 @@ extern void rffc5071_reg_write(rffc5071_driver_t* const drv, uint8_t r, uint16_t
  * provided routines for those operations. */
 extern void rffc5071_regs_commit(rffc5071_driver_t* const drv);
 
-/* Set frequency (MHz). */
-extern uint64_t rffc5071_set_frequency(rffc5071_driver_t* const drv, uint16_t mhz);
+/* Set frequency (Hz). */
+extern uint64_t rffc5071_set_frequency(rffc5071_driver_t* const drv, uint64_t hz);
 
 /* Set up rx only, tx only, or full duplex. Chip should be disabled
  * before _tx, _rx, or _rxtx are called. */

@@ -216,14 +216,14 @@ void rffc5071_enable(rffc5071_driver_t* const drv)
 	rffc5071_regs_commit(drv);
 }
 
-#define LO_MAX       5400
-#define REF_FREQ     40
-#define FREQ_ONE_MHZ (1000 * 1000)
+#define FREQ_ONE_MHZ (1000ULL * 1000ULL)
+#define REF_FREQ     (40 * FREQ_ONE_MHZ)
+#define LO_MAX       (5400 * FREQ_ONE_MHZ)
 
-/* configure frequency synthesizer (lo in MHz) */
-uint64_t rffc5071_config_synth(rffc5071_driver_t* const drv, uint16_t lo)
+/* configure frequency synthesizer (lo in Hz) */
+uint64_t rffc5071_config_synth(rffc5071_driver_t* const drv, uint64_t lo)
 {
-	uint16_t fvco;
+	uint64_t fvco;
 	uint8_t fbkdivlog;
 	uint16_t n;
 	uint64_t tune_freq_hz;
@@ -232,7 +232,7 @@ uint64_t rffc5071_config_synth(rffc5071_driver_t* const drv, uint16_t lo)
 
 	/* Calculate n_lo (no division) */
 	uint8_t n_lo = 0;
-	uint16_t x = LO_MAX >> 1;
+	uint64_t x = LO_MAX >> 1;
 	while ((x >= lo) && (n_lo < 5)) {
 		n_lo++;
 		x >>= 1;
@@ -245,7 +245,7 @@ uint64_t rffc5071_config_synth(rffc5071_driver_t* const drv, uint16_t lo)
 	 * maybe pump?) can be changed back after enable in order to
 	 * improve phase noise, since the VCO will already be stable
 	 * and will be unaffected. */
-	if (fvco > 3200) {
+	if (fvco > (3200 * FREQ_ONE_MHZ)) {
 		fbkdivlog = 2;
 		set_RFFC5071_PLLCPL(drv, 3);
 	} else {
@@ -253,12 +253,12 @@ uint64_t rffc5071_config_synth(rffc5071_driver_t* const drv, uint16_t lo)
 		set_RFFC5071_PLLCPL(drv, 2);
 	}
 
-	uint64_t tmp_n = ((uint64_t) fvco << (24ULL - fbkdivlog)) / REF_FREQ;
+	uint64_t tmp_n = (fvco << (24ULL - fbkdivlog)) / REF_FREQ;
 	n = tmp_n >> 24ULL;
 	p1nmsb = (tmp_n >> 8ULL) & 0xffff;
 	p1nlsb = tmp_n & 0xff;
 
-	tune_freq_hz = (tmp_n * REF_FREQ * FREQ_ONE_MHZ) >> (24 - fbkdivlog + n_lo);
+	tune_freq_hz = (tmp_n * REF_FREQ) >> (24 - fbkdivlog + n_lo);
 
 	/* Path 2 */
 	set_RFFC5071_P2LODIV(drv, n_lo);
@@ -272,13 +272,12 @@ uint64_t rffc5071_config_synth(rffc5071_driver_t* const drv, uint16_t lo)
 	return tune_freq_hz;
 }
 
-/* !!!!!!!!!!! hz is currently ignored !!!!!!!!!!! */
-uint64_t rffc5071_set_frequency(rffc5071_driver_t* const drv, uint16_t mhz)
+uint64_t rffc5071_set_frequency(rffc5071_driver_t* const drv, uint64_t hz)
 {
 	uint32_t tune_freq;
 
 	rffc5071_disable(drv);
-	tune_freq = rffc5071_config_synth(drv, mhz);
+	tune_freq = rffc5071_config_synth(drv, hz);
 	rffc5071_enable(drv);
 
 	return tune_freq;

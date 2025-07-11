@@ -61,12 +61,10 @@ uint64_t freq_cache = 100000000;
 bool set_freq(const uint64_t freq)
 {
 	bool success;
-	uint32_t mixer_freq_mhz;
-	uint32_t MAX2837_freq_hz;
+	uint64_t mixer_freq_hz;
 	uint64_t real_mixer_freq_hz;
 
 	const uint32_t freq_mhz = freq / FREQ_ONE_MHZ;
-	const uint32_t freq_hz = freq % FREQ_ONE_MHZ;
 
 	success = true;
 
@@ -80,16 +78,15 @@ bool set_freq(const uint64_t freq)
 		/* IF is graduated from 2650 MHz to 2340 MHz */
 		max2837_freq_nominal_hz = (2650 * FREQ_ONE_MHZ) - (freq / 7);
 #endif
-		mixer_freq_mhz = (max2837_freq_nominal_hz / FREQ_ONE_MHZ) + freq_mhz;
+		mixer_freq_hz = max2837_freq_nominal_hz + freq;
 		/* Set Freq and read real freq */
-		real_mixer_freq_hz = mixer_set_frequency(&mixer, mixer_freq_mhz);
+		real_mixer_freq_hz = mixer_set_frequency(&mixer, mixer_freq_hz);
 		max283x_set_frequency(&max283x, real_mixer_freq_hz - freq);
 		sgpio_cpld_set_mixer_invert(&sgpio_config, 1);
 	} else if ((freq_mhz >= MIN_BYPASS_FREQ_MHZ) && (freq_mhz < MAX_BYPASS_FREQ_MHZ)) {
 		rf_path_set_filter(&rf_path, RF_PATH_FILTER_BYPASS);
-		MAX2837_freq_hz = (freq_mhz * FREQ_ONE_MHZ) + freq_hz;
 		/* mixer_freq_mhz <= not used in Bypass mode */
-		max283x_set_frequency(&max283x, MAX2837_freq_hz);
+		max283x_set_frequency(&max283x, freq);
 		sgpio_cpld_set_mixer_invert(&sgpio_config, 0);
 	} else if ((freq_mhz >= MIN_HP_FREQ_MHZ) && (freq_mhz <= MAX_HP_FREQ_MHZ)) {
 		if (freq_mhz < MID1_HP_FREQ_MHZ) {
@@ -107,9 +104,9 @@ bool set_freq(const uint64_t freq)
 				((freq - (MID2_HP_FREQ_MHZ * FREQ_ONE_MHZ)) / 9);
 		}
 		rf_path_set_filter(&rf_path, RF_PATH_FILTER_HIGH_PASS);
-		mixer_freq_mhz = freq_mhz - (max2837_freq_nominal_hz / FREQ_ONE_MHZ);
+		mixer_freq_hz = freq - max2837_freq_nominal_hz;
 		/* Set Freq and read real freq */
-		real_mixer_freq_hz = mixer_set_frequency(&mixer, mixer_freq_mhz);
+		real_mixer_freq_hz = mixer_set_frequency(&mixer, mixer_freq_hz);
 		max283x_set_frequency(&max283x, freq - real_mixer_freq_hz);
 		sgpio_cpld_set_mixer_invert(&sgpio_config, 0);
 	} else {
@@ -154,7 +151,7 @@ bool set_freq_explicit(
 		sgpio_cpld_set_mixer_invert(&sgpio_config, 0);
 	}
 	if (path != RF_PATH_FILTER_BYPASS) {
-		(void) mixer_set_frequency(&mixer, lo_freq_hz / FREQ_ONE_MHZ);
+		(void) mixer_set_frequency(&mixer, lo_freq_hz);
 	}
 	return true;
 }
