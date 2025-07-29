@@ -468,6 +468,9 @@ usb_request_status_t usb_vendor_request_time_set_mcu_clk_sync(
 				// r9 must be already set to give 10MHz.
 				if (endpoint->setup.value) {
 
+					// check for external clock source
+					activate_best_clock_source();
+
 					// enable mcu clock: output clock to mcu
 					si5351c_mcu_clk_enable(true);
 
