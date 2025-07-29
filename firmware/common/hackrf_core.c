@@ -439,7 +439,7 @@ bool sample_rate_set(const uint32_t sample_rate_hz)
 {
 	uint32_t p1 = 4608;
 	uint32_t p2 = 0;
-	uint32_t p3 = 0;
+	uint32_t p3 = 1;
 
 	switch (sample_rate_hz) {
 	case 8000000:
