@@ -15,8 +15,8 @@ project = 'HTime'
 copyright = '2025, Fabrizio Pollastri'
 author = 'Fabrizio Pollastri <mxgbot@gmail.com>'
 
-version = '0.1.0'
-release = '0.1.0'
+version = '0.3.1'
+release = '0.3.1'
 
 
 # -- General configuration ---------------------------------------------------
