@@ -22,21 +22,39 @@ def program_device():
 
 
 def capture():
-    print("Capturing data...")
-    rx_100kB = subprocess.run(["host/build/hackrf-tools/src/hackrf_transfer",
-                                "-r", FILENAME, "-d", "RunningFromRAM",
-                                 "-n", "50000", "-s", "20000000"],
-                                capture_output=True, encoding="UTF-8")
-    print(rx_100kB.stdout)
-    print(rx_100kB.stderr)
-    print(f"Wrote capture data to file: {FILENAME}")
+    shortfall_count = -1
+    capture_tries = 0
+
+    while shortfall_count != 0:
+        print("Capturing data...")
+        rx_100kB = subprocess.run(["host/build/hackrf-tools/src/hackrf_transfer",
+                                    "-r", FILENAME, "-d", "RunningFromRAM",
+                                    "-n", "50000", "-s", "20000000"],
+                                    capture_output=True, encoding="UTF-8")
+        print(rx_100kB.stdout)
+        print(rx_100kB.stderr)
+        print(f"Wrote capture data to file: {FILENAME}")
+
+        debug_state_proc = subprocess.run(["host/build/hackrf-tools/src/hackrf_debug", "--state"],
+                                            capture_output=True, encoding="UTF-8")
+        print(debug_state_proc.stdout)
+        print(debug_state_proc.stderr)
+        capture_tries += 1
+        debug_state = debug_state_proc.stdout.split("\n")
+        shortfalls_line = [s for s in debug_state if s.startswith("Number of shortfalls")]
+        shortfall_count = [int(c) for c in shortfalls_line[0].split() if c.isdigit()][0]
+
+        if capture_tries == 10:
+            print("Unable to transmit data with 0 shortfalls. " \
+            "This is not indicative of a device failure. " \
+            "Likely an issue with the testing infrastructure.")
+            sys.exit(1)
 
 
-def check():
+def check_bytes():
     print(f"Checking length of {FILENAME}")
     rx_data = Path(FILENAME).read_bytes()
-    # file should be 100k bytes when using 50k samples
-    if len(rx_data) != 100000:
+    if len(rx_data) != 100000: # file should be 100k bytes when using 50k samples
         print(f"ERROR: Only {str(len(rx_data))} bytes found in file, expected 100k.")
         sys.exit(1)
     else:
@@ -61,7 +79,7 @@ def check():
 def main():
     program_device()
     capture()
-    check()
+    check_bytes()
 
 
 if __name__ == "__main__":
