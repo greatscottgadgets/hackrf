@@ -312,8 +312,8 @@ int rx_callback(hackrf_transfer* transfer)
 			pwr[i] = logPower(fftwOut[i], 1.0f / num_fft_bins);
 		}
 		if (binary_output) {
-			record_length =
-				2 * sizeof(band_edge) + (num_fft_bins / 4) * sizeof(float);
+			record_length = 2 * sizeof(band_edge) +
+				(num_fft_bins / 4) * sizeof(float);
 
 			fwrite(&record_length, sizeof(record_length), 1, outfile);
 			band_edge = frequency;
@@ -330,7 +330,10 @@ int rx_callback(hackrf_transfer* transfer)
 			fwrite(&band_edge, sizeof(band_edge), 1, outfile);
 			band_edge = frequency + (DEFAULT_SAMPLE_RATE_HZ * 3) / 4;
 			fwrite(&band_edge, sizeof(band_edge), 1, outfile);
-			fwrite(&pwr[1 + num_fft_bins / 8], sizeof(float), num_fft_bins / 4, outfile);
+			fwrite(&pwr[1 + num_fft_bins / 8],
+			       sizeof(float),
+			       num_fft_bins / 4,
+			       outfile);
 		} else if (ifft_output) {
 			ifft_idx = (uint32_t) round(
 				(frequency - (uint64_t) (FREQ_ONE_MHZ * frequencies[0])) /
@@ -377,7 +380,9 @@ int rx_callback(hackrf_transfer* transfer)
 				fft_bin_width,
 				num_fft_bins);
 			for (i = 0; (num_fft_bins / 4) > i; i++) {
-				fprintf(outfile, ", %.2f", pwr[i + 1 + (num_fft_bins / 8)]);
+				fprintf(outfile,
+					", %.2f",
+					pwr[i + 1 + (num_fft_bins / 8)]);
 			}
 			fprintf(outfile, "\n");
 		}
@@ -688,12 +693,17 @@ int main(int argc, char** argv)
 	fft_bin_width = (double) DEFAULT_SAMPLE_RATE_HZ / num_fft_bins;
 	fftwIn = (fftwf_complex*) fftwf_malloc(sizeof(fftwf_complex) * num_fft_bins);
 	fftwOut = (fftwf_complex*) fftwf_malloc(sizeof(fftwf_complex) * num_fft_bins);
-	fftwPlan =
-		fftwf_plan_dft_1d(num_fft_bins, fftwIn, fftwOut, FFTW_FORWARD, fftw_plan_type);
+	fftwPlan = fftwf_plan_dft_1d(
+		num_fft_bins,
+		fftwIn,
+		fftwOut,
+		FFTW_FORWARD,
+		fftw_plan_type);
 	pwr = (float*) fftwf_malloc(sizeof(float) * num_fft_bins);
 	window = (float*) fftwf_malloc(sizeof(float) * num_fft_bins);
 	for (i = 0; i < num_fft_bins; i++) {
-		window[i] = (float) (0.5f * (1.0f - cos(2 * M_PI * i / (num_fft_bins - 1))));
+		window[i] =
+			(float) (0.5f * (1.0f - cos(2 * M_PI * i / (num_fft_bins - 1))));
 	}
 
 	/* Execute the plan once to make sure it's ready to go when real
