@@ -220,12 +220,11 @@ void rffc5071_enable(rffc5071_driver_t* const drv)
 #define REF_FREQ     40
 #define FREQ_ONE_MHZ (1000 * 1000)
 
-/* configure frequency synthesizer in integer mode (lo in MHz) */
-uint64_t rffc5071_config_synth_int(rffc5071_driver_t* const drv, uint16_t lo)
+/* configure frequency synthesizer (lo in MHz) */
+uint64_t rffc5071_config_synth(rffc5071_driver_t* const drv, uint16_t lo)
 {
-	uint8_t lodiv;
 	uint16_t fvco;
-	uint8_t fbkdiv;
+	uint8_t fbkdivlog;
 	uint16_t n;
 	uint64_t tune_freq_hz;
 	uint16_t p1nmsb;
@@ -239,8 +238,7 @@ uint64_t rffc5071_config_synth_int(rffc5071_driver_t* const drv, uint16_t lo)
 		x >>= 1;
 	}
 
-	lodiv = 1 << n_lo;
-	fvco = lodiv * lo;
+	fvco = lo << n_lo;
 
 	/* higher divider and charge pump current required above
 	 * 3.2GHz. Programming guide says these values (fbkdiv, n,
@@ -248,26 +246,24 @@ uint64_t rffc5071_config_synth_int(rffc5071_driver_t* const drv, uint16_t lo)
 	 * improve phase noise, since the VCO will already be stable
 	 * and will be unaffected. */
 	if (fvco > 3200) {
-		fbkdiv = 4;
+		fbkdivlog = 2;
 		set_RFFC5071_PLLCPL(drv, 3);
 	} else {
-		fbkdiv = 2;
+		fbkdivlog = 1;
 		set_RFFC5071_PLLCPL(drv, 2);
 	}
 
-	uint64_t tmp_n = ((uint64_t) fvco << 29ULL) / (fbkdiv * REF_FREQ);
-	n = tmp_n >> 29ULL;
+	uint64_t tmp_n = ((uint64_t) fvco << (24ULL - fbkdivlog)) / REF_FREQ;
+	n = tmp_n >> 24ULL;
+	p1nmsb = (tmp_n >> 8ULL) & 0xffff;
+	p1nlsb = tmp_n & 0xff;
 
-	p1nmsb = (tmp_n >> 13ULL) & 0xffff;
-	p1nlsb = (tmp_n >> 5ULL) & 0xff;
-
-	tune_freq_hz = (REF_FREQ * (tmp_n >> 5ULL) * fbkdiv * FREQ_ONE_MHZ) /
-		(lodiv * (1 << 24ULL));
+	tune_freq_hz = (tmp_n * REF_FREQ * FREQ_ONE_MHZ) >> (24 - fbkdivlog + n_lo);
 
 	/* Path 2 */
 	set_RFFC5071_P2LODIV(drv, n_lo);
 	set_RFFC5071_P2N(drv, n);
-	set_RFFC5071_P2PRESC(drv, fbkdiv >> 1);
+	set_RFFC5071_P2PRESC(drv, fbkdivlog);
 	set_RFFC5071_P2NMSB(drv, p1nmsb);
 	set_RFFC5071_P2NLSB(drv, p1nlsb);
 
@@ -282,7 +278,7 @@ uint64_t rffc5071_set_frequency(rffc5071_driver_t* const drv, uint16_t mhz)
 	uint32_t tune_freq;
 
 	rffc5071_disable(drv);
-	tune_freq = rffc5071_config_synth_int(drv, mhz);
+	tune_freq = rffc5071_config_synth(drv, mhz);
 	rffc5071_enable(drv);
 
 	return tune_freq;
