@@ -253,7 +253,10 @@ uint64_t rffc5071_config_synth(rffc5071_driver_t* const drv, uint64_t lo)
 		set_RFFC5071_PLLCPL(drv, 2);
 	}
 
-	uint64_t tmp_n = (fvco << (24ULL - fbkdivlog)) / REF_FREQ;
+	uint64_t numerator = fvco << (24ULL - fbkdivlog);
+	numerator += REF_FREQ / 2;  /* round to nearest frequency */
+	uint64_t tmp_n = numerator / REF_FREQ;
+
 	n = tmp_n >> 24ULL;
 	p1nmsb = (tmp_n >> 8ULL) & 0xffff;
 	p1nlsb = tmp_n & 0xff;

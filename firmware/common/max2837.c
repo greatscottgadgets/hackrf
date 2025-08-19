@@ -227,6 +227,7 @@ void max2837_set_frequency(max2837_driver_t* const drv, uint32_t freq)
 	}
 
 	/* ASSUME 40MHz PLL. Ratio = F*(4/3)/40,000,000 = F/30,000,000 */
+	freq += (30000000 >> 21); /* round to nearest frequency */
 	div_int = freq / 30000000;
 	div_rem = freq % 30000000;
 	div_frac = 0;
