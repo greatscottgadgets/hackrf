@@ -36,7 +36,7 @@ typedef void (*IAP_t)(uint32_t[], uint32_t[]);
 typedef struct {
 	const IAP_t IAP; /* If equal to 0x12345678 IAP not implemented */
 			 /* Other TBD */
-}* pENTRY_ROM_API_t;
+} * pENTRY_ROM_API_t;
 
 #define pROM_API ((pENTRY_ROM_API_t) ROM_IAP_ADDR)
 

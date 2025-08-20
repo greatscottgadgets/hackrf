@@ -40,7 +40,7 @@
 
 #ifndef bool
 typedef int bool;
-	#define true  1
+	#define true 1
 	#define false 0
 #endif
 
@@ -373,8 +373,7 @@ int rx_callback(hackrf_transfer* transfer)
 				time_str,
 				(long int) usb_transfer_time.tv_usec,
 				(uint64_t) (frequency + (DEFAULT_SAMPLE_RATE_HZ / 2)),
-				(uint64_t) (frequency +
-					    ((DEFAULT_SAMPLE_RATE_HZ * 3) / 4)),
+				(uint64_t) (frequency + ((DEFAULT_SAMPLE_RATE_HZ * 3) / 4)),
 				fft_bin_width,
 				fftSize);
 			for (i = 0; (fftSize / 4) > i; i++) {
