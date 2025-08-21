@@ -58,7 +58,7 @@ static const uint16_t rffc5071_regs_default[RFFC5071_NUM_REGS] = {
 	0x1e84, /* 0F */
 	0x89d8, /* 10 */
 	0x9d00, /* 11 */
-	0x2a20, /* 12 */
+	0x3a20, /* 12, dithering off */
 	0x0000, /* 13 */
 	0x0000, /* 14 */
 	0x0000, /* 15 */
@@ -100,16 +100,7 @@ void rffc5071_setup(rffc5071_driver_t* const drv)
 	set_RFFC5071_P2LODIV(drv, 0);
 	set_RFFC5071_P2PRESC(drv, 0);
 	set_RFFC5071_P2VCOSEL(drv, 0);
-
-	set_RFFC5071_P2N(drv, 0);
-	set_RFFC5071_P2LODIV(drv, 0);
-	set_RFFC5071_P2PRESC(drv, 0);
-	set_RFFC5071_P2VCOSEL(drv, 0);
-
-	set_RFFC5071_P2N(drv, 0);
-	set_RFFC5071_P2LODIV(drv, 0);
-	set_RFFC5071_P2PRESC(drv, 0);
-	set_RFFC5071_P2VCOSEL(drv, 0);
+	set_RFFC5071_P2NLSB(drv, 0);
 
 	/* set ENBL and MODE to be configured via 3-wire interface,
 	 * not control pins. */
@@ -253,9 +244,13 @@ uint64_t rffc5071_config_synth(rffc5071_driver_t* const drv, uint64_t lo)
 		set_RFFC5071_PLLCPL(drv, 2);
 	}
 
-	uint64_t numerator = fvco << (24ULL - fbkdivlog);
-	numerator += REF_FREQ / 2;  /* round to nearest frequency */
-	uint64_t tmp_n = numerator / REF_FREQ;
+	uint64_t tmp_n = (fvco << (24ULL - fbkdivlog)) / REF_FREQ;
+
+	/* Round to nearest step = ref_MHz / 2**s. For s=6, step=625000 Hz */
+	/* This also ensures the lowest 22-s fractional bits are set to 0. */
+	const uint8_t s = 6;
+	const uint8_t d = (24 - fbkdivlog + n_lo) - s;
+	tmp_n = ((tmp_n + (1 << (d - 1))) >> d) << d;
 
 	n = tmp_n >> 24ULL;
 	p1nmsb = (tmp_n >> 8ULL) & 0xffff;
@@ -268,7 +263,10 @@ uint64_t rffc5071_config_synth(rffc5071_driver_t* const drv, uint64_t lo)
 	set_RFFC5071_P2N(drv, n);
 	set_RFFC5071_P2PRESC(drv, fbkdivlog);
 	set_RFFC5071_P2NMSB(drv, p1nmsb);
-	set_RFFC5071_P2NLSB(drv, p1nlsb);
+	if (s > 14) {
+		/* Only set when the step size is small enough. */
+		set_RFFC5071_P2NLSB(drv, p1nlsb);
+	}
 
 	rffc5071_regs_commit(drv);
 
