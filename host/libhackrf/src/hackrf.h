@@ -1543,6 +1543,23 @@ extern ADDAPI int ADDCALL hackrf_usb_api_version_read(
 extern ADDAPI int ADDCALL hackrf_set_freq(hackrf_device* device, const uint64_t freq_hz);
 
 /**
+ * Schedule a center frequency change at a specific point in the RX/TX stream. The "when" argument specifices this point in the stream, and its value corresponds to the number of bytes sent (resp. received) to (resp. from) since the beginning of the stream, modulo 2^32 (this corresponds to the m0_counter value of the firmware).
+ *
+ * NOTE: A maximum of one scheduled frequency change is supported at a time. Trying to schedule a frequency change when one is still pending will result in an usb stall.
+ * 
+ * Simple (auto) tuning via specifying a center frequency in Hz
+ * 
+ * This setting is not exact and depends on the PLL settings. Exact resolution is not determined, but the actual tuned frequency will be queryable in the future.
+ * 
+ * @param device device to tune
+ * @param freq_hz center frequency in Hz. Defaults to 900MHz. Should be in range 1-6000MHz, but 0-7250MHz is possible. The resolution is ~50Hz, I could not find the exact number.
+ * @param when sets the frequency when the m0 counter matches this value
+ * @return @ref HACKRF_SUCCESS on success or @ref hackrf_error variant
+ * @ingroup configuration
+ */
+extern ADDAPI int ADDCALL hackrf_set_freq_when(hackrf_device* device, const uint64_t freq_hz, const uint32_t when);
+
+/**
  * Set the center frequency via explicit tuning
  * 
  * Center frequency is set to \f$f_{center} = f_{IF} + k\cdot f_{LO}\f$ where \f$k\in\left\{-1; 0; 1\right\}\f$, depending on the value of @p path. See the documentation of @ref rf_path_filter for details
