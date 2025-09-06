@@ -1557,7 +1557,10 @@ extern ADDAPI int ADDCALL hackrf_set_freq(hackrf_device* device, const uint64_t 
  * @return @ref HACKRF_SUCCESS on success or @ref hackrf_error variant
  * @ingroup configuration
  */
-extern ADDAPI int ADDCALL hackrf_set_freq_when(hackrf_device* device, const uint64_t freq_hz, const uint32_t when);
+extern ADDAPI int ADDCALL hackrf_set_freq_when(
+	hackrf_device* device,
+	const uint64_t freq_hz,
+	const uint32_t when);
 
 /**
  * Set the center frequency via explicit tuning

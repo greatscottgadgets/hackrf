@@ -454,8 +454,10 @@ void rx_mode(uint32_t seq)
 		uint32_t local_m0_count = m0_state.m0_count;
 
 		/* Check if scheduled frequency change is due, handles integer wrap-around */
-		if (frequency_switch_scheduled && !((local_m0_count - set_freq_when_params.when) & 0x80000000)) {
-			const uint64_t freq = set_freq_when_params.freq_mhz * 1000000ULL + set_freq_when_params.freq_hz;
+		if (frequency_switch_scheduled &&
+		    !((local_m0_count - set_freq_when_params.when) & 0x80000000)) {
+			const uint64_t freq = set_freq_when_params.freq_mhz * 1000000ULL +
+				set_freq_when_params.freq_hz;
 			set_freq(freq);
 			frequency_switch_scheduled = 0;
 		}
@@ -500,8 +502,10 @@ void tx_mode(uint32_t seq)
 		}
 
 		/* Check if scheduled frequency change is due, handles integer wrap-around */
-		if (frequency_switch_scheduled && !((local_m0_count - set_freq_when_params.when) & 0x80000000)) {
-			const uint64_t freq = set_freq_when_params.freq_mhz * 1000000ULL + set_freq_when_params.freq_hz;
+		if (frequency_switch_scheduled &&
+		    !((local_m0_count - set_freq_when_params.when) & 0x80000000)) {
+			const uint64_t freq = set_freq_when_params.freq_mhz * 1000000ULL +
+				set_freq_when_params.freq_hz;
 			set_freq(freq);
 			frequency_switch_scheduled = 0;
 		}

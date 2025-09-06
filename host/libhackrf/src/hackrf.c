@@ -1451,7 +1451,10 @@ typedef struct {
 	uint32_t when;
 } set_freq_when_params_t;
 
-int ADDCALL hackrf_set_freq_when(hackrf_device* device, const uint64_t freq_hz, const uint32_t when)
+int ADDCALL hackrf_set_freq_when(
+	hackrf_device* device,
+	const uint64_t freq_hz,
+	const uint32_t when)
 {
 	uint32_t l_freq_mhz;
 	uint32_t l_freq_hz;
