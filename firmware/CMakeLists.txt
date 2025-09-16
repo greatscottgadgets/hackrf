@@ -20,7 +20,7 @@
 
 # Top directory CMake project for HackRF firmware
 
-cmake_minimum_required(VERSION 3.1.3)
+cmake_minimum_required(VERSION 3.5.0)
 set(CMAKE_TOOLCHAIN_FILE toolchain-arm-cortex-m.cmake)
 
 project (hackrf_firmware_all C)
