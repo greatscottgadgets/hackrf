@@ -1,7 +1,6 @@
 #!/bin/bash
 set -e
-mkdir host/build
-cd host/build
-cmake ..
-make
-cd ../..
+cd host
+cmake -B build
+cmake --build build
+cd ..
