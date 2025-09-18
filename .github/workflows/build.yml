@@ -22,6 +22,18 @@ jobs:
     strategy:
       matrix:
         os: ['macos-latest', 'ubuntu-latest', 'windows-latest']
+        cmake: ['3.10.0', '3.16.0', '3.21.0', '4.0.0', 'latest']
+        exclude:
+          # GitHub runners use Apple silicon. Support added in CMake 3.19.2.
+          - os: 'macos-latest'
+            cmake: '3.10.0'
+          - os: 'macos-latest'
+            cmake: '3.16.0'
+          # GitHub runners use Visual Studio 2022. Support added in CMake 3.21.
+          - os: 'windows-latest'
+            cmake: '3.10.0'
+          - os: 'windows-latest'
+            cmake: '3.16.0'
 
       # Don't cancel all builds when one fails
       fail-fast: false
@@ -29,6 +41,11 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+
+    - name: Setup cmake
+      uses: jwlawson/actions-setup-cmake@v2
+      with:
+        cmake-version: ${{ matrix.cmake }}
 
     - name: Install dependencies (macOS)
       run: brew install fftw
@@ -127,13 +144,14 @@ jobs:
       with:
         name: hackrf-tools-windows
         path: ${{github.workspace}}/install/bin
-      if: matrix.os == 'windows-latest'
+      if: matrix.os == 'windows-latest' && matrix.cmake == 'latest'
 
   firmware:
     strategy:
       matrix:
         os: ['macos-latest', 'ubuntu-latest']
         board: ['HACKRF_ONE', 'JAWBREAKER', 'RAD1O']
+        cmake: ['3.10.0', 'latest']
 
       # Don't cancel all builds when one fails
       fail-fast: false
@@ -143,6 +161,11 @@ jobs:
     - uses: actions/checkout@v4
       with:
         submodules: true
+
+    - name: Setup cmake
+      uses: jwlawson/actions-setup-cmake@v2
+      with:
+        cmake-version: ${{ matrix.cmake }}
 
     - name: Install Arm GNU Toolchain
       uses: carlosperate/arm-none-eabi-gcc-action@v1
