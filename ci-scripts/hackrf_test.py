@@ -1122,6 +1122,7 @@ def program(bin_dir, fw_dir, serial, ci=False):
         binary = "hackrf_one_usb.bin"
         dfu_stub = "hackrf_one_usb.dfu"
 
+    # The EUT in CI has pins jumped to always boot into DFU mode so resetting is undesirable
     if ci:
         reset_write = "-w"
     else:
@@ -1137,8 +1138,10 @@ def program(bin_dir, fw_dir, serial, ci=False):
         f"{DFU_VENDOR_ID}:{DFU_PRODUCT_ID}", "--alt", "0", "--download",
         f"{fw_dir}{dfu_stub}"], capture_output=True, encoding="utf-8",
         timeout=TIMEOUT)
-    if dfu.returncode != 0:
-        log(dfu.stdout + dfu.stderr)
+
+    #dfu-util: unable to read DFU status after completion (LIBUSB_ERROR_IO)
+    # despite successful download; present as of at least dfu-util 0.11
+    if "Download done." not in dfu.stdout:
         fail(60)
 
     # Wait for device to boot from DFU.
