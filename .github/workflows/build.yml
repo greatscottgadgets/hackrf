@@ -101,12 +101,17 @@ jobs:
       working-directory: ${{github.workspace}}/host/libhackrf/build
       run: |
         sudo cmake --install . --config Release
-      if: matrix.os != 'windows-latest'
+      if: matrix.os != 'windows-latest' && matrix.cmake != '3.10.0'
+
+    - name: Install (libhackrf, CMake 3.10)
+      working-directory: ${{github.workspace}}/host/libhackrf/build
+      run: |
+        sudo cmake --build . --target install --config Release
+      if: matrix.os != 'windows-latest' && matrix.cmake == '3.10.0'
 
     - name: Install (libhackrf, Windows)
       working-directory: ${{github.workspace}}/host/libhackrf/build
-      run: |
-        cmake --install . --config Release --prefix=$env:GITHUB_WORKSPACE/install
+      run: cmake --install . --config Release --prefix=$env:GITHUB_WORKSPACE/install
       if: matrix.os == 'windows-latest'
 
     # Build hackrf-tools ONLY
@@ -130,8 +135,15 @@ jobs:
 
     - name: Install (hackrf-tools)
       working-directory: ${{github.workspace}}/host/hackrf-tools/build
-      run: sudo cmake --install . --config Release
-      if: matrix.os != 'windows-latest'
+      run: |
+        sudo cmake --install . --config Release
+      if: matrix.os != 'windows-latest' && matrix.cmake != '3.10.0'
+
+    - name: Install (hackrf-tools, CMake 3.10)
+      working-directory: ${{github.workspace}}/host/hackrf-tools/build
+      run: |
+        sudo cmake --build . --target install --config Release
+      if: matrix.os != 'windows-latest' && matrix.cmake == '3.10.0'
 
     - name: Install (hackrf-tools, Windows)
       working-directory: ${{github.workspace}}/host/hackrf-tools/build
