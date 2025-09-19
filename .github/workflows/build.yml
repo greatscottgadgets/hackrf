@@ -17,6 +17,9 @@ env:
   WIN_PTHREAD_LIB: -DTHREADS_PTHREADS_WIN32_LIBRARY=C:/vcpkg/installed/x64-windows/lib/pthreadvc3.lib
   WIN_CMAKE_TOOLCHAIN: -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake
 
+  # Override OSX architecture detection. Required for CMake versions < 3.19.2.
+  CMAKE_OSX_ARCHITECTURES: arm64
+
 jobs:
   host:
     strategy:
@@ -24,11 +27,6 @@ jobs:
         os: ['macos-latest', 'ubuntu-latest', 'windows-latest']
         cmake: ['3.10.0', '3.16.0', '3.21.0', '4.0.0', 'latest']
         exclude:
-          # GitHub runners use Apple silicon. Support added in CMake 3.19.2.
-          - os: 'macos-latest'
-            cmake: '3.10.0'
-          - os: 'macos-latest'
-            cmake: '3.16.0'
           # GitHub runners use Visual Studio 2022. Support added in CMake 3.21.
           - os: 'windows-latest'
             cmake: '3.10.0'
