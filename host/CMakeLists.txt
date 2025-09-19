@@ -1,6 +1,6 @@
 #top dir cmake project for libhackrf + tools
 
-cmake_minimum_required(VERSION 3.5.0)
+cmake_minimum_required(VERSION 3.10.0)
 project (HackRF C)
 
 set(CMAKE_C_FLAGS "$ENV{CFLAGS}" CACHE STRING "C Flags")
