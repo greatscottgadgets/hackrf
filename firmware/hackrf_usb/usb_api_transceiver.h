@@ -45,6 +45,9 @@ usb_request_status_t usb_vendor_request_set_baseband_filter_bandwidth(
 usb_request_status_t usb_vendor_request_set_freq(
 	usb_endpoint_t* const endpoint,
 	const usb_transfer_stage_t stage);
+usb_request_status_t usb_vendor_request_set_freq_when(
+	usb_endpoint_t* const endpoint,
+	const usb_transfer_stage_t stage);
 usb_request_status_t usb_vendor_request_set_sample_rate_frac(
 	usb_endpoint_t* const endpoint,
 	const usb_transfer_stage_t stage);
