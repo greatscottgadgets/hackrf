@@ -1,0 +1,5 @@
+include(CMakeFindDependencyMacro)
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}")
+find_dependency(LIBUSB REQUIRED)
+find_dependency(Threads REQUIRED)
+include("${CMAKE_CURRENT_LIST_DIR}/HackRFTargets.cmake")
