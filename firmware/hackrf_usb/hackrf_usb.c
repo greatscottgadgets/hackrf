@@ -126,6 +126,7 @@ static usb_request_handler_fn vendor_request_handler[] = {
 	usb_vendor_request_read_supported_platform,
 	usb_vendor_request_set_leds,
 	usb_vendor_request_user_config_set_bias_t_opts,
+	usb_vendor_request_set_freq_when,
 };
 
 static const uint32_t vendor_request_handler_count =
