@@ -86,7 +86,7 @@ endfunction()
 # Dynamic library
 if(ENABLE_SHARED_LIB)
   add_library(hackrf SHARED hackrf.c)
-  set_target_properties(${libtarget} PROPERTIES
+  set_target_properties(hackrf PROPERTIES
     VERSION ${PROJECT_VERSION}
     SOVERSION ${PROJECT_VERSION_MAJOR})
   libhackrf_common_settings(hackrf)
