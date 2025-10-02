@@ -24,16 +24,11 @@
 
 #include <hackrf.h>
 
+#include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <getopt.h>
-
-#ifndef bool
-typedef int bool;
-	#define true 1
-	#define false 0
-#endif
 
 #define REGISTER_INVALID 32767
 

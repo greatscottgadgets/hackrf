@@ -23,6 +23,7 @@
 
 #include <hackrf.h>
 
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -37,12 +38,6 @@
 #include <inttypes.h>
 
 #define _FILE_OFFSET_BITS 64
-
-#ifndef bool
-typedef int bool;
-	#define true 1
-	#define false 0
-#endif
 
 #ifdef _WIN32
 	#define _USE_MATH_DEFINES
