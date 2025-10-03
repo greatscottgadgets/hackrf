@@ -3,7 +3,7 @@
 import sys
 import subprocess
 import time
-import os, shutil
+import os, shutil, getpass
 import usb
 from datetime import datetime
 from dataclasses import dataclass
@@ -1261,7 +1261,7 @@ def main():
     global args
     args = parser.parse_args()
 
-    user = os.getlogin()
+    user = getpass.getuser()
 
     # if args.ci:
     #     user = "jenkins"
