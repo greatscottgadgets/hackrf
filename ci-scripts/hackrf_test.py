@@ -1261,10 +1261,12 @@ def main():
     global args
     args = parser.parse_args()
 
-    if args.ci:
-        user = "jenkins"
-    else:
-        user = os.getlogin()
+    user = os.getlogin()
+
+    # if args.ci:
+    #     user = "jenkins"
+    # else:
+    #     user = os.getlogin()
 
     if "any" in args.rev.lower():
         args.rev = None
