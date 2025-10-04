@@ -11,10 +11,8 @@ on:
 env:
   WIN_LIBUSB_INC: -DLIBUSB_INCLUDE_DIR=C:/vcpkg/installed/x64-windows/include/libusb-1.0
   WIN_LIBUSB_LIB: -DLIBUSB_LIBRARIES=C:/vcpkg/installed/x64-windows/lib/libusb-1.0.lib
-  WIN_FFTW_INC: -DFFTW_INCLUDES=C:/vcpkg/installed/x64-windows/include
-  WIN_FFTW_LIB: -DFFTW_LIBRARIES=C:/vcpkg/installed/x64-windows/lib/fftw3f.lib
-  WIN_PTHREAD_INC: -DTHREADS_PTHREADS_INCLUDE_DIR=C:/vcpkg/installed/x64-windows/include
-  WIN_PTHREAD_LIB: -DTHREADS_PTHREADS_WIN32_LIBRARY=C:/vcpkg/installed/x64-windows/lib/pthreadvc3.lib
+  WIN_FFTW_INC: -DFFTW3f_INCLUDE_DIRS=C:/vcpkg/installed/x64-windows/include
+  WIN_FFTW_LIB: -DFFTW3f_LIBRARIES=C:/vcpkg/installed/x64-windows/lib/fftw3f.lib
   WIN_CMAKE_TOOLCHAIN: -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake
 
   # Override OSX architecture detection. Required for CMake versions < 3.19.2.
@@ -70,7 +68,7 @@ jobs:
 
     - name: Configure CMake (Windows)
       working-directory: ${{github.workspace}}/host/build
-      run: cmake $env:GITHUB_WORKSPACE/host/ $env:WIN_LIBUSB_INC $env:WIN_LIBUSB_LIB $env:WIN_FFTW_INC $env:WIN_FFTW_LIB $env:WIN_PTHREAD_INC $env:WIN_PTHREAD_LIB $env:WIN_CMAKE_TOOLCHAIN
+      run: cmake $env:GITHUB_WORKSPACE/host/ $env:WIN_LIBUSB_INC $env:WIN_LIBUSB_LIB $env:WIN_FFTW_INC $env:WIN_FFTW_LIB $env:WIN_CMAKE_TOOLCHAIN
       if: matrix.os == 'windows-latest'
 
     - name: Build
@@ -88,7 +86,7 @@ jobs:
 
     - name: Configure CMake (libhackrf, Windows)
       working-directory: ${{github.workspace}}/host/libhackrf/build
-      run: cmake $env:GITHUB_WORKSPACE/host/libhackrf/ $env:WIN_LIBUSB_INC $env:WIN_LIBUSB_LIB $env:WIN_PTHREAD_INC $env:WIN_PTHREAD_LIB $env:WIN_CMAKE_TOOLCHAIN
+      run: cmake $env:GITHUB_WORKSPACE/host/libhackrf/ $env:WIN_LIBUSB_INC $env:WIN_LIBUSB_LIB $env:WIN_CMAKE_TOOLCHAIN
       if: matrix.os == 'windows-latest'
 
     - name: Build (libhackrf)
