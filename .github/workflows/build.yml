@@ -9,10 +9,7 @@ on:
     - cron: 1 12 * * 1
 
 env:
-  WIN_LIBUSB_INC: -DLIBUSB_INCLUDE_DIR=C:/vcpkg/installed/x64-windows/include/libusb-1.0
-  WIN_LIBUSB_LIB: -DLIBUSB_LIBRARIES=C:/vcpkg/installed/x64-windows/lib/libusb-1.0.lib
-  WIN_FFTW_INC: -DFFTW3f_INCLUDE_DIRS=C:/vcpkg/installed/x64-windows/include
-  WIN_FFTW_LIB: -DFFTW3f_LIBRARIES=C:/vcpkg/installed/x64-windows/lib/fftw3f.lib
+  WIN_PKG_CONFIG: -DPKG_CONFIG_EXECUTABLE=C:/vcpkg/installed/x64-windows/tools/pkgconf/pkgconf.exe
   WIN_CMAKE_TOOLCHAIN: -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake
 
   # Override OSX architecture detection. Required for CMake versions < 3.19.2.
@@ -54,7 +51,7 @@ jobs:
       if: matrix.os == 'ubuntu-latest'
 
     - name: Install dependencies (Windows)
-      run: vcpkg install --triplet=x64-windows libusb fftw3 pthreads
+      run: vcpkg install --triplet=x64-windows libusb fftw3 pthreads pkgconf
       if: matrix.os == 'windows-latest'
 
     # Build libhackrf and hackrf-tools together
@@ -68,7 +65,7 @@ jobs:
 
     - name: Configure CMake (Windows)
       working-directory: ${{github.workspace}}/host/build
-      run: cmake $env:GITHUB_WORKSPACE/host/ $env:WIN_LIBUSB_INC $env:WIN_LIBUSB_LIB $env:WIN_FFTW_INC $env:WIN_FFTW_LIB $env:WIN_CMAKE_TOOLCHAIN
+      run: cmake $env:GITHUB_WORKSPACE/host/ $env:WIN_PKG_CONFIG $env:WIN_CMAKE_TOOLCHAIN
       if: matrix.os == 'windows-latest'
 
     - name: Build
@@ -86,7 +83,7 @@ jobs:
 
     - name: Configure CMake (libhackrf, Windows)
       working-directory: ${{github.workspace}}/host/libhackrf/build
-      run: cmake $env:GITHUB_WORKSPACE/host/libhackrf/ $env:WIN_LIBUSB_INC $env:WIN_LIBUSB_LIB $env:WIN_CMAKE_TOOLCHAIN
+      run: cmake $env:GITHUB_WORKSPACE/host/libhackrf/ $env:WIN_PKG_CONFIG $env:WIN_CMAKE_TOOLCHAIN
       if: matrix.os == 'windows-latest'
 
     - name: Build (libhackrf)
@@ -122,7 +119,7 @@ jobs:
     - name: Configure CMake (hackrf-tools, Windows)
       working-directory: ${{github.workspace}}/host/hackrf-tools/build
       run: |
-        cmake $env:GITHUB_WORKSPACE/host/hackrf-tools/ $env:WIN_FFTW_INC $env:WIN_FFTW_LIB -DLIBHACKRF_INCLUDE_DIR="$env:GITHUB_WORKSPACE/install/include/libhackrf" -DLIBHACKRF_LIBRARIES="$env:GITHUB_WORKSPACE/install/bin/hackrf.lib" $env:WIN_CMAKE_TOOLCHAIN
+        cmake $env:GITHUB_WORKSPACE/host/hackrf-tools/ -DLIBHACKRF_INCLUDE_DIR="$env:GITHUB_WORKSPACE/install/include/libhackrf" -DLIBHACKRF_LIBRARIES="$env:GITHUB_WORKSPACE/install/bin/hackrf.lib" $env:WIN_PKG_CONFIG $env:WIN_CMAKE_TOOLCHAIN
       if: matrix.os == 'windows-latest'
 
     - name: Build (hackrf-tools)
