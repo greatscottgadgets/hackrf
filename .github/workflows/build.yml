@@ -93,21 +93,19 @@ jobs:
           mingw-w64-ucrt-x86_64-fftw
 
     # Build libhackrf and hackrf-tools together
-    - name: Create Build Environment
-      run: cmake -E make_directory host/build
 
     - name: Configure & Build
       run: |
+        cmake -E make_directory host/build
         cd host/build
         cmake .. -DCMAKE_BUILD_TYPE=Release ${{matrix.cmake_args}}
         cmake --build . --config Release
 
     # Build libhackrf ONLY
-    - name: Create Build Environment (libhackrf)
-      run: cmake -E make_directory host/libhackrf/build
 
     - name: Configure & Build (libhackrf)
       run: |
+        cmake -E make_directory host/libhackrf/build
         cd host/libhackrf/build
         cmake .. -DCMAKE_BUILD_TYPE=Release ${{ matrix.cmake_args }}
         cmake --build . --config Release
@@ -127,11 +125,10 @@ jobs:
       if: matrix.sys.os == 'windows'
 
     # Build hackrf-tools ONLY
-    - name: Create Build Environment (hackrf-tools)
-      run: cmake -E make_directory host/hackrf-tools/build
 
     - name: Configure & Build (hackrf-tools)
       run: |
+        cmake -E make_directory host/hackrf-tools/build
         cd host/hackrf-tools/build
         cmake .. -DCMAKE_BUILD_TYPE=Release ${{ matrix.cmake_args }}
         cmake --build . --config Release
