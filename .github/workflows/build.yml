@@ -154,9 +154,12 @@ jobs:
   firmware:
     strategy:
       matrix:
-        os: ['macos-latest', 'ubuntu-latest']
+        os: ['macos-latest', 'ubuntu-latest', 'windows-latest']
         board: ['HACKRF_ONE', 'JAWBREAKER', 'RAD1O']
         cmake: ['3.10.0', 'latest']
+        exclude:
+          - os: 'windows-latest'
+            cmake: '3.10.0'
 
       # Don't cancel all builds when one fails
       fail-fast: false
@@ -171,9 +174,11 @@ jobs:
       uses: jwlawson/actions-setup-cmake@v2
       with:
         cmake-version: ${{ matrix.cmake }}
+      if: matrix.os != 'windows-latest'
 
     - name: Install Arm GNU Toolchain
       uses: carlosperate/arm-none-eabi-gcc-action@v1
+      if: matrix.os != 'windows-latest'
 
     - name: Install dependencies (macOS)
       run: |
@@ -195,14 +200,17 @@ jobs:
       run: |
         source ../../environment/bin/activate
         make
+      if: matrix.os != 'windows-latest'
 
     - name: Create Build Environment
       run: cmake -E make_directory ${{github.workspace}}/firmware/build
+      if: matrix.os != 'windows-latest'
 
     - name: Configure CMake
       shell: bash
       working-directory: ${{github.workspace}}/firmware/build
       run: cmake $GITHUB_WORKSPACE/firmware/ -DCMAKE_BUILD_TYPE=Release -DBOARD=${{ matrix.board }}
+      if: matrix.os != 'windows-latest'
 
     - name: Build
       working-directory: ${{github.workspace}}/firmware/build
@@ -210,3 +218,27 @@ jobs:
       run: |
         source ../../environment/bin/activate
         cmake --build . --config Release
+      if: matrix.os != 'windows-latest'
+
+    - name: Setup MSYS (Windows)
+      if: matrix.os == 'windows-latest'
+      uses: msys2/setup-msys2@v2
+      with:
+        msystem: UCRT64
+        update: true
+        install: >-
+          git
+          make
+          mingw-w64-ucrt-x86_64-arm-none-eabi-gcc
+          mingw-w64-ucrt-x86_64-cmake
+          mingw-w64-ucrt-x86_64-dfu-util
+          mingw-w64-ucrt-x86_64-python-yaml
+
+    - name: Build with MSYS (Windows)
+      if: matrix.os == 'windows-latest'
+      shell: msys2 {0}
+      run: |
+        mkdir firmware/build
+        cd firmware/build
+        cmake -G "MSYS Makefiles" -DCMAKE_BUILD_TYPE=Release -DBOARD=${{ matrix.board }} ..
+        make
