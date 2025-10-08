@@ -519,8 +519,8 @@ class HackRF:
         try:
             devices_list = re.findall(r'Found HackRF\n.+\n.+\n.+\n.+\n.+\n.+', info.stdout)
             for device in devices_list:
-                sn = re.search("Serial number: \w+", device).group().split(": ")[1]
-                rev = re.search("Hardware Revision: .+", device).group().split(": ")[1]
+                sn = re.search(r'Serial number: \w+', device).group().split(': ')[1]
+                rev = re.search(r'Hardware Revision: .+', device).group().split(': ')[1]
                 if sn == serial:
                     self.serial = sn
                     self.revision = rev
@@ -1194,7 +1194,7 @@ def find_sn(name, bin_dir, claimed_sns=[]):
 
         out(f"\nPotential {name}(s) found:\n")
         for device in devices_list:
-            new_sn = re.search("Serial number: \w+", device).group().split(": ")[1]
+            new_sn = re.search(r'Serial number: \w+', device).group().split(': ')[1]
             if new_sn not in claimed_sns:
                 sn_list.append(new_sn)
         if len(sn_list) > 1:
