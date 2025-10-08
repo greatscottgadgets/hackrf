@@ -22,7 +22,7 @@ pipeline {
                     sh './ci-scripts/test-host.sh'
                 }
                 sh 'hubs hackrf hackrf_dfu on'
-                sh 'python3 ci-scripts/hackrf_test.py --ci --log log --rev r4 --manufacturer --hostdir host/build/hackrf-tools/src/ --fwupdate firmware/hackrf_usb/build/ --tester 0000000000000000325866e629a25623 --eut RunningFromRAM'
+                sh 'python3 ci-scripts/hackrf_test.py --unattended --ci --log log --rev r4 --manufacturer --hostdir host/build/hackrf-tools/src/ --fwupdate firmware/hackrf_usb/build/ --tester 0000000000000000325866e629a25623 --eut RunningFromRAM'
                 sh 'hubs all off'
                 retry(3) {
                     sh 'python3 ci-scripts/test-sgpio-debug.py'

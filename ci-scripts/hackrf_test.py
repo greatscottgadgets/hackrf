@@ -1114,7 +1114,7 @@ def write_waveform():
             bin_file.write(tx_bytes)
 
 
-def program(bin_dir, fw_dir, serial, ci=False):
+def program(bin_dir, fw_dir, serial, unattended=False):
     if "build" in fw_dir:
         binary = "hackrf_usb.bin"
         dfu_stub = "hackrf_usb.dfu"
@@ -1122,8 +1122,8 @@ def program(bin_dir, fw_dir, serial, ci=False):
         binary = "hackrf_one_usb.bin"
         dfu_stub = "hackrf_one_usb.dfu"
 
-    # The EUT in CI has pins jumped to always boot into DFU mode so resetting is undesirable
-    if ci:
+    # EUTs in unattended (including Jenkins CI) setups have pins jumped to always boot into DFU mode, so resetting is undesirable
+    if unattended:
         reset_write = "-w"
     else:
         reset_write = "-Rw"
@@ -1255,7 +1255,8 @@ def main():
             help="location of installed hackrf host tools, will attempt to find them if omitted")
     parser.add_argument("-b", "--testerdir", metavar="<separate path to TESTER host tools>", type=str,
             help="necessary only if EUT/TESTER have separate host binaries")
-    parser.add_argument("-C", "--ci", action="store_true", help="For use with CI setup")
+    parser.add_argument("-C", "--ci", action="store_true", help="For use with Jenkins CI user")
+    parser.add_argument("-u", "--unattended", action="store_true", help="For use with unattended hardware")
     parser.add_argument("-L", "--log", metavar="<log file>", type=str,
             help="log file location")
     global args
@@ -1323,7 +1324,7 @@ def main():
             fail(1)
 
         if args.fwupdate:
-            program(eut_host_dir, args.fwupdate, eut_sn, args.ci)
+            program(eut_host_dir, args.fwupdate, eut_sn, args.unattended)
 
         if not args.rev:
             out("Skipping EUT hardware revision check")
