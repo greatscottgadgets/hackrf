@@ -22,16 +22,11 @@
 
 #include <hackrf.h>
 
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <getopt.h>
 #include <string.h>
-
-#ifndef bool
-typedef int bool;
-	#define true 1
-	#define false 0
-#endif
 
 #define FREQ_MIN_MHZ (0)    /*    0 MHz */
 #define FREQ_MAX_MHZ (7250) /* 7250 MHz */
