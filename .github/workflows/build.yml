@@ -41,7 +41,7 @@ jobs:
         include:
           - sys: {os: 'windows', shell: 'pwsh'}
             cmake_args: >-
-              -DPKG_CONFIG_EXECUTABLE=C:/vcpkg/installed/x64-windows/tools/pkgconf/pkgconf.exe
+              -DCMAKE_PREFIX_PATH=C:/vcpkg/installed/x64-windows
               -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake
               --install-prefix=$env:GITHUB_WORKSPACE/install
           - sys: {os: 'windows', shell: 'msys2'}
@@ -76,7 +76,7 @@ jobs:
       if: matrix.sys.os == 'ubuntu'
 
     - name: Install dependencies (Windows)
-      run: vcpkg install --triplet=x64-windows libusb fftw3 pthreads pkgconf
+      run: vcpkg install --triplet=x64-windows libusb fftw3 pthreads
       if: matrix.sys.os == 'windows' && matrix.sys.shell != 'msys2'
 
     - name: Setup MSYS (Windows)
