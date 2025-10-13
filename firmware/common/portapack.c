@@ -28,6 +28,9 @@
 
 #include <libopencm3/lpc43xx/scu.h>
 
+uint16_t screen_width = 240;
+uint16_t screen_height = 320;
+
 static void portapack_sleep_milliseconds(const uint32_t milliseconds)
 {
 	/* NOTE: Naively assumes 204 MHz instruction cycle clock and five instructions per count */
@@ -323,8 +326,165 @@ static void portapack_lcd_reset()
 	portapack_sleep_milliseconds(120);
 }
 
+static uint32_t portapack_data_read()
+{
+	//return (LPC_GPIO->MPIN[gpio_data_port_id] >> gpio_data_shift) & 0xffU;
+	return (portapack_if.gpio_port_data->mpin >> 8) & 0xffU;
+}
+
+static uint32_t portapack_lcd_read_2byte()
+{
+	portapack_dir_read();
+	/* Start read operation */
+	portapack_lcd_rd_assert();
+	/* Wait for passthrough data(15:8) to settle -- ~16ns (3 cycles) typical */
+	/* Wait for read control L duration (355ns) */
+	delay(0.355 * 40800); // 355ns
+	const uint32_t value_high = portapack_data_read();
+	/* Latch data[7:0] */
+	portapack_lcd_rd_deassert();
+	/* Wait for latched data[7:0] to settle -- ~26ns (5 cycles) typical */
+	/* Wait for read control H duration (90ns) */
+	delay(0.090 * 40800); // 90ns
+	const uint32_t value_low = portapack_data_read();
+	return (value_high << 8) | value_low;
+}
+
+static uint32_t portapack_lcd_read_display_id()
+{
+	portapack_lcd_data_write_command_and_data(0x04, 0, 0);
+	portapack_lcd_read_2byte();
+	uint32_t value3 = portapack_lcd_read_2byte();
+	uint32_t value4 = portapack_lcd_read_2byte();
+	uint32_t value5 = portapack_lcd_read_2byte();
+	return value5 + (value4 << 8) + (value3 << 16);
+}
+
 static void portapack_lcd_init()
 {
+	uint32_t dispid = portapack_lcd_read_display_id();
+	if (dispid == 5537894) {
+		screen_height = 480;
+		screen_width = 320;
+		//portarf display init
+		portapack_lcd_data_write_command_and_data(
+			0xE0,
+			(const uint8_t[]) {0x00,
+					   0x09,
+					   0x0C,
+					   0x03,
+					   0x10,
+					   0x06,
+					   0x34,
+					   0x68,
+					   0x49,
+					   0x02,
+					   0x0A,
+					   0x07,
+					   0x2C,
+					   0x31,
+					   0x0F},
+			15);
+
+		portapack_lcd_data_write_command_and_data(
+			0xE1,
+			(const uint8_t[]) {0x00,
+					   0x12,
+					   0x15,
+					   0x02,
+					   0x10,
+					   0x06,
+					   0x35,
+					   0x35,
+					   0x4A,
+					   0x05,
+					   0x10,
+					   0x0C,
+					   0x2F,
+					   0x33,
+					   0x0F},
+			15);
+
+		portapack_lcd_data_write_command_and_data(
+			0xC0,
+			(const uint8_t[]) {0x0F, 0x0F},
+			2); // Vreg1out=4.5 Vreg2out=-4.5
+
+		portapack_lcd_data_write_command_and_data(
+			0xC1,
+			(const uint8_t[]) {0x44},
+			1); // VGH = 5*VCI VGL = -4*VCI
+
+		portapack_lcd_data_write_command_and_data(
+			0xC5,
+			(const uint8_t[]) {0x00, 0x66, 0x80},
+			3); // VCOM
+
+		portapack_lcd_data_write_command_and_data(
+			0x36,
+			(const uint8_t[]) {
+				(1 << 7) | // MY=1
+				(0 << 6) | // MX=0
+				(0 << 5) | // MV=0
+				(1
+				 << 4) | // ML=1: reverse vertical refresh to simplify scrolling logic
+				(1 << 3) // BGR=1: For Kingtech LCD, BGR filter.
+			},
+			1);
+
+		// portapack_lcd_data_write_command_and_data(0x36, {0x48});
+		portapack_lcd_data_write_command_and_data(
+			0x3A,
+			(const uint8_t[]) {0x65},
+			1); // 0x55 was the original
+		// 这里的刷新率过低？
+		// portapack_lcd_data_write_command_and_data(0xB1, {0x40, 0x1F});  // fix 60 fps
+		portapack_lcd_data_write_command_and_data(
+			0xB1,
+			(const uint8_t[]) {0xA0, 0x11},
+			2); // Frame rate source is 11fps
+
+		portapack_lcd_data_write_command_and_data(
+			0xB4,
+			(const uint8_t[]) {0x02},
+			1); // 2 dot inversion
+
+		portapack_lcd_data_write_command_and_data(
+			0xEE,
+			(const uint8_t[]) {0x00, 0x04},
+			2);
+
+		portapack_lcd_data_write_command_and_data(
+			0xE9,
+			(const uint8_t[]) {0x00},
+			1);
+
+		portapack_lcd_data_write_command_and_data(
+			0xF7,
+			(const uint8_t[]) {0xA9, 0x51, 0x2C, 0x82},
+			4);
+
+		portapack_lcd_data_write_command_and_data(
+			0x21,
+			0,
+			0); // Display Inversion On
+
+		portapack_lcd_data_write_command_and_data(0x11, 0, 0); // Sleep Out
+		delay(0.12 * 40800);                                   // Delay 120ms
+
+		portapack_lcd_data_write_command_and_data(0x29, 0, 0); // Display On
+		delay(0.05 * 40800);                                   // Delay 50ms
+
+		// Turn on Tearing Effect Line (TE) output signal.
+		portapack_lcd_data_write_command_and_data(
+			0x35,
+			(const uint8_t[]) {0b00000000},
+			1);
+
+		return;
+	}
+	//any other portapack display
+
 	// LCDs are configured for IM[2:0] = 001
 	// 8080-I system, 16-bit parallel bus
 
@@ -502,7 +662,7 @@ void portapack_fill_rectangle(const ui_rect_t rect, const ui_color_t color)
 
 void portapack_clear_display(const ui_color_t color)
 {
-	const ui_rect_t rect_screen = {{0, 0}, {240, 320}};
+	const ui_rect_t rect_screen = {{0, 0}, {screen_width, screen_height}};
 	portapack_fill_rectangle(rect_screen, color);
 }
 
