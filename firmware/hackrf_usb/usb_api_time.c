@@ -19,7 +19,6 @@
  * Boston, MA 02110-1301, USA.
  */
 
-
 #include <hackrf_core.h>
 #include <usb_queue.h>
 //#include <max283x.h>
@@ -43,11 +42,9 @@
 
 #include "usb_api_time.h"
 
-
 #define PPS1_CLK_INIT_DIVISOR 204000000 - 1
-#define PPS1_WIDTH 4000		// 20 us 1pps pulse width @200 MHz cpu clock
-#define TRIG_INIT_DELAY 40000000	// 200 ms trigger delay @200 MHz cpu clock 
-
+#define PPS1_WIDTH            4000     // 20 us 1pps pulse width @200 MHz cpu clock
+#define TRIG_INIT_DELAY       40000000 // 200 ms trigger delay @200 MHz cpu clock
 
 int64_t seconds;
 int64_t new_seconds;
@@ -56,7 +53,6 @@ uint32_t one_pps_divisor;
 uint32_t current_divisor;
 uint32_t new_trig_delay;
 uint32_t current_trig_delay;
-
 
 /**** time timer functions ****/
 
@@ -99,23 +95,21 @@ void time_timer_init(void)
 	new_trig_delay = 0;
 
 	/* enable 1pps interrupt */
-    nvic_enable_irq(NVIC_TIMER3_IRQ);
+	nvic_enable_irq(NVIC_TIMER3_IRQ);
 
 	/* start counting */
 	timer_reset(TIMER3);
 	timer_enable_counter(TIMER3);
 }
 
-
-void timer3_isr() {
-
+void timer3_isr()
+{
 	/* clear pending interrupt */
 	TIMER3_IR |= TIMER_IR_MR3INT;
 
 	/* if start of 1pps pulse: 1pps is set (leading edge) and match
 	 * R0 is set to count until to next 1pps trailing edge.  */
 	if (TIMER3_MR0 != PPS1_WIDTH) {
-
 		/* second counter */
 		seconds++;
 
@@ -149,7 +143,6 @@ void timer3_isr() {
 	/* else is the end of 1pps pulse: match R0 is set to
 	 * count until the next 1pps leading edge. */
 	else {
-
 		/* if requested, set new current divisor. */
 		if (new_divisor) {
 			current_divisor = new_divisor;
@@ -188,18 +181,18 @@ void timer3_isr() {
 		/* reset counter at next R0 match: start counting for the
 		 * next second period */
 		TIMER3_MCR |= TIMER_MCR_MR0R;
-
 	}
-
 }
-
 
 /**** API functions ****/
 
-
-void si5351c_set_freq(si5351c_driver_t* const drv,uint8_t msn,double vco,
-         double freq,uint8_t rdiv) {
-
+void si5351c_set_freq(
+	si5351c_driver_t* const drv,
+	uint8_t msn,
+	double vco,
+	double freq,
+	uint8_t rdiv)
+{
 	double frac, a, b, c;
 	uint32_t p1, p2, p3;
 
@@ -219,10 +212,8 @@ void si5351c_set_freq(si5351c_driver_t* const drv,uint8_t msn,double vco,
 	p3 = c;
 
 	// set multisynth frequency in given section
-	si5351c_configure_multisynth(drv,msn,p1,p2,p3,rdiv);
-
+	si5351c_configure_multisynth(drv, msn, p1, p2, p3, rdiv);
 }
-
 
 /**** USB API ****/
 
@@ -230,122 +221,107 @@ usb_request_status_t usb_vendor_request_time_set_divisor_next_pps(
 	usb_endpoint_t* const endpoint,
 	const usb_transfer_stage_t stage)
 {
-        static uint32_t divisor = 0;
-        if (stage == USB_TRANSFER_STAGE_SETUP) {
-                usb_transfer_schedule_block(
-                        endpoint->out,
-                        (uint8_t*)&divisor,
-                        4,
-                        NULL,
-                        NULL);
-                return USB_REQUEST_STATUS_OK;
-		} else if (stage == USB_TRANSFER_STAGE_DATA) {
+	static uint32_t divisor = 0;
+	if (stage == USB_TRANSFER_STAGE_SETUP) {
+		usb_transfer_schedule_block(
+			endpoint->out,
+			(uint8_t*) &divisor,
+			4,
+			NULL,
+			NULL);
+		return USB_REQUEST_STATUS_OK;
+	} else if (stage == USB_TRANSFER_STAGE_DATA) {
+		new_divisor = divisor;
 
-						new_divisor = divisor;
-
-                        usb_transfer_schedule_ack(endpoint->in);
-                        return USB_REQUEST_STATUS_OK;
-        } else {
-                return USB_REQUEST_STATUS_OK;
-        }
+		usb_transfer_schedule_ack(endpoint->in);
+		return USB_REQUEST_STATUS_OK;
+	} else {
+		return USB_REQUEST_STATUS_OK;
+	}
 }
-
 
 usb_request_status_t usb_vendor_request_time_set_divisor_one_pps(
 	usb_endpoint_t* const endpoint,
 	const usb_transfer_stage_t stage)
 {
-        static uint32_t divisor = 0;
-        if (stage == USB_TRANSFER_STAGE_SETUP) {
-                usb_transfer_schedule_block(
-                        endpoint->out,
-                        (uint8_t*)&divisor,
-                        4,
-                        NULL,
-                        NULL);
-                return USB_REQUEST_STATUS_OK;
-        } else if (stage == USB_TRANSFER_STAGE_DATA) {
+	static uint32_t divisor = 0;
+	if (stage == USB_TRANSFER_STAGE_SETUP) {
+		usb_transfer_schedule_block(
+			endpoint->out,
+			(uint8_t*) &divisor,
+			4,
+			NULL,
+			NULL);
+		return USB_REQUEST_STATUS_OK;
+	} else if (stage == USB_TRANSFER_STAGE_DATA) {
+		one_pps_divisor = divisor;
 
-						one_pps_divisor = divisor;
-
-                        usb_transfer_schedule_ack(endpoint->in);
-                        return USB_REQUEST_STATUS_OK;
-        } else {
-                return USB_REQUEST_STATUS_OK;
-        }
+		usb_transfer_schedule_ack(endpoint->in);
+		return USB_REQUEST_STATUS_OK;
+	} else {
+		return USB_REQUEST_STATUS_OK;
+	}
 }
-
 
 usb_request_status_t usb_vendor_request_time_set_trig_delay_next_pps(
 	usb_endpoint_t* const endpoint,
 	const usb_transfer_stage_t stage)
 {
-        static uint32_t trig_delay = 0;
-        if (stage == USB_TRANSFER_STAGE_SETUP) {
-                usb_transfer_schedule_block(
-                        endpoint->out,
-                        (uint8_t*)&trig_delay,
-                        4,
-                        NULL,
-                        NULL);
-                return USB_REQUEST_STATUS_OK;
-        } else if (stage == USB_TRANSFER_STAGE_DATA) {
+	static uint32_t trig_delay = 0;
+	if (stage == USB_TRANSFER_STAGE_SETUP) {
+		usb_transfer_schedule_block(
+			endpoint->out,
+			(uint8_t*) &trig_delay,
+			4,
+			NULL,
+			NULL);
+		return USB_REQUEST_STATUS_OK;
+	} else if (stage == USB_TRANSFER_STAGE_DATA) {
+		new_trig_delay = trig_delay;
 
-						new_trig_delay = trig_delay;
-
-                        usb_transfer_schedule_ack(endpoint->in);
-                        return USB_REQUEST_STATUS_OK;
-        } else {
-                return USB_REQUEST_STATUS_OK;
-        }
+		usb_transfer_schedule_ack(endpoint->in);
+		return USB_REQUEST_STATUS_OK;
+	} else {
+		return USB_REQUEST_STATUS_OK;
+	}
 }
-
 
 usb_request_status_t usb_vendor_request_time_get_seconds_now(
-        usb_endpoint_t* const endpoint,
-        const usb_transfer_stage_t stage)
+	usb_endpoint_t* const endpoint,
+	const usb_transfer_stage_t stage)
 {
 	int64_t secs;
-        if (stage == USB_TRANSFER_STAGE_SETUP) {
+	if (stage == USB_TRANSFER_STAGE_SETUP) {
+		secs = seconds;
 
-                secs = seconds;
-
-                usb_transfer_schedule_block(
-                        endpoint->in,
-                        (uint8_t*)&secs,
-                        8,
-                        NULL,
-                        NULL);
-                usb_transfer_schedule_ack(endpoint->out);
-        }
-        return USB_REQUEST_STATUS_OK;
+		usb_transfer_schedule_block(endpoint->in, (uint8_t*) &secs, 8, NULL, NULL);
+		usb_transfer_schedule_ack(endpoint->out);
+	}
+	return USB_REQUEST_STATUS_OK;
 }
-
 
 usb_request_status_t usb_vendor_request_time_set_seconds_now(
 	usb_endpoint_t* const endpoint,
 	const usb_transfer_stage_t stage)
 {
 	static int64_t secs = 0;
-        if (stage == USB_TRANSFER_STAGE_SETUP) {
-                usb_transfer_schedule_block(
-                        endpoint->out,
-                        (uint8_t*)&secs,
-                        8,
-                        NULL,
-                        NULL);
-                return USB_REQUEST_STATUS_OK;
-        } else if (stage == USB_TRANSFER_STAGE_DATA) {
+	if (stage == USB_TRANSFER_STAGE_SETUP) {
+		usb_transfer_schedule_block(
+			endpoint->out,
+			(uint8_t*) &secs,
+			8,
+			NULL,
+			NULL);
+		return USB_REQUEST_STATUS_OK;
+	} else if (stage == USB_TRANSFER_STAGE_DATA) {
+		seconds = secs;
 
-						seconds = secs;
-
-                        usb_transfer_schedule_ack(endpoint->in);
-                        return USB_REQUEST_STATUS_OK;
-        } else {
-                return USB_REQUEST_STATUS_OK;
-        }
+		usb_transfer_schedule_ack(endpoint->in);
+		return USB_REQUEST_STATUS_OK;
+	} else {
+		return USB_REQUEST_STATUS_OK;
+	}
 }
-
 
 usb_request_status_t usb_vendor_request_time_set_seconds_next_pps(
 	usb_endpoint_t* const endpoint,
@@ -353,71 +329,60 @@ usb_request_status_t usb_vendor_request_time_set_seconds_next_pps(
 {
 	static int64_t secs = 0;
 	if (stage == USB_TRANSFER_STAGE_SETUP) {
-                usb_transfer_schedule_block(
-                        endpoint->out,
-                        (uint8_t*)&secs,
-                        8,
-                        NULL,
-                        NULL);
-                return USB_REQUEST_STATUS_OK;
-        } else if (stage == USB_TRANSFER_STAGE_DATA) {
+		usb_transfer_schedule_block(
+			endpoint->out,
+			(uint8_t*) &secs,
+			8,
+			NULL,
+			NULL);
+		return USB_REQUEST_STATUS_OK;
+	} else if (stage == USB_TRANSFER_STAGE_DATA) {
+		new_seconds = secs;
 
-						new_seconds = secs;
-
-                        usb_transfer_schedule_ack(endpoint->in);
-                        return USB_REQUEST_STATUS_OK;
-        } else {
-                return USB_REQUEST_STATUS_OK;
-        }
+		usb_transfer_schedule_ack(endpoint->in);
+		return USB_REQUEST_STATUS_OK;
+	} else {
+		return USB_REQUEST_STATUS_OK;
+	}
 }
-
 
 usb_request_status_t usb_vendor_request_time_get_ticks_now(
-        usb_endpoint_t* const endpoint,
-        const usb_transfer_stage_t stage)
+	usb_endpoint_t* const endpoint,
+	const usb_transfer_stage_t stage)
 {
-        if (stage == USB_TRANSFER_STAGE_SETUP) {
+	if (stage == USB_TRANSFER_STAGE_SETUP) {
+		uint32_t ticks = timer_get_counter(TIMER3);
 
-                uint32_t ticks = timer_get_counter(TIMER3);
-
-                usb_transfer_schedule_block(
-                        endpoint->in,
-                        (uint8_t*)&ticks,
-                        4,
-                        NULL,
-                        NULL);
-                usb_transfer_schedule_ack(endpoint->out);
-        }
-        return USB_REQUEST_STATUS_OK;
+		usb_transfer_schedule_block(
+			endpoint->in,
+			(uint8_t*) &ticks,
+			4,
+			NULL,
+			NULL);
+		usb_transfer_schedule_ack(endpoint->out);
+	}
+	return USB_REQUEST_STATUS_OK;
 }
-
 
 usb_request_status_t usb_vendor_request_time_set_ticks_now(
 	usb_endpoint_t* const endpoint,
 	const usb_transfer_stage_t stage)
 {
 	static uint32_t tks = 0;
-        if (stage == USB_TRANSFER_STAGE_SETUP) {
-                usb_transfer_schedule_block(
-                        endpoint->out,
-                        (uint8_t*)&tks,
-                        4,
-                        NULL,
-                        NULL);
-                return USB_REQUEST_STATUS_OK;
-        } else if (stage == USB_TRANSFER_STAGE_DATA) {
+	if (stage == USB_TRANSFER_STAGE_SETUP) {
+		usb_transfer_schedule_block(endpoint->out, (uint8_t*) &tks, 4, NULL, NULL);
+		return USB_REQUEST_STATUS_OK;
+	} else if (stage == USB_TRANSFER_STAGE_DATA) {
+		timer_disable_counter(TIMER3);
+		timer_set_counter(TIMER3, tks);
+		timer_enable_counter(TIMER3);
 
-						timer_disable_counter(TIMER3);
-						timer_set_counter(TIMER3,tks);
-						timer_enable_counter(TIMER3);
-
-                        usb_transfer_schedule_ack(endpoint->in);
-                        return USB_REQUEST_STATUS_OK;
-        } else {
-                return USB_REQUEST_STATUS_OK;
-        }
+		usb_transfer_schedule_ack(endpoint->in);
+		return USB_REQUEST_STATUS_OK;
+	} else {
+		return USB_REQUEST_STATUS_OK;
+	}
 }
-
 
 usb_request_status_t usb_vendor_request_time_set_clk_freq(
 	usb_endpoint_t* const endpoint,
@@ -429,26 +394,33 @@ usb_request_status_t usb_vendor_request_time_set_clk_freq(
 	if (stage == USB_TRANSFER_STAGE_SETUP) {
 		usb_transfer_schedule_block(
 			endpoint->out,
-			(uint8_t*)&freq,
+			(uint8_t*) &freq,
 			8,
 			NULL,
 			NULL);
 	} else {
 		if (stage == USB_TRANSFER_STAGE_DATA) {
-
 			if (detected_platform() == BOARD_ID_HACKRF1_R9) {
 				if (alternate) {
-					si5351c_set_freq(&clock_gen,1,800e6,freq * 2,0);
-					si5351c_set_freq(&clock_gen,2,800e6,freq,0);
-				}
-				else {
-					si5351c_set_freq(&clock_gen,2,800e6,freq,0);
-					si5351c_set_freq(&clock_gen,1,800e6,freq * 2,0);
+					si5351c_set_freq(
+						&clock_gen,
+						1,
+						800e6,
+						freq * 2,
+						0);
+					si5351c_set_freq(&clock_gen, 2, 800e6, freq, 0);
+				} else {
+					si5351c_set_freq(&clock_gen, 2, 800e6, freq, 0);
+					si5351c_set_freq(
+						&clock_gen,
+						1,
+						800e6,
+						freq * 2,
+						0);
 				}
 				alternate = !alternate;
-			}
-			else {
-				si5351c_set_freq(&clock_gen,0,800e6,freq * 2,1);
+			} else {
+				si5351c_set_freq(&clock_gen, 0, 800e6, freq * 2, 1);
 			}
 			usb_transfer_schedule_ack(endpoint->in);
 		}
@@ -456,49 +428,44 @@ usb_request_status_t usb_vendor_request_time_set_clk_freq(
 	return USB_REQUEST_STATUS_OK;
 }
 
-
 usb_request_status_t usb_vendor_request_time_set_mcu_clk_sync(
-        usb_endpoint_t* const endpoint,
-        const usb_transfer_stage_t stage)
+	usb_endpoint_t* const endpoint,
+	const usb_transfer_stage_t stage)
 {
-        if (stage == USB_TRANSFER_STAGE_SETUP) {
+	if (stage == USB_TRANSFER_STAGE_SETUP) {
+		// change cgu clkin to 10MHz from clock generator (GP_CLKIN)
+		// WARNING: clock gen out #2 for r9 boards or out #3 for not
+		// r9 must be already set to give 10MHz.
+		if (endpoint->setup.value) {
+			// check for external clock source
+			activate_best_clock_source();
 
-				// change cgu clkin to 10MHz from clock generator (GP_CLKIN)
-				// WARNING: clock gen out #2 for r9 boards or out #3 for not
-				// r9 must be already set to give 10MHz.
-				if (endpoint->setup.value) {
+			// enable mcu clock: output clock to mcu
+			si5351c_mcu_clk_enable(true);
 
-					// check for external clock source
-					activate_best_clock_source();
+			// configure si5351c synthesizer: force int more, remove
+			// self channel source whenever possible.
+			si5351c_mcu_clk_sync(&clock_gen, true);
 
-					// enable mcu clock: output clock to mcu
-					si5351c_mcu_clk_enable(true);
+			// set mcu clk pll1 to nominal maximum speed 200 MHz
+			cpu_clock_pll1_max_speed(CGU_SRC_GP_CLKIN, 20);
 
-					// configure si5351c synthesizer: force int more, remove
-					// self channel source whenever possible.
-					si5351c_mcu_clk_sync(&clock_gen,true);
+		}
+		// return cgu clkin to 12MHz XTAL
+		else {
+			// set mcu clk pll1 to nominal maximum speed 204 MHz
+			cpu_clock_pll1_max_speed(CGU_SRC_XTAL, 17);
 
-					// set mcu clk pll1 to nominal maximum speed 200 MHz
-					cpu_clock_pll1_max_speed(CGU_SRC_GP_CLKIN,20);
+			// restore the configuration of the si5351c synthesizer
+			si5351c_mcu_clk_sync(&clock_gen, false);
 
-				}
-				// return cgu clkin to 12MHz XTAL
-				else {
+			// disable mcu clock: no output clock to mcu
+			si5351c_mcu_clk_enable(false);
+		}
 
-					// set mcu clk pll1 to nominal maximum speed 204 MHz
-					cpu_clock_pll1_max_speed(CGU_SRC_XTAL,17);
-
-					// restore the configuration of the si5351c synthesizer
-					si5351c_mcu_clk_sync(&clock_gen,false);
-
-					// disable mcu clock: no output clock to mcu
-					si5351c_mcu_clk_enable(false);
-
-				}
-
-                usb_transfer_schedule_ack(endpoint->in);
-        }
-        return USB_REQUEST_STATUS_OK;
+		usb_transfer_schedule_ack(endpoint->in);
+	}
+	return USB_REQUEST_STATUS_OK;
 }
 
 /**** end ****/

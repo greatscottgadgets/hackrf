@@ -2102,29 +2102,36 @@ extern ADDAPI int ADDCALL hackrf_set_user_bias_t_opts(
 	hackrf_device* device,
 	hackrf_bias_t_user_settting_req* req);
 
-
 /* HTime API FP20230805 */
 
 extern ADDAPI int ADDCALL hackrf_time_set_divisor_next_pps(
-		hackrf_device* device, uint32_t divisor);
+	hackrf_device* device,
+	uint32_t divisor);
 extern ADDAPI int ADDCALL hackrf_time_set_divisor_one_pps(
-		hackrf_device* device, uint32_t divisor);
+	hackrf_device* device,
+	uint32_t divisor);
 extern ADDAPI int ADDCALL hackrf_time_set_trig_delay_next_pps(
-		hackrf_device* device, uint32_t trig_delay);
+	hackrf_device* device,
+	uint32_t trig_delay);
 extern ADDAPI int ADDCALL hackrf_time_get_seconds_now(
-		hackrf_device* device, int64_t *seconds);
+	hackrf_device* device,
+	int64_t* seconds);
 extern ADDAPI int ADDCALL hackrf_time_set_seconds_now(
-		hackrf_device* device, int64_t seconds);
+	hackrf_device* device,
+	int64_t seconds);
 extern ADDAPI int ADDCALL hackrf_time_set_seconds_next_pps(
-		hackrf_device* device, int64_t seconds);
+	hackrf_device* device,
+	int64_t seconds);
 extern ADDAPI int ADDCALL hackrf_time_get_ticks_now(
-		hackrf_device* device, uint32_t *ticks);
-extern ADDAPI int ADDCALL hackrf_time_set_ticks_now(
-		hackrf_device* device, uint32_t ticks);
+	hackrf_device* device,
+	uint32_t* ticks);
+extern ADDAPI int ADDCALL hackrf_time_set_ticks_now(hackrf_device* device, uint32_t ticks);
 extern ADDAPI int ADDCALL hackrf_time_set_clk_freq(
-        hackrf_device* device,const double clk_freq);
+	hackrf_device* device,
+	const double clk_freq);
 extern ADDAPI int ADDCALL hackrf_time_set_mcu_clk_sync(
-        hackrf_device* device,const uint8_t value);
+	hackrf_device* device,
+	const uint8_t value);
 
 #ifdef __cplusplus
 } // __cplusplus defined.

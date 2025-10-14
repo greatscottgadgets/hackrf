@@ -229,13 +229,11 @@ void si5351c_configure_clock_control(
 
 		if (mcu_clk_sync && detected_platform() != BOARD_ID_HACKRF1_R9) {
 			clkout_ctrl |= SI5351C_CLK_SRC(SI5351C_CLK_SRC_MULTISYNTH_0_4);
-			si5351c_configure_multisynth(drv,3,80 * 128 - 512,0,0,1);
-		}
-		else {
+			si5351c_configure_multisynth(drv, 3, 80 * 128 - 512, 0, 0, 1);
+		} else {
 			clkout_ctrl |= SI5351C_CLK_SRC(SI5351C_CLK_SRC_MULTISYNTH_SELF);
 		}
-	}
-	else {
+	} else {
 		clkout_ctrl = SI5351C_CLK_POWERDOWN | SI5351C_CLK_INT_MODE;
 	}
 
@@ -243,7 +241,7 @@ void si5351c_configure_clock_control(
 	/* External clock output is kept in current state */
 	uint8_t data[] = {
 		16,
-								SI5351C_CLK_PLL_SRC(pll) |
+		SI5351C_CLK_PLL_SRC(pll) |
 			SI5351C_CLK_SRC(SI5351C_CLK_SRC_MULTISYNTH_SELF) |
 			SI5351C_CLK_IDRV(SI5351C_CLK_IDRV_8MA),
 		SI5351C_CLK_INT_MODE | SI5351C_CLK_PLL_SRC(pll) |
@@ -266,8 +264,7 @@ void si5351c_configure_clock_control(
 	if (mcu_clk_sync) {
 		data[1] |= SI5351C_CLK_INT_MODE;
 		data[6] |= SI5351C_CLK_SRC(SI5351C_CLK_SRC_MULTISYNTH_0_4);
-	}
-	else {
+	} else {
 		data[1] |= SI5351C_CLK_FRAC_MODE;
 		data[6] |= SI5351C_CLK_SRC(SI5351C_CLK_SRC_MULTISYNTH_SELF);
 	}
@@ -275,7 +272,7 @@ void si5351c_configure_clock_control(
 		data[1] = SI5351C_CLK_INT_MODE | SI5351C_CLK_PLL_SRC_A |
 			SI5351C_CLK_SRC(SI5351C_CLK_SRC_MULTISYNTH_SELF) |
 			SI5351C_CLK_IDRV(SI5351C_CLK_IDRV_6MA);
-		data[2] = 						SI5351C_CLK_PLL_SRC_A |
+		data[2] = SI5351C_CLK_PLL_SRC_A |
 			SI5351C_CLK_SRC(SI5351C_CLK_SRC_MULTISYNTH_SELF) |
 			SI5351C_CLK_IDRV(SI5351C_CLK_IDRV_4MA);
 		data[3] = clkout_ctrl;
@@ -409,8 +406,7 @@ void si5351c_mcu_clk_sync(si5351c_driver_t* const drv, uint8_t enable)
 {
 	mcu_clk_sync = (enable > 0);
 
-	si5351c_clkout_enable(drv,enable);
-
+	si5351c_clkout_enable(drv, enable);
 }
 
 void si5351c_init(si5351c_driver_t* const drv)

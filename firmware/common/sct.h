@@ -2310,7 +2310,7 @@ EV[0:15]_CTRL[MATCHMEM, DIRECTION]
 /* -- SCT_OUTn_SETm: A 1 in bit m selects event m to set output n (or clear it
  * if SETCLRn = 0x1 or 0x2) event 0 = bit 0, event 1 = bit 1,..., event 15 =
  * bit 15. */
-#define SCT_OUTn_SETm(n, m) (((n) &1) << (m))
+#define SCT_OUTn_SETm(n, m) (((n) & 1) << (m))
 
 /* --- SCT_OUT0_CLR -------------------------------------- */
 #define SCT_OUT0_CLR MMIO32(SCT_BASE + 0x504)
@@ -2363,4 +2363,4 @@ EV[0:15]_CTRL[MATCHMEM, DIRECTION]
 /* -- SCT_OUTn_CLR_CLRm: A 1 in bit m selects event m to clear output n (or set
  * it if SETCLRn = 0x1 or 0x2) event 0 = bit 0, event 1 = bit 1,..., event 15 =
  * bit 15. */
-#define SCT_OUTn_CLRm(n, m) (((n) &1) << (m))
+#define SCT_OUTn_CLRm(n, m) (((n) & 1) << (m))
