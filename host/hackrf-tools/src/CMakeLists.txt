@@ -30,7 +30,8 @@ set(TOOLS
     hackrf_debug
     hackrf_clock
     hackrf_operacake
-    hackrf_biast)
+    hackrf_biast
+    hackrf_time)
 
 if(TARGET HackRF::hackrf)
   list(APPEND TOOLS_LINK_LIBS HackRF::hackrf)
