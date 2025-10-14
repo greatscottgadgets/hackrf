@@ -272,8 +272,8 @@ static void rad1o_ui_set_bb_tx_vga_gain(const uint32_t gain_db)
 	ui_update();
 }
 
-static void rad1o_ui_set_first_if_frequency(const uint64_t frequency
-					    __attribute__((unused)))
+static void rad1o_ui_set_first_if_frequency(
+	const uint64_t frequency __attribute__((unused)))
 {
 	// Not implemented
 }

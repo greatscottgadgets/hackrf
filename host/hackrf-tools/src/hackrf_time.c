@@ -32,10 +32,9 @@
 
 #ifndef bool
 typedef int bool;
-	#define true 1
+	#define true  1
 	#define false 0
 #endif
-
 
 int parse_int(char* s, uint32_t* const value)
 {
@@ -65,7 +64,6 @@ int parse_int(char* s, uint32_t* const value)
 	}
 }
 
-
 int parse_double(char* s, double* const double_value)
 {
 	char* s_end;
@@ -78,7 +76,6 @@ int parse_double(char* s, double* const double_value)
 		return HACKRF_ERROR_INVALID_PARAM;
 	}
 }
-
 
 static void usage()
 {
@@ -102,9 +99,8 @@ static void usage()
 	printf("\nv0.1.0 20250215 F.P. <mxgbot@gmail.com>\n");
 }
 
-
 static struct option long_options[] = {
-    {"help", no_argument, 0, 'h'},
+	{"help", no_argument, 0, 'h'},
 	{"divisor", required_argument, 0, 'd'},
 	{"Divisor", required_argument, 0, 'D'},
 	{"set_clk_freq", required_argument, 0, 'f'},
@@ -115,9 +111,7 @@ static struct option long_options[] = {
 	{"Seconds", required_argument, 0, 'S'},
 	{"get_seconds", no_argument, 0, 't'},
 	{"mcu_clk_sync", required_argument, 0, 'y'},
-    {0, 0, 0, 0}
-};
-
+	{0, 0, 0, 0}};
 
 int main(int argc, char** argv)
 {
@@ -134,8 +128,12 @@ int main(int argc, char** argv)
 	double frequency;
 
 	if (argc > 1)
-		opt = getopt_long(argc,argv,"hd:D:f:kK:r:s:S:ty:",long_options,
-				&option_index);
+		opt = getopt_long(
+			argc,
+			argv,
+			"hd:D:f:kK:r:s:S:ty:",
+			long_options,
+			&option_index);
 	else {
 		usage();
 		return 0;
@@ -158,171 +156,169 @@ int main(int argc, char** argv)
 	}
 
 	switch (opt) {
-
-        case 'd':
-            result = parse_int(optarg,&value);
-			if (result){
-				printf("invalid divisor value. Int required'\n");
-				return EXIT_FAILURE;
-			}
-			divisor = value;
-			result = hackrf_time_set_divisor_next_pps(device,divisor);
-			if (result) {
-				printf("divisor next pps setting failed: %s (%d)\n",
-                    hackrf_error_name(result),result);
-				return EXIT_FAILURE;
-			}
-			break;
-
-
-		case 'D':
-			result = parse_int(optarg,&value);
-			if (result){
-				printf("invalid divisor value. Int required'\n");
-				return EXIT_FAILURE;
-			}
-			divisor = value;
-			result = hackrf_time_set_divisor_one_pps(device,divisor);
-			if (result) {
-				printf("divisor one pps setting failed: %s (%d)\n",
-                 	hackrf_error_name(result),result);
-				return EXIT_FAILURE;
-			}
-			break;
-
-
-		case 'f':
-			result = parse_double(optarg,&frequency);
-			if (result) { 
-				printf("invalid frequency value. Double required'\n");
-				return EXIT_FAILURE;
-			}
-			result = hackrf_time_set_clk_freq(device,frequency);
-			if (result) {
-				printf("clock frequency setting failed: %s (%d)\n",
-                    hackrf_error_name(result),result);
-				return EXIT_FAILURE;
-			}
-			break;
-
-
-		case 'k':
-			result = hackrf_time_get_ticks_now(device,&ticks);
-            if (result) {
-                printf("ticks reading failed: %s (%d)\n",
-                    hackrf_error_name(result),result);
-                return EXIT_FAILURE;
-			}
-			printf("tick counter: %d\n",ticks);
-			break;
-
-
-		case 'K':
-			result = hackrf_time_set_ticks_now(device,ticks);
-                if (result) {
-                    printf("tick setting failed: %s (%d)\n",
-                        hackrf_error_name(result),result);
-                    return EXIT_FAILURE;
-			}
-			break;
-
-
-		case 'r':
-			result = parse_int(optarg,&value);
-			if (result){
-				printf("invalid delay value. Int required'\n");
-				return EXIT_FAILURE;
-			}
-			trig_delay = value;
-			result = hackrf_time_set_trig_delay_next_pps(device,
-				trig_delay);
-			if (result) {
-				printf("trigger delay setting failed: %s (%d)\n",
-                	hackrf_error_name(result),result);
-				return EXIT_FAILURE;
-			}
-			break;
-
-
-		case 's':
-			result = parse_int(optarg,&value);
-			if (result){
-				printf("invalid second value. Int required'\n");
-				return EXIT_FAILURE;
-			}
-			seconds = value;
-			result = hackrf_time_set_seconds_now(device,seconds);
-			if (result) {
-				printf("second setting failed: %s (%d)\n",
-                   	hackrf_error_name(result),result);
-				return EXIT_FAILURE;
-			}
-			break;
-
-
-		case 'S':
-			result = parse_int(optarg,&value);
-			if (result){
-				printf("invalid second value. Int required'\n");
-				return EXIT_FAILURE;
-			}
-			seconds = value;
-			result = hackrf_time_set_seconds_next_pps(device,seconds);
-			if (result) {
-			  printf("second setting at next pps failed: %s (%d)\n",
-                  hackrf_error_name(result),result);
-			  return EXIT_FAILURE;
-			}
-			break;
-
-
-		case 't':
-			result = hackrf_time_get_seconds_now(device,&seconds);
-			if (result) {
-			  printf("seconds reading failed: %s (%d)\n",
-                  hackrf_error_name(result),result);
-			  return EXIT_FAILURE;
-			}
-			printf("second counter: %ld\n",seconds);
-			break;
-
-
-		case 'y':
-			result = parse_int(optarg,&value);
-			if (result){
-				printf("invalid enable value. Int required'\n");
-				return EXIT_FAILURE;
-			}
-			result = hackrf_time_set_mcu_clk_sync(device,value);
-			if (result) {
-			  printf("seconds setting at next pps failed: %s (%d)\n",
-                  hackrf_error_name(result),result);
-			  return EXIT_FAILURE;
-			}
-			break;
-
-
-		case 'h':
-		case '?':
-			usage();
-			return EXIT_SUCCESS;
-		default:
-			fprintf(stderr, "unknown argument '-%c %s'\n", opt, optarg);
-			usage();
+	case 'd':
+		result = parse_int(optarg, &value);
+		if (result) {
+			printf("invalid divisor value. Int required'\n");
 			return EXIT_FAILURE;
 		}
-
-		if (result != HACKRF_SUCCESS) {
-			printf("argument error: %s (%d)\n",
-			    hackrf_error_name(result),result);
-			usage();
+		divisor = value;
+		result = hackrf_time_set_divisor_next_pps(device, divisor);
+		if (result) {
+			printf("divisor next pps setting failed: %s (%d)\n",
+			       hackrf_error_name(result),
+			       result);
 			return EXIT_FAILURE;
+		}
+		break;
+
+	case 'D':
+		result = parse_int(optarg, &value);
+		if (result) {
+			printf("invalid divisor value. Int required'\n");
+			return EXIT_FAILURE;
+		}
+		divisor = value;
+		result = hackrf_time_set_divisor_one_pps(device, divisor);
+		if (result) {
+			printf("divisor one pps setting failed: %s (%d)\n",
+			       hackrf_error_name(result),
+			       result);
+			return EXIT_FAILURE;
+		}
+		break;
+
+	case 'f':
+		result = parse_double(optarg, &frequency);
+		if (result) {
+			printf("invalid frequency value. Double required'\n");
+			return EXIT_FAILURE;
+		}
+		result = hackrf_time_set_clk_freq(device, frequency);
+		if (result) {
+			printf("clock frequency setting failed: %s (%d)\n",
+			       hackrf_error_name(result),
+			       result);
+			return EXIT_FAILURE;
+		}
+		break;
+
+	case 'k':
+		result = hackrf_time_get_ticks_now(device, &ticks);
+		if (result) {
+			printf("ticks reading failed: %s (%d)\n",
+			       hackrf_error_name(result),
+			       result);
+			return EXIT_FAILURE;
+		}
+		printf("tick counter: %d\n", ticks);
+		break;
+
+	case 'K':
+		result = hackrf_time_set_ticks_now(device, ticks);
+		if (result) {
+			printf("tick setting failed: %s (%d)\n",
+			       hackrf_error_name(result),
+			       result);
+			return EXIT_FAILURE;
+		}
+		break;
+
+	case 'r':
+		result = parse_int(optarg, &value);
+		if (result) {
+			printf("invalid delay value. Int required'\n");
+			return EXIT_FAILURE;
+		}
+		trig_delay = value;
+		result = hackrf_time_set_trig_delay_next_pps(device, trig_delay);
+		if (result) {
+			printf("trigger delay setting failed: %s (%d)\n",
+			       hackrf_error_name(result),
+			       result);
+			return EXIT_FAILURE;
+		}
+		break;
+
+	case 's':
+		result = parse_int(optarg, &value);
+		if (result) {
+			printf("invalid second value. Int required'\n");
+			return EXIT_FAILURE;
+		}
+		seconds = value;
+		result = hackrf_time_set_seconds_now(device, seconds);
+		if (result) {
+			printf("second setting failed: %s (%d)\n",
+			       hackrf_error_name(result),
+			       result);
+			return EXIT_FAILURE;
+		}
+		break;
+
+	case 'S':
+		result = parse_int(optarg, &value);
+		if (result) {
+			printf("invalid second value. Int required'\n");
+			return EXIT_FAILURE;
+		}
+		seconds = value;
+		result = hackrf_time_set_seconds_next_pps(device, seconds);
+		if (result) {
+			printf("second setting at next pps failed: %s (%d)\n",
+			       hackrf_error_name(result),
+			       result);
+			return EXIT_FAILURE;
+		}
+		break;
+
+	case 't':
+		result = hackrf_time_get_seconds_now(device, &seconds);
+		if (result) {
+			printf("seconds reading failed: %s (%d)\n",
+			       hackrf_error_name(result),
+			       result);
+			return EXIT_FAILURE;
+		}
+		printf("second counter: %ld\n", seconds);
+		break;
+
+	case 'y':
+		result = parse_int(optarg, &value);
+		if (result) {
+			printf("invalid enable value. Int required'\n");
+			return EXIT_FAILURE;
+		}
+		result = hackrf_time_set_mcu_clk_sync(device, value);
+		if (result) {
+			printf("seconds setting at next pps failed: %s (%d)\n",
+			       hackrf_error_name(result),
+			       result);
+			return EXIT_FAILURE;
+		}
+		break;
+
+	case 'h':
+	case '?':
+		usage();
+		return EXIT_SUCCESS;
+	default:
+		fprintf(stderr, "unknown argument '-%c %s'\n", opt, optarg);
+		usage();
+		return EXIT_FAILURE;
+	}
+
+	if (result != HACKRF_SUCCESS) {
+		printf("argument error: %s (%d)\n", hackrf_error_name(result), result);
+		usage();
+		return EXIT_FAILURE;
 	}
 
 	result = hackrf_close(device);
 	if (result) {
 		printf("hackrf_close() failed: %s (%d)\n",
-		    hackrf_error_name(result),result);
+		       hackrf_error_name(result),
+		       result);
 		return EXIT_FAILURE;
 	}
 

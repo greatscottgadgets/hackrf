@@ -131,19 +131,18 @@ static usb_request_handler_fn vendor_request_handler[] = {
 	usb_vendor_request_set_leds,
 	usb_vendor_request_user_config_set_bias_t_opts,
 
-    usb_vendor_request_time_set_divisor_next_pps,
-    usb_vendor_request_time_set_divisor_one_pps,
-    usb_vendor_request_time_set_trig_delay_next_pps,
-    usb_vendor_request_time_get_seconds_now,
-    usb_vendor_request_time_set_seconds_now,
-    usb_vendor_request_time_set_seconds_next_pps,
-    usb_vendor_request_time_get_ticks_now,
-    usb_vendor_request_time_set_ticks_now,
+	usb_vendor_request_time_set_divisor_next_pps,
+	usb_vendor_request_time_set_divisor_one_pps,
+	usb_vendor_request_time_set_trig_delay_next_pps,
+	usb_vendor_request_time_get_seconds_now,
+	usb_vendor_request_time_set_seconds_now,
+	usb_vendor_request_time_set_seconds_next_pps,
+	usb_vendor_request_time_get_ticks_now,
+	usb_vendor_request_time_set_ticks_now,
 	usb_vendor_request_time_set_clk_freq,
-    usb_vendor_request_time_set_mcu_clk_sync,
+	usb_vendor_request_time_set_mcu_clk_sync,
 
-	NULL
-};
+	NULL};
 
 static const uint32_t vendor_request_handler_count =
 	sizeof(vendor_request_handler) / sizeof(vendor_request_handler[0]);
@@ -259,7 +258,7 @@ int main(void)
 #if (defined HACKRF_ONE || defined RAD1O)
 	enable_rf_power();
 #endif
-	cpu_clock_init(CGU_SRC_XTAL,17);
+	cpu_clock_init(CGU_SRC_XTAL, 17);
 
 	/* Wake the M0 */
 	ipc_halt_m0();
@@ -313,7 +312,7 @@ int main(void)
 	}
 
 	/* start time timer */
-    time_timer_init();
+	time_timer_init();
 
 	while (true) {
 		transceiver_request_t request;
