@@ -101,9 +101,9 @@ control-like sections 0-5 offering a fractional divisor with 20 bits
 resolution.
 
 Fortunately, the MCU allows the input external clock (GP_CLKIN) to be mapped
-alternatively on pin 120 (PF_4), that is connected to connector P20 pin 12
+alternatively on pin 120 (PF_4), that is connected to connector P22 pin 12
 (signal i2s0_rx_sck). So, it is possible to connect a jumper from this
-to connector p20 pin1 (signal clkout) and use the clkout clock as input
+to connector p22 pin1 (signal clkout) and use the clkout clock as input
 clock for the MCU.
 
 .. figure:: ../images/hackrf_clock_gen_not_r9.webp
