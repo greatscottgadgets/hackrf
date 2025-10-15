@@ -34,7 +34,8 @@ else(LIBUSB_INCLUDE_DIR AND LIBUSB_LIBRARIES)
   endif()
 
   find_path(LIBUSB_INCLUDE_DIR libusb.h PATHS ${PC_LIBUSB_INCLUDEDIR}
-                                              ${PC_LIBUSB_INCLUDE_DIRS})
+                                              ${PC_LIBUSB_INCLUDE_DIRS}
+                                        PATH_SUFFIXES libusb-1.0)
 
   find_library(
     LIBUSB_LIBRARIES
