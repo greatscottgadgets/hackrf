@@ -9,117 +9,143 @@ on:
     - cron: 1 12 * * 1
 
 env:
-  WIN_LIBUSB_INC: -DLIBUSB_INCLUDE_DIR=C:/vcpkg/installed/x64-windows/include/libusb-1.0
-  WIN_LIBUSB_LIB: -DLIBUSB_LIBRARIES=C:/vcpkg/installed/x64-windows/lib/libusb-1.0.lib
-  WIN_FFTW_INC: -DFFTW_INCLUDES=C:/vcpkg/installed/x64-windows/include
-  WIN_FFTW_LIB: -DFFTW_LIBRARIES=C:/vcpkg/installed/x64-windows/lib/fftw3f.lib
-  WIN_PTHREAD_INC: -DTHREADS_PTHREADS_INCLUDE_DIR=C:/vcpkg/installed/x64-windows/include
-  WIN_PTHREAD_LIB: -DTHREADS_PTHREADS_WIN32_LIBRARY=C:/vcpkg/installed/x64-windows/lib/pthreadvc3.lib
-  WIN_CMAKE_TOOLCHAIN: -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake
+
+  # Override OSX architecture detection. Required for CMake versions < 3.19.2.
+  CMAKE_OSX_ARCHITECTURES: arm64
 
 jobs:
   host:
     strategy:
       matrix:
-        os: ['macos-latest', 'ubuntu-latest', 'windows-latest']
+        sys:
+          - {os: 'macos', shell: 'bash'}
+          - {os: 'ubuntu', shell: 'bash'}
+          - {os: 'windows', shell: 'pwsh'}
+          - {os: 'windows', shell: 'msys2'}
+        cmake: ['3.10.0', '3.16.0', '3.21.0', '4.0.0', 'latest']
+        exclude:
+          # GitHub runners use Visual Studio 2022. Support added in CMake 3.21.
+          - sys: {os: 'windows', shell: 'pwsh'}
+            cmake: '3.10.0'
+          - sys: {os: 'windows', shell: 'pwsh'}
+            cmake: '3.16.0'
+          # MSYS2 always supplies the latest cmake.
+          - sys: {os: 'windows', shell: 'msys2'}
+            cmake: '3.10.0'
+          - sys: {os: 'windows', shell: 'msys2'}
+            cmake: '3.16.0'
+          - sys: {os: 'windows', shell: 'msys2'}
+            cmake: '3.21.0'
+          - sys: {os: 'windows', shell: 'msys2'}
+            cmake: '4.0.0'
+        include:
+          - sys: {os: 'windows', shell: 'pwsh'}
+            cmake_args: >-
+              -DPKG_CONFIG_EXECUTABLE=C:/vcpkg/installed/x64-windows/tools/pkgconf/pkgconf.exe
+              -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake
+              --install-prefix=$env:GITHUB_WORKSPACE/install
+          - sys: {os: 'windows', shell: 'msys2'}
+            cmake_args: >-
+              --install-prefix=/usr/local
 
       # Don't cancel all builds when one fails
       fail-fast: false
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.sys.os }}-latest
+
+    defaults:
+      run:
+        shell: '${{ matrix.sys.shell }} {0}'
 
     steps:
     - uses: actions/checkout@v4
 
+    - name: Setup cmake
+      uses: jwlawson/actions-setup-cmake@v2
+      with:
+        cmake-version: ${{ matrix.cmake }}
+      if: matrix.sys.shell != 'msys2'
+
     - name: Install dependencies (macOS)
       run: brew install fftw
-      if: matrix.os == 'macos-latest'
+      if: matrix.sys.os == 'macos'
 
     - name: Install dependencies (Ubuntu)
       run: |
         sudo apt update
         sudo apt install libfftw3-dev libusb-1.0-0-dev
-      if: matrix.os == 'ubuntu-latest'
+      if: matrix.sys.os == 'ubuntu'
 
     - name: Install dependencies (Windows)
-      run: vcpkg install --triplet=x64-windows libusb fftw3 pthreads
-      if: matrix.os == 'windows-latest'
+      run: vcpkg install --triplet=x64-windows libusb fftw3 pthreads pkgconf
+      if: matrix.sys.os == 'windows' && matrix.sys.shell != 'msys2'
+
+    - name: Setup MSYS (Windows)
+      if: matrix.sys.os == 'windows' && matrix.sys.shell == 'msys2'
+      uses: msys2/setup-msys2@v2
+      with:
+        msystem: UCRT64
+        install: >-
+          git
+          make
+          mingw-w64-ucrt-x86_64-cmake
+          mingw-w64-ucrt-x86_64-toolchain
+          mingw-w64-ucrt-x86_64-libusb
+          mingw-w64-ucrt-x86_64-fftw
 
     # Build libhackrf and hackrf-tools together
-    - name: Create Build Environment
-      run: cmake -E make_directory ${{github.workspace}}/host/build
 
-    - name: Configure CMake
-      working-directory: ${{github.workspace}}/host/build
-      run: cmake $GITHUB_WORKSPACE/host/ -DCMAKE_BUILD_TYPE=Release
-      if: matrix.os != 'windows-latest'
-
-    - name: Configure CMake (Windows)
-      working-directory: ${{github.workspace}}/host/build
-      run: cmake $env:GITHUB_WORKSPACE/host/ $env:WIN_LIBUSB_INC $env:WIN_LIBUSB_LIB $env:WIN_FFTW_INC $env:WIN_FFTW_LIB $env:WIN_PTHREAD_INC $env:WIN_PTHREAD_LIB $env:WIN_CMAKE_TOOLCHAIN
-      if: matrix.os == 'windows-latest'
-
-    - name: Build
-      working-directory: ${{github.workspace}}/host/build
-      run: cmake --build . --config Release
+    - name: Configure & Build
+      run: |
+        cmake -E make_directory host/build
+        cd host/build
+        cmake .. -DCMAKE_BUILD_TYPE=Release ${{matrix.cmake_args}}
+        cmake --build . --config Release
 
     # Build libhackrf ONLY
-    - name: Create Build Environment (libhackrf)
-      run: cmake -E make_directory ${{github.workspace}}/host/libhackrf/build
 
-    - name: Configure CMake (libhackrf)
-      working-directory: ${{github.workspace}}/host/libhackrf/build
-      run: cmake $GITHUB_WORKSPACE/host/libhackrf/ -DCMAKE_BUILD_TYPE=Release
-      if: matrix.os != 'windows-latest'
-
-    - name: Configure CMake (libhackrf, Windows)
-      working-directory: ${{github.workspace}}/host/libhackrf/build
-      run: cmake $env:GITHUB_WORKSPACE/host/libhackrf/ $env:WIN_LIBUSB_INC $env:WIN_LIBUSB_LIB $env:WIN_PTHREAD_INC $env:WIN_PTHREAD_LIB $env:WIN_CMAKE_TOOLCHAIN
-      if: matrix.os == 'windows-latest'
-
-    - name: Build (libhackrf)
-      working-directory: ${{github.workspace}}/host/libhackrf/build
-      run: cmake --build . --config Release
+    - name: Configure & Build (libhackrf)
+      run: |
+        cmake -E make_directory host/libhackrf/build
+        cd host/libhackrf/build
+        cmake .. -DCMAKE_BUILD_TYPE=Release ${{ matrix.cmake_args }}
+        cmake --build . --config Release
 
     - name: Install (libhackrf)
-      working-directory: ${{github.workspace}}/host/libhackrf/build
       run: |
-        sudo cmake --install . --config Release
-      if: matrix.os != 'windows-latest'
+        sudo cmake --install host/libhackrf/build --config Release
+      if: matrix.sys.os != 'windows' && matrix.cmake != '3.10.0'
+
+    - name: Install (libhackrf, CMake 3.10)
+      run: |
+        sudo cmake --build host/libhackrf/build --target install --config Release
+      if: matrix.sys.os != 'windows' && matrix.cmake == '3.10.0'
 
     - name: Install (libhackrf, Windows)
-      working-directory: ${{github.workspace}}/host/libhackrf/build
-      run: |
-        cmake --install . --config Release --prefix=$env:GITHUB_WORKSPACE/install
-      if: matrix.os == 'windows-latest'
+      run: cmake --install host/libhackrf/build --config Release
+      if: matrix.sys.os == 'windows'
 
     # Build hackrf-tools ONLY
-    - name: Create Build Environment (hackrf-tools)
-      run: cmake -E make_directory ${{github.workspace}}/host/hackrf-tools/build
 
-    - name: Configure CMake (hackrf-tools)
-      working-directory: ${{github.workspace}}/host/hackrf-tools/build
-      run: cmake $GITHUB_WORKSPACE/host/hackrf-tools/ -DCMAKE_BUILD_TYPE=Release
-      if: matrix.os != 'windows-latest'
-
-    - name: Configure CMake (hackrf-tools, Windows)
-      working-directory: ${{github.workspace}}/host/hackrf-tools/build
+    - name: Configure & Build (hackrf-tools)
       run: |
-        cmake $env:GITHUB_WORKSPACE/host/hackrf-tools/ $env:WIN_FFTW_INC $env:WIN_FFTW_LIB -DLIBHACKRF_INCLUDE_DIR="$env:GITHUB_WORKSPACE/install/include/libhackrf" -DLIBHACKRF_LIBRARIES="$env:GITHUB_WORKSPACE/install/bin/hackrf.lib" $env:WIN_CMAKE_TOOLCHAIN
-      if: matrix.os == 'windows-latest'
-
-    - name: Build (hackrf-tools)
-      working-directory: ${{github.workspace}}/host/hackrf-tools/build
-      run: cmake --build . --config Release
+        cmake -E make_directory host/hackrf-tools/build
+        cd host/hackrf-tools/build
+        cmake .. -DCMAKE_BUILD_TYPE=Release ${{ matrix.cmake_args }}
+        cmake --build . --config Release
 
     - name: Install (hackrf-tools)
-      working-directory: ${{github.workspace}}/host/hackrf-tools/build
-      run: sudo cmake --install . --config Release
-      if: matrix.os != 'windows-latest'
+      run: |
+        sudo cmake --install host/hackrf-tools/build --config Release
+      if: matrix.sys.os != 'windows' && matrix.cmake != '3.10.0'
+
+    - name: Install (hackrf-tools, CMake 3.10)
+      run: |
+        sudo cmake --build host/hackrf-tools/build --target install --config Release
+      if: matrix.sys.os != 'windows' && matrix.cmake == '3.10.0'
 
     - name: Install (hackrf-tools, Windows)
-      working-directory: ${{github.workspace}}/host/hackrf-tools/build
-      run: cmake --install . --config Release --prefix=$env:GITHUB_WORKSPACE/install
-      if: matrix.os == 'windows-latest'
+      run: cmake --install host/hackrf-tools/build --config Release
+      if: matrix.sys.os == 'windows'
 
     # Publish the contents of install/bin (which should be the combination libhackrf and host-tools) for Windows
     - name: Publish Artifacts (Windows)
@@ -127,39 +153,50 @@ jobs:
       with:
         name: hackrf-tools-windows
         path: ${{github.workspace}}/install/bin
-      if: matrix.os == 'windows-latest'
+      if: matrix.sys.os == 'windows' && matrix.cmake == 'latest' && matrix.sys.shell == 'pwsh'
 
   firmware:
     strategy:
       matrix:
-        os: ['macos-latest', 'ubuntu-latest']
+        os: ['macos', 'ubuntu', 'windows']
         board: ['HACKRF_ONE', 'JAWBREAKER', 'RAD1O']
+        cmake: ['3.10.0', 'latest']
+        exclude:
+          - os: 'windows'
+            cmake: '3.10.0'
 
       # Don't cancel all builds when one fails
       fail-fast: false
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}-latest
 
     steps:
     - uses: actions/checkout@v4
       with:
         submodules: true
 
+    - name: Setup cmake
+      uses: jwlawson/actions-setup-cmake@v2
+      with:
+        cmake-version: ${{ matrix.cmake }}
+      if: matrix.os != 'windows'
+
     - name: Install Arm GNU Toolchain
       uses: carlosperate/arm-none-eabi-gcc-action@v1
+      if: matrix.os != 'windows'
 
     - name: Install dependencies (macOS)
       run: |
         brew install dfu-util
         python3 -m venv environment && source environment/bin/activate
         python3 -m pip install PyYAML
-      if: matrix.os == 'macos-latest'
+      if: matrix.os == 'macos'
 
     - name: Install dependencies (Ubuntu)
       run: |
         python3 -m venv environment && source environment/bin/activate
         python3 -m pip install PyYAML
         sudo apt install dfu-util
-      if: matrix.os == 'ubuntu-latest'
+      if: matrix.os == 'ubuntu'
 
     - name: Build libopencm3
       shell: bash
@@ -167,14 +204,17 @@ jobs:
       run: |
         source ../../environment/bin/activate
         make
+      if: matrix.os != 'windows'
 
     - name: Create Build Environment
       run: cmake -E make_directory ${{github.workspace}}/firmware/build
+      if: matrix.os != 'windows'
 
     - name: Configure CMake
       shell: bash
       working-directory: ${{github.workspace}}/firmware/build
       run: cmake $GITHUB_WORKSPACE/firmware/ -DCMAKE_BUILD_TYPE=Release -DBOARD=${{ matrix.board }}
+      if: matrix.os != 'windows'
 
     - name: Build
       working-directory: ${{github.workspace}}/firmware/build
@@ -182,3 +222,27 @@ jobs:
       run: |
         source ../../environment/bin/activate
         cmake --build . --config Release
+      if: matrix.os != 'windows'
+
+    - name: Setup MSYS (Windows)
+      if: matrix.os == 'windows'
+      uses: msys2/setup-msys2@v2
+      with:
+        msystem: UCRT64
+        update: true
+        install: >-
+          git
+          make
+          mingw-w64-ucrt-x86_64-arm-none-eabi-gcc
+          mingw-w64-ucrt-x86_64-cmake
+          mingw-w64-ucrt-x86_64-dfu-util
+          mingw-w64-ucrt-x86_64-python-yaml
+
+    - name: Build with MSYS (Windows)
+      if: matrix.os == 'windows'
+      shell: msys2 {0}
+      run: |
+        mkdir firmware/build
+        cd firmware/build
+        cmake -G "MSYS Makefiles" -DCMAKE_BUILD_TYPE=Release -DBOARD=${{ matrix.board }} ..
+        make

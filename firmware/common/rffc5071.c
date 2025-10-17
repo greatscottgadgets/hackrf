@@ -58,7 +58,7 @@ static const uint16_t rffc5071_regs_default[RFFC5071_NUM_REGS] = {
 	0x1e84, /* 0F */
 	0x89d8, /* 10 */
 	0x9d00, /* 11 */
-	0x2a20, /* 12 */
+	0x3a20, /* 12, dithering off */
 	0x0000, /* 13 */
 	0x0000, /* 14 */
 	0x0000, /* 15 */
@@ -100,16 +100,7 @@ void rffc5071_setup(rffc5071_driver_t* const drv)
 	set_RFFC5071_P2LODIV(drv, 0);
 	set_RFFC5071_P2PRESC(drv, 0);
 	set_RFFC5071_P2VCOSEL(drv, 0);
-
-	set_RFFC5071_P2N(drv, 0);
-	set_RFFC5071_P2LODIV(drv, 0);
-	set_RFFC5071_P2PRESC(drv, 0);
-	set_RFFC5071_P2VCOSEL(drv, 0);
-
-	set_RFFC5071_P2N(drv, 0);
-	set_RFFC5071_P2LODIV(drv, 0);
-	set_RFFC5071_P2PRESC(drv, 0);
-	set_RFFC5071_P2VCOSEL(drv, 0);
+	set_RFFC5071_P2NLSB(drv, 0);
 
 	/* set ENBL and MODE to be configured via 3-wire interface,
 	 * not control pins. */
@@ -216,73 +207,78 @@ void rffc5071_enable(rffc5071_driver_t* const drv)
 	rffc5071_regs_commit(drv);
 }
 
-#define LO_MAX       5400
-#define REF_FREQ     40
-#define FREQ_ONE_MHZ (1000 * 1000)
+#define FREQ_ONE_MHZ (1000ULL * 1000ULL)
+#define REF_FREQ     (40 * FREQ_ONE_MHZ)
+#define LO_MAX       (5400 * FREQ_ONE_MHZ)
 
-/* configure frequency synthesizer in integer mode (lo in MHz) */
-uint64_t rffc5071_config_synth_int(rffc5071_driver_t* const drv, uint16_t lo)
+/* configure frequency synthesizer (lo in Hz) */
+uint64_t rffc5071_config_synth(rffc5071_driver_t* const drv, uint64_t lo)
 {
-	uint8_t lodiv;
-	uint16_t fvco;
-	uint8_t fbkdiv;
+	uint64_t fvco;
+	uint8_t fbkdivlog;
 	uint16_t n;
 	uint64_t tune_freq_hz;
 	uint16_t p1nmsb;
 	uint8_t p1nlsb;
 
-	/* Calculate n_lo */
+	/* Calculate n_lo (no division) */
 	uint8_t n_lo = 0;
-	uint16_t x = LO_MAX / lo;
-	while ((x > 1) && (n_lo < 5)) {
+	uint64_t x = LO_MAX >> 1;
+	while ((x >= lo) && (n_lo < 5)) {
 		n_lo++;
 		x >>= 1;
 	}
 
-	lodiv = 1 << n_lo;
-	fvco = lodiv * lo;
+	fvco = lo << n_lo;
 
 	/* higher divider and charge pump current required above
 	 * 3.2GHz. Programming guide says these values (fbkdiv, n,
 	 * maybe pump?) can be changed back after enable in order to
 	 * improve phase noise, since the VCO will already be stable
 	 * and will be unaffected. */
-	if (fvco > 3200) {
-		fbkdiv = 4;
+	if (fvco > (3200 * FREQ_ONE_MHZ)) {
+		fbkdivlog = 2;
 		set_RFFC5071_PLLCPL(drv, 3);
 	} else {
-		fbkdiv = 2;
+		fbkdivlog = 1;
 		set_RFFC5071_PLLCPL(drv, 2);
 	}
 
-	uint64_t tmp_n = ((uint64_t) fvco << 29ULL) / (fbkdiv * REF_FREQ);
-	n = tmp_n >> 29ULL;
+	uint64_t tmp_n = (fvco << (24ULL - fbkdivlog)) / REF_FREQ;
 
-	p1nmsb = (tmp_n >> 13ULL) & 0xffff;
-	p1nlsb = (tmp_n >> 5ULL) & 0xff;
+	/* Round to nearest step = ref_MHz / 2**s. For s=6, step=625000 Hz */
+	/* This also ensures the lowest 22-s fractional bits are set to 0. */
+	const uint8_t s = 6;
+	const uint8_t d = (24 - fbkdivlog + n_lo) - s;
+	tmp_n = ((tmp_n + (1 << (d - 1))) >> d) << d;
 
-	tune_freq_hz = (REF_FREQ * (tmp_n >> 5ULL) * fbkdiv * FREQ_ONE_MHZ) /
-		(lodiv * (1 << 24ULL));
+	n = tmp_n >> 24ULL;
+	p1nmsb = (tmp_n >> 8ULL) & 0xffff;
+	p1nlsb = tmp_n & 0xff;
+
+	tune_freq_hz = (tmp_n * REF_FREQ) >> (24 - fbkdivlog + n_lo);
 
 	/* Path 2 */
 	set_RFFC5071_P2LODIV(drv, n_lo);
 	set_RFFC5071_P2N(drv, n);
-	set_RFFC5071_P2PRESC(drv, fbkdiv >> 1);
+	set_RFFC5071_P2PRESC(drv, fbkdivlog);
 	set_RFFC5071_P2NMSB(drv, p1nmsb);
-	set_RFFC5071_P2NLSB(drv, p1nlsb);
+	if (s > 14) {
+		/* Only set when the step size is small enough. */
+		set_RFFC5071_P2NLSB(drv, p1nlsb);
+	}
 
 	rffc5071_regs_commit(drv);
 
 	return tune_freq_hz;
 }
 
-/* !!!!!!!!!!! hz is currently ignored !!!!!!!!!!! */
-uint64_t rffc5071_set_frequency(rffc5071_driver_t* const drv, uint16_t mhz)
+uint64_t rffc5071_set_frequency(rffc5071_driver_t* const drv, uint64_t hz)
 {
 	uint32_t tune_freq;
 
 	rffc5071_disable(drv);
-	tune_freq = rffc5071_config_synth_int(drv, mhz);
+	tune_freq = rffc5071_config_synth(drv, hz);
 	rffc5071_enable(drv);
 
 	return tune_freq;

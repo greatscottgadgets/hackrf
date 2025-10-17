@@ -23,6 +23,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 
 #include "hackrf.h"
 
+#include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
 #ifndef _WIN32
@@ -37,12 +38,6 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 	#define strdup               _strdup
 #endif
 #include <pthread.h>
-
-#ifndef bool
-typedef int bool;
-	#define true 1
-	#define false 0
-#endif
 
 #ifdef HACKRF_BIG_ENDIAN
 	#define TO_LE(x)     __builtin_bswap32(x)
@@ -727,6 +722,13 @@ static int hackrf_open_setup(libusb_device_handle* usb_device, hackrf_device** d
 		libusb_close(usb_device);
 		return HACKRF_ERROR_NO_MEM;
 	}
+
+#if LIBUSB_API_VERSION >= 0x0100010C
+	// WinUSB: Use RAW_IO to improve throughput on RX
+	if (libusb_endpoint_supports_raw_io(usb_device, RX_ENDPOINT_ADDRESS) == 1) {
+		libusb_endpoint_set_raw_io(usb_device, RX_ENDPOINT_ADDRESS, 1);
+	}
+#endif
 
 	lib_device->usb_device = usb_device;
 	lib_device->transfers = NULL;

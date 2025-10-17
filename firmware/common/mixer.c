@@ -95,13 +95,13 @@ void mixer_setup(mixer_driver_t* const mixer)
 #endif
 }
 
-uint64_t mixer_set_frequency(mixer_driver_t* const mixer, uint16_t mhz)
+uint64_t mixer_set_frequency(mixer_driver_t* const mixer, uint64_t hz)
 {
 #if (defined JAWBREAKER || defined HACKRF_ONE)
-	return rffc5071_set_frequency(mixer, mhz);
+	return rffc5071_set_frequency(mixer, hz);
 #endif
 #ifdef RAD1O
-	return max2871_set_frequency(mixer, mhz);
+	return max2871_set_frequency(mixer, hz / 1000000);
 #endif
 }
 
