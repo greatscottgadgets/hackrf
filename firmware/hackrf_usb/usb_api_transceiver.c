@@ -27,7 +27,7 @@
 #include "operacake_sctimer.h"
 
 #include <libopencm3/cm3/vector.h>
-#include "usb_bulk_buffer.h"
+#include "usb_buffer.h"
 #include "usb_api_m0_state.h"
 
 #include "usb_api_cpld.h" // Remove when CPLD update is handled elsewhere
@@ -414,7 +414,7 @@ void rx_mode(uint32_t seq)
 		if ((m0_state.m0_count - usb_count) >= USB_TRANSFER_SIZE) {
 			usb_transfer_schedule_block(
 				&usb_endpoint_bulk_in,
-				&usb_bulk_buffer[usb_count & USB_BULK_BUFFER_MASK],
+				&usb_samp_buffer[usb_count & USB_SAMP_BUFFER_MASK],
 				USB_TRANSFER_SIZE,
 				transceiver_bulk_transfer_complete,
 				NULL);
@@ -436,14 +436,14 @@ void tx_mode(uint32_t seq)
 	// Set up OUT transfer of buffer 0.
 	usb_transfer_schedule_block(
 		&usb_endpoint_bulk_out,
-		&usb_bulk_buffer[0x0000],
+		&usb_samp_buffer[0x0000],
 		USB_TRANSFER_SIZE,
 		transceiver_bulk_transfer_complete,
 		NULL);
 	usb_count += USB_TRANSFER_SIZE;
 
 	while (transceiver_request.seq == seq) {
-		if (!started && (m0_state.m4_count == USB_BULK_BUFFER_SIZE)) {
+		if (!started && (m0_state.m4_count == USB_SAMP_BUFFER_SIZE)) {
 			// Buffer is now full, start streaming.
 			baseband_streaming_enable(&sgpio_config);
 			started = true;
@@ -451,7 +451,7 @@ void tx_mode(uint32_t seq)
 		if ((usb_count - m0_state.m0_count) <= USB_TRANSFER_SIZE) {
 			usb_transfer_schedule_block(
 				&usb_endpoint_bulk_out,
-				&usb_bulk_buffer[usb_count & USB_BULK_BUFFER_MASK],
+				&usb_samp_buffer[usb_count & USB_SAMP_BUFFER_MASK],
 				USB_TRANSFER_SIZE,
 				transceiver_bulk_transfer_complete,
 				NULL);
