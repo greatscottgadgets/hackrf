@@ -37,8 +37,8 @@
 #include "streaming.h"
 
 // USB buffer used during selftests.
-#define USB_BULK_BUFFER_SIZE 0x8000
-extern uint8_t usb_bulk_buffer[USB_BULK_BUFFER_SIZE];
+#define USB_SAMP_BUFFER_SIZE 0x8000
+extern uint8_t usb_samp_buffer[USB_SAMP_BUFFER_SIZE];
 
 static int rx_samples(const unsigned int num_samples, uint32_t max_cycles)
 {
@@ -115,10 +115,10 @@ bool fpga_sgpio_selftest(void)
 	fpga_set_prbs_enable(&fpga, false);
 
 	// Generate sequence from first value and compare.
-	bool seq_in_sync = (usb_bulk_buffer[0] != 0);
-	uint8_t seq = lfsr_advance(usb_bulk_buffer[0]);
+	bool seq_in_sync = (usb_samp_buffer[0] != 0);
+	uint8_t seq = lfsr_advance(usb_samp_buffer[0]);
 	for (int i = 1; i < 512; ++i) {
-		if (usb_bulk_buffer[i] != seq) {
+		if (usb_samp_buffer[i] != seq) {
 			seq_in_sync = false;
 			break;
 		}
@@ -189,7 +189,7 @@ bool fpga_if_xcvr_selftest(void)
 		return false;
 	}
 
-	const size_t num_samples = USB_BULK_BUFFER_SIZE / 2;
+	const size_t num_samples = USB_SAMP_BUFFER_SIZE / 2;
 
 	// Set common RX path and gateware settings for the measurements.
 	fpga_set_tx_nco_pstep(&fpga, 64);    // NCO phase increment
@@ -206,7 +206,7 @@ bool fpga_if_xcvr_selftest(void)
 		timeout = true;
 	}
 	measure_tone(
-		(int8_t*) usb_bulk_buffer,
+		(int8_t*) usb_samp_buffer,
 		num_samples,
 		&selftest.xcvr_measurements[0]);
 
@@ -217,7 +217,7 @@ bool fpga_if_xcvr_selftest(void)
 		timeout = true;
 	}
 	measure_tone(
-		(int8_t*) usb_bulk_buffer,
+		(int8_t*) usb_samp_buffer,
 		num_samples,
 		&selftest.xcvr_measurements[1]);
 
@@ -230,7 +230,7 @@ bool fpga_if_xcvr_selftest(void)
 		timeout = true;
 	}
 	measure_tone(
-		(int8_t*) usb_bulk_buffer,
+		(int8_t*) usb_samp_buffer,
 		num_samples,
 		&selftest.xcvr_measurements[2]);
 
@@ -241,7 +241,7 @@ bool fpga_if_xcvr_selftest(void)
 		timeout = true;
 	}
 	measure_tone(
-		(int8_t*) usb_bulk_buffer,
+		(int8_t*) usb_samp_buffer,
 		num_samples,
 		&selftest.xcvr_measurements[3]);
 
