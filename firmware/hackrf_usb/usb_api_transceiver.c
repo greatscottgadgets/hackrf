@@ -27,6 +27,7 @@
 #include "operacake_sctimer.h"
 
 #include <libopencm3/cm3/vector.h>
+#include <libopencm3/lpc43xx/gpdma.h>
 #include "usb_buffer.h"
 #include "usb_api_m0_state.h"
 
@@ -40,6 +41,7 @@
 #include "usb.h"
 #include "usb_queue.h"
 #include "platform_detect.h"
+#include "gpdma.h"
 
 #include <stddef.h>
 #include <string.h>
@@ -49,6 +51,8 @@
 
 #define USB_TRANSFER_SIZE 0x4000
 #define DMA_TRANSFER_SIZE 0x2000
+
+#define DMA_CHANNEL 1
 
 #define BUF_HALF_MASK (USB_SAMP_BUFFER_SIZE >> 1)
 
@@ -409,13 +413,39 @@ usb_request_status_t usb_vendor_request_set_rx_overrun_limit(
 
 void transceiver_start_dma(void* src, void* dest, size_t size)
 {
+	uint32_t num_transfers = size >> 2;
+	gpdma_controller_enable();
+	GPDMA_CSRCADDR(DMA_CHANNEL) = (uint32_t) src;
+	GPDMA_CDESTADDR(DMA_CHANNEL) = (uint32_t) dest;
+	GPDMA_CLLI(DMA_CHANNEL) = 0;
+	GPDMA_CCONTROL(DMA_CHANNEL) = GPDMA_CCONTROL_TRANSFERSIZE(num_transfers) |
+		GPDMA_CCONTROL_SBSIZE(7)                        // 256-transfer src bursts
+		| GPDMA_CCONTROL_DBSIZE(7)                      // 256-transfer dst bursts
+		| GPDMA_CCONTROL_SWIDTH(2)                      // 32-bit src transfers
+		| GPDMA_CCONTROL_DWIDTH(2)                      // 32-bit dst transfers
+		| GPDMA_CCONTROL_S(0)                           // AHB Master 0
+		| GPDMA_CCONTROL_D(1)                           // AHB Master 1
+		| GPDMA_CCONTROL_SI(1)                          // increment source
+		| GPDMA_CCONTROL_DI(1)                          // increment destination
+		| GPDMA_CCONTROL_PROT1(0)                       // user mode
+		| GPDMA_CCONTROL_PROT2(0)                       // not bufferable
+		| GPDMA_CCONTROL_PROT3(0)                       // not cacheable
+		| GPDMA_CCONTROL_I(1);                          // interrupt enabled
+	GPDMA_CCONFIG(DMA_CHANNEL) = GPDMA_CCONFIG_FLOWCNTRL(0) // memory-to-memory
+		| GPDMA_CCONFIG_IE(0)                           // no error interrupt
+		| GPDMA_CCONFIG_ITC(1) // terminal count interrupt
+		| GPDMA_CCONFIG_L(0)   // do not lock
+		| GPDMA_CCONFIG_H(0);  // do not halt
+	GPDMA_INTTCCLEAR = (1 << DMA_CHANNEL);
+	nvic_enable_irq(NVIC_DMA_IRQ);
+	gpdma_channel_enable(DMA_CHANNEL);
 	dma_pending = size;
-	memcpy(dest, src, size);
-	dma_isr();
 }
 
 void dma_isr(void)
 {
+	gpdma_channel_disable(DMA_CHANNEL);
+	GPDMA_INTTCCLEAR = (1 << DMA_CHANNEL);
 	m0_state.m4_count += dma_pending;
 	dma_pending = 0;
 }
