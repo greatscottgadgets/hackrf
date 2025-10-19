@@ -41,5 +41,6 @@ MEMORY
 lz4_in_buf = ORIGIN(ram_lz4_in);
 lz4_out_buf = ORIGIN(ram_lz4_out);
 usb_samp_buffer = ORIGIN(ram_samp);
+usb_bulk_buffer = ORIGIN(ram_usb);
 m0_state = ORIGIN(ram_shared);
 PROVIDE(__ram_m0_start__ = ORIGIN(ram_m0));
