@@ -48,7 +48,7 @@
 #include "usb_api_sweep.h"
 
 #define USB_TRANSFER_SIZE 0x4000
-#define DMA_TRANSFER_SIZE 0x4000
+#define DMA_TRANSFER_SIZE 0x2000
 
 volatile uint32_t dma_started, usb_started, usb_completed;
 
