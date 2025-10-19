@@ -30,10 +30,14 @@
 #define USB_SAMP_BUFFER_SIZE 0x8000
 #define USB_SAMP_BUFFER_MASK 0x7FFF
 
-/* Address of usb_samp_buffer is set in ldscripts. If you change the name of this
- * variable, it won't be where it needs to be in the processor's address space,
- * unless you also adjust the ldscripts.
+#define USB_BULK_BUFFER_SIZE 0x8000
+#define USB_BULK_BUFFER_MASK 0x7FFF
+
+/* Addresses of usb_samp_buffer and usb_bulk_buffer are set in ldscripts. If
+ * you change the name of these variables, they won't be where they need to
+ * be in the processor's address space, unless you also adjust the ldscripts.
  */
 extern uint8_t usb_samp_buffer[USB_SAMP_BUFFER_SIZE];
+extern uint8_t usb_bulk_buffer[USB_BULK_BUFFER_SIZE];
 
 #endif /*__USB_BUFFER_H__*/
