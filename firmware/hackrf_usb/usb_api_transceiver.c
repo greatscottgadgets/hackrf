@@ -44,7 +44,7 @@
 #include "usb_endpoint.h"
 
 #define USB_TRANSFER_SIZE 0x4000
-#define DMA_TRANSFER_SIZE 0x4000
+#define DMA_TRANSFER_SIZE 0x2000
 
 #define BUF_HALF_MASK (USB_SAMP_BUFFER_SIZE >> 1)
 
