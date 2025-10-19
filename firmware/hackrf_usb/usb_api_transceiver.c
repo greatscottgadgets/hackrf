@@ -25,6 +25,7 @@
 
 #include <stdbool.h>
 #include <stddef.h>
+#include <string.h>
 
 #include <fixed_point.h>
 #include <hackrf_core.h>
@@ -43,6 +44,11 @@
 #include "usb_endpoint.h"
 
 #define USB_TRANSFER_SIZE 0x4000
+#define DMA_TRANSFER_SIZE 0x4000
+
+#define BUF_HALF_MASK (USB_SAMP_BUFFER_SIZE >> 1)
+
+volatile uint32_t dma_started, dma_pending, usb_started, usb_completed;
 
 typedef struct {
 	uint32_t freq_mhz;
@@ -65,6 +71,8 @@ typedef struct {
 } set_sample_r_params_t;
 
 set_sample_r_params_t set_sample_r_params;
+
+void dma_isr(void);
 
 usb_request_status_t usb_vendor_request_set_baseband_filter_bandwidth(
 	usb_endpoint_t* const endpoint,
@@ -338,6 +346,11 @@ void transceiver_shutdown(void)
 
 void transceiver_startup(const transceiver_mode_t mode)
 {
+	dma_started = 0;
+	dma_pending = 0;
+	usb_started = 0;
+	usb_completed = 0;
+
 	radio_switch_opmode(&radio, mode);
 
 	switch (mode) {
@@ -422,30 +435,115 @@ usb_request_status_t usb_vendor_request_set_rx_overrun_limit(
 	return USB_REQUEST_STATUS_OK;
 }
 
+void transceiver_start_dma(void* src, void* dest, size_t size)
+{
+	dma_pending = size;
+	memcpy(dest, src, size);
+	dma_isr();
+}
+
+void dma_isr(void)
+{
+	m0_state.m4_count += dma_pending;
+	dma_pending = 0;
+}
+
 void transceiver_bulk_transfer_complete(void* user_data, unsigned int bytes_transferred)
 {
 	(void) user_data;
-	m0_state.m4_count += bytes_transferred;
+	usb_completed += bytes_transferred;
+}
+
+typedef enum {
+	DIRECTION_RX,
+	DIRECTION_TX,
+} direction_t;
+
+void start_dma_if_possible(direction_t direction, size_t size)
+{
+	if (dma_pending) {
+		return;
+	}
+
+	uint32_t sampling_completed = m0_state.m0_count;
+	uint32_t dma_completed = m0_state.m4_count;
+	uint32_t samp_offset = dma_started & USB_SAMP_BUFFER_MASK;
+	uint32_t bulk_offset = dma_started & USB_BULK_BUFFER_MASK;
+	uint32_t data_available, space_in_use, space_available, samp_buf_margin;
+	uint8_t *dest, *src;
+
+	if (direction == DIRECTION_RX) {
+		data_available = sampling_completed - dma_started;
+		space_in_use = usb_completed - dma_completed;
+		space_available = USB_BULK_BUFFER_SIZE - space_in_use;
+		samp_buf_margin = USB_SAMP_BUFFER_SIZE - data_available;
+		src = &usb_samp_buffer[samp_offset];
+		dest = &usb_bulk_buffer[bulk_offset];
+	} else {
+		data_available = usb_completed - dma_started;
+		space_in_use = dma_completed - sampling_completed;
+		space_available = USB_SAMP_BUFFER_SIZE - space_in_use;
+		samp_buf_margin = space_in_use;
+		src = &usb_bulk_buffer[bulk_offset];
+		dest = &usb_samp_buffer[samp_offset];
+	}
+
+	if (data_available < size || size > space_available) {
+		return;
+	}
+
+	uint32_t m0_buf_half = sampling_completed & BUF_HALF_MASK;
+	uint32_t dma_buf_half = dma_started & BUF_HALF_MASK;
+	bool same_buf_half = m0_buf_half == dma_buf_half;
+
+	if (same_buf_half && samp_buf_margin >= (USB_SAMP_BUFFER_SIZE / 2)) {
+		return;
+	}
+
+	transceiver_start_dma(src, dest, size);
+
+	dma_started += size;
+}
+
+void start_usb_if_possible(direction_t direction)
+{
+	uint32_t bulk_offset = usb_started & USB_BULK_BUFFER_MASK;
+	uint32_t dma_completed = m0_state.m4_count;
+	uint32_t bytes_available;
+	usb_endpoint_t* usb_endpoint;
+
+	if (direction == DIRECTION_RX) {
+		bytes_available = dma_completed - usb_started;
+		usb_endpoint = &usb_endpoint_bulk_in;
+	} else {
+		uint32_t space_used = usb_started - dma_completed;
+		bytes_available = USB_BULK_BUFFER_SIZE - space_used;
+		usb_endpoint = &usb_endpoint_bulk_out;
+	}
+
+	if (bytes_available < USB_TRANSFER_SIZE) {
+		return;
+	}
+
+	usb_transfer_schedule_block(
+		usb_endpoint,
+		&usb_bulk_buffer[bulk_offset],
+		USB_TRANSFER_SIZE,
+		transceiver_bulk_transfer_complete,
+		NULL);
+
+	usb_started += USB_TRANSFER_SIZE;
 }
 
 void rx_mode(uint32_t seq)
 {
-	uint32_t usb_count = 0;
-
 	transceiver_startup(TRANSCEIVER_MODE_RX);
 
 	baseband_streaming_enable(&sgpio_config);
 
 	while (transceiver_request.seq == seq) {
-		if ((m0_state.m0_count - usb_count) >= USB_TRANSFER_SIZE) {
-			usb_transfer_schedule_block(
-				&usb_endpoint_bulk_in,
-				&usb_samp_buffer[usb_count & USB_SAMP_BUFFER_MASK],
-				USB_TRANSFER_SIZE,
-				transceiver_bulk_transfer_complete,
-				NULL);
-			usb_count += USB_TRANSFER_SIZE;
-		}
+		start_dma_if_possible(DIRECTION_RX, DMA_TRANSFER_SIZE);
+		start_usb_if_possible(DIRECTION_RX);
 		radio_update(&radio);
 	}
 
@@ -454,35 +552,42 @@ void rx_mode(uint32_t seq)
 
 void tx_mode(uint32_t seq)
 {
-	unsigned int usb_count = 0;
-	bool started = false;
-
 	transceiver_startup(TRANSCEIVER_MODE_TX);
 
-	// Set up OUT transfer of buffer 0.
-	usb_transfer_schedule_block(
-		&usb_endpoint_bulk_out,
-		&usb_samp_buffer[0x0000],
-		USB_TRANSFER_SIZE,
-		transceiver_bulk_transfer_complete,
-		NULL);
-	usb_count += USB_TRANSFER_SIZE;
+	// First, make transfers directly into the sample buffer to fill it.
+	for (int i = 0; i < (USB_SAMP_BUFFER_SIZE / USB_TRANSFER_SIZE); i++) {
+		// Set up transfer.
+		usb_transfer_schedule_block(
+			&usb_endpoint_bulk_out,
+			&usb_samp_buffer[usb_started],
+			USB_TRANSFER_SIZE,
+			transceiver_bulk_transfer_complete,
+			NULL);
+		usb_started += USB_TRANSFER_SIZE;
 
+		// Wait for the transfer to complete.
+		while (usb_completed < usb_started) {
+			// Handle the host switching modes before filling the buffer.
+			if (transceiver_request.seq != seq) {
+				transceiver_shutdown();
+				return;
+			}
+
+			radio_update(&radio);
+		}
+	}
+
+	// Sample buffer is now full. Update DMA counters accordingly.
+	dma_started = USB_SAMP_BUFFER_SIZE;
+	m0_state.m4_count = USB_SAMP_BUFFER_SIZE;
+
+	// Start transmitting samples.
+	baseband_streaming_enable(&sgpio_config);
+
+	// Continue feeding samples to the sample buffer.
 	while (transceiver_request.seq == seq) {
-		if (!started && (m0_state.m4_count == USB_SAMP_BUFFER_SIZE)) {
-			// Buffer is now full, start streaming.
-			baseband_streaming_enable(&sgpio_config);
-			started = true;
-		}
-		if ((usb_count - m0_state.m0_count) <= USB_TRANSFER_SIZE) {
-			usb_transfer_schedule_block(
-				&usb_endpoint_bulk_out,
-				&usb_samp_buffer[usb_count & USB_SAMP_BUFFER_MASK],
-				USB_TRANSFER_SIZE,
-				transceiver_bulk_transfer_complete,
-				NULL);
-			usb_count += USB_TRANSFER_SIZE;
-		}
+		start_dma_if_possible(DIRECTION_TX, DMA_TRANSFER_SIZE);
+		start_usb_if_possible(DIRECTION_TX);
 		radio_update(&radio);
 	}
 
