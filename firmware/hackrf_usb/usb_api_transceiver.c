@@ -52,6 +52,8 @@
 #define USB_TRANSFER_SIZE 0x4000
 #define DMA_TRANSFER_SIZE 0x2000
 
+#define BUF_HALF_MASK (USB_SAMP_BUFFER_SIZE >> 1)
+
 #define DMA_CHANNEL 1
 
 volatile uint32_t dma_started, usb_started, usb_completed;
@@ -472,7 +474,8 @@ void rx_mode(uint32_t seq)
 		uint32_t data_available = data_gathered - dma_started;
 		uint32_t space_in_use = usb_completed - dma_completed;
 		uint32_t space_available = USB_BULK_BUFFER_SIZE - space_in_use;
-		if (!dma_busy && (data_available >= DMA_TRANSFER_SIZE) &&
+		bool ahb_busy = !((data_gathered ^ dma_started) & BUF_HALF_MASK);
+		if (!dma_busy && !ahb_busy && (data_available >= DMA_TRANSFER_SIZE) &&
 		    (space_available >= DMA_TRANSFER_SIZE)) {
 			uint32_t samp_offset = dma_started & USB_SAMP_BUFFER_MASK;
 			uint32_t bulk_offset = dma_started & USB_BULK_BUFFER_MASK;
@@ -536,7 +539,8 @@ void tx_mode(uint32_t seq)
 		uint32_t data_available = usb_completed - dma_started;
 		uint32_t space_in_use = dma_started - data_used;
 		uint32_t space_available = USB_SAMP_BUFFER_SIZE - space_in_use;
-		if (!dma_busy && (data_available >= DMA_TRANSFER_SIZE) &&
+		bool ahb_busy = !((data_used ^ dma_started) & BUF_HALF_MASK);
+		if (!dma_busy && !ahb_busy && (data_available >= DMA_TRANSFER_SIZE) &&
 		    (space_available >= DMA_TRANSFER_SIZE)) {
 			uint32_t samp_offset = dma_started & USB_SAMP_BUFFER_MASK;
 			uint32_t bulk_offset = dma_started & USB_BULK_BUFFER_MASK;
@@ -577,9 +581,10 @@ void tx_mode(uint32_t seq)
 		uint32_t space_available = USB_SAMP_BUFFER_SIZE - space_in_use;
 		uint32_t samp_offset = dma_started & USB_SAMP_BUFFER_MASK;
 		uint32_t bulk_offset = dma_started & USB_BULK_BUFFER_MASK;
+		bool ahb_busy = !((data_used ^ dma_started) & BUF_HALF_MASK);
 		size_t size = data_available >= DMA_TRANSFER_SIZE ? DMA_TRANSFER_SIZE :
 								    data_available;
-		if (dma_busy || size > space_available) {
+		if (dma_busy || ahb_busy || size > space_available) {
 			continue;
 		}
 		transceiver_start_dma(
