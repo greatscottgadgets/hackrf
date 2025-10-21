@@ -1175,9 +1175,9 @@ def program(bin_dir, fw_dir, serial, unattended=False):
     device_found = False
     while time.time() < (then + 5):
         flash_info = subprocess.run([bin_dir + "hackrf_info"], capture_output=True,
-            encoding="utf-8", timeout=TIMEOUT)
+            timeout=TIMEOUT)
 
-        if serial in flash_info.stdout:
+        if serial in flash_info.stdout.decode('utf-8', errors='ignore'):
             device_found = True
             break
         time.sleep(0.1)
