@@ -54,7 +54,7 @@ bp1txamp = TestCase(name="BP1-TX-amp", freq=2665, amp=True, direction="tx",
 lp1txamp = TestCase(name="LP1-TX-amp", freq=915, amp=True, direction="tx",
         base_ecode=420, rx_lna_gain=16, rx_vga_gain=16, tx_gain=27)
 lp2txamp = TestCase(name="LP2-TX-amp", freq=2, amp=True, direction="tx",
-        base_ecode=2420, rx_lna_gain=16, rx_vga_gain=16, tx_gain=22)
+        base_ecode=2420, rx_lna_gain=8, rx_vga_gain=8, tx_gain=38)
 hp1txamp = TestCase(name="HP1-TX-amp", freq=5995, amp=True, direction="tx",
         base_ecode=520, rx_lna_gain=32, rx_vga_gain=28, tx_gain=37)
 
@@ -63,7 +63,7 @@ bp1txnoamp = TestCase(name="BP1-TX-noamp", freq=2665, amp=False, direction="tx",
 lp1txnoamp = TestCase(name="LP1-TX-noamp", freq=915, amp=False, direction="tx",
         base_ecode=450, rx_lna_gain=16, rx_vga_gain=16, tx_gain=39)
 lp2txnoamp = TestCase(name="LP2-TX-noamp", freq=2, amp=False, direction="tx",
-        base_ecode=2450, rx_lna_gain=16, rx_vga_gain=16, tx_gain=41)
+        base_ecode=2750, rx_lna_gain=8, rx_vga_gain=16, tx_gain=47)
 hp1txnoamp = TestCase(name="HP1-TX-noamp", freq=5995, amp=False, direction="tx",
         base_ecode=550, rx_lna_gain=32, rx_vga_gain=32, tx_gain=44)
 
@@ -74,7 +74,7 @@ bp1rxamp = TestCase(name="BP1-RX-amp", freq=2665, amp=True, direction="rx",
 lp1rxamp = TestCase(name="LP1-RX-amp", freq=915, amp=True, direction="rx",
         base_ecode=720, rx_lna_gain=16, rx_vga_gain=16, tx_gain=29)
 lp2rxamp = TestCase(name="LP2-RX-amp", freq=2, amp=True, direction="rx",
-        base_ecode=2720, rx_lna_gain=16, rx_vga_gain=16, tx_gain=26)
+        base_ecode=2720, rx_lna_gain=8, rx_vga_gain=8, tx_gain=41)
 hp1rxamp = TestCase(name="HP1-RX-amp", freq=5995, amp=True, direction="rx",
         base_ecode=820, rx_lna_gain=32, rx_vga_gain=28, tx_gain=39)
 
@@ -83,7 +83,7 @@ bp1rxnoamp = TestCase(name="BP1-RX-noamp", freq=2665, amp=False, direction="rx",
 lp1rxnoamp = TestCase(name="LP1-RX-noamp", freq=915, amp=False, direction="rx",
         base_ecode=750, rx_lna_gain=16, rx_vga_gain=16, tx_gain=39)
 lp2rxnoamp = TestCase(name="LP2-RX-noamp", freq=2, amp=False, direction="rx",
-        base_ecode=2750, rx_lna_gain=16, rx_vga_gain=16, tx_gain=41)
+        base_ecode=2750, rx_lna_gain=8, rx_vga_gain=16, tx_gain=47)
 hp1rxnoamp = TestCase(name="HP1-RX-noamp", freq=5995, amp=False, direction="rx",
         base_ecode=850, rx_lna_gain=32, rx_vga_gain=32, tx_gain=44)
 
