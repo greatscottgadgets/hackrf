@@ -964,10 +964,10 @@ class HackRF:
             log(f"{test_case.name} TX spectrum mirrored")
             self.errors.append(test_case.base_ecode + 25)
         if (bins[22] - bins[67]) > MAX_H2_DBC + correction:
-            log(f"{test_case.name} excessive TX harmonic")
+            log(f"{test_case.name} excessive TX harmonic (bin 22): {bins[22]}")
             self.errors.append(test_case.base_ecode + 10)
         if (bins[202] - bins[67]) > MAX_MH2_DBC + correction:
-            log(f"{test_case.name} excessive TX harmonic")
+            log(f"{test_case.name} excessive TX harmonic (bin 202): {bins[202]}")
             self.errors.append(test_case.base_ecode + 10)
         worst_other_dbc = -999
         worst_other_bin = 999
