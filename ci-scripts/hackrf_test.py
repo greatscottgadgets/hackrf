@@ -1268,7 +1268,7 @@ def main():
 
     if "any" in args.rev.lower():
         args.rev = None
-    elif "r1" in args.rev.lower() or "r4" in args.rev.lower():
+    elif args.rev.lower() == "r1" or args.rev.lower() == "r4":
         args.rev = "older than r6"
 
     if args.hostdir:
