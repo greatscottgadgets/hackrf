@@ -580,7 +580,8 @@ class HackRF:
                 if enable:
                     fail(210 + self.unit_number)
                 else:
-                    out("Note: use --tcxo to use TCXO or external reference on TESTER")
+                    if self.name == "EUT":
+                        out("Note: use --tcxo to use TCXO or external reference on TESTER")
                     fail(212 + self.unit_number)
 
             # transceiver operation to switch clock source
