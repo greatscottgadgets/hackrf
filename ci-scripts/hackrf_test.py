@@ -1337,14 +1337,14 @@ def main():
 
         out("Testing EUT")
 
-        if args.noclk:
+        if args.solo:
+            eut.clkout_connected = False
+        elif args.noclk:
             eut.clkout_connected = False
             tester.clkout_connected = False
         elif args.tcxo:
             eut.clkout_connected = False
             tester.clkout_connected = True
-        elif args.solo:
-            eut.clkout_connected = False
         else:
             eut.clkout_connected = True
             tester.clkout_connected = True
