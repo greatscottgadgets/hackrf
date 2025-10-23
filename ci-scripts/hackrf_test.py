@@ -973,13 +973,14 @@ class HackRF:
         worst_other_dbc = -999
         worst_other_bin = 999
         for i in range(225):
+            # Skip various frequencies where spurs are expected (most of which have their own tests above).
             if (i < 52 and i != 22) or (i > 82 and i < 111) or (i > 113 and i < 156) or (i > 158 and i != 202):
                 other_dbc = bins[i] - bins[67]
                 if other_dbc > worst_other_dbc:
                     worst_other_dbc = other_dbc
                     worst_other_bin = i
         if worst_other_dbc > MAX_OTHER_DBC + correction:
-            log(f"{test_case.name} excessive power at unexpected frequency ({i}: {bins[i]})")
+            log(f"{test_case.name} excessive power at unexpected frequency ({worst_other_bin}: {bins[worst_other_bin]})")
             self.errors.append(test_case.base_ecode + 30)
         log(f"h2 (22) {test_case.name}: {(bins[22] - bins[67]):.2f}")
         log(f"DC (112) {test_case.name}: {(bins[112] - bins[67]):.2f}")
