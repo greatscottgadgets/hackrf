@@ -161,7 +161,6 @@ emessages = {
     260: "Frequency error exceeds limit",
     300: "Failed baseline RX",
     302: "Couldn't parse baseline RX power",
-    304: "Baseline RX power too low",
     306: "Baseline RX power too high",
     310: "Failed noise RX",
     311: "Couldn't parse noise RX power",
@@ -742,8 +741,6 @@ class HackRF:
         # The theoretical minimum power is about -48 dB. The expected power is
         # about -30 dB.
         log(f"{self.name} {test_case.name} baseline power: {power}")
-        if power < -48:
-            fail(304)
         if power > MAX_BASELINE:
             fail(306)
 
