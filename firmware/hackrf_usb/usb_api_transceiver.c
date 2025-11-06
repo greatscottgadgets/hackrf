@@ -49,12 +49,22 @@
 
 #define USB_TRANSFER_SIZE 0x4000
 
+static int frequency_switch_scheduled = 0;
+
 typedef struct {
 	uint32_t freq_mhz;
 	uint32_t freq_hz;
 } set_freq_params_t;
 
 set_freq_params_t set_freq_params;
+
+typedef struct {
+	uint32_t freq_mhz;
+	uint32_t freq_hz;
+	uint32_t when;
+} set_freq_when_params_t;
+
+set_freq_when_params_t set_freq_when_params;
 
 struct set_freq_explicit_params {
 	uint64_t if_freq_hz; /* intermediate frequency */
@@ -108,6 +118,29 @@ usb_request_status_t usb_vendor_request_set_freq(
 			return USB_REQUEST_STATUS_OK;
 		}
 		return USB_REQUEST_STATUS_STALL;
+	} else {
+		return USB_REQUEST_STATUS_OK;
+	}
+}
+
+usb_request_status_t usb_vendor_request_set_freq_when(
+	usb_endpoint_t* const endpoint,
+	const usb_transfer_stage_t stage)
+{
+	if (stage == USB_TRANSFER_STAGE_SETUP) {
+		usb_transfer_schedule_block(
+			endpoint->out,
+			&set_freq_when_params,
+			sizeof(set_freq_when_params_t),
+			NULL,
+			NULL);
+		return USB_REQUEST_STATUS_OK;
+	} else if (stage == USB_TRANSFER_STAGE_DATA) {
+		if (frequency_switch_scheduled)
+			return USB_REQUEST_STATUS_STALL;
+		frequency_switch_scheduled = 1;
+		usb_transfer_schedule_ack(endpoint->in);
+		return USB_REQUEST_STATUS_OK;
 	} else {
 		return USB_REQUEST_STATUS_OK;
 	}
@@ -415,9 +448,20 @@ void rx_mode(uint32_t seq)
 	transceiver_startup(TRANSCEIVER_MODE_RX);
 
 	baseband_streaming_enable(&sgpio_config);
+	frequency_switch_scheduled = 0;
 
 	while (transceiver_request.seq == seq) {
-		if ((m0_state.m0_count - usb_count) >= USB_TRANSFER_SIZE) {
+		uint32_t local_m0_count = m0_state.m0_count;
+
+		/* Check if scheduled frequency change is due, handles integer wrap-around */
+		if (frequency_switch_scheduled &&
+		    !((local_m0_count - set_freq_when_params.when) & 0x80000000)) {
+			const uint64_t freq = set_freq_when_params.freq_mhz * 1000000ULL +
+				set_freq_when_params.freq_hz;
+			set_freq(freq);
+			frequency_switch_scheduled = 0;
+		}
+		if ((local_m0_count - usb_count) >= USB_TRANSFER_SIZE) {
 			usb_transfer_schedule_block(
 				&usb_endpoint_bulk_in,
 				&usb_bulk_buffer[usb_count & USB_BULK_BUFFER_MASK],
@@ -447,13 +491,25 @@ void tx_mode(uint32_t seq)
 		NULL);
 	usb_count += USB_TRANSFER_SIZE;
 
+	frequency_switch_scheduled = 0;
+
 	while (transceiver_request.seq == seq) {
+		uint32_t local_m0_count = m0_state.m0_count;
 		if (!started && (m0_state.m4_count == USB_BULK_BUFFER_SIZE)) {
 			// Buffer is now full, start streaming.
 			baseband_streaming_enable(&sgpio_config);
 			started = true;
 		}
-		if ((usb_count - m0_state.m0_count) <= USB_TRANSFER_SIZE) {
+
+		/* Check if scheduled frequency change is due, handles integer wrap-around */
+		if (frequency_switch_scheduled &&
+		    !((local_m0_count - set_freq_when_params.when) & 0x80000000)) {
+			const uint64_t freq = set_freq_when_params.freq_mhz * 1000000ULL +
+				set_freq_when_params.freq_hz;
+			set_freq(freq);
+			frequency_switch_scheduled = 0;
+		}
+		if ((usb_count - local_m0_count) <= USB_TRANSFER_SIZE) {
 			usb_transfer_schedule_block(
 				&usb_endpoint_bulk_out,
 				&usb_bulk_buffer[usb_count & USB_BULK_BUFFER_MASK],
