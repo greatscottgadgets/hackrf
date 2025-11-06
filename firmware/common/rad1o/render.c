@@ -108,7 +108,7 @@ int rad1o_DoChar(int sx, int sy, int c)
 
 	} while (0);
 
-#define xy_(x, y) ((x < 0 || y < 0 || x >= RESX || y >= RESY) ? 0 : (y) *RESX + (x))
+#define xy_(x, y) ((x < 0 || y < 0 || x >= RESX || y >= RESY) ? 0 : (y) * RESX + (x))
 #define gPx(x, y) (data[x * height + (height - y / 8 - 1)] & (1 << (y % 8)))
 
 	int x = 0;

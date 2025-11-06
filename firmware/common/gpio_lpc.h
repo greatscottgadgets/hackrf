@@ -45,7 +45,7 @@ typedef struct gpio_port_t {
 	uint32_t _reserved4[31];
 	volatile uint32_t clr; /* +0x280 */
 	uint32_t _reserved5[31];
-	volatile uint32_t not ; /* +0x300 */
+	volatile uint32_t not; /* +0x300 */
 } gpio_port_t;
 
 struct gpio_t {
@@ -60,9 +60,10 @@ struct gpio_t {
 #define GPIO_LPC_PORT_OFFSET (0x2000)
 
 #define GPIO_LPC_PORT(_n) \
-	((gpio_port_t*) ((GPIO_LPC_BASE + GPIO_LPC_PORT_OFFSET) + (_n) *4))
-#define GPIO_LPC_W(_port_num, _pin_num) \
-	(volatile uint32_t*) ((GPIO_LPC_BASE + GPIO_LPC_W_OFFSET) + ((_port_num) *0x80) + ((_pin_num) *4))
+	((gpio_port_t*) ((GPIO_LPC_BASE + GPIO_LPC_PORT_OFFSET) + (_n) * 4))
+#define GPIO_LPC_W(_port_num, _pin_num)                             \
+	(volatile uint32_t*) ((GPIO_LPC_BASE + GPIO_LPC_W_OFFSET) + \
+			      ((_port_num) * 0x80) + ((_pin_num) * 4))
 
 // clang-format off
 #define GPIO(_port_num, _pin_num) { \
