@@ -57,7 +57,7 @@ uint8_t* rad1o_pk_decode(const uint8_t* ldata, int* len)
 	hoff = rad1o_getFontHeight() % 8;
 
 #define DYN (12)        // Decoder parameter: Fixed value for now.
-	int repeat = 0; // Decoder internal: repeat colum?
+	int repeat = 0; // Decoder internal: repeat column?
 	int curbit = 0; // Decoder internal: current bit (1 or 0)
 	int pos = 0;    // Decoder internal: current bit position (0..7)
 	int nyb;        // Decoder internal: current nibble / value

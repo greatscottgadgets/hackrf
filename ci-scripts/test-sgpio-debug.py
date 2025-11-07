@@ -66,7 +66,7 @@ def check_bytes():
         if rx_data[i-1] != rx_data[i] - 1:
             if not (rx_data[i] == 0 and rx_data[i-1] == 255):
                 print(f"ERROR: Incorrect data value found at location {str(i)} in {FILENAME}:")
-                # print up to 5 values starting from at most 1 value before error occurence
+                # print up to 5 values starting from at most 1 value before error occurrence
                 j = -1
                 while j < 4:
                     if i + j < len(rx_data) and i + j > -1:

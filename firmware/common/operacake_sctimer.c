@@ -155,7 +155,7 @@ void operacake_sctimer_set_dwell_times(struct operacake_dwell_times* times, int 
 		SCT_MATCHn(i) = counter;
 		SCT_MATCHRELn(i) = counter;
 
-		// The match event selects the *next* port, so retreive that here.
+		// The match event selects the *next* port, so retrieve that here.
 		int port;
 		if (i == n - 1) {
 			port = times[0].port;
