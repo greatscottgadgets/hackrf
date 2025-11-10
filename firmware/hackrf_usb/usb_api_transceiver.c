@@ -499,25 +499,38 @@ void rx_mode(uint32_t seq)
 
 void tx_mode(uint32_t seq)
 {
-	bool started = false;
-
 	transceiver_startup(TRANSCEIVER_MODE_TX);
 
-	// Set up OUT transfer of buffer 0.
-	usb_transfer_schedule_block(
-		&usb_endpoint_bulk_out,
-		&usb_bulk_buffer[0x0000],
-		USB_TRANSFER_SIZE,
-		transceiver_bulk_transfer_complete,
-		NULL);
-	usb_started += USB_TRANSFER_SIZE;
+	// First, make transfers directly into the sample buffer to fill it.
+	for (int i = 0; i < (USB_SAMP_BUFFER_SIZE / USB_TRANSFER_SIZE); i++) {
+		// Set up transfer.
+		usb_transfer_schedule_block(
+			&usb_endpoint_bulk_out,
+			&usb_samp_buffer[usb_started],
+			USB_TRANSFER_SIZE,
+			transceiver_bulk_transfer_complete,
+			NULL);
+		usb_started += USB_TRANSFER_SIZE;
 
-	while (transceiver_request.seq == seq) {
-		if (!started && (m0_state.m4_count == USB_SAMP_BUFFER_SIZE)) {
-			// Buffer is now full, start streaming.
-			baseband_streaming_enable(&sgpio_config);
-			started = true;
+		// Wait for the transfer to complete.
+		while (usb_completed < usb_started) {
+			// Handle the host switching modes before filling the buffer.
+			if (transceiver_request.seq != seq) {
+				transceiver_shutdown();
+				return;
+			}
 		}
+	}
+
+	// Sample buffer is now full. Update DMA counters accordingly.
+	dma_started = USB_SAMP_BUFFER_SIZE;
+	m0_state.m4_count = USB_SAMP_BUFFER_SIZE;
+
+	// Start transmitting samples.
+	baseband_streaming_enable(&sgpio_config);
+
+	// Continue feeding samples to the sample buffer.
+	while (transceiver_request.seq == seq) {
 		uint32_t data_used = m0_state.m0_count;
 		uint32_t dma_completed = m0_state.m4_count;
 		uint32_t data_available = usb_completed - dma_started;
