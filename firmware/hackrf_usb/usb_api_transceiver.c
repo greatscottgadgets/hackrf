@@ -27,7 +27,8 @@
 #include "operacake_sctimer.h"
 
 #include <libopencm3/cm3/vector.h>
-#include "usb_bulk_buffer.h"
+#include <libopencm3/lpc43xx/gpdma.h>
+#include "usb_buffer.h"
 #include "usb_api_m0_state.h"
 
 #include "usb_api_cpld.h" // Remove when CPLD update is handled elsewhere
@@ -40,6 +41,7 @@
 #include "usb.h"
 #include "usb_queue.h"
 #include "platform_detect.h"
+#include "gpdma.h"
 
 #include <stddef.h>
 #include <string.h>
@@ -48,6 +50,14 @@
 #include "usb_api_sweep.h"
 
 #define USB_TRANSFER_SIZE 0x4000
+#define DMA_TRANSFER_SIZE 0x2000
+
+#define BUF_HALF_MASK (USB_SAMP_BUFFER_SIZE >> 1)
+
+#define DMA_CHANNEL 1
+
+volatile uint32_t dma_started, usb_started, usb_completed;
+volatile bool dma_busy;
 
 typedef struct {
 	uint32_t freq_mhz;
@@ -317,6 +327,11 @@ void transceiver_shutdown(void)
 
 void transceiver_startup(const transceiver_mode_t mode)
 {
+	dma_busy = false;
+	dma_started = 0;
+	usb_started = 0;
+	usb_completed = 0;
+
 	hackrf_ui()->set_transceiver_mode(mode);
 
 	switch (mode) {
@@ -402,29 +417,83 @@ usb_request_status_t usb_vendor_request_set_rx_overrun_limit(
 	return USB_REQUEST_STATUS_OK;
 }
 
+void transceiver_start_dma(void* src, void* dest, size_t size)
+{
+	uint32_t num_transfers = size >> 2;
+	gpdma_controller_enable();
+	GPDMA_CSRCADDR(DMA_CHANNEL) = (uint32_t) src;
+	GPDMA_CDESTADDR(DMA_CHANNEL) = (uint32_t) dest;
+	GPDMA_CLLI(DMA_CHANNEL) = 0;
+	GPDMA_CCONTROL(DMA_CHANNEL) = GPDMA_CCONTROL_TRANSFERSIZE(num_transfers) |
+		GPDMA_CCONTROL_SBSIZE(7)                        // 256-transfer src bursts
+		| GPDMA_CCONTROL_DBSIZE(7)                      // 256-transfer dst bursts
+		| GPDMA_CCONTROL_SWIDTH(2)                      // 32-bit src transfers
+		| GPDMA_CCONTROL_DWIDTH(2)                      // 32-bit dst transfers
+		| GPDMA_CCONTROL_S(0)                           // AHB Master 0
+		| GPDMA_CCONTROL_D(1)                           // AHB Master 1
+		| GPDMA_CCONTROL_SI(1)                          // increment source
+		| GPDMA_CCONTROL_DI(1)                          // increment destination
+		| GPDMA_CCONTROL_PROT1(0)                       // user mode
+		| GPDMA_CCONTROL_PROT2(0)                       // not bufferable
+		| GPDMA_CCONTROL_PROT3(0)                       // not cacheable
+		| GPDMA_CCONTROL_I(1);                          // interrupt enabled
+	GPDMA_CCONFIG(DMA_CHANNEL) = GPDMA_CCONFIG_FLOWCNTRL(0) // memory-to-memory
+		| GPDMA_CCONFIG_IE(0)                           // no error interrupt
+		| GPDMA_CCONFIG_ITC(1) // terminal count interrupt
+		| GPDMA_CCONFIG_L(0)   // do not lock
+		| GPDMA_CCONFIG_H(0);  // do not halt
+	GPDMA_INTTCCLEAR = (1 << DMA_CHANNEL);
+	nvic_enable_irq(NVIC_DMA_IRQ);
+	gpdma_channel_enable(DMA_CHANNEL);
+	dma_busy = true;
+}
+
+void dma_isr()
+{
+	gpdma_channel_disable(DMA_CHANNEL);
+	GPDMA_INTTCCLEAR = (1 << DMA_CHANNEL);
+	m0_state.m4_count += DMA_TRANSFER_SIZE;
+	dma_busy = false;
+}
+
 void transceiver_bulk_transfer_complete(void* user_data, unsigned int bytes_transferred)
 {
 	(void) user_data;
-	m0_state.m4_count += bytes_transferred;
+	usb_completed += bytes_transferred;
 }
 
 void rx_mode(uint32_t seq)
 {
-	uint32_t usb_count = 0;
-
 	transceiver_startup(TRANSCEIVER_MODE_RX);
 
 	baseband_streaming_enable(&sgpio_config);
 
 	while (transceiver_request.seq == seq) {
-		if ((m0_state.m0_count - usb_count) >= USB_TRANSFER_SIZE) {
+		uint32_t data_gathered = m0_state.m0_count;
+		uint32_t dma_completed = m0_state.m4_count;
+		uint32_t data_available = data_gathered - dma_started;
+		uint32_t space_in_use = usb_completed - dma_completed;
+		uint32_t space_available = USB_BULK_BUFFER_SIZE - space_in_use;
+		bool ahb_busy = !((data_gathered ^ dma_started) & BUF_HALF_MASK);
+		if (!dma_busy && !ahb_busy && (data_available >= DMA_TRANSFER_SIZE) &&
+		    (space_available >= DMA_TRANSFER_SIZE)) {
+			uint32_t samp_offset = dma_started & USB_SAMP_BUFFER_MASK;
+			uint32_t bulk_offset = dma_started & USB_BULK_BUFFER_MASK;
+			transceiver_start_dma(
+				&usb_samp_buffer[samp_offset],
+				&usb_bulk_buffer[bulk_offset],
+				DMA_TRANSFER_SIZE);
+			dma_started += DMA_TRANSFER_SIZE;
+		}
+		if ((dma_completed - usb_started) >= USB_TRANSFER_SIZE) {
+			uint32_t bulk_offset = usb_started & USB_BULK_BUFFER_MASK;
 			usb_transfer_schedule_block(
 				&usb_endpoint_bulk_in,
-				&usb_bulk_buffer[usb_count & USB_BULK_BUFFER_MASK],
+				&usb_bulk_buffer[bulk_offset],
 				USB_TRANSFER_SIZE,
 				transceiver_bulk_transfer_complete,
 				NULL);
-			usb_count += USB_TRANSFER_SIZE;
+			usb_started += USB_TRANSFER_SIZE;
 		}
 	}
 
@@ -433,35 +502,96 @@ void rx_mode(uint32_t seq)
 
 void tx_mode(uint32_t seq)
 {
-	unsigned int usb_count = 0;
-	bool started = false;
-
 	transceiver_startup(TRANSCEIVER_MODE_TX);
 
-	// Set up OUT transfer of buffer 0.
-	usb_transfer_schedule_block(
-		&usb_endpoint_bulk_out,
-		&usb_bulk_buffer[0x0000],
-		USB_TRANSFER_SIZE,
-		transceiver_bulk_transfer_complete,
-		NULL);
-	usb_count += USB_TRANSFER_SIZE;
+	// First, make transfers directly into the sample buffer to fill it.
+	for (int i = 0; i < (USB_SAMP_BUFFER_SIZE / USB_TRANSFER_SIZE); i++) {
+		// Set up transfer.
+		usb_transfer_schedule_block(
+			&usb_endpoint_bulk_out,
+			&usb_samp_buffer[usb_started],
+			USB_TRANSFER_SIZE,
+			transceiver_bulk_transfer_complete,
+			NULL);
+		usb_started += USB_TRANSFER_SIZE;
 
-	while (transceiver_request.seq == seq) {
-		if (!started && (m0_state.m4_count == USB_BULK_BUFFER_SIZE)) {
-			// Buffer is now full, start streaming.
-			baseband_streaming_enable(&sgpio_config);
-			started = true;
+		// Wait for the transfer to complete.
+		while (usb_completed < usb_started) {
+			// Handle the host switching modes before filling the buffer.
+			if (transceiver_request.seq != seq) {
+				transceiver_shutdown();
+				return;
+			}
 		}
-		if ((usb_count - m0_state.m0_count) <= USB_TRANSFER_SIZE) {
+	}
+
+	// Sample buffer is now full. Update DMA counters accordingly.
+	dma_started = USB_SAMP_BUFFER_SIZE;
+	m0_state.m4_count = USB_SAMP_BUFFER_SIZE;
+
+	// Start transmitting samples.
+	baseband_streaming_enable(&sgpio_config);
+
+	// Continue feeding samples to the sample buffer.
+	while (transceiver_request.seq == seq) {
+		uint32_t data_used = m0_state.m0_count;
+		uint32_t dma_completed = m0_state.m4_count;
+		uint32_t data_available = usb_completed - dma_started;
+		uint32_t space_in_use = dma_started - data_used;
+		uint32_t space_available = USB_SAMP_BUFFER_SIZE - space_in_use;
+		bool ahb_busy = !((data_used ^ dma_started) & BUF_HALF_MASK);
+		if (!dma_busy && !ahb_busy && (data_available >= DMA_TRANSFER_SIZE) &&
+		    (space_available >= DMA_TRANSFER_SIZE)) {
+			uint32_t samp_offset = dma_started & USB_SAMP_BUFFER_MASK;
+			uint32_t bulk_offset = dma_started & USB_BULK_BUFFER_MASK;
+			transceiver_start_dma(
+				&usb_bulk_buffer[bulk_offset],
+				&usb_samp_buffer[samp_offset],
+				DMA_TRANSFER_SIZE);
+			dma_started += DMA_TRANSFER_SIZE;
+		}
+		if ((usb_started - dma_completed) <= USB_TRANSFER_SIZE) {
+			uint32_t bulk_offset = usb_started & USB_BULK_BUFFER_MASK;
 			usb_transfer_schedule_block(
 				&usb_endpoint_bulk_out,
-				&usb_bulk_buffer[usb_count & USB_BULK_BUFFER_MASK],
+				&usb_bulk_buffer[bulk_offset],
 				USB_TRANSFER_SIZE,
 				transceiver_bulk_transfer_complete,
 				NULL);
-			usb_count += USB_TRANSFER_SIZE;
+			usb_started += USB_TRANSFER_SIZE;
 		}
+	}
+
+	// Host has now requested to stop TX. We won't initiate any further USB
+	// transfers into the bulk buffer. However, we should make sure all
+	// data currently in the USB bulk buffer reaches the sample buffer
+	// before we actually stop transmitting.
+	//
+	// The reason for this is that libhackrf's hackrf_enable_tx_flush feature
+	// uses a fixed 32KB of zeroes to flush the buffer with at the end of TX,
+	// which was sufficient in earlier firmware with a single 32KB buffer.
+	//
+	// At this point, we also need to handle the case where there is less data
+	// to be transferred to the sample buffer than a full-sized DMA transfer.
+	//
+	while ((usb_completed - m0_state.m4_count) > 0) {
+		uint32_t data_used = m0_state.m0_count;
+		uint32_t data_available = usb_completed - dma_started;
+		uint32_t space_in_use = dma_started - data_used;
+		uint32_t space_available = USB_SAMP_BUFFER_SIZE - space_in_use;
+		uint32_t samp_offset = dma_started & USB_SAMP_BUFFER_MASK;
+		uint32_t bulk_offset = dma_started & USB_BULK_BUFFER_MASK;
+		bool ahb_busy = !((data_used ^ dma_started) & BUF_HALF_MASK);
+		size_t size = data_available >= DMA_TRANSFER_SIZE ? DMA_TRANSFER_SIZE :
+								    data_available;
+		if (dma_busy || ahb_busy || size > space_available) {
+			continue;
+		}
+		transceiver_start_dma(
+			&usb_bulk_buffer[bulk_offset],
+			&usb_samp_buffer[samp_offset],
+			size);
+		dma_started += size;
 	}
 
 	transceiver_shutdown();
