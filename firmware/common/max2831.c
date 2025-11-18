@@ -254,19 +254,9 @@ void max2831_set_frequency(max2831_driver_t* const drv, uint32_t freq)
 	max2831_regs_commit(drv);
 }
 
-typedef struct {
-	uint32_t bandwidth_hz;
-	uint8_t ft;
-} max2831_ft_t;
-
-typedef struct {
-	uint8_t percent;
-	uint8_t ft_fine;
-} max2831_ft_fine_t;
-
 // clang-format off
 /* measured -0.5 dB complex baseband bandwidth for each register setting */
-static const max2831_ft_t max2831_rx_ft[] = {
+static const max2831_ft_t _max2831_rx_ft[] = {
 	{ 11600000, MAX2831_RX_LPF_7_5M },
 	{ 15100000, MAX2831_RX_LPF_8_5M },
 	{ 22600000, MAX2831_RX_LPF_15M },
@@ -283,7 +273,7 @@ static const max2831_ft_fine_t max2831_rx_ft_fine[] = {
 	{   0, 0 },
 };
 
-static const max2831_ft_t max2831_tx_ft[] = {
+static const max2831_ft_t _max2831_tx_ft[] = {
 	{ 16000000, MAX2831_TX_LPF_8M },
 	{ 22000000, MAX2831_TX_LPF_11M },
 	{ 33000000, MAX2831_TX_LPF_16_5M },
@@ -302,6 +292,9 @@ static const max2831_ft_fine_t max2831_tx_ft_fine[] = {
 };
 //clang-format on
 
+// dirty hack is dirty
+const max2831_ft_t* max2831_rx_ft = _max2831_rx_ft;
+const max2831_ft_t* max2831_tx_ft = _max2831_tx_ft;
 
 uint32_t max2831_set_lpf_bandwidth(max2831_driver_t* const drv, const uint32_t bandwidth_hz) {
 	const max2831_ft_t* coarse;
