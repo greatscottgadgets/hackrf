@@ -23,6 +23,7 @@
 
 #include "hackrf_core.h"
 #include "hackrf_ui.h"
+#include "radio.h"
 #include "sgpio.h"
 #include "si5351c.h"
 #include "spi_ssp.h"
@@ -356,23 +357,23 @@ radio_t radio = {
 			.id = RADIO_CHANNEL0,
 			.config =
 				{
-					.sample_rate[RADIO_SAMPLE_RATE_CLOCKGEN] =
+					.sample_rate[RADIO_SAMPLE_RATE] =
+						{.num = 10000000, .denom = 1},
+					.filter[RADIO_FILTER_BASEBAND_LPF] = {.hz = 0},
+					.filter[RADIO_FILTER_RF_PATH] = {.mode = 0},
+					.filter[RADIO_FILTER_RX_BASEBAND_HPF] =
+						{.mode = MAX2831_RX_HPF_30_KHZ},
+					.filter[RADIO_FILTER_RX_NARROWBAND_LPF] =
 						{.hz = 0},
-					.filter[RADIO_FILTER_BASEBAND] = {.hz = 0},
-					.frequency[RADIO_FREQUENCY_RF] =
-						{
-							.hz = 0,
-							.if_hz = 0,
-							.lo_hz = 0,
-							.path = 0,
-						},
+					.filter[RADIO_FILTER_RX_DC_BLOCK] = {.hz = 0},
+					.frequency[RADIO_FREQUENCY] = {.hz = 0},
 					.gain[RADIO_GAIN_RF_AMP] = {.enable = 0},
 					.gain[RADIO_GAIN_RX_LNA] = {.db = 0},
 					.gain[RADIO_GAIN_RX_VGA] = {.db = 0},
 					.gain[RADIO_GAIN_TX_VGA] = {.db = 0},
 					.antenna[RADIO_ANTENNA_BIAS_TEE] =
 						{.enable = false},
-					.mode = TRANSCEIVER_MODE_OFF,
+					.mode = RADIO_MODE_OFF,
 					.clock[RADIO_CLOCK_CLKIN] = {.enable = false},
 					.clock[RADIO_CLOCK_CLKOUT] = {.enable = false},
 					.trigger_mode = HW_SYNC_MODE_OFF,

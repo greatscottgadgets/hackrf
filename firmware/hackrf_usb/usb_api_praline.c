@@ -23,6 +23,7 @@
 
 #include "usb_api_praline.h"
 #include "usb_queue.h"
+#include "radio.h"
 #include <hackrf_core.h>
 
 #include <stddef.h>
@@ -65,7 +66,16 @@ usb_request_status_t usb_vendor_request_set_narrowband_filter(
 	const usb_transfer_stage_t stage)
 {
 	if (stage == USB_TRANSFER_STAGE_SETUP) {
-		narrowband_filter_set(endpoint->setup.value);
+		radio_error_t result;
+		result = radio_set_filter_element(
+			&radio,
+			RADIO_CHANNEL0,
+			RADIO_MODE_ACTIVE,
+			RADIO_FILTER_RX_NARROWBAND_LPF,
+			(radio_filter_t){.enable = endpoint->setup.value});
+		if (result != RADIO_OK) {
+			return USB_REQUEST_STATUS_STALL;
+		}
 		usb_transfer_schedule_ack(endpoint->in);
 	}
 	return USB_REQUEST_STATUS_OK;

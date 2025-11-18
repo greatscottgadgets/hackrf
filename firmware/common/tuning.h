@@ -25,17 +25,36 @@
 #define __TUNING_H__
 
 #include "rf_path.h"
+#include "radio.h"
 #include "tune_config.h"
 
 #include <stdint.h>
 #include <stdbool.h>
 
-bool set_freq(const uint64_t freq); // TODO deprecate
+// TODO deprecate
+bool set_freq(const uint64_t freq);
+// TODO deprecate
 bool set_freq_explicit(
 	const uint64_t if_freq_hz,
 	const uint64_t lo_freq_hz,
 	const rf_path_filter_t path);
 
-uint64_t tuning_set_frequency(const tune_config_t* config, const uint64_t frequency_hz);
+/**
+ * Automatically tune to the best configuration for the requested frequency and populate
+ * `config` with the chosen configuration settings.
+ *
+ * Returns true on success.
+ */
+bool tuning_set_frequency(
+	const tune_config_t* table,
+	const uint64_t frequency_hz,
+	radio_mode_frequency_t* config);
+
+/**
+ * Explicitly tune to the given configuration settings.
+ *
+ * Returns true on success.
+ */
+bool tuning_set_frequency_explicit(const radio_mode_frequency_t config);
 
 #endif /*__TUNING_H__*/
