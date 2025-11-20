@@ -27,7 +27,7 @@
 
 #define USB_VENDOR_ID (0x1D50)
 
-#ifdef HACKRF_ONE
+#if (defined HACKRF_ONE || defined PRALINE)
 	#define USB_PRODUCT_ID (0x6089)
 #elif JAWBREAKER
 	#define USB_PRODUCT_ID (0x604B)
@@ -37,7 +37,7 @@
 	#define USB_PRODUCT_ID (0xFFFF)
 #endif
 
-#define USB_API_VERSION (0x0108)
+#define USB_API_VERSION (0x0109)
 
 #define USB_WORD(x) (x & 0xFF), ((x >> 8) & 0xFF)
 
@@ -226,6 +226,16 @@ uint8_t usb_descriptor_string_product[] = {
 	'd', 0x00,
 	'1', 0x00,
 	'o', 0x00,
+#elif PRALINE
+	16,                         // bLength
+	USB_DESCRIPTOR_TYPE_STRING, // bDescriptorType
+	'P', 0x00,
+	'r', 0x00,
+	'a', 0x00,
+	'l', 0x00,
+	'i', 0x00,
+	'n', 0x00,
+	'e', 0x00,
 #else
 	14,                         // bLength
 	USB_DESCRIPTOR_TYPE_STRING, // bDescriptorType

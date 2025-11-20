@@ -1,0 +1,132 @@
+/* -*- mode: c -*- */
+
+#ifndef __MAX2831_REGS_DEF
+#define __MAX2831_REGS_DEF
+
+/* Generate static inline accessors that operate on the global
+ * regs. Done this way to (1) allow defs to be scraped out and used
+ * elsewhere, e.g. in scripts, (2) to avoid dealing with endian
+ * (structs). This may be used in firmware, or on host predefined
+ * register loads. */
+
+#define MAX2831_REG_SET_CLEAN(_d, _r) (_d->regs_dirty &= ~(1UL<<_r))
+#define MAX2831_REG_SET_DIRTY(_d, _r) (_d->regs_dirty |= (1UL<<_r))
+
+/* On set_, register is always set dirty, even if nothing
+ * changed. This makes sure that write that have side effects,
+ * e.g. frequency setting, are not skipped. */
+
+/* n=name, r=regnum, o=offset (bits from LSB), l=length (bits) */
+#define __MREG__(n,r,o,l) \
+static inline uint16_t get_##n(max2831_driver_t* const _d) { \
+	return (_d->regs[r] >> o) & ((1<<l)-1);	\
+} \
+static inline void set_##n(max2831_driver_t* const _d, uint16_t v) {      \
+	_d->regs[r] &= ~(((1<<l)-1)<<o);  \
+	_d->regs[r] |= ((v&((1<<l)-1))<<o); \
+	MAX2831_REG_SET_DIRTY(_d, r); \
+}
+
+/* REG 0 */
+__MREG__(MAX2831_PLL_MODE, 0, 10, 1)
+#define MAX2831_PLL_MODE_INTEGER    0
+#define MAX2831_PLL_MODE_FRACTIONAL 1
+
+/* REG 1 */
+__MREG__(MAX2831_LOCK_DETECT_OUTPUT_SEL, 1, 12, 1)
+#define MAX2831_LOCK_DETECT_OUTPUT_OPEN_DRAIN 0
+#define MAX2831_LOCK_DETECT_OUTPUT_CMOS 1
+
+/* REG 3 */
+__MREG__(MAX2831_SYN_INT,3,0,8)
+__MREG__(MAX2831_SYN_FRAC_LO,3,8,6)
+
+/* REG 4 */
+__MREG__(MAX2831_SYN_FRAC_HI,4,0,14)
+
+/* REG 5 */
+__MREG__(MAX2831_SYN_REF_DIV,5,2,1)
+#define MAX2831_SYN_REF_DIV_1 0
+#define MAX2831_SYN_REF_DIV_2 1
+__MREG__(MAX2831_LOCK_DETECT_OUTPUT_EN,5,5,1)
+__MREG__(MAX2831_LOCK_DETECT_OUTPUT_PULLUP_EN,5,9,1)
+
+/* REG 6 */
+__MREG__(MAX2831_RX_CAL_MODE_EN,6,0,1)
+__MREG__(MAX2831_TX_CAL_MODE_EN,6,1,1)
+__MREG__(MAX2831_TX_POWER_DETECT_EN,6,6,1)
+__MREG__(MAX2831_TX_IQ_CALIB_GAIN,6,11,2)
+#define MAX2831_TX_IQ_CALIB_GAIN_9 0
+#define MAX2831_TX_IQ_CALIB_GAIN_19 1
+#define MAX2831_TX_IQ_CALIB_GAIN_29 2
+#define MAX2831_TX_IQ_CALIB_GAIN_39 3
+
+/* REG 7 */
+__MREG__(MAX2831_RX_LPF_FINE_ADJ,7,0,3)
+#define MAX2831_RX_LPF_FINE_90 0
+#define MAX2831_RX_LPF_FINE_95 1
+#define MAX2831_RX_LPF_FINE_100 2
+#define MAX2831_RX_LPF_FINE_105 3
+#define MAX2831_RX_LPF_FINE_110 4
+__MREG__(MAX2831_TX_LPF_FINE_ADJ,7,3,3)
+#define MAX2831_TX_LPF_FINE_90 0
+#define MAX2831_TX_LPF_FINE_95 1
+#define MAX2831_TX_LPF_FINE_100 2
+#define MAX2831_TX_LPF_FINE_105 3
+#define MAX2831_TX_LPF_FINE_110 4
+#define MAX2831_TX_LPF_FINE_115 5
+__MREG__(MAX2831_RX_HPF_SEL,7,12,2)
+#define MAX2831_RX_HPF_100_HZ 0
+#define MAX2831_RX_HPF_4_KHZ 1
+#define MAX2831_RX_HPF_30_KHZ 2
+
+/* REG 8 */
+__MREG__(MAX2831_LPF_COARSE,8,0,2)
+#define MAX2831_RX_LPF_7_5M 0
+#define MAX2831_RX_LPF_8_5M 1
+#define MAX2831_RX_LPF_15M 2
+#define MAX2831_RX_LPF_18M 3
+#define MAX2831_TX_LPF_8M 0
+#define MAX2831_TX_LPF_11M 1
+#define MAX2831_TX_LPF_16_5M 2
+#define MAX2831_TX_LPF_22_5M 3
+__MREG__(MAX2831_RSSI_MUX,8,8,2)
+#define MAX2831_RSSI_MUX_RSSI 0
+#define MAX2831_RSSI_MUX_TEMP 1
+#define MAX2831_RSSI_MUX_TX_POWER 2
+__MREG__(MAX2831_RSSI_MODE,8,10,1)  // set to override RXHP pin
+__MREG__(MAX2831_RXVGA_GAIN_SPI_EN,8,12,1)
+
+/* REG 9 */
+__MREG__(MAX2831_TXVGA_GAIN_SPI_EN,9,10,1)
+
+/* REG 10 */
+__MREG__(MAX2831_PA_BIAS1_ADJ,10,0,3)
+__MREG__(MAX2831_PA_BIAS2_ADJ,10,3,4)
+__MREG__(MAX2831_PA_DELAY,10,10,4)
+
+/* REG 11 */
+__MREG__(MAX2831_RXVGA_GAIN,11,0,5)
+__MREG__(MAX2831_LNA_GAIN,11,5,2)
+#define MAX2831_LNA_GAIN_M33 0
+#define MAX2831_LNA_GAIN_M16 2
+#define MAX2831_LNA_GAIN_MAX 3
+
+/* REG 12 */
+__MREG__(MAX2831_TXVGA_GAIN,12,0,6)
+
+/* REG 14 */
+__MREG__(MAX2831_XTAL_TUNE,14,0,7)
+__MREG__(MAX2831_CLKOUT_PIN_EN,14,9,1)
+__MREG__(MAX2831_CLKOUT_DIV,14,10,1)
+#define MAX2831_CLKOUT_DIV_1 0
+#define MAX2831_CLKOUT_DIV_2 1
+
+/* REG 15 */
+__MREG__(MAX2831_RXIQ_VCM,15,10,2)  // RX I/Q output common mode
+#define MAX2831_RXIQ_VCM_1_1  0  // 1.1V
+#define MAX2831_RXIQ_VCM_1_2  1  // 1.2V
+#define MAX2831_RXIQ_VCM_1_3  2  // 1.3V
+#define MAX2831_RXIQ_VCM_1_45 3  // 1.45V
+
+#endif // __MAX2831_REGS_DEF

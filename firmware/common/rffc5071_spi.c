@@ -65,8 +65,8 @@ static void rffc5071_spi_bus_init(spi_bus_t* const bus)
 {
 	const rffc5071_spi_config_t* const config = bus->config;
 
-	scu_pinmux(SCU_MIXER_SCLK, SCU_GPIO_FAST | SCU_CONF_FUNCTION4);
-	scu_pinmux(SCU_MIXER_SDATA, SCU_GPIO_FAST);
+	scu_pinmux(SCU_MIXER_SCLK, SCU_MIXER_SCLK_PINCFG);
+	scu_pinmux(SCU_MIXER_SDATA, SCU_MIXER_SDATA_PINCFG);
 
 	gpio_output(config->gpio_clock);
 	rffc5071_spi_direction_out(bus);

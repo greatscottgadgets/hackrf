@@ -25,6 +25,7 @@
 #include "platform_detect.h"
 #include "gpio_lpc.h"
 #include "hackrf_core.h"
+#include "selftest.h"
 #include <libopencm3/lpc43xx/scu.h>
 
 /* HackRF One r9 clock control */
@@ -199,7 +200,7 @@ void si5351c_configure_clock_control(
 	pll = SI5351C_CLK_PLL_SRC_A;
 #endif
 
-#if (defined JAWBREAKER || defined HACKRF_ONE)
+#if (defined JAWBREAKER || defined HACKRF_ONE || defined PRALINE)
 	if (source == PLL_SOURCE_CLKIN) {
 		/* PLLB on CLKIN */
 		pll = SI5351C_CLK_PLL_SRC_B;
@@ -264,6 +265,15 @@ void si5351c_configure_clock_control(
 		data[5] = SI5351C_CLK_POWERDOWN;
 		data[6] = SI5351C_CLK_POWERDOWN;
 	}
+#ifdef PRALINE
+	data[1] = SI5351C_CLK_FRAC_MODE | SI5351C_CLK_PLL_SRC(pll) |
+		SI5351C_CLK_SRC(SI5351C_CLK_SRC_MULTISYNTH_SELF) |
+		SI5351C_CLK_IDRV(SI5351C_CLK_IDRV_4MA);
+	data[3] = clkout_ctrl;
+	data[5] = SI5351C_CLK_INT_MODE | SI5351C_CLK_PLL_SRC(pll) |
+		SI5351C_CLK_SRC(SI5351C_CLK_SRC_MULTISYNTH_SELF) |
+		SI5351C_CLK_IDRV(SI5351C_CLK_IDRV_4MA) | SI5351C_CLK_INV;
+#endif
 	si5351c_write(drv, data, sizeof(data));
 }
 
@@ -274,11 +284,19 @@ void si5351c_configure_clock_control(
 void si5351c_enable_clock_outputs(si5351c_driver_t* const drv)
 {
 	/* Enable CLK outputs 0, 1, 2, 4, 5 only. */
+	/* Praline: enable 0, 4, 5 only. */
 	/* 7: Clock to CPU is deactivated as it is not used and creates noise */
 	/* 3: External clock output is deactivated by default */
+
+#ifndef PRALINE
 	uint8_t value = SI5351C_CLK_ENABLE(0) | SI5351C_CLK_ENABLE(1) |
 		SI5351C_CLK_ENABLE(2) | SI5351C_CLK_ENABLE(4) | SI5351C_CLK_ENABLE(5) |
 		SI5351C_CLK_DISABLE(6) | SI5351C_CLK_DISABLE(7);
+#else
+	uint8_t value = SI5351C_CLK_ENABLE(0) | SI5351C_CLK_ENABLE(1) |
+		SI5351C_CLK_DISABLE(2) | SI5351C_CLK_ENABLE(4) | SI5351C_CLK_ENABLE(5) |
+		SI5351C_CLK_DISABLE(6) | SI5351C_CLK_DISABLE(7);
+#endif
 	uint8_t clkout = 3;
 
 	/* HackRF One r9 has only three clock generator outputs. */
@@ -356,8 +374,8 @@ void si5351c_clkout_enable(si5351c_driver_t* const drv, uint8_t enable)
 {
 	clkout_enabled = (enable > 0);
 
-	//FIXME this should be somewhere else
 	uint8_t clkout = 3;
+
 	/* HackRF One r9 has only three clock generator outputs. */
 	if (detected_platform() == BOARD_ID_HACKRF1_R9) {
 		clkout = 2;
@@ -371,6 +389,18 @@ void si5351c_clkout_enable(si5351c_driver_t* const drv, uint8_t enable)
 
 void si5351c_init(si5351c_driver_t* const drv)
 {
+	/* Read revision ID */
+	selftest.si5351_rev_id = si5351c_read_single(drv, 0) & SI5351C_REVID;
+
+	/* Read back interrupt status mask register, flip the mask bits and verify. */
+	uint8_t int_mask = si5351c_read_single(drv, 2);
+	int_mask ^= 0xF8;
+	si5351c_write_single(drv, 2, int_mask);
+	selftest.si5351_readback_ok = (si5351c_read_single(drv, 2) == int_mask);
+	if (!selftest.si5351_readback_ok) {
+		selftest.report.pass = false;
+	}
+
 	if (detected_platform() == BOARD_ID_HACKRF1_R9) {
 		/* CLKIN_EN */
 		scu_pinmux(SCU_H1R9_CLKIN_EN, SCU_GPIO_FAST | SCU_CONF_FUNCTION4);

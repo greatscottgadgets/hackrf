@@ -26,6 +26,8 @@
 #include "sgpio.h"
 #include "si5351c.h"
 #include "spi_ssp.h"
+#include "max2831.h"
+#include "max2831_target.h"
 #include "max283x.h"
 #include "max5864.h"
 #include "max5864_target.h"
@@ -34,14 +36,17 @@
 #include "i2c_bus.h"
 #include "i2c_lpc.h"
 #include "cpld_jtag.h"
+#include "ice40_spi.h"
 #include "platform_detect.h"
 #include "clkin.h"
+#include "selftest.h"
 #include <libopencm3/lpc43xx/cgu.h>
 #include <libopencm3/lpc43xx/ccu.h>
 #include <libopencm3/lpc43xx/scu.h>
 #include <libopencm3/lpc43xx/ssp.h>
+#include <libopencm3/lpc43xx/creg.h>
 
-#ifdef HACKRF_ONE
+#if (defined HACKRF_ONE || defined PRALINE)
 	#include "portapack.h"
 #endif
 
@@ -55,16 +60,32 @@ static struct gpio_t gpio_led[] = {
 #ifdef RAD1O
 	GPIO(5, 26),
 #endif
+#ifdef PRALINE
+	GPIO(4, 6),
+#endif
 };
 
 // clang-format off
+#ifndef PRALINE
 static struct gpio_t gpio_1v8_enable        = GPIO(3,  6);
+#else
+static struct gpio_t gpio_1v2_enable        = GPIO(4,  7);
+static struct gpio_t gpio_3v3aux_enable_n 	= GPIO(5, 15);
+#endif
 
-/* MAX283x GPIO (XCVR_CTL) PinMux */
+/* MAX283x GPIO (XCVR_CTL / CS_XCVR) PinMux */
+#ifdef PRALINE
+static struct gpio_t gpio_max283x_select    = GPIO(6, 28);
+#else
 static struct gpio_t gpio_max283x_select    = GPIO(0, 15);
+#endif
 
-/* MAX5864 SPI chip select (AD_CS) GPIO PinMux */
+/* MAX5864 SPI chip select (AD_CS / CS_AD) GPIO PinMux */
+#ifdef PRALINE
+static struct gpio_t gpio_max5864_select    = GPIO(6, 30);
+#else
 static struct gpio_t gpio_max5864_select    = GPIO(2,  7);
+#endif
 
 /* RFFC5071 GPIO serial interface PinMux */
 // #ifdef RAD1O
@@ -77,6 +98,9 @@ static struct gpio_t gpio_max5864_select    = GPIO(2,  7);
 /* RF supply (VAA) control */
 #ifdef HACKRF_ONE
 static struct gpio_t gpio_vaa_disable       = GPIO(2, 9);
+#endif
+#ifdef PRALINE
+static struct gpio_t gpio_vaa_disable       = GPIO(4, 1);
 #endif
 #ifdef RAD1O
 static struct gpio_t gpio_vaa_enable        = GPIO(2, 9);
@@ -115,10 +139,23 @@ static struct gpio_t gpio_low_high_filt_n   = GPIO(2,  12);
 static struct gpio_t gpio_tx_amp            = GPIO(2,  15);
 static struct gpio_t gpio_rx_lna            = GPIO(5,  15);
 #endif
+#ifdef PRALINE
+static struct gpio_t gpio_tx_en				= GPIO(3,  4);
+static struct gpio_t gpio_mix_en_n			= GPIO(3,  2);
+static struct gpio_t gpio_mix_en_n_r1_0		= GPIO(5,  6);
+static struct gpio_t gpio_lpf_en			= GPIO(4,  8);
+static struct gpio_t gpio_rf_amp_en			= GPIO(4,  9);
+static struct gpio_t gpio_ant_bias_en_n		= GPIO(1, 12);
+#endif
 
-/* CPLD JTAG interface GPIO pins */
-static struct gpio_t gpio_cpld_tdo          = GPIO(5, 18);
+/* CPLD JTAG interface GPIO pins, FPGA config pins in Praline */
 static struct gpio_t gpio_cpld_tck          = GPIO(3,  0);
+#ifdef PRALINE
+static struct gpio_t gpio_fpga_cfg_creset	= GPIO(2, 11);
+static struct gpio_t gpio_fpga_cfg_cdone	= GPIO(5, 14);
+static struct gpio_t gpio_fpga_cfg_spi_cs	= GPIO(2, 10);
+#else
+static struct gpio_t gpio_cpld_tdo          = GPIO(5, 18);
 #if (defined HACKRF_ONE || defined RAD1O)
 static struct gpio_t gpio_cpld_tms          = GPIO(3,  4);
 static struct gpio_t gpio_cpld_tdi          = GPIO(3,  1);
@@ -126,14 +163,17 @@ static struct gpio_t gpio_cpld_tdi          = GPIO(3,  1);
 static struct gpio_t gpio_cpld_tms          = GPIO(3,  1);
 static struct gpio_t gpio_cpld_tdi          = GPIO(3,  4);
 #endif
+#endif
 
-#ifdef HACKRF_ONE
+#if (defined HACKRF_ONE || defined PRALINE)
 static struct gpio_t gpio_cpld_pp_tms       = GPIO(1,  1);
 static struct gpio_t gpio_cpld_pp_tdo       = GPIO(1,  8);
 #endif
 
 /* other CPLD interface GPIO pins */
+#ifndef PRALINE
 static struct gpio_t gpio_hw_sync_enable    = GPIO(5, 12);
+#endif
 static struct gpio_t gpio_q_invert          = GPIO(0, 13);
 
 /* HackRF One r9 */
@@ -142,6 +182,19 @@ static struct gpio_t gpio_h1r9_rx             = GPIO(0, 7);
 static struct gpio_t gpio_h1r9_1v8_enable     = GPIO(2, 9);
 static struct gpio_t gpio_h1r9_vaa_disable    = GPIO(3, 6);
 static struct gpio_t gpio_h1r9_hw_sync_enable = GPIO(5, 5);
+#endif
+
+#ifdef PRALINE
+static struct gpio_t gpio_p2_ctrl0     = GPIO(7, 3);
+static struct gpio_t gpio_p2_ctrl1     = GPIO(7, 4);
+static struct gpio_t gpio_p1_ctrl0     = GPIO(0, 14);
+static struct gpio_t gpio_p1_ctrl1     = GPIO(5, 16);
+static struct gpio_t gpio_p1_ctrl2     = GPIO(3, 5);
+static struct gpio_t gpio_clkin_ctrl   = GPIO(0, 15);
+static struct gpio_t gpio_aa_en        = GPIO(1, 7);
+static struct gpio_t gpio_trigger_in   = GPIO(6, 26);
+static struct gpio_t gpio_trigger_out  = GPIO(5, 6);
+static struct gpio_t gpio_pps_out      = GPIO(5, 5);
 #endif
 // clang-format on
 
@@ -172,6 +225,45 @@ si5351c_driver_t clock_gen = {
 	.i2c_address = 0x60,
 };
 
+spi_bus_t spi_bus_ssp1 = {
+	.obj = (void*) SSP1_BASE,
+	.config = &ssp_config_max5864,
+	.start = spi_ssp_start,
+	.stop = spi_ssp_stop,
+	.transfer = spi_ssp_transfer,
+	.transfer_gather = spi_ssp_transfer_gather,
+};
+
+#ifdef PRALINE
+const ssp_config_t ssp_config_max283x = {
+	/* FIXME speed up once everything is working reliably */
+	/*
+	// Freq About 0.0498MHz / 49.8KHz => Freq = PCLK / (CPSDVSR * [SCR+1]) with PCLK=PLL1=204MHz
+	const uint8_t serial_clock_rate = 32;
+	const uint8_t clock_prescale_rate = 128;
+	*/
+	// Freq About 4.857MHz => Freq = PCLK / (CPSDVSR * [SCR+1]) with PCLK=PLL1=204MHz
+	.data_bits = SSP_DATA_9BITS, // send 2 words
+	.serial_clock_rate = 21,
+	.clock_prescale_rate = 2,
+	.gpio_select = &gpio_max283x_select,
+};
+
+static struct gpio_t gpio_max2831_enable = GPIO(7, 1);
+static struct gpio_t gpio_max2831_rx_enable = GPIO(7, 2);
+static struct gpio_t gpio_max2831_rxhp = GPIO(6, 29);
+static struct gpio_t gpio_max2831_ld = GPIO(4, 11);
+
+max2831_driver_t max283x = {
+	.bus = &spi_bus_ssp1,
+	.gpio_enable = &gpio_max2831_enable,
+	.gpio_rxtx = &gpio_max2831_rx_enable,
+	.gpio_rxhp = &gpio_max2831_rxhp,
+	.gpio_ld = &gpio_max2831_ld,
+	.target_init = max2831_target_init,
+	.set_mode = max2831_target_set_mode,
+};
+#else
 const ssp_config_t ssp_config_max283x = {
 	/* FIXME speed up once everything is working reliably */
 	/*
@@ -186,6 +278,9 @@ const ssp_config_t ssp_config_max283x = {
 	.gpio_select = &gpio_max283x_select,
 };
 
+max283x_driver_t max283x = {};
+#endif
+
 const ssp_config_t ssp_config_max5864 = {
 	/* FIXME speed up once everything is working reliably */
 	/*
@@ -199,17 +294,6 @@ const ssp_config_t ssp_config_max5864 = {
 	.clock_prescale_rate = 2,
 	.gpio_select = &gpio_max5864_select,
 };
-
-spi_bus_t spi_bus_ssp1 = {
-	.obj = (void*) SSP1_BASE,
-	.config = &ssp_config_max5864,
-	.start = spi_ssp_start,
-	.stop = spi_ssp_stop,
-	.transfer = spi_ssp_transfer,
-	.transfer_gather = spi_ssp_transfer_gather,
-};
-
-max283x_driver_t max283x = {};
 
 max5864_driver_t max5864 = {
 	.bus = &spi_bus_ssp1,
@@ -241,8 +325,58 @@ w25q80bv_driver_t spi_flash = {
 
 sgpio_config_t sgpio_config = {
 	.gpio_q_invert = &gpio_q_invert,
+#ifndef PRALINE
 	.gpio_hw_sync_enable = &gpio_hw_sync_enable,
+#endif
 	.slice_mode_multislice = true,
+};
+
+#ifdef PRALINE
+const ssp_config_t ssp_config_ice40_fpga = {
+	.data_bits = SSP_DATA_8BITS,
+	.spi_mode = SSP_CPOL_1_CPHA_1,
+	.serial_clock_rate = 21,
+	.clock_prescale_rate = 2,
+	.gpio_select = &gpio_fpga_cfg_spi_cs,
+};
+
+ice40_spi_driver_t ice40 = {
+	.bus = &spi_bus_ssp1,
+	.gpio_select = &gpio_fpga_cfg_spi_cs,
+	.gpio_creset = &gpio_fpga_cfg_creset,
+	.gpio_cdone = &gpio_fpga_cfg_cdone,
+};
+#endif
+
+radio_t radio = {
+	.channel[RADIO_CHANNEL0] =
+		{
+			.id = RADIO_CHANNEL0,
+			.config =
+				{
+					.sample_rate[RADIO_SAMPLE_RATE_CLOCKGEN] =
+						{.hz = 0},
+					.filter[RADIO_FILTER_BASEBAND] = {.hz = 0},
+					.frequency[RADIO_FREQUENCY_RF] =
+						{
+							.hz = 0,
+							.if_hz = 0,
+							.lo_hz = 0,
+							.path = 0,
+						},
+					.gain[RADIO_GAIN_RF_AMP] = {.enable = 0},
+					.gain[RADIO_GAIN_RX_LNA] = {.db = 0},
+					.gain[RADIO_GAIN_RX_VGA] = {.db = 0},
+					.gain[RADIO_GAIN_TX_VGA] = {.db = 0},
+					.antenna[RADIO_ANTENNA_BIAS_TEE] =
+						{.enable = false},
+					.mode = TRANSCEIVER_MODE_OFF,
+					.clock[RADIO_CLOCK_CLKIN] = {.enable = false},
+					.clock[RADIO_CLOCK_CLKOUT] = {.enable = false},
+					.trigger_mode = HW_SYNC_MODE_OFF,
+				},
+			.clock_source = CLOCK_SOURCE_HACKRF,
+		},
 };
 
 rf_path_t rf_path = {
@@ -275,14 +409,23 @@ rf_path_t rf_path = {
 	.gpio_tx_amp = &gpio_tx_amp,
 	.gpio_rx_lna = &gpio_rx_lna,
 #endif
+#ifdef PRALINE
+	.gpio_tx_en = &gpio_tx_en,
+	.gpio_mix_en_n = &gpio_mix_en_n,
+	.gpio_lpf_en = &gpio_lpf_en,
+	.gpio_rf_amp_en = &gpio_rf_amp_en,
+	.gpio_ant_bias_en_n = &gpio_ant_bias_en_n,
+#endif
 };
 
 jtag_gpio_t jtag_gpio_cpld = {
-	.gpio_tms = &gpio_cpld_tms,
 	.gpio_tck = &gpio_cpld_tck,
+#ifndef PRALINE
+	.gpio_tms = &gpio_cpld_tms,
 	.gpio_tdi = &gpio_cpld_tdi,
 	.gpio_tdo = &gpio_cpld_tdo,
-#ifdef HACKRF_ONE
+#endif
+#if (defined HACKRF_ONE || defined PRALINE)
 	.gpio_pp_tms = &gpio_cpld_pp_tms,
 	.gpio_pp_tdo = &gpio_cpld_pp_tdo,
 #endif
@@ -406,6 +549,7 @@ bool sample_rate_frac_set(uint32_t rate_num, uint32_t rate_denom)
 	MSx_P2 = (128 * b) % c;
 	MSx_P3 = c;
 
+#ifndef PRALINE
 	if (detected_platform() == BOARD_ID_HACKRF1_R9) {
 		/*
 		 * On HackRF One r9 all sample clocks are externally derived
@@ -426,6 +570,10 @@ bool sample_rate_frac_set(uint32_t rate_num, uint32_t rate_denom)
 		/* MS0/CLK2 is the source for SGPIO (CODEC_X2_CLK) */
 		si5351c_configure_multisynth(&clock_gen, 2, 0, 0, 0, 0); //p1 doesn't matter
 	}
+#else
+	/* MS0/CLK0 is the source for the MAX5864/FPGA (AFE_CLK). */
+	si5351c_configure_multisynth(&clock_gen, 0, MSx_P1, MSx_P2, MSx_P3, 1);
+#endif
 
 	if (streaming) {
 		sgpio_cpld_stream_enable(&sgpio_config);
@@ -486,6 +634,7 @@ bool sample_rate_set(const uint32_t sample_rate_hz)
 		return false;
 	}
 
+#ifndef PRALINE
 	if (detected_platform() == BOARD_ID_HACKRF1_R9) {
 		/*
 		 * On HackRF One r9 all sample clocks are externally derived
@@ -518,20 +667,15 @@ bool sample_rate_set(const uint32_t sample_rate_hz)
 			1,
 			0); //p1 doesn't matter
 	}
+#else
+	/* MS0/CLK0 is the source for the MAX5864/FPGA (AFE_CLK). */
+	si5351c_configure_multisynth(&clock_gen, 0, p1, p2, p3, 1);
+
+	/* MS0/CLK1 is the source for SCT_CLK (CODEC_X2_CLK). */
+	si5351c_configure_multisynth(&clock_gen, 1, p1, p2, p3, 0);
+#endif
 
 	return true;
-}
-
-bool baseband_filter_bandwidth_set(const uint32_t bandwidth_hz)
-{
-	uint32_t bandwidth_hz_real;
-	bandwidth_hz_real = max283x_set_lpf_bandwidth(&max283x, bandwidth_hz);
-
-	if (bandwidth_hz_real) {
-		hackrf_ui()->set_filter_bw(bandwidth_hz_real);
-	}
-
-	return bandwidth_hz_real != 0;
 }
 
 /*
@@ -639,6 +783,16 @@ void cpu_clock_init(void)
 	 *   CLK5 -> MAX2837 (MAX2871 on rad1o)
 	 *   CLK6 -> none
 	 *   CLK7 -> LPC43xx (uses a 12MHz crystal by default)
+	 * 
+	 * Clocks on Praline:
+	 *   CLK0 -> AFE_CLK (MAX5864/FPGA)
+	 *   CLK1 -> SCT_CLK
+	 *   CLK2 -> MCU_CLK (uses a 12MHz crystal by default)
+	 *   CLK3 -> External Clock Output (power down at boot)
+	 *   CLK4 -> XCVR_CLK (MAX2837)
+	 *   CLK5 -> MIX_CLK (RFFC5072)
+	 *   CLK6 -> AUX_CLK1
+	 *   CLK7 -> AUX_CLK2
 	 */
 
 	if (detected_platform() == BOARD_ID_HACKRF1_R9) {
@@ -744,7 +898,30 @@ void cpu_clock_init(void)
 	CGU_BASE_SSP1_CLK =
 		CGU_BASE_SSP1_CLK_AUTOBLOCK(1) | CGU_BASE_SSP1_CLK_CLK_SEL(CGU_SRC_PLL1);
 
-#if (defined JAWBREAKER || defined HACKRF_ONE)
+#ifndef RAD1O
+	/* Enable 32kHz oscillator */
+	CREG_CREG0 &= ~(CREG_CREG0_PD32KHZ | CREG_CREG0_RESET32KHZ);
+	CREG_CREG0 |= CREG_CREG0_EN32KHZ;
+
+	/* Allow 1ms to start up. */
+	delay_us_at_mhz(1000, 204);
+
+	/* Use frequency monitor to check 32kHz oscillator is running. */
+	CGU_FREQ_MON = CGU_FREQ_MON_RCNT(511) | CGU_FREQ_MON_CLK_SEL(CGU_SRC_32K);
+	CGU_FREQ_MON |= CGU_FREQ_MON_MEAS_MASK;
+	while (CGU_FREQ_MON & CGU_FREQ_MON_MEAS_MASK)
+		;
+	uint32_t count =
+		(CGU_FREQ_MON & CGU_FREQ_MON_FCNT_MASK) >> CGU_FREQ_MON_FCNT_SHIFT;
+	// We should see a single count, because 511 cycles of the 12MHz internal
+	// RC oscillator corresponds to 1.39 cycles of the 32768Hz clock.
+	selftest.rtc_osc_ok = (count == 1);
+	if (!selftest.rtc_osc_ok) {
+		selftest.report.pass = false;
+	}
+#endif
+
+#if (defined JAWBREAKER || defined HACKRF_ONE || defined PRALINE)
 	/* Disable unused clocks */
 	/* Start with PLLs */
 	CGU_PLL0AUDIO_CTRL = CGU_PLL0AUDIO_CTRL_PD(1);
@@ -815,7 +992,7 @@ void cpu_clock_init(void)
 
 clock_source_t activate_best_clock_source(void)
 {
-#ifdef HACKRF_ONE
+#if (defined HACKRF_ONE || defined PRALINE)
 	/* Ensure PortaPack reference oscillator is off while checking for external clock input. */
 	if (portapack_reference_oscillator && portapack()) {
 		portapack_reference_oscillator(false);
@@ -828,7 +1005,7 @@ clock_source_t activate_best_clock_source(void)
 	if (si5351c_clkin_signal_valid(&clock_gen)) {
 		source = CLOCK_SOURCE_EXTERNAL;
 	} else {
-#ifdef HACKRF_ONE
+#if (defined HACKRF_ONE || defined PRALINE)
 		/* Enable PortaPack reference oscillator (if present), and check for valid clock. */
 		if (portapack_reference_oscillator && portapack()) {
 			portapack_reference_oscillator(true);
@@ -847,6 +1024,8 @@ clock_source_t activate_best_clock_source(void)
 		&clock_gen,
 		(source == CLOCK_SOURCE_HACKRF) ? PLL_SOURCE_XTAL : PLL_SOURCE_CLKIN);
 	hackrf_ui()->set_clock_source(source);
+	radio.channel[RADIO_CHANNEL0].clock_source = source;
+
 	return source;
 }
 
@@ -859,6 +1038,13 @@ void ssp1_set_mode_max5864(void)
 {
 	spi_bus_start(max5864.bus, &ssp_config_max5864);
 }
+
+#ifdef PRALINE
+void ssp1_set_mode_ice40(void)
+{
+	spi_bus_start(&spi_bus_ssp1, &ssp_config_ice40_fpga);
+}
+#endif
 
 void pin_setup(void)
 {
@@ -879,14 +1065,16 @@ void pin_setup(void)
 	 *
 	 * LPC43xx pull-up and pull-down resistors are approximately 53K.
 	 */
-#ifdef HACKRF_ONE
+#if (defined HACKRF_ONE || defined PRALINE)
 	scu_pinmux(SCU_PINMUX_PP_TMS, SCU_GPIO_PUP | SCU_CONF_FUNCTION0);
 	scu_pinmux(SCU_PINMUX_PP_TDO, SCU_GPIO_PDN | SCU_CONF_FUNCTION0);
 #endif
+	scu_pinmux(SCU_PINMUX_CPLD_TCK, SCU_GPIO_PDN | SCU_CONF_FUNCTION0);
+#ifndef PRALINE
 	scu_pinmux(SCU_PINMUX_CPLD_TMS, SCU_GPIO_NOPULL | SCU_CONF_FUNCTION0);
 	scu_pinmux(SCU_PINMUX_CPLD_TDI, SCU_GPIO_NOPULL | SCU_CONF_FUNCTION0);
 	scu_pinmux(SCU_PINMUX_CPLD_TDO, SCU_GPIO_PDN | SCU_CONF_FUNCTION4);
-	scu_pinmux(SCU_PINMUX_CPLD_TCK, SCU_GPIO_PDN | SCU_CONF_FUNCTION0);
+#endif
 
 	/* Configure SCU Pin Mux as GPIO */
 	scu_pinmux(SCU_PINMUX_LED1, SCU_GPIO_NOPULL);
@@ -895,11 +1083,21 @@ void pin_setup(void)
 #ifdef RAD1O
 	scu_pinmux(SCU_PINMUX_LED4, SCU_GPIO_NOPULL | SCU_CONF_FUNCTION4);
 #endif
+#ifdef PRALINE
+	scu_pinmux(SCU_PINMUX_LED4, SCU_GPIO_NOPULL | SCU_CONF_FUNCTION0);
+#endif
 
 	/* Configure USB indicators */
 #ifdef JAWBREAKER
 	scu_pinmux(SCU_PINMUX_USB_LED0, SCU_CONF_FUNCTION3);
 	scu_pinmux(SCU_PINMUX_USB_LED1, SCU_CONF_FUNCTION3);
+#endif
+
+	led_off(0);
+	led_off(1);
+	led_off(2);
+#ifdef RAD1O
+	led_off(3);
 #endif
 
 	gpio_output(&gpio_led[0]);
@@ -908,25 +1106,39 @@ void pin_setup(void)
 #ifdef RAD1O
 	gpio_output(&gpio_led[3]);
 #endif
+#ifdef PRALINE
+	gpio_output(&gpio_led[3]);
+#endif
 
+#ifdef PRALINE
+	disable_1v2_power();
+	disable_3v3aux_power();
+	gpio_output(&gpio_1v2_enable);
+	gpio_output(&gpio_3v3aux_enable_n);
+	scu_pinmux(SCU_PINMUX_EN1V2, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+	scu_pinmux(SCU_PINMUX_EN3V3_AUX_N, SCU_GPIO_FAST | SCU_CONF_FUNCTION4);
+#else
 	disable_1v8_power();
 	if (detected_platform() == BOARD_ID_HACKRF1_R9) {
-#ifdef HACKRF_ONE
+	#ifdef HACKRF_ONE
 		gpio_output(&gpio_h1r9_1v8_enable);
 		scu_pinmux(SCU_H1R9_EN1V8, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
-#endif
+	#endif
 	} else {
 		gpio_output(&gpio_1v8_enable);
 		scu_pinmux(SCU_PINMUX_EN1V8, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
 	}
+#endif
 
-#ifdef HACKRF_ONE
+#if (defined HACKRF_ONE || defined PRALINE)
 	/* Safe state: start with VAA turned off: */
 	disable_rf_power();
 
 	/* Configure RF power supply (VAA) switch control signal as output */
 	if (detected_platform() == BOARD_ID_HACKRF1_R9) {
+	#ifdef HACKRF_ONE
 		gpio_output(&gpio_h1r9_vaa_disable);
+	#endif
 	} else {
 		gpio_output(&gpio_vaa_disable);
 	}
@@ -948,10 +1160,39 @@ void pin_setup(void)
 
 #endif
 
+#ifdef PRALINE
+	scu_pinmux(SCU_P2_CTRL0, SCU_P2_CTRL0_PINCFG);
+	scu_pinmux(SCU_P2_CTRL1, SCU_P2_CTRL1_PINCFG);
+	scu_pinmux(SCU_P1_CTRL0, SCU_P1_CTRL0_PINCFG);
+	scu_pinmux(SCU_P1_CTRL1, SCU_P1_CTRL1_PINCFG);
+	scu_pinmux(SCU_P1_CTRL2, SCU_P1_CTRL2_PINCFG);
+	scu_pinmux(SCU_CLKIN_CTRL, SCU_CLKIN_CTRL_PINCFG);
+	scu_pinmux(SCU_AA_EN, SCU_AA_EN_PINCFG);
+	scu_pinmux(SCU_TRIGGER_IN, SCU_TRIGGER_IN_PINCFG);
+	scu_pinmux(SCU_TRIGGER_OUT, SCU_TRIGGER_OUT_PINCFG);
+	scu_pinmux(SCU_PPS_OUT, SCU_PPS_OUT_PINCFG);
+
+	p2_ctrl_set(P2_SIGNAL_CLK3);
+	p1_ctrl_set(P1_SIGNAL_CLKIN);
+	narrowband_filter_set(0);
+	clkin_ctrl_set(CLKIN_SIGNAL_P22);
+
+	gpio_output(&gpio_p2_ctrl0);
+	gpio_output(&gpio_p2_ctrl1);
+	gpio_output(&gpio_p1_ctrl0);
+	gpio_output(&gpio_p1_ctrl1);
+	gpio_output(&gpio_p1_ctrl2);
+	gpio_output(&gpio_clkin_ctrl);
+	gpio_output(&gpio_pps_out);
+	gpio_output(&gpio_aa_en);
+	gpio_input(&gpio_trigger_in);
+	gpio_input(&gpio_trigger_out);
+#endif
+
 	/* enable input on SCL and SDA pins */
 	SCU_SFSI2C0 = SCU_I2C0_NOMINAL;
 
-	spi_bus_start(&spi_bus_ssp1, &ssp_config_max283x);
+	ssp1_set_mode_max283x();
 
 	mixer_bus_setup(&mixer);
 
@@ -961,6 +1202,14 @@ void pin_setup(void)
 		sgpio_config.gpio_hw_sync_enable = &gpio_h1r9_hw_sync_enable;
 	}
 #endif
+
+#ifdef PRALINE
+	board_rev_t rev = detected_revision();
+	if ((rev == BOARD_REV_PRALINE_R1_0) || (rev == BOARD_REV_GSG_PRALINE_R1_0)) {
+		rf_path.gpio_mix_en_n = &gpio_mix_en_n_r1_0;
+	}
+#endif
+
 	rf_path_pin_setup(&rf_path);
 
 	/* Configure external clock in */
@@ -969,12 +1218,33 @@ void pin_setup(void)
 	sgpio_configure_pin_functions(&sgpio_config);
 }
 
+#ifdef PRALINE
+void enable_1v2_power(void)
+{
+	gpio_set(&gpio_1v2_enable);
+}
+
+void disable_1v2_power(void)
+{
+	gpio_clear(&gpio_1v2_enable);
+}
+
+void enable_3v3aux_power(void)
+{
+	gpio_clear(&gpio_3v3aux_enable_n);
+}
+
+void disable_3v3aux_power(void)
+{
+	gpio_set(&gpio_3v3aux_enable_n);
+}
+#else
 void enable_1v8_power(void)
 {
 	if (detected_platform() == BOARD_ID_HACKRF1_R9) {
-#ifdef HACKRF_ONE
+	#ifdef HACKRF_ONE
 		gpio_set(&gpio_h1r9_1v8_enable);
-#endif
+	#endif
 	} else {
 		gpio_set(&gpio_1v8_enable);
 	}
@@ -983,13 +1253,14 @@ void enable_1v8_power(void)
 void disable_1v8_power(void)
 {
 	if (detected_platform() == BOARD_ID_HACKRF1_R9) {
-#ifdef HACKRF_ONE
+	#ifdef HACKRF_ONE
 		gpio_clear(&gpio_h1r9_1v8_enable);
-#endif
+	#endif
 	} else {
 		gpio_clear(&gpio_1v8_enable);
 	}
 }
+#endif
 
 #ifdef HACKRF_ONE
 void enable_rf_power(void)
@@ -1018,6 +1289,21 @@ void disable_rf_power(void)
 }
 #endif
 
+#ifdef PRALINE
+void enable_rf_power(void)
+{
+	gpio_clear(&gpio_vaa_disable);
+
+	/* Let the voltage stabilize */
+	delay(1000000);
+}
+
+void disable_rf_power(void)
+{
+	gpio_set(&gpio_vaa_disable);
+}
+#endif
+
 #ifdef RAD1O
 void enable_rf_power(void)
 {
@@ -1033,6 +1319,17 @@ void disable_rf_power(void)
 }
 #endif
 
+#ifdef PRALINE
+void led_on(const led_t led)
+{
+	gpio_clear(&gpio_led[led]);
+}
+
+void led_off(const led_t led)
+{
+	gpio_set(&gpio_led[led]);
+}
+#else
 void led_on(const led_t led)
 {
 	gpio_set(&gpio_led[led]);
@@ -1042,6 +1339,7 @@ void led_off(const led_t led)
 {
 	gpio_clear(&gpio_led[led]);
 }
+#endif
 
 void led_toggle(const led_t led)
 {
@@ -1051,17 +1349,28 @@ void led_toggle(const led_t led)
 void set_leds(const uint8_t state)
 {
 	int num_leds = 3;
-#ifdef RAD1O
+#if (defined RAD1O || defined PRALINE)
 	num_leds = 4;
 #endif
 	for (int i = 0; i < num_leds; i++) {
+#ifdef PRALINE
+		gpio_write(&gpio_led[i], ((state >> i) & 1) == 0);
+#else
 		gpio_write(&gpio_led[i], ((state >> i) & 1) == 1);
+#endif
 	}
 }
 
 void hw_sync_enable(const hw_sync_mode_t hw_sync_mode)
 {
+#ifndef PRALINE
 	gpio_write(sgpio_config.gpio_hw_sync_enable, hw_sync_mode == 1);
+#else
+	ssp1_set_mode_ice40();
+	uint8_t prev = ice40_spi_read(&ice40, 0x01);
+	ice40_spi_write(&ice40, 0x01, (prev & 0x7F) | ((hw_sync_mode == 1) << 7));
+	ssp1_set_mode_max283x();
+#endif
 }
 
 void halt_and_flash(const uint32_t duration)
@@ -1078,3 +1387,33 @@ void halt_and_flash(const uint32_t duration)
 		delay(duration);
 	}
 }
+
+#ifdef PRALINE
+void p1_ctrl_set(const p1_ctrl_signal_t signal)
+{
+	gpio_write(&gpio_p1_ctrl0, signal & 1);
+	gpio_write(&gpio_p1_ctrl1, (signal >> 1) & 1);
+	gpio_write(&gpio_p1_ctrl2, (signal >> 2) & 1);
+}
+
+void p2_ctrl_set(const p2_ctrl_signal_t signal)
+{
+	gpio_write(&gpio_p2_ctrl0, signal & 1);
+	gpio_write(&gpio_p2_ctrl1, (signal >> 1) & 1);
+}
+
+void clkin_ctrl_set(const clkin_signal_t signal)
+{
+	gpio_write(&gpio_clkin_ctrl, signal & 1);
+}
+
+void pps_out_set(const uint8_t value)
+{
+	gpio_write(&gpio_pps_out, value & 1);
+}
+
+void narrowband_filter_set(const uint8_t value)
+{
+	gpio_write(&gpio_aa_en, value & 1);
+}
+#endif

@@ -59,6 +59,46 @@ int parse_int(char* s, uint8_t* const value)
 	}
 }
 
+int parse_p1_ctrl_signal(char* s, enum p1_ctrl_signal* const signal)
+{
+	if (strcasecmp("trigger_in", s) == 0) {
+		*signal = P1_SIGNAL_TRIGGER_IN;
+	} else if (strcasecmp("aux_clk1", s) == 0) {
+		*signal = P1_SIGNAL_AUX_CLK1;
+	} else if (strcasecmp("clkin", s) == 0) {
+		*signal = P1_SIGNAL_CLKIN;
+	} else if (strcasecmp("trigger_out", s) == 0) {
+		*signal = P1_SIGNAL_TRIGGER_OUT;
+	} else if (strcasecmp("p22_clkin", s) == 0) {
+		*signal = P1_SIGNAL_P22_CLKIN;
+	} else if (strcasecmp("pps_out", s) == 0) {
+		*signal = P1_SIGNAL_P2_5;
+	} else if (strcasecmp("off", s) == 0) {
+		*signal = P1_SIGNAL_NC;
+	} else if (strcasecmp("aux_clk2", s) == 0) {
+		*signal = P1_SIGNAL_AUX_CLK2;
+	} else {
+		fprintf(stderr, "Invalid signal '%s'\n", s);
+		return HACKRF_ERROR_INVALID_PARAM;
+	}
+	return HACKRF_SUCCESS;
+}
+
+int parse_p2_ctrl_signal(char* s, enum p2_ctrl_signal* const signal)
+{
+	if (strcasecmp("clkout", s) == 0) {
+		*signal = P2_SIGNAL_CLK3;
+	} else if (strcasecmp("trigger_in", s) == 0) {
+		*signal = P2_SIGNAL_TRIGGER_IN;
+	} else if (strcasecmp("trigger_out", s) == 0) {
+		*signal = P2_SIGNAL_TRIGGER_OUT;
+	} else {
+		fprintf(stderr, "Invalid signal '%s'\n", s);
+		return HACKRF_ERROR_INVALID_PARAM;
+	}
+	return HACKRF_SUCCESS;
+}
+
 int si5351c_read_register(hackrf_device* device, const uint16_t register_number)
 {
 	uint16_t register_value;
@@ -195,7 +235,8 @@ int si5351c_read_multisynth_config(hackrf_device* device, const uint_fast8_t ms_
 		if (p3) {
 			printf("\tOutput (800Mhz PLL): %#.10f Mhz\n",
 			       ((double) 800 /
-				(double) (((double) p1 * p3 + p2 + 512 * p3) / (double) (128 * p3))) /
+				(double) (((double) p1 * p3 + p2 + 512 * p3) /
+					  (double) (128 * p3))) /
 				       div_lut[r_div]);
 		}
 	} else {
@@ -247,6 +288,10 @@ static void usage()
 	printf("\t-a, --all: read settings for all clocks\n");
 	printf("\t-i, --clkin: get CLKIN status\n");
 	printf("\t-o, --clkout <clkout_enable>: enable/disable CLKOUT\n");
+	printf("\t-1, --p1 <signal>: select the HackRF Pro P1 SMA connector signal (default: clkin)\n");
+	printf("\tone of: clkin, trigger_in, trigger_out, p22_clkin, pps_out, aux_clk1, aux_clk2, off\n");
+	printf("\t-2, --p2 <signal>: select the signal for the HackRF Pro P2 SMA connector (default: clkout)\n");
+	printf("\tone of: clkout, trigger_in, trigger_out\n");
 	printf("\t-d, --device <serial_number>: Serial number of desired HackRF.\n");
 	printf("\nExamples:\n");
 	printf("\thackrf_clock -r 3 : prints settings for CLKOUT\n");
@@ -258,6 +303,8 @@ static struct option long_options[] = {
 	{"all", no_argument, 0, 'a'},
 	{"clkin", required_argument, 0, 'i'},
 	{"clkout", required_argument, 0, 'o'},
+	{"p1", required_argument, 0, '1'},
+	{"p2", required_argument, 0, '2'},
 	{"device", required_argument, 0, 'd'},
 	{0, 0, 0, 0},
 };
@@ -272,6 +319,10 @@ int main(int argc, char** argv)
 	bool clkin = false;
 	uint8_t clkout_enable;
 	uint8_t clkin_status;
+	bool p1_ctrl = false;
+	bool p2_ctrl = false;
+	enum p1_ctrl_signal p1_signal = P1_SIGNAL_CLKIN;
+	enum p2_ctrl_signal p2_signal = P2_SIGNAL_CLK3;
 	const char* serial_number = NULL;
 
 	int result = hackrf_init();
@@ -282,8 +333,12 @@ int main(int argc, char** argv)
 		return EXIT_FAILURE;
 	}
 
-	while ((opt = getopt_long(argc, argv, "r:aio:d:h?", long_options, &option_index)) !=
-	       EOF) {
+	while ((opt = getopt_long(
+			argc,
+			argv,
+			"r:aio:1:2:d:h?",
+			long_options,
+			&option_index)) != EOF) {
 		switch (opt) {
 		case 'r':
 			read = true;
@@ -301,6 +356,16 @@ int main(int argc, char** argv)
 		case 'o':
 			clkout = true;
 			result = parse_int(optarg, &clkout_enable);
+			break;
+
+		case '1':
+			p1_ctrl = true;
+			result = parse_p1_ctrl_signal(optarg, &p1_signal);
+			break;
+
+		case '2':
+			p2_ctrl = true;
+			result = parse_p2_ctrl_signal(optarg, &p2_signal);
 			break;
 
 		case 'd':
@@ -326,7 +391,7 @@ int main(int argc, char** argv)
 		}
 	}
 
-	if (!clkin && !clkout && !read) {
+	if (!clkin && !clkout && !read && !p1_ctrl && !p2_ctrl) {
 		fprintf(stderr, "An operation must be specified.\n");
 		usage();
 		return EXIT_FAILURE;
@@ -369,6 +434,26 @@ int main(int argc, char** argv)
 		} else {
 			printf("%d\n", clock);
 			si5351c_read_multisynth_config(device, clock);
+		}
+	}
+
+	if (p1_ctrl) {
+		result = hackrf_set_p1_ctrl(device, p1_signal);
+		if (result) {
+			printf("hackrf_set_p1_ctrl() failed: %s (%d)\n",
+			       hackrf_error_name(result),
+			       result);
+			return EXIT_FAILURE;
+		}
+	}
+
+	if (p2_ctrl) {
+		result = hackrf_set_p2_ctrl(device, p2_signal);
+		if (result) {
+			printf("hackrf_set_p2_ctrl() failed: %s (%d)\n",
+			       hackrf_error_name(result),
+			       result);
+			return EXIT_FAILURE;
 		}
 	}
 

@@ -1117,7 +1117,9 @@ int main(int argc, char** argv)
 	// Change the freq and sample rate to correct the crystal clock error.
 	if (crystal_correct) {
 		sample_rate_hz =
-			(uint32_t) ((double) sample_rate_hz * (1000000 - crystal_correct_ppm) / 1000000 + 0.5);
+			(uint32_t) ((double) sample_rate_hz *
+					    (1000000 - crystal_correct_ppm) / 1000000 +
+				    0.5);
 		freq_hz = freq_hz * (1000000 - crystal_correct_ppm) / 1000000;
 	}
 
@@ -1403,7 +1405,7 @@ int main(int argc, char** argv)
 					(byte_count_now * 127 * 127);
 				double dB_full_scale = 10 * log10(full_scale_ratio) + 3.0;
 				fprintf(stderr,
-					"%4.1f MB / %5.3f sec = %4.1f MB/second, average power %3.1f dBfs",
+					"%4.1f MiB / %5.3f sec = %4.1f MiB/second, average power %3.1f dBfs",
 					(byte_count_now / 1e6f),
 					time_difference,
 					(rate / 1e6f),
