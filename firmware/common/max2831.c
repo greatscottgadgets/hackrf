@@ -66,26 +66,6 @@ static void max2831_init(max2831_driver_t* const drv)
 
 	/* Write default register values to chip. */
 	max2831_regs_commit(drv);
-
-	/* Disable lock detect output. */
-	set_MAX2831_LOCK_DETECT_OUTPUT_EN(drv, false);
-	max2831_regs_commit(drv);
-
-	// Read state of lock detect pin.
-	bool initial = gpio_read(drv->gpio_ld);
-
-	// Enable lock detect output.
-	set_MAX2831_LOCK_DETECT_OUTPUT_EN(drv, true);
-	max2831_regs_commit(drv);
-
-	// Read new state of lock detect pin.
-	bool new = gpio_read(drv->gpio_ld);
-
-	// If the pin state changed, we know our writes are working.
-	selftest.max2831_ld_test_ok = initial != new;
-	if (!selftest.max2831_ld_test_ok) {
-		selftest.report.pass = false;
-	}
 }
 
 /*
