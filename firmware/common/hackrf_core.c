@@ -898,29 +898,6 @@ void cpu_clock_init(void)
 	CGU_BASE_SSP1_CLK =
 		CGU_BASE_SSP1_CLK_AUTOBLOCK(1) | CGU_BASE_SSP1_CLK_CLK_SEL(CGU_SRC_PLL1);
 
-#ifndef RAD1O
-	/* Enable 32kHz oscillator */
-	CREG_CREG0 &= ~(CREG_CREG0_PD32KHZ | CREG_CREG0_RESET32KHZ);
-	CREG_CREG0 |= CREG_CREG0_EN32KHZ;
-
-	/* Allow 1ms to start up. */
-	delay_us_at_mhz(1000, 204);
-
-	/* Use frequency monitor to check 32kHz oscillator is running. */
-	CGU_FREQ_MON = CGU_FREQ_MON_RCNT(511) | CGU_FREQ_MON_CLK_SEL(CGU_SRC_32K);
-	CGU_FREQ_MON |= CGU_FREQ_MON_MEAS_MASK;
-	while (CGU_FREQ_MON & CGU_FREQ_MON_MEAS_MASK)
-		;
-	uint32_t count =
-		(CGU_FREQ_MON & CGU_FREQ_MON_FCNT_MASK) >> CGU_FREQ_MON_FCNT_SHIFT;
-	// We should see a single count, because 511 cycles of the 12MHz internal
-	// RC oscillator corresponds to 1.39 cycles of the 32768Hz clock.
-	selftest.rtc_osc_ok = (count == 1);
-	if (!selftest.rtc_osc_ok) {
-		selftest.report.pass = false;
-	}
-#endif
-
 #if (defined JAWBREAKER || defined HACKRF_ONE || defined PRALINE)
 	/* Disable unused clocks */
 	/* Start with PLLs */

@@ -60,12 +60,6 @@ void generate_selftest_report(void)
 	append(&s, &c, "Mixer: MAX2871, ID: ");
 	append(&s, &c, itoa(selftest.mixer_id, 10));
 	append(&s, &c, "\n");
-#else
-	append(&s, &c, "Mixer: RFFC5072, ID: ");
-	append(&s, &c, itoa(selftest.mixer_id >> 3, 10));
-	append(&s, &c, ", Rev: ");
-	append(&s, &c, itoa(selftest.mixer_id & 0x7, 10));
-	append(&s, &c, "\n");
 #endif
 	append(&s, &c, "Clock: Si5351");
 	append(&s, &c, ", Rev: ");
@@ -73,11 +67,7 @@ void generate_selftest_report(void)
 	append(&s, &c, ", readback: ");
 	append(&s, &c, selftest.si5351_readback_ok ? "OK" : "FAIL");
 	append(&s, &c, "\n");
-#ifdef PRALINE
-	append(&s, &c, "Transceiver: MAX2831, LD pin test: ");
-	append(&s, &c, selftest.max2831_ld_test_ok ? "PASS" : "FAIL");
-	append(&s, &c, "\n");
-#else
+#ifndef PRALINE
 	append(&s, &c, "Transceiver: ");
 	append(&s,
 	       &c,
@@ -93,11 +83,6 @@ void generate_selftest_report(void)
 		append(&s, &c, ", expected: 0x");
 		append(&s, &c, itoa(selftest.max283x_readback_expected_value, 10));
 	}
-	append(&s, &c, "\n");
-#endif
-#ifndef RAD1O
-	append(&s, &c, "32kHz oscillator: ");
-	append(&s, &c, selftest.rtc_osc_ok ? "PASS" : "FAIL");
 	append(&s, &c, "\n");
 #endif
 #ifdef PRALINE
