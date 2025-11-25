@@ -28,6 +28,10 @@
 #include <stdlib.h>
 #include <getopt.h>
 
+#ifdef _MSC_VER
+	#define strcasecmp _stricmp
+#endif
+
 #define CLOCK_UNDEFINED  0xFF
 #define REGISTER_INVALID 32767
 
