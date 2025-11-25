@@ -23,7 +23,7 @@
 #ifndef __MIXER_H
 #define __MIXER_H
 
-#if (defined JAWBREAKER || defined HACKRF_ONE)
+#if (defined JAWBREAKER || defined HACKRF_ONE || defined PRALINE)
 	#include "rffc5071.h"
 typedef rffc5071_driver_t mixer_driver_t;
 #endif

@@ -46,7 +46,7 @@ void print_board_rev(uint8_t board_rev)
 	}
 }
 
-void print_supported_platform(uint32_t platform, uint8_t board_id)
+void print_supported_platform(uint32_t platform, uint8_t board_id, uint8_t board_rev)
 {
 	printf("Hardware supported by installed firmware:\n");
 	if (platform & HACKRF_PLATFORM_JAWBREAKER) {
@@ -58,6 +58,13 @@ void print_supported_platform(uint32_t platform, uint8_t board_id)
 	if ((platform & HACKRF_PLATFORM_HACKRF1_OG) ||
 	    (platform & HACKRF_PLATFORM_HACKRF1_R9)) {
 		printf("    HackRF One\n");
+	}
+	if (platform & HACKRF_PLATFORM_PRALINE) {
+		if (board_rev & HACKRF_BOARD_REV_GSG) {
+			printf("    HackRF Pro\n");
+		} else {
+			printf("    Praline\n");
+		}
 	}
 	switch (board_id) {
 	case BOARD_ID_HACKRF1_OG:
@@ -76,6 +83,11 @@ void print_supported_platform(uint32_t platform, uint8_t board_id)
 		}
 	case BOARD_ID_RAD1O:
 		if (platform & HACKRF_PLATFORM_RAD1O) {
+			break;
+		}
+		printf("Error: Firmware does not support hardware platform.\n");
+	case BOARD_ID_PRALINE:
+		if (platform & HACKRF_PLATFORM_PRALINE) {
 			break;
 		}
 		printf("Error: Firmware does not support hardware platform.\n");
@@ -188,7 +200,8 @@ int main(void)
 		       read_partid_serialno.part_id[0],
 		       read_partid_serialno.part_id[1]);
 
-		if ((usb_version >= 0x0106) && ((board_id == 2) || (board_id == 4))) {
+		if ((usb_version >= 0x0106) &&
+		    ((board_id == 2) || (board_id == 4) || (board_id == 5))) {
 			result = hackrf_board_rev_read(device, &board_rev);
 			if (result != HACKRF_SUCCESS) {
 				fprintf(stderr,
@@ -210,7 +223,7 @@ int main(void)
 					result);
 				return EXIT_FAILURE;
 			}
-			print_supported_platform(supported_platform, board_id);
+			print_supported_platform(supported_platform, board_id, board_rev);
 		}
 
 		result = hackrf_get_operacake_boards(device, &operacakes[0]);
@@ -246,6 +259,21 @@ int main(void)
 			printf("CPLD checksum: 0x%08x\n", cpld_crc);
 		}
 #endif /* HACKRF_ISSUE_609_IS_FIXED */
+
+		if (usb_version >= 0x0109) {
+			hackrf_selftest selftest;
+			result = hackrf_read_selftest(device, &selftest);
+			if (result != HACKRF_SUCCESS) {
+				printf("hackrf_read_selftest() failed: %s (%d)\n",
+				       hackrf_error_name(result),
+				       result);
+				return EXIT_FAILURE;
+			}
+			if (!selftest.pass) {
+				printf("Self-test FAIL:\n");
+				printf("%s", selftest.msg);
+			}
+		}
 
 		result = hackrf_close(device);
 		if (result != HACKRF_SUCCESS) {

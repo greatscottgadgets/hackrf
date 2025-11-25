@@ -33,6 +33,7 @@
 #include <string.h>
 #include "max2839.h"
 #include "max2839_regs.def" // private register def macros
+#include "selftest.h"
 
 static uint8_t requested_lna_gain = 0;
 static uint8_t requested_vga_gain = 0;
@@ -40,9 +41,9 @@ static uint8_t requested_vga_gain = 0;
 /* Default register values. */
 static const uint16_t max2839_regs_default[MAX2839_NUM_REGS] = {
 	0x000,  /* 0 */
-	0x00c,  /* 1:  data sheet says 0x00c but read 0x22c */
+	0x00c,  /* 1:  data sheet says 0x00c but read 0x20c or 0x22c*/
 	0x080,  /* 2 */
-	0x1b9,  /* 3:  data sheet says 0x1b9 but read 0x1b0 */
+	0x1b0,  /* 3:  data sheet says 0x1b9 but read 0x1b0 or 0x1b9 */
 	0x3e6,  /* 4 */
 	0x100,  /* 5 */
 	0x000,  /* 6 */
@@ -64,12 +65,12 @@ static const uint16_t max2839_regs_default[MAX2839_NUM_REGS] = {
 	0x1a9,  /* 22 */
 	0x24f,  /* 23 */
 	0x180,  /* 24 */
-	0x000,  /* 25: data sheet says 0x000 but read 0x00a */
+	0x00a,  /* 25: data sheet says 0x000 but read 0x00a */
 	0x3c0,  /* 26 */
-	0x200,  /* 27: data sheet says 0x200 but read 0x22a */
+	0x200,  /* 27: data sheet says 0x200 but read 0x22a or 0x22f */
 	0x0c0,  /* 28 */
-	0x03f,  /* 29: data sheet says 0x03f but read 0x07f */
-	0x300,  /* 30: data sheet says 0x300 but read 0x398 */
+	0x03f,  /* 29: data sheet says 0x03f but read 0x07f or 0x17f */
+	0x300,  /* 30: data sheet says 0x300 but read 0x398 or 0x31a */
 	0x340}; /* 31: data sheet says 0x340 but read 0x359 */
 
 /*
@@ -78,6 +79,10 @@ static const uint16_t max2839_regs_default[MAX2839_NUM_REGS] = {
  * data sheet defaults even though the inital part we tested started up with
  * different settings.
  */
+
+static const uint8_t max2839_regs_skip_verify[] = {1, 3, 8, 11, 21, 25, 27, 29, 30, 31};
+
+static uint16_t max2839_read(max2839_driver_t* const drv, uint8_t r);
 
 /* Set up all registers according to defaults specified in docs. */
 static void max2839_init(max2839_driver_t* const drv)
@@ -90,6 +95,28 @@ static void max2839_init(max2839_driver_t* const drv)
 
 	/* Write default register values to chip. */
 	max2839_regs_commit(drv);
+
+	/* Read back registers to verify. */
+	selftest.max283x_readback_total_registers = MAX2839_NUM_REGS;
+	for (int r = 0; r < MAX2839_NUM_REGS; r++) {
+		for (unsigned int i = 0; i < sizeof(max2839_regs_skip_verify); i++) {
+			if (max2839_regs_skip_verify[i] == r) {
+				goto next;
+			}
+		}
+		uint16_t value = max2839_read(drv, r);
+		if (value != drv->regs[r]) {
+			selftest.max283x_readback_bad_value = value;
+			selftest.max283x_readback_expected_value = drv->regs[r];
+			break;
+		}
+next:
+		selftest.max283x_readback_register_count = r + 1;
+	}
+
+	if (selftest.max283x_readback_register_count < MAX2839_NUM_REGS) {
+		selftest.report.pass = false;
+	}
 }
 
 /*

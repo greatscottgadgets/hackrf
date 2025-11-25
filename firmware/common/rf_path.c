@@ -31,12 +31,13 @@
 #include "gpio_lpc.h"
 #include "platform_detect.h"
 #include "mixer.h"
+#include "max2831.h"
 #include "max283x.h"
 #include "max5864.h"
 #include "sgpio.h"
 #include "user_config.h"
 
-#if (defined JAWBREAKER || defined HACKRF_ONE || defined RAD1O)
+#if (defined JAWBREAKER || defined HACKRF_ONE || defined RAD1O || defined PRALINE)
 	/*
 	 * RF switches on Jawbreaker are controlled by General Purpose Outputs (GPO) on
 	 * the RFFC5072.
@@ -48,6 +49,9 @@
 	 *
 	 * The rad1o also uses GPIO pins to control the different switches. The amplifiers
 	 * are also connected to the LPC.
+	 * 
+	 * On Praline, a subset of control signals is managed by GPIO pins on the LPC, while
+	 * the remaining signals are generated through combinatorial logic in hardware.
 	 */
 	#define SWITCHCTRL_NO_TX_AMP_PWR (1 << 0) /* GPO1 turn off TX amp power */
 	#define SWITCHCTRL_AMP_BYPASS    (1 << 1) /* GPO2 bypass amp section */
@@ -91,16 +95,13 @@
 
 #define SWITCHCTRL_ANT_PWR (1 << 6) /* turn on antenna port power */
 
+#ifdef HACKRF_ONE
 /*
- * Starting with HackRF One r9 this control signal has been moved to the
- * microcontroller.
+ * In HackRF One r9 this control signal has been moved to the microcontroller.
  */
 
-#ifdef HACKRF_ONE
 static struct gpio_t gpio_h1r9_no_ant_pwr = GPIO(2, 4);
-#endif
 
-#ifdef HACKRF_ONE
 static void switchctrl_set_hackrf_one(rf_path_t* const rf_path, uint8_t ctrl)
 {
 	if (ctrl & SWITCHCTRL_TX) {
@@ -192,6 +193,47 @@ static void switchctrl_set_hackrf_one(rf_path_t* const rf_path, uint8_t ctrl)
 }
 #endif
 
+#ifdef PRALINE
+static void switchctrl_set_praline(rf_path_t* const rf_path, uint8_t ctrl)
+{
+	if (ctrl & SWITCHCTRL_TX) {
+		gpio_set(rf_path->gpio_tx_en);
+		if (ctrl & SWITCHCTRL_NO_TX_AMP_PWR) {
+			ctrl |= SWITCHCTRL_AMP_BYPASS;
+		}
+	} else {
+		gpio_clear(rf_path->gpio_tx_en);
+		if (ctrl & SWITCHCTRL_NO_RX_AMP_PWR) {
+			ctrl |= SWITCHCTRL_AMP_BYPASS;
+		}
+	}
+
+	if (ctrl & SWITCHCTRL_MIX_BYPASS) {
+		gpio_set(rf_path->gpio_mix_en_n);
+	} else {
+		gpio_clear(rf_path->gpio_mix_en_n);
+	}
+
+	if (ctrl & SWITCHCTRL_HP) {
+		gpio_clear(rf_path->gpio_lpf_en);
+	} else {
+		gpio_set(rf_path->gpio_lpf_en);
+	}
+
+	if (ctrl & SWITCHCTRL_AMP_BYPASS) {
+		gpio_clear(rf_path->gpio_rf_amp_en);
+	} else {
+		gpio_set(rf_path->gpio_rf_amp_en);
+	}
+
+	if (ctrl & SWITCHCTRL_ANT_PWR) {
+		gpio_clear(rf_path->gpio_ant_bias_en_n);
+	} else {
+		gpio_set(rf_path->gpio_ant_bias_en_n);
+	}
+}
+#endif
+
 #ifdef RAD1O
 static void switchctrl_set_rad1o(rf_path_t* const rf_path, uint8_t ctrl)
 {
@@ -264,6 +306,8 @@ static void switchctrl_set(rf_path_t* const rf_path, const uint8_t gpo)
 	mixer_set_gpo(&mixer, gpo);
 #elif HACKRF_ONE
 	switchctrl_set_hackrf_one(rf_path, gpo);
+#elif PRALINE
+	switchctrl_set_praline(rf_path, gpo);
 #elif RAD1O
 	switchctrl_set_rad1o(rf_path, gpo);
 #else
@@ -357,6 +401,36 @@ void rf_path_pin_setup(rf_path_t* const rf_path)
 	gpio_output(rf_path->gpio_low_high_filt_n);
 	gpio_output(rf_path->gpio_tx_amp);
 	gpio_output(rf_path->gpio_rx_lna);
+#elif PRALINE
+	/* Configure RF switch control signals */
+	scu_pinmux(SCU_TX_EN, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+	board_rev_t rev = detected_revision();
+	if ((rev == BOARD_REV_PRALINE_R1_0) || (rev == BOARD_REV_GSG_PRALINE_R1_0)) {
+		scu_pinmux(SCU_MIX_EN_N_R1_0, SCU_GPIO_FAST | SCU_CONF_FUNCTION4);
+	} else {
+		scu_pinmux(SCU_MIX_EN_N, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+	}
+	scu_pinmux(SCU_LPF_EN, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+	scu_pinmux(SCU_RF_AMP_EN, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+
+	/* Configure antenna port power control signal */
+	scu_pinmux(SCU_ANT_BIAS_EN_N, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+
+	/* Configure RF power supply (VAA) switch */
+	scu_pinmux(SCU_NO_VAA_ENABLE, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+
+	/*
+	 * Safe (initial) switch settings turn off both amplifiers and antenna port
+	 * power and enable both amp bypass and mixer bypass.
+	 */
+	switchctrl_set(rf_path, SWITCHCTRL_SAFE);
+
+	/* Configure RF switch control signals as outputs */
+	gpio_output(rf_path->gpio_ant_bias_en_n);
+	gpio_output(rf_path->gpio_tx_en);
+	gpio_output(rf_path->gpio_mix_en_n);
+	gpio_output(rf_path->gpio_lpf_en);
+	gpio_output(rf_path->gpio_rf_amp_en);
 #else
 	(void) rf_path; /* silence unused param warning */
 #endif
@@ -369,12 +443,17 @@ void rf_path_init(rf_path_t* const rf_path)
 	max5864_shutdown(&max5864);
 
 	ssp1_set_mode_max283x();
+#ifdef PRALINE
+	max2831_setup(&max283x);
+	max2831_start(&max283x);
+#else
 	if (detected_platform() == BOARD_ID_HACKRF1_R9) {
 		max283x_setup(&max283x, MAX2839_VARIANT);
 	} else {
 		max283x_setup(&max283x, MAX2837_VARIANT);
 	}
 	max283x_start(&max283x);
+#endif
 
 	// On HackRF One, the mixer is now set up earlier in boot.
 #ifndef HACKRF_ONE
@@ -407,7 +486,11 @@ void rf_path_set_direction(rf_path_t* const rf_path, const rf_path_direction_t d
 		ssp1_set_mode_max5864();
 		max5864_tx(&max5864);
 		ssp1_set_mode_max283x();
+#ifdef PRALINE
+		max2831_tx(&max283x);
+#else
 		max283x_tx(&max283x);
+#endif
 		sgpio_configure(&sgpio_config, SGPIO_DIRECTION_TX);
 		break;
 
@@ -426,9 +509,30 @@ void rf_path_set_direction(rf_path_t* const rf_path, const rf_path_direction_t d
 		ssp1_set_mode_max5864();
 		max5864_rx(&max5864);
 		ssp1_set_mode_max283x();
+#ifdef PRALINE
+		max2831_rx(&max283x);
+#else
 		max283x_rx(&max283x);
+#endif
 		sgpio_configure(&sgpio_config, SGPIO_DIRECTION_RX);
 		break;
+
+#ifdef PRALINE
+	case RF_PATH_DIRECTION_TX_CALIBRATION:
+	case RF_PATH_DIRECTION_RX_CALIBRATION:
+		rf_path->switchctrl &= ~SWITCHCTRL_TX;
+		mixer_disable(&mixer);
+		ssp1_set_mode_max5864();
+		max5864_xcvr(&max5864);
+		ssp1_set_mode_max283x();
+		if (direction == RF_PATH_DIRECTION_TX_CALIBRATION) {
+			max2831_tx_calibration(&max283x);
+		} else {
+			max2831_rx_calibration(&max283x);
+		}
+		sgpio_configure(&sgpio_config, SGPIO_DIRECTION_RX);
+		break;
+#endif
 
 	case RF_PATH_DIRECTION_OFF:
 	default:
@@ -439,7 +543,11 @@ void rf_path_set_direction(rf_path_t* const rf_path, const rf_path_direction_t d
 		ssp1_set_mode_max5864();
 		max5864_standby(&max5864);
 		ssp1_set_mode_max283x();
+#ifdef PRALINE
+		max2831_set_mode(&max283x, MAX2831_MODE_STANDBY);
+#else
 		max283x_set_mode(&max283x, MAX283x_MODE_STANDBY);
+#endif
 		sgpio_configure(&sgpio_config, SGPIO_DIRECTION_RX);
 		break;
 	}

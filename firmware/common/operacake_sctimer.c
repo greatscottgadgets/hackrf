@@ -51,6 +51,9 @@ static uint32_t default_output = 0;
  *
  * To trigger the antenna switching synchronously with the sample clock, the
  * SGPIO is configured to output its clock (f=2 * sample clock) to the SCTimer.
+ *
+ * On Praline, instead, MS0/CLK1 (SCT_CLK) is configured to output its
+ * clock (f=2 * sample clock) to the SCTimer.
  */
 void operacake_sctimer_init()
 {
@@ -89,6 +92,7 @@ void operacake_sctimer_init()
 		P7_0,
 		SCU_CONF_EPUN_DIS_PULLUP | SCU_CONF_EHS_FAST | SCU_CONF_FUNCTION1);
 
+#ifndef PRALINE
 	// Configure the SGPIO to output the clock (f=2 * sample clock) on pin 12
 	SGPIO_OUT_MUX_CFG12 = SGPIO_OUT_MUX_CFG_P_OUT_CFG(0x08) | // clkout output mode
 		SGPIO_OUT_MUX_CFG_P_OE_CFG(0);                    // gpio_oe
@@ -97,9 +101,20 @@ void operacake_sctimer_init()
 	// Use the GIMA to connect the SGPIO clock to the SCTimer
 	GIMA_CTIN_1_IN = 0x2 << 4; // Route SGPIO12 to SCTIN1
 
+	uint8_t sct_clock_input = SCT_CONFIG_CKSEL_RISING_EDGES_ON_INPUT_1;
+#else
+	// Configure pin P6_4 as SCT_IN_6
+	scu_pinmux(P6_4, SCU_CLK_IN | SCU_CONF_FUNCTION1);
+
+	// Use the GIMA to connect MS0/CLK1 (SCT_CLK) on pin P6_4 to the SCTimer
+	GIMA_CTIN_6_IN = 0x0 << 4;
+
+	uint8_t sct_clock_input = SCT_CONFIG_CKSEL_RISING_EDGES_ON_INPUT_6;
+#endif
+
 	// We configure this register first, because the user manual says to
 	SCT_CONFIG |= SCT_CONFIG_UNIFY_32_BIT | SCT_CONFIG_CLKMODE_PRESCALED_BUS_CLOCK |
-		SCT_CONFIG_CKSEL_RISING_EDGES_ON_INPUT_1;
+		sct_clock_input;
 
 	// Halt the SCTimer to enable it to be configured
 	SCT_CTRL = SCT_CTRL_HALT_L(1);

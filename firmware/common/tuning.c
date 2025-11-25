@@ -25,6 +25,7 @@
 #include "hackrf_ui.h"
 #include "hackrf_core.h"
 #include "mixer.h"
+#include "max2831.h"
 #include "max2837.h"
 #include "max2839.h"
 #include "sgpio.h"
@@ -33,21 +34,41 @@
 
 #define FREQ_ONE_MHZ (1000ULL * 1000)
 
-#define MIN_LP_FREQ_MHZ (0)
-#define MAX_LP_FREQ_MHZ (2170ULL)
+#ifndef PRALINE
 
-#define ABS_MIN_BYPASS_FREQ_MHZ (2000ULL)
-#define MIN_BYPASS_FREQ_MHZ     (MAX_LP_FREQ_MHZ)
-#define MAX_BYPASS_FREQ_MHZ     (2740ULL)
-#define ABS_MAX_BYPASS_FREQ_MHZ (3000ULL)
+	#define MIN_LP_FREQ_MHZ (0)
+	#define MAX_LP_FREQ_MHZ (2170ULL)
 
-#define MIN_HP_FREQ_MHZ  (MAX_BYPASS_FREQ_MHZ)
-#define MID1_HP_FREQ_MHZ (3600ULL)
-#define MID2_HP_FREQ_MHZ (5100ULL)
-#define MAX_HP_FREQ_MHZ  (7250ULL)
+	#define ABS_MIN_BYPASS_FREQ_MHZ (2000ULL)
+	#define MIN_BYPASS_FREQ_MHZ     (MAX_LP_FREQ_MHZ)
+	#define MAX_BYPASS_FREQ_MHZ     (2740ULL)
+	#define ABS_MAX_BYPASS_FREQ_MHZ (3000ULL)
 
-#define MIN_LO_FREQ_HZ (84375000ULL)
-#define MAX_LO_FREQ_HZ (5400000000ULL)
+	#define MIN_HP_FREQ_MHZ  (MAX_BYPASS_FREQ_MHZ)
+	#define MID1_HP_FREQ_MHZ (3600ULL)
+	#define MID2_HP_FREQ_MHZ (5100ULL)
+	#define MAX_HP_FREQ_MHZ  (7250ULL)
+
+	#define MIN_LO_FREQ_HZ (84375000ULL)
+	#define MAX_LO_FREQ_HZ (5400000000ULL)
+
+#else
+
+	#define MIN_LP_FREQ_MHZ (0)
+	#define MAX_LP_FREQ_MHZ (2320ULL)
+
+	#define ABS_MIN_BYPASS_FREQ_MHZ (2000ULL)
+	#define MIN_BYPASS_FREQ_MHZ     (MAX_LP_FREQ_MHZ)
+	#define MAX_BYPASS_FREQ_MHZ     (2580ULL)
+	#define ABS_MAX_BYPASS_FREQ_MHZ (3000ULL)
+
+	#define MIN_HP_FREQ_MHZ (MAX_BYPASS_FREQ_MHZ)
+	#define MAX_HP_FREQ_MHZ (7250ULL)
+
+	#define MIN_LO_FREQ_HZ (84375000ULL)
+	#define MAX_LO_FREQ_HZ (5400000000ULL)
+
+#endif
 
 static uint32_t max2837_freq_nominal_hz = 2560000000;
 
@@ -58,6 +79,7 @@ uint64_t freq_cache = 100000000;
  * hz between 0 to 999999 Hz (not checked)
  * return false on error or true if success.
  */
+#ifndef PRALINE
 bool set_freq(const uint64_t freq)
 {
 	bool success;
@@ -72,12 +94,12 @@ bool set_freq(const uint64_t freq)
 	max283x_set_mode(&max283x, MAX283x_MODE_STANDBY);
 	if (freq_mhz < MAX_LP_FREQ_MHZ) {
 		rf_path_set_filter(&rf_path, RF_PATH_FILTER_LOW_PASS);
-#ifdef RAD1O
+	#ifdef RAD1O
 		max2837_freq_nominal_hz = 2300 * FREQ_ONE_MHZ;
-#else
+	#else
 		/* IF is graduated from 2650 MHz to 2340 MHz */
 		max2837_freq_nominal_hz = (2650 * FREQ_ONE_MHZ) - (freq / 7);
-#endif
+	#endif
 		mixer_freq_hz = max2837_freq_nominal_hz + freq;
 		/* Set Freq and read real freq */
 		real_mixer_freq_hz = mixer_set_frequency(&mixer, mixer_freq_hz);
@@ -117,12 +139,89 @@ bool set_freq(const uint64_t freq)
 	if (success) {
 		freq_cache = freq;
 		hackrf_ui()->set_frequency(freq);
-#ifdef HACKRF_ONE
+	#ifdef HACKRF_ONE
 		operacake_set_range(freq_mhz);
-#endif
+	#endif
 	}
 	return success;
 }
+
+uint64_t tuning_set_frequency(const tune_config_t* config, const uint64_t frequency_hz)
+{
+	(void) config;
+
+	bool result = set_freq(frequency_hz);
+	if (!result) {
+		return 0;
+	}
+
+	return frequency_hz;
+}
+#else
+bool set_freq(const uint64_t freq)
+{
+	return tuning_set_frequency(max2831_tune_config_rx_sweep, freq) != 0;
+}
+
+uint64_t tuning_set_frequency(const tune_config_t* cfg, const uint64_t freq)
+{
+	bool found;
+	uint64_t mixer_freq_hz;
+	uint64_t real_mixer_freq_hz;
+
+	if (freq > (MAX_HP_FREQ_MHZ * FREQ_ONE_MHZ)) {
+		return false;
+	}
+
+	const uint16_t freq_mhz = freq / FREQ_ONE_MHZ;
+
+	found = false;
+	for (; cfg->rf_range_end_mhz != 0; cfg++) {
+		if (cfg->rf_range_end_mhz > freq_mhz) {
+			found = true;
+			break;
+		}
+	}
+
+	if (!found) {
+		return false;
+	}
+
+	max2831_mode_t prior_max2831_mode = max2831_mode(&max283x);
+	max2831_set_mode(&max283x, MAX2831_MODE_STANDBY);
+
+	if (cfg->if_mhz == 0) {
+		rf_path_set_filter(&rf_path, RF_PATH_FILTER_BYPASS);
+		max2831_set_frequency(&max283x, freq);
+		sgpio_cpld_set_mixer_invert(&sgpio_config, 0);
+	} else if (cfg->if_mhz > freq_mhz) {
+		rf_path_set_filter(&rf_path, RF_PATH_FILTER_LOW_PASS);
+		if (cfg->high_lo) {
+			mixer_freq_hz = FREQ_ONE_MHZ * cfg->if_mhz + freq;
+			real_mixer_freq_hz = mixer_set_frequency(&mixer, mixer_freq_hz);
+			max2831_set_frequency(&max283x, real_mixer_freq_hz - freq);
+			sgpio_cpld_set_mixer_invert(&sgpio_config, 1);
+		} else {
+			mixer_freq_hz = FREQ_ONE_MHZ * cfg->if_mhz - freq;
+			real_mixer_freq_hz = mixer_set_frequency(&mixer, mixer_freq_hz);
+			max2831_set_frequency(&max283x, real_mixer_freq_hz + freq);
+			sgpio_cpld_set_mixer_invert(&sgpio_config, 0);
+		}
+	} else {
+		rf_path_set_filter(&rf_path, RF_PATH_FILTER_HIGH_PASS);
+		mixer_freq_hz = freq - FREQ_ONE_MHZ * cfg->if_mhz;
+		real_mixer_freq_hz = mixer_set_frequency(&mixer, mixer_freq_hz);
+		max2831_set_frequency(&max283x, freq - real_mixer_freq_hz);
+		sgpio_cpld_set_mixer_invert(&sgpio_config, 0);
+	}
+
+	max2831_set_mode(&max283x, prior_max2831_mode);
+	freq_cache = freq;
+	hackrf_ui()->set_frequency(freq);
+	operacake_set_range(freq_mhz);
+	return true;
+}
+#endif
 
 bool set_freq_explicit(
 	const uint64_t if_freq_hz,
@@ -144,7 +243,11 @@ bool set_freq_explicit(
 	}
 
 	rf_path_set_filter(&rf_path, path);
+#ifdef PRALINE
+	max2831_set_frequency(&max283x, if_freq_hz);
+#else
 	max283x_set_frequency(&max283x, if_freq_hz);
+#endif
 	if (lo_freq_hz > if_freq_hz) {
 		sgpio_cpld_set_mixer_invert(&sgpio_config, 1);
 	} else {

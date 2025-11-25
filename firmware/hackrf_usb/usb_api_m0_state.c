@@ -26,21 +26,6 @@
 #include <usb_request.h>
 #include <usb_queue.h>
 
-void m0_set_mode(enum m0_mode mode)
-{
-	// Set requested mode and flag bit.
-	m0_state.requested_mode = M0_REQUEST_FLAG | mode;
-
-	// The M0 may be blocked waiting for the next SGPIO interrupt.
-	// In order to ensure that it sees our request, we need to set
-	// the interrupt flag here. The M0 will clear the flag again
-	// before acknowledging our request.
-	SGPIO_SET_STATUS_1 = (1 << SGPIO_SLICE_A);
-
-	// Wait for M0 to acknowledge by clearing the flag.
-	while (m0_state.requested_mode & M0_REQUEST_FLAG) {}
-}
-
 usb_request_status_t usb_vendor_request_get_m0_state(
 	usb_endpoint_t* const endpoint,
 	const usb_transfer_stage_t stage)

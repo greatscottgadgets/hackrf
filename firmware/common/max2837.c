@@ -33,11 +33,12 @@
 #include <string.h>
 #include "max2837.h"
 #include "max2837_regs.def" // private register def macros
+#include "selftest.h"
 
 /* Default register values. */
 static const uint16_t max2837_regs_default[MAX2837_NUM_REGS] = {
 	0x150, /* 0 */
-	0x002, /* 1 */
+	0x002, /* 1:  data sheet says 0x002 but read 0x1c2 */
 	0x1f4, /* 2 */
 	0x1b9, /* 3 */
 	0x00a, /* 4 */
@@ -66,13 +67,17 @@ static const uint16_t max2837_regs_default[MAX2837_NUM_REGS] = {
 	0x1a9,  /* 22 */
 	0x24f,  /* 23 */
 	0x180,  /* 24 */
-	0x100,  /* 25 */
+	0x100,  /* 25:  data sheet says 0x100 but read 0x10a */
 	0x3ca,  /* 26 */
-	0x3e3,  /* 27 */
+	0x3e3,  /* 27:  data sheet says 0x100 but read 0x3f3 */
 	0x0c0,  /* 28 */
 	0x3f0,  /* 29 */
-	0x080,  /* 30 */
-	0x000}; /* 31 */
+	0x080,  /* 30:  data sheet says 0x080 but read 0x092 */
+	0x000}; /* 31:  data sheet says 0x000 but read 0x1ae */
+
+static const uint8_t max2837_regs_skip_verify[] = {1, 25, 27, 30, 31};
+
+static uint16_t max2837_read(max2837_driver_t* const drv, uint8_t r);
 
 /* Set up all registers according to defaults specified in docs. */
 static void max2837_init(max2837_driver_t* const drv)
@@ -85,6 +90,28 @@ static void max2837_init(max2837_driver_t* const drv)
 
 	/* Write default register values to chip. */
 	max2837_regs_commit(drv);
+
+	/* Read back registers to verify. */
+	selftest.max283x_readback_total_registers = MAX2837_NUM_REGS;
+	for (int r = 0; r < MAX2837_NUM_REGS; r++) {
+		for (unsigned int i = 0; i < sizeof(max2837_regs_skip_verify); i++) {
+			if (max2837_regs_skip_verify[i] == r) {
+				goto next;
+			}
+		}
+		uint16_t value = max2837_read(drv, r);
+		if (value != drv->regs[r]) {
+			selftest.max283x_readback_bad_value = value;
+			selftest.max283x_readback_expected_value = drv->regs[r];
+			break;
+		}
+next:
+		selftest.max283x_readback_register_count = r + 1;
+	}
+
+	if (selftest.max283x_readback_register_count < MAX2837_NUM_REGS) {
+		selftest.report.pass = false;
+	}
 }
 
 /*

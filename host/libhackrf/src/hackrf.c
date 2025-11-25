@@ -36,6 +36,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 	/* Avoid redefinition of timespec from time.h (included by libusb.h) */
 	#define HAVE_STRUCT_TIMESPEC 1
 	#define strdup               _strdup
+	#define strcasecmp           _stricmp
 #endif
 #include <pthread.h>
 
@@ -55,8 +56,8 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 // the same values.
 typedef enum {
 	HACKRF_VENDOR_REQUEST_SET_TRANSCEIVER_MODE = 1,
-	HACKRF_VENDOR_REQUEST_MAX2837_WRITE = 2,
-	HACKRF_VENDOR_REQUEST_MAX2837_READ = 3,
+	HACKRF_VENDOR_REQUEST_MAX283X_WRITE = 2,
+	HACKRF_VENDOR_REQUEST_MAX283X_READ = 3,
 	HACKRF_VENDOR_REQUEST_SI5351C_WRITE = 4,
 	HACKRF_VENDOR_REQUEST_SI5351C_READ = 5,
 	HACKRF_VENDOR_REQUEST_SAMPLE_RATE_SET = 6,
@@ -100,6 +101,14 @@ typedef enum {
 	HACKRF_VENDOR_REQUEST_SUPPORTED_PLATFORM_READ = 46,
 	HACKRF_VENDOR_REQUEST_SET_LEDS = 47,
 	HACKRF_VENDOR_REQUEST_SET_USER_BIAS_T_OPTS = 48,
+	HACKRF_VENDOR_REQUEST_FPGA_SPI_WRITE = 49,
+	HACKRF_VENDOR_REQUEST_FPGA_SPI_READ = 50,
+	HACKRF_VENDOR_REQUEST_P2_CTRL = 51,
+	HACKRF_VENDOR_REQUEST_P1_CTRL = 52,
+	HACKRF_VENDOR_REQUEST_SET_NARROWBAND_FILTER = 53,
+	HACKRF_VENDOR_REQUEST_SET_FPGA_BITSTREAM = 54,
+	HACKRF_VENDOR_REQUEST_CLKIN_CTRL = 55,
+	HACKRF_VENDOR_REQUEST_READ_SELFTEST = 56,
 } hackrf_vendor_request;
 
 #define USB_CONFIG_STANDARD 0x1
@@ -900,7 +909,36 @@ int ADDCALL hackrf_max2837_read(
 	result = libusb_control_transfer(
 		device->usb_device,
 		LIBUSB_ENDPOINT_IN | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
-		HACKRF_VENDOR_REQUEST_MAX2837_READ,
+		HACKRF_VENDOR_REQUEST_MAX283X_READ,
+		0,
+		register_number,
+		(unsigned char*) value,
+		2,
+		0);
+
+	if (result < 2) {
+		last_libusb_error = result;
+		return HACKRF_ERROR_LIBUSB;
+	} else {
+		return HACKRF_SUCCESS;
+	}
+}
+
+int ADDCALL hackrf_max2831_read(
+	hackrf_device* device,
+	uint8_t register_number,
+	uint16_t* value)
+{
+	int result;
+
+	if (register_number >= 16) {
+		return HACKRF_ERROR_INVALID_PARAM;
+	}
+
+	result = libusb_control_transfer(
+		device->usb_device,
+		LIBUSB_ENDPOINT_IN | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_MAX283X_READ,
 		0,
 		register_number,
 		(unsigned char*) value,
@@ -933,7 +971,40 @@ int ADDCALL hackrf_max2837_write(
 		device->usb_device,
 		LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR |
 			LIBUSB_RECIPIENT_DEVICE,
-		HACKRF_VENDOR_REQUEST_MAX2837_WRITE,
+		HACKRF_VENDOR_REQUEST_MAX283X_WRITE,
+		value,
+		register_number,
+		NULL,
+		0,
+		0);
+
+	if (result != 0) {
+		last_libusb_error = result;
+		return HACKRF_ERROR_LIBUSB;
+	} else {
+		return HACKRF_SUCCESS;
+	}
+}
+
+int ADDCALL hackrf_max2831_write(
+	hackrf_device* device,
+	uint8_t register_number,
+	uint16_t value)
+{
+	int result;
+
+	if (register_number >= 16) {
+		return HACKRF_ERROR_INVALID_PARAM;
+	}
+	if (value >= 0x4000) {
+		return HACKRF_ERROR_INVALID_PARAM;
+	}
+
+	result = libusb_control_transfer(
+		device->usb_device,
+		LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR |
+			LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_MAX283X_WRITE,
 		value,
 		register_number,
 		NULL,
@@ -1089,6 +1160,83 @@ int ADDCALL hackrf_rffc5071_write(
 		0);
 
 	if (result != 0) {
+		last_libusb_error = result;
+		return HACKRF_ERROR_LIBUSB;
+	} else {
+		return HACKRF_SUCCESS;
+	}
+}
+
+int ADDCALL hackrf_fpga_spi_read(
+	hackrf_device* device,
+	uint8_t register_number,
+	uint8_t* value)
+{
+	USB_API_REQUIRED(device, 0x0109);
+	int result;
+
+	result = libusb_control_transfer(
+		device->usb_device,
+		LIBUSB_ENDPOINT_IN | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_FPGA_SPI_READ,
+		0,
+		register_number,
+		(unsigned char*) value,
+		1,
+		0);
+
+	if (result < 1) {
+		last_libusb_error = result;
+		return HACKRF_ERROR_LIBUSB;
+	} else {
+		return HACKRF_SUCCESS;
+	}
+}
+
+int ADDCALL hackrf_fpga_spi_write(
+	hackrf_device* device,
+	uint8_t register_number,
+	uint8_t value)
+{
+	USB_API_REQUIRED(device, 0x0109);
+	int result;
+
+	result = libusb_control_transfer(
+		device->usb_device,
+		LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR |
+			LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_FPGA_SPI_WRITE,
+		value,
+		register_number,
+		NULL,
+		0,
+		0);
+
+	if (result != 0) {
+		last_libusb_error = result;
+		return HACKRF_ERROR_LIBUSB;
+	} else {
+		return HACKRF_SUCCESS;
+	}
+}
+
+int ADDCALL hackrf_read_selftest(hackrf_device* device, hackrf_selftest* selftest)
+{
+	USB_API_REQUIRED(device, 0x0109);
+
+	int result;
+
+	result = libusb_control_transfer(
+		device->usb_device,
+		LIBUSB_ENDPOINT_IN | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_READ_SELFTEST,
+		0,
+		0,
+		(unsigned char*) selftest,
+		sizeof(hackrf_selftest),
+		0);
+
+	if (result < sizeof(hackrf_selftest)) {
 		last_libusb_error = result;
 		return HACKRF_ERROR_LIBUSB;
 	} else {
@@ -2211,6 +2359,9 @@ const char* ADDCALL hackrf_board_id_name(enum hackrf_board_id board_id)
 	case BOARD_ID_HACKRF1_R9:
 		return "HackRF One";
 
+	case BOARD_ID_PRALINE:
+		return "HackRF Pro";
+
 	case BOARD_ID_UNRECOGNIZED:
 		return "unrecognized";
 
@@ -2236,6 +2387,9 @@ extern ADDAPI uint32_t ADDCALL hackrf_board_id_platform(enum hackrf_board_id boa
 
 	case BOARD_ID_HACKRF1_R9:
 		return HACKRF_PLATFORM_HACKRF1_R9;
+
+	case BOARD_ID_PRALINE:
+		return HACKRF_PLATFORM_PRALINE;
 
 	default:
 		return 0;
@@ -2919,6 +3073,30 @@ extern ADDAPI const char* ADDCALL hackrf_board_rev_name(enum hackrf_board_rev bo
 	case BOARD_REV_GSG_HACKRF1_R10:
 		return "r10";
 
+	case BOARD_REV_PRALINE_R0_1:
+	case BOARD_REV_GSG_PRALINE_R0_1:
+		return "r0.1";
+
+	case BOARD_REV_PRALINE_R0_2:
+	case BOARD_REV_GSG_PRALINE_R0_2:
+		return "r0.2";
+
+	case BOARD_REV_PRALINE_R0_3:
+	case BOARD_REV_GSG_PRALINE_R0_3:
+		return "r0.3";
+
+	case BOARD_REV_PRALINE_R1_0:
+	case BOARD_REV_GSG_PRALINE_R1_0:
+		return "r1.0";
+
+	case BOARD_REV_PRALINE_R1_1:
+	case BOARD_REV_GSG_PRALINE_R1_1:
+		return "r1.1";
+
+	case BOARD_REV_PRALINE_R1_2:
+	case BOARD_REV_GSG_PRALINE_R1_2:
+		return "r1.2";
+
 	case BOARD_ID_UNRECOGNIZED:
 		return "unrecognized";
 
@@ -3009,6 +3187,123 @@ int ADDCALL hackrf_set_user_bias_t_opts(
 			LIBUSB_RECIPIENT_DEVICE,
 		HACKRF_VENDOR_REQUEST_SET_USER_BIAS_T_OPTS,
 		state,
+		0,
+		NULL,
+		0,
+		0);
+
+	if (result != 0) {
+		last_libusb_error = result;
+		return HACKRF_ERROR_LIBUSB;
+	} else {
+		return HACKRF_SUCCESS;
+	}
+}
+
+int ADDCALL hackrf_set_p1_ctrl(hackrf_device* device, const enum p1_ctrl_signal signal)
+{
+	USB_API_REQUIRED(device, 0x0109);
+
+	int result = libusb_control_transfer(
+		device->usb_device,
+		LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR |
+			LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_P1_CTRL,
+		signal,
+		0,
+		NULL,
+		0,
+		0);
+
+	if (result != 0) {
+		last_libusb_error = result;
+		return HACKRF_ERROR_LIBUSB;
+	} else {
+		return HACKRF_SUCCESS;
+	}
+}
+
+int ADDCALL hackrf_set_p2_ctrl(hackrf_device* device, const enum p2_ctrl_signal signal)
+{
+	USB_API_REQUIRED(device, 0x0109);
+
+	int result = libusb_control_transfer(
+		device->usb_device,
+		LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR |
+			LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_P2_CTRL,
+		signal,
+		0,
+		NULL,
+		0,
+		0);
+
+	if (result != 0) {
+		last_libusb_error = result;
+		return HACKRF_ERROR_LIBUSB;
+	} else {
+		return HACKRF_SUCCESS;
+	}
+}
+
+int ADDCALL hackrf_set_clkin_ctrl(
+	hackrf_device* device,
+	const enum clkin_ctrl_signal signal)
+{
+	USB_API_REQUIRED(device, 0x0109);
+
+	int result = libusb_control_transfer(
+		device->usb_device,
+		LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR |
+			LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_CLKIN_CTRL,
+		signal,
+		0,
+		NULL,
+		0,
+		0);
+
+	if (result != 0) {
+		last_libusb_error = result;
+		return HACKRF_ERROR_LIBUSB;
+	} else {
+		return HACKRF_SUCCESS;
+	}
+}
+
+int ADDCALL hackrf_set_narrowband_filter(hackrf_device* device, const uint8_t value)
+{
+	USB_API_REQUIRED(device, 0x0109);
+
+	int result = libusb_control_transfer(
+		device->usb_device,
+		LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR |
+			LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_SET_NARROWBAND_FILTER,
+		value,
+		0,
+		NULL,
+		0,
+		0);
+
+	if (result != 0) {
+		last_libusb_error = result;
+		return HACKRF_ERROR_LIBUSB;
+	} else {
+		return HACKRF_SUCCESS;
+	}
+}
+
+int ADDCALL hackrf_set_fpga_bitstream(hackrf_device* device, const uint8_t index)
+{
+	USB_API_REQUIRED(device, 0x0109);
+
+	int result = libusb_control_transfer(
+		device->usb_device,
+		LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR |
+			LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_SET_FPGA_BITSTREAM,
+		index,
 		0,
 		NULL,
 		0,

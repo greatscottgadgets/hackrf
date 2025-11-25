@@ -35,7 +35,9 @@
 #include <string.h>
 #include "rffc5071.h"
 #include "rffc5071_regs.def" // private register def macros
+#include "selftest.h"
 
+#include <libopencm3/lpc43xx/scu.h>
 #include "hackrf_core.h"
 
 /* Default register values. */
@@ -51,7 +53,7 @@ static const uint16_t rffc5071_regs_default[RFFC5071_NUM_REGS] = {
 	0xff00, /* 08 */
 	0x8220, /* 09 */
 	0x0202, /* 0A */
-	0x4800, /* 0B */
+	0x0400, /* 0B */
 	0x1a94, /* 0C */
 	0xd89d, /* 0D */
 	0x8900, /* 0E */
@@ -79,6 +81,11 @@ void rffc5071_init(rffc5071_driver_t* const drv)
 	memcpy(drv->regs, rffc5071_regs_default, sizeof(drv->regs));
 	drv->regs_dirty = 0x7fffffff;
 
+	selftest.mixer_id = rffc5071_reg_read(drv, RFFC5071_READBACK_REG);
+	if ((selftest.mixer_id >> 3) != 2031) {
+		selftest.report.pass = false;
+	}
+
 	/* Write default register values to chip. */
 	rffc5071_regs_commit(drv);
 }
@@ -91,6 +98,12 @@ void rffc5071_setup(rffc5071_driver_t* const drv)
 {
 	gpio_set(drv->gpio_reset);
 	gpio_output(drv->gpio_reset);
+
+#ifdef PRALINE
+	/* Configure mixer PLL lock detect pin */
+	scu_pinmux(SCU_MIXER_LD, SCU_MIXER_LD_PINCFG);
+	gpio_input(drv->gpio_ld);
+#endif
 
 	rffc5071_init(drv);
 
@@ -108,6 +121,9 @@ void rffc5071_setup(rffc5071_driver_t* const drv)
 
 	/* GPOs are active at all times */
 	set_RFFC5071_GATE(drv, 1);
+
+	/* Enable GPO Lock output signal */
+	set_RFFC5071_LOCK(drv, 1);
 
 	rffc5071_regs_commit(drv);
 }
@@ -292,3 +308,113 @@ void rffc5071_set_gpo(rffc5071_driver_t* const drv, uint8_t gpo)
 
 	rffc5071_regs_commit(drv);
 }
+
+#ifdef PRALINE
+bool rffc5071_poll_ld(rffc5071_driver_t* const drv, uint8_t* prelock_state)
+{
+	// The RFFC5072 can be configured to output PLL lock status on
+	// GPO4. The lock detect signal is produced by a window detector
+	// on the VCO tuning voltage. It goes high to show PLL lock when
+	// the VCO tuning voltage is within the specified range, typically
+	// 0.30V to 1.25V.
+	//
+	// During the tuning process the lock signal will often go high,
+	// only to drop lock briefly before returning to the locked state.
+	//
+	// Therefore, to reliably detect lock it is necessary to also
+	// track the state of the FSM that controls the tuning process.
+	//
+	// Before re-tuning begins, and after final lock has been
+	// established, the FSM can be considered to be in STATE_LOCKED.
+	//
+	// The very first state change only occurs around 150us _after_ a
+	// new frequency has been set and registers updated:
+	//
+	//   L        123456L   (STATE)
+	//   ----___------_---  (LD)
+	//
+	// This means we need to track the state(s) that occur before
+	// STATE_LOCKED to be able to reliably identify lock.
+	//
+	// At the time of writing 15 different states have been spotted in
+	// the wild.
+	//
+	// The first six states occur at some point during most tuning
+	// operations with the others occuring less frequently.
+	//
+	// Of the first six, two states have been identified as
+	// STATE_PRELOCKn which, once entered, indicate that no further
+	// changes will occur to the locked state.
+	enum state {
+		STATE_LOCKED = 0x17, // 0b10111
+		STATE_00010 = 0x02,
+		STATE_00100 = 0x04,
+		STATE_01011 = 0x0b,
+		STATE_PRELOCK1 = 0x10, // 0b10000
+		STATE_PRELOCK2 = 0x1e, // 0b11110
+		STATE_00000 = 0x00,
+		STATE_00001 = 0x01, // mixer bypassed
+		STATE_00011 = 0x03,
+		STATE_00101 = 0x05,
+		STATE_00110 = 0x06,
+		STATE_00111 = 0x07,
+		STATE_01010 = 0x0a,
+		STATE_10110 = 0x16,
+		STATE_11110 = 0x1e, // ?
+		STATE_11111 = 0x1f,
+		STATE_NONE = 0xff,
+	};
+
+	// Select which fields will be made available in the readback
+	// register - we only need to do this the first time.
+	if (*prelock_state == STATE_NONE) {
+		set_RFFC5071_READSEL(drv, 0b0011);
+		rffc5071_regs_commit(drv);
+	}
+
+	// read fsm state
+	uint16_t rb = rffc5071_reg_read(drv, RFFC5071_READBACK_REG);
+	uint8_t rsm_state = (rb >> 11) & 0b11111;
+
+	// get gpo4 lock detect signal
+	bool gpo4_ld = gpio_read(drv->gpio_ld);
+
+	// parse state
+	switch (rsm_state) {
+	case STATE_LOCKED: // 'normal operation'
+		if (gpo4_ld &&
+		    ((*prelock_state == STATE_PRELOCK1) ||
+		     (*prelock_state == STATE_PRELOCK2))) {
+			return true;
+		}
+		break;
+	case STATE_00010:
+	case STATE_00100:
+	case STATE_01011:
+		break;
+	case STATE_PRELOCK1:
+		*prelock_state = rsm_state;
+		break;
+	case STATE_PRELOCK2:
+		*prelock_state = rsm_state;
+		break;
+		// other states
+	case STATE_00000:
+	case STATE_00001:
+	case STATE_00011:
+	case STATE_00101:
+	case STATE_00110:
+	case STATE_00111:
+	case STATE_01010:
+	case STATE_10110:
+	case STATE_11111:
+	case STATE_NONE:
+		break;
+	default:
+		// unknown state
+		break;
+	}
+
+	return false;
+}
+#endif

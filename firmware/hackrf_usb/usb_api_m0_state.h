@@ -19,51 +19,14 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __M0_STATE_H__
-#define __M0_STATE_H__
+#ifndef __M0_STATE_USB_H__
+#define __M0_STATE_USB_H__
 
-#include <stdint.h>
 #include <usb_request.h>
-
-#define M0_REQUEST_FLAG (1 << 16)
-
-struct m0_state {
-	uint32_t requested_mode;
-	uint32_t active_mode;
-	uint32_t m0_count;
-	uint32_t m4_count;
-	uint32_t num_shortfalls;
-	uint32_t longest_shortfall;
-	uint32_t shortfall_limit;
-	uint32_t threshold;
-	uint32_t next_mode;
-	uint32_t error;
-};
-
-enum m0_mode {
-	M0_MODE_IDLE = 0,
-	M0_MODE_WAIT = 1,
-	M0_MODE_RX = 2,
-	M0_MODE_TX_START = 3,
-	M0_MODE_TX_RUN = 4,
-};
-
-enum m0_error {
-	M0_ERROR_NONE = 0,
-	M0_ERROR_RX_TIMEOUT = 1,
-	M0_ERROR_TX_TIMEOUT = 2,
-};
-
-/* Address of m0_state is set in ldscripts. If you change the name of this
- * variable, it won't be where it needs to be in the processor's address space,
- * unless you also adjust the ldscripts.
- */
-extern volatile struct m0_state m0_state;
-
-void m0_set_mode(enum m0_mode mode);
+#include "m0_state.h"
 
 usb_request_status_t usb_vendor_request_get_m0_state(
 	usb_endpoint_t* const endpoint,
 	const usb_transfer_stage_t stage);
 
-#endif /*__M0_STATE_H__*/
+#endif /*__M0_STATE_USB_H__*/
