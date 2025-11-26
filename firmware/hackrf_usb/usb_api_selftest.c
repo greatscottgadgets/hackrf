@@ -22,7 +22,6 @@
 #include <stdio.h>
 #include <stddef.h>
 #include <usb_queue.h>
-#include <libopencm3/lpc43xx/cgu.h>
 #include "usb_api_selftest.h"
 #include "selftest.h"
 #include "platform_detect.h"
@@ -93,11 +92,6 @@ void generate_selftest_report(void)
 		append(&s, &c, ", expected: 0x");
 		append(&s, &c, itoa(selftest.max283x_readback_expected_value, 10));
 	}
-	append(&s, &c, "\n");
-#endif
-#ifndef RAD1O
-	append(&s, &c, "32kHz oscillator: ");
-	append(&s, &c, selftest.rtc_osc_ok ? "PASS" : "FAIL");
 	append(&s, &c, "\n");
 #endif
 #ifdef PRALINE

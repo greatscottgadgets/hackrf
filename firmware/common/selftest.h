@@ -40,9 +40,6 @@ typedef struct {
 #endif
 	uint8_t si5351_rev_id;
 	bool si5351_readback_ok;
-#ifndef RAD1O
-	bool rtc_osc_ok;
-#endif
 #ifdef PRALINE
 	bool sgpio_rx_ok;
 	bool xcvr_loopback_ok;
