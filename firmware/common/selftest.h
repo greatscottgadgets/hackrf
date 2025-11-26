@@ -41,6 +41,7 @@ typedef struct {
 	uint8_t si5351_rev_id;
 	bool si5351_readback_ok;
 #ifdef PRALINE
+	bool fpga_image_load_ok;
 	bool sgpio_rx_ok;
 	bool xcvr_loopback_ok;
 #endif
