@@ -19,37 +19,12 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __SELFTEST_H
-#define __SELFTEST_H
+#ifndef __ADC_H__
+#define __ADC_H__
 
-#include <stdbool.h>
 #include <stdint.h>
 
-typedef struct {
-	uint16_t mixer_id;
-#ifdef PRALINE
-	uint16_t max2831_mux_rssi_1;
-	uint16_t max2831_mux_temp;
-	uint16_t max2831_mux_rssi_2;
-	bool max2831_mux_test_ok;
-#else
-	uint16_t max283x_readback_bad_value;
-	uint16_t max283x_readback_expected_value;
-	uint8_t max283x_readback_register_count;
-	uint8_t max283x_readback_total_registers;
-#endif
-	uint8_t si5351_rev_id;
-	bool si5351_readback_ok;
-#ifdef PRALINE
-	bool sgpio_rx_ok;
-	bool xcvr_loopback_ok;
-#endif
-	struct {
-		bool pass;
-		char msg[511];
-	} report;
-} selftest_t;
+uint16_t adc_read(uint8_t pin);
+void adc_off(void);
 
-extern selftest_t selftest;
-
-#endif // __SELFTEST_H
+#endif // __ADC_H__

@@ -32,6 +32,7 @@
 #include "max2831.h"
 #include "max2831_regs.def" // private register def macros
 #include "selftest.h"
+#include "adc.h"
 
 #define MIN(x, y) ((x) < (y) ? (x) : (y))
 
@@ -66,26 +67,6 @@ static void max2831_init(max2831_driver_t* const drv)
 
 	/* Write default register values to chip. */
 	max2831_regs_commit(drv);
-
-	/* Disable lock detect output. */
-	set_MAX2831_LOCK_DETECT_OUTPUT_EN(drv, false);
-	max2831_regs_commit(drv);
-
-	// Read state of lock detect pin.
-	bool initial = gpio_read(drv->gpio_ld);
-
-	// Enable lock detect output.
-	set_MAX2831_LOCK_DETECT_OUTPUT_EN(drv, true);
-	max2831_regs_commit(drv);
-
-	// Read new state of lock detect pin.
-	bool new = gpio_read(drv->gpio_ld);
-
-	// If the pin state changed, we know our writes are working.
-	selftest.max2831_ld_test_ok = initial != new;
-	if (!selftest.max2831_ld_test_ok) {
-		selftest.report.pass = false;
-	}
 }
 
 /*
@@ -181,6 +162,34 @@ void max2831_start(max2831_driver_t* const drv)
 {
 	max2831_regs_commit(drv);
 	max2831_set_mode(drv, MAX2831_MODE_STANDBY);
+
+	/* Read RSSI with ADC. */
+	uint16_t rssi_1 = selftest.max2831_mux_rssi_1 = adc_read(1);
+
+	/* Switch to temperature sensor. */
+	set_MAX2831_RSSI_MUX(drv, MAX2831_RSSI_MUX_TEMP);
+	max2831_regs_commit(drv);
+
+	/* Read temperature. */
+	uint16_t temp = selftest.max2831_mux_temp = adc_read(1);
+
+	/* Switch back to RSSI. */
+	set_MAX2831_RSSI_MUX(drv, MAX2831_RSSI_MUX_RSSI);
+	max2831_regs_commit(drv);
+
+	/* Read RSSI again. */
+	uint16_t rssi_2 = selftest.max2831_mux_rssi_2 = adc_read(1);
+
+	/* If the ADC results are as expected, we know our writes are working. */
+	bool rssi_1_good = (rssi_1 < 10);
+	bool rssi_2_good = (rssi_2 < 10);
+	bool temp_good = (temp > 100) && (temp < 500); // -40 to +85C
+
+	selftest.max2831_mux_test_ok = rssi_1_good & rssi_2_good & temp_good;
+
+	if (!selftest.max2831_mux_test_ok) {
+		selftest.report.pass = false;
+	}
 }
 
 void max2831_tx(max2831_driver_t* const drv)

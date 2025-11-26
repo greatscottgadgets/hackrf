@@ -19,37 +19,31 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __SELFTEST_H
-#define __SELFTEST_H
+#include <stddef.h>
+#include <usb_queue.h>
+#include "adc.h"
+#include "usb_api_adc.h"
 
-#include <stdbool.h>
-#include <stdint.h>
-
-typedef struct {
-	uint16_t mixer_id;
-#ifdef PRALINE
-	uint16_t max2831_mux_rssi_1;
-	uint16_t max2831_mux_temp;
-	uint16_t max2831_mux_rssi_2;
-	bool max2831_mux_test_ok;
-#else
-	uint16_t max283x_readback_bad_value;
-	uint16_t max283x_readback_expected_value;
-	uint8_t max283x_readback_register_count;
-	uint8_t max283x_readback_total_registers;
-#endif
-	uint8_t si5351_rev_id;
-	bool si5351_readback_ok;
-#ifdef PRALINE
-	bool sgpio_rx_ok;
-	bool xcvr_loopback_ok;
-#endif
-	struct {
-		bool pass;
-		char msg[511];
-	} report;
-} selftest_t;
-
-extern selftest_t selftest;
-
-#endif // __SELFTEST_H
+usb_request_status_t usb_vendor_request_adc_read(
+	usb_endpoint_t* const endpoint,
+	const usb_transfer_stage_t stage)
+{
+	if (stage == USB_TRANSFER_STAGE_SETUP) {
+		if ((endpoint->setup.index & ~0x80) > 7) {
+			return USB_REQUEST_STATUS_STALL;
+		}
+		uint16_t value = adc_read(endpoint->setup.index);
+		adc_off();
+		endpoint->buffer[0] = value & 0xff;
+		endpoint->buffer[1] = value >> 8;
+		usb_transfer_schedule_block(
+			endpoint->in,
+			&endpoint->buffer,
+			2,
+			NULL,
+			NULL);
+		usb_transfer_schedule_ack(endpoint->out);
+		return USB_REQUEST_STATUS_OK;
+	}
+	return USB_REQUEST_STATUS_OK;
+}

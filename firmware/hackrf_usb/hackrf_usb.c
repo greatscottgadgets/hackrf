@@ -48,6 +48,7 @@
 #include "usb_api_operacake.h"
 #include "usb_api_praline.h"
 #include "usb_api_selftest.h"
+#include "usb_api_adc.h"
 #include "operacake.h"
 #include "usb_api_sweep.h"
 #include "usb_api_transceiver.h"
@@ -148,6 +149,7 @@ static usb_request_handler_fn vendor_request_handler[] = {
 	NULL,
 #endif
 	usb_vendor_request_read_selftest,
+	usb_vendor_request_adc_read,
 };
 
 static const uint32_t vendor_request_handler_count =

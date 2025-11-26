@@ -19,37 +19,27 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __SELFTEST_H
-#define __SELFTEST_H
+#include "adc.h"
+#include <libopencm3/lpc43xx/adc.h>
+#include <libopencm3/lpc43xx/scu.h>
 
-#include <stdbool.h>
-#include <stdint.h>
+uint16_t adc_read(uint8_t pin)
+{
+	bool alt_pin = (pin & 0x80);
+	pin &= ~0x80;
+	uint8_t pin_mask = (1 << pin);
+	if (alt_pin) {
+		SCU_ENAIO0 |= pin_mask;
+	} else {
+		SCU_ENAIO0 &= ~pin_mask;
+	}
+	ADC0_CR = ADC_CR_SEL(pin_mask) | ADC_CR_CLKDIV(45) | ADC_CR_PDN | ADC_CR_START(1);
+	while (!(ADC0_GDR & ADC_DR_DONE) || (((ADC0_GDR >> 24) & 0x7) != pin))
+		;
+	return (ADC0_GDR >> 6) & 0x03FF;
+}
 
-typedef struct {
-	uint16_t mixer_id;
-#ifdef PRALINE
-	uint16_t max2831_mux_rssi_1;
-	uint16_t max2831_mux_temp;
-	uint16_t max2831_mux_rssi_2;
-	bool max2831_mux_test_ok;
-#else
-	uint16_t max283x_readback_bad_value;
-	uint16_t max283x_readback_expected_value;
-	uint8_t max283x_readback_register_count;
-	uint8_t max283x_readback_total_registers;
-#endif
-	uint8_t si5351_rev_id;
-	bool si5351_readback_ok;
-#ifdef PRALINE
-	bool sgpio_rx_ok;
-	bool xcvr_loopback_ok;
-#endif
-	struct {
-		bool pass;
-		char msg[511];
-	} report;
-} selftest_t;
-
-extern selftest_t selftest;
-
-#endif // __SELFTEST_H
+void adc_off(void)
+{
+	ADC0_CR = 0;
+}
