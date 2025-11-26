@@ -71,7 +71,7 @@ static const uint16_t rffc5071_regs_default[RFFC5071_NUM_REGS] = {
 	0x0000, /* 1A */
 	0x0000, /* 1B */
 	0xc840, /* 1C */
-	0x1000, /* 1D */
+	0x0000, /* 1D, readsel = 0b0000 */
 	0x0005,
 	/* 1E */};
 
@@ -81,13 +81,13 @@ void rffc5071_init(rffc5071_driver_t* const drv)
 	memcpy(drv->regs, rffc5071_regs_default, sizeof(drv->regs));
 	drv->regs_dirty = 0x7fffffff;
 
-	selftest.mixer_id = rffc5071_reg_read(drv, RFFC5071_READBACK_REG);
-	if ((selftest.mixer_id >> 3) != 2031) {
-		selftest.report.pass = false;
-	}
-
 	/* Write default register values to chip. */
 	rffc5071_regs_commit(drv);
+
+	selftest.mixer_id = rffc5071_reg_read(drv, RFFC5071_READBACK_REG);
+	if ((selftest.mixer_id >> 3) != 4416) {
+		selftest.report.pass = false;
+	}
 }
 
 /*
