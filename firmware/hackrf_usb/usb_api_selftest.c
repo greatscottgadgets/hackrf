@@ -74,8 +74,8 @@ void generate_selftest_report(void)
 	append(&s, &c, selftest.si5351_readback_ok ? "OK" : "FAIL");
 	append(&s, &c, "\n");
 #ifdef PRALINE
-	append(&s, &c, "Transceiver: MAX2831, LD pin test: ");
-	append(&s, &c, selftest.max2831_ld_test_ok ? "PASS" : "FAIL");
+	append(&s, &c, "Transceiver: MAX2831, RSSI mux test: ");
+	append(&s, &c, selftest.max2831_mux_test_ok ? "PASS" : "FAIL");
 	append(&s, &c, "\n");
 #else
 	append(&s, &c, "Transceiver: ");

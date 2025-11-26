@@ -28,7 +28,10 @@
 typedef struct {
 	uint16_t mixer_id;
 #ifdef PRALINE
-	bool max2831_ld_test_ok;
+	uint16_t max2831_mux_rssi_1;
+	uint16_t max2831_mux_temp;
+	uint16_t max2831_mux_rssi_2;
+	bool max2831_mux_test_ok;
 #else
 	uint16_t max283x_readback_bad_value;
 	uint16_t max283x_readback_expected_value;
