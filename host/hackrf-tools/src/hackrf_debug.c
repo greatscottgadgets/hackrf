@@ -577,6 +577,7 @@ static void usage()
 	printf("\t-u, --ui <1/0>: enable/disable UI\n");
 	printf("\t-l, --leds <state>: configure LED state (0 for all off, 1 for default)\n");
 	printf("\t-t, --selftest: read self-test report\n");
+	printf("\t-a, --adc <channel>: read value from an ADC channel. Add 0x80 for alternate pin\n");
 	printf("\nExamples:\n");
 	printf("\thackrf_debug --si5351c -n 0 -r     # reads from si5351c register 0\n");
 	printf("\thackrf_debug --si5351c -c          # displays si5351c multisynth configuration\n");
@@ -608,6 +609,7 @@ static struct option long_options[] = {
 	{"ui", required_argument, 0, 'u'},
 	{"leds", required_argument, 0, 'l'},
 	{"selftest", no_argument, 0, 't'},
+	{"adc", required_argument, 0, 'a'},
 	{0, 0, 0, 0},
 };
 
@@ -636,6 +638,7 @@ int main(int argc, char** argv)
 	uint32_t clkin_state;
 	uint32_t narrowband_state;
 	uint32_t bitstream_index;
+	uint32_t adc_channel;
 	bool set_tx_limit = false;
 	bool set_rx_limit = false;
 	bool set_p1 = false;
@@ -644,6 +647,7 @@ int main(int argc, char** argv)
 	bool set_narrowband = false;
 	bool set_fpga_bitstream = false;
 	bool read_selftest = false;
+	bool read_adc = false;
 
 	int result = hackrf_init();
 	if (result) {
@@ -656,7 +660,7 @@ int main(int argc, char** argv)
 	while ((opt = getopt_long(
 			argc,
 			argv,
-			"n:rw:d:cmsfg1:2:C:N:P:ST:R:h?u:l:t",
+			"n:rw:d:cmsfg1:2:C:N:P:ST:R:h?u:l:ta:",
 			long_options,
 			&option_index)) != EOF) {
 		switch (opt) {
@@ -764,6 +768,11 @@ int main(int argc, char** argv)
 			read_selftest = true;
 			break;
 
+		case 'a':
+			read_adc = true;
+			result = parse_int(optarg, &adc_channel);
+			break;
+
 		case 'h':
 		case '?':
 			usage();
@@ -803,7 +812,7 @@ int main(int argc, char** argv)
 
 	if (!(write || read || dump_config || dump_state || set_tx_limit ||
 	      set_rx_limit || set_ui || set_leds || set_p1 || set_p2 || set_clkin ||
-	      set_narrowband || set_fpga_bitstream || read_selftest)) {
+	      set_narrowband || set_fpga_bitstream || read_selftest || read_adc)) {
 		fprintf(stderr, "Specify read, write, or config option.\n");
 		usage();
 		return EXIT_FAILURE;
@@ -811,7 +820,7 @@ int main(int argc, char** argv)
 
 	if (part == PART_NONE && !set_ui && !dump_state && !set_tx_limit &&
 	    !set_rx_limit && !set_leds && !set_p1 && !set_p2 && !set_clkin &&
-	    !set_narrowband && !set_fpga_bitstream && !read_selftest) {
+	    !set_narrowband && !set_fpga_bitstream && !read_selftest && !read_adc) {
 		fprintf(stderr, "Specify a part to read, write, or print config from.\n");
 		usage();
 		return EXIT_FAILURE;
@@ -962,6 +971,21 @@ int main(int argc, char** argv)
 		}
 		printf("Self-test result: %s\n", selftest.pass ? "PASS" : "FAIL");
 		printf("%s", selftest.msg);
+	}
+
+	if (read_adc) {
+		uint16_t value;
+		result = hackrf_read_adc(device, adc_channel, &value);
+		if (result != HACKRF_SUCCESS) {
+			printf("hackrf_read_adc() failed: %s (%d)\n",
+			       hackrf_error_name(result),
+			       result);
+			return EXIT_FAILURE;
+		}
+		printf("ADC0_%d (%s pin): %d\n",
+		       adc_channel & 0x7,
+		       adc_channel & 0x80 ? "alternate" : "dedicated",
+		       value);
 	}
 
 	result = hackrf_close(device);

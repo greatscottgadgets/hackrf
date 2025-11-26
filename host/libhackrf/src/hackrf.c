@@ -109,6 +109,7 @@ typedef enum {
 	HACKRF_VENDOR_REQUEST_SET_FPGA_BITSTREAM = 54,
 	HACKRF_VENDOR_REQUEST_CLKIN_CTRL = 55,
 	HACKRF_VENDOR_REQUEST_READ_SELFTEST = 56,
+	HACKRF_VENDOR_REQUEST_READ_ADC = 57,
 } hackrf_vendor_request;
 
 #define USB_CONFIG_STANDARD 0x1
@@ -1240,6 +1241,35 @@ int ADDCALL hackrf_read_selftest(hackrf_device* device, hackrf_selftest* selftes
 		last_libusb_error = result;
 		return HACKRF_ERROR_LIBUSB;
 	} else {
+		return HACKRF_SUCCESS;
+	}
+}
+
+int ADDCALL hackrf_read_adc(hackrf_device* device, uint8_t adc_channel, uint16_t* value)
+{
+	USB_API_REQUIRED(device, 0x0109);
+
+	int result;
+
+	if ((adc_channel & ~0x80) > 7) {
+		return HACKRF_ERROR_INVALID_PARAM;
+	}
+
+	result = libusb_control_transfer(
+		device->usb_device,
+		LIBUSB_ENDPOINT_IN | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_READ_ADC,
+		0,
+		adc_channel,
+		(unsigned char*) value,
+		2,
+		0);
+
+	if (result < 2) {
+		last_libusb_error = result;
+		return HACKRF_ERROR_LIBUSB;
+	} else {
+		*value = FROM_LE16(*value);
 		return HACKRF_SUCCESS;
 	}
 }

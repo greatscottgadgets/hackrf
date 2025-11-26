@@ -191,6 +191,7 @@ macro(DeclareTargets)
 		${PATH_HACKRF_FIRMWARE_COMMON}/radio.c
 		${PATH_HACKRF_FIRMWARE_COMMON}/selftest.c
 		${PATH_HACKRF_FIRMWARE_COMMON}/m0_state.c
+		${PATH_HACKRF_FIRMWARE_COMMON}/adc.c
 		)
 
 	if(BOARD STREQUAL "RAD1O")

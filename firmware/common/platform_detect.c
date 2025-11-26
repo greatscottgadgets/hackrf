@@ -23,9 +23,9 @@
 #include "firmware_info.h"
 #include "gpio_lpc.h"
 #include "hackrf_core.h"
+#include "adc.h"
 
 #include <libopencm3/lpc43xx/scu.h>
-#include <libopencm3/lpc43xx/adc.h>
 
 static board_id_t platform = BOARD_ID_UNDETECTED;
 static board_rev_t revision = BOARD_REV_UNDETECTED;
@@ -63,23 +63,6 @@ static struct gpio_t gpio2_6_on_P4_6 = GPIO(2, 6);
 static struct gpio_t gpio_led1 = GPIO(2, 1);
 static struct gpio_t gpio_led2 = GPIO(2, 2);
 static struct gpio_t gpio_led3 = GPIO(2, 8);
-
-/*
- * Return 10-bit ADC result.
- */
-uint16_t adc_read(uint8_t pin)
-{
-	pin &= 0x7;
-	uint8_t pin_mask = (1 << pin);
-	ADC0_CR = ADC_CR_SEL(pin_mask) | ADC_CR_CLKDIV(45) | ADC_CR_PDN | ADC_CR_START(1);
-	while (!(ADC0_GDR & ADC_DR_DONE) || (((ADC0_GDR >> 24) & 0x7) != pin)) {}
-	return (ADC0_GDR >> 6) & 0x03FF;
-}
-
-void adc_off(void)
-{
-	ADC0_CR = 0;
-}
 
 /*
  * Starting with r6, HackRF One has pin straps on ADC pins that indicate

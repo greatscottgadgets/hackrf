@@ -1355,6 +1355,20 @@ extern ADDAPI int ADDCALL hackrf_read_selftest(
 	hackrf_selftest* value);
 
 /**
+ * Read a value from an ADC channel
+ *
+ * @param[in] device device to query
+ * @param[in] adc_channel ADC channel, e.g. 0 for ADC0_0. Add 0x80 to use an alternate pin.
+ * @param[out] value Value read from ADC.
+ * @return @ref HACKRF_SUCCESS on success or @ref hackrf_error variant
+ * @ingroup debug
+ */
+extern ADDAPI int ADDCALL hackrf_read_adc(
+	hackrf_device* device,
+	uint8_t adc_channel,
+	uint16_t* value);
+
+/**
  * Set transmit underrun limit
  * 
  * When this limit is set, after the specified number of samples (bytes, not whole IQ pairs) missing the device will automatically return to IDLE mode, thus stopping operation. Useful for handling cases like program/computer crashes or other problems. The default value 0 means no limit.
