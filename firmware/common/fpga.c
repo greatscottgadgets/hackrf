@@ -74,6 +74,8 @@ static size_t fpga_image_read_block_cb(void* _ctx, uint8_t* out_buffer)
 bool fpga_image_load(unsigned int index)
 {
 #if defined(DFU_MODE) || defined(RAM_MODE)
+	selftest.fpga_image_load_ok = false;
+	selftest.report.pass = false;
 	return false;
 #endif
 
@@ -105,6 +107,12 @@ bool fpga_image_load(unsigned int index)
 		&fpga_image_ctx);
 	ssp1_set_mode_max283x();
 
+	// Update selftest result.
+	selftest.fpga_image_load_ok = success;
+	if (!selftest.fpga_image_load_ok) {
+		selftest.report.pass = false;
+	}
+
 	return success;
 }
 
@@ -117,8 +125,14 @@ static uint8_t lfsr_advance(uint8_t v)
 bool fpga_sgpio_selftest()
 {
 #if defined(DFU_MODE) || defined(RAM_MODE)
-	return true;
+	return false;
 #endif
+
+	// Skip if FPGA configuration failed.
+	if (!selftest.fpga_image_load_ok) {
+		selftest.sgpio_rx_ok = false;
+		return false;
+	}
 
 	// Enable PRBS mode.
 	ssp1_set_mode_ice40();
@@ -163,8 +177,14 @@ bool fpga_sgpio_selftest()
 bool fpga_if_xcvr_selftest()
 {
 #if defined(DFU_MODE) || defined(RAM_MODE)
-	return true;
+	return false;
 #endif
+
+	// Skip if FPGA configuration failed.
+	if (!selftest.fpga_image_load_ok) {
+		selftest.xcvr_loopback_ok = false;
+		return false;
+	}
 
 	const size_t num_samples = USB_BULK_BUFFER_SIZE / 2;
 

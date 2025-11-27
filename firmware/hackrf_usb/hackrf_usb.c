@@ -287,13 +287,9 @@ int main(void)
 		halt_and_flash(6000000);
 	}
 #else
-	#if !defined(DFU_MODE) && !defined(RAM_MODE)
-	if (!fpga_image_load(0)) {
-		halt_and_flash(6000000);
-	}
+	fpga_image_load(0);
 	delay_us_at_mhz(100, 204);
 	fpga_sgpio_selftest();
-	#endif
 #endif
 
 #if (defined HACKRF_ONE || defined PRALINE)

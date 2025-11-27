@@ -95,6 +95,9 @@ void generate_selftest_report(void)
 	append(&s, &c, "\n");
 #endif
 #ifdef PRALINE
+	append(&s, &c, "FPGA configuration: ");
+	append(&s, &c, selftest.fpga_image_load_ok ? "PASS" : "FAIL");
+	append(&s, &c, "\n");
 	append(&s, &c, "SGPIO RX test: ");
 	append(&s, &c, selftest.sgpio_rx_ok ? "PASS" : "FAIL");
 	append(&s, &c, "\n");
