@@ -191,8 +191,8 @@ void usb_configuration_changed(usb_device_t* const device)
 		/* Configuration number equal 0 means usb bus reset. */
 		led_off(LED1);
 	}
-	usb_endpoint_init(&usb_endpoint_bulk_in);
-	usb_endpoint_init(&usb_endpoint_bulk_out);
+	usb_endpoint_init(&usb_endpoint_bulk_in, false);
+	usb_endpoint_init(&usb_endpoint_bulk_out, false);
 }
 
 void usb_set_descriptor_by_serial_number(void)
@@ -311,8 +311,8 @@ int main(void)
 	usb_queue_init(&usb_endpoint_bulk_out_queue);
 	usb_queue_init(&usb_endpoint_bulk_in_queue);
 
-	usb_endpoint_init(&usb_endpoint_control_out);
-	usb_endpoint_init(&usb_endpoint_control_in);
+	usb_endpoint_init(&usb_endpoint_control_out, false);
+	usb_endpoint_init(&usb_endpoint_control_in, true);
 
 	nvic_set_priority(NVIC_USB0_IRQ, 255);
 
