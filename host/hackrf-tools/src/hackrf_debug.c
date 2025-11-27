@@ -609,6 +609,7 @@ static struct option long_options[] = {
 	{"ui", required_argument, 0, 'u'},
 	{"leds", required_argument, 0, 'l'},
 	{"selftest", no_argument, 0, 't'},
+	{"rtc-osc", no_argument, 0, 'o'},
 	{"adc", required_argument, 0, 'a'},
 	{0, 0, 0, 0},
 };
@@ -647,6 +648,7 @@ int main(int argc, char** argv)
 	bool set_narrowband = false;
 	bool set_fpga_bitstream = false;
 	bool read_selftest = false;
+	bool test_rtc_osc = false;
 	bool read_adc = false;
 
 	int result = hackrf_init();
@@ -660,7 +662,7 @@ int main(int argc, char** argv)
 	while ((opt = getopt_long(
 			argc,
 			argv,
-			"n:rw:d:cmsfg1:2:C:N:P:ST:R:h?u:l:ta:",
+			"n:rw:d:cmsfg1:2:C:N:P:ST:R:h?u:l:ta:o",
 			long_options,
 			&option_index)) != EOF) {
 		switch (opt) {
@@ -767,6 +769,9 @@ int main(int argc, char** argv)
 		case 't':
 			read_selftest = true;
 			break;
+		case 'o':
+			test_rtc_osc = true;
+			break;
 
 		case 'a':
 			read_adc = true;
@@ -812,7 +817,8 @@ int main(int argc, char** argv)
 
 	if (!(write || read || dump_config || dump_state || set_tx_limit ||
 	      set_rx_limit || set_ui || set_leds || set_p1 || set_p2 || set_clkin ||
-	      set_narrowband || set_fpga_bitstream || read_selftest || read_adc)) {
+	      set_narrowband || set_fpga_bitstream || read_selftest || test_rtc_osc ||
+	      read_adc)) {
 		fprintf(stderr, "Specify read, write, or config option.\n");
 		usage();
 		return EXIT_FAILURE;
@@ -820,7 +826,8 @@ int main(int argc, char** argv)
 
 	if (part == PART_NONE && !set_ui && !dump_state && !set_tx_limit &&
 	    !set_rx_limit && !set_leds && !set_p1 && !set_p2 && !set_clkin &&
-	    !set_narrowband && !set_fpga_bitstream && !read_selftest && !read_adc) {
+	    !set_narrowband && !set_fpga_bitstream && !read_selftest && !test_rtc_osc &&
+	    !read_adc) {
 		fprintf(stderr, "Specify a part to read, write, or print config from.\n");
 		usage();
 		return EXIT_FAILURE;
@@ -971,6 +978,18 @@ int main(int argc, char** argv)
 		}
 		printf("Self-test result: %s\n", selftest.pass ? "PASS" : "FAIL");
 		printf("%s", selftest.msg);
+	}
+
+	if (test_rtc_osc) {
+		bool pass;
+		result = hackrf_test_rtc_osc(device, &pass);
+		if (result != HACKRF_SUCCESS) {
+			printf("hackrf_test_rtc_osc() failed: %s (%d)\n",
+			       hackrf_error_name(result),
+			       result);
+			return EXIT_FAILURE;
+		}
+		printf("RTC test result: %s\n", pass ? "PASS" : "FAIL");
 	}
 
 	if (read_adc) {

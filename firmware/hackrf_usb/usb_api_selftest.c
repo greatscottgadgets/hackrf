@@ -22,6 +22,8 @@
 #include <stdio.h>
 #include <stddef.h>
 #include <usb_queue.h>
+#include <libopencm3/lpc43xx/creg.h>
+#include <libopencm3/lpc43xx/cgu.h>
 #include "usb_api_selftest.h"
 #include "selftest.h"
 #include "platform_detect.h"
@@ -118,6 +120,64 @@ usb_request_status_t usb_vendor_request_read_selftest(
 			NULL);
 		usb_transfer_schedule_ack(endpoint->out);
 		return USB_REQUEST_STATUS_OK;
+	} else {
+		return USB_REQUEST_STATUS_OK;
+	}
+}
+
+usb_request_status_t usb_vendor_request_test_rtc_osc(
+	usb_endpoint_t* const endpoint,
+	const usb_transfer_stage_t stage)
+{
+	uint16_t count;
+	if (stage == USB_TRANSFER_STAGE_SETUP) {
+		enum {
+			START_32KHZ_OSCILLATOR,
+			START_FREQ_MONITOR,
+			READ_FREQ_MONITOR,
+			STOP_32KHZ_OSCILLATOR,
+		} step = endpoint->setup.index;
+
+		switch (step) {
+		case START_32KHZ_OSCILLATOR:
+			// Enable 32kHz oscillator
+			CREG_CREG0 &= ~(CREG_CREG0_PD32KHZ | CREG_CREG0_RESET32KHZ);
+			CREG_CREG0 |= CREG_CREG0_EN32KHZ;
+			usb_transfer_schedule_ack(endpoint->in);
+			return USB_REQUEST_STATUS_OK;
+		case START_FREQ_MONITOR:
+			// Start counting cycles with frequency monitor
+			CGU_FREQ_MON = CGU_FREQ_MON_RCNT(511) |
+				CGU_FREQ_MON_CLK_SEL(CGU_SRC_32K);
+			CGU_FREQ_MON |= CGU_FREQ_MON_MEAS_MASK;
+			usb_transfer_schedule_ack(endpoint->in);
+			return USB_REQUEST_STATUS_OK;
+		case READ_FREQ_MONITOR:
+			if (~(CGU_FREQ_MON & CGU_FREQ_MON_MEAS_MASK)) {
+				// Measurement completed.
+				count = (CGU_FREQ_MON & CGU_FREQ_MON_FCNT_MASK) >>
+					CGU_FREQ_MON_FCNT_SHIFT;
+			} else {
+				// Measurement failed to complete.
+				count = 0;
+			}
+			usb_transfer_schedule_block(
+				endpoint->in,
+				&count,
+				sizeof(count),
+				NULL,
+				NULL);
+			usb_transfer_schedule_ack(endpoint->out);
+			return USB_REQUEST_STATUS_OK;
+		case STOP_32KHZ_OSCILLATOR:
+			// Disable 32kHz oscillator
+			CREG_CREG0 &= ~CREG_CREG0_EN32KHZ;
+			CREG_CREG0 |= (CREG_CREG0_PD32KHZ | CREG_CREG0_RESET32KHZ);
+			usb_transfer_schedule_ack(endpoint->in);
+			return USB_REQUEST_STATUS_OK;
+		default:
+			return USB_REQUEST_STATUS_STALL;
+		}
 	} else {
 		return USB_REQUEST_STATUS_OK;
 	}
