@@ -401,6 +401,14 @@ void si5351c_init(si5351c_driver_t* const drv)
 		selftest.report.pass = false;
 	}
 
+	/* Do the same with them flipped back. */
+	int_mask ^= 0xF8;
+	si5351c_write_single(drv, 2, int_mask);
+	selftest.si5351_readback_ok &= (si5351c_read_single(drv, 2) == int_mask);
+	if (!selftest.si5351_readback_ok) {
+		selftest.report.pass = false;
+	}
+
 	if (detected_platform() == BOARD_ID_HACKRF1_R9) {
 		/* CLKIN_EN */
 		scu_pinmux(SCU_H1R9_CLKIN_EN, SCU_GPIO_FAST | SCU_CONF_FUNCTION4);
