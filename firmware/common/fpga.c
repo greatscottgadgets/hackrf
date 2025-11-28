@@ -27,6 +27,8 @@
 #include "streaming.h"
 #include "rf_path.h"
 #include "selftest.h"
+#include "fpga.h"
+#include "fpga_regs.def"
 
 // FPGA bitstreams blob.
 extern uint32_t _binary_fpga_bin_start;
@@ -43,6 +45,47 @@ struct fpga_image_read_ctx {
 	uint8_t init_flag;
 	uint8_t buffer[4096 + 2];
 };
+
+uint8_t fpga_reg_read(fpga_driver_t* const drv, uint8_t r)
+{
+	uint8_t v;
+	ssp1_set_mode_ice40();
+	v = ice40_spi_read(drv->bus, r);
+	ssp1_set_mode_max283x();
+	drv->regs[r] = v;
+	return v;
+}
+
+void fpga_reg_write(fpga_driver_t* const drv, uint8_t r, uint8_t v)
+{
+	drv->regs[r] = v;
+	ssp1_set_mode_ice40();
+	ice40_spi_write(drv->bus, r, v);
+	ssp1_set_mode_max283x();
+	FPGA_REG_SET_CLEAN(drv, r);
+}
+
+static inline void fpga_reg_commit(fpga_driver_t* const drv, uint8_t r)
+{
+	fpga_reg_write(drv, r, drv->regs[r]);
+}
+
+void fpga_regs_commit(fpga_driver_t* const drv)
+{
+	int r;
+	for (r = 0; r < FPGA_NUM_REGS; r++) {
+		if ((drv->regs_dirty >> r) & 0x1) {
+			fpga_reg_commit(drv, r);
+		}
+	}
+}
+
+void fpga_hw_sync_enable(const hw_sync_mode_t hw_sync_mode)
+{
+	fpga_reg_read(&fpga, FPGA_STANDARD_CTRL);
+	set_FPGA_STANDARD_CTRL_TRIGGER_EN(&fpga, hw_sync_mode == 1);
+	fpga_regs_commit(&fpga);
+}
 
 static size_t fpga_image_read_block_cb(void* _ctx, uint8_t* out_buffer)
 {
@@ -179,9 +222,9 @@ bool fpga_sgpio_selftest()
 	}
 
 	// Enable PRBS mode.
-	ssp1_set_mode_ice40();
-	ice40_spi_write(&ice40, 0x01, 0x40);
-	ssp1_set_mode_max283x();
+	set_FPGA_STANDARD_CTRL(&fpga, 0);
+	set_FPGA_STANDARD_CTRL_PRBS(&fpga, 1);
+	fpga_regs_commit(&fpga);
 
 	// Stream 512 samples from the FPGA.
 	sgpio_configure(&sgpio_config, SGPIO_DIRECTION_RX);
@@ -190,9 +233,8 @@ bool fpga_sgpio_selftest()
 	}
 
 	// Disable PRBS mode.
-	ssp1_set_mode_ice40();
-	ice40_spi_write(&ice40, 0x01, 0);
-	ssp1_set_mode_max283x();
+	set_FPGA_STANDARD_CTRL_PRBS(&fpga, 0);
+	fpga_regs_commit(&fpga);
 
 	// Generate sequence from first value and compare.
 	bool seq_in_sync = true;
@@ -272,10 +314,10 @@ bool fpga_if_xcvr_selftest()
 	const size_t num_samples = USB_BULK_BUFFER_SIZE / 2;
 
 	// Set common RX path and gateware settings for the measurements.
-	ssp1_set_mode_ice40();
-	ice40_spi_write(&ice40, 0x05, 64); // NCO phase increment
-	ice40_spi_write(&ice40, 0x03, 1);  // NCO TX enable
-	ssp1_set_mode_max283x();
+	set_FPGA_STANDARD_TX_PSTEP(&fpga, 128);     // NCO phase increment
+	set_FPGA_STANDARD_TX_CTRL_NCO_EN(&fpga, 1); // NCO TX enable
+	fpga_regs_commit(&fpga);
+
 	rf_path_set_direction(&rf_path, RF_PATH_DIRECTION_RX_CALIBRATION);
 	max2831_set_lna_gain(&max283x, 16);
 	max2831_set_vga_gain(&max283x, 36);
@@ -333,9 +375,8 @@ bool fpga_if_xcvr_selftest()
 	sample_rate_set(10000000);
 	rf_path_set_direction(&rf_path, RF_PATH_DIRECTION_OFF);
 	narrowband_filter_set(0);
-	ssp1_set_mode_ice40();
-	ice40_spi_write(&ice40, 0x03, 0);
-	ssp1_set_mode_max283x();
+	set_FPGA_STANDARD_TX_CTRL(&fpga, 0);
+	fpga_regs_commit(&fpga);
 
 	if (timeout) {
 		selftest.xcvr_loopback = TIMEOUT;

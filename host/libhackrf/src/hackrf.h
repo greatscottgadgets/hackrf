@@ -1574,7 +1574,7 @@ extern ADDAPI int ADDCALL hackrf_rffc5071_write(
  * @return @ref HACKRF_SUCCESS on success or @ref hackrf_error variant
  * @ingroup debug
  */
-extern ADDAPI int ADDCALL hackrf_fpga_spi_read(
+extern ADDAPI int ADDCALL hackrf_fpga_read_register(
 	hackrf_device* device,
 	uint8_t register_number,
 	uint8_t* value);
@@ -1591,7 +1591,7 @@ extern ADDAPI int ADDCALL hackrf_fpga_spi_read(
  * @return @ref HACKRF_SUCCESS on success or @ref hackrf_error variant
  * @ingroup debug
  */
-extern ADDAPI int ADDCALL hackrf_fpga_spi_write(
+extern ADDAPI int ADDCALL hackrf_fpga_write_register(
 	hackrf_device* device,
 	uint8_t register_number,
 	uint8_t value);

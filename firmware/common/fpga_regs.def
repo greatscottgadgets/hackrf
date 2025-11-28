@@ -1,0 +1,74 @@
+/* -*- mode: c -*-
+ *
+ * Copyright 2012 Michael Ossmann
+ * Copyright 2025 Great Scott Gadgets <info@greatscottgadgets.com>
+ *
+ * This file is part of HackRF.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; see the file COPYING.  If not, write to
+ * the Free Software Foundation, Inc., 51 Franklin Street,
+ * Boston, MA 02110-1301, USA.
+ */
+
+#ifndef __FPGA_STANDARD_REGS_DEF
+#define __FPGA_STANDARD_REGS_DEF
+
+#define FPGA_REG_SET_CLEAN(_d, _r) (_d->regs_dirty &= ~(1UL<<_r))
+#define FPGA_REG_SET_DIRTY(_d, _r) (_d->regs_dirty |= (1UL<<_r))
+
+/* Generate static inline accessors that operate on the global
+ * regs. Done this way to (1) allow defs to be scraped out and used
+ * elsewhere, e.g. in scripts, (2) to avoid dealing with endian
+ * (structs). This may be used in firmware, or on host predefined
+ * register loads. */
+
+/* On set_, register is always set dirty, even if nothing
+ * changed. This makes sure that writes that have side effects,
+ * e.g. frequency setting, are not skipped. */
+
+/* n=name, r=regnum, o=offset (bits from LSB) of LSB of field,
+ * l=length (bits) */
+#define __MREG__(n,r,o,l) \
+static inline uint8_t get_##n(fpga_driver_t* const _d) { \
+	return (_d->regs[r] >> o) & ((1L<<l)-1); \
+} \
+static inline void set_##n(fpga_driver_t* const _d, uint8_t v) {      \
+	_d->regs[r] &= (uint8_t)(~(((1L<<l)-1)<<o));	\
+	_d->regs[r] |= (uint8_t)(((v&((1L<<l)-1))<<o));	\
+	FPGA_REG_SET_DIRTY(_d, r);				\
+} \
+const uint8_t n = r;
+
+/* REG 01 (1): CTRL */
+__MREG__(FPGA_STANDARD_CTRL, 1, 0, 8)
+__MREG__(FPGA_STANDARD_CTRL_DC_BLOCK, 1, 0, 1)
+__MREG__(FPGA_STANDARD_CTRL_QUARTER_SHIFT_EN, 1, 1, 1)
+__MREG__(FPGA_STANDARD_CTRL_QUARTER_SHIFT_UP, 1, 2, 1)
+__MREG__(FPGA_STANDARD_CTRL_PRBS, 1, 6, 1)
+__MREG__(FPGA_STANDARD_CTRL_TRIGGER_EN, 1, 7, 1)
+
+/* REG 02 (2): RX_DECIM */
+__MREG__(FPGA_STANDARD_RX_DECIM, 2, 0, 3)
+
+/* REG 03 (3): TX_CTRL */
+__MREG__(FPGA_STANDARD_TX_CTRL, 3, 0, 1)
+__MREG__(FPGA_STANDARD_TX_CTRL_NCO_EN, 3, 0, 1)
+
+/* REG 04 (4): TX_INTRP */
+__MREG__(FPGA_STANDARD_TX_INTRP, 4, 0, 3)
+
+/* REG 05 (5): TX_PSTEP */
+__MREG__(FPGA_STANDARD_TX_PSTEP, 5, 0, 8)
+
+#endif // __FPGA_STANDARD_REGS_DEF

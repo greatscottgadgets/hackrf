@@ -417,16 +417,18 @@ int rffc5072_write_register(
 	return result;
 }
 
-int fpga_spi_read_register(hackrf_device* device, const uint16_t register_number)
+int fpga_read_register(hackrf_device* device, const uint16_t register_number)
 {
 	uint8_t register_value;
-	int result =
-		hackrf_fpga_spi_read(device, (uint8_t) register_number, &register_value);
+	int result = hackrf_fpga_read_register(
+		device,
+		(uint8_t) register_number,
+		&register_value);
 
 	if (result == HACKRF_SUCCESS) {
 		printf("[%2d] -> 0x%02x\n", register_number, register_value);
 	} else {
-		printf("hackrf_fpga_spi_read() failed: %s (%d)\n",
+		printf("hackrf_fpga_read_register() failed: %s (%d)\n",
 		       hackrf_error_name(result),
 		       result);
 	}
@@ -434,18 +436,36 @@ int fpga_spi_read_register(hackrf_device* device, const uint16_t register_number
 	return result;
 }
 
-int fpga_spi_write_register(
+int fpga_read_registers(hackrf_device* device)
+{
+	uint16_t register_number;
+	int result = HACKRF_SUCCESS;
+
+	for (register_number = 1; register_number <= 5; register_number++) {
+		result = fpga_read_register(device, register_number);
+		if (result != HACKRF_SUCCESS) {
+			break;
+		}
+	}
+
+	return result;
+}
+
+int fpga_write_register(
 	hackrf_device* device,
 	const uint16_t register_number,
 	const uint16_t register_value)
 {
 	int result = HACKRF_SUCCESS;
-	result = hackrf_fpga_spi_write(device, (uint8_t) register_number, register_value);
+	result = hackrf_fpga_write_register(
+		device,
+		(uint8_t) register_number,
+		register_value);
 
 	if (result == HACKRF_SUCCESS) {
 		printf("0x%02x -> [%2d]\n", register_value, register_number);
 	} else {
-		printf("hackrf_fpga_spi_write() failed: %s (%d)\n",
+		printf("hackrf_fpga_write_register() failed: %s (%d)\n",
 		       hackrf_error_name(result),
 		       result);
 	}
@@ -464,7 +484,7 @@ int read_register(hackrf_device* device, uint8_t part, const uint16_t register_n
 	case PART_RFFC5072:
 		return rffc5072_read_register(device, register_number);
 	case PART_GATEWARE:
-		return fpga_spi_read_register(device, register_number);
+		return fpga_read_register(device, register_number);
 	}
 	return HACKRF_ERROR_INVALID_PARAM;
 }
@@ -479,6 +499,8 @@ int read_registers(hackrf_device* device, uint8_t part)
 		return si5351c_read_registers(device);
 	case PART_RFFC5072:
 		return rffc5072_read_registers(device);
+	case PART_GATEWARE:
+		return fpga_read_registers(device);
 	}
 	return HACKRF_ERROR_INVALID_PARAM;
 }
@@ -502,7 +524,7 @@ int write_register(
 	case PART_RFFC5072:
 		return rffc5072_write_register(device, register_number, register_value);
 	case PART_GATEWARE:
-		return fpga_spi_write_register(device, register_number, register_value);
+		return fpga_write_register(device, register_number, register_value);
 	}
 	return HACKRF_ERROR_INVALID_PARAM;
 }

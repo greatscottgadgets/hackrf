@@ -101,8 +101,8 @@ typedef enum {
 	HACKRF_VENDOR_REQUEST_SUPPORTED_PLATFORM_READ = 46,
 	HACKRF_VENDOR_REQUEST_SET_LEDS = 47,
 	HACKRF_VENDOR_REQUEST_SET_USER_BIAS_T_OPTS = 48,
-	HACKRF_VENDOR_REQUEST_FPGA_SPI_WRITE = 49,
-	HACKRF_VENDOR_REQUEST_FPGA_SPI_READ = 50,
+	HACKRF_VENDOR_REQUEST_FPGA_WRITE_REG = 49,
+	HACKRF_VENDOR_REQUEST_FPGA_READ_REG = 50,
 	HACKRF_VENDOR_REQUEST_P2_CTRL = 51,
 	HACKRF_VENDOR_REQUEST_P1_CTRL = 52,
 	HACKRF_VENDOR_REQUEST_SET_NARROWBAND_FILTER = 53,
@@ -1169,7 +1169,7 @@ int ADDCALL hackrf_rffc5071_write(
 	}
 }
 
-int ADDCALL hackrf_fpga_spi_read(
+int ADDCALL hackrf_fpga_read_register(
 	hackrf_device* device,
 	uint8_t register_number,
 	uint8_t* value)
@@ -1180,7 +1180,7 @@ int ADDCALL hackrf_fpga_spi_read(
 	result = libusb_control_transfer(
 		device->usb_device,
 		LIBUSB_ENDPOINT_IN | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
-		HACKRF_VENDOR_REQUEST_FPGA_SPI_READ,
+		HACKRF_VENDOR_REQUEST_FPGA_READ_REG,
 		0,
 		register_number,
 		(unsigned char*) value,
@@ -1195,7 +1195,7 @@ int ADDCALL hackrf_fpga_spi_read(
 	}
 }
 
-int ADDCALL hackrf_fpga_spi_write(
+int ADDCALL hackrf_fpga_write_register(
 	hackrf_device* device,
 	uint8_t register_number,
 	uint8_t value)
@@ -1207,7 +1207,7 @@ int ADDCALL hackrf_fpga_spi_write(
 		device->usb_device,
 		LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR |
 			LIBUSB_RECIPIENT_DEVICE,
-		HACKRF_VENDOR_REQUEST_FPGA_SPI_WRITE,
+		HACKRF_VENDOR_REQUEST_FPGA_WRITE_REG,
 		value,
 		register_number,
 		NULL,
