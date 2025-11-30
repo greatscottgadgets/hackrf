@@ -577,6 +577,7 @@ static void usage()
 	printf("\t-u, --ui <1/0>: enable/disable UI\n");
 	printf("\t-l, --leds <state>: configure LED state (0 for all off, 1 for default)\n");
 	printf("\t-t, --selftest: read self-test report\n");
+	printf("\t-o, --rtc-osc: test 32.768kHz RTC oscillator\n");
 	printf("\t-a, --adc <channel>: read value from an ADC channel. Add 0x80 for alternate pin\n");
 	printf("\nExamples:\n");
 	printf("\thackrf_debug --si5351c -n 0 -r     # reads from si5351c register 0\n");
