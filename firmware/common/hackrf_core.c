@@ -1365,7 +1365,7 @@ void hw_sync_enable(const hw_sync_mode_t hw_sync_mode)
 #ifndef PRALINE
 	gpio_write(sgpio_config.gpio_hw_sync_enable, hw_sync_mode == 1);
 #else
-	fpga_hw_sync_enable(hw_sync_mode);
+	fpga_set_hw_sync_enable(&fpga, hw_sync_mode);
 #endif
 }
 

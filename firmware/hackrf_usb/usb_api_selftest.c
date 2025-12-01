@@ -27,7 +27,6 @@
 #include "usb_api_selftest.h"
 #include "selftest.h"
 #include "platform_detect.h"
-#include "fpga.h"
 
 static char* itoa(int val, int base)
 {

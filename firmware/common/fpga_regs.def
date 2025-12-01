@@ -21,8 +21,8 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __FPGA_STANDARD_REGS_DEF
-#define __FPGA_STANDARD_REGS_DEF
+#ifndef __FPGA_REGS_DEF
+#define __FPGA_REGS_DEF
 
 #define FPGA_REG_SET_CLEAN(_d, _r) (_d->regs_dirty &= ~(1UL<<_r))
 #define FPGA_REG_SET_DIRTY(_d, _r) (_d->regs_dirty |= (1UL<<_r))
@@ -71,4 +71,4 @@ __MREG__(FPGA_STANDARD_TX_INTRP, 4, 0, 3)
 /* REG 05 (5): TX_PSTEP */
 __MREG__(FPGA_STANDARD_TX_PSTEP, 5, 0, 8)
 
-#endif // __FPGA_STANDARD_REGS_DEF
+#endif // __FPGA_REGS_DEF
