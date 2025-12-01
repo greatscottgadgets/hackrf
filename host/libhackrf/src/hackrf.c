@@ -110,6 +110,7 @@ typedef enum {
 	HACKRF_VENDOR_REQUEST_CLKIN_CTRL = 55,
 	HACKRF_VENDOR_REQUEST_READ_SELFTEST = 56,
 	HACKRF_VENDOR_REQUEST_READ_ADC = 57,
+	HACKRF_VENDOR_REQUEST_TEST_RTC_OSC = 58,
 } hackrf_vendor_request;
 
 #define USB_CONFIG_STANDARD 0x1
@@ -1243,6 +1244,110 @@ int ADDCALL hackrf_read_selftest(hackrf_device* device, hackrf_selftest* selftes
 	} else {
 		return HACKRF_SUCCESS;
 	}
+}
+
+int ADDCALL hackrf_test_rtc_osc(hackrf_device* device, bool* pass)
+{
+	USB_API_REQUIRED(device, 0x0109);
+
+	int result;
+
+	enum {
+		START_32KHZ_OSCILLATOR,
+		START_FREQ_MONITOR,
+		READ_FREQ_MONITOR,
+		STOP_32KHZ_OSCILLATOR,
+	} step;
+
+	// Enable 32kHz oscillator
+	result = libusb_control_transfer(
+		device->usb_device,
+		LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR |
+			LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_TEST_RTC_OSC,
+		0,
+		START_32KHZ_OSCILLATOR,
+		NULL,
+		0,
+		1000);
+
+	if (result < 0) {
+		last_libusb_error = result;
+		return HACKRF_ERROR_LIBUSB;
+	}
+
+// Wait 1s for oscillator startup
+#ifdef _WIN32
+	Sleep(1000);
+#else
+	usleep(1000000);
+#endif
+
+	// Start frequency monitor
+	result = libusb_control_transfer(
+		device->usb_device,
+		LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR |
+			LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_TEST_RTC_OSC,
+		0,
+		START_FREQ_MONITOR,
+		NULL,
+		0,
+		1000);
+
+	if (result < 0) {
+		last_libusb_error = result;
+		return HACKRF_ERROR_LIBUSB;
+	}
+
+// Wait for frequency monitor result
+#ifdef _WIN32
+	Sleep(1);
+#else
+	usleep(1000);
+#endif
+
+	// Read frequency monitor result
+	uint16_t count = 0;
+	result = libusb_control_transfer(
+		device->usb_device,
+		LIBUSB_ENDPOINT_IN | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_TEST_RTC_OSC,
+		0,
+		READ_FREQ_MONITOR,
+		(unsigned char*) &count,
+		sizeof(count),
+		1000);
+
+	if (result < sizeof(count)) {
+		last_libusb_error = result;
+		return HACKRF_ERROR_LIBUSB;
+	}
+
+	if (count == 1) {
+		// Disable 32kHz oscillator
+		result = libusb_control_transfer(
+			device->usb_device,
+			LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR |
+				LIBUSB_RECIPIENT_DEVICE,
+			HACKRF_VENDOR_REQUEST_TEST_RTC_OSC,
+			0,
+			STOP_32KHZ_OSCILLATOR,
+			NULL,
+			0,
+			1000);
+
+		if (result < 0) {
+			last_libusb_error = result;
+			return HACKRF_ERROR_LIBUSB;
+		}
+
+		*pass = true;
+	} else {
+		*pass = false;
+	}
+
+	return HACKRF_SUCCESS;
 }
 
 int ADDCALL hackrf_read_adc(hackrf_device* device, uint8_t adc_channel, uint16_t* value)

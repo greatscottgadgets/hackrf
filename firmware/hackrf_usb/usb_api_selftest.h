@@ -29,4 +29,8 @@ usb_request_status_t usb_vendor_request_read_selftest(
 	usb_endpoint_t* const endpoint,
 	const usb_transfer_stage_t stage);
 
+usb_request_status_t usb_vendor_request_test_rtc_osc(
+	usb_endpoint_t* const endpoint,
+	const usb_transfer_stage_t stage);
+
 #endif // __USB_API_SELFTEST_H

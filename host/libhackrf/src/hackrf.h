@@ -1355,6 +1355,16 @@ extern ADDAPI int ADDCALL hackrf_read_selftest(
 	hackrf_selftest* value);
 
 /**
+ * Test the RTC oscillator on the device
+ *
+ * @param[in] device device to query
+ * @param[out] pass RTC oscillator test result
+ * @return @ref HACKRF_SUCCESS on success or @ref hackrf_error variant
+ * @ingroup debug
+ */
+extern ADDAPI int ADDCALL hackrf_test_rtc_osc(hackrf_device* device, bool* pass);
+
+/**
  * Read a value from an ADC channel
  *
  * @param[in] device device to query
