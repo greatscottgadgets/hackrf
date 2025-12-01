@@ -29,6 +29,8 @@
 
 #include "usb_type.h"
 
+usb_queue_head_t* usb_queue_head(const uint_fast8_t endpoint_address);
+
 void usb_peripheral_reset(void);
 void usb_phy_enable(void);
 

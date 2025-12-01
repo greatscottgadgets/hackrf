@@ -558,6 +558,71 @@ void tx_mode(uint32_t seq)
 		radio_update(&radio);
 	}
 
+	// Host has now requested to stop TX. We won't initiate any further USB
+	// transfers into the bulk buffer. However, we should make sure all
+	// data currently in the USB bulk buffer reaches the sample buffer.
+
+	if ((usb_started - usb_completed) > 0) {
+		// We were part way through a 16KB firmware-side transfer when
+		// the transceiver mode change request to stop TX was received.
+		//
+		// We want to include the contents of that partial transfer in
+		// the data we move to the sample buffer.
+		//
+		// The transfer was already stopped by usb_endpoint_flush(),
+		// which was called from request_transceiver_mode().
+		//
+		// We will not have had a callback, and the transfer descriptor
+		// (dTD) will not have been updated, since the transfer did not
+		// complete.
+		//
+		// However, as long as we haven't started a new transfer, we
+		// can retrieve the partial byte count from the transfer
+		// overlay in the endpoint queue head (dQH) (UM10503 25.9.1).
+
+		usb_queue_head_t* const qh =
+			usb_queue_head(usb_endpoint_bulk_out.address);
+		unsigned int bytes_remaining =
+			(qh->total_bytes & USB_TD_DTD_TOKEN_TOTAL_BYTES_MASK) >>
+			USB_TD_DTD_TOKEN_TOTAL_BYTES_SHIFT;
+		unsigned int bytes_transferred = USB_TRANSFER_SIZE - bytes_remaining;
+		usb_completed += bytes_transferred;
+	}
+
+	// Feed the remaining data from the bulk buffer to the sample buffer.
+	// At this point, we also need to handle the case where there is less data
+	// to be transferred to the sample buffer than a full-sized DMA transfer.
+
+	// Any remainder of less than 4 bytes will be ignored; this is the chunk
+	// size of our DMA transfers.
+	while ((usb_completed - m0_state.m4_count) >= 4) {
+		uint32_t data_used = m0_state.m0_count;
+		uint32_t data_available = usb_completed - dma_started;
+		uint32_t space_in_use = dma_started - data_used;
+		uint32_t space_available = USB_SAMP_BUFFER_SIZE - space_in_use;
+		uint32_t samp_offset = dma_started & USB_SAMP_BUFFER_MASK;
+		uint32_t bulk_offset = dma_started & USB_BULK_BUFFER_MASK;
+		bool ahb_busy = !((data_used ^ dma_started) & BUF_HALF_MASK);
+		size_t size = data_available >= DMA_TRANSFER_SIZE ? DMA_TRANSFER_SIZE :
+								    data_available;
+		if (dma_pending || ahb_busy || size > space_available) {
+			continue;
+		}
+		transceiver_start_dma(
+			&usb_bulk_buffer[bulk_offset],
+			&usb_samp_buffer[samp_offset],
+			size);
+		dma_started += size;
+	}
+
+	// Wait for the data in the sample buffer to be transmitted.
+
+	// Any remainder of less than 32 bytes will be ignored; this is
+	// the chunk size used by the M0 core to transfer samples to SGPIO.
+	while ((m0_state.m4_count - m0_state.m0_count) >= 32)
+		;
+
+	// All data received from the host has now been transmitted.
 	transceiver_shutdown();
 }
 
