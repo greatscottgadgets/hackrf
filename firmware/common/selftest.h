@@ -44,6 +44,15 @@ typedef struct {
 	bool fpga_image_load_ok;
 	bool sgpio_rx_ok;
 	bool xcvr_loopback_ok;
+
+	struct xcvr_measurements {
+		uint32_t zcs_i;
+		uint32_t zcs_q;
+		uint8_t max_mag_i;
+		uint8_t max_mag_q;
+		uint32_t avg_mag_sq_i;
+		uint32_t avg_mag_sq_q;
+	} xcvr_measurements[4];
 #endif
 	struct {
 		bool pass;

@@ -27,6 +27,7 @@
 #include "usb_api_selftest.h"
 #include "selftest.h"
 #include "platform_detect.h"
+#include "fpga.h"
 
 static char* itoa(int val, int base)
 {
@@ -106,6 +107,25 @@ void generate_selftest_report(void)
 	append(&s, &c, "Loopback test: ");
 	append(&s, &c, selftest.xcvr_loopback_ok ? "PASS" : "FAIL");
 	append(&s, &c, "\n");
+	// Dump transceiver loopback measurements.
+	for (int i = 0; i < 4; ++i) {
+		struct xcvr_measurements* m = &selftest.xcvr_measurements[i];
+		append(&s, &c, " ");
+		append(&s, &c, itoa(i, 10));
+		append(&s, &c, ":");
+		append(&s, &c, itoa(m->zcs_i, 10));
+		append(&s, &c, ",");
+		append(&s, &c, itoa(m->zcs_q, 10));
+		append(&s, &c, ",");
+		append(&s, &c, itoa(m->max_mag_i, 10));
+		append(&s, &c, ",");
+		append(&s, &c, itoa(m->max_mag_q, 10));
+		append(&s, &c, ",");
+		append(&s, &c, itoa(m->avg_mag_sq_i, 10));
+		append(&s, &c, ",");
+		append(&s, &c, itoa(m->avg_mag_sq_q, 10));
+		append(&s, &c, "\n");
+	}
 #endif
 }
 
