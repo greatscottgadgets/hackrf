@@ -54,6 +54,21 @@ void append(char** dest, size_t* capacity, const char* str)
 	}
 }
 
+static const char* test_result_to_str(test_result_t result)
+{
+	switch (result) {
+	case FAILED:
+		return "FAIL";
+	case PASSED:
+		return "PASS";
+	case SKIPPED:
+		return "SKIP";
+	case TIMEOUT:
+		return "TIMEOUT";
+	}
+	return "????";
+}
+
 void generate_selftest_report(void)
 {
 	char* s = &selftest.report.msg[0];
@@ -99,13 +114,13 @@ void generate_selftest_report(void)
 #endif
 #ifdef PRALINE
 	append(&s, &c, "FPGA configuration: ");
-	append(&s, &c, selftest.fpga_image_load_ok ? "PASS" : "FAIL");
+	append(&s, &c, test_result_to_str(selftest.fpga_image_load));
 	append(&s, &c, "\n");
 	append(&s, &c, "SGPIO RX test: ");
-	append(&s, &c, selftest.sgpio_rx_ok ? "PASS" : "FAIL");
+	append(&s, &c, test_result_to_str(selftest.sgpio_rx));
 	append(&s, &c, "\n");
 	append(&s, &c, "Loopback test: ");
-	append(&s, &c, selftest.xcvr_loopback_ok ? "PASS" : "FAIL");
+	append(&s, &c, test_result_to_str(selftest.xcvr_loopback));
 	append(&s, &c, "\n");
 	// Dump transceiver loopback measurements.
 	for (int i = 0; i < 4; ++i) {

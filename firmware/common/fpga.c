@@ -74,7 +74,7 @@ static size_t fpga_image_read_block_cb(void* _ctx, uint8_t* out_buffer)
 bool fpga_image_load(unsigned int index)
 {
 #if defined(DFU_MODE) || defined(RAM_MODE)
-	selftest.fpga_image_load_ok = false;
+	selftest.fpga_image_load = SKIPPED;
 	selftest.report.pass = false;
 	return false;
 #endif
@@ -108,22 +108,33 @@ bool fpga_image_load(unsigned int index)
 	ssp1_set_mode_max283x();
 
 	// Update selftest result.
-	selftest.fpga_image_load_ok = success;
-	if (!selftest.fpga_image_load_ok) {
+	selftest.fpga_image_load = success ? PASSED : FAILED;
+	if (selftest.fpga_image_load != PASSED) {
 		selftest.report.pass = false;
 	}
 
 	return success;
 }
 
-static void rx_samples(const unsigned int num_samples)
+static int rx_samples(const unsigned int num_samples, uint32_t max_cycles)
 {
+	uint32_t cycle_count = 0;
+	int rc = 0;
+
 	m0_set_mode(M0_MODE_RX);
 	m0_state.shortfall_limit = 0;
 	baseband_streaming_enable(&sgpio_config);
-	while (m0_state.m0_count < num_samples) {}
+	while (m0_state.m0_count < num_samples) {
+		cycle_count++;
+		if ((max_cycles > 0) && (cycle_count >= max_cycles)) {
+			rc = -1;
+			break;
+		}
+	}
 	baseband_streaming_disable(&sgpio_config);
 	m0_set_mode(M0_MODE_IDLE);
+
+	return rc;
 }
 
 static uint8_t lfsr_advance(uint8_t v)
@@ -138,9 +149,11 @@ bool fpga_sgpio_selftest()
 	return false;
 #endif
 
+	bool timeout = false;
+
 	// Skip if FPGA configuration failed.
-	if (!selftest.fpga_image_load_ok) {
-		selftest.sgpio_rx_ok = false;
+	if (selftest.fpga_image_load != PASSED) {
+		selftest.sgpio_rx = SKIPPED;
 		return false;
 	}
 
@@ -151,7 +164,9 @@ bool fpga_sgpio_selftest()
 
 	// Stream 512 samples from the FPGA.
 	sgpio_configure(&sgpio_config, SGPIO_DIRECTION_RX);
-	rx_samples(512);
+	if (rx_samples(512, 10000) == -1) {
+		timeout = true;
+	}
 
 	// Disable PRBS mode.
 	ssp1_set_mode_ice40();
@@ -170,12 +185,18 @@ bool fpga_sgpio_selftest()
 	}
 
 	// Update selftest result.
-	selftest.sgpio_rx_ok = seq_in_sync;
-	if (!selftest.sgpio_rx_ok) {
+	if (seq_in_sync) {
+		selftest.sgpio_rx = PASSED;
+	} else if (timeout) {
+		selftest.sgpio_rx = TIMEOUT;
+	} else {
+		selftest.sgpio_rx = FAILED;
+	}
+	if (selftest.sgpio_rx != PASSED) {
 		selftest.report.pass = false;
 	}
 
-	return selftest.sgpio_rx_ok;
+	return selftest.sgpio_rx == PASSED;
 }
 
 static void measure_tone(int8_t* samples, size_t len, struct xcvr_measurements* results)
@@ -223,9 +244,11 @@ bool fpga_if_xcvr_selftest()
 	return false;
 #endif
 
+	bool timeout = false;
+
 	// Skip if FPGA configuration failed.
-	if (!selftest.fpga_image_load_ok) {
-		selftest.xcvr_loopback_ok = false;
+	if (selftest.fpga_image_load != PASSED) {
+		selftest.xcvr_loopback = SKIPPED;
 		return false;
 	}
 
@@ -245,7 +268,9 @@ bool fpga_if_xcvr_selftest()
 	// Capture 1: 4 Msps, tone at 0.5 MHz, narrowband filter OFF
 	sample_rate_frac_set(4000000 * 2, 1);
 	delay_us_at_mhz(1000, 204);
-	rx_samples(num_samples);
+	if (rx_samples(num_samples, 2000000) == -1) {
+		timeout = true;
+	}
 	measure_tone(
 		(int8_t*) usb_bulk_buffer,
 		num_samples,
@@ -254,7 +279,9 @@ bool fpga_if_xcvr_selftest()
 	// Capture 2: 4 Msps, tone at 0.5 MHz, narrowband filter ON
 	narrowband_filter_set(1);
 	delay_us_at_mhz(1000, 204);
-	rx_samples(num_samples);
+	if (rx_samples(num_samples, 2000000) == -1) {
+		timeout = true;
+	}
 	measure_tone(
 		(int8_t*) usb_bulk_buffer,
 		num_samples,
@@ -267,7 +294,9 @@ bool fpga_if_xcvr_selftest()
 	sample_rate_frac_set(20000000 * 2, 1);
 	narrowband_filter_set(0);
 	delay_us_at_mhz(1000, 204);
-	rx_samples(num_samples);
+	if (rx_samples(num_samples, 2000000) == -1) {
+		timeout = true;
+	}
 	measure_tone(
 		(int8_t*) usb_bulk_buffer,
 		num_samples,
@@ -276,7 +305,9 @@ bool fpga_if_xcvr_selftest()
 	// Capture 4: 20 Msps, tone at 5 MHz, narrowband filter ON
 	narrowband_filter_set(1);
 	delay_us_at_mhz(1000, 204);
-	rx_samples(num_samples);
+	if (rx_samples(num_samples, 2000000) == -1) {
+		timeout = true;
+	}
 	measure_tone(
 		(int8_t*) usb_bulk_buffer,
 		num_samples,
@@ -290,6 +321,12 @@ bool fpga_if_xcvr_selftest()
 	ice40_spi_write(&ice40, 0x01, 0);
 	ice40_spi_write(&ice40, 0x03, 0);
 	ssp1_set_mode_max283x();
+
+	if (timeout) {
+		selftest.xcvr_loopback = TIMEOUT;
+		selftest.report.pass = false;
+		return false;
+	}
 
 	unsigned int expected_zcs;
 	bool i_in_range;
@@ -344,11 +381,13 @@ bool fpga_if_xcvr_selftest()
 	bool capture_3_test = energy_in_range;
 
 	// Update selftest result.
-	selftest.xcvr_loopback_ok =
-		capture_0_test && capture_1_test && capture_2_test && capture_3_test;
-	if (!selftest.xcvr_loopback_ok) {
+	selftest.xcvr_loopback =
+		(capture_0_test && capture_1_test && capture_2_test && capture_3_test) ?
+		PASSED :
+		FAILED;
+	if (selftest.xcvr_loopback != PASSED) {
 		selftest.report.pass = false;
 	}
 
-	return selftest.xcvr_loopback_ok;
+	return selftest.xcvr_loopback == PASSED;
 }
