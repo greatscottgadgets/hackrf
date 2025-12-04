@@ -96,8 +96,8 @@ bool fpga_image_load(unsigned int index)
 
 	// A callback function is used by the FPGA programmer
 	// to obtain consecutive gateware chunks.
-	ssp1_set_mode_ice40();
 	ice40_spi_target_init(&ice40);
+	ssp1_set_mode_ice40();
 	struct fpga_image_read_ctx fpga_image_ctx = {
 		.addr = (uint32_t) &_binary_fpga_bin_start + bitstream_offset,
 	};
