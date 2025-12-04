@@ -520,7 +520,7 @@ static void copy_setup(usb_setup_t* const dst, const volatile uint8_t* const src
 	dst->length_h = src[7];
 }
 
-void usb_endpoint_init(const usb_endpoint_t* const endpoint)
+void usb_endpoint_init(const usb_endpoint_t* const endpoint, const bool enable_zlp)
 {
 	usb_endpoint_flush(endpoint);
 
@@ -537,10 +537,15 @@ void usb_endpoint_init(const usb_endpoint_t* const endpoint)
 	// TODO: There are more capabilities to adjust based on the endpoint
 	// descriptor.
 	usb_queue_head_t* const qh = usb_queue_head(endpoint->address);
-	qh->capabilities = USB_QH_CAPABILITIES_MULT(0) | USB_QH_CAPABILITIES_ZLT |
+	qh->capabilities = USB_QH_CAPABILITIES_MULT(0) |
 		USB_QH_CAPABILITIES_MPL(max_packet_size) |
 		((transfer_type == USB_TRANSFER_TYPE_CONTROL) ? USB_QH_CAPABILITIES_IOS :
 								0);
+	if (enable_zlp) {
+		qh->capabilities &= ~USB_QH_CAPABILITIES_ZLT;
+	} else {
+		qh->capabilities |= USB_QH_CAPABILITIES_ZLT;
+	}
 	qh->current_dtd_pointer = 0;
 	qh->next_dtd_pointer = USB_TD_NEXT_DTD_POINTER_TERMINATE;
 	qh->total_bytes = USB_TD_DTD_TOKEN_TOTAL_BYTES(0) | USB_TD_DTD_TOKEN_MULTO(0);
