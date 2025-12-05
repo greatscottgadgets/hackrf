@@ -1146,6 +1146,9 @@ void pin_setup(void)
 	scu_pinmux(SCU_TRIGGER_IN, SCU_TRIGGER_IN_PINCFG);
 	scu_pinmux(SCU_TRIGGER_OUT, SCU_TRIGGER_OUT_PINCFG);
 	scu_pinmux(SCU_PPS_OUT, SCU_PPS_OUT_PINCFG);
+	scu_pinmux(SCU_PINMUX_FPGA_CRESET, SCU_GPIO_NOPULL | SCU_CONF_FUNCTION0);
+	scu_pinmux(SCU_PINMUX_FPGA_CDONE, SCU_GPIO_PUP | SCU_CONF_FUNCTION4);
+	scu_pinmux(SCU_PINMUX_FPGA_SPI_CS, SCU_GPIO_NOPULL | SCU_CONF_FUNCTION0);
 
 	p2_ctrl_set(P2_SIGNAL_CLK3);
 	p1_ctrl_set(P1_SIGNAL_CLKIN);
@@ -1162,6 +1165,11 @@ void pin_setup(void)
 	gpio_output(&gpio_aa_en);
 	gpio_input(&gpio_trigger_in);
 	gpio_input(&gpio_trigger_out);
+	gpio_clear(&gpio_fpga_cfg_spi_cs);
+	gpio_output(&gpio_fpga_cfg_spi_cs);
+	gpio_clear(&gpio_fpga_cfg_creset);
+	gpio_output(&gpio_fpga_cfg_creset);
+	gpio_input(&gpio_fpga_cfg_cdone);
 #endif
 
 	/* enable input on SCL and SDA pins */
