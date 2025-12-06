@@ -30,11 +30,11 @@
 #include <stdlib.h>
 #include <getopt.h>
 
-#ifndef bool
-typedef int bool;
-	#define true  1
-	#define false 0
-#endif
+//#ifndef bool
+//typedef int bool;
+//	#define true  1
+//	#define false 0
+//#endif
 
 int parse_int(char* s, uint32_t* const value)
 {
