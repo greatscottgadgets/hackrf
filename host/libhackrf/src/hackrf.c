@@ -143,6 +143,7 @@ typedef enum {
 
 struct hackrf_device {
 	libusb_device_handle* usb_device;
+	uint16_t usb_api_version;
 	struct libusb_transfer** transfers;
 	hackrf_sample_block_cb_fn callback;
 	volatile bool
@@ -187,10 +188,8 @@ static const max2837_ft_t max2837_ft[] = {
 	{28000000},
 	{0}};
 
-#define USB_API_REQUIRED(device, version)                  \
-	uint16_t usb_version = 0;                          \
-	hackrf_usb_api_version_read(device, &usb_version); \
-	if (usb_version < version)                         \
+#define USB_API_REQUIRED(device, version)      \
+	if (device->usb_api_version < version) \
 		return HACKRF_ERROR_USB_API_VERSION;
 
 static const uint16_t hackrf_usb_vid = 0x1d50;
@@ -713,6 +712,13 @@ static int hackrf_open_setup(libusb_device_handle* usb_device, hackrf_device** d
 {
 	int result;
 	hackrf_device* lib_device;
+	struct libusb_device_descriptor device_descriptor;
+	libusb_device* dev = libusb_get_device(usb_device);
+	result = libusb_get_device_descriptor(dev, &device_descriptor);
+	if (result < 0) {
+		last_libusb_error = result;
+		return HACKRF_ERROR_LIBUSB;
+	}
 
 	//int speed = libusb_get_device_speed(usb_device);
 	// TODO: Error or warning if not high speed USB?
@@ -746,6 +752,7 @@ static int hackrf_open_setup(libusb_device_handle* usb_device, hackrf_device** d
 #endif
 
 	lib_device->usb_device = usb_device;
+	lib_device->usb_api_version = device_descriptor.bcdDevice;
 	lib_device->transfers = NULL;
 	lib_device->callback = NULL;
 	lib_device->transfer_thread_started = false;
@@ -1700,17 +1707,7 @@ extern ADDAPI int ADDCALL hackrf_usb_api_version_read(
 	hackrf_device* device,
 	uint16_t* version)
 {
-	int result;
-	libusb_device* dev;
-	struct libusb_device_descriptor desc;
-	dev = libusb_get_device(device->usb_device);
-	result = libusb_get_device_descriptor(dev, &desc);
-	if (result < 0) {
-		last_libusb_error = result;
-		return HACKRF_ERROR_LIBUSB;
-	}
-
-	*version = desc.bcdDevice;
+	*version = device->usb_api_version;
 	return HACKRF_SUCCESS;
 }
 
