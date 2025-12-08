@@ -181,6 +181,11 @@ usb_request_status_t usb_vendor_request_set_sample_rate_frac(
 			NULL);
 		return USB_REQUEST_STATUS_OK;
 	} else if (stage == USB_TRANSFER_STAGE_DATA) {
+		float hz = (float) (set_sample_r_params.freq_hz) /
+			(float) set_sample_r_params.divider;
+		if (hz > 21800000.0) {
+			return USB_REQUEST_STATUS_STALL;
+		}
 		radio_error_t result = radio_set_sample_rate(
 			&radio,
 			RADIO_CHANNEL0,
