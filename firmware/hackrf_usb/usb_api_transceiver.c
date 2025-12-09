@@ -294,6 +294,17 @@ volatile transceiver_request_t transceiver_request = {
 	.seq = 0,
 };
 
+void transceiver_usb_setup_complete(usb_endpoint_t* const endpoint)
+{
+	if (transceiver_request.mode == TRANSCEIVER_MODE_TX &&
+	    endpoint->setup.request == 1) {
+		// This is a request to leave TX mode. Do so but NAK for now.
+		request_transceiver_mode(endpoint->setup.value);
+	} else {
+		usb_setup_complete(endpoint);
+	}
+}
+
 // Must be called from an atomic context (normally USB ISR)
 void request_transceiver_mode(transceiver_mode_t mode)
 {
@@ -623,6 +634,9 @@ void tx_mode(uint32_t seq)
 		;
 
 	// All data received from the host has now been transmitted.
+	// Now we can ACK the control request that took us out of TX mode.
+	usb_transfer_schedule_ack(usb_endpoint_control_in.in);
+
 	transceiver_shutdown();
 }
 
