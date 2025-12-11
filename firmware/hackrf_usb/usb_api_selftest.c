@@ -116,6 +116,9 @@ void generate_selftest_report(void)
 	append(&s, &c, "FPGA configuration: ");
 	append(&s, &c, test_result_to_str(selftest.fpga_image_load));
 	append(&s, &c, "\n");
+	append(&s, &c, "FPGA SPI: ");
+	append(&s, &c, test_result_to_str(selftest.fpga_spi));
+	append(&s, &c, "\n");
 	append(&s, &c, "SGPIO RX test: ");
 	append(&s, &c, test_result_to_str(selftest.sgpio_rx));
 	append(&s, &c, "\n");

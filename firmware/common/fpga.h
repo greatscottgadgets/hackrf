@@ -25,6 +25,7 @@
 #include <stdbool.h>
 
 bool fpga_image_load(unsigned int index);
+bool fpga_spi_selftest();
 bool fpga_sgpio_selftest();
 bool fpga_if_xcvr_selftest();
 

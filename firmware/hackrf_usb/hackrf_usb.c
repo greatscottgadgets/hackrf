@@ -290,6 +290,7 @@ int main(void)
 #else
 	fpga_image_load(0);
 	delay_us_at_mhz(100, 204);
+	fpga_spi_selftest();
 	fpga_sgpio_selftest();
 #endif
 

@@ -51,6 +51,7 @@ typedef struct {
 	bool si5351_readback_ok;
 #ifdef PRALINE
 	test_result_t fpga_image_load;
+	test_result_t fpga_spi;
 	test_result_t sgpio_rx;
 	test_result_t xcvr_loopback;
 

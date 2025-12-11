@@ -137,6 +137,31 @@ static int rx_samples(const unsigned int num_samples, uint32_t max_cycles)
 	return rc;
 }
 
+bool fpga_spi_selftest()
+{
+	// Skip if FPGA configuration failed.
+	if (selftest.fpga_image_load != PASSED) {
+		selftest.fpga_spi = SKIPPED;
+		return false;
+	}
+
+	// Test writing a register and reading it back.
+	uint8_t reg = 5;
+	uint8_t write_value = 0xA5;
+	ssp1_set_mode_ice40();
+	ice40_spi_write(&ice40, reg, write_value);
+	uint8_t read_value = ice40_spi_read(&ice40, reg);
+	ssp1_set_mode_max283x();
+
+	// Update selftest result.
+	selftest.fpga_spi = (read_value == write_value) ? PASSED : FAILED;
+	if (selftest.fpga_spi != PASSED) {
+		selftest.report.pass = false;
+	}
+
+	return selftest.fpga_spi == PASSED;
+}
+
 static uint8_t lfsr_advance(uint8_t v)
 {
 	const uint8_t feedback = ((v >> 3) ^ (v >> 4) ^ (v >> 5) ^ (v >> 7)) & 1;
@@ -145,15 +170,10 @@ static uint8_t lfsr_advance(uint8_t v)
 
 bool fpga_sgpio_selftest()
 {
-#if defined(DFU_MODE) || defined(RAM_MODE)
-	selftest.sgpio_rx = SKIPPED;
-	return false;
-#endif
-
 	bool timeout = false;
 
-	// Skip if FPGA configuration failed.
-	if (selftest.fpga_image_load != PASSED) {
+	// Skip if FPGA configuration failed or its SPI bus is not working.
+	if ((selftest.fpga_image_load != PASSED) || (selftest.fpga_spi != PASSED)) {
 		selftest.sgpio_rx = SKIPPED;
 		return false;
 	}
@@ -241,15 +261,10 @@ static bool in_range(int value, int expected, int error)
 
 bool fpga_if_xcvr_selftest()
 {
-#if defined(DFU_MODE) || defined(RAM_MODE)
-	selftest.xcvr_loopback = SKIPPED;
-	return false;
-#endif
-
 	bool timeout = false;
 
-	// Skip if FPGA configuration failed.
-	if (selftest.fpga_image_load != PASSED) {
+	// Skip if FPGA configuration failed or its SPI bus is not working.
+	if ((selftest.fpga_image_load != PASSED) || (selftest.fpga_spi != PASSED)) {
 		selftest.xcvr_loopback = SKIPPED;
 		return false;
 	}
