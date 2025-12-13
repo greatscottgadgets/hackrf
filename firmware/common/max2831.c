@@ -379,8 +379,8 @@ bool max2831_set_lna_gain(max2831_driver_t* const drv, const uint32_t gain_db) {
 bool max2831_set_vga_gain(max2831_driver_t* const drv, const uint32_t gain_db) {
 	if( (gain_db & 0x1) || gain_db > 62) {/* 0b11111*2 */
 		return false;
-}
-		
+	}
+	
 	set_MAX2831_RXVGA_GAIN(drv, (gain_db >> 1) );
 	max2831_reg_commit(drv, 11);
 	return true;

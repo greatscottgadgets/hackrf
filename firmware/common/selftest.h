@@ -25,6 +25,15 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+enum {
+	FAILED = 0,
+	PASSED = 1,
+	SKIPPED = 2,
+	TIMEOUT = 3,
+};
+
+typedef uint8_t test_result_t;
+
 typedef struct {
 	uint16_t mixer_id;
 #ifdef PRALINE
@@ -41,9 +50,19 @@ typedef struct {
 	uint8_t si5351_rev_id;
 	bool si5351_readback_ok;
 #ifdef PRALINE
-	bool fpga_image_load_ok;
-	bool sgpio_rx_ok;
-	bool xcvr_loopback_ok;
+	test_result_t fpga_image_load;
+	test_result_t fpga_spi;
+	test_result_t sgpio_rx;
+	test_result_t xcvr_loopback;
+
+	struct xcvr_measurements {
+		uint32_t zcs_i;
+		uint32_t zcs_q;
+		uint8_t max_mag_i;
+		uint8_t max_mag_q;
+		uint32_t avg_mag_sq_i;
+		uint32_t avg_mag_sq_q;
+	} xcvr_measurements[4];
 #endif
 	struct {
 		bool pass;

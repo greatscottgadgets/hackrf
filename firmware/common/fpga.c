@@ -74,7 +74,7 @@ static size_t fpga_image_read_block_cb(void* _ctx, uint8_t* out_buffer)
 bool fpga_image_load(unsigned int index)
 {
 #if defined(DFU_MODE) || defined(RAM_MODE)
-	selftest.fpga_image_load_ok = false;
+	selftest.fpga_image_load = SKIPPED;
 	selftest.report.pass = false;
 	return false;
 #endif
@@ -108,12 +108,58 @@ bool fpga_image_load(unsigned int index)
 	ssp1_set_mode_max283x();
 
 	// Update selftest result.
-	selftest.fpga_image_load_ok = success;
-	if (!selftest.fpga_image_load_ok) {
+	selftest.fpga_image_load = success ? PASSED : FAILED;
+	if (selftest.fpga_image_load != PASSED) {
 		selftest.report.pass = false;
 	}
 
 	return success;
+}
+
+static int rx_samples(const unsigned int num_samples, uint32_t max_cycles)
+{
+	uint32_t cycle_count = 0;
+	int rc = 0;
+
+	m0_set_mode(M0_MODE_RX);
+	m0_state.shortfall_limit = 0;
+	baseband_streaming_enable(&sgpio_config);
+	while (m0_state.m0_count < num_samples) {
+		cycle_count++;
+		if ((max_cycles > 0) && (cycle_count >= max_cycles)) {
+			rc = -1;
+			break;
+		}
+	}
+	baseband_streaming_disable(&sgpio_config);
+	m0_set_mode(M0_MODE_IDLE);
+
+	return rc;
+}
+
+bool fpga_spi_selftest()
+{
+	// Skip if FPGA configuration failed.
+	if (selftest.fpga_image_load != PASSED) {
+		selftest.fpga_spi = SKIPPED;
+		return false;
+	}
+
+	// Test writing a register and reading it back.
+	uint8_t reg = 5;
+	uint8_t write_value = 0xA5;
+	ssp1_set_mode_ice40();
+	ice40_spi_write(&ice40, reg, write_value);
+	uint8_t read_value = ice40_spi_read(&ice40, reg);
+	ssp1_set_mode_max283x();
+
+	// Update selftest result.
+	selftest.fpga_spi = (read_value == write_value) ? PASSED : FAILED;
+	if (selftest.fpga_spi != PASSED) {
+		selftest.report.pass = false;
+	}
+
+	return selftest.fpga_spi == PASSED;
 }
 
 static uint8_t lfsr_advance(uint8_t v)
@@ -124,13 +170,11 @@ static uint8_t lfsr_advance(uint8_t v)
 
 bool fpga_sgpio_selftest()
 {
-#if defined(DFU_MODE) || defined(RAM_MODE)
-	return false;
-#endif
+	bool timeout = false;
 
-	// Skip if FPGA configuration failed.
-	if (!selftest.fpga_image_load_ok) {
-		selftest.sgpio_rx_ok = false;
+	// Skip if FPGA configuration failed or its SPI bus is not working.
+	if ((selftest.fpga_image_load != PASSED) || (selftest.fpga_spi != PASSED)) {
+		selftest.sgpio_rx = SKIPPED;
 		return false;
 	}
 
@@ -141,13 +185,9 @@ bool fpga_sgpio_selftest()
 
 	// Stream 512 samples from the FPGA.
 	sgpio_configure(&sgpio_config, SGPIO_DIRECTION_RX);
-	m0_set_mode(M0_MODE_RX);
-	m0_state.shortfall_limit = 0;
-	baseband_streaming_enable(&sgpio_config);
-	while (m0_state.m0_count < 512)
-		;
-	baseband_streaming_disable(&sgpio_config);
-	m0_set_mode(M0_MODE_IDLE);
+	if (rx_samples(512, 10000) == -1) {
+		timeout = true;
+	}
 
 	// Disable PRBS mode.
 	ssp1_set_mode_ice40();
@@ -166,82 +206,205 @@ bool fpga_sgpio_selftest()
 	}
 
 	// Update selftest result.
-	selftest.sgpio_rx_ok = seq_in_sync;
-	if (!selftest.sgpio_rx_ok) {
+	if (seq_in_sync) {
+		selftest.sgpio_rx = PASSED;
+	} else if (timeout) {
+		selftest.sgpio_rx = TIMEOUT;
+	} else {
+		selftest.sgpio_rx = FAILED;
+	}
+	if (selftest.sgpio_rx != PASSED) {
 		selftest.report.pass = false;
 	}
 
-	return selftest.sgpio_rx_ok;
+	return selftest.sgpio_rx == PASSED;
+}
+
+static void measure_tone(int8_t* samples, size_t len, struct xcvr_measurements* results)
+{
+	results->zcs_i = 0;
+	results->zcs_q = 0;
+	results->max_mag_i = 0;
+	results->max_mag_q = 0;
+	results->avg_mag_sq_i = 0;
+	results->avg_mag_sq_q = 0;
+	uint8_t last_sign_i = 0;
+	uint8_t last_sign_q = 0;
+	for (size_t i = 0; i < len; i += 2) {
+		int8_t sample_i = samples[i];
+		int8_t sample_q = samples[i + 1];
+		uint8_t sign_i = sample_i < 0 ? 1 : 0;
+		uint8_t sign_q = sample_q < 0 ? 1 : 0;
+		results->zcs_i += sign_i ^ last_sign_i;
+		results->zcs_q += sign_q ^ last_sign_q;
+		last_sign_i = sign_i;
+		last_sign_q = sign_q;
+		uint8_t mag_i = sign_i ? -sample_i : sample_i;
+		uint8_t mag_q = sign_q ? -sample_q : sample_q;
+		if (mag_i > results->max_mag_i)
+			results->max_mag_i = mag_i;
+		if (mag_q > results->max_mag_q)
+			results->max_mag_q = mag_q;
+		results->avg_mag_sq_i += mag_i * mag_i;
+		results->avg_mag_sq_q += mag_q * mag_q;
+	}
+	results->avg_mag_sq_i /= (len / 2);
+	results->avg_mag_sq_q /= (len / 2);
+}
+
+static bool in_range(int value, int expected, int error)
+{
+	int max = expected * (100 + error) / 100;
+	int min = expected * (100 - error) / 100;
+	return (value > min) && (value < max);
 }
 
 bool fpga_if_xcvr_selftest()
 {
-#if defined(DFU_MODE) || defined(RAM_MODE)
-	return false;
-#endif
+	bool timeout = false;
 
-	// Skip if FPGA configuration failed.
-	if (!selftest.fpga_image_load_ok) {
-		selftest.xcvr_loopback_ok = false;
+	// Skip if FPGA configuration failed or its SPI bus is not working.
+	if ((selftest.fpga_image_load != PASSED) || (selftest.fpga_spi != PASSED)) {
+		selftest.xcvr_loopback = SKIPPED;
 		return false;
 	}
 
 	const size_t num_samples = USB_BULK_BUFFER_SIZE / 2;
 
-	// Set gateware features for the test.
+	// Set common RX path and gateware settings for the measurements.
 	ssp1_set_mode_ice40();
 	ice40_spi_write(&ice40, 0x01, 0x1); // RX DC block
-	ice40_spi_write(&ice40, 0x05, 128); // NCO phase increment
+	ice40_spi_write(&ice40, 0x05, 64);  // NCO phase increment
 	ice40_spi_write(&ice40, 0x03, 1);   // NCO TX enable
 	ssp1_set_mode_max283x();
-
-	// Configure RX calibration path and settle for 1ms.
 	rf_path_set_direction(&rf_path, RF_PATH_DIRECTION_RX_CALIBRATION);
+	max2831_set_lna_gain(&max283x, 16);
+	max2831_set_vga_gain(&max283x, 36);
+	max2831_set_frequency(&max283x, 2500000000);
+
+	// Capture 1: 4 Msps, tone at 0.5 MHz, narrowband filter OFF
+	sample_rate_frac_set(4000000 * 2, 1);
 	delay_us_at_mhz(1000, 204);
+	if (rx_samples(num_samples, 2000000) == -1) {
+		timeout = true;
+	}
+	measure_tone(
+		(int8_t*) usb_bulk_buffer,
+		num_samples,
+		&selftest.xcvr_measurements[0]);
 
-	// Stream samples from the FPGA.
-	m0_set_mode(M0_MODE_RX);
-	m0_state.shortfall_limit = 0;
-	baseband_streaming_enable(&sgpio_config);
-	while (m0_state.m0_count < num_samples)
-		;
-	baseband_streaming_disable(&sgpio_config);
-	m0_set_mode(M0_MODE_IDLE);
+	// Capture 2: 4 Msps, tone at 0.5 MHz, narrowband filter ON
+	narrowband_filter_set(1);
+	delay_us_at_mhz(1000, 204);
+	if (rx_samples(num_samples, 2000000) == -1) {
+		timeout = true;
+	}
+	measure_tone(
+		(int8_t*) usb_bulk_buffer,
+		num_samples,
+		&selftest.xcvr_measurements[1]);
 
+	// Capture 3: 20 Msps, tone at 5 MHz, narrowband filter OFF
+	ssp1_set_mode_ice40();
+	ice40_spi_write(&ice40, 0x05, 255);
+	ssp1_set_mode_max283x();
+	sample_rate_frac_set(20000000 * 2, 1);
+	narrowband_filter_set(0);
+	delay_us_at_mhz(1000, 204);
+	if (rx_samples(num_samples, 2000000) == -1) {
+		timeout = true;
+	}
+	measure_tone(
+		(int8_t*) usb_bulk_buffer,
+		num_samples,
+		&selftest.xcvr_measurements[2]);
+
+	// Capture 4: 20 Msps, tone at 5 MHz, narrowband filter ON
+	narrowband_filter_set(1);
+	delay_us_at_mhz(1000, 204);
+	if (rx_samples(num_samples, 2000000) == -1) {
+		timeout = true;
+	}
+	measure_tone(
+		(int8_t*) usb_bulk_buffer,
+		num_samples,
+		&selftest.xcvr_measurements[3]);
+
+	// Restore default settings.
+	sample_rate_set(10000000);
 	rf_path_set_direction(&rf_path, RF_PATH_DIRECTION_OFF);
-
-	// Gateware default settings.
+	narrowband_filter_set(0);
 	ssp1_set_mode_ice40();
 	ice40_spi_write(&ice40, 0x01, 0);
 	ice40_spi_write(&ice40, 0x03, 0);
 	ssp1_set_mode_max283x();
 
-	// Count zero crossings in the received samples.
-	// N/2 samples/channel * 2 zcs/cycle / 8 samples/cycle = N/8 zcs/channel
-	unsigned int expected_zcs = num_samples / 8;
-
-	unsigned int zcs_i = 0;
-	unsigned int zcs_q = 0;
-	uint8_t last_sign_i = 0;
-	uint8_t last_sign_q = 0;
-	for (size_t i = 0; i < num_samples; i += 2) {
-		uint8_t sign_i = (usb_bulk_buffer[i] & 0x80) ? 1 : 0;
-		uint8_t sign_q = (usb_bulk_buffer[i + 1] & 0x80) ? 1 : 0;
-		zcs_i += sign_i ^ last_sign_i;
-		zcs_q += sign_q ^ last_sign_q;
-		last_sign_i = sign_i;
-		last_sign_q = sign_q;
+	if (timeout) {
+		selftest.xcvr_loopback = TIMEOUT;
+		selftest.report.pass = false;
+		return false;
 	}
 
-	// Allow a zero crossings counting error of +-5%.
-	bool i_in_range = (zcs_i > expected_zcs * 0.95) && (zcs_i < expected_zcs * 1.05);
-	bool q_in_range = (zcs_q > expected_zcs * 0.95) && (zcs_q < expected_zcs * 1.05);
+	unsigned int expected_zcs;
+	bool i_in_range;
+	bool q_in_range;
+	bool mag_in_range;
+	bool energy_in_range;
+
+	// Capture 0:
+	// Count zero crossings.
+	// N/2 samples/channel * 2 zcs/cycle / 16 samples/cycle = N/16 zcs/channel
+	expected_zcs = num_samples / 16;
+	i_in_range = in_range(selftest.xcvr_measurements[0].zcs_i, expected_zcs, 5);
+	q_in_range = in_range(selftest.xcvr_measurements[0].zcs_q, expected_zcs, 5);
+	// Max magnitude at least 48.
+	mag_in_range = (selftest.xcvr_measurements[0].max_mag_i > 48) &&
+		(selftest.xcvr_measurements[0].max_mag_q > 48);
+	// Mean energy > 1000 (experimental).
+	energy_in_range = (selftest.xcvr_measurements[0].avg_mag_sq_i > 1000) &&
+		(selftest.xcvr_measurements[0].avg_mag_sq_q > 1000);
+	bool capture_0_test = i_in_range && q_in_range && mag_in_range && energy_in_range;
+
+	// Capture 1:
+	// Count zero crossings.
+	expected_zcs = num_samples / 16;
+	i_in_range = in_range(selftest.xcvr_measurements[1].zcs_i, expected_zcs, 5);
+	q_in_range = in_range(selftest.xcvr_measurements[1].zcs_q, expected_zcs, 5);
+	// Max magnitude at least 48.
+	mag_in_range = (selftest.xcvr_measurements[1].max_mag_i > 48) &&
+		(selftest.xcvr_measurements[1].max_mag_q > 48);
+	// Mean energy > 1000 (experimental).
+	energy_in_range = (selftest.xcvr_measurements[1].avg_mag_sq_i > 1000) &&
+		(selftest.xcvr_measurements[1].avg_mag_sq_q > 1000);
+	bool capture_1_test = i_in_range && q_in_range && mag_in_range && energy_in_range;
+
+	// Capture 2:
+	// Count zero crossings.
+	expected_zcs = num_samples / 4;
+	i_in_range = in_range(selftest.xcvr_measurements[2].zcs_i, expected_zcs, 5);
+	q_in_range = in_range(selftest.xcvr_measurements[2].zcs_q, expected_zcs, 5);
+	// Max magnitude at least 40.
+	mag_in_range = (selftest.xcvr_measurements[2].max_mag_i > 40) &&
+		(selftest.xcvr_measurements[2].max_mag_q > 40);
+	// Mean energy > 800 (experimental).
+	energy_in_range = (selftest.xcvr_measurements[2].avg_mag_sq_i > 700) &&
+		(selftest.xcvr_measurements[2].avg_mag_sq_q > 700);
+	bool capture_2_test = i_in_range && q_in_range && mag_in_range && energy_in_range;
+
+	// Capture 3:
+	// Mean energy < 16 (experimental).
+	energy_in_range = (selftest.xcvr_measurements[3].avg_mag_sq_i < 16) &&
+		(selftest.xcvr_measurements[3].avg_mag_sq_q < 16);
+	bool capture_3_test = energy_in_range;
 
 	// Update selftest result.
-	selftest.xcvr_loopback_ok = i_in_range && q_in_range;
-	if (!selftest.xcvr_loopback_ok) {
+	selftest.xcvr_loopback =
+		(capture_0_test && capture_1_test && capture_2_test && capture_3_test) ?
+		PASSED :
+		FAILED;
+	if (selftest.xcvr_loopback != PASSED) {
 		selftest.report.pass = false;
 	}
 
-	return selftest.xcvr_loopback_ok;
+	return selftest.xcvr_loopback == PASSED;
 }

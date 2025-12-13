@@ -27,6 +27,7 @@
 #include "usb_api_selftest.h"
 #include "selftest.h"
 #include "platform_detect.h"
+#include "fpga.h"
 
 static char* itoa(int val, int base)
 {
@@ -51,6 +52,21 @@ void append(char** dest, size_t* capacity, const char* str)
 		*((*dest)++) = str[i];
 		*capacity -= 1;
 	}
+}
+
+static const char* test_result_to_str(test_result_t result)
+{
+	switch (result) {
+	case FAILED:
+		return "FAIL";
+	case PASSED:
+		return "PASS";
+	case SKIPPED:
+		return "SKIP";
+	case TIMEOUT:
+		return "TIMEOUT";
+	}
+	return "????";
 }
 
 void generate_selftest_report(void)
@@ -98,14 +114,36 @@ void generate_selftest_report(void)
 #endif
 #ifdef PRALINE
 	append(&s, &c, "FPGA configuration: ");
-	append(&s, &c, selftest.fpga_image_load_ok ? "PASS" : "FAIL");
+	append(&s, &c, test_result_to_str(selftest.fpga_image_load));
+	append(&s, &c, "\n");
+	append(&s, &c, "FPGA SPI: ");
+	append(&s, &c, test_result_to_str(selftest.fpga_spi));
 	append(&s, &c, "\n");
 	append(&s, &c, "SGPIO RX test: ");
-	append(&s, &c, selftest.sgpio_rx_ok ? "PASS" : "FAIL");
+	append(&s, &c, test_result_to_str(selftest.sgpio_rx));
 	append(&s, &c, "\n");
 	append(&s, &c, "Loopback test: ");
-	append(&s, &c, selftest.xcvr_loopback_ok ? "PASS" : "FAIL");
+	append(&s, &c, test_result_to_str(selftest.xcvr_loopback));
 	append(&s, &c, "\n");
+	// Dump transceiver loopback measurements.
+	for (int i = 0; i < 4; ++i) {
+		struct xcvr_measurements* m = &selftest.xcvr_measurements[i];
+		append(&s, &c, " ");
+		append(&s, &c, itoa(i, 10));
+		append(&s, &c, ":");
+		append(&s, &c, itoa(m->zcs_i, 10));
+		append(&s, &c, ",");
+		append(&s, &c, itoa(m->zcs_q, 10));
+		append(&s, &c, ",");
+		append(&s, &c, itoa(m->max_mag_i, 10));
+		append(&s, &c, ",");
+		append(&s, &c, itoa(m->max_mag_q, 10));
+		append(&s, &c, ",");
+		append(&s, &c, itoa(m->avg_mag_sq_i, 10));
+		append(&s, &c, ",");
+		append(&s, &c, itoa(m->avg_mag_sq_q, 10));
+		append(&s, &c, "\n");
+	}
 #endif
 }
 
