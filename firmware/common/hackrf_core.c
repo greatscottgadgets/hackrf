@@ -1078,10 +1078,7 @@ void pin_setup(void)
 	gpio_output(&gpio_led[0]);
 	gpio_output(&gpio_led[1]);
 	gpio_output(&gpio_led[2]);
-#ifdef RAD1O
-	gpio_output(&gpio_led[3]);
-#endif
-#ifdef PRALINE
+#if (defined RAD1O || defined PRALINE)
 	gpio_output(&gpio_led[3]);
 #endif
 
