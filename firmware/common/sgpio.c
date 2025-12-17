@@ -61,10 +61,10 @@ void sgpio_configure_pin_functions(sgpio_config_t* const config)
 	}
 
 	sgpio_cpld_set_mixer_invert(config, 0);
-	hw_sync_enable(0);
-
 	gpio_output(config->gpio_q_invert);
+
 #ifndef PRALINE
+	hw_sync_enable(0);
 	gpio_output(config->gpio_hw_sync_enable);
 #endif
 }
