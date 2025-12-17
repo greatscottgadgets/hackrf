@@ -131,6 +131,7 @@ usb_request_status_t usb_vendor_request_reset(
 {
 	if (stage == USB_TRANSFER_STAGE_SETUP) {
 		pin_shutdown();
+		clock_gen_shutdown();
 #ifdef HACKRF_ONE
 		/*
 		 * Set boot pins as inputs so that the bootloader reads them
