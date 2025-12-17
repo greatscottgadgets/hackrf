@@ -69,7 +69,6 @@ class Top(Elaboratable):
             "cic_comp":         DomainRenamer("gck1")(FIRFilter([-0.125, 0, 0.75, 0, -0.125], shape=fixed.SQ(11), shape_out=fixed.SQ(11), always_ready=False, num_channels=2)),
             "cic_interpolator": CICInterpolator(2, 4, (4, 8, 16, 32), 12, 8, num_channels=2, 
                 always_ready=False, domain="gck1"),
-            "skid3":            DomainRenamer("gck1")(StreamSkidBuffer(IQSample(8), always_ready=False)),
         }
         for k,v in tx_chain.items():
             m.submodules[f"tx_{k}"] = v
