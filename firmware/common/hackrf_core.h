@@ -421,6 +421,7 @@ void ssp1_set_mode_max2831(void);
 void ssp1_set_mode_ice40(void);
 #endif
 
+void pin_shutdown(void);
 void pin_setup(void);
 
 #ifdef PRALINE

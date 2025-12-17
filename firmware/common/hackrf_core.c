@@ -1021,7 +1021,7 @@ void ssp1_set_mode_ice40(void)
 }
 #endif
 
-void pin_setup(void)
+void pin_shutdown(void)
 {
 	/* Configure all GPIO as Input (safe state) */
 	gpio_init();
@@ -1066,20 +1066,6 @@ void pin_setup(void)
 #ifdef JAWBREAKER
 	scu_pinmux(SCU_PINMUX_USB_LED0, SCU_CONF_FUNCTION3);
 	scu_pinmux(SCU_PINMUX_USB_LED1, SCU_CONF_FUNCTION3);
-#endif
-
-	led_off(0);
-	led_off(1);
-	led_off(2);
-#ifdef RAD1O
-	led_off(3);
-#endif
-
-	gpio_output(&gpio_led[0]);
-	gpio_output(&gpio_led[1]);
-	gpio_output(&gpio_led[2]);
-#if (defined RAD1O || defined PRALINE)
-	gpio_output(&gpio_led[3]);
 #endif
 
 #ifdef PRALINE
@@ -1129,7 +1115,6 @@ void pin_setup(void)
 
 	scu_pinmux(SCU_PINMUX_GPIO3_10, SCU_GPIO_PDN | SCU_CONF_FUNCTION0);
 	scu_pinmux(SCU_PINMUX_GPIO3_11, SCU_GPIO_PDN | SCU_CONF_FUNCTION0);
-
 #endif
 
 #ifdef PRALINE
@@ -1171,6 +1156,24 @@ void pin_setup(void)
 
 	/* enable input on SCL and SDA pins */
 	SCU_SFSI2C0 = SCU_I2C0_NOMINAL;
+}
+
+/* Run after pin_shutdown() and prior to enabling power supplies. */
+void pin_setup(void)
+{
+	led_off(0);
+	led_off(1);
+	led_off(2);
+#ifdef RAD1O
+	led_off(3);
+#endif
+
+	gpio_output(&gpio_led[0]);
+	gpio_output(&gpio_led[1]);
+	gpio_output(&gpio_led[2]);
+#if (defined RAD1O || defined PRALINE)
+	gpio_output(&gpio_led[3]);
+#endif
 
 	ssp1_set_mode_max283x();
 

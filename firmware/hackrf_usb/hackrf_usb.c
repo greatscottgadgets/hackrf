@@ -262,6 +262,8 @@ int main(void)
 	selftest.report.pass = true;
 
 	detect_hardware_platform();
+	pin_shutdown();
+	delay_us_at_mhz(10000, 96);
 	pin_setup();
 #ifndef PRALINE
 	enable_1v8_power();
