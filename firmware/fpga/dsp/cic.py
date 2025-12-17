@@ -75,7 +75,7 @@ class CICInterpolator(wiring.Component):
         if list(self.rates) != [1]:
             if inner_zoh:
                 _ = next(bit_growths), next(bit_growths)  # drop comb and integrator growths
-            stage = factor_reset(Upsampler(self.num_channels * width, max(self.rate), zero_order_hold=inner_zoh, variable=True, always_ready=always_ready))
+            stage = factor_reset(Upsampler(self.num_channels * width, max(self.rates), zero_order_hold=inner_zoh, variable=True, always_ready=always_ready))
             m.submodules["upsampler"] = stage
             m.d.sync += stage.factor.eq(1 << self.factor)
             stages += [ stage ]
