@@ -273,7 +273,6 @@ bool fpga_if_xcvr_selftest()
 
 	// Set common RX path and gateware settings for the measurements.
 	ssp1_set_mode_ice40();
-	ice40_spi_write(&ice40, 0x01, 0x1); // RX DC block
 	ice40_spi_write(&ice40, 0x05, 64);  // NCO phase increment
 	ice40_spi_write(&ice40, 0x03, 1);   // NCO TX enable
 	ssp1_set_mode_max283x();
@@ -335,7 +334,6 @@ bool fpga_if_xcvr_selftest()
 	rf_path_set_direction(&rf_path, RF_PATH_DIRECTION_OFF);
 	narrowband_filter_set(0);
 	ssp1_set_mode_ice40();
-	ice40_spi_write(&ice40, 0x01, 0);
 	ice40_spi_write(&ice40, 0x03, 0);
 	ssp1_set_mode_max283x();
 
