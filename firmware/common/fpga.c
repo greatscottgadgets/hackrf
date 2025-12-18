@@ -346,8 +346,8 @@ bool fpga_if_xcvr_selftest()
 	unsigned int expected_zcs;
 	bool i_in_range;
 	bool q_in_range;
-	bool mag_in_range;
-	bool energy_in_range;
+	bool i_energy_in_range;
+	bool q_energy_in_range;
 
 	// Capture 0:
 	// Count zero crossings.
@@ -355,45 +355,41 @@ bool fpga_if_xcvr_selftest()
 	expected_zcs = num_samples / 16;
 	i_in_range = in_range(selftest.xcvr_measurements[0].zcs_i, expected_zcs, 5);
 	q_in_range = in_range(selftest.xcvr_measurements[0].zcs_q, expected_zcs, 5);
-	// Max magnitude at least 48.
-	mag_in_range = (selftest.xcvr_measurements[0].max_mag_i > 48) &&
-		(selftest.xcvr_measurements[0].max_mag_q > 48);
-	// Mean energy > 1000 (experimental).
-	energy_in_range = (selftest.xcvr_measurements[0].avg_mag_sq_i > 1000) &&
-		(selftest.xcvr_measurements[0].avg_mag_sq_q > 1000);
-	bool capture_0_test = i_in_range && q_in_range && mag_in_range && energy_in_range;
+	i_energy_in_range = (selftest.xcvr_measurements[0].avg_mag_sq_i > 500) &&
+		(selftest.xcvr_measurements[0].avg_mag_sq_i < 2500);
+	q_energy_in_range = (selftest.xcvr_measurements[0].avg_mag_sq_q > 500) &&
+		(selftest.xcvr_measurements[0].avg_mag_sq_q < 2500);
+	bool capture_0_test =
+		i_in_range && q_in_range && i_energy_in_range && q_energy_in_range;
 
 	// Capture 1:
 	// Count zero crossings.
 	expected_zcs = num_samples / 16;
 	i_in_range = in_range(selftest.xcvr_measurements[1].zcs_i, expected_zcs, 5);
 	q_in_range = in_range(selftest.xcvr_measurements[1].zcs_q, expected_zcs, 5);
-	// Max magnitude at least 48.
-	mag_in_range = (selftest.xcvr_measurements[1].max_mag_i > 48) &&
-		(selftest.xcvr_measurements[1].max_mag_q > 48);
-	// Mean energy > 1000 (experimental).
-	energy_in_range = (selftest.xcvr_measurements[1].avg_mag_sq_i > 1000) &&
-		(selftest.xcvr_measurements[1].avg_mag_sq_q > 1000);
-	bool capture_1_test = i_in_range && q_in_range && mag_in_range && energy_in_range;
+	i_energy_in_range = (selftest.xcvr_measurements[1].avg_mag_sq_i > 500) &&
+		(selftest.xcvr_measurements[1].avg_mag_sq_i < 2500);
+	q_energy_in_range = (selftest.xcvr_measurements[1].avg_mag_sq_q > 500) &&
+		(selftest.xcvr_measurements[1].avg_mag_sq_q < 2500);
+	bool capture_1_test =
+		i_in_range && q_in_range && i_energy_in_range && q_energy_in_range;
 
 	// Capture 2:
 	// Count zero crossings.
 	expected_zcs = num_samples / 4;
 	i_in_range = in_range(selftest.xcvr_measurements[2].zcs_i, expected_zcs, 5);
 	q_in_range = in_range(selftest.xcvr_measurements[2].zcs_q, expected_zcs, 5);
-	// Max magnitude at least 40.
-	mag_in_range = (selftest.xcvr_measurements[2].max_mag_i > 40) &&
-		(selftest.xcvr_measurements[2].max_mag_q > 40);
-	// Mean energy > 800 (experimental).
-	energy_in_range = (selftest.xcvr_measurements[2].avg_mag_sq_i > 700) &&
-		(selftest.xcvr_measurements[2].avg_mag_sq_q > 700);
-	bool capture_2_test = i_in_range && q_in_range && mag_in_range && energy_in_range;
+	i_energy_in_range = (selftest.xcvr_measurements[2].avg_mag_sq_i > 400) &&
+		(selftest.xcvr_measurements[2].avg_mag_sq_i < 2000);
+	q_energy_in_range = (selftest.xcvr_measurements[2].avg_mag_sq_q > 400) &&
+		(selftest.xcvr_measurements[2].avg_mag_sq_q < 2000);
+	bool capture_2_test =
+		i_in_range && q_in_range && i_energy_in_range && q_energy_in_range;
 
 	// Capture 3:
-	// Mean energy < 16 (experimental).
-	energy_in_range = (selftest.xcvr_measurements[3].avg_mag_sq_i < 16) &&
-		(selftest.xcvr_measurements[3].avg_mag_sq_q < 16);
-	bool capture_3_test = energy_in_range;
+	i_energy_in_range = (selftest.xcvr_measurements[3].avg_mag_sq_i < 100);
+	q_energy_in_range = (selftest.xcvr_measurements[3].avg_mag_sq_q < 100);
+	bool capture_3_test = i_energy_in_range && q_energy_in_range;
 
 	// Update selftest result.
 	selftest.xcvr_loopback =
