@@ -283,11 +283,12 @@ static const max2831_ft_fine_t max2831_rx_ft_fine[] = {
 	{   0, 0 },
 };
 
+/* measured -0.5 dB complex baseband bandwidth for each register setting */
 static const max2831_ft_t max2831_tx_ft[] = {
-	{ 16000000, MAX2831_TX_LPF_8M },
-	{ 22000000, MAX2831_TX_LPF_11M },
-	{ 33000000, MAX2831_TX_LPF_16_5M },
-	{ 45000000, MAX2831_TX_LPF_22_5M },
+	{ 11900000, MAX2831_TX_LPF_8M },
+	{ 15800000, MAX2831_TX_LPF_11M },
+	{ 23600000, MAX2831_TX_LPF_16_5M },
+	{ 31300000, MAX2831_TX_LPF_22_5M },
 	{        0, 0 },
 };
 
