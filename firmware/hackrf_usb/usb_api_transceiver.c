@@ -422,6 +422,28 @@ usb_request_status_t usb_vendor_request_set_rx_overrun_limit(
 	return USB_REQUEST_STATUS_OK;
 }
 
+usb_request_status_t usb_vendor_request_get_buffer_size(
+	usb_endpoint_t* const endpoint,
+	const usb_transfer_stage_t stage)
+{
+	if (stage == USB_TRANSFER_STAGE_SETUP) {
+		uint32_t value = USB_SAMP_BUFFER_SIZE + USB_BULK_BUFFER_SIZE;
+		endpoint->buffer[0] = value & 0xff;
+		endpoint->buffer[1] = (value & 0xff00) >> 8;
+		endpoint->buffer[2] = (value & 0xff0000) >> 16;
+		endpoint->buffer[3] = (value & 0xff000000) >> 24;
+		usb_transfer_schedule_block(
+			endpoint->in,
+			&endpoint->buffer,
+			4,
+			NULL,
+			NULL);
+		usb_transfer_schedule_ack(endpoint->out);
+		return USB_REQUEST_STATUS_OK;
+	}
+	return USB_REQUEST_STATUS_OK;
+}
+
 void transceiver_start_dma(void* src, void* dest, size_t size)
 {
 	uint32_t num_transfers = size >> 2;
