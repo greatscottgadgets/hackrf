@@ -1,8 +1,16 @@
-===========================================
-External Clock Interface (CLKIN and CLKOUT)
-===========================================
+========================
+External Clock Interface
+========================
 
 .. _external_clock_interface:
+
+HackRF Pro
+~~~~~~~~~~
+
+HackRF Pro has two configurable SMA ports, P1 and P2. By default, P1 is configured as CLKIN and P2 as CLKOUT. The default behaviour of these signals is as described for HackRF One below.
+
+HackRF One
+~~~~~~~~~~
 
 HackRF One produces a 10 MHz clock signal on CLKOUT. The signal is a 3.3 V, 10 MHz square wave intended for a high impedance load.
 
