@@ -56,6 +56,11 @@
 
 #define BUF_HALF_MASK (USB_SAMP_BUFFER_SIZE >> 1)
 
+// Unless we know the host knows our buffer size, we'll avoid leaving TX
+// until we've transmitted all bytes sent by the host. This flag is cleared
+// when the host requests our buffer size.
+bool auto_tx_flush = true;
+
 volatile uint32_t dma_started, dma_pending, usb_started, usb_completed;
 
 typedef struct {
@@ -297,7 +302,7 @@ volatile transceiver_request_t transceiver_request = {
 void transceiver_usb_setup_complete(usb_endpoint_t* const endpoint)
 {
 	if (transceiver_request.mode == TRANSCEIVER_MODE_TX &&
-	    endpoint->setup.request == 1) {
+	    endpoint->setup.request == 1 && auto_tx_flush) {
 		// This is a request to leave TX mode. Do so but NAK for now.
 		request_transceiver_mode(endpoint->setup.value);
 	} else {
@@ -439,6 +444,11 @@ usb_request_status_t usb_vendor_request_get_buffer_size(
 			NULL,
 			NULL);
 		usb_transfer_schedule_ack(endpoint->out);
+
+		// We now know the host is aware of our buffer size, so it
+		// can make its own decisions about flushing the buffer.
+		auto_tx_flush = false;
+
 		return USB_REQUEST_STATUS_OK;
 	}
 	return USB_REQUEST_STATUS_OK;
@@ -591,9 +601,17 @@ void tx_mode(uint32_t seq)
 		radio_update(&radio);
 	}
 
-	// Host has now requested to stop TX. We won't initiate any further USB
-	// transfers into the bulk buffer. However, we should make sure all
-	// data currently in the USB bulk buffer reaches the sample buffer.
+	// Host has now requested to stop TX. If we're not auto-flushing, we
+	// should now stop TX immediately.
+
+	if (!auto_tx_flush) {
+		transceiver_shutdown();
+		return;
+	}
+
+	// Otherwise, we should now ensure all bytes sent by the host are
+	// transmitted before we leave TX. First, we should make sure all data
+	// currently in the USB bulk buffer reaches the sample buffer.
 
 	if ((usb_started - usb_completed) > 0) {
 		// We were part way through a 16KB firmware-side transfer when
