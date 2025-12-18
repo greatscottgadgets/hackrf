@@ -262,19 +262,27 @@ int main(void)
 	selftest.report.pass = true;
 
 	detect_hardware_platform();
+	pin_shutdown();
+	clock_gen_shutdown();
+	delay_us_at_mhz(10000, 96);
 	pin_setup();
 #ifndef PRALINE
 	enable_1v8_power();
+	clock_gen_init();
 #else
 	enable_3v3aux_power();
+	#if !defined(DFU_MODE) && !defined(RAM_MODE)
 	enable_1v2_power();
+	enable_rf_power();
+	clock_gen_init();
+	#endif
 #endif
 #ifdef HACKRF_ONE
 	// Set up mixer before enabling RF power, because its
 	// GPO is used to control the antenna bias tee.
 	mixer_setup(&mixer);
 #endif
-#if (defined HACKRF_ONE || defined RAD1O || defined PRALINE)
+#if (defined HACKRF_ONE || defined RAD1O)
 	enable_rf_power();
 #endif
 	cpu_clock_init();

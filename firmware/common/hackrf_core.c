@@ -755,83 +755,6 @@ void cpu_clock_init(void)
 	/* use IRC as clock source for APB3 */
 	CGU_BASE_APB3_CLK = CGU_BASE_APB3_CLK_CLK_SEL(CGU_SRC_IRC);
 
-	i2c_bus_start(clock_gen.bus, &i2c_config_si5351c_fast_clock);
-
-	si5351c_init(&clock_gen);
-	si5351c_disable_all_outputs(&clock_gen);
-	si5351c_disable_oeb_pin_control(&clock_gen);
-	si5351c_power_down_all_clocks(&clock_gen);
-	si5351c_set_crystal_configuration(&clock_gen);
-	si5351c_enable_xo_and_ms_fanout(&clock_gen);
-	si5351c_configure_pll_sources(&clock_gen);
-	si5351c_configure_pll_multisynth(&clock_gen);
-
-	/*
-	 * Clocks on HackRF One r9:
-	 *   CLK0 -> MAX5864/CPLD/SGPIO (sample clocks)
-	 *   CLK1 -> RFFC5072/MAX2839
-	 *   CLK2 -> External Clock Output/LPC43xx (power down at boot)
-	 *
-	 * Clocks on other platforms:
-	 *   CLK0 -> MAX5864/CPLD
-	 *   CLK1 -> CPLD
-	 *   CLK2 -> SGPIO
-	 *   CLK3 -> External Clock Output (power down at boot)
-	 *   CLK4 -> RFFC5072 (MAX2837 on rad1o)
-	 *   CLK5 -> MAX2837 (MAX2871 on rad1o)
-	 *   CLK6 -> none
-	 *   CLK7 -> LPC43xx (uses a 12MHz crystal by default)
-	 * 
-	 * Clocks on Praline:
-	 *   CLK0 -> AFE_CLK (MAX5864/FPGA)
-	 *   CLK1 -> SCT_CLK
-	 *   CLK2 -> MCU_CLK (uses a 12MHz crystal by default)
-	 *   CLK3 -> External Clock Output (power down at boot)
-	 *   CLK4 -> XCVR_CLK (MAX2837)
-	 *   CLK5 -> MIX_CLK (RFFC5072)
-	 *   CLK6 -> AUX_CLK1
-	 *   CLK7 -> AUX_CLK2
-	 */
-
-	if (detected_platform() == BOARD_ID_HACKRF1_R9) {
-		/* MS0/CLK0 is the reference for both RFFC5071 and MAX2839. */
-		si5351c_configure_multisynth(
-			&clock_gen,
-			0,
-			20 * 128 - 512,
-			0,
-			1,
-			0); /* 800/20 = 40MHz */
-	} else {
-		/* MS4/CLK4 is the source for the RFFC5071 mixer (MAX2837 on rad1o). */
-		si5351c_configure_multisynth(
-			&clock_gen,
-			4,
-			20 * 128 - 512,
-			0,
-			1,
-			0); /* 800/20 = 40MHz */
-		/* MS5/CLK5 is the source for the MAX2837 clock input (MAX2871 on rad1o). */
-		si5351c_configure_multisynth(
-			&clock_gen,
-			5,
-			20 * 128 - 512,
-			0,
-			1,
-			0); /* 800/20 = 40MHz */
-	}
-
-	/* MS6/CLK6 is unused. */
-	/* MS7/CLK7 is unused. */
-
-	/* Set to 10 MHz, the common rate between Jawbreaker and HackRF One. */
-	sample_rate_set(10000000);
-
-	si5351c_set_clock_source(&clock_gen, PLL_SOURCE_XTAL);
-	// soft reset
-	si5351c_reset_pll(&clock_gen);
-	si5351c_enable_clock_outputs(&clock_gen);
-
 	//FIXME disable I2C
 	/* Kick I2C0 down to 400kHz when we switch over to APB1 clock = 204MHz */
 	i2c_bus_start(clock_gen.bus, &i2c_config_si5351c_fast_clock);
@@ -965,6 +888,95 @@ void cpu_clock_init(void)
 #endif
 }
 
+void clock_gen_init(void)
+{
+	i2c_bus_start(clock_gen.bus, &i2c_config_si5351c_fast_clock);
+
+	si5351c_init(&clock_gen);
+	si5351c_disable_all_outputs(&clock_gen);
+	si5351c_disable_oeb_pin_control(&clock_gen);
+	si5351c_power_down_all_clocks(&clock_gen);
+	si5351c_set_crystal_configuration(&clock_gen);
+	si5351c_enable_xo_and_ms_fanout(&clock_gen);
+	si5351c_configure_pll_sources(&clock_gen);
+	si5351c_configure_pll_multisynth(&clock_gen);
+
+	/*
+	 * Clocks on HackRF One r9:
+	 *   CLK0 -> MAX5864/CPLD/SGPIO (sample clocks)
+	 *   CLK1 -> RFFC5072/MAX2839
+	 *   CLK2 -> External Clock Output/LPC43xx (power down at boot)
+	 *
+	 * Clocks on other platforms:
+	 *   CLK0 -> MAX5864/CPLD
+	 *   CLK1 -> CPLD
+	 *   CLK2 -> SGPIO
+	 *   CLK3 -> External Clock Output (power down at boot)
+	 *   CLK4 -> RFFC5072 (MAX2837 on rad1o)
+	 *   CLK5 -> MAX2837 (MAX2871 on rad1o)
+	 *   CLK6 -> none
+	 *   CLK7 -> LPC43xx (uses a 12MHz crystal by default)
+	 *
+	 * Clocks on Praline:
+	 *   CLK0 -> AFE_CLK (MAX5864/FPGA)
+	 *   CLK1 -> SCT_CLK
+	 *   CLK2 -> MCU_CLK (uses a 12MHz crystal by default)
+	 *   CLK3 -> External Clock Output (power down at boot)
+	 *   CLK4 -> XCVR_CLK (MAX2837)
+	 *   CLK5 -> MIX_CLK (RFFC5072)
+	 *   CLK6 -> AUX_CLK1
+	 *   CLK7 -> AUX_CLK2
+	 */
+
+	if (detected_platform() == BOARD_ID_HACKRF1_R9) {
+		/* MS0/CLK0 is the reference for both RFFC5071 and MAX2839. */
+		si5351c_configure_multisynth(
+			&clock_gen,
+			0,
+			20 * 128 - 512,
+			0,
+			1,
+			0); /* 800/20 = 40MHz */
+	} else {
+		/* MS4/CLK4 is the source for the RFFC5071 mixer (MAX2837 on rad1o). */
+		si5351c_configure_multisynth(
+			&clock_gen,
+			4,
+			20 * 128 - 512,
+			0,
+			1,
+			0); /* 800/20 = 40MHz */
+		/* MS5/CLK5 is the source for the MAX2837 clock input (MAX2871 on rad1o). */
+		si5351c_configure_multisynth(
+			&clock_gen,
+			5,
+			20 * 128 - 512,
+			0,
+			1,
+			0); /* 800/20 = 40MHz */
+	}
+
+	/* MS6/CLK6 is unused. */
+	/* MS7/CLK7 is unused. */
+
+	/* Set to 10 MHz, the common rate between Jawbreaker and HackRF One. */
+	sample_rate_set(10000000);
+
+	si5351c_set_clock_source(&clock_gen, PLL_SOURCE_XTAL);
+	// soft reset
+	si5351c_reset_pll(&clock_gen);
+	si5351c_enable_clock_outputs(&clock_gen);
+}
+
+void clock_gen_shutdown(void)
+{
+	i2c_bus_start(clock_gen.bus, &i2c_config_si5351c_fast_clock);
+	si5351c_init(&clock_gen);
+	si5351c_disable_all_outputs(&clock_gen);
+	si5351c_disable_oeb_pin_control(&clock_gen);
+	si5351c_power_down_all_clocks(&clock_gen);
+}
+
 clock_source_t activate_best_clock_source(void)
 {
 #if (defined HACKRF_ONE || defined PRALINE)
@@ -1021,7 +1033,7 @@ void ssp1_set_mode_ice40(void)
 }
 #endif
 
-void pin_setup(void)
+void pin_shutdown(void)
 {
 	/* Configure all GPIO as Input (safe state) */
 	gpio_init();
@@ -1066,23 +1078,6 @@ void pin_setup(void)
 #ifdef JAWBREAKER
 	scu_pinmux(SCU_PINMUX_USB_LED0, SCU_CONF_FUNCTION3);
 	scu_pinmux(SCU_PINMUX_USB_LED1, SCU_CONF_FUNCTION3);
-#endif
-
-	led_off(0);
-	led_off(1);
-	led_off(2);
-#ifdef RAD1O
-	led_off(3);
-#endif
-
-	gpio_output(&gpio_led[0]);
-	gpio_output(&gpio_led[1]);
-	gpio_output(&gpio_led[2]);
-#ifdef RAD1O
-	gpio_output(&gpio_led[3]);
-#endif
-#ifdef PRALINE
-	gpio_output(&gpio_led[3]);
 #endif
 
 #ifdef PRALINE
@@ -1132,7 +1127,6 @@ void pin_setup(void)
 
 	scu_pinmux(SCU_PINMUX_GPIO3_10, SCU_GPIO_PDN | SCU_CONF_FUNCTION0);
 	scu_pinmux(SCU_PINMUX_GPIO3_11, SCU_GPIO_PDN | SCU_CONF_FUNCTION0);
-
 #endif
 
 #ifdef PRALINE
@@ -1174,6 +1168,24 @@ void pin_setup(void)
 
 	/* enable input on SCL and SDA pins */
 	SCU_SFSI2C0 = SCU_I2C0_NOMINAL;
+}
+
+/* Run after pin_shutdown() and prior to enabling power supplies. */
+void pin_setup(void)
+{
+	led_off(0);
+	led_off(1);
+	led_off(2);
+#ifdef RAD1O
+	led_off(3);
+#endif
+
+	gpio_output(&gpio_led[0]);
+	gpio_output(&gpio_led[1]);
+	gpio_output(&gpio_led[2]);
+#if (defined RAD1O || defined PRALINE)
+	gpio_output(&gpio_led[3]);
+#endif
 
 	ssp1_set_mode_max283x();
 
