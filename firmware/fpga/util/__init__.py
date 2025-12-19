@@ -35,7 +35,7 @@ class ClockConverter(wiring.Component):
     def elaborate(self, platform):
         m = Module()
 
-        m.submodules.mem = mem = fifo.AsyncFIFO(
+        m.submodules.mem = mem = fifo.AsyncFIFOBuffered(
             width=Shape.cast(self.shape).width,
             depth=self.depth,
             r_domain=self._output_domain,
