@@ -44,6 +44,7 @@ extern "C" {
 #include "rf_path.h"
 #include "cpld_jtag.h"
 #include "ice40_spi.h"
+#include "fpga.h"
 
 /*
  * SCU PinMux
@@ -402,6 +403,7 @@ extern max283x_driver_t max283x;
 #else
 extern max2831_driver_t max283x;
 extern ice40_spi_driver_t ice40;
+extern fpga_driver_t fpga;
 
 #endif
 extern max5864_driver_t max5864;

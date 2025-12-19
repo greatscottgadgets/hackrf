@@ -78,6 +78,8 @@ if(BOARD STREQUAL "PRALINE")
 	SET(SRC_M4
 		${SRC_M4}
 		"${PATH_HACKRF_FIRMWARE_COMMON}/lz4_blk.c"
+		"${PATH_HACKRF_FIRMWARE_COMMON}/fpga_image.c"
+		"${PATH_HACKRF_FIRMWARE_COMMON}/fpga_selftest.c"
 		usb_api_praline.c
 	)
 	SET(OBJ_M4

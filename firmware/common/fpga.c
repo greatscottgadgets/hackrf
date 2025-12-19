@@ -22,383 +22,113 @@
 #include <stdbool.h>
 #include "hackrf_core.h"
 #include "ice40_spi.h"
-#include "lz4_blk.h"
-#include "m0_state.h"
-#include "streaming.h"
-#include "rf_path.h"
-#include "selftest.h"
+#include "fpga.h"
+#include "fpga_regs.def"
 
-// FPGA bitstreams blob.
-extern uint32_t _binary_fpga_bin_start;
-extern uint32_t _binary_fpga_bin_end;
-extern uint32_t _binary_fpga_bin_size;
-
-// USB buffer used during selftests.
-#define USB_BULK_BUFFER_SIZE 0x8000
-extern uint8_t usb_bulk_buffer[USB_BULK_BUFFER_SIZE];
-
-struct fpga_image_read_ctx {
-	uint32_t addr;
-	size_t next_block_sz;
-	uint8_t init_flag;
-	uint8_t buffer[4096 + 2];
-};
-
-static size_t fpga_image_read_block_cb(void* _ctx, uint8_t* out_buffer)
+/* Set up all registers according to the loaded bitstream's defaults. */
+void fpga_init(fpga_driver_t* const drv)
 {
-	// Assume out_buffer is 4KB
-	struct fpga_image_read_ctx* ctx = _ctx;
-	size_t block_sz = ctx->next_block_sz;
+	// Standard bitstream default register values.
+	set_FPGA_STANDARD_CTRL(drv, 0);
+	set_FPGA_STANDARD_TX_CTRL(drv, 0);
 
-	// first iteration: read first block size
-	if (ctx->init_flag == 0) {
-		w25q80bv_read(&spi_flash, ctx->addr, 2, ctx->buffer);
-		block_sz = ctx->buffer[0] | (ctx->buffer[1] << 8);
-		ctx->addr += 2;
-		ctx->init_flag = 1;
-	}
+	// TODO support the other bitstreams
 
-	// finish at end marker
-	if (block_sz == 0)
-		return 0;
-
-	// Read compressed block (and the next block size) from flash.
-	w25q80bv_read(&spi_flash, ctx->addr, block_sz + 2, ctx->buffer);
-	ctx->addr += block_sz + 2;
-	ctx->next_block_sz = ctx->buffer[block_sz] | (ctx->buffer[block_sz + 1] << 8);
-
-	// Decompress block.
-	return lz4_blk_decompress(ctx->buffer, out_buffer, block_sz);
+	fpga_regs_commit(drv);
 }
 
-bool fpga_image_load(unsigned int index)
+void fpga_setup(fpga_driver_t* const drv)
 {
-#if defined(DFU_MODE) || defined(RAM_MODE)
-	selftest.fpga_image_load = SKIPPED;
-	selftest.report.pass = false;
-	return false;
-#endif
+	// TODO implement fpga_target.c
 
-	// TODO: do SPI setup and read number of bitstreams once!
+	fpga_init(drv);
+}
 
-	// Prepare for SPI flash access.
-	spi_bus_start(spi_flash.bus, &ssp_config_w25q80bv);
-	w25q80bv_setup(&spi_flash);
-
-	// Read number of bitstreams from flash.
-	// Check the bitstream exists, and extract its offset.
-	uint32_t addr = (uint32_t) &_binary_fpga_bin_start;
-	uint32_t num_bitstreams, bitstream_offset;
-	w25q80bv_read(&spi_flash, addr, 4, (uint8_t*) &num_bitstreams);
-	if (index >= num_bitstreams)
-		return false;
-	w25q80bv_read(&spi_flash, addr + 4 * (index + 1), 4, (uint8_t*) &bitstream_offset);
-
-	// A callback function is used by the FPGA programmer
-	// to obtain consecutive gateware chunks.
-	ice40_spi_target_init(&ice40);
+uint8_t fpga_reg_read(fpga_driver_t* const drv, uint8_t r)
+{
+	uint8_t v;
 	ssp1_set_mode_ice40();
-	struct fpga_image_read_ctx fpga_image_ctx = {
-		.addr = (uint32_t) &_binary_fpga_bin_start + bitstream_offset,
-	};
-	const bool success = ice40_spi_syscfg_program(
-		&ice40,
-		fpga_image_read_block_cb,
-		&fpga_image_ctx);
+	v = ice40_spi_read(drv->bus, r);
 	ssp1_set_mode_max283x();
-
-	// Update selftest result.
-	selftest.fpga_image_load = success ? PASSED : FAILED;
-	if (selftest.fpga_image_load != PASSED) {
-		selftest.report.pass = false;
-	}
-
-	return success;
+	drv->regs[r] = v;
+	return v;
 }
 
-static int rx_samples(const unsigned int num_samples, uint32_t max_cycles)
+void fpga_reg_write(fpga_driver_t* const drv, uint8_t r, uint8_t v)
 {
-	uint32_t cycle_count = 0;
-	int rc = 0;
+	drv->regs[r] = v;
+	ssp1_set_mode_ice40();
+	ice40_spi_write(drv->bus, r, v);
+	ssp1_set_mode_max283x();
+	FPGA_REG_SET_CLEAN(drv, r);
+}
 
-	m0_set_mode(M0_MODE_RX);
-	m0_state.shortfall_limit = 0;
-	baseband_streaming_enable(&sgpio_config);
-	while (m0_state.m0_count < num_samples) {
-		cycle_count++;
-		if ((max_cycles > 0) && (cycle_count >= max_cycles)) {
-			rc = -1;
-			break;
+static inline void fpga_reg_commit(fpga_driver_t* const drv, uint8_t r)
+{
+	fpga_reg_write(drv, r, drv->regs[r]);
+}
+
+void fpga_regs_commit(fpga_driver_t* const drv)
+{
+	int r;
+	for (r = 1; r < FPGA_NUM_REGS; r++) {
+		if ((drv->regs_dirty >> r) & 0x1) {
+			fpga_reg_commit(drv, r);
 		}
 	}
-	baseband_streaming_disable(&sgpio_config);
-	m0_set_mode(M0_MODE_IDLE);
-
-	return rc;
 }
 
-bool fpga_spi_selftest()
+void fpga_set_hw_sync_enable(fpga_driver_t* const drv, const hw_sync_mode_t hw_sync_mode)
 {
-	// Skip if FPGA configuration failed.
-	if (selftest.fpga_image_load != PASSED) {
-		selftest.fpga_spi = SKIPPED;
-		return false;
-	}
-
-	// Test writing a register and reading it back.
-	uint8_t reg = 5;
-	uint8_t write_value = 0xA5;
-	ssp1_set_mode_ice40();
-	ice40_spi_write(&ice40, reg, write_value);
-	uint8_t read_value = ice40_spi_read(&ice40, reg);
-	ssp1_set_mode_max283x();
-
-	// Update selftest result.
-	selftest.fpga_spi = (read_value == write_value) ? PASSED : FAILED;
-	if (selftest.fpga_spi != PASSED) {
-		selftest.report.pass = false;
-	}
-
-	return selftest.fpga_spi == PASSED;
+	fpga_reg_read(drv, FPGA_STANDARD_CTRL);
+	set_FPGA_STANDARD_CTRL_TRIGGER_EN(drv, hw_sync_mode == 1);
+	fpga_regs_commit(drv);
 }
 
-static uint8_t lfsr_advance(uint8_t v)
+void fpga_set_rx_dc_block_enable(fpga_driver_t* const drv, const bool enable)
 {
-	const uint8_t feedback = ((v >> 3) ^ (v >> 4) ^ (v >> 5) ^ (v >> 7)) & 1;
-	return (v << 1) | feedback;
+	set_FPGA_STANDARD_CTRL_DC_BLOCK(drv, enable);
+	fpga_regs_commit(drv);
 }
 
-bool fpga_sgpio_selftest()
+void fpga_set_rx_decimation_ratio(fpga_driver_t* const drv, const uint8_t value)
 {
-	bool timeout = false;
-
-	// Skip if FPGA configuration failed or its SPI bus is not working.
-	if ((selftest.fpga_image_load != PASSED) || (selftest.fpga_spi != PASSED)) {
-		selftest.sgpio_rx = SKIPPED;
-		return false;
-	}
-
-	// Enable PRBS mode.
-	ssp1_set_mode_ice40();
-	ice40_spi_write(&ice40, 0x01, 0x40);
-	ssp1_set_mode_max283x();
-
-	// Stream 512 samples from the FPGA.
-	sgpio_configure(&sgpio_config, SGPIO_DIRECTION_RX);
-	if (rx_samples(512, 10000) == -1) {
-		timeout = true;
-	}
-
-	// Disable PRBS mode.
-	ssp1_set_mode_ice40();
-	ice40_spi_write(&ice40, 0x01, 0);
-	ssp1_set_mode_max283x();
-
-	// Generate sequence from first value and compare.
-	bool seq_in_sync = true;
-	uint8_t seq = lfsr_advance(usb_bulk_buffer[0]);
-	for (int i = 1; i < 512; ++i) {
-		if (usb_bulk_buffer[i] != seq) {
-			seq_in_sync = false;
-			break;
-		}
-		seq = lfsr_advance(seq);
-	}
-
-	// Update selftest result.
-	if (seq_in_sync) {
-		selftest.sgpio_rx = PASSED;
-	} else if (timeout) {
-		selftest.sgpio_rx = TIMEOUT;
-	} else {
-		selftest.sgpio_rx = FAILED;
-	}
-	if (selftest.sgpio_rx != PASSED) {
-		selftest.report.pass = false;
-	}
-
-	return selftest.sgpio_rx == PASSED;
+	set_FPGA_STANDARD_RX_DECIM(drv, value & 0b111);
+	fpga_regs_commit(drv);
 }
 
-static void measure_tone(int8_t* samples, size_t len, struct xcvr_measurements* results)
+void fpga_set_rx_quarter_shift_mode(
+	fpga_driver_t* const drv,
+	const fpga_quarter_shift_mode_t mode)
 {
-	results->zcs_i = 0;
-	results->zcs_q = 0;
-	results->max_mag_i = 0;
-	results->max_mag_q = 0;
-	results->avg_mag_sq_i = 0;
-	results->avg_mag_sq_q = 0;
-	uint8_t last_sign_i = 0;
-	uint8_t last_sign_q = 0;
-	for (size_t i = 0; i < len; i += 2) {
-		int8_t sample_i = samples[i];
-		int8_t sample_q = samples[i + 1];
-		uint8_t sign_i = sample_i < 0 ? 1 : 0;
-		uint8_t sign_q = sample_q < 0 ? 1 : 0;
-		results->zcs_i += sign_i ^ last_sign_i;
-		results->zcs_q += sign_q ^ last_sign_q;
-		last_sign_i = sign_i;
-		last_sign_q = sign_q;
-		uint8_t mag_i = sign_i ? -sample_i : sample_i;
-		uint8_t mag_q = sign_q ? -sample_q : sample_q;
-		if (mag_i > results->max_mag_i)
-			results->max_mag_i = mag_i;
-		if (mag_q > results->max_mag_q)
-			results->max_mag_q = mag_q;
-		results->avg_mag_sq_i += mag_i * mag_i;
-		results->avg_mag_sq_q += mag_q * mag_q;
-	}
-	results->avg_mag_sq_i /= (len / 2);
-	results->avg_mag_sq_q /= (len / 2);
+	set_FPGA_STANDARD_CTRL_QUARTER_SHIFT_EN(drv, (mode >> 0) & 0b1);
+	set_FPGA_STANDARD_CTRL_QUARTER_SHIFT_UP(drv, (mode >> 1) & 0b1);
+	fpga_regs_commit(drv);
 }
 
-static bool in_range(int value, int expected, int error)
+void fpga_set_tx_interpolation_ratio(fpga_driver_t* const drv, const uint8_t value)
 {
-	int max = expected * (100 + error) / 100;
-	int min = expected * (100 - error) / 100;
-	return (value > min) && (value < max);
+	set_FPGA_STANDARD_TX_INTRP(drv, value & 0b111);
+	fpga_regs_commit(drv);
 }
 
-bool fpga_if_xcvr_selftest()
+void fpga_set_prbs_enable(fpga_driver_t* const drv, const bool enable)
 {
-	bool timeout = false;
-
-	// Skip if FPGA configuration failed or its SPI bus is not working.
-	if ((selftest.fpga_image_load != PASSED) || (selftest.fpga_spi != PASSED)) {
-		selftest.xcvr_loopback = SKIPPED;
-		return false;
+	set_FPGA_STANDARD_CTRL(drv, 0);
+	if (enable) {
+		set_FPGA_STANDARD_CTRL_PRBS(drv, enable);
 	}
+	fpga_regs_commit(drv);
+}
 
-	const size_t num_samples = USB_BULK_BUFFER_SIZE / 2;
+void fpga_set_tx_nco_enable(fpga_driver_t* const drv, const bool enable)
+{
+	set_FPGA_STANDARD_TX_CTRL_NCO_EN(drv, enable);
+	fpga_regs_commit(drv);
+}
 
-	// Set common RX path and gateware settings for the measurements.
-	ssp1_set_mode_ice40();
-	ice40_spi_write(&ice40, 0x05, 64); // NCO phase increment
-	ice40_spi_write(&ice40, 0x03, 1);  // NCO TX enable
-	ssp1_set_mode_max283x();
-	rf_path_set_direction(&rf_path, RF_PATH_DIRECTION_RX_CALIBRATION);
-	max2831_set_lna_gain(&max283x, 16);
-	max2831_set_vga_gain(&max283x, 36);
-	max2831_set_frequency(&max283x, 2500000000);
-
-	// Capture 1: 4 Msps, tone at 0.5 MHz, narrowband filter OFF
-	sample_rate_frac_set(4000000 * 2, 1);
-	delay_us_at_mhz(1000, 204);
-	if (rx_samples(num_samples, 2000000) == -1) {
-		timeout = true;
-	}
-	measure_tone(
-		(int8_t*) usb_bulk_buffer,
-		num_samples,
-		&selftest.xcvr_measurements[0]);
-
-	// Capture 2: 4 Msps, tone at 0.5 MHz, narrowband filter ON
-	narrowband_filter_set(1);
-	delay_us_at_mhz(1000, 204);
-	if (rx_samples(num_samples, 2000000) == -1) {
-		timeout = true;
-	}
-	measure_tone(
-		(int8_t*) usb_bulk_buffer,
-		num_samples,
-		&selftest.xcvr_measurements[1]);
-
-	// Capture 3: 20 Msps, tone at 5 MHz, narrowband filter OFF
-	ssp1_set_mode_ice40();
-	ice40_spi_write(&ice40, 0x05, 255);
-	ssp1_set_mode_max283x();
-	sample_rate_frac_set(20000000 * 2, 1);
-	narrowband_filter_set(0);
-	delay_us_at_mhz(1000, 204);
-	if (rx_samples(num_samples, 2000000) == -1) {
-		timeout = true;
-	}
-	measure_tone(
-		(int8_t*) usb_bulk_buffer,
-		num_samples,
-		&selftest.xcvr_measurements[2]);
-
-	// Capture 4: 20 Msps, tone at 5 MHz, narrowband filter ON
-	narrowband_filter_set(1);
-	delay_us_at_mhz(1000, 204);
-	if (rx_samples(num_samples, 2000000) == -1) {
-		timeout = true;
-	}
-	measure_tone(
-		(int8_t*) usb_bulk_buffer,
-		num_samples,
-		&selftest.xcvr_measurements[3]);
-
-	// Restore default settings.
-	sample_rate_set(10000000);
-	rf_path_set_direction(&rf_path, RF_PATH_DIRECTION_OFF);
-	narrowband_filter_set(0);
-	ssp1_set_mode_ice40();
-	ice40_spi_write(&ice40, 0x03, 0);
-	ssp1_set_mode_max283x();
-
-	if (timeout) {
-		selftest.xcvr_loopback = TIMEOUT;
-		selftest.report.pass = false;
-		return false;
-	}
-
-	unsigned int expected_zcs;
-	bool i_in_range;
-	bool q_in_range;
-	bool i_energy_in_range;
-	bool q_energy_in_range;
-
-	// Capture 0:
-	// Count zero crossings.
-	// N/2 samples/channel * 2 zcs/cycle / 16 samples/cycle = N/16 zcs/channel
-	expected_zcs = num_samples / 16;
-	i_in_range = in_range(selftest.xcvr_measurements[0].zcs_i, expected_zcs, 5);
-	q_in_range = in_range(selftest.xcvr_measurements[0].zcs_q, expected_zcs, 5);
-	i_energy_in_range = (selftest.xcvr_measurements[0].avg_mag_sq_i > 500) &&
-		(selftest.xcvr_measurements[0].avg_mag_sq_i < 2500);
-	q_energy_in_range = (selftest.xcvr_measurements[0].avg_mag_sq_q > 500) &&
-		(selftest.xcvr_measurements[0].avg_mag_sq_q < 2500);
-	bool capture_0_test =
-		i_in_range && q_in_range && i_energy_in_range && q_energy_in_range;
-
-	// Capture 1:
-	// Count zero crossings.
-	expected_zcs = num_samples / 16;
-	i_in_range = in_range(selftest.xcvr_measurements[1].zcs_i, expected_zcs, 5);
-	q_in_range = in_range(selftest.xcvr_measurements[1].zcs_q, expected_zcs, 5);
-	i_energy_in_range = (selftest.xcvr_measurements[1].avg_mag_sq_i > 500) &&
-		(selftest.xcvr_measurements[1].avg_mag_sq_i < 2500);
-	q_energy_in_range = (selftest.xcvr_measurements[1].avg_mag_sq_q > 500) &&
-		(selftest.xcvr_measurements[1].avg_mag_sq_q < 2500);
-	bool capture_1_test =
-		i_in_range && q_in_range && i_energy_in_range && q_energy_in_range;
-
-	// Capture 2:
-	// Count zero crossings.
-	expected_zcs = num_samples / 4;
-	i_in_range = in_range(selftest.xcvr_measurements[2].zcs_i, expected_zcs, 5);
-	q_in_range = in_range(selftest.xcvr_measurements[2].zcs_q, expected_zcs, 5);
-	i_energy_in_range = (selftest.xcvr_measurements[2].avg_mag_sq_i > 400) &&
-		(selftest.xcvr_measurements[2].avg_mag_sq_i < 2000);
-	q_energy_in_range = (selftest.xcvr_measurements[2].avg_mag_sq_q > 400) &&
-		(selftest.xcvr_measurements[2].avg_mag_sq_q < 2000);
-	bool capture_2_test =
-		i_in_range && q_in_range && i_energy_in_range && q_energy_in_range;
-
-	// Capture 3:
-	i_energy_in_range = (selftest.xcvr_measurements[3].avg_mag_sq_i < 100);
-	q_energy_in_range = (selftest.xcvr_measurements[3].avg_mag_sq_q < 100);
-	bool capture_3_test = i_energy_in_range && q_energy_in_range;
-
-	// Update selftest result.
-	selftest.xcvr_loopback =
-		(capture_0_test && capture_1_test && capture_2_test && capture_3_test) ?
-		PASSED :
-		FAILED;
-	if (selftest.xcvr_loopback != PASSED) {
-		selftest.report.pass = false;
-	}
-
-	return selftest.xcvr_loopback == PASSED;
+void fpga_set_tx_nco_pstep(fpga_driver_t* const drv, const uint8_t phase_increment)
+{
+	set_FPGA_STANDARD_TX_PSTEP(drv, phase_increment);
+	fpga_regs_commit(drv);
 }

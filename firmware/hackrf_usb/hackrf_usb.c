@@ -132,8 +132,8 @@ static usb_request_handler_fn vendor_request_handler[] = {
 	usb_vendor_request_set_leds,
 	usb_vendor_request_user_config_set_bias_t_opts,
 #ifdef PRALINE
-	usb_vendor_request_spi_write_fpga,
-	usb_vendor_request_spi_read_fpga,
+	usb_vendor_request_write_fpga_reg,
+	usb_vendor_request_read_fpga_reg,
 	usb_vendor_request_p2_ctrl,
 	usb_vendor_request_p1_ctrl,
 	usb_vendor_request_set_narrowband_filter,

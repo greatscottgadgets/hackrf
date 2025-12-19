@@ -253,28 +253,24 @@ usb_request_status_t usb_vendor_request_user_config_set_bias_t_opts(
 }
 
 #ifdef PRALINE
-usb_request_status_t usb_vendor_request_spi_write_fpga(
+usb_request_status_t usb_vendor_request_write_fpga_reg(
 	usb_endpoint_t* const endpoint,
 	const usb_transfer_stage_t stage)
 {
 	if (stage == USB_TRANSFER_STAGE_SETUP) {
-		ssp1_set_mode_ice40();
-		ice40_spi_write(&ice40, endpoint->setup.index, endpoint->setup.value);
-		ssp1_set_mode_max283x();
+		fpga_reg_write(&fpga, endpoint->setup.index, endpoint->setup.value);
 		usb_transfer_schedule_ack(endpoint->in);
 		return USB_REQUEST_STATUS_OK;
 	}
 	return USB_REQUEST_STATUS_OK;
 }
 
-usb_request_status_t usb_vendor_request_spi_read_fpga(
+usb_request_status_t usb_vendor_request_read_fpga_reg(
 	usb_endpoint_t* const endpoint,
 	const usb_transfer_stage_t stage)
 {
 	if (stage == USB_TRANSFER_STAGE_SETUP) {
-		ssp1_set_mode_ice40();
-		const uint8_t value = ice40_spi_read(&ice40, endpoint->setup.index);
-		ssp1_set_mode_max283x();
+		const uint8_t value = fpga_reg_read(&fpga, endpoint->setup.index);
 		endpoint->buffer[0] = value;
 		usb_transfer_schedule_block(
 			endpoint->in,

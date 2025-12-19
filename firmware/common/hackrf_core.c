@@ -344,6 +344,10 @@ ice40_spi_driver_t ice40 = {
 	.gpio_creset = &gpio_fpga_cfg_creset,
 	.gpio_cdone = &gpio_fpga_cfg_cdone,
 };
+
+fpga_driver_t fpga = {
+	.bus = &ice40,
+};
 #endif
 
 radio_t radio = {
@@ -1361,10 +1365,7 @@ void hw_sync_enable(const hw_sync_mode_t hw_sync_mode)
 #ifndef PRALINE
 	gpio_write(sgpio_config.gpio_hw_sync_enable, hw_sync_mode == 1);
 #else
-	ssp1_set_mode_ice40();
-	uint8_t prev = ice40_spi_read(&ice40, 0x01);
-	ice40_spi_write(&ice40, 0x01, (prev & 0x7F) | ((hw_sync_mode == 1) << 7));
-	ssp1_set_mode_max283x();
+	fpga_set_hw_sync_enable(&fpga, hw_sync_mode);
 #endif
 }
 
