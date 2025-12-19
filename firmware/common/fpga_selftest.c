@@ -104,7 +104,7 @@ bool fpga_sgpio_selftest()
 	fpga_set_prbs_enable(&fpga, false);
 
 	// Generate sequence from first value and compare.
-	bool seq_in_sync = true;
+	bool seq_in_sync = (usb_bulk_buffer[0] != 0);
 	uint8_t seq = lfsr_advance(usb_bulk_buffer[0]);
 	for (int i = 1; i < 512; ++i) {
 		if (usb_bulk_buffer[i] != seq) {
