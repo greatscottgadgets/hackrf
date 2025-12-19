@@ -41,6 +41,13 @@ typedef enum {
 	MAX2831_MODE_RX_CALIBRATION,
 } max2831_mode_t;
 
+typedef enum {
+	MAX2831_RX_HPF_100_HZ = 0,
+	MAX2831_RX_HPF_4_KHZ = 1,
+	MAX2831_RX_HPF_30_KHZ = 2,
+	MAX2831_RX_HPF_600_KHZ = 3,
+} max2831_rx_hpf_freq_t;
+
 struct max2831_driver_t;
 typedef struct max2831_driver_t max2831_driver_t;
 
@@ -90,6 +97,11 @@ uint32_t max2831_set_lpf_bandwidth(
 bool max2831_set_lna_gain(max2831_driver_t* const drv, const uint32_t gain_db);
 bool max2831_set_vga_gain(max2831_driver_t* const drv, const uint32_t gain_db);
 bool max2831_set_txvga_gain(max2831_driver_t* const drv, const uint32_t gain_db);
+
+/* Set receiver high-pass filter corner frequency in Hz */
+extern void max2831_set_rx_hpf_frequency(
+	max2831_driver_t* const drv,
+	const max2831_rx_hpf_freq_t freq);
 
 extern void max2831_tx(max2831_driver_t* const drv);
 extern void max2831_rx(max2831_driver_t* const drv);

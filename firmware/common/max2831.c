@@ -380,15 +380,39 @@ bool max2831_set_vga_gain(max2831_driver_t* const drv, const uint32_t gain_db) {
 	if( (gain_db & 0x1) || gain_db > 62) {/* 0b11111*2 */
 		return false;
 	}
-	
+
 	set_MAX2831_RXVGA_GAIN(drv, (gain_db >> 1) );
 	max2831_reg_commit(drv, 11);
 	return true;
 }
 
-bool max2831_set_txvga_gain(max2831_driver_t* const drv, const uint32_t gain_db) {	
+bool max2831_set_txvga_gain(max2831_driver_t* const drv, const uint32_t gain_db) {
 	uint16_t value = MIN((gain_db << 1) | 1, 0x3f);
 	set_MAX2831_TXVGA_GAIN(drv, value);
 	max2831_reg_commit(drv, 12);
 	return true;
+}
+
+void max2831_set_rx_hpf_frequency(max2831_driver_t* const drv, const max2831_rx_hpf_freq_t freq)
+{
+	/**
+	 * Frequency     RXHP     RX_HPF_SEL (D13:D12)
+	 *
+	 *   100  Hz     low      00
+	 *     4 kHz     low      x1
+	 *    30 kHz     low      10
+	 *   600 kHz     high     xx
+	 */
+	switch (freq) {
+	case MAX2831_RX_HPF_100_HZ:
+	case MAX2831_RX_HPF_4_KHZ:
+	case MAX2831_RX_HPF_30_KHZ:
+		set_MAX2831_RX_HPF_SEL(drv, freq);
+		max2831_reg_commit(drv, 7);
+		gpio_clear(drv->gpio_rxhp);
+		break;
+	case MAX2831_RX_HPF_600_KHZ:
+		gpio_set(drv->gpio_rxhp);
+		break;
+	}
 }
