@@ -71,7 +71,7 @@ static inline void fpga_reg_commit(fpga_driver_t* const drv, uint8_t r)
 void fpga_regs_commit(fpga_driver_t* const drv)
 {
 	int r;
-	for (r = 0; r < FPGA_NUM_REGS; r++) {
+	for (r = 1; r < FPGA_NUM_REGS; r++) {
 		if ((drv->regs_dirty >> r) & 0x1) {
 			fpga_reg_commit(drv, r);
 		}

@@ -101,7 +101,7 @@ bool fpga_sgpio_selftest()
 	}
 
 	// Disable PRBS mode.
-	fpga_set_prbs_enable(&fpga, true);
+	fpga_set_prbs_enable(&fpga, false);
 
 	// Generate sequence from first value and compare.
 	bool seq_in_sync = true;

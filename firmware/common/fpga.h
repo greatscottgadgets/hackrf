@@ -25,8 +25,8 @@
 #include <stdbool.h>
 #include "hackrf_core.h"
 
-/* Up to 5 registers, each containing up to 8 bits of data */
-#define FPGA_NUM_REGS            5
+/* Up to 6 registers, each containing up to 8 bits of data */
+#define FPGA_NUM_REGS            6
 #define FPGA_DATA_REGS_MAX_VALUE 255
 
 typedef enum {
