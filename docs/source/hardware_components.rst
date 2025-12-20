@@ -5,6 +5,12 @@ Hardware Components
 Block Diagrams
 ~~~~~~~~~~~~~~
 
+HackRF Pro Block Diagram
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. image:: ../images/block-diagram-pro.png
+        :align: center
+
 HackRF One r1-r8 Block Diagram
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
