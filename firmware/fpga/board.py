@@ -6,7 +6,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 
 from amaranth                   import Elaboratable, Signal, Instance, Module, ClockDomain
-from amaranth.build             import Resource, Pins, Clock, Attrs
+from amaranth.build             import Resource, Pins, PinsN, Clock, Attrs
 from amaranth.vendor            import LatticeICE40Platform
 from amaranth_boards.resources  import SPIResource
 
@@ -37,13 +37,15 @@ class PralinePlatform(LatticeICE40Platform):
             Attrs(IO_STANDARD="SB_LVCMOS")),
         Resource("host_data", 0, Pins("21 19 6 13 10 3 4 18", dir="io"),
             Attrs(IO_STANDARD="SB_LVCMOS")),
-        Resource("q_invert", 0, Pins("9", dir="i"),
-            Attrs(IO_STANDARD="SB_LVCMOS")),
         Resource("direction", 0, Pins("12", dir="i"),
             Attrs(IO_STANDARD="SB_LVCMOS")),
         Resource("disable", 0, Pins("23", dir="i"),
             Attrs(IO_STANDARD="SB_LVCMOS")),
         Resource("capture_en", 0, Pins("11", dir="o"),
+            Attrs(IO_STANDARD="SB_LVCMOS")),
+
+        # Other I/O.
+        Resource("q_invert", 0, Pins("9", dir="i"),
             Attrs(IO_STANDARD="SB_LVCMOS")),
         Resource("trigger_in", 0, Pins("48", dir="i"),
             Attrs(IO_STANDARD="SB_LVCMOS")),
