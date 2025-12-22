@@ -58,7 +58,8 @@ typedef enum {
  * Used by @ref hackrf_supported_filter_element_bandwidths, to interrogate their supported bandwidths.
  * Used by @ref hackrf_get_filter, to interrogate their current configuration.
  *
- * **Note**: @ref RADIO_FILTER_RX_NARROWBAND_AA is only available on HackRF Pro hardware.
+ * **Note**: @ref RADIO_FILTER_RX_BASEBAND_HPF, RADIO_FILTER_RX_NARROWBAND_LPF, RADIO_FILTER_RX_DC_BLOCK
+ # are only available on HackRF Pro hardware.
  */
 typedef enum {
 	RADIO_FILTER_BASEBAND_LPF = 0x00,      // radio_range_t
@@ -123,7 +124,7 @@ typedef enum {
  */
 typedef enum {
 	// These currently correspond to the existing usb_transceiver_mode_t values.
-	// TODO they need to be consecutive and we need a from_usb_transceiver_mode() helper.
+	// TODO deprecate transceiver_mode_t
 	RADIO_MODE_OFF = 0,
 	RADIO_MODE_RX = 1,
 	RADIO_MODE_TX = 2,

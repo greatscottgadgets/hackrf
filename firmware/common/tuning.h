@@ -31,9 +31,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-// TODO deprecate
+// TODO remove
 bool set_freq(const uint64_t freq);
-// TODO deprecate
+// TODO remove
 bool set_freq_explicit(
 	const uint64_t if_freq_hz,
 	const uint64_t lo_freq_hz,

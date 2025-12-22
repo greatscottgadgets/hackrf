@@ -176,7 +176,6 @@ bool tuning_set_frequency(
 	#endif
 	}
 
-	// TODO set to real hz value
 	config->hz = frequency_hz;
 
 	return success;
@@ -262,10 +261,9 @@ bool tuning_set_frequency(
 	hackrf_ui()->set_frequency(frequency_hz);
 	operacake_set_range(freq_mhz);
 
-	// TODO @mossmann either configure quarter shift mode here or in radio_set_mode_frequency()
+	// TODO @mossmann configure quarter shift mode
 	// config->rx_quarter_shift_mode = ?;
 
-	// TODO @mossmann set to real hz value
 	config->hz = frequency_hz;
 
 	return true;
