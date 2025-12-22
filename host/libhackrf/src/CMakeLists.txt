@@ -114,6 +114,6 @@ if(${WIN32})
 endif(${WIN32})
 
 install(
-  FILES hackrf.h
+  FILES hackrf.h radio_types.h
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}
   COMPONENT headers)
