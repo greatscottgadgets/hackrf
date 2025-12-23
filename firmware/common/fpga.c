@@ -29,7 +29,11 @@
 void fpga_init(fpga_driver_t* const drv)
 {
 	// Standard bitstream default register values.
-	set_FPGA_STANDARD_CTRL(drv, 0);
+	set_FPGA_STANDARD_CTRL_DC_BLOCK(drv, true);
+	set_FPGA_STANDARD_CTRL_QUARTER_SHIFT_EN(drv, false);
+	set_FPGA_STANDARD_CTRL_QUARTER_SHIFT_UP(drv, false);
+	set_FPGA_STANDARD_CTRL_PRBS(drv, false);
+	set_FPGA_STANDARD_CTRL_TRIGGER_EN(drv, false);
 	set_FPGA_STANDARD_TX_CTRL(drv, 0);
 
 	// TODO support the other bitstreams
