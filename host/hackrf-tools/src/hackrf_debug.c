@@ -30,6 +30,8 @@
 #include <stdlib.h>
 #include <getopt.h>
 
+#include <inttypes.h>
+
 #define REGISTER_INVALID 32767
 
 enum parts {
@@ -102,6 +104,188 @@ int max283x_read_register(
 		       result);
 	}
 	return result;
+}
+
+int print_radio_configuration(hackrf_device* device)
+{
+	int result;
+	//printf("Radio configuration:\n");
+
+	// TODO add a 'direction' argument
+
+	// sample_rate
+	printf("\nSample rate:\n");
+	radio_sample_rate_t sample_rate;
+	result = hackrf_get_sample_rate_element(device, RADIO_SAMPLE_RATE, &sample_rate);
+	if (result != HACKRF_SUCCESS) {
+		return result;
+	}
+	printf("    SAMPLE_RATE: %f Hz\n",
+	       (double) sample_rate.num * (double) sample_rate.denom);
+	result = hackrf_get_sample_rate_element(
+		device,
+		RADIO_SAMPLE_RATE_RX_DECIMATION_RATIO,
+		&sample_rate);
+	if (result != HACKRF_SUCCESS) {
+		return result;
+	}
+	printf("    SAMPLE_RX_DECIMATION_RATIO: %d Hz\n", sample_rate.num);
+	result = hackrf_get_sample_rate_element(
+		device,
+		RADIO_SAMPLE_RATE_TX_INTERPOLATION_RATIO,
+		&sample_rate);
+	if (result != HACKRF_SUCCESS) {
+		return result;
+	}
+	printf("    SAMPLE_RATE_TX_INTERPOLATION_RATIO: %d Hz\n", sample_rate.num);
+
+	// filter
+	printf("\nFilter Configuration:\n");
+	radio_filter_t filter;
+	result = hackrf_get_filter_element(device, RADIO_FILTER_BASEBAND_LPF, &filter);
+	if (result != HACKRF_SUCCESS) {
+		return result;
+	}
+	printf("    FILTER_BASEBAND_LPF: %d Hz\n", filter.hz);
+	result = hackrf_get_filter_element(device, RADIO_FILTER_RF_PATH, &filter);
+	if (result != HACKRF_SUCCESS) {
+		return result;
+	}
+	const char* filter_mode;
+	switch (filter.mode) {
+	case 0:
+		filter_mode = "RF_PATH_FILTER_BYPASS";
+		break;
+	case 1:
+		filter_mode = "RF_PATH_FILTER_LOW_PASS";
+		break;
+	case 2:
+		filter_mode = "RF_PATH_FILTER_HIGH_PASS";
+		break;
+	default:
+		filter_mode = "UNKNOWN";
+	}
+	printf("    FILTER_RF_PATH: %s\n", filter_mode);
+	result = hackrf_get_filter_element(device, RADIO_FILTER_RX_BASEBAND_HPF, &filter);
+	if (result != HACKRF_SUCCESS) {
+		return result;
+	}
+	printf("    FILTER_RX_BASEBAND_HPF: %d\n", filter.mode);
+	result =
+		hackrf_get_filter_element(device, RADIO_FILTER_RX_NARROWBAND_LPF, &filter);
+	if (result != HACKRF_SUCCESS) {
+		return result;
+	}
+	printf("    FILTER_RX_NARROWBAND_LPF: %s\n", filter.enable ? "on" : "off");
+	result = hackrf_get_filter_element(device, RADIO_FILTER_RX_DC_BLOCK, &filter);
+	if (result != HACKRF_SUCCESS) {
+		return result;
+	}
+	printf("    FILTER_RX_DC_BLOCK: %s\n", filter.enable ? "on" : "off");
+
+	// filter bandwidths
+	printf("\nSupported Filter Bandwidths:\n");
+	uint32_t list[256];
+	uint32_t length;
+	uint32_t index;
+	result = radio_supported_filter_element_bandwidths(
+		device,
+		RADIO_FILTER_BASEBAND_LPF,
+		list,
+		&length);
+	if (result != HACKRF_SUCCESS) {
+		return result;
+	}
+	printf("    FILTER_RX_BASEBAND: %d\n", length);
+	for (index = 0; index < length; index++) {
+		printf("      %d Hz\n", list[index]);
+	}
+	result = radio_supported_filter_element_bandwidths(
+		device,
+		RADIO_FILTER_RX_NARROWBAND_LPF,
+		list,
+		&length);
+	if (result != HACKRF_SUCCESS) {
+		return result;
+	}
+	printf("    FILTER_RX_NARROWBAND_LPF: %d\n", length);
+	for (index = 0; index < length; index++) {
+		printf("      %d Hz\n", list[index]);
+	}
+	result = radio_supported_filter_element_bandwidths(
+		device,
+		RADIO_FILTER_RX_DC_BLOCK,
+		list,
+		&length);
+	if (result != HACKRF_SUCCESS) {
+		return result;
+	}
+	printf("    FILTER_RX_DC_BLOCK: %d\n", length);
+	for (index = 0; index < length; index++) {
+		printf("      %d Hz\n", list[index]);
+	}
+
+	// frequency
+	printf("\nFrequency:\n");
+	radio_frequency_t frequency;
+	result = hackrf_get_frequency_element(device, RADIO_FREQUENCY, &frequency);
+	if (result != HACKRF_SUCCESS) {
+		return result;
+	}
+	printf("    FREQUENCY: %" PRIu64 " Hz\n", frequency.hz);
+	result = hackrf_get_frequency_element(device, RADIO_FREQUENCY_LO, &frequency);
+	if (result != HACKRF_SUCCESS) {
+		return result;
+	}
+	printf("    FREQUENCY_LO: %" PRIu64 " Hz\n", frequency.hz);
+	result = hackrf_get_frequency_element(device, RADIO_FREQUENCY_IF, &frequency);
+	if (result != HACKRF_SUCCESS) {
+		return result;
+	}
+	printf("    FREQUENCY_IF: %" PRIu64 " Hz\n", frequency.hz);
+	result = hackrf_get_frequency_element(
+		device,
+		RADIO_FREQUENCY_RX_QUARTER_SHIFT,
+		&frequency);
+	if (result != HACKRF_SUCCESS) {
+		return result;
+	}
+	printf("    FREQUENCY_RX_QUARTER_SHIFT: %d\n", frequency.mode);
+
+	// gain
+	printf("\nGain:\n");
+	radio_gain_t gain;
+	result = hackrf_get_gain_element(device, RADIO_GAIN_RF_AMP, &gain);
+	if (result != HACKRF_SUCCESS) {
+		return result;
+	}
+	printf("    GAIN_RF_AMP: %s\n", gain.enable ? "on" : "off");
+	result = hackrf_get_gain_element(device, RADIO_GAIN_RX_LNA, &gain);
+	if (result != HACKRF_SUCCESS) {
+		return result;
+	}
+	printf("    GAIN_RX_LNA: %d dB\n", gain.db);
+	result = hackrf_get_gain_element(device, RADIO_GAIN_RX_VGA, &gain);
+	if (result != HACKRF_SUCCESS) {
+		return result;
+	}
+	printf("    GAIN_RX_VGA: %d dB\n", gain.db);
+	result = hackrf_get_gain_element(device, RADIO_GAIN_TX_VGA, &gain);
+	if (result != HACKRF_SUCCESS) {
+		return result;
+	}
+	printf("    GAIN_TX_VGA: %d dB\n", gain.db);
+
+	// antenna
+	printf("\nAntenna:\n");
+	radio_antenna_t antenna;
+	result = hackrf_get_antenna_element(device, RADIO_ANTENNA_BIAS_TEE, &antenna);
+	if (result != HACKRF_SUCCESS) {
+		return result;
+	}
+	printf("    ANTENNA_BIAS_TEE: %s\n", antenna.enable ? "on" : "off");
+
+	return HACKRF_SUCCESS;
 }
 
 int max283x_read_registers(hackrf_device* device, uint8_t part)
@@ -583,6 +767,7 @@ static void usage()
 	printf("\t-r, --read: read register specified by last -n argument, or all registers\n");
 	printf("\t-w, --write <v>: write register specified by last -n argument with value <v>\n");
 	printf("\t-c, --config: print SI5351C multisynth configuration information\n");
+	printf("\t-p, --print-config: print radio configuration information\n");
 	printf("\t-d, --device <s>: specify a particular device by serial number\n");
 	printf("\t-m, --max283x: target MAX283x\n");
 	printf("\t-s, --si5351c: target SI5351C\n");
@@ -611,6 +796,7 @@ static void usage()
 
 static struct option long_options[] = {
 	{"config", no_argument, 0, 'c'},
+	{"print-config", no_argument, 0, 'p'},
 	{"register", required_argument, 0, 'n'},
 	{"write", required_argument, 0, 'w'},
 	{"read", no_argument, 0, 'r'},
@@ -648,6 +834,7 @@ int main(int argc, char** argv)
 	bool read = false;
 	bool write = false;
 	bool dump_config = false;
+	bool dump_radio_config = false;
 	bool dump_state = false;
 	uint8_t part = PART_NONE;
 	const char* serial_number = NULL;
@@ -685,7 +872,7 @@ int main(int argc, char** argv)
 	while ((opt = getopt_long(
 			argc,
 			argv,
-			"n:rw:d:cmsfg1:2:C:N:P:ST:R:h?u:l:ta:o",
+			"n:rw:d:cpmsfg1:2:C:N:P:ST:R:h?u:l:ta:o",
 			long_options,
 			&option_index)) != EOF) {
 		switch (opt) {
@@ -704,6 +891,10 @@ int main(int argc, char** argv)
 
 		case 'c':
 			dump_config = true;
+			break;
+
+		case 'p':
+			dump_radio_config = true;
 			break;
 
 		case 'S':
@@ -838,19 +1029,19 @@ int main(int argc, char** argv)
 		return EXIT_FAILURE;
 	}
 
-	if (!(write || read || dump_config || dump_state || set_tx_limit ||
-	      set_rx_limit || set_ui || set_leds || set_p1 || set_p2 || set_clkin ||
-	      set_narrowband || set_fpga_bitstream || read_selftest || test_rtc_osc ||
-	      read_adc)) {
-		fprintf(stderr, "Specify read, write, or config option.\n");
+	if (!(write || read || dump_config || dump_radio_config || dump_state ||
+	      set_tx_limit || set_rx_limit || set_ui || set_leds || set_p1 || set_p2 ||
+	      set_clkin || set_narrowband || set_fpga_bitstream || read_selftest ||
+	      test_rtc_osc || read_adc)) {
+		fprintf(stderr, "Specify read, write, config or print-config option.\n");
 		usage();
 		return EXIT_FAILURE;
 	}
 
-	if (part == PART_NONE && !set_ui && !dump_state && !set_tx_limit &&
-	    !set_rx_limit && !set_leds && !set_p1 && !set_p2 && !set_clkin &&
-	    !set_narrowband && !set_fpga_bitstream && !read_selftest && !test_rtc_osc &&
-	    !read_adc) {
+	if (part == PART_NONE && !set_ui && !dump_state && !dump_radio_config &&
+	    !set_tx_limit && !set_rx_limit && !set_leds && !set_p1 && !set_p2 &&
+	    !set_clkin && !set_narrowband && !set_fpga_bitstream && !read_selftest &&
+	    !test_rtc_osc && !read_adc) {
 		fprintf(stderr, "Specify a part to read, write, or print config from.\n");
 		usage();
 		return EXIT_FAILURE;
@@ -892,6 +1083,16 @@ int main(int argc, char** argv)
 
 	if (dump_config) {
 		si5351c_read_configuration(device);
+	}
+
+	if (dump_radio_config) {
+		result = print_radio_configuration(device);
+		if (result != HACKRF_SUCCESS) {
+			printf("hackrf_hackrf_get_configuration() failed: %s (%d)\n",
+			       hackrf_error_name(result),
+			       result);
+			return EXIT_FAILURE;
+		}
 	}
 
 	if (set_tx_limit) {

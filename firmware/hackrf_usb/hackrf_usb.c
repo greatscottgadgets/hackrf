@@ -49,6 +49,7 @@
 #include "usb_api_praline.h"
 #include "usb_api_selftest.h"
 #include "usb_api_adc.h"
+#include "usb_api_radio.h"
 #include "operacake.h"
 #include "usb_api_sweep.h"
 #include "usb_api_transceiver.h"
@@ -151,6 +152,15 @@ static usb_request_handler_fn vendor_request_handler[] = {
 	usb_vendor_request_read_selftest,
 	usb_vendor_request_adc_read,
 	usb_vendor_request_test_rtc_osc,
+	usb_vendor_request_set_mode_frequency,
+	usb_vendor_request_set_mode_sample_rate,
+	usb_vendor_request_supported_sample_rate,
+	usb_vendor_request_get_sample_rate_element,
+	usb_vendor_request_get_filter_element,
+	usb_vendor_request_supported_filter_element_bandwidths,
+	usb_vendor_request_get_frequency_element,
+	usb_vendor_request_get_gain_element,
+	usb_vendor_request_get_antenna_element,
 };
 
 static const uint32_t vendor_request_handler_count =

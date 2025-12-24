@@ -25,6 +25,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 #ifndef _WIN32
 	#include <unistd.h>
@@ -45,11 +46,13 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 	#define TO_LE64(x)   __builtin_bswap64(x)
 	#define FROM_LE16(x) __builtin_bswap16(x)
 	#define FROM_LE32(x) __builtin_bswap32(x)
+	#define FROM_LE64(x) __builtin_bswap64(x)
 #else
 	#define TO_LE(x)     x
 	#define TO_LE64(x)   x
 	#define FROM_LE16(x) x
 	#define FROM_LE32(x) x
+	#define FROM_LE64(x) x
 #endif
 
 // TODO: Factor this into a shared #include so that firmware can use
@@ -111,6 +114,15 @@ typedef enum {
 	HACKRF_VENDOR_REQUEST_READ_SELFTEST = 56,
 	HACKRF_VENDOR_REQUEST_READ_ADC = 57,
 	HACKRF_VENDOR_REQUEST_TEST_RTC_OSC = 58,
+	HACKRF_VENDOR_REQUEST_SET_MODE_FREQUENCY = 59,
+	HACKRF_VENDOR_REQUEST_SET_MODE_SAMPLE_RATE = 60,
+	HACKRF_VENDOR_REQUEST_SUPPORTED_SAMPLE_RATE = 61,
+	HACKRF_VENDOR_REQUEST_GET_SAMPLE_RATE_ELEMENT = 62,
+	HACKRF_VENDOR_REQUEST_GET_FILTER_ELEMENT = 63,
+	HACKRF_VENDOR_REQUEST_SUPPORTED_FILTER_ELEMENT_BANDWIDTHS = 64,
+	HACKRF_VENDOR_REQUEST_GET_FREQUENCY_ELEMENT = 65,
+	HACKRF_VENDOR_REQUEST_GET_GAIN_ELEMENT = 66,
+	HACKRF_VENDOR_REQUEST_GET_ANTENNA_ELEMENT = 67,
 } hackrf_vendor_request;
 
 #define USB_CONFIG_STANDARD 0x1
@@ -1696,6 +1708,7 @@ typedef struct {
 
 int ADDCALL hackrf_set_freq(hackrf_device* device, const uint64_t freq_hz)
 {
+	printf("  ===> hackrf_set_freq(%lld)\n", freq_hz);
 	uint32_t l_freq_mhz;
 	uint32_t l_freq_hz;
 	set_freq_params_t set_freq_params;
@@ -1833,15 +1846,10 @@ int ADDCALL hackrf_set_sample_rate_manual(
 	}
 }
 
-/*
- * For anti-aliasing, the baseband filter bandwidth is automatically set to the
- * widest available setting that is no more than 75% of the sample rate.  This
- * happens every time the sample rate is set.  If you want to override the
- * baseband filter selection, you must do so after setting the sample rate.
- */
-int ADDCALL hackrf_set_sample_rate(hackrf_device* device, const double freq)
+static set_fracrate_params_t calculate_fractional_rate_parameters(const double freq)
 {
 	const int MAX_N = 32;
+	set_fracrate_params_t fracrate_params;
 	uint32_t freq_hz, divider;
 	double freq_frac = 1.0 + freq - (int) freq;
 	uint64_t a, m;
@@ -1874,10 +1882,25 @@ int ADDCALL hackrf_set_sample_rate(hackrf_device* device, const double freq)
 	if (i == MAX_N)
 		i = 1;
 
-	freq_hz = (uint32_t) (freq * i + 0.5);
-	divider = i;
+	fracrate_params.freq_hz = (uint32_t) (freq * i + 0.5);
+	fracrate_params.divider = i;
 
-	return hackrf_set_sample_rate_manual(device, freq_hz, divider);
+	return fracrate_params;
+}
+
+/*
+ * For anti-aliasing, the baseband filter bandwidth is automatically set to the
+ * widest available setting that is no more than 75% of the sample rate.  This
+ * happens every time the sample rate is set.  If you want to override the
+ * baseband filter selection, you must do so after setting the sample rate.
+ */
+int ADDCALL hackrf_set_sample_rate(hackrf_device* device, const double freq)
+{
+	set_fracrate_params_t params;
+
+	params = calculate_fractional_rate_parameters(freq);
+
+	return hackrf_set_sample_rate_manual(device, params.freq_hz, params.divider);
 }
 
 int ADDCALL hackrf_set_amp_enable(hackrf_device* device, const uint8_t value)
@@ -3450,6 +3473,257 @@ int ADDCALL hackrf_set_fpga_bitstream(hackrf_device* device, const uint8_t index
 	} else {
 		return HACKRF_SUCCESS;
 	}
+}
+
+int ADDCALL hackrf_set_mode_frequency(
+	hackrf_device* device,
+	const radio_mode_t mode,
+	const uint64_t frequency_hz)
+{
+	USB_API_REQUIRED(device, 0x0109);
+
+	uint8_t length = sizeof(uint64_t);
+	uint64_t value = TO_LE64(frequency_hz);
+
+	int result = libusb_control_transfer(
+		device->usb_device,
+		LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR |
+			LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_SET_MODE_FREQUENCY,
+		mode,
+		0,
+		(unsigned char*) &value,
+		length,
+		0);
+
+	if (result != length) {
+		last_libusb_error = result;
+		return HACKRF_ERROR_LIBUSB;
+	}
+	return HACKRF_SUCCESS;
+}
+
+int ADDCALL hackrf_set_mode_sample_rate(
+	hackrf_device* device,
+	const radio_mode_t mode,
+	const double rate)
+{
+	USB_API_REQUIRED(device, 0x0109);
+
+	set_fracrate_params_t set_fracrate_params;
+	uint8_t length;
+	int result;
+
+	set_fracrate_params = calculate_fractional_rate_parameters(rate);
+	set_fracrate_params.freq_hz = TO_LE(set_fracrate_params.freq_hz);
+	set_fracrate_params.divider = TO_LE(set_fracrate_params.divider);
+	length = sizeof(set_fracrate_params);
+
+	result = libusb_control_transfer(
+		device->usb_device,
+		LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR |
+			LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_SET_MODE_SAMPLE_RATE,
+		mode,
+		0,
+		(unsigned char*) &set_fracrate_params,
+		length,
+		0);
+
+	if (result != length) {
+		last_libusb_error = result;
+		return HACKRF_ERROR_LIBUSB;
+	}
+	return HACKRF_SUCCESS;
+}
+
+int ADDCALL radio_supported_sample_rate(
+	hackrf_device* device,
+	const radio_mode_t mode,
+	radio_range_t* range)
+{
+	USB_API_REQUIRED(device, 0x0109)
+
+	uint8_t length = sizeof(radio_range_t);
+
+	int result = libusb_control_transfer(
+		device->usb_device,
+		LIBUSB_ENDPOINT_IN | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_SUPPORTED_SAMPLE_RATE,
+		mode,
+		0,
+		(unsigned char*) range,
+		sizeof(radio_range_t),
+		0);
+
+	if (result != length) {
+		last_libusb_error = result;
+		return HACKRF_ERROR_LIBUSB;
+	}
+
+	range->start = FROM_LE64(range->start);
+	range->end = FROM_LE64(range->end);
+
+	return HACKRF_SUCCESS;
+}
+
+int ADDCALL hackrf_get_sample_rate_element(
+	hackrf_device* device,
+	const radio_sample_rate_id id,
+	radio_sample_rate_t* sample_rate)
+{
+	USB_API_REQUIRED(device, 0x0109)
+	int result;
+
+	result = libusb_control_transfer(
+		device->usb_device,
+		LIBUSB_ENDPOINT_IN | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_GET_SAMPLE_RATE_ELEMENT,
+		0,
+		id,
+		(unsigned char*) sample_rate,
+		sizeof(radio_sample_rate_t),
+		0);
+	if (result != sizeof(radio_sample_rate_t)) {
+		last_libusb_error = result;
+		return HACKRF_ERROR_LIBUSB;
+	}
+
+	sample_rate->num = FROM_LE32(sample_rate->num);
+	sample_rate->denom = FROM_LE32(sample_rate->denom);
+
+	return HACKRF_SUCCESS;
+}
+
+int ADDCALL hackrf_get_filter_element(
+	hackrf_device* device,
+	const radio_filter_id id,
+	radio_filter_t* filter)
+{
+	USB_API_REQUIRED(device, 0x0109)
+	int result;
+
+	result = libusb_control_transfer(
+		device->usb_device,
+		LIBUSB_ENDPOINT_IN | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_GET_FILTER_ELEMENT,
+		0,
+		id,
+		(unsigned char*) filter,
+		sizeof(radio_filter_t),
+		0);
+	if (result != sizeof(radio_filter_t)) {
+		last_libusb_error = result;
+		return HACKRF_ERROR_LIBUSB;
+	}
+
+	filter->hz = FROM_LE32(filter->hz);
+
+	return HACKRF_SUCCESS;
+}
+
+int ADDCALL radio_supported_filter_element_bandwidths(
+	hackrf_device* device,
+	const radio_filter_id id,
+	uint32_t* list,
+	uint32_t* length)
+{
+	USB_API_REQUIRED(device, 0x0109)
+	uint32_t bytes;
+
+	bytes = libusb_control_transfer(
+		device->usb_device,
+		LIBUSB_ENDPOINT_IN | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_SUPPORTED_FILTER_ELEMENT_BANDWIDTHS,
+		0,
+		id,
+		(unsigned char*) list,
+		USB_EP_BUFFER_SIZE,
+		0);
+	*length = bytes / sizeof(uint32_t);
+
+	return HACKRF_SUCCESS;
+}
+
+int ADDCALL hackrf_get_frequency_element(
+	hackrf_device* device,
+	const radio_frequency_id id,
+	radio_frequency_t* frequency)
+{
+	USB_API_REQUIRED(device, 0x0109)
+	int result;
+
+	result = libusb_control_transfer(
+		device->usb_device,
+		LIBUSB_ENDPOINT_IN | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_GET_FREQUENCY_ELEMENT,
+		0,
+		id,
+		(unsigned char*) frequency,
+		sizeof(radio_frequency_t),
+		0);
+	if (result != sizeof(radio_frequency_t)) {
+		last_libusb_error = result;
+		return HACKRF_ERROR_LIBUSB;
+	}
+
+	frequency->hz = FROM_LE64(frequency->hz);
+
+	return HACKRF_SUCCESS;
+}
+
+int ADDCALL hackrf_get_gain_element(
+	hackrf_device* device,
+	const radio_gain_id id,
+	radio_gain_t* gain)
+{
+	USB_API_REQUIRED(device, 0x0109)
+	int result;
+
+	result = libusb_control_transfer(
+		device->usb_device,
+		LIBUSB_ENDPOINT_IN | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_GET_GAIN_ELEMENT,
+		0,
+		id,
+		(unsigned char*) gain,
+		sizeof(radio_gain_t),
+		0);
+	if (result != sizeof(radio_gain_t)) {
+		last_libusb_error = result;
+		return HACKRF_ERROR_LIBUSB;
+	}
+
+	gain->db = gain->db;
+
+	return HACKRF_SUCCESS;
+}
+
+int ADDCALL hackrf_get_antenna_element(
+	hackrf_device* device,
+	const radio_antenna_id id,
+	radio_antenna_t* antenna)
+{
+	USB_API_REQUIRED(device, 0x0109)
+	int result;
+
+	result = libusb_control_transfer(
+		device->usb_device,
+		LIBUSB_ENDPOINT_IN | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_GET_ANTENNA_ELEMENT,
+		0,
+		id,
+		(unsigned char*) antenna,
+		sizeof(radio_antenna_t),
+		0);
+	if (result != sizeof(radio_antenna_t)) {
+		last_libusb_error = result;
+		return HACKRF_ERROR_LIBUSB;
+	}
+
+	antenna->enable = FROM_LE32(antenna->enable);
+
+	return HACKRF_SUCCESS;
 }
 
 #ifdef __cplusplus

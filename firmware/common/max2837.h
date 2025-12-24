@@ -56,6 +56,14 @@ struct max2837_driver_t {
 	uint32_t regs_dirty;
 };
 
+typedef struct {
+	uint32_t bandwidth_hz;
+	uint32_t ft;
+} max2837_ft_t;
+
+// dirty hack is dirty
+extern const max2837_ft_t* max2837_ft;
+
 /* Initialize chip. */
 extern void max2837_setup(max2837_driver_t* const drv);
 

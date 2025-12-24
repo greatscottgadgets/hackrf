@@ -284,13 +284,8 @@ void max2837_set_frequency(max2837_driver_t* const drv, uint32_t freq)
 	max2837_regs_commit(drv);
 }
 
-typedef struct {
-	uint32_t bandwidth_hz;
-	uint32_t ft;
-} max2837_ft_t;
-
 // clang-format off
-static const max2837_ft_t max2837_ft[] = {
+static const max2837_ft_t _max2837_ft[] = {
 	{  1750000, MAX2837_FT_1_75M },
 	{  2500000, MAX2837_FT_2_5M },
 	{  3500000, MAX2837_FT_3_5M },
@@ -310,6 +305,9 @@ static const max2837_ft_t max2837_ft[] = {
 	{        0, 0 },
 };
 //clang-format on
+
+// dirty hack is dirty
+const max2837_ft_t* max2837_ft = _max2837_ft;
 
 uint32_t max2837_set_lpf_bandwidth(max2837_driver_t* const drv, const uint32_t bandwidth_hz) {
 	const max2837_ft_t* p = max2837_ft;

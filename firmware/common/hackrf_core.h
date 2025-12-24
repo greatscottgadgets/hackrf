@@ -40,7 +40,6 @@ extern "C" {
 #include "mixer.h"
 #include "w25q80bv.h"
 #include "sgpio.h"
-#include "radio.h"
 #include "rf_path.h"
 #include "cpld_jtag.h"
 #include "ice40_spi.h"
@@ -389,6 +388,26 @@ extern "C" {
 #define SCU_H1R9_NO_VAA_EN  (P6_10) /* GPIO3[6] on P6_10 */
 #define SCU_H1R9_HW_SYNC_EN (P2_5)  /* GPIO5[5] on P2_5 */
 
+typedef enum {
+	TRANSCEIVER_MODE_OFF = 0,
+	TRANSCEIVER_MODE_RX = 1,
+	TRANSCEIVER_MODE_TX = 2,
+	TRANSCEIVER_MODE_SS = 3,
+	TRANSCEIVER_MODE_CPLD_UPDATE = 4,
+	TRANSCEIVER_MODE_RX_SWEEP = 5,
+} transceiver_mode_t;
+
+typedef enum {
+	HW_SYNC_MODE_OFF = 0,
+	HW_SYNC_MODE_ON = 1,
+} hw_sync_mode_t;
+
+typedef enum {
+	CLOCK_SOURCE_HACKRF = 0,
+	CLOCK_SOURCE_EXTERNAL = 1,
+	CLOCK_SOURCE_PORTAPACK = 2,
+} clock_source_t;
+
 void delay(uint32_t duration);
 void delay_us_at_mhz(uint32_t us, uint32_t mhz);
 
@@ -410,7 +429,6 @@ extern max5864_driver_t max5864;
 extern mixer_driver_t mixer;
 extern w25q80bv_driver_t spi_flash;
 extern sgpio_config_t sgpio_config;
-extern radio_t radio;
 extern rf_path_t rf_path;
 extern jtag_t jtag_cpld;
 extern i2c_bus_t i2c0;

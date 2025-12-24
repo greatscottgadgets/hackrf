@@ -47,6 +47,8 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 
 #endif
 
+#include "radio_types.h"
+
 /**
  * @defgroup library Library related functions and enums
  * 
@@ -504,6 +506,13 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
  * 
  * 
  */
+
+/**
+ * USB endpoint buffer size used for control transfers.
+ *
+ * This is a redefinition of the type defined in firmware/common/usb_type.h
+ */
+#define USB_EP_BUFFER_SIZE 1024
 
 /**
  * Number of samples per tuning when sweeping
@@ -2322,6 +2331,7 @@ extern ADDAPI int ADDCALL hackrf_set_p2_ctrl(
 	const enum p2_ctrl_signal signal);
 
 /**
+
  * Select signal for HackRF Pro clock input CLKIN.
  */
 extern ADDAPI int ADDCALL hackrf_set_clkin_ctrl(
@@ -2341,6 +2351,83 @@ extern ADDAPI int ADDCALL hackrf_set_narrowband_filter(
 extern ADDAPI int ADDCALL hackrf_set_fpga_bitstream(
 	hackrf_device* device,
 	const uint8_t index);
+
+/**
+ * Automatically configure the radio to the given center frequency.
+ *
+ * Returns the configuration values chosen by the tuning algorithm.
+ */
+extern ADDAPI int ADDCALL hackrf_set_mode_frequency(
+	hackrf_device* device,
+	radio_mode_t mode,
+	const uint64_t frequency_hz);
+
+/**
+ * Automatically configure the radio for the given bandwidth.
+ *
+ * Returns the configuration values chosen by the bandwidth algorithm.
+ */
+extern ADDAPI int ADDCALL hackrf_set_mode_sample_rate(
+	hackrf_device* device,
+	const radio_mode_t mode,
+	const double bandwidth_hz);
+
+/**
+ * Returns a list of supported bandwidths given the radio's current bitstream and configuration.
+ */
+extern ADDAPI int ADDCALL radio_supported_sample_rate(
+	hackrf_device* device,
+	const radio_mode_t mode,
+	radio_range_t* range);
+
+/**
+ * Return the current sample rate for the the given element.
+ */
+extern ADDAPI int ADDCALL hackrf_get_sample_rate_element(
+	hackrf_device* device,
+	const radio_sample_rate_id id,
+	radio_sample_rate_t* sample_rate);
+
+/**
+ * Return the current bandwidth for the the given filter id.
+ */
+extern ADDAPI int ADDCALL hackrf_get_filter_element(
+	hackrf_device* device,
+	const radio_filter_id id,
+	radio_filter_t* filter);
+
+/**
+ * Return the filter bandwidths supported by the given filter id.
+ */
+extern ADDAPI int ADDCALL radio_supported_filter_element_bandwidths(
+	hackrf_device* device,
+	const radio_filter_id id,
+	uint32_t* list,
+	uint32_t* length);
+
+/**
+ * Return the frequency for the the given element.
+ */
+extern ADDAPI int ADDCALL hackrf_get_frequency_element(
+	hackrf_device* device,
+	const radio_frequency_id id,
+	radio_frequency_t* frequency);
+
+/**
+ * Return the gain for the the given element.
+ */
+extern ADDAPI int ADDCALL hackrf_get_gain_element(
+	hackrf_device* device,
+	const radio_gain_id id,
+	radio_gain_t* gain);
+
+/**
+ * Return the given antenna.
+ */
+extern ADDAPI int ADDCALL hackrf_get_antenna_element(
+	hackrf_device* device,
+	const radio_antenna_id id,
+	radio_antenna_t* antenna);
 
 #ifdef __cplusplus
 } // __cplusplus defined.
