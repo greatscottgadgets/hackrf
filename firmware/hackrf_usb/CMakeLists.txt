@@ -56,6 +56,7 @@ set(SRC_M4
 	usb_api_board_info.c
 	usb_api_m0_state.c
 	usb_api_register.c
+	usb_api_radio.c
 	usb_api_spiflash.c
 	usb_api_transceiver.c
 	usb_api_operacake.c

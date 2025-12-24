@@ -65,6 +65,20 @@ struct max2831_driver_t {
 	uint32_t desired_lpf_bw;
 };
 
+typedef struct {
+	uint32_t bandwidth_hz;
+	uint8_t ft;
+} max2831_ft_t;
+
+typedef struct {
+	uint8_t percent;
+	uint8_t ft_fine;
+} max2831_ft_fine_t;
+
+// dirty hack is dirty
+extern const max2831_ft_t* max2831_rx_ft;
+extern const max2831_ft_t* max2831_tx_ft;
+
 /* Initialize chip. */
 extern void max2831_setup(max2831_driver_t* const drv);
 
