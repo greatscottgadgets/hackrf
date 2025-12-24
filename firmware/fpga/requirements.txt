@@ -1,4 +1,3 @@
 amaranth==v0.5.8
 amaranth-boards @ git+https://github.com/amaranth-lang/amaranth-boards.git@23c66d6
 lz4
-numpy
