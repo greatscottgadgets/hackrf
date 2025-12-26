@@ -47,7 +47,22 @@ radio_error_t radio_set_sample_rate(
 		return RADIO_OK;
 	}
 
+#ifdef PRALINE
+	#define MAX_AFE_RATE 40000000
+	#define MAX_N        5
+	uint8_t n = 0; // decimation ratio is 2**n
+	if (config->mode == TRANSCEIVER_MODE_RX) {
+		uint32_t afe_rate_x2 = sample_rate.num / sample_rate.div;
+		while ((afe_rate_x2 <= MAX_AFE_RATE) && (n < MAX_N)) {
+			afe_rate_x2 <<= 1;
+			n++;
+		}
+		fpga_set_rx_decimation_ratio(&fpga, n);
+	}
+	bool ok = sample_rate_frac_set(sample_rate.num << n, sample_rate.div);
+#else
 	bool ok = sample_rate_frac_set(sample_rate.num, sample_rate.div);
+#endif
 	if (!ok) {
 		return RADIO_ERR_INVALID_PARAM;
 	}
