@@ -70,16 +70,14 @@
 
 #endif
 
+#ifndef PRALINE
 static uint32_t max2837_freq_nominal_hz = 2560000000;
-
-uint64_t freq_cache = 100000000;
 
 /*
  * Set freq/tuning between 0MHz to 7250 MHz (less than 16bits really used)
  * hz between 0 to 999999 Hz (not checked)
  * return false on error or true if success.
  */
-#ifndef PRALINE
 bool set_freq(const uint64_t freq)
 {
 	bool success;
@@ -137,7 +135,6 @@ bool set_freq(const uint64_t freq)
 	}
 	max283x_set_mode(&max283x, prior_max283x_mode);
 	if (success) {
-		freq_cache = freq;
 		hackrf_ui()->set_frequency(freq);
 	#ifdef HACKRF_ONE
 		operacake_set_range(freq_mhz);
@@ -216,7 +213,6 @@ uint64_t tuning_set_frequency(const tune_config_t* cfg, const uint64_t freq)
 	}
 
 	max2831_set_mode(&max283x, prior_max2831_mode);
-	freq_cache = freq;
 	hackrf_ui()->set_frequency(freq);
 	operacake_set_range(freq_mhz);
 	return true;
