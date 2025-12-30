@@ -77,7 +77,7 @@ typedef enum {
 typedef struct {
 	uint32_t num;
 	uint32_t div;
-	double hz;
+	uint32_t hz;
 } radio_sample_rate_t;
 
 typedef struct {

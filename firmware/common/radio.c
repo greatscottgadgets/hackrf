@@ -39,8 +39,13 @@ radio_error_t radio_set_sample_rate(
 
 	radio_config_t* config = &radio->channel[chan_id].config;
 
-	// TODO get the actual tuned frequency from sample_rate_frac_set
-	sample_rate.hz = (double) sample_rate.num / (double) sample_rate.div;
+	/*
+	 * Store the sample rate rounded to the nearest Hz for convenience.
+	 */
+	if (sample_rate.div == 0) {
+		return RADIO_ERR_INVALID_PARAM;
+	}
+	sample_rate.hz = (sample_rate.num + (sample_rate.div >> 1)) / sample_rate.div;
 
 	if (config->mode == TRANSCEIVER_MODE_OFF) {
 		config->sample_rate[element] = sample_rate;
