@@ -83,7 +83,7 @@ void max2831_setup(max2831_driver_t* const drv)
 
 	//set_MAX2831_TXVGA_GAIN(0x3f); /* maximum gain */
 	set_MAX2831_TXVGA_GAIN(drv, 0x00); /* minimum gain */
-	//set_MAX2831_RX_HPF_SEL(drv, MAX2831_RX_HPF_100_HZ);
+	set_MAX2831_RX_HPF_SEL(drv, MAX2831_RX_HPF_30_KHZ);
 	set_MAX2831_LNA_GAIN(drv, MAX2831_LNA_GAIN_MAX); /* maximum gain */
 	set_MAX2831_RXVGA_GAIN(drv, 0x18);
 
