@@ -32,8 +32,6 @@
 #include "operacake.h"
 #include "platform_detect.h"
 
-#define FREQ_ONE_MHZ (1000ULL * 1000)
-
 #ifndef PRALINE
 
 	#define MIN_LP_FREQ_MHZ (0)
@@ -147,7 +145,6 @@ bool set_freq(const uint64_t freq)
 
 bool tuning_set_frequency(const tune_config_t* cfg, const uint64_t freq)
 {
-	bool found;
 	uint64_t mixer_freq_hz;
 	uint64_t real_mixer_freq_hz;
 
@@ -156,18 +153,6 @@ bool tuning_set_frequency(const tune_config_t* cfg, const uint64_t freq)
 	}
 
 	const uint16_t freq_mhz = freq / FREQ_ONE_MHZ;
-
-	found = false;
-	for (; cfg->rf_range_end_mhz != 0; cfg++) {
-		if (cfg->rf_range_end_mhz > freq_mhz) {
-			found = true;
-			break;
-		}
-	}
-
-	if (!found) {
-		return false;
-	}
 
 	max2831_mode_t prior_max2831_mode = max2831_mode(&max283x);
 	max2831_set_mode(&max283x, MAX2831_MODE_STANDBY);

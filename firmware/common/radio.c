@@ -246,19 +246,33 @@ radio_error_t radio_set_frequency(
 		return RADIO_ERR_INVALID_CONFIG;
 	}
 #else
+	const tune_config_t* tune_config;
 	switch (config->mode) {
 	case TRANSCEIVER_MODE_RX:
-		ok = tuning_set_frequency(max2831_tune_config_rx, frequency.hz);
+		tune_config = max2831_tune_config_rx;
 		break;
 	case TRANSCEIVER_MODE_RX_SWEEP:
-		ok = tuning_set_frequency(max2831_tune_config_rx_sweep, frequency.hz);
+		tune_config = max2831_tune_config_rx_sweep;
 		break;
 	case TRANSCEIVER_MODE_TX:
-		ok = tuning_set_frequency(max2831_tune_config_tx, frequency.hz);
+		tune_config = max2831_tune_config_tx;
 		break;
 	default:
 		return RADIO_ERR_INVALID_CONFIG;
 	}
+	bool found = false;
+	for (; (tune_config->rf_range_end_mhz != 0) || (tune_config->if_mhz != 0);
+	     tune_config++) {
+		if (tune_config->rf_range_end_mhz > (frequency.hz / FREQ_ONE_MHZ)) {
+			found = true;
+			break;
+		}
+	}
+	if (!found) {
+		return RADIO_ERR_INVALID_PARAM;
+	}
+
+	ok = tuning_set_frequency(tune_config, frequency.hz);
 #endif
 	if (!ok) {
 		return RADIO_ERR_INVALID_PARAM;
