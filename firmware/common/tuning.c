@@ -145,7 +145,7 @@ bool set_freq(const uint64_t freq)
 
 #else
 
-uint64_t tuning_set_frequency(const tune_config_t* cfg, const uint64_t freq)
+bool tuning_set_frequency(const tune_config_t* cfg, const uint64_t freq)
 {
 	bool found;
 	uint64_t mixer_freq_hz;

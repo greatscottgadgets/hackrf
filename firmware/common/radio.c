@@ -205,14 +205,13 @@ radio_error_t radio_set_frequency(
 	}
 
 	// auto-tune
-	uint64_t real_hz;
+	bool ok;
 #ifndef PRALINE
 	switch (config->mode) {
 	case TRANSCEIVER_MODE_RX:
 	case TRANSCEIVER_MODE_RX_SWEEP:
 	case TRANSCEIVER_MODE_TX:
-		// TODO return if, of components so we can support them in the getter
-		real_hz = set_freq(frequency.hz);
+		ok = set_freq(frequency.hz);
 		break;
 	default:
 		return RADIO_ERR_INVALID_CONFIG;
@@ -220,24 +219,22 @@ radio_error_t radio_set_frequency(
 #else
 	switch (config->mode) {
 	case TRANSCEIVER_MODE_RX:
-		real_hz = tuning_set_frequency(max2831_tune_config_rx, frequency.hz);
+		ok = tuning_set_frequency(max2831_tune_config_rx, frequency.hz);
 		break;
 	case TRANSCEIVER_MODE_RX_SWEEP:
-		real_hz =
-			tuning_set_frequency(max2831_tune_config_rx_sweep, frequency.hz);
+		ok = tuning_set_frequency(max2831_tune_config_rx_sweep, frequency.hz);
 		break;
 	case TRANSCEIVER_MODE_TX:
-		real_hz = tuning_set_frequency(max2831_tune_config_tx, frequency.hz);
+		ok = tuning_set_frequency(max2831_tune_config_tx, frequency.hz);
 		break;
 	default:
 		return RADIO_ERR_INVALID_CONFIG;
 	}
 #endif
-	if (real_hz == 0) {
+	if (!ok) {
 		return RADIO_ERR_INVALID_PARAM;
 	}
 
-	frequency.hz = real_hz;
 	config->frequency[element] = frequency;
 	return RADIO_OK;
 }

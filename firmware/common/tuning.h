@@ -37,7 +37,7 @@ bool set_freq_explicit(
 	const rf_path_filter_t path);
 
 #ifdef PRALINE
-uint64_t tuning_set_frequency(const tune_config_t* config, const uint64_t frequency_hz);
+bool tuning_set_frequency(const tune_config_t* config, const uint64_t frequency_hz);
 #endif
 
 #endif /*__TUNING_H__*/
