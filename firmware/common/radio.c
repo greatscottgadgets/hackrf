@@ -225,6 +225,13 @@ radio_error_t radio_set_frequency(
 			frequency.if_hz,
 			frequency.lo_hz,
 			frequency.path);
+#ifdef PRALINE
+		if (ok) {
+			fpga_set_rx_quarter_shift_mode(
+				&fpga,
+				FPGA_QUARTER_SHIFT_MODE_NONE);
+		}
+#endif
 		if (!ok) {
 			return RADIO_ERR_INVALID_PARAM;
 		}
@@ -272,7 +279,11 @@ radio_error_t radio_set_frequency(
 		return RADIO_ERR_INVALID_PARAM;
 	}
 
-	ok = tuning_set_frequency(tune_config, frequency.hz);
+	fpga_set_rx_quarter_shift_mode(&fpga, tune_config->shift);
+	uint32_t offset = (config->sample_rate[RADIO_SAMPLE_RATE_CLOCKGEN].hz
+			   << config->resampling_n) /
+		8;
+	ok = tuning_set_frequency(tune_config, frequency.hz, offset);
 #endif
 	if (!ok) {
 		return RADIO_ERR_INVALID_PARAM;

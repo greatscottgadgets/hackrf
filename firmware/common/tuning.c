@@ -143,7 +143,10 @@ bool set_freq(const uint64_t freq)
 
 #else
 
-bool tuning_set_frequency(const tune_config_t* cfg, const uint64_t freq)
+bool tuning_set_frequency(
+	const tune_config_t* cfg,
+	const uint64_t freq,
+	const uint32_t offset)
 {
 	uint64_t mixer_freq_hz;
 	uint64_t real_mixer_freq_hz;
@@ -154,31 +157,42 @@ bool tuning_set_frequency(const tune_config_t* cfg, const uint64_t freq)
 
 	const uint16_t freq_mhz = freq / FREQ_ONE_MHZ;
 
+	uint64_t rf = freq;
+	if (cfg->shift == FPGA_QUARTER_SHIFT_MODE_DOWN) {
+		if (offset > rf) {
+			rf = offset - rf;
+		} else {
+			rf = rf - offset;
+		}
+	} else if (cfg->shift == FPGA_QUARTER_SHIFT_MODE_UP) {
+		rf = rf + offset;
+	}
+
 	max2831_mode_t prior_max2831_mode = max2831_mode(&max283x);
 	max2831_set_mode(&max283x, MAX2831_MODE_STANDBY);
 
 	if (cfg->if_mhz == 0) {
 		rf_path_set_filter(&rf_path, RF_PATH_FILTER_BYPASS);
-		max2831_set_frequency(&max283x, freq);
+		max2831_set_frequency(&max283x, rf);
 		sgpio_cpld_set_mixer_invert(&sgpio_config, 0);
 	} else if (cfg->if_mhz > freq_mhz) {
 		rf_path_set_filter(&rf_path, RF_PATH_FILTER_LOW_PASS);
 		if (cfg->high_lo) {
-			mixer_freq_hz = FREQ_ONE_MHZ * cfg->if_mhz + freq;
+			mixer_freq_hz = FREQ_ONE_MHZ * cfg->if_mhz + rf;
 			real_mixer_freq_hz = mixer_set_frequency(&mixer, mixer_freq_hz);
-			max2831_set_frequency(&max283x, real_mixer_freq_hz - freq);
+			max2831_set_frequency(&max283x, real_mixer_freq_hz - rf);
 			sgpio_cpld_set_mixer_invert(&sgpio_config, 1);
 		} else {
-			mixer_freq_hz = FREQ_ONE_MHZ * cfg->if_mhz - freq;
+			mixer_freq_hz = FREQ_ONE_MHZ * cfg->if_mhz - rf;
 			real_mixer_freq_hz = mixer_set_frequency(&mixer, mixer_freq_hz);
-			max2831_set_frequency(&max283x, real_mixer_freq_hz + freq);
+			max2831_set_frequency(&max283x, real_mixer_freq_hz + rf);
 			sgpio_cpld_set_mixer_invert(&sgpio_config, 0);
 		}
 	} else {
 		rf_path_set_filter(&rf_path, RF_PATH_FILTER_HIGH_PASS);
-		mixer_freq_hz = freq - FREQ_ONE_MHZ * cfg->if_mhz;
+		mixer_freq_hz = rf - FREQ_ONE_MHZ * cfg->if_mhz;
 		real_mixer_freq_hz = mixer_set_frequency(&mixer, mixer_freq_hz);
-		max2831_set_frequency(&max283x, freq - real_mixer_freq_hz);
+		max2831_set_frequency(&max283x, rf - real_mixer_freq_hz);
 		sgpio_cpld_set_mixer_invert(&sgpio_config, 0);
 	}
 

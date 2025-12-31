@@ -23,7 +23,7 @@
 #define __FPGA_H
 
 #include <stdbool.h>
-#include "hackrf_core.h"
+#include "ice40_spi.h"
 
 /* Up to 6 registers, each containing up to 8 bits of data */
 #define FPGA_NUM_REGS            6
