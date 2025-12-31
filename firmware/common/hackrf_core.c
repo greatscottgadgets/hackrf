@@ -376,6 +376,9 @@ radio_t radio = {
 					.clock[RADIO_CLOCK_CLKIN] = {.enable = false},
 					.clock[RADIO_CLOCK_CLKOUT] = {.enable = false},
 					.trigger_enable = false,
+#ifdef PRALINE
+					.resampling_n = 0,
+#endif
 				},
 			.clock_source = CLOCK_SOURCE_HACKRF,
 		},

@@ -156,6 +156,12 @@ typedef struct {
 
 	// currently active transceiver mode
 	transceiver_mode_t mode;
+
+#ifdef PRALINE
+	// resampling ratio is 2**n
+	uint8_t resampling_n;
+#endif
+
 } radio_config_t;
 
 typedef struct radio_channel_t {
