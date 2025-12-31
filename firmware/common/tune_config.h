@@ -213,6 +213,7 @@ static const tune_config_t praline_tune_config_rx_sweep[] = {
 
 /* tuning table optimized for RX */
 static const tune_config_t praline_tune_config_rx[] = {
+	{    0, 2360,  true, FPGA_QUARTER_SHIFT_MODE_NONE },
 	{   50, 2320,  true, FPGA_QUARTER_SHIFT_MODE_UP   },
 	{  100, 2320,  true, FPGA_QUARTER_SHIFT_MODE_DOWN },
 	{  140, 2320,  true, FPGA_QUARTER_SHIFT_MODE_UP   },

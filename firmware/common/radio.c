@@ -286,7 +286,8 @@ radio_error_t radio_set_frequency(
 	bool found = false;
 	for (; (tune_config->rf_range_end_mhz != 0) || (tune_config->if_mhz != 0);
 	     tune_config++) {
-		if (tune_config->rf_range_end_mhz > (frequency.hz / FREQ_ONE_MHZ)) {
+		if ((frequency.hz == 0) ||
+		    (tune_config->rf_range_end_mhz > (frequency.hz / FREQ_ONE_MHZ))) {
 			found = true;
 			break;
 		}
