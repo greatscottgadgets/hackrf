@@ -34,7 +34,7 @@ typedef struct {
 
 // clang-format off
 /* tuning table optimized for TX */
-static const tune_config_t max2831_tune_config_tx[] = {
+static const tune_config_t praline_tune_config_tx[] = {
 	{ 2100, 2375,  true, FPGA_QUARTER_SHIFT_MODE_NONE },
 	{ 2175, 2325, false, FPGA_QUARTER_SHIFT_MODE_NONE },
 	{ 2320, 2525, false, FPGA_QUARTER_SHIFT_MODE_NONE },
@@ -64,7 +64,7 @@ static const tune_config_t max2831_tune_config_tx[] = {
 };
 
 /* tuning table optimized for 20 Msps interleaved RX sweep mode */
-static const tune_config_t max2831_tune_config_rx_sweep[] = {
+static const tune_config_t praline_tune_config_rx_sweep[] = {
 	{  140, 2330, false, FPGA_QUARTER_SHIFT_MODE_NONE },
 	{  424, 2570,  true, FPGA_QUARTER_SHIFT_MODE_NONE },
 	{  557, 2520,  true, FPGA_QUARTER_SHIFT_MODE_NONE },
@@ -212,7 +212,7 @@ static const tune_config_t max2831_tune_config_rx_sweep[] = {
 };
 
 /* tuning table optimized for RX */
-static const tune_config_t max2831_tune_config_rx[] = {
+static const tune_config_t praline_tune_config_rx[] = {
 	{   50, 2320,  true, FPGA_QUARTER_SHIFT_MODE_UP   },
 	{  100, 2320,  true, FPGA_QUARTER_SHIFT_MODE_DOWN },
 	{  140, 2320,  true, FPGA_QUARTER_SHIFT_MODE_UP   },

@@ -256,13 +256,13 @@ radio_error_t radio_set_frequency(
 	const tune_config_t* tune_config;
 	switch (config->mode) {
 	case TRANSCEIVER_MODE_RX:
-		tune_config = max2831_tune_config_rx;
+		tune_config = praline_tune_config_rx;
 		break;
 	case TRANSCEIVER_MODE_RX_SWEEP:
-		tune_config = max2831_tune_config_rx_sweep;
+		tune_config = praline_tune_config_rx_sweep;
 		break;
 	case TRANSCEIVER_MODE_TX:
-		tune_config = max2831_tune_config_tx;
+		tune_config = praline_tune_config_tx;
 		break;
 	default:
 		return RADIO_ERR_INVALID_CONFIG;
