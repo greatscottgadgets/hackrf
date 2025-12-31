@@ -474,6 +474,23 @@ radio_error_t radio_switch_mode(
 		return result;
 	}
 
+	/*
+	 * Because of offset tuning on Praline, the sample rate can affect the
+	 * tuning configuration, so radio_set_sample_rate() calls
+	 * radio_set_frequency(). Also because of offset tuning, the tuning
+	 * configuration can affect the baseband filter bandwidth (in addition
+	 * to the filter bandwidth being automatically based on the sample
+	 * rate), so radio_set_frequency() calls radio_set_filter().
+	 */
+#ifndef PRALINE
+	// tuning frequency
+	radio_frequency_t frequency =
+		radio_get_frequency(radio, channel->id, RADIO_FREQUENCY_RF);
+	result = radio_set_frequency(radio, channel->id, RADIO_FREQUENCY_RF, frequency);
+	if (result != RADIO_OK) {
+		return result;
+	}
+
 	// baseband filter bandwidth
 	radio_filter_t filter =
 		radio_get_filter(radio, channel->id, RADIO_FILTER_BASEBAND);
@@ -481,6 +498,7 @@ radio_error_t radio_switch_mode(
 	if (result != RADIO_OK) {
 		return result;
 	}
+#endif
 
 	// rf_amp enable
 	radio_gain_t enable = radio_get_gain(radio, channel->id, RADIO_GAIN_RF_AMP);
@@ -517,14 +535,6 @@ radio_error_t radio_switch_mode(
 	radio_antenna_t bias_tee =
 		radio_get_antenna(radio, channel->id, RADIO_ANTENNA_BIAS_TEE);
 	result = radio_set_antenna(radio, channel->id, RADIO_ANTENNA_BIAS_TEE, bias_tee);
-	if (result != RADIO_OK) {
-		return result;
-	}
-
-	// tuning frequency
-	radio_frequency_t frequency =
-		radio_get_frequency(radio, channel->id, RADIO_FREQUENCY_RF);
-	result = radio_set_frequency(radio, channel->id, RADIO_FREQUENCY_RF, frequency);
 	if (result != RADIO_OK) {
 		return result;
 	}
