@@ -378,6 +378,7 @@ radio_t radio = {
 					.trigger_enable = false,
 #ifdef PRALINE
 					.resampling_n = 0,
+					.shift = FPGA_QUARTER_SHIFT_MODE_NONE,
 #endif
 				},
 			.clock_source = CLOCK_SOURCE_HACKRF,

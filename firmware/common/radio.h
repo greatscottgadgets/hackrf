@@ -28,6 +28,7 @@
 #include <stdbool.h>
 
 #include "rf_path.h"
+#include "fpga.h"
 
 typedef enum {
 	RADIO_OK = 1,
@@ -160,6 +161,9 @@ typedef struct {
 #ifdef PRALINE
 	// resampling ratio is 2**n
 	uint8_t resampling_n;
+
+	// quarter-rate shift configuration for offset tuning
+	fpga_quarter_shift_mode_t shift;
 #endif
 
 } radio_config_t;

@@ -116,17 +116,22 @@ radio_error_t radio_set_filter(
 		return RADIO_OK;
 	}
 
-	uint32_t real_hz;
 #ifndef PRALINE
-	real_hz = max283x_set_lpf_bandwidth(&max283x, filter.hz);
+	max283x_set_lpf_bandwidth(&max283x, filter.hz);
 #else
-	real_hz = max2831_set_lpf_bandwidth(&max283x, filter.hz);
-#endif
-	if (real_hz == 0) {
-		return RADIO_ERR_INVALID_PARAM;
+	uint32_t lpf_bandwidth =
+		(config->sample_rate[RADIO_SAMPLE_RATE_CLOCKGEN].hz * 3) / 8;
+	uint32_t offset = 0;
+	if (config->shift != FPGA_QUARTER_SHIFT_MODE_NONE) {
+		offset = (config->sample_rate[RADIO_SAMPLE_RATE_CLOCKGEN].hz
+			  << config->resampling_n) /
+			8;
 	}
+	lpf_bandwidth += offset * 2;
+	max2831_set_lpf_bandwidth(&max283x, lpf_bandwidth);
+#endif
 
-	config->filter[element] = (radio_filter_t){.hz = real_hz};
+	config->filter[element] = filter;
 	return RADIO_OK;
 }
 
@@ -230,6 +235,17 @@ radio_error_t radio_set_frequency(
 			fpga_set_rx_quarter_shift_mode(
 				&fpga,
 				FPGA_QUARTER_SHIFT_MODE_NONE);
+			config->shift = FPGA_QUARTER_SHIFT_MODE_NONE;
+			radio_channel_t* channel = &radio->channel[chan_id];
+			radio_filter_t filter = radio_get_filter(
+				radio,
+				channel->id,
+				RADIO_FILTER_BASEBAND);
+			ok = radio_set_filter(
+				radio,
+				channel->id,
+				RADIO_FILTER_BASEBAND,
+				filter);
 		}
 #endif
 		if (!ok) {
@@ -280,10 +296,17 @@ radio_error_t radio_set_frequency(
 	}
 
 	fpga_set_rx_quarter_shift_mode(&fpga, tune_config->shift);
+	config->shift = tune_config->shift;
 	uint32_t offset = (config->sample_rate[RADIO_SAMPLE_RATE_CLOCKGEN].hz
 			   << config->resampling_n) /
 		8;
 	ok = tuning_set_frequency(tune_config, frequency.hz, offset);
+	if (ok) {
+		radio_channel_t* channel = &radio->channel[chan_id];
+		radio_filter_t filter =
+			radio_get_filter(radio, channel->id, RADIO_FILTER_BASEBAND);
+		ok = radio_set_filter(radio, channel->id, RADIO_FILTER_BASEBAND, filter);
+	}
 #endif
 	if (!ok) {
 		return RADIO_ERR_INVALID_PARAM;
