@@ -52,11 +52,11 @@ void sgpio_configure_pin_functions(sgpio_config_t* const config)
 
 	if (detected_platform() == BOARD_ID_HACKRF1_R9) {
 		scu_pinmux(
-			SCU_H1R9_HW_SYNC_EN,
+			SCU_H1R9_TRIGGER_EN,
 			SCU_GPIO_FAST | SCU_CONF_FUNCTION4); /* GPIO5[5] */
 	} else {
 		scu_pinmux(
-			SCU_HW_SYNC_EN,
+			SCU_TRIGGER_EN,
 			SCU_GPIO_FAST | SCU_CONF_FUNCTION4); /* GPIO5[12] */
 	}
 
@@ -64,8 +64,8 @@ void sgpio_configure_pin_functions(sgpio_config_t* const config)
 	gpio_output(config->gpio_q_invert);
 
 #ifndef PRALINE
-	hw_sync_enable(0);
-	gpio_output(config->gpio_hw_sync_enable);
+	trigger_enable(false);
+	gpio_output(config->gpio_trigger_enable);
 #endif
 }
 

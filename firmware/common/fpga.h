@@ -63,7 +63,7 @@ extern void fpga_reg_write(fpga_driver_t* const drv, uint8_t r, uint8_t v);
  * provided routines for those operations. */
 extern void fpga_regs_commit(fpga_driver_t* const drv);
 
-void fpga_set_hw_sync_enable(fpga_driver_t* const drv, const hw_sync_mode_t hw_sync_mode);
+void fpga_set_trigger_enable(fpga_driver_t* const drv, const bool enable);
 void fpga_set_rx_dc_block_enable(fpga_driver_t* const drv, const bool enable);
 void fpga_set_rx_decimation_ratio(fpga_driver_t* const drv, const uint8_t value);
 void fpga_set_rx_quarter_shift_mode(

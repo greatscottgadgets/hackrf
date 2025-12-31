@@ -170,7 +170,7 @@ static struct gpio_t gpio_cpld_pp_tdo       = GPIO(1,  8);
 
 /* other CPLD interface GPIO pins */
 #ifndef PRALINE
-static struct gpio_t gpio_hw_sync_enable    = GPIO(5, 12);
+static struct gpio_t gpio_trigger_enable    = GPIO(5, 12);
 #endif
 static struct gpio_t gpio_q_invert          = GPIO(0, 13);
 
@@ -179,7 +179,7 @@ static struct gpio_t gpio_q_invert          = GPIO(0, 13);
 static struct gpio_t gpio_h1r9_rx             = GPIO(0, 7);
 static struct gpio_t gpio_h1r9_1v8_enable     = GPIO(2, 9);
 static struct gpio_t gpio_h1r9_vaa_disable    = GPIO(3, 6);
-static struct gpio_t gpio_h1r9_hw_sync_enable = GPIO(5, 5);
+static struct gpio_t gpio_h1r9_trigger_enable = GPIO(5, 5);
 #endif
 
 #ifdef PRALINE
@@ -324,7 +324,7 @@ w25q80bv_driver_t spi_flash = {
 sgpio_config_t sgpio_config = {
 	.gpio_q_invert = &gpio_q_invert,
 #ifndef PRALINE
-	.gpio_hw_sync_enable = &gpio_hw_sync_enable,
+	.gpio_trigger_enable = &gpio_trigger_enable,
 #endif
 	.slice_mode_multislice = true,
 };
@@ -375,7 +375,7 @@ radio_t radio = {
 					.mode = TRANSCEIVER_MODE_OFF,
 					.clock[RADIO_CLOCK_CLKIN] = {.enable = false},
 					.clock[RADIO_CLOCK_CLKOUT] = {.enable = false},
-					.trigger_mode = HW_SYNC_MODE_OFF,
+					.trigger_enable = false,
 				},
 			.clock_source = CLOCK_SOURCE_HACKRF,
 		},
@@ -1198,7 +1198,7 @@ void pin_setup(void)
 #ifdef HACKRF_ONE
 	if (detected_platform() == BOARD_ID_HACKRF1_R9) {
 		rf_path.gpio_rx = &gpio_h1r9_rx;
-		sgpio_config.gpio_hw_sync_enable = &gpio_h1r9_hw_sync_enable;
+		sgpio_config.gpio_trigger_enable = &gpio_h1r9_trigger_enable;
 	}
 #endif
 
@@ -1360,12 +1360,12 @@ void set_leds(const uint8_t state)
 	}
 }
 
-void hw_sync_enable(const hw_sync_mode_t hw_sync_mode)
+void trigger_enable(const bool enable)
 {
 #ifndef PRALINE
-	gpio_write(sgpio_config.gpio_hw_sync_enable, hw_sync_mode == 1);
+	gpio_write(sgpio_config.gpio_trigger_enable, enable);
 #else
-	fpga_set_hw_sync_enable(&fpga, hw_sync_mode);
+	fpga_set_trigger_enable(&fpga, enable);
 #endif
 }
 

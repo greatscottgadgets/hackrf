@@ -321,20 +321,17 @@ radio_clock_t radio_get_clock(
 	return radio->channel[chan_id].config.clock[element];
 }
 
-radio_error_t radio_set_trigger_mode(
-	radio_t* radio,
-	radio_chan_id chan_id,
-	hw_sync_mode_t mode)
+radio_error_t radio_set_trigger_enable(radio_t* radio, radio_chan_id chan_id, bool enable)
 {
 	radio_config_t* config = &radio->channel[chan_id].config;
 
-	config->trigger_mode = mode;
+	config->trigger_enable = enable;
 	return RADIO_OK;
 }
 
-hw_sync_mode_t radio_get_trigger_mode(radio_t* radio, radio_chan_id chan_id)
+bool radio_get_trigger_enable(radio_t* radio, radio_chan_id chan_id)
 {
-	return radio->channel[chan_id].config.trigger_mode;
+	return radio->channel[chan_id].config.trigger_enable;
 }
 
 transceiver_mode_t radio_get_mode(radio_t* radio, radio_chan_id chan_id)

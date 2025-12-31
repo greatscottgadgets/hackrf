@@ -108,12 +108,6 @@ typedef struct {
 
 // legacy type, moved from hackrf_core
 typedef enum {
-	HW_SYNC_MODE_OFF = 0,
-	HW_SYNC_MODE_ON = 1,
-} hw_sync_mode_t;
-
-// legacy type, moved from hackrf_core
-typedef enum {
 	CLOCK_SOURCE_HACKRF = 0,
 	CLOCK_SOURCE_EXTERNAL = 1,
 	CLOCK_SOURCE_PORTAPACK = 2,
@@ -158,7 +152,7 @@ typedef struct {
 	radio_clock_t clock[RADIO_CLOCK_COUNT];
 
 	// trigger elements
-	hw_sync_mode_t trigger_mode;
+	bool trigger_enable;
 
 	// currently active transceiver mode
 	transceiver_mode_t mode;
@@ -245,11 +239,8 @@ radio_clock_t radio_get_clock(
 	radio_chan_id chan_id,
 	radio_clock_id element);
 
-radio_error_t radio_set_trigger_mode(
-	radio_t* radio,
-	radio_chan_id chan_id,
-	hw_sync_mode_t mode);
-hw_sync_mode_t radio_get_trigger_mode(radio_t* radio, radio_chan_id chan_id);
+radio_error_t radio_set_trigger_enable(radio_t* radio, radio_chan_id chan_id, bool enable);
+bool radio_get_trigger_enable(radio_t* radio, radio_chan_id chan_id);
 
 transceiver_mode_t radio_get_mode(radio_t* radio, radio_chan_id chan_id);
 rf_path_direction_t radio_get_direction(radio_t* radio, radio_chan_id chan_id);

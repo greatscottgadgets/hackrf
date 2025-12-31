@@ -82,10 +82,10 @@ void fpga_regs_commit(fpga_driver_t* const drv)
 	}
 }
 
-void fpga_set_hw_sync_enable(fpga_driver_t* const drv, const hw_sync_mode_t hw_sync_mode)
+void fpga_set_trigger_enable(fpga_driver_t* const drv, const bool enable)
 {
 	fpga_reg_read(drv, FPGA_STANDARD_CTRL);
-	set_FPGA_STANDARD_CTRL_TRIGGER_EN(drv, hw_sync_mode == 1);
+	set_FPGA_STANDARD_CTRL_TRIGGER_EN(drv, enable & 0b1);
 	fpga_regs_commit(drv);
 }
 
