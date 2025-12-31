@@ -22,16 +22,13 @@
 #ifndef __TUNE_CONFIG_H__
 #define __TUNE_CONFIG_H__
 
+#ifdef PRALINE
 typedef struct {
 	uint16_t rf_range_end_mhz;
 	uint16_t if_mhz;
 	bool high_lo;
 } tune_config_t;
 
-#ifndef PRALINE
-// TODO maybe one day?
-static const tune_config_t max283x_tune_config[] = {};
-#else
 // clang-format off
 /* tuning table optimized for TX */
 static const tune_config_t max2831_tune_config_tx[] = {

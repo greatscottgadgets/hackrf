@@ -143,22 +143,7 @@ bool set_freq(const uint64_t freq)
 	return success;
 }
 
-uint64_t tuning_set_frequency(const tune_config_t* config, const uint64_t frequency_hz)
-{
-	(void) config;
-
-	bool result = set_freq(frequency_hz);
-	if (!result) {
-		return 0;
-	}
-
-	return frequency_hz;
-}
 #else
-bool set_freq(const uint64_t freq)
-{
-	return tuning_set_frequency(max2831_tune_config_rx_sweep, freq) != 0;
-}
 
 uint64_t tuning_set_frequency(const tune_config_t* cfg, const uint64_t freq)
 {

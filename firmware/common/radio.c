@@ -212,7 +212,7 @@ radio_error_t radio_set_frequency(
 	case TRANSCEIVER_MODE_RX_SWEEP:
 	case TRANSCEIVER_MODE_TX:
 		// TODO return if, of components so we can support them in the getter
-		real_hz = tuning_set_frequency(max283x_tune_config, frequency.hz);
+		real_hz = set_freq(frequency.hz);
 		break;
 	default:
 		return RADIO_ERR_INVALID_CONFIG;
