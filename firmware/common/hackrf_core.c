@@ -979,7 +979,6 @@ void clock_gen_init(void)
 void clock_gen_shutdown(void)
 {
 	i2c_bus_start(clock_gen.bus, &i2c_config_si5351c_fast_clock);
-	si5351c_init(&clock_gen);
 	si5351c_disable_all_outputs(&clock_gen);
 	si5351c_disable_oeb_pin_control(&clock_gen);
 	si5351c_power_down_all_clocks(&clock_gen);
