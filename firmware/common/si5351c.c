@@ -1,6 +1,7 @@
 /*
  * Copyright 2012-2022 Great Scott Gadgets <info@greatscottgadgets.com>
  * Copyright 2012 Jared Boone <jared@sharebrained.com>
+ * Copyright 2025 Fabrizio Pollastri <mxgbot@gmail.com>
  *
  * This file is part of HackRF.
  *
@@ -39,6 +40,9 @@ static struct gpio_t gpio_h1r9_mcu_clk_en = GPIO(0,  8);
 static enum pll_sources active_clock_source = PLL_SOURCE_UNINITIALIZED;
 /* External clock output default is deactivated as it creates noise */
 static bool clkout_enabled = false;
+
+/* mcu clock from si5351c syntetizer */
+static bool mcu_clk_sync = false;
 
 /* write to single register */
 void si5351c_write_single(si5351c_driver_t* const drv, uint8_t reg, uint8_t val)
@@ -221,8 +225,14 @@ void si5351c_configure_clock_control(
 #endif
 	if (clkout_enabled) {
 		clkout_ctrl = SI5351C_CLK_INT_MODE | SI5351C_CLK_PLL_SRC(pll) |
-			SI5351C_CLK_SRC(SI5351C_CLK_SRC_MULTISYNTH_SELF) |
 			SI5351C_CLK_IDRV(SI5351C_CLK_IDRV_8MA);
+
+		if (mcu_clk_sync && detected_platform() != BOARD_ID_HACKRF1_R9) {
+			clkout_ctrl |= SI5351C_CLK_SRC(SI5351C_CLK_SRC_MULTISYNTH_0_4);
+			si5351c_configure_multisynth(drv, 3, 80 * 128 - 512, 0, 0, 1);
+		} else {
+			clkout_ctrl |= SI5351C_CLK_SRC(SI5351C_CLK_SRC_MULTISYNTH_SELF);
+		}
 	} else {
 		clkout_ctrl = SI5351C_CLK_POWERDOWN | SI5351C_CLK_INT_MODE;
 	}
@@ -231,7 +241,7 @@ void si5351c_configure_clock_control(
 	/* External clock output is kept in current state */
 	uint8_t data[] = {
 		16,
-		SI5351C_CLK_FRAC_MODE | SI5351C_CLK_PLL_SRC(pll) |
+		SI5351C_CLK_PLL_SRC(pll) |
 			SI5351C_CLK_SRC(SI5351C_CLK_SRC_MULTISYNTH_SELF) |
 			SI5351C_CLK_IDRV(SI5351C_CLK_IDRV_8MA),
 		SI5351C_CLK_INT_MODE | SI5351C_CLK_PLL_SRC(pll) |
@@ -245,24 +255,34 @@ void si5351c_configure_clock_control(
 			SI5351C_CLK_SRC(SI5351C_CLK_SRC_MULTISYNTH_SELF) |
 			SI5351C_CLK_IDRV(SI5351C_CLK_IDRV_6MA) | SI5351C_CLK_INV,
 		SI5351C_CLK_INT_MODE | SI5351C_CLK_PLL_SRC(pll) |
-			SI5351C_CLK_SRC(SI5351C_CLK_SRC_MULTISYNTH_SELF) |
 			SI5351C_CLK_IDRV(SI5351C_CLK_IDRV_4MA),
 		SI5351C_CLK_POWERDOWN |
 			SI5351C_CLK_INT_MODE, /* not connected, but: PLL A int mode */
 		SI5351C_CLK_POWERDOWN |
 			SI5351C_CLK_INT_MODE /* not connected, but: PLL B int mode */
 	};
+	if (mcu_clk_sync) {
+		data[1] |= SI5351C_CLK_INT_MODE;
+		data[6] |= SI5351C_CLK_SRC(SI5351C_CLK_SRC_MULTISYNTH_0_4);
+	} else {
+		data[1] |= SI5351C_CLK_FRAC_MODE;
+		data[6] |= SI5351C_CLK_SRC(SI5351C_CLK_SRC_MULTISYNTH_SELF);
+	}
 	if (detected_platform() == BOARD_ID_HACKRF1_R9) {
 		data[1] = SI5351C_CLK_INT_MODE | SI5351C_CLK_PLL_SRC_A |
 			SI5351C_CLK_SRC(SI5351C_CLK_SRC_MULTISYNTH_SELF) |
 			SI5351C_CLK_IDRV(SI5351C_CLK_IDRV_6MA);
-		data[2] = SI5351C_CLK_FRAC_MODE | SI5351C_CLK_PLL_SRC_A |
+		data[2] = SI5351C_CLK_PLL_SRC_A |
 			SI5351C_CLK_SRC(SI5351C_CLK_SRC_MULTISYNTH_SELF) |
 			SI5351C_CLK_IDRV(SI5351C_CLK_IDRV_4MA);
 		data[3] = clkout_ctrl;
 		data[4] = SI5351C_CLK_POWERDOWN;
 		data[5] = SI5351C_CLK_POWERDOWN;
 		data[6] = SI5351C_CLK_POWERDOWN;
+		if (mcu_clk_sync)
+			data[2] |= SI5351C_CLK_INT_MODE;
+		else
+			data[2] |= SI5351C_CLK_FRAC_MODE;
 	}
 	si5351c_write(drv, data, sizeof(data));
 }
@@ -331,10 +351,10 @@ void si5351c_set_clock_source(si5351c_driver_t* const drv, const enum pll_source
 	si5351c_configure_clock_control(drv, source);
 	active_clock_source = source;
 	if (detected_platform() == BOARD_ID_HACKRF1_R9) {
-		/* 25MHz XTAL * (0x0e00+512)/128 = 800mhz -> int mode */
+		/* 25MHz XTAL * (0x0e00+512)/128 = 800 MHz -> int mode */
 		uint8_t pll_data[] = {26, 0x00, 0x01, 0x00, 0x0E, 0x00, 0x00, 0x00, 0x00};
 		if (source == PLL_SOURCE_CLKIN) {
-			/* 10MHz CLKIN * (0x2600+512)/128 = 800mhz */
+			/* 10MHz CLKIN * (0x2600+512)/128 = 800 MHz */
 			pll_data[4] = 0x26;
 		}
 		si5351c_write(drv, pll_data, sizeof(pll_data));
@@ -362,11 +382,31 @@ void si5351c_clkout_enable(si5351c_driver_t* const drv, uint8_t enable)
 	if (detected_platform() == BOARD_ID_HACKRF1_R9) {
 		clkout = 2;
 	}
+
 	/* Configure clock to 10MHz */
 	si5351c_configure_multisynth(drv, clkout, 80 * 128 - 512, 0, 1, 0);
 
 	si5351c_configure_clock_control(drv, active_clock_source);
 	si5351c_enable_clock_outputs(drv);
+}
+
+void si5351c_mcu_clk_enable(uint8_t enable)
+{
+	/* only for R9 boards */
+	if (detected_platform() != BOARD_ID_HACKRF1_R9)
+		return;
+
+	if (enable)
+		gpio_set(&gpio_h1r9_mcu_clk_en);
+	else
+		gpio_clear(&gpio_h1r9_mcu_clk_en);
+}
+
+void si5351c_mcu_clk_sync(si5351c_driver_t* const drv, uint8_t enable)
+{
+	mcu_clk_sync = (enable > 0);
+
+	si5351c_clkout_enable(drv, enable);
 }
 
 void si5351c_init(si5351c_driver_t* const drv)

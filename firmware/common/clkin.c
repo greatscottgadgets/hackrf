@@ -73,9 +73,9 @@ void clkin_detect_init(void)
 
 	reset.first_tcr = TIMER_TCR_CEN | TIMER_TCR_CRST;
 	reset.second_tcr = TIMER_TCR_CEN;
-	timer_dma_lli.src = (uint32_t) & (reset);
-	timer_dma_lli.dest = (uint32_t) & (TIMER2_TCR);
-	timer_dma_lli.next_lli = (uint32_t) & (timer_dma_lli);
+	timer_dma_lli.src = (uint32_t) &(reset);
+	timer_dma_lli.dest = (uint32_t) &(TIMER2_TCR);
+	timer_dma_lli.next_lli = (uint32_t) &(timer_dma_lli);
 	timer_dma_lli.control = GPDMA_CCONTROL_TRANSFERSIZE(2) |
 		GPDMA_CCONTROL_SBSIZE(0)   // 1
 		| GPDMA_CCONTROL_DBSIZE(0) // 1

@@ -2,6 +2,7 @@
  * Copyright 2012-2022 Great Scott Gadgets <info@greatscottgadgets.com>
  * Copyright 2012 Jared Boone <jared@sharebrained.com>
  * Copyright 2013 Benjamin Vernoux <titanmkd@gmail.com>
+ * Copyright 2025 Fabrizio Pollastri <mxgbot@gmail.com>
  *
  * This file is part of HackRF.
  *
@@ -438,7 +439,7 @@ bool sample_rate_set(const uint32_t sample_rate_hz)
 {
 	uint32_t p1 = 4608;
 	uint32_t p2 = 0;
-	uint32_t p3 = 0;
+	uint32_t p3 = 1;
 
 	switch (sample_rate_hz) {
 	case 8000000:
@@ -539,7 +540,7 @@ Configure PLL1 (Main MCU Clock) to max speed (204MHz).
 Note: PLL1 clock is used by M4/M0 core, Peripheral, APB1.
 This function shall be called after cpu_clock_init().
 */
-static void cpu_clock_pll1_max_speed(void)
+void cpu_clock_pll1_max_speed(uint8_t clock_source, uint8_t msel)
 {
 	uint32_t reg_val;
 
@@ -552,7 +553,7 @@ static void cpu_clock_pll1_max_speed(void)
 	reg_val |= CGU_BASE_M4_CLK_CLK_SEL(CGU_SRC_IRC) | CGU_BASE_M4_CLK_AUTOBLOCK(1);
 	CGU_BASE_M4_CLK = reg_val;
 
-	/* 2. Enable the crystal oscillator. */
+	/* 2. if required, enable the crystal oscillator. */
 	CGU_XTAL_OSC_CTRL &= ~CGU_XTAL_OSC_CTRL_ENABLE_MASK;
 
 	/* 3. Wait 250us. */
@@ -573,12 +574,12 @@ static void cpu_clock_pll1_max_speed(void)
 	              CGU_PLL1_CTRL_PSEL_MASK |
 	              CGU_PLL1_CTRL_MSEL_MASK |
 	              CGU_PLL1_CTRL_NSEL_MASK );
-	/* Set PLL1 up to 12MHz * 17 = 204MHz.
+	/* Set PLL1 up to 12MHz * 17 = 204MHz or 10Mhz * 20 = 200MHz.
 	 * Direct mode: FCLKOUT = FCCO = M*(FCLKIN/N) */
-	reg_val |= CGU_PLL1_CTRL_CLK_SEL(CGU_SRC_XTAL) |
+	reg_val |= CGU_PLL1_CTRL_CLK_SEL(clock_source) |
 	           CGU_PLL1_CTRL_PSEL(0) |
 	           CGU_PLL1_CTRL_NSEL(0) |
-	           CGU_PLL1_CTRL_MSEL(16) |
+	           CGU_PLL1_CTRL_MSEL(msel-1) |
 	           CGU_PLL1_CTRL_FBSEL(0) |
 	           CGU_PLL1_CTRL_DIRECT(1);
 	// clang-format on
@@ -605,7 +606,7 @@ static void cpu_clock_pll1_max_speed(void)
 
 /* clock startup for LPC4320 configure PLL1 to max speed (204MHz).
 Note: PLL1 clock is used by M4/M0 core, Peripheral, APB1. */
-void cpu_clock_init(void)
+void cpu_clock_init(uint8_t clock_source, uint8_t msel)
 {
 	/* use IRC as clock source for APB1 (including I2C0) */
 	CGU_BASE_APB1_CLK = CGU_BASE_APB1_CLK_CLK_SEL(CGU_SRC_IRC);
@@ -626,17 +627,17 @@ void cpu_clock_init(void)
 
 	/*
 	 * Clocks on HackRF One r9:
-	 *   CLK0 -> MAX5864/CPLD/SGPIO (sample clocks)
-	 *   CLK1 -> RFFC5072/MAX2839
+	 *   CLK0 -> RFFC5072/MAX2839 (40 MHz tuner)
+	 *   CLK1 -> MAX5864/CPLD/SGPIO (sample clock x 2)
 	 *   CLK2 -> External Clock Output/LPC43xx (power down at boot)
 	 *
 	 * Clocks on other platforms:
-	 *   CLK0 -> MAX5864/CPLD
-	 *   CLK1 -> CPLD
-	 *   CLK2 -> SGPIO
+	 *   CLK0 -> MAX5864/CPLD (sample clock)
+	 *   CLK1 -> CPLD (sample clock x 2)
+	 *   CLK2 -> SGPIO (sample clock x 2)
 	 *   CLK3 -> External Clock Output (power down at boot)
-	 *   CLK4 -> RFFC5072 (MAX2837 on rad1o)
-	 *   CLK5 -> MAX2837 (MAX2871 on rad1o)
+	 *   CLK4 -> RFFC5072 (MAX2837 on rad1o) (40 MHz tuner)
+	 *   CLK5 -> MAX2837 (MAX2871 on rad1o) (40 MHz tuner)
 	 *   CLK6 -> none
 	 *   CLK7 -> LPC43xx (uses a 12MHz crystal by default)
 	 */
@@ -695,7 +696,7 @@ void cpu_clock_init(void)
 	/* set xtal oscillator to low frequency mode */
 	CGU_XTAL_OSC_CTRL &= ~CGU_XTAL_OSC_CTRL_HF_MASK;
 
-	cpu_clock_pll1_max_speed();
+	cpu_clock_pll1_max_speed(clock_source, msel);
 
 	/* use XTAL_OSC as clock source for APB1 */
 	CGU_BASE_APB1_CLK =
@@ -794,7 +795,7 @@ void cpu_clock_init(void)
 	CCU1_CLK_M4_TIMER0_CFG = 0;
 	//CCU1_CLK_M4_TIMER1_CFG = 0;
 	//CCU1_CLK_M4_TIMER2_CFG = 0;
-	CCU1_CLK_M4_TIMER3_CFG = 0;
+	//CCU1_CLK_M4_TIMER3_CFG = 0;
 	CCU1_CLK_M4_UART1_CFG = 0;
 	CCU1_CLK_M4_USART0_CFG = 0;
 	CCU1_CLK_M4_USART2_CFG = 0;
@@ -879,6 +880,12 @@ void pin_setup(void)
 	 *
 	 * LPC43xx pull-up and pull-down resistors are approximately 53K.
 	 */
+
+	/* configure pin as TIMER 3 MATCH 0 output: 1pps out */
+	scu_pinmux(SCU_PINMUX_PPS1, SCU_GPIO_PDN | SCU_CONF_FUNCTION6);
+	/* configure pin as TIMER 3 MATCH 1 output: sampling trigger out */
+	scu_pinmux(SCU_PINMUX_SAMP_TRIGGER, SCU_GPIO_PDN | SCU_CONF_FUNCTION6);
+
 #ifdef HACKRF_ONE
 	scu_pinmux(SCU_PINMUX_PP_TMS, SCU_GPIO_PUP | SCU_CONF_FUNCTION0);
 	scu_pinmux(SCU_PINMUX_PP_TDO, SCU_GPIO_PDN | SCU_CONF_FUNCTION0);
@@ -964,7 +971,10 @@ void pin_setup(void)
 	rf_path_pin_setup(&rf_path);
 
 	/* Configure external clock in */
-	scu_pinmux(SCU_PINMUX_GP_CLKIN, SCU_CLK_IN | SCU_CONF_FUNCTION1);
+	if (detected_platform() == BOARD_ID_HACKRF1_R9)
+		scu_pinmux(SCU_PINMUX_GP_CLKIN_R9, SCU_CLK_IN | SCU_CONF_FUNCTION1);
+	else
+		scu_pinmux(SCU_PINMUX_GP_CLKIN_NOTR9, SCU_CLK_IN | SCU_CONF_FUNCTION1);
 
 	sgpio_configure_pin_functions(&sgpio_config);
 }

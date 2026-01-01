@@ -1,6 +1,7 @@
 #!/bin/bash
 
-VERSION=`clang-format --version | grep -o '[^ ]*$' | cut -d '.' -f 1`
+VERSION=`clang-format --version | grep -Po '(?<=\s)\d+(?=\.\d+\.\d+\s)'`
+
 if [ "$VERSION" -ge "14" ]; then
     CLANG_FORMAT=clang-format
 elif clang-format-14 --version > /dev/null; then

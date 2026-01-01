@@ -2,6 +2,7 @@
  * Copyright 2012-2022 Great Scott Gadgets <info@greatscottgadgets.com>
  * Copyright 2012 Benjamin Vernoux <titanmkd@gmail.com>
  * Copyright 2012 Jared Boone <jared@sharebrained.com>
+ * Copyright 2025 Fabrizio Pollastri <mxgbot@gmail.com>
  *
  * This file is part of HackRF.
  *
@@ -63,8 +64,13 @@ extern "C" {
 	#define SCU_PINMUX_BOOT2 (P2_8) /* GPIO5[7] on P2_8 */
 	#define SCU_PINMUX_BOOT3 (P2_9) /* GPIO1[10] on P2_9 */
 #endif
-#define SCU_PINMUX_PP_LCD_TE  (P2_3)  /* GPIO5[3] on P2_3 */
-#define SCU_PINMUX_PP_LCD_RDX (P2_4)  /* GPIO5[4] on P2_4 */
+
+#define SCU_PINMUX_PP_LCD_TE (P2_3) /* GPIO5[3] on P2_3 */
+#define SCU_PINMUX_PPS1      (P2_3) /* T3_MAT0 on P2_3, cpu pin 87 */
+
+#define SCU_PINMUX_PP_LCD_RDX   (P2_4) /* GPIO5[4] on P2_4 */
+#define SCU_PINMUX_SAMP_TRIGGER (P2_4) /* T3_MAT1 on P2_4, cpu pin 88 */
+
 #define SCU_PINMUX_PP_UNUSED  (P2_8)  /* GPIO5[7] on P2_8 */
 #define SCU_PINMUX_PP_LCD_WRX (P2_9)  /* GPIO1[10] on P2_9 */
 #define SCU_PINMUX_PP_DIR     (P2_13) /* GPIO1[13] on P2_13 */
@@ -230,7 +236,8 @@ extern "C" {
 
 #define SCU_PINMUX_ISP (P2_7) /* GPIO0[7] */
 
-#define SCU_PINMUX_GP_CLKIN (P4_7)
+#define SCU_PINMUX_GP_CLKIN_R9    (P4_7)
+#define SCU_PINMUX_GP_CLKIN_NOTR9 (PF_4)
 
 /* HackRF One r9 */
 #define SCU_H1R9_CLKIN_EN   (P6_7)  /* GPIO5[15] on P6_7 */
@@ -280,7 +287,7 @@ extern rf_path_t rf_path;
 extern jtag_t jtag_cpld;
 extern i2c_bus_t i2c0;
 
-void cpu_clock_init(void);
+void cpu_clock_init(uint8_t clock_source, uint8_t msel);
 void ssp1_set_mode_max283x(void);
 void ssp1_set_mode_max5864(void);
 
@@ -315,6 +322,8 @@ void set_leds(const uint8_t state);
 void hw_sync_enable(const hw_sync_mode_t hw_sync_mode);
 
 void halt_and_flash(const uint32_t duration);
+
+void cpu_clock_pll1_max_speed(uint8_t clock_source, uint8_t msel);
 
 #ifdef __cplusplus
 }
