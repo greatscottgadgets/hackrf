@@ -1238,7 +1238,7 @@ int ADDCALL hackrf_read_selftest(hackrf_device* device, hackrf_selftest* selftes
 		sizeof(hackrf_selftest),
 		0);
 
-	if (result < sizeof(hackrf_selftest)) {
+	if (result < 2) {
 		last_libusb_error = result;
 		return HACKRF_ERROR_LIBUSB;
 	} else {
