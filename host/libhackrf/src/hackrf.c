@@ -862,6 +862,30 @@ int ADDCALL hackrf_device_list_open(
 	return hackrf_open_setup(usb_device, device);
 }
 
+int ADDCALL hackrf_device_list_bus_sharing(hackrf_device_list_t* list, int idx)
+{
+	libusb_device *usb_dev, *hackrf_dev;
+	uint8_t hackrf_bus;
+	int other_device_count = 0;
+	int i;
+	if (list == NULL || list->usb_devices == NULL || list->usb_device_index == NULL ||
+	    idx < 0 || idx > list->devicecount) {
+		return HACKRF_ERROR_INVALID_PARAM;
+	}
+	hackrf_dev = list->usb_devices[list->usb_device_index[idx]];
+	hackrf_bus = libusb_get_bus_number(hackrf_dev);
+	for (i = 0; i < list->usb_devicecount; i++) {
+		usb_dev = (libusb_device*) list->usb_devices[i];
+		// Don't count the HackRF, devices on other buses, or the root hub.
+		if (usb_dev != hackrf_dev &&
+		    libusb_get_bus_number(usb_dev) == hackrf_bus &&
+		    libusb_get_parent(usb_dev) != NULL) {
+			other_device_count++;
+		}
+	}
+	return other_device_count;
+}
+
 int ADDCALL hackrf_set_transceiver_mode(
 	hackrf_device* device,
 	hackrf_transceiver_mode value)
