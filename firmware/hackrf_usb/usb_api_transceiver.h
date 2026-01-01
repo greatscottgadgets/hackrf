@@ -35,6 +35,8 @@ typedef struct {
 
 extern volatile transceiver_request_t transceiver_request;
 
+void transceiver_usb_setup_complete(usb_endpoint_t* const endpoint);
+
 void set_hw_sync_mode(const hw_sync_mode_t new_hw_sync_mode);
 usb_request_status_t usb_vendor_request_set_transceiver_mode(
 	usb_endpoint_t* const endpoint,
@@ -73,6 +75,9 @@ usb_request_status_t usb_vendor_request_set_tx_underrun_limit(
 	usb_endpoint_t* const endpoint,
 	const usb_transfer_stage_t stage);
 usb_request_status_t usb_vendor_request_set_rx_overrun_limit(
+	usb_endpoint_t* const endpoint,
+	const usb_transfer_stage_t stage);
+usb_request_status_t usb_vendor_request_get_buffer_size(
 	usb_endpoint_t* const endpoint,
 	const usb_transfer_stage_t stage);
 
