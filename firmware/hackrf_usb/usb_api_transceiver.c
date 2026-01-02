@@ -376,8 +376,7 @@ void transceiver_startup(const transceiver_mode_t mode)
 	}
 
 	activate_best_clock_source();
-	hw_sync_mode_t trigger_mode = radio_get_trigger_mode(&radio, RADIO_CHANNEL0);
-	hw_sync_enable(trigger_mode);
+	trigger_enable(radio_get_trigger_enable(&radio, RADIO_CHANNEL0));
 }
 
 usb_request_status_t usb_vendor_request_set_transceiver_mode(
@@ -407,10 +406,10 @@ usb_request_status_t usb_vendor_request_set_hw_sync_mode(
 	const usb_transfer_stage_t stage)
 {
 	if (stage == USB_TRANSFER_STAGE_SETUP) {
-		radio_error_t result = radio_set_trigger_mode(
+		radio_error_t result = radio_set_trigger_enable(
 			&radio,
 			RADIO_CHANNEL0,
-			endpoint->setup.value);
+			endpoint->setup.value != 0);
 		if (result == RADIO_OK) {
 			usb_transfer_schedule_ack(endpoint->in);
 			return USB_REQUEST_STATUS_OK;

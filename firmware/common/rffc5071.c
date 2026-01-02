@@ -247,18 +247,21 @@ uint64_t rffc5071_config_synth(rffc5071_driver_t* const drv, uint64_t lo)
 
 	fvco = lo << n_lo;
 
-	/* higher divider and charge pump current required above
-	 * 3.2GHz. Programming guide says these values (fbkdiv, n,
-	 * maybe pump?) can be changed back after enable in order to
-	 * improve phase noise, since the VCO will already be stable
-	 * and will be unaffected. */
+	/*
+	 * Higher charge pump leakage setting is required above 3.2 GHz.
+	 */
 	if (fvco > (3200 * FREQ_ONE_MHZ)) {
-		fbkdivlog = 2;
 		set_RFFC5071_PLLCPL(drv, 3);
 	} else {
-		fbkdivlog = 1;
 		set_RFFC5071_PLLCPL(drv, 2);
 	}
+
+	/*
+	 * Supposedly fbkdivlog can be set to 1 when VCO is below 3.2 GHz, but
+	 * this has resulted in tuning instability on some boards, most evident
+	 * in RX sweep mode.
+	 */
+	fbkdivlog = 2;
 
 	uint64_t tmp_n = (fvco << (24ULL - fbkdivlog)) / REF_FREQ;
 

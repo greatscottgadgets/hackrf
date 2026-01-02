@@ -179,7 +179,7 @@ extern "C" {
 	#define SCU_PINMUX_SGPIO15_PINCFG (SCU_GPIO_FAST | SCU_CONF_FUNCTION4)
 
 #endif
-#define SCU_HW_SYNC_EN (P4_8) /* GPIO5[12] on P4_8 */
+#define SCU_TRIGGER_EN (P4_8) /* GPIO5[12] on P4_8 */
 
 /* MAX2837 GPIO (XCVR_CTL) PinMux */
 #ifdef RAD1O
@@ -387,7 +387,7 @@ extern "C" {
 #define SCU_H1R9_NO_ANT_PWR (P4_4)  /* GPIO2[4] on P4_4 */
 #define SCU_H1R9_EN1V8      (P5_0)  /* GPIO2[9] on P5_0 */
 #define SCU_H1R9_NO_VAA_EN  (P6_10) /* GPIO3[6] on P6_10 */
-#define SCU_H1R9_HW_SYNC_EN (P2_5)  /* GPIO5[5] on P2_5 */
+#define SCU_H1R9_TRIGGER_EN (P2_5)  /* GPIO5[5] on P2_5 */
 
 void delay(uint32_t duration);
 void delay_us_at_mhz(uint32_t us, uint32_t mhz);
@@ -460,7 +460,7 @@ void led_off(const led_t led);
 void led_toggle(const led_t led);
 void set_leds(const uint8_t state);
 
-void hw_sync_enable(const hw_sync_mode_t hw_sync_mode);
+void trigger_enable(const bool enable);
 
 void halt_and_flash(const uint32_t duration);
 

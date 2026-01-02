@@ -28,6 +28,7 @@ $ cmake ..
 $ make
 $ hackrf_spiflash -w hackrf_usb.bin
 
+If you have a HackRF Pro, add -DBOARD=PRALINE to the cmake command.
 If you have a Jawbreaker, add -DBOARD=JAWBREAKER to the cmake command.
 If you have a rad1o, use -DBOARD=RAD1O instead.
 
@@ -48,9 +49,9 @@ For loading firmware into RAM with DFU you will need:
 
 http://dfu-util.sourceforge.net/
 
-To start up HackRF One in DFU mode, hold down the DFU button while powering it
-on or while pressing and releasing the RESET button.  Release the DFU button
-after the 3V3 LED illuminates.
+To start up HackRF One or HackRF Pro in DFU mode, hold down the DFU button
+while powering it on or while pressing and releasing the RESET button.  Release
+the DFU button after the 3V3 LED illuminates.
 
 A .dfu file is built by default when building firmware.  Alternatively you can
 use a known good .dfu file from a release package.  Load the firmware into RAM

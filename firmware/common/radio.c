@@ -39,15 +39,49 @@ radio_error_t radio_set_sample_rate(
 
 	radio_config_t* config = &radio->channel[chan_id].config;
 
-	// TODO get the actual tuned frequency from sample_rate_frac_set
-	sample_rate.hz = (double) sample_rate.num / (double) sample_rate.div;
+	/*
+	 * Store the sample rate rounded to the nearest Hz for convenience.
+	 */
+	if (sample_rate.div == 0) {
+		return RADIO_ERR_INVALID_PARAM;
+	}
+	sample_rate.hz = (sample_rate.num + (sample_rate.div >> 1)) / sample_rate.div;
 
 	if (config->mode == TRANSCEIVER_MODE_OFF) {
 		config->sample_rate[element] = sample_rate;
 		return RADIO_OK;
 	}
 
+#ifdef PRALINE
+	#define MAX_AFE_RATE 40000000
+	#define MAX_N        5
+	uint8_t n = 0; // resampling ratio is 2**n
+	if ((config->mode == TRANSCEIVER_MODE_RX) ||
+	    (config->mode == TRANSCEIVER_MODE_RX_SWEEP)) {
+		n = 1;
+		uint32_t afe_rate_x2 = 2 * sample_rate.hz;
+		while ((afe_rate_x2 <= MAX_AFE_RATE) && (n < MAX_N)) {
+			afe_rate_x2 <<= 1;
+			n++;
+		}
+		fpga_set_rx_decimation_ratio(&fpga, n);
+	}
+	config->resampling_n = n;
+	bool ok = sample_rate_frac_set(sample_rate.num << n, sample_rate.div);
+	if (ok) {
+		config->sample_rate[element] = sample_rate;
+		radio_channel_t* channel = &radio->channel[chan_id];
+		radio_frequency_t frequency =
+			radio_get_frequency(radio, channel->id, RADIO_FREQUENCY_RF);
+		ok = radio_set_frequency(
+			radio,
+			channel->id,
+			RADIO_FREQUENCY_RF,
+			frequency);
+	}
+#else
 	bool ok = sample_rate_frac_set(sample_rate.num, sample_rate.div);
+#endif
 	if (!ok) {
 		return RADIO_ERR_INVALID_PARAM;
 	}
@@ -82,17 +116,22 @@ radio_error_t radio_set_filter(
 		return RADIO_OK;
 	}
 
-	uint32_t real_hz;
 #ifndef PRALINE
-	real_hz = max283x_set_lpf_bandwidth(&max283x, filter.hz);
+	max283x_set_lpf_bandwidth(&max283x, filter.hz);
 #else
-	real_hz = max2831_set_lpf_bandwidth(&max283x, filter.hz);
-#endif
-	if (real_hz == 0) {
-		return RADIO_ERR_INVALID_PARAM;
+	uint32_t lpf_bandwidth =
+		(config->sample_rate[RADIO_SAMPLE_RATE_CLOCKGEN].hz * 3) / 8;
+	uint32_t offset = 0;
+	if (config->shift != FPGA_QUARTER_SHIFT_MODE_NONE) {
+		offset = (config->sample_rate[RADIO_SAMPLE_RATE_CLOCKGEN].hz
+			  << config->resampling_n) /
+			8;
 	}
+	lpf_bandwidth += offset * 2;
+	max2831_set_lpf_bandwidth(&max283x, lpf_bandwidth);
+#endif
 
-	config->filter[element] = (radio_filter_t){.hz = real_hz};
+	config->filter[element] = filter;
 	return RADIO_OK;
 }
 
@@ -191,6 +230,24 @@ radio_error_t radio_set_frequency(
 			frequency.if_hz,
 			frequency.lo_hz,
 			frequency.path);
+#ifdef PRALINE
+		if (ok) {
+			fpga_set_rx_quarter_shift_mode(
+				&fpga,
+				FPGA_QUARTER_SHIFT_MODE_NONE);
+			config->shift = FPGA_QUARTER_SHIFT_MODE_NONE;
+			radio_channel_t* channel = &radio->channel[chan_id];
+			radio_filter_t filter = radio_get_filter(
+				radio,
+				channel->id,
+				RADIO_FILTER_BASEBAND);
+			ok = radio_set_filter(
+				radio,
+				channel->id,
+				RADIO_FILTER_BASEBAND,
+				filter);
+		}
+#endif
 		if (!ok) {
 			return RADIO_ERR_INVALID_PARAM;
 		}
@@ -200,39 +257,62 @@ radio_error_t radio_set_frequency(
 	}
 
 	// auto-tune
-	uint64_t real_hz;
+	bool ok;
 #ifndef PRALINE
 	switch (config->mode) {
 	case TRANSCEIVER_MODE_RX:
 	case TRANSCEIVER_MODE_RX_SWEEP:
 	case TRANSCEIVER_MODE_TX:
-		// TODO return if, of components so we can support them in the getter
-		real_hz = tuning_set_frequency(max283x_tune_config, frequency.hz);
+		ok = set_freq(frequency.hz);
 		break;
 	default:
 		return RADIO_ERR_INVALID_CONFIG;
 	}
 #else
+	const tune_config_t* tune_config;
 	switch (config->mode) {
 	case TRANSCEIVER_MODE_RX:
-		real_hz = tuning_set_frequency(max2831_tune_config_rx, frequency.hz);
+		tune_config = praline_tune_config_rx;
 		break;
 	case TRANSCEIVER_MODE_RX_SWEEP:
-		real_hz =
-			tuning_set_frequency(max2831_tune_config_rx_sweep, frequency.hz);
+		tune_config = praline_tune_config_rx_sweep;
 		break;
 	case TRANSCEIVER_MODE_TX:
-		real_hz = tuning_set_frequency(max2831_tune_config_tx, frequency.hz);
+		tune_config = praline_tune_config_tx;
 		break;
 	default:
 		return RADIO_ERR_INVALID_CONFIG;
 	}
-#endif
-	if (real_hz == 0) {
+	bool found = false;
+	for (; (tune_config->rf_range_end_mhz != 0) || (tune_config->if_mhz != 0);
+	     tune_config++) {
+		if ((frequency.hz == 0) ||
+		    (tune_config->rf_range_end_mhz > (frequency.hz / FREQ_ONE_MHZ))) {
+			found = true;
+			break;
+		}
+	}
+	if (!found) {
 		return RADIO_ERR_INVALID_PARAM;
 	}
 
-	frequency.hz = real_hz;
+	fpga_set_rx_quarter_shift_mode(&fpga, tune_config->shift);
+	config->shift = tune_config->shift;
+	uint32_t offset = (config->sample_rate[RADIO_SAMPLE_RATE_CLOCKGEN].hz
+			   << config->resampling_n) /
+		8;
+	ok = tuning_set_frequency(tune_config, frequency.hz, offset);
+	if (ok) {
+		radio_channel_t* channel = &radio->channel[chan_id];
+		radio_filter_t filter =
+			radio_get_filter(radio, channel->id, RADIO_FILTER_BASEBAND);
+		ok = radio_set_filter(radio, channel->id, RADIO_FILTER_BASEBAND, filter);
+	}
+#endif
+	if (!ok) {
+		return RADIO_ERR_INVALID_PARAM;
+	}
+
 	config->frequency[element] = frequency;
 	return RADIO_OK;
 }
@@ -319,20 +399,17 @@ radio_clock_t radio_get_clock(
 	return radio->channel[chan_id].config.clock[element];
 }
 
-radio_error_t radio_set_trigger_mode(
-	radio_t* radio,
-	radio_chan_id chan_id,
-	hw_sync_mode_t mode)
+radio_error_t radio_set_trigger_enable(radio_t* radio, radio_chan_id chan_id, bool enable)
 {
 	radio_config_t* config = &radio->channel[chan_id].config;
 
-	config->trigger_mode = mode;
+	config->trigger_enable = enable;
 	return RADIO_OK;
 }
 
-hw_sync_mode_t radio_get_trigger_mode(radio_t* radio, radio_chan_id chan_id)
+bool radio_get_trigger_enable(radio_t* radio, radio_chan_id chan_id)
 {
-	return radio->channel[chan_id].config.trigger_mode;
+	return radio->channel[chan_id].config.trigger_enable;
 }
 
 transceiver_mode_t radio_get_mode(radio_t* radio, radio_chan_id chan_id)
@@ -398,6 +475,23 @@ radio_error_t radio_switch_mode(
 		return result;
 	}
 
+	/*
+	 * Because of offset tuning on Praline, the sample rate can affect the
+	 * tuning configuration, so radio_set_sample_rate() calls
+	 * radio_set_frequency(). Also because of offset tuning, the tuning
+	 * configuration can affect the baseband filter bandwidth (in addition
+	 * to the filter bandwidth being automatically based on the sample
+	 * rate), so radio_set_frequency() calls radio_set_filter().
+	 */
+#ifndef PRALINE
+	// tuning frequency
+	radio_frequency_t frequency =
+		radio_get_frequency(radio, channel->id, RADIO_FREQUENCY_RF);
+	result = radio_set_frequency(radio, channel->id, RADIO_FREQUENCY_RF, frequency);
+	if (result != RADIO_OK) {
+		return result;
+	}
+
 	// baseband filter bandwidth
 	radio_filter_t filter =
 		radio_get_filter(radio, channel->id, RADIO_FILTER_BASEBAND);
@@ -405,6 +499,7 @@ radio_error_t radio_switch_mode(
 	if (result != RADIO_OK) {
 		return result;
 	}
+#endif
 
 	// rf_amp enable
 	radio_gain_t enable = radio_get_gain(radio, channel->id, RADIO_GAIN_RF_AMP);
@@ -441,14 +536,6 @@ radio_error_t radio_switch_mode(
 	radio_antenna_t bias_tee =
 		radio_get_antenna(radio, channel->id, RADIO_ANTENNA_BIAS_TEE);
 	result = radio_set_antenna(radio, channel->id, RADIO_ANTENNA_BIAS_TEE, bias_tee);
-	if (result != RADIO_OK) {
-		return result;
-	}
-
-	// tuning frequency
-	radio_frequency_t frequency =
-		radio_get_frequency(radio, channel->id, RADIO_FREQUENCY_RF);
-	result = radio_set_frequency(radio, channel->id, RADIO_FREQUENCY_RF, frequency);
 	if (result != RADIO_OK) {
 		return result;
 	}
