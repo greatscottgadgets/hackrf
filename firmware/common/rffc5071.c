@@ -122,8 +122,10 @@ void rffc5071_setup(rffc5071_driver_t* const drv)
 	/* GPOs are active at all times */
 	set_RFFC5071_GATE(drv, 1);
 
+#ifdef PRALINE
 	/* Enable GPO Lock output signal */
 	set_RFFC5071_LOCK(drv, 1);
+#endif
 
 	rffc5071_regs_commit(drv);
 }
