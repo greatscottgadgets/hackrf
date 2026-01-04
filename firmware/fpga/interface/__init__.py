@@ -1,0 +1,1 @@
+from .max586x import MAX586xInterface

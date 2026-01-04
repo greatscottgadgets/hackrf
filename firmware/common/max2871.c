@@ -21,6 +21,7 @@
 
 #include "max2871.h"
 #include "max2871_regs.h"
+#include "selftest.h"
 
 #if (defined DEBUG)
 	#include <stdio.h>
@@ -35,6 +36,7 @@
 #include <stdint.h>
 #include <string.h>
 
+static uint32_t max2871_spi_read(max2871_driver_t* const drv);
 static void max2871_spi_write(max2871_driver_t* const drv, uint8_t r, uint32_t v);
 static void max2871_write_registers(max2871_driver_t* const drv);
 static void delay_ms(int ms);
@@ -66,6 +68,11 @@ void max2871_setup(max2871_driver_t* const drv)
 	gpio_clear(drv->gpio_vco_sdata);
 	gpio_set(drv->gpio_vco_le);        /* active low */
 	gpio_set(drv->gpio_synt_rfout_en); /* active high */
+
+	selftest.mixer_id = max2871_spi_read(drv) >> MAX2871_DIE_SHIFT;
+	if (selftest.mixer_id != 7) {
+		selftest.report.pass = false;
+	}
 
 	max2871_regs_init();
 	int i;

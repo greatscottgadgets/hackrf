@@ -39,7 +39,7 @@ void spi_ssp_start(spi_bus_t* const bus, const void* const _config)
 
 	SSP_CR1(bus->obj) = 0;
 	SSP_CPSR(bus->obj) = config->clock_prescale_rate;
-	SSP_CR0(bus->obj) = (config->serial_clock_rate << 8) | SSP_CPOL_0_CPHA_0 |
+	SSP_CR0(bus->obj) = (config->serial_clock_rate << 8) | config->spi_mode |
 		SSP_FRAME_SPI | config->data_bits;
 	SSP_CR1(bus->obj) =
 		SSP_SLAVE_OUT_ENABLE | SSP_MASTER | SSP_ENABLE | SSP_MODE_NORMAL;

@@ -34,6 +34,7 @@
 
 typedef struct ssp_config_t {
 	ssp_datasize_t data_bits;
+	ssp_cpol_cpha_t spi_mode;
 	uint8_t serial_clock_rate;
 	uint8_t clock_prescale_rate;
 	gpio_t gpio_select;
