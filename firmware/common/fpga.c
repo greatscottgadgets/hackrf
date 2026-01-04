@@ -29,7 +29,11 @@
 void fpga_init(fpga_driver_t* const drv)
 {
 	// Standard bitstream default register values.
-	set_FPGA_STANDARD_CTRL(drv, 0);
+	set_FPGA_STANDARD_CTRL_DC_BLOCK(drv, true);
+	set_FPGA_STANDARD_CTRL_QUARTER_SHIFT_EN(drv, false);
+	set_FPGA_STANDARD_CTRL_QUARTER_SHIFT_UP(drv, false);
+	set_FPGA_STANDARD_CTRL_PRBS(drv, false);
+	set_FPGA_STANDARD_CTRL_TRIGGER_EN(drv, false);
 	set_FPGA_STANDARD_TX_CTRL(drv, 0);
 
 	// TODO support the other bitstreams
@@ -78,10 +82,10 @@ void fpga_regs_commit(fpga_driver_t* const drv)
 	}
 }
 
-void fpga_set_hw_sync_enable(fpga_driver_t* const drv, const hw_sync_mode_t hw_sync_mode)
+void fpga_set_trigger_enable(fpga_driver_t* const drv, const bool enable)
 {
 	fpga_reg_read(drv, FPGA_STANDARD_CTRL);
-	set_FPGA_STANDARD_CTRL_TRIGGER_EN(drv, hw_sync_mode == 1);
+	set_FPGA_STANDARD_CTRL_TRIGGER_EN(drv, enable & 0b1);
 	fpga_regs_commit(drv);
 }
 

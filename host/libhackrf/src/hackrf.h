@@ -1081,7 +1081,7 @@ typedef struct {
  */
 typedef struct {
 	bool pass;
-	char msg[511];
+	char msg[4095];
 } hackrf_selftest;
 
 /**

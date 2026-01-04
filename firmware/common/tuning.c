@@ -32,8 +32,6 @@
 #include "operacake.h"
 #include "platform_detect.h"
 
-#define FREQ_ONE_MHZ (1000ULL * 1000)
-
 #ifndef PRALINE
 
 	#define MIN_LP_FREQ_MHZ (0)
@@ -70,16 +68,14 @@
 
 #endif
 
+#ifndef PRALINE
 static uint32_t max2837_freq_nominal_hz = 2560000000;
-
-uint64_t freq_cache = 100000000;
 
 /*
  * Set freq/tuning between 0MHz to 7250 MHz (less than 16bits really used)
  * hz between 0 to 999999 Hz (not checked)
  * return false on error or true if success.
  */
-#ifndef PRALINE
 bool set_freq(const uint64_t freq)
 {
 	bool success;
@@ -137,7 +133,6 @@ bool set_freq(const uint64_t freq)
 	}
 	max283x_set_mode(&max283x, prior_max283x_mode);
 	if (success) {
-		freq_cache = freq;
 		hackrf_ui()->set_frequency(freq);
 	#ifdef HACKRF_ONE
 		operacake_set_range(freq_mhz);
@@ -146,26 +141,13 @@ bool set_freq(const uint64_t freq)
 	return success;
 }
 
-uint64_t tuning_set_frequency(const tune_config_t* config, const uint64_t frequency_hz)
-{
-	(void) config;
-
-	bool result = set_freq(frequency_hz);
-	if (!result) {
-		return 0;
-	}
-
-	return frequency_hz;
-}
 #else
-bool set_freq(const uint64_t freq)
-{
-	return tuning_set_frequency(max2831_tune_config_rx_sweep, freq) != 0;
-}
 
-uint64_t tuning_set_frequency(const tune_config_t* cfg, const uint64_t freq)
+bool tuning_set_frequency(
+	const tune_config_t* cfg,
+	const uint64_t freq,
+	const uint32_t offset)
 {
-	bool found;
 	uint64_t mixer_freq_hz;
 	uint64_t real_mixer_freq_hz;
 
@@ -175,16 +157,15 @@ uint64_t tuning_set_frequency(const tune_config_t* cfg, const uint64_t freq)
 
 	const uint16_t freq_mhz = freq / FREQ_ONE_MHZ;
 
-	found = false;
-	for (; cfg->rf_range_end_mhz != 0; cfg++) {
-		if (cfg->rf_range_end_mhz > freq_mhz) {
-			found = true;
-			break;
+	uint64_t rf = freq;
+	if (cfg->shift == FPGA_QUARTER_SHIFT_MODE_DOWN) {
+		if (offset > rf) {
+			rf = offset - rf;
+		} else {
+			rf = rf - offset;
 		}
-	}
-
-	if (!found) {
-		return false;
+	} else if (cfg->shift == FPGA_QUARTER_SHIFT_MODE_UP) {
+		rf = rf + offset;
 	}
 
 	max2831_mode_t prior_max2831_mode = max2831_mode(&max283x);
@@ -192,31 +173,30 @@ uint64_t tuning_set_frequency(const tune_config_t* cfg, const uint64_t freq)
 
 	if (cfg->if_mhz == 0) {
 		rf_path_set_filter(&rf_path, RF_PATH_FILTER_BYPASS);
-		max2831_set_frequency(&max283x, freq);
+		max2831_set_frequency(&max283x, rf);
 		sgpio_cpld_set_mixer_invert(&sgpio_config, 0);
 	} else if (cfg->if_mhz > freq_mhz) {
 		rf_path_set_filter(&rf_path, RF_PATH_FILTER_LOW_PASS);
 		if (cfg->high_lo) {
-			mixer_freq_hz = FREQ_ONE_MHZ * cfg->if_mhz + freq;
+			mixer_freq_hz = FREQ_ONE_MHZ * cfg->if_mhz + rf;
 			real_mixer_freq_hz = mixer_set_frequency(&mixer, mixer_freq_hz);
-			max2831_set_frequency(&max283x, real_mixer_freq_hz - freq);
+			max2831_set_frequency(&max283x, real_mixer_freq_hz - rf);
 			sgpio_cpld_set_mixer_invert(&sgpio_config, 1);
 		} else {
-			mixer_freq_hz = FREQ_ONE_MHZ * cfg->if_mhz - freq;
+			mixer_freq_hz = FREQ_ONE_MHZ * cfg->if_mhz - rf;
 			real_mixer_freq_hz = mixer_set_frequency(&mixer, mixer_freq_hz);
-			max2831_set_frequency(&max283x, real_mixer_freq_hz + freq);
+			max2831_set_frequency(&max283x, real_mixer_freq_hz + rf);
 			sgpio_cpld_set_mixer_invert(&sgpio_config, 0);
 		}
 	} else {
 		rf_path_set_filter(&rf_path, RF_PATH_FILTER_HIGH_PASS);
-		mixer_freq_hz = freq - FREQ_ONE_MHZ * cfg->if_mhz;
+		mixer_freq_hz = rf - FREQ_ONE_MHZ * cfg->if_mhz;
 		real_mixer_freq_hz = mixer_set_frequency(&mixer, mixer_freq_hz);
-		max2831_set_frequency(&max283x, freq - real_mixer_freq_hz);
+		max2831_set_frequency(&max283x, rf - real_mixer_freq_hz);
 		sgpio_cpld_set_mixer_invert(&sgpio_config, 0);
 	}
 
 	max2831_set_mode(&max283x, prior_max2831_mode);
-	freq_cache = freq;
 	hackrf_ui()->set_frequency(freq);
 	operacake_set_range(freq_mhz);
 	return true;

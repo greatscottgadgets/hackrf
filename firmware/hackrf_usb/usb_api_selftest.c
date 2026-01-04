@@ -53,6 +53,7 @@ void append(char** dest, size_t* capacity, const char* str)
 	}
 }
 
+#ifdef PRALINE
 static const char* test_result_to_str(test_result_t result)
 {
 	switch (result) {
@@ -67,6 +68,7 @@ static const char* test_result_to_str(test_result_t result)
 	}
 	return "????";
 }
+#endif
 
 void generate_selftest_report(void)
 {

@@ -30,12 +30,19 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-bool set_freq(const uint64_t freq); // TODO deprecate
+#define FREQ_ONE_MHZ (1000ULL * 1000)
+
+bool set_freq(const uint64_t freq);
 bool set_freq_explicit(
 	const uint64_t if_freq_hz,
 	const uint64_t lo_freq_hz,
 	const rf_path_filter_t path);
 
-uint64_t tuning_set_frequency(const tune_config_t* config, const uint64_t frequency_hz);
+#ifdef PRALINE
+bool tuning_set_frequency(
+	const tune_config_t* cfg,
+	const uint64_t freq,
+	const uint32_t offset);
+#endif
 
 #endif /*__TUNING_H__*/
