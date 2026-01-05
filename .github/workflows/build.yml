@@ -159,7 +159,7 @@ jobs:
     strategy:
       matrix:
         os: ['macos', 'ubuntu', 'windows']
-        board: ['HACKRF_ONE', 'JAWBREAKER', 'RAD1O']
+        board: ['HACKRF_ONE', 'JAWBREAKER', 'RAD1O', 'PRALINE']
         cmake: ['3.10.0', 'latest']
         exclude:
           - os: 'windows'

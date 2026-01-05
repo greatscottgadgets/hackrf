@@ -369,60 +369,62 @@ static void portapack_lcd_init()
 		//portarf display init
 		portapack_lcd_data_write_command_and_data(
 			0xE0,
-			(const uint8_t[]) {0x00,
-					   0x09,
-					   0x0C,
-					   0x03,
-					   0x10,
-					   0x06,
-					   0x34,
-					   0x68,
-					   0x49,
-					   0x02,
-					   0x0A,
-					   0x07,
-					   0x2C,
-					   0x31,
-					   0x0F},
+			(const uint8_t[]){
+				0x00,
+				0x09,
+				0x0C,
+				0x03,
+				0x10,
+				0x06,
+				0x34,
+				0x68,
+				0x49,
+				0x02,
+				0x0A,
+				0x07,
+				0x2C,
+				0x31,
+				0x0F},
 			15);
 
 		portapack_lcd_data_write_command_and_data(
 			0xE1,
-			(const uint8_t[]) {0x00,
-					   0x12,
-					   0x15,
-					   0x02,
-					   0x10,
-					   0x06,
-					   0x35,
-					   0x35,
-					   0x4A,
-					   0x05,
-					   0x10,
-					   0x0C,
-					   0x2F,
-					   0x33,
-					   0x0F},
+			(const uint8_t[]){
+				0x00,
+				0x12,
+				0x15,
+				0x02,
+				0x10,
+				0x06,
+				0x35,
+				0x35,
+				0x4A,
+				0x05,
+				0x10,
+				0x0C,
+				0x2F,
+				0x33,
+				0x0F},
 			15);
 
 		portapack_lcd_data_write_command_and_data(
 			0xC0,
-			(const uint8_t[]) {0x0F, 0x0F},
+			(const uint8_t[]){0x0F, 0x0F},
 			2); // Vreg1out=4.5 Vreg2out=-4.5
 
 		portapack_lcd_data_write_command_and_data(
 			0xC1,
-			(const uint8_t[]) {0x44},
+			(const uint8_t[]){0x44},
 			1); // VGH = 5*VCI VGL = -4*VCI
 
 		portapack_lcd_data_write_command_and_data(
 			0xC5,
-			(const uint8_t[]) {0x00, 0x66, 0x80},
+			(const uint8_t[]){0x00, 0x66, 0x80},
 			3); // VCOM
 
 		portapack_lcd_data_write_command_and_data(
 			0x36,
-			(const uint8_t[]) {
+			(const uint8_t[]){
 				(1 << 7) | // MY=1
 				(0 << 6) | // MX=0
 				(0 << 5) | // MV=0
@@ -435,33 +437,33 @@ static void portapack_lcd_init()
 		// portapack_lcd_data_write_command_and_data(0x36, {0x48});
 		portapack_lcd_data_write_command_and_data(
 			0x3A,
-			(const uint8_t[]) {0x65},
+			(const uint8_t[]){0x65},
 			1); // 0x55 was the original
 		// 这里的刷新率过低？
 		// portapack_lcd_data_write_command_and_data(0xB1, {0x40, 0x1F});  // fix 60 fps
 		portapack_lcd_data_write_command_and_data(
 			0xB1,
-			(const uint8_t[]) {0xA0, 0x11},
+			(const uint8_t[]){0xA0, 0x11},
 			2); // Frame rate source is 11fps
 
 		portapack_lcd_data_write_command_and_data(
 			0xB4,
-			(const uint8_t[]) {0x02},
+			(const uint8_t[]){0x02},
 			1); // 2 dot inversion
 
 		portapack_lcd_data_write_command_and_data(
 			0xEE,
-			(const uint8_t[]) {0x00, 0x04},
+			(const uint8_t[]){0x00, 0x04},
 			2);
 
 		portapack_lcd_data_write_command_and_data(
 			0xE9,
-			(const uint8_t[]) {0x00},
+			(const uint8_t[]){0x00},
 			1);
 
 		portapack_lcd_data_write_command_and_data(
 			0xF7,
-			(const uint8_t[]) {0xA9, 0x51, 0x2C, 0x82},
+			(const uint8_t[]){0xA9, 0x51, 0x2C, 0x82},
 			4);
 
 		portapack_lcd_data_write_command_and_data(
@@ -478,7 +480,7 @@ static void portapack_lcd_init()
 		// Turn on Tearing Effect Line (TE) output signal.
 		portapack_lcd_data_write_command_and_data(
 			0x35,
-			(const uint8_t[]) {0b00000000},
+			(const uint8_t[]){0b00000000},
 			1);
 
 		return;

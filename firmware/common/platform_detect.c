@@ -23,59 +23,46 @@
 #include "firmware_info.h"
 #include "gpio_lpc.h"
 #include "hackrf_core.h"
+#include "adc.h"
 
 #include <libopencm3/lpc43xx/scu.h>
-#include <libopencm3/lpc43xx/adc.h>
 
 static board_id_t platform = BOARD_ID_UNDETECTED;
 static board_rev_t revision = BOARD_REV_UNDETECTED;
 
 static struct gpio_t gpio2_9_on_P5_0 = GPIO(2, 9);
 static struct gpio_t gpio3_6_on_P6_10 = GPIO(3, 6);
+static struct gpio_t gpio3_4_on_P6_5 = GPIO(3, 4);
+static struct gpio_t gpio2_6_on_P4_6 = GPIO(2, 6);
 
 #define P5_0_PUP  (1 << 0)
 #define P5_0_PDN  (1 << 1)
 #define P6_10_PUP (1 << 2)
 #define P6_10_PDN (1 << 3)
+#define P6_5_PDN  (1 << 4)
 
 /*
  * Jawbreaker has a pull-down on P6_10 and nothing on P5_0.
  * rad1o has a pull-down on P6_10 and a pull-down on P5_0.
  * HackRF One OG has a pull-down on P6_10 and a pull-up on P5_0.
  * HackRF One r9 has a pull-up on P6_10 and a pull-down on P5_0.
- */
+ * Praline has a pull-down on P6_5. */
 
 #define JAWBREAKER_RESISTORS (P6_10_PDN)
 #define RAD1O_RESISTORS      (P6_10_PDN | P5_0_PDN)
 #define HACKRF1_OG_RESISTORS (P6_10_PDN | P5_0_PUP)
 #define HACKRF1_R9_RESISTORS (P6_10_PUP | P5_0_PDN)
+#define PRALINE_RESISTORS    (P6_5_PDN)
 
 /*
  * LEDs are configured so that they flash if the detected hardware platform is
  * not supported by the firmware binary. Only two LEDs are flashed for a
- * hardware detection failure, but three LEDs are flashed if CPLD configuration
+ * hardware detection failure, but three LEDs are flashed if CPLD/FPGA configuration
  * fails.
  */
 static struct gpio_t gpio_led1 = GPIO(2, 1);
 static struct gpio_t gpio_led2 = GPIO(2, 2);
 static struct gpio_t gpio_led3 = GPIO(2, 8);
-
-/*
- * Return 10-bit ADC result.
- */
-uint16_t adc_read(uint8_t pin)
-{
-	pin &= 0x7;
-	uint8_t pin_mask = (1 << pin);
-	ADC0_CR = ADC_CR_SEL(pin_mask) | ADC_CR_CLKDIV(45) | ADC_CR_PDN | ADC_CR_START(1);
-	while (!(ADC0_GDR & ADC_DR_DONE) || (((ADC0_GDR >> 24) & 0x7) != pin)) {}
-	return (ADC0_GDR >> 6) & 0x03FF;
-}
-
-void adc_off(void)
-{
-	ADC0_CR = 0;
-}
 
 /*
  * Starting with r6, HackRF One has pin straps on ADC pins that indicate
@@ -109,7 +96,7 @@ uint32_t check_pin_strap(uint8_t pin)
  * scheme with ADC0_3 tied to VCC.
  */
 // clang-format off
-static const uint8_t revision_from_adc[32] = {
+static const uint8_t hackrf_revision_from_adc[32] = {
 	BOARD_REV_UNRECOGNIZED,
 	BOARD_REV_UNRECOGNIZED,
 	BOARD_REV_UNRECOGNIZED,
@@ -144,6 +131,47 @@ static const uint8_t revision_from_adc[32] = {
 	BOARD_REV_HACKRF1_R8
 };
 
+/*
+ * Starting with r0.1, Praline also uses a voltage on ADC0_3 to set an
+ * analog voltage that indicates the hardware revision. The high five
+ * bits of the ADC result are mapped to 32 revisions. Note that,
+ * unlike HackRF One, Praline revisions are mapped in ascending order.
+ */
+static const uint8_t praline_revision_from_adc[32] = {
+	BOARD_REV_PRALINE_R0_1,
+	BOARD_REV_PRALINE_R0_2,
+	BOARD_REV_PRALINE_R0_3,
+	BOARD_REV_PRALINE_R1_0,
+	BOARD_REV_PRALINE_R1_1,
+	BOARD_REV_PRALINE_R1_2,
+	BOARD_REV_UNRECOGNIZED,
+	BOARD_REV_UNRECOGNIZED,
+	BOARD_REV_UNRECOGNIZED,
+	BOARD_REV_UNRECOGNIZED,
+	BOARD_REV_UNRECOGNIZED,
+	BOARD_REV_UNRECOGNIZED,
+	BOARD_REV_UNRECOGNIZED,
+	BOARD_REV_UNRECOGNIZED,
+	BOARD_REV_UNRECOGNIZED,
+	BOARD_REV_UNRECOGNIZED,
+	BOARD_REV_UNRECOGNIZED,
+	BOARD_REV_UNRECOGNIZED,
+	BOARD_REV_UNRECOGNIZED,
+	BOARD_REV_UNRECOGNIZED,
+	BOARD_REV_UNRECOGNIZED,
+	BOARD_REV_UNRECOGNIZED,
+	BOARD_REV_UNRECOGNIZED,
+	BOARD_REV_UNRECOGNIZED,
+	BOARD_REV_UNRECOGNIZED,
+	BOARD_REV_UNRECOGNIZED,
+	BOARD_REV_UNRECOGNIZED,
+	BOARD_REV_UNRECOGNIZED,
+	BOARD_REV_UNRECOGNIZED,
+	BOARD_REV_UNRECOGNIZED,
+	BOARD_REV_UNRECOGNIZED,
+	BOARD_REV_UNRECOGNIZED,
+};
+
 // clang-format on
 
 void detect_hardware_platform(void)
@@ -158,6 +186,7 @@ void detect_hardware_platform(void)
 
 	gpio_input(&gpio2_9_on_P5_0);
 	gpio_input(&gpio3_6_on_P6_10);
+	gpio_input(&gpio3_4_on_P6_5);
 
 	/* activate internal pull-down */
 	scu_pinmux(P5_0, SCU_GPIO_PDN | SCU_CONF_FUNCTION0);
@@ -174,14 +203,17 @@ void detect_hardware_platform(void)
 	/* activate internal pull-up */
 	scu_pinmux(P5_0, SCU_GPIO_PUP | SCU_CONF_FUNCTION0);
 	scu_pinmux(P6_10, SCU_GPIO_PUP | SCU_CONF_FUNCTION0);
+	scu_pinmux(P6_5, SCU_GPIO_PUP | SCU_CONF_FUNCTION0);
 	delay_us_at_mhz(4, 96);
 	/* tri-state for a moment before testing input */
 	scu_pinmux(P5_0, SCU_GPIO_NOPULL | SCU_CONF_FUNCTION0);
 	scu_pinmux(P6_10, SCU_GPIO_NOPULL | SCU_CONF_FUNCTION0);
+	scu_pinmux(P6_5, SCU_GPIO_NOPULL | SCU_CONF_FUNCTION0);
 	delay_us_at_mhz(4, 96);
 	/* if input fell quickly, there must be an external pull-down */
 	detected_resistors |= (gpio_read(&gpio2_9_on_P5_0)) ? 0 : P5_0_PDN;
 	detected_resistors |= (gpio_read(&gpio3_6_on_P6_10)) ? 0 : P6_10_PDN;
+	detected_resistors |= (gpio_read(&gpio3_4_on_P6_5)) ? 0 : P6_5_PDN;
 
 	switch (detected_resistors) {
 	case JAWBREAKER_RESISTORS:
@@ -208,6 +240,12 @@ void detect_hardware_platform(void)
 		}
 		platform = BOARD_ID_HACKRF1_R9;
 		break;
+	case PRALINE_RESISTORS:
+		if (!(supported_platform() & PLATFORM_PRALINE)) {
+			halt_and_flash(3000000);
+		}
+		platform = BOARD_ID_PRALINE;
+		break;
 	default:
 		platform = BOARD_ID_UNRECOGNIZED;
 		halt_and_flash(1000000);
@@ -226,9 +264,11 @@ void detect_hardware_platform(void)
 			revision = BOARD_REV_HACKRF1_R7;
 		} else if (LOW(adc0_4)) {
 			adc0_3 >>= 5;
-			revision = revision_from_adc[adc0_3];
-			if (revision == BOARD_REV_UNRECOGNIZED)	// Return all six bits of the unrecognised value
-				revision = (board_rev_t)((adc0_3 & 0x3F) + BOARD_REV_HACKRF1_ADC_BASE);
+			revision = hackrf_revision_from_adc[adc0_3];
+			if (revision ==
+			    BOARD_REV_UNRECOGNIZED) // Return all six bits of the unrecognised value
+				revision = (board_rev_t) ((adc0_3 & 0x3F) +
+							  BOARD_REV_HACKRF1_ADC_BASE);
 		} else {
 			revision = BOARD_REV_UNRECOGNIZED;
 		}
@@ -238,10 +278,27 @@ void detect_hardware_platform(void)
 		} else {
 			revision = BOARD_REV_UNRECOGNIZED;
 		}
+	} else if (platform == BOARD_ID_PRALINE) {
+		revision = praline_revision_from_adc[adc0_3 >> 5];
 	}
 
-	if ((revision > BOARD_REV_HACKRF1_OLD) && LOW(adc0_7)) {
-		revision |= BOARD_REV_GSG;
+	switch (platform) {
+	case BOARD_ID_HACKRF1_OG:
+	case BOARD_ID_HACKRF1_R9:
+		if ((revision > BOARD_REV_HACKRF1_OLD) && LOW(adc0_7)) {
+			revision |= BOARD_REV_GSG;
+		}
+		break;
+	case BOARD_ID_PRALINE:
+		scu_pinmux(P4_6, SCU_GPIO_PDN | SCU_CONF_FUNCTION0);
+		gpio_input(&gpio2_6_on_P4_6);
+		if (gpio_read(&gpio2_6_on_P4_6)) {
+			revision |= BOARD_REV_GSG;
+		}
+		scu_pinmux(P4_6, SCU_GPIO_NOPULL | SCU_CONF_FUNCTION0);
+		break;
+	default:
+		break;
 	}
 }
 

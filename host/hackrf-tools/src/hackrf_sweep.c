@@ -96,7 +96,6 @@ int gettimeofday(struct timeval* tv, void* ignored)
 #define OFFSET    7500000
 
 #define BLOCKS_PER_TRANSFER 16
-#define THROWAWAY_BLOCKS    2
 
 #if defined _WIN32
 	#define m_sleep(a) Sleep((a))
@@ -371,7 +370,8 @@ int rx_callback(hackrf_transfer* transfer)
 				time_str,
 				(long int) usb_transfer_time.tv_usec,
 				(uint64_t) (frequency + (DEFAULT_SAMPLE_RATE_HZ / 2)),
-				(uint64_t) (frequency + ((DEFAULT_SAMPLE_RATE_HZ * 3) / 4)),
+				(uint64_t) (frequency +
+					    ((DEFAULT_SAMPLE_RATE_HZ * 3) / 4)),
 				fft_bin_width,
 				num_fft_bins);
 			for (i = 0; (num_fft_bins / 4) > i; i++) {

@@ -81,7 +81,17 @@ usb_request_status_t usb_vendor_request_set_baseband_filter_bandwidth(
 	if (stage == USB_TRANSFER_STAGE_SETUP) {
 		const uint32_t bandwidth =
 			(endpoint->setup.index << 16) | endpoint->setup.value;
-		if (baseband_filter_bandwidth_set(bandwidth)) {
+		radio_error_t result = radio_set_filter(
+			&radio,
+			RADIO_CHANNEL0,
+			RADIO_FILTER_BASEBAND,
+			(radio_filter_t){.hz = bandwidth});
+		if (result == RADIO_OK) {
+			radio_filter_t real = radio_get_filter(
+				&radio,
+				RADIO_CHANNEL0,
+				RADIO_FILTER_BASEBAND);
+			hackrf_ui()->set_filter_bw(real.hz);
 			usb_transfer_schedule_ack(endpoint->in);
 			return USB_REQUEST_STATUS_OK;
 		}
@@ -106,7 +116,43 @@ usb_request_status_t usb_vendor_request_set_freq(
 	} else if (stage == USB_TRANSFER_STAGE_DATA) {
 		const uint64_t freq =
 			set_freq_params.freq_mhz * 1000000ULL + set_freq_params.freq_hz;
-		if (set_freq(freq)) {
+		radio_error_t result = radio_set_frequency(
+			&radio,
+			RADIO_CHANNEL0,
+			RADIO_FREQUENCY_RF,
+			(radio_frequency_t){.hz = freq});
+		if (result == RADIO_OK) {
+			usb_transfer_schedule_ack(endpoint->in);
+			return USB_REQUEST_STATUS_OK;
+		}
+		return USB_REQUEST_STATUS_STALL;
+	} else {
+		return USB_REQUEST_STATUS_OK;
+	}
+}
+
+usb_request_status_t usb_vendor_request_set_freq_explicit(
+	usb_endpoint_t* const endpoint,
+	const usb_transfer_stage_t stage)
+{
+	if (stage == USB_TRANSFER_STAGE_SETUP) {
+		usb_transfer_schedule_block(
+			endpoint->out,
+			&explicit_params,
+			sizeof(struct set_freq_explicit_params),
+			NULL,
+			NULL);
+		return USB_REQUEST_STATUS_OK;
+	} else if (stage == USB_TRANSFER_STAGE_DATA) {
+		radio_error_t result = radio_set_frequency(
+			&radio,
+			RADIO_CHANNEL0,
+			RADIO_FREQUENCY_RF,
+			(radio_frequency_t){
+				.if_hz = explicit_params.if_freq_hz,
+				.lo_hz = explicit_params.lo_freq_hz,
+				.path = explicit_params.path});
+		if (result == RADIO_OK) {
 			usb_transfer_schedule_ack(endpoint->in);
 			return USB_REQUEST_STATUS_OK;
 		}
@@ -129,9 +175,15 @@ usb_request_status_t usb_vendor_request_set_sample_rate_frac(
 			NULL);
 		return USB_REQUEST_STATUS_OK;
 	} else if (stage == USB_TRANSFER_STAGE_DATA) {
-		if (sample_rate_frac_set(
-			    set_sample_r_params.freq_hz * 2,
-			    set_sample_r_params.divider)) {
+		radio_error_t result = radio_set_sample_rate(
+			&radio,
+			RADIO_CHANNEL0,
+			RADIO_SAMPLE_RATE_CLOCKGEN,
+			(radio_sample_rate_t){
+				.num = set_sample_r_params.freq_hz * 2,
+				.div = set_sample_r_params.divider,
+			});
+		if (result == RADIO_OK) {
 			usb_transfer_schedule_ack(endpoint->in);
 			return USB_REQUEST_STATUS_OK;
 		}
@@ -145,14 +197,17 @@ usb_request_status_t usb_vendor_request_set_amp_enable(
 	usb_endpoint_t* const endpoint,
 	const usb_transfer_stage_t stage)
 {
+	radio_gain_t off = {.enable = false};
+	radio_gain_t on = {.enable = true};
+
 	if (stage == USB_TRANSFER_STAGE_SETUP) {
 		switch (endpoint->setup.value) {
 		case 0:
-			rf_path_set_lna(&rf_path, 0);
+			radio_set_gain(&radio, RADIO_CHANNEL0, RADIO_GAIN_RF_AMP, off);
 			usb_transfer_schedule_ack(endpoint->in);
 			return USB_REQUEST_STATUS_OK;
 		case 1:
-			rf_path_set_lna(&rf_path, 1);
+			radio_set_gain(&radio, RADIO_CHANNEL0, RADIO_GAIN_RF_AMP, on);
 			usb_transfer_schedule_ack(endpoint->in);
 			return USB_REQUEST_STATUS_OK;
 		default:
@@ -168,8 +223,9 @@ usb_request_status_t usb_vendor_request_set_lna_gain(
 	const usb_transfer_stage_t stage)
 {
 	if (stage == USB_TRANSFER_STAGE_SETUP) {
-		uint8_t value;
-		value = max283x_set_lna_gain(&max283x, endpoint->setup.index);
+		radio_gain_t gain = {.db = endpoint->setup.index};
+		uint8_t value =
+			radio_set_gain(&radio, RADIO_CHANNEL0, RADIO_GAIN_RX_LNA, gain);
 		endpoint->buffer[0] = value;
 		if (value) {
 			hackrf_ui()->set_bb_lna_gain(endpoint->setup.index);
@@ -191,8 +247,9 @@ usb_request_status_t usb_vendor_request_set_vga_gain(
 	const usb_transfer_stage_t stage)
 {
 	if (stage == USB_TRANSFER_STAGE_SETUP) {
-		uint8_t value;
-		value = max283x_set_vga_gain(&max283x, endpoint->setup.index);
+		radio_gain_t gain = {.db = endpoint->setup.index};
+		uint8_t value =
+			radio_set_gain(&radio, RADIO_CHANNEL0, RADIO_GAIN_RX_VGA, gain);
 		endpoint->buffer[0] = value;
 		if (value) {
 			hackrf_ui()->set_bb_vga_gain(endpoint->setup.index);
@@ -214,8 +271,9 @@ usb_request_status_t usb_vendor_request_set_txvga_gain(
 	const usb_transfer_stage_t stage)
 {
 	if (stage == USB_TRANSFER_STAGE_SETUP) {
-		uint8_t value;
-		value = max283x_set_txvga_gain(&max283x, endpoint->setup.index);
+		radio_gain_t gain = {.db = endpoint->setup.index};
+		uint8_t value =
+			radio_set_gain(&radio, RADIO_CHANNEL0, RADIO_GAIN_TX_VGA, gain);
 		endpoint->buffer[0] = value;
 		if (value) {
 			hackrf_ui()->set_bb_tx_vga_gain(endpoint->setup.index);
@@ -236,14 +294,25 @@ usb_request_status_t usb_vendor_request_set_antenna_enable(
 	usb_endpoint_t* const endpoint,
 	const usb_transfer_stage_t stage)
 {
+	radio_antenna_t off = {.enable = false};
+	radio_antenna_t on = {.enable = true};
+
 	if (stage == USB_TRANSFER_STAGE_SETUP) {
 		switch (endpoint->setup.value) {
 		case 0:
-			rf_path_set_antenna(&rf_path, 0);
+			radio_set_antenna(
+				&radio,
+				RADIO_CHANNEL0,
+				RADIO_ANTENNA_BIAS_TEE,
+				off);
 			usb_transfer_schedule_ack(endpoint->in);
 			return USB_REQUEST_STATUS_OK;
 		case 1:
-			rf_path_set_antenna(&rf_path, 1);
+			radio_set_antenna(
+				&radio,
+				RADIO_CHANNEL0,
+				RADIO_ANTENNA_BIAS_TEE,
+				on);
 			usb_transfer_schedule_ack(endpoint->in);
 			return USB_REQUEST_STATUS_OK;
 		default:
@@ -254,40 +323,8 @@ usb_request_status_t usb_vendor_request_set_antenna_enable(
 	}
 }
 
-usb_request_status_t usb_vendor_request_set_freq_explicit(
-	usb_endpoint_t* const endpoint,
-	const usb_transfer_stage_t stage)
-{
-	if (stage == USB_TRANSFER_STAGE_SETUP) {
-		usb_transfer_schedule_block(
-			endpoint->out,
-			&explicit_params,
-			sizeof(struct set_freq_explicit_params),
-			NULL,
-			NULL);
-		return USB_REQUEST_STATUS_OK;
-	} else if (stage == USB_TRANSFER_STAGE_DATA) {
-		if (set_freq_explicit(
-			    explicit_params.if_freq_hz,
-			    explicit_params.lo_freq_hz,
-			    explicit_params.path)) {
-			usb_transfer_schedule_ack(endpoint->in);
-			return USB_REQUEST_STATUS_OK;
-		}
-		return USB_REQUEST_STATUS_STALL;
-	} else {
-		return USB_REQUEST_STATUS_OK;
-	}
-}
-
-static volatile hw_sync_mode_t _hw_sync_mode = HW_SYNC_MODE_OFF;
 static volatile uint32_t _tx_underrun_limit;
 static volatile uint32_t _rx_overrun_limit;
-
-void set_hw_sync_mode(const hw_sync_mode_t new_hw_sync_mode)
-{
-	_hw_sync_mode = new_hw_sync_mode;
-}
 
 volatile transceiver_request_t transceiver_request = {
 	.mode = TRANSCEIVER_MODE_OFF,
@@ -314,12 +351,13 @@ void transceiver_shutdown(void)
 
 	led_off(LED2);
 	led_off(LED3);
-	rf_path_set_direction(&rf_path, RF_PATH_DIRECTION_OFF);
+	radio_switch_mode(&radio, RADIO_CHANNEL0, TRANSCEIVER_MODE_OFF);
 	m0_set_mode(M0_MODE_IDLE);
 }
 
 void transceiver_startup(const transceiver_mode_t mode)
 {
+	radio_switch_mode(&radio, RADIO_CHANNEL0, mode);
 	hackrf_ui()->set_transceiver_mode(mode);
 
 	switch (mode) {
@@ -327,14 +365,12 @@ void transceiver_startup(const transceiver_mode_t mode)
 	case TRANSCEIVER_MODE_RX:
 		led_off(LED3);
 		led_on(LED2);
-		rf_path_set_direction(&rf_path, RF_PATH_DIRECTION_RX);
 		m0_set_mode(M0_MODE_RX);
 		m0_state.shortfall_limit = _rx_overrun_limit;
 		break;
 	case TRANSCEIVER_MODE_TX:
 		led_off(LED2);
 		led_on(LED3);
-		rf_path_set_direction(&rf_path, RF_PATH_DIRECTION_TX);
 		m0_set_mode(M0_MODE_TX_START);
 		m0_state.shortfall_limit = _tx_underrun_limit;
 		break;
@@ -343,7 +379,7 @@ void transceiver_startup(const transceiver_mode_t mode)
 	}
 
 	activate_best_clock_source();
-	hw_sync_enable(_hw_sync_mode);
+	trigger_enable(radio_get_trigger_enable(&radio, RADIO_CHANNEL0));
 }
 
 usb_request_status_t usb_vendor_request_set_transceiver_mode(
@@ -373,9 +409,15 @@ usb_request_status_t usb_vendor_request_set_hw_sync_mode(
 	const usb_transfer_stage_t stage)
 {
 	if (stage == USB_TRANSFER_STAGE_SETUP) {
-		set_hw_sync_mode(endpoint->setup.value);
-		usb_transfer_schedule_ack(endpoint->in);
-		return USB_REQUEST_STATUS_OK;
+		radio_error_t result = radio_set_trigger_enable(
+			&radio,
+			RADIO_CHANNEL0,
+			endpoint->setup.value != 0);
+		if (result == RADIO_OK) {
+			usb_transfer_schedule_ack(endpoint->in);
+			return USB_REQUEST_STATUS_OK;
+		}
+		return USB_REQUEST_STATUS_STALL;
 	} else {
 		return USB_REQUEST_STATUS_OK;
 	}
@@ -436,17 +478,18 @@ void rx_mode(uint32_t seq)
 				USB_TRANSFER_SIZE,
 				transceiver_bulk_transfer_complete,
 				NULL);
-			
+
 			usb_count += USB_TRANSFER_SIZE;
 
-			int8_t sample_value = *(int8_t *)&usb_bulk_buffer[usb_count & USB_BULK_BUFFER_MASK];
-			
+			int8_t sample_value = *(
+				int8_t*) &usb_bulk_buffer[usb_count & USB_BULK_BUFFER_MASK];
+
 			if (sample_value > saturation_buffer)
 				saturation_buffer = sample_value;
-			
-			if (-sample_value > saturation_buffer) 
+
+			if (-sample_value > saturation_buffer)
 				saturation_buffer = -sample_value;
-				
+
 			if (saturation_buffer_time + 4 < systick_counter) {
 				saturation_buffer_time = systick_counter;
 				hackrf_ui()->set_saturation(saturation_buffer);

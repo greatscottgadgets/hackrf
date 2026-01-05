@@ -50,7 +50,7 @@ void usb_set_address_deferred(
 
 usb_endpoint_t* usb_endpoint_from_address(const uint_fast8_t endpoint_address);
 
-void usb_endpoint_init(const usb_endpoint_t* const endpoint);
+void usb_endpoint_init(const usb_endpoint_t* const endpoint, const bool enable_zlp);
 
 void usb_endpoint_stall(const usb_endpoint_t* const endpoint);
 

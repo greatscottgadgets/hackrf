@@ -33,12 +33,12 @@ void max2837_target_init(max2837_driver_t* const drv)
 	scu_pinmux(SCU_SSP1_COPI, (SCU_SSP_IO | SCU_CONF_FUNCTION5));
 	scu_pinmux(SCU_SSP1_SCK, (SCU_SSP_IO | SCU_CONF_FUNCTION1));
 
-	scu_pinmux(SCU_XCVR_CS, SCU_GPIO_FAST);
+	scu_pinmux(SCU_XCVR_CS, SCU_XCVR_CS_PINCFG);
 
 	/* Configure XCVR_CTL GPIO pins. */
-	scu_pinmux(SCU_XCVR_ENABLE, SCU_GPIO_FAST);
-	scu_pinmux(SCU_XCVR_RXENABLE, SCU_GPIO_FAST);
-	scu_pinmux(SCU_XCVR_TXENABLE, SCU_GPIO_FAST);
+	scu_pinmux(SCU_XCVR_ENABLE, SCU_XCVR_ENABLE_PINCFG);
+	scu_pinmux(SCU_XCVR_RXENABLE, SCU_XCVR_RXENABLE_PINCFG);
+	scu_pinmux(SCU_XCVR_TXENABLE, SCU_XCVR_TXENABLE_PINCFG);
 
 	/* Set GPIO pins as outputs. */
 	gpio_output(drv->gpio_enable);

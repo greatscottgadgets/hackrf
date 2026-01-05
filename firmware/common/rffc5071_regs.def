@@ -27,6 +27,7 @@
 #define RFFC5071_REG_SET_DIRTY(_d, _r) (_d->regs_dirty |= (1UL<<_r))
 
 #define RFFC5071_READBACK_REG 31
+#define RFFC5071_DEV_ID_MASK 0xFFFC
 
 /* Generate static inline accessors that operate on the global
  * regs. Done this way to (1) allow defs to be scraped out and used

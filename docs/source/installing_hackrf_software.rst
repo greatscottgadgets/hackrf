@@ -94,60 +94,32 @@ Once you have the source downloaded, the host tools can be built as follows:
 
 If you have HackRF hardware, you may need to :ref:`update the firmware <updating_firmware>` to match the host tools versions.
 
-
-
-Windows: Prerequisites for Cygwin, MinGW, or Visual Studio
-++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-    * cmake-2.8.12.1 or later from http://www.cmake.org/cmake/resources/software.html
-    * libusbx-1.0.18 or later from http://sourceforge.net/projects/libusbx/files/latest/download?source=files
-    * fftw-3.3.5 or later from http://www.fftw.org/install/windows.html
-    * Install Windows driver for HackRF hardware or use Zadig see http://sourceforge.net/projects/libwdi/files/zadig
-        * If you want to use Zadig select HackRF USB device and just install/replace it with WinUSB driver.
-
-Note for Windows build: You shall always execute hackrf-tools from Windows command shell and not from Cygwin or MinGW shell because on Cygwin/MinGW Ctrl+C is not managed correctly and especially for hackrf_transfer the Ctrl+C (abort) will not stop correctly and will corrupt the file.
-
-
-
-Windows: Installing HackRF Software via Cygwin
-++++++++++++++++++++++++++++++++++++++++++++++
-
-.. code-block :: sh
-
-	mkdir host/build
-	cd host/build
-	cmake ../ -G "Unix Makefiles" -DCMAKE_LEGACY_CYGWIN_WIN32=1 -DLIBUSB_INCLUDE_DIR=/usr/local/include/libusb-1.0/
-	make
-	make install
-
-
-
-Windows: Installing HackRF Software via MinGW
+Windows: Building HackRF Software From Source
 +++++++++++++++++++++++++++++++++++++++++++++
 
-.. code-block :: sh
+Install `Visual Studio Community <https://visualstudio.microsoft.com/vs/community/>`__ (2015 or later) and `CMake <https://cmake.org/>`__ (at least version 3.21.4).
 
-	mkdir host/build
-	cd host/build
-	cmake ../ -G "MSYS Makefiles" -DLIBUSB_INCLUDE_DIR=/usr/local/include/libusb-1.0/
-	make
-	make install
+Install library dependencies using `vcpkg <https://vcpkg.io/en/>`__:
 
+.. code-block :: winbatch
 
+	git clone https://github.com/microsoft/vcpkg
+	cd vcpkg
+	bootstrap-vcpkg.bat
+	vcpkg install libusb fftw3 pthreads pkgconf
 
-Windows: Installing HackRF Software via Visual Studio 2015 x64
-++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Open the Visual Studio Developer Command Prompt, and change to the directory where you unpacked the HackRF source.
 
-Create library definition for MSVC to link to ``C:\fftw-3.3.5-dll64> lib /machine:x64 /def:libfftw3f-3.def``
+The following steps assume you installed vcpkg in ``C:\vcpkg``.
 
-.. code-block :: sh
+Configure CMake and build the code:
 
-	c:\hackrf\host\build> cmake ../ -G "Visual Studio 14 2015 Win64" \
-	-DLIBUSB_INCLUDE_DIR=c:\libusb-1.0.21\libusb \
-	-DLIBUSB_LIBRARIES=c:\libusb-1.0.21\MS64\dll\lib\libusb-1.0.lib \
-	-DTHREADS_PTHREADS_INCLUDE_DIR=c:\pthreads-w32-2-9-1-release\Pre-built.2\include \
-	-DTHREADS_PTHREADS_WIN32_LIBRARY=c:\pthreads-w32-2-9-1-release\Pre-built.2\lib\x64\pthreadVC2.lib \
-	-DFFTW_INCLUDES=C:\fftw-3.3.5-dll64 \
-	-DFFTW_LIBRARIES=C:\fftw-3.3.5-dll64\libfftw3f-3.lib
+.. code-block :: winbatch
 
-CMake will produce a solution file named ``HackRF.sln`` and a series of project files which can be built with msbuild as follows: ``c:\hackrf\host\build> msbuild HackRF.sln``
+	set PKG_CONFIG=C:\vcpkg\installed\x64-windows\tools\pkgconf\pkgconf.exe
+	set PKG_CONFIG_PATH=C:\vcpkg\installed\x64-windows\lib\pkgconfig
+	set CMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake
+	cmake -B host\build host
+	cmake --build host\build
+
+CMake will generate a ``HackRF.sln`` project file which you can open in Visual Studio for editing and development.

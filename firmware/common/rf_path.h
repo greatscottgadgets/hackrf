@@ -32,6 +32,10 @@ typedef enum {
 	RF_PATH_DIRECTION_OFF,
 	RF_PATH_DIRECTION_RX,
 	RF_PATH_DIRECTION_TX,
+#ifdef PRALINE
+	RF_PATH_DIRECTION_TX_CALIBRATION,
+	RF_PATH_DIRECTION_RX_CALIBRATION,
+#endif
 } rf_path_direction_t;
 
 typedef enum {
@@ -69,6 +73,13 @@ typedef struct rf_path_t {
 	gpio_t gpio_low_high_filt_n;
 	gpio_t gpio_tx_amp;
 	gpio_t gpio_rx_lna;
+#endif
+#ifdef PRALINE
+	gpio_t gpio_tx_en;
+	gpio_t gpio_mix_en_n;
+	gpio_t gpio_lpf_en;
+	gpio_t gpio_rf_amp_en;
+	gpio_t gpio_ant_bias_en_n;
 #endif
 } rf_path_t;
 

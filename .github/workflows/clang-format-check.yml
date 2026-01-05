@@ -16,10 +16,11 @@ jobs:
           - check: 'firmware/hackrf_usb'
             exclude: ''
     steps:
-    - uses: actions/checkout@v4
-    - name: Run clang-format-action
-      uses: jidicula/clang-format-action@v4.6.2
-      with:
-        clang-format-version: '14'
-        check-path: ${{ matrix.path['check'] }}
-        exclude-regex: ${{ matrix.path['exclude'] }}
+      - uses: actions/checkout@v4
+      - name: Run clang-format-action
+        uses: jidicula/clang-format-action@v4.11.0
+        with:
+          clang-format-version: '18'
+          check-path: ${{ matrix.path['check'] }}
+          exclude-regex: ${{ matrix.path['exclude'] }}
+          fallback-style: Chromium

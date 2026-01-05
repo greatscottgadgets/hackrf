@@ -59,35 +59,31 @@
 */
 #define MAX_LEN 256
 
-
-typedef struct var_len_byte
-{
-    short len;   /* number of chars in this value */
-    unsigned char val[MAX_LEN+1];  /* bytes of data */
+typedef struct var_len_byte {
+	short len;                      /* number of chars in this value */
+	unsigned char val[MAX_LEN + 1]; /* bytes of data */
 } lenVal;
 
-
 /* return the long representation of a lenVal */
-extern long value(lenVal *x);
+extern long value(lenVal* x);
 
 /* set lenVal equal to value */
-extern void initLenVal(lenVal *x, long value);
+extern void initLenVal(lenVal* x, long value);
 
 /* check if expected equals actual (taking the mask into account) */
-extern short EqualLenVal(lenVal *expected, lenVal *actual, lenVal *mask);
+extern short EqualLenVal(lenVal* expected, lenVal* actual, lenVal* mask);
 
 /* add val1+val2 and put the result in resVal */
-extern void addVal(lenVal *resVal, lenVal *val1, lenVal *val2);
+extern void addVal(lenVal* resVal, lenVal* val1, lenVal* val2);
 
 /* return the (byte, bit) of lv (reading from left to right) */
-extern short RetBit(lenVal *lv, int byte, int bit);
+extern short RetBit(lenVal* lv, int byte, int bit);
 
 /* set the (byte, bit) of lv equal to val (e.g. SetBit("00000000",byte, 1)
    equals "01000000" */
-extern void SetBit(lenVal *lv, int byte, int bit, short val);
+extern void SetBit(lenVal* lv, int byte, int bit, short val);
 
 /* read from XSVF numBytes bytes of data into x */
-extern void  readVal(lenVal *x, short numBytes);
+extern void readVal(lenVal* x, short numBytes);
 
 #endif
-
