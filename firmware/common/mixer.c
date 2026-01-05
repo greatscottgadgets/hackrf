@@ -41,9 +41,16 @@ static struct gpio_t gpio_vco_le        = GPIO(2, 14);
 static struct gpio_t gpio_vco_mux       = GPIO(5, 25);
 static struct gpio_t gpio_synt_rfout_en = GPIO(3,  5);
 #endif
+#ifdef PRALINE
+static struct gpio_t gpio_rffc5072_select = GPIO(2, 13);
+static struct gpio_t gpio_rffc5072_clock  = GPIO(5, 18);
+static struct gpio_t gpio_rffc5072_data   = GPIO(4, 14);
+static struct gpio_t gpio_rffc5072_reset  = GPIO(2, 14);
+static struct gpio_t gpio_rffc5072_ld     = GPIO(6, 25);
+#endif
 // clang-format on
 
-#if (defined JAWBREAKER || defined HACKRF_ONE)
+#if (defined JAWBREAKER || defined HACKRF_ONE || defined PRALINE)
 const rffc5071_spi_config_t rffc5071_spi_config = {
 	.gpio_select = &gpio_rffc5072_select,
 	.gpio_clock = &gpio_rffc5072_clock,
@@ -61,6 +68,9 @@ spi_bus_t spi_bus_rffc5071 = {
 mixer_driver_t mixer = {
 	.bus = &spi_bus_rffc5071,
 	.gpio_reset = &gpio_rffc5072_reset,
+	#ifdef PRALINE
+	.gpio_ld = &gpio_rffc5072_ld,
+	#endif
 };
 #endif
 #ifdef RAD1O
@@ -76,7 +86,7 @@ mixer_driver_t mixer = {
 
 void mixer_bus_setup(mixer_driver_t* const mixer)
 {
-#if (defined JAWBREAKER || defined HACKRF_ONE)
+#if (defined JAWBREAKER || defined HACKRF_ONE || defined PRALINE)
 	(void) mixer;
 	spi_bus_start(&spi_bus_rffc5071, &rffc5071_spi_config);
 #endif
@@ -87,7 +97,7 @@ void mixer_bus_setup(mixer_driver_t* const mixer)
 
 void mixer_setup(mixer_driver_t* const mixer)
 {
-#if (defined JAWBREAKER || defined HACKRF_ONE)
+#if (defined JAWBREAKER || defined HACKRF_ONE || defined PRALINE)
 	rffc5071_setup(mixer);
 #endif
 #ifdef RAD1O
@@ -97,7 +107,7 @@ void mixer_setup(mixer_driver_t* const mixer)
 
 uint64_t mixer_set_frequency(mixer_driver_t* const mixer, uint64_t hz)
 {
-#if (defined JAWBREAKER || defined HACKRF_ONE)
+#if (defined JAWBREAKER || defined HACKRF_ONE || defined PRALINE)
 	return rffc5071_set_frequency(mixer, hz);
 #endif
 #ifdef RAD1O
@@ -107,7 +117,7 @@ uint64_t mixer_set_frequency(mixer_driver_t* const mixer, uint64_t hz)
 
 void mixer_tx(mixer_driver_t* const mixer)
 {
-#if (defined JAWBREAKER || defined HACKRF_ONE)
+#if (defined JAWBREAKER || defined HACKRF_ONE || defined PRALINE)
 	rffc5071_tx(mixer);
 #endif
 #ifdef RAD1O
@@ -117,7 +127,7 @@ void mixer_tx(mixer_driver_t* const mixer)
 
 void mixer_rx(mixer_driver_t* const mixer)
 {
-#if (defined JAWBREAKER || defined HACKRF_ONE)
+#if (defined JAWBREAKER || defined HACKRF_ONE || defined PRALINE)
 	rffc5071_rx(mixer);
 #endif
 #ifdef RAD1O
@@ -127,7 +137,7 @@ void mixer_rx(mixer_driver_t* const mixer)
 
 void mixer_rxtx(mixer_driver_t* const mixer)
 {
-#if (defined JAWBREAKER || defined HACKRF_ONE)
+#if (defined JAWBREAKER || defined HACKRF_ONE || defined PRALINE)
 	rffc5071_rxtx(mixer);
 #endif
 #ifdef RAD1O
@@ -137,7 +147,7 @@ void mixer_rxtx(mixer_driver_t* const mixer)
 
 void mixer_enable(mixer_driver_t* const mixer)
 {
-#if (defined JAWBREAKER || defined HACKRF_ONE)
+#if (defined JAWBREAKER || defined HACKRF_ONE || defined PRALINE)
 	rffc5071_enable(mixer);
 #endif
 #ifdef RAD1O
@@ -147,7 +157,7 @@ void mixer_enable(mixer_driver_t* const mixer)
 
 void mixer_disable(mixer_driver_t* const mixer)
 {
-#if (defined JAWBREAKER || defined HACKRF_ONE)
+#if (defined JAWBREAKER || defined HACKRF_ONE || defined PRALINE)
 	rffc5071_disable(mixer);
 #endif
 #ifdef RAD1O
@@ -157,7 +167,7 @@ void mixer_disable(mixer_driver_t* const mixer)
 
 void mixer_set_gpo(mixer_driver_t* const mixer, uint8_t gpo)
 {
-#if (defined JAWBREAKER || defined HACKRF_ONE)
+#if (defined JAWBREAKER || defined HACKRF_ONE || defined PRALINE)
 	rffc5071_set_gpo(mixer, gpo);
 #endif
 #ifdef RAD1O

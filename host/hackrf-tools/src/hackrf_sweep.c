@@ -96,7 +96,6 @@ int gettimeofday(struct timeval* tv, void* ignored)
 #define OFFSET    7500000
 
 #define BLOCKS_PER_TRANSFER 16
-#define THROWAWAY_BLOCKS    2
 
 #if defined _WIN32
 	#define m_sleep(a) Sleep((a))

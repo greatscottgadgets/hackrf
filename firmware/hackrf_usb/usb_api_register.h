@@ -57,5 +57,13 @@ usb_request_status_t usb_vendor_request_set_leds(
 usb_request_status_t usb_vendor_request_user_config_set_bias_t_opts(
 	usb_endpoint_t* const endpoint,
 	const usb_transfer_stage_t stage);
+#ifdef PRALINE
+usb_request_status_t usb_vendor_request_write_fpga_reg(
+	usb_endpoint_t* const endpoint,
+	const usb_transfer_stage_t stage);
+usb_request_status_t usb_vendor_request_read_fpga_reg(
+	usb_endpoint_t* const endpoint,
+	const usb_transfer_stage_t stage);
+#endif
 
 #endif /* end of include guard: __USB_API_REGISTER_H__ */

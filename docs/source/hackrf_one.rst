@@ -2,10 +2,12 @@
 HackRF One
 ================================================
 
+.. _hackrf_one:
+
 .. image:: ../images/HackRF-One-fd0-0009.jpeg
   :alt: HackRF One
 
-HackRF One is the current hardware platform for the HackRF project. It is a Software Defined Radio peripheral capable of transmission or reception of radio signals from 1 MHz to 6 GHz. Designed to enable test and development of modern and next generation radio technologies, HackRF One is an open source hardware platform that can be used as a USB peripheral or programmed for stand-alone operation.
+HackRF One was the first production hardware platform for the HackRF project. It is a Software Defined Radio peripheral capable of transmission or reception of radio signals from 1 MHz to 6 GHz. Designed to enable test and development of modern and next generation radio technologies, HackRF One is an open source hardware platform that can be used as a USB peripheral or programmed for stand-alone operation.
 
 | `Product page <https://greatscottgadgets.com/hackrf/one/>`_
 | `Where to buy <https://greatscottgadgets.com/hackrf/one/#purchasing>`_

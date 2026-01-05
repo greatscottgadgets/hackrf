@@ -25,14 +25,24 @@
 #define __TUNING_H__
 
 #include "rf_path.h"
+#include "tune_config.h"
 
 #include <stdint.h>
 #include <stdbool.h>
+
+#define FREQ_ONE_MHZ (1000ULL * 1000)
 
 bool set_freq(const uint64_t freq);
 bool set_freq_explicit(
 	const uint64_t if_freq_hz,
 	const uint64_t lo_freq_hz,
 	const rf_path_filter_t path);
+
+#ifdef PRALINE
+bool tuning_set_frequency(
+	const tune_config_t* cfg,
+	const uint64_t freq,
+	const uint32_t offset);
+#endif
 
 #endif /*__TUNING_H__*/

@@ -27,8 +27,13 @@ int main(void)
 	detect_hardware_platform();
 	pin_setup();
 
+#ifndef PRALINE
 	/* enable 1V8 power supply so that the 1V8 LED lights up */
 	enable_1v8_power();
+#else
+	/* enable 1V2 power supply so that the 3V3FPGA LED lights up */
+	enable_1v2_power();
+#endif
 
 	/* Blink LED1/2/3 on the board. */
 	while (1) 

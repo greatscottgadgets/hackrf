@@ -48,6 +48,9 @@
 #include "usb_api_register.h"
 #include "usb_api_spiflash.h"
 #include "usb_api_operacake.h"
+#include "usb_api_praline.h"
+#include "usb_api_selftest.h"
+#include "usb_api_adc.h"
 #include "operacake.h"
 #include "usb_api_sweep.h"
 #include "usb_api_transceiver.h"
@@ -59,6 +62,8 @@
 #include "hackrf_ui.h"
 #include "platform_detect.h"
 #include "clkin.h"
+#include "fpga.h"
+#include "selftest.h"
 
 extern uint32_t __m0_start__;
 extern uint32_t __m0_end__;
@@ -94,7 +99,7 @@ static usb_request_handler_fn vendor_request_handler[] = {
 	usb_vendor_request_set_vga_gain,
 	usb_vendor_request_set_txvga_gain,
 	NULL, // was set_if_freq
-#ifdef HACKRF_ONE
+#if (defined HACKRF_ONE || defined PRALINE)
 	usb_vendor_request_set_antenna_enable,
 #else
 	NULL,
@@ -128,6 +133,26 @@ static usb_request_handler_fn vendor_request_handler[] = {
 	usb_vendor_request_read_supported_platform,
 	usb_vendor_request_set_leds,
 	usb_vendor_request_user_config_set_bias_t_opts,
+#ifdef PRALINE
+	usb_vendor_request_write_fpga_reg,
+	usb_vendor_request_read_fpga_reg,
+	usb_vendor_request_p2_ctrl,
+	usb_vendor_request_p1_ctrl,
+	usb_vendor_request_set_narrowband_filter,
+	usb_vendor_request_set_fpga_bitstream,
+	usb_vendor_request_clkin_ctrl,
+#else
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+#endif
+	usb_vendor_request_read_selftest,
+	usb_vendor_request_adc_read,
+	usb_vendor_request_test_rtc_osc,
 };
 
 static const uint32_t vendor_request_handler_count =
@@ -168,8 +193,8 @@ void usb_configuration_changed(usb_device_t* const device)
 		/* Configuration number equal 0 means usb bus reset. */
 		led_off(LED1);
 	}
-	usb_endpoint_init(&usb_endpoint_bulk_in);
-	usb_endpoint_init(&usb_endpoint_bulk_out);
+	usb_endpoint_init(&usb_endpoint_bulk_in, false);
+	usb_endpoint_init(&usb_endpoint_bulk_out, false);
 }
 
 void usb_set_descriptor_by_serial_number(void)
@@ -202,6 +227,7 @@ void usb_set_descriptor_by_serial_number(void)
 	}
 }
 
+#ifndef PRALINE
 static bool cpld_jtag_sram_load(jtag_t* const jtag)
 {
 	cpld_jtag_take(jtag);
@@ -213,6 +239,7 @@ static bool cpld_jtag_sram_load(jtag_t* const jtag)
 	cpld_jtag_release(jtag);
 	return success;
 }
+#endif
 
 static void m0_rom_to_ram()
 {
@@ -233,9 +260,25 @@ int main(void)
 	// Copy M0 image from ROM before SPIFI is disabled
 	m0_rom_to_ram();
 
+	// This will be cleared if any self-test check fails.
+	selftest.report.pass = true;
+
 	detect_hardware_platform();
+	pin_shutdown();
+	clock_gen_shutdown();
+	delay_us_at_mhz(10000, 96);
 	pin_setup();
+#ifndef PRALINE
 	enable_1v8_power();
+	clock_gen_init();
+#else
+	enable_3v3aux_power();
+	#if !defined(DFU_MODE) && !defined(RAM_MODE)
+	enable_1v2_power();
+	enable_rf_power();
+	clock_gen_init();
+	#endif
+#endif
 #ifdef HACKRF_ONE
 	// Set up mixer before enabling RF power, because its
 	// GPO is used to control the antenna bias tee.
@@ -255,11 +298,18 @@ int main(void)
 	ipc_halt_m0();
 	ipc_start_m0((uint32_t) &__ram_m0_start__);
 
+#ifndef PRALINE
 	if (!cpld_jtag_sram_load(&jtag_cpld)) {
 		halt_and_flash(6000000);
 	}
+#else
+	fpga_image_load(0);
+	delay_us_at_mhz(100, 204);
+	fpga_spi_selftest();
+	fpga_sgpio_selftest();
+#endif
 
-#ifdef HACKRF_ONE
+#if (defined HACKRF_ONE || defined PRALINE)
 	portapack_init();
 #endif
 
@@ -277,8 +327,8 @@ int main(void)
 	usb_queue_init(&usb_endpoint_bulk_out_queue);
 	usb_queue_init(&usb_endpoint_bulk_in_queue);
 
-	usb_endpoint_init(&usb_endpoint_control_out);
-	usb_endpoint_init(&usb_endpoint_control_in);
+	usb_endpoint_init(&usb_endpoint_control_out, false);
+	usb_endpoint_init(&usb_endpoint_control_in, true);
 
 	nvic_set_priority(NVIC_USB0_IRQ, 255);
 
@@ -287,6 +337,10 @@ int main(void)
 	usb_run(&usb_device);
 
 	rf_path_init(&rf_path);
+
+#ifdef PRALINE
+	fpga_if_xcvr_selftest();
+#endif
 
 	bool operacake_allow_gpio;
 	if (hackrf_ui()->operacake_gpio_compatible()) {
@@ -328,9 +382,11 @@ int main(void)
 		case TRANSCEIVER_MODE_RX_SWEEP:
 			sweep_mode(request.seq);
 			break;
+#ifndef PRALINE
 		case TRANSCEIVER_MODE_CPLD_UPDATE:
 			cpld_update();
 			break;
+#endif
 		default:
 			break;
 		}

@@ -25,8 +25,10 @@
 #include <user_config.h>
 #include <hackrf_core.h>
 #include <usb_queue.h>
+#include <max2831.h>
 #include <max283x.h>
 #include <rffc5071.h>
+#include <ice40_spi.h>
 
 #include <stddef.h>
 #include <stdint.h>
@@ -38,6 +40,7 @@ usb_request_status_t usb_vendor_request_write_max283x(
 	const usb_transfer_stage_t stage)
 {
 	if (stage == USB_TRANSFER_STAGE_SETUP) {
+#ifndef PRALINE
 		if (endpoint->setup.index < MAX2837_NUM_REGS) {
 			if (endpoint->setup.value < MAX2837_DATA_REGS_MAX_VALUE) {
 				max283x_reg_write(
@@ -48,6 +51,18 @@ usb_request_status_t usb_vendor_request_write_max283x(
 				return USB_REQUEST_STATUS_OK;
 			}
 		}
+#else
+		if (endpoint->setup.index < MAX2831_NUM_REGS) {
+			if (endpoint->setup.value < MAX2831_DATA_REGS_MAX_VALUE) {
+				max2831_reg_write(
+					&max283x,
+					endpoint->setup.index,
+					endpoint->setup.value);
+				usb_transfer_schedule_ack(endpoint->in);
+				return USB_REQUEST_STATUS_OK;
+			}
+		}
+#endif
 		return USB_REQUEST_STATUS_STALL;
 	} else {
 		return USB_REQUEST_STATUS_OK;
@@ -59,6 +74,7 @@ usb_request_status_t usb_vendor_request_read_max283x(
 	const usb_transfer_stage_t stage)
 {
 	if (stage == USB_TRANSFER_STAGE_SETUP) {
+#ifndef PRALINE
 		if (endpoint->setup.index < MAX2837_NUM_REGS) {
 			const uint16_t value =
 				max283x_reg_read(&max283x, endpoint->setup.index);
@@ -73,6 +89,22 @@ usb_request_status_t usb_vendor_request_read_max283x(
 			usb_transfer_schedule_ack(endpoint->out);
 			return USB_REQUEST_STATUS_OK;
 		}
+#else
+		if (endpoint->setup.index < MAX2831_NUM_REGS) {
+			const uint16_t value =
+				max2831_reg_read(&max283x, endpoint->setup.index);
+			endpoint->buffer[0] = value & 0xff;
+			endpoint->buffer[1] = value >> 8;
+			usb_transfer_schedule_block(
+				endpoint->in,
+				&endpoint->buffer,
+				2,
+				NULL,
+				NULL);
+			usb_transfer_schedule_ack(endpoint->out);
+			return USB_REQUEST_STATUS_OK;
+		}
+#endif
 		return USB_REQUEST_STATUS_STALL;
 	} else {
 		return USB_REQUEST_STATUS_OK;
@@ -219,3 +251,35 @@ usb_request_status_t usb_vendor_request_user_config_set_bias_t_opts(
 	}
 	return USB_REQUEST_STATUS_OK;
 }
+
+#ifdef PRALINE
+usb_request_status_t usb_vendor_request_write_fpga_reg(
+	usb_endpoint_t* const endpoint,
+	const usb_transfer_stage_t stage)
+{
+	if (stage == USB_TRANSFER_STAGE_SETUP) {
+		fpga_reg_write(&fpga, endpoint->setup.index, endpoint->setup.value);
+		usb_transfer_schedule_ack(endpoint->in);
+		return USB_REQUEST_STATUS_OK;
+	}
+	return USB_REQUEST_STATUS_OK;
+}
+
+usb_request_status_t usb_vendor_request_read_fpga_reg(
+	usb_endpoint_t* const endpoint,
+	const usb_transfer_stage_t stage)
+{
+	if (stage == USB_TRANSFER_STAGE_SETUP) {
+		const uint8_t value = fpga_reg_read(&fpga, endpoint->setup.index);
+		endpoint->buffer[0] = value;
+		usb_transfer_schedule_block(
+			endpoint->in,
+			&endpoint->buffer,
+			1,
+			NULL,
+			NULL);
+		usb_transfer_schedule_ack(endpoint->out);
+	}
+	return USB_REQUEST_STATUS_OK;
+}
+#endif
