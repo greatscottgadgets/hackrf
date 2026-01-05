@@ -61,6 +61,9 @@ typedef enum {
 	BOARD_REV_GSG_HACKRF1_R8 = 0x83,
 	BOARD_REV_GSG_HACKRF1_R9 = 0x84,
 	BOARD_REV_GSG_HACKRF1_R10 = 0x85,
+	BOARD_REV_HACKRF1_ADC_BASE = 32,
+	// Board revisions having the analog voltage detection but not mapped to a specific hardware revision fit in this range
+	BOARD_REV_HACKRF1_ADC_MAX = 63,
 	BOARD_REV_GSG_PRALINE_R0_1 = 0x86,
 	BOARD_REV_GSG_PRALINE_R0_2 = 0x87,
 	BOARD_REV_GSG_PRALINE_R0_3 = 0x88,
