@@ -5,7 +5,7 @@ LEDs
 HackRF Pro
 ~~~~~~~~~~
 
-When HackRF Pro is plugged in to a USB host, four LEDs should turn on: MCU, FPGA, RF, and USB. The MCU LED indicates that the primary internal power supply is working properly. The FPGA and RF LEDs indicate that firmware is running and has switched on additional internal power supplies. The USB LED indicates that the HackRF Pro is communicating with the host over USB.
+When HackRF Pro is plugged in to a USB host, four LEDs should turn on: MCU, FPGA, RF, and USB. The MCU LED indicates that the primary internal power supply is working properly and that firmware is running. The FPGA and RF LEDs indicate that firmware has switched on additional internal power supplies. The USB LED indicates that the HackRF Pro is communicating with the host over USB.
 
 HackRF One
 ~~~~~~~~~~

@@ -13,13 +13,13 @@ These instructions allow you to upgrade the firmware in order to take advantage 
 Updating the SPI Flash Firmware
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-To update the firmware on a working HackRF One, use the hackrf_spiflash program:
+To update the firmware on HackRF Pro, use the hackrf_spiflash program:
 
 .. code-block :: sh
 
-	hackrf_spiflash -w hackrf_one_usb.bin
+	hackrf_spiflash -w hackrf_pro_usb.bin
 
-You can find the firmware binary (hackrf_one_usb.bin) in the firmware-bin directory of the latest `release package <https://github.com/greatscottgadgets/hackrf/releases/latest>`__ or you can compile your own from the `source <https://github.com/greatscottgadgets/hackrf/tree/master/firmware>`__. For Jawbreaker, use hackrf_jawbreaker_usb.bin. If you compile from source, the file will be called hackrf_usb.bin.
+You can find the firmware binary (hackrf_pro_usb.bin) in the firmware-bin directory of the latest `release package <https://github.com/greatscottgadgets/hackrf/releases/latest>`__ or you can compile your own from the `source <https://github.com/greatscottgadgets/hackrf/tree/master/firmware>`__. For HackRF One or other platforms, use the ".bin" file with the appropriate name for your platform such as hackrf_one_usb.bin. If you compile from source, the file will be called hackrf_usb.bin.
 
 The hackrf_spiflash program is part of hackrf-tools.
 
@@ -37,8 +37,8 @@ Only if Necessary: Recovering the SPI Flash Firmware
 If the firmware installed in SPI flash has been damaged or if you are programming a home-made HackRF for the first time, you will not be able to immediately use the hackrf_spiflash program as listed in the above procedure. Follow these steps instead:
 
     #. Follow the DFU Boot instructions to start the HackRF in DFU boot mode.
-    #. Type ``dfu-util --device 1fc9:000c --alt 0 --download hackrf_one_usb.dfu`` to load firmware from a release package into RAM. If you have a Jawbreaker, use hackrf_jawbreaker_usb.dfu instead. Alternatively, use ``make -e BOARD=HACKRF_ONE RUN_FROM=RAM program`` to load the firmware into RAM and start it.
-    #. Follow the SPI flash firmware update procedure above to write the ".bin" firmware image to SPI flash. 
+    #. Type ``dfu-util --device 1fc9:000c --alt 0 --download hackrf_pro_usb.dfu`` to load firmware from a release package into RAM. For HackRF One or other platforms, use the ".dfu" file with the appropriate name for your platform such as hackrf_one_usb.dfu.
+    #. Follow the SPI flash firmware update procedure above to write the ".bin" firmware image to SPI flash.
 
 
 
@@ -47,9 +47,9 @@ Only if Necessary: DFU Boot
 
 DFU boot mode is normally only needed if the firmware is not working properly or has never been installed.
 
-The LPC4330 microcontroller on HackRF is capable of booting from several different code sources. By default, HackRF boots from SPI flash memory (SPIFI). It can also boot HackRF in DFU (USB) boot mode. In DFU boot mode, HackRF will enumerate over USB, wait for code to be delivered using the DFU (Device Firmware Update) standard over USB, and then execute that code from RAM. The SPIFI is normally unused and unaltered in DFU mode.
+The LPC43xx microcontroller on HackRF is capable of booting from several different code sources. By default, HackRF boots from SPI flash memory (SPIFI). It can also boot HackRF in DFU (USB) boot mode. In DFU boot mode, HackRF will enumerate over USB, wait for code to be delivered using the DFU (Device Firmware Update) standard over USB, and then execute that code from RAM. The SPIFI is normally unused and unaltered in DFU mode.
 
-To start up HackRF One in DFU mode, hold down the DFU button while powering it on or while pressing and releasing the RESET button. Release the DFU button after the 3V3 LED illuminates. The 1V8 LED should remain off. At this point HackRF One is ready to receive firmware over USB.
+To start up HackRF Pro or HackRF One in DFU mode, hold down the DFU button while powering it on or while pressing and releasing the RESET button. Then release the DFU button. On HackRF One, the 3V3 LED should illuminate. On HackRF Pro, all LEDs should remain off. At this point the HackRF is ready to receive firmware over USB.
 
 To start up Jawbreaker in DFU mode, short two pins on one of the "BOOT" headers while power is first supplied. The pins that must be shorted are pins 1 and 2 of header P32 on Jawbreaker. Header P32 is labeled "P2_8" on most Jawbreakers but may be labeled "2" on prototype units. Pin 1 is labeled "VCC". Pin 2 is the center pin. After DFU boot, you should see VCCLED illuminate and note that 1V8LED does not illuminate. At this point Jawbreaker is ready to receive firmware over USB.
 
