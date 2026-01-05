@@ -328,7 +328,7 @@ TXsvfDoCmdFuncPtr xsvf_pfDoCmd[] = {
 	xsvfDoXSIR2,      /* 21 */
 	xsvfDoXCOMMENT,   /* 22 */
 	xsvfDoXWAIT       /* 23 */
-	/* Insert new command functions here */
+			  /* Insert new command functions here */
 };
 
 #ifdef DEBUG_MODE

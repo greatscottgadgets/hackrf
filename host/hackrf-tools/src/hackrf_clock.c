@@ -239,7 +239,8 @@ int si5351c_read_multisynth_config(hackrf_device* device, const uint_fast8_t ms_
 		if (p3) {
 			printf("\tOutput (800Mhz PLL): %#.10f Mhz\n",
 			       ((double) 800 /
-				(double) (((double) p1 * p3 + p2 + 512 * p3) / (double) (128 * p3))) /
+				(double) (((double) p1 * p3 + p2 + 512 * p3) /
+					  (double) (128 * p3))) /
 				       div_lut[r_div]);
 		}
 	} else {
