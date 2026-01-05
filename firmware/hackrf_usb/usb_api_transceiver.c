@@ -478,17 +478,18 @@ void rx_mode(uint32_t seq)
 				USB_TRANSFER_SIZE,
 				transceiver_bulk_transfer_complete,
 				NULL);
-			
+
 			usb_count += USB_TRANSFER_SIZE;
 
-			int8_t sample_value = *(int8_t *)&usb_bulk_buffer[usb_count & USB_BULK_BUFFER_MASK];
-			
+			int8_t sample_value = *(
+				int8_t*) &usb_bulk_buffer[usb_count & USB_BULK_BUFFER_MASK];
+
 			if (sample_value > saturation_buffer)
 				saturation_buffer = sample_value;
-			
-			if (-sample_value > saturation_buffer) 
+
+			if (-sample_value > saturation_buffer)
 				saturation_buffer = -sample_value;
-				
+
 			if (saturation_buffer_time + 4 < systick_counter) {
 				saturation_buffer_time = systick_counter;
 				hackrf_ui()->set_saturation(saturation_buffer);

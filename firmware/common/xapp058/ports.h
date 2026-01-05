@@ -26,7 +26,7 @@ extern unsigned char readTDOBit(jtag_gpio_t* const gpio);
 extern void pulseClock(jtag_gpio_t* const gpio);
 
 /* read the next byte of data from the xsvf file */
-extern void readByte(unsigned char *data);
+extern void readByte(unsigned char* data);
 
 extern void waitTime(jtag_gpio_t* const gpio, long microsec);
 
