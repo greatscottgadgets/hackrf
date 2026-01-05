@@ -263,7 +263,10 @@ void detect_hardware_platform(void)
 		} else if (LOW(adc0_3) && HIGH(adc0_4)) {
 			revision = BOARD_REV_HACKRF1_R7;
 		} else if (LOW(adc0_4)) {
-			revision = hackrf_revision_from_adc[adc0_3 >> 5];
+			adc0_3 >>= 5;
+			revision = hackrf_revision_from_adc[adc0_3];
+			if (revision == BOARD_REV_UNRECOGNIZED)	// Return all six bits of the unrecognised value
+				revision = (board_rev_t)((adc0_3 & 0x3F) + BOARD_REV_HACKRF1_ADC_BASE);
 		} else {
 			revision = BOARD_REV_UNRECOGNIZED;
 		}
