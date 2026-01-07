@@ -263,12 +263,16 @@ int main(void)
 
 	detect_hardware_platform();
 	pin_shutdown();
+#ifndef RAD1O
 	clock_gen_shutdown();
+#endif
 	delay_us_at_mhz(10000, 96);
 	pin_setup();
 #ifndef PRALINE
 	enable_1v8_power();
+	#ifndef RAD1O
 	clock_gen_init();
+	#endif
 #else
 	enable_3v3aux_power();
 	#if !defined(DFU_MODE) && !defined(RAM_MODE)
@@ -284,6 +288,9 @@ int main(void)
 #endif
 #if (defined HACKRF_ONE || defined RAD1O)
 	enable_rf_power();
+#endif
+#ifdef RAD1O
+	clock_gen_init();
 #endif
 	cpu_clock_init();
 
