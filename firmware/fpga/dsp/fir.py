@@ -58,6 +58,17 @@ class HalfBandDecimator(wiring.Component):
         # Arms
         m.submodules.fir = fir = FIRFilter(fir_taps, shape=self.data_shape, always_ready=always_ready, 
             num_channels=1, add_tap=len(fir_taps)//2+1)
+        fir_out_odd = Signal()
+        with m.If(fir.output.valid & fir.output.ready):
+            m.d.sync += fir_out_odd.eq(~fir_out_odd)
+
+        odd = Signal()
+        with m.If(self.input.valid & self.input.ready):
+            m.d.sync += odd.eq(~odd)
+
+        # Only switch modes at even samples.
+        switch_stb = Signal()
+        m.d.comb += switch_stb.eq((~odd) ^ (self.input.valid & self.input.ready))
 
         with m.FSM():
 
@@ -70,72 +81,54 @@ class HalfBandDecimator(wiring.Component):
                     if not self.input.signature.always_ready:
                         m.d.comb += self.input.ready.eq(1)
 
-                with m.If(self.enable):
+                with m.If(self.enable & switch_stb):
                     m.next = "DECIMATE"
 
             with m.State("DECIMATE"):
 
-                # Input switching.
-                odd         = Signal()
-                input_idx   = Signal()
-                even_valid  = Signal()
+                # I and Q channels are muxed in time, demuxed later in the output stage.
                 even_buffer = Signal.like(self.input.p)
-                q_inputs    = Signal.like(self.input.p)
+                odd_buffer = Signal.like(self.input.p)
+                q_valid = Signal()
 
                 if not self.input.signature.always_ready:
-                    m.d.comb += self.input.ready.eq((~odd & ~even_valid) | fir.input.ready)
+                    m.d.comb += self.input.ready.eq(fir.input.ready)
 
-                # Even samples are buffered and used as a secondary 
-                # carry addition for the FIR filter.
-                # I and Q channels are muxed in time, demuxed later in the output stage.
-                with m.If(self.input.valid & self.input.ready):
-                    m.d.sync += odd.eq(~odd)
-                with m.If(~odd):
-                    with m.If(~even_valid | fir.input.ready):
-                        m.d.sync += even_valid.eq(self.input.valid)
-                        with m.If(self.input.valid):
-                            m.d.sync += even_buffer.eq(self.input.p)
+                with m.If(self.input.ready & self.input.valid):
+                    with m.If(~odd):
+                        m.d.sync += even_buffer.eq(self.input.p)
+                    with m.Else():
+                        m.d.sync += odd_buffer.eq(self.input.p)
+                        m.d.sync += q_valid.eq(1)
 
-                # Process two I samples and two Q samples in sequence.
-                with m.If(fir.input.ready & fir.input.valid):
-                    m.d.sync += input_idx.eq(input_idx ^ 1)
-
-                with m.If(input_idx == 0):
+                with m.If(odd):
                     m.d.comb += [
                         fir.add_input   .eq(even_buffer[0]),
                         fir.input.p     .eq(self.input.p[0]),
-                        fir.input.valid .eq(self.input.valid & even_valid),
+                        fir.input.valid .eq(self.input.valid),
                     ]
-                    with m.If(fir.input.ready & fir.input.valid):
-                        m.d.sync += [
-                            q_inputs[0].eq(even_buffer[1]),
-                            q_inputs[1].eq(self.input.p[1]),
-                        ]
                 with m.Else():
                     m.d.comb += [
-                        fir.add_input   .eq(q_inputs[0]),
-                        fir.input.p     .eq(q_inputs[1]),
-                        fir.input.valid .eq(1),
+                        fir.add_input   .eq(even_buffer[1]),
+                        fir.input.p     .eq(odd_buffer[1]),
+                        fir.input.valid .eq(q_valid),
                     ]
+                    with m.If(fir.input.ready):
+                        m.d.sync += q_valid.eq(0)
 
                 # Output sum and demux.
-                output_idx = Signal()
-
                 with m.If(~self.output.valid | self.output.ready):
                     if not fir.output.signature.always_ready:
                         m.d.comb += fir.output.ready.eq(1)
-                    m.d.sync += self.output.valid.eq(fir.output.valid & output_idx)
+                    m.d.sync += self.output.valid.eq(fir.output.valid & fir_out_odd)
                     with m.If(fir.output.valid):
                         m.d.sync += self.output.p[0].eq(self.output.p[1])
                         m.d.sync += self.output.p[1].eq(fir.output.p[0] * fixed.Const(0.5))
-                        m.d.sync += output_idx.eq(output_idx ^ 1)
 
-                # Mode switch logic.
-                with m.If(~self.enable):
-                    m.d.sync += input_idx.eq(0)
-                    m.d.sync += output_idx.eq(0)
-                    m.d.sync += odd.eq(0)
-                    m.d.sync += even_valid.eq(0)
+                # Mode switch logic
+                with m.If(~self.enable & switch_stb):
+                    m.d.sync += even_buffer.eq(0)
+                    m.d.sync += odd_buffer.eq(0)
                     m.next = "BYPASS"
 
         if self._domain != "sync":
