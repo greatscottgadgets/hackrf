@@ -514,19 +514,21 @@ void start_dma_if_possible(direction_t direction, size_t size)
 	uint32_t dma_completed = m0_state.m4_count;
 	uint32_t samp_offset = dma_started & USB_SAMP_BUFFER_MASK;
 	uint32_t bulk_offset = dma_started & USB_BULK_BUFFER_MASK;
-	uint32_t data_available, space_in_use, space_available;
+	uint32_t data_available, space_in_use, space_available, samp_buf_margin;
 	uint8_t *dest, *src;
 
 	if (direction == DIRECTION_RX) {
 		data_available = sampling_completed - dma_started;
 		space_in_use = usb_completed - dma_completed;
 		space_available = USB_BULK_BUFFER_SIZE - space_in_use;
+		samp_buf_margin = USB_SAMP_BUFFER_SIZE - data_available;
 		src = &usb_samp_buffer[samp_offset];
 		dest = &usb_bulk_buffer[bulk_offset];
 	} else {
 		data_available = usb_completed - dma_started;
 		space_in_use = dma_started - sampling_completed;
 		space_available = USB_SAMP_BUFFER_SIZE - space_in_use;
+		samp_buf_margin = space_available;
 		src = &usb_bulk_buffer[bulk_offset];
 		dest = &usb_samp_buffer[samp_offset];
 	}
@@ -535,9 +537,11 @@ void start_dma_if_possible(direction_t direction, size_t size)
 		return;
 	}
 
-	bool ahb_busy = !((sampling_completed ^ dma_started) & BUF_HALF_MASK);
+	uint32_t m0_buf_half = sampling_completed & BUF_HALF_MASK;
+	uint32_t dma_buf_half = dma_started & BUF_HALF_MASK;
+	bool same_buf_half = m0_buf_half == dma_buf_half;
 
-	if (ahb_busy) {
+	if (same_buf_half && samp_buf_margin >= (USB_SAMP_BUFFER_SIZE / 2)) {
 		return;
 	}
 
