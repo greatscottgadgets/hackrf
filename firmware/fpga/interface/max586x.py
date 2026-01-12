@@ -9,13 +9,11 @@ from amaranth.lib.wiring    import Out, In
 
 from util                   import IQSample
 
-class MAX586xInterface(wiring.Component):
-    adc_stream: Out(stream.Signature(IQSample(8), always_ready=True))
-    dac_stream: In(stream.Signature(IQSample(8), always_ready=True))
 
-    adc_capture: In(1)
-    dac_capture: In(1)
-    q_invert:    In(1)
+class MAX586xInterface(wiring.Component):
+    adc_stream: Out(stream.Signature(IQSample(8), always_ready=True, always_valid=True))
+    dac_stream: In(stream.Signature(IQSample(8), always_ready=True))
+    q_invert:   In(1)
 
     def __init__(self, bb_domain):
         super().__init__()
@@ -47,10 +45,9 @@ class MAX586xInterface(wiring.Component):
         m.d.comb += [
             adc_stream.p.i      .eq(adc_in.i[0] ^ 0x80),       # I: non-inverted between MAX2837 and MAX5864.
             adc_stream.p.q      .eq(adc_in.i[1] ^ rx_q_mask),  # Q: inverted between MAX2837 and MAX5864.
-            adc_stream.valid    .eq(self.adc_capture),
         ]
 
-        # Output the transformed data to the DAC using a DDR output buffer.
+        # Output to the DAC using a DDR output buffer.
         m.submodules.dac_out = dac_out = io.DDRBuffer("o", platform.request("dd", dir="-"), o_domain=self._bb_domain)
         with m.If(dac_stream.valid):
             m.d.comb += [
