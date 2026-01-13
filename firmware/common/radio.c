@@ -206,6 +206,8 @@ radio_gain_t radio_get_gain(radio_t* radio, radio_chan_id chan_id, radio_gain_id
 	return radio->channel[chan_id].config.gain[element];
 }
 
+static uint64_t applied_freq = 0xffffffffffffffff;
+
 radio_error_t radio_set_frequency(
 	radio_t* radio,
 	radio_chan_id chan_id,
@@ -257,6 +259,10 @@ radio_error_t radio_set_frequency(
 	}
 
 	// auto-tune
+	if (frequency.hz == applied_freq) {
+		return RADIO_OK;
+	}
+	applied_freq = frequency.hz;
 	bool ok;
 #ifndef PRALINE
 	switch (config->mode) {
