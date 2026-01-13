@@ -272,6 +272,11 @@ int main(void)
 #ifndef PRALINE
 	enable_1v8_power();
 	#ifndef RAD1O
+	/*
+	 * On rad1o, the clock generator power supply comes from the RF supply
+	 * which is enabled later. On H1 and Jawbreaker, the clock generator is
+	 * on the main 3V3 supply.
+	 */
 	clock_gen_init();
 	#endif
 #else
@@ -279,6 +284,10 @@ int main(void)
 	#if !defined(DFU_MODE) && !defined(RAM_MODE)
 	enable_1v2_power();
 	enable_rf_power();
+	/*
+	 * On Praline, the clock generator power supply comes from 3V3FPGA
+	 * which is enabled when 1V2FPGA is turned on.
+	 */
 	clock_gen_init();
 	#endif
 #endif
