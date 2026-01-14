@@ -177,7 +177,7 @@ usb_request_status_t usb_vendor_request_set_sample_rate_frac(
 			RADIO_CHANNEL0,
 			RADIO_SAMPLE_RATE_CLOCKGEN,
 			(radio_sample_rate_t){
-				.num = set_sample_r_params.freq_hz * 2,
+				.num = set_sample_r_params.freq_hz,
 				.div = set_sample_r_params.divider,
 			});
 		if (result == RADIO_OK) {

@@ -486,7 +486,17 @@ bool sample_rate_frac_set(uint32_t rate_num, uint32_t rate_denom)
 	uint32_t a, b, c;
 	uint32_t rem;
 
-	hackrf_ui()->set_sample_rate(rate_num / 2);
+	/* Round to the nearest Hz for display. */
+	uint32_t rate_hz = (rate_num + (rate_denom >> 1)) / rate_denom;
+	hackrf_ui()->set_sample_rate(rate_hz);
+
+	/*
+	 * First double the sample rate so that we can produce a clock at twice
+	 * the intended sample rate. The 2x clock is sometimes used directly,
+	 * and it is divided by two in an output divider to produce the actual
+	 * AFE clock.
+	 */
+	rate_num *= 2;
 
 	/* Find best config */
 	a = (VCO_FREQ * rate_denom) / rate_num;
