@@ -59,7 +59,7 @@ radio_error_t radio_set_sample_rate(
 	if ((config->mode == TRANSCEIVER_MODE_RX) ||
 	    (config->mode == TRANSCEIVER_MODE_RX_SWEEP)) {
 		n = 1;
-		uint32_t afe_rate_x2 = 2 * sample_rate.hz;
+		uint32_t afe_rate_x2 = 4 * sample_rate.hz;
 		while ((afe_rate_x2 <= MAX_AFE_RATE) && (n < MAX_N)) {
 			afe_rate_x2 <<= 1;
 			n++;
@@ -120,12 +120,12 @@ radio_error_t radio_set_filter(
 	max283x_set_lpf_bandwidth(&max283x, filter.hz);
 #else
 	uint32_t lpf_bandwidth =
-		(config->sample_rate[RADIO_SAMPLE_RATE_CLOCKGEN].hz * 3) / 8;
+		(config->sample_rate[RADIO_SAMPLE_RATE_CLOCKGEN].hz * 3) / 4;
 	uint32_t offset = 0;
 	if (config->shift != FPGA_QUARTER_SHIFT_MODE_NONE) {
 		offset = (config->sample_rate[RADIO_SAMPLE_RATE_CLOCKGEN].hz
 			  << config->resampling_n) /
-			8;
+			4;
 	}
 	lpf_bandwidth += offset * 2;
 	max2831_set_lpf_bandwidth(&max283x, lpf_bandwidth);
@@ -306,7 +306,7 @@ radio_error_t radio_set_frequency(
 	config->shift = tune_config->shift;
 	uint32_t offset = (config->sample_rate[RADIO_SAMPLE_RATE_CLOCKGEN].hz
 			   << config->resampling_n) /
-		8;
+		4;
 	ok = tuning_set_frequency(tune_config, frequency.hz, offset);
 	if (ok) {
 		radio_channel_t* channel = &radio->channel[chan_id];
