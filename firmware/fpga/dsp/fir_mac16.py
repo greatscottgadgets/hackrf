@@ -468,7 +468,7 @@ class iCE40Multiplier(wiring.Component):
             "a": In(signed(a_width)),
             "b": In(signed(b_width)),
             "valid_in": In(1),
-            "ready_in": In(1),
+            "ready_in": Out(1),
             "p": In(signed(p_width)),
             "p_load": In(1),
             "o": Out(signed(o_width)),
