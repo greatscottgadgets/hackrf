@@ -50,6 +50,8 @@
 
 #define W25Q80BV_DEVICE_ID_RES 0x13 /* Expected device_id for W25Q80BV */
 
+#include "../../flashsize.h"
+
 /*
  * Set up pins for GPIO and SPI control, configure SSP0 peripheral for SPI.
  * SSP0_CS is controlled by GPIO in order to handle various transfer lengths.
@@ -59,8 +61,8 @@ void w25q80bv_setup(w25q80bv_driver_t* const drv)
 	uint8_t device_id;
 
 	drv->page_len = 256U;
-	drv->num_pages = 4096U;
-	drv->num_bytes = 1048576U;
+	drv->num_pages = 4096U * FLASH_SIZE_MB;
+	drv->num_bytes = 1048576U * FLASH_SIZE_MB;
 
 	drv->target_init(drv);
 
