@@ -39,10 +39,10 @@ if(FLASH_MB_SIZE LESS FLASH_MB_LIMIT_SIZE)
     message(FATAL_ERROR "Error: The supported flash size is lower than the generated flash file. Build halted.")
 endif()
 
-if(NOT DEFINED FLASH_MB_SIZE)
+if(NOT DEFINED FLASH_BYTES_SIZE)
     math(EXPR FLASH_BYTES_SIZE "${FLASH_MB_SIZE} * 1024 * 1024")
 endif()
-if(NOT DEFINED FLASH_MB_LIMIT_SIZE)
+if(NOT DEFINED FLASH_BYTES_LIMIT_SIZE)
     math(EXPR FLASH_BYTES_LIMIT_SIZE "${FLASH_MB_LIMIT_SIZE} * 1024 * 1024")
 endif()
 
