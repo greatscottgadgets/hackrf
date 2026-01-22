@@ -22,7 +22,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 */
 
 #include "hackrf.h"
-#include "../flashsize.h"
+#include "flashsize.h"
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>

@@ -28,7 +28,7 @@ endif()
 
 #generate h file
 configure_file(../flashsize.h.in ${CMAKE_CURRENT_SOURCE_DIR}/../flashsize.h)
-
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/..)
 
 set(CMAKE_C_FLAGS
     "$ENV{CFLAGS}"
