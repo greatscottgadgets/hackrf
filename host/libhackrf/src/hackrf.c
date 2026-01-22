@@ -22,7 +22,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 */
 
 #include "hackrf.h"
-
+#include "../flashsize.h"
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
@@ -1515,7 +1515,7 @@ int ADDCALL hackrf_spiflash_write(
 {
 	int result;
 
-	if (address > 0x0FFFFF) {
+	if (address > (FLASH_SIZE_MB * 0x0FFFFF)) {
 		return HACKRF_ERROR_INVALID_PARAM;
 	}
 
