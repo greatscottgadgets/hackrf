@@ -6,7 +6,7 @@
 
 from math                   import pi, sin, cos
 
-from amaranth               import Module, Signal, Mux, Cat
+from amaranth               import Module, Signal, DomainRenamer, Mux, Cat
 from amaranth.lib           import wiring, memory
 from amaranth.lib.wiring    import In, Out
 
@@ -38,9 +38,10 @@ class NCO(wiring.Component):
         Returned result for cos(phase), sin(phase).
     """
 
-    def __init__(self, phase_width=24, output_width=10):
+    def __init__(self, phase_width=24, output_width=10, domain="sync"):
         self.phase_width  = phase_width
         self.output_width = output_width
+        self._domain      = domain
         super().__init__({
             "phase":  In(phase_width),
             "en":     In(1),
@@ -61,7 +62,7 @@ class NCO(wiring.Component):
             init=({"i": round(lut_scale * cos(x)), "q": round(lut_scale * sin(x))} for x in lut_phases)
         )
         m.submodules.table = table = memory.Memory(data=lut_data)
-        table_rd = table.read_port(domain="sync")
+        table_rd = table.read_port(domain=self._domain)
 
         # 3 MSBs of the phase word: sign, quadrant, octant.
         o, q, s = self.phase[-3:]
@@ -99,5 +100,8 @@ class NCO(wiring.Component):
             e_s2.q              .eq(Mux(neg_sin, -e_s1.q, e_s1.q)),
         ]
         m.d.sync += self.output.eq(e_s2)
+
+        if self._domain != "sync":
+            m = DomainRenamer(self._domain)(m)
         
         return m
