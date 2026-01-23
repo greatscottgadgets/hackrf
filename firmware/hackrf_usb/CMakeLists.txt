@@ -35,7 +35,7 @@ add_custom_command(
 	OUTPUT ${PATH_PRALINE_FPGA_OBJ}
 	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 	COMMAND ${CMAKE_COMMAND} -E copy ${PATH_PRALINE_FPGA_BIN} "fpga.bin"
-	COMMAND ${CMAKE_OBJCOPY} 
+	COMMAND ${CMAKE_OBJCOPY}
 		-I binary
 		-O elf32-littlearm
 		-B arm
@@ -46,6 +46,8 @@ add_custom_command(
 
 set(SRC_M4
 	hackrf_usb.c
+	"${PATH_HACKRF_FIRMWARE_COMMON}/platform_gpio.c"
+	"${PATH_HACKRF_FIRMWARE_COMMON}/platform_scu.c"
 	"${PATH_HACKRF_FIRMWARE_COMMON}/tuning.c"
 	"${PATH_HACKRF_FIRMWARE_COMMON}/streaming.c"
 	"${PATH_HACKRF_FIRMWARE_COMMON}/usb.c"

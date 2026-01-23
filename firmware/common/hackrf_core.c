@@ -51,6 +51,8 @@
 
 #include "gpio_lpc.h"
 
+#include "platform_gpio.h"
+
 /* GPIO Output PinMux */
 static struct gpio_t gpio_led[] = {
 	GPIO(2, 1),
@@ -109,44 +111,6 @@ static struct gpio_t gpio_w25q80bv_hold     = GPIO(1, 14);
 static struct gpio_t gpio_w25q80bv_wp       = GPIO(1, 15);
 static struct gpio_t gpio_w25q80bv_select   = GPIO(5, 11);
 
-/* RF switch control */
-#ifdef HACKRF_ONE
-static struct gpio_t gpio_hp                = GPIO(2,  0);
-static struct gpio_t gpio_lp                = GPIO(2, 10);
-static struct gpio_t gpio_tx_mix_bp         = GPIO(2, 11);
-static struct gpio_t gpio_no_mix_bypass     = GPIO(1,  0);
-static struct gpio_t gpio_rx_mix_bp         = GPIO(2, 12);
-static struct gpio_t gpio_tx_amp            = GPIO(2, 15);
-static struct gpio_t gpio_tx                = GPIO(5, 15);
-static struct gpio_t gpio_mix_bypass        = GPIO(5, 16);
-static struct gpio_t gpio_rx                = GPIO(5,  5);
-static struct gpio_t gpio_no_tx_amp_pwr     = GPIO(3,  5);
-static struct gpio_t gpio_amp_bypass        = GPIO(0, 14);
-static struct gpio_t gpio_rx_amp            = GPIO(1, 11);
-static struct gpio_t gpio_no_rx_amp_pwr     = GPIO(1, 12);
-#endif
-#ifdef RAD1O
-static struct gpio_t gpio_tx_rx_n           = GPIO(1,  11);
-static struct gpio_t gpio_tx_rx             = GPIO(0,  14);
-static struct gpio_t gpio_by_mix            = GPIO(1,  12);
-static struct gpio_t gpio_by_mix_n          = GPIO(2,  10);
-static struct gpio_t gpio_by_amp            = GPIO(1,  0);
-static struct gpio_t gpio_by_amp_n          = GPIO(5,  5);
-static struct gpio_t gpio_mixer_en          = GPIO(5,  16);
-static struct gpio_t gpio_low_high_filt     = GPIO(2,  11);
-static struct gpio_t gpio_low_high_filt_n   = GPIO(2,  12);
-static struct gpio_t gpio_tx_amp            = GPIO(2,  15);
-static struct gpio_t gpio_rx_lna            = GPIO(5,  15);
-#endif
-#ifdef PRALINE
-static struct gpio_t gpio_tx_en				= GPIO(3,  4);
-static struct gpio_t gpio_mix_en_n			= GPIO(3,  2);
-static struct gpio_t gpio_mix_en_n_r1_0		= GPIO(5,  6);
-static struct gpio_t gpio_lpf_en			= GPIO(4,  8);
-static struct gpio_t gpio_rf_amp_en			= GPIO(4,  9);
-static struct gpio_t gpio_ant_bias_en_n		= GPIO(1, 12);
-#endif
-
 /* CPLD JTAG interface GPIO pins, FPGA config pins in Praline */
 static struct gpio_t gpio_cpld_tck          = GPIO(3,  0);
 #ifdef PRALINE
@@ -177,7 +141,7 @@ static struct gpio_t gpio_q_invert          = GPIO(0, 13);
 
 /* HackRF One r9 */
 #ifdef HACKRF_ONE
-static struct gpio_t gpio_h1r9_rx             = GPIO(0, 7);
+//static struct gpio_t gpio_h1r9_rx             = GPIO(0, 7);
 static struct gpio_t gpio_h1r9_1v8_enable     = GPIO(2, 9);
 static struct gpio_t gpio_h1r9_vaa_disable    = GPIO(3, 6);
 static struct gpio_t gpio_h1r9_trigger_enable = GPIO(5, 5);
@@ -353,44 +317,8 @@ fpga_driver_t fpga = {
 
 radio_t radio;
 
-rf_path_t rf_path = {
-	.switchctrl = 0,
-#ifdef HACKRF_ONE
-	.gpio_hp = &gpio_hp,
-	.gpio_lp = &gpio_lp,
-	.gpio_tx_mix_bp = &gpio_tx_mix_bp,
-	.gpio_no_mix_bypass = &gpio_no_mix_bypass,
-	.gpio_rx_mix_bp = &gpio_rx_mix_bp,
-	.gpio_tx_amp = &gpio_tx_amp,
-	.gpio_tx = &gpio_tx,
-	.gpio_mix_bypass = &gpio_mix_bypass,
-	.gpio_rx = &gpio_rx,
-	.gpio_no_tx_amp_pwr = &gpio_no_tx_amp_pwr,
-	.gpio_amp_bypass = &gpio_amp_bypass,
-	.gpio_rx_amp = &gpio_rx_amp,
-	.gpio_no_rx_amp_pwr = &gpio_no_rx_amp_pwr,
-#endif
-#ifdef RAD1O
-	.gpio_tx_rx_n = &gpio_tx_rx_n,
-	.gpio_tx_rx = &gpio_tx_rx,
-	.gpio_by_mix = &gpio_by_mix,
-	.gpio_by_mix_n = &gpio_by_mix_n,
-	.gpio_by_amp = &gpio_by_amp,
-	.gpio_by_amp_n = &gpio_by_amp_n,
-	.gpio_mixer_en = &gpio_mixer_en,
-	.gpio_low_high_filt = &gpio_low_high_filt,
-	.gpio_low_high_filt_n = &gpio_low_high_filt_n,
-	.gpio_tx_amp = &gpio_tx_amp,
-	.gpio_rx_lna = &gpio_rx_lna,
-#endif
-#ifdef PRALINE
-	.gpio_tx_en = &gpio_tx_en,
-	.gpio_mix_en_n = &gpio_mix_en_n,
-	.gpio_lpf_en = &gpio_lpf_en,
-	.gpio_rf_amp_en = &gpio_rf_amp_en,
-	.gpio_ant_bias_en_n = &gpio_ant_bias_en_n,
-#endif
-};
+// rf_path gpio's now get assigned in pin_setup() TODO delete comment
+rf_path_t rf_path;
 
 jtag_gpio_t jtag_gpio_cpld = {
 	.gpio_tck = &gpio_cpld_tck,
@@ -1137,6 +1065,11 @@ void pin_shutdown(void)
 /* Run after pin_shutdown() and prior to enabling power supplies. */
 void pin_setup(void)
 {
+	// detect platform
+	board_id_t board_id = detected_platform();
+	board_rev_t rev = detected_revision();
+	const platform_gpio_t* gpio = platform_gpio();
+
 	led_off(0);
 	led_off(1);
 	led_off(2);
@@ -1157,18 +1090,70 @@ void pin_setup(void)
 
 #ifdef HACKRF_ONE
 	if (detected_platform() == BOARD_ID_HACKRF1_R9) {
-		rf_path.gpio_rx = &gpio_h1r9_rx;
 		sgpio_config.gpio_trigger_enable = &gpio_h1r9_trigger_enable;
 	}
 #endif
 
-#ifdef PRALINE
-	board_rev_t rev = detected_revision();
-	if ((rev == BOARD_REV_PRALINE_R1_0) || (rev == BOARD_REV_GSG_PRALINE_R1_0)) {
-		rf_path.gpio_mix_en_n = &gpio_mix_en_n_r1_0;
+	// initialize rf_path struct and assign gpio's
+	switch (board_id) {
+	case BOARD_ID_JAWBREAKER:
+		break;
+	case BOARD_ID_HACKRF1_OG:
+	case BOARD_ID_HACKRF1_R9:
+		rf_path = (rf_path_t){
+			.switchctrl = 0,
+			.gpio_hp = &gpio->hackrf_one.hp,
+			.gpio_lp = &gpio->hackrf_one.lp,
+			.gpio_tx_mix_bp = &gpio->hackrf_one.tx_mix_bp,
+			.gpio_no_mix_bypass = &gpio->hackrf_one.no_mix_bypass,
+			.gpio_rx_mix_bp = &gpio->hackrf_one.rx_mix_bp,
+			.gpio_tx_amp = &gpio->hackrf_one.tx_amp,
+			.gpio_tx = &gpio->hackrf_one.tx,
+			.gpio_mix_bypass = &gpio->hackrf_one.mix_bypass,
+			.gpio_rx = &gpio->hackrf_one.rx,
+			.gpio_no_tx_amp_pwr = &gpio->hackrf_one.no_tx_amp_pwr,
+			.gpio_amp_bypass = &gpio->hackrf_one.amp_bypass,
+			.gpio_rx_amp = &gpio->hackrf_one.rx_amp,
+			.gpio_no_rx_amp_pwr = &gpio->hackrf_one.no_rx_amp_pwr,
+		};
+		if (board_id == BOARD_ID_HACKRF1_R9) {
+			rf_path.gpio_rx = &gpio->hackrf1_r9.rx;
+			rf_path.gpio_h1r9_no_ant_pwr = &gpio->hackrf1_r9.no_ant_pwr;
+		}
+		break;
+	case BOARD_ID_RAD1O:
+		rf_path = (rf_path_t){
+			.switchctrl = 0,
+			.gpio_tx_rx_n = &gpio->rad1o.tx_rx_n,
+			.gpio_tx_rx = &gpio->rad1o.tx_rx,
+			.gpio_by_mix = &gpio->rad1o.by_mix,
+			.gpio_by_mix_n = &gpio->rad1o.by_mix_n,
+			.gpio_by_amp = &gpio->rad1o.by_amp,
+			.gpio_by_amp_n = &gpio->rad1o.by_amp_n,
+			.gpio_mixer_en = &gpio->rad1o.mixer_en,
+			.gpio_low_high_filt = &gpio->rad1o.low_high_filt,
+			.gpio_low_high_filt_n = &gpio->rad1o.low_high_filt_n,
+			.gpio_tx_amp = &gpio->rad1o.tx_amp,
+			.gpio_rx_lna = &gpio->rad1o.rx_lna,
+		};
+		break;
+	case BOARD_ID_PRALINE:
+		rf_path = (rf_path_t){
+			.switchctrl = 0,
+			.gpio_tx_en = &gpio->praline.tx_en,
+			.gpio_mix_en_n = &gpio->praline.mix_en_n,
+			.gpio_lpf_en = &gpio->praline.lpf_en,
+			.gpio_rf_amp_en = &gpio->praline.rf_amp_en,
+			.gpio_ant_bias_en_n = &gpio->praline.ant_bias_en_n,
+		};
+		if ((rev == BOARD_REV_PRALINE_R1_0) ||
+		    (rev == BOARD_REV_GSG_PRALINE_R1_0)) {
+			rf_path.gpio_mix_en_n = &gpio->praline.mix_en_n_r1_0;
+		}
+		break;
+	default:
+		break;
 	}
-#endif
-
 	rf_path_pin_setup(&rf_path);
 
 	/* Configure external clock in */
