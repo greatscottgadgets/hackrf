@@ -28,6 +28,8 @@ include(../hackrf-common.cmake)
 
 set(SRC_M4
 	blinky.c
+	"${PATH_HACKRF_FIRMWARE_COMMON}/platform_gpio.c"
+	"${PATH_HACKRF_FIRMWARE_COMMON}/platform_scu.c"
 )
 
 DeclareTargets()

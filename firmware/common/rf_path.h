@@ -46,41 +46,54 @@ typedef enum {
 
 typedef struct rf_path_t {
 	uint8_t switchctrl;
-#ifdef HACKRF_ONE
-	gpio_t gpio_hp;
-	gpio_t gpio_lp;
-	gpio_t gpio_tx_mix_bp;
-	gpio_t gpio_no_mix_bypass;
-	gpio_t gpio_rx_mix_bp;
-	gpio_t gpio_tx_amp;
-	gpio_t gpio_tx;
-	gpio_t gpio_mix_bypass;
-	gpio_t gpio_rx;
-	gpio_t gpio_no_tx_amp_pwr;
-	gpio_t gpio_amp_bypass;
-	gpio_t gpio_rx_amp;
-	gpio_t gpio_no_rx_amp_pwr;
-#endif
-#ifdef RAD1O
-	gpio_t gpio_tx_rx_n;
-	gpio_t gpio_tx_rx;
-	gpio_t gpio_by_mix;
-	gpio_t gpio_by_mix_n;
-	gpio_t gpio_by_amp;
-	gpio_t gpio_by_amp_n;
-	gpio_t gpio_mixer_en;
-	gpio_t gpio_low_high_filt;
-	gpio_t gpio_low_high_filt_n;
-	gpio_t gpio_tx_amp;
-	gpio_t gpio_rx_lna;
-#endif
-#ifdef PRALINE
-	gpio_t gpio_tx_en;
-	gpio_t gpio_mix_en_n;
-	gpio_t gpio_lpf_en;
-	gpio_t gpio_rf_amp_en;
-	gpio_t gpio_ant_bias_en_n;
-#endif
+
+	// TODO decide whether we want these pins enumerated in here _and_ in gpio.h
+	// kind of nice to have the interface explicitly defined inside the thing though no?
+	// gpio_rf_path_t* gpio;
+	union {
+		// HACKRF_ONE
+		struct {
+			gpio_t gpio_hp;
+			gpio_t gpio_lp;
+			gpio_t gpio_tx_mix_bp;
+			gpio_t gpio_no_mix_bypass;
+			gpio_t gpio_rx_mix_bp;
+			gpio_t gpio_tx_amp;
+			gpio_t gpio_tx;
+			gpio_t gpio_mix_bypass;
+			gpio_t gpio_rx;
+			gpio_t gpio_no_tx_amp_pwr;
+			gpio_t gpio_amp_bypass;
+			gpio_t gpio_rx_amp;
+			gpio_t gpio_no_rx_amp_pwr;
+			// In HackRF One r9 this control signal has been moved to the microcontroller.
+			gpio_t gpio_h1r9_no_ant_pwr;
+		};
+
+		// RAD1O
+		struct {
+			gpio_t gpio_tx_rx_n;
+			gpio_t gpio_tx_rx;
+			gpio_t gpio_by_mix;
+			gpio_t gpio_by_mix_n;
+			gpio_t gpio_by_amp;
+			gpio_t gpio_by_amp_n;
+			gpio_t gpio_mixer_en;
+			gpio_t gpio_low_high_filt;
+			gpio_t gpio_low_high_filt_n;
+			// TODO dupe gpio_t gpio_tx_amp;
+			gpio_t gpio_rx_lna;
+		};
+
+		// PRALINE
+		struct {
+			gpio_t gpio_tx_en;
+			gpio_t gpio_mix_en_n;
+			gpio_t gpio_lpf_en;
+			gpio_t gpio_rf_amp_en;
+			gpio_t gpio_ant_bias_en_n;
+		};
+	};
 } rf_path_t;
 
 void rf_path_pin_setup(rf_path_t* const rf_path);

@@ -1127,6 +1127,7 @@ int main(int argc, char** argv)
 		}
 		printf("Self-test result: %s\n", selftest.pass ? "PASS" : "FAIL");
 		printf("%s", selftest.msg);
+		return selftest.pass ? EXIT_SUCCESS : EXIT_FAILURE; // TODO remove this!
 	}
 
 	if (test_rtc_osc) {

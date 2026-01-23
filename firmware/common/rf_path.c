@@ -94,13 +94,6 @@
 
 #define SWITCHCTRL_ANT_PWR (1 << 6) /* turn on antenna port power */
 
-#ifdef HACKRF_ONE
-/*
- * In HackRF One r9 this control signal has been moved to the microcontroller.
- */
-
-static struct gpio_t gpio_h1r9_no_ant_pwr = GPIO(2, 4);
-
 static void switchctrl_set_hackrf_one(rf_path_t* const rf_path, uint8_t ctrl)
 {
 	if (ctrl & SWITCHCTRL_TX) {
@@ -174,9 +167,9 @@ static void switchctrl_set_hackrf_one(rf_path_t* const rf_path, uint8_t ctrl)
 
 	if (detected_platform() == BOARD_ID_HACKRF1_R9) {
 		if (ctrl & SWITCHCTRL_ANT_PWR) {
-			gpio_clear(&gpio_h1r9_no_ant_pwr);
+			gpio_clear(rf_path->gpio_h1r9_no_ant_pwr);
 		} else {
-			gpio_set(&gpio_h1r9_no_ant_pwr);
+			gpio_set(rf_path->gpio_h1r9_no_ant_pwr);
 		}
 	} else {
 		if (ctrl & SWITCHCTRL_ANT_PWR) {
@@ -190,9 +183,7 @@ static void switchctrl_set_hackrf_one(rf_path_t* const rf_path, uint8_t ctrl)
 		}
 	}
 }
-#endif
 
-#ifdef PRALINE
 static void switchctrl_set_praline(rf_path_t* const rf_path, uint8_t ctrl)
 {
 	if (ctrl & SWITCHCTRL_TX) {
@@ -231,9 +222,7 @@ static void switchctrl_set_praline(rf_path_t* const rf_path, uint8_t ctrl)
 		gpio_set(rf_path->gpio_ant_bias_en_n);
 	}
 }
-#endif
 
-#ifdef RAD1O
 static void switchctrl_set_rad1o(rf_path_t* const rf_path, uint8_t ctrl)
 {
 	if (ctrl & SWITCHCTRL_TX) {
@@ -296,22 +285,28 @@ static void switchctrl_set_rad1o(rf_path_t* const rf_path, uint8_t ctrl)
 		gpio_clear(rf_path->gpio_rx_lna);
 	}
 }
-#endif
 
 static void switchctrl_set(rf_path_t* const rf_path, const uint8_t gpo)
 {
-#ifdef JAWBREAKER
-	(void) rf_path; /* silence unused param warning */
-	mixer_set_gpo(&mixer, gpo);
-#elif HACKRF_ONE
-	switchctrl_set_hackrf_one(rf_path, gpo);
-#elif PRALINE
-	switchctrl_set_praline(rf_path, gpo);
-#elif RAD1O
-	switchctrl_set_rad1o(rf_path, gpo);
-#else
-	(void) gpo;
-#endif
+	board_id_t board_id = detected_platform();
+
+	switch (board_id) {
+	case BOARD_ID_JAWBREAKER:
+		mixer_set_gpo(&mixer, gpo);
+		break;
+	case BOARD_ID_HACKRF1_OG:
+	case BOARD_ID_HACKRF1_R9:
+		switchctrl_set_hackrf_one(rf_path, gpo);
+		break;
+	case BOARD_ID_PRALINE:
+		switchctrl_set_praline(rf_path, gpo);
+		break;
+	case BOARD_ID_RAD1O:
+		switchctrl_set_rad1o(rf_path, gpo);
+		break;
+	default:
+		break;
+	}
 }
 
 void rf_path_pin_setup(rf_path_t* const rf_path)
@@ -334,8 +329,8 @@ void rf_path_pin_setup(rf_path_t* const rf_path)
 	if (detected_platform() == BOARD_ID_HACKRF1_R9) {
 		scu_pinmux(SCU_H1R9_RX, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
 		scu_pinmux(SCU_H1R9_NO_ANT_PWR, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
-		gpio_clear(&gpio_h1r9_no_ant_pwr);
-		gpio_output(&gpio_h1r9_no_ant_pwr);
+		gpio_clear(rf_path->gpio_h1r9_no_ant_pwr);
+		gpio_output(rf_path->gpio_h1r9_no_ant_pwr);
 		scu_pinmux(SCU_H1R9_NO_VAA_EN, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
 	} else {
 		scu_pinmux(SCU_TX, SCU_GPIO_FAST | SCU_CONF_FUNCTION4);
@@ -437,9 +432,26 @@ void rf_path_pin_setup(rf_path_t* const rf_path)
 
 void rf_path_init(rf_path_t* const rf_path)
 {
+	// TODO figure out SCU_PINMUX first
+	/*board_id_t board_id = detected_platform();
+
 	ssp1_set_mode_max5864();
 	max5864_setup(&max5864);
 	max5864_shutdown(&max5864);
+
+	ssp1_set_mode_max283x();
+
+	if (board_id = BOARD_ID_PRALINE) {
+		max2831_setup(&max283x);
+		max2831_start(&max283x);
+	} else {
+		if (detected_platform() == BOARD_ID_HACKRF1_R9) {
+			max283x_setup(&max283x, MAX2839_VARIANT);
+		} else {
+			max283x_setup(&max283x, MAX2837_VARIANT);
+		}
+		max283x_start(&max283x);
+	}*/
 
 	ssp1_set_mode_max283x();
 #ifdef PRALINE
