@@ -54,7 +54,7 @@ class NCO(wiring.Component):
         addr_width = (self.output_width + 1) - 3
         lut_depth  = 1 << addr_width
         lut_scale  = (1 << (self.output_width-1)) - 1
-        lut_phases = [ i * pi / 4 / lut_depth for i in range(lut_depth) ]
+        lut_phases = [ i * pi / 4 / lut_depth + .5 for i in range(lut_depth) ]
         lut_data = memory.MemoryData(
             shape=IQSample(self.output_width),
             depth=lut_depth,
