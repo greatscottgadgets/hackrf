@@ -122,6 +122,9 @@ void rffc5071_setup(rffc5071_driver_t* const drv)
 	set_RFFC5071_LOCK(drv, 1);
 #endif
 
+	/* Enable reference oscillator standby */
+	set_RFFC5071_REFST(drv, 1);
+
 	rffc5071_regs_commit(drv);
 }
 
