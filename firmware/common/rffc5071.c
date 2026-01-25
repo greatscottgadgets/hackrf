@@ -107,12 +107,7 @@ void rffc5071_setup(rffc5071_driver_t* const drv)
 
 	rffc5071_init(drv);
 
-	/* initial setup */
-	/* put zeros in freq contol registers */
-	set_RFFC5071_P2N(drv, 0);
-	set_RFFC5071_P2LODIV(drv, 0);
-	set_RFFC5071_P2PRESC(drv, 0);
-	set_RFFC5071_P2VCOSEL(drv, 0);
+	/* zero low bits of fractional divider */
 	set_RFFC5071_P2NLSB(drv, 0);
 
 	/* set ENBL and MODE to be configured via 3-wire interface,
