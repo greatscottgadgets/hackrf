@@ -30,9 +30,9 @@
 
 /* HackRF One r9 clock control */
 // clang-format off
-static struct gpio_t gpio_h1r9_clkin_en   = GPIO(5, 15);
-static struct gpio_t gpio_h1r9_clkout_en  = GPIO(0,  9);
-static struct gpio_t gpio_h1r9_mcu_clk_en = GPIO(0,  8);
+static struct gpio gpio_h1r9_clkin_en   = GPIO(5, 15);
+static struct gpio gpio_h1r9_clkout_en  = GPIO(0,  9);
+static struct gpio gpio_h1r9_mcu_clk_en = GPIO(0,  8);
 // clang-format on
 
 #include <stdbool.h>

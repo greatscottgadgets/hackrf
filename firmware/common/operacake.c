@@ -393,7 +393,7 @@ uint16_t gpio_test(uint8_t address)
 	scu_pinmux(SCU_PINMUX_GPIO3_14, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
 	scu_pinmux(SCU_PINMUX_GPIO3_15, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
 
-	static struct gpio_t gpio_pins[] = {
+	static struct gpio gpio_pins[] = {
 		GPIO(3, 8),  // u1ctrl   IO2
 		GPIO(3, 14), // u3ctrl0  IO3
 		GPIO(3, 15), // u3ctrl1  IO4

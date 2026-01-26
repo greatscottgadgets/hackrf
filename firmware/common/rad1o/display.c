@@ -16,9 +16,9 @@ static void delayms(const uint32_t milliseconds)
 	delay(milliseconds * 40800);
 }
 
-static struct gpio_t gpio_lcd_cs = GPIO(4, 12);    /* P9_0 */
-static struct gpio_t gpio_lcd_bl_en = GPIO(0, 8);  /* P1_1 */
-static struct gpio_t gpio_lcd_reset = GPIO(5, 17); /* P9_4 */
+static struct gpio gpio_lcd_cs = GPIO(4, 12);    /* P9_0 */
+static struct gpio gpio_lcd_bl_en = GPIO(0, 8);  /* P1_1 */
+static struct gpio gpio_lcd_reset = GPIO(5, 17); /* P9_4 */
 
 /**************************************************************************/
 /* Utility routines to manage nokia display */

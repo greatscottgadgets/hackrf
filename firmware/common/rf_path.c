@@ -100,7 +100,7 @@
  * In HackRF One r9 this control signal has been moved to the microcontroller.
  */
 
-static struct gpio_t gpio_h1r9_no_ant_pwr = GPIO(2, 4);
+static struct gpio gpio_h1r9_no_ant_pwr = GPIO(2, 4);
 
 static void switchctrl_set_hackrf_one(rf_path_t* const rf_path, uint8_t ctrl)
 {
