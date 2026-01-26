@@ -1515,7 +1515,7 @@ int ADDCALL hackrf_spiflash_write(
 {
 	int result;
 
-	if (address > 0x0FFFFF) {
+	if ((address + length) > 0x400000) {
 		return HACKRF_ERROR_INVALID_PARAM;
 	}
 
@@ -1546,7 +1546,7 @@ int ADDCALL hackrf_spiflash_read(
 {
 	int result;
 
-	if (address > 0x0FFFFF) {
+	if ((address + length) > 0x400000) {
 		return HACKRF_ERROR_INVALID_PARAM;
 	}
 
