@@ -33,13 +33,13 @@
 
 extern spi_bus_t spi_bus_ssp1;
 #ifdef PRALINE
-static struct gpio_t gpio_max2837_enable = GPIO(6, 29);
-static struct gpio_t gpio_max2837_rx_enable = GPIO(3, 3);
-static struct gpio_t gpio_max2837_tx_enable = GPIO(3, 2);
+static struct gpio gpio_max2837_enable = GPIO(6, 29);
+static struct gpio gpio_max2837_rx_enable = GPIO(3, 3);
+static struct gpio gpio_max2837_tx_enable = GPIO(3, 2);
 #else
-static struct gpio_t gpio_max2837_enable = GPIO(2, 6);
-static struct gpio_t gpio_max2837_rx_enable = GPIO(2, 5);
-static struct gpio_t gpio_max2837_tx_enable = GPIO(2, 4);
+static struct gpio gpio_max2837_enable = GPIO(2, 6);
+static struct gpio gpio_max2837_rx_enable = GPIO(2, 5);
+static struct gpio gpio_max2837_tx_enable = GPIO(2, 4);
 #endif
 
 max2837_driver_t max2837 = {
