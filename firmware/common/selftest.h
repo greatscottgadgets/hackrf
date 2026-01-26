@@ -25,6 +25,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#define NUM_LOCK_ATTEMPTS 3
+
 enum {
 	FAILED = 0,
 	PASSED = 1,
@@ -36,6 +38,9 @@ typedef uint8_t test_result_t;
 
 typedef struct {
 	uint16_t mixer_id;
+#ifndef RAD1O
+	bool mixer_locks[NUM_LOCK_ATTEMPTS];
+#endif
 #ifdef PRALINE
 	uint16_t max2831_mux_rssi_1;
 	uint16_t max2831_mux_temp;
