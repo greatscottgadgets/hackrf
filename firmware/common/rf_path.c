@@ -311,128 +311,141 @@ static void switchctrl_set(rf_path_t* const rf_path, const uint8_t gpo)
 
 void rf_path_pin_setup(rf_path_t* const rf_path)
 {
-#ifdef HACKRF_ONE
-	/* Configure RF switch control signals */
-	// clang-format off
-	scu_pinmux(SCU_HP,            SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
-	scu_pinmux(SCU_LP,            SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
-	scu_pinmux(SCU_TX_MIX_BP,     SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
-	scu_pinmux(SCU_NO_MIX_BYPASS, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
-	scu_pinmux(SCU_RX_MIX_BP,     SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
-	scu_pinmux(SCU_TX_AMP,        SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
-	scu_pinmux(SCU_MIX_BYPASS,    SCU_GPIO_FAST | SCU_CONF_FUNCTION4);
-	scu_pinmux(SCU_NO_TX_AMP_PWR, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
-	scu_pinmux(SCU_AMP_BYPASS,    SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
-	scu_pinmux(SCU_RX_AMP,        SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
-	scu_pinmux(SCU_NO_RX_AMP_PWR, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
-	// clang-format on
-	if (detected_platform() == BOARD_ID_HACKRF1_R9) {
-		scu_pinmux(SCU_H1R9_RX, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
-		scu_pinmux(SCU_H1R9_NO_ANT_PWR, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
-		gpio_clear(rf_path->gpio_h1r9_no_ant_pwr);
-		gpio_output(rf_path->gpio_h1r9_no_ant_pwr);
-		scu_pinmux(SCU_H1R9_NO_VAA_EN, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
-	} else {
-		scu_pinmux(SCU_TX, SCU_GPIO_FAST | SCU_CONF_FUNCTION4);
-		scu_pinmux(SCU_RX, SCU_GPIO_FAST | SCU_CONF_FUNCTION4);
-		gpio_output(rf_path->gpio_tx);
-		scu_pinmux(SCU_NO_VAA_ENABLE, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+	board_id_t board_id = detected_platform();
+	const platform_scu_t* scu = platform_scu();
+
+	switch (board_id) {
+	case BOARD_ID_HACKRF1_OG:
+	case BOARD_ID_HACKRF1_R9:
+		/* Configure RF switch control signals */
+		// clang-format off
+		scu_pinmux(scu->HP,            SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+		scu_pinmux(scu->LP,            SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+		scu_pinmux(scu->TX_MIX_BP,     SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+		scu_pinmux(scu->NO_MIX_BYPASS, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+		scu_pinmux(scu->RX_MIX_BP,     SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+		scu_pinmux(scu->TX_AMP,        SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+		scu_pinmux(scu->MIX_BYPASS,    SCU_GPIO_FAST | SCU_CONF_FUNCTION4);
+		scu_pinmux(scu->NO_TX_AMP_PWR, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+		scu_pinmux(scu->AMP_BYPASS,    SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+		scu_pinmux(scu->RX_AMP,        SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+		scu_pinmux(scu->NO_RX_AMP_PWR, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+		// clang-format on
+		if (detected_platform() == BOARD_ID_HACKRF1_R9) {
+			scu_pinmux(scu->H1R9_RX, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+			scu_pinmux(
+				scu->H1R9_NO_ANT_PWR,
+				SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+			gpio_clear(rf_path->gpio_h1r9_no_ant_pwr);
+			gpio_output(rf_path->gpio_h1r9_no_ant_pwr);
+			scu_pinmux(
+				scu->H1R9_NO_VAA_EN,
+				SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+		} else {
+			scu_pinmux(scu->TX, SCU_GPIO_FAST | SCU_CONF_FUNCTION4);
+			scu_pinmux(scu->RX, SCU_GPIO_FAST | SCU_CONF_FUNCTION4);
+			gpio_output(rf_path->gpio_tx);
+			scu_pinmux(scu->NO_VAA_ENABLE, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+		}
+
+		/*
+		 * Safe (initial) switch settings turn off both amplifiers and antenna port
+		 * power and enable both amp bypass and mixer bypass.
+		 */
+		switchctrl_set(rf_path, SWITCHCTRL_SAFE);
+
+		/* Configure RF switch control signals as outputs */
+		gpio_output(rf_path->gpio_amp_bypass);
+		gpio_output(rf_path->gpio_no_mix_bypass);
+		gpio_output(rf_path->gpio_rx_amp);
+		gpio_output(rf_path->gpio_no_rx_amp_pwr);
+		gpio_output(rf_path->gpio_hp);
+		gpio_output(rf_path->gpio_lp);
+		gpio_output(rf_path->gpio_tx_mix_bp);
+		gpio_output(rf_path->gpio_rx_mix_bp);
+		gpio_output(rf_path->gpio_tx_amp);
+		gpio_output(rf_path->gpio_no_tx_amp_pwr);
+		gpio_output(rf_path->gpio_mix_bypass);
+		gpio_output(rf_path->gpio_rx);
+		break;
+	case BOARD_ID_RAD1O:
+		/* Configure RF switch control signals */
+		// clang-format off
+		scu_pinmux(scu->BY_AMP,          SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+		scu_pinmux(scu->BY_AMP_N,        SCU_GPIO_FAST | SCU_CONF_FUNCTION4);
+		scu_pinmux(scu->TX_RX,           SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+		scu_pinmux(scu->TX_RX_N,         SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+		scu_pinmux(scu->BY_MIX,          SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+		scu_pinmux(scu->BY_MIX_N,        SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+		scu_pinmux(scu->LOW_HIGH_FILT,   SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+		scu_pinmux(scu->LOW_HIGH_FILT_N, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+		scu_pinmux(scu->TX_AMP,          SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+		scu_pinmux(scu->RX_LNA,          SCU_GPIO_FAST | SCU_CONF_FUNCTION4);
+		scu_pinmux(scu->MIXER_EN,        SCU_GPIO_FAST | SCU_CONF_FUNCTION4);
+		// clang-format on
+
+		/* Configure RF power supply (VAA) switch */
+		scu_pinmux(scu->VAA_ENABLE, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+
+		/*
+		 * Safe (initial) switch settings turn off both amplifiers and antenna port
+		 * power and enable both amp bypass and mixer bypass.
+		 */
+		switchctrl_set(rf_path, SWITCHCTRL_SAFE);
+
+		/* Configure RF switch control signals as outputs */
+		gpio_output(rf_path->gpio_tx_rx_n);
+		gpio_output(rf_path->gpio_tx_rx);
+		gpio_output(rf_path->gpio_by_mix);
+		gpio_output(rf_path->gpio_by_mix_n);
+		gpio_output(rf_path->gpio_by_amp);
+		gpio_output(rf_path->gpio_by_amp_n);
+		gpio_output(rf_path->gpio_mixer_en);
+		gpio_output(rf_path->gpio_low_high_filt);
+		gpio_output(rf_path->gpio_low_high_filt_n);
+		gpio_output(rf_path->gpio_tx_amp);
+		gpio_output(rf_path->gpio_rx_lna);
+		break;
+	case BOARD_ID_PRALINE:
+		/* Configure RF switch control signals */
+		scu_pinmux(scu->TX_EN, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+		board_rev_t rev = detected_revision();
+		if ((rev == BOARD_REV_PRALINE_R1_0) ||
+		    (rev == BOARD_REV_GSG_PRALINE_R1_0)) {
+			scu_pinmux(scu->MIX_EN_N_R1_0, SCU_GPIO_FAST | SCU_CONF_FUNCTION4);
+		} else {
+			scu_pinmux(scu->MIX_EN_N, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+		}
+		scu_pinmux(scu->LPF_EN, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+		scu_pinmux(scu->RF_AMP_EN, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+
+		/* Configure antenna port power control signal */
+		scu_pinmux(scu->ANT_BIAS_EN_N, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+
+		/* Configure RF power supply (VAA) switch */
+		scu_pinmux(scu->NO_VAA_ENABLE, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+
+		/*
+		 * Safe (initial) switch settings turn off both amplifiers and antenna port
+		 * power and enable both amp bypass and mixer bypass.
+		 */
+		switchctrl_set(rf_path, SWITCHCTRL_SAFE);
+
+		/* Configure RF switch control signals as outputs */
+		gpio_output(rf_path->gpio_ant_bias_en_n);
+		gpio_output(rf_path->gpio_tx_en);
+		gpio_output(rf_path->gpio_mix_en_n);
+		gpio_output(rf_path->gpio_lpf_en);
+		gpio_output(rf_path->gpio_rf_amp_en);
+		break;
+	default:
+		break;
 	}
-
-	/*
-	 * Safe (initial) switch settings turn off both amplifiers and antenna port
-	 * power and enable both amp bypass and mixer bypass.
-	 */
-	switchctrl_set(rf_path, SWITCHCTRL_SAFE);
-
-	/* Configure RF switch control signals as outputs */
-	gpio_output(rf_path->gpio_amp_bypass);
-	gpio_output(rf_path->gpio_no_mix_bypass);
-	gpio_output(rf_path->gpio_rx_amp);
-	gpio_output(rf_path->gpio_no_rx_amp_pwr);
-	gpio_output(rf_path->gpio_hp);
-	gpio_output(rf_path->gpio_lp);
-	gpio_output(rf_path->gpio_tx_mix_bp);
-	gpio_output(rf_path->gpio_rx_mix_bp);
-	gpio_output(rf_path->gpio_tx_amp);
-	gpio_output(rf_path->gpio_no_tx_amp_pwr);
-	gpio_output(rf_path->gpio_mix_bypass);
-	gpio_output(rf_path->gpio_rx);
-#elif RAD1O
-	/* Configure RF switch control signals */
-	// clang-format off
-	scu_pinmux(SCU_BY_AMP,          SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
-	scu_pinmux(SCU_BY_AMP_N,        SCU_GPIO_FAST | SCU_CONF_FUNCTION4);
-	scu_pinmux(SCU_TX_RX,           SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
-	scu_pinmux(SCU_TX_RX_N,         SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
-	scu_pinmux(SCU_BY_MIX,          SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
-	scu_pinmux(SCU_BY_MIX_N,        SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
-	scu_pinmux(SCU_LOW_HIGH_FILT,   SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
-	scu_pinmux(SCU_LOW_HIGH_FILT_N, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
-	scu_pinmux(SCU_TX_AMP,          SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
-	scu_pinmux(SCU_RX_LNA,          SCU_GPIO_FAST | SCU_CONF_FUNCTION4);
-	scu_pinmux(SCU_MIXER_EN,        SCU_GPIO_FAST | SCU_CONF_FUNCTION4);
-	// clang-format on
-
-	/* Configure RF power supply (VAA) switch */
-	scu_pinmux(SCU_VAA_ENABLE, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
-
-	/*
-	 * Safe (initial) switch settings turn off both amplifiers and antenna port
-	 * power and enable both amp bypass and mixer bypass.
-	 */
-	switchctrl_set(rf_path, SWITCHCTRL_SAFE);
-
-	/* Configure RF switch control signals as outputs */
-	gpio_output(rf_path->gpio_tx_rx_n);
-	gpio_output(rf_path->gpio_tx_rx);
-	gpio_output(rf_path->gpio_by_mix);
-	gpio_output(rf_path->gpio_by_mix_n);
-	gpio_output(rf_path->gpio_by_amp);
-	gpio_output(rf_path->gpio_by_amp_n);
-	gpio_output(rf_path->gpio_mixer_en);
-	gpio_output(rf_path->gpio_low_high_filt);
-	gpio_output(rf_path->gpio_low_high_filt_n);
-	gpio_output(rf_path->gpio_tx_amp);
-	gpio_output(rf_path->gpio_rx_lna);
-#elif PRALINE
-	/* Configure RF switch control signals */
-	scu_pinmux(SCU_TX_EN, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
-	board_rev_t rev = detected_revision();
-	if ((rev == BOARD_REV_PRALINE_R1_0) || (rev == BOARD_REV_GSG_PRALINE_R1_0)) {
-		scu_pinmux(SCU_MIX_EN_N_R1_0, SCU_GPIO_FAST | SCU_CONF_FUNCTION4);
-	} else {
-		scu_pinmux(SCU_MIX_EN_N, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
-	}
-	scu_pinmux(SCU_LPF_EN, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
-	scu_pinmux(SCU_RF_AMP_EN, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
-
-	/* Configure antenna port power control signal */
-	scu_pinmux(SCU_ANT_BIAS_EN_N, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
-
-	/* Configure RF power supply (VAA) switch */
-	scu_pinmux(SCU_NO_VAA_ENABLE, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
-
-	/*
-	 * Safe (initial) switch settings turn off both amplifiers and antenna port
-	 * power and enable both amp bypass and mixer bypass.
-	 */
-	switchctrl_set(rf_path, SWITCHCTRL_SAFE);
-
-	/* Configure RF switch control signals as outputs */
-	gpio_output(rf_path->gpio_ant_bias_en_n);
-	gpio_output(rf_path->gpio_tx_en);
-	gpio_output(rf_path->gpio_mix_en_n);
-	gpio_output(rf_path->gpio_lpf_en);
-	gpio_output(rf_path->gpio_rf_amp_en);
-#else
-	(void) rf_path; /* silence unused param warning */
-#endif
 }
 
 void rf_path_init(rf_path_t* const rf_path)
 {
-	// TODO figure out SCU_PINMUX first
+	// BUSY
 	/*board_id_t board_id = detected_platform();
 
 	ssp1_set_mode_max5864();
@@ -445,7 +458,7 @@ void rf_path_init(rf_path_t* const rf_path)
 		max2831_setup(&max283x);
 		max2831_start(&max283x);
 	} else {
-		if (detected_platform() == BOARD_ID_HACKRF1_R9) {
+		if (board_id == BOARD_ID_HACKRF1_R9) {
 			max283x_setup(&max283x, MAX2839_VARIANT);
 		} else {
 			max283x_setup(&max283x, MAX2837_VARIANT);
