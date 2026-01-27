@@ -20,10 +20,10 @@
  */
 
 #include <stddef.h>
-
 #include "platform_scu.h"
 
 // clang-format off
+
 const platform_scu_t* platform_scu()
 {
 	static const platform_scu_t* _platform_scu = NULL;
@@ -39,37 +39,37 @@ const platform_scu_t* platform_scu()
 	/* MAX283x GPIO (XCVR_CTL) PinMux */
 	switch (board_id) {
 	case BOARD_ID_RAD1O:
-		scu.XCVR_RXHP = P8_1; /* GPIO[] on P8_1 */
-		scu.XCVR_B6   = P8_2; /* GPIO[] on P8_2 */
-		scu.XCVR_B7   = P9_3; /* GPIO[] on P9_3 */
+		scu.XCVR_RXHP				= P8_1; /* GPIO[] on P8_1 */
+		scu.XCVR_B6					= P8_2; /* GPIO[] on P8_2 */
+		scu.XCVR_B7					= P9_3; /* GPIO[] on P9_3 */
 		break;
 	case BOARD_ID_PRALINE:
-		scu.XCVR_ENABLE   = PE_1;  /* GPIO7[1]  on PE_1 */
-		scu.XCVR_RXENABLE = PE_2;  /* GPIO7[2]  on PE_2 */
-		scu.XCVR_CS       = PD_14; /* GPIO6[28] on PD_14 */
-		scu.XCVR_RXHP     = PD_15; /* GPIO6[29] on PD_15 */
-		scu.XCVR_LD       = P9_6;  /* GPIO4[11] on P9_6 */
+		scu.XCVR_ENABLE				= PE_1;  /* GPIO7[1]  on PE_1 */
+		scu.XCVR_RXENABLE			= PE_2;  /* GPIO7[2]  on PE_2 */
+		scu.XCVR_CS					= PD_14; /* GPIO6[28] on PD_14 */
+		scu.XCVR_RXHP				= PD_15; /* GPIO6[29] on PD_15 */
+		scu.XCVR_LD					= P9_6;  /* GPIO4[11] on P9_6 */
 
-		scu.XCVR_ENABLE_PINCFG   = (SCU_GPIO_FAST | SCU_CONF_FUNCTION4);
-		scu.XCVR_RXENABLE_PINCFG = (SCU_GPIO_FAST | SCU_CONF_FUNCTION4);
-		scu.XCVR_CS_PINCFG       = (SCU_GPIO_FAST | SCU_CONF_FUNCTION4);
-		scu.XCVR_RXHP_PINCFG     = (SCU_GPIO_FAST | SCU_CONF_FUNCTION4);
-		scu.XCVR_LD_PINCFG       = (SCU_GPIO_FAST | SCU_CONF_FUNCTION0 |
-									SCU_CONF_EPD_EN_PULLDOWN | SCU_CONF_EPUN_DIS_PULLUP);
+		scu.XCVR_ENABLE_PINCFG		= (SCU_GPIO_FAST | SCU_CONF_FUNCTION4);
+		scu.XCVR_RXENABLE_PINCFG	= (SCU_GPIO_FAST | SCU_CONF_FUNCTION4);
+		scu.XCVR_CS_PINCFG			= (SCU_GPIO_FAST | SCU_CONF_FUNCTION4);
+		scu.XCVR_RXHP_PINCFG		= (SCU_GPIO_FAST | SCU_CONF_FUNCTION4);
+		scu.XCVR_LD_PINCFG			= (SCU_GPIO_FAST | SCU_CONF_FUNCTION0 |
+									   SCU_CONF_EPD_EN_PULLDOWN | SCU_CONF_EPUN_DIS_PULLUP);
 		break;
 	case BOARD_ID_JELLYBEAN:
 	case BOARD_ID_JAWBREAKER:
 	case BOARD_ID_HACKRF1_OG:
 	case BOARD_ID_HACKRF1_R9:
-		scu.XCVR_ENABLE   = P4_6;  /* GPIO2[6]  on P4_6 */
-		scu.XCVR_RXENABLE = P4_5;  /* GPIO2[5]  on P4_5 */
-		scu.XCVR_TXENABLE = P4_4;  /* GPIO2[4]  on P4_4 */
-		scu.XCVR_CS       = P1_20; /* GPIO0[15] on P1_20 */
+		scu.XCVR_ENABLE				= P4_6;  /* GPIO2[6]  on P4_6 */
+		scu.XCVR_RXENABLE			= P4_5;  /* GPIO2[5]  on P4_5 */
+		scu.XCVR_TXENABLE			= P4_4;  /* GPIO2[4]  on P4_4 */
+		scu.XCVR_CS					= P1_20; /* GPIO0[15] on P1_20 */
 
-		scu.XCVR_ENABLE_PINCFG   = (SCU_GPIO_FAST);
-		scu.XCVR_RXENABLE_PINCFG = (SCU_GPIO_FAST);
-		scu.XCVR_TXENABLE_PINCFG = (SCU_GPIO_FAST);
-		scu.XCVR_CS_PINCFG       = (SCU_GPIO_FAST);
+		scu.XCVR_ENABLE_PINCFG		= (SCU_GPIO_FAST);
+		scu.XCVR_RXENABLE_PINCFG	= (SCU_GPIO_FAST);
+		scu.XCVR_TXENABLE_PINCFG	= (SCU_GPIO_FAST);
+		scu.XCVR_CS_PINCFG			= (SCU_GPIO_FAST);
 		break;
 	default:
 		// TODO handle UNRECOGNIZED & UNDETECTED
