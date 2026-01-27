@@ -37,7 +37,7 @@ typedef struct {
 	struct gpio_t tx_mix_bp;
 	struct gpio_t no_mix_bypass;
 	struct gpio_t rx_mix_bp;
-	struct gpio_t tx_amp; // also used by RAD1O
+	struct gpio_t tx_amp;
 	struct gpio_t tx;
 	struct gpio_t mix_bypass;
 	struct gpio_t rx;
