@@ -20,69 +20,9 @@
  */
 
 #include <stddef.h>
-
 #include "platform_gpio.h"
 
 // clang-format off
-
-// JAWBREAKER
-static const platform_gpio_t platform_gpio_jawbreaker = {.jawbreaker = {}};
-
-// RAD1O
-static const platform_gpio_t platform_gpio_rad1o = {
-	.rad1o = {
-		/* RF switch control */
-		.tx_rx_n		 = GPIO(1, 11),
-		.tx_rx			 = GPIO(0, 14),
-		.by_mix			 = GPIO(1, 12),
-		.by_mix_n		 = GPIO(2, 10),
-		.by_amp			 = GPIO(1, 0),
-		.by_amp_n		 = GPIO(5, 5),
-		.mixer_en		 = GPIO(5, 16),
-		.low_high_filt	 = GPIO(2, 11),
-		.low_high_filt_n = GPIO(2, 12),
-		.tx_amp			 = GPIO(2, 15),
-		.rx_lna			 = GPIO(5, 15),
-	}};
-
-// HACKRF_ONE
-static const platform_gpio_t platform_gpio_hackrf_one = {
-	.hackrf_one =
-		{
-			/* RF switch control */
-			.hp				= GPIO(2, 0),
-			.lp				= GPIO(2, 10),
-			.tx_mix_bp		= GPIO(2, 11),
-			.no_mix_bypass	= GPIO(1, 0),
-			.rx_mix_bp		= GPIO(2, 12),
-			.tx_amp			= GPIO(2, 15),
-			.tx				= GPIO(5, 15),
-			.mix_bypass		= GPIO(5, 16),
-			.rx				= GPIO(5, 5),
-			.no_tx_amp_pwr	= GPIO(3, 5),
-			.amp_bypass		= GPIO(0, 14),
-			.rx_amp			= GPIO(1, 11),
-			.no_rx_amp_pwr	= GPIO(1, 12),
-		},
-	.hackrf1_r9 = {
-		/* RF switch control */
-		.rx			 = GPIO(0, 7),
-		.no_ant_pwr	 = GPIO(2, 4),
-	}};
-
-// PRALINE
-static const platform_gpio_t platform_gpio_praline = {
-	.praline = {
-		/* RF switch control */
-		.tx_en			= GPIO(3, 4),
-		.mix_en_n		= GPIO(3, 2),
-		.mix_en_n_r1_0	= GPIO(5, 6),
-		.lpf_en			= GPIO(4, 8),
-		.rf_amp_en		= GPIO(4, 9),
-		.ant_bias_en_n	= GPIO(1, 12),
-	}};
-
-// clang-format on
 
 const platform_gpio_t* platform_gpio()
 {
@@ -93,28 +33,62 @@ const platform_gpio_t* platform_gpio()
 
 	board_id_t board_id = detected_platform();
 	board_rev_t board_rev = detected_revision();
+	static platform_gpio_t gpio;
 	(void) board_rev; // TODO silence warning until we use this
 
+	/* RF switch control */
 	switch (board_id) {
-	case BOARD_ID_JELLYBEAN:
-		break;
-	case BOARD_ID_JAWBREAKER:
-		_platform_gpio = &platform_gpio_jawbreaker;
-		break;
 	case BOARD_ID_HACKRF1_OG:
 	case BOARD_ID_HACKRF1_R9:
-		_platform_gpio = &platform_gpio_hackrf_one;
+		gpio.hp             = GPIO(2, 0);
+		gpio.lp             = GPIO(2, 10);
+		gpio.tx_mix_bp      = GPIO(2, 11);
+		gpio.no_mix_bypass  = GPIO(1, 0);
+		gpio.rx_mix_bp      = GPIO(2, 12);
+		gpio.tx_amp         = GPIO(2, 15);
+		gpio.tx             = GPIO(5, 15);
+		gpio.mix_bypass     = GPIO(5, 16);
+		gpio.rx             = GPIO(5, 5);
+		gpio.no_tx_amp_pwr  = GPIO(3, 5);
+		gpio.amp_bypass     = GPIO(0, 14);
+		gpio.rx_amp         = GPIO(1, 11);
+		gpio.no_rx_amp_pwr  = GPIO(1, 12);
+        // HackRF One rev 9
+		gpio.h1r9_rx         = GPIO(0, 7);
+		gpio.h1r9_no_ant_pwr = GPIO(2, 4);
+        break;
+    case BOARD_ID_RAD1O:
+		gpio.tx_rx_n         = GPIO(1, 11);
+		gpio.tx_rx           = GPIO(0, 14);
+		gpio.by_mix          = GPIO(1, 12);
+		gpio.by_mix_n        = GPIO(2, 10);
+		gpio.by_amp          = GPIO(1, 0);
+		gpio.by_amp_n        = GPIO(5, 5);
+		gpio.mixer_en        = GPIO(5, 16);
+		gpio.low_high_filt   = GPIO(2, 11);
+		gpio.low_high_filt_n = GPIO(2, 12);
+		gpio.tx_amp          = GPIO(2, 15);
+		gpio.rx_lna          = GPIO(5, 15);
+        break;
+    case BOARD_ID_PRALINE:
+		gpio.tx_en         = GPIO(3, 4);
+		gpio.mix_en_n      = GPIO(3, 2);
+		gpio.mix_en_n_r1_0 = GPIO(5, 6);
+		gpio.lpf_en        = GPIO(4, 8);
+		gpio.rf_amp_en     = GPIO(4, 9);
+		gpio.ant_bias_en_n = GPIO(1, 12);
 		break;
-	case BOARD_ID_RAD1O:
-		_platform_gpio = &platform_gpio_rad1o;
-		break;
-	case BOARD_ID_PRALINE:
-		_platform_gpio = &platform_gpio_praline;
+	case BOARD_ID_JELLYBEAN:
+	case BOARD_ID_JAWBREAKER:
 		break;
 	default:
 		// TODO handle UNRECOGNIZED & UNDETECTED
 		break;
 	}
 
+	_platform_gpio = &gpio;
+
 	return _platform_gpio;
 }
+
+// clang-format on

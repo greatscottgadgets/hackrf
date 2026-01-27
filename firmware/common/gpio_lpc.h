@@ -48,10 +48,17 @@ typedef struct gpio_port_t {
 	volatile uint32_t inv; /* +0x300 */
 } gpio_port_t;
 
-struct gpio_t {
+struct gpio_t_old {
 	const uint32_t mask;
 	gpio_port_t* const port;
 	volatile uint32_t* const gpio_w;
+};
+
+// TODO I'm not too excited about dropping the const qualifiers so we can assign these at runtime
+struct gpio_t {
+	uint32_t mask;
+	gpio_port_t* port;
+	volatile uint32_t* gpio_w;
 };
 
 #define GPIO_LPC_BASE        (0x400f4000)
@@ -65,7 +72,7 @@ struct gpio_t {
 	(volatile uint32_t*) ((GPIO_LPC_BASE + GPIO_LPC_W_OFFSET) + ((_port_num) *0x80) + ((_pin_num) *4))
 
 // clang-format off
-#define GPIO(_port_num, _pin_num) { \
+#define GPIO(_port_num, _pin_num) (struct gpio_t){	\
 	.mask = (1UL << (_pin_num)), \
 	.port = GPIO_LPC_PORT(_port_num), \
 	.gpio_w = GPIO_LPC_W(_port_num, _pin_num), \
