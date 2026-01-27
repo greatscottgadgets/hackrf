@@ -82,7 +82,6 @@ const platform_gpio_t* platform_gpio()
 	case BOARD_ID_JAWBREAKER:
 		break;
 	default:
-		// TODO handle UNRECOGNIZED & UNDETECTED
 		break;
 	}
 

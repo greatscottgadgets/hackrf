@@ -37,21 +37,110 @@ extern "C" {
  */
 
 typedef struct {
+	/* RFFC5071 GPIO serial interface PinMux */
+	// #if (defined JAWBREAKER || defined HACKRF_ONE)
+	scu_grp_pin_t MIXER_ENX;
+	scu_grp_pin_t MIXER_SCLK;
+	scu_grp_pin_t MIXER_SDATA;
+	scu_grp_pin_t MIXER_RESETX;
+	uint32_t MIXER_SCLK_PINCFG;
+	uint32_t MIXER_SDATA_PINCFG;
+	// #ifdef PRALINE
+	//scu_grp_pin_t MIXER_ENX;
+	//scu_grp_pin_t MIXER_SCLK;
+	//scu_grp_pin_t MIXER_SDATA;
+	//scu_grp_pin_t MIXER_RESETX;
+	scu_grp_pin_t MIXER_LD;
+	//uint32_t MIXER_SCLK_PINCFG;
+	//uint32_t MIXER_SDATA_PINCFG;
+	uint32_t MIXER_LD_PINCFG;
+	// #ifdef RAD1O
+	scu_grp_pin_t VCO_CE;
+	scu_grp_pin_t VCO_SCLK;
+	scu_grp_pin_t VCO_SDATA;
+	scu_grp_pin_t VCO_LE;
+	scu_grp_pin_t VCO_MUX;
+	scu_grp_pin_t MIXER_EN;
+	scu_grp_pin_t SYNT_RFOUT_EN;
+
+	/* RF supply (VAA) control */
+	// #ifdef HACKRF_ONE
+	scu_grp_pin_t NO_VAA_ENABLE;
+	// #ifdef PRALINE
+	//scu_grp_pin_t NO_VAA_ENABLE;
+	// #ifdef RAD1O
+	scu_grp_pin_t VAA_ENABLE;
+
+	/* RF switch control */
+	// #ifdef HACKRF_ONE
+	scu_grp_pin_t HP;
+	scu_grp_pin_t LP;
+	scu_grp_pin_t TX_MIX_BP;
+	scu_grp_pin_t NO_MIX_BYPASS;
+	scu_grp_pin_t RX_MIX_BP;
+	scu_grp_pin_t TX_AMP;
+	scu_grp_pin_t TX;
+	scu_grp_pin_t MIX_BYPASS;
+	scu_grp_pin_t RX;
+	scu_grp_pin_t NO_TX_AMP_PWR;
+	scu_grp_pin_t AMP_BYPASS;
+	scu_grp_pin_t RX_AMP;
+	scu_grp_pin_t NO_RX_AMP_PWR;
+	// #ifdef RAD1O
+	scu_grp_pin_t BY_AMP;
+	scu_grp_pin_t BY_AMP_N;
+	scu_grp_pin_t TX_RX;
+	scu_grp_pin_t TX_RX_N;
+	scu_grp_pin_t BY_MIX;
+	scu_grp_pin_t BY_MIX_N;
+	scu_grp_pin_t LOW_HIGH_FILT;
+	scu_grp_pin_t LOW_HIGH_FILT_N;
+	//scu_grp_pin_t TX_AMP;
+	scu_grp_pin_t RX_LNA;
+	// #ifdef PRALINE
+	scu_grp_pin_t TX_EN;
+	scu_grp_pin_t MIX_EN_N;
+	scu_grp_pin_t MIX_EN_N_R1_0;
+	scu_grp_pin_t LPF_EN;
+	scu_grp_pin_t RF_AMP_EN;
+	scu_grp_pin_t ANT_BIAS_EN_N;
+	scu_grp_pin_t ANT_BIAS_OC_N;
+
 	/* MAX283x GPIO (XCVR_CTL) PinMux */
+	// #ifdef RAD1O
+	scu_grp_pin_t XCVR_RXHP;
 	scu_grp_pin_t XCVR_B6;
 	scu_grp_pin_t XCVR_B7;
-	scu_grp_pin_t XCVR_CS;
+	// #ifdef PRALINE
 	scu_grp_pin_t XCVR_ENABLE;
-	scu_grp_pin_t XCVR_LD;
 	scu_grp_pin_t XCVR_RXENABLE;
-	scu_grp_pin_t XCVR_RXHP;
-	scu_grp_pin_t XCVR_TXENABLE;
-	uint32_t XCVR_CS_PINCFG;
+	scu_grp_pin_t XCVR_CS;
+	//scu_grp_pin_t XCVR_RXHP;
+	scu_grp_pin_t XCVR_LD;
 	uint32_t XCVR_ENABLE_PINCFG;
-	uint32_t XCVR_LD_PINCFG;
 	uint32_t XCVR_RXENABLE_PINCFG;
+	uint32_t XCVR_CS_PINCFG;
 	uint32_t XCVR_RXHP_PINCFG;
+	uint32_t XCVR_LD_PINCFG;
+	// #else
+	//scu_grp_pin_t XCVR_ENABLE;
+	//scu_grp_pin_t XCVR_RXENABLE;
+	scu_grp_pin_t XCVR_TXENABLE;
+	//scu_grp_pin_t XCVR_CS;
+	//uint32_t XCVR_ENABLE_PINCFG;
+	//uint32_t XCVR_RXENABLE_PINCFG;
 	uint32_t XCVR_TXENABLE_PINCFG;
+	//uint32_t XCVR_CS_PINCFG;
+
+	/* HackRF One r9 */
+	scu_grp_pin_t H1R9_CLKIN_EN;
+	scu_grp_pin_t H1R9_CLKOUT_EN;
+	scu_grp_pin_t H1R9_MCU_CLK_EN;
+	scu_grp_pin_t H1R9_RX;
+	scu_grp_pin_t H1R9_NO_ANT_PWR;
+	scu_grp_pin_t H1R9_EN1V8;
+	scu_grp_pin_t H1R9_NO_VAA_EN;
+	scu_grp_pin_t H1R9_TRIGGER_EN;
 } platform_scu_t;
 
 // Detects and returns the global platform scu instance of the active board id and revision.
@@ -292,6 +381,7 @@ const platform_scu_t* platform_scu();
 	#define SCU_ANT_BIAS_OC_N (P2_11) /* GPIO1[11] on P2_11 */
 #endif
 
+/* Praline */
 #ifdef PRALINE
 	#define SCU_P2_CTRL0    (PE_3)  /* GPIO7[3] on PE_3 */
 	#define SCU_P2_CTRL1    (PE_4)  /* GPIO7[4] on PE_4 */
