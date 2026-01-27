@@ -27,7 +27,7 @@ To create a PDF of the HackRF documentation from the HackRF repository while on 
 
 # Getting Help
 
-Before asking for help with HackRF, check to see if your question is listed in the [FAQ](https://hackrf.readthedocs.io/en/latest/faq.html).
+Before asking for help with HackRF, check to see if your question is listed on the [troubleshooting page](https://hackrf.readthedocs.io/en/latest/troubleshooting.html).
 
 For assistance with HackRF general use or development, please look at the [issues on the GitHub project](https://github.com/greatscottgadgets/hackrf/issues). This is the preferred place to ask questions so that others may locate the answer to your question in the future.
 
