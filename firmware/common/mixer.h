@@ -40,11 +40,6 @@ extern void mixer_setup(mixer_driver_t* const mixer);
 /* Set frequency (Hz). */
 extern uint64_t mixer_set_frequency(mixer_driver_t* const mixer, uint64_t hz);
 
-/* Set up rx only, tx only, or full duplex. Chip should be disabled
- * before _tx, _rx, or _rxtx are called. */
-extern void mixer_tx(mixer_driver_t* const mixer);
-extern void mixer_rx(mixer_driver_t* const mixer);
-extern void mixer_rxtx(mixer_driver_t* const mixer);
 extern void mixer_enable(mixer_driver_t* const mixer);
 extern void mixer_disable(mixer_driver_t* const mixer);
 extern void mixer_set_gpo(mixer_driver_t* const drv, uint8_t gpo);

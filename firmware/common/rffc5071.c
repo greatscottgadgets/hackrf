@@ -107,12 +107,7 @@ void rffc5071_setup(rffc5071_driver_t* const drv)
 
 	rffc5071_init(drv);
 
-	/* initial setup */
-	/* put zeros in freq contol registers */
-	set_RFFC5071_P2N(drv, 0);
-	set_RFFC5071_P2LODIV(drv, 0);
-	set_RFFC5071_P2PRESC(drv, 0);
-	set_RFFC5071_P2VCOSEL(drv, 0);
+	/* zero low bits of fractional divider */
 	set_RFFC5071_P2NLSB(drv, 0);
 
 	/* set ENBL and MODE to be configured via 3-wire interface,
@@ -122,10 +117,17 @@ void rffc5071_setup(rffc5071_driver_t* const drv)
 	/* GPOs are active at all times */
 	set_RFFC5071_GATE(drv, 1);
 
-#ifdef PRALINE
+	/* mixer 2 used for both RX and TX */
+	set_RFFC5071_FULLD(drv, 0);
+	set_RFFC5071_MODE(drv, 1);
+
+#if defined(PRALINE) || defined(HACKRF_ONE)
 	/* Enable GPO Lock output signal */
 	set_RFFC5071_LOCK(drv, 1);
 #endif
+
+	/* Enable reference oscillator standby */
+	set_RFFC5071_REFST(drv, 1);
 
 	rffc5071_regs_commit(drv);
 }
@@ -216,35 +218,6 @@ void rffc5071_regs_commit(rffc5071_driver_t* const drv)
 			rffc5071_reg_commit(drv, r);
 		}
 	}
-}
-
-void rffc5071_tx(rffc5071_driver_t* const drv)
-{
-	set_RFFC5071_ENBL(drv, 0);
-	set_RFFC5071_FULLD(drv, 0);
-	set_RFFC5071_MODE(drv, 1); /* mixer 2 used for both RX and TX */
-	rffc5071_regs_commit(drv);
-}
-
-void rffc5071_rx(rffc5071_driver_t* const drv)
-{
-	set_RFFC5071_ENBL(drv, 0);
-	set_RFFC5071_FULLD(drv, 0);
-	set_RFFC5071_MODE(drv, 1); /* mixer 2 used for both RX and TX */
-	rffc5071_regs_commit(drv);
-}
-
-/*
- * This function turns on both mixer (full-duplex) on the RFFC5071, but our
- * current hardware designs do not support full-duplex operation.
- */
-void rffc5071_rxtx(rffc5071_driver_t* const drv)
-{
-	set_RFFC5071_ENBL(drv, 0);
-	set_RFFC5071_FULLD(drv, 1); /* mixer 1 and mixer 2 (RXTX) */
-	rffc5071_regs_commit(drv);
-
-	rffc5071_enable(drv);
 }
 
 void rffc5071_disable(rffc5071_driver_t* const drv)

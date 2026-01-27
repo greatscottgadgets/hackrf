@@ -477,7 +477,6 @@ void rf_path_set_direction(rf_path_t* const rf_path, const rf_path_direction_t d
 			/* TX amplifier is in path, be sure to enable TX amplifier. */
 			rf_path->switchctrl &= ~SWITCHCTRL_NO_TX_AMP_PWR;
 		}
-		mixer_tx(&mixer);
 		if (rf_path->switchctrl & SWITCHCTRL_MIX_BYPASS) {
 			mixer_disable(&mixer);
 		} else {
@@ -500,7 +499,6 @@ void rf_path_set_direction(rf_path_t* const rf_path, const rf_path_direction_t d
 			/* RX amplifier is in path, be sure to enable RX amplifier. */
 			rf_path->switchctrl &= ~SWITCHCTRL_NO_RX_AMP_PWR;
 		}
-		mixer_rx(&mixer);
 		if (rf_path->switchctrl & SWITCHCTRL_MIX_BYPASS) {
 			mixer_disable(&mixer);
 		} else {
