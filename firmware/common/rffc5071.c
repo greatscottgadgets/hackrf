@@ -60,7 +60,7 @@ static const uint16_t rffc5071_regs_default[RFFC5071_NUM_REGS] = {
 	0x1e84, /* 0F */
 	0x89d8, /* 10 */
 	0x9d00, /* 11 */
-	0x3a20, /* 12, dithering off */
+	0x3a00, /* 12, dithering off */
 	0x0000, /* 13 */
 	0x0000, /* 14 */
 	0x0000, /* 15 */
