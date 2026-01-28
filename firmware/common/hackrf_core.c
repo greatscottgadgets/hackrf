@@ -1102,53 +1102,53 @@ void pin_setup(void)
 	case BOARD_ID_HACKRF1_R9:
 		rf_path = (rf_path_t){
 			.switchctrl = 0,
-			.gpio_hp = &gpio->hp,
-			.gpio_lp = &gpio->lp,
-			.gpio_tx_mix_bp = &gpio->tx_mix_bp,
-			.gpio_no_mix_bypass = &gpio->no_mix_bypass,
-			.gpio_rx_mix_bp = &gpio->rx_mix_bp,
-			.gpio_tx_amp = &gpio->tx_amp,
-			.gpio_tx = &gpio->tx,
-			.gpio_mix_bypass = &gpio->mix_bypass,
-			.gpio_rx = &gpio->rx,
-			.gpio_no_tx_amp_pwr = &gpio->no_tx_amp_pwr,
-			.gpio_amp_bypass = &gpio->amp_bypass,
-			.gpio_rx_amp = &gpio->rx_amp,
-			.gpio_no_rx_amp_pwr = &gpio->no_rx_amp_pwr,
+			.gpio_hp = gpio->hp,
+			.gpio_lp = gpio->lp,
+			.gpio_tx_mix_bp = gpio->tx_mix_bp,
+			.gpio_no_mix_bypass = gpio->no_mix_bypass,
+			.gpio_rx_mix_bp = gpio->rx_mix_bp,
+			.gpio_tx_amp = gpio->tx_amp,
+			.gpio_tx = gpio->tx,
+			.gpio_mix_bypass = gpio->mix_bypass,
+			.gpio_rx = gpio->rx,
+			.gpio_no_tx_amp_pwr = gpio->no_tx_amp_pwr,
+			.gpio_amp_bypass = gpio->amp_bypass,
+			.gpio_rx_amp = gpio->rx_amp,
+			.gpio_no_rx_amp_pwr = gpio->no_rx_amp_pwr,
 		};
 		if (board_id == BOARD_ID_HACKRF1_R9) {
-			rf_path.gpio_rx = &gpio->h1r9_rx;
-			rf_path.gpio_h1r9_no_ant_pwr = &gpio->h1r9_no_ant_pwr;
+			rf_path.gpio_rx = gpio->h1r9_rx;
+			rf_path.gpio_h1r9_no_ant_pwr = gpio->h1r9_no_ant_pwr;
 		}
 		break;
 	case BOARD_ID_RAD1O:
 		rf_path = (rf_path_t){
 			.switchctrl = 0,
-			.gpio_tx_rx_n = &gpio->tx_rx_n,
-			.gpio_tx_rx = &gpio->tx_rx,
-			.gpio_by_mix = &gpio->by_mix,
-			.gpio_by_mix_n = &gpio->by_mix_n,
-			.gpio_by_amp = &gpio->by_amp,
-			.gpio_by_amp_n = &gpio->by_amp_n,
-			.gpio_mixer_en = &gpio->mixer_en,
-			.gpio_low_high_filt = &gpio->low_high_filt,
-			.gpio_low_high_filt_n = &gpio->low_high_filt_n,
-			.gpio_tx_amp = &gpio->tx_amp,
-			.gpio_rx_lna = &gpio->rx_lna,
+			.gpio_tx_rx_n = gpio->tx_rx_n,
+			.gpio_tx_rx = gpio->tx_rx,
+			.gpio_by_mix = gpio->by_mix,
+			.gpio_by_mix_n = gpio->by_mix_n,
+			.gpio_by_amp = gpio->by_amp,
+			.gpio_by_amp_n = gpio->by_amp_n,
+			.gpio_mixer_en = gpio->mixer_en,
+			.gpio_low_high_filt = gpio->low_high_filt,
+			.gpio_low_high_filt_n = gpio->low_high_filt_n,
+			.gpio_tx_amp = gpio->tx_amp,
+			.gpio_rx_lna = gpio->rx_lna,
 		};
 		break;
 	case BOARD_ID_PRALINE:
 		rf_path = (rf_path_t){
 			.switchctrl = 0,
-			.gpio_tx_en = &gpio->tx_en,
-			.gpio_mix_en_n = &gpio->mix_en_n,
-			.gpio_lpf_en = &gpio->lpf_en,
-			.gpio_rf_amp_en = &gpio->rf_amp_en,
-			.gpio_ant_bias_en_n = &gpio->ant_bias_en_n,
+			.gpio_tx_en = gpio->tx_en,
+			.gpio_mix_en_n = gpio->mix_en_n,
+			.gpio_lpf_en = gpio->lpf_en,
+			.gpio_rf_amp_en = gpio->rf_amp_en,
+			.gpio_ant_bias_en_n = gpio->ant_bias_en_n,
 		};
 		if ((rev == BOARD_REV_PRALINE_R1_0) ||
 		    (rev == BOARD_REV_GSG_PRALINE_R1_0)) {
-			rf_path.gpio_mix_en_n = &gpio->mix_en_n_r1_0;
+			rf_path.gpio_mix_en_n = gpio->mix_en_n_r1_0;
 		}
 		break;
 	default:
