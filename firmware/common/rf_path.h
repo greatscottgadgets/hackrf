@@ -32,10 +32,9 @@ typedef enum {
 	RF_PATH_DIRECTION_OFF,
 	RF_PATH_DIRECTION_RX,
 	RF_PATH_DIRECTION_TX,
-#ifdef PRALINE
+	// #ifdef PRALINE
 	RF_PATH_DIRECTION_TX_CALIBRATION,
 	RF_PATH_DIRECTION_RX_CALIBRATION,
-#endif
 } rf_path_direction_t;
 
 typedef enum {

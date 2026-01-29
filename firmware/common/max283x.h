@@ -30,6 +30,8 @@
 
 #include "gpio.h"
 #include "gpio_lpc.h"
+#include "max2831.h"
+#include "max2831_target.h"
 #include "max2837.h"
 #include "max2837_target.h"
 #include "max2839.h"
@@ -47,6 +49,7 @@ typedef enum {
 } max283x_mode_t;
 
 typedef enum {
+	MAX2831_VARIANT,
 	MAX2837_VARIANT,
 	MAX2839_VARIANT,
 } max283x_variant_t;
@@ -55,6 +58,7 @@ typedef struct {
 	max283x_variant_t type;
 
 	union {
+		max2831_driver_t max2831;
 		max2837_driver_t max2837;
 		max2839_driver_t max2839;
 	} drv;
@@ -97,5 +101,7 @@ bool max283x_set_txvga_gain(max283x_driver_t* const drv, const uint32_t gain_db)
 
 void max283x_tx(max283x_driver_t* const drv);
 void max283x_rx(max283x_driver_t* const drv);
+void max283x_tx_calibration(max283x_driver_t* const drv);
+void max283x_rx_calibration(max283x_driver_t* const drv);
 
 #endif // __MAX283x_H

@@ -46,8 +46,6 @@ add_custom_command(
 
 set(SRC_M4
 	hackrf_usb.c
-	"${PATH_HACKRF_FIRMWARE_COMMON}/platform_gpio.c"
-	"${PATH_HACKRF_FIRMWARE_COMMON}/platform_scu.c"
 	"${PATH_HACKRF_FIRMWARE_COMMON}/tuning.c"
 	"${PATH_HACKRF_FIRMWARE_COMMON}/streaming.c"
 	"${PATH_HACKRF_FIRMWARE_COMMON}/usb.c"

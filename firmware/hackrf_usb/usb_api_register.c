@@ -54,7 +54,7 @@ usb_request_status_t usb_vendor_request_write_max283x(
 #else
 		if (endpoint->setup.index < MAX2831_NUM_REGS) {
 			if (endpoint->setup.value < MAX2831_DATA_REGS_MAX_VALUE) {
-				max2831_reg_write(
+				max283x_reg_write(
 					&max283x,
 					endpoint->setup.index,
 					endpoint->setup.value);
@@ -92,7 +92,7 @@ usb_request_status_t usb_vendor_request_read_max283x(
 #else
 		if (endpoint->setup.index < MAX2831_NUM_REGS) {
 			const uint16_t value =
-				max2831_reg_read(&max283x, endpoint->setup.index);
+				max283x_reg_read(&max283x, endpoint->setup.index);
 			endpoint->buffer[0] = value & 0xff;
 			endpoint->buffer[1] = value >> 8;
 			usb_transfer_schedule_block(

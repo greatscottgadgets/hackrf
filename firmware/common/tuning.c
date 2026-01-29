@@ -25,9 +25,6 @@
 #include "hackrf_ui.h"
 #include "hackrf_core.h"
 #include "mixer.h"
-#include "max2831.h"
-#include "max2837.h"
-#include "max2839.h"
 #include "sgpio.h"
 #include "operacake.h"
 #include "platform_detect.h"
@@ -168,35 +165,36 @@ bool tuning_set_frequency(
 		rf = rf + offset;
 	}
 
-	max2831_mode_t prior_max2831_mode = max2831_mode(&max283x);
-	max2831_set_mode(&max283x, MAX2831_MODE_STANDBY);
+	// TODO max2831_mode has RX_CAL and RX_CAL reversed
+	max283x_mode_t prior_max2831_mode = max283x_mode(&max283x);
+	max283x_set_mode(&max283x, MAX283x_MODE_STANDBY);
 
 	if (cfg->if_mhz == 0) {
 		rf_path_set_filter(&rf_path, RF_PATH_FILTER_BYPASS);
-		max2831_set_frequency(&max283x, rf);
+		max283x_set_frequency(&max283x, rf);
 		sgpio_cpld_set_mixer_invert(&sgpio_config, 0);
 	} else if (cfg->if_mhz > freq_mhz) {
 		rf_path_set_filter(&rf_path, RF_PATH_FILTER_LOW_PASS);
 		if (cfg->high_lo) {
 			mixer_freq_hz = FREQ_ONE_MHZ * cfg->if_mhz + rf;
 			real_mixer_freq_hz = mixer_set_frequency(&mixer, mixer_freq_hz);
-			max2831_set_frequency(&max283x, real_mixer_freq_hz - rf);
+			max283x_set_frequency(&max283x, real_mixer_freq_hz - rf);
 			sgpio_cpld_set_mixer_invert(&sgpio_config, 1);
 		} else {
 			mixer_freq_hz = FREQ_ONE_MHZ * cfg->if_mhz - rf;
 			real_mixer_freq_hz = mixer_set_frequency(&mixer, mixer_freq_hz);
-			max2831_set_frequency(&max283x, real_mixer_freq_hz + rf);
+			max283x_set_frequency(&max283x, real_mixer_freq_hz + rf);
 			sgpio_cpld_set_mixer_invert(&sgpio_config, 0);
 		}
 	} else {
 		rf_path_set_filter(&rf_path, RF_PATH_FILTER_HIGH_PASS);
 		mixer_freq_hz = rf - FREQ_ONE_MHZ * cfg->if_mhz;
 		real_mixer_freq_hz = mixer_set_frequency(&mixer, mixer_freq_hz);
-		max2831_set_frequency(&max283x, rf - real_mixer_freq_hz);
+		max283x_set_frequency(&max283x, rf - real_mixer_freq_hz);
 		sgpio_cpld_set_mixer_invert(&sgpio_config, 0);
 	}
 
-	max2831_set_mode(&max283x, prior_max2831_mode);
+	max283x_set_mode(&max283x, prior_max2831_mode);
 	hackrf_ui()->set_frequency(freq);
 	operacake_set_range(freq_mhz);
 	return true;
@@ -224,7 +222,7 @@ bool set_freq_explicit(
 
 	rf_path_set_filter(&rf_path, path);
 #ifdef PRALINE
-	max2831_set_frequency(&max283x, if_freq_hz);
+	max283x_set_frequency(&max283x, if_freq_hz);
 #else
 	max283x_set_frequency(&max283x, if_freq_hz);
 #endif

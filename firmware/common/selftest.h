@@ -41,17 +41,17 @@ typedef struct {
 #ifndef RAD1O
 	bool mixer_locks[NUM_LOCK_ATTEMPTS];
 #endif
-#ifdef PRALINE
+	// TODO #ifdef PRALINE
 	uint16_t max2831_mux_rssi_1;
 	uint16_t max2831_mux_temp;
 	uint16_t max2831_mux_rssi_2;
 	bool max2831_mux_test_ok;
-#else
+	// TODO #else
 	uint16_t max283x_readback_bad_value;
 	uint16_t max283x_readback_expected_value;
 	uint8_t max283x_readback_register_count;
 	uint8_t max283x_readback_total_registers;
-#endif
+	// TODO #endif
 	uint8_t si5351_rev_id;
 	bool si5351_readback_ok;
 #ifdef PRALINE
