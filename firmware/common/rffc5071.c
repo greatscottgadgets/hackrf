@@ -130,6 +130,40 @@ void rffc5071_setup(rffc5071_driver_t* const drv)
 	rffc5071_regs_commit(drv);
 }
 
+void rffc5071_lock_test(rffc5071_driver_t* const drv)
+{
+	bool lock = false;
+
+	for (int i = 0; i < NUM_LOCK_ATTEMPTS; i++) {
+		// Tune to 100MHz.
+		rffc5071_set_frequency(drv, 100000000);
+
+		// Wait 1ms.
+		delay_us_at_mhz(1000, 204);
+
+		// Check for lock.
+		lock = rffc5071_check_lock(drv);
+
+		selftest.mixer_locks[i] = lock;
+	}
+
+	// The last attempt must be successful.
+	if (!lock) {
+		selftest.report.pass = false;
+	}
+}
+
+bool rffc5071_check_lock(rffc5071_driver_t* const drv)
+{
+#ifdef PRALINE
+	return gpio_read(drv->gpio_ld);
+#else
+	set_RFFC5071_READSEL(drv, 0b0001);
+	rffc5071_regs_commit(drv);
+	return !!(rffc5071_reg_read(drv, RFFC5071_READBACK_REG) & 0x8000);
+#endif
+}
+
 static uint16_t rffc5071_spi_read(rffc5071_driver_t* const drv, uint8_t r)
 {
 	(void) drv;

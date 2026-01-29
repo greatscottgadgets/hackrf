@@ -83,6 +83,17 @@ void generate_selftest_report(void)
 	append(&s, &c, itoa(selftest.mixer_id >> 3, 10));
 	append(&s, &c, ", Rev: ");
 	append(&s, &c, itoa(selftest.mixer_id & 0x7, 10));
+	append(&s, &c, ", Locks: ");
+	bool lock;
+	for (int i = 0; i < NUM_LOCK_ATTEMPTS; i++) {
+		lock = selftest.mixer_locks[i];
+		append(&s, &c, itoa(lock, 2));
+	}
+	if (lock) {
+		append(&s, &c, " (PASS)");
+	} else {
+		append(&s, &c, " (FAIL)");
+	}
 	append(&s, &c, "\n");
 #endif
 	append(&s, &c, "Clock: Si5351");
