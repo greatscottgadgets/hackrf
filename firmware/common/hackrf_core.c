@@ -27,8 +27,6 @@
 #include "sgpio.h"
 #include "si5351c.h"
 #include "spi_ssp.h"
-#include "max2831.h"
-#include "max2831_target.h"
 #include "max283x.h"
 #include "max5864.h"
 #include "max5864_target.h"
@@ -211,21 +209,6 @@ const ssp_config_t ssp_config_max283x = {
 	.clock_prescale_rate = 2,
 	.gpio_select = &gpio_max283x_select,
 };
-
-static struct gpio_t gpio_max2831_enable = GPIO(7, 1);
-static struct gpio_t gpio_max2831_rx_enable = GPIO(7, 2);
-static struct gpio_t gpio_max2831_rxhp = GPIO(6, 29);
-static struct gpio_t gpio_max2831_ld = GPIO(4, 11);
-
-max2831_driver_t max283x = {
-	.bus = &spi_bus_ssp1,
-	.gpio_enable = &gpio_max2831_enable,
-	.gpio_rxtx = &gpio_max2831_rx_enable,
-	.gpio_rxhp = &gpio_max2831_rxhp,
-	.gpio_ld = &gpio_max2831_ld,
-	.target_init = max2831_target_init,
-	.set_mode = max2831_target_set_mode,
-};
 #else
 const ssp_config_t ssp_config_max283x = {
 	/* FIXME speed up once everything is working reliably */
@@ -240,9 +223,8 @@ const ssp_config_t ssp_config_max283x = {
 	.clock_prescale_rate = 2,
 	.gpio_select = &gpio_max283x_select,
 };
-
-max283x_driver_t max283x = {};
 #endif
+max283x_driver_t max283x = {};
 
 const ssp_config_t ssp_config_max5864 = {
 	/* FIXME speed up once everything is working reliably */

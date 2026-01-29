@@ -185,9 +185,9 @@ bool fpga_if_xcvr_selftest(void)
 	fpga_set_tx_nco_pstep(&fpga, 64);    // NCO phase increment
 	fpga_set_tx_nco_enable(&fpga, true); // TX enable
 	rf_path_set_direction(&rf_path, RF_PATH_DIRECTION_RX_CALIBRATION);
-	max2831_set_lna_gain(&max283x, 16);
-	max2831_set_vga_gain(&max283x, 36);
-	max2831_set_frequency(&max283x, 2500000000);
+	max283x_set_lna_gain(&max283x, 16);
+	max283x_set_vga_gain(&max283x, 36);
+	max283x_set_frequency(&max283x, 2500000000);
 
 	// Capture 1: 4 Msps, tone at 0.5 MHz, narrowband filter OFF
 	sample_rate_frac_set(4000000, 1);
