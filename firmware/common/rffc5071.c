@@ -51,7 +51,7 @@ static const uint16_t rffc5071_regs_default[RFFC5071_NUM_REGS] = {
 	0x0028, /* 06 */
 	0x0028, /* 07 */
 	0xff00, /* 08 */
-	0x8220, /* 09 */
+	0x87e0, /* 09 */
 	0x0202, /* 0A */
 	0x0400, /* 0B */
 	0x1a94, /* 0C */
