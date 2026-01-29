@@ -40,18 +40,18 @@
 #include <libopencm3/lpc43xx/scu.h>
 #include "hackrf_core.h"
 
-/* Default register values. */
+/* Default register values from vendor documentation or software. */
 static const uint16_t rffc5071_regs_default[RFFC5071_NUM_REGS] = {
-	0xbefa, /* 00 */
+	0xfffb, /* 00 */
 	0x4064, /* 01 */
 	0x9055, /* 02 */
 	0x2d02, /* 03 */
-	0xacbf, /* 04 */
-	0xacbf, /* 05 */
+	0xb0bf, /* 04 */
+	0xb0bf, /* 05 */
 	0x0028, /* 06 */
 	0x0028, /* 07 */
-	0xff00, /* 08 */
-	0x87e0, /* 09 */
+	0xfc06, /* 08 */
+	0x8220, /* 09 */
 	0x0202, /* 0A */
 	0x0400, /* 0B */
 	0x1a94, /* 0C */
@@ -60,7 +60,7 @@ static const uint16_t rffc5071_regs_default[RFFC5071_NUM_REGS] = {
 	0x1e84, /* 0F */
 	0x89d8, /* 10 */
 	0x9d00, /* 11 */
-	0x3a00, /* 12, dithering off */
+	0x2a80, /* 12 */
 	0x0000, /* 13 */
 	0x0000, /* 14 */
 	0x0000, /* 15 */
@@ -124,6 +124,12 @@ void rffc5071_setup(rffc5071_driver_t* const drv)
 
 	/* Enable reference oscillator standby */
 	set_RFFC5071_REFST(drv, 1);
+
+	/* Disable dither */
+	set_RFFC5071_SDM(drv, 0b11);
+
+	/* Maximize VCO warm-up time */
+	set_RFFC5071_TVCO(drv, 31);
 
 	rffc5071_regs_commit(drv);
 }
