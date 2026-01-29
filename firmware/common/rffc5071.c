@@ -125,6 +125,9 @@ void rffc5071_setup(rffc5071_driver_t* const drv)
 	/* Enable reference oscillator standby */
 	set_RFFC5071_REFST(drv, 1);
 
+	/* Maximize VCO warm-up time */
+	set_RFFC5071_TVCO(drv, 31);
+
 	rffc5071_regs_commit(drv);
 }
 
