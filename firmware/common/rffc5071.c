@@ -60,7 +60,7 @@ static const uint16_t rffc5071_regs_default[RFFC5071_NUM_REGS] = {
 	0x1e84, /* 0F */
 	0x89d8, /* 10 */
 	0x9d00, /* 11 */
-	0x3a20, /* 12, dithering off */
+	0x2a20, /* 12 */
 	0x0000, /* 13 */
 	0x0000, /* 14 */
 	0x0000, /* 15 */
@@ -124,6 +124,9 @@ void rffc5071_setup(rffc5071_driver_t* const drv)
 
 	/* Enable reference oscillator standby */
 	set_RFFC5071_REFST(drv, 1);
+
+	/* Disable dither */
+	set_RFFC5071_SDM(drv, 0b11);
 
 	/* Maximize VCO warm-up time */
 	set_RFFC5071_TVCO(drv, 31);
