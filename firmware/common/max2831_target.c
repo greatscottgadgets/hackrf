@@ -21,8 +21,7 @@
 
 #include "max2831_target.h"
 
-#include <libopencm3/lpc43xx/scu.h>
-#include "hackrf_core.h"
+#include "platform_scu.h"
 
 void max2831_target_init(max2831_driver_t* const drv)
 {

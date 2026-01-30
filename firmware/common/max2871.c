@@ -28,9 +28,7 @@
 	#define LOG printf
 #else
 	#define LOG(x, ...)
-	#include <libopencm3/lpc43xx/ssp.h>
-	#include <libopencm3/lpc43xx/scu.h>
-	#include "hackrf_core.h"
+	#include "platform_scu.h"
 #endif
 
 #include <stdint.h>

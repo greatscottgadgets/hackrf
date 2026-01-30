@@ -23,10 +23,10 @@
 #include "si5351c.h"
 #include "clkin.h"
 #include "platform_detect.h"
+#include "platform_scu.h"
 #include "gpio_lpc.h"
 #include "hackrf_core.h"
 #include "selftest.h"
-#include <libopencm3/lpc43xx/scu.h>
 
 /* HackRF One r9 clock control */
 // clang-format off

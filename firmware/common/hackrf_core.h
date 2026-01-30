@@ -80,15 +80,15 @@ void ssp1_set_mode_ice40(void);
 void pin_shutdown(void);
 void pin_setup(void);
 
-#ifdef PRALINE
+// #ifdef PRALINE
 void enable_1v2_power(void);
 void disable_1v2_power(void);
 void enable_3v3aux_power(void);
 void disable_3v3aux_power(void);
-#else
+// #else
 void enable_1v8_power(void);
 void disable_1v8_power(void);
-#endif
+// #endif
 
 bool sample_rate_frac_set(uint32_t rate_num, uint32_t rate_denom);
 bool sample_rate_set(const uint32_t sampling_rate_hz);

@@ -37,9 +37,9 @@
 #include "rffc5071_regs.def" // private register def macros
 #include "selftest.h"
 
-#include <libopencm3/lpc43xx/scu.h>
 #include "hackrf_core.h"
 #include "delay.h"
+#include "platform_scu.h"
 
 static bool enabled = false;
 
