@@ -1219,7 +1219,7 @@ def get_version():
     version = subprocess.run(["git", "log", "-n" "1", "--format=%h"],
                 capture_output=True, encoding="utf-8", timeout=TIMEOUT)
     if version.returncode != 0:
-        return "2026.01.2+"
+        return "2026.01.3"
     elif version.returncode == 0:
         dirty = subprocess.run(["git", "status", "-s", "--untracked-files=no"],
                 capture_output=True, encoding="utf-8", timeout=TIMEOUT)
