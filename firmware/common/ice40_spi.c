@@ -21,10 +21,10 @@
 
 #include "ice40_spi.h"
 
-#include <libopencm3/lpc43xx/scu.h>
 #include "hackrf_core.h"
 #include "lz4_buf.h"
 #include "delay.h"
+#include "platform_scu.h"
 
 void ice40_spi_target_init(ice40_spi_driver_t* const drv)
 {

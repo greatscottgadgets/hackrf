@@ -22,7 +22,7 @@
 
 #include "w25q80bv_target.h"
 
-#include <libopencm3/lpc43xx/scu.h>
+#include "platform_scu.h"
 #include "hackrf_core.h"
 
 /* TODO: Why is CS being controlled manually when SSP0 could do it

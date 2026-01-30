@@ -23,13 +23,12 @@
 
 #include "rf_path.h"
 
-#include <libopencm3/lpc43xx/scu.h>
-
 #include <hackrf_core.h>
 
 #include "hackrf_ui.h"
 #include "gpio_lpc.h"
 #include "platform_detect.h"
+#include "platform_scu.h"
 #include "mixer.h"
 #include "max283x.h"
 #include "max5864.h"

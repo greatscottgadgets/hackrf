@@ -32,9 +32,7 @@ const platform_scu_t* platform_scu()
 	}
 
 	board_id_t board_id = detected_platform();
-	board_rev_t board_rev = detected_revision();
 	static platform_scu_t scu;
-	(void) board_rev; // TODO silence warning until we use this
 
 	/* RFFC5071 GPIO serial interface PinMux */
 	switch (board_id) {
