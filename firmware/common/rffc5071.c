@@ -37,8 +37,8 @@
 #include "rffc5071_regs.def" // private register def macros
 #include "selftest.h"
 
-#include <libopencm3/lpc43xx/scu.h>
 #include "hackrf_core.h"
+#include "platform_scu.h"
 
 /* Default register values from vendor documentation or software. */
 static const uint16_t rffc5071_regs_default[RFFC5071_NUM_REGS] = {

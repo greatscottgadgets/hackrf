@@ -21,7 +21,6 @@
 
 #include "hackrf_core.h"
 #include "platform_detect.h"
-#include "platform_gpio.h"
 
 int main(void)
 {

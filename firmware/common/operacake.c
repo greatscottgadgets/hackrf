@@ -26,7 +26,7 @@
 #include "gpio.h"
 #include "gpio_lpc.h"
 #include "i2c_bus.h"
-#include <libopencm3/lpc43xx/scu.h>
+#include "platform_scu.h"
 
 /*
  * I2C Mode
