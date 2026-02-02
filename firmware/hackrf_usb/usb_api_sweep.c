@@ -92,12 +92,16 @@ usb_request_status_t usb_vendor_request_init_sweep(
 				((uint16_t) (data[10 + i * 2]) << 8) + data[9 + i * 2];
 		}
 		sweep_freq = (uint64_t) frequencies[0] * FREQ_GRANULARITY;
+
+		nvic_disable_irq(NVIC_USB0_IRQ);
 		radio_reg_write(
 			&radio,
 			RADIO_BANK_ACTIVE,
 			RADIO_FREQUENCY_RF,
 			(sweep_freq + offset) << 24);
 		usb_transfer_schedule_ack(endpoint->in);
+		nvic_enable_irq(NVIC_USB0_IRQ);
+		radio_update(&radio);
 	}
 	return USB_REQUEST_STATUS_OK;
 }

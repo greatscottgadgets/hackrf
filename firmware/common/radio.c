@@ -19,6 +19,8 @@
  * Boston, MA 02110-1301, USA.
  */
 
+#include <libopencm3/lpc43xx/m4/nvic.h>
+
 #include "hackrf_core.h"
 #include "tuning.h"
 #include "rf_path.h"
@@ -436,12 +438,15 @@ static bool radio_update_dc_block(radio_t* const radio, uint64_t* tmp_bank)
 bool radio_update(radio_t* const radio)
 {
 	uint64_t tmp_bank[RADIO_NUM_REGS];
+	nvic_disable_irq(NVIC_USB0_IRQ);
 	uint32_t dirty = regs_dirty;
 	if (dirty == 0) {
+		nvic_enable_irq(NVIC_USB0_IRQ);
 		return false;
 	}
 	regs_dirty = 0;
 	memcpy(&tmp_bank[0], &(radio->config[radio->active_bank][0]), sizeof(tmp_bank));
+	nvic_enable_irq(NVIC_USB0_IRQ);
 
 	bool dir = false;
 	bool rate = false;
@@ -510,6 +515,8 @@ void radio_switch_mode(radio_t* const radio, const transceiver_mode_t mode)
 		radio->active_bank = RADIO_BANK_IDLE;
 	}
 
+	nvic_disable_irq(NVIC_USB0_IRQ);
 	mark_dirty(RADIO_OPMODE);
+	nvic_enable_irq(NVIC_USB0_IRQ);
 	radio_update(radio);
 }

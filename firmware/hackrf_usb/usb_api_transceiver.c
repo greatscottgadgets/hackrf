@@ -391,6 +391,7 @@ void rx_mode(uint32_t seq)
 				NULL);
 			usb_count += USB_TRANSFER_SIZE;
 		}
+		radio_update(&radio);
 	}
 
 	transceiver_shutdown();
@@ -427,6 +428,7 @@ void tx_mode(uint32_t seq)
 				NULL);
 			usb_count += USB_TRANSFER_SIZE;
 		}
+		radio_update(&radio);
 	}
 
 	transceiver_shutdown();
@@ -436,5 +438,7 @@ void off_mode(uint32_t seq)
 {
 	hackrf_ui()->set_transceiver_mode(TRANSCEIVER_MODE_OFF);
 
-	while (transceiver_request.seq == seq) {}
+	while (transceiver_request.seq == seq) {
+		radio_update(&radio);
+	}
 }
