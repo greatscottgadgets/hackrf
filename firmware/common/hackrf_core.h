@@ -50,9 +50,7 @@ void delay_us_at_mhz(uint32_t us, uint32_t mhz);
 
 /* TODO: Hide these configurations */
 extern si5351c_driver_t clock_gen;
-extern const ssp_config_t ssp_config_w25q80bv;
-extern const ssp_config_t ssp_config_max283x;
-extern const ssp_config_t ssp_config_max5864;
+extern ssp_config_t ssp_config_w25q80bv;
 
 extern max283x_driver_t max283x;
 #ifdef PRALINE
@@ -74,7 +72,6 @@ void clock_gen_shutdown(void);
 void ssp1_set_mode_max283x(void);
 void ssp1_set_mode_max5864(void);
 #ifdef PRALINE
-void ssp1_set_mode_max2831(void);
 void ssp1_set_mode_ice40(void);
 #endif
 

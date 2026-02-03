@@ -27,9 +27,7 @@ extern "C" {
 #endif
 
 #include <stddef.h>
-
 #include <libopencm3/lpc43xx/scu.h>
-
 #include "platform_detect.h"
 
 /*
@@ -270,18 +268,10 @@ typedef struct {
 // Detects and returns the global platform scu instance of the active board id and revision.
 const platform_scu_t* platform_scu();
 
-// - old ------------------------------------------------------------------
-
-// TODO platform_detect	needs these so we can't detect platform
+// Platform_detect needs these for error indication
 #define SCU_PINMUX_LED1 (P4_1)  /* GPIO2[1] on P4_1 */
 #define SCU_PINMUX_LED2 (P4_2)  /* GPIO2[2] on P4_2 */
 #define SCU_PINMUX_LED3 (P6_12) /* GPIO2[8] on P6_12 */
-#ifdef RAD1O
-	#define SCU_PINMUX_LED4 (PB_6) /* GPIO5[26] on PB_6 */
-#endif
-#ifdef PRALINE
-	#define SCU_PINMUX_LED4 (P8_6) /* GPIO4[6] on P8_6 */
-#endif
 
 #ifdef __cplusplus
 }
