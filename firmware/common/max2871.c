@@ -41,14 +41,16 @@ static void delay_ms(int ms);
 
 void max2871_setup(max2871_driver_t* const drv)
 {
+	const platform_scu_t* scu = platform_scu();
+
 	/* Configure GPIO pins. */
-	scu_pinmux(SCU_VCO_CE, SCU_GPIO_FAST);
-	scu_pinmux(SCU_VCO_SCLK, SCU_GPIO_FAST | SCU_CONF_FUNCTION4);
-	/* Only used for the debug pin config: scu_pinmux(SCU_VCO_SCLK, SCU_GPIO_FAST); */
-	scu_pinmux(SCU_VCO_SDATA, SCU_GPIO_FAST);
-	scu_pinmux(SCU_VCO_LE, SCU_GPIO_FAST);
-	scu_pinmux(SCU_VCO_MUX, SCU_GPIO_FAST | SCU_CONF_FUNCTION4);
-	scu_pinmux(SCU_SYNT_RFOUT_EN, SCU_GPIO_FAST);
+	scu_pinmux(scu->VCO_CE, SCU_GPIO_FAST);
+	scu_pinmux(scu->VCO_SCLK, SCU_GPIO_FAST | SCU_CONF_FUNCTION4);
+	/* Only used for the debug pin config: scu_pinmux(scu->VCO_SCLK, SCU_GPIO_FAST); */
+	scu_pinmux(scu->VCO_SDATA, SCU_GPIO_FAST);
+	scu_pinmux(scu->VCO_LE, SCU_GPIO_FAST);
+	scu_pinmux(scu->VCO_MUX, SCU_GPIO_FAST | SCU_CONF_FUNCTION4);
+	scu_pinmux(scu->SYNT_RFOUT_EN, SCU_GPIO_FAST);
 
 	/* Set GPIO pins as outputs. */
 	gpio_output(drv->gpio_vco_ce);
