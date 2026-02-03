@@ -32,29 +32,31 @@ static void update_q_invert(sgpio_config_t* const config);
 
 void sgpio_configure_pin_functions(sgpio_config_t* const config)
 {
-	scu_pinmux(SCU_PINMUX_SGPIO0, SCU_PINMUX_SGPIO0_PINCFG);
-	scu_pinmux(SCU_PINMUX_SGPIO1, SCU_PINMUX_SGPIO1_PINCFG);
-	scu_pinmux(SCU_PINMUX_SGPIO2, SCU_PINMUX_SGPIO2_PINCFG);
-	scu_pinmux(SCU_PINMUX_SGPIO3, SCU_PINMUX_SGPIO3_PINCFG);
-	scu_pinmux(SCU_PINMUX_SGPIO4, SCU_PINMUX_SGPIO4_PINCFG);
-	scu_pinmux(SCU_PINMUX_SGPIO5, SCU_PINMUX_SGPIO5_PINCFG);
-	scu_pinmux(SCU_PINMUX_SGPIO6, SCU_PINMUX_SGPIO6_PINCFG);
-	scu_pinmux(SCU_PINMUX_SGPIO7, SCU_PINMUX_SGPIO7_PINCFG);
-	scu_pinmux(SCU_PINMUX_SGPIO8, SCU_PINMUX_SGPIO8_PINCFG);
-	scu_pinmux(SCU_PINMUX_SGPIO9, SCU_PINMUX_SGPIO9_PINCFG);
-	scu_pinmux(SCU_PINMUX_SGPIO10, SCU_PINMUX_SGPIO10_PINCFG);
-	scu_pinmux(SCU_PINMUX_SGPIO11, SCU_PINMUX_SGPIO11_PINCFG);
-	scu_pinmux(SCU_PINMUX_SGPIO12, SCU_PINMUX_SGPIO12_PINCFG); /* GPIO0[13] */
-	scu_pinmux(SCU_PINMUX_SGPIO14, SCU_PINMUX_SGPIO14_PINCFG); /* GPIO5[13] */
-	scu_pinmux(SCU_PINMUX_SGPIO15, SCU_PINMUX_SGPIO15_PINCFG); /* GPIO5[14] */
+	const platform_scu_t* scu = platform_scu();
+
+	scu_pinmux(scu->PINMUX_SGPIO0, scu->PINMUX_SGPIO0_PINCFG);
+	scu_pinmux(scu->PINMUX_SGPIO1, scu->PINMUX_SGPIO1_PINCFG);
+	scu_pinmux(scu->PINMUX_SGPIO2, scu->PINMUX_SGPIO2_PINCFG);
+	scu_pinmux(scu->PINMUX_SGPIO3, scu->PINMUX_SGPIO3_PINCFG);
+	scu_pinmux(scu->PINMUX_SGPIO4, scu->PINMUX_SGPIO4_PINCFG);
+	scu_pinmux(scu->PINMUX_SGPIO5, scu->PINMUX_SGPIO5_PINCFG);
+	scu_pinmux(scu->PINMUX_SGPIO6, scu->PINMUX_SGPIO6_PINCFG);
+	scu_pinmux(scu->PINMUX_SGPIO7, scu->PINMUX_SGPIO7_PINCFG);
+	scu_pinmux(scu->PINMUX_SGPIO8, scu->PINMUX_SGPIO8_PINCFG);
+	scu_pinmux(scu->PINMUX_SGPIO9, scu->PINMUX_SGPIO9_PINCFG);
+	scu_pinmux(scu->PINMUX_SGPIO10, scu->PINMUX_SGPIO10_PINCFG);
+	scu_pinmux(scu->PINMUX_SGPIO11, scu->PINMUX_SGPIO11_PINCFG);
+	scu_pinmux(scu->PINMUX_SGPIO12, scu->PINMUX_SGPIO12_PINCFG); /* GPIO0[13] */
+	scu_pinmux(scu->PINMUX_SGPIO14, scu->PINMUX_SGPIO14_PINCFG); /* GPIO5[13] */
+	scu_pinmux(scu->PINMUX_SGPIO15, scu->PINMUX_SGPIO15_PINCFG); /* GPIO5[14] */
 
 	if (detected_platform() == BOARD_ID_HACKRF1_R9) {
 		scu_pinmux(
-			SCU_H1R9_TRIGGER_EN,
+			scu->H1R9_TRIGGER_EN,
 			SCU_GPIO_FAST | SCU_CONF_FUNCTION4); /* GPIO5[5] */
 	} else {
 		scu_pinmux(
-			SCU_TRIGGER_EN,
+			scu->TRIGGER_EN,
 			SCU_GPIO_FAST | SCU_CONF_FUNCTION4); /* GPIO5[12] */
 	}
 

@@ -35,6 +35,8 @@ void w25q80bv_target_init(w25q80bv_driver_t* const drv)
 
 	/* Init SPIFI GPIO to Normal GPIO */
 
+	const platform_scu_t* scu = platform_scu();
+
 	// P3_3 SPIFI_SCK => SSP0_SCK
 	scu_pinmux(P3_3, (SCU_SSP_IO | SCU_CONF_FUNCTION2));
 	// P3_4 SPIFI SPIFI_SIO3 IO3 => GPIO1[14]
@@ -49,14 +51,14 @@ void w25q80bv_target_init(w25q80bv_driver_t* const drv)
 	scu_pinmux(P3_8, (SCU_GPIO_FAST | SCU_CONF_FUNCTION4));
 
 	/* configure SSP pins */
-	scu_pinmux(SCU_SSP0_CIPO, (SCU_SSP_IO | SCU_CONF_FUNCTION5));
-	scu_pinmux(SCU_SSP0_COPI, (SCU_SSP_IO | SCU_CONF_FUNCTION5));
-	scu_pinmux(SCU_SSP0_SCK, (SCU_SSP_IO | SCU_CONF_FUNCTION2));
+	scu_pinmux(scu->SSP0_CIPO, (SCU_SSP_IO | SCU_CONF_FUNCTION5));
+	scu_pinmux(scu->SSP0_COPI, (SCU_SSP_IO | SCU_CONF_FUNCTION5));
+	scu_pinmux(scu->SSP0_SCK, (SCU_SSP_IO | SCU_CONF_FUNCTION2));
 
 	/* configure GPIO pins */
-	scu_pinmux(SCU_FLASH_HOLD, SCU_GPIO_FAST);
-	scu_pinmux(SCU_FLASH_WP, SCU_GPIO_FAST);
-	scu_pinmux(SCU_SSP0_CS, (SCU_GPIO_FAST | SCU_CONF_FUNCTION4));
+	scu_pinmux(scu->FLASH_HOLD, SCU_GPIO_FAST);
+	scu_pinmux(scu->FLASH_WP, SCU_GPIO_FAST);
+	scu_pinmux(scu->SSP0_CS, (SCU_GPIO_FAST | SCU_CONF_FUNCTION4));
 
 	/* drive CS, HOLD, and WP pins high */
 	gpio_set(drv->gpio_hold);

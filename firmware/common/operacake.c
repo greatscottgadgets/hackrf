@@ -387,11 +387,13 @@ uint16_t gpio_test(uint8_t address)
 		return 0xFFFF;
 	}
 
-	scu_pinmux(SCU_PINMUX_GPIO3_8, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
-	scu_pinmux(SCU_PINMUX_GPIO3_12, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
-	scu_pinmux(SCU_PINMUX_GPIO3_13, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
-	scu_pinmux(SCU_PINMUX_GPIO3_14, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
-	scu_pinmux(SCU_PINMUX_GPIO3_15, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+	const platform_scu_t* scu = platform_scu();
+
+	scu_pinmux(scu->PINMUX_GPIO3_8, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+	scu_pinmux(scu->PINMUX_GPIO3_12, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+	scu_pinmux(scu->PINMUX_GPIO3_13, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+	scu_pinmux(scu->PINMUX_GPIO3_14, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+	scu_pinmux(scu->PINMUX_GPIO3_15, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
 
 	static struct gpio_t gpio_pins[] = {
 		GPIO(3, 8),  // u1ctrl   IO2

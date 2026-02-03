@@ -34,9 +34,9 @@
 typedef struct {
 	spi_bus_t* const bus;
 	gpio_t gpio_reset;
-#ifdef PRALINE
-	gpio_t gpio_ld;
-#endif
+	//#ifdef PRALINE
+	gpio_t gpio_ld; // PRALINE
+	//#endif
 	uint16_t regs[RFFC5071_NUM_REGS];
 	uint32_t regs_dirty;
 } rffc5071_driver_t;
