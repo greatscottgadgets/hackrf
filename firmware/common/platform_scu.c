@@ -35,9 +35,9 @@ const platform_scu_t* platform_scu()
 	static platform_scu_t scu;
 
 	/* GPIO Output PinMux */
-	scu.PINMUX_LED1     = (P4_1);  /* GPIO2[1] on P4_1 */
-	scu.PINMUX_LED2     = (P4_2);  /* GPIO2[2] on P4_2 */
-	scu.PINMUX_LED3     = (P6_12); /* GPIO2[8] on P6_12 */
+	scu.PINMUX_LED1     = SCU_PINMUX_LED1;  /* GPIO2[1] on P4_1 */
+	scu.PINMUX_LED2     = SCU_PINMUX_LED2;  /* GPIO2[2] on P4_2 */
+	scu.PINMUX_LED3     = SCU_PINMUX_LED3;  /* GPIO2[8] on P6_12 */
 	switch (board_id) {
 	case BOARD_ID_RAD1O:
 		scu.PINMUX_LED4 = (PB_6);  /* GPIO5[26] on PB_6 */

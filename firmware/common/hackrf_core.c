@@ -80,6 +80,33 @@ si5351c_driver_t clock_gen = {
 	.i2c_address = 0x60,
 };
 
+static ssp_config_t ssp_config_max283x = {
+	/* FIXME speed up once everything is working reliably */
+	/*
+	// Freq About 0.0498MHz / 49.8KHz => Freq = PCLK / (CPSDVSR * [SCR+1]) with PCLK=PLL1=204MHz
+	const uint8_t serial_clock_rate = 32;
+	const uint8_t clock_prescale_rate = 128;
+	*/
+	// Freq About 4.857MHz => Freq = PCLK / (CPSDVSR * [SCR+1]) with PCLK=PLL1=204MHz
+	.serial_clock_rate = 21,
+	.clock_prescale_rate = 2,
+};
+
+max283x_driver_t max283x = {};
+
+static ssp_config_t ssp_config_max5864 = {
+	/* FIXME speed up once everything is working reliably */
+	/*
+	// Freq About 0.0498MHz / 49.8KHz => Freq = PCLK / (CPSDVSR * [SCR+1]) with PCLK=PLL1=204MHz
+	const uint8_t serial_clock_rate = 32;
+	const uint8_t clock_prescale_rate = 128;
+	*/
+	// Freq About 4.857MHz => Freq = PCLK / (CPSDVSR * [SCR+1]) with PCLK=PLL1=204MHz
+	.data_bits = SSP_DATA_8BITS,
+	.serial_clock_rate = 21,
+	.clock_prescale_rate = 2,
+};
+
 spi_bus_t spi_bus_ssp1 = {
 	.obj = (void*) SSP1_BASE,
 	.config = &ssp_config_max5864,
@@ -89,64 +116,18 @@ spi_bus_t spi_bus_ssp1 = {
 	.transfer_gather = spi_ssp_transfer_gather,
 };
 
-#ifdef PRALINE
-const ssp_config_t ssp_config_max283x = {
-	/* FIXME speed up once everything is working reliably */
-	/*
-	// Freq About 0.0498MHz / 49.8KHz => Freq = PCLK / (CPSDVSR * [SCR+1]) with PCLK=PLL1=204MHz
-	const uint8_t serial_clock_rate = 32;
-	const uint8_t clock_prescale_rate = 128;
-	*/
-	// Freq About 4.857MHz => Freq = PCLK / (CPSDVSR * [SCR+1]) with PCLK=PLL1=204MHz
-	.data_bits = SSP_DATA_9BITS, // send 2 words
-	.serial_clock_rate = 21,
-	.clock_prescale_rate = 2,
-	.gpio_select = &gpio_max283x_select,
-};
-#else
-const ssp_config_t ssp_config_max283x = {
-	/* FIXME speed up once everything is working reliably */
-	/*
-	// Freq About 0.0498MHz / 49.8KHz => Freq = PCLK / (CPSDVSR * [SCR+1]) with PCLK=PLL1=204MHz
-	const uint8_t serial_clock_rate = 32;
-	const uint8_t clock_prescale_rate = 128;
-	*/
-	// Freq About 4.857MHz => Freq = PCLK / (CPSDVSR * [SCR+1]) with PCLK=PLL1=204MHz
-	.data_bits = SSP_DATA_16BITS,
-	.serial_clock_rate = 21,
-	.clock_prescale_rate = 2,
-	.gpio_select = &gpio_max283x_select,
-};
-#endif
-max283x_driver_t max283x = {};
-
-const ssp_config_t ssp_config_max5864 = {
-	/* FIXME speed up once everything is working reliably */
-	/*
-	// Freq About 0.0498MHz / 49.8KHz => Freq = PCLK / (CPSDVSR * [SCR+1]) with PCLK=PLL1=204MHz
-	const uint8_t serial_clock_rate = 32;
-	const uint8_t clock_prescale_rate = 128;
-	*/
-	// Freq About 4.857MHz => Freq = PCLK / (CPSDVSR * [SCR+1]) with PCLK=PLL1=204MHz
-	.data_bits = SSP_DATA_8BITS,
-	.serial_clock_rate = 21,
-	.clock_prescale_rate = 2,
-	.gpio_select = &gpio_max5864_select,
-};
-
 max5864_driver_t max5864 = {
 	.bus = &spi_bus_ssp1,
 	.target_init = max5864_target_init,
 };
 
-const ssp_config_t ssp_config_w25q80bv = {
+ssp_config_t ssp_config_w25q80bv = {
 	.data_bits = SSP_DATA_8BITS,
 	.serial_clock_rate = 2,
 	.clock_prescale_rate = 2,
-	.gpio_select = &gpio_w25q80bv_select,
 };
 
-spi_bus_t spi_bus_ssp0 = {
+static spi_bus_t spi_bus_ssp0 = {
 	.obj = (void*) SSP0_BASE,
 	.config = &ssp_config_w25q80bv,
 	.start = spi_ssp_start,
@@ -157,57 +138,34 @@ spi_bus_t spi_bus_ssp0 = {
 
 w25q80bv_driver_t spi_flash = {
 	.bus = &spi_bus_ssp0,
-	.gpio_hold = &gpio_w25q80bv_hold,
-	.gpio_wp = &gpio_w25q80bv_wp,
 	.target_init = w25q80bv_target_init,
 };
 
 sgpio_config_t sgpio_config = {
-	.gpio_q_invert = &gpio_q_invert,
-#ifndef PRALINE
-	.gpio_trigger_enable = &gpio_trigger_enable,
-#endif
 	.slice_mode_multislice = true,
 };
 
-#ifdef PRALINE
-const ssp_config_t ssp_config_ice40_fpga = {
+static ssp_config_t ssp_config_ice40_fpga = {
 	.data_bits = SSP_DATA_8BITS,
 	.spi_mode = SSP_CPOL_1_CPHA_1,
 	.serial_clock_rate = 21,
 	.clock_prescale_rate = 2,
-	.gpio_select = &gpio_fpga_cfg_spi_cs,
 };
 
 ice40_spi_driver_t ice40 = {
 	.bus = &spi_bus_ssp1,
-	.gpio_select = &gpio_fpga_cfg_spi_cs,
-	.gpio_creset = &gpio_fpga_cfg_creset,
-	.gpio_cdone = &gpio_fpga_cfg_cdone,
 };
 
 fpga_driver_t fpga = {
 	.bus = &ice40,
 };
-#endif
 
 radio_t radio;
 
 // rf_path gpio's now get assigned in pin_setup() TODO delete comment
 rf_path_t rf_path;
 
-jtag_gpio_t jtag_gpio_cpld = {
-	.gpio_tck = &gpio_cpld_tck,
-#ifndef PRALINE
-	.gpio_tms = &gpio_cpld_tms,
-	.gpio_tdi = &gpio_cpld_tdi,
-	.gpio_tdo = &gpio_cpld_tdo,
-#endif
-#if (defined HACKRF_ONE || defined PRALINE)
-	.gpio_pp_tms = &gpio_cpld_pp_tms,
-	.gpio_pp_tdo = &gpio_cpld_pp_tdo,
-#endif
-};
+jtag_gpio_t jtag_gpio_cpld;
 
 jtag_t jtag_cpld = {
 	.gpio = &jtag_gpio_cpld,
@@ -964,6 +922,7 @@ void pin_setup(void)
 	const platform_gpio_t* gpio = platform_gpio();
 	const platform_scu_t* scu = platform_scu();
 
+	/* Configure LEDs */
 	led_off(0);
 	led_off(1);
 	led_off(2);
@@ -982,6 +941,47 @@ void pin_setup(void)
 	case BOARD_ID_RAD1O:
 	case BOARD_ID_PRALINE:
 		gpio_output(gpio->led[3]);
+		break;
+	default:
+		break;
+	}
+
+	/* Configure drivers and driver pins */
+	ssp_config_max283x.gpio_select = gpio->max283x_select;
+	if (board_id == BOARD_ID_PRALINE) {
+		ssp_config_max283x.data_bits = SSP_DATA_9BITS; // send 2 words
+	} else {
+		ssp_config_max283x.data_bits = SSP_DATA_16BITS;
+	}
+
+	ssp_config_max5864.gpio_select = gpio->max5864_select;
+
+	ssp_config_w25q80bv.gpio_select = gpio->w25q80bv_select;
+	spi_flash.gpio_hold = gpio->w25q80bv_hold;
+	spi_flash.gpio_wp = gpio->w25q80bv_wp;
+
+	sgpio_config.gpio_q_invert = gpio->q_invert;
+	if (board_id != BOARD_ID_PRALINE) {
+		sgpio_config.gpio_trigger_enable = gpio->trigger_enable;
+	}
+
+	ssp_config_ice40_fpga.gpio_select = gpio->fpga_cfg_spi_cs;
+	ice40.gpio_select = gpio->fpga_cfg_spi_cs;
+	ice40.gpio_creset = gpio->fpga_cfg_creset;
+	ice40.gpio_cdone = gpio->fpga_cfg_cdone;
+
+	jtag_gpio_cpld.gpio_tck = gpio->cpld_tck;
+	if (board_id != BOARD_ID_PRALINE) {
+		jtag_gpio_cpld.gpio_tms = gpio->cpld_tms;
+		jtag_gpio_cpld.gpio_tdi = gpio->cpld_tdi;
+		jtag_gpio_cpld.gpio_tdo = gpio->cpld_tdo;
+	}
+	switch (board_id) {
+	case BOARD_ID_HACKRF1_OG:
+	case BOARD_ID_HACKRF1_R9:
+	case BOARD_ID_PRALINE:
+		jtag_gpio_cpld.gpio_pp_tms = gpio->cpld_pp_tms;
+		jtag_gpio_cpld.gpio_pp_tdo = gpio->cpld_pp_tdo;
 		break;
 	default:
 		break;
