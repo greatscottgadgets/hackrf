@@ -130,7 +130,6 @@ const platform_gpio_t* platform_gpio();
 
 /* LPC43xx GPIO pre-declarations - we use these instead of the GPIO()
    macro so that we can assign them at runtime. */
-
 static const struct gpio_t GPIO0_0 = GPIO(0, 0);
 static const struct gpio_t GPIO0_1 = GPIO(0, 1);
 static const struct gpio_t GPIO0_2 = GPIO(0, 2);
@@ -302,60 +301,6 @@ static const struct gpio_t GPIO7_22 = GPIO(7, 22);
 static const struct gpio_t GPIO7_23 = GPIO(7, 23);
 static const struct gpio_t GPIO7_24 = GPIO(7, 24);
 static const struct gpio_t GPIO7_25 = GPIO(7, 25);
-
-// - old ------------------------------------------------------------------
-
-// clang-format off
-
-/* MAX283x GPIO (XCVR_CTL / CS_XCVR) PinMux */
-#ifdef PRALINE
-static struct gpio_t gpio_max283x_select    = GPIO(6, 28);
-#else
-static struct gpio_t gpio_max283x_select    = GPIO(0, 15);
-#endif
-
-/* MAX5864 SPI chip select (AD_CS / CS_AD) GPIO PinMux */
-#ifdef PRALINE
-static struct gpio_t gpio_max5864_select    = GPIO(6, 30);
-#else
-static struct gpio_t gpio_max5864_select    = GPIO(2,  7);
-#endif
-
-static struct gpio_t gpio_w25q80bv_hold     = GPIO(1, 14);
-static struct gpio_t gpio_w25q80bv_wp       = GPIO(1, 15);
-static struct gpio_t gpio_w25q80bv_select   = GPIO(5, 11);
-
-/* RF switch control - DONE */
-
-/* CPLD JTAG interface GPIO pins, FPGA config pins in Praline */
-static struct gpio_t gpio_cpld_tck          = GPIO(3,  0);
-#ifdef PRALINE
-static struct gpio_t gpio_fpga_cfg_creset	= GPIO(2, 11);
-static struct gpio_t gpio_fpga_cfg_cdone	= GPIO(5, 14);
-static struct gpio_t gpio_fpga_cfg_spi_cs	= GPIO(2, 10);
-#else
-static struct gpio_t gpio_cpld_tdo          = GPIO(5, 18);
-#if (defined HACKRF_ONE || defined RAD1O)
-static struct gpio_t gpio_cpld_tms          = GPIO(3,  4);
-static struct gpio_t gpio_cpld_tdi          = GPIO(3,  1);
-#else
-static struct gpio_t gpio_cpld_tms          = GPIO(3,  1);
-static struct gpio_t gpio_cpld_tdi          = GPIO(3,  4);
-#endif
-#endif
-
-#if (defined HACKRF_ONE || defined PRALINE)
-static struct gpio_t gpio_cpld_pp_tms       = GPIO(1,  1);
-static struct gpio_t gpio_cpld_pp_tdo       = GPIO(1,  8);
-#endif
-
-/* other CPLD interface GPIO pins */
-#ifndef PRALINE
-static struct gpio_t gpio_trigger_enable    = GPIO(5, 12);
-#endif
-static struct gpio_t gpio_q_invert          = GPIO(0, 13);
-
-// clang-format on
 
 #ifdef __cplusplus
 }
