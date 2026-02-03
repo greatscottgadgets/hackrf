@@ -20,7 +20,7 @@ cmake_minimum_required(VERSION 3.10.0)
 project(
   libhackrf
   LANGUAGES C
-  VERSION 0.9.1)
+  VERSION 0.9.2)
 include(GNUInstallDirs)
 include(${PROJECT_SOURCE_DIR}/../cmake/set_release.cmake)
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/../cmake/modules)

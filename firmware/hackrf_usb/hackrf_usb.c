@@ -338,6 +338,10 @@ int main(void)
 
 	rf_path_init(&rf_path);
 
+#ifndef RAD1O
+	rffc5071_lock_test(&mixer);
+#endif
+
 #ifdef PRALINE
 	fpga_if_xcvr_selftest();
 #endif

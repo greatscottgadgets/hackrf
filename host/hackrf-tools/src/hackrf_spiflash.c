@@ -38,8 +38,12 @@ typedef int32_t ssize_t;
 	#endif
 #endif
 
+/* 32 Mbit flash */
+#define PRALINE_FLASH_LENGTH 0x400000
 /* 8 Mbit flash */
-#define MAX_LENGTH 0x100000
+#define OTHER_FLASH_LENGTH 0x100000
+
+#define MAX_LENGTH PRALINE_FLASH_LENGTH
 
 static struct option long_options[] = {
 	{"address", required_argument, 0, 'a'},
@@ -61,13 +65,15 @@ static struct option long_options[] = {
  * If you're already running firmware that reports the wrong ID
  * I can't help you, but you can use the -i optionto ignore (or DFU)
  */
-int compatibility_check_og(uint8_t* data, int length, hackrf_device* device)
+int compatibility_check_og(
+	uint8_t* data,
+	int length,
+	hackrf_device* device,
+	uint8_t board_id)
 {
 	int str_len, i, j;
 	bool match = false;
-	uint8_t board_id;
 	char* dev_str;
-	hackrf_board_id_read(device, &board_id);
 	switch (board_id) {
 	case BOARD_ID_JAWBREAKER:
 		dev_str = "HackRF Jawbreaker";
@@ -112,17 +118,14 @@ int compatibility_check_og(uint8_t* data, int length, hackrf_device* device)
 #define FROM_LE32(x) ((x)[0] | ((x)[1] << 8) | ((x)[2] << 16) | ((x)[3] << 24))
 #define FROM_LE16(x) ((x)[0] | ((x)[1] << 8))
 
-int compatibility_check(uint8_t* data, int length, hackrf_device* device)
+int compatibility_check(uint8_t* data, int length, hackrf_device* device, uint8_t board_id)
 {
-	uint8_t board_id;
-	hackrf_board_id_read(device, &board_id);
-
 	uint8_t* fw_info = data + FW_INFO_LOCATION;
 	if (strncmp((char*) fw_info + FW_MAGIC_OFFSET, "HACKRFFW", 8) != 0) {
 		// Couldn't find firmware info structure,
 		// revert to old compatibility check method if possible.
 		if (board_id != BOARD_ID_HACKRF1_R9) {
-			return compatibility_check_og(data, length, device);
+			return compatibility_check_og(data, length, device, board_id);
 		}
 
 		return EXIT_FAILURE;
@@ -187,7 +190,7 @@ static void usage()
 	printf("Usage:\n");
 	printf("\t-h, --help: this help\n");
 	printf("\t-a, --address <n>: starting address (default: 0)\n");
-	printf("\t-l, --length <n>: number of bytes to read (default: %d)\n", MAX_LENGTH);
+	printf("\t-l, --length <n>: number of bytes to read (default: all)\n");
 	printf("\t-r, --read <filename>: Read data into file.\n");
 	printf("\t-w, --write <filename>: Write data from file.\n");
 	printf("\t-i, --no-check: Skip check for firmware compatibility with target device.\n");
@@ -202,8 +205,10 @@ int main(int argc, char** argv)
 {
 	int opt;
 	uint8_t status[2];
+	uint8_t board_id;
 	uint32_t address = 0;
-	uint32_t length = MAX_LENGTH;
+	uint32_t length;
+	uint32_t flash_length;
 	uint32_t tmp_length;
 	uint16_t xfer_len = 0;
 	const char* path = NULL;
@@ -221,6 +226,7 @@ int main(int argc, char** argv)
 	bool reset = false;
 	bool read_status = false;
 	bool clear_status = false;
+	bool length_specified = false;
 	uint16_t usb_api;
 
 	while ((opt = getopt_long(
@@ -236,6 +242,7 @@ int main(int argc, char** argv)
 
 		case 'l':
 			result = parse_u32(optarg, &length);
+			length_specified = true;
 			break;
 
 		case 'r':
@@ -316,28 +323,10 @@ int main(int argc, char** argv)
 		      0,
 		      SEEK_END); /* Not really portable but work on major OS Linux/Win32 */
 		length = ftell(infile);
+		length_specified = true;
 		/* Move to start */
 		rewind(infile);
 		printf("File size %d bytes.\n", length);
-	}
-
-	if (length == 0) {
-		fprintf(stderr, "Requested transfer of zero bytes.\n");
-		if (infile != NULL) {
-			fclose(infile);
-		}
-		usage();
-		return EXIT_FAILURE;
-	}
-
-	if ((length > MAX_LENGTH) || (address > MAX_LENGTH) ||
-	    ((address + length) > MAX_LENGTH)) {
-		fprintf(stderr, "Request exceeds size of flash memory.\n");
-		if (infile != NULL) {
-			fclose(infile);
-		}
-		usage();
-		return EXIT_FAILURE;
 	}
 
 	if (read) {
@@ -363,6 +352,37 @@ int main(int argc, char** argv)
 			"hackrf_open() failed: %s (%d)\n",
 			hackrf_error_name(result),
 			result);
+		return EXIT_FAILURE;
+	}
+
+	hackrf_board_id_read(device, &board_id);
+
+	if (board_id == BOARD_ID_PRALINE) {
+		flash_length = PRALINE_FLASH_LENGTH;
+	} else {
+		flash_length = OTHER_FLASH_LENGTH;
+	}
+
+	if (!length_specified) {
+		length = flash_length - address;
+	}
+
+	if (length == 0) {
+		fprintf(stderr, "Requested transfer of zero bytes.\n");
+		if (infile != NULL) {
+			fclose(infile);
+		}
+		usage();
+		return EXIT_FAILURE;
+	}
+
+	if ((length > flash_length) || (address > flash_length) ||
+	    ((address + length) > flash_length)) {
+		fprintf(stderr, "Request exceeds size of flash memory.\n");
+		if (infile != NULL) {
+			fclose(infile);
+		}
+		usage();
 		return EXIT_FAILURE;
 	}
 
@@ -453,7 +473,7 @@ int main(int argc, char** argv)
 		}
 		if (!ignore_compat_check) {
 			printf("Checking target device compatibility\n");
-			result = compatibility_check(data, length, device);
+			result = compatibility_check(data, length, device, board_id);
 			if (result) {
 				printf("Compatibility test failed.\n");
 				fclose(infile);

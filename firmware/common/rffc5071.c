@@ -40,17 +40,17 @@
 #include <libopencm3/lpc43xx/scu.h>
 #include "hackrf_core.h"
 
-/* Default register values. */
+/* Default register values from vendor documentation or software. */
 static const uint16_t rffc5071_regs_default[RFFC5071_NUM_REGS] = {
-	0xbefa, /* 00 */
+	0xfffb, /* 00 */
 	0x4064, /* 01 */
 	0x9055, /* 02 */
 	0x2d02, /* 03 */
-	0xacbf, /* 04 */
-	0xacbf, /* 05 */
+	0xb0bf, /* 04 */
+	0xb0bf, /* 05 */
 	0x0028, /* 06 */
 	0x0028, /* 07 */
-	0xff00, /* 08 */
+	0xfc06, /* 08 */
 	0x8220, /* 09 */
 	0x0202, /* 0A */
 	0x0400, /* 0B */
@@ -60,7 +60,7 @@ static const uint16_t rffc5071_regs_default[RFFC5071_NUM_REGS] = {
 	0x1e84, /* 0F */
 	0x89d8, /* 10 */
 	0x9d00, /* 11 */
-	0x3a20, /* 12, dithering off */
+	0x2a80, /* 12 */
 	0x0000, /* 13 */
 	0x0000, /* 14 */
 	0x0000, /* 15 */
@@ -107,12 +107,7 @@ void rffc5071_setup(rffc5071_driver_t* const drv)
 
 	rffc5071_init(drv);
 
-	/* initial setup */
-	/* put zeros in freq contol registers */
-	set_RFFC5071_P2N(drv, 0);
-	set_RFFC5071_P2LODIV(drv, 0);
-	set_RFFC5071_P2PRESC(drv, 0);
-	set_RFFC5071_P2VCOSEL(drv, 0);
+	/* zero low bits of fractional divider */
 	set_RFFC5071_P2NLSB(drv, 0);
 
 	/* set ENBL and MODE to be configured via 3-wire interface,
@@ -122,12 +117,55 @@ void rffc5071_setup(rffc5071_driver_t* const drv)
 	/* GPOs are active at all times */
 	set_RFFC5071_GATE(drv, 1);
 
-#ifdef PRALINE
+#if defined(PRALINE) || defined(HACKRF_ONE)
 	/* Enable GPO Lock output signal */
 	set_RFFC5071_LOCK(drv, 1);
 #endif
 
+	/* Enable reference oscillator standby */
+	set_RFFC5071_REFST(drv, 1);
+
+	/* Disable dither */
+	set_RFFC5071_SDM(drv, 0b11);
+
+	/* Maximize VCO warm-up time */
+	set_RFFC5071_TVCO(drv, 31);
+
 	rffc5071_regs_commit(drv);
+}
+
+void rffc5071_lock_test(rffc5071_driver_t* const drv)
+{
+	bool lock = false;
+
+	for (int i = 0; i < NUM_LOCK_ATTEMPTS; i++) {
+		// Tune to 100MHz.
+		rffc5071_set_frequency(drv, 100000000);
+
+		// Wait 1ms.
+		delay_us_at_mhz(1000, 204);
+
+		// Check for lock.
+		lock = rffc5071_check_lock(drv);
+
+		selftest.mixer_locks[i] = lock;
+	}
+
+	// The last attempt must be successful.
+	if (!lock) {
+		selftest.report.pass = false;
+	}
+}
+
+bool rffc5071_check_lock(rffc5071_driver_t* const drv)
+{
+#ifdef PRALINE
+	return gpio_read(drv->gpio_ld);
+#else
+	set_RFFC5071_READSEL(drv, 0b0001);
+	rffc5071_regs_commit(drv);
+	return !!(rffc5071_reg_read(drv, RFFC5071_READBACK_REG) & 0x8000);
+#endif
 }
 
 static uint16_t rffc5071_spi_read(rffc5071_driver_t* const drv, uint8_t r)
@@ -250,20 +288,16 @@ uint64_t rffc5071_config_synth(rffc5071_driver_t* const drv, uint64_t lo)
 	fvco = lo << n_lo;
 
 	/*
-	 * Higher charge pump leakage setting is required above 3.2 GHz.
+	 * Higher charge pump leakage setting and fbkdivlog are required above
+	 * 3.2 GHz.
 	 */
 	if (fvco > (3200 * FREQ_ONE_MHZ)) {
+		fbkdivlog = 2;
 		set_RFFC5071_PLLCPL(drv, 3);
 	} else {
+		fbkdivlog = 1;
 		set_RFFC5071_PLLCPL(drv, 2);
 	}
-
-	/*
-	 * Supposedly fbkdivlog can be set to 1 when VCO is below 3.2 GHz, but
-	 * this has resulted in tuning instability on some boards, most evident
-	 * in RX sweep mode.
-	 */
-	fbkdivlog = 2;
 
 	uint64_t tmp_n = (fvco << (24ULL - fbkdivlog)) / REF_FREQ;
 
