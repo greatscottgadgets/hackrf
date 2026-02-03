@@ -30,9 +30,9 @@ void max2839_target_init(max2839_driver_t* const drv)
 	const platform_scu_t* scu = platform_scu();
 
 	/* Configure SSP1 Peripheral (to be moved later in SSP driver) */
-	scu_pinmux(SCU_SSP1_CIPO, (SCU_SSP_IO | SCU_CONF_FUNCTION5));
-	scu_pinmux(SCU_SSP1_COPI, (SCU_SSP_IO | SCU_CONF_FUNCTION5));
-	scu_pinmux(SCU_SSP1_SCK, (SCU_SSP_IO | SCU_CONF_FUNCTION1));
+	scu_pinmux(scu->SSP1_CIPO, (SCU_SSP_IO | SCU_CONF_FUNCTION5));
+	scu_pinmux(scu->SSP1_COPI, (SCU_SSP_IO | SCU_CONF_FUNCTION5));
+	scu_pinmux(scu->SSP1_SCK, (SCU_SSP_IO | SCU_CONF_FUNCTION1));
 
 	scu_pinmux(scu->XCVR_CS, SCU_GPIO_FAST);
 

@@ -99,14 +99,17 @@ void rffc5071_init(rffc5071_driver_t* const drv)
  */
 void rffc5071_setup(rffc5071_driver_t* const drv)
 {
+	board_id_t board_id = detected_platform();
+	const platform_scu_t* scu = platform_scu();
+
 	gpio_set(drv->gpio_reset);
 	gpio_output(drv->gpio_reset);
 
-#ifdef PRALINE
-	/* Configure mixer PLL lock detect pin */
-	scu_pinmux(SCU_MIXER_LD, SCU_MIXER_LD_PINCFG);
-	gpio_input(drv->gpio_ld);
-#endif
+	if (board_id == BOARD_ID_PRALINE) {
+		/* Configure mixer PLL lock detect pin */
+		scu_pinmux(scu->MIXER_LD, scu->MIXER_LD_PINCFG);
+		gpio_input(drv->gpio_ld);
+	}
 
 	rffc5071_init(drv);
 
@@ -124,10 +127,16 @@ void rffc5071_setup(rffc5071_driver_t* const drv)
 	set_RFFC5071_FULLD(drv, 0);
 	set_RFFC5071_MODE(drv, 1);
 
-#if defined(PRALINE) || defined(HACKRF_ONE)
-	/* Enable GPO Lock output signal */
-	set_RFFC5071_LOCK(drv, 1);
-#endif
+	switch (board_id) {
+	case BOARD_ID_HACKRF1_OG:
+	case BOARD_ID_HACKRF1_R9:
+	case BOARD_ID_PRALINE:
+		/* Enable GPO Lock output signal */
+		set_RFFC5071_LOCK(drv, 1);
+		break;
+	default:
+		break;
+	}
 
 	/* Enable reference oscillator standby */
 	set_RFFC5071_REFST(drv, 1);

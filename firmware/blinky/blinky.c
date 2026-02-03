@@ -37,17 +37,18 @@ int main(void)
 #endif
 
 	/* Blink LED1/2/3 on the board. */
-	while (1) {
+	while (1) 
+	{
 		led_on(LED1);
 		led_on(LED2);
 		led_on(LED3);
 
 		delay(2000000);
-
+		
 		led_off(LED1);
 		led_off(LED2);
 		led_off(LED3);
-
+		
 		delay(2000000);
 	}
 

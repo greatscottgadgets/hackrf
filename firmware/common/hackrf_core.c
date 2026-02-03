@@ -806,8 +806,10 @@ void pin_shutdown(void)
 	/* Configure all GPIO as Input (safe state) */
 	gpio_init();
 
-	// detect platform
+	/* Detect Platform */
 	board_id_t board_id = detected_platform();
+	const platform_gpio_t* gpio = platform_gpio();
+	const platform_scu_t* scu = platform_scu();
 
 	/* TDI and TMS pull-ups are required in all JTAG-compliant devices.
 	 *
@@ -824,35 +826,36 @@ void pin_shutdown(void)
 	 * LPC43xx pull-up and pull-down resistors are approximately 53K.
 	 */
 #if (defined HACKRF_ONE || defined PRALINE)
-	scu_pinmux(SCU_PINMUX_PP_TMS, SCU_GPIO_PUP | SCU_CONF_FUNCTION0);
-	scu_pinmux(SCU_PINMUX_PP_TDO, SCU_GPIO_PDN | SCU_CONF_FUNCTION0);
+	scu_pinmux(scu->PINMUX_PP_TMS, SCU_GPIO_PUP | SCU_CONF_FUNCTION0);
+	scu_pinmux(scu->PINMUX_PP_TDO, SCU_GPIO_PDN | SCU_CONF_FUNCTION0);
 #endif
-	scu_pinmux(SCU_PINMUX_CPLD_TCK, SCU_GPIO_PDN | SCU_CONF_FUNCTION0);
+	scu_pinmux(scu->PINMUX_CPLD_TCK, SCU_GPIO_PDN | SCU_CONF_FUNCTION0);
 #ifndef PRALINE
-	scu_pinmux(SCU_PINMUX_CPLD_TMS, SCU_GPIO_NOPULL | SCU_CONF_FUNCTION0);
-	scu_pinmux(SCU_PINMUX_CPLD_TDI, SCU_GPIO_NOPULL | SCU_CONF_FUNCTION0);
-	scu_pinmux(SCU_PINMUX_CPLD_TDO, SCU_GPIO_PDN | SCU_CONF_FUNCTION4);
+	scu_pinmux(scu->PINMUX_CPLD_TMS, SCU_GPIO_NOPULL | SCU_CONF_FUNCTION0);
+	scu_pinmux(scu->PINMUX_CPLD_TDI, SCU_GPIO_NOPULL | SCU_CONF_FUNCTION0);
+	scu_pinmux(scu->PINMUX_CPLD_TDO, SCU_GPIO_PDN | SCU_CONF_FUNCTION4);
 #endif
 
 	/* Configure SCU Pin Mux as GPIO */
-	scu_pinmux(SCU_PINMUX_LED1, SCU_GPIO_NOPULL);
-	scu_pinmux(SCU_PINMUX_LED2, SCU_GPIO_NOPULL);
-	scu_pinmux(SCU_PINMUX_LED3, SCU_GPIO_NOPULL);
-#ifdef RAD1O
-	scu_pinmux(SCU_PINMUX_LED4, SCU_GPIO_NOPULL | SCU_CONF_FUNCTION4);
-#endif
-#ifdef PRALINE
-	scu_pinmux(SCU_PINMUX_LED4, SCU_GPIO_NOPULL | SCU_CONF_FUNCTION0);
-#endif
+	scu_pinmux(scu->PINMUX_LED1, SCU_GPIO_NOPULL);
+	scu_pinmux(scu->PINMUX_LED2, SCU_GPIO_NOPULL);
+	scu_pinmux(scu->PINMUX_LED3, SCU_GPIO_NOPULL);
+	switch (board_id) {
+	case BOARD_ID_RAD1O:
+		scu_pinmux(scu->PINMUX_LED4, SCU_GPIO_NOPULL | SCU_CONF_FUNCTION4);
+		break;
+	case BOARD_ID_PRALINE:
+		scu_pinmux(scu->PINMUX_LED4, SCU_GPIO_NOPULL | SCU_CONF_FUNCTION0);
+		break;
+	default:
+		break;
+	}
 
 	/* Configure USB indicators */
 #ifdef JAWBREAKER
-	scu_pinmux(SCU_PINMUX_USB_LED0, SCU_CONF_FUNCTION3);
-	scu_pinmux(SCU_PINMUX_USB_LED1, SCU_CONF_FUNCTION3);
+	scu_pinmux(scu->PINMUX_USB_LED0, SCU_CONF_FUNCTION3);
+	scu_pinmux(scu->PINMUX_USB_LED1, SCU_CONF_FUNCTION3);
 #endif
-
-	/* Get platform GPIO */
-	const platform_gpio_t* gpio = platform_gpio();
 
 	switch (board_id) {
 	case BOARD_ID_PRALINE:
@@ -860,17 +863,17 @@ void pin_shutdown(void)
 		disable_3v3aux_power();
 		gpio_output(gpio->gpio_1v2_enable);
 		gpio_output(gpio->gpio_3v3aux_enable_n);
-		scu_pinmux(SCU_PINMUX_EN1V2, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
-		scu_pinmux(SCU_PINMUX_EN3V3_AUX_N, SCU_GPIO_FAST | SCU_CONF_FUNCTION4);
+		scu_pinmux(scu->PINMUX_EN1V2, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+		scu_pinmux(scu->PINMUX_EN3V3_AUX_N, SCU_GPIO_FAST | SCU_CONF_FUNCTION4);
 		break;
 	default:
 		disable_1v8_power();
 		if (detected_platform() == BOARD_ID_HACKRF1_R9) {
 			gpio_output(gpio->h1r9_1v8_enable);
-			scu_pinmux(SCU_H1R9_EN1V8, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+			scu_pinmux(scu->H1R9_EN1V8, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
 		} else {
 			gpio_output(gpio->gpio_1v8_enable);
-			scu_pinmux(SCU_PINMUX_EN1V8, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+			scu_pinmux(scu->PINMUX_EN1V8, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
 		}
 		break;
 	}
@@ -900,8 +903,8 @@ void pin_shutdown(void)
 		scu_pinmux(CLK0, SCU_CLK_IN | SCU_CONF_FUNCTION7);
 		scu_pinmux(CLK2, SCU_CLK_IN | SCU_CONF_FUNCTION7);
 
-		scu_pinmux(SCU_PINMUX_GPIO3_10, SCU_GPIO_PDN | SCU_CONF_FUNCTION0);
-		scu_pinmux(SCU_PINMUX_GPIO3_11, SCU_GPIO_PDN | SCU_CONF_FUNCTION0);
+		scu_pinmux(scu->PINMUX_GPIO3_10, SCU_GPIO_PDN | SCU_CONF_FUNCTION0);
+		scu_pinmux(scu->PINMUX_GPIO3_11, SCU_GPIO_PDN | SCU_CONF_FUNCTION0);
 		break;
 	default:
 		break;
@@ -909,19 +912,19 @@ void pin_shutdown(void)
 
 	switch (board_id) {
 	case BOARD_ID_PRALINE:
-		scu_pinmux(SCU_P2_CTRL0, SCU_P2_CTRL0_PINCFG);
-		scu_pinmux(SCU_P2_CTRL1, SCU_P2_CTRL1_PINCFG);
-		scu_pinmux(SCU_P1_CTRL0, SCU_P1_CTRL0_PINCFG);
-		scu_pinmux(SCU_P1_CTRL1, SCU_P1_CTRL1_PINCFG);
-		scu_pinmux(SCU_P1_CTRL2, SCU_P1_CTRL2_PINCFG);
-		scu_pinmux(SCU_CLKIN_CTRL, SCU_CLKIN_CTRL_PINCFG);
-		scu_pinmux(SCU_AA_EN, SCU_AA_EN_PINCFG);
-		scu_pinmux(SCU_TRIGGER_IN, SCU_TRIGGER_IN_PINCFG);
-		scu_pinmux(SCU_TRIGGER_OUT, SCU_TRIGGER_OUT_PINCFG);
-		scu_pinmux(SCU_PPS_OUT, SCU_PPS_OUT_PINCFG);
-		scu_pinmux(SCU_PINMUX_FPGA_CRESET, SCU_GPIO_NOPULL | SCU_CONF_FUNCTION0);
-		scu_pinmux(SCU_PINMUX_FPGA_CDONE, SCU_GPIO_PUP | SCU_CONF_FUNCTION4);
-		scu_pinmux(SCU_PINMUX_FPGA_SPI_CS, SCU_GPIO_NOPULL | SCU_CONF_FUNCTION0);
+		scu_pinmux(scu->P2_CTRL0, scu->P2_CTRL0_PINCFG);
+		scu_pinmux(scu->P2_CTRL1, scu->P2_CTRL1_PINCFG);
+		scu_pinmux(scu->P1_CTRL0, scu->P1_CTRL0_PINCFG);
+		scu_pinmux(scu->P1_CTRL1, scu->P1_CTRL1_PINCFG);
+		scu_pinmux(scu->P1_CTRL2, scu->P1_CTRL2_PINCFG);
+		scu_pinmux(scu->CLKIN_CTRL, scu->CLKIN_CTRL_PINCFG);
+		scu_pinmux(scu->AA_EN, scu->AA_EN_PINCFG);
+		scu_pinmux(scu->TRIGGER_IN, scu->TRIGGER_IN_PINCFG);
+		scu_pinmux(scu->TRIGGER_OUT, scu->TRIGGER_OUT_PINCFG);
+		scu_pinmux(scu->PPS_OUT, scu->PPS_OUT_PINCFG);
+		scu_pinmux(scu->PINMUX_FPGA_CRESET, SCU_GPIO_NOPULL | SCU_CONF_FUNCTION0);
+		scu_pinmux(scu->PINMUX_FPGA_CDONE, SCU_GPIO_PUP | SCU_CONF_FUNCTION4);
+		scu_pinmux(scu->PINMUX_FPGA_SPI_CS, SCU_GPIO_NOPULL | SCU_CONF_FUNCTION0);
 
 		p2_ctrl_set(P2_SIGNAL_CLK3);
 		p1_ctrl_set(P1_SIGNAL_CLKIN);
@@ -955,17 +958,22 @@ void pin_shutdown(void)
 /* Run after pin_shutdown() and prior to enabling power supplies. */
 void pin_setup(void)
 {
-	// detect platform
+	/* Detect Platform */
 	board_id_t board_id = detected_platform();
 	board_rev_t rev = detected_revision();
 	const platform_gpio_t* gpio = platform_gpio();
+	const platform_scu_t* scu = platform_scu();
 
 	led_off(0);
 	led_off(1);
 	led_off(2);
-#ifdef RAD1O
-	led_off(3);
-#endif
+	switch (board_id) {
+	case BOARD_ID_RAD1O:
+	case BOARD_ID_PRALINE:
+		led_off(3);
+	default:
+		break;
+	}
 
 	gpio_output(gpio->led[0]);
 	gpio_output(gpio->led[1]);
@@ -983,11 +991,9 @@ void pin_setup(void)
 
 	mixer_bus_setup(&mixer);
 
-#ifdef HACKRF_ONE
 	if (detected_platform() == BOARD_ID_HACKRF1_R9) {
 		sgpio_config.gpio_trigger_enable = gpio->h1r9_trigger_enable;
 	}
-#endif
 
 	// initialize rf_path struct and assign gpio's
 	switch (board_id) {
@@ -1052,7 +1058,7 @@ void pin_setup(void)
 	rf_path_pin_setup(&rf_path);
 
 	/* Configure external clock in */
-	scu_pinmux(SCU_PINMUX_GP_CLKIN, SCU_CLK_IN | SCU_CONF_FUNCTION1);
+	scu_pinmux(scu->PINMUX_GP_CLKIN, SCU_CLK_IN | SCU_CONF_FUNCTION1);
 
 	sgpio_configure_pin_functions(&sgpio_config);
 }
@@ -1282,7 +1288,7 @@ void halt_and_flash(const uint32_t duration)
 	}
 }
 
-#ifdef PRALINE
+//#ifdef PRALINE
 void p1_ctrl_set(const p1_ctrl_signal_t signal)
 {
 	gpio_write(platform_gpio()->p1_ctrl0, signal & 1);
@@ -1310,4 +1316,5 @@ void narrowband_filter_set(const uint8_t value)
 {
 	gpio_write(platform_gpio()->aa_en, value & 1);
 }
-#endif
+
+//#endif

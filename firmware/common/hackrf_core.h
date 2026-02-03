@@ -95,10 +95,11 @@ bool sample_rate_set(const uint32_t sampling_rate_hz);
 
 clock_source_t activate_best_clock_source(void);
 
-#if (defined HACKRF_ONE || defined RAD1O || defined PRALINE)
+//#if (defined HACKRF_ONE || defined RAD1O || defined PRALINE)
 void enable_rf_power(void);
 void disable_rf_power(void);
-#endif
+
+//#endif
 
 typedef enum {
 	LED1 = 0,
@@ -116,7 +117,7 @@ void trigger_enable(const bool enable);
 
 void halt_and_flash(const uint32_t duration);
 
-#ifdef PRALINE
+// TODO #ifdef PRALINE
 typedef enum {
 	P1_SIGNAL_TRIGGER_IN = 0,
 	P1_SIGNAL_AUX_CLK1 = 1,
@@ -144,7 +145,7 @@ void p2_ctrl_set(const p2_ctrl_signal_t signal);
 void narrowband_filter_set(const uint8_t value);
 void clkin_ctrl_set(const clkin_signal_t value);
 void pps_out_set(const uint8_t value);
-#endif
+// TODO #endif
 
 #ifdef __cplusplus
 }
