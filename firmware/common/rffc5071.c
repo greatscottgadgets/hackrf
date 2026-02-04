@@ -179,13 +179,13 @@ void rffc5071_lock_test(rffc5071_driver_t* const drv)
 
 bool rffc5071_check_lock(rffc5071_driver_t* const drv)
 {
-#ifdef PRALINE
-	return gpio_read(drv->gpio_ld);
-#else
-	set_RFFC5071_READSEL(drv, 0b0001);
-	rffc5071_regs_commit(drv);
-	return !!(rffc5071_reg_read(drv, RFFC5071_READBACK_REG) & 0x8000);
-#endif
+	if (detected_platform() == BOARD_ID_PRALINE) {
+		return gpio_read(drv->gpio_ld);
+	} else {
+		set_RFFC5071_READSEL(drv, 0b0001);
+		rffc5071_regs_commit(drv);
+		return !!(rffc5071_reg_read(drv, RFFC5071_READBACK_REG) & 0x8000);
+	}
 }
 
 static uint16_t rffc5071_spi_read(rffc5071_driver_t* const drv, uint8_t r)
@@ -347,9 +347,16 @@ void rffc5071_set_gpo(rffc5071_driver_t* const drv, uint8_t gpo)
 	rffc5071_regs_commit(drv);
 }
 
-#ifdef PRALINE
 bool rffc5071_poll_ld(rffc5071_driver_t* const drv, uint8_t* prelock_state)
 {
+	// This is only supported on Praline hardware.
+	//
+	// For all other boards we'll just return true to avoid a situation where a
+	// a caller is waiting for a lock signal that will never be detected.
+	if (detected_platform() != BOARD_ID_PRALINE) {
+		return true;
+	}
+
 	// The RFFC5072 can be configured to output PLL lock status on
 	// GPO4. The lock detect signal is produced by a window detector
 	// on the VCO tuning voltage. It goes high to show PLL lock when
@@ -455,4 +462,3 @@ bool rffc5071_poll_ld(rffc5071_driver_t* const drv, uint8_t* prelock_state)
 
 	return false;
 }
-#endif

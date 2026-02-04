@@ -63,10 +63,10 @@ void sgpio_configure_pin_functions(sgpio_config_t* const config)
 	sgpio_cpld_set_mixer_invert(config, 0);
 	gpio_output(config->gpio_q_invert);
 
-#ifndef PRALINE
-	trigger_enable(false);
-	gpio_output(config->gpio_trigger_enable);
-#endif
+	if (detected_platform() != BOARD_ID_PRALINE) {
+		trigger_enable(false);
+		gpio_output(config->gpio_trigger_enable);
+	}
 }
 
 void sgpio_set_slice_mode(sgpio_config_t* const config, const bool multi_slice)

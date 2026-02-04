@@ -21,66 +21,90 @@
 
 #include "cpld_jtag.h"
 #include "hackrf_core.h"
+#include "platform_detect.h"
 #include "xapp058/micro.h"
 #include <libopencm3/lpc43xx/scu.h>
 #include <stdint.h>
 
-#ifndef PRALINE
+//#ifndef PRALINE
 static refill_buffer_cb refill_buffer;
 static uint32_t xsvf_buffer_len, xsvf_pos;
 static unsigned char* xsvf_buffer;
-#endif
+
+//#endif
 
 void cpld_jtag_take(jtag_t* const jtag)
 {
 	const jtag_gpio_t* const gpio = jtag->gpio;
 
+	board_id_t board_id = detected_platform();
+
 	/* Set initial GPIO state to the voltages of the internal or external pull-ups/downs,
 	 * to avoid any glitches.
 	 */
-#if (defined HACKRF_ONE || defined PRALINE)
-	gpio_set(gpio->gpio_pp_tms);
-#endif
+	switch (board_id) {
+	case BOARD_ID_HACKRF1_OG:
+	case BOARD_ID_HACKRF1_R9:
+	case BOARD_ID_PRALINE:
+		gpio_set(gpio->gpio_pp_tms);
+		break;
+	default:
+		break;
+	}
 	gpio_clear(gpio->gpio_tck);
-#ifndef PRALINE
-	gpio_set(gpio->gpio_tms);
-	gpio_set(gpio->gpio_tdi);
-#endif
+	if (board_id != BOARD_ID_PRALINE) {
+		gpio_set(gpio->gpio_tms);
+		gpio_set(gpio->gpio_tdi);
+	}
 
-#if (defined HACKRF_ONE || defined PRALINE)
-	/* Do not drive PortaPack-specific TMS pin initially, just to be cautious. */
-	gpio_input(gpio->gpio_pp_tms);
-	gpio_input(gpio->gpio_pp_tdo);
-#endif
+	switch (board_id) {
+	case BOARD_ID_HACKRF1_OG:
+	case BOARD_ID_HACKRF1_R9:
+	case BOARD_ID_PRALINE:
+		/* Do not drive PortaPack-specific TMS pin initially, just to be cautious. */
+		gpio_input(gpio->gpio_pp_tms);
+		gpio_input(gpio->gpio_pp_tdo);
+		break;
+	default:
+		break;
+	}
 	gpio_output(gpio->gpio_tck);
-#ifndef PRALINE
-	gpio_output(gpio->gpio_tms);
-	gpio_output(gpio->gpio_tdi);
-	gpio_input(gpio->gpio_tdo);
-#endif
+	if (board_id != BOARD_ID_PRALINE) {
+		gpio_output(gpio->gpio_tms);
+		gpio_output(gpio->gpio_tdi);
+		gpio_input(gpio->gpio_tdo);
+	}
 }
 
 void cpld_jtag_release(jtag_t* const jtag)
 {
 	const jtag_gpio_t* const gpio = jtag->gpio;
 
+	board_id_t board_id = detected_platform();
+
 	/* Make all pins inputs when JTAG interface not active.
 	 * Let the pull-ups/downs do the work.
 	 */
-#if (defined HACKRF_ONE || defined PRALINE)
-	/* Do not drive PortaPack-specific pins, initially, just to be cautious. */
-	gpio_input(gpio->gpio_pp_tms);
-	gpio_input(gpio->gpio_pp_tdo);
-#endif
+	switch (board_id) {
+	case BOARD_ID_HACKRF1_OG:
+	case BOARD_ID_HACKRF1_R9:
+	case BOARD_ID_PRALINE:
+		/* Do not drive PortaPack-specific pins, initially, just to be cautious. */
+		gpio_input(gpio->gpio_pp_tms);
+		gpio_input(gpio->gpio_pp_tdo);
+		break;
+	default:
+		break;
+	}
 	gpio_input(gpio->gpio_tck);
-#ifndef PRALINE
-	gpio_input(gpio->gpio_tms);
-	gpio_input(gpio->gpio_tdi);
-	gpio_input(gpio->gpio_tdo);
-#endif
+	if (board_id != BOARD_ID_PRALINE) {
+		gpio_input(gpio->gpio_tms);
+		gpio_input(gpio->gpio_tdi);
+		gpio_input(gpio->gpio_tdo);
+	}
 }
 
-#ifndef PRALINE
+//#ifndef PRALINE
 /* return 0 if success else return error code see xsvfExecute() */
 int cpld_jtag_program(
 	jtag_t* const jtag,
@@ -111,4 +135,5 @@ unsigned char cpld_jtag_get_next_byte(void)
 	xsvf_pos++;
 	return byte;
 }
-#endif
+
+//#endif

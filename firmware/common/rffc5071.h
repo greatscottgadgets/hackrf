@@ -66,9 +66,9 @@ extern void rffc5071_enable(rffc5071_driver_t* const drv);
 extern void rffc5071_disable(rffc5071_driver_t* const drv);
 
 extern void rffc5071_set_gpo(rffc5071_driver_t* const drv, uint8_t);
-#ifdef PRALINE
+//#ifdef PRALINE
 extern bool rffc5071_poll_ld(rffc5071_driver_t* const drv, uint8_t* prelock_state);
-#endif
+//#endif
 extern bool rffc5071_check_lock(rffc5071_driver_t* const drv);
 
 #endif // __RFFC5071_H

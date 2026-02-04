@@ -201,6 +201,8 @@ macro(DeclareTargets)
 		${PATH_HACKRF_FIRMWARE_COMMON}/selftest.c
 		${PATH_HACKRF_FIRMWARE_COMMON}/m0_state.c
 		${PATH_HACKRF_FIRMWARE_COMMON}/adc.c
+		${PATH_HACKRF_FIRMWARE_COMMON}/fpga.c
+		${PATH_HACKRF_FIRMWARE_COMMON}/ice40_spi.c
 		)
 
 	if(BOARD STREQUAL "RAD1O")
@@ -220,8 +222,6 @@ macro(DeclareTargets)
 	if(BOARD STREQUAL "PRALINE")
 		SET(SRC_M4
 			${SRC_M4}
-			${PATH_HACKRF_FIRMWARE_COMMON}/fpga.c
-			${PATH_HACKRF_FIRMWARE_COMMON}/ice40_spi.c
 		)
 	else()
 		SET(SRC_M4
@@ -249,9 +249,9 @@ macro(DeclareTargets)
 	set_target_properties(${PROJECT_NAME}_m0.elf PROPERTIES COMPILE_FLAGS "${CFLAGS_M0}")
 	set_target_properties(${PROJECT_NAME}_m0.elf PROPERTIES LINK_FLAGS "${LDFLAGS_M0}")
 
-	DeclareTarget("${PROJECT_NAME}" "" "${CFLAGS_M4}" "${LDFLAGS_M4}")	
-	DeclareTarget("${PROJECT_NAME}" "_ram" "${CFLAGS_M4_RAM} -DRAM_MODE" "${LDFLAGS_M4_RAM}")	
-	DeclareTarget("${PROJECT_NAME}" "_dfu" "${CFLAGS_M4_RAM} -DDFU_MODE" "${LDFLAGS_M4_RAM}")	
+	DeclareTarget("${PROJECT_NAME}" "" "${CFLAGS_M4}" "${LDFLAGS_M4}")
+	DeclareTarget("${PROJECT_NAME}" "_ram" "${CFLAGS_M4_RAM} -DRAM_MODE" "${LDFLAGS_M4_RAM}")
+	DeclareTarget("${PROJECT_NAME}" "_dfu" "${CFLAGS_M4_RAM} -DDFU_MODE" "${LDFLAGS_M4_RAM}")
 
 	add_custom_target(
 		${PROJECT_NAME}.dfu ${DFU_ALL}

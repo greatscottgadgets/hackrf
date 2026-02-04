@@ -45,9 +45,9 @@
 #include <libopencm3/lpc43xx/scu.h>
 #include <libopencm3/lpc43xx/ssp.h>
 
-#if (defined HACKRF_ONE || defined PRALINE)
-	#include "portapack.h"
-#endif
+//#if (defined HACKRF_ONE || defined PRALINE)
+#include "portapack.h"
+//#endif
 
 #include "gpio_lpc.h"
 
@@ -275,14 +275,13 @@ bool sample_rate_frac_set(uint32_t rate_num, uint32_t rate_denom)
 	MSx_P2 = (128 * b) % c;
 	MSx_P3 = c;
 
-#ifndef PRALINE
 	if (detected_platform() == BOARD_ID_HACKRF1_R9) {
 		/*
 		 * On HackRF One r9 all sample clocks are externally derived
 		 * from MS1/CLK1 operating at twice the sample rate.
 		 */
 		si5351c_configure_multisynth(&clock_gen, 1, MSx_P1, MSx_P2, MSx_P3, 0);
-	} else {
+	} else if (detected_platform() != BOARD_ID_PRALINE) {
 		/*
 		 * On other platforms the clock generator produces three
 		 * different sample clocks, all derived from multisynth 0.
@@ -295,11 +294,10 @@ bool sample_rate_frac_set(uint32_t rate_num, uint32_t rate_denom)
 
 		/* MS0/CLK2 is the source for SGPIO (CODEC_X2_CLK) */
 		si5351c_configure_multisynth(&clock_gen, 2, 0, 0, 0, 0); //p1 doesn't matter
+	} else {
+		/* MS0/CLK0 is the source for the MAX5864/FPGA (AFE_CLK). */
+		si5351c_configure_multisynth(&clock_gen, 0, MSx_P1, MSx_P2, MSx_P3, 1);
 	}
-#else
-	/* MS0/CLK0 is the source for the MAX5864/FPGA (AFE_CLK). */
-	si5351c_configure_multisynth(&clock_gen, 0, MSx_P1, MSx_P2, MSx_P3, 1);
-#endif
 
 	if (streaming) {
 		sgpio_cpld_stream_enable(&sgpio_config);
@@ -360,14 +358,13 @@ bool sample_rate_set(const uint32_t sample_rate_hz)
 		return false;
 	}
 
-#ifndef PRALINE
 	if (detected_platform() == BOARD_ID_HACKRF1_R9) {
 		/*
 		 * On HackRF One r9 all sample clocks are externally derived
 		 * from MS1/CLK1 operating at twice the sample rate.
 		 */
 		si5351c_configure_multisynth(&clock_gen, 1, p1, p2, p3, 0);
-	} else {
+	} else if (detected_platform() != BOARD_ID_PRALINE) {
 		/*
 		 * On other platforms the clock generator produces three
 		 * different sample clocks, all derived from multisynth 0.
@@ -392,14 +389,13 @@ bool sample_rate_set(const uint32_t sample_rate_hz)
 			0,
 			1,
 			0); //p1 doesn't matter
-	}
-#else
-	/* MS0/CLK0 is the source for the MAX5864/FPGA (AFE_CLK). */
-	si5351c_configure_multisynth(&clock_gen, 0, p1, p2, p3, 1);
+	} else {
+		/* MS0/CLK0 is the source for the MAX5864/FPGA (AFE_CLK). */
+		si5351c_configure_multisynth(&clock_gen, 0, p1, p2, p3, 1);
 
-	/* MS0/CLK1 is the source for SCT_CLK (CODEC_X2_CLK). */
-	si5351c_configure_multisynth(&clock_gen, 1, p1, p2, p3, 0);
-#endif
+		/* MS0/CLK1 is the source for SCT_CLK (CODEC_X2_CLK). */
+		si5351c_configure_multisynth(&clock_gen, 1, p1, p2, p3, 0);
+	}
 
 	return true;
 }
@@ -547,73 +543,82 @@ void cpu_clock_init(void)
 	CGU_BASE_SSP1_CLK =
 		CGU_BASE_SSP1_CLK_AUTOBLOCK(1) | CGU_BASE_SSP1_CLK_CLK_SEL(CGU_SRC_PLL1);
 
-#if (defined JAWBREAKER || defined HACKRF_ONE || defined PRALINE)
-	/* Disable unused clocks */
-	/* Start with PLLs */
-	CGU_PLL0AUDIO_CTRL = CGU_PLL0AUDIO_CTRL_PD(1);
+	switch (detected_platform()) {
+	case BOARD_ID_JAWBREAKER:
+	case BOARD_ID_HACKRF1_OG:
+	case BOARD_ID_HACKRF1_R9:
+	case BOARD_ID_PRALINE:
+		/* Disable unused clocks */
+		/* Start with PLLs */
+		CGU_PLL0AUDIO_CTRL = CGU_PLL0AUDIO_CTRL_PD(1);
 
-	/* Dividers */
-	CGU_IDIVA_CTRL = CGU_IDIVA_CTRL_PD(1);
-	CGU_IDIVB_CTRL = CGU_IDIVB_CTRL_PD(1);
-	CGU_IDIVC_CTRL = CGU_IDIVC_CTRL_PD(1);
-	CGU_IDIVD_CTRL = CGU_IDIVD_CTRL_PD(1);
-	CGU_IDIVE_CTRL = CGU_IDIVE_CTRL_PD(1);
+		/* Dividers */
+		CGU_IDIVA_CTRL = CGU_IDIVA_CTRL_PD(1);
+		CGU_IDIVB_CTRL = CGU_IDIVB_CTRL_PD(1);
+		CGU_IDIVC_CTRL = CGU_IDIVC_CTRL_PD(1);
+		CGU_IDIVD_CTRL = CGU_IDIVD_CTRL_PD(1);
+		CGU_IDIVE_CTRL = CGU_IDIVE_CTRL_PD(1);
 
-	/* Base clocks */
-	CGU_BASE_SPIFI_CLK = CGU_BASE_SPIFI_CLK_PD(1); /* SPIFI is only used at boot */
-	CGU_BASE_USB1_CLK = CGU_BASE_USB1_CLK_PD(1);   /* USB1 is not exposed on HackRF */
-	CGU_BASE_PHY_RX_CLK = CGU_BASE_PHY_RX_CLK_PD(1);
-	CGU_BASE_PHY_TX_CLK = CGU_BASE_PHY_TX_CLK_PD(1);
-	CGU_BASE_LCD_CLK = CGU_BASE_LCD_CLK_PD(1);
-	CGU_BASE_VADC_CLK = CGU_BASE_VADC_CLK_PD(1);
-	CGU_BASE_SDIO_CLK = CGU_BASE_SDIO_CLK_PD(1);
-	CGU_BASE_UART0_CLK = CGU_BASE_UART0_CLK_PD(1);
-	CGU_BASE_UART1_CLK = CGU_BASE_UART1_CLK_PD(1);
-	CGU_BASE_UART2_CLK = CGU_BASE_UART2_CLK_PD(1);
-	CGU_BASE_UART3_CLK = CGU_BASE_UART3_CLK_PD(1);
-	CGU_BASE_OUT_CLK = CGU_BASE_OUT_CLK_PD(1);
-	CGU_BASE_AUDIO_CLK = CGU_BASE_AUDIO_CLK_PD(1);
-	CGU_BASE_CGU_OUT0_CLK = CGU_BASE_CGU_OUT0_CLK_PD(1);
-	CGU_BASE_CGU_OUT1_CLK = CGU_BASE_CGU_OUT1_CLK_PD(1);
+		/* Base clocks */
+		CGU_BASE_SPIFI_CLK =
+			CGU_BASE_SPIFI_CLK_PD(1); /* SPIFI is only used at boot */
+		CGU_BASE_USB1_CLK =
+			CGU_BASE_USB1_CLK_PD(1); /* USB1 is not exposed on HackRF */
+		CGU_BASE_PHY_RX_CLK = CGU_BASE_PHY_RX_CLK_PD(1);
+		CGU_BASE_PHY_TX_CLK = CGU_BASE_PHY_TX_CLK_PD(1);
+		CGU_BASE_LCD_CLK = CGU_BASE_LCD_CLK_PD(1);
+		CGU_BASE_VADC_CLK = CGU_BASE_VADC_CLK_PD(1);
+		CGU_BASE_SDIO_CLK = CGU_BASE_SDIO_CLK_PD(1);
+		CGU_BASE_UART0_CLK = CGU_BASE_UART0_CLK_PD(1);
+		CGU_BASE_UART1_CLK = CGU_BASE_UART1_CLK_PD(1);
+		CGU_BASE_UART2_CLK = CGU_BASE_UART2_CLK_PD(1);
+		CGU_BASE_UART3_CLK = CGU_BASE_UART3_CLK_PD(1);
+		CGU_BASE_OUT_CLK = CGU_BASE_OUT_CLK_PD(1);
+		CGU_BASE_AUDIO_CLK = CGU_BASE_AUDIO_CLK_PD(1);
+		CGU_BASE_CGU_OUT0_CLK = CGU_BASE_CGU_OUT0_CLK_PD(1);
+		CGU_BASE_CGU_OUT1_CLK = CGU_BASE_CGU_OUT1_CLK_PD(1);
 
-	/* Disable unused peripheral clocks */
-	CCU1_CLK_APB1_CAN1_CFG = 0;
-	CCU1_CLK_APB1_I2S_CFG = 0;
-	CCU1_CLK_APB1_MOTOCONPWM_CFG = 0;
-	//CCU1_CLK_APB3_ADC0_CFG = 0;
-	CCU1_CLK_APB3_ADC1_CFG = 0;
-	CCU1_CLK_APB3_CAN0_CFG = 0;
-	CCU1_CLK_APB3_DAC_CFG = 0;
-	//CCU1_CLK_M4_DMA_CFG = 0;
-	CCU1_CLK_M4_EMC_CFG = 0;
-	CCU1_CLK_M4_EMCDIV_CFG = 0;
-	CCU1_CLK_M4_ETHERNET_CFG = 0;
-	CCU1_CLK_M4_LCD_CFG = 0;
-	CCU1_CLK_M4_QEI_CFG = 0;
-	CCU1_CLK_M4_RITIMER_CFG = 0;
-	// CCU1_CLK_M4_SCT_CFG = 0;
-	CCU1_CLK_M4_SDIO_CFG = 0;
-	CCU1_CLK_M4_SPIFI_CFG = 0;
-	CCU1_CLK_M4_TIMER0_CFG = 0;
-	//CCU1_CLK_M4_TIMER1_CFG = 0;
-	//CCU1_CLK_M4_TIMER2_CFG = 0;
-	CCU1_CLK_M4_TIMER3_CFG = 0;
-	CCU1_CLK_M4_UART1_CFG = 0;
-	CCU1_CLK_M4_USART0_CFG = 0;
-	CCU1_CLK_M4_USART2_CFG = 0;
-	CCU1_CLK_M4_USART3_CFG = 0;
-	CCU1_CLK_M4_USB1_CFG = 0;
-	CCU1_CLK_M4_VADC_CFG = 0;
-	// CCU1_CLK_SPIFI_CFG = 0;
-	// CCU1_CLK_USB1_CFG = 0;
-	// CCU1_CLK_VADC_CFG = 0;
-	// CCU2_CLK_APB0_UART1_CFG = 0;
-	// CCU2_CLK_APB0_USART0_CFG = 0;
-	// CCU2_CLK_APB2_USART2_CFG = 0;
-	// CCU2_CLK_APB2_USART3_CFG = 0;
-	// CCU2_CLK_APLL_CFG = 0;
-	// CCU2_CLK_SDIO_CFG = 0;
-#endif
+		/* Disable unused peripheral clocks */
+		CCU1_CLK_APB1_CAN1_CFG = 0;
+		CCU1_CLK_APB1_I2S_CFG = 0;
+		CCU1_CLK_APB1_MOTOCONPWM_CFG = 0;
+		//CCU1_CLK_APB3_ADC0_CFG = 0;
+		CCU1_CLK_APB3_ADC1_CFG = 0;
+		CCU1_CLK_APB3_CAN0_CFG = 0;
+		CCU1_CLK_APB3_DAC_CFG = 0;
+		//CCU1_CLK_M4_DMA_CFG = 0;
+		CCU1_CLK_M4_EMC_CFG = 0;
+		CCU1_CLK_M4_EMCDIV_CFG = 0;
+		CCU1_CLK_M4_ETHERNET_CFG = 0;
+		CCU1_CLK_M4_LCD_CFG = 0;
+		CCU1_CLK_M4_QEI_CFG = 0;
+		CCU1_CLK_M4_RITIMER_CFG = 0;
+		// CCU1_CLK_M4_SCT_CFG = 0;
+		CCU1_CLK_M4_SDIO_CFG = 0;
+		CCU1_CLK_M4_SPIFI_CFG = 0;
+		CCU1_CLK_M4_TIMER0_CFG = 0;
+		//CCU1_CLK_M4_TIMER1_CFG = 0;
+		//CCU1_CLK_M4_TIMER2_CFG = 0;
+		CCU1_CLK_M4_TIMER3_CFG = 0;
+		CCU1_CLK_M4_UART1_CFG = 0;
+		CCU1_CLK_M4_USART0_CFG = 0;
+		CCU1_CLK_M4_USART2_CFG = 0;
+		CCU1_CLK_M4_USART3_CFG = 0;
+		CCU1_CLK_M4_USB1_CFG = 0;
+		CCU1_CLK_M4_VADC_CFG = 0;
+		// CCU1_CLK_SPIFI_CFG = 0;
+		// CCU1_CLK_USB1_CFG = 0;
+		// CCU1_CLK_VADC_CFG = 0;
+		// CCU2_CLK_APB0_UART1_CFG = 0;
+		// CCU2_CLK_APB0_USART0_CFG = 0;
+		// CCU2_CLK_APB2_USART2_CFG = 0;
+		// CCU2_CLK_APB2_USART3_CFG = 0;
+		// CCU2_CLK_APLL_CFG = 0;
+		// CCU2_CLK_SDIO_CFG = 0;
+		break;
+	default:
+		break;
+	}
 }
 
 void clock_gen_init(void)
@@ -706,12 +711,18 @@ void clock_gen_shutdown(void)
 
 clock_source_t activate_best_clock_source(void)
 {
-#if (defined HACKRF_ONE || defined PRALINE)
-	/* Ensure PortaPack reference oscillator is off while checking for external clock input. */
-	if (portapack_reference_oscillator && portapack()) {
-		portapack_reference_oscillator(false);
+	switch (detected_platform()) {
+	case BOARD_ID_HACKRF1_OG:
+	case BOARD_ID_HACKRF1_R9:
+	case BOARD_ID_PRALINE:
+		/* Ensure PortaPack reference oscillator is off while checking for external clock input. */
+		if (portapack_reference_oscillator && portapack()) {
+			portapack_reference_oscillator(false);
+		}
+		break;
+	default:
+		break;
 	}
-#endif
 
 	clock_source_t source = CLOCK_SOURCE_HACKRF;
 
@@ -719,18 +730,24 @@ clock_source_t activate_best_clock_source(void)
 	if (si5351c_clkin_signal_valid(&clock_gen)) {
 		source = CLOCK_SOURCE_EXTERNAL;
 	} else {
-#if (defined HACKRF_ONE || defined PRALINE)
-		/* Enable PortaPack reference oscillator (if present), and check for valid clock. */
-		if (portapack_reference_oscillator && portapack()) {
-			portapack_reference_oscillator(true);
-			delay(510000); /* loop iterations @ 204MHz for >10ms for oscillator to enable. */
-			if (si5351c_clkin_signal_valid(&clock_gen)) {
-				source = CLOCK_SOURCE_PORTAPACK;
-			} else {
-				portapack_reference_oscillator(false);
+		switch (detected_platform()) {
+		case BOARD_ID_HACKRF1_OG:
+		case BOARD_ID_HACKRF1_R9:
+		case BOARD_ID_PRALINE:
+			/* Enable PortaPack reference oscillator (if present), and check for valid clock. */
+			if (portapack_reference_oscillator && portapack()) {
+				portapack_reference_oscillator(true);
+				delay(510000); /* loop iterations @ 204MHz for >10ms for oscillator to enable. */
+				if (si5351c_clkin_signal_valid(&clock_gen)) {
+					source = CLOCK_SOURCE_PORTAPACK;
+				} else {
+					portapack_reference_oscillator(false);
+				}
 			}
+			break;
+		default:
+			break;
 		}
-#endif
 		/* No external or PortaPack clock was found. Use HackRF Si5351C crystal. */
 	}
 
@@ -752,12 +769,13 @@ void ssp1_set_mode_max5864(void)
 	spi_bus_start(max5864.bus, &ssp_config_max5864);
 }
 
-#ifdef PRALINE
+//#ifdef PRALINE
 void ssp1_set_mode_ice40(void)
 {
 	spi_bus_start(&spi_bus_ssp1, &ssp_config_ice40_fpga);
 }
-#endif
+
+//#endif
 
 void pin_shutdown(void)
 {
@@ -783,16 +801,22 @@ void pin_shutdown(void)
 	 *
 	 * LPC43xx pull-up and pull-down resistors are approximately 53K.
 	 */
-#if (defined HACKRF_ONE || defined PRALINE)
-	scu_pinmux(scu->PINMUX_PP_TMS, SCU_GPIO_PUP | SCU_CONF_FUNCTION0);
-	scu_pinmux(scu->PINMUX_PP_TDO, SCU_GPIO_PDN | SCU_CONF_FUNCTION0);
-#endif
+	switch (board_id) {
+	case BOARD_ID_HACKRF1_OG:
+	case BOARD_ID_HACKRF1_R9:
+	case BOARD_ID_PRALINE:
+		scu_pinmux(scu->PINMUX_PP_TMS, SCU_GPIO_PUP | SCU_CONF_FUNCTION0);
+		scu_pinmux(scu->PINMUX_PP_TDO, SCU_GPIO_PDN | SCU_CONF_FUNCTION0);
+		break;
+	default:
+		break;
+	}
 	scu_pinmux(scu->PINMUX_CPLD_TCK, SCU_GPIO_PDN | SCU_CONF_FUNCTION0);
-#ifndef PRALINE
-	scu_pinmux(scu->PINMUX_CPLD_TMS, SCU_GPIO_NOPULL | SCU_CONF_FUNCTION0);
-	scu_pinmux(scu->PINMUX_CPLD_TDI, SCU_GPIO_NOPULL | SCU_CONF_FUNCTION0);
-	scu_pinmux(scu->PINMUX_CPLD_TDO, SCU_GPIO_PDN | SCU_CONF_FUNCTION4);
-#endif
+	if (board_id != BOARD_ID_PRALINE) {
+		scu_pinmux(scu->PINMUX_CPLD_TMS, SCU_GPIO_NOPULL | SCU_CONF_FUNCTION0);
+		scu_pinmux(scu->PINMUX_CPLD_TDI, SCU_GPIO_NOPULL | SCU_CONF_FUNCTION0);
+		scu_pinmux(scu->PINMUX_CPLD_TDO, SCU_GPIO_PDN | SCU_CONF_FUNCTION4);
+	}
 
 	/* Configure SCU Pin Mux as GPIO */
 	scu_pinmux(scu->PINMUX_LED1, SCU_GPIO_NOPULL);
@@ -810,10 +834,10 @@ void pin_shutdown(void)
 	}
 
 	/* Configure USB indicators */
-#ifdef JAWBREAKER
-	scu_pinmux(scu->PINMUX_USB_LED0, SCU_CONF_FUNCTION3);
-	scu_pinmux(scu->PINMUX_USB_LED1, SCU_CONF_FUNCTION3);
-#endif
+	if (board_id == BOARD_ID_JAWBREAKER) {
+		scu_pinmux(scu->PINMUX_USB_LED0, SCU_CONF_FUNCTION3);
+		scu_pinmux(scu->PINMUX_USB_LED1, SCU_CONF_FUNCTION3);
+	}
 
 	switch (board_id) {
 	case BOARD_ID_PRALINE:
@@ -1266,11 +1290,11 @@ void set_leds(const uint8_t state)
 
 void trigger_enable(const bool enable)
 {
-#ifndef PRALINE
-	gpio_write(sgpio_config.gpio_trigger_enable, enable);
-#else
-	fpga_set_trigger_enable(&fpga, enable);
-#endif
+	if (detected_platform() != BOARD_ID_PRALINE) {
+		gpio_write(sgpio_config.gpio_trigger_enable, enable);
+	} else {
+		fpga_set_trigger_enable(&fpga, enable);
+	}
 }
 
 void halt_and_flash(const uint32_t duration)
