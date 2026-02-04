@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2025 Great Scott Gadgets <info@greatscottgadgets.com>
+ * Copyright 2012-2026 Great Scott Gadgets <info@greatscottgadgets.com>
  * Copyright 2012 Jared Boone
  * Copyright 2013 Benjamin Vernoux
  *
@@ -27,85 +27,30 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "rf_path.h"
-#include "fpga.h"
-
 typedef enum {
 	RADIO_OK = 1,
 	RADIO_ERR_INVALID_PARAM = -2,
-	RADIO_ERR_INVALID_CONFIG = -3,
-	RADIO_ERR_INVALID_CHANNEL = -4,
-	RADIO_ERR_INVALID_ELEMENT = -5,
+	RADIO_ERR_INVALID_BANK = -3,
+	RADIO_ERR_INVALID_REGISTER = -4,
 	RADIO_ERR_UNSUPPORTED_OPERATION = -10,
 	RADIO_ERR_UNIMPLEMENTED = -19,
 	RADIO_ERR_OTHER = -9999,
 } radio_error_t;
 
+/* radio configuration modes */
 typedef enum {
-	RADIO_CHANNEL0 = 0x00,
-} radio_chan_id;
-
-typedef enum {
-	RADIO_FILTER_BASEBAND = 0x00,
-} radio_filter_id;
-
-typedef enum {
-	RADIO_SAMPLE_RATE_CLOCKGEN = 0x00,
-} radio_sample_rate_id;
-
-typedef enum {
-	RADIO_FREQUENCY_RF = 0x00,
-	RADIO_FREQUENCY_IF = 0x01,
-	RADIO_FREQUENCY_OF = 0x02,
-} radio_frequency_id;
-
-typedef enum {
-	RADIO_GAIN_RF_AMP = 0x00,
-	RADIO_GAIN_RX_LNA = 0x01,
-	RADIO_GAIN_RX_VGA = 0x02,
-	RADIO_GAIN_TX_VGA = 0x03,
-} radio_gain_id;
-
-typedef enum {
-	RADIO_ANTENNA_BIAS_TEE = 0x00,
-} radio_antenna_id;
-
-typedef enum {
-	RADIO_CLOCK_CLKIN = 0x00,
-	RADIO_CLOCK_CLKOUT = 0x01,
-} radio_clock_id;
+	RADIO_CONFIG_LEGACY = 0,
+	RADIO_CONFIG_STANDARD = 1,
+	RADIO_CONFIG_EXT_PRECISION_RX = 2,
+	RADIO_CONFIG_EXT_PRECISION_TX = 3,
+	RADIO_CONFIG_HALF_PRECISION = 4,
+} radio_config_mode_t;
 
 typedef struct {
 	uint32_t num;
 	uint32_t div;
 	uint32_t hz;
 } radio_sample_rate_t;
-
-typedef struct {
-	uint64_t hz;
-} radio_filter_t;
-
-typedef struct {
-	union {
-		bool enable;
-		uint8_t db;
-	};
-} radio_gain_t;
-
-typedef struct {
-	uint64_t hz;    // desired frequency
-	uint64_t if_hz; // intermediate frequency
-	uint64_t lo_hz; // front-end local oscillator frequency
-	uint8_t path;   // image rejection filter path
-} radio_frequency_t;
-
-typedef struct {
-	bool enable;
-} radio_antenna_t;
-
-typedef struct {
-	bool enable;
-} radio_clock_t;
 
 // legacy type, moved from hackrf_core
 typedef enum {
@@ -114,7 +59,6 @@ typedef enum {
 	CLOCK_SOURCE_PORTAPACK = 2,
 } clock_source_t;
 
-// legacy type, moved from usb_api_transceiver
 typedef enum {
 	TRANSCEIVER_MODE_OFF = 0,
 	TRANSCEIVER_MODE_RX = 1,
@@ -124,142 +68,165 @@ typedef enum {
 	TRANSCEIVER_MODE_RX_SWEEP = 5,
 } transceiver_mode_t;
 
-#define RADIO_CHANNEL_COUNT     1
-#define RADIO_SAMPLE_RATE_COUNT 1
-#define RADIO_FILTER_COUNT      1
-#define RADIO_FREQUENCY_COUNT   4
-#define RADIO_GAIN_COUNT        4
-#define RADIO_ANTENNA_COUNT     1
-#define RADIO_CLOCK_COUNT       2
-#define RADIO_MODE_COUNT        6
+/**
+ * Configurable registers stored as uint64_t. Any register may be set to
+ * RADIO_AUTO. When not RADIO_AUTO, some registers are read as a specific type
+ * as noted.
+ */
+typedef enum {
+	/**
+	 * Radio transceiver operating mode of type transceiver_mode_t.
+	 */
+	RADIO_OPMODE = 0,
+	/**
+	 * Center frequency (as seen by MCU/host) in 1/(2**24) Hz.
+	 */
+	RADIO_FREQUENCY_RF = 1,
+	/**
+	 * Intermediate frequency in 1/(2**24) Hz that the quadrature
+	 * transceiver is tuned to. Overrides RADIO_FREQUENCY_RF if specified.
+	 */
+	RADIO_FREQUENCY_IF = 2,
+	/**
+	 * Local oscillator frequency in 1/(2**24) Hz of the front-end mixer.
+	 * Overrides RADIO_FREQUENCY_RF if specified.
+	 */
+	RADIO_FREQUENCY_LO = 3,
+	/**
+	 * Image reject path of type rf_path_filter_t. Overrides
+	 * RADIO_FREQUENCY_RF if specified.
+	 */
+	RADIO_IMAGE_REJECT = 4,
+	/**
+	 * Sample rate (as seen by MCU/host) in 1/(2**24) Hz.
+	 */
+	RADIO_SAMPLE_RATE = 5,
+	/**
+	 * Sample rate (as seen by MCU/host) in fractional format. The
+	 * numerator is stored in the low 32 bits. The denominator is stored in
+	 * the high 32 bits.
+	 */
+	RADIO_SAMPLE_RATE_FRAC = 6,
+	/**
+	 * RF amplifier enable of type bool.
+	 */
+	RADIO_GAIN_RF = 7,
+	/**
+	 * RX IF amplifier gain in dB.
+	 */
+	RADIO_GAIN_RX_IF = 8,
+	/**
+	 * TX IF amplifier gain in dB.
+	 */
+	RADIO_GAIN_TX_IF = 9,
+	/**
+	 * RX baseband amplifier gain in dB.
+	 */
+	RADIO_GAIN_RX_BB = 10,
+	/**
+	 * RF port bias tee enable of type bool.
+	 */
+	RADIO_BIAS_TEE = 11,
+	/**
+	 * Trigger input enable of type bool.
+	 */
+	RADIO_TRIGGER = 12,
+	/**
+	 * Baseband bandwidth in Hz. This controls analog baseband filter
+	 * settings but is specified as the desired bandwidth centered in
+	 * digital baseband as seen by the MCU/host.
+	 */
+	RADIO_BB_BANDWIDTH = 13,
+	/**
+	 * Quadrature transceiver RX baseband LPF bandwidth in Hz.  If no
+	 * rotation is performed, this is set to match RADIO_BB_BANDWIDTH.
+	 * Currently unused.
+	 */
+	RADIO_XCVR_RX_LPF = 14,
+	/**
+	 * Quadrature transceiver TX baseband LPF bandwidth in Hz.  If no
+	 * rotation is performed, this is set to match RADIO_BB_BANDWIDTH.
+	 * Currently unused.
+	 */
+	RADIO_XCVR_TX_LPF = 15,
+	/**
+	 * Quadrature transceiver RX baseband HPF bandwidth in Hz. Currently
+	 * unused.
+	 */
+	RADIO_XCVR_RX_HPF = 16,
+	/**
+	 * Narrowband RX analog baseband LPF enable of type bool. Currently unused.
+	 */
+	RADIO_RX_NARROW_LPF = 17,
+	/**
+	 * Base two logarithm of resampling ratio (0 means a ratio of 1).
+	 */
+	RADIO_RESAMPLE_LOG = 18,
+	/**
+	 * Digital frequency conversion of type uint8_t in tau/256 steps with
+	 * respect to AFE clock.
+	 */
+	RADIO_ROTATION = 19,
+	/**
+	 * DC block enable of type bool.
+	 */
+	RADIO_DC_BLOCK = 20,
+} radio_register_t;
 
-typedef struct {
-	// sample rate elements
-	radio_sample_rate_t sample_rate[RADIO_SAMPLE_RATE_COUNT];
-
-	// filter elements
-	radio_filter_t filter[RADIO_FILTER_COUNT];
-
-	// gain elements
-	radio_gain_t gain[RADIO_GAIN_COUNT];
-
-	// frequency elements
-	radio_frequency_t frequency[RADIO_FREQUENCY_COUNT];
-
-	// antenna elements
-	radio_antenna_t antenna[RADIO_ANTENNA_COUNT];
-
-	// clock elements
-	radio_clock_t clock[RADIO_CLOCK_COUNT];
-
-	// trigger elements
-	bool trigger_enable;
-
-	// currently active transceiver mode
-	transceiver_mode_t mode;
-
-#ifdef PRALINE
-	// resampling ratio is 2**n
-	uint8_t resampling_n;
-
-	// quarter-rate shift configuration for offset tuning
-	fpga_quarter_shift_mode_t shift;
-#endif
-
-} radio_config_t;
-
-typedef struct radio_channel_t {
-	radio_chan_id id;
-	radio_config_t config;
-	radio_config_t mode[RADIO_MODE_COUNT];
-	clock_source_t clock_source;
-} radio_channel_t;
-
-typedef struct radio_t {
-	radio_channel_t channel[RADIO_CHANNEL_COUNT];
-} radio_t;
+#define RADIO_NUM_REGS (21)
+#define RADIO_AUTO     (0xffffffffffffffff)
 
 /**
- * API Notes
- *
- * - All radio_set_*() functions return a radio_error_t
- * - radio_set_*() functions work as follows:
- *   - if the channel mode is TRANSCEIVER_MODE_OFF only the configuration will
- *     be updated, the hardware state will remain unaffected.
- *   - if the channel is something other than TRANSCEIVER_MODE_OFF both the
- *     configuration and hardware state will be updated.
- * - this makes it possible to maintain multiple channel configurations and
- *   switch between them with a single call to radio_switch_mode()
+ * Register bank RADIO_BANK_ACTIVE stores the applied configuration. The other
+ * three banks store requested settings for specific operating modes.
  */
+typedef enum {
+	RADIO_BANK_ACTIVE = 0,
+	RADIO_BANK_IDLE = 1,
+	RADIO_BANK_RX = 2,
+	RADIO_BANK_TX = 3,
+	RADIO_BANK_ALL = 255,
+} radio_register_bank_t;
 
-radio_error_t radio_set_sample_rate(
-	radio_t* radio,
-	radio_chan_id chan_id,
-	radio_sample_rate_id element,
-	radio_sample_rate_t sample_rate);
-radio_sample_rate_t radio_get_sample_rate(
-	radio_t* radio,
-	radio_chan_id chan_id,
-	radio_sample_rate_id element);
+#define RADIO_NUM_BANKS (4)
 
-radio_error_t radio_set_filter(
-	radio_t* radio,
-	radio_chan_id chan_id,
-	radio_filter_id element,
-	radio_filter_t filter);
-radio_filter_t radio_get_filter(
-	radio_t* radio,
-	radio_chan_id chan_id,
-	radio_filter_id element);
+typedef struct radio_t {
+	radio_config_mode_t config_mode;
+	radio_register_bank_t active_bank;
+	uint64_t config[RADIO_NUM_BANKS][RADIO_NUM_REGS];
+} radio_t;
 
-radio_error_t radio_set_frequency(
-	radio_t* radio,
-	radio_chan_id chan_id,
-	radio_frequency_id element,
-	radio_frequency_t frequency);
-radio_frequency_t radio_get_frequency(
-	radio_t* radio,
-	radio_chan_id chan_id,
-	radio_frequency_id element);
+void radio_init(radio_t* const radio);
 
-radio_error_t radio_set_gain(
-	radio_t* radio,
-	radio_chan_id chan_id,
-	radio_gain_id element,
-	radio_gain_t gain);
-radio_gain_t radio_get_gain(radio_t* radio, radio_chan_id chan_id, radio_gain_id element);
+/**
+ * Write to one or more request registers. A write to RADIO_BANK_ACTIVE first
+ * writes to the active request register and then is used to update the active
+ * configuration.
+ */
+radio_error_t radio_reg_write(
+	radio_t* const radio,
+	const radio_register_bank_t bank,
+	const radio_register_t reg,
+	const uint64_t value);
 
-radio_error_t radio_set_antenna(
-	radio_t* radio,
-	radio_chan_id chan_id,
-	radio_antenna_id element,
-	radio_antenna_t value);
-radio_antenna_t radio_get_antenna(
-	radio_t* radio,
-	radio_chan_id chan_id,
-	radio_antenna_id element);
+/**
+ * Read from a register.
+ */
+uint64_t radio_reg_read(
+	radio_t* const radio,
+	const radio_register_bank_t bank,
+	const radio_register_t reg);
 
-radio_error_t radio_set_clock(
-	radio_t* radio,
-	radio_chan_id chan_id,
-	radio_clock_id element,
-	radio_clock_t value);
-radio_clock_t radio_get_clock(
-	radio_t* radio,
-	radio_chan_id chan_id,
-	radio_clock_id element);
+/**
+ * Apply requested changes to active configuration.
+ * Return true if any changes were applied.
+ */
+bool radio_update(radio_t* const radio);
 
-radio_error_t radio_set_trigger_enable(radio_t* radio, radio_chan_id chan_id, bool enable);
-bool radio_get_trigger_enable(radio_t* radio, radio_chan_id chan_id);
-
-transceiver_mode_t radio_get_mode(radio_t* radio, radio_chan_id chan_id);
-rf_path_direction_t radio_get_direction(radio_t* radio, radio_chan_id chan_id);
-clock_source_t radio_get_clock_source(radio_t* radio, radio_chan_id chan_id);
-
-// apply the current channel configuration and switch to the given transceiver mode
-radio_error_t radio_switch_mode(
-	radio_t* radio,
-	radio_chan_id chan_id,
-	transceiver_mode_t mode);
+/**
+ * Switch to a new operating mode and apply complete configuration stored in
+ * the request bank for the new mode.
+ */
+void radio_switch_mode(radio_t* const radio, const transceiver_mode_t mode);
 
 #endif /*__RF_CONFIG_H__*/
