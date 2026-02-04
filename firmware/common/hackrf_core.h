@@ -52,10 +52,10 @@ extern si5351c_driver_t clock_gen;
 extern ssp_config_t ssp_config_w25q80bv;
 
 extern max283x_driver_t max283x;
-#ifdef PRALINE
+//#ifdef PRALINE
 extern ice40_spi_driver_t ice40;
 extern fpga_driver_t fpga;
-#endif
+//#endif
 extern max5864_driver_t max5864;
 extern mixer_driver_t mixer;
 extern w25q80bv_driver_t spi_flash;
@@ -70,9 +70,9 @@ void clock_gen_init(void);
 void clock_gen_shutdown(void);
 void ssp1_set_mode_max283x(void);
 void ssp1_set_mode_max5864(void);
-#ifdef PRALINE
+//#ifdef PRALINE
 void ssp1_set_mode_ice40(void);
-#endif
+//#endif
 
 void pin_shutdown(void);
 void pin_setup(void);
