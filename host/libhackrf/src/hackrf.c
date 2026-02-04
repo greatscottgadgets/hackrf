@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2012-2022 Great Scott Gadgets <info@greatscottgadgets.com>
+Copyright (c) 2012-2026 Great Scott Gadgets <info@greatscottgadgets.com>
 Copyright (c) 2012, Jared Boone <jared@sharebrained.com>
 Copyright (c) 2013, Benjamin Vernoux <titanmkd@gmail.com>
 
@@ -45,11 +45,13 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 	#define TO_LE64(x)   __builtin_bswap64(x)
 	#define FROM_LE16(x) __builtin_bswap16(x)
 	#define FROM_LE32(x) __builtin_bswap32(x)
+	#define FROM_LE64(x) __builtin_bswap64(x)
 #else
 	#define TO_LE(x)     x
 	#define TO_LE64(x)   x
 	#define FROM_LE16(x) x
 	#define FROM_LE32(x) x
+	#define FROM_LE64(x) x
 #endif
 
 // TODO: Factor this into a shared #include so that firmware can use
@@ -111,6 +113,8 @@ typedef enum {
 	HACKRF_VENDOR_REQUEST_READ_SELFTEST = 56,
 	HACKRF_VENDOR_REQUEST_READ_ADC = 57,
 	HACKRF_VENDOR_REQUEST_TEST_RTC_OSC = 58,
+	HACKRF_VENDOR_REQUEST_RADIO_WRITE_REG = 59,
+	HACKRF_VENDOR_REQUEST_RADIO_READ_REG = 60,
 } hackrf_vendor_request;
 
 #define USB_CONFIG_STANDARD 0x1
@@ -3469,6 +3473,74 @@ int ADDCALL hackrf_set_fpga_bitstream(hackrf_device* device, const uint8_t index
 		0);
 
 	if (result != 0) {
+		last_libusb_error = result;
+		return HACKRF_ERROR_LIBUSB;
+	} else {
+		return HACKRF_SUCCESS;
+	}
+}
+
+int ADDCALL hackrf_radio_read_register(
+	hackrf_device* device,
+	const uint8_t bank,
+	const uint8_t register_number,
+	uint64_t* const value)
+{
+	USB_API_REQUIRED(device, 0x0111);
+	int result;
+
+	const uint8_t length = sizeof(value);
+	result = libusb_control_transfer(
+		device->usb_device,
+		LIBUSB_ENDPOINT_IN | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_RADIO_READ_REG,
+		register_number,
+		bank,
+		(unsigned char*) value,
+		length,
+		0);
+	*value = FROM_LE64(*value);
+
+	if (result < length) {
+		last_libusb_error = result;
+		return HACKRF_ERROR_LIBUSB;
+	} else {
+		return HACKRF_SUCCESS;
+	}
+}
+
+int ADDCALL hackrf_radio_write_register(
+	hackrf_device* device,
+	const uint8_t bank,
+	const uint8_t register_number,
+	const uint64_t value)
+{
+	USB_API_REQUIRED(device, 0x0111);
+	int result;
+
+	unsigned char data[9];
+	data[0] = register_number;
+	data[1] = value & 0xff;
+	data[2] = (value >> 8) & 0xff;
+	data[3] = (value >> 16) & 0xff;
+	data[4] = (value >> 24) & 0xff;
+	data[5] = (value >> 32) & 0xff;
+	data[6] = (value >> 40) & 0xff;
+	data[7] = (value >> 48) & 0xff;
+	data[8] = (value >> 56) & 0xff;
+
+	result = libusb_control_transfer(
+		device->usb_device,
+		LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR |
+			LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_RADIO_WRITE_REG,
+		0,
+		bank,
+		&data[0],
+		sizeof(data),
+		0);
+
+	if (result < 9) {
 		last_libusb_error = result;
 		return HACKRF_ERROR_LIBUSB;
 	} else {
