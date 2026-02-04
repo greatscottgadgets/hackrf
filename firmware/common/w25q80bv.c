@@ -61,13 +61,9 @@ void w25q80bv_setup(w25q80bv_driver_t* const drv)
 	uint8_t device_id;
 
 	drv->page_len = 256U;
-#ifdef PRALINE
-	drv->num_pages = 16384U;
-	drv->num_bytes = 4194304U;
-#else
-	drv->num_pages = 4096U;
-	drv->num_bytes = 1048576U;
-#endif
+
+	drv->num_pages = 4096U * FLASH_SIZE_MB;
+	drv->num_bytes = 1048576U * FLASH_SIZE_MB;
 
 	drv->target_init(drv);
 
