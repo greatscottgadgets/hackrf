@@ -20,7 +20,7 @@ cmake_minimum_required(VERSION 3.10.0)
 project(
   libhackrf
   LANGUAGES C
-  VERSION 0.9.1)
+  VERSION 0.9.2)
 include(GNUInstallDirs)
 set(PACKAGE libhackrf)
 set(VERSION_STRING ${MAJOR_VERSION}.${MINOR_VERSION})
