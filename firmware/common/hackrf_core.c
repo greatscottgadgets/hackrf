@@ -24,34 +24,20 @@
 #include "hackrf_core.h"
 #include "hackrf_ui.h"
 #include "delay.h"
-//#include "sgpio.h"
-//#include "si5351c.h"
-//#include "spi_ssp.h"
 #include "max283x.h"
-//#include "max5864.h"
 #include "max5864_target.h"
-//#include "w25q80bv.h"
 #include "w25q80bv_target.h"
-//#include "i2c_bus.h"
 #include "i2c_lpc.h"
-//#include "cpld_jtag.h"
 #include "ice40_spi.h"
 #include "platform_detect.h"
 #include "platform_gpio.h"
 #include "platform_scu.h"
 #include "clkin.h"
+#include "portapack.h"
 #include <libopencm3/lpc43xx/cgu.h>
 #include <libopencm3/lpc43xx/ccu.h>
 #include <libopencm3/lpc43xx/scu.h>
 #include <libopencm3/lpc43xx/ssp.h>
-
-//#if (defined HACKRF_ONE || defined PRALINE)
-#include "portapack.h"
-//#endif
-
-#include "gpio_lpc.h"
-
-#include "platform_gpio.h"
 
 i2c_bus_t i2c0 = {
 	.obj = (void*) I2C0_BASE,

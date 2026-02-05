@@ -124,6 +124,11 @@ typedef struct {
 	const struct gpio_t* vco_mux;       // RAD1O
 	const struct gpio_t* synt_rfout_en; // RAD1O
 
+	/* HackRF One r9 clock control */
+	const struct gpio_t* h1r9_clkin_en;
+	const struct gpio_t* h1r9_clkout_en;
+	const struct gpio_t* h1r9_mcu_clk_en;
+
 	/* HackRF One r9 */
 	//const struct gpio_t* h1r9_rx;
 	const struct gpio_t* h1r9_1v8_enable;
