@@ -64,9 +64,16 @@ const platform_gpio_t* platform_gpio()
 	switch (board_id) {
 	case BOARD_ID_PRALINE:
 		gpio.max283x_select    = &GPIO6_28;
+		gpio.max283x_enable    = &GPIO7_1;
+		gpio.max283x_rx_enable = &GPIO7_2;
+		gpio.max2831_rxhp      = &GPIO6_29;
+		gpio.max2831_ld        = &GPIO4_11;
 		break;
 	default:
 		gpio.max283x_select    = &GPIO0_15;
+		gpio.max283x_enable    = &GPIO2_6;
+		gpio.max283x_rx_enable = &GPIO2_5;
+		gpio.max283x_tx_enable = &GPIO2_4;
 		break;
 	}
 

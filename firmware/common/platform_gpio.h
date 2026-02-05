@@ -40,6 +40,11 @@ typedef struct {
 
 	/* MAX283x GPIO (XCVR_CTL / CS_XCVR) PinMux */
 	const struct gpio_t* max283x_select;
+	const struct gpio_t* max283x_enable;
+	const struct gpio_t* max283x_rx_enable;
+	const struct gpio_t* max283x_tx_enable;
+	const struct gpio_t* max2831_rxhp;
+	const struct gpio_t* max2831_ld;
 
 	/* MAX5864 SPI chip select (AD_CS / CS_AD) GPIO PinMux */
 	const struct gpio_t* max5864_select;
