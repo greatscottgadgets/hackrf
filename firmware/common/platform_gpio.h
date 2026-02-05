@@ -111,6 +111,19 @@ typedef struct {
 	const struct gpio_t* trigger_enable;
 	const struct gpio_t* q_invert;
 
+	/* RFFC5071 GPIO serial interface PinMux */
+	const struct gpio_t* rffc5072_select;
+	const struct gpio_t* rffc5072_clock;
+	const struct gpio_t* rffc5072_data;
+	const struct gpio_t* rffc5072_reset;
+	const struct gpio_t* rffc5072_ld;   // PRALINE
+	const struct gpio_t* vco_ce;        // RAD1O
+	const struct gpio_t* vco_sclk;      // RAD1O
+	const struct gpio_t* vco_sdata;     // RAD1O
+	const struct gpio_t* vco_le;        // RAD1O
+	const struct gpio_t* vco_mux;       // RAD1O
+	const struct gpio_t* synt_rfout_en; // RAD1O
+
 	/* HackRF One r9 */
 	//const struct gpio_t* h1r9_rx;
 	const struct gpio_t* h1r9_1v8_enable;

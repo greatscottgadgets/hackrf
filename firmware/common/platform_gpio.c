@@ -200,6 +200,35 @@ const platform_gpio_t* platform_gpio()
 	}
 	gpio.q_invert           = &GPIO0_13;
 
+	/* RFFC5071 GPIO serial interface PinMux */
+	switch (board_id) {
+	case BOARD_ID_JAWBREAKER:
+	case BOARD_ID_HACKRF1_OG:
+	case BOARD_ID_HACKRF1_R9:
+		gpio.rffc5072_select = &GPIO2_13;
+		gpio.rffc5072_clock  = &GPIO5_6;
+		gpio.rffc5072_data   = &GPIO3_3;
+		gpio.rffc5072_reset  = &GPIO2_14;
+		break;
+	case BOARD_ID_RAD1O:
+		gpio.vco_ce        = &GPIO2_13;
+		gpio.vco_sclk      = &GPIO5_6;
+		gpio.vco_sdata     = &GPIO3_3;
+		gpio.vco_le        = &GPIO2_14;
+		gpio.vco_mux       = &GPIO5_25;
+		gpio.synt_rfout_en = &GPIO3_5;
+		break;
+	case BOARD_ID_PRALINE:
+		gpio.rffc5072_select = &GPIO2_13;
+		gpio.rffc5072_clock  = &GPIO5_18;
+		gpio.rffc5072_data   = &GPIO4_14;
+		gpio.rffc5072_reset  = &GPIO2_14;
+		gpio.rffc5072_ld     = &GPIO6_25;
+		break;
+	default:
+		break;
+	}
+
 	/* HackRF One r9 */
 	switch (board_id) {
 	case BOARD_ID_HACKRF1_OG:

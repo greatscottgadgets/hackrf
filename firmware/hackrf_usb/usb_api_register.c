@@ -164,7 +164,7 @@ usb_request_status_t usb_vendor_request_write_rffc5071(
 	if (stage == USB_TRANSFER_STAGE_SETUP) {
 		if (endpoint->setup.index < RFFC5071_NUM_REGS) {
 			rffc5071_reg_write(
-				&mixer,
+				&mixer.rffc5071,
 				endpoint->setup.index,
 				endpoint->setup.value);
 			usb_transfer_schedule_ack(endpoint->in);
@@ -183,7 +183,7 @@ usb_request_status_t usb_vendor_request_read_rffc5071(
 	uint16_t value;
 	if (stage == USB_TRANSFER_STAGE_SETUP) {
 		if (endpoint->setup.index < RFFC5071_NUM_REGS) {
-			value = rffc5071_reg_read(&mixer, endpoint->setup.index);
+			value = rffc5071_reg_read(&mixer.rffc5071, endpoint->setup.index);
 			endpoint->buffer[0] = value & 0xff;
 			endpoint->buffer[1] = value >> 8;
 			usb_transfer_schedule_block(
