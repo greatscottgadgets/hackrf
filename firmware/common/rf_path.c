@@ -469,7 +469,11 @@ void rf_path_init(rf_path_t* const rf_path)
 		// On HackRF One, the mixer is now set up earlier in boot.
 		break;
 	default:
-		mixer_setup(&mixer);
+		if (board_id == BOARD_ID_RAD1O) {
+			mixer_setup(&mixer, MAX2871_VARIANT);
+		} else {
+			mixer_setup(&mixer, RFFC5071_VARIANT);
+		}
 		break;
 	}
 	rf_path->switchctrl = SWITCHCTRL_SAFE;

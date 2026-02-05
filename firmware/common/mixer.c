@@ -19,45 +19,16 @@
  * Boston, MA 02110-1301, USA.
  */
 
+#include "platform_detect.h"
+#include "platform_gpio.h"
 #include "mixer.h"
 #include "rffc5071.h"
 #include "rffc5071_spi.h"
 #include "max2871.h"
-#include "gpio_lpc.h"
 
-/* RFFC5071 GPIO serial interface PinMux */
-// clang-format off
-#if (defined JAWBREAKER || defined HACKRF_ONE)
-static struct gpio_t gpio_rffc5072_select = GPIO(2, 13);
-static struct gpio_t gpio_rffc5072_clock  = GPIO(5,  6);
-static struct gpio_t gpio_rffc5072_data   = GPIO(3,  3);
-static struct gpio_t gpio_rffc5072_reset  = GPIO(2, 14);
-#endif
-#ifdef RAD1O
-static struct gpio_t gpio_vco_ce        = GPIO(2, 13);
-static struct gpio_t gpio_vco_sclk      = GPIO(5,  6);
-static struct gpio_t gpio_vco_sdata     = GPIO(3,  3);
-static struct gpio_t gpio_vco_le        = GPIO(2, 14);
-static struct gpio_t gpio_vco_mux       = GPIO(5, 25);
-static struct gpio_t gpio_synt_rfout_en = GPIO(3,  5);
-#endif
-#ifdef PRALINE
-static struct gpio_t gpio_rffc5072_select = GPIO(2, 13);
-static struct gpio_t gpio_rffc5072_clock  = GPIO(5, 18);
-static struct gpio_t gpio_rffc5072_data   = GPIO(4, 14);
-static struct gpio_t gpio_rffc5072_reset  = GPIO(2, 14);
-static struct gpio_t gpio_rffc5072_ld     = GPIO(6, 25);
-#endif
-// clang-format on
+static rffc5071_spi_config_t rffc5071_spi_config;
 
-#if (defined JAWBREAKER || defined HACKRF_ONE || defined PRALINE)
-const rffc5071_spi_config_t rffc5071_spi_config = {
-	.gpio_select = &gpio_rffc5072_select,
-	.gpio_clock = &gpio_rffc5072_clock,
-	.gpio_data = &gpio_rffc5072_data,
-};
-
-spi_bus_t spi_bus_rffc5071 = {
+static spi_bus_t spi_bus_rffc5071 = {
 	.config = &rffc5071_spi_config,
 	.start = rffc5071_spi_start,
 	.stop = rffc5071_spi_stop,
@@ -66,82 +37,108 @@ spi_bus_t spi_bus_rffc5071 = {
 };
 
 mixer_driver_t mixer = {
-	.bus = &spi_bus_rffc5071,
-	.gpio_reset = &gpio_rffc5072_reset,
-	#ifdef PRALINE
-	.gpio_ld = &gpio_rffc5072_ld,
-	#endif
+	.rffc5071.bus = &spi_bus_rffc5071,
 };
-#endif
-#ifdef RAD1O
-mixer_driver_t mixer = {
-	.gpio_vco_ce = &gpio_vco_ce,
-	.gpio_vco_sclk = &gpio_vco_sclk,
-	.gpio_vco_sdata = &gpio_vco_sdata,
-	.gpio_vco_le = &gpio_vco_le,
-	.gpio_synt_rfout_en = &gpio_synt_rfout_en,
-	.gpio_vco_mux = &gpio_vco_mux,
-};
-#endif
 
 void mixer_bus_setup(mixer_driver_t* const mixer)
 {
-#if (defined JAWBREAKER || defined HACKRF_ONE || defined PRALINE)
 	(void) mixer;
-	spi_bus_start(&spi_bus_rffc5071, &rffc5071_spi_config);
-#endif
-#ifdef RAD1O
-	(void) mixer;
-#endif
+
+	const platform_gpio_t* gpio = platform_gpio();
+
+	switch (mixer->type) {
+	case RFFC5071_VARIANT:
+		rffc5071_spi_config = (rffc5071_spi_config_t){
+			.gpio_select = gpio->rffc5072_select,
+			.gpio_clock = gpio->rffc5072_clock,
+			.gpio_data = gpio->rffc5072_data,
+		};
+		spi_bus_start(&spi_bus_rffc5071, &rffc5071_spi_config);
+		break;
+	case MAX2871_VARIANT:
+		break;
+	}
 }
 
-void mixer_setup(mixer_driver_t* const mixer)
+void mixer_setup(mixer_driver_t* const mixer, mixer_variant_t type)
 {
-#if (defined JAWBREAKER || defined HACKRF_ONE || defined PRALINE)
-	rffc5071_setup(mixer);
-#endif
-#ifdef RAD1O
-	max2871_setup(mixer);
-#endif
+	mixer->type = type;
+
+	const platform_gpio_t* gpio = platform_gpio();
+
+	/* Mixer GPIO serial interface PinMux */
+	switch (mixer->type) {
+	case RFFC5071_VARIANT:
+		mixer->rffc5071.gpio_reset = gpio->rffc5072_reset;
+		if (detected_platform() == BOARD_ID_PRALINE) {
+			mixer->rffc5071.gpio_ld = gpio->rffc5072_ld;
+		}
+		break;
+	case MAX2871_VARIANT:
+		mixer->max2871.gpio_vco_ce = gpio->vco_ce;
+		mixer->max2871.gpio_vco_sclk = gpio->vco_sclk;
+		mixer->max2871.gpio_vco_sdata = gpio->vco_sdata;
+		mixer->max2871.gpio_vco_le = gpio->vco_le;
+		mixer->max2871.gpio_synt_rfout_en = gpio->synt_rfout_en;
+		mixer->max2871.gpio_vco_mux = gpio->vco_mux;
+		break;
+	}
+
+	switch (mixer->type) {
+	case RFFC5071_VARIANT:
+		rffc5071_setup(&mixer->rffc5071);
+		break;
+	case MAX2871_VARIANT:
+		max2871_setup(&mixer->max2871);
+		break;
+	}
 }
 
 uint64_t mixer_set_frequency(mixer_driver_t* const mixer, uint64_t hz)
 {
-#if (defined JAWBREAKER || defined HACKRF_ONE || defined PRALINE)
-	return rffc5071_set_frequency(mixer, hz);
-#endif
-#ifdef RAD1O
-	return max2871_set_frequency(mixer, hz / 1000000);
-#endif
+	switch (mixer->type) {
+	case RFFC5071_VARIANT:
+		return rffc5071_set_frequency(&mixer->rffc5071, hz);
+		break;
+	case MAX2871_VARIANT:
+		return max2871_set_frequency(&mixer->max2871, hz / 1000000);
+		break;
+	}
+
+	return 0;
 }
 
 void mixer_enable(mixer_driver_t* const mixer)
 {
-#if (defined JAWBREAKER || defined HACKRF_ONE || defined PRALINE)
-	rffc5071_enable(mixer);
-#endif
-#ifdef RAD1O
-	max2871_enable(mixer);
-#endif
+	switch (mixer->type) {
+	case RFFC5071_VARIANT:
+		rffc5071_enable(&mixer->rffc5071);
+		break;
+	case MAX2871_VARIANT:
+		max2871_enable(&mixer->max2871);
+		break;
+	}
 }
 
 void mixer_disable(mixer_driver_t* const mixer)
 {
-#if (defined JAWBREAKER || defined HACKRF_ONE || defined PRALINE)
-	rffc5071_disable(mixer);
-#endif
-#ifdef RAD1O
-	max2871_disable(mixer);
-#endif
+	switch (mixer->type) {
+	case RFFC5071_VARIANT:
+		rffc5071_disable(&mixer->rffc5071);
+		break;
+	case MAX2871_VARIANT:
+		max2871_disable(&mixer->max2871);
+		break;
+	}
 }
 
 void mixer_set_gpo(mixer_driver_t* const mixer, uint8_t gpo)
 {
-#if (defined JAWBREAKER || defined HACKRF_ONE || defined PRALINE)
-	rffc5071_set_gpo(mixer, gpo);
-#endif
-#ifdef RAD1O
-	(void) mixer;
-	(void) gpo;
-#endif
+	switch (mixer->type) {
+	case RFFC5071_VARIANT:
+		rffc5071_set_gpo(&mixer->rffc5071, gpo);
+		break;
+	case MAX2871_VARIANT:
+		break;
+	}
 }
