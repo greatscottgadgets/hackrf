@@ -229,11 +229,20 @@ const platform_gpio_t* platform_gpio()
 		break;
 	}
 
+	/* HackRF One r9 clock control */
+	switch (board_id) {
+	case BOARD_ID_HACKRF1_R9:
+		gpio.h1r9_clkin_en   = &GPIO5_15;
+		gpio.h1r9_clkout_en  = &GPIO0_9;
+		gpio.h1r9_mcu_clk_en = &GPIO0_8;
+		break;
+	default:
+		break;
+	}
+
 	/* HackRF One r9 */
 	switch (board_id) {
-	case BOARD_ID_HACKRF1_OG:
 	case BOARD_ID_HACKRF1_R9:
-		//gpio.h1r9_rx             = &GPIO0_7;
 		gpio.h1r9_1v8_enable     = &GPIO2_9;
 		gpio.h1r9_vaa_disable    = &GPIO3_6;
 		gpio.h1r9_trigger_enable = &GPIO5_5;
