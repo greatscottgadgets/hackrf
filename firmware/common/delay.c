@@ -32,6 +32,7 @@ void delay(uint32_t duration)
 
 void delay_us_at_mhz(uint32_t us, uint32_t mhz)
 {
+#if defined(LPC43XX_M4)
 	// The loop below takes 3 cycles per iteration.
 	uint32_t loop_iterations = (us * mhz) / 3;
 	asm volatile("start%=:\n"
@@ -39,4 +40,15 @@ void delay_us_at_mhz(uint32_t us, uint32_t mhz)
 		     "    bpl start%=\n"            // 2 cycles
 		     :
 		     : [ITERATIONS] "r"(loop_iterations));
+#elif defined(LPC43XX_M0)
+	// The loop below takes 4 cycles per iteration.
+	uint32_t loop_iterations = (us * mhz) / 4;
+	asm volatile("start%=:\n"
+		     "    sub %[ITERATIONS], #1\n" // 1 cycle
+		     "    bpl start%=\n"           // 3 cycles
+		     :
+		     : [ITERATIONS] "r"(loop_iterations));
+#else
+	#error "No delay loop implementation"
+#endif
 }
