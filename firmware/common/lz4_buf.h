@@ -1,8 +1,7 @@
 /*
- * Copyright 2012-2014 Great Scott Gadgets <info@greatscottgadgets.com>
- * Copyright 2012 Jared Boone <jared@sharebrained.com>
+ * Copyright 2026 Great Scott Gadgets <info@greatscottgadgets.com>
  *
- * This file is part of HackRF
+ * This file is part of HackRF.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,7 +19,17 @@
  * Boston, MA 02110-1301, USA.
  */
 
-MEMORY
-{
-	ram (rwx) : ORIGIN = 0x00000000, LENGTH = 20K
-}
+#ifndef __LZ4_BUF_H
+#define __LZ4_BUF_H
+
+#include <stdint.h>
+
+#define LZ4_BUFFER_SIZE 0x1000
+
+/* Addresses of these buffers are set in linker script. If you change the name
+ * of these buffers, you must also adjust the linker script. */
+
+extern uint8_t lz4_in_buf[LZ4_BUFFER_SIZE];
+extern uint8_t lz4_out_buf[LZ4_BUFFER_SIZE];
+
+#endif /*__LZ4_BUF_H */
