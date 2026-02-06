@@ -1515,7 +1515,10 @@ int ADDCALL hackrf_spiflash_write(
 {
 	int result;
 
-	if (address > (FLASH_SIZE_MB * 0x0FFFFF)) {
+	/* Reject writes that would go past the end of SPI flash (and avoid overflow). */
+	const uint32_t flash_size_bytes = FLASH_SIZE_MB * 1024u * 1024u;
+
+	if (address >= flash_size_bytes || length > (flash_size_bytes - address)) {
 		return HACKRF_ERROR_INVALID_PARAM;
 	}
 
@@ -1546,7 +1549,7 @@ int ADDCALL hackrf_spiflash_read(
 {
 	int result;
 
-	if (address > 0x0FFFFF) {
+	if ((address + length) > 0x400000) {
 		return HACKRF_ERROR_INVALID_PARAM;
 	}
 
