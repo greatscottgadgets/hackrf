@@ -286,7 +286,7 @@ usb_request_status_t usb_vendor_request_user_config_set_bias_t_opts(
 	return USB_REQUEST_STATUS_OK;
 }
 
-#ifdef PRALINE
+//#ifdef PRALINE
 usb_request_status_t usb_vendor_request_write_fpga_reg(
 	usb_endpoint_t* const endpoint,
 	const usb_transfer_stage_t stage)
@@ -316,7 +316,7 @@ usb_request_status_t usb_vendor_request_read_fpga_reg(
 	}
 	return USB_REQUEST_STATUS_OK;
 }
-#endif
+//#endif
 
 /*
  * Each register is transferred as a uint8_t register number followed by a
