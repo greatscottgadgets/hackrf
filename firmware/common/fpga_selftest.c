@@ -50,7 +50,7 @@ static int rx_samples(const unsigned int num_samples, uint32_t max_cycles)
 	return rc;
 }
 
-bool fpga_spi_selftest()
+bool fpga_spi_selftest(void)
 {
 	// Skip if FPGA configuration failed.
 	if (selftest.fpga_image_load != PASSED) {
@@ -81,7 +81,7 @@ static uint8_t lfsr_advance(uint8_t v)
 	return (v << 1) | feedback;
 }
 
-bool fpga_sgpio_selftest()
+bool fpga_sgpio_selftest(void)
 {
 	bool timeout = false;
 
@@ -168,7 +168,7 @@ static bool in_range(int value, int expected, int error)
 	return (value > min) && (value < max);
 }
 
-bool fpga_if_xcvr_selftest()
+bool fpga_if_xcvr_selftest(void)
 {
 	bool timeout = false;
 

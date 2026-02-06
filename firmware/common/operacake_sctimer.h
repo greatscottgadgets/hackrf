@@ -32,10 +32,10 @@ struct operacake_dwell_times {
 	uint8_t port;
 };
 
-void operacake_sctimer_init();
+void operacake_sctimer_init(void);
 void operacake_sctimer_enable(bool enable);
 void operacake_sctimer_set_dwell_times(struct operacake_dwell_times* times, int n);
-void operacake_sctimer_stop();
-void operacake_sctimer_reset_state();
+void operacake_sctimer_stop(void);
+void operacake_sctimer_reset_state(void);
 
 #endif /* __OPERACAKE_SCTIMER_H */

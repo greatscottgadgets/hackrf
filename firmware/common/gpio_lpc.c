@@ -24,7 +24,7 @@
 
 #include <stddef.h>
 
-void gpio_init()
+void gpio_init(void)
 {
 	for (size_t i = 0; i < 8; i++) {
 		GPIO_LPC_PORT(i)->dir = 0;

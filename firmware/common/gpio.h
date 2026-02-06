@@ -27,7 +27,7 @@
 
 typedef const struct gpio_t* gpio_t;
 
-void gpio_init();
+void gpio_init(void);
 void gpio_set(gpio_t gpio);
 void gpio_clear(gpio_t gpio);
 void gpio_toggle(gpio_t gpio);
