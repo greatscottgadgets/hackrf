@@ -45,9 +45,51 @@ usb_configuration_t* usb_configurations[] = {
 	0,
 };
 
-usb_device_t usb_device = {
-	.descriptor = usb_descriptor_device,
-	.descriptor_strings = usb_descriptor_strings,
+usb_device_t usb_device;
+
+const usb_device_t usb_device_hackrf_one = {
+	.descriptor = usb_descriptor_device_hackrf_one,
+	.descriptor_strings = usb_descriptor_strings_hackrf_one,
+	.qualifier_descriptor = usb_descriptor_device_qualifier,
+	.configurations = &usb_configurations,
+	.configuration = 0,
+	.wcid_string_descriptor = wcid_string_descriptor,
+	.wcid_feature_descriptor = wcid_feature_descriptor,
+};
+
+const usb_device_t usb_device_jawbreaker = {
+	.descriptor = usb_descriptor_device_jawbreaker,
+	.descriptor_strings = usb_descriptor_strings_jawbreaker,
+	.qualifier_descriptor = usb_descriptor_device_qualifier,
+	.configurations = &usb_configurations,
+	.configuration = 0,
+	.wcid_string_descriptor = wcid_string_descriptor,
+	.wcid_feature_descriptor = wcid_feature_descriptor,
+};
+
+const usb_device_t usb_device_rad1o = {
+	.descriptor = usb_descriptor_device_rad1o,
+	.descriptor_strings = usb_descriptor_strings_rad1o,
+	.qualifier_descriptor = usb_descriptor_device_qualifier,
+	.configurations = &usb_configurations,
+	.configuration = 0,
+	.wcid_string_descriptor = wcid_string_descriptor,
+	.wcid_feature_descriptor = wcid_feature_descriptor,
+};
+
+const usb_device_t usb_device_praline = {
+	.descriptor = usb_descriptor_device_hackrf_one,
+	.descriptor_strings = usb_descriptor_strings_praline,
+	.qualifier_descriptor = usb_descriptor_device_qualifier,
+	.configurations = &usb_configurations,
+	.configuration = 0,
+	.wcid_string_descriptor = wcid_string_descriptor,
+	.wcid_feature_descriptor = wcid_feature_descriptor,
+};
+
+const usb_device_t usb_device_default = {
+	.descriptor = usb_descriptor_device_default,
+	.descriptor_strings = usb_descriptor_strings_default,
 	.qualifier_descriptor = usb_descriptor_device_qualifier,
 	.configurations = &usb_configurations,
 	.configuration = 0,

@@ -26,7 +26,6 @@
 extern "C" {
 #endif
 
-#include <stddef.h>
 #include <libopencm3/lpc43xx/scu.h>
 #include "platform_detect.h"
 
