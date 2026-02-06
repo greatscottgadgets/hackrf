@@ -4,7 +4,8 @@
 # Copyright (c) 2025 Great Scott Gadgets <info@greatscottgadgets.com>
 # SPDX-License-Identifier: BSD-3-Clause
 
-from amaranth               import Elaboratable, Module, Cat, DomainRenamer
+from amaranth               import Elaboratable, Module, Cat, DomainRenamer, Signal
+from amaranth.lib           import cdc
 from amaranth.lib.wiring    import connect
 
 from amaranth_future        import fixed
@@ -15,7 +16,9 @@ from dsp.fir                import FIRFilter
 from dsp.fir_mac16          import HalfBandDecimatorMAC16
 from dsp.cic                import CICDecimator
 from dsp.dc_block           import DCBlock
-from dsp.quarter_shift      import QuarterShift
+from dsp.nco                import NCO
+from dsp.mixer              import ComplexMultiplier
+
 from util                   import ClockConverter, IQSample
 
 
@@ -54,10 +57,21 @@ class Top(Elaboratable):
         taps_hb2 = [ -6, 0, 19,  0, -44,  0, 89,  0, -163,  0, 278,  0, -452,  0, 711,  0, -1113,  0, 1800, 0, -3298,  0, 10370, 16384, 10370,  0, -3298,  0, 1800,  0, -1113,  0, 711,  0, -452,  0,  278,  0, -163,  0, 89,  0, -44,  0, 19,  0, -6]
         taps_hb2 = [ tap/16384/2 for tap in taps_hb2 ]
 
+        # NCO and mixer.
+        m.submodules.nco = nco = DomainRenamer("gck1")(NCO(phase_width=16, output_width=10))
+        mixer = DomainRenamer("gck1")(ComplexMultiplier(IQSample(8), IQSample(10), IQSample(8), always_ready=True))
+        mixer.input = mixer.a
+        mixer.output = mixer.c
+        m.d.comb += [
+            mixer.b.p.eq(nco.output),
+            mixer.b.valid.eq(1),
+            nco.en.eq(1),
+        ]
+
         rx_chain = {
-            # DC block and quarter shift.
+            # DC block and mixer.
             "dc_block":      DCBlock(width=8, num_channels=2, domain="gck1"),
-            "quarter_shift": DomainRenamer("gck1")(QuarterShift()),
+            "mixer":         mixer,
 
             # CIC mandatory first stage with compensator.
             "cic":          CICDecimator(2, 4, (4,8,16,32), width_in=8, width_out=12, num_channels=2, always_ready=True, domain="gck1"),
@@ -87,7 +101,7 @@ class Top(Elaboratable):
         # Add control registers.
         ctrl     = spi_regs.add_register(0x01, init=0)
         rx_decim = spi_regs.add_register(0x02, init=0, size=3)
-        #tx_intrp = spi_regs.add_register(0x04, init=0, size=3)
+        rx_nco   = spi_regs.add_register(0x03, init=0)
 
         m.d.comb += [
             # Trigger enable.
@@ -95,12 +109,15 @@ class Top(Elaboratable):
 
             # RX settings.
             rx_chain["dc_block"].enable         .eq(ctrl[0]),
-            rx_chain["quarter_shift"].enable    .eq(ctrl[1]),
-            rx_chain["quarter_shift"].up        .eq(ctrl[2]),
 
             # RX decimation rate.
             rx_chain["cic"].factor              .eq(rx_decim+2),
         ]
+        
+        # NCO control.
+        rx_nco_gck1 = Signal(8)
+        m.submodules.nco_phase_cdc = cdc.FFSynchronizer(rx_nco, rx_nco_gck1, o_domain="gck1")
+        m.d.gck1 += nco.phase.eq(nco.phase + (rx_nco_gck1 << 8))
 
         return m
 
