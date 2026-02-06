@@ -51,7 +51,7 @@
 #include "gpio_lpc.h"
 
 /* GPIO Output PinMux */
-static struct gpio_t gpio_led[] = {
+static struct gpio gpio_led[] = {
 	GPIO(2, 1),
 	GPIO(2, 2),
 	GPIO(2, 8),
@@ -65,134 +65,134 @@ static struct gpio_t gpio_led[] = {
 
 // clang-format off
 #ifndef PRALINE
-static struct gpio_t gpio_1v8_enable        = GPIO(3,  6);
+static struct gpio gpio_1v8_enable        = GPIO(3,  6);
 #else
-static struct gpio_t gpio_1v2_enable        = GPIO(4,  7);
-static struct gpio_t gpio_3v3aux_enable_n 	= GPIO(5, 15);
+static struct gpio gpio_1v2_enable        = GPIO(4,  7);
+static struct gpio gpio_3v3aux_enable_n 	= GPIO(5, 15);
 #endif
 
 /* MAX283x GPIO (XCVR_CTL / CS_XCVR) PinMux */
 #ifdef PRALINE
-static struct gpio_t gpio_max283x_select    = GPIO(6, 28);
+static struct gpio gpio_max283x_select    = GPIO(6, 28);
 #else
-static struct gpio_t gpio_max283x_select    = GPIO(0, 15);
+static struct gpio gpio_max283x_select    = GPIO(0, 15);
 #endif
 
 /* MAX5864 SPI chip select (AD_CS / CS_AD) GPIO PinMux */
 #ifdef PRALINE
-static struct gpio_t gpio_max5864_select    = GPIO(6, 30);
+static struct gpio gpio_max5864_select    = GPIO(6, 30);
 #else
-static struct gpio_t gpio_max5864_select    = GPIO(2,  7);
+static struct gpio gpio_max5864_select    = GPIO(2,  7);
 #endif
 
 /* RFFC5071 GPIO serial interface PinMux */
 // #ifdef RAD1O
-// static struct gpio_t gpio_rffc5072_select   = GPIO(2, 13);
-// static struct gpio_t gpio_rffc5072_clock    = GPIO(5,  6);
-// static struct gpio_t gpio_rffc5072_data     = GPIO(3,  3);
-// static struct gpio_t gpio_rffc5072_reset    = GPIO(2, 14);
+// static struct gpio gpio_rffc5072_select   = GPIO(2, 13);
+// static struct gpio gpio_rffc5072_clock    = GPIO(5,  6);
+// static struct gpio gpio_rffc5072_data     = GPIO(3,  3);
+// static struct gpio gpio_rffc5072_reset    = GPIO(2, 14);
 // #endif
 
 /* RF supply (VAA) control */
 #ifdef HACKRF_ONE
-static struct gpio_t gpio_vaa_disable       = GPIO(2, 9);
+static struct gpio gpio_vaa_disable       = GPIO(2, 9);
 #endif
 #ifdef PRALINE
-static struct gpio_t gpio_vaa_disable       = GPIO(4, 1);
+static struct gpio gpio_vaa_disable       = GPIO(4, 1);
 #endif
 #ifdef RAD1O
-static struct gpio_t gpio_vaa_enable        = GPIO(2, 9);
+static struct gpio gpio_vaa_enable        = GPIO(2, 9);
 #endif
 
-static struct gpio_t gpio_w25q80bv_hold     = GPIO(1, 14);
-static struct gpio_t gpio_w25q80bv_wp       = GPIO(1, 15);
-static struct gpio_t gpio_w25q80bv_select   = GPIO(5, 11);
+static struct gpio gpio_w25q80bv_hold     = GPIO(1, 14);
+static struct gpio gpio_w25q80bv_wp       = GPIO(1, 15);
+static struct gpio gpio_w25q80bv_select   = GPIO(5, 11);
 
 /* RF switch control */
 #ifdef HACKRF_ONE
-static struct gpio_t gpio_hp                = GPIO(2,  0);
-static struct gpio_t gpio_lp                = GPIO(2, 10);
-static struct gpio_t gpio_tx_mix_bp         = GPIO(2, 11);
-static struct gpio_t gpio_no_mix_bypass     = GPIO(1,  0);
-static struct gpio_t gpio_rx_mix_bp         = GPIO(2, 12);
-static struct gpio_t gpio_tx_amp            = GPIO(2, 15);
-static struct gpio_t gpio_tx                = GPIO(5, 15);
-static struct gpio_t gpio_mix_bypass        = GPIO(5, 16);
-static struct gpio_t gpio_rx                = GPIO(5,  5);
-static struct gpio_t gpio_no_tx_amp_pwr     = GPIO(3,  5);
-static struct gpio_t gpio_amp_bypass        = GPIO(0, 14);
-static struct gpio_t gpio_rx_amp            = GPIO(1, 11);
-static struct gpio_t gpio_no_rx_amp_pwr     = GPIO(1, 12);
+static struct gpio gpio_hp                = GPIO(2,  0);
+static struct gpio gpio_lp                = GPIO(2, 10);
+static struct gpio gpio_tx_mix_bp         = GPIO(2, 11);
+static struct gpio gpio_no_mix_bypass     = GPIO(1,  0);
+static struct gpio gpio_rx_mix_bp         = GPIO(2, 12);
+static struct gpio gpio_tx_amp            = GPIO(2, 15);
+static struct gpio gpio_tx                = GPIO(5, 15);
+static struct gpio gpio_mix_bypass        = GPIO(5, 16);
+static struct gpio gpio_rx                = GPIO(5,  5);
+static struct gpio gpio_no_tx_amp_pwr     = GPIO(3,  5);
+static struct gpio gpio_amp_bypass        = GPIO(0, 14);
+static struct gpio gpio_rx_amp            = GPIO(1, 11);
+static struct gpio gpio_no_rx_amp_pwr     = GPIO(1, 12);
 #endif
 #ifdef RAD1O
-static struct gpio_t gpio_tx_rx_n           = GPIO(1,  11);
-static struct gpio_t gpio_tx_rx             = GPIO(0,  14);
-static struct gpio_t gpio_by_mix            = GPIO(1,  12);
-static struct gpio_t gpio_by_mix_n          = GPIO(2,  10);
-static struct gpio_t gpio_by_amp            = GPIO(1,  0);
-static struct gpio_t gpio_by_amp_n          = GPIO(5,  5);
-static struct gpio_t gpio_mixer_en          = GPIO(5,  16);
-static struct gpio_t gpio_low_high_filt     = GPIO(2,  11);
-static struct gpio_t gpio_low_high_filt_n   = GPIO(2,  12);
-static struct gpio_t gpio_tx_amp            = GPIO(2,  15);
-static struct gpio_t gpio_rx_lna            = GPIO(5,  15);
+static struct gpio gpio_tx_rx_n           = GPIO(1,  11);
+static struct gpio gpio_tx_rx             = GPIO(0,  14);
+static struct gpio gpio_by_mix            = GPIO(1,  12);
+static struct gpio gpio_by_mix_n          = GPIO(2,  10);
+static struct gpio gpio_by_amp            = GPIO(1,  0);
+static struct gpio gpio_by_amp_n          = GPIO(5,  5);
+static struct gpio gpio_mixer_en          = GPIO(5,  16);
+static struct gpio gpio_low_high_filt     = GPIO(2,  11);
+static struct gpio gpio_low_high_filt_n   = GPIO(2,  12);
+static struct gpio gpio_tx_amp            = GPIO(2,  15);
+static struct gpio gpio_rx_lna            = GPIO(5,  15);
 #endif
 #ifdef PRALINE
-static struct gpio_t gpio_tx_en				= GPIO(3,  4);
-static struct gpio_t gpio_mix_en_n			= GPIO(3,  2);
-static struct gpio_t gpio_mix_en_n_r1_0		= GPIO(5,  6);
-static struct gpio_t gpio_lpf_en			= GPIO(4,  8);
-static struct gpio_t gpio_rf_amp_en			= GPIO(4,  9);
-static struct gpio_t gpio_ant_bias_en_n		= GPIO(1, 12);
+static struct gpio gpio_tx_en				= GPIO(3,  4);
+static struct gpio gpio_mix_en_n			= GPIO(3,  2);
+static struct gpio gpio_mix_en_n_r1_0		= GPIO(5,  6);
+static struct gpio gpio_lpf_en			= GPIO(4,  8);
+static struct gpio gpio_rf_amp_en			= GPIO(4,  9);
+static struct gpio gpio_ant_bias_en_n		= GPIO(1, 12);
 #endif
 
 /* CPLD JTAG interface GPIO pins, FPGA config pins in Praline */
-static struct gpio_t gpio_cpld_tck          = GPIO(3,  0);
+static struct gpio gpio_cpld_tck          = GPIO(3,  0);
 #ifdef PRALINE
-static struct gpio_t gpio_fpga_cfg_creset	= GPIO(2, 11);
-static struct gpio_t gpio_fpga_cfg_cdone	= GPIO(5, 14);
-static struct gpio_t gpio_fpga_cfg_spi_cs	= GPIO(2, 10);
+static struct gpio gpio_fpga_cfg_creset	= GPIO(2, 11);
+static struct gpio gpio_fpga_cfg_cdone	= GPIO(5, 14);
+static struct gpio gpio_fpga_cfg_spi_cs	= GPIO(2, 10);
 #else
-static struct gpio_t gpio_cpld_tdo          = GPIO(5, 18);
+static struct gpio gpio_cpld_tdo          = GPIO(5, 18);
 #if (defined HACKRF_ONE || defined RAD1O)
-static struct gpio_t gpio_cpld_tms          = GPIO(3,  4);
-static struct gpio_t gpio_cpld_tdi          = GPIO(3,  1);
+static struct gpio gpio_cpld_tms          = GPIO(3,  4);
+static struct gpio gpio_cpld_tdi          = GPIO(3,  1);
 #else
-static struct gpio_t gpio_cpld_tms          = GPIO(3,  1);
-static struct gpio_t gpio_cpld_tdi          = GPIO(3,  4);
+static struct gpio gpio_cpld_tms          = GPIO(3,  1);
+static struct gpio gpio_cpld_tdi          = GPIO(3,  4);
 #endif
 #endif
 
 #if (defined HACKRF_ONE || defined PRALINE)
-static struct gpio_t gpio_cpld_pp_tms       = GPIO(1,  1);
-static struct gpio_t gpio_cpld_pp_tdo       = GPIO(1,  8);
+static struct gpio gpio_cpld_pp_tms       = GPIO(1,  1);
+static struct gpio gpio_cpld_pp_tdo       = GPIO(1,  8);
 #endif
 
 /* other CPLD interface GPIO pins */
 #ifndef PRALINE
-static struct gpio_t gpio_trigger_enable    = GPIO(5, 12);
+static struct gpio gpio_trigger_enable    = GPIO(5, 12);
 #endif
-static struct gpio_t gpio_q_invert          = GPIO(0, 13);
+static struct gpio gpio_q_invert          = GPIO(0, 13);
 
 /* HackRF One r9 */
 #ifdef HACKRF_ONE
-static struct gpio_t gpio_h1r9_rx             = GPIO(0, 7);
-static struct gpio_t gpio_h1r9_1v8_enable     = GPIO(2, 9);
-static struct gpio_t gpio_h1r9_vaa_disable    = GPIO(3, 6);
-static struct gpio_t gpio_h1r9_trigger_enable = GPIO(5, 5);
+static struct gpio gpio_h1r9_rx             = GPIO(0, 7);
+static struct gpio gpio_h1r9_1v8_enable     = GPIO(2, 9);
+static struct gpio gpio_h1r9_vaa_disable    = GPIO(3, 6);
+static struct gpio gpio_h1r9_trigger_enable = GPIO(5, 5);
 #endif
 
 #ifdef PRALINE
-static struct gpio_t gpio_p2_ctrl0     = GPIO(7, 3);
-static struct gpio_t gpio_p2_ctrl1     = GPIO(7, 4);
-static struct gpio_t gpio_p1_ctrl0     = GPIO(0, 14);
-static struct gpio_t gpio_p1_ctrl1     = GPIO(5, 16);
-static struct gpio_t gpio_p1_ctrl2     = GPIO(3, 5);
-static struct gpio_t gpio_clkin_ctrl   = GPIO(0, 15);
-static struct gpio_t gpio_aa_en        = GPIO(1, 7);
-static struct gpio_t gpio_trigger_in   = GPIO(6, 26);
-static struct gpio_t gpio_trigger_out  = GPIO(5, 6);
-static struct gpio_t gpio_pps_out      = GPIO(5, 5);
+static struct gpio gpio_p2_ctrl0     = GPIO(7, 3);
+static struct gpio gpio_p2_ctrl1     = GPIO(7, 4);
+static struct gpio gpio_p1_ctrl0     = GPIO(0, 14);
+static struct gpio gpio_p1_ctrl1     = GPIO(5, 16);
+static struct gpio gpio_p1_ctrl2     = GPIO(3, 5);
+static struct gpio gpio_clkin_ctrl   = GPIO(0, 15);
+static struct gpio gpio_aa_en        = GPIO(1, 7);
+static struct gpio gpio_trigger_in   = GPIO(6, 26);
+static struct gpio gpio_trigger_out  = GPIO(5, 6);
+static struct gpio gpio_pps_out      = GPIO(5, 5);
 #endif
 // clang-format on
 
@@ -247,10 +247,10 @@ const ssp_config_t ssp_config_max283x = {
 	.gpio_select = &gpio_max283x_select,
 };
 
-static struct gpio_t gpio_max2831_enable = GPIO(7, 1);
-static struct gpio_t gpio_max2831_rx_enable = GPIO(7, 2);
-static struct gpio_t gpio_max2831_rxhp = GPIO(6, 29);
-static struct gpio_t gpio_max2831_ld = GPIO(4, 11);
+static struct gpio gpio_max2831_enable = GPIO(7, 1);
+static struct gpio gpio_max2831_rx_enable = GPIO(7, 2);
+static struct gpio gpio_max2831_rxhp = GPIO(6, 29);
+static struct gpio gpio_max2831_ld = GPIO(4, 11);
 
 max2831_driver_t max283x = {
 	.bus = &spi_bus_ssp1,
