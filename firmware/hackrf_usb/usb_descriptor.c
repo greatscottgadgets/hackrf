@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2022 Great Scott Gadgets <info@greatscottgadgets.com>
+ * Copyright 2012-2026 Great Scott Gadgets <info@greatscottgadgets.com>
  * Copyright 2012 Jared Boone
  *
  * This file is part of HackRF.
@@ -37,7 +37,7 @@
 	#define USB_PRODUCT_ID (0xFFFF)
 #endif
 
-#define USB_API_VERSION (0x0110)
+#define USB_API_VERSION (0x0111)
 
 #define USB_WORD(x) (x & 0xFF), ((x >> 8) & 0xFF)
 

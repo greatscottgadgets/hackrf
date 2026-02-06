@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2022 Great Scott Gadgets <info@greatscottgadgets.com>
+ * Copyright 2012-2026 Great Scott Gadgets <info@greatscottgadgets.com>
  * Copyright 2012 Jared Boone
  * Copyright 2013 Benjamin Vernoux
  *
@@ -65,5 +65,11 @@ usb_request_status_t usb_vendor_request_read_fpga_reg(
 	usb_endpoint_t* const endpoint,
 	const usb_transfer_stage_t stage);
 #endif
+usb_request_status_t usb_vendor_request_write_radio_reg(
+	usb_endpoint_t* const endpoint,
+	const usb_transfer_stage_t stage);
+usb_request_status_t usb_vendor_request_read_radio_reg(
+	usb_endpoint_t* const endpoint,
+	const usb_transfer_stage_t stage);
 
 #endif /* end of include guard: __USB_API_REGISTER_H__ */

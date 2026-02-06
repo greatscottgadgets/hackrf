@@ -1,3 +1,4 @@
+# Copyright 2012-2026 Great Scott Gadgets <info@greatscottgadgets.com>
 # Copyright 2012 Jared Boone
 # Copyright 2013 Benjamin Vernoux
 #
@@ -20,7 +21,7 @@ cmake_minimum_required(VERSION 3.10.0)
 project(
   libhackrf
   LANGUAGES C
-  VERSION 0.9.2)
+  VERSION 0.10.0)
 include(GNUInstallDirs)
 include(${PROJECT_SOURCE_DIR}/../cmake/set_release.cmake)
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/../cmake/modules)
