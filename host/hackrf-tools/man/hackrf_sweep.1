@@ -1,0 +1,47 @@
+.TH HACKRF_SWEEP "1" "July 2021" "hackrf_sweep" "User Commands"
+.SH NAME
+hackrf_sweep \- control frequency sweep of hackrf
+.SH DESCRIPTION
+hackrf_sweep
+Usage:
+.IP
+[\-h] # this help
+[\-d serial_number] # Serial number of desired HackRF
+[\-a amp_enable] # RX RF amplifier 1=Enable, 0=Disable
+[\-f freq_min:freq_max] # minimum and maximum frequencies in MHz
+[\-p antenna_enable] # Antenna port power, 1=Enable, 0=Disable
+[\-l gain_db] # RX LNA (IF) gain, 0\-40dB, 8dB steps
+[\-g gain_db] # RX VGA (baseband) gain, 0\-62dB, 2dB steps
+[\-n num_samples] # Number of samples per frequency, 8192\-4294967296
+[\-w bin_width] # FFT bin width (frequency resolution) in Hz
+[\-1] # one shot mode
+[\-N num_sweeps] # Number of sweeps to perform
+[\-B] # binary output
+[\-I] # binary inverse FFT output
+\fB\-r\fR filename # output file
+.SS "Output fields:"
+.IP
+date, time, hz_low, hz_high, hz_bin_width, num_samples, dB, dB, . . .
+.SS "Usage:"
+.IP
+[\-h] # this help
+[\-d serial_number] # Serial number of desired HackRF
+[\-a amp_enable] # RX RF amplifier 1=Enable, 0=Disable
+[\-f freq_min:freq_max] # minimum and maximum frequencies in MHz
+[\-p antenna_enable] # Antenna port power, 1=Enable, 0=Disable
+[\-l gain_db] # RX LNA (IF) gain, 0\-40dB, 8dB steps
+[\-g gain_db] # RX VGA (baseband) gain, 0\-62dB, 2dB steps
+[\-n num_samples] # Number of samples per frequency, 8192\-4294967296
+[\-w bin_width] # FFT bin width (frequency resolution) in Hz
+[\-1] # one shot mode
+[\-N num_sweeps] # Number of sweeps to perform
+[\-B] # binary output
+[\-I] # binary inverse FFT output
+\fB\-r\fR filename # output file
+.SS "Output fields:"
+.IP
+date, time, hz_low, hz_high, hz_bin_width, num_samples, dB, dB, . . .
+.SH "SEE ALSO"
+The primary source of documentation is the wiki on github:
+
+https://github.com/mossmann/hackrf/wiki
