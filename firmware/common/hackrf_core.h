@@ -389,9 +389,6 @@ extern "C" {
 #define SCU_H1R9_NO_VAA_EN  (P6_10) /* GPIO3[6] on P6_10 */
 #define SCU_H1R9_TRIGGER_EN (P2_5)  /* GPIO5[5] on P2_5 */
 
-void delay(uint32_t duration);
-void delay_us_at_mhz(uint32_t us, uint32_t mhz);
-
 /* TODO: Hide these configurations */
 extern si5351c_driver_t clock_gen;
 extern const ssp_config_t ssp_config_w25q80bv;

@@ -24,6 +24,7 @@
 #include "streaming.h"
 #include "selftest.h"
 #include "fpga.h"
+#include "delay.h"
 
 // USB buffer used during selftests.
 #define USB_BULK_BUFFER_SIZE 0x8000

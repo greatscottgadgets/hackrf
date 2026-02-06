@@ -39,6 +39,7 @@
 
 #include <libopencm3/lpc43xx/scu.h>
 #include "hackrf_core.h"
+#include "delay.h"
 
 /* Default register values from vendor documentation or software. */
 static const uint16_t rffc5071_regs_default[RFFC5071_NUM_REGS] = {

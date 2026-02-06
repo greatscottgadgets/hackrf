@@ -62,6 +62,7 @@
 #include "clkin.h"
 #include "fpga.h"
 #include "selftest.h"
+#include "delay.h"
 
 extern uint32_t __m0_start__;
 extern uint32_t __m0_end__;

@@ -2,6 +2,7 @@
 
 #include "gpio_lpc.h"
 #include "hackrf_core.h"
+#include "delay.h"
 
 #include <libopencm3/lpc43xx/scu.h>
 #include <libopencm3/lpc43xx/ssp.h>

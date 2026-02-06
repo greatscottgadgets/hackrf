@@ -168,6 +168,7 @@ endmacro()
 macro(DeclareTargets)
 	SET(SRC_M4
 		${SRC_M4}
+		${PATH_HACKRF_FIRMWARE_COMMON}/delay.c
 		${PATH_HACKRF_FIRMWARE_COMMON}/hackrf_core.c
 		${PATH_HACKRF_FIRMWARE_COMMON}/sgpio.c
 		${PATH_HACKRF_FIRMWARE_COMMON}/rf_path.c
