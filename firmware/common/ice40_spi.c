@@ -54,17 +54,17 @@ void ice40_spi_write(ice40_spi_driver_t* const drv, uint8_t r, uint16_t v)
 	spi_bus_transfer(drv->bus, value, 3);
 }
 
-static void spi_ssp1_wait_for_tx_fifo_not_full()
+static void spi_ssp1_wait_for_tx_fifo_not_full(void)
 {
 	while ((SSP_SR(SSP1_BASE) & SSP_SR_TNF) == 0) {}
 }
 
-static void spi_ssp1_wait_for_rx_fifo_not_empty()
+static void spi_ssp1_wait_for_rx_fifo_not_empty(void)
 {
 	while ((SSP_SR(SSP1_BASE) & SSP_SR_RNE) == 0) {}
 }
 
-static void spi_ssp1_wait_for_not_busy()
+static void spi_ssp1_wait_for_not_busy(void)
 {
 	while (SSP_SR(SSP1_BASE) & SSP_SR_BSY) {}
 }

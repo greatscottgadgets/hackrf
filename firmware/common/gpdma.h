@@ -28,7 +28,7 @@
 
 #include <libopencm3/lpc43xx/gpdma.h>
 
-void gpdma_controller_enable();
+void gpdma_controller_enable(void);
 
 void gpdma_channel_enable(const uint_fast8_t channel);
 void gpdma_channel_disable(const uint_fast8_t channel);

@@ -55,7 +55,7 @@ static uint32_t default_output = 0;
  * On Praline, instead, MS0/CLK1 (SCT_CLK) is configured to output its
  * clock (f=2 * sample clock) to the SCTimer.
  */
-void operacake_sctimer_init()
+void operacake_sctimer_init(void)
 {
 	// We start by resetting the SCTimer
 	RESET_CTRL1 = RESET_CTRL1_SCT_RST;
@@ -216,7 +216,7 @@ void operacake_sctimer_set_dwell_times(struct operacake_dwell_times* times, int 
 	SCT_CTRL &= ~SCT_CTRL_HALT_L(1);
 }
 
-void operacake_sctimer_stop()
+void operacake_sctimer_stop(void)
 {
 	// Halt timer
 	SCT_CTRL |= SCT_CTRL_HALT_L(1);
@@ -228,7 +228,7 @@ void operacake_sctimer_stop()
  * called by set_transceiver_mode so the HackRF starts capturing with the
  * same antenna selected each time.
  */
-void operacake_sctimer_reset_state()
+void operacake_sctimer_reset_state(void)
 {
 	SCT_CTRL |= SCT_CTRL_HALT_L(1);
 
