@@ -38,6 +38,7 @@ add_custom_command(
 	COMMAND ${CMAKE_OBJCOPY} 
 		-I binary
 		-O elf32-littlearm
+		-B arm
 		--rename-section .data=.rom_only
 		"fpga.bin" ${PATH_PRALINE_FPGA_OBJ}
 	DEPENDS ${PATH_PRALINE_FPGA_BIN}
