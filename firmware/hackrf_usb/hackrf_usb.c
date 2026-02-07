@@ -284,7 +284,7 @@ int main(void)
 #ifdef HACKRF_ONE
 	// Set up mixer before enabling RF power, because its
 	// GPO is used to control the antenna bias tee.
-	mixer_setup(&mixer);
+	mixer_setup(&mixer, RFFC5071_VARIANT);
 #endif
 #if (defined HACKRF_ONE || defined RAD1O)
 	enable_rf_power();
@@ -320,6 +320,28 @@ int main(void)
 	usb_set_configuration_changed_cb(usb_configuration_changed);
 	usb_peripheral_reset();
 
+	switch (detected_platform()) {
+	case BOARD_ID_HACKRF1_OG:
+	case BOARD_ID_HACKRF1_R9:
+		memcpy(&usb_device,
+		       &usb_device_hackrf_one,
+		       sizeof(usb_device_hackrf_one));
+		break;
+	case BOARD_ID_JAWBREAKER:
+		memcpy(&usb_device,
+		       &usb_device_jawbreaker,
+		       sizeof(usb_device_jawbreaker));
+		break;
+	case BOARD_ID_RAD1O:
+		memcpy(&usb_device, &usb_device_rad1o, sizeof(usb_device_rad1o));
+		break;
+	case BOARD_ID_PRALINE:
+		memcpy(&usb_device, &usb_device_praline, sizeof(usb_device_praline));
+		break;
+	default:
+		memcpy(&usb_device, &usb_device_default, sizeof(usb_device_default));
+		break;
+	};
 	usb_device_init(0, &usb_device);
 
 	usb_queue_init(&usb_endpoint_control_out_queue);
@@ -339,7 +361,7 @@ int main(void)
 	rf_path_init(&rf_path);
 
 #ifndef RAD1O
-	rffc5071_lock_test(&mixer);
+	rffc5071_lock_test(&mixer.rffc5071);
 #endif
 
 #ifdef PRALINE

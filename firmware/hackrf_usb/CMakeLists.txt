@@ -35,7 +35,7 @@ add_custom_command(
 	OUTPUT ${PATH_PRALINE_FPGA_OBJ}
 	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 	COMMAND ${CMAKE_COMMAND} -E copy ${PATH_PRALINE_FPGA_BIN} "fpga.bin"
-	COMMAND ${CMAKE_OBJCOPY} 
+	COMMAND ${CMAKE_OBJCOPY}
 		-I binary
 		-O elf32-littlearm
 		-B arm
@@ -71,6 +71,11 @@ set(SRC_M4
 	"${PATH_HACKRF_FIRMWARE_COMMON}/rom_iap.c"
 	"${PATH_HACKRF_FIRMWARE_COMMON}/operacake.c"
 	"${PATH_HACKRF_FIRMWARE_COMMON}/operacake_sctimer.c"
+	"${PATH_HACKRF_FIRMWARE_COMMON}/xapp058/lenval.c"
+	"${PATH_HACKRF_FIRMWARE_COMMON}/xapp058/micro.c"
+	"${PATH_HACKRF_FIRMWARE_COMMON}/xapp058/ports.c"
+	"${PATH_HACKRF_FIRMWARE_COMMON}/portapack.c"
+	"${PATH_HACKRF_FIRMWARE_COMMON}/ui_portapack.c"
 )
 
 set(SRC_M0 sgpio_m0.s)
@@ -92,17 +97,12 @@ else()
 		usb_api_cpld.c
 		"${PATH_HACKRF_FIRMWARE_COMMON}/cpld_xc2c.c"
 		"${PATH_HACKRF_CPLD_DATA_C}"
-		"${PATH_HACKRF_FIRMWARE_COMMON}/xapp058/lenval.c"
-		"${PATH_HACKRF_FIRMWARE_COMMON}/xapp058/micro.c"
-		"${PATH_HACKRF_FIRMWARE_COMMON}/xapp058/ports.c"
 	)
 endif()
 
 if(BOARD STREQUAL "HACKRF_ONE" OR BOARD STREQUAL "PRALINE")
 	SET(SRC_M4
 		${SRC_M4}
-		"${PATH_HACKRF_FIRMWARE_COMMON}/portapack.c"
-		"${PATH_HACKRF_FIRMWARE_COMMON}/ui_portapack.c"
 	)
 endif()
 

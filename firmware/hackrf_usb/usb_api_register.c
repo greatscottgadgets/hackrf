@@ -54,7 +54,7 @@ usb_request_status_t usb_vendor_request_write_max283x(
 #else
 		if (endpoint->setup.index < MAX2831_NUM_REGS) {
 			if (endpoint->setup.value < MAX2831_DATA_REGS_MAX_VALUE) {
-				max2831_reg_write(
+				max283x_reg_write(
 					&max283x,
 					endpoint->setup.index,
 					endpoint->setup.value);
@@ -92,7 +92,7 @@ usb_request_status_t usb_vendor_request_read_max283x(
 #else
 		if (endpoint->setup.index < MAX2831_NUM_REGS) {
 			const uint16_t value =
-				max2831_reg_read(&max283x, endpoint->setup.index);
+				max283x_reg_read(&max283x, endpoint->setup.index);
 			endpoint->buffer[0] = value & 0xff;
 			endpoint->buffer[1] = value >> 8;
 			usb_transfer_schedule_block(
@@ -164,7 +164,7 @@ usb_request_status_t usb_vendor_request_write_rffc5071(
 	if (stage == USB_TRANSFER_STAGE_SETUP) {
 		if (endpoint->setup.index < RFFC5071_NUM_REGS) {
 			rffc5071_reg_write(
-				&mixer,
+				&mixer.rffc5071,
 				endpoint->setup.index,
 				endpoint->setup.value);
 			usb_transfer_schedule_ack(endpoint->in);
@@ -183,7 +183,7 @@ usb_request_status_t usb_vendor_request_read_rffc5071(
 	uint16_t value;
 	if (stage == USB_TRANSFER_STAGE_SETUP) {
 		if (endpoint->setup.index < RFFC5071_NUM_REGS) {
-			value = rffc5071_reg_read(&mixer, endpoint->setup.index);
+			value = rffc5071_reg_read(&mixer.rffc5071, endpoint->setup.index);
 			endpoint->buffer[0] = value & 0xff;
 			endpoint->buffer[1] = value >> 8;
 			usb_transfer_schedule_block(
@@ -252,7 +252,7 @@ usb_request_status_t usb_vendor_request_user_config_set_bias_t_opts(
 	return USB_REQUEST_STATUS_OK;
 }
 
-#ifdef PRALINE
+//#ifdef PRALINE
 usb_request_status_t usb_vendor_request_write_fpga_reg(
 	usb_endpoint_t* const endpoint,
 	const usb_transfer_stage_t stage)
@@ -282,4 +282,5 @@ usb_request_status_t usb_vendor_request_read_fpga_reg(
 	}
 	return USB_REQUEST_STATUS_OK;
 }
-#endif
+
+//#endif

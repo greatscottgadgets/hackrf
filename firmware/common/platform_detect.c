@@ -23,6 +23,7 @@
 #include "firmware_info.h"
 #include "gpio_lpc.h"
 #include "hackrf_core.h"
+#include "platform_scu.h"
 #include "adc.h"
 
 #include <libopencm3/lpc43xx/scu.h>

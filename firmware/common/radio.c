@@ -128,7 +128,7 @@ radio_error_t radio_set_filter(
 			8;
 	}
 	lpf_bandwidth += offset * 2;
-	max2831_set_lpf_bandwidth(&max283x, lpf_bandwidth);
+	max283x_set_lpf_bandwidth(&max283x, lpf_bandwidth);
 #endif
 
 	config->filter[element] = filter;
@@ -169,7 +169,7 @@ radio_error_t radio_set_gain(
 #ifndef PRALINE
 		real_db = max283x_set_lna_gain(&max283x, gain.db);
 #else
-		real_db = max2831_set_lna_gain(&max283x, gain.db);
+		real_db = max283x_set_lna_gain(&max283x, gain.db);
 #endif
 		if (real_db == 0) {
 			return RADIO_ERR_INVALID_PARAM;
@@ -179,7 +179,7 @@ radio_error_t radio_set_gain(
 #ifndef PRALINE
 		real_db = max283x_set_vga_gain(&max283x, gain.db);
 #else
-		real_db = max2831_set_vga_gain(&max283x, gain.db);
+		real_db = max283x_set_vga_gain(&max283x, gain.db);
 #endif
 		if (real_db == 0) {
 			return RADIO_ERR_INVALID_PARAM;
@@ -189,7 +189,7 @@ radio_error_t radio_set_gain(
 #ifndef PRALINE
 		real_db = max283x_set_txvga_gain(&max283x, gain.db);
 #else
-		real_db = max2831_set_txvga_gain(&max283x, gain.db);
+		real_db = max283x_set_txvga_gain(&max283x, gain.db);
 #endif
 		if (real_db == 0) {
 			return RADIO_ERR_INVALID_PARAM;
