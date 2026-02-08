@@ -67,7 +67,7 @@ static uint_fast8_t usb_endpoint_number(const uint_fast8_t endpoint_address)
 	return (endpoint_address & 0xF);
 }
 
-void usb_peripheral_reset()
+void usb_peripheral_reset(void)
 {
 	RESET_CTRL0 = RESET_CTRL0_USB0_RST;
 	RESET_CTRL0 = 0;
@@ -75,7 +75,7 @@ void usb_peripheral_reset()
 	while ((RESET_ACTIVE_STATUS0 & RESET_CTRL0_USB0_RST) == 0) {}
 }
 
-void usb_phy_enable()
+void usb_phy_enable(void)
 {
 	CREG_CREG0 &= ~CREG_CREG0_USB0PHY;
 }
@@ -634,7 +634,7 @@ static void usb_check_for_transfer_events(void)
 	}
 }
 
-void usb0_isr()
+void usb0_isr(void)
 {
 	const uint32_t status = usb_get_status();
 

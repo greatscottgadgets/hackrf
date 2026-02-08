@@ -491,7 +491,7 @@ static void portapack_radio_path_item_update(
 static rf_path_direction_t portapack_direction = RF_PATH_DIRECTION_OFF;
 static bool portapack_lna_on = false;
 
-static void portapack_radio_path_redraw()
+static void portapack_radio_path_redraw(void)
 {
 	for (size_t i = 0; i < ARRAY_SIZEOF(radio_draw_list); i++) {
 		portapack_draw_radio_path_item(i);
@@ -764,7 +764,7 @@ const hackrf_ui_t portapack_hackrf_ui = {
 	&portapack_ui_set_saturation,
 };
 
-const hackrf_ui_t* portapack_hackrf_ui_init()
+const hackrf_ui_t* portapack_hackrf_ui_init(void)
 {
 	if (portapack()) {
 		return &portapack_hackrf_ui;

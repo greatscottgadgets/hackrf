@@ -30,7 +30,7 @@ static uint8_t lcdBuffer[RESX * RESY];
 
 static bool isTurned;
 
-static void select()
+static void select(void)
 {
 	/*
      * The LCD requires 9-Bit frames
@@ -58,7 +58,7 @@ static void select()
 	gpio_clear(&gpio_lcd_cs);
 }
 
-static void deselect()
+static void deselect(void)
 {
 	gpio_set(&gpio_lcd_cs);
 }

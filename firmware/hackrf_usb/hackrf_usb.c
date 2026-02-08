@@ -241,7 +241,7 @@ static bool cpld_jtag_sram_load(jtag_t* const jtag)
 }
 #endif
 
-static void m0_rom_to_ram()
+static void m0_rom_to_ram(void)
 {
 	uint32_t* dest = &__ram_m0_start__;
 

@@ -25,7 +25,7 @@
 #include <stdint.h>
 
 struct firmware_info_t {
-	char magic[8];
+	__attribute__((nonstring)) char magic[8];
 	uint16_t struct_version;
 	uint16_t dfu_mode;
 	uint32_t supported_platform;
