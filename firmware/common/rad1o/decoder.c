@@ -12,7 +12,7 @@ static const uint8_t* data;
 static uint8_t charBuf[MAXCHR];
 
 // Get next nibble
-static uint8_t gnn()
+static uint8_t gnn(void)
 {
 	static uint8_t byte;
 	uint8_t val;

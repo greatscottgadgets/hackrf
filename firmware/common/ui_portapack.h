@@ -25,6 +25,6 @@
 
 #include "hackrf_ui.h"
 
-const hackrf_ui_t* portapack_hackrf_ui_init() __attribute__((weak));
+const hackrf_ui_t* portapack_hackrf_ui_init(void) __attribute__((weak));
 
 #endif /*__UI_PORTAPACK_H__*/
