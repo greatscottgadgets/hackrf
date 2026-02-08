@@ -326,13 +326,13 @@ static void portapack_lcd_reset(void)
 	portapack_sleep_milliseconds(120);
 }
 
-static uint32_t portapack_data_read()
+static uint32_t portapack_data_read(void)
 {
 	//return (LPC_GPIO->MPIN[gpio_data_port_id] >> gpio_data_shift) & 0xffU;
 	return (portapack_if.gpio_port_data->mpin >> 8) & 0xffU;
 }
 
-static uint32_t portapack_lcd_read_2byte()
+static uint32_t portapack_lcd_read_2byte(void)
 {
 	portapack_dir_read();
 	/* Start read operation */
@@ -350,7 +350,7 @@ static uint32_t portapack_lcd_read_2byte()
 	return (value_high << 8) | value_low;
 }
 
-static uint32_t portapack_lcd_read_display_id()
+static uint32_t portapack_lcd_read_display_id(void)
 {
 	portapack_lcd_data_write_command_and_data(0x04, 0, 0);
 	portapack_lcd_read_2byte();
