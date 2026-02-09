@@ -78,13 +78,8 @@ static usb_request_handler_fn vendor_request_handler[] = {
 	usb_vendor_request_read_si5351c,
 	usb_vendor_request_set_sample_rate_frac,
 	usb_vendor_request_set_baseband_filter_bandwidth,
-#ifdef RAD1O
-	NULL, // write_rffc5071 not used
-	NULL, // read_rffc5071 not used
-#else
-	usb_vendor_request_write_rffc5071,
-	usb_vendor_request_read_rffc5071,
-#endif
+	usb_vendor_request_write_rffc5071, // not supported on RAD10
+	usb_vendor_request_read_rffc5071,  // not supported on RAD10
 	usb_vendor_request_erase_spiflash,
 	usb_vendor_request_write_spiflash,
 	usb_vendor_request_read_spiflash,
@@ -97,12 +92,8 @@ static usb_request_handler_fn vendor_request_handler[] = {
 	usb_vendor_request_set_lna_gain,
 	usb_vendor_request_set_vga_gain,
 	usb_vendor_request_set_txvga_gain,
-	NULL, // was set_if_freq
-#if (defined HACKRF_ONE || defined PRALINE)
-	usb_vendor_request_set_antenna_enable,
-#else
-	NULL,
-#endif
+	NULL,                                  // was set_if_freq
+	usb_vendor_request_set_antenna_enable, // only supported on HACKRF_ONE and PRALINE
 	usb_vendor_request_set_freq_explicit,
 	usb_vendor_request_read_wcid, // USB_WCID_VENDOR_REQ
 	usb_vendor_request_init_sweep,
@@ -115,11 +106,7 @@ static usb_request_handler_fn vendor_request_handler[] = {
 	usb_vendor_request_spiflash_status,
 	usb_vendor_request_spiflash_clear_status,
 	usb_vendor_request_operacake_gpio_test,
-#ifdef HACKRF_ONE
-	usb_vendor_request_cpld_checksum,
-#else
-	NULL,
-#endif
+	usb_vendor_request_cpld_checksum, // only supported on HACKRF_ONE
 	usb_vendor_request_set_ui_enable,
 	usb_vendor_request_operacake_set_mode,
 	usb_vendor_request_operacake_get_mode,
@@ -132,14 +119,14 @@ static usb_request_handler_fn vendor_request_handler[] = {
 	usb_vendor_request_read_supported_platform,
 	usb_vendor_request_set_leds,
 	usb_vendor_request_user_config_set_bias_t_opts,
-#ifdef PRALINE
-	usb_vendor_request_write_fpga_reg,
-	usb_vendor_request_read_fpga_reg,
-	usb_vendor_request_p2_ctrl,
-	usb_vendor_request_p1_ctrl,
-	usb_vendor_request_set_narrowband_filter,
-	usb_vendor_request_set_fpga_bitstream,
-	usb_vendor_request_clkin_ctrl,
+#ifdef PRALINE                                    // TODO
+	usb_vendor_request_write_fpga_reg,        // only supported on PRALINE
+	usb_vendor_request_read_fpga_reg,         // only supported on PRALINE
+	usb_vendor_request_p2_ctrl,               // only supported on PRALINE
+	usb_vendor_request_p1_ctrl,               // only supported on PRALINE
+	usb_vendor_request_set_narrowband_filter, // only supported on PRALINE
+	usb_vendor_request_set_fpga_bitstream,    // only supported on PRALINE
+	usb_vendor_request_clkin_ctrl,            // only supported on PRALINE
 #else
 	NULL,
 	NULL,
