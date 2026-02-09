@@ -23,6 +23,7 @@
 
 #include "usb_api_board_info.h"
 #include "platform_detect.h"
+#include "platform_gpio.h"
 #include "firmware_info.h"
 
 #include <hackrf_core.h>
@@ -32,13 +33,6 @@
 
 #include <stddef.h>
 #include <string.h>
-
-#ifdef HACKRF_ONE
-	#include "gpio_lpc.h"
-static struct gpio gpio_h1r9_clkout_en = GPIO(0, 9);
-static struct gpio gpio_h1r9_mcu_clk_en = GPIO(0, 8);
-static struct gpio gpio_h1r9_rx = GPIO(0, 7);
-#endif
 
 usb_request_status_t usb_vendor_request_read_board_id(
 	usb_endpoint_t* const endpoint,
@@ -132,17 +126,18 @@ usb_request_status_t usb_vendor_request_reset(
 	if (stage == USB_TRANSFER_STAGE_SETUP) {
 		pin_shutdown();
 		clock_gen_shutdown();
-#ifdef HACKRF_ONE
-		/*
-		 * Set boot pins as inputs so that the bootloader reads them
-		 * correctly after the reset.
-		 */
+
 		if (detected_platform() == BOARD_ID_HACKRF1_R9) {
-			gpio_input(&gpio_h1r9_mcu_clk_en);
-			gpio_input(&gpio_h1r9_clkout_en);
-			gpio_input(&gpio_h1r9_rx);
+			/*
+			 * Set boot pins as inputs so that the bootloader reads them
+			 * correctly after the reset.
+			 */
+			const platform_gpio_t* gpio = platform_gpio();
+			gpio_input(gpio->h1r9_mcu_clk_en);
+			gpio_input(gpio->h1r9_clkout_en);
+			gpio_input(gpio->h1r9_rx);
 		}
-#endif
+
 		wwdt_reset(100000);
 
 		usb_transfer_schedule_ack(endpoint->in);
