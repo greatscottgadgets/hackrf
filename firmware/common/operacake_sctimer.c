@@ -29,6 +29,7 @@
 #include <libopencm3/lpc43xx/scu.h>
 #include <libopencm3/lpc43xx/gima.h>
 #include "sct.h"
+#include "delay.h"
 
 #define U1CTRL_SET  SCT_OUT14_SET
 #define U1CTRL_CLR  SCT_OUT14_CLR
