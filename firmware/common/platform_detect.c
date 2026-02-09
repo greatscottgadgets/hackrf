@@ -32,10 +32,10 @@
 static board_id_t platform = BOARD_ID_UNDETECTED;
 static board_rev_t revision = BOARD_REV_UNDETECTED;
 
-static struct gpio_t gpio2_9_on_P5_0 = GPIO(2, 9);
-static struct gpio_t gpio3_6_on_P6_10 = GPIO(3, 6);
-static struct gpio_t gpio3_4_on_P6_5 = GPIO(3, 4);
-static struct gpio_t gpio2_6_on_P4_6 = GPIO(2, 6);
+static struct gpio gpio2_9_on_P5_0 = GPIO(2, 9);
+static struct gpio gpio3_6_on_P6_10 = GPIO(3, 6);
+static struct gpio gpio3_4_on_P6_5 = GPIO(3, 4);
+static struct gpio gpio2_6_on_P4_6 = GPIO(2, 6);
 
 #define P5_0_PUP  (1 << 0)
 #define P5_0_PDN  (1 << 1)
@@ -62,9 +62,9 @@ static struct gpio_t gpio2_6_on_P4_6 = GPIO(2, 6);
  * hardware detection failure, but three LEDs are flashed if CPLD/FPGA configuration
  * fails.
  */
-static struct gpio_t gpio_led1 = GPIO(2, 1);
-static struct gpio_t gpio_led2 = GPIO(2, 2);
-static struct gpio_t gpio_led3 = GPIO(2, 8);
+static struct gpio gpio_led1 = GPIO(2, 1);
+static struct gpio gpio_led2 = GPIO(2, 2);
+static struct gpio gpio_led3 = GPIO(2, 8);
 
 /*
  * Starting with r6, HackRF One has pin straps on ADC pins that indicate
