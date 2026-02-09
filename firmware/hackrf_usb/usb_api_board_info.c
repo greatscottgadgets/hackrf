@@ -35,9 +35,9 @@
 
 #ifdef HACKRF_ONE
 	#include "gpio_lpc.h"
-static struct gpio_t gpio_h1r9_clkout_en = GPIO(0, 9);
-static struct gpio_t gpio_h1r9_mcu_clk_en = GPIO(0, 8);
-static struct gpio_t gpio_h1r9_rx = GPIO(0, 7);
+static struct gpio gpio_h1r9_clkout_en = GPIO(0, 9);
+static struct gpio gpio_h1r9_mcu_clk_en = GPIO(0, 8);
+static struct gpio gpio_h1r9_rx = GPIO(0, 7);
 #endif
 
 usb_request_status_t usb_vendor_request_read_board_id(
