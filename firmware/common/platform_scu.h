@@ -265,7 +265,7 @@ typedef struct {
 } platform_scu_t;
 
 // Detects and returns the global platform scu instance of the active board id and revision.
-const platform_scu_t* platform_scu();
+const platform_scu_t* platform_scu(void);
 
 // Platform_detect needs these for error indication
 #define SCU_PINMUX_LED1 (P4_1)  /* GPIO2[1] on P4_1 */

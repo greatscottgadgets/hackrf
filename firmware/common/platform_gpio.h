@@ -149,7 +149,7 @@ typedef struct {
 } platform_gpio_t;
 
 // Detects and returns the global platform gpio instance of the active board id and revision.
-const platform_gpio_t* platform_gpio();
+const platform_gpio_t* platform_gpio(void);
 
 /* LPC43xx GPIO pre-declarations - we use these instead of the GPIO()
    macro so that we can assign them at runtime. */
