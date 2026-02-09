@@ -79,5 +79,6 @@ void detect_hardware_platform(void);
 board_id_t detected_platform(void);
 board_rev_t detected_revision(void);
 uint32_t supported_platform(void);
+void finalize_detect_hardware_platform(void);
 
 #endif //__PLATFORM_DETECT_H__

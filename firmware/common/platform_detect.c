@@ -303,6 +303,13 @@ void detect_hardware_platform(void)
 	}
 }
 
+void finalize_detect_hardware_platform(void)
+{
+	gpio_output(&gpio2_9_on_P5_0);
+	gpio_output(&gpio3_6_on_P6_10); // known to break cpld init if not reset to output
+	gpio_output(&gpio3_4_on_P6_5);
+}
+
 board_id_t detected_platform(void)
 {
 	return platform;
