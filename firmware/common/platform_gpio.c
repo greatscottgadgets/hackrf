@@ -24,7 +24,7 @@
 
 // clang-format off
 
-const platform_gpio_t* platform_gpio()
+const platform_gpio_t* platform_gpio(void)
 {
 	static const platform_gpio_t* _platform_gpio = NULL;
 	if (_platform_gpio != NULL) {
