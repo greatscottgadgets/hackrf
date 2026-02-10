@@ -219,7 +219,6 @@ void usb_set_descriptor_by_serial_number(void)
 	}
 }
 
-//#ifndef PRALINE
 static bool cpld_jtag_sram_load(jtag_t* const jtag)
 {
 	cpld_jtag_take(jtag);
@@ -231,8 +230,6 @@ static bool cpld_jtag_sram_load(jtag_t* const jtag)
 	cpld_jtag_release(jtag);
 	return success;
 }
-
-//#endif
 
 static void m0_rom_to_ram(void)
 {
@@ -321,7 +318,7 @@ int main(void)
 	radio_init(&radio);
 
 	if (board_id == BOARD_ID_HACKRF1_OG || board_id == BOARD_ID_HACKRF1_R9 ||
-	    board_id == BOARD_ID_RAD1O) {
+	    board_id == BOARD_ID_PRALINE) {
 		portapack_init();
 	}
 
