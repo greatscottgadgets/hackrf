@@ -209,26 +209,6 @@ macro(DeclareTargets)
 		${PATH_HACKRF_FIRMWARE_COMMON}/ice40_spi.c
 		)
 
-	if(BOARD STREQUAL "RAD1O")
-		SET(SRC_M4
-			${SRC_M4}
-		)
-	else()
-		SET(SRC_M4
-			${SRC_M4}
-		)
-	endif()
-
-	if(BOARD STREQUAL "PRALINE")
-		SET(SRC_M4
-			${SRC_M4}
-		)
-	else()
-		SET(SRC_M4
-			${SRC_M4}
-		)
-	endif()
-
 	link_directories(
 		"${PATH_HACKRF_FIRMWARE_COMMON}"
 		"${LIBOPENCM3}/lib"
