@@ -76,7 +76,6 @@ set(SRC_M4
 	"${PATH_HACKRF_FIRMWARE_COMMON}/xapp058/ports.c"
 	"${PATH_HACKRF_FIRMWARE_COMMON}/portapack.c"
 	"${PATH_HACKRF_FIRMWARE_COMMON}/ui_portapack.c"
-
 	usb_api_cpld.c
 	"${PATH_HACKRF_FIRMWARE_COMMON}/cpld_xc2c.c"
 	"${PATH_HACKRF_CPLD_DATA_C}"
@@ -94,16 +93,6 @@ if(BOARD STREQUAL "PRALINE")
 	)
 	SET(OBJ_M4
 		${PATH_PRALINE_FPGA_OBJ}
-	)
-else()
-	SET(SRC_M4
-		${SRC_M4}
-	)
-endif()
-
-if(BOARD STREQUAL "HACKRF_ONE" OR BOARD STREQUAL "PRALINE")
-	SET(SRC_M4
-		${SRC_M4}
 	)
 endif()
 

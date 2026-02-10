@@ -106,7 +106,11 @@ static usb_request_handler_fn vendor_request_handler[] = {
 	usb_vendor_request_spiflash_status,
 	usb_vendor_request_spiflash_clear_status,
 	usb_vendor_request_operacake_gpio_test,
+#if (defined PRALINE || defined HACKRF_ONE)
 	usb_vendor_request_cpld_checksum, // only supported on HACKRF_ONE
+#else
+	NULL,
+#endif
 	usb_vendor_request_set_ui_enable,
 	usb_vendor_request_operacake_set_mode,
 	usb_vendor_request_operacake_get_mode,
@@ -119,7 +123,7 @@ static usb_request_handler_fn vendor_request_handler[] = {
 	usb_vendor_request_read_supported_platform,
 	usb_vendor_request_set_leds,
 	usb_vendor_request_user_config_set_bias_t_opts,
-#ifdef PRALINE                                    // TODO
+#ifdef PRALINE
 	usb_vendor_request_write_fpga_reg,        // only supported on PRALINE
 	usb_vendor_request_read_fpga_reg,         // only supported on PRALINE
 	usb_vendor_request_p2_ctrl,               // only supported on PRALINE
@@ -215,7 +219,7 @@ void usb_set_descriptor_by_serial_number(void)
 	}
 }
 
-#ifndef PRALINE
+//#ifndef PRALINE
 static bool cpld_jtag_sram_load(jtag_t* const jtag)
 {
 	cpld_jtag_take(jtag);
@@ -227,7 +231,8 @@ static bool cpld_jtag_sram_load(jtag_t* const jtag)
 	cpld_jtag_release(jtag);
 	return success;
 }
-#endif
+
+//#endif
 
 static void m0_rom_to_ram(void)
 {
@@ -251,67 +256,74 @@ int main(void)
 	// This will be cleared if any self-test check fails.
 	selftest.report.pass = true;
 
+	// Detect hardware platform before we do anything else.
 	detect_hardware_platform();
+	board_id_t board_id = detected_platform();
+
 	pin_shutdown();
-#ifndef RAD1O
-	clock_gen_shutdown();
-#endif
+	if (board_id != BOARD_ID_RAD1O) {
+		clock_gen_shutdown();
+	}
 	delay_us_at_mhz(10000, 96);
 	pin_setup();
-#ifndef PRALINE
-	enable_1v8_power();
-	#ifndef RAD1O
-	/*
-	 * On rad1o, the clock generator power supply comes from the RF supply
-	 * which is enabled later. On H1 and Jawbreaker, the clock generator is
-	 * on the main 3V3 supply.
-	 */
-	clock_gen_init();
-	#endif
-#else
-	enable_3v3aux_power();
-	#if !defined(DFU_MODE) && !defined(RAM_MODE)
-	enable_1v2_power();
-	enable_rf_power();
-	/*
-	 * On Praline, the clock generator power supply comes from 3V3FPGA
-	 * which is enabled when 1V2FPGA is turned on.
-	 */
-	clock_gen_init();
-	#endif
+	if (board_id != BOARD_ID_PRALINE) {
+		enable_1v8_power();
+		if (board_id != BOARD_ID_RAD1O) {
+			/*
+			 * On rad1o, the clock generator power supply comes from the RF supply
+			 * which is enabled later. On H1 and Jawbreaker, the clock generator is
+			 * on the main 3V3 supply.
+			 */
+			clock_gen_init();
+		}
+	} else {
+		enable_3v3aux_power();
+#if !defined(DFU_MODE) && !defined(RAM_MODE)
+		enable_1v2_power();
+		enable_rf_power();
+		/*
+		 * On Praline, the clock generator power supply comes from 3V3FPGA
+		 * which is enabled when 1V2FPGA is turned on.
+		 */
+		clock_gen_init();
 #endif
-#ifdef HACKRF_ONE
-	// Set up mixer before enabling RF power, because its
-	// GPO is used to control the antenna bias tee.
-	mixer_setup(&mixer, RFFC5071_VARIANT);
-#endif
-#if (defined HACKRF_ONE || defined RAD1O)
-	enable_rf_power();
-#endif
-#ifdef RAD1O
-	clock_gen_init();
-#endif
+	}
+	if (board_id == BOARD_ID_HACKRF1_OG || board_id == BOARD_ID_HACKRF1_R9) {
+		// Set up mixer before enabling RF power, because its
+		// GPO is used to control the antenna bias tee.
+		mixer_setup(&mixer, RFFC5071_VARIANT);
+	}
+	if (board_id == BOARD_ID_HACKRF1_OG || board_id == BOARD_ID_HACKRF1_R9 ||
+	    board_id == BOARD_ID_RAD1O) {
+		enable_rf_power();
+	}
+	if (board_id == BOARD_ID_RAD1O) {
+		clock_gen_init();
+	}
 	cpu_clock_init();
 
 	/* Wake the M0 */
 	ipc_halt_m0();
 	ipc_start_m0((uint32_t) &__ram_m0_start__);
 
-#ifndef PRALINE
-	if (!cpld_jtag_sram_load(&jtag_cpld)) {
-		halt_and_flash(6000000);
-	}
-#else
-	fpga_image_load(0);
-	delay_us_at_mhz(100, 204);
-	fpga_spi_selftest();
-	fpga_sgpio_selftest();
+	if (board_id != BOARD_ID_PRALINE) {
+		if (!cpld_jtag_sram_load(&jtag_cpld)) {
+			halt_and_flash(6000000);
+		}
+	} else {
+#ifdef PRALINE
+		fpga_image_load(0);
+		delay_us_at_mhz(100, 204);
+		fpga_spi_selftest();
+		fpga_sgpio_selftest();
 #endif
+	}
 	radio_init(&radio);
 
-#if (defined HACKRF_ONE || defined PRALINE)
-	portapack_init();
-#endif
+	if (board_id == BOARD_ID_HACKRF1_OG || board_id == BOARD_ID_HACKRF1_R9 ||
+	    board_id == BOARD_ID_RAD1O) {
+		portapack_init();
+	}
 
 #ifndef DFU_MODE
 	usb_set_descriptor_by_serial_number();
@@ -360,12 +372,14 @@ int main(void)
 
 	rf_path_init(&rf_path);
 
-#ifndef RAD1O
-	rffc5071_lock_test(&mixer.rffc5071);
-#endif
+	if (board_id != BOARD_ID_RAD1O) {
+		rffc5071_lock_test(&mixer.rffc5071);
+	}
 
 #ifdef PRALINE
-	fpga_if_xcvr_selftest();
+	if (board_id == BOARD_ID_PRALINE) {
+		fpga_if_xcvr_selftest();
+	}
 #endif
 
 	bool operacake_allow_gpio;
@@ -409,11 +423,11 @@ int main(void)
 		case TRANSCEIVER_MODE_RX_SWEEP:
 			sweep_mode(request.seq);
 			break;
-#ifndef PRALINE
 		case TRANSCEIVER_MODE_CPLD_UPDATE:
-			cpld_update();
+			if (board_id != BOARD_ID_PRALINE) {
+				cpld_update();
+			}
 			break;
-#endif
 		default:
 			break;
 		}
