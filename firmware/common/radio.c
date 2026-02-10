@@ -736,7 +736,7 @@ bool radio_update(radio_t* const radio)
 	     (1 << RADIO_GAIN_RX_IF) | (1 << RADIO_GAIN_RX_BB) | (1 << RADIO_OPMODE))) {
 		gain = radio_update_gain(radio, &tmp_bank[0]);
 	}
-	if (dirty & (1 << RADIO_BIAS_TEE)) {
+	if (dirty & ((1 << RADIO_BIAS_TEE) | (1 << RADIO_OPMODE))) {
 		bias = radio_update_bias_tee(radio, &tmp_bank[0]);
 	}
 	if (dirty & (1 << RADIO_TRIGGER)) {

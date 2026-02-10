@@ -1,5 +1,6 @@
 /*
  * Copyright 2012-2026 Great Scott Gadgets <info@greatscottgadgets.com>
+ * Copyright 2023 Jonathan Suite (GitHub: @ai6aj)
  * Copyright 2012 Jared Boone
  * Copyright 2013 Benjamin Vernoux
  *
@@ -22,7 +23,6 @@
  */
 
 #include "usb_api_register.h"
-#include <user_config.h>
 #include <hackrf_core.h>
 #include <usb_queue.h>
 #include <max2831.h>
@@ -241,12 +241,46 @@ usb_request_status_t usb_vendor_request_set_leds(
 	return USB_REQUEST_STATUS_OK;
 }
 
+typedef enum {
+	BIAS_TEE_OPT_NOP = 0,      // No OPeration / Ignore the thing
+	BIAS_TEE_OPT_RESERVED = 1, // Currently a NOP
+	BIAS_TEE_OPT_CLEAR = 2,    // Clear/Disable the thing
+	BIAS_TEE_OPT_SET = 3,      // Set/Enable the thing
+} bias_tee_opt_t;
+
+static void set_bias_tee_opt(const uint8_t bank, const bias_tee_opt_t option)
+{
+	uint64_t value;
+
+	switch (option) {
+	case BIAS_TEE_OPT_CLEAR:
+		value = (uint64_t) false;
+		break;
+	case BIAS_TEE_OPT_SET:
+		value = (uint64_t) true;
+		break;
+	default:
+		value = RADIO_UNSET;
+	}
+
+	radio_reg_write(&radio, bank, RADIO_BIAS_TEE, value);
+}
+
 usb_request_status_t usb_vendor_request_user_config_set_bias_t_opts(
 	usb_endpoint_t* const endpoint,
 	const usb_transfer_stage_t stage)
 {
 	if (stage == USB_TRANSFER_STAGE_SETUP) {
-		user_config_set_bias_t_opts(endpoint->setup.value);
+		uint16_t value = endpoint->setup.value;
+		if (value & 0x4) {
+			set_bias_tee_opt(RADIO_BANK_IDLE, value & 0x3);
+		}
+		if (value & 0x20) {
+			set_bias_tee_opt(RADIO_BANK_RX, (value & 0x18) >> 3);
+		}
+		if (value & 0x100) {
+			set_bias_tee_opt(RADIO_BANK_TX, (value & 0xC0) >> 6);
+		}
 		usb_transfer_schedule_ack(endpoint->in);
 	}
 	return USB_REQUEST_STATUS_OK;
