@@ -41,6 +41,8 @@
 #include "hackrf_core.h"
 #include "delay.h"
 
+static bool enabled = false;
+
 /* Default register values from vendor documentation or software. */
 static const uint16_t rffc5071_regs_default[RFFC5071_NUM_REGS] = {
 	0xfffb, /* 00 */
@@ -146,12 +148,16 @@ void rffc5071_lock_test(rffc5071_driver_t* const drv)
 	for (int i = 0; i < NUM_LOCK_ATTEMPTS; i++) {
 		// Tune to 100MHz.
 		rffc5071_set_frequency(drv, 100000000);
+		rffc5071_enable(drv);
 
 		// Wait 1ms.
 		delay_us_at_mhz(1000, 204);
 
 		// Check for lock.
 		lock = rffc5071_check_lock(drv);
+
+		rffc5071_disable(drv);
+		delay_us_at_mhz(100, 204);
 
 		selftest.mixer_locks[i] = lock;
 	}
@@ -229,14 +235,20 @@ void rffc5071_regs_commit(rffc5071_driver_t* const drv)
 
 void rffc5071_disable(rffc5071_driver_t* const drv)
 {
-	set_RFFC5071_ENBL(drv, 0);
-	rffc5071_regs_commit(drv);
+	if (enabled) {
+		set_RFFC5071_ENBL(drv, 0);
+		rffc5071_regs_commit(drv);
+		enabled = false;
+	}
 }
 
 void rffc5071_enable(rffc5071_driver_t* const drv)
 {
-	set_RFFC5071_ENBL(drv, 1);
-	rffc5071_regs_commit(drv);
+	if (!enabled) {
+		set_RFFC5071_ENBL(drv, 1);
+		rffc5071_regs_commit(drv);
+		enabled = true;
+	}
 }
 
 #define FREQ_ONE_MHZ (1000ULL * 1000ULL)
@@ -308,9 +320,11 @@ uint64_t rffc5071_set_frequency(rffc5071_driver_t* const drv, uint64_t hz)
 {
 	uint32_t tune_freq;
 
-	rffc5071_disable(drv);
 	tune_freq = rffc5071_config_synth(drv, hz);
-	rffc5071_enable(drv);
+	if (enabled) {
+		set_RFFC5071_RELOK(drv, 1);
+		rffc5071_regs_commit(drv);
+	}
 
 	return tune_freq;
 }
