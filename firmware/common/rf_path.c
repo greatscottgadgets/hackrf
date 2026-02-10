@@ -34,54 +34,52 @@
 #include "max5864.h"
 #include "sgpio.h"
 
-#if (defined JAWBREAKER || defined HACKRF_ONE || defined RAD1O || defined PRALINE)
-	/*
-	 * RF switches on Jawbreaker are controlled by General Purpose Outputs (GPO) on
-	 * the RFFC5072.
-	 *
-	 * On HackRF One, the same signals are controlled by GPIO on the LPC.
-	 * SWITCHCTRL_NO_TX_AMP_PWR and SWITCHCTRL_NO_RX_AMP_PWR are not normally used
-	 * on HackRF One as the amplifier power is instead controlled only by
-	 * SWITCHCTRL_AMP_BYPASS.
-	 *
-	 * The rad1o also uses GPIO pins to control the different switches. The amplifiers
-	 * are also connected to the LPC.
-	 * 
-	 * On Praline, a subset of control signals is managed by GPIO pins on the LPC, while
-	 * the remaining signals are generated through combinatorial logic in hardware.
-	 */
-	#define SWITCHCTRL_NO_TX_AMP_PWR (1 << 0) /* GPO1 turn off TX amp power */
-	#define SWITCHCTRL_AMP_BYPASS    (1 << 1) /* GPO2 bypass amp section */
-	#define SWITCHCTRL_TX            (1 << 2) /* GPO3 1 for TX mode, 0 for RX mode */
-	#define SWITCHCTRL_MIX_BYPASS    (1 << 3) /* GPO4 bypass RFFC5072 mixer section */
-	#define SWITCHCTRL_HP            (1 << 4) /* GPO5 1 for high-pass, 0 for low-pass */
-	#define SWITCHCTRL_NO_RX_AMP_PWR (1 << 5) /* GPO6 turn off RX amp power */
+/*
+ * RF switches on Jawbreaker are controlled by General Purpose Outputs (GPO) on
+ * the RFFC5072.
+ *
+ * On HackRF One, the same signals are controlled by GPIO on the LPC.
+ * SWITCHCTRL_NO_TX_AMP_PWR and SWITCHCTRL_NO_RX_AMP_PWR are not normally used
+ * on HackRF One as the amplifier power is instead controlled only by
+ * SWITCHCTRL_AMP_BYPASS.
+ *
+ * The rad1o also uses GPIO pins to control the different switches. The amplifiers
+ * are also connected to the LPC.
+ *
+ * On Praline, a subset of control signals is managed by GPIO pins on the LPC, while
+ * the remaining signals are generated through combinatorial logic in hardware.
+ */
+#define SWITCHCTRL_NO_TX_AMP_PWR (1 << 0) /* GPO1 turn off TX amp power */
+#define SWITCHCTRL_AMP_BYPASS    (1 << 1) /* GPO2 bypass amp section */
+#define SWITCHCTRL_TX            (1 << 2) /* GPO3 1 for TX mode, 0 for RX mode */
+#define SWITCHCTRL_MIX_BYPASS    (1 << 3) /* GPO4 bypass RFFC5072 mixer section */
+#define SWITCHCTRL_HP            (1 << 4) /* GPO5 1 for high-pass, 0 for low-pass */
+#define SWITCHCTRL_NO_RX_AMP_PWR (1 << 5) /* GPO6 turn off RX amp power */
 
-	/*
-	 GPO6  GPO5  GPO4 GPO3  GPO2  GPO1
-	!RXAMP  HP  MIXBP  TX  AMPBP !TXAMP  Mix mode   Amp mode
-	   1    X     1    1     1      1    TX bypass  Bypass
-	   1    X     1    1     0      0    TX bypass  TX amplified
-	   1    1     0    1     1      1    TX high    Bypass
-	   1    1     0    1     0      0    TX high    TX amplified
-	   1    0     0    1     1      1    TX low     Bypass
-	   1    0     0    1     0      0    TX low     TX amplified
-	   1    X     1    0     1      1    RX bypass  Bypass
-	   0    X     1    0     0      1    RX bypass  RX amplified
-	   1    1     0    0     1      1    RX high    Bypass
-	   0    1     0    0     0      1    RX high    RX amplified
-	   1    0     0    0     1      1    RX low     Bypass
-	   0    0     0    0     0      1    RX low     RX amplified
-	*/
+/*
+ GPO6  GPO5  GPO4 GPO3  GPO2  GPO1
+!RXAMP  HP  MIXBP  TX  AMPBP !TXAMP  Mix mode   Amp mode
+   1    X     1    1     1      1    TX bypass  Bypass
+   1    X     1    1     0      0    TX bypass  TX amplified
+   1    1     0    1     1      1    TX high    Bypass
+   1    1     0    1     0      0    TX high    TX amplified
+   1    0     0    1     1      1    TX low     Bypass
+   1    0     0    1     0      0    TX low     TX amplified
+   1    X     1    0     1      1    RX bypass  Bypass
+   0    X     1    0     0      1    RX bypass  RX amplified
+   1    1     0    0     1      1    RX high    Bypass
+   0    1     0    0     0      1    RX high    RX amplified
+   1    0     0    0     1      1    RX low     Bypass
+   0    0     0    0     0      1    RX low     RX amplified
+*/
 
-	/*
-	 * Safe (initial) switch settings turn off both amplifiers and enable both amp
-	 * bypass and mixer bypass.
-	 */
-	#define SWITCHCTRL_SAFE                                                     \
-		(SWITCHCTRL_NO_TX_AMP_PWR | SWITCHCTRL_AMP_BYPASS | SWITCHCTRL_TX | \
-		 SWITCHCTRL_MIX_BYPASS | SWITCHCTRL_HP | SWITCHCTRL_NO_RX_AMP_PWR)
-#endif
+/*
+ * Safe (initial) switch settings turn off both amplifiers and enable both amp
+ * bypass and mixer bypass.
+ */
+#define SWITCHCTRL_SAFE                                                     \
+	(SWITCHCTRL_NO_TX_AMP_PWR | SWITCHCTRL_AMP_BYPASS | SWITCHCTRL_TX | \
+	 SWITCHCTRL_MIX_BYPASS | SWITCHCTRL_HP | SWITCHCTRL_NO_RX_AMP_PWR)
 
 /*
  * Antenna port power on HackRF One (prior to r9) is controlled by GPO1 on the
