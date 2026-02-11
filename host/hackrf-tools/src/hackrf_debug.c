@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2022 Great Scott Gadgets <info@greatscottgadgets.com>
+ * Copyright 2012-2026 Great Scott Gadgets <info@greatscottgadgets.com>
  * Copyright 2012 Jared Boone <jared@sharebrained.com>
  * Copyright 2013 Benjamin Vernoux <titanmkd@gmail.com>
  * Copyright 2017 Dominic Spill <dominicgs@gmail.com>
@@ -29,6 +29,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <getopt.h>
+#include <inttypes.h>
 
 #define REGISTER_INVALID 32767
 
@@ -39,13 +40,14 @@ enum parts {
 	PART_RFFC5072 = 3,
 	PART_MAX2831 = 4,
 	PART_GATEWARE = 5,
+	PART_RADIO = 6,
 };
 
-int parse_int(char* s, uint32_t* const value)
+int parse_int(char* s, uint64_t* const value)
 {
 	uint_fast8_t base = 10;
 	char* s_end;
-	long long_value;
+	long long ll_value;
 
 	if (strlen(s) > 2) {
 		if (s[0] == '0') {
@@ -60,9 +62,9 @@ int parse_int(char* s, uint32_t* const value)
 	}
 
 	s_end = s;
-	long_value = strtol(s, &s_end, base);
+	ll_value = strtoull(s, &s_end, base);
 	if ((s != s_end) && (*s_end == 0)) {
-		*value = (uint32_t) long_value;
+		*value = (uint64_t) ll_value;
 		return HACKRF_SUCCESS;
 	} else {
 		return HACKRF_ERROR_INVALID_PARAM;
@@ -473,7 +475,81 @@ int fpga_write_register(
 	return result;
 }
 
-int read_register(hackrf_device* device, uint8_t part, const uint16_t register_number)
+int radio_read_register(
+	hackrf_device* device,
+	const uint8_t bank,
+	const uint16_t register_number)
+{
+	uint64_t register_value;
+	int result = hackrf_radio_read_register(
+		device,
+		bank,
+		(uint8_t) register_number,
+		&register_value);
+
+	if (result == HACKRF_SUCCESS) {
+		printf("bank %d register [%2d] -> 0x%016" PRIx64 "\n",
+		       bank,
+		       register_number,
+		       register_value);
+	} else {
+		printf("hackrf_radio_read_register() failed: %s (%d)\n",
+		       hackrf_error_name(result),
+		       result);
+	}
+
+	return result;
+}
+
+#define RADIO_NUM_REGS (24)
+
+int radio_read_registers(hackrf_device* device, const uint8_t bank)
+{
+	uint16_t register_number;
+	int result = HACKRF_SUCCESS;
+
+	for (register_number = 0; register_number < RADIO_NUM_REGS; register_number++) {
+		result = radio_read_register(device, bank, register_number);
+		if (result != HACKRF_SUCCESS) {
+			break;
+		}
+	}
+
+	return result;
+}
+
+int radio_write_register(
+	hackrf_device* device,
+	const uint8_t bank,
+	const uint16_t register_number,
+	const uint64_t register_value)
+{
+	int result = HACKRF_SUCCESS;
+	result = hackrf_radio_write_register(
+		device,
+		bank,
+		(uint8_t) register_number,
+		register_value);
+
+	if (result == HACKRF_SUCCESS) {
+		printf("bank %d 0x%016" PRIx64 " -> [%2d]\n",
+		       bank,
+		       register_value,
+		       register_number);
+	} else {
+		printf("hackrf_radio_write_register() failed: %s (%d)\n",
+		       hackrf_error_name(result),
+		       result);
+	}
+
+	return result;
+}
+
+int read_register(
+	hackrf_device* device,
+	uint8_t part,
+	const uint8_t bank,
+	const uint16_t register_number)
 {
 	switch (part) {
 	case PART_MAX2837:
@@ -485,11 +561,13 @@ int read_register(hackrf_device* device, uint8_t part, const uint16_t register_n
 		return rffc5072_read_register(device, register_number);
 	case PART_GATEWARE:
 		return fpga_read_register(device, register_number);
+	case PART_RADIO:
+		return radio_read_register(device, bank, register_number);
 	}
 	return HACKRF_ERROR_INVALID_PARAM;
 }
 
-int read_registers(hackrf_device* device, uint8_t part)
+int read_registers(hackrf_device* device, uint8_t part, const uint8_t bank)
 {
 	switch (part) {
 	case PART_MAX2837:
@@ -501,6 +579,8 @@ int read_registers(hackrf_device* device, uint8_t part)
 		return rffc5072_read_registers(device);
 	case PART_GATEWARE:
 		return fpga_read_registers(device);
+	case PART_RADIO:
+		return radio_read_registers(device, bank);
 	}
 	return HACKRF_ERROR_INVALID_PARAM;
 }
@@ -508,8 +588,9 @@ int read_registers(hackrf_device* device, uint8_t part)
 int write_register(
 	hackrf_device* device,
 	uint8_t part,
+	const uint8_t bank,
 	const uint16_t register_number,
-	const uint16_t register_value)
+	const uint64_t register_value)
 {
 	switch (part) {
 	case PART_MAX2837:
@@ -517,14 +598,25 @@ int write_register(
 		return max283x_write_register(
 			device,
 			register_number,
-			register_value,
+			(uint16_t) register_value,
 			part);
 	case PART_SI5351C:
-		return si5351c_write_register(device, register_number, register_value);
+		return si5351c_write_register(
+			device,
+			register_number,
+			(uint16_t) register_value);
 	case PART_RFFC5072:
-		return rffc5072_write_register(device, register_number, register_value);
+		return rffc5072_write_register(
+			device,
+			register_number,
+			(uint16_t) register_value);
 	case PART_GATEWARE:
-		return fpga_write_register(device, register_number, register_value);
+		return fpga_write_register(
+			device,
+			register_number,
+			(uint16_t) register_value);
+	case PART_RADIO:
+		return radio_write_register(device, bank, register_number, register_value);
 	}
 	return HACKRF_ERROR_INVALID_PARAM;
 }
@@ -579,6 +671,7 @@ static void usage()
 {
 	printf("\nUsage:\n");
 	printf("\t-h, --help: this help\n");
+	printf("\t-b, --bank <n>: set register bank for read/write operations (default 0)\n");
 	printf("\t-n, --register <n>: set register number for read/write operations\n");
 	printf("\t-r, --read: read register specified by last -n argument, or all registers\n");
 	printf("\t-w, --write <v>: write register specified by last -n argument with value <v>\n");
@@ -588,6 +681,7 @@ static void usage()
 	printf("\t-s, --si5351c: target SI5351C\n");
 	printf("\t-f, --rffc5072: target RFFC5072\n");
 	printf("\t-g, --gateware: target gateware registers\n");
+	printf("\t-i, --radio: target radio registers\n");
 	printf("\t-P, --fpga <n>: load the n-th bitstream to the FPGA\n");
 	printf("\t-1, --p1 <n>: P1 control\n");
 	printf("\t-2, --p2 <n>: P2 control\n");
@@ -611,6 +705,7 @@ static void usage()
 
 static struct option long_options[] = {
 	{"config", no_argument, 0, 'c'},
+	{"bank", required_argument, 0, 'b'},
 	{"register", required_argument, 0, 'n'},
 	{"write", required_argument, 0, 'w'},
 	{"read", no_argument, 0, 'r'},
@@ -621,6 +716,7 @@ static struct option long_options[] = {
 	{"si5351c", no_argument, 0, 's'},
 	{"rffc5072", no_argument, 0, 'f'},
 	{"gateware", no_argument, 0, 'g'},
+	{"radio", no_argument, 0, 'i'},
 	{"fpga", required_argument, 0, 'P'},
 	{"p1", required_argument, 0, '1'},
 	{"p2", required_argument, 0, '2'},
@@ -641,8 +737,9 @@ int main(int argc, char** argv)
 {
 	int opt;
 	uint8_t board_id = BOARD_ID_UNDETECTED;
-	uint32_t register_number = REGISTER_INVALID;
-	uint32_t register_value;
+	int bank = -1;
+	uint64_t register_number = REGISTER_INVALID;
+	uint64_t register_value;
 	hackrf_device* device = NULL;
 	int option_index = 0;
 	bool read = false;
@@ -652,17 +749,17 @@ int main(int argc, char** argv)
 	uint8_t part = PART_NONE;
 	const char* serial_number = NULL;
 	bool set_ui = false;
-	uint32_t ui_enable;
+	uint64_t ui_enable;
 	bool set_leds = false;
-	uint32_t led_state;
-	uint32_t tx_limit;
-	uint32_t rx_limit;
-	uint32_t p1_state;
-	uint32_t p2_state;
-	uint32_t clkin_state;
-	uint32_t narrowband_state;
-	uint32_t bitstream_index;
-	uint32_t adc_channel;
+	uint64_t led_state;
+	uint64_t tx_limit;
+	uint64_t rx_limit;
+	uint64_t p1_state;
+	uint64_t p2_state;
+	uint64_t clkin_state;
+	uint64_t narrowband_state;
+	uint64_t bitstream_index;
+	uint64_t adc_channel;
 	bool set_tx_limit = false;
 	bool set_rx_limit = false;
 	bool set_p1 = false;
@@ -685,10 +782,16 @@ int main(int argc, char** argv)
 	while ((opt = getopt_long(
 			argc,
 			argv,
-			"n:rw:d:cmsfg1:2:C:N:P:ST:R:h?u:l:ta:o",
+			"b:n:rw:d:cmsfgi1:2:C:N:P:ST:R:h?u:l:ta:o",
 			long_options,
 			&option_index)) != EOF) {
 		switch (opt) {
+		case 'b':
+			uint64_t bank_arg;
+			result = parse_int(optarg, &bank_arg);
+			bank = (int) bank_arg;
+			break;
+
 		case 'n':
 			result = parse_int(optarg, &register_number);
 			break;
@@ -753,6 +856,14 @@ int main(int argc, char** argv)
 				return EXIT_FAILURE;
 			}
 			part = PART_GATEWARE;
+			break;
+
+		case 'i':
+			if (part != PART_NONE) {
+				fprintf(stderr, "Only one part can be specified.'\n");
+				return EXIT_FAILURE;
+			}
+			part = PART_RADIO;
 			break;
 
 		case '1':
@@ -838,6 +949,16 @@ int main(int argc, char** argv)
 		return EXIT_FAILURE;
 	}
 
+	if ((bank > -1) && (part != PART_RADIO)) {
+		fprintf(stderr, "Bank valid only for radio.\n");
+		usage();
+		return EXIT_FAILURE;
+	}
+
+	if ((bank == -1) && (part == PART_RADIO)) {
+		bank = 0;
+	}
+
 	if (!(write || read || dump_config || dump_state || set_tx_limit ||
 	      set_rx_limit || set_ui || set_leds || set_p1 || set_p2 || set_clkin ||
 	      set_narrowband || set_fpga_bitstream || read_selftest || test_rtc_osc ||
@@ -879,14 +1000,19 @@ int main(int argc, char** argv)
 	}
 
 	if (write) {
-		result = write_register(device, part, register_number, register_value);
+		result = write_register(
+			device,
+			part,
+			bank,
+			register_number,
+			register_value);
 	}
 
 	if (read) {
 		if (register_number == REGISTER_INVALID) {
-			result = read_registers(device, part);
+			result = read_registers(device, part, bank);
 		} else {
-			result = read_register(device, part, register_number);
+			result = read_register(device, part, bank, register_number);
 		}
 	}
 
@@ -1025,8 +1151,8 @@ int main(int argc, char** argv)
 			return EXIT_FAILURE;
 		}
 		printf("ADC0_%d (%s pin): %d\n",
-		       adc_channel & 0x7,
-		       adc_channel & 0x80 ? "alternate" : "dedicated",
+		       ((uint8_t) adc_channel) & 0x7,
+		       ((uint8_t) adc_channel) & 0x80 ? "alternate" : "dedicated",
 		       value);
 	}
 

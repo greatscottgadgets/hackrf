@@ -152,6 +152,8 @@ static usb_request_handler_fn vendor_request_handler[] = {
 	usb_vendor_request_read_selftest,
 	usb_vendor_request_adc_read,
 	usb_vendor_request_test_rtc_osc,
+	usb_vendor_request_write_radio_reg,
+	usb_vendor_request_read_radio_reg,
 };
 
 static const uint32_t vendor_request_handler_count =
