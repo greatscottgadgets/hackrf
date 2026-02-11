@@ -92,7 +92,7 @@ SET(LDSCRIPT_M4_RAM "-T${PATH_HACKRF_FIRMWARE_COMMON}/${MCU_PARTNO}_M4_memory.ld
 
 SET(LDSCRIPT_M0 "-T${PATH_HACKRF_FIRMWARE_COMMON}/LPC43xx_M0_memory.ld -Tlibopencm3_lpc43xx_m0.ld")
 
-SET(CFLAGS_COMMON "-Os -g3 -Wall -Wextra -Wstrict-prototypes ${HACKRF_OPTS} -fno-common -MD")
+SET(CFLAGS_COMMON "-Os -g3 -Wall -Wextra -Wstrict-prototypes -Wold-style-definition ${HACKRF_OPTS} -fno-common -MD")
 SET(LDFLAGS_COMMON "-nostartfiles -Wl,--gc-sections")
 
 if(V STREQUAL "1")
@@ -168,6 +168,7 @@ endmacro()
 macro(DeclareTargets)
 	SET(SRC_M4
 		${SRC_M4}
+		${PATH_HACKRF_FIRMWARE_COMMON}/delay.c
 		${PATH_HACKRF_FIRMWARE_COMMON}/hackrf_core.c
 		${PATH_HACKRF_FIRMWARE_COMMON}/sgpio.c
 		${PATH_HACKRF_FIRMWARE_COMMON}/rf_path.c
