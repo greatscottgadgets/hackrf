@@ -938,7 +938,6 @@ void pin_setup(void)
 	led_off(2);
 	switch (board_id) {
 	case BOARD_ID_RAD1O:
-	case BOARD_ID_PRALINE:
 		led_off(3);
 	default:
 		break;
