@@ -21,6 +21,7 @@
 
 #include "hackrf_core.h"
 #include "lz4_blk.h"
+#include "lz4_buf.h"
 #include "selftest.h"
 
 // FPGA bitstreams blob.
@@ -32,7 +33,6 @@ struct fpga_image_read_ctx {
 	uint32_t addr;
 	size_t next_block_sz;
 	uint8_t init_flag;
-	uint8_t buffer[4096 + 2];
 };
 
 static size_t fpga_image_read_block_cb(void* _ctx, uint8_t* out_buffer)
@@ -41,10 +41,12 @@ static size_t fpga_image_read_block_cb(void* _ctx, uint8_t* out_buffer)
 	struct fpga_image_read_ctx* ctx = _ctx;
 	size_t block_sz = ctx->next_block_sz;
 
+	uint8_t block_sz_buf[2];
+
 	// first iteration: read first block size
 	if (ctx->init_flag == 0) {
-		w25q80bv_read(&spi_flash, ctx->addr, 2, ctx->buffer);
-		block_sz = ctx->buffer[0] | (ctx->buffer[1] << 8);
+		w25q80bv_read(&spi_flash, ctx->addr, 2, block_sz_buf);
+		block_sz = block_sz_buf[0] | block_sz_buf[1] << 8;
 		ctx->addr += 2;
 		ctx->init_flag = 1;
 	}
@@ -54,12 +56,14 @@ static size_t fpga_image_read_block_cb(void* _ctx, uint8_t* out_buffer)
 		return 0;
 
 	// Read compressed block (and the next block size) from flash.
-	w25q80bv_read(&spi_flash, ctx->addr, block_sz + 2, ctx->buffer);
-	ctx->addr += block_sz + 2;
-	ctx->next_block_sz = ctx->buffer[block_sz] | (ctx->buffer[block_sz + 1] << 8);
+	w25q80bv_read(&spi_flash, ctx->addr, block_sz, lz4_in_buf);
+	ctx->addr += block_sz;
+	w25q80bv_read(&spi_flash, ctx->addr, 2, block_sz_buf);
+	ctx->next_block_sz = block_sz_buf[0] | block_sz_buf[1] << 8;
+	ctx->addr += 2;
 
 	// Decompress block.
-	return lz4_blk_decompress(ctx->buffer, out_buffer, block_sz);
+	return lz4_blk_decompress(lz4_in_buf, out_buffer, block_sz);
 }
 
 bool fpga_image_load(unsigned int index)
