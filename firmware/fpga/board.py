@@ -5,7 +5,7 @@
 # Copyright (c) 2024 Great Scott Gadgets <info@greatscottgadgets.com>
 # SPDX-License-Identifier: BSD-3-Clause
 
-from amaranth                   import Elaboratable, Signal, Instance, Module, ClockDomain
+from amaranth                   import Elaboratable, Signal, Const, Instance, Module, ClockDomain
 from amaranth.build             import Resource, Pins, Clock, Attrs
 from amaranth.vendor            import LatticeICE40Platform
 from amaranth_boards.resources  import SPIResource
@@ -65,14 +65,17 @@ class PralinePlatform(LatticeICE40Platform):
 class ClockDomainGenerator(Elaboratable):
 
     @staticmethod
-    def lut_delay(m, signal, *, depth):
+    def lut_delay(m, signal, *, depth, invert=False):
         signal_out = signal
         for i in range(depth):
             signal_in  = signal_out
             signal_out = Signal()
             m.submodules += Instance("SB_LUT4",
-                p_LUT_INIT=0xAAAA,  # Buffer configuration
+                p_LUT_INIT=Const(0b01 if invert else 0b10, 16),
                 i_I0=signal_in,
+                i_I1=Const(0),
+                i_I2=Const(0),
+                i_I3=Const(0),
                 o_O=signal_out,
             )
         return signal_out
@@ -81,12 +84,19 @@ class ClockDomainGenerator(Elaboratable):
         m = Module()
 
         # Define clock domains.
-        m.domains.gck1 = cd_gck1 = ClockDomain(name="gck1", reset_less=True)  # analog front-end clock.
+        m.domains.adclk = cd_adclk = ClockDomain(name="adclk", reset_less=True)
+        m.domains.daclk = cd_daclk = ClockDomain(name="daclk", reset_less=True)
 
-        # We need to delay `gck1` clock by at least 8ns, not possible with the PLL alone.
+        # We need to delay `afe_clk` clock by at least 8ns, not possible with the PLL alone.
         # Each LUT introduces a minimum propagation delay of 9ns (best case).
-        delayed_gck1 = self.lut_delay(m, platform.request("afe_clk").i, depth=2)
-        m.d.comb += cd_gck1.clk.eq(delayed_gck1)
-        platform.add_clock_constraint(delayed_gck1, 40e6)
+        adclk_ref = platform.request("afe_clk").i
+
+        delayed_adclk = self.lut_delay(m, adclk_ref, depth=2)
+        m.d.comb += cd_adclk.clk.eq(delayed_adclk)
+        platform.add_clock_constraint(delayed_adclk, 40e6)
+
+        delayed_daclk = self.lut_delay(m, adclk_ref, depth=8, invert=True)
+        m.d.comb += cd_daclk.clk.eq(delayed_daclk)
+        platform.add_clock_constraint(delayed_daclk, 40e6)
 
         return m
