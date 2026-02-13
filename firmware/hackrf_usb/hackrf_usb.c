@@ -317,10 +317,12 @@ int main(void)
 	}
 	radio_init(&radio);
 
+#if defined(PRALINE) || defined(HACKRF_ONE)
 	if (board_id == BOARD_ID_HACKRF1_OG || board_id == BOARD_ID_HACKRF1_R9 ||
 	    board_id == BOARD_ID_PRALINE) {
 		portapack_init();
 	}
+#endif
 
 #ifndef DFU_MODE
 	usb_set_descriptor_by_serial_number();
