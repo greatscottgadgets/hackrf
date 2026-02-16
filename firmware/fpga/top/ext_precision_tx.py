@@ -29,16 +29,16 @@ class Top(Elaboratable):
         m.submodules.mcu_intf    = mcu_intf    = SGPIOInterface(
             sample_width=24,
             rx_assignments=[
-                lambda w: Cat(w[8:12], w[11].replicate(4)),
                 lambda w: w[0:8],
-                lambda w: Cat(w[20:24], w[23].replicate(4)),
+                lambda w: Cat(w[8:12], w[11].replicate(4)),
                 lambda w: w[12:20],
+                lambda w: Cat(w[20:24], w[23].replicate(4)),
             ],
             tx_assignments=[
-                lambda w, v: w[8:12].eq(v),
                 lambda w, v: w[0:8].eq(v),
-                lambda w, v: w[20:24].eq(v),
+                lambda w, v: w[8:12].eq(v),
                 lambda w, v: w[12:20].eq(v),
+                lambda w, v: w[20:24].eq(v),
             ],
             domain="sync"
         )
