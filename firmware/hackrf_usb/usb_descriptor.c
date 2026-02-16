@@ -67,6 +67,7 @@ uint8_t usb_descriptor_device_hackrf_one[] = {
 	0x01                        // bNumConfigurations
 };
 
+#ifdef JAWBREAKER
 uint8_t usb_descriptor_device_jawbreaker[] = {
 	18,                         // bLength
 	USB_DESCRIPTOR_TYPE_DEVICE, // bDescriptorType
@@ -83,7 +84,9 @@ uint8_t usb_descriptor_device_jawbreaker[] = {
 	0x04,                       // iSerialNumber
 	0x01                        // bNumConfigurations
 };
+#endif
 
+#ifdef RAD1O
 uint8_t usb_descriptor_device_rad1o[] = {
 	18,                         // bLength
 	USB_DESCRIPTOR_TYPE_DEVICE, // bDescriptorType
@@ -100,23 +103,7 @@ uint8_t usb_descriptor_device_rad1o[] = {
 	0x04,                       // iSerialNumber
 	0x01                        // bNumConfigurations
 };
-
-uint8_t usb_descriptor_device_default[] = {
-	18,                         // bLength
-	USB_DESCRIPTOR_TYPE_DEVICE, // bDescriptorType
-	USB_WORD(0x0200),           // bcdUSB
-	0x00,                       // bDeviceClass
-	0x00,                       // bDeviceSubClass
-	0x00,                       // bDeviceProtocol
-	USB_MAX_PACKET0,            // bMaxPacketSize0
-	USB_WORD(USB_VENDOR_ID),    // idVendor
-	USB_WORD(0xFFFF),           // idProduct
-	USB_WORD(USB_API_VERSION),  // bcdDevice
-	0x01,                       // iManufacturer
-	0x02,                       // iProduct
-	0x04,                       // iSerialNumber
-	0x01                        // bNumConfigurations
-};
+#endif
 
 uint8_t usb_descriptor_device_qualifier[] = {
 	10,                                   // bLength
@@ -249,6 +236,7 @@ uint8_t usb_descriptor_string_product_hackrf_one[] = {
 	'n', 0x00,
 	'e', 0x00,
 };
+#ifdef JAWBREAKER
 uint8_t usb_descriptor_string_product_jawbreaker[] = {
 	36,                         // bLength
 	USB_DESCRIPTOR_TYPE_STRING, // bDescriptorType
@@ -270,6 +258,8 @@ uint8_t usb_descriptor_string_product_jawbreaker[] = {
 	'e', 0x00,
 	'r', 0x00,
 };
+#endif
+#ifdef RAD1O
 uint8_t usb_descriptor_string_product_rad1o[] = {
 	12,                         // bLength
 	USB_DESCRIPTOR_TYPE_STRING, // bDescriptorType
@@ -279,6 +269,8 @@ uint8_t usb_descriptor_string_product_rad1o[] = {
 	'1', 0x00,
 	'o', 0x00,
 };
+#endif
+#ifdef PRALINE
 uint8_t usb_descriptor_string_product_praline[] = {
 	22,                         // bLength
 	USB_DESCRIPTOR_TYPE_STRING, // bDescriptorType
@@ -293,16 +285,7 @@ uint8_t usb_descriptor_string_product_praline[] = {
 	'r', 0x00,
 	'o', 0x00,
 };
-uint8_t usb_descriptor_string_product_default[] = {
-	14,                         // bLength
-	USB_DESCRIPTOR_TYPE_STRING, // bDescriptorType
-	'H', 0x00,
-	'a', 0x00,
-	'c', 0x00,
-	'k', 0x00,
-	'R', 0x00,
-	'F', 0x00,
-};
+#endif
 
 uint8_t usb_descriptor_string_config_description[] = {
 	24,                         // bLength
@@ -351,7 +334,7 @@ uint8_t* usb_descriptor_strings_hackrf_one[] = {
 	usb_descriptor_string_serial_number,
 	0, // TERMINATOR
 };
-
+#ifdef JAWBREAKER
 uint8_t* usb_descriptor_strings_jawbreaker[] = {
 	usb_descriptor_string_languages,
 	usb_descriptor_string_manufacturer,
@@ -360,7 +343,8 @@ uint8_t* usb_descriptor_strings_jawbreaker[] = {
 	usb_descriptor_string_serial_number,
 	0, // TERMINATOR
 };
-
+#endif
+#ifdef RAD1O
 uint8_t* usb_descriptor_strings_rad1o[] = {
 	usb_descriptor_string_languages,
 	usb_descriptor_string_manufacturer,
@@ -369,7 +353,8 @@ uint8_t* usb_descriptor_strings_rad1o[] = {
 	usb_descriptor_string_serial_number,
 	0, // TERMINATOR
 };
-
+#endif
+#ifdef PRALINE
 uint8_t* usb_descriptor_strings_praline[] = {
 	usb_descriptor_string_languages,
 	usb_descriptor_string_manufacturer,
@@ -378,15 +363,7 @@ uint8_t* usb_descriptor_strings_praline[] = {
 	usb_descriptor_string_serial_number,
 	0, // TERMINATOR
 };
-
-uint8_t* usb_descriptor_strings_default[] = {
-	usb_descriptor_string_languages,
-	usb_descriptor_string_manufacturer,
-	usb_descriptor_string_product_default,
-	usb_descriptor_string_config_description,
-	usb_descriptor_string_serial_number,
-	0, // TERMINATOR
-};
+#endif
 
 uint8_t wcid_string_descriptor[] = {
 	18,                          // bLength
