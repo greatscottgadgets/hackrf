@@ -365,6 +365,7 @@ void rf_path_pin_setup(rf_path_t* const rf_path)
 		gpio_output(rf_path->gpio_rx);
 		break;
 	case BOARD_ID_RAD1O:
+#ifdef RAD1O
 		/* Configure RF switch control signals */
 		// clang-format off
 		scu_pinmux(scu->BY_AMP,          SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
@@ -401,8 +402,10 @@ void rf_path_pin_setup(rf_path_t* const rf_path)
 		gpio_output(rf_path->gpio_low_high_filt_n);
 		gpio_output(rf_path->gpio_tx_amp);
 		gpio_output(rf_path->gpio_rx_lna);
+#endif
 		break;
 	case BOARD_ID_PRALINE:
+#ifdef PRALINE
 		/* Configure RF switch control signals */
 		scu_pinmux(scu->TX_EN, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
 		board_rev_t rev = detected_revision();
@@ -433,6 +436,7 @@ void rf_path_pin_setup(rf_path_t* const rf_path)
 		gpio_output(rf_path->gpio_mix_en_n);
 		gpio_output(rf_path->gpio_lpf_en);
 		gpio_output(rf_path->gpio_rf_amp_en);
+#endif
 		break;
 	default:
 		break;

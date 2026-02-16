@@ -53,6 +53,7 @@ void append(char** dest, size_t* capacity, const char* str)
 	}
 }
 
+#ifdef PRALINE
 static const char* test_result_to_str(test_result_t result)
 {
 	switch (result) {
@@ -67,6 +68,7 @@ static const char* test_result_to_str(test_result_t result)
 	}
 	return "????";
 }
+#endif
 
 void generate_selftest_report(void)
 {
@@ -75,9 +77,11 @@ void generate_selftest_report(void)
 	char* s = &selftest.report.msg[0];
 	size_t c = sizeof(selftest.report.msg);
 	if (board_id == BOARD_ID_RAD1O) {
+#ifdef RAD1O
 		append(&s, &c, "Mixer: MAX2871, ID: ");
 		append(&s, &c, itoa(selftest.mixer_id, 10));
 		append(&s, &c, "\n");
+#endif
 	} else {
 		append(&s, &c, "Mixer: RFFC5072, ID: ");
 		append(&s, &c, itoa(selftest.mixer_id >> 3, 10));
@@ -103,9 +107,11 @@ void generate_selftest_report(void)
 	append(&s, &c, selftest.si5351_readback_ok ? "OK" : "FAIL");
 	append(&s, &c, "\n");
 	if (board_id == BOARD_ID_PRALINE) {
+#ifdef PRALINE
 		append(&s, &c, "Transceiver: MAX2831, RSSI mux test: ");
 		append(&s, &c, selftest.max2831_mux_test_ok ? "PASS" : "FAIL");
 		append(&s, &c, "\n");
+#endif
 	} else {
 		append(&s, &c, "Transceiver: ");
 		append(&s, &c, (board_id == BOARD_ID_HACKRF1_R9 ? "MAX2839" : "MAX2837"));
@@ -125,6 +131,7 @@ void generate_selftest_report(void)
 		append(&s, &c, "\n");
 	}
 	if (board_id == BOARD_ID_PRALINE) {
+#ifdef PRALINE
 		append(&s, &c, "FPGA configuration: ");
 		append(&s, &c, test_result_to_str(selftest.fpga_image_load));
 		append(&s, &c, "\n");
@@ -156,6 +163,7 @@ void generate_selftest_report(void)
 			append(&s, &c, itoa(m->avg_mag_sq_q, 10));
 			append(&s, &c, "\n");
 		}
+#endif
 	}
 }
 

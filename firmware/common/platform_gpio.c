@@ -40,10 +40,14 @@ const platform_gpio_t* platform_gpio(void)
 	gpio.led[2] = &GPIO2_8;
 	switch (board_id) {
 	case BOARD_ID_RAD1O:
+#ifdef RAD1O
 		gpio.led[3] = &GPIO5_26;
+#endif
 		break;
 	case BOARD_ID_PRALINE:
+#ifdef PRALINE
 		gpio.led[3] = &GPIO4_6;
+#endif
 		break;
 	default:
 		break;
@@ -52,8 +56,10 @@ const platform_gpio_t* platform_gpio(void)
 	/* Power Supply Control */
 	switch (board_id) {
 	case BOARD_ID_PRALINE:
+#ifdef PRALINE
 		gpio.gpio_1v2_enable      = &GPIO4_7;
 		gpio.gpio_3v3aux_enable_n = &GPIO5_15;
+#endif
 		break;
 	default:
 		gpio.gpio_1v8_enable      = &GPIO3_6;
@@ -63,11 +69,13 @@ const platform_gpio_t* platform_gpio(void)
 	/* MAX283x GPIO (XCVR_CTL / CS_XCVR) PinMux */
 	switch (board_id) {
 	case BOARD_ID_PRALINE:
+#ifdef PRALINE
 		gpio.max283x_select    = &GPIO6_28;
 		gpio.max283x_enable    = &GPIO7_1;
 		gpio.max283x_rx_enable = &GPIO7_2;
 		gpio.max2831_rxhp      = &GPIO6_29;
 		gpio.max2831_ld        = &GPIO4_11;
+#endif
 		break;
 	default:
 		gpio.max283x_select    = &GPIO0_15;
@@ -80,7 +88,9 @@ const platform_gpio_t* platform_gpio(void)
 	/* MAX5864 SPI chip select (AD_CS / CS_AD) GPIO PinMux */
 	switch (board_id) {
 	case BOARD_ID_PRALINE:
+#ifdef PRALINE
 		gpio.max5864_select    = &GPIO6_30;
+#endif
 		break;
 	default:
 		gpio.max5864_select    = &GPIO2_7;
@@ -94,10 +104,16 @@ const platform_gpio_t* platform_gpio(void)
 		gpio.vaa_disable       = &GPIO2_9;
         break;
     case BOARD_ID_PRALINE:
+#ifdef PRALINE
 		gpio.vaa_disable       = &GPIO4_1;
+#endif
+		break;
+	case BOARD_ID_RAD1O:
+#ifdef RAD1O
+		gpio.vaa_enable        = &GPIO2_9;
+#endif
 		break;
 	default:
-		gpio.vaa_enable        = &GPIO2_9;
 		break;
 	}
 
@@ -127,7 +143,8 @@ const platform_gpio_t* platform_gpio(void)
 		gpio.h1r9_rx         = &GPIO0_7;
 		gpio.h1r9_no_ant_pwr = &GPIO2_4;
         break;
-		case BOARD_ID_RAD1O:
+	case BOARD_ID_RAD1O:
+#ifdef RAD1O
 		gpio.tx_rx_n         = &GPIO1_11;
 		gpio.tx_rx           = &GPIO0_14;
 		gpio.by_mix          = &GPIO1_12;
@@ -139,14 +156,17 @@ const platform_gpio_t* platform_gpio(void)
 		gpio.low_high_filt_n = &GPIO2_12;
 		gpio.tx_amp          = &GPIO2_15;
 		gpio.rx_lna          = &GPIO5_15;
+#endif
         break;
     case BOARD_ID_PRALINE:
+#ifdef PRALINE
 		gpio.tx_en           = &GPIO3_4;
 		gpio.mix_en_n        = &GPIO3_2;
 		gpio.mix_en_n_r1_0   = &GPIO5_6;
 		gpio.lpf_en          = &GPIO4_8;
 		gpio.rf_amp_en       = &GPIO4_9;
 		gpio.ant_bias_en_n   = &GPIO1_12;
+#endif
 		break;
 	case BOARD_ID_JELLYBEAN:
 	case BOARD_ID_JAWBREAKER:
@@ -159,9 +179,11 @@ const platform_gpio_t* platform_gpio(void)
 	gpio.cpld_tck                  = &GPIO3_0;
 	switch (board_id) {
     case BOARD_ID_PRALINE:
+#ifdef PRALINE
 		gpio.fpga_cfg_creset       = &GPIO2_11;
 		gpio.fpga_cfg_cdone        = &GPIO5_14;
 		gpio.fpga_cfg_spi_cs       = &GPIO2_10;
+#endif
 		break;
 	default:
 		gpio.cpld_tdo              = &GPIO5_18;
@@ -211,19 +233,23 @@ const platform_gpio_t* platform_gpio(void)
 		gpio.rffc5072_reset  = &GPIO2_14;
 		break;
 	case BOARD_ID_RAD1O:
+#ifdef RAD1O
 		gpio.vco_ce        = &GPIO2_13;
 		gpio.vco_sclk      = &GPIO5_6;
 		gpio.vco_sdata     = &GPIO3_3;
 		gpio.vco_le        = &GPIO2_14;
 		gpio.vco_mux       = &GPIO5_25;
 		gpio.synt_rfout_en = &GPIO3_5;
+#endif
 		break;
 	case BOARD_ID_PRALINE:
+#ifdef PRALINE
 		gpio.rffc5072_select = &GPIO2_13;
 		gpio.rffc5072_clock  = &GPIO5_18;
 		gpio.rffc5072_data   = &GPIO4_14;
 		gpio.rffc5072_reset  = &GPIO2_14;
 		gpio.rffc5072_ld     = &GPIO6_25;
+#endif
 		break;
 	default:
 		break;
@@ -254,6 +280,7 @@ const platform_gpio_t* platform_gpio(void)
 	/* Praline */
 	switch (board_id) {
     case BOARD_ID_PRALINE:
+#ifdef PRALINE
 		gpio.p2_ctrl0     = &GPIO7_3;
 		gpio.p2_ctrl1     = &GPIO7_4;
 		gpio.p1_ctrl0     = &GPIO0_14;
@@ -264,6 +291,7 @@ const platform_gpio_t* platform_gpio(void)
 		gpio.trigger_in   = &GPIO6_26;
 		gpio.trigger_out  = &GPIO5_6;
 		gpio.pps_out      = &GPIO5_5;
+#endif
 		break;
 	default:
 		break;

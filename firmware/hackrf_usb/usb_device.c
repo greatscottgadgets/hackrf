@@ -57,6 +57,7 @@ const usb_device_t usb_device_hackrf_one = {
 	.wcid_feature_descriptor = wcid_feature_descriptor,
 };
 
+#ifdef JAWBREAKER
 const usb_device_t usb_device_jawbreaker = {
 	.descriptor = usb_descriptor_device_jawbreaker,
 	.descriptor_strings = usb_descriptor_strings_jawbreaker,
@@ -66,7 +67,9 @@ const usb_device_t usb_device_jawbreaker = {
 	.wcid_string_descriptor = wcid_string_descriptor,
 	.wcid_feature_descriptor = wcid_feature_descriptor,
 };
+#endif
 
+#ifdef RAD1O
 const usb_device_t usb_device_rad1o = {
 	.descriptor = usb_descriptor_device_rad1o,
 	.descriptor_strings = usb_descriptor_strings_rad1o,
@@ -76,7 +79,9 @@ const usb_device_t usb_device_rad1o = {
 	.wcid_string_descriptor = wcid_string_descriptor,
 	.wcid_feature_descriptor = wcid_feature_descriptor,
 };
+#endif
 
+#ifdef PRALINE
 const usb_device_t usb_device_praline = {
 	.descriptor = usb_descriptor_device_hackrf_one,
 	.descriptor_strings = usb_descriptor_strings_praline,
@@ -86,13 +91,4 @@ const usb_device_t usb_device_praline = {
 	.wcid_string_descriptor = wcid_string_descriptor,
 	.wcid_feature_descriptor = wcid_feature_descriptor,
 };
-
-const usb_device_t usb_device_default = {
-	.descriptor = usb_descriptor_device_default,
-	.descriptor_strings = usb_descriptor_strings_default,
-	.qualifier_descriptor = usb_descriptor_device_qualifier,
-	.configurations = &usb_configurations,
-	.configuration = 0,
-	.wcid_string_descriptor = wcid_string_descriptor,
-	.wcid_feature_descriptor = wcid_feature_descriptor,
-};
+#endif

@@ -100,15 +100,17 @@ void rffc5071_init(rffc5071_driver_t* const drv)
 void rffc5071_setup(rffc5071_driver_t* const drv)
 {
 	board_id_t board_id = detected_platform();
-	const platform_scu_t* scu = platform_scu();
 
 	gpio_set(drv->gpio_reset);
 	gpio_output(drv->gpio_reset);
 
 	if (board_id == BOARD_ID_PRALINE) {
+#ifdef PRALINE
 		/* Configure mixer PLL lock detect pin */
+		const platform_scu_t* scu = platform_scu();
 		scu_pinmux(scu->MIXER_LD, scu->MIXER_LD_PINCFG);
 		gpio_input(drv->gpio_ld);
+#endif
 	}
 
 	rffc5071_init(drv);
@@ -180,7 +182,11 @@ void rffc5071_lock_test(rffc5071_driver_t* const drv)
 bool rffc5071_check_lock(rffc5071_driver_t* const drv)
 {
 	if (detected_platform() == BOARD_ID_PRALINE) {
+#ifdef PRALINE
 		return gpio_read(drv->gpio_ld);
+#else
+		return false;
+#endif
 	} else {
 		set_RFFC5071_READSEL(drv, 0b0001);
 		rffc5071_regs_commit(drv);
@@ -347,6 +353,7 @@ void rffc5071_set_gpo(rffc5071_driver_t* const drv, uint8_t gpo)
 	rffc5071_regs_commit(drv);
 }
 
+#ifdef PRALINE
 bool rffc5071_poll_ld(rffc5071_driver_t* const drv, uint8_t* prelock_state)
 {
 	// This is only supported on Praline hardware.
@@ -422,7 +429,9 @@ bool rffc5071_poll_ld(rffc5071_driver_t* const drv, uint8_t* prelock_state)
 	uint8_t rsm_state = (rb >> 11) & 0b11111;
 
 	// get gpo4 lock detect signal
+	#ifdef PRALINE
 	bool gpo4_ld = gpio_read(drv->gpio_ld);
+	#endif
 
 	// parse state
 	switch (rsm_state) {
@@ -462,3 +471,4 @@ bool rffc5071_poll_ld(rffc5071_driver_t* const drv, uint8_t* prelock_state)
 
 	return false;
 }
+#endif

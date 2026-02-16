@@ -34,24 +34,30 @@ typedef struct {
 	gpio_t led[4];
 
 	/* Power Supply Control */
-	gpio_t gpio_1v8_enable; // PRALINE
-	gpio_t gpio_1v2_enable;
-	gpio_t gpio_3v3aux_enable_n;
+	gpio_t gpio_1v8_enable;
+#ifdef PRALINE
+	gpio_t gpio_1v2_enable;      // PRALINE
+	gpio_t gpio_3v3aux_enable_n; // PRALINE
+#endif
 
 	/* MAX283x GPIO (XCVR_CTL / CS_XCVR) PinMux */
 	gpio_t max283x_select;
 	gpio_t max283x_enable;
 	gpio_t max283x_rx_enable;
 	gpio_t max283x_tx_enable;
-	gpio_t max2831_rxhp;
-	gpio_t max2831_ld;
+#ifdef PRALINE
+	gpio_t max2831_rxhp; // PRALINE
+	gpio_t max2831_ld;   // PRALINE
+#endif
 
 	/* MAX5864 SPI chip select (AD_CS / CS_AD) GPIO PinMux */
 	gpio_t max5864_select;
 
 	/* RF supply (VAA) control */
 	gpio_t vaa_disable; // HACKRF_ONE, PRALINE
-	gpio_t vaa_enable;  // RAD10
+#ifdef RAD1O
+	gpio_t vaa_enable; // RAD10
+#endif
 
 	/* W25Q80BV Flash */
 	gpio_t w25q80bv_hold;
@@ -59,53 +65,55 @@ typedef struct {
 	gpio_t w25q80bv_select;
 
 	/* RF switch control */
-	// HACKRF_ONE
-	gpio_t hp;
-	gpio_t lp;
-	gpio_t tx_mix_bp;
-	gpio_t no_mix_bypass;
-	gpio_t rx_mix_bp;
-	gpio_t tx_amp;
-	gpio_t tx;
-	gpio_t mix_bypass;
-	gpio_t rx;
-	gpio_t no_tx_amp_pwr;
-	gpio_t amp_bypass;
-	gpio_t rx_amp;
-	gpio_t no_rx_amp_pwr;
-	// HACKRF_ONE r9
-	gpio_t h1r9_no_ant_pwr; // used to live in rf_path.c
-	gpio_t h1r9_rx;         // TODO also exists in usb_api_board_info.c
-	// RAD1O
-	gpio_t tx_rx_n;
-	gpio_t tx_rx;
-	gpio_t by_mix;
-	gpio_t by_mix_n;
-	gpio_t by_amp;
-	gpio_t by_amp_n;
-	gpio_t mixer_en;
-	gpio_t low_high_filt;
-	gpio_t low_high_filt_n;
-	//gpio_t tx_amp;
-	gpio_t rx_lna;
-	// PRALINE
-	gpio_t tx_en;
-	gpio_t mix_en_n;
-	gpio_t mix_en_n_r1_0;
-	gpio_t lpf_en;
-	gpio_t rf_amp_en;
-	gpio_t ant_bias_en_n;
+	gpio_t hp;              // HACKRF_ONE
+	gpio_t lp;              // HACKRF_ONE
+	gpio_t tx_mix_bp;       // HACKRF_ONE
+	gpio_t no_mix_bypass;   // HACKRF_ONE
+	gpio_t rx_mix_bp;       // HACKRF_ONE
+	gpio_t tx_amp;          // HACKRF_ONE
+	gpio_t tx;              // HACKRF_ONE
+	gpio_t mix_bypass;      // HACKRF_ONE
+	gpio_t rx;              // HACKRF_ONE
+	gpio_t no_tx_amp_pwr;   // HACKRF_ONE
+	gpio_t amp_bypass;      // HACKRF_ONE
+	gpio_t rx_amp;          // HACKRF_ONE
+	gpio_t no_rx_amp_pwr;   // HACKRF_ONE
+	gpio_t h1r9_no_ant_pwr; // HACKRF_ONE r9
+	gpio_t h1r9_rx;         // HACKRF_ONE r9
+#ifdef RAD1O
+	gpio_t tx_rx_n;         // RAD1O
+	gpio_t tx_rx;           // RAD1O
+	gpio_t by_mix;          // RAD1O
+	gpio_t by_mix_n;        // RAD1O
+	gpio_t by_amp;          // RAD1O
+	gpio_t by_amp_n;        // RAD1O
+	gpio_t mixer_en;        // RAD1O
+	gpio_t low_high_filt;   // RAD1O
+	gpio_t low_high_filt_n; // RAD1O
+	//gpio_t tx_amp;        // RAD1O
+	gpio_t rx_lna; // RAD1O
+#endif
+#ifdef PRALINE
+	gpio_t tx_en;         // PRALINE
+	gpio_t mix_en_n;      // PRALINE
+	gpio_t mix_en_n_r1_0; // PRALINE r1.0
+	gpio_t lpf_en;        // PRALINE
+	gpio_t rf_amp_en;     // PRALINE
+	gpio_t ant_bias_en_n; // PRALINE
+#endif
 
 	/* CPLD JTAG interface GPIO pins, FPGA config pins in Praline */
 	gpio_t cpld_tck;
-	gpio_t fpga_cfg_creset;
-	gpio_t fpga_cfg_cdone;
-	gpio_t fpga_cfg_spi_cs;
 	gpio_t cpld_tdo;
 	gpio_t cpld_tms;
 	gpio_t cpld_tdi;
 	gpio_t cpld_pp_tms;
 	gpio_t cpld_pp_tdo;
+#ifdef PRALINE
+	gpio_t fpga_cfg_creset; // PRALINE
+	gpio_t fpga_cfg_cdone;  // PRALINE
+	gpio_t fpga_cfg_spi_cs; // PRALINE
+#endif
 
 	/* Other CPLD interface GPIO pins */
 	gpio_t trigger_enable;
@@ -130,12 +138,12 @@ typedef struct {
 	gpio_t h1r9_mcu_clk_en;
 
 	/* HackRF One r9 */
-	//gpio_t h1r9_rx;
 	gpio_t h1r9_1v8_enable;
 	gpio_t h1r9_vaa_disable;
 	gpio_t h1r9_trigger_enable;
 
 	/* Praline */
+#ifdef PRALINE
 	gpio_t p2_ctrl0;
 	gpio_t p2_ctrl1;
 	gpio_t p1_ctrl0;
@@ -146,6 +154,7 @@ typedef struct {
 	gpio_t trigger_in;
 	gpio_t trigger_out;
 	gpio_t pps_out;
+#endif
 } platform_gpio_t;
 
 // Detects and returns the global platform gpio instance of the active board id and revision.

@@ -38,12 +38,16 @@ typedef struct {
 	scu_grp_pin_t PINMUX_LED1;
 	scu_grp_pin_t PINMUX_LED2;
 	scu_grp_pin_t PINMUX_LED3;
+#if (defined RAD1O || defined PRALINE)
 	scu_grp_pin_t PINMUX_LED4; // RAD1O, PRALINE
+#endif
 
 	scu_grp_pin_t PINMUX_EN1V8;
 	scu_grp_pin_t PINMUX_EN1V2;
+#ifdef PRALINE
 	scu_grp_pin_t PINMUX_EN3V3_AUX_N; // PRALINE
 	scu_grp_pin_t PINMUX_EN3V3_OC_N;  // PRALINE
+#endif
 
 	/* GPIO Input PinMux */
 	scu_grp_pin_t PINMUX_BOOT0;
@@ -57,8 +61,10 @@ typedef struct {
 	scu_grp_pin_t PINMUX_PP_DIR;
 
 	/* USB peripheral */
+#ifdef JAWBREAKER
 	scu_grp_pin_t PINMUX_USB_LED0; // JAWBREAKER
 	scu_grp_pin_t PINMUX_USB_LED1; // JAWBREAKER
+#endif
 
 	/* SSP1 Peripheral PinMux */
 	scu_grp_pin_t SSP1_CIPO;
@@ -67,9 +73,11 @@ typedef struct {
 	scu_grp_pin_t SSP1_CS;
 
 	/* CPLD JTAG interface */
+#ifdef PRALINE
 	scu_grp_pin_t PINMUX_FPGA_CRESET; // PRALINE
 	scu_grp_pin_t PINMUX_FPGA_CDONE;  // PRALINE
 	scu_grp_pin_t PINMUX_FPGA_SPI_CS; // PRALINE
+#endif
 	scu_grp_pin_t PINMUX_CPLD_TDO;
 	scu_grp_pin_t PINMUX_CPLD_TCK;
 	scu_grp_pin_t PINMUX_CPLD_TMS;
@@ -135,8 +143,11 @@ typedef struct {
 	scu_grp_pin_t MIXER_RESETX;  // JAWBREAKER, HACKRF_ONE, PRALINE
 	uint32_t MIXER_SCLK_PINCFG;  // JAWBREAKER, HACKRF_ONE, PRALINE
 	uint32_t MIXER_SDATA_PINCFG; // JAWBREAKER, HACKRF_ONE, PRALINE
-	scu_grp_pin_t MIXER_LD;      // PRALINE
-	uint32_t MIXER_LD_PINCFG;    // PRALINE
+#ifdef PRALINE
+	scu_grp_pin_t MIXER_LD;   // PRALINE
+	uint32_t MIXER_LD_PINCFG; // PRALINE
+#endif
+#ifdef RAD1O
 	scu_grp_pin_t VCO_CE;        // RAD1O
 	scu_grp_pin_t VCO_SCLK;      // RAD1O
 	scu_grp_pin_t VCO_SDATA;     // RAD1O
@@ -144,6 +155,7 @@ typedef struct {
 	scu_grp_pin_t VCO_MUX;       // RAD1O
 	scu_grp_pin_t MIXER_EN;      // RAD1O
 	scu_grp_pin_t SYNT_RFOUT_EN; // RAD1O
+#endif
 
 	/* RF LDO control */
 	scu_grp_pin_t RF_LDO_ENABLE; // JAWBREAKER
@@ -161,19 +173,20 @@ typedef struct {
 	scu_grp_pin_t FLASH_WP;
 
 	/* RF switch control */
-	scu_grp_pin_t HP;              // HACKRF_ONE
-	scu_grp_pin_t LP;              // HACKRF_ONE
-	scu_grp_pin_t TX_MIX_BP;       // HACKRF_ONE
-	scu_grp_pin_t NO_MIX_BYPASS;   // HACKRF_ONE
-	scu_grp_pin_t RX_MIX_BP;       // HACKRF_ONE
-	scu_grp_pin_t TX_AMP;          // HACKRF_ONE, RAD1O
-	scu_grp_pin_t TX;              // HACKRF_ONE
-	scu_grp_pin_t MIX_BYPASS;      // HACKRF_ONE
-	scu_grp_pin_t RX;              // HACKRF_ONE
-	scu_grp_pin_t NO_TX_AMP_PWR;   // HACKRF_ONE
-	scu_grp_pin_t AMP_BYPASS;      // HACKRF_ONE
-	scu_grp_pin_t RX_AMP;          // HACKRF_ONE
-	scu_grp_pin_t NO_RX_AMP_PWR;   // HACKRF_ONE
+	scu_grp_pin_t HP;            // HACKRF_ONE
+	scu_grp_pin_t LP;            // HACKRF_ONE
+	scu_grp_pin_t TX_MIX_BP;     // HACKRF_ONE
+	scu_grp_pin_t NO_MIX_BYPASS; // HACKRF_ONE
+	scu_grp_pin_t RX_MIX_BP;     // HACKRF_ONE
+	scu_grp_pin_t TX_AMP;        // HACKRF_ONE, RAD1O
+	scu_grp_pin_t TX;            // HACKRF_ONE
+	scu_grp_pin_t MIX_BYPASS;    // HACKRF_ONE
+	scu_grp_pin_t RX;            // HACKRF_ONE
+	scu_grp_pin_t NO_TX_AMP_PWR; // HACKRF_ONE
+	scu_grp_pin_t AMP_BYPASS;    // HACKRF_ONE
+	scu_grp_pin_t RX_AMP;        // HACKRF_ONE
+	scu_grp_pin_t NO_RX_AMP_PWR; // HACKRF_ONE
+#ifdef RAD1O
 	scu_grp_pin_t BY_AMP;          // RAD1O
 	scu_grp_pin_t BY_AMP_N;        // RAD1O
 	scu_grp_pin_t TX_RX;           // RAD1O
@@ -183,15 +196,19 @@ typedef struct {
 	scu_grp_pin_t LOW_HIGH_FILT;   // RAD1O
 	scu_grp_pin_t LOW_HIGH_FILT_N; // RAD1O
 	scu_grp_pin_t RX_LNA;          // RAD1O
-	scu_grp_pin_t TX_EN;           // PRALINE
-	scu_grp_pin_t MIX_EN_N;        // PRALINE
-	scu_grp_pin_t MIX_EN_N_R1_0;   // PRALINE
-	scu_grp_pin_t LPF_EN;          // PRALINE
-	scu_grp_pin_t RF_AMP_EN;       // PRALINE
-	scu_grp_pin_t ANT_BIAS_EN_N;   // PRALINE
-	scu_grp_pin_t ANT_BIAS_OC_N;   // PRALINE
+#endif
+#ifdef PRALINE
+	scu_grp_pin_t TX_EN;         // PRALINE
+	scu_grp_pin_t MIX_EN_N;      // PRALINE
+	scu_grp_pin_t MIX_EN_N_R1_0; // PRALINE
+	scu_grp_pin_t LPF_EN;        // PRALINE
+	scu_grp_pin_t RF_AMP_EN;     // PRALINE
+	scu_grp_pin_t ANT_BIAS_EN_N; // PRALINE
+	scu_grp_pin_t ANT_BIAS_OC_N; // PRALINE
+#endif
 
 	/* Praline */
+#ifdef PRALINE
 	scu_grp_pin_t P2_CTRL0;
 	scu_grp_pin_t P2_CTRL1;
 	scu_grp_pin_t P1_CTRL0;
@@ -213,6 +230,7 @@ typedef struct {
 	scu_grp_pin_t TRIGGER_IN_PINCFG;
 	scu_grp_pin_t TRIGGER_OUT_PINCFG;
 	scu_grp_pin_t PPS_OUT_PINCFG;
+#endif
 
 	/* Miscellaneous */
 	scu_grp_pin_t PINMUX_PP_D0;

@@ -29,9 +29,14 @@
 extern usb_device_t usb_device;
 
 extern const usb_device_t usb_device_hackrf_one;
+#ifdef JAWBREAKER
 extern const usb_device_t usb_device_jawbreaker;
+#endif
+#ifdef RAD1O
 extern const usb_device_t usb_device_rad1o;
+#endif
+#ifdef PRALINE
 extern const usb_device_t usb_device_praline;
-extern const usb_device_t usb_device_default;
+#endif
 
 #endif /* end of include guard: __USB_DEVICE_H__ */

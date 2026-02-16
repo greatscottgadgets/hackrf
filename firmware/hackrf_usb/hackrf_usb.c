@@ -274,8 +274,9 @@ int main(void)
 			clock_gen_init();
 		}
 	} else {
+#ifdef PRALINE
 		enable_3v3aux_power();
-#if !defined(DFU_MODE) && !defined(RAM_MODE)
+	#if !defined(DFU_MODE) && !defined(RAM_MODE)
 		enable_1v2_power();
 		enable_rf_power();
 		/*
@@ -283,6 +284,7 @@ int main(void)
 		 * which is enabled when 1V2FPGA is turned on.
 		 */
 		clock_gen_init();
+	#endif
 #endif
 	}
 	if (board_id == BOARD_ID_HACKRF1_OG || board_id == BOARD_ID_HACKRF1_R9) {
@@ -339,18 +341,23 @@ int main(void)
 		       sizeof(usb_device_hackrf_one));
 		break;
 	case BOARD_ID_JAWBREAKER:
+#ifdef JAWBREAKER
 		memcpy(&usb_device,
 		       &usb_device_jawbreaker,
 		       sizeof(usb_device_jawbreaker));
+#endif
 		break;
 	case BOARD_ID_RAD1O:
+#ifdef RAD1O
 		memcpy(&usb_device, &usb_device_rad1o, sizeof(usb_device_rad1o));
+#endif
 		break;
 	case BOARD_ID_PRALINE:
+#ifdef PRALINE
 		memcpy(&usb_device, &usb_device_praline, sizeof(usb_device_praline));
+#endif
 		break;
 	default:
-		memcpy(&usb_device, &usb_device_default, sizeof(usb_device_default));
 		break;
 	};
 	usb_device_init(0, &usb_device);
@@ -372,14 +379,16 @@ int main(void)
 	rf_path_init(&rf_path);
 
 	if (board_id != BOARD_ID_RAD1O) {
+#ifndef RAD1O
 		rffc5071_lock_test(&mixer.rffc5071);
+#endif
 	}
 
-#ifdef PRALINE
 	if (board_id == BOARD_ID_PRALINE) {
+#ifdef PRALINE
 		fpga_if_xcvr_selftest();
-	}
 #endif
+	}
 
 	bool operacake_allow_gpio;
 	if (hackrf_ui()->operacake_gpio_compatible()) {

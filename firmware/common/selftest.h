@@ -40,12 +40,13 @@ typedef struct {
 	uint16_t mixer_id;
 	//#ifndef RAD1O
 	bool mixer_locks[NUM_LOCK_ATTEMPTS];
-	//#endif
-	// TODO #ifdef PRALINE
+//#endif
+#ifdef PRALINE
 	uint16_t max2831_mux_rssi_1;
 	uint16_t max2831_mux_temp;
 	uint16_t max2831_mux_rssi_2;
 	bool max2831_mux_test_ok;
+#endif
 	// TODO #else
 	uint16_t max283x_readback_bad_value;
 	uint16_t max283x_readback_expected_value;
@@ -54,7 +55,7 @@ typedef struct {
 	// TODO #endif
 	uint8_t si5351_rev_id;
 	bool si5351_readback_ok;
-	//#ifdef PRALINE
+#ifdef PRALINE
 	test_result_t fpga_image_load;
 	test_result_t fpga_spi;
 	test_result_t sgpio_rx;
@@ -69,7 +70,7 @@ typedef struct {
 		uint32_t avg_mag_sq_q;
 	} xcvr_measurements[4];
 
-	//#endif
+#endif
 	struct {
 		bool pass;
 		char msg[511];

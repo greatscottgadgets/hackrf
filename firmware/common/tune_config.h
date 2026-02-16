@@ -22,8 +22,8 @@
 #ifndef __TUNE_CONFIG_H__
 #define __TUNE_CONFIG_H__
 
-//#ifdef PRALINE
-#include "fpga.h"
+#ifdef PRALINE
+	#include "fpga.h"
 
 typedef struct {
 	uint16_t rf_range_end_mhz;
@@ -390,6 +390,6 @@ static const tune_config_t praline_tune_config_rx[] = {
 	{    0,    0, false, 0                            },
 };
 // clang-format on
-//#endif
+#endif
 
 #endif /*__TUNE_CONFIG_H__*/
