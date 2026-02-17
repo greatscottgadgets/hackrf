@@ -74,6 +74,11 @@ if(NOT DEFINED BOARD)
 	set(BOARD HACKRF_ONE)
 endif()
 
+# PortaRF uses HackRF One firmware settings.
+if(BOARD STREQUAL "PORTARF")
+	set(BOARD HACKRF_ONE)
+endif()
+
 if(BOARD STREQUAL "HACKRF_ONE" OR BOARD STREQUAL "PRALINE")
 	set(MCU_PARTNO LPC4320)
 else()
