@@ -76,6 +76,7 @@ typedef enum {
 } board_rev_t;
 
 void detect_hardware_platform(void);
+void detect_praline_board_revision(void);
 board_id_t detected_platform(void);
 board_rev_t detected_revision(void);
 uint32_t supported_platform(void);

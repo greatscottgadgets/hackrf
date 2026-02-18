@@ -303,6 +303,28 @@ void detect_hardware_platform(void)
 	}
 }
 
+/*
+ * PRALINE-specific board revision detection.
+ * Skips the full GPIO pin-probing of detect_hardware_platform() which conflicts
+ * with PRALINE peripheral initialization. Platform is known at compile time;
+ * only the ADC-based revision read and GSG flag check are performed.
+ */
+void detect_praline_board_revision(void)
+{
+	platform = BOARD_ID_PRALINE;
+
+	uint32_t adc0_3 = check_pin_strap(3);
+	revision = praline_revision_from_adc[adc0_3 >> 5];
+
+	/* Check for GSG variant via P4_6 pull-down */
+	scu_pinmux(P4_6, SCU_GPIO_PDN | SCU_CONF_FUNCTION0);
+	gpio_input(&gpio2_6_on_P4_6);
+	if (gpio_read(&gpio2_6_on_P4_6)) {
+		revision |= BOARD_REV_GSG;
+	}
+	scu_pinmux(P4_6, SCU_GPIO_NOPULL | SCU_CONF_FUNCTION0);
+}
+
 void finalize_detect_hardware_platform(void)
 {
 	gpio_output(&gpio2_9_on_P5_0);
