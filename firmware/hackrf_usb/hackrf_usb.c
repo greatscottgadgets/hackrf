@@ -287,6 +287,7 @@ int main(void)
 	#endif
 #endif
 	}
+	tuning_setup();
 	if (board_id == BOARD_ID_HACKRF1_OG || board_id == BOARD_ID_HACKRF1_R9) {
 		// Set up mixer before enabling RF power, because its
 		// GPO is used to control the antenna bias tee.

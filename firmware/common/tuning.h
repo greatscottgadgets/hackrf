@@ -32,6 +32,8 @@
 
 #define FREQ_ONE_MHZ (1000ULL * 1000)
 
+void tuning_setup(void);
+
 bool set_freq(const uint64_t freq);
 bool set_freq_explicit(
 	const uint64_t if_freq_hz,
