@@ -35,6 +35,100 @@ struct fpga_image_read_ctx {
 	uint8_t init_flag;
 };
 
+struct spifi_fpga_read_ctx {
+	const uint8_t* mem_ptr;
+	size_t next_block_sz;
+	uint8_t init_flag;
+	uint8_t buffer[4096 + 2];
+};
+static size_t fpga_image_read_block_cb(void* _ctx, uint8_t* out_buffer);
+
+/// @brief 添加从spifi加载FPGA镜像，用于从pp -> hackrf mode RAM启动方式加载
+/// @param _ctx 
+/// @param out_buffer 
+/// @return 
+static size_t spifi_fpga_read_block_cb(void* _ctx, uint8_t* out_buffer)
+{
+	struct spifi_fpga_read_ctx* ctx = (struct spifi_fpga_read_ctx*)_ctx;
+	size_t block_sz = ctx->next_block_sz;
+
+	// First iteration: read first block size from SPIFI memory
+	if (ctx->init_flag == 0) {
+		block_sz = ctx->mem_ptr[0] | (ctx->mem_ptr[1] << 8);
+		ctx->mem_ptr += 2;
+		ctx->init_flag = 1;
+	}
+
+	// Finish at end marker (block_sz == 0)
+	if (block_sz == 0)
+		return 0;
+
+	// Read compressed block from SPIFI memory
+	memcpy(ctx->buffer, ctx->mem_ptr, block_sz + 2);
+	ctx->mem_ptr += block_sz + 2;
+
+	// Extract next block size
+	ctx->next_block_sz = ctx->buffer[block_sz] | (ctx->buffer[block_sz + 1] << 8);
+
+	// Decompress block using LZ4
+	return lz4_blk_decompress(ctx->buffer, out_buffer, block_sz);
+}
+
+/// @brief 从RAM内存加载FPGA镜像
+/// @param index 
+/// @return 
+static bool fpga_image_load_from_spifi(unsigned int index)
+{
+	// PRALINE: FPGA bitstream is in flash at 0x380000 (SPIFI mapped at 0x14380000)
+	#define FPGA_BITSTREAM_FLASH_ADDR 0x380000
+
+	spi_bus_start(spi_flash.bus, &ssp_config_w25q80bv);
+	w25q80bv_setup(&spi_flash);
+	
+	uint32_t num_bitstreams;
+	w25q80bv_read(&spi_flash, FPGA_BITSTREAM_FLASH_ADDR, 4, (uint8_t*) &num_bitstreams);
+	
+	// Check if header looks valid
+	if (num_bitstreams == 0 || num_bitstreams > 16 || num_bitstreams == 0xFFFFFFFF) 
+	{
+		while(1);
+		return false;
+	}
+	
+	if (index >= num_bitstreams) 
+	{
+		return false;
+	}
+	
+	
+	uint32_t bitstream_offset;
+	w25q80bv_read(&spi_flash, FPGA_BITSTREAM_FLASH_ADDR + 4 + index * 4, 4, (uint8_t*) &bitstream_offset);
+	
+	// Initialize SSP1 for iCE40 programming
+	ice40_spi_target_init(&ice40);
+	ssp1_set_mode_ice40();
+	
+	delay_us_at_mhz(2000, 204); 
+
+	// Calculate start address of bitstream in flash
+	uint32_t bitstream_addr = FPGA_BITSTREAM_FLASH_ADDR + bitstream_offset;
+
+	struct fpga_image_read_ctx fpga_image_ctx = {
+		.addr = bitstream_addr,
+	};
+	
+	const bool success = ice40_spi_syscfg_program(
+		&ice40,
+		fpga_image_read_block_cb,
+		&fpga_image_ctx);
+	
+	ssp1_set_mode_max283x();
+
+	return success;
+}
+
+
+
 static size_t fpga_image_read_block_cb(void* _ctx, uint8_t* out_buffer)
 {
 	// Assume out_buffer is 4KB
@@ -110,3 +204,22 @@ bool fpga_image_load(unsigned int index)
 
 	return success;
 }
+
+/// @brief 实际PP加载HACKRF的接口
+/// @param index 
+/// @return 
+bool fpga_image_load_for_pp(unsigned int index)
+{
+	// 修改为返回正确
+	bool success = fpga_image_load_from_spifi(index);
+
+	selftest.fpga_image_load = success ? PASSED : FAILED;
+	// selftest.fpga_image_load = PASSED;
+
+	if (selftest.fpga_image_load != PASSED) {
+		selftest.report.pass = false;
+	}
+
+	return success;
+}
+
