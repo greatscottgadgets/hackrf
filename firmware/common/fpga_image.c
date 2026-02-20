@@ -210,9 +210,9 @@ bool fpga_image_load(unsigned int index)
 	return success;
 }
 
-// @brief Interface for loading HACKRF from PP mode
-// @param index
-// @return
+// @brief Interface used by PP to load the HACKRF FPGA image
+// @param index Index of the FPGA bitstream to load
+// @return True on success, false on failure
 bool fpga_image_load_for_pp(unsigned int index)
 {
 	// Updated to return the correct result
