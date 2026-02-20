@@ -219,7 +219,6 @@ bool fpga_image_load_for_pp(unsigned int index)
 	bool success = fpga_image_load_from_spifi(index);
 
 	selftest.fpga_image_load = success ? PASSED : FAILED;
-	// selftest.fpga_image_load = PASSED;
 
 	if (selftest.fpga_image_load != PASSED) {
 		selftest.report.pass = false;
