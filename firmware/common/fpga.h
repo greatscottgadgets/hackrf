@@ -76,6 +76,7 @@ void fpga_set_tx_nco_enable(fpga_driver_t* const drv, const bool enable);
 void fpga_set_tx_nco_pstep(fpga_driver_t* const drv, const uint8_t phase_increment);
 
 bool fpga_image_load(unsigned int index);
+bool fpga_image_load_for_pp(unsigned int index);
 bool fpga_spi_selftest(void);
 bool fpga_sgpio_selftest(void);
 bool fpga_if_xcvr_selftest(void);
