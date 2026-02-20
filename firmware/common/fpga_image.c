@@ -36,44 +36,6 @@ struct fpga_image_read_ctx {
 	uint8_t init_flag;
 };
 
-struct spifi_fpga_read_ctx {
-	const uint8_t* mem_ptr;
-	size_t next_block_sz;
-	uint8_t init_flag;
-	uint8_t buffer[4096 + 2];
-};
-
-// @brief Add FPGA image loading from SPIFI for pp -> hackrf mode RAM boot method
-// @param _ctx
-// @param out_buffer
-// @return
-static size_t spifi_fpga_read_block_cb(void* _ctx, uint8_t* out_buffer)
-{
-	struct spifi_fpga_read_ctx* ctx = (struct spifi_fpga_read_ctx*) _ctx;
-	size_t block_sz = ctx->next_block_sz;
-
-	// First iteration: read first block size from SPIFI memory
-	if (ctx->init_flag == 0) {
-		block_sz = ctx->mem_ptr[0] | (ctx->mem_ptr[1] << 8);
-		ctx->mem_ptr += 2;
-		ctx->init_flag = 1;
-	}
-
-	// Finish at end marker (block_sz == 0)
-	if (block_sz == 0)
-		return 0;
-
-	// Read compressed block from SPIFI memory
-	memcpy(ctx->buffer, ctx->mem_ptr, block_sz + 2);
-	ctx->mem_ptr += block_sz + 2;
-
-	// Extract next block size
-	ctx->next_block_sz = ctx->buffer[block_sz] | (ctx->buffer[block_sz + 1] << 8);
-
-	// Decompress block using LZ4
-	return lz4_blk_decompress(ctx->buffer, out_buffer, block_sz);
-}
-
 static size_t fpga_image_read_block_cb(void* _ctx, uint8_t* out_buffer)
 {
 	// Assume out_buffer is 4KB
