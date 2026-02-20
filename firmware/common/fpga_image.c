@@ -75,9 +75,9 @@ static size_t spifi_fpga_read_block_cb(void* _ctx, uint8_t* out_buffer)
 	return lz4_blk_decompress(ctx->buffer, out_buffer, block_sz);
 }
 
-/// @brief 从RAM内存加载FPGA镜像
-/// @param index
-/// @return
+// @brief  Loads the FPGA bitstream from RAM
+// @param index
+// @return
 static bool fpga_image_load_from_spifi(unsigned int index)
 {
 // PRALINE: FPGA bitstream is in flash at 0x380000 (SPIFI mapped at 0x14380000)
@@ -210,12 +210,12 @@ bool fpga_image_load(unsigned int index)
 	return success;
 }
 
-/// @brief 实际PP加载HACKRF的接口
-/// @param index
-/// @return
+// @brief Interface for loading HACKRF from PP mode
+// @param index
+// @return
 bool fpga_image_load_for_pp(unsigned int index)
 {
-	// 修改为返回正确
+	// Updated to return the correct result
 	bool success = fpga_image_load_from_spifi(index);
 
 	selftest.fpga_image_load = success ? PASSED : FAILED;

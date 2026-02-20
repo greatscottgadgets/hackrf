@@ -316,7 +316,7 @@ int main(void)
 	#if defined(DFU_MODE)
 		// doing nothing!
 	#elif defined(RAM_MODE)
-	// pp模式下从spifi加载
+	// Load from SPIFI in PP mode
 	fpga_image_load_for_pp(0);
 	#else
 	fpga_image_load(0);
