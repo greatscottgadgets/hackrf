@@ -35,7 +35,7 @@ typedef struct {
 	mixer_variant_t type;
 
 	union {
-#ifndef RAD1O
+#if !defined(RAD1O)
 		rffc5071_driver_t rffc5071;
 #else
 		max2871_driver_t max2871;
