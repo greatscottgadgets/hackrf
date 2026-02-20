@@ -94,13 +94,8 @@ static bool fpga_image_load_from_spifi(unsigned int index)
 		(uint8_t*) &num_bitstreams);
 
 	// Check if header looks valid
-	if (num_bitstreams == 0 || num_bitstreams > 16 || num_bitstreams == 0xFFFFFFFF) {
-		while (1)
-			;
-		return false;
-	}
-
-	if (index >= num_bitstreams) {
+	if (num_bitstreams == 0 || num_bitstreams > 16 || num_bitstreams == 0xFFFFFFFF ||
+	    index >= num_bitstreams) {
 		return false;
 	}
 
