@@ -43,8 +43,6 @@ struct spifi_fpga_read_ctx {
 	uint8_t buffer[4096 + 2];
 };
 
-static size_t fpga_image_read_block_cb(void* _ctx, uint8_t* out_buffer);
-
 // @brief Add FPGA image loading from SPIFI for pp -> hackrf mode RAM boot method
 // @param _ctx
 // @param out_buffer
