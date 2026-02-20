@@ -43,7 +43,7 @@ void gpio_clear(gpio_t gpio)
 
 void gpio_toggle(gpio_t gpio)
 {
-	gpio->port->not = gpio->mask;
+	gpio->port->inv = gpio->mask;
 }
 
 void gpio_output(gpio_t gpio)
