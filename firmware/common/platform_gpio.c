@@ -40,12 +40,12 @@ const platform_gpio_t* platform_gpio(void)
 	gpio.led[2] = &GPIO2_8;
 	switch (board_id) {
 	case BOARD_ID_RAD1O:
-#ifdef RAD1O
+#if defined(RAD1O)
 		gpio.led[3] = &GPIO5_26;
 #endif
 		break;
 	case BOARD_ID_PRALINE:
-#ifdef PRALINE
+#if defined(PRALINE) || defined(HACKRF_ALL)
 		gpio.led[3] = &GPIO4_6;
 #endif
 		break;
@@ -56,7 +56,7 @@ const platform_gpio_t* platform_gpio(void)
 	/* Power Supply Control */
 	switch (board_id) {
 	case BOARD_ID_PRALINE:
-#ifdef PRALINE
+#if defined(PRALINE) || defined(HACKRF_ALL)
 		gpio.gpio_1v2_enable      = &GPIO4_7;
 		gpio.gpio_3v3aux_enable_n = &GPIO5_15;
 #endif
@@ -69,7 +69,7 @@ const platform_gpio_t* platform_gpio(void)
 	/* MAX283x GPIO (XCVR_CTL / CS_XCVR) PinMux */
 	switch (board_id) {
 	case BOARD_ID_PRALINE:
-#ifdef PRALINE
+#if defined(PRALINE) || defined(HACKRF_ALL)
 		gpio.max283x_select    = &GPIO6_28;
 		gpio.max283x_enable    = &GPIO7_1;
 		gpio.max283x_rx_enable = &GPIO7_2;
@@ -88,7 +88,7 @@ const platform_gpio_t* platform_gpio(void)
 	/* MAX5864 SPI chip select (AD_CS / CS_AD) GPIO PinMux */
 	switch (board_id) {
 	case BOARD_ID_PRALINE:
-#ifdef PRALINE
+#if defined(PRALINE) || defined(HACKRF_ALL)
 		gpio.max5864_select    = &GPIO6_30;
 #endif
 		break;
@@ -101,15 +101,17 @@ const platform_gpio_t* platform_gpio(void)
 	switch (board_id) {
 	case BOARD_ID_HACKRF1_OG:
 	case BOARD_ID_HACKRF1_R9:
+#if defined(HACKRF_ONE) || defined(HACKRF_ALL)
 		gpio.vaa_disable       = &GPIO2_9;
+#endif
         break;
     case BOARD_ID_PRALINE:
-#ifdef PRALINE
+#if defined(PRALINE) || defined(HACKRF_ALL)
 		gpio.vaa_disable       = &GPIO4_1;
 #endif
 		break;
 	case BOARD_ID_RAD1O:
-#ifdef RAD1O
+#if defined(RAD1O)
 		gpio.vaa_enable        = &GPIO2_9;
 #endif
 		break;
@@ -126,6 +128,7 @@ const platform_gpio_t* platform_gpio(void)
 	switch (board_id) {
 	case BOARD_ID_HACKRF1_OG:
 	case BOARD_ID_HACKRF1_R9:
+#if defined(HACKRF_ONE) || defined(HACKRF_ALL)
 		gpio.hp              = &GPIO2_0;
 		gpio.lp              = &GPIO2_10;
 		gpio.tx_mix_bp       = &GPIO2_11;
@@ -142,9 +145,10 @@ const platform_gpio_t* platform_gpio(void)
         // HackRF One rev 9
 		gpio.h1r9_rx         = &GPIO0_7;
 		gpio.h1r9_no_ant_pwr = &GPIO2_4;
+#endif
         break;
 	case BOARD_ID_RAD1O:
-#ifdef RAD1O
+#if defined(RAD1O)
 		gpio.tx_rx_n         = &GPIO1_11;
 		gpio.tx_rx           = &GPIO0_14;
 		gpio.by_mix          = &GPIO1_12;
@@ -159,7 +163,7 @@ const platform_gpio_t* platform_gpio(void)
 #endif
         break;
     case BOARD_ID_PRALINE:
-#ifdef PRALINE
+#if defined(PRALINE) || defined(HACKRF_ALL)
 		gpio.tx_en           = &GPIO3_4;
 		gpio.mix_en_n        = &GPIO3_2;
 		gpio.mix_en_n_r1_0   = &GPIO5_6;
@@ -179,7 +183,7 @@ const platform_gpio_t* platform_gpio(void)
 	gpio.cpld_tck                  = &GPIO3_0;
 	switch (board_id) {
     case BOARD_ID_PRALINE:
-#ifdef PRALINE
+#if defined(PRALINE) || defined(HACKRF_ALL)
 		gpio.fpga_cfg_creset       = &GPIO2_11;
 		gpio.fpga_cfg_cdone        = &GPIO5_14;
 		gpio.fpga_cfg_spi_cs       = &GPIO2_10;
@@ -205,8 +209,10 @@ const platform_gpio_t* platform_gpio(void)
 	case BOARD_ID_HACKRF1_OG:
 	case BOARD_ID_HACKRF1_R9:
 	case BOARD_ID_PRALINE:
+#if defined(HACKRF_ONE) || defined(PRALINE) || defined(HACKRF_ALL)
 		gpio.cpld_pp_tms       = &GPIO1_1;
 		gpio.cpld_pp_tdo       = &GPIO1_8;
+#endif
 		break;
 	default:
 		break;
@@ -217,7 +223,9 @@ const platform_gpio_t* platform_gpio(void)
 	case BOARD_ID_PRALINE:
 		break;
 	default:
+#if !defined(PRALINE) || defined(HACKRF_ALL)
 		gpio.trigger_enable = &GPIO5_12;
+#endif
 		break;
 	}
 	gpio.q_invert           = &GPIO0_13;
@@ -227,13 +235,15 @@ const platform_gpio_t* platform_gpio(void)
 	case BOARD_ID_JAWBREAKER:
 	case BOARD_ID_HACKRF1_OG:
 	case BOARD_ID_HACKRF1_R9:
+#if defined(JAWBREAKER) || defined(HACKRF_ONE) || defined(HACKRF_ALL)
 		gpio.rffc5072_select = &GPIO2_13;
 		gpio.rffc5072_clock  = &GPIO5_6;
 		gpio.rffc5072_data   = &GPIO3_3;
 		gpio.rffc5072_reset  = &GPIO2_14;
+#endif
 		break;
 	case BOARD_ID_RAD1O:
-#ifdef RAD1O
+#if defined(RAD1O)
 		gpio.vco_ce        = &GPIO2_13;
 		gpio.vco_sclk      = &GPIO5_6;
 		gpio.vco_sdata     = &GPIO3_3;
@@ -243,7 +253,7 @@ const platform_gpio_t* platform_gpio(void)
 #endif
 		break;
 	case BOARD_ID_PRALINE:
-#ifdef PRALINE
+#if defined(PRALINE) || defined(HACKRF_ALL)
 		gpio.rffc5072_select = &GPIO2_13;
 		gpio.rffc5072_clock  = &GPIO5_18;
 		gpio.rffc5072_data   = &GPIO4_14;
@@ -255,6 +265,7 @@ const platform_gpio_t* platform_gpio(void)
 		break;
 	}
 
+#if defined(HACKRF_ONE) || defined(HACKRF_ALL)
 	/* HackRF One r9 clock control */
 	switch (board_id) {
 	case BOARD_ID_HACKRF1_R9:
@@ -266,7 +277,6 @@ const platform_gpio_t* platform_gpio(void)
 		break;
 	}
 
-	/* HackRF One r9 */
 	switch (board_id) {
 	case BOARD_ID_HACKRF1_R9:
 		gpio.h1r9_1v8_enable     = &GPIO2_9;
@@ -276,11 +286,11 @@ const platform_gpio_t* platform_gpio(void)
 	default:
 		break;
 	}
+#endif
 
-	/* Praline */
+#if defined(PRALINE) || defined(HACKRF_ALL)
 	switch (board_id) {
     case BOARD_ID_PRALINE:
-#ifdef PRALINE
 		gpio.p2_ctrl0     = &GPIO7_3;
 		gpio.p2_ctrl1     = &GPIO7_4;
 		gpio.p1_ctrl0     = &GPIO0_14;
@@ -291,11 +301,11 @@ const platform_gpio_t* platform_gpio(void)
 		gpio.trigger_in   = &GPIO6_26;
 		gpio.trigger_out  = &GPIO5_6;
 		gpio.pps_out      = &GPIO5_5;
-#endif
 		break;
 	default:
 		break;
 	}
+#endif
 
 	_platform_gpio = &gpio;
 

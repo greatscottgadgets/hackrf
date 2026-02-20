@@ -50,7 +50,8 @@
 
 #define USB_STRING_LANGID (0x0409)
 
-uint8_t usb_descriptor_device_hackrf_one[] = {
+#if defined(HACKRF_ONE) || defined(PRALINE) || defined(HACKRF_ALL)
+uint8_t usb_descriptor_device_hackrf[] = {
 	18,                         // bLength
 	USB_DESCRIPTOR_TYPE_DEVICE, // bDescriptorType
 	USB_WORD(0x0200),           // bcdUSB
@@ -66,8 +67,8 @@ uint8_t usb_descriptor_device_hackrf_one[] = {
 	0x04,                       // iSerialNumber
 	0x01                        // bNumConfigurations
 };
-
-#ifdef JAWBREAKER
+#endif
+#if defined(JAWBREAKER)
 uint8_t usb_descriptor_device_jawbreaker[] = {
 	18,                         // bLength
 	USB_DESCRIPTOR_TYPE_DEVICE, // bDescriptorType
@@ -85,8 +86,7 @@ uint8_t usb_descriptor_device_jawbreaker[] = {
 	0x01                        // bNumConfigurations
 };
 #endif
-
-#ifdef RAD1O
+#if defined(RAD1O)
 uint8_t usb_descriptor_device_rad1o[] = {
 	18,                         // bLength
 	USB_DESCRIPTOR_TYPE_DEVICE, // bDescriptorType
@@ -222,6 +222,7 @@ uint8_t usb_descriptor_string_manufacturer[] = {
 	's', 0x00,
 };
 
+#if defined(HACKRF_ONE) || defined(HACKRF_ALL)
 uint8_t usb_descriptor_string_product_hackrf_one[] = {
 	22,                         // bLength
 	USB_DESCRIPTOR_TYPE_STRING, // bDescriptorType
@@ -236,7 +237,24 @@ uint8_t usb_descriptor_string_product_hackrf_one[] = {
 	'n', 0x00,
 	'e', 0x00,
 };
-#ifdef JAWBREAKER
+#endif
+#if defined(PRALINE) || defined(HACKRF_ALL)
+uint8_t usb_descriptor_string_product_praline[] = {
+	22,                         // bLength
+	USB_DESCRIPTOR_TYPE_STRING, // bDescriptorType
+	'H', 0x00,
+	'a', 0x00,
+	'c', 0x00,
+	'k', 0x00,
+	'R', 0x00,
+	'F', 0x00,
+	' ', 0x00,
+	'P', 0x00,
+	'r', 0x00,
+	'o', 0x00,
+};
+#endif
+#if defined(JAWBREAKER)
 uint8_t usb_descriptor_string_product_jawbreaker[] = {
 	36,                         // bLength
 	USB_DESCRIPTOR_TYPE_STRING, // bDescriptorType
@@ -259,7 +277,7 @@ uint8_t usb_descriptor_string_product_jawbreaker[] = {
 	'r', 0x00,
 };
 #endif
-#ifdef RAD1O
+#if defined(RAD1O)
 uint8_t usb_descriptor_string_product_rad1o[] = {
 	12,                         // bLength
 	USB_DESCRIPTOR_TYPE_STRING, // bDescriptorType
@@ -267,22 +285,6 @@ uint8_t usb_descriptor_string_product_rad1o[] = {
 	'a', 0x00,
 	'd', 0x00,
 	'1', 0x00,
-	'o', 0x00,
-};
-#endif
-#ifdef PRALINE
-uint8_t usb_descriptor_string_product_praline[] = {
-	22,                         // bLength
-	USB_DESCRIPTOR_TYPE_STRING, // bDescriptorType
-	'H', 0x00,
-	'a', 0x00,
-	'c', 0x00,
-	'k', 0x00,
-	'R', 0x00,
-	'F', 0x00,
-	' ', 0x00,
-	'P', 0x00,
-	'r', 0x00,
 	'o', 0x00,
 };
 #endif
@@ -326,6 +328,7 @@ uint8_t usb_descriptor_string_serial_number[] = {
 uint8_t usb_descriptor_string_serial_number[USB_DESCRIPTOR_STRING_SERIAL_BUF_LEN];
 #endif
 
+#if defined(HACKRF_ONE) || defined(HACKRF_ALL)
 uint8_t* usb_descriptor_strings_hackrf_one[] = {
 	usb_descriptor_string_languages,
 	usb_descriptor_string_manufacturer,
@@ -334,7 +337,18 @@ uint8_t* usb_descriptor_strings_hackrf_one[] = {
 	usb_descriptor_string_serial_number,
 	0, // TERMINATOR
 };
-#ifdef JAWBREAKER
+#endif
+#if defined(PRALINE) || defined(HACKRF_ALL)
+uint8_t* usb_descriptor_strings_praline[] = {
+	usb_descriptor_string_languages,
+	usb_descriptor_string_manufacturer,
+	usb_descriptor_string_product_praline,
+	usb_descriptor_string_config_description,
+	usb_descriptor_string_serial_number,
+	0, // TERMINATOR
+};
+#endif
+#if defined(JAWBREAKER)
 uint8_t* usb_descriptor_strings_jawbreaker[] = {
 	usb_descriptor_string_languages,
 	usb_descriptor_string_manufacturer,
@@ -344,21 +358,11 @@ uint8_t* usb_descriptor_strings_jawbreaker[] = {
 	0, // TERMINATOR
 };
 #endif
-#ifdef RAD1O
+#if defined(RAD1O)
 uint8_t* usb_descriptor_strings_rad1o[] = {
 	usb_descriptor_string_languages,
 	usb_descriptor_string_manufacturer,
 	usb_descriptor_string_product_rad1o,
-	usb_descriptor_string_config_description,
-	usb_descriptor_string_serial_number,
-	0, // TERMINATOR
-};
-#endif
-#ifdef PRALINE
-uint8_t* usb_descriptor_strings_praline[] = {
-	usb_descriptor_string_languages,
-	usb_descriptor_string_manufacturer,
-	usb_descriptor_string_product_praline,
 	usb_descriptor_string_config_description,
 	usb_descriptor_string_serial_number,
 	0, // TERMINATOR

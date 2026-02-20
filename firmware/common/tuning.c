@@ -38,8 +38,10 @@ static uint64_t MAX_BYPASS_FREQ_MHZ;
 static uint64_t ABS_MAX_BYPASS_FREQ_MHZ;
 
 static uint64_t MIN_HP_FREQ_MHZ;
+#if !defined(PRALINE) || defined(HACKRF_ALL)
 static uint64_t MID1_HP_FREQ_MHZ;
 static uint64_t MID2_HP_FREQ_MHZ;
+#endif
 static uint64_t MAX_HP_FREQ_MHZ;
 
 static uint64_t MIN_LO_FREQ_HZ;
@@ -49,7 +51,7 @@ void tuning_setup(void)
 {
 	switch (detected_platform()) {
 	case BOARD_ID_PRALINE:
-#ifdef PRALINE
+#if defined(PRALINE) || defined(HACKRF_ALL)
 		MIN_LP_FREQ_MHZ = 0;
 		MAX_LP_FREQ_MHZ = 2320ULL;
 
@@ -66,6 +68,7 @@ void tuning_setup(void)
 #endif
 		break;
 	default:
+#if !defined(PRALINE) || defined(HACKRF_ALL)
 		MIN_LP_FREQ_MHZ = 0;
 		MAX_LP_FREQ_MHZ = 2170ULL;
 
@@ -81,11 +84,12 @@ void tuning_setup(void)
 
 		MIN_LO_FREQ_HZ = 84375000ULL;
 		MAX_LO_FREQ_HZ = 5400000000ULL;
+#endif
 		break;
 	}
 }
 
-//#ifndef PRALINE
+#if !defined(PRALINE) || defined(HACKRF_ALL)
 static uint32_t max2837_freq_nominal_hz = 2560000000;
 
 /*
@@ -107,12 +111,12 @@ bool set_freq(const uint64_t freq)
 	max283x_set_mode(&max283x, MAX283x_MODE_STANDBY);
 	if (freq_mhz < MAX_LP_FREQ_MHZ) {
 		rf_path_set_filter(&rf_path, RF_PATH_FILTER_LOW_PASS);
-#ifdef RAD1O
+	#if defined(RAD1O)
 		max2837_freq_nominal_hz = 2300 * FREQ_ONE_MHZ;
-#else
+	#else
 		/* IF is graduated from 2650 MHz to 2340 MHz */
 		max2837_freq_nominal_hz = (2650 * FREQ_ONE_MHZ) - (freq / 7);
-#endif
+	#endif
 		mixer_freq_hz = max2837_freq_nominal_hz + freq;
 		/* Set Freq and read real freq */
 		real_mixer_freq_hz = mixer_set_frequency(&mixer, mixer_freq_hz);
@@ -151,15 +155,15 @@ bool set_freq(const uint64_t freq)
 	max283x_set_mode(&max283x, prior_max283x_mode);
 	if (success) {
 		hackrf_ui()->set_frequency(freq);
-#ifdef HACKRF_ONE
+	#if defined(HACKRF_ONE) || defined(HACKRF_ALL)
 		operacake_set_range(freq_mhz);
-#endif
+	#endif
 	}
 	return success;
 }
+#endif
 
-//#else
-#ifdef PRALINE
+#if defined(PRALINE) || defined(HACKRF_ALL)
 bool tuning_set_frequency(
 	const tune_config_t* cfg,
 	const uint64_t freq,

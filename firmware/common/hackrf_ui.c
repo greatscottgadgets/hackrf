@@ -81,21 +81,22 @@ const hackrf_ui_t* hackrf_ui(void)
 	/* Detect on first use. If no UI hardware is detected, use a stub function table. */
 	if (ui == NULL && ui_enabled) {
 		switch (detected_platform()) {
-#ifndef RAD1O
 		case BOARD_ID_HACKRF1_OG:
 		case BOARD_ID_HACKRF1_R9:
 		case BOARD_ID_PRALINE:
+#if defined(HACKRF_ONE) || defined(PRALINE) || defined(HACKRF_ALL)
 			if (portapack_hackrf_ui_init) {
 				ui = portapack_hackrf_ui_init();
 			}
+#endif
 			break;
-#else
 		case BOARD_ID_RAD1O:
+#if defined(RAD1O)
 			if (rad1o_ui_setup) {
 				ui = rad1o_ui_setup();
 			}
-			break;
 #endif
+			break;
 		default:
 			break;
 		}

@@ -22,11 +22,13 @@
 
 #include <stdint.h>
 
-extern uint8_t usb_descriptor_device_hackrf_one[];
-#ifdef JAWBREAKER
+#if defined(HACKRF_ONE) || defined(PRALINE) || defined(HACKRF_ALL)
+extern uint8_t usb_descriptor_device_hackrf[];
+#endif
+#if defined(JAWBREAKER)
 extern uint8_t usb_descriptor_device_jawbreaker[];
 #endif
-#ifdef RAD1O
+#if defined(RAD1O)
 extern uint8_t usb_descriptor_device_rad1o[];
 #endif
 extern uint8_t usb_descriptor_device_qualifier[];
@@ -34,15 +36,17 @@ extern uint8_t usb_descriptor_configuration_full_speed[];
 extern uint8_t usb_descriptor_configuration_high_speed[];
 extern uint8_t usb_descriptor_string_languages[];
 extern uint8_t usb_descriptor_string_manufacturer[];
+#if defined(HACKRF_ONE) || defined(HACKRF_ALL)
 extern uint8_t usb_descriptor_string_product_hackrf_one[];
-#ifdef JAWBREAKER
+#endif
+#if defined(PRALINE) || defined(HACKRF_ALL)
+extern uint8_t usb_descriptor_string_product_praline[];
+#endif
+#if defined(JAWBREAKER)
 extern uint8_t usb_descriptor_string_product_jawbreaker[];
 #endif
-#ifdef RAD1O
+#if defined(RAD1O)
 extern uint8_t usb_descriptor_string_product_rad1o[];
-#endif
-#ifdef PRALINE
-extern uint8_t usb_descriptor_string_product_praline[];
 #endif
 
 #define USB_DESCRIPTOR_STRING_SERIAL_LEN 32

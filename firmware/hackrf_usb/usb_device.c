@@ -47,8 +47,9 @@ usb_configuration_t* usb_configurations[] = {
 
 usb_device_t usb_device;
 
+#if defined(HACKRF_ONE) || defined(HACKRF_ALL)
 const usb_device_t usb_device_hackrf_one = {
-	.descriptor = usb_descriptor_device_hackrf_one,
+	.descriptor = usb_descriptor_device_hackrf,
 	.descriptor_strings = usb_descriptor_strings_hackrf_one,
 	.qualifier_descriptor = usb_descriptor_device_qualifier,
 	.configurations = &usb_configurations,
@@ -56,8 +57,19 @@ const usb_device_t usb_device_hackrf_one = {
 	.wcid_string_descriptor = wcid_string_descriptor,
 	.wcid_feature_descriptor = wcid_feature_descriptor,
 };
-
-#ifdef JAWBREAKER
+#endif
+#if defined(PRALINE) || defined(HACKRF_ALL)
+const usb_device_t usb_device_praline = {
+	.descriptor = usb_descriptor_device_hackrf,
+	.descriptor_strings = usb_descriptor_strings_praline,
+	.qualifier_descriptor = usb_descriptor_device_qualifier,
+	.configurations = &usb_configurations,
+	.configuration = 0,
+	.wcid_string_descriptor = wcid_string_descriptor,
+	.wcid_feature_descriptor = wcid_feature_descriptor,
+};
+#endif
+#if defined(JAWBREAKER)
 const usb_device_t usb_device_jawbreaker = {
 	.descriptor = usb_descriptor_device_jawbreaker,
 	.descriptor_strings = usb_descriptor_strings_jawbreaker,
@@ -68,23 +80,10 @@ const usb_device_t usb_device_jawbreaker = {
 	.wcid_feature_descriptor = wcid_feature_descriptor,
 };
 #endif
-
-#ifdef RAD1O
+#if defined(RAD1O)
 const usb_device_t usb_device_rad1o = {
 	.descriptor = usb_descriptor_device_rad1o,
 	.descriptor_strings = usb_descriptor_strings_rad1o,
-	.qualifier_descriptor = usb_descriptor_device_qualifier,
-	.configurations = &usb_configurations,
-	.configuration = 0,
-	.wcid_string_descriptor = wcid_string_descriptor,
-	.wcid_feature_descriptor = wcid_feature_descriptor,
-};
-#endif
-
-#ifdef PRALINE
-const usb_device_t usb_device_praline = {
-	.descriptor = usb_descriptor_device_hackrf_one,
-	.descriptor_strings = usb_descriptor_strings_praline,
 	.qualifier_descriptor = usb_descriptor_device_qualifier,
 	.configurations = &usb_configurations,
 	.configuration = 0,

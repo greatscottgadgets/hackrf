@@ -37,9 +37,9 @@ typedef enum {
 
 typedef struct sgpio_config_t {
 	gpio_t gpio_q_invert;
-	//#ifndef PRALINE
-	gpio_t gpio_trigger_enable; // !PRALINE
-	//#endif
+#if !defined(PRALINE) || defined(HACKRF_ALL)
+	gpio_t gpio_trigger_enable;
+#endif
 	bool slice_mode_multislice;
 } sgpio_config_t;
 

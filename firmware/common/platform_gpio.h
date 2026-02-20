@@ -35,9 +35,9 @@ typedef struct {
 
 	/* Power Supply Control */
 	gpio_t gpio_1v8_enable;
-#ifdef PRALINE
-	gpio_t gpio_1v2_enable;      // PRALINE
-	gpio_t gpio_3v3aux_enable_n; // PRALINE
+#if defined(PRALINE) || defined(HACKRF_ALL)
+	gpio_t gpio_1v2_enable;
+	gpio_t gpio_3v3aux_enable_n;
 #endif
 
 	/* MAX283x GPIO (XCVR_CTL / CS_XCVR) PinMux */
@@ -45,18 +45,18 @@ typedef struct {
 	gpio_t max283x_enable;
 	gpio_t max283x_rx_enable;
 	gpio_t max283x_tx_enable;
-#ifdef PRALINE
-	gpio_t max2831_rxhp; // PRALINE
-	gpio_t max2831_ld;   // PRALINE
+#if defined(PRALINE) || defined(HACKRF_ALL)
+	gpio_t max2831_rxhp;
+	gpio_t max2831_ld;
 #endif
 
 	/* MAX5864 SPI chip select (AD_CS / CS_AD) GPIO PinMux */
 	gpio_t max5864_select;
 
 	/* RF supply (VAA) control */
-	gpio_t vaa_disable; // HACKRF_ONE, PRALINE
-#ifdef RAD1O
-	gpio_t vaa_enable; // RAD10
+	gpio_t vaa_disable;
+#if defined(RAD1O)
+	gpio_t vaa_enable;
 #endif
 
 	/* W25Q80BV Flash */
@@ -65,41 +65,43 @@ typedef struct {
 	gpio_t w25q80bv_select;
 
 	/* RF switch control */
-	gpio_t hp;              // HACKRF_ONE
-	gpio_t lp;              // HACKRF_ONE
-	gpio_t tx_mix_bp;       // HACKRF_ONE
-	gpio_t no_mix_bypass;   // HACKRF_ONE
-	gpio_t rx_mix_bp;       // HACKRF_ONE
-	gpio_t tx_amp;          // HACKRF_ONE
-	gpio_t tx;              // HACKRF_ONE
-	gpio_t mix_bypass;      // HACKRF_ONE
-	gpio_t rx;              // HACKRF_ONE
-	gpio_t no_tx_amp_pwr;   // HACKRF_ONE
-	gpio_t amp_bypass;      // HACKRF_ONE
-	gpio_t rx_amp;          // HACKRF_ONE
-	gpio_t no_rx_amp_pwr;   // HACKRF_ONE
+#if defined(HACKRF_ONE) || defined(HACKRF_ALL)
+	gpio_t hp;
+	gpio_t lp;
+	gpio_t tx_mix_bp;
+	gpio_t no_mix_bypass;
+	gpio_t rx_mix_bp;
+	gpio_t tx_amp;
+	gpio_t tx;
+	gpio_t mix_bypass;
+	gpio_t rx;
+	gpio_t no_tx_amp_pwr;
+	gpio_t amp_bypass;
+	gpio_t rx_amp;
+	gpio_t no_rx_amp_pwr;
 	gpio_t h1r9_no_ant_pwr; // HACKRF_ONE r9
 	gpio_t h1r9_rx;         // HACKRF_ONE r9
-#ifdef RAD1O
-	gpio_t tx_rx_n;         // RAD1O
-	gpio_t tx_rx;           // RAD1O
-	gpio_t by_mix;          // RAD1O
-	gpio_t by_mix_n;        // RAD1O
-	gpio_t by_amp;          // RAD1O
-	gpio_t by_amp_n;        // RAD1O
-	gpio_t mixer_en;        // RAD1O
-	gpio_t low_high_filt;   // RAD1O
-	gpio_t low_high_filt_n; // RAD1O
-	//gpio_t tx_amp;        // RAD1O
-	gpio_t rx_lna; // RAD1O
 #endif
-#ifdef PRALINE
-	gpio_t tx_en;         // PRALINE
-	gpio_t mix_en_n;      // PRALINE
-	gpio_t mix_en_n_r1_0; // PRALINE r1.0
-	gpio_t lpf_en;        // PRALINE
-	gpio_t rf_amp_en;     // PRALINE
-	gpio_t ant_bias_en_n; // PRALINE
+#if defined(RAD1O)
+	gpio_t tx_rx_n;
+	gpio_t tx_rx;
+	gpio_t by_mix;
+	gpio_t by_mix_n;
+	gpio_t by_amp;
+	gpio_t by_amp_n;
+	gpio_t mixer_en;
+	gpio_t low_high_filt;
+	gpio_t low_high_filt_n;
+	gpio_t tx_amp;
+	gpio_t rx_lna;
+#endif
+#if defined(PRALINE) || defined(HACKRF_ALL)
+	gpio_t tx_en;
+	gpio_t mix_en_n;
+	gpio_t mix_en_n_r1_0;
+	gpio_t lpf_en;
+	gpio_t rf_amp_en;
+	gpio_t ant_bias_en_n;
 #endif
 
 	/* CPLD JTAG interface GPIO pins, FPGA config pins in Praline */
@@ -107,16 +109,20 @@ typedef struct {
 	gpio_t cpld_tdo;
 	gpio_t cpld_tms;
 	gpio_t cpld_tdi;
+#if defined(HACKRF_ONE) || defined(PRALINE) || defined(HACKRF_ALL)
 	gpio_t cpld_pp_tms;
 	gpio_t cpld_pp_tdo;
-#ifdef PRALINE
-	gpio_t fpga_cfg_creset; // PRALINE
-	gpio_t fpga_cfg_cdone;  // PRALINE
-	gpio_t fpga_cfg_spi_cs; // PRALINE
+#endif
+#if defined(PRALINE) || defined(HACKRF_ALL)
+	gpio_t fpga_cfg_creset;
+	gpio_t fpga_cfg_cdone;
+	gpio_t fpga_cfg_spi_cs;
 #endif
 
 	/* Other CPLD interface GPIO pins */
+#if !defined(PRALINE) || defined(HACKRF_ALL)
 	gpio_t trigger_enable;
+#endif
 	gpio_t q_invert;
 
 	/* RFFC5071 GPIO serial interface PinMux */
@@ -132,18 +138,18 @@ typedef struct {
 	gpio_t vco_mux;       // RAD1O
 	gpio_t synt_rfout_en; // RAD1O
 
+#if defined(HACKRF_ONE) || defined(HACKRF_ALL)
 	/* HackRF One r9 clock control */
 	gpio_t h1r9_clkin_en;
 	gpio_t h1r9_clkout_en;
 	gpio_t h1r9_mcu_clk_en;
 
-	/* HackRF One r9 */
 	gpio_t h1r9_1v8_enable;
 	gpio_t h1r9_vaa_disable;
 	gpio_t h1r9_trigger_enable;
+#endif
 
-	/* Praline */
-#ifdef PRALINE
+#if defined(PRALINE) || defined(HACKRF_ALL)
 	gpio_t p2_ctrl0;
 	gpio_t p2_ctrl1;
 	gpio_t p1_ctrl0;

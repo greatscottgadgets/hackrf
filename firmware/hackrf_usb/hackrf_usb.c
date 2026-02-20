@@ -78,8 +78,13 @@ static usb_request_handler_fn vendor_request_handler[] = {
 	usb_vendor_request_read_si5351c,
 	usb_vendor_request_set_sample_rate_frac,
 	usb_vendor_request_set_baseband_filter_bandwidth,
-	usb_vendor_request_write_rffc5071, // not supported on RAD10
-	usb_vendor_request_read_rffc5071,  // not supported on RAD10
+#if !defined(RAD1O)
+	usb_vendor_request_write_rffc5071,
+	usb_vendor_request_read_rffc5071,
+#else
+	NULL, // write_rffc5071 not used
+	NULL, // read_rffc5071 not used
+#endif
 	usb_vendor_request_erase_spiflash,
 	usb_vendor_request_write_spiflash,
 	usb_vendor_request_read_spiflash,
@@ -92,8 +97,12 @@ static usb_request_handler_fn vendor_request_handler[] = {
 	usb_vendor_request_set_lna_gain,
 	usb_vendor_request_set_vga_gain,
 	usb_vendor_request_set_txvga_gain,
-	NULL,                                  // was set_if_freq
-	usb_vendor_request_set_antenna_enable, // only supported on HACKRF_ONE and PRALINE
+	NULL, // was set_if_freq
+#if defined(HACKRF_ONE) || defined(PRALINE) || defined(HACKRF_ALL)
+	usb_vendor_request_set_antenna_enable,
+#else
+	NULL,
+#endif
 	usb_vendor_request_set_freq_explicit,
 	usb_vendor_request_read_wcid, // USB_WCID_VENDOR_REQ
 	usb_vendor_request_init_sweep,
@@ -106,8 +115,8 @@ static usb_request_handler_fn vendor_request_handler[] = {
 	usb_vendor_request_spiflash_status,
 	usb_vendor_request_spiflash_clear_status,
 	usb_vendor_request_operacake_gpio_test,
-#if (defined PRALINE || defined HACKRF_ONE)
-	usb_vendor_request_cpld_checksum, // only supported on HACKRF_ONE
+#if defined(HACKRF_ONE) || defined(HACKRF_ALL)
+	usb_vendor_request_cpld_checksum,
 #else
 	NULL,
 #endif
@@ -123,14 +132,14 @@ static usb_request_handler_fn vendor_request_handler[] = {
 	usb_vendor_request_read_supported_platform,
 	usb_vendor_request_set_leds,
 	usb_vendor_request_user_config_set_bias_t_opts,
-#ifdef PRALINE
-	usb_vendor_request_write_fpga_reg,        // only supported on PRALINE
-	usb_vendor_request_read_fpga_reg,         // only supported on PRALINE
-	usb_vendor_request_p2_ctrl,               // only supported on PRALINE
-	usb_vendor_request_p1_ctrl,               // only supported on PRALINE
-	usb_vendor_request_set_narrowband_filter, // only supported on PRALINE
-	usb_vendor_request_set_fpga_bitstream,    // only supported on PRALINE
-	usb_vendor_request_clkin_ctrl,            // only supported on PRALINE
+#if defined(PRALINE) || defined(HACKRF_ALL)
+	usb_vendor_request_write_fpga_reg,
+	usb_vendor_request_read_fpga_reg,
+	usb_vendor_request_p2_ctrl,
+	usb_vendor_request_p1_ctrl,
+	usb_vendor_request_set_narrowband_filter,
+	usb_vendor_request_set_fpga_bitstream,
+	usb_vendor_request_clkin_ctrl,
 #else
 	NULL,
 	NULL,
@@ -219,6 +228,7 @@ void usb_set_descriptor_by_serial_number(void)
 	}
 }
 
+#if !defined(PRALINE) || defined(HACKRF_ALL)
 static bool cpld_jtag_sram_load(jtag_t* const jtag)
 {
 	cpld_jtag_take(jtag);
@@ -230,6 +240,7 @@ static bool cpld_jtag_sram_load(jtag_t* const jtag)
 	cpld_jtag_release(jtag);
 	return success;
 }
+#endif
 
 static void m0_rom_to_ram(void)
 {
@@ -274,7 +285,7 @@ int main(void)
 			clock_gen_init();
 		}
 	} else {
-#ifdef PRALINE
+#if defined(PRALINE) || defined(HACKRF_ALL)
 		enable_3v3aux_power();
 	#if !defined(DFU_MODE) && !defined(RAM_MODE)
 		enable_1v2_power();
@@ -295,7 +306,9 @@ int main(void)
 	}
 	if (board_id == BOARD_ID_HACKRF1_OG || board_id == BOARD_ID_HACKRF1_R9 ||
 	    board_id == BOARD_ID_RAD1O) {
+#if defined(RAD1O) || defined(HACKRF_ONE) || defined(HACKRF_ALL)
 		enable_rf_power();
+#endif
 	}
 	if (board_id == BOARD_ID_RAD1O) {
 		clock_gen_init();
@@ -307,11 +320,13 @@ int main(void)
 	ipc_start_m0((uint32_t) &__ram_m0_start__);
 
 	if (board_id != BOARD_ID_PRALINE) {
+#if !defined(PRALINE) || defined(HACKRF_ALL)
 		if (!cpld_jtag_sram_load(&jtag_cpld)) {
 			halt_and_flash(6000000);
 		}
+#endif
 	} else {
-#ifdef PRALINE
+#if defined(PRALINE) || defined(HACKRF_ALL)
 		fpga_image_load(0);
 		delay_us_at_mhz(100, 204);
 		fpga_spi_selftest();
@@ -320,12 +335,12 @@ int main(void)
 	}
 	radio_init(&radio);
 
-#if defined(PRALINE) || defined(HACKRF_ONE)
 	if (board_id == BOARD_ID_HACKRF1_OG || board_id == BOARD_ID_HACKRF1_R9 ||
 	    board_id == BOARD_ID_PRALINE) {
+#if defined(HACKRF_ONE) || defined(PRALINE) || defined(HACKRF_ALL)
 		portapack_init();
-	}
 #endif
+	}
 
 #ifndef DFU_MODE
 	usb_set_descriptor_by_serial_number();
@@ -337,24 +352,26 @@ int main(void)
 	switch (detected_platform()) {
 	case BOARD_ID_HACKRF1_OG:
 	case BOARD_ID_HACKRF1_R9:
+#if defined(HACKRF_ONE) || defined(HACKRF_ALL)
 		memcpy(&usb_device,
 		       &usb_device_hackrf_one,
 		       sizeof(usb_device_hackrf_one));
+#endif
 		break;
 	case BOARD_ID_JAWBREAKER:
-#ifdef JAWBREAKER
+#if defined(JAWBREAKER)
 		memcpy(&usb_device,
 		       &usb_device_jawbreaker,
 		       sizeof(usb_device_jawbreaker));
 #endif
 		break;
 	case BOARD_ID_RAD1O:
-#ifdef RAD1O
+#if defined(RAD1O)
 		memcpy(&usb_device, &usb_device_rad1o, sizeof(usb_device_rad1o));
 #endif
 		break;
 	case BOARD_ID_PRALINE:
-#ifdef PRALINE
+#if defined(PRALINE) || defined(HACKRF_ALL)
 		memcpy(&usb_device, &usb_device_praline, sizeof(usb_device_praline));
 #endif
 		break;
@@ -380,13 +397,13 @@ int main(void)
 	rf_path_init(&rf_path);
 
 	if (board_id != BOARD_ID_RAD1O) {
-#ifndef RAD1O
+#if !defined(RAD1O)
 		rffc5071_lock_test(&mixer.rffc5071);
 #endif
 	}
 
 	if (board_id == BOARD_ID_PRALINE) {
-#ifdef PRALINE
+#if defined(PRALINE) || defined(HACKRF_ALL)
 		fpga_if_xcvr_selftest();
 #endif
 	}
@@ -434,7 +451,9 @@ int main(void)
 			break;
 		case TRANSCEIVER_MODE_CPLD_UPDATE:
 			if (board_id != BOARD_ID_PRALINE) {
+#if !defined(PRALINE) || defined(HACKRF_ALL)
 				cpld_update();
+#endif
 			}
 			break;
 		default:

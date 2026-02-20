@@ -96,6 +96,7 @@ void operacake_sctimer_init(void)
 
 	uint8_t sct_clock_input;
 	if (detected_platform() != BOARD_ID_PRALINE) {
+#if !defined(PRALINE) || defined(HACKRF_ALL)
 		// Configure the SGPIO to output the clock (f=2 * sample clock) on pin 12
 		SGPIO_OUT_MUX_CFG12 =
 			SGPIO_OUT_MUX_CFG_P_OUT_CFG(0x08) | // clkout output mode
@@ -106,7 +107,9 @@ void operacake_sctimer_init(void)
 		GIMA_CTIN_1_IN = 0x2 << 4; // Route SGPIO12 to SCTIN1
 
 		sct_clock_input = SCT_CONFIG_CKSEL_RISING_EDGES_ON_INPUT_1;
+#endif
 	} else {
+#if defined(PRALINE) || defined(HACKRF_ALL)
 		// Configure pin P6_4 as SCT_IN_6
 		scu_pinmux(P6_4, SCU_CLK_IN | SCU_CONF_FUNCTION1);
 
@@ -114,6 +117,7 @@ void operacake_sctimer_init(void)
 		GIMA_CTIN_6_IN = 0x0 << 4;
 
 		sct_clock_input = SCT_CONFIG_CKSEL_RISING_EDGES_ON_INPUT_6;
+#endif
 	}
 
 	// We configure this register first, because the user manual says to

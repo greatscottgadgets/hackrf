@@ -26,11 +26,9 @@
 #include "rffc5071_spi.h"
 #include "max2871.h"
 
-#ifndef RAD1O
+#if !defined(RAD1O)
 static rffc5071_spi_config_t rffc5071_spi_config;
-#endif
 
-#ifndef RAD1O
 static spi_bus_t spi_bus_rffc5071 = {
 	.config = &rffc5071_spi_config,
 	.start = rffc5071_spi_start,
@@ -41,7 +39,7 @@ static spi_bus_t spi_bus_rffc5071 = {
 #endif
 
 mixer_driver_t mixer = {
-#ifndef RAD1O
+#if !defined(RAD1O)
 	.rffc5071.bus = &spi_bus_rffc5071,
 #endif
 };
@@ -50,13 +48,13 @@ void mixer_bus_setup(mixer_driver_t* const mixer)
 {
 	(void) mixer;
 
-#ifndef RAD1O
+#if !defined(RAD1O)
 	const platform_gpio_t* gpio = platform_gpio();
 #endif
 
 	switch (mixer->type) {
 	case RFFC5071_VARIANT:
-#ifndef RAD1O
+#if !defined(RAD1O)
 		rffc5071_spi_config = (rffc5071_spi_config_t){
 			.gpio_select = gpio->rffc5072_select,
 			.gpio_clock = gpio->rffc5072_clock,
@@ -79,17 +77,17 @@ void mixer_setup(mixer_driver_t* const mixer, mixer_variant_t type)
 	/* Mixer GPIO serial interface PinMux */
 	switch (mixer->type) {
 	case RFFC5071_VARIANT:
-#ifndef RAD1O
+#if !defined(RAD1O)
 		mixer->rffc5071.gpio_reset = gpio->rffc5072_reset;
 		if (detected_platform() == BOARD_ID_PRALINE) {
-	#ifdef PRALINE
+	#if defined(PRALINE) || defined(HACKRF_ALL)
 			mixer->rffc5071.gpio_ld = gpio->rffc5072_ld;
 	#endif
 		}
 #endif
 		break;
 	case MAX2871_VARIANT:
-#ifdef RAD1O
+#if defined(RAD1O)
 		mixer->max2871.gpio_vco_ce = gpio->vco_ce;
 		mixer->max2871.gpio_vco_sclk = gpio->vco_sclk;
 		mixer->max2871.gpio_vco_sdata = gpio->vco_sdata;
@@ -102,12 +100,12 @@ void mixer_setup(mixer_driver_t* const mixer, mixer_variant_t type)
 
 	switch (mixer->type) {
 	case RFFC5071_VARIANT:
-#ifndef RAD1O
+#if !defined(RAD1O)
 		rffc5071_setup(&mixer->rffc5071);
 #endif
 		break;
 	case MAX2871_VARIANT:
-#ifdef RAD1O
+#if defined(RAD1O)
 		max2871_setup(&mixer->max2871);
 #endif
 		break;
@@ -118,12 +116,12 @@ uint64_t mixer_set_frequency(mixer_driver_t* const mixer, uint64_t hz)
 {
 	switch (mixer->type) {
 	case RFFC5071_VARIANT:
-#ifndef RAD1O
+#if !defined(RAD1O)
 		return rffc5071_set_frequency(&mixer->rffc5071, hz);
 #endif
 		break;
 	case MAX2871_VARIANT:
-#ifdef RAD1O
+#if defined(RAD1O)
 		return max2871_set_frequency(&mixer->max2871, hz / 1000000);
 #endif
 		break;
@@ -136,12 +134,12 @@ void mixer_enable(mixer_driver_t* const mixer)
 {
 	switch (mixer->type) {
 	case RFFC5071_VARIANT:
-#ifndef RAD1O
+#if !defined(RAD1O)
 		rffc5071_enable(&mixer->rffc5071);
 #endif
 		break;
 	case MAX2871_VARIANT:
-#ifdef RAD1O
+#if defined(RAD1O)
 		max2871_enable(&mixer->max2871);
 #endif
 		break;
@@ -152,12 +150,12 @@ void mixer_disable(mixer_driver_t* const mixer)
 {
 	switch (mixer->type) {
 	case RFFC5071_VARIANT:
-#ifndef RAD1O
+#if !defined(RAD1O)
 		rffc5071_disable(&mixer->rffc5071);
 #endif
 		break;
 	case MAX2871_VARIANT:
-#ifdef RAD1O
+#if defined(RAD1O)
 		max2871_disable(&mixer->max2871);
 #endif
 		break;
@@ -166,13 +164,13 @@ void mixer_disable(mixer_driver_t* const mixer)
 
 void mixer_set_gpo(mixer_driver_t* const mixer, uint8_t gpo)
 {
-#ifdef RAD1O
+#if defined(RAD1O)
 	(void) gpo;
 #endif
 
 	switch (mixer->type) {
 	case RFFC5071_VARIANT:
-#ifndef RAD1O
+#if !defined(RAD1O)
 		rffc5071_set_gpo(&mixer->rffc5071, gpo);
 #endif
 		break;

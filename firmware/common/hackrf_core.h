@@ -52,7 +52,7 @@ extern si5351c_driver_t clock_gen;
 extern ssp_config_t ssp_config_w25q80bv;
 
 extern max283x_driver_t max283x;
-#ifdef PRALINE
+#if defined(PRALINE) || defined(HACKRF_ALL)
 extern ice40_spi_driver_t ice40;
 extern fpga_driver_t fpga;
 #endif
@@ -70,14 +70,14 @@ void clock_gen_init(void);
 void clock_gen_shutdown(void);
 void ssp1_set_mode_max283x(void);
 void ssp1_set_mode_max5864(void);
-#ifdef PRALINE
+#if defined(PRALINE) || defined(HACKRF_ALL)
 void ssp1_set_mode_ice40(void);
 #endif
 
 void pin_shutdown(void);
 void pin_setup(void);
 
-#ifdef PRALINE
+#if defined(PRALINE) || defined(HACKRF_ALL)
 void enable_1v2_power(void);
 void disable_1v2_power(void);
 void enable_3v3aux_power(void);
@@ -91,11 +91,10 @@ bool sample_rate_set(const uint32_t sampling_rate_hz);
 
 clock_source_t activate_best_clock_source(void);
 
-//#if (defined HACKRF_ONE || defined RAD1O || defined PRALINE)
+#if defined(RAD1O) || defined(HACKRF_ONE) || defined(PRALINE) || defined(HACKRF_ALL)
 void enable_rf_power(void);
 void disable_rf_power(void);
-
-//#endif
+#endif
 
 typedef enum {
 	LED1 = 0,
@@ -113,7 +112,7 @@ void trigger_enable(const bool enable);
 
 void halt_and_flash(const uint32_t duration);
 
-#ifdef PRALINE
+#if defined(PRALINE) || defined(HACKRF_ALL)
 typedef enum {
 	P1_SIGNAL_TRIGGER_IN = 0,
 	P1_SIGNAL_AUX_CLK1 = 1,

@@ -38,22 +38,24 @@ typedef struct {
 	scu_grp_pin_t PINMUX_LED1;
 	scu_grp_pin_t PINMUX_LED2;
 	scu_grp_pin_t PINMUX_LED3;
-#if (defined RAD1O || defined PRALINE)
-	scu_grp_pin_t PINMUX_LED4; // RAD1O, PRALINE
+#if defined(RAD1O) || defined(PRALINE) || defined(HACKRF_ALL)
+	scu_grp_pin_t PINMUX_LED4;
 #endif
 
 	scu_grp_pin_t PINMUX_EN1V8;
 	scu_grp_pin_t PINMUX_EN1V2;
-#ifdef PRALINE
-	scu_grp_pin_t PINMUX_EN3V3_AUX_N; // PRALINE
-	scu_grp_pin_t PINMUX_EN3V3_OC_N;  // PRALINE
+#if defined(PRALINE) || defined(HACKRF_ALL)
+	scu_grp_pin_t PINMUX_EN3V3_AUX_N;
+	scu_grp_pin_t PINMUX_EN3V3_OC_N;
 #endif
 
 	/* GPIO Input PinMux */
 	scu_grp_pin_t PINMUX_BOOT0;
 	scu_grp_pin_t PINMUX_BOOT1;
-	scu_grp_pin_t PINMUX_BOOT2; // !HACKRF_ONE
-	scu_grp_pin_t PINMUX_BOOT3; // !HACKRF_ONE
+#if !defined(HACKRF_ONE) || defined(HACKRF_ALL)
+	scu_grp_pin_t PINMUX_BOOT2;
+	scu_grp_pin_t PINMUX_BOOT3;
+#endif
 	scu_grp_pin_t PINMUX_PP_LCD_TE;
 	scu_grp_pin_t PINMUX_PP_LCD_RDX;
 	scu_grp_pin_t PINMUX_PP_UNUSED;
@@ -61,9 +63,9 @@ typedef struct {
 	scu_grp_pin_t PINMUX_PP_DIR;
 
 	/* USB peripheral */
-#ifdef JAWBREAKER
-	scu_grp_pin_t PINMUX_USB_LED0; // JAWBREAKER
-	scu_grp_pin_t PINMUX_USB_LED1; // JAWBREAKER
+#if defined(JAWBREAKER)
+	scu_grp_pin_t PINMUX_USB_LED0;
+	scu_grp_pin_t PINMUX_USB_LED1;
 #endif
 
 	/* SSP1 Peripheral PinMux */
@@ -73,10 +75,10 @@ typedef struct {
 	scu_grp_pin_t SSP1_CS;
 
 	/* CPLD JTAG interface */
-#ifdef PRALINE
-	scu_grp_pin_t PINMUX_FPGA_CRESET; // PRALINE
-	scu_grp_pin_t PINMUX_FPGA_CDONE;  // PRALINE
-	scu_grp_pin_t PINMUX_FPGA_SPI_CS; // PRALINE
+#if defined(PRALINE) || defined(HACKRF_ALL)
+	scu_grp_pin_t PINMUX_FPGA_CRESET;
+	scu_grp_pin_t PINMUX_FPGA_CDONE;
+	scu_grp_pin_t PINMUX_FPGA_SPI_CS;
 #endif
 	scu_grp_pin_t PINMUX_CPLD_TDO;
 	scu_grp_pin_t PINMUX_CPLD_TCK;
@@ -143,11 +145,11 @@ typedef struct {
 	scu_grp_pin_t MIXER_RESETX;  // JAWBREAKER, HACKRF_ONE, PRALINE
 	uint32_t MIXER_SCLK_PINCFG;  // JAWBREAKER, HACKRF_ONE, PRALINE
 	uint32_t MIXER_SDATA_PINCFG; // JAWBREAKER, HACKRF_ONE, PRALINE
-#ifdef PRALINE
+#if defined(PRALINE) || defined(HACKRF_ALL)
 	scu_grp_pin_t MIXER_LD;   // PRALINE
 	uint32_t MIXER_LD_PINCFG; // PRALINE
 #endif
-#ifdef RAD1O
+#if defined(RAD1O)
 	scu_grp_pin_t VCO_CE;        // RAD1O
 	scu_grp_pin_t VCO_SCLK;      // RAD1O
 	scu_grp_pin_t VCO_SDATA;     // RAD1O
@@ -173,31 +175,34 @@ typedef struct {
 	scu_grp_pin_t FLASH_WP;
 
 	/* RF switch control */
-	scu_grp_pin_t HP;            // HACKRF_ONE
-	scu_grp_pin_t LP;            // HACKRF_ONE
-	scu_grp_pin_t TX_MIX_BP;     // HACKRF_ONE
-	scu_grp_pin_t NO_MIX_BYPASS; // HACKRF_ONE
-	scu_grp_pin_t RX_MIX_BP;     // HACKRF_ONE
-	scu_grp_pin_t TX_AMP;        // HACKRF_ONE, RAD1O
-	scu_grp_pin_t TX;            // HACKRF_ONE
-	scu_grp_pin_t MIX_BYPASS;    // HACKRF_ONE
-	scu_grp_pin_t RX;            // HACKRF_ONE
-	scu_grp_pin_t NO_TX_AMP_PWR; // HACKRF_ONE
-	scu_grp_pin_t AMP_BYPASS;    // HACKRF_ONE
-	scu_grp_pin_t RX_AMP;        // HACKRF_ONE
-	scu_grp_pin_t NO_RX_AMP_PWR; // HACKRF_ONE
-#ifdef RAD1O
-	scu_grp_pin_t BY_AMP;          // RAD1O
-	scu_grp_pin_t BY_AMP_N;        // RAD1O
-	scu_grp_pin_t TX_RX;           // RAD1O
-	scu_grp_pin_t TX_RX_N;         // RAD1O
-	scu_grp_pin_t BY_MIX;          // RAD1O
-	scu_grp_pin_t BY_MIX_N;        // RAD1O
-	scu_grp_pin_t LOW_HIGH_FILT;   // RAD1O
-	scu_grp_pin_t LOW_HIGH_FILT_N; // RAD1O
-	scu_grp_pin_t RX_LNA;          // RAD1O
+#if defined(HACKRF_ONE) || defined(HACKRF_ALL)
+	scu_grp_pin_t HP;
+	scu_grp_pin_t LP;
+	scu_grp_pin_t TX_MIX_BP;
+	scu_grp_pin_t NO_MIX_BYPASS;
+	scu_grp_pin_t RX_MIX_BP;
+	scu_grp_pin_t TX_AMP;
+	scu_grp_pin_t TX;
+	scu_grp_pin_t MIX_BYPASS;
+	scu_grp_pin_t RX;
+	scu_grp_pin_t NO_TX_AMP_PWR;
+	scu_grp_pin_t AMP_BYPASS;
+	scu_grp_pin_t RX_AMP;
+	scu_grp_pin_t NO_RX_AMP_PWR;
 #endif
-#ifdef PRALINE
+#if defined(RAD1O)
+	scu_grp_pin_t BY_AMP;
+	scu_grp_pin_t BY_AMP_N;
+	scu_grp_pin_t TX_RX;
+	scu_grp_pin_t TX_RX_N;
+	scu_grp_pin_t BY_MIX;
+	scu_grp_pin_t BY_MIX_N;
+	scu_grp_pin_t LOW_HIGH_FILT;
+	scu_grp_pin_t LOW_HIGH_FILT_N;
+	scu_grp_pin_t TX_AMP;
+	scu_grp_pin_t RX_LNA;
+#endif
+#if defined(PRALINE) || defined(HACKRF_ALL)
 	scu_grp_pin_t TX_EN;         // PRALINE
 	scu_grp_pin_t MIX_EN_N;      // PRALINE
 	scu_grp_pin_t MIX_EN_N_R1_0; // PRALINE
@@ -208,7 +213,7 @@ typedef struct {
 #endif
 
 	/* Praline */
-#ifdef PRALINE
+#if defined(PRALINE) || defined(HACKRF_ALL)
 	scu_grp_pin_t P2_CTRL0;
 	scu_grp_pin_t P2_CTRL1;
 	scu_grp_pin_t P1_CTRL0;
@@ -272,6 +277,7 @@ typedef struct {
 	scu_grp_pin_t PINMUX_GP_CLKIN;
 
 	/* HackRF One r9 */
+#if defined(HACKRF_ONE) || defined(HACKRF_ALL)
 	scu_grp_pin_t H1R9_CLKIN_EN;
 	scu_grp_pin_t H1R9_CLKOUT_EN;
 	scu_grp_pin_t H1R9_MCU_CLK_EN;
@@ -280,6 +286,7 @@ typedef struct {
 	scu_grp_pin_t H1R9_EN1V8;
 	scu_grp_pin_t H1R9_NO_VAA_EN;
 	scu_grp_pin_t H1R9_TRIGGER_EN;
+#endif
 } platform_scu_t;
 
 // Detects and returns the global platform scu instance of the active board id and revision.

@@ -53,7 +53,7 @@ void append(char** dest, size_t* capacity, const char* str)
 	}
 }
 
-#ifdef PRALINE
+#if defined(PRALINE) || defined(HACKRF_ALL)
 static const char* test_result_to_str(test_result_t result)
 {
 	switch (result) {
@@ -77,12 +77,13 @@ void generate_selftest_report(void)
 	char* s = &selftest.report.msg[0];
 	size_t c = sizeof(selftest.report.msg);
 	if (board_id == BOARD_ID_RAD1O) {
-#ifdef RAD1O
+#if defined(RAD1O)
 		append(&s, &c, "Mixer: MAX2871, ID: ");
 		append(&s, &c, itoa(selftest.mixer_id, 10));
 		append(&s, &c, "\n");
 #endif
 	} else {
+#if !defined(RAD1O)
 		append(&s, &c, "Mixer: RFFC5072, ID: ");
 		append(&s, &c, itoa(selftest.mixer_id >> 3, 10));
 		append(&s, &c, ", Rev: ");
@@ -99,20 +100,24 @@ void generate_selftest_report(void)
 			append(&s, &c, " (FAIL)");
 		}
 		append(&s, &c, "\n");
+#endif
 	}
+
 	append(&s, &c, "Clock: Si5351");
 	append(&s, &c, ", Rev: ");
 	append(&s, &c, itoa(selftest.si5351_rev_id, 10));
 	append(&s, &c, ", readback: ");
 	append(&s, &c, selftest.si5351_readback_ok ? "OK" : "FAIL");
 	append(&s, &c, "\n");
+
 	if (board_id == BOARD_ID_PRALINE) {
-#ifdef PRALINE
+#if defined(PRALINE) || defined(HACKRF_ALL)
 		append(&s, &c, "Transceiver: MAX2831, RSSI mux test: ");
 		append(&s, &c, selftest.max2831_mux_test_ok ? "PASS" : "FAIL");
 		append(&s, &c, "\n");
 #endif
 	} else {
+#if !defined(PRALINE) || defined(HACKRF_ALL)
 		append(&s, &c, "Transceiver: ");
 		append(&s, &c, (board_id == BOARD_ID_HACKRF1_R9 ? "MAX2839" : "MAX2837"));
 		append(&s, &c, ", readback success: ");
@@ -129,9 +134,10 @@ void generate_selftest_report(void)
 			       itoa(selftest.max283x_readback_expected_value, 10));
 		}
 		append(&s, &c, "\n");
+#endif
 	}
 	if (board_id == BOARD_ID_PRALINE) {
-#ifdef PRALINE
+#if defined(PRALINE) || defined(HACKRF_ALL)
 		append(&s, &c, "FPGA configuration: ");
 		append(&s, &c, test_result_to_str(selftest.fpga_image_load));
 		append(&s, &c, "\n");

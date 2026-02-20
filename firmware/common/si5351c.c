@@ -188,7 +188,9 @@ void si5351c_configure_clock_control(
 	uint8_t clkout_ctrl;
 
 	board_id_t board_id = detected_platform();
+#if defined(HACKRF_ONE) || defined(HACKRF_ALL)
 	const platform_gpio_t* gpio = platform_gpio();
+#endif
 
 	if (board_id == BOARD_ID_RAD1O) {
 		/* PLLA on XTAL */
@@ -204,18 +206,22 @@ void si5351c_configure_clock_control(
 			/* PLLB on CLKIN */
 			pll = SI5351C_CLK_PLL_SRC_B;
 			if (board_id == BOARD_ID_HACKRF1_R9) {
+#if defined(HACKRF_ONE) || defined(HACKRF_ALL)
 				/*
 				 * HackRF One r9 always uses PLL A on the XTAL input
 				 * but externally switches that input to CLKIN.
 				 */
 				pll = SI5351C_CLK_PLL_SRC_A;
 				gpio_set(gpio->h1r9_clkin_en);
+#endif
 			}
 		} else {
 			/* PLLA on XTAL */
 			pll = SI5351C_CLK_PLL_SRC_A;
 			if (board_id == BOARD_ID_HACKRF1_R9) {
+#if defined(HACKRF_ONE) || defined(HACKRF_ALL)
 				gpio_clear(gpio->h1r9_clkin_en);
+#endif
 			}
 		}
 		break;
@@ -257,6 +263,7 @@ void si5351c_configure_clock_control(
 			SI5351C_CLK_INT_MODE /* not connected, but: PLL B int mode */
 	};
 	if (board_id == BOARD_ID_HACKRF1_R9) {
+#if defined(HACKRF_ONE) || defined(HACKRF_ALL)
 		data[1] = SI5351C_CLK_INT_MODE | SI5351C_CLK_PLL_SRC_A |
 			SI5351C_CLK_SRC(SI5351C_CLK_SRC_MULTISYNTH_SELF) |
 			SI5351C_CLK_IDRV(SI5351C_CLK_IDRV_6MA);
@@ -267,8 +274,10 @@ void si5351c_configure_clock_control(
 		data[4] = SI5351C_CLK_POWERDOWN;
 		data[5] = SI5351C_CLK_POWERDOWN;
 		data[6] = SI5351C_CLK_POWERDOWN;
+#endif
 	}
 	if (board_id == BOARD_ID_PRALINE) {
+#if defined(PRALINE) || defined(HACKRF_ALL)
 		data[1] = SI5351C_CLK_FRAC_MODE | SI5351C_CLK_PLL_SRC(pll) |
 			SI5351C_CLK_SRC(SI5351C_CLK_SRC_MULTISYNTH_SELF) |
 			SI5351C_CLK_IDRV(SI5351C_CLK_IDRV_4MA);
@@ -276,6 +285,7 @@ void si5351c_configure_clock_control(
 		data[5] = SI5351C_CLK_INT_MODE | SI5351C_CLK_PLL_SRC(pll) |
 			SI5351C_CLK_SRC(SI5351C_CLK_SRC_MULTISYNTH_SELF) |
 			SI5351C_CLK_IDRV(SI5351C_CLK_IDRV_4MA) | SI5351C_CLK_INV;
+#endif
 	}
 	si5351c_write(drv, data, sizeof(data));
 }
@@ -292,29 +302,34 @@ void si5351c_enable_clock_outputs(si5351c_driver_t* const drv)
 	/* 3: External clock output is deactivated by default */
 
 	board_id_t board_id = detected_platform();
-	const platform_gpio_t* gpio = platform_gpio();
 
 	uint8_t value;
-	if (board_id != BOARD_ID_PRALINE) {
-		value = SI5351C_CLK_ENABLE(0) | SI5351C_CLK_ENABLE(1) |
-			SI5351C_CLK_ENABLE(2) | SI5351C_CLK_ENABLE(4) |
-			SI5351C_CLK_ENABLE(5) | SI5351C_CLK_DISABLE(6) |
-			SI5351C_CLK_DISABLE(7);
-	} else {
+	if (board_id == BOARD_ID_PRALINE) {
+#if defined(PRALINE) || defined(HACKRF_ALL)
 		value = SI5351C_CLK_ENABLE(0) | SI5351C_CLK_ENABLE(1) |
 			SI5351C_CLK_DISABLE(2) | SI5351C_CLK_ENABLE(4) |
 			SI5351C_CLK_ENABLE(5) | SI5351C_CLK_DISABLE(6) |
 			SI5351C_CLK_DISABLE(7);
+#endif
+	} else {
+#if !defined(PRALINE) || defined(HACKRF_ALL)
+		value = SI5351C_CLK_ENABLE(0) | SI5351C_CLK_ENABLE(1) |
+			SI5351C_CLK_ENABLE(2) | SI5351C_CLK_ENABLE(4) |
+			SI5351C_CLK_ENABLE(5) | SI5351C_CLK_DISABLE(6) |
+			SI5351C_CLK_DISABLE(7);
+#endif
 	}
 	uint8_t clkout = 3;
 
 	/* HackRF One r9 has only three clock generator outputs. */
 	if (board_id == BOARD_ID_HACKRF1_R9) {
+#if defined(HACKRF_ONE) || defined(HACKRF_ALL)
 		clkout = 2;
 		value = SI5351C_CLK_ENABLE(0) | SI5351C_CLK_ENABLE(1) |
 			SI5351C_CLK_DISABLE(3) | SI5351C_CLK_DISABLE(4) |
 			SI5351C_CLK_DISABLE(5) | SI5351C_CLK_DISABLE(6) |
 			SI5351C_CLK_DISABLE(7);
+#endif
 	}
 
 	value |= (clkout_enabled) ? SI5351C_CLK_ENABLE(clkout) :
@@ -323,11 +338,14 @@ void si5351c_enable_clock_outputs(si5351c_driver_t* const drv)
 	si5351c_write(drv, data, sizeof(data));
 
 	if (detected_platform() == BOARD_ID_HACKRF1_R9) {
+#if defined(HACKRF_ONE) || defined(HACKRF_ALL)
+		const platform_gpio_t* gpio = platform_gpio();
 		if (clkout_enabled) {
 			gpio_set(gpio->h1r9_clkout_en);
 		} else {
 			gpio_clear(gpio->h1r9_clkout_en);
 		}
+#endif
 	}
 }
 
@@ -421,6 +439,7 @@ void si5351c_init(si5351c_driver_t* const drv)
 	}
 
 	if (detected_platform() == BOARD_ID_HACKRF1_R9) {
+#if defined(HACKRF_ONE) || defined(HACKRF_ALL)
 		const platform_gpio_t* gpio = platform_gpio();
 		const platform_scu_t* scu = platform_scu();
 
@@ -438,6 +457,7 @@ void si5351c_init(si5351c_driver_t* const drv)
 		scu_pinmux(scu->H1R9_MCU_CLK_EN, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
 		gpio_clear(gpio->h1r9_mcu_clk_en);
 		gpio_output(gpio->h1r9_mcu_clk_en);
+#endif
 	}
 	(void) drv;
 }

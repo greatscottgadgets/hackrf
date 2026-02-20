@@ -58,7 +58,7 @@ typedef struct {
 	max283x_variant_t type;
 
 	union {
-#ifdef PRALINE
+#if defined(PRALINE) || defined(HACKRF_ALL)
 		max2831_driver_t max2831;
 #endif
 		max2837_driver_t max2837;

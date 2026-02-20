@@ -126,8 +126,8 @@ usb_request_status_t usb_vendor_request_reset(
 	if (stage == USB_TRANSFER_STAGE_SETUP) {
 		pin_shutdown();
 		clock_gen_shutdown();
-
 		if (detected_platform() == BOARD_ID_HACKRF1_R9) {
+#if defined(HACKRF_ONE) || defined(HACKRF_ALL)
 			/*
 			 * Set boot pins as inputs so that the bootloader reads them
 			 * correctly after the reset.
@@ -136,6 +136,7 @@ usb_request_status_t usb_vendor_request_reset(
 			gpio_input(gpio->h1r9_mcu_clk_en);
 			gpio_input(gpio->h1r9_clkout_en);
 			gpio_input(gpio->h1r9_rx);
+#endif
 		}
 
 		wwdt_reset(100000);

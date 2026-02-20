@@ -26,12 +26,11 @@
 #include <libopencm3/lpc43xx/scu.h>
 #include <stdint.h>
 
-//#ifndef PRALINE
+#if !defined(PRALINE) || defined(HACKRF_ALL)
 static refill_buffer_cb refill_buffer;
 static uint32_t xsvf_buffer_len, xsvf_pos;
 static unsigned char* xsvf_buffer;
-
-//#endif
+#endif
 
 void cpld_jtag_take(jtag_t* const jtag)
 {
@@ -46,33 +45,41 @@ void cpld_jtag_take(jtag_t* const jtag)
 	case BOARD_ID_HACKRF1_OG:
 	case BOARD_ID_HACKRF1_R9:
 	case BOARD_ID_PRALINE:
+#if defined(HACKRF_ONE) || defined(PRALINE) || defined(HACKRF_ALL)
 		gpio_set(gpio->gpio_pp_tms);
+#endif
 		break;
 	default:
 		break;
 	}
 	gpio_clear(gpio->gpio_tck);
 	if (board_id != BOARD_ID_PRALINE) {
+#if !defined(PRALINE) || defined(HACKRF_ALL)
 		gpio_set(gpio->gpio_tms);
 		gpio_set(gpio->gpio_tdi);
+#endif
 	}
 
 	switch (board_id) {
 	case BOARD_ID_HACKRF1_OG:
 	case BOARD_ID_HACKRF1_R9:
 	case BOARD_ID_PRALINE:
+#if defined(HACKRF_ONE) || defined(PRALINE) || defined(HACKRF_ALL)
 		/* Do not drive PortaPack-specific TMS pin initially, just to be cautious. */
 		gpio_input(gpio->gpio_pp_tms);
 		gpio_input(gpio->gpio_pp_tdo);
+#endif
 		break;
 	default:
 		break;
 	}
 	gpio_output(gpio->gpio_tck);
 	if (board_id != BOARD_ID_PRALINE) {
+#if !defined(PRALINE) || defined(HACKRF_ALL)
 		gpio_output(gpio->gpio_tms);
 		gpio_output(gpio->gpio_tdi);
 		gpio_input(gpio->gpio_tdo);
+#endif
 	}
 }
 
@@ -89,22 +96,26 @@ void cpld_jtag_release(jtag_t* const jtag)
 	case BOARD_ID_HACKRF1_OG:
 	case BOARD_ID_HACKRF1_R9:
 	case BOARD_ID_PRALINE:
+#if defined(HACKRF_ONE) || defined(PRALINE) || defined(HACKRF_ALL)
 		/* Do not drive PortaPack-specific pins, initially, just to be cautious. */
 		gpio_input(gpio->gpio_pp_tms);
 		gpio_input(gpio->gpio_pp_tdo);
+#endif
 		break;
 	default:
 		break;
 	}
 	gpio_input(gpio->gpio_tck);
 	if (board_id != BOARD_ID_PRALINE) {
+#if !defined(PRALINE) || defined(HACKRF_ALL)
 		gpio_input(gpio->gpio_tms);
 		gpio_input(gpio->gpio_tdi);
 		gpio_input(gpio->gpio_tdo);
+#endif
 	}
 }
 
-//#ifndef PRALINE
+#if !defined(PRALINE) || defined(HACKRF_ALL)
 /* return 0 if success else return error code see xsvfExecute() */
 int cpld_jtag_program(
 	jtag_t* const jtag,
@@ -135,5 +146,4 @@ unsigned char cpld_jtag_get_next_byte(void)
 	xsvf_pos++;
 	return byte;
 }
-
-//#endif
+#endif

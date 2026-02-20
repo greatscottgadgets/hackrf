@@ -161,7 +161,7 @@ usb_request_status_t usb_vendor_request_write_rffc5071(
 	usb_endpoint_t* const endpoint,
 	const usb_transfer_stage_t stage)
 {
-#ifdef RAD1O
+#if defined(RAD1O)
 	(void) endpoint;
 	(void) stage;
 	if (detected_platform() == BOARD_ID_RAD1O) {
@@ -170,7 +170,7 @@ usb_request_status_t usb_vendor_request_write_rffc5071(
 #endif
 
 	if (stage == USB_TRANSFER_STAGE_SETUP) {
-#ifndef RAD1O
+#if !defined(RAD1O)
 		if (endpoint->setup.index < RFFC5071_NUM_REGS) {
 			rffc5071_reg_write(
 				&mixer.rffc5071,
@@ -190,7 +190,7 @@ usb_request_status_t usb_vendor_request_read_rffc5071(
 	usb_endpoint_t* const endpoint,
 	const usb_transfer_stage_t stage)
 {
-#ifdef RAD1O
+#if defined(RAD1O)
 	(void) endpoint;
 	(void) stage;
 	if (detected_platform() == BOARD_ID_RAD1O) {
@@ -199,7 +199,7 @@ usb_request_status_t usb_vendor_request_read_rffc5071(
 #endif
 
 	if (stage == USB_TRANSFER_STAGE_SETUP) {
-#ifndef RAD1O
+#if !defined(RAD1O)
 		uint16_t value;
 		if (endpoint->setup.index < RFFC5071_NUM_REGS) {
 			value = rffc5071_reg_read(&mixer.rffc5071, endpoint->setup.index);
@@ -314,7 +314,7 @@ usb_request_status_t usb_vendor_request_write_fpga_reg(
 	}
 
 	if (stage == USB_TRANSFER_STAGE_SETUP) {
-#ifdef PRALINE
+#if defined(PRALINE) || defined(HACKRF_ALL)
 		fpga_reg_write(&fpga, endpoint->setup.index, endpoint->setup.value);
 #endif
 		usb_transfer_schedule_ack(endpoint->in);
@@ -332,7 +332,7 @@ usb_request_status_t usb_vendor_request_read_fpga_reg(
 	}
 
 	if (stage == USB_TRANSFER_STAGE_SETUP) {
-#ifdef PRALINE
+#if defined(PRALINE) || defined(HACKRF_ALL)
 		const uint8_t value = fpga_reg_read(&fpga, endpoint->setup.index);
 		endpoint->buffer[0] = value;
 		usb_transfer_schedule_block(

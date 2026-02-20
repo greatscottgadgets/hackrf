@@ -75,6 +75,26 @@ set(SRC_M4
 
 set(SRC_M0 sgpio_m0.s)
 
+if(BOARD STREQUAL "HACKRF_ALL")
+	SET(SRC_M4
+		${SRC_M4}
+		usb_api_cpld.c
+		"${PATH_HACKRF_FIRMWARE_COMMON}/cpld_xc2c.c"
+		"${PATH_HACKRF_CPLD_DATA_C}"
+		"${PATH_HACKRF_FIRMWARE_COMMON}/xapp058/lenval.c"
+		"${PATH_HACKRF_FIRMWARE_COMMON}/xapp058/micro.c"
+		"${PATH_HACKRF_FIRMWARE_COMMON}/xapp058/ports.c"
+
+		"${PATH_HACKRF_FIRMWARE_COMMON}/lz4_blk.c"
+		"${PATH_HACKRF_FIRMWARE_COMMON}/fpga_image.c"
+		"${PATH_HACKRF_FIRMWARE_COMMON}/fpga_selftest.c"
+		usb_api_praline.c
+	)
+	SET(OBJ_M4
+		${PATH_PRALINE_FPGA_OBJ}
+	)
+endif()
+
 if(BOARD STREQUAL "PRALINE")
 	SET(SRC_M4
 		${SRC_M4}
@@ -82,14 +102,6 @@ if(BOARD STREQUAL "PRALINE")
 		"${PATH_HACKRF_FIRMWARE_COMMON}/fpga_image.c"
 		"${PATH_HACKRF_FIRMWARE_COMMON}/fpga_selftest.c"
 		usb_api_praline.c
-
-		# TODO lose these
-		usb_api_cpld.c
-		"${PATH_HACKRF_FIRMWARE_COMMON}/cpld_xc2c.c"
-		"${PATH_HACKRF_CPLD_DATA_C}"
-		"${PATH_HACKRF_FIRMWARE_COMMON}/xapp058/lenval.c"
-		"${PATH_HACKRF_FIRMWARE_COMMON}/xapp058/micro.c"
-		"${PATH_HACKRF_FIRMWARE_COMMON}/xapp058/ports.c"
 	)
 	SET(OBJ_M4
 		${PATH_PRALINE_FPGA_OBJ}
@@ -106,15 +118,7 @@ else()
 	)
 endif()
 
-if(BOARD STREQUAL "HACKRF_ONE")
-	SET(SRC_M4
-		${SRC_M4}
-	)
-	SET(OBJ_M4
-	)
-endif()
-
-if(BOARD STREQUAL "PRALINE" OR BOARD STREQUAL "HACKRF_ONE")
+if(BOARD STREQUAL "PRALINE" OR BOARD STREQUAL "HACKRF_ONE" OR BOARD STREQUAL "HACKRF_ALL")
 	SET(SRC_M4
 		${SRC_M4}
 		"${PATH_HACKRF_FIRMWARE_COMMON}/portapack.c"

@@ -22,7 +22,7 @@
 #ifndef __TUNE_CONFIG_H__
 #define __TUNE_CONFIG_H__
 
-#ifdef PRALINE
+#if defined(PRALINE) || defined(HACKRF_ALL)
 	#include "fpga.h"
 
 typedef struct {
