@@ -279,7 +279,7 @@ int main(void)
 #else
 	enable_3v3aux_power();
 	// hackrf mode ram should open this.
-	#if !defined(DFU_MODE) 
+	#if !defined(DFU_MODE)
 	enable_1v2_power();
 	enable_rf_power();
 	clock_gen_init();
@@ -313,15 +313,15 @@ int main(void)
 	}
 #else
 	// for H4M HACKRF PRO
-	#if defined(DFU_MODE) 
+	#if defined(DFU_MODE)
 		// doing nothing!
 	#elif defined(RAM_MODE)
-		// pp模式下从spifi加载
-		fpga_image_load_for_pp(0);
+	// pp模式下从spifi加载
+	fpga_image_load_for_pp(0);
 	#else
-		fpga_image_load(0);
+	fpga_image_load(0);
 	#endif
-		
+
 	delay_us_at_mhz(100, 204);
 	fpga_spi_selftest();
 	fpga_sgpio_selftest();
