@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2022 Great Scott Gadgets <info@greatscottgadgets.com>
+ * Copyright 2012-2026 Great Scott Gadgets <info@greatscottgadgets.com>
  * Copyright 2012 Jared Boone
  * Copyright 2013 Benjamin Vernoux
  *
@@ -318,6 +318,7 @@ int main(void)
 	fpga_spi_selftest();
 	fpga_sgpio_selftest();
 #endif
+	radio_init(&radio);
 
 #if (defined HACKRF_ONE || defined PRALINE)
 	portapack_init();

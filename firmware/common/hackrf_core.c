@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2022 Great Scott Gadgets <info@greatscottgadgets.com>
+ * Copyright 2012-2026 Great Scott Gadgets <info@greatscottgadgets.com>
  * Copyright 2012 Jared Boone <jared@sharebrained.com>
  * Copyright 2013 Benjamin Vernoux <titanmkd@gmail.com>
  *
@@ -351,40 +351,7 @@ fpga_driver_t fpga = {
 };
 #endif
 
-radio_t radio = {
-	.channel[RADIO_CHANNEL0] =
-		{
-			.id = RADIO_CHANNEL0,
-			.config =
-				{
-					.sample_rate[RADIO_SAMPLE_RATE_CLOCKGEN] =
-						{.hz = 0},
-					.filter[RADIO_FILTER_BASEBAND] = {.hz = 0},
-					.frequency[RADIO_FREQUENCY_RF] =
-						{
-							.hz = 0,
-							.if_hz = 0,
-							.lo_hz = 0,
-							.path = 0,
-						},
-					.gain[RADIO_GAIN_RF_AMP] = {.enable = 0},
-					.gain[RADIO_GAIN_RX_LNA] = {.db = 0},
-					.gain[RADIO_GAIN_RX_VGA] = {.db = 0},
-					.gain[RADIO_GAIN_TX_VGA] = {.db = 0},
-					.antenna[RADIO_ANTENNA_BIAS_TEE] =
-						{.enable = false},
-					.mode = TRANSCEIVER_MODE_OFF,
-					.clock[RADIO_CLOCK_CLKIN] = {.enable = false},
-					.clock[RADIO_CLOCK_CLKOUT] = {.enable = false},
-					.trigger_enable = false,
-#ifdef PRALINE
-					.resampling_n = 0,
-					.shift = FPGA_QUARTER_SHIFT_MODE_NONE,
-#endif
-				},
-			.clock_source = CLOCK_SOURCE_HACKRF,
-		},
-};
+radio_t radio;
 
 rf_path_t rf_path = {
 	.switchctrl = 0,
@@ -1009,7 +976,6 @@ clock_source_t activate_best_clock_source(void)
 		&clock_gen,
 		(source == CLOCK_SOURCE_HACKRF) ? PLL_SOURCE_XTAL : PLL_SOURCE_CLKIN);
 	hackrf_ui()->set_clock_source(source);
-	radio.channel[RADIO_CHANNEL0].clock_source = source;
 
 	return source;
 }

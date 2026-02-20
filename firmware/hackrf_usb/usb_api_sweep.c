@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 Great Scott Gadgets <info@greatscottgadgets.com>
+ * Copyright 2016-2026 Great Scott Gadgets <info@greatscottgadgets.com>
  * Copyright 2016 Mike Walters, Dominic Spill
  *
  * This file is part of HackRF.
@@ -92,11 +92,11 @@ usb_request_status_t usb_vendor_request_init_sweep(
 				((uint16_t) (data[10 + i * 2]) << 8) + data[9 + i * 2];
 		}
 		sweep_freq = (uint64_t) frequencies[0] * FREQ_GRANULARITY;
-		radio_set_frequency(
+		radio_reg_write(
 			&radio,
-			RADIO_CHANNEL0,
+			RADIO_BANK_ACTIVE,
 			RADIO_FREQUENCY_RF,
-			(radio_frequency_t){.hz = sweep_freq + offset});
+			(sweep_freq + offset) << 24);
 		usb_transfer_schedule_ack(endpoint->in);
 	}
 	return USB_REQUEST_STATUS_OK;
@@ -220,11 +220,11 @@ void sweep_mode(uint32_t seq)
 			}
 			// Retune to new frequency.
 			nvic_disable_irq(NVIC_USB0_IRQ);
-			radio_set_frequency(
+			radio_reg_write(
 				&radio,
-				RADIO_CHANNEL0,
+				RADIO_BANK_ACTIVE,
 				RADIO_FREQUENCY_RF,
-				(radio_frequency_t){.hz = sweep_freq + offset});
+				(sweep_freq + offset) << 24);
 			nvic_enable_irq(NVIC_USB0_IRQ);
 			blocks_queued = 0;
 		}
