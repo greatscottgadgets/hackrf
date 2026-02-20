@@ -385,6 +385,7 @@ int main(void)
 		nvic_disable_irq(NVIC_USB0_IRQ);
 		request = transceiver_request;
 		nvic_enable_irq(NVIC_USB0_IRQ);
+		radio_update(&radio);
 
 		switch (request.mode) {
 		case TRANSCEIVER_MODE_OFF:
