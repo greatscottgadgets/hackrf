@@ -45,7 +45,7 @@ typedef struct gpio_port_t {
 	uint32_t _reserved4[31];
 	volatile uint32_t clr; /* +0x280 */
 	uint32_t _reserved5[31];
-	volatile uint32_t not ; /* +0x300 */
+	volatile uint32_t inv; /* +0x300 */
 } gpio_port_t;
 
 struct gpio_t {
