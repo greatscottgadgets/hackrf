@@ -23,6 +23,7 @@
 #include "lz4_blk.h"
 #include "lz4_buf.h"
 #include "selftest.h"
+#include "delay.h"
 
 // FPGA bitstreams blob.
 extern uint32_t _binary_fpga_bin_start;
@@ -73,6 +74,37 @@ static size_t spifi_fpga_read_block_cb(void* _ctx, uint8_t* out_buffer)
 
 	// Decompress block using LZ4
 	return lz4_blk_decompress(ctx->buffer, out_buffer, block_sz);
+}
+
+static size_t fpga_image_read_block_cb(void* _ctx, uint8_t* out_buffer)
+{
+	// Assume out_buffer is 4KB
+	struct fpga_image_read_ctx* ctx = _ctx;
+	size_t block_sz = ctx->next_block_sz;
+
+	uint8_t block_sz_buf[2];
+
+	// first iteration: read first block size
+	if (ctx->init_flag == 0) {
+		w25q80bv_read(&spi_flash, ctx->addr, 2, block_sz_buf);
+		block_sz = block_sz_buf[0] | block_sz_buf[1] << 8;
+		ctx->addr += 2;
+		ctx->init_flag = 1;
+	}
+
+	// finish at end marker
+	if (block_sz == 0)
+		return 0;
+
+	// Read compressed block (and the next block size) from flash.
+	w25q80bv_read(&spi_flash, ctx->addr, block_sz, lz4_in_buf);
+	ctx->addr += block_sz;
+	w25q80bv_read(&spi_flash, ctx->addr, 2, block_sz_buf);
+	ctx->next_block_sz = block_sz_buf[0] | block_sz_buf[1] << 8;
+	ctx->addr += 2;
+
+	// Decompress block.
+	return lz4_blk_decompress(lz4_in_buf, out_buffer, block_sz);
 }
 
 // @brief Load FPGA bitstream from SPIFI flash memory and program the FPGA.
@@ -127,37 +159,6 @@ static bool fpga_image_load_from_spifi(unsigned int index)
 	ssp1_set_mode_max283x();
 
 	return success;
-}
-
-static size_t fpga_image_read_block_cb(void* _ctx, uint8_t* out_buffer)
-{
-	// Assume out_buffer is 4KB
-	struct fpga_image_read_ctx* ctx = _ctx;
-	size_t block_sz = ctx->next_block_sz;
-
-	uint8_t block_sz_buf[2];
-
-	// first iteration: read first block size
-	if (ctx->init_flag == 0) {
-		w25q80bv_read(&spi_flash, ctx->addr, 2, block_sz_buf);
-		block_sz = block_sz_buf[0] | block_sz_buf[1] << 8;
-		ctx->addr += 2;
-		ctx->init_flag = 1;
-	}
-
-	// finish at end marker
-	if (block_sz == 0)
-		return 0;
-
-	// Read compressed block (and the next block size) from flash.
-	w25q80bv_read(&spi_flash, ctx->addr, block_sz, lz4_in_buf);
-	ctx->addr += block_sz;
-	w25q80bv_read(&spi_flash, ctx->addr, 2, block_sz_buf);
-	ctx->next_block_sz = block_sz_buf[0] | block_sz_buf[1] << 8;
-	ctx->addr += 2;
-
-	// Decompress block.
-	return lz4_blk_decompress(lz4_in_buf, out_buffer, block_sz);
 }
 
 bool fpga_image_load(unsigned int index)
