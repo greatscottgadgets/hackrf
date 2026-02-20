@@ -43,10 +43,10 @@ struct spifi_fpga_read_ctx {
 };
 static size_t fpga_image_read_block_cb(void* _ctx, uint8_t* out_buffer);
 
-/// @brief 添加从spifi加载FPGA镜像，用于从pp -> hackrf mode RAM启动方式加载
-/// @param _ctx 
-/// @param out_buffer 
-/// @return 
+// @brief Add FPGA image loading from SPIFI for pp -> hackrf mode RAM boot method
+// @param _ctx
+// @param out_buffer
+// @return
 static size_t spifi_fpga_read_block_cb(void* _ctx, uint8_t* out_buffer)
 {
 	struct spifi_fpga_read_ctx* ctx = (struct spifi_fpga_read_ctx*)_ctx;
