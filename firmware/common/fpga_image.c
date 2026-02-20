@@ -75,9 +75,9 @@ static size_t spifi_fpga_read_block_cb(void* _ctx, uint8_t* out_buffer)
 	return lz4_blk_decompress(ctx->buffer, out_buffer, block_sz);
 }
 
-// @brief  Loads the FPGA bitstream from RAM
-// @param index
-// @return
+// @brief Load FPGA bitstream from SPIFI flash memory and program the FPGA.
+// @param index Index of the FPGA bitstream to load from flash.
+// @return true on success, false on failure.
 static bool fpga_image_load_from_spifi(unsigned int index)
 {
 // PRALINE: FPGA bitstream is in flash at 0x380000 (SPIFI mapped at 0x14380000)
