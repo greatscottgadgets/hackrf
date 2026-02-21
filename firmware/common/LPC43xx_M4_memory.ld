@@ -23,23 +23,17 @@
 MEMORY
 {
 	/* Physical address in Flash used to copy Code from Flash to RAM */
-	rom_flash (rx)    : ORIGIN = 0x80000000, LENGTH = 1M
-	/* Buffers for LZ4 decompression */
-	ram_lz4_in (rwx)  : ORIGIN = 0x20000000, LENGTH = 4K
-	ram_lz4_out (rwx) : ORIGIN = 0x20001000, LENGTH = 4K
-	/* RAM for M0 code */
-	ram_m0 (rwx)      : ORIGIN = 0x20002000, LENGTH = 20K
-	/* RAM shared between M0 and M4 */
-	ram_shared (rwx)  : ORIGIN = 0x20007000, LENGTH = 4K
-	/* USB buffer. Straddles two blocks of RAM
+	rom_flash (rx)  : ORIGIN = 0x80000000, LENGTH =  1M
+	ram_m0 (rwx) : ORIGIN = 0x20000000, LENGTH = 28K
+	ram_shared (rwx) : ORIGIN = 0x20007000, LENGTH =  4K
+	ram_usb (rwx) : ORIGIN = 0x20008000, LENGTH = 32K
+	/* ram_usb: USB buffer. Straddles two blocks of RAM
 	 * to get performance benefit of having two USB buffers addressable
 	 * simultaneously (on two different buses of the AHB multilayer matrix)
 	 */
-	ram_usb (rwx)     : ORIGIN = 0x20008000, LENGTH = 32K
 }
 
 usb_bulk_buffer = ORIGIN(ram_usb);
-lz4_in_buf = ORIGIN(ram_lz4_in);
-lz4_out_buf = ORIGIN(ram_lz4_out);
+
 m0_state = ORIGIN(ram_shared);
 PROVIDE(__ram_m0_start__ = ORIGIN(ram_m0));

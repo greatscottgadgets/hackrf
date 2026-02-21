@@ -22,5 +22,5 @@
 
 MEMORY
 {
-	ram (rwx) : ORIGIN = 0x00000000, LENGTH = 20K
+	ram (rwx) : ORIGIN = 0x00000000, LENGTH = 28K
 }

@@ -23,7 +23,6 @@
 
 #include <libopencm3/lpc43xx/scu.h>
 #include "hackrf_core.h"
-#include "lz4_buf.h"
 #include "delay.h"
 
 void ice40_spi_target_init(ice40_spi_driver_t* const drv)
@@ -105,13 +104,14 @@ bool ice40_spi_syscfg_program(
 
 	// Send configuration image serially on SPI_SI to iCE40, most-significant bit
 	// first, on falling edge of SPI_SCK.
+	uint8_t out_buffer[4096 + 2] = {0};
 	gpio_clear(drv->gpio_select);
 	for (;;) {
-		size_t read_sz = read_block_cb(read_ctx, lz4_out_buf);
+		size_t read_sz = read_block_cb(read_ctx, out_buffer);
 		if (read_sz == 0)
 			break;
 		for (size_t j = 0; j < read_sz; j++) {
-			spi_ssp1_transfer_word(lz4_out_buf[j]);
+			spi_ssp1_transfer_word(out_buffer[j]);
 		}
 	}
 
