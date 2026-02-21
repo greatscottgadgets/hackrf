@@ -22,7 +22,6 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 */
 
 #include "hackrf.h"
-#include "../../../flashsize.h"
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
@@ -1515,10 +1514,7 @@ int ADDCALL hackrf_spiflash_write(
 {
 	int result;
 
-	/* Reject writes that would go past the end of SPI flash (and avoid overflow). */
-	const uint32_t flash_size_bytes = FLASH_SIZE_MB * 1024u * 1024u;
-
-	if (address >= flash_size_bytes || length > (flash_size_bytes - address)) {
+	if ((address + length) > 0x400000) {
 		return HACKRF_ERROR_INVALID_PARAM;
 	}
 
