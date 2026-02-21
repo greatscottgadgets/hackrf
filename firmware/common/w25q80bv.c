@@ -50,8 +50,6 @@
 
 #define W25Q80BV_DEVICE_ID_RES 0x13 /* Expected device_id for W25Q80BV */
 
-#include "../../flashsize.h"
-
 /*
  * Set up pins for GPIO and SPI control, configure SSP0 peripheral for SPI.
  * SSP0_CS is controlled by GPIO in order to handle various transfer lengths.
