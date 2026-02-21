@@ -74,4 +74,3 @@ firmware/cpld/**/*.xwbt
 firmware/**/build
 
 *.pyc
-flashsize.h

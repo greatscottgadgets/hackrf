@@ -46,9 +46,9 @@ if(NOT DEFINED FLASH_BYTES_LIMIT_SIZE)
     math(EXPR FLASH_BYTES_LIMIT_SIZE "${FLASH_MB_LIMIT_SIZE} * 1024 * 1024")
 endif()
 
-#generate h file
-configure_file(../flashsize.h.in ${CMAKE_CURRENT_SOURCE_DIR}/../flashsize.h)
-
+#generate h files
+configure_file(flashsize.h.in flashsize.h)
+add_definitions(-include "\"${CMAKE_CURRENT_BINARY_DIR}/flashsize.h\"")
 
 project (hackrf_firmware_all C)
 
