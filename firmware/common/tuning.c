@@ -189,7 +189,6 @@ bool tuning_set_frequency(
 		rf = rf + offset;
 	}
 
-	// TODO max2831_mode has RX_CAL and RX_CAL reversed
 	max283x_mode_t prior_max2831_mode = max283x_mode(&max283x);
 	max283x_set_mode(&max283x, MAX283x_MODE_STANDBY);
 

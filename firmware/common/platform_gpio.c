@@ -202,7 +202,7 @@ const platform_gpio_t* platform_gpio(void)
 			gpio.cpld_tms          = &GPIO3_1;
 			gpio.cpld_tdi          = &GPIO3_4;
 			break;
-			break;
+		break;
 		}
 	}
 	switch (board_id) {

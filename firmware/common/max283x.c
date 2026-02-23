@@ -36,6 +36,7 @@ max2831_driver_t max2831 = {
 };
 #endif
 
+#if !defined(PRALINE) || defined(HACKRF_ALL)
 max2837_driver_t max2837 = {
 	.bus = &spi_bus_ssp1,
 	.target_init = max2837_target_init,
@@ -47,6 +48,7 @@ max2839_driver_t max2839 = {
 	.target_init = max2839_target_init,
 	.set_mode = max2839_target_set_mode,
 };
+#endif
 
 /* Initialize chip. */
 void max283x_setup(max283x_driver_t* const drv, max283x_variant_t type)
@@ -62,29 +64,31 @@ void max283x_setup(max283x_driver_t* const drv, max283x_variant_t type)
 	max2831.gpio_rxhp = gpio->max2831_rxhp;
 	max2831.gpio_ld = gpio->max2831_ld;
 #endif
+#if !defined(PRALINE) || defined(HACKRF_ALL)
 	max2837.gpio_enable = gpio->max283x_enable;
 	max2837.gpio_rx_enable = gpio->max283x_rx_enable;
 	max2837.gpio_tx_enable = gpio->max283x_tx_enable;
 	max2839.gpio_enable = gpio->max283x_enable;
 	max2839.gpio_rxtx = gpio->max283x_rx_enable;
+#endif
 
 	switch (drv->type) {
-	case MAX2831_VARIANT:
 #if defined(PRALINE) || defined(HACKRF_ALL)
+	case MAX2831_VARIANT:
 		memcpy(&drv->drv.max2831, &max2831, sizeof(max2831));
 		max2831_setup(&drv->drv.max2831);
-#endif
 		break;
-
+#endif
+#if !defined(PRALINE) || defined(HACKRF_ALL)
 	case MAX2837_VARIANT:
 		memcpy(&drv->drv.max2837, &max2837, sizeof(max2837));
 		max2837_setup(&drv->drv.max2837);
 		break;
-
 	case MAX2839_VARIANT:
 		memcpy(&drv->drv.max2839, &max2839, sizeof(max2839));
 		max2839_setup(&drv->drv.max2839);
 		break;
+#endif
 	}
 }
 
@@ -93,19 +97,19 @@ void max283x_setup(max283x_driver_t* const drv, max283x_variant_t type)
 uint16_t max283x_reg_read(max283x_driver_t* const drv, uint8_t r)
 {
 	switch (drv->type) {
-	case MAX2831_VARIANT:
 #if defined(PRALINE) || defined(HACKRF_ALL)
+	case MAX2831_VARIANT:
 		return max2831_reg_read(&drv->drv.max2831, r);
-#endif
 		break;
-
+#endif
+#if !defined(PRALINE) || defined(HACKRF_ALL)
 	case MAX2837_VARIANT:
 		return max2837_reg_read(&drv->drv.max2837, r);
 		break;
-
 	case MAX2839_VARIANT:
 		return max2839_reg_read(&drv->drv.max2839, r);
 		break;
+#endif
 	}
 
 	return 0;
@@ -116,19 +120,19 @@ uint16_t max283x_reg_read(max283x_driver_t* const drv, uint8_t r)
 void max283x_reg_write(max283x_driver_t* const drv, uint8_t r, uint16_t v)
 {
 	switch (drv->type) {
-	case MAX2831_VARIANT:
 #if defined(PRALINE) || defined(HACKRF_ALL)
+	case MAX2831_VARIANT:
 		max2831_reg_write(&drv->drv.max2831, r, v);
-#endif
 		break;
-
+#endif
+#if !defined(PRALINE) || defined(HACKRF_ALL)
 	case MAX2837_VARIANT:
 		max2837_reg_write(&drv->drv.max2837, r, v);
 		break;
-
 	case MAX2839_VARIANT:
 		max2839_reg_write(&drv->drv.max2839, r, v);
 		break;
+#endif
 	}
 }
 
@@ -138,57 +142,57 @@ void max283x_reg_write(max283x_driver_t* const drv, uint8_t r, uint16_t v)
 void max283x_regs_commit(max283x_driver_t* const drv)
 {
 	switch (drv->type) {
-	case MAX2831_VARIANT:
 #if defined(PRALINE) || defined(HACKRF_ALL)
+	case MAX2831_VARIANT:
 		max2831_regs_commit(&drv->drv.max2831);
-#endif
 		break;
-
+#endif
+#if !defined(PRALINE) || defined(HACKRF_ALL)
 	case MAX2837_VARIANT:
 		max2837_regs_commit(&drv->drv.max2837);
 		break;
-
 	case MAX2839_VARIANT:
 		max2839_regs_commit(&drv->drv.max2839);
 		break;
+#endif
 	}
 }
 
 void max283x_set_mode(max283x_driver_t* const drv, const max283x_mode_t new_mode)
 {
 	switch (drv->type) {
-	case MAX2831_VARIANT:
 #if defined(PRALINE) || defined(HACKRF_ALL)
+	case MAX2831_VARIANT:
 		max2831_set_mode(&drv->drv.max2831, (max2831_mode_t) new_mode);
-#endif
 		break;
-
+#endif
+#if !defined(PRALINE) || defined(HACKRF_ALL)
 	case MAX2837_VARIANT:
 		max2837_set_mode(&drv->drv.max2837, (max2837_mode_t) new_mode);
 		break;
-
 	case MAX2839_VARIANT:
 		max2839_set_mode(&drv->drv.max2839, (max2839_mode_t) new_mode);
 		break;
+#endif
 	}
 }
 
 max283x_mode_t max283x_mode(max283x_driver_t* const drv)
 {
 	switch (drv->type) {
-	case MAX2831_VARIANT:
 #if defined(PRALINE) || defined(HACKRF_ALL)
+	case MAX2831_VARIANT:
 		return (max283x_mode_t) max2831_mode(&drv->drv.max2831);
-#endif
 		break;
-
+#endif
+#if !defined(PRALINE) || defined(HACKRF_ALL)
 	case MAX2837_VARIANT:
 		return (max283x_mode_t) max2837_mode(&drv->drv.max2837);
 		break;
-
 	case MAX2839_VARIANT:
 		return (max283x_mode_t) max2839_mode(&drv->drv.max2839);
 		break;
+#endif
 	}
 
 	return 0;
@@ -201,38 +205,38 @@ max283x_mode_t max283x_mode(max283x_driver_t* const drv)
 void max283x_start(max283x_driver_t* const drv)
 {
 	switch (drv->type) {
-	case MAX2831_VARIANT:
 #if defined(PRALINE) || defined(HACKRF_ALL)
+	case MAX2831_VARIANT:
 		max2831_start(&drv->drv.max2831);
-#endif
 		break;
-
+#endif
+#if !defined(PRALINE) || defined(HACKRF_ALL)
 	case MAX2837_VARIANT:
 		max2837_start(&drv->drv.max2837);
 		break;
-
 	case MAX2839_VARIANT:
 		max2839_start(&drv->drv.max2839);
 		break;
+#endif
 	}
 }
 
 void max283x_stop(max283x_driver_t* const drv)
 {
 	switch (drv->type) {
-	case MAX2831_VARIANT:
 #if defined(PRALINE) || defined(HACKRF_ALL)
+	case MAX2831_VARIANT:
 		max2831_stop(&drv->drv.max2831);
-#endif
 		break;
-
+#endif
+#if !defined(PRALINE) || defined(HACKRF_ALL)
 	case MAX2837_VARIANT:
 		max2837_stop(&drv->drv.max2837);
 		break;
-
 	case MAX2839_VARIANT:
 		max2839_stop(&drv->drv.max2839);
 		break;
+#endif
 	}
 }
 
@@ -241,19 +245,19 @@ void max283x_stop(max283x_driver_t* const drv)
 void max283x_set_frequency(max283x_driver_t* const drv, uint32_t freq)
 {
 	switch (drv->type) {
-	case MAX2831_VARIANT:
 #if defined(PRALINE) || defined(HACKRF_ALL)
+	case MAX2831_VARIANT:
 		max2831_set_frequency(&drv->drv.max2831, freq);
-#endif
 		break;
-
+#endif
+#if !defined(PRALINE) || defined(HACKRF_ALL)
 	case MAX2837_VARIANT:
 		max2837_set_frequency(&drv->drv.max2837, freq);
 		break;
-
 	case MAX2839_VARIANT:
 		max2839_set_frequency(&drv->drv.max2839, freq);
 		break;
+#endif
 	}
 }
 
@@ -262,19 +266,19 @@ uint32_t max283x_set_lpf_bandwidth(
 	const uint32_t bandwidth_hz)
 {
 	switch (drv->type) {
-	case MAX2831_VARIANT:
 #if defined(PRALINE) || defined(HACKRF_ALL)
+	case MAX2831_VARIANT:
 		return max2831_set_lpf_bandwidth(&drv->drv.max2831, bandwidth_hz);
-#endif
 		break;
-
+#endif
+#if !defined(PRALINE) || defined(HACKRF_ALL)
 	case MAX2837_VARIANT:
 		return max2837_set_lpf_bandwidth(&drv->drv.max2837, bandwidth_hz);
 		break;
-
 	case MAX2839_VARIANT:
 		return max2839_set_lpf_bandwidth(&drv->drv.max2839, bandwidth_hz);
 		break;
+#endif
 	}
 
 	return 0;
@@ -283,19 +287,19 @@ uint32_t max283x_set_lpf_bandwidth(
 bool max283x_set_lna_gain(max283x_driver_t* const drv, const uint32_t gain_db)
 {
 	switch (drv->type) {
-	case MAX2831_VARIANT:
 #if defined(PRALINE) || defined(HACKRF_ALL)
+	case MAX2831_VARIANT:
 		return max2831_set_lna_gain(&drv->drv.max2831, gain_db);
-#endif
 		break;
-
+#endif
+#if !defined(PRALINE) || defined(HACKRF_ALL)
 	case MAX2837_VARIANT:
 		return max2837_set_lna_gain(&drv->drv.max2837, gain_db);
 		break;
-
 	case MAX2839_VARIANT:
 		return max2839_set_lna_gain(&drv->drv.max2839, gain_db);
 		break;
+#endif
 	}
 
 	return false;
@@ -304,19 +308,19 @@ bool max283x_set_lna_gain(max283x_driver_t* const drv, const uint32_t gain_db)
 bool max283x_set_vga_gain(max283x_driver_t* const drv, const uint32_t gain_db)
 {
 	switch (drv->type) {
-	case MAX2831_VARIANT:
 #if defined(PRALINE) || defined(HACKRF_ALL)
+	case MAX2831_VARIANT:
 		return max2831_set_vga_gain(&drv->drv.max2831, gain_db);
-#endif
 		break;
-
+#endif
+#if !defined(PRALINE) || defined(HACKRF_ALL)
 	case MAX2837_VARIANT:
 		return max2837_set_vga_gain(&drv->drv.max2837, gain_db);
 		break;
-
 	case MAX2839_VARIANT:
 		return max2839_set_vga_gain(&drv->drv.max2839, gain_db);
 		break;
+#endif
 	}
 
 	return false;
@@ -325,19 +329,19 @@ bool max283x_set_vga_gain(max283x_driver_t* const drv, const uint32_t gain_db)
 bool max283x_set_txvga_gain(max283x_driver_t* const drv, const uint32_t gain_db)
 {
 	switch (drv->type) {
-	case MAX2831_VARIANT:
 #if defined(PRALINE) || defined(HACKRF_ALL)
+	case MAX2831_VARIANT:
 		return max2831_set_txvga_gain(&drv->drv.max2831, gain_db);
-#endif
 		break;
-
+#endif
+#if !defined(PRALINE) || defined(HACKRF_ALL)
 	case MAX2837_VARIANT:
 		return max2837_set_txvga_gain(&drv->drv.max2837, gain_db);
 		break;
-
 	case MAX2839_VARIANT:
 		return max2839_set_txvga_gain(&drv->drv.max2839, gain_db);
 		break;
+#endif
 	}
 
 	return false;
@@ -346,75 +350,75 @@ bool max283x_set_txvga_gain(max283x_driver_t* const drv, const uint32_t gain_db)
 void max283x_tx(max283x_driver_t* const drv)
 {
 	switch (drv->type) {
-	case MAX2831_VARIANT:
 #if defined(PRALINE) || defined(HACKRF_ALL)
+	case MAX2831_VARIANT:
 		max2831_tx(&drv->drv.max2831);
-#endif
 		break;
-
+#endif
+#if !defined(PRALINE) || defined(HACKRF_ALL)
 	case MAX2837_VARIANT:
 		max2837_tx(&drv->drv.max2837);
 		break;
-
 	case MAX2839_VARIANT:
 		max2839_tx(&drv->drv.max2839);
 		break;
+#endif
 	}
 }
 
 void max283x_rx(max283x_driver_t* const drv)
 {
 	switch (drv->type) {
-	case MAX2831_VARIANT:
 #if defined(PRALINE) || defined(HACKRF_ALL)
+	case MAX2831_VARIANT:
 		max2831_rx(&drv->drv.max2831);
-#endif
 		break;
-
+#endif
+#if !defined(PRALINE) || defined(HACKRF_ALL)
 	case MAX2837_VARIANT:
 		max2837_rx(&drv->drv.max2837);
 		break;
-
 	case MAX2839_VARIANT:
 		max2839_rx(&drv->drv.max2839);
 		break;
+#endif
 	}
 }
 
 void max283x_tx_calibration(max283x_driver_t* const drv)
 {
 	switch (drv->type) {
-	case MAX2831_VARIANT:
 #if defined(PRALINE) || defined(HACKRF_ALL)
+	case MAX2831_VARIANT:
 		max2831_tx_calibration(&drv->drv.max2831);
-#endif
 		break;
-
+#endif
+#if !defined(PRALINE) || defined(HACKRF_ALL)
 	case MAX2837_VARIANT:
 		// unsupported - uses max283x_set_mode
 		break;
-
 	case MAX2839_VARIANT:
 		// unsupported - uses max283x_set_mode
 		break;
+#endif
 	}
 }
 
 void max283x_rx_calibration(max283x_driver_t* const drv)
 {
 	switch (drv->type) {
-	case MAX2831_VARIANT:
 #if defined(PRALINE) || defined(HACKRF_ALL)
+	case MAX2831_VARIANT:
 		max2831_rx_calibration(&drv->drv.max2831);
-#endif
 		break;
-
+#endif
+#if !defined(PRALINE) || defined(HACKRF_ALL)
 	case MAX2837_VARIANT:
 		// unsupported - uses max283x_set_mode
 		break;
-
 	case MAX2839_VARIANT:
 		// unsupported - uses max283x_set_mode
 		break;
+#endif
 	}
 }

@@ -42,6 +42,7 @@ usb_request_status_t usb_vendor_request_write_max283x(
 {
 	if (stage == USB_TRANSFER_STAGE_SETUP) {
 		if (detected_platform() != BOARD_ID_PRALINE) {
+#if !defined(PRALINE) || defined(HACKRF_ALL)
 			if (endpoint->setup.index < MAX2837_NUM_REGS) {
 				if (endpoint->setup.value < MAX2837_DATA_REGS_MAX_VALUE) {
 					max283x_reg_write(
@@ -52,7 +53,9 @@ usb_request_status_t usb_vendor_request_write_max283x(
 					return USB_REQUEST_STATUS_OK;
 				}
 			}
+#endif
 		} else {
+#if defined(PRALINE) || defined(HACKRF_ALL)
 			if (endpoint->setup.index < MAX2831_NUM_REGS) {
 				if (endpoint->setup.value < MAX2831_DATA_REGS_MAX_VALUE) {
 					max283x_reg_write(
@@ -63,6 +66,7 @@ usb_request_status_t usb_vendor_request_write_max283x(
 					return USB_REQUEST_STATUS_OK;
 				}
 			}
+#endif
 		}
 		return USB_REQUEST_STATUS_STALL;
 	} else {
@@ -76,6 +80,7 @@ usb_request_status_t usb_vendor_request_read_max283x(
 {
 	if (stage == USB_TRANSFER_STAGE_SETUP) {
 		if (detected_platform() != BOARD_ID_PRALINE) {
+#if !defined(PRALINE) || defined(HACKRF_ALL)
 			if (endpoint->setup.index < MAX2837_NUM_REGS) {
 				const uint16_t value =
 					max283x_reg_read(&max283x, endpoint->setup.index);
@@ -90,7 +95,9 @@ usb_request_status_t usb_vendor_request_read_max283x(
 				usb_transfer_schedule_ack(endpoint->out);
 				return USB_REQUEST_STATUS_OK;
 			}
+#endif
 		} else {
+#if defined(PRALINE) || defined(HACKRF_ALL)
 			if (endpoint->setup.index < MAX2831_NUM_REGS) {
 				const uint16_t value =
 					max283x_reg_read(&max283x, endpoint->setup.index);
@@ -105,6 +112,7 @@ usb_request_status_t usb_vendor_request_read_max283x(
 				usb_transfer_schedule_ack(endpoint->out);
 				return USB_REQUEST_STATUS_OK;
 			}
+#endif
 		}
 		return USB_REQUEST_STATUS_STALL;
 	} else {

@@ -170,6 +170,7 @@ const platform_scu_t* platform_scu(void)
 #endif
 		break;
 	default:
+#if !defined(PRALINE) || defined(HACKRF_ALL)
 		scu.PINMUX_SGPIO0 = (P0_0);
 		scu.PINMUX_SGPIO1 = (P0_1);
 		scu.PINMUX_SGPIO2 = (P1_15);
@@ -178,18 +179,7 @@ const platform_scu_t* platform_scu(void)
 		scu.PINMUX_SGPIO5 = (P6_6);
 		scu.PINMUX_SGPIO6 = (P2_2);
 		scu.PINMUX_SGPIO7 = (P1_0);
-		switch (board_id) {
-		case BOARD_ID_JAWBREAKER:
-		case BOARD_ID_RAD1O:
-		case BOARD_ID_HACKRF1_OG:
-		case BOARD_ID_HACKRF1_R9:
-#if defined(JAWBREAKER) || defined(RAD1O) || defined(HACKRF_ONE) || defined(HACKRF_ALL)
-			scu.PINMUX_SGPIO8 = (P9_6);
-#endif
-			break;
-		default:
-			break;
-		}
+		scu.PINMUX_SGPIO8 = (P9_6);
 		scu.PINMUX_SGPIO9  = (P4_3);
 		scu.PINMUX_SGPIO10 = (P1_14);
 		scu.PINMUX_SGPIO11 = (P1_17);
@@ -212,6 +202,7 @@ const platform_scu_t* platform_scu(void)
 		scu.PINMUX_SGPIO12_PINCFG = (SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
 		scu.PINMUX_SGPIO14_PINCFG = (SCU_GPIO_FAST | SCU_CONF_FUNCTION4);
 		scu.PINMUX_SGPIO15_PINCFG = (SCU_GPIO_FAST | SCU_CONF_FUNCTION4);
+#endif
 		break;
 	}
 	scu.TRIGGER_EN = (P4_8); /* GPIO5[12] on P4_8 */
@@ -280,6 +271,7 @@ const platform_scu_t* platform_scu(void)
 	case BOARD_ID_JAWBREAKER:
 	case BOARD_ID_HACKRF1_OG:
 	case BOARD_ID_HACKRF1_R9:
+#if defined(JAWBREAKER) || defined(HACKRF_ONE) || defined(HACKRF_ALL)
 		scu.MIXER_ENX    = (P5_4); /* GPIO2[13] on P5_4 */
 		scu.MIXER_SCLK   = (P2_6); /* GPIO5[6] on P2_6 */
 		scu.MIXER_SDATA  = (P6_4); /* GPIO3[3] on P6_4 */
@@ -287,6 +279,7 @@ const platform_scu_t* platform_scu(void)
 
 		scu.MIXER_SCLK_PINCFG  = (SCU_GPIO_FAST | SCU_CONF_FUNCTION4);
 		scu.MIXER_SDATA_PINCFG = (SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+#endif
 		break;
 	case BOARD_ID_PRALINE:
 #if defined(PRALINE) || defined(HACKRF_ALL)
