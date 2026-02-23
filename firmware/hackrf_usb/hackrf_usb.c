@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2022 Great Scott Gadgets <info@greatscottgadgets.com>
+ * Copyright 2012-2026 Great Scott Gadgets <info@greatscottgadgets.com>
  * Copyright 2012 Jared Boone
  * Copyright 2013 Benjamin Vernoux
  *
@@ -152,6 +152,8 @@ static usb_request_handler_fn vendor_request_handler[] = {
 	usb_vendor_request_read_selftest,
 	usb_vendor_request_adc_read,
 	usb_vendor_request_test_rtc_osc,
+	usb_vendor_request_write_radio_reg,
+	usb_vendor_request_read_radio_reg,
 };
 
 static const uint32_t vendor_request_handler_count =
@@ -272,6 +274,11 @@ int main(void)
 #ifndef PRALINE
 	enable_1v8_power();
 	#ifndef RAD1O
+	/*
+	 * On rad1o, the clock generator power supply comes from the RF supply
+	 * which is enabled later. On H1 and Jawbreaker, the clock generator is
+	 * on the main 3V3 supply.
+	 */
 	clock_gen_init();
 	#endif
 #else
@@ -279,6 +286,10 @@ int main(void)
 	#if !defined(DFU_MODE) && !defined(RAM_MODE)
 	enable_1v2_power();
 	enable_rf_power();
+	/*
+	 * On Praline, the clock generator power supply comes from 3V3FPGA
+	 * which is enabled when 1V2FPGA is turned on.
+	 */
 	clock_gen_init();
 	#endif
 #endif
@@ -309,6 +320,7 @@ int main(void)
 	fpga_spi_selftest();
 	fpga_sgpio_selftest();
 #endif
+	radio_init(&radio);
 
 #if (defined HACKRF_ONE || defined PRALINE)
 	portapack_init();
@@ -373,6 +385,7 @@ int main(void)
 		nvic_disable_irq(NVIC_USB0_IRQ);
 		request = transceiver_request;
 		nvic_enable_irq(NVIC_USB0_IRQ);
+		radio_update(&radio);
 
 		switch (request.mode) {
 		case TRANSCEIVER_MODE_OFF:

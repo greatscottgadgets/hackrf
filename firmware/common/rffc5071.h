@@ -62,11 +62,6 @@ extern void rffc5071_regs_commit(rffc5071_driver_t* const drv);
 /* Set frequency (Hz). */
 extern uint64_t rffc5071_set_frequency(rffc5071_driver_t* const drv, uint64_t hz);
 
-/* Set up rx only, tx only, or full duplex. Chip should be disabled
- * before _tx, _rx, or _rxtx are called. */
-extern void rffc5071_tx(rffc5071_driver_t* const drv);
-extern void rffc5071_rx(rffc5071_driver_t* const drv);
-extern void rffc5071_rxtx(rffc5071_driver_t* const drv);
 extern void rffc5071_enable(rffc5071_driver_t* const drv);
 extern void rffc5071_disable(rffc5071_driver_t* const drv);
 

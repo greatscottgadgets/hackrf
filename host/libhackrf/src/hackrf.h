@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2012-2022 Great Scott Gadgets <info@greatscottgadgets.com>
+Copyright (c) 2012-2026 Great Scott Gadgets <info@greatscottgadgets.com>
 Copyright (c) 2012, Jared Boone <jared@sharebrained.com>
 Copyright (c) 2013, Benjamin Vernoux <titanmkd@gmail.com>
 
@@ -2353,6 +2353,38 @@ extern ADDAPI int ADDCALL hackrf_set_narrowband_filter(
 extern ADDAPI int ADDCALL hackrf_set_fpga_bitstream(
 	hackrf_device* device,
 	const uint8_t index);
+
+/**
+ * Read a radio configuration register
+ *
+ * @param[in] device device to query
+ * @param[in] bank bank number to read
+ * @param[in] register_number register number to read
+ * @param[out] value value of the specified register
+ * @return @ref HACKRF_SUCCESS on success or @ref hackrf_error variant
+ * @ingroup debug
+ */
+extern ADDAPI int ADDCALL hackrf_radio_read_register(
+	hackrf_device* device,
+	const uint8_t bank,
+	const uint8_t register_number,
+	uint64_t* const value);
+
+/**
+ * Write to a radio configuration register
+ *
+ * @param[in] device device to write
+ * @param[in] bank bank number to write
+ * @param[in] register_number register number to write
+ * @param[out] value value to write in the specified register
+ * @return @ref HACKRF_SUCCESS on success or @ref hackrf_error variant
+ * @ingroup debug
+ */
+extern ADDAPI int ADDCALL hackrf_radio_write_register(
+	hackrf_device* device,
+	const uint8_t bank,
+	const uint8_t register_number,
+	const uint64_t value);
 
 #ifdef __cplusplus
 } // __cplusplus defined.
