@@ -115,36 +115,6 @@ uint64_t mixer_set_frequency(mixer_driver_t* const mixer, uint64_t hz)
 #endif
 }
 
-void mixer_tx(mixer_driver_t* const mixer)
-{
-#if (defined JAWBREAKER || defined HACKRF_ONE || defined PRALINE)
-	rffc5071_tx(mixer);
-#endif
-#ifdef RAD1O
-	(void) mixer;
-#endif
-}
-
-void mixer_rx(mixer_driver_t* const mixer)
-{
-#if (defined JAWBREAKER || defined HACKRF_ONE || defined PRALINE)
-	rffc5071_rx(mixer);
-#endif
-#ifdef RAD1O
-	(void) mixer;
-#endif
-}
-
-void mixer_rxtx(mixer_driver_t* const mixer)
-{
-#if (defined JAWBREAKER || defined HACKRF_ONE || defined PRALINE)
-	rffc5071_rxtx(mixer);
-#endif
-#ifdef RAD1O
-	(void) mixer;
-#endif
-}
-
 void mixer_enable(mixer_driver_t* const mixer)
 {
 #if (defined JAWBREAKER || defined HACKRF_ONE || defined PRALINE)

@@ -35,7 +35,6 @@
 #include "max283x.h"
 #include "max5864.h"
 #include "sgpio.h"
-#include "user_config.h"
 
 #if (defined JAWBREAKER || defined HACKRF_ONE || defined RAD1O || defined PRALINE)
 	/*
@@ -467,9 +466,6 @@ void rf_path_set_direction(rf_path_t* const rf_path, const rf_path_direction_t d
 	/* Turn off TX and RX amplifiers, then enable based on direction and bypass state. */
 	rf_path->switchctrl |= SWITCHCTRL_NO_TX_AMP_PWR | SWITCHCTRL_NO_RX_AMP_PWR;
 
-	// Perform any user-requested actions for mode switch
-	user_config_on_rf_path_direction_change(rf_path, direction);
-
 	switch (direction) {
 	case RF_PATH_DIRECTION_TX:
 		rf_path->switchctrl |= SWITCHCTRL_TX;
@@ -477,7 +473,6 @@ void rf_path_set_direction(rf_path_t* const rf_path, const rf_path_direction_t d
 			/* TX amplifier is in path, be sure to enable TX amplifier. */
 			rf_path->switchctrl &= ~SWITCHCTRL_NO_TX_AMP_PWR;
 		}
-		mixer_tx(&mixer);
 		if (rf_path->switchctrl & SWITCHCTRL_MIX_BYPASS) {
 			mixer_disable(&mixer);
 		} else {
@@ -500,7 +495,6 @@ void rf_path_set_direction(rf_path_t* const rf_path, const rf_path_direction_t d
 			/* RX amplifier is in path, be sure to enable RX amplifier. */
 			rf_path->switchctrl &= ~SWITCHCTRL_NO_RX_AMP_PWR;
 		}
-		mixer_rx(&mixer);
 		if (rf_path->switchctrl & SWITCHCTRL_MIX_BYPASS) {
 			mixer_disable(&mixer);
 		} else {
