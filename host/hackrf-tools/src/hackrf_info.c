@@ -60,11 +60,7 @@ void print_supported_platform(uint32_t platform, uint8_t board_id, uint8_t board
 		printf("    HackRF One\n");
 	}
 	if (platform & HACKRF_PLATFORM_PRALINE) {
-		if (board_rev & HACKRF_BOARD_REV_GSG) {
-			printf("    HackRF Pro\n");
-		} else {
-			printf("    Praline\n");
-		}
+		printf("    HackRF Pro\n");
 	}
 	switch (board_id) {
 	case BOARD_ID_HACKRF1_OG:
