@@ -1790,6 +1790,7 @@ extern ADDAPI int ADDCALL hackrf_set_freq_explicit(
  * @param device device to configure
  * @param freq_hz sample rate base frequency in Hz
  * @param divider frequency divider. Must be in the range 1-31
+ * @deprecated This has been replaced by @ref hackrf_set_sample_rate
  * @return @ref HACKRF_SUCCESS on success or @ref hackrf_error variant
  * @ingroup configuration
  */

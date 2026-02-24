@@ -1822,9 +1822,7 @@ typedef struct {
 } set_fracrate_params_t;
 
 /*
- * You should probably use hackrf_set_sample_rate() below instead of this
- * function.  They both result in automatic baseband filter selection as
- * described below.
+ * @deprecated This has been replaced by @ref hackrf_set_sample_rate
  */
 int ADDCALL hackrf_set_sample_rate_manual(
 	hackrf_device* device,
@@ -1862,12 +1860,9 @@ int ADDCALL hackrf_set_sample_rate_manual(
 }
 
 /*
- * For anti-aliasing, the baseband filter bandwidth is automatically set to the
- * widest available setting that is no more than 75% of the sample rate.  This
- * happens every time the sample rate is set.  If you want to override the
- * baseband filter selection, you must do so after setting the sample rate.
+ * @deprecated This has been replaced by @ref hackrf_set_sample_rate
  */
-int ADDCALL hackrf_set_sample_rate(hackrf_device* device, const double freq)
+int hackrf_set_sample_rate_frac(hackrf_device* device, const double freq)
 {
 	const int MAX_N = 32;
 	uint32_t freq_hz, divider;
@@ -1906,6 +1901,29 @@ int ADDCALL hackrf_set_sample_rate(hackrf_device* device, const double freq)
 	divider = i;
 
 	return hackrf_set_sample_rate_manual(device, freq_hz, divider);
+}
+
+/*
+ * For anti-aliasing, the baseband filter bandwidth is automatically set to the
+ * widest available setting that is no more than 75% of the sample rate.  This
+ * happens every time the sample rate is set.  If you want to override the
+ * baseband filter selection, you must do so after setting the sample rate.
+ */
+int ADDCALL hackrf_set_sample_rate(hackrf_device* device, const double freq)
+{
+	/* Use old fractional vendor request on old firmware. */
+	uint16_t usb_version = 0;
+	hackrf_usb_api_version_read(device, &usb_version);
+	if (usb_version < 0x0111) {
+		return hackrf_set_sample_rate_frac(device, freq);
+	}
+
+	/* Convert sample rate to 40.24 fixed-point. */
+	const uint64_t value = freq * (1 << 24);
+
+	const uint8_t bank = 1;            /* RADIO_BANK_ACTIVE */
+	const uint8_t register_number = 6; /* RADIO_SAMPLE_RATE */
+	return hackrf_radio_write_register(device, bank, register_number, value);
 }
 
 int ADDCALL hackrf_set_amp_enable(hackrf_device* device, const uint8_t value)
