@@ -108,7 +108,11 @@ usb_request_status_t usb_vendor_request_set_freq(
 	} else if (stage == USB_TRANSFER_STAGE_DATA) {
 		const uint64_t freq =
 			set_freq_params.freq_mhz * 1000000ULL + set_freq_params.freq_hz;
-		radio_reg_write(&radio, RADIO_BANK_ACTIVE, RADIO_FREQUENCY_RF, freq << 24);
+		radio_reg_write(
+			&radio,
+			RADIO_BANK_ACTIVE,
+			RADIO_FREQUENCY_RF,
+			freq * FP_ONE_HZ);
 		radio_reg_write(
 			&radio,
 			RADIO_BANK_ACTIVE,
@@ -145,12 +149,12 @@ usb_request_status_t usb_vendor_request_set_freq_explicit(
 			&radio,
 			RADIO_BANK_ACTIVE,
 			RADIO_FREQUENCY_IF,
-			explicit_params.if_freq_hz << 24);
+			explicit_params.if_freq_hz * FP_ONE_HZ);
 		radio_reg_write(
 			&radio,
 			RADIO_BANK_ACTIVE,
 			RADIO_FREQUENCY_LO,
-			explicit_params.lo_freq_hz << 24);
+			explicit_params.lo_freq_hz * FP_ONE_HZ);
 		radio_reg_write(
 			&radio,
 			RADIO_BANK_ACTIVE,

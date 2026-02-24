@@ -27,6 +27,7 @@
 #include "fpga.h"
 #include "platform_detect.h"
 #include "radio.h"
+#include "fixed_point.h"
 
 #define MIN(x, y) ((x) < (y) ? (x) : (y))
 #define MAX(x, y) ((x) > (y) ? (x) : (y))
@@ -121,10 +122,10 @@ static bool radio_update_direction(radio_t* const radio, uint64_t* bank)
 /*
  * Convert sample rate in units of 1/(2**24) Hz to fraction.
  */
-static inline uint64_t frac_sample_rate(const uint64_t rate)
+static inline uint64_t frac_sample_rate(const fp_40_24_t rate)
 {
 	uint64_t num = rate;
-	uint64_t denom = 1 << 24;
+	uint64_t denom = FP_ONE_HZ;
 	while ((num & 1) == 0) {
 		num >>= 1;
 		denom >>= 1;
@@ -148,9 +149,9 @@ static inline uint32_t denominator(const uint64_t frac)
 /*
  * Convert fractional sample rate to units of 1/(2**24) Hz.
  */
-static inline uint64_t round_sample_rate(const uint64_t frac)
+static inline fp_40_24_t round_sample_rate(const uint64_t frac)
 {
-	uint64_t num = (uint64_t) numerator(frac) << 24;
+	uint64_t num = (uint64_t) numerator(frac) * FP_ONE_HZ;
 	uint32_t denom = denominator(frac);
 	if (denom == 0) {
 		denom = 1;
@@ -182,15 +183,16 @@ static inline uint8_t compute_resample_log(
 	return n;
 }
 
-#define MIN_MCU_RATE     (200000ULL << 24)
-#define MAX_MCU_RATE     (21800000ULL << 24)
-#define DEFAULT_MCU_RATE (10000000ULL << 24)
+#define MIN_MCU_RATE     (200000ULL * FP_ONE_HZ)
+#define MAX_MCU_RATE     (21800000ULL * FP_ONE_HZ)
+#define DEFAULT_MCU_RATE (10000000ULL * FP_ONE_HZ)
 
-static uint64_t applied_afe_rate = RADIO_UNSET;
+static fp_40_24_t applied_afe_rate = RADIO_UNSET;
 
 static bool radio_update_sample_rate(radio_t* const radio, uint64_t* bank)
 {
-	uint64_t rate, frac, previous_n;
+	fp_40_24_t rate;
+	uint64_t frac, previous_n;
 	uint8_t n = 0;
 	bool new_rate = false;
 
@@ -240,7 +242,7 @@ static bool radio_update_sample_rate(radio_t* const radio, uint64_t* bank)
 		 * Resampling is enabled only in RX mode to work around a
 		 * spectrum inversion bug with TX interpolation.
 		 */
-		n = compute_resample_log(rate >> 24, requested_n);
+		n = compute_resample_log(rate / FP_ONE_HZ, requested_n);
 		previous_n = radio->config[RADIO_BANK_APPLIED][RADIO_RESAMPLE_RX];
 		if (n != previous_n) {
 #ifdef PRALINE
@@ -251,8 +253,8 @@ static bool radio_update_sample_rate(radio_t* const radio, uint64_t* bank)
 		}
 	}
 
-	uint64_t afe_rate = rate << n;
-	uint64_t previous_afe_rate = RADIO_UNSET;
+	fp_40_24_t afe_rate = rate << n;
+	fp_40_24_t previous_afe_rate = RADIO_UNSET;
 	if (previous_n != RADIO_UNSET) {
 		previous_afe_rate = radio->config[RADIO_BANK_APPLIED][RADIO_SAMPLE_RATE]
 			<< previous_n;
@@ -269,7 +271,7 @@ static bool radio_update_sample_rate(radio_t* const radio, uint64_t* bank)
 	return new_rate;
 }
 
-#define DEFAULT_RF (2450000000ULL << 24)
+#define DEFAULT_RF (2450ULL * FP_ONE_MHZ)
 
 static uint64_t applied_offset = RADIO_UNSET;
 
@@ -312,8 +314,8 @@ static bool radio_update_frequency(radio_t* const radio, uint64_t* bank)
 			 radio->config[RADIO_BANK_APPLIED][RADIO_IMAGE_REJECT]);
 		if (new_if || new_lo || new_img_reject) {
 			set_freq_explicit(
-				requested_if >> 24,
-				requested_lo >> 24,
+				requested_if / FP_ONE_HZ,
+				requested_lo / FP_ONE_HZ,
 				requested_img_reject);
 			radio->config[RADIO_BANK_APPLIED][RADIO_FREQUENCY_IF] =
 				requested_if;
@@ -348,7 +350,7 @@ static bool radio_update_frequency(radio_t* const radio, uint64_t* bank)
 
 	bool new_rf =
 		(radio->config[RADIO_BANK_APPLIED][RADIO_FREQUENCY_RF] != requested_rf);
-	uint64_t requested_rf_hz = requested_rf >> 24;
+	uint64_t requested_rf_hz = requested_rf / FP_ONE_HZ;
 #ifdef PRALINE
 	if (applied_afe_rate == RADIO_UNSET) {
 		return false;
@@ -376,10 +378,10 @@ static bool radio_update_frequency(radio_t* const radio, uint64_t* bank)
 		radio->config[RADIO_BANK_APPLIED][RADIO_ROTATION] =
 			tune_config->shift << 6;
 	}
-	uint64_t offset = applied_afe_rate / 4;
+	fp_40_24_t offset = applied_afe_rate / 4;
 	bool new_offset = (applied_offset != offset);
 	if (new_rotation || new_offset || new_config || new_rf) {
-		tuning_set_frequency(tune_config, requested_rf_hz, offset >> 24);
+		tuning_set_frequency(tune_config, requested_rf_hz, offset / FP_ONE_HZ);
 		applied_offset = offset;
 	}
 #else
@@ -398,16 +400,16 @@ static uint32_t auto_bandwidth(radio_t* const radio, uint64_t opmode)
 {
 	uint64_t rotation = radio->config[RADIO_BANK_APPLIED][RADIO_ROTATION];
 
-	uint32_t sample_rate_hz = DEFAULT_MCU_RATE >> 24;
+	uint32_t sample_rate_hz = DEFAULT_MCU_RATE / FP_ONE_HZ;
 	if (radio->config[RADIO_BANK_APPLIED][RADIO_SAMPLE_RATE] != RADIO_UNSET) {
 		sample_rate_hz =
-			radio->config[RADIO_BANK_APPLIED][RADIO_SAMPLE_RATE] >> 24;
+			radio->config[RADIO_BANK_APPLIED][RADIO_SAMPLE_RATE] / FP_ONE_HZ;
 	}
 
 	uint32_t offset_hz = 0;
 	if ((rotation != 0) && (rotation != RADIO_UNSET) &&
 	    (applied_offset != RADIO_UNSET)) {
-		offset_hz = applied_offset >> 24;
+		offset_hz = applied_offset / FP_ONE_HZ;
 	}
 
 	const uint32_t bb_bandwidth = (sample_rate_hz * 3) / 4;
