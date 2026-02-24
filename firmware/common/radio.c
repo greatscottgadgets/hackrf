@@ -28,6 +28,7 @@
 #include "platform_detect.h"
 #include "radio.h"
 #include "fixed_point.h"
+#include "hackrf_ui.h"
 
 #define MIN(x, y) ((x) < (y) ? (x) : (y))
 #define MAX(x, y) ((x) > (y) ? (x) : (y))
@@ -119,46 +120,6 @@ static bool radio_update_direction(radio_t* const radio, uint64_t* bank)
 	return true;
 }
 
-/*
- * Convert sample rate in units of 1/(2**24) Hz to fraction.
- */
-static inline uint64_t frac_sample_rate(const fp_40_24_t rate)
-{
-	uint64_t num = rate;
-	uint64_t denom = FP_ONE_HZ;
-	while ((num & 1) == 0) {
-		num >>= 1;
-		denom >>= 1;
-		if (denom == 1) {
-			break;
-		}
-	}
-	return (denom << 32) | (num & 0xffffffff);
-}
-
-static inline uint32_t numerator(const uint64_t frac)
-{
-	return frac & 0xffffffff;
-}
-
-static inline uint32_t denominator(const uint64_t frac)
-{
-	return frac >> 32;
-}
-
-/*
- * Convert fractional sample rate to units of 1/(2**24) Hz.
- */
-static inline fp_40_24_t round_sample_rate(const uint64_t frac)
-{
-	uint64_t num = (uint64_t) numerator(frac) * FP_ONE_HZ;
-	uint32_t denom = denominator(frac);
-	if (denom == 0) {
-		denom = 1;
-	}
-	return (num + (denom >> 1)) / denom;
-}
-
 #define MAX_AFE_RATE_HZ (40000000UL)
 
 static inline uint8_t compute_resample_log(
@@ -192,49 +153,46 @@ static fp_40_24_t applied_afe_rate = RADIO_UNSET;
 static bool radio_update_sample_rate(radio_t* const radio, uint64_t* bank)
 {
 	fp_40_24_t rate;
-	uint64_t frac, previous_n;
+	uint64_t previous_n;
 	uint8_t n = 0;
+	bool new_afe_rate = false;
 	bool new_rate = false;
+	bool new_n = false;
 
-	const uint64_t requested_frac = bank[RADIO_SAMPLE_RATE_FRAC];
 	const uint64_t requested_rate = bank[RADIO_SAMPLE_RATE];
 	const uint64_t requested_n = bank[RADIO_RESAMPLE_RX];
 
 	if (requested_rate != RADIO_UNSET) {
 		rate = MIN(requested_rate, MAX_MCU_RATE);
 		rate = MAX(rate, MIN_MCU_RATE);
-		frac = frac_sample_rate(rate);
-	} else if (requested_frac != RADIO_UNSET) {
-		frac = requested_frac;
-		if (round_sample_rate(frac) > MAX_MCU_RATE) {
-			frac = frac_sample_rate(MAX_MCU_RATE);
-		}
-		if (round_sample_rate(frac) < MIN_MCU_RATE) {
-			frac = frac_sample_rate(MIN_MCU_RATE);
-		}
-		rate = round_sample_rate(frac);
 	} else {
 		rate = radio->config[RADIO_BANK_APPLIED][RADIO_SAMPLE_RATE];
 		if (rate == RADIO_UNSET) {
 			rate = DEFAULT_MCU_RATE;
 		}
-		frac = RADIO_UNSET;
 	}
 
+	const uint64_t previous_opmode = radio->config[RADIO_BANK_APPLIED][RADIO_OPMODE];
 	uint64_t opmode = bank[RADIO_OPMODE];
 	if (opmode == RADIO_UNSET) {
-		opmode = radio->config[RADIO_BANK_APPLIED][RADIO_OPMODE];
+		opmode = previous_opmode;
+	}
+	switch (previous_opmode) {
+	case TRANSCEIVER_MODE_TX:
+	case TRANSCEIVER_MODE_SS:
+		previous_n = radio->config[RADIO_BANK_APPLIED][RADIO_RESAMPLE_TX];
+		break;
+	default:
+		previous_n = radio->config[RADIO_BANK_APPLIED][RADIO_RESAMPLE_RX];
 	}
 	switch (opmode) {
 	case TRANSCEIVER_MODE_TX:
 	case TRANSCEIVER_MODE_SS:
-		previous_n = radio->config[RADIO_BANK_APPLIED][RADIO_RESAMPLE_TX];
-		if (n != previous_n) {
+		if (n != radio->config[RADIO_BANK_APPLIED][RADIO_RESAMPLE_TX]) {
 #ifdef PRALINE
 			fpga_set_tx_interpolation_ratio(&fpga, n);
 #endif
 			radio->config[RADIO_BANK_APPLIED][RADIO_RESAMPLE_TX] = n;
-			new_rate = true;
 		}
 		break;
 	default:
@@ -243,32 +201,33 @@ static bool radio_update_sample_rate(radio_t* const radio, uint64_t* bank)
 		 * spectrum inversion bug with TX interpolation.
 		 */
 		n = compute_resample_log(rate / FP_ONE_HZ, requested_n);
-		previous_n = radio->config[RADIO_BANK_APPLIED][RADIO_RESAMPLE_RX];
-		if (n != previous_n) {
+		if (n != radio->config[RADIO_BANK_APPLIED][RADIO_RESAMPLE_RX]) {
 #ifdef PRALINE
 			fpga_set_rx_decimation_ratio(&fpga, n);
 #endif
 			radio->config[RADIO_BANK_APPLIED][RADIO_RESAMPLE_RX] = n;
-			new_rate = true;
 		}
 	}
+	new_n = (n != previous_n);
 
 	fp_40_24_t afe_rate = rate << n;
-	fp_40_24_t previous_afe_rate = RADIO_UNSET;
-	if (previous_n != RADIO_UNSET) {
-		previous_afe_rate = radio->config[RADIO_BANK_APPLIED][RADIO_SAMPLE_RATE]
-			<< previous_n;
-	}
-
-	if (afe_rate != previous_afe_rate) {
-		sample_rate_frac_set(numerator(frac) << n, denominator(frac));
+	afe_rate = sample_rate_set(afe_rate, false);
+	new_afe_rate = (afe_rate != applied_afe_rate);
+	if (new_afe_rate) {
+		afe_rate = sample_rate_set(afe_rate, true);
 		applied_afe_rate = afe_rate;
-		radio->config[RADIO_BANK_APPLIED][RADIO_SAMPLE_RATE_FRAC] = frac;
+		rate = afe_rate >> n;
+	}
+	new_rate = (rate != radio->config[RADIO_BANK_APPLIED][RADIO_SAMPLE_RATE]);
+	if (new_rate) {
 		radio->config[RADIO_BANK_APPLIED][RADIO_SAMPLE_RATE] = rate;
-		new_rate = true;
+
+		/* Round to the nearest Hz for display. */
+		const uint32_t rate_hz = (rate + (FP_ONE_HZ >> 1)) / FP_ONE_HZ;
+		hackrf_ui()->set_sample_rate(rate_hz);
 	}
 
-	return new_rate;
+	return (new_afe_rate || new_rate || new_n);
 }
 
 #define DEFAULT_RF (2450ULL * FP_ONE_MHZ)
@@ -712,8 +671,8 @@ bool radio_update(radio_t* const radio)
 	bool dc = false;
 
 	if ((dirty &
-	     ((1 << RADIO_SAMPLE_RATE) | (1 << RADIO_SAMPLE_RATE_FRAC) |
-	      (1 << RADIO_RESAMPLE_TX) | (1 << RADIO_RESAMPLE_RX))) ||
+	     ((1 << RADIO_SAMPLE_RATE) | (1 << RADIO_RESAMPLE_TX) |
+	      (1 << RADIO_RESAMPLE_RX))) ||
 	    ((detected_platform() == BOARD_ID_PRALINE) &&
 	     (dirty & (1 << RADIO_OPMODE)))) {
 		rate = radio_update_sample_rate(radio, &tmp_bank[0]);

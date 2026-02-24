@@ -40,6 +40,7 @@
 #include "usb.h"
 #include "usb_queue.h"
 #include "platform_detect.h"
+#include "fixed_point.h"
 
 #include <stddef.h>
 #include <string.h>
@@ -165,6 +166,18 @@ usb_request_status_t usb_vendor_request_set_freq_explicit(
 	return USB_REQUEST_STATUS_OK;
 }
 
+/*
+ * Convert fractional sample rate to units of 1/(2**24) Hz.
+ */
+static inline fp_40_24_t round_sample_rate(uint64_t num, uint32_t denom)
+{
+	num *= FP_ONE_HZ;
+	if (denom == 0) {
+		denom = 1;
+	}
+	return (num + (denom >> 1)) / denom;
+}
+
 usb_request_status_t usb_vendor_request_set_sample_rate_frac(
 	usb_endpoint_t* const endpoint,
 	const usb_transfer_stage_t stage)
@@ -178,9 +191,9 @@ usb_request_status_t usb_vendor_request_set_sample_rate_frac(
 			NULL);
 	} else if (stage == USB_TRANSFER_STAGE_DATA) {
 		uint32_t numerator = set_sample_r_params.freq_hz;
-		uint64_t denominator = set_sample_r_params.divider;
-		uint64_t value = (denominator << 32) | numerator;
-		radio_reg_write(&radio, RADIO_BANK_ACTIVE, RADIO_SAMPLE_RATE_FRAC, value);
+		uint32_t denominator = set_sample_r_params.divider;
+		uint64_t value = round_sample_rate(numerator, denominator);
+		radio_reg_write(&radio, RADIO_BANK_ACTIVE, RADIO_SAMPLE_RATE, value);
 		usb_transfer_schedule_ack(endpoint->in);
 	}
 	return USB_REQUEST_STATUS_OK;
