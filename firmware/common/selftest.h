@@ -41,7 +41,7 @@ typedef struct {
 #if !defined(RAD1O)
 	bool mixer_locks[NUM_LOCK_ATTEMPTS];
 #endif
-#if defined(PRALINE) || defined(HACKRF_ALL)
+#if defined(PRALINE) || defined(UNIVERSAL)
 	uint16_t max2831_mux_rssi_1;
 	uint16_t max2831_mux_temp;
 	uint16_t max2831_mux_rssi_2;
@@ -53,7 +53,7 @@ typedef struct {
 	uint8_t max283x_readback_total_registers;
 	uint8_t si5351_rev_id;
 	bool si5351_readback_ok;
-#if defined(PRALINE) || defined(HACKRF_ALL)
+#if defined(PRALINE) || defined(UNIVERSAL)
 	test_result_t fpga_image_load;
 	test_result_t fpga_spi;
 	test_result_t sgpio_rx;

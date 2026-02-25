@@ -127,7 +127,7 @@ usb_request_status_t usb_vendor_request_reset(
 		pin_shutdown();
 		clock_gen_shutdown();
 		if (detected_platform() == BOARD_ID_HACKRF1_R9) {
-#if defined(HACKRF_ONE) || defined(HACKRF_ALL)
+#if defined(HACKRF_ONE) || defined(UNIVERSAL)
 			/*
 			 * Set boot pins as inputs so that the bootloader reads them
 			 * correctly after the reset.

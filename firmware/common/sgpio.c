@@ -51,7 +51,7 @@ void sgpio_configure_pin_functions(sgpio_config_t* const config)
 	scu_pinmux(scu->PINMUX_SGPIO15, scu->PINMUX_SGPIO15_PINCFG); /* GPIO5[14] */
 
 	if (detected_platform() == BOARD_ID_HACKRF1_R9) {
-#if defined(HACKRF_ONE) || defined(HACKRF_ALL)
+#if defined(HACKRF_ONE) || defined(UNIVERSAL)
 		scu_pinmux(
 			scu->H1R9_TRIGGER_EN,
 			SCU_GPIO_FAST | SCU_CONF_FUNCTION4); /* GPIO5[5] */
@@ -66,7 +66,7 @@ void sgpio_configure_pin_functions(sgpio_config_t* const config)
 	gpio_output(config->gpio_q_invert);
 
 	if (detected_platform() != BOARD_ID_PRALINE) {
-#if !defined(PRALINE) || defined(HACKRF_ALL)
+#if !defined(PRALINE) || defined(UNIVERSAL)
 		trigger_enable(false);
 		gpio_output(config->gpio_trigger_enable);
 #endif

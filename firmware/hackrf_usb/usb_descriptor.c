@@ -50,7 +50,7 @@
 
 #define USB_STRING_LANGID (0x0409)
 
-#if defined(HACKRF_ONE) || defined(PRALINE) || defined(HACKRF_ALL)
+#if defined(HACKRF_ONE) || defined(PRALINE) || defined(UNIVERSAL)
 uint8_t usb_descriptor_device_hackrf[] = {
 	18,                         // bLength
 	USB_DESCRIPTOR_TYPE_DEVICE, // bDescriptorType
@@ -222,7 +222,7 @@ uint8_t usb_descriptor_string_manufacturer[] = {
 	's', 0x00,
 };
 
-#if defined(HACKRF_ONE) || defined(HACKRF_ALL)
+#if defined(HACKRF_ONE) || defined(UNIVERSAL)
 uint8_t usb_descriptor_string_product_hackrf_one[] = {
 	22,                         // bLength
 	USB_DESCRIPTOR_TYPE_STRING, // bDescriptorType
@@ -238,7 +238,7 @@ uint8_t usb_descriptor_string_product_hackrf_one[] = {
 	'e', 0x00,
 };
 #endif
-#if defined(PRALINE) || defined(HACKRF_ALL)
+#if defined(PRALINE) || defined(UNIVERSAL)
 uint8_t usb_descriptor_string_product_praline[] = {
 	22,                         // bLength
 	USB_DESCRIPTOR_TYPE_STRING, // bDescriptorType
@@ -328,7 +328,7 @@ uint8_t usb_descriptor_string_serial_number[] = {
 uint8_t usb_descriptor_string_serial_number[USB_DESCRIPTOR_STRING_SERIAL_BUF_LEN];
 #endif
 
-#if defined(HACKRF_ONE) || defined(HACKRF_ALL)
+#if defined(HACKRF_ONE) || defined(UNIVERSAL)
 uint8_t* usb_descriptor_strings_hackrf_one[] = {
 	usb_descriptor_string_languages,
 	usb_descriptor_string_manufacturer,
@@ -338,7 +338,7 @@ uint8_t* usb_descriptor_strings_hackrf_one[] = {
 	0, // TERMINATOR
 };
 #endif
-#if defined(PRALINE) || defined(HACKRF_ALL)
+#if defined(PRALINE) || defined(UNIVERSAL)
 uint8_t* usb_descriptor_strings_praline[] = {
 	usb_descriptor_string_languages,
 	usb_descriptor_string_manufacturer,

@@ -98,7 +98,7 @@ static usb_request_handler_fn vendor_request_handler[] = {
 	usb_vendor_request_set_vga_gain,
 	usb_vendor_request_set_txvga_gain,
 	NULL, // was set_if_freq
-#if defined(HACKRF_ONE) || defined(PRALINE) || defined(HACKRF_ALL)
+#if defined(HACKRF_ONE) || defined(PRALINE) || defined(UNIVERSAL)
 	usb_vendor_request_set_antenna_enable,
 #else
 	NULL,
@@ -115,7 +115,7 @@ static usb_request_handler_fn vendor_request_handler[] = {
 	usb_vendor_request_spiflash_status,
 	usb_vendor_request_spiflash_clear_status,
 	usb_vendor_request_operacake_gpio_test,
-#if defined(HACKRF_ONE) || defined(HACKRF_ALL)
+#if defined(HACKRF_ONE) || defined(UNIVERSAL)
 	usb_vendor_request_cpld_checksum,
 #else
 	NULL,
@@ -132,7 +132,7 @@ static usb_request_handler_fn vendor_request_handler[] = {
 	usb_vendor_request_read_supported_platform,
 	usb_vendor_request_set_leds,
 	usb_vendor_request_user_config_set_bias_t_opts,
-#if defined(PRALINE) || defined(HACKRF_ALL)
+#if defined(PRALINE) || defined(UNIVERSAL)
 	usb_vendor_request_write_fpga_reg,
 	usb_vendor_request_read_fpga_reg,
 	usb_vendor_request_p2_ctrl,
@@ -228,7 +228,7 @@ void usb_set_descriptor_by_serial_number(void)
 	}
 }
 
-#if !defined(PRALINE) || defined(HACKRF_ALL)
+#if !defined(PRALINE) || defined(UNIVERSAL)
 static bool cpld_jtag_sram_load(jtag_t* const jtag)
 {
 	cpld_jtag_take(jtag);
@@ -285,7 +285,7 @@ int main(void)
 			clock_gen_init();
 		}
 	} else {
-#if defined(PRALINE) || defined(HACKRF_ALL)
+#if defined(PRALINE) || defined(UNIVERSAL)
 		enable_3v3aux_power();
 	#if !defined(DFU_MODE) && !defined(RAM_MODE)
 		enable_1v2_power();
@@ -306,7 +306,7 @@ int main(void)
 	}
 	if (board_id == BOARD_ID_HACKRF1_OG || board_id == BOARD_ID_HACKRF1_R9 ||
 	    board_id == BOARD_ID_RAD1O) {
-#if defined(RAD1O) || defined(HACKRF_ONE) || defined(HACKRF_ALL)
+#if defined(RAD1O) || defined(HACKRF_ONE) || defined(UNIVERSAL)
 		enable_rf_power();
 #endif
 	}
@@ -320,13 +320,13 @@ int main(void)
 	ipc_start_m0((uint32_t) &__ram_m0_start__);
 
 	if (board_id != BOARD_ID_PRALINE) {
-#if !defined(PRALINE) || defined(HACKRF_ALL)
+#if !defined(PRALINE) || defined(UNIVERSAL)
 		if (!cpld_jtag_sram_load(&jtag_cpld)) {
 			halt_and_flash(6000000);
 		}
 #endif
 	} else {
-#if defined(PRALINE) || defined(HACKRF_ALL)
+#if defined(PRALINE) || defined(UNIVERSAL)
 		fpga_image_load(0);
 		delay_us_at_mhz(100, 204);
 		fpga_spi_selftest();
@@ -337,7 +337,7 @@ int main(void)
 
 	if (board_id == BOARD_ID_HACKRF1_OG || board_id == BOARD_ID_HACKRF1_R9 ||
 	    board_id == BOARD_ID_PRALINE) {
-#if defined(HACKRF_ONE) || defined(PRALINE) || defined(HACKRF_ALL)
+#if defined(HACKRF_ONE) || defined(PRALINE) || defined(UNIVERSAL)
 		portapack_init();
 #endif
 	}
@@ -352,7 +352,7 @@ int main(void)
 	switch (detected_platform()) {
 	case BOARD_ID_HACKRF1_OG:
 	case BOARD_ID_HACKRF1_R9:
-#if defined(HACKRF_ONE) || defined(HACKRF_ALL)
+#if defined(HACKRF_ONE) || defined(UNIVERSAL)
 		memcpy(&usb_device,
 		       &usb_device_hackrf_one,
 		       sizeof(usb_device_hackrf_one));
@@ -371,7 +371,7 @@ int main(void)
 #endif
 		break;
 	case BOARD_ID_PRALINE:
-#if defined(PRALINE) || defined(HACKRF_ALL)
+#if defined(PRALINE) || defined(UNIVERSAL)
 		memcpy(&usb_device, &usb_device_praline, sizeof(usb_device_praline));
 #endif
 		break;
@@ -403,7 +403,7 @@ int main(void)
 	}
 
 	if (board_id == BOARD_ID_PRALINE) {
-#if defined(PRALINE) || defined(HACKRF_ALL)
+#if defined(PRALINE) || defined(UNIVERSAL)
 		fpga_if_xcvr_selftest();
 #endif
 	}
@@ -451,7 +451,7 @@ int main(void)
 			break;
 		case TRANSCEIVER_MODE_CPLD_UPDATE:
 			if (board_id != BOARD_ID_PRALINE) {
-#if !defined(PRALINE) || defined(HACKRF_ALL)
+#if !defined(PRALINE) || defined(UNIVERSAL)
 				cpld_update();
 #endif
 			}

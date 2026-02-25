@@ -53,7 +53,7 @@ void append(char** dest, size_t* capacity, const char* str)
 	}
 }
 
-#if defined(PRALINE) || defined(HACKRF_ALL)
+#if defined(PRALINE) || defined(UNIVERSAL)
 static const char* test_result_to_str(test_result_t result)
 {
 	switch (result) {
@@ -111,13 +111,13 @@ void generate_selftest_report(void)
 	append(&s, &c, "\n");
 
 	if (board_id == BOARD_ID_PRALINE) {
-#if defined(PRALINE) || defined(HACKRF_ALL)
+#if defined(PRALINE) || defined(UNIVERSAL)
 		append(&s, &c, "Transceiver: MAX2831, RSSI mux test: ");
 		append(&s, &c, selftest.max2831_mux_test_ok ? "PASS" : "FAIL");
 		append(&s, &c, "\n");
 #endif
 	} else {
-#if !defined(PRALINE) || defined(HACKRF_ALL)
+#if !defined(PRALINE) || defined(UNIVERSAL)
 		append(&s, &c, "Transceiver: ");
 		append(&s, &c, (board_id == BOARD_ID_HACKRF1_R9 ? "MAX2839" : "MAX2837"));
 		append(&s, &c, ", readback success: ");
@@ -137,7 +137,7 @@ void generate_selftest_report(void)
 #endif
 	}
 	if (board_id == BOARD_ID_PRALINE) {
-#if defined(PRALINE) || defined(HACKRF_ALL)
+#if defined(PRALINE) || defined(UNIVERSAL)
 		append(&s, &c, "FPGA configuration: ");
 		append(&s, &c, test_result_to_str(selftest.fpga_image_load));
 		append(&s, &c, "\n");

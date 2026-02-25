@@ -22,7 +22,7 @@
 
 #include <stdint.h>
 
-#if defined(HACKRF_ONE) || defined(PRALINE) || defined(HACKRF_ALL)
+#if defined(HACKRF_ONE) || defined(PRALINE) || defined(UNIVERSAL)
 extern uint8_t usb_descriptor_device_hackrf[];
 #endif
 #if defined(JAWBREAKER)
@@ -36,10 +36,10 @@ extern uint8_t usb_descriptor_configuration_full_speed[];
 extern uint8_t usb_descriptor_configuration_high_speed[];
 extern uint8_t usb_descriptor_string_languages[];
 extern uint8_t usb_descriptor_string_manufacturer[];
-#if defined(HACKRF_ONE) || defined(HACKRF_ALL)
+#if defined(HACKRF_ONE) || defined(UNIVERSAL)
 extern uint8_t usb_descriptor_string_product_hackrf_one[];
 #endif
-#if defined(PRALINE) || defined(HACKRF_ALL)
+#if defined(PRALINE) || defined(UNIVERSAL)
 extern uint8_t usb_descriptor_string_product_praline[];
 #endif
 #if defined(JAWBREAKER)

@@ -90,7 +90,7 @@
 
 #define SWITCHCTRL_ANT_PWR (1 << 6) /* turn on antenna port power */
 
-#if defined(HACKRF_ONE) || defined(HACKRF_ALL)
+#if defined(HACKRF_ONE) || defined(UNIVERSAL)
 static void switchctrl_set_hackrf_one(rf_path_t* const rf_path, uint8_t ctrl)
 {
 	board_id_t board_id = detected_platform();
@@ -184,7 +184,7 @@ static void switchctrl_set_hackrf_one(rf_path_t* const rf_path, uint8_t ctrl)
 }
 #endif
 
-#if defined(PRALINE) || defined(HACKRF_ALL)
+#if defined(PRALINE) || defined(UNIVERSAL)
 static void switchctrl_set_praline(rf_path_t* const rf_path, uint8_t ctrl)
 {
 	if (ctrl & SWITCHCTRL_TX) {
@@ -307,12 +307,12 @@ static void switchctrl_set(rf_path_t* const rf_path, const uint8_t gpo)
 		break;
 	case BOARD_ID_HACKRF1_OG:
 	case BOARD_ID_HACKRF1_R9:
-#if defined(HACKRF_ONE) || defined(HACKRF_ALL)
+#if defined(HACKRF_ONE) || defined(UNIVERSAL)
 		switchctrl_set_hackrf_one(rf_path, gpo);
 #endif
 		break;
 	case BOARD_ID_PRALINE:
-#if defined(PRALINE) || defined(HACKRF_ALL)
+#if defined(PRALINE) || defined(UNIVERSAL)
 		switchctrl_set_praline(rf_path, gpo);
 #endif
 		break;
@@ -340,7 +340,7 @@ void rf_path_pin_setup(rf_path_t* const rf_path)
 	switch (board_id) {
 	case BOARD_ID_HACKRF1_OG:
 	case BOARD_ID_HACKRF1_R9:
-#if defined(HACKRF_ONE) || defined(HACKRF_ALL)
+#if defined(HACKRF_ONE) || defined(UNIVERSAL)
 		/* Configure RF switch control signals */
 		// clang-format off
 		scu_pinmux(scu->HP,            SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
@@ -434,7 +434,7 @@ void rf_path_pin_setup(rf_path_t* const rf_path)
 #endif
 		break;
 	case BOARD_ID_PRALINE:
-#if defined(PRALINE) || defined(HACKRF_ALL)
+#if defined(PRALINE) || defined(UNIVERSAL)
 		/* Configure RF switch control signals */
 		scu_pinmux(scu->TX_EN, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
 		board_rev_t rev = detected_revision();
@@ -483,17 +483,17 @@ void rf_path_init(rf_path_t* const rf_path)
 	ssp1_set_mode_max283x();
 	switch (board_id) {
 	case BOARD_ID_PRALINE:
-#if defined(PRALINE) || defined(HACKRF_ALL)
+#if defined(PRALINE) || defined(UNIVERSAL)
 		max283x_setup(&max283x, MAX2831_VARIANT);
 #endif
 		break;
 	case BOARD_ID_HACKRF1_R9:
-#if !defined(PRALINE) || defined(HACKRF_ALL)
+#if !defined(PRALINE) || defined(UNIVERSAL)
 		max283x_setup(&max283x, MAX2839_VARIANT);
 #endif
 		break;
 	default:
-#if !defined(PRALINE) || defined(HACKRF_ALL)
+#if !defined(PRALINE) || defined(UNIVERSAL)
 		max283x_setup(&max283x, MAX2837_VARIANT);
 #endif
 		break;
@@ -558,7 +558,7 @@ void rf_path_set_direction(rf_path_t* const rf_path, const rf_path_direction_t d
 		sgpio_configure(&sgpio_config, SGPIO_DIRECTION_RX);
 		break;
 
-#if defined(PRALINE) || defined(HACKRF_ALL)
+#if defined(PRALINE) || defined(UNIVERSAL)
 	case RF_PATH_DIRECTION_TX_CALIBRATION:
 	case RF_PATH_DIRECTION_RX_CALIBRATION:
 		rf_path->switchctrl &= ~SWITCHCTRL_TX;

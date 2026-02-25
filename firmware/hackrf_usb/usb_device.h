@@ -28,10 +28,10 @@
 
 extern usb_device_t usb_device;
 
-#if defined(HACKRF_ONE) || defined(HACKRF_ALL)
+#if defined(HACKRF_ONE) || defined(UNIVERSAL)
 extern const usb_device_t usb_device_hackrf_one;
 #endif
-#if defined(PRALINE) || defined(HACKRF_ALL)
+#if defined(PRALINE) || defined(UNIVERSAL)
 extern const usb_device_t usb_device_praline;
 #endif
 #if defined(JAWBREAKER)

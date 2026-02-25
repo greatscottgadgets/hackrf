@@ -32,7 +32,7 @@ typedef enum {
 	RF_PATH_DIRECTION_OFF,
 	RF_PATH_DIRECTION_RX,
 	RF_PATH_DIRECTION_TX,
-#if defined(PRALINE) || defined(HACKRF_ALL)
+#if defined(PRALINE) || defined(UNIVERSAL)
 	RF_PATH_DIRECTION_TX_CALIBRATION,
 	RF_PATH_DIRECTION_RX_CALIBRATION,
 #endif
@@ -48,7 +48,7 @@ typedef struct rf_path_t {
 	uint8_t switchctrl;
 
 	struct {
-#if defined(HACKRF_ONE) || defined(HACKRF_ALL)
+#if defined(HACKRF_ONE) || defined(UNIVERSAL)
 		gpio_t gpio_hp;
 		gpio_t gpio_lp;
 		gpio_t gpio_tx_mix_bp;
@@ -81,7 +81,7 @@ typedef struct rf_path_t {
 #endif
 
 		// PRALINE
-#if defined(PRALINE) || defined(HACKRF_ALL)
+#if defined(PRALINE) || defined(UNIVERSAL)
 		gpio_t gpio_tx_en;
 		gpio_t gpio_mix_en_n;
 		gpio_t gpio_lpf_en;

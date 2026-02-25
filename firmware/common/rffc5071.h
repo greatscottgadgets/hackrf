@@ -34,7 +34,7 @@
 typedef struct {
 	spi_bus_t* const bus;
 	gpio_t gpio_reset;
-#if defined(PRALINE) || defined(HACKRF_ALL)
+#if defined(PRALINE) || defined(UNIVERSAL)
 	gpio_t gpio_ld;
 #endif
 	uint16_t regs[RFFC5071_NUM_REGS];
@@ -67,7 +67,7 @@ extern void rffc5071_disable(rffc5071_driver_t* const drv);
 
 extern void rffc5071_set_gpo(rffc5071_driver_t* const drv, uint8_t);
 extern bool rffc5071_check_lock(rffc5071_driver_t* const drv);
-#if defined(PRALINE) || defined(HACKRF_ALL)
+#if defined(PRALINE) || defined(UNIVERSAL)
 extern bool rffc5071_poll_ld(rffc5071_driver_t* const drv, uint8_t* prelock_state);
 #endif
 

@@ -40,7 +40,7 @@ bool set_freq_explicit(
 	const uint64_t lo_freq_hz,
 	const rf_path_filter_t path);
 
-#if defined(PRALINE) || defined(HACKRF_ALL)
+#if defined(PRALINE) || defined(UNIVERSAL)
 bool tuning_set_frequency(
 	const tune_config_t* cfg,
 	const uint64_t freq,

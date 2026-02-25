@@ -84,7 +84,7 @@ const hackrf_ui_t* hackrf_ui(void)
 		case BOARD_ID_HACKRF1_OG:
 		case BOARD_ID_HACKRF1_R9:
 		case BOARD_ID_PRALINE:
-#if defined(HACKRF_ONE) || defined(PRALINE) || defined(HACKRF_ALL)
+#if defined(HACKRF_ONE) || defined(PRALINE) || defined(UNIVERSAL)
 			if (portapack_hackrf_ui_init) {
 				ui = portapack_hackrf_ui_init();
 			}

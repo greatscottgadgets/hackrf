@@ -30,11 +30,11 @@
 
 #include "gpio.h"
 #include "gpio_lpc.h"
-#if defined(PRALINE) || defined(HACKRF_ALL)
+#if defined(PRALINE) || defined(UNIVERSAL)
 	#include "max2831.h"
 	#include "max2831_target.h"
 #endif
-#if !defined(PRALINE) || defined(HACKRF_ALL)
+#if !defined(PRALINE) || defined(UNIVERSAL)
 	#include "max2837.h"
 	#include "max2837_target.h"
 	#include "max2839.h"
@@ -53,10 +53,10 @@ typedef enum {
 } max283x_mode_t;
 
 typedef enum {
-#if defined(PRALINE) || defined(HACKRF_ALL)
+#if defined(PRALINE) || defined(UNIVERSAL)
 	MAX2831_VARIANT,
 #endif
-#if !defined(PRALINE) || defined(HACKRF_ALL)
+#if !defined(PRALINE) || defined(UNIVERSAL)
 	MAX2837_VARIANT,
 	MAX2839_VARIANT,
 #endif
@@ -66,10 +66,10 @@ typedef struct {
 	max283x_variant_t type;
 
 	union {
-#if defined(PRALINE) || defined(HACKRF_ALL)
+#if defined(PRALINE) || defined(UNIVERSAL)
 		max2831_driver_t max2831;
 #endif
-#if !defined(PRALINE) || defined(HACKRF_ALL)
+#if !defined(PRALINE) || defined(UNIVERSAL)
 		max2837_driver_t max2837;
 		max2839_driver_t max2839;
 #endif

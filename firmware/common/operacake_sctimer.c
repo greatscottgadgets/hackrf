@@ -96,7 +96,7 @@ void operacake_sctimer_init(void)
 
 	uint8_t sct_clock_input;
 	if (detected_platform() != BOARD_ID_PRALINE) {
-#if !defined(PRALINE) || defined(HACKRF_ALL)
+#if !defined(PRALINE) || defined(UNIVERSAL)
 		// Configure the SGPIO to output the clock (f=2 * sample clock) on pin 12
 		SGPIO_OUT_MUX_CFG12 =
 			SGPIO_OUT_MUX_CFG_P_OUT_CFG(0x08) | // clkout output mode
@@ -109,7 +109,7 @@ void operacake_sctimer_init(void)
 		sct_clock_input = SCT_CONFIG_CKSEL_RISING_EDGES_ON_INPUT_1;
 #endif
 	} else {
-#if defined(PRALINE) || defined(HACKRF_ALL)
+#if defined(PRALINE) || defined(UNIVERSAL)
 		// Configure pin P6_4 as SCT_IN_6
 		scu_pinmux(P6_4, SCU_CLK_IN | SCU_CONF_FUNCTION1);
 

@@ -80,7 +80,7 @@ void mixer_setup(mixer_driver_t* const mixer, mixer_variant_t type)
 #if !defined(RAD1O)
 		mixer->rffc5071.gpio_reset = gpio->rffc5072_reset;
 		if (detected_platform() == BOARD_ID_PRALINE) {
-	#if defined(PRALINE) || defined(HACKRF_ALL)
+	#if defined(PRALINE) || defined(UNIVERSAL)
 			mixer->rffc5071.gpio_ld = gpio->rffc5072_ld;
 	#endif
 		}

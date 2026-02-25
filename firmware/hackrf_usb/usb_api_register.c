@@ -42,7 +42,7 @@ usb_request_status_t usb_vendor_request_write_max283x(
 {
 	if (stage == USB_TRANSFER_STAGE_SETUP) {
 		if (detected_platform() != BOARD_ID_PRALINE) {
-#if !defined(PRALINE) || defined(HACKRF_ALL)
+#if !defined(PRALINE) || defined(UNIVERSAL)
 			if (endpoint->setup.index < MAX2837_NUM_REGS) {
 				if (endpoint->setup.value < MAX2837_DATA_REGS_MAX_VALUE) {
 					max283x_reg_write(
@@ -55,7 +55,7 @@ usb_request_status_t usb_vendor_request_write_max283x(
 			}
 #endif
 		} else {
-#if defined(PRALINE) || defined(HACKRF_ALL)
+#if defined(PRALINE) || defined(UNIVERSAL)
 			if (endpoint->setup.index < MAX2831_NUM_REGS) {
 				if (endpoint->setup.value < MAX2831_DATA_REGS_MAX_VALUE) {
 					max283x_reg_write(
@@ -80,7 +80,7 @@ usb_request_status_t usb_vendor_request_read_max283x(
 {
 	if (stage == USB_TRANSFER_STAGE_SETUP) {
 		if (detected_platform() != BOARD_ID_PRALINE) {
-#if !defined(PRALINE) || defined(HACKRF_ALL)
+#if !defined(PRALINE) || defined(UNIVERSAL)
 			if (endpoint->setup.index < MAX2837_NUM_REGS) {
 				const uint16_t value =
 					max283x_reg_read(&max283x, endpoint->setup.index);
@@ -97,7 +97,7 @@ usb_request_status_t usb_vendor_request_read_max283x(
 			}
 #endif
 		} else {
-#if defined(PRALINE) || defined(HACKRF_ALL)
+#if defined(PRALINE) || defined(UNIVERSAL)
 			if (endpoint->setup.index < MAX2831_NUM_REGS) {
 				const uint16_t value =
 					max283x_reg_read(&max283x, endpoint->setup.index);
@@ -322,7 +322,7 @@ usb_request_status_t usb_vendor_request_write_fpga_reg(
 	}
 
 	if (stage == USB_TRANSFER_STAGE_SETUP) {
-#if defined(PRALINE) || defined(HACKRF_ALL)
+#if defined(PRALINE) || defined(UNIVERSAL)
 		fpga_reg_write(&fpga, endpoint->setup.index, endpoint->setup.value);
 #endif
 		usb_transfer_schedule_ack(endpoint->in);
@@ -340,7 +340,7 @@ usb_request_status_t usb_vendor_request_read_fpga_reg(
 	}
 
 	if (stage == USB_TRANSFER_STAGE_SETUP) {
-#if defined(PRALINE) || defined(HACKRF_ALL)
+#if defined(PRALINE) || defined(UNIVERSAL)
 		const uint8_t value = fpga_reg_read(&fpga, endpoint->setup.index);
 		endpoint->buffer[0] = value;
 		usb_transfer_schedule_block(

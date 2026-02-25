@@ -26,7 +26,7 @@
 #include <libopencm3/lpc43xx/scu.h>
 #include <stdint.h>
 
-#if !defined(PRALINE) || defined(HACKRF_ALL)
+#if !defined(PRALINE) || defined(UNIVERSAL)
 static refill_buffer_cb refill_buffer;
 static uint32_t xsvf_buffer_len, xsvf_pos;
 static unsigned char* xsvf_buffer;
@@ -45,7 +45,7 @@ void cpld_jtag_take(jtag_t* const jtag)
 	case BOARD_ID_HACKRF1_OG:
 	case BOARD_ID_HACKRF1_R9:
 	case BOARD_ID_PRALINE:
-#if defined(HACKRF_ONE) || defined(PRALINE) || defined(HACKRF_ALL)
+#if defined(HACKRF_ONE) || defined(PRALINE) || defined(UNIVERSAL)
 		gpio_set(gpio->gpio_pp_tms);
 #endif
 		break;
@@ -54,7 +54,7 @@ void cpld_jtag_take(jtag_t* const jtag)
 	}
 	gpio_clear(gpio->gpio_tck);
 	if (board_id != BOARD_ID_PRALINE) {
-#if !defined(PRALINE) || defined(HACKRF_ALL)
+#if !defined(PRALINE) || defined(UNIVERSAL)
 		gpio_set(gpio->gpio_tms);
 		gpio_set(gpio->gpio_tdi);
 #endif
@@ -64,7 +64,7 @@ void cpld_jtag_take(jtag_t* const jtag)
 	case BOARD_ID_HACKRF1_OG:
 	case BOARD_ID_HACKRF1_R9:
 	case BOARD_ID_PRALINE:
-#if defined(HACKRF_ONE) || defined(PRALINE) || defined(HACKRF_ALL)
+#if defined(HACKRF_ONE) || defined(PRALINE) || defined(UNIVERSAL)
 		/* Do not drive PortaPack-specific TMS pin initially, just to be cautious. */
 		gpio_input(gpio->gpio_pp_tms);
 		gpio_input(gpio->gpio_pp_tdo);
@@ -75,7 +75,7 @@ void cpld_jtag_take(jtag_t* const jtag)
 	}
 	gpio_output(gpio->gpio_tck);
 	if (board_id != BOARD_ID_PRALINE) {
-#if !defined(PRALINE) || defined(HACKRF_ALL)
+#if !defined(PRALINE) || defined(UNIVERSAL)
 		gpio_output(gpio->gpio_tms);
 		gpio_output(gpio->gpio_tdi);
 		gpio_input(gpio->gpio_tdo);
@@ -96,7 +96,7 @@ void cpld_jtag_release(jtag_t* const jtag)
 	case BOARD_ID_HACKRF1_OG:
 	case BOARD_ID_HACKRF1_R9:
 	case BOARD_ID_PRALINE:
-#if defined(HACKRF_ONE) || defined(PRALINE) || defined(HACKRF_ALL)
+#if defined(HACKRF_ONE) || defined(PRALINE) || defined(UNIVERSAL)
 		/* Do not drive PortaPack-specific pins, initially, just to be cautious. */
 		gpio_input(gpio->gpio_pp_tms);
 		gpio_input(gpio->gpio_pp_tdo);
@@ -107,7 +107,7 @@ void cpld_jtag_release(jtag_t* const jtag)
 	}
 	gpio_input(gpio->gpio_tck);
 	if (board_id != BOARD_ID_PRALINE) {
-#if !defined(PRALINE) || defined(HACKRF_ALL)
+#if !defined(PRALINE) || defined(UNIVERSAL)
 		gpio_input(gpio->gpio_tms);
 		gpio_input(gpio->gpio_tdi);
 		gpio_input(gpio->gpio_tdo);
@@ -115,7 +115,7 @@ void cpld_jtag_release(jtag_t* const jtag)
 	}
 }
 
-#if !defined(PRALINE) || defined(HACKRF_ALL)
+#if !defined(PRALINE) || defined(UNIVERSAL)
 /* return 0 if success else return error code see xsvfExecute() */
 int cpld_jtag_program(
 	jtag_t* const jtag,

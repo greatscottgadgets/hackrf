@@ -38,7 +38,7 @@ static uint64_t MAX_BYPASS_FREQ_MHZ;
 static uint64_t ABS_MAX_BYPASS_FREQ_MHZ;
 
 static uint64_t MIN_HP_FREQ_MHZ;
-#if !defined(PRALINE) || defined(HACKRF_ALL)
+#if !defined(PRALINE) || defined(UNIVERSAL)
 static uint64_t MID1_HP_FREQ_MHZ;
 static uint64_t MID2_HP_FREQ_MHZ;
 #endif
@@ -51,7 +51,7 @@ void tuning_setup(void)
 {
 	switch (detected_platform()) {
 	case BOARD_ID_PRALINE:
-#if defined(PRALINE) || defined(HACKRF_ALL)
+#if defined(PRALINE) || defined(UNIVERSAL)
 		MIN_LP_FREQ_MHZ = 0;
 		MAX_LP_FREQ_MHZ = 2320ULL;
 
@@ -68,7 +68,7 @@ void tuning_setup(void)
 #endif
 		break;
 	default:
-#if !defined(PRALINE) || defined(HACKRF_ALL)
+#if !defined(PRALINE) || defined(UNIVERSAL)
 		MIN_LP_FREQ_MHZ = 0;
 		MAX_LP_FREQ_MHZ = 2170ULL;
 
@@ -89,7 +89,7 @@ void tuning_setup(void)
 	}
 }
 
-#if !defined(PRALINE) || defined(HACKRF_ALL)
+#if !defined(PRALINE) || defined(UNIVERSAL)
 static uint32_t max2837_freq_nominal_hz = 2560000000;
 
 /*
@@ -155,7 +155,7 @@ bool set_freq(const uint64_t freq)
 	max283x_set_mode(&max283x, prior_max283x_mode);
 	if (success) {
 		hackrf_ui()->set_frequency(freq);
-	#if defined(HACKRF_ONE) || defined(HACKRF_ALL)
+	#if defined(HACKRF_ONE) || defined(UNIVERSAL)
 		operacake_set_range(freq_mhz);
 	#endif
 	}
@@ -163,7 +163,7 @@ bool set_freq(const uint64_t freq)
 }
 #endif
 
-#if defined(PRALINE) || defined(HACKRF_ALL)
+#if defined(PRALINE) || defined(UNIVERSAL)
 bool tuning_set_frequency(
 	const tune_config_t* cfg,
 	const uint64_t freq,

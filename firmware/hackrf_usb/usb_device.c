@@ -47,7 +47,7 @@ usb_configuration_t* usb_configurations[] = {
 
 usb_device_t usb_device;
 
-#if defined(HACKRF_ONE) || defined(HACKRF_ALL)
+#if defined(HACKRF_ONE) || defined(UNIVERSAL)
 const usb_device_t usb_device_hackrf_one = {
 	.descriptor = usb_descriptor_device_hackrf,
 	.descriptor_strings = usb_descriptor_strings_hackrf_one,
@@ -58,7 +58,7 @@ const usb_device_t usb_device_hackrf_one = {
 	.wcid_feature_descriptor = wcid_feature_descriptor,
 };
 #endif
-#if defined(PRALINE) || defined(HACKRF_ALL)
+#if defined(PRALINE) || defined(UNIVERSAL)
 const usb_device_t usb_device_praline = {
 	.descriptor = usb_descriptor_device_hackrf,
 	.descriptor_strings = usb_descriptor_strings_praline,

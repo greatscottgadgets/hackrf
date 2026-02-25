@@ -35,7 +35,7 @@ typedef struct {
 
 	/* Power Supply Control */
 	gpio_t gpio_1v8_enable;
-#if defined(PRALINE) || defined(HACKRF_ALL)
+#if defined(PRALINE) || defined(UNIVERSAL)
 	gpio_t gpio_1v2_enable;
 	gpio_t gpio_3v3aux_enable_n;
 #endif
@@ -45,7 +45,7 @@ typedef struct {
 	gpio_t max283x_enable;
 	gpio_t max283x_rx_enable;
 	gpio_t max283x_tx_enable;
-#if defined(PRALINE) || defined(HACKRF_ALL)
+#if defined(PRALINE) || defined(UNIVERSAL)
 	gpio_t max2831_rxhp;
 	gpio_t max2831_ld;
 #endif
@@ -65,7 +65,7 @@ typedef struct {
 	gpio_t w25q80bv_select;
 
 	/* RF switch control */
-#if defined(HACKRF_ONE) || defined(HACKRF_ALL)
+#if defined(HACKRF_ONE) || defined(UNIVERSAL)
 	gpio_t hp;
 	gpio_t lp;
 	gpio_t tx_mix_bp;
@@ -95,7 +95,7 @@ typedef struct {
 	gpio_t tx_amp;
 	gpio_t rx_lna;
 #endif
-#if defined(PRALINE) || defined(HACKRF_ALL)
+#if defined(PRALINE) || defined(UNIVERSAL)
 	gpio_t tx_en;
 	gpio_t mix_en_n;
 	gpio_t mix_en_n_r1_0;
@@ -109,18 +109,18 @@ typedef struct {
 	gpio_t cpld_tdo;
 	gpio_t cpld_tms;
 	gpio_t cpld_tdi;
-#if defined(HACKRF_ONE) || defined(PRALINE) || defined(HACKRF_ALL)
+#if defined(HACKRF_ONE) || defined(PRALINE) || defined(UNIVERSAL)
 	gpio_t cpld_pp_tms;
 	gpio_t cpld_pp_tdo;
 #endif
-#if defined(PRALINE) || defined(HACKRF_ALL)
+#if defined(PRALINE) || defined(UNIVERSAL)
 	gpio_t fpga_cfg_creset;
 	gpio_t fpga_cfg_cdone;
 	gpio_t fpga_cfg_spi_cs;
 #endif
 
 	/* Other CPLD interface GPIO pins */
-#if !defined(PRALINE) || defined(HACKRF_ALL)
+#if !defined(PRALINE) || defined(UNIVERSAL)
 	gpio_t trigger_enable;
 #endif
 	gpio_t q_invert;
@@ -138,7 +138,7 @@ typedef struct {
 	gpio_t vco_mux;       // RAD1O
 	gpio_t synt_rfout_en; // RAD1O
 
-#if defined(HACKRF_ONE) || defined(HACKRF_ALL)
+#if defined(HACKRF_ONE) || defined(UNIVERSAL)
 	/* HackRF One r9 clock control */
 	gpio_t h1r9_clkin_en;
 	gpio_t h1r9_clkout_en;
@@ -149,7 +149,7 @@ typedef struct {
 	gpio_t h1r9_trigger_enable;
 #endif
 
-#if defined(PRALINE) || defined(HACKRF_ALL)
+#if defined(PRALINE) || defined(UNIVERSAL)
 	gpio_t p2_ctrl0;
 	gpio_t p2_ctrl1;
 	gpio_t p1_ctrl0;

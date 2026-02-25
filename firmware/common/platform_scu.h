@@ -38,13 +38,13 @@ typedef struct {
 	scu_grp_pin_t PINMUX_LED1;
 	scu_grp_pin_t PINMUX_LED2;
 	scu_grp_pin_t PINMUX_LED3;
-#if defined(RAD1O) || defined(PRALINE) || defined(HACKRF_ALL)
+#if defined(RAD1O) || defined(PRALINE) || defined(UNIVERSAL)
 	scu_grp_pin_t PINMUX_LED4;
 #endif
 
 	scu_grp_pin_t PINMUX_EN1V8;
 	scu_grp_pin_t PINMUX_EN1V2;
-#if defined(PRALINE) || defined(HACKRF_ALL)
+#if defined(PRALINE) || defined(UNIVERSAL)
 	scu_grp_pin_t PINMUX_EN3V3_AUX_N;
 	scu_grp_pin_t PINMUX_EN3V3_OC_N;
 #endif
@@ -52,7 +52,7 @@ typedef struct {
 	/* GPIO Input PinMux */
 	scu_grp_pin_t PINMUX_BOOT0;
 	scu_grp_pin_t PINMUX_BOOT1;
-#if !defined(HACKRF_ONE) || defined(HACKRF_ALL)
+#if !defined(HACKRF_ONE) || defined(UNIVERSAL)
 	scu_grp_pin_t PINMUX_BOOT2;
 	scu_grp_pin_t PINMUX_BOOT3;
 #endif
@@ -75,7 +75,7 @@ typedef struct {
 	scu_grp_pin_t SSP1_CS;
 
 	/* CPLD JTAG interface */
-#if defined(PRALINE) || defined(HACKRF_ALL)
+#if defined(PRALINE) || defined(UNIVERSAL)
 	scu_grp_pin_t PINMUX_FPGA_CRESET;
 	scu_grp_pin_t PINMUX_FPGA_CDONE;
 	scu_grp_pin_t PINMUX_FPGA_SPI_CS;
@@ -145,7 +145,7 @@ typedef struct {
 	scu_grp_pin_t MIXER_RESETX;  // JAWBREAKER, HACKRF_ONE, PRALINE
 	uint32_t MIXER_SCLK_PINCFG;  // JAWBREAKER, HACKRF_ONE, PRALINE
 	uint32_t MIXER_SDATA_PINCFG; // JAWBREAKER, HACKRF_ONE, PRALINE
-#if defined(PRALINE) || defined(HACKRF_ALL)
+#if defined(PRALINE) || defined(UNIVERSAL)
 	scu_grp_pin_t MIXER_LD;   // PRALINE
 	uint32_t MIXER_LD_PINCFG; // PRALINE
 #endif
@@ -175,7 +175,7 @@ typedef struct {
 	scu_grp_pin_t FLASH_WP;
 
 	/* RF switch control */
-#if defined(HACKRF_ONE) || defined(HACKRF_ALL)
+#if defined(HACKRF_ONE) || defined(UNIVERSAL)
 	scu_grp_pin_t HP;
 	scu_grp_pin_t LP;
 	scu_grp_pin_t TX_MIX_BP;
@@ -202,7 +202,7 @@ typedef struct {
 	scu_grp_pin_t TX_AMP;
 	scu_grp_pin_t RX_LNA;
 #endif
-#if defined(PRALINE) || defined(HACKRF_ALL)
+#if defined(PRALINE) || defined(UNIVERSAL)
 	scu_grp_pin_t TX_EN;         // PRALINE
 	scu_grp_pin_t MIX_EN_N;      // PRALINE
 	scu_grp_pin_t MIX_EN_N_R1_0; // PRALINE
@@ -213,7 +213,7 @@ typedef struct {
 #endif
 
 	/* Praline */
-#if defined(PRALINE) || defined(HACKRF_ALL)
+#if defined(PRALINE) || defined(UNIVERSAL)
 	scu_grp_pin_t P2_CTRL0;
 	scu_grp_pin_t P2_CTRL1;
 	scu_grp_pin_t P1_CTRL0;
@@ -277,7 +277,7 @@ typedef struct {
 	scu_grp_pin_t PINMUX_GP_CLKIN;
 
 	/* HackRF One r9 */
-#if defined(HACKRF_ONE) || defined(HACKRF_ALL)
+#if defined(HACKRF_ONE) || defined(UNIVERSAL)
 	scu_grp_pin_t H1R9_CLKIN_EN;
 	scu_grp_pin_t H1R9_CLKOUT_EN;
 	scu_grp_pin_t H1R9_MCU_CLK_EN;
