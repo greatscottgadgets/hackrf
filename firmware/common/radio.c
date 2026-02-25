@@ -210,21 +210,26 @@ static bool radio_update_sample_rate(radio_t* const radio, uint64_t* bank)
 	}
 	new_n = (n != previous_n);
 
-	fp_40_24_t afe_rate = rate << n;
-	afe_rate = sample_rate_set(afe_rate, false);
-	new_afe_rate = (afe_rate != applied_afe_rate);
-	if (new_afe_rate) {
-		afe_rate = sample_rate_set(afe_rate, true);
-		applied_afe_rate = afe_rate;
-		rate = afe_rate >> n;
+	if (radio->sample_rate_cb) {
+		fp_40_24_t afe_rate = rate << n;
+		afe_rate = radio->sample_rate_cb(afe_rate, false);
+		new_afe_rate = (afe_rate != applied_afe_rate);
+		if (new_afe_rate) {
+			afe_rate = radio->sample_rate_cb(afe_rate, true);
+			applied_afe_rate = afe_rate;
+			rate = afe_rate >> n;
+		}
+	} else {
+		rate = RADIO_UNSET;
 	}
 	new_rate = (rate != radio->config[RADIO_BANK_APPLIED][RADIO_SAMPLE_RATE]);
 	if (new_rate) {
 		radio->config[RADIO_BANK_APPLIED][RADIO_SAMPLE_RATE] = rate;
-
-		/* Round to the nearest Hz for display. */
-		const uint32_t rate_hz = (rate + (FP_ONE_HZ >> 1)) / FP_ONE_HZ;
-		hackrf_ui()->set_sample_rate(rate_hz);
+		if (rate != RADIO_UNSET) {
+			/* Round to the nearest Hz for display. */
+			const uint32_t rate_hz = (rate + (FP_ONE_HZ >> 1)) / FP_ONE_HZ;
+			hackrf_ui()->set_sample_rate(rate_hz);
+		}
 	}
 
 	return (new_afe_rate || new_rate || new_n);
