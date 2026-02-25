@@ -19,20 +19,19 @@ pipeline {
                 sh './ci-scripts/install-firmware.sh'
                 sh 'hubs all off'
                 retry(3) {
-                    sh 'hubs hackrf_dfu reset'
+                    sh 'hubs h1_eut reset'
                     sh 'sleep 1s'
                     sh './ci-scripts/test-host.sh'
                 }
-                sh 'hubs hackrf hackrf_dfu on'
+                sh 'hubs h1_tester h1_eut on'
                 sh 'sleep 1s'
                 sh 'python3 ci-scripts/hackrf_test.py --unattended --ci --log log --rev r4 --manufacturer --hostdir host/build/hackrf-tools/src/ --fwupdate firmware/hackrf_usb/build/ --tester 0000000000000000325866e629a25623 --eut RunningFromRAM'
                 sh 'hubs all off'
                 retry(3) {
-                    sh 'hubs hackrf_dfu reset'
+                    sh 'hubs h1_eut reset'
                     sh 'sleep 1s'
                     sh 'python3 ci-scripts/test-sgpio-debug.py'
                 }
-                sh 'hubs all reset'
             }
         }
     }
