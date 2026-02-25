@@ -658,6 +658,7 @@ bool radio_update(radio_t* const radio)
 	uint64_t tmp_bank[RADIO_NUM_REGS];
 	nvic_disable_irq(NVIC_USB0_IRQ);
 	uint32_t dirty = radio->regs_dirty;
+	uint32_t changed = 0;
 	if (dirty == 0) {
 		nvic_enable_irq(NVIC_USB0_IRQ);
 		return false;
@@ -666,56 +667,57 @@ bool radio_update(radio_t* const radio)
 	memcpy(&tmp_bank[0], &(radio->config[RADIO_BANK_ACTIVE][0]), sizeof(tmp_bank));
 	nvic_enable_irq(NVIC_USB0_IRQ);
 
-	bool dir = false;
-	bool rate = false;
-	bool freq = false;
-	bool bw = false;
-	bool gain = false;
-	bool bias = false;
-	bool trig = false;
-	bool dc = false;
-
-	if ((dirty &
-	     ((1 << RADIO_SAMPLE_RATE) | (1 << RADIO_RESAMPLE_TX) |
-	      (1 << RADIO_RESAMPLE_RX))) ||
+	if ((dirty & RADIO_REG_GROUP_RATE) ||
 	    ((detected_platform() == BOARD_ID_PRALINE) &&
 	     (dirty & (1 << RADIO_OPMODE)))) {
-		rate = radio_update_sample_rate(radio, &tmp_bank[0]);
+		if (radio_update_sample_rate(radio, &tmp_bank[0])) {
+			changed |= RADIO_REG_GROUP_RATE;
+		}
 	}
-	if ((dirty &
-	     ((1 << RADIO_FREQUENCY_RF) | (1 << RADIO_FREQUENCY_IF) |
-	      (1 << RADIO_FREQUENCY_LO) | (1 << RADIO_IMAGE_REJECT) |
-	      (1 << RADIO_ROTATION))) ||
+	if ((dirty & RADIO_REG_GROUP_FREQ) ||
 	    ((detected_platform() == BOARD_ID_PRALINE) &&
-	     (rate || (dirty & (1 << RADIO_OPMODE))))) {
-		freq = radio_update_frequency(radio, &tmp_bank[0]);
+	     ((changed & RADIO_REG_GROUP_RATE) || (dirty & (1 << RADIO_OPMODE))))) {
+		if (radio_update_frequency(radio, &tmp_bank[0])) {
+			changed |= RADIO_REG_GROUP_FREQ;
+		}
 	}
-	if ((dirty &
-	     ((1 << RADIO_BB_BANDWIDTH_TX) | (1 << RADIO_BB_BANDWIDTH_RX) |
-	      (1 << RADIO_XCVR_TX_LPF) | (1 << RADIO_XCVR_RX_LPF) |
-	      (1 << RADIO_XCVR_RX_HPF) | (1 << RADIO_RX_NARROW_LPF))) ||
-	    ((detected_platform() == BOARD_ID_PRALINE) && (rate || freq))) {
-		bw = radio_update_bandwidth(radio, &tmp_bank[0]);
+	if ((dirty & RADIO_REG_GROUP_BW) ||
+	    ((detected_platform() == BOARD_ID_PRALINE) &&
+	     (changed & (RADIO_REG_GROUP_RATE | RADIO_REG_GROUP_FREQ)))) {
+		if (radio_update_bandwidth(radio, &tmp_bank[0])) {
+			changed |= RADIO_REG_GROUP_BW;
+		}
 	}
-	if (dirty &
-	    ((1 << RADIO_GAIN_TX_RF) | (1 << RADIO_GAIN_TX_IF) | (1 << RADIO_GAIN_RX_RF) |
-	     (1 << RADIO_GAIN_RX_IF) | (1 << RADIO_GAIN_RX_BB) | (1 << RADIO_OPMODE))) {
-		gain = radio_update_gain(radio, &tmp_bank[0]);
+	if (dirty & RADIO_REG_GROUP_GAIN) {
+		if (radio_update_gain(radio, &tmp_bank[0])) {
+			changed |= RADIO_REG_GROUP_GAIN;
+		}
 	}
 	if (dirty & ((1 << RADIO_BIAS_TEE) | (1 << RADIO_OPMODE))) {
-		bias = radio_update_bias_tee(radio, &tmp_bank[0]);
+		if (radio_update_bias_tee(radio, &tmp_bank[0])) {
+			changed |= RADIO_BIAS_TEE;
+		}
 	}
 	if (dirty & (1 << RADIO_TRIGGER)) {
-		trig = radio_update_trigger(radio, &tmp_bank[0]);
+		if (radio_update_trigger(radio, &tmp_bank[0])) {
+			changed |= RADIO_TRIGGER;
+		}
 	}
 	if (dirty & (1 << RADIO_DC_BLOCK)) {
-		dc = radio_update_dc_block(radio, &tmp_bank[0]);
+		if (radio_update_dc_block(radio, &tmp_bank[0])) {
+			changed |= RADIO_DC_BLOCK;
+		}
 	}
 	if (dirty & (1 << RADIO_OPMODE)) {
-		dir = radio_update_direction(radio, &tmp_bank[0]);
+		if (radio_update_direction(radio, &tmp_bank[0])) {
+			changed |= RADIO_OPMODE;
+		}
 	}
 
-	return trig || dir || rate || freq || bw || gain || bias || dc;
+	if (radio->update_cb) {
+		radio->update_cb(changed);
+	}
+	return (changed != 0);
 }
 
 void radio_switch_opmode(radio_t* const radio, const transceiver_mode_t mode)

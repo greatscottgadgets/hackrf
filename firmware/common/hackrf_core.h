@@ -491,6 +491,8 @@ void clkin_ctrl_set(const clkin_signal_t value);
 void pps_out_set(const uint8_t value);
 #endif
 
+void radio_changed(const uint32_t changed);
+
 #ifdef __cplusplus
 }
 #endif

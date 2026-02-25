@@ -40,6 +40,7 @@
 #include "ice40_spi.h"
 #include "platform_detect.h"
 #include "clkin.h"
+#include "operacake.h"
 #include <libopencm3/lpc43xx/cgu.h>
 #include <libopencm3/lpc43xx/ccu.h>
 #include <libopencm3/lpc43xx/scu.h>
@@ -353,6 +354,7 @@ fpga_driver_t fpga = {
 
 radio_t radio = {
 	.sample_rate_cb = sample_rate_set,
+	.update_cb = radio_changed,
 };
 
 rf_path_t rf_path = {
@@ -1313,3 +1315,87 @@ void narrowband_filter_set(const uint8_t value)
 	gpio_write(&gpio_aa_en, value & 1);
 }
 #endif
+
+void radio_changed(const uint32_t changed)
+{
+	const uint64_t opmode = radio_reg_read(&radio, RADIO_BANK_APPLIED, RADIO_OPMODE);
+
+	if (changed & (1 << RADIO_OPMODE)) {
+		hackrf_ui()->set_direction(opmode);
+	}
+	if (changed & (1 << RADIO_SAMPLE_RATE)) {
+		const uint64_t rate =
+			radio_reg_read(&radio, RADIO_BANK_APPLIED, RADIO_SAMPLE_RATE);
+		hackrf_ui()->set_sample_rate(rate / FP_ONE_HZ);
+	}
+	if (changed & (1 << RADIO_FREQUENCY_RF)) {
+		const uint64_t freq =
+			radio_reg_read(&radio, RADIO_BANK_APPLIED, RADIO_FREQUENCY_RF);
+		hackrf_ui()->set_frequency(freq / FP_ONE_HZ);
+#if defined(HACKRF_ONE) || defined(PRALINE)
+		operacake_set_range(freq / FP_ONE_MHZ);
+#endif
+	}
+	if (changed & (1 << RADIO_IMAGE_REJECT)) {
+		const uint64_t img_reject =
+			radio_reg_read(&radio, RADIO_BANK_APPLIED, RADIO_IMAGE_REJECT);
+		hackrf_ui()->set_filter(img_reject);
+	}
+	if (changed &
+	    ((1 << RADIO_BB_BANDWIDTH_TX) | (1 << RADIO_BB_BANDWIDTH_RX) |
+	     (1 << RADIO_OPMODE))) {
+		uint64_t bw;
+
+		switch (opmode) {
+		case TRANSCEIVER_MODE_TX:
+		case TRANSCEIVER_MODE_SS:
+			bw = radio_reg_read(&radio, RADIO_BANK_APPLIED, RADIO_GAIN_TX_RF);
+			break;
+		default:
+			bw = radio_reg_read(&radio, RADIO_BANK_APPLIED, RADIO_GAIN_RX_RF);
+		}
+		hackrf_ui()->set_filter_bw(bw);
+	}
+	if (changed &
+	    ((1 << RADIO_GAIN_TX_RF) | (1 << RADIO_GAIN_RX_RF) | (1 << RADIO_OPMODE))) {
+		const uint64_t tx_rf =
+			radio_reg_read(&radio, RADIO_BANK_APPLIED, RADIO_GAIN_TX_RF);
+		const uint64_t rx_rf =
+			radio_reg_read(&radio, RADIO_BANK_APPLIED, RADIO_GAIN_RX_RF);
+		bool enable;
+
+		switch (opmode) {
+		case TRANSCEIVER_MODE_TX:
+		case TRANSCEIVER_MODE_SS:
+			enable = tx_rf;
+			break;
+		case TRANSCEIVER_MODE_RX:
+		case TRANSCEIVER_MODE_RX_SWEEP:
+			enable = rx_rf;
+			break;
+		default:
+			enable = false;
+		}
+		hackrf_ui()->set_lna_power(enable);
+	}
+	if (changed & (1 << RADIO_GAIN_TX_IF)) {
+		const uint64_t tx_if =
+			radio_reg_read(&radio, RADIO_BANK_APPLIED, RADIO_GAIN_TX_IF);
+		hackrf_ui()->set_bb_tx_vga_gain(tx_if);
+	}
+	if (changed & (1 << RADIO_GAIN_RX_IF)) {
+		const uint64_t rx_if =
+			radio_reg_read(&radio, RADIO_BANK_APPLIED, RADIO_GAIN_RX_IF);
+		hackrf_ui()->set_bb_lna_gain(rx_if);
+	}
+	if (changed & (1 << RADIO_GAIN_RX_BB)) {
+		const uint64_t rx_bb =
+			radio_reg_read(&radio, RADIO_BANK_APPLIED, RADIO_GAIN_RX_BB);
+		hackrf_ui()->set_bb_vga_gain(rx_bb);
+	}
+	if (changed & (1 << RADIO_BIAS_TEE)) {
+		const uint64_t enable =
+			radio_reg_read(&radio, RADIO_BANK_APPLIED, RADIO_BIAS_TEE);
+		hackrf_ui()->set_antenna_bias(enable);
+	}
+}
