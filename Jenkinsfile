@@ -23,10 +23,12 @@ pipeline {
                     sh 'sleep 1s'
                     sh './ci-scripts/test-host.sh'
                 }
-                sh 'hubs h1_tester h1_eut on'
-                sh 'sleep 1s'
-                sh 'python3 ci-scripts/hackrf_test.py --unattended --ci --log log --rev r4 --manufacturer --hostdir host/build/hackrf-tools/src/ --fwupdate firmware/hackrf_usb/build/ --tester 0000000000000000325866e629a25623 --eut RunningFromRAM'
-                sh 'hubs all off'
+                retry(3) {
+                    sh 'hubs h1_tester h1_eut reset'
+                    sh 'sleep 1s'
+                    sh 'python3 ci-scripts/hackrf_test.py --unattended --ci --log log --rev r4 --manufacturer --hostdir host/build/hackrf-tools/src/ --fwupdate firmware/hackrf_usb/build/ --tester 0000000000000000325866e629a25623 --eut RunningFromRAM'
+                    sh 'hubs all off'
+                }
                 retry(3) {
                     sh 'hubs h1_eut reset'
                     sh 'sleep 1s'
