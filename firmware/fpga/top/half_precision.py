@@ -54,17 +54,19 @@ class Top(Elaboratable):
         m = Module()
 
         m.submodules.clkgen = ClockDomainGenerator()
+        adc_clk = "adclk"
+        dac_clk = "daclk"
 
         # Submodules.
-        m.submodules.adcdac_intf = adcdac_intf = MAX586xInterface(bb_domain="gck1")
+        m.submodules.adcdac_intf = adcdac_intf = MAX586xInterface(adc_domain=adc_clk, dac_domain=dac_clk)
         m.submodules.mcu_intf    = mcu_intf    = SGPIOInterface(sample_width=8, domain="sync")
 
         m.d.comb += adcdac_intf.q_invert.eq(platform.request("q_invert").i)
 
         rx_chain = {
-            "dc_block":      DCBlock(width=8, num_channels=2, domain="gck1"),
-            "half_prec":     DomainRenamer("gck1")(IQHalfPrecisionConverter()),
-            "clkconv":       ClockConverter(IQSample(4), 16, "gck1", "sync"),
+            "dc_block":      DCBlock(width=8, num_channels=2, domain=adc_clk),
+            "half_prec":     DomainRenamer(adc_clk)(IQHalfPrecisionConverter()),
+            "clkconv":       ClockConverter(IQSample(4), 16, adc_clk, "sync"),
         }
         for k,v in rx_chain.items():
             m.submodules[f"rx_{k}"] = v
@@ -78,8 +80,8 @@ class Top(Elaboratable):
 
         
         tx_chain = {
-            "clkconv":       ClockConverter(IQSample(4), 16, "sync", "gck1", always_ready=False),
-            "half_prec":     DomainRenamer("gck1")(IQHalfPrecisionConverterInv()),
+            "clkconv":       ClockConverter(IQSample(4), 16, "sync", dac_clk, always_ready=False),
+            "half_prec":     DomainRenamer(dac_clk)(IQHalfPrecisionConverterInv()),
         }
         for k,v in tx_chain.items():
             m.submodules[f"tx_{k}"] = v
