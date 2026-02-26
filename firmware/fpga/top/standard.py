@@ -125,9 +125,10 @@ class Top(Elaboratable):
         # Add control registers.
         ctrl     = spi_regs.add_register(0x01, init=0)
         rx_decim = spi_regs.add_register(0x02, init=0, size=3)
-        tx_ctrl  = spi_regs.add_register(0x03, init=0, size=1)
-        tx_intrp = spi_regs.add_register(0x04, init=0, size=3)
-        tx_pstep = spi_regs.add_register(0x05, init=0)
+        rx_pstep = spi_regs.add_register(0x03, init=0)
+        tx_ctrl  = spi_regs.add_register(0x04, init=0, size=1)
+        tx_intrp = spi_regs.add_register(0x05, init=0, size=3)
+        tx_pstep = spi_regs.add_register(0x06, init=0)
 
         m.d.sync += [
             # Trigger enable.
@@ -138,8 +139,8 @@ class Top(Elaboratable):
 
             # RX settings.
             rx_chain["dc_block"].enable         .eq(ctrl[0]),
-            rx_chain["quarter_shift"].enable    .eq(ctrl[1]),
-            rx_chain["quarter_shift"].up        .eq(ctrl[2]),
+            rx_chain["quarter_shift"].enable    .eq(rx_pstep[-2]),
+            rx_chain["quarter_shift"].up        .eq(rx_pstep[-1]),
 
             # RX decimation rate.
             rx_chain["hbfir5"].enable           .eq(rx_decim > 4),
