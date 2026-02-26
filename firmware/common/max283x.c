@@ -385,6 +385,34 @@ void max283x_rx(max283x_driver_t* const drv)
 	}
 }
 
+/* Set MAX2831 receiver high-pass filter corner frequency in Hz */
+void max283x_set_rx_hpf_frequency(
+	max283x_driver_t* const drv,
+	const max283x_rx_hpf_freq_t freq)
+{
+#if !defined(PRALINE)
+	(void) freq;
+#endif
+
+	switch (drv->type) {
+#if defined(PRALINE) || defined(UNIVERSAL)
+	case MAX2831_VARIANT:
+		max2831_set_rx_hpf_frequency(
+			&drv->drv.max2831,
+			(max2831_rx_hpf_freq_t) freq);
+		break;
+#endif
+#if !defined(PRALINE) || defined(UNIVERSAL)
+	case MAX2837_VARIANT:
+		// unsupported
+		break;
+	case MAX2839_VARIANT:
+		// unsupported
+		break;
+#endif
+	}
+}
+
 void max283x_tx_calibration(max283x_driver_t* const drv)
 {
 	switch (drv->type) {
@@ -395,10 +423,10 @@ void max283x_tx_calibration(max283x_driver_t* const drv)
 #endif
 #if !defined(PRALINE) || defined(UNIVERSAL)
 	case MAX2837_VARIANT:
-		// unsupported - uses max283x_set_mode
+		// unsupported - use max283x_set_mode instead
 		break;
 	case MAX2839_VARIANT:
-		// unsupported - uses max283x_set_mode
+		// unsupported - use max283x_set_mode instead
 		break;
 #endif
 	}
@@ -414,10 +442,10 @@ void max283x_rx_calibration(max283x_driver_t* const drv)
 #endif
 #if !defined(PRALINE) || defined(UNIVERSAL)
 	case MAX2837_VARIANT:
-		// unsupported - uses max283x_set_mode
+		// unsupported - use max283x_set_mode instead
 		break;
 	case MAX2839_VARIANT:
-		// unsupported - uses max283x_set_mode
+		// unsupported - use max283x_set_mode instead
 		break;
 #endif
 	}
