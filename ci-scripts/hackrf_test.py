@@ -1045,7 +1045,7 @@ class HackRF:
 
         tx_out, tx_err = transmit.communicate(timeout=TIMEOUT)
         if transmit.returncode != 0:
-            log(tx_out + tx_err)
+            out(tx_out + tx_err)
             out(f"Warning: {transmitter.name} transmit failed")
         return rssi
 
