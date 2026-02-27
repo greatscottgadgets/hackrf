@@ -22,18 +22,18 @@ DFU_VENDOR_ID = 0x1fc9
 DFU_PRODUCT_ID = 0x000c
 ONE_MHZ = 1000000
 TIMEOUT = 5
-MAX_PPM = 40
+MAX_PPM = 20
 MAX_BASELINE = -20
 SIGNAL_THRESHOLD = -25
-MAX_DC_DBC = -33
+MAX_DC_DBC = -27
 MAX_M_DBC = -27
 MAX_MH2_DBC = -40
 MAX_H2_DBC = -39
 MAX_OTHER_DBC = -34
 LP2_CORRECTION = 10
 MAX_POWER = -10
-IF_REQUIRED_MIN = 2300
-IF_REQUIRED_MAX = 2700
+IF_REQUIRED_MIN = 2320
+IF_REQUIRED_MAX = 2580
 IF_TEST_RANGE = 256
 SLEEP_TIME = 0.05 # seconds to wait between start of TX and start of RX
 
@@ -49,60 +49,112 @@ class TestCase():
     tx_gain: int
 
 # Try to keep rx_lna_gain and rx_vga_gain between 8 and 32.
-bp1txamp = TestCase(name="BP1-TX-amp", freq=2665, amp=True, direction="tx",
-        base_ecode=320, rx_lna_gain=16, rx_vga_gain=16, tx_gain=14)
+bp1txamp = TestCase(name="BP1-TX-amp", freq=2500, amp=True, direction="tx",
+        base_ecode=320, rx_lna_gain=8, rx_vga_gain=16, tx_gain=5)
 lp1txamp = TestCase(name="LP1-TX-amp", freq=915, amp=True, direction="tx",
-        base_ecode=420, rx_lna_gain=16, rx_vga_gain=16, tx_gain=27)
-lp2txamp = TestCase(name="LP2-TX-amp", freq=2, amp=True, direction="tx",
-        base_ecode=2420, rx_lna_gain=8, rx_vga_gain=16, tx_gain=30)
+        base_ecode=420, rx_lna_gain=8, rx_vga_gain=16, tx_gain=14)
+lp2txamp = TestCase(name="LP2-TX-amp", freq=12, amp=True, direction="tx",
+        base_ecode=2420, rx_lna_gain=8, rx_vga_gain=16, tx_gain=13)
 hp1txamp = TestCase(name="HP1-TX-amp", freq=5995, amp=True, direction="tx",
-        base_ecode=520, rx_lna_gain=32, rx_vga_gain=28, tx_gain=37)
+        base_ecode=520, rx_lna_gain=32, rx_vga_gain=16, tx_gain=18)
 
-bp1txnoamp = TestCase(name="BP1-TX-noamp", freq=2665, amp=False, direction="tx",
-        base_ecode=350, rx_lna_gain=16, rx_vga_gain=16, tx_gain=23)
+bp1txnoamp = TestCase(name="BP1-TX-noamp", freq=2500, amp=False, direction="tx",
+        base_ecode=350, rx_lna_gain=16, rx_vga_gain=16, tx_gain=14)
 lp1txnoamp = TestCase(name="LP1-TX-noamp", freq=915, amp=False, direction="tx",
-        base_ecode=450, rx_lna_gain=16, rx_vga_gain=16, tx_gain=39)
-lp2txnoamp = TestCase(name="LP2-TX-noamp", freq=2, amp=False, direction="tx",
-        base_ecode=2450, rx_lna_gain=8, rx_vga_gain=16, tx_gain=47)
+        base_ecode=450, rx_lna_gain=16, rx_vga_gain=12, tx_gain=27)
+lp2txnoamp = TestCase(name="LP2-TX-noamp", freq=12, amp=False, direction="tx",
+        base_ecode=2450, rx_lna_gain=16, rx_vga_gain=18, tx_gain=20)
 hp1txnoamp = TestCase(name="HP1-TX-noamp", freq=5995, amp=False, direction="tx",
-        base_ecode=550, rx_lna_gain=32, rx_vga_gain=32, tx_gain=44)
+        base_ecode=550, rx_lna_gain=32, rx_vga_gain=24, tx_gain=19)
 
 # Much of the information in the RX test cases is a duplication of information
 # in the TX test cases, but it's easier to keep legacy error codes this way.
-bp1rxamp = TestCase(name="BP1-RX-amp", freq=2665, amp=True, direction="rx",
-        base_ecode=620, rx_lna_gain=16, rx_vga_gain=16, tx_gain=14)
+bp1rxamp = TestCase(name="BP1-RX-amp", freq=2500, amp=True, direction="rx",
+        base_ecode=620, rx_lna_gain=8, rx_vga_gain=16, tx_gain=16)
 lp1rxamp = TestCase(name="LP1-RX-amp", freq=915, amp=True, direction="rx",
-        base_ecode=720, rx_lna_gain=16, rx_vga_gain=16, tx_gain=29)
-lp2rxamp = TestCase(name="LP2-RX-amp", freq=2, amp=True, direction="rx",
-        base_ecode=2720, rx_lna_gain=8, rx_vga_gain=16, tx_gain=33)
+        base_ecode=720, rx_lna_gain=16, rx_vga_gain=16, tx_gain=18)
+lp2rxamp = TestCase(name="LP2-RX-amp", freq=12, amp=True, direction="rx",
+        base_ecode=2720, rx_lna_gain=16, rx_vga_gain=16, tx_gain=18)
 hp1rxamp = TestCase(name="HP1-RX-amp", freq=5995, amp=True, direction="rx",
-        base_ecode=820, rx_lna_gain=32, rx_vga_gain=28, tx_gain=39)
+        base_ecode=820, rx_lna_gain=16, rx_vga_gain=28, tx_gain=38)
 
-bp1rxnoamp = TestCase(name="BP1-RX-noamp", freq=2665, amp=False, direction="rx",
-        base_ecode=650, rx_lna_gain=16, rx_vga_gain=16, tx_gain=23)
+bp1rxnoamp = TestCase(name="BP1-RX-noamp", freq=2500, amp=False, direction="rx",
+        base_ecode=650, rx_lna_gain=16, rx_vga_gain=16, tx_gain=15)
 lp1rxnoamp = TestCase(name="LP1-RX-noamp", freq=915, amp=False, direction="rx",
-        base_ecode=750, rx_lna_gain=16, rx_vga_gain=16, tx_gain=39)
-lp2rxnoamp = TestCase(name="LP2-RX-noamp", freq=2, amp=False, direction="rx",
-        base_ecode=2750, rx_lna_gain=8, rx_vga_gain=16, tx_gain=47)
+        base_ecode=750, rx_lna_gain=16, rx_vga_gain=16, tx_gain=35)
+lp2rxnoamp = TestCase(name="LP2-RX-noamp", freq=12, amp=False, direction="rx",
+        base_ecode=2750, rx_lna_gain=16, rx_vga_gain=16, tx_gain=38)
 hp1rxnoamp = TestCase(name="HP1-RX-noamp", freq=5995, amp=False, direction="rx",
-        base_ecode=850, rx_lna_gain=32, rx_vga_gain=32, tx_gain=44)
+        base_ecode=850, rx_lna_gain=16, rx_vga_gain=36, tx_gain=46)
 
-ifmin = TestCase(name="IF-min", freq=IF_REQUIRED_MIN, amp=None, direction=None,
-        base_ecode=None, rx_lna_gain=16, rx_vga_gain=16, tx_gain=33)
-ifmax = TestCase(name="IF-max", freq=IF_REQUIRED_MAX, amp=None, direction=None,
-        base_ecode=None, rx_lna_gain=16, rx_vga_gain=16, tx_gain=33)
-
-ppm = TestCase(name="PPM", freq=2707, amp=False, direction=None,
-        base_ecode=None, rx_lna_gain=16, rx_vga_gain=16, tx_gain=26)
-
-noise = TestCase(name="Noise", freq=6000, amp=True, direction=None,
-        base_ecode=None, rx_lna_gain=40, rx_vga_gain=52, tx_gain=None)
-
-all_rf_test_cases = (
+praline_rf_test_cases = (
         bp1txamp, lp1txamp, lp2txamp, hp1txamp,
         bp1txnoamp, lp1txnoamp, lp2txnoamp, hp1txnoamp,
         bp1rxamp, lp1rxamp, lp2rxamp, hp1rxamp,
         bp1rxnoamp, lp1rxnoamp, lp2rxnoamp, hp1rxnoamp)
+
+# Praline r1.1.0 requires different gain configuration
+r110_bp1rxnoamp = TestCase(name="BP1-RX-noamp", freq=2500, amp=False, direction="rx",
+        base_ecode=650, rx_lna_gain=16, rx_vga_gain=16, tx_gain=15)
+r110_lp1rxnoamp = TestCase(name="LP1-RX-noamp", freq=915, amp=False, direction="rx",
+        base_ecode=750, rx_lna_gain=16, rx_vga_gain=16, tx_gain=35)
+r110_lp2rxnoamp = TestCase(name="LP2-RX-noamp", freq=12, amp=False, direction="rx",
+        base_ecode=2750, rx_lna_gain=16, rx_vga_gain=16, tx_gain=38)
+r110_hp1rxnoamp = TestCase(name="HP1-RX-noamp", freq=5995, amp=False, direction="rx",
+        base_ecode=850, rx_lna_gain=16, rx_vga_gain=36, tx_gain=46)
+
+r110_bp1txamp = TestCase(name="BP1-TX-amp", freq=2500, amp=True, direction="tx",
+        base_ecode=320, rx_lna_gain=8, rx_vga_gain=16, tx_gain=5)
+r110_lp1txamp = TestCase(name="LP1-TX-amp", freq=915, amp=True, direction="tx",
+        base_ecode=420, rx_lna_gain=8, rx_vga_gain=16, tx_gain=10)
+r110_lp2txamp = TestCase(name="LP2-TX-amp", freq=12, amp=True, direction="tx",
+        base_ecode=2420, rx_lna_gain=8, rx_vga_gain=16, tx_gain=12)
+r110_hp1txamp = TestCase(name="HP1-TX-amp", freq=5995, amp=True, direction="tx",
+        base_ecode=520, rx_lna_gain=32, rx_vga_gain=16, tx_gain=17)
+
+r110_bp1txnoamp = TestCase(name="BP1-TX-noamp", freq=2500, amp=False, direction="tx",
+        base_ecode=350, rx_lna_gain=16, rx_vga_gain=16, tx_gain=13)
+r110_lp1txnoamp = TestCase(name="LP1-TX-noamp", freq=915, amp=False, direction="tx",
+        base_ecode=450, rx_lna_gain=16, rx_vga_gain=12, tx_gain=23)
+r110_lp2txnoamp = TestCase(name="LP2-TX-noamp", freq=12, amp=False, direction="tx",
+        base_ecode=2450, rx_lna_gain=16, rx_vga_gain=18, tx_gain=18)
+r110_hp1txnoamp = TestCase(name="HP1-TX-noamp", freq=5995, amp=False, direction="tx",
+        base_ecode=550, rx_lna_gain=32, rx_vga_gain=24, tx_gain=18)
+
+r110_bp1rxamp = TestCase(name="BP1-RX-amp", freq=2500, amp=True, direction="rx",
+        base_ecode=620, rx_lna_gain=8, rx_vga_gain=16, tx_gain=16)
+r110_lp1rxamp = TestCase(name="LP1-RX-amp", freq=915, amp=True, direction="rx",
+        base_ecode=720, rx_lna_gain=16, rx_vga_gain=16, tx_gain=8)
+r110_lp2rxamp = TestCase(name="LP2-RX-amp", freq=12, amp=True, direction="rx",
+        base_ecode=2720, rx_lna_gain=16, rx_vga_gain=16, tx_gain=10)
+r110_hp1rxamp = TestCase(name="HP1-RX-amp", freq=5995, amp=True, direction="rx",
+        base_ecode=820, rx_lna_gain=16, rx_vga_gain=28, tx_gain=25)
+
+r110_bp1rxnoamp = TestCase(name="BP1-RX-noamp", freq=2500, amp=False, direction="rx",
+        base_ecode=650, rx_lna_gain=16, rx_vga_gain=16, tx_gain=15)
+r110_lp1rxnoamp = TestCase(name="LP1-RX-noamp", freq=915, amp=False, direction="rx",
+        base_ecode=750, rx_lna_gain=16, rx_vga_gain=16, tx_gain=24)
+r110_lp2rxnoamp = TestCase(name="LP2-RX-noamp", freq=12, amp=False, direction="rx",
+        base_ecode=2750, rx_lna_gain=16, rx_vga_gain=16, tx_gain=28)
+r110_hp1rxnoamp = TestCase(name="HP1-RX-noamp", freq=5995, amp=False, direction="rx",
+        base_ecode=850, rx_lna_gain=16, rx_vga_gain=36, tx_gain=30)
+
+praline_r110_rf_test_cases = (
+        r110_bp1txamp, r110_lp1txamp, r110_lp2txamp, r110_hp1txamp,
+        r110_bp1txnoamp, r110_lp1txnoamp, r110_lp2txnoamp, r110_hp1txnoamp,
+        r110_bp1rxamp, r110_lp1rxamp, r110_lp2rxamp, r110_hp1rxamp,
+        r110_bp1rxnoamp, r110_lp1rxnoamp, r110_lp2rxnoamp, r110_hp1rxnoamp)
+
+ifmin = TestCase(name="IF-min", freq=IF_REQUIRED_MIN, amp=None, direction=None,
+        base_ecode=None, rx_lna_gain=16, rx_vga_gain=16, tx_gain=12)
+ifmax = TestCase(name="IF-max", freq=IF_REQUIRED_MAX, amp=None, direction=None,
+        base_ecode=None, rx_lna_gain=16, rx_vga_gain=16, tx_gain=18)
+
+ppm = TestCase(name="PPM", freq=2507, amp=False, direction=None,
+        base_ecode=None, rx_lna_gain=16, rx_vga_gain=16, tx_gain=18)
+
+noise = TestCase(name="Noise", freq=2550, amp=True, direction=None,
+        base_ecode=None, rx_lna_gain=40, rx_vga_gain=52, tx_gain=None)
 
 r9_tester_cal = [1.1, 0.4, 0.4, 1.1, 0.8, 0.2, 0.6, 1.6, -0.4, -1.2, -1.1, 1.1, -1.4, -0.9, 0.1, 1.8]
 r9_eut_cal = [-1.1, -1.6, -1.4, -1.3, -1.3, -0.9, 0.1, 1.8, 0.8, 1.1, 0.9, -0.2, 0.9, 0.2, 0.6, 1.5]
@@ -110,12 +162,39 @@ og_tester_cal = [-0.4, -0.3, -0.2, -0.4, -0.8, -0.5, -0., -0.1, 1.4, 2., 1.6, -0
 og_eut_cal = [1.8, 1.8, 1.6, 2., 1.3, 0.7, 0.5, -0.3, 0.2, -0.3, -0.5, 1.2, -0.8, -0.5, -0., -0.1]
 
 emessages = {
-    # TODO: replace the placeholder code according to each fail instance
-    1: "Placeholder error code",
+    1: "Wrong device placed in DFU mode",
+    2: "DFU device not found",
+    3: "Failed to parse a serial number from hackrf_info",
+    4: "No path to hackrf host tools found. Please provide a directory via --hostdir",
+    5: """Specified TESTER binary directory must be different from the found EUT bin directory
+        If shared TESTER/EUT binary directory is intended, omit --testerdir""",
+    6: "Unable to parse valid serial number from connected devices",
+    7: "TESTER and EUT cannot be the same device",
+    8: "Invalid TESTER unit, please use a HackRF One",
+    9: "Invalid EUT unit, please use a HackRF Pro",
+    10: "Clock readback failed",
+    11: "SGPIO RX test failed",
+    12: "Loopback test failed",
+    13: "Self-test failed, see above",
+    14: "FPGA configuration failed",
+    15: "Multiple self-test failures, see above",
+    16: "Mixer self-test failed",
+    17: "Transceiver self-test failed",
+    18: "32kHz oscillator test failed",
+    19: "Too many devices found using unique host tool directory",
+    20: "Factory TESTER device not found",
+    21: "Factory EUT device not found",
+    22: "SGPIO RX test timed out",
+    23: "Loopback test timed out",
+    24: "FPGA SPI test failed",
     60: "Unable to program firmware via DFU",
     65: "EUT not detected after DFU programming",
     70: "Unable to program SPI flash",
     75: "EUT not detected after flashing",
+    76: "Unable to reset EUT",
+    77: "Unable to reset TESTER",
+    78: "EUT not detected after reset",
+    79: "TESTER not detected after reset",
     80: "Could not find EUT",
     81: "Could not find TESTER",
     82: "Found multiple candidate EUTs",
@@ -123,10 +202,12 @@ emessages = {
     84: "EUT running from RAM instead of flash",
     85: "TESTER running from RAM instead of flash",
     86: "Couldn't parse hackrf_info output",
+    87: "hackrf_info command failed",
     88: "Incorrect EUT hardware revision",
     89: "Incorrect TESTER hardware revision",
     90: "EUT has incorrect manufacturer pin strap",
     91: "TESTER has incorrect manufacturer pin strap",
+    92: "No HackRFs found",
     99: "Incorrect device name",
     100: "EUT couldn't verify clkgen register",
     101: "TESTER couldn't verify clkgen register",
@@ -335,7 +416,9 @@ emessages = {
 	3190: "LP2 TX/RX failure",
 	3200: "total RF failure",
 	3210: "multiple RF failures, see list above",
-	3220: "multiple clipping failures"
+	3220: "multiple clipping failures",
+	3230: "TX clipping failure",
+	3240: "RX clipping failure"
 }
 
 def fail_rf(errors):
@@ -452,13 +535,22 @@ def fail_rf(errors):
         ecode = 3200
         errors.append(ecode)
 
-    clipping_count = 0
-    for code in (323, 423, 2423, 523, 353, 453, 2453, 553, 623, 723, 2723, 823, 653, 753, 2753, 853):
+    # If there are clipping failures, we can't trust the other RF results, so fail().
+    tx_clipping_count = 0
+    rx_clipping_count = 0
+    for code in (323, 353, 423, 453, 2423, 2453, 523, 553):
         if code in eset:
-            clipping_count += 1
-    if clipping_count > 2:
-        ecode = 3220
-        errors.append(ecode)
+            tx_clipping_count += 1
+    for code in (623, 653, 723, 753, 2723, 2753, 823, 853):
+        if code in eset:
+            rx_clipping_count += 1
+    if tx_clipping_count > 1 and rx_clipping_count == 0:
+        fail(3230)
+    elif tx_clipping_count == 0 and rx_clipping_count > 1:
+        fail(3240)
+    elif tx_clipping_count > 0 and rx_clipping_count > 0:
+        fail(3220)
+
     elif (not ecode) and (len(errors) > 1):
         # multiple failures without a logical grouping
         ecode = 3210
@@ -483,10 +575,11 @@ def fail(error_code):
     sys.exit(2)
 
 class HackRF:
-    def __init__(self, name, bin_dir, serial, mf_check, revision=None, unique_bin=False):
+    def __init__(self, name, bin_dir, serial, mf_check, id=None, revision=None, unique_bin=False, factory_test=False):
         self.name = name
         self.bin_dir = bin_dir
         self.unique_bin = unique_bin
+        self.id = None
         self.revision = None
         self.serial = None
         self.clkout_connected = False
@@ -498,38 +591,63 @@ class HackRF:
 
         if self.name == "TESTER":
             self.unit_number = 1
-        elif self.name != "EUT":
+        elif self.name == "EUT":
+            self.rf_test_cases = praline_rf_test_cases
+        else:
             fail(99)
 
-        info = subprocess.run([bin_dir + "hackrf_info"], capture_output=True,
+        info = subprocess.run([bin_dir + "/hackrf_info"], capture_output=True,
                 encoding="utf-8", timeout=TIMEOUT)
         log(info.stdout + info.stderr)
         if info.returncode != 0 or "failed" in info.stderr:
-            fail(80 + self.unit_number)
+            fail(87)
 
         # parse the hackrf_info output
         count = info.stdout.count("Found HackRF")
         if count < 1:
-            fail(80 + self.unit_number)
+            fail(92)
         if count > 1 and self.name == "TESTER" and self.unique_bin:
             fail(83)
         if mf_check and "does not appear to have been manufactured by Great Scott Gadgets" in info.stdout:
             fail(90 + self.unit_number)
+
         try:
-            devices_list = re.findall(r'Found HackRF\n.+\n.+\n.+\n.+\n.+\n.+', info.stdout)
+            sn = ""
+            devices_list = [d.strip() for d in info.stdout.split("Found HackRF") if d.strip()]
             for device in devices_list:
-                sn = re.search(r'Serial number: \w+', device).group().split(': ')[1]
-                rev = re.search(r'Hardware Revision: .+', device).group().split(': ')[1]
+                sn_found = re.search(r'Serial number: \w+', device)
+                if sn_found:
+                    sn = sn_found.group(0).split(': ')[1]
+
+                id_found = re.search(r'Board ID Number: .', device)
+                if id_found:
+                    id = id_found.group(0).split(': ')[1]
+
+                rev_found = re.search(r'Hardware Revision: .+', device)
+                if rev_found:
+                    rev = rev_found.group(0).split(': ')[1]
+
                 if sn == serial:
                     self.serial = sn
+                    self.id = id
                     self.revision = rev
                     break
-            out(f"{self.name} serial number: {self.serial}")
-            out(f"{self.name} revision: {self.revision}")
+
+            out(f"{self.name} Serial number: {self.serial}")
+            out(f"{self.name} Board ID: {self.id}")
+            out(f"{self.name} Hardware Revision: {self.revision}")
             out(f"{self.name} binary directory {self.bin_dir}")
         except:
-            log(traceback.format_exc())
-            fail(1)
+            out(traceback.format_exc())
+            fail(6)
+
+        if self.serial == None:
+            fail(80 + self.unit_number)
+
+        if self.name == "TESTER" and factory_test and (self.id != "2" and self.id != "4"):
+            fail(8)
+        elif self.name == "EUT" and factory_test and self.id != "5":
+            fail(9)
 
         if revision and self.revision != revision:
             fail(88 + self.unit_number)
@@ -541,8 +659,14 @@ class HackRF:
             self.tester_cal = og_tester_cal
             self.eut_cal = og_eut_cal
 
+        if self.name == "EUT" and self.id == "5" and self.revision == "r1.1":
+            self.rf_test_cases = praline_r110_rf_test_cases
+
     def clkin(self):
-        command = subprocess.run([self.bin_dir + "hackrf_clock", "-i", "-d",
+        if self.name == "EUT" and self.id == "5":
+            debug = subprocess.run([self.bin_dir + "/hackrf_debug", "-d", self.serial,
+                                    "-C", "0"])
+        command = subprocess.run([self.bin_dir + "/hackrf_clock", "-i", "-d",
             self.serial], capture_output=True, encoding="utf-8",
             timeout=TIMEOUT)
         if command.returncode != 0:
@@ -563,7 +687,7 @@ class HackRF:
     # Warning: Avoid clock loops by disabling your partner's CLKOUT before
     # enabling your own.
     def clkout(self, enable):
-        command = subprocess.run([self.bin_dir + "hackrf_clock", "-o",
+        command = subprocess.run([self.bin_dir + "/hackrf_clock", "-o",
             "1" if enable else "0", "-d", self.serial], capture_output=True,
             encoding="utf-8", timeout=TIMEOUT)
         if command.returncode != 0:
@@ -587,7 +711,7 @@ class HackRF:
             # transceiver operation to switch clock source
             source = "CLKIN" if enable else "crystal"
             log(f"switching {self.partner.name} to {source}")
-            receive = subprocess.run([self.partner.bin_dir + "hackrf_transfer", "-d",
+            receive = subprocess.run([self.partner.bin_dir + "/hackrf_transfer", "-d",
                 self.partner.serial, "-n1", "-r", "/dev/null", "-f", "2500000000",
                 "-a", "0", "-l", "0", "-g", "0"], capture_output=True,
                 encoding="utf-8", timeout=TIMEOUT)
@@ -599,7 +723,7 @@ class HackRF:
             expected_value = "0x01" if (enable and self.partner.revision != "r9") else "0x51"
             timeout = time.time() + 1
             while time.time() < timeout:
-                debug = subprocess.run([self.partner.bin_dir + "hackrf_debug", "-d",
+                debug = subprocess.run([self.partner.bin_dir + "/hackrf_debug", "-d",
                     self.partner.serial, "-srn0"], capture_output=True,
                     encoding="utf-8", timeout=TIMEOUT)
                 log(debug.stdout)
@@ -637,13 +761,13 @@ class HackRF:
         expected_bin = round(ONE_MHZ/ppm.freq)
 
         log(f"{self.name} transmitting to {self.partner.name} for PPM measurement")
-        transmit = subprocess.Popen([self.bin_dir + "hackrf_transfer", "-d",
+        transmit = subprocess.Popen([self.bin_dir + "/hackrf_transfer", "-d",
             self.serial, "-c", "127", "-a", "0", "-x", f"{ppm.tx_gain}", "-f",
             tx_frequency], stdout=subprocess.PIPE, stderr=subprocess.PIPE,
             encoding="utf-8")
 
         time.sleep(SLEEP_TIME)
-        sweep = subprocess.run([self.partner.bin_dir + "hackrf_sweep", "-d",
+        sweep = subprocess.run([self.partner.bin_dir + "/hackrf_sweep", "-d",
             self.partner.serial, "-N", "13", "-w", bin_width, "-f", sweep_range, "-a",
             "0", "-l", f"{ppm.rx_lna_gain}", "-g", f"{ppm.rx_vga_gain}"],
             capture_output=True, encoding="utf-8", timeout=TIMEOUT)
@@ -687,7 +811,7 @@ class HackRF:
             fail(260)
 
     def verify_register(self, target, address, value):
-        command = subprocess.run([self.bin_dir + "hackrf_debug",
+        command = subprocess.run([self.bin_dir + "/hackrf_debug",
             f"--{target}", "--register", address, "--read", "--device",
             self.serial], capture_output=True, encoding="UTF-8")
         log(f"Checking {target} register {address}")
@@ -721,7 +845,7 @@ class HackRF:
     def baseline_rx(self, test_case):
         # Test at the TX tuning frequency of measure_rf()
         center_freq = (test_case.freq * ONE_MHZ) + 1500000
-        receive = subprocess.run([self.bin_dir + "hackrf_transfer", "-d",
+        receive = subprocess.run([self.bin_dir + "/hackrf_transfer", "-d",
             self.serial, "-n10000", "-r", "/dev/null", "-f",
             f"{center_freq}", "-a", "0", "-l", f"{test_case.rx_lna_gain}",
             "-g", f"{test_case.rx_vga_gain}", "-b",
@@ -756,7 +880,7 @@ class HackRF:
         high_gain = 16
         while high_gain > low_gain:
             gain = (high_gain + low_gain) // 2
-            receive = subprocess.run([self.bin_dir + "hackrf_transfer", "-d",
+            receive = subprocess.run([self.bin_dir + "/hackrf_transfer", "-d",
                 self.serial, "-n", f"{num_samples*10}", "-r", f"{NOISE}", "-f",
                 f"{center_freq}", "-a", "1" if test_case.amp else "0", "-l",
                 f"{test_case.rx_lna_gain}", "-g", f"{gain*2 + 32}", "-b",
@@ -779,11 +903,11 @@ class HackRF:
             else:
                 low_gain = gain + 1
 
-        # We want the power to be between -1 and -6 dB to ensure that all eight
+        # We want the power to be between -1 and -9 dB to ensure that all eight
         # bits are flipped without much clipping.
-        if power < -6 or power > -1:
+        if power < -9 or power > -1:
             fail(312)
-        elif gain > 14 or gain < 4:
+        elif gain > 16 or gain < 4:
             fail(313)
 
         bit_count = [0] * 8
@@ -846,13 +970,13 @@ class HackRF:
 
     # Verify that signal power at a given IF in MHz is detected.
     def verify_if_tuning(self, test_case):
-        transmit = subprocess.Popen([self.bin_dir + "hackrf_transfer", "-d",
+        transmit = subprocess.Popen([self.bin_dir + "/hackrf_transfer", "-d",
             self.serial, "-c", "127", "-a", "0", "-x", f"{test_case.tx_gain}",
             "-i", f"{test_case.freq*ONE_MHZ}", "-m", "0", "-F"],
             stdout=subprocess.PIPE, stderr=subprocess.PIPE, encoding="utf-8")
 
         time.sleep(SLEEP_TIME)
-        receive = subprocess.run([self.partner.bin_dir + "hackrf_transfer", "-d",
+        receive = subprocess.run([self.partner.bin_dir + "/hackrf_transfer", "-d",
             self.partner.serial, "-n10000", "-r", "/dev/null", "-f",
             f"{(test_case.freq+1)*ONE_MHZ}", "-a", "0", "-l",
             f"{test_case.rx_lna_gain}", "-g", f"{test_case.rx_vga_gain}", "-b",
@@ -871,8 +995,8 @@ class HackRF:
         return power > SIGNAL_THRESHOLD
 
     def test_if_range(self, min_case, max_case):
-        low_end = IF_REQUIRED_MIN - IF_TEST_RANGE + 1
-        min_freq = IF_REQUIRED_MIN + 1
+        low_end = IF_REQUIRED_MIN - (IF_TEST_RANGE // 2)
+        min_freq = IF_REQUIRED_MIN + (IF_TEST_RANGE // 2)
         while min_freq > low_end:
             min_case.freq = (min_freq + low_end) // 2
             if self.verify_if_tuning(min_case):
@@ -880,8 +1004,8 @@ class HackRF:
             else:
                 low_end = min_case.freq + 1
 
-        high_end = IF_REQUIRED_MAX + IF_TEST_RANGE - 1
-        max_freq = IF_REQUIRED_MAX - 1
+        high_end = IF_REQUIRED_MAX + (IF_TEST_RANGE // 2)
+        max_freq = IF_REQUIRED_MAX - (IF_TEST_RANGE // 2)
         while max_freq < high_end:
             max_case.freq = (max_freq + high_end + 1) // 2
             if self.verify_if_tuning(max_case):
@@ -894,8 +1018,8 @@ class HackRF:
             fail(160)
 
     def analyze_sweep(self, sweep, test_case):
-        eut_cal = self.eut_cal[all_rf_test_cases.index(test_case)]
-        tester_cal = self.partner.tester_cal[all_rf_test_cases.index(test_case)]
+        eut_cal = self.eut_cal[self.rf_test_cases.index(test_case)]
+        tester_cal = self.partner.tester_cal[self.rf_test_cases.index(test_case)]
         correction = LP2_CORRECTION if test_case.freq < 30 else 0
 
         # parse the hackrf_sweep output
@@ -1013,20 +1137,20 @@ class HackRF:
         tx_center_freq = (test_case.freq * ONE_MHZ) + 1500000
         sweep_range = f"{test_case.freq-1}:{test_case.freq+19}"
 
-        transmit = subprocess.Popen([transmitter.bin_dir + "hackrf_transfer", "-d",
+        transmit = subprocess.Popen([transmitter.bin_dir + "/hackrf_transfer", "-d",
             transmitter.serial, "-R", "-t", WAVEFORM, "-a", tx_amp, "-x",
             f"{test_case.tx_gain}", "-f", str(tx_center_freq)],
             stdout=subprocess.PIPE, stderr=subprocess.PIPE, encoding="utf-8")
 
         time.sleep(SLEEP_TIME)
         if sweep:
-            receive = subprocess.run([receiver.bin_dir + "hackrf_sweep",
+            receive = subprocess.run([receiver.bin_dir + "/hackrf_sweep",
                 "-d", receiver.serial, "-N", "22", "-w", "22222", "-f",
                 sweep_range, "-a", rx_amp, "-l", f"{test_case.rx_lna_gain}",
                 "-g", f"{test_case.rx_vga_gain}"], capture_output=True,
                 encoding="utf-8", timeout=TIMEOUT)
         else:
-            receive = subprocess.run([receiver.bin_dir + "hackrf_transfer",
+            receive = subprocess.run([receiver.bin_dir + "/hackrf_transfer",
                 "-d", receiver.serial, "-n10000", "-r", "/dev/null", "-f",
                 f"{(test_case.freq)*ONE_MHZ}", "-a", rx_amp, "-l",
                 f"{test_case.rx_lna_gain}", "-g", f"{test_case.rx_vga_gain}",
@@ -1052,7 +1176,7 @@ class HackRF:
     def test_rf_preliminary(self):
         results = []
 
-        for test_case in (all_rf_test_cases):
+        for test_case in (self.rf_test_cases):
             if test_case.amp == False:
                 if test_case.direction == "rx":
                     self.baseline_rx(test_case)
@@ -1066,7 +1190,7 @@ class HackRF:
             out("Skipping RF tests")
             return
 
-        for test_case in (all_rf_test_cases):
+        for test_case in (self.rf_test_cases):
             results.append(int(round(self.measure_rf(test_case, sweep=False) - (SIGNAL_THRESHOLD + 11))))
 
         log(f"Preliminary results: {results}")
@@ -1077,7 +1201,7 @@ class HackRF:
         assert self.partner
         results = []
 
-        for test_case in (all_rf_test_cases):
+        for test_case in (self.rf_test_cases):
             results.append(int(round(self.measure_rf(test_case, sweep=True) - (SIGNAL_THRESHOLD + 5))))
 
         out(f"RF results summary: {results}")
@@ -1090,12 +1214,130 @@ class HackRF:
             state = 7
         else:
             state = 1
-        command = subprocess.run([self.bin_dir + "hackrf_debug", "-d", self.serial, "--leds",
+        # Always illuminate MCU LED on Praline.
+        if self.id == "5":
+            state |= 8
+        command = subprocess.run([self.bin_dir + "/hackrf_debug", "-d", self.serial, "--leds",
             f"{state}"], capture_output=True, encoding="utf-8", timeout=TIMEOUT)
         if command.returncode != 0:
             log(command.stdout + command.stderr)
             log(f"Failed to configure {self.name} LEDs ({state})")
             fail(190)
+
+    def debug_selftest(self):
+        errors = []
+
+        debug = subprocess.run([self.bin_dir + "/hackrf_debug", "-to", "-d", self.serial],
+                                capture_output=True, encoding="utf-8", timeout=TIMEOUT)
+        log(debug.stdout + debug.stderr)
+
+        fpga_test_found = re.search(r'FPGA configuration: \w+', debug.stdout)
+        if fpga_test_found:
+            if fpga_test_found.group(0).split(': ')[-1] != "PASS":
+                errors.append(14)
+        else:
+            out("Failure to find FPGA configuration result. Wrong firmware version? Continuing...")
+
+        # Check for FPGA SPI result only if FPGA configuration passed.
+        if len(errors) == 0:
+            sgpio_test_found = re.search(r'FPGA SPI: \w+', debug.stdout)
+            if sgpio_test_found:
+                if sgpio_test_found.group(0).split(': ')[-1] != "PASS":
+                    errors.append(24)
+            else:
+                out("Failure to find FPGA SPI test result. Wrong firmware version? Continuing...")
+
+        # Check for SGPIO result only if FPGA configuration and SPI passed.
+        if len(errors) == 0:
+            sgpio_test_found = re.search(r'SGPIO RX test: \w+', debug.stdout)
+            if sgpio_test_found:
+                if sgpio_test_found.group(0).split(': ')[-1] == "TIMEOUT":
+                    errors.append(22)
+                elif sgpio_test_found.group(0).split(': ')[-1] == "FAIL":
+                    errors.append(11)
+            else:
+                out("Failure to find sgpio test result. Wrong firmware version? Continuing...")
+
+        # Check for loopback result only if FPGA, SPI, and SGPIO passed.
+        if len(errors) == 0:
+            loopback_test_found = re.search(r'Loopback test: \w+', debug.stdout)
+            if loopback_test_found:
+                if loopback_test_found.group(0).split(': ')[-1] == "TIMEOUT":
+                    errors.append(23)
+                elif loopback_test_found.group(0).split(': ')[-1] == "FAIL":
+                    errors.append(12)
+            else:
+                out("Failure to find loopback test result. Wrong firmware version? Continuing...")
+
+        clock_found = re.search(r'Clock: \w+, \w+: \d, readback: \w+', debug.stdout)
+        if clock_found:
+            if clock_found.group(0).split(': ')[-1] != "OK":
+                errors.append(10)
+        else:
+            out("Failure to find clock results. Wrong firmware version? Continuing...")
+
+        mixer_found = re.search(r'Mixer: \w+, ID: \d+', debug.stdout)
+        if mixer_found:
+            if mixer_found.group(0).split(': ')[-1] != "4416":
+                errors.append(16)
+        else:
+            out("Failure to find mixer results. Wrong firmware version? Continuing...")
+
+        # Check for transceiver result only if FPGA configuration passed.
+        if 14 not in errors:
+            xcvr_found = re.search(r'Transceiver: \w+, RSSI mux test: \w+', debug.stdout)
+            if xcvr_found:
+                if xcvr_found.group(0).split(': ')[-1] != "PASS":
+                    errors.append(17)
+            else:
+                out("Failure to find transceiver results. Wrong firmware version? Continuing...")
+
+        rtc_found = re.search(r'RTC test result: \w+', debug.stdout)
+        if rtc_found:
+            if rtc_found.group(0).split(': ')[-1] != "PASS":
+                errors.append(18)
+        else:
+            out("Failure to find 32kHz oscillator results. Wrong firmware version? Continuing...")
+
+        # Provide entire self-test report if there is an unrecognized self-test failure
+        if len(errors) == 0:
+            selftest_found = re.search(r'Self-test result: \w+', debug.stdout)
+            if selftest_found:
+                if selftest_found.group(0).split(': ')[-1] != "PASS":
+                    out(debug.stdout)
+                    fail(13)
+            else:
+                out("Failure to find selftest results. Wrong firmware version? Continuing...")
+
+        # Report multiple self-test failures
+        if len(errors) > 1:
+            for error in errors:
+                out(f"Self-test failure {error}: {emessages[error]}")
+            fail(15)
+
+        if len(errors) > 0:
+            fail(errors[-1])
+
+    def reset(self):
+        out(f"Resetting {self.name}")
+        spiflash = subprocess.run([self.bin_dir + "/hackrf_spiflash", "-d", self.serial, "-R"],
+                        capture_output=True, encoding="utf-8", timeout=TIMEOUT)
+        if spiflash.returncode != 0:
+            out(spiflash.stdout + spiflash.stderr)
+            fail(76 + self.unit_number)
+
+        then = time.time()
+        device_found = False
+        while time.time() < (then + 5):
+            time.sleep(1)
+            info = subprocess.run([self.bin_dir + "/hackrf_info"],
+                                  capture_output=True, timeout=TIMEOUT)
+            if self.serial in info.stdout.decode('utf-8', errors='ignore'):
+                device_found = True
+                break
+            time.sleep(0.1)
+        if not device_found:
+            fail(78 + self.unit_number)
 
 
 # This waveform is a full-scale complex exponential with a frequency of -1/10 the
@@ -1114,12 +1356,8 @@ def write_waveform():
 
 
 def program(bin_dir, fw_dir, serial, unattended=False):
-    if "build" in fw_dir:
-        binary = "hackrf_usb.bin"
-        dfu_stub = "hackrf_usb.dfu"
-    else:
-        binary = "hackrf_one_usb.bin"
-        dfu_stub = "hackrf_one_usb.dfu"
+    binary = "hackrf_usb.bin"
+    dfu_stub = "hackrf_usb.dfu"
 
     # EUTs in unattended (including Jenkins CI) setups have pins jumped to always boot into DFU mode, so resetting is undesirable
     if unattended:
@@ -1135,8 +1373,9 @@ def program(bin_dir, fw_dir, serial, unattended=False):
     out("Programming EUT in DFU mode")
     dfu = subprocess.run([f"{DFU_UTIL}", "--device",
         f"{DFU_VENDOR_ID}:{DFU_PRODUCT_ID}", "--alt", "0", "--download",
-        f"{fw_dir}{dfu_stub}"], capture_output=True, encoding="utf-8",
+        f"{fw_dir}/{dfu_stub}"], capture_output=True, encoding="utf-8",
         timeout=TIMEOUT)
+    out(dfu.stdout + dfu.stderr)
 
     #dfu-util: unable to read DFU status after completion (LIBUSB_ERROR_IO)
     # despite successful download; present as of at least dfu-util 0.11
@@ -1147,25 +1386,23 @@ def program(bin_dir, fw_dir, serial, unattended=False):
     then = time.time()
     dfu_device_found = False
     while time.time() < (then + 50):
-        dfu_info = subprocess.run([bin_dir + "hackrf_info"], capture_output=True,
+        dfu_info = subprocess.run([bin_dir + "/hackrf_info"], capture_output=True,
             encoding="utf-8", timeout=TIMEOUT)
 
         if "RunningFromRAM" in dfu_info.stdout:
             if serial in dfu_info.stdout and serial != "RunningFromRAM":
-                out("wrong device in DFU mode")
                 fail(1)
             else:
                 dfu_device_found = True
                 break
         time.sleep(0.1)
     if not dfu_device_found:
-        out("DFU device not found")
-        fail(1)
+        fail(2)
 
     out("Programming EUT SPI flash")
-    spiflash = subprocess.run([bin_dir + "hackrf_spiflash", "-d",
-                    "RunningFromRAM", reset_write, f"{fw_dir}{binary}"],
-                    capture_output=True, encoding="utf-8", timeout=TIMEOUT)
+    spiflash = subprocess.run([bin_dir + "/hackrf_spiflash", "-d",
+                    "RunningFromRAM", reset_write, f"{fw_dir}/{binary}"],
+                    capture_output=True, encoding="utf-8", timeout=TIMEOUT+20)
     if spiflash.returncode != 0:
         log(spiflash.stdout + spiflash.stderr)
         fail(70)
@@ -1173,9 +1410,19 @@ def program(bin_dir, fw_dir, serial, unattended=False):
     then = time.time()
     device_found = False
     while time.time() < (then + 5):
-        flash_info = subprocess.run([bin_dir + "hackrf_info"], capture_output=True,
+        time.sleep(1)
+        flash_info = subprocess.run([bin_dir + "/hackrf_info"], capture_output=True,
             timeout=TIMEOUT)
-
+        if serial == "RunningFromRAM" and not unattended:
+            try:
+                devices_list = [d.strip() for d in flash_info.stdout.decode('utf-8', errors='ignore').split("Found HackRF") if d.strip()]
+                for device in devices_list:
+                    sn_found = re.search(r'Serial number: \w+', device)
+                    if sn_found:
+                        serial = sn_found.group(0).split(': ')[1]
+            except:
+                log(traceback.format_exc())
+                fail(6)
         if serial in flash_info.stdout.decode('utf-8', errors='ignore'):
             device_found = True
             break
@@ -1184,34 +1431,51 @@ def program(bin_dir, fw_dir, serial, unattended=False):
         fail(75)
 
 
-def find_sn(name, bin_dir, claimed_sns=[]):
+def find_sn(name, bin_dir, factory_test, claimed_sns=[]):
     while True:
         sn_list = []
-        info = subprocess.run([bin_dir + "hackrf_info"], capture_output=True,
+        info = subprocess.run([bin_dir + "/hackrf_info"], capture_output=True,
                     encoding="utf-8", timeout=TIMEOUT)
-        devices_list = re.findall(r'Found HackRF\n.+\n.+\n.+\n.+\n.+\n.+', info.stdout)
+        try:
+            sn = ""
+            devices_list = [d.strip() for d in info.stdout.split("Found HackRF") if d.strip()]
+            for device in devices_list:
+                sn_found = re.search(r'Serial number: \w+', device)
+                if sn_found:
+                    new_sn = sn_found.group(0).split(': ')[1]
+                    if new_sn not in claimed_sns:
+                        sn_list.append(new_sn)
+        except:
+            log(traceback.format_exc())
+            fail(6)
 
-        out(f"\nPotential {name}(s) found:\n")
-        for device in devices_list:
-            new_sn = re.search(r'Serial number: \w+', device).group().split(': ')[1]
-            if new_sn not in claimed_sns:
-                sn_list.append(new_sn)
-        if len(sn_list) > 1:
-            for i in range(len(sn_list)):
-                out(f"{i}: {sn_list[i]}")
-            choice = int(input(f"\nEnter the index of your target {name}s serial number: "))
-            if 0 <= choice < len(sn_list):
-                sn = sn_list[choice]
+        if factory_test:
+            if len(sn_list) > 1:
+                fail(19)
+            elif len(sn_list) < 1:
+                if name == "TESTER":
+                    fail(20)
+                elif name == "EUT":
+                    fail(21)
+            else:
+                sn = sn_list[0]
+                break
+        else:
+            if len(sn_list) > 1:
+                out(f"\nPotential {name}(s) found:\n")
+                for i in range(len(sn_list)):
+                    out(f"{i}: {sn_list[i]}")
+                choice = int(input(f"\nEnter the index of your target {name}s serial number: "))
+                if 0 <= choice < len(sn_list):
+                    sn = sn_list[choice]
+                    break
+                else:
+                    out("Incorrect choice, try again.")
+            elif len(sn_list) == 1:
+                sn = sn_list[0]
                 break
             else:
-                out("Incorrect choice, try again.")
-        elif len(sn_list) == 1:
-            sn = sn_list[0]
-            out(f"{sn}\n")
-            break
-        else:
-            out("Failed to parse a serial number from hackrf_info")
-            fail(1)
+                fail(3)
     return sn
 
 
@@ -1255,6 +1519,8 @@ def main():
     parser.add_argument("-b", "--testerdir", metavar="<separate path to TESTER host tools>", type=str,
             help="necessary only if EUT/TESTER have separate host binaries")
     parser.add_argument("-C", "--ci", action="store_true", help="For use with Jenkins CI user")
+    parser.add_argument("-p", "--praline", action="store_true", help="Force Praline mode")
+    parser.add_argument("-F", "--factory", action="store_true", help="Force factory test mode")
     parser.add_argument("-u", "--unattended", action="store_true", help="For use with unattended hardware")
     parser.add_argument("-L", "--log", metavar="<log file>", type=str,
             help="log file location")
@@ -1275,16 +1541,13 @@ def main():
         eut_host_dir = args.hostdir
     else:
         try:
-            eut_host_dir = os.path.dirname(shutil.which('hackrf_info')) + "/"
+            eut_host_dir = os.path.dirname(shutil.which('hackrf_info'))
         except:
-            out("No path to hackrf host tools found. Please provide a directory via --hostdir")
-            fail(1)
+            fail(4)
 
     if args.testerdir:
         if args.testerdir == eut_host_dir:
-            out("Specified TESTER bin directory must be different from the found EUT bin directory")
-            out("If shared TESTER/EUT bin directory is intended, omit --testerdir")
-            fail(1)
+            fail(5)
         else:
             tester_host_dir = args.testerdir
     else:
@@ -1294,51 +1557,50 @@ def main():
     count = 0
 
     while True:
-        out()
-        out("================================")
-        out(datetime.now())
-        out(sys.argv)
-        out(f"user: {user}")
-        out(f"version: {get_version()}")
-        out(f"pid: {os.getpid()}")
+        log()
+        log("================================")
+        log(datetime.now())
+        log(sys.argv)
+        log(f"user: {user}")
+        log(f"version: {get_version()}")
+        log(f"pid: {os.getpid()}")
         if args.loop:
-            out(f"repeat count: {count}")
-        out("================================")
-        out()
+            log(f"repeat count: {count}")
+        log("================================")
+        log()
 
         if args.eut:
             eut_sn = args.eut
         else:
             if args.tester:
-                eut_sn = find_sn("EUT", eut_host_dir, [args.tester])
+                eut_sn = find_sn("EUT", eut_host_dir, args.factory, [args.tester])
             else:
-                eut_sn = find_sn("EUT", eut_host_dir)
+                eut_sn = find_sn("EUT", eut_host_dir, args.factory)
         if args.tester:
             tester_sn = args.tester
         else:
-            tester_sn = find_sn("TESTER", tester_host_dir, [eut_sn])
+            tester_sn = find_sn("TESTER", tester_host_dir, args.factory, [eut_sn])
 
         if eut_sn == tester_sn:
-            out("TESTER and EUT cannot be the same device")
-            fail(1)
+            fail(7)
 
+        # TODO: check if the provided firmware directory exists
         if args.fwupdate:
             program(eut_host_dir, args.fwupdate, eut_sn, args.unattended)
+            eut_sn = find_sn("EUT", eut_host_dir, args.factory, [tester_sn])
 
         if not args.rev:
             out("Skipping EUT hardware revision check")
-        eut = HackRF("EUT", eut_host_dir, eut_sn, args.manufacturer, revision=args.rev)
+        eut = HackRF("EUT", eut_host_dir, eut_sn, args.manufacturer, revision=args.rev, factory_test=args.factory)
 
         if args.solo:
             tester = None
         else:
-            tester = HackRF("TESTER", tester_host_dir, tester_sn, args.manufacturer, unique_bin=unique_bin)
-            tester.test_serial()
+            tester = HackRF("TESTER", tester_host_dir, tester_sn, args.manufacturer, unique_bin=unique_bin, factory_test=args.factory)
             tester.partner = eut
             eut.partner = tester
 
-        out("Testing EUT")
-
+        out("\nTest started, please wait...")
         if args.solo:
             eut.clkout_connected = False
         elif args.noclk:
@@ -1351,11 +1613,12 @@ def main():
             eut.clkout_connected = True
             tester.clkout_connected = True
 
-        if count > 0 and not args.fw_update:
+        if count > 0 and not args.fwupdate:
             eut.activate_leds(False)
 
-        eut.test_serial()
-
+        if not args.unattended:
+            eut.reset()
+        eut.debug_selftest()
         # limited RF test without clock synchronization
         eut.test_rf_preliminary()
 
@@ -1395,11 +1658,10 @@ def main():
 
         eut.activate_leds(True)
 
-        out()
         if (args.solo or args.noif or args.noclk or args.tcxo or not args.rev):
             out("Limited test complete")
         else:
-            out("PASS if all 6 LEDs active")
+            out("PASS if all 6 LEDs active with correct color")
 
         count += 1
         if not args.loop:
