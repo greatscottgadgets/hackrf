@@ -633,12 +633,12 @@ class HackRF:
                     self.revision = rev
                     break
 
-            log(f"{self.name} Serial number: {self.serial}")
-            log(f"{self.name} Board ID: {self.id}")
-            log(f"{self.name} Hardware Revision: {self.revision}")
-            log(f"{self.name} binary directory {self.bin_dir}")
+            out(f"{self.name} Serial number: {self.serial}")
+            out(f"{self.name} Board ID: {self.id}")
+            out(f"{self.name} Hardware Revision: {self.revision}")
+            out(f"{self.name} binary directory {self.bin_dir}")
         except:
-            log(traceback.format_exc())
+            out(traceback.format_exc())
             fail(6)
 
         if self.serial == None:
@@ -806,7 +806,7 @@ class HackRF:
         self.clkout(False)
         self.partner.clkout(False)
         frequency_error_ppm = self.clock_error_ppm()
-        log(f"{self.name} crystal frequency error: {frequency_error_ppm} ppm")
+        out(f"{self.name} crystal frequency error: {frequency_error_ppm} ppm")
         if abs(frequency_error_ppm) > MAX_PPM:
             fail(260)
 
@@ -1013,7 +1013,7 @@ class HackRF:
             else:
                 high_end = max_case.freq - 1
 
-        log(f"{self.name} IF range: {min_freq}-{max_freq} MHz")
+        out(f"{self.name} IF range: {min_freq}-{max_freq} MHz")
         if min_freq > IF_REQUIRED_MIN or max_freq < IF_REQUIRED_MAX:
             fail(160)
 
@@ -1204,13 +1204,13 @@ class HackRF:
         for test_case in (self.rf_test_cases):
             results.append(int(round(self.measure_rf(test_case, sweep=True) - (SIGNAL_THRESHOLD + 5))))
 
-        log(f"RF results summary: {results}")
+        out(f"RF results summary: {results}")
         if self.errors:
             fail_rf(self.errors)
 
     def activate_leds(self, enable):
         if enable:
-            log(f"Activating {self.name} LEDs")
+            out(f"Activating {self.name} LEDs")
             state = 7
         else:
             state = 1
@@ -1319,11 +1319,11 @@ class HackRF:
             fail(errors[-1])
 
     def reset(self):
-        log(f"Resetting {self.name}")
+        out(f"Resetting {self.name}")
         spiflash = subprocess.run([self.bin_dir + "/hackrf_spiflash", "-d", self.serial, "-R"],
                         capture_output=True, encoding="utf-8", timeout=TIMEOUT)
         if spiflash.returncode != 0:
-            log(spiflash.stdout + spiflash.stderr)
+            out(spiflash.stdout + spiflash.stderr)
             fail(76 + self.unit_number)
 
         then = time.time()
@@ -1375,7 +1375,7 @@ def program(bin_dir, fw_dir, serial, unattended=False):
         f"{DFU_VENDOR_ID}:{DFU_PRODUCT_ID}", "--alt", "0", "--download",
         f"{fw_dir}/{dfu_stub}"], capture_output=True, encoding="utf-8",
         timeout=TIMEOUT)
-    log(dfu.stdout + dfu.stderr)
+    out(dfu.stdout + dfu.stderr)
 
     #dfu-util: unable to read DFU status after completion (LIBUSB_ERROR_IO)
     # despite successful download; present as of at least dfu-util 0.11
@@ -1483,7 +1483,7 @@ def get_version():
     version = subprocess.run(["git", "log", "-n" "1", "--format=%h"],
                 capture_output=True, encoding="utf-8", timeout=TIMEOUT)
     if version.returncode != 0:
-        return "2023.01.1+"
+        return "2026.01.3+"
     elif version.returncode == 0:
         dirty = subprocess.run(["git", "status", "-s", "--untracked-files=no"],
                 capture_output=True, encoding="utf-8", timeout=TIMEOUT)
