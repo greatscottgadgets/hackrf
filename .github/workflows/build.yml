@@ -41,7 +41,6 @@ jobs:
         include:
           - sys: {os: 'windows', shell: 'pwsh'}
             cmake_args: >-
-              -DPKG_CONFIG_EXECUTABLE=C:/vcpkg/installed/x64-windows/tools/pkgconf/pkgconf.exe
               -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake
               --install-prefix=$env:GITHUB_WORKSPACE/install
           - sys: {os: 'windows', shell: 'msys2'}
@@ -74,10 +73,6 @@ jobs:
         sudo apt update
         sudo apt install libfftw3-dev libusb-1.0-0-dev
       if: matrix.sys.os == 'ubuntu'
-
-    - name: Install dependencies (Windows)
-      run: vcpkg install --triplet=x64-windows libusb fftw3 pthreads pkgconf
-      if: matrix.sys.os == 'windows' && matrix.sys.shell != 'msys2'
 
     - name: Setup MSYS (Windows)
       if: matrix.sys.os == 'windows' && matrix.sys.shell == 'msys2'
@@ -132,6 +127,15 @@ jobs:
         cd host/hackrf-tools/build
         cmake .. -DCMAKE_BUILD_TYPE=Release ${{ matrix.cmake_args }}
         cmake --build . --config Release
+      if: matrix.sys.shell != 'pwsh'
+
+    - name: Configure & Build (hackrf-tools, vcpkg)
+      run: |
+        cmake -E make_directory host/hackrf-tools/build
+        cd host/hackrf-tools/build
+        cmake .. -DCMAKE_BUILD_TYPE=Release ${{ matrix.cmake_args }} -DCMAKE_PREFIX_PATH=$env:GITHUB_WORKSPACE/install
+        cmake --build . --config Release
+      if: matrix.sys.shell == 'pwsh'
 
     - name: Install (hackrf-tools)
       run: |
