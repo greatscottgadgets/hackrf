@@ -23,7 +23,6 @@
 
 #include "usb_api_transceiver.h"
 
-#include "hackrf_ui.h"
 #include "operacake_sctimer.h"
 
 #include <libopencm3/cm3/vector.h>
@@ -40,6 +39,7 @@
 #include "usb.h"
 #include "usb_queue.h"
 #include "platform_detect.h"
+#include "fixed_point.h"
 
 #include <stddef.h>
 #include <string.h>
@@ -88,7 +88,6 @@ usb_request_status_t usb_vendor_request_set_baseband_filter_bandwidth(
 			RADIO_BANK_ACTIVE,
 			RADIO_BB_BANDWIDTH_RX,
 			bandwidth);
-		hackrf_ui()->set_filter_bw(bandwidth);
 		usb_transfer_schedule_ack(endpoint->in);
 	}
 	return USB_REQUEST_STATUS_OK;
@@ -108,7 +107,11 @@ usb_request_status_t usb_vendor_request_set_freq(
 	} else if (stage == USB_TRANSFER_STAGE_DATA) {
 		const uint64_t freq =
 			set_freq_params.freq_mhz * 1000000ULL + set_freq_params.freq_hz;
-		radio_reg_write(&radio, RADIO_BANK_ACTIVE, RADIO_FREQUENCY_RF, freq << 24);
+		radio_reg_write(
+			&radio,
+			RADIO_BANK_ACTIVE,
+			RADIO_FREQUENCY_RF,
+			freq * FP_ONE_HZ);
 		radio_reg_write(
 			&radio,
 			RADIO_BANK_ACTIVE,
@@ -145,12 +148,12 @@ usb_request_status_t usb_vendor_request_set_freq_explicit(
 			&radio,
 			RADIO_BANK_ACTIVE,
 			RADIO_FREQUENCY_IF,
-			explicit_params.if_freq_hz << 24);
+			explicit_params.if_freq_hz * FP_ONE_HZ);
 		radio_reg_write(
 			&radio,
 			RADIO_BANK_ACTIVE,
 			RADIO_FREQUENCY_LO,
-			explicit_params.lo_freq_hz << 24);
+			explicit_params.lo_freq_hz * FP_ONE_HZ);
 		radio_reg_write(
 			&radio,
 			RADIO_BANK_ACTIVE,
@@ -159,6 +162,18 @@ usb_request_status_t usb_vendor_request_set_freq_explicit(
 		usb_transfer_schedule_ack(endpoint->in);
 	}
 	return USB_REQUEST_STATUS_OK;
+}
+
+/*
+ * Convert fractional sample rate to units of 1/(2**24) Hz.
+ */
+static inline fp_40_24_t round_sample_rate(uint64_t num, uint32_t denom)
+{
+	num *= FP_ONE_HZ;
+	if (denom == 0) {
+		denom = 1;
+	}
+	return (num + (denom >> 1)) / denom;
 }
 
 usb_request_status_t usb_vendor_request_set_sample_rate_frac(
@@ -174,9 +189,9 @@ usb_request_status_t usb_vendor_request_set_sample_rate_frac(
 			NULL);
 	} else if (stage == USB_TRANSFER_STAGE_DATA) {
 		uint32_t numerator = set_sample_r_params.freq_hz;
-		uint64_t denominator = set_sample_r_params.divider;
-		uint64_t value = (denominator << 32) | numerator;
-		radio_reg_write(&radio, RADIO_BANK_ACTIVE, RADIO_SAMPLE_RATE_FRAC, value);
+		uint32_t denominator = set_sample_r_params.divider;
+		uint64_t value = round_sample_rate(numerator, denominator);
+		radio_reg_write(&radio, RADIO_BANK_ACTIVE, RADIO_SAMPLE_RATE, value);
 		usb_transfer_schedule_ack(endpoint->in);
 	}
 	return USB_REQUEST_STATUS_OK;
@@ -210,7 +225,6 @@ usb_request_status_t usb_vendor_request_set_lna_gain(
 		uint8_t gain = endpoint->setup.index;
 		radio_reg_write(&radio, RADIO_BANK_ACTIVE, RADIO_GAIN_RX_IF, gain);
 		endpoint->buffer[0] = RADIO_OK;
-		hackrf_ui()->set_bb_lna_gain(gain);
 		usb_transfer_schedule_block(
 			endpoint->in,
 			&endpoint->buffer,
@@ -230,7 +244,6 @@ usb_request_status_t usb_vendor_request_set_vga_gain(
 		uint8_t gain = endpoint->setup.index;
 		radio_reg_write(&radio, RADIO_BANK_ACTIVE, RADIO_GAIN_RX_BB, gain);
 		endpoint->buffer[0] = RADIO_OK;
-		hackrf_ui()->set_bb_vga_gain(gain);
 		usb_transfer_schedule_block(
 			endpoint->in,
 			&endpoint->buffer,
@@ -250,7 +263,6 @@ usb_request_status_t usb_vendor_request_set_txvga_gain(
 		uint8_t gain = endpoint->setup.index;
 		radio_reg_write(&radio, RADIO_BANK_ACTIVE, RADIO_GAIN_TX_IF, gain);
 		endpoint->buffer[0] = RADIO_OK;
-		hackrf_ui()->set_bb_tx_vga_gain(gain);
 		usb_transfer_schedule_block(
 			endpoint->in,
 			&endpoint->buffer,
@@ -312,7 +324,6 @@ void transceiver_shutdown(void)
 void transceiver_startup(const transceiver_mode_t mode)
 {
 	radio_switch_opmode(&radio, mode);
-	hackrf_ui()->set_transceiver_mode(mode);
 
 	switch (mode) {
 	case TRANSCEIVER_MODE_RX_SWEEP:
@@ -465,8 +476,6 @@ void tx_mode(uint32_t seq)
 
 void off_mode(uint32_t seq)
 {
-	hackrf_ui()->set_transceiver_mode(TRANSCEIVER_MODE_OFF);
-
 	while (transceiver_request.seq == seq) {
 		radio_update(&radio);
 	}
