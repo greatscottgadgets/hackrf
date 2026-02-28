@@ -25,7 +25,7 @@
 #include <stddef.h>
 #include <hackrf_core.h>
 #include "usb_api_transceiver.h"
-#include "usb_bulk_buffer.h"
+#include "usb_buffer.h"
 #include "usb_api_m0_state.h"
 #include "tuning.h"
 #include "usb_endpoint.h"
@@ -170,7 +170,7 @@ void sweep_mode(uint32_t seq)
 		m0_state.next_mode = M0_MODE_RX;
 
 		// Write metadata to buffer.
-		buffer = &usb_bulk_buffer[phase * 0x4000];
+		buffer = &usb_samp_buffer[phase * 0x4000];
 		*buffer = 0x7f;
 		*(buffer + 1) = 0x7f;
 		*(buffer + 2) = sweep_freq & 0xff;

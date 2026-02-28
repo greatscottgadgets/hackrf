@@ -35,11 +35,12 @@ MEMORY
 	 * to get performance benefit of having two USB buffers addressable
 	 * simultaneously (on two different buses of the AHB multilayer matrix)
 	 */
-	ram_usb (rwx)     : ORIGIN = 0x20008000, LENGTH = 32K
+	ram_samp (rwx)     : ORIGIN = 0x20008000, LENGTH = 32K
 }
 
-usb_bulk_buffer = ORIGIN(ram_usb);
 lz4_in_buf = ORIGIN(ram_lz4_in);
 lz4_out_buf = ORIGIN(ram_lz4_out);
+usb_samp_buffer = ORIGIN(ram_samp);
+usb_bulk_buffer = ORIGIN(ram_usb);
 m0_state = ORIGIN(ram_shared);
 PROVIDE(__ram_m0_start__ = ORIGIN(ram_m0));

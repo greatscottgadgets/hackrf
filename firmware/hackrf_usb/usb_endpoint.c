@@ -26,13 +26,14 @@
 #include <usb_request.h>
 
 #include "usb_device.h"
+#include "usb_api_transceiver.h"
 
 usb_endpoint_t usb_endpoint_control_out = {
 	.address = 0x00,
 	.device = &usb_device,
 	.in = &usb_endpoint_control_in,
 	.out = &usb_endpoint_control_out,
-	.setup_complete = usb_setup_complete,
+	.setup_complete = transceiver_usb_setup_complete,
 	.transfer_complete = usb_control_out_complete,
 };
 USB_DEFINE_QUEUE(usb_endpoint_control_out, 4);

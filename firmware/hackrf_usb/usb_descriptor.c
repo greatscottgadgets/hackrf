@@ -37,7 +37,7 @@
 	#define USB_PRODUCT_ID (0xFFFF)
 #endif
 
-#define USB_API_VERSION (0x0111)
+#define USB_API_VERSION (0x0112)
 
 #define USB_WORD(x) (x & 0xFF), ((x >> 8) & 0xFF)
 
