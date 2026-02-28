@@ -45,6 +45,7 @@ extern "C" {
 #include "cpld_jtag.h"
 #include "ice40_spi.h"
 #include "fpga.h"
+#include "fixed_point.h"
 
 /*
  * SCU PinMux
@@ -435,8 +436,7 @@ void enable_1v8_power(void);
 void disable_1v8_power(void);
 #endif
 
-bool sample_rate_frac_set(uint32_t rate_num, uint32_t rate_denom);
-bool sample_rate_set(const uint32_t sampling_rate_hz);
+fp_40_24_t sample_rate_set(const fp_40_24_t sample_rate, const bool program);
 
 clock_source_t activate_best_clock_source(void);
 
