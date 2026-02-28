@@ -28,4 +28,17 @@
 
 extern usb_device_t usb_device;
 
+#if defined(HACKRF_ONE) || defined(UNIVERSAL)
+extern const usb_device_t usb_device_hackrf_one;
+#endif
+#if defined(PRALINE) || defined(UNIVERSAL)
+extern const usb_device_t usb_device_praline;
+#endif
+#if defined(JAWBREAKER)
+extern const usb_device_t usb_device_jawbreaker;
+#endif
+#if defined(RAD1O)
+extern const usb_device_t usb_device_rad1o;
+#endif
+
 #endif /* end of include guard: __USB_DEVICE_H__ */

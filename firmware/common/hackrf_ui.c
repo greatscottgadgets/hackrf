@@ -20,6 +20,8 @@
  * Boston, MA 02110-1301, USA.
  */
 
+#include "platform_detect.h"
+
 #include "hackrf_ui.h"
 
 #include "ui_portapack.h"
@@ -78,16 +80,26 @@ const hackrf_ui_t* hackrf_ui(void)
 {
 	/* Detect on first use. If no UI hardware is detected, use a stub function table. */
 	if (ui == NULL && ui_enabled) {
-#if (defined HACKRF_ONE || defined PRALINE)
-		if (portapack_hackrf_ui_init) {
-			ui = portapack_hackrf_ui_init();
-		}
+		switch (detected_platform()) {
+		case BOARD_ID_HACKRF1_OG:
+		case BOARD_ID_HACKRF1_R9:
+		case BOARD_ID_PRALINE:
+#if defined(HACKRF_ONE) || defined(PRALINE) || defined(UNIVERSAL)
+			if (portapack_hackrf_ui_init) {
+				ui = portapack_hackrf_ui_init();
+			}
 #endif
-#ifdef RAD1O
-		if (rad1o_ui_setup) {
-			ui = rad1o_ui_setup();
-		}
+			break;
+		case BOARD_ID_RAD1O:
+#if defined(RAD1O)
+			if (rad1o_ui_setup) {
+				ui = rad1o_ui_setup();
+			}
 #endif
+			break;
+		default:
+			break;
+		}
 	}
 
 	if (ui == NULL) {

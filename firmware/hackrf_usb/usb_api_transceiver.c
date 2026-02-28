@@ -266,6 +266,16 @@ usb_request_status_t usb_vendor_request_set_antenna_enable(
 	usb_endpoint_t* const endpoint,
 	const usb_transfer_stage_t stage)
 {
+	switch (detected_platform()) {
+	case BOARD_ID_HACKRF1_OG:
+	case BOARD_ID_HACKRF1_R9:
+	case BOARD_ID_PRALINE:
+		// supported
+		break;
+	default:
+		return USB_REQUEST_STATUS_STALL;
+	}
+
 	if (stage == USB_TRANSFER_STAGE_SETUP) {
 		radio_reg_write(
 			&radio,

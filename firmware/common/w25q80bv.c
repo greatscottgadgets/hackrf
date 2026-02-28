@@ -30,6 +30,8 @@
 #include <stdint.h>
 #include <stddef.h>
 
+#include "platform_detect.h"
+
 #include "w25q80bv.h"
 
 #define ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]))
@@ -59,13 +61,13 @@ void w25q80bv_setup(w25q80bv_driver_t* const drv)
 	uint8_t device_id;
 
 	drv->page_len = 256U;
-#ifdef PRALINE
-	drv->num_pages = 16384U;
-	drv->num_bytes = 4194304U;
-#else
-	drv->num_pages = 4096U;
-	drv->num_bytes = 1048576U;
-#endif
+	if (detected_platform() == BOARD_ID_PRALINE) {
+		drv->num_pages = 16384U;
+		drv->num_bytes = 4194304U;
+	} else {
+		drv->num_pages = 4096U;
+		drv->num_bytes = 1048576U;
+	}
 
 	drv->target_init(drv);
 

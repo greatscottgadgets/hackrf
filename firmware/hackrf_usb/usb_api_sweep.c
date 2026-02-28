@@ -24,6 +24,7 @@
 #include "usb_queue.h"
 #include <stddef.h>
 #include <hackrf_core.h>
+#include <platform_detect.h>
 #include "usb_api_transceiver.h"
 #include "usb_bulk_buffer.h"
 #include "usb_api_m0_state.h"
@@ -37,11 +38,6 @@
 #define MAX(x, y)        ((x) > (y) ? (x) : (y))
 #define FREQ_GRANULARITY 1000000
 #define MAX_RANGES       10
-#ifndef PRALINE
-	#define THROWAWAY_BUFFERS 2
-#else
-	#define THROWAWAY_BUFFERS 1
-#endif
 
 static uint64_t sweep_freq;
 static uint16_t frequencies[MAX_RANGES * 2];
@@ -50,6 +46,7 @@ static uint16_t num_ranges = 0;
 static uint32_t dwell_blocks = 0;
 static uint32_t step_width = 0;
 static uint32_t offset = 0;
+static uint32_t throwaway_buffers = 0;
 static enum sweep_style style = LINEAR;
 
 /* Do this before starting sweep mode with request_transceiver_mode(). */
@@ -57,6 +54,12 @@ usb_request_status_t usb_vendor_request_init_sweep(
 	usb_endpoint_t* const endpoint,
 	const usb_transfer_stage_t stage)
 {
+	if (detected_platform() == BOARD_ID_PRALINE) {
+		throwaway_buffers = 1;
+	} else {
+		throwaway_buffers = 2;
+	}
+
 	uint32_t num_bytes;
 	int i;
 	if (stage == USB_TRANSFER_STAGE_SETUP) {
@@ -113,7 +116,7 @@ void sweep_bulk_transfer_complete(void* user_data, unsigned int bytes_transferre
 
 	// For each buffer transferred, we need to bump the count to allow
 	// for the buffer(s) that are to be discarded.
-	m0_state.m4_count += (THROWAWAY_BUFFERS + 1) * 0x4000;
+	m0_state.m4_count += (throwaway_buffers + 1) * 0x4000;
 }
 
 void sweep_mode(uint32_t seq)
@@ -166,7 +169,7 @@ void sweep_mode(uint32_t seq)
 
 		// Set M0 to switch back to RX after we have received our
 		// discard buffers.
-		m0_state.threshold += (0x4000 * THROWAWAY_BUFFERS);
+		m0_state.threshold += (0x4000 * throwaway_buffers);
 		m0_state.next_mode = M0_MODE_RX;
 
 		// Write metadata to buffer.
@@ -191,7 +194,7 @@ void sweep_mode(uint32_t seq)
 			NULL);
 
 		// Use other buffer next time.
-		phase = (phase + 1) % THROWAWAY_BUFFERS;
+		phase = (phase + 1) % throwaway_buffers;
 
 		if (++blocks_queued == dwell_blocks) {
 			// Calculate next sweep frequency.

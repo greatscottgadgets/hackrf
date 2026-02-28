@@ -32,13 +32,15 @@
 
 #define FREQ_ONE_MHZ (1000ULL * 1000)
 
+void tuning_setup(void);
+
 bool set_freq(const uint64_t freq);
 bool set_freq_explicit(
 	const uint64_t if_freq_hz,
 	const uint64_t lo_freq_hz,
 	const rf_path_filter_t path);
 
-#ifdef PRALINE
+#if defined(PRALINE) || defined(UNIVERSAL)
 bool tuning_set_frequency(
 	const tune_config_t* cfg,
 	const uint64_t freq,

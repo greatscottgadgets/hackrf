@@ -53,7 +53,7 @@ void append(char** dest, size_t* capacity, const char* str)
 	}
 }
 
-#ifdef PRALINE
+#if defined(PRALINE) || defined(UNIVERSAL)
 static const char* test_result_to_str(test_result_t result)
 {
 	switch (result) {
@@ -72,91 +72,105 @@ static const char* test_result_to_str(test_result_t result)
 
 void generate_selftest_report(void)
 {
+	board_id_t board_id = detected_platform();
+
 	char* s = &selftest.report.msg[0];
 	size_t c = sizeof(selftest.report.msg);
-#ifdef RAD1O
-	append(&s, &c, "Mixer: MAX2871, ID: ");
-	append(&s, &c, itoa(selftest.mixer_id, 10));
-	append(&s, &c, "\n");
-#else
-	append(&s, &c, "Mixer: RFFC5072, ID: ");
-	append(&s, &c, itoa(selftest.mixer_id >> 3, 10));
-	append(&s, &c, ", Rev: ");
-	append(&s, &c, itoa(selftest.mixer_id & 0x7, 10));
-	append(&s, &c, ", Locks: ");
-	bool lock;
-	for (int i = 0; i < NUM_LOCK_ATTEMPTS; i++) {
-		lock = selftest.mixer_locks[i];
-		append(&s, &c, itoa(lock, 2));
-	}
-	if (lock) {
-		append(&s, &c, " (PASS)");
-	} else {
-		append(&s, &c, " (FAIL)");
-	}
-	append(&s, &c, "\n");
+	if (board_id == BOARD_ID_RAD1O) {
+#if defined(RAD1O)
+		append(&s, &c, "Mixer: MAX2871, ID: ");
+		append(&s, &c, itoa(selftest.mixer_id, 10));
+		append(&s, &c, "\n");
 #endif
+	} else {
+#if !defined(RAD1O)
+		append(&s, &c, "Mixer: RFFC5072, ID: ");
+		append(&s, &c, itoa(selftest.mixer_id >> 3, 10));
+		append(&s, &c, ", Rev: ");
+		append(&s, &c, itoa(selftest.mixer_id & 0x7, 10));
+		append(&s, &c, ", Locks: ");
+		bool lock;
+		for (int i = 0; i < NUM_LOCK_ATTEMPTS; i++) {
+			lock = selftest.mixer_locks[i];
+			append(&s, &c, itoa(lock, 2));
+		}
+		if (lock) {
+			append(&s, &c, " (PASS)");
+		} else {
+			append(&s, &c, " (FAIL)");
+		}
+		append(&s, &c, "\n");
+#endif
+	}
+
 	append(&s, &c, "Clock: Si5351");
 	append(&s, &c, ", Rev: ");
 	append(&s, &c, itoa(selftest.si5351_rev_id, 10));
 	append(&s, &c, ", readback: ");
 	append(&s, &c, selftest.si5351_readback_ok ? "OK" : "FAIL");
 	append(&s, &c, "\n");
-#ifdef PRALINE
-	append(&s, &c, "Transceiver: MAX2831, RSSI mux test: ");
-	append(&s, &c, selftest.max2831_mux_test_ok ? "PASS" : "FAIL");
-	append(&s, &c, "\n");
-#else
-	append(&s, &c, "Transceiver: ");
-	append(&s,
-	       &c,
-	       (detected_platform() == BOARD_ID_HACKRF1_R9 ? "MAX2839" : "MAX2837"));
-	append(&s, &c, ", readback success: ");
-	append(&s, &c, itoa(selftest.max283x_readback_register_count, 10));
-	append(&s, &c, "/");
-	append(&s, &c, itoa(selftest.max283x_readback_total_registers, 10));
-	if (selftest.max283x_readback_register_count <
-	    selftest.max283x_readback_total_registers) {
-		append(&s, &c, ", bad value: 0x");
-		append(&s, &c, itoa(selftest.max283x_readback_bad_value, 10));
-		append(&s, &c, ", expected: 0x");
-		append(&s, &c, itoa(selftest.max283x_readback_expected_value, 10));
-	}
-	append(&s, &c, "\n");
-#endif
-#ifdef PRALINE
-	append(&s, &c, "FPGA configuration: ");
-	append(&s, &c, test_result_to_str(selftest.fpga_image_load));
-	append(&s, &c, "\n");
-	append(&s, &c, "FPGA SPI: ");
-	append(&s, &c, test_result_to_str(selftest.fpga_spi));
-	append(&s, &c, "\n");
-	append(&s, &c, "SGPIO RX test: ");
-	append(&s, &c, test_result_to_str(selftest.sgpio_rx));
-	append(&s, &c, "\n");
-	append(&s, &c, "Loopback test: ");
-	append(&s, &c, test_result_to_str(selftest.xcvr_loopback));
-	append(&s, &c, "\n");
-	// Dump transceiver loopback measurements.
-	for (int i = 0; i < 4; ++i) {
-		struct xcvr_measurements* m = &selftest.xcvr_measurements[i];
-		append(&s, &c, " ");
-		append(&s, &c, itoa(i, 10));
-		append(&s, &c, ":");
-		append(&s, &c, itoa(m->zcs_i, 10));
-		append(&s, &c, ",");
-		append(&s, &c, itoa(m->zcs_q, 10));
-		append(&s, &c, ",");
-		append(&s, &c, itoa(m->max_mag_i, 10));
-		append(&s, &c, ",");
-		append(&s, &c, itoa(m->max_mag_q, 10));
-		append(&s, &c, ",");
-		append(&s, &c, itoa(m->avg_mag_sq_i, 10));
-		append(&s, &c, ",");
-		append(&s, &c, itoa(m->avg_mag_sq_q, 10));
+
+	if (board_id == BOARD_ID_PRALINE) {
+#if defined(PRALINE) || defined(UNIVERSAL)
+		append(&s, &c, "Transceiver: MAX2831, RSSI mux test: ");
+		append(&s, &c, selftest.max2831_mux_test_ok ? "PASS" : "FAIL");
 		append(&s, &c, "\n");
-	}
 #endif
+	} else {
+#if !defined(PRALINE) || defined(UNIVERSAL)
+		append(&s, &c, "Transceiver: ");
+		append(&s, &c, (board_id == BOARD_ID_HACKRF1_R9 ? "MAX2839" : "MAX2837"));
+		append(&s, &c, ", readback success: ");
+		append(&s, &c, itoa(selftest.max283x_readback_register_count, 10));
+		append(&s, &c, "/");
+		append(&s, &c, itoa(selftest.max283x_readback_total_registers, 10));
+		if (selftest.max283x_readback_register_count <
+		    selftest.max283x_readback_total_registers) {
+			append(&s, &c, ", bad value: 0x");
+			append(&s, &c, itoa(selftest.max283x_readback_bad_value, 10));
+			append(&s, &c, ", expected: 0x");
+			append(&s,
+			       &c,
+			       itoa(selftest.max283x_readback_expected_value, 10));
+		}
+		append(&s, &c, "\n");
+#endif
+	}
+	if (board_id == BOARD_ID_PRALINE) {
+#if defined(PRALINE) || defined(UNIVERSAL)
+		append(&s, &c, "FPGA configuration: ");
+		append(&s, &c, test_result_to_str(selftest.fpga_image_load));
+		append(&s, &c, "\n");
+		append(&s, &c, "FPGA SPI: ");
+		append(&s, &c, test_result_to_str(selftest.fpga_spi));
+		append(&s, &c, "\n");
+		append(&s, &c, "SGPIO RX test: ");
+		append(&s, &c, test_result_to_str(selftest.sgpio_rx));
+		append(&s, &c, "\n");
+		append(&s, &c, "Loopback test: ");
+		append(&s, &c, test_result_to_str(selftest.xcvr_loopback));
+		append(&s, &c, "\n");
+		// Dump transceiver loopback measurements.
+		for (int i = 0; i < 4; ++i) {
+			struct xcvr_measurements* m = &selftest.xcvr_measurements[i];
+			append(&s, &c, " ");
+			append(&s, &c, itoa(i, 10));
+			append(&s, &c, ":");
+			append(&s, &c, itoa(m->zcs_i, 10));
+			append(&s, &c, ",");
+			append(&s, &c, itoa(m->zcs_q, 10));
+			append(&s, &c, ",");
+			append(&s, &c, itoa(m->max_mag_i, 10));
+			append(&s, &c, ",");
+			append(&s, &c, itoa(m->max_mag_q, 10));
+			append(&s, &c, ",");
+			append(&s, &c, itoa(m->avg_mag_sq_i, 10));
+			append(&s, &c, ",");
+			append(&s, &c, itoa(m->avg_mag_sq_q, 10));
+			append(&s, &c, "\n");
+		}
+#endif
+	}
 }
 
 usb_request_status_t usb_vendor_request_read_selftest(

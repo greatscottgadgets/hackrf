@@ -30,10 +30,16 @@
 
 #include "gpio.h"
 #include "gpio_lpc.h"
-#include "max2837.h"
-#include "max2837_target.h"
-#include "max2839.h"
-#include "max2839_target.h"
+#if defined(PRALINE) || defined(UNIVERSAL)
+	#include "max2831.h"
+	#include "max2831_target.h"
+#endif
+#if !defined(PRALINE) || defined(UNIVERSAL)
+	#include "max2837.h"
+	#include "max2837_target.h"
+	#include "max2839.h"
+	#include "max2839_target.h"
+#endif
 #include "spi_bus.h"
 
 typedef enum {
@@ -47,16 +53,33 @@ typedef enum {
 } max283x_mode_t;
 
 typedef enum {
+	MAX283x_RX_HPF_100_HZ = 0,
+	MAX283x_RX_HPF_4_KHZ = 1,
+	MAX283x_RX_HPF_30_KHZ = 2,
+	MAX283x_RX_HPF_600_KHZ = 3,
+} max283x_rx_hpf_freq_t;
+
+typedef enum {
+#if defined(PRALINE) || defined(UNIVERSAL)
+	MAX2831_VARIANT,
+#endif
+#if !defined(PRALINE) || defined(UNIVERSAL)
 	MAX2837_VARIANT,
 	MAX2839_VARIANT,
+#endif
 } max283x_variant_t;
 
 typedef struct {
 	max283x_variant_t type;
 
 	union {
+#if defined(PRALINE) || defined(UNIVERSAL)
+		max2831_driver_t max2831;
+#endif
+#if !defined(PRALINE) || defined(UNIVERSAL)
 		max2837_driver_t max2837;
 		max2839_driver_t max2839;
+#endif
 	} drv;
 } max283x_driver_t;
 
@@ -97,5 +120,14 @@ bool max283x_set_txvga_gain(max283x_driver_t* const drv, const uint32_t gain_db)
 
 void max283x_tx(max283x_driver_t* const drv);
 void max283x_rx(max283x_driver_t* const drv);
+
+/* Set MAX2831 receiver high-pass filter corner frequency in Hz */
+void max283x_set_rx_hpf_frequency(
+	max283x_driver_t* const drv,
+	const max283x_rx_hpf_freq_t freq);
+
+/* Perform MAX2831 TX and RX calibration. */
+void max283x_tx_calibration(max283x_driver_t* const drv);
+void max283x_rx_calibration(max283x_driver_t* const drv);
 
 #endif // __MAX283x_H

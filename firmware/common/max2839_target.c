@@ -23,17 +23,18 @@
 
 #include "max2839_target.h"
 
-#include <libopencm3/lpc43xx/scu.h>
-#include "hackrf_core.h"
+#include "platform_scu.h"
 
 void max2839_target_init(max2839_driver_t* const drv)
 {
-	/* Configure SSP1 Peripheral (to be moved later in SSP driver) */
-	scu_pinmux(SCU_SSP1_CIPO, (SCU_SSP_IO | SCU_CONF_FUNCTION5));
-	scu_pinmux(SCU_SSP1_COPI, (SCU_SSP_IO | SCU_CONF_FUNCTION5));
-	scu_pinmux(SCU_SSP1_SCK, (SCU_SSP_IO | SCU_CONF_FUNCTION1));
+	const platform_scu_t* scu = platform_scu();
 
-	scu_pinmux(SCU_XCVR_CS, SCU_GPIO_FAST);
+	/* Configure SSP1 Peripheral (to be moved later in SSP driver) */
+	scu_pinmux(scu->SSP1_CIPO, (SCU_SSP_IO | SCU_CONF_FUNCTION5));
+	scu_pinmux(scu->SSP1_COPI, (SCU_SSP_IO | SCU_CONF_FUNCTION5));
+	scu_pinmux(scu->SSP1_SCK, (SCU_SSP_IO | SCU_CONF_FUNCTION1));
+
+	scu_pinmux(scu->XCVR_CS, SCU_GPIO_FAST);
 
 	/*
 	 * Configure XCVR_CTL GPIO pins.
@@ -42,8 +43,8 @@ void max2839_target_init(max2839_driver_t* const drv)
 	 * MAX2837 which had a separate TXENABLE. On MAX2839 a single RXTX pin
 	 * switches between RX (high) and TX (low) modes.
  	 */
-	scu_pinmux(SCU_XCVR_ENABLE, SCU_GPIO_FAST);
-	scu_pinmux(SCU_XCVR_RXENABLE, SCU_GPIO_FAST);
+	scu_pinmux(scu->XCVR_ENABLE, SCU_GPIO_FAST);
+	scu_pinmux(scu->XCVR_RXENABLE, SCU_GPIO_FAST);
 
 	/* Set GPIO pins as outputs. */
 	gpio_output(drv->gpio_enable);

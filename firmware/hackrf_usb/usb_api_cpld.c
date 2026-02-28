@@ -24,6 +24,7 @@
 #include "usb_api_cpld.h"
 
 #include <hackrf_core.h>
+#include <platform_detect.h>
 #include <cpld_jtag.h>
 #include <cpld_xc2c.h>
 #include <usb_queue.h>
@@ -88,6 +89,15 @@ usb_request_status_t usb_vendor_request_cpld_checksum(
 {
 	static uint32_t cpld_crc;
 	uint8_t length;
+
+	switch (detected_platform()) {
+	case BOARD_ID_HACKRF1_OG:
+	case BOARD_ID_HACKRF1_R9:
+		// supported
+		break;
+	default:
+		return USB_REQUEST_STATUS_STALL;
+	}
 
 	if (stage == USB_TRANSFER_STAGE_SETUP) {
 		cpld_jtag_take(&jtag_cpld);

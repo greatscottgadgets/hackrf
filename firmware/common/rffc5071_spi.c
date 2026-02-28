@@ -20,8 +20,8 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include <libopencm3/lpc43xx/scu.h>
 #include "hackrf_core.h"
+#include "platform_scu.h"
 
 #include "rffc5071_spi.h"
 
@@ -65,8 +65,9 @@ static void rffc5071_spi_bus_init(spi_bus_t* const bus)
 {
 	const rffc5071_spi_config_t* const config = bus->config;
 
-	scu_pinmux(SCU_MIXER_SCLK, SCU_MIXER_SCLK_PINCFG);
-	scu_pinmux(SCU_MIXER_SDATA, SCU_MIXER_SDATA_PINCFG);
+	const platform_scu_t* scu = platform_scu();
+	scu_pinmux(scu->MIXER_SCLK, scu->MIXER_SCLK_PINCFG);
+	scu_pinmux(scu->MIXER_SDATA, scu->MIXER_SDATA_PINCFG);
 
 	gpio_output(config->gpio_clock);
 	rffc5071_spi_direction_out(bus);
@@ -80,8 +81,9 @@ static void rffc5071_spi_target_init(spi_bus_t* const bus)
 	const rffc5071_spi_config_t* const config = bus->config;
 
 	/* Configure GPIO pins. */
-	scu_pinmux(SCU_MIXER_ENX, SCU_GPIO_FAST);
-	scu_pinmux(SCU_MIXER_RESETX, SCU_GPIO_FAST);
+	const platform_scu_t* scu = platform_scu();
+	scu_pinmux(scu->MIXER_ENX, SCU_GPIO_FAST);
+	scu_pinmux(scu->MIXER_RESETX, SCU_GPIO_FAST);
 
 	/* Set GPIO pins as outputs. */
 	gpio_output(config->gpio_select);
