@@ -150,7 +150,7 @@ void max2831_set_mode(max2831_driver_t* const drv, const max2831_mode_t new_mode
 	}
 
 	drv->set_mode(drv, new_mode);
-	max2831_set_lpf_bandwidth(drv, drv->desired_lpf_bw);
+	max2831_set_lpf_bandwidth(drv, new_mode, drv->desired_lpf_bw);
 }
 
 max2831_mode_t max2831_mode(max2831_driver_t* const drv)
@@ -304,13 +304,13 @@ static const max2831_ft_fine_t max2831_tx_ft_fine[] = {
 //clang-format on
 
 
-uint32_t max2831_set_lpf_bandwidth(max2831_driver_t* const drv, const uint32_t bandwidth_hz) {
+uint32_t max2831_set_lpf_bandwidth(max2831_driver_t* const drv, const max2831_mode_t mode, const uint32_t bandwidth_hz) {
 	const max2831_ft_t* coarse;
 	const max2831_ft_fine_t* fine;
 
 	drv->desired_lpf_bw = bandwidth_hz;
 
-	if (drv->mode == MAX2831_MODE_RX) {
+	if (mode == MAX2831_MODE_RX) {
 		coarse = max2831_rx_ft;
 		fine = max2831_rx_ft_fine;
 	} else {
@@ -343,7 +343,7 @@ uint32_t max2831_set_lpf_bandwidth(max2831_driver_t* const drv, const uint32_t b
 
 	/* Program found settings. */
 	set_MAX2831_LPF_COARSE(drv, coarse->ft);
-	if (drv->mode == MAX2831_MODE_RX) {
+	if (mode == MAX2831_MODE_RX) {
 		set_MAX2831_RX_LPF_FINE_ADJ(drv, f->ft_fine);
 	} else {
 		set_MAX2831_TX_LPF_FINE_ADJ(drv, f->ft_fine);

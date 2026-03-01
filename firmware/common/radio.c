@@ -394,7 +394,7 @@ static bool radio_update_frequency(radio_t* const radio, uint64_t* bank)
 	return true;
 }
 
-static uint32_t auto_bandwidth(radio_t* const radio, uint64_t opmode)
+static uint32_t auto_bandwidth(radio_t* const radio)
 {
 	uint64_t rotation = radio->config[RADIO_BANK_APPLIED][RADIO_ROTATION];
 
@@ -413,70 +413,49 @@ static uint32_t auto_bandwidth(radio_t* const radio, uint64_t opmode)
 	const uint32_t bb_bandwidth = (sample_rate_hz * 3) / 4;
 	const uint32_t lpf_bandwidth = bb_bandwidth + offset_hz * 2;
 
-	switch (opmode) {
-	case TRANSCEIVER_MODE_TX:
-	case TRANSCEIVER_MODE_SS:
-		radio->config[RADIO_BANK_APPLIED][RADIO_BB_BANDWIDTH_TX] = bb_bandwidth;
-		break;
-	default:
-		radio->config[RADIO_BANK_APPLIED][RADIO_BB_BANDWIDTH_RX] = bb_bandwidth;
-	}
+	radio->config[RADIO_BANK_APPLIED][RADIO_BB_BANDWIDTH_TX] = bb_bandwidth;
+	radio->config[RADIO_BANK_APPLIED][RADIO_BB_BANDWIDTH_RX] = bb_bandwidth;
+
 	return lpf_bandwidth;
 }
 
 static bool radio_update_bandwidth(radio_t* const radio, uint64_t* bank)
 {
 	bool new_bw = false;
-	uint64_t opmode = bank[RADIO_OPMODE];
-	if (opmode == RADIO_UNSET) {
-		opmode = radio->config[RADIO_BANK_APPLIED][RADIO_OPMODE];
-	}
 
 #ifdef PRALINE
 	/* Praline legacy mode always sets baseband bandwidth automatically. */
 	(void) bank;
-	uint32_t lpf_bandwidth = auto_bandwidth(radio, opmode);
+	uint32_t lpf_bandwidth = auto_bandwidth(radio);
 
-	switch (opmode) {
-	case TRANSCEIVER_MODE_TX:
-	case TRANSCEIVER_MODE_SS:
-		if (radio->config[RADIO_BANK_APPLIED][RADIO_XCVR_TX_LPF] !=
-		    lpf_bandwidth) {
-			max2831_set_lpf_bandwidth(&max283x, lpf_bandwidth);
-			radio->config[RADIO_BANK_APPLIED][RADIO_XCVR_TX_LPF] =
-				lpf_bandwidth;
-			new_bw = true;
-		}
-		break;
-	default:
-		if (radio->config[RADIO_BANK_APPLIED][RADIO_XCVR_RX_LPF] !=
-		    lpf_bandwidth) {
-			max2831_set_lpf_bandwidth(&max283x, lpf_bandwidth);
-			radio->config[RADIO_BANK_APPLIED][RADIO_XCVR_RX_LPF] =
-				lpf_bandwidth;
-			new_bw = true;
-		}
-		bool narrow_lpf_enable = false;
-		bool applied_narrow_lpf_enable =
-			radio->config[RADIO_BANK_APPLIED][RADIO_RX_NARROW_LPF];
-		if (lpf_bandwidth <= 1750000) {
-			narrow_lpf_enable = true;
-		}
-		if (applied_narrow_lpf_enable != narrow_lpf_enable) {
-			narrowband_filter_set(narrow_lpf_enable);
-			radio->config[RADIO_BANK_APPLIED][RADIO_RX_NARROW_LPF] =
-				narrow_lpf_enable;
-			new_bw = true;
-		}
-		/* Always set HPF bandwidth to 30 kHz for now. */
-		const max2831_rx_hpf_freq_t hpf_bandwidth = MAX2831_RX_HPF_30_KHZ;
-		if (radio->config[RADIO_BANK_APPLIED][RADIO_XCVR_RX_HPF] !=
-		    hpf_bandwidth) {
-			max2831_set_rx_hpf_frequency(&max283x, hpf_bandwidth);
-			radio->config[RADIO_BANK_APPLIED][RADIO_XCVR_RX_HPF] =
-				hpf_bandwidth;
-			new_bw = true;
-		}
+	if (radio->config[RADIO_BANK_APPLIED][RADIO_XCVR_TX_LPF] != lpf_bandwidth) {
+		max2831_set_lpf_bandwidth(&max283x, MAX2831_MODE_TX, lpf_bandwidth);
+		radio->config[RADIO_BANK_APPLIED][RADIO_XCVR_TX_LPF] = lpf_bandwidth;
+		new_bw = true;
+	}
+	if (radio->config[RADIO_BANK_APPLIED][RADIO_XCVR_RX_LPF] != lpf_bandwidth) {
+		max2831_set_lpf_bandwidth(&max283x, MAX2831_MODE_RX, lpf_bandwidth);
+		radio->config[RADIO_BANK_APPLIED][RADIO_XCVR_RX_LPF] = lpf_bandwidth;
+		new_bw = true;
+	}
+	bool narrow_lpf_enable = false;
+	bool applied_narrow_lpf_enable =
+		radio->config[RADIO_BANK_APPLIED][RADIO_RX_NARROW_LPF];
+	if (lpf_bandwidth <= 1750000) {
+		narrow_lpf_enable = true;
+	}
+	if (applied_narrow_lpf_enable != narrow_lpf_enable) {
+		narrowband_filter_set(narrow_lpf_enable);
+		radio->config[RADIO_BANK_APPLIED][RADIO_RX_NARROW_LPF] =
+			narrow_lpf_enable;
+		new_bw = true;
+	}
+	/* Always set HPF bandwidth to 30 kHz for now. */
+	const max2831_rx_hpf_freq_t hpf_bandwidth = MAX2831_RX_HPF_30_KHZ;
+	if (radio->config[RADIO_BANK_APPLIED][RADIO_XCVR_RX_HPF] != hpf_bandwidth) {
+		max2831_set_rx_hpf_frequency(&max283x, hpf_bandwidth);
+		radio->config[RADIO_BANK_APPLIED][RADIO_XCVR_RX_HPF] = hpf_bandwidth;
+		new_bw = true;
 	}
 #else
 	uint64_t lpf_bandwidth;
@@ -494,7 +473,7 @@ static bool radio_update_bandwidth(radio_t* const radio, uint64_t* bank)
 		lpf_bandwidth = radio->config[RADIO_BANK_APPLIED][RADIO_XCVR_TX_LPF];
 	}
 	if (lpf_bandwidth == RADIO_UNSET) {
-		lpf_bandwidth = auto_bandwidth(radio, opmode);
+		lpf_bandwidth = auto_bandwidth(radio);
 	}
 
 	if (radio->config[RADIO_BANK_APPLIED][RADIO_XCVR_TX_LPF] != lpf_bandwidth) {
