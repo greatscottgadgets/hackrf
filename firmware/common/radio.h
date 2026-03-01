@@ -27,6 +27,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#include "fixed_point.h"
+
 typedef enum {
 	RADIO_OK = 1,
 	RADIO_ERR_INVALID_PARAM = -2,
@@ -205,10 +207,20 @@ typedef enum {
 
 #define RADIO_NUM_BANKS (5)
 
+/**
+ * A callback function must be provided that configures clock generation to
+ * produce the requested sample clock frequency. The function must return the
+ * configured sample rate. A boolean program argument may be set to false to
+ * execute a dry run, returning the sample rate without configuring clock
+ * generation.
+ */
+typedef fp_40_24_t (*sample_rate_fn)(const fp_40_24_t sample_rate, const bool program);
+
 typedef struct radio_t {
 	radio_config_mode_t config_mode;
 	uint64_t config[RADIO_NUM_BANKS][RADIO_NUM_REGS];
 	volatile uint32_t regs_dirty;
+	sample_rate_fn sample_rate_cb;
 } radio_t;
 
 void radio_init(radio_t* const radio);
