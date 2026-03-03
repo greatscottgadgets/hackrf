@@ -186,6 +186,20 @@ typedef enum {
 #define RADIO_NUM_REGS (23)
 #define RADIO_UNSET    (0xffffffffffffffff)
 
+/* register groups for bitfield convenience */
+#define RADIO_REG_GROUP_RATE \
+	((1 << RADIO_SAMPLE_RATE) | (1 << RADIO_RESAMPLE_TX) | (1 << RADIO_RESAMPLE_RX))
+#define RADIO_REG_GROUP_FREQ                                     \
+	((1 << RADIO_FREQUENCY_RF) | (1 << RADIO_FREQUENCY_IF) | \
+	 (1 << RADIO_FREQUENCY_LO) | (1 << RADIO_IMAGE_REJECT) | (1 << RADIO_ROTATION))
+#define RADIO_REG_GROUP_BW                                             \
+	((1 << RADIO_BB_BANDWIDTH_TX) | (1 << RADIO_BB_BANDWIDTH_RX) | \
+	 (1 << RADIO_XCVR_TX_LPF) | (1 << RADIO_XCVR_RX_LPF) |         \
+	 (1 << RADIO_XCVR_RX_HPF) | (1 << RADIO_RX_NARROW_LPF))
+#define RADIO_REG_GROUP_GAIN                                                           \
+	((1 << RADIO_GAIN_TX_RF) | (1 << RADIO_GAIN_TX_IF) | (1 << RADIO_GAIN_RX_RF) | \
+	 (1 << RADIO_GAIN_RX_IF) | (1 << RADIO_GAIN_RX_BB) | (1 << RADIO_OPMODE))
+
 /**
  * Register bank RADIO_BANK_ACTIVE stores the active configuration. Active
  * register settings are copied to the applied register when applied.
@@ -216,11 +230,19 @@ typedef enum {
  */
 typedef fp_40_24_t (*sample_rate_fn)(const fp_40_24_t sample_rate, const bool program);
 
+/**
+ * An optional callback may be provided that is called after each time the
+ * radio configuration has been updated. The single argument is a bitfield
+ * indicating registers that have been changed.
+ */
+typedef void (*update_fn)(const uint32_t changed_regs);
+
 typedef struct radio_t {
 	radio_config_mode_t config_mode;
 	uint64_t config[RADIO_NUM_BANKS][RADIO_NUM_REGS];
 	volatile uint32_t regs_dirty;
 	sample_rate_fn sample_rate_cb;
+	update_fn update_cb;
 } radio_t;
 
 void radio_init(radio_t* const radio);
