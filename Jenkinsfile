@@ -58,11 +58,21 @@ pipeline {
                         }
                     }
                     sh 'sleep 1s'
-                    sh '''python3 ci-scripts/hackrf_test.py --ci --log log \
-                        --hostdir host/build/hackrf-tools/src/ \
-                        --fwupdate firmware/hackrf_usb/build/ \
-                        --tester 0000000000000000325866e629a25623 \
-                        --eut RunningFromRAM --unattended --rev r4'''
+                    script {
+                        try {
+                            // Allow 10 seconds for the USB hub port power server to respond
+                            timeout(time: 10, unit: 'MINUTES') {
+                                sh '''python3 ci-scripts/hackrf_test.py --ci --log log \
+                                    --hostdir host/build/hackrf-tools/src/ \
+                                    --fwupdate firmware/hackrf_usb/build/ \
+                                    --tester 0000000000000000325866e629a25623 \
+                                    --eut RunningFromRAM --unattended --rev r4'''
+                            }
+                        } catch (err) {
+                            echo "HackRF One Test timeout reached."
+                            throw err
+                        }
+                    }
                     sh 'hubs all off'
                 }
                 retry(3) {
@@ -134,11 +144,22 @@ pipeline {
                         }
                     }
                     sh 'sleep 1s'
-                    sh '''python3 ci-scripts/hackrf_pro_test.py --ci --log log \
-                        --hostdir host/build/hackrf-tools/src \
-                        --fwupdate firmware/hackrf_usb/build \
-                        --tester 0000000000000000a06063c82338145f \
-                        --eut RunningFromRAM -p --rev r1.2'''
+                    script {
+                        try {
+                            // Allow 10 seconds for the USB hub port power server to respond
+                            timeout(time: 10, unit: 'MINUTES') {
+                                sh '''python3 ci-scripts/hackrf_pro_test.py --ci --log log \
+                                    --hostdir host/build/hackrf-tools/src \
+                                    --fwupdate firmware/hackrf_usb/build \
+                                    --tester 0000000000000000a06063c82338145f \
+                                    --eut RunningFromRAM -p --rev r1.2'''
+                            }
+                        } catch (err) {
+                            echo "HackRF Pro Test timeout reached."
+                            throw err
+                        }
+                    }
+
                     script {
                         try {
                             // Allow 10 seconds for the USB hub port power server to respond
