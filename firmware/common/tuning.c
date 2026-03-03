@@ -24,14 +24,10 @@
 #include "tuning.h"
 
 #include "hackrf_core.h"
-#include "hackrf_ui.h"
 #include "max283x.h"
 #include "mixer.h"
 #include "platform_detect.h"
 #include "sgpio.h"
-#if defined(PRALINE) || defined(HACKRF_ONE) || defined(UNIVERSAL)
-	#include "operacake.h"
-#endif
 #if defined(PRALINE) || defined(UNIVERSAL)
 	#include "fpga.h"
 #endif
@@ -165,14 +161,6 @@ bool set_freq(const uint64_t freq)
 		success = false;
 	}
 	max283x_set_mode(&max283x, prior_max283x_mode);
-	if (success) {
-		hackrf_ui()->set_frequency(freq);
-#ifdef IS_EXPANSION_COMPATIBLE
-		if (IS_EXPANSION_COMPATIBLE) {
-			operacake_set_range(freq_mhz);
-		}
-#endif
-	}
 	return success;
 }
 #endif
@@ -232,8 +220,6 @@ bool tuning_set_frequency(
 	}
 
 	max283x_set_mode(&max283x, prior_max283x_mode);
-	hackrf_ui()->set_frequency(freq);
-	operacake_set_range(freq_mhz);
 	return true;
 }
 #endif
