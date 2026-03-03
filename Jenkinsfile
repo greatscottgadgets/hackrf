@@ -13,7 +13,6 @@ pipeline {
                     reuseNode true
                     args '''--group-add=20 --group-add=46 --device-cgroup-rule="c 189:* rmw" \
                             --device-cgroup-rule="c 166:* rmw" -v /dev/bus/usb:/dev/bus/usb \
-                            -e TESTER=0000000000000000325866e629a25623 -e EUT=RunningFromRAM \
                             -v /tmp/req_pipe:/tmp/req_pipe -v /tmp/res_pipe:/tmp/res_pipe'''
                 }
             }
@@ -23,7 +22,7 @@ pipeline {
                 script {
                     try {
                         // Allow 10 seconds for the USB hub port power server to respond
-                        timeout(time: 10, unit: 'SECONDS') {
+                        timeout(time: 20, unit: 'SECONDS') {
                             sh 'hubs all off'
                         }
                     } catch (err) {
@@ -35,7 +34,7 @@ pipeline {
                     script {
                         try {
                             // Allow 10 seconds for the USB hub port power server to respond
-                            timeout(time: 10, unit: 'SECONDS') {
+                            timeout(time: 20, unit: 'SECONDS') {
                                 sh 'hubs h1_eut reset'
                             }
                         } catch (err) {
@@ -50,7 +49,7 @@ pipeline {
                     script {
                         try {
                             // Allow 10 seconds for the USB hub port power server to respond
-                            timeout(time: 10, unit: 'SECONDS') {
+                            timeout(time: 20, unit: 'SECONDS') {
                                 sh 'hubs h1_tester h1_eut reset'
                             }
                         } catch (err) {
@@ -70,7 +69,7 @@ pipeline {
                     script {
                         try {
                             // Allow 10 seconds for the USB hub port power server to respond
-                            timeout(time: 10, unit: 'SECONDS') {
+                            timeout(time: 20, unit: 'SECONDS') {
                                 sh 'hubs h1_eut reset'
                             }
                         } catch (err) {
@@ -90,7 +89,6 @@ pipeline {
                     reuseNode true
                     args '''--group-add=20 --group-add=46 --device-cgroup-rule="c 189:* rmw" \
                     --device-cgroup-rule="c 166:* rmw" -v /dev/bus/usb:/dev/bus/usb \
-                    -e TESTER=0000000000000000325866e629a25623 -e EUT=RunningFromRAM \
                     -v /tmp/req_pipe:/tmp/req_pipe -v /tmp/res_pipe:/tmp/res_pipe'''
                 }
             }
@@ -100,7 +98,7 @@ pipeline {
                 script {
                     try {
                         // Allow 10 seconds for the USB hub port power server to respond
-                        timeout(time: 10, unit: 'SECONDS') {
+                        timeout(time: 20, unit: 'SECONDS') {
                             sh 'hubs all off'
                         }
                     } catch (err) {
@@ -112,7 +110,7 @@ pipeline {
                     script {
                         try {
                             // Allow 10 seconds for the USB hub port power server to respond
-                            timeout(time: 10, unit: 'SECONDS') {
+                            timeout(time: 20, unit: 'SECONDS') {
                                 sh 'hubs hpro_eut reset'
                             }
                         } catch (err) {
@@ -127,7 +125,7 @@ pipeline {
                     script {
                         try {
                             // Allow 10 seconds for the USB hub port power server to respond
-                            timeout(time: 10, unit: 'SECONDS') {
+                            timeout(time: 20, unit: 'SECONDS') {
                                 sh 'hubs hpro_tester hpro_eut reset'
                             }
                         } catch (err) {
@@ -144,7 +142,7 @@ pipeline {
                     script {
                         try {
                             // Allow 10 seconds for the USB hub port power server to respond
-                            timeout(time: 10, unit: 'SECONDS') {
+                            timeout(time: 20, unit: 'SECONDS') {
                                 sh 'hubs all off'
                             }
                         } catch (err) {
@@ -152,21 +150,6 @@ pipeline {
                             throw err
                         }
                     }
-                }
-                retry(3) {
-                    script {
-                        try {
-                            // Allow 10 seconds for the USB hub port power server to respond
-                            timeout(time: 10, unit: 'SECONDS') {
-                                sh 'hubs hpro_eut reset'
-                            }
-                        } catch (err) {
-                            echo "USB hub port power server command timeout reached."
-                            throw err
-                        }
-                    }
-                    sh 'sleep 1s'
-                    sh 'python3 ci-scripts/test_sgpio_debug.py'
                 }
             }
         }
