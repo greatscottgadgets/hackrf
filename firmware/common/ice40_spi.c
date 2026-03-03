@@ -21,20 +21,21 @@
 
 #include "ice40_spi.h"
 
-#include <libopencm3/lpc43xx/scu.h>
 #include "hackrf_core.h"
 #include "lz4_buf.h"
 #include "delay.h"
+#include "platform_scu.h"
 
 void ice40_spi_target_init(ice40_spi_driver_t* const drv)
 {
 	/* Configure SSP1 Peripheral and relevant FPGA pins. */
-	scu_pinmux(SCU_SSP1_CIPO, (SCU_SSP_IO | SCU_CONF_FUNCTION5));
-	scu_pinmux(SCU_SSP1_COPI, (SCU_SSP_IO | SCU_CONF_FUNCTION5));
-	scu_pinmux(SCU_SSP1_SCK, (SCU_SSP_IO | SCU_CONF_FUNCTION1));
-	scu_pinmux(SCU_PINMUX_FPGA_CRESET, SCU_GPIO_NOPULL | SCU_CONF_FUNCTION0);
-	scu_pinmux(SCU_PINMUX_FPGA_CDONE, SCU_GPIO_PUP | SCU_CONF_FUNCTION4);
-	scu_pinmux(SCU_PINMUX_FPGA_SPI_CS, SCU_GPIO_NOPULL | SCU_CONF_FUNCTION0);
+	const platform_scu_t* scu = platform_scu();
+	scu_pinmux(scu->SSP1_CIPO, (SCU_SSP_IO | SCU_CONF_FUNCTION5));
+	scu_pinmux(scu->SSP1_COPI, (SCU_SSP_IO | SCU_CONF_FUNCTION5));
+	scu_pinmux(scu->SSP1_SCK, (SCU_SSP_IO | SCU_CONF_FUNCTION1));
+	scu_pinmux(scu->PINMUX_FPGA_CRESET, SCU_GPIO_NOPULL | SCU_CONF_FUNCTION0);
+	scu_pinmux(scu->PINMUX_FPGA_CDONE, SCU_GPIO_PUP | SCU_CONF_FUNCTION4);
+	scu_pinmux(scu->PINMUX_FPGA_SPI_CS, SCU_GPIO_NOPULL | SCU_CONF_FUNCTION0);
 
 	/* Configure GPIOs as inputs or outputs as needed. */
 	gpio_clear(drv->gpio_creset);

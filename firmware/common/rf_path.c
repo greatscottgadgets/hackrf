@@ -23,67 +23,63 @@
 
 #include "rf_path.h"
 
-#include <libopencm3/lpc43xx/scu.h>
-
 #include <hackrf_core.h>
 
 #include "hackrf_ui.h"
 #include "gpio_lpc.h"
 #include "platform_detect.h"
+#include "platform_scu.h"
 #include "mixer.h"
-#include "max2831.h"
 #include "max283x.h"
 #include "max5864.h"
 #include "sgpio.h"
 
-#if (defined JAWBREAKER || defined HACKRF_ONE || defined RAD1O || defined PRALINE)
-	/*
-	 * RF switches on Jawbreaker are controlled by General Purpose Outputs (GPO) on
-	 * the RFFC5072.
-	 *
-	 * On HackRF One, the same signals are controlled by GPIO on the LPC.
-	 * SWITCHCTRL_NO_TX_AMP_PWR and SWITCHCTRL_NO_RX_AMP_PWR are not normally used
-	 * on HackRF One as the amplifier power is instead controlled only by
-	 * SWITCHCTRL_AMP_BYPASS.
-	 *
-	 * The rad1o also uses GPIO pins to control the different switches. The amplifiers
-	 * are also connected to the LPC.
-	 * 
-	 * On Praline, a subset of control signals is managed by GPIO pins on the LPC, while
-	 * the remaining signals are generated through combinatorial logic in hardware.
-	 */
-	#define SWITCHCTRL_NO_TX_AMP_PWR (1 << 0) /* GPO1 turn off TX amp power */
-	#define SWITCHCTRL_AMP_BYPASS    (1 << 1) /* GPO2 bypass amp section */
-	#define SWITCHCTRL_TX            (1 << 2) /* GPO3 1 for TX mode, 0 for RX mode */
-	#define SWITCHCTRL_MIX_BYPASS    (1 << 3) /* GPO4 bypass RFFC5072 mixer section */
-	#define SWITCHCTRL_HP            (1 << 4) /* GPO5 1 for high-pass, 0 for low-pass */
-	#define SWITCHCTRL_NO_RX_AMP_PWR (1 << 5) /* GPO6 turn off RX amp power */
+/*
+ * RF switches on Jawbreaker are controlled by General Purpose Outputs (GPO) on
+ * the RFFC5072.
+ *
+ * On HackRF One, the same signals are controlled by GPIO on the LPC.
+ * SWITCHCTRL_NO_TX_AMP_PWR and SWITCHCTRL_NO_RX_AMP_PWR are not normally used
+ * on HackRF One as the amplifier power is instead controlled only by
+ * SWITCHCTRL_AMP_BYPASS.
+ *
+ * The rad1o also uses GPIO pins to control the different switches. The amplifiers
+ * are also connected to the LPC.
+ *
+ * On Praline, a subset of control signals is managed by GPIO pins on the LPC, while
+ * the remaining signals are generated through combinatorial logic in hardware.
+ */
+#define SWITCHCTRL_NO_TX_AMP_PWR (1 << 0) /* GPO1 turn off TX amp power */
+#define SWITCHCTRL_AMP_BYPASS    (1 << 1) /* GPO2 bypass amp section */
+#define SWITCHCTRL_TX            (1 << 2) /* GPO3 1 for TX mode, 0 for RX mode */
+#define SWITCHCTRL_MIX_BYPASS    (1 << 3) /* GPO4 bypass RFFC5072 mixer section */
+#define SWITCHCTRL_HP            (1 << 4) /* GPO5 1 for high-pass, 0 for low-pass */
+#define SWITCHCTRL_NO_RX_AMP_PWR (1 << 5) /* GPO6 turn off RX amp power */
 
-	/*
-	 GPO6  GPO5  GPO4 GPO3  GPO2  GPO1
-	!RXAMP  HP  MIXBP  TX  AMPBP !TXAMP  Mix mode   Amp mode
-	   1    X     1    1     1      1    TX bypass  Bypass
-	   1    X     1    1     0      0    TX bypass  TX amplified
-	   1    1     0    1     1      1    TX high    Bypass
-	   1    1     0    1     0      0    TX high    TX amplified
-	   1    0     0    1     1      1    TX low     Bypass
-	   1    0     0    1     0      0    TX low     TX amplified
-	   1    X     1    0     1      1    RX bypass  Bypass
-	   0    X     1    0     0      1    RX bypass  RX amplified
-	   1    1     0    0     1      1    RX high    Bypass
-	   0    1     0    0     0      1    RX high    RX amplified
-	   1    0     0    0     1      1    RX low     Bypass
-	   0    0     0    0     0      1    RX low     RX amplified
-	*/
+/*
+ GPO6  GPO5  GPO4 GPO3  GPO2  GPO1
+!RXAMP  HP  MIXBP  TX  AMPBP !TXAMP  Mix mode   Amp mode
+   1    X     1    1     1      1    TX bypass  Bypass
+   1    X     1    1     0      0    TX bypass  TX amplified
+   1    1     0    1     1      1    TX high    Bypass
+   1    1     0    1     0      0    TX high    TX amplified
+   1    0     0    1     1      1    TX low     Bypass
+   1    0     0    1     0      0    TX low     TX amplified
+   1    X     1    0     1      1    RX bypass  Bypass
+   0    X     1    0     0      1    RX bypass  RX amplified
+   1    1     0    0     1      1    RX high    Bypass
+   0    1     0    0     0      1    RX high    RX amplified
+   1    0     0    0     1      1    RX low     Bypass
+   0    0     0    0     0      1    RX low     RX amplified
+*/
 
-	/*
-	 * Safe (initial) switch settings turn off both amplifiers and enable both amp
-	 * bypass and mixer bypass.
-	 */
-	#define SWITCHCTRL_SAFE                                                     \
-		(SWITCHCTRL_NO_TX_AMP_PWR | SWITCHCTRL_AMP_BYPASS | SWITCHCTRL_TX | \
-		 SWITCHCTRL_MIX_BYPASS | SWITCHCTRL_HP | SWITCHCTRL_NO_RX_AMP_PWR)
-#endif
+/*
+ * Safe (initial) switch settings turn off both amplifiers and enable both amp
+ * bypass and mixer bypass.
+ */
+#define SWITCHCTRL_SAFE                                                     \
+	(SWITCHCTRL_NO_TX_AMP_PWR | SWITCHCTRL_AMP_BYPASS | SWITCHCTRL_TX | \
+	 SWITCHCTRL_MIX_BYPASS | SWITCHCTRL_HP | SWITCHCTRL_NO_RX_AMP_PWR)
 
 /*
  * Antenna port power on HackRF One (prior to r9) is controlled by GPO1 on the
@@ -94,22 +90,18 @@
 
 #define SWITCHCTRL_ANT_PWR (1 << 6) /* turn on antenna port power */
 
-#ifdef HACKRF_ONE
-/*
- * In HackRF One r9 this control signal has been moved to the microcontroller.
- */
-
-static struct gpio_t gpio_h1r9_no_ant_pwr = GPIO(2, 4);
-
+#if defined(HACKRF_ONE) || defined(UNIVERSAL)
 static void switchctrl_set_hackrf_one(rf_path_t* const rf_path, uint8_t ctrl)
 {
+	board_id_t board_id = detected_platform();
+
 	if (ctrl & SWITCHCTRL_TX) {
-		if (detected_platform() != BOARD_ID_HACKRF1_R9) {
+		if (board_id != BOARD_ID_HACKRF1_R9) {
 			gpio_set(rf_path->gpio_tx);
 		}
 		gpio_clear(rf_path->gpio_rx);
 	} else {
-		if (detected_platform() != BOARD_ID_HACKRF1_R9) {
+		if (board_id != BOARD_ID_HACKRF1_R9) {
 			gpio_clear(rf_path->gpio_tx);
 		}
 		gpio_set(rf_path->gpio_rx);
@@ -172,11 +164,11 @@ static void switchctrl_set_hackrf_one(rf_path_t* const rf_path, uint8_t ctrl)
 		gpio_set(rf_path->gpio_no_rx_amp_pwr);
 	}
 
-	if (detected_platform() == BOARD_ID_HACKRF1_R9) {
+	if (board_id == BOARD_ID_HACKRF1_R9) {
 		if (ctrl & SWITCHCTRL_ANT_PWR) {
-			gpio_clear(&gpio_h1r9_no_ant_pwr);
+			gpio_clear(rf_path->gpio_h1r9_no_ant_pwr);
 		} else {
-			gpio_set(&gpio_h1r9_no_ant_pwr);
+			gpio_set(rf_path->gpio_h1r9_no_ant_pwr);
 		}
 	} else {
 		if (ctrl & SWITCHCTRL_ANT_PWR) {
@@ -192,7 +184,7 @@ static void switchctrl_set_hackrf_one(rf_path_t* const rf_path, uint8_t ctrl)
 }
 #endif
 
-#ifdef PRALINE
+#if defined(PRALINE) || defined(UNIVERSAL)
 static void switchctrl_set_praline(rf_path_t* const rf_path, uint8_t ctrl)
 {
 	if (ctrl & SWITCHCTRL_TX) {
@@ -233,7 +225,7 @@ static void switchctrl_set_praline(rf_path_t* const rf_path, uint8_t ctrl)
 }
 #endif
 
-#ifdef RAD1O
+#if defined(RAD1O)
 static void switchctrl_set_rad1o(rf_path_t* const rf_path, uint8_t ctrl)
 {
 	if (ctrl & SWITCHCTRL_TX) {
@@ -300,164 +292,227 @@ static void switchctrl_set_rad1o(rf_path_t* const rf_path, uint8_t ctrl)
 
 static void switchctrl_set(rf_path_t* const rf_path, const uint8_t gpo)
 {
-#ifdef JAWBREAKER
-	(void) rf_path; /* silence unused param warning */
-	mixer_set_gpo(&mixer, gpo);
-#elif HACKRF_ONE
-	switchctrl_set_hackrf_one(rf_path, gpo);
-#elif PRALINE
-	switchctrl_set_praline(rf_path, gpo);
-#elif RAD1O
-	switchctrl_set_rad1o(rf_path, gpo);
-#else
+#if defined(JELLYBEAN) || defined(JAWBREAKER)
+	(void) rf_path;
+#endif
+#if defined(JELLYBEAN)
 	(void) gpo;
 #endif
+
+	switch (detected_platform()) {
+	case BOARD_ID_JAWBREAKER:
+#if defined(JAWBREAKER)
+		mixer_set_gpo(&mixer, gpo);
+#endif
+		break;
+	case BOARD_ID_HACKRF1_OG:
+	case BOARD_ID_HACKRF1_R9:
+#if defined(HACKRF_ONE) || defined(UNIVERSAL)
+		switchctrl_set_hackrf_one(rf_path, gpo);
+#endif
+		break;
+	case BOARD_ID_PRALINE:
+#if defined(PRALINE) || defined(UNIVERSAL)
+		switchctrl_set_praline(rf_path, gpo);
+#endif
+		break;
+	case BOARD_ID_RAD1O:
+#if defined(RAD1O)
+		switchctrl_set_rad1o(rf_path, gpo);
+#endif
+		break;
+	default:
+		break;
+	}
 }
 
 void rf_path_pin_setup(rf_path_t* const rf_path)
 {
-#ifdef HACKRF_ONE
-	/* Configure RF switch control signals */
-	// clang-format off
-	scu_pinmux(SCU_HP,            SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
-	scu_pinmux(SCU_LP,            SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
-	scu_pinmux(SCU_TX_MIX_BP,     SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
-	scu_pinmux(SCU_NO_MIX_BYPASS, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
-	scu_pinmux(SCU_RX_MIX_BP,     SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
-	scu_pinmux(SCU_TX_AMP,        SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
-	scu_pinmux(SCU_MIX_BYPASS,    SCU_GPIO_FAST | SCU_CONF_FUNCTION4);
-	scu_pinmux(SCU_NO_TX_AMP_PWR, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
-	scu_pinmux(SCU_AMP_BYPASS,    SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
-	scu_pinmux(SCU_RX_AMP,        SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
-	scu_pinmux(SCU_NO_RX_AMP_PWR, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
-	// clang-format on
-	if (detected_platform() == BOARD_ID_HACKRF1_R9) {
-		scu_pinmux(SCU_H1R9_RX, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
-		scu_pinmux(SCU_H1R9_NO_ANT_PWR, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
-		gpio_clear(&gpio_h1r9_no_ant_pwr);
-		gpio_output(&gpio_h1r9_no_ant_pwr);
-		scu_pinmux(SCU_H1R9_NO_VAA_EN, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
-	} else {
-		scu_pinmux(SCU_TX, SCU_GPIO_FAST | SCU_CONF_FUNCTION4);
-		scu_pinmux(SCU_RX, SCU_GPIO_FAST | SCU_CONF_FUNCTION4);
-		gpio_output(rf_path->gpio_tx);
-		scu_pinmux(SCU_NO_VAA_ENABLE, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
-	}
-
-	/*
-	 * Safe (initial) switch settings turn off both amplifiers and antenna port
-	 * power and enable both amp bypass and mixer bypass.
-	 */
-	switchctrl_set(rf_path, SWITCHCTRL_SAFE);
-
-	/* Configure RF switch control signals as outputs */
-	gpio_output(rf_path->gpio_amp_bypass);
-	gpio_output(rf_path->gpio_no_mix_bypass);
-	gpio_output(rf_path->gpio_rx_amp);
-	gpio_output(rf_path->gpio_no_rx_amp_pwr);
-	gpio_output(rf_path->gpio_hp);
-	gpio_output(rf_path->gpio_lp);
-	gpio_output(rf_path->gpio_tx_mix_bp);
-	gpio_output(rf_path->gpio_rx_mix_bp);
-	gpio_output(rf_path->gpio_tx_amp);
-	gpio_output(rf_path->gpio_no_tx_amp_pwr);
-	gpio_output(rf_path->gpio_mix_bypass);
-	gpio_output(rf_path->gpio_rx);
-#elif RAD1O
-	/* Configure RF switch control signals */
-	// clang-format off
-	scu_pinmux(SCU_BY_AMP,          SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
-	scu_pinmux(SCU_BY_AMP_N,        SCU_GPIO_FAST | SCU_CONF_FUNCTION4);
-	scu_pinmux(SCU_TX_RX,           SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
-	scu_pinmux(SCU_TX_RX_N,         SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
-	scu_pinmux(SCU_BY_MIX,          SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
-	scu_pinmux(SCU_BY_MIX_N,        SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
-	scu_pinmux(SCU_LOW_HIGH_FILT,   SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
-	scu_pinmux(SCU_LOW_HIGH_FILT_N, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
-	scu_pinmux(SCU_TX_AMP,          SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
-	scu_pinmux(SCU_RX_LNA,          SCU_GPIO_FAST | SCU_CONF_FUNCTION4);
-	scu_pinmux(SCU_MIXER_EN,        SCU_GPIO_FAST | SCU_CONF_FUNCTION4);
-	// clang-format on
-
-	/* Configure RF power supply (VAA) switch */
-	scu_pinmux(SCU_VAA_ENABLE, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
-
-	/*
-	 * Safe (initial) switch settings turn off both amplifiers and antenna port
-	 * power and enable both amp bypass and mixer bypass.
-	 */
-	switchctrl_set(rf_path, SWITCHCTRL_SAFE);
-
-	/* Configure RF switch control signals as outputs */
-	gpio_output(rf_path->gpio_tx_rx_n);
-	gpio_output(rf_path->gpio_tx_rx);
-	gpio_output(rf_path->gpio_by_mix);
-	gpio_output(rf_path->gpio_by_mix_n);
-	gpio_output(rf_path->gpio_by_amp);
-	gpio_output(rf_path->gpio_by_amp_n);
-	gpio_output(rf_path->gpio_mixer_en);
-	gpio_output(rf_path->gpio_low_high_filt);
-	gpio_output(rf_path->gpio_low_high_filt_n);
-	gpio_output(rf_path->gpio_tx_amp);
-	gpio_output(rf_path->gpio_rx_lna);
-#elif PRALINE
-	/* Configure RF switch control signals */
-	scu_pinmux(SCU_TX_EN, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
-	board_rev_t rev = detected_revision();
-	if ((rev == BOARD_REV_PRALINE_R1_0) || (rev == BOARD_REV_GSG_PRALINE_R1_0)) {
-		scu_pinmux(SCU_MIX_EN_N_R1_0, SCU_GPIO_FAST | SCU_CONF_FUNCTION4);
-	} else {
-		scu_pinmux(SCU_MIX_EN_N, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
-	}
-	scu_pinmux(SCU_LPF_EN, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
-	scu_pinmux(SCU_RF_AMP_EN, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
-
-	/* Configure antenna port power control signal */
-	scu_pinmux(SCU_ANT_BIAS_EN_N, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
-
-	/* Configure RF power supply (VAA) switch */
-	scu_pinmux(SCU_NO_VAA_ENABLE, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
-
-	/*
-	 * Safe (initial) switch settings turn off both amplifiers and antenna port
-	 * power and enable both amp bypass and mixer bypass.
-	 */
-	switchctrl_set(rf_path, SWITCHCTRL_SAFE);
-
-	/* Configure RF switch control signals as outputs */
-	gpio_output(rf_path->gpio_ant_bias_en_n);
-	gpio_output(rf_path->gpio_tx_en);
-	gpio_output(rf_path->gpio_mix_en_n);
-	gpio_output(rf_path->gpio_lpf_en);
-	gpio_output(rf_path->gpio_rf_amp_en);
-#else
-	(void) rf_path; /* silence unused param warning */
+#if defined(JELLYBEAN) || defined(JAWBREAKER)
+	(void) rf_path;
 #endif
+
+	board_id_t board_id = detected_platform();
+#if !defined(JELLYBEAN) && !defined(JAWBREAKER)
+	const platform_scu_t* scu = platform_scu();
+#endif
+
+	switch (board_id) {
+	case BOARD_ID_HACKRF1_OG:
+	case BOARD_ID_HACKRF1_R9:
+#if defined(HACKRF_ONE) || defined(UNIVERSAL)
+		/* Configure RF switch control signals */
+		// clang-format off
+		scu_pinmux(scu->HP,            SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+		scu_pinmux(scu->LP,            SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+		scu_pinmux(scu->TX_MIX_BP,     SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+		scu_pinmux(scu->NO_MIX_BYPASS, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+		scu_pinmux(scu->RX_MIX_BP,     SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+		scu_pinmux(scu->TX_AMP,        SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+		scu_pinmux(scu->MIX_BYPASS,    SCU_GPIO_FAST | SCU_CONF_FUNCTION4);
+		scu_pinmux(scu->NO_TX_AMP_PWR, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+		scu_pinmux(scu->AMP_BYPASS,    SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+		scu_pinmux(scu->RX_AMP,        SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+		scu_pinmux(scu->NO_RX_AMP_PWR, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+		// clang-format on
+		if (board_id == BOARD_ID_HACKRF1_R9) {
+			scu_pinmux(scu->H1R9_RX, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+			scu_pinmux(
+				scu->H1R9_NO_ANT_PWR,
+				SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+			gpio_clear(rf_path->gpio_h1r9_no_ant_pwr);
+			gpio_output(rf_path->gpio_h1r9_no_ant_pwr);
+			scu_pinmux(
+				scu->H1R9_NO_VAA_EN,
+				SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+		} else {
+			scu_pinmux(scu->TX, SCU_GPIO_FAST | SCU_CONF_FUNCTION4);
+			scu_pinmux(scu->RX, SCU_GPIO_FAST | SCU_CONF_FUNCTION4);
+			gpio_output(rf_path->gpio_tx);
+			scu_pinmux(scu->NO_VAA_ENABLE, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+		}
+
+		/*
+		 * Safe (initial) switch settings turn off both amplifiers and antenna port
+		 * power and enable both amp bypass and mixer bypass.
+		 */
+		switchctrl_set(rf_path, SWITCHCTRL_SAFE);
+
+		/* Configure RF switch control signals as outputs */
+		gpio_output(rf_path->gpio_amp_bypass);
+		gpio_output(rf_path->gpio_no_mix_bypass);
+		gpio_output(rf_path->gpio_rx_amp);
+		gpio_output(rf_path->gpio_no_rx_amp_pwr);
+		gpio_output(rf_path->gpio_hp);
+		gpio_output(rf_path->gpio_lp);
+		gpio_output(rf_path->gpio_tx_mix_bp);
+		gpio_output(rf_path->gpio_rx_mix_bp);
+		gpio_output(rf_path->gpio_tx_amp);
+		gpio_output(rf_path->gpio_no_tx_amp_pwr);
+		gpio_output(rf_path->gpio_mix_bypass);
+		gpio_output(rf_path->gpio_rx);
+#endif
+		break;
+	case BOARD_ID_RAD1O:
+#if defined(RAD1O)
+		/* Configure RF switch control signals */
+		// clang-format off
+		scu_pinmux(scu->BY_AMP,          SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+		scu_pinmux(scu->BY_AMP_N,        SCU_GPIO_FAST | SCU_CONF_FUNCTION4);
+		scu_pinmux(scu->TX_RX,           SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+		scu_pinmux(scu->TX_RX_N,         SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+		scu_pinmux(scu->BY_MIX,          SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+		scu_pinmux(scu->BY_MIX_N,        SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+		scu_pinmux(scu->LOW_HIGH_FILT,   SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+		scu_pinmux(scu->LOW_HIGH_FILT_N, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+		scu_pinmux(scu->TX_AMP,          SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+		scu_pinmux(scu->RX_LNA,          SCU_GPIO_FAST | SCU_CONF_FUNCTION4);
+		scu_pinmux(scu->MIXER_EN,        SCU_GPIO_FAST | SCU_CONF_FUNCTION4);
+		// clang-format on
+
+		/* Configure RF power supply (VAA) switch */
+		scu_pinmux(scu->VAA_ENABLE, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+
+		/*
+		 * Safe (initial) switch settings turn off both amplifiers and antenna port
+		 * power and enable both amp bypass and mixer bypass.
+		 */
+		switchctrl_set(rf_path, SWITCHCTRL_SAFE);
+
+		/* Configure RF switch control signals as outputs */
+		gpio_output(rf_path->gpio_tx_rx_n);
+		gpio_output(rf_path->gpio_tx_rx);
+		gpio_output(rf_path->gpio_by_mix);
+		gpio_output(rf_path->gpio_by_mix_n);
+		gpio_output(rf_path->gpio_by_amp);
+		gpio_output(rf_path->gpio_by_amp_n);
+		gpio_output(rf_path->gpio_mixer_en);
+		gpio_output(rf_path->gpio_low_high_filt);
+		gpio_output(rf_path->gpio_low_high_filt_n);
+		gpio_output(rf_path->gpio_tx_amp);
+		gpio_output(rf_path->gpio_rx_lna);
+#endif
+		break;
+	case BOARD_ID_PRALINE:
+#if defined(PRALINE) || defined(UNIVERSAL)
+		/* Configure RF switch control signals */
+		scu_pinmux(scu->TX_EN, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+		board_rev_t rev = detected_revision();
+		if ((rev == BOARD_REV_PRALINE_R1_0) ||
+		    (rev == BOARD_REV_GSG_PRALINE_R1_0)) {
+			scu_pinmux(scu->MIX_EN_N_R1_0, SCU_GPIO_FAST | SCU_CONF_FUNCTION4);
+		} else {
+			scu_pinmux(scu->MIX_EN_N, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+		}
+		scu_pinmux(scu->LPF_EN, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+		scu_pinmux(scu->RF_AMP_EN, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+
+		/* Configure antenna port power control signal */
+		scu_pinmux(scu->ANT_BIAS_EN_N, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+
+		/* Configure RF power supply (VAA) switch */
+		scu_pinmux(scu->NO_VAA_ENABLE, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+
+		/*
+		 * Safe (initial) switch settings turn off both amplifiers and antenna port
+		 * power and enable both amp bypass and mixer bypass.
+		 */
+		switchctrl_set(rf_path, SWITCHCTRL_SAFE);
+
+		/* Configure RF switch control signals as outputs */
+		gpio_output(rf_path->gpio_ant_bias_en_n);
+		gpio_output(rf_path->gpio_tx_en);
+		gpio_output(rf_path->gpio_mix_en_n);
+		gpio_output(rf_path->gpio_lpf_en);
+		gpio_output(rf_path->gpio_rf_amp_en);
+#endif
+		break;
+	default:
+		break;
+	}
 }
 
 void rf_path_init(rf_path_t* const rf_path)
 {
+	board_id_t board_id = detected_platform();
+
 	ssp1_set_mode_max5864();
 	max5864_setup(&max5864);
 	max5864_shutdown(&max5864);
 
 	ssp1_set_mode_max283x();
-#ifdef PRALINE
-	max2831_setup(&max283x);
-	max2831_start(&max283x);
-#else
-	if (detected_platform() == BOARD_ID_HACKRF1_R9) {
+	switch (board_id) {
+	case BOARD_ID_PRALINE:
+#if defined(PRALINE) || defined(UNIVERSAL)
+		max283x_setup(&max283x, MAX2831_VARIANT);
+#endif
+		break;
+	case BOARD_ID_HACKRF1_R9:
+#if !defined(PRALINE) || defined(UNIVERSAL)
 		max283x_setup(&max283x, MAX2839_VARIANT);
-	} else {
+#endif
+		break;
+	default:
+#if !defined(PRALINE) || defined(UNIVERSAL)
 		max283x_setup(&max283x, MAX2837_VARIANT);
+#endif
+		break;
 	}
 	max283x_start(&max283x);
-#endif
 
-	// On HackRF One, the mixer is now set up earlier in boot.
-#ifndef HACKRF_ONE
-	mixer_setup(&mixer);
-#endif
+	switch (board_id) {
+	case BOARD_ID_HACKRF1_OG:
+	case BOARD_ID_HACKRF1_R9:
+		// On HackRF One, the mixer is now set up earlier in boot.
+		break;
+	default:
+		if (board_id == BOARD_ID_RAD1O) {
+			mixer_setup(&mixer, MAX2871_VARIANT);
+		} else {
+			mixer_setup(&mixer, RFFC5071_VARIANT);
+		}
+		break;
+	}
 	rf_path->switchctrl = SWITCHCTRL_SAFE;
 }
 
@@ -481,11 +536,7 @@ void rf_path_set_direction(rf_path_t* const rf_path, const rf_path_direction_t d
 		ssp1_set_mode_max5864();
 		max5864_tx(&max5864);
 		ssp1_set_mode_max283x();
-#ifdef PRALINE
-		max2831_tx(&max283x);
-#else
 		max283x_tx(&max283x);
-#endif
 		sgpio_configure(&sgpio_config, SGPIO_DIRECTION_TX);
 		break;
 
@@ -503,15 +554,11 @@ void rf_path_set_direction(rf_path_t* const rf_path, const rf_path_direction_t d
 		ssp1_set_mode_max5864();
 		max5864_rx(&max5864);
 		ssp1_set_mode_max283x();
-#ifdef PRALINE
-		max2831_rx(&max283x);
-#else
 		max283x_rx(&max283x);
-#endif
 		sgpio_configure(&sgpio_config, SGPIO_DIRECTION_RX);
 		break;
 
-#ifdef PRALINE
+#if defined(PRALINE) || defined(UNIVERSAL)
 	case RF_PATH_DIRECTION_TX_CALIBRATION:
 	case RF_PATH_DIRECTION_RX_CALIBRATION:
 		rf_path->switchctrl &= ~SWITCHCTRL_TX;
@@ -520,9 +567,9 @@ void rf_path_set_direction(rf_path_t* const rf_path, const rf_path_direction_t d
 		max5864_xcvr(&max5864);
 		ssp1_set_mode_max283x();
 		if (direction == RF_PATH_DIRECTION_TX_CALIBRATION) {
-			max2831_tx_calibration(&max283x);
+			max283x_tx_calibration(&max283x);
 		} else {
-			max2831_rx_calibration(&max283x);
+			max283x_rx_calibration(&max283x);
 		}
 		sgpio_configure(&sgpio_config, SGPIO_DIRECTION_RX);
 		break;
@@ -537,11 +584,7 @@ void rf_path_set_direction(rf_path_t* const rf_path, const rf_path_direction_t d
 		ssp1_set_mode_max5864();
 		max5864_standby(&max5864);
 		ssp1_set_mode_max283x();
-#ifdef PRALINE
-		max2831_set_mode(&max283x, MAX2831_MODE_STANDBY);
-#else
 		max283x_set_mode(&max283x, MAX283x_MODE_STANDBY);
-#endif
 		sgpio_configure(&sgpio_config, SGPIO_DIRECTION_RX);
 		break;
 	}

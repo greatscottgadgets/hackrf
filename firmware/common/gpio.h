@@ -25,7 +25,7 @@
 
 #include <stdbool.h>
 
-typedef const struct gpio_t* gpio_t;
+typedef const struct gpio* gpio_t;
 
 void gpio_init(void);
 void gpio_set(gpio_t gpio);

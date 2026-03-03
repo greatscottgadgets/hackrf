@@ -32,7 +32,7 @@ typedef enum {
 	RF_PATH_DIRECTION_OFF,
 	RF_PATH_DIRECTION_RX,
 	RF_PATH_DIRECTION_TX,
-#ifdef PRALINE
+#if defined(PRALINE) || defined(UNIVERSAL)
 	RF_PATH_DIRECTION_TX_CALIBRATION,
 	RF_PATH_DIRECTION_RX_CALIBRATION,
 #endif
@@ -46,41 +46,49 @@ typedef enum {
 
 typedef struct rf_path_t {
 	uint8_t switchctrl;
-#ifdef HACKRF_ONE
-	gpio_t gpio_hp;
-	gpio_t gpio_lp;
-	gpio_t gpio_tx_mix_bp;
-	gpio_t gpio_no_mix_bypass;
-	gpio_t gpio_rx_mix_bp;
-	gpio_t gpio_tx_amp;
-	gpio_t gpio_tx;
-	gpio_t gpio_mix_bypass;
-	gpio_t gpio_rx;
-	gpio_t gpio_no_tx_amp_pwr;
-	gpio_t gpio_amp_bypass;
-	gpio_t gpio_rx_amp;
-	gpio_t gpio_no_rx_amp_pwr;
+
+	struct {
+#if defined(HACKRF_ONE) || defined(UNIVERSAL)
+		gpio_t gpio_hp;
+		gpio_t gpio_lp;
+		gpio_t gpio_tx_mix_bp;
+		gpio_t gpio_no_mix_bypass;
+		gpio_t gpio_rx_mix_bp;
+		gpio_t gpio_tx_amp;
+		gpio_t gpio_tx;
+		gpio_t gpio_mix_bypass;
+		gpio_t gpio_rx;
+		gpio_t gpio_no_tx_amp_pwr;
+		gpio_t gpio_amp_bypass;
+		gpio_t gpio_rx_amp;
+		gpio_t gpio_no_rx_amp_pwr;
+		// In HackRF One r9 this control signal has been moved to the microcontroller.
+		gpio_t gpio_h1r9_no_ant_pwr;
 #endif
-#ifdef RAD1O
-	gpio_t gpio_tx_rx_n;
-	gpio_t gpio_tx_rx;
-	gpio_t gpio_by_mix;
-	gpio_t gpio_by_mix_n;
-	gpio_t gpio_by_amp;
-	gpio_t gpio_by_amp_n;
-	gpio_t gpio_mixer_en;
-	gpio_t gpio_low_high_filt;
-	gpio_t gpio_low_high_filt_n;
-	gpio_t gpio_tx_amp;
-	gpio_t gpio_rx_lna;
+
+#if defined(RAD1O)
+		gpio_t gpio_tx_rx_n;
+		gpio_t gpio_tx_rx;
+		gpio_t gpio_by_mix;
+		gpio_t gpio_by_mix_n;
+		gpio_t gpio_by_amp;
+		gpio_t gpio_by_amp_n;
+		gpio_t gpio_mixer_en;
+		gpio_t gpio_low_high_filt;
+		gpio_t gpio_low_high_filt_n;
+		gpio_t gpio_tx_amp;
+		gpio_t gpio_rx_lna;
 #endif
-#ifdef PRALINE
-	gpio_t gpio_tx_en;
-	gpio_t gpio_mix_en_n;
-	gpio_t gpio_lpf_en;
-	gpio_t gpio_rf_amp_en;
-	gpio_t gpio_ant_bias_en_n;
+
+		// PRALINE
+#if defined(PRALINE) || defined(UNIVERSAL)
+		gpio_t gpio_tx_en;
+		gpio_t gpio_mix_en_n;
+		gpio_t gpio_lpf_en;
+		gpio_t gpio_rf_amp_en;
+		gpio_t gpio_ant_bias_en_n;
 #endif
+	};
 } rf_path_t;
 
 void rf_path_pin_setup(rf_path_t* const rf_path);
