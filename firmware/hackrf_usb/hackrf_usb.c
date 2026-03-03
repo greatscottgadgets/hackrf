@@ -256,6 +256,108 @@ static void m0_rom_to_ram(void)
 	memcpy(dest, (uint32_t*) (base + src), len);
 }
 
+void radio_changed(const uint32_t changed)
+{
+	const uint64_t opmode = radio_reg_read(&radio, RADIO_BANK_APPLIED, RADIO_OPMODE);
+
+	if (changed & (1 << RADIO_OPMODE)) {
+		switch (opmode) {
+		case TRANSCEIVER_MODE_TX:
+		case TRANSCEIVER_MODE_SS:
+			hackrf_ui()->set_direction(RF_PATH_DIRECTION_TX);
+			break;
+		case TRANSCEIVER_MODE_RX:
+		case TRANSCEIVER_MODE_RX_SWEEP:
+			hackrf_ui()->set_direction(RF_PATH_DIRECTION_RX);
+			break;
+		default:
+			hackrf_ui()->set_direction(RF_PATH_DIRECTION_OFF);
+			break;
+		}
+	}
+	if (changed & (1 << RADIO_SAMPLE_RATE)) {
+		const uint64_t rate =
+			radio_reg_read(&radio, RADIO_BANK_APPLIED, RADIO_SAMPLE_RATE);
+		hackrf_ui()->set_sample_rate(rate / FP_ONE_HZ);
+	}
+	if (changed & (1 << RADIO_FREQUENCY_RF)) {
+		const uint64_t freq =
+			radio_reg_read(&radio, RADIO_BANK_APPLIED, RADIO_FREQUENCY_RF);
+		hackrf_ui()->set_frequency(freq / FP_ONE_HZ);
+#if defined(HACKRF_ONE) || defined(PRALINE)
+		operacake_set_range(freq / FP_ONE_MHZ);
+#endif
+	}
+	if (changed & (1 << RADIO_IMAGE_REJECT)) {
+		const uint64_t img_reject =
+			radio_reg_read(&radio, RADIO_BANK_APPLIED, RADIO_IMAGE_REJECT);
+		hackrf_ui()->set_filter(img_reject);
+	}
+	if (changed &
+	    ((1 << RADIO_BB_BANDWIDTH_TX) | (1 << RADIO_BB_BANDWIDTH_RX) |
+	     (1 << RADIO_OPMODE))) {
+		uint64_t bw;
+
+		switch (opmode) {
+		case TRANSCEIVER_MODE_TX:
+		case TRANSCEIVER_MODE_SS:
+			bw = radio_reg_read(
+				&radio,
+				RADIO_BANK_APPLIED,
+				RADIO_BB_BANDWIDTH_TX);
+			break;
+		default:
+			bw = radio_reg_read(
+				&radio,
+				RADIO_BANK_APPLIED,
+				RADIO_BB_BANDWIDTH_RX);
+		}
+		hackrf_ui()->set_filter_bw(bw);
+	}
+	if (changed &
+	    ((1 << RADIO_GAIN_TX_RF) | (1 << RADIO_GAIN_RX_RF) | (1 << RADIO_OPMODE))) {
+		const uint64_t tx_rf =
+			radio_reg_read(&radio, RADIO_BANK_APPLIED, RADIO_GAIN_TX_RF);
+		const uint64_t rx_rf =
+			radio_reg_read(&radio, RADIO_BANK_APPLIED, RADIO_GAIN_RX_RF);
+		bool enable;
+
+		switch (opmode) {
+		case TRANSCEIVER_MODE_TX:
+		case TRANSCEIVER_MODE_SS:
+			enable = tx_rf;
+			break;
+		case TRANSCEIVER_MODE_RX:
+		case TRANSCEIVER_MODE_RX_SWEEP:
+			enable = rx_rf;
+			break;
+		default:
+			enable = false;
+		}
+		hackrf_ui()->set_lna_power(enable);
+	}
+	if (changed & (1 << RADIO_GAIN_TX_IF)) {
+		const uint64_t tx_if =
+			radio_reg_read(&radio, RADIO_BANK_APPLIED, RADIO_GAIN_TX_IF);
+		hackrf_ui()->set_bb_tx_vga_gain(tx_if);
+	}
+	if (changed & (1 << RADIO_GAIN_RX_IF)) {
+		const uint64_t rx_if =
+			radio_reg_read(&radio, RADIO_BANK_APPLIED, RADIO_GAIN_RX_IF);
+		hackrf_ui()->set_bb_lna_gain(rx_if);
+	}
+	if (changed & (1 << RADIO_GAIN_RX_BB)) {
+		const uint64_t rx_bb =
+			radio_reg_read(&radio, RADIO_BANK_APPLIED, RADIO_GAIN_RX_BB);
+		hackrf_ui()->set_bb_vga_gain(rx_bb);
+	}
+	if (changed & (1 << RADIO_BIAS_TEE)) {
+		const uint64_t enable =
+			radio_reg_read(&radio, RADIO_BANK_APPLIED, RADIO_BIAS_TEE);
+		hackrf_ui()->set_antenna_bias(enable);
+	}
+}
+
 int main(void)
 {
 	// Copy M0 image from ROM before SPIFI is disabled
@@ -320,6 +422,7 @@ int main(void)
 	fpga_spi_selftest();
 	fpga_sgpio_selftest();
 #endif
+	radio.update_cb = radio_changed;
 	radio_init(&radio);
 
 #if (defined HACKRF_ONE || defined PRALINE)
