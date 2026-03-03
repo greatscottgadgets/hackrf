@@ -27,7 +27,6 @@
 #include <stdint.h>
 
 #include "rf_path.h"
-#include "transceiver_mode.h"
 #if defined(PRALINE) || defined(UNIVERSAL)
 	#include "tune_config.h"
 #endif
@@ -36,17 +35,15 @@
 
 void tuning_setup(void);
 
-bool set_freq(const uint64_t freq, const transceiver_mode_t opmode);
+bool set_freq(const uint64_t freq);
 bool set_freq_explicit(
 	const uint64_t if_freq_hz,
 	const uint64_t lo_freq_hz,
-	const rf_path_filter_t path,
-	const transceiver_mode_t opmode);
+	const rf_path_filter_t path);
 
 #if defined(PRALINE) || defined(UNIVERSAL)
 bool tuning_set_frequency(
 	const tune_config_t* cfg,
 	const uint64_t freq,
-	const uint32_t offset,
-	const transceiver_mode_t opmode);
+	const uint32_t offset);
 #endif

@@ -25,7 +25,6 @@
 
 #include <stdint.h>
 
-#include "transceiver_mode.h"
 #if defined(HACKRF_ONE) || defined(RAD1O) || defined(PRALINE) || defined(UNIVERSAL)
 	#include "gpio.h"
 #endif
@@ -97,10 +96,7 @@ void rf_path_init(rf_path_t* const rf_path);
 
 void rf_path_set_direction(rf_path_t* const rf_path, const rf_path_direction_t direction);
 
-void rf_path_set_filter(
-	rf_path_t* const rf_path,
-	const rf_path_filter_t filter,
-	const transceiver_mode_t opmode);
+void rf_path_set_filter(rf_path_t* const rf_path, const rf_path_filter_t filter);
 
 void rf_path_set_lna(rf_path_t* const rf_path, const uint_fast8_t enable);
 void rf_path_set_antenna(rf_path_t* const rf_path, const uint_fast8_t enable);

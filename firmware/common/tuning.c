@@ -24,15 +24,10 @@
 #include "tuning.h"
 
 #include "hackrf_core.h"
-#include "hackrf_ui.h"
 #include "max283x.h"
 #include "mixer.h"
 #include "platform_detect.h"
 #include "sgpio.h"
-#include "transceiver_mode.h"
-#if defined(PRALINE) || defined(HACKRF_ONE) || defined(UNIVERSAL)
-	#include "operacake.h"
-#endif
 #if defined(PRALINE) || defined(UNIVERSAL)
 	#include "fpga.h"
 #endif
@@ -105,7 +100,7 @@ static uint32_t max2837_freq_nominal_hz = 2560000000;
  * hz between 0 to 999999 Hz (not checked)
  * return false on error or true if success.
  */
-bool set_freq(const uint64_t freq, const transceiver_mode_t opmode)
+bool set_freq(const uint64_t freq)
 {
 	bool success;
 	uint64_t mixer_freq_hz;
@@ -118,7 +113,7 @@ bool set_freq(const uint64_t freq, const transceiver_mode_t opmode)
 	max283x_mode_t prior_max283x_mode = max283x_mode(&max283x);
 	max283x_set_mode(&max283x, MAX283x_MODE_STANDBY);
 	if (freq_mhz < MAX_LP_FREQ_MHZ) {
-		rf_path_set_filter(&rf_path, RF_PATH_FILTER_LOW_PASS, opmode);
+		rf_path_set_filter(&rf_path, RF_PATH_FILTER_LOW_PASS);
 #ifdef IS_RAD1O
 		if (IS_RAD1O) {
 			max2837_freq_nominal_hz = 2300 * FREQ_ONE_MHZ;
@@ -136,7 +131,7 @@ bool set_freq(const uint64_t freq, const transceiver_mode_t opmode)
 		max283x_set_frequency(&max283x, real_mixer_freq_hz - freq);
 		sgpio_cpld_set_mixer_invert(&sgpio_config, 1);
 	} else if ((freq_mhz >= MIN_BYPASS_FREQ_MHZ) && (freq_mhz < MAX_BYPASS_FREQ_MHZ)) {
-		rf_path_set_filter(&rf_path, RF_PATH_FILTER_BYPASS, opmode);
+		rf_path_set_filter(&rf_path, RF_PATH_FILTER_BYPASS);
 		/* mixer_freq_mhz <= not used in Bypass mode */
 		max283x_set_frequency(&max283x, freq);
 		sgpio_cpld_set_mixer_invert(&sgpio_config, 0);
@@ -155,7 +150,7 @@ bool set_freq(const uint64_t freq, const transceiver_mode_t opmode)
 			max2837_freq_nominal_hz = (2500 * FREQ_ONE_MHZ) +
 				((freq - (MID2_HP_FREQ_MHZ * FREQ_ONE_MHZ)) / 9);
 		}
-		rf_path_set_filter(&rf_path, RF_PATH_FILTER_HIGH_PASS, opmode);
+		rf_path_set_filter(&rf_path, RF_PATH_FILTER_HIGH_PASS);
 		mixer_freq_hz = freq - max2837_freq_nominal_hz;
 		/* Set Freq and read real freq */
 		real_mixer_freq_hz = mixer_set_frequency(&mixer, mixer_freq_hz);
@@ -166,16 +161,6 @@ bool set_freq(const uint64_t freq, const transceiver_mode_t opmode)
 		success = false;
 	}
 	max283x_set_mode(&max283x, prior_max283x_mode);
-	if (success) {
-		if (opmode != TRANSCEIVER_MODE_RX_SWEEP) {
-			hackrf_ui()->set_frequency(freq);
-		}
-#ifdef IS_EXPANSION_COMPATIBLE
-		if (IS_EXPANSION_COMPATIBLE) {
-			operacake_set_range(freq_mhz);
-		}
-#endif
-	}
 	return success;
 }
 #endif
@@ -184,8 +169,7 @@ bool set_freq(const uint64_t freq, const transceiver_mode_t opmode)
 bool tuning_set_frequency(
 	const tune_config_t* cfg,
 	const uint64_t freq,
-	const uint32_t offset,
-	const transceiver_mode_t opmode)
+	const uint32_t offset)
 {
 	uint64_t mixer_freq_hz;
 	uint64_t real_mixer_freq_hz;
@@ -211,11 +195,11 @@ bool tuning_set_frequency(
 	max283x_set_mode(&max283x, MAX283x_MODE_STANDBY);
 
 	if (cfg->if_mhz == 0) {
-		rf_path_set_filter(&rf_path, RF_PATH_FILTER_BYPASS, opmode);
+		rf_path_set_filter(&rf_path, RF_PATH_FILTER_BYPASS);
 		max283x_set_frequency(&max283x, rf);
 		sgpio_cpld_set_mixer_invert(&sgpio_config, 0);
 	} else if (cfg->if_mhz > freq_mhz) {
-		rf_path_set_filter(&rf_path, RF_PATH_FILTER_LOW_PASS, opmode);
+		rf_path_set_filter(&rf_path, RF_PATH_FILTER_LOW_PASS);
 		if (cfg->high_lo) {
 			mixer_freq_hz = FREQ_ONE_MHZ * cfg->if_mhz + rf;
 			real_mixer_freq_hz = mixer_set_frequency(&mixer, mixer_freq_hz);
@@ -228,7 +212,7 @@ bool tuning_set_frequency(
 			sgpio_cpld_set_mixer_invert(&sgpio_config, 0);
 		}
 	} else {
-		rf_path_set_filter(&rf_path, RF_PATH_FILTER_HIGH_PASS, opmode);
+		rf_path_set_filter(&rf_path, RF_PATH_FILTER_HIGH_PASS);
 		mixer_freq_hz = rf - FREQ_ONE_MHZ * cfg->if_mhz;
 		real_mixer_freq_hz = mixer_set_frequency(&mixer, mixer_freq_hz);
 		max283x_set_frequency(&max283x, rf - real_mixer_freq_hz);
@@ -236,10 +220,6 @@ bool tuning_set_frequency(
 	}
 
 	max283x_set_mode(&max283x, prior_max283x_mode);
-	if (opmode != TRANSCEIVER_MODE_RX_SWEEP) {
-		hackrf_ui()->set_frequency(freq);
-	}
-	operacake_set_range(freq_mhz);
 	return true;
 }
 #endif
@@ -247,8 +227,7 @@ bool tuning_set_frequency(
 bool set_freq_explicit(
 	const uint64_t if_freq_hz,
 	const uint64_t lo_freq_hz,
-	const rf_path_filter_t path,
-	const transceiver_mode_t opmode)
+	const rf_path_filter_t path)
 {
 	if ((if_freq_hz < ((uint64_t) ABS_MIN_BYPASS_FREQ_MHZ * FREQ_ONE_MHZ)) ||
 	    (if_freq_hz > ((uint64_t) ABS_MAX_BYPASS_FREQ_MHZ * FREQ_ONE_MHZ))) {
@@ -264,7 +243,7 @@ bool set_freq_explicit(
 		return false;
 	}
 
-	rf_path_set_filter(&rf_path, path, opmode);
+	rf_path_set_filter(&rf_path, path);
 	max283x_set_frequency(&max283x, if_freq_hz);
 
 	if (lo_freq_hz > if_freq_hz) {

@@ -28,13 +28,11 @@
 #endif
 
 #include "hackrf_core.h"
-#include "hackrf_ui.h"
 #include "max283x.h"
 #include "max5864.h"
 #include "mixer.h"
 #include "platform_detect.h"
 #include "sgpio.h"
-#include "transceiver_mode.h"
 #if defined(HACKRF_ONE) || defined(RAD1O) || defined(PRALINE) || defined(UNIVERSAL)
 	#include "gpio.h"
 	#include "platform_scu.h"
@@ -568,14 +566,9 @@ void rf_path_set_direction(rf_path_t* const rf_path, const rf_path_direction_t d
 	}
 
 	switchctrl_set(rf_path, rf_path->switchctrl);
-
-	hackrf_ui()->set_direction(direction);
 }
 
-void rf_path_set_filter(
-	rf_path_t* const rf_path,
-	const rf_path_filter_t filter,
-	const transceiver_mode_t opmode)
+void rf_path_set_filter(rf_path_t* const rf_path, const rf_path_filter_t filter)
 {
 	switch (filter) {
 	default:
@@ -597,10 +590,6 @@ void rf_path_set_filter(
 	}
 
 	switchctrl_set(rf_path, rf_path->switchctrl);
-
-	if (opmode != TRANSCEIVER_MODE_RX_SWEEP) {
-		hackrf_ui()->set_filter(filter);
-	}
 }
 
 void rf_path_set_lna(rf_path_t* const rf_path, const uint_fast8_t enable)
@@ -624,8 +613,6 @@ void rf_path_set_lna(rf_path_t* const rf_path, const uint_fast8_t enable)
 	}
 
 	switchctrl_set(rf_path, rf_path->switchctrl);
-
-	hackrf_ui()->set_lna_power(enable);
 }
 
 /* antenna port power control */
@@ -638,6 +625,4 @@ void rf_path_set_antenna(rf_path_t* const rf_path, const uint_fast8_t enable)
 	}
 
 	switchctrl_set(rf_path, rf_path->switchctrl);
-
-	hackrf_ui()->set_antenna_bias(enable);
 }

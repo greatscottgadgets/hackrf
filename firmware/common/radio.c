@@ -27,7 +27,6 @@
 
 #include "fixed_point.h"
 #include "hackrf_core.h"
-#include "hackrf_ui.h"
 #include "max283x.h"
 #include "platform_detect.h"
 #include "rf_path.h"
@@ -101,12 +100,12 @@ uint64_t radio_reg_read(
 	return radio->config[bank][reg];
 }
 
-static bool radio_update_direction(radio_t* const radio, uint64_t* bank)
+static uint32_t radio_update_direction(radio_t* const radio, uint64_t* bank)
 {
 	const uint64_t requested = bank[RADIO_OPMODE];
 
 	if (requested == RADIO_UNSET) {
-		return false;
+		return 0;
 	}
 
 	rf_path_direction_t direction;
@@ -124,7 +123,7 @@ static bool radio_update_direction(radio_t* const radio, uint64_t* bank)
 	}
 	radio->config[RADIO_BANK_APPLIED][RADIO_OPMODE] = requested;
 	rf_path_set_direction(&rf_path, direction);
-	return true;
+	return (1 << RADIO_OPMODE);
 }
 
 #define MAX_AFE_RATE_HZ (40000000UL)
@@ -157,7 +156,7 @@ static inline uint8_t compute_resample_log(
 
 static fp_28_36_t applied_afe_rate = RADIO_UNSET;
 
-static bool radio_update_sample_rate(radio_t* const radio, uint64_t* bank)
+static uint32_t radio_update_sample_rate(radio_t* const radio, uint64_t* bank)
 {
 	fp_28_36_t rate, afe_rate;
 	uint64_t previous_n;
@@ -227,21 +226,15 @@ static bool radio_update_sample_rate(radio_t* const radio, uint64_t* bank)
 			applied_afe_rate = afe_rate;
 		}
 	} else {
-		return false;
+		return 0;
 	}
 	rate = afe_rate >> n;
 	new_rate = (rate != radio->config[RADIO_BANK_APPLIED][RADIO_SAMPLE_RATE]);
 	if (new_rate) {
 		radio->config[RADIO_BANK_APPLIED][RADIO_SAMPLE_RATE] = rate;
-		if (rate != RADIO_UNSET) {
-			/* Round to the nearest Hz for display. */
-			const uint32_t rate_hz =
-				(rate + (SR_FP_ONE_HZ >> 1)) / SR_FP_ONE_HZ;
-			hackrf_ui()->set_sample_rate(rate_hz);
-		}
 	}
 
-	return (new_afe_rate || new_rate || new_n);
+	return ((new_afe_rate || new_rate || new_n) << RADIO_SAMPLE_RATE);
 }
 
 #define DEFAULT_RF (2450ULL * FP_ONE_MHZ)
@@ -263,10 +256,12 @@ static const tune_config_t* select_tune_config(uint64_t opmode)
 }
 #endif
 
-static bool radio_update_frequency(radio_t* const radio, uint64_t* bank)
+static uint32_t radio_update_frequency(radio_t* const radio, uint64_t* bank)
 {
 	uint8_t rotation = 0;
 	uint64_t requested_rf = bank[RADIO_FREQUENCY_RF];
+	uint32_t changed = 0;
+
 	const uint64_t requested_if = bank[RADIO_FREQUENCY_IF];
 	const uint64_t requested_lo = bank[RADIO_FREQUENCY_LO];
 	const uint64_t requested_img_reject = bank[RADIO_IMAGE_REJECT];
@@ -294,8 +289,7 @@ static bool radio_update_frequency(radio_t* const radio, uint64_t* bank)
 			set_freq_explicit(
 				requested_if / FP_ONE_HZ,
 				requested_lo / FP_ONE_HZ,
-				requested_img_reject,
-				opmode);
+				requested_img_reject);
 			radio->config[RADIO_BANK_APPLIED][RADIO_FREQUENCY_IF] =
 				requested_if;
 			radio->config[RADIO_BANK_APPLIED][RADIO_FREQUENCY_LO] =
@@ -304,23 +298,35 @@ static bool radio_update_frequency(radio_t* const radio, uint64_t* bank)
 				requested_img_reject;
 			radio->config[RADIO_BANK_APPLIED][RADIO_FREQUENCY_RF] =
 				RADIO_UNSET;
+			if (new_if) {
+				changed |= (1 << RADIO_FREQUENCY_IF);
+			}
+			if (new_lo) {
+				changed |= (1 << RADIO_FREQUENCY_LO);
+			}
+			if (new_img_reject) {
+				changed |= (1 << RADIO_IMAGE_REJECT);
+			}
 		}
 #ifdef IS_PRALINE
 		if (IS_PRALINE) {
 			const uint64_t requested_rotation = bank[RADIO_ROTATION];
 			if (requested_rotation != RADIO_UNSET) {
 				rotation = requested_rotation;
+				changed |= (1 << RADIO_ROTATION);
 			} else if (
 				radio->config[RADIO_BANK_APPLIED][RADIO_ROTATION] !=
 				RADIO_UNSET) {
-				return true;
+				changed |= (1 << RADIO_ROTATION);
+				return changed;
 			}
 			fpga_set_rx_quarter_shift_mode(&fpga, rotation >> 6);
+			changed |= (1 << RADIO_ROTATION);
 		}
 #endif
 
 		radio->config[RADIO_BANK_APPLIED][RADIO_ROTATION] = rotation;
-		return true;
+		return changed;
 	}
 
 	if (requested_rf == RADIO_UNSET) {
@@ -328,18 +334,22 @@ static bool radio_update_frequency(radio_t* const radio, uint64_t* bank)
 		    RADIO_UNSET) {
 			requested_rf = DEFAULT_RF;
 		} else {
-			return false;
+			return changed;
 		}
+	}
+
+	bool new_rf =
+		(radio->config[RADIO_BANK_APPLIED][RADIO_FREQUENCY_RF] != requested_rf);
+
+	if (new_rf) {
+		changed |= (1 << RADIO_FREQUENCY_RF);
 	}
 
 	uint64_t requested_rf_hz = requested_rf / FP_ONE_HZ;
 #ifdef IS_PRALINE
 	if (IS_PRALINE) {
-		bool new_rf =
-			(radio->config[RADIO_BANK_APPLIED][RADIO_FREQUENCY_RF] !=
-			 requested_rf);
 		if (applied_afe_rate == RADIO_UNSET) {
-			return false;
+			return changed;
 		}
 		const tune_config_t* tune_config = select_tune_config(opmode);
 		const tune_config_t* applied_tune_config = select_tune_config(
@@ -368,22 +378,22 @@ static bool radio_update_frequency(radio_t* const radio, uint64_t* bank)
 			tuning_set_frequency(
 				tune_config,
 				requested_rf_hz,
-				offset / SR_FP_ONE_HZ,
-				opmode);
+				offset / SR_FP_ONE_HZ);
 			applied_offset = offset;
 		}
 	}
 #endif
 #ifdef IS_NOT_PRALINE
 	if (IS_NOT_PRALINE) {
-		set_freq(requested_rf_hz, opmode);
+		set_freq(requested_rf_hz);
 	}
 #endif
 	radio->config[RADIO_BANK_APPLIED][RADIO_FREQUENCY_RF] = requested_rf;
 	radio->config[RADIO_BANK_APPLIED][RADIO_FREQUENCY_IF] = RADIO_UNSET;
 	radio->config[RADIO_BANK_APPLIED][RADIO_FREQUENCY_LO] = RADIO_UNSET;
 	radio->config[RADIO_BANK_APPLIED][RADIO_IMAGE_REJECT] = RADIO_UNSET;
-	return true;
+
+	return changed;
 }
 
 static uint32_t auto_bandwidth(radio_t* const radio)
@@ -411,9 +421,9 @@ static uint32_t auto_bandwidth(radio_t* const radio)
 	return lpf_bandwidth;
 }
 
-static bool radio_update_bandwidth(radio_t* const radio, uint64_t* bank)
+static uint32_t radio_update_bandwidth(radio_t* const radio, uint64_t* bank)
 {
-	bool new_bw = false;
+	uint32_t changed = 0;
 
 #ifdef IS_PRALINE
 	if (IS_PRALINE) {
@@ -429,7 +439,7 @@ static bool radio_update_bandwidth(radio_t* const radio, uint64_t* bank)
 				lpf_bandwidth);
 			radio->config[RADIO_BANK_APPLIED][RADIO_XCVR_TX_LPF] =
 				lpf_bandwidth;
-			new_bw = true;
+			changed |= (1 << RADIO_XCVR_TX_LPF);
 		}
 		if (radio->config[RADIO_BANK_APPLIED][RADIO_XCVR_RX_LPF] !=
 		    lpf_bandwidth) {
@@ -439,7 +449,7 @@ static bool radio_update_bandwidth(radio_t* const radio, uint64_t* bank)
 				lpf_bandwidth);
 			radio->config[RADIO_BANK_APPLIED][RADIO_XCVR_RX_LPF] =
 				lpf_bandwidth;
-			new_bw = true;
+			changed |= (1 << RADIO_XCVR_RX_LPF);
 		}
 		bool narrow_lpf_enable = false;
 		bool applied_narrow_lpf_enable =
@@ -451,7 +461,7 @@ static bool radio_update_bandwidth(radio_t* const radio, uint64_t* bank)
 			narrowband_filter_set(narrow_lpf_enable);
 			radio->config[RADIO_BANK_APPLIED][RADIO_RX_NARROW_LPF] =
 				narrow_lpf_enable;
-			new_bw = true;
+			changed |= (1 << RADIO_RX_NARROW_LPF);
 		}
 		/* Always set HPF bandwidth to 30 kHz for now. */
 		const max283x_rx_hpf_freq_t hpf_bandwidth = MAX283x_RX_HPF_30_KHZ;
@@ -460,7 +470,7 @@ static bool radio_update_bandwidth(radio_t* const radio, uint64_t* bank)
 			max283x_set_rx_hpf_frequency(&max283x, hpf_bandwidth);
 			radio->config[RADIO_BANK_APPLIED][RADIO_XCVR_RX_HPF] =
 				hpf_bandwidth;
-			new_bw = true;
+			changed |= (1 << RADIO_XCVR_RX_HPF);
 		}
 	}
 #endif
@@ -499,21 +509,24 @@ static bool radio_update_bandwidth(radio_t* const radio, uint64_t* bank)
 				lpf_bandwidth;
 			radio->config[RADIO_BANK_APPLIED][RADIO_XCVR_RX_LPF] =
 				lpf_bandwidth;
-			new_bw = true;
+			changed |=
+				((1 << RADIO_BB_BANDWIDTH_RX) |
+				 (1 << RADIO_BB_BANDWIDTH_TX) | (1 << RADIO_XCVR_TX_LPF) |
+				 (1 << RADIO_XCVR_RX_LPF));
 		}
 	}
 #endif
-	return new_bw;
+	return changed;
 }
 
 #define DEFAULT_GAIN_RF (0)
 #define DEFAULT_GAIN_IF (16)
 #define DEFAULT_GAIN_BB (12)
 
-static bool radio_update_gain(radio_t* const radio, uint64_t* bank)
+static uint32_t radio_update_gain(radio_t* const radio, uint64_t* bank)
 {
-	bool new_gain = false;
-	uint64_t gain;
+	uint32_t changed = 0;
+	uint64_t gain, tx_rf_gain, rx_rf_gain;
 	uint64_t opmode = bank[RADIO_OPMODE];
 	if (opmode == RADIO_UNSET) {
 		opmode = radio->config[RADIO_BANK_APPLIED][RADIO_OPMODE];
@@ -527,34 +540,34 @@ static bool radio_update_gain(radio_t* const radio, uint64_t* bank)
 	switch (opmode) {
 	case TRANSCEIVER_MODE_TX:
 	case TRANSCEIVER_MODE_SS:
-		gain = bank[RADIO_GAIN_TX_RF];
-		if (gain == RADIO_UNSET) {
-			gain = DEFAULT_GAIN_RF;
+		tx_rf_gain = bank[RADIO_GAIN_TX_RF];
+		if (tx_rf_gain == RADIO_UNSET) {
+			tx_rf_gain = DEFAULT_GAIN_RF;
 		}
-		rf_path_set_lna(&rf_path, gain);
-		if (radio->config[RADIO_BANK_APPLIED][RADIO_GAIN_TX_RF] != gain) {
-			new_gain = true;
-		}
-		radio->config[RADIO_BANK_APPLIED][RADIO_GAIN_TX_RF] = gain;
-		radio->config[RADIO_BANK_APPLIED][RADIO_GAIN_RX_RF] = 0;
+		rf_path_set_lna(&rf_path, tx_rf_gain);
+		rx_rf_gain = 0;
 		break;
 	case TRANSCEIVER_MODE_RX:
 	case TRANSCEIVER_MODE_RX_SWEEP:
-		gain = bank[RADIO_GAIN_RX_RF];
-		if (gain == RADIO_UNSET) {
-			gain = DEFAULT_GAIN_RF;
+		rx_rf_gain = bank[RADIO_GAIN_RX_RF];
+		if (rx_rf_gain == RADIO_UNSET) {
+			rx_rf_gain = DEFAULT_GAIN_RF;
 		}
-		rf_path_set_lna(&rf_path, gain);
-		if (radio->config[RADIO_BANK_APPLIED][RADIO_GAIN_RX_RF] != gain) {
-			new_gain = true;
-		}
-		radio->config[RADIO_BANK_APPLIED][RADIO_GAIN_RX_RF] = gain;
-		radio->config[RADIO_BANK_APPLIED][RADIO_GAIN_TX_RF] = 0;
+		rf_path_set_lna(&rf_path, rx_rf_gain);
+		tx_rf_gain = 0;
 		break;
 	default:
 		rf_path_set_lna(&rf_path, 0);
-		radio->config[RADIO_BANK_APPLIED][RADIO_GAIN_TX_RF] = 0;
-		radio->config[RADIO_BANK_APPLIED][RADIO_GAIN_RX_RF] = 0;
+		tx_rf_gain = 0;
+		rx_rf_gain = 0;
+	}
+	if (radio->config[RADIO_BANK_APPLIED][RADIO_GAIN_TX_RF] != tx_rf_gain) {
+		radio->config[RADIO_BANK_APPLIED][RADIO_GAIN_TX_RF] = tx_rf_gain;
+		changed |= (1 << RADIO_GAIN_TX_RF);
+	}
+	if (radio->config[RADIO_BANK_APPLIED][RADIO_GAIN_RX_RF] != rx_rf_gain) {
+		radio->config[RADIO_BANK_APPLIED][RADIO_GAIN_RX_RF] = rx_rf_gain;
+		changed |= (1 << RADIO_GAIN_RX_RF);
 	}
 
 	gain = bank[RADIO_GAIN_TX_IF];
@@ -562,11 +575,11 @@ static bool radio_update_gain(radio_t* const radio, uint64_t* bank)
 	    (gain != radio->config[RADIO_BANK_APPLIED][RADIO_GAIN_TX_IF])) {
 		max283x_set_txvga_gain(&max283x, gain);
 		radio->config[RADIO_BANK_APPLIED][RADIO_GAIN_TX_IF] = gain;
-		new_gain = true;
+		changed |= (1 << RADIO_GAIN_TX_IF);
 	} else if (radio->config[RADIO_BANK_APPLIED][RADIO_GAIN_TX_IF] == RADIO_UNSET) {
 		max283x_set_txvga_gain(&max283x, DEFAULT_GAIN_IF);
 		radio->config[RADIO_BANK_APPLIED][RADIO_GAIN_TX_IF] = DEFAULT_GAIN_IF;
-		new_gain = true;
+		changed |= (1 << RADIO_GAIN_TX_IF);
 	}
 
 	gain = bank[RADIO_GAIN_RX_IF];
@@ -574,11 +587,11 @@ static bool radio_update_gain(radio_t* const radio, uint64_t* bank)
 	    (gain != radio->config[RADIO_BANK_APPLIED][RADIO_GAIN_RX_IF])) {
 		max283x_set_lna_gain(&max283x, gain);
 		radio->config[RADIO_BANK_APPLIED][RADIO_GAIN_RX_IF] = gain;
-		new_gain = true;
+		changed |= (1 << RADIO_GAIN_RX_IF);
 	} else if (radio->config[RADIO_BANK_APPLIED][RADIO_GAIN_RX_IF] == RADIO_UNSET) {
 		max283x_set_lna_gain(&max283x, DEFAULT_GAIN_IF);
 		radio->config[RADIO_BANK_APPLIED][RADIO_GAIN_RX_IF] = DEFAULT_GAIN_IF;
-		new_gain = true;
+		changed |= (1 << RADIO_GAIN_RX_IF);
 	}
 
 	gain = bank[RADIO_GAIN_RX_BB];
@@ -586,39 +599,39 @@ static bool radio_update_gain(radio_t* const radio, uint64_t* bank)
 	    (gain != radio->config[RADIO_BANK_APPLIED][RADIO_GAIN_RX_BB])) {
 		max283x_set_vga_gain(&max283x, gain);
 		radio->config[RADIO_BANK_APPLIED][RADIO_GAIN_RX_BB] = gain;
-		new_gain = true;
+		changed |= (1 << RADIO_GAIN_RX_BB);
 	} else if (radio->config[RADIO_BANK_APPLIED][RADIO_GAIN_RX_BB] == RADIO_UNSET) {
 		max283x_set_vga_gain(&max283x, DEFAULT_GAIN_BB);
 		radio->config[RADIO_BANK_APPLIED][RADIO_GAIN_RX_BB] = DEFAULT_GAIN_BB;
-		new_gain = true;
+		changed |= (1 << RADIO_GAIN_RX_BB);
 	}
 
-	return new_gain;
+	return changed;
 }
 
-static bool radio_update_bias_tee(radio_t* const radio, uint64_t* bank)
+static uint32_t radio_update_bias_tee(radio_t* const radio, uint64_t* bank)
 {
 	if (detected_platform() == BOARD_ID_JAWBREAKER) {
-		return false;
+		return 0;
 	}
 
 	const uint64_t requested = bank[RADIO_BIAS_TEE];
 	const bool enable = requested;
 
 	if (requested == RADIO_UNSET) {
-		return false;
+		return 0;
 	}
 
 	if (radio->config[RADIO_BANK_APPLIED][RADIO_BIAS_TEE] == (uint64_t) enable) {
-		return false;
+		return 0;
 	}
 
 	rf_path_set_antenna(&rf_path, enable);
 	radio->config[RADIO_BANK_APPLIED][RADIO_BIAS_TEE] = enable;
-	return true;
+	return (1 << RADIO_BIAS_TEE);
 }
 
-static bool radio_update_trigger(radio_t* const radio, uint64_t* bank)
+static uint32_t radio_update_trigger(radio_t* const radio, uint64_t* bank)
 {
 	const uint64_t requested = bank[RADIO_TRIGGER];
 	bool enable = requested;
@@ -628,15 +641,15 @@ static bool radio_update_trigger(radio_t* const radio, uint64_t* bank)
 	}
 
 	if (radio->config[RADIO_BANK_APPLIED][RADIO_TRIGGER] == (uint64_t) enable) {
-		return false;
+		return 0;
 	}
 
 	trigger_enable(enable);
 	radio->config[RADIO_BANK_APPLIED][RADIO_TRIGGER] = enable;
-	return true;
+	return (1 << RADIO_TRIGGER);
 }
 
-static bool radio_update_dc_block(radio_t* const radio, uint64_t* bank)
+static uint32_t radio_update_dc_block(radio_t* const radio, uint64_t* bank)
 {
 #ifdef IS_PRALINE
 	if (IS_PRALINE) {
@@ -649,18 +662,18 @@ static bool radio_update_dc_block(radio_t* const radio, uint64_t* bank)
 
 		if (radio->config[RADIO_BANK_APPLIED][RADIO_DC_BLOCK] ==
 		    (uint64_t) enable) {
-			return false;
+			return 0;
 		}
 
 		fpga_set_rx_dc_block_enable(&fpga, enable);
 		radio->config[RADIO_BANK_APPLIED][RADIO_DC_BLOCK] = enable;
-		return true;
+		return (1 << RADIO_DC_BLOCK);
 	}
 #endif
 
 	(void) radio;
 	(void) bank;
-	return false;
+	return 0;
 }
 
 bool radio_update(radio_t* const radio)
@@ -668,6 +681,7 @@ bool radio_update(radio_t* const radio)
 	uint64_t tmp_bank[RADIO_NUM_REGS];
 	nvic_disable_irq(NVIC_USB0_IRQ);
 	uint32_t dirty = radio->regs_dirty;
+	uint32_t changed = 0;
 	if (dirty == 0) {
 		nvic_enable_irq(NVIC_USB0_IRQ);
 		return false;
@@ -676,56 +690,41 @@ bool radio_update(radio_t* const radio)
 	memcpy(&tmp_bank[0], &(radio->config[RADIO_BANK_ACTIVE][0]), sizeof(tmp_bank));
 	nvic_enable_irq(NVIC_USB0_IRQ);
 
-	bool dir = false;
-	bool rate = false;
-	bool freq = false;
-	bool bw = false;
-	bool gain = false;
-	bool bias = false;
-	bool trig = false;
-	bool dc = false;
-
-	if ((dirty &
-	     ((1 << RADIO_SAMPLE_RATE) | (1 << RADIO_RESAMPLE_TX) |
-	      (1 << RADIO_RESAMPLE_RX))) ||
+	if ((dirty & RADIO_REG_GROUP_RATE) ||
 	    ((detected_platform() == BOARD_ID_PRALINE) &&
 	     (dirty & (1 << RADIO_OPMODE)))) {
-		rate = radio_update_sample_rate(radio, &tmp_bank[0]);
+		changed |= radio_update_sample_rate(radio, &tmp_bank[0]);
 	}
-	if ((dirty &
-	     ((1 << RADIO_FREQUENCY_RF) | (1 << RADIO_FREQUENCY_IF) |
-	      (1 << RADIO_FREQUENCY_LO) | (1 << RADIO_IMAGE_REJECT) |
-	      (1 << RADIO_ROTATION))) ||
+	if ((dirty & RADIO_REG_GROUP_FREQ) ||
 	    ((detected_platform() == BOARD_ID_PRALINE) &&
-	     (rate || (dirty & (1 << RADIO_OPMODE))))) {
-		freq = radio_update_frequency(radio, &tmp_bank[0]);
+	     ((changed & RADIO_REG_GROUP_RATE) || (dirty & (1 << RADIO_OPMODE))))) {
+		changed |= radio_update_frequency(radio, &tmp_bank[0]);
 	}
-	if ((dirty &
-	     ((1 << RADIO_BB_BANDWIDTH_TX) | (1 << RADIO_BB_BANDWIDTH_RX) |
-	      (1 << RADIO_XCVR_TX_LPF) | (1 << RADIO_XCVR_RX_LPF) |
-	      (1 << RADIO_XCVR_RX_HPF) | (1 << RADIO_RX_NARROW_LPF))) ||
-	    ((detected_platform() == BOARD_ID_PRALINE) && (rate || freq))) {
-		bw = radio_update_bandwidth(radio, &tmp_bank[0]);
+	if ((dirty & RADIO_REG_GROUP_BW) ||
+	    ((detected_platform() == BOARD_ID_PRALINE) &&
+	     (changed & (RADIO_REG_GROUP_RATE | RADIO_REG_GROUP_FREQ)))) {
+		changed |= radio_update_bandwidth(radio, &tmp_bank[0]);
 	}
-	if (dirty &
-	    ((1 << RADIO_GAIN_TX_RF) | (1 << RADIO_GAIN_TX_IF) | (1 << RADIO_GAIN_RX_RF) |
-	     (1 << RADIO_GAIN_RX_IF) | (1 << RADIO_GAIN_RX_BB) | (1 << RADIO_OPMODE))) {
-		gain = radio_update_gain(radio, &tmp_bank[0]);
+	if (dirty & (RADIO_REG_GROUP_GAIN | (1 << RADIO_OPMODE))) {
+		changed |= radio_update_gain(radio, &tmp_bank[0]);
 	}
 	if (dirty & ((1 << RADIO_BIAS_TEE) | (1 << RADIO_OPMODE))) {
-		bias = radio_update_bias_tee(radio, &tmp_bank[0]);
+		changed |= radio_update_bias_tee(radio, &tmp_bank[0]);
 	}
 	if (dirty & (1 << RADIO_TRIGGER)) {
-		trig = radio_update_trigger(radio, &tmp_bank[0]);
+		changed |= radio_update_trigger(radio, &tmp_bank[0]);
 	}
 	if (dirty & (1 << RADIO_DC_BLOCK)) {
-		dc = radio_update_dc_block(radio, &tmp_bank[0]);
+		changed |= radio_update_dc_block(radio, &tmp_bank[0]);
 	}
 	if (dirty & (1 << RADIO_OPMODE)) {
-		dir = radio_update_direction(radio, &tmp_bank[0]);
+		changed |= radio_update_direction(radio, &tmp_bank[0]);
 	}
 
-	return trig || dir || rate || freq || bw || gain || bias || dc;
+	if (radio->update_cb) {
+		radio->update_cb(changed);
+	}
+	return (changed != 0);
 }
 
 void radio_switch_opmode(radio_t* const radio, const transceiver_mode_t mode)
