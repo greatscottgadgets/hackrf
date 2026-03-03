@@ -351,10 +351,6 @@ fpga_driver_t fpga = {
 };
 #endif
 
-radio_t radio = {
-	.sample_rate_cb = sample_rate_set,
-};
-
 rf_path_t rf_path = {
 	.switchctrl = 0,
 #ifdef HACKRF_ONE
