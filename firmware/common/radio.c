@@ -527,21 +527,21 @@ static bool radio_update_gain(radio_t* const radio, uint64_t* bank)
 
 	gain = bank[RADIO_GAIN_RX_IF];
 	if ((gain != RADIO_UNSET) &&
-	    (gain != radio->config[RADIO_BANK_APPLIED][RADIO_GAIN_TX_IF])) {
+	    (gain != radio->config[RADIO_BANK_APPLIED][RADIO_GAIN_RX_IF])) {
 #ifdef PRALINE
 		max2831_set_lna_gain(&max283x, gain);
 #else
 		max283x_set_lna_gain(&max283x, gain);
 #endif
-		radio->config[RADIO_BANK_APPLIED][RADIO_GAIN_TX_IF] = gain;
+		radio->config[RADIO_BANK_APPLIED][RADIO_GAIN_RX_IF] = gain;
 		new_gain = true;
-	} else if (radio->config[RADIO_BANK_APPLIED][RADIO_GAIN_TX_IF] == RADIO_UNSET) {
+	} else if (radio->config[RADIO_BANK_APPLIED][RADIO_GAIN_RX_IF] == RADIO_UNSET) {
 #ifdef PRALINE
 		max2831_set_lna_gain(&max283x, DEFAULT_GAIN_IF);
 #else
 		max283x_set_lna_gain(&max283x, DEFAULT_GAIN_IF);
 #endif
-		radio->config[RADIO_BANK_APPLIED][RADIO_GAIN_TX_IF] = DEFAULT_GAIN_IF;
+		radio->config[RADIO_BANK_APPLIED][RADIO_GAIN_RX_IF] = DEFAULT_GAIN_IF;
 		new_gain = true;
 	}
 
