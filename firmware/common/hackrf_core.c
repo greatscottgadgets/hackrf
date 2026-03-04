@@ -549,6 +549,7 @@ fp_40_24_t sample_rate_set(const fp_40_24_t sample_rate, const bool program)
 		sgpio_cpld_stream_disable(&sgpio_config);
 	}
 
+#ifndef PRALINE
 	/* Integer mode can be enabled if p1 is even and p2 is zero. */
 	if (p1 & 0x1 || p2) {
 		si5351c_set_int_mode(&clock_gen, 0, 0);
@@ -556,7 +557,6 @@ fp_40_24_t sample_rate_set(const fp_40_24_t sample_rate, const bool program)
 		si5351c_set_int_mode(&clock_gen, 0, 1);
 	}
 
-#ifndef PRALINE
 	if (detected_platform() == BOARD_ID_HACKRF1_R9) {
 		/*
 		 * On HackRF One r9 all sample clocks are externally derived
@@ -578,8 +578,17 @@ fp_40_24_t sample_rate_set(const fp_40_24_t sample_rate, const bool program)
 		si5351c_configure_multisynth(&clock_gen, 2, 0, 0, 0, 0); //p1 doesn't matter
 	}
 #else
-	/* MS0/CLK0 is the source for the MAX5864/FPGA (AFE_CLK). */
+	/* MS0/CLK0 is the source for the MAX5864 (AFE_CLK). */
 	si5351c_configure_multisynth(&clock_gen, 0, p1, p2, p3, 1);
+
+	/* MS1/CLK1 is the source for the FPGA (FPGA_CLK and SCT_CLK). */
+	si5351c_configure_multisynth(&clock_gen, 1, p1, p2, p3, 1);
+
+	/* Delay FPGA_CLK relative to AFE_CLK. */
+	si5351c_write_single(&clock_gen, 166, 18);
+
+	/* Reset PLL to synchronize output clock phase. */
+	si5351c_reset_pll(&clock_gen);
 #endif
 
 	if (streaming) {
