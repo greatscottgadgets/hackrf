@@ -188,6 +188,7 @@ static bool radio_update_sample_rate(radio_t* const radio, uint64_t* bank)
 	switch (opmode) {
 	case TRANSCEIVER_MODE_TX:
 	case TRANSCEIVER_MODE_SS:
+		n = compute_resample_log(rate / FP_ONE_HZ, requested_n);
 		if (n != radio->config[RADIO_BANK_APPLIED][RADIO_RESAMPLE_TX]) {
 #ifdef PRALINE
 			fpga_set_tx_interpolation_ratio(&fpga, n);
@@ -196,10 +197,6 @@ static bool radio_update_sample_rate(radio_t* const radio, uint64_t* bank)
 		}
 		break;
 	default:
-		/*
-		 * Resampling is enabled only in RX mode to work around a
-		 * spectrum inversion bug with TX interpolation.
-		 */
 		n = compute_resample_log(rate / FP_ONE_HZ, requested_n);
 		if (n != radio->config[RADIO_BANK_APPLIED][RADIO_RESAMPLE_RX]) {
 #ifdef PRALINE
