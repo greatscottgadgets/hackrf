@@ -585,7 +585,11 @@ fp_40_24_t sample_rate_set(const fp_40_24_t sample_rate, const bool program)
 	si5351c_configure_multisynth(&clock_gen, 1, p1, p2, p3, 1);
 
 	/* Delay FPGA_CLK relative to AFE_CLK. */
-	si5351c_write_single(&clock_gen, 166, 18);
+	uint8_t phase_offset = 0;
+	if (p1 < 2100) {
+		phase_offset = (p1 >> 4) - 6;
+	}
+	si5351c_write_single(&clock_gen, 166, phase_offset);
 
 	/* Reset PLL to synchronize output clock phase. */
 	si5351c_reset_pll(&clock_gen);
