@@ -190,7 +190,7 @@ bool fpga_if_xcvr_selftest(void)
 	max2831_set_frequency(&max283x, 2500000000);
 
 	// Capture 1: 4 Msps, tone at 0.5 MHz, narrowband filter OFF
-	sample_rate_frac_set(4000000, 1);
+	sample_rate_set(4ULL * FP_ONE_MHZ, true);
 	delay_us_at_mhz(1000, 204);
 	if (rx_samples(num_samples, 2000000) == -1) {
 		timeout = true;
@@ -213,7 +213,7 @@ bool fpga_if_xcvr_selftest(void)
 
 	// Capture 3: 20 Msps, tone at 5 MHz, narrowband filter OFF
 	fpga_set_tx_nco_pstep(&fpga, 255);
-	sample_rate_frac_set(20000000, 1);
+	sample_rate_set(20ULL * FP_ONE_MHZ, true);
 	narrowband_filter_set(0);
 	delay_us_at_mhz(1000, 204);
 	if (rx_samples(num_samples, 2000000) == -1) {
@@ -236,7 +236,7 @@ bool fpga_if_xcvr_selftest(void)
 		&selftest.xcvr_measurements[3]);
 
 	// Restore default settings.
-	sample_rate_set(10000000);
+	sample_rate_set(10ULL * FP_ONE_MHZ, true);
 	rf_path_set_direction(&rf_path, RF_PATH_DIRECTION_OFF);
 	narrowband_filter_set(0);
 	fpga_init(&fpga);

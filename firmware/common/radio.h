@@ -27,6 +27,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#include "fixed_point.h"
+
 typedef enum {
 	RADIO_OK = 1,
 	RADIO_ERR_INVALID_PARAM = -2,
@@ -107,88 +109,96 @@ typedef enum {
 	 */
 	RADIO_SAMPLE_RATE = 6,
 	/**
-	 * Sample rate (as seen by MCU/host) in fractional format. The
-	 * numerator is stored in the low 32 bits. The denominator is stored in
-	 * the high 32 bits.
-	 */
-	RADIO_SAMPLE_RATE_FRAC = 7,
-	/**
 	 * Base two logarithm of TX decimation ratio (0 means a ratio of 1).
 	 */
-	RADIO_RESAMPLE_TX = 8,
+	RADIO_RESAMPLE_TX = 7,
 	/**
 	 * Base two logarithm of RX decimation ratio (0 means a ratio of 1).
 	 */
-	RADIO_RESAMPLE_RX = 9,
+	RADIO_RESAMPLE_RX = 8,
 	/**
 	 * TX RF amplifier enable of type bool.
 	 */
-	RADIO_GAIN_TX_RF = 10,
+	RADIO_GAIN_TX_RF = 9,
 	/**
 	 * TX IF amplifier gain in dB.
 	 */
-	RADIO_GAIN_TX_IF = 11,
+	RADIO_GAIN_TX_IF = 10,
 	/**
 	 * RX RF amplifier enable of type bool.
 	 */
-	RADIO_GAIN_RX_RF = 12,
+	RADIO_GAIN_RX_RF = 11,
 	/**
 	 * RX IF amplifier gain in dB.
 	 */
-	RADIO_GAIN_RX_IF = 13,
+	RADIO_GAIN_RX_IF = 12,
 	/**
 	 * RX baseband amplifier gain in dB.
 	 */
-	RADIO_GAIN_RX_BB = 14,
+	RADIO_GAIN_RX_BB = 13,
 	/**
 	 * TX baseband bandwidth in Hz. This controls analog baseband filter
 	 * settings but is specified as the desired bandwidth centered in
 	 * digital baseband as seen by the MCU/host.
 	 */
-	RADIO_BB_BANDWIDTH_TX = 15,
+	RADIO_BB_BANDWIDTH_TX = 14,
 	/**
 	 * RX baseband bandwidth in Hz. This controls analog baseband filter
 	 * settings but is specified as the desired bandwidth centered in
 	 * digital baseband as seen by the MCU/host.
 	 */
-	RADIO_BB_BANDWIDTH_RX = 16,
+	RADIO_BB_BANDWIDTH_RX = 15,
 	/**
 	 * Quadrature transceiver TX baseband LPF bandwidth in Hz.  If no
 	 * rotation is performed, this is set to match RADIO_BB_BANDWIDTH.
 	 * Currently unused.
 	 */
-	RADIO_XCVR_TX_LPF = 17,
+	RADIO_XCVR_TX_LPF = 16,
 	/**
 	 * Quadrature transceiver RX baseband LPF bandwidth in Hz.  If no
 	 * rotation is performed, this is set to match RADIO_BB_BANDWIDTH.
 	 * Currently unused.
 	 */
-	RADIO_XCVR_RX_LPF = 18,
+	RADIO_XCVR_RX_LPF = 17,
 	/**
 	 * Quadrature transceiver RX baseband HPF bandwidth in Hz. Currently
 	 * unused.
 	 */
-	RADIO_XCVR_RX_HPF = 19,
+	RADIO_XCVR_RX_HPF = 18,
 	/**
 	 * Narrowband RX analog baseband LPF enable of type bool. Currently unused.
 	 */
-	RADIO_RX_NARROW_LPF = 20,
+	RADIO_RX_NARROW_LPF = 19,
 	/**
 	 * RF port bias tee enable of type bool.
 	 */
-	RADIO_BIAS_TEE = 21,
+	RADIO_BIAS_TEE = 20,
 	/**
 	 * Trigger input enable of type bool.
 	 */
-	RADIO_TRIGGER = 22,
+	RADIO_TRIGGER = 21,
 	/**
 	 * DC block enable of type bool.
 	 */
-	RADIO_DC_BLOCK = 23,
+	RADIO_DC_BLOCK = 22,
 } radio_register_t;
 
-#define RADIO_NUM_REGS (24)
+#define RADIO_NUM_REGS (23)
 #define RADIO_UNSET    (0xffffffffffffffff)
+
+/* register groups for bitfield convenience */
+#define RADIO_REG_GROUP_RATE \
+	((1 << RADIO_SAMPLE_RATE) | (1 << RADIO_RESAMPLE_TX) | (1 << RADIO_RESAMPLE_RX))
+#define RADIO_REG_GROUP_FREQ                                     \
+	((1 << RADIO_FREQUENCY_RF) | (1 << RADIO_FREQUENCY_IF) | \
+	 (1 << RADIO_FREQUENCY_LO) | (1 << RADIO_IMAGE_REJECT) | (1 << RADIO_ROTATION))
+#define RADIO_REG_GROUP_BW                                             \
+	((1 << RADIO_BB_BANDWIDTH_TX) | (1 << RADIO_BB_BANDWIDTH_RX) | \
+	 (1 << RADIO_XCVR_TX_LPF) | (1 << RADIO_XCVR_RX_LPF) |         \
+	 (1 << RADIO_XCVR_RX_HPF) | (1 << RADIO_RX_NARROW_LPF))
+#define RADIO_REG_GROUP_GAIN                                                           \
+	((1 << RADIO_GAIN_TX_RF) | (1 << RADIO_GAIN_TX_IF) | (1 << RADIO_GAIN_RX_RF) | \
+	 (1 << RADIO_GAIN_RX_IF) | (1 << RADIO_GAIN_RX_BB) | (1 << RADIO_OPMODE))
 
 /**
  * Register bank RADIO_BANK_ACTIVE stores the active configuration. Active
@@ -211,10 +221,28 @@ typedef enum {
 
 #define RADIO_NUM_BANKS (5)
 
+/**
+ * A callback function must be provided that configures clock generation to
+ * produce the requested sample clock frequency. The function must return the
+ * configured sample rate. A boolean program argument may be set to false to
+ * execute a dry run, returning the sample rate without configuring clock
+ * generation.
+ */
+typedef fp_40_24_t (*sample_rate_fn)(const fp_40_24_t sample_rate, const bool program);
+
+/**
+ * An optional callback may be provided that is called after each time the
+ * radio configuration has been updated. The single argument is a bitfield
+ * indicating registers that have been changed.
+ */
+typedef void (*update_fn)(const uint32_t changed_regs);
+
 typedef struct radio_t {
 	radio_config_mode_t config_mode;
 	uint64_t config[RADIO_NUM_BANKS][RADIO_NUM_REGS];
 	volatile uint32_t regs_dirty;
+	sample_rate_fn sample_rate_cb;
+	update_fn update_cb;
 } radio_t;
 
 void radio_init(radio_t* const radio);
