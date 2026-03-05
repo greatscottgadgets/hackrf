@@ -40,6 +40,8 @@ typedef int32_t ssize_t;
 
 /* 32 Mbit flash */
 #define PRALINE_FLASH_LENGTH 0x400000
+/* 16 Mbit flash */
+#define PORTARF_FLASH_LENGTH 0x200000
 /* 8 Mbit flash */
 #define OTHER_FLASH_LENGTH 0x100000
 
@@ -359,6 +361,10 @@ int main(int argc, char** argv)
 
 	if (board_id == BOARD_ID_PRALINE) {
 		flash_length = PRALINE_FLASH_LENGTH;
+	} else if (
+		board_id ==
+		BOARD_ID_HACKRF1_OG) { // This is the version for the PortaRF, so we assume it has the 16 Mbit flash, but this is not guaranteed to be correct for all OG HackRF Ones
+		flash_length = PORTARF_FLASH_LENGTH;
 	} else {
 		flash_length = OTHER_FLASH_LENGTH;
 	}
