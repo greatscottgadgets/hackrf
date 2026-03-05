@@ -53,7 +53,6 @@
 #include "usb_api_sweep.h"
 #include "usb_api_transceiver.h"
 #include "usb_api_ui.h"
-#include "usb_bulk_buffer.h"
 #include "usb_api_m0_state.h"
 #include "cpld_xc2c.h"
 #include "portapack.h"
@@ -154,6 +153,7 @@ static usb_request_handler_fn vendor_request_handler[] = {
 	usb_vendor_request_test_rtc_osc,
 	usb_vendor_request_write_radio_reg,
 	usb_vendor_request_read_radio_reg,
+	usb_vendor_request_get_buffer_size,
 };
 
 static const uint32_t vendor_request_handler_count =
