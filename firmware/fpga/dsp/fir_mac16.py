@@ -464,18 +464,23 @@ class SerialMAC16(wiring.Component):
 class iCE40Multiplier(wiring.Component):
 
     def __init__(self, a_width=16, b_width=16, p_width=32, o_width=32, always_ready=False):
-        super().__init__({
+        signature = {
             "a": In(signed(a_width)),
             "b": In(signed(b_width)),
             "valid_in": In(1),
-            "ready_in": In(1),
-            "p": In(signed(p_width)),
-            "p_load": In(1),
+            "ready_in": Out(1),
             "o": Out(signed(o_width)),
             "valid_out": Out(1),
             "ready_out": In(1),
-        })
+        }
+        if p_width > 0:
+            signature.update({
+                "p": In(signed(p_width)),
+                "p_load": In(1),
+            })
+        super().__init__(signature)
         self.always_ready = always_ready
+        self.p_width = p_width
         self.o_width = o_width
    
     def elaborate(self, platform):
@@ -487,15 +492,17 @@ class iCE40Multiplier(wiring.Component):
                 m.d.sync += pipe[i+1].eq(pipe[i])
             return pipe
 
-        p_load_v    = Signal()
         valid_v     = Signal()
         m.d.comb += valid_v.eq(self.valid_in & self.ready_in)
 
         dsp_delay   = 3
         valid_pipe  = pipe(valid_v, dsp_delay)
-        m.d.comb   += p_load_v.eq(self.p_load & valid_v)
-        p_pipe      = pipe(self.p, dsp_delay-1)
-        p_load_pipe = pipe(p_load_v, dsp_delay - 1)
+
+        if self.p_width > 0:
+            p_load_v    = Signal()
+            m.d.comb   += p_load_v.eq(self.p_load & valid_v)
+            p_pipe      = pipe(self.p, dsp_delay-1)
+            p_load_pipe = pipe(p_load_v, dsp_delay - 1)
 
         # skid buffer
         if not self.always_ready:
@@ -529,10 +536,10 @@ class iCE40Multiplier(wiring.Component):
             # Inputs.
             mac.CLK         .eq(ClockSignal("sync")),
             mac.CE          .eq(1),
-            mac.C.as_signed().eq(Mux(p_load_pipe[2], p_pipe[2][16:], mac.O[16:])),
+            mac.C.as_signed().eq(Mux(p_load_pipe[2], p_pipe[2][16:], mac.O[16:]) if self.p_width > 0 else 0),
             mac.A.as_signed().eq(self.a),
             mac.B.as_signed().eq(self.b),
-            mac.D.as_signed().eq(Mux(p_load_pipe[2], p_pipe[2][:16], mac.O[:16])),
+            mac.D.as_signed().eq(Mux(p_load_pipe[2], p_pipe[2][:16], mac.O[:16]) if self.p_width > 0 else 0),
             mac.AHOLD       .eq(~valid_pipe[0]),  # 0: load
             mac.BHOLD       .eq(~valid_pipe[0]),
             mac.CHOLD       .eq(0),
