@@ -26,9 +26,11 @@ class Top(Elaboratable):
         m = Module()
 
         m.submodules.clkgen = ClockDomainGenerator()
+        adc_clk = "adclk"
+        dac_clk = "daclk"
 
         # Submodules.
-        m.submodules.adcdac_intf = adcdac_intf = MAX586xInterface(bb_domain="gck1")
+        m.submodules.adcdac_intf = adcdac_intf = MAX586xInterface(adc_domain=adc_clk, dac_domain=dac_clk)
         m.submodules.mcu_intf    = mcu_intf    = SGPIOInterface(sample_width=16, domain="sync")
 
         m.d.comb += adcdac_intf.q_invert.eq(platform.request("q_invert").i)
@@ -52,13 +54,13 @@ class Top(Elaboratable):
         common_rx_filter_opts = dict(
             data_shape=fixed.SQ(7),
             always_ready=True,
-            domain="gck1",
+            domain=adc_clk,
         )
 
         rx_chain = {
             # DC block and quarter shift.
-            "dc_block":      DCBlock(width=8, num_channels=2, domain="gck1"),
-            "quarter_shift": DomainRenamer("gck1")(QuarterShift()),
+            "dc_block":      DCBlock(width=8, num_channels=2, domain=adc_clk),
+            "quarter_shift": DomainRenamer(adc_clk)(QuarterShift()),
 
             # Half-band decimation stages.
             "hbfir5":        HalfBandDecimator(taps5, **common_rx_filter_opts),
@@ -68,7 +70,7 @@ class Top(Elaboratable):
             "hbfir1":        HalfBandDecimator(taps, **common_rx_filter_opts),
 
             # Clock domain conversion.
-            "clkconv":       ClockConverter(IQSample(8), 8, "gck1", "sync"),
+            "clkconv":       ClockConverter(IQSample(8), 8, adc_clk, "sync"),
         }
         for k,v in rx_chain.items():
             m.submodules[f"rx_{k}"] = v
@@ -82,20 +84,20 @@ class Top(Elaboratable):
 
         tx_chain = {
             # Clock domain conversion.
-            "clkconv":          ClockConverter(IQSample(8), 8, "sync", "gck1", always_ready=False), 
+            "clkconv":          ClockConverter(IQSample(8), 8, "sync", dac_clk, always_ready=False), 
 
             # Half-band interpolation stages (+ skid buffers for timing closure).
             "hbfir1":           HalfBandInterpolator(taps, data_shape=fixed.SQ(7), 
-                num_channels=2, always_ready=False, domain="gck1"),
-            "skid2":            DomainRenamer("gck1")(StreamSkidBuffer(IQSample(8), always_ready=False)),
+                num_channels=2, always_ready=False, domain=dac_clk),
+            "skid2":            DomainRenamer(dac_clk)(StreamSkidBuffer(IQSample(8), always_ready=False)),
             "hbfir2":           HalfBandInterpolator(taps2, data_shape=fixed.SQ(7), 
-                num_channels=2, always_ready=False, domain="gck1"),
-            "skid3":            DomainRenamer("gck1")(StreamSkidBuffer(IQSample(8), always_ready=False)),
+                num_channels=2, always_ready=False, domain=dac_clk),
+            "skid3":            DomainRenamer(dac_clk)(StreamSkidBuffer(IQSample(8), always_ready=False)),
 
             # CIC interpolation stage.
             "cic_interpolator": CICInterpolator(1, 3, (1, 2, 4, 8), 8, 8, num_channels=2, 
-                always_ready=False, domain="gck1"),
-            "skid4":            DomainRenamer("gck1")(StreamSkidBuffer(IQSample(8), always_ready=False)),
+                always_ready=False, domain=dac_clk),
+            "skid4":            DomainRenamer(dac_clk)(StreamSkidBuffer(IQSample(8), always_ready=False)),
         }
         for k,v in tx_chain.items():
             m.submodules[f"tx_{k}"] = v
@@ -106,7 +108,7 @@ class Top(Elaboratable):
             connect(m, last, block.input)
             last = block.output
         # DAC can also be driven with an internal NCO.
-        m.submodules.nco = nco = DomainRenamer("gck1")(NCO(phase_width=16, output_width=8))
+        m.submodules.nco = nco = DomainRenamer(dac_clk)(NCO(phase_width=16, output_width=8))
         with m.If(nco.en):
             m.d.comb += [
                 adcdac_intf.dac_stream.p.eq(nco.output),
@@ -123,9 +125,10 @@ class Top(Elaboratable):
         # Add control registers.
         ctrl     = spi_regs.add_register(0x01, init=0)
         rx_decim = spi_regs.add_register(0x02, init=0, size=3)
-        tx_ctrl  = spi_regs.add_register(0x03, init=0, size=1)
-        tx_intrp = spi_regs.add_register(0x04, init=0, size=3)
-        tx_pstep = spi_regs.add_register(0x05, init=0)
+        rx_pstep = spi_regs.add_register(0x03, init=0)
+        tx_ctrl  = spi_regs.add_register(0x04, init=0, size=1)
+        tx_intrp = spi_regs.add_register(0x05, init=0, size=3)
+        tx_pstep = spi_regs.add_register(0x06, init=0)
 
         m.d.sync += [
             # Trigger enable.
@@ -136,8 +139,8 @@ class Top(Elaboratable):
 
             # RX settings.
             rx_chain["dc_block"].enable         .eq(ctrl[0]),
-            rx_chain["quarter_shift"].enable    .eq(ctrl[1]),
-            rx_chain["quarter_shift"].up        .eq(ctrl[2]),
+            rx_chain["quarter_shift"].enable    .eq(rx_pstep[-2]),
+            rx_chain["quarter_shift"].up        .eq(rx_pstep[-1]),
 
             # RX decimation rate.
             rx_chain["hbfir5"].enable           .eq(rx_decim > 4),
@@ -153,11 +156,11 @@ class Top(Elaboratable):
         ]
 
         # TX NCO control.
-        tx_pstep_gck1 = Signal(8)
-        m.submodules.nco_phase_cdc = cdc.FFSynchronizer(tx_pstep, tx_pstep_gck1, o_domain="gck1")
-        m.d.gck1 += [
+        tx_pstep_dacclk = Signal(8)
+        m.submodules.nco_phase_cdc = cdc.FFSynchronizer(tx_pstep, tx_pstep_dacclk, o_domain=dac_clk)
+        m.d[dac_clk] += [
             nco.en                              .eq(tx_ctrl[0]),
-            nco.phase                           .eq(nco.phase + (tx_pstep_gck1 << 6)),
+            nco.phase                           .eq(nco.phase + (tx_pstep_dacclk << 6)),
         ]
 
         return m
