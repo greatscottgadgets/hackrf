@@ -31,7 +31,11 @@ extern "C" {
 
 typedef struct {
 	/* LEDs */
+#if defined(PRALINE) || defined(RAD1O)
 	gpio_t led[4];
+#else
+	gpio_t led[3];
+#endif
 
 	/* Power Supply Control */
 	gpio_t gpio_1v8_enable;
