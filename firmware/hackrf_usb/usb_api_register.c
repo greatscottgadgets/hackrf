@@ -40,9 +40,10 @@ usb_request_status_t usb_vendor_request_write_max283x(
 	const usb_transfer_stage_t stage)
 {
 	if (stage == USB_TRANSFER_STAGE_SETUP) {
-#ifndef PRALINE
-		if (endpoint->setup.index < MAX2837_NUM_REGS) {
-			if (endpoint->setup.value < MAX2837_DATA_REGS_MAX_VALUE) {
+		uint16_t num_regs = max283x_num_regs(&max283x);
+		uint16_t data_regs_max_value = max283x_data_regs_max_value(&max283x);
+		if (endpoint->setup.index < num_regs) {
+			if (endpoint->setup.value < data_regs_max_value) {
 				max283x_reg_write(
 					&max283x,
 					endpoint->setup.index,
@@ -51,18 +52,6 @@ usb_request_status_t usb_vendor_request_write_max283x(
 				return USB_REQUEST_STATUS_OK;
 			}
 		}
-#else
-		if (endpoint->setup.index < MAX2831_NUM_REGS) {
-			if (endpoint->setup.value < MAX2831_DATA_REGS_MAX_VALUE) {
-				max2831_reg_write(
-					&max283x,
-					endpoint->setup.index,
-					endpoint->setup.value);
-				usb_transfer_schedule_ack(endpoint->in);
-				return USB_REQUEST_STATUS_OK;
-			}
-		}
-#endif
 		return USB_REQUEST_STATUS_STALL;
 	} else {
 		return USB_REQUEST_STATUS_OK;
@@ -74,8 +63,8 @@ usb_request_status_t usb_vendor_request_read_max283x(
 	const usb_transfer_stage_t stage)
 {
 	if (stage == USB_TRANSFER_STAGE_SETUP) {
-#ifndef PRALINE
-		if (endpoint->setup.index < MAX2837_NUM_REGS) {
+		uint16_t num_regs = max283x_num_regs(&max283x);
+		if (endpoint->setup.index < num_regs) {
 			const uint16_t value =
 				max283x_reg_read(&max283x, endpoint->setup.index);
 			endpoint->buffer[0] = value & 0xff;
@@ -89,22 +78,6 @@ usb_request_status_t usb_vendor_request_read_max283x(
 			usb_transfer_schedule_ack(endpoint->out);
 			return USB_REQUEST_STATUS_OK;
 		}
-#else
-		if (endpoint->setup.index < MAX2831_NUM_REGS) {
-			const uint16_t value =
-				max2831_reg_read(&max283x, endpoint->setup.index);
-			endpoint->buffer[0] = value & 0xff;
-			endpoint->buffer[1] = value >> 8;
-			usb_transfer_schedule_block(
-				endpoint->in,
-				&endpoint->buffer,
-				2,
-				NULL,
-				NULL);
-			usb_transfer_schedule_ack(endpoint->out);
-			return USB_REQUEST_STATUS_OK;
-		}
-#endif
 		return USB_REQUEST_STATUS_STALL;
 	} else {
 		return USB_REQUEST_STATUS_OK;
