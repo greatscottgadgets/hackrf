@@ -511,7 +511,7 @@ static void portapack_ui_deinit(void)
 
 static void portapack_ui_set_frequency(uint64_t frequency)
 {
-	static char last[10] = "          ";
+	__attribute__((nonstring)) static char last[10] = "          ";
 
 	ui_point_t point = {240 - 20, 16};
 
