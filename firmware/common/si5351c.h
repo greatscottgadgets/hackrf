@@ -104,6 +104,10 @@ void si5351c_write(
 	const size_t data_count);
 void si5351c_clkout_enable(si5351c_driver_t* const drv, uint8_t enable);
 void si5351c_init(si5351c_driver_t* const drv);
+void si5351c_set_phase(
+	si5351c_driver_t* const drv,
+	const uint8_t ms_number,
+	const uint8_t offset);
 
 #ifdef __cplusplus
 }
