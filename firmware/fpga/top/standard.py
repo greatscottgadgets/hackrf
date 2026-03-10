@@ -148,11 +148,15 @@ class Top(Elaboratable):
             rx_chain["hbfir3"].enable           .eq(rx_decim > 2),
             rx_chain["hbfir2"].enable           .eq(rx_decim > 1),
             rx_chain["hbfir1"].enable           .eq(rx_decim > 0),
+        ]
 
-            # TX interpolation rate.
-            tx_chain["cic_interpolator"].factor .eq(Mux(tx_intrp > 2, tx_intrp - 2, 0)),
-            tx_chain["hbfir1"].enable           .eq(tx_intrp > 0),
-            tx_chain["hbfir2"].enable           .eq(tx_intrp > 1),
+        # TX interpolation rate.
+        tx_intrp_dacclk = Signal.like(tx_intrp)
+        m.submodules.tx_intrp_cdc = cdc.FFSynchronizer(tx_intrp, tx_intrp_dacclk, o_domain=dac_clk)
+        m.d.comb += [
+            tx_chain["cic_interpolator"].factor .eq(Mux(tx_intrp_dacclk > 2, tx_intrp_dacclk - 2, 0)),
+            tx_chain["hbfir1"].enable           .eq(tx_intrp_dacclk > 0),
+            tx_chain["hbfir2"].enable           .eq(tx_intrp_dacclk > 1),
         ]
 
         # TX NCO control.
