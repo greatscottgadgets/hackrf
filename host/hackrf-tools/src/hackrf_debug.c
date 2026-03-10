@@ -501,7 +501,7 @@ int radio_read_register(
 	return result;
 }
 
-#define RADIO_NUM_REGS (24)
+#define RADIO_NUM_REGS (23)
 
 int radio_read_registers(hackrf_device* device, const uint8_t bank)
 {
