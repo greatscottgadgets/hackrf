@@ -244,13 +244,27 @@ void si5351c_configure_clock_control(si5351c_driver_t* const drv)
 		data[6] = SI5351C_CLK_POWERDOWN;
 	}
 #ifdef PRALINE
+	/* CLK0: AFE_CLK */
 	data[1] = SI5351C_CLK_FRAC_MODE | SI5351C_CLK_PLL_SRC(pll) |
 		SI5351C_CLK_SRC(SI5351C_CLK_SRC_MULTISYNTH_SELF) |
 		SI5351C_CLK_IDRV(SI5351C_CLK_IDRV_4MA);
-	data[3] = clkout_ctrl;
+	/* CLK1: SCT_CLK and FPGA_CLK */
+	data[2] = SI5351C_CLK_FRAC_MODE | SI5351C_CLK_PLL_SRC(pll) |
+		SI5351C_CLK_SRC(SI5351C_CLK_SRC_MULTISYNTH_SELF) |
+		SI5351C_CLK_IDRV(SI5351C_CLK_IDRV_2MA);
+	/* CLK4: XCVR_CLK */
 	data[5] = SI5351C_CLK_INT_MODE | SI5351C_CLK_PLL_SRC(pll) |
 		SI5351C_CLK_SRC(SI5351C_CLK_SRC_MULTISYNTH_SELF) |
 		SI5351C_CLK_IDRV(SI5351C_CLK_IDRV_4MA) | SI5351C_CLK_INV;
+	if ((detected_revision() & ~BOARD_REV_GSG) < BOARD_REV_PRALINE_R1_1) {
+		/* CLK2: FPGA_CLK (not shared with SCT_CLK on older boards) */
+		data[3] = SI5351C_CLK_FRAC_MODE | SI5351C_CLK_PLL_SRC(pll) |
+			SI5351C_CLK_SRC(SI5351C_CLK_SRC_MULTISYNTH_SELF) |
+			SI5351C_CLK_IDRV(SI5351C_CLK_IDRV_2MA);
+	} else {
+		/* CLK2: MCU_CLK */
+		data[3] = SI5351C_CLK_POWERDOWN;
+	}
 #endif
 	si5351c_write(drv, data, sizeof(data));
 }
@@ -262,7 +276,7 @@ void si5351c_configure_clock_control(si5351c_driver_t* const drv)
 void si5351c_enable_clock_outputs(si5351c_driver_t* const drv)
 {
 	/* Enable CLK outputs 0, 1, 2, 4, 5 only. */
-	/* Praline: enable 0, 4, 5 only. */
+	/* Praline: enable 0, 1, 4, 5 only. */
 	/* 7: Clock to CPU is deactivated as it is not used and creates noise */
 	/* 3: External clock output is deactivated by default */
 
@@ -272,8 +286,14 @@ void si5351c_enable_clock_outputs(si5351c_driver_t* const drv)
 		SI5351C_CLK_DISABLE(6) | SI5351C_CLK_DISABLE(7);
 #else
 	uint8_t value = SI5351C_CLK_ENABLE(0) | SI5351C_CLK_ENABLE(1) |
-		SI5351C_CLK_DISABLE(2) | SI5351C_CLK_ENABLE(4) | SI5351C_CLK_ENABLE(5) |
-		SI5351C_CLK_DISABLE(6) | SI5351C_CLK_DISABLE(7);
+		SI5351C_CLK_ENABLE(4) | SI5351C_CLK_ENABLE(5) | SI5351C_CLK_DISABLE(6) |
+		SI5351C_CLK_DISABLE(7);
+	if ((detected_revision() & ~BOARD_REV_GSG) < BOARD_REV_PRALINE_R1_1) {
+		/* CLK2: FPGA_CLK (not shared with SCT_CLK on older boards) */
+		value |= SI5351C_CLK_ENABLE(2);
+	} else {
+		value |= SI5351C_CLK_DISABLE(2);
+	}
 #endif
 	uint8_t clkout = 3;
 
@@ -422,4 +442,22 @@ void si5351c_init(si5351c_driver_t* const drv)
 	}
 #endif
 	(void) drv;
+}
+
+/*
+ * Set initial phase offset of output multisynth. AN619 associates this setting
+ * with outputs, but it seems to really be a multisynth setting.
+ *
+ * After changing this setting, you must call si5351c_reset_pll() to
+ * synchronize outputs with the new phase offset.
+ */
+void si5351c_set_phase(
+	si5351c_driver_t* const drv,
+	const uint8_t ms_number,
+	const uint8_t offset)
+{
+	const uint8_t address = 165 + ms_number;
+	if (ms_number < 8) {
+		si5351c_write_single(drv, address, offset & 0x7f);
+	}
 }
