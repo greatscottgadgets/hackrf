@@ -172,6 +172,60 @@ jtag_t jtag_cpld = {
 };
 
 /*
+ * Closest fraction to m/d with denominator <= max_den.
+ * Returns result in *r / *s with gcd(*r, *s) == 1 and 0 < *s <= max_den.
+ * Straight port from CPython's fractions, and better documented there.
+ */
+void limit_denominator(
+	uint64_t m,
+	uint64_t d,
+	const uint64_t max_den,
+	uint64_t* r,
+	uint64_t* s)
+{
+	if (d <= max_den) {
+		*r = m;
+		*s = d;
+		return;
+	}
+
+	uint64_t p0 = 0, q0 = 1, p1 = 1, q1 = 0;
+	uint64_t n = m, orig_d = d;
+	uint64_t tmp;
+
+	while (1) {
+		uint64_t a = n / d;
+		uint64_t q2 = q0 + a * q1;
+
+		if (q2 > max_den)
+			break;
+
+		tmp = p0 + a * p1;
+		p0 = p1;
+		q0 = q1;
+		p1 = tmp;
+		q1 = q2;
+
+		tmp = n - a * d;
+		n = d;
+		d = tmp;
+		if (d == 0)
+			break;
+	}
+
+	uint64_t k = (max_den - q0) / q1;
+
+	/* Return closer candidate. */
+	if (2 * d * (q0 + k * q1) <= orig_d) {
+		*r = p1;
+		*s = q1;
+	} else {
+		*r = p0 + k * p1;
+		*s = q0 + k * q1;
+	}
+}
+
+/*
  * Configure clock generator to produce sample clock in units of 1/(2**24) Hz.
  * Can be called with program=false for a dry run that returns the resultant
  * frequency without actually configuring the clock generator.
@@ -207,24 +261,11 @@ fp_40_24_t sample_rate_set(const fp_40_24_t sample_rate, const bool program)
 		 * fixed-point type.
 		 */
 		n = (128 * vco) - (rate * (p1 + 512));
-		d = rate / FP_ONE_HZ;
-		n += (d / 2);
-		p2 = n / d;
-		p3 = 1 << 24;
+		d = rate;
 
-		/* Reduce fraction. p3 is 1<<24, so gcd(p2, p3) is a power of 2 */
-		unsigned int shift = p2 ? __builtin_ctz(p2) : 24;
-		p2 >>= shift;
-		p3 >>= shift;
-
-		/* Convert fraction to valid denominator. */
+		/* Reduce fraction. */
 		const uint64_t p3_max = 0xfffff;
-		if (p3 > p3_max) {
-			p2 *= p3_max;
-			p2 += (p3 / 2);
-			p2 /= p3;
-			p3 = p3_max;
-		}
+		limit_denominator(n, d, p3_max, &p2, &p3);
 
 		/* Roll over to next p1 to enable integer mode. */
 		if (p2 >= p3) {
