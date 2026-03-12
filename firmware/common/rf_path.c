@@ -32,7 +32,6 @@
 #include "max5864.h"
 #include "mixer.h"
 #include "platform_detect.h"
-#include "sgpio.h"
 #if defined(HACKRF_ONE) || defined(RAD1O) || defined(PRALINE)
 	#include "platform_scu.h"
 #endif
@@ -479,7 +478,6 @@ void rf_path_set_direction(rf_path_t* const rf_path, const rf_path_direction_t d
 		max5864_tx(&max5864);
 		ssp1_set_mode_max283x();
 		max283x_tx(&max283x);
-		sgpio_configure(&sgpio_config, SGPIO_DIRECTION_TX);
 		break;
 
 	case RF_PATH_DIRECTION_RX:
@@ -497,7 +495,6 @@ void rf_path_set_direction(rf_path_t* const rf_path, const rf_path_direction_t d
 		max5864_rx(&max5864);
 		ssp1_set_mode_max283x();
 		max283x_rx(&max283x);
-		sgpio_configure(&sgpio_config, SGPIO_DIRECTION_RX);
 		break;
 
 #ifdef PRALINE
@@ -513,7 +510,6 @@ void rf_path_set_direction(rf_path_t* const rf_path, const rf_path_direction_t d
 		} else {
 			max283x_rx_calibration(&max283x);
 		}
-		sgpio_configure(&sgpio_config, SGPIO_DIRECTION_RX);
 		break;
 #endif
 
@@ -527,7 +523,6 @@ void rf_path_set_direction(rf_path_t* const rf_path, const rf_path_direction_t d
 		max5864_standby(&max5864);
 		ssp1_set_mode_max283x();
 		max283x_set_mode(&max283x, MAX283x_MODE_STANDBY);
-		sgpio_configure(&sgpio_config, SGPIO_DIRECTION_RX);
 		break;
 	}
 
