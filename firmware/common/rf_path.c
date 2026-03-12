@@ -33,7 +33,6 @@
 #include "max2831.h"
 #include "max283x.h"
 #include "max5864.h"
-#include "sgpio.h"
 
 #if (defined JAWBREAKER || defined HACKRF_ONE || defined RAD1O || defined PRALINE)
 	/*
@@ -485,7 +484,6 @@ void rf_path_set_direction(rf_path_t* const rf_path, const rf_path_direction_t d
 #else
 		max283x_tx(&max283x);
 #endif
-		sgpio_configure(&sgpio_config, SGPIO_DIRECTION_TX);
 		break;
 
 	case RF_PATH_DIRECTION_RX:
@@ -507,7 +505,6 @@ void rf_path_set_direction(rf_path_t* const rf_path, const rf_path_direction_t d
 #else
 		max283x_rx(&max283x);
 #endif
-		sgpio_configure(&sgpio_config, SGPIO_DIRECTION_RX);
 		break;
 
 #ifdef PRALINE
@@ -523,7 +520,6 @@ void rf_path_set_direction(rf_path_t* const rf_path, const rf_path_direction_t d
 		} else {
 			max2831_rx_calibration(&max283x);
 		}
-		sgpio_configure(&sgpio_config, SGPIO_DIRECTION_RX);
 		break;
 #endif
 
@@ -541,7 +537,6 @@ void rf_path_set_direction(rf_path_t* const rf_path, const rf_path_direction_t d
 #else
 		max283x_set_mode(&max283x, MAX283x_MODE_STANDBY);
 #endif
-		sgpio_configure(&sgpio_config, SGPIO_DIRECTION_RX);
 		break;
 	}
 
