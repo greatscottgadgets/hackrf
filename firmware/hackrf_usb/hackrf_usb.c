@@ -311,13 +311,16 @@ void radio_changed(const uint32_t changed)
 		switch (opmode) {
 		case TRANSCEIVER_MODE_TX:
 		case TRANSCEIVER_MODE_SS:
+			sgpio_configure(&sgpio_config, SGPIO_DIRECTION_TX);
 			hackrf_ui()->set_direction(RF_PATH_DIRECTION_TX);
 			break;
 		case TRANSCEIVER_MODE_RX:
 		case TRANSCEIVER_MODE_RX_SWEEP:
+			sgpio_configure(&sgpio_config, SGPIO_DIRECTION_RX);
 			hackrf_ui()->set_direction(RF_PATH_DIRECTION_RX);
 			break;
 		default:
+			sgpio_configure(&sgpio_config, SGPIO_DIRECTION_RX);
 			hackrf_ui()->set_direction(RF_PATH_DIRECTION_OFF);
 			break;
 		}
