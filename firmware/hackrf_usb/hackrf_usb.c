@@ -261,7 +261,19 @@ void radio_changed(const uint32_t changed)
 	const uint64_t opmode = radio_reg_read(&radio, RADIO_BANK_APPLIED, RADIO_OPMODE);
 
 	if (changed & (1 << RADIO_OPMODE)) {
-		hackrf_ui()->set_direction(opmode);
+		switch (opmode) {
+		case TRANSCEIVER_MODE_TX:
+		case TRANSCEIVER_MODE_SS:
+			hackrf_ui()->set_direction(RF_PATH_DIRECTION_TX);
+			break;
+		case TRANSCEIVER_MODE_RX:
+		case TRANSCEIVER_MODE_RX_SWEEP:
+			hackrf_ui()->set_direction(RF_PATH_DIRECTION_RX);
+			break;
+		default:
+			hackrf_ui()->set_direction(RF_PATH_DIRECTION_OFF);
+			break;
+		}
 	}
 	if (changed & (1 << RADIO_SAMPLE_RATE)) {
 		const uint64_t rate =
