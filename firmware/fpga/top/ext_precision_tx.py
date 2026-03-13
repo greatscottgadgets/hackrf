@@ -4,7 +4,8 @@
 # Copyright (c) 2025 Great Scott Gadgets <info@greatscottgadgets.com>
 # SPDX-License-Identifier: BSD-3-Clause
 
-from amaranth               import Elaboratable, Module, Cat, DomainRenamer
+from amaranth               import Elaboratable, Module, Cat, DomainRenamer, Signal
+from amaranth.lib           import cdc
 from amaranth.lib.wiring    import connect
 
 from amaranth_future        import fixed
@@ -88,16 +89,24 @@ class Top(Elaboratable):
         m.submodules.spi_regs = spi_regs = SPIRegisterInterface(spi_port)
 
         # Add control registers.
-        ctrl     = spi_regs.add_register(0x01, init=0)
-        tx_intrp = spi_regs.add_register(0x02, init=0, size=3)
+        ctrl         = spi_regs.add_register(0x01, init=0)
+        tx_intrp     = Signal(3, init=2)
+        tx_intrp_new = Signal(3)
+        tx_intrp_stb = Signal()
+        spi_regs.add_sfr(0x05, read=tx_intrp, write_signal=tx_intrp_new, write_strobe=tx_intrp_stb)
 
         m.d.comb += [
             # Trigger enable.
             mcu_intf.trigger_en                 .eq(ctrl[7]),
-
-            # TX interpolation rate.
-            tx_chain["cic_interpolator"].factor .eq(tx_intrp + 2),
         ]
+        # TX interpolation rate.
+        m.submodules.rx_decim_cdc = cdc.FFSynchronizer(tx_intrp, tx_chain["cic_interpolator"].factor, o_domain=dac_clk)
+
+        with m.If(tx_intrp_stb):
+            with m.If(tx_intrp_new < 2):
+                m.d.sync += tx_intrp.eq(2)
+            with m.Else():
+                m.d.sync += tx_intrp.eq(tx_intrp_new)
 
         return m
 
