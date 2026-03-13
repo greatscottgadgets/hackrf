@@ -668,22 +668,22 @@ bool radio_update(radio_t* const radio)
 	}
 	if (dirty & ((1 << RADIO_BIAS_TEE) | (1 << RADIO_OPMODE))) {
 		if (radio_update_bias_tee(radio, &tmp_bank[0])) {
-			changed |= RADIO_BIAS_TEE;
+			changed |= (1 << RADIO_BIAS_TEE);
 		}
 	}
 	if (dirty & (1 << RADIO_TRIGGER)) {
 		if (radio_update_trigger(radio, &tmp_bank[0])) {
-			changed |= RADIO_TRIGGER;
+			changed |= (1 << RADIO_TRIGGER);
 		}
 	}
 	if (dirty & (1 << RADIO_DC_BLOCK)) {
 		if (radio_update_dc_block(radio, &tmp_bank[0])) {
-			changed |= RADIO_DC_BLOCK;
+			changed |= (1 << RADIO_DC_BLOCK);
 		}
 	}
 	if (dirty & (1 << RADIO_OPMODE)) {
 		if (radio_update_direction(radio, &tmp_bank[0])) {
-			changed |= RADIO_OPMODE;
+			changed |= (1 << RADIO_OPMODE);
 		}
 	}
 
