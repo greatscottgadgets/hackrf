@@ -65,12 +65,15 @@ class PralinePlatform(LatticeICE40Platform):
 class ClockDomainGenerator(Elaboratable):
 
     @staticmethod
-    def lut_delay(m, signal, *, depth, invert=False):
+    def lut_delay(m, signal, *, depth, invert=False, bel=None):
         # Each LUT introduces a minimum propagation delay of 9ns (best case).
         signal_out = signal
         for i in range(depth):
             signal_in  = signal_out
             signal_out = Signal(attrs={"keep": True})  # avoid LUT optimization
+            other_opts = {}
+            if bel is not None:
+                other_opts["a_BEL"] = f"{bel}/lc{i}"
             m.submodules += Instance("SB_LUT4",
                 p_LUT_INIT=Const(0b01 if invert else 0b10, 16),
                 i_I0=signal_in,
@@ -78,6 +81,7 @@ class ClockDomainGenerator(Elaboratable):
                 i_I2=Const(0),
                 i_I3=Const(0),
                 o_O=signal_out,
+                **other_opts,
             )
         return signal_out
 
@@ -91,7 +95,7 @@ class ClockDomainGenerator(Elaboratable):
         adclk_ref = platform.request("afe_clk").i
         fpgaclk_ref = platform.request("fpga_clk").i
 
-        delayed_adclk = self.lut_delay(m, adclk_ref, depth=2)  # delay `afe_clk` clock by at least 8ns
+        delayed_adclk = self.lut_delay(m, adclk_ref, depth=1, bel="X12/Y30")  # delay `afe_clk` clock by at least 8ns
         m.d.comb += cd_adclk.clk.eq(delayed_adclk)
         platform.add_clock_constraint(delayed_adclk, 40e6)
 
