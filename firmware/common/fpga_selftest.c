@@ -60,7 +60,7 @@ bool fpga_spi_selftest(void)
 	}
 
 	// Test writing a register and reading it back.
-	uint8_t reg = 5;
+	uint8_t reg = 6;
 	uint8_t write_value = 0xA5;
 	ssp1_set_mode_ice40();
 	ice40_spi_write(&ice40, reg, write_value);
