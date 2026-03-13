@@ -4,7 +4,7 @@
 # Copyright (c) 2025 Great Scott Gadgets <info@greatscottgadgets.com>
 # SPDX-License-Identifier: BSD-3-Clause
 
-from amaranth               import Elaboratable, Module, Cat, DomainRenamer
+from amaranth               import Elaboratable, Module, Cat, DomainRenamer, Signal
 from amaranth.lib.wiring    import connect
 
 from amaranth_future        import fixed
@@ -87,9 +87,11 @@ class Top(Elaboratable):
         m.submodules.spi_regs = spi_regs = SPIRegisterInterface(spi_port)
 
         # Add control registers.
-        ctrl     = spi_regs.add_register(0x01, init=0)
-        rx_decim = spi_regs.add_register(0x02, init=0, size=3)
-        #tx_intrp = spi_regs.add_register(0x04, init=0, size=3)
+        ctrl         = spi_regs.add_register(0x01, init=0)
+        rx_decim     = Signal(3, init=2)
+        rx_decim_new = Signal(3)
+        rx_decim_stb = Signal()
+        spi_regs.add_sfr(0x02, read=rx_decim, write_signal=rx_decim_new, write_strobe=rx_decim_stb)
 
         m.d.comb += [
             # Trigger enable.
@@ -101,8 +103,13 @@ class Top(Elaboratable):
             rx_chain["quarter_shift"].up        .eq(ctrl[2]),
 
             # RX decimation rate.
-            rx_chain["cic"].factor              .eq(rx_decim+2),
+            rx_chain["cic"].factor              .eq(rx_decim),
         ]
+        with m.If(rx_decim_stb):
+            with m.If(rx_decim_new < 2):
+                m.d.sync += rx_decim.eq(2)
+            with m.Else():
+                m.d.sync += rx_decim.eq(rx_decim_new)
 
         return m
 
