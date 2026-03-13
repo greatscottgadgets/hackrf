@@ -274,6 +274,12 @@ void radio_changed(const uint32_t changed)
 			hackrf_ui()->set_direction(RF_PATH_DIRECTION_OFF);
 			break;
 		}
+
+		if (opmode == TRANSCEIVER_MODE_TX) {
+			sgpio_configure(&sgpio_config, SGPIO_DIRECTION_TX);
+		} else {
+			sgpio_configure(&sgpio_config, SGPIO_DIRECTION_RX);
+		}
 	}
 	if (changed & (1 << RADIO_SAMPLE_RATE)) {
 		const uint64_t rate =
