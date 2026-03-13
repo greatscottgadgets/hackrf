@@ -30,6 +30,8 @@
 
 #include "gpio.h"
 #include "gpio_lpc.h"
+#include "max2831.h"
+#include "max2831_target.h"
 #include "max2837.h"
 #include "max2837_target.h"
 #include "max2839.h"
@@ -47,21 +49,42 @@ typedef enum {
 } max283x_mode_t;
 
 typedef enum {
+	MAX283x_RX_HPF_100_HZ = 0,
+	MAX283x_RX_HPF_4_KHZ = 1,
+	MAX283x_RX_HPF_30_KHZ = 2,
+	MAX283x_RX_HPF_600_KHZ = 3,
+} max283x_rx_hpf_freq_t;
+
+typedef enum {
+#ifdef PRALINE
+	MAX2831_VARIANT,
+#else
 	MAX2837_VARIANT,
 	MAX2839_VARIANT,
+#endif
 } max283x_variant_t;
 
 typedef struct {
 	max283x_variant_t type;
 
 	union {
+#ifdef PRALINE
+		max2831_driver_t max2831;
+#else
 		max2837_driver_t max2837;
 		max2839_driver_t max2839;
+#endif
 	} drv;
 } max283x_driver_t;
 
 /* Initialize chip. */
 void max283x_setup(max283x_driver_t* const drv, max283x_variant_t type);
+
+/* Returns the number of registers supported by the driver. */
+uint16_t max283x_num_regs(max283x_driver_t* const drv);
+
+/* Returns the maximum data register value supported by the driver. */
+uint16_t max283x_data_regs_max_value(max283x_driver_t* const drv);
 
 /* Read a register via SPI. Save a copy to memory and return
  * value. Mark clean. */
@@ -88,6 +111,7 @@ void max283x_stop(max283x_driver_t* const drv);
 void max283x_set_frequency(max283x_driver_t* const drv, uint32_t freq);
 uint32_t max283x_set_lpf_bandwidth(
 	max283x_driver_t* const drv,
+	const max283x_mode_t mode,
 	const uint32_t bandwidth_hz);
 
 bool max283x_set_lna_gain(max283x_driver_t* const drv, const uint32_t gain_db);
@@ -97,5 +121,14 @@ bool max283x_set_txvga_gain(max283x_driver_t* const drv, const uint32_t gain_db)
 
 void max283x_tx(max283x_driver_t* const drv);
 void max283x_rx(max283x_driver_t* const drv);
+
+/* Set MAX2831 receiver high-pass filter corner frequency in Hz */
+void max283x_set_rx_hpf_frequency(
+	max283x_driver_t* const drv,
+	const max283x_rx_hpf_freq_t freq);
+
+/* Perform MAX2831 TX and RX calibration. */
+void max283x_tx_calibration(max283x_driver_t* const drv);
+void max283x_rx_calibration(max283x_driver_t* const drv);
 
 #endif // __MAX283x_H

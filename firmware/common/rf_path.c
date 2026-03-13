@@ -31,7 +31,6 @@
 #include "gpio_lpc.h"
 #include "platform_detect.h"
 #include "mixer.h"
-#include "max2831.h"
 #include "max283x.h"
 #include "max5864.h"
 #include "sgpio.h"
@@ -443,16 +442,15 @@ void rf_path_init(rf_path_t* const rf_path)
 
 	ssp1_set_mode_max283x();
 #ifdef PRALINE
-	max2831_setup(&max283x);
-	max2831_start(&max283x);
+	max283x_setup(&max283x, MAX2831_VARIANT);
 #else
 	if (detected_platform() == BOARD_ID_HACKRF1_R9) {
 		max283x_setup(&max283x, MAX2839_VARIANT);
 	} else {
 		max283x_setup(&max283x, MAX2837_VARIANT);
 	}
-	max283x_start(&max283x);
 #endif
+	max283x_start(&max283x);
 
 	// On HackRF One, the mixer is now set up earlier in boot.
 #ifndef HACKRF_ONE
@@ -481,11 +479,7 @@ void rf_path_set_direction(rf_path_t* const rf_path, const rf_path_direction_t d
 		ssp1_set_mode_max5864();
 		max5864_tx(&max5864);
 		ssp1_set_mode_max283x();
-#ifdef PRALINE
-		max2831_tx(&max283x);
-#else
 		max283x_tx(&max283x);
-#endif
 		sgpio_configure(&sgpio_config, SGPIO_DIRECTION_TX);
 		break;
 
@@ -503,11 +497,7 @@ void rf_path_set_direction(rf_path_t* const rf_path, const rf_path_direction_t d
 		ssp1_set_mode_max5864();
 		max5864_rx(&max5864);
 		ssp1_set_mode_max283x();
-#ifdef PRALINE
-		max2831_rx(&max283x);
-#else
 		max283x_rx(&max283x);
-#endif
 		sgpio_configure(&sgpio_config, SGPIO_DIRECTION_RX);
 		break;
 
@@ -520,9 +510,9 @@ void rf_path_set_direction(rf_path_t* const rf_path, const rf_path_direction_t d
 		max5864_xcvr(&max5864);
 		ssp1_set_mode_max283x();
 		if (direction == RF_PATH_DIRECTION_TX_CALIBRATION) {
-			max2831_tx_calibration(&max283x);
+			max283x_tx_calibration(&max283x);
 		} else {
-			max2831_rx_calibration(&max283x);
+			max283x_rx_calibration(&max283x);
 		}
 		sgpio_configure(&sgpio_config, SGPIO_DIRECTION_RX);
 		break;
@@ -537,11 +527,7 @@ void rf_path_set_direction(rf_path_t* const rf_path, const rf_path_direction_t d
 		ssp1_set_mode_max5864();
 		max5864_standby(&max5864);
 		ssp1_set_mode_max283x();
-#ifdef PRALINE
-		max2831_set_mode(&max283x, MAX2831_MODE_STANDBY);
-#else
 		max283x_set_mode(&max283x, MAX283x_MODE_STANDBY);
-#endif
 		sgpio_configure(&sgpio_config, SGPIO_DIRECTION_RX);
 		break;
 	}

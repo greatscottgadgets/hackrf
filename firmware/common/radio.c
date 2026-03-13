@@ -395,12 +395,12 @@ static bool radio_update_bandwidth(radio_t* const radio, uint64_t* bank)
 	uint32_t lpf_bandwidth = auto_bandwidth(radio);
 
 	if (radio->config[RADIO_BANK_APPLIED][RADIO_XCVR_TX_LPF] != lpf_bandwidth) {
-		max2831_set_lpf_bandwidth(&max283x, MAX2831_MODE_TX, lpf_bandwidth);
+		max283x_set_lpf_bandwidth(&max283x, MAX283x_MODE_TX, lpf_bandwidth);
 		radio->config[RADIO_BANK_APPLIED][RADIO_XCVR_TX_LPF] = lpf_bandwidth;
 		new_bw = true;
 	}
 	if (radio->config[RADIO_BANK_APPLIED][RADIO_XCVR_RX_LPF] != lpf_bandwidth) {
-		max2831_set_lpf_bandwidth(&max283x, MAX2831_MODE_RX, lpf_bandwidth);
+		max283x_set_lpf_bandwidth(&max283x, MAX283x_MODE_RX, lpf_bandwidth);
 		radio->config[RADIO_BANK_APPLIED][RADIO_XCVR_RX_LPF] = lpf_bandwidth;
 		new_bw = true;
 	}
@@ -417,9 +417,9 @@ static bool radio_update_bandwidth(radio_t* const radio, uint64_t* bank)
 		new_bw = true;
 	}
 	/* Always set HPF bandwidth to 30 kHz for now. */
-	const max2831_rx_hpf_freq_t hpf_bandwidth = MAX2831_RX_HPF_30_KHZ;
+	const max283x_rx_hpf_freq_t hpf_bandwidth = MAX283x_RX_HPF_30_KHZ;
 	if (radio->config[RADIO_BANK_APPLIED][RADIO_XCVR_RX_HPF] != hpf_bandwidth) {
-		max2831_set_rx_hpf_frequency(&max283x, hpf_bandwidth);
+		max283x_set_rx_hpf_frequency(&max283x, hpf_bandwidth);
 		radio->config[RADIO_BANK_APPLIED][RADIO_XCVR_RX_HPF] = hpf_bandwidth;
 		new_bw = true;
 	}
@@ -443,7 +443,7 @@ static bool radio_update_bandwidth(radio_t* const radio, uint64_t* bank)
 	}
 
 	if (radio->config[RADIO_BANK_APPLIED][RADIO_XCVR_TX_LPF] != lpf_bandwidth) {
-		max283x_set_lpf_bandwidth(&max283x, lpf_bandwidth);
+		max283x_set_lpf_bandwidth(&max283x, MAX283x_MODE_TX, lpf_bandwidth);
 		radio->config[RADIO_BANK_APPLIED][RADIO_BB_BANDWIDTH_RX] = lpf_bandwidth;
 		radio->config[RADIO_BANK_APPLIED][RADIO_BB_BANDWIDTH_TX] = lpf_bandwidth;
 		radio->config[RADIO_BANK_APPLIED][RADIO_XCVR_TX_LPF] = lpf_bandwidth;
@@ -508,19 +508,11 @@ static bool radio_update_gain(radio_t* const radio, uint64_t* bank)
 	gain = bank[RADIO_GAIN_TX_IF];
 	if ((gain != RADIO_UNSET) &&
 	    (gain != radio->config[RADIO_BANK_APPLIED][RADIO_GAIN_TX_IF])) {
-#ifdef PRALINE
-		max2831_set_txvga_gain(&max283x, gain);
-#else
 		max283x_set_txvga_gain(&max283x, gain);
-#endif
 		radio->config[RADIO_BANK_APPLIED][RADIO_GAIN_TX_IF] = gain;
 		new_gain = true;
 	} else if (radio->config[RADIO_BANK_APPLIED][RADIO_GAIN_TX_IF] == RADIO_UNSET) {
-#ifdef PRALINE
-		max2831_set_txvga_gain(&max283x, DEFAULT_GAIN_IF);
-#else
 		max283x_set_txvga_gain(&max283x, DEFAULT_GAIN_IF);
-#endif
 		radio->config[RADIO_BANK_APPLIED][RADIO_GAIN_TX_IF] = DEFAULT_GAIN_IF;
 		new_gain = true;
 	}
@@ -528,19 +520,11 @@ static bool radio_update_gain(radio_t* const radio, uint64_t* bank)
 	gain = bank[RADIO_GAIN_RX_IF];
 	if ((gain != RADIO_UNSET) &&
 	    (gain != radio->config[RADIO_BANK_APPLIED][RADIO_GAIN_TX_IF])) {
-#ifdef PRALINE
-		max2831_set_lna_gain(&max283x, gain);
-#else
 		max283x_set_lna_gain(&max283x, gain);
-#endif
 		radio->config[RADIO_BANK_APPLIED][RADIO_GAIN_TX_IF] = gain;
 		new_gain = true;
 	} else if (radio->config[RADIO_BANK_APPLIED][RADIO_GAIN_TX_IF] == RADIO_UNSET) {
-#ifdef PRALINE
-		max2831_set_lna_gain(&max283x, DEFAULT_GAIN_IF);
-#else
 		max283x_set_lna_gain(&max283x, DEFAULT_GAIN_IF);
-#endif
 		radio->config[RADIO_BANK_APPLIED][RADIO_GAIN_TX_IF] = DEFAULT_GAIN_IF;
 		new_gain = true;
 	}
@@ -548,19 +532,11 @@ static bool radio_update_gain(radio_t* const radio, uint64_t* bank)
 	gain = bank[RADIO_GAIN_RX_BB];
 	if ((gain != RADIO_UNSET) &&
 	    (gain != radio->config[RADIO_BANK_APPLIED][RADIO_GAIN_RX_BB])) {
-#ifdef PRALINE
-		max2831_set_vga_gain(&max283x, gain);
-#else
 		max283x_set_vga_gain(&max283x, gain);
-#endif
 		radio->config[RADIO_BANK_APPLIED][RADIO_GAIN_RX_BB] = gain;
 		new_gain = true;
 	} else if (radio->config[RADIO_BANK_APPLIED][RADIO_GAIN_RX_BB] == RADIO_UNSET) {
-#ifdef PRALINE
-		max2831_set_vga_gain(&max283x, DEFAULT_GAIN_BB);
-#else
 		max283x_set_vga_gain(&max283x, DEFAULT_GAIN_BB);
-#endif
 		radio->config[RADIO_BANK_APPLIED][RADIO_GAIN_RX_BB] = DEFAULT_GAIN_BB;
 		new_gain = true;
 	}
