@@ -43,6 +43,7 @@ extern "C" {
 #define MAX_OPERACAKE_RANGES 8
 
 uint8_t operacake_init(bool allow_gpio);
+void operacake_skip_i2c_address(uint8_t address);
 bool operacake_is_board_present(uint8_t address);
 void operacake_get_boards(uint8_t* addresses);
 bool operacake_set_mode(uint8_t address, uint8_t mode);

@@ -64,6 +64,7 @@
 #include "selftest.h"
 #include "delay.h"
 #include "lz4_buf.h"
+#include "da7219.h"
 
 extern uint32_t __m0_start__;
 extern uint32_t __m0_end__;
@@ -388,6 +389,9 @@ int main(void)
 	fpga_if_xcvr_selftest();
 #endif
 
+	if (da7219_detect()) {
+		operacake_skip_i2c_address(DA7219_ADDRESS);
+	}
 	bool operacake_allow_gpio;
 	if (hackrf_ui()->operacake_gpio_compatible()) {
 		operacake_allow_gpio = true;
