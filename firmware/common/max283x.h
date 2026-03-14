@@ -30,12 +30,16 @@
 
 #include "gpio.h"
 #include "gpio_lpc.h"
-#include "max2831.h"
-#include "max2831_target.h"
-#include "max2837.h"
-#include "max2837_target.h"
-#include "max2839.h"
-#include "max2839_target.h"
+#if defined(PRALINE) || defined(UNIVERSAL)
+	#include "max2831.h"
+	#include "max2831_target.h"
+#endif
+#if !defined(PRALINE) || defined(UNIVERSAL)
+	#include "max2837.h"
+	#include "max2837_target.h"
+	#include "max2839.h"
+	#include "max2839_target.h"
+#endif
 #include "spi_bus.h"
 
 typedef enum {
@@ -56,9 +60,10 @@ typedef enum {
 } max283x_rx_hpf_freq_t;
 
 typedef enum {
-#ifdef PRALINE
+#if defined(PRALINE) || defined(UNIVERSAL)
 	MAX2831_VARIANT,
-#else
+#endif
+#if !defined(PRALINE) || defined(UNIVERSAL)
 	MAX2837_VARIANT,
 	MAX2839_VARIANT,
 #endif
@@ -68,9 +73,10 @@ typedef struct {
 	max283x_variant_t type;
 
 	union {
-#ifdef PRALINE
+#if defined(PRALINE) || defined(UNIVERSAL)
 		max2831_driver_t max2831;
-#else
+#endif
+#if !defined(PRALINE) || defined(UNIVERSAL)
 		max2837_driver_t max2837;
 		max2839_driver_t max2839;
 #endif

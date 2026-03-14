@@ -29,43 +29,67 @@
 #include "operacake.h"
 #include "platform_detect.h"
 
-#ifndef PRALINE
+static uint64_t MIN_LP_FREQ_MHZ;
+static uint64_t MAX_LP_FREQ_MHZ;
 
-	#define MIN_LP_FREQ_MHZ (0)
-	#define MAX_LP_FREQ_MHZ (2170ULL)
+static uint64_t ABS_MIN_BYPASS_FREQ_MHZ;
+static uint64_t MIN_BYPASS_FREQ_MHZ;
+static uint64_t MAX_BYPASS_FREQ_MHZ;
+static uint64_t ABS_MAX_BYPASS_FREQ_MHZ;
 
-	#define ABS_MIN_BYPASS_FREQ_MHZ (2000ULL)
-	#define MIN_BYPASS_FREQ_MHZ     (MAX_LP_FREQ_MHZ)
-	#define MAX_BYPASS_FREQ_MHZ     (2740ULL)
-	#define ABS_MAX_BYPASS_FREQ_MHZ (3000ULL)
-
-	#define MIN_HP_FREQ_MHZ  (MAX_BYPASS_FREQ_MHZ)
-	#define MID1_HP_FREQ_MHZ (3600ULL)
-	#define MID2_HP_FREQ_MHZ (5100ULL)
-	#define MAX_HP_FREQ_MHZ  (7250ULL)
-
-	#define MIN_LO_FREQ_HZ (84375000ULL)
-	#define MAX_LO_FREQ_HZ (5400000000ULL)
-
-#else
-
-	#define MIN_LP_FREQ_MHZ (0)
-	#define MAX_LP_FREQ_MHZ (2320ULL)
-
-	#define ABS_MIN_BYPASS_FREQ_MHZ (2000ULL)
-	#define MIN_BYPASS_FREQ_MHZ     (MAX_LP_FREQ_MHZ)
-	#define MAX_BYPASS_FREQ_MHZ     (2580ULL)
-	#define ABS_MAX_BYPASS_FREQ_MHZ (3000ULL)
-
-	#define MIN_HP_FREQ_MHZ (MAX_BYPASS_FREQ_MHZ)
-	#define MAX_HP_FREQ_MHZ (7250ULL)
-
-	#define MIN_LO_FREQ_HZ (84375000ULL)
-	#define MAX_LO_FREQ_HZ (5400000000ULL)
-
+static uint64_t MIN_HP_FREQ_MHZ;
+#if !defined(PRALINE) || defined(UNIVERSAL)
+static uint64_t MID1_HP_FREQ_MHZ;
+static uint64_t MID2_HP_FREQ_MHZ;
 #endif
+static uint64_t MAX_HP_FREQ_MHZ;
 
-#ifndef PRALINE
+static uint64_t MIN_LO_FREQ_HZ;
+static uint64_t MAX_LO_FREQ_HZ;
+
+void tuning_setup(void)
+{
+	switch (detected_platform()) {
+	case BOARD_ID_PRALINE:
+#if defined(PRALINE) || defined(UNIVERSAL)
+		MIN_LP_FREQ_MHZ = 0;
+		MAX_LP_FREQ_MHZ = 2320ULL;
+
+		ABS_MIN_BYPASS_FREQ_MHZ = 2000ULL;
+		MIN_BYPASS_FREQ_MHZ = MAX_LP_FREQ_MHZ;
+		MAX_BYPASS_FREQ_MHZ = 2580ULL;
+		ABS_MAX_BYPASS_FREQ_MHZ = 3000ULL;
+
+		MIN_HP_FREQ_MHZ = MAX_BYPASS_FREQ_MHZ;
+		MAX_HP_FREQ_MHZ = 7250ULL;
+
+		MIN_LO_FREQ_HZ = 84375000ULL;
+		MAX_LO_FREQ_HZ = 5400000000ULL;
+#endif
+		break;
+	default:
+#if !defined(PRALINE) || defined(UNIVERSAL)
+		MIN_LP_FREQ_MHZ = 0;
+		MAX_LP_FREQ_MHZ = 2170ULL;
+
+		ABS_MIN_BYPASS_FREQ_MHZ = 2000ULL;
+		MIN_BYPASS_FREQ_MHZ = MAX_LP_FREQ_MHZ;
+		MAX_BYPASS_FREQ_MHZ = 2740ULL;
+		ABS_MAX_BYPASS_FREQ_MHZ = 3000ULL;
+
+		MIN_HP_FREQ_MHZ = MAX_BYPASS_FREQ_MHZ;
+		MID1_HP_FREQ_MHZ = 3600ULL;
+		MID2_HP_FREQ_MHZ = 5100ULL;
+		MAX_HP_FREQ_MHZ = 7250ULL;
+
+		MIN_LO_FREQ_HZ = 84375000ULL;
+		MAX_LO_FREQ_HZ = 5400000000ULL;
+#endif
+		break;
+	}
+}
+
+#if !defined(PRALINE) || defined(UNIVERSAL)
 static uint32_t max2837_freq_nominal_hz = 2560000000;
 
 /*
@@ -87,7 +111,7 @@ bool set_freq(const uint64_t freq)
 	max283x_set_mode(&max283x, MAX283x_MODE_STANDBY);
 	if (freq_mhz < MAX_LP_FREQ_MHZ) {
 		rf_path_set_filter(&rf_path, RF_PATH_FILTER_LOW_PASS);
-	#ifdef RAD1O
+	#if defined(RAD1O)
 		max2837_freq_nominal_hz = 2300 * FREQ_ONE_MHZ;
 	#else
 		/* IF is graduated from 2650 MHz to 2340 MHz */
@@ -131,15 +155,15 @@ bool set_freq(const uint64_t freq)
 	max283x_set_mode(&max283x, prior_max283x_mode);
 	if (success) {
 		hackrf_ui()->set_frequency(freq);
-	#ifdef HACKRF_ONE
+	#if defined(HACKRF_ONE) || defined(UNIVERSAL)
 		operacake_set_range(freq_mhz);
 	#endif
 	}
 	return success;
 }
+#endif
 
-#else
-
+#if defined(PRALINE) || defined(UNIVERSAL)
 bool tuning_set_frequency(
 	const tune_config_t* cfg,
 	const uint64_t freq,

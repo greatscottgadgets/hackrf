@@ -24,6 +24,7 @@
 #include "usb_api_praline.h"
 #include "usb_queue.h"
 #include <hackrf_core.h>
+#include <platform_detect.h>
 
 #include <stddef.h>
 
@@ -31,6 +32,10 @@ usb_request_status_t usb_vendor_request_p1_ctrl(
 	usb_endpoint_t* const endpoint,
 	const usb_transfer_stage_t stage)
 {
+	if (detected_platform() != BOARD_ID_PRALINE) {
+		return USB_REQUEST_STATUS_STALL;
+	}
+
 	if (stage == USB_TRANSFER_STAGE_SETUP) {
 		p1_ctrl_set(endpoint->setup.value);
 		usb_transfer_schedule_ack(endpoint->in);
@@ -42,6 +47,10 @@ usb_request_status_t usb_vendor_request_p2_ctrl(
 	usb_endpoint_t* const endpoint,
 	const usb_transfer_stage_t stage)
 {
+	if (detected_platform() != BOARD_ID_PRALINE) {
+		return USB_REQUEST_STATUS_STALL;
+	}
+
 	if (stage == USB_TRANSFER_STAGE_SETUP) {
 		p2_ctrl_set(endpoint->setup.value);
 		usb_transfer_schedule_ack(endpoint->in);
@@ -53,6 +62,10 @@ usb_request_status_t usb_vendor_request_clkin_ctrl(
 	usb_endpoint_t* const endpoint,
 	const usb_transfer_stage_t stage)
 {
+	if (detected_platform() != BOARD_ID_PRALINE) {
+		return USB_REQUEST_STATUS_STALL;
+	}
+
 	if (stage == USB_TRANSFER_STAGE_SETUP) {
 		clkin_ctrl_set(endpoint->setup.value & 1);
 		usb_transfer_schedule_ack(endpoint->in);
@@ -64,6 +77,10 @@ usb_request_status_t usb_vendor_request_set_narrowband_filter(
 	usb_endpoint_t* const endpoint,
 	const usb_transfer_stage_t stage)
 {
+	if (detected_platform() != BOARD_ID_PRALINE) {
+		return USB_REQUEST_STATUS_STALL;
+	}
+
 	if (stage == USB_TRANSFER_STAGE_SETUP) {
 		narrowband_filter_set(endpoint->setup.value);
 		usb_transfer_schedule_ack(endpoint->in);
@@ -77,6 +94,10 @@ usb_request_status_t usb_vendor_request_set_fpga_bitstream(
 	usb_endpoint_t* const endpoint,
 	const usb_transfer_stage_t stage)
 {
+	if (detected_platform() != BOARD_ID_PRALINE) {
+		return USB_REQUEST_STATUS_STALL;
+	}
+
 	if (stage == USB_TRANSFER_STAGE_SETUP) {
 		if (!fpga_image_load(endpoint->setup.value)) {
 			return USB_REQUEST_STATUS_STALL;
