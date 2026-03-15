@@ -77,6 +77,7 @@
 
 #define INVALID_RANGE 0xFF;
 static uint8_t current_range = INVALID_RANGE;
+static uint8_t skip_address = OPERACAKE_ADDRESS_INVALID;
 
 i2c_bus_t* const oc_bus = &i2c0;
 
@@ -122,6 +123,9 @@ uint8_t operacake_init(bool allow_gpio)
 {
 	/* Find connected operacakes */
 	for (int addr = 0; addr < 8; addr++) {
+		if (addr + OPERACAKE_ADDRESS_DEFAULT == skip_address) {
+			continue;
+		}
 		operacake_write_reg(
 			oc_bus,
 			addr,
@@ -144,6 +148,15 @@ uint8_t operacake_init(bool allow_gpio)
 		operacake_sctimer_init();
 	}
 	return 0;
+}
+
+void operacake_skip_i2c_address(uint8_t address)
+{
+	skip_address = address;
+	uint8_t board_addr = address - OPERACAKE_ADDRESS_DEFAULT;
+	if (board_addr < 8) {
+		operacake_boards[board_addr].present = false;
+	}
 }
 
 bool operacake_is_board_present(uint8_t address)
