@@ -25,6 +25,7 @@
 #include "usb_queue.h"
 #include <hackrf_core.h>
 #include <platform_detect.h>
+#include <fpga.h>
 
 #include <stddef.h>
 
@@ -88,21 +89,27 @@ usb_request_status_t usb_vendor_request_set_narrowband_filter(
 	return USB_REQUEST_STATUS_OK;
 }
 
-bool fpga_image_load(unsigned int index);
-
 usb_request_status_t usb_vendor_request_set_fpga_bitstream(
 	usb_endpoint_t* const endpoint,
 	const usb_transfer_stage_t stage)
 {
+#if defined(DFU_MODE) || defined(RAM_MODE)
+	(void) endpoint;
+	(void) stage;
+	return USB_REQUEST_STATUS_STALL;
+#else
+	extern struct fpga_loader_t fpga_loader;
+
 	if (detected_platform() != BOARD_ID_PRALINE) {
 		return USB_REQUEST_STATUS_STALL;
 	}
 
 	if (stage == USB_TRANSFER_STAGE_SETUP) {
-		if (!fpga_image_load(endpoint->setup.value)) {
+		if (!fpga_image_load(&fpga_loader, endpoint->setup.value)) {
 			return USB_REQUEST_STATUS_STALL;
 		}
 		usb_transfer_schedule_ack(endpoint->in);
 	}
 	return USB_REQUEST_STATUS_OK;
+#endif
 }

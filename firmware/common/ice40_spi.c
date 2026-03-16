@@ -83,7 +83,8 @@ static uint32_t spi_ssp1_transfer_word(const uint32_t data)
 
 bool ice40_spi_syscfg_program(
 	ice40_spi_driver_t* const drv,
-	size_t (*read_block_cb)(void* ctx, uint8_t* buffer),
+	uint8_t* buf,
+	size_t (*read_block_cb)(void* ctx),
 	void* read_ctx)
 {
 	// Drive CRESET_B = 0, SPI_SS = 0, SPI_SCK = 1.
@@ -108,11 +109,11 @@ bool ice40_spi_syscfg_program(
 	// first, on falling edge of SPI_SCK.
 	gpio_clear(drv->gpio_select);
 	for (;;) {
-		size_t read_sz = read_block_cb(read_ctx, lz4_out_buf);
+		size_t read_sz = read_block_cb(read_ctx);
 		if (read_sz == 0)
 			break;
 		for (size_t j = 0; j < read_sz; j++) {
-			spi_ssp1_transfer_word(lz4_out_buf[j]);
+			spi_ssp1_transfer_word(buf[j]);
 		}
 	}
 

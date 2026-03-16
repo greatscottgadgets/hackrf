@@ -44,6 +44,19 @@ struct fpga_driver_t {
 	uint8_t regs_dirty;
 };
 
+struct fpga_loader_t {
+	/* Start address added as an offset to all read() calls. */
+	uint32_t start_addr;
+	/* Any one-off setup needed before calling read(). May be NULL. */
+	void (*setup)(void);
+	/* Read data from the specified address. */
+	void (*read)(uint32_t addr, uint32_t len, uint8_t* const data);
+	/* Buffer to use for compressed data (4096 bytes). */
+	uint8_t* in_buffer;
+	/* Buffer to use for decompressed data (4096 bytes). */
+	uint8_t* out_buffer;
+};
+
 /* Initialize the loaded bitstream's registers to their default values. */
 extern void fpga_init(fpga_driver_t* const drv);
 
@@ -75,7 +88,7 @@ void fpga_set_prbs_enable(fpga_driver_t* const drv, const bool enable);
 void fpga_set_tx_nco_enable(fpga_driver_t* const drv, const bool enable);
 void fpga_set_tx_nco_pstep(fpga_driver_t* const drv, const uint8_t phase_increment);
 
-bool fpga_image_load(unsigned int index);
+bool fpga_image_load(struct fpga_loader_t* loader, unsigned int index);
 bool fpga_spi_selftest(void);
 bool fpga_sgpio_selftest(void);
 bool fpga_if_xcvr_selftest(void);
