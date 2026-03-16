@@ -94,15 +94,12 @@ usb_request_status_t usb_vendor_request_init_sweep(
 		}
 		sweep_freq = (uint64_t) frequencies[0] * FREQ_GRANULARITY;
 
-		nvic_disable_irq(NVIC_USB0_IRQ);
 		radio_reg_write(
 			&radio,
 			RADIO_BANK_ACTIVE,
 			RADIO_FREQUENCY_RF,
 			(sweep_freq + offset) * FP_ONE_HZ);
 		usb_transfer_schedule_ack(endpoint->in);
-		nvic_enable_irq(NVIC_USB0_IRQ);
-		radio_update(&radio);
 	}
 	return USB_REQUEST_STATUS_OK;
 }
@@ -231,6 +228,7 @@ void sweep_mode(uint32_t seq)
 				RADIO_FREQUENCY_RF,
 				(sweep_freq + offset) * FP_ONE_HZ);
 			nvic_enable_irq(NVIC_USB0_IRQ);
+			radio_update(&radio);
 			blocks_queued = 0;
 		}
 

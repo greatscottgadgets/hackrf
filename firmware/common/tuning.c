@@ -22,11 +22,9 @@
  */
 
 #include "tuning.h"
-#include "hackrf_ui.h"
 #include "hackrf_core.h"
 #include "mixer.h"
 #include "sgpio.h"
-#include "operacake.h"
 #include "platform_detect.h"
 
 #ifndef PRALINE
@@ -129,12 +127,6 @@ bool set_freq(const uint64_t freq)
 		success = false;
 	}
 	max283x_set_mode(&max283x, prior_max283x_mode);
-	if (success) {
-		hackrf_ui()->set_frequency(freq);
-	#ifdef HACKRF_ONE
-		operacake_set_range(freq_mhz);
-	#endif
-	}
 	return success;
 }
 
@@ -194,8 +186,6 @@ bool tuning_set_frequency(
 	}
 
 	max283x_set_mode(&max283x, prior_max283x_mode);
-	hackrf_ui()->set_frequency(freq);
-	operacake_set_range(freq_mhz);
 	return true;
 }
 #endif
