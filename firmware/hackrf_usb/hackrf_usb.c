@@ -63,6 +63,7 @@
 #include "fpga.h"
 #include "selftest.h"
 #include "delay.h"
+#include "lz4_buf.h"
 
 extern uint32_t __m0_start__;
 extern uint32_t __m0_end__;
@@ -256,6 +257,29 @@ static void m0_rom_to_ram(void)
 	memcpy(dest, (uint32_t*) (base + src), len);
 }
 
+#if defined(PRALINE) && !(defined(DFU_MODE) || defined(RAM_MODE))
+extern uint32_t _binary_fpga_bin_start;
+
+void fpga_loader_setup(void)
+{
+	spi_bus_start(spi_flash.bus, &ssp_config_w25q80bv);
+	w25q80bv_setup(&spi_flash);
+}
+
+void fpga_loader_read(uint32_t addr, uint32_t size, uint8_t* buf)
+{
+	w25q80bv_read(&spi_flash, addr, size, buf);
+}
+
+struct fpga_loader_t fpga_loader = {
+	.start_addr = (uint32_t) &_binary_fpga_bin_start,
+	.setup = fpga_loader_setup,
+	.read = fpga_loader_read,
+	.in_buffer = lz4_in_buf,
+	.out_buffer = lz4_out_buf,
+};
+#endif
+
 int main(void)
 {
 	// Copy M0 image from ROM before SPIFI is disabled
@@ -315,7 +339,12 @@ int main(void)
 		halt_and_flash(6000000);
 	}
 #else
-	fpga_image_load(0);
+	#if defined(DFU_MODE) || defined(RAM_MODE)
+	selftest.fpga_image_load = SKIPPED;
+	selftest.report.pass = false;
+	#else
+	fpga_image_load(&fpga_loader, 0);
+	#endif
 	delay_us_at_mhz(100, 204);
 	fpga_spi_selftest();
 	fpga_sgpio_selftest();

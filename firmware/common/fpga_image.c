@@ -21,31 +21,28 @@
 
 #include "hackrf_core.h"
 #include "lz4_blk.h"
-#include "lz4_buf.h"
 #include "selftest.h"
-
-// FPGA bitstreams blob.
-extern uint32_t _binary_fpga_bin_start;
-extern uint32_t _binary_fpga_bin_end;
-extern uint32_t _binary_fpga_bin_size;
+#include "fpga.h"
 
 struct fpga_image_read_ctx {
+	struct fpga_loader_t* loader;
 	uint32_t addr;
 	size_t next_block_sz;
 	uint8_t init_flag;
 };
 
-static size_t fpga_image_read_block_cb(void* _ctx, uint8_t* out_buffer)
+static size_t fpga_image_read_block_cb(void* _ctx)
 {
 	// Assume out_buffer is 4KB
 	struct fpga_image_read_ctx* ctx = _ctx;
+	struct fpga_loader_t* loader = ctx->loader;
 	size_t block_sz = ctx->next_block_sz;
 
 	uint8_t block_sz_buf[2];
 
 	// first iteration: read first block size
 	if (ctx->init_flag == 0) {
-		w25q80bv_read(&spi_flash, ctx->addr, 2, block_sz_buf);
+		loader->read(ctx->addr, 2, block_sz_buf);
 		block_sz = block_sz_buf[0] | block_sz_buf[1] << 8;
 		ctx->addr += 2;
 		ctx->init_flag = 1;
@@ -56,48 +53,42 @@ static size_t fpga_image_read_block_cb(void* _ctx, uint8_t* out_buffer)
 		return 0;
 
 	// Read compressed block (and the next block size) from flash.
-	w25q80bv_read(&spi_flash, ctx->addr, block_sz, lz4_in_buf);
+	loader->read(ctx->addr, block_sz, loader->in_buffer);
 	ctx->addr += block_sz;
-	w25q80bv_read(&spi_flash, ctx->addr, 2, block_sz_buf);
+	loader->read(ctx->addr, 2, block_sz_buf);
 	ctx->next_block_sz = block_sz_buf[0] | block_sz_buf[1] << 8;
 	ctx->addr += 2;
 
 	// Decompress block.
-	return lz4_blk_decompress(lz4_in_buf, out_buffer, block_sz);
+	return lz4_blk_decompress(loader->in_buffer, loader->out_buffer, block_sz);
 }
 
-bool fpga_image_load(unsigned int index)
+bool fpga_image_load(struct fpga_loader_t* loader, unsigned int index)
 {
-#if defined(DFU_MODE) || defined(RAM_MODE)
-	selftest.fpga_image_load = SKIPPED;
-	selftest.report.pass = false;
-	return false;
-#endif
-
 	// TODO: do SPI setup and read number of bitstreams once!
-
-	// Prepare for SPI flash access.
-	spi_bus_start(spi_flash.bus, &ssp_config_w25q80bv);
-	w25q80bv_setup(&spi_flash);
+	if (loader->setup != NULL)
+		loader->setup();
 
 	// Read number of bitstreams from flash.
 	// Check the bitstream exists, and extract its offset.
-	uint32_t addr = (uint32_t) &_binary_fpga_bin_start;
+	uint32_t addr = loader->start_addr;
 	uint32_t num_bitstreams, bitstream_offset;
-	w25q80bv_read(&spi_flash, addr, 4, (uint8_t*) &num_bitstreams);
+	loader->read(addr, 4, (uint8_t*) &num_bitstreams);
 	if (index >= num_bitstreams)
 		return false;
-	w25q80bv_read(&spi_flash, addr + 4 * (index + 1), 4, (uint8_t*) &bitstream_offset);
+	loader->read(addr + 4 * (index + 1), 4, (uint8_t*) &bitstream_offset);
 
 	// A callback function is used by the FPGA programmer
 	// to obtain consecutive gateware chunks.
 	ice40_spi_target_init(&ice40);
 	ssp1_set_mode_ice40();
 	struct fpga_image_read_ctx fpga_image_ctx = {
-		.addr = (uint32_t) &_binary_fpga_bin_start + bitstream_offset,
+		.loader = loader,
+		.addr = loader->start_addr + bitstream_offset,
 	};
 	const bool success = ice40_spi_syscfg_program(
 		&ice40,
+		loader->out_buffer,
 		fpga_image_read_block_cb,
 		&fpga_image_ctx);
 	ssp1_set_mode_max283x();
