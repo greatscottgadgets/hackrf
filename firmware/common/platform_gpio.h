@@ -26,8 +26,8 @@
 extern "C" {
 #endif
 
+#include "gpio.h"
 #include "gpio_lpc.h"
-#include "platform_detect.h"
 
 typedef struct {
 	/* LEDs */

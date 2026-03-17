@@ -20,7 +20,12 @@
  */
 
 #include <stddef.h>
+#include <stdint.h>
+
 #include <usb_queue.h>
+#include <usb_request.h>
+#include <usb_type.h>
+
 #include "adc.h"
 #include "usb_api_adc.h"
 

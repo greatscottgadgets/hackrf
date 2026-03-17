@@ -19,6 +19,8 @@
  * Boston, MA 02110-1301, USA.
  */
 
+#include <stdbool.h>
+
 #include "adc.h"
 #include <libopencm3/lpc43xx/adc.h>
 #include <libopencm3/lpc43xx/scu.h>

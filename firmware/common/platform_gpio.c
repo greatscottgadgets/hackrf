@@ -19,8 +19,13 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include <stddef.h>
 #include "platform_gpio.h"
+
+#include <stddef.h>
+
+#if defined(HACKRF_ONE)
+	#include "platform_detect.h"
+#endif
 
 // clang-format off
 

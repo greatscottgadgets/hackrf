@@ -26,8 +26,8 @@
 extern "C" {
 #endif
 
+#include <stdint.h>
 #include <libopencm3/lpc43xx/scu.h>
-#include "platform_detect.h"
 
 /*
  * SCU PinMux
