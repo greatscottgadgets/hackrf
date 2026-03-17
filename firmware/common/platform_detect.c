@@ -19,14 +19,16 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include "platform_detect.h"
+#include <libopencm3/lpc43xx/scu.h>
+
+#include "adc.h"
+#include "delay.h"
 #include "firmware_info.h"
+#include "gpio.h"
 #include "gpio_lpc.h"
 #include "hackrf_core.h"
-#include "delay.h"
-#include "adc.h"
-
-#include <libopencm3/lpc43xx/scu.h>
+#include "platform_detect.h"
+#include "platform_scu.h"
 
 static board_id_t platform = BOARD_ID_UNDETECTED;
 static board_rev_t revision = BOARD_REV_UNDETECTED;

@@ -28,25 +28,25 @@
 extern "C" {
 #endif
 
-#include <stdint.h>
 #include <stdbool.h>
+#include <stdint.h>
 
-#include "si5351c.h"
-#include "spi_ssp.h"
-
+#include "cpld_jtag.h"
+#include "fixed_point.h"
+#include "i2c_bus.h"
 #include "max283x.h"
 #include "max5864.h"
 #include "mixer.h"
-#include "w25q80bv.h"
-#include "sgpio.h"
 #include "radio.h"
 #include "rf_path.h"
-#include "cpld_jtag.h"
-#include "ice40_spi.h"
-#include "fpga.h"
-#include "fixed_point.h"
-
-#include "platform_scu.h"
+#include "sgpio.h"
+#include "si5351c.h"
+#include "spi_ssp.h"
+#include "w25q80bv.h"
+#if defined(PRALINE)
+	#include "fpga.h"
+	#include "ice40_spi.h"
+#endif
 
 /* TODO: Hide these configurations */
 extern si5351c_driver_t clock_gen;

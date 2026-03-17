@@ -23,9 +23,9 @@
 #ifndef __PORTAPACK_H__
 #define __PORTAPACK_H__
 
-#include <stdint.h>
-#include <stddef.h>
 #include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
 
 #define ARRAY_SIZEOF(x) (sizeof(x) / sizeof(x[0]))
 

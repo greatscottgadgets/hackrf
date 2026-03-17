@@ -20,10 +20,14 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include "hackrf_core.h"
-#include "platform_scu.h"
-
 #include "rffc5071_spi.h"
+
+#include <stdbool.h>
+#include <stdint.h>
+
+#include <libopencm3/lpc43xx/scu.h>
+
+#include "platform_scu.h"
 
 static void rffc5071_spi_target_select(spi_bus_t* const bus)
 {

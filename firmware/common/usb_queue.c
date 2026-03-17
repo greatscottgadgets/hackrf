@@ -21,12 +21,12 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include <assert.h>
+#include <stdint.h>
 
 #include <libopencm3/cm3/cortex.h>
+#include <libopencm3/lpc43xx/usb.h>
 
 #include "locking.h"
 #include "usb.h"

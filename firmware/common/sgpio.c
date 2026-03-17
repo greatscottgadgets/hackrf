@@ -22,13 +22,18 @@
  * Boston, MA 02110-1301, USA.
  */
 
+#include <stdint.h>
+
+#include <libopencm3/cm3/common.h>
+#include <libopencm3/lpc43xx/scu.h>
 #include <libopencm3/lpc43xx/sgpio.h>
 
-#include "hackrf_core.h"
 #include "platform_detect.h"
 #include "platform_scu.h"
-
 #include "sgpio.h"
+#if !defined(PRALINE)
+	#include "hackrf_core.h"
+#endif
 
 static void update_q_invert(sgpio_config_t* const config);
 

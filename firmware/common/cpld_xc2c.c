@@ -22,10 +22,10 @@
 
 #include "cpld_xc2c.h"
 
-#include "crc.h"
-
-#include <stddef.h>
 #include <string.h>
+
+#include "crc.h"
+#include "gpio.h"
 
 // clang-format off
 typedef enum {

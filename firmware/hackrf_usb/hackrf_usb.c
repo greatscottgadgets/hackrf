@@ -21,50 +21,69 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include <stddef.h>
+#include <stdbool.h>
+#include <stdint.h>
 #include <string.h>
 
 #include <libopencm3/lpc43xx/ipc.h>
 #include <libopencm3/lpc43xx/m4/nvic.h>
-#include <libopencm3/lpc43xx/rgu.h>
-#include <libopencm3/lpc43xx/timer.h>
+#include <libopencm3/cm3/nvic.h>
 
-#include <streaming.h>
-
-#include "tuning.h"
-
-#include "usb.h"
-#include "usb_standard_request.h"
-
+#include <clkin.h>
+#include <da7219.h>
+#include <delay.h>
+#include <hackrf_core.h>
+#include <hackrf_ui.h>
+#include <operacake.h>
+#include <platform_detect.h>
+#include <radio.h>
+#include <rf_path.h>
 #include <rom_iap.h>
-#include "usb_descriptor.h"
+#include <selftest.h>
+#include <usb.h>
+#include <usb_queue.h>
+#include <usb_request.h>
+#include <usb_standard_request.h>
+#include <usb_type.h>
+#if defined(HACKRF_ONE)
+	#include <mixer.h>
+#endif
+#if defined(PRALINE) || defined(HACKRF_ONE)
+	#include <portapack.h>
+#endif
+#if defined(PRALINE) || defined(HACKRF_ONE) || defined(JAWBREAKER)
+	#include <rffc5071.h>
+#endif
+#if defined(PRALINE)
+	#include <fpga.h>
+	#if !(defined(DFU_MODE) || defined(RAM_MODE))
+		#include <lz4_buf.h>
+		#include <spi_bus.h>
+		#include <w25q80bv.h>
+	#endif
+#else
+	#include <cpld_jtag.h>
+	#include <cpld_xc2c.h>
+#endif
 
-#include "usb_device.h"
-#include "usb_endpoint.h"
-#include "usb_api_board_info.h"
-#include "usb_api_cpld.h"
-#include "usb_api_register.h"
-#include "usb_api_spiflash.h"
-#include "usb_api_operacake.h"
-#include "usb_api_praline.h"
-#include "usb_api_selftest.h"
 #include "usb_api_adc.h"
-#include "operacake.h"
+#include "usb_api_board_info.h"
+#include "usb_api_m0_state.h"
+#include "usb_api_operacake.h"
+#include "usb_api_register.h"
+#include "usb_api_selftest.h"
+#include "usb_api_spiflash.h"
 #include "usb_api_sweep.h"
 #include "usb_api_transceiver.h"
 #include "usb_api_ui.h"
-#include "usb_bulk_buffer.h"
-#include "usb_api_m0_state.h"
-#include "cpld_xc2c.h"
-#include "portapack.h"
-#include "hackrf_ui.h"
-#include "platform_detect.h"
-#include "clkin.h"
-#include "fpga.h"
-#include "selftest.h"
-#include "delay.h"
-#include "lz4_buf.h"
-#include "da7219.h"
+#include "usb_descriptor.h"
+#include "usb_device.h"
+#include "usb_endpoint.h"
+#if defined(PRALINE)
+	#include "usb_api_praline.h"
+#else
+	#include "usb_api_cpld.h"
+#endif
 
 extern uint32_t __m0_start__;
 extern uint32_t __m0_end__;

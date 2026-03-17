@@ -1,9 +1,10 @@
 #ifndef __RAD1O_DISPLAY_H__
 #define __RAD1O_DISPLAY_H__
 
-#include <libopencm3/cm3/common.h>
-
 #include <stdint.h>
+
+#include <libopencm3/lpc43xx/scu.h>
+#include <libopencm3/lpc43xx/ssp.h>
 
 #define RESX 130
 #define RESY 130

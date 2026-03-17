@@ -21,9 +21,9 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include <stdint.h>
-
 #include "fault_handler.h"
+
+#include <stdint.h>
 
 typedef struct {
 	uint32_t r0;

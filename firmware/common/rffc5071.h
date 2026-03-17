@@ -23,10 +23,11 @@
 #ifndef __RFFC5071_H
 #define __RFFC5071_H
 
+#include <stdbool.h>
 #include <stdint.h>
 
-#include "spi_bus.h"
 #include "gpio.h"
+#include "spi_bus.h"
 
 /* 31 registers, each containing 16 bits of data. */
 #define RFFC5071_NUM_REGS 31

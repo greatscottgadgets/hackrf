@@ -20,9 +20,9 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include <stdint.h>
-
 #include "max5864.h"
+
+#include <stdint.h>
 
 static void max5864_write(max5864_driver_t* const drv, uint8_t value)
 {

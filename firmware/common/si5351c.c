@@ -20,16 +20,23 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include "si5351c.h"
-#include "clkin.h"
-#include "platform_detect.h"
-#include "platform_gpio.h"
-#include "platform_scu.h"
-#include "hackrf_core.h"
-#include "selftest.h"
-#include "delay.h"
-
 #include <stdbool.h>
+#include <stddef.h>
+
+#if defined(HACKRF_ONE)
+	#include <libopencm3/lpc43xx/scu.h>
+#endif
+
+#include "clkin.h"
+#include "delay.h"
+#include "platform_detect.h"
+#include "selftest.h"
+#include "si5351c.h"
+#if defined(HACKRF_ONE)
+	#include "gpio.h"
+	#include "platform_gpio.h"
+	#include "platform_scu.h"
+#endif
 
 static enum pll_sources active_clock_source = PLL_SOURCE_UNINITIALIZED;
 /* External clock output default is deactivated as it creates noise */

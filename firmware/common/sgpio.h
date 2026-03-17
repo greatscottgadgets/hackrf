@@ -23,10 +23,8 @@
 #ifndef __SGPIO_H__
 #define __SGPIO_H__
 
-#include <stdint.h>
 #include <stdbool.h>
-
-#include <libopencm3/lpc43xx/sgpio.h>
+#include <stdint.h>
 
 #include "gpio.h"
 

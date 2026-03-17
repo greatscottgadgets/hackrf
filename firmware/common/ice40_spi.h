@@ -22,12 +22,14 @@
 #ifndef __ICE40_SPI_H
 #define __ICE40_SPI_H
 
+#include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+
 #include "gpio.h"
 #include "spi_bus.h"
 
-struct ice40_spi_driver_t;
+struct ice40_spi_driver_t; // IWYU pragma: keep - fixed in #1704
 typedef struct ice40_spi_driver_t ice40_spi_driver_t;
 
 struct ice40_spi_driver_t {

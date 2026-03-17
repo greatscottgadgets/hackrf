@@ -21,11 +21,6 @@
 
 #include "firmware_info.h"
 #include "platform_detect.h"
-#include "gpio_lpc.h"
-#include "hackrf_core.h"
-
-#include <libopencm3/lpc43xx/scu.h>
-#include <libopencm3/lpc43xx/adc.h>
 
 #ifdef JAWBREAKER
 	#define SUPPORTED_PLATFORM PLATFORM_JAWBREAKER

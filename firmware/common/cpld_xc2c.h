@@ -23,8 +23,8 @@
 #ifndef __CPLD_XC2C_H__
 #define __CPLD_XC2C_H__
 
-#include <stdint.h>
 #include <stdbool.h>
+#include <stdint.h>
 
 #include "cpld_jtag.h"
 

@@ -22,7 +22,6 @@
 #ifndef __DA7219_H
 #define __DA7219_H
 
-#include <stdint.h>
 #include <stdbool.h>
 
 #define DA7219_ADDRESS 0x1A

@@ -20,12 +20,15 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include "hackrf_ui.h"
-
-#include "ui_portapack.h"
-#include "ui_rad1o.h"
-
 #include <stddef.h>
+
+#include "hackrf_ui.h"
+#if defined(PRALINE) || defined(HACKRF_ONE)
+	#include "ui_portapack.h"
+#endif
+#if defined(RAD1O)
+	#include "ui_rad1o.h"
+#endif
 
 #define UNUSED(x) (void) (x)
 

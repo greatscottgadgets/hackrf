@@ -19,16 +19,23 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include <libopencm3/dispatch/nvic.h>
+#include <string.h>
 
+#include <libopencm3/cm3/nvic.h>
+#include <libopencm3/lpc43xx/m4/nvic.h>
+
+#include "fixed_point.h"
 #include "hackrf_core.h"
-#include "tuning.h"
-#include "rf_path.h"
-#include "fpga.h"
+#include "hackrf_ui.h"
+#include "max283x.h"
 #include "platform_detect.h"
 #include "radio.h"
-#include "fixed_point.h"
-#include "hackrf_ui.h"
+#include "rf_path.h"
+#include "tuning.h"
+#if defined(PRALINE)
+	#include "fpga.h"
+	#include "tune_config.h"
+#endif
 
 #define MIN(x, y) ((x) < (y) ? (x) : (y))
 #define MAX(x, y) ((x) > (y) ? (x) : (y))

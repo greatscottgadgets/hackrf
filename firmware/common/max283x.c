@@ -21,10 +21,21 @@
  * Boston, MA 02110-1301, USA.
  */
 
+#include <string.h>
+
 #include "max283x.h"
 
 #include "platform_gpio.h"
 #include "spi_bus.h"
+#if defined(PRALINE)
+	#include "max2831.h"
+	#include "max2831_target.h"
+#else
+	#include "max2837.h"
+	#include "max2837_target.h"
+	#include "max2839.h"
+	#include "max2839_target.h"
+#endif
 
 extern spi_bus_t spi_bus_ssp1;
 

@@ -19,14 +19,24 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include <stdio.h>
 #include <stddef.h>
-#include <usb_queue.h>
-#include <libopencm3/lpc43xx/creg.h>
+#include <stdint.h>
+#if defined(PRALINE) || defined(HACKRF_ONE) || defined(JAWBREAKER)
+	#include <stdbool.h>
+#endif
+
 #include <libopencm3/lpc43xx/cgu.h>
+#include <libopencm3/lpc43xx/creg.h>
+
+#include <selftest.h>
+#include <usb_queue.h>
+#include <usb_request.h>
+#include <usb_type.h>
+#if !defined(PRALINE)
+	#include <platform_detect.h>
+#endif
+
 #include "usb_api_selftest.h"
-#include "selftest.h"
-#include "platform_detect.h"
 
 static char* itoa(int val, int base)
 {

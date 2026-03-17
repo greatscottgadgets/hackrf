@@ -23,6 +23,8 @@
 #define __FPGA_H
 
 #include <stdbool.h>
+#include <stdint.h>
+
 #include "ice40_spi.h"
 
 /* Up to 7 registers, each containing up to 8 bits of data */
@@ -35,7 +37,7 @@ typedef enum {
 	FPGA_QUARTER_SHIFT_MODE_DOWN = 0b01,
 } fpga_quarter_shift_mode_t;
 
-struct fpga_driver_t;
+struct fpga_driver_t; // IWYU pragma: keep - fixed in #1704
 typedef struct fpga_driver_t fpga_driver_t;
 
 struct fpga_driver_t {

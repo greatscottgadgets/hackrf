@@ -22,12 +22,18 @@
  */
 
 #include "tuning.h"
-#include "hackrf_ui.h"
+
 #include "hackrf_core.h"
+#include "hackrf_ui.h"
+#include "max283x.h"
 #include "mixer.h"
 #include "sgpio.h"
-#include "operacake.h"
-#include "platform_detect.h"
+#if defined(PRALINE) || defined(HACKRF_ONE)
+	#include "operacake.h"
+#endif
+#ifdef PRALINE
+	#include "fpga.h"
+#endif
 
 #ifndef PRALINE
 

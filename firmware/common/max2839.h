@@ -44,7 +44,7 @@ typedef enum {
 	MAX2839_MODE_CLKOUT,
 } max2839_mode_t;
 
-struct max2839_driver_t;
+struct max2839_driver_t; // IWYU pragma: keep - fixed in #1704
 typedef struct max2839_driver_t max2839_driver_t;
 
 struct max2839_driver_t {

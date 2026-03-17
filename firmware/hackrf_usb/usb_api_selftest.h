@@ -22,8 +22,8 @@
 #ifndef __USB_API_SELFTEST_H
 #define __USB_API_SELFTEST_H
 
-#include <usb_type.h>
 #include <usb_request.h>
+#include <usb_type.h>
 
 usb_request_status_t usb_vendor_request_read_selftest(
 	usb_endpoint_t* const endpoint,

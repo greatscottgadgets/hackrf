@@ -22,6 +22,8 @@
 
 #include "max5864_target.h"
 
+#include <libopencm3/lpc43xx/scu.h>
+
 #include "platform_scu.h"
 
 void max5864_target_init(max5864_driver_t* const drv)

@@ -20,10 +20,11 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include "hackrf_core.h"
 #include <stdint.h>
 
+#include "hackrf_core.h"
 #include "rom_iap.h"
+#include "spi_bus.h"
 #include "w25q80bv.h"
 
 #define ROM_IAP_ADDR       (0x10400100)

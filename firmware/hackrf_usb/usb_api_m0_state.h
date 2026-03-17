@@ -23,7 +23,7 @@
 #define __M0_STATE_USB_H__
 
 #include <usb_request.h>
-#include "m0_state.h"
+#include <usb_type.h>
 
 usb_request_status_t usb_vendor_request_get_m0_state(
 	usb_endpoint_t* const endpoint,

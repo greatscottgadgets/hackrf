@@ -22,10 +22,15 @@
 
 #include "portapack.h"
 
+#include <libopencm3/lpc43xx/scu.h>
+
+#include "cpld_jtag.h"
+#include "delay.h"
+#include "gpio.h"
+#include "gpio_lpc.h"
 #include "hackrf_core.h"
 #include "platform_gpio.h"
 #include "platform_scu.h"
-#include "delay.h"
 
 static void portapack_sleep_milliseconds(const uint32_t milliseconds)
 {

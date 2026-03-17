@@ -22,14 +22,20 @@
 
 #include "ui_rad1o.h"
 
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdio.h>
+
+#include "hackrf_core.h"
+#include "radio.h"
+#include "rf_path.h"
+
 #include "rad1o/display.h"
 #include "rad1o/draw.h"
 #include "rad1o/print.h"
 #include "rad1o/render.h"
 #include "rad1o/smallfonts.h"
 #include "rad1o/ubuntu18.h"
-
-#include <stdio.h>
 
 static uint64_t freq = 0;
 static uint32_t sample_rate = 0;

@@ -25,7 +25,7 @@
 
 #include "spi_bus.h"
 
-struct max5864_driver_t;
+struct max5864_driver_t; // IWYU pragma: keep - fixed in #1704
 typedef struct max5864_driver_t max5864_driver_t;
 
 struct max5864_driver_t {

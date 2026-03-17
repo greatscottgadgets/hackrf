@@ -23,18 +23,22 @@
 
 #include "rf_path.h"
 
-#include <hackrf_core.h>
+#if defined(HACKRF_ONE) || defined(RAD1O) || defined(PRALINE)
+	#include <libopencm3/lpc43xx/scu.h>
+#endif
 
+#include "hackrf_core.h"
 #include "hackrf_ui.h"
-#include "gpio_lpc.h"
-#include "platform_detect.h"
-#include "platform_scu.h"
-#include "mixer.h"
 #include "max283x.h"
 #include "max5864.h"
+#include "mixer.h"
+#include "platform_detect.h"
 #include "sgpio.h"
+#if defined(HACKRF_ONE) || defined(RAD1O) || defined(PRALINE)
+	#include "platform_scu.h"
+#endif
 
-#if (defined JAWBREAKER || defined HACKRF_ONE || defined RAD1O || defined PRALINE)
+#if defined(JAWBREAKER) || defined(HACKRF_ONE) || defined(RAD1O) || defined(PRALINE)
 	/*
 	 * RF switches on Jawbreaker are controlled by General Purpose Outputs (GPO) on
 	 * the RFFC5072.

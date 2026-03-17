@@ -19,10 +19,15 @@
  * Boston, MA 02110-1301, USA.
  */
 
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
+
+#include "fpga.h"
 #include "hackrf_core.h"
+#include "ice40_spi.h"
 #include "lz4_blk.h"
 #include "selftest.h"
-#include "fpga.h"
 
 struct fpga_image_read_ctx {
 	struct fpga_loader_t* loader;

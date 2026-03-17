@@ -23,9 +23,9 @@
 #ifndef __I2C_LPC_H__
 #define __I2C_LPC_H__
 
-#include <stdint.h>
-#include <stddef.h>
 #include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
 
 #include "i2c_bus.h"
 

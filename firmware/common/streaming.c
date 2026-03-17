@@ -23,8 +23,9 @@
 
 #include <streaming.h>
 
-#include <libopencm3/lpc43xx/m4/nvic.h>
 #include <libopencm3/lpc43xx/sgpio.h>
+
+#include "sgpio.h"
 
 void baseband_streaming_enable(sgpio_config_t* const sgpio_config)
 {

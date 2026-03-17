@@ -1,15 +1,14 @@
 #include "display.h"
 
-#include "gpio_lpc.h"
-#include "hackrf_core.h"
-#include "delay.h"
-
-#include <libopencm3/lpc43xx/scu.h>
-#include <libopencm3/lpc43xx/ssp.h>
-
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
+
+#include <libopencm3/lpc43xx/ssp.h>
+
+#include "gpio.h"
+#include "gpio_lpc.h"
+#include "delay.h"
 
 static void delayms(const uint32_t milliseconds)
 {

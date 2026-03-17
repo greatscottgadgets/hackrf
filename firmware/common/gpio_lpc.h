@@ -25,8 +25,6 @@
 
 #include <stdint.h>
 
-#include "gpio.h"
-
 /* NOTE: libopencm3 constants and functions not used here due to naming
  * conflicts. I'd recommend changes to libopencm3 design to separate
  * register #defines and API declarations into separate header files.

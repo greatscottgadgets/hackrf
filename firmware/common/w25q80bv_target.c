@@ -22,6 +22,9 @@
 
 #include "w25q80bv_target.h"
 
+#include <libopencm3/lpc43xx/scu.h>
+
+#include "gpio.h"
 #include "platform_scu.h"
 
 /* TODO: Why is CS being controlled manually when SSP0 could do it

@@ -21,26 +21,32 @@
  * Boston, MA 02110-1301, USA.
  */
 
+#include <libopencm3/lpc43xx/cgu.h>
+#include <libopencm3/lpc43xx/memorymap.h>
+#include <libopencm3/lpc43xx/scu.h>
+#include <libopencm3/lpc43xx/ssp.h>
+#if defined(JAWBREAKER) || defined(HACKRF_ONE) || defined(PRALINE)
+	#include <libopencm3/lpc43xx/ccu.h>
+#endif
+
+#include "delay.h"
+#include "gpio.h"
 #include "hackrf_core.h"
 #include "hackrf_ui.h"
-#include "delay.h"
+#include "i2c_lpc.h"
 #include "max283x.h"
 #include "max5864_target.h"
-#include "w25q80bv_target.h"
-#include "i2c_lpc.h"
-#include "ice40_spi.h"
 #include "platform_detect.h"
 #include "platform_gpio.h"
 #include "platform_scu.h"
-#include "clkin.h"
-#include <libopencm3/lpc43xx/cgu.h>
-#include <libopencm3/lpc43xx/ccu.h>
-
-#if (defined HACKRF_ONE || defined PRALINE)
+#include "spi_bus.h"
+#include "w25q80bv_target.h"
+#if defined(HACKRF_ONE) || defined(PRALINE)
 	#include "portapack.h"
 #endif
-
-#include "gpio_lpc.h"
+#if defined(PRALINE)
+	#include "ice40_spi.h"
+#endif
 
 i2c_bus_t i2c0 = {
 	.obj = (void*) I2C0_BASE,

@@ -23,6 +23,9 @@
 #ifndef __USB_H__
 #define __USB_H__
 
+#include <stdbool.h>
+#include <stdint.h>
+
 // TODO: Refactor to support high performance operations without having to
 // expose usb_transfer_descriptor_t. Or usb_endpoint_prime(). Or, or, or...
 #include <libopencm3/lpc43xx/usb.h>
