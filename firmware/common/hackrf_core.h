@@ -34,7 +34,6 @@ extern "C" {
 #include "si5351c.h"
 #include "spi_ssp.h"
 
-#include "max2831.h"
 #include "max283x.h"
 #include "max5864.h"
 #include "mixer.h"
@@ -45,6 +44,7 @@ extern "C" {
 #include "cpld_jtag.h"
 #include "ice40_spi.h"
 #include "fpga.h"
+#include "fixed_point.h"
 
 /*
  * SCU PinMux
@@ -395,14 +395,11 @@ extern const ssp_config_t ssp_config_w25q80bv;
 extern const ssp_config_t ssp_config_max283x;
 extern const ssp_config_t ssp_config_max5864;
 
-#ifndef PRALINE
-extern max283x_driver_t max283x;
-#else
-extern max2831_driver_t max283x;
+#ifdef PRALINE
 extern ice40_spi_driver_t ice40;
 extern fpga_driver_t fpga;
-
 #endif
+extern max283x_driver_t max283x;
 extern max5864_driver_t max5864;
 extern mixer_driver_t mixer;
 extern w25q80bv_driver_t spi_flash;
@@ -418,7 +415,6 @@ void clock_gen_shutdown(void);
 void ssp1_set_mode_max283x(void);
 void ssp1_set_mode_max5864(void);
 #ifdef PRALINE
-void ssp1_set_mode_max2831(void);
 void ssp1_set_mode_ice40(void);
 #endif
 
@@ -435,8 +431,7 @@ void enable_1v8_power(void);
 void disable_1v8_power(void);
 #endif
 
-bool sample_rate_frac_set(uint32_t rate_num, uint32_t rate_denom);
-bool sample_rate_set(const uint32_t sampling_rate_hz);
+fp_40_24_t sample_rate_set(const fp_40_24_t sample_rate, const bool program);
 
 clock_source_t activate_best_clock_source(void);
 

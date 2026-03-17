@@ -37,8 +37,8 @@ typedef enum {
 	MAX2831_MODE_STANDBY,
 	MAX2831_MODE_TX,
 	MAX2831_MODE_RX,
-	MAX2831_MODE_TX_CALIBRATION,
 	MAX2831_MODE_RX_CALIBRATION,
+	MAX2831_MODE_TX_CALIBRATION,
 } max2831_mode_t;
 
 typedef enum {
@@ -93,6 +93,7 @@ extern void max2831_stop(max2831_driver_t* const drv);
 extern void max2831_set_frequency(max2831_driver_t* const drv, uint32_t freq);
 uint32_t max2831_set_lpf_bandwidth(
 	max2831_driver_t* const drv,
+	const max2831_mode_t mode,
 	const uint32_t bandwidth_hz);
 bool max2831_set_lna_gain(max2831_driver_t* const drv, const uint32_t gain_db);
 bool max2831_set_vga_gain(max2831_driver_t* const drv, const uint32_t gain_db);

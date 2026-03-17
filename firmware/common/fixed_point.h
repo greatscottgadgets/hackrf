@@ -1,6 +1,5 @@
 /*
- * Copyright 2014-2022 Great Scott Gadgets <info@greatscottgadgets.com>
- * Copyright (C) 2014 Jared Boone, ShareBrained Technology, Inc.
+ * Copyright 2026 Great Scott Gadgets <info@greatscottgadgets.com>
  *
  * This file is part of HackRF.
  *
@@ -20,20 +19,16 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __GPIO_H__
-#define __GPIO_H__
+#ifndef __FIXED_POINT_H__
+#define __FIXED_POINT_H__
 
-#include <stdbool.h>
+/* 40.24 fixed-point */
+typedef uint64_t fp_40_24_t;
 
-typedef const struct gpio* gpio_t;
+/* one million in 40.24 fixed-point */
+#define FP_ONE_MHZ ((1000ULL * 1000ULL) << 24)
 
-void gpio_init(void);
-void gpio_set(gpio_t gpio);
-void gpio_clear(gpio_t gpio);
-void gpio_toggle(gpio_t gpio);
-void gpio_output(gpio_t gpio);
-void gpio_input(gpio_t gpio);
-void gpio_write(gpio_t gpio, const bool value);
-bool gpio_read(gpio_t gpio);
+/* one in 40.24 fixed-point */
+#define FP_ONE_HZ (1 << 24)
 
-#endif /*__GPIO_H__*/
+#endif /*__FIXED_POINT_H__*/

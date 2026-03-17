@@ -213,6 +213,7 @@ macro(DeclareTargets)
 			${SRC_M4}
 			${PATH_HACKRF_FIRMWARE_COMMON}/fpga.c
 			${PATH_HACKRF_FIRMWARE_COMMON}/ice40_spi.c
+			${PATH_HACKRF_FIRMWARE_COMMON}/max283x.c
 			${PATH_HACKRF_FIRMWARE_COMMON}/max2831.c
 			${PATH_HACKRF_FIRMWARE_COMMON}/max2831_target.c
 		)
@@ -247,9 +248,9 @@ macro(DeclareTargets)
 	set_target_properties(${PROJECT_NAME}_m0.elf PROPERTIES COMPILE_FLAGS "${CFLAGS_M0}")
 	set_target_properties(${PROJECT_NAME}_m0.elf PROPERTIES LINK_FLAGS "${LDFLAGS_M0}")
 
-	DeclareTarget("${PROJECT_NAME}" "" "${CFLAGS_M4}" "${LDFLAGS_M4}")	
-	DeclareTarget("${PROJECT_NAME}" "_ram" "${CFLAGS_M4_RAM} -DRAM_MODE" "${LDFLAGS_M4_RAM}")	
-	DeclareTarget("${PROJECT_NAME}" "_dfu" "${CFLAGS_M4_RAM} -DDFU_MODE" "${LDFLAGS_M4_RAM}")	
+	DeclareTarget("${PROJECT_NAME}" "" "${CFLAGS_M4}" "${LDFLAGS_M4}")
+	DeclareTarget("${PROJECT_NAME}" "_ram" "${CFLAGS_M4_RAM} -DRAM_MODE" "${LDFLAGS_M4_RAM}")
+	DeclareTarget("${PROJECT_NAME}" "_dfu" "${CFLAGS_M4_RAM} -DDFU_MODE" "${LDFLAGS_M4_RAM}")
 
 	add_custom_target(
 		${PROJECT_NAME}.dfu ${DFU_ALL}

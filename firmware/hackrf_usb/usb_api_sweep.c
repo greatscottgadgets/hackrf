@@ -30,6 +30,7 @@
 #include "tuning.h"
 #include "usb_endpoint.h"
 #include "streaming.h"
+#include "fixed_point.h"
 
 #include <libopencm3/lpc43xx/m4/nvic.h>
 
@@ -98,7 +99,7 @@ usb_request_status_t usb_vendor_request_init_sweep(
 			&radio,
 			RADIO_BANK_ACTIVE,
 			RADIO_FREQUENCY_RF,
-			(sweep_freq + offset) << 24);
+			(sweep_freq + offset) * FP_ONE_HZ);
 		usb_transfer_schedule_ack(endpoint->in);
 		nvic_enable_irq(NVIC_USB0_IRQ);
 		radio_update(&radio);
@@ -228,7 +229,7 @@ void sweep_mode(uint32_t seq)
 				&radio,
 				RADIO_BANK_ACTIVE,
 				RADIO_FREQUENCY_RF,
-				(sweep_freq + offset) << 24);
+				(sweep_freq + offset) * FP_ONE_HZ);
 			nvic_enable_irq(NVIC_USB0_IRQ);
 			blocks_queued = 0;
 		}
