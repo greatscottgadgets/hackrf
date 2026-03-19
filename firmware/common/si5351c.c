@@ -26,6 +26,7 @@
 #include "gpio_lpc.h"
 #include "hackrf_core.h"
 #include "selftest.h"
+#include "delay.h"
 #include <libopencm3/lpc43xx/scu.h>
 
 /* HackRF One r9 clock control */
@@ -148,9 +149,12 @@ void si5351c_configure_pll_multisynth(si5351c_driver_t* const drv)
 
 void si5351c_reset_pll(si5351c_driver_t* const drv)
 {
+	si5351c_disable_all_outputs(drv);
 	/* reset PLLA and PLLB */
 	uint8_t data[] = {177, 0xA0};
 	si5351c_write(drv, data, sizeof(data));
+	delay_us_at_mhz(2000, 204);
+	si5351c_enable_clock_outputs(drv);
 }
 
 void si5351c_configure_multisynth(
