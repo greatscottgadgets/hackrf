@@ -26,9 +26,7 @@
 #if (defined JAWBREAKER || defined HACKRF_ONE || defined PRALINE)
 	#include "rffc5071.h"
 typedef rffc5071_driver_t mixer_driver_t;
-#endif
-
-#ifdef RAD1O
+#elif defined(RAD1O)
 	#include "max2871.h"
 typedef max2871_driver_t mixer_driver_t;
 #endif
