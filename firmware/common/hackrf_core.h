@@ -28,11 +28,10 @@ extern "C" {
 #endif
 
 #include <stdbool.h>
-#include <stdint.h>
 
 #include "cpld_jtag.h"
-#include "fixed_point.h"
 #include "i2c_bus.h"
+#include "i2c_lpc.h"
 #include "max283x.h"
 #include "max5864.h"
 #include "mixer.h"
@@ -48,6 +47,7 @@ extern "C" {
 #endif
 
 /* TODO: Hide these configurations */
+extern const i2c_lpc_config_t i2c_config_si5351c_fast_clock;
 extern si5351c_driver_t clock_gen;
 extern ssp_config_t ssp_config_w25q80bv;
 
@@ -65,8 +65,6 @@ extern rf_path_t rf_path;
 extern jtag_t jtag_cpld;
 extern i2c_bus_t i2c0;
 
-void clock_gen_init(void);
-void clock_gen_shutdown(void);
 void ssp1_set_mode_max283x(void);
 void ssp1_set_mode_max5864(void);
 #ifdef PRALINE
@@ -85,10 +83,6 @@ void disable_3v3aux_power(void);
 void enable_1v8_power(void);
 void disable_1v8_power(void);
 #endif
-
-fp_40_24_t sample_rate_set(const fp_40_24_t sample_rate, const bool program);
-
-clock_source_t activate_best_clock_source(void);
 
 #if (defined HACKRF_ONE || defined RAD1O || defined PRALINE)
 void enable_rf_power(void);
@@ -113,32 +107,12 @@ void halt_and_flash(const uint32_t duration);
 
 #ifdef PRALINE
 typedef enum {
-	P1_SIGNAL_TRIGGER_IN = 0,
-	P1_SIGNAL_AUX_CLK1 = 1,
-	P1_SIGNAL_CLKIN = 2,
-	P1_SIGNAL_TRIGGER_OUT = 3,
-	P1_SIGNAL_P22_CLKIN = 4,
-	P1_SIGNAL_P2_5 = 5,
-	P1_SIGNAL_NC = 6,
-	P1_SIGNAL_AUX_CLK2 = 7,
-} p1_ctrl_signal_t;
-
-typedef enum {
-	P2_SIGNAL_CLK3 = 0,
-	P2_SIGNAL_TRIGGER_IN = 2,
-	P2_SIGNAL_TRIGGER_OUT = 3,
-} p2_ctrl_signal_t;
-
-typedef enum {
 	CLKIN_SIGNAL_P1 = 0,
 	CLKIN_SIGNAL_P22 = 1,
 } clkin_signal_t;
 
-void p1_ctrl_set(const p1_ctrl_signal_t signal);
-void p2_ctrl_set(const p2_ctrl_signal_t signal);
 void narrowband_filter_set(const uint8_t value);
 void clkin_ctrl_set(const clkin_signal_t value);
-void pps_out_set(const uint8_t value);
 #endif
 
 #ifdef __cplusplus

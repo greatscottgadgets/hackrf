@@ -23,7 +23,9 @@
 
 #include "usb_api_praline.h"
 
-#include <hackrf_core.h>
+#include <clkin.h>
+#include <clock_gen.h>
+#include <rf_path.c>
 #include <usb_queue.h>
 #include <usb_request.h>
 #include <usb_type.h>

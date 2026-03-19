@@ -26,6 +26,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include "clock_gen.h"
 #include "portapack.h"
 #include "radio.h"
 #include "rf_path.h"
