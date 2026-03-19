@@ -29,6 +29,7 @@
 #include <libopencm3/lpc43xx/ipc.h>
 
 #include <clkin.h>
+#include <cpu_clock.h>
 #include <da7219.h>
 #include <delay.h>
 #include <hackrf_core.h>
