@@ -26,6 +26,7 @@
 #include "gpio_lpc.h"
 #include "hackrf_core.h"
 #include "selftest.h"
+#include "delay.h"
 #include <libopencm3/lpc43xx/scu.h>
 
 /* HackRF One r9 clock control */
@@ -148,9 +149,12 @@ void si5351c_configure_pll_multisynth(si5351c_driver_t* const drv)
 
 void si5351c_reset_pll(si5351c_driver_t* const drv)
 {
+	si5351c_disable_all_outputs(drv);
 	/* reset PLLA and PLLB */
 	uint8_t data[] = {177, 0xA0};
 	si5351c_write(drv, data, sizeof(data));
+	delay_us_at_mhz(2000, 204);
+	si5351c_enable_clock_outputs(drv);
 }
 
 void si5351c_configure_multisynth(
@@ -269,6 +273,9 @@ void si5351c_configure_clock_control(
 	data[1] = SI5351C_CLK_FRAC_MODE | SI5351C_CLK_PLL_SRC(pll) |
 		SI5351C_CLK_SRC(SI5351C_CLK_SRC_MULTISYNTH_SELF) |
 		SI5351C_CLK_IDRV(SI5351C_CLK_IDRV_4MA);
+	data[2] = SI5351C_CLK_FRAC_MODE | SI5351C_CLK_PLL_SRC(pll) |
+		SI5351C_CLK_SRC(SI5351C_CLK_SRC_MULTISYNTH_SELF) |
+		SI5351C_CLK_IDRV(SI5351C_CLK_IDRV_2MA);
 	data[3] = clkout_ctrl;
 	data[5] = SI5351C_CLK_INT_MODE | SI5351C_CLK_PLL_SRC(pll) |
 		SI5351C_CLK_SRC(SI5351C_CLK_SRC_MULTISYNTH_SELF) |
@@ -426,4 +433,22 @@ void si5351c_init(si5351c_driver_t* const drv)
 		gpio_output(&gpio_h1r9_mcu_clk_en);
 	}
 	(void) drv;
+}
+
+/*
+ * Set initial phase offset of output multisynth. AN619 associates this setting
+ * with outputs, but it seems to really be a multisynth setting.
+ *
+ * After changing this setting, you must call si5351c_reset_pll() to
+ * synchronize outputs with the new phase offset.
+ */
+void si5351c_set_phase(
+	si5351c_driver_t* const drv,
+	const uint8_t ms_number,
+	const uint8_t offset)
+{
+	const uint8_t address = 165 + ms_number;
+	if (ms_number < 8) {
+		si5351c_write_single(drv, address, offset & 0x7f);
+	}
 }
