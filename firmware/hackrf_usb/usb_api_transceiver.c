@@ -26,6 +26,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 
+#include <clock_gen.h>
 #include <fixed_point.h>
 #include <hackrf_core.h>
 #include <m0_state.h>

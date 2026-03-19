@@ -54,13 +54,6 @@ typedef struct {
 	uint32_t hz;
 } radio_sample_rate_t;
 
-// legacy type, moved from hackrf_core
-typedef enum {
-	CLOCK_SOURCE_HACKRF = 0,
-	CLOCK_SOURCE_EXTERNAL = 1,
-	CLOCK_SOURCE_PORTAPACK = 2,
-} clock_source_t;
-
 /**
  * Configurable registers stored as uint64_t. Any register may be set to
  * RADIO_UNSET. When not RADIO_UNSET, some registers are read as a specific type
