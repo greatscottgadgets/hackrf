@@ -24,6 +24,7 @@
 #include <stdbool.h>
 
 #include "fpga_regs.def"
+#include "gpio.h"
 #include "hackrf_core.h"
 #include "ice40_spi.h"
 
