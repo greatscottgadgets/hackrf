@@ -29,7 +29,7 @@
  * register #defines and API declarations into separate header files.
  */
 
-typedef struct gpio_port {
+typedef struct {
 	volatile uint32_t dir; /* +0x000 */
 	uint32_t _reserved0[31];
 	volatile uint32_t mask; /* +0x080 */

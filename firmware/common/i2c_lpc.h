@@ -28,7 +28,7 @@
 
 #include "i2c_bus.h"
 
-typedef struct i2c_lpc_config_t {
+typedef struct {
 	const uint16_t duty_cycle_count;
 } i2c_lpc_config_t;
 

@@ -215,7 +215,7 @@ typedef enum {
  */
 typedef fp_40_24_t (*sample_rate_fn)(const fp_40_24_t sample_rate, const bool program);
 
-typedef struct radio_t {
+typedef struct {
 	radio_config_mode_t config_mode;
 	uint64_t config[RADIO_NUM_BANKS][RADIO_NUM_REGS];
 	volatile uint32_t regs_dirty;

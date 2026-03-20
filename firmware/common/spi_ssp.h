@@ -30,7 +30,7 @@
 #include "gpio.h"
 #include "spi_bus.h"
 
-typedef struct ssp_config_t {
+typedef struct {
 	ssp_datasize_t data_bits;
 	ssp_cpol_cpha_t spi_mode;
 	uint8_t serial_clock_rate;

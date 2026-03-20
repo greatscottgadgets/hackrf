@@ -45,7 +45,7 @@ typedef enum {
 	RF_PATH_FILTER_HIGH_PASS = 2,
 } rf_path_filter_t;
 
-typedef struct rf_path_t {
+typedef struct {
 	uint8_t switchctrl;
 #ifdef HACKRF_ONE
 	gpio_t gpio_hp;
