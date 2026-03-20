@@ -20,8 +20,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __I2C_BUS_H__
-#define __I2C_BUS_H__
+#pragma once
 
 #include <stdint.h>
 #include <stddef.h>
@@ -51,5 +50,3 @@ void i2c_bus_transfer(
 	const size_t tx_count,
 	uint8_t* const rx,
 	const size_t rx_count);
-
-#endif /*__I2C_BUS_H__*/

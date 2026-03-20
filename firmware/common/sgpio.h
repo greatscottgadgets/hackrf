@@ -20,13 +20,10 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __SGPIO_H__
-#define __SGPIO_H__
+#pragma once
 
 #include <stdint.h>
 #include <stdbool.h>
-
-#include <libopencm3/lpc43xx/sgpio.h>
 
 #include "gpio.h"
 
@@ -52,5 +49,3 @@ void sgpio_cpld_stream_disable(sgpio_config_t* const config);
 bool sgpio_cpld_stream_is_enabled(sgpio_config_t* const config);
 
 void sgpio_cpld_set_mixer_invert(sgpio_config_t* const config, uint_fast8_t invert);
-
-#endif //__SGPIO_H__

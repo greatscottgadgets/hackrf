@@ -20,15 +20,12 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __MIXER_H
-#define __MIXER_H
+#pragma once
 
 #if (defined JAWBREAKER || defined HACKRF_ONE || defined PRALINE)
 	#include "rffc5071.h"
 typedef rffc5071_driver_t mixer_driver_t;
-#endif
-
-#ifdef RAD1O
+#elif defined(RAD1O)
 	#include "max2871.h"
 typedef max2871_driver_t mixer_driver_t;
 #endif
@@ -43,5 +40,3 @@ extern uint64_t mixer_set_frequency(mixer_driver_t* const mixer, uint64_t hz);
 extern void mixer_enable(mixer_driver_t* const mixer);
 extern void mixer_disable(mixer_driver_t* const mixer);
 extern void mixer_set_gpo(mixer_driver_t* const drv, uint8_t gpo);
-
-#endif // __MIXER_H

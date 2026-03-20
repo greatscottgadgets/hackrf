@@ -21,8 +21,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __RFPATH_H__
-#define __RFPATH_H__
+#pragma once
 
 #include <stdint.h>
 
@@ -60,6 +59,8 @@ typedef struct rf_path_t {
 	gpio_t gpio_amp_bypass;
 	gpio_t gpio_rx_amp;
 	gpio_t gpio_no_rx_amp_pwr;
+	// In HackRF One r9 this control signal has been moved to the microcontroller.
+	gpio_t gpio_h1r9_no_ant_pwr;
 #endif
 #ifdef RAD1O
 	gpio_t gpio_tx_rx_n;
@@ -92,5 +93,3 @@ void rf_path_set_filter(rf_path_t* const rf_path, const rf_path_filter_t filter)
 
 void rf_path_set_lna(rf_path_t* const rf_path, const uint_fast8_t enable);
 void rf_path_set_antenna(rf_path_t* const rf_path, const uint_fast8_t enable);
-
-#endif /*__RFPATH_H__*/

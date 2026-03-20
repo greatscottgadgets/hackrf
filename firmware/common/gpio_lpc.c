@@ -22,7 +22,9 @@
 
 #include "gpio_lpc.h"
 
+#include <stdbool.h>
 #include <stddef.h>
+#include "gpio.h"
 
 void gpio_init(void)
 {

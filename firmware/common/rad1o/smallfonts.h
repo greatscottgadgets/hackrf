@@ -35,8 +35,8 @@
     SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 /**************************************************************************/
-#ifndef __RAD1O_SMALLFONTS_H__
-#define __RAD1O_SMALLFONTS_H__
+
+#pragma once
 
 #include "fonts.h"
 
@@ -47,5 +47,3 @@
 /* Current version by Kevin Townsend */
 
 extern const struct FONT_DEF Font_7x8;
-
-#endif

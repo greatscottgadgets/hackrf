@@ -1,7 +1,7 @@
 /* -*- mode: c -*-
  *
  * Copyright 2012 Michael Ossmann
- * Copyright 2025 Great Scott Gadgets <info@greatscottgadgets.com>
+ * Copyright 2025-2026 Great Scott Gadgets <info@greatscottgadgets.com>
  *
  * This file is part of HackRF.
  *
@@ -21,8 +21,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __FPGA_REGS_DEF
-#define __FPGA_REGS_DEF
+#pragma once
 
 #define FPGA_REG_SET_CLEAN(_d, _r) (_d->regs_dirty &= ~(1UL<<_r))
 #define FPGA_REG_SET_DIRTY(_d, _r) (_d->regs_dirty |= (1UL<<_r))
@@ -70,5 +69,3 @@ __MREG__(FPGA_STANDARD_TX_INTRP, 4, 0, 3)
 
 /* REG 05 (5): TX_PSTEP */
 __MREG__(FPGA_STANDARD_TX_PSTEP, 5, 0, 8)
-
-#endif // __FPGA_REGS_DEF

@@ -19,8 +19,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __MAX2831_H
-#define __MAX2831_H
+#pragma once
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -108,5 +107,3 @@ extern void max2831_tx(max2831_driver_t* const drv);
 extern void max2831_rx(max2831_driver_t* const drv);
 extern void max2831_tx_calibration(max2831_driver_t* const drv);
 extern void max2831_rx_calibration(max2831_driver_t* const drv);
-
-#endif // __MAX2831_H

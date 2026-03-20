@@ -20,11 +20,8 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __W25Q80BV_TARGET_H__
-#define __W25Q80BV_TARGET_H__
+#pragma once
 
 #include "w25q80bv.h"
 
 void w25q80bv_target_init(w25q80bv_driver_t* const drv);
-
-#endif /*__W25Q80BV_TARGET_H__*/

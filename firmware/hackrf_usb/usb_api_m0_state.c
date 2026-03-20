@@ -21,10 +21,10 @@
 
 #include "usb_api_m0_state.h"
 
-#include <libopencm3/lpc43xx/sgpio.h>
 #include <stddef.h>
 #include <usb_request.h>
 #include <usb_queue.h>
+#include "m0_state.h"
 
 usb_request_status_t usb_vendor_request_get_m0_state(
 	usb_endpoint_t* const endpoint,

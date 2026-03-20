@@ -20,8 +20,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __SPI_BUS_H__
-#define __SPI_BUS_H__
+#pragma once
 
 #include <stddef.h>
 
@@ -52,5 +51,3 @@ void spi_bus_transfer_gather(
 	spi_bus_t* const bus,
 	const spi_transfer_t* const transfers,
 	const size_t count);
-
-#endif /*__SPI_BUS_H__*/

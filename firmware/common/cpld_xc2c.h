@@ -20,8 +20,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __CPLD_XC2C_H__
-#define __CPLD_XC2C_H__
+#pragma once
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -69,5 +68,3 @@ bool cpld_xc2c64a_jtag_sram_verify(
 extern const cpld_xc2c64a_program_t cpld_hackrf_program_sram;
 extern const cpld_xc2c64a_verify_t cpld_hackrf_verify;
 extern const cpld_xc2c64a_row_addresses_t cpld_hackrf_row_addresses;
-
-#endif /*__CPLD_XC2C_H__*/

@@ -34,6 +34,7 @@
 
 #include "max2837.h"
 #include "max2839.h"
+#include "m0_state.h"
 #include "rf_path.h"
 #include "tuning.h"
 #include "streaming.h"

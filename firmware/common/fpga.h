@@ -19,8 +19,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __FPGA_H
-#define __FPGA_H
+#pragma once
 
 #include <stdbool.h>
 #include "ice40_spi.h"
@@ -92,5 +91,3 @@ bool fpga_image_load(struct fpga_loader_t* loader, unsigned int index);
 bool fpga_spi_selftest(void);
 bool fpga_sgpio_selftest(void);
 bool fpga_if_xcvr_selftest(void);
-
-#endif // __FPGA_H

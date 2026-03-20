@@ -20,8 +20,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __ROM_IAP__
-#define __ROM_IAP__
+#pragma once
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -93,7 +92,7 @@ typedef enum
 	INVALID_FLASH_UNIT             = 0x00000014, /* Invalid flash unit. */
 	USER_CODE_CHECKSUM             = 0x00000015,
 	ERROR_SETTING_ACTIVE_PARTITION = 0x00000016,
-	
+
 	/* Special Error */
 	ERROR_IAP_NOT_IMPLEMENTED      = 0x00000100 /* IAP is not implemented in this part */
 } isp_iap_ret_code_t;
@@ -118,5 +117,3 @@ typedef struct {
 bool iap_is_implemented(void);
 
 isp_iap_ret_code_t iap_cmd_call(iap_cmd_res_t* iap_cmd_res);
-
-#endif //__ROM_IAP__

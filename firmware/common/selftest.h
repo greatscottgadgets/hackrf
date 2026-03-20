@@ -19,8 +19,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __SELFTEST_H
-#define __SELFTEST_H
+#pragma once
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -76,5 +75,3 @@ typedef struct {
 } selftest_t;
 
 extern selftest_t selftest;
-
-#endif // __SELFTEST_H

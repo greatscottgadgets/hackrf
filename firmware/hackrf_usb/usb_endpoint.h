@@ -21,8 +21,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __USB_ENDPOINT_H__
-#define __USB_ENDPOINT_H__
+#pragma once
 
 #include <usb_type.h>
 #include <usb_queue.h>
@@ -38,5 +37,3 @@ extern USB_DECLARE_QUEUE(usb_endpoint_bulk_in);
 
 extern usb_endpoint_t usb_endpoint_bulk_out;
 extern USB_DECLARE_QUEUE(usb_endpoint_bulk_out);
-
-#endif /* end of include guard: __USB_ENDPOINT_H__ */

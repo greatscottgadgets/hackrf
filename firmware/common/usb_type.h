@@ -20,11 +20,9 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __USB_TYPE_H__
-#define __USB_TYPE_H__
+#pragma once
 
 #include <stdint.h>
-#include <stdbool.h>
 
 // TODO: Move this to some common compiler-tricks location.
 #define ATTR_PACKED     __attribute__((packed))
@@ -158,5 +156,3 @@ struct usb_endpoint_t {
 	void (*setup_complete)(usb_endpoint_t* const endpoint);
 	void (*transfer_complete)(usb_endpoint_t* const endpoint);
 };
-
-#endif //__USB_TYPE_H__
