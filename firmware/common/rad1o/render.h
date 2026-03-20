@@ -7,4 +7,3 @@ void rad1o_setIntFont(const struct FONT_DEF* font);
 int rad1o_getFontHeight(void);
 int rad1o_DoString(int sx, int sy, const char* s);
 int rad1o_DoChar(int sx, int sy, int c);
-
