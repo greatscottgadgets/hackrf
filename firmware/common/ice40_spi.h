@@ -28,15 +28,12 @@
 #include "gpio.h"
 #include "spi_bus.h"
 
-struct ice40_spi_driver_t; // IWYU pragma: keep - fixed in #1704
-typedef struct ice40_spi_driver_t ice40_spi_driver_t;
-
-struct ice40_spi_driver_t {
+typedef struct {
 	spi_bus_t* const bus;
 	gpio_t gpio_select;
 	gpio_t gpio_creset;
 	gpio_t gpio_cdone;
-};
+} ice40_spi_driver_t;
 
 void ice40_spi_target_init(ice40_spi_driver_t* const drv);
 uint8_t ice40_spi_read(ice40_spi_driver_t* const drv, uint8_t r);
