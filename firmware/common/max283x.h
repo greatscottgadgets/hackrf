@@ -21,8 +21,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __MAX283x_H
-#define __MAX283x_H
+#pragma once
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -126,5 +125,3 @@ void max283x_set_rx_hpf_frequency(
 /* Perform MAX2831 TX and RX calibration. */
 void max283x_tx_calibration(max283x_driver_t* const drv);
 void max283x_rx_calibration(max283x_driver_t* const drv);
-
-#endif // __MAX283x_H

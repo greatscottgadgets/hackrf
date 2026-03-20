@@ -19,8 +19,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __USB_API_SELFTEST_H
-#define __USB_API_SELFTEST_H
+#pragma once
 
 #include <usb_request.h>
 #include <usb_type.h>
@@ -32,5 +31,3 @@ usb_request_status_t usb_vendor_request_read_selftest(
 usb_request_status_t usb_vendor_request_test_rtc_osc(
 	usb_endpoint_t* const endpoint,
 	const usb_transfer_stage_t stage);
-
-#endif // __USB_API_SELFTEST_H

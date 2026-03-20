@@ -20,8 +20,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __CRC_H__
-#define __CRC_H__
+#pragma once
 
 #include <stddef.h>
 #include <stdint.h>
@@ -35,5 +34,3 @@ typedef struct {
 void crc32_init(crc32_t* const crc);
 void crc32_update(crc32_t* const crc, const uint8_t* const data, const size_t byte_count);
 uint32_t crc32_digest(const crc32_t* const crc);
-
-#endif //__CRC_H__

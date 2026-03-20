@@ -19,6 +19,8 @@
  * Boston, MA 02110-1301, USA.
  */
 
+#pragma once
+
 #include <libopencm3/cm3/common.h>
 #include <libopencm3/lpc43xx/memorymap.h>
 

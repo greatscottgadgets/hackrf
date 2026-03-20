@@ -19,8 +19,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __ICE40_SPI_H
-#define __ICE40_SPI_H
+#pragma once
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -47,5 +46,3 @@ bool ice40_spi_syscfg_program(
 	uint8_t* buf,
 	size_t (*read_block_cb)(void* ctx),
 	void* read_ctx);
-
-#endif // __ICE40_SPI_H

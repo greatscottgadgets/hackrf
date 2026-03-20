@@ -1,5 +1,4 @@
-#ifndef __RAD1O_DISPLAY_H__
-#define __RAD1O_DISPLAY_H__
+#pragma once
 
 #include <stdint.h>
 
@@ -27,5 +26,3 @@ void rad1o_lcdFill(uint8_t f);
 void rad1o_lcdDisplay(void);
 void rad1o_lcdSetPixel(uint8_t x, uint8_t y, uint8_t f);
 uint8_t* rad1o_lcdGetBuffer(void);
-
-#endif
