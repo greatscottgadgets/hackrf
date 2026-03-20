@@ -20,11 +20,8 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __UI_PORTAPACK_H__
-#define __UI_PORTAPACK_H__
+#pragma once
 
 #include "hackrf_ui.h"
 
 const hackrf_ui_t* portapack_hackrf_ui_init(void) __attribute__((weak));
-
-#endif /*__UI_PORTAPACK_H__*/

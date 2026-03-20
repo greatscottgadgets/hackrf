@@ -21,11 +21,8 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __USB_DEVICE_H__
-#define __USB_DEVICE_H__
+#pragma once
 
 #include <usb_type.h>
 
 extern usb_device_t usb_device;
-
-#endif /* end of include guard: __USB_DEVICE_H__ */

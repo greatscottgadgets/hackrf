@@ -20,8 +20,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __FAULT_HANDLER__
-#define __FAULT_HANDLER__
+#pragma once
 
 #include <stdint.h>
 
@@ -71,5 +70,3 @@ static armv7m_scb_t* const SCB = (armv7m_scb_t*) SCB_BASE;
 #define SCB_HFSR_DEBUGEVT (1 << 31)
 #define SCB_HFSR_FORCED   (1 << 30)
 #define SCB_HFSR_VECTTBL  (1 << 1)
-
-#endif //__FAULT_HANDLER__

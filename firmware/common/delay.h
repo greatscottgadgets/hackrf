@@ -19,8 +19,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __DELAY_H
-#define __DELAY_H
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
@@ -31,4 +30,6 @@ extern "C" {
 void delay(uint32_t duration);
 void delay_us_at_mhz(uint32_t us, uint32_t mhz);
 
-#endif /* __DELAY_H */
+#ifdef __cplusplus
+}
+#endif

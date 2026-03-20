@@ -35,12 +35,10 @@
     SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 /**************************************************************************/
-#ifndef __RAD1O_SMALLFONTS_H__
-#define __RAD1O_SMALLFONTS_H__
+
+#pragma once
 
 /* Partially based on original code for the KS0108 by Stephane Rey */
 /* Current version by Kevin Townsend */
 
 extern const struct FONT_DEF Font_7x8;
-
-#endif
