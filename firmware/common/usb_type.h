@@ -144,15 +144,13 @@ typedef struct {
 	uint8_t* wcid_extended_properties_descriptor;
 } usb_device_t;
 
-typedef struct usb_endpoint_t usb_endpoint_t;
-
-struct usb_endpoint_t {
+typedef struct _usb_endpoint_t {
 	usb_setup_t setup;
 	uint8_t buffer[32]; // Buffer for use during IN stage.
 	const uint_fast8_t address;
 	usb_device_t* const device;
-	usb_endpoint_t* const in;
-	usb_endpoint_t* const out;
-	void (*setup_complete)(usb_endpoint_t* const endpoint);
-	void (*transfer_complete)(usb_endpoint_t* const endpoint);
-};
+	struct _usb_endpoint_t* const in;
+	struct _usb_endpoint_t* const out;
+	void (*setup_complete)(struct _usb_endpoint_t* const endpoint);
+	void (*transfer_complete)(struct _usb_endpoint_t* const endpoint);
+} usb_endpoint_t;

@@ -43,19 +43,18 @@ typedef enum {
 	MAX2839_MODE_CLKOUT,
 } max2839_mode_t;
 
-struct max2839_driver_t; // IWYU pragma: keep - fixed in #1704
-typedef struct max2839_driver_t max2839_driver_t;
-
-struct max2839_driver_t {
+typedef struct _max2839_driver_t {
 	spi_bus_t* bus;
 	gpio_t gpio_enable;
 	gpio_t gpio_rxtx;
-	void (*target_init)(max2839_driver_t* const drv);
-	void (*set_mode)(max2839_driver_t* const drv, const max2839_mode_t new_mode);
+	void (*target_init)(struct _max2839_driver_t* const drv);
+	void (*set_mode)(
+		struct _max2839_driver_t* const drv,
+		const max2839_mode_t new_mode);
 	max2839_mode_t mode;
 	uint16_t regs[MAX2839_NUM_REGS];
 	uint32_t regs_dirty;
-};
+} max2839_driver_t;
 
 /* Initialize chip. */
 extern void max2839_setup(max2839_driver_t* const drv);
