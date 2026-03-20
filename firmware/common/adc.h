@@ -19,12 +19,9 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __ADC_H__
-#define __ADC_H__
+#pragma once
 
 #include <stdint.h>
 
 uint16_t adc_read(uint8_t pin);
 void adc_off(void);
-
-#endif // __ADC_H__

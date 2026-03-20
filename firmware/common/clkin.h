@@ -19,12 +19,9 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __CLKIN_H__
-#define __CLKIN_H__
+#pragma once
 
 #include <stdint.h>
 
 void clkin_detect_init(void);
 uint32_t clkin_frequency(void);
-
-#endif //__CLKIN_H__

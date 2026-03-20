@@ -21,8 +21,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __W25Q80BV_H__
-#define __W25Q80BV_H__
+#pragma once
 
 #include <stddef.h>
 #include <stdint.h>
@@ -69,5 +68,3 @@ void w25q80bv_read(
 	uint32_t len,
 	uint8_t* const data);
 void w25q80bv_clear_status(w25q80bv_driver_t* const drv);
-
-#endif //__W25Q80BV_H__

@@ -21,8 +21,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __MAX2839_H
-#define __MAX2839_H
+#pragma once
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -93,5 +92,3 @@ bool max2839_set_txvga_gain(max2839_driver_t* const drv, const uint32_t gain_db)
 
 extern void max2839_tx(max2839_driver_t* const drv);
 extern void max2839_rx(max2839_driver_t* const drv);
-
-#endif // __MAX2839_H

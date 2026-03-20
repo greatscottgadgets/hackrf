@@ -19,13 +19,10 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __DA7219_H
-#define __DA7219_H
+#pragma once
 
 #include <stdbool.h>
 
 #define DA7219_ADDRESS 0x1A
 
 bool da7219_detect(void);
-
-#endif /* __DA7219_H */
