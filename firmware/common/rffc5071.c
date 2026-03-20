@@ -37,9 +37,9 @@
 #include "rffc5071_regs.def" // private register def macros
 #include "selftest.h"
 
-#include <libopencm3/lpc43xx/scu.h>
 #include "hackrf_core.h"
 #include "delay.h"
+#include "platform_scu.h"
 
 static bool enabled = false;
 
@@ -104,7 +104,8 @@ void rffc5071_setup(rffc5071_driver_t* const drv)
 
 #ifdef PRALINE
 	/* Configure mixer PLL lock detect pin */
-	scu_pinmux(SCU_MIXER_LD, SCU_MIXER_LD_PINCFG);
+	const platform_scu_t* scu = platform_scu();
+	scu_pinmux(scu->MIXER_LD, scu->MIXER_LD_PINCFG);
 	gpio_input(drv->gpio_ld);
 #endif
 

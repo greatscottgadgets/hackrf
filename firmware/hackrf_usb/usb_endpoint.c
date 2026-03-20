@@ -26,6 +26,8 @@
 #include <usb_request.h>
 
 #include "usb_device.h"
+#include "usb_queue.h"
+#include "usb_type.h"
 
 usb_endpoint_t usb_endpoint_control_out = {
 	.address = 0x00,

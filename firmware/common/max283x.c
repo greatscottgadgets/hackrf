@@ -23,46 +23,26 @@
 
 #include "max283x.h"
 
-#include "gpio.h"
-#include "gpio_lpc.h"
+#include "platform_gpio.h"
 #include "spi_bus.h"
 
 extern spi_bus_t spi_bus_ssp1;
-#ifdef PRALINE
-static struct gpio gpio_max283x_enable = GPIO(7, 1);
-static struct gpio gpio_max283x_rx_enable = GPIO(7, 2);
-static struct gpio gpio_max2831_rxhp = GPIO(6, 29);
-static struct gpio gpio_max2831_ld = GPIO(4, 11);
-#else
-static struct gpio gpio_max283x_enable = GPIO(2, 6);
-static struct gpio gpio_max283x_rx_enable = GPIO(2, 5);
-static struct gpio gpio_max283x_tx_enable = GPIO(2, 4);
-#endif
 
 #ifdef PRALINE
 max2831_driver_t max2831 = {
 	.bus = &spi_bus_ssp1,
-	.gpio_enable = &gpio_max283x_enable,
-	.gpio_rxtx = &gpio_max283x_rx_enable,
-	.gpio_rxhp = &gpio_max2831_rxhp,
-	.gpio_ld = &gpio_max2831_ld,
 	.target_init = max2831_target_init,
 	.set_mode = max2831_target_set_mode,
 };
 #else
 max2837_driver_t max2837 = {
 	.bus = &spi_bus_ssp1,
-	.gpio_enable = &gpio_max283x_enable,
-	.gpio_rx_enable = &gpio_max283x_rx_enable,
-	.gpio_tx_enable = &gpio_max283x_tx_enable,
 	.target_init = max2837_target_init,
 	.set_mode = max2837_target_set_mode,
 };
 
 max2839_driver_t max2839 = {
 	.bus = &spi_bus_ssp1,
-	.gpio_enable = &gpio_max283x_enable,
-	.gpio_rxtx = &gpio_max283x_rx_enable,
 	.target_init = max2839_target_init,
 	.set_mode = max2839_target_set_mode,
 };
@@ -72,6 +52,23 @@ max2839_driver_t max2839 = {
 void max283x_setup(max283x_driver_t* const drv, max283x_variant_t type)
 {
 	drv->type = type;
+
+	const platform_gpio_t* gpio = platform_gpio();
+
+	/* MAX283x GPIO PinMux */
+#if defined(PRALINE)
+	max2831.gpio_enable = gpio->max283x_enable;
+	max2831.gpio_rxtx = gpio->max283x_rx_enable;
+	max2831.gpio_rxhp = gpio->max2831_rxhp;
+	max2831.gpio_ld = gpio->max2831_ld;
+#else
+	max2837.gpio_enable = gpio->max283x_enable;
+	max2837.gpio_rx_enable = gpio->max283x_rx_enable;
+	max2837.gpio_tx_enable = gpio->max283x_tx_enable;
+	max2839.gpio_enable = gpio->max283x_enable;
+	max2839.gpio_rxtx = gpio->max283x_rx_enable;
+#endif
+
 	switch (type) {
 #ifdef PRALINE
 	case MAX2831_VARIANT:

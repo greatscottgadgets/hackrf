@@ -23,6 +23,9 @@
 #ifndef __USB_STANDARD_REQUEST_H__
 #define __USB_STANDARD_REQUEST_H__
 
+#include <stdbool.h>
+#include <stdint.h>
+
 #include "usb_type.h"
 #include "usb_request.h"
 

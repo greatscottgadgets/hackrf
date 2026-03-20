@@ -26,8 +26,6 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include <libopencm3/lpc43xx/sgpio.h>
-
 #include "gpio.h"
 
 typedef enum {

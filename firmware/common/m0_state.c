@@ -21,7 +21,6 @@
 
 #include "m0_state.h"
 #include <libopencm3/lpc43xx/sgpio.h>
-#include <stddef.h>
 
 void m0_set_mode(enum m0_mode mode)
 {
