@@ -27,7 +27,7 @@
 #include "gpio.h"
 #include "spi_bus.h"
 
-typedef struct rffc5071_spi_config_t {
+typedef struct {
 	gpio_t gpio_select;
 	gpio_t gpio_clock;
 	gpio_t gpio_data;

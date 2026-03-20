@@ -32,7 +32,7 @@ typedef enum {
 	SGPIO_DIRECTION_TX,
 } sgpio_direction_t;
 
-typedef struct sgpio_config_t {
+typedef struct {
 	gpio_t gpio_q_invert;
 #ifndef PRALINE
 	gpio_t gpio_trigger_enable;

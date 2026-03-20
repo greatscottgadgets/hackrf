@@ -25,7 +25,7 @@
 
 #include "gpio.h"
 
-typedef struct jtag_gpio_t {
+typedef struct {
 	gpio_t gpio_tck;
 #ifndef PRALINE
 	gpio_t gpio_tms;
@@ -38,7 +38,7 @@ typedef struct jtag_gpio_t {
 #endif
 } jtag_gpio_t;
 
-typedef struct jtag_t {
+typedef struct {
 	jtag_gpio_t* const gpio;
 } jtag_t;
 
