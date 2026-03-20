@@ -80,4 +80,3 @@ int usb_transfer_schedule_ack(const usb_endpoint_t* const endpoint);
 void usb_queue_init(usb_queue_t* const queue);
 
 void usb_queue_transfer_complete(usb_endpoint_t* const endpoint);
-
