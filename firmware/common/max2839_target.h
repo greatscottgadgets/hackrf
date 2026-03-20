@@ -21,12 +21,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __MAX2839_TARGET_H
-#define __MAX2839_TARGET_H
-
 #include "max2839.h"
 
 void max2839_target_init(max2839_driver_t* const drv);
 void max2839_target_set_mode(max2839_driver_t* const drv, const max2839_mode_t new_mode);
-
-#endif // __MAX2839_TARGET_H

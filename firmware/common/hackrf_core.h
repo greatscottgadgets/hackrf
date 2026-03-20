@@ -21,8 +21,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __HACKRF_CORE_H
-#define __HACKRF_CORE_H
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
@@ -146,5 +145,3 @@ void pps_out_set(const uint8_t value);
 #ifdef __cplusplus
 }
 #endif
-
-#endif /* __HACKRF_CORE_H */

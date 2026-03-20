@@ -21,8 +21,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __TUNING_H__
-#define __TUNING_H__
+#pragma once
 
 #include "rf_path.h"
 #include "tune_config.h"
@@ -44,5 +43,3 @@ bool tuning_set_frequency(
 	const uint64_t freq,
 	const uint32_t offset);
 #endif
-
-#endif /*__TUNING_H__*/

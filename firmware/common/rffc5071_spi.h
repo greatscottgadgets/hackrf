@@ -20,8 +20,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __RFFC5071_SPI_H
-#define __RFFC5071_SPI_H
+#pragma once
 
 #include "spi_bus.h"
 
@@ -40,5 +39,3 @@ void rffc5071_spi_transfer_gather(
 	spi_bus_t* const bus,
 	const spi_transfer_t* const transfer,
 	const size_t count);
-
-#endif // __RFFC5071_SPI_H

@@ -21,8 +21,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __RFPATH_H__
-#define __RFPATH_H__
+#pragma once
 
 #include <stdint.h>
 
@@ -94,5 +93,3 @@ void rf_path_set_filter(rf_path_t* const rf_path, const rf_path_filter_t filter)
 
 void rf_path_set_lna(rf_path_t* const rf_path, const uint_fast8_t enable);
 void rf_path_set_antenna(rf_path_t* const rf_path, const uint_fast8_t enable);
-
-#endif /*__RFPATH_H__*/

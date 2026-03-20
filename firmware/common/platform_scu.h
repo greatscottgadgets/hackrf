@@ -19,8 +19,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __PLATFORM_SCU_H
-#define __PLATFORM_SCU_H
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
@@ -305,5 +304,3 @@ const platform_scu_t* platform_scu(void);
 #ifdef __cplusplus
 }
 #endif
-
-#endif /* __PLATFORM_SCU_H */

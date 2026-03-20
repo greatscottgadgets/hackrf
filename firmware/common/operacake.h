@@ -20,8 +20,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __OPERACAKE_H
-#define __OPERACAKE_H
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
@@ -56,5 +55,3 @@ uint16_t gpio_test(uint8_t address);
 #ifdef __cplusplus
 }
 #endif
-
-#endif /* __OPERACAKE_H */

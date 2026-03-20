@@ -20,8 +20,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __SI5351C_H
-#define __SI5351C_H
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
@@ -108,5 +107,3 @@ void si5351c_init(si5351c_driver_t* const drv);
 #ifdef __cplusplus
 }
 #endif
-
-#endif /* __SI5351C_H */

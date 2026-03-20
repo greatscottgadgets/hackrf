@@ -19,8 +19,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __PLATFORM_GPIO_H
-#define __PLATFORM_GPIO_H
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
@@ -367,5 +366,3 @@ static const struct gpio GPIO7_25 = GPIO(7, 25);
 #ifdef __cplusplus
 }
 #endif
-
-#endif /* __PLATFORM_GPIO_H */

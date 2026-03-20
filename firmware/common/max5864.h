@@ -20,8 +20,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __MAX5864_H
-#define __MAX5864_H
+#pragma once
 
 #include "spi_bus.h"
 
@@ -41,5 +40,3 @@ void max5864_idle(max5864_driver_t* const drv);
 void max5864_rx(max5864_driver_t* const drv);
 void max5864_tx(max5864_driver_t* const drv);
 void max5864_xcvr(max5864_driver_t* const drv);
-
-#endif // __MAX5864_H

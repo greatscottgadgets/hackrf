@@ -20,8 +20,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __PORTAPACK_H__
-#define __PORTAPACK_H__
+#pragma once
 
 #include <stdint.h>
 #include <stddef.h>
@@ -85,5 +84,3 @@ void portapack_draw_bitmap(
 	const ui_color_t background);
 
 ui_bitmap_t portapack_font_glyph(const ui_font_t* const font, const char c);
-
-#endif /*__PORTAPACK_H__*/
