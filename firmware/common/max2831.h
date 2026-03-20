@@ -47,22 +47,21 @@ typedef enum {
 	MAX2831_RX_HPF_600_KHZ = 3,
 } max2831_rx_hpf_freq_t;
 
-struct max2831_driver_t; // IWYU pragma: keep - fixed in #1704
-typedef struct max2831_driver_t max2831_driver_t;
-
-struct max2831_driver_t {
+typedef struct _max2831_driver_t {
 	spi_bus_t* bus;
 	gpio_t gpio_enable;
 	gpio_t gpio_rxtx;
 	gpio_t gpio_rxhp;
 	gpio_t gpio_ld;
-	void (*target_init)(max2831_driver_t* const drv);
-	void (*set_mode)(max2831_driver_t* const drv, const max2831_mode_t new_mode);
+	void (*target_init)(struct _max2831_driver_t* const drv);
+	void (*set_mode)(
+		struct _max2831_driver_t* const drv,
+		const max2831_mode_t new_mode);
 	max2831_mode_t mode;
 	uint16_t regs[MAX2831_NUM_REGS];
 	uint16_t regs_dirty;
 	uint32_t desired_lpf_bw;
-};
+} max2831_driver_t;
 
 /* Initialize chip. */
 extern void max2831_setup(max2831_driver_t* const drv);
