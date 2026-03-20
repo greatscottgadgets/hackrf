@@ -39,18 +39,15 @@ typedef union {
 	uint8_t id_8b[8];   /* 8*8bits 64bits Unique ID */
 } w25q80bv_unique_id_t;
 
-struct w25q80bv_driver_t; // IWYU pragma: keep - fixed in #1704
-typedef struct w25q80bv_driver_t w25q80bv_driver_t;
-
-struct w25q80bv_driver_t {
+typedef struct _w25q80bv_driver_t {
 	spi_bus_t* bus;
 	gpio_t gpio_hold;
 	gpio_t gpio_wp;
-	void (*target_init)(w25q80bv_driver_t* const drv);
+	void (*target_init)(struct _w25q80bv_driver_t* const drv);
 	size_t page_len;
 	size_t num_pages;
 	size_t num_bytes;
-};
+} w25q80bv_driver_t;
 
 void w25q80bv_setup(w25q80bv_driver_t* const drv);
 void w25q80bv_get_full_status(w25q80bv_driver_t* const drv, uint8_t* data);
