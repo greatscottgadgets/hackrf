@@ -74,11 +74,11 @@ const platform_gpio_t* platform_gpio(void)
 
 	/* RF supply (VAA) control */
 #if defined(HACKRF_ONE)
-		gpio.vaa_disable       = &GPIO2_9;
+		gpio.vaa_disable   = &GPIO2_9;
 #elif defined(PRALINE)
-		gpio.vaa_disable       = &GPIO4_1;
+		gpio.vaa_disable   = &GPIO4_1;
 #elif defined(RAD1O)
-		gpio.vaa_enable        = &GPIO2_9;
+		gpio.vaa_enable    = &GPIO2_9;
 #endif
 
 	/* W25Q80BV Flash */
@@ -131,13 +131,11 @@ const platform_gpio_t* platform_gpio(void)
 	gpio.fpga_cfg_creset   = &GPIO2_11;
 	gpio.fpga_cfg_cdone    = &GPIO5_14;
 	gpio.fpga_cfg_spi_cs   = &GPIO2_10;
-#elif defined(HACKRF_ONE) || defined(RAD1O)
+#endif
+#if defined(HACKRF_ONE) || defined(RAD1O)
 	gpio.cpld_tdo          = &GPIO5_18;
 	gpio.cpld_tms          = &GPIO3_4;
 	gpio.cpld_tdi          = &GPIO3_1;
-#else
-	gpio.cpld_tms          = &GPIO3_1;
-	gpio.cpld_tdi          = &GPIO3_4;
 #endif
 #if defined(HACKRF_ONE) || defined(PRALINE)
 	gpio.cpld_pp_tms       = &GPIO1_1;
@@ -192,9 +190,7 @@ const platform_gpio_t* platform_gpio(void)
 		gpio.h1r9_clkin_en   = &GPIO5_15;
 		gpio.h1r9_clkout_en  = &GPIO0_9;
 		gpio.h1r9_mcu_clk_en = &GPIO0_8;
-	}
 
-	if (detected_platform() == BOARD_ID_HACKRF1_R9) {
 		gpio.h1r9_1v8_enable     = &GPIO2_9;
 		gpio.h1r9_vaa_disable    = &GPIO3_6;
 		gpio.h1r9_trigger_enable = &GPIO5_5;

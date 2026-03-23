@@ -80,11 +80,12 @@ typedef struct {
 	scu_grp_pin_t PINMUX_FPGA_CRESET;
 	scu_grp_pin_t PINMUX_FPGA_CDONE;
 	scu_grp_pin_t PINMUX_FPGA_SPI_CS;
-#endif
+#else
 	scu_grp_pin_t PINMUX_CPLD_TDO;
-	scu_grp_pin_t PINMUX_CPLD_TCK;
 	scu_grp_pin_t PINMUX_CPLD_TMS;
 	scu_grp_pin_t PINMUX_CPLD_TDI;
+#endif
+	scu_grp_pin_t PINMUX_CPLD_TCK;
 
 	/* CPLD SGPIO interface */
 	scu_grp_pin_t PINMUX_SGPIO0;

@@ -848,7 +848,7 @@ void pin_setup(void)
 #endif
 
 	jtag_gpio_cpld.gpio_tck = gpio->cpld_tck;
-#if !defined(PRALINE)
+#if defined(HACKRF_ONE) || defined(RAD1O)
 	jtag_gpio_cpld.gpio_tms = gpio->cpld_tms;
 	jtag_gpio_cpld.gpio_tdi = gpio->cpld_tdi;
 	jtag_gpio_cpld.gpio_tdo = gpio->cpld_tdo;

@@ -77,16 +77,15 @@ const platform_scu_t* platform_scu(void)
 	scu.SSP1_CS   = (P1_20);  /* P1_20 */
 
 	/* CPLD JTAG interface */
+	scu.PINMUX_CPLD_TCK    = (P6_1);  /* GPIO3[ 0] */
 #if defined(PRALINE)
 	scu.PINMUX_FPGA_CRESET = (P5_2);  /* GPIO2[11] on P5_2 */
 	scu.PINMUX_FPGA_CDONE  = (P4_10); /* GPIO5[14] */
 	scu.PINMUX_FPGA_SPI_CS = (P5_1);  /* GPIO2[10] */
-#endif
-	scu.PINMUX_CPLD_TDO    = (P9_5);  /* GPIO5[18] */
-	scu.PINMUX_CPLD_TCK    = (P6_1);  /* GPIO3[ 0] */
-#if defined(RAD1O) || defined(HACKRF_ONE) || defined(PRALINE)
+#elif defined(RAD1O) || defined(HACKRF_ONE)
 	scu.PINMUX_CPLD_TMS    = (P6_5);  /* GPIO3[ 4] */
 	scu.PINMUX_CPLD_TDI    = (P6_2);  /* GPIO3[ 1] */
+	scu.PINMUX_CPLD_TDO    = (P9_5);  /* GPIO5[18] */
 #else
 	scu.PINMUX_CPLD_TMS    = (P6_2);  /* GPIO3[ 1] */
 	scu.PINMUX_CPLD_TDI    = (P6_5);  /* GPIO3[ 4] */
