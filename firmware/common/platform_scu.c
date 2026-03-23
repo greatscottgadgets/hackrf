@@ -34,13 +34,13 @@ const platform_scu_t* platform_scu(void)
 	static platform_scu_t scu;
 
 	/* LED PinMux */
-	scu.PINMUX_LED1     = SCU_PINMUX_LED1;  /* GPIO2[1] on P4_1 */
-	scu.PINMUX_LED2     = SCU_PINMUX_LED2;  /* GPIO2[2] on P4_2 */
-	scu.PINMUX_LED3     = SCU_PINMUX_LED3;  /* GPIO2[8] on P6_12 */
+	scu.PINMUX_LED1 = SCU_PINMUX_LED1;  /* GPIO2[1] on P4_1 */
+	scu.PINMUX_LED2 = SCU_PINMUX_LED2;  /* GPIO2[2] on P4_2 */
+	scu.PINMUX_LED3 = SCU_PINMUX_LED3;  /* GPIO2[8] on P6_12 */
 #if defined(PRALINE)
-	scu.PINMUX_LED4     = (P8_6);           /* GPIO4[6] on P8_6 */
+	scu.PINMUX_LED4 = (P8_6);           /* GPIO4[6] on P8_6 */
 #elif defined(RAD1O)
-	scu.PINMUX_LED4     = (PB_6);           /* GPIO5[26] on PB_6 */
+	scu.PINMUX_LED4 = (PB_6);           /* GPIO5[26] on PB_6 */
 #endif
 
 	/* Power Supply PinMux */
@@ -200,20 +200,20 @@ const platform_scu_t* platform_scu(void)
 
 	/* RFFC5071 GPIO serial interface PinMux */
 #if defined(PRALINE)
-	scu.MIXER_ENX     = (P5_4);  /* GPIO2[13] on P5_4 */
-	scu.MIXER_SCLK    = (P9_5);  /* GPIO5[18] on P9_5 */
-	scu.MIXER_SDATA   = (P9_2);  /* GPIO4[14] on P9_2 */
-	scu.MIXER_RESETX  = (P5_5);  /* GPIO2[14] on P5_5 */
-	scu.MIXER_LD      = (PD_11); /* GPIO6[25] on PD_11 */
+	scu.MIXER_ENX    = (P5_4);  /* GPIO2[13] on P5_4 */
+	scu.MIXER_SCLK   = (P9_5);  /* GPIO5[18] on P9_5 */
+	scu.MIXER_SDATA  = (P9_2);  /* GPIO4[14] on P9_2 */
+	scu.MIXER_RESETX = (P5_5);  /* GPIO2[14] on P5_5 */
+	scu.MIXER_LD     = (PD_11); /* GPIO6[25] on PD_11 */
 
 	scu.MIXER_SCLK_PINCFG  = (SCU_GPIO_FAST | SCU_CONF_FUNCTION4);
 	scu.MIXER_SDATA_PINCFG = (SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
 	scu.MIXER_LD_PINCFG    = (SCU_GPIO_FAST | SCU_CONF_FUNCTION4);
 #elif defined(JAWBREAKER) || defined(HACKRF_ONE)
-	scu.MIXER_ENX     = (P5_4);  /* GPIO2[13] on P5_4 */
-	scu.MIXER_SCLK    = (P2_6);  /* GPIO5[6] on P2_6 */
-	scu.MIXER_SDATA   = (P6_4);  /* GPIO3[3] on P6_4 */
-	scu.MIXER_RESETX  = (P5_5);  /* GPIO2[14] on P5_5 */
+	scu.MIXER_ENX    = (P5_4);  /* GPIO2[13] on P5_4 */
+	scu.MIXER_SCLK   = (P2_6);  /* GPIO5[6] on P2_6 */
+	scu.MIXER_SDATA  = (P6_4);  /* GPIO3[3] on P6_4 */
+	scu.MIXER_RESETX = (P5_5);  /* GPIO2[14] on P5_5 */
 
 	scu.MIXER_SCLK_PINCFG  = (SCU_GPIO_FAST | SCU_CONF_FUNCTION4);
 	scu.MIXER_SDATA_PINCFG = (SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
@@ -312,56 +312,56 @@ const platform_scu_t* platform_scu(void)
 
 	/* HackRF One r9 */
 #if defined(HACKRF_ONE)
-	scu.H1R9_CLKIN_EN    = P6_7;   /* GPIO5[15] on P6_7 */
-	scu.H1R9_CLKOUT_EN   = P1_2;   /* GPIO0[9] on P1_2  = has boot pull-down; */
-	scu.H1R9_MCU_CLK_EN  = P1_1;   /* GPIO0[8] on P1_1  = has boot pull-up; */
-	scu.H1R9_RX          = P2_7;   /* GPIO0[7] on P4_4  = has boot pull-up; */
-	scu.H1R9_NO_ANT_PWR  = P4_4;   /* GPIO2[4] on P4_4 */
-	scu.H1R9_EN1V8       = P5_0;   /* GPIO2[9] on P5_0 */
-	scu.H1R9_NO_VAA_EN   = P6_10;  /* GPIO3[6] on P6_10 */
-	scu.H1R9_TRIGGER_EN  = P2_5;   /* GPIO5[5] on P2_5 */
+	scu.H1R9_CLKIN_EN   = P6_7;   /* GPIO5[15] on P6_7 */
+	scu.H1R9_CLKOUT_EN  = P1_2;   /* GPIO0[9] on P1_2  = has boot pull-down; */
+	scu.H1R9_MCU_CLK_EN = P1_1;   /* GPIO0[8] on P1_1  = has boot pull-up; */
+	scu.H1R9_RX         = P2_7;   /* GPIO0[7] on P4_4  = has boot pull-up; */
+	scu.H1R9_NO_ANT_PWR = P4_4;   /* GPIO2[4] on P4_4 */
+	scu.H1R9_EN1V8      = P5_0;   /* GPIO2[9] on P5_0 */
+	scu.H1R9_NO_VAA_EN  = P6_10;  /* GPIO3[6] on P6_10 */
+	scu.H1R9_TRIGGER_EN = P2_5;   /* GPIO5[5] on P2_5 */
 #endif
 
 	/* Miscellaneous */
-	scu.PINMUX_PP_D0      = (P7_0);  /* GPIO3[8] */
-	scu.PINMUX_PP_D1      = (P7_1);  /* GPIO3[9] */
-	scu.PINMUX_PP_D2      = (P7_2);  /* GPIO3[10] */
-	scu.PINMUX_PP_D3      = (P7_3);  /* GPIO3[11] */
-	scu.PINMUX_PP_D4      = (P7_4);  /* GPIO3[12] */
-	scu.PINMUX_PP_D5      = (P7_5);  /* GPIO3[13] */
-	scu.PINMUX_PP_D6      = (P7_6);  /* GPIO3[14] */
-	scu.PINMUX_PP_D7      = (P7_7);  /* GPIO3[15] */
+	scu.PINMUX_PP_D0 = (P7_0);  /* GPIO3[8] */
+	scu.PINMUX_PP_D1 = (P7_1);  /* GPIO3[9] */
+	scu.PINMUX_PP_D2 = (P7_2);  /* GPIO3[10] */
+	scu.PINMUX_PP_D3 = (P7_3);  /* GPIO3[11] */
+	scu.PINMUX_PP_D4 = (P7_4);  /* GPIO3[12] */
+	scu.PINMUX_PP_D5 = (P7_5);  /* GPIO3[13] */
+	scu.PINMUX_PP_D6 = (P7_6);  /* GPIO3[14] */
+	scu.PINMUX_PP_D7 = (P7_7);  /* GPIO3[15] */
 
 	/* TODO add other Pins */
 
-	scu.PINMUX_GPIO3_8    = (P7_0);  /* GPIO3[8] */
-	scu.PINMUX_GPIO3_9    = (P7_1);  /* GPIO3[9] */
-	scu.PINMUX_GPIO3_10   = (P7_2);  /* GPIO3[10] */
-	scu.PINMUX_GPIO3_11   = (P7_3);  /* GPIO3[11] */
-	scu.PINMUX_GPIO3_12   = (P7_4);  /* GPIO3[12] */
-	scu.PINMUX_GPIO3_13   = (P7_5);  /* GPIO3[13] */
-	scu.PINMUX_GPIO3_14   = (P7_6);  /* GPIO3[14] */
-	scu.PINMUX_GPIO3_15   = (P7_7);  /* GPIO3[15] */
+	scu.PINMUX_GPIO3_8  = (P7_0);  /* GPIO3[8] */
+	scu.PINMUX_GPIO3_9  = (P7_1);  /* GPIO3[9] */
+	scu.PINMUX_GPIO3_10 = (P7_2);  /* GPIO3[10] */
+	scu.PINMUX_GPIO3_11 = (P7_3);  /* GPIO3[11] */
+	scu.PINMUX_GPIO3_12 = (P7_4);  /* GPIO3[12] */
+	scu.PINMUX_GPIO3_13 = (P7_5);  /* GPIO3[13] */
+	scu.PINMUX_GPIO3_14 = (P7_6);  /* GPIO3[14] */
+	scu.PINMUX_GPIO3_15 = (P7_7);  /* GPIO3[15] */
 
-	scu.PINMUX_PP_TDO     = (P1_5);  /* GPIO1[8] */
-	scu.PINMUX_SD_POW     = (P1_5);  /* GPIO1[8] */
-	scu.PINMUX_SD_CMD     = (P1_6);  /* GPIO1[9] */
-	scu.PINMUX_PP_TMS     = (P1_8);  /* GPIO1[1] */
-	scu.PINMUX_SD_VOLT0   = (P1_8);  /* GPIO1[1] */
-	scu.PINMUX_SD_DAT0    = (P1_9);  /* GPIO1[2] */
-	scu.PINMUX_SD_DAT1    = (P1_10); /* GPIO1[3] */
-	scu.PINMUX_SD_DAT2    = (P1_11); /* GPIO1[4] */
-	scu.PINMUX_SD_DAT3    = (P1_12); /* GPIO1[5] */
-	scu.PINMUX_SD_CD      = (P1_13); /* GPIO1[6] */
+	scu.PINMUX_PP_TDO   = (P1_5);  /* GPIO1[8] */
+	scu.PINMUX_SD_POW   = (P1_5);  /* GPIO1[8] */
+	scu.PINMUX_SD_CMD   = (P1_6);  /* GPIO1[9] */
+	scu.PINMUX_PP_TMS   = (P1_8);  /* GPIO1[1] */
+	scu.PINMUX_SD_VOLT0 = (P1_8);  /* GPIO1[1] */
+	scu.PINMUX_SD_DAT0  = (P1_9);  /* GPIO1[2] */
+	scu.PINMUX_SD_DAT1  = (P1_10); /* GPIO1[3] */
+	scu.PINMUX_SD_DAT2  = (P1_11); /* GPIO1[4] */
+	scu.PINMUX_SD_DAT3  = (P1_12); /* GPIO1[5] */
+	scu.PINMUX_SD_CD    = (P1_13); /* GPIO1[6] */
 
 	scu.PINMUX_PP_IO_STBX = (P2_0);  /* GPIO5[0] */
 	scu.PINMUX_PP_ADDR    = (P2_1);  /* GPIO5[1] */
 	scu.PINMUX_U0_TXD     = (P2_0);  /* GPIO5[0] */
 	scu.PINMUX_U0_RXD     = (P2_1);  /* GPIO5[1] */
 
-	scu.PINMUX_ISP        = (P2_7);  /* GPIO0[7] */
+	scu.PINMUX_ISP = (P2_7);  /* GPIO0[7] */
 
-	scu.PINMUX_GP_CLKIN   = (P4_7);
+	scu.PINMUX_GP_CLKIN = (P4_7);
 
 	_platform_scu = &scu;
 
