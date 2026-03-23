@@ -23,17 +23,10 @@
 #include "si5351c.h"
 #include "clkin.h"
 #include "platform_detect.h"
-#include "gpio_lpc.h"
+#include "platform_gpio.h"
+#include "platform_scu.h"
 #include "hackrf_core.h"
 #include "selftest.h"
-#include <libopencm3/lpc43xx/scu.h>
-
-/* HackRF One r9 clock control */
-// clang-format off
-static struct gpio gpio_h1r9_clkin_en   = GPIO(5, 15);
-static struct gpio gpio_h1r9_clkout_en  = GPIO(0,  9);
-static struct gpio gpio_h1r9_mcu_clk_en = GPIO(0,  8);
-// clang-format on
 
 #include <stdbool.h>
 
@@ -204,20 +197,24 @@ void si5351c_configure_clock_control(
 	if (source == PLL_SOURCE_CLKIN) {
 		/* PLLB on CLKIN */
 		pll = SI5351C_CLK_PLL_SRC_B;
+	#if defined(HACKRF_ONE)
 		if (detected_platform() == BOARD_ID_HACKRF1_R9) {
 			/*
 			 * HackRF One r9 always uses PLL A on the XTAL input
 			 * but externally switches that input to CLKIN.
 			 */
 			pll = SI5351C_CLK_PLL_SRC_A;
-			gpio_set(&gpio_h1r9_clkin_en);
+			gpio_set(platform_gpio()->h1r9_clkin_en);
 		}
+	#endif
 	} else {
 		/* PLLA on XTAL */
 		pll = SI5351C_CLK_PLL_SRC_A;
+	#if defined(HACKRF_ONE)
 		if (detected_platform() == BOARD_ID_HACKRF1_R9) {
-			gpio_clear(&gpio_h1r9_clkin_en);
+			gpio_clear(platform_gpio()->h1r9_clkin_en);
 		}
+	#endif
 	}
 #endif
 	if (clkout_enabled) {
@@ -313,11 +310,16 @@ void si5351c_enable_clock_outputs(si5351c_driver_t* const drv)
 	uint8_t data[] = {SI5351C_REG_OUTPUT_EN, value};
 	si5351c_write(drv, data, sizeof(data));
 
-	if ((clkout_enabled) && (detected_platform() == BOARD_ID_HACKRF1_R9)) {
-		gpio_set(&gpio_h1r9_clkout_en);
-	} else {
-		gpio_clear(&gpio_h1r9_clkout_en);
+#if defined(HACKRF_ONE)
+	if (detected_platform() == BOARD_ID_HACKRF1_R9) {
+		const platform_gpio_t* gpio = platform_gpio();
+		if (clkout_enabled) {
+			gpio_set(gpio->h1r9_clkout_en);
+		} else {
+			gpio_clear(gpio->h1r9_clkout_en);
+		}
 	}
+#endif
 }
 
 void si5351c_set_int_mode(
@@ -409,21 +411,26 @@ void si5351c_init(si5351c_driver_t* const drv)
 		selftest.report.pass = false;
 	}
 
+#if defined(HACKRF_ONE)
 	if (detected_platform() == BOARD_ID_HACKRF1_R9) {
+		const platform_gpio_t* gpio = platform_gpio();
+		const platform_scu_t* scu = platform_scu();
+
 		/* CLKIN_EN */
-		scu_pinmux(SCU_H1R9_CLKIN_EN, SCU_GPIO_FAST | SCU_CONF_FUNCTION4);
-		gpio_clear(&gpio_h1r9_clkin_en);
-		gpio_output(&gpio_h1r9_clkin_en);
+		scu_pinmux(scu->H1R9_CLKIN_EN, SCU_GPIO_FAST | SCU_CONF_FUNCTION4);
+		gpio_clear(gpio->h1r9_clkin_en);
+		gpio_output(gpio->h1r9_clkin_en);
 
 		/* CLKOUT_EN */
-		scu_pinmux(SCU_H1R9_CLKOUT_EN, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
-		gpio_clear(&gpio_h1r9_clkout_en);
-		gpio_output(&gpio_h1r9_clkout_en);
+		scu_pinmux(scu->H1R9_CLKOUT_EN, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+		gpio_clear(gpio->h1r9_clkout_en);
+		gpio_output(gpio->h1r9_clkout_en);
 
 		/* MCU_CLK_EN */
-		scu_pinmux(SCU_H1R9_MCU_CLK_EN, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
-		gpio_clear(&gpio_h1r9_mcu_clk_en);
-		gpio_output(&gpio_h1r9_mcu_clk_en);
+		scu_pinmux(scu->H1R9_MCU_CLK_EN, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+		gpio_clear(gpio->h1r9_mcu_clk_en);
+		gpio_output(gpio->h1r9_mcu_clk_en);
 	}
+#endif
 	(void) drv;
 }

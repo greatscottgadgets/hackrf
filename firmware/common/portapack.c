@@ -23,29 +23,15 @@
 #include "portapack.h"
 
 #include "hackrf_core.h"
-#include "gpio_lpc.h"
+#include "platform_gpio.h"
+#include "platform_scu.h"
 #include "delay.h"
-
-#include <libopencm3/lpc43xx/scu.h>
 
 static void portapack_sleep_milliseconds(const uint32_t milliseconds)
 {
 	/* NOTE: Naively assumes 204 MHz instruction cycle clock and five instructions per count */
 	delay(milliseconds * 40800);
 }
-
-// clang-format off
-static struct gpio gpio_io_stbx = GPIO(5,  0); /* P2_0 */
-static struct gpio gpio_addr    = GPIO(5,  1); /* P2_1 */
-__attribute__((unused))
-static struct gpio gpio_lcd_te  = GPIO(5,  3); /* P2_3 */
-__attribute__((unused))
-static struct gpio gpio_unused  = GPIO(5,  7); /* P2_8 */
-static struct gpio gpio_lcd_rdx = GPIO(5,  4); /* P2_4 */
-static struct gpio gpio_lcd_wrx = GPIO(1, 10); /* P2_9 */
-static struct gpio gpio_dir     = GPIO(1, 13); /* P2_13 */
-
-// clang-format on
 
 typedef struct portapack_if_t {
 	gpio_t gpio_dir;
@@ -58,11 +44,6 @@ typedef struct portapack_if_t {
 } portapack_if_t;
 
 static portapack_if_t portapack_if = {
-	.gpio_dir = &gpio_dir,
-	.gpio_lcd_rdx = &gpio_lcd_rdx,
-	.gpio_lcd_wrx = &gpio_lcd_wrx,
-	.gpio_io_stbx = &gpio_io_stbx,
-	.gpio_addr = &gpio_addr,
 	.gpio_port_data = GPIO_LPC_PORT(3),
 	.io_reg = 0x03,
 };
@@ -191,6 +172,15 @@ static void portapack_io_write(const bool address, const uint_fast16_t value)
 
 static void portapack_if_init(void)
 {
+	const platform_gpio_t* gpio = platform_gpio();
+	const platform_scu_t* scu = platform_scu();
+
+	portapack_if.gpio_dir = gpio->dir;
+	portapack_if.gpio_lcd_rdx = gpio->lcd_rdx;
+	portapack_if.gpio_lcd_wrx = gpio->lcd_wrx;
+	portapack_if.gpio_io_stbx = gpio->io_stbx;
+	portapack_if.gpio_addr = gpio->addr;
+
 	portapack_data_mask_set();
 	portapack_data_write_high(0);
 
@@ -208,22 +198,22 @@ static void portapack_if_init(void)
 	/* gpio_input(portapack_if.gpio_rot_a); */
 	/* gpio_input(portapack_if.gpio_rot_b); */
 
-	scu_pinmux(SCU_PINMUX_PP_D0, SCU_CONF_FUNCTION0 | SCU_GPIO_PDN);
-	scu_pinmux(SCU_PINMUX_PP_D1, SCU_CONF_FUNCTION0 | SCU_GPIO_PDN);
-	scu_pinmux(SCU_PINMUX_PP_D2, SCU_CONF_FUNCTION0 | SCU_GPIO_PDN);
-	scu_pinmux(SCU_PINMUX_PP_D3, SCU_CONF_FUNCTION0 | SCU_GPIO_PDN);
-	scu_pinmux(SCU_PINMUX_PP_D4, SCU_CONF_FUNCTION0 | SCU_GPIO_PDN);
-	scu_pinmux(SCU_PINMUX_PP_D5, SCU_CONF_FUNCTION0 | SCU_GPIO_PDN);
-	scu_pinmux(SCU_PINMUX_PP_D6, SCU_CONF_FUNCTION0 | SCU_GPIO_PDN);
-	scu_pinmux(SCU_PINMUX_PP_D7, SCU_CONF_FUNCTION0 | SCU_GPIO_PDN);
+	scu_pinmux(scu->PINMUX_PP_D0, SCU_CONF_FUNCTION0 | SCU_GPIO_PDN);
+	scu_pinmux(scu->PINMUX_PP_D1, SCU_CONF_FUNCTION0 | SCU_GPIO_PDN);
+	scu_pinmux(scu->PINMUX_PP_D2, SCU_CONF_FUNCTION0 | SCU_GPIO_PDN);
+	scu_pinmux(scu->PINMUX_PP_D3, SCU_CONF_FUNCTION0 | SCU_GPIO_PDN);
+	scu_pinmux(scu->PINMUX_PP_D4, SCU_CONF_FUNCTION0 | SCU_GPIO_PDN);
+	scu_pinmux(scu->PINMUX_PP_D5, SCU_CONF_FUNCTION0 | SCU_GPIO_PDN);
+	scu_pinmux(scu->PINMUX_PP_D6, SCU_CONF_FUNCTION0 | SCU_GPIO_PDN);
+	scu_pinmux(scu->PINMUX_PP_D7, SCU_CONF_FUNCTION0 | SCU_GPIO_PDN);
 
-	scu_pinmux(SCU_PINMUX_PP_DIR, SCU_CONF_FUNCTION0 | SCU_GPIO_NOPULL);
-	scu_pinmux(SCU_PINMUX_PP_LCD_RDX, SCU_CONF_FUNCTION4 | SCU_GPIO_NOPULL);
-	scu_pinmux(SCU_PINMUX_PP_LCD_WRX, SCU_CONF_FUNCTION0 | SCU_GPIO_NOPULL);
-	scu_pinmux(SCU_PINMUX_PP_IO_STBX, SCU_CONF_FUNCTION4 | SCU_GPIO_NOPULL);
-	scu_pinmux(SCU_PINMUX_PP_ADDR, SCU_CONF_FUNCTION4 | SCU_GPIO_NOPULL);
-	/* scu_pinmux(SCU_PINMUX_PP_LCD_TE,   SCU_CONF_FUNCTION4 | SCU_GPIO_NOPULL); */
-	/* scu_pinmux(SCU_PINMUX_PP_UNUSED,   SCU_CONF_FUNCTION4 | SCU_GPIO_NOPULL); */
+	scu_pinmux(scu->PINMUX_PP_DIR, SCU_CONF_FUNCTION0 | SCU_GPIO_NOPULL);
+	scu_pinmux(scu->PINMUX_PP_LCD_RDX, SCU_CONF_FUNCTION4 | SCU_GPIO_NOPULL);
+	scu_pinmux(scu->PINMUX_PP_LCD_WRX, SCU_CONF_FUNCTION0 | SCU_GPIO_NOPULL);
+	scu_pinmux(scu->PINMUX_PP_IO_STBX, SCU_CONF_FUNCTION4 | SCU_GPIO_NOPULL);
+	scu_pinmux(scu->PINMUX_PP_ADDR, SCU_CONF_FUNCTION4 | SCU_GPIO_NOPULL);
+	/* scu_pinmux(scu->PINMUX_PP_LCD_TE,   SCU_CONF_FUNCTION4 | SCU_GPIO_NOPULL); */
+	/* scu_pinmux(scu->PINMUX_PP_UNUSED,   SCU_CONF_FUNCTION4 | SCU_GPIO_NOPULL); */
 }
 
 static void portapack_lcd_reset_state(const bool active)
