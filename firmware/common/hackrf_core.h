@@ -28,7 +28,9 @@ extern "C" {
 #endif
 
 #include <stdbool.h>
-#include <stdint.h>
+#ifdef IS_PRALINE
+	#include <stdint.h>
+#endif
 
 #include "cpld_jtag.h"
 #include "i2c_bus.h"
@@ -77,21 +79,7 @@ void ssp1_set_mode_ice40(void);
 void pin_shutdown(void);
 void pin_setup(void);
 
-typedef enum {
-	LED1 = 0,
-	LED2 = 1,
-	LED3 = 2,
-	LED4 = 3,
-} led_t;
-
-void led_on(const led_t led);
-void led_off(const led_t led);
-void led_toggle(const led_t led);
-void set_leds(const uint8_t state);
-
 void trigger_enable(const bool enable);
-
-void halt_and_flash(const uint32_t duration);
 
 #ifdef IS_PRALINE
 typedef enum {

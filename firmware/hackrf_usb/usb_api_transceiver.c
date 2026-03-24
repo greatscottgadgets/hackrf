@@ -29,6 +29,7 @@
 #include <clock_gen.h>
 #include <fixed_point.h>
 #include <hackrf_core.h>
+#include <leds.h>
 #include <m0_state.h>
 #include <operacake_sctimer.h>
 #include <platform_detect.h>
