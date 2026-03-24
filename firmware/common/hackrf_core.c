@@ -34,6 +34,7 @@
 #include "platform_detect.h"
 #include "platform_gpio.h"
 #include "platform_scu.h"
+#include "power.h"
 #include "spi_bus.h"
 #include "w25q80bv_target.h"
 #if defined(PRALINE)
@@ -447,108 +448,6 @@ void pin_setup(void)
 
 	sgpio_configure_pin_functions(&sgpio_config);
 }
-
-#ifdef PRALINE
-void enable_1v2_power(void)
-{
-	gpio_set(platform_gpio()->gpio_1v2_enable);
-}
-
-void disable_1v2_power(void)
-{
-	gpio_clear(platform_gpio()->gpio_1v2_enable);
-}
-
-void enable_3v3aux_power(void)
-{
-	gpio_clear(platform_gpio()->gpio_3v3aux_enable_n);
-}
-
-void disable_3v3aux_power(void)
-{
-	gpio_set(platform_gpio()->gpio_3v3aux_enable_n);
-}
-#else
-void enable_1v8_power(void)
-{
-	if (detected_platform() == BOARD_ID_HACKRF1_R9) {
-	#ifdef HACKRF_ONE
-		gpio_set(platform_gpio()->h1r9_1v8_enable);
-	#endif
-	} else {
-		gpio_set(platform_gpio()->gpio_1v8_enable);
-	}
-}
-
-void disable_1v8_power(void)
-{
-	if (detected_platform() == BOARD_ID_HACKRF1_R9) {
-	#ifdef HACKRF_ONE
-		gpio_clear(platform_gpio()->h1r9_1v8_enable);
-	#endif
-	} else {
-		gpio_clear(platform_gpio()->gpio_1v8_enable);
-	}
-}
-#endif
-
-#ifdef HACKRF_ONE
-void enable_rf_power(void)
-{
-	const platform_gpio_t* gpio = platform_gpio();
-	uint32_t i;
-
-	/* many short pulses to avoid one big voltage glitch */
-	for (i = 0; i < 1000; i++) {
-		if (detected_platform() == BOARD_ID_HACKRF1_R9) {
-			gpio_set(gpio->h1r9_vaa_disable);
-			gpio_clear(gpio->h1r9_vaa_disable);
-		} else {
-			gpio_set(gpio->vaa_disable);
-			gpio_clear(gpio->vaa_disable);
-		}
-	}
-}
-
-void disable_rf_power(void)
-{
-	if (detected_platform() == BOARD_ID_HACKRF1_R9) {
-		gpio_set(platform_gpio()->h1r9_vaa_disable);
-	} else {
-		gpio_set(platform_gpio()->vaa_disable);
-	}
-}
-#endif
-
-#ifdef PRALINE
-void enable_rf_power(void)
-{
-	gpio_clear(platform_gpio()->vaa_disable);
-
-	/* Let the voltage stabilize */
-	delay(1000000);
-}
-
-void disable_rf_power(void)
-{
-	gpio_set(platform_gpio()->vaa_disable);
-}
-#endif
-
-#ifdef RAD1O
-void enable_rf_power(void)
-{
-	gpio_set(platform_gpio()->vaa_enable);
-
-	/* Let the voltage stabilize */
-	delay(1000000);
-}
-
-void disable_rf_power(void)
-{
-	gpio_clear(platform_gpio()->vaa_enable);
-}
-#endif
 
 #ifdef PRALINE
 void led_on(const led_t led)
