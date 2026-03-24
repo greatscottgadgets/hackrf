@@ -37,6 +37,7 @@
 #include <hackrf_ui.h>
 #include <operacake.h>
 #include <platform_detect.h>
+#include <power.h>
 #include <radio.h>
 #include <rf_path.h>
 #include <rom_iap.h>
