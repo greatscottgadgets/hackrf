@@ -36,6 +36,7 @@
 #include <delay.h>
 #include <hackrf_core.h>
 #include <hackrf_ui.h>
+#include <leds.h>
 #include <operacake.h>
 #include <platform_detect.h>
 #include <power.h>
