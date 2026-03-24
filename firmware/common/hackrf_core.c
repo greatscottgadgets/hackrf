@@ -528,8 +528,6 @@ void clock_gen_init(void)
 	si5351c_power_down_all_clocks(&clock_gen);
 	si5351c_set_crystal_configuration(&clock_gen);
 	si5351c_enable_xo_and_ms_fanout(&clock_gen);
-	si5351c_configure_pll_sources(&clock_gen);
-	si5351c_configure_pll_multisynth(&clock_gen);
 
 	/*
 	 * Clocks on HackRF One r9:
@@ -592,6 +590,7 @@ void clock_gen_init(void)
 	/* Set to 10 MHz, the common rate between Jawbreaker and HackRF One. */
 	sample_rate_set(10ULL * FP_ONE_MHZ, true);
 
+	si5351c_configure_clock_control(&clock_gen);
 	si5351c_set_clock_source(&clock_gen, PLL_SOURCE_XTAL);
 	// soft reset
 	si5351c_reset_pll(&clock_gen);

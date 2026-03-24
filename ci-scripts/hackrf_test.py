@@ -595,8 +595,7 @@ class HackRF:
                 log(receive.stdout + receive.stderr)
                 fail(220 + self.unit_number)
 
-            # confirm that PLL locked to new source
-            expected_value = "0x01" if (enable and self.partner.revision != "r9") else "0x51"
+            # confirm that PLL A locked to new source
             timeout = time.time() + 1
             while time.time() < timeout:
                 debug = subprocess.run([self.partner.bin_dir + "hackrf_debug", "-d",
@@ -606,9 +605,17 @@ class HackRF:
                 if debug.returncode != 0:
                     log(debug.stderr)
                     fail(230 + self.unit_number)
-                if expected_value in debug.stdout:
+                output = str(debug.stdout).split()
+                try:
+                    val = int(output[3], 0)
+                except:
+                    log(debug.stderr)
+                    log(traceback.format_exc())
+                    fail(230 + self.unit_number)
+                # Check LOL_A
+                if not (val >> 5) & 1:
                     break
-            if expected_value not in debug.stdout:
+            if (val >> 5) & 1:
                 fail(232 + self.unit_number)
             time.sleep(0.1)
         else:

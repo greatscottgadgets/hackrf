@@ -117,26 +117,35 @@ void si5351c_enable_xo_and_ms_fanout(si5351c_driver_t* const drv)
 /*
  * Register 15: PLL Input Source
  * CLKIN_DIV=0 (Divide by 1)
- * PLLA_SRC=0 (XTAL)
- * PLLB_SRC=1 (CLKIN)
+ * Set both PLLA_SRC and PLLB_SRC
  */
-void si5351c_configure_pll_sources(si5351c_driver_t* const drv)
+void si5351c_configure_pll_sources(
+	si5351c_driver_t* const drv,
+	const enum pll_sources source)
 {
-	uint8_t data[] = {15, 0x08};
+	uint8_t data[] = {15, 0x00};
 
+	if (source == PLL_SOURCE_CLKIN) {
+		data[1] = 0x0c;
+	}
 	si5351c_write(drv, data, sizeof(data));
 }
 
 /* MultiSynth NA (PLLA) and NB (PLLB) */
-void si5351c_configure_pll_multisynth(si5351c_driver_t* const drv)
+void si5351c_configure_pll_multisynth(
+	si5351c_driver_t* const drv,
+	const enum pll_sources source)
 {
-	/*PLLA: 25MHz XTAL * (0x0e00+512)/128 = 800mhz -> int mode */
+	/* XTAL: 25 MHz * (0x0e00 + 512) / 128 = 800 MHz, integer mode */
 	uint8_t data[] = {26, 0x00, 0x01, 0x00, 0x0E, 0x00, 0x00, 0x00, 0x00};
+	if (source == PLL_SOURCE_CLKIN) {
+		/* CLKIN: 10 MHz * (0x2600 + 512) / 128 = 800 MHz, integer mode */
+		data[4] = 0x26;
+	}
 	si5351c_write(drv, data, sizeof(data));
 
-	/*PLLB: 10MHz CLKIN * (0x2600+512)/128 = 800mhz */
+	/* Apply same configuration to PLL B. */
 	data[0] = 34;
-	data[4] = 0x26;
 	si5351c_write(drv, data, sizeof(data));
 }
 
@@ -184,43 +193,11 @@ void si5351c_configure_multisynth(
 	si5351c_write(drv, data, sizeof(data));
 }
 
-void si5351c_configure_clock_control(
-	si5351c_driver_t* const drv,
-	const enum pll_sources source)
+void si5351c_configure_clock_control(si5351c_driver_t* const drv)
 {
-	uint8_t pll;
+	const uint8_t pll = SI5351C_CLK_PLL_SRC_A;
 	uint8_t clkout_ctrl;
 
-#ifdef RAD1O
-	(void) source;
-	/* PLLA on XTAL */
-	pll = SI5351C_CLK_PLL_SRC_A;
-#endif
-
-#if (defined JAWBREAKER || defined HACKRF_ONE || defined PRALINE)
-	if (source == PLL_SOURCE_CLKIN) {
-		/* PLLB on CLKIN */
-		pll = SI5351C_CLK_PLL_SRC_B;
-	#if defined(HACKRF_ONE)
-		if (detected_platform() == BOARD_ID_HACKRF1_R9) {
-			/*
-			 * HackRF One r9 always uses PLL A on the XTAL input
-			 * but externally switches that input to CLKIN.
-			 */
-			pll = SI5351C_CLK_PLL_SRC_A;
-			gpio_set(platform_gpio()->h1r9_clkin_en);
-		}
-	#endif
-	} else {
-		/* PLLA on XTAL */
-		pll = SI5351C_CLK_PLL_SRC_A;
-	#if defined(HACKRF_ONE)
-		if (detected_platform() == BOARD_ID_HACKRF1_R9) {
-			gpio_clear(platform_gpio()->h1r9_clkin_en);
-		}
-	#endif
-	}
-#endif
 	if (clkout_enabled) {
 		clkout_ctrl = SI5351C_CLK_INT_MODE | SI5351C_CLK_PLL_SRC(pll) |
 			SI5351C_CLK_SRC(SI5351C_CLK_SRC_MULTISYNTH_SELF) |
@@ -352,18 +329,26 @@ void si5351c_set_clock_source(si5351c_driver_t* const drv, const enum pll_source
 	if (source == active_clock_source) {
 		return;
 	}
-	si5351c_configure_clock_control(drv, source);
-	active_clock_source = source;
+	si5351c_disable_all_outputs(drv);
 	if (detected_platform() == BOARD_ID_HACKRF1_R9) {
-		/* 25MHz XTAL * (0x0e00+512)/128 = 800mhz -> int mode */
-		uint8_t pll_data[] = {26, 0x00, 0x01, 0x00, 0x0E, 0x00, 0x00, 0x00, 0x00};
+#if defined(HACKRF_ONE)
+		/*
+		 * HackRF One r9 always uses PLL A on the XTAL input
+		 * but externally switches that input to CLKIN.
+		 */
+		si5351c_configure_pll_sources(drv, PLL_SOURCE_XTAL);
 		if (source == PLL_SOURCE_CLKIN) {
-			/* 10MHz CLKIN * (0x2600+512)/128 = 800mhz */
-			pll_data[4] = 0x26;
+			gpio_set(platform_gpio()->h1r9_clkin_en);
+		} else {
+			gpio_clear(platform_gpio()->h1r9_clkin_en);
 		}
-		si5351c_write(drv, pll_data, sizeof(pll_data));
-		si5351c_reset_pll(drv);
+#endif
+	} else {
+		si5351c_configure_pll_sources(drv, source);
 	}
+	si5351c_configure_pll_multisynth(drv, source);
+	active_clock_source = source;
+	si5351c_reset_pll(drv);
 }
 
 bool si5351c_clkin_signal_valid(si5351c_driver_t* const drv)
@@ -389,7 +374,7 @@ void si5351c_clkout_enable(si5351c_driver_t* const drv, uint8_t enable)
 	/* Configure clock to 10MHz */
 	si5351c_configure_multisynth(drv, clkout, 80 * 128 - 512, 0, 1, 0);
 
-	si5351c_configure_clock_control(drv, active_clock_source);
+	si5351c_configure_clock_control(drv);
 	si5351c_enable_clock_outputs(drv);
 }
 
