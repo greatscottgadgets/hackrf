@@ -1351,7 +1351,7 @@ def main():
             eut.clkout_connected = True
             tester.clkout_connected = True
 
-        if count > 0 and not args.fw_update:
+        if count > 0 and not args.fwupdate:
             eut.activate_leds(False)
 
         eut.test_serial()
