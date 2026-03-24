@@ -29,6 +29,7 @@
 #include "gpio.h"
 #include "hackrf_core.h"
 #include "i2c_lpc.h"
+#include "leds.h"
 #include "max283x.h"
 #include "max5864_target.h"
 #include "platform_detect.h"
@@ -449,48 +450,6 @@ void pin_setup(void)
 	sgpio_configure_pin_functions(&sgpio_config);
 }
 
-#ifdef PRALINE
-void led_on(const led_t led)
-{
-	gpio_clear(platform_gpio()->led[led]);
-}
-
-void led_off(const led_t led)
-{
-	gpio_set(platform_gpio()->led[led]);
-}
-#else
-void led_on(const led_t led)
-{
-	gpio_set(platform_gpio()->led[led]);
-}
-
-void led_off(const led_t led)
-{
-	gpio_clear(platform_gpio()->led[led]);
-}
-#endif
-
-void led_toggle(const led_t led)
-{
-	gpio_toggle(platform_gpio()->led[led]);
-}
-
-void set_leds(const uint8_t state)
-{
-	int num_leds = 3;
-#if (defined RAD1O || defined PRALINE)
-	num_leds = 4;
-#endif
-	for (int i = 0; i < num_leds; i++) {
-#ifdef PRALINE
-		gpio_write(platform_gpio()->led[i], ((state >> i) & 1) == 0);
-#else
-		gpio_write(platform_gpio()->led[i], ((state >> i) & 1) == 1);
-#endif
-	}
-}
-
 void trigger_enable(const bool enable)
 {
 #ifndef PRALINE
@@ -498,21 +457,6 @@ void trigger_enable(const bool enable)
 #else
 	fpga_set_trigger_enable(&fpga, enable);
 #endif
-}
-
-void halt_and_flash(const uint32_t duration)
-{
-	/* blink LED1, LED2, and LED3 */
-	while (1) {
-		led_on(LED1);
-		led_on(LED2);
-		led_on(LED3);
-		delay(duration);
-		led_off(LED1);
-		led_off(LED2);
-		led_off(LED3);
-		delay(duration);
-	}
 }
 
 #ifdef PRALINE
