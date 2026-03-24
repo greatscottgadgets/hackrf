@@ -77,20 +77,6 @@ void ssp1_set_mode_ice40(void);
 void pin_shutdown(void);
 void pin_setup(void);
 
-#ifdef IS_PRALINE
-void enable_1v2_power(void);
-void disable_1v2_power(void);
-void enable_3v3aux_power(void);
-void disable_3v3aux_power(void);
-#endif
-void enable_1v8_power(void);
-void disable_1v8_power(void);
-
-#if defined(IS_RAD1O) || defined(IS_HACKRF_ONE) || defined(IS_PRALINE)
-void enable_rf_power(void);
-void disable_rf_power(void);
-#endif
-
 typedef enum {
 	LED1 = 0,
 	LED2 = 1,
