@@ -82,13 +82,7 @@ void pin_setup(void);
 void trigger_enable(const bool enable);
 
 #ifdef IS_PRALINE
-typedef enum {
-	CLKIN_SIGNAL_P1 = 0,
-	CLKIN_SIGNAL_P22 = 1,
-} clkin_signal_t;
-
 void narrowband_filter_set(const uint8_t value);
-void clkin_ctrl_set(const clkin_signal_t value);
 #endif
 
 #ifdef __cplusplus

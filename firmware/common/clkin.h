@@ -23,5 +23,16 @@
 
 #include <stdint.h>
 
+#include "platform_detect.h" // IWYU pragma: keep
+
 void clkin_detect_init(void);
 uint32_t clkin_frequency(void);
+
+#ifdef IS_PRALINE
+typedef enum {
+	CLKIN_SIGNAL_P1 = 0,
+	CLKIN_SIGNAL_P22 = 1,
+} clkin_signal_t;
+
+void clkin_ctrl_set(const clkin_signal_t value);
+#endif

@@ -23,6 +23,7 @@
 
 #include "usb_api_praline.h"
 
+#include <clkin.h>
 #include <clock_gen.h>
 #include <hackrf_core.h>
 #include <platform_detect.h>

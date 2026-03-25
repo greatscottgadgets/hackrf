@@ -40,6 +40,7 @@
 #include "spi_bus.h"
 #include "w25q80bv_target.h"
 #ifdef IS_PRALINE
+	#include "clkin.h"
 	#include "ice40_spi.h"
 #endif
 
@@ -527,11 +528,6 @@ void trigger_enable(const bool enable)
 }
 
 #ifdef IS_PRALINE
-void clkin_ctrl_set(const clkin_signal_t signal)
-{
-	gpio_write(platform_gpio()->clkin_ctrl, signal & 1);
-}
-
 void narrowband_filter_set(const uint8_t value)
 {
 	gpio_write(platform_gpio()->aa_en, value & 1);

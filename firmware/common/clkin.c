@@ -30,6 +30,10 @@
 #include <libopencm3/lpc43xx/creg.h>
 
 #include "gpdma.h"
+#ifdef IS_PRALINE
+	#include "gpio.h"
+	#include "platform_gpio.h"
+#endif
 
 #define CLOCK_CYCLES_1_MS     (204000)
 #define MEASUREMENT_WINDOW_MS (50)
@@ -114,4 +118,11 @@ void clkin_detect_init(void)
 uint32_t clkin_frequency(void)
 {
 	return TIMER2_CR3 * (1000 / MEASUREMENT_WINDOW_MS);
-};
+}
+
+#ifdef IS_PRALINE
+void clkin_ctrl_set(const clkin_signal_t signal)
+{
+	gpio_write(platform_gpio()->clkin_ctrl, signal & 1);
+}
+#endif
