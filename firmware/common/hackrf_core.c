@@ -460,11 +460,6 @@ void trigger_enable(const bool enable)
 }
 
 #ifdef PRALINE
-void clkin_ctrl_set(const clkin_signal_t signal)
-{
-	gpio_write(platform_gpio()->clkin_ctrl, signal & 1);
-}
-
 void narrowband_filter_set(const uint8_t value)
 {
 	gpio_write(platform_gpio()->aa_en, value & 1);
