@@ -4,7 +4,7 @@
 # Copyright (c) 2025 Great Scott Gadgets <info@greatscottgadgets.com>
 # SPDX-License-Identifier: BSD-3-Clause
 
-from amaranth               import Elaboratable, Module, Cat, DomainRenamer
+from amaranth               import Elaboratable, Module, Cat, DomainRenamer, Signal
 from amaranth.lib.wiring    import connect
 
 from amaranth_future        import fixed
@@ -25,22 +25,24 @@ class Top(Elaboratable):
         m = Module()
 
         m.submodules.clkgen = ClockDomainGenerator()
+        adc_clk = "adclk"
+        dac_clk = "daclk"
 
         # Submodules.
-        m.submodules.adcdac_intf = adcdac_intf = MAX586xInterface(bb_domain="gck1")
+        m.submodules.adcdac_intf = adcdac_intf = MAX586xInterface(adc_domain=adc_clk, dac_domain=dac_clk)
         m.submodules.mcu_intf    = mcu_intf    = SGPIOInterface(
             sample_width=24,
             rx_assignments=[
-                lambda w: Cat(w[8:12], w[11].replicate(4)),
                 lambda w: w[0:8],
-                lambda w: Cat(w[20:24], w[23].replicate(4)),
+                lambda w: Cat(w[8:12], w[11].replicate(4)),
                 lambda w: w[12:20],
+                lambda w: Cat(w[20:24], w[23].replicate(4)),
             ],
             tx_assignments=[
-                lambda w, v: w[8:12].eq(v),
                 lambda w, v: w[0:8].eq(v),
-                lambda w, v: w[20:24].eq(v),
+                lambda w, v: w[8:12].eq(v),
                 lambda w, v: w[12:20].eq(v),
+                lambda w, v: w[20:24].eq(v),
             ],
             domain="sync"
         )
@@ -56,19 +58,19 @@ class Top(Elaboratable):
 
         rx_chain = {
             # DC block and quarter shift.
-            "dc_block":      DCBlock(width=8, num_channels=2, domain="gck1"),
-            "quarter_shift": DomainRenamer("gck1")(QuarterShift()),
+            "dc_block":      DCBlock(width=8, num_channels=2, domain=adc_clk),
+            "quarter_shift": DomainRenamer(adc_clk)(QuarterShift()),
 
             # CIC mandatory first stage with compensator.
-            "cic":          CICDecimator(2, 4, (4,8,16,32), width_in=8, width_out=12, num_channels=2, always_ready=True, domain="gck1"),
-            "cic_comp":     DomainRenamer("gck1")(FIRFilter([-0.125, 0, 0.75, 0, -0.125], shape=fixed.SQ(11), shape_out=fixed.SQ(11), always_ready=True, num_channels=2)),
+            "cic":          CICDecimator(2, 4, (4,8,16,32), width_in=8, width_out=12, num_channels=2, always_ready=True, domain=adc_clk),
+            "cic_comp":     DomainRenamer(adc_clk)(FIRFilter([-0.125, 0, 0.75, 0, -0.125], shape=fixed.SQ(11), shape_out=fixed.SQ(11), always_ready=True, num_channels=2)),
 
             # Final half-band decimator stages.
-            "hbfir1":       HalfBandDecimatorMAC16(taps_hb1, data_shape=fixed.SQ(11), overclock_rate=4, always_ready=True, domain="gck1"),
-            "hbfir2":       HalfBandDecimatorMAC16(taps_hb2, data_shape=fixed.SQ(11), overclock_rate=8, always_ready=True, domain="gck1"),
+            "hbfir1":       HalfBandDecimatorMAC16(taps_hb1, data_shape=fixed.SQ(11), overclock_rate=4, always_ready=True, domain=adc_clk),
+            "hbfir2":       HalfBandDecimatorMAC16(taps_hb2, data_shape=fixed.SQ(11), overclock_rate=8, always_ready=True, domain=adc_clk),
 
             # Clock domain conversion.
-            "clkconv":      ClockConverter(IQSample(12), 8, "gck1", "sync", always_ready=True),
+            "clkconv":      ClockConverter(IQSample(12), 8, adc_clk, "sync", always_ready=True),
         }
         for k,v in rx_chain.items():
             m.submodules[f"rx_{k}"] = v
@@ -85,9 +87,11 @@ class Top(Elaboratable):
         m.submodules.spi_regs = spi_regs = SPIRegisterInterface(spi_port)
 
         # Add control registers.
-        ctrl     = spi_regs.add_register(0x01, init=0)
-        rx_decim = spi_regs.add_register(0x02, init=0, size=3)
-        #tx_intrp = spi_regs.add_register(0x04, init=0, size=3)
+        ctrl         = spi_regs.add_register(0x01, init=0)
+        rx_decim     = Signal(3, init=2)
+        rx_decim_new = Signal(3)
+        rx_decim_stb = Signal()
+        spi_regs.add_sfr(0x02, read=rx_decim, write_signal=rx_decim_new, write_strobe=rx_decim_stb)
 
         m.d.comb += [
             # Trigger enable.
@@ -99,8 +103,13 @@ class Top(Elaboratable):
             rx_chain["quarter_shift"].up        .eq(ctrl[2]),
 
             # RX decimation rate.
-            rx_chain["cic"].factor              .eq(rx_decim+2),
+            rx_chain["cic"].factor              .eq(rx_decim),
         ]
+        with m.If(rx_decim_stb):
+            with m.If(rx_decim_new < 2):
+                m.d.sync += rx_decim.eq(2)
+            with m.Else():
+                m.d.sync += rx_decim.eq(rx_decim_new)
 
         return m
 

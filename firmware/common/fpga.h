@@ -25,8 +25,8 @@
 #include <stdbool.h>
 #include "ice40_spi.h"
 
-/* Up to 6 registers, each containing up to 8 bits of data */
-#define FPGA_NUM_REGS            6
+/* Up to 7 registers, each containing up to 8 bits of data */
+#define FPGA_NUM_REGS            7
 #define FPGA_DATA_REGS_MAX_VALUE 255
 
 typedef enum {

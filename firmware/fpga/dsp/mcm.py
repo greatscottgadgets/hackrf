@@ -24,7 +24,7 @@ class ShiftAddMCM(wiring.Component):
             "output": Out(stream.Signature(
                 data.ArrayLayout(
                     data.StructLayout({
-                        f"{i}": signed(width + bits_for(term)) for i, term in enumerate(terms)
+                        f"{i}": signed(width + bits_for(abs(term))) for i, term in enumerate(terms)
                     }), num_channels), always_ready=always_ready)),
         })
 
@@ -71,7 +71,7 @@ class ShiftAddMCM(wiring.Component):
                         result += shifted_n
 
                 # A single register can feed multiple outputs.
-                result_q = Signal(signed(self.width+bits_for(term-1)), name=f"mul_{term}_{c}")
+                result_q = Signal(signed(self.width+bits_for(abs(term))), name=f"mul_{term}_{c}")
                 with m.If(self.input.ready & self.input.valid):
                     m.d.sync += result_q.eq(result)
 

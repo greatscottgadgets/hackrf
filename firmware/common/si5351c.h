@@ -75,8 +75,12 @@ void si5351c_disable_oeb_pin_control(si5351c_driver_t* const drv);
 void si5351c_power_down_all_clocks(si5351c_driver_t* const drv);
 void si5351c_set_crystal_configuration(si5351c_driver_t* const drv);
 void si5351c_enable_xo_and_ms_fanout(si5351c_driver_t* const drv);
-void si5351c_configure_pll_sources(si5351c_driver_t* const drv);
-void si5351c_configure_pll_multisynth(si5351c_driver_t* const drv);
+void si5351c_configure_pll_sources(
+	si5351c_driver_t* const drv,
+	const enum pll_sources source);
+void si5351c_configure_pll_multisynth(
+	si5351c_driver_t* const drv,
+	const enum pll_sources source);
 void si5351c_reset_pll(si5351c_driver_t* const drv);
 void si5351c_configure_multisynth(
 	si5351c_driver_t* const drv,
@@ -85,9 +89,7 @@ void si5351c_configure_multisynth(
 	const uint32_t p2,
 	const uint32_t p3,
 	const uint_fast8_t r_div);
-void si5351c_configure_clock_control(
-	si5351c_driver_t* const drv,
-	const enum pll_sources source);
+void si5351c_configure_clock_control(si5351c_driver_t* const drv);
 void si5351c_enable_clock_outputs(si5351c_driver_t* const drv);
 void si5351c_set_int_mode(
 	si5351c_driver_t* const drv,
@@ -104,6 +106,10 @@ void si5351c_write(
 	const size_t data_count);
 void si5351c_clkout_enable(si5351c_driver_t* const drv, uint8_t enable);
 void si5351c_init(si5351c_driver_t* const drv);
+void si5351c_set_phase(
+	si5351c_driver_t* const drv,
+	const uint8_t ms_number,
+	const uint8_t offset);
 
 #ifdef __cplusplus
 }
