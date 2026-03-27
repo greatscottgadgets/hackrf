@@ -22,6 +22,8 @@
 #include "hackrf_core.h"
 #include "platform_detect.h"
 #include "delay.h"
+#include "power.h"
+#include "leds.h"
 
 int main(void)
 {

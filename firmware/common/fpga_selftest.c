@@ -23,6 +23,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include "clock_gen.h"
 #include "delay.h"
 #include "fixed_point.h"
 #include "fpga.h"

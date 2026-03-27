@@ -26,6 +26,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include "clock_gen.h"
 #include "portapack.h"
 #include "radio.h"
 #include "rf_path.h"
@@ -393,7 +394,7 @@ static ui_point_t portapack_lcd_draw_string(ui_point_t point, const char* s)
 	return point;
 }
 
-typedef struct draw_list_t {
+typedef struct {
 	const ui_bitmap_t* bitmap;
 	const ui_point_t point;
 } draw_list_t;

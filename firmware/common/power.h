@@ -1,7 +1,5 @@
 /*
- * Copyright 2016-2022 Great Scott Gadgets <info@greatscottgadgets.com>
- * Copyright 2016 Dominic Spill <dominicgs@gmail.com>
- * Copyright 2018 Schuyler St. Leger
+ * Copyright 2026 Great Scott Gadgets <info@greatscottgadgets.com>
  *
  * This file is part of HackRF.
  *
@@ -23,16 +21,17 @@
 
 #pragma once
 
-#include <stdbool.h>
-#include <stdint.h>
+#if defined(PRALINE)
+void enable_1v2_power(void);
+void disable_1v2_power(void);
+void enable_3v3aux_power(void);
+void disable_3v3aux_power(void);
+#else
+void enable_1v8_power(void);
+void disable_1v8_power(void);
+#endif
 
-struct operacake_dwell_times {
-	uint32_t dwell;
-	uint8_t port;
-};
-
-void operacake_sctimer_init(void);
-void operacake_sctimer_enable(bool enable);
-void operacake_sctimer_set_dwell_times(struct operacake_dwell_times* times, int n);
-void operacake_sctimer_stop(void);
-void operacake_sctimer_reset_state(void);
+#if defined(PRALINE) || defined(HACKRF_ONE) || defined(RAD1O)
+void enable_rf_power(void);
+void disable_rf_power(void);
+#endif

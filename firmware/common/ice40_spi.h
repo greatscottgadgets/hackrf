@@ -19,8 +19,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __ICE40_SPI_H
-#define __ICE40_SPI_H
+#pragma once
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -29,15 +28,12 @@
 #include "gpio.h"
 #include "spi_bus.h"
 
-struct ice40_spi_driver_t; // IWYU pragma: keep - fixed in #1704
-typedef struct ice40_spi_driver_t ice40_spi_driver_t;
-
-struct ice40_spi_driver_t {
+typedef struct {
 	spi_bus_t* const bus;
 	gpio_t gpio_select;
 	gpio_t gpio_creset;
 	gpio_t gpio_cdone;
-};
+} ice40_spi_driver_t;
 
 void ice40_spi_target_init(ice40_spi_driver_t* const drv);
 uint8_t ice40_spi_read(ice40_spi_driver_t* const drv, uint8_t r);
@@ -47,5 +43,3 @@ bool ice40_spi_syscfg_program(
 	uint8_t* buf,
 	size_t (*read_block_cb)(void* ctx),
 	void* read_ctx);
-
-#endif // __ICE40_SPI_H

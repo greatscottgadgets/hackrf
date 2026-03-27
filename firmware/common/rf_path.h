@@ -21,8 +21,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __RFPATH_H__
-#define __RFPATH_H__
+#pragma once
 
 #include <stdint.h>
 
@@ -46,7 +45,7 @@ typedef enum {
 	RF_PATH_FILTER_HIGH_PASS = 2,
 } rf_path_filter_t;
 
-typedef struct rf_path_t {
+typedef struct {
 	uint8_t switchctrl;
 #ifdef HACKRF_ONE
 	gpio_t gpio_hp;
@@ -96,5 +95,3 @@ void rf_path_set_filter(rf_path_t* const rf_path, const rf_path_filter_t filter)
 
 void rf_path_set_lna(rf_path_t* const rf_path, const uint_fast8_t enable);
 void rf_path_set_antenna(rf_path_t* const rf_path, const uint_fast8_t enable);
-
-#endif /*__RFPATH_H__*/

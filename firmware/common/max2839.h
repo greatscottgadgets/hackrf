@@ -21,8 +21,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __MAX2839_H
-#define __MAX2839_H
+#pragma once
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -44,19 +43,18 @@ typedef enum {
 	MAX2839_MODE_CLKOUT,
 } max2839_mode_t;
 
-struct max2839_driver_t; // IWYU pragma: keep - fixed in #1704
-typedef struct max2839_driver_t max2839_driver_t;
-
-struct max2839_driver_t {
+typedef struct _max2839_driver_t {
 	spi_bus_t* bus;
 	gpio_t gpio_enable;
 	gpio_t gpio_rxtx;
-	void (*target_init)(max2839_driver_t* const drv);
-	void (*set_mode)(max2839_driver_t* const drv, const max2839_mode_t new_mode);
+	void (*target_init)(struct _max2839_driver_t* const drv);
+	void (*set_mode)(
+		struct _max2839_driver_t* const drv,
+		const max2839_mode_t new_mode);
 	max2839_mode_t mode;
 	uint16_t regs[MAX2839_NUM_REGS];
 	uint32_t regs_dirty;
-};
+} max2839_driver_t;
 
 /* Initialize chip. */
 extern void max2839_setup(max2839_driver_t* const drv);
@@ -93,5 +91,3 @@ bool max2839_set_txvga_gain(max2839_driver_t* const drv, const uint32_t gain_db)
 
 extern void max2839_tx(max2839_driver_t* const drv);
 extern void max2839_rx(max2839_driver_t* const drv);
-
-#endif // __MAX2839_H

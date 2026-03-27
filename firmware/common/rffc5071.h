@@ -20,8 +20,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __RFFC5071_H
-#define __RFFC5071_H
+#pragma once
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -71,5 +70,3 @@ extern void rffc5071_set_gpo(rffc5071_driver_t* const drv, uint8_t);
 extern bool rffc5071_poll_ld(rffc5071_driver_t* const drv, uint8_t* prelock_state);
 #endif
 extern bool rffc5071_check_lock(rffc5071_driver_t* const drv);
-
-#endif // __RFFC5071_H

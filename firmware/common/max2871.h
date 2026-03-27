@@ -19,8 +19,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef MAX2871_H
-#define MAX2871_H
+#pragma once
 
 #include <stdint.h>
 
@@ -39,4 +38,3 @@ extern void max2871_setup(max2871_driver_t* const drv);
 extern uint64_t max2871_set_frequency(max2871_driver_t* const drv, uint16_t mhz);
 extern void max2871_enable(max2871_driver_t* const drv);
 extern void max2871_disable(max2871_driver_t* const drv);
-#endif

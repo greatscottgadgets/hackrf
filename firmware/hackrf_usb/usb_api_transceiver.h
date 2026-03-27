@@ -21,8 +21,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __USB_API_TRANSCEIVER_H__
-#define __USB_API_TRANSCEIVER_H__
+#pragma once
 
 #include <stdint.h>
 
@@ -83,5 +82,3 @@ void transceiver_shutdown(void);
 void rx_mode(uint32_t seq);
 void tx_mode(uint32_t seq);
 void off_mode(uint32_t seq);
-
-#endif /*__USB_API_TRANSCEIVER_H__*/

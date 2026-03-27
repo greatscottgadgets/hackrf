@@ -30,6 +30,7 @@
 #include <cpld_jtag.h>
 #include <cpld_xc2c.h>
 #include <hackrf_core.h>
+#include <leds.h>
 #include <usb_queue.h>
 #include <usb_request.h>
 #include <usb_type.h>

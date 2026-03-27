@@ -27,6 +27,7 @@
 
 #include <libopencm3/lpc43xx/wwdt.h>
 
+#include <clock_gen.h>
 #include <firmware_info.h>
 #include <hackrf_core.h>
 #include <platform_detect.h>
