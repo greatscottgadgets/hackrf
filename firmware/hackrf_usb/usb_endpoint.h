@@ -24,8 +24,8 @@
 #ifndef __USB_ENDPOINT_H__
 #define __USB_ENDPOINT_H__
 
-#include <usb_type.h>
 #include <usb_queue.h>
+#include <usb_type.h>
 
 extern usb_endpoint_t usb_endpoint_control_out;
 extern USB_DECLARE_QUEUE(usb_endpoint_control_out);

@@ -22,8 +22,8 @@
 #ifndef __USB_API_ADC_H__
 #define __USB_API_ADC_H__
 
-#include <usb_type.h>
 #include <usb_request.h>
+#include <usb_type.h>
 
 usb_request_status_t usb_vendor_request_adc_read(
 	usb_endpoint_t* const endpoint,

@@ -19,8 +19,11 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include <stddef.h>
 #include "platform_scu.h"
+
+#include <stddef.h>
+
+#include <libopencm3/lpc43xx/scu.h>
 
 // clang-format off
 

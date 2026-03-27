@@ -23,17 +23,24 @@
  */
 
 #include "usb_api_register.h"
-#include <hackrf_core.h>
-#include <usb_queue.h>
-#include <max2831.h>
-#include <max283x.h>
-#include <rffc5071.h>
-#include <ice40_spi.h>
 
+#include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
 
 #include <hackrf_core.h>
+#include <max283x.h>
+#include <radio.h>
+#include <si5351c.h>
+#include <usb_queue.h>
+#include <usb_request.h>
+#include <usb_type.h>
+#if defined(PRALINE) || defined(HACKRF_ONE) || defined(JAWBREAKER)
+	#include <rffc5071.h>
+#endif
+#if defined(PRALINE)
+	#include <fpga.h>
+#endif
 
 usb_request_status_t usb_vendor_request_write_max283x(
 	usb_endpoint_t* const endpoint,

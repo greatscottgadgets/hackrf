@@ -19,12 +19,17 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include "gpdma.h"
+#include "clkin.h"
+
+#include <stdint.h>
+
 #include <libopencm3/lpc43xx/timer.h>
 #include <libopencm3/lpc43xx/scu.h>
 #include <libopencm3/lpc43xx/gima.h>
+#include <libopencm3/lpc43xx/gpdma.h>
 #include <libopencm3/lpc43xx/creg.h>
-#include <stdint.h>
+
+#include "gpdma.h"
 
 #define CLOCK_CYCLES_1_MS     (204000)
 #define MEASUREMENT_WINDOW_MS (50)

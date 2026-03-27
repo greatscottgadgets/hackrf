@@ -1,5 +1,9 @@
 #include "ubuntu18.h"
 
+#include <stdint.h>
+
+#include "fonts.h"
+
 /* Font data for Ubuntu Regular 18pt */
 
 /* Copyright 2010 Canonical Ltd.  Licensed under the Ubuntu Font Licence 1.0

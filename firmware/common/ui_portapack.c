@@ -22,7 +22,13 @@
 
 #include "ui_portapack.h"
 
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
+
 #include "portapack.h"
+#include "radio.h"
+#include "rf_path.h"
 
 /* Pixel data within a font or bitmap byte is "reversed": LSB is left-most pixel. */
 

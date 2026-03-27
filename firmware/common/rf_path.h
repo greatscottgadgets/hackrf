@@ -26,7 +26,9 @@
 
 #include <stdint.h>
 
-#include "gpio.h"
+#if defined(HACKRF_ONE) || defined(RAD1O) || defined(PRALINE)
+	#include "gpio.h"
+#endif
 
 typedef enum {
 	RF_PATH_DIRECTION_OFF,

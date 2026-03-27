@@ -22,20 +22,21 @@
  */
 
 #include "usb_api_board_info.h"
-#include "platform_detect.h"
-#include "platform_gpio.h"
-#include "firmware_info.h"
 
-#include <hackrf_core.h>
-#include <rom_iap.h>
-#include <usb_queue.h>
-#include <libopencm3/lpc43xx/wwdt.h>
-
-#include <stddef.h>
 #include <string.h>
 
+#include <libopencm3/lpc43xx/wwdt.h>
+
+#include <firmware_info.h>
+#include <hackrf_core.h>
+#include <platform_detect.h>
+#include <rom_iap.h>
+#include <usb_queue.h>
+#include <usb_request.h>
+#include <usb_type.h>
 #ifdef HACKRF_ONE
-	#include "gpio_lpc.h"
+	#include <gpio.h>
+	#include <platform_gpio.h>
 #endif
 
 usb_request_status_t usb_vendor_request_read_board_id(

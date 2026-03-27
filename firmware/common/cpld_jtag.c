@@ -19,11 +19,14 @@
  * Boston, MA 02110-1301, USA.
  */
 
+#if !defined(PRALINE)
+	#include <stdint.h>
+#endif
+
 #include "cpld_jtag.h"
-#include "hackrf_core.h"
-#include "xapp058/micro.h"
-#include <libopencm3/lpc43xx/scu.h>
-#include <stdint.h>
+#if !defined(PRALINE)
+	#include "xapp058/micro.h"
+#endif
 
 #ifndef PRALINE
 static refill_buffer_cb refill_buffer;

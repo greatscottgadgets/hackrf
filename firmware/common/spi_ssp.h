@@ -26,11 +26,10 @@
 #include <stdint.h>
 #include <stddef.h>
 
-#include "spi_bus.h"
+#include <libopencm3/lpc43xx/ssp.h>
 
 #include "gpio.h"
-
-#include <libopencm3/lpc43xx/ssp.h>
+#include "spi_bus.h"
 
 typedef struct ssp_config_t {
 	ssp_datasize_t data_bits;

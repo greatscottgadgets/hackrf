@@ -33,13 +33,18 @@
 
 #include <stdint.h>
 #include <string.h>
+
+#if defined(PRALINE)
+	#include <libopencm3/lpc43xx/scu.h>
+#endif
+
+#include "delay.h"
 #include "rffc5071.h"
 #include "rffc5071_regs.def" // private register def macros
 #include "selftest.h"
-
-#include "hackrf_core.h"
-#include "delay.h"
-#include "platform_scu.h"
+#if defined(PRALINE)
+	#include "platform_scu.h"
+#endif
 
 static bool enabled = false;
 

@@ -19,11 +19,13 @@
  * Boston, MA 02110-1301, USA.
  */
 
+#include "fpga.h"
+
 #include <stdbool.h>
+
+#include "fpga_regs.def"
 #include "hackrf_core.h"
 #include "ice40_spi.h"
-#include "fpga.h"
-#include "fpga_regs.def"
 
 /* Set up all registers according to the loaded bitstream's defaults. */
 void fpga_init(fpga_driver_t* const drv)

@@ -23,9 +23,10 @@
 #ifndef __USB_API_SWEEP_H__
 #define __USB_API_SWEEP_H__
 
-#include <stdbool.h>
-#include <usb_type.h>
+#include <stdint.h>
+
 #include <usb_request.h>
+#include <usb_type.h>
 
 enum sweep_style {
 	LINEAR = 0,

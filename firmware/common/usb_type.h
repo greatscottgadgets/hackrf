@@ -24,7 +24,6 @@
 #define __USB_TYPE_H__
 
 #include <stdint.h>
-#include <stdbool.h>
 
 // TODO: Move this to some common compiler-tricks location.
 #define ATTR_PACKED     __attribute__((packed))

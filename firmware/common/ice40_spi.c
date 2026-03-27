@@ -21,8 +21,10 @@
 
 #include "ice40_spi.h"
 
-#include "hackrf_core.h"
-#include "lz4_buf.h"
+#include <libopencm3/lpc43xx/memorymap.h>
+#include <libopencm3/lpc43xx/scu.h>
+#include <libopencm3/lpc43xx/ssp.h>
+
 #include "delay.h"
 #include "platform_scu.h"
 

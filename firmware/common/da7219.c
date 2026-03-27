@@ -19,6 +19,8 @@
  * Boston, MA 02110-1301, USA.
  */
 
+#include <stdint.h>
+
 #include "da7219.h"
 #include "hackrf_core.h"
 #include "i2c_bus.h"

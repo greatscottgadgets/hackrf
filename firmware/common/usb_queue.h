@@ -24,6 +24,8 @@
 #ifndef __USB_QUEUE_H__
 #define __USB_QUEUE_H__
 
+#include <stdint.h>
+
 #include <libopencm3/lpc43xx/usb.h>
 
 #include "usb_type.h"

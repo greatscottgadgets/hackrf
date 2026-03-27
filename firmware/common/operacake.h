@@ -27,8 +27,8 @@
 extern "C" {
 #endif
 
-#include <stdint.h>
 #include <stdbool.h>
+#include <stdint.h>
 
 #define OPERACAKE_PA1 0
 #define OPERACAKE_PA2 1

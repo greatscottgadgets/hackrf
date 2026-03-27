@@ -23,8 +23,11 @@
 #ifndef __USB_STANDARD_REQUEST_H__
 #define __USB_STANDARD_REQUEST_H__
 
-#include "usb_type.h"
+#include <stdbool.h>
+#include <stdint.h>
+
 #include "usb_request.h"
+#include "usb_type.h"
 
 void usb_set_configuration_changed_cb(void (*callback)(usb_device_t* const));
 

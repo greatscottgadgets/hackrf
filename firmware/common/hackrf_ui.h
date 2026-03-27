@@ -23,8 +23,11 @@
 #ifndef HACKRF_UI_H
 #define HACKRF_UI_H
 
-#include <hackrf_core.h>
+#include <stdbool.h>
 #include <stdint.h>
+
+#include "radio.h"
+#include "rf_path.h"
 
 typedef void (*hackrf_ui_init_fn)(void);
 typedef void (*hackrf_ui_deinit_fn)(void);

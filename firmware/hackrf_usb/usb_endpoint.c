@@ -23,7 +23,9 @@
 
 #include "usb_endpoint.h"
 
+#include <usb_queue.h>
 #include <usb_request.h>
+#include <usb_type.h>
 
 #include "usb_device.h"
 

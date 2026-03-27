@@ -23,9 +23,10 @@
 #ifndef __RFFC5071_SPI_H
 #define __RFFC5071_SPI_H
 
-#include "spi_bus.h"
+#include <stddef.h>
 
 #include "gpio.h"
+#include "spi_bus.h"
 
 typedef struct rffc5071_spi_config_t {
 	gpio_t gpio_select;

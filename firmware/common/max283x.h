@@ -24,19 +24,15 @@
 #ifndef __MAX283x_H
 #define __MAX283x_H
 
-#include <stdint.h>
 #include <stdbool.h>
-#include <string.h>
+#include <stdint.h>
 
-#include "gpio.h"
-#include "gpio_lpc.h"
-#include "max2831.h"
-#include "max2831_target.h"
-#include "max2837.h"
-#include "max2837_target.h"
-#include "max2839.h"
-#include "max2839_target.h"
-#include "spi_bus.h"
+#if defined(PRALINE)
+	#include "max2831.h"
+#else
+	#include "max2837.h"
+	#include "max2839.h"
+#endif
 
 typedef enum {
 	MAX283x_MODE_SHUTDOWN,

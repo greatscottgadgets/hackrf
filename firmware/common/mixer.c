@@ -20,10 +20,15 @@
  */
 
 #include "mixer.h"
-#include "rffc5071.h"
-#include "rffc5071_spi.h"
-#include "max2871.h"
+
 #include "platform_gpio.h"
+#if defined(JAWBREAKER) || defined(HACKRF_ONE) || defined(PRALINE)
+	#include "rffc5071.h"
+	#include "rffc5071_spi.h"
+	#include "spi_bus.h"
+#elif defined(RAD1O)
+	#include "max2871.h"
+#endif
 
 #if defined(JAWBREAKER) || defined(HACKRF_ONE) || defined(PRALINE)
 static rffc5071_spi_config_t rffc5071_spi_config;

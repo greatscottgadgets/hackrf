@@ -20,10 +20,11 @@
  * Boston, MA 02110-1301, USA.
  */
 
+#include "usb_descriptor.h"
+
 #include <stdint.h>
 
-#include "usb_type.h"
-#include "usb_descriptor.h"
+#include <usb_type.h>
 
 #define USB_VENDOR_ID (0x1D50)
 

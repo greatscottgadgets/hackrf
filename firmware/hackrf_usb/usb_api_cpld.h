@@ -24,10 +24,8 @@
 #ifndef __USB_API_CPLD_H__
 #define __USB_API_CPLD_H__
 
-#include <stdbool.h>
-
-#include <usb_type.h>
 #include <usb_request.h>
+#include <usb_type.h>
 
 void cpld_update(void);
 

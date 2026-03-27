@@ -20,21 +20,21 @@
  */
 
 #include "max2871.h"
+
+#include <stdbool.h>
+#include <stdint.h>
+
 #include "max2871_regs.h"
 #include "selftest.h"
+#include "platform_scu.h"
 
 #if (defined DEBUG)
 	#include <stdio.h>
 	#define LOG printf
 #else
 	#define LOG(x, ...)
-	#include <libopencm3/lpc43xx/ssp.h>
 	#include <libopencm3/lpc43xx/scu.h>
-	#include "hackrf_core.h"
 #endif
-
-#include <stdint.h>
-#include <string.h>
 
 static uint32_t max2871_spi_read(max2871_driver_t* const drv);
 static void max2871_spi_write(max2871_driver_t* const drv, uint8_t r, uint32_t v);

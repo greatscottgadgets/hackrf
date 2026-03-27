@@ -21,12 +21,17 @@
  */
 
 #include "usb_api_operacake.h"
-#include "usb_queue.h"
 
+#include <stdbool.h>
 #include <stddef.h>
+#include <stdint.h>
+
 #include <operacake.h>
 #include <operacake_sctimer.h>
 #include <sct.h>
+#include <usb_queue.h>
+#include <usb_request.h>
+#include <usb_type.h>
 
 usb_request_status_t usb_vendor_request_operacake_get_boards(
 	usb_endpoint_t* const endpoint,
