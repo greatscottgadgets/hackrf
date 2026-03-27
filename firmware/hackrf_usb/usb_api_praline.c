@@ -25,13 +25,10 @@
 
 #include <clkin.h>
 #include <clock_gen.h>
-#include <rf_path.c>
 #include <usb_queue.h>
 #include <usb_request.h>
 #include <usb_type.h>
-#if !(defined(DFU_MODE) || defined(RAM_MODE))
-	#include <fpga.h>
-#endif
+#include <fpga.h>
 
 usb_request_status_t usb_vendor_request_p1_ctrl(
 	usb_endpoint_t* const endpoint,
