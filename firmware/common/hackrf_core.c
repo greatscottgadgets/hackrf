@@ -804,7 +804,7 @@ void pin_shutdown(void)
 	scu_pinmux(scu->PINMUX_FPGA_SPI_CS, SCU_GPIO_NOPULL | SCU_CONF_FUNCTION0);
 
 	p2_ctrl_set(P2_SIGNAL_CLK3);
-	p1_ctrl_set(P1_SIGNAL_CLKIN);
+	p1_ctrl_set(P1_SIGNAL_P22_CLKIN);
 	narrowband_filter_set(0);
 	clkin_ctrl_set(CLKIN_SIGNAL_P22);
 

@@ -291,7 +291,7 @@ static void usage()
 	printf("\t-a, --all: read settings for all clocks\n");
 	printf("\t-i, --clkin: get CLKIN status\n");
 	printf("\t-o, --clkout <clkout_enable>: enable/disable CLKOUT\n");
-	printf("\t-1, --p1 <signal>: select the HackRF Pro P1 SMA connector signal (default: clkin)\n");
+	printf("\t-1, --p1 <signal>: select the HackRF Pro P1 SMA connector signal (default: p22_clkin)\n");
 	printf("\tone of: clkin, trigger_in, trigger_out, p22_clkin, pps_out, aux_clk1, aux_clk2, off\n");
 	printf("\t-2, --p2 <signal>: select the signal for the HackRF Pro P2 SMA connector (default: clkout)\n");
 	printf("\tone of: clkout, trigger_in, trigger_out\n");
@@ -324,7 +324,7 @@ int main(int argc, char** argv)
 	uint8_t clkin_status;
 	bool p1_ctrl = false;
 	bool p2_ctrl = false;
-	enum p1_ctrl_signal p1_signal = P1_SIGNAL_CLKIN;
+	enum p1_ctrl_signal p1_signal = P1_SIGNAL_P22_CLKIN;
 	enum p2_ctrl_signal p2_signal = P2_SIGNAL_CLK3;
 	const char* serial_number = NULL;
 
