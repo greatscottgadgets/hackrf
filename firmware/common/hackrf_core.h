@@ -76,10 +76,6 @@ void pin_setup(void);
 
 void trigger_enable(const bool enable);
 
-#ifdef PRALINE
-void narrowband_filter_set(const uint8_t value);
-#endif
-
 #ifdef __cplusplus
 }
 #endif

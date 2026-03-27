@@ -458,10 +458,3 @@ void trigger_enable(const bool enable)
 	fpga_set_trigger_enable(&fpga, enable);
 #endif
 }
-
-#ifdef PRALINE
-void narrowband_filter_set(const uint8_t value)
-{
-	gpio_write(platform_gpio()->aa_en, value & 1);
-}
-#endif
