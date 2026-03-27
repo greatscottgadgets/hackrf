@@ -21,8 +21,7 @@ HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABI
 ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef __HACKRF_H__
-#define __HACKRF_H__
+#pragma once
 
 #include <stdint.h>
 #include <sys/types.h>
@@ -2389,5 +2388,3 @@ extern ADDAPI int ADDCALL hackrf_radio_write_register(
 #ifdef __cplusplus
 } // __cplusplus defined.
 #endif
-
-#endif /*__HACKRF_H__*/

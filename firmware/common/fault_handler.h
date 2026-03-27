@@ -20,8 +20,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __FAULT_HANDLER__
-#define __FAULT_HANDLER__
+#pragma once
 
 #include <stdint.h>
 
@@ -30,9 +29,7 @@
 // TODO: Move all this to a Cortex-M(?) include file, since these
 // structures are supposedly the same between processors (to an
 // undetermined extent).
-typedef struct armv7m_scb_t armv7m_scb_t;
-
-struct armv7m_scb_t {
+typedef struct {
 	volatile const uint32_t CPUID;
 	volatile uint32_t ICSR;
 	volatile uint32_t VTOR;
@@ -64,12 +61,10 @@ struct armv7m_scb_t {
 	volatile const uint32_t ID_ISAR4;
 	volatile const uint32_t __reserved_0x74_0x87[5];
 	volatile uint32_t CPACR;
-} __attribute__((packed));
+} __attribute__((packed)) armv7m_scb_t;
 
 static armv7m_scb_t* const SCB = (armv7m_scb_t*) SCB_BASE;
 
 #define SCB_HFSR_DEBUGEVT (1 << 31)
 #define SCB_HFSR_FORCED   (1 << 30)
 #define SCB_HFSR_VECTTBL  (1 << 1)
-
-#endif //__FAULT_HANDLER__

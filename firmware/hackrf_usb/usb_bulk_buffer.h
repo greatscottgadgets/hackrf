@@ -21,8 +21,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __USB_BULK_BUFFER_H__
-#define __USB_BULK_BUFFER_H__
+#pragma once
 
 #include <stdint.h>
 
@@ -34,5 +33,3 @@
  * unless you also adjust the ldscripts.
  */
 extern uint8_t usb_bulk_buffer[USB_BULK_BUFFER_SIZE];
-
-#endif /*__USB_BULK_BUFFER_H__*/

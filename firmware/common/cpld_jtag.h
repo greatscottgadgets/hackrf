@@ -19,14 +19,13 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __CPLD_JTAG_H__
-#define __CPLD_JTAG_H__
+#pragma once
 
 #include <stdint.h>
 
 #include "gpio.h"
 
-typedef struct jtag_gpio_t {
+typedef struct {
 	gpio_t gpio_tck;
 #ifndef PRALINE
 	gpio_t gpio_tms;
@@ -59,5 +58,3 @@ int cpld_jtag_program(
 	unsigned char* const buffer,
 	refill_buffer_cb refill);
 unsigned char cpld_jtag_get_next_byte(void);
-
-#endif //__CPLD_JTAG_H__

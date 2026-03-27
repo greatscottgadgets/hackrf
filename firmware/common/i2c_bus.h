@@ -20,27 +20,23 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __I2C_BUS_H__
-#define __I2C_BUS_H__
+#pragma once
 
 #include <stddef.h>
 #include <stdint.h>
 
-struct i2c_bus_t; // IWYU pragma: keep - fixed in #1704
-typedef struct i2c_bus_t i2c_bus_t;
-
-struct i2c_bus_t {
+typedef struct _i2c_bus_t {
 	void* const obj;
-	void (*start)(i2c_bus_t* const bus, const void* const config);
-	void (*stop)(i2c_bus_t* const bus);
+	void (*start)(struct _i2c_bus_t* const bus, const void* const config);
+	void (*stop)(struct _i2c_bus_t* const bus);
 	void (*transfer)(
-		i2c_bus_t* const bus,
+		struct _i2c_bus_t* const bus,
 		const uint_fast8_t peripheral_address,
 		const uint8_t* const tx,
 		const size_t tx_count,
 		uint8_t* const rx,
 		const size_t rx_count);
-};
+} i2c_bus_t;
 
 void i2c_bus_start(i2c_bus_t* const bus, const void* const config);
 void i2c_bus_stop(i2c_bus_t* const bus);
@@ -51,5 +47,3 @@ void i2c_bus_transfer(
 	const size_t tx_count,
 	uint8_t* const rx,
 	const size_t rx_count);
-
-#endif /*__I2C_BUS_H__*/

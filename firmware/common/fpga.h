@@ -19,8 +19,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __FPGA_H
-#define __FPGA_H
+#pragma once
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -37,14 +36,11 @@ typedef enum {
 	FPGA_QUARTER_SHIFT_MODE_DOWN = 0b01,
 } fpga_quarter_shift_mode_t;
 
-struct fpga_driver_t; // IWYU pragma: keep - fixed in #1704
-typedef struct fpga_driver_t fpga_driver_t;
-
-struct fpga_driver_t {
+typedef struct {
 	ice40_spi_driver_t* bus;
 	uint8_t regs[FPGA_NUM_REGS];
 	uint8_t regs_dirty;
-};
+} fpga_driver_t;
 
 struct fpga_loader_t {
 	/* Start address added as an offset to all read() calls. */
@@ -94,5 +90,3 @@ bool fpga_image_load(struct fpga_loader_t* loader, unsigned int index);
 bool fpga_spi_selftest(void);
 bool fpga_sgpio_selftest(void);
 bool fpga_if_xcvr_selftest(void);
-
-#endif // __FPGA_H
