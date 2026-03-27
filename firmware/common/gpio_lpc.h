@@ -20,8 +20,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __GPIO_LPC_H__
-#define __GPIO_LPC_H__
+#pragma once
 
 #include <stdint.h>
 
@@ -69,5 +68,3 @@ struct gpio {
 	.gpio_w = GPIO_LPC_W(_port_num, _pin_num), \
 }
 // clang-format on
-
-#endif /*__GPIO_LPC_H__*/

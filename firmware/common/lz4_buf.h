@@ -19,8 +19,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __LZ4_BUF_H
-#define __LZ4_BUF_H
+#pragma once
 
 #include <stdint.h>
 
@@ -31,5 +30,3 @@
 
 extern uint8_t lz4_in_buf[LZ4_BUFFER_SIZE];
 extern uint8_t lz4_out_buf[LZ4_BUFFER_SIZE];
-
-#endif /*__LZ4_BUF_H */

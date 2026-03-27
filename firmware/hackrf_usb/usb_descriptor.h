@@ -20,6 +20,8 @@
  * Boston, MA 02110-1301, USA.
  */
 
+#pragma once
+
 #include <stdint.h>
 
 extern uint8_t usb_descriptor_device[];
