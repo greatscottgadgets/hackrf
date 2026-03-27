@@ -176,7 +176,7 @@ const platform_scu_t* platform_scu(void)
 	scu.XCVR_RXHP_PINCFG     = (SCU_GPIO_FAST | SCU_CONF_FUNCTION4);
 	scu.XCVR_LD_PINCFG       = (SCU_GPIO_FAST | SCU_CONF_FUNCTION0 |
 								SCU_CONF_EPD_EN_PULLDOWN | SCU_CONF_EPUN_DIS_PULLUP);
-#elif defined(JELLYBEAN) || defined(JAWBREAKER) || defined(HACKRF_ONE)
+#elif defined(JAWBREAKER) || defined(HACKRF_ONE)
 	scu.XCVR_ENABLE          = P4_6;  /* GPIO2[6]  on P4_6 */
 	scu.XCVR_RXENABLE        = P4_5;  /* GPIO2[5]  on P4_5 */
 	scu.XCVR_TXENABLE        = P4_4;  /* GPIO2[4]  on P4_4 */
