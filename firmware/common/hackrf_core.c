@@ -526,10 +526,3 @@ void trigger_enable(const bool enable)
 	}
 #endif
 }
-
-#ifdef IS_PRALINE
-void narrowband_filter_set(const uint8_t value)
-{
-	gpio_write(platform_gpio()->aa_en, value & 1);
-}
-#endif

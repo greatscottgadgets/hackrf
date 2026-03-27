@@ -28,9 +28,6 @@ extern "C" {
 #endif
 
 #include <stdbool.h>
-#ifdef IS_PRALINE
-	#include <stdint.h>
-#endif
 
 #include "cpld_jtag.h"
 #include "i2c_bus.h"
@@ -80,10 +77,6 @@ void pin_shutdown(void);
 void pin_setup(void);
 
 void trigger_enable(const bool enable);
-
-#ifdef IS_PRALINE
-void narrowband_filter_set(const uint8_t value);
-#endif
 
 #ifdef __cplusplus
 }
