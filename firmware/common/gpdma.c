@@ -20,7 +20,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include <gpdma.h>
+#include "gpdma.h"
 
 #include <libopencm3/lpc43xx/gpdma.h>
 

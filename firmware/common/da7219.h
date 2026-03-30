@@ -1,6 +1,5 @@
 /*
- * Copyright 2014-2022 Great Scott Gadgets <info@greatscottgadgets.com>
- * Copyright (C) 2014 Jared Boone, ShareBrained Technology, Inc.
+ * Copyright 2026 Great Scott Gadgets <info@greatscottgadgets.com>
  *
  * This file is part of HackRF.
  *
@@ -20,51 +19,13 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include "gpio_lpc.h"
+#ifndef __DA7219_H
+#define __DA7219_H
 
 #include <stdbool.h>
-#include <stddef.h>
 
-#include "gpio.h"
+#define DA7219_ADDRESS 0x1A
 
-void gpio_init(void)
-{
-	for (size_t i = 0; i < 8; i++) {
-		GPIO_LPC_PORT(i)->dir = 0;
-	}
-}
+bool da7219_detect(void);
 
-void gpio_set(gpio_t gpio)
-{
-	gpio->port->set = gpio->mask;
-}
-
-void gpio_clear(gpio_t gpio)
-{
-	gpio->port->clr = gpio->mask;
-}
-
-void gpio_toggle(gpio_t gpio)
-{
-	gpio->port->inv = gpio->mask;
-}
-
-void gpio_output(gpio_t gpio)
-{
-	gpio->port->dir |= gpio->mask;
-}
-
-void gpio_input(gpio_t gpio)
-{
-	gpio->port->dir &= ~gpio->mask;
-}
-
-void gpio_write(gpio_t gpio, const bool value)
-{
-	*gpio->gpio_w = value;
-}
-
-bool gpio_read(gpio_t gpio)
-{
-	return *gpio->gpio_w;
-}
+#endif /* __DA7219_H */

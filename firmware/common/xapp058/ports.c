@@ -9,11 +9,12 @@
 /*              Updated comments to clarify instructions.*/
 /*              Add print in setPort for xapp058_example.exe.*/
 /*******************************************************/
+
 #include "ports.h"
 
-#include "hackrf_core.h"
-#include "cpld_jtag.h"
+#include <stdint.h>
 
+#include "cpld_jtag.h"
 #include "gpio.h"
 
 void delay_jtag(uint32_t duration)

@@ -19,16 +19,23 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include <libopencm3/dispatch/nvic.h>
+#include <string.h>
 
+#include <libopencm3/cm3/nvic.h>
+#include <libopencm3/lpc43xx/m4/nvic.h>
+
+#include "fixed_point.h"
 #include "hackrf_core.h"
-#include "tuning.h"
-#include "rf_path.h"
-#include "fpga.h"
+#include "hackrf_ui.h"
+#include "max283x.h"
 #include "platform_detect.h"
 #include "radio.h"
-#include "fixed_point.h"
-#include "hackrf_ui.h"
+#include "rf_path.h"
+#include "tuning.h"
+#if defined(PRALINE)
+	#include "fpga.h"
+	#include "tune_config.h"
+#endif
 
 #define MIN(x, y) ((x) < (y) ? (x) : (y))
 #define MAX(x, y) ((x) > (y) ? (x) : (y))
@@ -188,6 +195,7 @@ static bool radio_update_sample_rate(radio_t* const radio, uint64_t* bank)
 	switch (opmode) {
 	case TRANSCEIVER_MODE_TX:
 	case TRANSCEIVER_MODE_SS:
+		n = compute_resample_log(rate / FP_ONE_HZ, requested_n);
 		if (n != radio->config[RADIO_BANK_APPLIED][RADIO_RESAMPLE_TX]) {
 #ifdef PRALINE
 			fpga_set_tx_interpolation_ratio(&fpga, n);
@@ -196,10 +204,6 @@ static bool radio_update_sample_rate(radio_t* const radio, uint64_t* bank)
 		}
 		break;
 	default:
-		/*
-		 * Resampling is enabled only in RX mode to work around a
-		 * spectrum inversion bug with TX interpolation.
-		 */
 		n = compute_resample_log(rate / FP_ONE_HZ, requested_n);
 		if (n != radio->config[RADIO_BANK_APPLIED][RADIO_RESAMPLE_RX]) {
 #ifdef PRALINE

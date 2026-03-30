@@ -22,6 +22,8 @@
 #ifndef __FIXED_POINT_H__
 #define __FIXED_POINT_H__
 
+#include <stdint.h>
+
 /* 40.24 fixed-point */
 typedef uint64_t fp_40_24_t;
 

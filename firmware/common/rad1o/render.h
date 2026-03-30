@@ -1,6 +1,8 @@
 #ifndef __RENDER_H_
 #define __RENDER_H_
 
+#include <stdint.h>
+
 #include "fonts.h"
 
 void rad1o_setTextColor(uint8_t bg, uint8_t fg);

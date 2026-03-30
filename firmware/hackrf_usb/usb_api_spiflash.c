@@ -23,12 +23,14 @@
 
 #include "usb_api_spiflash.h"
 
-#include "usb_queue.h"
-
 #include <stddef.h>
+#include <stdint.h>
 
 #include <hackrf_core.h>
-
+#include <spi_bus.h>
+#include <usb_queue.h>
+#include <usb_request.h>
+#include <usb_type.h>
 #include <w25q80bv.h>
 
 /* Buffer size == spi_flash.page_len */

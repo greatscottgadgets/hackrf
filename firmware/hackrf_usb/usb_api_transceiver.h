@@ -24,7 +24,9 @@
 #ifndef __USB_API_TRANSCEIVER_H__
 #define __USB_API_TRANSCEIVER_H__
 
-#include <hackrf_core.h>
+#include <stdint.h>
+
+#include <radio.h>
 #include <usb_type.h>
 #include <usb_request.h>
 

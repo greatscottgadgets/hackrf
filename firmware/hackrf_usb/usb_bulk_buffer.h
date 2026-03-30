@@ -24,7 +24,6 @@
 #ifndef __USB_BULK_BUFFER_H__
 #define __USB_BULK_BUFFER_H__
 
-#include <stdbool.h>
 #include <stdint.h>
 
 #define USB_BULK_BUFFER_SIZE 0x8000

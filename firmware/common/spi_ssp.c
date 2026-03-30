@@ -22,6 +22,9 @@
 
 #include "spi_ssp.h"
 
+#include <stdbool.h>
+
+#include <libopencm3/lpc43xx/memorymap.h>
 #include <libopencm3/lpc43xx/rgu.h>
 #include <libopencm3/lpc43xx/ssp.h>
 

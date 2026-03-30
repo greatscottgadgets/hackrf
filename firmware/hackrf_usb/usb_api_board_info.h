@@ -26,8 +26,8 @@
 
 #include <stdint.h>
 
-#include <usb_type.h>
 #include <usb_request.h>
+#include <usb_type.h>
 
 typedef struct {
 	uint32_t part_id[2];

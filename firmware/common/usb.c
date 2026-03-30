@@ -20,18 +20,19 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include <stdint.h>
 #include <stdbool.h>
+#include <stdint.h>
 
-#include "usb.h"
-#include "usb_type.h"
-#include "usb_queue.h"
-#include "usb_standard_request.h"
-
+#include <libopencm3/cm3/nvic.h>
 #include <libopencm3/lpc43xx/creg.h>
-#include <libopencm3/dispatch/nvic.h>
+#include <libopencm3/lpc43xx/m4/nvic.h>
 #include <libopencm3/lpc43xx/rgu.h>
 #include <libopencm3/lpc43xx/usb.h>
+
+#include "usb.h"
+#include "usb_queue.h"
+#include "usb_standard_request.h"
+#include "usb_type.h"
 
 usb_device_t* usb_device_usb0 = 0;
 

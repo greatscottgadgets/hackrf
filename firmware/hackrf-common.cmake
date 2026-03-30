@@ -185,6 +185,8 @@ macro(DeclareTargets)
 		${PATH_HACKRF_FIRMWARE_COMMON}/gpio_lpc.c
 		${PATH_HACKRF_FIRMWARE_COMMON}/hackrf_ui.c
 		${PATH_HACKRF_FIRMWARE_COMMON}/platform_detect.c
+		${PATH_HACKRF_FIRMWARE_COMMON}/platform_gpio.c
+		${PATH_HACKRF_FIRMWARE_COMMON}/platform_scu.c
 		${PATH_HACKRF_FIRMWARE_COMMON}/firmware_info.c
 		${PATH_HACKRF_FIRMWARE_COMMON}/clkin.c
 		${PATH_HACKRF_FIRMWARE_COMMON}/gpdma.c
@@ -192,6 +194,7 @@ macro(DeclareTargets)
 		${PATH_HACKRF_FIRMWARE_COMMON}/selftest.c
 		${PATH_HACKRF_FIRMWARE_COMMON}/m0_state.c
 		${PATH_HACKRF_FIRMWARE_COMMON}/adc.c
+		${PATH_HACKRF_FIRMWARE_COMMON}/da7219.c
 		)
 
 	if(BOARD STREQUAL "RAD1O")

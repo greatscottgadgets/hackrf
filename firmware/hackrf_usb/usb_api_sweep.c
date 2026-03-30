@@ -20,19 +20,25 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include "usb_api_sweep.h"
-#include "usb_queue.h"
+#include <stdbool.h>
 #include <stddef.h>
+
+#include <libopencm3/cm3/nvic.h>
+#include <libopencm3/lpc43xx/m4/nvic.h>
+
+#include <fixed_point.h>
 #include <hackrf_core.h>
+#include <m0_state.h>
+#include <radio.h>
+#include <streaming.h>
+#include <usb_queue.h>
+#include <usb_request.h>
+#include <usb_type.h>
+
+#include "usb_api_sweep.h"
 #include "usb_api_transceiver.h"
 #include "usb_bulk_buffer.h"
-#include "usb_api_m0_state.h"
-#include "tuning.h"
 #include "usb_endpoint.h"
-#include "streaming.h"
-#include "fixed_point.h"
-
-#include <libopencm3/lpc43xx/m4/nvic.h>
 
 #define MIN(x, y)        ((x) < (y) ? (x) : (y))
 #define MAX(x, y)        ((x) > (y) ? (x) : (y))

@@ -19,10 +19,16 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include <stddef.h>
-#include <usb_queue.h>
-#include "adc.h"
 #include "usb_api_adc.h"
+
+#include <stddef.h>
+#include <stdint.h>
+
+#include <usb_queue.h>
+#include <usb_request.h>
+#include <usb_type.h>
+
+#include "adc.h"
 
 usb_request_status_t usb_vendor_request_adc_read(
 	usb_endpoint_t* const endpoint,

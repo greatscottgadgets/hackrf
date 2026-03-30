@@ -26,7 +26,9 @@
 
 #include <stdint.h>
 
-#include "gpio.h"
+#if defined(HACKRF_ONE) || defined(RAD1O) || defined(PRALINE)
+	#include "gpio.h"
+#endif
 
 typedef enum {
 	RF_PATH_DIRECTION_OFF,
@@ -60,6 +62,8 @@ typedef struct rf_path_t {
 	gpio_t gpio_amp_bypass;
 	gpio_t gpio_rx_amp;
 	gpio_t gpio_no_rx_amp_pwr;
+	// In HackRF One r9 this control signal has been moved to the microcontroller.
+	gpio_t gpio_h1r9_no_ant_pwr;
 #endif
 #ifdef RAD1O
 	gpio_t gpio_tx_rx_n;

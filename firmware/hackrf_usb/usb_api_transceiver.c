@@ -24,32 +24,23 @@
 
 #include "usb_api_transceiver.h"
 
-#include "hackrf_ui.h"
-#include "operacake_sctimer.h"
+#include <stdbool.h>
+#include <stddef.h>
 
-#include <libopencm3/cm3/vector.h>
-#include <libopencm3/cm3/systick.h>
+#include <fixed_point.h>
+#include <hackrf_core.h>
+#include <hackrf_ui.h>
+#include <m0_state.h>
+#include <operacake_sctimer.h>
+#include <radio.h>
+#include <streaming.h>
+#include <usb.h>
+#include <usb_queue.h>
+#include <usb_request.h>
+#include <usb_type.h>
 
 #include "usb_bulk_buffer.h"
-#include "usb_api_m0_state.h"
-
-#include "usb_api_cpld.h" // Remove when CPLD update is handled elsewhere
-
-#include "max2837.h"
-#include "max2839.h"
-#include "rf_path.h"
-#include "tuning.h"
-#include "streaming.h"
-#include "usb.h"
-#include "usb_queue.h"
-#include "platform_detect.h"
-#include "fixed_point.h"
-
-#include <stddef.h>
-#include <string.h>
-
 #include "usb_endpoint.h"
-#include "usb_api_sweep.h"
 
 #define USB_TRANSFER_SIZE 0x4000
 

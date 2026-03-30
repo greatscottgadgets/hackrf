@@ -23,8 +23,8 @@
 #ifndef __ROM_IAP__
 #define __ROM_IAP__
 
-#include <stdint.h>
 #include <stdbool.h>
+#include <stdint.h>
 
 typedef enum {
 	/* TODO define other commands */

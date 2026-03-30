@@ -48,7 +48,7 @@ typedef enum {
 	MAX2831_RX_HPF_600_KHZ = 3,
 } max2831_rx_hpf_freq_t;
 
-struct max2831_driver_t;
+struct max2831_driver_t; // IWYU pragma: keep - fixed in #1704
 typedef struct max2831_driver_t max2831_driver_t;
 
 struct max2831_driver_t {

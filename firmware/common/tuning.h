@@ -24,11 +24,13 @@
 #ifndef __TUNING_H__
 #define __TUNING_H__
 
-#include "rf_path.h"
-#include "tune_config.h"
-
-#include <stdint.h>
 #include <stdbool.h>
+#include <stdint.h>
+
+#include "rf_path.h"
+#if defined(PRALINE)
+	#include "tune_config.h"
+#endif
 
 #define FREQ_ONE_MHZ (1000ULL * 1000)
 

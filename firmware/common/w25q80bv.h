@@ -24,14 +24,15 @@
 #ifndef __W25Q80BV_H__
 #define __W25Q80BV_H__
 
-#include <stdint.h>
 #include <stddef.h>
+#include <stdint.h>
+
+#include "gpio.h"
+#include "spi_bus.h"
 
 #define W25Q80BV_DEVICE_ID_RES 0x13 /* Expected device_id for W25Q80BV */
 #define W25Q16DV_DEVICE_ID_RES 0x14 /* Expected device_id for W25Q16DV */
 #define W25Q32JV_DEVICE_ID_RES 0x15 /* Expected device_id for W25Q32JV */
-#include "spi_bus.h"
-#include "gpio.h"
 
 typedef union {
 	uint64_t id_64b;
@@ -39,7 +40,7 @@ typedef union {
 	uint8_t id_8b[8];   /* 8*8bits 64bits Unique ID */
 } w25q80bv_unique_id_t;
 
-struct w25q80bv_driver_t;
+struct w25q80bv_driver_t; // IWYU pragma: keep - fixed in #1704
 typedef struct w25q80bv_driver_t w25q80bv_driver_t;
 
 struct w25q80bv_driver_t {
