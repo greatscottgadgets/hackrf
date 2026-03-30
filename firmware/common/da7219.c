@@ -1,6 +1,5 @@
 /*
- * Copyright 2012-2014 Great Scott Gadgets <info@greatscottgadgets.com>
- * Copyright 2012 Jared Boone <jared@sharebrained.com>
+ * Copyright 2026 Great Scott Gadgets <info@greatscottgadgets.com>
  *
  * This file is part of HackRF.
  *
@@ -20,26 +19,28 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __MAX5864_H
-#define __MAX5864_H
+#include <stdint.h>
 
-#include "spi_bus.h"
+#include "da7219.h"
+#include "hackrf_core.h"
+#include "i2c_bus.h"
 
-struct max5864_driver_t; // IWYU pragma: keep - fixed in #1704
-typedef struct max5864_driver_t max5864_driver_t;
+#define DA7219_REG_CHIP_ID1 0x81
+#define DA7219_REG_CHIP_ID2 0x82
 
-struct max5864_driver_t {
-	spi_bus_t* const bus;
-	void (*target_init)(max5864_driver_t* const drv);
-};
+i2c_bus_t* const da7219_bus = &i2c0;
 
-void max5864_setup(max5864_driver_t* const drv);
+uint8_t da7219_read_reg(i2c_bus_t* const bus, uint8_t reg)
+{
+	const uint8_t data_tx[] = {reg};
+	uint8_t data_rx[] = {0x00};
+	i2c_bus_transfer(bus, DA7219_ADDRESS, data_tx, 1, data_rx, 1);
+	return data_rx[0];
+}
 
-void max5864_shutdown(max5864_driver_t* const drv);
-void max5864_standby(max5864_driver_t* const drv);
-void max5864_idle(max5864_driver_t* const drv);
-void max5864_rx(max5864_driver_t* const drv);
-void max5864_tx(max5864_driver_t* const drv);
-void max5864_xcvr(max5864_driver_t* const drv);
-
-#endif // __MAX5864_H
+bool da7219_detect(void)
+{
+	uint8_t chip_id1 = da7219_read_reg(da7219_bus, DA7219_REG_CHIP_ID1);
+	uint8_t chip_id2 = da7219_read_reg(da7219_bus, DA7219_REG_CHIP_ID2);
+	return (chip_id1 == 0x23) && (chip_id2 == 0x93);
+}

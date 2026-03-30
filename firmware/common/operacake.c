@@ -21,12 +21,17 @@
  */
 
 #include "operacake.h"
-#include "operacake_sctimer.h"
-#include "hackrf_core.h"
+
+#include <stddef.h>
+
+#include <libopencm3/lpc43xx/scu.h>
+
 #include "gpio.h"
 #include "gpio_lpc.h"
+#include "hackrf_core.h"
 #include "i2c_bus.h"
-#include <libopencm3/lpc43xx/scu.h>
+#include "operacake_sctimer.h"
+#include "platform_scu.h"
 
 /*
  * I2C Mode
@@ -77,6 +82,7 @@
 
 #define INVALID_RANGE 0xFF;
 static uint8_t current_range = INVALID_RANGE;
+static uint8_t skip_address = OPERACAKE_ADDRESS_INVALID;
 
 i2c_bus_t* const oc_bus = &i2c0;
 
@@ -122,6 +128,9 @@ uint8_t operacake_init(bool allow_gpio)
 {
 	/* Find connected operacakes */
 	for (int addr = 0; addr < 8; addr++) {
+		if (addr + OPERACAKE_ADDRESS_DEFAULT == skip_address) {
+			continue;
+		}
 		operacake_write_reg(
 			oc_bus,
 			addr,
@@ -144,6 +153,15 @@ uint8_t operacake_init(bool allow_gpio)
 		operacake_sctimer_init();
 	}
 	return 0;
+}
+
+void operacake_skip_i2c_address(uint8_t address)
+{
+	skip_address = address;
+	uint8_t board_addr = address - OPERACAKE_ADDRESS_DEFAULT;
+	if (board_addr < 8) {
+		operacake_boards[board_addr].present = false;
+	}
 }
 
 bool operacake_is_board_present(uint8_t address)
@@ -387,11 +405,13 @@ uint16_t gpio_test(uint8_t address)
 		return 0xFFFF;
 	}
 
-	scu_pinmux(SCU_PINMUX_GPIO3_8, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
-	scu_pinmux(SCU_PINMUX_GPIO3_12, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
-	scu_pinmux(SCU_PINMUX_GPIO3_13, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
-	scu_pinmux(SCU_PINMUX_GPIO3_14, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
-	scu_pinmux(SCU_PINMUX_GPIO3_15, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+	const platform_scu_t* scu = platform_scu();
+
+	scu_pinmux(scu->PINMUX_GPIO3_8, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+	scu_pinmux(scu->PINMUX_GPIO3_12, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+	scu_pinmux(scu->PINMUX_GPIO3_13, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+	scu_pinmux(scu->PINMUX_GPIO3_14, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+	scu_pinmux(scu->PINMUX_GPIO3_15, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
 
 	static struct gpio gpio_pins[] = {
 		GPIO(3, 8),  // u1ctrl   IO2

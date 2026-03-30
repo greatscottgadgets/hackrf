@@ -37,7 +37,13 @@
     SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 /**************************************************************************/
+
 #include "smallfonts.h"
+
+#include <stddef.h>
+#include <stdint.h>
+
+#include "fonts.h"
 
 /* System 7x8 */
 const uint8_t au8Font7x8[] = {

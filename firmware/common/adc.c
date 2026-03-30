@@ -19,9 +19,12 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include "adc.h"
+#include <stdbool.h>
+
 #include <libopencm3/lpc43xx/adc.h>
 #include <libopencm3/lpc43xx/scu.h>
+
+#include "adc.h"
 
 uint16_t adc_read(uint8_t pin)
 {

@@ -20,14 +20,14 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include <stdint.h>
-#include <stddef.h>
-
 #include "usb_standard_request.h"
 
+#include <stddef.h>
+#include <stdint.h>
+
 #include "usb.h"
-#include "usb_type.h"
 #include "usb_queue.h"
+#include "usb_type.h"
 
 const uint8_t* usb_endpoint_descriptor(const usb_endpoint_t* const endpoint)
 {

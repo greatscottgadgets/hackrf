@@ -1,6 +1,6 @@
 #include "print.h"
+
 #include "display.h"
-#include "fonts.h"
 #include "render.h"
 #include "smallfonts.h"
 

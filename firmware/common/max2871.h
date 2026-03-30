@@ -22,9 +22,9 @@
 #ifndef MAX2871_H
 #define MAX2871_H
 
-#include "gpio.h"
-
 #include <stdint.h>
+
+#include "gpio.h"
 
 typedef struct {
 	gpio_t gpio_vco_ce;

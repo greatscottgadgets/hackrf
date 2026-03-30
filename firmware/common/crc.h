@@ -23,8 +23,8 @@
 #ifndef __CRC_H__
 #define __CRC_H__
 
-#include <stdint.h>
 #include <stddef.h>
+#include <stdint.h>
 
 typedef struct {
 	uint32_t remainder;

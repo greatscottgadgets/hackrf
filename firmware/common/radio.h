@@ -24,8 +24,8 @@
 #ifndef __RF_CONFIG_H__
 #define __RF_CONFIG_H__
 
-#include <stdint.h>
 #include <stdbool.h>
+#include <stdint.h>
 
 #include "fixed_point.h"
 

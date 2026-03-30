@@ -22,12 +22,10 @@
 
 #include "usb_api_ui.h"
 
-#include <hackrf_core.h>
 #include <hackrf_ui.h>
 #include <usb_queue.h>
-
-#include <stddef.h>
-#include <stdint.h>
+#include <usb_request.h>
+#include <usb_type.h>
 
 usb_request_status_t usb_vendor_request_set_ui_enable(
 	usb_endpoint_t* const endpoint,

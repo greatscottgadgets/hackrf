@@ -23,10 +23,10 @@
 #ifndef __I2C_BUS_H__
 #define __I2C_BUS_H__
 
-#include <stdint.h>
 #include <stddef.h>
+#include <stdint.h>
 
-struct i2c_bus_t;
+struct i2c_bus_t; // IWYU pragma: keep - fixed in #1704
 typedef struct i2c_bus_t i2c_bus_t;
 
 struct i2c_bus_t {

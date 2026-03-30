@@ -27,10 +27,10 @@
  * programming the flash.
  */
 
-#include <stdint.h>
-#include <stddef.h>
-
 #include "w25q80bv.h"
+
+#include <stddef.h>
+#include <stdint.h>
 
 #define ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]))
 

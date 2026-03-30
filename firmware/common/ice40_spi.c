@@ -21,19 +21,24 @@
 
 #include "ice40_spi.h"
 
+#include <libopencm3/lpc43xx/memorymap.h>
 #include <libopencm3/lpc43xx/scu.h>
-#include "hackrf_core.h"
+#include <libopencm3/lpc43xx/ssp.h>
+
 #include "delay.h"
+#include "platform_scu.h"
 
 void ice40_spi_target_init(ice40_spi_driver_t* const drv)
 {
+	const platform_scu_t* scu = platform_scu();
+
 	/* Configure SSP1 Peripheral and relevant FPGA pins. */
-	scu_pinmux(SCU_SSP1_CIPO, (SCU_SSP_IO | SCU_CONF_FUNCTION5));
-	scu_pinmux(SCU_SSP1_COPI, (SCU_SSP_IO | SCU_CONF_FUNCTION5));
-	scu_pinmux(SCU_SSP1_SCK, (SCU_SSP_IO | SCU_CONF_FUNCTION1));
-	scu_pinmux(SCU_PINMUX_FPGA_CRESET, SCU_GPIO_NOPULL | SCU_CONF_FUNCTION0);
-	scu_pinmux(SCU_PINMUX_FPGA_CDONE, SCU_GPIO_PUP | SCU_CONF_FUNCTION4);
-	scu_pinmux(SCU_PINMUX_FPGA_SPI_CS, SCU_GPIO_NOPULL | SCU_CONF_FUNCTION0);
+	scu_pinmux(scu->SSP1_CIPO, (SCU_SSP_IO | SCU_CONF_FUNCTION5));
+	scu_pinmux(scu->SSP1_COPI, (SCU_SSP_IO | SCU_CONF_FUNCTION5));
+	scu_pinmux(scu->SSP1_SCK, (SCU_SSP_IO | SCU_CONF_FUNCTION1));
+	scu_pinmux(scu->PINMUX_FPGA_CRESET, SCU_GPIO_NOPULL | SCU_CONF_FUNCTION0);
+	scu_pinmux(scu->PINMUX_FPGA_CDONE, SCU_GPIO_PUP | SCU_CONF_FUNCTION4);
+	scu_pinmux(scu->PINMUX_FPGA_SPI_CS, SCU_GPIO_NOPULL | SCU_CONF_FUNCTION0);
 
 	/* Configure GPIOs as inputs or outputs as needed. */
 	gpio_clear(drv->gpio_creset);
@@ -81,7 +86,8 @@ static uint32_t spi_ssp1_transfer_word(const uint32_t data)
 
 bool ice40_spi_syscfg_program(
 	ice40_spi_driver_t* const drv,
-	size_t (*read_block_cb)(void* ctx, uint8_t* buffer),
+	uint8_t* buf,
+	size_t (*read_block_cb)(void* ctx),
 	void* read_ctx)
 {
 	// Drive CRESET_B = 0, SPI_SS = 0, SPI_SCK = 1.
@@ -104,14 +110,13 @@ bool ice40_spi_syscfg_program(
 
 	// Send configuration image serially on SPI_SI to iCE40, most-significant bit
 	// first, on falling edge of SPI_SCK.
-	uint8_t out_buffer[4096 + 2] = {0};
 	gpio_clear(drv->gpio_select);
 	for (;;) {
-		size_t read_sz = read_block_cb(read_ctx, out_buffer);
+		size_t read_sz = read_block_cb(read_ctx);
 		if (read_sz == 0)
 			break;
 		for (size_t j = 0; j < read_sz; j++) {
-			spi_ssp1_transfer_word(out_buffer[j]);
+			spi_ssp1_transfer_word(buf[j]);
 		}
 	}
 

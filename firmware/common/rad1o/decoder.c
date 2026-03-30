@@ -1,7 +1,6 @@
-#include "fonts.h"
-#include "render.h"
-
 #include <stdint.h>
+
+#include "render.h"
 
 // Local function: Get next nibble.
 static int ctr = 0;  // offset for next nibble

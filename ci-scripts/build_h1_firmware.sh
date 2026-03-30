@@ -3,6 +3,7 @@ set -e
 git submodule init
 git submodule update
 cd firmware/hackrf_usb
-cmake -B build
+rm -rf build
+cmake -DBOARD=HACKRF_ONE -B build
 cmake --build build
 cd ../..

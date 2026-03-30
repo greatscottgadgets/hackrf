@@ -19,12 +19,21 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include "hackrf_core.h"
-#include "m0_state.h"
-#include "streaming.h"
-#include "selftest.h"
-#include "fpga.h"
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
+
 #include "delay.h"
+#include "fixed_point.h"
+#include "fpga.h"
+#include "hackrf_core.h"
+#include "ice40_spi.h"
+#include "m0_state.h"
+#include "max283x.h"
+#include "rf_path.h"
+#include "selftest.h"
+#include "sgpio.h"
+#include "streaming.h"
 
 // USB buffer used during selftests.
 #define USB_BULK_BUFFER_SIZE 0x8000
@@ -60,7 +69,7 @@ bool fpga_spi_selftest(void)
 	}
 
 	// Test writing a register and reading it back.
-	uint8_t reg = 5;
+	uint8_t reg = 6;
 	uint8_t write_value = 0xA5;
 	ssp1_set_mode_ice40();
 	ice40_spi_write(&ice40, reg, write_value);

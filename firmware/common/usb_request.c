@@ -20,11 +20,12 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include "usb.h"
 #include "usb_request.h"
-#include "usb_queue.h"
 
 #include <stdbool.h>
+
+#include "usb.h"
+#include "usb_queue.h"
 
 static void usb_request(usb_endpoint_t* const endpoint, const usb_transfer_stage_t stage)
 {

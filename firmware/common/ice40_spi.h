@@ -22,12 +22,14 @@
 #ifndef __ICE40_SPI_H
 #define __ICE40_SPI_H
 
+#include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+
 #include "gpio.h"
 #include "spi_bus.h"
 
-struct ice40_spi_driver_t;
+struct ice40_spi_driver_t; // IWYU pragma: keep - fixed in #1704
 typedef struct ice40_spi_driver_t ice40_spi_driver_t;
 
 struct ice40_spi_driver_t {
@@ -42,7 +44,8 @@ uint8_t ice40_spi_read(ice40_spi_driver_t* const drv, uint8_t r);
 void ice40_spi_write(ice40_spi_driver_t* const drv, uint8_t r, uint16_t v);
 bool ice40_spi_syscfg_program(
 	ice40_spi_driver_t* const drv,
-	size_t (*read_block_cb)(void* ctx, uint8_t* buffer),
+	uint8_t* buf,
+	size_t (*read_block_cb)(void* ctx),
 	void* read_ctx);
 
 #endif // __ICE40_SPI_H

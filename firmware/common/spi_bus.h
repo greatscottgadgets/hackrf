@@ -30,7 +30,7 @@ typedef struct {
 	const size_t count;
 } spi_transfer_t;
 
-struct spi_bus_t;
+struct spi_bus_t; // IWYU pragma: keep - fixed in #1704
 typedef struct spi_bus_t spi_bus_t;
 
 struct spi_bus_t {

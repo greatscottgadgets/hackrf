@@ -38,11 +38,6 @@
 #ifndef __RAD1O_SMALLFONTS_H__
 #define __RAD1O_SMALLFONTS_H__
 
-#include "fonts.h"
-
-#include <stddef.h>
-#include <stdint.h>
-
 /* Partially based on original code for the KS0108 by Stephane Rey */
 /* Current version by Kevin Townsend */
 

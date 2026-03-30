@@ -19,19 +19,20 @@
  * Boston, MA 02110-1301, USA.
  */
 
+#include "fpga.h"
+
 #include <stdbool.h>
+
+#include "fpga_regs.def"
 #include "hackrf_core.h"
 #include "ice40_spi.h"
-#include "fpga.h"
-#include "fpga_regs.def"
 
 /* Set up all registers according to the loaded bitstream's defaults. */
 void fpga_init(fpga_driver_t* const drv)
 {
 	// Standard bitstream default register values.
 	set_FPGA_STANDARD_CTRL_DC_BLOCK(drv, true);
-	set_FPGA_STANDARD_CTRL_QUARTER_SHIFT_EN(drv, false);
-	set_FPGA_STANDARD_CTRL_QUARTER_SHIFT_UP(drv, false);
+	set_FPGA_STANDARD_RX_PSTEP(drv, 0);
 	set_FPGA_STANDARD_CTRL_PRBS(drv, false);
 	set_FPGA_STANDARD_CTRL_TRIGGER_EN(drv, false);
 	set_FPGA_STANDARD_TX_CTRL(drv, 0);
@@ -105,8 +106,7 @@ void fpga_set_rx_quarter_shift_mode(
 	fpga_driver_t* const drv,
 	const fpga_quarter_shift_mode_t mode)
 {
-	set_FPGA_STANDARD_CTRL_QUARTER_SHIFT_EN(drv, (mode >> 0) & 0b1);
-	set_FPGA_STANDARD_CTRL_QUARTER_SHIFT_UP(drv, (mode >> 1) & 0b1);
+	set_FPGA_STANDARD_RX_PSTEP(drv, (mode & 0b11) << 6);
 	fpga_regs_commit(drv);
 }
 

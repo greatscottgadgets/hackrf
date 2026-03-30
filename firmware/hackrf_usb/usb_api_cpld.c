@@ -23,17 +23,18 @@
 
 #include "usb_api_cpld.h"
 
-#include <hackrf_core.h>
-#include <cpld_jtag.h>
-#include <cpld_xc2c.h>
-#include <usb_queue.h>
-
-#include "usb_endpoint.h"
-
-#include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+
+#include <cpld_jtag.h>
+#include <cpld_xc2c.h>
+#include <hackrf_core.h>
+#include <usb_queue.h>
+#include <usb_request.h>
+#include <usb_type.h>
+
+#include "usb_endpoint.h"
 
 uint8_t cpld_xsvf_buffer[512];
 volatile bool cpld_wait = false;

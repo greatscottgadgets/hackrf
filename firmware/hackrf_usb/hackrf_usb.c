@@ -22,49 +22,69 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include <stddef.h>
+#include <stdbool.h>
+#include <stdint.h>
 #include <string.h>
 
 #include <libopencm3/lpc43xx/ipc.h>
 #include <libopencm3/lpc43xx/m4/nvic.h>
-#include <libopencm3/lpc43xx/rgu.h>
-#include <libopencm3/lpc43xx/timer.h>
+#include <libopencm3/cm3/nvic.h>
 #include <libopencm3/cm3/systick.h>
 
-#include <streaming.h>
-
-#include "tuning.h"
-
-#include "usb.h"
-#include "usb_standard_request.h"
-
+#include <clkin.h>
+#include <da7219.h>
+#include <delay.h>
+#include <hackrf_core.h>
+#include <hackrf_ui.h>
+#include <operacake.h>
+#include <platform_detect.h>
+#include <radio.h>
+#include <rf_path.h>
 #include <rom_iap.h>
-#include "usb_descriptor.h"
+#include <selftest.h>
+#include <usb.h>
+#include <usb_queue.h>
+#include <usb_request.h>
+#include <usb_standard_request.h>
+#include <usb_type.h>
+#if defined(HACKRF_ONE)
+	#include <mixer.h>
+#endif
+#if defined(PRALINE) || defined(HACKRF_ONE)
+	#include <portapack.h>
+#endif
+#if defined(PRALINE) || defined(HACKRF_ONE) || defined(JAWBREAKER)
+	#include <rffc5071.h>
+#endif
+#if defined(PRALINE)
+	#include <fpga.h>
+	#if !(defined(DFU_MODE) || defined(RAM_MODE))
+		#include <spi_bus.h>
+		#include <w25q80bv.h>
+	#endif
+#else
+	#include <cpld_jtag.h>
+	#include <cpld_xc2c.h>
+#endif
 
-#include "usb_device.h"
-#include "usb_endpoint.h"
-#include "usb_api_board_info.h"
-#include "usb_api_cpld.h"
-#include "usb_api_register.h"
-#include "usb_api_spiflash.h"
-#include "usb_api_operacake.h"
-#include "usb_api_praline.h"
-#include "usb_api_selftest.h"
 #include "usb_api_adc.h"
-#include "operacake.h"
+#include "usb_api_board_info.h"
+#include "usb_api_m0_state.h"
+#include "usb_api_operacake.h"
+#include "usb_api_register.h"
+#include "usb_api_selftest.h"
+#include "usb_api_spiflash.h"
 #include "usb_api_sweep.h"
 #include "usb_api_transceiver.h"
 #include "usb_api_ui.h"
-#include "usb_bulk_buffer.h"
-#include "usb_api_m0_state.h"
-#include "cpld_xc2c.h"
-#include "portapack.h"
-#include "hackrf_ui.h"
-#include "platform_detect.h"
-#include "clkin.h"
-#include "fpga.h"
-#include "selftest.h"
-#include "delay.h"
+#include "usb_descriptor.h"
+#include "usb_device.h"
+#include "usb_endpoint.h"
+#if defined(PRALINE)
+	#include "usb_api_praline.h"
+#else
+	#include "usb_api_cpld.h"
+#endif
 
 extern uint32_t __m0_start__;
 extern uint32_t __m0_end__;
@@ -258,6 +278,32 @@ static void m0_rom_to_ram(void)
 	memcpy(dest, (uint32_t*) (base + src), len);
 }
 
+#if defined(PRALINE) && !(defined(DFU_MODE) || defined(RAM_MODE))
+extern uint32_t _binary_fpga_bin_start;
+
+static uint8_t fpga_lz4_in_buf[4096];
+static uint8_t fpga_lz4_out_buf[4096];
+
+void fpga_loader_setup(void)
+{
+	spi_bus_start(spi_flash.bus, &ssp_config_w25q80bv);
+	w25q80bv_setup(&spi_flash);
+}
+
+void fpga_loader_read(uint32_t addr, uint32_t size, uint8_t* buf)
+{
+	w25q80bv_read(&spi_flash, addr, size, buf);
+}
+
+struct fpga_loader_t fpga_loader = {
+	.start_addr = (uint32_t) &_binary_fpga_bin_start,
+	.setup = fpga_loader_setup,
+	.read = fpga_loader_read,
+	.in_buffer = fpga_lz4_in_buf,
+	.out_buffer = fpga_lz4_out_buf,
+};
+#endif
+
 int main(void)
 {
 	// Copy M0 image from ROM before SPIFI is disabled
@@ -323,16 +369,15 @@ int main(void)
 		halt_and_flash(6000000);
 	}
 #else
-	// for H4M HACKRF PRO
 	#if defined(DFU_MODE)
-		// doing nothing!
+	selftest.fpga_image_load = SKIPPED;
+	selftest.report.pass = false;
 	#elif defined(RAM_MODE)
 	// Load from SPIFI in PP mode
 	fpga_image_load_for_pp(0);
 	#else
-	fpga_image_load(0);
+	fpga_image_load(&fpga_loader, 0);
 	#endif
-
 	delay_us_at_mhz(100, 204);
 	fpga_spi_selftest();
 	fpga_sgpio_selftest();
@@ -376,6 +421,9 @@ int main(void)
 	fpga_if_xcvr_selftest();
 #endif
 
+	if (da7219_detect()) {
+		operacake_skip_i2c_address(DA7219_ADDRESS);
+	}
 	bool operacake_allow_gpio;
 	if (hackrf_ui()->operacake_gpio_compatible()) {
 		operacake_allow_gpio = true;
