@@ -23,6 +23,7 @@
 
 #include <stdint.h>
 
+#include "gpio.h"
 #include "hackrf_core.h"
 #include "hackrf_ui.h"
 #include "i2c_bus.h"
@@ -34,7 +35,7 @@
 	#include "portapack.h"
 #endif
 #if defined(PRALINE)
-	#include "gpio.h"
+	#include "fpga.h"
 	#include "platform_gpio.h"
 #endif
 
@@ -325,6 +326,15 @@ fp_40_24_t sample_rate_set(const fp_40_24_t sample_rate, const bool program)
 	}
 
 	return resultant_rate;
+}
+
+void trigger_enable(const bool enable)
+{
+#if defined(PRALINE)
+	fpga_set_trigger_enable(&fpga, enable);
+#else
+	gpio_write(sgpio_config.gpio_trigger_enable, enable);
+#endif
 }
 
 #ifdef PRALINE

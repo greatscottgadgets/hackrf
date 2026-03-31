@@ -23,6 +23,7 @@
 
 #include <libopencm3/cm3/nvic.h>
 
+#include "clock_gen.h"
 #include "fixed_point.h"
 #include "hackrf_core.h"
 #include "hackrf_ui.h"

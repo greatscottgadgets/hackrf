@@ -45,6 +45,8 @@ clock_source_t activate_best_clock_source(void);
 
 fp_40_24_t sample_rate_set(const fp_40_24_t sample_rate, const bool program);
 
+void trigger_enable(const bool enable);
+
 #ifdef PRALINE
 typedef enum {
 	P1_SIGNAL_TRIGGER_IN = 0,

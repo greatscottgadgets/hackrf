@@ -21,6 +21,8 @@
  * Boston, MA 02110-1301, USA.
  */
 
+#include <stdbool.h>
+
 #include <libopencm3/lpc43xx/memorymap.h>
 #include <libopencm3/lpc43xx/scu.h>
 #include <libopencm3/lpc43xx/ssp.h>
@@ -448,13 +450,4 @@ void pin_setup(void)
 	scu_pinmux(scu->PINMUX_GP_CLKIN, SCU_CLK_IN | SCU_CONF_FUNCTION1);
 
 	sgpio_configure_pin_functions(&sgpio_config);
-}
-
-void trigger_enable(const bool enable)
-{
-#ifndef PRALINE
-	gpio_write(sgpio_config.gpio_trigger_enable, enable);
-#else
-	fpga_set_trigger_enable(&fpga, enable);
-#endif
 }
