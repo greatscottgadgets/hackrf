@@ -92,6 +92,7 @@ class Top(Elaboratable):
         rx_decim_new = Signal(3)
         rx_decim_stb = Signal()
         spi_regs.add_sfr(0x02, read=rx_decim, write_signal=rx_decim_new, write_strobe=rx_decim_stb)
+        rx_pstep     = spi_regs.add_register(0x03, init=0)
 
         m.d.comb += [
             # Trigger enable.
@@ -99,8 +100,8 @@ class Top(Elaboratable):
 
             # RX settings.
             rx_chain["dc_block"].enable         .eq(ctrl[0]),
-            rx_chain["quarter_shift"].enable    .eq(ctrl[1]),
-            rx_chain["quarter_shift"].up        .eq(ctrl[2]),
+            rx_chain["quarter_shift"].enable    .eq(rx_pstep[-2]),
+            rx_chain["quarter_shift"].up        .eq(rx_pstep[-1]),
 
             # RX decimation rate.
             rx_chain["cic"].factor              .eq(rx_decim),
