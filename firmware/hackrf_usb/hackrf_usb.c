@@ -34,10 +34,10 @@
 #include <da7219.h>
 #include <delay.h>
 #include <drivers.h>
-#include <hackrf_core.h>
 #include <hackrf_ui.h>
 #include <leds.h>
 #include <operacake.h>
+#include <pins.h>
 #include <platform_detect.h>
 #include <power.h>
 #include <radio.h>
@@ -313,12 +313,12 @@ int main(void)
 	selftest.report.pass = true;
 
 	detect_hardware_platform();
-	pin_shutdown();
+	pins_shutdown();
 #ifndef RAD1O
 	clock_gen_shutdown();
 #endif
 	delay_us_at_mhz(10000, 96);
-	pin_setup();
+	pins_setup();
 #ifndef PRALINE
 	enable_1v8_power();
 	#ifndef RAD1O

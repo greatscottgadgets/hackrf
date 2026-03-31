@@ -27,8 +27,8 @@
 extern "C" {
 #endif
 
-void pin_shutdown(void);
-void pin_setup(void);
+void pins_shutdown(void);
+void pins_setup(void);
 
 #ifdef __cplusplus
 }
