@@ -29,7 +29,7 @@
 
 #include <cpld_jtag.h>
 #include <cpld_xc2c.h>
-#include <hackrf_core.h>
+#include <drivers.h>
 #include <leds.h>
 #include <platform_detect.h>
 #include <usb_queue.h>
