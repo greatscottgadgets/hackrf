@@ -26,9 +26,9 @@
 
 #include "cpld_jtag.h"
 #include "delay.h"
+#include "drivers.h"
 #include "gpio.h"
 #include "gpio_lpc.h"
-#include "hackrf_core.h"
 #include "platform_gpio.h"
 #include "platform_scu.h"
 

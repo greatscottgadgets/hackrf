@@ -20,12 +20,12 @@
  */
 
 #include "fpga.h"
+#include "fpga_regs.def"
 
 #include <stdbool.h>
 
-#include "fpga_regs.def"
+#include "drivers.h"
 #include "gpio.h"
-#include "hackrf_core.h"
 #include "ice40_spi.h"
 #include "platform_gpio.h"
 

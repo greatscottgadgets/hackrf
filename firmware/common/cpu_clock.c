@@ -29,7 +29,7 @@
 #endif
 
 #include "delay.h"
-#include "hackrf_core.h"
+#include "drivers.h"
 #include "i2c_bus.h"
 
 /*

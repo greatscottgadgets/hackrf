@@ -27,7 +27,7 @@
 	#include <libopencm3/lpc43xx/scu.h>
 #endif
 
-#include "hackrf_core.h"
+#include "drivers.h"
 #include "hackrf_ui.h"
 #include "max283x.h"
 #include "max5864.h"

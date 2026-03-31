@@ -27,8 +27,8 @@
 #include <stddef.h>
 
 #include <clock_gen.h>
+#include <drivers.h>
 #include <fixed_point.h>
-#include <hackrf_core.h>
 #include <hackrf_ui.h>
 #include <leds.h>
 #include <m0_state.h>

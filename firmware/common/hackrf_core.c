@@ -21,168 +21,25 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include <stdbool.h>
+#include "hackrf_core.h"
 
-#include <libopencm3/lpc43xx/memorymap.h>
 #include <libopencm3/lpc43xx/scu.h>
 #include <libopencm3/lpc43xx/ssp.h>
 
-#include "clock_gen.h"
+#include "drivers.h"
 #include "gpio.h"
-#include "hackrf_core.h"
-#include "i2c_lpc.h"
 #include "leds.h"
-#include "max283x.h"
-#include "max5864_target.h"
+#include "mixer.h"
 #include "platform_detect.h"
 #include "platform_gpio.h"
 #include "platform_scu.h"
 #include "power.h"
-#include "spi_bus.h"
-#include "w25q80bv_target.h"
+#include "rf_path.h"
+#include "sgpio.h"
 #if defined(PRALINE)
-	#include "ice40_spi.h"
 	#include "clkin.h"
-#endif
-
-i2c_bus_t i2c0 = {
-	.obj = (void*) I2C0_BASE,
-	.start = i2c_lpc_start,
-	.stop = i2c_lpc_stop,
-	.transfer = i2c_lpc_transfer,
-};
-
-i2c_bus_t i2c1 = {
-	.obj = (void*) I2C1_BASE,
-	.start = i2c_lpc_start,
-	.stop = i2c_lpc_stop,
-	.transfer = i2c_lpc_transfer,
-};
-
-// const i2c_lpc_config_t i2c_config_si5351c_slow_clock = {
-// 	.duty_cycle_count = 15,
-// };
-
-const i2c_lpc_config_t i2c_config_si5351c_fast_clock = {
-	.duty_cycle_count = 255,
-};
-
-si5351c_driver_t clock_gen = {
-	.bus = &i2c0,
-	.i2c_address = 0x60,
-};
-
-static ssp_config_t ssp_config_max283x = {
-	/* FIXME speed up once everything is working reliably */
-	/*
-	// Freq About 0.0498MHz / 49.8KHz => Freq = PCLK / (CPSDVSR * [SCR+1]) with PCLK=PLL1=204MHz
-	const uint8_t serial_clock_rate = 32;
-	const uint8_t clock_prescale_rate = 128;
-	*/
-	// Freq About 4.857MHz => Freq = PCLK / (CPSDVSR * [SCR+1]) with PCLK=PLL1=204MHz
-	.serial_clock_rate = 21,
-	.clock_prescale_rate = 2,
-};
-
-max283x_driver_t max283x = {};
-
-static ssp_config_t ssp_config_max5864 = {
-	/* FIXME speed up once everything is working reliably */
-	/*
-	// Freq About 0.0498MHz / 49.8KHz => Freq = PCLK / (CPSDVSR * [SCR+1]) with PCLK=PLL1=204MHz
-	const uint8_t serial_clock_rate = 32;
-	const uint8_t clock_prescale_rate = 128;
-	*/
-	// Freq About 4.857MHz => Freq = PCLK / (CPSDVSR * [SCR+1]) with PCLK=PLL1=204MHz
-	.data_bits = SSP_DATA_8BITS,
-	.serial_clock_rate = 21,
-	.clock_prescale_rate = 2,
-};
-
-spi_bus_t spi_bus_ssp1 = {
-	.obj = (void*) SSP1_BASE,
-	.config = &ssp_config_max5864,
-	.start = spi_ssp_start,
-	.stop = spi_ssp_stop,
-	.transfer = spi_ssp_transfer,
-	.transfer_gather = spi_ssp_transfer_gather,
-};
-
-max5864_driver_t max5864 = {
-	.bus = &spi_bus_ssp1,
-	.target_init = max5864_target_init,
-};
-
-ssp_config_t ssp_config_w25q80bv = {
-	.data_bits = SSP_DATA_8BITS,
-	.serial_clock_rate = 2,
-	.clock_prescale_rate = 2,
-};
-
-spi_bus_t spi_bus_ssp0 = {
-	.obj = (void*) SSP0_BASE,
-	.config = &ssp_config_w25q80bv,
-	.start = spi_ssp_start,
-	.stop = spi_ssp_stop,
-	.transfer = spi_ssp_transfer,
-	.transfer_gather = spi_ssp_transfer_gather,
-};
-
-w25q80bv_driver_t spi_flash = {
-	.bus = &spi_bus_ssp0,
-	.target_init = w25q80bv_target_init,
-};
-
-sgpio_config_t sgpio_config = {
-	.slice_mode_multislice = true,
-};
-
-#ifdef PRALINE
-ssp_config_t ssp_config_ice40_fpga = {
-	.data_bits = SSP_DATA_8BITS,
-	.spi_mode = SSP_CPOL_1_CPHA_1,
-	.serial_clock_rate = 21,
-	.clock_prescale_rate = 2,
-};
-
-ice40_spi_driver_t ice40 = {
-	.bus = &spi_bus_ssp1,
-};
-
-fpga_driver_t fpga = {
-	.bus = &ice40,
-};
-#endif
-
-radio_t radio = {
-	.sample_rate_cb = sample_rate_set,
-};
-
-rf_path_t rf_path = {
-	.switchctrl = 0,
-};
-
-jtag_gpio_t jtag_gpio_cpld = {};
-
-jtag_t jtag_cpld = {
-	.gpio = &jtag_gpio_cpld,
-};
-
-void ssp1_set_mode_max283x(void)
-{
-	spi_bus_start(&spi_bus_ssp1, &ssp_config_max283x);
-}
-
-void ssp1_set_mode_max5864(void)
-{
-	spi_bus_start(max5864.bus, &ssp_config_max5864);
-}
-
-#ifdef PRALINE
-void ssp1_set_mode_ice40(void)
-{
-	spi_bus_start(&spi_bus_ssp1, &ssp_config_ice40_fpga);
-}
+	#include "clock_gen.h"
+	#include "fpga.h"
 #endif
 
 void pin_shutdown(void)
