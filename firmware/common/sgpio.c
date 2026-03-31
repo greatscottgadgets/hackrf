@@ -32,7 +32,7 @@
 #include "platform_scu.h"
 #include "sgpio.h"
 #ifdef IS_NOT_PRALINE
-	#include "hackrf_core.h"
+	#include "clock_io.h"
 #endif
 
 static void update_q_invert(sgpio_config_t* const config);

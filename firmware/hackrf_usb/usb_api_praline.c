@@ -23,8 +23,7 @@
 
 #include "usb_api_praline.h"
 
-#include <clkin.h>
-#include <clock_gen.h>
+#include <clock_io.h>
 #include <platform_detect.h>
 #include <rf_path.h>
 #include <usb_queue.h>

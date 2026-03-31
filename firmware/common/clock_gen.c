@@ -33,10 +33,6 @@
 	#include "delay.h"
 	#include "portapack.h"
 #endif
-#if defined(IS_PRALINE)
-	#include "gpio.h"
-	#include "platform_gpio.h"
-#endif
 
 void clock_gen_init(void)
 {
@@ -426,27 +422,3 @@ fp_28_36_t sample_rate_set(const fp_28_36_t sample_rate, const bool program)
 
 	return resultant_rate;
 }
-
-#ifdef IS_PRALINE
-void p1_ctrl_set(const p1_ctrl_signal_t signal)
-{
-	const platform_gpio_t* gpio = platform_gpio();
-
-	gpio_write(gpio->p1_ctrl0, signal & 1);
-	gpio_write(gpio->p1_ctrl1, (signal >> 1) & 1);
-	gpio_write(gpio->p1_ctrl2, (signal >> 2) & 1);
-}
-
-void p2_ctrl_set(const p2_ctrl_signal_t signal)
-{
-	const platform_gpio_t* gpio = platform_gpio();
-
-	gpio_write(gpio->p2_ctrl0, signal & 1);
-	gpio_write(gpio->p2_ctrl1, (signal >> 1) & 1);
-}
-
-void pps_out_set(const uint8_t value)
-{
-	gpio_write(platform_gpio()->pps_out, value & 1);
-}
-#endif

@@ -27,8 +27,6 @@
 extern "C" {
 #endif
 
-#include <stdbool.h>
-
 #include "cpld_jtag.h"
 #include "i2c_bus.h"
 #include "i2c_lpc.h"
@@ -75,8 +73,6 @@ void ssp1_set_mode_ice40(void);
 
 void pin_shutdown(void);
 void pin_setup(void);
-
-void trigger_enable(const bool enable);
 
 #ifdef __cplusplus
 }

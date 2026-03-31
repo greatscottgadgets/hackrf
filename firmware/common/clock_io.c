@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Great Scott Gadgets
+ * Copyright 2022-2026 Great Scott Gadgets
  *
  * This file is part of HackRF.
  *
@@ -19,8 +19,9 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include "clkin.h"
+#include "clock_io.h"
 
+#include <stdbool.h>
 #include <stdint.h>
 
 #include <libopencm3/lpc43xx/timer.h>
@@ -30,8 +31,10 @@
 #include <libopencm3/lpc43xx/creg.h>
 
 #include "gpdma.h"
+#include "gpio.h"
+#include "hackrf_core.h"
 #ifdef IS_PRALINE
-	#include "gpio.h"
+	#include "fpga.h"
 	#include "platform_gpio.h"
 #endif
 
@@ -120,9 +123,45 @@ uint32_t clkin_frequency(void)
 	return TIMER2_CR3 * (1000 / MEASUREMENT_WINDOW_MS);
 }
 
+void trigger_enable(const bool enable)
+{
+#ifdef IS_NOT_PRALINE
+	if (IS_NOT_PRALINE) {
+		gpio_write(sgpio_config.gpio_trigger_enable, enable);
+	}
+#endif
+#ifdef IS_PRALINE
+	if (IS_PRALINE) {
+		fpga_set_trigger_enable(&fpga, enable);
+	}
+#endif
+}
+
 #ifdef IS_PRALINE
 void clkin_ctrl_set(const clkin_signal_t signal)
 {
 	gpio_write(platform_gpio()->clkin_ctrl, signal & 1);
+}
+
+void p1_ctrl_set(const p1_ctrl_signal_t signal)
+{
+	const platform_gpio_t* gpio = platform_gpio();
+
+	gpio_write(gpio->p1_ctrl0, signal & 1);
+	gpio_write(gpio->p1_ctrl1, (signal >> 1) & 1);
+	gpio_write(gpio->p1_ctrl2, (signal >> 2) & 1);
+}
+
+void p2_ctrl_set(const p2_ctrl_signal_t signal)
+{
+	const platform_gpio_t* gpio = platform_gpio();
+
+	gpio_write(gpio->p2_ctrl0, signal & 1);
+	gpio_write(gpio->p2_ctrl1, (signal >> 1) & 1);
+}
+
+void pps_out_set(const uint8_t value)
+{
+	gpio_write(platform_gpio()->pps_out, value & 1);
 }
 #endif

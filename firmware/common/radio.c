@@ -25,6 +25,7 @@
 
 #include <libopencm3/cm3/nvic.h>
 
+#include "clock_io.h"
 #include "fixed_point.h"
 #include "hackrf_core.h"
 #include "mixer.h"

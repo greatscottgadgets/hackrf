@@ -28,9 +28,6 @@ extern "C" {
 #include "platform_detect.h" // IWYU pragma: keep
 
 #include <stdbool.h>
-#ifdef IS_PRALINE
-	#include <stdint.h>
-#endif
 
 #include "fixed_point.h"
 
@@ -46,30 +43,6 @@ void clock_gen_shutdown(void);
 clock_source_t activate_best_clock_source(void);
 
 fp_28_36_t sample_rate_set(const fp_28_36_t sample_rate, const bool program);
-
-#ifdef IS_PRALINE
-typedef enum {
-	P1_SIGNAL_TRIGGER_IN = 0,
-	P1_SIGNAL_AUX_CLK1 = 1,
-	P1_SIGNAL_CLKIN = 2,
-	P1_SIGNAL_TRIGGER_OUT = 3,
-	P1_SIGNAL_P22_CLKIN = 4,
-	P1_SIGNAL_P2_5 = 5,
-	P1_SIGNAL_NC = 6,
-	P1_SIGNAL_AUX_CLK2 = 7,
-} p1_ctrl_signal_t;
-
-typedef enum {
-	P2_SIGNAL_CLK3 = 0,
-	P2_SIGNAL_TRIGGER_IN = 2,
-	P2_SIGNAL_TRIGGER_OUT = 3,
-} p2_ctrl_signal_t;
-
-void p1_ctrl_set(const p1_ctrl_signal_t signal);
-void p2_ctrl_set(const p2_ctrl_signal_t signal);
-
-void pps_out_set(const uint8_t value);
-#endif
 
 #ifdef __cplusplus
 }

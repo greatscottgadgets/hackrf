@@ -23,7 +23,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-#include "clkin.h"
+#include "clock_io.h"
 #include "delay.h"
 #include "platform_detect.h"
 #include "selftest.h"

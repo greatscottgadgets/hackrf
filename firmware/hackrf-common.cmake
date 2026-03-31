@@ -192,7 +192,7 @@ macro(DeclareTargets)
 		${PATH_HACKRF_FIRMWARE_COMMON}/platform_gpio.c
 		${PATH_HACKRF_FIRMWARE_COMMON}/platform_scu.c
 		${PATH_HACKRF_FIRMWARE_COMMON}/firmware_info.c
-		${PATH_HACKRF_FIRMWARE_COMMON}/clkin.c
+		${PATH_HACKRF_FIRMWARE_COMMON}/clock_io.c
 		${PATH_HACKRF_FIRMWARE_COMMON}/gpdma.c
 		${PATH_HACKRF_FIRMWARE_COMMON}/radio.c
 		${PATH_HACKRF_FIRMWARE_COMMON}/selftest.c
