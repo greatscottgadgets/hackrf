@@ -22,7 +22,6 @@
 #include <string.h>
 
 #include <libopencm3/cm3/nvic.h>
-#include <libopencm3/lpc43xx/m4/nvic.h>
 
 #include "fixed_point.h"
 #include "hackrf_core.h"
