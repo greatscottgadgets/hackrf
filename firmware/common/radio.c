@@ -89,7 +89,6 @@ radio_error_t radio_reg_write(
 		return RADIO_ERR_INVALID_BANK;
 	}
 
-	radio_update(radio);
 	return RADIO_OK;
 }
 
