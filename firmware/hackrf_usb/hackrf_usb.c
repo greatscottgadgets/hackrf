@@ -25,9 +25,8 @@
 #include <stdint.h>
 #include <string.h>
 
-#include <libopencm3/lpc43xx/ipc.h>
-#include <libopencm3/lpc43xx/m4/nvic.h>
 #include <libopencm3/cm3/nvic.h>
+#include <libopencm3/lpc43xx/ipc.h>
 
 #include <clkin.h>
 #include <da7219.h>
