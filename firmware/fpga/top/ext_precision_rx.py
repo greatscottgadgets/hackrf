@@ -88,9 +88,10 @@ class Top(Elaboratable):
 
         # Add control registers.
         ctrl         = spi_regs.add_register(0x01, init=0)
-        rx_decim     = Signal(3, init=2)
+        rx_decim     = Signal(3, init=4)
         rx_decim_new = Signal(3)
         rx_decim_stb = Signal()
+        rx_decim_cic = Signal.like(rx_chain["cic"].factor)
         spi_regs.add_sfr(0x02, read=rx_decim, write_signal=rx_decim_new, write_strobe=rx_decim_stb)
         rx_pstep     = spi_regs.add_register(0x03, init=0)
 
@@ -104,13 +105,15 @@ class Top(Elaboratable):
             rx_chain["quarter_shift"].up        .eq(rx_pstep[-1]),
 
             # RX decimation rate.
-            rx_chain["cic"].factor              .eq(rx_decim),
+            rx_chain["cic"].factor              .eq(rx_decim_cic),
         ]
         with m.If(rx_decim_stb):
-            with m.If(rx_decim_new < 2):
-                m.d.sync += rx_decim.eq(2)
+            with m.If(rx_decim_new < 4):
+                m.d.sync += rx_decim.eq(4)
+                m.d.sync += rx_decim_cic.eq(2)
             with m.Else():
                 m.d.sync += rx_decim.eq(rx_decim_new)
+                m.d.sync += rx_decim_cic.eq(rx_decim_new-2)
 
         return m
 
