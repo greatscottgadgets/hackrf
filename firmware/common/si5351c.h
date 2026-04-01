@@ -39,10 +39,6 @@ extern "C" {
 #define SI5351C_CLK_INT_MODE  (1 << 6)
 #define SI5351C_CLK_FRAC_MODE (0 << 6)
 
-#define SI5351C_CLK_PLL_SRC(x) (x << 5)
-#define SI5351C_CLK_PLL_SRC_A  0
-#define SI5351C_CLK_PLL_SRC_B  1
-
 #define SI5351C_CLK_INV (1 << 4)
 
 #define SI5351C_CLK_SRC(x)              (x << 2)
@@ -59,6 +55,14 @@ extern "C" {
 
 #define SI5351C_LOS   (1 << 4)
 #define SI5351C_REVID 0x03
+
+typedef enum {
+	SI5351C_PLL_A = 1,
+	SI5351C_PLL_B = 2,
+	SI5351C_PLL_BOTH = 3,
+} si5351c_pll_t;
+
+#define SI5351C_CLK_PLL_SRC(x) ((x & SI5351C_PLL_B) << 4)
 
 enum pll_sources {
 	PLL_SOURCE_UNINITIALIZED = -1,
@@ -82,7 +86,7 @@ void si5351c_configure_pll_sources(
 void si5351c_configure_pll_multisynth(
 	si5351c_driver_t* const drv,
 	const enum pll_sources source);
-void si5351c_reset_pll(si5351c_driver_t* const drv);
+void si5351c_reset_pll(si5351c_driver_t* const drv, si5351c_pll_t pll);
 void si5351c_configure_multisynth(
 	si5351c_driver_t* const drv,
 	const uint_fast8_t ms_number,
