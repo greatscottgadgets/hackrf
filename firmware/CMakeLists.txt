@@ -21,6 +21,14 @@
 # Top directory CMake project for HackRF firmware
 
 cmake_minimum_required(VERSION 3.10.0)
+
+find_program(IWYU NAMES include-what-you-use)
+if(IWYU)
+    list(APPEND IWYU -Xiwyu --no-fwd-decls -Xiwyu --mapping_file=${CMAKE_SOURCE_DIR}/libopencm3.imp)
+    set(CMAKE_CXX_INCLUDE_WHAT_YOU_USE ${IWYU})
+    set(CMAKE_C_INCLUDE_WHAT_YOU_USE ${IWYU})
+endif()
+
 set(CMAKE_TOOLCHAIN_FILE toolchain-arm-cortex-m.cmake)
 
 project (hackrf_firmware_all C)
