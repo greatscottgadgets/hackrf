@@ -13,7 +13,7 @@ jobs:
       options: --user 0
     strategy:
       matrix:
-        board: ['HACKRF_ONE', 'JAWBREAKER', 'RAD1O', 'PRALINE']
+        board: ['HACKRF_ONE', 'JAWBREAKER', 'RAD1O', 'PRALINE', 'UNIVERSAL']
         cmake: ['3.10.0', 'latest']
 
       # Don't cancel all builds when one fails
