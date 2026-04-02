@@ -26,50 +26,14 @@ pipeline {
                 }
                 retry(3) {
                     script {
-                        try {
-                            // Allow 20 seconds for the USB hub port power server to respond
-                            timeout(time: 20, unit: 'SECONDS') {
-                                sh 'hubs h1_eut reset'
-                            }
-                        } catch (FlowInterruptedException err) {
-                            // Check if the cause was specifically an exceeded timeout
-                            def cause = err.getCauses().get(0)
-                            if (cause instanceof org.jenkinsci.plugins.workflow.steps.TimeoutStepExecution.ExceededTimeout) {
-                                echo "USB hub port power server command timeout reached."
-                                throw err // Re-throw the exception to fail the build
-                            } else {
-                                echo "Build interrupted for another reason."
-                                throw err // Re-throw the exception to fail the build
-                            }
-                        } catch (Exception err) {
-                            echo "An unrelated error occurred: ${err.getMessage()}"
-                            throw err
-                        }
+                        reset('h1_eut')
                     }
                     sh 'sleep 1s'
                     sh './ci-scripts/test_host.sh'
                 }
                 retry(3) {
                     script {
-                        try {
-                            // Allow 20 seconds for the USB hub port power server to respond
-                            timeout(time: 20, unit: 'SECONDS') {
-                                sh 'hubs h1_tester h1_eut reset'
-                            }
-                        } catch (FlowInterruptedException err) {
-                            // Check if the cause was specifically an exceeded timeout
-                            def cause = err.getCauses().get(0)
-                            if (cause instanceof org.jenkinsci.plugins.workflow.steps.TimeoutStepExecution.ExceededTimeout) {
-                                echo "USB hub port power server command timeout reached."
-                                throw err // Re-throw the exception to fail the build
-                            } else {
-                                echo "Build interrupted for another reason."
-                                throw err // Re-throw the exception to fail the build
-                            }
-                        } catch (Exception err) {
-                            echo "An unrelated error occurred: ${err.getMessage()}"
-                            throw err
-                        }
+                        reset('h1_tester h1_eut')
                     }
                     sh 'sleep 1s'
                     script {
@@ -98,48 +62,12 @@ pipeline {
                         }
                     }
                     script {
-                        try {
-                            // Allow 20 seconds for the USB hub port power server to respond
-                            timeout(time: 20, unit: 'SECONDS') {
-                                sh 'hubs all off'
-                            }
-                        } catch (FlowInterruptedException err) {
-                            // Check if the cause was specifically an exceeded timeout
-                            def cause = err.getCauses().get(0)
-                            if (cause instanceof org.jenkinsci.plugins.workflow.steps.TimeoutStepExecution.ExceededTimeout) {
-                                echo "USB hub port power server command timeout reached."
-                                throw err // Re-throw the exception to fail the build
-                            } else {
-                                echo "Build interrupted for another reason."
-                                throw err // Re-throw the exception to fail the build
-                            }
-                        } catch (Exception err) {
-                            echo "An unrelated error occurred: ${err.getMessage()}"
-                            throw err
-                        }
+                        allOff()
                     }
                 }
                 retry(3) {
                     script {
-                        try {
-                            // Allow 20 seconds for the USB hub port power server to respond
-                            timeout(time: 20, unit: 'SECONDS') {
-                                sh 'hubs h1_eut reset'
-                            }
-                        } catch (FlowInterruptedException err) {
-                            // Check if the cause was specifically an exceeded timeout
-                            def cause = err.getCauses().get(0)
-                            if (cause instanceof org.jenkinsci.plugins.workflow.steps.TimeoutStepExecution.ExceededTimeout) {
-                                echo "USB hub port power server command timeout reached."
-                                throw err // Re-throw the exception to fail the build
-                            } else {
-                                echo "Build interrupted for another reason."
-                                throw err // Re-throw the exception to fail the build
-                            }
-                        } catch (Exception err) {
-                            echo "An unrelated error occurred: ${err.getMessage()}"
-                            throw err
-                        }
+                        reset('h1_eut')
                     }
                     sh 'sleep 1s'
                     sh 'python3 ci-scripts/test_sgpio_debug.py'
@@ -164,50 +92,14 @@ pipeline {
                 }
                 retry(3) {
                     script {
-                        try {
-                            // Allow 20 seconds for the USB hub port power server to respond
-                            timeout(time: 20, unit: 'SECONDS') {
-                                sh 'hubs hpro_eut reset'
-                            }
-                        } catch (FlowInterruptedException err) {
-                            // Check if the cause was specifically an exceeded timeout
-                            def cause = err.getCauses().get(0)
-                            if (cause instanceof org.jenkinsci.plugins.workflow.steps.TimeoutStepExecution.ExceededTimeout) {
-                                echo "USB hub port power server command timeout reached."
-                                throw err // Re-throw the exception to fail the build
-                            } else {
-                                echo "Build interrupted for another reason."
-                                throw err // Re-throw the exception to fail the build
-                            }
-                        } catch (Exception err) {
-                            echo "An unrelated error occurred: ${err.getMessage()}"
-                            throw err
-                        }
+                        reset('hpro_eut')
                     }
                     sh 'sleep 1s'
                     sh './ci-scripts/test_host.sh'
                 }
                 retry(3) {
                     script {
-                        try {
-                            // Allow 10 seconds for the USB hub port power server to respond
-                            timeout(time: 20, unit: 'SECONDS') {
-                                sh 'hubs hpro_tester hpro_eut reset'
-                            }
-                        } catch (FlowInterruptedException err) {
-                            // Check if the cause was specifically an exceeded timeout
-                            def cause = err.getCauses().get(0)
-                            if (cause instanceof org.jenkinsci.plugins.workflow.steps.TimeoutStepExecution.ExceededTimeout) {
-                                echo "USB hub port power server command timeout reached."
-                                throw err // Re-throw the exception to fail the build
-                            } else {
-                                echo "Build interrupted for another reason."
-                                throw err // Re-throw the exception to fail the build
-                            }
-                        } catch (Exception err) {
-                            echo "An unrelated error occurred: ${err.getMessage()}"
-                            throw err
-                        }
+                        reset('hpro_tester hpro_eut')
                     }
                     sh 'sleep 1s'
                     script {
@@ -254,6 +146,28 @@ def allOff() {
         // Allow 20 seconds for the USB hub port power server to respond
         timeout(time: 20, unit: 'SECONDS') {
             sh 'hubs all off'
+        }
+    } catch (FlowInterruptedException err) {
+        // Check if the cause was specifically an exceeded timeout
+        def cause = err.getCauses().get(0)
+        if (cause instanceof org.jenkinsci.plugins.workflow.steps.TimeoutStepExecution.ExceededTimeout) {
+            echo "USB hub port power server command timeout reached."
+            throw err // Re-throw the exception to fail the build
+        } else {
+            echo "Build interrupted for another reason."
+            throw err // Re-throw the exception to fail the build
+        }
+    } catch (Exception err) {
+        echo "An unrelated error occurred: ${err.getMessage()}"
+        throw err
+    }
+}
+
+def reset(devices) {
+    try {
+        // Allow 20 seconds for the USB hub port power server to respond
+        timeout(time: 20, unit: 'SECONDS') {
+            sh "hubs ${devices} reset"
         }
     } catch (FlowInterruptedException err) {
         // Check if the cause was specifically an exceeded timeout
