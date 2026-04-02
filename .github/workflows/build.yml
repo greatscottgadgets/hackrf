@@ -186,7 +186,7 @@ jobs:
 
     - name: Install dependencies (macOS)
       run: |
-        brew install dfu-util
+        brew install dfu-util include-what-you-use
         python3 -m venv environment && source environment/bin/activate
         python3 -m pip install PyYAML
       if: matrix.os == 'macos'
@@ -195,7 +195,7 @@ jobs:
       run: |
         python3 -m venv environment && source environment/bin/activate
         python3 -m pip install PyYAML
-        sudo apt install dfu-util
+        sudo apt install dfu-util iwyu
       if: matrix.os == 'ubuntu'
 
     - name: Build libopencm3
@@ -237,6 +237,7 @@ jobs:
           mingw-w64-ucrt-x86_64-cmake
           mingw-w64-ucrt-x86_64-dfu-util
           mingw-w64-ucrt-x86_64-python-yaml
+          mingw-w64-ucrt-x86_64-include-what-you-use
 
     - name: Build with MSYS (Windows)
       if: matrix.os == 'windows'
