@@ -37,31 +37,14 @@ pipeline {
                     }
                     sh 'sleep 1s'
                     script {
-                        try {
-                            // Allow 5 minutes for the test to run
-                            timeout(time: 5, unit: 'MINUTES') {
-                                sh '''python3 ci-scripts/hackrf_test.py --ci --log log \
-                                    --hostdir host/build/hackrf-tools/src/ \
-                                    --fwupdate firmware/hackrf_usb/build/ \
-                                    --tester 0000000000000000325866e629a25623 \
-                                    --eut RunningFromRAM --unattended --rev r4'''
-                            }
-                        } catch (FlowInterruptedException err) {
-                            // Check if the cause was specifically an exceeded timeout
-                            def cause = err.getCauses().get(0)
-                            if (cause instanceof org.jenkinsci.plugins.workflow.steps.TimeoutStepExecution.ExceededTimeout) {
-                                echo "HackRF One Test timeout limit reached."
-                                throw err // Re-throw the exception to fail the build
-                            } else {
-                                echo "Build interrupted for another reason."
-                                throw err // Re-throw the exception to fail the build
-                            }
-                        } catch (Exception err) {
-                            echo "An unrelated error occurred: ${err.getMessage()}"
-                            throw err
-                        }
-                    }
-                    script {
+                        // Allow 5 minutes for the test to run
+                        runCommand(5, 'MINUTES', "HackRF One Test",
+                            '''python3 ci-scripts/hackrf_test.py --ci --log log \
+                                --hostdir host/build/hackrf-tools/src/ \
+                                --fwupdate firmware/hackrf_usb/build/ \
+                                --tester 0000000000000000325866e629a25623 \
+                                --eut RunningFromRAM --unattended --rev r4'''
+                        )
                         allOff()
                     }
                 }
@@ -103,29 +86,14 @@ pipeline {
                     }
                     sh 'sleep 1s'
                     script {
-                        try {
-                            // Allow 5 minutes for the test to run
-                            timeout(time: 5, unit: 'MINUTES') {
-                                sh '''python3 ci-scripts/hackrf_pro_test.py --ci --log log \
-                                    --hostdir host/build/hackrf-tools/src \
-                                    --fwupdate firmware/hackrf_usb/build \
-                                    --tester 0000000000000000a06063c82338145f \
-                                    --eut RunningFromRAM -p --rev r1.2'''
-                            }
-                        } catch (FlowInterruptedException err) {
-                            // Check if the cause was specifically an exceeded timeout
-                            def cause = err.getCauses().get(0)
-                            if (cause instanceof org.jenkinsci.plugins.workflow.steps.TimeoutStepExecution.ExceededTimeout) {
-                                echo "HackRF Pro Test timeout limit reached."
-                                throw err // Re-throw the exception to fail the build
-                            } else {
-                                echo "Build interrupted for another reason."
-                                throw err // Re-throw the exception to fail the build
-                            }
-                        } catch (Exception err) {
-                            echo "An unrelated error occurred: ${err.getMessage()}"
-                            throw err
-                        }
+                        // Allow 5 minutes for the test to run
+                        runCommand(5, 'MINUTES', "HackRF Pro Test",
+                            '''python3 ci-scripts/hackrf_pro_test.py --ci --log log \
+                                --hostdir host/build/hackrf-tools/src \
+                                --fwupdate firmware/hackrf_usb/build \
+                                --tester 0000000000000000a06063c82338145f \
+                                --eut RunningFromRAM -p --rev r1.2'''
+			)
                     }
                 }
             }
@@ -142,38 +110,25 @@ pipeline {
 }
 
 def allOff() {
-    try {
-        // Allow 20 seconds for the USB hub port power server to respond
-        timeout(time: 20, unit: 'SECONDS') {
-            sh 'hubs all off'
-        }
-    } catch (FlowInterruptedException err) {
-        // Check if the cause was specifically an exceeded timeout
-        def cause = err.getCauses().get(0)
-        if (cause instanceof org.jenkinsci.plugins.workflow.steps.TimeoutStepExecution.ExceededTimeout) {
-            echo "USB hub port power server command timeout reached."
-            throw err // Re-throw the exception to fail the build
-        } else {
-            echo "Build interrupted for another reason."
-            throw err // Re-throw the exception to fail the build
-        }
-    } catch (Exception err) {
-        echo "An unrelated error occurred: ${err.getMessage()}"
-        throw err
-    }
+    // Allow 20 seconds for the USB hub port power server to respond
+    runCommand(20, 'SECONDS', 'USB hub port power server command', "hubs all off")
 }
 
 def reset(devices) {
+    // Allow 20 seconds for the USB hub port power server to respond
+    runCommand(20, 'SECONDS', 'USB hub port power server command', "hubs ${devices} reset")
+}
+
+def runCommand(time, unit, title, cmd) {
     try {
-        // Allow 20 seconds for the USB hub port power server to respond
-        timeout(time: 20, unit: 'SECONDS') {
-            sh "hubs ${devices} reset"
+        timeout(time: time, unit: unit) {
+            sh "${cmd}"
         }
     } catch (FlowInterruptedException err) {
         // Check if the cause was specifically an exceeded timeout
         def cause = err.getCauses().get(0)
         if (cause instanceof org.jenkinsci.plugins.workflow.steps.TimeoutStepExecution.ExceededTimeout) {
-            echo "USB hub port power server command timeout reached."
+            echo "${title} timeout reached."
             throw err // Re-throw the exception to fail the build
         } else {
             echo "Build interrupted for another reason."
