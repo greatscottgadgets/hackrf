@@ -27,12 +27,12 @@
 
 typedef struct {
 	gpio_t gpio_tck;
-#ifndef PRALINE
+#if !defined(PRALINE) || defined(UNIVERSAL)
 	gpio_t gpio_tms;
 	gpio_t gpio_tdi;
 	gpio_t gpio_tdo;
 #endif
-#if (defined HACKRF_ONE || defined PRALINE)
+#if defined(HACKRF_ONE) || defined(PRALINE) || defined(UNIVERSAL)
 	gpio_t gpio_pp_tms;
 	gpio_t gpio_pp_tdo;
 #endif

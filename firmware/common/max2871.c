@@ -24,6 +24,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include <libopencm3/lpc43xx/scu.h>
+
 #include "max2871_regs.h"
 #include "selftest.h"
 #include "platform_scu.h"
@@ -33,7 +35,6 @@
 	#define LOG printf
 #else
 	#define LOG(x, ...)
-	#include <libopencm3/lpc43xx/scu.h>
 #endif
 
 static uint32_t max2871_spi_read(max2871_driver_t* const drv);

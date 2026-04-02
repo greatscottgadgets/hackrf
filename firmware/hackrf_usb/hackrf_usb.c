@@ -39,30 +39,30 @@
 #include <rf_path.h>
 #include <rom_iap.h>
 #include <selftest.h>
+#include <tuning.h>
 #include <usb.h>
 #include <usb_queue.h>
 #include <usb_request.h>
 #include <usb_standard_request.h>
 #include <usb_type.h>
-#if defined(HACKRF_ONE)
+#if !defined(PRALINE) || defined(UNIVERSAL)
+	#include <cpld_jtag.h>
+	#include <cpld_xc2c.h>
+#endif
+#if !defined(RAD1O)
 	#include <mixer.h>
-#endif
-#if defined(PRALINE) || defined(HACKRF_ONE)
-	#include <portapack.h>
-#endif
-#if defined(PRALINE) || defined(HACKRF_ONE) || defined(JAWBREAKER)
 	#include <rffc5071.h>
 #endif
-#if defined(PRALINE)
+#if defined(PRALINE) || defined(HACKRF_ONE) || defined(UNIVERSAL)
+	#include <portapack.h>
+#endif
+#if defined(PRALINE) || defined(UNIVERSAL)
 	#include <fpga.h>
 	#if !(defined(DFU_MODE) || defined(RAM_MODE))
 		#include <lz4_buf.h>
 		#include <spi_bus.h>
 		#include <w25q80bv.h>
 	#endif
-#else
-	#include <cpld_jtag.h>
-	#include <cpld_xc2c.h>
 #endif
 
 #include "usb_api_adc.h"
@@ -78,9 +78,10 @@
 #include "usb_descriptor.h"
 #include "usb_device.h"
 #include "usb_endpoint.h"
-#if defined(PRALINE)
+#if defined(PRALINE) || defined(UNIVERSAL)
 	#include "usb_api_praline.h"
-#else
+#endif
+#if !defined(PRALINE) || defined(UNIVERSAL)
 	#include "usb_api_cpld.h"
 #endif
 
@@ -98,12 +99,12 @@ static usb_request_handler_fn vendor_request_handler[] = {
 	usb_vendor_request_read_si5351c,
 	usb_vendor_request_set_sample_rate_frac,
 	usb_vendor_request_set_baseband_filter_bandwidth,
-#ifdef RAD1O
-	NULL, // write_rffc5071 not used
-	NULL, // read_rffc5071 not used
-#else
+#if !defined(RAD1O)
 	usb_vendor_request_write_rffc5071,
 	usb_vendor_request_read_rffc5071,
+#else
+	NULL, // write_rffc5071 not used
+	NULL, // read_rffc5071 not used
 #endif
 	usb_vendor_request_erase_spiflash,
 	usb_vendor_request_write_spiflash,
@@ -118,7 +119,7 @@ static usb_request_handler_fn vendor_request_handler[] = {
 	usb_vendor_request_set_vga_gain,
 	usb_vendor_request_set_txvga_gain,
 	NULL, // was set_if_freq
-#if (defined HACKRF_ONE || defined PRALINE)
+#if defined(HACKRF_ONE) || defined(PRALINE) || defined(UNIVERSAL)
 	usb_vendor_request_set_antenna_enable,
 #else
 	NULL,
@@ -135,7 +136,7 @@ static usb_request_handler_fn vendor_request_handler[] = {
 	usb_vendor_request_spiflash_status,
 	usb_vendor_request_spiflash_clear_status,
 	usb_vendor_request_operacake_gpio_test,
-#ifdef HACKRF_ONE
+#if defined(HACKRF_ONE) || defined(UNIVERSAL)
 	usb_vendor_request_cpld_checksum,
 #else
 	NULL,
@@ -152,7 +153,7 @@ static usb_request_handler_fn vendor_request_handler[] = {
 	usb_vendor_request_read_supported_platform,
 	usb_vendor_request_set_leds,
 	usb_vendor_request_user_config_set_bias_t_opts,
-#ifdef PRALINE
+#if defined(PRALINE) || defined(UNIVERSAL)
 	usb_vendor_request_write_fpga_reg,
 	usb_vendor_request_read_fpga_reg,
 	usb_vendor_request_p2_ctrl,
@@ -248,7 +249,7 @@ void usb_set_descriptor_by_serial_number(void)
 	}
 }
 
-#ifndef PRALINE
+#if !defined(PRALINE) || defined(UNIVERSAL)
 static bool cpld_jtag_sram_load(jtag_t* const jtag)
 {
 	cpld_jtag_take(jtag);
@@ -276,7 +277,7 @@ static void m0_rom_to_ram(void)
 	memcpy(dest, (uint32_t*) (base + src), len);
 }
 
-#if defined(PRALINE) && !(defined(DFU_MODE) || defined(RAM_MODE))
+#if (defined(PRALINE) || defined(UNIVERSAL)) && !(defined(DFU_MODE) || defined(RAM_MODE))
 extern uint32_t _binary_fpga_bin_start;
 
 void fpga_loader_setup(void)
@@ -307,72 +308,90 @@ int main(void)
 	// This will be cleared if any self-test check fails.
 	selftest.report.pass = true;
 
+	// Detect hardware platform before we do anything else.
 	detect_hardware_platform();
+	board_id_t board_id = detected_platform();
+
 	pin_shutdown();
-#ifndef RAD1O
-	clock_gen_shutdown();
-#endif
+	if (board_id != BOARD_ID_RAD1O) {
+		clock_gen_shutdown();
+	}
 	delay_us_at_mhz(10000, 96);
 	pin_setup();
-#ifndef PRALINE
-	enable_1v8_power();
-	#ifndef RAD1O
-	/*
-	 * On rad1o, the clock generator power supply comes from the RF supply
-	 * which is enabled later. On H1 and Jawbreaker, the clock generator is
-	 * on the main 3V3 supply.
-	 */
-	clock_gen_init();
-	#endif
-#else
-	enable_3v3aux_power();
+	if (board_id != BOARD_ID_PRALINE) {
+		enable_1v8_power();
+		if (board_id != BOARD_ID_RAD1O) {
+			/*
+			 * On rad1o, the clock generator power supply comes from the RF supply
+			 * which is enabled later. On H1 and Jawbreaker, the clock generator is
+			 * on the main 3V3 supply.
+			 */
+			clock_gen_init();
+		}
+	} else {
+#if defined(PRALINE) || defined(UNIVERSAL)
+		enable_3v3aux_power();
 	#if !defined(DFU_MODE) && !defined(RAM_MODE)
-	enable_1v2_power();
-	enable_rf_power();
-	/*
-	 * On Praline, the clock generator power supply comes from 3V3FPGA
-	 * which is enabled when 1V2FPGA is turned on.
-	 */
-	clock_gen_init();
+		enable_1v2_power();
+		enable_rf_power();
+		/*
+		 * On Praline, the clock generator power supply comes from 3V3FPGA
+		 * which is enabled when 1V2FPGA is turned on.
+		 */
+		clock_gen_init();
 	#endif
 #endif
-#ifdef HACKRF_ONE
-	// Set up mixer before enabling RF power, because its
-	// GPO is used to control the antenna bias tee.
-	mixer_setup(&mixer);
+	}
+	tuning_setup();
+	if (board_id == BOARD_ID_HACKRF1_OG || board_id == BOARD_ID_HACKRF1_R9) {
+#if defined(HACKRF_ONE) || defined(UNIVERSAL)
+		// Set up mixer before enabling RF power, because its
+		// GPO is used to control the antenna bias tee.
+		mixer_setup(&mixer, RFFC5071_VARIANT);
 #endif
-#if (defined HACKRF_ONE || defined RAD1O)
-	enable_rf_power();
+	}
+	if (board_id == BOARD_ID_HACKRF1_OG || board_id == BOARD_ID_HACKRF1_R9 ||
+	    board_id == BOARD_ID_RAD1O) {
+#if defined(RAD1O) || defined(HACKRF_ONE) || defined(UNIVERSAL)
+		enable_rf_power();
 #endif
-#ifdef RAD1O
-	clock_gen_init();
-#endif
+	}
+	if (board_id == BOARD_ID_RAD1O) {
+		clock_gen_init();
+	}
 	cpu_clock_init();
 
 	/* Wake the M0 */
 	ipc_halt_m0();
 	ipc_start_m0((uint32_t) &__ram_m0_start__);
 
-#ifndef PRALINE
-	if (!cpld_jtag_sram_load(&jtag_cpld)) {
-		halt_and_flash(6000000);
-	}
-#else
-	#if defined(DFU_MODE) || defined(RAM_MODE)
-	selftest.fpga_image_load = SKIPPED;
-	selftest.report.pass = false;
-	#else
-	fpga_image_load(&fpga_loader, 0);
-	#endif
-	delay_us_at_mhz(100, 204);
-	fpga_spi_selftest();
-	fpga_sgpio_selftest();
+	if (board_id != BOARD_ID_PRALINE) {
+#if !defined(PRALINE) || defined(UNIVERSAL)
+		if (!cpld_jtag_sram_load(&jtag_cpld)) {
+			halt_and_flash(6000000);
+		}
 #endif
+	} else {
+#if defined(PRALINE) || defined(UNIVERSAL)
+	#if defined(DFU_MODE) || defined(RAM_MODE)
+		selftest.fpga_image_load = SKIPPED;
+		selftest.report.pass = false;
+	#else
+		fpga_image_load(&fpga_loader, 0);
+	#endif
+		delay_us_at_mhz(100, 204);
+		fpga_spi_selftest();
+		fpga_sgpio_selftest();
+#endif
+	}
 	radio_init(&radio);
 
-#if (defined HACKRF_ONE || defined PRALINE)
-	portapack_init();
+	if (board_id == BOARD_ID_HACKRF1_OG || board_id == BOARD_ID_HACKRF1_R9 ||
+	    board_id == BOARD_ID_PRALINE) {
+#if defined(HACKRF_ONE) || defined(PRALINE) || defined(UNIVERSAL)
+		portapack_init();
 #endif
+	}
 
 #ifndef DFU_MODE
 	usb_set_descriptor_by_serial_number();
@@ -381,6 +400,35 @@ int main(void)
 	usb_set_configuration_changed_cb(usb_configuration_changed);
 	usb_peripheral_reset();
 
+	switch (detected_platform()) {
+	case BOARD_ID_HACKRF1_OG:
+	case BOARD_ID_HACKRF1_R9:
+#if defined(HACKRF_ONE) || defined(UNIVERSAL)
+		memcpy(&usb_device,
+		       &usb_device_hackrf_one,
+		       sizeof(usb_device_hackrf_one));
+#endif
+		break;
+	case BOARD_ID_JAWBREAKER:
+#if defined(JAWBREAKER)
+		memcpy(&usb_device,
+		       &usb_device_jawbreaker,
+		       sizeof(usb_device_jawbreaker));
+#endif
+		break;
+	case BOARD_ID_RAD1O:
+#if defined(RAD1O)
+		memcpy(&usb_device, &usb_device_rad1o, sizeof(usb_device_rad1o));
+#endif
+		break;
+	case BOARD_ID_PRALINE:
+#if defined(PRALINE) || defined(UNIVERSAL)
+		memcpy(&usb_device, &usb_device_praline, sizeof(usb_device_praline));
+#endif
+		break;
+	default:
+		break;
+	};
 	usb_device_init(0, &usb_device);
 
 	usb_queue_init(&usb_endpoint_control_out_queue);
@@ -399,13 +447,17 @@ int main(void)
 
 	rf_path_init(&rf_path);
 
-#ifndef RAD1O
-	rffc5071_lock_test(&mixer);
+	if (board_id != BOARD_ID_RAD1O) {
+#if !defined(RAD1O)
+		rffc5071_lock_test(&mixer.rffc5071);
 #endif
+	}
 
-#ifdef PRALINE
-	fpga_if_xcvr_selftest();
+	if (board_id == BOARD_ID_PRALINE) {
+#if defined(PRALINE) || defined(UNIVERSAL)
+		fpga_if_xcvr_selftest();
 #endif
+	}
 
 	if (da7219_detect()) {
 		operacake_skip_i2c_address(DA7219_ADDRESS);
@@ -451,11 +503,13 @@ int main(void)
 		case TRANSCEIVER_MODE_RX_SWEEP:
 			sweep_mode(request.seq);
 			break;
-#ifndef PRALINE
 		case TRANSCEIVER_MODE_CPLD_UPDATE:
-			cpld_update();
-			break;
+			if (board_id != BOARD_ID_PRALINE) {
+#if !defined(PRALINE) || defined(UNIVERSAL)
+				cpld_update();
 #endif
+			}
+			break;
 		default:
 			break;
 		}
