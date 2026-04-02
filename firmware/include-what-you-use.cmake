@@ -1,4 +1,4 @@
-# Copyright 2012 Jared Boone <jared@sharebrained.com>
+# Copyright 2026 Great Scott Gadgets <info@greatscottgadgets.com>
 #
 # This file is part of HackRF.
 #
@@ -18,19 +18,21 @@
 # Boston, MA 02110-1301, USA.
 #
 
-# Top directory CMake project for HackRF firmware
-
-option(CHECK_INCLUDES
-	   "Check firmware sources for unused includes and transitive dependencies. (Requires iwyu)" OFF)
-
 cmake_minimum_required(VERSION 3.10.0)
-set(CMAKE_TOOLCHAIN_FILE toolchain-arm-cortex-m.cmake)
 
-project (hackrf_firmware_all C)
-
-if(CHECK_INCLUDES)
-	include(include-what-you-use.cmake)
+find_program(IWYU_COMMAND NAMES include-what-you-use)
+if(NOT IWYU_COMMAND)
+	message(FATAL_ERROR "Could not find the include-what-you-use executable.")
 endif()
 
-add_subdirectory(blinky)
-add_subdirectory(hackrf_usb)
+# include-what-you-use arguments:
+#
+#   --no_fwd_decls  - Disable forward declaration suggestions.
+#   --mapping_file  - Specify mapping files for excluding suggestions.
+#
+list(APPEND IWYU_COMMAND
+			-Xiwyu --no_fwd_decls
+			-Xiwyu --mapping_file=${CMAKE_SOURCE_DIR}/libopencm3.imp)
+
+set(CMAKE_C_INCLUDE_WHAT_YOU_USE ${IWYU_COMMAND})
+set(CMAKE_CXX_INCLUDE_WHAT_YOU_USE ${IWYU_COMMAND})
