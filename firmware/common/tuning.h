@@ -26,6 +26,8 @@
 #include "fixed_point.h"
 #include "rf_path.h"
 
+void tuning_setup(void);
+
 /**
  * Select fixed or graduated IF for a given RF and image reject filter.
  */
