@@ -26,10 +26,13 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#if defined(PRALINE)
+#if defined(PRALINE) || defined(UNIVERSAL)
 	#include "max2831.h"
-#else
+#endif
+#if !defined(PRALINE) || defined(UNIVERSAL)
 	#include "max2837.h"
+#endif
+#if defined(HACKRF_ONE) || defined(UNIVERSAL)
 	#include "max2839.h"
 #endif
 
@@ -51,10 +54,13 @@ typedef enum {
 } max283x_rx_hpf_freq_t;
 
 typedef enum {
-#ifdef PRALINE
+#if defined(PRALINE) || defined(UNIVERSAL)
 	MAX2831_VARIANT,
-#else
+#endif
+#if !defined(PRALINE) || defined(UNIVERSAL)
 	MAX2837_VARIANT,
+#endif
+#if defined(HACKRF_ONE) || defined(UNIVERSAL)
 	MAX2839_VARIANT,
 #endif
 } max283x_variant_t;
@@ -63,10 +69,13 @@ typedef struct {
 	max283x_variant_t type;
 
 	union {
-#ifdef PRALINE
+#if defined(PRALINE) || defined(UNIVERSAL)
 		max2831_driver_t max2831;
-#else
+#endif
+#if !defined(PRALINE) || defined(UNIVERSAL)
 		max2837_driver_t max2837;
+#endif
+#if defined(HACKRF_ONE) || defined(UNIVERSAL)
 		max2839_driver_t max2839;
 #endif
 	} drv;
