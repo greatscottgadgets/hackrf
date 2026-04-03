@@ -525,7 +525,7 @@ static void portapack_ui_set_frequency(uint64_t frequency)
 	char s[10];
 	for (int i = 0; i < 10; i++) {
 		const char c = '0' + value % 10;
-		s[i] = ((i >= 6) && (value == 0)) ? ' ' : c;
+		s[i] = ((i >= 7) && (value == 0)) ? ' ' : c;
 		value /= 10;
 	}
 
