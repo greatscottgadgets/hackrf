@@ -29,17 +29,22 @@
 #define MIN(x, y) ((x) < (y) ? (x) : (y))
 #define MAX(x, y) ((x) > (y) ? (x) : (y))
 
-#ifdef PRALINE
-	#define MIN_BYPASS_FREQ FP_MHZ(2320)
-	#define MAX_BYPASS_FREQ FP_MHZ(2580)
-#else
-	#define MIN_BYPASS_FREQ FP_MHZ(2170)
-	#define MAX_BYPASS_FREQ FP_MHZ(2740)
-#endif
-
 #define MID1_HP_FREQ FP_MHZ(3600)
 #define MID2_HP_FREQ FP_MHZ(5100)
 #define MAX_HP_FREQ  FP_MHZ(7250)
+
+static fp_40_24_t min_bypass_freq = FP_MHZ(2170);
+static fp_40_24_t max_bypass_freq = FP_MHZ(2740);
+
+void tuning_setup(void)
+{
+#if defined(PRALINE) || defined(UNIVERSAL)
+	if (detected_platform() == BOARD_ID_PRALINE) {
+		min_bypass_freq = FP_MHZ(2320);
+		max_bypass_freq = FP_MHZ(2580);
+	}
+#endif
+}
 
 fp_40_24_t select_graduated_if(fp_40_24_t freq_rf, rf_path_filter_t img_reject)
 {
@@ -57,8 +62,8 @@ fp_40_24_t select_graduated_if(fp_40_24_t freq_rf, rf_path_filter_t img_reject)
 	case RF_PATH_FILTER_HIGH_PASS:
 		if (freq_rf < MID1_HP_FREQ) {
 			/* IF is graduated from 2170 MHz to 2740 MHz */
-			freq_if = MIN_BYPASS_FREQ +
-				(((freq_rf - (MAX_BYPASS_FREQ)) * 57) / 86);
+			freq_if = min_bypass_freq +
+				(((freq_rf - (max_bypass_freq)) * 57) / 86);
 		} else if (freq_rf < MID2_HP_FREQ) {
 			/* IF is graduated from 2350 MHz to 2650 MHz */
 			freq_if = FP_MHZ(2350) + ((freq_rf - (MID1_HP_FREQ)) / 5);
@@ -75,9 +80,9 @@ fp_40_24_t select_graduated_if(fp_40_24_t freq_rf, rf_path_filter_t img_reject)
 
 rf_path_filter_t select_img_reject(fp_40_24_t freq_rf)
 {
-	if (freq_rf > MAX_BYPASS_FREQ) {
+	if (freq_rf > max_bypass_freq) {
 		return RF_PATH_FILTER_HIGH_PASS;
-	} else if (freq_rf >= MIN_BYPASS_FREQ) {
+	} else if (freq_rf >= min_bypass_freq) {
 		return RF_PATH_FILTER_BYPASS;
 	} else {
 		return RF_PATH_FILTER_LOW_PASS;
@@ -91,14 +96,14 @@ fp_40_24_t restrict_rf(fp_40_24_t freq_rf, rf_path_filter_t img_reject)
 
 	switch (img_reject) {
 	case RF_PATH_FILTER_LOW_PASS:
-		max_rf = MIN_BYPASS_FREQ;
+		max_rf = min_bypass_freq;
 		break;
 	case RF_PATH_FILTER_HIGH_PASS:
-		min_rf = MAX_BYPASS_FREQ;
+		min_rf = max_bypass_freq;
 		break;
 	default:
-		min_rf = MIN_BYPASS_FREQ;
-		max_rf = MAX_BYPASS_FREQ;
+		min_rf = min_bypass_freq;
+		max_rf = max_bypass_freq;
 	}
 	freq_rf = MIN(freq_rf, max_rf);
 	freq_rf = MAX(freq_rf, min_rf);
