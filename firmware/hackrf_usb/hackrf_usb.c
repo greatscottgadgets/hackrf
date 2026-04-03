@@ -39,6 +39,7 @@
 #include <rf_path.h>
 #include <rom_iap.h>
 #include <selftest.h>
+#include <tuning.h>
 #include <usb.h>
 #include <usb_queue.h>
 #include <usb_request.h>
@@ -339,6 +340,7 @@ int main(void)
 	clock_gen_init();
 	#endif
 #endif
+	tuning_setup();
 #ifdef HACKRF_ONE
 	// Set up mixer before enabling RF power, because its
 	// GPO is used to control the antenna bias tee.
