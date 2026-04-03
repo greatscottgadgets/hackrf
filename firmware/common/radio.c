@@ -35,7 +35,7 @@
 #include "sgpio.h"
 #include "transceiver_mode.h"
 #include "tuning.h"
-#if defined(PRALINE)
+#if defined(PRALINE) || defined(UNIVERSAL)
 	#include "fpga.h"
 	#include "tune_config.h"
 #endif
@@ -200,18 +200,22 @@ static bool radio_update_sample_rate(radio_t* const radio, uint64_t* bank)
 	case TRANSCEIVER_MODE_SS:
 		n = compute_resample_log(rate / SR_FP_ONE_HZ, requested_n);
 		if (n != radio->config[RADIO_BANK_APPLIED][RADIO_RESAMPLE_TX]) {
-#ifdef PRALINE
-			fpga_set_tx_interpolation_ratio(&fpga, n);
+			if (detected_platform() == BOARD_ID_PRALINE) {
+#if defined(PRALINE) || defined(UNIVERSAL)
+				fpga_set_tx_interpolation_ratio(&fpga, n);
 #endif
+			}
 			radio->config[RADIO_BANK_APPLIED][RADIO_RESAMPLE_TX] = n;
 		}
 		break;
 	default:
 		n = compute_resample_log(rate / SR_FP_ONE_HZ, requested_n);
 		if (n != radio->config[RADIO_BANK_APPLIED][RADIO_RESAMPLE_RX]) {
-#ifdef PRALINE
-			fpga_set_rx_decimation_ratio(&fpga, n);
+			if (detected_platform() == BOARD_ID_PRALINE) {
+#if defined(PRALINE) || defined(UNIVERSAL)
+				fpga_set_rx_decimation_ratio(&fpga, n);
 #endif
+			}
 			radio->config[RADIO_BANK_APPLIED][RADIO_RESAMPLE_RX] = n;
 		}
 	}
@@ -301,7 +305,7 @@ static fp_40_24_t digital_from_analog_rf(
 	return drf;
 }
 
-#ifdef PRALINE
+#if defined(PRALINE) || defined(UNIVERSAL)
 /*
  * Convert center frequency of digital baseband (as seen by MCU) to center
  * frequency of analog baseband (as seen by ADC/DAC).
@@ -430,7 +434,7 @@ static bool radio_update_frequency(radio_t* const radio, uint64_t* bank)
 
 		/* Look up settings appropriate for requested RF. */
 		if (detected_platform() == BOARD_ID_PRALINE) {
-#ifdef PRALINE
+#if defined(PRALINE) || defined(UNIVERSAL)
 			const tune_config_t* tune_config =
 				select_tune_config(opmode, freq_rf);
 			if (requested_rotation == RADIO_UNSET) {
@@ -510,9 +514,11 @@ static bool radio_update_frequency(radio_t* const radio, uint64_t* bank)
 		new_freq = true;
 	}
 	if ((rotation != applied_rotation) && (rotation != RADIO_UNSET)) {
-#ifdef PRALINE
-		fpga_set_rx_quarter_shift_mode(&fpga, rotation >> 30);
+		if (detected_platform() == BOARD_ID_PRALINE) {
+#if defined(PRALINE) || defined(UNIVERSAL)
+			fpga_set_rx_quarter_shift_mode(&fpga, rotation >> 30);
 #endif
+		}
 		radio->config[RADIO_BANK_APPLIED][RADIO_ROTATION] = rotation;
 		new_freq = true;
 	}
@@ -587,68 +593,93 @@ static bool radio_update_bandwidth(radio_t* const radio, uint64_t* bank)
 		opmode = radio->config[RADIO_BANK_APPLIED][RADIO_OPMODE];
 	}
 
-#ifdef PRALINE
-	/* Praline legacy mode always sets baseband bandwidth automatically. */
-	(void) bank;
-	uint32_t lpf_bandwidth = auto_bandwidth(radio, opmode);
+	if (detected_platform() == BOARD_ID_PRALINE) {
+#if defined(PRALINE) || defined(UNIVERSAL)
+		/* Praline legacy mode always sets baseband bandwidth automatically. */
+		(void) bank;
+		uint32_t lpf_bandwidth = auto_bandwidth(radio, opmode);
 
-	if (radio->config[RADIO_BANK_APPLIED][RADIO_XCVR_TX_LPF] != lpf_bandwidth) {
-		max283x_set_lpf_bandwidth(&max283x, MAX283x_MODE_TX, lpf_bandwidth);
-		radio->config[RADIO_BANK_APPLIED][RADIO_XCVR_TX_LPF] = lpf_bandwidth;
-		new_bw = true;
-	}
-	if (radio->config[RADIO_BANK_APPLIED][RADIO_XCVR_RX_LPF] != lpf_bandwidth) {
-		max283x_set_lpf_bandwidth(&max283x, MAX283x_MODE_RX, lpf_bandwidth);
-		radio->config[RADIO_BANK_APPLIED][RADIO_XCVR_RX_LPF] = lpf_bandwidth;
-		new_bw = true;
-	}
-	bool narrow_lpf_enable = false;
-	bool applied_narrow_lpf_enable =
-		radio->config[RADIO_BANK_APPLIED][RADIO_RX_NARROW_LPF];
-	if (lpf_bandwidth <= 1750000) {
-		narrow_lpf_enable = true;
-	}
-	if (applied_narrow_lpf_enable != narrow_lpf_enable) {
-		narrowband_filter_set(narrow_lpf_enable);
-		radio->config[RADIO_BANK_APPLIED][RADIO_RX_NARROW_LPF] =
-			narrow_lpf_enable;
-		new_bw = true;
-	}
-	/* Always set HPF bandwidth to 30 kHz for now. */
-	const max283x_rx_hpf_freq_t hpf_bandwidth = MAX283x_RX_HPF_30_KHZ;
-	if (radio->config[RADIO_BANK_APPLIED][RADIO_XCVR_RX_HPF] != hpf_bandwidth) {
-		max283x_set_rx_hpf_frequency(&max283x, hpf_bandwidth);
-		radio->config[RADIO_BANK_APPLIED][RADIO_XCVR_RX_HPF] = hpf_bandwidth;
-		new_bw = true;
-	}
-#else
-	uint64_t lpf_bandwidth;
-	lpf_bandwidth = bank[RADIO_XCVR_TX_LPF];
-	if (lpf_bandwidth == RADIO_UNSET) {
-		lpf_bandwidth = bank[RADIO_XCVR_RX_LPF];
-	}
-	if (lpf_bandwidth == RADIO_UNSET) {
-		lpf_bandwidth = bank[RADIO_BB_BANDWIDTH_TX];
-	}
-	if (lpf_bandwidth == RADIO_UNSET) {
-		lpf_bandwidth = bank[RADIO_BB_BANDWIDTH_RX];
-	}
-	if (lpf_bandwidth == RADIO_UNSET) {
-		lpf_bandwidth = radio->config[RADIO_BANK_APPLIED][RADIO_XCVR_TX_LPF];
-	}
-	if (lpf_bandwidth == RADIO_UNSET) {
-		lpf_bandwidth = auto_bandwidth(radio, opmode);
-	}
-
-	if (radio->config[RADIO_BANK_APPLIED][RADIO_XCVR_TX_LPF] != lpf_bandwidth) {
-		max283x_set_lpf_bandwidth(&max283x, MAX283x_MODE_TX, lpf_bandwidth);
-		radio->config[RADIO_BANK_APPLIED][RADIO_BB_BANDWIDTH_RX] = lpf_bandwidth;
-		radio->config[RADIO_BANK_APPLIED][RADIO_BB_BANDWIDTH_TX] = lpf_bandwidth;
-		radio->config[RADIO_BANK_APPLIED][RADIO_XCVR_TX_LPF] = lpf_bandwidth;
-		radio->config[RADIO_BANK_APPLIED][RADIO_XCVR_RX_LPF] = lpf_bandwidth;
-		new_bw = true;
-	}
+		if (radio->config[RADIO_BANK_APPLIED][RADIO_XCVR_TX_LPF] !=
+		    lpf_bandwidth) {
+			max283x_set_lpf_bandwidth(
+				&max283x,
+				MAX283x_MODE_TX,
+				lpf_bandwidth);
+			radio->config[RADIO_BANK_APPLIED][RADIO_XCVR_TX_LPF] =
+				lpf_bandwidth;
+			new_bw = true;
+		}
+		if (radio->config[RADIO_BANK_APPLIED][RADIO_XCVR_RX_LPF] !=
+		    lpf_bandwidth) {
+			max283x_set_lpf_bandwidth(
+				&max283x,
+				MAX283x_MODE_RX,
+				lpf_bandwidth);
+			radio->config[RADIO_BANK_APPLIED][RADIO_XCVR_RX_LPF] =
+				lpf_bandwidth;
+			new_bw = true;
+		}
+		bool narrow_lpf_enable = false;
+		bool applied_narrow_lpf_enable =
+			radio->config[RADIO_BANK_APPLIED][RADIO_RX_NARROW_LPF];
+		if (lpf_bandwidth <= 1750000) {
+			narrow_lpf_enable = true;
+		}
+		if (applied_narrow_lpf_enable != narrow_lpf_enable) {
+			narrowband_filter_set(narrow_lpf_enable);
+			radio->config[RADIO_BANK_APPLIED][RADIO_RX_NARROW_LPF] =
+				narrow_lpf_enable;
+			new_bw = true;
+		}
+		/* Always set HPF bandwidth to 30 kHz for now. */
+		const max283x_rx_hpf_freq_t hpf_bandwidth = MAX283x_RX_HPF_30_KHZ;
+		if (radio->config[RADIO_BANK_APPLIED][RADIO_XCVR_RX_HPF] !=
+		    hpf_bandwidth) {
+			max283x_set_rx_hpf_frequency(&max283x, hpf_bandwidth);
+			radio->config[RADIO_BANK_APPLIED][RADIO_XCVR_RX_HPF] =
+				hpf_bandwidth;
+			new_bw = true;
+		}
 #endif
+	} else {
+#if !defined(PRALINE) || defined(UNIVERSAL)
+		uint64_t lpf_bandwidth;
+		lpf_bandwidth = bank[RADIO_XCVR_TX_LPF];
+		if (lpf_bandwidth == RADIO_UNSET) {
+			lpf_bandwidth = bank[RADIO_XCVR_RX_LPF];
+		}
+		if (lpf_bandwidth == RADIO_UNSET) {
+			lpf_bandwidth = bank[RADIO_BB_BANDWIDTH_TX];
+		}
+		if (lpf_bandwidth == RADIO_UNSET) {
+			lpf_bandwidth = bank[RADIO_BB_BANDWIDTH_RX];
+		}
+		if (lpf_bandwidth == RADIO_UNSET) {
+			lpf_bandwidth =
+				radio->config[RADIO_BANK_APPLIED][RADIO_XCVR_TX_LPF];
+		}
+		if (lpf_bandwidth == RADIO_UNSET) {
+			lpf_bandwidth = auto_bandwidth(radio, opmode);
+		}
+
+		if (radio->config[RADIO_BANK_APPLIED][RADIO_XCVR_TX_LPF] !=
+		    lpf_bandwidth) {
+			max283x_set_lpf_bandwidth(
+				&max283x,
+				MAX283x_MODE_TX,
+				lpf_bandwidth);
+			radio->config[RADIO_BANK_APPLIED][RADIO_BB_BANDWIDTH_RX] =
+				lpf_bandwidth;
+			radio->config[RADIO_BANK_APPLIED][RADIO_BB_BANDWIDTH_TX] =
+				lpf_bandwidth;
+			radio->config[RADIO_BANK_APPLIED][RADIO_XCVR_TX_LPF] =
+				lpf_bandwidth;
+			radio->config[RADIO_BANK_APPLIED][RADIO_XCVR_RX_LPF] =
+				lpf_bandwidth;
+			new_bw = true;
+		}
+#endif
+	}
 	return new_bw;
 }
 
@@ -784,26 +815,33 @@ static bool radio_update_trigger(radio_t* const radio, uint64_t* bank)
 
 static bool radio_update_dc_block(radio_t* const radio, uint64_t* bank)
 {
-#ifndef PRALINE
+#if !defined(PRALINE) && !defined(UNIVERSAL)
 	(void) radio;
 	(void) bank;
 	return false;
-#else
-	const uint64_t requested = bank[RADIO_DC_BLOCK];
-	bool enable = requested;
+#endif
 
-	if (requested == RADIO_UNSET) {
-		enable = true;
-	}
+	if (detected_platform() == BOARD_ID_PRALINE) {
+		const uint64_t requested = bank[RADIO_DC_BLOCK];
+		bool enable = requested;
 
-	if (radio->config[RADIO_BANK_APPLIED][RADIO_DC_BLOCK] == (uint64_t) enable) {
+		if (requested == RADIO_UNSET) {
+			enable = true;
+		}
+
+		if (radio->config[RADIO_BANK_APPLIED][RADIO_DC_BLOCK] ==
+		    (uint64_t) enable) {
+			return false;
+		}
+
+#if defined(PRALINE) || defined(UNIVERSAL)
+		fpga_set_rx_dc_block_enable(&fpga, enable);
+#endif
+		radio->config[RADIO_BANK_APPLIED][RADIO_DC_BLOCK] = enable;
+		return true;
+	} else {
 		return false;
 	}
-
-	fpga_set_rx_dc_block_enable(&fpga, enable);
-	radio->config[RADIO_BANK_APPLIED][RADIO_DC_BLOCK] = enable;
-	return true;
-#endif
 }
 
 bool radio_update(radio_t* const radio)
