@@ -307,7 +307,10 @@ int main(void)
 	// This will be cleared if any self-test check fails.
 	selftest.report.pass = true;
 
+	// Detect hardware platform before we do anything else.
 	detect_hardware_platform();
+	board_id_t board_id = detected_platform();
+
 	pin_shutdown();
 #ifndef RAD1O
 	clock_gen_shutdown();
@@ -339,7 +342,7 @@ int main(void)
 #ifdef HACKRF_ONE
 	// Set up mixer before enabling RF power, because its
 	// GPO is used to control the antenna bias tee.
-	mixer_setup(&mixer);
+	mixer_setup(&mixer, RFFC5071_VARIANT);
 #endif
 #if (defined HACKRF_ONE || defined RAD1O)
 	enable_rf_power();
@@ -400,7 +403,7 @@ int main(void)
 	rf_path_init(&rf_path);
 
 #ifndef RAD1O
-	rffc5071_lock_test(&mixer);
+	rffc5071_lock_test(&mixer.rffc5071);
 #endif
 
 #ifdef PRALINE
