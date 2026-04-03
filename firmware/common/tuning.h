@@ -28,11 +28,13 @@
 
 #include "rf_path.h"
 #include "transceiver_mode.h"
-#if defined(PRALINE)
+#if defined(PRALINE) || defined(UNIVERSAL)
 	#include "tune_config.h"
 #endif
 
 #define FREQ_ONE_MHZ (1000ULL * 1000)
+
+void tuning_setup(void);
 
 bool set_freq(const uint64_t freq, const transceiver_mode_t opmode);
 bool set_freq_explicit(
@@ -41,7 +43,7 @@ bool set_freq_explicit(
 	const rf_path_filter_t path,
 	const transceiver_mode_t opmode);
 
-#ifdef PRALINE
+#if defined(PRALINE) || defined(UNIVERSAL)
 bool tuning_set_frequency(
 	const tune_config_t* cfg,
 	const uint64_t freq,
