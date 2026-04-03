@@ -508,8 +508,15 @@ void rf_path_init(rf_path_t* const rf_path)
 	case BOARD_ID_HACKRF1_R9:
 		// On HackRF One, the mixer is now set up earlier in boot.
 		break;
+	case BOARD_ID_RAD1O:
+#if defined(RAD1O)
+		mixer_setup(&mixer, MAX2871_VARIANT);
+#endif
+		break;
 	default:
-		mixer_setup(&mixer);
+#if !defined(RAD1O)
+		mixer_setup(&mixer, RFFC5071_VARIANT);
+#endif
 		break;
 	}
 	rf_path->switchctrl = SWITCHCTRL_SAFE;

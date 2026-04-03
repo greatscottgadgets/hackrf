@@ -26,17 +26,32 @@
 
 #include "fixed_point.h"
 
-#if defined(JAWBREAKER) || defined(HACKRF_ONE) || defined(PRALINE)
-	#include "rffc5071.h"
-typedef rffc5071_driver_t mixer_driver_t;
-#elif defined(RAD1O)
+#if defined(RAD1O)
 	#include "max2871.h"
-typedef max2871_driver_t mixer_driver_t;
+#else
+	#include "rffc5071.h"
 #endif
+
+typedef enum {
+	RFFC5071_VARIANT,
+	MAX2871_VARIANT,
+} mixer_variant_t;
+
+typedef struct {
+	mixer_variant_t type;
+
+	union {
+#if defined(RAD1O)
+		max2871_driver_t max2871;
+#else
+		rffc5071_driver_t rffc5071;
+#endif
+	};
+} mixer_driver_t;
 
 #include <stdint.h>
 extern void mixer_bus_setup(mixer_driver_t* const mixer);
-extern void mixer_setup(mixer_driver_t* const mixer);
+extern void mixer_setup(mixer_driver_t* const mixer, mixer_variant_t type);
 
 /* Set frequency (Hz). */
 extern fp_40_24_t mixer_set_frequency(
