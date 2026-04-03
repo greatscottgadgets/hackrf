@@ -31,7 +31,9 @@
 #include "max283x.h"
 #include "max5864.h"
 #include "mixer.h"
-#include "platform_detect.h"
+#if defined(HACKRF_ONE) || defined(PRALINE)
+	#include "platform_detect.h"
+#endif
 #if defined(HACKRF_ONE) || defined(RAD1O) || defined(PRALINE)
 	#include "platform_scu.h"
 #endif
@@ -441,12 +443,14 @@ void rf_path_init(rf_path_t* const rf_path)
 	ssp1_set_mode_max283x();
 #ifdef PRALINE
 	max283x_setup(&max283x, MAX2831_VARIANT);
-#else
+#elif defined(HACKRF_ONE)
 	if (detected_platform() == BOARD_ID_HACKRF1_R9) {
 		max283x_setup(&max283x, MAX2839_VARIANT);
 	} else {
 		max283x_setup(&max283x, MAX2837_VARIANT);
 	}
+#else
+	max283x_setup(&max283x, MAX2837_VARIANT);
 #endif
 	max283x_start(&max283x);
 
