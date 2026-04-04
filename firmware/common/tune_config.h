@@ -21,7 +21,7 @@
 
 #pragma once
 
-#ifdef PRALINE
+#if defined(PRALINE) || defined(UNIVERSAL)
 	#include "fpga.h"
 
 typedef struct {
