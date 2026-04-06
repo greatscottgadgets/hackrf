@@ -25,6 +25,7 @@
 
 #include "max283x.h"
 
+#include "platform_detect.h"
 #include "platform_gpio.h"
 #include "spi_bus.h"
 
@@ -65,49 +66,41 @@ max2839_driver_t max2839 = {
 #endif
 
 /* Initialize chip. */
-void max283x_setup(max283x_driver_t* const drv, max283x_variant_t type)
+void max283x_setup(max283x_driver_t* const drv)
 {
-	drv->type = type;
-
 	const platform_gpio_t* gpio = platform_gpio();
 
 	/* MAX283x GPIO PinMux */
+	switch (detected_platform()) {
+	case BOARD_ID_PRALINE:
 #if defined(PRALINE) || defined(UNIVERSAL)
-	max2831.gpio_enable = gpio->max283x_enable;
-	max2831.gpio_rxtx = gpio->max283x_rx_enable;
-	max2831.gpio_rxhp = gpio->max2831_rxhp;
-	max2831.gpio_ld = gpio->max2831_ld;
-#endif
-#if !defined(PRALINE) || defined(UNIVERSAL)
-	max2837.gpio_enable = gpio->max283x_enable;
-	max2837.gpio_rx_enable = gpio->max283x_rx_enable;
-	max2837.gpio_tx_enable = gpio->max283x_tx_enable;
-#endif
-#if defined(HACKRF_ONE) || defined(UNIVERSAL)
-	max2839.gpio_enable = gpio->max283x_enable;
-	max2839.gpio_rxtx = gpio->max283x_rx_enable;
-#endif
-
-	switch (drv->type) {
-#if defined(PRALINE) || defined(UNIVERSAL)
-	case MAX2831_VARIANT:
+		drv->type = MAX2831_VARIANT;
+		max2831.gpio_enable = gpio->max283x_enable;
+		max2831.gpio_rxtx = gpio->max283x_rx_enable;
+		max2831.gpio_rxhp = gpio->max2831_rxhp;
+		max2831.gpio_ld = gpio->max2831_ld;
 		memcpy(&drv->drv.max2831, &max2831, sizeof(max2831));
 		max2831_setup(&drv->drv.max2831);
-		break;
 #endif
-#if !defined(PRALINE) || defined(UNIVERSAL)
-	case MAX2837_VARIANT:
-		memcpy(&drv->drv.max2837, &max2837, sizeof(max2837));
-		max2837_setup(&drv->drv.max2837);
 		break;
-#endif
+	case BOARD_ID_HACKRF1_R9:
 #if defined(HACKRF_ONE) || defined(UNIVERSAL)
-	case MAX2839_VARIANT:
+		drv->type = MAX2839_VARIANT;
+		max2839.gpio_enable = gpio->max283x_enable;
+		max2839.gpio_rxtx = gpio->max283x_rx_enable;
 		memcpy(&drv->drv.max2839, &max2839, sizeof(max2839));
 		max2839_setup(&drv->drv.max2839);
-		break;
 #endif
+		break;
 	default:
+#if !defined(PRALINE) || defined(UNIVERSAL)
+		drv->type = MAX2837_VARIANT;
+		max2837.gpio_enable = gpio->max283x_enable;
+		max2837.gpio_rx_enable = gpio->max283x_rx_enable;
+		max2837.gpio_tx_enable = gpio->max283x_tx_enable;
+		memcpy(&drv->drv.max2837, &max2837, sizeof(max2837));
+		max2837_setup(&drv->drv.max2837);
+#endif
 		break;
 	}
 }
