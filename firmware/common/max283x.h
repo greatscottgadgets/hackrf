@@ -83,7 +83,7 @@ typedef struct {
 } max283x_driver_t;
 
 /* Initialize chip. */
-void max283x_setup(max283x_driver_t* const drv, max283x_variant_t type);
+void max283x_setup(max283x_driver_t* const drv);
 
 /* Returns the number of registers supported by the driver. */
 uint16_t max283x_num_regs(max283x_driver_t* const drv);
