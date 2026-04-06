@@ -19,8 +19,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __TUNE_CONFIG_H__
-#define __TUNE_CONFIG_H__
+#pragma once
 
 #ifdef PRALINE
 	#include "fpga.h"
@@ -391,5 +390,3 @@ static const tune_config_t praline_tune_config_rx[] = {
 };
 // clang-format on
 #endif
-
-#endif /*__TUNE_CONFIG_H__*/

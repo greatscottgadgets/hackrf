@@ -21,8 +21,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __USB_QUEUE_H__
-#define __USB_QUEUE_H__
+#pragma once
 
 #include <stdint.h>
 
@@ -81,5 +80,3 @@ int usb_transfer_schedule_ack(const usb_endpoint_t* const endpoint);
 void usb_queue_init(usb_queue_t* const queue);
 
 void usb_queue_transfer_complete(usb_endpoint_t* const endpoint);
-
-#endif //__USB_QUEUE_H__

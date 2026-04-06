@@ -19,8 +19,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __USB_API_PRALINE_H__
-#define __USB_API_PRALINE_H__
+#pragma once
 
 #include <usb_request.h>
 #include <usb_type.h>
@@ -44,5 +43,3 @@ usb_request_status_t usb_vendor_request_set_narrowband_filter(
 usb_request_status_t usb_vendor_request_set_fpga_bitstream(
 	usb_endpoint_t* const endpoint,
 	const usb_transfer_stage_t stage);
-
-#endif /* end of include guard: __USB_API_PRALINE_H__ */

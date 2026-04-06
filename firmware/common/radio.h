@@ -21,8 +21,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __RF_CONFIG_H__
-#define __RF_CONFIG_H__
+#pragma once
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -254,5 +253,3 @@ bool radio_update(radio_t* const radio);
  * the request bank for the new mode.
  */
 void radio_switch_opmode(radio_t* const radio, const transceiver_mode_t mode);
-
-#endif /*__RF_CONFIG_H__*/
