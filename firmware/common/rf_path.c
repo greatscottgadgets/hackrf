@@ -483,23 +483,7 @@ void rf_path_init(rf_path_t* const rf_path)
 	max5864_shutdown(&max5864);
 
 	ssp1_set_mode_max283x();
-	switch (board_id) {
-	case BOARD_ID_PRALINE:
-#if defined(PRALINE) || defined(UNIVERSAL)
-		max283x_setup(&max283x, MAX2831_VARIANT);
-#endif
-		break;
-	case BOARD_ID_HACKRF1_R9:
-#if defined(HACKRF_ONE) || defined(UNIVERSAL)
-		max283x_setup(&max283x, MAX2839_VARIANT);
-#endif
-		break;
-	default:
-#if !defined(PRALINE) || defined(UNIVERSAL)
-		max283x_setup(&max283x, MAX2837_VARIANT);
-#endif
-		break;
-	}
+	max283x_setup(&max283x);
 	max283x_start(&max283x);
 
 	switch (board_id) {
