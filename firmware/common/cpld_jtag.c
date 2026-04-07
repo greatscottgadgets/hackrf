@@ -39,83 +39,55 @@ void cpld_jtag_take(jtag_t* const jtag)
 {
 	const jtag_gpio_t* const gpio = jtag->gpio;
 
-	board_id_t board_id = detected_platform();
-
 	/* Set initial GPIO state to the voltages of the internal or external pull-ups/downs,
 	 * to avoid any glitches.
 	 */
-	switch (board_id) {
-	case BOARD_ID_HACKRF1_OG:
-	case BOARD_ID_HACKRF1_R9:
-	case BOARD_ID_PRALINE:
-#if defined(HACKRF_ONE) || defined(PRALINE) || defined(UNIVERSAL)
+	IF_EXPANSION_COMPATIBLE (
 		gpio_set(gpio->gpio_pp_tms);
-#endif
-		break;
-	default:
-		break;
-	}
+	)
+
 	gpio_clear(gpio->gpio_tck);
-	if (board_id != BOARD_ID_PRALINE) {
-#if !defined(PRALINE) || defined(UNIVERSAL)
+
+	IF_NOT_PRALINE (
 		gpio_set(gpio->gpio_tms);
 		gpio_set(gpio->gpio_tdi);
-#endif
-	}
+	)
 
-	switch (board_id) {
-	case BOARD_ID_HACKRF1_OG:
-	case BOARD_ID_HACKRF1_R9:
-	case BOARD_ID_PRALINE:
-#if defined(HACKRF_ONE) || defined(PRALINE) || defined(UNIVERSAL)
+	IF_EXPANSION_COMPATIBLE (
 		/* Do not drive PortaPack-specific TMS pin initially, just to be cautious. */
 		gpio_input(gpio->gpio_pp_tms);
 		gpio_input(gpio->gpio_pp_tdo);
-#endif
-		break;
-	default:
-		break;
-	}
+	)
+
 	gpio_output(gpio->gpio_tck);
-	if (board_id != BOARD_ID_PRALINE) {
-#if !defined(PRALINE) || defined(UNIVERSAL)
+
+	IF_NOT_PRALINE (
 		gpio_output(gpio->gpio_tms);
 		gpio_output(gpio->gpio_tdi);
 		gpio_input(gpio->gpio_tdo);
-#endif
-	}
+	)
 }
 
 void cpld_jtag_release(jtag_t* const jtag)
 {
 	const jtag_gpio_t* const gpio = jtag->gpio;
 
-	board_id_t board_id = detected_platform();
-
 	/* Make all pins inputs when JTAG interface not active.
 	 * Let the pull-ups/downs do the work.
 	 */
-	switch (board_id) {
-	case BOARD_ID_HACKRF1_OG:
-	case BOARD_ID_HACKRF1_R9:
-	case BOARD_ID_PRALINE:
-#if defined(HACKRF_ONE) || defined(PRALINE) || defined(UNIVERSAL)
+	IF_EXPANSION_COMPATIBLE (
 		/* Do not drive PortaPack-specific pins, initially, just to be cautious. */
 		gpio_input(gpio->gpio_pp_tms);
 		gpio_input(gpio->gpio_pp_tdo);
-#endif
-		break;
-	default:
-		break;
-	}
+	)
+
 	gpio_input(gpio->gpio_tck);
-	if (board_id != BOARD_ID_PRALINE) {
-#if !defined(PRALINE) || defined(UNIVERSAL)
+
+	IF_NOT_PRALINE (
 		gpio_input(gpio->gpio_tms);
 		gpio_input(gpio->gpio_tdi);
 		gpio_input(gpio->gpio_tdo);
-#endif
-	}
+	)
 }
 
 #if !defined(PRALINE) || defined(UNIVERSAL)
