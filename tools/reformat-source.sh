@@ -1,12 +1,14 @@
 #!/bin/bash
 
-VERSION=`clang-format --version | grep -o '[^ ]*$' | cut -d '.' -f 1`
-if [ "$VERSION" -ge "14" ]; then
+REQUIRED_VERSION=14
+
+VERSION=`clang-format --version | grep -o 'version [^ ]' | cut -d ' ' -f 2 | cut -d '.' -f 1`
+if [ "$VERSION" -eq "$REQUIRED_VERSION" ]; then
     CLANG_FORMAT=clang-format
-elif clang-format-14 --version > /dev/null; then
-    CLANG_FORMAT=clang-format-14
+elif command -v clang-format-$REQUIRED_VERSION > /dev/null; then
+    CLANG_FORMAT=clang-format-$REQUIRED_VERSION
 else
-    echo "clang-format version 14 or higher is required."
+    echo "clang-format version $REQUIRED_VERSION is required."
     exit 1
 fi
 
