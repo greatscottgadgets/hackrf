@@ -24,8 +24,19 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#include <assert.h>
 
 #include <libopencm3/lpc43xx/gpdma.h>
+
+/* LPC43xx GPDMA (UM10503 §11.5.1): LLI address bits [1:0] must be zero,
+ * meaning each LLI must be 4-byte aligned. Also verify size is a multiple
+ * of 4 so that arrays of LLIs never produce an unaligned successor pointer. */
+_Static_assert(
+	_Alignof(gpdma_lli_t) >= 4,
+	"gpdma_lli_t must be at least 4-byte aligned (LPC43xx GPDMA requirement)");
+_Static_assert(
+	sizeof(gpdma_lli_t) % 4 == 0,
+	"gpdma_lli_t size must be a multiple of 4 bytes");
 
 void gpdma_controller_enable(void);
 

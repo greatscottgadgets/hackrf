@@ -23,6 +23,8 @@
 #pragma once
 
 #include <stdint.h>
+#include <stddef.h>
+#include <assert.h>
 
 // TODO: Move this to some common compiler-tricks location.
 #define ATTR_PACKED     __attribute__((packed))
@@ -60,6 +62,12 @@ typedef struct ATTR_PACKED {
 		uint16_t length;
 	};
 } usb_setup_t;
+
+/* USB 2.0 §9.3: SETUP packet is exactly 8 bytes. Any packing or field
+ * layout change will produce a build failure here rather than silent
+ * protocol corruption at runtime. */
+_Static_assert(sizeof(usb_setup_t) == 8,
+	"usb_setup_t must be exactly 8 bytes (USB 2.0 §9.3)");
 
 typedef enum {
 	USB_STANDARD_REQUEST_GET_STATUS = 0,

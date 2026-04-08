@@ -24,6 +24,8 @@
 #pragma once
 
 #include <stdint.h>
+#include <stddef.h>
+#include <stdatomic.h>
 
 #include <libopencm3/lpc43xx/usb.h>
 
@@ -41,12 +43,18 @@ typedef struct _usb_transfer_t {
 	void* user_data;
 } usb_transfer_t;
 
+/* LPC43xx USB DMA engine requires TDs at 64-byte boundaries.
+ * Verify the 'td' field offset respects that alignment contract. */
+_Static_assert(
+	__builtin_offsetof(usb_transfer_t, td) % 64 == 0,
+	"usb_transfer_descriptor_t 'td' must be 64-byte aligned within usb_transfer_t");
+
 // This is an opaque datatype. Thou shall not touch these members.
 typedef struct _usb_queue_t {
 	usb_endpoint_t* endpoint;
 	const unsigned int pool_size;
-	usb_transfer_t* volatile free_transfers;
-	usb_transfer_t* volatile active;
+	_Atomic(struct _usb_transfer_t*) free_transfers;
+	_Atomic(struct _usb_transfer_t*) active;
 } usb_queue_t;
 
 #define USB_DECLARE_QUEUE(endpoint_name) struct _usb_queue_t endpoint_name##_queue;
