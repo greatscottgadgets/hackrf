@@ -84,96 +84,84 @@
 	#include "usb_api_cpld.h"
 #endif
 
+#include <hackrf_usb_protocol.h>
+
 extern uint32_t __m0_start__;
 extern uint32_t __m0_end__;
 extern uint32_t __ram_m0_start__;
 extern uint32_t _etext_ram, _text_ram, _etext_rom;
 
 static usb_request_handler_fn vendor_request_handler[] = {
-	NULL,
-	usb_vendor_request_set_transceiver_mode,
-	usb_vendor_request_write_max283x,
-	usb_vendor_request_read_max283x,
-	usb_vendor_request_write_si5351c,
-	usb_vendor_request_read_si5351c,
-	usb_vendor_request_set_sample_rate_frac,
-	usb_vendor_request_set_baseband_filter_bandwidth,
+	[0] = NULL,
+	[HACKRF_VENDOR_REQUEST_SET_TRANSCEIVER_MODE] = usb_vendor_request_set_transceiver_mode,
+	[HACKRF_VENDOR_REQUEST_MAX283X_WRITE] = usb_vendor_request_write_max283x,
+	[HACKRF_VENDOR_REQUEST_MAX283X_READ] = usb_vendor_request_read_max283x,
+	[HACKRF_VENDOR_REQUEST_SI5351C_WRITE] = usb_vendor_request_write_si5351c,
+	[HACKRF_VENDOR_REQUEST_SI5351C_READ] = usb_vendor_request_read_si5351c,
+	[HACKRF_VENDOR_REQUEST_SAMPLE_RATE_SET] = usb_vendor_request_set_sample_rate_frac,
+	[HACKRF_VENDOR_REQUEST_BASEBAND_FILTER_BANDWIDTH_SET] = usb_vendor_request_set_baseband_filter_bandwidth,
 #ifdef RAD1O
-	NULL, // write_rffc5071 not used
-	NULL, // read_rffc5071 not used
+	[HACKRF_VENDOR_REQUEST_RFFC5071_WRITE] = NULL, // write_rffc5071 not used
+	[HACKRF_VENDOR_REQUEST_RFFC5071_READ] = NULL, // read_rffc5071 not used
 #else
-	usb_vendor_request_write_rffc5071,
-	usb_vendor_request_read_rffc5071,
+	[HACKRF_VENDOR_REQUEST_RFFC5071_WRITE] = usb_vendor_request_write_rffc5071,
+	[HACKRF_VENDOR_REQUEST_RFFC5071_READ] = usb_vendor_request_read_rffc5071,
 #endif
-	usb_vendor_request_erase_spiflash,
-	usb_vendor_request_write_spiflash,
-	usb_vendor_request_read_spiflash,
-	NULL, // used to be write_cpld
-	usb_vendor_request_read_board_id,
-	usb_vendor_request_read_version_string,
-	usb_vendor_request_set_freq,
-	usb_vendor_request_set_amp_enable,
-	usb_vendor_request_read_partid_serialno,
-	usb_vendor_request_set_lna_gain,
-	usb_vendor_request_set_vga_gain,
-	usb_vendor_request_set_txvga_gain,
-	NULL, // was set_if_freq
+	[HACKRF_VENDOR_REQUEST_SPIFLASH_ERASE] = usb_vendor_request_erase_spiflash,
+	[HACKRF_VENDOR_REQUEST_SPIFLASH_WRITE] = usb_vendor_request_write_spiflash,
+	[HACKRF_VENDOR_REQUEST_SPIFLASH_READ] = usb_vendor_request_read_spiflash,
+	[HACKRF_VENDOR_REQUEST_BOARD_ID_READ] = usb_vendor_request_read_board_id,
+	[HACKRF_VENDOR_REQUEST_VERSION_STRING_READ] = usb_vendor_request_read_version_string,
+	[HACKRF_VENDOR_REQUEST_SET_FREQ] = usb_vendor_request_set_freq,
+	[HACKRF_VENDOR_REQUEST_AMP_ENABLE] = usb_vendor_request_set_amp_enable,
+	[HACKRF_VENDOR_REQUEST_BOARD_PARTID_SERIALNO_READ] = usb_vendor_request_read_partid_serialno,
+	[HACKRF_VENDOR_REQUEST_SET_LNA_GAIN] = usb_vendor_request_set_lna_gain,
+	[HACKRF_VENDOR_REQUEST_SET_VGA_GAIN] = usb_vendor_request_set_vga_gain,
+	[HACKRF_VENDOR_REQUEST_SET_TXVGA_GAIN] = usb_vendor_request_set_txvga_gain,
 #if (defined HACKRF_ONE || defined PRALINE)
-	usb_vendor_request_set_antenna_enable,
-#else
-	NULL,
+	[HACKRF_VENDOR_REQUEST_ANTENNA_ENABLE] = usb_vendor_request_set_antenna_enable,
 #endif
-	usb_vendor_request_set_freq_explicit,
-	usb_vendor_request_read_wcid, // USB_WCID_VENDOR_REQ
-	usb_vendor_request_init_sweep,
-	usb_vendor_request_operacake_get_boards,
-	usb_vendor_request_operacake_set_ports,
-	usb_vendor_request_set_hw_sync_mode,
-	usb_vendor_request_reset,
-	usb_vendor_request_operacake_set_ranges,
-	usb_vendor_request_set_clkout_enable,
-	usb_vendor_request_spiflash_status,
-	usb_vendor_request_spiflash_clear_status,
-	usb_vendor_request_operacake_gpio_test,
+	[HACKRF_VENDOR_REQUEST_SET_FREQ_EXPLICIT] = usb_vendor_request_set_freq_explicit,
+	[HACKRF_VENDOR_REQUEST_USB_WCID_VENDOR_REQ] = usb_vendor_request_read_wcid,
+	[HACKRF_VENDOR_REQUEST_INIT_SWEEP] = usb_vendor_request_init_sweep,
+	[HACKRF_VENDOR_REQUEST_OPERACAKE_GET_BOARDS] = usb_vendor_request_operacake_get_boards,
+	[HACKRF_VENDOR_REQUEST_OPERACAKE_SET_PORTS] = usb_vendor_request_operacake_set_ports,
+	[HACKRF_VENDOR_REQUEST_SET_HW_SYNC_MODE] = usb_vendor_request_set_hw_sync_mode,
+	[HACKRF_VENDOR_REQUEST_RESET] = usb_vendor_request_reset,
+	[HACKRF_VENDOR_REQUEST_OPERACAKE_SET_RANGES] = usb_vendor_request_operacake_set_ranges,
+	[HACKRF_VENDOR_REQUEST_CLKOUT_ENABLE] = usb_vendor_request_set_clkout_enable,
+	[HACKRF_VENDOR_REQUEST_SPIFLASH_STATUS] = usb_vendor_request_spiflash_status,
+	[HACKRF_VENDOR_REQUEST_SPIFLASH_CLEAR_STATUS] = usb_vendor_request_spiflash_clear_status,
+	[HACKRF_VENDOR_REQUEST_OPERACAKE_GPIO_TEST] = usb_vendor_request_operacake_gpio_test,
 #ifdef HACKRF_ONE
-	usb_vendor_request_cpld_checksum,
-#else
-	NULL,
+	[HACKRF_VENDOR_REQUEST_CPLD_CHECKSUM] = usb_vendor_request_cpld_checksum,
 #endif
-	usb_vendor_request_set_ui_enable,
-	usb_vendor_request_operacake_set_mode,
-	usb_vendor_request_operacake_get_mode,
-	usb_vendor_request_operacake_set_dwell_times,
-	usb_vendor_request_get_m0_state,
-	usb_vendor_request_set_tx_underrun_limit,
-	usb_vendor_request_set_rx_overrun_limit,
-	usb_vendor_request_get_clkin_status,
-	usb_vendor_request_read_board_rev,
-	usb_vendor_request_read_supported_platform,
-	usb_vendor_request_set_leds,
-	usb_vendor_request_user_config_set_bias_t_opts,
+	[HACKRF_VENDOR_REQUEST_UI_ENABLE] = usb_vendor_request_set_ui_enable,
+	[HACKRF_VENDOR_REQUEST_OPERACAKE_SET_MODE] = usb_vendor_request_operacake_set_mode,
+	[HACKRF_VENDOR_REQUEST_OPERACAKE_GET_MODE] = usb_vendor_request_operacake_get_mode,
+	[HACKRF_VENDOR_REQUEST_OPERACAKE_SET_DWELL_TIMES] = usb_vendor_request_operacake_set_dwell_times,
+	[HACKRF_VENDOR_REQUEST_GET_M0_STATE] = usb_vendor_request_get_m0_state,
+	[HACKRF_VENDOR_REQUEST_SET_TX_UNDERRUN_LIMIT] = usb_vendor_request_set_tx_underrun_limit,
+	[HACKRF_VENDOR_REQUEST_SET_RX_OVERRUN_LIMIT] = usb_vendor_request_set_rx_overrun_limit,
+	[HACKRF_VENDOR_REQUEST_GET_CLKIN_STATUS] = usb_vendor_request_get_clkin_status,
+	[HACKRF_VENDOR_REQUEST_BOARD_REV_READ] = usb_vendor_request_read_board_rev,
+	[HACKRF_VENDOR_REQUEST_SUPPORTED_PLATFORM_READ] = usb_vendor_request_read_supported_platform,
+	[HACKRF_VENDOR_REQUEST_SET_LEDS] = usb_vendor_request_set_leds,
+	[HACKRF_VENDOR_REQUEST_SET_USER_BIAS_T_OPTS] = usb_vendor_request_user_config_set_bias_t_opts,
 #ifdef PRALINE
-	usb_vendor_request_write_fpga_reg,
-	usb_vendor_request_read_fpga_reg,
-	usb_vendor_request_p2_ctrl,
-	usb_vendor_request_p1_ctrl,
-	usb_vendor_request_set_narrowband_filter,
-	usb_vendor_request_set_fpga_bitstream,
-	usb_vendor_request_clkin_ctrl,
-#else
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
+	[HACKRF_VENDOR_REQUEST_FPGA_WRITE_REG] = usb_vendor_request_write_fpga_reg,
+	[HACKRF_VENDOR_REQUEST_FPGA_READ_REG] = usb_vendor_request_read_fpga_reg,
+	[HACKRF_VENDOR_REQUEST_P2_CTRL] = usb_vendor_request_p2_ctrl,
+	[HACKRF_VENDOR_REQUEST_P1_CTRL] = usb_vendor_request_p1_ctrl,
+	[HACKRF_VENDOR_REQUEST_SET_NARROWBAND_FILTER] = usb_vendor_request_set_narrowband_filter,
+	[HACKRF_VENDOR_REQUEST_SET_FPGA_BITSTREAM] = usb_vendor_request_set_fpga_bitstream,
+	[HACKRF_VENDOR_REQUEST_CLKIN_CTRL] = usb_vendor_request_clkin_ctrl,
 #endif
-	usb_vendor_request_read_selftest,
-	usb_vendor_request_adc_read,
-	usb_vendor_request_test_rtc_osc,
-	usb_vendor_request_write_radio_reg,
-	usb_vendor_request_read_radio_reg,
+	[HACKRF_VENDOR_REQUEST_READ_SELFTEST] = usb_vendor_request_read_selftest,
+	[HACKRF_VENDOR_REQUEST_READ_ADC] = usb_vendor_request_adc_read,
+	[HACKRF_VENDOR_REQUEST_TEST_RTC_OSC] = usb_vendor_request_test_rtc_osc,
+	[HACKRF_VENDOR_REQUEST_RADIO_WRITE_REG] = usb_vendor_request_write_radio_reg,
+	[HACKRF_VENDOR_REQUEST_RADIO_READ_REG] = usb_vendor_request_read_radio_reg,
 };
 
 static const uint32_t vendor_request_handler_count =
