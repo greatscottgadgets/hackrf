@@ -24,6 +24,7 @@
 #pragma once
 
 #include <stdint.h>
+#include <stdatomic.h>
 
 #include <radio.h>
 #include <usb_type.h>
@@ -34,7 +35,10 @@ typedef struct {
 	uint32_t seq;
 } transceiver_request_t;
 
-extern volatile transceiver_request_t transceiver_request;
+/* transceiver_request is written by the USB ISR and read by the M4 main loop.
+ * _Atomic provides the acquire/release semantics that volatile cannot guarantee
+ * on the ARM Cortex-M memory model. */
+extern _Atomic transceiver_request_t transceiver_request;
 
 usb_request_status_t usb_vendor_request_set_transceiver_mode(
 	usb_endpoint_t* const endpoint,

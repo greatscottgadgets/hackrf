@@ -25,6 +25,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdatomic.h>
 #include <string.h>
 
 #include <cpld_jtag.h>
@@ -37,18 +38,20 @@
 #include "usb_endpoint.h"
 
 uint8_t cpld_xsvf_buffer[512];
-volatile bool cpld_wait = false;
+static _Atomic bool cpld_wait = false;
 
 static void cpld_buffer_refilled(void* user_data, unsigned int length)
 {
 	(void) user_data;
 	(void) length;
-	cpld_wait = false;
+	/* Release store: ISR signals main loop that buffer is ready. */
+	atomic_store_explicit(&cpld_wait, false, memory_order_release);
 }
 
 static void refill_cpld_buffer(void)
 {
-	cpld_wait = true;
+	/* Acquire store: main loop signals ISR to fill buffer. */
+	atomic_store_explicit(&cpld_wait, true, memory_order_release);
 	usb_transfer_schedule(
 		&usb_endpoint_bulk_out,
 		cpld_xsvf_buffer,
@@ -56,8 +59,8 @@ static void refill_cpld_buffer(void)
 		cpld_buffer_refilled,
 		NULL);
 
-	// Wait until transfer finishes
-	while (cpld_wait) {}
+	/* Spin until ISR clears the flag (acquire load for visibility). */
+	while (atomic_load_explicit(&cpld_wait, memory_order_acquire)) {}
 }
 
 void cpld_update(void)

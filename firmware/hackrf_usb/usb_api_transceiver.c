@@ -25,6 +25,7 @@
 
 #include <stdbool.h>
 #include <stddef.h>
+#include <stdatomic.h>
 
 #include <fixed_point.h>
 #include <hackrf_core.h>
@@ -290,7 +291,7 @@ usb_request_status_t usb_vendor_request_set_antenna_enable(
 static volatile uint32_t _tx_underrun_limit;
 static volatile uint32_t _rx_overrun_limit;
 
-volatile transceiver_request_t transceiver_request = {
+_Atomic transceiver_request_t transceiver_request = {
 	.mode = TRANSCEIVER_MODE_OFF,
 	.seq = 0,
 };
