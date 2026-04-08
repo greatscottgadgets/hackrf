@@ -291,7 +291,7 @@ usb_request_status_t usb_vendor_request_set_antenna_enable(
 static volatile uint32_t _tx_underrun_limit;
 static volatile uint32_t _rx_overrun_limit;
 
-_Atomic transceiver_request_t transceiver_request = {
+transceiver_request_t transceiver_request = {
 	.mode = TRANSCEIVER_MODE_OFF,
 	.seq = 0,
 };
@@ -302,8 +302,8 @@ void request_transceiver_mode(transceiver_mode_t mode)
 	usb_endpoint_flush(&usb_endpoint_bulk_in);
 	usb_endpoint_flush(&usb_endpoint_bulk_out);
 
-	transceiver_request.mode = mode;
-	transceiver_request.seq++;
+	atomic_store(&transceiver_request.mode, (uint32_t)mode);
+	atomic_fetch_add(&transceiver_request.seq, 1);
 }
 
 void transceiver_shutdown(void)
@@ -421,7 +421,7 @@ void rx_mode(uint32_t seq)
 
 	baseband_streaming_enable(&sgpio_config);
 
-	while (transceiver_request.seq == seq) {
+	while (atomic_load(&transceiver_request.seq) == seq) {
 		if ((m0_state.m0_count - usb_count) >= USB_TRANSFER_SIZE) {
 			usb_transfer_schedule_block(
 				&usb_endpoint_bulk_in,
@@ -453,7 +453,7 @@ void tx_mode(uint32_t seq)
 		NULL);
 	usb_count += USB_TRANSFER_SIZE;
 
-	while (transceiver_request.seq == seq) {
+	while (atomic_load(&transceiver_request.seq) == seq) {
 		if (!started && (m0_state.m4_count == USB_BULK_BUFFER_SIZE)) {
 			// Buffer is now full, start streaming.
 			baseband_streaming_enable(&sgpio_config);
@@ -478,7 +478,7 @@ void off_mode(uint32_t seq)
 {
 	hackrf_ui()->set_transceiver_mode(TRANSCEIVER_MODE_OFF);
 
-	while (transceiver_request.seq == seq) {
+	while (atomic_load(&transceiver_request.seq) == seq) {
 		radio_update(&radio);
 	}
 }

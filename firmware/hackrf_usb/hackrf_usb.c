@@ -434,7 +434,8 @@ int main(void)
 		// called from the USB ISR.
 
 		nvic_disable_irq(NVIC_USB0_IRQ);
-		request = transceiver_request;
+		request.mode = atomic_load(&transceiver_request.mode);
+		request.seq = atomic_load(&transceiver_request.seq);
 		nvic_enable_irq(NVIC_USB0_IRQ);
 		radio_update(&radio);
 

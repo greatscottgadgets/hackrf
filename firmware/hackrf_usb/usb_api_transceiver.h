@@ -31,14 +31,15 @@
 #include <usb_request.h>
 
 typedef struct {
-	transceiver_mode_t mode;
-	uint32_t seq;
+	_Atomic uint32_t mode;
+	_Atomic uint32_t seq;
 } transceiver_request_t;
 
 /* transceiver_request is written by the USB ISR and read by the M4 main loop.
- * _Atomic provides the acquire/release semantics that volatile cannot guarantee
- * on the ARM Cortex-M memory model. */
-extern _Atomic transceiver_request_t transceiver_request;
+ * Individual atomic fields provide the acquire/release semantics that volatile
+ * cannot guarantee on the ARM Cortex-M memory model. Splitting into 32-bit
+ * fields avoids 64-bit atomic requirements that are not natively supported. */
+extern transceiver_request_t transceiver_request;
 
 usb_request_status_t usb_vendor_request_set_transceiver_mode(
 	usb_endpoint_t* const endpoint,
