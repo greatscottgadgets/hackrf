@@ -198,7 +198,6 @@ macro(DeclareTargets)
 		${PATH_HACKRF_FIRMWARE_COMMON}/dsp_simd.c
 		${PATH_HACKRF_FIRMWARE_COMMON}/streaming_simd.c
 		${PATH_HACKRF_FIRMWARE_COMMON}/dsp_benchmark.c
-		${PATH_HACKRF_FIRMWARE_COMMON}/dsp_simd_test.c
 		)
 
 	if(BOARD STREQUAL "RAD1O")
