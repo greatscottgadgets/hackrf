@@ -164,6 +164,15 @@ jobs:
         exclude:
           - os: 'windows'
             cmake: '3.10.0'
+          # GitHub doesn't give us many macOS runners, so don't build for every board.
+          # We just need to know that building firmware works on macOS. Use PRALINE
+          # since that's the most complicated one due to FPGA bitstreams.
+          - os: 'macos'
+            board: 'HACKRF_ONE'
+          - os: 'macos'
+            board: 'JAWBREAKER'
+          - os: 'macos'
+            board: 'RAD1O'
 
       # Don't cancel all builds when one fails
       fail-fast: false
