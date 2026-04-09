@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Great Scott Gadgets <info@greatscottgadgets.com>
+ * Copyright 2025-2026 Great Scott Gadgets <info@greatscottgadgets.com>
  *
  * This file is part of HackRF.
  *
@@ -24,6 +24,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#include "fixed_point.h"
 #include "gpio.h"
 #include "spi_bus.h"
 
@@ -86,9 +87,8 @@ void max2831_set_mode(max2831_driver_t* const drv, const max2831_mode_t new_mode
 extern void max2831_start(max2831_driver_t* const drv);
 extern void max2831_stop(max2831_driver_t* const drv);
 
-/* Set frequency in Hz. Frequency setting is a multi-step function
- * where order of register writes matters. */
-extern void max2831_set_frequency(max2831_driver_t* const drv, uint32_t freq);
+/* Set frequency in 1/(2**24) Hz */
+extern void max2831_set_frequency(max2831_driver_t* const drv, fp_40_24_t freq);
 uint32_t max2831_set_lpf_bandwidth(
 	max2831_driver_t* const drv,
 	const max2831_mode_t mode,

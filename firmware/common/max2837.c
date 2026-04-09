@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2022 Great Scott Gadgets <info@greatscottgadgets.com>
+ * Copyright 2012-2026 Great Scott Gadgets <info@greatscottgadgets.com>
  * Copyright 2012 Will Code <willcode4@gmail.com>
  * Copyright 2014 Jared Boone <jared@sharebrained.com>
  *
@@ -32,6 +32,7 @@
 #include <stdint.h>
 #include <string.h>
 #include "max2837.h"
+#include "fixed_point.h"
 #include "max2837_regs.def" // private register def macros
 #include "selftest.h"
 
@@ -228,24 +229,23 @@ void max2837_stop(max2837_driver_t* const drv)
 	max2837_set_mode(drv, MAX2837_MODE_SHUTDOWN);
 }
 
-void max2837_set_frequency(max2837_driver_t* const drv, uint32_t freq)
+/* Assume 40 MHz reference clock with R divider of 1. */
+#define PFD_FREQ_HZ (40ULL * (1000ULL * 1000ULL))
+
+void max2837_set_frequency(max2837_driver_t* const drv, fp_40_24_t freq)
 {
 	uint8_t band;
 	uint8_t lna_band;
-	uint32_t div_frac;
-	uint32_t div_int;
-	uint32_t div_rem;
-	uint32_t div_cmp;
-	int i;
+	uint64_t div;
 
 	/* Select band. Allow tuning outside specified bands. */
-	if (freq < 2400000000U) {
+	if (freq < FP_MHZ(2400)) {
 		band = MAX2837_LOGEN_BSW_2_3;
 		lna_band = MAX2837_LNAband_2_4;
-	} else if (freq < 2500000000U) {
+	} else if (freq < FP_MHZ(2500)) {
 		band = MAX2837_LOGEN_BSW_2_4;
 		lna_band = MAX2837_LNAband_2_4;
-	} else if (freq < 2600000000U) {
+	} else if (freq < FP_MHZ(2600)) {
 		band = MAX2837_LOGEN_BSW_2_5;
 		lna_band = MAX2837_LNAband_2_6;
 	} else {
@@ -253,34 +253,29 @@ void max2837_set_frequency(max2837_driver_t* const drv, uint32_t freq)
 		lna_band = MAX2837_LNAband_2_6;
 	}
 
-	/* ASSUME 40MHz PLL. Ratio = F*(4/3)/40,000,000 = F/30,000,000 */
-	freq += (30000000 >> 21); /* round to nearest frequency */
-	div_int = freq / 30000000;
-	div_rem = freq % 30000000;
-	div_frac = 0;
-	div_cmp = 30000000;
-	for (i = 0; i < 20; i++) {
-		div_frac <<= 1;
-		div_rem <<= 1;
-		if (div_rem >= div_cmp) {
-			div_frac |= 0x1;
-			div_rem -= div_cmp;
-		}
-	}
+	fp_40_24_t vco = (freq * 4) / 3;
+
+	vco += ((PFD_FREQ_HZ * FP_ONE_HZ) >> 21); /* round to nearest frequency */
+	div = vco / PFD_FREQ_HZ;
+
+	/*
+	 * Shift from 40.24 fixed-point to 44.20 to match 20-bit fractional
+	 * divider.
+	 */
+	div = div >> 4;
 
 	/* Band settings */
 	set_MAX2837_LOGEN_BSW(drv, band);
 	set_MAX2837_LNAband(drv, lna_band);
 
-	/* Write order matters here, so commit INT and FRAC_HI before
-	 * committing FRAC_LO, which is the trigger for VCO
-	 * auto-select. TODO - it's cleaner this way, but it would be
-	 * faster to explicitly commit the registers explicitly so the
-	 * dirty bits aren't scanned twice. */
-	set_MAX2837_SYN_INT(drv, div_int);
-	set_MAX2837_SYN_FRAC_HI(drv, (div_frac >> 10) & 0x3ff);
+	/*
+	 * Write order matters here, so commit INT and FRAC_HI before
+	 * committing FRAC_LO, which is the trigger for VCO auto-select.
+	 */
+	set_MAX2837_SYN_INT(drv, (div >> 20) & 0xff);
+	set_MAX2837_SYN_FRAC_HI(drv, (div >> 10) & 0x3ff);
 	max2837_regs_commit(drv);
-	set_MAX2837_SYN_FRAC_LO(drv, div_frac & 0x3ff);
+	set_MAX2837_SYN_FRAC_LO(drv, div & 0x3ff);
 	max2837_regs_commit(drv);
 }
 

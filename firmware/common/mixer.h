@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2022 Great Scott Gadgets <info@greatscottgadgets.com>
+ * Copyright 2012-2026 Great Scott Gadgets <info@greatscottgadgets.com>
  * Copyright 2014 Jared Boone <jared@sharebrained.com>
  *
  * This file is part of HackRF.
@@ -22,6 +22,8 @@
 
 #pragma once
 
+#include "fixed_point.h"
+
 #if defined(JAWBREAKER) || defined(HACKRF_ONE) || defined(PRALINE)
 	#include "rffc5071.h"
 typedef rffc5071_driver_t mixer_driver_t;
@@ -35,7 +37,7 @@ extern void mixer_bus_setup(mixer_driver_t* const mixer);
 extern void mixer_setup(mixer_driver_t* const mixer);
 
 /* Set frequency (Hz). */
-extern uint64_t mixer_set_frequency(mixer_driver_t* const mixer, uint64_t hz);
+extern fp_40_24_t mixer_set_frequency(mixer_driver_t* const mixer, fp_40_24_t lo);
 
 extern void mixer_enable(mixer_driver_t* const mixer);
 extern void mixer_disable(mixer_driver_t* const mixer);
