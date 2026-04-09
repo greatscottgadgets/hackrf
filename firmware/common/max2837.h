@@ -79,7 +79,7 @@ extern void max2837_start(max2837_driver_t* const drv);
 extern void max2837_stop(max2837_driver_t* const drv);
 
 /* Set frequency in 1/(2**24) Hz. */
-extern void max2837_set_frequency(max2837_driver_t* const drv, fp_40_24_t freq);
+extern fp_40_24_t max2837_set_frequency(max2837_driver_t* const drv, fp_40_24_t freq);
 uint32_t max2837_set_lpf_bandwidth(
 	max2837_driver_t* const drv,
 	const uint32_t bandwidth_hz);

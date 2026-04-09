@@ -290,23 +290,24 @@ void max283x_stop(max283x_driver_t* const drv)
 }
 
 /* Set frequency in 1/(2**24) Hz. */
-void max283x_set_frequency(max283x_driver_t* const drv, fp_40_24_t freq)
+fp_40_24_t max283x_set_frequency(max283x_driver_t* const drv, fp_40_24_t freq)
 {
 	switch (drv->type) {
 #ifdef PRALINE
 	case MAX2831_VARIANT:
-		max2831_set_frequency(&drv->drv.max2831, freq);
+		return max2831_set_frequency(&drv->drv.max2831, freq);
 		break;
 #else
 	case MAX2837_VARIANT:
-		max2837_set_frequency(&drv->drv.max2837, freq);
+		return max2837_set_frequency(&drv->drv.max2837, freq);
 		break;
 
 	case MAX2839_VARIANT:
-		max2839_set_frequency(&drv->drv.max2839, freq);
+		return max2839_set_frequency(&drv->drv.max2839, freq);
 		break;
 #endif
 	}
+	return 0;
 }
 
 uint32_t max283x_set_lpf_bandwidth(
