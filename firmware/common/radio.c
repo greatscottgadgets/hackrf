@@ -160,11 +160,9 @@ static inline uint8_t compute_resample_log(
 #define MAX_MCU_RATE     SR_FP_KHZ(21800)
 #define DEFAULT_MCU_RATE SR_FP_KHZ(10000)
 
-static fp_28_36_t applied_afe_rate = RADIO_UNSET;
-
 static bool radio_update_sample_rate(radio_t* const radio, uint64_t* bank)
 {
-	fp_28_36_t rate, afe_rate;
+	fp_28_36_t rate, afe_rate, previous_rate, previous_afe_rate;
 	uint64_t previous_n;
 	uint8_t n = 0;
 	bool new_afe_rate = false;
@@ -222,16 +220,21 @@ static bool radio_update_sample_rate(radio_t* const radio, uint64_t* bank)
 	if (radio->sample_rate_cb) {
 		afe_rate = rate << n;
 		afe_rate = radio->sample_rate_cb(afe_rate, false);
-		new_afe_rate = (afe_rate != applied_afe_rate);
+		previous_rate = radio->config[RADIO_BANK_APPLIED][RADIO_SAMPLE_RATE];
+		if ((previous_n == RADIO_UNSET) || previous_rate == RADIO_UNSET) {
+			previous_afe_rate = RADIO_UNSET;
+		} else {
+			previous_afe_rate = previous_rate << previous_n;
+		}
+		new_afe_rate = (afe_rate != previous_afe_rate);
 		if (new_afe_rate) {
 			afe_rate = radio->sample_rate_cb(afe_rate, true);
-			applied_afe_rate = afe_rate;
 		}
 	} else {
 		return false;
 	}
 	rate = afe_rate >> n;
-	new_rate = (rate != radio->config[RADIO_BANK_APPLIED][RADIO_SAMPLE_RATE]);
+	new_rate = (rate != previous_rate);
 	if (new_rate) {
 		radio->config[RADIO_BANK_APPLIED][RADIO_SAMPLE_RATE] = rate;
 		if (rate != RADIO_UNSET) {
