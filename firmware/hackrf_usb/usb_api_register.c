@@ -142,13 +142,16 @@ usb_request_status_t usb_vendor_request_write_rffc5071(
 	usb_endpoint_t* const endpoint,
 	const usb_transfer_stage_t stage)
 {
-	IF_RAD1O (
+#ifdef IS_RAD1O
+	if (IS_RAD1O) {
 		(void) endpoint;
 		(void) stage;
 		return USB_REQUEST_STATUS_STALL;
-	)
+	}
+#endif
 
-	IF_NOT_RAD1O (
+#ifdef IS_NOT_RAD1O
+	if (IS_NOT_RAD1O) {
 		if (stage == USB_TRANSFER_STAGE_SETUP) {
 			if (endpoint->setup.index < RFFC5071_NUM_REGS) {
 				rffc5071_reg_write(
@@ -161,20 +164,24 @@ usb_request_status_t usb_vendor_request_write_rffc5071(
 			return USB_REQUEST_STATUS_STALL;
 		}
 		return USB_REQUEST_STATUS_OK;
-	)
+	}
+#endif
 }
 
 usb_request_status_t usb_vendor_request_read_rffc5071(
 	usb_endpoint_t* const endpoint,
 	const usb_transfer_stage_t stage)
 {
-	IF_RAD1O (
+#ifdef IS_RAD1O
+	if (IS_RAD1O) {
 		(void) endpoint;
 		(void) stage;
 		return USB_REQUEST_STATUS_STALL;
-	)
+	}
+#endif
 
-	IF_NOT_RAD1O (
+#ifdef IS_NOT_RAD1O
+	if (IS_NOT_RAD1O) {
 		uint16_t value;
 		if (stage == USB_TRANSFER_STAGE_SETUP) {
 			if (endpoint->setup.index < RFFC5071_NUM_REGS) {
@@ -195,7 +202,8 @@ usb_request_status_t usb_vendor_request_read_rffc5071(
 			return USB_REQUEST_STATUS_STALL;
 		}
 		return USB_REQUEST_STATUS_OK;
-	)
+	}
+#endif
 }
 
 usb_request_status_t usb_vendor_request_set_clkout_enable(
@@ -287,7 +295,8 @@ usb_request_status_t usb_vendor_request_write_fpga_reg(
 	usb_endpoint_t* const endpoint,
 	const usb_transfer_stage_t stage)
 {
-	IF_PRALINE (
+	#ifdef IS_PRALINE
+	if (IS_PRALINE) {
 		if (stage == USB_TRANSFER_STAGE_SETUP) {
 			fpga_reg_write(
 				&fpga,
@@ -296,7 +305,8 @@ usb_request_status_t usb_vendor_request_write_fpga_reg(
 			usb_transfer_schedule_ack(endpoint->in);
 		}
 		return USB_REQUEST_STATUS_OK;
-	)
+	}
+	#endif
 
 	return USB_REQUEST_STATUS_STALL;
 }
@@ -305,7 +315,8 @@ usb_request_status_t usb_vendor_request_read_fpga_reg(
 	usb_endpoint_t* const endpoint,
 	const usb_transfer_stage_t stage)
 {
-	IF_PRALINE (
+	#ifdef IS_PRALINE
+	if (IS_PRALINE) {
 		if (stage == USB_TRANSFER_STAGE_SETUP) {
 			const uint8_t value = fpga_reg_read(&fpga, endpoint->setup.index);
 			endpoint->buffer[0] = value;
@@ -318,7 +329,8 @@ usb_request_status_t usb_vendor_request_read_fpga_reg(
 			usb_transfer_schedule_ack(endpoint->out);
 		}
 		return USB_REQUEST_STATUS_OK;
-	)
+	}
+	#endif
 
 	return USB_REQUEST_STATUS_STALL;
 }

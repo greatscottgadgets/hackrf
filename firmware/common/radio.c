@@ -195,18 +195,22 @@ static bool radio_update_sample_rate(radio_t* const radio, uint64_t* bank)
 	case TRANSCEIVER_MODE_SS:
 		n = compute_resample_log(rate / FP_ONE_HZ, requested_n);
 		if (n != radio->config[RADIO_BANK_APPLIED][RADIO_RESAMPLE_TX]) {
-			IF_PRALINE (
+#ifdef IS_PRALINE
+			if (IS_PRALINE) {
 				fpga_set_tx_interpolation_ratio(&fpga, n);
-			)
+			}
+#endif
 			radio->config[RADIO_BANK_APPLIED][RADIO_RESAMPLE_TX] = n;
 		}
 		break;
 	default:
 		n = compute_resample_log(rate / FP_ONE_HZ, requested_n);
 		if (n != radio->config[RADIO_BANK_APPLIED][RADIO_RESAMPLE_RX]) {
-			IF_PRALINE (
+#ifdef IS_PRALINE
+			if (IS_PRALINE) {
 				fpga_set_rx_decimation_ratio(&fpga, n);
-			)
+			}
+#endif
 			radio->config[RADIO_BANK_APPLIED][RADIO_RESAMPLE_RX] = n;
 		}
 	}
@@ -292,7 +296,8 @@ static bool radio_update_frequency(radio_t* const radio, uint64_t* bank)
 			radio->config[RADIO_BANK_APPLIED][RADIO_FREQUENCY_RF] =
 				RADIO_UNSET;
 		}
-		IF_PRALINE (
+#ifdef IS_PRALINE
+		if (IS_PRALINE) {
 			const uint64_t requested_rotation = bank[RADIO_ROTATION];
 			if (requested_rotation != RADIO_UNSET) {
 				rotation = requested_rotation;
@@ -302,7 +307,8 @@ static bool radio_update_frequency(radio_t* const radio, uint64_t* bank)
 				return true;
 			}
 			fpga_set_rx_quarter_shift_mode(&fpga, rotation >> 6);
-		)
+		}
+#endif
 
 		radio->config[RADIO_BANK_APPLIED][RADIO_ROTATION] = rotation;
 		return true;
@@ -318,7 +324,8 @@ static bool radio_update_frequency(radio_t* const radio, uint64_t* bank)
 	}
 
 	uint64_t requested_rf_hz = requested_rf / FP_ONE_HZ;
-	IF_PRALINE (
+#ifdef IS_PRALINE
+	if (IS_PRALINE) {
 		bool new_rf =
 			(radio->config[RADIO_BANK_APPLIED][RADIO_FREQUENCY_RF] !=
 			 requested_rf);
@@ -359,10 +366,13 @@ static bool radio_update_frequency(radio_t* const radio, uint64_t* bank)
 				offset / FP_ONE_HZ);
 			applied_offset = offset;
 		}
-	)
-	IF_NOT_PRALINE (
+	}
+#endif
+#ifdef IS_NOT_PRALINE
+	if (IS_NOT_PRALINE) {
 		set_freq(requested_rf_hz);
-	)
+	}
+#endif
 	radio->config[RADIO_BANK_APPLIED][RADIO_FREQUENCY_RF] = requested_rf;
 	radio->config[RADIO_BANK_APPLIED][RADIO_FREQUENCY_IF] = RADIO_UNSET;
 	radio->config[RADIO_BANK_APPLIED][RADIO_FREQUENCY_LO] = RADIO_UNSET;
@@ -399,7 +409,8 @@ static bool radio_update_bandwidth(radio_t* const radio, uint64_t* bank)
 {
 	bool new_bw = false;
 
-	IF_PRALINE (
+#ifdef IS_PRALINE
+	if (IS_PRALINE) {
 		/* Praline legacy mode always sets baseband bandwidth automatically. */
 		(void) bank;
 		uint32_t lpf_bandwidth = auto_bandwidth(radio);
@@ -445,8 +456,10 @@ static bool radio_update_bandwidth(radio_t* const radio, uint64_t* bank)
 				hpf_bandwidth;
 			new_bw = true;
 		}
-	)
-	IF_NOT_PRALINE (
+	}
+#endif
+#ifdef IS_NOT_PRALINE
+	if (IS_NOT_PRALINE) {
 		uint64_t lpf_bandwidth;
 		lpf_bandwidth = bank[RADIO_XCVR_TX_LPF];
 		if (lpf_bandwidth == RADIO_UNSET) {
@@ -482,7 +495,8 @@ static bool radio_update_bandwidth(radio_t* const radio, uint64_t* bank)
 				lpf_bandwidth;
 			new_bw = true;
 		}
-	)
+	}
+#endif
 	return new_bw;
 }
 
@@ -618,7 +632,8 @@ static bool radio_update_trigger(radio_t* const radio, uint64_t* bank)
 
 static bool radio_update_dc_block(radio_t* const radio, uint64_t* bank)
 {
-	IF_PRALINE (
+#ifdef IS_PRALINE
+	if (IS_PRALINE) {
 		const uint64_t requested = bank[RADIO_DC_BLOCK];
 		bool enable = requested;
 
@@ -634,7 +649,8 @@ static bool radio_update_dc_block(radio_t* const radio, uint64_t* bank)
 		fpga_set_rx_dc_block_enable(&fpga, enable);
 		radio->config[RADIO_BANK_APPLIED][RADIO_DC_BLOCK] = enable;
 		return true;
-	)
+	}
+#endif
 
 	(void) radio;
 	(void) bank;

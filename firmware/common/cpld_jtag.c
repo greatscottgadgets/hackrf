@@ -42,30 +42,38 @@ void cpld_jtag_take(jtag_t* const jtag)
 	/* Set initial GPIO state to the voltages of the internal or external pull-ups/downs,
 	 * to avoid any glitches.
 	 */
-	IF_EXPANSION_COMPATIBLE (
+#ifdef IS_EXPANSION_COMPATIBLE
+	if (IS_EXPANSION_COMPATIBLE) {
 		gpio_set(gpio->gpio_pp_tms);
-	)
+	}
+#endif
 
 	gpio_clear(gpio->gpio_tck);
 
-	IF_NOT_PRALINE (
+#ifdef IS_NOT_PRALINE
+	if (IS_NOT_PRALINE) {
 		gpio_set(gpio->gpio_tms);
 		gpio_set(gpio->gpio_tdi);
-	)
+	}
+#endif
 
-	IF_EXPANSION_COMPATIBLE (
+#ifdef IS_EXPANSION_COMPATIBLE
+	if (IS_EXPANSION_COMPATIBLE) {
 		/* Do not drive PortaPack-specific TMS pin initially, just to be cautious. */
 		gpio_input(gpio->gpio_pp_tms);
 		gpio_input(gpio->gpio_pp_tdo);
-	)
+	}
+#endif
 
 	gpio_output(gpio->gpio_tck);
 
-	IF_NOT_PRALINE (
+#ifdef IS_NOT_PRALINE
+	if (IS_NOT_PRALINE) {
 		gpio_output(gpio->gpio_tms);
 		gpio_output(gpio->gpio_tdi);
 		gpio_input(gpio->gpio_tdo);
-	)
+	}
+#endif
 }
 
 void cpld_jtag_release(jtag_t* const jtag)
@@ -75,19 +83,23 @@ void cpld_jtag_release(jtag_t* const jtag)
 	/* Make all pins inputs when JTAG interface not active.
 	 * Let the pull-ups/downs do the work.
 	 */
-	IF_EXPANSION_COMPATIBLE (
+#ifdef IS_EXPANSION_COMPATIBLE
+	if (IS_EXPANSION_COMPATIBLE) {
 		/* Do not drive PortaPack-specific pins, initially, just to be cautious. */
 		gpio_input(gpio->gpio_pp_tms);
 		gpio_input(gpio->gpio_pp_tdo);
-	)
+	}
+#endif
 
 	gpio_input(gpio->gpio_tck);
 
-	IF_NOT_PRALINE (
+#ifdef IS_NOT_PRALINE
+	if (IS_NOT_PRALINE) {
 		gpio_input(gpio->gpio_tms);
 		gpio_input(gpio->gpio_tdi);
 		gpio_input(gpio->gpio_tdo);
-	)
+	}
+#endif
 }
 
 #if !defined(PRALINE) || defined(UNIVERSAL)
