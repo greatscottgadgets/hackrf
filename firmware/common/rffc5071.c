@@ -113,12 +113,14 @@ void rffc5071_setup(rffc5071_driver_t* const drv)
 	gpio_set(drv->gpio_reset);
 	gpio_output(drv->gpio_reset);
 
-	IF_PRALINE (
+#ifdef IS_PRALINE
+	if (IS_PRALINE) {
 		/* Configure mixer PLL lock detect pin */
 		const platform_scu_t* scu = platform_scu();
 		scu_pinmux(scu->MIXER_LD, scu->MIXER_LD_PINCFG);
 		gpio_input(drv->gpio_ld);
-	)
+	}
+#endif
 
 	rffc5071_init(drv);
 
@@ -136,9 +138,11 @@ void rffc5071_setup(rffc5071_driver_t* const drv)
 	set_RFFC5071_FULLD(drv, 0);
 	set_RFFC5071_MODE(drv, 1);
 
-	IF_H1_OR_PRALINE (
+#ifdef IS_H1_OR_PRALINE
+	if (IS_H1_OR_PRALINE) {
 		set_RFFC5071_LOCK(drv, 1);
-	)
+	}
+#endif
 
 	/* Enable reference oscillator standby */
 	set_RFFC5071_REFST(drv, 1);
@@ -181,14 +185,18 @@ void rffc5071_lock_test(rffc5071_driver_t* const drv)
 
 bool rffc5071_check_lock(rffc5071_driver_t* const drv)
 {
-	IF_PRALINE (
+#ifdef IS_PRALINE
+	if (IS_PRALINE) {
 		return gpio_read(drv->gpio_ld);
-	)
-	IF_NOT_PRALINE (
+	}
+#endif
+#ifdef IS_NOT_PRALINE
+	if (IS_NOT_PRALINE) {
 		set_RFFC5071_READSEL(drv, 0b0001);
 		rffc5071_regs_commit(drv);
 		return !!(rffc5071_reg_read(drv, RFFC5071_READBACK_REG) & 0x8000);
-	)
+	}
+#endif
 	return false;
 }
 
@@ -369,9 +377,11 @@ bool rffc5071_poll_ld(rffc5071_driver_t* const drv, uint8_t* prelock_state)
 	//
 	// For all other boards we'll just return true to avoid a situation where a
 	// a caller is waiting for a lock signal that will never be detected.
-	IF_NOT_PRALINE (
+	#ifdef IS_NOT_PRALINE
+	if (IS_NOT_PRALINE) {
 		return true;
-	)
+	}
+	#endif
 
 	// The RFFC5072 can be configured to output PLL lock status on
 	// GPO4. The lock detect signal is produced by a window detector

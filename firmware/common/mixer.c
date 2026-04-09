@@ -56,7 +56,8 @@ void mixer_bus_setup(mixer_driver_t* const mixer)
 {
 	(void) mixer;
 
-	IF_NOT_RAD1O (
+#ifdef IS_NOT_RAD1O
+	if (IS_NOT_RAD1O) {
 		const platform_gpio_t* gpio = platform_gpio();
 
 		rffc5071_spi_config = (rffc5071_spi_config_t){
@@ -65,7 +66,8 @@ void mixer_bus_setup(mixer_driver_t* const mixer)
 			.gpio_data = gpio->rffc5072_data,
 		};
 		spi_bus_start(&spi_bus_rffc5071, &rffc5071_spi_config);
-	)
+	}
+#endif
 }
 
 void mixer_setup(mixer_driver_t* const mixer, mixer_variant_t type)
@@ -75,16 +77,21 @@ void mixer_setup(mixer_driver_t* const mixer, mixer_variant_t type)
 	const platform_gpio_t* gpio = platform_gpio();
 
 	/* Mixer GPIO serial interface PinMux */
-	IF_PRALINE (
-		mixer->rffc5071.gpio_ld = gpio->rffc5072_ld
-	);
+#ifdef IS_PRALINE
+	if (IS_PRALINE) {
+		mixer->rffc5071.gpio_ld = gpio->rffc5072_ld;
+	}
+#endif
 
-	IF_NOT_RAD1O (
+#ifdef IS_NOT_RAD1O
+	if (IS_NOT_RAD1O) {
 		mixer->rffc5071.gpio_reset = gpio->rffc5072_reset;
 		rffc5071_setup(&mixer->rffc5071);
-	)
+	}
+#endif
 
-	IF_RAD1O (
+#ifdef IS_RAD1O
+	if (IS_RAD1O) {
 		mixer->max2871.gpio_vco_ce = gpio->vco_ce;
 		mixer->max2871.gpio_vco_sclk = gpio->vco_sclk;
 		mixer->max2871.gpio_vco_sdata = gpio->vco_sdata;
@@ -92,50 +99,67 @@ void mixer_setup(mixer_driver_t* const mixer, mixer_variant_t type)
 		mixer->max2871.gpio_synt_rfout_en = gpio->synt_rfout_en;
 		mixer->max2871.gpio_vco_mux = gpio->vco_mux;
 		max2871_setup(&mixer->max2871);
-	)
+	}
+#endif
 }
 
 fp_40_24_t mixer_set_frequency(mixer_driver_t* const mixer, fp_40_24_t lo, bool program)
 {
-	IF_NOT_RAD1O (
+#ifdef IS_NOT_RAD1O
+	if (IS_NOT_RAD1O) {
 		return rffc5071_set_frequency(&mixer->rffc5071, lo, program);
-	)
+	}
+#endif
 
-	IF_RAD1O (
+#ifdef IS_RAD1O
+	if (IS_RAD1O) {
 		return max2871_set_frequency(&mixer->max2871, lo, program);
-	)
+	}
+#endif
 }
 
 void mixer_enable(mixer_driver_t* const mixer)
 {
-	IF_NOT_RAD1O (
+#ifdef IS_NOT_RAD1O
+	if (IS_NOT_RAD1O) {
 		rffc5071_enable(&mixer->rffc5071);
-	)
+	}
+#endif
 
-	IF_RAD1O (
+#ifdef IS_RAD1O
+	if (IS_RAD1O) {
 		max2871_enable(&mixer->max2871);
-	)
+	}
+#endif
 }
 
 void mixer_disable(mixer_driver_t* const mixer)
 {
-	IF_NOT_RAD1O (
+#ifdef IS_NOT_RAD1O
+	if (IS_NOT_RAD1O) {
 		rffc5071_disable(&mixer->rffc5071);
-	)
+	}
+#endif
 
-	IF_RAD1O (
+#ifdef IS_RAD1O
+	if (IS_RAD1O) {
 		max2871_disable(&mixer->max2871);
-	)
+	}
+#endif
 }
 
 void mixer_set_gpo(mixer_driver_t* const mixer, uint8_t gpo)
 {
-	IF_NOT_RAD1O (
+#ifdef IS_NOT_RAD1O
+	if (IS_NOT_RAD1O) {
 		rffc5071_set_gpo(&mixer->rffc5071, gpo);
-	)
+	}
+#endif
 
-	IF_RAD1O (
+#ifdef IS_RAD1O
+	if (IS_RAD1O) {
 		(void) mixer;
 		(void) gpo;
-	)
+	}
+#endif
 }
