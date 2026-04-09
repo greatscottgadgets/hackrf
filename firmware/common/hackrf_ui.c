@@ -23,8 +23,10 @@
 #include <stddef.h>
 
 #include "hackrf_ui.h"
-#include "platform_detect.h"
 #include "transceiver_mode.h"
+#if !defined(JAWBREAKER)
+	#include "platform_detect.h"
+#endif
 #if defined(PRALINE) || defined(HACKRF_ONE) || defined(UNIVERSAL)
 	#include "ui_portapack.h"
 #endif
@@ -83,16 +85,20 @@ const hackrf_ui_t* hackrf_ui(void)
 {
 	/* Detect on first use. If no UI hardware is detected, use a stub function table. */
 	if (ui == NULL && ui_enabled) {
-		IF_EXPANSION_COMPATIBLE (
+#ifdef IS_EXPANSION_COMPATIBLE
+		if (IS_EXPANSION_COMPATIBLE) {
 			if (portapack_hackrf_ui_init) {
 				ui = portapack_hackrf_ui_init();
 			}
-		)
-		IF_RAD1O (
+		}
+#endif
+#ifdef IS_RAD1O
+		if (IS_RAD1O) {
 			if (rad1o_ui_setup) {
 				ui = rad1o_ui_setup();
 			}
-		)
+		}
+#endif
 	}
 
 	if (ui == NULL) {

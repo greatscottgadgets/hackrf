@@ -38,10 +38,12 @@ static fp_40_24_t max_bypass_freq = FP_MHZ(2740);
 
 void tuning_setup(void)
 {
-	IF_PRALINE (
+#ifdef IS_PRALINE
+	if (IS_PRALINE) {
 		min_bypass_freq = FP_MHZ(2320);
 		max_bypass_freq = FP_MHZ(2580);
-	)
+	}
+#endif
 }
 
 fp_40_24_t select_graduated_if(fp_40_24_t freq_rf, rf_path_filter_t img_reject)
@@ -50,13 +52,17 @@ fp_40_24_t select_graduated_if(fp_40_24_t freq_rf, rf_path_filter_t img_reject)
 
 	switch (img_reject) {
 	case RF_PATH_FILTER_LOW_PASS:
-		IF_RAD1O (
+#ifdef IS_RAD1O
+		if (IS_RAD1O) {
 			freq_if = FP_MHZ(2300);
-		)
-		IF_NOT_RAD1O (
+		}
+#endif
+#ifdef IS_NOT_RAD1O
+		if (IS_NOT_RAD1O) {
 			/* IF is graduated from 2650 MHz to 2340 MHz */
 			freq_if = FP_MHZ(2650) - (freq_rf / 7);
-		)
+		}
+#endif
 		break;
 	case RF_PATH_FILTER_HIGH_PASS:
 		if (freq_rf < MID1_HP_FREQ) {
