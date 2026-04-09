@@ -34,6 +34,7 @@
 #include "mixer.h"
 #include "platform_detect.h"
 #include "sgpio.h"
+#include "transceiver_mode.h"
 #if defined(HACKRF_ONE) || defined(RAD1O) || defined(PRALINE)
 	#include "platform_scu.h"
 #endif
@@ -537,7 +538,10 @@ void rf_path_set_direction(rf_path_t* const rf_path, const rf_path_direction_t d
 	hackrf_ui()->set_direction(direction);
 }
 
-void rf_path_set_filter(rf_path_t* const rf_path, const rf_path_filter_t filter)
+void rf_path_set_filter(
+	rf_path_t* const rf_path,
+	const rf_path_filter_t filter,
+	const transceiver_mode_t opmode)
 {
 	switch (filter) {
 	default:
@@ -560,7 +564,9 @@ void rf_path_set_filter(rf_path_t* const rf_path, const rf_path_filter_t filter)
 
 	switchctrl_set(rf_path, rf_path->switchctrl);
 
-	hackrf_ui()->set_filter(filter);
+	if (opmode != TRANSCEIVER_MODE_RX_SWEEP) {
+		hackrf_ui()->set_filter(filter);
+	}
 }
 
 void rf_path_set_lna(rf_path_t* const rf_path, const uint_fast8_t enable)
