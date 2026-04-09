@@ -23,9 +23,7 @@
 
 #include <stddef.h>
 
-#if defined(HACKRF_ONE)
-	#include "platform_detect.h"
-#endif
+#include "platform_detect.h"
 
 // clang-format off
 
@@ -42,184 +40,249 @@ const platform_gpio_t* platform_gpio(void)
 	gpio.led[0] = &GPIO2_1;
 	gpio.led[1] = &GPIO2_2;
 	gpio.led[2] = &GPIO2_8;
-#if defined(RAD1O)
-	gpio.led[3] = &GPIO5_26;
-#elif defined(PRALINE)
-	gpio.led[3] = &GPIO4_6;
+#ifdef IS_RAD1O
+	if (IS_RAD1O) {
+		gpio.led[3] = &GPIO5_26;
+	}
+#endif
+#ifdef IS_PRALINE
+	if (IS_PRALINE) {
+		gpio.led[3] = &GPIO4_6;
+	}
 #endif
 
 	/* Power Supply Control */
-#if defined(PRALINE)
-	gpio.gpio_1v2_enable      = &GPIO4_7;
-	gpio.gpio_3v3aux_enable_n = &GPIO5_15;
-#else
-	gpio.gpio_1v8_enable      = &GPIO3_6;
+#ifdef IS_PRALINE
+	if (IS_PRALINE) {
+		gpio.gpio_1v2_enable      = &GPIO4_7;
+		gpio.gpio_3v3aux_enable_n = &GPIO5_15;
+	}
+#endif
+#ifdef IS_NOT_PRALINE
+	if (IS_NOT_PRALINE) {
+		gpio.gpio_1v8_enable      = &GPIO3_6;
+	}
 #endif
 
 	/* MAX283x GPIO (XCVR_CTL / CS_XCVR) PinMux */
-#if defined(PRALINE)
-	gpio.max283x_select    = &GPIO6_28;
-	gpio.max283x_enable    = &GPIO7_1;
-	gpio.max283x_rx_enable = &GPIO7_2;
-	gpio.max2831_rxhp      = &GPIO6_29;
-	gpio.max2831_ld        = &GPIO4_11;
-#else
-	gpio.max283x_select    = &GPIO0_15;
-	gpio.max283x_enable    = &GPIO2_6;
-	gpio.max283x_rx_enable = &GPIO2_5;
-	gpio.max283x_tx_enable = &GPIO2_4;
+#ifdef IS_PRALINE
+	if (IS_PRALINE) {
+		gpio.max283x_select    = &GPIO6_28;
+		gpio.max283x_enable    = &GPIO7_1;
+		gpio.max283x_rx_enable = &GPIO7_2;
+		gpio.max2831_rxhp      = &GPIO6_29;
+		gpio.max2831_ld        = &GPIO4_11;
+	}
+#endif
+#ifdef IS_NOT_PRALINE
+	if (IS_NOT_PRALINE) {
+		gpio.max283x_select    = &GPIO0_15;
+		gpio.max283x_enable    = &GPIO2_6;
+		gpio.max283x_rx_enable = &GPIO2_5;
+		gpio.max283x_tx_enable = &GPIO2_4;
+	}
 #endif
 
 	/* MAX5864 SPI chip select (AD_CS / CS_AD) GPIO PinMux */
-#if defined(PRALINE)
-	gpio.max5864_select = &GPIO6_30;
-#else
-	gpio.max5864_select = &GPIO2_7;
+#ifdef IS_PRALINE
+	if (IS_PRALINE) {
+		gpio.max5864_select    = &GPIO6_30;
+	}
+#endif
+#ifdef IS_NOT_PRALINE
+	if (IS_NOT_PRALINE) {
+		gpio.max5864_select    = &GPIO2_7;
+	}
 #endif
 
 	/* RF supply (VAA) control */
-#if defined(HACKRF_ONE)
-	gpio.vaa_disable = &GPIO2_9;
-#elif defined(PRALINE)
-	gpio.vaa_disable = &GPIO4_1;
-#elif defined(RAD1O)
-	gpio.vaa_enable  = &GPIO2_9;
+#ifdef IS_HACKRF_ONE
+	if (IS_HACKRF_ONE) {
+		gpio.vaa_disable       = &GPIO2_9;
+	}
+#endif
+#ifdef IS_PRALINE
+	if (IS_PRALINE) {
+		gpio.vaa_disable       = &GPIO4_1;
+	}
+#endif
+#ifdef IS_RAD1O
+	if (IS_RAD1O) {
+		gpio.vaa_enable        = &GPIO2_9;
+	}
 #endif
 
 	/* W25Q80BV Flash */
-	gpio.w25q80bv_hold   = &GPIO1_14;
-	gpio.w25q80bv_wp     = &GPIO1_15;
-	gpio.w25q80bv_select = &GPIO5_11;
+	gpio.w25q80bv_hold     = &GPIO1_14;
+	gpio.w25q80bv_wp       = &GPIO1_15;
+	gpio.w25q80bv_select   = &GPIO5_11;
 
 	/* RF switch control */
-#if defined(HACKRF_ONE)
-	gpio.hp              = &GPIO2_0;
-	gpio.lp              = &GPIO2_10;
-	gpio.tx_mix_bp       = &GPIO2_11;
-	gpio.no_mix_bypass   = &GPIO1_0;
-	gpio.rx_mix_bp       = &GPIO2_12;
-	gpio.tx_amp          = &GPIO2_15;
-	gpio.tx              = &GPIO5_15;
-	gpio.mix_bypass      = &GPIO5_16;
-	gpio.rx              = &GPIO5_5;
-	gpio.no_tx_amp_pwr   = &GPIO3_5;
-	gpio.amp_bypass      = &GPIO0_14;
-	gpio.rx_amp          = &GPIO1_11;
-	gpio.no_rx_amp_pwr   = &GPIO1_12;
-	// HackRF One rev 9
-	gpio.h1r9_rx         = &GPIO0_7;
-	gpio.h1r9_no_ant_pwr = &GPIO2_4;
-#elif defined(RAD1O)
-	gpio.tx_rx_n         = &GPIO1_11;
-	gpio.tx_rx           = &GPIO0_14;
-	gpio.by_mix          = &GPIO1_12;
-	gpio.by_mix_n        = &GPIO2_10;
-	gpio.by_amp          = &GPIO1_0;
-	gpio.by_amp_n        = &GPIO5_5;
-	gpio.mixer_en        = &GPIO5_16;
-	gpio.low_high_filt   = &GPIO2_11;
-	gpio.low_high_filt_n = &GPIO2_12;
-	gpio.tx_amp          = &GPIO2_15;
-	gpio.rx_lna          = &GPIO5_15;
-#elif defined(PRALINE)
-	gpio.tx_en           = &GPIO3_4;
-	gpio.mix_en_n        = &GPIO3_2;
-	gpio.mix_en_n_r1_0   = &GPIO5_6;
-	gpio.lpf_en          = &GPIO4_8;
-	gpio.rf_amp_en       = &GPIO4_9;
-	gpio.ant_bias_en_n   = &GPIO1_12;
+#ifdef IS_HACKRF_ONE
+	if (IS_HACKRF_ONE) {
+		gpio.hp              = &GPIO2_0;
+		gpio.lp              = &GPIO2_10;
+		gpio.tx_mix_bp       = &GPIO2_11;
+		gpio.no_mix_bypass   = &GPIO1_0;
+		gpio.rx_mix_bp       = &GPIO2_12;
+		gpio.tx_amp          = &GPIO2_15;
+		gpio.tx              = &GPIO5_15;
+		gpio.mix_bypass      = &GPIO5_16;
+		gpio.rx              = &GPIO5_5;
+		gpio.no_tx_amp_pwr   = &GPIO3_5;
+		gpio.amp_bypass      = &GPIO0_14;
+		gpio.rx_amp          = &GPIO1_11;
+		gpio.no_rx_amp_pwr   = &GPIO1_12;
+#ifdef IS_H1_R9
+		if (IS_H1_R9) {
+			gpio.h1r9_rx         = &GPIO0_7;
+			gpio.h1r9_no_ant_pwr = &GPIO2_4;
+		}
+#endif
+	}
+#endif
+#ifdef IS_RAD1O
+	if (IS_RAD1O) {
+		gpio.tx_rx_n         = &GPIO1_11;
+		gpio.tx_rx           = &GPIO0_14;
+		gpio.by_mix          = &GPIO1_12;
+		gpio.by_mix_n        = &GPIO2_10;
+		gpio.by_amp          = &GPIO1_0;
+		gpio.by_amp_n        = &GPIO5_5;
+		gpio.mixer_en        = &GPIO5_16;
+		gpio.low_high_filt   = &GPIO2_11;
+		gpio.low_high_filt_n = &GPIO2_12;
+		gpio.tx_amp          = &GPIO2_15;
+		gpio.rx_lna          = &GPIO5_15;
+	}
+#endif
+#ifdef IS_PRALINE
+	if (IS_PRALINE) {
+		gpio.tx_en           = &GPIO3_4;
+		gpio.mix_en_n        = &GPIO3_2;
+		gpio.mix_en_n_r1_0   = &GPIO5_6;
+		gpio.lpf_en          = &GPIO4_8;
+		gpio.rf_amp_en       = &GPIO4_9;
+		gpio.ant_bias_en_n   = &GPIO1_12;
+	}
 #endif
 
 	/* CPLD JTAG interface GPIO pins_FPGA config pins in Praline */
-	gpio.cpld_tck       = &GPIO3_0;
-#if defined(PRALINE)
-	gpio.fpga_cfg_creset = &GPIO2_11;
-	gpio.fpga_cfg_cdone  = &GPIO5_14;
-	gpio.fpga_cfg_spi_cs = &GPIO2_10;
+	gpio.cpld_tck                  = &GPIO3_0;
+#ifdef IS_PRALINE
+	if (IS_PRALINE) {
+		gpio.fpga_cfg_creset       = &GPIO2_11;
+		gpio.fpga_cfg_cdone        = &GPIO5_14;
+		gpio.fpga_cfg_spi_cs       = &GPIO2_10;
+	}
 #endif
-#if defined(HACKRF_ONE) || defined(RAD1O)
-	gpio.cpld_tdo        = &GPIO5_18;
-	gpio.cpld_tms        = &GPIO3_4;
-	gpio.cpld_tdi        = &GPIO3_1;
+#ifdef IS_NOT_PRALINE
+	if (IS_NOT_PRALINE) {
+		gpio.cpld_tdo              = &GPIO5_18;
+#ifdef IS_H1_OR_RAD1O
+		if (IS_H1_OR_RAD1O) {
+			gpio.cpld_tms          = &GPIO3_4;
+			gpio.cpld_tdi          = &GPIO3_1;
+		}
 #endif
-#if defined(HACKRF_ONE) || defined(PRALINE)
-	gpio.cpld_pp_tms     = &GPIO1_1;
-	gpio.cpld_pp_tdo     = &GPIO1_8;
+#ifdef IS_JAWBREAKER
+		if (IS_JAWBREAKER) {
+			gpio.cpld_tms          = &GPIO3_1;
+			gpio.cpld_tdi          = &GPIO3_4;
+		}
+#endif
+	}
+#endif
+#ifdef IS_EXPANSION_COMPATIBLE
+	if (IS_EXPANSION_COMPATIBLE) {
+		gpio.cpld_pp_tms       = &GPIO1_1;
+		gpio.cpld_pp_tdo       = &GPIO1_8;
+	}
 #endif
 
 	/* Other CPLD interface GPIO pins */
-#if !defined(PRALINE)
-	gpio.trigger_enable = &GPIO5_12;
+#ifdef IS_NOT_PRALINE
+	if (IS_NOT_PRALINE) {
+		gpio.trigger_enable = &GPIO5_12;
+	}
 #endif
-	gpio.q_invert       = &GPIO0_13;
+	gpio.q_invert           = &GPIO0_13;
 
 	/* RFFC5071 GPIO serial interface PinMux */
-#if defined(JAWBREAKER) || defined(HACKRF_ONE)
-	gpio.rffc5072_select = &GPIO2_13;
-	gpio.rffc5072_clock  = &GPIO5_6;
-	gpio.rffc5072_data   = &GPIO3_3;
-	gpio.rffc5072_reset  = &GPIO2_14;
-#elif defined(RAD1O)
-	gpio.vco_ce          = &GPIO2_13;
-	gpio.vco_sclk        = &GPIO5_6;
-	gpio.vco_sdata       = &GPIO3_3;
-	gpio.vco_le          = &GPIO2_14;
-	gpio.vco_mux         = &GPIO5_25;
-	gpio.synt_rfout_en   = &GPIO3_5;
-#elif defined(PRALINE)
-	gpio.rffc5072_select = &GPIO2_13;
-	gpio.rffc5072_clock  = &GPIO5_18;
-	gpio.rffc5072_data   = &GPIO4_14;
-	gpio.rffc5072_reset  = &GPIO2_14;
-	gpio.rffc5072_ld     = &GPIO6_25;
+#ifdef IS_NOT_RAD1O
+	if (IS_NOT_RAD1O) {
+		gpio.rffc5072_select = &GPIO2_13;
+		gpio.rffc5072_clock  = &GPIO5_6;
+		gpio.rffc5072_data   = &GPIO3_3;
+		gpio.rffc5072_reset  = &GPIO2_14;
+	}
+#endif
+#ifdef IS_RAD1O
+	if (IS_RAD1O) {
+		gpio.vco_ce        = &GPIO2_13;
+		gpio.vco_sclk      = &GPIO5_6;
+		gpio.vco_sdata     = &GPIO3_3;
+		gpio.vco_le        = &GPIO2_14;
+		gpio.vco_mux       = &GPIO5_25;
+		gpio.synt_rfout_en = &GPIO3_5;
+	}
+#endif
+#ifdef IS_PRALINE
+	if (IS_PRALINE) {
+		gpio.rffc5072_select = &GPIO2_13;
+		gpio.rffc5072_clock  = &GPIO5_18;
+		gpio.rffc5072_data   = &GPIO4_14;
+		gpio.rffc5072_reset  = &GPIO2_14;
+		gpio.rffc5072_ld     = &GPIO6_25;
+	}
 #endif
 
 	/* Praline */
-#if defined(PRALINE)
-	gpio.p2_ctrl0    = &GPIO7_3;
-	gpio.p2_ctrl1    = &GPIO7_4;
-	gpio.p1_ctrl0    = &GPIO0_14;
-	gpio.p1_ctrl1    = &GPIO5_16;
-	gpio.p1_ctrl2    = &GPIO3_5;
-	gpio.clkin_ctrl  = &GPIO0_15;
-	gpio.aa_en       = &GPIO1_7;
-	gpio.trigger_in  = &GPIO6_26;
-	gpio.trigger_out = &GPIO5_6;
-	gpio.pps_out     = &GPIO5_5;
+#ifdef IS_PRALINE
+	if (IS_PRALINE) {
+		gpio.p2_ctrl0     = &GPIO7_3;
+		gpio.p2_ctrl1     = &GPIO7_4;
+		gpio.p1_ctrl0     = &GPIO0_14;
+		gpio.p1_ctrl1     = &GPIO5_16;
+		gpio.p1_ctrl2     = &GPIO3_5;
+		gpio.clkin_ctrl   = &GPIO0_15;
+		gpio.aa_en        = &GPIO1_7;
+		gpio.trigger_in   = &GPIO6_26;
+		gpio.trigger_out  = &GPIO5_6;
+		gpio.pps_out      = &GPIO5_5;
+	}
 #endif
 
-	/* HackRF One r9 */
-#if defined(HACKRF_ONE)
-	if (detected_platform() == BOARD_ID_HACKRF1_R9) {
-		/* HackRF One r9 clock control */
+	/* HackRF One r9 clock control */
+#ifdef IS_H1_R9
+	if (IS_H1_R9) {
 		gpio.h1r9_clkin_en   = &GPIO5_15;
 		gpio.h1r9_clkout_en  = &GPIO0_9;
 		gpio.h1r9_mcu_clk_en = &GPIO0_8;
-
-		/* HackRF One r9 power control */
-		gpio.h1r9_1v8_enable  = &GPIO2_9;
-		gpio.h1r9_vaa_disable = &GPIO3_6;
-
+		gpio.h1r9_1v8_enable     = &GPIO2_9;
+		gpio.h1r9_vaa_disable    = &GPIO3_6;
 		gpio.h1r9_trigger_enable = &GPIO5_5;
 	}
 #endif
 
-	/* RAD1O */
-#if defined(RAD1O)
-	gpio.lcd_cs    = &GPIO4_12; /* P9_0 */
-	gpio.lcd_bl_en = &GPIO0_8;  /* P1_1 */
-	gpio.lcd_reset = &GPIO5_17; /* P9_4 */
+	/* rad1o LCD */
+#ifdef IS_RAD1O
+	if (IS_RAD1O) {
+		gpio.lcd_cs    = &GPIO4_12; /* P9_0 */
+		gpio.lcd_bl_en = &GPIO0_8;  /* P1_1 */
+		gpio.lcd_reset = &GPIO5_17; /* P9_4 */
+	}
 #endif
 
 	/* Portapack */
-#if defined(HACKRF_ONE) || defined(PRALINE)
-	gpio.io_stbx = &GPIO5_0;  /* P2_0 */
-	gpio.addr    = &GPIO5_1;  /* P2_1 */
-	gpio.lcd_te  = &GPIO5_3;  /* P2_3 */
-	gpio.unused  = &GPIO5_7;  /* P2_8 */
-	gpio.lcd_rdx = &GPIO5_4;  /* P2_4 */
-	gpio.lcd_wrx = &GPIO1_10; /* P2_9 */
-	gpio.dir     = &GPIO1_13; /* P2_13 */
+#ifdef IS_EXPANSION_COMPATIBLE
+	if (IS_EXPANSION_COMPATIBLE) {
+		gpio.io_stbx = &GPIO5_0;  /* P2_0 */
+		gpio.addr    = &GPIO5_1;  /* P2_1 */
+		gpio.lcd_rdx = &GPIO5_4;  /* P2_4 */
+		gpio.lcd_wrx = &GPIO1_10; /* P2_9 */
+		gpio.dir     = &GPIO1_13; /* P2_13 */
+	}
 #endif
 
 	_platform_gpio = &gpio;

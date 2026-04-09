@@ -23,7 +23,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-#if defined(HACKRF_ONE)
+#if defined(HACKRF_ONE) || defined(UNIVERSAL)
 	#include <libopencm3/lpc43xx/scu.h>
 #endif
 
@@ -32,7 +32,7 @@
 #include "platform_detect.h"
 #include "selftest.h"
 #include "si5351c.h"
-#if defined(HACKRF_ONE)
+#if defined(HACKRF_ONE) || defined(UNIVERSAL)
 	#include "gpio.h"
 	#include "platform_gpio.h"
 	#include "platform_scu.h"
@@ -269,7 +269,8 @@ void si5351c_configure_clock_control(si5351c_driver_t* const drv)
 		SI5351C_CLK_POWERDOWN |
 			SI5351C_CLK_INT_MODE /* not connected, but: PLL B int mode */
 	};
-	if (detected_platform() == BOARD_ID_HACKRF1_R9) {
+#ifdef IS_H1_R9
+	if (IS_H1_R9) {
 		data[1] = SI5351C_CLK_INT_MODE | SI5351C_CLK_PLL_SRC(SI5351C_PLL_A) |
 			SI5351C_CLK_SRC(SI5351C_CLK_SRC_MULTISYNTH_SELF) |
 			SI5351C_CLK_IDRV(SI5351C_CLK_IDRV_6MA);
@@ -281,34 +282,38 @@ void si5351c_configure_clock_control(si5351c_driver_t* const drv)
 		data[5] = SI5351C_CLK_POWERDOWN;
 		data[6] = SI5351C_CLK_POWERDOWN;
 	}
-#ifdef PRALINE
-	/* CLK0: AFE_CLK */
-	data[1] = SI5351C_CLK_FRAC_MODE | SI5351C_CLK_PLL_SRC(SI5351C_PLL_A) |
-		SI5351C_CLK_SRC(SI5351C_CLK_SRC_MULTISYNTH_SELF) |
-		SI5351C_CLK_IDRV(SI5351C_CLK_IDRV_4MA);
-	/* CLK1: SCT_CLK and FPGA_CLK */
-	data[2] = SI5351C_CLK_FRAC_MODE | SI5351C_CLK_PLL_SRC(SI5351C_PLL_A) |
-		SI5351C_CLK_SRC(SI5351C_CLK_SRC_MULTISYNTH_SELF) |
-		SI5351C_CLK_IDRV(SI5351C_CLK_IDRV_2MA);
-	/* CLK3: CLKOUT */
-	clkout_ctrl = SI5351C_CLK_INT_MODE | SI5351C_CLK_PLL_SRC(SI5351C_PLL_B) |
-		SI5351C_CLK_SRC(SI5351C_CLK_SRC_MULTISYNTH_SELF) |
-		SI5351C_CLK_IDRV(SI5351C_CLK_IDRV_8MA);
-	/* CLK4: XCVR_CLK */
-	data[5] = SI5351C_CLK_INT_MODE | SI5351C_CLK_PLL_SRC(SI5351C_PLL_B) |
-		SI5351C_CLK_SRC(SI5351C_CLK_SRC_MULTISYNTH_SELF) |
-		SI5351C_CLK_IDRV(SI5351C_CLK_IDRV_4MA) | SI5351C_CLK_INV;
-	data[6] = SI5351C_CLK_INT_MODE | SI5351C_CLK_PLL_SRC(SI5351C_PLL_B) |
-		SI5351C_CLK_SRC(SI5351C_CLK_SRC_MULTISYNTH_SELF) |
-		SI5351C_CLK_IDRV(SI5351C_CLK_IDRV_4MA);
-	if ((detected_revision() & ~BOARD_REV_GSG) < BOARD_REV_PRALINE_R1_1) {
-		/* CLK2: FPGA_CLK (not shared with SCT_CLK on older boards) */
-		data[3] = SI5351C_CLK_FRAC_MODE | SI5351C_CLK_PLL_SRC(SI5351C_PLL_A) |
+#endif
+#ifdef IS_PRALINE
+	if (IS_PRALINE) {
+		/* CLK0: AFE_CLK */
+		data[1] = SI5351C_CLK_FRAC_MODE | SI5351C_CLK_PLL_SRC(SI5351C_PLL_A) |
+			SI5351C_CLK_SRC(SI5351C_CLK_SRC_MULTISYNTH_SELF) |
+			SI5351C_CLK_IDRV(SI5351C_CLK_IDRV_4MA);
+		/* CLK1: SCT_CLK and FPGA_CLK */
+		data[2] = SI5351C_CLK_FRAC_MODE | SI5351C_CLK_PLL_SRC(SI5351C_PLL_A) |
 			SI5351C_CLK_SRC(SI5351C_CLK_SRC_MULTISYNTH_SELF) |
 			SI5351C_CLK_IDRV(SI5351C_CLK_IDRV_2MA);
-	} else {
-		/* CLK2: MCU_CLK */
-		data[3] = SI5351C_CLK_POWERDOWN;
+		/* CLK3: CLKOUT */
+		clkout_ctrl = SI5351C_CLK_INT_MODE | SI5351C_CLK_PLL_SRC(SI5351C_PLL_B) |
+			SI5351C_CLK_SRC(SI5351C_CLK_SRC_MULTISYNTH_SELF) |
+			SI5351C_CLK_IDRV(SI5351C_CLK_IDRV_8MA);
+		/* CLK4: XCVR_CLK */
+		data[5] = SI5351C_CLK_INT_MODE | SI5351C_CLK_PLL_SRC(SI5351C_PLL_B) |
+			SI5351C_CLK_SRC(SI5351C_CLK_SRC_MULTISYNTH_SELF) |
+			SI5351C_CLK_IDRV(SI5351C_CLK_IDRV_4MA) | SI5351C_CLK_INV;
+		data[6] = SI5351C_CLK_INT_MODE | SI5351C_CLK_PLL_SRC(SI5351C_PLL_B) |
+			SI5351C_CLK_SRC(SI5351C_CLK_SRC_MULTISYNTH_SELF) |
+			SI5351C_CLK_IDRV(SI5351C_CLK_IDRV_4MA);
+		if ((detected_revision() & ~BOARD_REV_GSG) < BOARD_REV_PRALINE_R1_1) {
+			/* CLK2: FPGA_CLK (not shared with SCT_CLK on older boards) */
+			data[3] = SI5351C_CLK_FRAC_MODE |
+				SI5351C_CLK_PLL_SRC(SI5351C_PLL_A) |
+				SI5351C_CLK_SRC(SI5351C_CLK_SRC_MULTISYNTH_SELF) |
+				SI5351C_CLK_IDRV(SI5351C_CLK_IDRV_2MA);
+		} else {
+			/* CLK2: MCU_CLK */
+			data[3] = SI5351C_CLK_POWERDOWN;
+		}
 	}
 #endif
 	si5351c_write(drv, data, sizeof(data));
@@ -325,31 +330,41 @@ void si5351c_enable_clock_outputs(si5351c_driver_t* const drv)
 	/* 7: Clock to CPU is deactivated as it is not used and creates noise */
 	/* 3: External clock output is deactivated by default */
 
-#ifndef PRALINE
-	uint8_t value = SI5351C_CLK_ENABLE(0) | SI5351C_CLK_ENABLE(1) |
-		SI5351C_CLK_ENABLE(2) | SI5351C_CLK_ENABLE(4) | SI5351C_CLK_ENABLE(5) |
-		SI5351C_CLK_DISABLE(6) | SI5351C_CLK_DISABLE(7);
-#else
-	uint8_t value = SI5351C_CLK_ENABLE(0) | SI5351C_CLK_ENABLE(1) |
-		SI5351C_CLK_ENABLE(4) | SI5351C_CLK_ENABLE(5) | SI5351C_CLK_DISABLE(6) |
-		SI5351C_CLK_DISABLE(7);
-	if ((detected_revision() & ~BOARD_REV_GSG) < BOARD_REV_PRALINE_R1_1) {
-		/* CLK2: FPGA_CLK (not shared with SCT_CLK on older boards) */
-		value |= SI5351C_CLK_ENABLE(2);
-	} else {
-		value |= SI5351C_CLK_DISABLE(2);
+	uint8_t clkout = 3;
+	uint8_t value = 0;
+
+#ifdef IS_PRALINE
+	if (IS_PRALINE) {
+		value = SI5351C_CLK_ENABLE(0) | SI5351C_CLK_ENABLE(1) |
+			SI5351C_CLK_ENABLE(4) | SI5351C_CLK_ENABLE(5) |
+			SI5351C_CLK_DISABLE(6) | SI5351C_CLK_DISABLE(7);
+		if ((detected_revision() & ~BOARD_REV_GSG) < BOARD_REV_PRALINE_R1_1) {
+			/* CLK2: FPGA_CLK (not shared with SCT_CLK on older boards) */
+			value |= SI5351C_CLK_ENABLE(2);
+		} else {
+			value |= SI5351C_CLK_DISABLE(2);
+		}
 	}
 #endif
-	uint8_t clkout = 3;
-
-	/* HackRF One r9 has only three clock generator outputs. */
-	if (detected_platform() == BOARD_ID_HACKRF1_R9) {
-		clkout = 2;
+#ifdef IS_NOT_PRALINE
+	if (IS_NOT_PRALINE) {
 		value = SI5351C_CLK_ENABLE(0) | SI5351C_CLK_ENABLE(1) |
-			SI5351C_CLK_DISABLE(3) | SI5351C_CLK_DISABLE(4) |
-			SI5351C_CLK_DISABLE(5) | SI5351C_CLK_DISABLE(6) |
+			SI5351C_CLK_ENABLE(2) | SI5351C_CLK_ENABLE(4) |
+			SI5351C_CLK_ENABLE(5) | SI5351C_CLK_DISABLE(6) |
 			SI5351C_CLK_DISABLE(7);
+
+		/* HackRF One r9 has only three clock generator outputs. */
+	#ifdef IS_H1_R9
+		if (IS_H1_R9) {
+			clkout = 2;
+			value = SI5351C_CLK_ENABLE(0) | SI5351C_CLK_ENABLE(1) |
+				SI5351C_CLK_DISABLE(3) | SI5351C_CLK_DISABLE(4) |
+				SI5351C_CLK_DISABLE(5) | SI5351C_CLK_DISABLE(6) |
+				SI5351C_CLK_DISABLE(7);
+		}
+	#endif
 	}
+#endif
 
 	value |= (clkout_enabled) ? SI5351C_CLK_ENABLE(clkout) :
 				    SI5351C_CLK_DISABLE(clkout);
@@ -357,8 +372,8 @@ void si5351c_enable_clock_outputs(si5351c_driver_t* const drv)
 	si5351c_write(drv, data, sizeof(data));
 	outputs_disabled = value;
 
-#if defined(HACKRF_ONE)
-	if (detected_platform() == BOARD_ID_HACKRF1_R9) {
+#ifdef IS_H1_R9
+	if (IS_H1_R9) {
 		const platform_gpio_t* gpio = platform_gpio();
 		if (clkout_enabled) {
 			gpio_set(gpio->h1r9_clkout_en);
@@ -396,8 +411,8 @@ void si5351c_set_clock_source(si5351c_driver_t* const drv, const enum pll_source
 		return;
 	}
 	si5351c_disable_all_outputs(drv);
-	if (detected_platform() == BOARD_ID_HACKRF1_R9) {
-#if defined(HACKRF_ONE)
+#ifdef IS_H1_R9
+	if (IS_H1_R9) {
 		/*
 		 * HackRF One r9 always uses PLL A on the XTAL input
 		 * but externally switches that input to CLKIN.
@@ -408,10 +423,13 @@ void si5351c_set_clock_source(si5351c_driver_t* const drv, const enum pll_source
 		} else {
 			gpio_clear(platform_gpio()->h1r9_clkin_en);
 		}
+	}
 #endif
-	} else {
+#ifdef IS_NOT_H1_R9
+	if (IS_NOT_H1_R9) {
 		si5351c_configure_pll_sources(drv, source);
 	}
+#endif
 	si5351c_configure_pll_multisynth(drv, source);
 	active_clock_source = source;
 	si5351c_reset_pll(drv, SI5351C_PLL_BOTH);
@@ -466,8 +484,8 @@ void si5351c_init(si5351c_driver_t* const drv)
 		selftest.report.pass = false;
 	}
 
-#if defined(HACKRF_ONE)
-	if (detected_platform() == BOARD_ID_HACKRF1_R9) {
+#ifdef IS_H1_R9
+	if (IS_H1_R9) {
 		const platform_gpio_t* gpio = platform_gpio();
 		const platform_scu_t* scu = platform_scu();
 
@@ -487,7 +505,6 @@ void si5351c_init(si5351c_driver_t* const drv)
 		gpio_output(gpio->h1r9_mcu_clk_en);
 	}
 #endif
-	(void) drv;
 }
 
 /*

@@ -57,24 +57,29 @@ void sgpio_configure_pin_functions(sgpio_config_t* const config)
 	scu_pinmux(scu->PINMUX_SGPIO14, scu->PINMUX_SGPIO14_PINCFG); /* GPIO5[13] */
 	scu_pinmux(scu->PINMUX_SGPIO15, scu->PINMUX_SGPIO15_PINCFG); /* GPIO5[14] */
 
-	if (detected_platform() == BOARD_ID_HACKRF1_R9) {
-#if defined(HACKRF_ONE)
+#ifdef IS_H1_R9
+	if (IS_H1_R9) {
 		scu_pinmux(
 			scu->H1R9_TRIGGER_EN,
 			SCU_GPIO_FAST | SCU_CONF_FUNCTION4); /* GPIO5[5] */
+	}
 #endif
-	} else {
+#ifdef IS_NOT_H1_R9
+	if (IS_NOT_H1_R9) {
 		scu_pinmux(
 			scu->TRIGGER_EN,
 			SCU_GPIO_FAST | SCU_CONF_FUNCTION4); /* GPIO5[12] */
 	}
+#endif
 
 	sgpio_cpld_set_mixer_invert(config, 0);
 	gpio_output(config->gpio_q_invert);
 
-#ifndef PRALINE
-	trigger_enable(false);
-	gpio_output(config->gpio_trigger_enable);
+#ifdef IS_NOT_PRALINE
+	if (IS_NOT_PRALINE) {
+		trigger_enable(false);
+		gpio_output(config->gpio_trigger_enable);
+	}
 #endif
 }
 
@@ -157,11 +162,11 @@ void sgpio_configure(sgpio_config_t* const config, const sgpio_direction_t direc
 		  SGPIO_OUT_MUX_CFG_P_OE_CFG(0)  // gpio_oe (state set by GPIO_OEREG)
 		| SGPIO_OUT_MUX_CFG_P_OUT_CFG(0) // dout_doutm1 (1-bit mode)
 		;
-    SGPIO_OUT_MUX_CFG(10) = // GPIO10: Output: disable
+	SGPIO_OUT_MUX_CFG(10) = // GPIO10: Output: disable
 		  SGPIO_OUT_MUX_CFG_P_OE_CFG(0)  // gpio_oe (state set by GPIO_OEREG)
 		| SGPIO_OUT_MUX_CFG_P_OUT_CFG(4) // gpio_out (level set by GPIO_OUTREG)
 		;
-    SGPIO_OUT_MUX_CFG(11) = // GPIO11: Output: direction
+	SGPIO_OUT_MUX_CFG(11) = // GPIO11: Output: direction
 		  SGPIO_OUT_MUX_CFG_P_OE_CFG(0)  // gpio_oe (state set by GPIO_OEREG)
 		| SGPIO_OUT_MUX_CFG_P_OUT_CFG(4) // gpio_out (level set by GPIO_OUTREG)
 		;

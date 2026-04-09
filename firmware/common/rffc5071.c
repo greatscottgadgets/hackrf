@@ -34,15 +34,16 @@
 #include <stdint.h>
 #include <string.h>
 
-#if defined(PRALINE)
+#if defined(PRALINE) || defined(UNIVERSAL)
 	#include <libopencm3/lpc43xx/scu.h>
 #endif
 
 #include "delay.h"
+#include "platform_detect.h"
 #include "rffc5071.h"
 #include "rffc5071_regs.def" // private register def macros
 #include "selftest.h"
-#if defined(PRALINE)
+#if defined(PRALINE) || defined(UNIVERSAL)
 	#include "platform_scu.h"
 #endif
 
@@ -107,11 +108,13 @@ void rffc5071_setup(rffc5071_driver_t* const drv)
 	gpio_set(drv->gpio_reset);
 	gpio_output(drv->gpio_reset);
 
-#ifdef PRALINE
-	/* Configure mixer PLL lock detect pin */
-	const platform_scu_t* scu = platform_scu();
-	scu_pinmux(scu->MIXER_LD, scu->MIXER_LD_PINCFG);
-	gpio_input(drv->gpio_ld);
+#ifdef IS_PRALINE
+	if (IS_PRALINE) {
+		/* Configure mixer PLL lock detect pin */
+		const platform_scu_t* scu = platform_scu();
+		scu_pinmux(scu->MIXER_LD, scu->MIXER_LD_PINCFG);
+		gpio_input(drv->gpio_ld);
+	}
 #endif
 
 	rffc5071_init(drv);
@@ -130,9 +133,10 @@ void rffc5071_setup(rffc5071_driver_t* const drv)
 	set_RFFC5071_FULLD(drv, 0);
 	set_RFFC5071_MODE(drv, 1);
 
-#if defined(PRALINE) || defined(HACKRF_ONE)
-	/* Enable GPO Lock output signal */
-	set_RFFC5071_LOCK(drv, 1);
+#ifdef IS_H1_OR_PRALINE
+	if (IS_H1_OR_PRALINE) {
+		set_RFFC5071_LOCK(drv, 1);
+	}
 #endif
 
 	/* Enable reference oscillator standby */
@@ -176,13 +180,19 @@ void rffc5071_lock_test(rffc5071_driver_t* const drv)
 
 bool rffc5071_check_lock(rffc5071_driver_t* const drv)
 {
-#ifdef PRALINE
-	return gpio_read(drv->gpio_ld);
-#else
-	set_RFFC5071_READSEL(drv, 0b0001);
-	rffc5071_regs_commit(drv);
-	return !!(rffc5071_reg_read(drv, RFFC5071_READBACK_REG) & 0x8000);
+#ifdef IS_PRALINE
+	if (IS_PRALINE) {
+		return gpio_read(drv->gpio_ld);
+	}
 #endif
+#ifdef IS_NOT_PRALINE
+	if (IS_NOT_PRALINE) {
+		set_RFFC5071_READSEL(drv, 0b0001);
+		rffc5071_regs_commit(drv);
+		return !!(rffc5071_reg_read(drv, RFFC5071_READBACK_REG) & 0x8000);
+	}
+#endif
+	return false;
 }
 
 static uint16_t rffc5071_spi_read(rffc5071_driver_t* const drv, uint8_t r)
@@ -344,9 +354,19 @@ void rffc5071_set_gpo(rffc5071_driver_t* const drv, uint8_t gpo)
 	rffc5071_regs_commit(drv);
 }
 
-#ifdef PRALINE
+#if defined(PRALINE) || defined(UNIVERSAL)
 bool rffc5071_poll_ld(rffc5071_driver_t* const drv, uint8_t* prelock_state)
 {
+	// This is only supported on Praline hardware.
+	//
+	// For all other boards we'll just return true to avoid a situation where a
+	// a caller is waiting for a lock signal that will never be detected.
+	#ifdef IS_NOT_PRALINE
+	if (IS_NOT_PRALINE) {
+		return true;
+	}
+	#endif
+
 	// The RFFC5072 can be configured to output PLL lock status on
 	// GPO4. The lock detect signal is produced by a window detector
 	// on the VCO tuning voltage. It goes high to show PLL lock when
