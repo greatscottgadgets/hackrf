@@ -24,7 +24,7 @@ jobs:
     - name: Make it work on debian
       run: |
         apt update
-        apt install -y git python3 python3-pip python3-venv nodejs
+        apt install -y git python3 python3-pip python3-venv nodejs unzip
         # actions/checkout insists on putting the checkout in the
         # working directory rather than ${{ github.workspace }}.
         #
@@ -41,9 +41,9 @@ jobs:
         submodules: true
 
     - name: Setup cmake
-      uses: jwlawson/actions-setup-cmake@v2
+      uses: lukka/get-cmake@latest
       with:
-        cmake-version: ${{ matrix.cmake }}
+        cmakeVersion: ${{ matrix.cmake }}
 
     - name: Install Arm GNU Toolchain
       uses: carlosperate/arm-none-eabi-gcc-action@v1

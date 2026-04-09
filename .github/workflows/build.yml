@@ -60,9 +60,9 @@ jobs:
     - uses: actions/checkout@v4
 
     - name: Setup cmake
-      uses: jwlawson/actions-setup-cmake@v2
+      uses: lukka/get-cmake@latest
       with:
-        cmake-version: ${{ matrix.cmake }}
+        cmakeVersion: ${{ matrix.cmake }}
       if: matrix.sys.shell != 'msys2'
 
     - name: Install dependencies (macOS)
@@ -175,9 +175,9 @@ jobs:
         submodules: true
 
     - name: Setup cmake
-      uses: jwlawson/actions-setup-cmake@v2
+      uses: lukka/get-cmake@latest
       with:
-        cmake-version: ${{ matrix.cmake }}
+        cmakeVersion: ${{ matrix.cmake }}
       if: matrix.os != 'windows'
 
     - name: Install Arm GNU Toolchain
