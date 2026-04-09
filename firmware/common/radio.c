@@ -269,10 +269,10 @@ static fp_40_24_t compute_offset(radio_t* const radio, uint64_t opmode, uint64_t
 	if ((rotation != 0) && (rotation != RADIO_UNSET) && (mcu_rate != RADIO_UNSET) &&
 	    (n != RADIO_UNSET)) {
 		const fp_40_24_t afe_rate = mcu_rate >> (12 - n);
-		if (rotation & 0x80) {
-			rotation = 0x100 - rotation;
+		if (rotation & 0x80000000) {
+			rotation = 0x100000000 - rotation;
 		}
-		offset = (afe_rate * rotation) >> 8;
+		offset = (afe_rate * (rotation >> 24)) >> 8;
 	}
 	return offset;
 }
@@ -289,13 +289,13 @@ static fp_40_24_t digital_from_analog_rf(
 {
 	fp_40_24_t offset = compute_offset(radio, opmode, rotation);
 	fp_40_24_t drf = arf;
-	if (rotation > 0x80) {
+	if (rotation > 0x80000000) {
 		if (offset > arf) {
 			drf = offset - arf;
 		} else {
 			drf = arf - offset;
 		}
-	} else if ((rotation & 0x7f) > 0x00) {
+	} else if ((rotation & 0x7fffffff) > 0) {
 		drf = arf + offset;
 	}
 	return drf;
@@ -314,9 +314,9 @@ static fp_40_24_t analog_from_digital_rf(
 {
 	fp_40_24_t offset = compute_offset(radio, opmode, rotation);
 	fp_40_24_t arf = drf;
-	if (rotation > 0x80) {
+	if (rotation > 0x80000000) {
 		arf = drf + offset;
-	} else if ((rotation & 0x7f) > 0x00) {
+	} else if ((rotation & 0x7fffffff) > 0) {
 		if (offset > drf) {
 			arf = offset - drf;
 		} else {
@@ -409,8 +409,8 @@ static bool radio_update_frequency(radio_t* const radio, uint64_t* bank)
 		case TRANSCEIVER_MODE_RX:
 		case TRANSCEIVER_MODE_RX_SWEEP:
 			/* Round to nearest supported rotation. */
-			rotation = (rotation + 0x20) & 0xc0;
-			if (rotation == 0x80) {
+			rotation = (rotation + 0x20000000) & 0xc0000000;
+			if (rotation == 0x80000000) {
 				rotation = 0;
 			}
 			break;
@@ -434,7 +434,7 @@ static bool radio_update_frequency(radio_t* const radio, uint64_t* bank)
 			const tune_config_t* tune_config =
 				select_tune_config(opmode, freq_rf);
 			if (requested_rotation == RADIO_UNSET) {
-				rotation = (uint8_t) (tune_config->shift) << 6;
+				rotation = (uint64_t) (tune_config->shift) << 30;
 			}
 			analog_rf =
 				analog_from_digital_rf(radio, freq_rf, opmode, rotation);
@@ -511,7 +511,7 @@ static bool radio_update_frequency(radio_t* const radio, uint64_t* bank)
 	}
 	if ((rotation != applied_rotation) && (rotation != RADIO_UNSET)) {
 #ifdef PRALINE
-		fpga_set_rx_quarter_shift_mode(&fpga, rotation >> 6);
+		fpga_set_rx_quarter_shift_mode(&fpga, rotation >> 30);
 #endif
 		radio->config[RADIO_BANK_APPLIED][RADIO_ROTATION] = rotation;
 		new_freq = true;
