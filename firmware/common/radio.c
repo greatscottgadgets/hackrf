@@ -705,6 +705,7 @@ void radio_switch_opmode(radio_t* const radio, const transceiver_mode_t mode)
 		}
 	}
 
+	radio->config[RADIO_BANK_ACTIVE][RADIO_OPMODE] = mode;
 	mark_dirty(radio, RADIO_OPMODE);
 	nvic_enable_irq(NVIC_USB0_IRQ);
 	radio_update(radio);
