@@ -104,14 +104,17 @@ bool set_freq(const uint64_t freq, const transceiver_mode_t opmode)
 		mixer_freq_hz = max2837_freq_nominal_hz + freq;
 		/* Set Freq and read real freq */
 		real_mixer_freq_hz =
-			mixer_set_frequency(&mixer, mixer_freq_hz * FP_ONE_HZ) /
+			mixer_set_frequency(&mixer, mixer_freq_hz * FP_ONE_HZ, true) /
 			FP_ONE_HZ;
-		max283x_set_frequency(&max283x, (real_mixer_freq_hz - freq) * FP_ONE_HZ);
+		max283x_set_frequency(
+			&max283x,
+			(real_mixer_freq_hz - freq) * FP_ONE_HZ,
+			true);
 		sgpio_cpld_set_mixer_invert(&sgpio_config, 1);
 	} else if ((freq_mhz >= MIN_BYPASS_FREQ_MHZ) && (freq_mhz < MAX_BYPASS_FREQ_MHZ)) {
 		rf_path_set_filter(&rf_path, RF_PATH_FILTER_BYPASS, opmode);
 		/* mixer_freq_mhz <= not used in Bypass mode */
-		max283x_set_frequency(&max283x, freq * FP_ONE_HZ);
+		max283x_set_frequency(&max283x, freq * FP_ONE_HZ, true);
 		sgpio_cpld_set_mixer_invert(&sgpio_config, 0);
 	} else if ((freq_mhz >= MIN_HP_FREQ_MHZ) && (freq_mhz <= MAX_HP_FREQ_MHZ)) {
 		if (freq_mhz < MID1_HP_FREQ_MHZ) {
@@ -132,9 +135,12 @@ bool set_freq(const uint64_t freq, const transceiver_mode_t opmode)
 		mixer_freq_hz = freq - max2837_freq_nominal_hz;
 		/* Set Freq and read real freq */
 		real_mixer_freq_hz =
-			mixer_set_frequency(&mixer, mixer_freq_hz * FP_ONE_HZ) /
+			mixer_set_frequency(&mixer, mixer_freq_hz * FP_ONE_HZ, true) /
 			FP_ONE_HZ;
-		max283x_set_frequency(&max283x, (freq - real_mixer_freq_hz) * FP_ONE_HZ);
+		max283x_set_frequency(
+			&max283x,
+			(freq - real_mixer_freq_hz) * FP_ONE_HZ,
+			true);
 		sgpio_cpld_set_mixer_invert(&sgpio_config, 0);
 	} else {
 		/* Error freq_mhz too high */
@@ -185,36 +191,45 @@ bool tuning_set_frequency(
 
 	if (cfg->if_mhz == 0) {
 		rf_path_set_filter(&rf_path, RF_PATH_FILTER_BYPASS, opmode);
-		max283x_set_frequency(&max283x, rf * FP_ONE_HZ);
+		max283x_set_frequency(&max283x, rf * FP_ONE_HZ, true);
 		sgpio_cpld_set_mixer_invert(&sgpio_config, 0);
 	} else if (cfg->if_mhz > freq_mhz) {
 		rf_path_set_filter(&rf_path, RF_PATH_FILTER_LOW_PASS, opmode);
 		if (cfg->high_lo) {
 			mixer_freq_hz = FREQ_ONE_MHZ * cfg->if_mhz + rf;
-			real_mixer_freq_hz =
-				mixer_set_frequency(&mixer, mixer_freq_hz * FP_ONE_HZ) /
+			real_mixer_freq_hz = mixer_set_frequency(
+						     &mixer,
+						     mixer_freq_hz * FP_ONE_HZ,
+						     true) /
 				FP_ONE_HZ;
 			max283x_set_frequency(
 				&max283x,
-				(real_mixer_freq_hz - rf) * FP_ONE_HZ);
+				(real_mixer_freq_hz - rf) * FP_ONE_HZ,
+				true);
 			sgpio_cpld_set_mixer_invert(&sgpio_config, 1);
 		} else {
 			mixer_freq_hz = FREQ_ONE_MHZ * cfg->if_mhz - rf;
-			real_mixer_freq_hz =
-				mixer_set_frequency(&mixer, mixer_freq_hz * FP_ONE_HZ) /
+			real_mixer_freq_hz = mixer_set_frequency(
+						     &mixer,
+						     mixer_freq_hz * FP_ONE_HZ,
+						     true) /
 				FP_ONE_HZ;
 			max283x_set_frequency(
 				&max283x,
-				(real_mixer_freq_hz + rf) * FP_ONE_HZ);
+				(real_mixer_freq_hz + rf) * FP_ONE_HZ,
+				true);
 			sgpio_cpld_set_mixer_invert(&sgpio_config, 0);
 		}
 	} else {
 		rf_path_set_filter(&rf_path, RF_PATH_FILTER_HIGH_PASS, opmode);
 		mixer_freq_hz = rf - FREQ_ONE_MHZ * cfg->if_mhz;
 		real_mixer_freq_hz =
-			mixer_set_frequency(&mixer, mixer_freq_hz * FP_ONE_HZ) /
+			mixer_set_frequency(&mixer, mixer_freq_hz * FP_ONE_HZ, true) /
 			FP_ONE_HZ;
-		max283x_set_frequency(&max283x, (rf - real_mixer_freq_hz) * FP_ONE_HZ);
+		max283x_set_frequency(
+			&max283x,
+			(rf - real_mixer_freq_hz) * FP_ONE_HZ,
+			true);
 		sgpio_cpld_set_mixer_invert(&sgpio_config, 0);
 	}
 
@@ -248,7 +263,7 @@ bool set_freq_explicit(
 	}
 
 	rf_path_set_filter(&rf_path, path, opmode);
-	max283x_set_frequency(&max283x, if_freq_hz * FP_ONE_HZ);
+	max283x_set_frequency(&max283x, if_freq_hz * FP_ONE_HZ, true);
 
 	if (lo_freq_hz > if_freq_hz) {
 		sgpio_cpld_set_mixer_invert(&sgpio_config, 1);
@@ -256,7 +271,7 @@ bool set_freq_explicit(
 		sgpio_cpld_set_mixer_invert(&sgpio_config, 0);
 	}
 	if (path != RF_PATH_FILTER_BYPASS) {
-		(void) mixer_set_frequency(&mixer, lo_freq_hz * FP_ONE_HZ);
+		(void) mixer_set_frequency(&mixer, lo_freq_hz * FP_ONE_HZ, true);
 	}
 	return true;
 }

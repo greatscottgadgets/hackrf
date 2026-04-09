@@ -21,9 +21,10 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include <string.h>
-
 #include "max283x.h"
+
+#include <stdbool.h>
+#include <string.h>
 
 #include "fixed_point.h"
 #include "platform_gpio.h"
@@ -290,20 +291,23 @@ void max283x_stop(max283x_driver_t* const drv)
 }
 
 /* Set frequency in 1/(2**24) Hz. */
-fp_40_24_t max283x_set_frequency(max283x_driver_t* const drv, fp_40_24_t freq)
+fp_40_24_t max283x_set_frequency(
+	max283x_driver_t* const drv,
+	fp_40_24_t freq,
+	bool program)
 {
 	switch (drv->type) {
 #ifdef PRALINE
 	case MAX2831_VARIANT:
-		return max2831_set_frequency(&drv->drv.max2831, freq);
+		return max2831_set_frequency(&drv->drv.max2831, freq, program);
 		break;
 #else
 	case MAX2837_VARIANT:
-		return max2837_set_frequency(&drv->drv.max2837, freq);
+		return max2837_set_frequency(&drv->drv.max2837, freq, program);
 		break;
 
 	case MAX2839_VARIANT:
-		return max2839_set_frequency(&drv->drv.max2839, freq);
+		return max2839_set_frequency(&drv->drv.max2839, freq, program);
 		break;
 #endif
 	}

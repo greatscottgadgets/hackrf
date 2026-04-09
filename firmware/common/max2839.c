@@ -29,9 +29,11 @@
  * pirate commands to do the same thing.
  */
 
+#include "max2839.h"
+
+#include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
-#include "max2839.h"
 #include "fixed_point.h"
 #include "max2839_regs.def" // private register def macros
 #include "selftest.h"
@@ -243,7 +245,10 @@ void max2839_stop(max2839_driver_t* const drv)
 /* Assume 40 MHz reference clock with R divider of 1. */
 #define PFD_FREQ_HZ (40ULL * (1000ULL * 1000ULL))
 
-fp_40_24_t max2839_set_frequency(max2839_driver_t* const drv, fp_40_24_t freq)
+fp_40_24_t max2839_set_frequency(
+	max2839_driver_t* const drv,
+	fp_40_24_t freq,
+	bool program)
 {
 	uint8_t band;
 	uint64_t div;
@@ -270,18 +275,20 @@ fp_40_24_t max2839_set_frequency(max2839_driver_t* const drv, fp_40_24_t freq)
 	 */
 	div = div >> 4;
 
-	/* Band settings */
-	set_MAX2839_LOGEN_BSW(drv, band);
+	if (program) {
+		/* Band settings */
+		set_MAX2839_LOGEN_BSW(drv, band);
 
-	/*
-	 * Write order matters here, so commit INT and FRAC_HI before
-	 * committing FRAC_LO, which is the trigger for VCO auto-select.
-	 */
-	set_MAX2839_SYN_INT(drv, (div >> 20) & 0xff);
-	set_MAX2839_SYN_FRAC_HI(drv, (div >> 10) & 0x3ff);
-	max2839_regs_commit(drv);
-	set_MAX2839_SYN_FRAC_LO(drv, div & 0x3ff);
-	max2839_regs_commit(drv);
+		/*
+		 * Write order matters here, so commit INT and FRAC_HI before
+		 * committing FRAC_LO, which is the trigger for VCO auto-select.
+		 */
+		set_MAX2839_SYN_INT(drv, (div >> 20) & 0xff);
+		set_MAX2839_SYN_FRAC_HI(drv, (div >> 10) & 0x3ff);
+		max2839_regs_commit(drv);
+		set_MAX2839_SYN_FRAC_LO(drv, div & 0x3ff);
+		max2839_regs_commit(drv);
+	}
 
 	return ((PFD_FREQ_HZ * 3) / 4) * (div << 4);
 }

@@ -133,7 +133,7 @@ void max2871_setup(max2871_driver_t* const drv)
 
 	max2871_write_registers(drv);
 
-	max2871_set_frequency(drv, FP_MHZ(3500));
+	max2871_set_frequency(drv, FP_MHZ(3500), true);
 }
 
 static void delay_ms(int ms)
@@ -230,7 +230,7 @@ static void max2871_write_registers(max2871_driver_t* const drv)
 }
 
 /* Set frequency in 1/(2**24) Hz, rounded to nearest 40 MHz. */
-fp_40_24_t max2871_set_frequency(max2871_driver_t* const drv, fp_40_24_t lo)
+fp_40_24_t max2871_set_frequency(max2871_driver_t* const drv, fp_40_24_t lo, bool program)
 {
 	uint16_t mhz = lo / FP_ONE_MHZ;
 	int n = mhz / 40;
@@ -241,17 +241,19 @@ fp_40_24_t max2871_set_frequency(max2871_driver_t* const drv, fp_40_24_t lo)
 		diva += 1;
 	}
 
-	max2871_set_RFA_EN(0);
-	max2871_write_registers(drv);
+	if (program) {
+		max2871_set_RFA_EN(0);
+		max2871_write_registers(drv);
 
-	max2871_set_N(n);
-	max2871_set_DIVA(diva);
-	max2871_write_registers(drv);
+		max2871_set_N(n);
+		max2871_set_DIVA(diva);
+		max2871_write_registers(drv);
 
-	while (max2871_spi_read(drv) & MAX2871_VASA) {}
+		while (max2871_spi_read(drv) & MAX2871_VASA) {}
 
-	max2871_set_RFA_EN(1);
-	max2871_write_registers(drv);
+		max2871_set_RFA_EN(1);
+		max2871_write_registers(drv);
+	}
 
 	return (mhz / 40) * FP_MHZ(40);
 }

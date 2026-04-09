@@ -196,7 +196,7 @@ bool fpga_if_xcvr_selftest(void)
 	rf_path_set_direction(&rf_path, RF_PATH_DIRECTION_RX_CALIBRATION);
 	max283x_set_lna_gain(&max283x, 16);
 	max283x_set_vga_gain(&max283x, 36);
-	max283x_set_frequency(&max283x, FP_MHZ(2500));
+	max283x_set_frequency(&max283x, FP_MHZ(2500), true);
 
 	// Capture 1: 4 Msps, tone at 0.5 MHz, narrowband filter OFF
 	sample_rate_set(SR_FP_MHZ(4), true);

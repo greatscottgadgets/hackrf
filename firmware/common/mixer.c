@@ -21,6 +21,8 @@
 
 #include "mixer.h"
 
+#include <stdbool.h>
+
 #include "fixed_point.h"
 #include "platform_gpio.h"
 #if defined(JAWBREAKER) || defined(HACKRF_ONE) || defined(PRALINE)
@@ -85,12 +87,12 @@ void mixer_setup(mixer_driver_t* const mixer)
 #endif
 }
 
-fp_40_24_t mixer_set_frequency(mixer_driver_t* const mixer, fp_40_24_t lo)
+fp_40_24_t mixer_set_frequency(mixer_driver_t* const mixer, fp_40_24_t lo, bool program)
 {
 #if defined(JAWBREAKER) || defined(HACKRF_ONE) || defined(PRALINE)
-	return rffc5071_set_frequency(mixer, lo);
+	return rffc5071_set_frequency(mixer, lo, program);
 #elif defined(RAD1O)
-	return max2871_set_frequency(mixer, lo);
+	return max2871_set_frequency(mixer, lo, program);
 #endif
 }
 
