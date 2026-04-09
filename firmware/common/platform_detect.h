@@ -21,6 +21,7 @@
 
 #pragma once
 
+#include <stdbool.h>
 #include <stdint.h>
 
 #define BOARD_REV_GSG (0x80)
@@ -35,107 +36,57 @@
 
 /* Helper macros for platform-specific code. */
 #if defined(UNIVERSAL)
-	#define IF_PRALINE(...) \
-		if (detected_platform() == BOARD_ID_PRALINE) { __VA_ARGS__; }
-	#define IF_NOT_PRALINE(...) \
-		if (detected_platform() != BOARD_ID_PRALINE) { __VA_ARGS__; }
-	#define IF_HACKRF_ONE(...) \
-		switch (detected_platform()) { \
-		case BOARD_ID_HACKRF1_OG: \
-		case BOARD_ID_HACKRF1_R9: \
-			{ __VA_ARGS__; } \
-			break; \
-		default: \
-			break; \
-		}
-	#define IF_NOT_HACKRF_ONE(...) \
-		switch (detected_platform()) { \
-		case BOARD_ID_HACKRF1_OG: \
-		case BOARD_ID_HACKRF1_R9: \
-			break; \
-		default: \
-			{ __VA_ARGS__; } \
-			break; \
-		}
-	#define IF_H1_R9(...) \
-		if (detected_platform() == BOARD_ID_HACKRF1_R9) { __VA_ARGS__; }
-	#define IF_NOT_H1_R9(...) \
-		if (detected_platform() != BOARD_ID_HACKRF1_R9) { __VA_ARGS__; }
-	#define IF_RAD1O(...)
-	#define IF_NOT_RAD1O(...) { __VA_ARGS__; }
-	#define IF_JAWBREAKER(...)
-	#define IF_NOT_JAWBREAKER(...) { __VA_ARGS__; }
-	#define IF_H1_OR_PRALINE(...) { __VA_ARGS__; }
-	#define IF_H1_OR_RAD1O(...) IF_HACKRF_ONE(__VA_ARGS__)
-	#define IF_H1_OR_JAWBREAKER(...) IF_HACKRF_ONE(__VA_ARGS__)
-	#define IF_FOUR_LEDS(...) IF_PRALINE(__VA_ARGS__)
-	#define IF_EXPANSION_COMPATIBLE(...) { __VA_ARGS__; }
+	#define IS_PRALINE (detected_platform() == BOARD_ID_PRALINE)
+	#define IS_NOT_PRALINE (!IS_PRALINE)
+	#define IS_HACKRF_ONE ( \
+		detected_platform() == BOARD_ID_HACKRF1_OG || \
+		detected_platform() == BOARD_ID_HACKRF1_R9 \
+	)
+	#define IS_NOT_HACKRF_ONE (!IS_HACKRF_ONE)
+	#define IS_H1_R9 (detected_platform() == BOARD_ID_HACKRF1_R9)
+	#define IS_NOT_H1_R9 (!IS_H1_R9)
+	#define IS_NOT_RAD1O true
+	#define IS_NOT_JAWBREAKER true
+	#define IS_H1_OR_PRALINE true
+	#define IS_H1_OR_RAD1O IS_HACKRF_ONE
+	#define IS_H1_OR_JAWBREAKER IS_HACKRF_ONE
+	#define IS_FOUR_LEDS IS_PRALINE
+	#define IS_EXPANSION_COMPATIBLE true
 #elif defined(HACKRF_ONE)
-	#define IF_PRALINE(...)
-	#define IF_NOT_PRALINE(...) { __VA_ARGS__; }
-	#define IF_HACKRF_ONE(...) { __VA_ARGS__; }
-	#define IF_NOT_HACKRF_ONE(...)
-	#define IF_H1_R9(...) \
-		if (detected_platform() == BOARD_ID_HACKRF1_R9) { __VA_ARGS__; }
-	#define IF_NOT_H1_R9(...) \
-		if (detected_platform() != BOARD_ID_HACKRF1_R9) { __VA_ARGS__; }
-	#define IF_RAD1O(...)
-	#define IF_NOT_RAD1O(...) { __VA_ARGS__; }
-	#define IF_JAWBREAKER(...)
-	#define IF_NOT_JAWBREAKER(...) { __VA_ARGS__; }
-	#define IF_H1_OR_PRALINE(...) { __VA_ARGS__; }
-	#define IF_H1_OR_RAD1O(...) { __VA_ARGS__; }
-	#define IF_H1_OR_JAWBREAKER(...) { __VA_ARGS__; }
-	#define IF_FOUR_LEDS(...)
-	#define IF_EXPANSION_COMPATIBLE(...) { __VA_ARGS__; }
+	#define IS_NOT_PRALINE true
+	#define IS_HACKRF_ONE true
+	#define IS_H1_R9 (detected_platform() == BOARD_ID_HACKRF1_R9)
+	#define IS_NOT_H1_R9 (!IS_H1_R9)
+	#define IS_NOT_RAD1O true
+	#define IS_NOT_JAWBREAKER true
+	#define IS_H1_OR_PRALINE true
+	#define IS_H1_OR_RAD1O true
+	#define IS_H1_OR_JAWBREAKER true
+	#define IS_EXPANSION_COMPATIBLE true
 #elif defined(PRALINE)
-	#define IF_PRALINE(...) { __VA_ARGS__; }
-	#define IF_NOT_PRALINE(...)
-	#define IF_HACKRF_ONE(...)
-	#define IF_NOT_HACKRF_ONE(...) { __VA_ARGS__; }
-	#define IF_H1_R9(...)
-	#define IF_NOT_H1_R9(...) { __VA_ARGS__; }
-	#define IF_RAD1O(...)
-	#define IF_NOT_RAD1O(...) { __VA_ARGS__; }
-	#define IF_JAWBREAKER(...)
-	#define IF_NOT_JAWBREAKER(...) { __VA_ARGS__; }
-	#define IF_H1_OR_PRALINE(...) { __VA_ARGS__; }
-	#define IF_H1_OR_RAD1O(...)
-	#define IF_H1_OR_JAWBREAKER(...)
-	#define IF_FOUR_LEDS(...)
-	#define IF_EXPANSION_COMPATIBLE(...) { __VA_ARGS__; }
+	#define IS_PRALINE true
+	#define IS_NOT_HACKRF_ONE true
+	#define IS_NOT_H1_R9 true
+	#define IS_NOT_RAD1O true
+	#define IS_NOT_JAWBREAKER true
+	#define IS_H1_OR_PRALINE true
+	#define IS_FOUR_LEDS true
+	#define IS_EXPANSION_COMPATIBLE true
 #elif defined(RAD1O)
-	#define IF_PRALINE(...)
-	#define IF_NOT_PRALINE(...) { __VA_ARGS__; }
-	#define IF_HACKRF_ONE(...)
-	#define IF_NOT_HACKRF_ONE(...) { __VA_ARGS__; }
-	#define IF_H1_R9(...)
-	#define IF_NOT_H1_R9(...) { __VA_ARGS__; }
-	#define IF_RAD1O(...) { __VA_ARGS__; }
-	#define IF_NOT_RAD1O(...)
-	#define IF_JAWBREAKER(...)
-	#define IF_NOT_JAWBREAKER(...) { __VA_ARGS__; }
-	#define IF_H1_OR_PRALINE(...)
-	#define IF_H1_OR_RAD1O(...) { __VA_ARGS__; }
-	#define IF_H1_OR_JAWBREAKER(...)
-	#define IF_FOUR_LEDS(...) { __VA_ARGS__; }
-	#define IF_EXPANSION_COMPATIBLE(...)
+	#define IS_NOT_PRALINE true
+	#define IS_NOT_HACKRF_ONE true
+	#define IS_NOT_H1_R9 true
+	#define IS_RAD1O true
+	#define IS_NOT_JAWBREAKER true
+	#define IS_H1_OR_RAD1O true
+	#define IS_FOUR_LEDS true
 #elif defined(JAWBREAKER)
-	#define IF_PRALINE(...)
-	#define IF_NOT_PRALINE(...) { __VA_ARGS__; }
-	#define IF_HACKRF_ONE(...)
-	#define IF_NOT_HACKRF_ONE(...) { __VA_ARGS__; }
-	#define IF_H1_R9(...)
-	#define IF_NOT_H1_R9(...) { __VA_ARGS__; }
-	#define IF_RAD1O(...)
-	#define IF_NOT_RAD1O(...) { __VA_ARGS__; }
-	#define IF_JAWBREAKER(...) { __VA_ARGS__; }
-	#define IF_NOT_JAWBREAKER(...)
-	#define IF_H1_OR_PRALINE(...)
-	#define IF_H1_OR_RAD1O(...)
-	#define IF_H1_OR_JAWBREAKER(...) { __VA_ARGS__; }
-	#define IF_FOUR_LEDS(...)
-	#define IF_EXPANSION_COMPATIBLE(...)
+	#define IS_NOT_PRALINE true
+	#define IS_NOT_HACKRF_ONE true
+	#define IS_NOT_H1_R9 true
+	#define IS_NOT_RAD1O true
+	#define IS_JAWBREAKER true
+	#define IS_H1_OR_JAWBREAKER true
 #else
 	#error "No recognised platform defined"
 #endif

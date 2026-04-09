@@ -58,7 +58,8 @@ static uint64_t MAX_LO_FREQ_HZ;
 void tuning_setup(void)
 {
 	/* clang-format off */
-	IF_PRALINE (
+#ifdef IS_PRALINE
+	if (IS_PRALINE) {
 		MIN_LP_FREQ_MHZ = 0;
 		MAX_LP_FREQ_MHZ = 2320ULL;
 
@@ -72,8 +73,10 @@ void tuning_setup(void)
 
 		MIN_LO_FREQ_HZ = 84375000ULL;
 		MAX_LO_FREQ_HZ = 5400000000ULL;
-	)
-	IF_NOT_PRALINE (
+	}
+#endif
+#ifdef IS_NOT_PRALINE
+	if (IS_NOT_PRALINE) {
 		MIN_LP_FREQ_MHZ = 0;
 		MAX_LP_FREQ_MHZ = 2170ULL;
 
@@ -89,7 +92,8 @@ void tuning_setup(void)
 
 		MIN_LO_FREQ_HZ = 84375000ULL;
 		MAX_LO_FREQ_HZ = 5400000000ULL;
-	)
+	}
+#endif
 	/* clang-format  on */
 }
 
@@ -115,13 +119,17 @@ bool set_freq(const uint64_t freq, const transceiver_mode_t opmode)
 	max283x_set_mode(&max283x, MAX283x_MODE_STANDBY);
 	if (freq_mhz < MAX_LP_FREQ_MHZ) {
 		rf_path_set_filter(&rf_path, RF_PATH_FILTER_LOW_PASS, opmode);
-		IF_RAD1O (
+#ifdef IS_RAD1O
+		if (IS_RAD1O) {
 			max2837_freq_nominal_hz = 2300 * FREQ_ONE_MHZ;
-		)
-		IF_NOT_RAD1O (
+		}
+#endif
+#ifdef IS_NOT_RAD1O
+		if (IS_NOT_RAD1O) {
 			/* IF is graduated from 2650 MHz to 2340 MHz */
 			max2837_freq_nominal_hz = (2650 * FREQ_ONE_MHZ) - (freq / 7);
-		)
+		}
+#endif
 		mixer_freq_hz = max2837_freq_nominal_hz + freq;
 		/* Set Freq and read real freq */
 		real_mixer_freq_hz = mixer_set_frequency(&mixer, mixer_freq_hz);
@@ -162,9 +170,11 @@ bool set_freq(const uint64_t freq, const transceiver_mode_t opmode)
 		if (opmode != TRANSCEIVER_MODE_RX_SWEEP) {
 			hackrf_ui()->set_frequency(freq);
 		}
-		IF_EXPANSION_COMPATIBLE (
+#ifdef IS_EXPANSION_COMPATIBLE
+		if (IS_EXPANSION_COMPATIBLE) {
 			operacake_set_range(freq_mhz);
-		)
+		}
+#endif
 	}
 	return success;
 }
