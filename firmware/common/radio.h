@@ -91,7 +91,7 @@ typedef enum {
 	 */
 	RADIO_IMAGE_REJECT = 4,
 	/**
-	 * Digital frequency conversion of type uint8_t in tau/256 steps with
+	 * Digital frequency conversion of type uint8_t in tau/(2**32) steps with
 	 * respect to AFE clock.
 	 */
 	RADIO_ROTATION = 5,
