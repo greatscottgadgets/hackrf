@@ -38,6 +38,9 @@
 #include "max2837_regs.def" // private register def macros
 #include "selftest.h"
 
+#define MIN(x, y) ((x) < (y) ? (x) : (y))
+#define MAX(x, y) ((x) > (y) ? (x) : (y))
+
 /* Default register values. */
 static const uint16_t max2837_regs_default[MAX2837_NUM_REGS] = {
 	0x150, /* 0 */
@@ -234,6 +237,9 @@ void max2837_stop(max2837_driver_t* const drv)
 /* Assume 40 MHz reference clock with R divider of 1. */
 #define PFD_FREQ_HZ (40000000ULL)
 
+#define MIN_FREQ (2000ULL * FP_ONE_MHZ)
+#define MAX_FREQ (3000ULL * FP_ONE_MHZ)
+
 fp_40_24_t max2837_set_frequency(
 	max2837_driver_t* const drv,
 	fp_40_24_t freq,
@@ -242,6 +248,9 @@ fp_40_24_t max2837_set_frequency(
 	uint8_t band;
 	uint8_t lna_band;
 	uint64_t div;
+
+	freq = MIN(freq, MAX_FREQ);
+	freq = MAX(freq, MIN_FREQ);
 
 	/* Select band. Allow tuning outside specified bands. */
 	if (freq < (2400ULL * FP_ONE_MHZ)) {
