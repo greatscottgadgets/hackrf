@@ -27,9 +27,11 @@
  * pirate commands to do the same thing.
  */
 
+#include "max2831.h"
+
+#include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
-#include "max2831.h"
 #include "fixed_point.h"
 #include "max2831_regs.def" // private register def macros
 #include "selftest.h"
@@ -226,7 +228,10 @@ void max2831_stop(max2831_driver_t* const drv)
 /* Assume 40 MHz reference clock with R divider of 2. */
 #define PFD_FREQ_HZ (20000000ULL)
 
-fp_40_24_t max2831_set_frequency(max2831_driver_t* const drv, fp_40_24_t freq)
+fp_40_24_t max2831_set_frequency(
+	max2831_driver_t* const drv,
+	fp_40_24_t freq,
+	bool program)
 {
 	uint64_t div;
 
@@ -239,11 +244,13 @@ fp_40_24_t max2831_set_frequency(max2831_driver_t* const drv, fp_40_24_t freq)
 	 */
 	div = div >> 4;
 
-	//set_MAX2831_SYN_REF_DIV(drv, MAX2831_SYN_REF_DIV_2);
-	set_MAX2831_SYN_INT(drv, (div >> 20) & 0xff);
-	set_MAX2831_SYN_FRAC_HI(drv, (div >> 6) & 0x3fff);
-	set_MAX2831_SYN_FRAC_LO(drv, div & 0x3f);
-	max2831_regs_commit(drv);
+	if (program) {
+		//set_MAX2831_SYN_REF_DIV(drv, MAX2831_SYN_REF_DIV_2);
+		set_MAX2831_SYN_INT(drv, (div >> 20) & 0xff);
+		set_MAX2831_SYN_FRAC_HI(drv, (div >> 6) & 0x3fff);
+		set_MAX2831_SYN_FRAC_LO(drv, div & 0x3f);
+		max2831_regs_commit(drv);
+	}
 
 	return PFD_FREQ_HZ * (div << 4);
 }

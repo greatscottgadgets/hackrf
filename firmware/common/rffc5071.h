@@ -61,7 +61,10 @@ extern void rffc5071_reg_write(rffc5071_driver_t* const drv, uint8_t r, uint16_t
 extern void rffc5071_regs_commit(rffc5071_driver_t* const drv);
 
 /* Set frequency in 1/(2**24) Hz. */
-extern fp_40_24_t rffc5071_set_frequency(rffc5071_driver_t* const drv, fp_40_24_t lo);
+extern fp_40_24_t rffc5071_set_frequency(
+	rffc5071_driver_t* const drv,
+	fp_40_24_t lo,
+	bool program);
 
 extern void rffc5071_enable(rffc5071_driver_t* const drv);
 extern void rffc5071_disable(rffc5071_driver_t* const drv);

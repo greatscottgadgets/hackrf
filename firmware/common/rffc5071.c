@@ -31,6 +31,7 @@
  * that the RFFC5071 includes a second mixer.
  */
 
+#include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
 
@@ -154,7 +155,7 @@ void rffc5071_lock_test(rffc5071_driver_t* const drv)
 
 	for (int i = 0; i < NUM_LOCK_ATTEMPTS; i++) {
 		// Tune to 100MHz.
-		rffc5071_set_frequency(drv, 100 * FP_ONE_MHZ);
+		rffc5071_set_frequency(drv, 100 * FP_ONE_MHZ, true);
 		rffc5071_enable(drv);
 
 		// Wait 1ms.
@@ -263,7 +264,7 @@ void rffc5071_enable(rffc5071_driver_t* const drv)
 #define MAX_LO      (5400 * FP_ONE_MHZ)
 
 /* configure frequency synthesizer (lo in 1/(2**24) Hz) */
-fp_40_24_t rffc5071_config_synth(rffc5071_driver_t* const drv, fp_40_24_t lo)
+fp_40_24_t rffc5071_config_synth(rffc5071_driver_t* const drv, fp_40_24_t lo, bool program)
 {
 	fp_40_24_t fvco;
 	uint8_t fbkdivlog;
@@ -271,6 +272,7 @@ fp_40_24_t rffc5071_config_synth(rffc5071_driver_t* const drv, fp_40_24_t lo)
 	fp_40_24_t tune_freq;
 	uint16_t p1nmsb;
 	uint8_t p1nlsb;
+	uint8_t charge_pump_leakage;
 
 	/* Calculate n_lo (no division) */
 	uint8_t n_lo = 0;
@@ -288,10 +290,10 @@ fp_40_24_t rffc5071_config_synth(rffc5071_driver_t* const drv, fp_40_24_t lo)
 	 */
 	if (fvco > (3200 * FP_ONE_MHZ)) {
 		fbkdivlog = 2;
-		set_RFFC5071_PLLCPL(drv, 3);
+		charge_pump_leakage = 3;
 	} else {
 		fbkdivlog = 1;
-		set_RFFC5071_PLLCPL(drv, 2);
+		charge_pump_leakage = 2;
 	}
 
 	uint64_t tmp_n = (fvco / REF_FREQ_HZ) >> fbkdivlog;
@@ -302,33 +304,40 @@ fp_40_24_t rffc5071_config_synth(rffc5071_driver_t* const drv, fp_40_24_t lo)
 	const uint8_t d = (24 - fbkdivlog + n_lo) - s;
 	tmp_n = ((tmp_n + (1 << (d - 1))) >> d) << d;
 
-	n = tmp_n >> 24ULL;
-	p1nmsb = (tmp_n >> 8ULL) & 0xffff;
-	p1nlsb = tmp_n & 0xff;
-
 	tune_freq = ((tmp_n * REF_FREQ_HZ) << fbkdivlog) >> n_lo;
 
-	/* Path 2 */
-	set_RFFC5071_P2LODIV(drv, n_lo);
-	set_RFFC5071_P2N(drv, n);
-	set_RFFC5071_P2PRESC(drv, fbkdivlog);
-	set_RFFC5071_P2NMSB(drv, p1nmsb);
-	if (s > 14) {
-		/* Only set when the step size is small enough. */
-		set_RFFC5071_P2NLSB(drv, p1nlsb);
-	}
+	if (program) {
+		set_RFFC5071_PLLCPL(drv, charge_pump_leakage);
 
-	rffc5071_regs_commit(drv);
+		n = tmp_n >> 24ULL;
+		p1nmsb = (tmp_n >> 8ULL) & 0xffff;
+		p1nlsb = tmp_n & 0xff;
+
+		/* Path 2 */
+		set_RFFC5071_P2LODIV(drv, n_lo);
+		set_RFFC5071_P2N(drv, n);
+		set_RFFC5071_P2PRESC(drv, fbkdivlog);
+		set_RFFC5071_P2NMSB(drv, p1nmsb);
+		if (s > 14) {
+			/* Only set when the step size is small enough. */
+			set_RFFC5071_P2NLSB(drv, p1nlsb);
+		}
+
+		rffc5071_regs_commit(drv);
+	}
 
 	return tune_freq;
 }
 
-fp_40_24_t rffc5071_set_frequency(rffc5071_driver_t* const drv, fp_40_24_t lo)
+fp_40_24_t rffc5071_set_frequency(
+	rffc5071_driver_t* const drv,
+	fp_40_24_t lo,
+	bool program)
 {
 	fp_40_24_t tune_freq;
 
-	tune_freq = rffc5071_config_synth(drv, lo);
-	if (enabled) {
+	tune_freq = rffc5071_config_synth(drv, lo, program);
+	if (enabled && program) {
 		set_RFFC5071_RELOK(drv, 1);
 		rffc5071_regs_commit(drv);
 	}
