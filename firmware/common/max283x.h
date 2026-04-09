@@ -103,7 +103,7 @@ void max283x_start(max283x_driver_t* const drv);
 void max283x_stop(max283x_driver_t* const drv);
 
 /* Set frequency in 1/(2**24) Hz. */
-void max283x_set_frequency(max283x_driver_t* const drv, fp_40_24_t freq);
+fp_40_24_t max283x_set_frequency(max283x_driver_t* const drv, fp_40_24_t freq);
 uint32_t max283x_set_lpf_bandwidth(
 	max283x_driver_t* const drv,
 	const max283x_mode_t mode,

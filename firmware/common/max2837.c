@@ -232,7 +232,7 @@ void max2837_stop(max2837_driver_t* const drv)
 /* Assume 40 MHz reference clock with R divider of 1. */
 #define PFD_FREQ_HZ (40ULL * (1000ULL * 1000ULL))
 
-void max2837_set_frequency(max2837_driver_t* const drv, fp_40_24_t freq)
+fp_40_24_t max2837_set_frequency(max2837_driver_t* const drv, fp_40_24_t freq)
 {
 	uint8_t band;
 	uint8_t lna_band;
@@ -277,6 +277,8 @@ void max2837_set_frequency(max2837_driver_t* const drv, fp_40_24_t freq)
 	max2837_regs_commit(drv);
 	set_MAX2837_SYN_FRAC_LO(drv, div & 0x3ff);
 	max2837_regs_commit(drv);
+
+	return ((PFD_FREQ_HZ * 3) / 4) * (div << 4);
 }
 
 typedef struct {

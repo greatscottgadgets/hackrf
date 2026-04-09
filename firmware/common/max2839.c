@@ -243,7 +243,7 @@ void max2839_stop(max2839_driver_t* const drv)
 /* Assume 40 MHz reference clock with R divider of 1. */
 #define PFD_FREQ_HZ (40ULL * (1000ULL * 1000ULL))
 
-void max2839_set_frequency(max2839_driver_t* const drv, fp_40_24_t freq)
+fp_40_24_t max2839_set_frequency(max2839_driver_t* const drv, fp_40_24_t freq)
 {
 	uint8_t band;
 	uint64_t div;
@@ -282,6 +282,8 @@ void max2839_set_frequency(max2839_driver_t* const drv, fp_40_24_t freq)
 	max2839_regs_commit(drv);
 	set_MAX2839_SYN_FRAC_LO(drv, div & 0x3ff);
 	max2839_regs_commit(drv);
+
+	return ((PFD_FREQ_HZ * 3) / 4) * (div << 4);
 }
 
 typedef struct {
