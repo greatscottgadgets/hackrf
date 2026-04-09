@@ -48,6 +48,9 @@
 	#include "platform_scu.h"
 #endif
 
+#define MIN(x, y) ((x) < (y) ? (x) : (y))
+#define MAX(x, y) ((x) > (y) ? (x) : (y))
+
 static bool enabled = false;
 
 /* Default register values from vendor documentation or software. */
@@ -273,6 +276,9 @@ fp_40_24_t rffc5071_config_synth(rffc5071_driver_t* const drv, fp_40_24_t lo, bo
 	uint16_t p1nmsb;
 	uint8_t p1nlsb;
 	uint8_t charge_pump_leakage;
+
+	lo = MIN(lo, MAX_LO);
+	lo = MAX(lo, MIN_LO);
 
 	/* Calculate n_lo (no division) */
 	uint8_t n_lo = 0;

@@ -38,6 +38,9 @@
 #include "max2839_regs.def" // private register def macros
 #include "selftest.h"
 
+#define MIN(x, y) ((x) < (y) ? (x) : (y))
+#define MAX(x, y) ((x) > (y) ? (x) : (y))
+
 static uint8_t requested_lna_gain = 0;
 static uint8_t requested_vga_gain = 0;
 
@@ -245,6 +248,9 @@ void max2839_stop(max2839_driver_t* const drv)
 /* Assume 40 MHz reference clock with R divider of 1. */
 #define PFD_FREQ_HZ (40ULL * (1000ULL * 1000ULL))
 
+#define MIN_FREQ FP_MHZ(2000)
+#define MAX_FREQ FP_MHZ(3000)
+
 fp_40_24_t max2839_set_frequency(
 	max2839_driver_t* const drv,
 	fp_40_24_t freq,
@@ -252,6 +258,9 @@ fp_40_24_t max2839_set_frequency(
 {
 	uint8_t band;
 	uint64_t div;
+
+	freq = MIN(freq, MAX_FREQ);
+	freq = MAX(freq, MIN_FREQ);
 
 	/* Select band. Allow tuning outside specified bands. */
 	if (freq < FP_MHZ(2400)) {

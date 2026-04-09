@@ -38,6 +38,7 @@
 #include "adc.h"
 
 #define MIN(x, y) ((x) < (y) ? (x) : (y))
+#define MAX(x, y) ((x) > (y) ? (x) : (y))
 
 /* Default register values. */
 static const uint16_t max2831_regs_default[MAX2831_NUM_REGS] = {
@@ -228,12 +229,18 @@ void max2831_stop(max2831_driver_t* const drv)
 /* Assume 40 MHz reference clock with R divider of 2. */
 #define PFD_FREQ_HZ (20ULL * (1000ULL * 1000ULL))
 
+#define MIN_FREQ FP_MHZ(2000)
+#define MAX_FREQ FP_MHZ(3000)
+
 fp_40_24_t max2831_set_frequency(
 	max2831_driver_t* const drv,
 	fp_40_24_t freq,
 	bool program)
 {
 	uint64_t div;
+
+	freq = MIN(freq, MAX_FREQ);
+	freq = MAX(freq, MIN_FREQ);
 
 	freq += ((PFD_FREQ_HZ * FP_ONE_HZ) >> 21); /* round to nearest frequency */
 	div = freq / PFD_FREQ_HZ;

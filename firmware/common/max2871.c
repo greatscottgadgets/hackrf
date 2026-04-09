@@ -37,6 +37,9 @@
 	#include <libopencm3/lpc43xx/scu.h>
 #endif
 
+#define MIN(x, y) ((x) < (y) ? (x) : (y))
+#define MAX(x, y) ((x) > (y) ? (x) : (y))
+
 static uint32_t max2871_spi_read(max2871_driver_t* const drv);
 static void max2871_spi_write(max2871_driver_t* const drv, uint8_t r, uint32_t v);
 static void max2871_write_registers(max2871_driver_t* const drv);
@@ -229,9 +232,15 @@ static void max2871_write_registers(max2871_driver_t* const drv)
 	}
 }
 
+#define MIN_LO FP_MHZ(40)
+#define MAX_LO FP_MHZ(6000)
+
 /* Set frequency in 1/(2**24) Hz, rounded to nearest 40 MHz. */
 fp_40_24_t max2871_set_frequency(max2871_driver_t* const drv, fp_40_24_t lo, bool program)
 {
+	lo = MIN(lo, MAX_LO);
+	lo = MAX(lo, MIN_LO);
+
 	uint16_t mhz = lo / FP_ONE_MHZ;
 	int n = mhz / 40;
 	int diva = 0;
