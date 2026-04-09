@@ -75,6 +75,8 @@
 #include "usb_api_sweep.h"
 #include "usb_api_transceiver.h"
 #include "usb_api_ui.h"
+#include "usb_api_dsp_simd.h"
+#include "usb_api_dsp_test.h"
 #include "usb_descriptor.h"
 #include "usb_device.h"
 #include "usb_endpoint.h"
@@ -174,6 +176,14 @@ static usb_request_handler_fn vendor_request_handler[] = {
 	usb_vendor_request_test_rtc_osc,
 	usb_vendor_request_write_radio_reg,
 	usb_vendor_request_read_radio_reg,
+	usb_vendor_request_dsp_simd_enable,
+	usb_vendor_request_dsp_simd_filter_config,
+	usb_vendor_request_dsp_simd_iq_config,
+	usb_vendor_request_dsp_simd_benchmark,
+	usb_vendor_request_dsp_simd_status,
+	usb_vendor_request_dsp_test_run,
+	usb_vendor_request_dsp_test_data,
+	usb_vendor_request_dsp_test_validate,
 };
 
 static const uint32_t vendor_request_handler_count =
