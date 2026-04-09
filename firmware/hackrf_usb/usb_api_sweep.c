@@ -30,6 +30,7 @@
 #include <m0_state.h>
 #include <radio.h>
 #include <streaming.h>
+#include <transceiver_mode.h>
 #include <usb_queue.h>
 #include <usb_request.h>
 #include <usb_type.h>

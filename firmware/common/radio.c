@@ -19,6 +19,8 @@
  * Boston, MA 02110-1301, USA.
  */
 
+#include "radio.h"
+
 #include <string.h>
 
 #include <libopencm3/cm3/nvic.h>
@@ -28,8 +30,8 @@
 #include "hackrf_ui.h"
 #include "max283x.h"
 #include "platform_detect.h"
-#include "radio.h"
 #include "rf_path.h"
+#include "transceiver_mode.h"
 #include "tuning.h"
 #if defined(PRALINE)
 	#include "fpga.h"

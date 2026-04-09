@@ -27,6 +27,7 @@
 
 #include "radio.h"
 #include "rf_path.h"
+#include "transceiver_mode.h"
 
 typedef void (*hackrf_ui_init_fn)(void);
 typedef void (*hackrf_ui_deinit_fn)(void);

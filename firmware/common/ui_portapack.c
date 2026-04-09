@@ -29,6 +29,7 @@
 #include "portapack.h"
 #include "radio.h"
 #include "rf_path.h"
+#include "transceiver_mode.h"
 
 /* Pixel data within a font or bitmap byte is "reversed": LSB is left-most pixel. */
 
