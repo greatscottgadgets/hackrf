@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2022 Great Scott Gadgets <info@greatscottgadgets.com>
+ * Copyright 2017-2026 Great Scott Gadgets <info@greatscottgadgets.com>
  *
  * This file is part of HackRF.
  *
@@ -21,6 +21,7 @@
 
 #include "mixer.h"
 
+#include "fixed_point.h"
 #include "platform_gpio.h"
 #if defined(JAWBREAKER) || defined(HACKRF_ONE) || defined(PRALINE)
 	#include "rffc5071.h"
@@ -84,12 +85,12 @@ void mixer_setup(mixer_driver_t* const mixer)
 #endif
 }
 
-uint64_t mixer_set_frequency(mixer_driver_t* const mixer, uint64_t hz)
+fp_40_24_t mixer_set_frequency(mixer_driver_t* const mixer, fp_40_24_t lo)
 {
 #if defined(JAWBREAKER) || defined(HACKRF_ONE) || defined(PRALINE)
-	return rffc5071_set_frequency(mixer, hz);
+	return rffc5071_set_frequency(mixer, lo);
 #elif defined(RAD1O)
-	return max2871_set_frequency(mixer, hz / 1000000);
+	return max2871_set_frequency(mixer, lo);
 #endif
 }
 

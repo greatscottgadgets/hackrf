@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2022 Great Scott Gadgets <info@greatscottgadgets.com>
+ * Copyright 2012-2026 Great Scott Gadgets <info@greatscottgadgets.com>
  * Copyright 2012 Will Code <willcode4@gmail.com>
  * Copyright 2014 Jared Boone <jared@sharebrained.com>
  *
@@ -32,6 +32,7 @@
 #include <stdint.h>
 #include <string.h>
 #include "max2839.h"
+#include "fixed_point.h"
 #include "max2839_regs.def" // private register def macros
 #include "selftest.h"
 
@@ -239,53 +240,47 @@ void max2839_stop(max2839_driver_t* const drv)
 	max2839_set_mode(drv, MAX2839_MODE_SHUTDOWN);
 }
 
-void max2839_set_frequency(max2839_driver_t* const drv, uint32_t freq)
+/* Assume 40 MHz reference clock with R divider of 1. */
+#define PFD_FREQ_HZ (40000000ULL)
+
+void max2839_set_frequency(max2839_driver_t* const drv, fp_40_24_t freq)
 {
 	uint8_t band;
-	uint32_t div_frac;
-	uint32_t div_int;
-	uint32_t div_rem;
-	uint32_t div_cmp;
-	int i;
+	uint64_t div;
 
 	/* Select band. Allow tuning outside specified bands. */
-	if (freq < 2400000000U) {
+	if (freq < (2400ULL * FP_ONE_MHZ)) {
 		band = MAX2839_LOGEN_BSW_2_3;
-	} else if (freq < 2500000000U) {
+	} else if (freq < (2500ULL * FP_ONE_MHZ)) {
 		band = MAX2839_LOGEN_BSW_2_4;
-	} else if (freq < 2600000000U) {
+	} else if (freq < (2600ULL * FP_ONE_MHZ)) {
 		band = MAX2839_LOGEN_BSW_2_5;
 	} else {
 		band = MAX2839_LOGEN_BSW_2_6;
 	}
 
-	/* ASSUME 40MHz PLL. Ratio = F*(4/3)/40,000,000 = F/30,000,000 */
-	freq += (30000000 >> 21); /* round to nearest frequency */
-	div_int = freq / 30000000;
-	div_rem = freq % 30000000;
-	div_frac = 0;
-	div_cmp = 30000000;
-	for (i = 0; i < 20; i++) {
-		div_frac <<= 1;
-		div_rem <<= 1;
-		if (div_rem >= div_cmp) {
-			div_frac |= 0x1;
-			div_rem -= div_cmp;
-		}
-	}
+	fp_40_24_t vco = (freq * 4) / 3;
+
+	vco += ((PFD_FREQ_HZ * FP_ONE_HZ) >> 21); /* round to nearest frequency */
+	div = vco / PFD_FREQ_HZ;
+
+	/*
+	 * Shift from 40.24 fixed-point to 44.20 to match 20-bit fractional
+	 * divider.
+	 */
+	div = div >> 4;
 
 	/* Band settings */
 	set_MAX2839_LOGEN_BSW(drv, band);
 
-	/* Write order matters here, so commit INT and FRAC_HI before
-	 * committing FRAC_LO, which is the trigger for VCO
-	 * auto-select. TODO - it's cleaner this way, but it would be
-	 * faster to explicitly commit the registers explicitly so the
-	 * dirty bits aren't scanned twice. */
-	set_MAX2839_SYN_INT(drv, div_int);
-	set_MAX2839_SYN_FRAC_HI(drv, (div_frac >> 10) & 0x3ff);
+	/*
+	 * Write order matters here, so commit INT and FRAC_HI before
+	 * committing FRAC_LO, which is the trigger for VCO auto-select.
+	 */
+	set_MAX2839_SYN_INT(drv, (div >> 20) & 0xff);
+	set_MAX2839_SYN_FRAC_HI(drv, (div >> 10) & 0x3ff);
 	max2839_regs_commit(drv);
-	set_MAX2839_SYN_FRAC_LO(drv, div_frac & 0x3ff);
+	set_MAX2839_SYN_FRAC_LO(drv, div & 0x3ff);
 	max2839_regs_commit(drv);
 }
 

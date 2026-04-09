@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2022 Great Scott Gadgets <info@greatscottgadgets.com>
+ * Copyright 2012-2026 Great Scott Gadgets <info@greatscottgadgets.com>
  * Copyright 2012 Will Code <willcode4@gmail.com>
  * Copyright 2014 Jared Boone <jared@sharebrained.com>
  *
@@ -25,6 +25,7 @@
 
 #include "max283x.h"
 
+#include "fixed_point.h"
 #include "platform_gpio.h"
 #include "spi_bus.h"
 #if defined(PRALINE)
@@ -288,9 +289,8 @@ void max283x_stop(max283x_driver_t* const drv)
 	}
 }
 
-/* Set frequency in Hz. Frequency setting is a multi-step function
- * where order of register writes matters. */
-void max283x_set_frequency(max283x_driver_t* const drv, uint32_t freq)
+/* Set frequency in 1/(2**24) Hz. */
+void max283x_set_frequency(max283x_driver_t* const drv, fp_40_24_t freq)
 {
 	switch (drv->type) {
 #ifdef PRALINE
