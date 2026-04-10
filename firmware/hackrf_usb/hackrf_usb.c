@@ -39,6 +39,7 @@
 #include <rf_path.h>
 #include <rom_iap.h>
 #include <selftest.h>
+#include <transceiver_mode.h>
 #include <usb.h>
 #include <usb_queue.h>
 #include <usb_request.h>

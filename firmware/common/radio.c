@@ -19,6 +19,8 @@
  * Boston, MA 02110-1301, USA.
  */
 
+#include "radio.h"
+
 #include <string.h>
 
 #include <libopencm3/cm3/nvic.h>
@@ -28,8 +30,8 @@
 #include "hackrf_ui.h"
 #include "max283x.h"
 #include "platform_detect.h"
-#include "radio.h"
 #include "rf_path.h"
+#include "transceiver_mode.h"
 #include "tuning.h"
 #if defined(PRALINE)
 	#include "fpga.h"
@@ -268,6 +270,11 @@ static bool radio_update_frequency(radio_t* const radio, uint64_t* bank)
 	bool set_lo = (requested_lo != RADIO_UNSET);
 	bool set_img_reject = (requested_img_reject != RADIO_UNSET);
 
+	uint64_t opmode = bank[RADIO_OPMODE];
+	if (opmode == RADIO_UNSET) {
+		opmode = radio->config[RADIO_BANK_APPLIED][RADIO_OPMODE];
+	}
+
 	if (set_if && set_lo && set_img_reject) {
 		bool new_if =
 			(requested_if !=
@@ -282,7 +289,8 @@ static bool radio_update_frequency(radio_t* const radio, uint64_t* bank)
 			set_freq_explicit(
 				requested_if / FP_ONE_HZ,
 				requested_lo / FP_ONE_HZ,
-				requested_img_reject);
+				requested_img_reject,
+				opmode);
 			radio->config[RADIO_BANK_APPLIED][RADIO_FREQUENCY_IF] =
 				requested_if;
 			radio->config[RADIO_BANK_APPLIED][RADIO_FREQUENCY_LO] =
@@ -321,10 +329,6 @@ static bool radio_update_frequency(radio_t* const radio, uint64_t* bank)
 	if (applied_afe_rate == RADIO_UNSET) {
 		return false;
 	}
-	uint64_t opmode = bank[RADIO_OPMODE];
-	if (opmode == RADIO_UNSET) {
-		opmode = radio->config[RADIO_BANK_APPLIED][RADIO_OPMODE];
-	}
 	const tune_config_t* tune_config = select_tune_config(opmode);
 	const tune_config_t* applied_tune_config =
 		select_tune_config(radio->config[RADIO_BANK_APPLIED][RADIO_OPMODE]);
@@ -347,12 +351,16 @@ static bool radio_update_frequency(radio_t* const radio, uint64_t* bank)
 	fp_40_24_t offset = applied_afe_rate / 4;
 	bool new_offset = (applied_offset != offset);
 	if (new_rotation || new_offset || new_config || new_rf) {
-		tuning_set_frequency(tune_config, requested_rf_hz, offset / FP_ONE_HZ);
+		tuning_set_frequency(
+			tune_config,
+			requested_rf_hz,
+			offset / FP_ONE_HZ,
+			opmode);
 		applied_offset = offset;
 	}
 #else
 	if (new_rf) {
-		set_freq(requested_rf_hz);
+		set_freq(requested_rf_hz, opmode);
 	}
 #endif
 	radio->config[RADIO_BANK_APPLIED][RADIO_FREQUENCY_RF] = requested_rf;
@@ -703,6 +711,7 @@ void radio_switch_opmode(radio_t* const radio, const transceiver_mode_t mode)
 		}
 	}
 
+	radio->config[RADIO_BANK_ACTIVE][RADIO_OPMODE] = mode;
 	mark_dirty(radio, RADIO_OPMODE);
 	nvic_enable_irq(NVIC_USB0_IRQ);
 	radio_update(radio);

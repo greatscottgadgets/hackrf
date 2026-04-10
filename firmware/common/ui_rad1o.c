@@ -29,6 +29,7 @@
 #include "hackrf_core.h"
 #include "radio.h"
 #include "rf_path.h"
+#include "transceiver_mode.h"
 
 #include "rad1o/display.h"
 #include "rad1o/draw.h"

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2022 Great Scott Gadgets <info@greatscottgadgets.com>
+ * Copyright 2012-2026 Great Scott Gadgets <info@greatscottgadgets.com>
  * Copyright 2012 Jared Boone
  * Copyright 2013 Benjamin Vernoux
  *
@@ -23,28 +23,11 @@
 
 #pragma once
 
-#include <stdbool.h>
-#include <stdint.h>
-
-#include "rf_path.h"
-#include "transceiver_mode.h"
-#if defined(PRALINE)
-	#include "tune_config.h"
-#endif
-
-#define FREQ_ONE_MHZ (1000ULL * 1000)
-
-bool set_freq(const uint64_t freq, const transceiver_mode_t opmode);
-bool set_freq_explicit(
-	const uint64_t if_freq_hz,
-	const uint64_t lo_freq_hz,
-	const rf_path_filter_t path,
-	const transceiver_mode_t opmode);
-
-#ifdef PRALINE
-bool tuning_set_frequency(
-	const tune_config_t* cfg,
-	const uint64_t freq,
-	const uint32_t offset,
-	const transceiver_mode_t opmode);
-#endif
+typedef enum {
+	TRANSCEIVER_MODE_OFF = 0,
+	TRANSCEIVER_MODE_RX = 1,
+	TRANSCEIVER_MODE_TX = 2,
+	TRANSCEIVER_MODE_SS = 3,
+	TRANSCEIVER_MODE_CPLD_UPDATE = 4,
+	TRANSCEIVER_MODE_RX_SWEEP = 5,
+} transceiver_mode_t;

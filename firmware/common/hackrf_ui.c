@@ -23,6 +23,7 @@
 #include <stddef.h>
 
 #include "hackrf_ui.h"
+#include "transceiver_mode.h"
 #if defined(PRALINE) || defined(HACKRF_ONE)
 	#include "ui_portapack.h"
 #endif

@@ -27,9 +27,12 @@
 
 #include <fixed_point.h>
 #include <hackrf_core.h>
+#include <hackrf_ui.h>
 #include <m0_state.h>
 #include <radio.h>
+#include <rf_path.h>
 #include <streaming.h>
+#include <transceiver_mode.h>
 #include <usb_queue.h>
 #include <usb_request.h>
 #include <usb_type.h>
@@ -57,6 +60,31 @@ static uint32_t dwell_blocks = 0;
 static uint32_t step_width = 0;
 static uint32_t offset = 0;
 static enum sweep_style style = LINEAR;
+static bool freq_ui_dirty = false;
+static bool img_reject_ui_dirty = false;
+static rf_path_filter_t img_reject;
+
+/*
+ * Opportunistic UI updates are made when time is available. Updates are
+ * prioritized to prevent a single update from taking too long. Lower priority
+ * changes to the image reject filter path display are done only if there is
+ * time remaining after the higher priority update to the frequency display.
+ */
+void update_ui(void)
+{
+	if (freq_ui_dirty) {
+		hackrf_ui()->set_frequency(sweep_freq + offset);
+		freq_ui_dirty = false;
+	} else if (img_reject_ui_dirty) {
+		const uint64_t new_img_reject =
+			radio_reg_read(&radio, RADIO_BANK_APPLIED, RADIO_IMAGE_REJECT);
+		if (new_img_reject != img_reject) {
+			img_reject = new_img_reject;
+			hackrf_ui()->set_filter(img_reject);
+		}
+		img_reject_ui_dirty = false;
+	}
+}
 
 /* Do this before starting sweep mode with request_transceiver_mode(). */
 usb_request_status_t usb_vendor_request_init_sweep(
@@ -152,6 +180,9 @@ void sweep_mode(uint32_t seq)
 	uint8_t* buffer;
 
 	transceiver_startup(TRANSCEIVER_MODE_RX_SWEEP);
+	hackrf_ui()->set_frequency(sweep_freq + offset);
+	img_reject = radio_reg_read(&radio, RADIO_BANK_APPLIED, RADIO_IMAGE_REJECT);
+	hackrf_ui()->set_filter(img_reject);
 
 	// Set M0 to RX first buffer, then wait.
 	m0_state.threshold = 0x4000;
@@ -234,6 +265,8 @@ void sweep_mode(uint32_t seq)
 				(sweep_freq + offset) * FP_ONE_HZ);
 			nvic_enable_irq(NVIC_USB0_IRQ);
 			radio_update(&radio);
+			freq_ui_dirty = true;
+			img_reject_ui_dirty = true;
 			blocks_queued = 0;
 		}
 
@@ -242,6 +275,7 @@ void sweep_mode(uint32_t seq)
 			if (transceiver_request.seq != seq) {
 				goto end;
 			}
+			update_ui();
 		}
 
 		// Set M0 to switch back to WAIT after filling next buffer.

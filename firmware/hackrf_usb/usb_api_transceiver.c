@@ -33,6 +33,7 @@
 #include <operacake_sctimer.h>
 #include <radio.h>
 #include <streaming.h>
+#include <transceiver_mode.h>
 #include <usb.h>
 #include <usb_queue.h>
 #include <usb_request.h>
