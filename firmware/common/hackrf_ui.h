@@ -25,6 +25,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include "clock_gen.h"
 #include "radio.h"
 #include "rf_path.h"
 

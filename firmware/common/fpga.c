@@ -24,8 +24,10 @@
 #include <stdbool.h>
 
 #include "fpga_regs.def"
+#include "gpio.h"
 #include "hackrf_core.h"
 #include "ice40_spi.h"
+#include "platform_gpio.h"
 
 /* Set up all registers according to the loaded bitstream's defaults. */
 void fpga_init(fpga_driver_t* const drv)
@@ -135,4 +137,9 @@ void fpga_set_tx_nco_pstep(fpga_driver_t* const drv, const uint8_t phase_increme
 {
 	set_FPGA_STANDARD_TX_PSTEP(drv, phase_increment);
 	fpga_regs_commit(drv);
+}
+
+void narrowband_filter_set(const uint8_t value)
+{
+	gpio_write(platform_gpio()->aa_en, value & 1);
 }

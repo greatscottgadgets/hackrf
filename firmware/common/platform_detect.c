@@ -26,7 +26,7 @@
 #include "firmware_info.h"
 #include "gpio.h"
 #include "gpio_lpc.h"
-#include "hackrf_core.h"
+#include "leds.h"
 #include "platform_detect.h"
 #include "platform_scu.h"
 

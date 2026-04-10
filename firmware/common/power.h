@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2017 Great Scott Gadgets <info@greatscottgadgets.com>
+ * Copyright 2026 Great Scott Gadgets <info@greatscottgadgets.com>
  *
  * This file is part of HackRF.
  *
@@ -19,40 +19,27 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include "delay.h"
-#include "hackrf_core.h"
-#include "leds.h"
-#include "platform_detect.h"
-#include "power.h"
+#pragma once
 
-int main(void)
-{
-	detect_hardware_platform();
-	pin_setup();
-
-#ifndef PRALINE
-	/* enable 1V8 power supply so that the 1V8 LED lights up */
-	enable_1v8_power();
-#else
-	/* enable 1V2 power supply so that the 3V3FPGA LED lights up */
-	enable_1v2_power();
+#ifdef __cplusplus
+extern "C" {
 #endif
 
-	/* Blink LED1/2/3 on the board. */
-	while (1)
-	{
-		led_on(LED1);
-		led_on(LED2);
-		led_on(LED3);
+#if defined(PRALINE)
+void enable_1v2_power(void);
+void disable_1v2_power(void);
+void enable_3v3aux_power(void);
+void disable_3v3aux_power(void);
+#else
+void enable_1v8_power(void);
+void disable_1v8_power(void);
+#endif
 
-		delay(2000000);
+#if defined(PRALINE) || defined(HACKRF_ONE) || defined(RAD1O)
+void enable_rf_power(void);
+void disable_rf_power(void);
+#endif
 
-		led_off(LED1);
-		led_off(LED2);
-		led_off(LED3);
-
-		delay(2000000);
-	}
-
-	return 0;
+#ifdef __cplusplus
 }
+#endif
