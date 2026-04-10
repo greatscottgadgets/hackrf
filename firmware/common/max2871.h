@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Great Scott Gadgets <info@greatscottgadgets.com>
+ * Copyright 2017-2026 Great Scott Gadgets <info@greatscottgadgets.com>
  *
  * This file is part of HackRF.
  *
@@ -21,8 +21,9 @@
 
 #pragma once
 
-#include <stdint.h>
+#include <stdbool.h>
 
+#include "fixed_point.h"
 #include "gpio.h"
 
 typedef struct {
@@ -35,6 +36,9 @@ typedef struct {
 } max2871_driver_t;
 
 extern void max2871_setup(max2871_driver_t* const drv);
-extern uint64_t max2871_set_frequency(max2871_driver_t* const drv, uint16_t mhz);
+extern fp_40_24_t max2871_set_frequency(
+	max2871_driver_t* const drv,
+	fp_40_24_t lo,
+	bool program);
 extern void max2871_enable(max2871_driver_t* const drv);
 extern void max2871_disable(max2871_driver_t* const drv);

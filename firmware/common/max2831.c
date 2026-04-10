@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Great Scott Gadgets <info@greatscottgadgets.com>
+ * Copyright 2025-2026 Great Scott Gadgets <info@greatscottgadgets.com>
  *
  * This file is part of HackRF.
  *
@@ -27,14 +27,18 @@
  * pirate commands to do the same thing.
  */
 
+#include "max2831.h"
+
+#include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
-#include "max2831.h"
+#include "fixed_point.h"
 #include "max2831_regs.def" // private register def macros
 #include "selftest.h"
 #include "adc.h"
 
 #define MIN(x, y) ((x) < (y) ? (x) : (y))
+#define MAX(x, y) ((x) > (y) ? (x) : (y))
 
 /* Default register values. */
 static const uint16_t max2831_regs_default[MAX2831_NUM_REGS] = {
@@ -222,36 +226,40 @@ void max2831_stop(max2831_driver_t* const drv)
 	max2831_set_mode(drv, MAX2831_MODE_SHUTDOWN);
 }
 
-void max2831_set_frequency(max2831_driver_t* const drv, uint32_t freq)
-{
-	uint32_t div_frac;
-	uint32_t div_int;
-	uint32_t div_rem;
-	uint32_t div_cmp;
-	int i;
+/* Assume 40 MHz reference clock with R divider of 2. */
+#define PFD_FREQ_HZ (20000000ULL)
 
-	/* ASSUME 40MHz PLL. Ratio = F*R/40,000,000. */
-	/* TODO: fixed to R=2. Check if it's worth exploring R=1. */
-	freq += (20000000 >> 21); /* round to nearest frequency */
-	div_int = freq / 20000000;
-	div_rem = freq % 20000000;
-	div_frac = 0;
-	div_cmp = 20000000;
-	for (i = 0; i < 20; i++) {
-		div_frac <<= 1;
-		div_rem <<= 1;
-		if (div_rem >= div_cmp) {
-			div_frac |= 0x1;
-			div_rem -= div_cmp;
-		}
+#define MIN_FREQ (2000ULL * FP_ONE_MHZ)
+#define MAX_FREQ (3000ULL * FP_ONE_MHZ)
+
+fp_40_24_t max2831_set_frequency(
+	max2831_driver_t* const drv,
+	fp_40_24_t freq,
+	bool program)
+{
+	uint64_t div;
+
+	freq = MIN(freq, MAX_FREQ);
+	freq = MAX(freq, MIN_FREQ);
+
+	freq += ((PFD_FREQ_HZ * FP_ONE_HZ) >> 21); /* round to nearest frequency */
+	div = freq / PFD_FREQ_HZ;
+
+	/*
+	 * Shift from 40.24 fixed-point to 44.20 to match 20-bit fractional
+	 * divider.
+	 */
+	div = div >> 4;
+
+	if (program) {
+		//set_MAX2831_SYN_REF_DIV(drv, MAX2831_SYN_REF_DIV_2);
+		set_MAX2831_SYN_INT(drv, (div >> 20) & 0xff);
+		set_MAX2831_SYN_FRAC_HI(drv, (div >> 6) & 0x3fff);
+		set_MAX2831_SYN_FRAC_LO(drv, div & 0x3f);
+		max2831_regs_commit(drv);
 	}
 
-	/* Write order matters? */
-	//set_MAX2831_SYN_REF_DIV(drv, MAX2831_SYN_REF_DIV_2);
-	set_MAX2831_SYN_INT(drv, div_int);
-	set_MAX2831_SYN_FRAC_HI(drv, (div_frac >> 6) & 0x3fff);
-	set_MAX2831_SYN_FRAC_LO(drv, div_frac & 0x3f);
-	max2831_regs_commit(drv);
+	return PFD_FREQ_HZ * (div << 4);
 }
 
 typedef struct {

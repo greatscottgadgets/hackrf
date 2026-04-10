@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2022 Great Scott Gadgets <info@greatscottgadgets.com>
+ * Copyright 2012-2026 Great Scott Gadgets <info@greatscottgadgets.com>
  * Copyright 2012 Will Code <willcode4@gmail.com>
  * Copyright 2014 Jared Boone <jared@sharebrained.com>
  *
@@ -21,10 +21,12 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include <string.h>
-
 #include "max283x.h"
 
+#include <stdbool.h>
+#include <string.h>
+
+#include "fixed_point.h"
 #include "platform_gpio.h"
 #include "spi_bus.h"
 #if defined(PRALINE)
@@ -288,25 +290,28 @@ void max283x_stop(max283x_driver_t* const drv)
 	}
 }
 
-/* Set frequency in Hz. Frequency setting is a multi-step function
- * where order of register writes matters. */
-void max283x_set_frequency(max283x_driver_t* const drv, uint32_t freq)
+/* Set frequency in 1/(2**24) Hz. */
+fp_40_24_t max283x_set_frequency(
+	max283x_driver_t* const drv,
+	fp_40_24_t freq,
+	bool program)
 {
 	switch (drv->type) {
 #ifdef PRALINE
 	case MAX2831_VARIANT:
-		max2831_set_frequency(&drv->drv.max2831, freq);
+		return max2831_set_frequency(&drv->drv.max2831, freq, program);
 		break;
 #else
 	case MAX2837_VARIANT:
-		max2837_set_frequency(&drv->drv.max2837, freq);
+		return max2837_set_frequency(&drv->drv.max2837, freq, program);
 		break;
 
 	case MAX2839_VARIANT:
-		max2839_set_frequency(&drv->drv.max2839, freq);
+		return max2839_set_frequency(&drv->drv.max2839, freq, program);
 		break;
 #endif
 	}
+	return 0;
 }
 
 uint32_t max283x_set_lpf_bandwidth(

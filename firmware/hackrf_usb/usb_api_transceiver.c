@@ -28,7 +28,6 @@
 
 #include <fixed_point.h>
 #include <hackrf_core.h>
-#include <hackrf_ui.h>
 #include <m0_state.h>
 #include <operacake_sctimer.h>
 #include <radio.h>
@@ -83,7 +82,6 @@ usb_request_status_t usb_vendor_request_set_baseband_filter_bandwidth(
 			RADIO_BANK_ACTIVE,
 			RADIO_BB_BANDWIDTH_RX,
 			bandwidth);
-		hackrf_ui()->set_filter_bw(bandwidth);
 		usb_transfer_schedule_ack(endpoint->in);
 	}
 	return USB_REQUEST_STATUS_OK;
@@ -231,7 +229,6 @@ usb_request_status_t usb_vendor_request_set_lna_gain(
 		uint8_t gain = endpoint->setup.index;
 		radio_reg_write(&radio, RADIO_BANK_ACTIVE, RADIO_GAIN_RX_IF, gain);
 		endpoint->buffer[0] = RADIO_OK;
-		hackrf_ui()->set_bb_lna_gain(gain);
 		usb_transfer_schedule_block(
 			endpoint->in,
 			&endpoint->buffer,
@@ -251,7 +248,6 @@ usb_request_status_t usb_vendor_request_set_vga_gain(
 		uint8_t gain = endpoint->setup.index;
 		radio_reg_write(&radio, RADIO_BANK_ACTIVE, RADIO_GAIN_RX_BB, gain);
 		endpoint->buffer[0] = RADIO_OK;
-		hackrf_ui()->set_bb_vga_gain(gain);
 		usb_transfer_schedule_block(
 			endpoint->in,
 			&endpoint->buffer,
@@ -271,7 +267,6 @@ usb_request_status_t usb_vendor_request_set_txvga_gain(
 		uint8_t gain = endpoint->setup.index;
 		radio_reg_write(&radio, RADIO_BANK_ACTIVE, RADIO_GAIN_TX_IF, gain);
 		endpoint->buffer[0] = RADIO_OK;
-		hackrf_ui()->set_bb_tx_vga_gain(gain);
 		usb_transfer_schedule_block(
 			endpoint->in,
 			&endpoint->buffer,
@@ -333,7 +328,6 @@ void transceiver_shutdown(void)
 void transceiver_startup(const transceiver_mode_t mode)
 {
 	radio_switch_opmode(&radio, mode);
-	hackrf_ui()->set_transceiver_mode(mode);
 
 	switch (mode) {
 	case TRANSCEIVER_MODE_RX_SWEEP:
@@ -486,8 +480,6 @@ void tx_mode(uint32_t seq)
 
 void off_mode(uint32_t seq)
 {
-	hackrf_ui()->set_transceiver_mode(TRANSCEIVER_MODE_OFF);
-
 	while (transceiver_request.seq == seq) {
 		radio_update(&radio);
 	}
