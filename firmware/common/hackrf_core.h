@@ -87,7 +87,7 @@ void enable_1v8_power(void);
 void disable_1v8_power(void);
 #endif
 
-fp_40_24_t sample_rate_set(const fp_40_24_t sample_rate, const bool program);
+fp_28_36_t sample_rate_set(const fp_28_36_t sample_rate, const bool program);
 
 clock_source_t activate_best_clock_source(void);
 

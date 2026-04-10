@@ -48,6 +48,8 @@
 	#include "ice40_spi.h"
 #endif
 
+#include <stdint.h>
+
 i2c_bus_t i2c0 = {
 	.obj = (void*) I2C0_BASE,
 	.start = i2c_lpc_start,
@@ -172,7 +174,61 @@ jtag_t jtag_cpld = {
 };
 
 /*
- * Configure clock generator to produce sample clock in units of 1/(2**24) Hz.
+ * Closest fraction to m/d with denominator <= max_den.
+ * Returns result in *r / *s with gcd(*r, *s) == 1 and 0 < *s <= max_den.
+ * Straight port from CPython's fractions, and better documented there.
+ */
+void limit_denominator(
+	uint64_t m,
+	uint64_t d,
+	const uint64_t max_den,
+	uint64_t* r,
+	uint64_t* s)
+{
+	if (d <= max_den) {
+		*r = m;
+		*s = d;
+		return;
+	}
+
+	uint64_t p0 = 0, q0 = 1, p1 = 1, q1 = 0;
+	uint64_t n = m, orig_d = d;
+	uint64_t tmp;
+
+	while (1) {
+		uint64_t a = n / d;
+		uint64_t q2 = q0 + a * q1;
+
+		if (q2 > max_den)
+			break;
+
+		tmp = p0 + a * p1;
+		p0 = p1;
+		q0 = q1;
+		p1 = tmp;
+		q1 = q2;
+
+		tmp = n - a * d;
+		n = d;
+		d = tmp;
+		if (d == 0)
+			break;
+	}
+
+	uint64_t k = (max_den - q0) / q1;
+
+	/* Return closer candidate. */
+	if (2 * d * (q0 + k * q1) <= orig_d) {
+		*r = p1;
+		*s = q1;
+	} else {
+		*r = p0 + k * p1;
+		*s = q0 + k * q1;
+	}
+}
+
+/*
+ * Configure clock generator to produce sample clock in units of 1/(2**36) Hz.
  * Can be called with program=false for a dry run that returns the resultant
  * frequency without actually configuring the clock generator.
  *
@@ -185,12 +241,12 @@ jtag_t jtag_cpld = {
  * For more information see:
  * https://www.pa3fwm.nl/technotes/tn42a-si5351-programming.html
  */
-fp_40_24_t sample_rate_set(const fp_40_24_t sample_rate, const bool program)
+fp_28_36_t sample_rate_set(const fp_28_36_t sample_rate, const bool program)
 {
-	const fp_40_24_t vco = 800 * FP_ONE_MHZ;
+	const uint64_t vco_hz = 800 * 1000ULL * 1000ULL;
 	uint64_t p1, p2, p3;
-	uint64_t n, d, q;
-	fp_40_24_t remainder, resultant_rate;
+	uint64_t n, d, q1, q2, q3, r1, r2;
+	fp_28_36_t resultant_rate;
 
 	/*
 	 * First double the sample rate so that we can produce a clock at twice
@@ -198,33 +254,46 @@ fp_40_24_t sample_rate_set(const fp_40_24_t sample_rate, const bool program)
 	 * and it is divided by two in an output divider to produce the actual
 	 * AFE clock.
 	 */
-	fp_40_24_t rate = sample_rate * 2;
+	fp_28_36_t rate = sample_rate * 2;
 
-	p1 = ((128 * vco) / rate) - 512;
-	if (vco % rate) {
-		/*
-		 * Compute numerator (p2) for denominator (p3) matching
-		 * fixed-point type.
-		 */
-		n = (128 * vco) - (rate * (p1 + 512));
-		d = rate / FP_ONE_HZ;
-		n += (d / 2);
-		p2 = n / d;
-		p3 = 1 << 24;
+	/*
+	 * Computes p1 = (N << 36) / rate - 512, where N = 128 * vco_hz.
+	 *
+	 * Full numerator (N << 36) is 73 bits, so we split the division:
+	 *
+	 *   (N << 36) / rate = ((N << 27) / rate) << 9
+	 *                    + (((N << 27) % rate) << 9) / rate
+	 *
+	 * IMPORTANT: Assumes sample rate is in [200e3 << 36, 43.6e6 << 36].
+	 */
+	const uint64_t A = (128 * vco_hz) << 27;
 
-		/* Reduce fraction. p3 is 1<<24, so gcd(p2, p3) is a power of 2 */
-		unsigned int shift = p2 ? __builtin_ctz(p2) : 24;
-		p2 >>= shift;
-		p3 >>= shift;
+	q1 = A / rate;
+	r1 = A % rate;
 
-		/* Convert fraction to valid denominator. */
-		const uint64_t p3_max = 0xfffff;
-		if (p3 > p3_max) {
-			p2 *= p3_max;
-			p2 += (p3 / 2);
-			p2 /= p3;
-			p3 = p3_max;
+	// Remaining 9 bits with long division.
+	q2 = 0;
+	r2 = r1;
+	for (int j = 0; j < 9; j++) {
+		uint64_t msb = r2 >> 63;
+		r2 <<= 1;
+		q2 <<= 1;
+		if (msb || r2 >= rate) {
+			r2 -= rate;
+			q2 |= 1;
 		}
+	}
+
+	p1 = (q1 << 9) + q2 - 512;
+
+	if (r2) {
+		/* Use the remainder for the fractional part. */
+		n = r2;
+		d = rate;
+
+		/* Reduce fraction. */
+		const uint64_t p3_max = 0xfffff;
+		limit_denominator(n, d, p3_max, &p2, &p3);
 
 		/* Roll over to next p1 to enable integer mode. */
 		if (p2 >= p3) {
@@ -244,19 +313,21 @@ fp_40_24_t sample_rate_set(const fp_40_24_t sample_rate, const bool program)
 	if (p2 == 0) {
 		/* Use unity denominator for integer mode. */
 		p3 = 1;
-		n = (vco * 128);
+		n = (128 * vco_hz) << 18;
 		d = (p1 + 512);
-		n += (d / 2);
-		resultant_rate = n / d;
+		q1 = n / d;
+		r1 = n % d;
+		q2 = ((r1 << 18) + (d / 2)) / d;
+		resultant_rate = (q1 << 18) + q2;
 	} else {
-		const uint64_t vco_hz = vco / FP_ONE_HZ;
 		n = p3 * vco_hz * 128;
 		d = p3 * (p1 + 512) + p2;
-		const uint64_t rate_hz = n / d;
-		remainder = (n - (d * rate_hz)) * FP_ONE_HZ;
-		remainder += (d / 2);
-		q = remainder / d;
-		resultant_rate = (rate_hz * FP_ONE_HZ) + q;
+		q1 = n / d;
+		r1 = n % d;
+		q2 = (r1 << 18) / d;
+		r2 = (r1 << 18) % d;
+		q3 = ((r2 << 18) + (d / 2)) / d;
+		resultant_rate = (q1 << 36) + (q2 << 18) + q3;
 	}
 
 	/* Return MCU sample rate, not AFE clock rate. */
@@ -617,7 +688,7 @@ void clock_gen_init(void)
 	/* MS7/CLK7 is unused. */
 
 	/* Set to 10 MHz, the common rate between Jawbreaker and HackRF One. */
-	sample_rate_set(10ULL * FP_ONE_MHZ, true);
+	sample_rate_set(10ULL * SR_FP_ONE_MHZ, true);
 
 	si5351c_configure_clock_control(&clock_gen);
 	si5351c_set_clock_source(&clock_gen, PLL_SOURCE_XTAL);

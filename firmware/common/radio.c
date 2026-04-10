@@ -151,15 +151,15 @@ static inline uint8_t compute_resample_log(
 	return n;
 }
 
-#define MIN_MCU_RATE     (200000ULL * FP_ONE_HZ)
-#define MAX_MCU_RATE     (21800000ULL * FP_ONE_HZ)
-#define DEFAULT_MCU_RATE (10000000ULL * FP_ONE_HZ)
+#define MIN_MCU_RATE     (200000ULL * SR_FP_ONE_HZ)
+#define MAX_MCU_RATE     (21800000ULL * SR_FP_ONE_HZ)
+#define DEFAULT_MCU_RATE (10000000ULL * SR_FP_ONE_HZ)
 
-static fp_40_24_t applied_afe_rate = RADIO_UNSET;
+static fp_28_36_t applied_afe_rate = RADIO_UNSET;
 
 static bool radio_update_sample_rate(radio_t* const radio, uint64_t* bank)
 {
-	fp_40_24_t rate, afe_rate;
+	fp_28_36_t rate, afe_rate;
 	uint64_t previous_n;
 	uint8_t n = 0;
 	bool new_afe_rate = false;
@@ -195,7 +195,7 @@ static bool radio_update_sample_rate(radio_t* const radio, uint64_t* bank)
 	switch (opmode) {
 	case TRANSCEIVER_MODE_TX:
 	case TRANSCEIVER_MODE_SS:
-		n = compute_resample_log(rate / FP_ONE_HZ, requested_n);
+		n = compute_resample_log(rate / SR_FP_ONE_HZ, requested_n);
 		if (n != radio->config[RADIO_BANK_APPLIED][RADIO_RESAMPLE_TX]) {
 #ifdef PRALINE
 			fpga_set_tx_interpolation_ratio(&fpga, n);
@@ -204,7 +204,7 @@ static bool radio_update_sample_rate(radio_t* const radio, uint64_t* bank)
 		}
 		break;
 	default:
-		n = compute_resample_log(rate / FP_ONE_HZ, requested_n);
+		n = compute_resample_log(rate / SR_FP_ONE_HZ, requested_n);
 		if (n != radio->config[RADIO_BANK_APPLIED][RADIO_RESAMPLE_RX]) {
 #ifdef PRALINE
 			fpga_set_rx_decimation_ratio(&fpga, n);
@@ -231,7 +231,8 @@ static bool radio_update_sample_rate(radio_t* const radio, uint64_t* bank)
 		radio->config[RADIO_BANK_APPLIED][RADIO_SAMPLE_RATE] = rate;
 		if (rate != RADIO_UNSET) {
 			/* Round to the nearest Hz for display. */
-			const uint32_t rate_hz = (rate + (FP_ONE_HZ >> 1)) / FP_ONE_HZ;
+			const uint32_t rate_hz =
+				(rate + (SR_FP_ONE_HZ >> 1)) / SR_FP_ONE_HZ;
 			hackrf_ui()->set_sample_rate(rate_hz);
 		}
 	}
@@ -241,7 +242,7 @@ static bool radio_update_sample_rate(radio_t* const radio, uint64_t* bank)
 
 #define DEFAULT_RF (2450ULL * FP_ONE_MHZ)
 
-static fp_40_24_t applied_offset = RADIO_UNSET;
+static fp_28_36_t applied_offset = RADIO_UNSET;
 
 #ifdef PRALINE
 static const tune_config_t* select_tune_config(uint64_t opmode)
@@ -348,13 +349,13 @@ static bool radio_update_frequency(radio_t* const radio, uint64_t* bank)
 		radio->config[RADIO_BANK_APPLIED][RADIO_ROTATION] =
 			tune_config->shift << 6;
 	}
-	fp_40_24_t offset = applied_afe_rate / 4;
+	fp_28_36_t offset = applied_afe_rate / 4;
 	bool new_offset = (applied_offset != offset);
 	if (new_rotation || new_offset || new_config || new_rf) {
 		tuning_set_frequency(
 			tune_config,
 			requested_rf_hz,
-			offset / FP_ONE_HZ,
+			offset / SR_FP_ONE_HZ,
 			opmode);
 		applied_offset = offset;
 	}
@@ -374,16 +375,16 @@ static uint32_t auto_bandwidth(radio_t* const radio)
 {
 	uint64_t rotation = radio->config[RADIO_BANK_APPLIED][RADIO_ROTATION];
 
-	uint32_t sample_rate_hz = DEFAULT_MCU_RATE / FP_ONE_HZ;
+	uint32_t sample_rate_hz = DEFAULT_MCU_RATE / SR_FP_ONE_HZ;
 	if (radio->config[RADIO_BANK_APPLIED][RADIO_SAMPLE_RATE] != RADIO_UNSET) {
-		sample_rate_hz =
-			radio->config[RADIO_BANK_APPLIED][RADIO_SAMPLE_RATE] / FP_ONE_HZ;
+		sample_rate_hz = radio->config[RADIO_BANK_APPLIED][RADIO_SAMPLE_RATE] /
+			SR_FP_ONE_HZ;
 	}
 
 	uint32_t offset_hz = 0;
 	if ((rotation != 0) && (rotation != RADIO_UNSET) &&
 	    (applied_offset != RADIO_UNSET)) {
-		offset_hz = applied_offset / FP_ONE_HZ;
+		offset_hz = applied_offset / SR_FP_ONE_HZ;
 	}
 
 	const uint32_t bb_bandwidth = (sample_rate_hz * 3) / 4;

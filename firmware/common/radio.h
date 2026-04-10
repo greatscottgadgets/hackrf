@@ -96,7 +96,7 @@ typedef enum {
 	 */
 	RADIO_ROTATION = 5,
 	/**
-	 * Sample rate (as seen by MCU/host) in 1/(2**24) Hz.
+	 * Sample rate (as seen by MCU/host) in 1/(2**36) Hz.
 	 */
 	RADIO_SAMPLE_RATE = 6,
 	/**
@@ -205,7 +205,7 @@ typedef enum {
  * execute a dry run, returning the sample rate without configuring clock
  * generation.
  */
-typedef fp_40_24_t (*sample_rate_fn)(const fp_40_24_t sample_rate, const bool program);
+typedef fp_28_36_t (*sample_rate_fn)(const fp_28_36_t sample_rate, const bool program);
 
 typedef struct {
 	radio_config_mode_t config_mode;

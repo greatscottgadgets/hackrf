@@ -31,3 +31,12 @@ typedef uint64_t fp_40_24_t;
 
 /* one in 40.24 fixed-point */
 #define FP_ONE_HZ (1 << 24)
+
+/* 28.36 fixed-point */
+typedef uint64_t fp_28_36_t;
+
+/* one million in 28.36 fixed-point */
+#define SR_FP_ONE_MHZ ((1000ULL * 1000ULL) << 36)
+
+/* one in 28.36 fixed-point */
+#define SR_FP_ONE_HZ (1ULL << 36)
