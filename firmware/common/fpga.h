@@ -90,3 +90,5 @@ bool fpga_image_load(struct fpga_loader_t* loader, unsigned int index);
 bool fpga_spi_selftest(void);
 bool fpga_sgpio_selftest(void);
 bool fpga_if_xcvr_selftest(void);
+
+void narrowband_filter_set(const uint8_t value);

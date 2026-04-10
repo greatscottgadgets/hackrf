@@ -23,8 +23,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include "drivers.h"
 #include "fpga.h"
-#include "hackrf_core.h"
 #include "ice40_spi.h"
 #include "lz4_blk.h"
 #include "selftest.h"

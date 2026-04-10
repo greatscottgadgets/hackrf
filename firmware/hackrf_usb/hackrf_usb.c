@@ -29,12 +29,17 @@
 #include <libopencm3/lpc43xx/ipc.h>
 
 #include <clkin.h>
+#include <clock_gen.h>
+#include <cpu_clock.h>
 #include <da7219.h>
 #include <delay.h>
+#include <drivers.h>
 #include <hackrf_core.h>
 #include <hackrf_ui.h>
+#include <leds.h>
 #include <operacake.h>
 #include <platform_detect.h>
+#include <power.h>
 #include <radio.h>
 #include <rf_path.h>
 #include <rom_iap.h>

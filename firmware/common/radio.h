@@ -53,13 +53,6 @@ typedef struct {
 	uint32_t hz;
 } radio_sample_rate_t;
 
-// legacy type, moved from hackrf_core
-typedef enum {
-	CLOCK_SOURCE_HACKRF = 0,
-	CLOCK_SOURCE_EXTERNAL = 1,
-	CLOCK_SOURCE_PORTAPACK = 2,
-} clock_source_t;
-
 typedef enum {
 	TRANSCEIVER_MODE_OFF = 0,
 	TRANSCEIVER_MODE_RX = 1,

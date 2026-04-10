@@ -23,10 +23,11 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include "clock_gen.h"
 #include "delay.h"
+#include "drivers.h"
 #include "fixed_point.h"
 #include "fpga.h"
-#include "hackrf_core.h"
 #include "ice40_spi.h"
 #include "m0_state.h"
 #include "max283x.h"
