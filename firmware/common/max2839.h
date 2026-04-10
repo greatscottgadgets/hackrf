@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2022 Great Scott Gadgets <info@greatscottgadgets.com>
+ * Copyright 2012-2026 Great Scott Gadgets <info@greatscottgadgets.com>
  * Copyright 2012 Will Code <willcode4@gmail.com>
  * Copyright 2014 Jared Boone <jared@sharebrained.com>
  *
@@ -23,9 +23,10 @@
 
 #pragma once
 
-#include <stdint.h>
 #include <stdbool.h>
+#include <stdint.h>
 
+#include "fixed_point.h"
 #include "gpio.h"
 #include "spi_bus.h"
 
@@ -79,9 +80,11 @@ void max2839_set_mode(max2839_driver_t* const drv, const max2839_mode_t new_mode
 extern void max2839_start(max2839_driver_t* const drv);
 extern void max2839_stop(max2839_driver_t* const drv);
 
-/* Set frequency in Hz. Frequency setting is a multi-step function
- * where order of register writes matters. */
-extern void max2839_set_frequency(max2839_driver_t* const drv, uint32_t freq);
+/* Set frequency in 1/(2**24) Hz. */
+extern fp_40_24_t max2839_set_frequency(
+	max2839_driver_t* const drv,
+	fp_40_24_t freq,
+	bool program);
 uint32_t max2839_set_lpf_bandwidth(
 	max2839_driver_t* const drv,
 	const uint32_t bandwidth_hz);
