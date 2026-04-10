@@ -161,15 +161,25 @@ usb_request_status_t usb_vendor_request_set_freq_explicit(
 }
 
 /*
- * Convert fractional sample rate to units of 1/(2**24) Hz.
+ * Convert fractional sample rate to units of 1/(2**36) Hz.
  */
-static inline fp_40_24_t round_sample_rate(uint64_t num, uint32_t denom)
+static inline fp_28_36_t round_sample_rate(uint64_t num, uint32_t denom)
 {
-	num *= FP_ONE_HZ;
+	uint64_t q1, r1, q2, r2, q3;
+
 	if (denom == 0) {
 		denom = 1;
 	}
-	return (num + (denom >> 1)) / denom;
+
+	q1 = num / denom;
+	r1 = num % denom;
+
+	q2 = (r1 << 32) / denom;
+	r2 = (r1 << 32) % denom;
+
+	q3 = ((r2 << 4) + (denom >> 1)) / denom;
+
+	return (q1 << 36) + (q2 << 4) + q3;
 }
 
 usb_request_status_t usb_vendor_request_set_sample_rate_frac(
