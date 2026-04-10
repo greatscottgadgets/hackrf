@@ -28,7 +28,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include <hackrf_core.h>
+#include <drivers.h>
+#include <leds.h>
 #include <max283x.h>
 #include <radio.h>
 #include <si5351c.h>

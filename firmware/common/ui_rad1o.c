@@ -26,7 +26,8 @@
 #include <stdint.h>
 #include <stdio.h>
 
-#include "hackrf_core.h"
+#include "clock_gen.h"
+#include "drivers.h"
 #include "radio.h"
 #include "rf_path.h"
 

@@ -19,28 +19,14 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include <stdint.h>
+#pragma once
 
-#include "da7219.h"
-#include "drivers.h"
-#include "i2c_bus.h"
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-#define DA7219_REG_CHIP_ID1 0x81
-#define DA7219_REG_CHIP_ID2 0x82
+void cpu_clock_init(void);
 
-i2c_bus_t* const da7219_bus = &i2c0;
-
-uint8_t da7219_read_reg(i2c_bus_t* const bus, uint8_t reg)
-{
-	const uint8_t data_tx[] = {reg};
-	uint8_t data_rx[] = {0x00};
-	i2c_bus_transfer(bus, DA7219_ADDRESS, data_tx, 1, data_rx, 1);
-	return data_rx[0];
+#ifdef __cplusplus
 }
-
-bool da7219_detect(void)
-{
-	uint8_t chip_id1 = da7219_read_reg(da7219_bus, DA7219_REG_CHIP_ID1);
-	uint8_t chip_id2 = da7219_read_reg(da7219_bus, DA7219_REG_CHIP_ID2);
-	return (chip_id1 == 0x23) && (chip_id2 == 0x93);
-}
+#endif

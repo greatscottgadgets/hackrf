@@ -19,14 +19,16 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include "hackrf_core.h"
-#include "platform_detect.h"
 #include "delay.h"
+#include "leds.h"
+#include "pins.h"
+#include "platform_detect.h"
+#include "power.h"
 
 int main(void)
 {
 	detect_hardware_platform();
-	pin_setup();
+	pins_setup();
 
 #ifndef PRALINE
 	/* enable 1V8 power supply so that the 1V8 LED lights up */
@@ -37,18 +39,18 @@ int main(void)
 #endif
 
 	/* Blink LED1/2/3 on the board. */
-	while (1) 
+	while (1)
 	{
 		led_on(LED1);
 		led_on(LED2);
 		led_on(LED3);
 
 		delay(2000000);
-		
+
 		led_off(LED1);
 		led_off(LED2);
 		led_off(LED3);
-		
+
 		delay(2000000);
 	}
 

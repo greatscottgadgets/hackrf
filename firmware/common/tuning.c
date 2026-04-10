@@ -23,7 +23,7 @@
 
 #include "tuning.h"
 
-#include "hackrf_core.h"
+#include "drivers.h"
 #include "hackrf_ui.h"
 #include "max283x.h"
 #include "mixer.h"
