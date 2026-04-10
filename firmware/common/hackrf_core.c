@@ -256,19 +256,25 @@ fp_28_36_t sample_rate_set(const fp_28_36_t sample_rate, const bool program)
 	 */
 	fp_28_36_t rate = sample_rate * 2;
 
-	/* 
-	 * As the numerator exceeds 64 bits, let's compute this as:
-	 * N<<36 / r = ((N<<12) / r) << 24 + ((N<<12) % r) << 24) / r
-	 * The numerator for the second addend may not fit in 64 bits, and 
-	 * that's where we take advantage of long division.
+	/*
+	 * Computes p1 = (N << 36) / rate - 512, where N = 128 * vco_hz.
+	 *
+	 * Full numerator (N << 36) is 73 bits, so we split the division:
+	 *
+	 *   (N << 36) / rate = ((N << 27) / rate) << 9
+	 *                    + (((N << 27) % rate) << 9) / rate
+	 *
+	 * IMPORTANT: Assumes sample rate is in [200e3 << 36, 43.6e6 << 36].
 	 */
-	const uint64_t A = (128 * vco_hz) << 12;
+	const uint64_t A = (128 * vco_hz) << 27;
+
 	q1 = A / rate;
 	r1 = A % rate;
-	// Remaining bits with long division.
+
+	// Remaining 9 bits with long division.
 	q2 = 0;
 	r2 = r1;
-	for (int j = 0; j < 24; j++) {
+	for (int j = 0; j < 9; j++) {
 		uint64_t msb = r2 >> 63;
 		r2 <<= 1;
 		q2 <<= 1;
@@ -277,7 +283,8 @@ fp_28_36_t sample_rate_set(const fp_28_36_t sample_rate, const bool program)
 			q2 |= 1;
 		}
 	}
-	p1 = (q1 << 24) + q2 - 512;
+
+	p1 = (q1 << 9) + q2 - 512;
 
 	if (r2) {
 		/* Use the remainder for the fractional part. */
