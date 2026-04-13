@@ -151,9 +151,9 @@ static inline uint8_t compute_resample_log(
 	return n;
 }
 
-#define MIN_MCU_RATE     (200000ULL * SR_FP_ONE_HZ)
-#define MAX_MCU_RATE     (21800000ULL * SR_FP_ONE_HZ)
-#define DEFAULT_MCU_RATE (10000000ULL * SR_FP_ONE_HZ)
+#define MIN_MCU_RATE     SR_FP_KHZ(200)
+#define MAX_MCU_RATE     SR_FP_KHZ(21800)
+#define DEFAULT_MCU_RATE SR_FP_KHZ(10000)
 
 static fp_28_36_t applied_afe_rate = RADIO_UNSET;
 
@@ -240,7 +240,7 @@ static bool radio_update_sample_rate(radio_t* const radio, uint64_t* bank)
 	return (new_afe_rate || new_rate || new_n);
 }
 
-#define DEFAULT_RF (2450ULL * FP_ONE_MHZ)
+#define DEFAULT_RF FP_MHZ(2450)
 
 static fp_28_36_t applied_offset = RADIO_UNSET;
 

@@ -688,7 +688,7 @@ void clock_gen_init(void)
 	/* MS7/CLK7 is unused. */
 
 	/* Set to 10 MHz, the common rate between Jawbreaker and HackRF One. */
-	sample_rate_set(10ULL * SR_FP_ONE_MHZ, true);
+	sample_rate_set(SR_FP_MHZ(10), true);
 
 	si5351c_configure_clock_control(&clock_gen);
 	si5351c_set_clock_source(&clock_gen, PLL_SOURCE_XTAL);
