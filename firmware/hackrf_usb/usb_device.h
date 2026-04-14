@@ -25,17 +25,19 @@
 
 #include <usb_type.h>
 
+#include "platform_detect.h"
+
 extern usb_device_t usb_device;
 
-#if defined(HACKRF_ONE) || defined(UNIVERSAL)
+#if defined(IS_HACKRF_ONE)
 extern const usb_device_t usb_device_hackrf_one;
 #endif
-#if defined(PRALINE) || defined(UNIVERSAL)
+#if defined(IS_PRALINE)
 extern const usb_device_t usb_device_praline;
 #endif
-#if defined(JAWBREAKER)
+#if defined(IS_JAWBREAKER)
 extern const usb_device_t usb_device_jawbreaker;
 #endif
-#if defined(RAD1O)
+#if defined(IS_RAD1O)
 extern const usb_device_t usb_device_rad1o;
 #endif

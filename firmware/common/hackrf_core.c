@@ -25,7 +25,10 @@
 #include <libopencm3/lpc43xx/memorymap.h>
 #include <libopencm3/lpc43xx/scu.h>
 #include <libopencm3/lpc43xx/ssp.h>
-#if !defined(RAD1O)
+
+#include "platform_detect.h"
+
+#if defined(IS_NOT_RAD1O)
 	#include <libopencm3/lpc43xx/ccu.h>
 #endif
 
@@ -36,15 +39,14 @@
 #include "i2c_lpc.h"
 #include "max283x.h"
 #include "max5864_target.h"
-#include "platform_detect.h"
 #include "platform_gpio.h"
 #include "platform_scu.h"
 #include "spi_bus.h"
 #include "w25q80bv_target.h"
-#if defined(HACKRF_ONE) || defined(PRALINE) || defined(UNIVERSAL)
+#if defined(IS_EXPANSION_COMPATIBLE)
 	#include "portapack.h"
 #endif
-#if defined(PRALINE) || defined(UNIVERSAL)
+#if defined(IS_PRALINE)
 	#include "ice40_spi.h"
 #endif
 
@@ -142,7 +144,7 @@ sgpio_config_t sgpio_config = {
 	.slice_mode_multislice = true,
 };
 
-#if defined(PRALINE) || defined(UNIVERSAL)
+#if defined(IS_PRALINE)
 static ssp_config_t ssp_config_ice40_fpga = {
 	.data_bits = SSP_DATA_8BITS,
 	.spi_mode = SSP_CPOL_1_CPHA_1,
@@ -341,7 +343,7 @@ fp_28_36_t sample_rate_set(const fp_28_36_t sample_rate, const bool program)
 		sgpio_cpld_stream_disable(&sgpio_config);
 	}
 
-#ifdef IS_NOT_PRALINE
+#if defined(IS_NOT_PRALINE)
 	if (IS_NOT_PRALINE) {
 		/* Integer mode can be enabled if p1 is even and p2 is zero. */
 		if (p1 & 0x1 || p2) {
@@ -350,7 +352,7 @@ fp_28_36_t sample_rate_set(const fp_28_36_t sample_rate, const bool program)
 			si5351c_set_int_mode(&clock_gen, 0, 1);
 		}
 
-	#ifdef IS_H1_R9
+	#if defined(IS_H1_R9)
 		if (IS_H1_R9) {
 			/*
 			 * On HackRF One r9 all sample clocks are externally derived
@@ -359,7 +361,7 @@ fp_28_36_t sample_rate_set(const fp_28_36_t sample_rate, const bool program)
 			si5351c_configure_multisynth(&clock_gen, 1, p1, p2, p3, 0);
 		}
 	#endif
-	#ifdef IS_NOT_H1_R9
+	#if defined(IS_NOT_H1_R9)
 		if (IS_NOT_H1_R9) {
 			/*
 			 * On other platforms the clock generator produces three
@@ -389,7 +391,7 @@ fp_28_36_t sample_rate_set(const fp_28_36_t sample_rate, const bool program)
 	#endif
 	}
 #endif
-#ifdef IS_PRALINE
+#if defined(IS_PRALINE)
 	if (IS_PRALINE) {
 		/* MS0/CLK0 is the source for the MAX5864 (AFE_CLK). */
 		si5351c_configure_multisynth(&clock_gen, 0, p1, p2, p3, 1);
@@ -569,7 +571,7 @@ void cpu_clock_init(void)
 	CGU_BASE_SSP1_CLK =
 		CGU_BASE_SSP1_CLK_AUTOBLOCK(1) | CGU_BASE_SSP1_CLK_CLK_SEL(CGU_SRC_PLL1);
 
-#ifdef IS_NOT_RAD1O
+#if defined(IS_NOT_RAD1O)
 	if (IS_NOT_RAD1O) {
 		/* Disable unused clocks */
 		/* Start with PLLs */
@@ -680,7 +682,7 @@ void clock_gen_init(void)
 	 *   CLK7 -> AUX_CLK2
 	 */
 
-#ifdef IS_H1_R9
+#if defined(IS_H1_R9)
 	if (IS_H1_R9) {
 		/* MS0/CLK0 is the reference for both RFFC5071 and MAX2839. */
 		si5351c_configure_multisynth(
@@ -692,7 +694,7 @@ void clock_gen_init(void)
 			0); /* 800/20 = 40MHz */
 	}
 #endif
-#ifdef IS_NOT_H1_R9
+#if defined(IS_NOT_H1_R9)
 	if (IS_NOT_H1_R9) {
 		/* MS4/CLK4 is the source for the RFFC5071 mixer (MAX2837 on rad1o). */
 		si5351c_configure_multisynth(
@@ -736,7 +738,7 @@ void clock_gen_shutdown(void)
 
 clock_source_t activate_best_clock_source(void)
 {
-#ifdef IS_EXPANSION_COMPATIBLE
+#if defined(IS_EXPANSION_COMPATIBLE)
 	if (IS_EXPANSION_COMPATIBLE) {
 		/* Ensure PortaPack reference oscillator is off while checking for external clock input. */
 		if (portapack_reference_oscillator && portapack()) {
@@ -751,7 +753,7 @@ clock_source_t activate_best_clock_source(void)
 	if (si5351c_clkin_signal_valid(&clock_gen)) {
 		source = CLOCK_SOURCE_EXTERNAL;
 	} else {
-#ifdef IS_EXPANSION_COMPATIBLE
+#if defined(IS_EXPANSION_COMPATIBLE)
 		if (IS_EXPANSION_COMPATIBLE) {
 			/* Enable PortaPack reference oscillator (if present), and check for valid clock. */
 			if (portapack_reference_oscillator && portapack()) {
@@ -786,7 +788,7 @@ void ssp1_set_mode_max5864(void)
 	spi_bus_start(max5864.bus, &ssp_config_max5864);
 }
 
-#if defined(PRALINE) || defined(UNIVERSAL)
+#if defined(IS_PRALINE)
 void ssp1_set_mode_ice40(void)
 {
 	spi_bus_start(&spi_bus_ssp1, &ssp_config_ice40_fpga);
@@ -816,14 +818,14 @@ void pin_shutdown(void)
 	 *
 	 * LPC43xx pull-up and pull-down resistors are approximately 53K.
 	 */
-#ifdef IS_EXPANSION_COMPATIBLE
+#if defined(IS_EXPANSION_COMPATIBLE)
 	if (IS_EXPANSION_COMPATIBLE) {
 		scu_pinmux(scu->PINMUX_PP_TMS, SCU_GPIO_PUP | SCU_CONF_FUNCTION0);
 		scu_pinmux(scu->PINMUX_PP_TDO, SCU_GPIO_PDN | SCU_CONF_FUNCTION0);
 	}
 #endif
 	scu_pinmux(scu->PINMUX_CPLD_TCK, SCU_GPIO_PDN | SCU_CONF_FUNCTION0);
-#ifdef IS_NOT_PRALINE
+#if defined(IS_NOT_PRALINE)
 	if (IS_NOT_PRALINE) {
 		scu_pinmux(scu->PINMUX_CPLD_TMS, SCU_GPIO_NOPULL | SCU_CONF_FUNCTION0);
 		scu_pinmux(scu->PINMUX_CPLD_TDI, SCU_GPIO_NOPULL | SCU_CONF_FUNCTION0);
@@ -835,26 +837,26 @@ void pin_shutdown(void)
 	scu_pinmux(scu->PINMUX_LED1, SCU_GPIO_NOPULL);
 	scu_pinmux(scu->PINMUX_LED2, SCU_GPIO_NOPULL);
 	scu_pinmux(scu->PINMUX_LED3, SCU_GPIO_NOPULL);
-#ifdef IS_RAD1O
+#if defined(IS_RAD1O)
 	if (IS_RAD1O) {
 		scu_pinmux(scu->PINMUX_LED4, SCU_GPIO_NOPULL | SCU_CONF_FUNCTION4);
 	}
 #endif
-#ifdef IS_PRALINE
+#if defined(IS_PRALINE)
 	if (IS_PRALINE) {
 		scu_pinmux(scu->PINMUX_LED4, SCU_GPIO_NOPULL | SCU_CONF_FUNCTION0);
 	}
 #endif
 
 	/* Configure USB indicators */
-#ifdef IS_JAWBREAKER
+#if defined(IS_JAWBREAKER)
 	if (IS_JAWBREAKER) {
 		scu_pinmux(scu->PINMUX_USB_LED0, SCU_CONF_FUNCTION3);
 		scu_pinmux(scu->PINMUX_USB_LED1, SCU_CONF_FUNCTION3);
 	}
 #endif
 
-#ifdef IS_PRALINE
+#if defined(IS_PRALINE)
 	if (IS_PRALINE) {
 		disable_1v2_power();
 		disable_3v3aux_power();
@@ -865,16 +867,16 @@ void pin_shutdown(void)
 	}
 #endif
 
-#ifdef IS_NOT_PRALINE
+#if defined(IS_NOT_PRALINE)
 	if (IS_NOT_PRALINE) {
 		disable_1v8_power();
-	#ifdef IS_H1_R9
+	#if defined(IS_H1_R9)
 		if (IS_H1_R9) {
 			gpio_output(gpio->h1r9_1v8_enable);
 			scu_pinmux(scu->H1R9_EN1V8, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
 		}
 	#endif
-	#ifdef IS_NOT_H1_R9
+	#if defined(IS_NOT_H1_R9)
 		if (IS_NOT_H1_R9) {
 			gpio_output(gpio->gpio_1v8_enable);
 			scu_pinmux(scu->PINMUX_EN1V8, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
@@ -883,18 +885,18 @@ void pin_shutdown(void)
 	}
 #endif
 
-#ifdef IS_H1_OR_PRALINE
+#if defined(IS_H1_OR_PRALINE)
 	if (IS_H1_OR_PRALINE) {
 		/* Safe state: start with VAA turned off: */
 		disable_rf_power();
 
 		/* Configure RF power supply (VAA) switch control signal as output */
-	#ifdef IS_H1_R9
+	#if defined(IS_H1_R9)
 		if (IS_H1_R9) {
 			gpio_output(gpio->h1r9_vaa_disable);
 		}
 	#endif
-	#ifdef IS_NOT_H1_R9
+	#if defined(IS_NOT_H1_R9)
 		if (IS_NOT_H1_R9) {
 			gpio_output(gpio->vaa_disable);
 		}
@@ -902,7 +904,7 @@ void pin_shutdown(void)
 	}
 #endif
 
-#ifdef IS_RAD1O
+#if defined(IS_RAD1O)
 	if (IS_RAD1O) {
 		/* Safe state: start with VAA turned off: */
 		disable_rf_power();
@@ -919,7 +921,7 @@ void pin_shutdown(void)
 	}
 #endif
 
-#ifdef IS_PRALINE
+#if defined(IS_PRALINE)
 	if (IS_PRALINE) {
 		scu_pinmux(scu->P2_CTRL0, scu->P2_CTRL0_PINCFG);
 		scu_pinmux(scu->P2_CTRL1, scu->P2_CTRL1_PINCFG);
@@ -973,7 +975,7 @@ void pin_setup(void)
 	led_off(0);
 	led_off(1);
 	led_off(2);
-#ifdef IS_FOUR_LEDS
+#if defined(IS_FOUR_LEDS)
 	if (IS_FOUR_LEDS) {
 		led_off(3);
 	}
@@ -983,7 +985,7 @@ void pin_setup(void)
 	gpio_output(gpio->led[1]);
 	gpio_output(gpio->led[2]);
 
-#ifdef IS_FOUR_LEDS
+#if defined(IS_FOUR_LEDS)
 	if (IS_FOUR_LEDS) {
 		gpio_output(gpio->led[3]);
 	}
@@ -991,12 +993,12 @@ void pin_setup(void)
 
 	/* Configure drivers and driver pins */
 	ssp_config_max283x.gpio_select = gpio->max283x_select;
-#ifdef IS_NOT_PRALINE
+#if defined(IS_NOT_PRALINE)
 	if (IS_NOT_PRALINE) {
 		ssp_config_max283x.data_bits = SSP_DATA_16BITS;
 	}
 #endif
-#ifdef IS_PRALINE
+#if defined(IS_PRALINE)
 	if (IS_PRALINE) {
 		ssp_config_max283x.data_bits = SSP_DATA_9BITS; // send 2 words
 	}
@@ -1010,13 +1012,13 @@ void pin_setup(void)
 
 	sgpio_config.gpio_q_invert = gpio->q_invert;
 
-#ifdef IS_NOT_PRALINE
+#if defined(IS_NOT_PRALINE)
 	if (IS_NOT_PRALINE) {
 		sgpio_config.gpio_trigger_enable = gpio->trigger_enable;
 	}
 #endif
 
-#ifdef IS_PRALINE
+#if defined(IS_PRALINE)
 	if (IS_PRALINE) {
 		ssp_config_ice40_fpga.gpio_select = gpio->fpga_cfg_spi_cs;
 		ice40.gpio_select = gpio->fpga_cfg_spi_cs;
@@ -1027,7 +1029,7 @@ void pin_setup(void)
 
 	jtag_gpio_cpld.gpio_tck = gpio->cpld_tck;
 
-#ifdef IS_NOT_PRALINE
+#if defined(IS_NOT_PRALINE)
 	if (IS_NOT_PRALINE) {
 		jtag_gpio_cpld.gpio_tms = gpio->cpld_tms;
 		jtag_gpio_cpld.gpio_tdi = gpio->cpld_tdi;
@@ -1035,7 +1037,7 @@ void pin_setup(void)
 	}
 #endif
 
-#ifdef IS_EXPANSION_COMPATIBLE
+#if defined(IS_EXPANSION_COMPATIBLE)
 	if (IS_EXPANSION_COMPATIBLE) {
 		jtag_gpio_cpld.gpio_pp_tms = gpio->cpld_pp_tms;
 		jtag_gpio_cpld.gpio_pp_tdo = gpio->cpld_pp_tdo;
@@ -1046,14 +1048,14 @@ void pin_setup(void)
 
 	mixer_bus_setup(&mixer);
 
-#ifdef IS_H1_R9
+#if defined(IS_H1_R9)
 	if (IS_H1_R9) {
 		sgpio_config.gpio_trigger_enable = gpio->h1r9_trigger_enable;
 	}
 #endif
 
 	// initialize rf_path struct and assign gpio's
-#ifdef IS_HACKRF_ONE
+#if defined(IS_HACKRF_ONE)
 	if (IS_HACKRF_ONE) {
 		rf_path = (rf_path_t){
 			.switchctrl = 0,
@@ -1071,7 +1073,7 @@ void pin_setup(void)
 			.gpio_rx_amp = gpio->rx_amp,
 			.gpio_no_rx_amp_pwr = gpio->no_rx_amp_pwr,
 		};
-	#ifdef IS_H1_R9
+	#if defined(IS_H1_R9)
 		if (IS_H1_R9) {
 			rf_path.gpio_rx = gpio->h1r9_rx;
 			rf_path.gpio_h1r9_no_ant_pwr = gpio->h1r9_no_ant_pwr;
@@ -1080,7 +1082,7 @@ void pin_setup(void)
 	}
 #endif
 
-#ifdef IS_RAD1O
+#if defined(IS_RAD1O)
 	if (IS_RAD1O) {
 		rf_path = (rf_path_t){
 			.switchctrl = 0,
@@ -1099,7 +1101,7 @@ void pin_setup(void)
 	}
 #endif
 
-#ifdef IS_PRALINE
+#if defined(IS_PRALINE)
 	if (IS_PRALINE) {
 		rf_path = (rf_path_t){
 			.switchctrl = 0,
@@ -1124,54 +1126,46 @@ void pin_setup(void)
 	sgpio_configure_pin_functions(&sgpio_config);
 }
 
-#if defined(PRALINE) || defined(UNIVERSAL)
+#if defined(IS_PRALINE)
 void enable_1v2_power(void)
 {
-	#ifdef IS_PRALINE
 	if (IS_PRALINE) {
 		gpio_set(platform_gpio()->gpio_1v2_enable);
 	}
-	#endif
 }
 
 void disable_1v2_power(void)
 {
-	#ifdef IS_PRALINE
 	if (IS_PRALINE) {
 		gpio_clear(platform_gpio()->gpio_1v2_enable);
 	}
-	#endif
 }
 
 void enable_3v3aux_power(void)
 {
-	#ifdef IS_PRALINE
 	if (IS_PRALINE) {
 		gpio_clear(platform_gpio()->gpio_3v3aux_enable_n);
 	}
-	#endif
 }
 
 void disable_3v3aux_power(void)
 {
-	#ifdef IS_PRALINE
 	if (IS_PRALINE) {
 		gpio_set(platform_gpio()->gpio_3v3aux_enable_n);
 	}
-	#endif
 }
 #endif
 
 void enable_1v8_power(void)
 {
-#ifdef IS_NOT_PRALINE
+#if defined(IS_NOT_PRALINE)
 	if (IS_NOT_PRALINE) {
-	#ifdef IS_H1_R9
+	#if defined(IS_H1_R9)
 		if (IS_H1_R9) {
 			gpio_set(platform_gpio()->h1r9_1v8_enable);
 		}
 	#endif
-	#ifdef IS_NOT_H1_R9
+	#if defined(IS_NOT_H1_R9)
 		if (IS_NOT_H1_R9) {
 			gpio_set(platform_gpio()->gpio_1v8_enable);
 		}
@@ -1182,14 +1176,14 @@ void enable_1v8_power(void)
 
 void disable_1v8_power(void)
 {
-#ifdef IS_NOT_PRALINE
+#if defined(IS_NOT_PRALINE)
 	if (IS_NOT_PRALINE) {
-	#ifdef IS_H1_R9
+	#if defined(IS_H1_R9)
 		if (IS_H1_R9) {
 			gpio_clear(platform_gpio()->h1r9_1v8_enable);
 		}
 	#endif
-	#ifdef IS_NOT_H1_R9
+	#if defined(IS_NOT_H1_R9)
 		if (IS_NOT_H1_R9) {
 			gpio_clear(platform_gpio()->gpio_1v8_enable);
 		}
@@ -1198,7 +1192,7 @@ void disable_1v8_power(void)
 #endif
 }
 
-#if defined(HACKRF_ONE) || defined(UNIVERSAL)
+#if defined(IS_HACKRF_ONE)
 static inline void enable_rf_power_hackrf_one(void)
 {
 	const platform_gpio_t* gpio = platform_gpio();
@@ -1226,7 +1220,7 @@ static inline void disable_rf_power_hackrf_one(void)
 }
 #endif
 
-#if defined(PRALINE) || defined(UNIVERSAL)
+#if defined(IS_PRALINE)
 static inline void enable_rf_power_praline(void)
 {
 	gpio_clear(platform_gpio()->vaa_disable);
@@ -1258,17 +1252,17 @@ static inline void disable_rf_power_rad1o(void)
 
 void enable_rf_power(void)
 {
-#ifdef IS_HACKRF_ONE
+#if defined(IS_HACKRF_ONE)
 	if (IS_HACKRF_ONE) {
 		enable_rf_power_hackrf_one();
 	}
 #endif
-#ifdef IS_PRALINE
+#if defined(IS_PRALINE)
 	if (IS_PRALINE) {
 		enable_rf_power_praline();
 	}
 #endif
-#ifdef IS_RAD1O
+#if defined(IS_RAD1O)
 	if (IS_RAD1O) {
 		enable_rf_power_rad1o();
 	}
@@ -1277,17 +1271,17 @@ void enable_rf_power(void)
 
 void disable_rf_power(void)
 {
-#ifdef IS_HACKRF_ONE
+#if defined(IS_HACKRF_ONE)
 	if (IS_HACKRF_ONE) {
 		disable_rf_power_hackrf_one();
 	}
 #endif
-#ifdef IS_PRALINE
+#if defined(IS_PRALINE)
 	if (IS_PRALINE) {
 		disable_rf_power_praline();
 	}
 #endif
-#ifdef IS_RAD1O
+#if defined(IS_RAD1O)
 	if (IS_RAD1O) {
 		disable_rf_power_rad1o();
 	}
@@ -1296,12 +1290,12 @@ void disable_rf_power(void)
 
 void led_on(const led_t led)
 {
-#ifdef IS_PRALINE
+#if defined(IS_PRALINE)
 	if (IS_PRALINE) {
 		gpio_clear(platform_gpio()->led[led]);
 	}
 #endif
-#ifdef IS_NOT_PRALINE
+#if defined(IS_NOT_PRALINE)
 	if (IS_NOT_PRALINE) {
 		gpio_set(platform_gpio()->led[led]);
 	}
@@ -1310,12 +1304,12 @@ void led_on(const led_t led)
 
 void led_off(const led_t led)
 {
-#ifdef IS_PRALINE
+#if defined(IS_PRALINE)
 	if (IS_PRALINE) {
 		gpio_set(platform_gpio()->led[led]);
 	}
 #endif
-#ifdef IS_NOT_PRALINE
+#if defined(IS_NOT_PRALINE)
 	if (IS_NOT_PRALINE) {
 		gpio_clear(platform_gpio()->led[led]);
 	}
@@ -1330,19 +1324,19 @@ void led_toggle(const led_t led)
 void set_leds(const uint8_t state)
 {
 	int num_leds = 3;
-#ifdef IS_FOUR_LEDS
+#if defined(IS_FOUR_LEDS)
 	if (IS_FOUR_LEDS) {
 		num_leds = 4;
 	}
 #endif
 
 	for (int i = 0; i < num_leds; i++) {
-#ifdef IS_PRALINE
+#if defined(IS_PRALINE)
 		if (IS_PRALINE) {
 			gpio_write(platform_gpio()->led[i], ((state >> i) & 1) == 0);
 		}
 #endif
-#ifdef IS_NOT_PRALINE
+#if defined(IS_NOT_PRALINE)
 		if (IS_NOT_PRALINE) {
 			gpio_write(platform_gpio()->led[i], ((state >> i) & 1) == 1);
 		}
@@ -1352,12 +1346,12 @@ void set_leds(const uint8_t state)
 
 void trigger_enable(const bool enable)
 {
-#ifdef IS_NOT_PRALINE
+#if defined(IS_NOT_PRALINE)
 	if (IS_NOT_PRALINE) {
 		gpio_write(sgpio_config.gpio_trigger_enable, enable);
 	}
 #endif
-#ifdef IS_PRALINE
+#if defined(IS_PRALINE)
 	if (IS_PRALINE) {
 		fpga_set_trigger_enable(&fpga, enable);
 	}
@@ -1379,7 +1373,7 @@ void halt_and_flash(const uint32_t duration)
 	}
 }
 
-#if defined(PRALINE) || defined(UNIVERSAL)
+#if defined(IS_PRALINE)
 void p1_ctrl_set(const p1_ctrl_signal_t signal)
 {
 	const platform_gpio_t* gpio = platform_gpio();

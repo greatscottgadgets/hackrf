@@ -19,11 +19,10 @@
  * Boston, MA 02110-1301, USA.
  */
 
+#include "usb_api_selftest.h"
+
 #include <stddef.h>
 #include <stdint.h>
-#if !defined(RAD1O)
-	#include <stdbool.h>
-#endif
 
 #include <libopencm3/lpc43xx/cgu.h>
 #include <libopencm3/lpc43xx/creg.h>
@@ -34,7 +33,9 @@
 #include <usb_request.h>
 #include <usb_type.h>
 
-#include "usb_api_selftest.h"
+#if defined(IS_NOT_RAD1O)
+	#include <stdbool.h>
+#endif
 
 static char* itoa(int val, int base)
 {
@@ -61,7 +62,7 @@ void append(char** dest, size_t* capacity, const char* str)
 	}
 }
 
-#if defined(PRALINE) || defined(UNIVERSAL)
+#if defined(IS_PRALINE)
 static const char* test_result_to_str(test_result_t result)
 {
 	switch (result) {
@@ -82,14 +83,14 @@ void generate_selftest_report(void)
 {
 	char* s = &selftest.report.msg[0];
 	size_t c = sizeof(selftest.report.msg);
-#ifdef IS_RAD1O
+#if defined(IS_RAD1O)
 	if (IS_RAD1O) {
 		append(&s, &c, "Mixer: MAX2871, ID: ");
 		append(&s, &c, itoa(selftest.mixer_id, 10));
 		append(&s, &c, "\n");
 	}
 #endif
-#ifdef IS_NOT_RAD1O
+#if defined(IS_NOT_RAD1O)
 	if (IS_NOT_RAD1O) {
 		append(&s, &c, "Mixer: RFFC5072, ID: ");
 		append(&s, &c, itoa(selftest.mixer_id >> 3, 10));
@@ -117,22 +118,22 @@ void generate_selftest_report(void)
 	append(&s, &c, selftest.si5351_readback_ok ? "OK" : "FAIL");
 	append(&s, &c, "\n");
 
-#ifdef IS_PRALINE
+#if defined(IS_PRALINE)
 	if (IS_PRALINE) {
 		append(&s, &c, "Transceiver: MAX2831, RSSI mux test: ");
 		append(&s, &c, selftest.max2831_mux_test_ok ? "PASS" : "FAIL");
 		append(&s, &c, "\n");
 	}
 #endif
-#ifdef IS_NOT_PRALINE
+#if defined(IS_NOT_PRALINE)
 	if (IS_NOT_PRALINE) {
 		append(&s, &c, "Transceiver: ");
-	#ifdef IS_H1_R9
+	#if defined(IS_H1_R9)
 		if (IS_H1_R9) {
 			append(&s, &c, "MAX2839");
 		}
 	#endif
-	#ifdef IS_NOT_H1_R9
+	#if defined(IS_NOT_H1_R9)
 		if (IS_NOT_H1_R9) {
 			append(&s, &c, "MAX2837");
 		}
@@ -153,7 +154,7 @@ void generate_selftest_report(void)
 		append(&s, &c, "\n");
 	}
 #endif
-#ifdef IS_PRALINE
+#if defined(IS_PRALINE)
 	if (IS_PRALINE) {
 		append(&s, &c, "FPGA configuration: ");
 		append(&s, &c, test_result_to_str(selftest.fpga_image_load));

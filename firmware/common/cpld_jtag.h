@@ -24,15 +24,16 @@
 #include <stdint.h>
 
 #include "gpio.h"
+#include "platform_detect.h"
 
 typedef struct {
 	gpio_t gpio_tck;
-#if !defined(PRALINE) || defined(UNIVERSAL)
+#if defined(IS_NOT_PRALINE)
 	gpio_t gpio_tms;
 	gpio_t gpio_tdi;
 	gpio_t gpio_tdo;
 #endif
-#if defined(HACKRF_ONE) || defined(PRALINE) || defined(UNIVERSAL)
+#if defined(IS_EXPANSION_COMPATIBLE)
 	gpio_t gpio_pp_tms;
 	gpio_t gpio_pp_tdo;
 #endif

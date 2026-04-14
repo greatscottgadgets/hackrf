@@ -27,10 +27,11 @@ extern "C" {
 
 #include "gpio.h"
 #include "gpio_lpc.h"
+#include "platform_detect.h"
 
 typedef struct {
 	/* LEDs */
-#if defined(PRALINE) || defined(UNIVERSAL) || defined(RAD1O)
+#if defined(IS_FOUR_LEDS)
 	gpio_t led[4];
 #else
 	gpio_t led[3];
@@ -38,7 +39,7 @@ typedef struct {
 
 	/* Power Supply Control */
 	gpio_t gpio_1v8_enable;
-#if defined(PRALINE) || defined(UNIVERSAL)
+#if defined(IS_PRALINE)
 	gpio_t gpio_1v2_enable;
 	gpio_t gpio_3v3aux_enable_n;
 #endif
@@ -48,7 +49,7 @@ typedef struct {
 	gpio_t max283x_enable;
 	gpio_t max283x_rx_enable;
 	gpio_t max283x_tx_enable;
-#if defined(PRALINE) || defined(UNIVERSAL)
+#if defined(IS_PRALINE)
 	gpio_t max2831_rxhp;
 	gpio_t max2831_ld;
 #endif
@@ -58,7 +59,7 @@ typedef struct {
 
 	/* RF supply (VAA) control */
 	gpio_t vaa_disable;
-#if defined(RAD1O)
+#if defined(IS_RAD1O)
 	gpio_t vaa_enable;
 #endif
 
@@ -68,7 +69,7 @@ typedef struct {
 	gpio_t w25q80bv_select;
 
 	/* RF switch control */
-#if defined(HACKRF_ONE) || defined(UNIVERSAL)
+#if defined(IS_HACKRF_ONE)
 	gpio_t hp;
 	gpio_t lp;
 	gpio_t tx_mix_bp;
@@ -85,7 +86,7 @@ typedef struct {
 	gpio_t h1r9_no_ant_pwr; // HACKRF_ONE r9
 	gpio_t h1r9_rx;         // HACKRF_ONE r9
 #endif
-#if defined(RAD1O)
+#if defined(IS_RAD1O)
 	gpio_t tx_rx_n;
 	gpio_t tx_rx;
 	gpio_t by_mix;
@@ -98,7 +99,7 @@ typedef struct {
 	gpio_t tx_amp;
 	gpio_t rx_lna;
 #endif
-#if defined(PRALINE) || defined(UNIVERSAL)
+#if defined(IS_PRALINE)
 	gpio_t tx_en;
 	gpio_t mix_en_n;
 	gpio_t mix_en_n_r1_0;
@@ -110,22 +111,22 @@ typedef struct {
 	/* CPLD JTAG interface GPIO pins, FPGA config pins in Praline */
 	gpio_t cpld_tck;
 	gpio_t cpld_tdo;
-#if !defined(PRALINE) || defined(UNIVERSAL)
+#if defined(IS_NOT_PRALINE)
 	gpio_t cpld_tms;
 	gpio_t cpld_tdi;
 #endif
-#if defined(HACKRF_ONE) || defined(PRALINE) || defined(UNIVERSAL)
+#if defined(IS_HACKRF_ONE) || defined(IS_PRALINE)
 	gpio_t cpld_pp_tms;
 	gpio_t cpld_pp_tdo;
 #endif
-#if defined(PRALINE) || defined(UNIVERSAL)
+#if defined(IS_PRALINE)
 	gpio_t fpga_cfg_creset;
 	gpio_t fpga_cfg_cdone;
 	gpio_t fpga_cfg_spi_cs;
 #endif
 
 	/* Other CPLD interface GPIO pins */
-#if !defined(PRALINE) || defined(UNIVERSAL)
+#if defined(IS_NOT_PRALINE)
 	gpio_t trigger_enable;
 #endif
 	gpio_t q_invert;
@@ -144,7 +145,7 @@ typedef struct {
 	gpio_t synt_rfout_en; // RAD1O
 
 	/* Praline */
-#if defined(PRALINE) || defined(UNIVERSAL)
+#if defined(IS_PRALINE)
 	gpio_t p2_ctrl0;
 	gpio_t p2_ctrl1;
 	gpio_t p1_ctrl0;
@@ -157,7 +158,7 @@ typedef struct {
 	gpio_t pps_out;
 #endif
 
-#if defined(HACKRF_ONE) || defined(UNIVERSAL)
+#if defined(IS_HACKRF_ONE)
 	/* HackRF One r9 clock control */
 	gpio_t h1r9_clkin_en;
 	gpio_t h1r9_clkout_en;
@@ -169,14 +170,14 @@ typedef struct {
 #endif
 
 	/* RAD1O */
-#if defined(RAD1O)
+#if defined(IS_RAD1O)
 	gpio_t lcd_cs;
 	gpio_t lcd_bl_en;
 	gpio_t lcd_reset;
 #endif
 
 	/* Portapack */
-#if defined(HACKRF_ONE) || defined(PRALINE) || defined(UNIVERSAL)
+#if defined(IS_EXPANSION_COMPATIBLE)
 	gpio_t io_stbx;
 	gpio_t addr;
 	gpio_t lcd_rdx;

@@ -19,17 +19,16 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#if !defined(PRALINE) || defined(UNIVERSAL)
-	#include <stdint.h>
-#endif
-
 #include "cpld_jtag.h"
+
 #include "platform_detect.h"
-#if !defined(PRALINE) || defined(UNIVERSAL)
+
+#if defined(IS_NOT_PRALINE)
+	#include <stdint.h>
 	#include "xapp058/micro.h"
 #endif
 
-#if !defined(PRALINE) || defined(UNIVERSAL)
+#if defined(IS_NOT_PRALINE)
 static refill_buffer_cb refill_buffer;
 static uint32_t xsvf_buffer_len, xsvf_pos;
 static unsigned char* xsvf_buffer;
@@ -42,7 +41,7 @@ void cpld_jtag_take(jtag_t* const jtag)
 	/* Set initial GPIO state to the voltages of the internal or external pull-ups/downs,
 	 * to avoid any glitches.
 	 */
-#ifdef IS_EXPANSION_COMPATIBLE
+#if defined(IS_EXPANSION_COMPATIBLE)
 	if (IS_EXPANSION_COMPATIBLE) {
 		gpio_set(gpio->gpio_pp_tms);
 	}
@@ -50,14 +49,14 @@ void cpld_jtag_take(jtag_t* const jtag)
 
 	gpio_clear(gpio->gpio_tck);
 
-#ifdef IS_NOT_PRALINE
+#if defined(IS_NOT_PRALINE)
 	if (IS_NOT_PRALINE) {
 		gpio_set(gpio->gpio_tms);
 		gpio_set(gpio->gpio_tdi);
 	}
 #endif
 
-#ifdef IS_EXPANSION_COMPATIBLE
+#if defined(IS_EXPANSION_COMPATIBLE)
 	if (IS_EXPANSION_COMPATIBLE) {
 		/* Do not drive PortaPack-specific TMS pin initially, just to be cautious. */
 		gpio_input(gpio->gpio_pp_tms);
@@ -67,7 +66,7 @@ void cpld_jtag_take(jtag_t* const jtag)
 
 	gpio_output(gpio->gpio_tck);
 
-#ifdef IS_NOT_PRALINE
+#if defined(IS_NOT_PRALINE)
 	if (IS_NOT_PRALINE) {
 		gpio_output(gpio->gpio_tms);
 		gpio_output(gpio->gpio_tdi);
@@ -83,7 +82,7 @@ void cpld_jtag_release(jtag_t* const jtag)
 	/* Make all pins inputs when JTAG interface not active.
 	 * Let the pull-ups/downs do the work.
 	 */
-#ifdef IS_EXPANSION_COMPATIBLE
+#if defined(IS_EXPANSION_COMPATIBLE)
 	if (IS_EXPANSION_COMPATIBLE) {
 		/* Do not drive PortaPack-specific pins, initially, just to be cautious. */
 		gpio_input(gpio->gpio_pp_tms);
@@ -93,7 +92,7 @@ void cpld_jtag_release(jtag_t* const jtag)
 
 	gpio_input(gpio->gpio_tck);
 
-#ifdef IS_NOT_PRALINE
+#if defined(IS_NOT_PRALINE)
 	if (IS_NOT_PRALINE) {
 		gpio_input(gpio->gpio_tms);
 		gpio_input(gpio->gpio_tdi);
@@ -102,7 +101,7 @@ void cpld_jtag_release(jtag_t* const jtag)
 #endif
 }
 
-#if !defined(PRALINE) || defined(UNIVERSAL)
+#if defined(IS_NOT_PRALINE)
 /* return 0 if success else return error code see xsvfExecute() */
 int cpld_jtag_program(
 	jtag_t* const jtag,

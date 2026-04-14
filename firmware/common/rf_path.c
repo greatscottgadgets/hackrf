@@ -23,10 +23,6 @@
 
 #include "rf_path.h"
 
-#if defined(HACKRF_ONE) || defined(RAD1O) || defined(PRALINE) || defined(UNIVERSAL)
-	#include <libopencm3/lpc43xx/scu.h>
-#endif
-
 #include "hackrf_core.h"
 #include "hackrf_ui.h"
 #include "max283x.h"
@@ -35,7 +31,8 @@
 #include "platform_detect.h"
 #include "sgpio.h"
 #include "transceiver_mode.h"
-#if defined(HACKRF_ONE) || defined(RAD1O) || defined(PRALINE) || defined(UNIVERSAL)
+#if defined(IS_NOT_JAWBREAKER)
+	#include <libopencm3/lpc43xx/scu.h>
 	#include "gpio.h"
 	#include "platform_scu.h"
 #endif
@@ -96,7 +93,7 @@
 
 #define SWITCHCTRL_ANT_PWR (1 << 6) /* turn on antenna port power */
 
-#if defined(HACKRF_ONE) || defined(UNIVERSAL)
+#if defined(IS_HACKRF_ONE)
 static void switchctrl_set_hackrf_one(rf_path_t* const rf_path, uint8_t ctrl)
 {
 	board_id_t board_id = detected_platform();
@@ -190,7 +187,7 @@ static void switchctrl_set_hackrf_one(rf_path_t* const rf_path, uint8_t ctrl)
 }
 #endif
 
-#if defined(PRALINE) || defined(UNIVERSAL)
+#if defined(IS_PRALINE)
 static void switchctrl_set_praline(rf_path_t* const rf_path, uint8_t ctrl)
 {
 	if (ctrl & SWITCHCTRL_TX) {
@@ -298,23 +295,23 @@ static void switchctrl_set_rad1o(rf_path_t* const rf_path, uint8_t ctrl)
 
 static void switchctrl_set(rf_path_t* const rf_path, const uint8_t gpo)
 {
-#ifdef IS_JAWBREAKER
+#if defined(IS_JAWBREAKER)
 	if (IS_JAWBREAKER) {
 		(void) rf_path;
 		mixer_set_gpo(&mixer, gpo);
 	}
 #endif
-#ifdef IS_HACKRF_ONE
+#if defined(IS_HACKRF_ONE)
 	if (IS_HACKRF_ONE) {
 		switchctrl_set_hackrf_one(rf_path, gpo);
 	}
 #endif
-#ifdef IS_PRALINE
+#if defined(IS_PRALINE)
 	if (IS_PRALINE) {
 		switchctrl_set_praline(rf_path, gpo);
 	}
 #endif
-#ifdef IS_RAD1O
+#if defined(IS_RAD1O)
 	if (IS_RAD1O) {
 		switchctrl_set_rad1o(rf_path, gpo);
 	}
@@ -325,13 +322,11 @@ void rf_path_pin_setup(rf_path_t* const rf_path)
 {
 #if defined(JAWBREAKER)
 	(void) rf_path;
-#endif
-
-#if !defined(JAWBREAKER)
+#else
 	const platform_scu_t* scu = platform_scu();
 #endif
 
-#ifdef IS_HACKRF_ONE
+#if defined(IS_HACKRF_ONE)
 	if (IS_HACKRF_ONE) {
 		/* Configure RF switch control signals */
 		// clang-format off
@@ -347,7 +342,7 @@ void rf_path_pin_setup(rf_path_t* const rf_path)
 		scu_pinmux(scu->RX_AMP,        SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
 		scu_pinmux(scu->NO_RX_AMP_PWR, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
 		// clang-format on
-	#ifdef IS_H1_R9
+	#if defined(IS_H1_R9)
 		if (IS_H1_R9) {
 			scu_pinmux(scu->H1R9_RX, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
 			scu_pinmux(
@@ -360,7 +355,7 @@ void rf_path_pin_setup(rf_path_t* const rf_path)
 				SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
 		}
 	#endif
-	#ifdef IS_NOT_H1_R9
+	#if defined(IS_NOT_H1_R9)
 		if (IS_NOT_H1_R9) {
 			scu_pinmux(scu->TX, SCU_GPIO_FAST | SCU_CONF_FUNCTION4);
 			scu_pinmux(scu->RX, SCU_GPIO_FAST | SCU_CONF_FUNCTION4);
@@ -390,7 +385,7 @@ void rf_path_pin_setup(rf_path_t* const rf_path)
 		gpio_output(rf_path->gpio_rx);
 	}
 #endif
-#ifdef IS_RAD1O
+#if defined(IS_RAD1O)
 	if (IS_RAD1O) {
 		/* Configure RF switch control signals */
 		// clang-format off
@@ -431,7 +426,7 @@ void rf_path_pin_setup(rf_path_t* const rf_path)
 	}
 #endif
 
-#ifdef IS_PRALINE
+#if defined(IS_PRALINE)
 	if (IS_PRALINE) {
 		/* Configure RF switch control signals */
 		scu_pinmux(scu->TX_EN, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
@@ -477,14 +472,14 @@ void rf_path_init(rf_path_t* const rf_path)
 	max283x_setup(&max283x);
 	max283x_start(&max283x);
 
-#ifdef IS_RAD1O
+#if defined(IS_RAD1O)
 	if (IS_RAD1O) {
 		mixer_setup(&mixer, MAX2871_VARIANT);
 	}
 #endif
-#ifdef IS_NOT_RAD1O
+#if defined(IS_NOT_RAD1O)
 	if (IS_NOT_RAD1O) {
-	#ifdef IS_NOT_HACKRF_ONE
+	#if defined(IS_NOT_HACKRF_ONE)
 		if (IS_NOT_HACKRF_ONE) {
 			mixer_setup(&mixer, RFFC5071_VARIANT);
 		}
@@ -536,7 +531,7 @@ void rf_path_set_direction(rf_path_t* const rf_path, const rf_path_direction_t d
 		sgpio_configure(&sgpio_config, SGPIO_DIRECTION_RX);
 		break;
 
-#if defined(PRALINE) || defined(UNIVERSAL)
+#if defined(IS_PRALINE)
 	case RF_PATH_DIRECTION_TX_CALIBRATION:
 	case RF_PATH_DIRECTION_RX_CALIBRATION:
 		rf_path->switchctrl &= ~SWITCHCTRL_TX;

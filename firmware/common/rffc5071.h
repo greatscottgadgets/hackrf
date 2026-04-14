@@ -26,6 +26,7 @@
 #include <stdint.h>
 
 #include "gpio.h"
+#include "platform_detect.h"
 #include "spi_bus.h"
 
 /* 31 registers, each containing 16 bits of data. */
@@ -34,7 +35,7 @@
 typedef struct {
 	spi_bus_t* const bus;
 	gpio_t gpio_reset;
-#if defined(PRALINE) || defined(UNIVERSAL)
+#if defined(IS_PRALINE)
 	gpio_t gpio_ld;
 #endif
 	uint16_t regs[RFFC5071_NUM_REGS];
@@ -66,7 +67,7 @@ extern void rffc5071_enable(rffc5071_driver_t* const drv);
 extern void rffc5071_disable(rffc5071_driver_t* const drv);
 
 extern void rffc5071_set_gpo(rffc5071_driver_t* const drv, uint8_t);
-#if defined(PRALINE) || defined(UNIVERSAL)
+#if defined(IS_PRALINE)
 extern bool rffc5071_poll_ld(rffc5071_driver_t* const drv, uint8_t* prelock_state);
 #endif
 extern bool rffc5071_check_lock(rffc5071_driver_t* const drv);

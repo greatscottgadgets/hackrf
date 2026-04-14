@@ -46,14 +46,14 @@
 #include <usb_request.h>
 #include <usb_standard_request.h>
 #include <usb_type.h>
-#if defined(PRALINE) || defined(HACKRF_ONE) || defined(UNIVERSAL)
+#if defined(IS_EXPANSION_COMPATIBLE)
 	#include <portapack.h>
 #endif
-#if !defined(RAD1O)
+#if defined(IS_NOT_RAD1O)
 	#include <mixer.h>
 	#include <rffc5071.h>
 #endif
-#if defined(PRALINE) || defined(UNIVERSAL)
+#if defined(IS_PRALINE)
 	#include <fpga.h>
 	#if !(defined(DFU_MODE) || defined(RAM_MODE))
 		#include <lz4_buf.h>
@@ -61,7 +61,7 @@
 		#include <w25q80bv.h>
 	#endif
 #endif
-#if !defined(PRALINE) || defined(UNIVERSAL)
+#if defined(IS_NOT_PRALINE)
 	#include <cpld_jtag.h>
 	#include <cpld_xc2c.h>
 #endif
@@ -79,10 +79,10 @@
 #include "usb_descriptor.h"
 #include "usb_device.h"
 #include "usb_endpoint.h"
-#if defined(PRALINE) || defined(UNIVERSAL)
+#if defined(IS_PRALINE)
 	#include "usb_api_praline.h"
 #endif
-#if !defined(PRALINE) || defined(UNIVERSAL)
+#if defined(IS_NOT_PRALINE)
 	#include "usb_api_cpld.h"
 #endif
 
@@ -100,7 +100,7 @@ static usb_request_handler_fn vendor_request_handler[] = {
 	usb_vendor_request_read_si5351c,
 	usb_vendor_request_set_sample_rate_frac,
 	usb_vendor_request_set_baseband_filter_bandwidth,
-#if !defined(RAD1O)
+#if defined(IS_NOT_RAD1O)
 	usb_vendor_request_write_rffc5071,
 	usb_vendor_request_read_rffc5071,
 #else
@@ -120,7 +120,7 @@ static usb_request_handler_fn vendor_request_handler[] = {
 	usb_vendor_request_set_vga_gain,
 	usb_vendor_request_set_txvga_gain,
 	NULL, // was set_if_freq
-#if defined(HACKRF_ONE) || defined(PRALINE) || defined(UNIVERSAL)
+#if defined(IS_HACKRF_ONE) || defined(IS_PRALINE)
 	usb_vendor_request_set_antenna_enable,
 #else
 	NULL,
@@ -137,7 +137,7 @@ static usb_request_handler_fn vendor_request_handler[] = {
 	usb_vendor_request_spiflash_status,
 	usb_vendor_request_spiflash_clear_status,
 	usb_vendor_request_operacake_gpio_test,
-#if defined(HACKRF_ONE) || defined(UNIVERSAL)
+#if defined(IS_HACKRF_ONE)
 	usb_vendor_request_cpld_checksum,
 #else
 	NULL,
@@ -154,7 +154,7 @@ static usb_request_handler_fn vendor_request_handler[] = {
 	usb_vendor_request_read_supported_platform,
 	usb_vendor_request_set_leds,
 	usb_vendor_request_user_config_set_bias_t_opts,
-#if defined(PRALINE) || defined(UNIVERSAL)
+#if defined(IS_PRALINE)
 	usb_vendor_request_write_fpga_reg,
 	usb_vendor_request_read_fpga_reg,
 	usb_vendor_request_p2_ctrl,
@@ -250,7 +250,7 @@ void usb_set_descriptor_by_serial_number(void)
 	}
 }
 
-#if !defined(PRALINE) || defined(UNIVERSAL)
+#if defined(IS_NOT_PRALINE)
 static bool cpld_jtag_sram_load(jtag_t* const jtag)
 {
 	cpld_jtag_take(jtag);
@@ -278,7 +278,7 @@ static void m0_rom_to_ram(void)
 	memcpy(dest, (uint32_t*) (base + src), len);
 }
 
-#if (defined(PRALINE) || defined(UNIVERSAL)) && !(defined(DFU_MODE) || defined(RAM_MODE))
+#if defined(IS_PRALINE) && !(defined(DFU_MODE) || defined(RAM_MODE))
 extern uint32_t _binary_fpga_bin_start;
 
 void fpga_loader_setup(void)
@@ -319,7 +319,7 @@ int main(void)
 	}
 	delay_us_at_mhz(10000, 96);
 	pin_setup();
-#ifdef IS_PRALINE
+#if defined(IS_PRALINE)
 	if (IS_PRALINE) {
 		enable_3v3aux_power();
 	#if !defined(DFU_MODE) && !defined(RAM_MODE)
@@ -333,10 +333,10 @@ int main(void)
 	#endif
 	}
 #endif
-#ifdef IS_NOT_PRALINE
+#if defined(IS_NOT_PRALINE)
 	if (IS_NOT_PRALINE) {
 		enable_1v8_power();
-	#ifdef IS_NOT_RAD1O
+	#if defined(IS_NOT_RAD1O)
 		if (IS_NOT_RAD1O) {
 			/*
 			 * On rad1o, the clock generator power supply comes from the RF supply
@@ -349,19 +349,19 @@ int main(void)
 	}
 #endif
 	tuning_setup();
-#ifdef IS_HACKRF_ONE
+#if defined(IS_HACKRF_ONE)
 	if (IS_HACKRF_ONE) {
 		// Set up mixer before enabling RF power, because its
 		// GPO is used to control the antenna bias tee.
 		mixer_setup(&mixer, RFFC5071_VARIANT);
 	}
 #endif
-#ifdef IS_H1_OR_RAD1O
+#if defined(IS_H1_OR_RAD1O)
 	if (IS_H1_OR_RAD1O) {
 		enable_rf_power();
 	}
 #endif
-#ifdef IS_RAD1O
+#if defined(IS_RAD1O)
 	if (IS_RAD1O) {
 		clock_gen_init();
 	}
@@ -372,14 +372,14 @@ int main(void)
 	ipc_halt_m0();
 	ipc_start_m0((uint32_t) &__ram_m0_start__);
 
-#ifdef IS_NOT_PRALINE
+#if defined(IS_NOT_PRALINE)
 	if (IS_NOT_PRALINE) {
 		if (!cpld_jtag_sram_load(&jtag_cpld)) {
 			halt_and_flash(6000000);
 		}
 	}
 #endif
-#ifdef IS_PRALINE
+#if defined(IS_PRALINE)
 	if (IS_PRALINE) {
 	#if defined(DFU_MODE) || defined(RAM_MODE)
 		selftest.fpga_image_load = SKIPPED;
@@ -394,7 +394,7 @@ int main(void)
 #endif
 	radio_init(&radio);
 
-#ifdef IS_EXPANSION_COMPATIBLE
+#if defined(IS_EXPANSION_COMPATIBLE)
 	if (IS_EXPANSION_COMPATIBLE) {
 		portapack_init();
 	}
@@ -407,26 +407,26 @@ int main(void)
 	usb_set_configuration_changed_cb(usb_configuration_changed);
 	usb_peripheral_reset();
 
-#ifdef IS_HACKRF_ONE
+#if defined(IS_HACKRF_ONE)
 	if (IS_HACKRF_ONE) {
 		memcpy(&usb_device,
 		       &usb_device_hackrf_one,
 		       sizeof(usb_device_hackrf_one));
 	}
 #endif
-#ifdef IS_JAWBREAKER
+#if defined(IS_JAWBREAKER)
 	if (IS_JAWBREAKER) {
 		memcpy(&usb_device,
 		       &usb_device_jawbreaker,
 		       sizeof(usb_device_jawbreaker));
 	}
 #endif
-#ifdef IS_RAD1O
+#if defined(IS_RAD1O)
 	if (IS_RAD1O) {
 		memcpy(&usb_device, &usb_device_rad1o, sizeof(usb_device_rad1o));
 	}
 #endif
-#ifdef IS_PRALINE
+#if defined(IS_PRALINE)
 	if (IS_PRALINE) {
 		memcpy(&usb_device, &usb_device_praline, sizeof(usb_device_praline));
 	}
@@ -453,7 +453,7 @@ int main(void)
 	rffc5071_lock_test(&mixer.rffc5071);
 #endif
 
-#ifdef IS_PRALINE
+#if defined(IS_PRALINE)
 	if (IS_PRALINE) {
 		fpga_if_xcvr_selftest();
 	}
@@ -504,7 +504,7 @@ int main(void)
 			sweep_mode(request.seq);
 			break;
 		case TRANSCEIVER_MODE_CPLD_UPDATE:
-#ifdef IS_NOT_PRALINE
+#if defined(IS_NOT_PRALINE)
 			if (IS_NOT_PRALINE) {
 				cpld_update();
 			}

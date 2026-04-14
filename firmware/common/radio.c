@@ -33,7 +33,7 @@
 #include "rf_path.h"
 #include "transceiver_mode.h"
 #include "tuning.h"
-#if defined(PRALINE) || defined(UNIVERSAL)
+#if defined(IS_PRALINE)
 	#include "fpga.h"
 	#include "tune_config.h"
 #endif
@@ -197,7 +197,7 @@ static bool radio_update_sample_rate(radio_t* const radio, uint64_t* bank)
 	case TRANSCEIVER_MODE_SS:
 		n = compute_resample_log(rate / SR_FP_ONE_HZ, requested_n);
 		if (n != radio->config[RADIO_BANK_APPLIED][RADIO_RESAMPLE_TX]) {
-#ifdef IS_PRALINE
+#if defined(IS_PRALINE)
 			if (IS_PRALINE) {
 				fpga_set_tx_interpolation_ratio(&fpga, n);
 			}
@@ -208,7 +208,7 @@ static bool radio_update_sample_rate(radio_t* const radio, uint64_t* bank)
 	default:
 		n = compute_resample_log(rate / SR_FP_ONE_HZ, requested_n);
 		if (n != radio->config[RADIO_BANK_APPLIED][RADIO_RESAMPLE_RX]) {
-#ifdef IS_PRALINE
+#if defined(IS_PRALINE)
 			if (IS_PRALINE) {
 				fpga_set_rx_decimation_ratio(&fpga, n);
 			}
@@ -248,7 +248,7 @@ static bool radio_update_sample_rate(radio_t* const radio, uint64_t* bank)
 
 static fp_28_36_t applied_offset = RADIO_UNSET;
 
-#if defined(PRALINE) || defined(UNIVERSAL)
+#if defined(IS_PRALINE)
 static const tune_config_t* select_tune_config(uint64_t opmode)
 {
 	switch (opmode) {
@@ -305,7 +305,7 @@ static bool radio_update_frequency(radio_t* const radio, uint64_t* bank)
 			radio->config[RADIO_BANK_APPLIED][RADIO_FREQUENCY_RF] =
 				RADIO_UNSET;
 		}
-#ifdef IS_PRALINE
+#if defined(IS_PRALINE)
 		if (IS_PRALINE) {
 			const uint64_t requested_rotation = bank[RADIO_ROTATION];
 			if (requested_rotation != RADIO_UNSET) {
@@ -333,7 +333,7 @@ static bool radio_update_frequency(radio_t* const radio, uint64_t* bank)
 	}
 
 	uint64_t requested_rf_hz = requested_rf / FP_ONE_HZ;
-#ifdef IS_PRALINE
+#if defined(IS_PRALINE)
 	if (IS_PRALINE) {
 		bool new_rf =
 			(radio->config[RADIO_BANK_APPLIED][RADIO_FREQUENCY_RF] !=
@@ -374,7 +374,7 @@ static bool radio_update_frequency(radio_t* const radio, uint64_t* bank)
 		}
 	}
 #endif
-#ifdef IS_NOT_PRALINE
+#if defined(IS_NOT_PRALINE)
 	if (IS_NOT_PRALINE) {
 		set_freq(requested_rf_hz, opmode);
 	}
@@ -415,7 +415,7 @@ static bool radio_update_bandwidth(radio_t* const radio, uint64_t* bank)
 {
 	bool new_bw = false;
 
-#ifdef IS_PRALINE
+#if defined(IS_PRALINE)
 	if (IS_PRALINE) {
 		/* Praline legacy mode always sets baseband bandwidth automatically. */
 		(void) bank;
@@ -464,7 +464,7 @@ static bool radio_update_bandwidth(radio_t* const radio, uint64_t* bank)
 		}
 	}
 #endif
-#ifdef IS_NOT_PRALINE
+#if defined(IS_NOT_PRALINE)
 	if (IS_NOT_PRALINE) {
 		uint64_t lpf_bandwidth;
 		lpf_bandwidth = bank[RADIO_XCVR_TX_LPF];
@@ -638,7 +638,7 @@ static bool radio_update_trigger(radio_t* const radio, uint64_t* bank)
 
 static bool radio_update_dc_block(radio_t* const radio, uint64_t* bank)
 {
-#ifdef IS_PRALINE
+#if defined(IS_PRALINE)
 	if (IS_PRALINE) {
 		const uint64_t requested = bank[RADIO_DC_BLOCK];
 		bool enable = requested;

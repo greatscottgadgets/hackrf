@@ -34,16 +34,13 @@
 #include <stdint.h>
 #include <string.h>
 
-#if defined(PRALINE) || defined(UNIVERSAL)
-	#include <libopencm3/lpc43xx/scu.h>
-#endif
-
 #include "delay.h"
 #include "platform_detect.h"
 #include "rffc5071.h"
 #include "rffc5071_regs.def" // private register def macros
 #include "selftest.h"
-#if defined(PRALINE) || defined(UNIVERSAL)
+#if defined(IS_PRALINE)
+	#include <libopencm3/lpc43xx/scu.h>
 	#include "platform_scu.h"
 #endif
 
@@ -108,7 +105,7 @@ void rffc5071_setup(rffc5071_driver_t* const drv)
 	gpio_set(drv->gpio_reset);
 	gpio_output(drv->gpio_reset);
 
-#ifdef IS_PRALINE
+#if defined(IS_PRALINE)
 	if (IS_PRALINE) {
 		/* Configure mixer PLL lock detect pin */
 		const platform_scu_t* scu = platform_scu();
@@ -133,7 +130,7 @@ void rffc5071_setup(rffc5071_driver_t* const drv)
 	set_RFFC5071_FULLD(drv, 0);
 	set_RFFC5071_MODE(drv, 1);
 
-#ifdef IS_H1_OR_PRALINE
+#if defined(IS_H1_OR_PRALINE)
 	if (IS_H1_OR_PRALINE) {
 		set_RFFC5071_LOCK(drv, 1);
 	}
@@ -180,12 +177,12 @@ void rffc5071_lock_test(rffc5071_driver_t* const drv)
 
 bool rffc5071_check_lock(rffc5071_driver_t* const drv)
 {
-#ifdef IS_PRALINE
+#if defined(IS_PRALINE)
 	if (IS_PRALINE) {
 		return gpio_read(drv->gpio_ld);
 	}
 #endif
-#ifdef IS_NOT_PRALINE
+#if defined(IS_NOT_PRALINE)
 	if (IS_NOT_PRALINE) {
 		set_RFFC5071_READSEL(drv, 0b0001);
 		rffc5071_regs_commit(drv);
@@ -354,14 +351,14 @@ void rffc5071_set_gpo(rffc5071_driver_t* const drv, uint8_t gpo)
 	rffc5071_regs_commit(drv);
 }
 
-#if defined(PRALINE) || defined(UNIVERSAL)
+#if defined(IS_PRALINE)
 bool rffc5071_poll_ld(rffc5071_driver_t* const drv, uint8_t* prelock_state)
 {
 	// This is only supported on Praline hardware.
 	//
 	// For all other boards we'll just return true to avoid a situation where a
 	// a caller is waiting for a lock signal that will never be detected.
-	#ifdef IS_NOT_PRALINE
+	#if defined(IS_NOT_PRALINE)
 	if (IS_NOT_PRALINE) {
 		return true;
 	}

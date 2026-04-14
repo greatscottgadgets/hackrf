@@ -29,6 +29,8 @@ extern "C" {
 
 #include <libopencm3/lpc43xx/scu.h>
 
+#include "platform_detect.h"
+
 /*
  * SCU PinMux
  */
@@ -38,13 +40,13 @@ typedef struct {
 	scu_grp_pin_t PINMUX_LED1;
 	scu_grp_pin_t PINMUX_LED2;
 	scu_grp_pin_t PINMUX_LED3;
-#if defined(RAD1O) || defined(PRALINE) || defined(UNIVERSAL)
+#if defined(IS_FOUR_LEDS)
 	scu_grp_pin_t PINMUX_LED4;
 #endif
 
 	scu_grp_pin_t PINMUX_EN1V8;
 	scu_grp_pin_t PINMUX_EN1V2;
-#if defined(PRALINE) || defined(UNIVERSAL)
+#if defined(IS_PRALINE)
 	scu_grp_pin_t PINMUX_EN3V3_AUX_N;
 	scu_grp_pin_t PINMUX_EN3V3_OC_N;
 #endif
@@ -52,7 +54,7 @@ typedef struct {
 	/* GPIO Input PinMux */
 	scu_grp_pin_t PINMUX_BOOT0;
 	scu_grp_pin_t PINMUX_BOOT1;
-#if !defined(HACKRF_ONE) || defined(UNIVERSAL)
+#if defined(IS_NOT_HACKRF_ONE)
 	scu_grp_pin_t PINMUX_BOOT2;
 	scu_grp_pin_t PINMUX_BOOT3;
 #endif
@@ -63,7 +65,7 @@ typedef struct {
 	scu_grp_pin_t PINMUX_PP_DIR;
 
 	/* USB peripheral */
-#if defined(JAWBREAKER)
+#if defined(IS_JAWBREAKER)
 	scu_grp_pin_t PINMUX_USB_LED0;
 	scu_grp_pin_t PINMUX_USB_LED1;
 #endif
@@ -75,7 +77,7 @@ typedef struct {
 	scu_grp_pin_t SSP1_CS;
 
 	/* CPLD JTAG interface */
-#if defined(PRALINE) || defined(UNIVERSAL)
+#if defined(IS_PRALINE)
 	scu_grp_pin_t PINMUX_FPGA_CRESET;
 	scu_grp_pin_t PINMUX_FPGA_CDONE;
 	scu_grp_pin_t PINMUX_FPGA_SPI_CS;
@@ -127,15 +129,15 @@ typedef struct {
 	uint32_t XCVR_RXENABLE_PINCFG;
 	uint32_t XCVR_TXENABLE_PINCFG;
 	uint32_t XCVR_CS_PINCFG;
-#if defined(PRALINE) || defined(UNIVERSAL)
+#if defined(IS_PRALINE)
 	scu_grp_pin_t XCVR_LD;
 	uint32_t XCVR_LD_PINCFG;
 	uint32_t XCVR_RXHP_PINCFG;
 #endif
-#if defined(RAD1O) || defined(PRALINE) || defined(UNIVERSAL)
+#if defined(IS_RAD1O) || defined(IS_PRALINE)
 	scu_grp_pin_t XCVR_RXHP;
 #endif
-#if defined(RAD1O)
+#if defined(IS_RAD1O)
 	scu_grp_pin_t XCVR_B6;
 	scu_grp_pin_t XCVR_B7;
 #endif
@@ -145,7 +147,7 @@ typedef struct {
 	scu_grp_pin_t AD_CS_PINCFG;
 
 	/* RFFC5071 GPIO serial interface PinMux */
-#if !defined(RAD1O)
+#if defined(IS_NOT_RAD1O)
 	scu_grp_pin_t MIXER_ENX;
 	scu_grp_pin_t MIXER_SCLK;
 	scu_grp_pin_t MIXER_SDATA;
@@ -153,11 +155,11 @@ typedef struct {
 	uint32_t MIXER_SCLK_PINCFG;
 	uint32_t MIXER_SDATA_PINCFG;
 #endif
-#if defined(PRALINE) || defined(UNIVERSAL)
+#if defined(IS_PRALINE)
 	scu_grp_pin_t MIXER_LD;
 	uint32_t MIXER_LD_PINCFG;
 #endif
-#if defined(RAD1O)
+#if defined(IS_RAD1O)
 	scu_grp_pin_t VCO_CE;
 	scu_grp_pin_t VCO_SCLK;
 	scu_grp_pin_t VCO_SDATA;
@@ -168,15 +170,15 @@ typedef struct {
 #endif
 
 	/* RF LDO control */
-#if defined(JAWBREAKER)
+#if defined(IS_JAWBREAKER)
 	scu_grp_pin_t RF_LDO_ENABLE;
 #endif
 
 	/* RF supply (VAA) control */
-#if defined(PRALINE) || defined(HACKRF_ONE) || defined(UNIVERSAL)
+#if defined(IS_PRALINE) || defined(IS_HACKRF_ONE)
 	scu_grp_pin_t NO_VAA_ENABLE;
 #endif
-#if defined(RAD1O)
+#if defined(IS_RAD1O)
 	scu_grp_pin_t VAA_ENABLE;
 #endif
 
@@ -189,7 +191,7 @@ typedef struct {
 	scu_grp_pin_t FLASH_WP;
 
 	/* RF switch control */
-#if defined(PRALINE) || defined(UNIVERSAL)
+#if defined(IS_PRALINE)
 	scu_grp_pin_t TX_EN;
 	scu_grp_pin_t MIX_EN_N;
 	scu_grp_pin_t MIX_EN_N_R1_0;
@@ -198,7 +200,7 @@ typedef struct {
 	scu_grp_pin_t ANT_BIAS_EN_N;
 	scu_grp_pin_t ANT_BIAS_OC_N;
 #endif
-#if defined(HACKRF_ONE) || defined(UNIVERSAL)
+#if defined(IS_HACKRF_ONE)
 	scu_grp_pin_t HP;
 	scu_grp_pin_t LP;
 	scu_grp_pin_t TX_MIX_BP;
@@ -213,7 +215,7 @@ typedef struct {
 	scu_grp_pin_t RX_AMP;
 	scu_grp_pin_t NO_RX_AMP_PWR;
 #endif
-#if defined(RAD1O)
+#if defined(IS_RAD1O)
 	scu_grp_pin_t BY_AMP;
 	scu_grp_pin_t BY_AMP_N;
 	scu_grp_pin_t TX_RX;
@@ -227,7 +229,7 @@ typedef struct {
 #endif
 
 	/* Praline */
-#if defined(PRALINE) || defined(UNIVERSAL)
+#if defined(IS_PRALINE)
 	scu_grp_pin_t P2_CTRL0;
 	scu_grp_pin_t P2_CTRL1;
 	scu_grp_pin_t P1_CTRL0;
@@ -252,7 +254,7 @@ typedef struct {
 #endif
 
 	/* HackRF One r9 */
-#if defined(HACKRF_ONE) || defined(UNIVERSAL)
+#if defined(IS_HACKRF_ONE)
 	scu_grp_pin_t H1R9_CLKIN_EN;
 	scu_grp_pin_t H1R9_CLKOUT_EN;
 	scu_grp_pin_t H1R9_MCU_CLK_EN;

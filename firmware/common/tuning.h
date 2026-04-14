@@ -26,9 +26,10 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include "platform_detect.h"
 #include "rf_path.h"
 #include "transceiver_mode.h"
-#if defined(PRALINE) || defined(UNIVERSAL)
+#if defined(IS_PRALINE)
 	#include "tune_config.h"
 #endif
 
@@ -43,7 +44,7 @@ bool set_freq_explicit(
 	const rf_path_filter_t path,
 	const transceiver_mode_t opmode);
 
-#if defined(PRALINE) || defined(UNIVERSAL)
+#if defined(IS_PRALINE)
 bool tuning_set_frequency(
 	const tune_config_t* cfg,
 	const uint64_t freq,

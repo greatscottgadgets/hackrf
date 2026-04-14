@@ -30,10 +30,10 @@
 #include "platform_detect.h"
 #include "sgpio.h"
 #include "transceiver_mode.h"
-#if defined(PRALINE) || defined(HACKRF_ONE) || defined(UNIVERSAL)
+#if defined(IS_EXPANSION_COMPATIBLE)
 	#include "operacake.h"
 #endif
-#if defined(PRALINE) || defined(UNIVERSAL)
+#if defined(IS_PRALINE)
 	#include "fpga.h"
 #endif
 
@@ -46,7 +46,7 @@ static uint64_t MAX_BYPASS_FREQ_MHZ;
 static uint64_t ABS_MAX_BYPASS_FREQ_MHZ;
 
 static uint64_t MIN_HP_FREQ_MHZ;
-#if !defined(PRALINE) || defined(UNIVERSAL)
+#if defined(IS_NOT_PRALINE)
 static uint64_t MID1_HP_FREQ_MHZ;
 static uint64_t MID2_HP_FREQ_MHZ;
 #endif
@@ -58,7 +58,7 @@ static uint64_t MAX_LO_FREQ_HZ;
 void tuning_setup(void)
 {
 	/* clang-format off */
-#ifdef IS_PRALINE
+#if defined(IS_PRALINE)
 	if (IS_PRALINE) {
 		MIN_LP_FREQ_MHZ = 0;
 		MAX_LP_FREQ_MHZ = 2320ULL;
@@ -75,7 +75,7 @@ void tuning_setup(void)
 		MAX_LO_FREQ_HZ = 5400000000ULL;
 	}
 #endif
-#ifdef IS_NOT_PRALINE
+#if defined(IS_NOT_PRALINE)
 	if (IS_NOT_PRALINE) {
 		MIN_LP_FREQ_MHZ = 0;
 		MAX_LP_FREQ_MHZ = 2170ULL;
@@ -97,7 +97,7 @@ void tuning_setup(void)
 	/* clang-format  on */
 }
 
-#if !defined(PRALINE) || defined(UNIVERSAL)
+#if defined(IS_NOT_PRALINE)
 static uint32_t max2837_freq_nominal_hz = 2560000000;
 
 /*
@@ -119,12 +119,12 @@ bool set_freq(const uint64_t freq, const transceiver_mode_t opmode)
 	max283x_set_mode(&max283x, MAX283x_MODE_STANDBY);
 	if (freq_mhz < MAX_LP_FREQ_MHZ) {
 		rf_path_set_filter(&rf_path, RF_PATH_FILTER_LOW_PASS, opmode);
-#ifdef IS_RAD1O
+#if defined(IS_RAD1O)
 		if (IS_RAD1O) {
 			max2837_freq_nominal_hz = 2300 * FREQ_ONE_MHZ;
 		}
 #endif
-#ifdef IS_NOT_RAD1O
+#if defined(IS_NOT_RAD1O)
 		if (IS_NOT_RAD1O) {
 			/* IF is graduated from 2650 MHz to 2340 MHz */
 			max2837_freq_nominal_hz = (2650 * FREQ_ONE_MHZ) - (freq / 7);
@@ -170,7 +170,7 @@ bool set_freq(const uint64_t freq, const transceiver_mode_t opmode)
 		if (opmode != TRANSCEIVER_MODE_RX_SWEEP) {
 			hackrf_ui()->set_frequency(freq);
 		}
-#ifdef IS_EXPANSION_COMPATIBLE
+#if defined(IS_EXPANSION_COMPATIBLE)
 		if (IS_EXPANSION_COMPATIBLE) {
 			operacake_set_range(freq_mhz);
 		}
@@ -180,7 +180,7 @@ bool set_freq(const uint64_t freq, const transceiver_mode_t opmode)
 }
 #endif
 
-#if defined(PRALINE) || defined(UNIVERSAL)
+#if defined(IS_PRALINE)
 bool tuning_set_frequency(
 	const tune_config_t* cfg,
 	const uint64_t freq,

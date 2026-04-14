@@ -29,19 +29,19 @@
 #include "platform_gpio.h"
 #include "spi_bus.h"
 
-#if defined(PRALINE) || defined(UNIVERSAL)
+#if defined(IS_PRALINE)
 	#include "max2831_target.h"
 #endif
-#if !defined(PRALINE) || defined(UNIVERSAL)
+#if defined(IS_NOT_PRALINE)
 	#include "max2837_target.h"
 #endif
-#if defined(HACKRF_ONE) || defined(UNIVERSAL)
+#if defined(IS_H1_R9)
 	#include "max2839_target.h"
 #endif
 
 extern spi_bus_t spi_bus_ssp1;
 
-#if defined(PRALINE) || defined(UNIVERSAL)
+#if defined(IS_PRALINE)
 max2831_driver_t max2831 = {
 	.bus = &spi_bus_ssp1,
 	.target_init = max2831_target_init,
@@ -49,7 +49,7 @@ max2831_driver_t max2831 = {
 };
 #endif
 
-#if !defined(PRALINE) || defined(UNIVERSAL)
+#if defined(IS_NOT_PRALINE)
 max2837_driver_t max2837 = {
 	.bus = &spi_bus_ssp1,
 	.target_init = max2837_target_init,
@@ -57,7 +57,7 @@ max2837_driver_t max2837 = {
 };
 #endif
 
-#if defined(HACKRF_ONE) || defined(UNIVERSAL)
+#if defined(IS_HACKRF_ONE)
 max2839_driver_t max2839 = {
 	.bus = &spi_bus_ssp1,
 	.target_init = max2839_target_init,
@@ -71,7 +71,7 @@ void max283x_setup(max283x_driver_t* const drv)
 	const platform_gpio_t* gpio = platform_gpio();
 
 	/* MAX283x GPIO PinMux */
-#ifdef IS_PRALINE
+#if defined(IS_PRALINE)
 	if (IS_PRALINE) {
 		drv->type = MAX2831_VARIANT;
 		max2831.gpio_enable = gpio->max283x_enable;
@@ -82,9 +82,9 @@ void max283x_setup(max283x_driver_t* const drv)
 		max2831_setup(&drv->drv.max2831);
 	}
 #endif
-#ifdef IS_NOT_PRALINE
+#if defined(IS_NOT_PRALINE)
 	if (IS_NOT_PRALINE) {
-	#ifdef IS_H1_R9
+	#if defined(IS_H1_R9)
 		if (IS_H1_R9) {
 			drv->type = MAX2839_VARIANT;
 			max2839.gpio_enable = gpio->max283x_enable;
@@ -93,7 +93,7 @@ void max283x_setup(max283x_driver_t* const drv)
 			max2839_setup(&drv->drv.max2839);
 		}
 	#endif
-	#ifdef IS_NOT_H1_R9
+	#if defined(IS_NOT_H1_R9)
 		if (IS_NOT_H1_R9) {
 			drv->type = MAX2837_VARIANT;
 			max2837.gpio_enable = gpio->max283x_enable;
@@ -247,7 +247,7 @@ uint32_t max283x_set_lpf_bandwidth(
 	const max283x_mode_t mode,
 	const uint32_t bandwidth_hz)
 {
-#if !defined(PRALINE)
+#if !defined(IS_PRALINE)
 	(void) mode;
 #endif
 	DISPATCH(
@@ -290,7 +290,7 @@ void max283x_set_rx_hpf_frequency(
 	max283x_driver_t* const drv,
 	const max283x_rx_hpf_freq_t freq)
 {
-#if !defined(PRALINE) && !defined(UNIVERSAL)
+#if !defined(IS_PRALINE)
 	(void) freq;
 #endif
 	PRALINE_ONLY(

@@ -20,7 +20,6 @@
  * the Free Software Foundation, Inc., 51 Franklin Street,
  * Boston, MA 02110-1301, USA.
  */
-
 #include "usb_api_board_info.h"
 
 #include <string.h>
@@ -34,7 +33,7 @@
 #include <usb_queue.h>
 #include <usb_request.h>
 #include <usb_type.h>
-#if defined(HACKRF_ONE) || defined(UNIVERSAL)
+#if defined(IS_HACKRF_ONE)
 	#include <gpio.h>
 	#include <platform_gpio.h>
 #endif
@@ -131,7 +130,7 @@ usb_request_status_t usb_vendor_request_reset(
 	if (stage == USB_TRANSFER_STAGE_SETUP) {
 		pin_shutdown();
 		clock_gen_shutdown();
-#ifdef IS_H1_R9
+#if defined(IS_H1_R9)
 		if (IS_H1_R9) {
 			/*
 			 * Set boot pins as inputs so that the bootloader reads them

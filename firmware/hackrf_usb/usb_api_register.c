@@ -21,7 +21,6 @@
  * the Free Software Foundation, Inc., 51 Franklin Street,
  * Boston, MA 02110-1301, USA.
  */
-
 #include "usb_api_register.h"
 
 #include <stdbool.h>
@@ -36,10 +35,10 @@
 #include <usb_queue.h>
 #include <usb_request.h>
 #include <usb_type.h>
-#if defined(PRALINE) || defined(UNIVERSAL)
+#if defined(IS_PRALINE)
 	#include <fpga.h>
 #endif
-#if !defined(RAD1O)
+#if defined(IS_NOT_RAD1O)
 	#include <mixer.h>
 	#include <rffc5071.h>
 #endif
@@ -142,7 +141,7 @@ usb_request_status_t usb_vendor_request_write_rffc5071(
 	usb_endpoint_t* const endpoint,
 	const usb_transfer_stage_t stage)
 {
-#ifdef IS_RAD1O
+#if defined(IS_RAD1O)
 	if (IS_RAD1O) {
 		(void) endpoint;
 		(void) stage;
@@ -150,7 +149,7 @@ usb_request_status_t usb_vendor_request_write_rffc5071(
 	}
 #endif
 
-#ifdef IS_NOT_RAD1O
+#if defined(IS_NOT_RAD1O)
 	if (IS_NOT_RAD1O) {
 		if (stage == USB_TRANSFER_STAGE_SETUP) {
 			if (endpoint->setup.index < RFFC5071_NUM_REGS) {
@@ -172,7 +171,7 @@ usb_request_status_t usb_vendor_request_read_rffc5071(
 	usb_endpoint_t* const endpoint,
 	const usb_transfer_stage_t stage)
 {
-#ifdef IS_RAD1O
+#if defined(IS_RAD1O)
 	if (IS_RAD1O) {
 		(void) endpoint;
 		(void) stage;
@@ -180,7 +179,7 @@ usb_request_status_t usb_vendor_request_read_rffc5071(
 	}
 #endif
 
-#ifdef IS_NOT_RAD1O
+#if defined(IS_NOT_RAD1O)
 	if (IS_NOT_RAD1O) {
 		uint16_t value;
 		if (stage == USB_TRANSFER_STAGE_SETUP) {
@@ -290,12 +289,12 @@ usb_request_status_t usb_vendor_request_user_config_set_bias_t_opts(
 	return USB_REQUEST_STATUS_OK;
 }
 
-#if defined(PRALINE) || defined(UNIVERSAL)
+#if defined(IS_PRALINE)
 usb_request_status_t usb_vendor_request_write_fpga_reg(
 	usb_endpoint_t* const endpoint,
 	const usb_transfer_stage_t stage)
 {
-	#ifdef IS_PRALINE
+	#if defined(IS_PRALINE)
 	if (IS_PRALINE) {
 		if (stage == USB_TRANSFER_STAGE_SETUP) {
 			fpga_reg_write(
@@ -315,7 +314,7 @@ usb_request_status_t usb_vendor_request_read_fpga_reg(
 	usb_endpoint_t* const endpoint,
 	const usb_transfer_stage_t stage)
 {
-	#ifdef IS_PRALINE
+	#if defined(IS_PRALINE)
 	if (IS_PRALINE) {
 		if (stage == USB_TRANSFER_STAGE_SETUP) {
 			const uint8_t value = fpga_reg_read(&fpga, endpoint->setup.index);

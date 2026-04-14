@@ -23,16 +23,13 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-#if defined(HACKRF_ONE) || defined(UNIVERSAL)
-	#include <libopencm3/lpc43xx/scu.h>
-#endif
-
 #include "clkin.h"
 #include "delay.h"
 #include "platform_detect.h"
 #include "selftest.h"
 #include "si5351c.h"
-#if defined(HACKRF_ONE) || defined(UNIVERSAL)
+#if defined(IS_HACKRF_ONE)
+	#include <libopencm3/lpc43xx/scu.h>
 	#include "gpio.h"
 	#include "platform_gpio.h"
 	#include "platform_scu.h"
@@ -269,7 +266,7 @@ void si5351c_configure_clock_control(si5351c_driver_t* const drv)
 		SI5351C_CLK_POWERDOWN |
 			SI5351C_CLK_INT_MODE /* not connected, but: PLL B int mode */
 	};
-#ifdef IS_H1_R9
+#if defined(IS_H1_R9)
 	if (IS_H1_R9) {
 		data[1] = SI5351C_CLK_INT_MODE | SI5351C_CLK_PLL_SRC(SI5351C_PLL_A) |
 			SI5351C_CLK_SRC(SI5351C_CLK_SRC_MULTISYNTH_SELF) |
@@ -283,7 +280,7 @@ void si5351c_configure_clock_control(si5351c_driver_t* const drv)
 		data[6] = SI5351C_CLK_POWERDOWN;
 	}
 #endif
-#ifdef IS_PRALINE
+#if defined(IS_PRALINE)
 	if (IS_PRALINE) {
 		/* CLK0: AFE_CLK */
 		data[1] = SI5351C_CLK_FRAC_MODE | SI5351C_CLK_PLL_SRC(SI5351C_PLL_A) |
@@ -333,7 +330,7 @@ void si5351c_enable_clock_outputs(si5351c_driver_t* const drv)
 	uint8_t clkout = 3;
 	uint8_t value = 0;
 
-#ifdef IS_PRALINE
+#if defined(IS_PRALINE)
 	if (IS_PRALINE) {
 		value = SI5351C_CLK_ENABLE(0) | SI5351C_CLK_ENABLE(1) |
 			SI5351C_CLK_ENABLE(4) | SI5351C_CLK_ENABLE(5) |
@@ -346,7 +343,7 @@ void si5351c_enable_clock_outputs(si5351c_driver_t* const drv)
 		}
 	}
 #endif
-#ifdef IS_NOT_PRALINE
+#if defined(IS_NOT_PRALINE)
 	if (IS_NOT_PRALINE) {
 		value = SI5351C_CLK_ENABLE(0) | SI5351C_CLK_ENABLE(1) |
 			SI5351C_CLK_ENABLE(2) | SI5351C_CLK_ENABLE(4) |
@@ -354,7 +351,7 @@ void si5351c_enable_clock_outputs(si5351c_driver_t* const drv)
 			SI5351C_CLK_DISABLE(7);
 
 		/* HackRF One r9 has only three clock generator outputs. */
-	#ifdef IS_H1_R9
+	#if defined(IS_H1_R9)
 		if (IS_H1_R9) {
 			clkout = 2;
 			value = SI5351C_CLK_ENABLE(0) | SI5351C_CLK_ENABLE(1) |
@@ -372,7 +369,7 @@ void si5351c_enable_clock_outputs(si5351c_driver_t* const drv)
 	si5351c_write(drv, data, sizeof(data));
 	outputs_disabled = value;
 
-#ifdef IS_H1_R9
+#if defined(IS_H1_R9)
 	if (IS_H1_R9) {
 		const platform_gpio_t* gpio = platform_gpio();
 		if (clkout_enabled) {
@@ -411,7 +408,7 @@ void si5351c_set_clock_source(si5351c_driver_t* const drv, const enum pll_source
 		return;
 	}
 	si5351c_disable_all_outputs(drv);
-#ifdef IS_H1_R9
+#if defined(IS_H1_R9)
 	if (IS_H1_R9) {
 		/*
 		 * HackRF One r9 always uses PLL A on the XTAL input
@@ -425,7 +422,7 @@ void si5351c_set_clock_source(si5351c_driver_t* const drv, const enum pll_source
 		}
 	}
 #endif
-#ifdef IS_NOT_H1_R9
+#if defined(IS_NOT_H1_R9)
 	if (IS_NOT_H1_R9) {
 		si5351c_configure_pll_sources(drv, source);
 	}
@@ -484,7 +481,7 @@ void si5351c_init(si5351c_driver_t* const drv)
 		selftest.report.pass = false;
 	}
 
-#ifdef IS_H1_R9
+#if defined(IS_H1_R9)
 	if (IS_H1_R9) {
 		const platform_gpio_t* gpio = platform_gpio();
 		const platform_scu_t* scu = platform_scu();

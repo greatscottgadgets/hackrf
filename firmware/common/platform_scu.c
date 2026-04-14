@@ -42,12 +42,12 @@ const platform_scu_t* platform_scu(void)
 	scu.PINMUX_LED1 = SCU_PINMUX_LED1;  /* GPIO2[1] on P4_1 */
 	scu.PINMUX_LED2 = SCU_PINMUX_LED2;  /* GPIO2[2] on P4_2 */
 	scu.PINMUX_LED3 = SCU_PINMUX_LED3;  /* GPIO2[8] on P6_12 */
-#ifdef IS_RAD1O
+#if defined(IS_RAD1O)
 	if (IS_RAD1O) {
 		scu.PINMUX_LED4 = (PB_6);  /* GPIO5[26] on PB_6 */
 	}
 #endif
-#ifdef IS_PRALINE
+#if defined(IS_PRALINE)
 	if (IS_PRALINE) {
 		scu.PINMUX_LED4 = (P8_6);  /* GPIO4[6] on P8_6 */
 	}
@@ -56,7 +56,7 @@ const platform_scu_t* platform_scu(void)
 	/* Power Supply PinMux */
 	scu.PINMUX_EN1V8       = (P6_10);  /* GPIO3[6] on P6_10 */
 	scu.PINMUX_EN1V2       = (P8_7);   /* GPIO4[7] on P8_7 */
-#ifdef IS_PRALINE
+#if defined(IS_PRALINE)
 	if (IS_PRALINE) {
 		scu.PINMUX_EN3V3_AUX_N = (P6_7);  /* GPIO5[15] on P6_7 */
 		scu.PINMUX_EN3V3_OC_N  = (P6_11); /* GPIO3[7] on P6_11 */
@@ -66,7 +66,7 @@ const platform_scu_t* platform_scu(void)
 	/* GPIO Input PinMux */
 	scu.PINMUX_BOOT0      = (P1_1);   /* GPIO0[8] on P1_1 */
 	scu.PINMUX_BOOT1      = (P1_2);   /* GPIO0[9] on P1_2 */
-#ifdef IS_NOT_HACKRF_ONE
+#if defined(IS_NOT_HACKRF_ONE)
 	if (IS_NOT_HACKRF_ONE) {
 		scu.PINMUX_BOOT2  = (P2_8); /* GPIO5[7] on P2_8 */
 		scu.PINMUX_BOOT3  = (P2_9); /* GPIO1[10] on P2_9 */
@@ -74,7 +74,7 @@ const platform_scu_t* platform_scu(void)
 #endif
 
 	/* USB peripheral */
-#ifdef IS_JAWBREAKER
+#if defined(IS_JAWBREAKER)
 	if (IS_JAWBREAKER) {
 		scu.PINMUX_USB_LED0 = (P6_8);
 		scu.PINMUX_USB_LED1 = (P6_7);
@@ -88,7 +88,7 @@ const platform_scu_t* platform_scu(void)
 	scu.SSP1_CS   = (P1_20);  /* P1_20 */
 
 	/* CPLD JTAG interface */
-#ifdef IS_PRALINE
+#if defined(IS_PRALINE)
 	if (IS_PRALINE) {
 		scu.PINMUX_FPGA_CRESET = (P5_2);  /* GPIO2[11] on P5_2 */
 		scu.PINMUX_FPGA_CDONE  = (P4_10); /* GPIO5[14] */
@@ -97,13 +97,13 @@ const platform_scu_t* platform_scu(void)
 #endif
 	scu.PINMUX_CPLD_TDO        = (P9_5); /* GPIO5[18] */
 	scu.PINMUX_CPLD_TCK        = (P6_1); /* GPIO3[ 0] */
-#ifdef IS_NOT_JAWBREAKER
+#if defined(IS_NOT_JAWBREAKER)
 	if (IS_NOT_JAWBREAKER) {
 		scu.PINMUX_CPLD_TMS    = (P6_5); /* GPIO3[ 4] */
 		scu.PINMUX_CPLD_TDI    = (P6_2); /* GPIO3[ 1] */
 	}
 #endif
-#ifdef IS_JAWBREAKER
+#if defined(IS_JAWBREAKER)
 	if (IS_JAWBREAKER) {
 		scu.PINMUX_CPLD_TMS    = (P6_2); /* GPIO3[ 1] */
 		scu.PINMUX_CPLD_TDI    = (P6_5); /* GPIO3[ 4] */
@@ -111,7 +111,7 @@ const platform_scu_t* platform_scu(void)
 #endif
 
 	/* CPLD SGPIO interface */
-#ifdef IS_PRALINE
+#if defined(IS_PRALINE)
 	if (IS_PRALINE) {
 		scu.PINMUX_SGPIO0  = (P0_0);
 		scu.PINMUX_SGPIO1  = (P0_1);
@@ -146,7 +146,7 @@ const platform_scu_t* platform_scu(void)
 		scu.PINMUX_SGPIO15_PINCFG = (SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
 	}
 #endif
-#ifdef IS_NOT_PRALINE
+#if defined(IS_NOT_PRALINE)
 	if (IS_NOT_PRALINE) {
 		scu.PINMUX_SGPIO0 = (P0_0);
 		scu.PINMUX_SGPIO1 = (P0_1);
@@ -184,14 +184,14 @@ const platform_scu_t* platform_scu(void)
 	scu.TRIGGER_EN = (P4_8); /* GPIO5[12] on P4_8 */
 
 	/* MAX283x GPIO (XCVR_CTL) PinMux */
-#ifdef IS_RAD1O
+#if defined(IS_RAD1O)
 	if (IS_RAD1O) {
 		scu.XCVR_RXHP = P8_1; /* GPIO[] on P8_1 */
 		scu.XCVR_B6   = P8_2; /* GPIO[] on P8_2 */
 		scu.XCVR_B7   = P9_3; /* GPIO[] on P9_3 */
 	}
 #endif
-#ifdef IS_PRALINE
+#if defined(IS_PRALINE)
 	if (IS_PRALINE) {
 		scu.XCVR_ENABLE	  = PE_1;  /* GPIO7[1]  on PE_1 */
 		scu.XCVR_RXENABLE = PE_2;  /* GPIO7[2]  on PE_2 */
@@ -207,7 +207,7 @@ const platform_scu_t* platform_scu(void)
                                     SCU_CONF_EPD_EN_PULLDOWN | SCU_CONF_EPUN_DIS_PULLUP);
 	}
 #endif
-#ifdef IS_H1_OR_JAWBREAKER
+#if defined(IS_H1_OR_JAWBREAKER)
 	if (IS_H1_OR_JAWBREAKER) {
 		scu.XCVR_ENABLE   = P4_6;  /* GPIO2[6]  on P4_6 */
 		scu.XCVR_RXENABLE = P4_5;  /* GPIO2[5]  on P4_5 */
@@ -222,13 +222,13 @@ const platform_scu_t* platform_scu(void)
 #endif
 
 	/* MAX5864 SPI chip select (AD_CS) GPIO PinMux */
-#ifdef IS_PRALINE
+#if defined(IS_PRALINE)
 	if (IS_PRALINE) {
 		scu.AD_CS        = (PD_16); /* GPIO6[30] on PD_16 */
 		scu.AD_CS_PINCFG = (SCU_GPIO_FAST | SCU_CONF_FUNCTION4);
 	}
 #endif
-#ifdef IS_NOT_PRALINE
+#if defined(IS_NOT_PRALINE)
 	if (IS_NOT_PRALINE) {
 		scu.AD_CS        = (P5_7); /* GPIO2[7] on P5_7 */
 		scu.AD_CS_PINCFG = (SCU_GPIO_FAST);
@@ -236,7 +236,7 @@ const platform_scu_t* platform_scu(void)
 #endif
 
 	/* RFFC5071 GPIO serial interface PinMux */
-#ifdef IS_H1_OR_JAWBREAKER
+#if defined(IS_H1_OR_JAWBREAKER)
 	if (IS_H1_OR_JAWBREAKER) {
 		scu.MIXER_ENX    = (P5_4); /* GPIO2[13] on P5_4 */
 		scu.MIXER_SCLK   = (P2_6); /* GPIO5[6] on P2_6 */
@@ -247,7 +247,7 @@ const platform_scu_t* platform_scu(void)
 		scu.MIXER_SDATA_PINCFG = (SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
 	}
 #endif
-#ifdef IS_PRALINE
+#if defined(IS_PRALINE)
 	if (IS_PRALINE) {
 		scu.MIXER_ENX    = (P5_4);  /* GPIO2[13] on P5_4 */
 		scu.MIXER_SCLK   = (P9_5);  /* GPIO5[18] on P9_5 */
@@ -260,7 +260,7 @@ const platform_scu_t* platform_scu(void)
 		scu.MIXER_LD_PINCFG    = (SCU_GPIO_FAST | SCU_CONF_FUNCTION4);
 	}
 #endif
-#ifdef IS_RAD1O
+#if defined(IS_RAD1O)
 	if (IS_RAD1O) {
 		scu.VCO_CE        = (P5_4); /* GPIO2[13] on P5_4 */
 		scu.VCO_SCLK      = (P2_6); /* GPIO5[6] on P2_6 */
@@ -273,24 +273,24 @@ const platform_scu_t* platform_scu(void)
 #endif
 
 	/* RF LDO control */
-#ifdef IS_JAWBREAKER
+#if defined(IS_JAWBREAKER)
 	if (IS_JAWBREAKER) {
 		scu.RF_LDO_ENABLE = (P5_0); /* GPIO2[9] on P5_0 */
 	}
 #endif
 
 	/* RF supply (VAA) control */
-#ifdef IS_HACKRF_ONE
+#if defined(IS_HACKRF_ONE)
 	if (IS_HACKRF_ONE) {
 		scu.NO_VAA_ENABLE = P5_0; /* GPIO2[9] on P5_0 */
 	}
 #endif
-#ifdef IS_PRALINE
+#if defined(IS_PRALINE)
 	if (IS_PRALINE) {
 		scu.NO_VAA_ENABLE = P8_1; /* GPIO4[1] on P8_1 */
 	}
 #endif
-#ifdef IS_RAD1O
+#if defined(IS_RAD1O)
 	if (IS_RAD1O) {
 		scu.VAA_ENABLE    = P5_0; /* GPIO2[9] on P5_0 */
 	}
@@ -305,7 +305,7 @@ const platform_scu_t* platform_scu(void)
 	scu.FLASH_WP   = (P3_5);  /* GPIO1[15] on P3_5 */
 
 	/* RF switch control */
-#ifdef IS_HACKRF_ONE
+#if defined(IS_HACKRF_ONE)
 	if (IS_HACKRF_ONE) {
 		scu.HP            = P4_0;  /* GPIO2[0] on P4_0 */
 		scu.LP            = P5_1;  /* GPIO2[10] on P5_1 */
@@ -322,7 +322,7 @@ const platform_scu_t* platform_scu(void)
 		scu.NO_RX_AMP_PWR = P2_12; /* GPIO1[12] on P2_12 */
 	}
 #endif
-#ifdef IS_RAD1O
+#if defined(IS_RAD1O)
 	if (IS_RAD1O) {
 		scu.BY_AMP          = P1_7;  /* GPIO1[0] on P1_7 */
 		scu.BY_AMP_N        = P2_5;  /* GPIO5[5] on P2_5 */
@@ -336,7 +336,7 @@ const platform_scu_t* platform_scu(void)
 		scu.RX_LNA          = P6_7;  /* GPIO5[15] on P6_7 */
 	}
 #endif
-#ifdef IS_PRALINE
+#if defined(IS_PRALINE)
 	if (IS_PRALINE) {
 		scu.TX_EN         = P6_5;  /* GPIO3[4] on P6_5 */
 		scu.MIX_EN_N      = P6_3;  /* GPIO3[2] on P6_3 */
@@ -349,7 +349,7 @@ const platform_scu_t* platform_scu(void)
 #endif
 
 	/* Praline */
-#ifdef IS_PRALINE
+#if defined(IS_PRALINE)
 	if (IS_PRALINE) {
 		scu.P2_CTRL0    = (PE_3);  /* GPIO7[3] on PE_3 */
 		scu.P2_CTRL1    = (PE_4);  /* GPIO7[4] on PE_4 */
@@ -376,7 +376,7 @@ const platform_scu_t* platform_scu(void)
 #endif
 
 	/* HackRF One r9 */
-#ifdef IS_H1_R9
+#if defined(IS_H1_R9)
 	if (IS_H1_R9) {
 		scu.H1R9_CLKIN_EN    = P6_7;  /* GPIO5[15] on P6_7 */
 		scu.H1R9_CLKOUT_EN   = P1_2;  /* GPIO0[9] on P1_2  = has boot pull-down; */
@@ -390,7 +390,7 @@ const platform_scu_t* platform_scu(void)
 #endif
 
 	/* Expansion headers */
-#ifdef IS_EXPANSION_COMPATIBLE
+#if defined(IS_EXPANSION_COMPATIBLE)
 	if (IS_EXPANSION_COMPATIBLE) {
 		scu.PINMUX_PP_D0 = (P7_0);  /* GPIO3[8] */
 		scu.PINMUX_PP_D1 = (P7_1);  /* GPIO3[9] */
