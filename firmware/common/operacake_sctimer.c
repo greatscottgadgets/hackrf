@@ -25,15 +25,15 @@
 #include <libopencm3/lpc43xx/gima.h>
 #include <libopencm3/lpc43xx/rgu.h>
 #include <libopencm3/lpc43xx/scu.h>
-#if !defined(PRALINE)
+
+#include "delay.h"
+#include "platform_detect.h"
+#include "sct.h"
+
+#ifdef IS_NOT_PRALINE
 	#include <libopencm3/cm3/common.h>
 	#include <libopencm3/lpc43xx/sgpio.h>
 #endif
-
-#include <platform_detect.h>
-
-#include "delay.h"
-#include "sct.h"
 
 #define U1CTRL_SET  SCT_OUT14_SET
 #define U1CTRL_CLR  SCT_OUT14_CLR

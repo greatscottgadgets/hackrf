@@ -31,7 +31,7 @@
 #include "platform_detect.h"
 #include "platform_scu.h"
 #include "sgpio.h"
-#if !defined(PRALINE)
+#ifdef IS_NOT_PRALINE
 	#include "hackrf_core.h"
 #endif
 

@@ -26,15 +26,16 @@
 #include "fixed_point.h"
 #include "platform_detect.h"
 #include "platform_gpio.h"
-#if defined(RAD1O)
+#ifdef IS_RAD1O
 	#include "max2871.h"
-#else
+#endif
+#ifdef IS_NOT_RAD1O
 	#include "rffc5071.h"
 	#include "rffc5071_spi.h"
 	#include "spi_bus.h"
 #endif
 
-#if !defined(RAD1O)
+#ifdef IS_NOT_RAD1O
 static rffc5071_spi_config_t rffc5071_spi_config;
 
 static spi_bus_t spi_bus_rffc5071 = {
@@ -47,7 +48,7 @@ static spi_bus_t spi_bus_rffc5071 = {
 #endif
 
 mixer_driver_t mixer = {
-#if !defined(RAD1O)
+#ifdef IS_NOT_RAD1O
 	.rffc5071.bus = &spi_bus_rffc5071,
 #endif
 };

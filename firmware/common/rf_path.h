@@ -25,7 +25,9 @@
 
 #include <stdint.h>
 
-#if !defined(JAWBREAKER)
+#include "platform_detect.h" // IWYU pragma: keep
+
+#ifdef IS_NOT_JAWBREAKER
 	#include "gpio.h"
 #endif
 
@@ -33,7 +35,7 @@ typedef enum {
 	RF_PATH_DIRECTION_OFF,
 	RF_PATH_DIRECTION_RX,
 	RF_PATH_DIRECTION_TX,
-#if defined(PRALINE) || defined(UNIVERSAL)
+#ifdef IS_PRALINE
 	RF_PATH_DIRECTION_TX_CALIBRATION,
 	RF_PATH_DIRECTION_RX_CALIBRATION,
 #endif
@@ -49,7 +51,7 @@ typedef struct {
 	uint8_t switchctrl;
 
 	struct {
-#if defined(HACKRF_ONE) || defined(UNIVERSAL)
+#ifdef IS_HACKRF_ONE
 		gpio_t gpio_hp;
 		gpio_t gpio_lp;
 		gpio_t gpio_tx_mix_bp;
@@ -67,7 +69,7 @@ typedef struct {
 		gpio_t gpio_h1r9_no_ant_pwr;
 #endif
 
-#if defined(RAD1O)
+#ifdef IS_RAD1O
 		gpio_t gpio_tx_rx_n;
 		gpio_t gpio_tx_rx;
 		gpio_t gpio_by_mix;
@@ -81,7 +83,7 @@ typedef struct {
 		gpio_t gpio_rx_lna;
 #endif
 
-#if defined(PRALINE) || defined(UNIVERSAL)
+#ifdef IS_PRALINE
 		gpio_t gpio_tx_en;
 		gpio_t gpio_mix_en_n;
 		gpio_t gpio_lpf_en;

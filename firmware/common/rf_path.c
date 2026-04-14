@@ -23,16 +23,13 @@
 
 #include "rf_path.h"
 
-#if !defined(JAWBREAKER)
-	#include <libopencm3/lpc43xx/scu.h>
-#endif
-
 #include "hackrf_core.h"
 #include "max283x.h"
 #include "max5864.h"
 #include "mixer.h"
 #include "platform_detect.h"
-#if !defined(JAWBREAKER)
+#ifdef IS_NOT_JAWBREAKER
+	#include <libopencm3/lpc43xx/scu.h>
 	#include "platform_scu.h"
 #endif
 
@@ -92,7 +89,7 @@
 
 #define SWITCHCTRL_ANT_PWR (1 << 6) /* turn on antenna port power */
 
-#if defined(HACKRF_ONE) || defined(UNIVERSAL)
+#ifdef IS_HACKRF_ONE
 static void switchctrl_set_hackrf_one(rf_path_t* const rf_path, uint8_t ctrl)
 {
 	board_id_t board_id = detected_platform();
@@ -186,7 +183,7 @@ static void switchctrl_set_hackrf_one(rf_path_t* const rf_path, uint8_t ctrl)
 }
 #endif
 
-#if defined(PRALINE) || defined(UNIVERSAL)
+#ifdef IS_PRALINE
 static void switchctrl_set_praline(rf_path_t* const rf_path, uint8_t ctrl)
 {
 	if (ctrl & SWITCHCTRL_TX) {
@@ -227,7 +224,7 @@ static void switchctrl_set_praline(rf_path_t* const rf_path, uint8_t ctrl)
 }
 #endif
 
-#if defined(RAD1O)
+#ifdef IS_RAD1O
 static void switchctrl_set_rad1o(rf_path_t* const rf_path, uint8_t ctrl)
 {
 	if (ctrl & SWITCHCTRL_TX) {
@@ -319,11 +316,9 @@ static void switchctrl_set(rf_path_t* const rf_path, const uint8_t gpo)
 
 void rf_path_pin_setup(rf_path_t* const rf_path)
 {
-#if defined(JAWBREAKER)
+#ifdef JAWBREAKER
 	(void) rf_path;
-#endif
-
-#if !defined(JAWBREAKER)
+#else
 	const platform_scu_t* scu = platform_scu();
 #endif
 
@@ -530,7 +525,7 @@ void rf_path_set_direction(rf_path_t* const rf_path, const rf_path_direction_t d
 		max283x_rx(&max283x);
 		break;
 
-#if defined(PRALINE) || defined(UNIVERSAL)
+#ifdef IS_PRALINE
 	case RF_PATH_DIRECTION_TX_CALIBRATION:
 	case RF_PATH_DIRECTION_RX_CALIBRATION:
 		rf_path->switchctrl &= ~SWITCHCTRL_TX;

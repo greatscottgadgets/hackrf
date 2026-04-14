@@ -26,17 +26,9 @@
 
 #include <usb_type.h>
 
-#define USB_VENDOR_ID (0x1D50)
+#include "platform_detect.h"
 
-#if (defined HACKRF_ONE || defined PRALINE)
-	#define USB_PRODUCT_ID (0x6089)
-#elif JAWBREAKER
-	#define USB_PRODUCT_ID (0x604B)
-#elif RAD1O
-	#define USB_PRODUCT_ID (0xCC15)
-#else
-	#define USB_PRODUCT_ID (0xFFFF)
-#endif
+#define USB_VENDOR_ID (0x1D50)
 
 #define USB_API_VERSION (0x0111)
 
@@ -51,7 +43,7 @@
 
 #define USB_STRING_LANGID (0x0409)
 
-#if defined(HACKRF_ONE) || defined(PRALINE) || defined(UNIVERSAL)
+#if defined(IS_HACKRF_ONE) || defined(IS_PRALINE)
 uint8_t usb_descriptor_device_hackrf[] = {
 	18,                         // bLength
 	USB_DESCRIPTOR_TYPE_DEVICE, // bDescriptorType
@@ -69,7 +61,7 @@ uint8_t usb_descriptor_device_hackrf[] = {
 	0x01                        // bNumConfigurations
 };
 #endif
-#if defined(JAWBREAKER)
+#ifdef IS_JAWBREAKER
 uint8_t usb_descriptor_device_jawbreaker[] = {
 	18,                         // bLength
 	USB_DESCRIPTOR_TYPE_DEVICE, // bDescriptorType
@@ -87,7 +79,7 @@ uint8_t usb_descriptor_device_jawbreaker[] = {
 	0x01                        // bNumConfigurations
 };
 #endif
-#if defined(RAD1O)
+#ifdef IS_RAD1O
 uint8_t usb_descriptor_device_rad1o[] = {
 	18,                         // bLength
 	USB_DESCRIPTOR_TYPE_DEVICE, // bDescriptorType
@@ -223,7 +215,7 @@ uint8_t usb_descriptor_string_manufacturer[] = {
 	's', 0x00,
 };
 
-#if defined(HACKRF_ONE) || defined(UNIVERSAL)
+#ifdef IS_HACKRF_ONE
 uint8_t usb_descriptor_string_product_hackrf_one[] = {
 	22,                         // bLength
 	USB_DESCRIPTOR_TYPE_STRING, // bDescriptorType
@@ -239,7 +231,7 @@ uint8_t usb_descriptor_string_product_hackrf_one[] = {
 	'e', 0x00,
 };
 #endif
-#if defined(PRALINE) || defined(UNIVERSAL)
+#ifdef IS_PRALINE
 uint8_t usb_descriptor_string_product_praline[] = {
 	22,                         // bLength
 	USB_DESCRIPTOR_TYPE_STRING, // bDescriptorType
@@ -255,7 +247,7 @@ uint8_t usb_descriptor_string_product_praline[] = {
 	'o', 0x00,
 };
 #endif
-#if defined(JAWBREAKER)
+#ifdef IS_JAWBREAKER
 uint8_t usb_descriptor_string_product_jawbreaker[] = {
 	36,                         // bLength
 	USB_DESCRIPTOR_TYPE_STRING, // bDescriptorType
@@ -278,7 +270,7 @@ uint8_t usb_descriptor_string_product_jawbreaker[] = {
 	'r', 0x00,
 };
 #endif
-#if defined(RAD1O)
+#ifdef IS_RAD1O
 uint8_t usb_descriptor_string_product_rad1o[] = {
 	12,                         // bLength
 	USB_DESCRIPTOR_TYPE_STRING, // bDescriptorType
@@ -329,7 +321,7 @@ uint8_t usb_descriptor_string_serial_number[] = {
 uint8_t usb_descriptor_string_serial_number[USB_DESCRIPTOR_STRING_SERIAL_BUF_LEN];
 #endif
 
-#if defined(HACKRF_ONE) || defined(UNIVERSAL)
+#ifdef IS_HACKRF_ONE
 uint8_t* usb_descriptor_strings_hackrf_one[] = {
 	usb_descriptor_string_languages,
 	usb_descriptor_string_manufacturer,
@@ -339,7 +331,7 @@ uint8_t* usb_descriptor_strings_hackrf_one[] = {
 	0, // TERMINATOR
 };
 #endif
-#if defined(PRALINE) || defined(UNIVERSAL)
+#ifdef IS_PRALINE
 uint8_t* usb_descriptor_strings_praline[] = {
 	usb_descriptor_string_languages,
 	usb_descriptor_string_manufacturer,
@@ -349,7 +341,7 @@ uint8_t* usb_descriptor_strings_praline[] = {
 	0, // TERMINATOR
 };
 #endif
-#if defined(JAWBREAKER)
+#ifdef IS_JAWBREAKER
 uint8_t* usb_descriptor_strings_jawbreaker[] = {
 	usb_descriptor_string_languages,
 	usb_descriptor_string_manufacturer,
@@ -359,7 +351,7 @@ uint8_t* usb_descriptor_strings_jawbreaker[] = {
 	0, // TERMINATOR
 };
 #endif
-#if defined(RAD1O)
+#ifdef IS_RAD1O
 uint8_t* usb_descriptor_strings_rad1o[] = {
 	usb_descriptor_string_languages,
 	usb_descriptor_string_manufacturer,

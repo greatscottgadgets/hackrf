@@ -24,13 +24,15 @@
 
 #include <stdint.h>
 
-#if defined(HACKRF_ONE) || defined(PRALINE) || defined(UNIVERSAL)
+#include "platform_detect.h"
+
+#if defined(IS_HACKRF_ONE) || defined(IS_PRALINE)
 extern uint8_t usb_descriptor_device_hackrf[];
 #endif
-#if defined(JAWBREAKER)
+#ifdef IS_JAWBREAKER
 extern uint8_t usb_descriptor_device_jawbreaker[];
 #endif
-#if defined(RAD1O)
+#ifdef IS_RAD1O
 extern uint8_t usb_descriptor_device_rad1o[];
 #endif
 extern uint8_t usb_descriptor_device_qualifier[];
@@ -38,16 +40,16 @@ extern uint8_t usb_descriptor_configuration_full_speed[];
 extern uint8_t usb_descriptor_configuration_high_speed[];
 extern uint8_t usb_descriptor_string_languages[];
 extern uint8_t usb_descriptor_string_manufacturer[];
-#if defined(HACKRF_ONE) || defined(UNIVERSAL)
+#ifdef IS_HACKRF_ONE
 extern uint8_t usb_descriptor_string_product_hackrf_one[];
 #endif
-#if defined(PRALINE) || defined(UNIVERSAL)
+#ifdef IS_PRALINE
 extern uint8_t usb_descriptor_string_product_praline[];
 #endif
-#if defined(JAWBREAKER)
+#ifdef IS_JAWBREAKER
 extern uint8_t usb_descriptor_string_product_jawbreaker[];
 #endif
-#if defined(RAD1O)
+#ifdef IS_RAD1O
 extern uint8_t usb_descriptor_string_product_rad1o[];
 #endif
 

@@ -21,7 +21,6 @@
  * the Free Software Foundation, Inc., 51 Franklin Street,
  * Boston, MA 02110-1301, USA.
  */
-
 #include "usb_api_register.h"
 
 #include <stdbool.h>
@@ -36,10 +35,10 @@
 #include <usb_queue.h>
 #include <usb_request.h>
 #include <usb_type.h>
-#if defined(PRALINE) || defined(UNIVERSAL)
+#ifdef IS_PRALINE
 	#include <fpga.h>
 #endif
-#if !defined(RAD1O)
+#ifdef IS_NOT_RAD1O
 	#include <mixer.h>
 	#include <rffc5071.h>
 #endif
@@ -290,7 +289,7 @@ usb_request_status_t usb_vendor_request_user_config_set_bias_t_opts(
 	return USB_REQUEST_STATUS_OK;
 }
 
-#if defined(PRALINE) || defined(UNIVERSAL)
+#ifdef IS_PRALINE
 usb_request_status_t usb_vendor_request_write_fpga_reg(
 	usb_endpoint_t* const endpoint,
 	const usb_transfer_stage_t stage)

@@ -23,12 +23,15 @@
 #pragma once
 
 #include <stdbool.h>
+#include <stdint.h>
 
 #include "fixed_point.h"
+#include "platform_detect.h"
 
-#if defined(RAD1O)
+#ifdef IS_RAD1O
 	#include "max2871.h"
-#else
+#endif
+#ifdef IS_NOT_RAD1O
 	#include "rffc5071.h"
 #endif
 
@@ -41,15 +44,15 @@ typedef struct {
 	mixer_variant_t type;
 
 	union {
-#if defined(RAD1O)
+#ifdef IS_RAD1O
 		max2871_driver_t max2871;
-#else
+#endif
+#ifdef IS_NOT_RAD1O
 		rffc5071_driver_t rffc5071;
 #endif
 	};
 } mixer_driver_t;
 
-#include <stdint.h>
 extern void mixer_bus_setup(mixer_driver_t* const mixer);
 extern void mixer_setup(mixer_driver_t* const mixer, mixer_variant_t type);
 

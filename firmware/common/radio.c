@@ -33,7 +33,7 @@
 #include "rf_path.h"
 #include "transceiver_mode.h"
 #include "tuning.h"
-#if defined(PRALINE) || defined(UNIVERSAL)
+#ifdef IS_PRALINE
 	#include "fpga.h"
 	#include "tune_config.h"
 #endif
@@ -294,7 +294,7 @@ static fp_40_24_t digital_from_analog_rf(
 	return drf;
 }
 
-#if defined(PRALINE) || defined(UNIVERSAL)
+#ifdef IS_PRALINE
 /*
  * Convert center frequency of digital baseband (as seen by MCU) to center
  * frequency of analog baseband (as seen by ADC/DAC).
@@ -354,7 +354,7 @@ static uint32_t radio_update_frequency(radio_t* const radio, uint64_t* bank)
 	const uint64_t requested_if = bank[RADIO_FREQUENCY_IF];
 	const uint64_t requested_lo = bank[RADIO_FREQUENCY_LO];
 	const uint64_t requested_img_reject = bank[RADIO_IMAGE_REJECT];
-#if defined(PRALINE) || defined(UNIVERSAL)
+#ifdef IS_PRALINE
 	const uint64_t requested_rotation = bank[RADIO_ROTATION];
 #endif
 

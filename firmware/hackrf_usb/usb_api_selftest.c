@@ -19,11 +19,10 @@
  * Boston, MA 02110-1301, USA.
  */
 
+#include "usb_api_selftest.h"
+
 #include <stddef.h>
 #include <stdint.h>
-#if !defined(RAD1O)
-	#include <stdbool.h>
-#endif
 
 #include <libopencm3/lpc43xx/cgu.h>
 #include <libopencm3/lpc43xx/creg.h>
@@ -34,7 +33,9 @@
 #include <usb_request.h>
 #include <usb_type.h>
 
-#include "usb_api_selftest.h"
+#ifdef IS_NOT_RAD1O
+	#include <stdbool.h>
+#endif
 
 static char* itoa(int val, int base)
 {
@@ -61,7 +62,7 @@ void append(char** dest, size_t* capacity, const char* str)
 	}
 }
 
-#if defined(PRALINE) || defined(UNIVERSAL)
+#ifdef IS_PRALINE
 static const char* test_result_to_str(test_result_t result)
 {
 	switch (result) {
