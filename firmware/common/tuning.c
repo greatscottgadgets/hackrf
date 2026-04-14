@@ -55,11 +55,11 @@ fp_40_24_t select_graduated_if(fp_40_24_t freq_rf, rf_path_filter_t img_reject)
 		}
 		break;
 	case RF_PATH_FILTER_HIGH_PASS:
-		if (freq_rf < (MID1_HP_FREQ)) {
+		if (freq_rf < MID1_HP_FREQ) {
 			/* IF is graduated from 2170 MHz to 2740 MHz */
-			freq_if = (MIN_BYPASS_FREQ) +
+			freq_if = MIN_BYPASS_FREQ +
 				(((freq_rf - (MAX_BYPASS_FREQ)) * 57) / 86);
-		} else if (freq_rf < (MID2_HP_FREQ)) {
+		} else if (freq_rf < MID2_HP_FREQ) {
 			/* IF is graduated from 2350 MHz to 2650 MHz */
 			freq_if = FP_MHZ(2350) + ((freq_rf - (MID1_HP_FREQ)) / 5);
 		} else {
@@ -75,9 +75,9 @@ fp_40_24_t select_graduated_if(fp_40_24_t freq_rf, rf_path_filter_t img_reject)
 
 rf_path_filter_t select_img_reject(fp_40_24_t freq_rf)
 {
-	if (freq_rf > (MAX_BYPASS_FREQ)) {
+	if (freq_rf > MAX_BYPASS_FREQ) {
 		return RF_PATH_FILTER_HIGH_PASS;
-	} else if (freq_rf >= (MIN_BYPASS_FREQ)) {
+	} else if (freq_rf >= MIN_BYPASS_FREQ) {
 		return RF_PATH_FILTER_BYPASS;
 	} else {
 		return RF_PATH_FILTER_LOW_PASS;
