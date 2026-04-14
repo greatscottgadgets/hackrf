@@ -23,16 +23,13 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-#if defined(HACKRF_ONE) || defined(UNIVERSAL)
-	#include <libopencm3/lpc43xx/scu.h>
-#endif
-
 #include "clkin.h"
 #include "delay.h"
 #include "platform_detect.h"
 #include "selftest.h"
 #include "si5351c.h"
-#if defined(HACKRF_ONE) || defined(UNIVERSAL)
+#ifdef IS_HACKRF_ONE
+	#include <libopencm3/lpc43xx/scu.h>
 	#include "gpio.h"
 	#include "platform_gpio.h"
 	#include "platform_scu.h"

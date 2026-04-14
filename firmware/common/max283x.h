@@ -27,13 +27,15 @@
 #include <stdint.h>
 
 #include "fixed_point.h"
-#if defined(PRALINE) || defined(UNIVERSAL)
+#include "platform_detect.h"
+
+#ifdef IS_PRALINE
 	#include "max2831.h"
 #endif
-#if !defined(PRALINE) || defined(UNIVERSAL)
+#ifdef IS_NOT_PRALINE
 	#include "max2837.h"
 #endif
-#if defined(HACKRF_ONE) || defined(UNIVERSAL)
+#ifdef IS_H1_R9
 	#include "max2839.h"
 #endif
 
@@ -55,13 +57,13 @@ typedef enum {
 } max283x_rx_hpf_freq_t;
 
 typedef enum {
-#if defined(PRALINE) || defined(UNIVERSAL)
+#ifdef IS_PRALINE
 	MAX2831_VARIANT,
 #endif
-#if !defined(PRALINE) || defined(UNIVERSAL)
+#ifdef IS_NOT_PRALINE
 	MAX2837_VARIANT,
 #endif
-#if defined(HACKRF_ONE) || defined(UNIVERSAL)
+#ifdef IS_H1_R9
 	MAX2839_VARIANT,
 #endif
 } max283x_variant_t;
@@ -70,13 +72,13 @@ typedef struct {
 	max283x_variant_t type;
 
 	union {
-#if defined(PRALINE) || defined(UNIVERSAL)
+#ifdef IS_PRALINE
 		max2831_driver_t max2831;
 #endif
-#if !defined(PRALINE) || defined(UNIVERSAL)
+#ifdef IS_NOT_PRALINE
 		max2837_driver_t max2837;
 #endif
-#if defined(HACKRF_ONE) || defined(UNIVERSAL)
+#ifdef IS_H1_R9
 		max2839_driver_t max2839;
 #endif
 	} drv;

@@ -20,7 +20,6 @@
  * the Free Software Foundation, Inc., 51 Franklin Street,
  * Boston, MA 02110-1301, USA.
  */
-
 #include "usb_api_board_info.h"
 
 #include <string.h>
@@ -34,7 +33,7 @@
 #include <usb_queue.h>
 #include <usb_request.h>
 #include <usb_type.h>
-#if defined(HACKRF_ONE) || defined(UNIVERSAL)
+#ifdef IS_HACKRF_ONE
 	#include <gpio.h>
 	#include <platform_gpio.h>
 #endif

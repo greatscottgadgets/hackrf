@@ -19,17 +19,16 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#if !defined(PRALINE) || defined(UNIVERSAL)
-	#include <stdint.h>
-#endif
-
 #include "cpld_jtag.h"
+
 #include "platform_detect.h"
-#if !defined(PRALINE) || defined(UNIVERSAL)
+
+#ifdef IS_NOT_PRALINE
+	#include <stdint.h>
 	#include "xapp058/micro.h"
 #endif
 
-#if !defined(PRALINE) || defined(UNIVERSAL)
+#ifdef IS_NOT_PRALINE
 static refill_buffer_cb refill_buffer;
 static uint32_t xsvf_buffer_len, xsvf_pos;
 static unsigned char* xsvf_buffer;
@@ -102,7 +101,7 @@ void cpld_jtag_release(jtag_t* const jtag)
 #endif
 }
 
-#if !defined(PRALINE) || defined(UNIVERSAL)
+#ifdef IS_NOT_PRALINE
 /* return 0 if success else return error code see xsvfExecute() */
 int cpld_jtag_program(
 	jtag_t* const jtag,

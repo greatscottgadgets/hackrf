@@ -26,6 +26,7 @@
 #include <stdint.h>
 
 #include "gpio.h"
+#include "platform_detect.h" // IWYU pragma: keep
 
 typedef enum {
 	SGPIO_DIRECTION_RX,
@@ -34,7 +35,7 @@ typedef enum {
 
 typedef struct {
 	gpio_t gpio_q_invert;
-#if !defined(PRALINE) || defined(UNIVERSAL)
+#ifdef IS_NOT_PRALINE
 	gpio_t gpio_trigger_enable;
 #endif
 	bool slice_mode_multislice;

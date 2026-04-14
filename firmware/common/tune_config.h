@@ -21,7 +21,9 @@
 
 #pragma once
 
-#if defined(PRALINE) || defined(UNIVERSAL)
+#include "platform_detect.h"
+
+#ifdef IS_PRALINE
 	#include "fpga.h"
 
 typedef struct {

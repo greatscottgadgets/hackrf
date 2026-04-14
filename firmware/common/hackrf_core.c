@@ -25,7 +25,10 @@
 #include <libopencm3/lpc43xx/memorymap.h>
 #include <libopencm3/lpc43xx/scu.h>
 #include <libopencm3/lpc43xx/ssp.h>
-#if !defined(RAD1O)
+
+#include "platform_detect.h"
+
+#ifdef IS_NOT_RAD1O
 	#include <libopencm3/lpc43xx/ccu.h>
 #endif
 
@@ -36,15 +39,14 @@
 #include "i2c_lpc.h"
 #include "max283x.h"
 #include "max5864_target.h"
-#include "platform_detect.h"
 #include "platform_gpio.h"
 #include "platform_scu.h"
 #include "spi_bus.h"
 #include "w25q80bv_target.h"
-#if defined(HACKRF_ONE) || defined(PRALINE) || defined(UNIVERSAL)
+#ifdef IS_EXPANSION_COMPATIBLE
 	#include "portapack.h"
 #endif
-#if defined(PRALINE) || defined(UNIVERSAL)
+#ifdef IS_PRALINE
 	#include "ice40_spi.h"
 #endif
 
@@ -142,7 +144,7 @@ sgpio_config_t sgpio_config = {
 	.slice_mode_multislice = true,
 };
 
-#if defined(PRALINE) || defined(UNIVERSAL)
+#ifdef IS_PRALINE
 static ssp_config_t ssp_config_ice40_fpga = {
 	.data_bits = SSP_DATA_8BITS,
 	.spi_mode = SSP_CPOL_1_CPHA_1,
@@ -786,7 +788,7 @@ void ssp1_set_mode_max5864(void)
 	spi_bus_start(max5864.bus, &ssp_config_max5864);
 }
 
-#if defined(PRALINE) || defined(UNIVERSAL)
+#ifdef IS_PRALINE
 void ssp1_set_mode_ice40(void)
 {
 	spi_bus_start(&spi_bus_ssp1, &ssp_config_ice40_fpga);
@@ -1124,41 +1126,33 @@ void pin_setup(void)
 	sgpio_configure_pin_functions(&sgpio_config);
 }
 
-#if defined(PRALINE) || defined(UNIVERSAL)
+#ifdef IS_PRALINE
 void enable_1v2_power(void)
 {
-	#ifdef IS_PRALINE
 	if (IS_PRALINE) {
 		gpio_set(platform_gpio()->gpio_1v2_enable);
 	}
-	#endif
 }
 
 void disable_1v2_power(void)
 {
-	#ifdef IS_PRALINE
 	if (IS_PRALINE) {
 		gpio_clear(platform_gpio()->gpio_1v2_enable);
 	}
-	#endif
 }
 
 void enable_3v3aux_power(void)
 {
-	#ifdef IS_PRALINE
 	if (IS_PRALINE) {
 		gpio_clear(platform_gpio()->gpio_3v3aux_enable_n);
 	}
-	#endif
 }
 
 void disable_3v3aux_power(void)
 {
-	#ifdef IS_PRALINE
 	if (IS_PRALINE) {
 		gpio_set(platform_gpio()->gpio_3v3aux_enable_n);
 	}
-	#endif
 }
 #endif
 
@@ -1198,7 +1192,7 @@ void disable_1v8_power(void)
 #endif
 }
 
-#if defined(HACKRF_ONE) || defined(UNIVERSAL)
+#ifdef IS_HACKRF_ONE
 static inline void enable_rf_power_hackrf_one(void)
 {
 	const platform_gpio_t* gpio = platform_gpio();
@@ -1226,7 +1220,7 @@ static inline void disable_rf_power_hackrf_one(void)
 }
 #endif
 
-#if defined(PRALINE) || defined(UNIVERSAL)
+#ifdef IS_PRALINE
 static inline void enable_rf_power_praline(void)
 {
 	gpio_clear(platform_gpio()->vaa_disable);
@@ -1241,7 +1235,7 @@ static inline void disable_rf_power_praline(void)
 }
 #endif
 
-#if defined(RAD1O)
+#ifdef IS_RAD1O
 static inline void enable_rf_power_rad1o(void)
 {
 	gpio_set(platform_gpio()->vaa_enable);
@@ -1379,7 +1373,7 @@ void halt_and_flash(const uint32_t duration)
 	}
 }
 
-#if defined(PRALINE) || defined(UNIVERSAL)
+#ifdef IS_PRALINE
 void p1_ctrl_set(const p1_ctrl_signal_t signal)
 {
 	const platform_gpio_t* gpio = platform_gpio();

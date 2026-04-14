@@ -35,17 +35,14 @@
 #include <stdint.h>
 #include <string.h>
 
-#if defined(PRALINE) || defined(UNIVERSAL)
-	#include <libopencm3/lpc43xx/scu.h>
-#endif
-
 #include "delay.h"
 #include "fixed_point.h"
 #include "platform_detect.h"
 #include "rffc5071.h"
 #include "rffc5071_regs.def" // private register def macros
 #include "selftest.h"
-#if defined(PRALINE) || defined(UNIVERSAL)
+#ifdef IS_PRALINE
+	#include <libopencm3/lpc43xx/scu.h>
 	#include "platform_scu.h"
 #endif
 
@@ -370,7 +367,7 @@ void rffc5071_set_gpo(rffc5071_driver_t* const drv, uint8_t gpo)
 	rffc5071_regs_commit(drv);
 }
 
-#if defined(PRALINE) || defined(UNIVERSAL)
+#ifdef IS_PRALINE
 bool rffc5071_poll_ld(rffc5071_driver_t* const drv, uint8_t* prelock_state)
 {
 	// This is only supported on Praline hardware.

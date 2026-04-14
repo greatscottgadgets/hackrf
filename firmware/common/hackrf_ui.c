@@ -23,14 +23,12 @@
 #include <stddef.h>
 
 #include "hackrf_ui.h"
+#include "platform_detect.h" // IWYU pragma: keep
 #include "transceiver_mode.h"
-#if !defined(JAWBREAKER)
-	#include "platform_detect.h"
-#endif
-#if defined(PRALINE) || defined(HACKRF_ONE) || defined(UNIVERSAL)
+#ifdef IS_EXPANSION_COMPATIBLE
 	#include "ui_portapack.h"
 #endif
-#if defined(RAD1O)
+#ifdef IS_RAD1O
 	#include "ui_rad1o.h"
 #endif
 
