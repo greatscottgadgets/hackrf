@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2022 Great Scott Gadgets <info@greatscottgadgets.com>
+ * Copyright 2012-2026 Great Scott Gadgets <info@greatscottgadgets.com>
  * Copyright 2014 Jared Boone <jared@sharebrained.com>
  *
  * This file is part of HackRF.
@@ -31,6 +31,7 @@
  * that the RFFC5071 includes a second mixer.
  */
 
+#include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
 
@@ -39,12 +40,16 @@
 #endif
 
 #include "delay.h"
+#include "fixed_point.h"
 #include "rffc5071.h"
 #include "rffc5071_regs.def" // private register def macros
 #include "selftest.h"
 #if defined(PRALINE)
 	#include "platform_scu.h"
 #endif
+
+#define MIN(x, y) ((x) < (y) ? (x) : (y))
+#define MAX(x, y) ((x) > (y) ? (x) : (y))
 
 static bool enabled = false;
 
@@ -153,7 +158,7 @@ void rffc5071_lock_test(rffc5071_driver_t* const drv)
 
 	for (int i = 0; i < NUM_LOCK_ATTEMPTS; i++) {
 		// Tune to 100MHz.
-		rffc5071_set_frequency(drv, 100000000);
+		rffc5071_set_frequency(drv, FP_MHZ(100), true);
 		rffc5071_enable(drv);
 
 		// Wait 1ms.
@@ -257,23 +262,27 @@ void rffc5071_enable(rffc5071_driver_t* const drv)
 	}
 }
 
-#define FREQ_ONE_MHZ (1000ULL * 1000ULL)
-#define REF_FREQ     (40 * FREQ_ONE_MHZ)
-#define LO_MAX       (5400 * FREQ_ONE_MHZ)
+#define REF_FREQ_HZ (40ULL * (1000ULL * 1000ULL))
+#define MIN_LO      FP_KHZ(84375)
+#define MAX_LO      FP_MHZ(5400)
 
-/* configure frequency synthesizer (lo in Hz) */
-uint64_t rffc5071_config_synth(rffc5071_driver_t* const drv, uint64_t lo)
+/* configure frequency synthesizer (lo in 1/(2**24) Hz) */
+fp_40_24_t rffc5071_config_synth(rffc5071_driver_t* const drv, fp_40_24_t lo, bool program)
 {
-	uint64_t fvco;
+	fp_40_24_t fvco;
 	uint8_t fbkdivlog;
 	uint16_t n;
-	uint64_t tune_freq_hz;
+	fp_40_24_t tune_freq;
 	uint16_t p1nmsb;
 	uint8_t p1nlsb;
+	uint8_t charge_pump_leakage;
+
+	lo = MIN(lo, MAX_LO);
+	lo = MAX(lo, MIN_LO);
 
 	/* Calculate n_lo (no division) */
 	uint8_t n_lo = 0;
-	uint64_t x = LO_MAX >> 1;
+	fp_40_24_t x = MAX_LO >> 1;
 	while ((x >= lo) && (n_lo < 5)) {
 		n_lo++;
 		x >>= 1;
@@ -285,15 +294,15 @@ uint64_t rffc5071_config_synth(rffc5071_driver_t* const drv, uint64_t lo)
 	 * Higher charge pump leakage setting and fbkdivlog are required above
 	 * 3.2 GHz.
 	 */
-	if (fvco > (3200 * FREQ_ONE_MHZ)) {
+	if (fvco > FP_MHZ(3200)) {
 		fbkdivlog = 2;
-		set_RFFC5071_PLLCPL(drv, 3);
+		charge_pump_leakage = 3;
 	} else {
 		fbkdivlog = 1;
-		set_RFFC5071_PLLCPL(drv, 2);
+		charge_pump_leakage = 2;
 	}
 
-	uint64_t tmp_n = (fvco << (24ULL - fbkdivlog)) / REF_FREQ;
+	uint64_t tmp_n = (fvco / REF_FREQ_HZ) >> fbkdivlog;
 
 	/* Round to nearest step = ref_MHz / 2**s. For s=6, step=625000 Hz */
 	/* This also ensures the lowest 22-s fractional bits are set to 0. */
@@ -301,33 +310,40 @@ uint64_t rffc5071_config_synth(rffc5071_driver_t* const drv, uint64_t lo)
 	const uint8_t d = (24 - fbkdivlog + n_lo) - s;
 	tmp_n = ((tmp_n + (1 << (d - 1))) >> d) << d;
 
-	n = tmp_n >> 24ULL;
-	p1nmsb = (tmp_n >> 8ULL) & 0xffff;
-	p1nlsb = tmp_n & 0xff;
+	tune_freq = ((tmp_n * REF_FREQ_HZ) << fbkdivlog) >> n_lo;
 
-	tune_freq_hz = (tmp_n * REF_FREQ) >> (24 - fbkdivlog + n_lo);
+	if (program) {
+		set_RFFC5071_PLLCPL(drv, charge_pump_leakage);
 
-	/* Path 2 */
-	set_RFFC5071_P2LODIV(drv, n_lo);
-	set_RFFC5071_P2N(drv, n);
-	set_RFFC5071_P2PRESC(drv, fbkdivlog);
-	set_RFFC5071_P2NMSB(drv, p1nmsb);
-	if (s > 14) {
-		/* Only set when the step size is small enough. */
-		set_RFFC5071_P2NLSB(drv, p1nlsb);
+		n = tmp_n >> 24ULL;
+		p1nmsb = (tmp_n >> 8ULL) & 0xffff;
+		p1nlsb = tmp_n & 0xff;
+
+		/* Path 2 */
+		set_RFFC5071_P2LODIV(drv, n_lo);
+		set_RFFC5071_P2N(drv, n);
+		set_RFFC5071_P2PRESC(drv, fbkdivlog);
+		set_RFFC5071_P2NMSB(drv, p1nmsb);
+		if (s > 14) {
+			/* Only set when the step size is small enough. */
+			set_RFFC5071_P2NLSB(drv, p1nlsb);
+		}
+
+		rffc5071_regs_commit(drv);
 	}
 
-	rffc5071_regs_commit(drv);
-
-	return tune_freq_hz;
+	return tune_freq;
 }
 
-uint64_t rffc5071_set_frequency(rffc5071_driver_t* const drv, uint64_t hz)
+fp_40_24_t rffc5071_set_frequency(
+	rffc5071_driver_t* const drv,
+	fp_40_24_t lo,
+	bool program)
 {
-	uint32_t tune_freq;
+	fp_40_24_t tune_freq;
 
-	tune_freq = rffc5071_config_synth(drv, hz);
-	if (enabled) {
+	tune_freq = rffc5071_config_synth(drv, lo, program);
+	if (enabled && program) {
 		set_RFFC5071_RELOK(drv, 1);
 		rffc5071_regs_commit(drv);
 	}
