@@ -195,22 +195,18 @@ static uint32_t radio_update_sample_rate(radio_t* const radio, uint64_t* bank)
 	case TRANSCEIVER_MODE_SS:
 		n = compute_resample_log(rate / SR_FP_ONE_HZ, requested_n);
 		if (n != radio->config[RADIO_BANK_APPLIED][RADIO_RESAMPLE_TX]) {
-			if (detected_platform() == BOARD_ID_PRALINE) {
-#if defined(PRALINE) || defined(UNIVERSAL)
+			IF_PRALINE (
 				fpga_set_tx_interpolation_ratio(&fpga, n);
-#endif
-			}
+			)
 			radio->config[RADIO_BANK_APPLIED][RADIO_RESAMPLE_TX] = n;
 		}
 		break;
 	default:
 		n = compute_resample_log(rate / SR_FP_ONE_HZ, requested_n);
 		if (n != radio->config[RADIO_BANK_APPLIED][RADIO_RESAMPLE_RX]) {
-			if (detected_platform() == BOARD_ID_PRALINE) {
-#if defined(PRALINE) || defined(UNIVERSAL)
+			IF_PRALINE (
 				fpga_set_rx_decimation_ratio(&fpga, n);
-#endif
-			}
+			)
 			radio->config[RADIO_BANK_APPLIED][RADIO_RESAMPLE_RX] = n;
 		}
 	}
@@ -354,7 +350,9 @@ static uint32_t radio_update_frequency(radio_t* const radio, uint64_t* bank)
 	const uint64_t requested_if = bank[RADIO_FREQUENCY_IF];
 	const uint64_t requested_lo = bank[RADIO_FREQUENCY_LO];
 	const uint64_t requested_img_reject = bank[RADIO_IMAGE_REJECT];
+#if defined(PRALINE) || defined(UNIVERSAL)
 	const uint64_t requested_rotation = bank[RADIO_ROTATION];
+#endif
 
 	const uint64_t applied_rf = radio->config[RADIO_BANK_APPLIED][RADIO_FREQUENCY_RF];
 	const uint64_t applied_if = radio->config[RADIO_BANK_APPLIED][RADIO_FREQUENCY_IF];
@@ -393,7 +391,7 @@ static uint32_t radio_update_frequency(radio_t* const radio, uint64_t* bank)
 	if (requested_lo != RADIO_UNSET) {
 		freq_lo = mixer_set_frequency(&mixer, freq_lo, false);
 	}
-	if (detected_platform() == BOARD_ID_PRALINE) {
+	IF_PRALINE (
 		if (requested_rotation != RADIO_UNSET) {
 			rotation = requested_rotation;
 		}
@@ -409,9 +407,10 @@ static uint32_t radio_update_frequency(radio_t* const radio, uint64_t* bank)
 		default:
 			rotation = 0;
 		}
-	} else {
+	)
+	IF_NOT_PRALINE (
 		rotation = 0;
-	}
+	)
 
 	/* Handle requested RF (auto-tune). */
 	if (requested_rf != RADIO_UNSET) {
@@ -421,8 +420,7 @@ static uint32_t radio_update_frequency(radio_t* const radio, uint64_t* bank)
 		freq_rf = restrict_rf(requested_rf, img_reject);
 
 		/* Look up settings appropriate for requested RF. */
-		if (detected_platform() == BOARD_ID_PRALINE) {
-#if defined(PRALINE) || defined(UNIVERSAL)
+		IF_PRALINE (
 			const tune_config_t* tune_config =
 				select_tune_config(opmode, freq_rf);
 			if (requested_rotation == RADIO_UNSET) {
@@ -438,15 +436,15 @@ static uint32_t radio_update_frequency(radio_t* const radio, uint64_t* bank)
 				}
 			}
 			high_lo = tune_config->high_lo;
-#endif
-		} else {
+		)
+		IF_NOT_PRALINE (
 			/* Use graduated or fixed IF on older platforms. */
 			if (requested_if == RADIO_UNSET) {
 				freq_if = select_graduated_if(freq_rf, img_reject);
 			}
 			high_lo = (img_reject == RF_PATH_FILTER_LOW_PASS);
 			analog_rf = freq_rf;
-		}
+		)
 
 		/* Compute precise LO. This is done first because the mixer LO is set in coarse steps. */
 		if (requested_lo == RADIO_UNSET) {
@@ -502,11 +500,9 @@ static uint32_t radio_update_frequency(radio_t* const radio, uint64_t* bank)
 		changed |= (1 << RADIO_IMAGE_REJECT);
 	}
 	if ((rotation != applied_rotation) && (rotation != RADIO_UNSET)) {
-		if (detected_platform() == BOARD_ID_PRALINE) {
-#if defined(PRALINE) || defined(UNIVERSAL)
+		IF_PRALINE (
 			fpga_set_rx_quarter_shift_mode(&fpga, rotation >> 30);
-#endif
-		}
+		)
 		radio->config[RADIO_BANK_APPLIED][RADIO_ROTATION] = rotation;
 		changed |= (1 << RADIO_ROTATION);
 	}
@@ -571,20 +567,29 @@ static uint32_t radio_update_bandwidth(radio_t* const radio, uint64_t* bank)
 		opmode = radio->config[RADIO_BANK_APPLIED][RADIO_OPMODE];
 	}
 
-	if (detected_platform() == BOARD_ID_PRALINE) {
-#if defined(PRALINE) || defined(UNIVERSAL)
+	IF_PRALINE (
 		/* Praline legacy mode always sets baseband bandwidth automatically. */
 		(void) bank;
 		uint32_t lpf_bandwidth = auto_bandwidth(radio, opmode);
 
-		if (radio->config[RADIO_BANK_APPLIED][RADIO_XCVR_TX_LPF] != lpf_bandwidth) {
-			max283x_set_lpf_bandwidth(&max283x, MAX283x_MODE_TX, lpf_bandwidth);
-			radio->config[RADIO_BANK_APPLIED][RADIO_XCVR_TX_LPF] = lpf_bandwidth;
+		if (radio->config[RADIO_BANK_APPLIED][RADIO_XCVR_TX_LPF] !=
+		    lpf_bandwidth) {
+			max283x_set_lpf_bandwidth(
+				&max283x,
+				MAX283x_MODE_TX,
+				lpf_bandwidth);
+			radio->config[RADIO_BANK_APPLIED][RADIO_XCVR_TX_LPF] =
+				lpf_bandwidth;
 			changed |= (1 << RADIO_XCVR_TX_LPF);
 		}
-		if (radio->config[RADIO_BANK_APPLIED][RADIO_XCVR_RX_LPF] != lpf_bandwidth) {
-			max283x_set_lpf_bandwidth(&max283x, MAX283x_MODE_RX, lpf_bandwidth);
-			radio->config[RADIO_BANK_APPLIED][RADIO_XCVR_RX_LPF] = lpf_bandwidth;
+		if (radio->config[RADIO_BANK_APPLIED][RADIO_XCVR_RX_LPF] !=
+		    lpf_bandwidth) {
+			max283x_set_lpf_bandwidth(
+				&max283x,
+				MAX283x_MODE_RX,
+				lpf_bandwidth);
+			radio->config[RADIO_BANK_APPLIED][RADIO_XCVR_RX_LPF] =
+				lpf_bandwidth;
 			changed |= (1 << RADIO_XCVR_RX_LPF);
 		}
 		bool narrow_lpf_enable = false;
@@ -601,14 +606,15 @@ static uint32_t radio_update_bandwidth(radio_t* const radio, uint64_t* bank)
 		}
 		/* Always set HPF bandwidth to 30 kHz for now. */
 		const max283x_rx_hpf_freq_t hpf_bandwidth = MAX283x_RX_HPF_30_KHZ;
-		if (radio->config[RADIO_BANK_APPLIED][RADIO_XCVR_RX_HPF] != hpf_bandwidth) {
+		if (radio->config[RADIO_BANK_APPLIED][RADIO_XCVR_RX_HPF] !=
+		    hpf_bandwidth) {
 			max283x_set_rx_hpf_frequency(&max283x, hpf_bandwidth);
-			radio->config[RADIO_BANK_APPLIED][RADIO_XCVR_RX_HPF] = hpf_bandwidth;
+			radio->config[RADIO_BANK_APPLIED][RADIO_XCVR_RX_HPF] =
+				hpf_bandwidth;
 			changed |= (1 << RADIO_XCVR_RX_HPF);
 		}
-#endif
-	} else {
-#if !defined(PRALINE) || defined(UNIVERSAL)
+	)
+	IF_NOT_PRALINE (
 		uint64_t lpf_bandwidth;
 		lpf_bandwidth = bank[RADIO_XCVR_TX_LPF];
 		if (lpf_bandwidth == RADIO_UNSET) {
@@ -621,24 +627,33 @@ static uint32_t radio_update_bandwidth(radio_t* const radio, uint64_t* bank)
 			lpf_bandwidth = bank[RADIO_BB_BANDWIDTH_RX];
 		}
 		if (lpf_bandwidth == RADIO_UNSET) {
-			lpf_bandwidth = radio->config[RADIO_BANK_APPLIED][RADIO_XCVR_TX_LPF];
+			lpf_bandwidth =
+				radio->config[RADIO_BANK_APPLIED][RADIO_XCVR_TX_LPF];
 		}
 		if (lpf_bandwidth == RADIO_UNSET) {
 			lpf_bandwidth = auto_bandwidth(radio, opmode);
 		}
 
-		if (radio->config[RADIO_BANK_APPLIED][RADIO_XCVR_TX_LPF] != lpf_bandwidth) {
-			max283x_set_lpf_bandwidth(&max283x, MAX283x_MODE_TX, lpf_bandwidth);
-			radio->config[RADIO_BANK_APPLIED][RADIO_BB_BANDWIDTH_RX] = lpf_bandwidth;
-			radio->config[RADIO_BANK_APPLIED][RADIO_BB_BANDWIDTH_TX] = lpf_bandwidth;
-			radio->config[RADIO_BANK_APPLIED][RADIO_XCVR_TX_LPF] = lpf_bandwidth;
-			radio->config[RADIO_BANK_APPLIED][RADIO_XCVR_RX_LPF] = lpf_bandwidth;
+		if (radio->config[RADIO_BANK_APPLIED][RADIO_XCVR_TX_LPF] !=
+		    lpf_bandwidth) {
+			max283x_set_lpf_bandwidth(
+				&max283x,
+				MAX283x_MODE_TX,
+				lpf_bandwidth);
+			radio->config[RADIO_BANK_APPLIED][RADIO_BB_BANDWIDTH_RX] =
+				lpf_bandwidth;
+			radio->config[RADIO_BANK_APPLIED][RADIO_BB_BANDWIDTH_TX] =
+				lpf_bandwidth;
+			radio->config[RADIO_BANK_APPLIED][RADIO_XCVR_TX_LPF] =
+				lpf_bandwidth;
+			radio->config[RADIO_BANK_APPLIED][RADIO_XCVR_RX_LPF] =
+				lpf_bandwidth;
 			changed |=
-				((1 << RADIO_BB_BANDWIDTH_RX) | (1 << RADIO_BB_BANDWIDTH_TX) |
-				 (1 << RADIO_XCVR_TX_LPF) | (1 << RADIO_XCVR_RX_LPF));
+				((1 << RADIO_BB_BANDWIDTH_RX) |
+				 (1 << RADIO_BB_BANDWIDTH_TX) | (1 << RADIO_XCVR_TX_LPF) |
+				 (1 << RADIO_XCVR_RX_LPF));
 		}
-#endif
-	}
+	)
 	return changed;
 }
 
@@ -774,24 +789,23 @@ static uint32_t radio_update_trigger(radio_t* const radio, uint64_t* bank)
 
 static uint32_t radio_update_dc_block(radio_t* const radio, uint64_t* bank)
 {
-#if defined(PRALINE) || defined(UNIVERSAL)
-	if (detected_platform() == BOARD_ID_PRALINE) {
+	IF_PRALINE (
 		const uint64_t requested = bank[RADIO_DC_BLOCK];
 		bool enable = requested;
 
-		if (radio->config[RADIO_BANK_APPLIED][RADIO_DC_BLOCK] == (uint64_t) enable) {
+		if (radio->config[RADIO_BANK_APPLIED][RADIO_DC_BLOCK] ==
+		    (uint64_t) enable) {
 			return 0;
 		}
 
 		fpga_set_rx_dc_block_enable(&fpga, enable);
 		radio->config[RADIO_BANK_APPLIED][RADIO_DC_BLOCK] = enable;
 		return (1 << RADIO_DC_BLOCK);
-	}
-#else
+	)
+
 	(void) radio;
 	(void) bank;
-#endif
-	return 0;
+	return false;
 }
 
 bool radio_update(radio_t* const radio)

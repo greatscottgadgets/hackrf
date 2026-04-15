@@ -80,18 +80,14 @@ static const char* test_result_to_str(test_result_t result)
 
 void generate_selftest_report(void)
 {
-	board_id_t board_id = detected_platform();
-
 	char* s = &selftest.report.msg[0];
 	size_t c = sizeof(selftest.report.msg);
-	if (board_id == BOARD_ID_RAD1O) {
-#if defined(RAD1O)
+	IF_RAD1O (
 		append(&s, &c, "Mixer: MAX2871, ID: ");
 		append(&s, &c, itoa(selftest.mixer_id, 10));
 		append(&s, &c, "\n");
-#endif
-	} else {
-#if !defined(RAD1O)
+	)
+	IF_NOT_RAD1O (
 		append(&s, &c, "Mixer: RFFC5072, ID: ");
 		append(&s, &c, itoa(selftest.mixer_id >> 3, 10));
 		append(&s, &c, ", Rev: ");
@@ -108,8 +104,7 @@ void generate_selftest_report(void)
 			append(&s, &c, " (FAIL)");
 		}
 		append(&s, &c, "\n");
-#endif
-	}
+	)
 
 	append(&s, &c, "Clock: Si5351");
 	append(&s, &c, ", Rev: ");
@@ -118,16 +113,19 @@ void generate_selftest_report(void)
 	append(&s, &c, selftest.si5351_readback_ok ? "OK" : "FAIL");
 	append(&s, &c, "\n");
 
-	if (board_id == BOARD_ID_PRALINE) {
-#if defined(PRALINE) || defined(UNIVERSAL)
+	IF_PRALINE (
 		append(&s, &c, "Transceiver: MAX2831, RSSI mux test: ");
 		append(&s, &c, selftest.max2831_mux_test_ok ? "PASS" : "FAIL");
 		append(&s, &c, "\n");
-#endif
-	} else {
-#if !defined(PRALINE) || defined(UNIVERSAL)
+	)
+	IF_NOT_PRALINE (
 		append(&s, &c, "Transceiver: ");
-		append(&s, &c, (board_id == BOARD_ID_HACKRF1_R9 ? "MAX2839" : "MAX2837"));
+		IF_H1_R9 (
+			append(&s, &c, "MAX2839");
+		)
+		IF_NOT_H1_R9 (
+			append(&s, &c, "MAX2837");
+		)
 		append(&s, &c, ", readback success: ");
 		append(&s, &c, itoa(selftest.max283x_readback_register_count, 10));
 		append(&s, &c, "/");
@@ -142,10 +140,8 @@ void generate_selftest_report(void)
 			       itoa(selftest.max283x_readback_expected_value, 10));
 		}
 		append(&s, &c, "\n");
-#endif
-	}
-	if (board_id == BOARD_ID_PRALINE) {
-#if defined(PRALINE) || defined(UNIVERSAL)
+	)
+	IF_PRALINE (
 		append(&s, &c, "FPGA configuration: ");
 		append(&s, &c, test_result_to_str(selftest.fpga_image_load));
 		append(&s, &c, "\n");
@@ -177,8 +173,7 @@ void generate_selftest_report(void)
 			append(&s, &c, itoa(m->avg_mag_sq_q, 10));
 			append(&s, &c, "\n");
 		}
-#endif
-	}
+	)
 }
 
 usb_request_status_t usb_vendor_request_read_selftest(
