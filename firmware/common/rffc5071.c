@@ -110,19 +110,15 @@ void rffc5071_init(rffc5071_driver_t* const drv)
  */
 void rffc5071_setup(rffc5071_driver_t* const drv)
 {
-	board_id_t board_id = detected_platform();
-
 	gpio_set(drv->gpio_reset);
 	gpio_output(drv->gpio_reset);
 
-	if (board_id == BOARD_ID_PRALINE) {
-#if defined(PRALINE) || defined(UNIVERSAL)
+	IF_PRALINE (
 		/* Configure mixer PLL lock detect pin */
 		const platform_scu_t* scu = platform_scu();
 		scu_pinmux(scu->MIXER_LD, scu->MIXER_LD_PINCFG);
 		gpio_input(drv->gpio_ld);
-#endif
-	}
+	)
 
 	rffc5071_init(drv);
 
@@ -140,16 +136,9 @@ void rffc5071_setup(rffc5071_driver_t* const drv)
 	set_RFFC5071_FULLD(drv, 0);
 	set_RFFC5071_MODE(drv, 1);
 
-	switch (board_id) {
-	case BOARD_ID_HACKRF1_OG:
-	case BOARD_ID_HACKRF1_R9:
-	case BOARD_ID_PRALINE:
-		/* Enable GPO Lock output signal */
+	IF_H1_OR_PRALINE (
 		set_RFFC5071_LOCK(drv, 1);
-		break;
-	default:
-		break;
-	}
+	)
 
 	/* Enable reference oscillator standby */
 	set_RFFC5071_REFST(drv, 1);
@@ -192,17 +181,15 @@ void rffc5071_lock_test(rffc5071_driver_t* const drv)
 
 bool rffc5071_check_lock(rffc5071_driver_t* const drv)
 {
-	if (detected_platform() == BOARD_ID_PRALINE) {
-#if defined(PRALINE) || defined(UNIVERSAL)
+	IF_PRALINE (
 		return gpio_read(drv->gpio_ld);
-#else
-		return false;
-#endif
-	} else {
+	)
+	IF_NOT_PRALINE (
 		set_RFFC5071_READSEL(drv, 0b0001);
 		rffc5071_regs_commit(drv);
 		return !!(rffc5071_reg_read(drv, RFFC5071_READBACK_REG) & 0x8000);
-	}
+	)
+	return false;
 }
 
 static uint16_t rffc5071_spi_read(rffc5071_driver_t* const drv, uint8_t r)
@@ -382,9 +369,9 @@ bool rffc5071_poll_ld(rffc5071_driver_t* const drv, uint8_t* prelock_state)
 	//
 	// For all other boards we'll just return true to avoid a situation where a
 	// a caller is waiting for a lock signal that will never be detected.
-	if (detected_platform() != BOARD_ID_PRALINE) {
+	IF_NOT_PRALINE (
 		return true;
-	}
+	)
 
 	// The RFFC5072 can be configured to output PLL lock status on
 	// GPO4. The lock detect signal is produced by a window detector
@@ -451,9 +438,7 @@ bool rffc5071_poll_ld(rffc5071_driver_t* const drv, uint8_t* prelock_state)
 	uint8_t rsm_state = (rb >> 11) & 0b11111;
 
 	// get gpo4 lock detect signal
-	#if defined(PRALINE) || defined(UNIVERSAL)
 	bool gpo4_ld = gpio_read(drv->gpio_ld);
-	#endif
 
 	// parse state
 	switch (rsm_state) {

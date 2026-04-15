@@ -298,35 +298,19 @@ static void switchctrl_set_rad1o(rf_path_t* const rf_path, uint8_t ctrl)
 
 static void switchctrl_set(rf_path_t* const rf_path, const uint8_t gpo)
 {
-#if defined(JAWBREAKER)
-	(void) rf_path;
-#endif
-
-	switch (detected_platform()) {
-	case BOARD_ID_JAWBREAKER:
-#if defined(JAWBREAKER)
+	IF_JAWBREAKER (
+		(void) rf_path;
 		mixer_set_gpo(&mixer, gpo);
-#endif
-		break;
-	case BOARD_ID_HACKRF1_OG:
-	case BOARD_ID_HACKRF1_R9:
-#if defined(HACKRF_ONE) || defined(UNIVERSAL)
+	)
+	IF_HACKRF_ONE (
 		switchctrl_set_hackrf_one(rf_path, gpo);
-#endif
-		break;
-	case BOARD_ID_PRALINE:
-#if defined(PRALINE) || defined(UNIVERSAL)
+	)
+	IF_PRALINE (
 		switchctrl_set_praline(rf_path, gpo);
-#endif
-		break;
-	case BOARD_ID_RAD1O:
-#if defined(RAD1O)
+	)
+	IF_RAD1O (
 		switchctrl_set_rad1o(rf_path, gpo);
-#endif
-		break;
-	default:
-		break;
-	}
+	)
 }
 
 void rf_path_pin_setup(rf_path_t* const rf_path)
@@ -335,15 +319,11 @@ void rf_path_pin_setup(rf_path_t* const rf_path)
 	(void) rf_path;
 #endif
 
-	board_id_t board_id = detected_platform();
 #if !defined(JAWBREAKER)
 	const platform_scu_t* scu = platform_scu();
 #endif
 
-	switch (board_id) {
-	case BOARD_ID_HACKRF1_OG:
-	case BOARD_ID_HACKRF1_R9:
-#if defined(HACKRF_ONE) || defined(UNIVERSAL)
+	IF_HACKRF_ONE (
 		/* Configure RF switch control signals */
 		// clang-format off
 		scu_pinmux(scu->HP,            SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
@@ -358,7 +338,7 @@ void rf_path_pin_setup(rf_path_t* const rf_path)
 		scu_pinmux(scu->RX_AMP,        SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
 		scu_pinmux(scu->NO_RX_AMP_PWR, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
 		// clang-format on
-		if (board_id == BOARD_ID_HACKRF1_R9) {
+		IF_H1_R9 (
 			scu_pinmux(scu->H1R9_RX, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
 			scu_pinmux(
 				scu->H1R9_NO_ANT_PWR,
@@ -368,12 +348,13 @@ void rf_path_pin_setup(rf_path_t* const rf_path)
 			scu_pinmux(
 				scu->H1R9_NO_VAA_EN,
 				SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
-		} else {
+		)
+		IF_NOT_H1_R9 (
 			scu_pinmux(scu->TX, SCU_GPIO_FAST | SCU_CONF_FUNCTION4);
 			scu_pinmux(scu->RX, SCU_GPIO_FAST | SCU_CONF_FUNCTION4);
 			gpio_output(rf_path->gpio_tx);
 			scu_pinmux(scu->NO_VAA_ENABLE, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
-		}
+		)
 
 		/*
 		 * Safe (initial) switch settings turn off both amplifiers and antenna port
@@ -394,10 +375,8 @@ void rf_path_pin_setup(rf_path_t* const rf_path)
 		gpio_output(rf_path->gpio_no_tx_amp_pwr);
 		gpio_output(rf_path->gpio_mix_bypass);
 		gpio_output(rf_path->gpio_rx);
-#endif
-		break;
-	case BOARD_ID_RAD1O:
-#if defined(RAD1O)
+	)
+	IF_RAD1O (
 		/* Configure RF switch control signals */
 		// clang-format off
 		scu_pinmux(scu->BY_AMP,          SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
@@ -434,10 +413,9 @@ void rf_path_pin_setup(rf_path_t* const rf_path)
 		gpio_output(rf_path->gpio_low_high_filt_n);
 		gpio_output(rf_path->gpio_tx_amp);
 		gpio_output(rf_path->gpio_rx_lna);
-#endif
-		break;
-	case BOARD_ID_PRALINE:
-#if defined(PRALINE) || defined(UNIVERSAL)
+	)
+
+	IF_PRALINE (
 		/* Configure RF switch control signals */
 		scu_pinmux(scu->TX_EN, SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
 		board_rev_t rev = detected_revision();
@@ -468,17 +446,11 @@ void rf_path_pin_setup(rf_path_t* const rf_path)
 		gpio_output(rf_path->gpio_mix_en_n);
 		gpio_output(rf_path->gpio_lpf_en);
 		gpio_output(rf_path->gpio_rf_amp_en);
-#endif
-		break;
-	default:
-		break;
-	}
+	)
 }
 
 void rf_path_init(rf_path_t* const rf_path)
 {
-	board_id_t board_id = detected_platform();
-
 	ssp1_set_mode_max5864();
 	max5864_setup(&max5864);
 	max5864_shutdown(&max5864);
@@ -487,22 +459,14 @@ void rf_path_init(rf_path_t* const rf_path)
 	max283x_setup(&max283x);
 	max283x_start(&max283x);
 
-	switch (board_id) {
-	case BOARD_ID_HACKRF1_OG:
-	case BOARD_ID_HACKRF1_R9:
-		// On HackRF One, the mixer is now set up earlier in boot.
-		break;
-	case BOARD_ID_RAD1O:
-#if defined(RAD1O)
+	IF_RAD1O (
 		mixer_setup(&mixer, MAX2871_VARIANT);
-#endif
-		break;
-	default:
-#if !defined(RAD1O)
-		mixer_setup(&mixer, RFFC5071_VARIANT);
-#endif
-		break;
-	}
+	)
+	IF_NOT_RAD1O (
+		IF_NOT_HACKRF_ONE (
+			mixer_setup(&mixer, RFFC5071_VARIANT);
+		)
+	)
 	rf_path->switchctrl = SWITCHCTRL_SAFE;
 }
 
