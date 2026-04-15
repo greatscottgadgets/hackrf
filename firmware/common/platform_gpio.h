@@ -109,7 +109,7 @@ typedef struct {
 
 	/* CPLD JTAG interface GPIO pins, FPGA config pins in Praline */
 	gpio_t cpld_tck;
-#if defined(HACKRF_ONE) || defined(RAD1O)
+#if defined(HACKRF_ONE) || defined(RAD1O) || defined(JAWBREAKER)
 	gpio_t cpld_tdo;
 	gpio_t cpld_tms;
 	gpio_t cpld_tdi;

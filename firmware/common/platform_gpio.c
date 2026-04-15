@@ -131,16 +131,21 @@ const platform_gpio_t* platform_gpio(void)
 #endif
 
 	/* CPLD JTAG interface GPIO pins_FPGA config pins in Praline */
-	gpio.cpld_tck       = &GPIO3_0;
+	gpio.cpld_tck        = &GPIO3_0;
 #if defined(PRALINE)
 	gpio.fpga_cfg_creset = &GPIO2_11;
 	gpio.fpga_cfg_cdone  = &GPIO5_14;
 	gpio.fpga_cfg_spi_cs = &GPIO2_10;
+#else
+	gpio.cpld_tdo        = &GPIO5_18;
 #endif
 #if defined(HACKRF_ONE) || defined(RAD1O)
-	gpio.cpld_tdo        = &GPIO5_18;
 	gpio.cpld_tms        = &GPIO3_4;
 	gpio.cpld_tdi        = &GPIO3_1;
+#endif
+#if defined(JAWBREAKER)
+	gpio.cpld_tms        = &GPIO3_1;
+	gpio.cpld_tdi        = &GPIO3_4;
 #endif
 #if defined(HACKRF_ONE) || defined(PRALINE)
 	gpio.cpld_pp_tms     = &GPIO1_1;

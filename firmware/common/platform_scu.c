@@ -85,11 +85,14 @@ const platform_scu_t* platform_scu(void)
 	scu.PINMUX_FPGA_CRESET = (P5_2);  /* GPIO2[11] on P5_2 */
 	scu.PINMUX_FPGA_CDONE  = (P4_10); /* GPIO5[14] */
 	scu.PINMUX_FPGA_SPI_CS = (P5_1);  /* GPIO2[10] */
-#elif defined(RAD1O) || defined(HACKRF_ONE)
+#else
+	scu.PINMUX_CPLD_TDO    = (P9_5);  /* GPIO5[18] */
+#endif
+#if defined(RAD1O) || defined(HACKRF_ONE)
 	scu.PINMUX_CPLD_TMS    = (P6_5);  /* GPIO3[ 4] */
 	scu.PINMUX_CPLD_TDI    = (P6_2);  /* GPIO3[ 1] */
-	scu.PINMUX_CPLD_TDO    = (P9_5);  /* GPIO5[18] */
-#else
+#endif
+#if defined(JAWBREAKER)
 	scu.PINMUX_CPLD_TMS    = (P6_2);  /* GPIO3[ 1] */
 	scu.PINMUX_CPLD_TDI    = (P6_5);  /* GPIO3[ 4] */
 #endif
