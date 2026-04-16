@@ -20,6 +20,9 @@ pipeline {
     agent any
     stages {
         stage('Build Docker Image') {
+            options {
+                timeout(time: 20, unit: 'MINUTES')
+            }
             steps {
                 sh 'docker build -t hackrf https://github.com/greatscottgadgets/hackrf.git'
             }
@@ -32,35 +35,34 @@ pipeline {
                     args docker_args
                 }
             }
+            options {
+                timeout(time: 20, unit: 'MINUTES')
+            }
             steps {
                 sh './ci-scripts/install_host.sh'
                 sh './ci-scripts/build_firmware.sh HACKRF_ONE'
                 script {
-                    allOff();
+                    allOff()
+                    reset('h1_eut')
                 }
+                sh 'sleep 1s'
                 retry(3) {
-                    script {
-                        reset('h1_eut')
-                    }
-                    sh 'sleep 1s'
                     sh './ci-scripts/test_host.sh'
                 }
-                retry(3) {
-                    script {
-                        reset('h1_tester h1_eut')
-                    }
-                    sh 'sleep 1s'
-                    script {
-                        // Allow 5 minutes for the test to run
-                        runCommand(5, 'MINUTES', "HackRF One Test", h1_test)
-                        allOff()
-                    }
+                script {
+                    reset('h1_tester h1_eut')
                 }
+                sh 'sleep 1s'
+                script {
+                    // Allow up to 3 retries 5 minutes each for the HIL test
+                    runCommand(3, 5, 'MINUTES', "HackRF One Test", h1_test)
+                }
+                script {
+                    allOff()
+                    reset('h1_eut')
+                }
+                sh 'sleep 1s'
                 retry(3) {
-                    script {
-                        reset('h1_eut')
-                    }
-                    sh 'sleep 1s'
                     sh 'python3 ci-scripts/test_sgpio_debug.py'
                 }
             }
@@ -73,35 +75,34 @@ pipeline {
                     args docker_args
                 }
             }
+            options {
+                timeout(time: 20, unit: 'MINUTES')
+            }
             steps {
                 sh './ci-scripts/install_host.sh'
                 sh './ci-scripts/build_firmware.sh UNIVERSAL'
                 script {
-                    allOff();
+                    allOff()
+                    reset('h1_eut')
                 }
+                sh 'sleep 1s'
                 retry(3) {
-                    script {
-                        reset('h1_eut')
-                    }
-                    sh 'sleep 1s'
                     sh './ci-scripts/test_host.sh'
                 }
-                retry(3) {
-                    script {
-                        reset('h1_tester h1_eut')
-                    }
-                    sh 'sleep 1s'
-                    script {
-                        // Allow 5 minutes for the test to run
-                        runCommand(5, 'MINUTES', "HackRF One Test", h1_test)
-                        allOff()
-                    }
+                script {
+                    reset('h1_tester h1_eut')
                 }
+                sh 'sleep 1s'
+                script {
+                    // Allow up to 3 retries 5 minutes each for the HIL test
+                    runCommand(3, 5, 'MINUTES', "HackRF One Test", h1_test)
+                }
+                script {
+                    allOff()
+                    reset('h1_eut')
+                }
+                sh 'sleep 1s'
                 retry(3) {
-                    script {
-                        reset('h1_eut')
-                    }
-                    sh 'sleep 1s'
                     sh 'python3 ci-scripts/test_sgpio_debug.py'
                 }
             }
@@ -114,28 +115,27 @@ pipeline {
                     args "$docker_args"
                 }
             }
+            options {
+                timeout(time: 20, unit: 'MINUTES')
+            }
             steps {
                 sh './ci-scripts/install_host.sh'
                 sh './ci-scripts/build_firmware.sh PRALINE'
                 script {
-                    allOff();
+                    allOff()
+                    reset('hpro_eut')
                 }
+                sh 'sleep 1s'
                 retry(3) {
-                    script {
-                        reset('hpro_eut')
-                    }
-                    sh 'sleep 1s'
                     sh './ci-scripts/test_host.sh'
                 }
-                retry(3) {
-                    script {
-                        reset('hpro_tester hpro_eut')
-                    }
-                    sh 'sleep 1s'
-                    script {
-                        // Allow 5 minutes for the test to run
-                        runCommand(5, 'MINUTES', "HackRF Pro Test", hpro_test)
-                    }
+                script {
+                    reset('hpro_tester hpro_eut')
+                }
+                sh 'sleep 1s'
+                script {
+                    // Allow up to 3 retries 5 minutes each for the HIL test
+                    runCommand(3, 5, 'MINUTES', "HackRF Pro Test", hpro_test)
                 }
             }
         }
@@ -147,28 +147,27 @@ pipeline {
                     args "$docker_args"
                 }
             }
+            options {
+                timeout(time: 20, unit: 'MINUTES')
+            }
             steps {
                 sh './ci-scripts/install_host.sh'
                 sh './ci-scripts/build_firmware.sh UNIVERSAL'
                 script {
-                    allOff();
+                    allOff()
+                    reset('hpro_eut')
                 }
+                sh 'sleep 1s'
                 retry(3) {
-                    script {
-                        reset('hpro_eut')
-                    }
-                    sh 'sleep 1s'
                     sh './ci-scripts/test_host.sh'
                 }
-                retry(3) {
-                    script {
-                        reset('hpro_tester hpro_eut')
-                    }
-                    sh 'sleep 1s'
-                    script {
-                        // Allow 5 minutes for the test to run
-                        runCommand(5, 'MINUTES', "HackRF Pro Test", hpro_test)
-                    }
+                script {
+                    reset('hpro_tester hpro_eut')
+                }
+                sh 'sleep 1s'
+                script {
+                    // Allow up to 3 retries 5 minutes each for the HIL test
+                    runCommand(3, 5, 'MINUTES', "HackRF Pro Test", hpro_test)
                 }
             }
         }
@@ -184,32 +183,34 @@ pipeline {
 }
 
 def allOff() {
-    // Allow 20 seconds for the USB hub port power server to respond
-    runCommand(20, 'SECONDS', 'USB hub port power server command', "hubs all off")
+    // Allow up to 3 retries, 20 seconds each, for the USB hub port power server to respond appropriately
+    runCommand(3, 20, 'SECONDS', 'USB hub port power server command', "hubs all off")
 }
 
 def reset(devices) {
-    // Allow 20 seconds for the USB hub port power server to respond
-    runCommand(20, 'SECONDS', 'USB hub port power server command', "hubs ${devices} reset")
+    // Allow up to 3 retries, 20 seconds each, for the USB hub port power server to respond appropriately
+    runCommand(3, 20, 'SECONDS', 'USB hub port power server command', "hubs ${devices} reset")
 }
 
-def runCommand(time, unit, title, cmd) {
-    try {
-        timeout(time: time, unit: unit) {
-            sh "${cmd}"
+def runCommand(retries, time, unit, title, cmd) {
+    retry(retries) {
+        try {
+            timeout(time: time, unit: unit) {
+                sh "${cmd}"
+            }
+        } catch (FlowInterruptedException err) {
+            // Check if the cause was specifically an exceeded timeout
+            def cause = err.getCauses().get(0)
+            if (cause instanceof org.jenkinsci.plugins.workflow.steps.TimeoutStepExecution.ExceededTimeout) {
+                echo "${title} timeout reached."
+                throw err // Re-throw the exception to fail the build
+            } else {
+                echo "Build interrupted for another reason."
+                throw err // Re-throw the exception to fail the build
+            }
+        } catch (Exception err) {
+            echo "An unrelated error occurred: ${err.getMessage()}"
+            throw err
         }
-    } catch (FlowInterruptedException err) {
-        // Check if the cause was specifically an exceeded timeout
-        def cause = err.getCauses().get(0)
-        if (cause instanceof org.jenkinsci.plugins.workflow.steps.TimeoutStepExecution.ExceededTimeout) {
-            echo "${title} timeout reached."
-            throw err // Re-throw the exception to fail the build
-        } else {
-            echo "Build interrupted for another reason."
-            throw err // Re-throw the exception to fail the build
-        }
-    } catch (Exception err) {
-        echo "An unrelated error occurred: ${err.getMessage()}"
-        throw err
     }
 }
