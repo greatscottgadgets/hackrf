@@ -1594,6 +1594,7 @@ def main():
         # TODO: check if the provided firmware directory exists
         if args.fwupdate:
             program(eut_host_dir, args.fwupdate, eut_sn, args.unattended)
+            time.sleep(4)
             eut_sn = find_sn("EUT", eut_host_dir, args.factory, [tester_sn])
 
         if not args.rev:
