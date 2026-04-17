@@ -26,17 +26,9 @@
 
 #include <usb_type.h>
 
-#define USB_VENDOR_ID (0x1D50)
+#include "platform_detect.h"
 
-#if (defined HACKRF_ONE || defined PRALINE)
-	#define USB_PRODUCT_ID (0x6089)
-#elif JAWBREAKER
-	#define USB_PRODUCT_ID (0x604B)
-#elif RAD1O
-	#define USB_PRODUCT_ID (0xCC15)
-#else
-	#define USB_PRODUCT_ID (0xFFFF)
-#endif
+#define USB_VENDOR_ID (0x1D50)
 
 #define USB_API_VERSION (0x0111)
 
@@ -51,7 +43,8 @@
 
 #define USB_STRING_LANGID (0x0409)
 
-uint8_t usb_descriptor_device[] = {
+#if defined(IS_HACKRF_ONE) || defined(IS_PRALINE)
+uint8_t usb_descriptor_device_hackrf[] = {
 	18,                         // bLength
 	USB_DESCRIPTOR_TYPE_DEVICE, // bDescriptorType
 	USB_WORD(0x0200),           // bcdUSB
@@ -60,13 +53,50 @@ uint8_t usb_descriptor_device[] = {
 	0x00,                       // bDeviceProtocol
 	USB_MAX_PACKET0,            // bMaxPacketSize0
 	USB_WORD(USB_VENDOR_ID),    // idVendor
-	USB_WORD(USB_PRODUCT_ID),   // idProduct
+	USB_WORD(0x6089),           // idProduct
 	USB_WORD(USB_API_VERSION),  // bcdDevice
 	0x01,                       // iManufacturer
 	0x02,                       // iProduct
 	0x04,                       // iSerialNumber
 	0x01                        // bNumConfigurations
 };
+#endif
+#ifdef IS_JAWBREAKER
+uint8_t usb_descriptor_device_jawbreaker[] = {
+	18,                         // bLength
+	USB_DESCRIPTOR_TYPE_DEVICE, // bDescriptorType
+	USB_WORD(0x0200),           // bcdUSB
+	0x00,                       // bDeviceClass
+	0x00,                       // bDeviceSubClass
+	0x00,                       // bDeviceProtocol
+	USB_MAX_PACKET0,            // bMaxPacketSize0
+	USB_WORD(USB_VENDOR_ID),    // idVendor
+	USB_WORD(0x604B),           // idProduct
+	USB_WORD(USB_API_VERSION),  // bcdDevice
+	0x01,                       // iManufacturer
+	0x02,                       // iProduct
+	0x04,                       // iSerialNumber
+	0x01                        // bNumConfigurations
+};
+#endif
+#ifdef IS_RAD1O
+uint8_t usb_descriptor_device_rad1o[] = {
+	18,                         // bLength
+	USB_DESCRIPTOR_TYPE_DEVICE, // bDescriptorType
+	USB_WORD(0x0200),           // bcdUSB
+	0x00,                       // bDeviceClass
+	0x00,                       // bDeviceSubClass
+	0x00,                       // bDeviceProtocol
+	USB_MAX_PACKET0,            // bMaxPacketSize0
+	USB_WORD(USB_VENDOR_ID),    // idVendor
+	USB_WORD(0xCC15),           // idProduct
+	USB_WORD(USB_API_VERSION),  // bcdDevice
+	0x01,                       // iManufacturer
+	0x02,                       // iProduct
+	0x04,                       // iSerialNumber
+	0x01                        // bNumConfigurations
+};
+#endif
 
 uint8_t usb_descriptor_device_qualifier[] = {
 	10,                                   // bLength
@@ -185,8 +215,8 @@ uint8_t usb_descriptor_string_manufacturer[] = {
 	's', 0x00,
 };
 
-uint8_t usb_descriptor_string_product[] = {
-#ifdef HACKRF_ONE
+#ifdef IS_HACKRF_ONE
+uint8_t usb_descriptor_string_product_hackrf_one[] = {
 	22,                         // bLength
 	USB_DESCRIPTOR_TYPE_STRING, // bDescriptorType
 	'H', 0x00,
@@ -199,7 +229,26 @@ uint8_t usb_descriptor_string_product[] = {
 	'O', 0x00,
 	'n', 0x00,
 	'e', 0x00,
-#elif JAWBREAKER
+};
+#endif
+#ifdef IS_PRALINE
+uint8_t usb_descriptor_string_product_praline[] = {
+	22,                         // bLength
+	USB_DESCRIPTOR_TYPE_STRING, // bDescriptorType
+	'H', 0x00,
+	'a', 0x00,
+	'c', 0x00,
+	'k', 0x00,
+	'R', 0x00,
+	'F', 0x00,
+	' ', 0x00,
+	'P', 0x00,
+	'r', 0x00,
+	'o', 0x00,
+};
+#endif
+#ifdef IS_JAWBREAKER
+uint8_t usb_descriptor_string_product_jawbreaker[] = {
 	36,                         // bLength
 	USB_DESCRIPTOR_TYPE_STRING, // bDescriptorType
 	'H', 0x00,
@@ -219,7 +268,10 @@ uint8_t usb_descriptor_string_product[] = {
 	'k', 0x00,
 	'e', 0x00,
 	'r', 0x00,
-#elif RAD1O
+};
+#endif
+#ifdef IS_RAD1O
+uint8_t usb_descriptor_string_product_rad1o[] = {
 	12,                         // bLength
 	USB_DESCRIPTOR_TYPE_STRING, // bDescriptorType
 	'r', 0x00,
@@ -227,30 +279,8 @@ uint8_t usb_descriptor_string_product[] = {
 	'd', 0x00,
 	'1', 0x00,
 	'o', 0x00,
-#elif PRALINE
-	22,                         // bLength
-	USB_DESCRIPTOR_TYPE_STRING, // bDescriptorType
-	'H', 0x00,
-	'a', 0x00,
-	'c', 0x00,
-	'k', 0x00,
-	'R', 0x00,
-	'F', 0x00,
-	' ', 0x00,
-	'P', 0x00,
-	'r', 0x00,
-	'o', 0x00,
-#else
-	14,                         // bLength
-	USB_DESCRIPTOR_TYPE_STRING, // bDescriptorType
-	'H', 0x00,
-	'a', 0x00,
-	'c', 0x00,
-	'k', 0x00,
-	'R', 0x00,
-	'F', 0x00,
-#endif
 };
+#endif
 
 uint8_t usb_descriptor_string_config_description[] = {
 	24,                         // bLength
@@ -291,14 +321,46 @@ uint8_t usb_descriptor_string_serial_number[] = {
 uint8_t usb_descriptor_string_serial_number[USB_DESCRIPTOR_STRING_SERIAL_BUF_LEN];
 #endif
 
-uint8_t* usb_descriptor_strings[] = {
+#ifdef IS_HACKRF_ONE
+uint8_t* usb_descriptor_strings_hackrf_one[] = {
 	usb_descriptor_string_languages,
 	usb_descriptor_string_manufacturer,
-	usb_descriptor_string_product,
+	usb_descriptor_string_product_hackrf_one,
 	usb_descriptor_string_config_description,
 	usb_descriptor_string_serial_number,
 	0, // TERMINATOR
 };
+#endif
+#ifdef IS_PRALINE
+uint8_t* usb_descriptor_strings_praline[] = {
+	usb_descriptor_string_languages,
+	usb_descriptor_string_manufacturer,
+	usb_descriptor_string_product_praline,
+	usb_descriptor_string_config_description,
+	usb_descriptor_string_serial_number,
+	0, // TERMINATOR
+};
+#endif
+#ifdef IS_JAWBREAKER
+uint8_t* usb_descriptor_strings_jawbreaker[] = {
+	usb_descriptor_string_languages,
+	usb_descriptor_string_manufacturer,
+	usb_descriptor_string_product_jawbreaker,
+	usb_descriptor_string_config_description,
+	usb_descriptor_string_serial_number,
+	0, // TERMINATOR
+};
+#endif
+#ifdef IS_RAD1O
+uint8_t* usb_descriptor_strings_rad1o[] = {
+	usb_descriptor_string_languages,
+	usb_descriptor_string_manufacturer,
+	usb_descriptor_string_product_rad1o,
+	usb_descriptor_string_config_description,
+	usb_descriptor_string_serial_number,
+	0, // TERMINATOR
+};
+#endif
 
 uint8_t wcid_string_descriptor[] = {
 	18,                          // bLength
