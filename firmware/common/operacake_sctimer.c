@@ -25,13 +25,15 @@
 #include <libopencm3/lpc43xx/gima.h>
 #include <libopencm3/lpc43xx/rgu.h>
 #include <libopencm3/lpc43xx/scu.h>
-#if !defined(PRALINE)
+
+#include "delay.h"
+#include "platform_detect.h"
+#include "sct.h"
+
+#ifdef IS_NOT_PRALINE
 	#include <libopencm3/cm3/common.h>
 	#include <libopencm3/lpc43xx/sgpio.h>
 #endif
-
-#include "delay.h"
-#include "sct.h"
 
 #define U1CTRL_SET  SCT_OUT14_SET
 #define U1CTRL_CLR  SCT_OUT14_CLR
@@ -95,24 +97,31 @@ void operacake_sctimer_init(void)
 		P7_0,
 		SCU_CONF_EPUN_DIS_PULLUP | SCU_CONF_EHS_FAST | SCU_CONF_FUNCTION1);
 
-#ifndef PRALINE
-	// Configure the SGPIO to output the clock (f=2 * sample clock) on pin 12
-	SGPIO_OUT_MUX_CFG12 = SGPIO_OUT_MUX_CFG_P_OUT_CFG(0x08) | // clkout output mode
-		SGPIO_OUT_MUX_CFG_P_OE_CFG(0);                    // gpio_oe
-	SGPIO_GPIO_OENREG |= BIT12;
+	uint8_t sct_clock_input;
+#ifdef IS_NOT_PRALINE
+	if (IS_NOT_PRALINE) {
+		// Configure the SGPIO to output the clock (f=2 * sample clock) on pin 12
+		SGPIO_OUT_MUX_CFG12 =
+			SGPIO_OUT_MUX_CFG_P_OUT_CFG(0x08) | // clkout output mode
+			SGPIO_OUT_MUX_CFG_P_OE_CFG(0);      // gpio_oe
+		SGPIO_GPIO_OENREG |= BIT12;
 
-	// Use the GIMA to connect the SGPIO clock to the SCTimer
-	GIMA_CTIN_1_IN = 0x2 << 4; // Route SGPIO12 to SCTIN1
+		// Use the GIMA to connect the SGPIO clock to the SCTimer
+		GIMA_CTIN_1_IN = 0x2 << 4; // Route SGPIO12 to SCTIN1
 
-	uint8_t sct_clock_input = SCT_CONFIG_CKSEL_RISING_EDGES_ON_INPUT_1;
-#else
-	// Configure pin P6_4 as SCT_IN_6
-	scu_pinmux(P6_4, SCU_CLK_IN | SCU_CONF_FUNCTION1);
+		sct_clock_input = SCT_CONFIG_CKSEL_RISING_EDGES_ON_INPUT_1;
+	}
+#endif
+#ifdef IS_PRALINE
+	if (IS_PRALINE) {
+		// Configure pin P6_4 as SCT_IN_6
+		scu_pinmux(P6_4, SCU_CLK_IN | SCU_CONF_FUNCTION1);
 
-	// Use the GIMA to connect MS0/CLK1 (SCT_CLK) on pin P6_4 to the SCTimer
-	GIMA_CTIN_6_IN = 0x0 << 4;
+		// Use the GIMA to connect MS0/CLK1 (SCT_CLK) on pin P6_4 to the SCTimer
+		GIMA_CTIN_6_IN = 0x0 << 4;
 
-	uint8_t sct_clock_input = SCT_CONFIG_CKSEL_RISING_EDGES_ON_INPUT_6;
+		sct_clock_input = SCT_CONFIG_CKSEL_RISING_EDGES_ON_INPUT_6;
+	}
 #endif
 
 	// We configure this register first, because the user manual says to

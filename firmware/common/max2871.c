@@ -24,17 +24,18 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include <libopencm3/lpc43xx/scu.h>
+
 #include "fixed_point.h"
 #include "max2871_regs.h"
-#include "selftest.h"
 #include "platform_scu.h"
+#include "selftest.h"
 
 #if (defined DEBUG)
 	#include <stdio.h>
 	#define LOG printf
 #else
 	#define LOG(x, ...)
-	#include <libopencm3/lpc43xx/scu.h>
 #endif
 
 #define MIN(x, y) ((x) < (y) ? (x) : (y))

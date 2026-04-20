@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2022 Great Scott Gadgets <info@greatscottgadgets.com>
+ * Copyright 2012-2026 Great Scott Gadgets <info@greatscottgadgets.com>
  * Copyright 2012 Benjamin Vernoux <titanmkd@gmail.com>
  * Copyright 2012 Jared Boone <jared@sharebrained.com>
  *
@@ -36,13 +36,14 @@ extern "C" {
 #include "max283x.h"
 #include "max5864.h"
 #include "mixer.h"
+#include "platform_detect.h" // IWYU pragma: keep
 #include "radio.h"
 #include "rf_path.h"
 #include "sgpio.h"
 #include "si5351c.h"
 #include "spi_ssp.h"
 #include "w25q80bv.h"
-#if defined(PRALINE)
+#ifdef IS_PRALINE
 	#include "fpga.h"
 	#include "ice40_spi.h"
 #endif
@@ -51,7 +52,8 @@ extern "C" {
 extern si5351c_driver_t clock_gen;
 extern ssp_config_t ssp_config_w25q80bv;
 
-#ifdef PRALINE
+extern max283x_driver_t max283x;
+#ifdef IS_PRALINE
 extern ice40_spi_driver_t ice40;
 extern fpga_driver_t fpga;
 #endif
@@ -70,28 +72,27 @@ void clock_gen_init(void);
 void clock_gen_shutdown(void);
 void ssp1_set_mode_max283x(void);
 void ssp1_set_mode_max5864(void);
-#ifdef PRALINE
+#ifdef IS_PRALINE
 void ssp1_set_mode_ice40(void);
 #endif
 
 void pin_shutdown(void);
 void pin_setup(void);
 
-#ifdef PRALINE
+#ifdef IS_PRALINE
 void enable_1v2_power(void);
 void disable_1v2_power(void);
 void enable_3v3aux_power(void);
 void disable_3v3aux_power(void);
-#else
+#endif
 void enable_1v8_power(void);
 void disable_1v8_power(void);
-#endif
 
 fp_28_36_t sample_rate_set(const fp_28_36_t sample_rate, const bool program);
 
 clock_source_t activate_best_clock_source(void);
 
-#if (defined HACKRF_ONE || defined RAD1O || defined PRALINE)
+#if defined(IS_RAD1O) || defined(IS_HACKRF_ONE) || defined(IS_PRALINE)
 void enable_rf_power(void);
 void disable_rf_power(void);
 #endif
@@ -112,7 +113,7 @@ void trigger_enable(const bool enable);
 
 void halt_and_flash(const uint32_t duration);
 
-#ifdef PRALINE
+#ifdef IS_PRALINE
 typedef enum {
 	P1_SIGNAL_TRIGGER_IN = 0,
 	P1_SIGNAL_AUX_CLK1 = 1,
