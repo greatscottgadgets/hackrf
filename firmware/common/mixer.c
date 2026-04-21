@@ -104,13 +104,20 @@ void mixer_setup(mixer_driver_t* const mixer, mixer_variant_t type)
 #endif
 }
 
-#if defined(RAD1O)
+/* clang-format off */
+
+#if defined(UNIVERSAL)
+	#define DISPATCH(_mixer, _rffc5071, _max2871) \
+	       if (_mixer->type == RFFC5071_VARIANT) { \
+		       _rffc5071; \
+	       } else { \
+		       _max2871; \
+	       }
+#elif defined(RAD1O)
 	#define DISPATCH(_mixer, _rffc5071, _max2871) _max2871
 #else
 	#define DISPATCH(_mixer, _rffc5071, _max2871) _rffc5071
 #endif
-
-/* clang-format off */
 
 #define CALL(_mixer, _func, ...) \
 	DISPATCH( \
