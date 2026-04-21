@@ -158,14 +158,13 @@ static inline uint8_t compute_resample_log(
 static uint32_t radio_update_sample_rate(radio_t* const radio, uint64_t* bank)
 {
 	fp_28_36_t rate, afe_rate, previous_rate, previous_afe_rate;
-	uint64_t previous_n;
+	uint64_t previous_n, requested_n;
 	uint8_t n = 0;
 	bool new_afe_rate = false;
 	bool new_rate = false;
 	bool new_n = false;
 
 	const uint64_t requested_rate = bank[RADIO_SAMPLE_RATE];
-	const uint64_t requested_n = bank[RADIO_RESAMPLE_RX];
 
 	if (requested_rate != RADIO_UNSET) {
 		rate = MIN(requested_rate, MAX_MCU_RATE);
@@ -193,6 +192,7 @@ static uint32_t radio_update_sample_rate(radio_t* const radio, uint64_t* bank)
 	switch (opmode) {
 	case TRANSCEIVER_MODE_TX:
 	case TRANSCEIVER_MODE_SS:
+		requested_n = bank[RADIO_RESAMPLE_TX];
 		n = compute_resample_log(rate / SR_FP_ONE_HZ, requested_n);
 		if (n != radio->config[RADIO_BANK_APPLIED][RADIO_RESAMPLE_TX]) {
 #ifdef IS_PRALINE
@@ -204,6 +204,7 @@ static uint32_t radio_update_sample_rate(radio_t* const radio, uint64_t* bank)
 		}
 		break;
 	default:
+		requested_n = bank[RADIO_RESAMPLE_RX];
 		n = compute_resample_log(rate / SR_FP_ONE_HZ, requested_n);
 		if (n != radio->config[RADIO_BANK_APPLIED][RADIO_RESAMPLE_RX]) {
 #ifdef IS_PRALINE
