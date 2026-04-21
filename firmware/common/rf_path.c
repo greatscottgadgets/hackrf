@@ -352,7 +352,7 @@ void rf_path_pin_shutdown(void)
 
 void rf_path_pin_setup(rf_path_t* const rf_path)
 {
-#ifdef IS_JAWBREAKER
+#ifdef JAWBREAKER
 	(void) rf_path;
 #else
 	const platform_gpio_t* gpio = platform_gpio();

@@ -30,6 +30,7 @@
 
 #include "delay.h"
 #include "i2c_bus.h"
+#include "platform_detect.h"
 #include "si5351c.h"
 
 /*
