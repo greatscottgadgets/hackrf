@@ -159,12 +159,8 @@ void mixer_set_gpo(mixer_driver_t* const mixer, uint8_t gpo)
 	if (IS_NOT_RAD1O) {
 		rffc5071_set_gpo(&mixer->rffc5071, gpo);
 	}
-#endif
-
-#ifdef IS_RAD1O
-	if (IS_RAD1O) {
-		(void) mixer;
-		(void) gpo;
-	}
+#else
+	(void) mixer;
+	(void) gpo;
 #endif
 }
