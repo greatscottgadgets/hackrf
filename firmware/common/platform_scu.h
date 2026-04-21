@@ -206,7 +206,6 @@ typedef struct {
 	scu_grp_pin_t TX_MIX_BP;
 	scu_grp_pin_t NO_MIX_BYPASS;
 	scu_grp_pin_t RX_MIX_BP;
-	scu_grp_pin_t TX_AMP;
 	scu_grp_pin_t TX;
 	scu_grp_pin_t MIX_BYPASS;
 	scu_grp_pin_t RX;
@@ -214,6 +213,9 @@ typedef struct {
 	scu_grp_pin_t AMP_BYPASS;
 	scu_grp_pin_t RX_AMP;
 	scu_grp_pin_t NO_RX_AMP_PWR;
+#endif
+#ifdef IS_H1_OR_RAD1O
+	scu_grp_pin_t TX_AMP;
 #endif
 #ifdef IS_RAD1O
 	scu_grp_pin_t BY_AMP;
@@ -224,7 +226,6 @@ typedef struct {
 	scu_grp_pin_t BY_MIX_N;
 	scu_grp_pin_t LOW_HIGH_FILT;
 	scu_grp_pin_t LOW_HIGH_FILT_N;
-	scu_grp_pin_t TX_AMP;
 	scu_grp_pin_t RX_LNA;
 #endif
 

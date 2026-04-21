@@ -75,7 +75,6 @@ typedef struct {
 	gpio_t tx_mix_bp;
 	gpio_t no_mix_bypass;
 	gpio_t rx_mix_bp;
-	gpio_t tx_amp;
 	gpio_t tx;
 	gpio_t mix_bypass;
 	gpio_t rx;
@@ -85,6 +84,9 @@ typedef struct {
 	gpio_t no_rx_amp_pwr;
 	gpio_t h1r9_no_ant_pwr; // HACKRF_ONE r9
 	gpio_t h1r9_rx;         // HACKRF_ONE r9
+#endif
+#ifdef IS_H1_OR_RAD1O
+	gpio_t tx_amp;
 #endif
 #ifdef IS_RAD1O
 	gpio_t tx_rx_n;
@@ -96,7 +98,6 @@ typedef struct {
 	gpio_t mixer_en;
 	gpio_t low_high_filt;
 	gpio_t low_high_filt_n;
-	gpio_t tx_amp;
 	gpio_t rx_lna;
 #endif
 #ifdef IS_PRALINE
