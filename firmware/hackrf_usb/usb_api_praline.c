@@ -23,12 +23,13 @@
 
 #include "usb_api_praline.h"
 
-#include <hackrf_core.h>
+#include <clock_io.h>
 #include <platform_detect.h>
+#include <rf_path.h>
 #include <usb_queue.h>
 #include <usb_request.h>
 #include <usb_type.h>
-#if !(defined(DFU_MODE) || defined(RAM_MODE))
+#if !defined(DFU_MODE) && !defined(RAM_MODE)
 	#include <fpga.h>
 #endif
 

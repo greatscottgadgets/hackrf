@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Great Scott Gadgets
+ * Copyright 2026 Great Scott Gadgets <info@greatscottgadgets.com>
  *
  * This file is part of HackRF.
  *
@@ -21,7 +21,29 @@
 
 #pragma once
 
-#include <stdint.h>
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-void clkin_detect_init(void);
-uint32_t clkin_frequency(void);
+#include "platform_detect.h" // IWYU pragma: keep
+
+#include <stdbool.h>
+
+#include "fixed_point.h"
+
+typedef enum {
+	CLOCK_SOURCE_HACKRF = 0,
+	CLOCK_SOURCE_EXTERNAL = 1,
+	CLOCK_SOURCE_PORTAPACK = 2,
+} clock_source_t;
+
+void clock_gen_init(void);
+void clock_gen_shutdown(void);
+
+clock_source_t activate_best_clock_source(void);
+
+fp_28_36_t sample_rate_set(const fp_28_36_t sample_rate, const bool program);
+
+#ifdef __cplusplus
+}
+#endif

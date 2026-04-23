@@ -26,10 +26,13 @@
 #include <stdint.h>
 #include <stdio.h>
 
+#include "clock_gen.h"
 #include "hackrf_core.h"
-#include "radio.h"
 #include "rf_path.h"
 #include "transceiver_mode.h"
+#ifdef IS_NOT_RAD1O
+	#include "radio.h"
+#endif
 
 #include "rad1o/display.h"
 #include "rad1o/draw.h"

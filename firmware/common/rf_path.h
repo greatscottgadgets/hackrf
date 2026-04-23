@@ -102,3 +102,7 @@ void rf_path_set_filter(rf_path_t* const rf_path, const rf_path_filter_t filter)
 
 void rf_path_set_lna(rf_path_t* const rf_path, const uint_fast8_t enable);
 void rf_path_set_antenna(rf_path_t* const rf_path, const uint_fast8_t enable);
+
+#ifdef IS_PRALINE
+void narrowband_filter_set(const uint8_t value);
+#endif

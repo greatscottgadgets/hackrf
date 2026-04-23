@@ -32,6 +32,9 @@
 	#include <libopencm3/lpc43xx/scu.h>
 	#include "platform_scu.h"
 #endif
+#ifdef IS_PRALINE
+	#include "platform_gpio.h"
+#endif
 
 /*
  * RF switches on Jawbreaker are controlled by General Purpose Outputs (GPO) on
@@ -615,3 +618,10 @@ void rf_path_set_antenna(rf_path_t* const rf_path, const uint_fast8_t enable)
 
 	switchctrl_set(rf_path, rf_path->switchctrl);
 }
+
+#ifdef IS_PRALINE
+void narrowband_filter_set(const uint8_t value)
+{
+	gpio_write(platform_gpio()->aa_en, value & 1);
+}
+#endif

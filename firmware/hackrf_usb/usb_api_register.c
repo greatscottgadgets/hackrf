@@ -28,6 +28,7 @@
 #include <stdint.h>
 
 #include <hackrf_core.h>
+#include <leds.h>
 #include <max283x.h>
 #include <platform_detect.h>
 #include <radio.h>
