@@ -115,6 +115,7 @@ typedef enum {
 	HACKRF_VENDOR_REQUEST_TEST_RTC_OSC = 58,
 	HACKRF_VENDOR_REQUEST_RADIO_WRITE_REG = 59,
 	HACKRF_VENDOR_REQUEST_RADIO_READ_REG = 60,
+	HACKRF_VENDOR_REQUEST_GET_BUFFER_SIZE = 61,
 } hackrf_vendor_request;
 
 #define USB_CONFIG_STANDARD 0x1
@@ -138,11 +139,11 @@ typedef enum {
 
 #define TRANSFER_COUNT        4
 #define TRANSFER_BUFFER_SIZE  262144
-#define DEVICE_BUFFER_SIZE    32768
 #define USB_MAX_SERIAL_LENGTH 32
 
 struct hackrf_device {
 	libusb_device_handle* usb_device;
+	uint16_t usb_api_version;
 	struct libusb_transfer** transfers;
 	hackrf_sample_block_cb_fn callback;
 	volatile bool
@@ -162,6 +163,7 @@ struct hackrf_device {
 	hackrf_flush_cb_fn flush_callback;
 	hackrf_tx_block_complete_cb_fn tx_completion_callback;
 	void* flush_ctx;
+	uint32_t buffer_size;
 };
 
 typedef struct {
@@ -187,10 +189,8 @@ static const max2837_ft_t max2837_ft[] = {
 	{28000000},
 	{0}};
 
-#define USB_API_REQUIRED(device, version)                  \
-	uint16_t usb_version = 0;                          \
-	hackrf_usb_api_version_read(device, &usb_version); \
-	if (usb_version < version)                         \
+#define USB_API_REQUIRED(device, version)      \
+	if (device->usb_api_version < version) \
 		return HACKRF_ERROR_USB_API_VERSION;
 
 static const uint16_t hackrf_usb_vid = 0x1d50;
@@ -713,6 +713,14 @@ static int hackrf_open_setup(libusb_device_handle* usb_device, hackrf_device** d
 {
 	int result;
 	hackrf_device* lib_device;
+	uint32_t buffer_size;
+	struct libusb_device_descriptor device_descriptor;
+	libusb_device* dev = libusb_get_device(usb_device);
+	result = libusb_get_device_descriptor(dev, &device_descriptor);
+	if (result < 0) {
+		last_libusb_error = result;
+		return HACKRF_ERROR_LIBUSB;
+	}
 
 	//int speed = libusb_get_device_speed(usb_device);
 	// TODO: Error or warning if not high speed USB?
@@ -746,6 +754,7 @@ static int hackrf_open_setup(libusb_device_handle* usb_device, hackrf_device** d
 #endif
 
 	lib_device->usb_device = usb_device;
+	lib_device->usb_api_version = device_descriptor.bcdDevice;
 	lib_device->transfers = NULL;
 	lib_device->callback = NULL;
 	lib_device->transfer_thread_started = false;
@@ -757,6 +766,30 @@ static int hackrf_open_setup(libusb_device_handle* usb_device, hackrf_device** d
 	lib_device->flush_callback = NULL;
 	lib_device->flush_ctx = NULL;
 	lib_device->tx_completion_callback = NULL;
+
+	if (lib_device->usb_api_version >= 0x0112) {
+		// Fetch buffer size from device so we know how many bytes to flush TX with.
+		result = libusb_control_transfer(
+			lib_device->usb_device,
+			LIBUSB_ENDPOINT_IN | LIBUSB_REQUEST_TYPE_VENDOR |
+				LIBUSB_RECIPIENT_DEVICE,
+			HACKRF_VENDOR_REQUEST_GET_BUFFER_SIZE,
+			0,
+			0,
+			(unsigned char*) &buffer_size,
+			4,
+			0);
+
+		if (result < 4) {
+			last_libusb_error = result;
+			return HACKRF_ERROR_LIBUSB;
+		}
+
+		lib_device->buffer_size = FROM_LE32(buffer_size);
+	} else {
+		// All older firmware uses a fixed 32KB buffer size.
+		lib_device->buffer_size = 32768;
+	}
 
 	result = pthread_mutex_init(&lib_device->transfer_lock, NULL);
 	if (result != 0) {
@@ -1700,17 +1733,7 @@ extern ADDAPI int ADDCALL hackrf_usb_api_version_read(
 	hackrf_device* device,
 	uint16_t* version)
 {
-	int result;
-	libusb_device* dev;
-	struct libusb_device_descriptor desc;
-	dev = libusb_get_device(device->usb_device);
-	result = libusb_get_device_descriptor(dev, &desc);
-	if (result < 0) {
-		last_libusb_error = result;
-		return HACKRF_ERROR_LIBUSB;
-	}
-
-	*version = desc.bcdDevice;
+	*version = device->usb_api_version;
 	return HACKRF_SUCCESS;
 }
 
@@ -2374,8 +2397,8 @@ ADDAPI int ADDCALL hackrf_enable_tx_flush(
 		device->flush_transfer,
 		device->usb_device,
 		TX_ENDPOINT_ADDRESS,
-		calloc(1, DEVICE_BUFFER_SIZE),
-		DEVICE_BUFFER_SIZE,
+		calloc(1, device->buffer_size),
+		device->buffer_size,
 		hackrf_libusb_flush_callback,
 		device,
 		0);
