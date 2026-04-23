@@ -53,6 +53,7 @@ void radio_init(radio_t* const radio)
 	radio->config[RADIO_BANK_IDLE][RADIO_OPMODE] = TRANSCEIVER_MODE_OFF;
 	radio->config[RADIO_BANK_RX][RADIO_OPMODE] = TRANSCEIVER_MODE_RX;
 	radio->config[RADIO_BANK_TX][RADIO_OPMODE] = TRANSCEIVER_MODE_TX;
+	radio->config[RADIO_BANK_IDLE][RADIO_BIAS_TEE] = false;
 	radio->regs_dirty = 0;
 }
 
