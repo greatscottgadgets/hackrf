@@ -25,7 +25,7 @@
 
 #include <libopencm3/lpc43xx/scu.h>
 
-#if defined(IS_HACKRF_ONE)
+#ifdef IS_HACKRF_ONE
 	#include "platform_detect.h"
 #endif
 

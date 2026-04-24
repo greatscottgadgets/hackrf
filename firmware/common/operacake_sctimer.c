@@ -32,7 +32,9 @@
 
 #include "delay.h"
 #include "sct.h"
-#include "platform_detect.h" // IWYU pragma: keep (universal)
+#ifdef IS_UNIVERSAL
+	#include "platform_detect.h"
+#endif
 
 #define U1CTRL_SET  SCT_OUT14_SET
 #define U1CTRL_CLR  SCT_OUT14_CLR

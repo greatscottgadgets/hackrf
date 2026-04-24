@@ -33,6 +33,7 @@ add_compile_definitions(
 
 if(BOARD STREQUAL "UNIVERSAL")
 	add_compile_definitions(
+		"IS_UNIVERSAL=1"
 		"IS_PRALINE=(detected_platform() == BOARD_ID_PRALINE)"
 		"IS_NOT_PRALINE=(!IS_PRALINE)"
 		"IS_HACKRF_ONE=( \

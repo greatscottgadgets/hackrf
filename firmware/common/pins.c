@@ -26,12 +26,10 @@
 #include <libopencm3/lpc43xx/scu.h>
 #include <libopencm3/lpc43xx/ssp.h>
 
-#include "clock_gen.h"
 #include "drivers.h"
 #include "gpio.h"
 #include "leds.h"
 #include "mixer.h"
-#include "platform_detect.h"
 #include "platform_gpio.h"
 #include "platform_scu.h"
 #include "power.h"

@@ -37,13 +37,15 @@
 #include <usb_queue.h>
 #include <usb_request.h>
 #include <usb_type.h>
-#include <platform_detect.h> // IWYU pragma: keep (universal)
 #ifdef IS_PRALINE
 	#include <fpga.h>
 #endif
 #ifdef IS_NOT_RAD1O
 	#include <mixer.h>
 	#include <rffc5071.h>
+#endif
+#ifdef IS_UNIVERSAL
+	#include <platform_detect.h>
 #endif
 
 usb_request_status_t usb_vendor_request_write_max283x(

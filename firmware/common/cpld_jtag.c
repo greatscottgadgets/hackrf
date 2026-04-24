@@ -21,11 +21,12 @@
 
 #include "cpld_jtag.h"
 
-#include "platform_detect.h" // IWYU pragma: keep (universal)
-
 #ifdef IS_NOT_PRALINE
 	#include <stdint.h>
 	#include "xapp058/micro.h"
+#endif
+#ifdef IS_UNIVERSAL
+	#include "platform_detect.h"
 #endif
 
 #ifdef IS_NOT_PRALINE
