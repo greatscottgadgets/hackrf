@@ -319,7 +319,7 @@ static void switchctrl_set(rf_path_t* const rf_path, const uint8_t gpo)
 
 void rf_path_pin_setup(rf_path_t* const rf_path)
 {
-#ifdef JAWBREAKER
+#ifdef IS_JAWBREAKER
 	(void) rf_path;
 #else
 	const platform_scu_t* scu = platform_scu();

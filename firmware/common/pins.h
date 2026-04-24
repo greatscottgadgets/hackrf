@@ -27,8 +27,10 @@
 extern "C" {
 #endif
 
-void pin_shutdown(void);
-void pin_setup(void);
+#include "platform_detect.h" // IWYU pragma: keep
+
+void pins_shutdown(void);
+void pins_setup(void);
 
 #ifdef __cplusplus
 }

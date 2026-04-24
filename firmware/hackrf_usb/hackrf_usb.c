@@ -35,10 +35,10 @@
 #include <delay.h>
 #include <drivers.h>
 #include <fixed_point.h>
-#include <hackrf_core.h>
 #include <hackrf_ui.h>
 #include <leds.h>
 #include <operacake.h>
+#include <pins.h>
 #include <platform_detect.h>
 #include <power.h>
 #include <radio.h>
@@ -444,12 +444,12 @@ int main(void)
 	detect_hardware_platform();
 	board_id_t board_id = detected_platform();
 
-	pin_shutdown();
+	pins_shutdown();
 	if (board_id != BOARD_ID_RAD1O) {
 		clock_gen_shutdown();
 	}
 	delay_us_at_mhz(10000, 96);
-	pin_setup();
+	pins_setup();
 #ifdef IS_PRALINE
 	if (IS_PRALINE) {
 		enable_3v3aux_power();
