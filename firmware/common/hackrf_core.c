@@ -185,7 +185,7 @@ void pin_shutdown(void)
 		p2_ctrl_set(P2_SIGNAL_CLK3);
 		p1_ctrl_set(P1_SIGNAL_CLKIN);
 		narrowband_filter_set(0);
-		clkin_ctrl_set(CLKIN_SIGNAL_P22);
+		clkin_ctrl_set(CLKIN_SIGNAL_P1);
 
 		gpio_output(gpio->p2_ctrl0);
 		gpio_output(gpio->p2_ctrl1);

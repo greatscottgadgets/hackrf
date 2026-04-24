@@ -663,9 +663,6 @@ class HackRF:
             self.rf_test_cases = praline_r110_rf_test_cases
 
     def clkin(self):
-        if self.name == "EUT" and self.id == "5":
-            debug = subprocess.run([self.bin_dir + "/hackrf_debug", "-d", self.serial,
-                                    "-C", "0"])
         command = subprocess.run([self.bin_dir + "/hackrf_clock", "-i", "-d",
             self.serial], capture_output=True, encoding="utf-8",
             timeout=TIMEOUT)
