@@ -41,29 +41,31 @@ pipeline {
             steps {
                 sh './ci-scripts/install_host.sh'
                 sh './ci-scripts/build_firmware.sh HACKRF_ONE'
-                script {
-                    allOff()
-                    reset('h1_eut')
-                }
-                sh 'sleep 1s'
-                retry(3) {
-                    sh './ci-scripts/test_host.sh'
-                }
-                script {
-                    reset('h1_tester h1_eut')
-                }
-                sh 'sleep 1s'
-                script {
-                    // Allow up to 3 retries 5 minutes each for the HIL test
-                    runCommand(3, 5, 'MINUTES', "HackRF One Test", h1_test)
-                }
-                script {
-                    allOff()
-                    reset('h1_eut')
-                }
-                sh 'sleep 1s'
-                retry(3) {
-                    sh 'python3 ci-scripts/test_sgpio_debug.py'
+                lock('HIL_hubs') {
+                    script {
+                        allOff()
+                        reset('h1_eut')
+                    }
+                    sh 'sleep 1s'
+                    retry(3) {
+                        sh './ci-scripts/test_host.sh'
+                    }
+                    script {
+                        reset('h1_tester h1_eut')
+                    }
+                    sh 'sleep 1s'
+                    script {
+                        // Allow up to 3 retries 5 minutes each for the HIL test
+                        runCommand(3, 5, 'MINUTES', "HackRF One Test", h1_test)
+                    }
+                    script {
+                        allOff()
+                        reset('h1_eut')
+                    }
+                    sh 'sleep 1s'
+                    retry(3) {
+                        sh 'python3 ci-scripts/test_sgpio_debug.py'
+                    }
                 }
             }
         }
@@ -81,29 +83,31 @@ pipeline {
             steps {
                 sh './ci-scripts/install_host.sh'
                 sh './ci-scripts/build_firmware.sh UNIVERSAL'
-                script {
-                    allOff()
-                    reset('h1_eut')
-                }
-                sh 'sleep 1s'
-                retry(3) {
-                    sh './ci-scripts/test_host.sh'
-                }
-                script {
-                    reset('h1_tester h1_eut')
-                }
-                sh 'sleep 1s'
-                script {
-                    // Allow up to 3 retries 5 minutes each for the HIL test
-                    runCommand(3, 5, 'MINUTES', "HackRF One Test", h1_test)
-                }
-                script {
-                    allOff()
-                    reset('h1_eut')
-                }
-                sh 'sleep 1s'
-                retry(3) {
-                    sh 'python3 ci-scripts/test_sgpio_debug.py'
+                lock('HIL_hubs') {
+                    script {
+                        allOff()
+                        reset('h1_eut')
+                    }
+                    sh 'sleep 1s'
+                    retry(3) {
+                        sh './ci-scripts/test_host.sh'
+                    }
+                    script {
+                        reset('h1_tester h1_eut')
+                    }
+                    sh 'sleep 1s'
+                    script {
+                        // Allow up to 3 retries 5 minutes each for the HIL test
+                        runCommand(3, 5, 'MINUTES', "HackRF One Test", h1_test)
+                    }
+                    script {
+                        allOff()
+                        reset('h1_eut')
+                    }
+                    sh 'sleep 1s'
+                    retry(3) {
+                        sh 'python3 ci-scripts/test_sgpio_debug.py'
+                    }
                 }
             }
         }
@@ -121,21 +125,23 @@ pipeline {
             steps {
                 sh './ci-scripts/install_host.sh'
                 sh './ci-scripts/build_firmware.sh PRALINE'
-                script {
-                    allOff()
-                    reset('hpro_eut')
-                }
-                sh 'sleep 1s'
-                retry(3) {
-                    sh './ci-scripts/test_host.sh'
-                }
-                script {
-                    reset('hpro_tester hpro_eut')
-                }
-                sh 'sleep 1s'
-                script {
-                    // Allow up to 3 retries 5 minutes each for the HIL test
-                    runCommand(3, 5, 'MINUTES', "HackRF Pro Test", hpro_test)
+                lock('HIL_hubs') {
+                    script {
+                        allOff()
+                        reset('hpro_eut')
+                    }
+                    sh 'sleep 1s'
+                    retry(3) {
+                        sh './ci-scripts/test_host.sh'
+                    }
+                    script {
+                        reset('hpro_tester hpro_eut')
+                    }
+                    sh 'sleep 1s'
+                    script {
+                        // Allow up to 3 retries 5 minutes each for the HIL test
+                        runCommand(3, 5, 'MINUTES', "HackRF Pro Test", hpro_test)
+                    }
                 }
             }
         }
@@ -153,21 +159,23 @@ pipeline {
             steps {
                 sh './ci-scripts/install_host.sh'
                 sh './ci-scripts/build_firmware.sh UNIVERSAL'
-                script {
-                    allOff()
-                    reset('hpro_eut')
-                }
-                sh 'sleep 1s'
-                retry(3) {
-                    sh './ci-scripts/test_host.sh'
-                }
-                script {
-                    reset('hpro_tester hpro_eut')
-                }
-                sh 'sleep 1s'
-                script {
-                    // Allow up to 3 retries 5 minutes each for the HIL test
-                    runCommand(3, 5, 'MINUTES', "HackRF Pro Test", hpro_test)
+                lock('HIL_hubs') {
+                    script {
+                        allOff()
+                        reset('hpro_eut')
+                    }
+                    sh 'sleep 1s'
+                    retry(3) {
+                        sh './ci-scripts/test_host.sh'
+                    }
+                    script {
+                        reset('hpro_tester hpro_eut')
+                    }
+                    sh 'sleep 1s'
+                    script {
+                        // Allow up to 3 retries 5 minutes each for the HIL test
+                        runCommand(3, 5, 'MINUTES', "HackRF Pro Test", hpro_test)
+                    }
                 }
             }
         }
