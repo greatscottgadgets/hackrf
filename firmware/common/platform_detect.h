@@ -21,7 +21,6 @@
 
 #pragma once
 
-#include <stdbool.h>
 #include <stdint.h>
 
 #define BOARD_REV_GSG (0x80)
@@ -32,77 +31,7 @@
 #define PLATFORM_HACKRF1_R9 (1 << 3)
 #define PLATFORM_PRALINE    (1 << 4)
 
-/* clang-format off */
-
-/* Helper macros for platform-specific code. */
-#if defined(UNIVERSAL)
-	#define IS_PRALINE (detected_platform() == BOARD_ID_PRALINE)
-	#define IS_NOT_PRALINE (!IS_PRALINE)
-	#define IS_HACKRF_ONE ( \
-		detected_platform() == BOARD_ID_HACKRF1_OG || \
-		detected_platform() == BOARD_ID_HACKRF1_R9 \
-	)
-	#define IS_NOT_HACKRF_ONE (!IS_HACKRF_ONE)
-	#define IS_H1_R9 (detected_platform() == BOARD_ID_HACKRF1_R9)
-	#define IS_NOT_H1_R9 (!IS_H1_R9)
-	#define IS_NOT_RAD1O true
-	#define IS_NOT_JAWBREAKER true
-	#define IS_H1_OR_PRALINE true
-	#define IS_H1_OR_RAD1O IS_HACKRF_ONE
-	#define IS_H1_OR_JAWBREAKER IS_HACKRF_ONE
-	#define IS_FOUR_LEDS IS_PRALINE
-	#define IS_EXPANSION_COMPATIBLE true
-#elif defined(HACKRF_ONE)
-	#define IS_NOT_PRALINE true
-	#define IS_HACKRF_ONE true
-	#define IS_H1_R9 (detected_platform() == BOARD_ID_HACKRF1_R9)
-	#define IS_NOT_H1_R9 (!IS_H1_R9)
-	#define IS_NOT_RAD1O true
-	#define IS_NOT_JAWBREAKER true
-	#define IS_H1_OR_PRALINE true
-	#define IS_H1_OR_RAD1O true
-	#define IS_H1_OR_JAWBREAKER true
-	#define IS_EXPANSION_COMPATIBLE true
-#elif defined(PRALINE)
-	#define IS_PRALINE true
-	#define IS_NOT_HACKRF_ONE true
-	#define IS_NOT_H1_R9 true
-	#define IS_NOT_RAD1O true
-	#define IS_NOT_JAWBREAKER true
-	#define IS_H1_OR_PRALINE true
-	#define IS_FOUR_LEDS true
-	#define IS_EXPANSION_COMPATIBLE true
-#elif defined(RAD1O)
-	#define IS_NOT_PRALINE true
-	#define IS_NOT_HACKRF_ONE true
-	#define IS_NOT_H1_R9 true
-	#define IS_RAD1O true
-	#define IS_NOT_JAWBREAKER true
-	#define IS_H1_OR_RAD1O true
-	#define IS_FOUR_LEDS true
-#elif defined(JAWBREAKER)
-	#define IS_NOT_PRALINE true
-	#define IS_NOT_HACKRF_ONE true
-	#define IS_NOT_H1_R9 true
-	#define IS_NOT_RAD1O true
-	#define IS_JAWBREAKER true
-	#define IS_H1_OR_JAWBREAKER true
-#else
-	#error "No recognised platform defined"
-#endif
-
-/* clang-format on */
-
-typedef enum {
-	BOARD_ID_JELLYBEAN = 0,
-	BOARD_ID_JAWBREAKER = 1,
-	BOARD_ID_HACKRF1_OG = 2, /* HackRF One prior to r9 */
-	BOARD_ID_RAD1O = 3,
-	BOARD_ID_HACKRF1_R9 = 4,
-	BOARD_ID_PRALINE = 5,
-	BOARD_ID_UNRECOGNIZED = 0xFE, /* tried detection but did not recognize board */
-	BOARD_ID_UNDETECTED = 0xFF,   /* detection not yet attempted */
-} board_id_t;
+typedef uint8_t board_id_t; /* values are defined in platform-detect.cmake */
 
 typedef enum {
 	BOARD_REV_HACKRF1_OLD = 0,
