@@ -129,26 +129,39 @@ static uint32_t radio_update_direction(radio_t* const radio, uint64_t* bank)
 	return (1 << RADIO_OPMODE);
 }
 
-#define MAX_AFE_RATE_HZ (40000000UL)
+#define ABSOLUTE_MIN_AFE_RATE  SR_FP_KHZ(200)
+#define ABSOLUTE_MAX_AFE_RATE  SR_FP_KHZ(43600)
+#define MAX_SUPPORTED_AFE_RATE SR_FP_KHZ(40000)
 
 static inline uint8_t compute_resample_log(
-	const uint32_t sample_rate_hz,
+	const fp_28_36_t sample_rate,
 	const uint64_t requested_n)
 {
 	if (detected_platform() != BOARD_ID_PRALINE) {
 		return 0;
 	}
-	const uint8_t min_n = 1;
-	uint8_t max_n = 5;
+	uint8_t n = 0; // resampling ratio is 2**n
+	const uint8_t max_n = 5;
+	fp_28_36_t afe_rate = 0;
 
-	if (requested_n != RADIO_UNSET) {
-		max_n = MIN(max_n, requested_n);
-	}
-	uint8_t n = min_n; // resampling ratio is 2**n
-	uint32_t afe_rate_x2 = 4 * sample_rate_hz;
-	while ((afe_rate_x2 <= MAX_AFE_RATE_HZ) && (n < max_n)) {
-		afe_rate_x2 <<= 1;
-		n++;
+	if (requested_n == RADIO_UNSET) {
+		/* Find highest supported resampling ratio of at least 2 (n=1). */
+		while (((afe_rate * 2) <= MAX_SUPPORTED_AFE_RATE) && (n < max_n)) {
+			n++;
+			afe_rate = sample_rate << n;
+		}
+	} else {
+		/* Restrict requested resampling ratio within allowable limits. */
+		n = MIN(max_n, requested_n);
+		afe_rate = sample_rate << n;
+		while ((afe_rate < ABSOLUTE_MIN_AFE_RATE) && (n < max_n)) {
+			n++;
+			afe_rate <<= 1;
+		}
+		while ((afe_rate > ABSOLUTE_MAX_AFE_RATE) && (n > 0)) {
+			n--;
+			afe_rate >>= 1;
+		}
 	}
 	return n;
 }
@@ -160,14 +173,13 @@ static inline uint8_t compute_resample_log(
 static uint32_t radio_update_sample_rate(radio_t* const radio, uint64_t* bank)
 {
 	fp_28_36_t rate, afe_rate, previous_rate, previous_afe_rate;
-	uint64_t previous_n;
+	uint64_t previous_n, requested_n;
 	uint8_t n = 0;
 	bool new_afe_rate = false;
 	bool new_rate = false;
 	bool new_n = false;
 
 	const uint64_t requested_rate = bank[RADIO_SAMPLE_RATE];
-	const uint64_t requested_n = bank[RADIO_RESAMPLE_RX];
 
 	if (requested_rate != RADIO_UNSET) {
 		rate = MIN(requested_rate, MAX_MCU_RATE);
@@ -195,7 +207,8 @@ static uint32_t radio_update_sample_rate(radio_t* const radio, uint64_t* bank)
 	switch (opmode) {
 	case TRANSCEIVER_MODE_TX:
 	case TRANSCEIVER_MODE_SS:
-		n = compute_resample_log(rate / SR_FP_ONE_HZ, requested_n);
+		requested_n = bank[RADIO_RESAMPLE_TX];
+		n = compute_resample_log(rate, requested_n);
 		if (n != radio->config[RADIO_BANK_APPLIED][RADIO_RESAMPLE_TX]) {
 #ifdef IS_PRALINE
 			if (IS_PRALINE) {
@@ -206,7 +219,8 @@ static uint32_t radio_update_sample_rate(radio_t* const radio, uint64_t* bank)
 		}
 		break;
 	default:
-		n = compute_resample_log(rate / SR_FP_ONE_HZ, requested_n);
+		requested_n = bank[RADIO_RESAMPLE_RX];
+		n = compute_resample_log(rate, requested_n);
 		if (n != radio->config[RADIO_BANK_APPLIED][RADIO_RESAMPLE_RX]) {
 #ifdef IS_PRALINE
 			if (IS_PRALINE) {
