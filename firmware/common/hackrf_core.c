@@ -27,8 +27,6 @@
 #include <libopencm3/lpc43xx/scu.h>
 #include <libopencm3/lpc43xx/ssp.h>
 
-#include "platform_detect.h"
-
 #include "clock_gen.h"
 #include "gpio.h"
 #include "hackrf_core.h"
@@ -41,6 +39,9 @@
 #include "power.h"
 #include "spi_bus.h"
 #include "w25q80bv_target.h"
+#if defined(IS_HACKRF_ONE) || defined(IS_PRALINE)
+	#include "platform_detect.h"
+#endif
 #ifdef IS_PRALINE
 	#include "clock_io.h"
 	#include "ice40_spi.h"

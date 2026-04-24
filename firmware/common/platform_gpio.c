@@ -23,7 +23,9 @@
 
 #include <stddef.h>
 
-#include "platform_detect.h"
+#ifdef IS_HACKRF_ONE
+	#include "platform_detect.h"
+#endif
 
 // clang-format off
 

@@ -27,7 +27,7 @@
 #include <libopencm3/lpc43xx/cgu.h>
 #include <libopencm3/lpc43xx/creg.h>
 
-#include <platform_detect.h>
+#include <platform_detect.h> // IWYU pragma: keep (universal)
 #include <selftest.h>
 #include <usb_queue.h>
 #include <usb_request.h>

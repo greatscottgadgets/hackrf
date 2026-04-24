@@ -25,7 +25,7 @@
 
 #include "delay.h"
 #include "gpio.h"
-#include "platform_detect.h"
+#include "platform_detect.h" // IWYU pragma: keep (universal)
 #include "platform_gpio.h"
 
 void led_on(const led_t led)

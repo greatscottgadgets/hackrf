@@ -21,7 +21,7 @@
 
 #include "cpld_jtag.h"
 
-#include "platform_detect.h"
+#include "platform_detect.h" // IWYU pragma: keep (universal)
 
 #ifdef IS_NOT_PRALINE
 	#include <stdint.h>

@@ -24,7 +24,7 @@
 #include "tuning.h"
 
 #include "fixed_point.h"
-#include "platform_detect.h"
+#include "platform_detect.h" // IWYU pragma: keep (universal)
 
 #define MIN(x, y) ((x) < (y) ? (x) : (y))
 #define MAX(x, y) ((x) > (y) ? (x) : (y))

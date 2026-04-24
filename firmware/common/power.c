@@ -24,15 +24,15 @@
 #if defined(IS_HACKRF_ONE)
 	#include <stdint.h>
 #endif
-#if defined(IS_HACKRF_ONE) || defined(IS_RAD1O) || defined(IS_JAWBREAKER)
+
+#include "gpio.h"
+#include "platform_gpio.h"
+#if defined(IS_HACKRF_ONE)
 	#include "platform_detect.h"
 #endif
 #if defined(IS_PRALINE) || defined(IS_RAD1O)
 	#include "delay.h"
 #endif
-
-#include "gpio.h"
-#include "platform_gpio.h"
 
 #ifdef IS_PRALINE
 void enable_1v2_power(void)

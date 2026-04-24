@@ -33,7 +33,6 @@ extern "C" {
 #include "max283x.h"
 #include "max5864.h"
 #include "mixer.h"
-#include "platform_detect.h" // IWYU pragma: keep
 #include "radio.h"
 #include "rf_path.h"
 #include "sgpio.h"
