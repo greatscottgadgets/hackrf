@@ -23,6 +23,9 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#ifdef IS_NOT_RAD1O
+	#include <stdbool.h>
+#endif
 
 #include <libopencm3/lpc43xx/cgu.h>
 #include <libopencm3/lpc43xx/creg.h>
@@ -32,10 +35,6 @@
 #include <usb_queue.h>
 #include <usb_request.h>
 #include <usb_type.h>
-
-#ifdef IS_NOT_RAD1O
-	#include <stdbool.h>
-#endif
 
 static char* itoa(int val, int base)
 {

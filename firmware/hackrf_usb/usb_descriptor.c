@@ -26,8 +26,6 @@
 
 #include <usb_type.h>
 
-#include "platform_detect.h"
-
 #define USB_VENDOR_ID (0x1D50)
 
 #define USB_API_VERSION (0x0112)

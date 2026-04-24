@@ -31,9 +31,6 @@
 #include "delay.h"
 #include "i2c_bus.h"
 #include "si5351c.h"
-#ifdef IS_NOT_RAD1O
-	#include "platform_detect.h"
-#endif
 
 /*
 Configure PLL1 (Main MCU Clock) to max speed (204MHz).

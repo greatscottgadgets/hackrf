@@ -24,8 +24,6 @@
 
 #include <stdint.h>
 
-#include "platform_detect.h"
-
 #if defined(IS_HACKRF_ONE) || defined(IS_PRALINE)
 extern uint8_t usb_descriptor_device_hackrf[];
 #endif

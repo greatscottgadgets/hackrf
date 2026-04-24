@@ -25,8 +25,6 @@
 extern "C" {
 #endif
 
-#include "platform_detect.h" // IWYU pragma: keep
-
 void cpu_clock_init(void);
 
 #ifdef __cplusplus

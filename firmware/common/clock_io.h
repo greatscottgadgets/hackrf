@@ -24,8 +24,6 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "platform_detect.h" // IWYU pragma: keep
-
 void clkin_detect_init(void);
 uint32_t clkin_frequency(void);
 

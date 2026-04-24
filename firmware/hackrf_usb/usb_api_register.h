@@ -23,8 +23,6 @@
 
 #pragma once
 
-#include "platform_detect.h" // IWYU pragma: keep
-
 #include <usb_request.h>
 #include <usb_type.h>
 
