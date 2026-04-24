@@ -33,10 +33,12 @@
 #include "gpdma.h"
 #include "gpio.h"
 #include "hackrf_core.h"
-#include "platform_detect.h" // IWYU pragma: keep (universal)
 #ifdef IS_PRALINE
 	#include "fpga.h"
 	#include "platform_gpio.h"
+#endif
+#ifdef IS_UNIVERSAL
+	#include "platform_detect.h"
 #endif
 
 #define CLOCK_CYCLES_1_MS     (204000)
