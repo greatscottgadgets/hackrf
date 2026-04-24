@@ -26,10 +26,10 @@
 #include <libopencm3/cm3/nvic.h>
 
 #include "clock_io.h"
+#include "drivers.h"
 #include "fixed_point.h"
-#include "hackrf_core.h"
-#include "mixer.h"
 #include "max283x.h"
+#include "mixer.h"
 #include "platform_detect.h"
 #include "rf_path.h"
 #include "transceiver_mode.h"

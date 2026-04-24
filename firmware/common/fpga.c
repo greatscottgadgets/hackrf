@@ -20,11 +20,11 @@
  */
 
 #include "fpga.h"
+#include "fpga_regs.def"
 
 #include <stdbool.h>
 
-#include "fpga_regs.def"
-#include "hackrf_core.h"
+#include "drivers.h"
 #include "ice40_spi.h"
 
 /* Set up all registers according to the loaded bitstream's defaults. */

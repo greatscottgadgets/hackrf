@@ -33,6 +33,7 @@
 #include <cpu_clock.h>
 #include <da7219.h>
 #include <delay.h>
+#include <drivers.h>
 #include <fixed_point.h>
 #include <hackrf_core.h>
 #include <hackrf_ui.h>
