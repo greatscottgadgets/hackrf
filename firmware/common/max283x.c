@@ -27,7 +27,9 @@
 #include <string.h>
 
 #include "fixed_point.h"
-#include "platform_detect.h"
+#ifdef IS_HACKRF_ONE
+	#include "platform_detect.h"
+#endif
 #include "platform_gpio.h"
 #include "spi_bus.h"
 

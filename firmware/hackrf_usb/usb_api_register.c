@@ -21,6 +21,7 @@
  * the Free Software Foundation, Inc., 51 Franklin Street,
  * Boston, MA 02110-1301, USA.
  */
+
 #include "usb_api_register.h"
 
 #include <stdbool.h>
@@ -30,7 +31,7 @@
 #include <hackrf_core.h>
 #include <leds.h>
 #include <max283x.h>
-#include <platform_detect.h>
+
 #include <radio.h>
 #include <si5351c.h>
 #include <usb_queue.h>
@@ -42,6 +43,9 @@
 #ifdef IS_NOT_RAD1O
 	#include <mixer.h>
 	#include <rffc5071.h>
+#endif
+#ifdef IS_UNIVERSAL
+	#include <platform_detect.h>
 #endif
 
 usb_request_status_t usb_vendor_request_write_max283x(

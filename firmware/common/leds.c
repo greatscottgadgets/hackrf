@@ -25,8 +25,10 @@
 
 #include "delay.h"
 #include "gpio.h"
-#include "platform_detect.h"
 #include "platform_gpio.h"
+#ifdef IS_UNIVERSAL
+	#include "platform_detect.h"
+#endif
 
 void led_on(const led_t led)
 {

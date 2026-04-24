@@ -24,7 +24,6 @@
 #include <stdbool.h>
 
 #include "fixed_point.h"
-#include "platform_detect.h"
 #include "platform_gpio.h"
 #ifdef IS_RAD1O
 	#include "max2871.h"
@@ -33,6 +32,9 @@
 	#include "rffc5071.h"
 	#include "rffc5071_spi.h"
 	#include "spi_bus.h"
+#endif
+#ifdef IS_UNIVERSAL
+	#include "platform_detect.h"
 #endif
 
 #ifdef IS_NOT_RAD1O

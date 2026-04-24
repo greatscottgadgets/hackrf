@@ -37,13 +37,15 @@
 
 #include "delay.h"
 #include "fixed_point.h"
-#include "platform_detect.h"
 #include "rffc5071.h"
 #include "rffc5071_regs.def" // private register def macros
 #include "selftest.h"
 #ifdef IS_PRALINE
 	#include <libopencm3/lpc43xx/scu.h>
 	#include "platform_scu.h"
+#endif
+#ifdef IS_UNIVERSAL
+	#include "platform_detect.h"
 #endif
 
 #define MIN(x, y) ((x) < (y) ? (x) : (y))

@@ -24,7 +24,9 @@
 #include "tuning.h"
 
 #include "fixed_point.h"
-#include "platform_detect.h"
+#ifdef IS_UNIVERSAL
+	#include "platform_detect.h"
+#endif
 
 #define MIN(x, y) ((x) < (y) ? (x) : (y))
 #define MAX(x, y) ((x) > (y) ? (x) : (y))
