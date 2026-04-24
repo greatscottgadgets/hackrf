@@ -115,6 +115,8 @@ typedef enum {
 	HACKRF_VENDOR_REQUEST_TIME_SET_TICKS_NOW,
 	HACKRF_VENDOR_REQUEST_TIME_SET_CLK_FREQ,
 	HACKRF_VENDOR_REQUEST_TIME_SET_MCU_CLK_SYNC,
+	HACKRF_VENDOR_REQUEST_TIME_SET_TRIG_HOLD_ENABLE,
+	HACKRF_VENDOR_REQUEST_TIME_SET_PPS_OUT_ENABLE,
 
 } hackrf_vendor_request;
 
@@ -3290,6 +3292,52 @@ int ADDCALL hackrf_time_set_mcu_clk_sync(hackrf_device* device, const uint8_t va
 		LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR |
 			LIBUSB_RECIPIENT_DEVICE,
 		HACKRF_VENDOR_REQUEST_TIME_SET_MCU_CLK_SYNC,
+		value,
+		0,
+		NULL,
+		0,
+		0);
+
+	if (result != 0) {
+		last_libusb_error = result;
+		return HACKRF_ERROR_LIBUSB;
+	} else {
+		return HACKRF_SUCCESS;
+	}
+}
+
+int ADDCALL hackrf_time_set_trig_hold_enable_next_pps(hackrf_device* device, const uint8_t value)
+{
+	USB_API_REQUIRED(device, 0x010A)
+	int result;
+	result = libusb_control_transfer(
+		device->usb_device,
+		LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR |
+			LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_TIME_SET_TRIG_HOLD_ENABLE,
+		value,
+		0,
+		NULL,
+		0,
+		0);
+
+	if (result != 0) {
+		last_libusb_error = result;
+		return HACKRF_ERROR_LIBUSB;
+	} else {
+		return HACKRF_SUCCESS;
+	}
+}
+
+int ADDCALL hackrf_time_set_pps_out_enable_next_pps(hackrf_device* device, const uint8_t value)
+{
+	USB_API_REQUIRED(device, 0x010A)
+	int result;
+	result = libusb_control_transfer(
+		device->usb_device,
+		LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR |
+			LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_TIME_SET_PPS_OUT_ENABLE,
 		value,
 		0,
 		NULL,

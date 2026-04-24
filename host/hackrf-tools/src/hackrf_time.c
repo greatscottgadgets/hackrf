@@ -87,6 +87,8 @@ static void usage()
 	printf("\t-f, --set_clk_freq <v>: set sync clock freq to <v>\n");
 	printf("\t-k, --ticks : read ticks counter now\n");
 	printf("\t-K, --Ticks : set ticks counter now\n");
+	printf("\t-l, --trig_hold <0/1>: set trig hold status at next PPS leading edge\n");
+	printf("\t-p, --pps_out <0/1>: set pps output state at next PPS leading edge\n");
 	printf("\t-r, --trig_delay <v>: set trig delay to <v> val next pps\n");
 	printf("\t-s, --seconds <v>: set seconds counter now to <v> value\n");
 	printf("\t-S, --Seconds <v>: as -s but in sync to next pps\n");
@@ -94,6 +96,8 @@ static void usage()
 	printf("\t-y, --mcu_clk_sync <0/1>: enable/disable mcu clock sync\n");
 	printf("\nExamples:\n");
 	printf("\thackrf_time -s 1234     # set seconds counter to 1234 now\n");
+	printf("\thackrf_time -l 1        # enable trigger hold on next PPS\n");
+	printf("\thackrf_time -p 0        # disable PPS output on next PPS\n");
 	printf("\thackrf_time -y 1        # enable MCU sync mode\n");
 
 	printf("\nv0.1.0 20250215 F.P. <mxgbot@gmail.com>\n");
@@ -106,6 +110,8 @@ static struct option long_options[] = {
 	{"set_clk_freq", required_argument, 0, 'f'},
 	{"ticks", no_argument, 0, 'k'},
 	{"Ticks", required_argument, 0, 'K'},
+	{"trig_hold", required_argument, 0, 'l'},
+	{"pps_out", required_argument, 0, 'p'},
 	{"trig_delay", required_argument, 0, 'r'},
 	{"seconds", required_argument, 0, 's'},
 	{"Seconds", required_argument, 0, 'S'},
@@ -131,7 +137,7 @@ int main(int argc, char** argv)
 		opt = getopt_long(
 			argc,
 			argv,
-			"hd:D:f:kK:r:s:S:ty:",
+			"hd:D:f:kK:il:p:r:s:S:ty:",
 			long_options,
 			&option_index);
 	else {
@@ -223,6 +229,39 @@ int main(int argc, char** argv)
 			return EXIT_FAILURE;
 		}
 		break;
+
+
+	case 'l':
+		result = parse_int(optarg, &value);
+		if (result) {
+			printf("invalid enable value. Int required'\n");
+			return EXIT_FAILURE;
+		}
+		result = hackrf_time_set_trig_hold_enable_next_pps(device, value);
+		if (result) {
+			printf("setting trigger hold failed: %s (%d)\n",
+			       hackrf_error_name(result),
+			       result);
+			return EXIT_FAILURE;
+		}
+		break;
+
+
+	case 'p':
+		result = parse_int(optarg, &value);
+		if (result) {
+			printf("invalid enable value. Int required'\n");
+			return EXIT_FAILURE;
+		}
+		result = hackrf_time_set_pps_out_enable_next_pps(device, value);
+		if (result) {
+			printf("setting pps output failed: %s (%d)\n",
+			       hackrf_error_name(result),
+			       result);
+			return EXIT_FAILURE;
+		}
+		break;
+
 
 	case 'r':
 		result = parse_int(optarg, &value);

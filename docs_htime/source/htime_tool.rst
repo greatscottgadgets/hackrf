@@ -19,6 +19,8 @@ Tool help
         -f, --set_clk_freq <v>: set sync clock freq to <v>
         -k, --ticks : read ticks counter now
         -K, --Ticks : set ticks counter now
+        -l, --trig_hold <0/1>: enable/disable trig hold status on next pps
+        -p, --pps_out <0/1>: enable/disable pps output on next pps
         -r, --trig_delay <v>: set trig delay to <v> val next pps
         -s, --seconds <v>: set seconds counter now to <v> value
         -S, --Seconds <v>: as -s but in sync to next pps
@@ -27,6 +29,8 @@ Tool help
 
   Examples:
         hackrf_time -s 1234     # set seconds counter to 1234 now
+        hackrf_time -l 1        # enable trigger hold on next PPS
+        hackrf_time -p 0        # disable PPS output on next PPS
         hackrf_time -y 1        # enable MCU sync mode
 
   v0.1.0 20250215 F.P. <mxgbot@gmail.com>

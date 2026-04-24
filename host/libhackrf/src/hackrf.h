@@ -2132,6 +2132,12 @@ extern ADDAPI int ADDCALL hackrf_time_set_clk_freq(
 extern ADDAPI int ADDCALL hackrf_time_set_mcu_clk_sync(
 	hackrf_device* device,
 	const uint8_t value);
+extern ADDAPI int ADDCALL hackrf_time_set_trig_hold_enable_next_pps(
+	hackrf_device* device,
+	const uint8_t value);
+extern ADDAPI int ADDCALL hackrf_time_set_pps_out_enable_next_pps(
+	hackrf_device* device,
+	const uint8_t value);
 
 #ifdef __cplusplus
 } // __cplusplus defined.

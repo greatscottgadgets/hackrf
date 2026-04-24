@@ -207,8 +207,9 @@ to the HackRF device.
 
   hackrf_time_set_trig_delay_next_pps(device, trig_delay)
 
-Set **trig_delay** value (uint32_t) as the sampling trigger delay at next PPS.
-The trigger delay is from the start of the second (PPS leading edge) in tick units.
+Set **trig_delay** value (uint32_t) as the sampling trigger delay at next
+PPS. The trigger delay is from the start of the second (PPS leading edge)
+in tick units.
 **device** is a pointer to the HackRF device.
 
  
@@ -268,6 +269,28 @@ clock. Must be a value near (+-100 Hz) 10 MHz.
 Set the **enable** value (uint8_t) of the MCU synchronized clock mode.
 When this mode is on, all relevant clocks are kept in sync to avoid phase shifts
 and frequency drifts.
+**device** is a pointer to the HackRF device.
+
+
+.. rst-class:: apientry
+
+  hackrf_time_set_trig_hold_enable_next_pps(device, enable)
+
+Set the **enable** value (uint8_t) of trigger hold at the next PPS
+leading edge. When enabled, the trigger trailing edge action is disabled,
+so the trigger output can stay active across the second boundary
+(long capture crossing second border). When disabled, the trigger trailing
+edge is cleared as usual, just after next PPS leading edge.
+**device** is a pointer to the HackRF device.
+
+
+.. rst-class:: apientry
+
+  hackrf_time_set_pps_out_enable_next_pps(device, enable)
+
+Set the **enable** value (uint8_t) of PPS output at the next PPS leading edge.
+When enabled, regular PPS output pulses are generated.
+When disabled, PPS output is kept low (inactive).
 **device** is a pointer to the HackRF device.
 
 

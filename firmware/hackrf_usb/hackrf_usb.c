@@ -141,6 +141,8 @@ static usb_request_handler_fn vendor_request_handler[] = {
 	usb_vendor_request_time_set_ticks_now,
 	usb_vendor_request_time_set_clk_freq,
 	usb_vendor_request_time_set_mcu_clk_sync,
+	usb_vendor_request_time_set_trig_hold_enable_next_pps,
+	usb_vendor_request_time_set_pps_out_enable_next_pps,
 
 	NULL};
 
