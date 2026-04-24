@@ -28,7 +28,7 @@
 
 #include <clock_gen.h>
 #include <firmware_info.h>
-#include <hackrf_core.h>
+#include <pins.h>
 #include <platform_detect.h>
 #include <rom_iap.h>
 #include <usb_queue.h>
@@ -129,7 +129,7 @@ usb_request_status_t usb_vendor_request_reset(
 	const usb_transfer_stage_t stage)
 {
 	if (stage == USB_TRANSFER_STAGE_SETUP) {
-		pin_shutdown();
+		pins_shutdown();
 		clock_gen_shutdown();
 #ifdef IS_H1_R9
 		if (IS_H1_R9) {

@@ -20,15 +20,15 @@
  */
 
 #include "delay.h"
-#include "hackrf_core.h"
 #include "leds.h"
+#include "pins.h"
 #include "platform_detect.h"
 #include "power.h"
 
 int main(void)
 {
 	detect_hardware_platform();
-	pin_setup();
+	pins_setup();
 
 #ifndef PRALINE
 	/* enable 1V8 power supply so that the 1V8 LED lights up */
