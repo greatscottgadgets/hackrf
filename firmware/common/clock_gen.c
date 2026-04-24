@@ -26,11 +26,11 @@
 #include "drivers.h"
 #include "hackrf_ui.h"
 #include "i2c_bus.h"
-#include "platform_detect.h"
 #include "sgpio.h"
 #include "si5351c.h"
 #if defined(IS_HACKRF_ONE) || defined(IS_PRALINE)
 	#include "delay.h"
+	#include "platform_detect.h"
 	#include "portapack.h"
 #endif
 

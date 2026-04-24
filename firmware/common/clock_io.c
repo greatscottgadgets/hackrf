@@ -33,6 +33,7 @@
 #include "drivers.h"
 #include "gpdma.h"
 #include "gpio.h"
+#include "platform_detect.h" // IWYU pragma: keep (universal)
 #ifdef IS_PRALINE
 	#include "fpga.h"
 	#include "platform_gpio.h"

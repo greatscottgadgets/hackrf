@@ -26,6 +26,7 @@
 #include <libopencm3/lpc43xx/scu.h>
 #include <libopencm3/lpc43xx/ssp.h>
 
+#include "clock_gen.h"
 #include "drivers.h"
 #include "gpio.h"
 #include "leds.h"
@@ -36,7 +37,10 @@
 #include "power.h"
 #include "rf_path.h"
 #include "sgpio.h"
-#if defined(IS_PRALINE)
+#if defined(IS_HACKRF_ONE) || defined(IS_PRALINE)
+	#include "platform_detect.h"
+#endif
+#ifdef IS_PRALINE
 	#include "clock_io.h"
 #endif
 

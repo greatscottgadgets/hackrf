@@ -21,6 +21,7 @@
  * the Free Software Foundation, Inc., 51 Franklin Street,
  * Boston, MA 02110-1301, USA.
  */
+
 #include "usb_api_register.h"
 
 #include <stdbool.h>
@@ -30,12 +31,13 @@
 #include <drivers.h>
 #include <leds.h>
 #include <max283x.h>
-#include <platform_detect.h>
+
 #include <radio.h>
 #include <si5351c.h>
 #include <usb_queue.h>
 #include <usb_request.h>
 #include <usb_type.h>
+#include <platform_detect.h> // IWYU pragma: keep (universal)
 #ifdef IS_PRALINE
 	#include <fpga.h>
 #endif

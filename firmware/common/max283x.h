@@ -27,7 +27,6 @@
 #include <stdint.h>
 
 #include "fixed_point.h"
-#include "platform_detect.h"
 
 #ifdef IS_PRALINE
 	#include "max2831.h"

@@ -25,8 +25,6 @@
 
 #include <stdint.h>
 
-#include "platform_detect.h" // IWYU pragma: keep
-
 #ifdef IS_NOT_JAWBREAKER
 	#include "gpio.h"
 #endif

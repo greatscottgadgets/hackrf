@@ -24,7 +24,7 @@
 #include <stdbool.h>
 
 #include "fixed_point.h"
-#include "platform_detect.h"
+#include "platform_detect.h" // IWYU pragma: keep (universal)
 #include "platform_gpio.h"
 #ifdef IS_RAD1O
 	#include "max2871.h"

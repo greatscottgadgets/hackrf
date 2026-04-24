@@ -37,7 +37,7 @@
 
 #include "delay.h"
 #include "fixed_point.h"
-#include "platform_detect.h"
+#include "platform_detect.h" // IWYU pragma: keep (universal)
 #include "rffc5071.h"
 #include "rffc5071_regs.def" // private register def macros
 #include "selftest.h"
