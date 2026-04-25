@@ -110,7 +110,7 @@ void time_timer_init(void)
 void timer3_isr()
 {
 	/* clear pending interrupt */
-	TIMER3_IR |= TIMER_IR_MR3INT;
+	TIMER3_IR |= TIMER_IR_MR0INT;
 
 	/* if start of 1pps pulse: 1pps is set (leading edge) and match
 	 * R0 is set to count until to next 1pps trailing edge.  */
