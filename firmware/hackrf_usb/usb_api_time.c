@@ -42,9 +42,11 @@
 
 #include "usb_api_time.h"
 
+// @204 MHz CPU clock, divisor for 1Hz
 #define PPS1_CLK_INIT_DIVISOR 204000000 - 1
-#define PPS1_WIDTH            4000     // 20 us 1pps pulse width @200 MHz cpu clock
-#define TRIG_INIT_DELAY       40000000 // 200 ms trigger delay @200 MHz cpu clock
+// @200 MHz CPU clock
+#define PPS1_WIDTH            4000     // 20 us PPS out pulse width
+#define TRIG_INIT_DELAY       40000000 // 200 ms trigger delay
 
 int64_t seconds;
 int64_t new_seconds;
@@ -53,8 +55,13 @@ uint32_t one_pps_divisor;
 uint32_t current_divisor;
 uint32_t new_trig_delay;
 uint32_t current_trig_delay;
+uint32_t pps_in_phase;
+uint32_t pps_period_count;
+uint32_t last_pps_in_period;
 uint8_t trig_hold_enable;
 uint8_t pps_out_enable;
+uint8_t pps_in_active;
+
 
 /**** time timer functions ****/
 
@@ -66,11 +73,14 @@ void time_timer_init(void)
 	/* count cpu clock cycles */
 	timer_set_mode(TIMER3, TIMER_CTCR_MODE_TIMER);
 
-	/* reset counter and do pps interrupt when match register 0 (R0) */
+	/* reset counter and do PPS interrupt when match register 0 (R0) */
 	TIMER3_MCR = TIMER_MCR_MR0R | TIMER_MCR_MR0I;
 
-	/* 1pps leading edge: at next R0 match, set to 1 the external output.
-	 * 1pps output is enabled (regular 1pps period) */
+	/* PPS input to capture register 0: rising edge and interrupt */
+	TIMER3_CCR = TIMER_CCR_CAP0RE | TIMER_CCR_CAP0I;
+
+	/* PPS leading edge: at next R0 match, set to 1 the external output.
+	 * PPS output is enabled (regular PPS period) */
 	pps_out_enable = 1;
 	TIMER3_EMR = (TIMER_EMR_EMC_SET << TIMER_EMR_EMC0_SHIFT);
 
@@ -98,8 +108,11 @@ void time_timer_init(void)
 	one_pps_divisor = 0;
 	new_seconds = 0;
 	new_trig_delay = 0;
+	pps_period_count = 0;
+	last_pps_in_period = 0;
+	pps_in_active = 0;
 
-	/* enable 1pps interrupt */
+	/* enable PPS interrupt */
 	nvic_enable_irq(NVIC_TIMER3_IRQ);
 
 	/* start counting */
@@ -109,96 +122,132 @@ void time_timer_init(void)
 
 void timer3_isr()
 {
-	/* clear pending interrupt */
-	TIMER3_IR |= TIMER_IR_MR0INT;
+	/* process input PPS phase measure only on CAP0 interrupt */
+	if (TIMER3_IR & TIMER_IR_CR0INT) {
 
-	/* if start of 1pps pulse: 1pps is set (leading edge) and match
-	 * R0 is set to count until to next 1pps trailing edge.  */
-	if (TIMER3_MR0 != PPS1_WIDTH) {
+		/* get input PPS phase with respect to internal PPS */
+		pps_in_phase = TIMER3_CR0;
 
-		/* second counter */
-		seconds++;
-
-		/* if requested, update seconds in sync with the new second. */
-		if (new_seconds) {
-			seconds = new_seconds;
-			new_seconds = 0;
+		/* small phases cause interrupt cycles too short for timer3_isr,
+		so add one full cycle to phase */
+		if (pps_in_phase < 2 * PPS1_WIDTH) {
+			pps_in_phase += current_divisor;
 		}
 
-		/* set R0 match value to keep 1pps high for the given time */
-		TIMER3_MR0 = PPS1_WIDTH;
+		/* If phase is not zero, align internal PPS by setting next
+		one pps divisor to this phase */
+		one_pps_divisor = pps_in_phase;
 
-		/* 1pps trailing edge: at next R0 match, clear the external output. */
-		TIMER3_EMR &= ~(0x3 << TIMER_EMR_EMC0_SHIFT);
-		TIMER3_EMR |= (TIMER_EMR_EMC_CLEAR << TIMER_EMR_EMC0_SHIFT);
+		/* input PPS has been recently observed */
+		last_pps_in_period = pps_period_count;
+		pps_in_active = 1;
 
-		/* set R1 match value to keep trigger high until the end of 1pps
-		 * pulse */
-		TIMER3_MR1 = PPS1_WIDTH;
-
-		/* trigger trailing edge: at next R1 match, clear the external output
-		 * if not trigger hold active. Otherwise, do nothing: if on, keep it on
-		 * (long capture crossing second border). trigger hold changes take
-		 * effect at the next 1pps leading edge. */
-		TIMER3_EMR &= ~(0x3 << TIMER_EMR_EMC1_SHIFT);
-		if (trig_hold_enable) 
-			TIMER3_EMR |= (TIMER_EMR_EMC_NOTHING << TIMER_EMR_EMC1_SHIFT);
-		else
-			TIMER3_EMR |= (TIMER_EMR_EMC_CLEAR << TIMER_EMR_EMC1_SHIFT);
-
-		/* do not reset counter at next R0 match: count must continue
-		 * for one second period. */
-		TIMER3_MCR &= ~TIMER_MCR_MR0R;
-
+		/* clear pending capture-0 interrupt */
+		TIMER3_IR |= TIMER_IR_CR0INT;
 	}
 
-	/* else is the end of 1pps pulse: match R0 is set to
-	 * count until the next 1pps leading edge. */
-	else {
-		/* if requested, set new current divisor. */
-		if (new_divisor) {
-			current_divisor = new_divisor;
-			new_divisor = 0;
-		}
+	/* Process PPS state machine only on MR0 interrupt */
+	if (TIMER3_IR & TIMER_IR_MR0INT) {
 
-		/* if requested, set one pps divisor for one pps cycle then restore
-	 	* current divisor. */
-		if (one_pps_divisor) {
-			TIMER3_MR0 = one_pps_divisor;
-			one_pps_divisor = 0;
-		}
-		/* otherwise, restore current divisor. */
-		else
-			TIMER3_MR0 = current_divisor;
+		/* if start of PPS pulse: PPS is set (leading edge) and match
+		 * R0 is set to count until to next PPS trailing edge.  */
+		if (TIMER3_MR0 != PPS1_WIDTH) {
+			pps_period_count++;
 
-		/* 1pps leading edge: at next R0 match (start of second), set to 1
-		 * the external output if pps output is enabled (regular pps period).
-		 * pps output enable changes take effect at the next 1pps leading edge. */
-		TIMER3_EMR &= ~(0x3 << TIMER_EMR_EMC0_SHIFT);
-		if (pps_out_enable)
-			TIMER3_EMR |= (TIMER_EMR_EMC_SET << TIMER_EMR_EMC0_SHIFT);
-		/* if pps output not enabled, keep it clear */
-		else
+			/* consider PPS input inactive after two full local PPS periods
+			 * without capture events */
+			if (pps_in_active && ((pps_period_count - last_pps_in_period) > 2)) {
+				pps_in_active = 0;
+			}
+
+			/* second counter */
+			seconds++;
+
+			/* if requested, update seconds in sync with the new second. */
+			if (new_seconds) {
+				seconds = new_seconds;
+				new_seconds = 0;
+			}
+
+			/* set R0 match value to keep PPS high for the given time */
+			TIMER3_MR0 = PPS1_WIDTH;
+
+			/* PPS trailing edge: at next R0 match, clear the external output. */
+			TIMER3_EMR &= ~(0x3 << TIMER_EMR_EMC0_SHIFT);
 			TIMER3_EMR |= (TIMER_EMR_EMC_CLEAR << TIMER_EMR_EMC0_SHIFT);
 
-		/* if requested, update new trig delay. */
-		if (new_trig_delay) {
-			current_trig_delay = new_trig_delay;
-			new_trig_delay = 0;
+			/* set R1 match value to keep trigger high until the end of PPS
+			 * pulse */
+			TIMER3_MR1 = PPS1_WIDTH;
+
+			/* trigger trailing edge: at next R1 match, clear the external output
+			 * if not trigger hold active. Otherwise, do nothing: if on, keep it on
+			 * (long capture crossing second border). trigger hold changes take
+			 * effect at the next PPS leading edge. */
+			TIMER3_EMR &= ~(0x3 << TIMER_EMR_EMC1_SHIFT);
+			if (trig_hold_enable) 
+				TIMER3_EMR |= (TIMER_EMR_EMC_NOTHING << TIMER_EMR_EMC1_SHIFT);
+			else
+				TIMER3_EMR |= (TIMER_EMR_EMC_CLEAR << TIMER_EMR_EMC1_SHIFT);
+
+			/* do not reset counter at next R0 match: count must continue
+			 * for one second period. */
+			TIMER3_MCR &= ~TIMER_MCR_MR0R;
+
 		}
 
-		/* restore current trig delay */
-		TIMER3_MR1 = current_trig_delay;
+		/* else is the end of PPS pulse: match R0 is set to
+		 * count until the next PPS leading edge. */
+		else {
+			/* if requested, set new current divisor. */
+			if (new_divisor) {
+				current_divisor = new_divisor;
+				new_divisor = 0;
+			}
 
-		/* trigger leading edge: at next R1 match, set to 1 the external
-		 * output. */
-		TIMER3_EMR &= ~(0x3 << TIMER_EMR_EMC1_SHIFT);
-		TIMER3_EMR |= (TIMER_EMR_EMC_SET << TIMER_EMR_EMC1_SHIFT);
+			/* if requested, set one PPS divisor for one PPS cycle then restore
+	 		* current divisor. */
+			if (one_pps_divisor) {
+				TIMER3_MR0 = one_pps_divisor;
+				one_pps_divisor = 0;
+			}
+			/* otherwise, restore current divisor. */
+			else
+				TIMER3_MR0 = current_divisor;
 
-		/* reset counter at next R0 match: start counting for the
-		 * next second period */
-		TIMER3_MCR |= TIMER_MCR_MR0R;
+			/* PPS leading edge: at next R0 match (start of second), set to 1
+			 * the external output if PPS output is enabled (regular PPS period).
+			 * PPS output enable changes take effect at the next PPS leading edge. */
+			TIMER3_EMR &= ~(0x3 << TIMER_EMR_EMC0_SHIFT);
+			if (pps_out_enable)
+				TIMER3_EMR |= (TIMER_EMR_EMC_SET << TIMER_EMR_EMC0_SHIFT);
+			/* if PPS output not enabled, keep it clear */
+			else
+				TIMER3_EMR |= (TIMER_EMR_EMC_CLEAR << TIMER_EMR_EMC0_SHIFT);
+
+			/* if requested, update new trig delay. */
+			if (new_trig_delay) {
+				current_trig_delay = new_trig_delay;
+				new_trig_delay = 0;
+			}
+
+			/* restore current trig delay */
+			TIMER3_MR1 = current_trig_delay;
+
+			/* trigger leading edge: at next R1 match, set to 1 the external
+			 * output. */
+			TIMER3_EMR &= ~(0x3 << TIMER_EMR_EMC1_SHIFT);
+			TIMER3_EMR |= (TIMER_EMR_EMC_SET << TIMER_EMR_EMC1_SHIFT);
+
+			/* reset counter at next R0 match: start counting for the
+			 * next second period */
+			TIMER3_MCR |= TIMER_MCR_MR0R;
+		}
+
+		/* clear pending interrupt */
+		TIMER3_IR |= TIMER_IR_MR0INT;
 	}
+
 }
 
 /**** API functions ****/
@@ -507,6 +556,20 @@ usb_request_status_t usb_vendor_request_time_set_pps_out_enable_next_pps(
         pps_out_enable = endpoint->setup.value > 0;
 
 		usb_transfer_schedule_ack(endpoint->in);
+	}
+	return USB_REQUEST_STATUS_OK;
+}
+
+
+usb_request_status_t usb_vendor_request_time_get_pps_in_active(
+	usb_endpoint_t* const endpoint,
+	const usb_transfer_stage_t stage)
+{
+	if (stage == USB_TRANSFER_STAGE_SETUP) {
+		uint8_t active = pps_in_active;
+
+		usb_transfer_schedule_block(endpoint->in, (uint8_t*) &active, 1, NULL, NULL);
+		usb_transfer_schedule_ack(endpoint->out);
 	}
 	return USB_REQUEST_STATUS_OK;
 }

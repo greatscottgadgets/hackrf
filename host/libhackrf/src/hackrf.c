@@ -117,6 +117,7 @@ typedef enum {
 	HACKRF_VENDOR_REQUEST_TIME_SET_MCU_CLK_SYNC,
 	HACKRF_VENDOR_REQUEST_TIME_SET_TRIG_HOLD_ENABLE,
 	HACKRF_VENDOR_REQUEST_TIME_SET_PPS_OUT_ENABLE,
+	HACKRF_VENDOR_REQUEST_TIME_GET_PPS_IN_ACTIVE,
 
 } hackrf_vendor_request;
 
@@ -3348,6 +3349,31 @@ int ADDCALL hackrf_time_set_pps_out_enable_next_pps(hackrf_device* device, const
 		last_libusb_error = result;
 		return HACKRF_ERROR_LIBUSB;
 	} else {
+		return HACKRF_SUCCESS;
+	}
+}
+
+int ADDCALL hackrf_time_get_pps_in_active(hackrf_device* device, uint8_t* active)
+{
+	USB_API_REQUIRED(device, 0x010A)
+
+	int result;
+	uint8_t value = 0;
+	result = libusb_control_transfer(
+		device->usb_device,
+		LIBUSB_ENDPOINT_IN | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_TIME_GET_PPS_IN_ACTIVE,
+		0,
+		0,
+		&value,
+		1,
+		0);
+
+	if (result < 1) {
+		last_libusb_error = result;
+		return HACKRF_ERROR_LIBUSB;
+	} else {
+		*active = value;
 		return HACKRF_SUCCESS;
 	}
 }

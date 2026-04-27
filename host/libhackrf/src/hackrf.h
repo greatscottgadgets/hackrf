@@ -2138,6 +2138,9 @@ extern ADDAPI int ADDCALL hackrf_time_set_trig_hold_enable_next_pps(
 extern ADDAPI int ADDCALL hackrf_time_set_pps_out_enable_next_pps(
 	hackrf_device* device,
 	const uint8_t value);
+extern ADDAPI int ADDCALL hackrf_time_get_pps_in_active(
+	hackrf_device* device,
+	uint8_t* active);
 
 #ifdef __cplusplus
 } // __cplusplus defined.

@@ -82,6 +82,7 @@ static void usage()
 	printf("Manage HTime for HackRF: ticks, seconds, A/D trigger, clocks.\n");
 	printf("\nUsage:\n");
 	printf("\t-h, --help: this help\n");
+	printf("\t-a, --pps_in_active: read PPS input active status (0/1)\n");
 	printf("\t-d, --divisor <v>: set divisor to <v> val next pps\n");
 	printf("\t-D, --Divisor <v>: set divisor to <v> val for one pps\n");
 	printf("\t-f, --set_clk_freq <v>: set sync clock freq to <v>\n");
@@ -105,6 +106,7 @@ static void usage()
 
 static struct option long_options[] = {
 	{"help", no_argument, 0, 'h'},
+	{"pps_in_active", no_argument, 0, 'a'},
 	{"divisor", required_argument, 0, 'd'},
 	{"Divisor", required_argument, 0, 'D'},
 	{"set_clk_freq", required_argument, 0, 'f'},
@@ -131,13 +133,14 @@ int main(int argc, char** argv)
 	int64_t seconds;
 	uint32_t ticks;
 	uint32_t value;
+	uint8_t pps_in_active;
 	double frequency;
 
 	if (argc > 1)
 		opt = getopt_long(
 			argc,
 			argv,
-			"hd:D:f:kK:il:p:r:s:S:ty:",
+			"had:D:f:kK:il:p:r:s:S:ty:",
 			long_options,
 			&option_index);
 	else {
@@ -162,6 +165,17 @@ int main(int argc, char** argv)
 	}
 
 	switch (opt) {
+	case 'a':
+		result = hackrf_time_get_pps_in_active(device, &pps_in_active);
+		if (result) {
+			printf("pps input activity reading failed: %s (%d)\n",
+			       hackrf_error_name(result),
+			       result);
+			return EXIT_FAILURE;
+		}
+		printf("pps input active: %u\n", pps_in_active ? 1 : 0);
+		break;
+
 	case 'd':
 		result = parse_int(optarg, &value);
 		if (result) {

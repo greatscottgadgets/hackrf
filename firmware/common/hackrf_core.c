@@ -882,9 +882,11 @@ void pin_setup(void)
 	 */
 
 	/* configure pin as TIMER 3 MATCH 0 output: 1pps out */
-	scu_pinmux(SCU_PINMUX_PPS1, SCU_GPIO_PDN | SCU_CONF_FUNCTION6);
+	scu_pinmux(SCU_PINMUX_PPS1_OUT, SCU_GPIO_PDN | SCU_CONF_FUNCTION6);
 	/* configure pin as TIMER 3 MATCH 1 output: sampling trigger out */
 	scu_pinmux(SCU_PINMUX_SAMP_TRIGGER, SCU_GPIO_PDN | SCU_CONF_FUNCTION6);
+	/* configure pin as TIMER 3 CAPTURE 0 input: 1pps input */
+	scu_pinmux(SCU_PINMUX_PPS1_IN, SCU_GPIO_PDN | SCU_CONF_FUNCTION6);
 
 #ifdef HACKRF_ONE
 	scu_pinmux(SCU_PINMUX_PP_TMS, SCU_GPIO_PUP | SCU_CONF_FUNCTION0);

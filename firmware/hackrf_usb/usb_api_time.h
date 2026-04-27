@@ -74,6 +74,10 @@ usb_request_status_t usb_vendor_request_time_set_pps_out_enable_next_pps(
 	usb_endpoint_t* const endpoint,
 	const usb_transfer_stage_t stage);
 
+usb_request_status_t usb_vendor_request_time_get_pps_in_active(
+	usb_endpoint_t* const endpoint,
+	const usb_transfer_stage_t stage);
+
 void time_timer_init(void);
 void time_set_divisor_next_pps(unsigned long int divisor);
 void time_set_divisor_one_pps(unsigned long int divisor);

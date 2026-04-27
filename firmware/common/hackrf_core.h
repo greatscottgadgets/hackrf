@@ -65,8 +65,8 @@ extern "C" {
 	#define SCU_PINMUX_BOOT3 (P2_9) /* GPIO1[10] on P2_9 */
 #endif
 
-#define SCU_PINMUX_PP_LCD_TE (P2_3) /* GPIO5[3] on P2_3 */
-#define SCU_PINMUX_PPS1      (P2_3) /* T3_MAT0 on P2_3, cpu pin 87 */
+#define SCU_PINMUX_PP_LCD_TE   (P2_3) /* GPIO5[3] on P2_3 */
+#define SCU_PINMUX_PPS1_OUT    (P2_3) /* T3_MAT0 on P2_3, cpu pin 87 */
 
 #define SCU_PINMUX_PP_LCD_RDX   (P2_4) /* GPIO5[4] on P2_4 */
 #define SCU_PINMUX_SAMP_TRIGGER (P2_4) /* T3_MAT1 on P2_4, cpu pin 88 */
@@ -230,6 +230,8 @@ extern "C" {
 #define SCU_PINMUX_SD_CD    (P1_13) /* GPIO1[6] */
 
 #define SCU_PINMUX_PP_IO_STBX (P2_0) /* GPIO5[0] */
+#define SCU_PINMUX_PPS1_IN    (P2_0) /* T3_CAP0 on P2_0, cpu pin 75 */
+
 #define SCU_PINMUX_PP_ADDR    (P2_1) /* GPIO5[1] */
 #define SCU_PINMUX_U0_TXD     (P2_0) /* GPIO5[0] */
 #define SCU_PINMUX_U0_RXD     (P2_1) /* GPIO5[1] */
