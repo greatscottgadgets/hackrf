@@ -317,6 +317,33 @@ static void switchctrl_set(rf_path_t* const rf_path, const uint8_t gpo)
 #endif
 }
 
+void rf_path_pin_shutdown(void)
+{
+#ifdef IS_PRALINE
+	if (IS_PRALINE) {
+		const platform_scu_t* scu = platform_scu();
+
+		/* Configure RF switch control signals */
+		scu_pinmux(scu->TX_EN, SCU_GPIO_PDN | SCU_CONF_FUNCTION0);
+		board_rev_t rev = detected_revision();
+		if ((rev == BOARD_REV_PRALINE_R1_0) ||
+		    (rev == BOARD_REV_GSG_PRALINE_R1_0)) {
+			scu_pinmux(scu->MIX_EN_N_R1_0, SCU_GPIO_PDN | SCU_CONF_FUNCTION4);
+		} else {
+			scu_pinmux(scu->MIX_EN_N, SCU_GPIO_PDN | SCU_CONF_FUNCTION0);
+		}
+		scu_pinmux(scu->LPF_EN, SCU_GPIO_PDN | SCU_CONF_FUNCTION0);
+		scu_pinmux(scu->RF_AMP_EN, SCU_GPIO_PDN | SCU_CONF_FUNCTION0);
+
+		/* Configure antenna port power control signal */
+		scu_pinmux(scu->ANT_BIAS_EN_N, SCU_GPIO_PDN | SCU_CONF_FUNCTION0);
+
+		/* Configure RF power supply (VAA) switch */
+		scu_pinmux(scu->NO_VAA_ENABLE, SCU_GPIO_PDN | SCU_CONF_FUNCTION0);
+	}
+#endif
+}
+
 void rf_path_pin_setup(rf_path_t* const rf_path)
 {
 #ifdef IS_JAWBREAKER

@@ -178,9 +178,30 @@ void pins_shutdown(void)
 		scu_pinmux(scu->TRIGGER_IN, scu->TRIGGER_IN_PINCFG);
 		scu_pinmux(scu->TRIGGER_OUT, scu->TRIGGER_OUT_PINCFG);
 		scu_pinmux(scu->PPS_OUT, scu->PPS_OUT_PINCFG);
-		scu_pinmux(scu->PINMUX_FPGA_CRESET, SCU_GPIO_NOPULL | SCU_CONF_FUNCTION0);
-		scu_pinmux(scu->PINMUX_FPGA_CDONE, SCU_GPIO_PUP | SCU_CONF_FUNCTION4);
-		scu_pinmux(scu->PINMUX_FPGA_SPI_CS, SCU_GPIO_NOPULL | SCU_CONF_FUNCTION0);
+		scu_pinmux(scu->SCT_CLK, scu->SCT_CLK_PINCFG);
+
+		scu_pinmux(scu->PINMUX_FPGA_CRESET, SCU_GPIO_PDN | SCU_CONF_FUNCTION0);
+		scu_pinmux(scu->PINMUX_FPGA_CDONE, SCU_GPIO_PDN | SCU_CONF_FUNCTION4);
+		scu_pinmux(scu->PINMUX_FPGA_SPI_CS, SCU_GPIO_PDN | SCU_CONF_FUNCTION0);
+
+		scu_pinmux(scu->SSP1_CIPO, SCU_GPIO_PDN | SCU_CONF_FUNCTION0);
+		scu_pinmux(scu->SSP1_COPI, SCU_GPIO_PDN | SCU_CONF_FUNCTION0);
+		scu_pinmux(scu->SSP1_SCK, SCU_GPIO_PDN | SCU_CONF_FUNCTION2);
+
+		scu_pinmux(scu->XCVR_ENABLE, SCU_GPIO_PDN | SCU_CONF_FUNCTION4);
+		scu_pinmux(scu->XCVR_RXENABLE, SCU_GPIO_PDN | SCU_CONF_FUNCTION4);
+		scu_pinmux(scu->XCVR_CS, SCU_GPIO_PDN | SCU_CONF_FUNCTION4);
+		scu_pinmux(scu->XCVR_RXHP, SCU_GPIO_PDN | SCU_CONF_FUNCTION4);
+		scu_pinmux(scu->XCVR_LD, SCU_GPIO_PDN | SCU_CONF_FUNCTION0);
+
+		scu_pinmux(scu->MIXER_LD, SCU_GPIO_PDN | SCU_CONF_FUNCTION4);
+		scu_pinmux(scu->MIXER_SCLK, SCU_GPIO_PDN | SCU_CONF_FUNCTION4);
+		scu_pinmux(scu->MIXER_SDATA, SCU_GPIO_PDN | SCU_CONF_FUNCTION0);
+		scu_pinmux(scu->MIXER_ENX, SCU_GPIO_PDN | SCU_CONF_FUNCTION0);
+		scu_pinmux(scu->MIXER_RESETX, SCU_GPIO_PDN | SCU_CONF_FUNCTION0);
+		scu_pinmux(scu->MIXER_ENBL, SCU_GPIO_PDN | SCU_CONF_FUNCTION0);
+
+		scu_pinmux(scu->AD_CS, SCU_GPIO_PDN | SCU_CONF_FUNCTION4);
 
 		p2_ctrl_set(P2_SIGNAL_CLK3);
 		p1_ctrl_set(P1_SIGNAL_CLKIN);
@@ -202,8 +223,12 @@ void pins_shutdown(void)
 		gpio_clear(gpio->fpga_cfg_creset);
 		gpio_output(gpio->fpga_cfg_creset);
 		gpio_input(gpio->fpga_cfg_cdone);
+		gpio_input(gpio->max5864_select);
+
+		rf_path_pin_shutdown();
 	}
 #endif
+	sgpio_pin_shutdown(&sgpio_config);
 
 	/* enable input on SCL and SDA pins */
 	SCU_SFSI2C0 = SCU_I2C0_NOMINAL;
@@ -360,6 +385,9 @@ void pins_setup(void)
 		    (detected_revision() == BOARD_REV_GSG_PRALINE_R1_0)) {
 			rf_path.gpio_mix_en_n = gpio->mix_en_n_r1_0;
 		}
+		scu_pinmux(scu->PINMUX_FPGA_CRESET, SCU_GPIO_NOPULL | SCU_CONF_FUNCTION0);
+		scu_pinmux(scu->PINMUX_FPGA_CDONE, SCU_GPIO_PUP | SCU_CONF_FUNCTION4);
+		scu_pinmux(scu->PINMUX_FPGA_SPI_CS, SCU_GPIO_NOPULL | SCU_CONF_FUNCTION0);
 	}
 #endif
 

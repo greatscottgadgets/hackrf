@@ -37,6 +37,53 @@
 
 static void update_q_invert(sgpio_config_t* const config);
 
+void sgpio_pin_shutdown(sgpio_config_t* const config)
+{
+	const platform_scu_t* scu = platform_scu();
+
+#ifdef IS_PRALINE
+	if (IS_PRALINE) {
+		scu_pinmux(scu->PINMUX_SGPIO0, SCU_GPIO_PDN | SCU_CONF_FUNCTION0);
+		scu_pinmux(scu->PINMUX_SGPIO1, SCU_GPIO_PDN | SCU_CONF_FUNCTION0);
+		scu_pinmux(scu->PINMUX_SGPIO2, SCU_GPIO_PDN | SCU_CONF_FUNCTION0);
+		scu_pinmux(scu->PINMUX_SGPIO3, SCU_GPIO_PDN | SCU_CONF_FUNCTION0);
+		scu_pinmux(scu->PINMUX_SGPIO4, SCU_GPIO_PDN | SCU_CONF_FUNCTION4);
+		scu_pinmux(scu->PINMUX_SGPIO5, SCU_GPIO_PDN | SCU_CONF_FUNCTION0);
+		scu_pinmux(scu->PINMUX_SGPIO6, SCU_GPIO_PDN | SCU_CONF_FUNCTION4);
+		scu_pinmux(scu->PINMUX_SGPIO7, SCU_GPIO_PDN | SCU_CONF_FUNCTION0);
+		scu_pinmux(scu->PINMUX_SGPIO8, SCU_GPIO_PDN | SCU_CONF_FUNCTION0);
+		scu_pinmux(scu->PINMUX_SGPIO9, SCU_GPIO_PDN | SCU_CONF_FUNCTION0);
+		scu_pinmux(scu->PINMUX_SGPIO10, SCU_GPIO_PDN | SCU_CONF_FUNCTION0);
+		scu_pinmux(scu->PINMUX_SGPIO11, SCU_GPIO_PDN | SCU_CONF_FUNCTION0);
+		scu_pinmux(scu->PINMUX_SGPIO12, SCU_GPIO_PDN | SCU_CONF_FUNCTION0);
+	}
+#endif
+
+#ifdef IS_H1_R9
+	if (IS_H1_R9) {
+		scu_pinmux(
+			scu->H1R9_TRIGGER_EN,
+			SCU_GPIO_PDN | SCU_CONF_FUNCTION4); /* GPIO5[5] */
+	}
+#endif
+#ifdef IS_NOT_H1_R9
+	if (IS_NOT_H1_R9) {
+		scu_pinmux(
+			scu->TRIGGER_EN,
+			SCU_GPIO_PDN | SCU_CONF_FUNCTION4); /* GPIO5[12] */
+	}
+#endif
+
+	gpio_input(config->gpio_q_invert);
+
+#ifdef IS_NOT_PRALINE
+	if (IS_NOT_PRALINE) {
+		trigger_enable(false);
+		gpio_output(config->gpio_trigger_enable);
+	}
+#endif
+}
+
 void sgpio_configure_pin_functions(sgpio_config_t* const config)
 {
 	const platform_scu_t* scu = platform_scu();

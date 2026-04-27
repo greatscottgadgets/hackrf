@@ -41,6 +41,7 @@ typedef struct {
 	bool slice_mode_multislice;
 } sgpio_config_t;
 
+void sgpio_pin_shutdown(sgpio_config_t* const config);
 void sgpio_configure_pin_functions(sgpio_config_t* const config);
 void sgpio_test_interface(sgpio_config_t* const config);
 void sgpio_set_slice_mode(sgpio_config_t* const config, const bool multi_slice);
