@@ -136,6 +136,7 @@ if(BOARD STREQUAL "RAD1O")
 		"${PATH_HACKRF_FIRMWARE_COMMON}/rad1o/smallfonts.c"
 		"${PATH_HACKRF_FIRMWARE_COMMON}/rad1o/draw.c"
 		"${PATH_HACKRF_FIRMWARE_COMMON}/rad1o/ubuntu18.c"
+		"${PATH_HACKRF_FIRMWARE_COMMON}/picoprintf.c"
 		"${PATH_HACKRF_FIRMWARE_COMMON}/ui_rad1o.c"
 	)
 endif()
