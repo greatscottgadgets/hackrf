@@ -22,22 +22,21 @@
 
 #pragma once
 
-#include <stddef.h>  // size_t
-#include <stdarg.h>  // va_*
+#include <stddef.h> // size_t
+#include <stdarg.h> // va_*
 
-
-int pico_snprintf(char *pDest, size_t cbDest, const char *pFormat, ...);
-int pico_vsnprintf(char *pDest, size_t cbDest, const char *pFormat, va_list vl);
+int pico_snprintf(char* pDest, size_t cbDest, const char* pFormat, ...);
+int pico_vsnprintf(char* pDest, size_t cbDest, const char* pFormat, va_list vl);
 
 // PLEASE use `pico_snprintf()` instead!!!  This function is vulnerable to buffer overflows
-inline int pico_sprintf(char *pDest, const char *pFormat, ...) {
-    va_list vl;
-    va_start(vl, pFormat);
-    int result = pico_vsnprintf(pDest, -1, pFormat, vl);
-    va_end(vl);
-    return result;
+inline int pico_sprintf(char* pDest, const char* pFormat, ...)
+{
+	va_list vl;
+	va_start(vl, pFormat);
+	int result = pico_vsnprintf(pDest, -1, pFormat, vl);
+	va_end(vl);
+	return result;
 }
-
 
 //
 // IMPORTANT!!!
@@ -51,12 +50,13 @@ inline int pico_sprintf(char *pDest, const char *pFormat, ...) {
 // #define PICOFORMAT_HANDLE_FLOATS        // uncomment this line to handle the "%f"
 // #define PICOFORMAT_CLANG_QUIRK          // uncomment this line to match clang's non-standard "%010s" behavior (zero-pad strings when both '0' flag and width are set)
 
-
 // by default, the debug builds (determined by `#define _DEBUG`) will real-time print errors when a feature is used that is not enabled above
 #ifndef FORMAT_ERROR_DELEGATE
-    #ifdef _DEBUG
-        #define FORMAT_ERROR_DELEGATE(__message, __arg) printf(__message, __arg); printf("\n");
-    #else // _DEBUG
-        #define FORMAT_ERROR_DELEGATE(__message, __arg)
-    #endif // _DEBUG
-#endif // FORMAT_ERROR_DELEGATE
+	#ifdef _DEBUG
+		#define FORMAT_ERROR_DELEGATE(__message, __arg) \
+			printf(__message, __arg);               \
+			printf("\n");
+	#else // _DEBUG
+		#define FORMAT_ERROR_DELEGATE(__message, __arg)
+	#endif // _DEBUG
+#endif         // FORMAT_ERROR_DELEGATE
