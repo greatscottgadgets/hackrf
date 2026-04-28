@@ -42,11 +42,11 @@ inline int pico_sprintf(char* pDest, const char* pFormat, ...)
 // IMPORTANT!!!
 //  comment/uncomment the following lines corresponding to the features you need
 //
-// #define PICOFORMAT_HANDLE_FILL          // uncomment this line to handle "%6i" and "%04d" -- the fill with zeroes or spaces
+#define PICOFORMAT_HANDLE_FILL // uncomment this line to handle "%6i" and "%04d" -- the fill with zeroes or spaces
 // #define PICOFORMAT_HANDLE_FORCEDSIGN    // uncomment this line to handle "%+d" -- the forced sign placement
 // #define PICOFORMAT_HANDLE_BIN           // uncomment this line to handle "%b" -- binary representation
 // #define PICOFORMAT_HANDLE_OCT           // uncomment this line to handle "%o"
-// #define PICOFORMAT_HANDLE_HEX           // uncomment this line to handle "%x" and "%X"
+#define PICOFORMAT_HANDLE_HEX // uncomment this line to handle "%x" and "%X"
 // #define PICOFORMAT_HANDLE_FLOATS        // uncomment this line to handle the "%f"
 // #define PICOFORMAT_CLANG_QUIRK          // uncomment this line to match clang's non-standard "%010s" behavior (zero-pad strings when both '0' flag and width are set)
 
