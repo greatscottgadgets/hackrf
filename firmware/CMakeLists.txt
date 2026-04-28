@@ -23,7 +23,7 @@
 option(CHECK_INCLUDES
 	   "Check firmware sources for unused includes and transitive dependencies. (Requires iwyu)" OFF)
 
-cmake_minimum_required(VERSION 3.10.0)
+cmake_minimum_required(VERSION 3.12.0)
 set(CMAKE_TOOLCHAIN_FILE toolchain-arm-cortex-m.cmake)
 
 project (hackrf_firmware_all C)
