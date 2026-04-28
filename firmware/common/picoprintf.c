@@ -1,5 +1,4 @@
 #include "picoprintf.h"
-#include "picobool.h"
 
 #include <math.h>    // fabs()
 #include <stdlib.h>  // llabs()
