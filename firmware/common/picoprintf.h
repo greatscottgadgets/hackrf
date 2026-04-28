@@ -20,8 +20,7 @@
  * SOFTWARE.
  */
 
-#ifndef __picoprintf_h_INCLUDED__
-#define __picoprintf_h_INCLUDED__
+#pragma once
 
 #include <stddef.h>  // size_t
 #include <stdarg.h>  // va_*
@@ -61,5 +60,3 @@ inline int pico_sprintf(char *pDest, const char *pFormat, ...) {
         #define FORMAT_ERROR_DELEGATE(__message, __arg)
     #endif // _DEBUG
 #endif // FORMAT_ERROR_DELEGATE
-
-#endif // __picoprintf_h_INCLUDED__
