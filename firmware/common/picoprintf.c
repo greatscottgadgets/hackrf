@@ -23,9 +23,11 @@
 
 #include "picoprintf.h"
 
-#include <math.h>    // fabs()
 #include <stdlib.h>  // llabs()
 
+#ifdef PICOFORMAT_HANDLE_FLOATS
+    #include <math.h> // fabs()
+#endif
 
 static void flip(char *pLeft, char *pRight) {
     pRight--;
@@ -49,10 +51,16 @@ static void flip(char *pLeft, char *pRight) {
 
 // returns the pointer to the null-terminating character of the filled string
 int pico_vsnprintf(char *pDest, size_t cbDest, const char *pFormat, va_list vl) {
+#if defined(PICOFORMAT_HANDLE_BIN) || defined(PICOFORMAT_HANDLE_OCT) || defined(PICOFORMAT_HANDLE_HEX)
     const char *pLowercaseNumberDigits = "0123456789abcdef";
+#endif
+#if defined(PICOFORMAT_HANDLE_HEX)
     const char *pUppercaseNumberDigits = "0123456789ABCDEF";
+#elif defined(PICOFORMAT_HANDLE_OCT)
     const char *pOctalDigits = pLowercaseNumberDigits;
+#elif defined(PICOFORMAT_HANDLE_BIN)
     const char *pBinaryDigits = pLowercaseNumberDigits;
+#endif
     char *pStart = pDest;
     for (char *pEnd = pDest + cbDest - 1; *pFormat && pDest < pEnd; ) {
         if (*pFormat != '%') {
@@ -63,7 +71,9 @@ int pico_vsnprintf(char *pDest, size_t cbDest, const char *pFormat, va_list vl) 
                 *pDest++ = *pFormat++;
             } else {                        // first, collect the format
                 char format = '\0';
+            #if defined(PICOFORMAT_HANDLE_BIN) || defined(PICOFORMAT_HANDLE_OCT) || defined(PICOFORMAT_HANDLE_HEX)
                 int bits_per_digit = 0;     // valid in 'b', 'o', 'p' and 'x'/'X' modes only
+            #endif
                 int whole_chars = 0;        // number of chars in the whole part of the number
                 int decimal_chars = -1;     // if not specified, %f are rendered with 6, while %g are rendered with 0
             #ifdef __aarch64__              // these platforms benefit from packing flags into a single variable
@@ -82,12 +92,16 @@ int pico_vsnprintf(char *pDest, size_t cbDest, const char *pFormat, va_list vl) 
             #else                           // other platforms do not benefit from struct packing
                 unsigned force_sign = 0;
                 unsigned fill_zeros = 0;
+                #ifdef PICOFORMAT_HANDLE_FILL
                 unsigned left_align = 0;
+                #endif
                 unsigned seen_period = 0;
                 unsigned seen_numbers = 0;
                 unsigned treat_as_unsigned = 0;
                 unsigned treat_as_long = 0;
+                #if defined(PICOFORMAT_HANDLE_HEX) || defined(PICOFORMAT_HANDLE_FLOATS)
                 unsigned render_in_lowercase = 0;
+                #endif
                 #define FLAGS
             #endif                          // struct packing platforms
                 for (; *pFormat && '\0' == format; pFormat++) {
@@ -235,7 +249,7 @@ int pico_vsnprintf(char *pDest, size_t cbDest, const char *pFormat, va_list vl) 
                         const char* chars = FLAGS render_in_lowercase ? pLowercaseNumberDigits : pUppercaseNumberDigits;
                 #elif defined(PICOFORMAT_HANDLE_OCT)
                         const char* chars = pOctalDigits;
-                #else
+                #elif defined(PICOFORMAT_HANDLE_BIN)
                         const char* chars = pBinaryDigits;
                 #endif // individual non-decimal formats
                         while (pDest < pEnd
