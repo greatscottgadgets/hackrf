@@ -21,7 +21,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include "hackrf_core.h"
+#include "pins.h"
 
 #include <libopencm3/lpc43xx/scu.h>
 #include <libopencm3/lpc43xx/ssp.h>
@@ -40,7 +40,7 @@
 	#include "clock_io.h"
 #endif
 
-void pin_shutdown(void)
+void pins_shutdown(void)
 {
 	/* Configure all GPIO as Input (safe state) */
 	gpio_init();
@@ -209,8 +209,8 @@ void pin_shutdown(void)
 	SCU_SFSI2C0 = SCU_I2C0_NOMINAL;
 }
 
-/* Run after pin_shutdown() and prior to enabling power supplies. */
-void pin_setup(void)
+/* Run after pins_shutdown() and prior to enabling power supplies. */
+void pins_setup(void)
 {
 	/* Detect Platform */
 	const platform_gpio_t* gpio = platform_gpio();
