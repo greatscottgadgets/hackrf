@@ -26,7 +26,7 @@
 #include <libopencm3/lpc43xx/scu.h>
 #include <libopencm3/lpc43xx/ssp.h>
 
-#include "drivers.h"
+#include "cpld_jtag.h"
 #include "gpio.h"
 #include "leds.h"
 #include "max283x.h"
@@ -41,6 +41,7 @@
 #include "w25q80bv.h"
 #if defined(IS_PRALINE)
 	#include "clock_io.h"
+	#include "drivers.h"
 #endif
 
 void pins_shutdown(void)

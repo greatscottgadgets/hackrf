@@ -25,7 +25,6 @@
 extern "C" {
 #endif
 
-#include "cpld_jtag.h"
 #include "platform_detect.h" // IWYU pragma: keep
 #if defined(IS_PRALINE)
 	#include "fpga.h"
@@ -38,8 +37,6 @@ extern ssp_config_t ssp_config_ice40_fpga;
 extern ice40_spi_driver_t ice40;
 extern fpga_driver_t fpga;
 #endif
-extern jtag_gpio_t jtag_gpio_cpld;
-extern jtag_t jtag_cpld;
 
 #if defined(IS_PRALINE)
 void ssp1_set_mode_ice40(void);
