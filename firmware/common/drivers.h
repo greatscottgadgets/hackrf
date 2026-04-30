@@ -35,7 +35,6 @@ extern "C" {
 #include "sgpio.h"
 #include "si5351c.h"
 #include "spi_ssp.h"
-#include "w25q80bv.h"
 #if defined(IS_PRALINE)
 	#include "fpga.h"
 	#include "ice40_spi.h"
@@ -46,7 +45,6 @@ extern const i2c_lpc_config_t i2c_config_si5351c_fast_clock;
 extern si5351c_driver_t clock_gen;
 extern ssp_config_t ssp_config_max283x;
 extern ssp_config_t ssp_config_max5864;
-extern ssp_config_t ssp_config_w25q80bv;
 
 #if defined(IS_PRALINE)
 extern ssp_config_t ssp_config_ice40_fpga;
@@ -56,7 +54,6 @@ extern fpga_driver_t fpga;
 extern max283x_driver_t max283x;
 extern max5864_driver_t max5864;
 extern mixer_driver_t mixer;
-extern w25q80bv_driver_t spi_flash;
 extern sgpio_config_t sgpio_config;
 extern rf_path_t rf_path;
 extern jtag_gpio_t jtag_gpio_cpld;

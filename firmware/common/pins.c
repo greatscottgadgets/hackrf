@@ -36,6 +36,7 @@
 #include "power.h"
 #include "rf_path.h"
 #include "sgpio.h"
+#include "w25q80bv.h"
 #if defined(IS_PRALINE)
 	#include "clock_io.h"
 #endif

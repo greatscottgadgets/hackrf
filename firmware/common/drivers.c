@@ -30,7 +30,6 @@
 #include "max283x.h"
 #include "max5864_target.h"
 #include "spi_bus.h"
-#include "w25q80bv_target.h"
 #if defined(IS_PRALINE)
 	#include "fpga.h"
 	#include "ice40_spi.h"
@@ -79,17 +78,6 @@ ssp_config_t ssp_config_max5864 = {
 max5864_driver_t max5864 = {
 	.bus = &spi_bus_ssp1,
 	.target_init = max5864_target_init,
-};
-
-ssp_config_t ssp_config_w25q80bv = {
-	.data_bits = SSP_DATA_8BITS,
-	.serial_clock_rate = 2,
-	.clock_prescale_rate = 2,
-};
-
-w25q80bv_driver_t spi_flash = {
-	.bus = &spi_bus_ssp0,
-	.target_init = w25q80bv_target_init,
 };
 
 sgpio_config_t sgpio_config = {
