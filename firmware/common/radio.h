@@ -260,3 +260,11 @@ bool radio_update(radio_t* const radio);
  * the request bank for the new mode.
  */
 void radio_switch_opmode(radio_t* const radio, const transceiver_mode_t mode);
+
+/**
+ * Driver instance.
+ *
+ * This needs to be configured and provided by the application
+ * binary. e.g. firmware/hackrf_usb/hackrf_usb.c
+ */
+extern radio_t radio;

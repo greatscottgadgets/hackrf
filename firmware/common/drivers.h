@@ -32,7 +32,6 @@ extern "C" {
 #include "max5864.h"
 #include "mixer.h"
 #include "platform_detect.h" // IWYU pragma: keep
-#include "radio.h"
 #include "rf_path.h"
 #include "sgpio.h"
 #include "si5351c.h"
@@ -60,7 +59,6 @@ extern max5864_driver_t max5864;
 extern mixer_driver_t mixer;
 extern w25q80bv_driver_t spi_flash;
 extern sgpio_config_t sgpio_config;
-extern radio_t radio;
 extern rf_path_t rf_path;
 extern jtag_gpio_t jtag_gpio_cpld;
 extern jtag_t jtag_cpld;

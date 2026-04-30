@@ -26,7 +26,6 @@
 #include <libopencm3/lpc43xx/memorymap.h>
 #include <libopencm3/lpc43xx/ssp.h>
 
-#include "clock_gen.h"
 #include "i2c_lpc.h"
 #include "max283x.h"
 #include "max5864_target.h"
@@ -145,10 +144,6 @@ fpga_driver_t fpga = {
 	.bus = &ice40,
 };
 #endif
-
-radio_t radio = {
-	.sample_rate_cb = sample_rate_set,
-};
 
 rf_path_t rf_path = {
 	.switchctrl = 0,
