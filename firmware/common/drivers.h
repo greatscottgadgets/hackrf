@@ -25,15 +25,6 @@
 extern "C" {
 #endif
 
-#include "platform_detect.h" // IWYU pragma: keep
-#if defined(IS_PRALINE)
-	#include "fpga.h"
-#endif
-
-#if defined(IS_PRALINE)
-extern fpga_driver_t fpga;
-#endif
-
 #ifdef __cplusplus
 }
 #endif

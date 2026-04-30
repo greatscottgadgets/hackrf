@@ -36,7 +36,6 @@
 #include <usb_request.h>
 #include <usb_type.h>
 #ifdef IS_PRALINE
-	#include <drivers.h>
 	#include <fpga.h>
 #endif
 #ifdef IS_NOT_RAD1O

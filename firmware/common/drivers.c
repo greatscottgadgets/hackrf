@@ -20,14 +20,3 @@
  */
 
 #include "drivers.h"
-
-#if defined(IS_PRALINE)
-	#include "fpga.h"
-	#include "ice40_spi.h"
-#endif
-
-#ifdef IS_PRALINE
-fpga_driver_t fpga = {
-	.bus = &ice40,
-};
-#endif

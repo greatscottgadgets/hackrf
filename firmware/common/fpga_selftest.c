@@ -25,7 +25,6 @@
 
 #include "clock_gen.h"
 #include "delay.h"
-#include "drivers.h"
 #include "fixed_point.h"
 #include "fpga.h"
 #include "ice40_spi.h"
