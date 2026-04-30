@@ -90,15 +90,6 @@ ssp_config_t ssp_config_max5864 = {
 	.clock_prescale_rate = 2,
 };
 
-spi_bus_t spi_bus_ssp1 = {
-	.obj = (void*) SSP1_BASE,
-	.config = &ssp_config_max5864,
-	.start = spi_ssp_start,
-	.stop = spi_ssp_stop,
-	.transfer = spi_ssp_transfer,
-	.transfer_gather = spi_ssp_transfer_gather,
-};
-
 max5864_driver_t max5864 = {
 	.bus = &spi_bus_ssp1,
 	.target_init = max5864_target_init,
@@ -108,15 +99,6 @@ ssp_config_t ssp_config_w25q80bv = {
 	.data_bits = SSP_DATA_8BITS,
 	.serial_clock_rate = 2,
 	.clock_prescale_rate = 2,
-};
-
-spi_bus_t spi_bus_ssp0 = {
-	.obj = (void*) SSP0_BASE,
-	.config = &ssp_config_w25q80bv,
-	.start = spi_ssp_start,
-	.stop = spi_ssp_stop,
-	.transfer = spi_ssp_transfer,
-	.transfer_gather = spi_ssp_transfer_gather,
 };
 
 w25q80bv_driver_t spi_flash = {
