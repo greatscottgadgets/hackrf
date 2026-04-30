@@ -58,11 +58,14 @@ static bool enabled = false;
 #define WHITE      0b11111111
 #define GREY       0b01001101
 
+#define DIV_ROUND_CLOSEST(n, d) ((n + (d / 2)) / d)
+
 static void print_hz(char* tmp, char* fmt, uint64_t hz)
 {
 	uint32_t mhz, khz;
-	mhz = hz / 1000000;
-	khz = (hz - mhz * 1000000) / 1000;
+	mhz = DIV_ROUND_CLOSEST(hz, 1000000);
+	hz -= mhz * 1000000;
+	khz = DIV_ROUND_CLOSEST(hz, 1000);
 	sprintf(tmp, fmt, (unsigned int) mhz, (unsigned int) khz);
 	rad1o_lcdPrint(tmp);
 }
