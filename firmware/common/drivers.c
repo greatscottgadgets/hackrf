@@ -22,32 +22,12 @@
 #include "drivers.h"
 
 #if defined(IS_PRALINE)
-	#include <libopencm3/lpc43xx/ssp.h>
 	#include "fpga.h"
 	#include "ice40_spi.h"
-	#include "spi_bus.h"
 #endif
 
 #ifdef IS_PRALINE
-ssp_config_t ssp_config_ice40_fpga = {
-	.data_bits = SSP_DATA_8BITS,
-	.spi_mode = SSP_CPOL_1_CPHA_1,
-	.serial_clock_rate = 21,
-	.clock_prescale_rate = 2,
-};
-
-ice40_spi_driver_t ice40 = {
-	.bus = &spi_bus_ssp1,
-};
-
 fpga_driver_t fpga = {
 	.bus = &ice40,
 };
-#endif
-
-#ifdef IS_PRALINE
-void ssp1_set_mode_ice40(void)
-{
-	spi_bus_start(&spi_bus_ssp1, &ssp_config_ice40_fpga);
-}
 #endif

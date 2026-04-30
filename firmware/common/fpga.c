@@ -24,7 +24,6 @@
 
 #include <stdbool.h>
 
-#include "drivers.h"
 #include "ice40_spi.h"
 #include "max283x.h"
 
