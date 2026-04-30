@@ -21,18 +21,12 @@
 
 #include "drivers.h"
 
-#include <stdbool.h>
-
 #if defined(IS_PRALINE)
 	#include <libopencm3/lpc43xx/ssp.h>
 	#include "fpga.h"
 	#include "ice40_spi.h"
 	#include "spi_bus.h"
 #endif
-
-sgpio_config_t sgpio_config = {
-	.slice_mode_multislice = true,
-};
 
 #ifdef IS_PRALINE
 ssp_config_t ssp_config_ice40_fpga = {

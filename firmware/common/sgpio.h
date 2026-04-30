@@ -50,3 +50,6 @@ void sgpio_cpld_stream_disable(sgpio_config_t* const config);
 bool sgpio_cpld_stream_is_enabled(sgpio_config_t* const config);
 
 void sgpio_cpld_set_mixer_invert(sgpio_config_t* const config, uint_fast8_t invert);
+
+/* Driver configuration instance. */
+extern sgpio_config_t sgpio_config;

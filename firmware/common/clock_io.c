@@ -30,10 +30,13 @@
 #include <libopencm3/lpc43xx/gpdma.h>
 #include <libopencm3/lpc43xx/creg.h>
 
-#include "drivers.h"
 #include "gpdma.h"
 #include "gpio.h"
+#ifdef IS_NOT_PRALINE
+	#include "sgpio.h"
+#endif
 #ifdef IS_PRALINE
+	#include "drivers.h"
 	#include "fpga.h"
 	#include "platform_gpio.h"
 #endif

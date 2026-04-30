@@ -23,7 +23,6 @@
 
 #include <stdint.h>
 
-#include "drivers.h"
 #include "hackrf_ui.h"
 #include "i2c_bus.h"
 #include "platform_detect.h"

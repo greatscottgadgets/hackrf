@@ -27,13 +27,13 @@
 #include <stddef.h>
 
 #include <clock_gen.h>
-#include <drivers.h>
 #include <fixed_point.h>
 #include <leds.h>
 #include <m0_state.h>
 #include <operacake_sctimer.h>
 #include <platform_detect.h>
 #include <radio.h>
+#include <sgpio.h>
 #include <streaming.h>
 #include <transceiver_mode.h>
 #include <usb.h>
