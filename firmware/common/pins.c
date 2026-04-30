@@ -30,6 +30,7 @@
 #include "gpio.h"
 #include "leds.h"
 #include "max283x.h"
+#include "max5864.h"
 #include "mixer.h"
 #include "platform_detect.h"
 #include "platform_gpio.h"

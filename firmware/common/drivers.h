@@ -26,33 +26,27 @@ extern "C" {
 #endif
 
 #include "cpld_jtag.h"
-#include "max5864.h"
 #include "mixer.h"
 #include "platform_detect.h" // IWYU pragma: keep
 #include "rf_path.h"
 #include "sgpio.h"
-#include "spi_ssp.h"
 #if defined(IS_PRALINE)
 	#include "fpga.h"
 	#include "ice40_spi.h"
+	#include "spi_ssp.h"
 #endif
-
-/* TODO: Hide these configurations */
-extern ssp_config_t ssp_config_max5864;
 
 #if defined(IS_PRALINE)
 extern ssp_config_t ssp_config_ice40_fpga;
 extern ice40_spi_driver_t ice40;
 extern fpga_driver_t fpga;
 #endif
-extern max5864_driver_t max5864;
 extern mixer_driver_t mixer;
 extern sgpio_config_t sgpio_config;
 extern rf_path_t rf_path;
 extern jtag_gpio_t jtag_gpio_cpld;
 extern jtag_t jtag_cpld;
 
-void ssp1_set_mode_max5864(void);
 #if defined(IS_PRALINE)
 void ssp1_set_mode_ice40(void);
 #endif

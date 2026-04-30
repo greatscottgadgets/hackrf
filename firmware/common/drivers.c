@@ -23,36 +23,12 @@
 
 #include <stdbool.h>
 
-#include <libopencm3/lpc43xx/ssp.h>
-
-#include "max5864_target.h"
-#include "spi_bus.h"
 #if defined(IS_PRALINE)
+	#include <libopencm3/lpc43xx/ssp.h>
 	#include "fpga.h"
 	#include "ice40_spi.h"
+	#include "spi_bus.h"
 #endif
-
-// const i2c_lpc_config_t i2c_config_si5351c_slow_clock = {
-// 	.duty_cycle_count = 15,
-// };
-
-ssp_config_t ssp_config_max5864 = {
-	/* FIXME speed up once everything is working reliably */
-	/*
-	// Freq About 0.0498MHz / 49.8KHz => Freq = PCLK / (CPSDVSR * [SCR+1]) with PCLK=PLL1=204MHz
-	const uint8_t serial_clock_rate = 32;
-	const uint8_t clock_prescale_rate = 128;
-	*/
-	// Freq About 4.857MHz => Freq = PCLK / (CPSDVSR * [SCR+1]) with PCLK=PLL1=204MHz
-	.data_bits = SSP_DATA_8BITS,
-	.serial_clock_rate = 21,
-	.clock_prescale_rate = 2,
-};
-
-max5864_driver_t max5864 = {
-	.bus = &spi_bus_ssp1,
-	.target_init = max5864_target_init,
-};
 
 sgpio_config_t sgpio_config = {
 	.slice_mode_multislice = true,
@@ -84,11 +60,6 @@ jtag_gpio_t jtag_gpio_cpld = {};
 jtag_t jtag_cpld = {
 	.gpio = &jtag_gpio_cpld,
 };
-
-void ssp1_set_mode_max5864(void)
-{
-	spi_bus_start(max5864.bus, &ssp_config_max5864);
-}
 
 #ifdef IS_PRALINE
 void ssp1_set_mode_ice40(void)
