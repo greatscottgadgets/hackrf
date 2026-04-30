@@ -58,20 +58,21 @@ static bool enabled = false;
 #define WHITE      0b11111111
 #define GREY       0b01001101
 
+static void print_hz(char* tmp, char* fmt, uint64_t hz)
+{
+	uint32_t mhz, khz;
+	mhz = hz / 1000000;
+	khz = (hz - mhz * 1000000) / 1000;
+	sprintf(tmp, fmt, (unsigned int) mhz, (unsigned int) khz);
+	rad1o_lcdPrint(tmp);
+}
+
 static void draw_frequency(void)
 {
 	char tmp[100];
-	uint32_t mhz;
-	uint32_t khz;
-
-	mhz = freq / 1000000;
-	khz = (freq - mhz * 1000000) / 1000;
-
 	rad1o_setTextColor(BLACK, GREEN);
 	rad1o_setIntFont(&Font_Ubuntu18pt);
-	sprintf(tmp, "%4u.%03u", (unsigned int) mhz, (unsigned int) khz);
-	rad1o_lcdPrint(tmp);
-
+	print_hz(tmp, "%4u.%03u", freq);
 	rad1o_setIntFont(&Font_7x8);
 	rad1o_lcdMoveCrsr(1, 18 - 7);
 	rad1o_lcdPrint("MHz");
@@ -112,8 +113,6 @@ static void draw_tx_rx(void)
 static void ui_update(void)
 {
 	char tmp[100];
-	uint32_t mhz;
-	uint32_t khz;
 
 	if (!enabled) {
 		return;
@@ -154,18 +153,12 @@ static void ui_update(void)
 	rad1o_setTextColor(BLACK, WHITE);
 	rad1o_lcdSetCrsr(2, 71);
 	rad1o_lcdPrint("Rate:   ");
-	mhz = sample_rate / 1000000;
-	khz = (sample_rate - mhz * 1000000) / 1000;
-	sprintf(tmp, "%2u.%03u MHz", (unsigned int) mhz, (unsigned int) khz);
-	rad1o_lcdPrint(tmp);
+	print_hz(tmp, "%2u.%03u MHz", sample_rate);
 	rad1o_lcdNl();
 
 	rad1o_lcdMoveCrsr(2, 0);
 	rad1o_lcdPrint("Filter: ");
-	mhz = filter_bw / 1000000;
-	khz = (filter_bw - mhz * 1000000) / 1000;
-	sprintf(tmp, "%2u.%03u MHz", (unsigned int) mhz, (unsigned int) khz);
-	rad1o_lcdPrint(tmp);
+	print_hz(tmp, "%2u.%03u MHz", filter_bw);
 	rad1o_lcdNl();
 
 	rad1o_drawHLine(88, 0, RESX - 1, WHITE);
