@@ -25,7 +25,9 @@
 
 #include <libopencm3/lpc43xx/scu.h>
 
-#include "platform_detect.h"
+#ifdef IS_HACKRF_ONE
+	#include "platform_detect.h"
+#endif
 
 // clang-format off
 

@@ -25,7 +25,6 @@
 
 #include <usb_type.h>
 
-#include "platform_detect.h"
 #include "usb_descriptor.h"
 
 usb_configuration_t usb_configuration_high_speed = {

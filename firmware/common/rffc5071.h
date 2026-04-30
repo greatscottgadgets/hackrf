@@ -27,7 +27,6 @@
 
 #include "fixed_point.h"
 #include "gpio.h"
-#include "platform_detect.h" // IWYU pragma: keep
 #include "spi_bus.h"
 
 /* 31 registers, each containing 16 bits of data. */

@@ -27,10 +27,12 @@
 #include "max283x.h"
 #include "max5864.h"
 #include "mixer.h"
-#include "platform_detect.h"
 #ifdef IS_NOT_JAWBREAKER
 	#include <libopencm3/lpc43xx/scu.h>
 	#include "platform_scu.h"
+#endif
+#if defined(IS_HACKRF_ONE) || defined(IS_PRALINE)
+	#include "platform_detect.h"
 #endif
 #ifdef IS_PRALINE
 	#include "platform_gpio.h"

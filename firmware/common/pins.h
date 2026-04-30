@@ -27,8 +27,6 @@
 extern "C" {
 #endif
 
-#include "platform_detect.h" // IWYU pragma: keep
-
 void pins_shutdown(void);
 void pins_setup(void);
 

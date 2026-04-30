@@ -37,6 +37,9 @@
 	#include "fpga.h"
 	#include "platform_gpio.h"
 #endif
+#ifdef IS_UNIVERSAL
+	#include "platform_detect.h"
+#endif
 
 #define CLOCK_CYCLES_1_MS     (204000)
 #define MEASUREMENT_WINDOW_MS (50)

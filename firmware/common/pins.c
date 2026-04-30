@@ -30,13 +30,15 @@
 #include "gpio.h"
 #include "leds.h"
 #include "mixer.h"
-#include "platform_detect.h"
 #include "platform_gpio.h"
 #include "platform_scu.h"
 #include "power.h"
 #include "rf_path.h"
 #include "sgpio.h"
-#if defined(IS_PRALINE)
+#if defined(IS_HACKRF_ONE) || defined(IS_PRALINE)
+	#include "platform_detect.h"
+#endif
+#ifdef IS_PRALINE
 	#include "clock_io.h"
 #endif
 
