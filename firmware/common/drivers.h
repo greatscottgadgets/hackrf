@@ -26,7 +26,6 @@ extern "C" {
 #endif
 
 #include "cpld_jtag.h"
-#include "mixer.h"
 #include "platform_detect.h" // IWYU pragma: keep
 #include "rf_path.h"
 #include "sgpio.h"
@@ -41,7 +40,6 @@ extern ssp_config_t ssp_config_ice40_fpga;
 extern ice40_spi_driver_t ice40;
 extern fpga_driver_t fpga;
 #endif
-extern mixer_driver_t mixer;
 extern sgpio_config_t sgpio_config;
 extern rf_path_t rf_path;
 extern jtag_gpio_t jtag_gpio_cpld;

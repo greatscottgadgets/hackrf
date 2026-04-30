@@ -23,7 +23,6 @@
 
 #include "rf_path.h"
 
-#include "drivers.h"
 #include "max283x.h"
 #include "max5864.h"
 #include "mixer.h"
