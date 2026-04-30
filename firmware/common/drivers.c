@@ -23,9 +23,9 @@
 
 #include <stdbool.h>
 
-#include <libopencm3/lpc43xx/memorymap.h>
 #include <libopencm3/lpc43xx/ssp.h>
 
+#include "i2c_bus.h"
 #include "i2c_lpc.h"
 #include "max283x.h"
 #include "max5864_target.h"
@@ -35,20 +35,6 @@
 	#include "fpga.h"
 	#include "ice40_spi.h"
 #endif
-
-i2c_bus_t i2c0 = {
-	.obj = (void*) I2C0_BASE,
-	.start = i2c_lpc_start,
-	.stop = i2c_lpc_stop,
-	.transfer = i2c_lpc_transfer,
-};
-
-i2c_bus_t i2c1 = {
-	.obj = (void*) I2C1_BASE,
-	.start = i2c_lpc_start,
-	.stop = i2c_lpc_stop,
-	.transfer = i2c_lpc_transfer,
-};
 
 // const i2c_lpc_config_t i2c_config_si5351c_slow_clock = {
 // 	.duty_cycle_count = 15,

@@ -47,3 +47,7 @@ void i2c_bus_transfer(
 	const size_t tx_count,
 	uint8_t* const rx,
 	const size_t rx_count);
+
+/* Driver instances. */
+extern i2c_bus_t i2c0;
+extern i2c_bus_t i2c1;

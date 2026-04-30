@@ -26,7 +26,6 @@
 
 #include <libopencm3/lpc43xx/scu.h>
 
-#include "drivers.h"
 #include "gpio.h"
 #include "gpio_lpc.h"
 #include "i2c_bus.h"

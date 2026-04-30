@@ -22,7 +22,6 @@
 #include <stdint.h>
 
 #include "da7219.h"
-#include "drivers.h"
 #include "i2c_bus.h"
 
 #define DA7219_REG_CHIP_ID1 0x81

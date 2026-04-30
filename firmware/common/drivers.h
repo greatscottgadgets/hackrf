@@ -26,7 +26,6 @@ extern "C" {
 #endif
 
 #include "cpld_jtag.h"
-#include "i2c_bus.h"
 #include "i2c_lpc.h"
 #include "max283x.h"
 #include "max5864.h"
@@ -62,7 +61,6 @@ extern sgpio_config_t sgpio_config;
 extern rf_path_t rf_path;
 extern jtag_gpio_t jtag_gpio_cpld;
 extern jtag_t jtag_cpld;
-extern i2c_bus_t i2c0;
 
 void ssp1_set_mode_max283x(void);
 void ssp1_set_mode_max5864(void);
