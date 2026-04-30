@@ -25,8 +25,6 @@
 
 #include <libopencm3/lpc43xx/ssp.h>
 
-#include "i2c_bus.h"
-#include "i2c_lpc.h"
 #include "max5864_target.h"
 #include "spi_bus.h"
 #if defined(IS_PRALINE)
@@ -37,15 +35,6 @@
 // const i2c_lpc_config_t i2c_config_si5351c_slow_clock = {
 // 	.duty_cycle_count = 15,
 // };
-
-const i2c_lpc_config_t i2c_config_si5351c_fast_clock = {
-	.duty_cycle_count = 255,
-};
-
-si5351c_driver_t clock_gen = {
-	.bus = &i2c0,
-	.i2c_address = 0x60,
-};
 
 ssp_config_t ssp_config_max5864 = {
 	/* FIXME speed up once everything is working reliably */

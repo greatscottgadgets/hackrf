@@ -25,6 +25,7 @@
 
 #include "clock_io.h"
 #include "delay.h"
+#include "i2c_lpc.h"
 #include "platform_detect.h"
 #include "selftest.h"
 #include "si5351c.h"
@@ -34,6 +35,18 @@
 	#include "platform_gpio.h"
 	#include "platform_scu.h"
 #endif
+
+/* Driver instance. */
+// const i2c_lpc_config_t i2c_config_si5351c_slow_clock = {
+// 	.duty_cycle_count = 15,
+// };
+const i2c_lpc_config_t i2c_config_si5351c_fast_clock = {
+	.duty_cycle_count = 255,
+};
+si5351c_driver_t clock_gen = {
+	.bus = &i2c0,
+	.i2c_address = 0x60,
+};
 
 static enum pll_sources active_clock_source = PLL_SOURCE_UNINITIALIZED;
 /* External clock output default is deactivated as it creates noise */

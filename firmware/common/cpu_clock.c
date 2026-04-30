@@ -29,8 +29,8 @@
 #endif
 
 #include "delay.h"
-#include "drivers.h"
 #include "i2c_bus.h"
+#include "si5351c.h"
 #ifdef IS_NOT_RAD1O
 	#include "platform_detect.h"
 #endif

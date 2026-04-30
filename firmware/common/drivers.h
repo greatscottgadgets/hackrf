@@ -26,13 +26,11 @@ extern "C" {
 #endif
 
 #include "cpld_jtag.h"
-#include "i2c_lpc.h"
 #include "max5864.h"
 #include "mixer.h"
 #include "platform_detect.h" // IWYU pragma: keep
 #include "rf_path.h"
 #include "sgpio.h"
-#include "si5351c.h"
 #include "spi_ssp.h"
 #if defined(IS_PRALINE)
 	#include "fpga.h"
@@ -40,8 +38,6 @@ extern "C" {
 #endif
 
 /* TODO: Hide these configurations */
-extern const i2c_lpc_config_t i2c_config_si5351c_fast_clock;
-extern si5351c_driver_t clock_gen;
 extern ssp_config_t ssp_config_max5864;
 
 #if defined(IS_PRALINE)
