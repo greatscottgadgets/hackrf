@@ -41,7 +41,7 @@
 #include "w25q80bv.h"
 #if defined(IS_PRALINE)
 	#include "clock_io.h"
-	#include "drivers.h"
+	#include "ice40_spi.h"
 #endif
 
 void pins_shutdown(void)

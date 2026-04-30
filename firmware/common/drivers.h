@@ -28,18 +28,10 @@ extern "C" {
 #include "platform_detect.h" // IWYU pragma: keep
 #if defined(IS_PRALINE)
 	#include "fpga.h"
-	#include "ice40_spi.h"
-	#include "spi_ssp.h"
 #endif
 
 #if defined(IS_PRALINE)
-extern ssp_config_t ssp_config_ice40_fpga;
-extern ice40_spi_driver_t ice40;
 extern fpga_driver_t fpga;
-#endif
-
-#if defined(IS_PRALINE)
-void ssp1_set_mode_ice40(void);
 #endif
 
 #ifdef __cplusplus
