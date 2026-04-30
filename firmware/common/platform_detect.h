@@ -21,8 +21,10 @@
 
 #pragma once
 
-#include <stdbool.h>
 #include <stdint.h>
+#if !defined(UNIVERSAL)
+	#include <stdbool.h>
+#endif
 
 #define BOARD_REV_GSG (0x80)
 
@@ -45,13 +47,15 @@
 	#define IS_NOT_HACKRF_ONE (!IS_HACKRF_ONE)
 	#define IS_H1_R9 (detected_platform() == BOARD_ID_HACKRF1_R9)
 	#define IS_NOT_H1_R9 (!IS_H1_R9)
-	#define IS_NOT_RAD1O true
-	#define IS_NOT_JAWBREAKER true
-	#define IS_H1_OR_PRALINE true
-	#define IS_H1_OR_RAD1O IS_HACKRF_ONE
-	#define IS_H1_OR_JAWBREAKER IS_HACKRF_ONE
-	#define IS_FOUR_LEDS IS_PRALINE
-	#define IS_EXPANSION_COMPATIBLE true
+	#define IS_RAD1O (detected_platform() == BOARD_ID_RAD1O)
+	#define IS_NOT_RAD1O (!IS_RAD1O)
+	#define IS_JAWBREAKER (detected_platform() == BOARD_ID_JAWBREAKER)
+	#define IS_NOT_JAWBREAKER (!IS_JAWBREAKER)
+	#define IS_H1_OR_PRALINE (IS_HACKRF_ONE || IS_PRALINE)
+	#define IS_H1_OR_RAD1O (IS_HACKRF_ONE || IS_RAD1O)
+	#define IS_H1_OR_JAWBREAKER (IS_HACKRF_ONE || IS_JAWBREAKER)
+	#define IS_FOUR_LEDS (IS_PRALINE || IS_RAD1O)
+	#define IS_EXPANSION_COMPATIBLE IS_H1_OR_PRALINE
 #elif defined(HACKRF_ONE)
 	#define IS_NOT_PRALINE true
 	#define IS_HACKRF_ONE true

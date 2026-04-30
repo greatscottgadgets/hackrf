@@ -30,7 +30,7 @@
 #include <drivers.h>
 #include <leds.h>
 #include <max283x.h>
-#include <platform_detect.h>
+#include <platform_detect.h> // IWYU pragma: keep
 #include <radio.h>
 #include <si5351c.h>
 #include <usb_queue.h>
@@ -142,14 +142,6 @@ usb_request_status_t usb_vendor_request_write_rffc5071(
 	usb_endpoint_t* const endpoint,
 	const usb_transfer_stage_t stage)
 {
-#ifdef IS_RAD1O
-	if (IS_RAD1O) {
-		(void) endpoint;
-		(void) stage;
-		return USB_REQUEST_STATUS_STALL;
-	}
-#endif
-
 #ifdef IS_NOT_RAD1O
 	if (IS_NOT_RAD1O) {
 		if (stage == USB_TRANSFER_STAGE_SETUP) {
@@ -165,21 +157,17 @@ usb_request_status_t usb_vendor_request_write_rffc5071(
 		}
 		return USB_REQUEST_STATUS_OK;
 	}
+#else
+	(void) endpoint;
+	(void) stage;
 #endif
+	return USB_REQUEST_STATUS_STALL;
 }
 
 usb_request_status_t usb_vendor_request_read_rffc5071(
 	usb_endpoint_t* const endpoint,
 	const usb_transfer_stage_t stage)
 {
-#ifdef IS_RAD1O
-	if (IS_RAD1O) {
-		(void) endpoint;
-		(void) stage;
-		return USB_REQUEST_STATUS_STALL;
-	}
-#endif
-
 #ifdef IS_NOT_RAD1O
 	if (IS_NOT_RAD1O) {
 		uint16_t value;
@@ -203,7 +191,11 @@ usb_request_status_t usb_vendor_request_read_rffc5071(
 		}
 		return USB_REQUEST_STATUS_OK;
 	}
+#else
+	(void) endpoint;
+	(void) stage;
 #endif
+	return USB_REQUEST_STATUS_STALL;
 }
 
 usb_request_status_t usb_vendor_request_set_clkout_enable(
