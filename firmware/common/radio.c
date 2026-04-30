@@ -34,7 +34,6 @@
 #include "transceiver_mode.h"
 #include "tuning.h"
 #ifdef IS_PRALINE
-	#include "drivers.h"
 	#include "fpga.h"
 	#include "tune_config.h"
 #endif
