@@ -22,8 +22,30 @@
 
 #include "spi_bus.h"
 
+#include <libopencm3/lpc43xx/memorymap.h>
+
+#include "spi_ssp.h"
+
+/* Driver instances. */
+spi_bus_t spi_bus_ssp0 = {
+	.obj = (void*) SSP0_BASE,
+	.start = spi_ssp_start,
+	.stop = spi_ssp_stop,
+	.transfer = spi_ssp_transfer,
+	.transfer_gather = spi_ssp_transfer_gather,
+};
+
+spi_bus_t spi_bus_ssp1 = {
+	.obj = (void*) SSP1_BASE,
+	.start = spi_ssp_start,
+	.stop = spi_ssp_stop,
+	.transfer = spi_ssp_transfer,
+	.transfer_gather = spi_ssp_transfer_gather,
+};
+
 void spi_bus_start(spi_bus_t* const bus, const void* const config)
 {
+	bus->config = config;
 	bus->start(bus, config);
 }
 

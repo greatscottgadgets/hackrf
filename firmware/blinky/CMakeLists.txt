@@ -28,6 +28,7 @@ include(../hackrf-common.cmake)
 
 set(SRC_M4
 	blinky.c
+	"${PATH_HACKRF_FIRMWARE_COMMON}/cpld_jtag.c"
 )
 
 DeclareTargets()

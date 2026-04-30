@@ -27,6 +27,7 @@
 
 #include "gpio.h"
 #include "spi_bus.h"
+#include "spi_ssp.h"
 
 typedef struct {
 	spi_bus_t* const bus;
@@ -43,3 +44,8 @@ bool ice40_spi_syscfg_program(
 	uint8_t* buf,
 	size_t (*read_block_cb)(void* ctx),
 	void* read_ctx);
+
+/* Driver instance. */
+extern ssp_config_t ssp_config_ice40_fpga;
+extern ice40_spi_driver_t ice40;
+void ssp1_set_mode_ice40(void);

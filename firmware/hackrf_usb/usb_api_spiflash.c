@@ -26,7 +26,6 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include <drivers.h>
 #include <spi_bus.h>
 #include <usb_queue.h>
 #include <usb_request.h>

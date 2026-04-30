@@ -23,7 +23,6 @@
 
 #include "rf_path.h"
 
-#include "drivers.h"
 #include "max283x.h"
 #include "max5864.h"
 #include "mixer.h"
@@ -35,6 +34,11 @@
 #ifdef IS_PRALINE
 	#include "platform_gpio.h"
 #endif
+
+/* RF Path instance. */
+rf_path_t rf_path = {
+	.switchctrl = 0,
+};
 
 /*
  * RF switches on Jawbreaker are controlled by General Purpose Outputs (GPO) on

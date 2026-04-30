@@ -27,7 +27,6 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include <drivers.h>
 #include <leds.h>
 #include <max283x.h>
 #include <platform_detect.h>
@@ -101,7 +100,7 @@ usb_request_status_t usb_vendor_request_write_si5351c(
 		if (endpoint->setup.index < 256) {
 			if (endpoint->setup.value < 256) {
 				si5351c_write_single(
-					&clock_gen,
+					&si5351c,
 					endpoint->setup.index,
 					endpoint->setup.value);
 				usb_transfer_schedule_ack(endpoint->in);
@@ -121,7 +120,7 @@ usb_request_status_t usb_vendor_request_read_si5351c(
 	if (stage == USB_TRANSFER_STAGE_SETUP) {
 		if (endpoint->setup.index < 256) {
 			const uint8_t value =
-				si5351c_read_single(&clock_gen, endpoint->setup.index);
+				si5351c_read_single(&si5351c, endpoint->setup.index);
 			endpoint->buffer[0] = value;
 			usb_transfer_schedule_block(
 				endpoint->in,
@@ -211,7 +210,7 @@ usb_request_status_t usb_vendor_request_set_clkout_enable(
 	const usb_transfer_stage_t stage)
 {
 	if (stage == USB_TRANSFER_STAGE_SETUP) {
-		si5351c_clkout_enable(&clock_gen, endpoint->setup.value);
+		si5351c_clkout_enable(&si5351c, endpoint->setup.value);
 		usb_transfer_schedule_ack(endpoint->in);
 	}
 	return USB_REQUEST_STATUS_OK;
@@ -222,7 +221,7 @@ usb_request_status_t usb_vendor_request_get_clkin_status(
 	const usb_transfer_stage_t stage)
 {
 	if (stage == USB_TRANSFER_STAGE_SETUP) {
-		endpoint->buffer[0] = si5351c_clkin_signal_valid(&clock_gen);
+		endpoint->buffer[0] = si5351c_clkin_signal_valid(&si5351c);
 		usb_transfer_schedule_block(
 			endpoint->in,
 			&endpoint->buffer,

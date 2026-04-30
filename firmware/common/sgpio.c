@@ -35,6 +35,11 @@
 	#include "clock_io.h"
 #endif
 
+/* Driver configuration instance. */
+sgpio_config_t sgpio_config = {
+	.slice_mode_multislice = true,
+};
+
 static void update_q_invert(sgpio_config_t* const config);
 
 void sgpio_configure_pin_functions(sgpio_config_t* const config)

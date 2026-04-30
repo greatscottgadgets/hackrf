@@ -65,3 +65,6 @@ extern fp_40_24_t mixer_set_frequency(
 extern void mixer_enable(mixer_driver_t* const mixer);
 extern void mixer_disable(mixer_driver_t* const mixer);
 extern void mixer_set_gpo(mixer_driver_t* const drv, uint8_t gpo);
+
+/* Mixer instance. */
+extern mixer_driver_t mixer;
