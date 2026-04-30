@@ -45,12 +45,6 @@ fpga_driver_t fpga = {
 };
 #endif
 
-jtag_gpio_t jtag_gpio_cpld = {};
-
-jtag_t jtag_cpld = {
-	.gpio = &jtag_gpio_cpld,
-};
-
 #ifdef IS_PRALINE
 void ssp1_set_mode_ice40(void)
 {

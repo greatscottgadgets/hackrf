@@ -70,7 +70,6 @@
 #ifdef IS_NOT_PRALINE
 	#include <cpld_jtag.h>
 	#include <cpld_xc2c.h>
-	#include <drivers.h>
 #endif
 
 #include "usb_api_adc.h"
