@@ -168,7 +168,6 @@ endmacro()
 macro(DeclareTargets)
 	SET(SRC_M4
 		${SRC_M4}
-		${PATH_HACKRF_FIRMWARE_COMMON}/drivers.c
 		${PATH_HACKRF_FIRMWARE_COMMON}/power.c
 		${PATH_HACKRF_FIRMWARE_COMMON}/cpu_clock.c
 		${PATH_HACKRF_FIRMWARE_COMMON}/delay.c
