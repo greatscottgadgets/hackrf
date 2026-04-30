@@ -26,7 +26,6 @@
 #include <libopencm3/cm3/nvic.h>
 
 #include "clock_io.h"
-#include "drivers.h"
 #include "fixed_point.h"
 #include "max283x.h"
 #include "mixer.h"
@@ -35,6 +34,7 @@
 #include "transceiver_mode.h"
 #include "tuning.h"
 #ifdef IS_PRALINE
+	#include "drivers.h"
 	#include "fpga.h"
 	#include "tune_config.h"
 #endif

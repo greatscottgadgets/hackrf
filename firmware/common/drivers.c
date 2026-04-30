@@ -51,10 +51,6 @@ fpga_driver_t fpga = {
 };
 #endif
 
-rf_path_t rf_path = {
-	.switchctrl = 0,
-};
-
 jtag_gpio_t jtag_gpio_cpld = {};
 
 jtag_t jtag_cpld = {

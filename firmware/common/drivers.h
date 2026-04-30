@@ -27,7 +27,6 @@ extern "C" {
 
 #include "cpld_jtag.h"
 #include "platform_detect.h" // IWYU pragma: keep
-#include "rf_path.h"
 #include "sgpio.h"
 #if defined(IS_PRALINE)
 	#include "fpga.h"
@@ -41,7 +40,6 @@ extern ice40_spi_driver_t ice40;
 extern fpga_driver_t fpga;
 #endif
 extern sgpio_config_t sgpio_config;
-extern rf_path_t rf_path;
 extern jtag_gpio_t jtag_gpio_cpld;
 extern jtag_t jtag_cpld;
 
