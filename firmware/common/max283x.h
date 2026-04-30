@@ -28,6 +28,7 @@
 
 #include "fixed_point.h"
 #include "platform_detect.h"
+#include "spi_ssp.h"
 
 #ifdef IS_PRALINE
 	#include "max2831.h"
@@ -139,3 +140,8 @@ void max283x_set_rx_hpf_frequency(
 /* Perform MAX2831 TX and RX calibration. */
 void max283x_tx_calibration(max283x_driver_t* const drv);
 void max283x_rx_calibration(max283x_driver_t* const drv);
+
+/* Driver instance. */
+extern ssp_config_t ssp_config_max283x;
+extern max283x_driver_t max283x;
+void ssp1_set_mode_max283x(void);

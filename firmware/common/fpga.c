@@ -26,6 +26,7 @@
 
 #include "drivers.h"
 #include "ice40_spi.h"
+#include "max283x.h"
 
 /* Set up all registers according to the loaded bitstream's defaults. */
 void fpga_init(fpga_driver_t* const drv)

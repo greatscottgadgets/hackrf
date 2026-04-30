@@ -27,7 +27,6 @@
 
 #include "i2c_bus.h"
 #include "i2c_lpc.h"
-#include "max283x.h"
 #include "max5864_target.h"
 #include "spi_bus.h"
 #if defined(IS_PRALINE)
@@ -47,20 +46,6 @@ si5351c_driver_t clock_gen = {
 	.bus = &i2c0,
 	.i2c_address = 0x60,
 };
-
-ssp_config_t ssp_config_max283x = {
-	/* FIXME speed up once everything is working reliably */
-	/*
-	// Freq About 0.0498MHz / 49.8KHz => Freq = PCLK / (CPSDVSR * [SCR+1]) with PCLK=PLL1=204MHz
-	const uint8_t serial_clock_rate = 32;
-	const uint8_t clock_prescale_rate = 128;
-	*/
-	// Freq About 4.857MHz => Freq = PCLK / (CPSDVSR * [SCR+1]) with PCLK=PLL1=204MHz
-	.serial_clock_rate = 21,
-	.clock_prescale_rate = 2,
-};
-
-max283x_driver_t max283x = {};
 
 ssp_config_t ssp_config_max5864 = {
 	/* FIXME speed up once everything is working reliably */
@@ -110,11 +95,6 @@ jtag_gpio_t jtag_gpio_cpld = {};
 jtag_t jtag_cpld = {
 	.gpio = &jtag_gpio_cpld,
 };
-
-void ssp1_set_mode_max283x(void)
-{
-	spi_bus_start(&spi_bus_ssp1, &ssp_config_max283x);
-}
 
 void ssp1_set_mode_max5864(void)
 {

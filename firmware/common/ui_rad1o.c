@@ -27,7 +27,7 @@
 #include <stdio.h>
 
 #include "clock_gen.h"
-#include "drivers.h"
+#include "max283x.h"
 #include "rf_path.h"
 #include "transceiver_mode.h"
 #ifdef IS_NOT_RAD1O
