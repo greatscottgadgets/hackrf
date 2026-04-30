@@ -36,14 +36,14 @@
 
 void clock_gen_init(void)
 {
-	i2c_bus_start(clock_gen.bus, &i2c_config_si5351c_fast_clock);
+	i2c_bus_start(si5351c.bus, &i2c_config_si5351c_fast_clock);
 
-	si5351c_init(&clock_gen);
-	si5351c_disable_all_outputs(&clock_gen);
-	si5351c_disable_oeb_pin_control(&clock_gen);
-	si5351c_power_down_all_clocks(&clock_gen);
-	si5351c_set_crystal_configuration(&clock_gen);
-	si5351c_enable_xo_and_ms_fanout(&clock_gen);
+	si5351c_init(&si5351c);
+	si5351c_disable_all_outputs(&si5351c);
+	si5351c_disable_oeb_pin_control(&si5351c);
+	si5351c_power_down_all_clocks(&si5351c);
+	si5351c_set_crystal_configuration(&si5351c);
+	si5351c_enable_xo_and_ms_fanout(&si5351c);
 
 	/*
 	 * Clocks on HackRF One r9:
@@ -76,7 +76,7 @@ void clock_gen_init(void)
 	if (IS_H1_R9) {
 		/* MS0/CLK0 is the reference for both RFFC5071 and MAX2839. */
 		si5351c_configure_multisynth(
-			&clock_gen,
+			&si5351c,
 			0,
 			20 * 128 - 512,
 			0,
@@ -88,7 +88,7 @@ void clock_gen_init(void)
 	if (IS_NOT_H1_R9) {
 		/* MS4/CLK4 is the source for the RFFC5071 mixer (MAX2837 on rad1o). */
 		si5351c_configure_multisynth(
-			&clock_gen,
+			&si5351c,
 			4,
 			20 * 128 - 512,
 			0,
@@ -96,7 +96,7 @@ void clock_gen_init(void)
 			0); /* 800/20 = 40MHz */
 		/* MS5/CLK5 is the source for the MAX2837 clock input (MAX2871 on rad1o). */
 		si5351c_configure_multisynth(
-			&clock_gen,
+			&si5351c,
 			5,
 			20 * 128 - 512,
 			0,
@@ -111,19 +111,19 @@ void clock_gen_init(void)
 	/* Set to 10 MHz, the common rate between Jawbreaker and HackRF One. */
 	sample_rate_set(SR_FP_MHZ(10), true);
 
-	si5351c_configure_clock_control(&clock_gen);
-	si5351c_set_clock_source(&clock_gen, PLL_SOURCE_XTAL);
+	si5351c_configure_clock_control(&si5351c);
+	si5351c_set_clock_source(&si5351c, PLL_SOURCE_XTAL);
 	// soft reset
-	si5351c_reset_pll(&clock_gen, SI5351C_PLL_BOTH);
-	si5351c_enable_clock_outputs(&clock_gen);
+	si5351c_reset_pll(&si5351c, SI5351C_PLL_BOTH);
+	si5351c_enable_clock_outputs(&si5351c);
 }
 
 void clock_gen_shutdown(void)
 {
-	i2c_bus_start(clock_gen.bus, &i2c_config_si5351c_fast_clock);
-	si5351c_disable_all_outputs(&clock_gen);
-	si5351c_disable_oeb_pin_control(&clock_gen);
-	si5351c_power_down_all_clocks(&clock_gen);
+	i2c_bus_start(si5351c.bus, &i2c_config_si5351c_fast_clock);
+	si5351c_disable_all_outputs(&si5351c);
+	si5351c_disable_oeb_pin_control(&si5351c);
+	si5351c_power_down_all_clocks(&si5351c);
 }
 
 clock_source_t activate_best_clock_source(void)
@@ -140,7 +140,7 @@ clock_source_t activate_best_clock_source(void)
 	clock_source_t source = CLOCK_SOURCE_HACKRF;
 
 	/* Check for external clock input. */
-	if (si5351c_clkin_signal_valid(&clock_gen)) {
+	if (si5351c_clkin_signal_valid(&si5351c)) {
 		source = CLOCK_SOURCE_EXTERNAL;
 	} else {
 #ifdef IS_EXPANSION_COMPATIBLE
@@ -149,7 +149,7 @@ clock_source_t activate_best_clock_source(void)
 			if (portapack_reference_oscillator && portapack()) {
 				portapack_reference_oscillator(true);
 				delay(510000); /* loop iterations @ 204MHz for >10ms for oscillator to enable. */
-				if (si5351c_clkin_signal_valid(&clock_gen)) {
+				if (si5351c_clkin_signal_valid(&si5351c)) {
 					source = CLOCK_SOURCE_PORTAPACK;
 				} else {
 					portapack_reference_oscillator(false);
@@ -161,7 +161,7 @@ clock_source_t activate_best_clock_source(void)
 	}
 
 	si5351c_set_clock_source(
-		&clock_gen,
+		&si5351c,
 		(source == CLOCK_SOURCE_HACKRF) ? PLL_SOURCE_XTAL : PLL_SOURCE_CLKIN);
 	hackrf_ui()->set_clock_source(source);
 
@@ -342,9 +342,9 @@ fp_28_36_t sample_rate_set(const fp_28_36_t sample_rate, const bool program)
 	if (IS_NOT_PRALINE) {
 		/* Integer mode can be enabled if p1 is even and p2 is zero. */
 		if (p1 & 0x1 || p2) {
-			si5351c_set_int_mode(&clock_gen, 0, 0);
+			si5351c_set_int_mode(&si5351c, 0, 0);
 		} else {
-			si5351c_set_int_mode(&clock_gen, 0, 1);
+			si5351c_set_int_mode(&si5351c, 0, 1);
 		}
 
 	#ifdef IS_H1_R9
@@ -353,7 +353,7 @@ fp_28_36_t sample_rate_set(const fp_28_36_t sample_rate, const bool program)
 			 * On HackRF One r9 all sample clocks are externally derived
 			 * from MS1/CLK1 operating at twice the sample rate.
 			 */
-			si5351c_configure_multisynth(&clock_gen, 1, p1, p2, p3, 0);
+			si5351c_configure_multisynth(&si5351c, 1, p1, p2, p3, 0);
 		}
 	#endif
 	#ifdef IS_NOT_H1_R9
@@ -363,11 +363,11 @@ fp_28_36_t sample_rate_set(const fp_28_36_t sample_rate, const bool program)
 			 * different sample clocks, all derived from multisynth 0.
 			 */
 			/* MS0/CLK0 is the source for the MAX5864/CPLD (CODEC_CLK). */
-			si5351c_configure_multisynth(&clock_gen, 0, p1, p2, p3, 1);
+			si5351c_configure_multisynth(&si5351c, 0, p1, p2, p3, 1);
 
 			/* MS0/CLK1 is the source for the CPLD (CODEC_X2_CLK). */
 			si5351c_configure_multisynth(
-				&clock_gen,
+				&si5351c,
 				1,
 				0,
 				0,
@@ -376,7 +376,7 @@ fp_28_36_t sample_rate_set(const fp_28_36_t sample_rate, const bool program)
 
 			/* MS0/CLK2 is the source for SGPIO (CODEC_X2_CLK) */
 			si5351c_configure_multisynth(
-				&clock_gen,
+				&si5351c,
 				2,
 				0,
 				0,
@@ -389,17 +389,17 @@ fp_28_36_t sample_rate_set(const fp_28_36_t sample_rate, const bool program)
 #ifdef IS_PRALINE
 	if (IS_PRALINE) {
 		/* MS0/CLK0 is the source for the MAX5864 (AFE_CLK). */
-		si5351c_configure_multisynth(&clock_gen, 0, p1, p2, p3, 1);
+		si5351c_configure_multisynth(&si5351c, 0, p1, p2, p3, 1);
 
 		/* MS1/CLK1 is the source for the FPGA (FPGA_CLK and SCT_CLK). */
-		si5351c_configure_multisynth(&clock_gen, 1, p1, p2, p3, 1);
+		si5351c_configure_multisynth(&si5351c, 1, p1, p2, p3, 1);
 
 		/* Delay FPGA_CLK relative to AFE_CLK. */
 		uint8_t phase_offset = 0;
 		if (p1 < 2100) {
 			phase_offset = (p1 >> 4) - 6;
 		}
-		si5351c_set_phase(&clock_gen, 1, phase_offset);
+		si5351c_set_phase(&si5351c, 1, phase_offset);
 
 		if ((detected_revision() & ~BOARD_REV_GSG) < BOARD_REV_PRALINE_R1_1) {
 			/*
@@ -407,12 +407,12 @@ fp_28_36_t sample_rate_set(const fp_28_36_t sample_rate, const bool program)
 			 * CLK1. We configure both so that behavior is consistent with
 			 * newer boards that use CLK1 for both FPGA_CLK and SCT_CLK.
 			 */
-			si5351c_configure_multisynth(&clock_gen, 2, p1, p2, p3, 1);
-			si5351c_set_phase(&clock_gen, 2, phase_offset);
+			si5351c_configure_multisynth(&si5351c, 2, p1, p2, p3, 1);
+			si5351c_set_phase(&si5351c, 2, phase_offset);
 		}
 
 		/* Reset PLL to synchronize output clock phase. */
-		si5351c_reset_pll(&clock_gen, SI5351C_PLL_A);
+		si5351c_reset_pll(&si5351c, SI5351C_PLL_A);
 	}
 #endif
 

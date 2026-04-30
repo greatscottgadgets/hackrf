@@ -43,7 +43,7 @@
 const i2c_lpc_config_t i2c_config_si5351c_fast_clock = {
 	.duty_cycle_count = 255,
 };
-si5351c_driver_t clock_gen = {
+si5351c_driver_t si5351c = {
 	.bus = &i2c0,
 	.i2c_address = 0x60,
 };

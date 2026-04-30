@@ -118,7 +118,7 @@ void si5351c_set_phase(
 
 /* Driver Instance. */
 extern const i2c_lpc_config_t i2c_config_si5351c_fast_clock;
-extern si5351c_driver_t clock_gen;
+extern si5351c_driver_t si5351c;
 
 #ifdef __cplusplus
 }
