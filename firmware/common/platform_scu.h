@@ -157,7 +157,9 @@ typedef struct {
 #endif
 #ifdef IS_PRALINE
 	scu_grp_pin_t MIXER_LD;
+	scu_grp_pin_t MIXER_ENBL;
 	uint32_t MIXER_LD_PINCFG;
+	uint32_t MIXER_ENBL_PINCFG;
 #endif
 #ifdef IS_RAD1O
 	scu_grp_pin_t VCO_CE;
@@ -240,6 +242,7 @@ typedef struct {
 	scu_grp_pin_t TRIGGER_IN;
 	scu_grp_pin_t TRIGGER_OUT;
 	scu_grp_pin_t PPS_OUT;
+	scu_grp_pin_t SCT_CLK;
 
 	scu_grp_pin_t P2_CTRL0_PINCFG;
 	scu_grp_pin_t P2_CTRL1_PINCFG;
@@ -251,6 +254,7 @@ typedef struct {
 	scu_grp_pin_t TRIGGER_IN_PINCFG;
 	scu_grp_pin_t TRIGGER_OUT_PINCFG;
 	scu_grp_pin_t PPS_OUT_PINCFG;
+	scu_grp_pin_t SCT_CLK_PINCFG;
 #endif
 
 	/* HackRF One r9 */
@@ -299,6 +303,14 @@ typedef struct {
 	scu_grp_pin_t PINMUX_PP_ADDR;
 	scu_grp_pin_t PINMUX_U0_TXD;
 	scu_grp_pin_t PINMUX_U0_RXD;
+
+	/* SCT */
+	scu_grp_pin_t CTOUT_8;
+	scu_grp_pin_t CTOUT_11;
+	scu_grp_pin_t CTOUT_12;
+	scu_grp_pin_t CTOUT_13;
+	scu_grp_pin_t CTOUT_14;
+	scu_grp_pin_t CTOUT_PINCFG;
 
 	scu_grp_pin_t PINMUX_ISP;
 
