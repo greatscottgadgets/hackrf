@@ -1,0 +1,495 @@
+/*
+ * Copyright 2026 Great Scott Gadgets <info@greatscottgadgets.com>
+ *
+ * This file is part of HackRF.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; see the file COPYING.  If not, write to
+ * the Free Software Foundation, Inc., 51 Franklin Street,
+ * Boston, MA 02110-1301, USA.
+ */
+
+static inline void si5351c_reg_set_clean(si5351c_driver_t* drv, int reg)
+{
+	drv->regs_dirty[reg / 32] &= ~(1 << (reg % 32));
+}
+
+static inline void si5351c_reg_set_dirty(si5351c_driver_t* drv, int reg)
+{
+	drv->regs_dirty[reg / 32] |= (1 << (reg % 32));
+}
+
+static inline bool si5351c_reg_is_dirty(si5351c_driver_t* drv, int reg)
+{
+	return (drv->regs_dirty[reg / 32] & (1 << (reg % 32))) ? true : false;
+}
+
+/* Generate static inline accessors that operate on the global
+ * regs. Done this way to (1) allow defs to be scraped out and used
+ * elsewhere, e.g. in scripts, (2) to avoid dealing with endian
+ * (structs). This may be used in firmware, or on host predefined
+ * register loads. */
+
+/* On set_, register is always set dirty, even if nothing
+ * changed. This makes sure that writes that have side effects,
+ * e.g. frequency setting, are not skipped. */
+
+/* n=name, r=regnum, o=offset (bits from LSB) of LSB of field,
+ * l=length (bits) */
+#define __MREG__(n,r,o,l) \
+static inline uint8_t get_##n(si5351c_driver_t* const _d) { \
+	return (_d->regs[r] >> o) & ((1L<<l)-1); \
+} \
+static inline void set_##n(si5351c_driver_t* const _d, uint8_t v) { \
+	_d->regs[r] &= (uint8_t)(~(((1L<<l)-1)<<o));	\
+	_d->regs[r] |= (uint8_t)(((v&((1L<<l)-1))<<o));	\
+	si5351c_reg_set_dirty(_d, r);			\
+} \
+const uint8_t n = r;
+
+/* Generate accessors for numeric fields split across multiple registers */
+/* n = name */
+
+#define __2PART__(n) \
+static inline uint16_t get_##n(si5351c_driver_t* const _d) { \
+	return (get_##n##_TOP(_d) << 8) | get_##n##_BOT(_d); \
+} \
+static inline void set_##n(si5351c_driver_t* const _d, uint16_t v) { \
+	set_##n##_TOP(_d, v >> 8); \
+	set_##n##_BOT(_d, v); \
+}
+
+#define __3PART__(n) \
+static inline uint32_t get_##n(si5351c_driver_t* const _d) { \
+	return (get_##n##_TOP(_d) << 16) | (get_##n##_MID(_d) << 8) | get_##n##_BOT(_d); \
+} \
+static inline void set_##n(si5351c_driver_t* const _d, uint32_t v) { \
+	set_##n##_TOP(_d, v >> 16); \
+	set_##n##_MID(_d, v >> 8); \
+	set_##n##_BOT(_d, v); \
+}
+
+/* Generate accessors for per-PLL and per-multisynth registers */
+/* n=name, p=prefix, s=suffix */
+
+#define __PER_PLL__(n, p, s) \
+static inline uint32_t get_##n(si5351c_driver_t* const _d, si5351c_pll_t pll) { \
+	switch (pll) { \
+	case SI5351C_PLL_A: return get_##p##A##s(_d); \
+	case SI5351C_PLL_B: return get_##p##B##s(_d); \
+	default: return get_##p##A##s(_d) | get_##p##B##s(_d); \
+	} \
+} \
+static inline void set_##n(si5351c_driver_t* const _d, si5351c_pll_t pll, uint32_t v) { \
+	if (pll & SI5351C_PLL_A) set_##p##A##s(_d, v); \
+	if (pll & SI5351C_PLL_B) set_##p##B##s(_d, v); \
+}
+
+#define __PER_MS__(n, p, s) \
+static inline uint32_t get_##n(si5351c_driver_t* const _d, uint8_t i) { \
+	switch (i) { \
+	case 0: return get_##p##0##s(_d); \
+	case 1: return get_##p##1##s(_d); \
+	case 2: return get_##p##2##s(_d); \
+	case 3: return get_##p##3##s(_d); \
+	case 4: return get_##p##4##s(_d); \
+	case 5: return get_##p##5##s(_d); \
+	case 6: return get_##p##6##s(_d); \
+	case 7: return get_##p##7##s(_d); \
+	default: return 0; \
+	} \
+} \
+static inline void set_##n(si5351c_driver_t* const _d, uint8_t i, uint32_t v) { \
+	switch (i) { \
+	case 0: set_##p##0##s(_d, v); return; \
+	case 1: set_##p##1##s(_d, v); return; \
+	case 2: set_##p##2##s(_d, v); return; \
+	case 3: set_##p##3##s(_d, v); return; \
+	case 4: set_##p##4##s(_d, v); return; \
+	case 5: set_##p##5##s(_d, v); return; \
+	case 6: set_##p##6##s(_d, v); return; \
+	case 7: set_##p##7##s(_d, v); return; \
+	} \
+} \
+static inline void set_all_##n(si5351c_driver_t* const _d, uint32_t v) { \
+	set_##p##0##s(_d, v); \
+	set_##p##1##s(_d, v); \
+	set_##p##2##s(_d, v); \
+	set_##p##3##s(_d, v); \
+	set_##p##4##s(_d, v); \
+	set_##p##5##s(_d, v); \
+	set_##p##6##s(_d, v); \
+	set_##p##7##s(_d, v); \
+}
+
+#define __PER_FRAC_MS__(n, p, s) \
+static inline void set_##n(si5351c_driver_t* const _d, uint8_t i, uint32_t v) { \
+	switch (i) { \
+	case 0: set_##p##0##s(_d, v); return; \
+	case 1: set_##p##1##s(_d, v); return; \
+	case 2: set_##p##2##s(_d, v); return; \
+	case 3: set_##p##3##s(_d, v); return; \
+	case 4: set_##p##4##s(_d, v); return; \
+	case 5: set_##p##5##s(_d, v); return; \
+	} \
+}
+
+/* Register 0: Device Status */
+__MREG__(SYS_INIT, 0, 7, 1)
+__MREG__(LOL_B, 0, 6, 1)
+__MREG__(LOL_A, 0, 5, 1)
+__MREG__(LOS_CLKIN, 0, 4, 1)
+__MREG__(LOS_XTAL, 0, 3, 1)
+__MREG__(REVID, 0, 0, 2)
+
+/* Register 1: Interrupt Status Sticky */
+__MREG__(SYS_INIT_STKY, 1, 7, 1)
+__MREG__(LOL_B_STKY, 1, 6, 1)
+__MREG__(LOL_A_STKY, 1, 5, 1)
+__MREG__(LOS_CLKIN_STKY, 1, 4, 1)
+__MREG__(LOS_XTAL_STKY, 1, 3, 1)
+
+/* Register 2: Interrupt Status Mask */
+__MREG__(SYS_INIT_MASK, 2, 7, 1)
+__MREG__(LOL_B_MASK, 2, 6, 1)
+__MREG__(LOL_A_MASK, 2, 5, 1)
+__MREG__(LOS_CLKIN_MASK, 2, 4, 1)
+__MREG__(LOS_XTAL_MASK, 2, 3, 1)
+
+/* Register 3: Output Enable Control */
+__MREG__(CLK7_OEB, 3, 7, 1)
+__MREG__(CLK6_OEB, 3, 6, 1)
+__MREG__(CLK5_OEB, 3, 5, 1)
+__MREG__(CLK4_OEB, 3, 4, 1)
+__MREG__(CLK3_OEB, 3, 3, 1)
+__MREG__(CLK2_OEB, 3, 2, 1)
+__MREG__(CLK1_OEB, 3, 1, 1)
+__MREG__(CLK0_OEB, 3, 0, 1)
+
+/* Register 4: OEB Pin Enable Control */
+__MREG__(OEB_CLK7, 4, 7, 1)
+__MREG__(OEB_CLK6, 4, 6, 1)
+__MREG__(OEB_CLK5, 4, 5, 1)
+__MREG__(OEB_CLK4, 4, 4, 1)
+__MREG__(OEB_CLK3, 4, 3, 1)
+__MREG__(OEB_CLK2, 4, 2, 1)
+__MREG__(OEB_CLK1, 4, 1, 1)
+__MREG__(OEB_CLK0, 4, 0, 1)
+
+/* Register 9: OEB Pin Enable Control Mask */
+__MREG__(OEB_MASK7, 9, 7, 1)
+__MREG__(OEB_MASK6, 9, 6, 1)
+__MREG__(OEB_MASK5, 9, 5, 1)
+__MREG__(OEB_MASK4, 9, 4, 1)
+__MREG__(OEB_MASK3, 9, 3, 1)
+__MREG__(OEB_MASK2, 9, 2, 1)
+__MREG__(OEB_MASK1, 9, 1, 1)
+__MREG__(OEB_MASK0, 9, 0, 1)
+
+/* Register 15: PLL Input Source */
+__MREG__(CLKIN_DIV, 15, 6, 2)
+__MREG__(PLLB_SRC, 15, 3, 1)
+__MREG__(PLLA_SRC, 15, 2, 1)
+
+/* Register 16: CLK0 Control */
+__MREG__(CLK0_PDN, 16, 7, 1)
+__MREG__(MS0_INT, 16, 6, 1)
+__MREG__(MS0_SRC, 16, 5, 1)
+__MREG__(CLK0_INV, 16, 4, 1)
+__MREG__(CLK0_SRC, 16, 2, 2)
+__MREG__(CLK0_IDRV, 16, 0, 2)
+
+/* Register 17: CLK1 Control */
+__MREG__(CLK1_PDN, 17, 7, 1)
+__MREG__(MS1_INT, 17, 6, 1)
+__MREG__(MS1_SRC, 17, 5, 1)
+__MREG__(CLK1_INV, 17, 4, 1)
+__MREG__(CLK1_SRC, 17, 2, 2)
+__MREG__(CLK1_IDRV, 17, 0, 2)
+
+/* Register 18: CLK2 Control */
+__MREG__(CLK2_PDN, 18, 7, 1)
+__MREG__(MS2_INT, 18, 6, 1)
+__MREG__(MS2_SRC, 18, 5, 1)
+__MREG__(CLK2_INV, 18, 4, 1)
+__MREG__(CLK2_SRC, 18, 2, 2)
+__MREG__(CLK2_IDRV, 18, 0, 2)
+
+/* Register 19: CLK3 Control */
+__MREG__(CLK3_PDN, 19, 7, 1)
+__MREG__(MS3_INT, 19, 6, 1)
+__MREG__(MS3_SRC, 19, 5, 1)
+__MREG__(CLK3_INV, 19, 4, 1)
+__MREG__(CLK3_SRC, 19, 2, 2)
+__MREG__(CLK3_IDRV, 19, 0, 2)
+
+/* Register 20: CLK4 Control */
+__MREG__(CLK4_PDN, 20, 7, 1)
+__MREG__(MS4_INT, 20, 6, 1)
+__MREG__(MS4_SRC, 20, 5, 1)
+__MREG__(CLK4_INV, 20, 4, 1)
+__MREG__(CLK4_SRC, 20, 2, 2)
+__MREG__(CLK4_IDRV, 20, 0, 2)
+
+/* Register 21: CLK5 Control */
+__MREG__(CLK5_PDN, 21, 7, 1)
+__MREG__(MS5_INT, 21, 6, 1)
+__MREG__(MS5_SRC, 21, 5, 1)
+__MREG__(CLK5_INV, 21, 4, 1)
+__MREG__(CLK5_SRC, 21, 2, 2)
+__MREG__(CLK5_IDRV, 21, 0, 2)
+
+/* Register 22: CLK6 Control */
+__MREG__(CLK6_PDN, 22, 7, 1)
+__MREG__(FBA_INT, 22, 6, 1)
+__MREG__(MS6_SRC, 22, 5, 1)
+__MREG__(CLK6_INV, 22, 4, 1)
+__MREG__(CLK6_SRC, 22, 2, 2)
+__MREG__(CLK6_IDRV, 22, 0, 2)
+
+/* Register 23: CLK7 Control */
+__MREG__(CLK7_PDN, 23, 7, 1)
+__MREG__(FBB_INT, 23, 6, 1)
+__MREG__(MS7_SRC, 23, 5, 1)
+__MREG__(CLK7_INV, 23, 4, 1)
+__MREG__(CLK7_SRC, 23, 2, 2)
+__MREG__(CLK7_IDRV, 23, 0, 2)
+
+/* Register 24: CLK0-CLK3 Disable State */
+__MREG__(CLK3_DIS_STATE, 24, 6, 2)
+__MREG__(CLK2_DIS_STATE, 24, 4, 2)
+__MREG__(CLK1_DIS_STATE, 24, 2, 2)
+__MREG__(CLK0_DIS_STATE, 24, 0, 2)
+
+/* Register 25: CLK4-CLK7 Disable State */
+__MREG__(CLK7_DIS_STATE, 25, 6, 2)
+__MREG__(CLK6_DIS_STATE, 25, 4, 2)
+__MREG__(CLK5_DIS_STATE, 25, 2, 2)
+__MREG__(CLK4_DIS_STATE, 25, 0, 2)
+
+/* Registers 26-33: Multisynth NA Parameters */
+__MREG__(MSNA_P3_MID, 26, 0, 8)
+__MREG__(MSNA_P3_BOT, 27, 0, 8)
+__MREG__(MSNA_P1_TOP, 28, 0, 2)
+__MREG__(MSNA_P1_MID, 29, 0, 8)
+__MREG__(MSNA_P1_BOT, 30, 0, 8)
+__MREG__(MSNA_P3_TOP, 31, 4, 4)
+__MREG__(MSNA_P2_TOP, 31, 0, 4)
+__MREG__(MSNA_P2_MID, 32, 0, 8)
+__MREG__(MSNA_P2_BOT, 33, 0, 8)
+
+/* Registers 34-41: Multisynth NB Parameters */
+__MREG__(MSNB_P3_MID, 34, 0, 8)
+__MREG__(MSNB_P3_BOT, 35, 0, 8)
+__MREG__(MSNB_P1_TOP, 36, 0, 2)
+__MREG__(MSNB_P1_MID, 37, 0, 8)
+__MREG__(MSNB_P1_BOT, 38, 0, 8)
+__MREG__(MSNB_P3_TOP, 39, 4, 4)
+__MREG__(MSNB_P2_TOP, 39, 0, 4)
+__MREG__(MSNB_P2_MID, 40, 0, 8)
+__MREG__(MSNB_P2_BOT, 41, 0, 8)
+
+/* Registers 42-49: Multisynth 0 Parameters */
+__MREG__(MS0_P3_MID, 42, 0, 8)
+__MREG__(MS0_P3_BOT, 43, 0, 8)
+__MREG__(R0_DIV, 44, 4, 3)
+__MREG__(MS0_DIVBY4, 44, 2, 2)
+__MREG__(MS0_P1_TOP, 44, 0, 2)
+__MREG__(MS0_P1_MID, 45, 0, 8)
+__MREG__(MS0_P1_BOT, 46, 0, 8)
+__MREG__(MS0_P3_TOP, 47, 4, 4)
+__MREG__(MS0_P2_TOP, 47, 0, 4)
+__MREG__(MS0_P2_MID, 48, 0, 8)
+__MREG__(MS0_P2_BOT, 49, 0, 8)
+
+/* Registers 50-57: Multisynth 1 Parameters */
+__MREG__(MS1_P3_MID, 50, 0, 8)
+__MREG__(MS1_P3_BOT, 51, 0, 8)
+__MREG__(R1_DIV, 52, 4, 3)
+__MREG__(MS1_DIVBY4, 52, 2, 2)
+__MREG__(MS1_P1_TOP, 52, 0, 2)
+__MREG__(MS1_P1_MID, 53, 0, 8)
+__MREG__(MS1_P1_BOT, 54, 0, 8)
+__MREG__(MS1_P3_TOP, 55, 4, 4)
+__MREG__(MS1_P2_TOP, 55, 0, 4)
+__MREG__(MS1_P2_MID, 56, 0, 8)
+__MREG__(MS1_P2_BOT, 57, 0, 8)
+
+/* Registers 58-65: Multisynth 2 Parameters */
+__MREG__(MS2_P3_MID, 58, 0, 8)
+__MREG__(MS2_P3_BOT, 59, 0, 8)
+__MREG__(R2_DIV, 60, 4, 3)
+__MREG__(MS2_DIVBY4, 60, 2, 2)
+__MREG__(MS2_P1_TOP, 60, 0, 2)
+__MREG__(MS2_P1_MID, 61, 0, 8)
+__MREG__(MS2_P1_BOT, 62, 0, 8)
+__MREG__(MS2_P3_TOP, 63, 4, 4)
+__MREG__(MS2_P2_TOP, 63, 0, 4)
+__MREG__(MS2_P2_MID, 64, 0, 8)
+__MREG__(MS2_P2_BOT, 65, 0, 8)
+
+/* Registers 66-73: Multisynth 3 Parameters */
+__MREG__(MS3_P3_MID, 66, 0, 8)
+__MREG__(MS3_P3_BOT, 67, 0, 8)
+__MREG__(R3_DIV, 68, 4, 3)
+__MREG__(MS3_DIVBY4, 68, 2, 2)
+__MREG__(MS3_P1_TOP, 68, 0, 2)
+__MREG__(MS3_P1_MID, 69, 0, 8)
+__MREG__(MS3_P1_BOT, 70, 0, 8)
+__MREG__(MS3_P3_TOP, 71, 4, 4)
+__MREG__(MS3_P2_TOP, 71, 0, 4)
+__MREG__(MS3_P2_MID, 72, 0, 8)
+__MREG__(MS3_P2_BOT, 73, 0, 8)
+
+/* Registers 74-81: Multisynth 4 Parameters */
+__MREG__(MS4_P3_MID, 74, 0, 8)
+__MREG__(MS4_P3_BOT, 75, 0, 8)
+__MREG__(R4_DIV, 76, 4, 3)
+__MREG__(MS4_DIVBY4, 76, 2, 2)
+__MREG__(MS4_P1_TOP, 76, 0, 2)
+__MREG__(MS4_P1_MID, 77, 0, 8)
+__MREG__(MS4_P1_BOT, 78, 0, 8)
+__MREG__(MS4_P3_TOP, 79, 4, 4)
+__MREG__(MS4_P2_TOP, 79, 0, 4)
+__MREG__(MS4_P2_MID, 80, 0, 8)
+__MREG__(MS4_P2_BOT, 81, 0, 8)
+
+/* Registers 82-89: Multisynth 5 Parameters */
+__MREG__(MS5_P3_MID, 82, 0, 8)
+__MREG__(MS5_P3_BOT, 83, 0, 8)
+__MREG__(R5_DIV, 84, 4, 3)
+__MREG__(MS5_DIVBY4, 84, 2, 2)
+__MREG__(MS5_P1_TOP, 84, 0, 2)
+__MREG__(MS5_P1_MID, 85, 0, 8)
+__MREG__(MS5_P1_BOT, 86, 0, 8)
+__MREG__(MS5_P3_TOP, 87, 4, 4)
+__MREG__(MS5_P2_TOP, 87, 0, 4)
+__MREG__(MS5_P2_MID, 88, 0, 8)
+__MREG__(MS5_P2_BOT, 89, 0, 8)
+
+/* Register 90: Multisynth 6 Parameters */
+__MREG__(MS6_P1, 90, 0, 8)
+
+/* Register 91: Multisynth 7 Parameters */
+__MREG__(MS7_P1, 91, 0, 8)
+
+/* Register 92: Clock 6 and 7 Output Divider */
+__MREG__(R7_DIV, 92, 4, 3)
+__MREG__(R6_DIV, 92, 0, 3)
+
+/* Registers 149-161: Spread Spectrum Parameters */
+__MREG__(SSC_EN, 149, 7, 1)
+__MREG__(SSDN_P2_TOP, 149, 0, 7)
+__MREG__(SSDN_P2_BOT, 150, 0, 8)
+__MREG__(SSC_MODE, 151, 7, 1)
+__MREG__(SSDN_P3_TOP, 151, 0, 7)
+__MREG__(SSDN_P3_BOT, 152, 0, 8)
+__MREG__(SSDN_P1_BOT, 153, 0, 8)
+__MREG__(SSUDP_TOP, 154, 4, 4)
+__MREG__(SSDN_P1_TOP, 154, 0, 4)
+__MREG__(SSUDP_BOT, 155, 0, 8)
+__MREG__(SSUP_P2_TOP, 156, 0, 7)
+__MREG__(SSUP_P2_BOT, 157, 0, 8)
+__MREG__(SSUP_P3_TOP, 158, 0, 8)
+__MREG__(SSUP_P3_BOT, 159, 0, 8)
+__MREG__(SSUP_P1_BOT, 160, 0, 8)
+__MREG__(SS_NCLK, 161, 4, 4)
+__MREG__(SSUP_P1_TOP, 161, 0, 4)
+
+/* Registers 162-163: VCXO Parameter */
+__MREG__(VCXO_PARAM_BOT, 162, 0, 8)
+__MREG__(VCXO_PARAM_MID, 163, 0, 8)
+__MREG__(VCXO_PARAM_TOP, 164, 0, 6)
+
+/* Registers 165-170: CLK0-CLK5 Initial Phase Offsets */
+__MREG__(CLK0_PHOFF, 165, 0, 7)
+__MREG__(CLK1_PHOFF, 166, 0, 7)
+__MREG__(CLK2_PHOFF, 167, 0, 7)
+__MREG__(CLK3_PHOFF, 168, 0, 7)
+__MREG__(CLK4_PHOFF, 169, 0, 7)
+__MREG__(CLK5_PHOFF, 170, 0, 7)
+
+/* Register 177: PLL Reset */
+__MREG__(PLLB_RST, 177, 7, 1)
+__MREG__(PLLA_RST, 177, 5, 1)
+
+/* Register 183: Crystal Internal Load Capacitance */
+__MREG__(XTAL_CL, 183, 6, 2)
+
+/* Register 187: Fanout Enable */
+__MREG__(CLKIN_FANOUT_EN, 187, 7, 1)
+__MREG__(XO_FANOUT_EN, 187, 6, 1)
+__MREG__(MS_FANOUT_EN, 187, 4, 1)
+
+/* 3-part parameters */
+__3PART__(MSNA_P1)
+__3PART__(MSNA_P2)
+__3PART__(MSNA_P3)
+__3PART__(MSNB_P1)
+__3PART__(MSNB_P2)
+__3PART__(MSNB_P3)
+__3PART__(MS0_P1)
+__3PART__(MS0_P2)
+__3PART__(MS0_P3)
+__3PART__(MS1_P1)
+__3PART__(MS1_P2)
+__3PART__(MS1_P3)
+__3PART__(MS2_P1)
+__3PART__(MS2_P2)
+__3PART__(MS2_P3)
+__3PART__(MS3_P1)
+__3PART__(MS3_P2)
+__3PART__(MS3_P3)
+__3PART__(MS4_P1)
+__3PART__(MS4_P2)
+__3PART__(MS4_P3)
+__3PART__(MS5_P1)
+__3PART__(MS5_P2)
+__3PART__(MS5_P3)
+
+/* 2-part parameters */
+__2PART__(SSDN_P1)
+__2PART__(SSDN_P2)
+__2PART__(SSDN_P3)
+__2PART__(SSUP_P1)
+__2PART__(SSUP_P2)
+__2PART__(SSUP_P3)
+__2PART__(SSUDP)
+
+/* Per-PLL register groups */
+__PER_PLL__(LOL, LOL_, )
+__PER_PLL__(LOL_STKY, LOL_, _STKY)
+__PER_PLL__(LOL_MASK, LOL_, _MASK)
+__PER_PLL__(PLL_SRC, PLL, _SRC)
+__PER_PLL__(MSN_P1, MSN, _P1)
+__PER_PLL__(MSN_P2, MSN, _P2)
+__PER_PLL__(MSN_P3, MSN, _P3)
+__PER_PLL__(PLL_RST, PLL, _RST)
+
+/* Per-multisynth register groups */
+__PER_MS__(CLK_OEB, CLK, _OEB)
+__PER_MS__(OEB_CLK, OEB_CLK, )
+__PER_MS__(OEB_MASK, OEB_MASK, )
+__PER_MS__(CLK_PDN, CLK, _PDN)
+__PER_MS__(MS_SRC, MS, _SRC)
+__PER_MS__(CLK_INV, CLK, _INV)
+__PER_MS__(CLK_SRC, CLK, _SRC)
+__PER_MS__(CLK_IDRV, CLK, _IDRV)
+__PER_MS__(CLK_DIS_STATE, CLK, _DIS_STATE)
+__PER_MS__(R_DIV, R, _DIV)
+__PER_MS__(MS_P1, MS, _P1)
+__PER_FRAC_MS__(MS_INT, MS, _INT)
+__PER_FRAC_MS__(MS_P2, MS, _P2)
+__PER_FRAC_MS__(MS_P3, MS, _P3)
+__PER_FRAC_MS__(MS_DIVBY4, MS, _DIVBY4)
+__PER_FRAC_MS__(CLK_PHOFF, CLK, _PHOFF)
