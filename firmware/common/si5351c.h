@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2022 Great Scott Gadgets <info@greatscottgadgets.com>
+ * Copyright 2012-2026 Great Scott Gadgets <info@greatscottgadgets.com>
  * Copyright 2012 Jared Boone <jared@sharebrained.com>
  *
  * This file is part of HackRF.
@@ -28,40 +28,60 @@ extern "C" {
 
 #include <stdbool.h>
 #include <stdint.h>
-#include <stddef.h>
 
 #include "i2c_bus.h"
 
 #define SI_INTDIV(x) (x * 128 - 512)
 
-#define SI5351C_CLK_POWERDOWN (1 << 7)
-#define SI5351C_CLK_INT_MODE  (1 << 6)
-#define SI5351C_CLK_FRAC_MODE (0 << 6)
-
-#define SI5351C_CLK_INV (1 << 4)
-
-#define SI5351C_CLK_SRC(x)              (x << 2)
-#define SI5351C_CLK_SRC_XTAL            0
-#define SI5351C_CLK_SRC_CLKIN           1
-#define SI5351C_CLK_SRC_MULTISYNTH_0_4  2
-#define SI5351C_CLK_SRC_MULTISYNTH_SELF 3
-
-#define SI5351C_CLK_IDRV(x)  (x << 0)
-#define SI5351C_CLK_IDRV_2MA 0
-#define SI5351C_CLK_IDRV_4MA 1
-#define SI5351C_CLK_IDRV_6MA 2
-#define SI5351C_CLK_IDRV_8MA 3
-
-#define SI5351C_LOS   (1 << 4)
-#define SI5351C_REVID 0x03
+#define SI5351C_CACHED_REGS 188
 
 typedef enum {
-	SI5351C_PLL_A = 1,
-	SI5351C_PLL_B = 2,
-	SI5351C_PLL_BOTH = 3,
+	SI5351C_MODE_FRAC = 0,
+	SI5351C_MODE_INT = 1,
+} si5351c_mode_t;
+
+typedef enum {
+	SI5351C_SRC_XTAL = 0,
+	SI5351C_SRC_CLKIN = 1,
+	SI5351C_SRC_MULTISYNTH_0_4 = 2,
+	SI5351C_SRC_MULTISYNTH_SELF = 3,
+} si5351c_src_t;
+
+typedef enum {
+	SI5351C_DRIVE_2MA = 0,
+	SI5351C_DRIVE_4MA = 1,
+	SI5351C_DRIVE_6MA = 2,
+	SI5351C_DRIVE_8MA = 3,
+} si5351c_drive_t;
+
+typedef enum {
+	SI5351C_PLL_A = 0,
+	SI5351C_PLL_B = 1,
 } si5351c_pll_t;
 
-#define SI5351C_CLK_PLL_SRC(x) ((x & SI5351C_PLL_B) << 4)
+typedef enum {
+	SI5351C_PLL_MASK_A = 1,
+	SI5351C_PLL_MASK_B = 2,
+	SI5351C_PLL_MASK_BOTH = 3,
+} si5351c_pll_mask_t;
+
+typedef enum {
+	SI5351C_XTAL_6PF = 1,
+	SI5351C_XTAL_8PF = 2,
+	SI5351C_XTAL_10PF = 3,
+} si5351c_xtal_t;
+
+typedef enum {
+	SI5351C_OUTPUT_ENABLE = 0,
+	SI5351C_OUTPUT_DISABLE = 1,
+} si5351c_output_t;
+
+typedef enum {
+	SI5351C_DIV_1 = 0,
+	SI5351C_DIV_2 = 1,
+	SI5351C_DIV_4 = 2,
+	SI5351C_DIV_8 = 3,
+} si5351c_div_t;
 
 enum pll_sources {
 	PLL_SOURCE_UNINITIALIZED = -1,
@@ -72,7 +92,18 @@ enum pll_sources {
 typedef struct {
 	i2c_bus_t* const bus;
 	uint8_t i2c_address;
+	uint8_t regs[SI5351C_CACHED_REGS];
+	uint32_t regs_dirty[(SI5351C_CACHED_REGS + 31) / 32];
 } si5351c_driver_t;
+
+typedef struct {
+	bool power_down;
+	si5351c_mode_t mode;
+	si5351c_pll_t pll;
+	si5351c_src_t source;
+	si5351c_drive_t drive;
+	bool invert;
+} si5351c_clk_ctrl_t;
 
 void si5351c_disable_all_outputs(si5351c_driver_t* const drv);
 void si5351c_disable_oeb_pin_control(si5351c_driver_t* const drv);
@@ -85,7 +116,7 @@ void si5351c_configure_pll_sources(
 void si5351c_configure_pll_multisynth(
 	si5351c_driver_t* const drv,
 	const enum pll_sources source);
-void si5351c_reset_pll(si5351c_driver_t* const drv, si5351c_pll_t pll);
+void si5351c_reset_plls(si5351c_driver_t* const drv, si5351c_pll_mask_t mask);
 void si5351c_configure_multisynth(
 	si5351c_driver_t* const drv,
 	const uint_fast8_t ms_number,
@@ -104,10 +135,6 @@ bool si5351c_clkin_signal_valid(si5351c_driver_t* const drv);
 
 void si5351c_write_single(si5351c_driver_t* const drv, uint8_t reg, uint8_t val);
 uint8_t si5351c_read_single(si5351c_driver_t* const drv, uint8_t reg);
-void si5351c_write(
-	si5351c_driver_t* const drv,
-	const uint8_t* const data,
-	const size_t data_count);
 void si5351c_clkout_enable(si5351c_driver_t* const drv, uint8_t enable);
 void si5351c_init(si5351c_driver_t* const drv);
 void si5351c_set_phase(
