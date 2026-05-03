@@ -57,12 +57,17 @@ extern "C" {
 #define SI5351C_REVID 0x03
 
 typedef enum {
-	SI5351C_PLL_A = 1,
-	SI5351C_PLL_B = 2,
-	SI5351C_PLL_BOTH = 3,
+	SI5351C_PLL_A = 0,
+	SI5351C_PLL_B = 1,
 } si5351c_pll_t;
 
-#define SI5351C_CLK_PLL_SRC(x) ((x & SI5351C_PLL_B) << 4)
+#define SI5351C_CLK_PLL_SRC(x) ((x & SI5351C_PLL_B) << 5)
+
+typedef enum {
+	SI5351C_PLL_MASK_A = 1,
+	SI5351C_PLL_MASK_B = 2,
+	SI5351C_PLL_MASK_BOTH = 3,
+} si5351c_pll_mask_t;
 
 typedef enum {
 	SI5351C_INPUT_XTAL = 0,
@@ -83,7 +88,7 @@ void si5351c_configure_inputs(si5351c_driver_t* const drv, const si5351c_input_t
 void si5351c_configure_pll_multisynth(
 	si5351c_driver_t* const drv,
 	const si5351c_input_t input);
-void si5351c_reset_pll(si5351c_driver_t* const drv, si5351c_pll_t pll);
+void si5351c_reset_plls(si5351c_driver_t* const drv, si5351c_pll_mask_t mask);
 void si5351c_configure_multisynth(
 	si5351c_driver_t* const drv,
 	const uint_fast8_t ms_number,

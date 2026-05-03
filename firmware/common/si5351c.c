@@ -91,7 +91,7 @@ void si5351c_disable_all_outputs(si5351c_driver_t* const drv)
 }
 
 /* Disable all CLKx outputs using selected PLL. */
-void si5351c_disable_pll_outputs(si5351c_driver_t* const drv, si5351c_pll_t pll)
+void si5351c_disable_pll_outputs(si5351c_driver_t* const drv, si5351c_pll_mask_t mask)
 {
 	/*
 	 * Bitmask defines outputs using PLL B. Other outputs are assumed to
@@ -102,10 +102,10 @@ void si5351c_disable_pll_outputs(si5351c_driver_t* const drv, si5351c_pll_t pll)
 		pllb_outputs = 0x30;
 	}
 
-	if (pll & SI5351C_PLL_A) {
+	if (mask & SI5351C_PLL_MASK_A) {
 		outputs_disabled |= ~pllb_outputs;
 	}
-	if (pll & SI5351C_PLL_B) {
+	if (mask & SI5351C_PLL_MASK_B) {
 		outputs_disabled |= pllb_outputs;
 	}
 	uint8_t data[] = {3, outputs_disabled};
@@ -189,18 +189,18 @@ void si5351c_configure_pll_multisynth(
 	si5351c_write(drv, data, sizeof(data));
 }
 
-void si5351c_reset_pll(si5351c_driver_t* const drv, si5351c_pll_t pll)
+void si5351c_reset_plls(si5351c_driver_t* const drv, si5351c_pll_mask_t mask)
 {
 	uint8_t value = 0;
 
-	if (pll & SI5351C_PLL_A) {
+	if (mask & SI5351C_PLL_MASK_A) {
 		value |= 0x20;
 	}
-	if (pll & SI5351C_PLL_B) {
+	if (mask & SI5351C_PLL_MASK_B) {
 		value |= 0x80;
 	}
 
-	si5351c_disable_pll_outputs(drv, pll);
+	si5351c_disable_pll_outputs(drv, mask);
 	uint8_t data[] = {177, value};
 	si5351c_write(drv, data, sizeof(data));
 	delay_us_at_mhz(2000, 204);
@@ -442,7 +442,7 @@ void si5351c_change_input(si5351c_driver_t* const drv, si5351c_input_t input)
 	si5351c_configure_pll_multisynth(drv, input);
 	active_input = input;
 	input_initialized = true;
-	si5351c_reset_pll(drv, SI5351C_PLL_BOTH);
+	si5351c_reset_plls(drv, SI5351C_PLL_MASK_BOTH);
 }
 
 bool si5351c_clkin_signal_valid(si5351c_driver_t* const drv)

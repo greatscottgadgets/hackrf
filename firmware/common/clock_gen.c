@@ -113,7 +113,7 @@ void clock_gen_init(void)
 	si5351c_configure_clock_control(&si5351c);
 	si5351c_change_input(&si5351c, SI5351C_INPUT_XTAL);
 	// soft reset
-	si5351c_reset_pll(&si5351c, SI5351C_PLL_BOTH);
+	si5351c_reset_plls(&si5351c, SI5351C_PLL_MASK_BOTH);
 	si5351c_enable_clock_outputs(&si5351c);
 }
 
@@ -412,7 +412,7 @@ fp_28_36_t sample_rate_set(const fp_28_36_t sample_rate, const bool program)
 		}
 
 		/* Reset PLL to synchronize output clock phase. */
-		si5351c_reset_pll(&si5351c, SI5351C_PLL_A);
+		si5351c_reset_plls(&si5351c, SI5351C_PLL_MASK_A);
 	}
 #endif
 
