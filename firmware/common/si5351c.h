@@ -64,11 +64,10 @@ typedef enum {
 
 #define SI5351C_CLK_PLL_SRC(x) ((x & SI5351C_PLL_B) << 4)
 
-enum pll_sources {
-	PLL_SOURCE_UNINITIALIZED = -1,
-	PLL_SOURCE_XTAL = 0,
-	PLL_SOURCE_CLKIN = 1,
-};
+typedef enum {
+	SI5351C_INPUT_XTAL = 0,
+	SI5351C_INPUT_CLKIN = 1,
+} si5351c_input_t;
 
 typedef struct {
 	i2c_bus_t* const bus;
@@ -80,12 +79,10 @@ void si5351c_disable_oeb_pin_control(si5351c_driver_t* const drv);
 void si5351c_power_down_all_clocks(si5351c_driver_t* const drv);
 void si5351c_set_crystal_configuration(si5351c_driver_t* const drv);
 void si5351c_enable_xo_and_ms_fanout(si5351c_driver_t* const drv);
-void si5351c_configure_pll_sources(
-	si5351c_driver_t* const drv,
-	const enum pll_sources source);
+void si5351c_configure_inputs(si5351c_driver_t* const drv, const si5351c_input_t input);
 void si5351c_configure_pll_multisynth(
 	si5351c_driver_t* const drv,
-	const enum pll_sources source);
+	const si5351c_input_t input);
 void si5351c_reset_pll(si5351c_driver_t* const drv, si5351c_pll_t pll);
 void si5351c_configure_multisynth(
 	si5351c_driver_t* const drv,
@@ -100,7 +97,7 @@ void si5351c_set_int_mode(
 	si5351c_driver_t* const drv,
 	const uint_fast8_t ms_number,
 	const uint_fast8_t on);
-void si5351c_set_clock_source(si5351c_driver_t* const drv, const enum pll_sources source);
+void si5351c_change_input(si5351c_driver_t* const drv, const si5351c_input_t input);
 bool si5351c_clkin_signal_valid(si5351c_driver_t* const drv);
 
 void si5351c_write_single(si5351c_driver_t* const drv, uint8_t reg, uint8_t val);

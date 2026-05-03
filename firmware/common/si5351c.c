@@ -48,7 +48,8 @@ si5351c_driver_t si5351c = {
 	.i2c_address = 0x60,
 };
 
-static enum pll_sources active_clock_source = PLL_SOURCE_UNINITIALIZED;
+static bool input_initialized = false;
+static si5351c_input_t active_input;
 /* External clock output default is deactivated as it creates noise */
 static bool clkout_enabled = false;
 static uint8_t outputs_disabled = 0xff;
@@ -160,13 +161,11 @@ void si5351c_enable_xo_and_ms_fanout(si5351c_driver_t* const drv)
  * CLKIN_DIV=0 (Divide by 1)
  * Set both PLLA_SRC and PLLB_SRC
  */
-void si5351c_configure_pll_sources(
-	si5351c_driver_t* const drv,
-	const enum pll_sources source)
+void si5351c_configure_inputs(si5351c_driver_t* const drv, const si5351c_input_t input)
 {
 	uint8_t data[] = {15, 0x00};
 
-	if (source == PLL_SOURCE_CLKIN) {
+	if (input == SI5351C_INPUT_CLKIN) {
 		data[1] = 0x0c;
 	}
 	si5351c_write(drv, data, sizeof(data));
@@ -175,11 +174,11 @@ void si5351c_configure_pll_sources(
 /* MultiSynth NA (PLLA) and NB (PLLB) */
 void si5351c_configure_pll_multisynth(
 	si5351c_driver_t* const drv,
-	const enum pll_sources source)
+	const si5351c_input_t input)
 {
 	/* XTAL: 25 MHz * (0x0e00 + 512) / 128 = 800 MHz, integer mode */
 	uint8_t data[] = {26, 0x00, 0x01, 0x00, 0x0E, 0x00, 0x00, 0x00, 0x00};
-	if (source == PLL_SOURCE_CLKIN) {
+	if (input == SI5351C_INPUT_CLKIN) {
 		/* CLKIN: 10 MHz * (0x2600 + 512) / 128 = 800 MHz, integer mode */
 		data[4] = 0x26;
 	}
@@ -415,9 +414,9 @@ void si5351c_set_int_mode(
 	}
 }
 
-void si5351c_set_clock_source(si5351c_driver_t* const drv, const enum pll_sources source)
+void si5351c_change_input(si5351c_driver_t* const drv, si5351c_input_t input)
 {
-	if (source == active_clock_source) {
+	if (input_initialized && input == active_input) {
 		return;
 	}
 	si5351c_disable_all_outputs(drv);
@@ -427,8 +426,8 @@ void si5351c_set_clock_source(si5351c_driver_t* const drv, const enum pll_source
 		 * HackRF One r9 always uses PLL A on the XTAL input
 		 * but externally switches that input to CLKIN.
 		 */
-		si5351c_configure_pll_sources(drv, PLL_SOURCE_XTAL);
-		if (source == PLL_SOURCE_CLKIN) {
+		si5351c_configure_inputs(drv, SI5351C_INPUT_XTAL);
+		if (input == SI5351C_INPUT_CLKIN) {
 			gpio_set(platform_gpio()->h1r9_clkin_en);
 		} else {
 			gpio_clear(platform_gpio()->h1r9_clkin_en);
@@ -437,11 +436,12 @@ void si5351c_set_clock_source(si5351c_driver_t* const drv, const enum pll_source
 #endif
 #ifdef IS_NOT_H1_R9
 	if (IS_NOT_H1_R9) {
-		si5351c_configure_pll_sources(drv, source);
+		si5351c_configure_inputs(drv, input);
 	}
 #endif
-	si5351c_configure_pll_multisynth(drv, source);
-	active_clock_source = source;
+	si5351c_configure_pll_multisynth(drv, input);
+	active_input = input;
+	input_initialized = true;
 	si5351c_reset_pll(drv, SI5351C_PLL_BOTH);
 }
 
