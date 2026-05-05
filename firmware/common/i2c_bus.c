@@ -22,6 +22,25 @@
 
 #include "i2c_bus.h"
 
+#include <libopencm3/lpc43xx/memorymap.h>
+
+#include "i2c_lpc.h"
+
+/* Driver instances. */
+i2c_bus_t i2c0 = {
+	.obj = (void*) I2C0_BASE,
+	.start = i2c_lpc_start,
+	.stop = i2c_lpc_stop,
+	.transfer = i2c_lpc_transfer,
+};
+
+i2c_bus_t i2c1 = {
+	.obj = (void*) I2C1_BASE,
+	.start = i2c_lpc_start,
+	.stop = i2c_lpc_stop,
+	.transfer = i2c_lpc_transfer,
+};
+
 void i2c_bus_start(i2c_bus_t* const bus, const void* const config)
 {
 	bus->start(bus, config);

@@ -28,6 +28,7 @@
 
 #include "gpio.h"
 #include "spi_bus.h"
+#include "spi_ssp.h"
 
 #define W25Q80BV_DEVICE_ID_RES 0x13 /* Expected device_id for W25Q80BV */
 #define W25Q16DV_DEVICE_ID_RES 0x14 /* Expected device_id for W25Q16DV */
@@ -65,3 +66,7 @@ void w25q80bv_read(
 	uint32_t len,
 	uint8_t* const data);
 void w25q80bv_clear_status(w25q80bv_driver_t* const drv);
+
+/* Driver instance. */
+extern ssp_config_t ssp_config_w25q80bv;
+extern w25q80bv_driver_t spi_flash;

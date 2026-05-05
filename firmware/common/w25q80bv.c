@@ -27,11 +27,15 @@
  * programming the flash.
  */
 
+#include "w25q80bv.h"
+
 #include <stdint.h>
 #include <stddef.h>
 
+#include <libopencm3/lpc43xx/ssp.h>
+
 #include "platform_detect.h"
-#include "w25q80bv.h"
+#include "w25q80bv_target.h"
 
 #define ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]))
 
@@ -50,6 +54,18 @@
 #define W25Q80BV_STATUS_WEL  0x02
 
 #define W25Q80BV_DEVICE_ID_RES 0x13 /* Expected device_id for W25Q80BV */
+
+/* Driver instance. */
+ssp_config_t ssp_config_w25q80bv = {
+	.data_bits = SSP_DATA_8BITS,
+	.serial_clock_rate = 2,
+	.clock_prescale_rate = 2,
+};
+
+w25q80bv_driver_t spi_flash = {
+	.bus = &spi_bus_ssp0,
+	.target_init = w25q80bv_target_init,
+};
 
 /*
  * Set up pins for GPIO and SPI control, configure SSP0 peripheral for SPI.

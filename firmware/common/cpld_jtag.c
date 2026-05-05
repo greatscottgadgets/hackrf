@@ -34,6 +34,13 @@ static uint32_t xsvf_buffer_len, xsvf_pos;
 static unsigned char* xsvf_buffer;
 #endif
 
+/* Driver instance. */
+jtag_gpio_t jtag_gpio_cpld = {};
+
+jtag_t jtag_cpld = {
+	.gpio = &jtag_gpio_cpld,
+};
+
 void cpld_jtag_take(jtag_t* const jtag)
 {
 	const jtag_gpio_t* const gpio = jtag->gpio;

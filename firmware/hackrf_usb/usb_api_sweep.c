@@ -25,13 +25,13 @@
 
 #include <libopencm3/cm3/nvic.h>
 
-#include <drivers.h>
 #include <fixed_point.h>
 #include <hackrf_ui.h>
 #include <m0_state.h>
 #include <platform_detect.h>
 #include <radio.h>
 #include <rf_path.h>
+#include <sgpio.h>
 #include <streaming.h>
 #include <transceiver_mode.h>
 #include <usb_queue.h>

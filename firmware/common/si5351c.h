@@ -31,6 +31,7 @@ extern "C" {
 #include <stddef.h>
 
 #include "i2c_bus.h"
+#include "i2c_lpc.h"
 
 #define SI_INTDIV(x) (x * 128 - 512)
 
@@ -114,6 +115,10 @@ void si5351c_set_phase(
 	si5351c_driver_t* const drv,
 	const uint8_t ms_number,
 	const uint8_t offset);
+
+/* Driver Instance. */
+extern const i2c_lpc_config_t i2c_config_si5351c_fast_clock;
+extern si5351c_driver_t si5351c;
 
 #ifdef __cplusplus
 }

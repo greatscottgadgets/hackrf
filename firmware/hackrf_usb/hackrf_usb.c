@@ -33,7 +33,6 @@
 #include <cpu_clock.h>
 #include <da7219.h>
 #include <delay.h>
-#include <drivers.h>
 #include <fixed_point.h>
 #include <hackrf_ui.h>
 #include <leds.h>
@@ -97,6 +96,10 @@ extern uint32_t __m0_start__;
 extern uint32_t __m0_end__;
 extern uint32_t __ram_m0_start__;
 extern uint32_t _etext_ram, _text_ram, _etext_rom;
+
+radio_t radio = {
+	.sample_rate_cb = sample_rate_set,
+};
 
 static usb_request_handler_fn vendor_request_handler[] = {
 	NULL,

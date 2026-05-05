@@ -31,7 +31,6 @@
 #include <libopencm3/lpc43xx/usb.h>
 
 #include <clock_gen.h>
-#include <drivers.h>
 #include <fixed_point.h>
 #include <gpdma.h>
 #include <leds.h>
@@ -39,6 +38,7 @@
 #include <operacake_sctimer.h>
 #include <platform_detect.h>
 #include <radio.h>
+#include <sgpio.h>
 #include <streaming.h>
 #include <transceiver_mode.h>
 #include <usb.h>

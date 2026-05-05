@@ -91,4 +91,5 @@ bool fpga_spi_selftest(void);
 bool fpga_sgpio_selftest(void);
 bool fpga_if_xcvr_selftest(void);
 
-//void narrowband_filter_set(const uint8_t value);
+/* Driver instance. */
+extern fpga_driver_t fpga;

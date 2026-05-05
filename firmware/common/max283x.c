@@ -41,7 +41,25 @@
 	#include "max2839_target.h"
 #endif
 
-extern spi_bus_t spi_bus_ssp1;
+/* Driver instance. */
+ssp_config_t ssp_config_max283x = {
+	/* FIXME speed up once everything is working reliably */
+	/*
+	// Freq About 0.0498MHz / 49.8KHz => Freq = PCLK / (CPSDVSR * [SCR+1]) with PCLK=PLL1=204MHz
+	const uint8_t serial_clock_rate = 32;
+	const uint8_t clock_prescale_rate = 128;
+	*/
+	// Freq About 4.857MHz => Freq = PCLK / (CPSDVSR * [SCR+1]) with PCLK=PLL1=204MHz
+	.serial_clock_rate = 21,
+	.clock_prescale_rate = 2,
+};
+
+max283x_driver_t max283x = {};
+
+void ssp1_set_mode_max283x(void)
+{
+	spi_bus_start(&spi_bus_ssp1, &ssp_config_max283x);
+}
 
 #ifdef IS_PRALINE
 max2831_driver_t max2831 = {
