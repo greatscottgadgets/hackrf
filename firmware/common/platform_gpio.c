@@ -234,6 +234,7 @@ const platform_gpio_t* platform_gpio(void)
 		gpio.rffc5072_data   = &GPIO4_14;
 		gpio.rffc5072_reset  = &GPIO2_14;
 		gpio.rffc5072_ld     = &GPIO6_25;
+		gpio.rffc5072_enbl   = &GPIO4_12;
 	}
 #endif
 

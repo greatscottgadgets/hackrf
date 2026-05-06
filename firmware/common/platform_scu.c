@@ -258,10 +258,12 @@ const platform_scu_t* platform_scu(void)
 		scu.MIXER_SDATA  = (P9_2);  /* GPIO4[14] on P9_2 */
 		scu.MIXER_RESETX = (P5_5);  /* GPIO2[14] on P5_5 */
 		scu.MIXER_LD     = (PD_11); /* GPIO6[25] on PD_11 */
+		scu.MIXER_ENBL   = (P9_0);  /* GPIO4[12] on P9_0 */
 
 		scu.MIXER_SCLK_PINCFG  = (SCU_GPIO_FAST | SCU_CONF_FUNCTION4);
 		scu.MIXER_SDATA_PINCFG = (SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
 		scu.MIXER_LD_PINCFG    = (SCU_GPIO_FAST | SCU_CONF_FUNCTION4);
+		scu.MIXER_ENBL_PINCFG  = (SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
 	}
 #endif
 #ifdef IS_RAD1O
@@ -365,6 +367,7 @@ const platform_scu_t* platform_scu(void)
 		scu.TRIGGER_IN  = (PD_12); /* GPIO6[26] on PD_12 */
 		scu.TRIGGER_OUT = (P2_6);  /* GPIO5[6] on P2_6 */
 		scu.PPS_OUT     = (P2_5);  /* GPIO5[5] on P2_5 */
+		scu.SCT_CLK     = (P6_4);  /* CTIN_6 on P6_4 */
 
 		scu.P2_CTRL0_PINCFG    = (SCU_GPIO_FAST | SCU_CONF_FUNCTION4);
 		scu.P2_CTRL1_PINCFG    = (SCU_GPIO_FAST | SCU_CONF_FUNCTION4);
@@ -376,6 +379,7 @@ const platform_scu_t* platform_scu(void)
 		scu.TRIGGER_IN_PINCFG  = (SCU_GPIO_FAST | SCU_CONF_FUNCTION4);
 		scu.TRIGGER_OUT_PINCFG = (SCU_GPIO_FAST | SCU_CONF_FUNCTION4);
 		scu.PPS_OUT_PINCFG     = (SCU_GPIO_FAST | SCU_CONF_FUNCTION4);
+		scu.SCT_CLK_PINCFG     = (SCU_CLK_IN | SCU_CONF_FUNCTION1);
 	}
 #endif
 
@@ -437,6 +441,14 @@ const platform_scu_t* platform_scu(void)
 		scu.PINMUX_GPIO3_15 = (P7_7);  /* GPIO3[15] */
 	}
 #endif
+
+	/* SCT */
+	scu.CTOUT_8  = (P7_7);
+	scu.CTOUT_11 = (P7_6);
+	scu.CTOUT_12 = (P7_5);
+	scu.CTOUT_13 = (P7_4);
+	scu.CTOUT_14 = (P7_0);
+	scu.CTOUT_PINCFG  = (SCU_CONF_EPUN_DIS_PULLUP | SCU_CONF_EHS_FAST | SCU_CONF_FUNCTION1);
 
 	scu.PINMUX_ISP = (P2_7);  /* GPIO0[7] */
 

@@ -137,6 +137,7 @@ typedef struct {
 	gpio_t rffc5072_data;
 	gpio_t rffc5072_reset;
 	gpio_t rffc5072_ld;   // PRALINE
+	gpio_t rffc5072_enbl; // PRALINE
 	gpio_t vco_ce;        // RAD1O
 	gpio_t vco_sclk;      // RAD1O
 	gpio_t vco_sdata;     // RAD1O

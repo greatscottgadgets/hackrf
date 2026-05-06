@@ -93,6 +93,7 @@ typedef struct {
 	};
 } rf_path_t;
 
+void rf_path_pin_shutdown(void);
 void rf_path_pin_setup(rf_path_t* const rf_path);
 void rf_path_init(rf_path_t* const rf_path);
 
