@@ -27,7 +27,6 @@
 #include <stdint.h>
 
 #include "fixed_point.h"
-#include "platform_detect.h"
 #include "spi_ssp.h"
 
 #ifdef IS_PRALINE

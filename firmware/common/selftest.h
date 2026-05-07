@@ -24,8 +24,6 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "platform_detect.h" // IWYU pragma: keep
-
 #define NUM_LOCK_ATTEMPTS 3
 
 enum {

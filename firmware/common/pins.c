@@ -39,7 +39,7 @@
 #include "rf_path.h"
 #include "sgpio.h"
 #include "w25q80bv.h"
-#if defined(IS_PRALINE)
+#ifdef IS_PRALINE
 	#include "clock_io.h"
 	#include "ice40_spi.h"
 #endif

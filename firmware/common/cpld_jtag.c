@@ -22,7 +22,6 @@
 #include "cpld_jtag.h"
 
 #include "platform_detect.h"
-
 #ifdef IS_NOT_PRALINE
 	#include <stdint.h>
 	#include "xapp058/micro.h"

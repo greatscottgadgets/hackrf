@@ -25,8 +25,6 @@
 extern "C" {
 #endif
 
-#include "platform_detect.h" // IWYU pragma: keep
-
 #include <stdbool.h>
 
 #include "fixed_point.h"

@@ -26,8 +26,6 @@
 #include <stdint.h>
 
 #include "fixed_point.h"
-#include "platform_detect.h"
-
 #ifdef IS_RAD1O
 	#include "max2871.h"
 #endif

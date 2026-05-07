@@ -26,7 +26,6 @@
 #include <stdint.h>
 
 #include "gpio.h"
-#include "platform_detect.h" // IWYU pragma: keep
 
 typedef enum {
 	SGPIO_DIRECTION_RX,

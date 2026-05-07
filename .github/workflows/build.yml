@@ -160,10 +160,10 @@ jobs:
       matrix:
         os: ['macos', 'ubuntu', 'windows']
         board: ['HACKRF_ONE', 'JAWBREAKER', 'RAD1O', 'PRALINE', 'UNIVERSAL']
-        cmake: ['3.10.0', 'latest']
+        cmake: ['3.12.0', 'latest']
         exclude:
           - os: 'windows'
-            cmake: '3.10.0'
+            cmake: '3.12.0'
           # GitHub doesn't give us many macOS runners, so don't build for every board.
           # We just need to know that building firmware works on macOS. Use PRALINE
           # since that's the most complicated one due to FPGA bitstreams.

@@ -25,8 +25,6 @@
 extern "C" {
 #endif
 
-#include "platform_detect.h" // IWYU pragma: keep
-
 #ifdef IS_PRALINE
 void enable_1v2_power(void);
 void disable_1v2_power(void);

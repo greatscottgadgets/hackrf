@@ -25,8 +25,6 @@
 
 #include <usb_type.h>
 
-#include "platform_detect.h"
-
 extern usb_device_t usb_device;
 
 #ifdef IS_HACKRF_ONE

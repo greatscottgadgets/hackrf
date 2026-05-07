@@ -32,6 +32,7 @@
 
 #include "gpdma.h"
 #include "gpio.h"
+#include "platform_detect.h"
 #ifdef IS_NOT_PRALINE
 	#include "sgpio.h"
 #endif
