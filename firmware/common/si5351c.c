@@ -543,9 +543,9 @@ bool si5351c_clkin_signal_valid(si5351c_driver_t* const drv)
 	}
 }
 
-void si5351c_clkout_enable(si5351c_driver_t* const drv, uint8_t enable)
+void si5351c_clkout_enable(si5351c_driver_t* const drv, bool enable)
 {
-	clkout_enabled = (enable > 0);
+	clkout_enabled = enable;
 
 	uint8_t clkout = 3;
 
