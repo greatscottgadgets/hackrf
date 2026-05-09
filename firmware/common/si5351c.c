@@ -583,6 +583,11 @@ void si5351c_init(si5351c_driver_t* const drv)
 		selftest.report.pass = false;
 	}
 
+	/* Wait for on-chip initialization to complete. */
+	while (get_SYS_INIT(drv)) {
+		si5351c_read_single(drv, SYS_INIT);
+	}
+
 	/* Cache all current register values. */
 	uint8_t data_tx[] = {0};
 	i2c_bus_transfer(
