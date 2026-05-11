@@ -19,8 +19,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __M0_STATE_USB_H__
-#define __M0_STATE_USB_H__
+#pragma once
 
 #include <usb_request.h>
 #include <usb_type.h>
@@ -28,5 +27,3 @@
 usb_request_status_t usb_vendor_request_get_m0_state(
 	usb_endpoint_t* const endpoint,
 	const usb_transfer_stage_t stage);
-
-#endif /*__M0_STATE_USB_H__*/

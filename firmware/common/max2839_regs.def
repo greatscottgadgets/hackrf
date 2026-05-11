@@ -1,7 +1,26 @@
-/* -*- mode: c -*- */
+/* -*- mode: c -*-  *
+ * Copyright 2012 Michael Ossmann
+ * Copyright 2025-2026 Great Scott Gadgets <info@greatscottgadgets.com>
+ *
+ * This file is part of HackRF.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; see the file COPYING.  If not, write to
+ * the Free Software Foundation, Inc., 51 Franklin Street,
+ * Boston, MA 02110-1301, USA.
+ */
 
-#ifndef __MAX2839_REGS_DEF
-#define __MAX2839_REGS_DEF
+#pragma once
 
 /* Generate static inline accessors that operate on the global
  * regs. Done this way to (1) allow defs to be scraped out and used
@@ -255,5 +274,3 @@ __MREG__(MAX2839_PA_DAC_Voltage_Mode_Output_Select,30,9,1)
 __MREG__(MAX2839_TX_DC_Offset_Correction_QChannel,31,5,6)
 __MREG__(MAX2839_RESERVED_31_8,31,8,3)
 __MREG__(MAX2839_PA_DAC_Clk_Divide_Ratio,31,9,1)
-
-#endif // __MAX2839_REGS_DEF

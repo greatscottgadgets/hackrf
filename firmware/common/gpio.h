@@ -20,8 +20,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __GPIO_H__
-#define __GPIO_H__
+#pragma once
 
 #include <stdbool.h>
 
@@ -35,5 +34,3 @@ void gpio_output(gpio_t gpio);
 void gpio_input(gpio_t gpio);
 void gpio_write(gpio_t gpio, const bool value);
 bool gpio_read(gpio_t gpio);
-
-#endif /*__GPIO_H__*/

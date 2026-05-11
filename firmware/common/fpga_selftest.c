@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Great Scott Gadgets <info@greatscottgadgets.com>
+ * Copyright 2025-2026 Great Scott Gadgets <info@greatscottgadgets.com>
  *
  * This file is part of HackRF.
  *
@@ -23,10 +23,10 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include "clock_gen.h"
 #include "delay.h"
 #include "fixed_point.h"
 #include "fpga.h"
-#include "hackrf_core.h"
 #include "ice40_spi.h"
 #include "m0_state.h"
 #include "max283x.h"
@@ -36,8 +36,8 @@
 #include "streaming.h"
 
 // USB buffer used during selftests.
-#define USB_BULK_BUFFER_SIZE 0x8000
-extern uint8_t usb_bulk_buffer[USB_BULK_BUFFER_SIZE];
+#define USB_SAMP_BUFFER_SIZE 0x8000
+extern uint8_t usb_samp_buffer[USB_SAMP_BUFFER_SIZE];
 
 static int rx_samples(const unsigned int num_samples, uint32_t max_cycles)
 {
@@ -114,10 +114,10 @@ bool fpga_sgpio_selftest(void)
 	fpga_set_prbs_enable(&fpga, false);
 
 	// Generate sequence from first value and compare.
-	bool seq_in_sync = (usb_bulk_buffer[0] != 0);
-	uint8_t seq = lfsr_advance(usb_bulk_buffer[0]);
+	bool seq_in_sync = (usb_samp_buffer[0] != 0);
+	uint8_t seq = lfsr_advance(usb_samp_buffer[0]);
 	for (int i = 1; i < 512; ++i) {
-		if (usb_bulk_buffer[i] != seq) {
+		if (usb_samp_buffer[i] != seq) {
 			seq_in_sync = false;
 			break;
 		}
@@ -188,7 +188,7 @@ bool fpga_if_xcvr_selftest(void)
 		return false;
 	}
 
-	const size_t num_samples = USB_BULK_BUFFER_SIZE / 2;
+	const size_t num_samples = USB_SAMP_BUFFER_SIZE / 2;
 
 	// Set common RX path and gateware settings for the measurements.
 	fpga_set_tx_nco_pstep(&fpga, 64);    // NCO phase increment
@@ -196,16 +196,16 @@ bool fpga_if_xcvr_selftest(void)
 	rf_path_set_direction(&rf_path, RF_PATH_DIRECTION_RX_CALIBRATION);
 	max283x_set_lna_gain(&max283x, 16);
 	max283x_set_vga_gain(&max283x, 36);
-	max283x_set_frequency(&max283x, 2500000000);
+	max283x_set_frequency(&max283x, FP_MHZ(2500), true);
 
 	// Capture 1: 4 Msps, tone at 0.5 MHz, narrowband filter OFF
-	sample_rate_set(4ULL * FP_ONE_MHZ, true);
+	sample_rate_set(SR_FP_MHZ(4), true);
 	delay_us_at_mhz(1000, 204);
 	if (rx_samples(num_samples, 2000000) == -1) {
 		timeout = true;
 	}
 	measure_tone(
-		(int8_t*) usb_bulk_buffer,
+		(int8_t*) usb_samp_buffer,
 		num_samples,
 		&selftest.xcvr_measurements[0]);
 
@@ -216,20 +216,20 @@ bool fpga_if_xcvr_selftest(void)
 		timeout = true;
 	}
 	measure_tone(
-		(int8_t*) usb_bulk_buffer,
+		(int8_t*) usb_samp_buffer,
 		num_samples,
 		&selftest.xcvr_measurements[1]);
 
 	// Capture 3: 20 Msps, tone at 5 MHz, narrowband filter OFF
 	fpga_set_tx_nco_pstep(&fpga, 255);
-	sample_rate_set(20ULL * FP_ONE_MHZ, true);
+	sample_rate_set(SR_FP_MHZ(20), true);
 	narrowband_filter_set(0);
 	delay_us_at_mhz(1000, 204);
 	if (rx_samples(num_samples, 2000000) == -1) {
 		timeout = true;
 	}
 	measure_tone(
-		(int8_t*) usb_bulk_buffer,
+		(int8_t*) usb_samp_buffer,
 		num_samples,
 		&selftest.xcvr_measurements[2]);
 
@@ -240,12 +240,12 @@ bool fpga_if_xcvr_selftest(void)
 		timeout = true;
 	}
 	measure_tone(
-		(int8_t*) usb_bulk_buffer,
+		(int8_t*) usb_samp_buffer,
 		num_samples,
 		&selftest.xcvr_measurements[3]);
 
 	// Restore default settings.
-	sample_rate_set(10ULL * FP_ONE_MHZ, true);
+	sample_rate_set(SR_FP_MHZ(10), true);
 	rf_path_set_direction(&rf_path, RF_PATH_DIRECTION_OFF);
 	narrowband_filter_set(0);
 	fpga_init(&fpga);

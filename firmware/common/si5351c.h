@@ -20,8 +20,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __SI5351C_H
-#define __SI5351C_H
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
@@ -32,16 +31,13 @@ extern "C" {
 #include <stddef.h>
 
 #include "i2c_bus.h"
+#include "i2c_lpc.h"
 
 #define SI_INTDIV(x) (x * 128 - 512)
 
 #define SI5351C_CLK_POWERDOWN (1 << 7)
 #define SI5351C_CLK_INT_MODE  (1 << 6)
 #define SI5351C_CLK_FRAC_MODE (0 << 6)
-
-#define SI5351C_CLK_PLL_SRC(x) (x << 5)
-#define SI5351C_CLK_PLL_SRC_A  0
-#define SI5351C_CLK_PLL_SRC_B  1
 
 #define SI5351C_CLK_INV (1 << 4)
 
@@ -59,6 +55,14 @@ extern "C" {
 
 #define SI5351C_LOS   (1 << 4)
 #define SI5351C_REVID 0x03
+
+typedef enum {
+	SI5351C_PLL_A = 1,
+	SI5351C_PLL_B = 2,
+	SI5351C_PLL_BOTH = 3,
+} si5351c_pll_t;
+
+#define SI5351C_CLK_PLL_SRC(x) ((x & SI5351C_PLL_B) << 4)
 
 enum pll_sources {
 	PLL_SOURCE_UNINITIALIZED = -1,
@@ -82,7 +86,7 @@ void si5351c_configure_pll_sources(
 void si5351c_configure_pll_multisynth(
 	si5351c_driver_t* const drv,
 	const enum pll_sources source);
-void si5351c_reset_pll(si5351c_driver_t* const drv);
+void si5351c_reset_pll(si5351c_driver_t* const drv, si5351c_pll_t pll);
 void si5351c_configure_multisynth(
 	si5351c_driver_t* const drv,
 	const uint_fast8_t ms_number,
@@ -112,8 +116,10 @@ void si5351c_set_phase(
 	const uint8_t ms_number,
 	const uint8_t offset);
 
+/* Driver Instance. */
+extern const i2c_lpc_config_t i2c_config_si5351c_fast_clock;
+extern si5351c_driver_t si5351c;
+
 #ifdef __cplusplus
 }
 #endif
-
-#endif /* __SI5351C_H */

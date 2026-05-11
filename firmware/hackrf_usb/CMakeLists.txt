@@ -35,7 +35,7 @@ add_custom_command(
 	OUTPUT ${PATH_PRALINE_FPGA_OBJ}
 	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 	COMMAND ${CMAKE_COMMAND} -E copy ${PATH_PRALINE_FPGA_BIN} "fpga.bin"
-	COMMAND ${CMAKE_OBJCOPY} 
+	COMMAND ${CMAKE_OBJCOPY}
 		-I binary
 		-O elf32-littlearm
 		-B arm
@@ -66,7 +66,6 @@ set(SRC_M4
 	usb_api_adc.c
 	"${PATH_HACKRF_FIRMWARE_COMMON}/usb_queue.c"
 	"${PATH_HACKRF_FIRMWARE_COMMON}/fault_handler.c"
-	"${PATH_HACKRF_FIRMWARE_COMMON}/cpld_jtag.c"
 	"${PATH_HACKRF_FIRMWARE_COMMON}/crc.c"
 	"${PATH_HACKRF_FIRMWARE_COMMON}/rom_iap.c"
 	"${PATH_HACKRF_FIRMWARE_COMMON}/operacake.c"
@@ -74,6 +73,26 @@ set(SRC_M4
 )
 
 set(SRC_M0 sgpio_m0.s)
+
+if(BOARD STREQUAL "UNIVERSAL")
+	SET(SRC_M4
+		${SRC_M4}
+		usb_api_cpld.c
+		"${PATH_HACKRF_FIRMWARE_COMMON}/cpld_xc2c.c"
+		"${PATH_HACKRF_CPLD_DATA_C}"
+		"${PATH_HACKRF_FIRMWARE_COMMON}/xapp058/lenval.c"
+		"${PATH_HACKRF_FIRMWARE_COMMON}/xapp058/micro.c"
+		"${PATH_HACKRF_FIRMWARE_COMMON}/xapp058/ports.c"
+
+		"${PATH_HACKRF_FIRMWARE_COMMON}/lz4_blk.c"
+		"${PATH_HACKRF_FIRMWARE_COMMON}/fpga_image.c"
+		"${PATH_HACKRF_FIRMWARE_COMMON}/fpga_selftest.c"
+		usb_api_praline.c
+	)
+	SET(OBJ_M4
+		${PATH_PRALINE_FPGA_OBJ}
+	)
+endif()
 
 if(BOARD STREQUAL "PRALINE")
 	SET(SRC_M4
@@ -98,7 +117,7 @@ else()
 	)
 endif()
 
-if(BOARD STREQUAL "HACKRF_ONE" OR BOARD STREQUAL "PRALINE")
+if(BOARD STREQUAL "PRALINE" OR BOARD STREQUAL "HACKRF_ONE" OR BOARD STREQUAL "UNIVERSAL")
 	SET(SRC_M4
 		${SRC_M4}
 		"${PATH_HACKRF_FIRMWARE_COMMON}/portapack.c"
@@ -116,6 +135,7 @@ if(BOARD STREQUAL "RAD1O")
 		"${PATH_HACKRF_FIRMWARE_COMMON}/rad1o/smallfonts.c"
 		"${PATH_HACKRF_FIRMWARE_COMMON}/rad1o/draw.c"
 		"${PATH_HACKRF_FIRMWARE_COMMON}/rad1o/ubuntu18.c"
+		"${PATH_HACKRF_FIRMWARE_COMMON}/picoprintf.c"
 		"${PATH_HACKRF_FIRMWARE_COMMON}/ui_rad1o.c"
 	)
 endif()

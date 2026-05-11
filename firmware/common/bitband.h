@@ -20,8 +20,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __BITBAND_H__
-#define __BITBAND_H__
+#pragma once
 
 #include <stdint.h>
 
@@ -37,5 +36,3 @@ void peripheral_bitband_clear(
 uint32_t peripheral_bitband_get(
 	volatile void* const peripheral_address,
 	const uint_fast8_t bit_number);
-
-#endif //__BITBAND_H__

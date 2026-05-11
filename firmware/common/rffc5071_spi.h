@@ -20,15 +20,14 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __RFFC5071_SPI_H
-#define __RFFC5071_SPI_H
+#pragma once
 
 #include <stddef.h>
 
 #include "gpio.h"
 #include "spi_bus.h"
 
-typedef struct rffc5071_spi_config_t {
+typedef struct {
 	gpio_t gpio_select;
 	gpio_t gpio_clock;
 	gpio_t gpio_data;
@@ -41,5 +40,3 @@ void rffc5071_spi_transfer_gather(
 	spi_bus_t* const bus,
 	const spi_transfer_t* const transfer,
 	const size_t count);
-
-#endif // __RFFC5071_SPI_H

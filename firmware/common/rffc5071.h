@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2014 Great Scott Gadgets <info@greatscottgadgets.com>
+ * Copyright 2012-2026 Great Scott Gadgets <info@greatscottgadgets.com>
  * Copyright 2014 Jared Boone <jared@sharebrained.com>
  *
  * This file is part of HackRF.
@@ -20,12 +20,12 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __RFFC5071_H
-#define __RFFC5071_H
+#pragma once
 
 #include <stdbool.h>
 #include <stdint.h>
 
+#include "fixed_point.h"
 #include "gpio.h"
 #include "spi_bus.h"
 
@@ -35,7 +35,7 @@
 typedef struct {
 	spi_bus_t* const bus;
 	gpio_t gpio_reset;
-#ifdef PRALINE
+#ifdef IS_PRALINE
 	gpio_t gpio_ld;
 #endif
 	uint16_t regs[RFFC5071_NUM_REGS];
@@ -60,16 +60,17 @@ extern void rffc5071_reg_write(rffc5071_driver_t* const drv, uint8_t r, uint16_t
  * provided routines for those operations. */
 extern void rffc5071_regs_commit(rffc5071_driver_t* const drv);
 
-/* Set frequency (Hz). */
-extern uint64_t rffc5071_set_frequency(rffc5071_driver_t* const drv, uint64_t hz);
+/* Set frequency in 1/(2**24) Hz. */
+extern fp_40_24_t rffc5071_set_frequency(
+	rffc5071_driver_t* const drv,
+	fp_40_24_t lo,
+	bool program);
 
 extern void rffc5071_enable(rffc5071_driver_t* const drv);
 extern void rffc5071_disable(rffc5071_driver_t* const drv);
 
 extern void rffc5071_set_gpo(rffc5071_driver_t* const drv, uint8_t);
-#ifdef PRALINE
+#ifdef IS_PRALINE
 extern bool rffc5071_poll_ld(rffc5071_driver_t* const drv, uint8_t* prelock_state);
 #endif
 extern bool rffc5071_check_lock(rffc5071_driver_t* const drv);
-
-#endif // __RFFC5071_H

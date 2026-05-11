@@ -20,18 +20,15 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __MAX5864_H
-#define __MAX5864_H
+#pragma once
 
 #include "spi_bus.h"
+#include "spi_ssp.h"
 
-struct max5864_driver_t; // IWYU pragma: keep - fixed in #1704
-typedef struct max5864_driver_t max5864_driver_t;
-
-struct max5864_driver_t {
+typedef struct _max5864_driver_t {
 	spi_bus_t* const bus;
-	void (*target_init)(max5864_driver_t* const drv);
-};
+	void (*target_init)(struct _max5864_driver_t* const drv);
+} max5864_driver_t;
 
 void max5864_setup(max5864_driver_t* const drv);
 
@@ -42,4 +39,7 @@ void max5864_rx(max5864_driver_t* const drv);
 void max5864_tx(max5864_driver_t* const drv);
 void max5864_xcvr(max5864_driver_t* const drv);
 
-#endif // __MAX5864_H
+/* Driver instance. */
+extern ssp_config_t ssp_config_max5864;
+extern max5864_driver_t max5864;
+void ssp1_set_mode_max5864(void);

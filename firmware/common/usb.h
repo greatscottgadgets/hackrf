@@ -20,8 +20,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __USB_H__
-#define __USB_H__
+#pragma once
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -31,6 +30,8 @@
 #include <libopencm3/lpc43xx/usb.h>
 
 #include "usb_type.h"
+
+usb_queue_head_t* usb_queue_head(const uint_fast8_t endpoint_address);
 
 void usb_peripheral_reset(void);
 void usb_phy_enable(void);
@@ -77,5 +78,3 @@ void usb_endpoint_schedule_append(
 	const usb_endpoint_t* const endpoint,
 	usb_transfer_descriptor_t* const tail_td,
 	usb_transfer_descriptor_t* const new_td);
-
-#endif //__USB_H__

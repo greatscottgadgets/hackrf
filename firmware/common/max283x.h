@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2022 Great Scott Gadgets <info@greatscottgadgets.com>
+ * Copyright 2012-2026 Great Scott Gadgets <info@greatscottgadgets.com>
  * Copyright 2012 Will Code <willcode4@gmail.com>
  * Copyright 2014 Jared Boone <jared@sharebrained.com>
  *
@@ -21,16 +21,21 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __MAX283x_H
-#define __MAX283x_H
+#pragma once
 
 #include <stdbool.h>
 #include <stdint.h>
 
-#if defined(PRALINE)
+#include "fixed_point.h"
+#include "spi_ssp.h"
+
+#ifdef IS_PRALINE
 	#include "max2831.h"
-#else
+#endif
+#ifdef IS_NOT_PRALINE
 	#include "max2837.h"
+#endif
+#ifdef IS_H1_R9
 	#include "max2839.h"
 #endif
 
@@ -52,10 +57,13 @@ typedef enum {
 } max283x_rx_hpf_freq_t;
 
 typedef enum {
-#ifdef PRALINE
+#ifdef IS_PRALINE
 	MAX2831_VARIANT,
-#else
+#endif
+#ifdef IS_NOT_PRALINE
 	MAX2837_VARIANT,
+#endif
+#ifdef IS_H1_R9
 	MAX2839_VARIANT,
 #endif
 } max283x_variant_t;
@@ -64,17 +72,20 @@ typedef struct {
 	max283x_variant_t type;
 
 	union {
-#ifdef PRALINE
+#ifdef IS_PRALINE
 		max2831_driver_t max2831;
-#else
+#endif
+#ifdef IS_NOT_PRALINE
 		max2837_driver_t max2837;
+#endif
+#ifdef IS_H1_R9
 		max2839_driver_t max2839;
 #endif
 	} drv;
 } max283x_driver_t;
 
 /* Initialize chip. */
-void max283x_setup(max283x_driver_t* const drv, max283x_variant_t type);
+void max283x_setup(max283x_driver_t* const drv);
 
 /* Returns the number of registers supported by the driver. */
 uint16_t max283x_num_regs(max283x_driver_t* const drv);
@@ -102,9 +113,11 @@ void max283x_set_mode(max283x_driver_t* const drv, const max283x_mode_t new_mode
 void max283x_start(max283x_driver_t* const drv);
 void max283x_stop(max283x_driver_t* const drv);
 
-/* Set frequency in Hz. Frequency setting is a multi-step function
- * where order of register writes matters. */
-void max283x_set_frequency(max283x_driver_t* const drv, uint32_t freq);
+/* Set frequency in 1/(2**24) Hz. */
+fp_40_24_t max283x_set_frequency(
+	max283x_driver_t* const drv,
+	fp_40_24_t freq,
+	bool program);
 uint32_t max283x_set_lpf_bandwidth(
 	max283x_driver_t* const drv,
 	const max283x_mode_t mode,
@@ -127,4 +140,7 @@ void max283x_set_rx_hpf_frequency(
 void max283x_tx_calibration(max283x_driver_t* const drv);
 void max283x_rx_calibration(max283x_driver_t* const drv);
 
-#endif // __MAX283x_H
+/* Driver instance. */
+extern ssp_config_t ssp_config_max283x;
+extern max283x_driver_t max283x;
+void ssp1_set_mode_max283x(void);

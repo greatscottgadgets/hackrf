@@ -663,9 +663,6 @@ class HackRF:
             self.rf_test_cases = praline_r110_rf_test_cases
 
     def clkin(self):
-        if self.name == "EUT" and self.id == "5":
-            debug = subprocess.run([self.bin_dir + "/hackrf_debug", "-d", self.serial,
-                                    "-C", "0"])
         command = subprocess.run([self.bin_dir + "/hackrf_clock", "-i", "-d",
             self.serial], capture_output=True, encoding="utf-8",
             timeout=TIMEOUT)
@@ -1413,11 +1410,11 @@ def program(bin_dir, fw_dir, serial, unattended=False):
     if spiflash.returncode != 0:
         log(spiflash.stdout + spiflash.stderr)
         fail(70)
+    time.sleep(3)
 
     then = time.time()
     device_found = False
     while time.time() < (then + 5):
-        time.sleep(1)
         flash_info = subprocess.run([bin_dir + "/hackrf_info"], capture_output=True,
             timeout=TIMEOUT)
         if serial == "RunningFromRAM" and not unattended:
@@ -1433,7 +1430,7 @@ def program(bin_dir, fw_dir, serial, unattended=False):
         if serial in flash_info.stdout.decode('utf-8', errors='ignore'):
             device_found = True
             break
-        time.sleep(0.1)
+        time.sleep(1)
     if not device_found:
         fail(75)
 

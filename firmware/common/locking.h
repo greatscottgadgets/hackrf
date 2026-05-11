@@ -19,8 +19,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __LOCKING_H__
-#define __LOCKING_H__
+#pragma once
 
 #include <stdint.h>
 
@@ -51,5 +50,3 @@ static inline uint32_t store_exclusive(uint32_t val, volatile uint32_t* addr)
 	return 0;
 }
 #endif
-
-#endif /* __LOCKING_H__ */

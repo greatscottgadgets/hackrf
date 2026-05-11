@@ -19,8 +19,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __PLATFORM_DETECT_H__
-#define __PLATFORM_DETECT_H__
+#pragma once
 
 #include <stdint.h>
 
@@ -80,5 +79,3 @@ board_id_t detected_platform(void);
 board_rev_t detected_revision(void);
 uint32_t supported_platform(void);
 void finalize_detect_hardware_platform(void);
-
-#endif //__PLATFORM_DETECT_H__

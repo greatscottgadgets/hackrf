@@ -24,31 +24,29 @@
 #include <stddef.h>
 
 #include <libopencm3/cm3/nvic.h>
-#include <libopencm3/lpc43xx/m4/nvic.h>
 
 #include <fixed_point.h>
-#include <hackrf_core.h>
+#include <hackrf_ui.h>
 #include <m0_state.h>
+#include <platform_detect.h>
 #include <radio.h>
+#include <rf_path.h>
+#include <sgpio.h>
 #include <streaming.h>
+#include <transceiver_mode.h>
 #include <usb_queue.h>
 #include <usb_request.h>
 #include <usb_type.h>
 
 #include "usb_api_sweep.h"
 #include "usb_api_transceiver.h"
-#include "usb_bulk_buffer.h"
+#include "usb_buffer.h"
 #include "usb_endpoint.h"
 
 #define MIN(x, y)        ((x) < (y) ? (x) : (y))
 #define MAX(x, y)        ((x) > (y) ? (x) : (y))
 #define FREQ_GRANULARITY 1000000
 #define MAX_RANGES       10
-#ifndef PRALINE
-	#define THROWAWAY_BUFFERS 2
-#else
-	#define THROWAWAY_BUFFERS 1
-#endif
 
 static uint64_t sweep_freq;
 static uint16_t frequencies[MAX_RANGES * 2];
@@ -57,13 +55,45 @@ static uint16_t num_ranges = 0;
 static uint32_t dwell_blocks = 0;
 static uint32_t step_width = 0;
 static uint32_t offset = 0;
+static uint32_t throwaway_buffers = 0;
 static enum sweep_style style = LINEAR;
+static bool freq_ui_dirty = false;
+static bool img_reject_ui_dirty = false;
+static rf_path_filter_t img_reject;
+
+/*
+ * Opportunistic UI updates are made when time is available. Updates are
+ * prioritized to prevent a single update from taking too long. Lower priority
+ * changes to the image reject filter path display are done only if there is
+ * time remaining after the higher priority update to the frequency display.
+ */
+void update_ui(void)
+{
+	if (freq_ui_dirty) {
+		hackrf_ui()->set_frequency(sweep_freq + offset);
+		freq_ui_dirty = false;
+	} else if (img_reject_ui_dirty) {
+		const uint64_t new_img_reject =
+			radio_reg_read(&radio, RADIO_BANK_APPLIED, RADIO_IMAGE_REJECT);
+		if (new_img_reject != img_reject) {
+			img_reject = new_img_reject;
+			hackrf_ui()->set_filter(img_reject);
+		}
+		img_reject_ui_dirty = false;
+	}
+}
 
 /* Do this before starting sweep mode with request_transceiver_mode(). */
 usb_request_status_t usb_vendor_request_init_sweep(
 	usb_endpoint_t* const endpoint,
 	const usb_transfer_stage_t stage)
 {
+	if (detected_platform() == BOARD_ID_PRALINE) {
+		throwaway_buffers = 1;
+	} else {
+		throwaway_buffers = 2;
+	}
+
 	uint32_t num_bytes;
 	int i;
 	if (stage == USB_TRANSFER_STAGE_SETUP) {
@@ -100,15 +130,12 @@ usb_request_status_t usb_vendor_request_init_sweep(
 		}
 		sweep_freq = (uint64_t) frequencies[0] * FREQ_GRANULARITY;
 
-		nvic_disable_irq(NVIC_USB0_IRQ);
 		radio_reg_write(
 			&radio,
 			RADIO_BANK_ACTIVE,
 			RADIO_FREQUENCY_RF,
 			(sweep_freq + offset) * FP_ONE_HZ);
 		usb_transfer_schedule_ack(endpoint->in);
-		nvic_enable_irq(NVIC_USB0_IRQ);
-		radio_update(&radio);
 	}
 	return USB_REQUEST_STATUS_OK;
 }
@@ -120,7 +147,7 @@ void sweep_bulk_transfer_complete(void* user_data, unsigned int bytes_transferre
 
 	// For each buffer transferred, we need to bump the count to allow
 	// for the buffer(s) that are to be discarded.
-	m0_state.m4_count += (THROWAWAY_BUFFERS + 1) * 0x4000;
+	m0_state.m4_count += (throwaway_buffers + 1) * 0x4000;
 }
 
 void sweep_mode(uint32_t seq)
@@ -156,6 +183,9 @@ void sweep_mode(uint32_t seq)
 	uint8_t* buffer;
 
 	transceiver_startup(TRANSCEIVER_MODE_RX_SWEEP);
+	hackrf_ui()->set_frequency(sweep_freq + offset);
+	img_reject = radio_reg_read(&radio, RADIO_BANK_APPLIED, RADIO_IMAGE_REJECT);
+	hackrf_ui()->set_filter(img_reject);
 
 	// Set M0 to RX first buffer, then wait.
 	m0_state.threshold = 0x4000;
@@ -173,11 +203,11 @@ void sweep_mode(uint32_t seq)
 
 		// Set M0 to switch back to RX after we have received our
 		// discard buffers.
-		m0_state.threshold += (0x4000 * THROWAWAY_BUFFERS);
+		m0_state.threshold += (0x4000 * throwaway_buffers);
 		m0_state.next_mode = M0_MODE_RX;
 
 		// Write metadata to buffer.
-		buffer = &usb_bulk_buffer[phase * 0x4000];
+		buffer = &usb_samp_buffer[phase * 0x4000];
 		*buffer = 0x7f;
 		*(buffer + 1) = 0x7f;
 		*(buffer + 2) = sweep_freq & 0xff;
@@ -198,7 +228,7 @@ void sweep_mode(uint32_t seq)
 			NULL);
 
 		// Use other buffer next time.
-		phase = (phase + 1) % THROWAWAY_BUFFERS;
+		phase = (phase + 1) % throwaway_buffers;
 
 		if (++blocks_queued == dwell_blocks) {
 			// Calculate next sweep frequency.
@@ -237,6 +267,9 @@ void sweep_mode(uint32_t seq)
 				RADIO_FREQUENCY_RF,
 				(sweep_freq + offset) * FP_ONE_HZ);
 			nvic_enable_irq(NVIC_USB0_IRQ);
+			radio_update(&radio);
+			freq_ui_dirty = true;
+			img_reject_ui_dirty = true;
 			blocks_queued = 0;
 		}
 
@@ -245,6 +278,7 @@ void sweep_mode(uint32_t seq)
 			if (transceiver_request.seq != seq) {
 				goto end;
 			}
+			update_ui();
 		}
 
 		// Set M0 to switch back to WAIT after filling next buffer.

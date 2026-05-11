@@ -19,8 +19,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __M0_STATE_H__
-#define __M0_STATE_H__
+#pragma once
 
 #include <stdint.h>
 
@@ -60,5 +59,3 @@ enum m0_error {
 extern volatile struct m0_state m0_state;
 
 void m0_set_mode(enum m0_mode mode);
-
-#endif /*__M0_STATE_H__*/
