@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2022 Great Scott Gadgets <info@greatscottgadgets.com>
+ * Copyright 2012-2026 Great Scott Gadgets <info@greatscottgadgets.com>
  * Copyright 2012 Will Code <willcode4@gmail.com>
  * Copyright 2014 Jared Boone <jared@sharebrained.com>
  *
@@ -21,12 +21,12 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __MAX2837_H
-#define __MAX2837_H
+#pragma once
 
-#include <stdint.h>
 #include <stdbool.h>
+#include <stdint.h>
 
+#include "fixed_point.h"
 #include "gpio.h"
 #include "spi_bus.h"
 
@@ -41,20 +41,19 @@ typedef enum {
 	MAX2837_MODE_RX
 } max2837_mode_t;
 
-struct max2837_driver_t; // IWYU pragma: keep - fixed in #1704
-typedef struct max2837_driver_t max2837_driver_t;
-
-struct max2837_driver_t {
+typedef struct _max2837_driver_t {
 	spi_bus_t* bus;
 	gpio_t gpio_enable;
 	gpio_t gpio_rx_enable;
 	gpio_t gpio_tx_enable;
-	void (*target_init)(max2837_driver_t* const drv);
-	void (*set_mode)(max2837_driver_t* const drv, const max2837_mode_t new_mode);
+	void (*target_init)(struct _max2837_driver_t* const drv);
+	void (*set_mode)(
+		struct _max2837_driver_t* const drv,
+		const max2837_mode_t new_mode);
 	max2837_mode_t mode;
 	uint16_t regs[MAX2837_NUM_REGS];
 	uint32_t regs_dirty;
-};
+} max2837_driver_t;
 
 /* Initialize chip. */
 extern void max2837_setup(max2837_driver_t* const drv);
@@ -79,9 +78,11 @@ void max2837_set_mode(max2837_driver_t* const drv, const max2837_mode_t new_mode
 extern void max2837_start(max2837_driver_t* const drv);
 extern void max2837_stop(max2837_driver_t* const drv);
 
-/* Set frequency in Hz. Frequency setting is a multi-step function
- * where order of register writes matters. */
-extern void max2837_set_frequency(max2837_driver_t* const drv, uint32_t freq);
+/* Set frequency in 1/(2**24) Hz. */
+extern fp_40_24_t max2837_set_frequency(
+	max2837_driver_t* const drv,
+	fp_40_24_t freq,
+	bool program);
 uint32_t max2837_set_lpf_bandwidth(
 	max2837_driver_t* const drv,
 	const uint32_t bandwidth_hz);
@@ -91,5 +92,3 @@ bool max2837_set_txvga_gain(max2837_driver_t* const drv, const uint32_t gain_db)
 
 extern void max2837_tx(max2837_driver_t* const drv);
 extern void max2837_rx(max2837_driver_t* const drv);
-
-#endif // __MAX2837_H

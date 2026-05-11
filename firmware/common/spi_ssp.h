@@ -20,8 +20,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __SPI_SSP_H__
-#define __SPI_SSP_H__
+#pragma once
 
 #include <stdint.h>
 #include <stddef.h>
@@ -31,7 +30,7 @@
 #include "gpio.h"
 #include "spi_bus.h"
 
-typedef struct ssp_config_t {
+typedef struct {
 	ssp_datasize_t data_bits;
 	ssp_cpol_cpha_t spi_mode;
 	uint8_t serial_clock_rate;
@@ -46,5 +45,3 @@ void spi_ssp_transfer_gather(
 	spi_bus_t* const bus,
 	const spi_transfer_t* const transfers,
 	const size_t count);
-
-#endif /*__SPI_SSP_H__*/

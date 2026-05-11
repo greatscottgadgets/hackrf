@@ -29,7 +29,6 @@
 #include "delay.h"
 #include "gpio.h"
 #include "gpio_lpc.h"
-#include "hackrf_core.h"
 #include "platform_gpio.h"
 #include "platform_scu.h"
 
@@ -42,7 +41,7 @@ static void portapack_sleep_milliseconds(const uint32_t milliseconds)
 	delay(milliseconds * 40800);
 }
 
-typedef struct portapack_if_t {
+typedef struct {
 	gpio_t gpio_dir;
 	gpio_t gpio_lcd_rdx;
 	gpio_t gpio_lcd_wrx;

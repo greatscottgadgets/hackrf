@@ -19,12 +19,9 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __LZ4_BLK_H
-#define __LZ4_BLK_H
+#pragma once
 
 #include <stdint.h>
 #include <stdlib.h>
 
 int lz4_blk_decompress(const uint8_t* src, uint8_t* dst, size_t length);
-
-#endif

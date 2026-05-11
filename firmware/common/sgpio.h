@@ -20,8 +20,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __SGPIO_H__
-#define __SGPIO_H__
+#pragma once
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -33,14 +32,15 @@ typedef enum {
 	SGPIO_DIRECTION_TX,
 } sgpio_direction_t;
 
-typedef struct sgpio_config_t {
+typedef struct {
 	gpio_t gpio_q_invert;
-#ifndef PRALINE
+#ifdef IS_NOT_PRALINE
 	gpio_t gpio_trigger_enable;
 #endif
 	bool slice_mode_multislice;
 } sgpio_config_t;
 
+void sgpio_pin_shutdown(sgpio_config_t* const config);
 void sgpio_configure_pin_functions(sgpio_config_t* const config);
 void sgpio_test_interface(sgpio_config_t* const config);
 void sgpio_set_slice_mode(sgpio_config_t* const config, const bool multi_slice);
@@ -51,4 +51,5 @@ bool sgpio_cpld_stream_is_enabled(sgpio_config_t* const config);
 
 void sgpio_cpld_set_mixer_invert(sgpio_config_t* const config, uint_fast8_t invert);
 
-#endif //__SGPIO_H__
+/* Driver configuration instance. */
+extern sgpio_config_t sgpio_config;

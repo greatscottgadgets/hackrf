@@ -21,8 +21,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __USB_API_BOARD_INFO_H__
-#define __USB_API_BOARD_INFO_H__
+#pragma once
 
 #include <stdint.h>
 
@@ -52,5 +51,3 @@ usb_request_status_t usb_vendor_request_read_board_rev(
 usb_request_status_t usb_vendor_request_read_supported_platform(
 	usb_endpoint_t* const endpoint,
 	const usb_transfer_stage_t stage);
-
-#endif /* end of include guard: __USB_API_BOARD_INFO_H__ */

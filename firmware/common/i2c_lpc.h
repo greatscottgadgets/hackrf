@@ -20,8 +20,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __I2C_LPC_H__
-#define __I2C_LPC_H__
+#pragma once
 
 #include <stdbool.h>
 #include <stddef.h>
@@ -29,7 +28,7 @@
 
 #include "i2c_bus.h"
 
-typedef struct i2c_lpc_config_t {
+typedef struct {
 	const uint16_t duty_cycle_count;
 } i2c_lpc_config_t;
 
@@ -43,5 +42,3 @@ void i2c_lpc_transfer(
 	uint8_t* const data_rx,
 	const size_t count_rx);
 bool i2c_probe(i2c_bus_t* const bus, const uint_fast8_t device_address);
-
-#endif /*__I2C_LPC_H__*/

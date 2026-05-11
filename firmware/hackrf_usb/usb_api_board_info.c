@@ -20,21 +20,21 @@
  * the Free Software Foundation, Inc., 51 Franklin Street,
  * Boston, MA 02110-1301, USA.
  */
-
 #include "usb_api_board_info.h"
 
 #include <string.h>
 
 #include <libopencm3/lpc43xx/wwdt.h>
 
+#include <clock_gen.h>
 #include <firmware_info.h>
-#include <hackrf_core.h>
+#include <pins.h>
 #include <platform_detect.h>
 #include <rom_iap.h>
 #include <usb_queue.h>
 #include <usb_request.h>
 #include <usb_type.h>
-#ifdef HACKRF_ONE
+#ifdef IS_HACKRF_ONE
 	#include <gpio.h>
 	#include <platform_gpio.h>
 #endif
@@ -129,20 +129,21 @@ usb_request_status_t usb_vendor_request_reset(
 	const usb_transfer_stage_t stage)
 {
 	if (stage == USB_TRANSFER_STAGE_SETUP) {
-		pin_shutdown();
+		pins_shutdown();
 		clock_gen_shutdown();
-#ifdef HACKRF_ONE
-		/*
-		 * Set boot pins as inputs so that the bootloader reads them
-		 * correctly after the reset.
-		 */
-		if (detected_platform() == BOARD_ID_HACKRF1_R9) {
+#ifdef IS_H1_R9
+		if (IS_H1_R9) {
+			/*
+			 * Set boot pins as inputs so that the bootloader reads them
+			 * correctly after the reset.
+			 */
 			const platform_gpio_t* gpio = platform_gpio();
 			gpio_input(gpio->h1r9_mcu_clk_en);
 			gpio_input(gpio->h1r9_clkout_en);
 			gpio_input(gpio->h1r9_rx);
 		}
 #endif
+
 		wwdt_reset(100000);
 
 		usb_transfer_schedule_ack(endpoint->in);

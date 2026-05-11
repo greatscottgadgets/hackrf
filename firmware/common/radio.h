@@ -21,13 +21,13 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __RF_CONFIG_H__
-#define __RF_CONFIG_H__
+#pragma once
 
 #include <stdbool.h>
 #include <stdint.h>
 
 #include "fixed_point.h"
+#include "transceiver_mode.h"
 
 typedef enum {
 	RADIO_OK = 1,
@@ -53,22 +53,6 @@ typedef struct {
 	uint32_t div;
 	uint32_t hz;
 } radio_sample_rate_t;
-
-// legacy type, moved from hackrf_core
-typedef enum {
-	CLOCK_SOURCE_HACKRF = 0,
-	CLOCK_SOURCE_EXTERNAL = 1,
-	CLOCK_SOURCE_PORTAPACK = 2,
-} clock_source_t;
-
-typedef enum {
-	TRANSCEIVER_MODE_OFF = 0,
-	TRANSCEIVER_MODE_RX = 1,
-	TRANSCEIVER_MODE_TX = 2,
-	TRANSCEIVER_MODE_SS = 3,
-	TRANSCEIVER_MODE_CPLD_UPDATE = 4,
-	TRANSCEIVER_MODE_RX_SWEEP = 5,
-} transceiver_mode_t;
 
 /**
  * Configurable registers stored as uint64_t. Any register may be set to
@@ -100,12 +84,12 @@ typedef enum {
 	 */
 	RADIO_IMAGE_REJECT = 4,
 	/**
-	 * Digital frequency conversion of type uint8_t in tau/256 steps with
+	 * Digital frequency conversion of type uint8_t in tau/(2**32) steps with
 	 * respect to AFE clock.
 	 */
 	RADIO_ROTATION = 5,
 	/**
-	 * Sample rate (as seen by MCU/host) in 1/(2**24) Hz.
+	 * Sample rate (as seen by MCU/host) in 1/(2**36) Hz.
 	 */
 	RADIO_SAMPLE_RATE = 6,
 	/**
@@ -186,6 +170,20 @@ typedef enum {
 #define RADIO_NUM_REGS (23)
 #define RADIO_UNSET    (0xffffffffffffffff)
 
+/* register groups for bitfield convenience */
+#define RADIO_REG_GROUP_RATE \
+	((1 << RADIO_SAMPLE_RATE) | (1 << RADIO_RESAMPLE_TX) | (1 << RADIO_RESAMPLE_RX))
+#define RADIO_REG_GROUP_FREQ                                     \
+	((1 << RADIO_FREQUENCY_RF) | (1 << RADIO_FREQUENCY_IF) | \
+	 (1 << RADIO_FREQUENCY_LO) | (1 << RADIO_IMAGE_REJECT) | (1 << RADIO_ROTATION))
+#define RADIO_REG_GROUP_BW                                             \
+	((1 << RADIO_BB_BANDWIDTH_TX) | (1 << RADIO_BB_BANDWIDTH_RX) | \
+	 (1 << RADIO_XCVR_TX_LPF) | (1 << RADIO_XCVR_RX_LPF) |         \
+	 (1 << RADIO_XCVR_RX_HPF) | (1 << RADIO_RX_NARROW_LPF))
+#define RADIO_REG_GROUP_GAIN                                                           \
+	((1 << RADIO_GAIN_TX_RF) | (1 << RADIO_GAIN_TX_IF) | (1 << RADIO_GAIN_RX_RF) | \
+	 (1 << RADIO_GAIN_RX_IF) | (1 << RADIO_GAIN_RX_BB))
+
 /**
  * Register bank RADIO_BANK_ACTIVE stores the active configuration. Active
  * register settings are copied to the applied register when applied.
@@ -214,13 +212,21 @@ typedef enum {
  * execute a dry run, returning the sample rate without configuring clock
  * generation.
  */
-typedef fp_40_24_t (*sample_rate_fn)(const fp_40_24_t sample_rate, const bool program);
+typedef fp_28_36_t (*sample_rate_fn)(const fp_28_36_t sample_rate, const bool program);
 
-typedef struct radio_t {
+/**
+ * An optional callback may be provided that is called after each time the
+ * radio configuration has been updated. The single argument is a bitfield
+ * indicating registers that have been changed.
+ */
+typedef void (*update_fn)(const uint32_t changed_regs);
+
+typedef struct {
 	radio_config_mode_t config_mode;
 	uint64_t config[RADIO_NUM_BANKS][RADIO_NUM_REGS];
 	volatile uint32_t regs_dirty;
 	sample_rate_fn sample_rate_cb;
+	update_fn update_cb;
 } radio_t;
 
 void radio_init(radio_t* const radio);
@@ -255,4 +261,10 @@ bool radio_update(radio_t* const radio);
  */
 void radio_switch_opmode(radio_t* const radio, const transceiver_mode_t mode);
 
-#endif /*__RF_CONFIG_H__*/
+/**
+ * Driver instance.
+ *
+ * This needs to be configured and provided by the application
+ * binary. e.g. firmware/hackrf_usb/hackrf_usb.c
+ */
+extern radio_t radio;

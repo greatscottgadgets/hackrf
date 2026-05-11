@@ -90,9 +90,10 @@ class Top(Elaboratable):
 
         # Add control registers.
         ctrl         = spi_regs.add_register(0x01, init=0)
-        tx_intrp     = Signal(3, init=2)
+        tx_intrp     = Signal(3, init=4)
         tx_intrp_new = Signal(3)
         tx_intrp_stb = Signal()
+        tx_intrp_cic = Signal.like(tx_chain["cic_interpolator"].factor)
         spi_regs.add_sfr(0x05, read=tx_intrp, write_signal=tx_intrp_new, write_strobe=tx_intrp_stb)
 
         m.d.comb += [
@@ -100,13 +101,15 @@ class Top(Elaboratable):
             mcu_intf.trigger_en                 .eq(ctrl[7]),
         ]
         # TX interpolation rate.
-        m.submodules.rx_decim_cdc = cdc.FFSynchronizer(tx_intrp, tx_chain["cic_interpolator"].factor, o_domain=dac_clk)
+        m.submodules.rx_decim_cdc = cdc.FFSynchronizer(tx_intrp_cic, tx_chain["cic_interpolator"].factor, o_domain=dac_clk)
 
         with m.If(tx_intrp_stb):
-            with m.If(tx_intrp_new < 2):
-                m.d.sync += tx_intrp.eq(2)
+            with m.If(tx_intrp_new < 4):
+                m.d.sync += tx_intrp.eq(4)
+                m.d.sync += tx_intrp_cic.eq(2)
             with m.Else():
                 m.d.sync += tx_intrp.eq(tx_intrp_new)
+                m.d.sync += tx_intrp_cic.eq(tx_intrp_new-2)
 
         return m
 

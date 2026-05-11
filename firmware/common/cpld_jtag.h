@@ -19,27 +19,26 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __CPLD_JTAG_H__
-#define __CPLD_JTAG_H__
+#pragma once
 
 #include <stdint.h>
 
 #include "gpio.h"
 
-typedef struct jtag_gpio_t {
+typedef struct {
 	gpio_t gpio_tck;
-#ifndef PRALINE
+#ifdef IS_NOT_PRALINE
 	gpio_t gpio_tms;
 	gpio_t gpio_tdi;
 	gpio_t gpio_tdo;
 #endif
-#if (defined HACKRF_ONE || defined PRALINE)
+#ifdef IS_EXPANSION_COMPATIBLE
 	gpio_t gpio_pp_tms;
 	gpio_t gpio_pp_tdo;
 #endif
 } jtag_gpio_t;
 
-typedef struct jtag_t {
+typedef struct {
 	jtag_gpio_t* const gpio;
 } jtag_t;
 
@@ -60,4 +59,6 @@ int cpld_jtag_program(
 	refill_buffer_cb refill);
 unsigned char cpld_jtag_get_next_byte(void);
 
-#endif //__CPLD_JTAG_H__
+/* Driver instance. */
+extern jtag_gpio_t jtag_gpio_cpld;
+extern jtag_t jtag_cpld;

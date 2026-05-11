@@ -9,12 +9,18 @@ HackRF Pro
 
 HackRF Pro has two configurable SMA ports, P1 and P2. By default, P1 is configured as CLKIN and P2 as CLKOUT. The default behaviour of these signals is as described for HackRF One below.
 
+A second CLKIN signal is available on header P22 pin 2. Unlike HackRF One, HackRF Pro's P22_CLKIN is a separate signal from P1_CLKIN. To enable P22_CLKIN instead of P1_CLKIN use ``hackrf_clock -c p22``.
+
+Various internal signals can be connected to P1 or P2 instead of the default CLKIN and CLKOUT signals. Use ``hackrf_clock -1`` or ``hackrf_clock -2`` to select a different signal.
+
 HackRF One
 ~~~~~~~~~~
 
-HackRF One produces a 10 MHz clock signal on CLKOUT. The signal is a 3.3 V, 10 MHz square wave intended for a high impedance load.
+HackRF One produces a 10 MHz clock signal on the CLKOUT SMA port. The signal is a 3.3 V, 10 MHz square wave intended for a high impedance load.
 
-The CLKIN port on HackRF One is a high impedance input that expects 3.3 V square wave at 10 MHz. Do not exceed 3.3 V or drop below 0 V on this input. Do not connect a clock signal at a frequency other than 10 MHz (unless you modify the firmware to support this). You may directly connect the CLKOUT port of one HackRF One to the CLKIN port of another HackRF One.
+The CLKIN SMA port on HackRF One is a high impedance input that expects 3.3 V square wave at 10 MHz. Do not exceed 3.3 V or drop below 0 V on this input. Do not connect a clock signal at a frequency other than 10 MHz (unless you modify the firmware to support this). You may directly connect the CLKOUT port of one HackRF One to the CLKIN port of another HackRF.
+
+The CLKIN signal is also connected to header P22 pin 2. Unlike HackRF Pro, HackRF One has only one CLKIN signal shared between P22 pin 2 and the CLKIN port. Do not connect input signals to both CLKIN and P22 pin 2 simultaneously.
 
 HackRF One uses CLKIN instead of the internal crystal when a clock signal is detected on CLKIN. The switch to or from CLKIN only happens when a transmit or receive operation begins.
 

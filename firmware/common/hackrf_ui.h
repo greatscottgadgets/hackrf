@@ -21,14 +21,14 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef HACKRF_UI_H
-#define HACKRF_UI_H
+#pragma once
 
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "radio.h"
+#include "clock_gen.h"
 #include "rf_path.h"
+#include "transceiver_mode.h"
 
 typedef void (*hackrf_ui_init_fn)(void);
 typedef void (*hackrf_ui_deinit_fn)(void);
@@ -74,5 +74,3 @@ typedef struct {
  */
 const hackrf_ui_t* hackrf_ui(void);
 void hackrf_ui_set_enable(bool);
-
-#endif

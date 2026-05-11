@@ -1,5 +1,4 @@
-#ifndef __RAD1O_FONTS_H__
-#define __RAD1O_FONTS_H__
+#pragma once
 
 #include <stdint.h>
 
@@ -31,5 +30,3 @@ typedef const struct FONT_DEF* FONT;
 #define FONT_DEFAULT  0
 #define FONT_INTERNAL 1
 #define FONT_EXTERNAL 2
-
-#endif

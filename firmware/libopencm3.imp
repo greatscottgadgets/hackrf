@@ -1,0 +1,11 @@
+# include-what-you-use mapping file for libopencm3/
+#
+# Usage: include-what-you-use -Xiwyu;--mapping_file=libopencm3.imp
+
+[
+    #  allow libopencm3 to take responsibility for architecture-specific dispatch of nvic.h includes
+    { "include": ["<libopencm3/lpc43xx/m0/nvic.h>",   "private", "<libopencm3/cm3/nvic.h>", "public"] },
+    { "include": ["\"libopencm3/lpc43xx/m0/nvic.h\"", "private", "<libopencm3/cm3/nvic.h>", "public"] },
+    { "include": ["<libopencm3/lpc43xx/m4/nvic.h>",   "private", "<libopencm3/cm3/nvic.h>", "public"] },
+    { "include": ["\"libopencm3/lpc43xx/m4/nvic.h\"", "private", "<libopencm3/cm3/nvic.h>", "public"] },
+]

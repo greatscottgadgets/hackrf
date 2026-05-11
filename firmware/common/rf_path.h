@@ -21,12 +21,11 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __RFPATH_H__
-#define __RFPATH_H__
+#pragma once
 
 #include <stdint.h>
 
-#if defined(HACKRF_ONE) || defined(RAD1O) || defined(PRALINE)
+#ifdef IS_NOT_JAWBREAKER
 	#include "gpio.h"
 #endif
 
@@ -34,7 +33,7 @@ typedef enum {
 	RF_PATH_DIRECTION_OFF,
 	RF_PATH_DIRECTION_RX,
 	RF_PATH_DIRECTION_TX,
-#ifdef PRALINE
+#ifdef IS_PRALINE
 	RF_PATH_DIRECTION_TX_CALIBRATION,
 	RF_PATH_DIRECTION_RX_CALIBRATION,
 #endif
@@ -46,47 +45,53 @@ typedef enum {
 	RF_PATH_FILTER_HIGH_PASS = 2,
 } rf_path_filter_t;
 
-typedef struct rf_path_t {
+typedef struct {
 	uint8_t switchctrl;
-#ifdef HACKRF_ONE
-	gpio_t gpio_hp;
-	gpio_t gpio_lp;
-	gpio_t gpio_tx_mix_bp;
-	gpio_t gpio_no_mix_bypass;
-	gpio_t gpio_rx_mix_bp;
-	gpio_t gpio_tx_amp;
-	gpio_t gpio_tx;
-	gpio_t gpio_mix_bypass;
-	gpio_t gpio_rx;
-	gpio_t gpio_no_tx_amp_pwr;
-	gpio_t gpio_amp_bypass;
-	gpio_t gpio_rx_amp;
-	gpio_t gpio_no_rx_amp_pwr;
-	// In HackRF One r9 this control signal has been moved to the microcontroller.
-	gpio_t gpio_h1r9_no_ant_pwr;
+
+	struct {
+#ifdef IS_HACKRF_ONE
+		gpio_t gpio_hp;
+		gpio_t gpio_lp;
+		gpio_t gpio_tx_mix_bp;
+		gpio_t gpio_no_mix_bypass;
+		gpio_t gpio_rx_mix_bp;
+		gpio_t gpio_tx_amp;
+		gpio_t gpio_tx;
+		gpio_t gpio_mix_bypass;
+		gpio_t gpio_rx;
+		gpio_t gpio_no_tx_amp_pwr;
+		gpio_t gpio_amp_bypass;
+		gpio_t gpio_rx_amp;
+		gpio_t gpio_no_rx_amp_pwr;
+		// In HackRF One r9 this control signal has been moved to the microcontroller.
+		gpio_t gpio_h1r9_no_ant_pwr;
 #endif
-#ifdef RAD1O
-	gpio_t gpio_tx_rx_n;
-	gpio_t gpio_tx_rx;
-	gpio_t gpio_by_mix;
-	gpio_t gpio_by_mix_n;
-	gpio_t gpio_by_amp;
-	gpio_t gpio_by_amp_n;
-	gpio_t gpio_mixer_en;
-	gpio_t gpio_low_high_filt;
-	gpio_t gpio_low_high_filt_n;
-	gpio_t gpio_tx_amp;
-	gpio_t gpio_rx_lna;
+
+#ifdef IS_RAD1O
+		gpio_t gpio_tx_rx_n;
+		gpio_t gpio_tx_rx;
+		gpio_t gpio_by_mix;
+		gpio_t gpio_by_mix_n;
+		gpio_t gpio_by_amp;
+		gpio_t gpio_by_amp_n;
+		gpio_t gpio_mixer_en;
+		gpio_t gpio_low_high_filt;
+		gpio_t gpio_low_high_filt_n;
+		gpio_t gpio_tx_amp;
+		gpio_t gpio_rx_lna;
 #endif
-#ifdef PRALINE
-	gpio_t gpio_tx_en;
-	gpio_t gpio_mix_en_n;
-	gpio_t gpio_lpf_en;
-	gpio_t gpio_rf_amp_en;
-	gpio_t gpio_ant_bias_en_n;
+
+#ifdef IS_PRALINE
+		gpio_t gpio_tx_en;
+		gpio_t gpio_mix_en_n;
+		gpio_t gpio_lpf_en;
+		gpio_t gpio_rf_amp_en;
+		gpio_t gpio_ant_bias_en_n;
 #endif
+	};
 } rf_path_t;
 
+void rf_path_pin_shutdown(void);
 void rf_path_pin_setup(rf_path_t* const rf_path);
 void rf_path_init(rf_path_t* const rf_path);
 
@@ -97,4 +102,9 @@ void rf_path_set_filter(rf_path_t* const rf_path, const rf_path_filter_t filter)
 void rf_path_set_lna(rf_path_t* const rf_path, const uint_fast8_t enable);
 void rf_path_set_antenna(rf_path_t* const rf_path, const uint_fast8_t enable);
 
-#endif /*__RFPATH_H__*/
+#ifdef IS_PRALINE
+void narrowband_filter_set(const uint8_t value);
+#endif
+
+/* RF Path instance. */
+extern rf_path_t rf_path;

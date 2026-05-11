@@ -21,11 +21,21 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __USB_DEVICE_H__
-#define __USB_DEVICE_H__
+#pragma once
 
 #include <usb_type.h>
 
 extern usb_device_t usb_device;
 
-#endif /* end of include guard: __USB_DEVICE_H__ */
+#ifdef IS_HACKRF_ONE
+extern const usb_device_t usb_device_hackrf_one;
+#endif
+#ifdef IS_PRALINE
+extern const usb_device_t usb_device_praline;
+#endif
+#ifdef IS_JAWBREAKER
+extern const usb_device_t usb_device_jawbreaker;
+#endif
+#ifdef IS_RAD1O
+extern const usb_device_t usb_device_rad1o;
+#endif

@@ -22,7 +22,6 @@
 
 #include <stdint.h>
 
-#include "hackrf_core.h"
 #include "rom_iap.h"
 #include "spi_bus.h"
 #include "w25q80bv.h"

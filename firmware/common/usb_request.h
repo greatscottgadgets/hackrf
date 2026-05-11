@@ -20,8 +20,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __USB_REQUEST_H__
-#define __USB_REQUEST_H__
+#pragma once
 
 #include "usb_type.h"
 
@@ -61,5 +60,3 @@ void usb_setup_complete(usb_endpoint_t* const endpoint);
 void usb_control_in_complete(usb_endpoint_t* const endpoint);
 
 void usb_control_out_complete(usb_endpoint_t* const endpoint);
-
-#endif //__USB_REQUEST_H__

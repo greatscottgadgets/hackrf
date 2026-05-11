@@ -26,7 +26,8 @@ MEMORY
 {
 	/* rom is really the shadow region that points to SPI flash or elsewhere */
 	rom (rx)  : ORIGIN = 0x00000000, LENGTH =  1M
-	ram_local1 (rwx) : ORIGIN = 0x10000000, LENGTH =  96K
+	ram_local1 (rwx) : ORIGIN = 0x10000000, LENGTH =  64K
+	ram_usb (rw) : ORIGIN = 0x10010000, LENGTH = 32K
 	ram_local2 (rwx) : ORIGIN = 0x10080000, LENGTH =  32K
 	ram_sleep (rwx) : ORIGIN = 0x10088000, LENGTH = 8K
 }

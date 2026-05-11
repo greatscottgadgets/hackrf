@@ -20,11 +20,8 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __MAX5864_TARGET_H__
-#define __MAX5864_TARGET_H__
+#pragma once
 
 #include "max5864.h"
 
 void max5864_target_init(max5864_driver_t* const drv);
-
-#endif /*__MAX5864_TARGET_H__*/

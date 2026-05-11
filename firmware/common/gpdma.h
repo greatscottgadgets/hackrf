@@ -20,8 +20,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __GPDMA_H__
-#define __GPDMA_H__
+#pragma once
 
 #include <stddef.h>
 #include <stdint.h>
@@ -40,5 +39,3 @@ void gpdma_lli_enable_interrupt(gpdma_lli_t* const lli);
 
 void gpdma_lli_create_loop(gpdma_lli_t* const lli, const size_t lli_count);
 void gpdma_lli_create_oneshot(gpdma_lli_t* const lli, const size_t lli_count);
-
-#endif /*__GPDMA_H__*/
