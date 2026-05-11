@@ -29,6 +29,7 @@
 #include "max283x.h"
 #include "selftest.h"
 #include "delay.h"
+#include "w25q80bv.h"
 
 struct fpga_image_read_ctx {
 	struct fpga_loader_t* loader;
