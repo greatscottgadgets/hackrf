@@ -24,11 +24,8 @@ MEMORY
 {
 	/* Physical address in Flash used to copy Code from Flash to RAM */
 	rom_flash (rx)    : ORIGIN = 0x80000000, LENGTH = 1M
-	/* Buffers for LZ4 decompression */
-	ram_lz4_in (rwx)  : ORIGIN = 0x20000000, LENGTH = 4K
-	ram_lz4_out (rwx) : ORIGIN = 0x20001000, LENGTH = 4K
 	/* RAM for M0 code */
-	ram_m0 (rwx)      : ORIGIN = 0x20002000, LENGTH = 20K
+	ram_m0 (rwx)      : ORIGIN = 0x20000000, LENGTH = 28K
 	/* RAM shared between M0 and M4 */
 	ram_shared (rwx)  : ORIGIN = 0x20007000, LENGTH = 4K
 	/* USB buffer. Straddles two blocks of RAM
@@ -38,8 +35,6 @@ MEMORY
 	ram_samp (rwx)     : ORIGIN = 0x20008000, LENGTH = 32K
 }
 
-lz4_in_buf = ORIGIN(ram_lz4_in);
-lz4_out_buf = ORIGIN(ram_lz4_out);
 usb_samp_buffer = ORIGIN(ram_samp);
 usb_bulk_buffer = ORIGIN(ram_usb);
 m0_state = ORIGIN(ram_shared);
