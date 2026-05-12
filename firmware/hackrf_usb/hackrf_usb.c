@@ -64,7 +64,6 @@
 #ifdef IS_PRALINE
 	#include <fpga.h>
 	#if !(defined(DFU_MODE) || defined(RAM_MODE))
-		#include <lz4_buf.h>
 		#include <spi_bus.h>
 		#include <w25q80bv.h>
 	#endif
@@ -294,6 +293,9 @@ static void m0_rom_to_ram(void)
 #if defined(IS_PRALINE) && !(defined(DFU_MODE) || defined(RAM_MODE))
 extern uint32_t _binary_fpga_bin_start;
 
+static uint8_t fpga_lz4_in_buf[4096];
+static uint8_t fpga_lz4_out_buf[4096];
+
 void fpga_loader_setup(void)
 {
 	spi_bus_start(spi_flash.bus, &ssp_config_w25q80bv);
@@ -309,8 +311,8 @@ struct fpga_loader_t fpga_loader = {
 	.start_addr = (uint32_t) &_binary_fpga_bin_start,
 	.setup = fpga_loader_setup,
 	.read = fpga_loader_read,
-	.in_buffer = lz4_in_buf,
-	.out_buffer = lz4_out_buf,
+	.in_buffer = fpga_lz4_in_buf,
+	.out_buffer = fpga_lz4_out_buf,
 };
 #endif
 
