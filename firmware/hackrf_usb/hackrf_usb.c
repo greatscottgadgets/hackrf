@@ -434,12 +434,14 @@ int main(void)
 
 	pins_shutdown();
 	sgpio_pin_shutdown(&sgpio_config);
+	rf_path_pin_shutdown();
 	if (board_id != BOARD_ID_RAD1O) {
 		clock_gen_shutdown();
 	}
 	delay_us_at_mhz(10000, 96);
 	pins_setup();
 	sgpio_configure_pin_functions(&sgpio_config);
+	rf_path_pin_setup(&rf_path);
 #ifdef IS_PRALINE
 	if (IS_PRALINE) {
 		enable_3v3aux_power();
