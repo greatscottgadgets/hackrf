@@ -58,6 +58,7 @@ int cpld_jtag_program(
 	unsigned char* const buffer,
 	refill_buffer_cb refill);
 unsigned char cpld_jtag_get_next_byte(void);
+bool cpld_jtag_sram_load(jtag_t* const jtag);
 
 /* Driver instance. */
 extern jtag_gpio_t jtag_gpio_cpld;
