@@ -28,7 +28,6 @@
 #include "cpld_jtag.h"
 #include "gpio.h"
 #include "leds.h"
-#include "max5864.h"
 #include "mixer.h"
 #include "platform_detect.h"
 #include "platform_gpio.h"
@@ -264,8 +263,6 @@ void pins_setup(void)
 #endif
 
 	/* Configure drivers and driver pins */
-	ssp_config_max5864.gpio_select = gpio->max5864_select;
-
 	ssp_config_w25q80bv.gpio_select = gpio->w25q80bv_select;
 	spi_flash.gpio_hold = gpio->w25q80bv_hold;
 	spi_flash.gpio_wp = gpio->w25q80bv_wp;
