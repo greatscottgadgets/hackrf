@@ -34,7 +34,6 @@
 #include "platform_scu.h"
 #include "power.h"
 #include "rf_path.h"
-#include "sgpio.h"
 #ifdef IS_PRALINE
 	#include "clock_io.h"
 	#include "ice40_spi.h"
@@ -228,7 +227,6 @@ void pins_shutdown(void)
 		rf_path_pin_shutdown();
 	}
 #endif
-	sgpio_pin_shutdown(&sgpio_config);
 
 	/* enable input on SCL and SDA pins */
 	SCU_SFSI2C0 = SCU_I2C0_NOMINAL;
@@ -262,14 +260,6 @@ void pins_setup(void)
 #endif
 
 	/* Configure drivers and driver pins */
-	sgpio_config.gpio_q_invert = gpio->q_invert;
-
-#ifdef IS_NOT_PRALINE
-	if (IS_NOT_PRALINE) {
-		sgpio_config.gpio_trigger_enable = gpio->trigger_enable;
-	}
-#endif
-
 #ifdef IS_PRALINE
 	if (IS_PRALINE) {
 		ssp_config_ice40_fpga.gpio_select = gpio->fpga_cfg_spi_cs;
@@ -297,12 +287,6 @@ void pins_setup(void)
 #endif
 
 	mixer_bus_setup(&mixer);
-
-#ifdef IS_H1_R9
-	if (IS_H1_R9) {
-		sgpio_config.gpio_trigger_enable = gpio->h1r9_trigger_enable;
-	}
-#endif
 
 	// initialize rf_path struct and assign gpio's
 #ifdef IS_HACKRF_ONE
@@ -375,6 +359,4 @@ void pins_setup(void)
 
 	/* Configure external clock in */
 	scu_pinmux(scu->PINMUX_GP_CLKIN, SCU_CLK_IN | SCU_CONF_FUNCTION1);
-
-	sgpio_configure_pin_functions(&sgpio_config);
 }
