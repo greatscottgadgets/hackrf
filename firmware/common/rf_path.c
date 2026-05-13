@@ -494,7 +494,6 @@ void rf_path_pin_setup(rf_path_t* const rf_path)
 
 void rf_path_init(rf_path_t* const rf_path)
 {
-	ssp1_set_mode_max5864();
 	max5864_setup(&max5864);
 	max5864_shutdown(&max5864);
 
