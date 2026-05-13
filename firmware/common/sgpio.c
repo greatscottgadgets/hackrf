@@ -29,6 +29,7 @@
 #include <libopencm3/lpc43xx/sgpio.h>
 
 #include "platform_detect.h"
+#include "platform_gpio.h"
 #include "platform_scu.h"
 #include "sgpio.h"
 #ifdef IS_NOT_PRALINE
@@ -91,7 +92,22 @@ void sgpio_pin_shutdown(sgpio_config_t* const config)
 
 void sgpio_configure_pin_functions(sgpio_config_t* const config)
 {
+	const platform_gpio_t* gpio = platform_gpio();
 	const platform_scu_t* scu = platform_scu();
+
+	config->gpio_q_invert = gpio->q_invert;
+
+#ifdef IS_NOT_PRALINE
+	if (IS_NOT_PRALINE) {
+		config->gpio_trigger_enable = gpio->trigger_enable;
+	}
+#endif
+
+#ifdef IS_H1_R9
+	if (IS_H1_R9) {
+		config->gpio_trigger_enable = gpio->h1r9_trigger_enable;
+	}
+#endif
 
 	scu_pinmux(scu->PINMUX_SGPIO0, scu->PINMUX_SGPIO0_PINCFG);
 	scu_pinmux(scu->PINMUX_SGPIO1, scu->PINMUX_SGPIO1_PINCFG);

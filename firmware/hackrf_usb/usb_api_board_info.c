@@ -31,6 +31,7 @@
 #include <pins.h>
 #include <platform_detect.h>
 #include <rom_iap.h>
+#include <sgpio.h>
 #include <usb_queue.h>
 #include <usb_request.h>
 #include <usb_type.h>
@@ -130,6 +131,7 @@ usb_request_status_t usb_vendor_request_reset(
 {
 	if (stage == USB_TRANSFER_STAGE_SETUP) {
 		pins_shutdown();
+		sgpio_pin_shutdown(&sgpio_config);
 		clock_gen_shutdown();
 #ifdef IS_H1_R9
 		if (IS_H1_R9) {
