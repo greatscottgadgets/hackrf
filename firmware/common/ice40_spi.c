@@ -26,6 +26,7 @@
 #include <libopencm3/lpc43xx/ssp.h>
 
 #include "delay.h"
+#include "platform_gpio.h"
 #include "platform_scu.h"
 
 /* Driver instance. */
@@ -47,7 +48,14 @@ void ssp1_set_mode_ice40(void)
 
 void ice40_spi_target_init(ice40_spi_driver_t* const drv)
 {
+	const platform_gpio_t* gpio = platform_gpio();
 	const platform_scu_t* scu = platform_scu();
+
+	/* Configure drivers and driver pins */
+	ssp_config_ice40_fpga.gpio_select = gpio->fpga_cfg_spi_cs;
+	ice40.gpio_select = gpio->fpga_cfg_spi_cs;
+	ice40.gpio_creset = gpio->fpga_cfg_creset;
+	ice40.gpio_cdone = gpio->fpga_cfg_cdone;
 
 	/* Configure SSP1 Peripheral and relevant FPGA pins. */
 	scu_pinmux(scu->SSP1_CIPO, (SCU_SSP_IO | SCU_CONF_FUNCTION5));

@@ -33,7 +33,6 @@
 #include "power.h"
 #ifdef IS_PRALINE
 	#include "clock_io.h"
-	#include "ice40_spi.h"
 #endif
 
 void pins_shutdown(void)
@@ -249,16 +248,6 @@ void pins_setup(void)
 #ifdef IS_FOUR_LEDS
 	if (IS_FOUR_LEDS) {
 		gpio_output(gpio->led[3]);
-	}
-#endif
-
-	/* Configure drivers and driver pins */
-#ifdef IS_PRALINE
-	if (IS_PRALINE) {
-		ssp_config_ice40_fpga.gpio_select = gpio->fpga_cfg_spi_cs;
-		ice40.gpio_select = gpio->fpga_cfg_spi_cs;
-		ice40.gpio_creset = gpio->fpga_cfg_creset;
-		ice40.gpio_cdone = gpio->fpga_cfg_cdone;
 	}
 #endif
 
