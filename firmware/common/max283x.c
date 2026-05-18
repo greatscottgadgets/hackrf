@@ -90,6 +90,8 @@ void max283x_setup(max283x_driver_t* const drv)
 {
 	const platform_gpio_t* gpio = platform_gpio();
 
+	ssp1_set_mode_max283x();
+
 	/* MAX283x GPIO PinMux */
 #ifdef IS_PRALINE
 	if (IS_PRALINE) {

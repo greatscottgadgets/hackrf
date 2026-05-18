@@ -498,7 +498,6 @@ void rf_path_init(rf_path_t* const rf_path)
 	max5864_setup(&max5864);
 	max5864_shutdown(&max5864);
 
-	ssp1_set_mode_max283x();
 	max283x_setup(&max283x);
 	max283x_start(&max283x);
 
