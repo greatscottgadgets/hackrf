@@ -75,6 +75,8 @@ void w25q80bv_setup(w25q80bv_driver_t* const drv)
 {
 	uint8_t device_id;
 
+	spi_bus_start(spi_flash.bus, &ssp_config_w25q80bv);
+
 	drv->page_len = 256U;
 	if (detected_platform() == BOARD_ID_PRALINE) {
 		drv->num_pages = 16384U;

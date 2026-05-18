@@ -279,7 +279,6 @@ extern uint32_t _binary_fpga_bin_start;
 
 void fpga_loader_setup(void)
 {
-	spi_bus_start(spi_flash.bus, &ssp_config_w25q80bv);
 	w25q80bv_setup(&spi_flash);
 }
 
