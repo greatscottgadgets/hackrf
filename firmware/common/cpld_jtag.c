@@ -21,11 +21,12 @@
 
 #include "cpld_jtag.h"
 
-#include "cpld_xc2c.h"
 #include "platform_detect.h"
 #ifdef IS_NOT_PRALINE
+	#include <stdbool.h>
 	#include <stdint.h>
 	#include "xapp058/micro.h"
+	#include "cpld_xc2c.h"
 #endif
 
 #ifdef IS_NOT_PRALINE
