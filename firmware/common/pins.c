@@ -24,12 +24,10 @@
 #include "pins.h"
 
 #include <libopencm3/lpc43xx/scu.h>
-#include <libopencm3/lpc43xx/ssp.h>
 
 #include "cpld_jtag.h"
 #include "gpio.h"
 #include "leds.h"
-#include "max283x.h"
 #include "max5864.h"
 #include "mixer.h"
 #include "platform_detect.h"
@@ -266,18 +264,6 @@ void pins_setup(void)
 #endif
 
 	/* Configure drivers and driver pins */
-	ssp_config_max283x.gpio_select = gpio->max283x_select;
-#ifdef IS_NOT_PRALINE
-	if (IS_NOT_PRALINE) {
-		ssp_config_max283x.data_bits = SSP_DATA_16BITS;
-	}
-#endif
-#ifdef IS_PRALINE
-	if (IS_PRALINE) {
-		ssp_config_max283x.data_bits = SSP_DATA_9BITS; // send 2 words
-	}
-#endif
-
 	ssp_config_max5864.gpio_select = gpio->max5864_select;
 
 	ssp_config_w25q80bv.gpio_select = gpio->w25q80bv_select;
