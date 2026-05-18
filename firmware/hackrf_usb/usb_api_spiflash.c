@@ -26,7 +26,6 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include <spi_bus.h>
 #include <usb_queue.h>
 #include <usb_request.h>
 #include <usb_type.h>
@@ -40,7 +39,6 @@ usb_request_status_t usb_vendor_request_erase_spiflash(
 	const usb_transfer_stage_t stage)
 {
 	if (stage == USB_TRANSFER_STAGE_SETUP) {
-		spi_bus_start(spi_flash.bus, &ssp_config_w25q80bv);
 		w25q80bv_setup(&spi_flash);
 		/* only chip erase is implemented */
 		w25q80bv_chip_erase(&spi_flash);
@@ -69,7 +67,6 @@ usb_request_status_t usb_vendor_request_write_spiflash(
 				len,
 				NULL,
 				NULL);
-			spi_bus_start(spi_flash.bus, &ssp_config_w25q80bv);
 			w25q80bv_setup(&spi_flash);
 			return USB_REQUEST_STATUS_OK;
 		}
