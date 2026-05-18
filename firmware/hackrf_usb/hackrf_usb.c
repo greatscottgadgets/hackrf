@@ -30,6 +30,7 @@
 
 #include <clock_gen.h>
 #include <clock_io.h>
+#include <cpld_jtag.h>
 #include <cpu_clock.h>
 #include <da7219.h>
 #include <delay.h>
@@ -66,9 +67,6 @@
 		#include <spi_bus.h>
 		#include <w25q80bv.h>
 	#endif
-#endif
-#ifdef IS_NOT_PRALINE
-	#include <cpld_jtag.h>
 #endif
 
 #include "usb_api_adc.h"
@@ -440,6 +438,7 @@ int main(void)
 	}
 	delay_us_at_mhz(10000, 96);
 	pins_setup();
+	cpld_jtag_pin_setup();
 	mixer_bus_setup(&mixer);
 	sgpio_configure_pin_functions(&sgpio_config);
 	rf_path_pin_setup(&rf_path);
