@@ -35,7 +35,6 @@
 #include "power.h"
 #include "rf_path.h"
 #include "sgpio.h"
-#include "w25q80bv.h"
 #ifdef IS_PRALINE
 	#include "clock_io.h"
 	#include "ice40_spi.h"
@@ -263,10 +262,6 @@ void pins_setup(void)
 #endif
 
 	/* Configure drivers and driver pins */
-	ssp_config_w25q80bv.gpio_select = gpio->w25q80bv_select;
-	spi_flash.gpio_hold = gpio->w25q80bv_hold;
-	spi_flash.gpio_wp = gpio->w25q80bv_wp;
-
 	sgpio_config.gpio_q_invert = gpio->q_invert;
 
 #ifdef IS_NOT_PRALINE
