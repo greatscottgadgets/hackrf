@@ -37,6 +37,7 @@
 #include <hackrf_ui.h>
 #include <leds.h>
 #include <operacake.h>
+#include <mixer.h>
 #include <pins.h>
 #include <platform_detect.h>
 #include <power.h>
@@ -56,7 +57,6 @@
 	#include <portapack.h>
 #endif
 #ifdef IS_NOT_RAD1O
-	#include <mixer.h>
 	#include <rffc5071.h>
 #endif
 #ifdef IS_PRALINE
@@ -440,6 +440,7 @@ int main(void)
 	}
 	delay_us_at_mhz(10000, 96);
 	pins_setup();
+	mixer_bus_setup(&mixer);
 	sgpio_configure_pin_functions(&sgpio_config);
 	rf_path_pin_setup(&rf_path);
 #ifdef IS_PRALINE
