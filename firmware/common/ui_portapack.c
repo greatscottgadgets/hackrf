@@ -531,9 +531,11 @@ static void portapack_ui_set_frequency(uint64_t frequency)
 
 	ui_point_t point = {240 - 20, 16};
 
-	uint64_t value = frequency;
-	char s[10];
-	for (int i = 0; i < 10; i++) {
+	uint64_t value = (frequency + 500) / 1000;
+	// We use these character codes for 'k', 'H' and 'z'
+	// which are the only letters defined in the font.
+	char s[10] = {0x3C, 0x3B, 0x3A};
+	for (int i = 3; i < 10; i++) {
 		const char c = '0' + value % 10;
 		s[i] = ((i >= 7) && (value == 0)) ? ' ' : c;
 		value /= 10;
