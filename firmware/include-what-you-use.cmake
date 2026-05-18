@@ -46,7 +46,7 @@ endif()
 #
 list(APPEND IWYU_COMMAND
 			-Xiwyu --no_fwd_decls
-			-Xiwyu --keep ${CMAKE_SOURCE_DIR}/common/platform_detect.h
+			-Xiwyu --keep=${CMAKE_SOURCE_DIR}/common/platform_detect.h
 			-Xiwyu --mapping_file=${CMAKE_SOURCE_DIR}/libopencm3.imp
 			-w)
 
