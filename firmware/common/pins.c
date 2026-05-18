@@ -28,7 +28,6 @@
 #include "cpld_jtag.h"
 #include "gpio.h"
 #include "leds.h"
-#include "mixer.h"
 #include "platform_detect.h"
 #include "platform_gpio.h"
 #include "platform_scu.h"
@@ -280,8 +279,6 @@ void pins_setup(void)
 		jtag_gpio_cpld.gpio_pp_tdo = gpio->cpld_pp_tdo;
 	}
 #endif
-
-	mixer_bus_setup(&mixer);
 
 	/* Configure external clock in */
 	scu_pinmux(scu->PINMUX_GP_CLKIN, SCU_CLK_IN | SCU_CONF_FUNCTION1);
