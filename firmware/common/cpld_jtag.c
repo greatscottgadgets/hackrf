@@ -22,6 +22,7 @@
 #include "cpld_jtag.h"
 
 #include "platform_detect.h"
+#include "platform_gpio.h"
 #ifdef IS_NOT_PRALINE
 	#include <stdbool.h>
 	#include <stdint.h>
@@ -41,6 +42,28 @@ jtag_gpio_t jtag_gpio_cpld = {};
 jtag_t jtag_cpld = {
 	.gpio = &jtag_gpio_cpld,
 };
+
+void cpld_jtag_pin_setup(void)
+{
+	const platform_gpio_t* gpio = platform_gpio();
+
+	jtag_gpio_cpld.gpio_tck = gpio->cpld_tck;
+
+#ifdef IS_NOT_PRALINE
+	if (IS_NOT_PRALINE) {
+		jtag_gpio_cpld.gpio_tms = gpio->cpld_tms;
+		jtag_gpio_cpld.gpio_tdi = gpio->cpld_tdi;
+		jtag_gpio_cpld.gpio_tdo = gpio->cpld_tdo;
+	}
+#endif
+
+#ifdef IS_EXPANSION_COMPATIBLE
+	if (IS_EXPANSION_COMPATIBLE) {
+		jtag_gpio_cpld.gpio_pp_tms = gpio->cpld_pp_tms;
+		jtag_gpio_cpld.gpio_pp_tdo = gpio->cpld_pp_tdo;
+	}
+#endif
+}
 
 void cpld_jtag_take(jtag_t* const jtag)
 {

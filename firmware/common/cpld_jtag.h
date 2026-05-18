@@ -45,6 +45,7 @@ typedef struct {
 
 typedef void (*refill_buffer_cb)(void);
 
+void cpld_jtag_pin_setup(void);
 void cpld_jtag_take(jtag_t* const jtag);
 void cpld_jtag_release(jtag_t* const jtag);
 

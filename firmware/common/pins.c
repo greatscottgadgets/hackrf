@@ -25,7 +25,6 @@
 
 #include <libopencm3/lpc43xx/scu.h>
 
-#include "cpld_jtag.h"
 #include "gpio.h"
 #include "leds.h"
 #include "platform_detect.h"
@@ -260,23 +259,6 @@ void pins_setup(void)
 		ice40.gpio_select = gpio->fpga_cfg_spi_cs;
 		ice40.gpio_creset = gpio->fpga_cfg_creset;
 		ice40.gpio_cdone = gpio->fpga_cfg_cdone;
-	}
-#endif
-
-	jtag_gpio_cpld.gpio_tck = gpio->cpld_tck;
-
-#ifdef IS_NOT_PRALINE
-	if (IS_NOT_PRALINE) {
-		jtag_gpio_cpld.gpio_tms = gpio->cpld_tms;
-		jtag_gpio_cpld.gpio_tdi = gpio->cpld_tdi;
-		jtag_gpio_cpld.gpio_tdo = gpio->cpld_tdo;
-	}
-#endif
-
-#ifdef IS_EXPANSION_COMPATIBLE
-	if (IS_EXPANSION_COMPATIBLE) {
-		jtag_gpio_cpld.gpio_pp_tms = gpio->cpld_pp_tms;
-		jtag_gpio_cpld.gpio_pp_tdo = gpio->cpld_pp_tdo;
 	}
 #endif
 
