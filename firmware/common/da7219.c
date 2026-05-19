@@ -23,6 +23,7 @@
 
 #include "da7219.h"
 #include "i2c_bus.h"
+#include "i2c_lpc.h"
 
 #define DA7219_REG_CHIP_ID1 0x81
 #define DA7219_REG_CHIP_ID2 0x82
