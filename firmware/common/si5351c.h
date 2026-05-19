@@ -135,6 +135,7 @@ bool si5351c_clkin_signal_valid(si5351c_driver_t* const drv);
 void si5351c_write_single(si5351c_driver_t* const drv, uint8_t reg, uint8_t val);
 uint8_t si5351c_read_single(si5351c_driver_t* const drv, uint8_t reg);
 void si5351c_clkout_enable(si5351c_driver_t* const drv, bool enable);
+void si5351c_mcu_clkin_enable(si5351c_driver_t* const drv, bool enable);
 void si5351c_init(si5351c_driver_t* const drv);
 void si5351c_set_phase(
 	si5351c_driver_t* const drv,

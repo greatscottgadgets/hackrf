@@ -54,6 +54,7 @@ si5351c_driver_t si5351c = {
 si5351c_clk_t clk[8];
 
 uint8_t clkout_id;
+uint8_t mcu_clkin_id;
 
 static bool input_initialized = false;
 static si5351c_input_t active_input;
@@ -364,6 +365,40 @@ void si5351c_clkout_enable(si5351c_driver_t* const drv, bool enable)
 	si5351c_enable_clock_outputs(drv);
 }
 
+void si5351c_mcu_clkin_enable(si5351c_driver_t* const drv, bool enable)
+{
+#ifdef IS_H1_R9
+	if (IS_H1_R9) {
+		/* MCU clock is shared with CLKOUT. */
+		si5351c_clkout_enable(drv, enable);
+	}
+#endif
+#ifdef IS_NOT_H1_R9
+	if (IS_NOT_H1_R9) {
+		clk[mcu_clkin_id].output_enable = enable;
+		clk[mcu_clkin_id].power_down = !enable;
+
+		/* Configure clock to 40MHz */
+		if (mcu_clkin_id >= 6) {
+			// MCU_CLKIN on CLK6 or CLK7, integer only MS.
+			si5351c_configure_multisynth(drv, mcu_clkin_id, 20, 0, 0, 0);
+		} else {
+			// MCU_CLKIN on CLK0 to CLK5, fractional-capable MS.
+			si5351c_configure_multisynth(
+				drv,
+				mcu_clkin_id,
+				20 * 128 - 512,
+				0,
+				1,
+				0);
+		}
+
+		si5351c_configure_clock_control(drv);
+		si5351c_enable_clock_outputs(drv);
+	}
+#endif
+}
+
 void si5351c_init(si5351c_driver_t* const drv)
 {
 	/* Read revision ID */
@@ -434,6 +469,15 @@ void si5351c_init(si5351c_driver_t* const drv)
 		.drive = SI5351C_DRIVE_8MA,
 	};
 
+	si5351c_clk_t mcu_clkin = {
+		.output_enable = false,
+		.power_down = true,
+		.mode = SI5351C_MODE_INT,
+		.pll = SI5351C_PLL_A,
+		.source = SI5351C_SRC_MULTISYNTH_SELF,
+		.drive = SI5351C_DRIVE_2MA,
+	};
+
 	si5351c_clk_t powered_down = {
 		.output_enable = false,
 		.power_down = true,
@@ -488,7 +532,8 @@ void si5351c_init(si5351c_driver_t* const drv)
 	/* CLK6: none */
 	clk[6] = powered_down;
 	/* CLK7: LPC43xx */
-	clk[7] = powered_down;
+	clk[7] = mcu_clkin;
+	mcu_clkin_id = 7;
 
 #ifdef IS_H1_R9
 	if (IS_H1_R9) {
@@ -511,6 +556,7 @@ void si5351c_init(si5351c_driver_t* const drv)
 		/* CLK2: CLKOUT/LPC4320 */
 		clk[2] = clkout;
 		clkout_id = 2;
+		mcu_clkin_id = 2;
 		/* Other outputs not present on Si5351A */
 		clk[3] = powered_down;
 		clk[4] = powered_down;
@@ -569,7 +615,8 @@ void si5351c_init(si5351c_driver_t* const drv)
 			};
 		} else {
 			/* CLK2: MCU_CLK */
-			clk[2] = powered_down;
+			clk[2] = mcu_clkin;
+			mcu_clkin_id = 2;
 		}
 	}
 #endif
