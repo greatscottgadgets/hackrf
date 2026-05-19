@@ -35,6 +35,7 @@
 #include <libopencm3/lpc43xx/ssp.h>
 
 #include "platform_detect.h"
+#include "platform_gpio.h"
 #include "w25q80bv_target.h"
 
 #define ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]))
@@ -74,6 +75,13 @@ w25q80bv_driver_t spi_flash = {
 void w25q80bv_setup(w25q80bv_driver_t* const drv)
 {
 	uint8_t device_id;
+	const platform_gpio_t* gpio = platform_gpio();
+
+	ssp_config_w25q80bv.gpio_select = gpio->w25q80bv_select;
+	spi_flash.gpio_hold = gpio->w25q80bv_hold;
+	spi_flash.gpio_wp = gpio->w25q80bv_wp;
+
+	spi_bus_start(spi_flash.bus, &ssp_config_w25q80bv);
 
 	drv->page_len = 256U;
 	if (detected_platform() == BOARD_ID_PRALINE) {

@@ -26,6 +26,8 @@
 #include <stdbool.h>
 #include <string.h>
 
+#include <libopencm3/lpc43xx/ssp.h>
+
 #include "fixed_point.h"
 #include "platform_detect.h"
 #include "platform_gpio.h"
@@ -58,6 +60,20 @@ max283x_driver_t max283x = {};
 
 void ssp1_set_mode_max283x(void)
 {
+	const platform_gpio_t* gpio = platform_gpio();
+
+	ssp_config_max283x.gpio_select = gpio->max283x_select;
+#ifdef IS_NOT_PRALINE
+	if (IS_NOT_PRALINE) {
+		ssp_config_max283x.data_bits = SSP_DATA_16BITS;
+	}
+#endif
+#ifdef IS_PRALINE
+	if (IS_PRALINE) {
+		ssp_config_max283x.data_bits = SSP_DATA_9BITS; // send 2 words
+	}
+#endif
+
 	spi_bus_start(&spi_bus_ssp1, &ssp_config_max283x);
 }
 
@@ -89,6 +105,8 @@ max2839_driver_t max2839 = {
 void max283x_setup(max283x_driver_t* const drv)
 {
 	const platform_gpio_t* gpio = platform_gpio();
+
+	ssp1_set_mode_max283x();
 
 	/* MAX283x GPIO PinMux */
 #ifdef IS_PRALINE

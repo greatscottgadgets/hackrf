@@ -23,6 +23,7 @@
 #include <stddef.h>
 
 #include "hackrf_ui.h"
+#include "platform_detect.h"
 #include "transceiver_mode.h"
 #ifdef IS_EXPANSION_COMPATIBLE
 	#include "ui_portapack.h"

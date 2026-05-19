@@ -104,49 +104,60 @@ void mixer_setup(mixer_driver_t* const mixer, mixer_variant_t type)
 #endif
 }
 
-fp_40_24_t mixer_set_frequency(mixer_driver_t* const mixer, fp_40_24_t lo, bool program)
-{
-#ifdef IS_NOT_RAD1O
-	if (IS_NOT_RAD1O) {
-		return rffc5071_set_frequency(&mixer->rffc5071, lo, program);
-	}
+/* clang-format off */
+
+#if defined(UNIVERSAL)
+	#define DISPATCH(_mixer, _rffc5071, _max2871) \
+	       if (_mixer->type == RFFC5071_VARIANT) { \
+		       _rffc5071; \
+	       } else { \
+		       _max2871; \
+	       }
+#elif defined(RAD1O)
+	#define DISPATCH(_mixer, _rffc5071, _max2871) _max2871
+#else
+	#define DISPATCH(_mixer, _rffc5071, _max2871) _rffc5071
 #endif
 
-#ifdef IS_RAD1O
-	if (IS_RAD1O) {
-		return max2871_set_frequency(&mixer->max2871, lo, program);
-	}
-#endif
+#define CALL(_mixer, _func, ...) \
+	DISPATCH( \
+		rffc5071_##_func(&_mixer->rffc5071, ##__VA_ARGS__), \
+		max2871_##_func(&_mixer->max2871, ##__VA_ARGS__) \
+	)
+
+#define RESULT(_mixer, _type, _func, ...) ({ \
+	_type _result; \
+	DISPATCH( \
+		_result = rffc5071_##_func(&_mixer->rffc5071, ##__VA_ARGS__), \
+		_result = max2871_##_func(&_mixer->max2871, ##__VA_ARGS__) \
+	); \
+	_result; \
+})
+
+/* clang-format on */
+
+fp_40_24_t mixer_set_frequency(mixer_driver_t* const mixer, fp_40_24_t lo, bool program)
+{
+	DISPATCH(
+		mixer,
+		return rffc5071_set_frequency(&mixer->rffc5071, lo, program),
+		return max2871_set_frequency(&mixer->max2871, lo, program));
 }
 
 void mixer_enable(mixer_driver_t* const mixer)
 {
-#ifdef IS_NOT_RAD1O
-	if (IS_NOT_RAD1O) {
-		rffc5071_enable(&mixer->rffc5071);
-	}
-#endif
-
-#ifdef IS_RAD1O
-	if (IS_RAD1O) {
-		max2871_enable(&mixer->max2871);
-	}
-#endif
+	DISPATCH(
+		mixer,
+		rffc5071_enable(&mixer->rffc5071),
+		max2871_enable(&mixer->max2871));
 }
 
 void mixer_disable(mixer_driver_t* const mixer)
 {
-#ifdef IS_NOT_RAD1O
-	if (IS_NOT_RAD1O) {
-		rffc5071_disable(&mixer->rffc5071);
-	}
-#endif
-
-#ifdef IS_RAD1O
-	if (IS_RAD1O) {
-		max2871_disable(&mixer->max2871);
-	}
-#endif
+	DISPATCH(
+		mixer,
+		rffc5071_disable(&mixer->rffc5071),
+		max2871_disable(&mixer->max2871));
 }
 
 void mixer_set_gpo(mixer_driver_t* const mixer, uint8_t gpo)
@@ -155,12 +166,8 @@ void mixer_set_gpo(mixer_driver_t* const mixer, uint8_t gpo)
 	if (IS_NOT_RAD1O) {
 		rffc5071_set_gpo(&mixer->rffc5071, gpo);
 	}
-#endif
-
-#ifdef IS_RAD1O
-	if (IS_RAD1O) {
-		(void) mixer;
-		(void) gpo;
-	}
+#else
+	(void) mixer;
+	(void) gpo;
 #endif
 }

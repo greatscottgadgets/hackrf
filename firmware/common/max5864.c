@@ -27,6 +27,7 @@
 #include <libopencm3/lpc43xx/ssp.h>
 
 #include "max5864_target.h"
+#include "platform_gpio.h"
 #include "spi_bus.h"
 
 /* Driver instance. */
@@ -65,6 +66,10 @@ static void max5864_init(max5864_driver_t* const drv)
 
 void max5864_setup(max5864_driver_t* const drv)
 {
+	ssp_config_max5864.gpio_select = platform_gpio()->max5864_select;
+
+	ssp1_set_mode_max5864();
+
 	max5864_init(drv);
 }
 

@@ -23,7 +23,6 @@
 #include <stdint.h>
 
 #include "rom_iap.h"
-#include "spi_bus.h"
 #include "w25q80bv.h"
 
 #define ROM_IAP_ADDR       (0x10400100)
@@ -77,7 +76,6 @@ isp_iap_ret_code_t iap_cmd_call(iap_cmd_res_t* iap_cmd_res)
 		  Alternative way to retrieve Part Id on MCU with no IAP 
 		  Read Serial No => Read Unique ID in SPIFI (only compatible with W25Q80BV
 		*/
-		spi_bus_start(spi_flash.bus, &ssp_config_w25q80bv);
 		w25q80bv_setup(&spi_flash);
 
 		switch (iap_cmd_res->cmd_param.command_code) {

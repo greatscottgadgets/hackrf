@@ -30,6 +30,7 @@
 
 #include <clock_gen.h>
 #include <clock_io.h>
+#include <cpld_jtag.h>
 #include <cpu_clock.h>
 #include <da7219.h>
 #include <delay.h>
@@ -37,6 +38,7 @@
 #include <hackrf_ui.h>
 #include <leds.h>
 #include <operacake.h>
+#include <mixer.h>
 #include <pins.h>
 #include <platform_detect.h>
 #include <power.h>
@@ -56,7 +58,6 @@
 	#include <portapack.h>
 #endif
 #ifdef IS_NOT_RAD1O
-	#include <mixer.h>
 	#include <rffc5071.h>
 #endif
 #ifdef IS_PRALINE
@@ -66,9 +67,6 @@
 		#include <spi_bus.h>
 		#include <w25q80bv.h>
 	#endif
-#endif
-#ifdef IS_NOT_PRALINE
-	#include <cpld_jtag.h>
 #endif
 
 #include "usb_api_adc.h"
@@ -279,7 +277,6 @@ extern uint32_t _binary_fpga_bin_start;
 
 void fpga_loader_setup(void)
 {
-	spi_bus_start(spi_flash.bus, &ssp_config_w25q80bv);
 	w25q80bv_setup(&spi_flash);
 }
 
@@ -434,11 +431,17 @@ int main(void)
 	board_id_t board_id = detected_platform();
 
 	pins_shutdown();
+	sgpio_pin_shutdown(&sgpio_config);
+	rf_path_pin_shutdown();
 	if (board_id != BOARD_ID_RAD1O) {
 		clock_gen_shutdown();
 	}
 	delay_us_at_mhz(10000, 96);
 	pins_setup();
+	cpld_jtag_pin_setup();
+	mixer_bus_setup(&mixer);
+	sgpio_configure_pin_functions(&sgpio_config);
+	rf_path_pin_setup(&rf_path);
 #ifdef IS_PRALINE
 	if (IS_PRALINE) {
 		enable_3v3aux_power();

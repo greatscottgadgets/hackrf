@@ -24,24 +24,15 @@
 #include "pins.h"
 
 #include <libopencm3/lpc43xx/scu.h>
-#include <libopencm3/lpc43xx/ssp.h>
 
-#include "cpld_jtag.h"
 #include "gpio.h"
 #include "leds.h"
-#include "max283x.h"
-#include "max5864.h"
-#include "mixer.h"
 #include "platform_detect.h"
 #include "platform_gpio.h"
 #include "platform_scu.h"
 #include "power.h"
-#include "rf_path.h"
-#include "sgpio.h"
-#include "w25q80bv.h"
 #ifdef IS_PRALINE
 	#include "clock_io.h"
-	#include "ice40_spi.h"
 #endif
 
 void pins_shutdown(void)
@@ -209,7 +200,6 @@ void pins_shutdown(void)
 
 		p2_ctrl_set(P2_SIGNAL_CLK3);
 		p1_ctrl_set(P1_SIGNAL_CLKIN);
-		narrowband_filter_set(0);
 		clkin_ctrl_set(CLKIN_SIGNAL_P1);
 
 		gpio_output(gpio->p2_ctrl0);
@@ -219,7 +209,6 @@ void pins_shutdown(void)
 		gpio_output(gpio->p1_ctrl2);
 		gpio_output(gpio->clkin_ctrl);
 		gpio_output(gpio->pps_out);
-		gpio_output(gpio->aa_en);
 		gpio_input(gpio->trigger_in);
 		gpio_input(gpio->trigger_out);
 		gpio_clear(gpio->fpga_cfg_spi_cs);
@@ -228,11 +217,8 @@ void pins_shutdown(void)
 		gpio_output(gpio->fpga_cfg_creset);
 		gpio_input(gpio->fpga_cfg_cdone);
 		gpio_input(gpio->max5864_select);
-
-		rf_path_pin_shutdown();
 	}
 #endif
-	sgpio_pin_shutdown(&sgpio_config);
 
 	/* enable input on SCL and SDA pins */
 	SCU_SFSI2C0 = SCU_I2C0_NOMINAL;
@@ -265,140 +251,6 @@ void pins_setup(void)
 	}
 #endif
 
-	/* Configure drivers and driver pins */
-	ssp_config_max283x.gpio_select = gpio->max283x_select;
-#ifdef IS_NOT_PRALINE
-	if (IS_NOT_PRALINE) {
-		ssp_config_max283x.data_bits = SSP_DATA_16BITS;
-	}
-#endif
-#ifdef IS_PRALINE
-	if (IS_PRALINE) {
-		ssp_config_max283x.data_bits = SSP_DATA_9BITS; // send 2 words
-	}
-#endif
-
-	ssp_config_max5864.gpio_select = gpio->max5864_select;
-
-	ssp_config_w25q80bv.gpio_select = gpio->w25q80bv_select;
-	spi_flash.gpio_hold = gpio->w25q80bv_hold;
-	spi_flash.gpio_wp = gpio->w25q80bv_wp;
-
-	sgpio_config.gpio_q_invert = gpio->q_invert;
-
-#ifdef IS_NOT_PRALINE
-	if (IS_NOT_PRALINE) {
-		sgpio_config.gpio_trigger_enable = gpio->trigger_enable;
-	}
-#endif
-
-#ifdef IS_PRALINE
-	if (IS_PRALINE) {
-		ssp_config_ice40_fpga.gpio_select = gpio->fpga_cfg_spi_cs;
-		ice40.gpio_select = gpio->fpga_cfg_spi_cs;
-		ice40.gpio_creset = gpio->fpga_cfg_creset;
-		ice40.gpio_cdone = gpio->fpga_cfg_cdone;
-	}
-#endif
-
-	jtag_gpio_cpld.gpio_tck = gpio->cpld_tck;
-
-#ifdef IS_NOT_PRALINE
-	if (IS_NOT_PRALINE) {
-		jtag_gpio_cpld.gpio_tms = gpio->cpld_tms;
-		jtag_gpio_cpld.gpio_tdi = gpio->cpld_tdi;
-		jtag_gpio_cpld.gpio_tdo = gpio->cpld_tdo;
-	}
-#endif
-
-#ifdef IS_EXPANSION_COMPATIBLE
-	if (IS_EXPANSION_COMPATIBLE) {
-		jtag_gpio_cpld.gpio_pp_tms = gpio->cpld_pp_tms;
-		jtag_gpio_cpld.gpio_pp_tdo = gpio->cpld_pp_tdo;
-	}
-#endif
-
-	ssp1_set_mode_max283x();
-
-	mixer_bus_setup(&mixer);
-
-#ifdef IS_H1_R9
-	if (IS_H1_R9) {
-		sgpio_config.gpio_trigger_enable = gpio->h1r9_trigger_enable;
-	}
-#endif
-
-	// initialize rf_path struct and assign gpio's
-#ifdef IS_HACKRF_ONE
-	if (IS_HACKRF_ONE) {
-		rf_path = (rf_path_t){
-			.switchctrl = 0,
-			.gpio_hp = gpio->hp,
-			.gpio_lp = gpio->lp,
-			.gpio_tx_mix_bp = gpio->tx_mix_bp,
-			.gpio_no_mix_bypass = gpio->no_mix_bypass,
-			.gpio_rx_mix_bp = gpio->rx_mix_bp,
-			.gpio_tx_amp = gpio->tx_amp,
-			.gpio_tx = gpio->tx,
-			.gpio_mix_bypass = gpio->mix_bypass,
-			.gpio_rx = gpio->rx,
-			.gpio_no_tx_amp_pwr = gpio->no_tx_amp_pwr,
-			.gpio_amp_bypass = gpio->amp_bypass,
-			.gpio_rx_amp = gpio->rx_amp,
-			.gpio_no_rx_amp_pwr = gpio->no_rx_amp_pwr,
-		};
-	#ifdef IS_H1_R9
-		if (IS_H1_R9) {
-			rf_path.gpio_rx = gpio->h1r9_rx;
-			rf_path.gpio_h1r9_no_ant_pwr = gpio->h1r9_no_ant_pwr;
-		}
-	#endif
-	}
-#endif
-
-#ifdef IS_RAD1O
-	if (IS_RAD1O) {
-		rf_path = (rf_path_t){
-			.switchctrl = 0,
-			.gpio_tx_rx_n = gpio->tx_rx_n,
-			.gpio_tx_rx = gpio->tx_rx,
-			.gpio_by_mix = gpio->by_mix,
-			.gpio_by_mix_n = gpio->by_mix_n,
-			.gpio_by_amp = gpio->by_amp,
-			.gpio_by_amp_n = gpio->by_amp_n,
-			.gpio_mixer_en = gpio->mixer_en,
-			.gpio_low_high_filt = gpio->low_high_filt,
-			.gpio_low_high_filt_n = gpio->low_high_filt_n,
-			.gpio_tx_amp = gpio->tx_amp,
-			.gpio_rx_lna = gpio->rx_lna,
-		};
-	}
-#endif
-
-#ifdef IS_PRALINE
-	if (IS_PRALINE) {
-		rf_path = (rf_path_t){
-			.switchctrl = 0,
-			.gpio_tx_en = gpio->tx_en,
-			.gpio_mix_en_n = gpio->mix_en_n,
-			.gpio_lpf_en = gpio->lpf_en,
-			.gpio_rf_amp_en = gpio->rf_amp_en,
-			.gpio_ant_bias_en_n = gpio->ant_bias_en_n,
-		};
-		if ((detected_revision() == BOARD_REV_PRALINE_R1_0) ||
-		    (detected_revision() == BOARD_REV_GSG_PRALINE_R1_0)) {
-			rf_path.gpio_mix_en_n = gpio->mix_en_n_r1_0;
-		}
-		scu_pinmux(scu->PINMUX_FPGA_CRESET, SCU_GPIO_NOPULL | SCU_CONF_FUNCTION0);
-		scu_pinmux(scu->PINMUX_FPGA_CDONE, SCU_GPIO_PUP | SCU_CONF_FUNCTION4);
-		scu_pinmux(scu->PINMUX_FPGA_SPI_CS, SCU_GPIO_NOPULL | SCU_CONF_FUNCTION0);
-	}
-#endif
-
-	rf_path_pin_setup(&rf_path);
-
 	/* Configure external clock in */
 	scu_pinmux(scu->PINMUX_GP_CLKIN, SCU_CLK_IN | SCU_CONF_FUNCTION1);
-
-	sgpio_configure_pin_functions(&sgpio_config);
 }

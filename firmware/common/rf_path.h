@@ -55,7 +55,6 @@ typedef struct {
 		gpio_t gpio_tx_mix_bp;
 		gpio_t gpio_no_mix_bypass;
 		gpio_t gpio_rx_mix_bp;
-		gpio_t gpio_tx_amp;
 		gpio_t gpio_tx;
 		gpio_t gpio_mix_bypass;
 		gpio_t gpio_rx;
@@ -65,6 +64,10 @@ typedef struct {
 		gpio_t gpio_no_rx_amp_pwr;
 		// In HackRF One r9 this control signal has been moved to the microcontroller.
 		gpio_t gpio_h1r9_no_ant_pwr;
+#endif
+
+#ifdef IS_H1_OR_RAD1O
+		gpio_t gpio_tx_amp;
 #endif
 
 #ifdef IS_RAD1O
@@ -77,7 +80,6 @@ typedef struct {
 		gpio_t gpio_mixer_en;
 		gpio_t gpio_low_high_filt;
 		gpio_t gpio_low_high_filt_n;
-		gpio_t gpio_tx_amp;
 		gpio_t gpio_rx_lna;
 #endif
 
