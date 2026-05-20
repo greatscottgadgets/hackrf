@@ -29,6 +29,7 @@
 #include "gpio.h"
 #include "gpio_lpc.h"
 #include "i2c_bus.h"
+#include "i2c_lpc.h"
 #include "operacake_sctimer.h"
 #include "platform_scu.h"
 

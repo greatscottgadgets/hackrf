@@ -42,3 +42,8 @@ void i2c_lpc_transfer(
 	uint8_t* const data_rx,
 	const size_t count_rx);
 bool i2c_probe(i2c_bus_t* const bus, const uint_fast8_t device_address);
+
+/* Driver instances. */
+extern const i2c_lpc_config_t i2c_config_fast_clock;
+extern i2c_bus_t i2c0;
+extern i2c_bus_t i2c1;
