@@ -2,7 +2,8 @@
 HTime Tool
 ==========
 
-The Htime Tool is a host application for accessing the API of the HTime extension.
+The Htime Tool is a host application for accessing the API of the HTime
+extension.
 
 
 Tool help
