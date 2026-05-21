@@ -225,7 +225,6 @@ typedef struct {
 	radio_config_mode_t config_mode;
 	uint64_t config[RADIO_NUM_BANKS][RADIO_NUM_REGS];
 	volatile uint32_t regs_dirty;
-	sample_rate_fn sample_rate_cb;
 	update_fn update_cb;
 } radio_t;
 
@@ -263,8 +262,5 @@ void radio_switch_opmode(radio_t* const radio, const transceiver_mode_t mode);
 
 /**
  * Driver instance.
- *
- * This needs to be configured and provided by the application
- * binary. e.g. firmware/hackrf_usb/hackrf_usb.c
  */
 extern radio_t radio;

@@ -25,6 +25,7 @@
 
 #include <libopencm3/cm3/nvic.h>
 
+#include "clock_gen.h"
 #include "clock_io.h"
 #include "fixed_point.h"
 #include "max283x.h"
@@ -40,6 +41,9 @@
 
 #define MIN(x, y) ((x) < (y) ? (x) : (y))
 #define MAX(x, y) ((x) > (y) ? (x) : (y))
+
+/* Driver instance. */
+radio_t radio;
 
 void radio_init(radio_t* const radio)
 {
@@ -231,22 +235,19 @@ static uint32_t radio_update_sample_rate(radio_t* const radio, uint64_t* bank)
 	}
 	new_n = (n != previous_n);
 
-	if (radio->sample_rate_cb) {
-		afe_rate = rate << n;
-		afe_rate = radio->sample_rate_cb(afe_rate, false);
-		previous_rate = radio->config[RADIO_BANK_APPLIED][RADIO_SAMPLE_RATE];
-		if ((previous_n == RADIO_UNSET) || previous_rate == RADIO_UNSET) {
-			previous_afe_rate = RADIO_UNSET;
-		} else {
-			previous_afe_rate = previous_rate << previous_n;
-		}
-		new_afe_rate = (afe_rate != previous_afe_rate);
-		if (new_afe_rate) {
-			afe_rate = radio->sample_rate_cb(afe_rate, true);
-		}
+	afe_rate = rate << n;
+	afe_rate = sample_rate_set(afe_rate, false);
+	previous_rate = radio->config[RADIO_BANK_APPLIED][RADIO_SAMPLE_RATE];
+	if ((previous_n == RADIO_UNSET) || previous_rate == RADIO_UNSET) {
+		previous_afe_rate = RADIO_UNSET;
 	} else {
-		return 0;
+		previous_afe_rate = previous_rate << previous_n;
 	}
+	new_afe_rate = (afe_rate != previous_afe_rate);
+	if (new_afe_rate) {
+		afe_rate = sample_rate_set(afe_rate, true);
+	}
+
 	rate = afe_rate >> n;
 	new_rate = (rate != previous_rate);
 	if (new_rate) {
