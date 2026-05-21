@@ -30,6 +30,7 @@
 
 #include "delay.h"
 #include "i2c_bus.h"
+#include "i2c_lpc.h"
 #include "si5351c.h"
 
 /*
@@ -113,7 +114,7 @@ void cpu_clock_init(void)
 
 	//FIXME disable I2C
 	/* Kick I2C0 down to 400kHz when we switch over to APB1 clock = 204MHz */
-	i2c_bus_start(si5351c.bus, &i2c_config_si5351c_fast_clock);
+	i2c_bus_start(si5351c.bus, &i2c_config_fast_clock);
 
 	/*
 	 * 12MHz clock is entering LPC XTAL1/OSC input now.

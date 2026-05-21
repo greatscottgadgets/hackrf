@@ -23,8 +23,10 @@
 
 #include "platform_detect.h"
 #ifdef IS_NOT_PRALINE
+	#include <stdbool.h>
 	#include <stdint.h>
 	#include "xapp058/micro.h"
+	#include "cpld_xc2c.h"
 #endif
 
 #ifdef IS_NOT_PRALINE
@@ -137,5 +139,17 @@ unsigned char cpld_jtag_get_next_byte(void)
 	unsigned char byte = xsvf_buffer[xsvf_pos];
 	xsvf_pos++;
 	return byte;
+}
+
+bool cpld_jtag_sram_load(jtag_t* const jtag)
+{
+	cpld_jtag_take(jtag);
+	cpld_xc2c64a_jtag_sram_write(jtag, &cpld_hackrf_program_sram);
+	const bool success = cpld_xc2c64a_jtag_sram_verify(
+		jtag,
+		&cpld_hackrf_program_sram,
+		&cpld_hackrf_verify);
+	cpld_jtag_release(jtag);
+	return success;
 }
 #endif

@@ -53,6 +53,10 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 	#define FROM_LE64(x) x
 #endif
 
+#define DEFAULT_REQUEST_TIMEOUT 100
+#define CPLD_WRITE_TIMEOUT      10000
+#define SPIFLASH_WRITE_TIMEOUT  50000 // W25Q32JV max chip erase time
+
 // TODO: Factor this into a shared #include so that firmware can use
 // the same values.
 typedef enum {
@@ -777,7 +781,7 @@ static int hackrf_open_setup(libusb_device_handle* usb_device, hackrf_device** d
 			0,
 			(unsigned char*) &buffer_size,
 			4,
-			0);
+			DEFAULT_REQUEST_TIMEOUT);
 
 		if (result < 4) {
 			last_libusb_error = result;
@@ -947,7 +951,7 @@ int ADDCALL hackrf_set_transceiver_mode(
 		0,
 		NULL,
 		0,
-		0);
+		DEFAULT_REQUEST_TIMEOUT);
 
 	if (result != 0) {
 		last_libusb_error = result;
@@ -976,7 +980,7 @@ int ADDCALL hackrf_max2837_read(
 		register_number,
 		(unsigned char*) value,
 		2,
-		0);
+		DEFAULT_REQUEST_TIMEOUT);
 
 	if (result < 2) {
 		last_libusb_error = result;
@@ -1005,7 +1009,7 @@ int ADDCALL hackrf_max2831_read(
 		register_number,
 		(unsigned char*) value,
 		2,
-		0);
+		DEFAULT_REQUEST_TIMEOUT);
 
 	if (result < 2) {
 		last_libusb_error = result;
@@ -1038,7 +1042,7 @@ int ADDCALL hackrf_max2837_write(
 		register_number,
 		NULL,
 		0,
-		0);
+		DEFAULT_REQUEST_TIMEOUT);
 
 	if (result != 0) {
 		last_libusb_error = result;
@@ -1071,7 +1075,7 @@ int ADDCALL hackrf_max2831_write(
 		register_number,
 		NULL,
 		0,
-		0);
+		DEFAULT_REQUEST_TIMEOUT);
 
 	if (result != 0) {
 		last_libusb_error = result;
@@ -1102,7 +1106,7 @@ int ADDCALL hackrf_si5351c_read(
 		register_number,
 		(unsigned char*) &temp_value,
 		1,
-		0);
+		DEFAULT_REQUEST_TIMEOUT);
 
 	if (result < 1) {
 		last_libusb_error = result;
@@ -1136,7 +1140,7 @@ int ADDCALL hackrf_si5351c_write(
 		register_number,
 		NULL,
 		0,
-		0);
+		DEFAULT_REQUEST_TIMEOUT);
 
 	if (result != 0) {
 		last_libusb_error = result;
@@ -1160,7 +1164,7 @@ int ADDCALL hackrf_set_baseband_filter_bandwidth(
 		bandwidth_hz >> 16,
 		NULL,
 		0,
-		0);
+		DEFAULT_REQUEST_TIMEOUT);
 
 	if (result != 0) {
 		last_libusb_error = result;
@@ -1189,7 +1193,7 @@ int ADDCALL hackrf_rffc5071_read(
 		register_number,
 		(unsigned char*) value,
 		2,
-		0);
+		DEFAULT_REQUEST_TIMEOUT);
 
 	if (result < 2) {
 		last_libusb_error = result;
@@ -1219,7 +1223,7 @@ int ADDCALL hackrf_rffc5071_write(
 		register_number,
 		NULL,
 		0,
-		0);
+		DEFAULT_REQUEST_TIMEOUT);
 
 	if (result != 0) {
 		last_libusb_error = result;
@@ -1245,7 +1249,7 @@ int ADDCALL hackrf_fpga_read_register(
 		register_number,
 		(unsigned char*) value,
 		1,
-		0);
+		DEFAULT_REQUEST_TIMEOUT);
 
 	if (result < 1) {
 		last_libusb_error = result;
@@ -1272,7 +1276,7 @@ int ADDCALL hackrf_fpga_write_register(
 		register_number,
 		NULL,
 		0,
-		0);
+		DEFAULT_REQUEST_TIMEOUT);
 
 	if (result != 0) {
 		last_libusb_error = result;
@@ -1296,7 +1300,7 @@ int ADDCALL hackrf_read_selftest(hackrf_device* device, hackrf_selftest* selftes
 		0,
 		(unsigned char*) selftest,
 		sizeof(hackrf_selftest),
-		0);
+		DEFAULT_REQUEST_TIMEOUT);
 
 	if (result < 2) {
 		last_libusb_error = result;
@@ -1428,7 +1432,7 @@ int ADDCALL hackrf_read_adc(hackrf_device* device, uint8_t adc_channel, uint16_t
 		adc_channel,
 		(unsigned char*) value,
 		2,
-		0);
+		DEFAULT_REQUEST_TIMEOUT);
 
 	if (result < 2) {
 		last_libusb_error = result;
@@ -1452,7 +1456,7 @@ int ADDCALL hackrf_get_m0_state(hackrf_device* device, hackrf_m0_state* state)
 		0,
 		(unsigned char*) state,
 		sizeof(hackrf_m0_state),
-		0);
+		DEFAULT_REQUEST_TIMEOUT);
 
 	if (result < sizeof(hackrf_m0_state)) {
 		last_libusb_error = result;
@@ -1487,7 +1491,7 @@ int ADDCALL hackrf_set_tx_underrun_limit(hackrf_device* device, uint32_t value)
 		value >> 16,
 		NULL,
 		0,
-		0);
+		DEFAULT_REQUEST_TIMEOUT);
 
 	if (result != 0) {
 		last_libusb_error = result;
@@ -1511,7 +1515,7 @@ int ADDCALL hackrf_set_rx_overrun_limit(hackrf_device* device, uint32_t value)
 		value >> 16,
 		NULL,
 		0,
-		0);
+		DEFAULT_REQUEST_TIMEOUT);
 
 	if (result != 0) {
 		last_libusb_error = result;
@@ -1533,7 +1537,7 @@ int ADDCALL hackrf_spiflash_erase(hackrf_device* device)
 		0,
 		NULL,
 		0,
-		0);
+		SPIFLASH_WRITE_TIMEOUT);
 
 	if (result != 0) {
 		last_libusb_error = result;
@@ -1564,7 +1568,7 @@ int ADDCALL hackrf_spiflash_write(
 		address & 0xFFFF,
 		data,
 		length,
-		0);
+		SPIFLASH_WRITE_TIMEOUT);
 
 	if (result < length) {
 		last_libusb_error = result;
@@ -1594,7 +1598,7 @@ int ADDCALL hackrf_spiflash_read(
 		address & 0xFFFF,
 		data,
 		length,
-		0);
+		DEFAULT_REQUEST_TIMEOUT);
 
 	if (result < length) {
 		last_libusb_error = result;
@@ -1617,7 +1621,7 @@ int ADDCALL hackrf_spiflash_status(hackrf_device* device, uint8_t* data)
 		0,
 		data,
 		2,
-		0);
+		DEFAULT_REQUEST_TIMEOUT);
 
 	if (result < 1) {
 		last_libusb_error = result;
@@ -1640,7 +1644,7 @@ int ADDCALL hackrf_spiflash_clear_status(hackrf_device* device)
 		0,
 		NULL,
 		0,
-		0);
+		DEFAULT_REQUEST_TIMEOUT);
 
 	if (result != 0) {
 		last_libusb_error = result;
@@ -1670,8 +1674,7 @@ int ADDCALL hackrf_cpld_write(
 			&data[i],
 			chunk_size,
 			&transferred,
-			10000 // long timeout to allow for CPLD programming
-		);
+			CPLD_WRITE_TIMEOUT);
 
 		if (result != LIBUSB_SUCCESS) {
 			last_libusb_error = result;
@@ -1693,7 +1696,7 @@ int ADDCALL hackrf_board_id_read(hackrf_device* device, uint8_t* value)
 		0,
 		value,
 		1,
-		0);
+		DEFAULT_REQUEST_TIMEOUT);
 
 	if (result < 1) {
 		last_libusb_error = result;
@@ -1717,7 +1720,7 @@ int ADDCALL hackrf_version_string_read(
 		0,
 		(unsigned char*) version,
 		length,
-		0);
+		DEFAULT_REQUEST_TIMEOUT);
 
 	if (result < 0) {
 		last_libusb_error = result;
@@ -1768,7 +1771,7 @@ int ADDCALL hackrf_set_freq(hackrf_device* device, const uint64_t freq_hz)
 		0,
 		(unsigned char*) &set_freq_params,
 		length,
-		0);
+		DEFAULT_REQUEST_TIMEOUT);
 
 	if (result < length) {
 		last_libusb_error = result;
@@ -1828,7 +1831,7 @@ int ADDCALL hackrf_set_freq_explicit(
 		0,
 		(unsigned char*) &params,
 		length,
-		0);
+		DEFAULT_REQUEST_TIMEOUT);
 
 	if (result < length) {
 		last_libusb_error = result;
@@ -1870,7 +1873,7 @@ int ADDCALL hackrf_set_sample_rate_manual(
 		0,
 		(unsigned char*) &set_fracrate_params,
 		length,
-		0);
+		DEFAULT_REQUEST_TIMEOUT);
 
 	if (result < length) {
 		last_libusb_error = result;
@@ -1942,7 +1945,7 @@ int ADDCALL hackrf_set_amp_enable(hackrf_device* device, const uint8_t value)
 		0,
 		NULL,
 		0,
-		0);
+		DEFAULT_REQUEST_TIMEOUT);
 
 	if (result != 0) {
 		last_libusb_error = result;
@@ -1968,7 +1971,7 @@ int ADDCALL hackrf_board_partid_serialno_read(
 		0,
 		(unsigned char*) read_partid_serialno,
 		length,
-		0);
+		DEFAULT_REQUEST_TIMEOUT);
 
 	if (result < length) {
 		last_libusb_error = result;
@@ -2009,7 +2012,7 @@ int ADDCALL hackrf_set_lna_gain(hackrf_device* device, uint32_t value)
 		value,
 		&retval,
 		1,
-		0);
+		DEFAULT_REQUEST_TIMEOUT);
 
 	if (result != 1 || !retval) {
 		return HACKRF_ERROR_INVALID_PARAM;
@@ -2036,7 +2039,7 @@ int ADDCALL hackrf_set_vga_gain(hackrf_device* device, uint32_t value)
 		value,
 		&retval,
 		1,
-		0);
+		DEFAULT_REQUEST_TIMEOUT);
 
 	if (result != 1 || !retval) {
 		return HACKRF_ERROR_INVALID_PARAM;
@@ -2062,7 +2065,7 @@ int ADDCALL hackrf_set_txvga_gain(hackrf_device* device, uint32_t value)
 		value,
 		&retval,
 		1,
-		0);
+		DEFAULT_REQUEST_TIMEOUT);
 
 	if (result != 1 || !retval) {
 		return HACKRF_ERROR_INVALID_PARAM;
@@ -2083,7 +2086,7 @@ int ADDCALL hackrf_set_antenna_enable(hackrf_device* device, const uint8_t value
 		0,
 		NULL,
 		0,
-		0);
+		DEFAULT_REQUEST_TIMEOUT);
 
 	if (result != 0) {
 		last_libusb_error = result;
@@ -2400,7 +2403,7 @@ ADDAPI int ADDCALL hackrf_enable_tx_flush(
 		device->buffer_size,
 		hackrf_libusb_flush_callback,
 		device,
-		0);
+		DEFAULT_REQUEST_TIMEOUT);
 
 	device->flush_transfer->flags = LIBUSB_TRANSFER_FREE_BUFFER;
 
@@ -2668,7 +2671,7 @@ int ADDCALL hackrf_set_hw_sync_mode(hackrf_device* device, const uint8_t value)
 		0,
 		NULL,
 		0,
-		0);
+		DEFAULT_REQUEST_TIMEOUT);
 
 	if (result != 0) {
 		last_libusb_error = result;
@@ -2749,7 +2752,7 @@ int ADDCALL hackrf_init_sweep(
 		(num_bytes >> 16) & 0xffff,
 		data,
 		size,
-		0);
+		DEFAULT_REQUEST_TIMEOUT);
 
 	if (result < size) {
 		last_libusb_error = result;
@@ -2783,7 +2786,7 @@ int ADDCALL hackrf_get_operacake_boards(hackrf_device* device, uint8_t* boards)
 		0,
 		boards,
 		8,
-		0);
+		DEFAULT_REQUEST_TIMEOUT);
 
 	if (result < 8) {
 		last_libusb_error = result;
@@ -2822,7 +2825,7 @@ int ADDCALL hackrf_set_operacake_mode(
 		(uint8_t) mode,
 		NULL,
 		0,
-		0);
+		DEFAULT_REQUEST_TIMEOUT);
 
 	if (result != 0) {
 		last_libusb_error = result;
@@ -2861,7 +2864,7 @@ int ADDCALL hackrf_get_operacake_mode(
 		0,
 		&buf,
 		1,
-		0);
+		DEFAULT_REQUEST_TIMEOUT);
 
 	if (result < 1) {
 		last_libusb_error = result;
@@ -2904,7 +2907,7 @@ int ADDCALL hackrf_set_operacake_ports(
 		port_a | (port_b << 8),
 		NULL,
 		0,
-		0);
+		DEFAULT_REQUEST_TIMEOUT);
 
 	if (result != 0) {
 		last_libusb_error = result;
@@ -2926,7 +2929,7 @@ int ADDCALL hackrf_reset(hackrf_device* device)
 		0,
 		NULL,
 		0,
-		0);
+		DEFAULT_REQUEST_TIMEOUT);
 
 	if (result != 0) {
 		last_libusb_error = result;
@@ -2956,7 +2959,7 @@ int ADDCALL hackrf_set_operacake_ranges(
 		0,
 		ranges,
 		len_ranges,
-		0);
+		DEFAULT_REQUEST_TIMEOUT);
 
 	if (result < len_ranges) {
 		last_libusb_error = result;
@@ -2997,7 +3000,7 @@ int ADDCALL hackrf_set_operacake_freq_ranges(
 		0,
 		range_bytes,
 		len_ranges,
-		0);
+		DEFAULT_REQUEST_TIMEOUT);
 
 	if (result < len_ranges) {
 		last_libusb_error = result;
@@ -3039,7 +3042,7 @@ int ADDCALL hackrf_set_operacake_dwell_times(
 		0,
 		dwell_data,
 		data_len,
-		0);
+		DEFAULT_REQUEST_TIMEOUT);
 
 	if (result < data_len) {
 		last_libusb_error = result;
@@ -3062,7 +3065,7 @@ int ADDCALL hackrf_set_clkout_enable(hackrf_device* device, const uint8_t value)
 		0,
 		NULL,
 		0,
-		0);
+		DEFAULT_REQUEST_TIMEOUT);
 
 	if (result != 0) {
 		last_libusb_error = result;
@@ -3084,7 +3087,7 @@ int ADDCALL hackrf_get_clkin_status(hackrf_device* device, uint8_t* status)
 		0,
 		status,
 		1,
-		0);
+		DEFAULT_REQUEST_TIMEOUT);
 	if (result < 1) {
 		last_libusb_error = result;
 		return HACKRF_ERROR_LIBUSB;
@@ -3113,7 +3116,7 @@ int ADDCALL hackrf_operacake_gpio_test(
 		0,
 		(unsigned char*) test_result,
 		2,
-		0);
+		DEFAULT_REQUEST_TIMEOUT);
 
 	if (result < 1) {
 		last_libusb_error = result;
@@ -3139,7 +3142,7 @@ int ADDCALL hackrf_cpld_checksum(hackrf_device* device, uint32_t* crc)
 		0,
 		(unsigned char*) crc,
 		length,
-		0);
+		DEFAULT_REQUEST_TIMEOUT);
 
 	if (result < length) {
 		last_libusb_error = result;
@@ -3164,7 +3167,7 @@ int ADDCALL hackrf_set_ui_enable(hackrf_device* device, const uint8_t value)
 		0,
 		NULL,
 		0,
-		0);
+		DEFAULT_REQUEST_TIMEOUT);
 
 	if (result != 0) {
 		last_libusb_error = result;
@@ -3222,7 +3225,7 @@ int ADDCALL hackrf_board_rev_read(hackrf_device* device, uint8_t* value)
 		0,
 		value,
 		1,
-		0);
+		DEFAULT_REQUEST_TIMEOUT);
 
 	if (result < 1) {
 		last_libusb_error = result;
@@ -3306,7 +3309,7 @@ int ADDCALL hackrf_supported_platform_read(hackrf_device* device, uint32_t* valu
 		0,
 		&data[0],
 		4,
-		0);
+		DEFAULT_REQUEST_TIMEOUT);
 
 	if (result < 1) {
 		last_libusb_error = result;
@@ -3329,7 +3332,7 @@ int ADDCALL hackrf_set_leds(hackrf_device* device, const uint8_t state)
 		0,
 		NULL,
 		0,
-		0);
+		DEFAULT_REQUEST_TIMEOUT);
 
 	if (result != 0) {
 		last_libusb_error = result;
@@ -3375,7 +3378,7 @@ int ADDCALL hackrf_set_user_bias_t_opts(
 		0,
 		NULL,
 		0,
-		0);
+		DEFAULT_REQUEST_TIMEOUT);
 
 	if (result != 0) {
 		last_libusb_error = result;
@@ -3398,7 +3401,7 @@ int ADDCALL hackrf_set_p1_ctrl(hackrf_device* device, const enum p1_ctrl_signal 
 		0,
 		NULL,
 		0,
-		0);
+		DEFAULT_REQUEST_TIMEOUT);
 
 	if (result != 0) {
 		last_libusb_error = result;
@@ -3421,7 +3424,7 @@ int ADDCALL hackrf_set_p2_ctrl(hackrf_device* device, const enum p2_ctrl_signal 
 		0,
 		NULL,
 		0,
-		0);
+		DEFAULT_REQUEST_TIMEOUT);
 
 	if (result != 0) {
 		last_libusb_error = result;
@@ -3446,7 +3449,7 @@ int ADDCALL hackrf_set_clkin_ctrl(
 		0,
 		NULL,
 		0,
-		0);
+		DEFAULT_REQUEST_TIMEOUT);
 
 	if (result != 0) {
 		last_libusb_error = result;
@@ -3469,7 +3472,7 @@ int ADDCALL hackrf_set_narrowband_filter(hackrf_device* device, const uint8_t va
 		0,
 		NULL,
 		0,
-		0);
+		DEFAULT_REQUEST_TIMEOUT);
 
 	if (result != 0) {
 		last_libusb_error = result;
@@ -3492,7 +3495,7 @@ int ADDCALL hackrf_set_fpga_bitstream(hackrf_device* device, const uint8_t index
 		0,
 		NULL,
 		0,
-		0);
+		DEFAULT_REQUEST_TIMEOUT);
 
 	if (result != 0) {
 		last_libusb_error = result;
@@ -3520,7 +3523,7 @@ int ADDCALL hackrf_radio_read_register(
 		bank,
 		(unsigned char*) value,
 		length,
-		0);
+		DEFAULT_REQUEST_TIMEOUT);
 	*value = FROM_LE64(*value);
 
 	if (result < length) {
@@ -3560,7 +3563,7 @@ int ADDCALL hackrf_radio_write_register(
 		bank,
 		&data[0],
 		sizeof(data),
-		0);
+		DEFAULT_REQUEST_TIMEOUT);
 
 	if (result < 9) {
 		last_libusb_error = result;

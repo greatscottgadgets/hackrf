@@ -25,6 +25,7 @@
 
 #include "hackrf_ui.h"
 #include "i2c_bus.h"
+#include "i2c_lpc.h"
 #include "platform_detect.h"
 #include "sgpio.h"
 #include "si5351c.h"
@@ -35,7 +36,7 @@
 
 void clock_gen_init(void)
 {
-	i2c_bus_start(si5351c.bus, &i2c_config_si5351c_fast_clock);
+	i2c_bus_start(si5351c.bus, &i2c_config_fast_clock);
 
 	si5351c_init(&si5351c);
 	si5351c_disable_all_outputs(&si5351c);
@@ -111,15 +112,15 @@ void clock_gen_init(void)
 	sample_rate_set(SR_FP_MHZ(10), true);
 
 	si5351c_configure_clock_control(&si5351c);
-	si5351c_set_clock_source(&si5351c, PLL_SOURCE_XTAL);
+	si5351c_change_input(&si5351c, SI5351C_INPUT_XTAL);
 	// soft reset
-	si5351c_reset_pll(&si5351c, SI5351C_PLL_BOTH);
+	si5351c_reset_plls(&si5351c, SI5351C_PLL_MASK_BOTH);
 	si5351c_enable_clock_outputs(&si5351c);
 }
 
 void clock_gen_shutdown(void)
 {
-	i2c_bus_start(si5351c.bus, &i2c_config_si5351c_fast_clock);
+	i2c_bus_start(si5351c.bus, &i2c_config_fast_clock);
 	si5351c_disable_all_outputs(&si5351c);
 	si5351c_disable_oeb_pin_control(&si5351c);
 	si5351c_power_down_all_clocks(&si5351c);
@@ -159,9 +160,10 @@ clock_source_t activate_best_clock_source(void)
 		/* No external or PortaPack clock was found. Use HackRF Si5351C crystal. */
 	}
 
-	si5351c_set_clock_source(
-		&si5351c,
-		(source == CLOCK_SOURCE_HACKRF) ? PLL_SOURCE_XTAL : PLL_SOURCE_CLKIN);
+	si5351c_input_t input = (source == CLOCK_SOURCE_HACKRF) ? SI5351C_INPUT_XTAL :
+								  SI5351C_INPUT_CLKIN;
+	si5351c_change_input(&si5351c, input);
+
 	hackrf_ui()->set_clock_source(source);
 
 	return source;
@@ -411,7 +413,7 @@ fp_28_36_t sample_rate_set(const fp_28_36_t sample_rate, const bool program)
 		}
 
 		/* Reset PLL to synchronize output clock phase. */
-		si5351c_reset_pll(&si5351c, SI5351C_PLL_A);
+		si5351c_reset_plls(&si5351c, SI5351C_PLL_MASK_A);
 	}
 #endif
 

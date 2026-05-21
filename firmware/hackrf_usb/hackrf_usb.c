@@ -70,7 +70,6 @@
 #endif
 #ifdef IS_NOT_PRALINE
 	#include <cpld_jtag.h>
-	#include <cpld_xc2c.h>
 #endif
 
 #include "usb_api_adc.h"
@@ -261,20 +260,6 @@ void usb_set_descriptor_by_serial_number(void)
 		usb_descriptor_string_serial_number[1] = USB_DESCRIPTOR_TYPE_STRING;
 	}
 }
-
-#ifdef IS_NOT_PRALINE
-static bool cpld_jtag_sram_load(jtag_t* const jtag)
-{
-	cpld_jtag_take(jtag);
-	cpld_xc2c64a_jtag_sram_write(jtag, &cpld_hackrf_program_sram);
-	const bool success = cpld_xc2c64a_jtag_sram_verify(
-		jtag,
-		&cpld_hackrf_program_sram,
-		&cpld_hackrf_verify);
-	cpld_jtag_release(jtag);
-	return success;
-}
-#endif
 
 static void m0_rom_to_ram(void)
 {
