@@ -131,7 +131,7 @@ clock_source_t activate_best_clock_source(void)
 #ifdef IS_EXPANSION_COMPATIBLE
 	if (IS_EXPANSION_COMPATIBLE) {
 		/* Ensure PortaPack reference oscillator is off while checking for external clock input. */
-		if (portapack_reference_oscillator && portapack()) {
+		if (portapack_present()) {
 			portapack_reference_oscillator(false);
 		}
 	}
@@ -146,7 +146,7 @@ clock_source_t activate_best_clock_source(void)
 #ifdef IS_EXPANSION_COMPATIBLE
 		if (IS_EXPANSION_COMPATIBLE) {
 			/* Enable PortaPack reference oscillator (if present), and check for valid clock. */
-			if (portapack_reference_oscillator && portapack()) {
+			if (portapack_present()) {
 				portapack_reference_oscillator(true);
 				delay_ms(18); // for oscillator to enable.
 				if (si5351c_clkin_signal_valid(&si5351c)) {

@@ -760,7 +760,7 @@ const hackrf_ui_t portapack_hackrf_ui = {
 
 const hackrf_ui_t* portapack_hackrf_ui_init(void)
 {
-	if (portapack()) {
+	if (portapack_present()) {
 		return &portapack_hackrf_ui;
 	} else {
 		return NULL;
