@@ -29,6 +29,7 @@
 #include "max283x.h"
 #include "selftest.h"
 #include "delay.h"
+#include "spi_bus.h"
 #include "w25q80bv.h"
 
 struct fpga_image_read_ctx {

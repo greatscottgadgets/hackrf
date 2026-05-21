@@ -34,6 +34,7 @@
 
 #include <libopencm3/lpc43xx/ssp.h>
 
+#include "flashsize.h"
 #include "platform_detect.h"
 #include "w25q80bv_target.h"
 

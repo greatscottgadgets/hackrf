@@ -51,7 +51,7 @@ endif()
 
 #generate h files
 configure_file(flashsize.h.in flashsize.h)
-add_definitions(-include "\"${CMAKE_CURRENT_BINARY_DIR}/flashsize.h\"")
+include_directories("${CMAKE_CURRENT_BINARY_DIR}")
 
 project (hackrf_firmware_all C)
 
