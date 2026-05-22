@@ -111,6 +111,7 @@ usb_request_status_t usb_vendor_request_read_spiflash(
 				len,
 				NULL,
 				NULL);
+			usb_transfer_schedule_ack(endpoint->out);
 			return USB_REQUEST_STATUS_OK;
 		}
 	} else if (stage == USB_TRANSFER_STAGE_DATA) {
@@ -121,7 +122,6 @@ usb_request_status_t usb_vendor_request_read_spiflash(
 		    ((addr + len) > spi_flash.num_bytes)) {
 			return USB_REQUEST_STATUS_STALL;
 		} else {
-			usb_transfer_schedule_ack(endpoint->out);
 			return USB_REQUEST_STATUS_OK;
 		}
 	} else {
@@ -141,13 +141,9 @@ usb_request_status_t usb_vendor_request_spiflash_status(
 			2,
 			NULL,
 			NULL);
-		return USB_REQUEST_STATUS_OK;
-	} else if (stage == USB_TRANSFER_STAGE_DATA) {
 		usb_transfer_schedule_ack(endpoint->out);
-		return USB_REQUEST_STATUS_OK;
-	} else {
-		return USB_REQUEST_STATUS_OK;
 	}
+	return USB_REQUEST_STATUS_OK;
 }
 
 usb_request_status_t usb_vendor_request_spiflash_clear_status(
