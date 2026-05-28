@@ -65,6 +65,41 @@ typedef struct {
 
 bool portapack_init(void);
 
+void portapack_if_init(void);
+
+void portapack_lcd_reset_state(const bool active);
+
+void portapack_lcd_reset(void);
+
+void portapack_lcd_init(void);
+
+void portapack_addr(const bool value);
+
+void portapack_dir_read(void);
+
+void portapack_dir_write(void);
+
+void portapack_data_mask_set(void);
+
+void portapack_data_write_high(const uint32_t value);
+
+void portapack_data_write_low(const uint32_t value);
+
+void portapack_io_write(const bool address, const uint_fast16_t value);
+
+void portapack_lcd_command(const uint32_t value);
+
+void portapack_lcd_write_data(const uint32_t value);
+
+void portapack_lcd_data_write_command_and_data(
+	const uint_fast8_t command,
+	const uint8_t* data,
+	const size_t data_count);
+
+void portapack_lcd_sleep_out(void);
+
+void portapack_lcd_display_on(void);
+
 bool portapack_present(void);
 
 void portapack_backlight(const bool on);

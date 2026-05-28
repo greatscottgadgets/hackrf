@@ -50,30 +50,30 @@ static portapack_if_t portapack_if = {
 #define GPIO_DATA_SHIFT (8)
 static const uint32_t gpio_data_mask = 0xFFU << GPIO_DATA_SHIFT;
 
-static void portapack_data_mask_set(void)
+void portapack_data_mask_set(void)
 {
 	portapack_if.gpio_port_data->mask = ~gpio_data_mask;
 }
 
-static void portapack_data_write_low(const uint32_t value)
+void portapack_data_write_low(const uint32_t value)
 {
 	portapack_if.gpio_port_data->mpin = (value << GPIO_DATA_SHIFT);
 }
 
-static void portapack_data_write_high(const uint32_t value)
+void portapack_data_write_high(const uint32_t value)
 {
 	/* NOTE: Assumes no other bits in the port are masked. */
 	/* NOTE: Assumes that bits 15 through 8 are masked. */
 	portapack_if.gpio_port_data->mpin = value;
 }
 
-static void portapack_dir_read(void)
+void portapack_dir_read(void)
 {
 	portapack_if.gpio_port_data->dir &= ~gpio_data_mask;
 	gpio_set(portapack_if.gpio_dir);
 }
 
-static void portapack_dir_write(void)
+void portapack_dir_write(void)
 {
 	gpio_clear(portapack_if.gpio_dir);
 	portapack_if.gpio_port_data->dir |= gpio_data_mask;
@@ -115,12 +115,12 @@ static void portapack_io_stb_deassert(void)
 	gpio_set(portapack_if.gpio_io_stbx);
 }
 
-static void portapack_addr(const bool value)
+void portapack_addr(const bool value)
 {
 	gpio_write(portapack_if.gpio_addr, value);
 }
 
-static void portapack_lcd_command(const uint32_t value)
+void portapack_lcd_command(const uint32_t value)
 {
 	portapack_data_write_high(0); /* Drive high byte (with zero -- don't care) */
 	portapack_dir_write();        /* Turn around data bus, MCU->CPLD */
@@ -139,7 +139,7 @@ static void portapack_lcd_command(const uint32_t value)
 	portapack_addr(1); /* Set up for data phase (most likely after a command) */
 }
 
-static void portapack_lcd_write_data(const uint32_t value)
+void portapack_lcd_write_data(const uint32_t value)
 {
 	// NOTE: Assumes and DIR=0 and ADDR=1 from command phase.
 	portapack_data_write_high(value); /* Drive high byte */
@@ -153,7 +153,7 @@ static void portapack_lcd_write_data(const uint32_t value)
 	portapack_lcd_wr_deassert(); /* Complete write operation */
 }
 
-static void portapack_io_write(const bool address, const uint_fast16_t value)
+void portapack_io_write(const bool address, const uint_fast16_t value)
 {
 	portapack_data_write_low(value);
 	portapack_dir_write();
@@ -168,7 +168,7 @@ static void portapack_io_write(const bool address, const uint_fast16_t value)
 	portapack_io_stb_deassert();
 }
 
-static void portapack_if_init(void)
+void portapack_if_init(void)
 {
 	const platform_gpio_t* gpio = platform_gpio();
 	const platform_scu_t* scu = platform_scu();
@@ -214,13 +214,13 @@ static void portapack_if_init(void)
 	/* scu_pinmux(scu->PINMUX_PP_UNUSED,   SCU_CONF_FUNCTION4 | SCU_GPIO_NOPULL); */
 }
 
-static void portapack_lcd_reset_state(const bool active)
+void portapack_lcd_reset_state(const bool active)
 {
 	portapack_if.io_reg = (portapack_if.io_reg & 0xfe) | (active ? (1 << 0) : 0);
 	portapack_io_write(1, portapack_if.io_reg);
 }
 
-static void portapack_lcd_data_write_command_and_data(
+void portapack_lcd_data_write_command_and_data(
 	const uint_fast8_t command,
 	const uint8_t* data,
 	const size_t data_count)
@@ -231,7 +231,7 @@ static void portapack_lcd_data_write_command_and_data(
 	}
 }
 
-static void portapack_lcd_sleep_out(void)
+void portapack_lcd_sleep_out(void)
 {
 	const uint8_t cmd_11[] = {};
 	portapack_lcd_data_write_command_and_data(0x11, cmd_11, ARRAY_SIZEOF(cmd_11));
@@ -241,7 +241,7 @@ static void portapack_lcd_sleep_out(void)
 	delay_ms(120);
 }
 
-static void portapack_lcd_display_on(void)
+void portapack_lcd_display_on(void)
 {
 	const uint8_t cmd_29[] = {};
 	portapack_lcd_data_write_command_and_data(0x29, cmd_29, ARRAY_SIZEOF(cmd_29));
@@ -301,7 +301,7 @@ static void portapack_lcd_wake(void)
 	portapack_lcd_display_on();
 }
 
-static void portapack_lcd_reset(void)
+void portapack_lcd_reset(void)
 {
 	portapack_lcd_reset_state(false);
 	delay_ms(1);
@@ -311,7 +311,7 @@ static void portapack_lcd_reset(void)
 	delay_ms(120);
 }
 
-static void portapack_lcd_init(void)
+void portapack_lcd_init(void)
 {
 	// LCDs are configured for IM[2:0] = 001
 	// 8080-I system, 16-bit parallel bus
