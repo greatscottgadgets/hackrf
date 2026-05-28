@@ -2,6 +2,8 @@
 HackRF Pro
 ================================================
 
+.. _hackrf_pro:
+
 .. image:: ../images/hackrf-pro-preliminary-photo.jpg
   :alt: HackRF Pro
 

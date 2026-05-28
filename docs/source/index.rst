@@ -57,6 +57,13 @@ Welcome to HackRF's documentation!
    setting_gain
    virtual_machines
 
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Gateware
+
+   gateware
+
 .. toctree::
    :maxdepth: 2
    :caption: Opera Cake Documentation
