@@ -96,7 +96,8 @@ void rffc5071_init(rffc5071_driver_t* const drv)
 	rffc5071_regs_commit(drv);
 
 	selftest.mixer_id = rffc5071_reg_read(drv, RFFC5071_READBACK_REG);
-	if ((selftest.mixer_id >> 3) != 4416) {
+	const uint16_t mixer_id = selftest.mixer_id >> 3;
+	if (mixer_id != 4416 && mixer_id != 4544) {
 		selftest.report.pass = false;
 	}
 }

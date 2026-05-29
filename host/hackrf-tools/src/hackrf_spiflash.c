@@ -346,6 +346,21 @@ int main(int argc, char** argv)
 		return EXIT_FAILURE;
 	}
 
+	if (write) {
+		hackrf_device_list_t* list = hackrf_device_list();
+		if (list != NULL && list->devicecount > 1 &&
+		    serial_number == NULL) {
+			fprintf(stderr,
+				"Multiple HackRF devices detected. "
+				"Use -d <serial> to select a device.\n");
+			hackrf_device_list_free(list);
+			return EXIT_FAILURE;
+		}
+		if (list != NULL) {
+			hackrf_device_list_free(list);
+		}
+	}
+
 	result = hackrf_open_by_serial(serial_number, &device);
 	if (result != HACKRF_SUCCESS) {
 		fprintf(stderr,

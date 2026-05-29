@@ -55,7 +55,9 @@ usb_request_status_t usb_vendor_request_sync_start(
 			return USB_REQUEST_STATUS_STALL;
 		}
 
-		radio_reg_write(&radio, RADIO_BANK_ACTIVE, RADIO_TRIGGER, 1);
+		if (mode != TRANSCEIVER_MODE_OFF) {
+			radio_reg_write(&radio, RADIO_BANK_ACTIVE, RADIO_TRIGGER, 1);
+		}
 		request_transceiver_mode(mode);
 
 		usb_transfer_schedule_ack(endpoint->in);
