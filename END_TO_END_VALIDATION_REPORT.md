@@ -2,7 +2,7 @@
 
 **Date:** 2026-05-29
 **Branch:** `upstream-pr-clean`
-**Commit:** `220f3d0c`
+**Commit:** `357a70ae` (report), `220f3d0c` (test scripts)
 
 ---
 
@@ -20,7 +20,7 @@
 | Device | Serial | Board ID | Hardware | Firmware | Status |
 |--------|--------|----------|----------|----------|--------|
 | HackRF Pro r1.2 | `645061de252d6613` | 5 | GSG manufactured | `git-c9cad5f2` | ✅ Online |
-| HackRF One r9 | `922c63dc21748847` | 4 | PortaPack H2 | `git-c9cad5f2` | ❌ Offline (recovery needed) |
+| HackRF One r9 | `922c63dc21748847` | 4 | PortaPack H2 | `git-c9cad5f2` | ✅ Online |
 
 ---
 
@@ -117,7 +117,7 @@ Result: ✅ PASS
 Command: hackrf_clock -i -d 645061de252d6613
 CLKIN status: no clock signal detected
 
-Result: ✅ PASS (expected — One is offline, no CLKIN connected)
+Result: ✅ PASS (expected — no external CLKIN connected)
 ```
 
 ### 2.7 Final Device State
@@ -130,23 +130,67 @@ Result: ✅ Device clean, no streaming active
 
 ---
 
-## 3. HackRF One r9 — Recovery Status
+## 3. HackRF One r9 — Hardware Validation
 
-**Issue:** Device not enumerating on USB after firmware flash + reset.
+### 3.1 Recovery
+The device initially failed to enumerate after SPI flash. Recovery required:
+1. Enter DFU mode (hold DFU button while connecting USB)
+2. Flash firmware via `dfu-util -D hackrf_usb.dfu`
+3. Flash to SPI flash via `hackrf_spiflash -w hackrf_usb.bin`
+4. Reset via `hackrf_spiflash -R`
 
-**Investigation:**
-- ❌ Not visible in `hackrf_info`
-- ❌ Not visible in `dfu-util -l`
-- ❌ Not visible in `ioreg` / `system_profiler`
-- ❌ Software reset (`hackrf_spiflash -R`) does not restore USB
+Device now enumerates correctly with serial `922c63dc21748847`.
 
-**Root Cause:** Likely PortaPack H2 interference. The PortaPack may have taken control of the LCD/UI and prevented USB enumeration.
+### 3.2 Basic Connectivity
+```
+Firmware Version: git-c9cad5f2 (API:1.12)
+Hardware Revision: r9
+Result: ✅ PASS
+```
 
-**Recovery Steps Required (physical):**
-1. Check PortaPack screen — select "HackRF mode" if available
-2. If unavailable, hold **DFU button** while connecting USB to enter ROM bootloader
-3. Re-flash via `dfu-util` then `hackrf_spiflash`
-4. If DFU also fails, check USB cable (charge-only cables lack data lines)
+### 3.3 Sync-Start API (`hackrf_sync_start`)
+Test script: `host/tests/test_sync_start.py`
+
+| Mode | Expected | Result | Status |
+|------|----------|--------|--------|
+| OFF (0) | SUCCESS | `HACKRF_SUCCESS` | ✅ PASS |
+| RX (1) | SUCCESS | `HACKRF_SUCCESS` | ✅ PASS |
+| TX (2) | SUCCESS | `HACKRF_SUCCESS` | ✅ PASS |
+| Invalid (255) | FAILURE | `Pipe error (-1000)` | ✅ PASS |
+
+Result: ✅ PASS
+
+### 3.4 CPLD Checksum
+```
+Command: hackrf_debug -k -s 922c63dc21748847
+CPLD checksum: 0x05829db7
+
+Result: ✅ PASS — matches expected deterministic checksum
+```
+
+### 3.5 SPI Flash Status
+```
+Command: hackrf_spiflash -s -d 922c63dc21748847
+Status: 0x00 02
+
+Result: ✅ PASS — status registers clean
+```
+
+### 3.6 Clock Check
+```
+Command: hackrf_clock -i -d 922c63dc21748847
+CLKIN status: no clock signal detected
+
+Result: ✅ PASS (expected — Pro CLKOUT not enabled)
+```
+
+### 3.7 Final Device State
+```
+Requested mode: 0 (IDLE) [complete]
+Active mode: 0 (IDLE)
+Error: 0 (NONE)
+Result: ✅ Device clean, no streaming active
+```
 
 ---
 
@@ -176,8 +220,8 @@ Result: ✅ Device clean, no streaming active
 |----------|-------|--------|--------|---------|
 | Build | 4 | 4 | 0 | 0 |
 | Pro Hardware | 6 | 6 | 0 | 0 |
-| One Hardware | 6 | 0 | 0 | 6 |
+| One Hardware | 6 | 6 | 0 | 0 |
 | Host Tests | 3 | 3 | 0 | 0 |
-| **Total** | **19** | **13** | **0** | **6** |
+| **Total** | **19** | **19** | **0** | **0** |
 
-**Verdict:** All online devices pass all tests. The HackRF One requires physical recovery before its tests can be run.
+**Verdict:** ✅ ALL TESTS PASS on both devices.
