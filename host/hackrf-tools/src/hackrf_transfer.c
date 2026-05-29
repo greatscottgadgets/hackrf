@@ -692,6 +692,10 @@ static void usage()
 	printf("\tPossible values: 1.75/2.5/3.5/5/5.5/6/7/8/9/10/12/14/15/20/24/28MHz, default <= 0.75 * sample_rate_hz.\n");
 	printf("\t[-C ppm] # Set Internal crystal clock error in ppm.\n");
 	printf("\t[-H] # Synchronize RX/TX to external trigger input.\n");
+	printf("\t[-T limit] # Set TX underrun limit (0=disable).\n");
+	printf("\t[-U limit] # Set RX overrun limit (0=disable).\n");
+	printf("\t[-P bitstream] # Set FPGA bitstream (Pro only, 0-3).\n");
+	printf("\t[--tx-timeout sec] # Host-side TX timeout in seconds (safety).\n");
 }
 
 static hackrf_device* device = NULL;
@@ -743,8 +747,16 @@ int main(int argc, char** argv)
 	unsigned int lna_gain = 8, vga_gain = 20, txvga_gain = 0;
 	hackrf_m0_state state;
 	stats_t stats = {0, 0};
+	uint32_t tx_underrun_limit = 0;
+	uint32_t rx_overrun_limit = 0;
+	bool set_tx_underrun_limit = false;
+	bool set_rx_overrun_limit = false;
+	uint32_t fpga_bitstream = 0;
+	bool set_fpga_bitstream = false;
+	uint32_t tx_timeout_sec = 0;
+	bool tx_timeout = false;
 
-	while ((opt = getopt(argc, argv, "Hwr:t:f:i:o:m:a:p:s:Fn:b:l:g:x:c:d:C:RS:Bh?")) !=
+	while ((opt = getopt(argc, argv, "Hwr:t:f:i:o:m:a:p:s:Fn:b:l:g:x:c:d:C:RS:Bh?T:U:P:O:")) !=
 	       EOF) {
 		result = HACKRF_SUCCESS;
 		switch (opt) {
@@ -859,6 +871,26 @@ int main(int argc, char** argv)
 		case 'C':
 			crystal_correct = true;
 			result = parse_u32(optarg, &crystal_correct_ppm);
+			break;
+
+		case 'T':
+			result = parse_u32(optarg, &tx_underrun_limit);
+			set_tx_underrun_limit = true;
+			break;
+
+		case 'U':
+			result = parse_u32(optarg, &rx_overrun_limit);
+			set_rx_overrun_limit = true;
+			break;
+
+		case 'P':
+			result = parse_u32(optarg, &fpga_bitstream);
+			set_fpga_bitstream = true;
+			break;
+
+		case 'O':
+			result = parse_u32(optarg, &tx_timeout_sec);
+			tx_timeout = true;
 			break;
 
 		case 'h':
@@ -1141,6 +1173,38 @@ int main(int argc, char** argv)
 		return EXIT_FAILURE;
 	}
 
+	if (set_tx_underrun_limit) {
+		result = hackrf_set_tx_underrun_limit(device, tx_underrun_limit);
+		if (result != HACKRF_SUCCESS) {
+			fprintf(stderr,
+				"hackrf_set_tx_underrun_limit() failed: %s (%d)\n",
+				hackrf_error_name(result),
+				result);
+		}
+	}
+
+	if (set_rx_overrun_limit) {
+		result = hackrf_set_rx_overrun_limit(device, rx_overrun_limit);
+		if (result != HACKRF_SUCCESS) {
+			fprintf(stderr,
+				"hackrf_set_rx_overrun_limit() failed: %s (%d)\n",
+				hackrf_error_name(result),
+				result);
+		}
+	}
+
+	if (set_fpga_bitstream) {
+		result = hackrf_set_fpga_bitstream(device, fpga_bitstream);
+		if (result != HACKRF_SUCCESS) {
+			fprintf(stderr,
+				"hackrf_set_fpga_bitstream() failed: %s (%d)\n",
+				hackrf_error_name(result),
+				result);
+			fprintf(stderr,
+				"Note: FPGA bitstream switching is only supported on HackRF Pro.\n");
+		}
+	}
+
 	if (transceiver_mode != TRANSCEIVER_MODE_SS) {
 		if (transceiver_mode == TRANSCEIVER_MODE_RX) {
 			if (strcmp(path, "-") == 0) {
@@ -1328,6 +1392,12 @@ int main(int argc, char** argv)
 	gettimeofday(&t_start, NULL);
 	gettimeofday(&time_start, NULL);
 
+	if (tx_timeout && (transmit || signalsource)) {
+		fprintf(stderr,
+			"TX timeout enabled: %u seconds\n",
+			tx_timeout_sec);
+	}
+
 	fprintf(stderr, "Stop with Ctrl-C\n");
 
 	// Set up an interval timer which will fire once per second.
@@ -1344,6 +1414,19 @@ int main(int argc, char** argv)
 	setitimer(ITIMER_REAL, &interval_timer, NULL);
 #endif
 	while (!do_exit) {
+		if (tx_timeout && (transmit || signalsource)) {
+			struct timeval time_now;
+			gettimeofday(&time_now, NULL);
+			float elapsed = (time_now.tv_sec - t_start.tv_sec) +
+					1e-6f * (time_now.tv_usec - t_start.tv_usec);
+			if (elapsed >= tx_timeout_sec) {
+				fprintf(stderr,
+					"TX timeout reached after %u seconds, stopping.\n",
+					tx_timeout_sec);
+				do_exit = true;
+				break;
+			}
+		}
 		struct timeval time_now;
 		float time_difference, rate;
 		if (stream_size > 0) {

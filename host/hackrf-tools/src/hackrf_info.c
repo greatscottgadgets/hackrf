@@ -81,16 +81,20 @@ void print_supported_platform(uint32_t platform, uint8_t board_id, uint8_t board
 		if (platform & HACKRF_PLATFORM_JAWBREAKER) {
 			break;
 		}
+		printf("Error: Firmware does not support hardware platform.\n");
+		break;
 	case BOARD_ID_RAD1O:
 		if (platform & HACKRF_PLATFORM_RAD1O) {
 			break;
 		}
 		printf("Error: Firmware does not support hardware platform.\n");
+		break;
 	case BOARD_ID_PRALINE:
 		if (platform & HACKRF_PLATFORM_PRALINE) {
 			break;
 		}
 		printf("Error: Firmware does not support hardware platform.\n");
+		break;
 	}
 }
 

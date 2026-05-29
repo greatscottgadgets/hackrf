@@ -54,7 +54,7 @@ static struct option long_options[] = {
 	{"device", required_argument, 0, 'd'},
 	{"reset", no_argument, 0, 'R'},
 	{"status", no_argument, 0, 's'},
-	{"clear", no_argument, 0, 'c'},
+	{"clear", no_argument, 0, 'C'},
 	{"verbose", no_argument, 0, 'v'},
 	{"help", no_argument, 0, 'h'},
 	{0, 0, 0, 0},

@@ -143,7 +143,7 @@ int si5351c_write_register(
 	if (result == HACKRF_SUCCESS) {
 		printf("0x%2x -> [%3d]\n", register_value, register_number);
 	} else {
-		printf("hackrf_max2837_write() failed: %s (%d)\n",
+		printf("hackrf_si5351c_write() failed: %s (%d)\n",
 		       hackrf_error_name(result),
 		       result);
 	}

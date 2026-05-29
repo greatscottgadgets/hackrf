@@ -12,6 +12,9 @@ set(CMAKE_C_FLAGS
 add_subdirectory(libhackrf)
 add_subdirectory(hackrf-tools)
 
+enable_testing()
+add_subdirectory(tests)
+
 # ##############################################################################
 # Create uninstall target
 # ##############################################################################

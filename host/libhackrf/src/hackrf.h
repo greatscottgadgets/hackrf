@@ -972,6 +972,9 @@ typedef struct {
 	void* rx_ctx;
 	/** User provided TX context. Not used by the library, but available to transfer callbacks for use. Set along with the transfer callback using @ref hackrf_start_tx*/
 	void* tx_ctx;
+	/** Monotonically increasing sequence number for this transfer.
+	 *  Helps detect dropped transfers or measure latency. */
+	uint64_t sequence_number;
 } hackrf_transfer;
 
 /**
@@ -1033,6 +1036,9 @@ typedef struct {
 	bool enabled;
 } hackrf_bool_user_settting;
 
+/* Deprecated typo aliases for backward compatibility */
+typedef hackrf_bool_user_settting hackrf_bool_user_setting;
+
 /** 
  * User settings for user-supplied bias tee defaults.
  * 
@@ -1044,6 +1050,9 @@ typedef struct {
 	hackrf_bool_user_settting rx;
 	hackrf_bool_user_settting off;
 } hackrf_bias_t_user_settting_req;
+
+/* Deprecated typo alias for backward compatibility */
+typedef hackrf_bias_t_user_settting_req hackrf_bias_t_user_setting_req;
 
 /** 
  * State of the SGPIO loop running on the M0 core. 
@@ -1761,6 +1770,20 @@ extern ADDAPI int ADDCALL hackrf_usb_api_version_read(
 extern ADDAPI int ADDCALL hackrf_set_freq(hackrf_device* device, const uint64_t freq_hz);
 
 /**
+ * Get the cached center frequency
+ *
+ * Returns the last frequency set via @ref hackrf_set_freq or
+ * @ref hackrf_set_freq_explicit.  This is a host-side cache; if
+ * another process retunes the device, this value will be stale.
+ *
+ * @param[in] device device to query
+ * @param[out] freq_hz cached center frequency in Hz
+ * @return @ref HACKRF_SUCCESS on success or @ref HACKRF_ERROR_INVALID_PARAM
+ * @ingroup configuration
+ */
+extern ADDAPI int ADDCALL hackrf_get_freq(hackrf_device* device, uint64_t* freq_hz);
+
+/**
  * Set the center frequency via explicit tuning
  * 
  * Center frequency is set to \f$f_{center} = f_{IF} + k\cdot f_{LO}\f$ where \f$k\in\left\{-1; 0; 1\right\}\f$, depending on the value of @p path. See the documentation of @ref rf_path_filter for details
@@ -2176,11 +2199,8 @@ extern ADDAPI int ADDCALL hackrf_operacake_gpio_test(
 	uint8_t address,
 	uint16_t* test_result);
 
-#ifdef HACKRF_ISSUE_609_IS_FIXED
 /**
  * Read CPLD checksum
- * 
- * This function is not always available, see [issue 609](https://github.com/greatscottgadgets/hackrf/issues/609)
  * 
  * Requires USB API version 0x0103 or above!
  * @param[in] device device to read checksum from
@@ -2189,7 +2209,6 @@ extern ADDAPI int ADDCALL hackrf_operacake_gpio_test(
  * @ingroup debug
  */
 extern ADDAPI int ADDCALL hackrf_cpld_checksum(hackrf_device* device, uint32_t* crc);
-#endif /* HACKRF_ISSUE_609_IS_FIXED */
 
 /**
  * Enable / disable UI display (RAD1O, PortaPack, etc.)
