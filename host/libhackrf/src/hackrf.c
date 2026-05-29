@@ -2739,7 +2739,21 @@ int ADDCALL hackrf_set_hw_sync_mode(hackrf_device* device, const uint8_t value)
 
 int ADDCALL hackrf_sync_start(hackrf_device* device, const uint8_t mode)
 {
-	int result = libusb_control_transfer(
+	int result;
+
+	if (device == NULL) {
+		return HACKRF_ERROR_INVALID_PARAM;
+	}
+
+	USB_API_REQUIRED(device, 0x0113)
+
+	if (mode != HACKRF_TRANSCEIVER_MODE_OFF &&
+	    mode != HACKRF_TRANSCEIVER_MODE_RECEIVE &&
+	    mode != HACKRF_TRANSCEIVER_MODE_TRANSMIT) {
+		return HACKRF_ERROR_INVALID_PARAM;
+	}
+
+	result = libusb_control_transfer(
 		device->usb_device,
 		LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR |
 			LIBUSB_RECIPIENT_DEVICE,
@@ -2753,9 +2767,9 @@ int ADDCALL hackrf_sync_start(hackrf_device* device, const uint8_t mode)
 	if (result != 0) {
 		last_libusb_error = result;
 		return HACKRF_ERROR_LIBUSB;
-	} else {
-		return HACKRF_SUCCESS;
 	}
+
+	return HACKRF_SUCCESS;
 }
 
 /*
