@@ -199,6 +199,12 @@ def main():
         action="store_true",
         help="Keep captured IQ files after calibration",
     )
+    parser.add_argument(
+        "--runs",
+        type=int,
+        default=5,
+        help="Number of capture runs for stability statistics (default: 5)",
+    )
     args = parser.parse_args()
 
     tools_dir = os.path.abspath(args.tools_dir)
@@ -212,72 +218,113 @@ def main():
 
     check_clkin_status(args.array_serial, tools_dir)
 
-    # 2. Capture from both devices
+    # 2. Run multiple captures for stability statistics
     tmpdir = tempfile.mkdtemp(prefix="hackrf_cal_")
-    ref_file = os.path.join(tmpdir, "ref.iq")
-    arr_file = os.path.join(tmpdir, "array.iq")
+    phase_offsets = []
+    mag_ratios = []
+    peak_freqs = []
 
-    print("\n--- Starting capture from both devices ---")
-    # We capture sequentially since hackrf_transfer uses stdout/stderr
-    # and two concurrent instances would interleave output messily.
-    # For phase calibration, a few seconds of sequential capture is fine
-    # as long as the signal source is stable.
-    capture_samples(
-        args.ref_serial,
-        args.freq,
-        args.sample_rate,
-        args.samples,
-        ref_file,
-        tools_dir,
-    )
-    capture_samples(
-        args.array_serial,
-        args.freq,
-        args.sample_rate,
-        args.samples,
-        arr_file,
-        tools_dir,
-    )
+    print(f"\n--- Running {args.runs} capture sets for stability ---")
+    for run in range(args.runs):
+        ref_file = os.path.join(tmpdir, f"ref_{run}.iq")
+        arr_file = os.path.join(tmpdir, f"array_{run}.iq")
 
-    # 3. Read IQ data
-    print("\n--- Reading captured samples ---")
-    ref_sig = read_iq_file(ref_file, args.samples)
-    arr_sig = read_iq_file(arr_file, args.samples)
-    print(f"Reference signal: {len(ref_sig)} samples")
-    print(f"Array signal:     {len(arr_sig)} samples")
-
-    # 4. Compute phase offset
-    print("\n--- Calibration results ---")
-    if args.method == "corr":
-        phase_offset, mag_ratio, lag = compute_phase_offset(
-            ref_sig, arr_sig, args.sample_rate
+        print(f"\n[Run {run + 1}/{args.runs}]")
+        capture_samples(
+            args.ref_serial,
+            args.freq,
+            args.sample_rate,
+            args.samples,
+            ref_file,
+            tools_dir,
         )
-        print(f"Method:           Cross-correlation")
-        print(f"Sample lag:       {lag}")
-        print(f"Magnitude ratio:  {mag_ratio:.6f}")
-        print(f"Phase offset:     {np.degrees(phase_offset):.4f} deg ({phase_offset:.6f} rad)")
+        capture_samples(
+            args.array_serial,
+            args.freq,
+            args.sample_rate,
+            args.samples,
+            arr_file,
+            tools_dir,
+        )
+
+        ref_sig = read_iq_file(ref_file, args.samples)
+        arr_sig = read_iq_file(arr_file, args.samples)
+
+        if args.method == "corr":
+            phase_offset, mag_ratio, _ = compute_phase_offset(
+                ref_sig, arr_sig, args.sample_rate
+            )
+            phase_offsets.append(phase_offset)
+            mag_ratios.append(mag_ratio)
+        else:
+            freq_hz, phase_offset, ref_peak, arr_peak = compute_fft_phase(
+                ref_sig, arr_sig, args.sample_rate
+            )
+            phase_offsets.append(phase_offset)
+            mag_ratios.append(arr_peak / ref_peak if ref_peak > 0 else 0)
+            peak_freqs.append(freq_hz)
+
+        print(f"  Phase offset: {np.degrees(phase_offset):.2f} deg")
+
+    # 3. Compute statistics
+    phase_offsets_deg = np.degrees(np.array(phase_offsets))
+    phase_mean = np.mean(phase_offsets_deg)
+    phase_std = np.std(phase_offsets_deg)
+    phase_min = np.min(phase_offsets_deg)
+    phase_max = np.max(phase_offsets_deg)
+    phase_range = phase_max - phase_min
+
+    mag_mean = np.mean(mag_ratios)
+    mag_std = np.std(mag_ratios)
+
+    print("\n" + "=" * 50)
+    print("--- STABILITY STATISTICS ---")
+    print("=" * 50)
+    print(f"Runs:             {args.runs}")
+    if args.method == "fft" and peak_freqs:
+        freq_mean = np.mean(peak_freqs) / 1e6
+        freq_std = np.std(peak_freqs) / 1e6
+        print(f"Peak frequency:   {freq_mean:.6f} ± {freq_std:.6f} MHz")
+    print(f"\nPhase offset:")
+    print(f"  Mean:           {phase_mean:.4f} deg")
+    print(f"  Std dev:        {phase_std:.4f} deg")
+    print(f"  Min:            {phase_min:.4f} deg")
+    print(f"  Max:            {phase_max:.4f} deg")
+    print(f"  Range:          {phase_range:.4f} deg")
+    print(f"\nMagnitude ratio:")
+    print(f"  Mean:           {mag_mean:.4f}")
+    print(f"  Std dev:        {mag_std:.4f}")
+
+    # Stability assessment
+    if phase_std < 5.0:
+        stability = "EXCELLENT"
+        advice = "Calibration is rock-solid."
+    elif phase_std < 15.0:
+        stability = "GOOD"
+        advice = "Usable for beamforming/direction finding."
+    elif phase_std < 30.0:
+        stability = "FAIR"
+        advice = "OK for coarse direction finding. Consider a stronger signal."
     else:
-        freq_hz, phase_offset, ref_peak, arr_peak = compute_fft_phase(
-            ref_sig, arr_sig, args.sample_rate
-        )
-        print(f"Method:           FFT peak")
-        print(f"Peak frequency:   {freq_hz / 1e6:.6f} MHz")
-        print(f"Ref peak mag:     {ref_peak:.2f}")
-        print(f"Array peak mag:   {arr_peak:.2f}")
-        print(f"Phase offset:     {np.degrees(phase_offset):.4f} deg ({phase_offset:.6f} rad)")
+        stability = "POOR"
+        advice = "Too noisy for array processing. Need stronger/common signal or same antenna."
 
-    # Calibration constant: multiply array signal by exp(-j*phase_offset) to align with ref
-    cal_const = np.exp(-1j * phase_offset)
-    print(f"\nCalibration constant (array * const -> aligned with ref):")
-    print(f"  Real: {cal_const.real:.6f}")
-    print(f"  Imag: {cal_const.imag:.6f}")
-    print(f"  Mag:  {np.abs(cal_const):.6f}")
-    print(f"  Phase: {np.angle(cal_const):.6f} rad")
+    print(f"\nStability:        {stability}")
+    print(f"Advice:           {advice}")
 
-    # 5. Cleanup
+    # Final calibration constant using mean phase
+    mean_phase_rad = np.radians(phase_mean)
+    cal_const = np.exp(-1j * mean_phase_rad)
+    print(f"\n--- Final calibration constant (mean of {args.runs} runs) ---")
+    print(f"  Real:  {cal_const.real:.6f}")
+    print(f"  Imag:  {cal_const.imag:.6f}")
+    print(f"  Mag:   {np.abs(cal_const):.6f}")
+    print(f"  Phase: {np.angle(cal_const):.6f} rad ({phase_mean:.4f} deg)")
+
+    # 4. Cleanup
     if not args.keep_iq:
-        os.remove(ref_file)
-        os.remove(arr_file)
+        for f in os.listdir(tmpdir):
+            os.remove(os.path.join(tmpdir, f))
         os.rmdir(tmpdir)
     else:
         print(f"\nIQ files kept in: {tmpdir}")
