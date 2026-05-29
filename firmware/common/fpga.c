@@ -25,7 +25,6 @@
 #include <stdbool.h>
 
 #include "ice40_spi.h"
-#include "max283x.h"
 
 /* Driver instance. */
 fpga_driver_t fpga = {
@@ -57,9 +56,7 @@ void fpga_setup(fpga_driver_t* const drv)
 uint8_t fpga_reg_read(fpga_driver_t* const drv, uint8_t r)
 {
 	uint8_t v;
-	ssp1_set_mode_ice40();
 	v = ice40_spi_read(drv->bus, r);
-	ssp1_set_mode_max283x();
 	drv->regs[r] = v;
 	return v;
 }
@@ -67,9 +64,7 @@ uint8_t fpga_reg_read(fpga_driver_t* const drv, uint8_t r)
 void fpga_reg_write(fpga_driver_t* const drv, uint8_t r, uint8_t v)
 {
 	drv->regs[r] = v;
-	ssp1_set_mode_ice40();
 	ice40_spi_write(drv->bus, r, v);
-	ssp1_set_mode_max283x();
 	FPGA_REG_SET_CLEAN(drv, r);
 }
 

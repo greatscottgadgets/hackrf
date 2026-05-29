@@ -48,14 +48,9 @@ max5864_driver_t max5864 = {
 	.target_init = max5864_target_init,
 };
 
-void ssp1_set_mode_max5864(void)
-{
-	spi_bus_start(max5864.bus, &ssp_config_max5864);
-}
-
 static void max5864_write(max5864_driver_t* const drv, uint8_t value)
 {
-	spi_bus_transfer(drv->bus, &value, 1);
+	spi_bus_transfer(drv->bus, &ssp_config_max5864, &value, 1);
 }
 
 static void max5864_init(max5864_driver_t* const drv)

@@ -143,4 +143,3 @@ void max283x_rx_calibration(max283x_driver_t* const drv);
 /* Driver instance. */
 extern ssp_config_t ssp_config_max283x;
 extern max283x_driver_t max283x;
-void ssp1_set_mode_max283x(void);

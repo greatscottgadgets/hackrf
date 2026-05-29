@@ -26,7 +26,6 @@
 #include "fpga.h"
 #include "ice40_spi.h"
 #include "lz4_blk.h"
-#include "max283x.h"
 #include "selftest.h"
 
 struct fpga_image_read_ctx {
@@ -86,7 +85,6 @@ bool fpga_image_load(struct fpga_loader_t* loader, unsigned int index)
 	// A callback function is used by the FPGA programmer
 	// to obtain consecutive gateware chunks.
 	ice40_spi_target_init(&ice40);
-	ssp1_set_mode_ice40();
 	struct fpga_image_read_ctx fpga_image_ctx = {
 		.loader = loader,
 		.addr = loader->start_addr + bitstream_offset,
@@ -96,7 +94,6 @@ bool fpga_image_load(struct fpga_loader_t* loader, unsigned int index)
 		loader->out_buffer,
 		fpga_image_read_block_cb,
 		&fpga_image_ctx);
-	ssp1_set_mode_max283x();
 
 	// Update selftest result.
 	selftest.fpga_image_load = success ? PASSED : FAILED;

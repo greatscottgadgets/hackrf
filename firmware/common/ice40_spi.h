@@ -48,4 +48,3 @@ bool ice40_spi_syscfg_program(
 /* Driver instance. */
 extern ssp_config_t ssp_config_ice40_fpga;
 extern ice40_spi_driver_t ice40;
-void ssp1_set_mode_ice40(void);

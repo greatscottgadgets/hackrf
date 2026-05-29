@@ -31,17 +31,29 @@ void spi_bus_start(spi_bus_t* const bus, const void* const config)
 void spi_bus_stop(spi_bus_t* const bus)
 {
 	bus->stop(bus);
+	bus->config = NULL;
 }
 
-void spi_bus_transfer(spi_bus_t* const bus, void* const data, const size_t count)
+void spi_bus_transfer(
+	spi_bus_t* const bus,
+	const void* const config,
+	void* const data,
+	const size_t count)
 {
+	if (config != bus->config) {
+		spi_bus_start(bus, config);
+	}
 	bus->transfer(bus, data, count);
 }
 
 void spi_bus_transfer_gather(
 	spi_bus_t* const bus,
+	const void* const config,
 	const spi_transfer_t* const transfers,
 	const size_t count)
 {
+	if (config != bus->config) {
+		spi_bus_start(bus, config);
+	}
 	bus->transfer_gather(bus, transfers, count);
 }

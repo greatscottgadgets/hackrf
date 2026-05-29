@@ -494,11 +494,9 @@ void rf_path_pin_setup(rf_path_t* const rf_path)
 
 void rf_path_init(rf_path_t* const rf_path)
 {
-	ssp1_set_mode_max5864();
 	max5864_setup(&max5864);
 	max5864_shutdown(&max5864);
 
-	ssp1_set_mode_max283x();
 	max283x_setup(&max283x);
 	max283x_start(&max283x);
 
@@ -536,9 +534,7 @@ void rf_path_set_direction(rf_path_t* const rf_path, const rf_path_direction_t d
 		} else {
 			mixer_enable(&mixer);
 		}
-		ssp1_set_mode_max5864();
 		max5864_tx(&max5864);
-		ssp1_set_mode_max283x();
 		max283x_tx(&max283x);
 		break;
 
@@ -553,9 +549,7 @@ void rf_path_set_direction(rf_path_t* const rf_path, const rf_path_direction_t d
 		} else {
 			mixer_enable(&mixer);
 		}
-		ssp1_set_mode_max5864();
 		max5864_rx(&max5864);
-		ssp1_set_mode_max283x();
 		max283x_rx(&max283x);
 		break;
 
@@ -564,9 +558,7 @@ void rf_path_set_direction(rf_path_t* const rf_path, const rf_path_direction_t d
 	case RF_PATH_DIRECTION_RX_CALIBRATION:
 		rf_path->switchctrl &= ~SWITCHCTRL_TX;
 		mixer_disable(&mixer);
-		ssp1_set_mode_max5864();
 		max5864_xcvr(&max5864);
-		ssp1_set_mode_max283x();
 		if (direction == RF_PATH_DIRECTION_TX_CALIBRATION) {
 			max283x_tx_calibration(&max283x);
 		} else {
@@ -581,9 +573,7 @@ void rf_path_set_direction(rf_path_t* const rf_path, const rf_path_direction_t d
 		/* Set RF path to receive direction when "off" */
 		rf_path->switchctrl &= ~SWITCHCTRL_TX;
 		mixer_disable(&mixer);
-		ssp1_set_mode_max5864();
 		max5864_standby(&max5864);
-		ssp1_set_mode_max283x();
 		max283x_set_mode(&max283x, MAX283x_MODE_STANDBY);
 		break;
 	}

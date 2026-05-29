@@ -40,11 +40,6 @@ ice40_spi_driver_t ice40 = {
 	.bus = &spi_bus_ssp1,
 };
 
-void ssp1_set_mode_ice40(void)
-{
-	spi_bus_start(&spi_bus_ssp1, &ssp_config_ice40_fpga);
-}
-
 void ice40_spi_target_init(ice40_spi_driver_t* const drv)
 {
 	const platform_scu_t* scu = platform_scu();
@@ -67,14 +62,14 @@ void ice40_spi_target_init(ice40_spi_driver_t* const drv)
 uint8_t ice40_spi_read(ice40_spi_driver_t* const drv, uint8_t r)
 {
 	uint8_t value[3] = {r & 0x7F, 0, 0};
-	spi_bus_transfer(drv->bus, value, 3);
+	spi_bus_transfer(drv->bus, &ssp_config_ice40_fpga, value, 3);
 	return value[2];
 }
 
 void ice40_spi_write(ice40_spi_driver_t* const drv, uint8_t r, uint16_t v)
 {
 	uint8_t value[3] = {(r & 0x7F) | 0x80, v, 0};
-	spi_bus_transfer(drv->bus, value, 3);
+	spi_bus_transfer(drv->bus, &ssp_config_ice40_fpga, value, 3);
 }
 
 static void spi_ssp1_wait_for_tx_fifo_not_full(void)
@@ -107,6 +102,8 @@ bool ice40_spi_syscfg_program(
 	size_t (*read_block_cb)(void* ctx),
 	void* read_ctx)
 {
+	spi_bus_start(drv->bus, &ssp_config_ice40_fpga);
+
 	// Drive CRESET_B = 0, SPI_SS = 0, SPI_SCK = 1.
 	gpio_clear(drv->gpio_creset);
 	gpio_clear(drv->gpio_select);

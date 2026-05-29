@@ -109,7 +109,7 @@ static void max2831_write(max2831_driver_t* const drv, uint8_t r, uint16_t v)
 {
 	uint32_t word = (((uint32_t) v & 0x3fff) << 4) | (r & 0xf);
 	uint16_t values[2] = {word >> 9, word & 0x1ff};
-	spi_bus_transfer(drv->bus, values, 2);
+	spi_bus_transfer(drv->bus, drv->config, values, 2);
 }
 
 uint16_t max2831_reg_read(max2831_driver_t* const drv, uint8_t r)

@@ -164,14 +164,14 @@ void max2839_setup(max2839_driver_t* const drv)
 static uint16_t max2839_read(max2839_driver_t* const drv, uint8_t r)
 {
 	uint16_t value = (1 << 15) | (r << 10);
-	spi_bus_transfer(drv->bus, &value, 1);
+	spi_bus_transfer(drv->bus, drv->config, &value, 1);
 	return value & 0x3ff;
 }
 
 static void max2839_write(max2839_driver_t* const drv, uint8_t r, uint16_t v)
 {
 	uint16_t value = (r << 10) | (v & 0x3ff);
-	spi_bus_transfer(drv->bus, &value, 1);
+	spi_bus_transfer(drv->bus, drv->config, &value, 1);
 }
 
 uint16_t max2839_reg_read(max2839_driver_t* const drv, uint8_t r)
