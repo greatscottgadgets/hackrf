@@ -75,7 +75,7 @@ void operacake_sctimer_init(void)
 	// there are additional instructions that fill the time. If the duration of
 	// the actions from here to the first access to the SCTimer is changed, then
 	// this delay may need to be increased.
-	delay(8);
+	delay_us(1);
 
 	// Pin definitions for the HackRF
 	// U2CTRL0

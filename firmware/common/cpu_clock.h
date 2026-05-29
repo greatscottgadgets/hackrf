@@ -27,6 +27,9 @@ extern "C" {
 
 void cpu_clock_init(void);
 
+// Current clock speed in MHz, updated on clock changes.
+extern unsigned int cpu_clock_mhz;
+
 #ifdef __cplusplus
 }
 #endif

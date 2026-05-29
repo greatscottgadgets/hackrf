@@ -194,11 +194,11 @@ void detect_hardware_platform(void)
 	/* activate internal pull-down */
 	scu_pinmux(P5_0, SCU_GPIO_PDN | SCU_CONF_FUNCTION0);
 	scu_pinmux(P6_10, SCU_GPIO_PDN | SCU_CONF_FUNCTION0);
-	delay_us_at_mhz(4, 96);
+	delay_us(4);
 	/* tri-state for a moment before testing input */
 	scu_pinmux(P5_0, SCU_GPIO_NOPULL | SCU_CONF_FUNCTION0);
 	scu_pinmux(P6_10, SCU_GPIO_NOPULL | SCU_CONF_FUNCTION0);
-	delay_us_at_mhz(4, 96);
+	delay_us(4);
 	/* if input rose quickly, there must be an external pull-up */
 	detected_resistors |= (gpio_read(&gpio2_9_on_P5_0)) ? P5_0_PUP : 0;
 	detected_resistors |= (gpio_read(&gpio3_6_on_P6_10)) ? P6_10_PUP : 0;
@@ -207,12 +207,12 @@ void detect_hardware_platform(void)
 	scu_pinmux(P5_0, SCU_GPIO_PUP | SCU_CONF_FUNCTION0);
 	scu_pinmux(P6_10, SCU_GPIO_PUP | SCU_CONF_FUNCTION0);
 	scu_pinmux(P6_5, SCU_GPIO_PUP | SCU_CONF_FUNCTION0);
-	delay_us_at_mhz(4, 96);
+	delay_us(4);
 	/* tri-state for a moment before testing input */
 	scu_pinmux(P5_0, SCU_GPIO_NOPULL | SCU_CONF_FUNCTION0);
 	scu_pinmux(P6_10, SCU_GPIO_NOPULL | SCU_CONF_FUNCTION0);
 	scu_pinmux(P6_5, SCU_GPIO_NOPULL | SCU_CONF_FUNCTION0);
-	delay_us_at_mhz(4, 96);
+	delay_us(4);
 	/* if input fell quickly, there must be an external pull-down */
 	detected_resistors |= (gpio_read(&gpio2_9_on_P5_0)) ? 0 : P5_0_PDN;
 	detected_resistors |= (gpio_read(&gpio3_6_on_P6_10)) ? 0 : P6_10_PDN;
@@ -221,37 +221,37 @@ void detect_hardware_platform(void)
 	switch (detected_resistors) {
 	case JAWBREAKER_RESISTORS:
 		if (!(supported_platform() & PLATFORM_JAWBREAKER)) {
-			halt_and_flash(3000000);
+			halt_and_flash(500);
 		}
 		platform = BOARD_ID_JAWBREAKER;
 		return;
 	case RAD1O_RESISTORS:
 		if (!(supported_platform() & PLATFORM_RAD1O)) {
-			halt_and_flash(3000000);
+			halt_and_flash(500);
 		}
 		platform = BOARD_ID_RAD1O;
 		return;
 	case HACKRF1_OG_RESISTORS:
 		if (!(supported_platform() & PLATFORM_HACKRF1_OG)) {
-			halt_and_flash(3000000);
+			halt_and_flash(500);
 		}
 		platform = BOARD_ID_HACKRF1_OG;
 		break;
 	case HACKRF1_R9_RESISTORS:
 		if (!(supported_platform() & PLATFORM_HACKRF1_R9)) {
-			halt_and_flash(3000000);
+			halt_and_flash(500);
 		}
 		platform = BOARD_ID_HACKRF1_R9;
 		break;
 	case PRALINE_RESISTORS:
 		if (!(supported_platform() & PLATFORM_PRALINE)) {
-			halt_and_flash(3000000);
+			halt_and_flash(500);
 		}
 		platform = BOARD_ID_PRALINE;
 		break;
 	default:
 		platform = BOARD_ID_UNRECOGNIZED;
-		halt_and_flash(1000000);
+		halt_and_flash(150);
 	}
 
 	uint32_t adc0_3 = check_pin_strap(3);

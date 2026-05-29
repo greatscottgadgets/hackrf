@@ -27,8 +27,8 @@ extern "C" {
 
 #include <stdint.h>
 
-void delay(uint32_t duration);
-void delay_us_at_mhz(uint32_t us, uint32_t mhz);
+void delay_us(uint32_t us);
+void delay_ms(uint32_t ms);
 
 #ifdef __cplusplus
 }

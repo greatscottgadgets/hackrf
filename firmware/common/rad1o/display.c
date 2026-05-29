@@ -10,12 +10,6 @@
 #include "gpio_lpc.h"
 #include "delay.h"
 
-static void delayms(const uint32_t milliseconds)
-{
-	/* NOTE: Naively assumes 204 MHz instruction cycle clock and five instructions per count */
-	delay(milliseconds * 40800);
-}
-
 static struct gpio gpio_lcd_cs = GPIO(4, 12);    /* P9_0 */
 static struct gpio gpio_lcd_bl_en = GPIO(0, 8);  /* P1_1 */
 static struct gpio gpio_lcd_reset = GPIO(5, 17); /* P9_4 */
@@ -85,9 +79,9 @@ void rad1o_lcdInit(void)
 
 	// Reset the display
 	gpio_clear(&gpio_lcd_reset);
-	delayms(100);
+	delay_ms(100);
 	gpio_set(&gpio_lcd_reset);
-	delayms(100);
+	delay_ms(100);
 
 	select();
 
@@ -115,7 +109,7 @@ void rad1o_lcdInit(void)
 		  (1 << 12) | (0 << 13) | (0 << 14) | 0);
 
 	write(0, 0x01); /* most color displays need the pause */
-	delayms(10);
+	delay_ms(10);
 
 	size_t i = 0;
 	while (i < sizeof(initseq_d)) {

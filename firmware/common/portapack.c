@@ -31,12 +31,6 @@
 #include "platform_gpio.h"
 #include "platform_scu.h"
 
-static void portapack_sleep_milliseconds(const uint32_t milliseconds)
-{
-	/* NOTE: Naively assumes 204 MHz instruction cycle clock and five instructions per count */
-	delay(milliseconds * 40800);
-}
-
 typedef struct {
 	gpio_t gpio_dir;
 	gpio_t gpio_lcd_rdx;
@@ -244,7 +238,7 @@ static void portapack_lcd_sleep_out(void)
 	// "It will be necessary to wait 120msec after sending Sleep Out
 	// command (when in Sleep In Mode) before Sleep In command can be
 	// sent."
-	portapack_sleep_milliseconds(120);
+	delay_ms(120);
 }
 
 static void portapack_lcd_display_on(void)
@@ -310,11 +304,11 @@ static void portapack_lcd_wake(void)
 static void portapack_lcd_reset(void)
 {
 	portapack_lcd_reset_state(false);
-	portapack_sleep_milliseconds(1);
+	delay_ms(1);
 	portapack_lcd_reset_state(true);
-	portapack_sleep_milliseconds(10);
+	delay_ms(10);
 	portapack_lcd_reset_state(false);
-	portapack_sleep_milliseconds(120);
+	delay_ms(120);
 }
 
 static void portapack_lcd_init(void)

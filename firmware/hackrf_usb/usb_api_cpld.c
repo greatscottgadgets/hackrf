@@ -76,7 +76,7 @@ void cpld_update(void)
 		cpld_xsvf_buffer,
 		refill_cpld_buffer);
 	if (error == 0) {
-		halt_and_flash(6000000);
+		halt_and_flash(1000);
 	} else {
 		/* LED3 (Red) steady on error */
 		led_on(LED3);

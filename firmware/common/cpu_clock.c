@@ -33,6 +33,9 @@
 #include "i2c_lpc.h"
 #include "si5351c.h"
 
+/* We start with the CPU clock at 96MHz */
+unsigned int cpu_clock_mhz = 96;
+
 /*
 Configure PLL1 (Main MCU Clock) to max speed (204MHz).
 Note: PLL1 clock is used by M4/M0 core, Peripheral, APB1.
@@ -51,11 +54,14 @@ static void cpu_clock_pll1_max_speed(void)
 	reg_val |= CGU_BASE_M4_CLK_CLK_SEL(CGU_SRC_IRC) | CGU_BASE_M4_CLK_AUTOBLOCK(1);
 	CGU_BASE_M4_CLK = reg_val;
 
+	/* CPU is now at 12MHz */
+	cpu_clock_mhz = 12;
+
 	/* 2. Enable the crystal oscillator. */
 	CGU_XTAL_OSC_CTRL &= ~CGU_XTAL_OSC_CTRL_ENABLE_MASK;
 
 	/* 3. Wait 250us. */
-	delay_us_at_mhz(250, 12);
+	delay_us(250);
 
 	/* 4. Set the AUTOBLOCK bit. */
 	CGU_PLL1_CTRL |= CGU_PLL1_CTRL_AUTOBLOCK(1);
@@ -95,11 +101,17 @@ static void cpu_clock_pll1_max_speed(void)
 	reg_val |= CGU_BASE_M4_CLK_CLK_SEL(CGU_SRC_PLL1);
 	CGU_BASE_M4_CLK = reg_val;
 
+	/* CPU is now at 102MHz */
+	cpu_clock_mhz = 102;
+
 	/* 9. Wait 50us. */
-	delay_us_at_mhz(50, 102);
+	delay_us(50);
 
 	/* 10. Set the PLL1 P-divider to direct output mode (DIRECT=1). */
 	CGU_PLL1_CTRL |= CGU_PLL1_CTRL_DIRECT_MASK;
+
+	/* CPU is now at 204MHz */
+	cpu_clock_mhz = 204;
 }
 
 /* clock startup for LPC4320 configure PLL1 to max speed (204MHz).

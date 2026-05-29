@@ -163,13 +163,13 @@ void rffc5071_lock_test(rffc5071_driver_t* const drv)
 		rffc5071_enable(drv);
 
 		// Wait 1ms.
-		delay_us_at_mhz(1000, 204);
+		delay_ms(1);
 
 		// Check for lock.
 		lock = rffc5071_check_lock(drv);
 
 		rffc5071_disable(drv);
-		delay_us_at_mhz(100, 204);
+		delay_us(100);
 
 		selftest.mixer_locks[i] = lock;
 	}
