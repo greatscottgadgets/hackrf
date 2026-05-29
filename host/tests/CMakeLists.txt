@@ -14,6 +14,12 @@ endif()
 
 add_executable(test_hackrf_init test_hackrf_init.c)
 target_link_libraries(test_hackrf_init PRIVATE hackrf_static)
-
-# Add more tests here as they are written.
 add_test(NAME test_hackrf_init COMMAND test_hackrf_init)
+
+add_executable(test_cpld_checksum test_cpld_checksum.c mock_libusb.c)
+target_link_libraries(test_cpld_checksum PRIVATE hackrf_static)
+add_test(NAME test_cpld_checksum COMMAND test_cpld_checksum)
+
+add_executable(test_fpga_bitstream test_fpga_bitstream.c mock_libusb.c)
+target_link_libraries(test_fpga_bitstream PRIVATE hackrf_static)
+add_test(NAME test_fpga_bitstream COMMAND test_fpga_bitstream)

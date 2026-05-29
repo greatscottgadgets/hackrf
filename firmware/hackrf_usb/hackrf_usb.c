@@ -90,6 +90,7 @@
 #ifdef IS_NOT_PRALINE
 	#include "usb_api_cpld.h"
 #endif
+#include "usb_api_sync.h"
 
 extern uint32_t __m0_start__;
 extern uint32_t __m0_end__;
@@ -182,6 +183,7 @@ static usb_request_handler_fn vendor_request_handler[] = {
 	usb_vendor_request_write_radio_reg,
 	usb_vendor_request_read_radio_reg,
 	usb_vendor_request_get_buffer_size,
+	usb_vendor_request_sync_start,
 };
 
 static const uint32_t vendor_request_handler_count =
