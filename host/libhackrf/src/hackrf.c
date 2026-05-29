@@ -129,6 +129,18 @@ typedef enum {
 #define RX_ENDPOINT_ADDRESS (LIBUSB_ENDPOINT_IN | 1)
 #define TX_ENDPOINT_ADDRESS (LIBUSB_ENDPOINT_OUT | 2)
 
+/*
+ * Transceiver mode values are shared with the firmware enum in
+ * firmware/common/transceiver_mode.h.  Keep them in sync.
+ *
+ * Host name                      Value   Firmware name
+ * HACKRF_TRANSCEIVER_MODE_OFF       0    TRANSCEIVER_MODE_OFF
+ * HACKRF_TRANSCEIVER_MODE_RECEIVE   1    TRANSCEIVER_MODE_RX
+ * HACKRF_TRANSCEIVER_MODE_TRANSMIT  2    TRANSCEIVER_MODE_TX
+ * HACKRF_TRANSCEIVER_MODE_SS        3    TRANSCEIVER_MODE_SS
+ * TRANSCEIVER_MODE_CPLD_UPDATE      4    TRANSCEIVER_MODE_CPLD_UPDATE
+ * TRANSCEIVER_MODE_RX_SWEEP         5    TRANSCEIVER_MODE_RX_SWEEP
+ */
 typedef enum {
 	HACKRF_TRANSCEIVER_MODE_OFF = 0,
 	HACKRF_TRANSCEIVER_MODE_RECEIVE = 1,
@@ -137,6 +149,13 @@ typedef enum {
 	TRANSCEIVER_MODE_CPLD_UPDATE = 4,
 	TRANSCEIVER_MODE_RX_SWEEP = 5,
 } hackrf_transceiver_mode;
+
+_Static_assert(HACKRF_TRANSCEIVER_MODE_OFF == 0, "mode mismatch");
+_Static_assert(HACKRF_TRANSCEIVER_MODE_RECEIVE == 1, "mode mismatch");
+_Static_assert(HACKRF_TRANSCEIVER_MODE_TRANSMIT == 2, "mode mismatch");
+_Static_assert(HACKRF_TRANSCEIVER_MODE_SS == 3, "mode mismatch");
+_Static_assert(TRANSCEIVER_MODE_CPLD_UPDATE == 4, "mode mismatch");
+_Static_assert(TRANSCEIVER_MODE_RX_SWEEP == 5, "mode mismatch");
 
 typedef enum {
 	HACKRF_HW_SYNC_MODE_OFF = 0,

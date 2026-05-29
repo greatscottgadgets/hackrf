@@ -23,3 +23,7 @@ add_test(NAME test_cpld_checksum COMMAND test_cpld_checksum)
 add_executable(test_fpga_bitstream test_fpga_bitstream.c mock_libusb.c)
 target_link_libraries(test_fpga_bitstream PRIVATE hackrf_static)
 add_test(NAME test_fpga_bitstream COMMAND test_fpga_bitstream)
+
+add_executable(test_spiflash_clear test_spiflash_clear.c mock_libusb.c)
+target_link_libraries(test_spiflash_clear PRIVATE hackrf_static)
+add_test(NAME test_spiflash_clear COMMAND test_spiflash_clear)

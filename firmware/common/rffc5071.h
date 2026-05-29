@@ -45,7 +45,9 @@ typedef struct {
 /* Initialize chip. Call _setup() externally, as it calls _init(). */
 extern void rffc5071_init(rffc5071_driver_t* const drv);
 extern void rffc5071_setup(rffc5071_driver_t* const drv);
+#ifdef IS_NOT_RAD1O
 extern void rffc5071_lock_test(rffc5071_driver_t* const drv);
+#endif
 
 /* Read a register via SPI. Save a copy to memory and return
  * value. Discard any uncommited changes and mark CLEAN. */

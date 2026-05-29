@@ -215,6 +215,7 @@ int main(int argc, char** argv)
 	const char* serial_number = NULL;
 	hackrf_device* device = NULL;
 	int result = HACKRF_SUCCESS;
+	int exit_code = EXIT_SUCCESS;
 	int option_index = 0;
 	static uint8_t data[MAX_LENGTH];
 	uint8_t* pdata = &data[0];
@@ -333,7 +334,7 @@ int main(int argc, char** argv)
 		infile = fopen(path, "wb");
 		if (infile == NULL) {
 			printf("Error to open file %s\n", path);
-			return EXIT_FAILURE;
+			goto cleanup;
 		}
 	}
 
@@ -343,10 +344,10 @@ int main(int argc, char** argv)
 			"hackrf_init() failed: %s (%d)\n",
 			hackrf_error_name(result),
 			result);
-		return EXIT_FAILURE;
+		goto cleanup;
 	}
 
-	if (write) {
+	{
 		hackrf_device_list_t* list = hackrf_device_list();
 		if (list != NULL && list->devicecount > 1 &&
 		    serial_number == NULL) {
@@ -354,7 +355,8 @@ int main(int argc, char** argv)
 				"Multiple HackRF devices detected. "
 				"Use -d <serial> to select a device.\n");
 			hackrf_device_list_free(list);
-			return EXIT_FAILURE;
+			exit_code = EXIT_FAILURE;
+			goto cleanup;
 		}
 		if (list != NULL) {
 			hackrf_device_list_free(list);
@@ -367,7 +369,8 @@ int main(int argc, char** argv)
 			"hackrf_open() failed: %s (%d)\n",
 			hackrf_error_name(result),
 			result);
-		return EXIT_FAILURE;
+		exit_code = EXIT_FAILURE;
+		goto cleanup;
 	}
 
 	hackrf_board_id_read(device, &board_id);
@@ -384,21 +387,17 @@ int main(int argc, char** argv)
 
 	if (length == 0) {
 		fprintf(stderr, "Requested transfer of zero bytes.\n");
-		if (infile != NULL) {
-			fclose(infile);
-		}
 		usage();
-		return EXIT_FAILURE;
+		exit_code = EXIT_FAILURE;
+		goto cleanup;
 	}
 
 	if ((length > flash_length) || (address > flash_length) ||
 	    ((address + length) > flash_length)) {
 		fprintf(stderr, "Request exceeds size of flash memory.\n");
-		if (infile != NULL) {
-			fclose(infile);
-		}
 		usage();
-		return EXIT_FAILURE;
+		exit_code = EXIT_FAILURE;
+		goto cleanup;
 	}
 
 	if (read_status) {
@@ -408,7 +407,8 @@ int main(int argc, char** argv)
 				"hackrf_spiflash_status() failed: %s (%d)\n",
 				hackrf_error_name(result),
 				result);
-			return EXIT_FAILURE;
+			exit_code = EXIT_FAILURE;
+			goto cleanup;
 		}
 		if (!verbose) {
 			printf("Status: 0x%02x %02x\n", status[0], status[1]);
@@ -437,7 +437,8 @@ int main(int argc, char** argv)
 				"hackrf_spiflash_clear_status() failed: %s (%d)\n",
 				hackrf_error_name(result),
 				result);
-			return EXIT_FAILURE;
+			exit_code = EXIT_FAILURE;
+			goto cleanup;
 		}
 	}
 
@@ -457,9 +458,8 @@ int main(int argc, char** argv)
 					"hackrf_spiflash_read() failed: %s (%d)\n",
 					hackrf_error_name(result),
 					result);
-				fclose(infile);
-				infile = NULL;
-				return EXIT_FAILURE;
+				exit_code = EXIT_FAILURE;
+				goto cleanup;
 			}
 			address += xfer_len;
 			pdata += xfer_len;
@@ -470,9 +470,8 @@ int main(int argc, char** argv)
 			fprintf(stderr,
 				"Failed write to file (wrote %d bytes).\n",
 				(int) bytes_written);
-			fclose(infile);
-			infile = NULL;
-			return EXIT_FAILURE;
+			exit_code = EXIT_FAILURE;
+			goto cleanup;
 		}
 	}
 
@@ -482,18 +481,16 @@ int main(int argc, char** argv)
 			fprintf(stderr,
 				"Failed read file (read %d bytes).\n",
 				(int) bytes_read);
-			fclose(infile);
-			infile = NULL;
-			return EXIT_FAILURE;
+			exit_code = EXIT_FAILURE;
+			goto cleanup;
 		}
 		if (!ignore_compat_check) {
 			printf("Checking target device compatibility\n");
 			result = compatibility_check(data, length, device, board_id);
 			if (result) {
 				printf("Compatibility test failed.\n");
-				fclose(infile);
-				infile = NULL;
-				return EXIT_FAILURE;
+				exit_code = EXIT_FAILURE;
+				goto cleanup;
 			}
 		}
 		printf("Erasing SPI flash.\n");
@@ -503,9 +500,8 @@ int main(int argc, char** argv)
 				"hackrf_spiflash_erase() failed: %s (%d)\n",
 				hackrf_error_name(result),
 				result);
-			fclose(infile);
-			infile = NULL;
-			return EXIT_FAILURE;
+			exit_code = EXIT_FAILURE;
+			goto cleanup;
 		}
 		if (!verbose) {
 			printf("Writing %d bytes at 0x%06x.\n", length, address);
@@ -523,19 +519,13 @@ int main(int argc, char** argv)
 					"hackrf_spiflash_write() failed: %s (%d)\n",
 					hackrf_error_name(result),
 					result);
-				fclose(infile);
-				infile = NULL;
-				return EXIT_FAILURE;
+				exit_code = EXIT_FAILURE;
+				goto cleanup;
 			}
 			address += xfer_len;
 			pdata += xfer_len;
 			length -= xfer_len;
 		}
-	}
-
-	if (infile != NULL) {
-		fclose(infile);
-		infile = NULL;
 	}
 
 	if (reset) {
@@ -553,19 +543,28 @@ int main(int argc, char** argv)
 					hackrf_error_name(result),
 					result);
 			}
-			return EXIT_FAILURE;
+			exit_code = EXIT_FAILURE;
+			goto cleanup;
 		}
 	}
 
-	result = hackrf_close(device);
-	if (result != HACKRF_SUCCESS) {
-		fprintf(stderr,
-			"hackrf_close() failed: %s (%d)\n",
-			hackrf_error_name(result),
-			result);
-		return EXIT_FAILURE;
+cleanup:
+	if (infile != NULL) {
+		fclose(infile);
+		infile = NULL;
+	}
+
+	if (device != NULL) {
+		result = hackrf_close(device);
+		if (result != HACKRF_SUCCESS) {
+			fprintf(stderr,
+				"hackrf_close() failed: %s (%d)\n",
+				hackrf_error_name(result),
+				result);
+			exit_code = EXIT_FAILURE;
+		}
 	}
 
 	hackrf_exit();
-	return EXIT_SUCCESS;
+	return exit_code;
 }

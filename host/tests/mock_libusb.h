@@ -21,8 +21,19 @@ typedef struct {
 	int return_code;
 } mock_transfer_t;
 
+typedef struct {
+	uint8_t bmRequestType;
+	uint8_t bRequest;
+	uint16_t wValue;
+	uint16_t wIndex;
+	uint16_t wLength;
+	unsigned int timeout;
+} mock_ctrl_record_t;
+
 void mock_libusb_init(void);
 void mock_libusb_queue_transfer(const mock_transfer_t *transfer);
 void mock_libusb_reset(void);
+
+extern mock_ctrl_record_t mock_last_ctrl;
 
 #endif /* MOCK_LIBUSB_H */

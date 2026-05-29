@@ -8,14 +8,18 @@ struct libusb_device_handle;
 static mock_transfer_t transfer_queue[MAX_MOCK_TRANSFERS];
 static int queue_len = 0;
 
+mock_ctrl_record_t mock_last_ctrl;
+
 void mock_libusb_init(void)
 {
 	queue_len = 0;
+	memset(&mock_last_ctrl, 0, sizeof(mock_last_ctrl));
 }
 
 void mock_libusb_reset(void)
 {
 	queue_len = 0;
+	memset(&mock_last_ctrl, 0, sizeof(mock_last_ctrl));
 }
 
 void mock_libusb_queue_transfer(const mock_transfer_t *transfer)
@@ -40,9 +44,13 @@ int libusb_control_transfer(
 	int i;
 
 	(void) dev_handle;
-	(void) bmRequestType;
-	(void) wLength;
-	(void) timeout;
+
+	mock_last_ctrl.bmRequestType = bmRequestType;
+	mock_last_ctrl.bRequest = bRequest;
+	mock_last_ctrl.wValue = wValue;
+	mock_last_ctrl.wIndex = wIndex;
+	mock_last_ctrl.wLength = wLength;
+	mock_last_ctrl.timeout = timeout;
 
 	for (i = 0; i < queue_len; i++) {
 		if (transfer_queue[i].request == bRequest &&

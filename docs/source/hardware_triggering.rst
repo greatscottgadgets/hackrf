@@ -35,6 +35,58 @@ Note that no special argument is required to activate the trigger output.
 Both ``hackrf_transfer`` commands will start sampling RF signals at the same time, accurate to less than one sample period.
 
 
+Synchronized Start API
+~~~~~~~~~~~~~~~~~~~~~~
+
+In addition to the ``-H`` command-line flag, libhackrf provides the
+``hackrf_sync_start(mode)`` API for programmatic control of synchronized
+transceiver startup.
+
+What it does
+^^^^^^^^^^^^
+
+``hackrf_sync_start(mode)`` sends a USB control request that tells the firmware
+to transition the transceiver to the requested mode (OFF, RX, or TX) at the
+next hardware trigger edge.  This allows multiple HackRFs to be started
+together without the race conditions that can occur when each device is
+started independently from the host.
+
+When to use it
+^^^^^^^^^^^^^^
+
+* Use ``hackrf_sync_start()`` when you need **deterministic, sub-sample
+time alignment** between two or more HackRFs and you are controlling them
+programmatically via libhackrf.
+* Use the normal ``hackrf_start_rx()`` / ``hackrf_start_tx()`` (or
+``hackrf_set_transceiver_mode()``) when you are starting a **single**
+device or when exact sample-level alignment is not required.
+* Use ``hackrf_transfer -H`` for quick command-line experiments.
+
+Requirements
+^^^^^^^^^^^^
+
+* **Firmware USB API version ≥ 0x0113.**  Run ``hackrf_info`` and verify that
+the ``API`` field for each device is at least ``1.13``.
+* **Sweep mode is NOT supported.**  ``hackrf_sync_start()`` works with
+standard RX and TX streaming only.  If you need frequency sweep with
+triggered start, use the existing ``hackrf_transfer -H`` sweep support
+instead.
+
+Hardware prerequisites
+^^^^^^^^^^^^^^^^^^^^^^
+
+The same physical setup used for ``hackrf_transfer -H`` triggering applies:
+
+* **Trigger wire:** On HackRF One, connect P28 pin 15 (trigger output) to
+P28 pin 16 (trigger input) on the other device(s).  On HackRF Pro, the
+trigger signals are available on the configurable SMA ports.
+* **Shared clock:** Connect CLKOUT of one device to CLKIN of the other(s)
+so that all devices share a common frequency reference.
+* **Signal splitter (phased arrays):** If you are building a phased array,
+use a power splitter to feed the same antenna signal to all receiving
+HackRFs.  Without a splitter, phase coherence cannot be verified because
+the incoming signals are uncorrelated.
+
 Additional Devices
 ~~~~~~~~~~~~~~~~~~
 

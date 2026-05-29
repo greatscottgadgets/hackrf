@@ -15,6 +15,13 @@ checklist may be useful for troubleshooting:
 
     There have been many bug fixes, so please use the latest releases.
 
+* **Does your firmware support the required USB API version?**
+
+    Some synchronization features (such as ``hackrf_sync_start()``) require
+    firmware USB API version ``0x0113`` or later.  Run ``hackrf_info`` and
+    check the ``API`` field printed for each device.  If the API version is
+    too old, update the firmware.
+
 * **Are you applying settings to the right target devices?**
 
     With more than one HackRF device connected, you need to take care to specify
@@ -70,7 +77,13 @@ checklist may be useful for troubleshooting:
 
     .. note:: There is currently no support for hardware triggering via the
               Osmocom or Soapy blocks in GNU Radio. The Osmocom block may look
-              like it supports this but the options have no effect. 
+              like it supports this but the options have no effect.
+
+    For programmatic control from Python or C, consider using the
+    ``hackrf_sync_start()`` API instead of the ``-H`` flag.  It provides the
+    same sub-sample alignment but can be issued to multiple devices from a
+    single script.  See :ref:`hardware triggering <hardware_triggering>` for
+    details. 
 
 * **Are any samples being lost due to USB throughput problems?**
 

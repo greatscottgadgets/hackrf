@@ -154,6 +154,7 @@ void rffc5071_setup(rffc5071_driver_t* const drv)
 	rffc5071_regs_commit(drv);
 }
 
+#ifdef IS_NOT_RAD1O
 void rffc5071_lock_test(rffc5071_driver_t* const drv)
 {
 	bool lock = false;
@@ -180,6 +181,7 @@ void rffc5071_lock_test(rffc5071_driver_t* const drv)
 		selftest.report.pass = false;
 	}
 }
+#endif
 
 bool rffc5071_check_lock(rffc5071_driver_t* const drv)
 {

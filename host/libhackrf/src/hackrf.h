@@ -90,7 +90,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
  * # USB API versions
  * As all functionality of HackRF devices requires cooperation between the firmware and the host, both devices can have outdated software. If host machine software is outdated, the new functions will be unavailable in `hackrf.h`, causing linking errors. If the device firmware is outdated, the functions will return @ref HACKRF_ERROR_USB_API_VERSION.
  * Since device firmware and USB API are separate (but closely related), USB API has its own version numbers.
- * Here is a list of all the functions that require a certain minimum USB API version, up to version 0x0107
+ * Here is a list of all the functions that require a certain minimum USB API version, up to version 0x0113
  * ## 0x0102
  * - @ref hackrf_set_hw_sync_mode
  * - @ref hackrf_init_sweep
@@ -121,6 +121,35 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
  * - @ref hackrf_supported_platform_read
  * ## 0x0107
  * - @ref hackrf_set_leds
+ * ## 0x0108
+ * - @ref hackrf_set_user_bias_t_opts
+ * ## 0x0109
+ * - @ref hackrf_set_p1_ctrl
+ * - @ref hackrf_set_p2_ctrl
+ * - @ref hackrf_set_clkin_ctrl
+ * - @ref hackrf_set_narrowband_filter
+ * - @ref hackrf_set_fpga_bitstream
+ * ## 0x010A
+ * (no new functions)
+ * ## 0x010B
+ * (no new functions)
+ * ## 0x010C
+ * (no new functions)
+ * ## 0x010D
+ * (no new functions)
+ * ## 0x010E
+ * (no new functions)
+ * ## 0x010F
+ * (no new functions)
+ * ## 0x0110
+ * (no new functions)
+ * ## 0x0111
+ * - @ref hackrf_radio_read_register
+ * - @ref hackrf_radio_write_register
+ * ## 0x0112
+ * (no new functions)
+ * ## 0x0113
+ * - @ref hackrf_sync_start
  */
 
 /**
@@ -1997,6 +2026,23 @@ extern ADDAPI int ADDCALL hackrf_set_hw_sync_mode(
 	const uint8_t value);
 
 /**
+ * Start transceiver mode with hardware trigger arming
+ *
+ * This function sets the transceiver mode while arming the hardware trigger
+ * before entering the mode. Unlike the internal set-transceiver-mode path,
+ * it enables trigger latching in the radio/FPGA prior to the mode change,
+ * which allows multiple HackRF devices to synchronize their start of capture
+ * via the hardware trigger line.
+ *
+ * Requires USB API version 0x0113 or above!
+ * @param device the HackRF device handle
+ * @param mode transceiver mode to enter. Valid values are:
+ *             - 0 (OFF)
+ *             - 1 (RX)
+ *             - 2 (TX)
+ * @return @ref HACKRF_SUCCESS on success, @ref HACKRF_ERROR_INVALID_PARAM if
+ *         the mode is invalid or device is NULL, @ref HACKRF_ERROR_USB_API_VERSION
+ *         if the firmware is too old, or another @ref hackrf_error variant
  * @ingroup streaming
  */
 extern ADDAPI int ADDCALL hackrf_sync_start(

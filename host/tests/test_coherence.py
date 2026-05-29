@@ -29,25 +29,50 @@ USB bulk transfers.
 
 Requirements:
 - numpy
-- libhackrf.dylib built at the path below
+- libhackrf built and available on the system
 """
 
+import argparse
 import ctypes
+import ctypes.util
+import os
 import sys
 import threading
 import time
 
 import numpy as np
 
-# ---------------------------------------------------------------------------
-# Configuration
-# ---------------------------------------------------------------------------
-LIBHACKRF_PATH = "/Users/ivo/hackrf/host/build/libhackrf/src/libhackrf.dylib"
 
-PRO_SERIAL = b"645061de252d6613"
-ONE_SERIAL = b"922c63dc21748847"
+# ---------------------------------------------------------------------------
+# Configuration helpers
+# ---------------------------------------------------------------------------
+def _resolve_lib():
+    """Return path to libhackrf, using args > env > find_library > default."""
+    default = "/Users/ivo/hackrf/host/build/libhackrf/src/libhackrf.dylib"
+    path = os.environ.get("HACKRF_LIB")
+    if path:
+        return path
+    found = ctypes.util.find_library("hackrf")
+    if found:
+        return found
+    return default
 
-# Use FM broadcast band — strong ambient signals give reliable correlation peaks.
+
+def _resolve_serials(args):
+    """Return (pro_serial, one_serial) from args/env/defaults."""
+    pro_default = b"645061de252d6613"
+    one_default = b"922c63dc21748847"
+    pro = args.serial_pro or os.environ.get("HACKRF_SERIAL_PRO", "")
+    one = args.serial_one or os.environ.get("HACKRF_SERIAL_ONE", "")
+    return (
+        pro.encode() if pro else pro_default,
+        one.encode() if one else one_default,
+    )
+
+
+# ---------------------------------------------------------------------------
+# RF / capture parameters
+# ---------------------------------------------------------------------------
 CENTER_FREQ_HZ = 100_000_000
 SAMPLE_RATE_HZ = 10_000_000.0
 CAPTURE_BYTES = 524_288          # 262_144 complex IQ samples
@@ -63,75 +88,6 @@ PHASE_STABILITY_THRESHOLD_DEG = 5.0
 HACKRF_SUCCESS = 0
 P2_SIGNAL_CLK3 = 0
 
-# ---------------------------------------------------------------------------
-# Load libhackrf and configure argtypes / restypes
-# ---------------------------------------------------------------------------
-try:
-    libhackrf = ctypes.CDLL(LIBHACKRF_PATH)
-except OSError as exc:
-    print(f"FAIL: Could not load libhackrf from {LIBHACKRF_PATH}: {exc}")
-    sys.exit(1)
-
-libhackrf.hackrf_init.argtypes = []
-libhackrf.hackrf_init.restype = ctypes.c_int
-
-libhackrf.hackrf_exit.argtypes = []
-libhackrf.hackrf_exit.restype = ctypes.c_int
-
-libhackrf.hackrf_open_by_serial.argtypes = [
-    ctypes.c_char_p,
-    ctypes.POINTER(ctypes.c_void_p),
-]
-libhackrf.hackrf_open_by_serial.restype = ctypes.c_int
-
-libhackrf.hackrf_close.argtypes = [ctypes.c_void_p]
-libhackrf.hackrf_close.restype = ctypes.c_int
-
-libhackrf.hackrf_error_name.argtypes = [ctypes.c_int]
-libhackrf.hackrf_error_name.restype = ctypes.c_char_p
-
-libhackrf.hackrf_set_freq.argtypes = [ctypes.c_void_p, ctypes.c_uint64]
-libhackrf.hackrf_set_freq.restype = ctypes.c_int
-
-libhackrf.hackrf_set_sample_rate.argtypes = [ctypes.c_void_p, ctypes.c_double]
-libhackrf.hackrf_set_sample_rate.restype = ctypes.c_int
-
-libhackrf.hackrf_set_hw_sync_mode.argtypes = [ctypes.c_void_p, ctypes.c_uint8]
-libhackrf.hackrf_set_hw_sync_mode.restype = ctypes.c_int
-
-libhackrf.hackrf_sync_start.argtypes = [ctypes.c_void_p, ctypes.c_uint8]
-libhackrf.hackrf_sync_start.restype = ctypes.c_int
-
-libhackrf.hackrf_start_rx.argtypes = [
-    ctypes.c_void_p,
-    ctypes.c_void_p,   # callback (CFUNCTYPE pointer)
-    ctypes.c_void_p,   # rx_ctx
-]
-libhackrf.hackrf_start_rx.restype = ctypes.c_int
-
-libhackrf.hackrf_stop_rx.argtypes = [ctypes.c_void_p]
-libhackrf.hackrf_stop_rx.restype = ctypes.c_int
-
-libhackrf.hackrf_set_clkout_enable.argtypes = [ctypes.c_void_p, ctypes.c_uint8]
-libhackrf.hackrf_set_clkout_enable.restype = ctypes.c_int
-
-libhackrf.hackrf_get_clkin_status.argtypes = [
-    ctypes.c_void_p,
-    ctypes.POINTER(ctypes.c_uint8),
-]
-libhackrf.hackrf_get_clkin_status.restype = ctypes.c_int
-
-libhackrf.hackrf_set_p2_ctrl.argtypes = [ctypes.c_void_p, ctypes.c_int]
-libhackrf.hackrf_set_p2_ctrl.restype = ctypes.c_int
-
-libhackrf.hackrf_set_lna_gain.argtypes = [ctypes.c_void_p, ctypes.c_uint32]
-libhackrf.hackrf_set_lna_gain.restype = ctypes.c_int
-
-libhackrf.hackrf_set_vga_gain.argtypes = [ctypes.c_void_p, ctypes.c_uint32]
-libhackrf.hackrf_set_vga_gain.restype = ctypes.c_int
-
-libhackrf.hackrf_is_streaming.argtypes = [ctypes.c_void_p]
-libhackrf.hackrf_is_streaming.restype = ctypes.c_int
 
 # ---------------------------------------------------------------------------
 # Callback machinery
@@ -472,6 +428,100 @@ def compute_phase_diff(buf_pro: bytes, buf_one: bytes):
 # Main test routine
 # ---------------------------------------------------------------------------
 def main() -> int:
+    parser = argparse.ArgumentParser(
+        description="Validate coherent multi-device operation for HackRF"
+    )
+    parser.add_argument(
+        "--lib",
+        default=None,
+        help="Path to libhackrf (default: $HACKRF_LIB or ctypes.util.find_library('hackrf'))",
+    )
+    parser.add_argument(
+        "--serial-pro",
+        default=None,
+        help="Serial number of HackRF Pro (default: $HACKRF_SERIAL_PRO or built-in default)",
+    )
+    parser.add_argument(
+        "--serial-one",
+        default=None,
+        help="Serial number of HackRF One (default: $HACKRF_SERIAL_ONE or built-in default)",
+    )
+    args = parser.parse_args()
+
+    lib_path = args.lib or _resolve_lib()
+    PRO_SERIAL, ONE_SERIAL = _resolve_serials(args)
+
+    # -----------------------------------------------------------------------
+    # Load libhackrf and configure argtypes / restypes
+    # -----------------------------------------------------------------------
+    global libhackrf
+    try:
+        libhackrf = ctypes.CDLL(lib_path)
+    except OSError as exc:
+        print(f"FAIL: Could not load libhackrf from {lib_path}: {exc}")
+        sys.exit(1)
+
+    libhackrf.hackrf_init.argtypes = []
+    libhackrf.hackrf_init.restype = ctypes.c_int
+
+    libhackrf.hackrf_exit.argtypes = []
+    libhackrf.hackrf_exit.restype = ctypes.c_int
+
+    libhackrf.hackrf_open_by_serial.argtypes = [
+        ctypes.c_char_p,
+        ctypes.POINTER(ctypes.c_void_p),
+    ]
+    libhackrf.hackrf_open_by_serial.restype = ctypes.c_int
+
+    libhackrf.hackrf_close.argtypes = [ctypes.c_void_p]
+    libhackrf.hackrf_close.restype = ctypes.c_int
+
+    libhackrf.hackrf_error_name.argtypes = [ctypes.c_int]
+    libhackrf.hackrf_error_name.restype = ctypes.c_char_p
+
+    libhackrf.hackrf_set_freq.argtypes = [ctypes.c_void_p, ctypes.c_uint64]
+    libhackrf.hackrf_set_freq.restype = ctypes.c_int
+
+    libhackrf.hackrf_set_sample_rate.argtypes = [ctypes.c_void_p, ctypes.c_double]
+    libhackrf.hackrf_set_sample_rate.restype = ctypes.c_int
+
+    libhackrf.hackrf_set_hw_sync_mode.argtypes = [ctypes.c_void_p, ctypes.c_uint8]
+    libhackrf.hackrf_set_hw_sync_mode.restype = ctypes.c_int
+
+    libhackrf.hackrf_sync_start.argtypes = [ctypes.c_void_p, ctypes.c_uint8]
+    libhackrf.hackrf_sync_start.restype = ctypes.c_int
+
+    libhackrf.hackrf_start_rx.argtypes = [
+        ctypes.c_void_p,
+        ctypes.c_void_p,   # callback (CFUNCTYPE pointer)
+        ctypes.c_void_p,   # rx_ctx
+    ]
+    libhackrf.hackrf_start_rx.restype = ctypes.c_int
+
+    libhackrf.hackrf_stop_rx.argtypes = [ctypes.c_void_p]
+    libhackrf.hackrf_stop_rx.restype = ctypes.c_int
+
+    libhackrf.hackrf_set_clkout_enable.argtypes = [ctypes.c_void_p, ctypes.c_uint8]
+    libhackrf.hackrf_set_clkout_enable.restype = ctypes.c_int
+
+    libhackrf.hackrf_get_clkin_status.argtypes = [
+        ctypes.c_void_p,
+        ctypes.POINTER(ctypes.c_uint8),
+    ]
+    libhackrf.hackrf_get_clkin_status.restype = ctypes.c_int
+
+    libhackrf.hackrf_set_p2_ctrl.argtypes = [ctypes.c_void_p, ctypes.c_int]
+    libhackrf.hackrf_set_p2_ctrl.restype = ctypes.c_int
+
+    libhackrf.hackrf_set_lna_gain.argtypes = [ctypes.c_void_p, ctypes.c_uint32]
+    libhackrf.hackrf_set_lna_gain.restype = ctypes.c_int
+
+    libhackrf.hackrf_set_vga_gain.argtypes = [ctypes.c_void_p, ctypes.c_uint32]
+    libhackrf.hackrf_set_vga_gain.restype = ctypes.c_int
+
+    libhackrf.hackrf_is_streaming.argtypes = [ctypes.c_void_p]
+    libhackrf.hackrf_is_streaming.restype = ctypes.c_int
+
     print("=" * 70)
     print("HackRF coherent multi-device validation")
     print("=" * 70)

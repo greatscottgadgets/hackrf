@@ -6,43 +6,33 @@ The Pro firmware should reject FPGA bitstream switches while the
 transceiver is in RX or TX mode (opmode != OFF).
 """
 
+import argparse
 import ctypes
+import ctypes.util
+import os
 import sys
 
-LIBHACKRF_PATH = "/Users/ivo/hackrf/host/build/libhackrf/src/libhackrf.dylib"
-SERIAL = b"645061de252d6613"
+
+def _resolve_lib():
+    """Return path to libhackrf, using args > env > find_library > default."""
+    default = "/Users/ivo/hackrf/host/build/libhackrf/src/libhackrf.dylib"
+    path = os.environ.get("HACKRF_LIB")
+    if path:
+        return path
+    found = ctypes.util.find_library("hackrf")
+    if found:
+        return found
+    return default
+
+
+def _resolve_serial(args):
+    """Return Pro serial from args/env/default."""
+    default = b"645061de252d6613"
+    serial = args.serial_pro or os.environ.get("HACKRF_SERIAL_PRO", "")
+    return serial.encode() if serial else default
+
 
 HACKRF_SUCCESS = 0
-
-try:
-    libhackrf = ctypes.CDLL(LIBHACKRF_PATH)
-except OSError as e:
-    print(f"FAIL: Could not load libhackrf: {e}")
-    sys.exit(1)
-
-libhackrf.hackrf_init.argtypes = []
-libhackrf.hackrf_init.restype = ctypes.c_int
-
-libhackrf.hackrf_open_by_serial.argtypes = [
-    ctypes.c_char_p,
-    ctypes.POINTER(ctypes.c_void_p),
-]
-libhackrf.hackrf_open_by_serial.restype = ctypes.c_int
-
-libhackrf.hackrf_close.argtypes = [ctypes.c_void_p]
-libhackrf.hackrf_close.restype = ctypes.c_int
-
-libhackrf.hackrf_exit.argtypes = []
-libhackrf.hackrf_exit.restype = ctypes.c_int
-
-libhackrf.hackrf_error_name.argtypes = [ctypes.c_int]
-libhackrf.hackrf_error_name.restype = ctypes.c_char_p
-
-libhackrf.hackrf_sync_start.argtypes = [ctypes.c_void_p, ctypes.c_uint8]
-libhackrf.hackrf_sync_start.restype = ctypes.c_int
-
-libhackrf.hackrf_set_fpga_bitstream.argtypes = [ctypes.c_void_p, ctypes.c_uint8]
-libhackrf.hackrf_set_fpga_bitstream.restype = ctypes.c_int
 
 
 def error_string(code: int) -> str:
@@ -51,6 +41,55 @@ def error_string(code: int) -> str:
 
 
 def main() -> int:
+    parser = argparse.ArgumentParser(
+        description="Physical test for FPGA bitstream guard on HackRF Pro"
+    )
+    parser.add_argument(
+        "--lib",
+        default=None,
+        help="Path to libhackrf (default: $HACKRF_LIB or ctypes.util.find_library('hackrf'))",
+    )
+    parser.add_argument(
+        "--serial-pro",
+        default=None,
+        help="Serial number of HackRF Pro (default: $HACKRF_SERIAL_PRO or built-in default)",
+    )
+    args = parser.parse_args()
+
+    lib_path = args.lib or _resolve_lib()
+    SERIAL = _resolve_serial(args)
+
+    global libhackrf
+    try:
+        libhackrf = ctypes.CDLL(lib_path)
+    except OSError as e:
+        print(f"FAIL: Could not load libhackrf from {lib_path}: {e}")
+        sys.exit(1)
+
+    libhackrf.hackrf_init.argtypes = []
+    libhackrf.hackrf_init.restype = ctypes.c_int
+
+    libhackrf.hackrf_open_by_serial.argtypes = [
+        ctypes.c_char_p,
+        ctypes.POINTER(ctypes.c_void_p),
+    ]
+    libhackrf.hackrf_open_by_serial.restype = ctypes.c_int
+
+    libhackrf.hackrf_close.argtypes = [ctypes.c_void_p]
+    libhackrf.hackrf_close.restype = ctypes.c_int
+
+    libhackrf.hackrf_exit.argtypes = []
+    libhackrf.hackrf_exit.restype = ctypes.c_int
+
+    libhackrf.hackrf_error_name.argtypes = [ctypes.c_int]
+    libhackrf.hackrf_error_name.restype = ctypes.c_char_p
+
+    libhackrf.hackrf_sync_start.argtypes = [ctypes.c_void_p, ctypes.c_uint8]
+    libhackrf.hackrf_sync_start.restype = ctypes.c_int
+
+    libhackrf.hackrf_set_fpga_bitstream.argtypes = [ctypes.c_void_p, ctypes.c_uint8]
+    libhackrf.hackrf_set_fpga_bitstream.restype = ctypes.c_int
+
     print("=" * 70)
     print("FPGA bitstream guard test")
     print("=" * 70)
@@ -101,12 +140,27 @@ def main() -> int:
         print("PASS: Bitstream switch rejected while in RX mode")
         guard_passed = True
 
+    success_path_passed = False
+
     # Reset to OFF mode
     result_off = libhackrf.hackrf_sync_start(device_ptr, 0)
     if result_off != HACKRF_SUCCESS:
         print(f"WARNING: reset to OFF failed: {result_off} ({error_string(result_off)})")
     else:
         print("Device reset to OFF mode")
+
+    # Success-path: switch should be accepted in OFF mode
+    result = libhackrf.hackrf_set_fpga_bitstream(device_ptr, 0)
+    print(
+        f"hackrf_set_fpga_bitstream(index=0) while OFF: "
+        f"result={result} ({error_string(result)})"
+    )
+    if result == HACKRF_SUCCESS:
+        print("PASS: Bitstream switch accepted while in OFF mode")
+        success_path_passed = True
+    else:
+        print("FAIL: Bitstream switch rejected while in OFF mode")
+        success_path_passed = False
 
     libhackrf.hackrf_close(device_ptr)
     print("Device closed")
@@ -115,12 +169,12 @@ def main() -> int:
     print("hackrf_exit() OK")
     print()
     print("=" * 70)
-    if guard_passed:
-        print("FPGA bitstream guard test PASSED")
+    if guard_passed and success_path_passed:
+        print("FPGA bitstream guard + success-path test PASSED")
     else:
-        print("FPGA bitstream guard test FAILED")
+        print("FPGA bitstream guard + success-path test FAILED")
     print("=" * 70)
-    return 0 if guard_passed else 1
+    return 0 if (guard_passed and success_path_passed) else 1
 
 
 if __name__ == "__main__":
