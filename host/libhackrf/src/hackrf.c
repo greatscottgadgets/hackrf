@@ -960,8 +960,7 @@ int ADDCALL hackrf_set_transceiver_mode(
 	    value != HACKRF_TRANSCEIVER_MODE_RECEIVE &&
 	    value != HACKRF_TRANSCEIVER_MODE_TRANSMIT &&
 	    value != HACKRF_TRANSCEIVER_MODE_SS &&
-	    value != TRANSCEIVER_MODE_CPLD_UPDATE &&
-	    value != TRANSCEIVER_MODE_RX_SWEEP) {
+	    value != TRANSCEIVER_MODE_CPLD_UPDATE && value != TRANSCEIVER_MODE_RX_SWEEP) {
 		return HACKRF_ERROR_INVALID_PARAM;
 	}
 	result = libusb_control_transfer(
