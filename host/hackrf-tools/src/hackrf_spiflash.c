@@ -196,7 +196,7 @@ static void usage()
 	printf("\t-i, --no-check: Skip check for firmware compatibility with target device.\n");
 	printf("\t-d, --device <serialnumber>: Serial number of device, if multiple devices\n");
 	printf("\t-s, --status: Read SPI flash status registers before other operations.\n");
-	printf("\t-c, --clear: Clear SPI flash status registers before other operations.\n");
+	printf("\t-C, --clear: Clear SPI flash status registers before other operations.\n");
 	printf("\t-R, --reset: Reset HackRF after other operations.\n");
 	printf("\t-v, --verbose: Verbose output.\n");
 }
@@ -232,7 +232,7 @@ int main(int argc, char** argv)
 	while ((opt = getopt_long(
 			argc,
 			argv,
-			"a:l:r:w:id:scvRh?",
+			"a:l:r:w:id:scCvRh?",
 			long_options,
 			&option_index)) != EOF) {
 		switch (opt) {
@@ -267,7 +267,7 @@ int main(int argc, char** argv)
 			read_status = true;
 			break;
 
-		case 'c':
+		case 'C':
 			clear_status = true;
 			break;
 
