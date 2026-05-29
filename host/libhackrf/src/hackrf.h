@@ -1997,6 +1997,13 @@ extern ADDAPI int ADDCALL hackrf_set_hw_sync_mode(
 	const uint8_t value);
 
 /**
+ * @ingroup streaming
+ */
+extern ADDAPI int ADDCALL hackrf_sync_start(
+	hackrf_device* device,
+	const uint8_t mode);
+
+/**
  * Initialize sweep mode
  * 
  * In this mode, in a single data transfer (single call to the RX transfer callback), multiple blocks of size @p num_bytes bytes are received with different center frequencies. At the beginning of each block, a 10-byte frequency header is present in `0x7F - 0x7F - uint64_t frequency (LSBFIRST, in Hz)` format, followed by the actual samples.

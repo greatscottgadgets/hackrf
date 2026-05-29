@@ -121,6 +121,7 @@ typedef enum {
 	HACKRF_VENDOR_REQUEST_RADIO_WRITE_REG = 59,
 	HACKRF_VENDOR_REQUEST_RADIO_READ_REG = 60,
 	HACKRF_VENDOR_REQUEST_GET_BUFFER_SIZE = 61,
+	HACKRF_VENDOR_REQUEST_SYNC_START = 62,
 } hackrf_vendor_request;
 
 #define USB_CONFIG_STANDARD 0x1
@@ -2723,6 +2724,27 @@ int ADDCALL hackrf_set_hw_sync_mode(hackrf_device* device, const uint8_t value)
 			LIBUSB_RECIPIENT_DEVICE,
 		HACKRF_VENDOR_REQUEST_SET_HW_SYNC_MODE,
 		value,
+		0,
+		NULL,
+		0,
+		DEFAULT_REQUEST_TIMEOUT);
+
+	if (result != 0) {
+		last_libusb_error = result;
+		return HACKRF_ERROR_LIBUSB;
+	} else {
+		return HACKRF_SUCCESS;
+	}
+}
+
+int ADDCALL hackrf_sync_start(hackrf_device* device, const uint8_t mode)
+{
+	int result = libusb_control_transfer(
+		device->usb_device,
+		LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR |
+			LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_SYNC_START,
+		mode,
 		0,
 		NULL,
 		0,
