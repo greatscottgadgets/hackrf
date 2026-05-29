@@ -46,13 +46,31 @@ SET(PATH_PRALINE_FPGA_OBJ ${CMAKE_CURRENT_BINARY_DIR}/fpga.o)
 include(${PATH_HACKRF_FIRMWARE}/dfu-util.cmake)
 
 include(ExternalProject)
-ExternalProject_Add(libopencm3_${PROJECT_NAME}
-	SOURCE_DIR "${LIBOPENCM3}"
-	BUILD_IN_SOURCE true
-	DOWNLOAD_COMMAND ""
-	CONFIGURE_COMMAND ""
-	INSTALL_COMMAND ""
-)
+
+# Build libopencm3 once and share it across hackrf_usb/blinky to avoid races.
+# Clean first so stale in-source dependency files from another environment
+# (e.g. local mbt vs Docker) do not poison the build.
+if(NOT TARGET libopencm3_hackrf)
+	ExternalProject_Add(libopencm3_hackrf
+		SOURCE_DIR "${LIBOPENCM3}"
+		BUILD_IN_SOURCE true
+		DOWNLOAD_COMMAND ""
+		CONFIGURE_COMMAND ""
+		BUILD_COMMAND make clean
+		COMMAND make lib/lpc43xx/m0 lib/lpc43xx/m4
+		INSTALL_COMMAND ""
+	)
+endif()
+
+# Explicitly model the generated headers that consumers need before compile.
+if(NOT TARGET libopencm3_headers_hackrf)
+	add_custom_target(libopencm3_headers_hackrf
+		DEPENDS
+			${LIBOPENCM3}/include/libopencm3/lpc43xx/m0/nvic.h
+			${LIBOPENCM3}/include/libopencm3/lpc43xx/m4/nvic.h
+	)
+	add_dependencies(libopencm3_headers_hackrf libopencm3_hackrf)
+endif()
 
 if (NOT DEFINED VERSION)
 	execute_process(
@@ -146,9 +164,11 @@ macro(DeclareTarget project_name variant_suffix cflags ldflags)
 	)
 
 	add_library(${project_name}${variant_suffix}_objects OBJECT ${SRC_M4} ${project_name}${variant_suffix}_m0_bin.s)
+	add_dependencies(${project_name}${variant_suffix}_objects libopencm3_headers_hackrf)
 	set_target_properties(${project_name}${variant_suffix}_objects PROPERTIES COMPILE_FLAGS "${cflags}")
+
 	add_executable(${project_name}${variant_suffix}.elf $<TARGET_OBJECTS:${project_name}${variant_suffix}_objects> ${OBJ_M4})
-	add_dependencies(${project_name}${variant_suffix}.elf libopencm3_${project_name})
+	add_dependencies(${project_name}${variant_suffix}.elf libopencm3_hackrf)
 
 	target_link_libraries(
 		${project_name}${variant_suffix}.elf
@@ -259,7 +279,7 @@ macro(DeclareTargets)
 	)
 
 	add_executable(${PROJECT_NAME}_m0.elf ${SRC_M0})
-	add_dependencies(${PROJECT_NAME}_m0.elf libopencm3_${PROJECT_NAME})
+	add_dependencies(${PROJECT_NAME}_m0.elf libopencm3_headers_hackrf)
 
 	target_link_libraries(
 		${PROJECT_NAME}_m0.elf
