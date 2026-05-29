@@ -756,8 +756,10 @@ int main(int argc, char** argv)
 	uint32_t tx_timeout_sec = 0;
 	bool tx_timeout = false;
 
-	while ((opt = getopt(argc, argv, "Hwr:t:f:i:o:m:a:p:s:Fn:b:l:g:x:c:d:C:RS:Bh?T:U:P:O:")) !=
-	       EOF) {
+	while ((opt = getopt(
+			argc,
+			argv,
+			"Hwr:t:f:i:o:m:a:p:s:Fn:b:l:g:x:c:d:C:RS:Bh?T:U:P:O:")) != EOF) {
 		result = HACKRF_SUCCESS;
 		switch (opt) {
 		case 'H':
@@ -1393,9 +1395,7 @@ int main(int argc, char** argv)
 	gettimeofday(&time_start, NULL);
 
 	if (tx_timeout && (transmit || signalsource)) {
-		fprintf(stderr,
-			"TX timeout enabled: %u seconds\n",
-			tx_timeout_sec);
+		fprintf(stderr, "TX timeout enabled: %u seconds\n", tx_timeout_sec);
 	}
 
 	fprintf(stderr, "Stop with Ctrl-C\n");
@@ -1418,7 +1418,7 @@ int main(int argc, char** argv)
 			struct timeval time_now;
 			gettimeofday(&time_now, NULL);
 			float elapsed = (time_now.tv_sec - t_start.tv_sec) +
-					1e-6f * (time_now.tv_usec - t_start.tv_usec);
+				1e-6f * (time_now.tv_usec - t_start.tv_usec);
 			if (elapsed >= tx_timeout_sec) {
 				fprintf(stderr,
 					"TX timeout reached after %u seconds, stopping.\n",

@@ -25,6 +25,7 @@
 
 #include <clock_io.h>
 #include <platform_detect.h>
+#include <radio.h>
 #include <rf_path.h>
 #include <usb_queue.h>
 #include <usb_request.h>
@@ -41,6 +42,11 @@ usb_request_status_t usb_vendor_request_p1_ctrl(
 		return USB_REQUEST_STATUS_STALL;
 	}
 
+	const uint64_t opmode = radio_reg_read(&radio, RADIO_BANK_APPLIED, RADIO_OPMODE);
+	if (opmode != TRANSCEIVER_MODE_OFF) {
+		return USB_REQUEST_STATUS_STALL;
+	}
+
 	if (stage == USB_TRANSFER_STAGE_SETUP) {
 		p1_ctrl_set(endpoint->setup.value);
 		usb_transfer_schedule_ack(endpoint->in);
@@ -53,6 +59,11 @@ usb_request_status_t usb_vendor_request_p2_ctrl(
 	const usb_transfer_stage_t stage)
 {
 	if (detected_platform() != BOARD_ID_PRALINE) {
+		return USB_REQUEST_STATUS_STALL;
+	}
+
+	const uint64_t opmode = radio_reg_read(&radio, RADIO_BANK_APPLIED, RADIO_OPMODE);
+	if (opmode != TRANSCEIVER_MODE_OFF) {
 		return USB_REQUEST_STATUS_STALL;
 	}
 
@@ -105,6 +116,11 @@ usb_request_status_t usb_vendor_request_set_fpga_bitstream(
 	extern struct fpga_loader_t fpga_loader;
 
 	if (detected_platform() != BOARD_ID_PRALINE) {
+		return USB_REQUEST_STATUS_STALL;
+	}
+
+	const uint64_t opmode = radio_reg_read(&radio, RADIO_BANK_APPLIED, RADIO_OPMODE);
+	if (opmode != TRANSCEIVER_MODE_OFF) {
 		return USB_REQUEST_STATUS_STALL;
 	}
 

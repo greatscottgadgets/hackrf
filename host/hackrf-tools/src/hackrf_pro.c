@@ -66,14 +66,10 @@ static int parse_shift(const char* s, uint8_t* out)
 }
 
 static int fpga_write_reg(hackrf_device* device, uint8_t addr, uint8_t value)
-{
-	return hackrf_fpga_write_register(device, addr, value);
-}
+{ return hackrf_fpga_write_register(device, addr, value); }
 
 static int fpga_read_reg(hackrf_device* device, uint8_t addr, uint8_t* value)
-{
-	return hackrf_fpga_read_register(device, addr, value);
-}
+{ return hackrf_fpga_read_register(device, addr, value); }
 
 int main(int argc, char** argv)
 {
@@ -235,8 +231,9 @@ int main(int argc, char** argv)
 				result);
 		} else {
 			printf("Quarter-shift set to %s\n",
-			       quarter_shift == 0 ? "none" :
-			       quarter_shift == 1 ? "up" : "down");
+			       quarter_shift == 0         ? "none" :
+				       quarter_shift == 1 ? "up" :
+							    "down");
 		}
 	}
 
@@ -253,7 +250,7 @@ int main(int argc, char** argv)
 			/* Phase increment = (nco_freq * 256) / sample_rate
 			 * For simplicity we write the raw 8-bit value;
 			 * users can compute the correct value externally. */
-			uint8_t pstep = (uint8_t)(nco_freq & 0xFF);
+			uint8_t pstep = (uint8_t) (nco_freq & 0xFF);
 			result = fpga_write_reg(device, 6, pstep);
 		}
 		if (result != HACKRF_SUCCESS) {
@@ -262,7 +259,8 @@ int main(int argc, char** argv)
 				hackrf_error_name(result),
 				result);
 		} else {
-			printf("NCO enabled with phase increment %u\n", (unsigned int) (nco_freq & 0xFF));
+			printf("NCO enabled with phase increment %u\n",
+			       (unsigned int) (nco_freq & 0xFF));
 		}
 	}
 

@@ -442,6 +442,52 @@ static bool cpld_xc2c64a_jtag_sram_compare_row(
 	return matched;
 }
 
+bool cpld_xc2c64a_jtag_sram_checksum(
+	const jtag_t* const jtag,
+	const cpld_xc2c64a_verify_t* const verify,
+	uint32_t* const crc_value)
+{
+	cpld_xc2c_jtag_reset_and_idle(jtag);
+	cpld_xc2c_jtag_enable(jtag);
+
+	cpld_xc2c_jtag_sram_read(jtag);
+
+	crc32_t crc;
+	crc32_init(&crc);
+
+	/* Tricky loop to read dummy row first, then first address, then loop back to get
+	 * the first row's data.
+	 */
+	for (size_t address_row = 0; address_row <= CPLD_XC2C64A_ROWS; address_row++) {
+		const int data_row = (int) address_row - 1;
+		const size_t mask_index =
+			(data_row >= 0) ? verify->mask_index[data_row] : 0;
+		const uint8_t next_address = (address_row < CPLD_XC2C64A_ROWS) ?
+			cpld_hackrf_row_addresses.address[address_row] :
+			0;
+
+		uint8_t read[CPLD_XC2C64A_BYTES_IN_ROW];
+		memset(read, 0xff, sizeof(read));
+		cpld_xc2c64a_jtag_sram_read_row(jtag, &read[0], next_address);
+
+		if (data_row >= 0) {
+			for (size_t i = 0; i < CPLD_XC2C64A_BYTES_IN_ROW; i++) {
+				read[i] &= verify->mask[mask_index].value[i];
+			}
+
+			crc32_update(&crc, read, CPLD_XC2C64A_BYTES_IN_ROW);
+		}
+	}
+
+	*crc_value = crc32_digest(&crc);
+
+	cpld_xc2c_jtag_disable(jtag);
+	cpld_xc2c_jtag_bypass(jtag, false);
+	cpld_xc2c_jtag_reset(jtag);
+
+	return true;
+}
+
 void cpld_xc2c64a_jtag_sram_write(
 	const jtag_t* const jtag,
 	const cpld_xc2c64a_program_t* const program)

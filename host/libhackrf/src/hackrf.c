@@ -55,6 +55,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 #endif
 
 #define DEFAULT_REQUEST_TIMEOUT 100
+#define FPGA_BITSTREAM_TIMEOUT  1000
 #define CPLD_WRITE_TIMEOUT      10000
 #define SPIFLASH_WRITE_TIMEOUT  50000 // W25Q32JV max chip erase time
 
@@ -959,8 +960,7 @@ int ADDCALL hackrf_set_transceiver_mode(
 	    value != HACKRF_TRANSCEIVER_MODE_RECEIVE &&
 	    value != HACKRF_TRANSCEIVER_MODE_TRANSMIT &&
 	    value != HACKRF_TRANSCEIVER_MODE_SS &&
-	    value != TRANSCEIVER_MODE_CPLD_UPDATE &&
-	    value != TRANSCEIVER_MODE_RX_SWEEP) {
+	    value != TRANSCEIVER_MODE_CPLD_UPDATE && value != TRANSCEIVER_MODE_RX_SWEEP) {
 		return HACKRF_ERROR_INVALID_PARAM;
 	}
 	result = libusb_control_transfer(
@@ -3552,7 +3552,7 @@ int ADDCALL hackrf_set_fpga_bitstream(hackrf_device* device, const uint8_t index
 		0,
 		NULL,
 		0,
-		DEFAULT_REQUEST_TIMEOUT);
+		FPGA_BITSTREAM_TIMEOUT);
 
 	if (result != 0) {
 		last_libusb_error = result;

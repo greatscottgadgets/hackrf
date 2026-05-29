@@ -57,6 +57,10 @@ bool cpld_xc2c64a_jtag_checksum(
 	const jtag_t* const jtag,
 	const cpld_xc2c64a_verify_t* const verify,
 	uint32_t* const crc_value);
+bool cpld_xc2c64a_jtag_sram_checksum(
+	const jtag_t* const jtag,
+	const cpld_xc2c64a_verify_t* const verify,
+	uint32_t* const crc_value);
 void cpld_xc2c64a_jtag_sram_write(
 	const jtag_t* const jtag,
 	const cpld_xc2c64a_program_t* const program);
