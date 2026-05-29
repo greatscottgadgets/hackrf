@@ -55,6 +55,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 #endif
 
 #define DEFAULT_REQUEST_TIMEOUT 100
+#define FPGA_BITSTREAM_TIMEOUT  1000
 #define CPLD_WRITE_TIMEOUT      10000
 #define SPIFLASH_WRITE_TIMEOUT  50000 // W25Q32JV max chip erase time
 
@@ -3552,7 +3553,7 @@ int ADDCALL hackrf_set_fpga_bitstream(hackrf_device* device, const uint8_t index
 		0,
 		NULL,
 		0,
-		DEFAULT_REQUEST_TIMEOUT);
+		FPGA_BITSTREAM_TIMEOUT);
 
 	if (result != 0) {
 		last_libusb_error = result;
