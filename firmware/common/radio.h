@@ -34,6 +34,7 @@ typedef enum {
 	RADIO_ERR_INVALID_PARAM = -2,
 	RADIO_ERR_INVALID_BANK = -3,
 	RADIO_ERR_INVALID_REGISTER = -4,
+	RADIO_ERR_LOCKED_REGISTER = -5,
 	RADIO_ERR_UNSUPPORTED_OPERATION = -10,
 	RADIO_ERR_UNIMPLEMENTED = -19,
 	RADIO_ERR_OTHER = -9999,
@@ -225,6 +226,7 @@ typedef struct {
 	radio_config_mode_t config_mode;
 	uint64_t config[RADIO_NUM_BANKS][RADIO_NUM_REGS];
 	volatile uint32_t regs_dirty;
+	uint32_t regs_locked;
 	update_fn update_cb;
 } radio_t;
 
@@ -247,6 +249,15 @@ uint64_t radio_reg_read(
 	radio_t* const radio,
 	const radio_register_bank_t bank,
 	const radio_register_t reg);
+
+/**
+ * Lock a register. Prevents any future calls to `radio_reg_write`
+ * from overwriting the current stored value of the register.
+ */
+radio_error_t radio_reg_lock(
+	radio_t* const radio,
+	const radio_register_t reg,
+	const bool locked);
 
 /**
  * Apply changes requested in RADIO_BANK_ACTIVE.

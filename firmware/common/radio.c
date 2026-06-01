@@ -59,11 +59,17 @@ void radio_init(radio_t* const radio)
 	radio->config[RADIO_BANK_TX][RADIO_OPMODE] = TRANSCEIVER_MODE_TX;
 	radio->config[RADIO_BANK_IDLE][RADIO_BIAS_TEE] = false;
 	radio->regs_dirty = 0;
+	radio->regs_locked = 0;
 }
 
 static inline void mark_dirty(radio_t* const radio, radio_register_t reg)
 {
 	radio->regs_dirty |= (1 << reg);
+}
+
+static inline bool check_locked(radio_t* const radio, radio_register_t reg)
+{
+	return radio->regs_locked & (1 << reg);
 }
 
 radio_error_t radio_reg_write(
@@ -74,6 +80,10 @@ radio_error_t radio_reg_write(
 {
 	if (reg > RADIO_NUM_REGS) {
 		return RADIO_ERR_INVALID_REGISTER;
+	}
+
+	if (check_locked(radio, reg)) {
+		return RADIO_ERR_LOCKED_REGISTER;
 	}
 
 	switch (bank) {
@@ -104,6 +114,20 @@ uint64_t radio_reg_read(
 	const radio_register_t reg)
 {
 	return radio->config[bank][reg];
+}
+
+radio_error_t radio_reg_lock(
+	radio_t* const radio,
+	const radio_register_t reg,
+	const bool locked)
+{
+	if (reg > RADIO_NUM_REGS) {
+		return RADIO_ERR_INVALID_REGISTER;
+	}
+
+	radio->regs_locked = (radio->regs_locked & ~(1 << reg)) | (locked << reg);
+
+	return RADIO_OK;
 }
 
 static uint32_t radio_update_direction(radio_t* const radio, uint64_t* bank)

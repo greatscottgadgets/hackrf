@@ -120,6 +120,7 @@ typedef enum {
 	HACKRF_VENDOR_REQUEST_RADIO_WRITE_REG = 59,
 	HACKRF_VENDOR_REQUEST_RADIO_READ_REG = 60,
 	HACKRF_VENDOR_REQUEST_GET_BUFFER_SIZE = 61,
+	HACKRF_VENDOR_REQUEST_RADIO_LOCK_REG = 62,
 } hackrf_vendor_request;
 
 #define USB_CONFIG_STANDARD 0x1
@@ -3572,6 +3573,33 @@ int ADDCALL hackrf_radio_write_register(
 	} else {
 		return HACKRF_SUCCESS;
 	}
+}
+
+int ADDCALL hackrf_radio_lock_register(
+	hackrf_device* device,
+	const uint8_t register_number,
+	const bool register_locked)
+{
+	USB_API_REQUIRED(device, 0x0113);
+	int result;
+
+	result = libusb_control_transfer(
+		device->usb_device,
+		LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR |
+			LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_RADIO_LOCK_REG,
+		register_locked,
+		register_number,
+		NULL,
+		0,
+		DEFAULT_REQUEST_TIMEOUT);
+
+	if (result != 0) {
+		last_libusb_error = result;
+		return HACKRF_ERROR_LIBUSB;
+	}
+
+	return HACKRF_SUCCESS;
 }
 
 #ifdef __cplusplus

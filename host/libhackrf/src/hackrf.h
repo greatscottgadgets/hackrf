@@ -2385,6 +2385,20 @@ extern ADDAPI int ADDCALL hackrf_radio_write_register(
 	const uint8_t register_number,
 	const uint64_t value);
 
+/**
+ * Lock or unlock a radio configuration register.
+ *
+ * @param[in] device device to write
+ * @param[in] register_number register number to mask
+ * @param[out] locked locked state for the register
+ * @return @ref HACKRF_SUCCESS on success or @ref hackrf_error variant
+ * @ingroup debug
+ */
+extern ADDAPI int ADDCALL hackrf_radio_lock_register(
+	hackrf_device* device,
+	const uint8_t register_number,
+	const bool register_locked);
+
 #ifdef __cplusplus
 } // __cplusplus defined.
 #endif
