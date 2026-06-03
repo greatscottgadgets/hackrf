@@ -240,6 +240,7 @@ class ProgrammableShift(wiring.Component):
 
         # Implement the map itself (should it be done outside?)
         max_shift = max(self.shift_map.values())
+        min_shift = min(self.shift_map.values())
 
         value_scaled = [ Signal(signed(self.width_in + max_shift)) for _ in range(self.num_channels) ]
         scaled_valid = Signal()
@@ -255,7 +256,9 @@ class ProgrammableShift(wiring.Component):
                         for k, v in self.shift_map.items():
                             with m.Case(k):
                                 m.d.sync += value_scaled[c].eq(self.input.payload[c] << (max_shift - v))
-        
+                        with m.Default():
+                            m.d.sync += value_scaled[c].eq(self.input.payload[c] << (max_shift - min_shift))
+
         with m.If(~self.output.valid | self.output.ready):
             m.d.comb += scaled_ready.eq(1)
             m.d.sync += self.output.valid.eq(scaled_valid)
