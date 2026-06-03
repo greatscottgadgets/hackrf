@@ -43,6 +43,11 @@ Software That Has Direct Support For HackRF
 
     * `https://xakcop.com/aprs-sdr <https://xakcop.com/aprs-sdr/>`__
 
+* SigDigger (Windows/Linux/macOS)
+
+    * `https://github.com/BatchDrake/SigDigger <https://github.com/BatchDrake/SigDigger>`__
+    * Supports HackRF through SoapySDR / SoapyHackRF
+
 
 
 Software That Can Use Data From HackRF
