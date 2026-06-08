@@ -46,12 +46,13 @@ typedef struct _spi_bus_t {
 
 void spi_bus_start(spi_bus_t* const bus, const void* const config);
 void spi_bus_stop(spi_bus_t* const bus);
-void spi_bus_transfer(spi_bus_t* const bus, void* const data, const size_t count);
+void spi_bus_transfer(
+	spi_bus_t* const bus,
+	const void* const config,
+	void* const data,
+	const size_t count);
 void spi_bus_transfer_gather(
 	spi_bus_t* const bus,
+	const void* const config,
 	const spi_transfer_t* const transfers,
 	const size_t count);
-
-/* Driver instances. */
-extern spi_bus_t spi_bus_ssp0;
-extern spi_bus_t spi_bus_ssp1;

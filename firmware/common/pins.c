@@ -318,8 +318,6 @@ void pins_setup(void)
 	}
 #endif
 
-	ssp1_set_mode_max283x();
-
 	mixer_bus_setup(&mixer);
 
 #ifdef IS_H1_R9

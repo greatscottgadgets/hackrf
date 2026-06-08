@@ -28,6 +28,23 @@
 #include <libopencm3/lpc43xx/rgu.h>
 #include <libopencm3/lpc43xx/ssp.h>
 
+/* Driver instances. */
+spi_bus_t spi_bus_ssp0 = {
+	.obj = (void*) SSP0_BASE,
+	.start = spi_ssp_start,
+	.stop = spi_ssp_stop,
+	.transfer = spi_ssp_transfer,
+	.transfer_gather = spi_ssp_transfer_gather,
+};
+
+spi_bus_t spi_bus_ssp1 = {
+	.obj = (void*) SSP1_BASE,
+	.start = spi_ssp_start,
+	.stop = spi_ssp_stop,
+	.transfer = spi_ssp_transfer,
+	.transfer_gather = spi_ssp_transfer_gather,
+};
+
 void spi_ssp_start(spi_bus_t* const bus, const void* const _config)
 {
 	const ssp_config_t* const config = _config;

@@ -202,7 +202,7 @@ static uint16_t rffc5071_spi_read(rffc5071_driver_t* const drv, uint8_t r)
 	(void) drv;
 
 	uint16_t data[] = {0x80 | (r & 0x7f), 0xffff};
-	spi_bus_transfer(drv->bus, data, 2);
+	spi_bus_transfer(drv->bus, drv->bus->config, data, 2);
 	return data[1];
 }
 
@@ -211,7 +211,7 @@ static void rffc5071_spi_write(rffc5071_driver_t* const drv, uint8_t r, uint16_t
 	(void) drv;
 
 	uint16_t data[] = {0x00 | (r & 0x7f), v};
-	spi_bus_transfer(drv->bus, data, 2);
+	spi_bus_transfer(drv->bus, drv->bus->config, data, 2);
 }
 
 uint16_t rffc5071_reg_read(rffc5071_driver_t* const drv, uint8_t r)

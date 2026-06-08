@@ -42,4 +42,3 @@ void max5864_xcvr(max5864_driver_t* const drv);
 /* Driver instance. */
 extern ssp_config_t ssp_config_max5864;
 extern max5864_driver_t max5864;
-void ssp1_set_mode_max5864(void);

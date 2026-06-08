@@ -43,6 +43,7 @@ typedef enum {
 
 typedef struct _max2837_driver_t {
 	spi_bus_t* bus;
+	void* config;
 	gpio_t gpio_enable;
 	gpio_t gpio_rx_enable;
 	gpio_t gpio_tx_enable;
