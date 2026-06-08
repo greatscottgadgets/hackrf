@@ -51,12 +51,6 @@ si5351c_driver_t si5351c = {
 	.i2c_address = 0x60,
 };
 
-uint8_t clkout_id;
-uint8_t mcu_clkin_id;
-
-static bool input_initialized = false;
-static si5351c_input_t active_input;
-
 /* write to single register */
 void si5351c_write_single(si5351c_driver_t* const drv, uint8_t reg, uint8_t val)
 {
@@ -290,7 +284,7 @@ void si5351c_enable_clock_outputs(si5351c_driver_t* const drv)
 #ifdef IS_H1_R9
 	if (IS_H1_R9) {
 		const platform_gpio_t* gpio = platform_gpio();
-		if (drv->clk[clkout_id].output_enable) {
+		if (drv->clk[drv->clkout_id].output_enable) {
 			gpio_set(gpio->h1r9_clkout_en);
 		} else {
 			gpio_clear(gpio->h1r9_clkout_en);
@@ -310,7 +304,7 @@ void si5351c_set_int_mode(
 
 void si5351c_change_input(si5351c_driver_t* const drv, si5351c_input_t input)
 {
-	if (input_initialized && input == active_input) {
+	if (drv->input_initialized && input == drv->active_input) {
 		return;
 	}
 	si5351c_disable_all_outputs(drv);
@@ -334,8 +328,8 @@ void si5351c_change_input(si5351c_driver_t* const drv, si5351c_input_t input)
 	}
 #endif
 	si5351c_configure_pll_multisynth(drv, input);
-	active_input = input;
-	input_initialized = true;
+	drv->active_input = input;
+	drv->input_initialized = true;
 	si5351c_reset_plls(drv, SI5351C_PLL_MASK_BOTH);
 }
 
@@ -353,11 +347,11 @@ bool si5351c_clkin_signal_valid(si5351c_driver_t* const drv)
 
 void si5351c_clkout_enable(si5351c_driver_t* const drv, bool enable)
 {
-	drv->clk[clkout_id].output_enable = enable;
-	drv->clk[clkout_id].power_down = !enable;
+	drv->clk[drv->clkout_id].output_enable = enable;
+	drv->clk[drv->clkout_id].power_down = !enable;
 
 	/* Configure clock to 10MHz */
-	si5351c_configure_multisynth(drv, clkout_id, 80 * 128 - 512, 0, 1, 0);
+	si5351c_configure_multisynth(drv, drv->clkout_id, 80 * 128 - 512, 0, 1, 0);
 
 	si5351c_configure_clock_control(drv);
 	si5351c_enable_clock_outputs(drv);
@@ -373,18 +367,18 @@ void si5351c_mcu_clkin_enable(si5351c_driver_t* const drv, bool enable)
 #endif
 #ifdef IS_NOT_H1_R9
 	if (IS_NOT_H1_R9) {
-		drv->clk[mcu_clkin_id].output_enable = enable;
-		drv->clk[mcu_clkin_id].power_down = !enable;
+		drv->clk[drv->mcu_clkin_id].output_enable = enable;
+		drv->clk[drv->mcu_clkin_id].power_down = !enable;
 
 		/* Configure clock to 40MHz */
-		if (mcu_clkin_id >= 6) {
+		if (drv->mcu_clkin_id >= 6) {
 			// MCU_CLKIN on CLK6 or CLK7, integer only MS.
-			si5351c_configure_multisynth(drv, mcu_clkin_id, 20, 0, 0, 0);
+			si5351c_configure_multisynth(drv, drv->mcu_clkin_id, 20, 0, 0, 0);
 		} else {
 			// MCU_CLKIN on CLK0 to CLK5, fractional-capable MS.
 			si5351c_configure_multisynth(
 				drv,
-				mcu_clkin_id,
+				drv->mcu_clkin_id,
 				20 * 128 - 512,
 				0,
 				1,
@@ -509,7 +503,7 @@ void si5351c_init(si5351c_driver_t* const drv)
 	};
 	/* CLK3: CLKOUT */
 	drv->clk[3] = clkout;
-	clkout_id = 3;
+	drv->clkout_id = 3;
 	/* CLK4: RFFC5072 (MAX2837 on rad1o) */
 	drv->clk[4] = (si5351c_clk_t){
 		.output_enable = true,
@@ -531,7 +525,7 @@ void si5351c_init(si5351c_driver_t* const drv)
 	drv->clk[6] = powered_down;
 	/* CLK7: LPC43xx */
 	drv->clk[7] = mcu_clkin;
-	mcu_clkin_id = 7;
+	drv->mcu_clkin_id = 7;
 
 #ifdef IS_H1_R9
 	if (IS_H1_R9) {
@@ -553,8 +547,8 @@ void si5351c_init(si5351c_driver_t* const drv)
 		};
 		/* CLK2: CLKOUT/LPC4320 */
 		drv->clk[2] = clkout;
-		clkout_id = 2;
-		mcu_clkin_id = 2;
+		drv->clkout_id = 2;
+		drv->mcu_clkin_id = 2;
 		/* Other outputs not present on Si5351A */
 		drv->clk[3] = powered_down;
 		drv->clk[4] = powered_down;
@@ -584,7 +578,7 @@ void si5351c_init(si5351c_driver_t* const drv)
 		/* CLK3: CLKOUT */
 		clkout.pll = SI5351C_PLL_B;
 		drv->clk[3] = clkout;
-		clkout_id = 3;
+		drv->clkout_id = 3;
 		/* CLK4: XCVR_CLK */
 		drv->clk[4] = (si5351c_clk_t){
 			.output_enable = true,
@@ -614,7 +608,7 @@ void si5351c_init(si5351c_driver_t* const drv)
 		} else {
 			/* CLK2: MCU_CLK */
 			drv->clk[2] = mcu_clkin;
-			mcu_clkin_id = 2;
+			drv->mcu_clkin_id = 2;
 		}
 	}
 #endif

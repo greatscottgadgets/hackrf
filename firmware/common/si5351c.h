@@ -103,6 +103,10 @@ typedef struct {
 	i2c_bus_t* const bus;
 	uint8_t i2c_address;
 	si5351c_clk_t clk[8];
+	uint8_t clkout_id;
+	uint8_t mcu_clkin_id;
+	bool input_initialized;
+	si5351c_input_t active_input;
 	uint8_t regs[SI5351C_CACHED_REGS];
 	uint32_t regs_dirty[(SI5351C_CACHED_REGS + 31) / 32];
 } si5351c_driver_t;
