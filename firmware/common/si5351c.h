@@ -90,13 +90,6 @@ typedef enum {
 } si5351c_input_t;
 
 typedef struct {
-	i2c_bus_t* const bus;
-	uint8_t i2c_address;
-	uint8_t regs[SI5351C_CACHED_REGS];
-	uint32_t regs_dirty[(SI5351C_CACHED_REGS + 31) / 32];
-} si5351c_driver_t;
-
-typedef struct {
 	bool output_enable;
 	bool power_down;
 	si5351c_mode_t mode;
@@ -105,6 +98,14 @@ typedef struct {
 	si5351c_drive_t drive;
 	bool invert;
 } si5351c_clk_t;
+
+typedef struct {
+	i2c_bus_t* const bus;
+	uint8_t i2c_address;
+	si5351c_clk_t clk[8];
+	uint8_t regs[SI5351C_CACHED_REGS];
+	uint32_t regs_dirty[(SI5351C_CACHED_REGS + 31) / 32];
+} si5351c_driver_t;
 
 void si5351c_disable_all_outputs(si5351c_driver_t* const drv);
 void si5351c_disable_oeb_pin_control(si5351c_driver_t* const drv);

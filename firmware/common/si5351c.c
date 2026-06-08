@@ -51,8 +51,6 @@ si5351c_driver_t si5351c = {
 	.i2c_address = 0x60,
 };
 
-si5351c_clk_t clk[8];
-
 uint8_t clkout_id;
 uint8_t mcu_clkin_id;
 
@@ -267,12 +265,12 @@ void si5351c_configure_multisynth(
 void si5351c_configure_clock_control(si5351c_driver_t* const drv)
 {
 	for (int i = 0; i < 8; i++) {
-		set_CLK_PDN(drv, i, clk[i].power_down);
-		set_MS_INT(drv, i, clk[i].mode);
-		set_MS_SRC(drv, i, clk[i].pll);
-		set_CLK_SRC(drv, i, clk[i].source);
-		set_CLK_IDRV(drv, i, clk[i].drive);
-		set_CLK_INV(drv, i, clk[i].invert);
+		set_CLK_PDN(drv, i, drv->clk[i].power_down);
+		set_MS_INT(drv, i, drv->clk[i].mode);
+		set_MS_SRC(drv, i, drv->clk[i].pll);
+		set_CLK_SRC(drv, i, drv->clk[i].source);
+		set_CLK_IDRV(drv, i, drv->clk[i].drive);
+		set_CLK_INV(drv, i, drv->clk[i].invert);
 	}
 
 	si5351c_regs_commit(drv);
@@ -284,15 +282,15 @@ void si5351c_enable_clock_outputs(si5351c_driver_t* const drv)
 		set_CLK_OEB(
 			drv,
 			i,
-			clk[i].output_enable ? SI5351C_OUTPUT_ENABLE :
-					       SI5351C_OUTPUT_DISABLE);
+			drv->clk[i].output_enable ? SI5351C_OUTPUT_ENABLE :
+						    SI5351C_OUTPUT_DISABLE);
 	}
 	si5351c_regs_commit(drv);
 
 #ifdef IS_H1_R9
 	if (IS_H1_R9) {
 		const platform_gpio_t* gpio = platform_gpio();
-		if (clk[clkout_id].output_enable) {
+		if (drv->clk[clkout_id].output_enable) {
 			gpio_set(gpio->h1r9_clkout_en);
 		} else {
 			gpio_clear(gpio->h1r9_clkout_en);
@@ -355,8 +353,8 @@ bool si5351c_clkin_signal_valid(si5351c_driver_t* const drv)
 
 void si5351c_clkout_enable(si5351c_driver_t* const drv, bool enable)
 {
-	clk[clkout_id].output_enable = enable;
-	clk[clkout_id].power_down = !enable;
+	drv->clk[clkout_id].output_enable = enable;
+	drv->clk[clkout_id].power_down = !enable;
 
 	/* Configure clock to 10MHz */
 	si5351c_configure_multisynth(drv, clkout_id, 80 * 128 - 512, 0, 1, 0);
@@ -375,8 +373,8 @@ void si5351c_mcu_clkin_enable(si5351c_driver_t* const drv, bool enable)
 #endif
 #ifdef IS_NOT_H1_R9
 	if (IS_NOT_H1_R9) {
-		clk[mcu_clkin_id].output_enable = enable;
-		clk[mcu_clkin_id].power_down = !enable;
+		drv->clk[mcu_clkin_id].output_enable = enable;
+		drv->clk[mcu_clkin_id].power_down = !enable;
 
 		/* Configure clock to 40MHz */
 		if (mcu_clkin_id >= 6) {
@@ -485,7 +483,7 @@ void si5351c_init(si5351c_driver_t* const drv)
 	};
 
 	/* CLK0: MAX5864/CPLD */
-	clk[0] = (si5351c_clk_t){
+	drv->clk[0] = (si5351c_clk_t){
 		.output_enable = true,
 		.mode = SI5351C_MODE_FRAC,
 		.pll = SI5351C_PLL_A,
@@ -493,7 +491,7 @@ void si5351c_init(si5351c_driver_t* const drv)
 		.drive = SI5351C_DRIVE_8MA,
 	};
 	/* CLK1: CPLD */
-	clk[1] = (si5351c_clk_t){
+	drv->clk[1] = (si5351c_clk_t){
 		.output_enable = true,
 		.mode = SI5351C_MODE_INT,
 		.pll = SI5351C_PLL_A,
@@ -502,7 +500,7 @@ void si5351c_init(si5351c_driver_t* const drv)
 		.invert = true,
 	};
 	/* CLK2: SGPIO */
-	clk[2] = (si5351c_clk_t){
+	drv->clk[2] = (si5351c_clk_t){
 		.output_enable = true,
 		.mode = SI5351C_MODE_INT,
 		.pll = SI5351C_PLL_A,
@@ -510,10 +508,10 @@ void si5351c_init(si5351c_driver_t* const drv)
 		.drive = SI5351C_DRIVE_2MA,
 	};
 	/* CLK3: CLKOUT */
-	clk[3] = clkout;
+	drv->clk[3] = clkout;
 	clkout_id = 3;
 	/* CLK4: RFFC5072 (MAX2837 on rad1o) */
-	clk[4] = (si5351c_clk_t){
+	drv->clk[4] = (si5351c_clk_t){
 		.output_enable = true,
 		.mode = SI5351C_MODE_INT,
 		.pll = SI5351C_PLL_A,
@@ -522,7 +520,7 @@ void si5351c_init(si5351c_driver_t* const drv)
 		.invert = true,
 	};
 	/* CLK5: MAX2837 (MAX2871 on rad1o) */
-	clk[5] = (si5351c_clk_t){
+	drv->clk[5] = (si5351c_clk_t){
 		.output_enable = true,
 		.mode = SI5351C_MODE_INT,
 		.pll = SI5351C_PLL_A,
@@ -530,15 +528,15 @@ void si5351c_init(si5351c_driver_t* const drv)
 		.drive = SI5351C_DRIVE_4MA,
 	};
 	/* CLK6: none */
-	clk[6] = powered_down;
+	drv->clk[6] = powered_down;
 	/* CLK7: LPC43xx */
-	clk[7] = mcu_clkin;
+	drv->clk[7] = mcu_clkin;
 	mcu_clkin_id = 7;
 
 #ifdef IS_H1_R9
 	if (IS_H1_R9) {
 		/* CLK0: MAX5864/CPLD/SGPIO (sample clocks) */
-		clk[0] = (si5351c_clk_t){
+		drv->clk[0] = (si5351c_clk_t){
 			.output_enable = true,
 			.mode = SI5351C_MODE_INT,
 			.pll = SI5351C_PLL_A,
@@ -546,7 +544,7 @@ void si5351c_init(si5351c_driver_t* const drv)
 			.drive = SI5351C_DRIVE_6MA,
 		};
 		/* CLK1: RFFC5072/MAX2839 */
-		clk[1] = (si5351c_clk_t){
+		drv->clk[1] = (si5351c_clk_t){
 			.output_enable = true,
 			.mode = SI5351C_MODE_FRAC,
 			.pll = SI5351C_PLL_A,
@@ -554,21 +552,21 @@ void si5351c_init(si5351c_driver_t* const drv)
 			.drive = SI5351C_DRIVE_4MA,
 		};
 		/* CLK2: CLKOUT/LPC4320 */
-		clk[2] = clkout;
+		drv->clk[2] = clkout;
 		clkout_id = 2;
 		mcu_clkin_id = 2;
 		/* Other outputs not present on Si5351A */
-		clk[3] = powered_down;
-		clk[4] = powered_down;
-		clk[5] = powered_down;
-		clk[6] = powered_down;
-		clk[7] = powered_down;
+		drv->clk[3] = powered_down;
+		drv->clk[4] = powered_down;
+		drv->clk[5] = powered_down;
+		drv->clk[6] = powered_down;
+		drv->clk[7] = powered_down;
 	}
 #endif
 #ifdef IS_PRALINE
 	if (IS_PRALINE) {
 		/* CLK0: AFE_CLK */
-		clk[0] = (si5351c_clk_t){
+		drv->clk[0] = (si5351c_clk_t){
 			.output_enable = true,
 			.mode = SI5351C_MODE_FRAC,
 			.pll = SI5351C_PLL_A,
@@ -576,7 +574,7 @@ void si5351c_init(si5351c_driver_t* const drv)
 			.drive = SI5351C_DRIVE_4MA,
 		};
 		/* CLK1: SCT_CLK and FPGA_CLK */
-		clk[1] = (si5351c_clk_t){
+		drv->clk[1] = (si5351c_clk_t){
 			.output_enable = true,
 			.mode = SI5351C_MODE_FRAC,
 			.pll = SI5351C_PLL_A,
@@ -585,10 +583,10 @@ void si5351c_init(si5351c_driver_t* const drv)
 		};
 		/* CLK3: CLKOUT */
 		clkout.pll = SI5351C_PLL_B;
-		clk[3] = clkout;
+		drv->clk[3] = clkout;
 		clkout_id = 3;
 		/* CLK4: XCVR_CLK */
-		clk[4] = (si5351c_clk_t){
+		drv->clk[4] = (si5351c_clk_t){
 			.output_enable = true,
 			.mode = SI5351C_MODE_INT,
 			.pll = SI5351C_PLL_B,
@@ -597,7 +595,7 @@ void si5351c_init(si5351c_driver_t* const drv)
 			.invert = true,
 		};
 		/* CLK5: MIX_CLK */
-		clk[5] = (si5351c_clk_t){
+		drv->clk[5] = (si5351c_clk_t){
 			.output_enable = true,
 			.mode = SI5351C_MODE_INT,
 			.pll = SI5351C_PLL_B,
@@ -606,7 +604,7 @@ void si5351c_init(si5351c_driver_t* const drv)
 		};
 		if ((detected_revision() & ~BOARD_REV_GSG) < BOARD_REV_PRALINE_R1_1) {
 			/* CLK2: FPGA_CLK (not shared with SCT_CLK on older boards) */
-			clk[2] = (si5351c_clk_t){
+			drv->clk[2] = (si5351c_clk_t){
 				.output_enable = true,
 				.mode = SI5351C_MODE_FRAC,
 				.pll = SI5351C_PLL_A,
@@ -615,7 +613,7 @@ void si5351c_init(si5351c_driver_t* const drv)
 			};
 		} else {
 			/* CLK2: MCU_CLK */
-			clk[2] = mcu_clkin;
+			drv->clk[2] = mcu_clkin;
 			mcu_clkin_id = 2;
 		}
 	}
