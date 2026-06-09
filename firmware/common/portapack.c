@@ -220,6 +220,12 @@ void portapack_lcd_reset_state(const bool active)
 	portapack_io_write(1, portapack_if.io_reg);
 }
 
+void portapack_audio_reset_state(const bool active)
+{
+	portapack_if.io_reg = (portapack_if.io_reg & 0xfd) | (active ? (1 << 0) : 0);
+	portapack_io_write(1, portapack_if.io_reg);
+}
+
 void portapack_lcd_data_write_command_and_data(
 	const uint_fast8_t command,
 	const uint8_t* data,

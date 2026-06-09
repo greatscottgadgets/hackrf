@@ -67,6 +67,8 @@ bool portapack_init(void);
 
 void portapack_if_init(void);
 
+void portapack_audio_reset_state(const bool active);
+
 void portapack_lcd_reset_state(const bool active);
 
 void portapack_lcd_reset(void);
