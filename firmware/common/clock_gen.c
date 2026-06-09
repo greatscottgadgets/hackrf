@@ -148,7 +148,7 @@ clock_source_t activate_best_clock_source(void)
 			/* Enable PortaPack reference oscillator (if present), and check for valid clock. */
 			if (portapack_reference_oscillator && portapack()) {
 				portapack_reference_oscillator(true);
-				delay(510000); /* loop iterations @ 204MHz for >10ms for oscillator to enable. */
+				delay_ms(18); // for oscillator to enable.
 				if (si5351c_clkin_signal_valid(&si5351c)) {
 					source = CLOCK_SOURCE_PORTAPACK;
 				} else {

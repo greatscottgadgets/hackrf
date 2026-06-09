@@ -21,16 +21,9 @@
 
 #include "delay.h"
 
-void delay(uint32_t duration)
-{
-	uint32_t i;
+#include "cpu_clock.h"
 
-	for (i = 0; i < duration; i++) {
-		__asm__("nop");
-	}
-}
-
-void delay_us_at_mhz(uint32_t us, uint32_t mhz)
+static void delay_us_at_mhz(uint32_t us, uint32_t mhz)
 {
 #if defined(LPC43XX_M4)
 	// The loop below takes 3 cycles per iteration.
@@ -51,4 +44,14 @@ void delay_us_at_mhz(uint32_t us, uint32_t mhz)
 #else
 	#error "No delay loop implementation"
 #endif
+}
+
+void delay_us(uint32_t us)
+{
+	delay_us_at_mhz(us, cpu_clock_mhz);
+}
+
+void delay_ms(uint32_t ms)
+{
+	delay_us_at_mhz(ms * 1000, cpu_clock_mhz);
 }

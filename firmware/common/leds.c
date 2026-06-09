@@ -84,17 +84,17 @@ void set_leds(const uint8_t state)
 	}
 }
 
-void halt_and_flash(const uint32_t duration)
+void halt_and_flash(const uint32_t period_ms)
 {
 	/* blink LED1, LED2, and LED3 */
 	while (1) {
 		led_on(LED1);
 		led_on(LED2);
 		led_on(LED3);
-		delay(duration);
+		delay_ms(period_ms / 2);
 		led_off(LED1);
 		led_off(LED2);
 		led_off(LED3);
-		delay(duration);
+		delay_ms(period_ms / 2);
 	}
 }

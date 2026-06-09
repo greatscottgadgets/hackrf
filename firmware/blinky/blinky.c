@@ -45,13 +45,13 @@ int main(void)
 		led_on(LED2);
 		led_on(LED3);
 
-		delay(2000000);
+		delay_ms(150);
 
 		led_off(LED1);
 		led_off(LED2);
 		led_off(LED3);
 
-		delay(2000000);
+		delay_ms(150);
 	}
 
 	return 0;

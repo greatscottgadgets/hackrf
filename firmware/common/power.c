@@ -132,7 +132,7 @@ static inline void enable_rf_power_praline(void)
 	gpio_clear(platform_gpio()->vaa_disable);
 
 	/* Let the voltage stabilize */
-	delay(1000000);
+	delay_ms(35);
 }
 
 static inline void disable_rf_power_praline(void)
@@ -147,7 +147,7 @@ static inline void enable_rf_power_rad1o(void)
 	gpio_set(platform_gpio()->vaa_enable);
 
 	/* Let the voltage stabilize */
-	delay(1000000);
+	delay_ms(35);
 }
 
 static inline void disable_rf_power_rad1o(void)

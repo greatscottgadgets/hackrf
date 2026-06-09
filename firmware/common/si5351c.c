@@ -224,7 +224,7 @@ void si5351c_reset_plls(si5351c_driver_t* const drv, si5351c_pll_mask_t mask)
 	set_PLLA_RST(drv, (mask & SI5351C_PLL_MASK_A) ? true : false);
 	set_PLLB_RST(drv, (mask & SI5351C_PLL_MASK_B) ? true : false);
 	si5351c_regs_commit(drv);
-	delay_us_at_mhz(2000, 204);
+	delay_ms(2);
 	si5351c_enable_clock_outputs(drv);
 }
 

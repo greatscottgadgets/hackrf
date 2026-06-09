@@ -109,14 +109,14 @@ bool ice40_spi_syscfg_program(
 	gpio_clear(drv->gpio_select);
 
 	// Wait a minimum of 200 ns.
-	delay_us_at_mhz(1, 204 / 4); // 250 ns.
+	delay_us(1);
 
 	// Release CRESET_B or drive CRESET_B = 1.
 	gpio_set(drv->gpio_creset);
 
 	// Wait a minimum of 1200 μs to clear internal configuration memory.
 	// Testing showed us that we need to wait longer. Let's wait 1800 μs.
-	delay_us_at_mhz(1800, 204);
+	delay_us(1800);
 
 	// Set SPI_SS = 1, Send 8 dummy clocks.
 	gpio_set(drv->gpio_select);
