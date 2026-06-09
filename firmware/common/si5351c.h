@@ -89,20 +89,26 @@ typedef enum {
 } si5351c_input_t;
 
 typedef struct {
-	i2c_bus_t* const bus;
-	uint8_t i2c_address;
-	uint8_t regs[SI5351C_CACHED_REGS];
-	uint32_t regs_dirty[(SI5351C_CACHED_REGS + 31) / 32];
-} si5351c_driver_t;
-
-typedef struct {
+	bool output_enable;
 	bool power_down;
 	si5351c_mode_t mode;
 	si5351c_pll_t pll;
 	si5351c_src_t source;
 	si5351c_drive_t drive;
 	bool invert;
-} si5351c_clk_ctrl_t;
+} si5351c_clk_t;
+
+typedef struct {
+	i2c_bus_t* const bus;
+	uint8_t i2c_address;
+	si5351c_clk_t clk[8];
+	uint8_t clkout_id;
+	uint8_t mcu_clkin_id;
+	bool input_initialized;
+	si5351c_input_t active_input;
+	uint8_t regs[SI5351C_CACHED_REGS];
+	uint32_t regs_dirty[(SI5351C_CACHED_REGS + 31) / 32];
+} si5351c_driver_t;
 
 void si5351c_disable_all_outputs(si5351c_driver_t* const drv);
 void si5351c_disable_oeb_pin_control(si5351c_driver_t* const drv);
@@ -132,7 +138,8 @@ bool si5351c_clkin_signal_valid(si5351c_driver_t* const drv);
 
 void si5351c_write_single(si5351c_driver_t* const drv, uint8_t reg, uint8_t val);
 uint8_t si5351c_read_single(si5351c_driver_t* const drv, uint8_t reg);
-void si5351c_clkout_enable(si5351c_driver_t* const drv, uint8_t enable);
+void si5351c_clkout_enable(si5351c_driver_t* const drv, bool enable);
+void si5351c_mcu_clkin_enable(si5351c_driver_t* const drv, bool enable);
 void si5351c_init(si5351c_driver_t* const drv);
 void si5351c_set_phase(
 	si5351c_driver_t* const drv,

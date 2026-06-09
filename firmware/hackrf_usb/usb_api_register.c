@@ -211,7 +211,7 @@ usb_request_status_t usb_vendor_request_set_clkout_enable(
 	const usb_transfer_stage_t stage)
 {
 	if (stage == USB_TRANSFER_STAGE_SETUP) {
-		si5351c_clkout_enable(&si5351c, endpoint->setup.value);
+		si5351c_clkout_enable(&si5351c, endpoint->setup.value > 0);
 		usb_transfer_schedule_ack(endpoint->in);
 	}
 	return USB_REQUEST_STATUS_OK;
