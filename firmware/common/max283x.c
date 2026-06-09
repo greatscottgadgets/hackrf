@@ -26,6 +26,8 @@
 #include <stdbool.h>
 #include <string.h>
 
+#include <libopencm3/lpc43xx/ssp.h>
+
 #include "fixed_point.h"
 #include "platform_detect.h"
 #include "platform_gpio.h"
@@ -88,8 +90,10 @@ void max283x_setup(max283x_driver_t* const drv)
 	const platform_gpio_t* gpio = platform_gpio();
 
 	/* MAX283x GPIO PinMux */
+	ssp_config_max283x.gpio_select = gpio->max283x_select;
 #ifdef IS_PRALINE
 	if (IS_PRALINE) {
+		ssp_config_max283x.data_bits = SSP_DATA_9BITS;
 		drv->type = MAX2831_VARIANT;
 		max2831.gpio_enable = gpio->max283x_enable;
 		max2831.gpio_rxtx = gpio->max283x_rx_enable;
@@ -101,6 +105,7 @@ void max283x_setup(max283x_driver_t* const drv)
 #endif
 #ifdef IS_NOT_PRALINE
 	if (IS_NOT_PRALINE) {
+		ssp_config_max283x.data_bits = SSP_DATA_16BITS;
 	#ifdef IS_H1_R9
 		if (IS_H1_R9) {
 			drv->type = MAX2839_VARIANT;
