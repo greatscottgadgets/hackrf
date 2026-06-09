@@ -263,6 +263,12 @@ void portapack_lcd_display_on(void)
 	portapack_lcd_data_write_command_and_data(0x29, cmd_29, ARRAY_SIZEOF(cmd_29));
 }
 
+void portapack_lcd_display_off(void)
+{
+	const uint8_t cmd_28[] = {};
+	portapack_lcd_data_write_command_and_data(0x28, cmd_28, ARRAY_SIZEOF(cmd_28));
+}
+
 static void portapack_lcd_ramwr_start(void)
 {
 	const uint8_t cmd_2c[] = {};

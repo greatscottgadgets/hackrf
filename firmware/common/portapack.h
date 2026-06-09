@@ -104,6 +104,8 @@ void portapack_lcd_sleep_in(void);
 
 void portapack_lcd_display_on(void);
 
+void portapack_lcd_display_off(void);
+
 bool portapack_present(void);
 
 void portapack_backlight(const bool on);
