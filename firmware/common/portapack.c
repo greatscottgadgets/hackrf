@@ -237,6 +237,16 @@ void portapack_lcd_data_write_command_and_data(
 	}
 }
 
+void portapack_lcd_sleep_in(void)
+{
+	const uint8_t cmd_10[] = {};
+	portapack_lcd_data_write_command_and_data(0x10, cmd_10, ARRAY_SIZEOF(cmd_10));
+	// "It will be necessary to wait 5msec before sending next command,
+	// this is to allow time for the supply voltages and clock circuits
+	// to stabilize."
+	delay_ms(5);
+}
+
 void portapack_lcd_sleep_out(void)
 {
 	const uint8_t cmd_11[] = {};

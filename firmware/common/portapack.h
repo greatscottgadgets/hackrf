@@ -100,6 +100,8 @@ void portapack_lcd_data_write_command_and_data(
 
 void portapack_lcd_sleep_out(void);
 
+void portapack_lcd_sleep_in(void);
+
 void portapack_lcd_display_on(void);
 
 bool portapack_present(void);
