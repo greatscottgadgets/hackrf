@@ -67,6 +67,11 @@ void portapack_data_write_high(const uint32_t value)
 	portapack_if.gpio_port_data->mpin = value;
 }
 
+uint8_t portapack_data_read(void)
+{
+	return portapack_if.gpio_port_data->mpin >> GPIO_DATA_SHIFT;
+}
+
 void portapack_dir_read(void)
 {
 	portapack_if.gpio_port_data->dir &= ~gpio_data_mask;
@@ -166,6 +171,44 @@ void portapack_io_write(const bool address, const uint_fast16_t value)
 	__asm__("nop");
 	__asm__("nop");
 	portapack_io_stb_deassert();
+}
+
+uint16_t portapack_io_update(const uint8_t value)
+{
+	/* Very touchy code to save context of PortaPack data bus while the
+	 * resistive touch pin drive is changed. Order of operations is
+	 * important to prevent latching spurious data into the LCD or IO
+	 * registers.
+	 */
+	uint8_t save_data = portapack_data_read();
+	bool addr = gpio_read(portapack_if.gpio_addr);
+	bool dir = gpio_read(portapack_if.gpio_dir);
+
+	portapack_io_stb_assert();
+
+	/* Switch to read */
+	portapack_dir_read();
+	portapack_addr(0);
+	__asm__("nop");
+	__asm__("nop");
+	__asm__("nop");
+	uint8_t new_data = portapack_data_read();
+
+	/* Switch to write */
+	portapack_data_write_low(value);
+	portapack_dir_write();
+	__asm__("nop");
+	__asm__("nop");
+	__asm__("nop");
+	portapack_io_stb_deassert();
+
+	portapack_data_write_low(save_data);
+	if (dir) { /* 0 (write) -> 1 (read) */
+		portapack_dir_read();
+	}
+	gpio_write(portapack_if.gpio_addr, addr);
+
+	return new_data;
 }
 
 void portapack_if_init(void)

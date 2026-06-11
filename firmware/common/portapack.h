@@ -89,6 +89,8 @@ void portapack_data_write_low(const uint32_t value);
 
 void portapack_io_write(const bool address, const uint_fast16_t value);
 
+uint16_t portapack_io_update(const uint8_t value);
+
 void portapack_lcd_command(const uint32_t value);
 
 void portapack_lcd_write_data(const uint32_t value);
