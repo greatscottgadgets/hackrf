@@ -274,17 +274,6 @@ void si5351c_enable_clock_outputs(si5351c_driver_t* const drv)
 						    SI5351C_OUTPUT_DISABLE);
 	}
 	si5351c_regs_commit(drv);
-
-#ifdef IS_H1_R9
-	if (IS_H1_R9) {
-		const platform_gpio_t* gpio = platform_gpio();
-		if (drv->clk[drv->clkout_id].output_enable) {
-			gpio_set(gpio->h1r9_clkout_en);
-		} else {
-			gpio_clear(gpio->h1r9_clkout_en);
-		}
-	}
-#endif
 }
 
 void si5351c_set_int_mode(
@@ -339,7 +328,7 @@ bool si5351c_clkin_signal_valid(si5351c_driver_t* const drv)
 	}
 }
 
-void si5351c_clkout_enable(si5351c_driver_t* const drv, bool enable)
+static void si5351c_clkout_ms_enable(si5351c_driver_t* const drv, bool enable)
 {
 	drv->clk[drv->clkout_id].output_enable = enable;
 	drv->clk[drv->clkout_id].power_down = !enable;
@@ -351,12 +340,42 @@ void si5351c_clkout_enable(si5351c_driver_t* const drv, bool enable)
 	si5351c_enable_clock_outputs(drv);
 }
 
+void si5351c_clkout_enable(si5351c_driver_t* const drv, bool enable)
+{
+#ifdef IS_H1_R9
+	if (IS_H1_R9) {
+		const platform_gpio_t* gpio = platform_gpio();
+
+		/* CLKOUT is shared with MCU_CLK, enable MS when either on. */
+		bool mcu_clkin_enabled = gpio_read(gpio->h1r9_mcu_clk_en);
+		bool ms_needed = enable | mcu_clkin_enabled;
+		si5351c_clkout_ms_enable(drv, ms_needed);
+
+		/* Set GPIO to gate CLKOUT output downstream of MS. */
+		gpio_write(gpio->h1r9_clkout_en, enable);
+	}
+#endif
+#ifdef IS_NOT_H1_R9
+	if (IS_NOT_H1_R9) {
+		/* We have a dedicated CLKOUT multisynth. */
+		si5351c_clkout_ms_enable(drv, enable);
+	}
+#endif
+}
+
 void si5351c_mcu_clkin_enable(si5351c_driver_t* const drv, bool enable)
 {
 #ifdef IS_H1_R9
 	if (IS_H1_R9) {
-		/* MCU clock is shared with CLKOUT. */
-		si5351c_clkout_enable(drv, enable);
+		const platform_gpio_t* gpio = platform_gpio();
+
+		/* MCU_CLK is shared with CLKOUT, enable MS when either on. */
+		bool clkout_enabled = gpio_read(gpio->h1r9_clkout_en);
+		bool ms_needed = enable | clkout_enabled;
+		si5351c_clkout_ms_enable(drv, ms_needed);
+
+		/* Set GPIO to gate MCU_CLK output downstream of MS. */
+		gpio_write(gpio->h1r9_mcu_clk_en, enable);
 	}
 #endif
 #ifdef IS_NOT_H1_R9
