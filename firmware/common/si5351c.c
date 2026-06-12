@@ -604,6 +604,9 @@ void si5351c_init(si5351c_driver_t* const drv)
 			drv->clk[2] = mcu_clkin;
 			drv->mcu_clkin_id = 2;
 		}
+
+		// Use PLL B for MCU, since we reset PLL A during sample_rate_set.
+		drv->clk[drv->mcu_clkin_id].pll = SI5351C_PLL_B;
 	}
 #endif
 }
