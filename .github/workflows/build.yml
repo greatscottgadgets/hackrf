@@ -57,7 +57,7 @@ jobs:
         shell: '${{ matrix.sys.shell }} {0}'
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
 
     - name: Setup cmake
       uses: lukka/get-cmake@latest
@@ -179,7 +179,7 @@ jobs:
     runs-on: ${{ matrix.os }}-latest
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
       with:
         submodules: true
 
