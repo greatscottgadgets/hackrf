@@ -36,6 +36,8 @@
 #include <delay.h>
 #include <fixed_point.h>
 #include <hackrf_ui.h>
+#include <i2c_bus.h>
+#include <i2c_lpc.h>
 #include <leds.h>
 #include <operacake.h>
 #include <mixer.h>
@@ -425,6 +427,8 @@ int main(void)
 	// Detect hardware platform before we do anything else.
 	detect_hardware_platform();
 	board_id_t board_id = detected_platform();
+
+	i2c_bus_start(&i2c0, &i2c_config_fast_clock);
 
 	pins_shutdown();
 	sgpio_pin_shutdown(&sgpio_config);
