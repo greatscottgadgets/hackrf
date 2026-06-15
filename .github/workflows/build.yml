@@ -66,6 +66,19 @@ jobs:
             compiler: 'gcc'
             cmake_args: >-
               --install-prefix=/usr/local
+          # CMake 3.10 uses --build with --target install
+          - cmake: '3.10.0'
+            install_cmd: --build
+            install_args: --target install
+          # Later versions just use --install
+          - cmake: 'latest'
+            install_cmd: --install
+          # We need sudo on MacOS and Ubuntu only
+          - os: macos
+            sudo: sudo
+          - os: ubuntu
+            sudo: sudo
+
 
       # Don't cancel all builds when one fails
       fail-fast: false
@@ -131,17 +144,7 @@ jobs:
 
     - name: Install (libhackrf)
       run: |
-        sudo cmake --install host/libhackrf/build --config Release
-      if: matrix.os != 'windows' && matrix.cmake != '3.10.0'
-
-    - name: Install (libhackrf, CMake 3.10)
-      run: |
-        sudo cmake --build host/libhackrf/build --target install --config Release
-      if: matrix.os != 'windows' && matrix.cmake == '3.10.0'
-
-    - name: Install (libhackrf, Windows)
-      run: cmake --install host/libhackrf/build --config Release
-      if: matrix.os == 'windows'
+        ${{ matrix.sudo }} cmake ${{ matrix.install_cmd }} host/libhackrf/build ${{ matrix.install_args }} --config Release
 
     # Build hackrf-tools ONLY
 
@@ -154,17 +157,7 @@ jobs:
 
     - name: Install (hackrf-tools)
       run: |
-        sudo cmake --install host/hackrf-tools/build --config Release
-      if: matrix.os != 'windows' && matrix.cmake != '3.10.0'
-
-    - name: Install (hackrf-tools, CMake 3.10)
-      run: |
-        sudo cmake --build host/hackrf-tools/build --target install --config Release
-      if: matrix.os != 'windows' && matrix.cmake == '3.10.0'
-
-    - name: Install (hackrf-tools, Windows)
-      run: cmake --install host/hackrf-tools/build --config Release
-      if: matrix.os == 'windows'
+        ${{ matrix.sudo }} cmake ${{ matrix.install_cmd }} host/hackrf-tools/build ${{ matrix.install_args }}
 
     # Publish the contents of install/bin (which should be the combination libhackrf and host-tools) for Windows
     - name: Publish Artifacts (Windows)
