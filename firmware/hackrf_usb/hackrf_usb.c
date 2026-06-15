@@ -491,6 +491,9 @@ int main(void)
 #endif
 	cpu_clock_init();
 
+	/* Clock speed has changed, adjust I2C clock */
+	i2c_bus_start(&i2c0, &i2c_config_fast_clock);
+
 	/* Wake the M0 */
 	ipc_halt_m0();
 	ipc_start_m0((uint32_t) &__ram_m0_start__);

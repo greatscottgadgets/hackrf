@@ -29,7 +29,7 @@
 #include "i2c_bus.h"
 
 typedef struct {
-	const uint16_t duty_cycle_count;
+	const uint16_t clock_khz;
 } i2c_lpc_config_t;
 
 void i2c_lpc_start(i2c_bus_t* const bus, const void* const config);
