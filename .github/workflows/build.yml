@@ -17,44 +17,63 @@ jobs:
   host:
     strategy:
       matrix:
-        sys:
-          - {os: 'macos', shell: 'bash'}
-          - {os: 'ubuntu', shell: 'bash'}
-          - {os: 'windows', shell: 'pwsh'}
-          - {os: 'windows', shell: 'msys2'}
-        cmake: ['3.10.0', '3.16.0', '3.21.0', '4.0.0', 'latest']
+        os: ['macos', 'ubuntu', 'windows']
+        cmake: ['3.10.0', 'latest']
+        compiler: ['gcc', 'msvc']
         exclude:
-          # GitHub runners use Visual Studio 2022. Support added in CMake 3.21.
-          - sys: {os: 'windows', shell: 'pwsh'}
+          # MSVC only runs on Windows.
+          - os: 'macos'
+            compiler: 'msvc'
+          - os: 'ubuntu'
+            compiler: 'msvc'
+          # Only use the latest CMake on Windows. For MSVC, we can't use
+          # older CMake versions since the GitHub runners only have the
+          # latest Visual Studio release installed, and older CMake VS
+          # generators won't work. For GCC, we get curent CMake from the
+          # MSYS2 packages.
+          - os: 'windows'
             cmake: '3.10.0'
-          - sys: {os: 'windows', shell: 'pwsh'}
-            cmake: '3.16.0'
-          # MSYS2 always supplies the latest cmake.
-          - sys: {os: 'windows', shell: 'msys2'}
-            cmake: '3.10.0'
-          - sys: {os: 'windows', shell: 'msys2'}
-            cmake: '3.16.0'
-          - sys: {os: 'windows', shell: 'msys2'}
-            cmake: '3.21.0'
-          - sys: {os: 'windows', shell: 'msys2'}
-            cmake: '4.0.0'
         include:
-          - sys: {os: 'windows', shell: 'pwsh'}
+          # Shell selection
+          - os: 'macos'
+            shell: 'bash'
+          - os: 'ubuntu'
+            shell: 'bash'
+          - os: 'windows'
+            compiler: 'msvc'
+            shell: 'pwsh'
+          - os: 'windows'
+            compiler: 'gcc'
+            shell: 'msys2'
+          # CMake generator selection
+          - os: 'macos'
+            generator: 'Unix Makefiles'
+          - os: 'ubuntu'
+            generator: 'Unix Makefiles'
+          - os: 'windows'
+            compiler: 'msvc'
+            generator: 'Visual Studio 18 2026'
+          - os: 'windows'
+            compiler: 'gcc'
+            generator: 'MSYS Makefiles'
+          - os: 'windows'
+            compiler: 'msvc'
             cmake_args: >-
               -DPKG_CONFIG_EXECUTABLE=C:/vcpkg/installed/x64-windows/tools/pkgconf/pkgconf.exe
               -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake
               --install-prefix=$env:GITHUB_WORKSPACE/install
-          - sys: {os: 'windows', shell: 'msys2'}
+          - os: 'windows'
+            compiler: 'gcc'
             cmake_args: >-
               --install-prefix=/usr/local
 
       # Don't cancel all builds when one fails
       fail-fast: false
-    runs-on: ${{ matrix.sys.os }}-latest
+    runs-on: ${{ matrix.os }}-latest
 
     defaults:
       run:
-        shell: '${{ matrix.sys.shell }} {0}'
+        shell: '${{ matrix.shell }} {0}'
 
     steps:
     - uses: actions/checkout@v6
@@ -63,24 +82,24 @@ jobs:
       uses: lukka/get-cmake@latest
       with:
         cmakeVersion: ${{ matrix.cmake }}
-      if: matrix.sys.shell != 'msys2'
+      if: matrix.shell != 'msys2'
 
     - name: Install dependencies (macOS)
       run: brew install fftw
-      if: matrix.sys.os == 'macos'
+      if: matrix.os == 'macos'
 
     - name: Install dependencies (Ubuntu)
       run: |
         sudo apt update
         sudo apt install libfftw3-dev libusb-1.0-0-dev
-      if: matrix.sys.os == 'ubuntu'
+      if: matrix.os == 'ubuntu'
 
     - name: Install dependencies (Windows)
       run: vcpkg install --triplet=x64-windows libusb fftw3 pthreads pkgconf
-      if: matrix.sys.os == 'windows' && matrix.sys.shell != 'msys2'
+      if: matrix.os == 'windows' && matrix.shell != 'msys2'
 
     - name: Setup MSYS (Windows)
-      if: matrix.sys.os == 'windows' && matrix.sys.shell == 'msys2'
+      if: matrix.os == 'windows' && matrix.shell == 'msys2'
       uses: msys2/setup-msys2@v2
       with:
         msystem: UCRT64
@@ -98,7 +117,7 @@ jobs:
       run: |
         cmake -E make_directory host/build
         cd host/build
-        cmake .. -DCMAKE_BUILD_TYPE=Release ${{matrix.cmake_args}}
+        cmake .. -G "${{ matrix.generator }}" -DCMAKE_BUILD_TYPE=Release ${{matrix.cmake_args}}
         cmake --build . --config Release
 
     # Build libhackrf ONLY
@@ -107,22 +126,22 @@ jobs:
       run: |
         cmake -E make_directory host/libhackrf/build
         cd host/libhackrf/build
-        cmake .. -DCMAKE_BUILD_TYPE=Release ${{ matrix.cmake_args }}
+        cmake .. -G "${{ matrix.generator }}" -DCMAKE_BUILD_TYPE=Release ${{ matrix.cmake_args }}
         cmake --build . --config Release
 
     - name: Install (libhackrf)
       run: |
         sudo cmake --install host/libhackrf/build --config Release
-      if: matrix.sys.os != 'windows' && matrix.cmake != '3.10.0'
+      if: matrix.os != 'windows' && matrix.cmake != '3.10.0'
 
     - name: Install (libhackrf, CMake 3.10)
       run: |
         sudo cmake --build host/libhackrf/build --target install --config Release
-      if: matrix.sys.os != 'windows' && matrix.cmake == '3.10.0'
+      if: matrix.os != 'windows' && matrix.cmake == '3.10.0'
 
     - name: Install (libhackrf, Windows)
       run: cmake --install host/libhackrf/build --config Release
-      if: matrix.sys.os == 'windows'
+      if: matrix.os == 'windows'
 
     # Build hackrf-tools ONLY
 
@@ -130,22 +149,22 @@ jobs:
       run: |
         cmake -E make_directory host/hackrf-tools/build
         cd host/hackrf-tools/build
-        cmake .. -DCMAKE_BUILD_TYPE=Release ${{ matrix.cmake_args }}
+        cmake .. -G "${{ matrix.generator }}" -DCMAKE_BUILD_TYPE=Release ${{ matrix.cmake_args }}
         cmake --build . --config Release
 
     - name: Install (hackrf-tools)
       run: |
         sudo cmake --install host/hackrf-tools/build --config Release
-      if: matrix.sys.os != 'windows' && matrix.cmake != '3.10.0'
+      if: matrix.os != 'windows' && matrix.cmake != '3.10.0'
 
     - name: Install (hackrf-tools, CMake 3.10)
       run: |
         sudo cmake --build host/hackrf-tools/build --target install --config Release
-      if: matrix.sys.os != 'windows' && matrix.cmake == '3.10.0'
+      if: matrix.os != 'windows' && matrix.cmake == '3.10.0'
 
     - name: Install (hackrf-tools, Windows)
       run: cmake --install host/hackrf-tools/build --config Release
-      if: matrix.sys.os == 'windows'
+      if: matrix.os == 'windows'
 
     # Publish the contents of install/bin (which should be the combination libhackrf and host-tools) for Windows
     - name: Publish Artifacts (Windows)
@@ -153,7 +172,7 @@ jobs:
       with:
         name: hackrf-tools-windows
         path: ${{github.workspace}}/install/bin
-      if: matrix.sys.os == 'windows' && matrix.cmake == 'latest' && matrix.sys.shell == 'pwsh'
+      if: matrix.os == 'windows' && matrix.cmake == 'latest' && matrix.shell == 'pwsh'
 
   firmware:
     strategy:
