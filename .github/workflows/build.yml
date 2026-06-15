@@ -18,7 +18,7 @@ jobs:
     strategy:
       matrix:
         os: ['macos', 'ubuntu', 'windows']
-        cmake: ['3.10.0', 'latest']
+        cmake: ['3.10.0', '3.21.7', '4.2.6', 'latest']
         compiler: ['gcc', 'msvc']
         exclude:
           # MSVC only runs on Windows.
@@ -26,13 +26,14 @@ jobs:
             compiler: 'msvc'
           - os: 'ubuntu'
             compiler: 'msvc'
-          # Only use the latest CMake on Windows. For MSVC, we can't use
-          # older CMake versions since the GitHub runners only have the
-          # latest Visual Studio release installed, and older CMake VS
-          # generators won't work. For GCC, we get curent CMake from the
-          # MSYS2 packages.
+          # We can't use the oldest CMake versions on Windows.
           - os: 'windows'
             cmake: '3.10.0'
+          # The in-between CMake versions aren't so intersting with GCC.
+          - compiler: 'gcc'
+            cmake: '3.21.7'
+          - compiler: 'gcc'
+            cmake: '4.2.6'
         include:
           # Shell selection
           - os: 'macos'
@@ -45,17 +46,31 @@ jobs:
           - os: 'windows'
             compiler: 'gcc'
             shell: 'msys2'
+          # MSVC version selection
+          - cmake: '3.21.7'
+            msvc: '17.14'
+          - cmake: '4.2.6'
+            msvc: 'latest'
+          - cmake: 'latest'
+            msvc: 'latest'
           # CMake generator selection
           - os: 'macos'
             generator: 'Unix Makefiles'
           - os: 'ubuntu'
             generator: 'Unix Makefiles'
-          - os: 'windows'
-            compiler: 'msvc'
+          - compiler: 'msvc'
+            cmake: '3.21.7'
+            generator: 'Visual Studio 17 2022'
+          - compiler: 'msvc'
+            cmake: '4.2.6'
+            generator: 'Visual Studio 18 2026'
+          - compiler: 'msvc'
+            cmake: 'latest'
             generator: 'Visual Studio 18 2026'
           - os: 'windows'
             compiler: 'gcc'
             generator: 'MSYS Makefiles'
+          # Additional CMake arguments
           - os: 'windows'
             compiler: 'msvc'
             cmake_args: >-
@@ -71,6 +86,10 @@ jobs:
             install_cmd: --build
             install_args: --target install
           # Later versions just use --install
+          - cmake: '3.21.7'
+            install_cmd: --install
+          - cmake: '4.2.6'
+            install_cmd: --install
           - cmake: 'latest'
             install_cmd: --install
           # We need sudo on MacOS and Ubuntu only
@@ -96,6 +115,12 @@ jobs:
       with:
         cmakeVersion: ${{ matrix.cmake }}
       if: matrix.shell != 'msys2'
+
+    - name: Install MSVC (Windows)
+      uses: k3DW/setup-msvc@v1
+      with:
+        vs-version: ${{ matrix.msvc }}
+      if: matrix.compiler == 'msvc' && matrix.msvc != 'latest'
 
     - name: Install dependencies (macOS)
       run: brew install fftw
