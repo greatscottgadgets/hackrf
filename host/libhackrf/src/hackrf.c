@@ -124,6 +124,9 @@ typedef enum {
 	HACKRF_VENDOR_REQUEST_OPEN = 63,
 	HACKRF_VENDOR_REQUEST_CLOSE = 64,
 	HACKRF_VENDOR_REQUEST_RADIO_SET_MODE = 65,
+	HACKRF_VENDOR_REQUEST_RADIO_SET_FREQUENCY = 66,
+	HACKRF_VENDOR_REQUEST_RADIO_SET_FREQUENCY_EXPLICIT = 67,
+	HACKRF_VENDOR_REQUEST_RADIO_SET_SAMPLE_RATE = 68,
 } hackrf_vendor_request;
 
 #define USB_CONFIG_STANDARD 0x1
@@ -3695,6 +3698,153 @@ int ADDCALL hackrf_radio_set_mode(hackrf_device* device, const enum radio_config
 		DEFAULT_REQUEST_TIMEOUT);
 
 	if (result != 0) {
+		last_libusb_error = result;
+		return HACKRF_ERROR_LIBUSB;
+	}
+
+	return HACKRF_SUCCESS;
+}
+
+int ADDCALL hackrf_str_to_fp64(uint8_t Qn, char* str, char* endptr, uint64_t* const value)
+{
+	uint64_t m = 0;
+	uint64_t n = 0;
+	uint64_t div = 1;
+	uint64_t div_max = ceil((double) Qn * log10(2.0)) * 10;
+
+	// parse integer component
+	for (; (*str >= '0') && (*str <= '9'); str++) {
+		m = (m * 10) + (*str - '0');
+	}
+	*value = (m << Qn);
+
+	if (*str != '.') {
+		return HACKRF_SUCCESS;
+	}
+	str++;
+
+	// parse fractional component
+	for (; (*str >= '0') && (*str <= '9') && (div < div_max); str++) {
+		n = (n * 10) + (*str - '0');
+		div *= 10;
+	}
+	endptr = str;
+
+	if (div == 1) {
+		return HACKRF_SUCCESS;
+	}
+
+	*value += ((n << Qn) + (div / 2)) / div;
+
+	return HACKRF_SUCCESS;
+}
+
+int ADDCALL hackrf_radio_set_frequency(hackrf_device* device, const fp_40_24_t freq_hz)
+{
+	USB_API_REQUIRED(device, 0x0113);
+	uint64_t set_freq_fp_param;
+	uint8_t length;
+	int result;
+
+	// serialize parameters
+	set_freq_fp_param = TO_LE64(freq_hz);
+	length = sizeof(uint64_t);
+
+	result = libusb_control_transfer(
+		device->usb_device,
+		LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR |
+			LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_RADIO_SET_FREQUENCY,
+		0,
+		0,
+		(unsigned char*) &set_freq_fp_param,
+		length,
+		DEFAULT_REQUEST_TIMEOUT);
+
+	if (result < length) {
+		last_libusb_error = result;
+		return HACKRF_ERROR_LIBUSB;
+	}
+
+	return HACKRF_SUCCESS;
+}
+
+int ADDCALL hackrf_radio_set_frequency_explicit(
+	hackrf_device* device,
+	const fp_40_24_t if_freq_hz,
+	const fp_40_24_t lo_freq_hz,
+	const enum rf_path_filter path)
+{
+	struct {
+		fp_40_24_t if_freq_hz;
+		fp_40_24_t lo_freq_hz;
+		uint8_t path;
+	} params;
+
+	uint8_t length;
+	int result;
+
+	// TODO are these values still correct for HackRF Pro ?
+	if (FP_FREQ_HZ(if_freq_hz) < 2000000000 || FP_FREQ_HZ(if_freq_hz) > 3000000000) {
+		return HACKRF_ERROR_INVALID_PARAM;
+	}
+
+	// TODO are these values still correct for HackRF Pro ?
+	if ((path != RF_PATH_FILTER_BYPASS) &&
+	    (FP_FREQ_HZ(lo_freq_hz) < 84375000 || FP_FREQ_HZ(lo_freq_hz) > 5400000000)) {
+		return HACKRF_ERROR_INVALID_PARAM;
+	}
+
+	if (path > 2) {
+		return HACKRF_ERROR_INVALID_PARAM;
+	}
+
+	params.if_freq_hz = TO_LE(if_freq_hz);
+	params.lo_freq_hz = TO_LE(lo_freq_hz);
+	params.path = (uint8_t) path;
+	length = sizeof(params);
+
+	result = libusb_control_transfer(
+		device->usb_device,
+		LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR |
+			LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_RADIO_SET_FREQUENCY_EXPLICIT,
+		0,
+		0,
+		(unsigned char*) &params,
+		length,
+		DEFAULT_REQUEST_TIMEOUT);
+
+	if (result < length) {
+		last_libusb_error = result;
+		return HACKRF_ERROR_LIBUSB;
+	} else {
+		return HACKRF_SUCCESS;
+	}
+}
+
+int ADDCALL hackrf_radio_set_sample_rate(hackrf_device* device, const fp_28_36_t freq_hz)
+{
+	USB_API_REQUIRED(device, 0x0113);
+	uint64_t set_sr_fp_param;
+	uint8_t length;
+	int result;
+
+	set_sr_fp_param = TO_LE64(freq_hz);
+	length = sizeof(uint64_t);
+
+	result = libusb_control_transfer(
+		device->usb_device,
+		LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR |
+			LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_RADIO_SET_SAMPLE_RATE,
+		0,
+		0,
+		(unsigned char*) &set_sr_fp_param,
+		length,
+		DEFAULT_REQUEST_TIMEOUT);
+
+	if (result < length) {
 		last_libusb_error = result;
 		return HACKRF_ERROR_LIBUSB;
 	}

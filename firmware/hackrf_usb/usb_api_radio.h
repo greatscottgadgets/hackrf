@@ -27,3 +27,15 @@
 usb_request_status_t usb_vendor_request_set_radio_mode(
 	usb_endpoint_t* const endpoint,
 	const usb_transfer_stage_t stage);
+
+usb_request_status_t usb_vendor_request_set_radio_frequency(
+	usb_endpoint_t* const endpoint,
+	const usb_transfer_stage_t stage);
+
+usb_request_status_t usb_vendor_request_set_radio_frequency_explicit(
+	usb_endpoint_t* const endpoint,
+	const usb_transfer_stage_t stage);
+
+usb_request_status_t usb_vendor_request_set_radio_sample_rate(
+	usb_endpoint_t* const endpoint,
+	const usb_transfer_stage_t stage);
