@@ -19,6 +19,10 @@
  * Boston, MA 02110-1301, USA.
  */
 
+#include <stddef.h>
+#include <stdint.h>
+
+#include <fixed_point.h>
 #include <radio.h>
 #include <usb_request.h>
 #include <usb_type.h>
@@ -34,6 +38,112 @@ usb_request_status_t usb_vendor_request_set_radio_mode(
 		if (!radio_set_config_mode(&radio, mode)) {
 			return USB_REQUEST_STATUS_STALL;
 		}
+		usb_transfer_schedule_ack(endpoint->in);
+	}
+
+	return USB_REQUEST_STATUS_OK;
+}
+
+usb_request_status_t usb_vendor_request_set_radio_frequency(
+	usb_endpoint_t* const endpoint,
+	const usb_transfer_stage_t stage)
+{
+	static fp_40_24_t set_radio_frequency_param;
+
+	if (stage == USB_TRANSFER_STAGE_SETUP) {
+		usb_transfer_schedule_block(
+			endpoint->out,
+			&set_radio_frequency_param,
+			sizeof(fp_40_24_t),
+			NULL,
+			NULL);
+	} else if (stage == USB_TRANSFER_STAGE_DATA) {
+		radio_reg_write(
+			&radio,
+			RADIO_BANK_REQUESTED,
+			RADIO_FREQUENCY_RF,
+			set_radio_frequency_param);
+		radio_reg_write(
+			&radio,
+			RADIO_BANK_REQUESTED,
+			RADIO_FREQUENCY_IF,
+			RADIO_UNSET);
+		radio_reg_write(
+			&radio,
+			RADIO_BANK_REQUESTED,
+			RADIO_FREQUENCY_LO,
+			RADIO_UNSET);
+		radio_reg_write(
+			&radio,
+			RADIO_BANK_REQUESTED,
+			RADIO_IMAGE_REJECT,
+			RADIO_UNSET);
+		usb_transfer_schedule_ack(endpoint->in);
+	}
+
+	return USB_REQUEST_STATUS_OK;
+}
+
+usb_request_status_t usb_vendor_request_set_radio_frequency_explicit(
+	usb_endpoint_t* const endpoint,
+	const usb_transfer_stage_t stage)
+{
+	typedef struct {
+		fp_40_24_t if_freq_hz;
+		fp_40_24_t lo_freq_hz;
+		uint8_t path;
+	} set_radio_frequency_explicit_params_t;
+
+	static set_radio_frequency_explicit_params_t set_radio_frequency_explicit_params;
+
+	if (stage == USB_TRANSFER_STAGE_SETUP) {
+		usb_transfer_schedule_block(
+			endpoint->out,
+			&set_radio_frequency_explicit_params,
+			sizeof(set_radio_frequency_explicit_params_t),
+			NULL,
+			NULL);
+	} else if (stage == USB_TRANSFER_STAGE_DATA) {
+		radio_reg_write(
+			&radio,
+			RADIO_BANK_REQUESTED,
+			RADIO_FREQUENCY_IF,
+			set_radio_frequency_explicit_params.if_freq_hz);
+		radio_reg_write(
+			&radio,
+			RADIO_BANK_REQUESTED,
+			RADIO_FREQUENCY_LO,
+			set_radio_frequency_explicit_params.lo_freq_hz);
+		radio_reg_write(
+			&radio,
+			RADIO_BANK_REQUESTED,
+			RADIO_IMAGE_REJECT,
+			set_radio_frequency_explicit_params.path);
+		usb_transfer_schedule_ack(endpoint->in);
+	}
+
+	return USB_REQUEST_STATUS_OK;
+}
+
+usb_request_status_t usb_vendor_request_set_radio_sample_rate(
+	usb_endpoint_t* const endpoint,
+	const usb_transfer_stage_t stage)
+{
+	static fp_28_36_t set_radio_sample_rate_param;
+
+	if (stage == USB_TRANSFER_STAGE_SETUP) {
+		usb_transfer_schedule_block(
+			endpoint->out,
+			&set_radio_sample_rate_param,
+			sizeof(fp_28_36_t),
+			NULL,
+			NULL);
+	} else if (stage == USB_TRANSFER_STAGE_DATA) {
+		radio_reg_write(
+			&radio,
+			RADIO_BANK_REQUESTED,
+			RADIO_SAMPLE_RATE,
+			set_radio_sample_rate_param);
 		usb_transfer_schedule_ack(endpoint->in);
 	}
 
