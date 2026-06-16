@@ -448,8 +448,9 @@ int rx_callback(hackrf_transfer* transfer)
 	}
 
 #ifndef _WIN32
-	if ((stream_size - 1 + stream_head - stream_tail) % stream_size <
-	    bytes_to_write) {
+	if (bytes_to_write > stream_size ||
+	    (stream_size - 1 + stream_head - stream_tail) % stream_size <
+	        bytes_to_write) {
 		stream_drop++;
 	} else {
 		if (stream_tail + bytes_to_write <= stream_size) {
