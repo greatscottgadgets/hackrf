@@ -25,6 +25,8 @@
 #include <libopencm3/lpc43xx/i2c.h>
 #include <libopencm3/lpc43xx/memorymap.h>
 
+#include "cpu_clock.h"
+
 /* Driver instances. */
 i2c_bus_t i2c0 = {
 	.obj = (void*) I2C0_BASE,
@@ -41,7 +43,7 @@ i2c_bus_t i2c1 = {
 };
 
 const i2c_lpc_config_t i2c_config_fast_clock = {
-	.duty_cycle_count = 255,
+	.clock_khz = 400,
 };
 
 /* FIXME return i2c0 status from each function */
@@ -51,7 +53,9 @@ void i2c_lpc_start(i2c_bus_t* const bus, const void* const _config)
 	const i2c_lpc_config_t* const config = _config;
 
 	const uint32_t port = (uint32_t) bus->obj;
-	i2c_init(port, config->duty_cycle_count);
+	const uint16_t duty_cycle_count =
+		(cpu_clock_mhz * (2000 / config->clock_khz)) / 4;
+	i2c_init(port, duty_cycle_count);
 }
 
 void i2c_lpc_stop(i2c_bus_t* const bus)

@@ -24,8 +24,6 @@
 #include <stdint.h>
 
 #include "hackrf_ui.h"
-#include "i2c_bus.h"
-#include "i2c_lpc.h"
 #include "platform_detect.h"
 #include "sgpio.h"
 #include "si5351c.h"
@@ -36,8 +34,6 @@
 
 void clock_gen_init(void)
 {
-	i2c_bus_start(si5351c.bus, &i2c_config_fast_clock);
-
 	si5351c_init(&si5351c);
 	si5351c_disable_all_outputs(&si5351c);
 	si5351c_disable_oeb_pin_control(&si5351c);
@@ -120,7 +116,6 @@ void clock_gen_init(void)
 
 void clock_gen_shutdown(void)
 {
-	i2c_bus_start(si5351c.bus, &i2c_config_fast_clock);
 	si5351c_disable_all_outputs(&si5351c);
 	si5351c_disable_oeb_pin_control(&si5351c);
 	si5351c_power_down_all_clocks(&si5351c);
