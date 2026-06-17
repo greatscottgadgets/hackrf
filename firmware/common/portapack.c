@@ -610,23 +610,23 @@ static bool portapack_detect(void)
 	return idcode == 0x020A50DD || idcode == 0x00025610;
 }
 
-static const portapack_t portapack_instance = {};
+static bool portapack_detected = false;
 
-static const portapack_t* portapack_pointer = NULL;
-
-const portapack_t* portapack(void)
+bool portapack_present(void)
 {
-	return portapack_pointer;
+	return portapack_detected;
 }
 
-void portapack_init(void)
+bool portapack_init(void)
 {
 	if (portapack_detect()) {
 		portapack_if_init();
 		portapack_lcd_reset();
 		portapack_lcd_init();
-		portapack_pointer = &portapack_instance;
+		portapack_detected = true;
 	} else {
-		portapack_pointer = NULL;
+		portapack_detected = false;
 	}
+
+	return portapack_detected;
 }
