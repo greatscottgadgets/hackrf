@@ -53,6 +53,7 @@ void radio_init(radio_t* const radio)
 			radio->config[bank][reg] = RADIO_UNSET;
 		}
 	}
+	radio->config_mode = RADIO_CONFIG_STANDARD;
 	radio->config[RADIO_BANK_APPLIED][RADIO_OPMODE] = TRANSCEIVER_MODE_OFF;
 	radio->config[RADIO_BANK_REQUESTED][RADIO_OPMODE] = TRANSCEIVER_MODE_OFF;
 	radio->config[RADIO_BANK_IDLE][RADIO_OPMODE] = TRANSCEIVER_MODE_OFF;
