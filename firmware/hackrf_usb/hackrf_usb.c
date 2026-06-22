@@ -183,6 +183,8 @@ static usb_request_handler_fn vendor_request_handler[] = {
 	usb_vendor_request_read_radio_reg,
 	usb_vendor_request_get_buffer_size,
 	usb_vendor_request_lock_radio_reg,
+	usb_vendor_request_open,
+	usb_vendor_request_close,
 };
 
 static const uint32_t vendor_request_handler_count =
