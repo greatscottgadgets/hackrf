@@ -820,7 +820,7 @@ static int hackrf_open_setup(
 			(uint16_t) mode,
 			NULL,
 			0,
-			DEFAULT_REQUEST_TIMEOUT);
+			FPGA_BITSTREAM_TIMEOUT);
 		if (result != 0) {
 			last_libusb_error = result;
 			return HACKRF_ERROR_LIBUSB;
