@@ -41,12 +41,15 @@ typedef enum {
 } radio_error_t;
 
 /* radio configuration modes */
+// TODO are we sure we need a legacy mode?
 typedef enum {
 	RADIO_CONFIG_LEGACY = 0,
 	RADIO_CONFIG_STANDARD = 1,
+#ifdef IS_PRALINE
 	RADIO_CONFIG_EXT_PRECISION_RX = 2,
 	RADIO_CONFIG_EXT_PRECISION_TX = 3,
 	RADIO_CONFIG_HALF_PRECISION = 4,
+#endif
 } radio_config_mode_t;
 
 typedef struct {
@@ -270,6 +273,12 @@ bool radio_update(radio_t* const radio);
  * the request bank for the new mode.
  */
 void radio_switch_opmode(radio_t* const radio, const transceiver_mode_t mode);
+
+/**
+ * Switch to a new configuration mode.
+ * Return true if the mode was successfully switched.
+ */
+bool radio_set_config_mode(radio_t* const radio, const radio_config_mode_t mode);
 
 /**
  * Driver instance.
