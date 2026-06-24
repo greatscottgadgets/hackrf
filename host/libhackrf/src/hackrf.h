@@ -2463,6 +2463,18 @@ extern ADDAPI int ADDCALL hackrf_radio_lock_register(
 	const uint8_t register_number,
 	const bool register_locked);
 
+/**
+ * Switches the radio configuration mode.
+ *
+ * @param[in] device device to configure
+ * @param[in] mode configuration mode. Defaults to RADIO_CONFIG_LEGACY. Available modes are defined in @ref radio_config_mode.
+ * @return @ref HACKRF_SUCCESS on success or @ref hackrf_error variant
+ * @ingroup configuration
+ */
+extern ADDAPI int ADDCALL hackrf_radio_set_mode(
+	hackrf_device* device,
+	const enum radio_config_mode mode);
+
 #ifdef __cplusplus
 } // __cplusplus defined.
 #endif

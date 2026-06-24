@@ -123,6 +123,7 @@ typedef enum {
 	HACKRF_VENDOR_REQUEST_RADIO_LOCK_REG = 62,
 	HACKRF_VENDOR_REQUEST_OPEN = 63,
 	HACKRF_VENDOR_REQUEST_CLOSE = 64,
+	HACKRF_VENDOR_REQUEST_RADIO_SET_MODE = 65,
 } hackrf_vendor_request;
 
 #define USB_CONFIG_STANDARD 0x1
@@ -3665,6 +3666,30 @@ int ADDCALL hackrf_radio_lock_register(
 		HACKRF_VENDOR_REQUEST_RADIO_LOCK_REG,
 		register_locked,
 		register_number,
+		NULL,
+		0,
+		DEFAULT_REQUEST_TIMEOUT);
+
+	if (result != 0) {
+		last_libusb_error = result;
+		return HACKRF_ERROR_LIBUSB;
+	}
+
+	return HACKRF_SUCCESS;
+}
+
+int ADDCALL hackrf_radio_set_mode(hackrf_device* device, const enum radio_config_mode mode)
+{
+	USB_API_REQUIRED(device, 0x0113);
+	int result;
+
+	result = libusb_control_transfer(
+		device->usb_device,
+		LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR |
+			LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_RADIO_SET_MODE,
+		mode,
+		0,
 		NULL,
 		0,
 		DEFAULT_REQUEST_TIMEOUT);
