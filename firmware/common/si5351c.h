@@ -106,6 +106,7 @@ typedef struct {
 	uint8_t mcu_clkin_id;
 	bool input_initialized;
 	si5351c_input_t active_input;
+	int32_t input_error_ppm;
 	uint8_t regs[SI5351C_CACHED_REGS];
 	uint32_t regs_dirty[(SI5351C_CACHED_REGS + 31) / 32];
 } si5351c_driver_t;
@@ -118,7 +119,8 @@ void si5351c_enable_xo_and_ms_fanout(si5351c_driver_t* const drv);
 void si5351c_configure_inputs(si5351c_driver_t* const drv, const si5351c_input_t input);
 void si5351c_configure_pll_multisynth(
 	si5351c_driver_t* const drv,
-	const si5351c_input_t input);
+	const si5351c_input_t input,
+	const int32_t error_ppm);
 void si5351c_reset_plls(si5351c_driver_t* const drv, si5351c_pll_mask_t mask);
 void si5351c_configure_multisynth(
 	si5351c_driver_t* const drv,
@@ -133,7 +135,10 @@ void si5351c_set_int_mode(
 	si5351c_driver_t* const drv,
 	const uint_fast8_t ms_number,
 	const uint_fast8_t on);
-void si5351c_change_input(si5351c_driver_t* const drv, const si5351c_input_t input);
+void si5351c_change_input(
+	si5351c_driver_t* const drv,
+	const si5351c_input_t input,
+	const int32_t error_ppm);
 bool si5351c_clkin_signal_valid(si5351c_driver_t* const drv);
 
 void si5351c_write_single(si5351c_driver_t* const drv, uint8_t reg, uint8_t val);

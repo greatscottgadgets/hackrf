@@ -108,7 +108,7 @@ void clock_gen_init(void)
 	sample_rate_set(SR_FP_MHZ(10), true);
 
 	si5351c_configure_clock_control(&si5351c);
-	si5351c_change_input(&si5351c, SI5351C_INPUT_XTAL);
+	si5351c_change_input(&si5351c, SI5351C_INPUT_XTAL, 0);
 	// soft reset
 	si5351c_reset_plls(&si5351c, SI5351C_PLL_MASK_BOTH);
 	si5351c_enable_clock_outputs(&si5351c);
@@ -157,7 +157,7 @@ clock_source_t activate_best_clock_source(void)
 
 	si5351c_input_t input = (source == CLOCK_SOURCE_HACKRF) ? SI5351C_INPUT_XTAL :
 								  SI5351C_INPUT_CLKIN;
-	si5351c_change_input(&si5351c, input);
+	si5351c_change_input(&si5351c, input, 0);
 
 	hackrf_ui()->set_clock_source(source);
 

@@ -197,18 +197,37 @@ void si5351c_configure_inputs(si5351c_driver_t* const drv, const si5351c_input_t
 /* MultiSynth NA (PLLA) and NB (PLLB) */
 void si5351c_configure_pll_multisynth(
 	si5351c_driver_t* const drv,
-	const si5351c_input_t input)
+	const si5351c_input_t input,
+	const int32_t error_ppm)
 {
+	uint32_t a, b, c, p1, p2, p3;
 	for (si5351c_pll_t pll = SI5351C_PLL_A; pll <= SI5351C_PLL_B; pll++) {
 		if (input == SI5351C_INPUT_CLKIN) {
-			/* CLKIN: 10 MHz * (0x2600 + 512) / 128 = 800 MHz, integer mode */
-			set_MSN_P1(drv, pll, 0x2600);
+			/* CLKIN: 10 MHz * 80 = 800 MHz, integer mode */
+			a = 80;
 		} else {
-			/* XTAL: 25 MHz * (0x0e00 + 512) / 128 = 800 MHz, integer mode */
-			set_MSN_P1(drv, pll, 0x0E00);
+			/* XTAL: 25 MHz * 32 = 800 MHz, integer mode */
+			a = 32;
 		}
-		set_MSN_P2(drv, pll, 0);
-		set_MSN_P3(drv, pll, 1);
+		if (error_ppm == 0) {
+			b = 0;
+			c = 1;
+		} else {
+			uint32_t denominator = 1000000 / a;
+			if (error_ppm < 0) {
+				a -= 1;
+				b = denominator + error_ppm;
+			} else {
+				b = error_ppm;
+			}
+			c = denominator;
+		}
+		p1 = 128 * a + (uint32_t)(128 * (float)b / (float)c) - 512;
+		p2 = 128 * b - c * (uint32_t)(128 * (float)b / (float)c);
+		p3 = c;
+		set_MSN_P1(drv, pll, p1);
+		set_MSN_P2(drv, pll, p2);
+		set_MSN_P3(drv, pll, p3);
 	}
 	si5351c_regs_commit(drv);
 }
@@ -285,7 +304,10 @@ void si5351c_set_int_mode(
 	si5351c_regs_commit(drv);
 }
 
-void si5351c_change_input(si5351c_driver_t* const drv, si5351c_input_t input)
+void si5351c_change_input(
+	si5351c_driver_t* const drv,
+	si5351c_input_t input,
+	int32_t error_ppm)
 {
 	if (drv->input_initialized && input == drv->active_input) {
 		return;
@@ -310,7 +332,7 @@ void si5351c_change_input(si5351c_driver_t* const drv, si5351c_input_t input)
 		si5351c_configure_inputs(drv, input);
 	}
 #endif
-	si5351c_configure_pll_multisynth(drv, input);
+	si5351c_configure_pll_multisynth(drv, input, error_ppm);
 	drv->active_input = input;
 	drv->input_initialized = true;
 	si5351c_reset_plls(drv, SI5351C_PLL_MASK_BOTH);
@@ -645,3 +667,13 @@ void si5351c_set_phase(
 	set_CLK_PHOFF(drv, ms_number, offset);
 	si5351c_regs_commit(drv);
 }
+
+void si5351c_set_reference_error_ppm(
+	si5351c_driver_t* const drv,
+	int32_t error_ppm)
+{
+	si5351c_configure_pll_multisynth(drv, drv->active_input, error_ppm);
+	si5351c_reset_plls(drv, SI5351C_PLL_MASK_BOTH);
+	drv->input_error_ppm = error_ppm;
+}
+
