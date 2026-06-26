@@ -1,0 +1,6 @@
+(sym_lib_table
+  (version 0)
+  (lib (name "operacake-rescue")(type "Legacy")(uri "${KIPRJMOD}/operacake-rescue.lib")(options "")(descr ""))
+  (lib (name "gsg-symbols")(type "Legacy")(uri "/home/yhetti/H1/hackrf/hardware/gsg-kicad-lib/gsg-symbols.lib")(options "")(descr ""))
+  (lib (name "hackrf")(type "Legacy")(uri "/home/yhetti/H1/hackrf/hardware/kicad/hackrf.lib")(options "")(descr ""))
+)
