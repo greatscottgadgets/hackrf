@@ -1,0 +1,36 @@
+.TH HACKRF_CLOCK "1" "July 2021" "HackRF clock configuration utility" "User Commands"
+.SH NAME
+hackrf_clock \- clock configuration utility
+.SH DESCRIPTION
+hackrf_clock \- HackRF clock configuration utility
+Usage:
+.HP
+\fB\-h\fR, \fB\-\-help\fR: this help
+.HP
+\fB\-r\fR, \fB\-\-read\fR <clock_num>: read settings for clock_num
+.HP
+\fB\-a\fR, \fB\-\-all\fR: read settings for all clocks
+.HP
+\fB\-o\fR, \fB\-\-clkout\fR <clkout_enable>: enable/disable CLKOUT
+.HP
+\fB\-d\fR, \fB\-\-device\fR <serial_number>: Serial number of desired HackRF.
+.SH EXAMPLES
+.IP
+hackrf_clock \-r 3 : prints settings for CLKOUT
+.SS "Usage:"
+.HP
+\-h, \-\-help: this help
+.HP
+\-r, \-\-read <clock_num>: read settings for clock_num
+.HP
+\-a, \-\-all: read settings for all clocks
+.HP
+\-o, \-\-clkout <clkout_enable>: enable/disable CLKOUT
+.HP
+\-d, \-\-device <serial_number>: Serial number of desired HackRF.
+.IP
+hackrf_clock \-r 3 : prints settings for CLKOUT
+.SH "SEE ALSO"
+The primary source of documentation is the wiki on github:
+.P
+https://github.com/mossmann/hackrf/wiki
