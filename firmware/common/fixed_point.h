@@ -54,3 +54,20 @@ typedef uint64_t fp_28_36_t;
 #define SR_FP_MHZ(mhz) (mhz##ULL * SR_FP_ONE_MHZ)
 #define SR_FP_KHZ(khz) (khz##ULL * SR_FP_ONE_KHZ)
 #define SR_FP_HZ(hz)   (hz##ULL * SR_FP_ONE_HZ)
+
+/* 1.63 fixed point */
+typedef uint64_t fp_1_63_t;
+
+#define FRAC_ONE (1ULL << 63)
+
+/* one hundredth in 1.63 fixed point */
+#define FRAC_ONE_PERCENT (FRAC_ONE / (100ULL))
+
+/* one thousandth in 1.63 fixed point */
+#define FRAC_ONE_PERMILLE (FRAC_ONE / (1000ULL))
+
+/* one millionth in 1.63 fixed point */
+#define FRAC_ONE_PPM (FRAC_ONE / (1000000ULL))
+
+/* one billionth in 1.63 fixed point */
+#define FRAC_ONE_PPB (FRAC_ONE / (1000000000ULL))
