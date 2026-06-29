@@ -41,14 +41,12 @@ typedef enum {
 } radio_error_t;
 
 /* radio configuration modes */
-// TODO are we sure we need a legacy mode?
 typedef enum {
-	RADIO_CONFIG_LEGACY = 0,
-	RADIO_CONFIG_STANDARD = 1,
+	RADIO_CONFIG_STANDARD = 0,
 #ifdef IS_PRALINE
-	RADIO_CONFIG_EXT_PRECISION_RX = 2,
-	RADIO_CONFIG_EXT_PRECISION_TX = 3,
-	RADIO_CONFIG_HALF_PRECISION = 4,
+	RADIO_CONFIG_EXT_PRECISION_RX = 1,
+	RADIO_CONFIG_EXT_PRECISION_TX = 2,
+	RADIO_CONFIG_HALF_PRECISION = 3,
 #endif
 } radio_config_mode_t;
 
