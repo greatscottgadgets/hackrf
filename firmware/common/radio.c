@@ -957,7 +957,6 @@ bool radio_set_config_mode(radio_t* const radio, const radio_config_mode_t mode)
 {
 	// Check if the requested mode is supported.
 	switch (mode) {
-	case RADIO_CONFIG_LEGACY:
 	case RADIO_CONFIG_STANDARD:
 		// supported on all boards
 		break;
@@ -984,7 +983,6 @@ bool radio_set_config_mode(radio_t* const radio, const radio_config_mode_t mode)
 	if (IS_PRALINE) {
 		fpga_bitstream_index_t bitstream_index;
 		switch (mode) {
-		case RADIO_CONFIG_LEGACY:
 		case RADIO_CONFIG_STANDARD:
 			bitstream_index = FPGA_BITSTREAM_STANDARD;
 			break;

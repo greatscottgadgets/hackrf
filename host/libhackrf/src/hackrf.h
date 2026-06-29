@@ -952,11 +952,10 @@ enum clkin_ctrl_signal {
  * Used by @ref hackrf_open, @ref hackrf_open_mode_by_serial and @ref hackrf_device_list_open_mode to set the active configuration mode.
  */
 enum radio_config_mode {
-	RADIO_CONFIG_LEGACY = 0,
-	RADIO_CONFIG_STANDARD = 1,
-	RADIO_CONFIG_EXT_PRECISION_RX = 2,
-	RADIO_CONFIG_EXT_PRECISION_TX = 3,
-	RADIO_CONFIG_HALF_PRECISION = 4,
+	RADIO_CONFIG_STANDARD = 0,
+	RADIO_CONFIG_EXT_PRECISION_RX = 1,
+	RADIO_CONFIG_EXT_PRECISION_TX = 2,
+	RADIO_CONFIG_HALF_PRECISION = 3,
 };
 
 /**
@@ -2467,7 +2466,7 @@ extern ADDAPI int ADDCALL hackrf_radio_lock_register(
  * Switches the radio configuration mode.
  *
  * @param[in] device device to configure
- * @param[in] mode configuration mode. Defaults to RADIO_CONFIG_LEGACY. Available modes are defined in @ref radio_config_mode.
+ * @param[in] mode configuration mode. Defaults to RADIO_CONFIG_STANDARD. Available modes are defined in @ref radio_config_mode.
  * @return @ref HACKRF_SUCCESS on success or @ref hackrf_error variant
  * @ingroup configuration
  */
