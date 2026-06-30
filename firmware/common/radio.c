@@ -34,6 +34,7 @@
 #include "rf_path.h"
 #include "transceiver_mode.h"
 #include "tuning.h"
+#include "u128.h"
 #ifdef IS_PRALINE
 	#include "fpga.h"
 	#include "tune_config.h"
@@ -132,6 +133,75 @@ static uint32_t radio_update_direction(radio_t* const radio, uint64_t* bank)
 	return (1 << RADIO_OPMODE);
 }
 
+/* Apply correction to a true frequency to get an adjusted frequency. */
+static uint64_t adjust(uint64_t freq, uint64_t correction)
+{
+	/* skip if we can */
+	if (correction == FRAC_ONE) {
+		return freq;
+	}
+
+	u128 product = u128_multiply(freq, correction);
+
+	/* product >> 63 */
+	return (product.hi << 1) | (product.lo >> 63);
+}
+
+/* Given an adjusted frequency and correction, return the true frequency. */
+static uint64_t unadjust(uint64_t freq, uint64_t correction)
+{
+	/* skip if we can */
+	if (correction == FRAC_ONE) {
+		return freq;
+	}
+
+	/* (1 << (63 + 63)) */
+	u128 numerator = (u128){
+		.hi = 1ULL << 62,
+		.lo = 0,
+	};
+	u128 denominator = (u128){
+		.hi = 0,
+		.lo = correction,
+	};
+	u128 reciprocal = u128_divide(numerator, denominator);
+	return adjust(freq, reciprocal.lo);
+}
+
+static uint64_t restrict_correction(uint64_t requested_correction)
+{
+	/* Correction should be in the range 0.99 to 1.01 */
+	const uint64_t min_correction = FRAC_ONE - FRAC_ONE_PERCENT;
+	const uint64_t max_correction = FRAC_ONE + FRAC_ONE_PERCENT;
+	if (requested_correction >= min_correction &&
+	    requested_correction <= max_correction) {
+		return requested_correction;
+	} else {
+		return FRAC_ONE;
+	}
+}
+
+static uint64_t set_lo(uint64_t freq_lo, uint64_t correction, bool apply)
+{
+	fp_40_24_t corrected_lo = adjust(freq_lo, correction);
+	fp_40_24_t achieved_lo = mixer_set_frequency(&mixer, corrected_lo, apply);
+	return unadjust(achieved_lo, correction);
+}
+
+static uint64_t set_if(uint64_t freq_if, uint64_t correction, bool apply)
+{
+	fp_40_24_t corrected_if = adjust(freq_if, correction);
+	fp_40_24_t achieved_if = max283x_set_frequency(&max283x, corrected_if, apply);
+	return unadjust(achieved_if, correction);
+}
+
+static uint64_t set_afe_rate(uint64_t afe_rate, uint64_t correction, bool apply)
+{
+	fp_28_36_t corrected_rate = adjust(afe_rate, correction);
+	fp_28_36_t achieved_rate = sample_rate_set(corrected_rate, apply);
+	return unadjust(achieved_rate, correction);
+}
+
 #define ABSOLUTE_MIN_AFE_RATE  SR_FP_KHZ(200)
 #define ABSOLUTE_MAX_AFE_RATE  SR_FP_KHZ(43600)
 #define MAX_SUPPORTED_AFE_RATE SR_FP_KHZ(40000)
@@ -183,6 +253,9 @@ static uint32_t radio_update_sample_rate(radio_t* const radio, uint64_t* bank)
 	bool new_n = false;
 
 	const uint64_t requested_rate = bank[RADIO_SAMPLE_RATE];
+	const uint64_t requested_correction = bank[RADIO_CLOCK_CORRECTION];
+
+	uint64_t correction = restrict_correction(requested_correction);
 
 	if (requested_rate != RADIO_UNSET) {
 		rate = MIN(requested_rate, MAX_MCU_RATE);
@@ -236,7 +309,7 @@ static uint32_t radio_update_sample_rate(radio_t* const radio, uint64_t* bank)
 	new_n = (n != previous_n);
 
 	afe_rate = rate << n;
-	afe_rate = sample_rate_set(afe_rate, false);
+	afe_rate = set_afe_rate(afe_rate, correction, false);
 	previous_rate = radio->config[RADIO_BANK_APPLIED][RADIO_SAMPLE_RATE];
 	if ((previous_n == RADIO_UNSET) || previous_rate == RADIO_UNSET) {
 		previous_afe_rate = RADIO_UNSET;
@@ -245,7 +318,7 @@ static uint32_t radio_update_sample_rate(radio_t* const radio, uint64_t* bank)
 	}
 	new_afe_rate = (afe_rate != previous_afe_rate);
 	if (new_afe_rate) {
-		afe_rate = sample_rate_set(afe_rate, true);
+		afe_rate = set_afe_rate(afe_rate, correction, true);
 	}
 
 	rate = afe_rate >> n;
@@ -373,6 +446,7 @@ static uint32_t radio_update_frequency(radio_t* const radio, uint64_t* bank)
 #ifdef IS_PRALINE
 	const uint64_t requested_rotation = bank[RADIO_ROTATION];
 #endif
+	const uint64_t requested_correction = bank[RADIO_CLOCK_CORRECTION];
 
 	const uint64_t applied_rf = radio->config[RADIO_BANK_APPLIED][RADIO_FREQUENCY_RF];
 	const uint64_t applied_if = radio->config[RADIO_BANK_APPLIED][RADIO_FREQUENCY_IF];
@@ -381,6 +455,8 @@ static uint32_t radio_update_frequency(radio_t* const radio, uint64_t* bank)
 		radio->config[RADIO_BANK_APPLIED][RADIO_IMAGE_REJECT];
 	const uint64_t applied_rotation =
 		radio->config[RADIO_BANK_APPLIED][RADIO_ROTATION];
+	const uint64_t applied_correction =
+		radio->config[RADIO_BANK_APPLIED][RADIO_CLOCK_CORRECTION];
 
 	uint64_t freq_rf = applied_rf;
 	uint64_t analog_rf = applied_rf;
@@ -388,6 +464,7 @@ static uint32_t radio_update_frequency(radio_t* const radio, uint64_t* bank)
 	uint64_t freq_lo = applied_lo;
 	uint64_t img_reject = applied_img_reject;
 	uint64_t rotation = applied_rotation;
+	uint64_t correction = applied_correction;
 
 	uint64_t opmode = bank[RADIO_OPMODE];
 	if (opmode == RADIO_UNSET) {
@@ -405,11 +482,12 @@ static uint32_t radio_update_frequency(radio_t* const radio, uint64_t* bank)
 			img_reject = RF_PATH_FILTER_BYPASS;
 		}
 	}
+	correction = restrict_correction(requested_correction);
 	if (requested_if != RADIO_UNSET) {
-		freq_if = max283x_set_frequency(&max283x, requested_if, false);
+		freq_if = set_if(requested_if, correction, false);
 	}
 	if (requested_lo != RADIO_UNSET) {
-		freq_lo = mixer_set_frequency(&mixer, freq_lo, false);
+		freq_lo = set_lo(requested_lo, correction, false);
 	}
 #ifdef IS_PRALINE
 	if (IS_PRALINE) {
@@ -491,7 +569,7 @@ static uint32_t radio_update_frequency(radio_t* const radio, uint64_t* bank)
 				freq_lo = RADIO_UNSET;
 			}
 			if (freq_lo != RADIO_UNSET) {
-				freq_lo = mixer_set_frequency(&mixer, freq_lo, false);
+				freq_lo = set_lo(freq_lo, correction, false);
 			}
 		}
 
@@ -513,12 +591,12 @@ static uint32_t radio_update_frequency(radio_t* const radio, uint64_t* bank)
 
 	/* Apply settings. */
 	if ((freq_if != applied_if) && (freq_if != RADIO_UNSET)) {
-		freq_if = max283x_set_frequency(&max283x, freq_if, true);
+		freq_if = set_if(freq_if, correction, true);
 		radio->config[RADIO_BANK_APPLIED][RADIO_FREQUENCY_IF] = freq_if;
 		changed |= (1 << RADIO_FREQUENCY_IF);
 	}
 	if ((freq_lo != applied_lo) && (freq_lo != RADIO_UNSET)) {
-		freq_lo = mixer_set_frequency(&mixer, freq_lo, true);
+		freq_lo = set_lo(freq_lo, correction, true);
 		radio->config[RADIO_BANK_APPLIED][RADIO_FREQUENCY_LO] = freq_lo;
 		changed |= (1 << RADIO_FREQUENCY_LO);
 	}
@@ -560,6 +638,10 @@ static uint32_t radio_update_frequency(radio_t* const radio, uint64_t* bank)
 	if ((freq_rf != applied_rf) && (freq_rf != RADIO_UNSET)) {
 		radio->config[RADIO_BANK_APPLIED][RADIO_FREQUENCY_RF] = freq_rf;
 		changed |= (1 << RADIO_FREQUENCY_RF);
+	}
+	if ((correction != applied_correction) && (correction != RADIO_UNSET)) {
+		radio->config[RADIO_BANK_APPLIED][RADIO_CLOCK_CORRECTION] = correction;
+		changed |= (1 << RADIO_CLOCK_CORRECTION);
 	}
 
 	return changed;

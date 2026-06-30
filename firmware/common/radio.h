@@ -165,17 +165,23 @@ typedef enum {
 	 * DC block enable of type bool.
 	 */
 	RADIO_DC_BLOCK = 22,
+	/**
+	 * Correction factor for radio reference clock, of type fp_1_63_t.
+	 */
+	RADIO_CLOCK_CORRECTION = 23,
 } radio_register_t;
 
-#define RADIO_NUM_REGS (23)
+#define RADIO_NUM_REGS (24)
 #define RADIO_UNSET    (0xffffffffffffffff)
 
 /* register groups for bitfield convenience */
-#define RADIO_REG_GROUP_RATE \
-	((1 << RADIO_SAMPLE_RATE) | (1 << RADIO_RESAMPLE_TX) | (1 << RADIO_RESAMPLE_RX))
-#define RADIO_REG_GROUP_FREQ                                     \
-	((1 << RADIO_FREQUENCY_RF) | (1 << RADIO_FREQUENCY_IF) | \
-	 (1 << RADIO_FREQUENCY_LO) | (1 << RADIO_IMAGE_REJECT) | (1 << RADIO_ROTATION))
+#define RADIO_REG_GROUP_RATE                                   \
+	((1 << RADIO_SAMPLE_RATE) | (1 << RADIO_RESAMPLE_TX) | \
+	 (1 << RADIO_RESAMPLE_RX) | (1 << RADIO_CLOCK_CORRECTION))
+#define RADIO_REG_GROUP_FREQ                                                             \
+	((1 << RADIO_FREQUENCY_RF) | (1 << RADIO_FREQUENCY_IF) |                         \
+	 (1 << RADIO_FREQUENCY_LO) | (1 << RADIO_IMAGE_REJECT) | (1 << RADIO_ROTATION) | \
+	 (1 << RADIO_CLOCK_CORRECTION))
 #define RADIO_REG_GROUP_BW                                             \
 	((1 << RADIO_BB_BANDWIDTH_TX) | (1 << RADIO_BB_BANDWIDTH_RX) | \
 	 (1 << RADIO_XCVR_TX_LPF) | (1 << RADIO_XCVR_RX_LPF) |         \
