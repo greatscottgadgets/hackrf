@@ -947,6 +947,18 @@ enum clkin_ctrl_signal {
 };
 
 /**
+ * HackRF Pro Radio Configuration Mode.
+ *
+ * Used by @ref hackrf_open, @ref hackrf_open_mode_by_serial and @ref hackrf_device_list_open_mode to set the active configuration mode.
+ */
+enum radio_config_mode {
+	RADIO_CONFIG_STANDARD = 0,
+	RADIO_CONFIG_EXT_PRECISION_RX = 1,
+	RADIO_CONFIG_EXT_PRECISION_TX = 2,
+	RADIO_CONFIG_HALF_PRECISION = 3,
+};
+
+/**
  * Opaque struct for hackrf device info. Object can be created via @ref hackrf_open, @ref hackrf_device_list_open or @ref hackrf_open_by_serial and be destroyed via @ref hackrf_close
  * @ingroup device
  */
@@ -1199,6 +1211,7 @@ extern ADDAPI hackrf_device_list_t* ADDCALL hackrf_device_list();
 
 /**
  * Open a @ref hackrf_device from a device list
+ * @deprecated this function has been replaced by @ref hackrf_device_list_open_mode
  * @param[in] list device list to open device from
  * @param[in] idx index of the device to open
  * @param[out] device device handle to open
@@ -1206,6 +1219,24 @@ extern ADDAPI hackrf_device_list_t* ADDCALL hackrf_device_list();
  * @ingroup device
  */
 extern ADDAPI int ADDCALL hackrf_device_list_open(
+	hackrf_device_list_t* list,
+	int idx,
+	hackrf_device** device);
+
+/**
+ * Open a @ref hackrf_device from a device list and initialize it to the given radio configuration mode.
+ *
+ * Modes other than RADIO_CONFIG_STANDARD are only supported on HackRF Pro hardware.
+ *
+ * @param[in] mode configuration mode. Defaults to RADIO_CONFIG_STANDARD. Available modes are defined in @ref radio_config_mode.
+ * @param[in] list device list to open device from
+ * @param[in] idx index of the device to open
+ * @param[out] device device handle to open
+ * @return @ref HACKRF_SUCCESS on success, @ref HACKRF_ERROR_INVALID_PARAM on invalid parameters or other @ref hackrf_error variant
+ * @ingroup device
+ */
+extern ADDAPI int ADDCALL hackrf_device_list_open_mode(
+	const enum radio_config_mode mode,
 	hackrf_device_list_t* list,
 	int idx,
 	hackrf_device** device);
@@ -1231,6 +1262,7 @@ extern ADDAPI void ADDCALL hackrf_device_list_free(hackrf_device_list_t* list);
 
 /**
  * Open first available HackRF device
+ * @deprecated this function has been replaced by @ref hackrf_open_mode
  * @param[out] device device handle
  * @return @ref HACKRF_SUCCESS on success, @ref HACKRF_ERROR_INVALID_PARAM if @p device is NULL, @ref HACKRF_ERROR_NOT_FOUND if no HackRF devices are found or other @ref hackrf_error variant
  * @ingroup device
@@ -1238,13 +1270,44 @@ extern ADDAPI void ADDCALL hackrf_device_list_free(hackrf_device_list_t* list);
 extern ADDAPI int ADDCALL hackrf_open(hackrf_device** device);
 
 /**
+ * Open first available HackRF device and initialize it to the given radio configuration mode.
+ *
+ * Modes other than RADIO_CONFIG_STANDARD are only supported on HackRF Pro hardware.
+ *
+ * @param[in] mode configuration mode. Defaults to RADIO_CONFIG_STANDARD. Available modes are defined in @ref radio_config_mode.
+ * @param[out] device device handle
+ * @return @ref HACKRF_SUCCESS on success, @ref HACKRF_ERROR_INVALID_PARAM if @p device is NULL, @ref HACKRF_ERROR_NOT_FOUND if no HackRF devices are found or other @ref hackrf_error variant
+ * @ingroup device
+ */
+extern ADDAPI int ADDCALL hackrf_open_mode(
+	const enum radio_config_mode mode,
+	hackrf_device** device);
+
+/**
  * Open HackRF device by serial number
+ * @deprecated this function has been replaced by @ref hackrf_open_mode_by_serial
  * @param[in] desired_serial_number serial number of device to open. If NULL then default to first device found.
  * @param[out] device device handle
  * @return @ref HACKRF_SUCCESS on success, @ref HACKRF_ERROR_INVALID_PARAM if @p device is NULL, @ref HACKRF_ERROR_NOT_FOUND if no HackRF devices are found or other @ref hackrf_error variant
  * @ingroup device
  */
 extern ADDAPI int ADDCALL hackrf_open_by_serial(
+	const char* const desired_serial_number,
+	hackrf_device** device);
+
+/**
+ * Open HackRF device by serial number and initialize it to the given radio configuration mode.
+ *
+ * Modes other than RADIO_CONFIG_STANDARD are only supported on HackRF Pro hardware.
+ *
+ * @param[in] mode configuration mode. Defaults to RADIO_CONFIG_STANDARD. Available modes are defined in @ref radio_config_mode.
+ * @param[in] desired_serial_number serial number of device to open. If NULL then default to first device found.
+ * @param[out] device device handle
+ * @return @ref HACKRF_SUCCESS on success, @ref HACKRF_ERROR_INVALID_PARAM if @p device is NULL, @ref HACKRF_ERROR_NOT_FOUND if no HackRF devices are found or other @ref hackrf_error variant
+ * @ingroup device
+ */
+extern ADDAPI int ADDCALL hackrf_open_mode_by_serial(
+	const enum radio_config_mode mode,
 	const char* const desired_serial_number,
 	hackrf_device** device);
 
@@ -2384,6 +2447,32 @@ extern ADDAPI int ADDCALL hackrf_radio_write_register(
 	const uint8_t bank,
 	const uint8_t register_number,
 	const uint64_t value);
+
+/**
+ * Lock or unlock a radio configuration register.
+ *
+ * @param[in] device device to write
+ * @param[in] register_number register number to mask
+ * @param[out] locked locked state for the register
+ * @return @ref HACKRF_SUCCESS on success or @ref hackrf_error variant
+ * @ingroup debug
+ */
+extern ADDAPI int ADDCALL hackrf_radio_lock_register(
+	hackrf_device* device,
+	const uint8_t register_number,
+	const bool register_locked);
+
+/**
+ * Switches the radio configuration mode.
+ *
+ * @param[in] device device to configure
+ * @param[in] mode configuration mode. Defaults to RADIO_CONFIG_STANDARD. Available modes are defined in @ref radio_config_mode.
+ * @return @ref HACKRF_SUCCESS on success or @ref hackrf_error variant
+ * @ingroup configuration
+ */
+extern ADDAPI int ADDCALL hackrf_radio_set_mode(
+	hackrf_device* device,
+	const enum radio_config_mode mode);
 
 #ifdef __cplusplus
 } // __cplusplus defined.

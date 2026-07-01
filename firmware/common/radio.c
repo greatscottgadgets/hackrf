@@ -59,11 +59,17 @@ void radio_init(radio_t* const radio)
 	radio->config[RADIO_BANK_TX][RADIO_OPMODE] = TRANSCEIVER_MODE_TX;
 	radio->config[RADIO_BANK_IDLE][RADIO_BIAS_TEE] = false;
 	radio->regs_dirty = 0;
+	radio->regs_locked = 0;
 }
 
 static inline void mark_dirty(radio_t* const radio, radio_register_t reg)
 {
 	radio->regs_dirty |= (1 << reg);
+}
+
+static inline bool check_locked(radio_t* const radio, radio_register_t reg)
+{
+	return radio->regs_locked & (1 << reg);
 }
 
 radio_error_t radio_reg_write(
@@ -74,6 +80,10 @@ radio_error_t radio_reg_write(
 {
 	if (reg > RADIO_NUM_REGS) {
 		return RADIO_ERR_INVALID_REGISTER;
+	}
+
+	if (check_locked(radio, reg)) {
+		return RADIO_ERR_LOCKED_REGISTER;
 	}
 
 	switch (bank) {
@@ -104,6 +114,20 @@ uint64_t radio_reg_read(
 	const radio_register_t reg)
 {
 	return radio->config[bank][reg];
+}
+
+radio_error_t radio_reg_lock(
+	radio_t* const radio,
+	const radio_register_t reg,
+	const bool locked)
+{
+	if (reg > RADIO_NUM_REGS) {
+		return RADIO_ERR_INVALID_REGISTER;
+	}
+
+	radio->regs_locked = (radio->regs_locked & ~(1 << reg)) | (locked << reg);
+
+	return RADIO_OK;
 }
 
 static uint32_t radio_update_direction(radio_t* const radio, uint64_t* bank)
@@ -927,4 +951,69 @@ void radio_switch_opmode(radio_t* const radio, const transceiver_mode_t mode)
 	mark_dirty(radio, RADIO_OPMODE);
 	nvic_enable_irq(NVIC_USB0_IRQ);
 	radio_update(radio);
+}
+
+bool radio_set_config_mode(radio_t* const radio, const radio_config_mode_t mode)
+{
+	// Check if the requested mode is supported.
+	switch (mode) {
+	case RADIO_CONFIG_STANDARD:
+		// supported on all boards
+		break;
+#ifdef IS_PRALINE
+	case RADIO_CONFIG_HALF_PRECISION:
+	case RADIO_CONFIG_EXT_PRECISION_RX:
+	case RADIO_CONFIG_EXT_PRECISION_TX:
+		// only supported on praline
+		if (!IS_PRALINE) {
+			return false;
+		}
+		break;
+#endif
+	default:
+		return false;
+	}
+
+	// Don't do anything if we're already in the requested mode.
+	if (mode == radio->config_mode) {
+		return true;
+	}
+
+#if defined(IS_PRALINE) && !(defined(DFU_MODE) || defined(RAM_MODE))
+	if (IS_PRALINE) {
+		fpga_bitstream_index_t bitstream_index;
+		switch (mode) {
+		case RADIO_CONFIG_STANDARD:
+			bitstream_index = FPGA_BITSTREAM_STANDARD;
+			break;
+		case RADIO_CONFIG_HALF_PRECISION:
+			bitstream_index = FPGA_BITSTREAM_HALFPREC;
+			break;
+		case RADIO_CONFIG_EXT_PRECISION_RX:
+			bitstream_index = FPGA_BITSTREAM_EXTPREC_RX;
+			break;
+		case RADIO_CONFIG_EXT_PRECISION_TX:
+			bitstream_index = FPGA_BITSTREAM_EXTPREC_TX;
+			break;
+		default:
+			return false;
+		}
+
+		// Reset radio state.
+		for (uint8_t reg = 0; reg < RADIO_NUM_REGS; reg++) {
+			radio_reg_write(radio, RADIO_BANK_ALL, reg, RADIO_UNSET);
+		}
+
+		// Load bitstream.
+		extern struct fpga_loader_t fpga_loader;
+		if (!fpga_image_load(&fpga_loader, bitstream_index)) {
+			return false;
+		}
+	}
+#endif
+
+	// Update radio config mode.
+	radio->config_mode = mode;
+
+	return true;
 }
