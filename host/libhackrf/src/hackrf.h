@@ -23,6 +23,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 
 #pragma once
 
+#include <math.h>
 #include <stdint.h>
 #include <sys/types.h>
 #include <stdbool.h> // for bool
@@ -947,6 +948,18 @@ enum clkin_ctrl_signal {
 };
 
 /**
+ * HackRF Pro Radio Configuration Mode.
+ *
+ * Used by @ref hackrf_open, @ref hackrf_open_mode_by_serial and @ref hackrf_device_list_open_mode to set the active configuration mode.
+ */
+enum radio_config_mode {
+	RADIO_CONFIG_STANDARD = 0,
+	RADIO_CONFIG_EXT_PRECISION_RX = 1,
+	RADIO_CONFIG_EXT_PRECISION_TX = 2,
+	RADIO_CONFIG_HALF_PRECISION = 3,
+};
+
+/**
  * Opaque struct for hackrf device info. Object can be created via @ref hackrf_open, @ref hackrf_device_list_open or @ref hackrf_open_by_serial and be destroyed via @ref hackrf_close
  * @ingroup device
  */
@@ -1199,6 +1212,7 @@ extern ADDAPI hackrf_device_list_t* ADDCALL hackrf_device_list();
 
 /**
  * Open a @ref hackrf_device from a device list
+ * @deprecated this function has been replaced by @ref hackrf_device_list_open_mode
  * @param[in] list device list to open device from
  * @param[in] idx index of the device to open
  * @param[out] device device handle to open
@@ -1206,6 +1220,24 @@ extern ADDAPI hackrf_device_list_t* ADDCALL hackrf_device_list();
  * @ingroup device
  */
 extern ADDAPI int ADDCALL hackrf_device_list_open(
+	hackrf_device_list_t* list,
+	int idx,
+	hackrf_device** device);
+
+/**
+ * Open a @ref hackrf_device from a device list and initialize it to the given radio configuration mode.
+ *
+ * Modes other than RADIO_CONFIG_STANDARD are only supported on HackRF Pro hardware.
+ *
+ * @param[in] mode configuration mode. Defaults to RADIO_CONFIG_STANDARD. Available modes are defined in @ref radio_config_mode.
+ * @param[in] list device list to open device from
+ * @param[in] idx index of the device to open
+ * @param[out] device device handle to open
+ * @return @ref HACKRF_SUCCESS on success, @ref HACKRF_ERROR_INVALID_PARAM on invalid parameters or other @ref hackrf_error variant
+ * @ingroup device
+ */
+extern ADDAPI int ADDCALL hackrf_device_list_open_mode(
+	const enum radio_config_mode mode,
 	hackrf_device_list_t* list,
 	int idx,
 	hackrf_device** device);
@@ -1231,6 +1263,7 @@ extern ADDAPI void ADDCALL hackrf_device_list_free(hackrf_device_list_t* list);
 
 /**
  * Open first available HackRF device
+ * @deprecated this function has been replaced by @ref hackrf_open_mode
  * @param[out] device device handle
  * @return @ref HACKRF_SUCCESS on success, @ref HACKRF_ERROR_INVALID_PARAM if @p device is NULL, @ref HACKRF_ERROR_NOT_FOUND if no HackRF devices are found or other @ref hackrf_error variant
  * @ingroup device
@@ -1238,13 +1271,44 @@ extern ADDAPI void ADDCALL hackrf_device_list_free(hackrf_device_list_t* list);
 extern ADDAPI int ADDCALL hackrf_open(hackrf_device** device);
 
 /**
+ * Open first available HackRF device and initialize it to the given radio configuration mode.
+ *
+ * Modes other than RADIO_CONFIG_STANDARD are only supported on HackRF Pro hardware.
+ *
+ * @param[in] mode configuration mode. Defaults to RADIO_CONFIG_STANDARD. Available modes are defined in @ref radio_config_mode.
+ * @param[out] device device handle
+ * @return @ref HACKRF_SUCCESS on success, @ref HACKRF_ERROR_INVALID_PARAM if @p device is NULL, @ref HACKRF_ERROR_NOT_FOUND if no HackRF devices are found or other @ref hackrf_error variant
+ * @ingroup device
+ */
+extern ADDAPI int ADDCALL hackrf_open_mode(
+	const enum radio_config_mode mode,
+	hackrf_device** device);
+
+/**
  * Open HackRF device by serial number
+ * @deprecated this function has been replaced by @ref hackrf_open_mode_by_serial
  * @param[in] desired_serial_number serial number of device to open. If NULL then default to first device found.
  * @param[out] device device handle
  * @return @ref HACKRF_SUCCESS on success, @ref HACKRF_ERROR_INVALID_PARAM if @p device is NULL, @ref HACKRF_ERROR_NOT_FOUND if no HackRF devices are found or other @ref hackrf_error variant
  * @ingroup device
  */
 extern ADDAPI int ADDCALL hackrf_open_by_serial(
+	const char* const desired_serial_number,
+	hackrf_device** device);
+
+/**
+ * Open HackRF device by serial number and initialize it to the given radio configuration mode.
+ *
+ * Modes other than RADIO_CONFIG_STANDARD are only supported on HackRF Pro hardware.
+ *
+ * @param[in] mode configuration mode. Defaults to RADIO_CONFIG_STANDARD. Available modes are defined in @ref radio_config_mode.
+ * @param[in] desired_serial_number serial number of device to open. If NULL then default to first device found.
+ * @param[out] device device handle
+ * @return @ref HACKRF_SUCCESS on success, @ref HACKRF_ERROR_INVALID_PARAM if @p device is NULL, @ref HACKRF_ERROR_NOT_FOUND if no HackRF devices are found or other @ref hackrf_error variant
+ * @ingroup device
+ */
+extern ADDAPI int ADDCALL hackrf_open_mode_by_serial(
+	const enum radio_config_mode mode,
 	const char* const desired_serial_number,
 	hackrf_device** device);
 
@@ -1752,7 +1816,8 @@ extern ADDAPI int ADDCALL hackrf_usb_api_version_read(
  * Simple (auto) tuning via specifying a center frequency in Hz
  * 
  * This setting is not exact and depends on the PLL settings. Exact resolution is not determined, but the actual tuned frequency will be queryable in the future.
- * 
+ *
+ * @deprecated this function has been replaced by @ref hackrf_radio_set_frequency
  * @param device device to tune
  * @param freq_hz center frequency in Hz. Defaults to 900MHz. Should be in range 1-6000MHz, but 0-7250MHz is possible. The resolution is ~50Hz, I could not find the exact number.
  * @return @ref HACKRF_SUCCESS on success or @ref hackrf_error variant
@@ -1764,7 +1829,8 @@ extern ADDAPI int ADDCALL hackrf_set_freq(hackrf_device* device, const uint64_t 
  * Set the center frequency via explicit tuning
  * 
  * Center frequency is set to \f$f_{center} = f_{IF} + k\cdot f_{LO}\f$ where \f$k\in\left\{-1; 0; 1\right\}\f$, depending on the value of @p path. See the documentation of @ref rf_path_filter for details
- * 
+ *
+ * @deprecated this function has been replaced by @ref hackrf_radio_set_frequency_explicit 
  * @param device device to tune
  * @param if_freq_hz tuning frequency of the MAX2837 transceiver IC in Hz. Must be in the range of 2150-2750MHz
  * @param lo_freq_hz tuning frequency of the RFFC5072 mixer/synthesizer IC in Hz. Must be in the range 84.375-5400MHz, defaults to 1000MHz. No effect if @p path is set to @ref RF_PATH_FILTER_BYPASS
@@ -1785,7 +1851,8 @@ extern ADDAPI int ADDCALL hackrf_set_freq_explicit(
  * 
  * This function sets the sample rate by specifying a clock frequency in Hz and a divider, so the resulting sample rate will be @p freq_hz / @p divider.
  * This function also sets the baseband filter bandwidth to a value \f$ \le 0.75 \cdot F_s \f$, so any calls to @ref hackrf_set_baseband_filter_bandwidth should only be made after this.
- * 
+ *
+ * @deprecated this function has been replaced by @ref hackrf_radio_set_sample_rate
  * @param device device to configure
  * @param freq_hz sample rate base frequency in Hz
  * @param divider frequency divider. Must be in the range 1-31
@@ -1803,6 +1870,7 @@ extern ADDAPI int ADDCALL hackrf_set_sample_rate_manual(
  * Sample rate should be in the range 2-20MHz, with the default being 10MHz. Lower & higher values are technically possible, but the performance is not guaranteed.
  * This function also sets the baseband filter bandwidth to a value \f$ \le 0.75 \cdot F_s \f$, so any calls to @ref hackrf_set_baseband_filter_bandwidth should only be made after this.
  * 
+ * @deprecated this function has been replaced by @ref hackrf_radio_set_sample_rate
  * @param device device to configure
  * @param freq_hz sample rate frequency in Hz. Should be in the range 2-20MHz
  * @return @ref HACKRF_SUCCESS on success or @ref hackrf_error variant
@@ -2384,6 +2452,130 @@ extern ADDAPI int ADDCALL hackrf_radio_write_register(
 	const uint8_t bank,
 	const uint8_t register_number,
 	const uint64_t value);
+
+/**
+ * Lock or unlock a radio configuration register.
+ *
+ * @param[in] device device to write
+ * @param[in] register_number register number to mask
+ * @param[out] locked locked state for the register
+ * @return @ref HACKRF_SUCCESS on success or @ref hackrf_error variant
+ * @ingroup debug
+ */
+extern ADDAPI int ADDCALL hackrf_radio_lock_register(
+	hackrf_device* device,
+	const uint8_t register_number,
+	const bool register_locked);
+
+/**
+ * Switches the radio configuration mode.
+ *
+ * @param[in] device device to configure
+ * @param[in] mode configuration mode. Defaults to RADIO_CONFIG_STANDARD. Available modes are defined in @ref radio_config_mode.
+ * @return @ref HACKRF_SUCCESS on success or @ref hackrf_error variant
+ * @ingroup configuration
+ */
+extern ADDAPI int ADDCALL hackrf_radio_set_mode(
+	hackrf_device* device,
+	const enum radio_config_mode mode);
+
+/**
+ * 40.24 Fixed-point type.
+ *
+ * Used by @ref hackrf_radio_set_frequency and @ref hackrf_radio_set_frequency_explicit
+ * to represent a fractional tuning frequency.
+ */
+typedef uint64_t fp_40_24_t;
+
+/**
+ * 28.36 Fixed-point type.
+ *
+ * Used by @ref hackrf_radio_set_sample_rate to represent a fractional sample rate.
+ */
+typedef uint64_t fp_28_36_t;
+
+/**
+ * Convert an integer frequency value to its corresponding fixed-point value.
+ */
+#define FREQ_FP_HZ(u64) ((uint64_t) u64 << 24)
+
+/**
+ * Convert an integer sample rate value to its corresponding fixed-point value.
+ */
+#define SR_FP_HZ(u64) ((uint64_t) u64 << 36)
+
+/**
+ * Convert a fixed-point frequency value to its corresponding integer value, rounding up to the nearest integer.
+ *
+ */
+#define FP_FREQ_HZ(u64) (((uint64_t) u64 + ((1ULL << 24) - 1)) >> 24)
+
+/**
+ * Convert a fixed-point sample rate value to its corresponding integer value, rounding up to the nearest integer.
+ */
+#define FP_SR_HZ(u64) (((uint64_t) u64 + ((1ULL << 36) - 1)) >> 36)
+
+/**
+ * Convert ASCII string to a 64 bit fixed-point number with a given number of bits of accuracy.
+ *
+ * @param[in] str string to parse
+ * @param[in] Qn  number of bits to use for fractional part
+ * @param[out] endptr last position parsed in string
+ * @param[out] value  converted value
+ * @return @ref HACKRF_SUCCESS on success or @ref hackrf_error variant
+ * @ingroup configuration
+ */
+extern ADDAPI int ADDCALL hackrf_str_to_fp64(
+	uint8_t Qn,
+	char* str,
+	char* endptr,
+	uint64_t* const value);
+
+/**
+ * Set the radio center frequency to a fractional, fixed-point value.
+ *
+ * @param[in] device device to tune
+ * @param[in] hz center frequency in Hz
+ * @return @ref HACKRF_SUCCESS on success or @ref hackrf_error variant
+ * @ingroup configuration
+ */
+extern ADDAPI int ADDCALL hackrf_radio_set_frequency(
+	hackrf_device* device,
+	const fp_40_24_t freq_hz);
+
+/**
+ * Set the radio center frequency to via explicit tuning.
+ *
+ * Center frequency is set to \f$f_{center} = f_{IF} + k\cdot f_{LO}\f$ where \f$k\in\left\{-1; 0; 1\right\}\f$, depending on the value of @p path. See the documentation of @ref rf_path_filter for details
+ *
+ * @param device device to tune
+ * TODO are these values still applicable for HackRF Pro ?
+ * @param if_freq_hz tuning frequency of the MAX2837 transceiver IC in Hz. Must be in the range of 2150-2750MHz
+ * TODO are these values still applicable for HackRF Pro ?
+ * @param lo_freq_hz tuning frequency of the RFFC5072 mixer/synthesizer IC in Hz. Must be in the range 84.375-5400MHz, defaults to 1000MHz. No effect if @p path is set to @ref RF_PATH_FILTER_BYPASS
+ * @param path filter path for mixer. See the documentation for @ref rf_path_filter for details
+ * @return @ref HACKRF_SUCCESS on success or @ref hackrf_error variant
+ * @ingroup configuration
+ */
+extern ADDAPI int ADDCALL hackrf_radio_set_frequency_explicit(
+	hackrf_device* device,
+	const fp_40_24_t if_freq_hz,
+	const fp_40_24_t lo_freq_hz,
+	const enum rf_path_filter path);
+
+/**
+ * Set the radio sample rate to a fractional, fixed-point value.
+ *
+ * This function does not automatically configure the baseband filter bandwidth, so any calls to this function should be followed by @ref hackrf_set_baseband_filter_bandwidth should it require adjustment.
+ *
+ * @param[in] device device to configure
+ * @param[in] sps samples per second
+ * @return @ref HACKRF_SUCCESS on success or @ref hackrf_error variant
+ * @ingroup configuration
+ */
+extern ADDAPI int ADDCALL hackrf_radio_set_sample_rate(
+	hackrf_device* device,
+	const fp_28_36_t freq_hz);
 
 #ifdef __cplusplus
 } // __cplusplus defined.

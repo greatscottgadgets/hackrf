@@ -75,6 +75,7 @@
 #include "usb_api_board_info.h"
 #include "usb_api_m0_state.h"
 #include "usb_api_operacake.h"
+#include "usb_api_radio.h"
 #include "usb_api_register.h"
 #include "usb_api_selftest.h"
 #include "usb_api_spiflash.h"
@@ -182,6 +183,13 @@ static usb_request_handler_fn vendor_request_handler[] = {
 	usb_vendor_request_write_radio_reg,
 	usb_vendor_request_read_radio_reg,
 	usb_vendor_request_get_buffer_size,
+	usb_vendor_request_lock_radio_reg,
+	usb_vendor_request_open,
+	usb_vendor_request_close,
+	usb_vendor_request_set_radio_mode,
+	usb_vendor_request_set_radio_frequency,
+	usb_vendor_request_set_radio_frequency_explicit,
+	usb_vendor_request_set_radio_sample_rate,
 };
 
 static const uint32_t vendor_request_handler_count =

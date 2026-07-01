@@ -34,6 +34,7 @@ typedef enum {
 	RADIO_ERR_INVALID_PARAM = -2,
 	RADIO_ERR_INVALID_BANK = -3,
 	RADIO_ERR_INVALID_REGISTER = -4,
+	RADIO_ERR_LOCKED_REGISTER = -5,
 	RADIO_ERR_UNSUPPORTED_OPERATION = -10,
 	RADIO_ERR_UNIMPLEMENTED = -19,
 	RADIO_ERR_OTHER = -9999,
@@ -41,11 +42,12 @@ typedef enum {
 
 /* radio configuration modes */
 typedef enum {
-	RADIO_CONFIG_LEGACY = 0,
-	RADIO_CONFIG_STANDARD = 1,
-	RADIO_CONFIG_EXT_PRECISION_RX = 2,
-	RADIO_CONFIG_EXT_PRECISION_TX = 3,
-	RADIO_CONFIG_HALF_PRECISION = 4,
+	RADIO_CONFIG_STANDARD = 0,
+#ifdef IS_PRALINE
+	RADIO_CONFIG_EXT_PRECISION_RX = 1,
+	RADIO_CONFIG_EXT_PRECISION_TX = 2,
+	RADIO_CONFIG_HALF_PRECISION = 3,
+#endif
 } radio_config_mode_t;
 
 typedef struct {
@@ -225,6 +227,7 @@ typedef struct {
 	radio_config_mode_t config_mode;
 	uint64_t config[RADIO_NUM_BANKS][RADIO_NUM_REGS];
 	volatile uint32_t regs_dirty;
+	uint32_t regs_locked;
 	update_fn update_cb;
 } radio_t;
 
@@ -249,6 +252,15 @@ uint64_t radio_reg_read(
 	const radio_register_t reg);
 
 /**
+ * Lock a register. Prevents any future calls to `radio_reg_write`
+ * from overwriting the current stored value of the register.
+ */
+radio_error_t radio_reg_lock(
+	radio_t* const radio,
+	const radio_register_t reg,
+	const bool locked);
+
+/**
  * Apply changes requested in RADIO_BANK_ACTIVE.
  * Return true if any changes were applied.
  */
@@ -259,6 +271,12 @@ bool radio_update(radio_t* const radio);
  * the request bank for the new mode.
  */
 void radio_switch_opmode(radio_t* const radio, const transceiver_mode_t mode);
+
+/**
+ * Switch to a new configuration mode.
+ * Return true if the mode was successfully switched.
+ */
+bool radio_set_config_mode(radio_t* const radio, const radio_config_mode_t mode);
 
 /**
  * Driver instance.

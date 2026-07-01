@@ -120,6 +120,13 @@ typedef enum {
 	HACKRF_VENDOR_REQUEST_RADIO_WRITE_REG = 59,
 	HACKRF_VENDOR_REQUEST_RADIO_READ_REG = 60,
 	HACKRF_VENDOR_REQUEST_GET_BUFFER_SIZE = 61,
+	HACKRF_VENDOR_REQUEST_RADIO_LOCK_REG = 62,
+	HACKRF_VENDOR_REQUEST_OPEN = 63,
+	HACKRF_VENDOR_REQUEST_CLOSE = 64,
+	HACKRF_VENDOR_REQUEST_RADIO_SET_MODE = 65,
+	HACKRF_VENDOR_REQUEST_RADIO_SET_FREQUENCY = 66,
+	HACKRF_VENDOR_REQUEST_RADIO_SET_FREQUENCY_EXPLICIT = 67,
+	HACKRF_VENDOR_REQUEST_RADIO_SET_SAMPLE_RATE = 68,
 } hackrf_vendor_request;
 
 #define USB_CONFIG_STANDARD 0x1
@@ -196,6 +203,8 @@ static const max2837_ft_t max2837_ft[] = {
 #define USB_API_REQUIRED(device, version)      \
 	if (device->usb_api_version < version) \
 		return HACKRF_ERROR_USB_API_VERSION;
+
+#define USB_API_REQUIRED_OR(device, version) if (device->usb_api_version < version)
 
 static const uint16_t hackrf_usb_vid = 0x1d50;
 static const uint16_t hackrf_jawbreaker_usb_pid = 0x604b;
@@ -713,7 +722,10 @@ libusb_device_handle* hackrf_open_usb(const char* const desired_serial_number)
 	return usb_device;
 }
 
-static int hackrf_open_setup(libusb_device_handle* usb_device, hackrf_device** device)
+static int hackrf_open_setup(
+	enum radio_config_mode mode,
+	libusb_device_handle* usb_device,
+	hackrf_device** device)
 {
 	int result;
 	hackrf_device* lib_device;
@@ -795,6 +807,24 @@ static int hackrf_open_setup(libusb_device_handle* usb_device, hackrf_device** d
 		lib_device->buffer_size = 32768;
 	}
 
+	if (lib_device->usb_api_version >= 0x0113) {
+		// Send supported usb api version and requested configuration mode to device.
+		result = libusb_control_transfer(
+			lib_device->usb_device,
+			LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR |
+				LIBUSB_RECIPIENT_DEVICE,
+			HACKRF_VENDOR_REQUEST_OPEN,
+			lib_device->usb_api_version,
+			(uint16_t) mode,
+			NULL,
+			0,
+			DEFAULT_REQUEST_TIMEOUT);
+		if (result != 0) {
+			last_libusb_error = result;
+			return HACKRF_ERROR_LIBUSB;
+		}
+	}
+
 	result = pthread_mutex_init(&lib_device->transfer_lock, NULL);
 	if (result != 0) {
 		free(lib_device);
@@ -833,7 +863,7 @@ static int hackrf_open_setup(libusb_device_handle* usb_device, hackrf_device** d
 	return HACKRF_SUCCESS;
 }
 
-int ADDCALL hackrf_open(hackrf_device** device)
+int ADDCALL hackrf_open_mode(const enum radio_config_mode mode, hackrf_device** device)
 {
 	libusb_device_handle* usb_device;
 
@@ -864,17 +894,18 @@ int ADDCALL hackrf_open(hackrf_device** device)
 		return HACKRF_ERROR_NOT_FOUND;
 	}
 
-	return hackrf_open_setup(usb_device, device);
+	return hackrf_open_setup(mode, usb_device, device);
 }
 
-int ADDCALL hackrf_open_by_serial(
+int ADDCALL hackrf_open_mode_by_serial(
+	const enum radio_config_mode mode,
 	const char* const desired_serial_number,
 	hackrf_device** device)
 {
 	libusb_device_handle* usb_device;
 
 	if (desired_serial_number == NULL) {
-		return hackrf_open(device);
+		return hackrf_open_mode(mode, device);
 	}
 
 	if (device == NULL) {
@@ -887,10 +918,11 @@ int ADDCALL hackrf_open_by_serial(
 		return HACKRF_ERROR_NOT_FOUND;
 	}
 
-	return hackrf_open_setup(usb_device, device);
+	return hackrf_open_setup(mode, usb_device, device);
 }
 
-int ADDCALL hackrf_device_list_open(
+int ADDCALL hackrf_device_list_open_mode(
+	const enum radio_config_mode mode,
 	hackrf_device_list_t* list,
 	int idx,
 	hackrf_device** device)
@@ -911,7 +943,30 @@ int ADDCALL hackrf_device_list_open(
 		return HACKRF_ERROR_LIBUSB;
 	}
 
-	return hackrf_open_setup(usb_device, device);
+	return hackrf_open_setup(mode, usb_device, device);
+}
+
+int ADDCALL hackrf_open(hackrf_device** device)
+{
+	return hackrf_open_mode(RADIO_CONFIG_STANDARD, device);
+}
+
+int ADDCALL hackrf_open_by_serial(
+	const char* const desired_serial_number,
+	hackrf_device** device)
+{
+	return hackrf_open_mode_by_serial(
+		RADIO_CONFIG_STANDARD,
+		desired_serial_number,
+		device);
+}
+
+int ADDCALL hackrf_device_list_open(
+	hackrf_device_list_t* list,
+	int idx,
+	hackrf_device** device)
+{
+	return hackrf_device_list_open_mode(RADIO_CONFIG_STANDARD, list, idx, device);
 }
 
 int ADDCALL hackrf_device_list_bus_sharing(hackrf_device_list_t* list, int idx)
@@ -2442,10 +2497,11 @@ int ADDCALL hackrf_stop_tx(hackrf_device* device)
 
 int ADDCALL hackrf_close(hackrf_device* device)
 {
-	int result1, result2;
+	int result1, result2, result3;
 
 	result1 = HACKRF_SUCCESS;
 	result2 = HACKRF_SUCCESS;
+	result3 = HACKRF_SUCCESS;
 
 	if (device != NULL) {
 		result1 = hackrf_stop_cmd(device);
@@ -2455,6 +2511,27 @@ int ADDCALL hackrf_close(hackrf_device* device)
 		 * also cancel any pending transmit/receive transfers.
 		 */
 		result2 = kill_transfer_thread(device);
+
+		if (device->usb_api_version >= 0x0113) {
+			/*
+			 * Let the device know it's been closed.
+			 */
+			result3 = libusb_control_transfer(
+				device->usb_device,
+				LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR |
+					LIBUSB_RECIPIENT_DEVICE,
+				HACKRF_VENDOR_REQUEST_CLOSE,
+				0,
+				0,
+				NULL,
+				0,
+				DEFAULT_REQUEST_TIMEOUT);
+			if (result3 != 0) {
+				last_libusb_error = result3;
+				result3 = HACKRF_ERROR_LIBUSB;
+			}
+		}
+
 		if (device->usb_device != NULL) {
 			libusb_release_interface(device->usb_device, 0);
 			libusb_close(device->usb_device);
@@ -2473,7 +2550,12 @@ int ADDCALL hackrf_close(hackrf_device* device)
 	if (result2 != HACKRF_SUCCESS) {
 		return result2;
 	}
-	return result1;
+
+	if (result1 != HACKRF_SUCCESS) {
+		return result1;
+	}
+
+	return result3;
 }
 
 const char* ADDCALL hackrf_error_name(enum hackrf_error errcode)
@@ -3572,6 +3654,221 @@ int ADDCALL hackrf_radio_write_register(
 	} else {
 		return HACKRF_SUCCESS;
 	}
+}
+
+int ADDCALL hackrf_radio_lock_register(
+	hackrf_device* device,
+	const uint8_t register_number,
+	const bool register_locked)
+{
+	USB_API_REQUIRED(device, 0x0113);
+	int result;
+
+	result = libusb_control_transfer(
+		device->usb_device,
+		LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR |
+			LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_RADIO_LOCK_REG,
+		register_locked,
+		register_number,
+		NULL,
+		0,
+		DEFAULT_REQUEST_TIMEOUT);
+
+	if (result != 0) {
+		last_libusb_error = result;
+		return HACKRF_ERROR_LIBUSB;
+	}
+
+	return HACKRF_SUCCESS;
+}
+
+int ADDCALL hackrf_radio_set_mode(hackrf_device* device, const enum radio_config_mode mode)
+{
+	USB_API_REQUIRED(device, 0x0113);
+	int result;
+
+	result = libusb_control_transfer(
+		device->usb_device,
+		LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR |
+			LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_RADIO_SET_MODE,
+		mode,
+		0,
+		NULL,
+		0,
+		DEFAULT_REQUEST_TIMEOUT);
+
+	if (result != 0) {
+		last_libusb_error = result;
+		return HACKRF_ERROR_LIBUSB;
+	}
+
+	return HACKRF_SUCCESS;
+}
+
+int ADDCALL hackrf_str_to_fp64(uint8_t Qn, char* str, char* endptr, uint64_t* const value)
+{
+	uint64_t m = 0;
+	uint64_t n = 0;
+	uint64_t div = 1;
+	uint64_t div_max = ceil((double) Qn * log10(2.0)) * 10;
+
+	// parse integer component
+	for (; (*str >= '0') && (*str <= '9'); str++) {
+		m = (m * 10) + (*str - '0');
+	}
+	*value = (m << Qn);
+
+	if (*str != '.') {
+		return HACKRF_SUCCESS;
+	}
+	str++;
+
+	// parse fractional component
+	for (; (*str >= '0') && (*str <= '9') && (div < div_max); str++) {
+		n = (n * 10) + (*str - '0');
+		div *= 10;
+	}
+	endptr = str;
+
+	if (div == 1) {
+		return HACKRF_SUCCESS;
+	}
+
+	*value += ((n << Qn) + (div / 2)) / div;
+
+	return HACKRF_SUCCESS;
+}
+
+int ADDCALL hackrf_radio_set_frequency(hackrf_device* device, const fp_40_24_t freq_hz)
+{
+	USB_API_REQUIRED_OR(device, 0x0113)
+	{
+		return hackrf_set_freq(device, FP_FREQ_HZ(freq_hz));
+	}
+
+	uint64_t set_freq_fp_param;
+	uint8_t length;
+	int result;
+
+	// serialize parameters
+	set_freq_fp_param = TO_LE64(freq_hz);
+	length = sizeof(uint64_t);
+
+	result = libusb_control_transfer(
+		device->usb_device,
+		LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR |
+			LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_RADIO_SET_FREQUENCY,
+		0,
+		0,
+		(unsigned char*) &set_freq_fp_param,
+		length,
+		DEFAULT_REQUEST_TIMEOUT);
+
+	if (result < length) {
+		last_libusb_error = result;
+		return HACKRF_ERROR_LIBUSB;
+	}
+
+	return HACKRF_SUCCESS;
+}
+
+int ADDCALL hackrf_radio_set_frequency_explicit(
+	hackrf_device* device,
+	const fp_40_24_t if_freq_hz,
+	const fp_40_24_t lo_freq_hz,
+	const enum rf_path_filter path)
+{
+	USB_API_REQUIRED_OR(device, 0x0113)
+	{
+		return hackrf_set_freq_explicit(
+			device,
+			FP_FREQ_HZ(if_freq_hz),
+			FP_FREQ_HZ(lo_freq_hz),
+			path);
+	}
+
+	struct {
+		fp_40_24_t if_freq_hz;
+		fp_40_24_t lo_freq_hz;
+		uint8_t path;
+	} params;
+
+	uint8_t length;
+	int result;
+
+	// TODO are these values still correct for HackRF Pro ?
+	if (FP_FREQ_HZ(if_freq_hz) < 2000000000 || FP_FREQ_HZ(if_freq_hz) > 3000000000) {
+		return HACKRF_ERROR_INVALID_PARAM;
+	}
+
+	// TODO are these values still correct for HackRF Pro ?
+	if ((path != RF_PATH_FILTER_BYPASS) &&
+	    (FP_FREQ_HZ(lo_freq_hz) < 84375000 || FP_FREQ_HZ(lo_freq_hz) > 5400000000)) {
+		return HACKRF_ERROR_INVALID_PARAM;
+	}
+
+	if (path > 2) {
+		return HACKRF_ERROR_INVALID_PARAM;
+	}
+
+	params.if_freq_hz = TO_LE(if_freq_hz);
+	params.lo_freq_hz = TO_LE(lo_freq_hz);
+	params.path = (uint8_t) path;
+	length = sizeof(params);
+
+	result = libusb_control_transfer(
+		device->usb_device,
+		LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR |
+			LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_RADIO_SET_FREQUENCY_EXPLICIT,
+		0,
+		0,
+		(unsigned char*) &params,
+		length,
+		DEFAULT_REQUEST_TIMEOUT);
+
+	if (result < length) {
+		last_libusb_error = result;
+		return HACKRF_ERROR_LIBUSB;
+	} else {
+		return HACKRF_SUCCESS;
+	}
+}
+
+int ADDCALL hackrf_radio_set_sample_rate(hackrf_device* device, const fp_28_36_t freq_hz)
+{
+	USB_API_REQUIRED_OR(device, 0x0113)
+	{
+		return hackrf_set_sample_rate(device, (double) freq_hz / (1ULL << 36));
+	}
+
+	uint64_t set_sr_fp_param;
+	uint8_t length;
+	int result;
+
+	set_sr_fp_param = TO_LE64(freq_hz);
+	length = sizeof(uint64_t);
+
+	result = libusb_control_transfer(
+		device->usb_device,
+		LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR |
+			LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_RADIO_SET_SAMPLE_RATE,
+		0,
+		0,
+		(unsigned char*) &set_sr_fp_param,
+		length,
+		DEFAULT_REQUEST_TIMEOUT);
+
+	if (result < length) {
+		last_libusb_error = result;
+		return HACKRF_ERROR_LIBUSB;
+	}
+
+	return HACKRF_SUCCESS;
 }
 
 #ifdef __cplusplus
