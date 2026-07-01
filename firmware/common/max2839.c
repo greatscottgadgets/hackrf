@@ -34,6 +34,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
+#include "delay.h"
 #include "fixed_point.h"
 #include "max2839_regs.def" // private register def macros
 #include "selftest.h"
@@ -455,4 +456,24 @@ bool max2839_set_txvga_gain(max2839_driver_t* const drv, const uint32_t gain_db)
 	set_MAX2839_TX_VGA_GAIN(drv, val);
 	max2839_reg_commit(drv, 29);
 	return true;
+}
+
+int8_t max2839_temperature(max2839_driver_t* const drv)
+{
+	/* Enable temperature sensing, if not already enabled. */
+	if (!get_MAX2839_TEMP_ENABLE(drv)) {
+		set_MAX2839_TEMP_ENABLE(drv, true);
+		max2839_reg_commit(drv, 9);
+		delay_ms(1);
+	}
+
+	/* Trigger ADC */
+	set_MAX2839_TEMP_TRIGGER(drv, true);
+	max2839_reg_commit(drv, 9);
+
+	/* Empirical testing indicates about 25us is necessary to get a valid
+	 * temperature sense conversion from the ADC. */
+	delay_us(25);
+
+	return max2839_read(drv, 11) & 0x1F;
 }
