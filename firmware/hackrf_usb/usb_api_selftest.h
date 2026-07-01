@@ -31,3 +31,7 @@ usb_request_status_t usb_vendor_request_read_selftest(
 usb_request_status_t usb_vendor_request_test_rtc_osc(
 	usb_endpoint_t* const endpoint,
 	const usb_transfer_stage_t stage);
+
+usb_request_status_t usb_vendor_request_read_temperature(
+	usb_endpoint_t* const endpoint,
+	const usb_transfer_stage_t stage);

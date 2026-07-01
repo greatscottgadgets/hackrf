@@ -329,3 +329,9 @@ void max283x_rx_calibration(max283x_driver_t* const drv)
 {
 	PRALINE_ONLY(drv, max2831_rx_calibration(&drv->drv.max2831));
 }
+
+/* Get chip temperature. */
+uint8_t max283x_temperature(max283x_driver_t* const drv)
+{
+	return RESULT(drv, uint8_t, temperature);
+}

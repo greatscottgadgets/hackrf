@@ -150,7 +150,7 @@ __MREG__(MAX2837_RSSI_MODE,6,8,1)    // set to override RXHP pin
 __MREG__(MAX2837_LPF_MODE_SEL,6,9,1) // set to enable mode in reg 2 ModeCtrl
 
 /* REG 7 is R/O */
-// D4:0 ts_adc (temp sensor)
+__MREG__(MAX2837_TEMP_VALUE,0,4,5)      // temp sensor value
 // D9:5 zeros or test outputs
 
 /* REG 8 */
@@ -162,8 +162,8 @@ __MREG__(MAX2837_BIAS_TRIM_CNTRL,8,8,1) // enable BIAS_TRIM_SPI value
 __MREG__(MAX2837_RX_IQERR_SPI_EN,8,9,1) // ???
 
 /* REG 9 */
-__MREG__(MAX2837_ts_adc_trigger,9,0,1)  // temp sensor trigger (one shot)
-__MREG__(MAX2837_ts_en,9,1,1)           // temp sensor enable (before trigger)
+__MREG__(MAX2837_TEMP_TRIGGER,9,0,1)    // temp sensor trigger (one shot)
+__MREG__(MAX2837_TEMP_ENABLE,9,1,1)     // temp sensor enable (before trigger)
 __MREG__(MAX2837_LPFtrim_SPI_EN,9,2,1)
 __MREG__(MAX2837_DOUT_DRVH,9,3,1)
 #define MAX2837_DOUT_DRVH_1X 0

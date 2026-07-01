@@ -140,6 +140,9 @@ void max283x_set_rx_hpf_frequency(
 void max283x_tx_calibration(max283x_driver_t* const drv);
 void max283x_rx_calibration(max283x_driver_t* const drv);
 
+/* Get chip temperature. */
+uint8_t max283x_temperature(max283x_driver_t* const drv);
+
 /* Driver instance. */
 extern ssp_config_t ssp_config_max283x;
 extern max283x_driver_t max283x;

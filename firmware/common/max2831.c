@@ -32,6 +32,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
+#include "delay.h"
 #include "fixed_point.h"
 #include "max2831_regs.def" // private register def macros
 #include "selftest.h"
@@ -424,4 +425,24 @@ void max2831_set_rx_hpf_frequency(max2831_driver_t* const drv, const max2831_rx_
 		gpio_set(drv->gpio_rxhp);
 		break;
 	}
+}
+
+int8_t max2831_temperature(max2831_driver_t* const drv)
+{
+	/* Switch to temperature sensor. */
+	set_MAX2831_RSSI_MUX(drv, MAX2831_RSSI_MUX_TEMP);
+	max2831_regs_commit(drv);
+
+	/* Wait for output to settle. */
+	delay_us(100);
+
+	/* Read temperature. */
+	uint16_t value = adc_read(1);
+
+	/* Convert to degrees C, using:
+	 * ADC 0 = 0V, ADC 1023 = 3.3V
+	 * Analog 0.35V = -40C, 1.6V = +85C */
+	const int32_t prescale = 3332, offset = 750104, divisor = 10000;
+
+	return ((value * prescale) - offset) / divisor;
 }

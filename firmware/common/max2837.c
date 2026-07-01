@@ -34,6 +34,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
+#include "delay.h"
 #include "fixed_point.h"
 #include "max2837_regs.def" // private register def macros
 #include "selftest.h"
@@ -392,4 +393,24 @@ bool max2837_set_txvga_gain(max2837_driver_t* const drv, const uint32_t gain_db)
 	set_MAX2837_TXVGA_GAIN(drv, val);
 	max2837_reg_commit(drv, 29);
 	return true;
+}
+
+int8_t max2837_temperature(max2837_driver_t* const drv)
+{
+	/* Enable temperature sensing, if not already enabled. */
+	if (!get_MAX2837_TEMP_ENABLE(drv)) {
+		set_MAX2837_TEMP_ENABLE(drv, true);
+		max2837_reg_commit(drv, 9);
+		delay_ms(1);
+	}
+
+	/* Trigger ADC */
+	set_MAX2837_TEMP_TRIGGER(drv, true);
+	max2837_reg_commit(drv, 9);
+
+	/* Empirical testing indicates about 25us is necessary to get a valid
+	 * temperature sense conversion from the ADC. */
+	delay_us(25);
+
+	return max2837_read(drv, 7) & 0x1F;
 }

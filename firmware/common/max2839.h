@@ -95,3 +95,5 @@ bool max2839_set_txvga_gain(max2839_driver_t* const drv, const uint32_t gain_db)
 
 extern void max2839_tx(max2839_driver_t* const drv);
 extern void max2839_rx(max2839_driver_t* const drv);
+
+int8_t max2839_temperature(max2839_driver_t* const drv);

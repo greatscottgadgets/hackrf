@@ -120,6 +120,7 @@ typedef enum {
 	HACKRF_VENDOR_REQUEST_RADIO_WRITE_REG = 59,
 	HACKRF_VENDOR_REQUEST_RADIO_READ_REG = 60,
 	HACKRF_VENDOR_REQUEST_GET_BUFFER_SIZE = 61,
+	HACKRF_VENDOR_REQUEST_READ_TEMPERATURE = 62,
 } hackrf_vendor_request;
 
 #define USB_CONFIG_STANDARD 0x1
@@ -1413,6 +1414,28 @@ int ADDCALL hackrf_test_rtc_osc(hackrf_device* device, bool* pass)
 	}
 
 	return HACKRF_SUCCESS;
+}
+
+int ADDCALL hackrf_read_temperature(hackrf_device* device, int8_t* temp)
+{
+	USB_API_REQUIRED(device, 0x0113);
+
+	int result = libusb_control_transfer(
+		device->usb_device,
+		LIBUSB_ENDPOINT_IN | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_READ_TEMPERATURE,
+		0,
+		0,
+		(unsigned char*) temp,
+		1,
+		DEFAULT_REQUEST_TIMEOUT);
+
+	if (result < 1) {
+		last_libusb_error = result;
+		return HACKRF_ERROR_LIBUSB;
+	} else {
+		return HACKRF_SUCCESS;
+	}
 }
 
 int ADDCALL hackrf_read_adc(hackrf_device* device, uint8_t adc_channel, uint16_t* value)
