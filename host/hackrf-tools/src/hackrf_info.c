@@ -260,6 +260,18 @@ int main(void)
 		}
 #endif /* HACKRF_ISSUE_609_IS_FIXED */
 
+		if (usb_version >= 0x0113) {
+			int8_t temperature;
+			result = hackrf_read_temperature(device, &temperature);
+			if (result != HACKRF_SUCCESS) {
+				printf("hackrf_read_temperature() failed: %s (%d)\n",
+				       hackrf_error_name(result),
+				       result);
+				return EXIT_FAILURE;
+			}
+			printf("Transceiver temperature: %-d°C\n", temperature);
+		}
+
 		if (usb_version >= 0x0109) {
 			hackrf_selftest selftest;
 			result = hackrf_read_selftest(device, &selftest);
