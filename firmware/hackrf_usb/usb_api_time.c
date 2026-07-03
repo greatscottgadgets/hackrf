@@ -172,7 +172,8 @@ void timer3_isr()
 			/* set R0 match value to keep PPS high for the given time */
 			TIMER3_MR0 = PPS1_WIDTH;
 
-			/* PPS trailing edge: at next R0 match, clear the external output. */
+			/* PPS trailing edge: at next R0 match, clear the external
+			 * output. */
 			TIMER3_EMR &= ~(0x3 << TIMER_EMR_EMC0_SHIFT);
 			TIMER3_EMR |= (TIMER_EMR_EMC_CLEAR << TIMER_EMR_EMC0_SHIFT);
 
@@ -180,10 +181,11 @@ void timer3_isr()
 			 * pulse */
 			TIMER3_MR1 = PPS1_WIDTH;
 
-			/* trigger trailing edge: at next R1 match, clear the external output
-			 * if not trigger hold active. Otherwise, do nothing: if on, keep it on
-			 * (long capture crossing second border). trigger hold changes take
-			 * effect at the next PPS leading edge. */
+			/* trigger trailing edge: at next R1 match, clear the external
+			 * output if not trigger hold active. Otherwise, do nothing:
+			 * if on, keep it on (long capture crossing second border).
+			 * trigger hold changes take effect at the next PPS leading
+			 * edge. */
 			TIMER3_EMR &= ~(0x3 << TIMER_EMR_EMC1_SHIFT);
 			if (trig_hold_enable) 
 				TIMER3_EMR |= (TIMER_EMR_EMC_NOTHING << TIMER_EMR_EMC1_SHIFT);
@@ -216,8 +218,9 @@ void timer3_isr()
 				TIMER3_MR0 = current_divisor;
 
 			/* PPS leading edge: at next R0 match (start of second), set to 1
-			 * the external output if PPS output is enabled (regular PPS period).
-			 * PPS output enable changes take effect at the next PPS leading edge. */
+			 * the external output if PPS output is enabled (regular PPSxi
+			 * period). PPS output enable changes take effect at the next
+			 * PPS leading edge. */
 			TIMER3_EMR &= ~(0x3 << TIMER_EMR_EMC0_SHIFT);
 			if (pps_out_enable)
 				TIMER3_EMR |= (TIMER_EMR_EMC_SET << TIMER_EMR_EMC0_SHIFT);
