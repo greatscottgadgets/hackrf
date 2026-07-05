@@ -115,12 +115,12 @@ class Value(hdl.ValueCastable):
 
     def raw(self):
         """
-        Adding an `s ( )` signedness wrapper in `as_value` when needed
+        Adding an `s ( )` or `u ( )` signedness wrapper in `as_value` when needed
         breaks lib.wiring for some reason. In the future, raw() and
         `as_value()` should be combined.
         """
-        if self.signed:
-            return self._target.as_signed()
+        if self._target.shape().signed != self.signed:
+            return self._target.as_signed() if self.signed else self._target.as_unsigned()
         return self._target
 
     def shape(self):
