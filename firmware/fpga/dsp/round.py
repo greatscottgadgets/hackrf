@@ -17,8 +17,11 @@ def convergent_round(value, discarded_bits):
     # - If discarded > 0.5
     # - If discarded == 0.5 and retained is odd
     round_up = msb_discarded & (rest_discarded.any() | lsb_retained)
-    if len(retained) == 0:
+    if shape.signed:
+        retained = retained.as_signed()
+    if len(retained) - shape.signed == 0:
         # the returned result's width should always be 1 more than retained,
-        # and Amaranth would produce 2 bits if we did the addition
-        return round_up
+        # but in this case Amaranth addition produces 2 bits more
+        value = (retained + round_up)[:-1]
+        return value.as_signed() if shape.signed else value
     return retained + round_up
