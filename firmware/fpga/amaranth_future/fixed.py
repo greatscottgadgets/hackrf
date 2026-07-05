@@ -26,14 +26,16 @@ class Shape(hdl.ShapeCastable):
         self.signed = bool(signed)
 
     @staticmethod
-    def cast(shape, f_width=0):
+    def cast(shape, f_width=0, signed=None):
         if not isinstance(shape, hdl.Shape):
             raise TypeError(f"Object {shape!r} cannot be converted to a fixed.Shape")
+        if signed == None:
+            signed = shape.signed
 
         # i_width is what's left after subtracting f_width and sign bit, but can't be negative.
-        i_width = max(0, shape.width - shape.signed - f_width)
+        i_width = max(0, shape.width - signed - f_width)
 
-        return Shape(i_width, f_width, signed = shape.signed)
+        return Shape(i_width, f_width, signed = signed)
 
     def as_shape(self):
         return hdl.Shape(self.signed + self.i_width + self.f_width, self.signed)
@@ -81,8 +83,8 @@ class Value(hdl.ValueCastable):
         self._target = target
 
     @staticmethod
-    def cast(value, f_width=0):
-        return Shape.cast(value.shape(), f_width)(value)
+    def cast(value, f_width=0, signed=None):
+        return Shape.cast(value.shape(), f_width, signed)(value)
 
     def round(self, f_width=0):
         # If we're increasing precision, extend with more fractional bits.
