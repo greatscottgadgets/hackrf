@@ -219,7 +219,7 @@ class Value(hdl.ValueCastable):
                 raise ValueError("Shift amount cannot be negative")
 
             if other > self.f_width:
-                return Value.cast(hdl.Cat(hdl.Const(0, other - self.f_width), self.raw()))
+                return Value.cast(hdl.Cat(hdl.Const(0, other - self.f_width), self.raw()), signed = self.signed)
             else:
                 return Value.cast(self.raw(), self.f_width - other)
 
