@@ -375,6 +375,16 @@ void transceiver_startup(const transceiver_mode_t mode)
 
 	transceiver_dma_setup();
 
+	/*
+	 * Settle on a clock source before tuning. If CLKIN was in use but the
+	 * external clock has since disappeared, this falls back to the XTAL
+	 * and waits out the Si5351C PLL reset. Doing this first means the
+	 * RFFC5071/MAX283x tuning below (via radio_switch_opmode) always
+	 * happens against a stable, already-selected reference instead of
+	 * racing a clock-source glitch triggered after tuning is committed.
+	 */
+	activate_best_clock_source();
+
 	radio_switch_opmode(&radio, mode);
 
 	switch (mode) {
@@ -394,8 +404,6 @@ void transceiver_startup(const transceiver_mode_t mode)
 	default:
 		break;
 	}
-
-	activate_best_clock_source();
 }
 
 usb_request_status_t usb_vendor_request_set_transceiver_mode(
