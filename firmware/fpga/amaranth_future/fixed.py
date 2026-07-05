@@ -79,6 +79,8 @@ class UQ(Shape):
 
 class Value(hdl.ValueCastable):
     def __init__(self, shape, target):
+        if target.shape().width != shape.as_shape().width:
+            raise ValueError(f'attempting to create {shape} ({shape.as_shape().width} bits) from {target.shape()} value')
         self._shape = shape
         self._target = target
 
