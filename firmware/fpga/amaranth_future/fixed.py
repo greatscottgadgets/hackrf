@@ -236,7 +236,13 @@ class Value(hdl.ValueCastable):
             if other < 0:
                 raise ValueError("Shift amount cannot be negative")
 
-            return Value.cast(self.raw(), self.f_width + other)
+            value = self.raw()
+
+            if other > self.i_width:
+                extend = value[-1] if self.signed else hdl.Const(0)
+                value = hdl.Cat(value, extend.replicate(other - self.i_width))
+
+            return Value.cast(value, self.f_width + other, self.signed)
 
         elif not isinstance(other, hdl.Value):
             raise TypeError("Shift amount must be an integer value")
