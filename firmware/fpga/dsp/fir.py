@@ -308,7 +308,7 @@ class FIRFilter(wiring.Component):
         muls = []
         for i, tap in enumerate(self.taps):
             tap_fixed = fixed.Const(tap)
-            muls.append([ fixed.Value.cast(mcm.output.p[c][f"{i}"], tap_fixed.f_width + self.shape.f_width) for c in range(self.num_channels) ])
+            muls.append([ fixed.Value.cast(mcm.output.p[c][f"{i}"], self.shape.f_width) >> tap_fixed.f_width for c in range(self.num_channels) ])
 
         # Implement adder line.
         with m.If(~self.output.valid | self.output.ready):

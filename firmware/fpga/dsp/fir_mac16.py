@@ -434,7 +434,7 @@ class SerialMAC16(wiring.Component):
                 m.d.sync += sum_carry_q.eq(self.sum_carry)
 
         m.submodules.dsp = dsp = iCE40Multiplier(
-            o_width=shape_out.as_shape().width,
+            o_width=shape_out.as_shape().width, p_width=shape_out.as_shape().width,
             always_ready=self.always_ready)
 
         valid_cnt = Signal(depth, init=1)
