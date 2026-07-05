@@ -805,6 +805,7 @@ static int hackrf_open_setup(libusb_device_handle* usb_device, hackrf_device** d
 
 	result = pthread_cond_init(&lib_device->all_finished_cv, NULL);
 	if (result != 0) {
+		pthread_mutex_destroy(&lib_device->transfer_lock);
 		free(lib_device);
 		libusb_release_interface(usb_device, 0);
 		libusb_close(usb_device);
@@ -813,6 +814,9 @@ static int hackrf_open_setup(libusb_device_handle* usb_device, hackrf_device** d
 
 	result = allocate_transfers(lib_device);
 	if (result != 0) {
+		free_transfers(lib_device);
+		pthread_mutex_destroy(&lib_device->transfer_lock);
+		pthread_cond_destroy(&lib_device->all_finished_cv);
 		free(lib_device);
 		libusb_release_interface(usb_device, 0);
 		libusb_close(usb_device);
@@ -821,6 +825,9 @@ static int hackrf_open_setup(libusb_device_handle* usb_device, hackrf_device** d
 
 	result = create_transfer_thread(lib_device);
 	if (result != 0) {
+		free_transfers(lib_device);
+		pthread_mutex_destroy(&lib_device->transfer_lock);
+		pthread_cond_destroy(&lib_device->all_finished_cv);
 		free(lib_device);
 		libusb_release_interface(usb_device, 0);
 		libusb_close(usb_device);
