@@ -987,6 +987,7 @@ int ADDCALL hackrf_max2837_read(
 		last_libusb_error = result;
 		return HACKRF_ERROR_LIBUSB;
 	} else {
+		*value = FROM_LE16(*value);
 		return HACKRF_SUCCESS;
 	}
 }
@@ -1016,6 +1017,7 @@ int ADDCALL hackrf_max2831_read(
 		last_libusb_error = result;
 		return HACKRF_ERROR_LIBUSB;
 	} else {
+		*value = FROM_LE16(*value);
 		return HACKRF_SUCCESS;
 	}
 }
@@ -1200,6 +1202,7 @@ int ADDCALL hackrf_rffc5071_read(
 		last_libusb_error = result;
 		return HACKRF_ERROR_LIBUSB;
 	} else {
+		*value = FROM_LE16(*value);
 		return HACKRF_SUCCESS;
 	}
 }
