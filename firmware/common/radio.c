@@ -409,7 +409,7 @@ static uint32_t radio_update_frequency(radio_t* const radio, uint64_t* bank)
 		freq_if = max283x_set_frequency(&max283x, requested_if, false);
 	}
 	if (requested_lo != RADIO_UNSET) {
-		freq_lo = mixer_set_frequency(&mixer, freq_lo, false);
+		freq_lo = mixer_set_frequency(&mixer, requested_lo, false);
 	}
 #ifdef IS_PRALINE
 	if (IS_PRALINE) {
