@@ -91,7 +91,7 @@ class Value(hdl.ValueCastable):
         
         # If we're reducing precision, perform convergent rounding (round to even).
         elif f_width < self.f_width:
-            return Shape(self.i_width, f_width, signed = self.signed)( convergent_round(self.raw(), self.f_width - f_width) )
+            return Shape(self.i_width + 1, f_width, signed = self.signed)( convergent_round(self.raw(), self.f_width - f_width) )
 
         return self
 
