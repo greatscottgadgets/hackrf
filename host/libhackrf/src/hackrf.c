@@ -206,6 +206,8 @@ static const max2837_ft_t max2837_ft[] = {
 	if (device->usb_api_version < version) \
 		return HACKRF_ERROR_USB_API_VERSION;
 
+#define USB_API_REQUIRED_OR(device, version) if (device->usb_api_version < version)
+
 static const uint16_t hackrf_usb_vid = 0x1d50;
 static const uint16_t hackrf_jawbreaker_usb_pid = 0x604b;
 static const uint16_t hackrf_one_usb_pid = 0x6089;
@@ -3778,7 +3780,11 @@ int ADDCALL hackrf_str_to_fp64(const uint8_t Qn, const char* str, uint64_t* cons
 
 int ADDCALL hackrf_radio_set_frequency(hackrf_device* device, const fp_40_24_t freq_hz)
 {
-	USB_API_REQUIRED(device, 0x0114);
+	USB_API_REQUIRED_OR(device, 0x0114)
+	{
+		return hackrf_set_freq(device, FP_FREQ(freq_hz));
+	}
+
 	uint64_t set_freq_fp_param;
 	uint8_t length;
 	int result;
@@ -3812,7 +3818,14 @@ int ADDCALL hackrf_radio_set_frequency_explicit(
 	const fp_40_24_t lo_freq_hz,
 	const enum rf_path_filter path)
 {
-	USB_API_REQUIRED(device, 0x0114);
+	USB_API_REQUIRED_OR(device, 0x0114)
+	{
+		return hackrf_set_freq_explicit(
+			device,
+			FP_FREQ(if_freq_hz),
+			FP_FREQ(lo_freq_hz),
+			path);
+	}
 
 	struct {
 		fp_40_24_t if_freq_hz;
@@ -3864,7 +3877,11 @@ int ADDCALL hackrf_radio_set_frequency_explicit(
 
 int ADDCALL hackrf_radio_set_sample_rate(hackrf_device* device, const fp_28_36_t freq_hz)
 {
-	USB_API_REQUIRED(device, 0x0114);
+	USB_API_REQUIRED_OR(device, 0x0114)
+	{
+		return hackrf_set_sample_rate(device, (double) freq_hz / (1ULL << 36));
+	}
+
 	uint64_t set_sr_fp_param;
 	uint8_t length;
 	int result;
