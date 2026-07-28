@@ -1101,3 +1101,61 @@ bool radio_set_config_mode(radio_t* const radio, const radio_config_mode_t mode)
 
 	return true;
 }
+
+bool radio_config_supports_opmode(
+	radio_config_mode_t config_mode,
+	transceiver_mode_t opmode)
+{
+	switch (config_mode) {
+	case RADIO_CONFIG_STANDARD:
+		// Standard config supports all operating modes.
+		return true;
+#ifdef IS_PRALINE
+	case RADIO_CONFIG_EXT_PRECISION_RX:
+		return (opmode == TRANSCEIVER_MODE_OFF) ||
+			(opmode == TRANSCEIVER_MODE_RX) ||
+			(opmode == TRANSCEIVER_MODE_RX_SWEEP);
+	case RADIO_CONFIG_EXT_PRECISION_TX:
+		return (opmode == TRANSCEIVER_MODE_OFF) ||
+			(opmode == TRANSCEIVER_MODE_TX) ||
+			(opmode == TRANSCEIVER_MODE_SS);
+	case RADIO_CONFIG_HALF_PRECISION:
+		// Half-precision config supports all operating modes.
+		return true;
+#endif
+	default:
+		return false;
+	}
+}
+
+bool radio_config_supports_register(radio_config_mode_t config_mode, radio_register_t reg)
+{
+	uint64_t unsupported = 0;
+
+	switch (config_mode) {
+	case RADIO_CONFIG_STANDARD:
+		// Standard config supports all registers, for now.
+		return true;
+#ifdef IS_PRALINE
+	case RADIO_CONFIG_EXT_PRECISION_RX:
+		unsupported = (1 << RADIO_RESAMPLE_TX) | (1 << RADIO_GAIN_TX_RF) |
+			(1 << RADIO_GAIN_TX_IF) | (1 << RADIO_BB_BANDWIDTH_TX) |
+			(1 << RADIO_XCVR_TX_LPF);
+		break;
+	case RADIO_CONFIG_EXT_PRECISION_TX:
+		unsupported = (1 << RADIO_ROTATION) | (1 << RADIO_RESAMPLE_RX) |
+			(1 << RADIO_GAIN_RX_RF) | (1 << RADIO_GAIN_RX_IF) |
+			(1 << RADIO_GAIN_RX_BB) | (1 << RADIO_BB_BANDWIDTH_RX) |
+			(1 << RADIO_XCVR_RX_LPF) | (1 << RADIO_XCVR_RX_HPF) |
+			(1 << RADIO_RX_NARROW_LPF);
+		break;
+	case RADIO_CONFIG_HALF_PRECISION:
+		// Half-precision config supports all registers, for now.
+		return true;
+#endif
+	default:
+		return false;
+	}
+
+	return ((1 << reg) & unsupported) == 0;
+}

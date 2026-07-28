@@ -40,7 +40,7 @@ typedef enum {
 	RADIO_ERR_OTHER = -9999,
 } radio_error_t;
 
-/* radio configuration modes */
+/* Supported radio configuration modes. */
 typedef enum {
 	RADIO_CONFIG_STANDARD = 0,
 #ifdef IS_PRALINE
@@ -283,6 +283,20 @@ void radio_switch_opmode(radio_t* const radio, const transceiver_mode_t mode);
  * Return true if the mode was successfully switched.
  */
 bool radio_set_config_mode(radio_t* const radio, const radio_config_mode_t mode);
+
+/**
+ * Returns true if the given configuration mode supports the given radio operating mode.
+ */
+bool radio_config_supports_opmode(
+	radio_config_mode_t config_mode,
+	transceiver_mode_t opmode);
+
+/**
+ * Returns true if the given configuration mode supports the given register.
+ *
+ * TODO decide if we need this.
+ */
+bool radio_config_supports_register(radio_config_mode_t config_mode, radio_register_t reg);
 
 /**
  * Driver instance.
