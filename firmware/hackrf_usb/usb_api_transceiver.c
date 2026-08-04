@@ -402,8 +402,15 @@ usb_request_status_t usb_vendor_request_set_transceiver_mode(
 	usb_endpoint_t* const endpoint,
 	const usb_transfer_stage_t stage)
 {
+	transceiver_mode_t opmode;
+
 	if (stage == USB_TRANSFER_STAGE_SETUP) {
-		switch (endpoint->setup.value) {
+		opmode = (transceiver_mode_t) endpoint->setup.value;
+		if (!radio_config_supports_opmode(radio.config_mode, opmode)) {
+			return USB_REQUEST_STATUS_STALL;
+		}
+
+		switch (opmode) {
 		case TRANSCEIVER_MODE_OFF:
 		case TRANSCEIVER_MODE_RX:
 		case TRANSCEIVER_MODE_TX:
