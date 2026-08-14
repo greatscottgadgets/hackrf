@@ -20,22 +20,13 @@
  * Boston, MA 02110-1301, USA.
  */
 
-/* Linker script for Rad1o badge - (LPC4330, 1M SPI flash, 264K SRAM). */
+/* Top-level linker script for Rad1o badge (LPC4330, 1M SPI flash, 264K SRAM). */
+
+/* See `LPC4320_M4_memory.ld` for documentation. */
 
 MEMORY
 {
-	/* UM10503 Rev. 2.5, 10 September 2019
-	 *   - Section 3.3.1  Table 10, LPC43xx/LPC43Sxx SRAM configuration
-	 *   - Section 3.3.3  On-chip flash
-	 *   - Section 3.3.5  Memory retention in the Power-down modes
-	 *   - Section 3.4    Figure 8, Flashless parts: Memory map with peripherals
-	 * LPC4350/30/20/10 Product data sheet Rev. 4.6, 14 March 2016
-	 *   - Section 7.17   Figure 7, LPC4350/30/20/10 Memory mapping (overview)
-	 */
-
 	/* - 0x0000 0000 : 256 MB shadow area ---------------------------------- */
-
-	/* rom is really the shadow region that points to SPI flash or elsewhere */
 	rom          (rx)  : ORIGIN = 0x00000000, LENGTH = 128K
 
 	/* - 0x1000 0000 : 96 kB local SRAM ------------------------------------ */
