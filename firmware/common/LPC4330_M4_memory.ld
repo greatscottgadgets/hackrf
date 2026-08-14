@@ -32,4 +32,9 @@ MEMORY
 	ram_sleep (rwx) : ORIGIN = 0x10090000, LENGTH = 8K
 }
 
+ASSERT(
+	SIZEOF(.text) + SIZEOF(.init_array) + SIZEOF(.ARM.exidx) <= 96K,
+	"Error: region `ram_local1' exceeds 96 kB."
+)
+
 INCLUDE LPC43xx_M4_memory.ld
