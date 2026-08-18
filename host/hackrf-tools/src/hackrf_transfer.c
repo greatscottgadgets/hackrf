@@ -878,6 +878,7 @@ void sigalrm_callback_handler(int signum)
 int main(int argc, char** argv)
 {
 	int opt;
+	uint8_t board_id = BOARD_ID_UNDETECTED;
 	char path_file[PATH_FILE_MAX_LEN];
 	char date_time[DATE_TIME_MAX_LEN];
 	const char* path = NULL;
@@ -1306,6 +1307,42 @@ int main(int argc, char** argv)
 			result);
 		usage();
 		return EXIT_FAILURE;
+	}
+
+	// Check if the requested configuration mode is supported by the current hardware.
+	result = hackrf_board_id_read(device, &board_id);
+	if (result != HACKRF_SUCCESS) {
+		fprintf(stderr,
+			"hackrf_board_id_read() failed: %s (%d)\n",
+			hackrf_error_name(result),
+			result);
+		return EXIT_FAILURE;
+	}
+	if (board_id != BOARD_ID_PRALINE && config_mode != RADIO_CONFIG_STANDARD) {
+		fprintf(stderr,
+			"The selected configuration mode is not supported by this device.\n");
+		return EXIT_FAILURE;
+	}
+
+	// Check if the transceiver mode is supported by the requested configuration mode.
+	switch (config_mode) {
+	case RADIO_CONFIG_EXT_PRECISION_RX:
+		if ((transceiver_mode == TRANSCEIVER_MODE_TX) ||
+		    (transceiver_mode == TRANSCEIVER_MODE_SS)) {
+			fprintf(stderr,
+				"The selected configuration mode does not support transmit operations.\n");
+			return EXIT_FAILURE;
+		}
+		break;
+	case RADIO_CONFIG_EXT_PRECISION_TX:
+		if (transceiver_mode == TRANSCEIVER_MODE_RX) {
+			fprintf(stderr,
+				"The selected configuration mode does not support receive operations.\n");
+			return EXIT_FAILURE;
+		}
+		break;
+	default:
+		break;
 	}
 
 	if (transceiver_mode != TRANSCEIVER_MODE_SS) {
