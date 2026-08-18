@@ -1308,6 +1308,27 @@ int main(int argc, char** argv)
 		return EXIT_FAILURE;
 	}
 
+	// Check if transceiver mode is supported by the current configuration mode.
+	// TODO in an ideal world we'd ask the radio, but currently we don't expose transceiver_mode
+	//      to the public libhackrf API and I'm pretty sure we don't want to do that.
+	switch (config_mode) {
+	case RADIO_CONFIG_EXT_PRECISION_RX:
+		if ((transceiver_mode == TRANSCEIVER_MODE_TX) ||
+		    (transceiver_mode == TRANSCEIVER_MODE_SS)) {
+			fprintf(stderr,
+				"The selected configuration mode does not support transmit operations.\n");
+			return EXIT_FAILURE;
+		}
+	case RADIO_CONFIG_EXT_PRECISION_TX:
+		if (transceiver_mode == TRANSCEIVER_MODE_RX) {
+			fprintf(stderr,
+				"The selected configuration mode does not support receive operations.\n");
+			return EXIT_FAILURE;
+		}
+	default:
+		break;
+	}
+
 	if (transceiver_mode != TRANSCEIVER_MODE_SS) {
 		if (transceiver_mode == TRANSCEIVER_MODE_RX) {
 			if (strcmp(path, "-") == 0) {
