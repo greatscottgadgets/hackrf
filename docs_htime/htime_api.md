@@ -86,12 +86,19 @@ device.
 
 **`hackrf_time_set_trig_hold_enable_next_pps(device, enable)`**
 
-Set the **enable** value (uint8_t) of trigger hold at the next PPS
-leading edge. When enabled, the trigger trailing edge action is disabled,
-so the trigger output can stay active across the second boundary
-(long capture crossing second border). When disabled, the trigger
-trailing edge is cleared as usual, just after next PPS leading edge.
+Set the requested trigger hold state with PPS-synchronous behavior.
 **device** is a pointer to the HackRF device.
+
+Timing semantics:
+
+- **enable = 1**: sampled at the next PPS leading edge and becomes active
+  one PPS later.
+- **enable = 0**: becomes active at the next PPS leading edge.
+
+When trigger hold is active, trigger trailing edge action is suppressed,
+so the trigger output can stay active across the second boundary
+(long capture crossing second border). When trigger hold is inactive,
+trigger trailing edge is generated as usual.
 
 ---
 

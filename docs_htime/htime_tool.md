@@ -15,7 +15,7 @@ Usage:
       -f, --set_clk_freq <v>: set sync clock freq to <v>
       -k, --ticks : read ticks counter now
       -K, --Ticks : set ticks counter now
-      -l, --trig_hold <0/1>: enable/disable trig hold status on next pps
+      -l, --trig_hold <0/1>: set trig hold state (1: sample next PPS, active one PPS later; 0: active next PPS)
       -p, --pps_out <0/1>: enable/disable pps output on next pps
       -r, --trig_delay <v>: set trig delay to <v> val next pps
       -s, --seconds <v>: set seconds counter now to <v> value

@@ -88,7 +88,7 @@ static void usage()
 	printf("\t-f, --set_clk_freq <v>: set sync clock freq to <v>\n");
 	printf("\t-k, --ticks : read ticks counter now\n");
 	printf("\t-K, --Ticks : set ticks counter now\n");
-	printf("\t-l, --trig_hold <0/1>: set trig hold status at next PPS leading edge\n");
+	printf("\t-l, --trig_hold <0/1>: set trig hold state (1: sample next PPS, active one PPS later; 0: active next PPS)\n");
 	printf("\t-p, --pps_out <0/1>: set pps output state at next PPS leading edge\n");
 	printf("\t-r, --trig_delay <v>: set trig delay to <v> val next pps\n");
 	printf("\t-s, --seconds <v>: set seconds counter now to <v> value\n");

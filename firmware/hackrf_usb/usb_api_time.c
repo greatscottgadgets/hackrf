@@ -35,7 +35,7 @@
 #include <libopencm3/lpc43xx/creg.h>
 #include <libopencm3/lpc43xx/m4/nvic.h>
 #include <libopencm3/lpc43xx/wwdt.h>
-#include <../common/hackrf_core.h>
+#include "../common/hackrf_core.h"
 #include "hackrf_ui.h"
 #include "platform_detect.h"
 #include "si5351c.h"
@@ -47,6 +47,8 @@
 // @200 MHz CPU clock
 #define PPS1_WIDTH            4000     // 20 us PPS out pulse width
 #define TRIG_INIT_DELAY       40000000 // 200 ms trigger delay
+#define TRIG_DELAY_DISABLE    0xFFFFFFFF
+#define TRIG_HOLD_INVALID     0xFF
 
 int64_t seconds;
 int64_t new_seconds;
@@ -58,7 +60,8 @@ uint32_t current_trig_delay;
 uint32_t pps_in_phase;
 uint32_t pps_period_count;
 uint32_t last_pps_in_period;
-uint8_t trig_hold_enable;
+uint8_t new_trig_hold_enable;
+uint8_t current_trig_hold_enable;
 uint8_t pps_out_enable;
 uint8_t pps_in_active;
 
@@ -73,29 +76,29 @@ void time_timer_init(void)
 	/* count cpu clock cycles */
 	timer_set_mode(TIMER3, TIMER_CTCR_MODE_TIMER);
 
-	/* reset counter and do PPS interrupt when match register 0 (R0) */
-	TIMER3_MCR = TIMER_MCR_MR0R | TIMER_MCR_MR0I;
+	/* reset counter and do PPS interrupt when match register 0 (MR0).
+	 * Also enable MR1 interrupt to schedule trigger trailing edge in ISR. */
+	TIMER3_MCR = TIMER_MCR_MR0R | TIMER_MCR_MR0I | TIMER_MCR_MR1I;
 
 	/* PPS input to capture register 0: rising edge and interrupt */
 	TIMER3_CCR = TIMER_CCR_CAP0RE | TIMER_CCR_CAP0I;
 
-	/* PPS leading edge: at next R0 match, set to 1 the external output.
+	/* PPS leading edge: at next MR0 match, set to 1 the external output.
 	 * PPS output is enabled (regular PPS period) */
 	pps_out_enable = 1;
 	TIMER3_EMR = (TIMER_EMR_EMC_SET << TIMER_EMR_EMC0_SHIFT);
 
-	/* set proper divisor (1Hz) to match R0 */
+	/* set proper divisor (1Hz) to match MR0 */
 	TIMER3_MR0 = PPS1_CLK_INIT_DIVISOR;
 	current_divisor = PPS1_CLK_INIT_DIVISOR;
 
 	/* sampling trigger leading edge: at next R1 match, set to 1 the
 	 * external output. Trigger on holding disabled (intra second capture) */
-	trig_hold_enable = 0;
 	TIMER3_EMR |= (TIMER_EMR_EMC_SET << TIMER_EMR_EMC1_SHIFT);
 
-	/* set init trigger delay to match R1 */
-	TIMER3_MR1 = TRIG_INIT_DELAY;
-	current_trig_delay = TRIG_INIT_DELAY;
+	/* set init trigger delay to match MR1 */
+	TIMER3_MR1 = TRIG_DELAY_DISABLE;
+	current_trig_delay = TRIG_DELAY_DISABLE;
 
 	/* prevent TIMER3_MR3 from interfering with SCT */
 	CREG_CREG6 |= CREG_CREG6_CTOUTCTRL;
@@ -108,6 +111,8 @@ void time_timer_init(void)
 	one_pps_divisor = 0;
 	new_seconds = 0;
 	new_trig_delay = 0;
+	new_trig_hold_enable = TRIG_HOLD_INVALID;
+	current_trig_hold_enable = 0;
 	pps_period_count = 0;
 	last_pps_in_period = 0;
 	pps_in_active = 0;
@@ -122,6 +127,41 @@ void time_timer_init(void)
 
 void timer3_isr()
 {
+	/* Process trigger state machine on MR1 interrupt.
+	 * Leading edge configuration is set in the MR0/PPS flow.
+	 * Here we schedule the trailing edge at PPS leading edge,
+	 * unless trigger hold is enabled. */
+	if (TIMER3_IR & TIMER_IR_MR1INT) {
+		uint32_t emc1_mode = (TIMER3_EMR >> TIMER_EMR_EMC1_SHIFT) & 0x3;
+
+		/* Only act after a leading-edge match (EMC1 was SET). */
+		if (emc1_mode == TIMER_EMR_EMC_SET) {
+
+			/* no interrupt at trailing edge, managed by PPS interupt */
+			TIMER3_MCR &= ~TIMER_MCR_MR1I;
+
+			/* if periodic trigger ... */
+			if (!current_trig_hold_enable) {
+
+				/* trigger trailing edge at PPS leading edge */
+				TIMER3_MR1 = TIMER3_MR0;
+
+				/* clear trigger at next MR1 match */
+				TIMER3_EMR &= ~(0x3 << TIMER_EMR_EMC1_SHIFT);
+				TIMER3_EMR |= (TIMER_EMR_EMC_CLEAR << TIMER_EMR_EMC1_SHIFT);
+
+			} else {
+
+				/* Hold active: suppress trailing edge action. */
+				TIMER3_EMR &= ~(0x3 << TIMER_EMR_EMC1_SHIFT);
+				TIMER3_EMR |= (TIMER_EMR_EMC_NOTHING << TIMER_EMR_EMC1_SHIFT);
+			}
+		}
+
+		/* clear pending match-1 interrupt */
+		TIMER3_IR |= TIMER_IR_MR1INT;
+	}
+
 	/* process input PPS phase measure only on CAP0 interrupt */
 	if (TIMER3_IR & TIMER_IR_CR0INT) {
 
@@ -150,18 +190,24 @@ void timer3_isr()
 	if (TIMER3_IR & TIMER_IR_MR0INT) {
 
 		/* if start of PPS pulse: PPS is set (leading edge) and match
-		 * R0 is set to count until to next PPS trailing edge.  */
+		 * MR0 is set to count until to next PPS trailing edge.  */
 		if (TIMER3_MR0 != PPS1_WIDTH) {
 			pps_period_count++;
 
 			/* consider PPS input inactive after two full local PPS periods
 			 * without capture events */
-			if (pps_in_active && ((pps_period_count - last_pps_in_period) > 2)) {
+			if (pps_in_active && ((pps_period_count - last_pps_in_period) > 2)){
 				pps_in_active = 0;
 			}
 
 			/* second counter */
 			seconds++;
+
+			/* if requested, set new current divisor. */
+			if (new_divisor) {
+				current_divisor = new_divisor;
+				new_divisor = 0;
+			}
 
 			/* if requested, update seconds in sync with the new second. */
 			if (new_seconds) {
@@ -169,28 +215,42 @@ void timer3_isr()
 				new_seconds = 0;
 			}
 
+			/* if requested, update new trig delay. */
+			if (new_trig_delay) {
+				current_trig_delay = new_trig_delay;
+				new_trig_delay = 0;
+			}
+
+			/* sample trigger hold at PPS boundary. */
+			if (new_trig_hold_enable != TRIG_HOLD_INVALID) {
+				current_trig_hold_enable = new_trig_hold_enable;
+				new_trig_hold_enable = TRIG_HOLD_INVALID;
+			}
+
+			/* trigger logic (PPS part)
+			 * prepare leading edge if not disable or hold status */
+			if (current_trig_delay != TRIG_DELAY_DISABLE
+				&& !current_trig_hold_enable) {
+
+				/* restore current trig delay */
+				TIMER3_MR1 = current_trig_delay;
+
+				/* trigger leading edge: at next R1 match,
+				 * set to 1 the external output. */
+				TIMER3_EMR &= ~(0x3 << TIMER_EMR_EMC1_SHIFT);
+				TIMER3_EMR |= (TIMER_EMR_EMC_SET << TIMER_EMR_EMC1_SHIFT);
+
+				/* enable trigger leading edge interrupt */
+				TIMER3_MCR |= TIMER_MCR_MR1I;
+			}
+
 			/* set R0 match value to keep PPS high for the given time */
 			TIMER3_MR0 = PPS1_WIDTH;
 
-			/* PPS trailing edge: at next R0 match, clear the external
+			/* PPS trailing edge: at next MR0 match, clear the external
 			 * output. */
 			TIMER3_EMR &= ~(0x3 << TIMER_EMR_EMC0_SHIFT);
 			TIMER3_EMR |= (TIMER_EMR_EMC_CLEAR << TIMER_EMR_EMC0_SHIFT);
-
-			/* set R1 match value to keep trigger high until the end of PPS
-			 * pulse */
-			TIMER3_MR1 = PPS1_WIDTH;
-
-			/* trigger trailing edge: at next R1 match, clear the external
-			 * output if not trigger hold active. Otherwise, do nothing:
-			 * if on, keep it on (long capture crossing second border).
-			 * trigger hold changes take effect at the next PPS leading
-			 * edge. */
-			TIMER3_EMR &= ~(0x3 << TIMER_EMR_EMC1_SHIFT);
-			if (trig_hold_enable) 
-				TIMER3_EMR |= (TIMER_EMR_EMC_NOTHING << TIMER_EMR_EMC1_SHIFT);
-			else
-				TIMER3_EMR |= (TIMER_EMR_EMC_CLEAR << TIMER_EMR_EMC1_SHIFT);
 
 			/* do not reset counter at next R0 match: count must continue
 			 * for one second period. */
@@ -201,14 +261,9 @@ void timer3_isr()
 		/* else is the end of PPS pulse: match R0 is set to
 		 * count until the next PPS leading edge. */
 		else {
-			/* if requested, set new current divisor. */
-			if (new_divisor) {
-				current_divisor = new_divisor;
-				new_divisor = 0;
-			}
 
-			/* if requested, set one PPS divisor for one PPS cycle then restore
-	 		* current divisor. */
+			/* if requested, set one PPS divisor for one PPS cycle
+			 * then restore current divisor. */
 			if (one_pps_divisor) {
 				TIMER3_MR0 = one_pps_divisor;
 				one_pps_divisor = 0;
@@ -227,20 +282,6 @@ void timer3_isr()
 			/* if PPS output not enabled, keep it clear */
 			else
 				TIMER3_EMR |= (TIMER_EMR_EMC_CLEAR << TIMER_EMR_EMC0_SHIFT);
-
-			/* if requested, update new trig delay. */
-			if (new_trig_delay) {
-				current_trig_delay = new_trig_delay;
-				new_trig_delay = 0;
-			}
-
-			/* restore current trig delay */
-			TIMER3_MR1 = current_trig_delay;
-
-			/* trigger leading edge: at next R1 match, set to 1 the external
-			 * output. */
-			TIMER3_EMR &= ~(0x3 << TIMER_EMR_EMC1_SHIFT);
-			TIMER3_EMR |= (TIMER_EMR_EMC_SET << TIMER_EMR_EMC1_SHIFT);
 
 			/* reset counter at next R0 match: start counting for the
 			 * next second period */
@@ -543,7 +584,7 @@ usb_request_status_t usb_vendor_request_time_set_trig_hold_enable_next_pps(
       const usb_transfer_stage_t stage)
   {
       if (stage == USB_TRANSFER_STAGE_SETUP) {
-		trig_hold_enable = endpoint->setup.value > 0;
+		new_trig_hold_enable = endpoint->setup.value > 0;
 
 		usb_transfer_schedule_ack(endpoint->in);
 	}
