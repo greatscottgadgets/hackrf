@@ -480,7 +480,7 @@ int main(int argc, char** argv)
 	const char* fftwWisdomPath = NULL;
 	int fftw_plan_type = FFTW_MEASURE;
 
-	while ((opt = getopt(argc, argv, "a:f:p:l:g:d:N:w:W:P:n1BIr:h?")) != EOF) {
+	while ((opt = getopt(argc, argv, "a:f:p:l:g:d:N:w:W:P:M:n1BIr:h?")) != EOF) {
 		result = HACKRF_SUCCESS;
 		switch (opt) {
 		case 'd':
@@ -606,6 +606,16 @@ int main(int argc, char** argv)
 			usage();
 			return EXIT_FAILURE;
 		}
+	}
+
+	// Check if seep mode is supported by the current configuration mode.
+	switch (config_mode) {
+	case RADIO_CONFIG_EXT_PRECISION_TX:
+		fprintf(stderr,
+			"The selected configuration mode does not support sweep operation.\n");
+		return EXIT_FAILURE;
+	default:
+		break;
 	}
 
 	// Try to load a wisdom file if specified, otherwise
