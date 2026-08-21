@@ -274,14 +274,16 @@ static void m0_rom_to_ram(void)
 #if defined(IS_PRALINE) && !(defined(DFU_MODE) || defined(RAM_MODE))
 extern uint32_t _binary_fpga_bin_start;
 
-void fpga_loader_setup(void)
+bool fpga_loader_setup(void)
 {
 	w25q80bv_setup(&spi_flash);
+	return true;
 }
 
-void fpga_loader_read(uint32_t addr, uint32_t size, uint8_t* buf)
+bool fpga_loader_read(uint32_t addr, uint32_t size, uint8_t* buf)
 {
 	w25q80bv_read(&spi_flash, addr, size, buf);
+	return true;
 }
 
 struct fpga_loader_t fpga_loader = {
@@ -512,7 +514,12 @@ int main(void)
 		selftest.fpga_image_load = SKIPPED;
 		selftest.report.pass = false;
 	#else
-		fpga_image_load(&fpga_loader, 0);
+		if (fpga_image_load(&fpga_loader, 0)) {
+			selftest.fpga_image_load = PASSED;
+		} else {
+			selftest.fpga_image_load = FAILED;
+			selftest.report.pass = false;
+		}
 	#endif
 		delay_us(100);
 		fpga_spi_selftest();
