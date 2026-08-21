@@ -43,6 +43,12 @@
 	#define DFU_MODE_VALUE 0
 #endif
 
+#if defined(IS_PRALINE) && defined(BITSTREAM_AVAILABLE) && \
+	!(defined(RAM_MODE) || defined(DFU_MODE))
+	#define POINT_TO_BITSTREAM
+extern uint32_t _binary_fpga_bin_start;
+#endif
+
 __attribute__((section(".firmware_info"))) const struct firmware_info_t firmware_info = {
 	.magic = FIRMWARE_INFO_MAGIC,
 	.struct_version = 1,
@@ -50,5 +56,10 @@ __attribute__((section(".firmware_info"))) const struct firmware_info_t firmware
 	.supported_platform = SUPPORTED_PLATFORM,
 	.version_string = VERSION_STRING,
 	.more_magic = FIRMWARE_INFO_MORE_MAGIC,
-	.minor_version = 0,
+	.minor_version = 1,
+#ifdef POINT_TO_BITSTREAM
+	.bitstream_flash_addr = (uint32_t) &_binary_fpga_bin_start,
+#else
+	.bitstream_flash_addr = 0,
+#endif
 };
