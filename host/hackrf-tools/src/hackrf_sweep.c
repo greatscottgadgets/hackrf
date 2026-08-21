@@ -466,6 +466,7 @@ int export_wisdom(const char* path)
 int main(int argc, char** argv)
 {
 	int opt, i, result = 0;
+	uint8_t board_id = BOARD_ID_UNDETECTED;
 	const char* path = NULL;
 	const char* serial_number = NULL;
 	int exit_code = EXIT_SUCCESS;
@@ -480,7 +481,7 @@ int main(int argc, char** argv)
 	const char* fftwWisdomPath = NULL;
 	int fftw_plan_type = FFTW_MEASURE;
 
-	while ((opt = getopt(argc, argv, "a:f:p:l:g:d:N:w:W:P:n1BIr:h?")) != EOF) {
+	while ((opt = getopt(argc, argv, "a:f:p:l:g:d:N:w:W:P:M:n1BIr:h?")) != EOF) {
 		result = HACKRF_SUCCESS;
 		switch (opt) {
 		case 'd':
@@ -740,6 +741,31 @@ int main(int argc, char** argv)
 			result);
 		usage();
 		return EXIT_FAILURE;
+	}
+
+	// Check if the requested configuration mode is supported by the current hardware.
+	result = hackrf_board_id_read(device, &board_id);
+	if (result != HACKRF_SUCCESS) {
+		fprintf(stderr,
+			"hackrf_board_id_read() failed: %s (%d)\n",
+			hackrf_error_name(result),
+			result);
+		return EXIT_FAILURE;
+	}
+	if (board_id != BOARD_ID_PRALINE && config_mode != RADIO_CONFIG_STANDARD) {
+		fprintf(stderr,
+			"The selected configuration mode is not supported by this device.\n");
+		return EXIT_FAILURE;
+	}
+
+	// Check if the requested configuration mode supports rx sweep operation.
+	switch (config_mode) {
+	case RADIO_CONFIG_EXT_PRECISION_TX:
+		fprintf(stderr,
+			"The selected configuration mode does not support rx sweep operation.\n");
+		return EXIT_FAILURE;
+	default:
+		break;
 	}
 
 	if ((NULL == path) || (strcmp(path, "-") == 0)) {
