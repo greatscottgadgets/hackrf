@@ -64,11 +64,9 @@
 #endif
 #ifdef IS_PRALINE
 	#include <fpga.h>
-	#if !(defined(DFU_MODE) || defined(RAM_MODE))
-		#include <firmware_info.h>
-		#include <lz4_buf.h>
-		#include <w25q80bv.h>
-	#endif
+	#include <firmware_info.h>
+	#include <lz4_buf.h>
+	#include <w25q80bv.h>
 #endif
 
 #include "usb_api_adc.h"
@@ -271,7 +269,7 @@ static void m0_rom_to_ram(void)
 	memcpy(dest, (uint32_t*) (base + src), len);
 }
 
-#if defined(IS_PRALINE) && !(defined(DFU_MODE) || defined(RAM_MODE))
+#if defined(IS_PRALINE)
 
 bool fpga_loader_setup(void);
 bool fpga_loader_read(uint32_t addr, uint32_t size, uint8_t* buf);
@@ -467,7 +465,6 @@ int main(void)
 #ifdef IS_PRALINE
 	if (IS_PRALINE) {
 		enable_3v3aux_power();
-	#if !defined(DFU_MODE) && !defined(RAM_MODE)
 		enable_1v2_power();
 		enable_rf_power();
 		/*
@@ -475,7 +472,6 @@ int main(void)
 		 * which is enabled when 1V2FPGA is turned on.
 		 */
 		clock_gen_init();
-	#endif
 	}
 #endif
 #ifdef IS_NOT_PRALINE
@@ -529,17 +525,12 @@ int main(void)
 #endif
 #ifdef IS_PRALINE
 	if (IS_PRALINE) {
-	#if defined(DFU_MODE) || defined(RAM_MODE)
-		selftest.fpga_image_load = SKIPPED;
-		selftest.report.pass = false;
-	#else
 		if (fpga_image_load(&fpga_loader, 0)) {
 			selftest.fpga_image_load = PASSED;
 		} else {
 			selftest.fpga_image_load = FAILED;
 			selftest.report.pass = false;
 		}
-	#endif
 		delay_us(100);
 		fpga_spi_selftest();
 		fpga_sgpio_selftest();
