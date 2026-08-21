@@ -43,10 +43,23 @@
 	#define DFU_MODE_VALUE 0
 #endif
 
+#if defined(IS_PRALINE) && defined(BITSTREAM_AVAILABLE) && \
+	!(defined(RAM_MODE) || defined(DFU_MODE))
+	#define POINT_TO_BITSTREAM
+extern uint32_t _binary_fpga_bin_start;
+#endif
+
 __attribute__((section(".firmware_info"))) const struct firmware_info_t firmware_info = {
 	.magic = "HACKRFFW",
 	.struct_version = 1,
 	.dfu_mode = DFU_MODE_VALUE,
 	.supported_platform = SUPPORTED_PLATFORM,
 	.version_string = VERSION_STRING,
+#ifdef POINT_TO_BITSTREAM
+	.bitstream_magic = "FPGABITS",
+	.bitstream_flash_addr = (uint32_t) &_binary_fpga_bin_start,
+#else
+	.bitstream_magic = "        ",
+	.bitstream_flash_addr = 0,
+#endif
 };
