@@ -110,3 +110,4 @@ extern void max2831_tx(max2831_driver_t* const drv);
 extern void max2831_rx(max2831_driver_t* const drv);
 extern void max2831_tx_calibration(max2831_driver_t* const drv);
 extern void max2831_rx_calibration(max2831_driver_t* const drv);
+extern void max2831_select_temperature(max2831_driver_t* const drv);

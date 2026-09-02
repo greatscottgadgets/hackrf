@@ -695,6 +695,7 @@ static void usage()
 	printf("\t-t, --selftest: read self-test report\n");
 	printf("\t-o, --rtc-osc: test 32.768kHz RTC oscillator\n");
 	printf("\t-a, --adc <channel>: read value from an ADC channel. Add 0x80 for alternate pin\n");
+	printf("\t-p, --temperature: read transceiver temperature\n");
 	printf("\nExamples:\n");
 	printf("\thackrf_debug --si5351c -n 0 -r     # reads from si5351c register 0\n");
 	printf("\thackrf_debug --si5351c -c          # displays si5351c multisynth configuration\n");
@@ -730,6 +731,7 @@ static struct option long_options[] = {
 	{"selftest", no_argument, 0, 't'},
 	{"rtc-osc", no_argument, 0, 'o'},
 	{"adc", required_argument, 0, 'a'},
+	{"temperature", no_argument, 0, 'p'},
 	{0, 0, 0, 0},
 };
 
@@ -770,6 +772,7 @@ int main(int argc, char** argv)
 	bool read_selftest = false;
 	bool test_rtc_osc = false;
 	bool read_adc = false;
+	bool read_temp = false;
 
 	int result = hackrf_init();
 	if (result) {
@@ -782,7 +785,7 @@ int main(int argc, char** argv)
 	while ((opt = getopt_long(
 			argc,
 			argv,
-			"b:n:rw:d:cmsfgi1:2:C:N:P:ST:R:h?u:l:ta:o",
+			"b:n:rw:d:cmsfgi1:2:C:N:P:ST:R:h?u:l:ta:op",
 			long_options,
 			&option_index)) != EOF) {
 		switch (opt) {
@@ -912,6 +915,10 @@ int main(int argc, char** argv)
 			result = parse_int(optarg, &adc_channel);
 			break;
 
+		case 'p':
+			read_temp = true;
+			break;
+
 		case 'h':
 		case '?':
 			usage();
@@ -962,7 +969,7 @@ int main(int argc, char** argv)
 	if (!(write || read || dump_config || dump_state || set_tx_limit ||
 	      set_rx_limit || set_ui || set_leds || set_p1 || set_p2 || set_clkin ||
 	      set_narrowband || set_fpga_bitstream || read_selftest || test_rtc_osc ||
-	      read_adc)) {
+	      read_adc || read_temp)) {
 		fprintf(stderr, "Specify read, write, or config option.\n");
 		usage();
 		return EXIT_FAILURE;
@@ -971,7 +978,7 @@ int main(int argc, char** argv)
 	if (part == PART_NONE && !set_ui && !dump_state && !set_tx_limit &&
 	    !set_rx_limit && !set_leds && !set_p1 && !set_p2 && !set_clkin &&
 	    !set_narrowband && !set_fpga_bitstream && !read_selftest && !test_rtc_osc &&
-	    !read_adc) {
+	    !read_adc && !read_temp) {
 		fprintf(stderr, "Specify a part to read, write, or print config from.\n");
 		usage();
 		return EXIT_FAILURE;
@@ -1154,6 +1161,18 @@ int main(int argc, char** argv)
 		       ((uint8_t) adc_channel) & 0x7,
 		       ((uint8_t) adc_channel) & 0x80 ? "alternate" : "dedicated",
 		       value);
+	}
+
+	if (read_temp) {
+		int8_t temperature;
+		result = hackrf_read_temperature(device, &temperature);
+		if (result != HACKRF_SUCCESS) {
+			printf("hackrf_read_temperature() failed: %s (%d)\n",
+			       hackrf_error_name(result),
+			       result);
+			return EXIT_FAILURE;
+		}
+		printf("Transceiver temperature: %-d°C\n", temperature);
 	}
 
 	result = hackrf_close(device);

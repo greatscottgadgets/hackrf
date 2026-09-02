@@ -30,6 +30,7 @@
 #include <libopencm3/lpc43xx/cgu.h>
 #include <libopencm3/lpc43xx/creg.h>
 
+#include <max283x.h>
 #include <platform_detect.h>
 #include <selftest.h>
 #include <usb_queue.h>
@@ -265,4 +266,21 @@ usb_request_status_t usb_vendor_request_test_rtc_osc(
 	} else {
 		return USB_REQUEST_STATUS_OK;
 	}
+}
+
+usb_request_status_t usb_vendor_request_read_temperature(
+	usb_endpoint_t* const endpoint,
+	const usb_transfer_stage_t stage)
+{
+	if (stage == USB_TRANSFER_STAGE_SETUP) {
+		endpoint->buffer[0] = max283x_temperature(&max283x);
+		usb_transfer_schedule_block(
+			endpoint->in,
+			&endpoint->buffer,
+			1,
+			NULL,
+			NULL);
+		usb_transfer_schedule_ack(endpoint->out);
+	}
+	return USB_REQUEST_STATUS_OK;
 }

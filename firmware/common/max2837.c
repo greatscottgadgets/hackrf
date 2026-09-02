@@ -52,7 +52,7 @@ static const uint16_t max2837_regs_default[MAX2837_NUM_REGS] = {
 	0x006, /* 6 */
 	0x000, /* 7 */
 	0x080, /* 8 */
-	0x018, /* 9 */
+	0x01a, /* 9 */
 	0x058, /* 10 */
 	0x016, /* 11 */
 	0x24f, /* 12 */
@@ -392,4 +392,11 @@ bool max2837_set_txvga_gain(max2837_driver_t* const drv, const uint32_t gain_db)
 	set_MAX2837_TXVGA_GAIN(drv, val);
 	max2837_reg_commit(drv, 29);
 	return true;
+}
+
+void max2837_select_temperature(max2837_driver_t* const drv)
+{
+	/* Switch to temperature sensor. */
+	set_MAX2837_RSSI_MUX(drv, MAX2837_RSSI_MUX_TEMP);
+	max2837_regs_commit(drv);
 }

@@ -425,3 +425,10 @@ void max2831_set_rx_hpf_frequency(max2831_driver_t* const drv, const max2831_rx_
 		break;
 	}
 }
+
+void max2831_select_temperature(max2831_driver_t* const drv)
+{
+	/* Switch to temperature sensor. */
+	set_MAX2831_RSSI_MUX(drv, MAX2831_RSSI_MUX_TEMP);
+	max2831_regs_commit(drv);
+}

@@ -1376,6 +1376,16 @@ extern ADDAPI int ADDCALL hackrf_read_selftest(
 extern ADDAPI int ADDCALL hackrf_test_rtc_osc(hackrf_device* device, bool* pass);
 
 /**
+ * Read the temperature of the device
+ *
+ * @param[in] device device to query
+ * @param[out] temp Temperature in degrees C
+ * @return @ref HACKRF_SUCCESS on success or @ref hackrf_error variant
+ * @ingroup debug
+ */
+extern ADDAPI int ADDCALL hackrf_read_temperature(hackrf_device* device, int8_t* temp);
+
+/**
  * Read a value from an ADC channel
  *
  * @param[in] device device to query
