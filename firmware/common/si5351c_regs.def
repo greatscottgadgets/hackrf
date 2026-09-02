@@ -423,6 +423,7 @@ __MREG__(PLLB_RST, 177, 7, 1)
 __MREG__(PLLA_RST, 177, 5, 1)
 
 /* Register 183: Crystal Internal Load Capacitance */
+__MREG__(XTAL_RESERVED, 183, 0, 6)
 __MREG__(XTAL_CL, 183, 6, 2)
 
 /* Register 187: Fanout Enable */

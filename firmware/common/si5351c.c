@@ -165,6 +165,13 @@ void si5351c_power_down_all_clocks(si5351c_driver_t* const drv)
  */
 void si5351c_set_crystal_configuration(si5351c_driver_t* const drv)
 {
+	if (selftest.si5351_rev_id == 0) {
+		/* Rev 0 parts seem to need the reserved bits to be zero. */
+		set_XTAL_RESERVED(drv, 0);
+	} else {
+		/* But AN619 says to write 010010b to the reserved bits. */
+		set_XTAL_RESERVED(drv, 0x12);
+	}
 	set_XTAL_CL(drv, SI5351C_XTAL_8PF);
 	si5351c_regs_commit(drv);
 }
