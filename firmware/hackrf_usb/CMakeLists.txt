@@ -31,18 +31,21 @@ add_custom_command(
 	DEPENDS ${PATH_CPLD_BITSTREAM_TOOL} ${PATH_HACKRF_CPLD_XSVF}
 )
 
-add_custom_command(
-	OUTPUT ${PATH_PRALINE_FPGA_OBJ}
-	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-	COMMAND ${CMAKE_COMMAND} -E copy ${PATH_PRALINE_FPGA_BIN} "fpga.bin"
-	COMMAND ${CMAKE_OBJCOPY}
-		-I binary
-		-O elf32-littlearm
-		-B arm
-		--rename-section .data=.rom_only
-		"fpga.bin" ${PATH_PRALINE_FPGA_OBJ}
-	DEPENDS ${PATH_PRALINE_FPGA_BIN}
-)
+if(NOT DEFINED EXCLUDE_BITSTREAM)
+	add_definitions(-DBITSTREAM_AVAILABLE)
+	add_custom_command(
+		OUTPUT ${PATH_PRALINE_FPGA_OBJ}
+		WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+		COMMAND ${CMAKE_COMMAND} -E copy ${PATH_PRALINE_FPGA_BIN} "fpga.bin"
+		COMMAND ${CMAKE_OBJCOPY}
+			-I binary
+			-O elf32-littlearm
+			-B arm
+			--rename-section .data=.rom_only
+			"fpga.bin" ${PATH_PRALINE_FPGA_OBJ}
+		DEPENDS ${PATH_PRALINE_FPGA_BIN}
+	)
+endif()
 
 set(SRC_M4
 	hackrf_usb.c
@@ -89,9 +92,11 @@ if(BOARD STREQUAL "UNIVERSAL")
 		"${PATH_HACKRF_FIRMWARE_COMMON}/fpga_selftest.c"
 		usb_api_praline.c
 	)
-	SET(OBJ_M4
-		${PATH_PRALINE_FPGA_OBJ}
-	)
+	if (NOT DEFINED EXCLUDE_BITSTREAM)
+		SET(OBJ_M4
+			${PATH_PRALINE_FPGA_OBJ}
+		)
+	endif()
 endif()
 
 if(BOARD STREQUAL "PRALINE")
@@ -102,9 +107,11 @@ if(BOARD STREQUAL "PRALINE")
 		"${PATH_HACKRF_FIRMWARE_COMMON}/fpga_selftest.c"
 		usb_api_praline.c
 	)
-	SET(OBJ_M4
-		${PATH_PRALINE_FPGA_OBJ}
-	)
+	if (NOT DEFINED EXCLUDE_BITSTREAM)
+		SET(OBJ_M4
+			${PATH_PRALINE_FPGA_OBJ}
+		)
+	endif()
 else()
 	SET(SRC_M4
 		${SRC_M4}
