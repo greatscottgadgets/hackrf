@@ -160,7 +160,6 @@ void si5351c_power_down_all_clocks(si5351c_driver_t* const drv)
 
 /*
  * Register 183: Crystal Internal Load Capacitance
- * Reads as 0xE4 on power-up
  * Set to 8pF based on crystal specs and HackRF One testing
  */
 void si5351c_set_crystal_configuration(si5351c_driver_t* const drv)
