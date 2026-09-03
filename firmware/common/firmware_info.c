@@ -49,4 +49,6 @@ __attribute__((section(".firmware_info"))) const struct firmware_info_t firmware
 	.dfu_mode = DFU_MODE_VALUE,
 	.supported_platform = SUPPORTED_PLATFORM,
 	.version_string = VERSION_STRING,
+	.more_magic = FIRMWARE_INFO_MORE_MAGIC,
+	.minor_version = 0,
 };
