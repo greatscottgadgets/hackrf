@@ -23,6 +23,8 @@
 
 #include <stdint.h>
 
+#define FIRMWARE_INFO_MAGIC "HACKRFFW"
+
 struct firmware_info_t {
 	__attribute__((nonstring)) char magic[8];
 	uint16_t struct_version;

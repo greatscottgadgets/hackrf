@@ -44,7 +44,7 @@
 #endif
 
 __attribute__((section(".firmware_info"))) const struct firmware_info_t firmware_info = {
-	.magic = "HACKRFFW",
+	.magic = FIRMWARE_INFO_MAGIC,
 	.struct_version = 1,
 	.dfu_mode = DFU_MODE_VALUE,
 	.supported_platform = SUPPORTED_PLATFORM,
