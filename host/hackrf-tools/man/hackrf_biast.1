@@ -1,0 +1,41 @@
+.TH HACKRF_BIAST "1" "January 2023" "HackRF antenna power utility" "User Commands"
+.SH NAME
+hackrf_biast \- antenna power utility
+.SH DESCRIPTION
+hackrf_biast \- HackRF antenna power bias-T configuration utility
+Usage:
+.HP
+\fB\-h\fR, \fB\-\-help\fR: this help
+.HP
+\fB\-R\fR: Reset all bias tee settings to device default.  When combined
+with -r/-t/-o, those settings will take precedence.
+.HP
+\fB\-b\fR: <mode> : 1=Enable bias tee immediately, 0=disable immediately
+.HP
+\fB\-r\fR: <mode> : Set default bias tee power when device enters RX mode
+.HP
+\fB\-t\fR: <mode> : Set default bias tee power when device enters TX mode
+.HP
+\fB\-o\fR: <mode> : Set default bias tee power when device enters OFF mode
+.HP
+\fB\-d\fR:  <serial_number>: Specify serial number of HackRF device to configure.
+.SH EXAMPLES
+.IP
+hackrf_clock \-r 3 : prints settings for CLKOUT
+.SS "Usage:"
+.HP
+\-h, \-\-help: this help
+.IP
+hackrf_biar \-R : Resets biast setting to default.
+.HP
+The -r/-t/-o options support the following mode settings:
+.IP
+leave		do nothing when entering mode
+.IP
+on		enable bias tee when entering mode
+.IP
+off		disable bias tee when entering mode
+.SH "SEE ALSO"
+The primary source of documentation is the wiki on github:
+.P
+https://github.com/mossmann/hackrf/wiki

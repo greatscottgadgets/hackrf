@@ -1,0 +1,73 @@
+.TH HACKRF_DEBUG "1" "July 2021" "hackrf_debug " "User Commands"
+.SH NAME
+hackrf_debug \- register manipultion tool
+.SH DESCRIPTION
+.SS "Usage:"
+.HP
+\fB\-h\fR, \fB\-\-help\fR: this help
+.HP
+\fB\-n\fR, \fB\-\-register\fR <n>: set register number for read/write operations
+.HP
+\fB\-r\fR, \fB\-\-read\fR: read register specified by last \fB\-n\fR argument, or all registers
+.HP
+\fB\-w\fR, \fB\-\-write\fR <v>: write register specified by last \fB\-n\fR argument with value <v>
+.HP
+\fB\-c\fR, \fB\-\-config\fR: print SI5351C multisynth configuration information
+.HP
+\fB\-d\fR, \fB\-\-device\fR <s>: specify a particular device by serial number
+.HP
+\fB\-m\fR, \fB\-\-max2837\fR: target MAX2837
+.HP
+\fB\-s\fR, \fB\-\-si5351c\fR: target SI5351C
+.HP
+\fB\-f\fR, \fB\-\-rffc5072\fR: target RFFC5072
+.HP
+\fB\-u\fR, \fB\-\-ui\fR <1/0>: enable/disable UI
+.SH EXAMPLES
+.TP
+hackrf_debug \-\-si5351c \-n 0 \-r
+# reads from si5351c register 0
+.TP
+hackrf_debug \-\-si5351c \-c
+# displays si5351c multisynth configuration
+.TP
+hackrf_debug \-\-rffc5072 \-r
+# reads all rffc5072 registers
+.IP
+hackrf_debug \-\-max2837 \-n 10 \-w 22 # writes max2837 register 10 with 22 decimal
+.SS "Usage:"
+.HP
+\-h, \-\-help: this help
+.HP
+\-n, \-\-register <n>: set register number for read/write operations
+.HP
+\-r, \-\-read: read register specified by last \-n argument, or all registers
+.HP
+\-w, \-\-write <v>: write register specified by last \-n argument with value <v>
+.HP
+\-c, \-\-config: print SI5351C multisynth configuration information
+.HP
+\-d, \-\-device <s>: specify a particular device by serial number
+.HP
+\-m, \-\-max2837: target MAX2837
+.HP
+\-s, \-\-si5351c: target SI5351C
+.HP
+\-f, \-\-rffc5072: target RFFC5072
+.HP
+\-u, \-\-ui <1/0>: enable/disable UI
+.TP
+hackrf_debug \-\-si5351c \-n 0 \-r
+# reads from si5351c register 0
+.TP
+hackrf_debug \-\-si5351c \-c
+# displays si5351c multisynth configuration
+.TP
+hackrf_debug \-\-rffc5072 \-r
+# reads all rffc5072 registers
+.IP
+hackrf_debug \-\-max2837 \-n 10 \-w 22 # writes max2837 register 10 with 22 decimal
+.SH "SEE ALSO"
+The primary source of documentation is the wiki on github:
+
+https://github.com/mossmann/hackrf/wiki

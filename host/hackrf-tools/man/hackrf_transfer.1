@@ -1,0 +1,55 @@
+.TH "hackrf_transfer" 1 "2013.07.1" HACKRF "User Commands"
+.SH NAME
+hackrf_transfer \- file based transmit and receive sdr
+.SH DESCRIPTION
+The HackRF project started by Michael Ossmann and Jared Boone to build
+software radio peripheral using Free Software and Free Hardware
+design. Care was taken to only use electronic components with
+published documentation (no NDAs!) and to avoid software libraries
+without open source licenses.
+.LP
+Jawbreaker is the first complete HackRF platform, a wideband software radio
+transceiver with a USB interface.
+.LP
+This application lets the user receive data from RF and transmit
+data to RF.
+.SH SYNOPSIS
+.B  hackrf_transfer [OPTIONS]
+.SH OPTIONS
+.IP "-r <filename> # Receive data into file."
+.IP "-t <filename> # Transmit data from file."
+.IP "-w # Receive data into file with WAV header and automatic name."
+.IP " # This is for SDR# compatibility and may not work with other software."
+.IP "[-f set_freq_hz] # Set Freq in Hz"
+.IP "[-a set_amp] # Set Amp 1=Enable, 0=Disable."
+.IP "[-l gain_db] # Set lna gain, 0-40dB, 8dB steps"
+.IP "[-i gain_db] # Set vga(if) gain, 0-62dB, 2dB steps"
+.IP "[-x gain_db] # Set TX vga gain, 0-47dB, 1dB steps"
+.IP "[-s sample_rate_hz] # Set sample rate in Hz (8/10/12.5/16/20MHz)"
+.IP "[-n num_samples] # Number of samples to transfer (default is unlimited)."
+.IP "[-b baseband_filter_bw_hz] # Set baseband filter bandwidth in MHz."
+ Possible values:
+ 1.75/2.5/3.5/5/5.5/6/7/8/9/10/12/14/15/20/24/28MHz,
+ default < sample_rate_hz.
+.SH SEE ALSO
+Great Scott Gadgets HackRF web page:
+.B http://greatscottgadgets.com/hackrf/
+.LP
+Other hackrf programs:
+.sp
+hackrf_cpldjtag(1), hackrf_debug(1), hackrf_info(1), hackrf_spiflash(1)
+.SH AUTHOR
+This manual page was written by Maitland Bottoms
+for the Debian project (but may be used by others).
+.SH COPYRIGHT
+Copyright (c) 2013 A. Maitland Bottoms <bottoms@debian.org>
+.LP
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 2 of the License, or
+(at your option) any later version.
+.LP
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
