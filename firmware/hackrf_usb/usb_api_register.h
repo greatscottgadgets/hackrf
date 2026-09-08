@@ -70,3 +70,6 @@ usb_request_status_t usb_vendor_request_write_radio_reg(
 usb_request_status_t usb_vendor_request_read_radio_reg(
 	usb_endpoint_t* const endpoint,
 	const usb_transfer_stage_t stage);
+usb_request_status_t usb_vendor_request_lock_radio_reg(
+	usb_endpoint_t* const endpoint,
+	const usb_transfer_stage_t stage);

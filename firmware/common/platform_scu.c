@@ -29,6 +29,7 @@
 
 // clang-format off
 
+__attribute__((section(".rtconfig")))
 const platform_scu_t* platform_scu(void)
 {
 	static const platform_scu_t* _platform_scu = NULL;
