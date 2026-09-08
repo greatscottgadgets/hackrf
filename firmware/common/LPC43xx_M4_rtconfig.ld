@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2021 Great Scott Gadgets <info@greatscottgadgets.com>
+ * Copyright 2012-2025 Great Scott Gadgets <info@greatscottgadgets.com>
  * Copyright 2012 Jared Boone <jared@sharebrained.com>
  *
  * This file is part of HackRF
@@ -22,12 +22,11 @@
 
 SECTIONS
 {
-	.m0_text : {
-		. = ALIGN(4);
-		KEEP(*(.m0_bin*));
-		. = ALIGN(4);
-	} >ram_m0 AT >rom
+    .rtconfig_text : {
+        KEEP(*(.rtconfig));
+        . = ALIGN(4);
+    } >ram_rtconfig AT >rom
 
-	PROVIDE(__m0_start__ = LOADADDR(.m0_text));
-	PROVIDE(__m0_end__ = LOADADDR(.m0_text) + SIZEOF(.m0_text));
+    PROVIDE(__rtconfig_start__ = LOADADDR(.rtconfig_text));
+    PROVIDE(__rtconfig_end__ = LOADADDR(.rtconfig_text) + SIZEOF(.rtconfig_text));
 }
