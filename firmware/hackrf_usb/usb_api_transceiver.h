@@ -80,6 +80,12 @@ usb_request_status_t usb_vendor_request_set_rx_overrun_limit(
 usb_request_status_t usb_vendor_request_get_buffer_size(
 	usb_endpoint_t* const endpoint,
 	const usb_transfer_stage_t stage);
+usb_request_status_t usb_vendor_request_open(
+	usb_endpoint_t* const endpoint,
+	const usb_transfer_stage_t stage);
+usb_request_status_t usb_vendor_request_close(
+	usb_endpoint_t* const endpoint,
+	const usb_transfer_stage_t stage);
 
 void request_transceiver_mode(transceiver_mode_t mode);
 void transceiver_startup(transceiver_mode_t mode);
