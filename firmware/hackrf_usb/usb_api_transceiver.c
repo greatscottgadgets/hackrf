@@ -402,8 +402,15 @@ usb_request_status_t usb_vendor_request_set_transceiver_mode(
 	usb_endpoint_t* const endpoint,
 	const usb_transfer_stage_t stage)
 {
+	transceiver_mode_t opmode;
+
 	if (stage == USB_TRANSFER_STAGE_SETUP) {
-		switch (endpoint->setup.value) {
+		opmode = (transceiver_mode_t) endpoint->setup.value;
+		if (!radio_config_supports_opmode(radio.config_mode, opmode)) {
+			return USB_REQUEST_STATUS_STALL;
+		}
+
+		switch (opmode) {
 		case TRANSCEIVER_MODE_OFF:
 		case TRANSCEIVER_MODE_RX:
 		case TRANSCEIVER_MODE_TX:
@@ -483,6 +490,42 @@ usb_request_status_t usb_vendor_request_get_buffer_size(
 
 		return USB_REQUEST_STATUS_OK;
 	}
+	return USB_REQUEST_STATUS_OK;
+}
+
+usb_request_status_t usb_vendor_request_open(
+	usb_endpoint_t* const endpoint,
+	const usb_transfer_stage_t stage)
+{
+	uint16_t usb_api_version;
+	radio_config_mode_t radio_config_mode;
+
+	if (stage == USB_TRANSFER_STAGE_SETUP) {
+		usb_api_version = endpoint->setup.value;
+		radio_config_mode = (radio_config_mode_t) endpoint->setup.index;
+
+		// TODO let device know we have a new libhackrf connection and its supported usb_api_version
+		(void) usb_api_version;
+
+		// switch bitstreams and update radio mode
+		if (!radio_set_config_mode(&radio, radio_config_mode)) {
+			return USB_REQUEST_STATUS_STALL;
+		}
+		usb_transfer_schedule_ack(endpoint->in);
+	}
+
+	return USB_REQUEST_STATUS_OK;
+}
+
+usb_request_status_t usb_vendor_request_close(
+	usb_endpoint_t* const endpoint,
+	const usb_transfer_stage_t stage)
+{
+	if (stage == USB_TRANSFER_STAGE_SETUP) {
+		// TODO do nothing for now
+		usb_transfer_schedule_ack(endpoint->in);
+	}
+
 	return USB_REQUEST_STATUS_OK;
 }
 
