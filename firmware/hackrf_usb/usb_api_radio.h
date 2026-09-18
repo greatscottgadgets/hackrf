@@ -1,8 +1,7 @@
 /*
- * Copyright 2012-2021 Great Scott Gadgets <info@greatscottgadgets.com>
- * Copyright 2012 Jared Boone <jared@sharebrained.com>
+ * Copyright 2026 Great Scott Gadgets <info@greatscottgadgets.com>
  *
- * This file is part of HackRF
+ * This file is part of HackRF.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,14 +19,11 @@
  * Boston, MA 02110-1301, USA.
  */
 
-SECTIONS
-{
-	.m0_text : {
-		. = ALIGN(4);
-		KEEP(*(.m0_bin*));
-		. = ALIGN(4);
-	} >ram_m0 AT >rom
+#pragma once
 
-	PROVIDE(__m0_start__ = LOADADDR(.m0_text));
-	PROVIDE(__m0_end__ = LOADADDR(.m0_text) + SIZEOF(.m0_text));
-}
+#include <usb_request.h>
+#include <usb_type.h>
+
+usb_request_status_t usb_vendor_request_set_radio_mode(
+	usb_endpoint_t* const endpoint,
+	const usb_transfer_stage_t stage);

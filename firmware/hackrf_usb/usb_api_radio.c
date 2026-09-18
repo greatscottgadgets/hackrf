@@ -1,8 +1,7 @@
 /*
- * Copyright 2012-2021 Great Scott Gadgets <info@greatscottgadgets.com>
- * Copyright 2012 Jared Boone <jared@sharebrained.com>
+ * Copyright 2026 Great Scott Gadgets <info@greatscottgadgets.com>
  *
- * This file is part of HackRF
+ * This file is part of HackRF.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,14 +19,23 @@
  * Boston, MA 02110-1301, USA.
  */
 
-SECTIONS
-{
-	.m0_text : {
-		. = ALIGN(4);
-		KEEP(*(.m0_bin*));
-		. = ALIGN(4);
-	} >ram_m0 AT >rom
+#include <radio.h>
+#include <usb_request.h>
+#include <usb_type.h>
 
-	PROVIDE(__m0_start__ = LOADADDR(.m0_text));
-	PROVIDE(__m0_end__ = LOADADDR(.m0_text) + SIZEOF(.m0_text));
+#include "usb_queue.h"
+
+usb_request_status_t usb_vendor_request_set_radio_mode(
+	usb_endpoint_t* const endpoint,
+	const usb_transfer_stage_t stage)
+{
+	if (stage == USB_TRANSFER_STAGE_SETUP) {
+		radio_config_mode_t mode = endpoint->setup.value;
+		if (!radio_set_config_mode(&radio, mode)) {
+			return USB_REQUEST_STATUS_STALL;
+		}
+		usb_transfer_schedule_ack(endpoint->in);
+	}
+
+	return USB_REQUEST_STATUS_OK;
 }
