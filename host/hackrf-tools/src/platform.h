@@ -1,8 +1,9 @@
 /*
- * Copyright 2012-2021 Great Scott Gadgets <info@greatscottgadgets.com>
- * Copyright 2012 Jared Boone <jared@sharebrained.com>
+ * Copyright 2016-2022 Great Scott Gadgets <info@greatscottgadgets.com>
+ * Copyright 2016 Dominic Spill <dominicgs@gmail.com>
+ * Copyright 2016 Mike Walters <mike@flomp.net>
  *
- * This file is part of HackRF
+ * This file is part of HackRF.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,14 +21,26 @@
  * Boston, MA 02110-1301, USA.
  */
 
-SECTIONS
-{
-	.m0_text : {
-		. = ALIGN(4);
-		KEEP(*(.m0_bin*));
-		. = ALIGN(4);
-	} >ram_m0 AT >rom
+#pragma once
 
-	PROVIDE(__m0_start__ = LOADADDR(.m0_text));
-	PROVIDE(__m0_end__ = LOADADDR(.m0_text) + SIZEOF(.m0_text));
-}
+#include <hackrf.h>
+
+typedef struct {
+	uint64_t min;
+	uint64_t max;
+} radio_range_t;
+
+typedef struct {
+	radio_range_t frequency_rf;
+	radio_range_t frequency_rf_abs;
+	radio_range_t frequency_if;
+	radio_range_t frequency_if_abs;
+	radio_range_t frequency_lo;
+	radio_range_t sample_rate;
+	radio_range_t bb_bandwidth;
+} platform_values_t;
+
+int platform_supported_values(
+	uint8_t board_id,
+	enum radio_config_mode mode,
+	platform_values_t* values);
