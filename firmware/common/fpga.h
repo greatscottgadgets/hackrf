@@ -26,6 +26,14 @@
 
 #include "ice40_spi.h"
 
+/* Supported Bitstreams. */
+typedef enum {
+	FPGA_BITSTREAM_STANDARD = 0,
+	FPGA_BITSTREAM_HALFPREC = 1,
+	FPGA_BITSTREAM_EXTPREC_RX = 2,
+	FPGA_BITSTREAM_EXTPREC_TX = 3,
+} fpga_bitstream_index_t;
+
 /* Up to 7 registers, each containing up to 8 bits of data */
 #define FPGA_NUM_REGS            7
 #define FPGA_DATA_REGS_MAX_VALUE 255
