@@ -24,6 +24,7 @@
 #define _FILE_OFFSET_BITS 64
 
 #include <hackrf.h>
+#include "platform.h"
 
 #include <stdbool.h>
 #include <stdio.h>
@@ -85,21 +86,21 @@ int gettimeofday(struct timeval* tv, void* ignored)
 
 #define FREQ_ONE_MHZ (1000000ll)
 
-#define DEFAULT_FREQ_HZ (900000000ll)  /* 900MHz */
-#define FREQ_ABS_MIN_HZ (0ull)         /* 0 Hz */
-#define FREQ_MIN_HZ     (1000000ll)    /* 1MHz */
-#define FREQ_MAX_HZ     (6000000000ll) /* 6000MHz */
-#define FREQ_ABS_MAX_HZ (7250000000ll) /* 7250MHz */
-#define IF_ABS_MIN_HZ   (2000000000ll)
-#define IF_MIN_HZ       (2170000000ll)
-#define IF_MAX_HZ       (2740000000ll)
-#define IF_ABS_MAX_HZ   (3000000000ll)
-#define LO_MIN_HZ       (84375000ll)
-#define LO_MAX_HZ       (5400000000ll)
-#define DEFAULT_LO_HZ   (1000000000ll)
+#define DEFAULT_FREQ_HZ (900000000ll) /* 900MHz */
+//#define FREQ_ABS_MIN_HZ (0ull)         /* 0 Hz */
+//#define FREQ_MIN_HZ     (1000000ll)    /* 1MHz */
+//#define FREQ_MAX_HZ     (6000000000ll) /* 6000MHz */
+//#define FREQ_ABS_MAX_HZ (7250000000ll) /* 7250MHz */
+//#define IF_ABS_MIN_HZ   (2000000000ll)
+//#define IF_MIN_HZ       (2170000000ll)
+//#define IF_MAX_HZ       (2740000000ll)
+//#define IF_ABS_MAX_HZ   (3000000000ll)
+//#define LO_MIN_HZ       (84375000ll)
+//#define LO_MAX_HZ       (5400000000ll)
+#define DEFAULT_LO_HZ (1000000000ll)
 
-#define SAMPLE_RATE_MIN_HZ     (2000000)  /* 2MHz min sample rate */
-#define SAMPLE_RATE_MAX_HZ     (20000000) /* 20MHz max sample rate */
+//#define SAMPLE_RATE_MIN_HZ     (2000000)  /* 2MHz min sample rate */
+//#define SAMPLE_RATE_MAX_HZ     (20000000) /* 20MHz max sample rate */
 #define DEFAULT_SAMPLE_RATE_HZ (10000000) /* 10MHz default sample rate */
 
 #define DEFAULT_BASEBAND_FILTER_BANDWIDTH (5000000) /* 5MHz default */
@@ -795,7 +796,7 @@ static int update_stats(hackrf_device* device, hackrf_m0_state* state, stats_t* 
 	return result;
 }
 
-static void usage()
+static void usage(const platform_values_t* supports)
 {
 	printf("Usage:\n");
 	printf("\t-h # this help\n");
@@ -804,29 +805,58 @@ static void usage()
 	printf("\t-t <filename> # Transmit data from file (use '-' for stdin).\n");
 	printf("\t-w # Receive data into file with WAV header and automatic name.\n");
 	printf("\t   # This is for SDR# compatibility and may not work with other software.\n");
-	printf("\t[-f freq_hz] # Frequency in Hz [%sMHz to %sMHz supported, %sMHz to %sMHz forceable].\n",
-	       u64toa((FREQ_MIN_HZ / FREQ_ONE_MHZ), &ascii_u64_data[0]),
-	       u64toa((FREQ_MAX_HZ / FREQ_ONE_MHZ), &ascii_u64_data[1]),
-	       u64toa((FREQ_ABS_MIN_HZ / FREQ_ONE_MHZ), &ascii_u64_data[2]),
-	       u64toa((FREQ_ABS_MAX_HZ / FREQ_ONE_MHZ), &ascii_u64_data[3]));
-	printf("\t[-i if_freq_hz] # Intermediate Frequency (IF) in Hz [%sMHz to %sMHz supported, %sMHz to %sMHz forceable].\n",
-	       u64toa((IF_MIN_HZ / FREQ_ONE_MHZ), &ascii_u64_data[0]),
-	       u64toa((IF_MAX_HZ / FREQ_ONE_MHZ), &ascii_u64_data[1]),
-	       u64toa((IF_ABS_MIN_HZ / FREQ_ONE_MHZ), &ascii_u64_data[2]),
-	       u64toa((IF_ABS_MAX_HZ / FREQ_ONE_MHZ), &ascii_u64_data[3]));
-	printf("\t[-o lo_freq_hz] # Front-end Local Oscillator (LO) frequency in Hz [%sMHz to %sMHz].\n",
-	       u64toa((LO_MIN_HZ / FREQ_ONE_MHZ), &ascii_u64_data[0]),
-	       u64toa((LO_MAX_HZ / FREQ_ONE_MHZ), &ascii_u64_data[1]));
+	printf("\t[-f freq_hz] # Frequency in Hz");
+	if (supports) {
+		printf(" [%sMHz to %sMHz supported, %sMHz to %sMHz forceable].",
+		       u64toa((supports->frequency_rf.min / FREQ_ONE_MHZ),
+			      &ascii_u64_data[0]),
+		       u64toa((supports->frequency_rf.max / FREQ_ONE_MHZ),
+			      &ascii_u64_data[1]),
+		       u64toa((supports->frequency_rf_abs.min / FREQ_ONE_MHZ),
+			      &ascii_u64_data[2]),
+		       u64toa((supports->frequency_rf_abs.max / FREQ_ONE_MHZ),
+			      &ascii_u64_data[3]));
+	}
+	printf("\n");
+	printf("\t[-i if_freq_hz] # Intermediate Frequency (IF) in Hz");
+	if (supports) {
+		printf(" [%sMHz to %sMHz supported, %sMHz to %sMHz forceable].",
+		       u64toa((supports->frequency_if.min / FREQ_ONE_MHZ),
+			      &ascii_u64_data[0]),
+		       u64toa((supports->frequency_if.max / FREQ_ONE_MHZ),
+			      &ascii_u64_data[1]),
+		       u64toa((supports->frequency_if_abs.min / FREQ_ONE_MHZ),
+			      &ascii_u64_data[2]),
+		       u64toa((supports->frequency_if_abs.max / FREQ_ONE_MHZ),
+			      &ascii_u64_data[3]));
+	}
+	printf("\n");
+	printf("\t[-o lo_freq_hz] # Front-end Local Oscillator (LO) frequency in Hz");
+	if (supports) {
+		printf(" [%sMHz to %sMHz].",
+		       u64toa((supports->frequency_lo.min / FREQ_ONE_MHZ),
+			      &ascii_u64_data[0]),
+		       u64toa((supports->frequency_lo.max / FREQ_ONE_MHZ),
+			      &ascii_u64_data[1]));
+	}
+	printf("\n");
 	printf("\t[-m image_reject] # Image rejection filter selection, 0=bypass, 1=low pass, 2=high pass.\n");
 	printf("\t[-a amp_enable] # RX/TX RF amplifier 1=Enable, 0=Disable.\n");
 	printf("\t[-p antenna_enable] # Antenna port power, 1=Enable, 0=Disable.\n");
 	printf("\t[-l gain_db] # RX LNA (IF) gain, 0-40dB, 8dB steps\n");
 	printf("\t[-g gain_db] # RX VGA (baseband) gain, 0-62dB, 2dB steps\n");
 	printf("\t[-x gain_db] # TX VGA (IF) gain, 0-47dB, 1dB steps\n");
-	printf("\t[-s sample_rate_hz] # Sample rate in Hz (%s-%sMHz supported, default %sMHz).\n",
-	       u64toa((SAMPLE_RATE_MIN_HZ / FREQ_ONE_MHZ), &ascii_u64_data[0]),
-	       u64toa((SAMPLE_RATE_MAX_HZ / FREQ_ONE_MHZ), &ascii_u64_data[1]),
-	       u64toa((DEFAULT_SAMPLE_RATE_HZ / FREQ_ONE_MHZ), &ascii_u64_data[2]));
+	printf("\t[-s sample_rate_hz] # Sample rate in Hz");
+	if (supports) {
+		printf(" (%s-%sMHz supported, default %sMHz).",
+		       u64toa((supports->sample_rate.min / FREQ_ONE_MHZ),
+			      &ascii_u64_data[0]),
+		       u64toa((supports->sample_rate.max / FREQ_ONE_MHZ),
+			      &ascii_u64_data[1]),
+		       u64toa((DEFAULT_SAMPLE_RATE_HZ / FREQ_ONE_MHZ),
+			      &ascii_u64_data[2]));
+	}
+	printf("\n");
 	printf("\t[-F force] # Force use of parameters outside supported ranges.\n");
 	printf("\t[-n num_samples] # Number of samples to transfer (default is unlimited).\n");
 #ifndef _WIN32
@@ -1017,12 +1047,12 @@ int main(int argc, char** argv)
 
 		case 'h':
 		case '?':
-			usage();
+			usage(NULL);
 			return EXIT_SUCCESS;
 
 		default:
 			fprintf(stderr, "unknown argument '-%c %s'\n", opt, optarg);
-			usage();
+			usage(NULL);
 			return EXIT_FAILURE;
 		}
 
@@ -1033,9 +1063,76 @@ int main(int argc, char** argv)
 				optarg,
 				hackrf_error_name(result),
 				result);
-			usage();
+			usage(NULL);
 			return EXIT_FAILURE;
 		}
+	}
+
+	result = hackrf_init();
+	if (result != HACKRF_SUCCESS) {
+		fprintf(stderr,
+			"hackrf_init() failed: %s (%d)\n",
+			hackrf_error_name(result),
+			result);
+		usage(NULL);
+		return EXIT_FAILURE;
+	}
+
+	result = hackrf_open_mode_by_serial(config_mode, serial_number, &device);
+	if (result != HACKRF_SUCCESS) {
+		fprintf(stderr,
+			"hackrf_open_mode_by_serial() failed: %s (%d)\n",
+			hackrf_error_name(result),
+			result);
+		usage(NULL);
+		return EXIT_FAILURE;
+	}
+
+	// Check if the requested configuration mode is supported by the current hardware.
+	result = hackrf_board_id_read(device, &board_id);
+	if (result != HACKRF_SUCCESS) {
+		fprintf(stderr,
+			"hackrf_board_id_read() failed: %s (%d)\n",
+			hackrf_error_name(result),
+			result);
+		return EXIT_FAILURE;
+	}
+	if (board_id != BOARD_ID_PRALINE && config_mode != RADIO_CONFIG_STANDARD) {
+		fprintf(stderr,
+			"The selected configuration mode is not supported by this device.\n");
+		return EXIT_FAILURE;
+	}
+
+	// Get supported parameter values for the current hardware and requested configuration mode.
+	platform_values_t supported;
+	result = platform_supported_values(board_id, config_mode, &supported);
+	if (result != HACKRF_SUCCESS) {
+		fprintf(stderr,
+			"platform_supported_values() failed: %s (%d)\n",
+			hackrf_error_name(result),
+			result);
+		return EXIT_FAILURE;
+	}
+
+	// Check if the transceiver mode is supported by the requested configuration mode.
+	switch (config_mode) {
+	case RADIO_CONFIG_EXT_PRECISION_RX:
+		if ((transceiver_mode == TRANSCEIVER_MODE_TX) ||
+		    (transceiver_mode == TRANSCEIVER_MODE_SS)) {
+			fprintf(stderr,
+				"The selected configuration mode does not support transmit operations.\n");
+			return EXIT_FAILURE;
+		}
+		break;
+	case RADIO_CONFIG_EXT_PRECISION_TX:
+		if (transceiver_mode == TRANSCEIVER_MODE_RX) {
+			fprintf(stderr,
+				"The selected configuration mode does not support receive operations.\n");
+			return EXIT_FAILURE;
+		}
+		break;
+	default:
+		break;
 	}
 
 	if (lna_gain % 8)
@@ -1049,7 +1146,7 @@ int main(int argc, char** argv)
 			"argument error: num_samples must be less than %s/%sMio\n",
 			u64toa(SAMPLES_TO_XFER_MAX, &ascii_u64_data[0]),
 			u64toa((SAMPLES_TO_XFER_MAX / FREQ_ONE_MHZ), &ascii_u64_data[1]));
-		usage();
+		usage(&supported);
 		return EXIT_FAILURE;
 	}
 
@@ -1058,53 +1155,55 @@ int main(int argc, char** argv)
 		if (!if_freq) {
 			fprintf(stderr,
 				"argument error: if_freq_hz must be specified for explicit tuning.\n");
-			usage();
+			usage(&supported);
 			return EXIT_FAILURE;
 		}
 		if (!image_reject) {
 			fprintf(stderr,
 				"argument error: image_reject must be specified for explicit tuning.\n");
-			usage();
+			usage(&supported);
 			return EXIT_FAILURE;
 		}
 		if (!lo_freq && (image_reject_selection != RF_PATH_FILTER_BYPASS)) {
 			fprintf(stderr,
 				"argument error: lo_freq_hz must be specified for explicit tuning unless image_reject is set to bypass.\n");
-			usage();
+			usage(&supported);
 			return EXIT_FAILURE;
 		}
-		if (((FP_FREQ(if_freq_fp_hz) > IF_MAX_HZ) ||
-		     (FP_FREQ(if_freq_fp_hz) < IF_MIN_HZ)) &&
+		if (((FP_FREQ(if_freq_fp_hz) > supported.frequency_if.max) ||
+		     (FP_FREQ(if_freq_fp_hz) < supported.frequency_if.min)) &&
 		    !force_ranges) {
 			fprintf(stderr,
 				"argument error: if_freq_hz should be between %s and %s.\n",
-				u64toa(IF_MIN_HZ, &ascii_u64_data[0]),
-				u64toa(IF_MAX_HZ, &ascii_u64_data[1]));
-			usage();
+				u64toa(supported.frequency_if.min, &ascii_u64_data[0]),
+				u64toa(supported.frequency_if.max, &ascii_u64_data[1]));
+			usage(&supported);
 			return EXIT_FAILURE;
 		}
-		if ((FP_FREQ(if_freq_fp_hz) > IF_ABS_MAX_HZ) ||
-		    (FP_FREQ(if_freq_fp_hz) < IF_ABS_MIN_HZ)) {
+		if ((FP_FREQ(if_freq_fp_hz) > supported.frequency_if_abs.max) ||
+		    (FP_FREQ(if_freq_fp_hz) < supported.frequency_if_abs.min)) {
 			fprintf(stderr,
 				"argument error: if_freq_hz must be between %s and %s.\n",
-				u64toa(IF_ABS_MIN_HZ, &ascii_u64_data[0]),
-				u64toa(IF_ABS_MAX_HZ, &ascii_u64_data[1]));
-			usage();
+				u64toa(supported.frequency_if_abs.min,
+				       &ascii_u64_data[0]),
+				u64toa(supported.frequency_if_abs.max,
+				       &ascii_u64_data[1]));
+			usage(&supported);
 			return EXIT_FAILURE;
 		}
-		if ((FP_FREQ(lo_freq_fp_hz) > LO_MAX_HZ) ||
-		    (FP_FREQ(lo_freq_fp_hz) < LO_MIN_HZ)) {
+		if ((FP_FREQ(lo_freq_fp_hz) > supported.frequency_lo.max) ||
+		    (FP_FREQ(lo_freq_fp_hz) < supported.frequency_lo.min)) {
 			fprintf(stderr,
 				"argument error: lo_freq_hz shall be between %s and %s.\n",
-				u64toa(LO_MIN_HZ, &ascii_u64_data[0]),
-				u64toa(LO_MAX_HZ, &ascii_u64_data[1]));
-			usage();
+				u64toa(supported.frequency_lo.min, &ascii_u64_data[0]),
+				u64toa(supported.frequency_lo.max, &ascii_u64_data[1]));
+			usage(&supported);
 			return EXIT_FAILURE;
 		}
 		if (image_reject_selection > 2) {
 			fprintf(stderr,
 				"argument error: image_reject must be 0, 1, or 2 .\n");
-			usage();
+			usage(&supported);
 			return EXIT_FAILURE;
 		}
 		if (automatic_tuning) {
@@ -1133,22 +1232,24 @@ int main(int argc, char** argv)
 			frequency_fp64toa(freq_fp_hz, &ascii_fp64_data[0]));
 
 	} else if (automatic_tuning) {
-		if (((FP_FREQ(freq_fp_hz) > FREQ_MAX_HZ) ||
-		     (FP_FREQ(freq_fp_hz) < FREQ_MIN_HZ)) &&
+		if (((FP_FREQ(freq_fp_hz) > supported.frequency_rf.max) ||
+		     (FP_FREQ(freq_fp_hz) < supported.frequency_rf.min)) &&
 		    !force_ranges) {
 			fprintf(stderr,
 				"argument error: freq_hz should be between %s and %s.\n",
-				u64toa(FREQ_MIN_HZ, &ascii_u64_data[0]),
-				u64toa(FREQ_MAX_HZ, &ascii_u64_data[1]));
-			usage();
+				u64toa(supported.frequency_rf.min, &ascii_u64_data[0]),
+				u64toa(supported.frequency_rf.max, &ascii_u64_data[1]));
+			usage(&supported);
 			return EXIT_FAILURE;
 		}
-		if (FP_FREQ(freq_fp_hz) > FREQ_ABS_MAX_HZ) {
+		if (FP_FREQ(freq_fp_hz) > supported.frequency_rf_abs.max) {
 			fprintf(stderr,
 				"argument error: freq_hz must be between %s and %s.\n",
-				u64toa(FREQ_ABS_MIN_HZ, &ascii_u64_data[0]),
-				u64toa(FREQ_ABS_MAX_HZ, &ascii_u64_data[1]));
-			usage();
+				u64toa(supported.frequency_rf_abs.min,
+				       &ascii_u64_data[0]),
+				u64toa(supported.frequency_rf_abs.max,
+				       &ascii_u64_data[1]));
+			usage(&supported);
 			return EXIT_FAILURE;
 		}
 	} else {
@@ -1160,7 +1261,7 @@ int main(int argc, char** argv)
 	if (amp) {
 		if (amp_enable > 1) {
 			fprintf(stderr, "argument error: amp_enable shall be 0 or 1.\n");
-			usage();
+			usage(&supported);
 			return EXIT_FAILURE;
 		}
 	}
@@ -1169,7 +1270,7 @@ int main(int argc, char** argv)
 		if (antenna_enable > 1) {
 			fprintf(stderr,
 				"argument error: antenna_enable shall be 0 or 1.\n");
-			usage();
+			usage(&supported);
 			return EXIT_FAILURE;
 		}
 	}
@@ -1178,20 +1279,22 @@ int main(int argc, char** argv)
 		fprintf(stderr,
 			"Setting sample rate to: %s Hz\n",
 			sample_rate_fp64toa(sample_rate_fp_hz, &ascii_fp64_data[0]));
-		if (FP_SR(sample_rate_fp_hz) > SAMPLE_RATE_MAX_HZ && !force_ranges) {
+		if (FP_SR(sample_rate_fp_hz) > supported.sample_rate.max &&
+		    !force_ranges) {
 			fprintf(stderr,
-				"argument error: sample_rate_hz should be less than or equal to %u Hz/%.03f MHz\n",
-				SAMPLE_RATE_MAX_HZ,
-				(float) (SAMPLE_RATE_MAX_HZ / FREQ_ONE_MHZ));
-			usage();
+				"argument error: sample_rate_hz should be less than or equal to %lu Hz/%.03f MHz\n",
+				supported.sample_rate.max,
+				(float) (supported.sample_rate.max / FREQ_ONE_MHZ));
+			usage(&supported);
 			return EXIT_FAILURE;
 		}
-		if (FP_SR(sample_rate_fp_hz) < SAMPLE_RATE_MIN_HZ && !force_ranges) {
+		if (FP_SR(sample_rate_fp_hz) < supported.sample_rate.min &&
+		    !force_ranges) {
 			fprintf(stderr,
-				"argument error: sample_rate_hz should be greater than or equal to %u Hz/%.03f MHz\n",
-				SAMPLE_RATE_MIN_HZ,
-				(float) (SAMPLE_RATE_MIN_HZ / FREQ_ONE_MHZ));
-			usage();
+				"argument error: sample_rate_hz should be greater than or equal to %lu Hz/%.03f MHz\n",
+				supported.sample_rate.min,
+				(float) (supported.sample_rate.min / FREQ_ONE_MHZ));
+			usage(&supported);
 			return EXIT_FAILURE;
 		}
 	} else {
@@ -1204,7 +1307,7 @@ int main(int argc, char** argv)
 				"argument error: baseband_filter_bw_hz must be less or equal to %u Hz/%.03f MHz\n",
 				BASEBAND_FILTER_BW_MAX,
 				(float) (BASEBAND_FILTER_BW_MAX / FREQ_ONE_MHZ));
-			usage();
+			usage(&supported);
 			return EXIT_FAILURE;
 		}
 
@@ -1213,7 +1316,7 @@ int main(int argc, char** argv)
 				"argument error: baseband_filter_bw_hz must be greater or equal to %u Hz/%.03f MHz\n",
 				BASEBAND_FILTER_BW_MIN,
 				(float) (BASEBAND_FILTER_BW_MIN / FREQ_ONE_MHZ));
-			usage();
+			usage(&supported);
 			return EXIT_FAILURE;
 		}
 
@@ -1224,13 +1327,13 @@ int main(int argc, char** argv)
 
 	if (requested_mode_count > 1) {
 		fprintf(stderr, "specify only one of: -t, -c, -r, -w\n");
-		usage();
+		usage(&supported);
 		return EXIT_FAILURE;
 	}
 
 	if (requested_mode_count < 1) {
 		fprintf(stderr, "specify one of: -t, -c, -r, -w\n");
-		usage();
+		usage(&supported);
 		return EXIT_FAILURE;
 	}
 
@@ -1247,7 +1350,7 @@ int main(int argc, char** argv)
 		if (amplitude > 127) {
 			fprintf(stderr,
 				"argument error: amplitude must be between 0 and 127.\n");
-			usage();
+			usage(&supported);
 			return EXIT_FAILURE;
 		}
 	}
@@ -1272,7 +1375,7 @@ int main(int argc, char** argv)
 	if (transceiver_mode != TRANSCEIVER_MODE_SS) {
 		if (path == NULL) {
 			fprintf(stderr, "specify a path to a file to transmit/receive\n");
-			usage();
+			usage(&supported);
 			return EXIT_FAILURE;
 		}
 	}
@@ -1287,62 +1390,6 @@ int main(int argc, char** argv)
 			freq_fp_hz,
 			(fp_40_24_t) double_to_fp(1000000.0 - crystal_correct_ppm, 24),
 			(fp_40_24_t) FREQ_FP(1000000));
-	}
-
-	result = hackrf_init();
-	if (result != HACKRF_SUCCESS) {
-		fprintf(stderr,
-			"hackrf_init() failed: %s (%d)\n",
-			hackrf_error_name(result),
-			result);
-		usage();
-		return EXIT_FAILURE;
-	}
-
-	result = hackrf_open_mode_by_serial(config_mode, serial_number, &device);
-	if (result != HACKRF_SUCCESS) {
-		fprintf(stderr,
-			"hackrf_open_mode_by_serial() failed: %s (%d)\n",
-			hackrf_error_name(result),
-			result);
-		usage();
-		return EXIT_FAILURE;
-	}
-
-	// Check if the requested configuration mode is supported by the current hardware.
-	result = hackrf_board_id_read(device, &board_id);
-	if (result != HACKRF_SUCCESS) {
-		fprintf(stderr,
-			"hackrf_board_id_read() failed: %s (%d)\n",
-			hackrf_error_name(result),
-			result);
-		return EXIT_FAILURE;
-	}
-	if (board_id != BOARD_ID_PRALINE && config_mode != RADIO_CONFIG_STANDARD) {
-		fprintf(stderr,
-			"The selected configuration mode is not supported by this device.\n");
-		return EXIT_FAILURE;
-	}
-
-	// Check if the transceiver mode is supported by the requested configuration mode.
-	switch (config_mode) {
-	case RADIO_CONFIG_EXT_PRECISION_RX:
-		if ((transceiver_mode == TRANSCEIVER_MODE_TX) ||
-		    (transceiver_mode == TRANSCEIVER_MODE_SS)) {
-			fprintf(stderr,
-				"The selected configuration mode does not support transmit operations.\n");
-			return EXIT_FAILURE;
-		}
-		break;
-	case RADIO_CONFIG_EXT_PRECISION_TX:
-		if (transceiver_mode == TRANSCEIVER_MODE_RX) {
-			fprintf(stderr,
-				"The selected configuration mode does not support receive operations.\n");
-			return EXIT_FAILURE;
-		}
-		break;
-	default:
-		break;
 	}
 
 	if (transceiver_mode != TRANSCEIVER_MODE_SS) {
@@ -1368,7 +1415,7 @@ int main(int argc, char** argv)
 		result = setvbuf(file, NULL, _IOFBF, FD_BUFFER_SIZE);
 		if (result != 0) {
 			fprintf(stderr, "setvbuf() failed: %d\n", result);
-			usage();
+			usage(&supported);
 			return EXIT_FAILURE;
 		}
 	}
@@ -1405,7 +1452,7 @@ int main(int argc, char** argv)
 			"hackrf_radio_set_sample_rate() failed: %s (%d)\n",
 			hackrf_error_name(result),
 			result);
-		usage();
+		usage(&supported);
 		return EXIT_FAILURE;
 	}
 
@@ -1422,7 +1469,7 @@ int main(int argc, char** argv)
 				"hackrf_set_baseband_filter_bandwidth() failed: %s (%d)\n",
 				hackrf_error_name(result),
 				result);
-			usage();
+			usage(&supported);
 			return EXIT_FAILURE;
 		}
 	}
@@ -1444,7 +1491,7 @@ int main(int argc, char** argv)
 			"hackrf_start_?x() failed: %s (%d)\n",
 			hackrf_error_name(result),
 			result);
-		usage();
+		usage(&supported);
 		return EXIT_FAILURE;
 	}
 
@@ -1459,7 +1506,7 @@ int main(int argc, char** argv)
 				"hackrf_radio_set_frequency() failed: %s (%d)\n",
 				hackrf_error_name(result),
 				result);
-			usage();
+			usage(&supported);
 			return EXIT_FAILURE;
 		}
 	} else {
@@ -1478,7 +1525,7 @@ int main(int argc, char** argv)
 				"hackrf_set_freq_explicit() failed: %s (%d)\n",
 				hackrf_error_name(result),
 				result);
-			usage();
+			usage(&supported);
 			return EXIT_FAILURE;
 		}
 	}
@@ -1491,7 +1538,7 @@ int main(int argc, char** argv)
 				"hackrf_set_amp_enable() failed: %s (%d)\n",
 				hackrf_error_name(result),
 				result);
-			usage();
+			usage(&supported);
 			return EXIT_FAILURE;
 		}
 	}
@@ -1504,7 +1551,7 @@ int main(int argc, char** argv)
 				"hackrf_set_antenna_enable() failed: %s (%d)\n",
 				hackrf_error_name(result),
 				result);
-			usage();
+			usage(&supported);
 			return EXIT_FAILURE;
 		}
 	}
