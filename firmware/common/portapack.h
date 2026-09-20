@@ -69,6 +69,9 @@ bool portapack_present(void);
 
 void portapack_backlight(const bool on);
 
+/* Backlight is controlled separately. Each transition may block for 120 ms. */
+void portapack_lcd_set_sleep(const bool sleep);
+
 void portapack_reference_oscillator(const bool on);
 
 void portapack_fill_rectangle(const ui_rect_t rect, const ui_color_t color);

@@ -506,17 +506,21 @@ static void portapack_radio_path_redraw(void)
 	}
 }
 
+/* USB UI-enable requests invoke these callbacks synchronously. LCD sleep/wake
+ * can block for 120 ms; use these lifecycle transitions between streams.
+ */
 static void portapack_ui_init(void)
 {
+	portapack_lcd_set_sleep(false);
 	portapack_clear_display(color_background);
-	portapack_backlight(true);
 	portapack_radio_path_redraw();
+	portapack_backlight(true);
 }
 
 static void portapack_ui_deinit(void)
 {
-	portapack_clear_display(color_background);
 	portapack_backlight(false);
+	portapack_lcd_set_sleep(true);
 }
 
 static void portapack_ui_set_frequency(uint64_t frequency)
