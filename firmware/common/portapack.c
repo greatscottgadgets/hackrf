@@ -231,14 +231,29 @@ static void portapack_lcd_data_write_command_and_data(
 	}
 }
 
+/* ILI9341 DS v1.05, sections 8.2.11-8.2.12 (pp. 100-101):
+ * https://files.waveshare.com/upload/e/e3/ILI9341_DS.pdf
+ * Opposite sleep commands must be separated by 120 ms. Waiting here also
+ * covers the 5 ms minimum before any subsequent command.
+ */
+static void portapack_lcd_sleep_in(void)
+{
+	const uint8_t cmd_10[] = {};
+	portapack_lcd_data_write_command_and_data(0x10, cmd_10, ARRAY_SIZEOF(cmd_10));
+	delay_ms(120);
+}
+
 static void portapack_lcd_sleep_out(void)
 {
 	const uint8_t cmd_11[] = {};
 	portapack_lcd_data_write_command_and_data(0x11, cmd_11, ARRAY_SIZEOF(cmd_11));
-	// "It will be necessary to wait 120msec after sending Sleep Out
-	// command (when in Sleep In Mode) before Sleep In command can be
-	// sent."
 	delay_ms(120);
+}
+
+static void portapack_lcd_display_off(void)
+{
+	const uint8_t cmd_28[] = {};
+	portapack_lcd_data_write_command_and_data(0x28, cmd_28, ARRAY_SIZEOF(cmd_28));
 }
 
 static void portapack_lcd_display_on(void)
@@ -295,10 +310,33 @@ static void portapack_lcd_write_pixels_color(const ui_color_t c, size_t n)
 	}
 }
 
+static void portapack_lcd_sleep(void)
+{
+	portapack_lcd_display_off();
+	portapack_lcd_sleep_in();
+}
+
 static void portapack_lcd_wake(void)
 {
 	portapack_lcd_sleep_out();
 	portapack_lcd_display_on();
+}
+
+void portapack_lcd_set_sleep(const bool sleep)
+{
+	static bool sleeping = false;
+
+	if (sleeping == sleep) {
+		return;
+	}
+
+	if (sleep) {
+		portapack_lcd_sleep();
+	} else {
+		portapack_lcd_wake();
+	}
+
+	sleeping = sleep;
 }
 
 static void portapack_lcd_reset(void)
