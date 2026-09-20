@@ -36,6 +36,7 @@
 #include <delay.h>
 #include <fixed_point.h>
 #include <hackrf_ui.h>
+#include <hackrf_runtime_config.h>
 #include <i2c_bus.h>
 #include <i2c_lpc.h>
 #include <leds.h>
@@ -572,7 +573,25 @@ int main(void)
 
 	nvic_set_priority(NVIC_USB0_IRQ, 255);
 
-	hackrf_ui()->init();
+	/* GPIO compatibility depends on attached hardware, not whether its UI is enabled. */
+	const bool operacake_allow_gpio = hackrf_ui()->operacake_gpio_compatible();
+
+#if defined(RAM_MODE) && defined(IS_EXPANSION_COMPATIBLE)
+	hackrf_runtime_config_t runtime_config = {0};
+	if (IS_EXPANSION_COMPATIBLE) {
+		extern volatile uint32_t __hackrf_runtime_config_start[];
+		runtime_config = hackrf_runtime_config_consume(__hackrf_runtime_config_start);
+	}
+	if (runtime_config.flags & HACKRF_RUNTIME_CONFIG_SCREEN_OFF) {
+		/* The compatibility query already detected/cached the UI. Do not call
+		 * init first: that would briefly light the backlight.
+		 */
+		hackrf_ui_set_enable(false);
+	} else
+#endif
+	{
+		hackrf_ui()->init();
+	}
 
 	usb_run(&usb_device);
 
@@ -590,12 +609,6 @@ int main(void)
 
 	if (da7219_detect()) {
 		operacake_skip_i2c_address(DA7219_ADDRESS);
-	}
-	bool operacake_allow_gpio;
-	if (hackrf_ui()->operacake_gpio_compatible()) {
-		operacake_allow_gpio = true;
-	} else {
-		operacake_allow_gpio = false;
 	}
 	operacake_init(operacake_allow_gpio);
 
