@@ -44,3 +44,13 @@ usb_samp_buffer = ORIGIN(ram_samp);
 usb_bulk_buffer = ORIGIN(ram_usb);
 m0_state = ORIGIN(ram_shared);
 PROVIDE(__ram_m0_start__ = ORIGIN(ram_m0));
+
+/* One-shot Mayhem-to-HackRF runtime configuration, outside data/BSS and stacks. */
+SECTIONS
+{
+    .hackrf_runtime_config ORIGIN(ram_sleep) + LENGTH(ram_sleep) - 64 (NOLOAD) :
+    {
+        __hackrf_runtime_config_start = .;
+        . += 64;
+    } >ram_sleep
+}

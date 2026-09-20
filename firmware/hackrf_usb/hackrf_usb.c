@@ -36,6 +36,7 @@
 #include <delay.h>
 #include <fixed_point.h>
 #include <hackrf_ui.h>
+#include <hackrf_runtime_config.h>
 #include <i2c_bus.h>
 #include <i2c_lpc.h>
 #include <leds.h>
@@ -572,7 +573,23 @@ int main(void)
 
 	nvic_set_priority(NVIC_USB0_IRQ, 255);
 
-	hackrf_ui()->init();
+#if defined(RAM_MODE) && defined(IS_EXPANSION_COMPATIBLE)
+	hackrf_runtime_config_t runtime_config = {0};
+	if (IS_EXPANSION_COMPATIBLE) {
+		extern volatile uint32_t __hackrf_runtime_config_start[];
+		runtime_config = hackrf_runtime_config_consume(__hackrf_runtime_config_start);
+	}
+	if (runtime_config.flags & HACKRF_RUNTIME_CONFIG_SCREEN_OFF) {
+		/* Detect/cache the UI before disabling it so deinit sleeps the LCD.
+		 * Do not call init first: that would briefly light the backlight.
+		 */
+		(void) hackrf_ui();
+		hackrf_ui_set_enable(false);
+	} else
+#endif
+	{
+		hackrf_ui()->init();
+	}
 
 	usb_run(&usb_device);
 
