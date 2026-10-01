@@ -979,6 +979,8 @@ typedef struct {
 	uint8_t* buffer;
 	/** length of data buffer in bytes */
 	int buffer_length;
+	/** shape of data buffer in bits */
+	uint8_t buffer_shape;
 	/** number of buffer bytes that were transferred */
 	int valid_length;
 	/** User provided RX context. Not used by the library, but available to transfer callbacks for use. Set along with the transfer callback using @ref hackrf_start_rx or @ref hackrf_start_rx_sweep */

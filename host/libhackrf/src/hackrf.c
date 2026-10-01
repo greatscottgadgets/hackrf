@@ -177,6 +177,7 @@ struct hackrf_device {
 	hackrf_tx_block_complete_cb_fn tx_completion_callback;
 	void* flush_ctx;
 	uint32_t buffer_size;
+	enum radio_config_mode config_mode;
 };
 
 typedef struct {
@@ -773,6 +774,7 @@ static int hackrf_open_setup(
 
 	lib_device->usb_device = usb_device;
 	lib_device->usb_api_version = device_descriptor.bcdDevice;
+	lib_device->config_mode = mode;
 	lib_device->transfers = NULL;
 	lib_device->callback = NULL;
 	lib_device->transfer_thread_started = false;
@@ -2236,6 +2238,19 @@ hackrf_libusb_transfer_callback(struct libusb_transfer* usb_transfer)
 		.valid_length = usb_transfer->actual_length,
 		.rx_ctx = device->rx_ctx,
 		.tx_ctx = device->tx_ctx};
+
+	switch (device->config_mode) {
+	case RADIO_CONFIG_EXT_PRECISION_RX:
+	case RADIO_CONFIG_EXT_PRECISION_TX:
+		transfer.buffer_shape = 16;
+		break;
+	case RADIO_CONFIG_HALF_PRECISION:
+		transfer.buffer_shape = 4;
+		break;
+	default:
+		transfer.buffer_shape = 8;
+		break;
+	}
 
 	success = usb_transfer->status == LIBUSB_TRANSFER_COMPLETED;
 
