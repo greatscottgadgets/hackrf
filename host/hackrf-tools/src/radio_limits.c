@@ -60,11 +60,7 @@ int radio_limits(uint8_t board_id, enum radio_config_mode mode, radio_limits_t* 
 	limits->frequency_lo.min = 84375000;   /* 84.375 MHz */
 	limits->frequency_lo.max = 5400000000; /* 5.4 GHz */
 
-	// MAX5864, MAX5865
-	limits->sample_rate.min = 2000000;  /* 2 MHz */
-	limits->sample_rate.max = 20000000; /* 20 MHz */
-
-	// Board-specific limits
+	// Board and bitstream-specific limits
 	if (board_id == BOARD_ID_PRALINE) {
 		limits->frequency_rf.min = 100000;     /* 100 kHz */
 		limits->frequency_rf.max = 6000000000; /* 6 GHz TODO verify */
@@ -74,7 +70,7 @@ int radio_limits(uint8_t board_id, enum radio_config_mode mode, radio_limits_t* 
 		limits->frequency_if.max = 2580000000; /* 2.58 GHz */
 		limits->gain_if_rx.min = 0;            /* 0 dB */
 		limits->gain_if_rx.max = 33;           /* 33 dB */
-		limits->gain_if_rx.step = 8;           /* TODO 8dB */
+		limits->gain_if_rx.step = 16;          /* 16 dB */
 		limits->gain_if_tx.min = 0;            /* 0 dB */
 		limits->gain_if_tx.max = 31;           /* 31 dB */
 		limits->gain_if_tx.step = 1;           /* TODO 1dB */
@@ -84,14 +80,23 @@ int radio_limits(uint8_t board_id, enum radio_config_mode mode, radio_limits_t* 
 		limits->bb_bandwidth_tx.min = 1500000;  /* 1.5 MHz */
 		limits->bb_bandwidth_tx.max = 36000000; /* 36 MHz */
 
+		// Si5351C CLK0 (AFE_CLK) -> ICE40-UP5K + MAX5865 TODO
 		switch (mode) {
 		case RADIO_CONFIG_STANDARD:
+			limits->sample_rate.min = 2000000;  /* 2 MHz */
+			limits->sample_rate.max = 20000000; /* 20 MHz */
 			break;
 		case RADIO_CONFIG_EXT_PRECISION_RX:
+			limits->sample_rate.min = 2000000;  /* 2 MHz */
+			limits->sample_rate.max = 20000000; /* 20 MHz */
 			break;
 		case RADIO_CONFIG_EXT_PRECISION_TX:
+			limits->sample_rate.min = 2000000;  /* 2 MHz */
+			limits->sample_rate.max = 20000000; /* 20 MHz */
 			break;
 		case RADIO_CONFIG_HALF_PRECISION:
+			limits->sample_rate.min = 2000000;  /* 2 MHz */
+			limits->sample_rate.max = 20000000; /* 20 MHz */
 			break;
 		default:
 			return HACKRF_ERROR_INVALID_PARAM;
@@ -113,6 +118,10 @@ int radio_limits(uint8_t board_id, enum radio_config_mode mode, radio_limits_t* 
 		limits->bb_bandwidth_rx.max = 28000000; /* 28 MHz */
 		limits->bb_bandwidth_tx.min = 1750000;  /* 1.75 MHz */
 		limits->bb_bandwidth_tx.max = 28000000; /* 28 MHz */
+
+		// Si5351A CLK1 (SGPIO_CLK) -> MCU SGPIO + XC2C64A (div2) + MAX5864 (div2)
+		limits->sample_rate.min = 2000000;  /* 2 MHz */
+		limits->sample_rate.max = 20000000; /* 20 MHz */
 	}
 
 	return HACKRF_SUCCESS;
