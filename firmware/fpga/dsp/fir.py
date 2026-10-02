@@ -7,7 +7,7 @@
 from amaranth               import Module, Signal, Mux, DomainRenamer, signed, unsigned
 from amaranth.lib           import wiring, stream, data, memory, fifo
 from amaranth.lib.wiring    import In, Out
-from amaranth.utils         import ceil_log2
+from amaranth.utils         import ceil_log2, bits_for
 
 from amaranth_future        import fixed
 
@@ -249,7 +249,7 @@ class FIRFilter(wiring.Component):
         self.taps = list(taps)
         self.add_tap = add_tap
         self.shape = shape
-        self.full_shape = self.compute_output_shape(self.shape, self.taps, self.add_tap)
+        self.full_shape = self.compute_output_shape(self.shape, self.taps, self.shape if self.add_tap else None)
         if shape_out is None:
             shape_out = self.full_shape
         self.saturate = self.full_shape.i_bits > shape_out.i_bits
@@ -281,17 +281,44 @@ class FIRFilter(wiring.Component):
         return d
 
     @staticmethod
-    def compute_output_shape(shape, taps, add_tap=None):
+    def compute_output_shape(shape, taps, add_shape=None):
         # Compute output shape taking into account the actual coefficients.
-        _signed = shape.signed | any(t<0 for t in taps)
-        taps_as_ratios = [ fixed.Const(tap).as_integer_ratio() for tap in taps if tap != 0 ]
-        if add_tap is not None:
-            taps_as_ratios +=  [(1,1)]
-        max_denom = max(abs(denom) for _, denom in taps_as_ratios)
-        f_bits = ceil_log2(max_denom)
-        t_bits = max(f_bits, ceil_log2(sum(abs(num) * max_denom // denom for num, denom in taps_as_ratios)))
+        def max_raw_magnitude(shape):
+            return max(
+                abs(shape.min().as_integer_ratio()[0]),
+                abs(shape.max().as_integer_ratio()[0])
+            )
+
+        _signed = shape.signed or any(t < 0 for t in taps)
+        if add_shape is not None:
+            _signed |= add_shape.signed
         base_shape = signed if _signed else unsigned
-        return fixed.Shape(base_shape(shape.as_shape().width + t_bits), shape.f_bits + f_bits)
+
+        taps_as_ratios = [
+            fixed.Const(t).as_integer_ratio()
+            for t in taps
+            if t != 0
+        ]
+        max_denom = max(abs(d) for _, d in taps_as_ratios)
+        f_bits = shape.f_bits + ceil_log2(max_denom)
+
+        max_input = max_raw_magnitude(shape)
+        taps_sum = sum(
+            abs(n) * max_denom // d
+            for n, d in taps_as_ratios
+        )
+        max_raw = max_input * taps_sum
+
+        if add_shape is not None:
+            max_add = max_raw_magnitude(add_shape)
+            shift = f_bits - add_shape.f_bits
+            if shift >= 0:
+                max_raw += max_add << shift
+            else:
+                max_raw += max_add >> -shift
+        
+        t_bits = max(f_bits, bits_for(max_raw))
+        return fixed.Shape(base_shape(t_bits + _signed), f_bits)
 
     @staticmethod
     def xform_stage(m, in_stream, xform, domain="sync"):
@@ -382,7 +409,7 @@ class FIRFilter(wiring.Component):
                 accum_shape = self.compute_output_shape(
                     self.shape,
                     self.taps[::-1][:i+1],
-                    add_tap=(1 if self.add_tap is not None and i>=self.add_tap else 0)
+                    add_shape=(self.shape if self.add_tap is not None and i>=self.add_tap else None)
                 )
                 accum = Signal(accum_shape, name=f"add_{c}_{i}")
 
