@@ -97,8 +97,8 @@ int gettimeofday(struct timeval* tv, void* ignored)
 #define LO_MAX_HZ       (5400000000ll)
 #define DEFAULT_LO_HZ   (1000000000ll)
 
-#define SAMPLE_RATE_MIN_HZ     (2000000)  /* 2MHz min sample rate */
-#define SAMPLE_RATE_MAX_HZ     (20000000) /* 20MHz max sample rate */
+#define SAMPLE_RATE_MIN_HZ     (200000)   /* 200kHz min sample rate */
+#define SAMPLE_RATE_MAX_HZ     (21800000) /* 21.8MHz max sample rate */
 #define DEFAULT_SAMPLE_RATE_HZ (10000000) /* 10MHz default sample rate */
 
 #define DEFAULT_BASEBAND_FILTER_BANDWIDTH (5000000) /* 5MHz default */
