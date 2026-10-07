@@ -74,6 +74,7 @@ class Top(Elaboratable):
             "skid3":            DomainRenamer(dac_clk)(StreamSkidBuffer(IQSample(12), always_ready=False)),
             "cic_interpolator": CICInterpolator(2, 4, (4, 8, 16, 32), 12, 8, num_channels=2, 
                 always_ready=False, domain=dac_clk),
+            "skid4":            DomainRenamer(dac_clk)(StreamSkidBuffer(IQSample(8), always_ready=False)),
         }
         for k,v in tx_chain.items():
             m.submodules[f"tx_{k}"] = v

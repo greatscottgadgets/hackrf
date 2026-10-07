@@ -348,7 +348,8 @@ class FIRFilterMAC16(wiring.Component):
             # There's only 1 DSP block per channel: wire directly.
             block = dsp_blocks[0]
             m.d.comb += fir_output.valid.eq(block.output.valid)
-            m.d.comb += fir_output.p.eq(block.output.p)
+            for c in range(self.num_channels):
+                m.d.comb += fir_output.p[c].eq(block.output.p[c])
             if not block.output.signature.always_ready:
                 m.d.comb += block.output.ready.eq(fir_output.ready)
         else:
@@ -387,7 +388,7 @@ class SerialMAC16(wiring.Component):
         self.shape = shape
         self.taps_shape = taps_shape or self.taps_shape()
         if shape_out is None:
-            shape_out = FIRFilter.compute_output_shape(shape, taps, add_tap=carry)
+            shape_out = FIRFilter.compute_output_shape(shape, taps, add_shape=carry)
         self.shape_out = shape_out
         self.num_channels = num_channels
         self.always_ready = always_ready
@@ -413,21 +414,9 @@ class SerialMAC16(wiring.Component):
         taps_as_ratios = [fixed.Const(tap).as_integer_ratio() for tap in self.taps]
         max_denom      = max(abs(denom) for _, denom in taps_as_ratios)
         f_bits         = ceil_log2(max_denom)
-        t_bits         = max(f_bits + _signed, ceil_log2(max(abs(n) * max_denom // d for n,d in taps_as_ratios)))
+        t_bits         = max(f_bits, ceil_log2(max(abs(n) * max_denom // d for n,d in taps_as_ratios)))
         base_shape     = signed if _signed else unsigned
-        return fixed.Shape(base_shape(t_bits), f_bits)
-
-    def compute_output_shape(self):
-        taps_shape = self.taps_shape
-        _signed    = self.shape.signed | taps_shape.signed
-        f_bits     = self.shape.f_bits + taps_shape.f_bits
-        filt_gain  = ceil(log2(sum(self.taps)))
-        i_bits     = max(_signed, self.shape.i_bits + taps_shape.f_bits + filt_gain)
-        if self.carry is not None:
-            f_bits = max(f_bits, self.carry.f_bits)
-            i_bits = max(i_bits, self.carry.i_bits) + 1
-        shape_out = fixed.SQ(i_bits, f_bits) if _signed else fixed.UQ(i_bits, f_bits)
-        return shape_out
+        return fixed.Shape(base_shape(t_bits + _signed), f_bits)
 
     def elaborate(self, platform):
         m = Module()
@@ -474,7 +463,7 @@ class SerialMAC16(wiring.Component):
         m.d.comb += coeff_rd.addr.eq(index)
         m.d.comb += coeff_rd.en.eq(dsp_ready)
 
-        shape_out = self.compute_output_shape()
+        shape_out = FIRFilter.compute_output_shape(self.shape, self.taps, self.carry)
 
         if self.carry:
             sum_carry_q = Signal.like(self.sum_carry)
@@ -496,10 +485,8 @@ class SerialMAC16(wiring.Component):
                 dsp.b               .eq(coeff_rd.data),
                 shape_out(dsp.p)    .eq(sum_carry_q[c]),
                 dsp.valid_in        .eq(dsp_valid),
-                ####dsp_ready           .eq(dsp.ready_in),
                 dsp.p_load          .eq(mult_cnt[0]),
                 self.output.p[c]    .eq(shape_out(dsp.o)),
-                ####self.output.valid   .eq(dsp.valid_out & valid_cnt[-1]),
                 dsp.ready_out       .eq(self.output.ready | ~valid_cnt[-1]),
             ]
             if c == 0:
