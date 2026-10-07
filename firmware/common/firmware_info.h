@@ -23,12 +23,18 @@
 
 #include <stdint.h>
 
+#define FIRMWARE_INFO_MAGIC      "HACKRFFW"
+#define FIRMWARE_INFO_MORE_MAGIC "MITPDP10"
+
 struct firmware_info_t {
 	__attribute__((nonstring)) char magic[8];
 	uint16_t struct_version;
 	uint16_t dfu_mode;
 	uint32_t supported_platform;
 	char version_string[32];
+	__attribute__((nonstring)) char more_magic[8];
+	uint32_t minor_version;
+	uint32_t bitstream_flash_addr;
 } __attribute__((packed, aligned(1)));
 
 extern const struct firmware_info_t firmware_info;

@@ -26,7 +26,6 @@
 #include "fpga.h"
 #include "ice40_spi.h"
 #include "lz4_blk.h"
-#include "selftest.h"
 
 struct fpga_image_read_ctx {
 	struct fpga_loader_t* loader;
@@ -57,9 +56,11 @@ static size_t fpga_image_read_block_cb(void* _ctx)
 		return 0;
 
 	// Read compressed block (and the next block size) from flash.
-	loader->read(ctx->addr, block_sz, loader->in_buffer);
+	if (!loader->read(ctx->addr, block_sz, loader->in_buffer))
+		return 0;
 	ctx->addr += block_sz;
-	loader->read(ctx->addr, 2, block_sz_buf);
+	if (!loader->read(ctx->addr, 2, block_sz_buf))
+		return 0;
 	ctx->next_block_sz = block_sz_buf[0] | block_sz_buf[1] << 8;
 	ctx->addr += 2;
 
@@ -70,17 +71,21 @@ static size_t fpga_image_read_block_cb(void* _ctx)
 bool fpga_image_load(struct fpga_loader_t* loader, unsigned int index)
 {
 	// TODO: do SPI setup and read number of bitstreams once!
-	if (loader->setup != NULL)
-		loader->setup();
+	if (loader->setup != NULL) {
+		if (!loader->setup())
+			return false;
+	}
 
 	// Read number of bitstreams from flash.
 	// Check the bitstream exists, and extract its offset.
 	uint32_t addr = loader->start_addr;
 	uint32_t num_bitstreams, bitstream_offset;
-	loader->read(addr, 4, (uint8_t*) &num_bitstreams);
+	if (!loader->read(addr, 4, (uint8_t*) &num_bitstreams))
+		return false;
 	if (index >= num_bitstreams)
 		return false;
-	loader->read(addr + 4 * (index + 1), 4, (uint8_t*) &bitstream_offset);
+	if (!loader->read(addr + 4 * (index + 1), 4, (uint8_t*) &bitstream_offset))
+		return false;
 
 	// A callback function is used by the FPGA programmer
 	// to obtain consecutive gateware chunks.
@@ -89,17 +94,9 @@ bool fpga_image_load(struct fpga_loader_t* loader, unsigned int index)
 		.loader = loader,
 		.addr = loader->start_addr + bitstream_offset,
 	};
-	const bool success = ice40_spi_syscfg_program(
+	return ice40_spi_syscfg_program(
 		&ice40,
 		loader->out_buffer,
 		fpga_image_read_block_cb,
 		&fpga_image_ctx);
-
-	// Update selftest result.
-	selftest.fpga_image_load = success ? PASSED : FAILED;
-	if (selftest.fpga_image_load != PASSED) {
-		selftest.report.pass = false;
-	}
-
-	return success;
 }
