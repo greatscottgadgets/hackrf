@@ -27,6 +27,7 @@
 
 // clang-format off
 
+__attribute__((section(".rtconfig")))
 const platform_gpio_t* platform_gpio(void)
 {
 	static const platform_gpio_t* _platform_gpio = NULL;
