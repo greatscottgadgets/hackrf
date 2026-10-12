@@ -60,6 +60,7 @@ set(SRC_M4
 	usb_api_spiflash.c
 	usb_api_transceiver.c
 	usb_api_operacake.c
+	usb_api_radio.c
 	usb_api_sweep.c
 	usb_api_selftest.c
 	usb_api_ui.c
