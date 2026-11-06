@@ -416,3 +416,20 @@ usb_request_status_t usb_vendor_request_read_radio_reg(
 	}
 	return USB_REQUEST_STATUS_OK;
 }
+
+usb_request_status_t usb_vendor_request_lock_radio_reg(
+	usb_endpoint_t* const endpoint,
+	const usb_transfer_stage_t stage)
+{
+	if (stage == USB_TRANSFER_STAGE_SETUP) {
+		uint8_t reg = endpoint->setup.index;
+		bool locked = endpoint->setup.value != 0 ? true : false;
+		if (reg >= RADIO_NUM_REGS) {
+			return USB_REQUEST_STATUS_STALL;
+		}
+		radio_reg_lock(&radio, reg, locked);
+		usb_transfer_schedule_ack(endpoint->in);
+	}
+
+	return USB_REQUEST_STATUS_OK;
+}
