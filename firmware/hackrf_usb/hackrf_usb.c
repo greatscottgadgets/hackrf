@@ -94,6 +94,9 @@
 extern uint32_t __m0_start__;
 extern uint32_t __m0_end__;
 extern uint32_t __ram_m0_start__;
+extern uint32_t __rtconfig_start__;
+extern uint32_t __rtconfig_end__;
+extern uint32_t __ram_rtconfig_start__;
 extern uint32_t _etext_ram, _text_ram, _etext_rom;
 
 static usb_request_handler_fn vendor_request_handler[] = {
@@ -183,6 +186,7 @@ static usb_request_handler_fn vendor_request_handler[] = {
 	usb_vendor_request_read_radio_reg,
 	usb_vendor_request_get_buffer_size,
 	usb_vendor_request_read_temperature,
+	usb_vendor_request_lock_radio_reg,
 };
 
 static const uint32_t vendor_request_handler_count =
@@ -268,6 +272,20 @@ static void m0_rom_to_ram(void)
 	uint32_t src = (uint32_t) &__m0_start__;
 
 	uint32_t len = (uint32_t) &__m0_end__ - (uint32_t) src;
+	memcpy(dest, (uint32_t*) (base + src), len);
+}
+
+static void rtconfig_rom_to_ram(void)
+{
+	uint32_t* dest = &__ram_rtconfig_start__;
+
+	// Calculate the base address of ROM
+	uint32_t base = (uint32_t) (&_etext_rom - (&_etext_ram - &_text_ram));
+
+	// rtconfig image location, relative to the start of ROM
+	uint32_t src = (uint32_t) &__rtconfig_start__;
+
+	uint32_t len = (uint32_t) &__rtconfig_end__ - (uint32_t) src;
 	memcpy(dest, (uint32_t*) (base + src), len);
 }
 
@@ -421,6 +439,9 @@ int main(void)
 {
 	// Copy M0 image from ROM before SPIFI is disabled
 	m0_rom_to_ram();
+
+	// Copy rtconfig image from ROM before SPIFI is disabled
+	rtconfig_rom_to_ram();
 
 	// This will be cleared if any self-test check fails.
 	selftest.report.pass = true;

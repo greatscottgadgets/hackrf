@@ -23,9 +23,11 @@
 SECTIONS
 {
 	.m0_text : {
-		PROVIDE(__m0_start__ = .);
+		. = ALIGN(4);
 		KEEP(*(.m0_bin*));
 		. = ALIGN(4);
-		PROVIDE(__m0_end__ = .);
-	} >rom
+	} >ram_m0 AT >rom
+
+	PROVIDE(__m0_start__ = LOADADDR(.m0_text));
+	PROVIDE(__m0_end__ = LOADADDR(.m0_text) + SIZEOF(.m0_text));
 }
