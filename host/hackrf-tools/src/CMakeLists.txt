@@ -67,6 +67,8 @@ else()
   )
 endif()
 
+target_sources(hackrf_transfer PRIVATE radio_limits.c)
+
 if(WIN32)
   install(
     DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIGURATION>/"

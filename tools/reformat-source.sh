@@ -16,5 +16,5 @@ $CLANG_FORMAT \
     -i \
     --style=file \
     host/libhackrf/src/*.{c,h} \
-    host/hackrf-tools/src/*.c \
+    host/hackrf-tools/src/*.{c,h} \
     firmware/{common,common/rad1o,hackrf_usb}/*.{c,h}
