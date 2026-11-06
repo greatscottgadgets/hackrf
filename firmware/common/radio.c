@@ -940,19 +940,30 @@ bool radio_update(radio_t* const radio)
 	memcpy(&tmp_bank[0], &(radio->config[RADIO_BANK_REQUESTED][0]), sizeof(tmp_bank));
 	nvic_enable_irq(NVIC_USB0_IRQ);
 
+	// We only want to update the sr, freq and bw configuration groups
+	// if the transceiver is off or about to be switched on.
+	//
+	// This ensures that, when idle, the radio's applied configuration
+	// will always reflect the last settings used before the
+	// transceiver was switched off.
+	bool radio_ready = radio->config[RADIO_BANK_REQUESTED][RADIO_OPMODE] !=
+			TRANSCEIVER_MODE_OFF ||
+		radio->config[RADIO_BANK_APPLIED][RADIO_OPMODE] == TRANSCEIVER_MODE_OFF;
+
 	if ((dirty & RADIO_REG_GROUP_RATE) ||
-	    ((detected_platform() == BOARD_ID_PRALINE) &&
-	     (dirty & (1 << RADIO_OPMODE)))) {
+	    ((detected_platform() == BOARD_ID_PRALINE) && (dirty & (1 << RADIO_OPMODE)) &&
+	     radio_ready)) {
 		changed |= radio_update_sample_rate(radio, &tmp_bank[0]);
 	}
 	if ((dirty & RADIO_REG_GROUP_FREQ) ||
 	    ((detected_platform() == BOARD_ID_PRALINE) &&
-	     ((changed & RADIO_REG_GROUP_RATE) || (dirty & (1 << RADIO_OPMODE))))) {
+	     ((changed & RADIO_REG_GROUP_RATE) || (dirty & (1 << RADIO_OPMODE))) &&
+	     radio_ready)) {
 		changed |= radio_update_frequency(radio, &tmp_bank[0]);
 	}
 	if ((dirty & RADIO_REG_GROUP_BW) ||
 	    ((detected_platform() == BOARD_ID_PRALINE) &&
-	     (changed & (RADIO_REG_GROUP_RATE | RADIO_REG_GROUP_FREQ)))) {
+	     (changed & (RADIO_REG_GROUP_RATE | RADIO_REG_GROUP_FREQ)) && radio_ready)) {
 		changed |= radio_update_bandwidth(radio, &tmp_bank[0]);
 	}
 	if (dirty & (RADIO_REG_GROUP_GAIN | (1 << RADIO_OPMODE))) {
