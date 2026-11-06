@@ -179,6 +179,8 @@ uint32_t amp_enable;
 bool antenna = false;
 uint32_t antenna_enable;
 
+enum radio_config_mode config_mode = RADIO_CONFIG_STANDARD;
+
 bool timestamp_normalized = false;
 bool binary_output = false;
 bool ifft_output = false;
@@ -390,6 +392,8 @@ static void usage()
 		"Usage:\n"
 		"\t[-h] # this help\n"
 		"\t[-d serial_number] # Serial number of desired HackRF\n"
+		"\t[-M mode] # Select radio configuration mode.\n"
+		"\tPossible values: 0=standard, 1=ext_precision_rx, 2=ext_precision_tx, 3=half_precision\n"
 		"\t[-a amp_enable] # RX RF amplifier 1=Enable, 0=Disable\n"
 		"\t[-f freq_min:freq_max] # minimum and maximum frequencies in MHz\n"
 		"\t[-p antenna_enable] # Antenna port power, 1=Enable, 0=Disable\n"
@@ -462,6 +466,7 @@ int export_wisdom(const char* path)
 int main(int argc, char** argv)
 {
 	int opt, i, result = 0;
+	uint8_t board_id = BOARD_ID_UNDETECTED;
 	const char* path = NULL;
 	const char* serial_number = NULL;
 	int exit_code = EXIT_SUCCESS;
@@ -476,11 +481,15 @@ int main(int argc, char** argv)
 	const char* fftwWisdomPath = NULL;
 	int fftw_plan_type = FFTW_MEASURE;
 
-	while ((opt = getopt(argc, argv, "a:f:p:l:g:d:N:w:W:P:n1BIr:h?")) != EOF) {
+	while ((opt = getopt(argc, argv, "a:f:p:l:g:d:N:w:W:P:M:n1BIr:h?")) != EOF) {
 		result = HACKRF_SUCCESS;
 		switch (opt) {
 		case 'd':
 			serial_number = optarg;
+			break;
+
+		case 'M':
+			result = parse_u32(optarg, &config_mode);
 			break;
 
 		case 'a':
@@ -724,14 +733,39 @@ int main(int argc, char** argv)
 		return EXIT_FAILURE;
 	}
 
-	result = hackrf_open_by_serial(serial_number, &device);
+	result = hackrf_open_mode_by_serial(config_mode, serial_number, &device);
 	if (result != HACKRF_SUCCESS) {
 		fprintf(stderr,
-			"hackrf_open() failed: %s (%d)\n",
+			"hackrf_open_mode_by_serial() failed: %s (%d)\n",
 			hackrf_error_name(result),
 			result);
 		usage();
 		return EXIT_FAILURE;
+	}
+
+	// Check if the requested configuration mode is supported by the current hardware.
+	result = hackrf_board_id_read(device, &board_id);
+	if (result != HACKRF_SUCCESS) {
+		fprintf(stderr,
+			"hackrf_board_id_read() failed: %s (%d)\n",
+			hackrf_error_name(result),
+			result);
+		return EXIT_FAILURE;
+	}
+	if (board_id != BOARD_ID_PRALINE && config_mode != RADIO_CONFIG_STANDARD) {
+		fprintf(stderr,
+			"The selected configuration mode is not supported by this device.\n");
+		return EXIT_FAILURE;
+	}
+
+	// Check if the requested configuration mode supports rx sweep operation.
+	switch (config_mode) {
+	case RADIO_CONFIG_EXT_PRECISION_TX:
+		fprintf(stderr,
+			"The selected configuration mode does not support rx sweep operation.\n");
+		return EXIT_FAILURE;
+	default:
+		break;
 	}
 
 	if ((NULL == path) || (strcmp(path, "-") == 0)) {
@@ -765,7 +799,7 @@ int main(int argc, char** argv)
 	fprintf(stderr,
 		"call hackrf_sample_rate_set(%.03f MHz)\n",
 		((float) DEFAULT_SAMPLE_RATE_HZ / (float) FREQ_ONE_MHZ));
-	result = hackrf_set_sample_rate_manual(device, DEFAULT_SAMPLE_RATE_HZ, 1);
+	result = hackrf_radio_set_sample_rate(device, SR_FP(DEFAULT_SAMPLE_RATE_HZ));
 	if (result != HACKRF_SUCCESS) {
 		fprintf(stderr,
 			"hackrf_sample_rate_set() failed: %s (%d)\n",
