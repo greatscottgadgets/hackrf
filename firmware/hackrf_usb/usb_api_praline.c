@@ -29,9 +29,7 @@
 #include <usb_queue.h>
 #include <usb_request.h>
 #include <usb_type.h>
-#if !defined(DFU_MODE) && !defined(RAM_MODE)
-	#include <fpga.h>
-#endif
+#include <fpga.h>
 
 usb_request_status_t usb_vendor_request_p1_ctrl(
 	usb_endpoint_t* const endpoint,
@@ -97,11 +95,6 @@ usb_request_status_t usb_vendor_request_set_fpga_bitstream(
 	usb_endpoint_t* const endpoint,
 	const usb_transfer_stage_t stage)
 {
-#if defined(DFU_MODE) || defined(RAM_MODE)
-	(void) endpoint;
-	(void) stage;
-	return USB_REQUEST_STATUS_STALL;
-#else
 	extern struct fpga_loader_t fpga_loader;
 
 	if (detected_platform() != BOARD_ID_PRALINE) {
@@ -115,5 +108,4 @@ usb_request_status_t usb_vendor_request_set_fpga_bitstream(
 		usb_transfer_schedule_ack(endpoint->in);
 	}
 	return USB_REQUEST_STATUS_OK;
-#endif
 }

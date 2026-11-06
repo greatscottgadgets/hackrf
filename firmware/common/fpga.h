@@ -46,9 +46,9 @@ struct fpga_loader_t {
 	/* Start address added as an offset to all read() calls. */
 	uint32_t start_addr;
 	/* Any one-off setup needed before calling read(). May be NULL. */
-	void (*setup)(void);
+	bool (*setup)(void);
 	/* Read data from the specified address. */
-	void (*read)(uint32_t addr, uint32_t len, uint8_t* const data);
+	bool (*read)(uint32_t addr, uint32_t len, uint8_t* const data);
 	/* Buffer to use for compressed data (4096 bytes). */
 	uint8_t* in_buffer;
 	/* Buffer to use for decompressed data (4096 bytes). */
