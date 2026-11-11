@@ -85,7 +85,7 @@ fp_40_24_t select_graduated_if(fp_40_24_t freq_rf, rf_path_filter_t img_reject)
 
 rf_path_filter_t select_img_reject(fp_40_24_t freq_rf)
 {
-	if (freq_rf > max_bypass_freq) {
+	if (freq_rf >= max_bypass_freq) {
 		return RF_PATH_FILTER_HIGH_PASS;
 	} else if (freq_rf >= min_bypass_freq) {
 		return RF_PATH_FILTER_BYPASS;
