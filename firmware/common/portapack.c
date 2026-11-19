@@ -617,7 +617,7 @@ bool portapack_present(void)
 	return portapack_detected;
 }
 
-bool portapack_init(void)
+__attribute__((section(".rtconfig"))) bool portapack_init(void)
 {
 	if (portapack_detect()) {
 		portapack_if_init();
