@@ -26,7 +26,7 @@
 
 #include "ice40_spi.h"
 
-/* Supported Bitstreams. */
+/* Supported Bitstreams. - TODO why on earth is this different to radio_config_mode ordering ???!? */
 typedef enum {
 	FPGA_BITSTREAM_STANDARD = 0,
 	FPGA_BITSTREAM_HALFPREC = 1,
@@ -85,6 +85,7 @@ extern void fpga_regs_commit(fpga_driver_t* const drv);
 void fpga_set_trigger_enable(fpga_driver_t* const drv, const bool enable);
 void fpga_set_rx_dc_block_enable(fpga_driver_t* const drv, const bool enable);
 void fpga_set_rx_decimation_ratio(fpga_driver_t* const drv, const uint8_t value);
+void fpga_set_rx_pstep(fpga_driver_t* const drv, const uint8_t value);
 void fpga_set_rx_quarter_shift_mode(
 	fpga_driver_t* const drv,
 	const fpga_quarter_shift_mode_t mode);

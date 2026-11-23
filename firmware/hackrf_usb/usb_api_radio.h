@@ -39,3 +39,7 @@ usb_request_status_t usb_vendor_request_set_radio_frequency_explicit(
 usb_request_status_t usb_vendor_request_set_radio_sample_rate(
 	usb_endpoint_t* const endpoint,
 	const usb_transfer_stage_t stage);
+
+usb_request_status_t usb_vendor_request_get_radio_sample_rate(
+	usb_endpoint_t* const endpoint,
+	const usb_transfer_stage_t stage);

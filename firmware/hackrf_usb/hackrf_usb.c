@@ -194,6 +194,7 @@ static usb_request_handler_fn vendor_request_handler[] = {
 	usb_vendor_request_set_radio_frequency,
 	usb_vendor_request_set_radio_frequency_explicit,
 	usb_vendor_request_set_radio_sample_rate,
+	usb_vendor_request_get_radio_sample_rate,
 };
 
 static const uint32_t vendor_request_handler_count =

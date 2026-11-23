@@ -2576,16 +2576,39 @@ extern ADDAPI int ADDCALL hackrf_radio_set_frequency_explicit(
 /**
  * Set the radio sample rate to a fractional, fixed-point value.
  *
- * This function does not automatically configure the baseband filter bandwidth, so any calls to this function should be followed by @ref hackrf_set_baseband_filter_bandwidth should it require adjustment.
+ * This function does not automatically configure the baseband filter
+ * bandwidth, so any calls to this function should be followed by @ref
+ * hackrf_set_baseband_filter_bandwidth should it require adjustment.
+ *
+ * Resampling is only supported on the standard and extended precision
+ * bitstreams for HackRF Pro:
+ *
+ *   Standard: 1x, 2x, 4x, 8x, 16x and 32x.
+ #   Extended Precision: 16x, 32x, 64x and 128x.
  *
  * @param[in] device device to configure
- * @param[in] sps samples per second
+ * @param[in] sample_rate samples per second
+ * @param[in] resample_rate resampling rate. Setting this value to 0 will select the
+ *            highest supported value. (HackRF Pro)
  * @return @ref HACKRF_SUCCESS on success or @ref hackrf_error variant
  * @ingroup configuration
  */
 extern ADDAPI int ADDCALL hackrf_radio_set_sample_rate(
 	hackrf_device* device,
-	const fp_28_36_t freq_hz);
+	const fp_28_36_t sample_rate,
+	const uint64_t resample_rate);
+
+/**
+ * Get the radio sample rate.
+ *
+ * @param[in] device device to configure
+ * @param[out] sample_rate samples per second
+ * @param[out] resample_rate resampling rate
+ */
+extern ADDAPI int ADDCALL hackrf_radio_get_sample_rate(
+	hackrf_device* device,
+	fp_28_36_t* const sample_rate,
+	uint64_t* const resample_rate);
 
 #ifdef __cplusplus
 } // __cplusplus defined.

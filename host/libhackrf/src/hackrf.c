@@ -129,6 +129,7 @@ typedef enum {
 	HACKRF_VENDOR_REQUEST_RADIO_SET_FREQUENCY = 67,
 	HACKRF_VENDOR_REQUEST_RADIO_SET_FREQUENCY_EXPLICIT = 68,
 	HACKRF_VENDOR_REQUEST_RADIO_SET_SAMPLE_RATE = 69,
+	HACKRF_VENDOR_REQUEST_RADIO_GET_SAMPLE_RATE = 70,
 } hackrf_vendor_request;
 
 #define USB_CONFIG_STANDARD 0x1
@@ -3890,19 +3891,28 @@ int ADDCALL hackrf_radio_set_frequency_explicit(
 	}
 }
 
-int ADDCALL hackrf_radio_set_sample_rate(hackrf_device* device, const fp_28_36_t freq_hz)
+int ADDCALL hackrf_radio_set_sample_rate(
+	hackrf_device* device,
+	const fp_28_36_t sample_rate,
+	const uint64_t resample_rate)
 {
 	USB_API_REQUIRED_OR(device, 0x0114)
 	{
-		return hackrf_set_sample_rate(device, (double) freq_hz / (1ULL << 36));
+		return hackrf_set_sample_rate(device, (double) sample_rate / (1ULL << 36));
 	}
 
-	uint64_t set_sr_fp_param;
+	typedef struct {
+		fp_28_36_t sample_rate;
+		uint64_t resample_rate;
+	} params_t;
+
+	params_t params;
 	uint8_t length;
 	int result;
 
-	set_sr_fp_param = TO_LE64(freq_hz);
-	length = sizeof(uint64_t);
+	params.sample_rate = TO_LE64(sample_rate);
+	params.resample_rate = TO_LE(resample_rate);
+	length = sizeof(params_t);
 
 	result = libusb_control_transfer(
 		device->usb_device,
@@ -3911,7 +3921,7 @@ int ADDCALL hackrf_radio_set_sample_rate(hackrf_device* device, const fp_28_36_t
 		HACKRF_VENDOR_REQUEST_RADIO_SET_SAMPLE_RATE,
 		0,
 		0,
-		(unsigned char*) &set_sr_fp_param,
+		(unsigned char*) &params,
 		length,
 		DEFAULT_REQUEST_TIMEOUT);
 
@@ -3919,6 +3929,44 @@ int ADDCALL hackrf_radio_set_sample_rate(hackrf_device* device, const fp_28_36_t
 		last_libusb_error = result;
 		return HACKRF_ERROR_LIBUSB;
 	}
+
+	return HACKRF_SUCCESS;
+}
+
+int ADDCALL hackrf_radio_get_sample_rate(
+	hackrf_device* device,
+	fp_28_36_t* const sample_rate,
+	uint64_t* const resample_rate)
+{
+	USB_API_REQUIRED(device, 0x0114)
+
+	typedef struct {
+		fp_28_36_t sample_rate;
+		uint64_t resample_rate;
+	} params_t;
+
+	params_t params;
+
+	int result;
+	uint8_t length = sizeof(params_t);
+
+	result = libusb_control_transfer(
+		device->usb_device,
+		LIBUSB_ENDPOINT_IN | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_RADIO_GET_SAMPLE_RATE,
+		0,
+		0,
+		(unsigned char*) &params,
+		length,
+		DEFAULT_REQUEST_TIMEOUT);
+
+	if (result < length) {
+		last_libusb_error = result;
+		return HACKRF_ERROR_LIBUSB;
+	}
+
+	*sample_rate = FROM_LE64(params.sample_rate);
+	*resample_rate = FROM_LE64(params.resample_rate);
 
 	return HACKRF_SUCCESS;
 }

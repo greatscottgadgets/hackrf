@@ -171,9 +171,11 @@ typedef enum {
 	 * Correction factor for radio reference clock, of type fp_1_63_t.
 	 */
 	RADIO_CLOCK_CORRECTION = 23,
+	// TODO
+	RADIO_AFE_RATE = 24,
 } radio_register_t;
 
-#define RADIO_NUM_REGS (24)
+#define RADIO_NUM_REGS (25)
 #define RADIO_UNSET    (0xffffffffffffffff)
 
 /* register groups for bitfield convenience */

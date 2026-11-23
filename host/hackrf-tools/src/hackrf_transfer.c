@@ -190,6 +190,57 @@ static float TimevalDiff(const struct timeval* a, const struct timeval* b)
 	return (a->tv_sec - b->tv_sec) + 1e-6f * (a->tv_usec - b->tv_usec);
 }
 
+// Return the number of bytes used to serialize an IQ Sample for the given radio configuration mode.
+static uint8_t bytes_per_sample(const enum radio_config_mode mode)
+{
+	switch (mode) {
+	case RADIO_CONFIG_EXT_PRECISION_RX:
+	case RADIO_CONFIG_EXT_PRECISION_TX:
+		// 32 bits, 4 bytes per IQ sample
+		return 4;
+	case RADIO_CONFIG_HALF_PRECISION:
+		// 8 bits, 1 byte per IQ sample
+		return 1;
+	case RADIO_CONFIG_STANDARD:
+	default:
+		// 16 bits, 2 bytes per IQ sample
+		return 2;
+	}
+
+	return 2;
+}
+
+// Return the effective number of bits (ENOB) per sample for the given configuration mode and resample factor.
+static double calculate_enob_per_sample(
+	const enum radio_config_mode mode,
+	const uint32_t resample_rate)
+{
+	switch (mode) {
+	case RADIO_CONFIG_EXT_PRECISION_RX:
+	case RADIO_CONFIG_EXT_PRECISION_TX:
+		return 8.0 + (10.0 * log10(64) / 6.02);
+	case RADIO_CONFIG_HALF_PRECISION:
+		return 4.0;
+	case RADIO_CONFIG_STANDARD:
+	default:
+		return 8.0;
+	}
+	return 8;
+}
+
+static double calculate_full_scale_ratio(
+	uint64_t stream_power,
+	uint64_t sample_count,
+	enum radio_config_mode mode,
+	uint32_t resample_rate)
+{
+	const double enob = calculate_enob_per_sample(mode, resample_rate);
+	const double full_scale = (powf(2.0, enob) / 2.0) - 1.0;
+	double full_scale_ratio =
+		(double) stream_power / (sample_count * 2 * full_scale * full_scale);
+	return full_scale_ratio;
+}
+
 /**
  * (x * y) / z
  */
@@ -521,6 +572,8 @@ int requested_mode_count = 0;
 
 enum radio_config_mode config_mode = RADIO_CONFIG_STANDARD;
 
+uint32_t resample_rate = 0;
+
 void stop_main_loop(void)
 {
 	do_exit = true;
@@ -545,9 +598,28 @@ int rx_callback(hackrf_transfer* transfer)
 	/* Accumulate power (magnitude squared). */
 	bytes_to_write = transfer->valid_length;
 	uint64_t sum = 0;
-	for (i = 0; i < bytes_to_write; i++) {
-		int8_t value = transfer->buffer[i];
-		sum += value * value;
+	switch (transfer->buffer_shape) {
+	case 16:
+		int16_t* buffer = (int16_t*) transfer->buffer;
+		for (i = 0; i < bytes_to_write / 2; i++) {
+			int16_t value = buffer[i];
+			sum += value * value;
+		}
+		break;
+	case 4:
+		for (i = 0; i < bytes_to_write; i++) {
+			// Lower 4 bits are I, upper 4 bits are Q
+			int8_t value_i = (int8_t) (transfer->buffer[i] << 4) >> 4;
+			int8_t value_q = (int8_t) transfer->buffer[i] >> 4;
+			sum += (value_i * value_i) + (value_q * value_q);
+		}
+		break;
+	default:
+		for (i = 0; i < bytes_to_write; i++) {
+			int8_t value = transfer->buffer[i];
+			sum += value * value;
+		}
+		break;
 	}
 
 	/* Update both running totals at approximately the same time. */
@@ -857,6 +929,7 @@ static void usage(const radio_limits_t* limits)
 		       u64toa((DEFAULT_SAMPLE_RATE_HZ / FREQ_ONE_MHZ),
 			      &ascii_u64_data[2]));
 	}
+	printf("\t[-N resample_rate] # Resampling rate. (HackRF Pro only)\n");
 	printf("\t[-F force] # Force use of parameters outside supported ranges.\n");
 	printf("\t[-n num_samples] # Number of samples to transfer (default is unlimited).\n");
 #ifndef _WIN32
@@ -882,8 +955,13 @@ static void usage(const radio_limits_t* limits)
 	}
 	printf("\t[-C ppm] # Set Internal crystal clock error in ppm.\n");
 	printf("\t[-H] # Synchronize RX/TX to external trigger input.\n");
-	printf("\t[-M mode] # Select radio configuration mode.\n");
+	printf("\t[-M mode] # Select radio configuration mode. (HackRF Pro only)\n");
 	printf("\t [0=standard, 1=ext_precision_rx, 2=ext_precision_tx, 3=half_precision]\n");
+	if (limits) {
+		printf("\t [%ld-%ld supported, default none",
+		       limits->resample_rate.min,
+		       limits->resample_rate.max);
+	}
 }
 
 static hackrf_device* device = NULL;
@@ -925,7 +1003,6 @@ int main(int argc, char** argv)
 	char date_time[DATE_TIME_MAX_LEN];
 	const char* path = NULL;
 	const char* serial_number = NULL;
-	char* endptr = NULL;
 	int result;
 	time_t rawtime;
 	struct tm* timeinfo;
@@ -933,14 +1010,14 @@ int main(int argc, char** argv)
 	int exit_code = EXIT_SUCCESS;
 	struct timeval t_end;
 	float time_diff;
-	unsigned int lna_gain = 8, vga_gain = 20, txvga_gain = 0;
+	unsigned int lna_gain = 0, vga_gain = 0, txvga_gain = 0;
 	hackrf_m0_state state;
 	stats_t stats = {0, 0};
 
-	while ((opt =
-			getopt(argc,
-			       argv,
-			       "Hwr:t:f:i:o:m:a:p:s:Fn:b:l:g:x:c:d:C:M:RS:Bh?")) != EOF) {
+	while ((opt = getopt(
+			argc,
+			argv,
+			"Hwr:t:f:i:o:m:a:p:s:Fn:b:l:g:x:c:d:C:M:N:RS:Bh?")) != EOF) {
 		result = HACKRF_SUCCESS;
 		switch (opt) {
 		case 'H':
@@ -1026,7 +1103,7 @@ int main(int argc, char** argv)
 		case 'n':
 			limit_num_samples = true;
 			result = parse_u64(optarg, &samples_to_xfer);
-			bytes_to_xfer = samples_to_xfer * 2ull;
+			//bytes_to_xfer = samples_to_xfer * 2ull;
 			break;
 
 		case 'B':
@@ -1055,6 +1132,10 @@ int main(int argc, char** argv)
 
 		case 'M':
 			result = parse_u32(optarg, &config_mode);
+			break;
+
+		case 'N':
+			result = parse_u32(optarg, &resample_rate);
 			break;
 
 		case 'h':
@@ -1115,6 +1196,9 @@ int main(int argc, char** argv)
 		return EXIT_FAILURE;
 	}
 
+	// Initialize board-specific variables.
+	bytes_to_xfer = samples_to_xfer * bytes_per_sample(config_mode);
+
 	// Get supported parameter values for the current hardware and requested configuration mode.
 	radio_limits_t limits;
 	result = radio_limits(board_id, config_mode, &limits);
@@ -1126,15 +1210,22 @@ int main(int argc, char** argv)
 		return EXIT_FAILURE;
 	}
 
-	if (lna_gain % limits.gain_if_rx.step)
+	// Set defaults and check parameter values.
+	if (!lna_gain) {
+		lna_gain = limits.gain_if_rx.init;
+	} else if (lna_gain % limits.gain_if_rx.step) {
 		fprintf(stderr,
 			"warning: lna_gain (-l) must be a multiple of %u\n",
 			limits.gain_if_rx.step);
+	}
 
-	if (vga_gain % limits.gain_rf_rx.step)
+	if (!vga_gain) {
+		vga_gain = limits.gain_rf_rx.init;
+	} else if (vga_gain % limits.gain_rf_rx.step) {
 		fprintf(stderr,
 			"warning: vga_gain (-g) must be a multiple of %u\n",
 			limits.gain_rf_rx.step);
+	}
 
 	if (samples_to_xfer >= SAMPLES_TO_XFER_MAX) {
 		fprintf(stderr,
@@ -1268,11 +1359,11 @@ int main(int argc, char** argv)
 
 	if (sample_rate) {
 		fprintf(stderr,
-			"Setting sample rate to: %s Hz\n",
+			"Setting sample rate to: %s Sa/s\n",
 			sample_rate_fp64toa(sample_rate_fp_hz, &ascii_fp64_data[0]));
 		if (FP_SR(sample_rate_fp_hz) > limits.sample_rate.max && !force_ranges) {
 			fprintf(stderr,
-				"argument error: sample_rate_hz should be less than or equal to %lu Hz/%.03f MHz\n",
+				"argument error: sample_rate_hz should be less than or equal to %lu Sa/s, %.03f MSa/s\n",
 				limits.sample_rate.max,
 				(float) (limits.sample_rate.max / FREQ_ONE_MHZ));
 			usage(&limits);
@@ -1280,7 +1371,7 @@ int main(int argc, char** argv)
 		}
 		if (FP_SR(sample_rate_fp_hz) < limits.sample_rate.min && !force_ranges) {
 			fprintf(stderr,
-				"argument error: sample_rate_hz should be greater than or equal to %lu Hz/%.03f MHz\n",
+				"argument error: sample_rate_hz should be greater than or equal to %lu Sa/s / %.03f MSa/s\n",
 				limits.sample_rate.min,
 				(float) (limits.sample_rate.min / FREQ_ONE_MHZ));
 			usage(&limits);
@@ -1288,6 +1379,32 @@ int main(int argc, char** argv)
 		}
 	} else {
 		sample_rate_fp_hz = SR_FP(DEFAULT_SAMPLE_RATE_HZ);
+	}
+
+	if (resample_rate) {
+		fprintf(stderr,
+			"Setting resample rate to: %dx (2^%f) TODO\n",
+			resample_rate,
+			log2(resample_rate));
+		if ((resample_rate & (resample_rate - 1)) != 0 && !force_ranges) {
+			fprintf(stderr,
+				"argument error: resample rate should be a power of two\n");
+			usage(&limits);
+			return EXIT_FAILURE;
+		}
+		if (resample_rate > limits.resample_rate.max && !force_ranges) {
+			fprintf(stderr,
+				"argument error: resample rate should be less than or equal to %ld\n",
+				limits.resample_rate.max);
+			usage(&limits);
+			return EXIT_FAILURE;
+		}
+		if (resample_rate < limits.resample_rate.min && !force_ranges) {
+			fprintf(stderr,
+				"argument error: resample rate should be greater than or equal to %ld\n",
+				limits.resample_rate.min);
+			usage(&limits);
+		}
 	}
 
 	if (baseband_filter_bw) {
@@ -1352,7 +1469,6 @@ int main(int argc, char** argv)
 	// Check if the transceiver mode is supported by the requested configuration mode.
 	switch (config_mode) {
 	case RADIO_CONFIG_EXT_PRECISION_RX:
-		fprintf(stderr, "checking EXT_PRECISION_RX\n");
 		if ((transceiver_mode == TRANSCEIVER_MODE_TX) ||
 		    (transceiver_mode == TRANSCEIVER_MODE_SS)) {
 			fprintf(stderr,
@@ -1361,7 +1477,6 @@ int main(int argc, char** argv)
 		}
 		break;
 	case RADIO_CONFIG_EXT_PRECISION_TX:
-		fprintf(stderr, "checking EXT_PRECISION_TX\n");
 		if (transceiver_mode == TRANSCEIVER_MODE_RX) {
 			fprintf(stderr,
 				"The selected configuration mode does not support receive operations.\n");
@@ -1460,10 +1575,10 @@ int main(int argc, char** argv)
 #endif
 
 	fprintf(stderr,
-		"call hackrf_radio_set_sample_rate(%s Hz/%.03f MHz)\n",
+		"call hackrf_radio_set_sample_rate(%s Sa/s, %d)\n",
 		sample_rate_fp64toa(sample_rate_fp_hz, &ascii_fp64_data[0]),
-		((float) FP_SR(sample_rate_fp_hz) / (float) FREQ_ONE_MHZ));
-	result = hackrf_radio_set_sample_rate(device, sample_rate_fp_hz);
+		resample_rate);
+	result = hackrf_radio_set_sample_rate(device, sample_rate_fp_hz, resample_rate);
 	if (result != HACKRF_SUCCESS) {
 		fprintf(stderr,
 			"hackrf_radio_set_sample_rate() failed: %s (%d)\n",
@@ -1472,6 +1587,62 @@ int main(int argc, char** argv)
 		usage(&limits);
 		return EXIT_FAILURE;
 	}
+
+	// test for race condition
+	usleep(1000000);
+
+	// Retrieve radio sample rate.
+	fp_28_36_t radio_sample_rate = 0;
+	uint64_t radio_resample_tx = 0;
+	uint64_t radio_resample_rx = 0;
+	fp_28_36_t radio_afe_rate = 0;
+
+	fp_28_36_t requested_sample_rate = 0;
+	uint64_t requested_resample_rx = 0;
+	uint64_t requested_resample_tx = 0;
+	fp_28_36_t requested_afe_rate = 0;
+
+	// via registers
+	result = hackrf_radio_read_register(device, 0, 6, &radio_sample_rate);
+	result = hackrf_radio_read_register(device, 0, 7, &radio_resample_tx);
+	result = hackrf_radio_read_register(device, 0, 8, &radio_resample_rx);
+	result = hackrf_radio_read_register(device, 0, 24, &radio_afe_rate);
+	result = hackrf_radio_read_register(device, 1, 6, &requested_sample_rate);
+	result = hackrf_radio_read_register(device, 1, 7, &requested_resample_tx);
+	result = hackrf_radio_read_register(device, 1, 8, &requested_resample_rx);
+	result = hackrf_radio_read_register(device, 1, 24, &requested_afe_rate);
+
+	printf("  sample_rate: %lld \t requested: %lld\n",
+	       FP_SR(radio_sample_rate),
+	       FP_SR(requested_sample_rate));
+	printf("  afe_rate:    %lld \t requested: %lld\n",
+	       FP_SR(radio_afe_rate),
+	       FP_SR(requested_afe_rate));
+	printf("  resample_tx:  %ld \t requested: %ld\n",
+	       radio_resample_tx,
+	       requested_resample_tx);
+	printf("  resample_rx:  %ld \t requested: %ld\n",
+	       radio_resample_rx,
+	       requested_resample_rx);
+	printf("\n");
+
+	// via api
+	uint64_t radio_resample_rate = 0;
+	result = hackrf_radio_get_sample_rate(
+		device,
+		&radio_sample_rate,
+		&radio_resample_rate);
+	if (result != HACKRF_SUCCESS) {
+		fprintf(stderr,
+			"hackrf_radio_get_sample_rate() failed: %s (%d)\n",
+			hackrf_error_name(result),
+			result);
+		return EXIT_FAILURE;
+	}
+	printf("  sample_rate: %lld \t resample_rate: %ld\n",
+	       FP_SR(radio_sample_rate),
+	       radio_resample_rate);
+	printf("\n");
 
 	if (baseband_filter_bw) {
 		fprintf(stderr,
@@ -1588,7 +1759,7 @@ int main(int argc, char** argv)
 
 	if (limit_num_samples) {
 		fprintf(stderr,
-			"samples_to_xfer %s/%sMio\n",
+			"Samples to transfer: %s / %sMio\n",
 			u64toa(samples_to_xfer, &ascii_u64_data[0]),
 			u64toa((samples_to_xfer / FREQ_ONE_MHZ), &ascii_u64_data[1]));
 	}
@@ -1611,9 +1782,10 @@ int main(int argc, char** argv)
 		.it_value = {.tv_sec = 1, .tv_usec = 0}};
 	setitimer(ITIMER_REAL, &interval_timer, NULL);
 #endif
+	uint64_t byte_count_total = 0;
 	while (!do_exit) {
 		struct timeval time_now;
-		float time_difference, rate;
+		float time_difference, transfer_rate, sample_rate;
 		if (stream_size > 0) {
 #ifndef _WIN32
 			if (stream_head == stream_tail) {
@@ -1657,24 +1829,47 @@ int main(int argc, char** argv)
 			gettimeofday(&time_now, NULL);
 
 			/* Read and reset both totals at approximately the same time. */
+			byte_count_total += byte_count;
 			byte_count_now = byte_count;
 			stream_power_now = stream_power;
 			byte_count = 0;
 			stream_power = 0;
 
 			time_difference = TimevalDiff(&time_now, &time_start);
-			rate = (float) byte_count_now / time_difference;
+			transfer_rate = (float) byte_count_now / time_difference;
+
+			uint64_t sample_count_now =
+				byte_count_now / bytes_per_sample(config_mode);
+			sample_rate = (float) sample_count_now / time_difference;
+
 			if ((byte_count_now == 0) && (hw_sync)) {
 				fprintf(stderr, "Waiting for trigger...\n");
 			} else if (!((byte_count_now == 0) && (flush_complete))) {
-				double full_scale_ratio = (double) stream_power_now /
-					(byte_count_now * 127 * 127);
-				double dB_full_scale = 10 * log10(full_scale_ratio) + 3.0;
+				/*fprintf(stderr,
+					"\ttime_difference:  %4.4f\n",
+					time_difference);
 				fprintf(stderr,
-					"%4.1f MB / %5.3f sec = %4.1f MB/second, average power %3.1f dBfs",
+					"\tbyte_count_now:   %ld\n",
+					byte_count_now);
+				fprintf(stderr,
+					"\tsample_count_now: %f MSa/s\n",
+					sample_count_now / 1e6);*/
+				//double full_scale_ratio = (double) stream_power_now / (byte_count_now * 127 * 127);
+				//double dB_full_scale = 10 * log10(full_scale_ratio) + 3.0;
+
+				double full_scale_ratio = calculate_full_scale_ratio(
+					stream_power_now,
+					sample_count_now,
+					config_mode,
+					radio_resample_rate);
+				double dB_full_scale = 10 * log10(full_scale_ratio) + 3.0;
+
+				fprintf(stderr,
+					"%4.1f MB / %5.3f sec = %4.1f MB/s (%4.2f MSa/s), average power %3.1f dBfs",
 					(byte_count_now / 1e6f),
 					time_difference,
-					(rate / 1e6f),
+					(transfer_rate / 1e6f),
+					(sample_rate / 1e6f),
 					dB_full_scale);
 				if (display_stats) {
 					bool tx = transmit || signalsource;
@@ -1711,6 +1906,24 @@ int main(int argc, char** argv)
 		}
 	}
 
+	gettimeofday(&t_end, NULL);
+	time_diff = TimevalDiff(&t_end, &t_start);
+	fprintf(stderr, "Total time:     %5.5f s\n", time_diff);
+
+	uint64_t sample_count_total = byte_count_total / bytes_per_sample(config_mode);
+
+	float transfer_rate_total = (float) byte_count_total / time_diff;
+	float sample_rate_total = (float) sample_count_total / time_diff;
+
+	fprintf(stderr,
+		"Total bytes:    %ld @ %.2f MB/s\n",
+		byte_count_total,
+		transfer_rate_total / 1e6f);
+	fprintf(stderr,
+		"Total samples:  %ld @ %.2f MSa/s\n",
+		sample_count_total,
+		sample_rate_total / 1e6f);
+
 	// Stop interval timer.
 #ifdef _WIN32
 	CancelWaitableTimer(timer_handle);
@@ -1728,10 +1941,6 @@ int main(int argc, char** argv)
 			hackrf_error_name(result),
 			result);
 	}
-
-	gettimeofday(&t_end, NULL);
-	time_diff = TimevalDiff(&t_end, &t_start);
-	fprintf(stderr, "Total time: %5.5f s\n", time_diff);
 
 	if (device != NULL) {
 		if (receive || receive_wav) {

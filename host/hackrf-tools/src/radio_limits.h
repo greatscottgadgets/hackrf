@@ -26,6 +26,7 @@
 #include <hackrf.h>
 
 typedef struct {
+	uint64_t init;
 	uint64_t min;
 	uint64_t max;
 	uint32_t step;
@@ -46,6 +47,7 @@ typedef struct {
 	radio_range_t bb_bandwidth_rx;
 	radio_range_t bb_bandwidth_tx;
 	radio_range_t sample_rate;
+	radio_range_t resample_rate;
 } radio_limits_t;
 
 int radio_limits(uint8_t board_id, enum radio_config_mode mode, radio_limits_t* values);

@@ -102,6 +102,12 @@ void fpga_set_rx_decimation_ratio(fpga_driver_t* const drv, const uint8_t value)
 	fpga_regs_commit(drv);
 }
 
+void fpga_set_rx_pstep(fpga_driver_t* const drv, const uint8_t value)
+{
+	set_FPGA_STANDARD_RX_PSTEP(drv, value);
+	fpga_regs_commit(drv);
+}
+
 void fpga_set_rx_quarter_shift_mode(
 	fpga_driver_t* const drv,
 	const fpga_quarter_shift_mode_t mode)

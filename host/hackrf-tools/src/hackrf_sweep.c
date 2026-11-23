@@ -799,7 +799,7 @@ int main(int argc, char** argv)
 	fprintf(stderr,
 		"call hackrf_sample_rate_set(%.03f MHz)\n",
 		((float) DEFAULT_SAMPLE_RATE_HZ / (float) FREQ_ONE_MHZ));
-	result = hackrf_radio_set_sample_rate(device, SR_FP(DEFAULT_SAMPLE_RATE_HZ));
+	result = hackrf_radio_set_sample_rate(device, SR_FP(DEFAULT_SAMPLE_RATE_HZ), 0);
 	if (result != HACKRF_SUCCESS) {
 		fprintf(stderr,
 			"hackrf_sample_rate_set() failed: %s (%d)\n",

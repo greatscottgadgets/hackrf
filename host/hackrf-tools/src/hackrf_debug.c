@@ -480,6 +480,11 @@ int radio_read_register(
 	const uint8_t bank,
 	const uint16_t register_number)
 {
+	double fp_to_double(uint64_t Qn, uint64_t input)
+	{
+		return (double) input / (1ULL << Qn);
+	}
+
 	uint64_t register_value;
 	int result = hackrf_radio_read_register(
 		device,
@@ -488,10 +493,33 @@ int radio_read_register(
 		&register_value);
 
 	if (result == HACKRF_SUCCESS) {
-		printf("bank %d register [%2d] -> 0x%016" PRIx64 "\n",
+		double value = 0;
+		switch (register_number) {
+		case 1:
+		case 2:
+		case 3:
+			value =
+				(register_value == 0xffffffffffffffff ?
+					 -1.0 :
+					 fp_to_double(24, register_value));
+			break;
+		case 5:
+		case 6:
+			value =
+				(register_value == 0xffffffffffffffff ?
+					 -1.0 :
+					 fp_to_double(36, register_value));
+			break;
+		default:
+			value =
+				(register_value == 0xffffffffffffffff ? -1.0 :
+									register_value);
+		}
+		printf("bank %d register [%2d] -> 0x%016" PRIx64 " (%f)\n",
 		       bank,
 		       register_number,
-		       register_value);
+		       register_value,
+		       value);
 	} else {
 		printf("hackrf_radio_read_register() failed: %s (%d)\n",
 		       hackrf_error_name(result),
