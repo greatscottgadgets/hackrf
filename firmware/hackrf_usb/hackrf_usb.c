@@ -64,11 +64,9 @@
 #endif
 #ifdef IS_PRALINE
 	#include <fpga.h>
-	#if !(defined(DFU_MODE) || defined(RAM_MODE))
-		#include <lz4_buf.h>
-		#include <spi_bus.h>
-		#include <w25q80bv.h>
-	#endif
+	#include <firmware_info.h>
+	#include <lz4_buf.h>
+	#include <w25q80bv.h>
 #endif
 
 #include "usb_api_adc.h"
@@ -271,26 +269,47 @@ static void m0_rom_to_ram(void)
 	memcpy(dest, (uint32_t*) (base + src), len);
 }
 
-#if defined(IS_PRALINE) && !(defined(DFU_MODE) || defined(RAM_MODE))
-extern uint32_t _binary_fpga_bin_start;
+#if defined(IS_PRALINE)
 
-void fpga_loader_setup(void)
-{
-	w25q80bv_setup(&spi_flash);
-}
-
-void fpga_loader_read(uint32_t addr, uint32_t size, uint8_t* buf)
-{
-	w25q80bv_read(&spi_flash, addr, size, buf);
-}
+bool fpga_loader_setup(void);
+bool fpga_loader_read(uint32_t addr, uint32_t size, uint8_t* buf);
 
 struct fpga_loader_t fpga_loader = {
-	.start_addr = (uint32_t) &_binary_fpga_bin_start,
+	.start_addr = 0,
 	.setup = fpga_loader_setup,
 	.read = fpga_loader_read,
 	.in_buffer = lz4_in_buf,
 	.out_buffer = lz4_out_buf,
 };
+
+bool fpga_loader_setup(void)
+{
+	w25q80bv_setup(&spi_flash);
+
+	/* Read firmware info from start of flash, after vector table */
+	struct firmware_info_t info;
+	w25q80bv_read(&spi_flash, 0x400, sizeof(info), (uint8_t*) &info);
+
+	/* Check for valid firmware info with bitstream address present. */
+	bool bitstream_found = !memcmp(info.magic, FIRMWARE_INFO_MAGIC, 8) &&
+		info.struct_version == 1 &&
+		!memcmp(info.more_magic, FIRMWARE_INFO_MORE_MAGIC, 8) &&
+		info.minor_version >= 1;
+
+	if (bitstream_found) {
+		fpga_loader.start_addr = info.bitstream_flash_addr;
+		return true;
+	} else {
+		return false;
+	}
+}
+
+bool fpga_loader_read(uint32_t addr, uint32_t size, uint8_t* buf)
+{
+	w25q80bv_read(&spi_flash, addr, size, buf);
+	return true;
+}
+
 #endif
 
 void radio_changed(const uint32_t changed)
@@ -446,7 +465,6 @@ int main(void)
 #ifdef IS_PRALINE
 	if (IS_PRALINE) {
 		enable_3v3aux_power();
-	#if !defined(DFU_MODE) && !defined(RAM_MODE)
 		enable_1v2_power();
 		enable_rf_power();
 		/*
@@ -454,7 +472,6 @@ int main(void)
 		 * which is enabled when 1V2FPGA is turned on.
 		 */
 		clock_gen_init();
-	#endif
 	}
 #endif
 #ifdef IS_NOT_PRALINE
@@ -508,12 +525,12 @@ int main(void)
 #endif
 #ifdef IS_PRALINE
 	if (IS_PRALINE) {
-	#if defined(DFU_MODE) || defined(RAM_MODE)
-		selftest.fpga_image_load = SKIPPED;
-		selftest.report.pass = false;
-	#else
-		fpga_image_load(&fpga_loader, 0);
-	#endif
+		if (fpga_image_load(&fpga_loader, 0)) {
+			selftest.fpga_image_load = PASSED;
+		} else {
+			selftest.fpga_image_load = FAILED;
+			selftest.report.pass = false;
+		}
 		delay_us(100);
 		fpga_spi_selftest();
 		fpga_sgpio_selftest();
