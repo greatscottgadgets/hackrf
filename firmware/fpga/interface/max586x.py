@@ -15,10 +15,11 @@ class MAX586xInterface(wiring.Component):
     dac_stream: In(stream.Signature(IQSample(8), always_ready=True))
     q_invert:   In(1)
 
-    def __init__(self, adc_domain, dac_domain):
+    def __init__(self, adc_domain, dac_domain, adc_xform=(lambda m,x: x)):
         super().__init__()
         self._adc_domain = adc_domain
         self._dac_domain = dac_domain
+        self.adc_xform = adc_xform
 
     def elaborate(self, platform):
         m = Module()
@@ -39,10 +40,11 @@ class MAX586xInterface(wiring.Component):
         ]
 
         # Capture the ADC signals using a DDR input buffer.
-        m.submodules.adc_in = adc_in = io.DDRBuffer("i", platform.request("da", dir="-"), i_domain=self._adc_domain)
+        m.submodules.adc_in = _adc_in = io.DDRBuffer("i", platform.request("da", dir="-"), i_domain=self._adc_domain)
+        adc_in = self.adc_xform(m, _adc_in.i)
         m.d.comb += [
-            adc_stream.p.i      .eq(adc_in.i[0] ^ 0x80),       # I: non-inverted between MAX2837 and MAX5864.
-            adc_stream.p.q      .eq(adc_in.i[1] ^ rx_q_mask),  # Q: inverted between MAX2837 and MAX5864.
+            adc_stream.p.i      .eq(adc_in[0] ^ 0x80),       # I: non-inverted between MAX2837 and MAX5864.
+            adc_stream.p.q      .eq(adc_in[1] ^ rx_q_mask),  # Q: inverted between MAX2837 and MAX5864.
         ]
 
         # Output to the DAC using a DDR output buffer.

@@ -5,7 +5,7 @@
 # Copyright (c) 2024 Great Scott Gadgets <info@greatscottgadgets.com>
 # SPDX-License-Identifier: BSD-3-Clause
 
-from amaranth               import Elaboratable, Module, DomainRenamer
+from amaranth               import Elaboratable, Module, DomainRenamer, Signal
 from amaranth.lib           import stream, wiring
 from amaranth.lib.wiring    import Out, In, connect
 
@@ -53,12 +53,23 @@ class Top(Elaboratable):
     def elaborate(self, platform):
         m = Module()
 
-        m.submodules.clkgen = ClockDomainGenerator()
+        m.submodules.clkgen = ClockDomainGenerator(adclk_delay=0)
         adc_clk = "adclk"
         dac_clk = "daclk"
 
+        def adc_sampling_fix(m, adc_in):
+            # Swaps I/Q components and delays I one cycle.
+            adc_out = Signal.like(adc_in)
+            delayed_i = Signal.like(adc_out[1])
+            m.d[adc_clk] += delayed_i.eq(adc_in[1])
+            m.d.comb += [
+                adc_out[0].eq(delayed_i),
+                adc_out[1].eq(adc_in[0]),
+            ]
+            return adc_out
+
         # Submodules.
-        m.submodules.adcdac_intf = adcdac_intf = MAX586xInterface(adc_domain=adc_clk, dac_domain=dac_clk)
+        m.submodules.adcdac_intf = adcdac_intf = MAX586xInterface(adc_domain=adc_clk, dac_domain=dac_clk, adc_xform=adc_sampling_fix)
         m.submodules.mcu_intf    = mcu_intf    = SGPIOInterface(sample_width=8, domain="sync")
 
         m.d.comb += adcdac_intf.q_invert.eq(platform.request("q_invert").i)
