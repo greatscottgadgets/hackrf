@@ -53,6 +53,7 @@ void radio_init(radio_t* const radio)
 			radio->config[bank][reg] = RADIO_UNSET;
 		}
 	}
+	radio->config_mode = RADIO_CONFIG_STANDARD;
 	radio->config[RADIO_BANK_APPLIED][RADIO_OPMODE] = TRANSCEIVER_MODE_OFF;
 	radio->config[RADIO_BANK_REQUESTED][RADIO_OPMODE] = TRANSCEIVER_MODE_OFF;
 	radio->config[RADIO_BANK_IDLE][RADIO_OPMODE] = TRANSCEIVER_MODE_OFF;
@@ -60,11 +61,17 @@ void radio_init(radio_t* const radio)
 	radio->config[RADIO_BANK_TX][RADIO_OPMODE] = TRANSCEIVER_MODE_TX;
 	radio->config[RADIO_BANK_IDLE][RADIO_BIAS_TEE] = false;
 	radio->regs_dirty = 0;
+	radio->regs_locked = 0;
 }
 
 static inline void mark_dirty(radio_t* const radio, radio_register_t reg)
 {
 	radio->regs_dirty |= (1 << reg);
+}
+
+static inline bool check_locked(radio_t* const radio, radio_register_t reg)
+{
+	return radio->regs_locked & (1 << reg);
 }
 
 radio_error_t radio_reg_write(
@@ -75,6 +82,10 @@ radio_error_t radio_reg_write(
 {
 	if (reg > RADIO_NUM_REGS) {
 		return RADIO_ERR_INVALID_REGISTER;
+	}
+
+	if (check_locked(radio, reg)) {
+		return RADIO_ERR_LOCKED_REGISTER;
 	}
 
 	switch (bank) {
@@ -105,6 +116,20 @@ uint64_t radio_reg_read(
 	const radio_register_t reg)
 {
 	return radio->config[bank][reg];
+}
+
+radio_error_t radio_reg_lock(
+	radio_t* const radio,
+	const radio_register_t reg,
+	const bool locked)
+{
+	if (reg > RADIO_NUM_REGS) {
+		return RADIO_ERR_INVALID_REGISTER;
+	}
+
+	radio->regs_locked = (radio->regs_locked & ~(1 << reg)) | (locked << reg);
+
+	return RADIO_OK;
 }
 
 static uint32_t radio_update_direction(radio_t* const radio, uint64_t* bank)
@@ -207,41 +232,81 @@ static uint64_t set_afe_rate(uint64_t afe_rate, uint64_t correction, bool apply)
 #define MAX_SUPPORTED_AFE_RATE SR_FP_KHZ(40000)
 
 static inline uint8_t compute_resample_log(
+	const radio_config_mode_t config_mode,
 	const fp_28_36_t sample_rate,
 	const uint64_t requested_n)
 {
-	if (detected_platform() != BOARD_ID_PRALINE) {
-		return 0;
-	}
-	uint8_t n = 0; // resampling ratio is 2**n
-	const uint8_t max_n = 5;
-	fp_28_36_t afe_rate = 0;
+#ifdef IS_PRALINE
+	if (IS_PRALINE) {
+		// afe_rate multiplier is 2**n. On the standard and extended
+		// precision gateware this is also equivalent to the resampling
+		// ratio. On the half-precision gateware it only serves as the
+		// afe_rate multiplier as we sample at the full afe_rate without
+		// any subsequent sample-rate conversion taking place.
+		uint8_t n = 0;
+		uint8_t max_n = 0;
+		fp_28_36_t afe_rate = 0;
 
-	if (requested_n == RADIO_UNSET) {
-		/* Find highest supported resampling ratio of at least 2 (n=1). */
-		while (((afe_rate * 2) <= MAX_SUPPORTED_AFE_RATE) && (n < max_n)) {
-			n++;
+		switch (config_mode) {
+		case RADIO_CONFIG_EXT_PRECISION_RX:
+		case RADIO_CONFIG_EXT_PRECISION_TX:
+			max_n = 7;
+			break;
+		case RADIO_CONFIG_HALF_PRECISION:
+			max_n = 0;
+			break;
+		case RADIO_CONFIG_STANDARD:
+		default:
+			max_n = 5;
+			break;
+		}
+
+		if (requested_n == RADIO_UNSET) {
+			/* Find highest supported resampling ratio of at least 2 (n=1). */
+			while (((afe_rate * 2) <= MAX_SUPPORTED_AFE_RATE) &&
+			       (n < max_n)) {
+				n++;
+				afe_rate = sample_rate << n;
+			}
+		} else {
+			/* Restrict requested resampling ratio within allowable limits. */
+			n = MIN(max_n, requested_n);
 			afe_rate = sample_rate << n;
+			while ((afe_rate < ABSOLUTE_MIN_AFE_RATE) && (n < max_n)) {
+				n++;
+				afe_rate <<= 1;
+			}
+			while ((afe_rate > ABSOLUTE_MAX_AFE_RATE) && (n > 0)) {
+				n--;
+				afe_rate >>= 1;
+			}
 		}
-	} else {
-		/* Restrict requested resampling ratio within allowable limits. */
-		n = MIN(max_n, requested_n);
-		afe_rate = sample_rate << n;
-		while ((afe_rate < ABSOLUTE_MIN_AFE_RATE) && (n < max_n)) {
-			n++;
-			afe_rate <<= 1;
-		}
-		while ((afe_rate > ABSOLUTE_MAX_AFE_RATE) && (n > 0)) {
-			n--;
-			afe_rate >>= 1;
-		}
+		return n;
 	}
-	return n;
+#endif
+	(void) config_mode;
+	(void) sample_rate;
+	(void) requested_n;
+	return 0;
 }
 
 #define MIN_MCU_RATE     SR_FP_KHZ(200)
 #define MAX_MCU_RATE     SR_FP_KHZ(21800)
 #define DEFAULT_MCU_RATE SR_FP_KHZ(10000)
+
+// TODO do we need this for min and default too?
+static uint64_t max_mcu_rate(radio_t* radio)
+{
+#ifdef IS_PRALINE
+	if (radio->config_mode == RADIO_CONFIG_HALF_PRECISION) {
+		return MAX_MCU_RATE * 2;
+	} else {
+		return MAX_MCU_RATE;
+	}
+#endif
+	(void) radio;
+	return MAX_MCU_RATE;
+}
 
 static uint32_t radio_update_sample_rate(radio_t* const radio, uint64_t* bank)
 {
@@ -257,8 +322,12 @@ static uint32_t radio_update_sample_rate(radio_t* const radio, uint64_t* bank)
 
 	uint64_t correction = restrict_correction(requested_correction);
 
+	// TODO these depend on the bitstream
+	// TODO we really shouldn't be conflating fucking clock rates and sample rates
+	// TODO this needs to be developed into a general solution
+	// TODO we may even need a radio_limits for the firmware to be honest
 	if (requested_rate != RADIO_UNSET) {
-		rate = MIN(requested_rate, MAX_MCU_RATE);
+		rate = MIN(requested_rate, max_mcu_rate(radio));
 		rate = MAX(rate, MIN_MCU_RATE);
 	} else {
 		rate = radio->config[RADIO_BANK_APPLIED][RADIO_SAMPLE_RATE];
@@ -284,7 +353,7 @@ static uint32_t radio_update_sample_rate(radio_t* const radio, uint64_t* bank)
 	case TRANSCEIVER_MODE_TX:
 	case TRANSCEIVER_MODE_SS:
 		requested_n = bank[RADIO_RESAMPLE_TX];
-		n = compute_resample_log(rate, requested_n);
+		n = compute_resample_log(radio->config_mode, rate, requested_n);
 		if (n != radio->config[RADIO_BANK_APPLIED][RADIO_RESAMPLE_TX]) {
 #ifdef IS_PRALINE
 			if (IS_PRALINE) {
@@ -296,7 +365,7 @@ static uint32_t radio_update_sample_rate(radio_t* const radio, uint64_t* bank)
 		break;
 	default:
 		requested_n = bank[RADIO_RESAMPLE_RX];
-		n = compute_resample_log(rate, requested_n);
+		n = compute_resample_log(radio->config_mode, rate, requested_n);
 		if (n != radio->config[RADIO_BANK_APPLIED][RADIO_RESAMPLE_RX]) {
 #ifdef IS_PRALINE
 			if (IS_PRALINE) {
@@ -307,8 +376,8 @@ static uint32_t radio_update_sample_rate(radio_t* const radio, uint64_t* bank)
 		}
 	}
 	new_n = (n != previous_n);
-
 	afe_rate = rate << n;
+	radio->config[RADIO_BANK_REQUESTED][RADIO_AFE_RATE] = afe_rate;
 	afe_rate = set_afe_rate(afe_rate, correction, false);
 	previous_rate = radio->config[RADIO_BANK_APPLIED][RADIO_SAMPLE_RATE];
 	if ((previous_n == RADIO_UNSET) || previous_rate == RADIO_UNSET) {
@@ -320,6 +389,7 @@ static uint32_t radio_update_sample_rate(radio_t* const radio, uint64_t* bank)
 	if (new_afe_rate) {
 		afe_rate = set_afe_rate(afe_rate, correction, true);
 	}
+	radio->config[RADIO_BANK_APPLIED][RADIO_AFE_RATE] = afe_rate;
 
 	rate = afe_rate >> n;
 	new_rate = (rate != previous_rate);
@@ -430,6 +500,7 @@ static const tune_config_t* select_tune_config(uint64_t opmode, fp_40_24_t freq_
 		}
 		tune_config++;
 	}
+
 	return tune_config;
 }
 #endif
@@ -526,7 +597,10 @@ static uint32_t radio_update_frequency(radio_t* const radio, uint64_t* bank)
 		if (IS_PRALINE) {
 			const tune_config_t* tune_config =
 				select_tune_config(opmode, freq_rf);
-			if (requested_rotation == RADIO_UNSET) {
+			if (radio->config_mode == RADIO_CONFIG_HALF_PRECISION) {
+				// RADIO_CONFIG_HALF_PRECISION does not implement quarter shift.
+				rotation = 0;
+			} else if (requested_rotation == RADIO_UNSET) {
 				rotation = (uint64_t) (tune_config->shift) << 30;
 			}
 			analog_rf =
@@ -608,7 +682,10 @@ static uint32_t radio_update_frequency(radio_t* const radio, uint64_t* bank)
 	if ((rotation != applied_rotation) && (rotation != RADIO_UNSET)) {
 #ifdef IS_PRALINE
 		if (IS_PRALINE) {
-			fpga_set_rx_quarter_shift_mode(&fpga, rotation >> 30);
+			if (radio->config_mode != RADIO_CONFIG_HALF_PRECISION) {
+				fpga_set_rx_quarter_shift_mode(&fpga, rotation >> 30);
+				//fpga_set_rx_pstep(&fpga, 0xc0);
+			}
 		}
 #endif
 		radio->config[RADIO_BANK_APPLIED][RADIO_ROTATION] = rotation;
@@ -1009,4 +1086,130 @@ void radio_switch_opmode(radio_t* const radio, const transceiver_mode_t mode)
 	mark_dirty(radio, RADIO_OPMODE);
 	nvic_enable_irq(NVIC_USB0_IRQ);
 	radio_update(radio);
+}
+
+bool radio_set_config_mode(radio_t* const radio, const radio_config_mode_t mode)
+{
+	// Check if the requested mode is supported.
+	switch (mode) {
+	case RADIO_CONFIG_STANDARD:
+		// supported on all boards
+		break;
+#ifdef IS_PRALINE
+	case RADIO_CONFIG_HALF_PRECISION:
+	case RADIO_CONFIG_EXT_PRECISION_RX:
+	case RADIO_CONFIG_EXT_PRECISION_TX:
+		// only supported on praline
+		if (!IS_PRALINE) {
+			return false;
+		}
+		break;
+#endif
+	default:
+		return false;
+	}
+
+	// Don't do anything if we're already in the requested mode.
+	if (mode == radio->config_mode) {
+		return true;
+	}
+
+#if defined(IS_PRALINE) && !(defined(DFU_MODE) || defined(RAM_MODE))
+	if (IS_PRALINE) {
+		fpga_bitstream_index_t bitstream_index;
+		switch (mode) {
+		case RADIO_CONFIG_STANDARD:
+			bitstream_index = FPGA_BITSTREAM_STANDARD;
+			break;
+		case RADIO_CONFIG_HALF_PRECISION:
+			bitstream_index = FPGA_BITSTREAM_HALFPREC;
+			break;
+		case RADIO_CONFIG_EXT_PRECISION_RX:
+			bitstream_index = FPGA_BITSTREAM_EXTPREC_RX;
+			break;
+		case RADIO_CONFIG_EXT_PRECISION_TX:
+			bitstream_index = FPGA_BITSTREAM_EXTPREC_TX;
+			break;
+		default:
+			return false;
+		}
+
+		// Reset radio state.
+		for (uint8_t reg = 0; reg < RADIO_NUM_REGS; reg++) {
+			radio_reg_write(radio, RADIO_BANK_APPLIED, reg, RADIO_UNSET);
+			radio_reg_write(radio, RADIO_BANK_REQUESTED, reg, RADIO_UNSET);
+		}
+
+		// Load bitstream.
+		extern struct fpga_loader_t fpga_loader;
+		if (!fpga_image_load(&fpga_loader, bitstream_index)) {
+			return false;
+		}
+	}
+#endif
+
+	// Update radio config mode.
+	radio->config_mode = mode;
+
+	return true;
+}
+
+bool radio_supports_opmode(radio_t* const radio, transceiver_mode_t opmode)
+{
+#ifndef IS_PRALINE
+	(void) opmode;
+#endif
+
+	switch (radio->config_mode) {
+	case RADIO_CONFIG_STANDARD:
+		// Standard config supports all operating modes.
+		return true;
+#ifdef IS_PRALINE
+	case RADIO_CONFIG_EXT_PRECISION_RX:
+		return (opmode == TRANSCEIVER_MODE_OFF) ||
+			(opmode == TRANSCEIVER_MODE_RX) ||
+			(opmode == TRANSCEIVER_MODE_RX_SWEEP);
+	case RADIO_CONFIG_EXT_PRECISION_TX:
+		return (opmode == TRANSCEIVER_MODE_OFF) ||
+			(opmode == TRANSCEIVER_MODE_TX) ||
+			(opmode == TRANSCEIVER_MODE_SS);
+	case RADIO_CONFIG_HALF_PRECISION:
+		// Half-precision config supports all operating modes.
+		return true;
+#endif
+	default:
+		return false;
+	}
+}
+
+bool radio_supports_register(radio_t* const radio, radio_register_t reg)
+{
+	uint64_t unsupported = 0;
+
+	switch (radio->config_mode) {
+	case RADIO_CONFIG_STANDARD:
+		// Standard config supports all registers, for now.
+		return true;
+#ifdef IS_PRALINE
+	case RADIO_CONFIG_EXT_PRECISION_RX:
+		unsupported = (1 << RADIO_RESAMPLE_TX) | (1 << RADIO_GAIN_TX_RF) |
+			(1 << RADIO_GAIN_TX_IF) | (1 << RADIO_BB_BANDWIDTH_TX) |
+			(1 << RADIO_XCVR_TX_LPF);
+		break;
+	case RADIO_CONFIG_EXT_PRECISION_TX:
+		unsupported = (1 << RADIO_ROTATION) | (1 << RADIO_RESAMPLE_RX) |
+			(1 << RADIO_GAIN_RX_RF) | (1 << RADIO_GAIN_RX_IF) |
+			(1 << RADIO_GAIN_RX_BB) | (1 << RADIO_BB_BANDWIDTH_RX) |
+			(1 << RADIO_XCVR_RX_LPF) | (1 << RADIO_XCVR_RX_HPF) |
+			(1 << RADIO_RX_NARROW_LPF);
+		break;
+	case RADIO_CONFIG_HALF_PRECISION:
+		// Half-precision config supports all registers, for now.
+		return true;
+#endif
+	default:
+		return false;
+	}
+
+	return ((1 << reg) & unsupported) == 0;
 }
