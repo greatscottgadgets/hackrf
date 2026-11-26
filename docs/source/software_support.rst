@@ -21,6 +21,14 @@ Software That Has Direct Support For HackRF
 
     * `https://github.com/xmikos/qspectrumanalyzer <https://github.com/xmikos/qspectrumanalyzer>`__
 
+* RfScout (Windows)
+
+    * Receive-only spectrum scanner for HackRF One with a live waterfall,
+      peak tracking, and signal analysis.
+    * Requires the WinUSB driver.
+    * `Source code <https://github.com/matsura8/RfScout>`__
+    * `Microsoft Store <https://apps.microsoft.com/detail/9NL7XPZB5543>`__
+
 * SDR# 
 
     * `https://airspy.com/download/ <https://airspy.com/download/>`__
